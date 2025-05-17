@@ -1,64 +1,17 @@
-# Tauri 2.0 + Next.js 15 App Router Template
-
-![Tauri window screenshot](public/tauri-nextjs-template-2_screenshot.png)
-
-This is a [Tauri](https://v2.tauri.app/) project template using [Next.js](https://nextjs.org/),
-bootstrapped by combining [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)
-and [`create tauri-app`](https://v2.tauri.app/start/create-project/).
-
-This template uses [`pnpm`](https://pnpm.io/) as the Node.js dependency
-manager, and uses the [App Router](https://nextjs.org/docs/app) model for Next.js.
-
-## Template Features
-
-- TypeScript frontend using [Next.js 15](https://nextjs.org/) React framework
-- [TailwindCSS 4](https://tailwindcss.com/) as a utility-first atomic CSS framework
-  - The example page in this template app has been updated to use only TailwindCSS
-  - While not included by default, consider using
-    [React Aria components](https://react-spectrum.adobe.com/react-aria/index.html)
-    and/or [HeadlessUI components](https://headlessui.com/) for completely unstyled and
-    fully accessible UI components, which integrate nicely with TailwindCSS
-- Opinionated formatting and linting already setup and enabled
-  - [Biome](https://biomejs.dev/) for a combination of fast formatting, linting, and
-    import sorting of TypeScript code, and [ESLint](https://eslint.org/) for any missing
-    Next.js linter rules not covered by Biome
-  - [clippy](https://github.com/rust-lang/rust-clippy) and
-    [rustfmt](https://github.com/rust-lang/rustfmt) for Rust code
-- GitHub Actions to check code formatting and linting for both TypeScript and Rust
+# Timeine Tauri app
 
 ## Getting Started
 
 ### Running development server and use Tauri window
 
-After cloning for the first time, change your app identifier inside
-`src-tauri/tauri.conf.json` to your own:
-
-```jsonc
-{
-  // ...
-  // The default "com.tauri.dev" will prevent you from building in release mode
-  "identifier": "com.my-application-name.app",
-  // ...
-}
-```
-
-To develop and run the frontend in a Tauri window:
-
 ```shell
-pnpm tauri dev
+bun tauri dev
 ```
-
-This will load the Next.js frontend directly in a Tauri webview window, in addition to
-starting a development server on `localhost:3000`.
-Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd> in a Chromium based WebView (e.g. on
-Windows) to open the web developer console from the Tauri window.
 
 ### Building for release
 
-To export the Next.js frontend via SSG and build the Tauri application for release:
-
 ```shell
-pnpm tauri build
+bun tauri build
 ```
 
 ### Source structure

@@ -11,7 +11,7 @@ on:
       - "src/**"
       - "package.json"
       - "package-lock.json"
-      - "yarn.lock"
+      - "bun.lock"
       - "pnpm-lock.yaml"
       - "README.md"
 
