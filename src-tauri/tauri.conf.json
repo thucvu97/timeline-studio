@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Timeline",
+  "productName": "Timeline Studio",
   "version": "0.0.1",
   "identifier": "com.timeline.dev",
   "build": {
@@ -12,11 +12,15 @@
   "app": {
     "windows": [
       {
-        "title": "Timeline",
-        "width": 800,
-        "height": 600,
+        "title": "Timeline Studio",
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "minWidth": 800,
+        "minHeight": 600,
+        "center": true,
+        "decorations": true,
+        "maximized": true,
+        "visible": true
       }
     ],
     "security": {

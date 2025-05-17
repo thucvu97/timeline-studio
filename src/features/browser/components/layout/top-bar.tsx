@@ -41,7 +41,7 @@ export function TopBar({
   }
 
   return (
-    <div className="relative flex w-full items-center justify-between border border-b bg-gray-200 px-1 py-0 dark:bg-[#1b1a1f]">
+    <div className="relative flex w-full items-center justify-between bg-gray-200 px-1 py-0 dark:bg-[#3c3c3c]">
       <div className="flex h-6 items-center">
         <BrowserToggle />
         <Popover>
@@ -188,7 +188,7 @@ export function TopBar({
         <Button
           variant="outline"
           size="sm"
-          className="h-6 w-24 cursor-pointer items-center gap-1 border-none bg-[#38dacac3] px-1 text-sm text-black hover:bg-[#35d1c1] hover:text-black dark:bg-[#35d1c1] dark:hover:bg-[#35d1c1]"
+          className="h-6 w-24 cursor-pointer items-center gap-1 border-none rounded-sm bg-[#38dacac3] px-1 text-sm text-black hover:bg-[#35d1c1] hover:text-black dark:bg-[#35d1c1] dark:hover:bg-[#35d1c1]"
           // onClick={handleExport}
         >
           <span className="px-2 text-xs">{t("topBar.export")}</span>
