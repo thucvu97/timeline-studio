@@ -77,7 +77,7 @@
       "sunday": "Sunday"
     }
   },
-  "topNavBar": {
+  "topBar": {
     "layout": "Layout",
     "keyboardShortcuts": "Keyboard Shortcuts",
     "projectSettings": "Project Settings",
@@ -99,7 +99,7 @@
     }
   },
   "ui": {
-    "topNavBar": {
+    "topBar": {
       "layout": "Layout",
       "keyboardShortcuts": "Keyboard Shortcuts",
       "projectSettings": "Project Settings",

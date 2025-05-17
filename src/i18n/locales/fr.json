@@ -76,7 +76,7 @@
       "sunday": "Dimanche"
     }
   },
-  "topNavBar": {
+  "topBar": {
     "layout": "Disposition",
     "keyboardShortcuts": "Raccourcis clavier",
     "projectSettings": "Paramètres du projet",
@@ -98,7 +98,7 @@
     }
   },
   "ui": {
-    "topNavBar": {
+    "topBar": {
       "layout": "Disposition",
       "keyboardShortcuts": "Raccourcis clavier",
       "projectSettings": "Paramètres du projet",

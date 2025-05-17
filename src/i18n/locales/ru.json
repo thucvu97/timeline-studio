@@ -77,7 +77,7 @@
       "sunday": "Воскресенье"
     }
   },
-  "topNavBar": {
+  "topBar": {
     "layout": "Макет",
     "keyboardShortcuts": "Быстрые клавиши",
     "projectSettings": "Настройки проекта",
@@ -99,7 +99,7 @@
     }
   },
   "ui": {
-    "topNavBar": {
+    "topBar": {
       "layout": "Макет",
       "keyboardShortcuts": "Быстрые клавиши",
       "projectSettings": "Настройки проекта",

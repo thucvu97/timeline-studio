@@ -50,7 +50,7 @@ export function DefaultLayout({ isActive, onClick }: LayoutProps) {
         </div>
       </div>
       <span className="text-[10px] font-medium">
-        {t("topNavBar.layouts.default")}
+        {t("topBar.layouts.default")}
       </span>
     </div>
   )
@@ -107,7 +107,7 @@ export function OptionsLayout({ isActive, onClick }: LayoutProps) {
         </div>
       </div>
       <span className="text-[10px] font-medium">
-        {t("topNavBar.layouts.options")}
+        {t("topBar.layouts.options")}
       </span>
     </div>
   )
@@ -163,7 +163,7 @@ export function VerticalLayout({ isActive, onClick }: LayoutProps) {
         </div>
       </div>
       <span className="text-[10px] font-medium">
-        {t("topNavBar.layouts.vertical")}
+        {t("topBar.layouts.vertical")}
       </span>
     </div>
   )
@@ -187,8 +187,8 @@ export function DualLayout({
       onClick={onClick}
       title={
         hasExternalDisplay
-          ? t("topNavBar.layouts.dual")
-          : t("topNavBar.layouts.externalDisplayRequired")
+          ? t("topBar.layouts.dual")
+          : t("topBar.layouts.externalDisplayRequired")
       }
     >
       <div className="bg-background relative mb-1 flex h-24 w-40 items-center justify-center">
@@ -215,11 +215,11 @@ export function DualLayout({
         </div>
       </div>
       <span className="text-[10px] font-medium">
-        {t("topNavBar.layouts.dual")}
+        {t("topBar.layouts.dual")}
       </span>
       {!hasExternalDisplay && (
         <span className="text-muted-foreground text-[9px]">
-          {t("topNavBar.layouts.externalDisplayRequired")}
+          {t("topBar.layouts.externalDisplayRequired")}
         </span>
       )}
     </div>

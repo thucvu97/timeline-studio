@@ -76,7 +76,7 @@
       "sunday": "Domingo"
     }
   },
-  "topNavBar": {
+  "topBar": {
     "layout": "Diseño",
     "keyboardShortcuts": "Atajos de teclado",
     "projectSettings": "Configuración del proyecto",
@@ -98,7 +98,7 @@
     }
   },
   "ui": {
-    "topNavBar": {
+    "topBar": {
       "layout": "Diseño",
       "keyboardShortcuts": "Atajos de teclado",
       "projectSettings": "Configuración del proyecto",
