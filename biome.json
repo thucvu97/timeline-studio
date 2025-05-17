@@ -24,6 +24,10 @@
       "correctness": {
         "useHookAtTopLevel": "error"
       },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noConfusingVoidType": "off"
+      },
       "nursery": {
         "useGoogleFontDisplay": "error",
         "noDocumentImportInPage": "error",
@@ -46,7 +50,8 @@
   },
   "javascript": {
     "formatter": {
-      "quoteStyle": "double"
+      "quoteStyle": "double",
+      "semicolons": "asNeeded"
     },
     "globals": []
   }
