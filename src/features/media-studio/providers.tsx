@@ -1,8 +1,10 @@
 "use client"
 
 import { ReactNode } from "react"
-import { BrowserVisibilityProvider } from "../layouts/providers/browser-visibility-provider"
+
 import { I18nProvider } from "@/i18n/i18n-provider"
+
+import { BrowserVisibilityProvider } from "../layouts/providers/browser-visibility-provider"
 
 interface ProvidersProps {
   children: ReactNode

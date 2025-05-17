@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 import {
   ResizableHandle,
   ResizablePanel,
@@ -7,7 +9,6 @@ import { Browser } from "@/features/browser/components/browser"
 import { Options } from "@/features/options/components/options"
 import { Timeline } from "@/features/timeline/components/timeline"
 import { VideoPlayer } from "@/features/video-player/components/video-player"
-import { useState } from "react"
 
 export function DualMediaEditor() {
   const [isBrowserVisible, setIsBrowserVisible] = useState(true)

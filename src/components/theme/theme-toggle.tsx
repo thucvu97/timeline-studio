@@ -1,9 +1,11 @@
 "use client"
 
-import { Moon, Sun } from "lucide-react"
 import { useEffect, useState } from "react"
 
+import { Moon, Sun } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
+
 import { useTheme } from "./theme-context"
 
 export function ThemeToggle() {

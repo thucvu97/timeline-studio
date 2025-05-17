@@ -7,7 +7,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "biome check src/ && next lint",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint --fix 'src/**/*.{ts,tsx}'",
+    "format:imports": "eslint --fix 'src/**/*.{ts,tsx}' --rule 'import/order: warn'",
     "tauri": "tauri"
   },
   "dependencies": {
@@ -61,6 +63,7 @@
     "@xstate/graph": "^3.0.3",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "tailwindcss": "^4.1.7",
     "tw-animate-css": "^1.3.0",

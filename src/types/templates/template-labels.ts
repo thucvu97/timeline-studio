@@ -1,5 +1,6 @@
-import i18n from "@/i18n"
 import { useTranslation } from "react-i18next"
+
+import i18n from "@/i18n"
 
 export interface TemplateDescription {
   id: string

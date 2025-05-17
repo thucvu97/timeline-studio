@@ -11,6 +11,8 @@ const eslintConfig = tseslint.config(
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   ...compat.extends("next/core-web-vitals"),
+  ...compat.extends("plugin:import/recommended"),
+  ...compat.extends("plugin:import/typescript"),
   {
     // Disabled rules taken from https://biomejs.dev/linter/rules-sources for ones that
     // are already handled by Biome
@@ -112,6 +114,49 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/prefer-namespace-keyword": "off",
       "@typescript-eslint/prefer-optional-chain": "off",
       "@typescript-eslint/require-await": "off",
+      // Настройка правил для сортировки импортов
+      "import/order": ["warn", {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          ["parent", "sibling"],
+          "index",
+          "object",
+          "type"
+        ],
+        "pathGroups": [
+          {
+            "pattern": "react",
+            "group": "builtin",
+            "position": "before"
+          },
+          {
+            "pattern": "@/**",
+            "group": "internal",
+            "position": "after"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["react"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }],
+      "sort-imports": ["warn", {
+        "ignoreDeclarationSort": true,
+        "ignoreMemberSort": false
+      }],
+      "import/first": "warn",
+      "import/newline-after-import": "warn",
+      "import/no-duplicates": "warn",
+      "@typescript-eslint/consistent-type-imports": "off",
+      // Отключаем правило для стрелочных функций
+      "prefer-arrow-callback": "off",
+      "arrow-body-style": "off",
+      // Включаем правило для проверки зависимостей хуков
+      "react-hooks/exhaustive-deps": "warn",
       // Custom rules
       "@typescript-eslint/restrict-template-expressions": [
         "error",

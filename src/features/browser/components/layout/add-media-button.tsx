@@ -1,5 +1,6 @@
-import { Check, Plus, X } from "lucide-react"
 import { memo, useEffect, useRef, useState } from "react"
+
+import { Check, Plus, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
@@ -103,6 +104,8 @@ export const AddMediaButton = memo(function AddMediaButton({
 
       return () => clearTimeout(timer)
     }
+  // Зависимость isAdded не добавлена намеренно, чтобы эффект выполнялся только при монтировании
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (!onAddMedia) return null

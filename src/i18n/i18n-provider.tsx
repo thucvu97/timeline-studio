@@ -1,7 +1,9 @@
 "use client"
 
 import { ReactNode, useEffect, useState } from "react"
+
 import { I18nextProvider } from "react-i18next"
+
 import i18n from "./index"
 
 interface I18nProviderProps {

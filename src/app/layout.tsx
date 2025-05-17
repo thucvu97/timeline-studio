@@ -1,9 +1,11 @@
 "use client"
 
+import React from "react"
+
 import { Geist, Geist_Mono } from "next/font/google"
+
 import "@/styles/globals.css"
 import { ThemeProvider } from "@/components/theme/theme-context"
-import React from "react"
 import { Providers } from "@/features/media-studio/providers"
 
 const geistSans = Geist({

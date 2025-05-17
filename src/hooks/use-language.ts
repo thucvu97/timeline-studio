@@ -1,5 +1,6 @@
-import { invoke } from "@tauri-apps/api/core"
 import { useCallback, useEffect, useState } from "react"
+
+import { invoke } from "@tauri-apps/api/core"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -7,6 +8,7 @@ import {
   LanguageCode,
   isSupportedLanguage,
 } from "@/i18n/constants"
+
 
 interface LanguageResponse {
   language: string
@@ -95,9 +97,9 @@ export function useLanguage() {
     [i18n],
   )
 
-  // Инициализация при монтировании компонента
   useEffect(() => {
     void fetchLanguage()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return {

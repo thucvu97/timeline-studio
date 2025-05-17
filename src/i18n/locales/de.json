@@ -499,6 +499,27 @@
     }
   },
   "timeline": {
+    "resources": {
+      "title": "Ressourcen",
+      "all": "Alle",
+      "effects": "Effekte",
+      "filters": "Filter",
+      "transitions": "Übergänge",
+      "templates": "Vorlagen",
+      "music": "Musik",
+      "noResources": "Keine Ressourcen hinzugefügt"
+    },
+    "chat": {
+      "title": "Chat",
+      "selectAgent": "Modell",
+      "messagePlaceholder": "Geben Sie Ihre Nachricht hier ein...",
+      "noMessages": "Keine Nachrichten. Starten Sie eine Konversation.",
+      "savingProgress": "Speicherfortschritt",
+      "saveSuccess": "Video erfolgreich gespeichert!",
+      "send": "Senden",
+      "stop": "Stoppen",
+      "processing": "Verarbeitung..."
+    },
     "title": "Timeline",
     "noTracks": "Keine Spuren",
     "addTrack": "Spur hinzufügen",
@@ -841,33 +862,6 @@
       "objectDetectionDescription": "Aktivieren Sie KI-gestützte Objekterkennung in Screenshots.",
       "confidenceThreshold": "Vertrauensschwelle",
       "confidenceThresholdDescription": "Mindestwert für die Zuverlässigkeit erkannter Objekte. Höhere Werte reduzieren Falschmeldungen."
-    }
-  },
-  "timeline": {
-    "resources": {
-      "title": "Ressourcen",
-      "all": "Alle",
-      "effects": "Effekte",
-      "filters": "Filter",
-      "transitions": "Übergänge",
-      "templates": "Vorlagen",
-      "music": "Musik",
-      "noResources": "Keine Ressourcen hinzugefügt"
-    },
-    "chat": {
-      "title": "Chat",
-      "selectAgent": "Modell",
-      "messagePlaceholder": "Geben Sie Ihre Nachricht hier ein...",
-      "noMessages": "Keine Nachrichten. Starten Sie eine Konversation.",
-      "savingProgress": "Speicherfortschritt",
-      "saveSuccess": "Video erfolgreich gespeichert!",
-      "send": "Senden",
-      "stop": "Stoppen",
-      "processing": "Verarbeitung..."
-    },
-    "source": {
-      "timeline": "Timeline",
-      "browser": "Browser"
     }
   },
   "templates": {

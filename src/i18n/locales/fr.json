@@ -569,6 +569,31 @@
     }
   },
   "timeline": {
+    "resources": {
+      "title": "Ressources",
+      "all": "Tous",
+      "effects": "Effets",
+      "filters": "Filtres",
+      "transitions": "Transitions",
+      "templates": "Modèles",
+      "music": "Musique",
+      "noResources": "Aucune ressource ajoutée"
+    },
+    "chat": {
+      "title": "Chat",
+      "selectAgent": "Modèle",
+      "messagePlaceholder": "Tapez votre message ici...",
+      "noMessages": "Pas de messages. Commencez une conversation.",
+      "savingProgress": "Progression de l'enregistrement",
+      "saveSuccess": "Vidéo enregistrée avec succès !",
+      "send": "Envoyer",
+      "stop": "Arrêter",
+      "processing": "Traitement..."
+    },
+    "source": {
+      "timeline": "Timeline",
+      "browser": "Navigateur"
+    },
     "title": "Timeline",
     "noTracks": "Pas de pistes",
     "addTrack": "Ajouter une piste",
@@ -986,33 +1011,6 @@
       "objectDetectionDescription": "Activer la détection d'objets par IA dans les captures d'écran.",
       "confidenceThreshold": "Seuil de confiance",
       "confidenceThresholdDescription": "Niveau de confiance minimum pour les objets détectés. Des valeurs plus élevées réduisent les faux positifs."
-    }
-  },
-  "timeline": {
-    "resources": {
-      "title": "Ressources",
-      "all": "Tous",
-      "effects": "Effets",
-      "filters": "Filtres",
-      "transitions": "Transitions",
-      "templates": "Modèles",
-      "music": "Musique",
-      "noResources": "Aucune ressource ajoutée"
-    },
-    "chat": {
-      "title": "Chat",
-      "selectAgent": "Modèle",
-      "messagePlaceholder": "Tapez votre message ici...",
-      "noMessages": "Pas de messages. Commencez une conversation.",
-      "savingProgress": "Progression de l'enregistrement",
-      "saveSuccess": "Vidéo enregistrée avec succès !",
-      "send": "Envoyer",
-      "stop": "Arrêter",
-      "processing": "Traitement..."
-    },
-    "source": {
-      "timeline": "Timeline",
-      "browser": "Navigateur"
     }
   }
 }

@@ -1,4 +1,5 @@
 import { JSX } from "react"
+
 import { landscapeTemplates } from "./landscape-templates"
 import { portraitTemplates } from "./portrait-templates"
 import { squareTemplates } from "./square-templates"

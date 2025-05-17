@@ -5,19 +5,18 @@ import { initReactI18next } from "react-i18next"
 // Импорт констант для языков
 import {
   DEFAULT_LANGUAGE,
-  isSupportedLanguage,
   LanguageCode,
+  isSupportedLanguage,
 } from "./constants"
-
-// Проверка, что код выполняется в браузере
-const isBrowser = typeof window !== "undefined"
-
 // Импорт ресурсов переводов
 import translationDE from "./locales/de.json"
 import translationEN from "./locales/en.json"
 import translationES from "./locales/es.json"
 import translationFR from "./locales/fr.json"
 import translationRU from "./locales/ru.json"
+
+// Проверка, что код выполняется в браузере
+const isBrowser = typeof window !== "undefined"
 
 // Ресурсы переводов
 const resources = {
@@ -41,6 +40,7 @@ const resources = {
 // Инициализация i18next
 const initI18n = () => {
   // Используем LanguageDetector только в браузере
+  // eslint-disable-next-line import/no-named-as-default-member
   const instance = i18n.use(initReactI18next)
 
   if (isBrowser) {

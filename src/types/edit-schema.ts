@@ -101,8 +101,8 @@ export interface EditResource {
  */
 export function createEditSegment(
   name: string,
-  startTime: number = 0,
-  duration: number = 0,
+  startTime = 0,
+  duration = 0,
   tracks: EditTrack[] = [],
   options?: {
     detectedObjects?: ObjectTrack[]
@@ -131,10 +131,10 @@ export function createEditTrack(
   name: string,
   type: "video" | "audio" | "title" | "subtitle",
   sourceId: string,
-  startTime: number = 0,
-  duration: number = 0,
+  startTime = 0,
+  duration = 0,
   position?: { x: number; y: number; width: number; height: number },
-  volume: number = 1,
+  volume = 1,
   options?: {
     focusObjects?: string[]
     subtitleData?: {

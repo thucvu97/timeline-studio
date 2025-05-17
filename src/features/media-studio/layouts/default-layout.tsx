@@ -6,8 +6,8 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { Browser } from "@/features/browser/components/browser"
-import { VideoPlayer } from "@/features/video-player/components/video-player"
 import { Timeline } from "@/features/timeline/components/timeline"
+import { VideoPlayer } from "@/features/video-player/components/video-player"
 
 export function DefaultMediaEditor() {
   const [isBrowserVisible, setIsBrowserVisible] = useState(true)

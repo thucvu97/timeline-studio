@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react"
+
 import { useHotkeys } from "react-hotkeys-hook"
 
 // Ключ для хранения состояния видимости браузера в localStorage

@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 import {
   Blend,
   FlipHorizontal2,
@@ -6,8 +8,6 @@ import {
   Music,
   Sparkles,
 } from "lucide-react"
-import dynamic from "next/dynamic"
-import { memo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -21,7 +21,7 @@ export const TAB_TRIGGER_STYLES =
   "[&>svg]:data-[state=active]:text-[#38dacac3] cursor-pointer data-[state=active]:cursor-default rounded-none"
 
 // Клиентский компонент Browser
-const BrowserClient = memo(function BrowserClient() {
+export function Browser() {
   const [activeTab, setActiveTab] = useState("media")
   const { t } = useTranslation()
 
@@ -112,8 +112,4 @@ const BrowserClient = memo(function BrowserClient() {
       </Tabs>
     </div>
   )
-})
-
-export const Browser = dynamic(() => Promise.resolve(BrowserClient), {
-  ssr: false,
-})
+}
