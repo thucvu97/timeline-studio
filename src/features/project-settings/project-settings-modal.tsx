@@ -130,6 +130,9 @@ export function ProjectSettingsModal() {
 
       // Обновляем разрешение
       updateResolution("custom")
+
+      // Сохраняем настройки
+      saveSettings()
     } else {
       // Для стандартных соотношений сторон
       // Получаем рекомендуемое разрешение
@@ -155,6 +158,9 @@ export function ProjectSettingsModal() {
 
       // Обновляем разрешение
       updateResolution(recommendedResolution.value)
+
+      // Сохраняем настройки
+      saveSettings()
     }
 
     console.log("[ProjectSettingsDialog] Соотношение сторон изменено:", {
@@ -212,6 +218,7 @@ export function ProjectSettingsModal() {
               // Для пользовательского соотношения сторон всегда используем пользовательское разрешение
               if (settings.aspectRatio.label === "custom") {
                 updateResolution(value)
+                saveSettings()
                 return
               }
 
@@ -226,6 +233,7 @@ export function ProjectSettingsModal() {
                   value,
                 )
                 updateResolution(value)
+                saveSettings()
                 return
               }
 
@@ -235,6 +243,9 @@ export function ProjectSettingsModal() {
 
               // Обновляем разрешение
               updateResolution(value)
+
+              // Сохраняем настройки
+              saveSettings()
 
               // Обновляем размеры в соотношении сторон
               updateAspectRatio({
@@ -320,6 +331,9 @@ export function ProjectSettingsModal() {
 
                     // Обновляем разрешение
                     updateResolution(`${width}x${newHeight}`)
+
+                    // Сохраняем настройки
+                    saveSettings()
                   } else {
                     // Если соотношение сторон не заблокировано или пользовательское
                     // Обновляем размеры в соотношении сторон
@@ -333,6 +347,9 @@ export function ProjectSettingsModal() {
 
                     // Обновляем разрешение
                     updateResolution(`${width}x${customHeight}`)
+
+                    // Сохраняем настройки
+                    saveSettings()
                   }
 
                   console.log("[ProjectSettingsDialog] Ширина изменена:", {
@@ -384,6 +401,9 @@ export function ProjectSettingsModal() {
 
                     // Обновляем разрешение
                     updateResolution(`${newWidth}x${height}`)
+
+                    // Сохраняем настройки
+                    saveSettings()
                   } else {
                     // Если соотношение сторон не заблокировано или пользовательское
                     // Обновляем размеры в соотношении сторон
@@ -397,6 +417,9 @@ export function ProjectSettingsModal() {
 
                     // Обновляем разрешение
                     updateResolution(`${customWidth}x${height}`)
+
+                    // Сохраняем настройки
+                    saveSettings()
                   }
 
                   console.log("[ProjectSettingsDialog] Высота изменена:", {
@@ -420,7 +443,10 @@ export function ProjectSettingsModal() {
                 variant="ghost"
                 size="icon"
                 className={`ml-2 h-7 w-7 cursor-pointer p-0 ${aspectRatioLocked ? "text-[#00CCC0]" : "text-gray-400 hover:text-gray-200"}`}
-                onClick={() => updateAspectRatioLocked(!aspectRatioLocked)}
+                onClick={() => {
+                  updateAspectRatioLocked(!aspectRatioLocked)
+                  saveSettings()
+                }}
                 title={
                   aspectRatioLocked
                     ? t("dialogs.projectSettings.unlockAspectRatio")
@@ -479,6 +505,7 @@ export function ProjectSettingsModal() {
                 value,
               )
               updateFrameRate(value)
+              saveSettings()
             }}
           >
             <SelectTrigger className="w-[300px]">
@@ -510,6 +537,7 @@ export function ProjectSettingsModal() {
                 value,
               )
               updateColorSpace(value)
+              saveSettings()
             }}
           >
             <SelectTrigger className="w-[300px]">
@@ -529,38 +557,12 @@ export function ProjectSettingsModal() {
           </Select>
         </div>
       </div>
-      <DialogFooter className="flex justify-between space-x-4">
+      <DialogFooter className="flex justify-center space-x-4">
         <Button
           variant="default"
-          className="flex-1 cursor-pointer"
+          className="w-1/3 cursor-pointer bg-[#00CCC0] text-black hover:bg-[#00AAA0]"
           onClick={() => {
-            // Просто закрываем модальное окно без сохранения изменений
-            console.log("[ProjectSettingsDialog] Отмена изменений")
-            closeModal()
-          }}
-        >
-          {t("dialogs.projectSettings.cancel")}
-        </Button>
-        <Button
-          variant="default"
-          className="flex-1 cursor-pointer bg-[#00CCC0] text-black hover:bg-[#00AAA0]"
-          onClick={() => {
-            // Обновляем размеры в соотношении сторон
-            updateAspectRatio({
-              ...settings.aspectRatio,
-              value: {
-                ...settings.aspectRatio.value,
-                width: customWidth,
-                height: customHeight,
-              },
-            })
-
-            // Обновляем разрешение
-            if (settings.resolution === "custom") {
-              updateResolution(`${customWidth}x${customHeight}`)
-            }
-
-            // Сохраняем настройки в localStorage
+            // Сохраняем настройки в localStorage (на всякий случай)
             saveSettings()
 
             console.log("[ProjectSettingsDialog] Настройки сохранены")
@@ -569,7 +571,7 @@ export function ProjectSettingsModal() {
             closeModal()
           }}
         >
-          {t("dialogs.projectSettings.save")}
+          {t("dialogs.projectSettings.ok")}
         </Button>
       </DialogFooter>
     </>

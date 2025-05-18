@@ -371,15 +371,14 @@ export interface ProjectSettingsContext {
 const savedSettings = loadSavedSettings()
 
 // Получаем начальные разрешения на основе соотношения сторон
-const initialAspectRatio = (savedSettings ?? DEFAULT_PROJECT_SETTINGS)
-  .aspectRatio
+const initialAspectRatio = DEFAULT_PROJECT_SETTINGS.aspectRatio
 // Используем фактическое соотношение сторон вместо метки
 const initialRatioKey = `${initialAspectRatio.value.width}:${initialAspectRatio.value.height}`
 const initialResolutions = getResolutionsForAspectRatio(initialRatioKey)
 
 // Начальный контекст машины состояний
 const initialContext: ProjectSettingsContext = {
-  settings: savedSettings ?? DEFAULT_PROJECT_SETTINGS,
+  settings: DEFAULT_PROJECT_SETTINGS,
   availableResolutions: initialResolutions,
   customWidth: initialAspectRatio.value.width,
   customHeight: initialAspectRatio.value.height,

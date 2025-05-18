@@ -207,7 +207,8 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Проверяем, что начальное значение пути скриншотов установлено правильно
-    const screenshotsPathInput = screen.getByPlaceholderText("public/screenshots")
+    const screenshotsPathInput =
+      screen.getByPlaceholderText("public/screenshots")
     expect(screenshotsPathInput).toHaveValue("public/screenshots")
 
     // Изменяем путь скриншотов в контексте
@@ -222,7 +223,8 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Проверяем, что значение пути скриншотов обновилось
-    const updatedScreenshotsPathInput = screen.getAllByPlaceholderText("public/screenshots")[1]
+    const updatedScreenshotsPathInput =
+      screen.getAllByPlaceholderText("public/screenshots")[1]
     expect(updatedScreenshotsPathInput).toHaveValue("new/path")
   })
 
@@ -246,7 +248,8 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Проверяем, что значение API ключа обновилось
-    const updatedApiKeyInput = screen.getAllByPlaceholderText("Введите API ключ")[1]
+    const updatedApiKeyInput =
+      screen.getAllByPlaceholderText("Введите API ключ")[1]
     expect(updatedApiKeyInput).toHaveValue("test-api-key")
   })
 
@@ -266,11 +269,12 @@ describe("UserSettingsModal", () => {
     // Проверяем, что prompt был вызван с правильными параметрами
     expect(window.prompt).toHaveBeenCalledWith(
       "dialogs.userSettings.selectFolderPrompt",
-      "public/screenshots\npublic/images/screenshots\npublic/media/screenshots\npublic/assets/screenshots"
+      "public/screenshots\npublic/images/screenshots\npublic/media/screenshots\npublic/assets/screenshots",
     )
 
     // Проверяем, что путь скриншотов был обновлен
-    const screenshotsPathInput = screen.getByPlaceholderText("public/screenshots")
+    const screenshotsPathInput =
+      screen.getByPlaceholderText("public/screenshots")
     expect(screenshotsPathInput).toHaveValue("custom/folder")
 
     // Восстанавливаем оригинальный prompt
@@ -294,7 +298,8 @@ describe("UserSettingsModal", () => {
     expect(window.prompt).toHaveBeenCalled()
 
     // Проверяем, что путь скриншотов не изменился
-    const screenshotsPathInput = screen.getByPlaceholderText("public/screenshots")
+    const screenshotsPathInput =
+      screen.getByPlaceholderText("public/screenshots")
     expect(screenshotsPathInput).toHaveValue("public/screenshots")
 
     // Восстанавливаем оригинальный prompt
