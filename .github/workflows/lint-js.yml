@@ -28,22 +28,23 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v4
 
-      - name: Set up bun package manager
-        uses: bun/action-setup@v4
-        with:
-          version: latest
-
       - name: Set up Node.js v22
         uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
-          cache: "bun"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          run_install: false
 
       - name: Install dependencies from lockfile
-        run: bun install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Run lint step
-        run: bun lint
+        run: pnpm run lint
 
       - name: Check import order
-        run: bun format:imports
+        run: pnpm run format:imports
