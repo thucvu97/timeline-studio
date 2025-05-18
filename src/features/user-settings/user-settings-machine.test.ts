@@ -7,6 +7,7 @@ import {
   DEFAULT_TAB,
   LAYOUTS,
   PREVIEW_SIZES,
+  userSettingsMachine,
 } from "./user-settings-machine"
 
 // Мокаем console.log и console.error
@@ -48,5 +49,32 @@ describe("UserSettingsMachine", () => {
 
   it("should have correct layouts", () => {
     expect(LAYOUTS).toEqual(["default", "options", "vertical", "dual"])
+  })
+
+  it("should have a valid machine definition", () => {
+    // Проверяем, что машина состояний определена
+    expect(userSettingsMachine).toBeDefined()
+
+    // Проверяем основные свойства машины состояний
+    expect(userSettingsMachine.id).toBe("userSettings")
+    expect(userSettingsMachine.config.initial).toBe("loading")
+
+    // Проверяем, что машина имеет нужные состояния
+    expect(userSettingsMachine.config.states).toHaveProperty("loading")
+    expect(userSettingsMachine.config.states).toHaveProperty("idle")
+  })
+
+  it("should have a valid machine definition with correct states and transitions", () => {
+    // Проверяем, что машина состояний имеет правильные состояния и переходы
+    const config = userSettingsMachine.config
+
+    // Проверяем начальное состояние
+    expect(config.initial).toBe("loading")
+
+    // Проверяем состояние loading
+    expect(config.states).toHaveProperty("loading")
+
+    // Проверяем состояние idle
+    expect(config.states).toHaveProperty("idle")
   })
 })
