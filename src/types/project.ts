@@ -15,7 +15,29 @@ export type FrameRate =
   | "50"
   | "59.94"
   | "60"
+
+// Константа с доступными значениями FPS на основе типа FrameRate
+export const FRAME_RATES: { value: FrameRate; label: string }[] = [
+  { value: "23.97", label: "23.97 fps" },
+  { value: "24", label: "24 fps" },
+  { value: "25", label: "25 fps" },
+  { value: "29.97", label: "29.97 fps" },
+  { value: "30", label: "30 fps" },
+  { value: "50", label: "50 fps" },
+  { value: "59.94", label: "59.94 fps" },
+  { value: "60", label: "60 fps" },
+]
+
 export type ColorSpace = "sdr" | "dci-p3" | "p3-d65" | "hdr-hlg" | "hdr-pq"
+
+// Константа с доступными значениями цветовых пространств
+export const COLOR_SPACES: { value: ColorSpace; label: string }[] = [
+  { value: "sdr", label: "SDR - Rec.709" },
+  { value: "dci-p3", label: "DCI-P3" },
+  { value: "p3-d65", label: "P3-D65" },
+  { value: "hdr-hlg", label: "HDR - Rec.2100HLG" },
+  { value: "hdr-pq", label: "HDR - Rec.2100PQ" },
+]
 
 export const ASPECT_RATIOS: AspectRatio[] = [
   {

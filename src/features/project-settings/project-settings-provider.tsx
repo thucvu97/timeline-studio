@@ -4,22 +4,24 @@ import { useMachine } from "@xstate/react"
 
 import type { ProjectSettings } from "@/types/project"
 
-import { projectMachine } from "./project-settings-machine"
+import { projectSettingsMachine } from "./project-settings-machine"
 
 interface ProjectProviderProps {
   children: React.ReactNode
 }
 
-interface ProjectContextType {
+interface ProjectSettingsContextType {
   settings: ProjectSettings
   updateSettings: (settings: ProjectSettings) => void
   resetSettings: () => void
 }
 
-const ProjectContext = createContext<ProjectContextType | undefined>(undefined)
+const ProjectSettingsContext = createContext<
+  ProjectSettingsContextType | undefined
+>(undefined)
 
 export function ProjectSettingsProvider({ children }: ProjectProviderProps) {
-  const [state, send] = useMachine(projectMachine)
+  const [state, send] = useMachine(projectSettingsMachine)
 
   const value = useMemo(
     () => ({
@@ -32,14 +34,18 @@ export function ProjectSettingsProvider({ children }: ProjectProviderProps) {
   )
 
   return (
-    <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>
+    <ProjectSettingsContext.Provider value={value}>
+      {children}
+    </ProjectSettingsContext.Provider>
   )
 }
 
-export function useProjectSettings(): ProjectContextType {
-  const context = useContext(ProjectContext)
+export function useProjectSettings(): ProjectSettingsContextType {
+  const context = useContext(ProjectSettingsContext)
   if (!context) {
-    throw new Error("useProjectContext must be used within a ProjectProvider")
+    throw new Error(
+      "useProjectSettingsContext must be used within a ProjectProvider",
+    )
   }
   return context
 }

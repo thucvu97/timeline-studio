@@ -17,7 +17,7 @@ const loadSavedSettings = (): ProjectSettings | null => {
     }
   } catch (error) {
     console.error(
-      "[ProjectMachine] Error loading settings from localStorage:",
+      "[projectSettingsMachine] Error loading settings from localStorage:",
       error,
     )
   }
@@ -33,7 +33,7 @@ const saveSettings = (settings: ProjectSettings): void => {
     localStorage.setItem(PROJECT_SETTINGS_STORAGE_KEY, JSON.stringify(settings))
   } catch (error) {
     console.error(
-      "[ProjectMachine] Error saving settings to localStorage:",
+      "[projectSettingsMachine] Error saving settings to localStorage:",
       error,
     )
   }
@@ -65,7 +65,7 @@ interface ResetSettingsEvent {
 
 type ProjectSettingsEvent = UpdateSettingsEvent | ResetSettingsEvent
 
-export const projectMachine = createMachine({
+export const projectSettingsMachine = createMachine({
   id: "project",
   initial: "idle",
   context: initialProjectContext,

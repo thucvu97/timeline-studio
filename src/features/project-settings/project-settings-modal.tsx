@@ -16,7 +16,9 @@ import {
 } from "@/components/ui/select"
 import {
   ASPECT_RATIOS,
+  COLOR_SPACES,
   ColorSpace,
+  FRAME_RATES,
   FrameRate,
   ResolutionOption,
   getDefaultResolutionForAspectRatio,
@@ -446,30 +448,15 @@ export function ProjectSettingsModal() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="">
-              <SelectItem value="23.97" className="">
-                23.97 fps
-              </SelectItem>
-              <SelectItem value="24" className="">
-                24 fps
-              </SelectItem>
-              <SelectItem value="25" className="">
-                25 fps
-              </SelectItem>
-              <SelectItem value="29.97" className="">
-                29.97 fps
-              </SelectItem>
-              <SelectItem value="30" className="">
-                30 fps
-              </SelectItem>
-              <SelectItem value="50" className="">
-                50 fps
-              </SelectItem>
-              <SelectItem value="59.94" className="">
-                59.94 fps
-              </SelectItem>
-              <SelectItem value="60" className="">
-                60 fps
-              </SelectItem>
+              {FRAME_RATES.map((frameRate) => (
+                <SelectItem
+                  key={frameRate.value}
+                  value={frameRate.value}
+                  className=""
+                >
+                  {frameRate.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -491,21 +478,15 @@ export function ProjectSettingsModal() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="">
-              <SelectItem value="sdr" className="">
-                SDR - Rec.709
-              </SelectItem>
-              <SelectItem value="dci-p3" className="">
-                DCI-P3
-              </SelectItem>
-              <SelectItem value="p3-d65" className="">
-                P3-D65
-              </SelectItem>
-              <SelectItem value="hdr-hlg" className="">
-                HDR - Rec.2100HLG
-              </SelectItem>
-              <SelectItem value="hdr-pq" className="">
-                HDR - Rec.2100PQ
-              </SelectItem>
+              {COLOR_SPACES.map((colorSpace) => (
+                <SelectItem
+                  key={colorSpace.value}
+                  value={colorSpace.value}
+                  className=""
+                >
+                  {colorSpace.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
