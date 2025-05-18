@@ -3,6 +3,7 @@
 import { useState } from "react"
 
 import { TopBar } from "@/features/browser/components/layout/top-bar"
+import { ModalContainer } from "@/features/dialogs/components"
 
 import {
   DefaultMediaEditor,
@@ -24,6 +25,9 @@ export function MediaStudio() {
         {layoutMode === "vertical" && <VerticalMediaEditor />}
         {layoutMode === "dual" && <DualMediaEditor />}
       </div>
+
+      {/* Контейнер для модальных окон */}
+      <ModalContainer />
     </div>
   )
 }

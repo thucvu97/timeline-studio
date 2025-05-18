@@ -9,7 +9,6 @@ import {
   isSupportedLanguage,
 } from "@/i18n/constants"
 
-
 interface LanguageResponse {
   language: string
   system_language: string
@@ -99,7 +98,7 @@ export function useLanguage() {
 
   useEffect(() => {
     void fetchLanguage()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return {

@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react"
 
+import { ModalProvider } from "@/features/dialogs/services/modal-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
 
 import { BrowserVisibilityProvider } from "../layouts/providers/browser-visibility-provider"
@@ -23,7 +24,11 @@ const composeProviders = (
 }
 
 // Создаем единый провайдер из всех контекстов
-const AppProvider = composeProviders(I18nProvider, BrowserVisibilityProvider)
+const AppProvider = composeProviders(
+  I18nProvider,
+  ModalProvider,
+  BrowserVisibilityProvider,
+)
 
 export function Providers({ children }: ProvidersProps) {
   return <AppProvider>{children}</AppProvider>

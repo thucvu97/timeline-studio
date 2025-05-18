@@ -20,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { BrowserToggle } from "@/features/browser/components/layout/browser-toggle"
+import { useModal } from "@/features/dialogs/services/modal-provider"
 import { LayoutMode, LayoutPreviews } from "@/features/media-studio/layouts"
 import { cn } from "@/lib/utils"
 
@@ -28,6 +29,7 @@ export function TopBar({
   onLayoutChange,
 }: { layoutMode: LayoutMode; onLayoutChange: (mode: LayoutMode) => void }) {
   const { t } = useTranslation()
+  const { openModal } = useModal()
   const [isEditing, setIsEditing] = useState(false)
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -38,6 +40,10 @@ export function TopBar({
 
   const handleOpenModal = (modal: string) => {
     console.log(`Opening modal: ${modal}`)
+
+    // Открываем модальное окно без указания размера
+    // Размер будет определен автоматически в функции getDialogClassForType
+    openModal(modal as any)
   }
 
   return (
@@ -167,15 +173,6 @@ export function TopBar({
             </div>
           </PopoverContent>
         </Popover>
-        {/* <Button
-          variant="ghost"
-          size="icon"
-          className="cursor-pointer p-0 h-7 w-7"
-          title="Экспорт"
-          onClick={() => setIsExportOpen(true)}
-        >
-          <Upload className="h-5 w-5" />
-        </Button> */}
         <Button
           variant="ghost"
           size="icon"
@@ -189,7 +186,7 @@ export function TopBar({
           variant="outline"
           size="sm"
           className="h-6 w-24 cursor-pointer items-center gap-1 border-none rounded-sm bg-[#38dacac3] px-1 text-sm text-black hover:bg-[#35d1c1] hover:text-black dark:bg-[#35d1c1] dark:hover:bg-[#35d1c1]"
-          // onClick={handleExport}
+          onClick={() => handleOpenModal("export")}
         >
           <span className="px-2 text-xs">{t("topBar.export")}</span>
           <Upload className="h-5 w-5" />

@@ -104,8 +104,8 @@ export const AddMediaButton = memo(function AddMediaButton({
 
       return () => clearTimeout(timer)
     }
-  // Зависимость isAdded не добавлена намеренно, чтобы эффект выполнялся только при монтировании
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Зависимость isAdded не добавлена намеренно, чтобы эффект выполнялся только при монтировании
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (!onAddMedia) return null
