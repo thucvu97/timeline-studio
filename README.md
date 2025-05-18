@@ -4,6 +4,7 @@
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/your-username/timeline-tauri/check-all.yml?branch=main)
 ![GitHub License](https://img.shields.io/github/license/your-username/timeline-tauri)
+![CSS Linting](https://img.shields.io/badge/css%20linting-stylelint-blueviolet)
 
 ## Обзор проекта
 
@@ -16,6 +17,8 @@ Timeline Tauri App - это настольное приложение для с�
 - 🧠 Управление состоянием с помощью XState
 - 🌐 Поддержка интернационализации (i18n)
 - 🧪 Полное тестовое покрытие с использованием Vitest
+- 🎨 Современный UI с использованием Tailwind CSS
+- 🔍 Строгий контроль качества кода с помощью ESLint, Stylelint и Clippy
 
 ## Начало работы
 
@@ -79,13 +82,26 @@ timeline-tauri/
 - `bun tauri dev` - Запуск Tauri в режиме разработки
 - `bun build` - Сборка Next.js
 - `bun tauri build` - Сборка Tauri приложения
-- `bun lint` - Проверка кода с помощью ESLint
+
+#### Линтинг и форматирование
+
+- `bun lint` - Проверка JavaScript/TypeScript кода с помощью ESLint
 - `bun lint:fix` - Исправление ошибок ESLint
+- `bun lint:css` - Проверка CSS кода с помощью Stylelint
+- `bun lint:css:fix` - Исправление ошибок Stylelint
 - `bun format:imports` - Форматирование импортов
 - `bun lint:rust` - Проверка Rust кода с помощью Clippy
 - `bun format:rust` - Форматирование Rust кода с помощью rustfmt
+- `bun check:all` - Запуск всех проверок и тестов
+- `bun fix:all` - Исправление всех ошибок линтинга
+
+#### Тестирование
+
 - `bun test` - Запуск тестов
+- `bun test:app` - Запуск тестов только для компонентов приложения
 - `bun test:coverage` - Запуск тестов с отчетом о покрытии
+- `bun test:ui` - Запуск тестов с UI интерфейсом
+- `bun test:e2e` - Запуск end-to-end тестов с Playwright
 
 ### Машины состояний (XState)
 
@@ -111,9 +127,32 @@ bun test:coverage
 
 Проект настроен для использования GitHub Actions для непрерывной интеграции. Рабочие процессы:
 
-- `lint-js.yml` - Проверка JavaScript/TypeScript кода
-- `lint-rs.yml` - Проверка Rust кода
+- `lint.yml` - Проверка JavaScript/TypeScript, CSS и Rust кода
+- `lint-css.yml` - Проверка только CSS кода (запускается при изменении CSS файлов)
+- `build.yml` - Сборка проекта
 - `check-all.yml` - Запуск всех проверок и тестов
+
+### Конфигурация линтеров
+
+#### Stylelint (CSS)
+
+Проект использует Stylelint для проверки CSS кода. Конфигурация находится в файле `.stylelintrc.json`. Основные особенности:
+
+- Поддержка Tailwind CSS директив
+- Игнорирование дублирующихся селекторов для совместимости с Tailwind
+- Автоматическое исправление ошибок при сохранении файла (в VS Code)
+
+Для запуска CSS линтера используйте команду:
+
+```bash
+bun lint:css
+```
+
+Для автоматического исправления ошибок:
+
+```bash
+bun lint:css:fix
+```
 
 ## Лицензия
 
@@ -125,6 +164,10 @@ bun test:coverage
 - [Tauri Documentation](https://v2.tauri.app/start/)
 - [XState Documentation](https://xstate.js.org/docs/)
 - [Vitest Documentation](https://vitest.dev/guide/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Stylelint Documentation](https://stylelint.io/)
+- [ESLint Documentation](https://eslint.org/docs/latest/)
+- [Playwright Documentation](https://playwright.dev/docs/intro)
 
 ### Лицензия
 
