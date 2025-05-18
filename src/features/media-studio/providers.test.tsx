@@ -16,7 +16,7 @@ vi.mock("@/i18n/i18n-provider", () => ({
   ),
 }))
 
-vi.mock("../layouts/providers/browser-visibility-provider", () => ({
+vi.mock("@/features/browser/providers/browser-visibility-provider", () => ({
   BrowserVisibilityProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="browser-visibility-provider">{children}</div>
   ),

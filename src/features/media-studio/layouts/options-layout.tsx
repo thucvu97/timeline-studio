@@ -4,7 +4,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { Browser } from "@/features/browser/components"
-import { useBrowserVisibility } from "@/features/layouts/providers/browser-visibility-provider"
+import { useBrowserVisibility } from "@/features/browser/providers/browser-visibility-provider"
 import { Options } from "@/features/options/components/options"
 import { Timeline } from "@/features/timeline/components/timeline"
 import { VideoPlayer } from "@/features/video-player/components/video-player"

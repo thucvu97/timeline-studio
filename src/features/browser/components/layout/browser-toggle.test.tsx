@@ -2,12 +2,12 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useBrowserVisibility } from "@/features/layouts/providers/browser-visibility-provider"
+import { useBrowserVisibility } from "@/features/browser/providers/browser-visibility-provider"
 
 import { BrowserToggle } from "./browser-toggle"
 
 // Мокаем хук useBrowserVisibility
-vi.mock("@/features/layouts/providers/browser-visibility-provider")
+vi.mock("@/features/browser/providers/browser-visibility-provider")
 
 // Мокаем компоненты Lucide
 vi.mock("lucide-react", () => ({

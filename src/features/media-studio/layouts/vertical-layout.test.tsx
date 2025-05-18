@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useBrowserVisibility } from "@/features/layouts/providers/browser-visibility-provider"
+import { useBrowserVisibility } from "@/features/browser/providers/browser-visibility-provider"
 
 import { VerticalLayout } from "./vertical-layout"
 
 // Мокаем зависимости
-vi.mock("@/features/layouts/providers/browser-visibility-provider")
+vi.mock("@/features/browser/providers/browser-visibility-provider")
 vi.mock("@/components/ui/resizable", () => ({
   ResizablePanelGroup: ({
     children,

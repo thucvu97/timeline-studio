@@ -2,7 +2,7 @@ import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
-import { useBrowserVisibility } from "@/features/layouts/providers/browser-visibility-provider"
+import { useBrowserVisibility } from "@/features/browser/providers/browser-visibility-provider"
 
 /**
  * Компонент для переключения видимости браузера

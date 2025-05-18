@@ -3,7 +3,7 @@ import { ReactElement, ReactNode } from "react"
 import { RenderOptions, render } from "@testing-library/react"
 
 import { ThemeProvider } from "@/components/theme/theme-context"
-import { BrowserVisibilityProvider } from "@/features/layouts/providers/browser-visibility-provider"
+import { BrowserVisibilityProvider } from "@/features/browser/providers/browser-visibility-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
 

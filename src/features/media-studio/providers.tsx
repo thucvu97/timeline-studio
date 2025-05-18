@@ -2,10 +2,9 @@
 
 import { ReactNode } from "react"
 
+import { BrowserVisibilityProvider } from "@/features/browser/providers/browser-visibility-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
-
-import { BrowserVisibilityProvider } from "../layouts/providers/browser-visibility-provider"
 
 interface ProvidersProps {
   children: ReactNode
