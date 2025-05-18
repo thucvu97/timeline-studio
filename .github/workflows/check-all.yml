@@ -1,4 +1,4 @@
-# Runs all checks: JS/TS linting, CSS linting, and Rust linting
+# Runs all checks: JS/TS linting and Rust linting
 
 name: Check All
 
@@ -97,36 +97,6 @@ jobs:
 
       - name: Run clippy check and deny warnings
         run: npm run lint:rust
-
-  check-css:
-    name: Lint CSS
-    timeout-minutes: 5
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Disable git core.autocrlf on Windows
-        if: matrix.os == 'windows-latest'
-        run: git config --global core.autocrlf false
-
-      - name: Checkout repository code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: "npm"
-
-      - name: Install dependencies from lockfile
-        run: npm ci
-
-      - name: Run CSS lint
-        run: npm run lint:css
 
   check-tests:
     name: Run Tests

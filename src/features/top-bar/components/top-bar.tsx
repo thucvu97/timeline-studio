@@ -1,8 +1,6 @@
 import { useState } from "react"
 
 import {
-  Camera,
-  Film,
   Keyboard,
   Layout,
   ListTodo,
