@@ -40,7 +40,7 @@ const eslintConfig = tseslint.config(
       "jsx-a11y/no-access-key": "off",
       "jsx-a11y/no-aria-hidden-on-focusable": "off",
       "jsx-a11y/no-autofocus": "off",
-            "@typescript-eslint/no-confusing-void-expression": "off",
+      "@typescript-eslint/no-confusing-void-expression": "off",
       "jsx-a11y/no-distracting-elements": "off",
       "jsx-a11y/no-interactive-element-to-noninteractive-role": "off",
       "jsx-a11y/no-noninteractive-element-to-interactive-role": "off",
@@ -172,6 +172,8 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/no-unsafe-return": "off",
       "@typescript-eslint/no-unsafe-call": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
+      // Отключаем правило unbound-method, которое вызывает проблемы в тестах
+      "@typescript-eslint/unbound-method": "off",
     },
     languageOptions: {
       parserOptions: {

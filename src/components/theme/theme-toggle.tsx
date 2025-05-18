@@ -25,7 +25,6 @@ export function ThemeToggle() {
     >
       <Sun className="h-5 w-5 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90 dark:text-gray-100 dark:hover:text-gray-50" />
       <Moon className="absolute h-5 w-5 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0 dark:text-gray-100 dark:hover:text-gray-50" />
-      <span className="sr-only">Переключить тему</span>
     </Button>
   )
 }
