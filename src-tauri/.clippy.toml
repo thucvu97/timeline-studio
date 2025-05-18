@@ -1,0 +1,10 @@
+# Включаем все предупреждения
+warn-on-all-wildcard-imports = true
+
+# Настройки для конкретных проверок
+too-many-arguments-threshold = 8
+type-complexity-threshold = 250
+enum-variant-size-threshold = 200
+
+# Отключаем некоторые проверки, которые могут быть слишком строгими
+cognitive-complexity-threshold = 30
