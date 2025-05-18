@@ -1,7 +1,5 @@
 export * from "./camera-capture-modal"
 export * from "./export-modal"
 export * from "./keyboard-shortcuts-modal"
-export * from "./project-settings-modal"
-export * from "./user-settings-modal"
 export * from "./voice-recording-modal"
 export * from "./modal-container"

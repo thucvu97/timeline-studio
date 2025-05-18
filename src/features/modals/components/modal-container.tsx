@@ -6,6 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { ProjectSettingsModal } from "@/features/project-settings/project-settings-modal"
+import { UserSettingsModal } from "@/features/user-settings/user-settings-modal"
 
 import { getDialogClassForType } from "../services/modal-machine"
 import { useModal } from "../services/modal-provider"
@@ -14,8 +16,6 @@ import {
   CameraCaptureModal,
   ExportModal,
   KeyboardShortcutsModal,
-  ProjectSettingsModal,
-  UserSettingsModal,
   VoiceRecordModal,
 } from "."
 
@@ -72,7 +72,7 @@ export function ModalContainer() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
-      <DialogContent className={dialogClass}>
+      <DialogContent aria-describedby="modal" className={dialogClass}>
         <DialogHeader>
           <DialogTitle>{getModalTitle()}</DialogTitle>
         </DialogHeader>

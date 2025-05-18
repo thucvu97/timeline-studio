@@ -8,6 +8,58 @@ import { useModal } from "../services/modal-provider"
 // Мокаем модули
 vi.mock("../services/modal-provider")
 vi.mock("../services/modal-machine")
+vi.mock("@/features/project-settings/project-settings-provider", () => ({
+  ProjectSettingsProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+  useProjectSettings: () => ({
+    settings: {
+      aspectRatio: "16:9",
+      resolution: "1920x1080",
+      frameRate: 30,
+      colorSpace: "sRGB",
+    },
+    isLoaded: true,
+    availableResolutions: [
+      { label: "1280x720", value: "1280x720" },
+      { label: "1920x1080", value: "1920x1080" },
+    ],
+    customWidth: 1920,
+    customHeight: 1080,
+    aspectRatioLocked: true,
+    frameRates: [
+      { label: "24", value: 24 },
+      { label: "30", value: 30 },
+      { label: "60", value: 60 },
+    ],
+    colorSpaces: [
+      { label: "sRGB", value: "sRGB" },
+      { label: "Display P3", value: "Display P3" },
+    ],
+    updateAspectRatio: vi.fn(),
+    updateResolution: vi.fn(),
+    updateFrameRate: vi.fn(),
+    updateColorSpace: vi.fn(),
+    updateSettings: vi.fn(),
+    resetSettings: vi.fn(),
+    updateCustomWidth: vi.fn(),
+    updateCustomHeight: vi.fn(),
+    updateAspectRatioLocked: vi.fn(),
+    updateAvailableResolutions: vi.fn(),
+  }),
+}))
+
+vi.mock("@/features/project-settings/project-settings-modal", () => ({
+  ProjectSettingsModal: () => (
+    <div data-testid="project-settings-modal">Project Settings Modal</div>
+  ),
+}))
+
+vi.mock("@/features/user-settings/user-settings-modal", () => ({
+  UserSettingsModal: () => (
+    <div data-testid="user-settings-modal">User Settings Modal</div>
+  ),
+}))
 vi.mock("@/components/ui/dialog", () => ({
   Dialog: ({ children, open }: { children: React.ReactNode; open: boolean }) =>
     open ? <div data-testid="dialog">{children}</div> : null,
@@ -25,13 +77,18 @@ vi.mock("@/components/ui/dialog", () => ({
   DialogTitle: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="dialog-title">{children}</div>
   ),
+  DialogFooter: ({
+    children,
+    className,
+  }: { children: React.ReactNode; className?: string }) => (
+    <div data-testid="dialog-footer" className={className ?? ""}>
+      {children}
+    </div>
+  ),
 }))
 
 // Мокаем компоненты модальных окон
 vi.mock(".", () => ({
-  ProjectSettingsModal: () => (
-    <div data-testid="project-settings-modal">Project Settings Modal</div>
-  ),
   KeyboardShortcutsModal: () => (
     <div data-testid="keyboard-shortcuts-modal">Keyboard Shortcuts Modal</div>
   ),

@@ -7,6 +7,8 @@ import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings/project-settings-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
 
+import { UserSettingsProvider } from "../user-settings/user-settings-provider"
+
 interface ProvidersProps {
   children: ReactNode
 }
@@ -29,6 +31,7 @@ const AppProvider = composeProviders(
   ModalProvider,
   BrowserVisibilityProvider,
   ProjectSettingsProvider,
+  UserSettingsProvider,
 )
 
 export function Providers({ children }: ProvidersProps) {

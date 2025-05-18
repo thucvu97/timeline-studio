@@ -435,6 +435,10 @@ interface UpdateAvailableResolutionsEvent {
   resolutions: ResolutionOption[]
 }
 
+interface SaveSettingsEvent {
+  type: "SAVE_SETTINGS"
+}
+
 // Объединенный тип всех событий
 export type ProjectSettingsEvent =
   | LoadSettingsEvent
@@ -449,6 +453,7 @@ export type ProjectSettingsEvent =
   | UpdateCustomHeightEvent
   | UpdateAspectRatioLockedEvent
   | UpdateAvailableResolutionsEvent
+  | SaveSettingsEvent
 
 // Создаем машину состояний
 export const projectSettingsMachine = createMachine(
@@ -469,20 +474,16 @@ export const projectSettingsMachine = createMachine(
       idle: {
         on: {
           UPDATE_ASPECT_RATIO: {
-            actions: [
-              "updateAspectRatio",
-              "updateAvailableResolutions",
-              "saveSettings",
-            ],
+            actions: ["updateAspectRatio", "updateAvailableResolutions"],
           },
           UPDATE_RESOLUTION: {
-            actions: ["updateResolution", "saveSettings"],
+            actions: ["updateResolution"],
           },
           UPDATE_FRAME_RATE: {
-            actions: ["updateFrameRate", "saveSettings"],
+            actions: ["updateFrameRate"],
           },
           UPDATE_COLOR_SPACE: {
-            actions: ["updateColorSpace", "saveSettings"],
+            actions: ["updateColorSpace"],
           },
           UPDATE_SETTINGS: {
             actions: ["updateAllSettings", "saveSettings"],
@@ -491,10 +492,13 @@ export const projectSettingsMachine = createMachine(
             actions: ["resetSettings", "saveSettings"],
           },
           UPDATE_CUSTOM_WIDTH: {
-            actions: ["updateCustomWidth", "saveSettings"],
+            actions: ["updateCustomWidth"],
           },
           UPDATE_CUSTOM_HEIGHT: {
-            actions: ["updateCustomHeight", "saveSettings"],
+            actions: ["updateCustomHeight"],
+          },
+          SAVE_SETTINGS: {
+            actions: ["saveSettings"],
           },
           UPDATE_ASPECT_RATIO_LOCKED: {
             actions: ["updateAspectRatioLocked"],

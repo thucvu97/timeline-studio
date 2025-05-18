@@ -39,6 +39,7 @@ interface ProjectSettingsContextValue {
   updateColorSpace: (colorSpace: ColorSpace) => void
   updateSettings: (settings: Partial<ProjectSettings>) => void
   resetSettings: () => void
+  saveSettings: () => void
 
   // Методы для обновления дополнительных свойств
   updateCustomWidth: (width: number) => void
@@ -154,6 +155,11 @@ export function ProjectSettingsProvider({
           resolutions,
         )
         send({ type: "UPDATE_AVAILABLE_RESOLUTIONS", resolutions })
+      },
+
+      saveSettings: () => {
+        console.log("[ProjectSettingsProvider] Saving settings")
+        send({ type: "SAVE_SETTINGS" })
       },
     }),
     [state.context, send],
