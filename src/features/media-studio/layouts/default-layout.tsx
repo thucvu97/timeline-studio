@@ -6,11 +6,12 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { Browser } from "@/features/browser/components/browser"
+import { useBrowserVisibility } from "@/features/layouts/providers/browser-visibility-provider"
 import { Timeline } from "@/features/timeline/components/timeline"
 import { VideoPlayer } from "@/features/video-player/components/video-player"
 
-export function DefaultMediaEditor() {
-  const [isBrowserVisible, setIsBrowserVisible] = useState(true)
+export function DefaultLayout() {
+  const { isBrowserVisible } = useBrowserVisibility()
 
   return (
     <ResizablePanelGroup
@@ -50,12 +51,8 @@ export function DefaultMediaEditor() {
             </ResizablePanel>
           </ResizablePanelGroup>
         ) : (
-          // Если браузер скрыт, показываем только медиаплеер на всю ширину
           <div className="relative h-full w-full">
-            <Browser />
-            <div className="h-full w-full">
-              <VideoPlayer />
-            </div>
+            <VideoPlayer />
           </div>
         )}
       </ResizablePanel>

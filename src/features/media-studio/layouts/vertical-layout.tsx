@@ -9,7 +9,7 @@ import { Options } from "@/features/options/components/options"
 import { Timeline } from "@/features/timeline/components/timeline"
 import { VideoPlayer } from "@/features/video-player/components/video-player"
 
-export function VerticalMediaEditor() {
+export function VerticalLayout() {
   const { isBrowserVisible } = useBrowserVisibility()
 
   return (

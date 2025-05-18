@@ -12,6 +12,8 @@
     "format:imports": "eslint --fix 'src/**/*.{ts,tsx}' --rule 'import/order: warn'",
     "tauri": "tauri",
     "test": "vitest run",
+    "test:app": "vitest run src/features",
+    "test:machine": "vitest run src/features/modals/services/modal-machine.test.ts",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",

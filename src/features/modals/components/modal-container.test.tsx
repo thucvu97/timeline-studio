@@ -1,0 +1,275 @@
+import { render, screen } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { ModalContainer } from "./modal-container"
+import { getDialogClassForType } from "../services/modal-machine"
+import { useModal } from "../services/modal-provider"
+
+// Мокаем модули
+vi.mock("../services/modal-provider")
+vi.mock("../services/modal-machine")
+vi.mock("@/components/ui/dialog", () => ({
+  Dialog: ({ children, open }: { children: React.ReactNode; open: boolean }) =>
+    open ? <div data-testid="dialog">{children}</div> : null,
+  DialogContent: ({
+    children,
+    className,
+  }: { children: React.ReactNode; className: string }) => (
+    <div data-testid="dialog-content" className={className}>
+      {children}
+    </div>
+  ),
+  DialogHeader: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-header">{children}</div>
+  ),
+  DialogTitle: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-title">{children}</div>
+  ),
+}))
+
+// Мокаем компоненты модальных окон
+vi.mock(".", () => ({
+  ProjectSettingsModal: () => (
+    <div data-testid="project-settings-modal">Project Settings Modal</div>
+  ),
+  KeyboardShortcutsModal: () => (
+    <div data-testid="keyboard-shortcuts-modal">Keyboard Shortcuts Modal</div>
+  ),
+  UserSettingsModal: () => (
+    <div data-testid="user-settings-modal">User Settings Modal</div>
+  ),
+  CameraCaptureModal: () => (
+    <div data-testid="camera-capture-modal">Camera Capture Modal</div>
+  ),
+  VoiceRecordModal: () => (
+    <div data-testid="voice-record-modal">Voice Record Modal</div>
+  ),
+  ExportModal: () => <div data-testid="export-modal">Export Modal</div>,
+}))
+
+describe("ModalContainer", () => {
+  // Очищаем моки перед каждым тестом
+  beforeEach(() => {
+    vi.clearAllMocks()
+
+    // Мокаем getDialogClassForType
+    vi.mocked(getDialogClassForType).mockReturnValue("test-dialog-class")
+  })
+
+  it("should not render dialog when isOpen is false", () => {
+    // Мокаем useModal
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "none",
+      modalData: null,
+      isOpen: false,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что диалог не отображается
+    expect(screen.queryByTestId("dialog")).not.toBeInTheDocument()
+  })
+
+  it("should render dialog with correct title when isOpen is true", () => {
+    // Мокаем useModal
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "project-settings",
+      modalData: null,
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что диалог отображается
+    expect(screen.getByTestId("dialog")).toBeInTheDocument()
+
+    // Проверяем, что заголовок правильный
+    expect(screen.getByTestId("dialog-title").textContent).toBe(
+      "Настройки проекта",
+    )
+  })
+
+  it("should render ProjectSettingsModal when modalType is project-settings", () => {
+    // Мокаем useModal
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "project-settings",
+      modalData: null,
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что отображается правильный модальный компонент
+    expect(screen.getByTestId("project-settings-modal")).toBeInTheDocument()
+  })
+
+  it("should render KeyboardShortcutsModal when modalType is keyboard-shortcuts", () => {
+    // Мокаем useModal
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "keyboard-shortcuts",
+      modalData: null,
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что отображается правильный модальный компонент
+    expect(screen.getByTestId("keyboard-shortcuts-modal")).toBeInTheDocument()
+  })
+
+  it("should render UserSettingsModal when modalType is user-settings", () => {
+    // Мокаем useModal
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "user-settings",
+      modalData: null,
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что отображается правильный модальный компонент
+    expect(screen.getByTestId("user-settings-modal")).toBeInTheDocument()
+  })
+
+  it("should render CameraCaptureModal when modalType is camera-capture", () => {
+    // Мокаем useModal
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "camera-capture",
+      modalData: null,
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что отображается правильный модальный компонент
+    expect(screen.getByTestId("camera-capture-modal")).toBeInTheDocument()
+  })
+
+  it("should render VoiceRecordModal when modalType is voice-recording", () => {
+    // Мокаем useModal
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "voice-recording",
+      modalData: null,
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что отображается правильный модальный компонент
+    expect(screen.getByTestId("voice-record-modal")).toBeInTheDocument()
+  })
+
+  it("should render ExportModal when modalType is export", () => {
+    // Мокаем useModal
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "export",
+      modalData: null,
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что отображается правильный модальный компонент
+    expect(screen.getByTestId("export-modal")).toBeInTheDocument()
+  })
+
+  it("should use dialogClass from modalData if provided", () => {
+    // Мокаем useModal с modalData, содержащим dialogClass
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "project-settings",
+      modalData: { dialogClass: "custom-dialog-class" },
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что используется класс из modalData
+    expect(screen.getByTestId("dialog-content").className).toBe(
+      "custom-dialog-class",
+    )
+  })
+
+  it("should use dialogClass from getDialogClassForType if modalData.dialogClass is not provided", () => {
+    // Мокаем useModal без dialogClass в modalData
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "project-settings",
+      modalData: { someOtherData: "test" },
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Проверяем, что используется класс из getDialogClassForType
+    expect(screen.getByTestId("dialog-content").className).toBe(
+      "test-dialog-class",
+    )
+    expect(getDialogClassForType).toHaveBeenCalledWith("project-settings")
+  })
+
+  it("should call closeModal when dialog is closed", () => {
+    // Создаем мок для closeModal
+    const closeModalMock = vi.fn()
+
+    // Мокаем useModal
+    vi.mocked(useModal).mockReturnValue({
+      modalType: "project-settings",
+      modalData: null,
+      isOpen: true,
+      openModal: vi.fn(),
+      closeModal: closeModalMock,
+      submitModal: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<ModalContainer />)
+
+    // Симулируем закрытие диалога
+    const onOpenChange = vi.mocked(useModal).mock.results[0].value.closeModal
+
+    // Вызываем onOpenChange с false
+    onOpenChange()
+
+    // Проверяем, что closeModal был вызван
+    expect(closeModalMock).toHaveBeenCalled()
+  })
+})

@@ -1,14 +1,18 @@
 import { useState } from "react"
 
 import {
+  Camera,
+  Film,
   Keyboard,
   Layout,
   ListTodo,
+  Mic,
   Save,
   Send,
   Settings,
   Upload,
   UserCog,
+  Webcam,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -20,8 +24,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { BrowserToggle } from "@/features/browser/components/layout/browser-toggle"
-import { useModal } from "@/features/dialogs/services/modal-provider"
 import { LayoutMode, LayoutPreviews } from "@/features/media-studio/layouts"
+import { useModal } from "@/features/modals/services/modal-provider"
 import { cn } from "@/lib/utils"
 
 export function TopBar({
@@ -47,7 +51,7 @@ export function TopBar({
   }
 
   return (
-    <div className="relative flex w-full items-center justify-between bg-gray-200 px-1 py-0 dark:bg-[#3c3c3c]">
+    <div className="relative flex w-full items-center justify-between bg-gray-200 px-1 py-0 dark:bg-[#383838]">
       <div className="flex h-6 items-center">
         <BrowserToggle />
         <Popover>
@@ -132,6 +136,24 @@ export function TopBar({
         </div>
       </div>
       <div className="flex h-6 items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 cursor-pointer p-0"
+          title={t("topBar.cameraCapture")}
+          onClick={() => handleOpenModal("camera-capture")}
+        >
+          <Webcam size={16} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 cursor-pointer p-0"
+          title={t("topBar.voiceRecording")}
+          onClick={() => handleOpenModal("voice-recording")}
+        >
+          <Mic className="h-5 w-5" />
+        </Button>
         <Popover>
           <PopoverTrigger asChild>
             <Button

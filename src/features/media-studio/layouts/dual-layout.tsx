@@ -6,12 +6,13 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { Browser } from "@/features/browser/components/browser"
+import { useBrowserVisibility } from "@/features/layouts/providers/browser-visibility-provider"
 import { Options } from "@/features/options/components/options"
 import { Timeline } from "@/features/timeline/components/timeline"
 import { VideoPlayer } from "@/features/video-player/components/video-player"
 
-export function DualMediaEditor() {
-  const [isBrowserVisible, setIsBrowserVisible] = useState(true)
+export function DualLayout() {
+  const { isBrowserVisible } = useBrowserVisibility()
 
   return (
     <ResizablePanelGroup

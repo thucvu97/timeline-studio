@@ -1,0 +1,104 @@
+import { fireEvent, render, screen } from "@testing-library/react"
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { useBrowserVisibility } from "@/features/layouts/providers/browser-visibility-provider"
+
+import { BrowserToggle } from "./browser-toggle"
+
+// Мокаем хук useBrowserVisibility
+vi.mock("@/features/layouts/providers/browser-visibility-provider")
+
+// Мокаем компоненты Lucide
+vi.mock("lucide-react", () => ({
+  PanelLeftClose: vi.fn(() => (
+    <div data-testid="panel-left-close">PanelLeftClose</div>
+  )),
+  PanelLeftOpen: vi.fn(() => (
+    <div data-testid="panel-left-open">PanelLeftOpen</div>
+  )),
+}))
+
+// Мокаем react-i18next
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        "browser.hide": "Hide Browser",
+        "browser.show": "Show Browser",
+      }
+      return translations[key] || key
+    },
+  }),
+}))
+
+describe("BrowserToggle", () => {
+  // Очищаем моки перед каждым тестом
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("should render PanelLeftClose icon when browser is visible", () => {
+    // Мокаем useBrowserVisibility для случая, когда браузер видим
+    vi.mocked(useBrowserVisibility).mockReturnValue({
+      isBrowserVisible: true,
+      toggleBrowserVisibility: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<BrowserToggle />)
+
+    // Проверяем, что отображается правильная иконка
+    expect(screen.getByTestId("panel-left-close")).toBeInTheDocument()
+    expect(screen.queryByTestId("panel-left-open")).not.toBeInTheDocument()
+
+    // Проверяем, что PanelLeftClose был вызван
+    expect(PanelLeftClose).toHaveBeenCalled()
+    expect(PanelLeftOpen).not.toHaveBeenCalled()
+
+    // Проверяем, что кнопка имеет правильный title
+    expect(screen.getByTitle("Hide Browser")).toBeInTheDocument()
+  })
+
+  it("should render PanelLeftOpen icon when browser is hidden", () => {
+    // Мокаем useBrowserVisibility для случая, когда браузер скрыт
+    vi.mocked(useBrowserVisibility).mockReturnValue({
+      isBrowserVisible: false,
+      toggleBrowserVisibility: vi.fn(),
+    })
+
+    // Рендерим компонент
+    render(<BrowserToggle />)
+
+    // Проверяем, что отображается правильная иконка
+    expect(screen.getByTestId("panel-left-open")).toBeInTheDocument()
+    expect(screen.queryByTestId("panel-left-close")).not.toBeInTheDocument()
+
+    // Проверяем, что PanelLeftOpen был вызван
+    expect(PanelLeftOpen).toHaveBeenCalled()
+    expect(PanelLeftClose).not.toHaveBeenCalled()
+
+    // Проверяем, что кнопка имеет правильный title
+    expect(screen.getByTitle("Show Browser")).toBeInTheDocument()
+  })
+
+  it("should call toggleBrowserVisibility when button is clicked", () => {
+    // Создаем мок для toggleBrowserVisibility
+    const toggleBrowserVisibilityMock = vi.fn()
+
+    // Мокаем useBrowserVisibility
+    vi.mocked(useBrowserVisibility).mockReturnValue({
+      isBrowserVisible: true,
+      toggleBrowserVisibility: toggleBrowserVisibilityMock,
+    })
+
+    // Рендерим компонент
+    render(<BrowserToggle />)
+
+    // Кликаем на кнопку
+    fireEvent.click(screen.getByTitle("Hide Browser"))
+
+    // Проверяем, что toggleBrowserVisibility был вызван
+    expect(toggleBrowserVisibilityMock).toHaveBeenCalledTimes(1)
+  })
+})

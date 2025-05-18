@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -16,14 +16,14 @@ export function BrowserToggle() {
     <Button
       variant="ghost"
       size="icon"
-      className={`absolute transition-all duration-300 ${isBrowserVisible ? "-right-8" : "left-2"} top-2 z-50 h-8 w-8 cursor-pointer rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700`}
+      className={`transition-all duration-300 hover:bg-secondary h-7 w-7 cursor-pointer p-0`}
       onClick={toggleBrowserVisibility}
       title={isBrowserVisible ? t("browser.hide") : t("browser.show")}
     >
       {isBrowserVisible ? (
-        <ChevronLeft size={16} />
+        <PanelLeftClose size={16} />
       ) : (
-        <ChevronRight size={16} />
+        <PanelLeftOpen size={16} />
       )}
     </Button>
   )

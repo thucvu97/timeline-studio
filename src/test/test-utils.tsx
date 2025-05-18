@@ -4,6 +4,7 @@ import { RenderOptions, render } from "@testing-library/react"
 
 import { ThemeProvider } from "@/components/theme/theme-context"
 import { BrowserVisibilityProvider } from "@/features/layouts/providers/browser-visibility-provider"
+import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
 
 // Провайдер для всех тестов
@@ -11,7 +12,9 @@ const AllProviders = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <BrowserVisibilityProvider>{children}</BrowserVisibilityProvider>
+        <ModalProvider>
+          <BrowserVisibilityProvider>{children}</BrowserVisibilityProvider>
+        </ModalProvider>
       </I18nProvider>
     </ThemeProvider>
   )
