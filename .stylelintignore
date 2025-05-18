@@ -1,0 +1,13 @@
+# Игнорировать сгенерированные файлы
+node_modules
+.next
+dist
+build
+out
+coverage
+
+# Игнорировать файлы в директории public
+public
+
+# Игнорировать файлы Tauri
+src-tauri

@@ -72,7 +72,10 @@ export function ModalContainer() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
-      <DialogContent aria-describedby="modal" className={dialogClass}>
+      <DialogContent
+        aria-describedby="modal"
+        className={dialogClass + " [&>button]:hidden"}
+      >
         <DialogHeader>
           <DialogTitle>{getModalTitle()}</DialogTitle>
         </DialogHeader>

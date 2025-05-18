@@ -278,7 +278,7 @@ describe("ModalContainer", () => {
 
     // Проверяем, что используется класс из modalData
     expect(screen.getByTestId("dialog-content").className).toBe(
-      "custom-dialog-class",
+      "custom-dialog-class [&>button]:hidden",
     )
   })
 
@@ -298,7 +298,7 @@ describe("ModalContainer", () => {
 
     // Проверяем, что используется класс из getDialogClassForType
     expect(screen.getByTestId("dialog-content").className).toBe(
-      "test-dialog-class",
+      "test-dialog-class [&>button]:hidden",
     )
     expect(getDialogClassForType).toHaveBeenCalledWith("project-settings")
   })
