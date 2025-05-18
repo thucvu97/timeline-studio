@@ -122,11 +122,10 @@ jobs:
           node-version: '20'
           cache: "npm"
 
-      - name: Clean
-        run: rm -rf node_modules package-lock.json
-
       - name: Install dependencies from lockfile
-        run: npm ci
+        run: |
+          rm -rf node_modules package-lock.json
+          npm ci
 
       - name: Run tests
         run: npm test
