@@ -5,6 +5,22 @@ import { ModalContainer } from "./modal-container"
 import { getDialogClassForType } from "../services/modal-machine"
 import { useModal } from "../services/modal-provider"
 
+// Мокаем react-i18next
+vi.mock("react-i18next", () => ({
+  // this mock makes sure any components using the translate hook can use it without a warning being shown
+  useTranslation: () => {
+    return {
+      t: (key: string, defaultValue: string) => {
+        // Для тестов возвращаем значение по умолчанию вместо ключа
+        return defaultValue || key
+      },
+      i18n: {
+        changeLanguage: vi.fn(),
+      },
+    }
+  },
+}))
+
 // Мокаем модули
 vi.mock("../services/modal-provider")
 vi.mock("../services/modal-machine")
@@ -278,7 +294,7 @@ describe("ModalContainer", () => {
 
     // Проверяем, что используется класс из modalData
     expect(screen.getByTestId("dialog-content").className).toBe(
-      "custom-dialog-class [&>button]:hidden",
+      "custom-dialog-class bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden",
     )
   })
 
@@ -298,7 +314,7 @@ describe("ModalContainer", () => {
 
     // Проверяем, что используется класс из getDialogClassForType
     expect(screen.getByTestId("dialog-content").className).toBe(
-      "test-dialog-class [&>button]:hidden",
+      "test-dialog-class bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden",
     )
     expect(getDialogClassForType).toHaveBeenCalledWith("project-settings")
   })

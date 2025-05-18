@@ -7,6 +7,26 @@ import { UserSettingsModal } from "./user-settings-modal"
 import { useUserSettings } from "./user-settings-provider"
 import { useModal } from "../modals"
 
+// Мокаем Tauri API
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: vi.fn().mockImplementation((cmd) => {
+    if (cmd === "select_directory") {
+      return Promise.resolve("selected/directory/path")
+    }
+    return Promise.resolve(null)
+  }),
+}))
+
+// Мокаем Tauri Dialog Plugin
+vi.mock("@tauri-apps/plugin-dialog", () => ({
+  open: vi.fn().mockImplementation((options) => {
+    if (options && options.directory) {
+      return Promise.resolve("selected/directory/path")
+    }
+    return Promise.resolve(null)
+  }),
+}))
+
 // Мокаем хуки
 vi.mock("@/hooks/use-language")
 vi.mock("./user-settings-provider")
@@ -34,7 +54,7 @@ describe("UserSettingsModal", () => {
     // Устанавливаем моки по умолчанию
     vi.mocked(useUserSettings).mockReturnValue({
       screenshotsPath: "public/screenshots",
-      aiApiKey: "",
+      openAiApiKey: "",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
     } as any)
@@ -73,10 +93,10 @@ describe("UserSettingsModal", () => {
   it("should handle language change", () => {
     render(<UserSettingsModal />)
 
-    // Находим селект языка
-    const languageSelect = screen.getByText(
-      "dialogs.userSettings.interfaceLanguage",
-    )
+    // Проверяем, что селект языка отображается
+    expect(
+      screen.getByText("dialogs.userSettings.interfaceLanguage"),
+    ).toBeInTheDocument()
 
     // Симулируем выбор языка, вызывая напрямую функцию changeLanguage
     void vi.mocked(useLanguage)().changeLanguage("en")
@@ -107,7 +127,9 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Находим инпут API ключа
-    const apiKeyInput = screen.getByPlaceholderText("Введите API ключ")
+    const apiKeyInput = screen.getByPlaceholderText(
+      "dialogs.userSettings.enterApiKey",
+    )
 
     // Вводим новый API ключ
     fireEvent.change(apiKeyInput, { target: { value: "test-api-key" } })
@@ -158,7 +180,7 @@ describe("UserSettingsModal", () => {
     // Переопределяем значение aiApiKey для этого теста
     vi.mocked(useUserSettings).mockReturnValue({
       screenshotsPath: "public/screenshots",
-      aiApiKey: "test-api-key",
+      openAiApiKey: "test-api-key",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
     } as any)
@@ -172,7 +194,9 @@ describe("UserSettingsModal", () => {
     fireEvent.click(clearButton)
 
     // Проверяем, что API ключ был сброшен
-    const apiKeyInput = screen.getByPlaceholderText("Введите API ключ")
+    const apiKeyInput = screen.getByPlaceholderText(
+      "dialogs.userSettings.enterApiKey",
+    )
     expect(apiKeyInput).toHaveValue("")
   })
 
@@ -214,7 +238,7 @@ describe("UserSettingsModal", () => {
     // Изменяем путь скриншотов в контексте
     vi.mocked(useUserSettings).mockReturnValue({
       screenshotsPath: "new/path",
-      aiApiKey: "",
+      openAiApiKey: "",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
     } as any)
@@ -233,13 +257,15 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Проверяем, что начальное значение API ключа установлено правильно
-    const apiKeyInput = screen.getByPlaceholderText("Введите API ключ")
+    const apiKeyInput = screen.getByPlaceholderText(
+      "dialogs.userSettings.enterApiKey",
+    )
     expect(apiKeyInput).toHaveValue("")
 
     // Изменяем API ключ в контексте
     vi.mocked(useUserSettings).mockReturnValue({
       screenshotsPath: "public/screenshots",
-      aiApiKey: "test-api-key",
+      openAiApiKey: "test-api-key",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
     } as any)
@@ -248,17 +274,22 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Проверяем, что значение API ключа обновилось
-    const updatedApiKeyInput =
-      screen.getAllByPlaceholderText("Введите API ключ")[1]
+    const updatedApiKeyInput = screen.getAllByPlaceholderText(
+      "dialogs.userSettings.enterApiKey",
+    )[1]
     expect(updatedApiKeyInput).toHaveValue("test-api-key")
   })
 
-  it("should handle folder selection button click", () => {
-    // Мокаем window.prompt
-    const originalPrompt = window.prompt
-    window.prompt = vi.fn().mockReturnValue("custom/folder")
+  it("should handle folder selection button click using Tauri Dialog Plugin", async () => {
+    // Получаем мок функции open из плагина dialog
+    const { open } = await import("@tauri-apps/plugin-dialog")
+    const mockOpen = open as unknown as ReturnType<typeof vi.fn>
 
-    render(<UserSettingsModal />)
+    // Очищаем историю вызовов мока
+    mockOpen.mockClear()
+
+    // Рендерим компонент
+    const { rerender } = render(<UserSettingsModal />)
 
     // Находим кнопку выбора папки
     const folderButton = screen.getByTitle("dialogs.userSettings.selectFolder")
@@ -266,26 +297,43 @@ describe("UserSettingsModal", () => {
     // Кликаем по кнопке
     fireEvent.click(folderButton)
 
-    // Проверяем, что prompt был вызван с правильными параметрами
-    expect(window.prompt).toHaveBeenCalledWith(
-      "dialogs.userSettings.selectFolderPrompt",
-      "public/screenshots\npublic/images/screenshots\npublic/media/screenshots\npublic/assets/screenshots",
-    )
+    // Ждем, пока асинхронные операции завершатся
+    await vi.waitFor(() => {
+      // Проверяем, что open был вызван с правильными параметрами
+      expect(mockOpen).toHaveBeenCalledWith(
+        expect.objectContaining({
+          directory: true,
+          multiple: false,
+          title: "dialogs.userSettings.selectFolder",
+        }),
+      )
+    })
+
+    // Имитируем обновление состояния после выбора директории
+    vi.mocked(useUserSettings).mockReturnValue({
+      screenshotsPath: "selected/directory/path",
+      openAiApiKey: "",
+      handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
+      handleAiApiKeyChange: mockHandleAiApiKeyChange,
+    } as any)
+
+    // Перерендериваем компонент
+    rerender(<UserSettingsModal />)
 
     // Проверяем, что путь скриншотов был обновлен
     const screenshotsPathInput =
       screen.getByPlaceholderText("public/screenshots")
-    expect(screenshotsPathInput).toHaveValue("custom/folder")
-
-    // Восстанавливаем оригинальный prompt
-    window.prompt = originalPrompt
+    expect(screenshotsPathInput).toHaveValue("selected/directory/path")
   })
 
-  it("should not update path when folder selection is cancelled", () => {
-    // Мокаем window.prompt
-    const originalPrompt = window.prompt
-    window.prompt = vi.fn().mockReturnValue(null)
+  it("should not update path when folder selection is cancelled", async () => {
+    // Получаем мок функции open из плагина dialog и настраиваем его, чтобы он возвращал null
+    const { open } = await import("@tauri-apps/plugin-dialog")
+    const mockOpen = open as unknown as ReturnType<typeof vi.fn>
+    mockOpen.mockClear()
+    mockOpen.mockResolvedValue(null)
 
+    // Рендерим компонент
     render(<UserSettingsModal />)
 
     // Находим кнопку выбора папки
@@ -294,15 +342,21 @@ describe("UserSettingsModal", () => {
     // Кликаем по кнопке
     fireEvent.click(folderButton)
 
-    // Проверяем, что prompt был вызван
-    expect(window.prompt).toHaveBeenCalled()
+    // Ждем, пока асинхронные операции завершатся
+    await vi.waitFor(() => {
+      // Проверяем, что open был вызван с правильными параметрами
+      expect(mockOpen).toHaveBeenCalledWith(
+        expect.objectContaining({
+          directory: true,
+          multiple: false,
+          title: "dialogs.userSettings.selectFolder",
+        }),
+      )
+    })
 
     // Проверяем, что путь скриншотов не изменился
     const screenshotsPathInput =
       screen.getByPlaceholderText("public/screenshots")
     expect(screenshotsPathInput).toHaveValue("public/screenshots")
-
-    // Восстанавливаем оригинальный prompt
-    window.prompt = originalPrompt
   })
 })

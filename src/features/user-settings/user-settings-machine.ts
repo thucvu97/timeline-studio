@@ -7,18 +7,6 @@ export const PREVIEW_SIZES = [
 export const DEFAULT_SIZE = 100
 export const MIN_SIZE = 60
 
-export const STORAGE_KEYS = {
-  MEDIA: "timeline-media-preview-size",
-  TRANSITIONS: "timeline-transitions-preview-size",
-  TEMPLATES: "timeline-templates-preview-size",
-  ACTIVE_TAB: "browser-active-tab",
-  LAYOUT: "app-layout-mode",
-  VOLUME: "player-volume",
-  SCREENSHOTS_PATH: "screenshots-save-path",
-  PREVIEW_CLICK_BEHAVIOR: "preview-click-behavior",
-  AI_API_KEY: "ai-api-key",
-} as const
-
 // Допустимые значения для активного таба
 export const BROWSER_TABS = [
   "media",
@@ -37,14 +25,15 @@ export const DEFAULT_LAYOUT = "default"
 export type PreviewSize = (typeof PREVIEW_SIZES)[number]
 export type BrowserTab = (typeof BROWSER_TABS)[number]
 export type LayoutMode = (typeof LAYOUTS)[number]
-export type StorageKey = keyof typeof STORAGE_KEYS
 
 export interface UserSettingsContext {
   previewSizes: Record<"MEDIA" | "TRANSITIONS" | "TEMPLATES", PreviewSize>
   activeTab: BrowserTab
   layoutMode: LayoutMode
   screenshotsPath: string
-  aiApiKey: string
+  playerScreenshotsPath: string
+  openAiApiKey: string
+  claudeApiKey: string
   isLoaded: boolean
 }
 
@@ -57,7 +46,9 @@ const initialContext: UserSettingsContext = {
   activeTab: DEFAULT_TAB,
   layoutMode: DEFAULT_LAYOUT,
   screenshotsPath: "public/screenshots",
-  aiApiKey: "",
+  playerScreenshotsPath: "public/screenshots",
+  openAiApiKey: "",
+  claudeApiKey: "",
   isLoaded: false,
 }
 
@@ -89,14 +80,25 @@ interface UpdateScreenshotsPathEvent {
   type: "UPDATE_SCREENSHOTS_PATH"
   path: string
 }
-interface UpdateAiApiKeyEvent {
-  type: "UPDATE_AI_API_KEY"
-  apiKey: string
-}
 
 interface UpdateAllSettingsEvent {
   type: "UPDATE_ALL_SETTINGS"
   settings: Partial<UserSettingsContext>
+}
+
+interface UpdatePlayerScreenshotsPathEvent {
+  type: "UPDATE_PLAYER_SCREENSHOTS_PATH"
+  path: string
+}
+
+interface UpdateOpenAiApiKeyEvent {
+  type: "UPDATE_OPENAI_API_KEY"
+  apiKey: string
+}
+
+interface UpdateClaudeApiKeyEvent {
+  type: "UPDATE_CLAUDE_API_KEY"
+  apiKey: string
 }
 
 export type UserSettingsEvent =
@@ -106,7 +108,9 @@ export type UserSettingsEvent =
   | UpdateActiveTabEvent
   | UpdateLayoutEvent
   | UpdateScreenshotsPathEvent
-  | UpdateAiApiKeyEvent
+  | UpdatePlayerScreenshotsPathEvent
+  | UpdateOpenAiApiKeyEvent
+  | UpdateClaudeApiKeyEvent
   | UpdateAllSettingsEvent
 
 export const userSettingsMachine = createMachine(
@@ -131,6 +135,21 @@ export const userSettingsMachine = createMachine(
         on: {
           UPDATE_ALL_SETTINGS: {
             actions: ["updateAllSettings"],
+          },
+          UPDATE_PREVIEW_SIZE: {
+            actions: ["updatePreviewSize"],
+          },
+          UPDATE_ACTIVE_TAB: {
+            actions: ["updateActiveTab"],
+          },
+          UPDATE_LAYOUT: {
+            actions: ["updateLayout"],
+          },
+          UPDATE_SCREENSHOTS_PATH: {
+            actions: ["updateScreenshotsPath"],
+          },
+          UPDATE_AI_API_KEY: {
+            actions: ["updateAiApiKey"],
           },
         },
       },
@@ -171,6 +190,84 @@ export const userSettingsMachine = createMachine(
         return {
           ...context,
           ...typedEvent.settings,
+        }
+      }),
+
+      // Метод для обновления размера превью
+      updatePreviewSize: assign((context, event) => {
+        const typedEvent = event as UpdatePreviewSizeEvent
+        console.log("Updating preview size:", typedEvent.key, typedEvent.size)
+
+        const newPreviewSizes = {
+          ...context.previewSizes,
+        }
+        newPreviewSizes[typedEvent.key] = typedEvent.size
+
+        return {
+          ...context,
+          previewSizes: newPreviewSizes,
+        }
+      }),
+
+      // Метод для обновления активной вкладки
+      updateActiveTab: assign((context, event) => {
+        const typedEvent = event as UpdateActiveTabEvent
+        console.log("Updating active tab:", typedEvent.tab)
+
+        return {
+          ...context,
+          activeTab: typedEvent.tab,
+        }
+      }),
+
+      // Метод для обновления режима макета
+      updateLayout: assign((context, event) => {
+        const typedEvent = event as UpdateLayoutEvent
+        console.log("Updating layout mode:", typedEvent.layoutMode)
+
+        return {
+          ...context,
+          layoutMode: typedEvent.layoutMode,
+        }
+      }),
+
+      updatePlayerScreenshotsPath: assign((context, event) => {
+        const typedEvent = event as UpdatePlayerScreenshotsPathEvent
+        console.log("Updating player screenshots path:", typedEvent.path)
+
+        return {
+          ...context,
+          playerScreenshotsPath: typedEvent.path,
+        }
+      }),
+
+      updateScreenshotsPath: assign((context, event) => {
+        const typedEvent = event as UpdateScreenshotsPathEvent
+        console.log("Updating screenshots path:", typedEvent.path)
+
+        return {
+          ...context,
+          screenshotsPath: typedEvent.path,
+        }
+      }),
+
+      updateOpenAiApiKey: assign((context, event) => {
+        const typedEvent = event as UpdateOpenAiApiKeyEvent
+        console.log("Updating OpenAI API key:", typedEvent.apiKey ? "***" : "(empty)")
+
+        return {
+          ...context,
+          openAiApiKey: typedEvent.apiKey,
+        }
+      }),
+
+      updateClaudeApiKey: assign((context, event) => {
+        const typedEvent = event as UpdateClaudeApiKeyEvent
+        console.log("Updating Claude API key:", typedEvent.apiKey ? "***" : "(empty)")
+
+        return {
+          ...context,
+          claudeApiKey: typedEvent.apiKey,
         }
       }),
     },

@@ -79,7 +79,7 @@ describe("Project Settings Machine", () => {
 
     // Проверяем, что настройки были сохранены в localStorage
     expect(localStorageMock.setItem).toHaveBeenCalledWith(
-      "timeline-project-settings",
+      "timeline-studio-project-settings",
       JSON.stringify(newSettings),
     )
   })
@@ -116,7 +116,7 @@ describe("Project Settings Machine", () => {
 
     // Проверяем, что настройки были удалены из localStorage
     expect(localStorageMock.removeItem).toHaveBeenCalledWith(
-      "timeline-project-settings",
+      "timeline-studio-project-settings",
     )
   })
 

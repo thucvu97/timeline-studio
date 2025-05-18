@@ -90,6 +90,8 @@
     "userSettings": "User Settings",
     "export": "Export",
     "toggleBrowser": "Toggle browser (Cmd+B)",
+    "cameraCapture": "Camera Recording",
+    "voiceRecording": "Audio Recording",
     "layouts": {
       "default": "Default",
       "options": "Options",
@@ -193,6 +195,26 @@
       "grid2x2": "Grid 2×2",
       "grid3x3": "Grid 3×3",
       "grid4x4": "Grid 4×4"
+    }
+  },
+  "modals": {
+    "projectSettings": {
+      "title": "Project Settings"
+    },
+    "keyboardShortcuts": {
+      "title": "Keyboard Shortcuts"
+    },
+    "userSettings": {
+      "title": "User Settings"
+    },
+    "cameraCapture": {
+      "title": "Camera Recording"
+    },
+    "voiceRecording": {
+      "title": "Audio Recording"
+    },
+    "export": {
+      "title": "Export"
     }
   },
   "dialogs": {
@@ -302,6 +324,9 @@
       "defaultPathHint": "Default path for saving screenshots",
       "customPathHint": "Screenshots will be saved to: {{path}}",
       "previewClickBehavior": "Don't duplicate preview video in player",
+      "aiApiKey": "AI API Key",
+      "clearApiKey": "Clear API Key",
+      "enterApiKey": "Enter API Key",
       "cancel": "Cancel",
       "save": "OK"
     },

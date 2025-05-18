@@ -89,12 +89,34 @@
     "userSettings": "Benutzereinstellungen",
     "export": "Exportieren",
     "toggleBrowser": "Browser ein-/ausblenden (Cmd+B)",
+    "cameraCapture": "Kameraaufnahme",
+    "voiceRecording": "Audioaufnahme",
     "layouts": {
       "default": "Standard",
       "options": "Optionen",
       "vertical": "Vertikales Video",
       "dual": "Doppelansicht",
       "externalDisplayRequired": "Externer Bildschirm erforderlich"
+    }
+  },
+  "modals": {
+    "projectSettings": {
+      "title": "Projekteinstellungen"
+    },
+    "keyboardShortcuts": {
+      "title": "Tastaturkürzel"
+    },
+    "userSettings": {
+      "title": "Benutzereinstellungen"
+    },
+    "cameraCapture": {
+      "title": "Kameraaufnahme"
+    },
+    "voiceRecording": {
+      "title": "Audioaufnahme"
+    },
+    "export": {
+      "title": "Exportieren"
     }
   },
   "ui": {
@@ -109,7 +131,9 @@
       "editingTasks": "Bearbeitungsaufgaben",
       "projectTasks": "Projektaufgaben",
       "userSettings": "Benutzereinstellungen",
-      "export": "Exportieren"
+      "export": "Exportieren",
+      "cameraCapture": "Kameraaufnahme",
+      "voiceRecording": "Audioaufnahme"
     },
     "dialogs": {
       "projectSettings": {
@@ -494,6 +518,9 @@
       "defaultPathHint": "Standardpfad zum Speichern von Screenshots",
       "customPathHint": "Screenshots werden gespeichert unter: {{path}}",
       "previewClickBehavior": "Vorschauvideo nicht im Player duplizieren",
+      "aiApiKey": "API-Schlüssel für KI",
+      "clearApiKey": "API-Schlüssel löschen",
+      "enterApiKey": "API-Schlüssel eingeben",
       "cancel": "Abbrechen",
       "save": "OK"
     }

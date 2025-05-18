@@ -89,12 +89,34 @@
     "userSettings": "Paramètres utilisateur",
     "export": "Exporter",
     "toggleBrowser": "Afficher/masquer le navigateur (Cmd+B)",
+    "cameraCapture": "Enregistrement caméra",
+    "voiceRecording": "Enregistrement audio",
     "layouts": {
       "default": "Par défaut",
       "options": "Options",
       "vertical": "Vidéo verticale",
       "dual": "Double vue",
       "externalDisplayRequired": "Écran externe requis"
+    }
+  },
+  "modals": {
+    "projectSettings": {
+      "title": "Paramètres du projet"
+    },
+    "keyboardShortcuts": {
+      "title": "Raccourcis clavier"
+    },
+    "userSettings": {
+      "title": "Paramètres utilisateur"
+    },
+    "cameraCapture": {
+      "title": "Enregistrement caméra"
+    },
+    "voiceRecording": {
+      "title": "Enregistrement audio"
+    },
+    "export": {
+      "title": "Exporter"
     }
   },
   "ui": {
@@ -109,7 +131,9 @@
       "editingTasks": "Tâches d'édition",
       "projectTasks": "Tâches du projet",
       "userSettings": "Paramètres utilisateur",
-      "export": "Exporter"
+      "export": "Exporter",
+      "cameraCapture": "Enregistrement caméra",
+      "voiceRecording": "Enregistrement audio"
     },
     "dialogs": {
       "projectSettings": {
@@ -440,6 +464,9 @@
       "defaultPathHint": "Chemin par défaut pour enregistrer les captures d'écran",
       "customPathHint": "Les captures d'écran seront enregistrées dans : {{path}}",
       "previewClickBehavior": "Ne pas dupliquer la vidéo d'aperçu dans le lecteur",
+      "aiApiKey": "Clé API pour l'IA",
+      "clearApiKey": "Effacer la clé API",
+      "enterApiKey": "Entrez la clé API",
       "cancel": "Annuler",
       "save": "OK"
     }

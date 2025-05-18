@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 
+import { open } from "@tauri-apps/plugin-dialog"
 import { Folder, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -23,7 +24,9 @@ import { useModal } from "../modals"
 export function UserSettingsModal() {
   const {
     screenshotsPath,
-    aiApiKey,
+    playerScreenshotsPath,
+    openAiApiKey,
+    claudeApiKey,
     handleScreenshotsPathChange,
     handleAiApiKeyChange,
   } = useUserSettings()
@@ -35,7 +38,7 @@ export function UserSettingsModal() {
     useState<LanguageCode>(currentLanguage)
   const [selectedScreenshotsPath, setSelectedScreenshotsPath] =
     useState<string>(screenshotsPath)
-  const [selectedAiApiKey, setSelectedAiApiKey] = useState<string>(aiApiKey)
+  const [selectedAiApiKey, setSelectedAiApiKey] = useState<string>(openAiApiKey)
 
   // Обновляем выбранный язык при изменении языка в контексте
   useEffect(() => {
@@ -49,8 +52,8 @@ export function UserSettingsModal() {
 
   // Обновляем выбранный API ключ при изменении в контексте
   useEffect(() => {
-    setSelectedAiApiKey(aiApiKey)
-  }, [aiApiKey])
+    setSelectedAiApiKey(openAiApiKey)
+  }, [openAiApiKey])
 
   // Обработчик изменения языка - применяет изменения сразу
   const handleLanguageSelect = (value: string) => {
@@ -87,7 +90,7 @@ export function UserSettingsModal() {
     }
 
     // Применяем изменения API ключа
-    if (selectedAiApiKey !== aiApiKey) {
+    if (selectedAiApiKey !== openAiApiKey) {
       console.log(
         "Applying AI API key change:",
         selectedAiApiKey ? "***" : "(empty)",
@@ -154,23 +157,40 @@ export function UserSettingsModal() {
               className="h-9 cursor-pointer"
               title={t("dialogs.userSettings.selectFolder")}
               onClick={() => {
-                // Предлагаем несколько стандартных папок для выбора
-                const folders = [
-                  "public/screenshots",
-                  "public/images/screenshots",
-                  "public/media/screenshots",
-                  "public/assets/screenshots",
-                ]
+                void (async () => {
+                  try {
+                    // Используем плагин dialog для выбора директории
+                    const selectedFolder = await open({
+                      directory: true,
+                      multiple: false,
+                      title: t("dialogs.userSettings.selectFolder"),
+                    })
 
-                // Создаем диалог выбора папки
-                const selectedFolder = window.prompt(
-                  t("dialogs.userSettings.selectFolderPrompt"),
-                  folders.join("\n"),
-                )
+                    // Если пользователь выбрал директорию, обновляем путь
+                    if (selectedFolder && !Array.isArray(selectedFolder)) {
+                      setSelectedScreenshotsPath(selectedFolder)
+                    }
+                  } catch (error) {
+                    console.error("Ошибка при выборе директории:", error)
 
-                if (selectedFolder) {
-                  setSelectedScreenshotsPath(selectedFolder.trim())
-                }
+                    // Если произошла ошибка, используем запасной вариант с prompt
+                    const folders = [
+                      "public/screenshots",
+                      "public/images/screenshots",
+                      "public/media/screenshots",
+                      "public/assets/screenshots",
+                    ]
+
+                    const promptResult = window.prompt(
+                      t("dialogs.userSettings.selectFolderPrompt"),
+                      folders.join("\n"),
+                    )
+
+                    if (promptResult) {
+                      setSelectedScreenshotsPath(promptResult.trim())
+                    }
+                  }
+                })()
               }}
             >
               <Folder className="h-4 w-4" />
@@ -187,7 +207,10 @@ export function UserSettingsModal() {
               type="password"
               value={selectedAiApiKey}
               onChange={handleAiApiKeyInput}
-              placeholder="Введите API ключ"
+              placeholder={t(
+                "dialogs.userSettings.enterApiKey",
+                "Введите API ключ",
+              )}
               className="h-9 pr-8 font-mono text-sm"
             />
             {selectedAiApiKey && (

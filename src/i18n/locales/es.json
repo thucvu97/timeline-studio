@@ -89,12 +89,34 @@
     "userSettings": "Configuración de usuario",
     "export": "Exportar",
     "toggleBrowser": "Alternar navegador (Cmd+B)",
+    "cameraCapture": "Grabación de cámara",
+    "voiceRecording": "Grabación de audio",
     "layouts": {
       "default": "Predeterminado",
       "options": "Opciones",
       "vertical": "Video vertical",
       "dual": "Vista dual",
       "externalDisplayRequired": "Se requiere pantalla externa"
+    }
+  },
+  "modals": {
+    "projectSettings": {
+      "title": "Configuración del proyecto"
+    },
+    "keyboardShortcuts": {
+      "title": "Atajos de teclado"
+    },
+    "userSettings": {
+      "title": "Configuración de usuario"
+    },
+    "cameraCapture": {
+      "title": "Grabación de cámara"
+    },
+    "voiceRecording": {
+      "title": "Grabación de audio"
+    },
+    "export": {
+      "title": "Exportar"
     }
   },
   "ui": {
@@ -109,7 +131,9 @@
       "editingTasks": "Tareas de edición",
       "projectTasks": "Tareas del proyecto",
       "userSettings": "Configuración de usuario",
-      "export": "Exportar"
+      "export": "Exportar",
+      "cameraCapture": "Grabación de cámara",
+      "voiceRecording": "Grabación de audio"
     },
     "dialogs": {
       "projectSettings": {
@@ -277,6 +301,8 @@
       "customPathHint": "Las capturas se guardarán en: {{path}}",
       "previewClickBehavior": "No duplicar video de vista previa en el reproductor",
       "aiApiKey": "Clave API para IA",
+      "clearApiKey": "Borrar clave API",
+      "enterApiKey": "Introducir clave API",
       "cancel": "Cancelar",
       "save": "Guardar"
     },

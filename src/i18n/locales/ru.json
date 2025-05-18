@@ -90,6 +90,8 @@
     "userSettings": "Настройки пользователя",
     "export": "Экспорт",
     "toggleBrowser": "Показать/скрыть браузер (Cmd+B)",
+    "cameraCapture": "Запись с камеры",
+    "voiceRecording": "Запись голоса",
     "layouts": {
       "default": "По умолчанию",
       "options": "Опции",
@@ -193,6 +195,26 @@
       "grid2x2": "Сетка 2×2",
       "grid3x3": "Сетка 3×3",
       "grid4x4": "Сетка 4×4"
+    }
+  },
+  "modals": {
+    "projectSettings": {
+      "title": "Настройки проекта"
+    },
+    "keyboardShortcuts": {
+      "title": "Горячие клавиши"
+    },
+    "userSettings": {
+      "title": "Настройки пользователя"
+    },
+    "cameraCapture": {
+      "title": "Запись с камеры"
+    },
+    "voiceRecording": {
+      "title": "Запись голоса"
+    },
+    "export": {
+      "title": "Экспорт"
     }
   },
   "dialogs": {
@@ -303,6 +325,8 @@
       "customPathHint": "Скриншоты будут сохраняться в: {{path}}",
       "previewClickBehavior": "Не дублировать превью видео в плеере",
       "aiApiKey": "API ключ для ИИ",
+      "clearApiKey": "Очистить API ключ",
+      "enterApiKey": "Введите API ключ",
       "cancel": "Отменить",
       "save": "OK"
     },

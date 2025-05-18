@@ -166,7 +166,7 @@ export function ProjectSettingsModal() {
 
   return (
     <>
-      <div className="flex flex-col space-y-6 py-1">
+      <div className="flex flex-col space-y-1 py-1">
         <div className="flex items-center justify-end">
           <Label className="mr-2 text-xs">
             {t("dialogs.projectSettings.aspectRatio")}

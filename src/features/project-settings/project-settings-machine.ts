@@ -4,7 +4,7 @@ import { assign, createMachine } from "xstate"
 import { DEFAULT_PROJECT_SETTINGS, ProjectSettings } from "@/types/project"
 
 // Key for storing project settings in localStorage
-const PROJECT_SETTINGS_STORAGE_KEY = "timeline-project-settings"
+const PROJECT_SETTINGS_STORAGE_KEY = "timeline-studio-project-settings"
 
 // Function to load settings from localStorage
 const loadSavedSettings = (): ProjectSettings | null => {

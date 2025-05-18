@@ -1,5 +1,7 @@
 import React from "react"
 
+import { useTranslation } from "react-i18next"
+
 import {
   Dialog,
   DialogContent,
@@ -24,6 +26,7 @@ import {
  */
 export function ModalContainer() {
   const { modalType, modalData, isOpen, closeModal } = useModal()
+  const { t } = useTranslation() // Получаем функцию перевода
 
   // Функция для рендеринга содержимого модального окна
   const renderModalContent = () => {
@@ -45,21 +48,21 @@ export function ModalContainer() {
     }
   }
 
-  // Функция для получения заголовка модального окна
+  // Функция для получения заголовка модального окна с использованием i18n
   const getModalTitle = () => {
     switch (modalType) {
       case "project-settings":
-        return "Настройки проекта"
+        return t("modals.projectSettings.title", "Настройки проекта")
       case "keyboard-shortcuts":
-        return "Горячие клавиши"
+        return t("modals.keyboardShortcuts.title", "Горячие клавиши")
       case "user-settings":
-        return "Настройки пользователя"
+        return t("modals.userSettings.title", "Настройки пользователя")
       case "camera-capture":
-        return "Запись с камеры"
+        return t("modals.cameraCapture.title", "Запись с камеры")
       case "voice-recording":
-        return "Запись голоса"
+        return t("modals.voiceRecording.title", "Запись голоса")
       case "export":
-        return "Экспорт"
+        return t("modals.export.title", "Экспорт")
       case "none":
         return ""
       default:
@@ -74,7 +77,9 @@ export function ModalContainer() {
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
       <DialogContent
         aria-describedby="modal"
-        className={dialogClass + " [&>button]:hidden"}
+        className={
+          dialogClass + " bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden"
+        }
       >
         <DialogHeader>
           <DialogTitle>{getModalTitle()}</DialogTitle>

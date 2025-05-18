@@ -137,8 +137,8 @@ describe("UserSettingsProvider", () => {
     const { useMachine } = await import("@xstate/react")
     const mockSend = vi.mocked(useMachine)()[1]
     expect(mockSend).toHaveBeenCalledWith({
-      type: "UPDATE_ACTIVE_TAB",
-      tab: "music",
+      type: "UPDATE_ALL_SETTINGS",
+      settings: { activeTab: "music" },
     })
   })
 
@@ -157,8 +157,8 @@ describe("UserSettingsProvider", () => {
     const { useMachine } = await import("@xstate/react")
     const mockSend = vi.mocked(useMachine)()[1]
     expect(mockSend).toHaveBeenCalledWith({
-      type: "UPDATE_LAYOUT",
-      layoutMode: "vertical",
+      type: "UPDATE_ALL_SETTINGS",
+      settings: { layoutMode: "vertical" },
     })
   })
 
@@ -177,8 +177,8 @@ describe("UserSettingsProvider", () => {
     const { useMachine } = await import("@xstate/react")
     const mockSend = vi.mocked(useMachine)()[1]
     expect(mockSend).toHaveBeenCalledWith({
-      type: "UPDATE_SCREENSHOTS_PATH",
-      path: "new/path",
+      type: "UPDATE_ALL_SETTINGS",
+      settings: { screenshotsPath: "new/path" },
     })
   })
 
@@ -197,8 +197,8 @@ describe("UserSettingsProvider", () => {
     const { useMachine } = await import("@xstate/react")
     const mockSend = vi.mocked(useMachine)()[1]
     expect(mockSend).toHaveBeenCalledWith({
-      type: "UPDATE_AI_API_KEY",
-      apiKey: "test-api-key",
+      type: "UPDATE_ALL_SETTINGS",
+      settings: { aiApiKey: "test-api-key" },
     })
   })
 })
