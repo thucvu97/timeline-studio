@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core"
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { DEFAULT_LANGUAGE, LanguageCode } from "@/i18n/constants"
+import { DEFAULT_LANGUAGE } from "@/i18n/constants"
 
 import { useLanguage } from "./use-language"
 

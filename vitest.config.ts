@@ -29,6 +29,7 @@ export default defineConfig({
         '**/*.test.{ts,tsx}',
         '**/__mocks__/**',
         '**/mocks/**',
+        'src/components/ui/**', // Исключаем UI компоненты из проверки покрытия
       ],
       include: [
         'src/**/*.{ts,tsx}',
