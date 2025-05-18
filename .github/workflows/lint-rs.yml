@@ -46,10 +46,17 @@ jobs:
       - name: Create empty 'dist' directory
         run: mkdir dist
 
+      - name: Set up Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: "npm"
+
+      - name: Install dependencies from lockfile
+        run: npm ci
+
       - name: Run rustfmt check
-        run: cargo fmt --all -- --check
-        working-directory: src-tauri
+        run: npm run format:rust:check
 
       - name: Run clippy check and deny warnings
-        run: cargo clippy --all-targets --all-features -- -D warnings
-        working-directory: src-tauri
+        run: npm run lint:rust

@@ -44,3 +44,6 @@ jobs:
 
       - name: Run lint step
         run: bun lint
+
+      - name: Check import order
+        run: bun format:imports
