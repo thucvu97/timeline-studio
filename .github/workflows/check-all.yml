@@ -35,11 +35,21 @@ jobs:
       - name: Install dependencies from lockfile
         run: npm ci
 
-      - name: Run lint step
+      - name: Run lint step on Unix
+        if: runner.os != 'Windows'
         run: npm run lint
 
-      - name: Check import order
+      - name: Run lint step on Windows
+        if: runner.os == 'Windows'
+        run: npm run lint:windows
+
+      - name: Check import order on Unix
+        if: runner.os != 'Windows'
         run: npm run format:imports
+
+      - name: Check import order on Windows
+        if: runner.os == 'Windows'
+        run: npm run format:imports:windows
 
   check-rust:
     name: Check Rust
