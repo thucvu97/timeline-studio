@@ -26,22 +26,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
-          cache: "pnpm"
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
-          run_install: false
+          cache: "npm"
 
       - name: Install dependencies from lockfile
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Run lint step
-        run: pnpm run lint
+        run: npm run lint
 
       - name: Check import order
-        run: pnpm run format:imports
+        run: npm run format:imports
 
   check-rust:
     name: Check Rust
@@ -73,22 +67,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
-          cache: "pnpm"
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
-          run_install: false
+          cache: "npm"
 
       - name: Install dependencies from lockfile
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Run rustfmt check
-        run: pnpm format:rust:check
+        run: npm run format:rust:check
 
       - name: Run clippy check and deny warnings
-        run: pnpm lint:rust
+        run: npm run lint:rust
 
   check-tests:
     name: Run Tests
@@ -107,16 +95,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
-          cache: "pnpm"
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
-          run_install: false
+          cache: "npm"
 
       - name: Install dependencies from lockfile
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Run tests
-        run: pnpm test
+        run: npm test

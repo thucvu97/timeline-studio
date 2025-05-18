@@ -32,19 +32,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
-          cache: "pnpm"
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
-          run_install: false
+          cache: "npm"
 
       - name: Install dependencies from lockfile
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Run lint step
-        run: pnpm run lint
+        run: npm run lint
 
       - name: Check import order
-        run: pnpm run format:imports
+        run: npm run format:imports
