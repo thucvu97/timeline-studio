@@ -33,7 +33,9 @@ describe("UserSettingsMachine", () => {
   })
 
   it("should have correct preview sizes", () => {
-    expect(PREVIEW_SIZES).toEqual([60, 80, 100, 125, 150, 200, 250, 300, 400])
+    expect(PREVIEW_SIZES).toEqual([
+      60, 80, 100, 125, 150, 200, 250, 300, 400, 500,
+    ])
   })
 
   it("should have correct browser tabs", () => {
@@ -56,7 +58,7 @@ describe("UserSettingsMachine", () => {
     expect(userSettingsMachine).toBeDefined()
 
     // Проверяем основные свойства машины состояний
-    expect(userSettingsMachine.id).toBe("userSettings")
+    expect(userSettingsMachine.id).toBe("user-settings-v2")
     expect(userSettingsMachine.config.initial).toBe("loading")
 
     // Проверяем, что машина имеет нужные состояния

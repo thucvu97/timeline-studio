@@ -27,6 +27,7 @@ export function UserSettingsModal() {
     playerScreenshotsPath,
     openAiApiKey,
     claudeApiKey,
+    handlePlayerScreenshotsPathChange,
     handleScreenshotsPathChange,
     handleAiApiKeyChange,
     handleClaudeApiKeyChange,
@@ -158,7 +159,90 @@ export function UserSettingsModal() {
 
         <div className="flex flex-col space-y-2">
           <Label className="text-xs font-medium">
-            {t("dialogs.userSettings.aiApiKey", "API ключ для OpenAI")}
+            {t(
+              "dialogs.userSettings.playerScreenshotsPath",
+              "Путь для сохранения скриншотов видеоплеера",
+            )}
+          </Label>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                value={playerScreenshotsPath}
+                onChange={(e) => {
+                  handlePlayerScreenshotsPathChange(e.target.value)
+                }}
+                placeholder="public/media"
+                className="h-9 pr-8 font-mono text-sm"
+              />
+              {playerScreenshotsPath &&
+                playerScreenshotsPath !== "public/media" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handlePlayerScreenshotsPathChange("public/media")
+                    }}
+                    className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    title={t("dialogs.userSettings.clearPath")}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+            </div>
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-9 cursor-pointer"
+              title={t("dialogs.userSettings.selectFolder")}
+              onClick={() => {
+                void (async () => {
+                  try {
+                    // Используем плагин dialog для выбора директории
+                    const selectedFolder = await open({
+                      directory: true,
+                      multiple: false,
+                      title: t("dialogs.userSettings.selectFolder"),
+                    })
+
+                    // Если пользователь выбрал директорию, обновляем путь
+                    if (selectedFolder && !Array.isArray(selectedFolder)) {
+                      handleScreenshotsPathChange(selectedFolder)
+                      console.log(
+                        "Screenshots path updated from folder dialog:",
+                        selectedFolder,
+                      )
+                    }
+                  } catch (error) {
+                    console.error("Ошибка при выборе директории:", error)
+
+                    // Если произошла ошибка, используем запасной вариант с prompt
+                    const folders = ["public/"]
+
+                    const promptResult = window.prompt(
+                      t("dialogs.userSettings.selectFolderPrompt"),
+                      folders.join("\n"),
+                    )
+
+                    if (promptResult) {
+                      const trimmedPath = promptResult.trim()
+                      handleScreenshotsPathChange(trimmedPath)
+                      console.log(
+                        "Screenshots path updated from prompt:",
+                        trimmedPath,
+                      )
+                    }
+                  }
+                })()
+              }}
+            >
+              <Folder className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col space-y-2">
+          <Label className="text-xs font-medium">
+            {t("dialogs.userSettings.openAiApiKey", "OpenAI API ключ")}
           </Label>
           <div className="relative flex-1">
             <Input
@@ -191,7 +275,7 @@ export function UserSettingsModal() {
         </div>
         <div className="flex flex-col space-y-2">
           <Label className="text-xs font-medium">
-            {t("dialogs.userSettings.aiApiKey", "API ключ для Claude")}
+            {t("dialogs.userSettings.claudeApiKey", "Claude API ключ")}
           </Label>
           <div className="relative flex-1">
             <Input
@@ -202,8 +286,8 @@ export function UserSettingsModal() {
                 handleClaudeApiKeyChange(e.target.value)
               }}
               placeholder={t(
-                "dialogs.userSettings.claudeApiKey",
-                "Введите API ключ Claude",
+                "dialogs.userSettings.enterApiKey",
+                "Введите API ключ",
               )}
               className="h-9 pr-8 font-mono text-sm"
             />

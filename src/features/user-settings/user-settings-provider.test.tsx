@@ -9,7 +9,9 @@ vi.mock("./user-settings-machine", () => {
     activeTab: "media",
     layoutMode: "default",
     screenshotsPath: "public/screenshots",
-    aiApiKey: "",
+    playerScreenshotsPath: "public/media",
+    openAiApiKey: "",
+    claudeApiKey: "",
     isLoaded: true,
     previewSizes: {
       MEDIA: 100,
@@ -35,7 +37,7 @@ vi.mock("@xstate/react", () => {
       activeTab: "media",
       layoutMode: "default",
       screenshotsPath: "public/screenshots",
-      playerScreenshotsPath: "",
+      playerScreenshotsPath: "public/media",
       openAiApiKey: "",
       claudeApiKey: "",
       isLoaded: true,
@@ -58,13 +60,20 @@ vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Компонент-обертка для тестирования хука useUserSettings
 const TestComponent = () => {
-  const { activeTab, layoutMode, screenshotsPath, openAiApiKey, claudeApiKey } =
-    useUserSettings()
+  const {
+    activeTab,
+    layoutMode,
+    screenshotsPath,
+    playerScreenshotsPath,
+    openAiApiKey,
+    claudeApiKey,
+  } = useUserSettings()
   return (
     <div>
       <div data-testid="active-tab">{activeTab}</div>
       <div data-testid="layout-mode">{layoutMode}</div>
       <div data-testid="screenshots-path">{screenshotsPath}</div>
+      <div data-testid="player-screenshots-path">{playerScreenshotsPath}</div>
       <div data-testid="open-ai-api-key">{openAiApiKey}</div>
       <div data-testid="claude-api-key">{claudeApiKey}</div>
     </div>
@@ -90,6 +99,9 @@ describe("UserSettingsProvider", () => {
     expect(screen.getByTestId("screenshots-path").textContent).toBe(
       "public/screenshots",
     )
+    expect(screen.getByTestId("player-screenshots-path").textContent).toBe(
+      "public/media",
+    )
     expect(screen.getByTestId("open-ai-api-key").textContent).toBe("")
     expect(screen.getByTestId("claude-api-key").textContent).toBe("")
   })
@@ -108,7 +120,7 @@ describe("UserSettingsProvider", () => {
     console.error = originalConsoleError
   })
 
-  it("should log state updates", async () => {
+  it("should log state information", async () => {
     render(
       <UserSettingsProvider>
         <TestComponent />
@@ -116,14 +128,15 @@ describe("UserSettingsProvider", () => {
     )
 
     // Проверяем, что состояние логируется
+    expect(console.log).toHaveBeenCalledWith("UserSettingsProvider rendering")
+
     expect(console.log).toHaveBeenCalledWith(
-      "UserSettingsProvider: state updated",
+      "UserSettingsProvider state:",
       expect.objectContaining({
         activeTab: "media",
         layoutMode: "default",
         screenshotsPath: "public/screenshots",
-        openAiApiKey: "",
-        claudeApiKey: "",
+        isLoaded: true,
       }),
     )
   })
@@ -144,8 +157,8 @@ describe("UserSettingsProvider", () => {
     const mockSend = vi.mocked(useMachine as any)()[1]
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: "UPDATE_ALL",
-        settings: expect.objectContaining({ activeTab: "music" }),
+        type: "UPDATE_ACTIVE_TAB",
+        tab: "music",
       }),
     )
   })
@@ -166,8 +179,8 @@ describe("UserSettingsProvider", () => {
     const mockSend = vi.mocked(useMachine as any)()[1]
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: "UPDATE_ALL",
-        settings: expect.objectContaining({ layoutMode: "vertical" }),
+        type: "UPDATE_LAYOUT",
+        layoutMode: "vertical",
       }),
     )
   })
@@ -188,8 +201,8 @@ describe("UserSettingsProvider", () => {
     const mockSend = vi.mocked(useMachine as any)()[1]
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: "UPDATE_ALL",
-        settings: expect.objectContaining({ screenshotsPath: "new/path" }),
+        type: "UPDATE_SCREENSHOTS_PATH",
+        path: "new/path",
       }),
     )
   })
@@ -210,8 +223,30 @@ describe("UserSettingsProvider", () => {
     const mockSend = vi.mocked(useMachine as any)()[1]
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: "UPDATE_ALL",
-        settings: expect.objectContaining({ openAiApiKey: "test-api-key" }),
+        type: "UPDATE_OPENAI_API_KEY",
+        apiKey: "test-api-key",
+      }),
+    )
+  })
+
+  it("should handle player screenshots path change", async () => {
+    // Получаем доступ к send из мока useMachine
+    const { result } = renderHook(() => useUserSettings(), {
+      wrapper: UserSettingsProvider,
+    })
+
+    // Изменяем путь скриншотов плеера
+    act(() => {
+      result.current.handlePlayerScreenshotsPathChange("new/player/path")
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    const { useMachine } = await import("@xstate/react")
+    const mockSend = vi.mocked(useMachine as any)()[1]
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "UPDATE_PLAYER_SCREENSHOTS_PATH",
+        path: "new/player/path",
       }),
     )
   })

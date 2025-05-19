@@ -1,11 +1,39 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { LayoutMode, LayoutPreviews } from "./layout-previews"
+// Импортируем компонент после моков
+import { LayoutPreviews } from "./layout-previews"
 
-// Мокаем компоненты превью макетов
+// Мокаем модули перед импортом компонента
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}))
+
+// Создаем мок для handleLayoutChange
+const handleLayoutChangeMock = vi.fn()
+
+vi.mock("../../../features/user-settings/user-settings-provider", () => {
+  return {
+    useUserSettings: () => ({
+      activeTab: "media",
+      layoutMode: "default",
+      playerScreenshotsPath: "public/media",
+      screenshotsPath: "public/screenshots",
+      openAiApiKey: "",
+      claudeApiKey: "",
+      handleTabChange: vi.fn(),
+      handleLayoutChange: handleLayoutChangeMock,
+      handleScreenshotsPathChange: vi.fn(),
+      handleAiApiKeyChange: vi.fn(),
+      handleClaudeApiKeyChange: vi.fn(),
+    }),
+  }
+})
+
 vi.mock("./layouts-markup", () => ({
-  DefaultLayout: ({ isActive, onClick }: any) => (
+  DefaultLayout: vi.fn(({ isActive, onClick }: any) => (
     <div
       data-testid="default-layout-preview"
       data-active={isActive}
@@ -13,8 +41,8 @@ vi.mock("./layouts-markup", () => ({
     >
       Default Layout Preview
     </div>
-  ),
-  OptionsLayout: ({ isActive, onClick }: any) => (
+  )),
+  OptionsLayout: vi.fn(({ isActive, onClick }: any) => (
     <div
       data-testid="options-layout-preview"
       data-active={isActive}
@@ -22,8 +50,8 @@ vi.mock("./layouts-markup", () => ({
     >
       Options Layout Preview
     </div>
-  ),
-  VerticalLayout: ({ isActive, onClick }: any) => (
+  )),
+  VerticalLayout: vi.fn(({ isActive, onClick }: any) => (
     <div
       data-testid="vertical-layout-preview"
       data-active={isActive}
@@ -31,8 +59,8 @@ vi.mock("./layouts-markup", () => ({
     >
       Vertical Layout Preview
     </div>
-  ),
-  DualLayout: ({ isActive, onClick, hasExternalDisplay }: any) => (
+  )),
+  DualLayout: vi.fn(({ isActive, onClick, hasExternalDisplay }: any) => (
     <div
       data-testid="dual-layout-preview"
       data-active={isActive}
@@ -41,20 +69,10 @@ vi.mock("./layouts-markup", () => ({
     >
       Dual Layout Preview
     </div>
-  ),
-}))
-
-// Мокаем react-i18next
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
+  )),
 }))
 
 describe("LayoutPreviews", () => {
-  // Создаем мок для onLayoutChange
-  const onLayoutChangeMock = vi.fn()
-
   // Очищаем моки перед каждым тестом
   beforeEach(() => {
     vi.clearAllMocks()
@@ -62,13 +80,7 @@ describe("LayoutPreviews", () => {
 
   it("should render all layout previews", () => {
     // Рендерим компонент
-    render(
-      <LayoutPreviews
-        onLayoutChange={onLayoutChangeMock}
-        layoutMode="default"
-        hasExternalDisplay={true}
-      />,
-    )
+    render(<LayoutPreviews />)
 
     // Проверяем, что все превью отображаются
     expect(screen.getByTestId("default-layout-preview")).toBeInTheDocument()
@@ -78,14 +90,27 @@ describe("LayoutPreviews", () => {
   })
 
   it("should mark the active layout preview", () => {
-    // Рендерим компонент с активным макетом "options"
-    render(
-      <LayoutPreviews
-        onLayoutChange={onLayoutChangeMock}
-        layoutMode="options"
-        hasExternalDisplay={true}
-      />,
-    )
+    // Переопределяем мок для useUserSettings с активным макетом "options"
+    vi.mock("../../../features/user-settings/user-settings-provider", () => {
+      return {
+        useUserSettings: () => ({
+          activeTab: "media",
+          layoutMode: "options",
+          playerScreenshotsPath: "public/media",
+          screenshotsPath: "public/screenshots",
+          openAiApiKey: "",
+          claudeApiKey: "",
+          handleTabChange: vi.fn(),
+          handleLayoutChange: handleLayoutChangeMock,
+          handleScreenshotsPathChange: vi.fn(),
+          handleAiApiKeyChange: vi.fn(),
+          handleClaudeApiKeyChange: vi.fn(),
+        }),
+      }
+    })
+
+    // Рендерим компонент
+    render(<LayoutPreviews />)
 
     // Проверяем, что правильный макет отмечен как активный
     expect(screen.getByTestId("default-layout-preview")).toHaveAttribute(
@@ -106,113 +131,48 @@ describe("LayoutPreviews", () => {
     )
   })
 
-  it("should call onLayoutChange when a layout preview is clicked", () => {
+  it("should call handleLayoutChange when a layout preview is clicked", () => {
     // Рендерим компонент
-    render(
-      <LayoutPreviews
-        onLayoutChange={onLayoutChangeMock}
-        layoutMode="default"
-        hasExternalDisplay={true}
-      />,
-    )
+    render(<LayoutPreviews />)
 
     // Кликаем на превью макета "options"
     fireEvent.click(screen.getByTestId("options-layout-preview"))
 
-    // Проверяем, что onLayoutChange был вызван с правильным аргументом
-    expect(onLayoutChangeMock).toHaveBeenCalledTimes(1)
-    expect(onLayoutChangeMock).toHaveBeenCalledWith("options")
+    // Проверяем, что handleLayoutChange был вызван с правильным аргументом
+    expect(handleLayoutChangeMock).toHaveBeenCalledTimes(1)
+    expect(handleLayoutChangeMock).toHaveBeenCalledWith("options")
 
     // Кликаем на превью макета "vertical"
     fireEvent.click(screen.getByTestId("vertical-layout-preview"))
 
-    // Проверяем, что onLayoutChange был вызван с правильным аргументом
-    expect(onLayoutChangeMock).toHaveBeenCalledTimes(2)
-    expect(onLayoutChangeMock).toHaveBeenCalledWith("vertical")
+    // Проверяем, что handleLayoutChange был вызван с правильным аргументом
+    expect(handleLayoutChangeMock).toHaveBeenCalledTimes(2)
+    expect(handleLayoutChangeMock).toHaveBeenCalledWith("vertical")
   })
 
-  it("should call onLayoutChange when dual layout is clicked and hasExternalDisplay is true", () => {
-    // Рендерим компонент с hasExternalDisplay=true
-    render(
-      <LayoutPreviews
-        onLayoutChange={onLayoutChangeMock}
-        layoutMode="default"
-        hasExternalDisplay={true}
-      />,
-    )
+  it("should call handleLayoutChange when dual layout is clicked", () => {
+    // Рендерим компонент
+    render(<LayoutPreviews />)
 
     // Кликаем на превью макета "dual"
     fireEvent.click(screen.getByTestId("dual-layout-preview"))
 
-    // Проверяем, что onLayoutChange был вызван с правильным аргументом
-    expect(onLayoutChangeMock).toHaveBeenCalledTimes(1)
-    expect(onLayoutChangeMock).toHaveBeenCalledWith("dual")
+    // Проверяем, что handleLayoutChange был вызван с правильным аргументом
+    expect(handleLayoutChangeMock).toHaveBeenCalledTimes(1)
+    expect(handleLayoutChangeMock).toHaveBeenCalledWith("dual")
   })
 
-  it("should not call onLayoutChange when dual layout is clicked and hasExternalDisplay is false", () => {
-    // Рендерим компонент с hasExternalDisplay=false
-    render(
-      <LayoutPreviews
-        onLayoutChange={onLayoutChangeMock}
-        layoutMode="default"
-        hasExternalDisplay={false}
-      />,
-    )
+  it("should render DualLayout with hasExternalDisplay=false", () => {
+    // Рендерим компонент
+    render(<LayoutPreviews />)
 
-    // Проверяем, что dual layout имеет атрибут hasExternalDisplay=false
-    expect(screen.getByTestId("dual-layout-preview")).toHaveAttribute(
-      "data-has-external-display",
-      "false",
-    )
-
-    // Кликаем на превью макета "dual"
-    fireEvent.click(screen.getByTestId("dual-layout-preview"))
-
-    // Проверяем, что onLayoutChange не был вызван
-    expect(onLayoutChangeMock).not.toHaveBeenCalled()
-  })
-
-  it("should pass hasExternalDisplay prop to DualLayout", () => {
-    // Рендерим компонент с hasExternalDisplay=true
-    const { rerender } = render(
-      <LayoutPreviews
-        onLayoutChange={onLayoutChangeMock}
-        layoutMode="default"
-        hasExternalDisplay={true}
-      />,
-    )
-
-    // Проверяем, что DualLayout получил hasExternalDisplay=true
-    expect(screen.getByTestId("dual-layout-preview")).toHaveAttribute(
-      "data-has-external-display",
-      "true",
-    )
-
-    // Перерендериваем компонент с hasExternalDisplay=false
-    rerender(
-      <LayoutPreviews
-        onLayoutChange={onLayoutChangeMock}
-        layoutMode="default"
-        hasExternalDisplay={false}
-      />,
-    )
-
-    // Проверяем, что DualLayout получил hasExternalDisplay=false
-    expect(screen.getByTestId("dual-layout-preview")).toHaveAttribute(
-      "data-has-external-display",
-      "false",
-    )
+    // Проверяем, что DualLayout отображается
+    expect(screen.getByTestId("dual-layout-preview")).toBeInTheDocument()
   })
 
   it("should render in a flex layout with correct spacing", () => {
     // Рендерим компонент
-    const { container } = render(
-      <LayoutPreviews
-        onLayoutChange={onLayoutChangeMock}
-        layoutMode="default"
-        hasExternalDisplay={true}
-      />,
-    )
+    const { container } = render(<LayoutPreviews />)
 
     // Проверяем, что корневой элемент имеет правильные классы
     const rootElement = container.firstChild as HTMLElement

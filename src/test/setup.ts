@@ -68,9 +68,9 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
 // Мок для TopBar
 vi.mock("@/features/top-bar/components/top-bar", () => ({
   TopBar: ({
-    layoutMode,
-    onLayoutChange,
-  }: { layoutMode: string; onLayoutChange: (mode: string) => void }) => {
+    layoutMode = "default",
+    onLayoutChange = (layoutMode: any) => {},
+  } = {}) => {
     return React.createElement(
       "div",
       { "data-testid": "top-bar" },
@@ -144,9 +144,9 @@ vi.mock("@/features/media-studio/layouts", () => ({
     DUAL: "dual",
   },
   LayoutPreviews: ({
-    onLayoutChange,
-    layoutMode,
-  }: { onLayoutChange: (mode: string) => void; layoutMode: string }) => {
+    onLayoutChange = () => {},
+    layoutMode = "default",
+  } = {}) => {
     return React.createElement(
       "div",
       { "data-testid": "layout-previews" },
@@ -228,4 +228,170 @@ const localStorageMock = (() => {
 
 Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
+})
+
+// Мок для indexedDB
+const indexedDBMock = {
+  open: vi.fn().mockReturnValue({
+    onupgradeneeded: null,
+    onsuccess: null,
+    onerror: null,
+    result: {
+      transaction: vi.fn().mockReturnValue({
+        objectStore: vi.fn().mockReturnValue({
+          put: vi.fn(),
+          get: vi.fn(),
+          getAll: vi.fn(),
+          delete: vi.fn(),
+          clear: vi.fn(),
+        }),
+      }),
+      createObjectStore: vi.fn(),
+    },
+  }),
+  deleteDatabase: vi.fn(),
+}
+
+Object.defineProperty(window, "indexedDB", {
+  value: indexedDBMock,
+})
+
+// Мок для IndexedDBService
+vi.mock("@/features/media-studio/indexed-db-service", () => {
+  return {
+    IndexedDBService: class {
+      static instance: any
+
+      static getInstance() {
+        if (!this.instance) {
+          this.instance = new this()
+        }
+        return this.instance
+      }
+
+      async saveState(state: any) {
+        console.log("User Settings saved to IndexedDB: ", state)
+        return Promise.resolve()
+      }
+
+      async loadTimelineState() {
+        console.log(
+          "[userSettingsMachine] В IndexedDB нет сохраненного состояния настроек",
+        )
+        return Promise.resolve(null)
+      }
+
+      async getLastSaveTimestamp() {
+        return Promise.resolve(Date.now())
+      }
+
+      async shouldRefreshData() {
+        return Promise.resolve(true)
+      }
+    },
+    userSettingsDbService: {
+      saveState: vi.fn().mockResolvedValue(undefined),
+      loadTimelineState: vi.fn().mockResolvedValue(null),
+      getLastSaveTimestamp: vi.fn().mockResolvedValue(Date.now()),
+      shouldRefreshData: vi.fn().mockResolvedValue(true),
+    },
+    USER_SETTINGS_STATE_KEY: "timeline-user-settings-state",
+    USER_SETTINGS_STATE_TIMESTAMP_KEY: "timeline-user-settings-state-timestamp",
+  }
+})
+
+// Мок для MediaStudio
+vi.mock("@/features/media-studio/media-studio", () => {
+  // Создаем состояние для хранения текущего layoutMode
+  let currentLayoutMode = "default"
+
+  return {
+    MediaStudio: () => {
+      return React.createElement(
+        "div",
+        { "data-testid": "media-studio" },
+        // TopBar с возможностью изменения layoutMode
+        React.createElement(
+          "div",
+          { "data-testid": "top-bar" },
+          React.createElement(
+            "span",
+            { "data-testid": "current-layout" },
+            currentLayoutMode,
+          ),
+          React.createElement(
+            "button",
+            {
+              "data-testid": "change-layout-default",
+              onClick: () => {
+                currentLayoutMode = "default"
+              },
+            },
+            "Default",
+          ),
+          React.createElement(
+            "button",
+            {
+              "data-testid": "change-layout-options",
+              onClick: () => {
+                currentLayoutMode = "options"
+              },
+            },
+            "Options",
+          ),
+          React.createElement(
+            "button",
+            {
+              "data-testid": "change-layout-vertical",
+              onClick: () => {
+                currentLayoutMode = "vertical"
+              },
+            },
+            "Vertical",
+          ),
+          React.createElement(
+            "button",
+            {
+              "data-testid": "change-layout-dual",
+              onClick: () => {
+                currentLayoutMode = "dual"
+              },
+            },
+            "Dual",
+          ),
+        ),
+        // Отображаем соответствующий layout в зависимости от currentLayoutMode
+        currentLayoutMode === "default" &&
+          React.createElement(
+            "div",
+            { "data-testid": "default-layout" },
+            "Default Layout",
+          ),
+        currentLayoutMode === "options" &&
+          React.createElement(
+            "div",
+            { "data-testid": "options-layout" },
+            "Options Layout",
+          ),
+        currentLayoutMode === "vertical" &&
+          React.createElement(
+            "div",
+            { "data-testid": "vertical-layout" },
+            "Vertical Layout",
+          ),
+        currentLayoutMode === "dual" &&
+          React.createElement(
+            "div",
+            { "data-testid": "dual-layout" },
+            "Dual Layout",
+          ),
+        // ModalContainer
+        React.createElement(
+          "div",
+          { "data-testid": "modal-container" },
+          "Modal Container",
+        ),
+      )
+    },
+  }
 })

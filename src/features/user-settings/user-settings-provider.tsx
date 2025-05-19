@@ -21,6 +21,7 @@ interface UserSettingsContextValue {
   handleTabChange: (value: string) => void
   handleLayoutChange: (value: LayoutMode) => void
   handleScreenshotsPathChange: (value: string) => void
+  handlePlayerScreenshotsPathChange: (value: string) => void
   handleAiApiKeyChange: (value: string) => void
   handleClaudeApiKeyChange: (value: string) => void
 }
