@@ -1,10 +1,6 @@
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import {
-  formatDate,
-  formatDuration,
-  formatTime,
-} from "./date"
+import { formatDate, formatDuration, formatTime } from "./date"
 
 // Мокаем dayjs.utc и dayjs.tz
 vi.mock("./dayjs", () => {

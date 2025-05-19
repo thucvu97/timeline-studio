@@ -2,8 +2,8 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { Film } from "lucide-react"
 
+import { formatDuration } from "@/lib/date"
 import { cn, formatResolution } from "@/lib/utils"
-
 import {
   calculateAdaptiveWidth,
   calculateWidth,
@@ -14,7 +14,6 @@ import { MediaFile } from "@/types/media"
 
 import { AddMediaButton } from "../layout/add-media-button"
 import { FavoriteButton } from "../layout/favorite-button"
-import { formatDuration } from "@/lib/date"
 
 interface VideoPreviewProps {
   file: MediaFile
@@ -22,7 +21,6 @@ interface VideoPreviewProps {
   isAdded?: boolean
   size?: number
   showFileName?: boolean
-  hideTime?: boolean
   dimensions?: [number, number]
   ignoreRatio?: boolean
 }
@@ -43,7 +41,6 @@ interface VideoPreviewProps {
  * @param isAdded - Флаг, показывающий добавлен ли файл
  * @param size - Размер превью в пикселях (по умолчанию 60)
  * @param showFileName - Флаг для отображения имени файла (по умолчанию false)
- * @param hideTime - Флаг для скрытия времени (по умолчанию false)
  * @param dimensions - Соотношение сторон контейнера [ширина, высота], по умолчанию [16, 9]
  * @param ignoreRatio - Флаг для игнорирования соотношения сторон (по умолчанию false)
  */
@@ -53,8 +50,6 @@ export const VideoPreview = memo(function VideoPreview({
   isAdded,
   size = 60,
   showFileName = false,
-  hideTime = false,
-  dimensions = [16, 9],
   ignoreRatio = false,
 }: VideoPreviewProps) {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -71,7 +66,7 @@ export const VideoPreview = memo(function VideoPreview({
       file.probeData?.streams.filter((s) => s.codec_type === "video") ?? []
     videoStreams.forEach((stream) => {
       const key = stream.streamKey ?? `stream-${stream.index}`
-      videoRefs.current[key] ??= null;
+      videoRefs.current[key] ??= null
     })
   }, [file.probeData?.streams])
 
@@ -269,7 +264,7 @@ export const VideoPreview = memo(function VideoPreview({
               />
 
               {/* Продолжительность видео */}
-              {!hideTime && !(isMultipleStreams && stream.index === 0) && (
+              {!(isMultipleStreams && stream.index === 0) && (
                 <div
                   className={cn(
                     "pointer-events-none absolute rounded-xs bg-black/50 text-xs leading-[16px] text-white",

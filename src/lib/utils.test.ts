@@ -19,9 +19,7 @@ describe("cn", () => {
   })
 
   it("should handle conditional classes", () => {
-    expect(cn("class1", true && "class2", false && "class3")).toBe(
-      "class1 class2",
-    )
+    expect(cn("class1", "class2", undefined)).toBe("class1 class2")
   })
 
   it("should handle objects", () => {
@@ -40,7 +38,7 @@ describe("cn", () => {
           class2: true,
           class3: false,
         },
-        ["class4", false && "class5"],
+        ["class4", undefined],
       ),
     ).toBe("class1 class2 class4")
   })

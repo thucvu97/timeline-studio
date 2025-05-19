@@ -12,7 +12,6 @@ interface MediaPreviewProps {
   isAdded?: boolean
   size?: number
   showFileName?: boolean
-  hideTime?: boolean
   dimensions?: [number, number]
   ignoreRatio?: boolean
 }
@@ -32,7 +31,6 @@ interface MediaPreviewProps {
  * @param isAdded - Флаг, показывающий добавлен ли файл
  * @param size - Размер превью в пикселях (по умолчанию 60)
  * @param showFileName - Флаг для отображения имени файла
- * @param hideTime - Флаг для скрытия времени
  * @param dimensions - Соотношение сторон контейнера [ширина, высота], по умолчанию [16, 9]
  * @param ignoreRatio - Флаг для игнорирования соотношения сторон (по умолчанию false)
  */
@@ -42,7 +40,6 @@ export const MediaPreview = memo(function MediaPreview({
   isAdded,
   size = 60,
   showFileName = false,
-  hideTime = false,
   dimensions = [16, 9],
   ignoreRatio = false,
 }: MediaPreviewProps) {
@@ -54,7 +51,6 @@ export const MediaPreview = memo(function MediaPreview({
         isAdded={isAdded}
         size={size}
         showFileName={showFileName}
-        hideTime={hideTime}
         dimensions={dimensions}
         ignoreRatio={ignoreRatio}
       />
@@ -69,7 +65,6 @@ export const MediaPreview = memo(function MediaPreview({
         isAdded={isAdded}
         size={size}
         showFileName={showFileName}
-        hideTime={hideTime}
         dimensions={dimensions}
       />
     )

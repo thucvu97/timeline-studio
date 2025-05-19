@@ -5,7 +5,6 @@ import { LiveAudioVisualizer } from "react-audio-visualize"
 
 import { MediaFile } from "@/types/media"
 
-import { PreviewTimeline } from "./preview-timeline"
 import { AddMediaButton } from "../layout/add-media-button"
 import { FavoriteButton } from "../layout/favorite-button"
 
@@ -15,7 +14,6 @@ interface AudioPreviewProps {
   isAdded?: boolean
   size?: number
   showFileName?: boolean
-  hideTime?: boolean
   dimensions?: [number, number]
 }
 
@@ -35,7 +33,6 @@ interface AudioPreviewProps {
  * @param isAdded - Флаг, показывающий добавлен ли файл
  * @param size - Размер превью в пикселях (по умолчанию 60)
  * @param showFileName - Флаг для отображения имени файла
- * @param hideTime - Флаг для скрытия времени
  * @param dimensions - Соотношение сторон контейнера [ширина, высота], по умолчанию [16, 9]
  */
 export const AudioPreview = memo(function AudioPreview({
@@ -44,7 +41,6 @@ export const AudioPreview = memo(function AudioPreview({
   isAdded,
   size = 60,
   showFileName = false,
-  hideTime = false,
   dimensions = [16, 9],
 }: AudioPreviewProps) {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -169,15 +165,6 @@ export const AudioPreview = memo(function AudioPreview({
       >
         <Music size={size > 100 ? 16 : 12} />
       </div>
-
-      {/* полоса времени */}
-      {hoverTime !== null && Number.isFinite(hoverTime) && (
-        <PreviewTimeline
-          time={hoverTime}
-          duration={file.duration ?? 0}
-          videoRef={audioRef.current}
-        />
-      )}
 
       {/* Имя файла */}
       {showFileName && (
