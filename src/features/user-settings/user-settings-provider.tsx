@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect } from "react"
 
 import { useMachine } from "@xstate/react"
 
-import { storageService } from "@/features/media-studio/storage-service"
+import { timelineIndexedDBService } from "@/features/media-studio/indexed-db-service"
 
 import {
   BrowserTab,
@@ -29,9 +29,6 @@ export const UserSettingsContext = createContext<
   UserSettingsContextValue | undefined
 >(undefined)
 
-// Ключ для хранения всех настроек пользователя в localStorage
-const USER_SETTINGS_STORAGE_KEY = "timeline-studio-user-settings"
-
 export function UserSettingsProvider({
   children,
 }: { children: React.ReactNode }) {
@@ -40,50 +37,67 @@ export function UserSettingsProvider({
 
   console.log("UserSettingsProvider state:", state.context)
 
-  // Загружаем настройки из localStorage при монтировании компонента
+  // Загружаем настройки из IndexedDB при монтировании компонента
   useEffect(() => {
-    console.log("UserSettingsProvider: Loading settings from localStorage")
+    console.log("UserSettingsProvider: Loading settings from IndexedDB")
 
-    // Проверяем значение layoutMode в localStorage для отладки
-    const debugLayoutMode = localStorage.getItem("debug-layout-mode")
-    console.log("Debug: layout mode in localStorage:", debugLayoutMode)
+    // Загружаем настройки из IndexedDB
+    timelineIndexedDBService.loadTimelineState()
+      .then((savedSettings) => {
+        console.log("Settings from IndexedDB:", savedSettings)
 
-    try {
-      // Загружаем настройки из localStorage с помощью StorageService
-      const savedSettings = storageService.get(USER_SETTINGS_STORAGE_KEY, {})
-      console.log("Settings from StorageService:", savedSettings)
+        if (savedSettings && typeof savedSettings === "object" && Object.keys(savedSettings).length > 0) {
+          // Обновляем контекст машины состояний
+          send({
+            type: "UPDATE_ALL_SETTINGS",
+            settings: {
+              ...savedSettings,
+              isLoaded: true, // Устанавливаем isLoaded в true
+            },
+          })
+          console.log("Settings loaded from IndexedDB and applied to state machine")
+        } else {
+          // Если настройки не найдены, просто устанавливаем isLoaded в true
+          send({
+            type: "UPDATE_ALL_SETTINGS",
+            settings: {
+              ...state.context,
+              isLoaded: true, // Устанавливаем isLoaded в true
+            },
+          })
+          console.log("No settings found in IndexedDB, isLoaded set to true")
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Error loading settings from IndexedDB:", error)
 
-      if (
-        typeof savedSettings === "object" &&
-        Object.keys(savedSettings).length > 0
-      ) {
-        // Обновляем контекст машины состояний
+        // В случае ошибки просто устанавливаем isLoaded в true
         send({
           type: "UPDATE_ALL_SETTINGS",
           settings: {
-            ...savedSettings,
+            ...state.context,
             isLoaded: true, // Устанавливаем isLoaded в true
           },
         })
-        console.log(
-          "Settings loaded from localStorage and applied to state machine",
-        )
-        console.log(
-          "Debug: layoutMode after loading settings:",
-          (savedSettings as any).layoutMode,
-        )
-      } else {
-        console.log("No settings found in localStorage or empty object")
-      }
-    } catch (error) {
-      console.error("Error loading settings from localStorage:", error)
-    }
-  }, [send])
+        console.log("Error loading settings, isLoaded set to true")
+      })
+  }, [send, state.context])
 
-  // Логируем каждое изменение состояния и сохраняем в localStorage
+  // Логируем каждое изменение состояния и сохраняем в IndexedDB
   useEffect(() => {
     console.log("UserSettingsProvider: state updated", state.context)
 
+    // Сохраняем настройки в IndexedDB при изменении состояния
+    if (state.context.isLoaded) {
+      timelineIndexedDBService
+        .saveTimelineState(state.context)
+        .then(() => {
+          console.log("Settings saved to IndexedDB")
+        })
+        .catch((error: unknown) => {
+          console.error("Error saving settings to IndexedDB:", error)
+        })
+    }
   }, [state.context])
 
   const value = {
@@ -123,19 +137,55 @@ export function UserSettingsProvider({
 
       // Проверяем, что значение является допустимым LayoutMode
       if (["default", "options", "vertical", "dual"].includes(value)) {
-        // Сохраняем значение напрямую в localStorage для отладки
-        try {
-          localStorage.setItem("debug-layout-mode", value)
-          console.log("Debug: layout mode saved to localStorage:", value)
-        } catch (error) {
-          console.error("Error saving layout mode to localStorage:", error)
+        // Создаем обновленный контекст
+        const updatedContext = {
+          ...state.context,
+          layoutMode: value,
+          isLoaded: true,
         }
 
+        // Обновляем все настройки сразу, включая layoutMode
+        send({
+          type: "UPDATE_ALL_SETTINGS",
+          settings: updatedContext,
+        })
+
+        // Также отправляем событие UPDATE_LAYOUT для совместимости
         send({
           type: "UPDATE_LAYOUT",
           layoutMode: value,
         })
+
         console.log("Layout mode updated:", value)
+        console.log(
+          "Current context after update (state.context):",
+          state.context,
+        )
+        console.log("Updated context (local variable):", updatedContext)
+
+        // Сохраняем настройки в IndexedDB
+        timelineIndexedDBService
+          .saveTimelineState(updatedContext)
+          .then(() => {
+            console.log(
+              "Settings with new layoutMode saved to IndexedDB:",
+              value,
+            )
+          })
+          .catch((error: unknown) => {
+            console.error(
+              "Error saving settings with new layoutMode to IndexedDB:",
+              error,
+            )
+          })
+
+        // Вызываем событие resize, чтобы компоненты перерисовались
+        setTimeout(() => {
+          if (typeof window !== "undefined") {
+            console.log("Dispatching resize event to force rerender")
+            window.dispatchEvent(new Event("resize"))
+          }
+        }, 50)
       } else {
         console.error("Invalid layout value:", value)
       }

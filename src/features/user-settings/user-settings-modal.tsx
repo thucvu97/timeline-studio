@@ -37,23 +37,6 @@ export function UserSettingsModal() {
 
   const [selectedLanguage, setSelectedLanguage] =
     useState<LanguageCode>(currentLanguage)
-  const [selectedScreenshotsPath, setSelectedScreenshotsPath] =
-    useState<string>(screenshotsPath)
-
-  // Обновляем локальное состояние при изменении значений в контексте
-  useEffect(() => {
-    setSelectedScreenshotsPath(screenshotsPath)
-  }, [screenshotsPath])
-
-  // Обновляем выбранный язык при изменении языка в контексте
-  useEffect(() => {
-    setSelectedLanguage(currentLanguage)
-  }, [currentLanguage])
-
-  // Обновляем выбранный путь скриншотов при изменении пути в контексте
-  useEffect(() => {
-    setSelectedScreenshotsPath(screenshotsPath)
-  }, [screenshotsPath])
 
   // Обработчик изменения языка - применяет изменения сразу
   const handleLanguageSelect = (value: string) => {
@@ -65,17 +48,6 @@ export function UserSettingsModal() {
 
     // Используем метод changeLanguage из хука useLanguage
     void changeLanguage(newLanguage)
-  }
-
-  // Обработчик изменения пути скриншотов
-  const handleScreenshotsPathInput = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const newPath = e.target.value
-    setSelectedScreenshotsPath(newPath)
-    // Сразу применяем изменения пути скриншотов
-    handleScreenshotsPathChange(newPath)
-    console.log("Screenshots path updated in modal:", newPath)
   }
 
   return (
@@ -108,25 +80,25 @@ export function UserSettingsModal() {
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Input
-                value={selectedScreenshotsPath}
-                onChange={handleScreenshotsPathInput}
+                value={screenshotsPath}
+                onChange={(e) => {
+                  handleScreenshotsPathChange(e.target.value)
+                }}
                 placeholder="public/screenshots"
                 className="h-9 pr-8 font-mono text-sm"
               />
-              {selectedScreenshotsPath &&
-                selectedScreenshotsPath !== "public/screenshots" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedScreenshotsPath("public/screenshots")
-                      handleScreenshotsPathChange("public/screenshots")
-                    }}
-                    className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    title={t("dialogs.userSettings.clearPath")}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
+              {screenshotsPath && screenshotsPath !== "public/screenshots" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleScreenshotsPathChange("public/screenshots")
+                  }}
+                  className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  title={t("dialogs.userSettings.clearPath")}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
             <Button
               variant="outline"
@@ -145,7 +117,6 @@ export function UserSettingsModal() {
 
                     // Если пользователь выбрал директорию, обновляем путь
                     if (selectedFolder && !Array.isArray(selectedFolder)) {
-                      setSelectedScreenshotsPath(selectedFolder)
                       handleScreenshotsPathChange(selectedFolder)
                       console.log(
                         "Screenshots path updated from folder dialog:",
@@ -170,7 +141,6 @@ export function UserSettingsModal() {
 
                     if (promptResult) {
                       const trimmedPath = promptResult.trim()
-                      setSelectedScreenshotsPath(trimmedPath)
                       handleScreenshotsPathChange(trimmedPath)
                       console.log(
                         "Screenshots path updated from prompt:",

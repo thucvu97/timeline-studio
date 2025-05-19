@@ -165,6 +165,13 @@ export const userSettingsMachine = createMachine(
   },
   {
     actions: {
+      // Действие для загрузки настроек из IndexedDB
+      // Это действие вызывается при входе в состояние "loading"
+      // Но фактическая загрузка происходит в компоненте UserSettingsProvider
+      loadSettings: () => {
+        console.log("Loading settings action called")
+      },
+
       updateSettings: assign({
         previewSizes: (_, event) => {
           const typedEvent = event as UserSettingsLoadedEvent
