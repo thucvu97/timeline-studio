@@ -144,7 +144,7 @@ describe("UserSettingsProvider", () => {
     const mockSend = vi.mocked(useMachine as any)()[1]
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: "UPDATE_ALL_SETTINGS",
+        type: "UPDATE_ALL",
         settings: expect.objectContaining({ activeTab: "music" }),
       }),
     )
@@ -166,7 +166,7 @@ describe("UserSettingsProvider", () => {
     const mockSend = vi.mocked(useMachine as any)()[1]
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: "UPDATE_ALL_SETTINGS",
+        type: "UPDATE_ALL",
         settings: expect.objectContaining({ layoutMode: "vertical" }),
       }),
     )
@@ -188,7 +188,7 @@ describe("UserSettingsProvider", () => {
     const mockSend = vi.mocked(useMachine as any)()[1]
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: "UPDATE_ALL_SETTINGS",
+        type: "UPDATE_ALL",
         settings: expect.objectContaining({ screenshotsPath: "new/path" }),
       }),
     )
@@ -210,7 +210,7 @@ describe("UserSettingsProvider", () => {
     const mockSend = vi.mocked(useMachine as any)()[1]
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        type: "UPDATE_ALL_SETTINGS",
+        type: "UPDATE_ALL",
         settings: expect.objectContaining({ openAiApiKey: "test-api-key" }),
       }),
     )

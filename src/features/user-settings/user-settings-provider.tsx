@@ -40,6 +40,18 @@ export function UserSettingsProvider({
   console.log("UserSettingsProvider state:", state.context)
   console.log("UserSettingsProvider state status:", state.status)
 
+  useEffect(() => {
+    console.log("Saving settings to IndexedDB")
+    userSettingsDbService
+      .saveState(state.context)
+      .then(() => {
+        console.log("User Settings saved to IndexedDB: ", state.context)
+      })
+      .catch((error: unknown) => {
+        console.error("Error saving settings to IndexedDB: ", error)
+      })
+  }, [state.context])
+
   const value = {
     activeTab: state.context.activeTab,
     layoutMode: state.context.layoutMode,

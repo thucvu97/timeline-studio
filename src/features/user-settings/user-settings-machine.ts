@@ -204,25 +204,25 @@ export const userSettingsMachine = createMachine(
             // Не указываем target, чтобы это был внутренний переход
           },
           UPDATE_PREVIEW_SIZE: {
-            actions: ["updatePreviewSize", "saveToDb"],
+            actions: ["updatePreviewSize"],
           },
           UPDATE_ACTIVE_TAB: {
-            actions: ["updateActiveTab", "saveToDb"],
+            actions: ["updateActiveTab"],
           },
           UPDATE_LAYOUT: {
-            actions: ["updateLayout", "saveToDb"],
+            actions: ["updateLayout"],
           },
           UPDATE_SCREENSHOTS_PATH: {
-            actions: ["updateScreenshotsPath", "saveToDb"],
+            actions: ["updateScreenshotsPath"],
           },
           UPDATE_PLAYER_SCREENSHOTS_PATH: {
-            actions: ["updatePlayerScreenshotsPath", "saveToDb"],
+            actions: ["updatePlayerScreenshotsPath"],
           },
           UPDATE_OPENAI_API_KEY: {
-            actions: ["updateOpenAiApiKey", "saveToDb"],
+            actions: ["updateOpenAiApiKey"],
           },
           UPDATE_CLAUDE_API_KEY: {
-            actions: ["updateClaudeApiKey", "saveToDb"],
+            actions: ["updateClaudeApiKey"],
           },
         },
       },
@@ -323,18 +323,6 @@ export const userSettingsMachine = createMachine(
           claudeApiKey: typedEvent.apiKey,
         }
       }),
-
-      saveToDb: ({ context }) => {
-        console.log("Saving settings to IndexedDB")
-        userSettingsDbService
-          .saveState(context)
-          .then(() => {
-            console.log("User Settings saved to IndexedDB: ", context)
-          })
-          .catch((error: unknown) => {
-            console.error("Error saving settings to IndexedDB: ", error)
-          })
-      },
     },
   },
 )
