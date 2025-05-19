@@ -54,9 +54,12 @@ describe("UserSettingsModal", () => {
     // Устанавливаем моки по умолчанию
     vi.mocked(useUserSettings).mockReturnValue({
       screenshotsPath: "public/screenshots",
+      playerScreenshotsPath: "",
       openAiApiKey: "",
+      claudeApiKey: "",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      handleClaudeApiKeyChange: vi.fn(),
     } as any)
 
     vi.mocked(useLanguage).mockReturnValue({
@@ -83,9 +86,11 @@ describe("UserSettingsModal", () => {
     expect(
       screen.getByText("dialogs.userSettings.screenshotsPath"),
     ).toBeInTheDocument()
-    expect(
-      screen.getByText("dialogs.userSettings.aiApiKey"),
-    ).toBeInTheDocument()
+
+    // Проверяем, что есть элементы для API ключей (OpenAI и Claude)
+    const apiKeyLabels = screen.getAllByText(/dialogs\.userSettings\.aiApiKey/i)
+    expect(apiKeyLabels.length).toBeGreaterThanOrEqual(1)
+
     expect(screen.getByText("dialogs.userSettings.cancel")).toBeInTheDocument()
     expect(screen.getByText("dialogs.userSettings.save")).toBeInTheDocument()
   })
@@ -126,13 +131,16 @@ describe("UserSettingsModal", () => {
   it("should handle AI API key change", () => {
     render(<UserSettingsModal />)
 
-    // Находим инпут API ключа
-    const apiKeyInput = screen.getByPlaceholderText(
+    // Находим инпуты API ключей (OpenAI и Claude)
+    const apiKeyInputs = screen.getAllByPlaceholderText(
       "dialogs.userSettings.enterApiKey",
     )
 
+    // Первый инпут - для OpenAI
+    const openAiKeyInput = apiKeyInputs[0]
+
     // Вводим новый API ключ
-    fireEvent.change(apiKeyInput, { target: { value: "test-api-key" } })
+    fireEvent.change(openAiKeyInput, { target: { value: "test-api-key" } })
 
     // Нажимаем кнопку "Сохранить"
     const saveButton = screen.getByText("dialogs.userSettings.save")
@@ -177,27 +185,35 @@ describe("UserSettingsModal", () => {
   })
 
   it("should clear API key when X button is clicked", () => {
-    // Переопределяем значение aiApiKey для этого теста
+    // Переопределяем значение openAiApiKey для этого теста
     vi.mocked(useUserSettings).mockReturnValue({
       screenshotsPath: "public/screenshots",
+      playerScreenshotsPath: "",
       openAiApiKey: "test-api-key",
+      claudeApiKey: "",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      handleClaudeApiKeyChange: vi.fn(),
     } as any)
 
     render(<UserSettingsModal />)
 
-    // Находим кнопку X рядом с инпутом API ключа
-    const clearButton = screen.getByTitle("dialogs.userSettings.clearApiKey")
+    // Находим кнопки X рядом с инпутами API ключей
+    const clearButtons = screen.getAllByTitle(
+      "dialogs.userSettings.clearApiKey",
+    )
+
+    // Первая кнопка - для OpenAI
+    const clearOpenAiButton = clearButtons[0]
 
     // Кликаем по кнопке X
-    fireEvent.click(clearButton)
+    fireEvent.click(clearOpenAiButton)
 
     // Проверяем, что API ключ был сброшен
-    const apiKeyInput = screen.getByPlaceholderText(
+    const apiKeyInputs = screen.getAllByPlaceholderText(
       "dialogs.userSettings.enterApiKey",
     )
-    expect(apiKeyInput).toHaveValue("")
+    expect(apiKeyInputs[0]).toHaveValue("")
   })
 
   it("should update state when language changes in context", () => {
@@ -252,32 +268,35 @@ describe("UserSettingsModal", () => {
     expect(updatedScreenshotsPathInput).toHaveValue("new/path")
   })
 
-  it("should update state when aiApiKey changes in context", () => {
+  it("should update state when openAiApiKey changes in context", () => {
     // Рендерим компонент
     render(<UserSettingsModal />)
 
     // Проверяем, что начальное значение API ключа установлено правильно
-    const apiKeyInput = screen.getByPlaceholderText(
+    const apiKeyInputs = screen.getAllByPlaceholderText(
       "dialogs.userSettings.enterApiKey",
     )
-    expect(apiKeyInput).toHaveValue("")
+    expect(apiKeyInputs[0]).toHaveValue("")
 
     // Изменяем API ключ в контексте
     vi.mocked(useUserSettings).mockReturnValue({
       screenshotsPath: "public/screenshots",
+      playerScreenshotsPath: "",
       openAiApiKey: "test-api-key",
+      claudeApiKey: "",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      handleClaudeApiKeyChange: vi.fn(),
     } as any)
 
     // Перерендериваем компонент
     render(<UserSettingsModal />)
 
     // Проверяем, что значение API ключа обновилось
-    const updatedApiKeyInput = screen.getAllByPlaceholderText(
+    const updatedApiKeyInputs = screen.getAllByPlaceholderText(
       "dialogs.userSettings.enterApiKey",
-    )[1]
-    expect(updatedApiKeyInput).toHaveValue("test-api-key")
+    )
+    expect(updatedApiKeyInputs[2]).toHaveValue("test-api-key")
   })
 
   it("should handle folder selection button click using Tauri Dialog Plugin", async () => {
@@ -312,9 +331,12 @@ describe("UserSettingsModal", () => {
     // Имитируем обновление состояния после выбора директории
     vi.mocked(useUserSettings).mockReturnValue({
       screenshotsPath: "selected/directory/path",
+      playerScreenshotsPath: "",
       openAiApiKey: "",
+      claudeApiKey: "",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      handleClaudeApiKeyChange: vi.fn(),
     } as any)
 
     // Перерендериваем компонент

@@ -22,14 +22,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { BrowserToggle } from "@/features/browser/components/layout/browser-toggle"
-import { LayoutMode, LayoutPreviews } from "@/features/media-studio/layouts"
+import { LayoutPreviews } from "@/features/media-studio/layouts"
 import { useModal } from "@/features/modals/services/modal-provider"
 import { cn } from "@/lib/utils"
 
-export function TopBar({
-  layoutMode,
-  onLayoutChange,
-}: { layoutMode: LayoutMode; onLayoutChange: (mode: LayoutMode) => void }) {
+export function TopBar() {
   const { t } = useTranslation()
   const { openModal } = useModal()
   const [isEditing, setIsEditing] = useState(false)
@@ -64,11 +61,7 @@ export function TopBar({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[400px] p-2" sideOffset={0}>
-            <LayoutPreviews
-              onLayoutChange={onLayoutChange}
-              layoutMode={layoutMode}
-              hasExternalDisplay={false}
-            />
+            <LayoutPreviews />
           </PopoverContent>
         </Popover>
       </div>

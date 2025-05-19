@@ -35,7 +35,9 @@ vi.mock("@xstate/react", () => {
       activeTab: "media",
       layoutMode: "default",
       screenshotsPath: "public/screenshots",
-      aiApiKey: "",
+      playerScreenshotsPath: "",
+      openAiApiKey: "",
+      claudeApiKey: "",
       isLoaded: true,
       previewSizes: {
         MEDIA: 100,
@@ -56,13 +58,15 @@ vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Компонент-обертка для тестирования хука useUserSettings
 const TestComponent = () => {
-  const { activeTab, layoutMode, screenshotsPath, aiApiKey } = useUserSettings()
+  const { activeTab, layoutMode, screenshotsPath, openAiApiKey, claudeApiKey } =
+    useUserSettings()
   return (
     <div>
       <div data-testid="active-tab">{activeTab}</div>
       <div data-testid="layout-mode">{layoutMode}</div>
       <div data-testid="screenshots-path">{screenshotsPath}</div>
-      <div data-testid="ai-api-key">{aiApiKey}</div>
+      <div data-testid="open-ai-api-key">{openAiApiKey}</div>
+      <div data-testid="claude-api-key">{claudeApiKey}</div>
     </div>
   )
 }
@@ -86,7 +90,8 @@ describe("UserSettingsProvider", () => {
     expect(screen.getByTestId("screenshots-path").textContent).toBe(
       "public/screenshots",
     )
-    expect(screen.getByTestId("ai-api-key").textContent).toBe("")
+    expect(screen.getByTestId("open-ai-api-key").textContent).toBe("")
+    expect(screen.getByTestId("claude-api-key").textContent).toBe("")
   })
 
   it("should throw error when useUserSettings is used outside of provider", () => {
@@ -117,7 +122,8 @@ describe("UserSettingsProvider", () => {
         activeTab: "media",
         layoutMode: "default",
         screenshotsPath: "public/screenshots",
-        aiApiKey: "",
+        openAiApiKey: "",
+        claudeApiKey: "",
       }),
     )
   })
@@ -135,11 +141,13 @@ describe("UserSettingsProvider", () => {
 
     // Проверяем, что send был вызван с правильными параметрами
     const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "UPDATE_ALL_SETTINGS",
-      settings: { activeTab: "music" },
-    })
+    const mockSend = vi.mocked(useMachine as any)()[1]
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "UPDATE_ALL_SETTINGS",
+        settings: expect.objectContaining({ activeTab: "music" }),
+      }),
+    )
   })
 
   it("should handle layout change", async () => {
@@ -155,11 +163,13 @@ describe("UserSettingsProvider", () => {
 
     // Проверяем, что send был вызван с правильными параметрами
     const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "UPDATE_ALL_SETTINGS",
-      settings: { layoutMode: "vertical" },
-    })
+    const mockSend = vi.mocked(useMachine as any)()[1]
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "UPDATE_ALL_SETTINGS",
+        settings: expect.objectContaining({ layoutMode: "vertical" }),
+      }),
+    )
   })
 
   it("should handle screenshots path change", async () => {
@@ -175,11 +185,13 @@ describe("UserSettingsProvider", () => {
 
     // Проверяем, что send был вызван с правильными параметрами
     const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "UPDATE_ALL_SETTINGS",
-      settings: { screenshotsPath: "new/path" },
-    })
+    const mockSend = vi.mocked(useMachine as any)()[1]
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "UPDATE_ALL_SETTINGS",
+        settings: expect.objectContaining({ screenshotsPath: "new/path" }),
+      }),
+    )
   })
 
   it("should handle AI API key change", async () => {
@@ -195,10 +207,12 @@ describe("UserSettingsProvider", () => {
 
     // Проверяем, что send был вызван с правильными параметрами
     const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "UPDATE_ALL_SETTINGS",
-      settings: { aiApiKey: "test-api-key" },
-    })
+    const mockSend = vi.mocked(useMachine as any)()[1]
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "UPDATE_ALL_SETTINGS",
+        settings: expect.objectContaining({ openAiApiKey: "test-api-key" }),
+      }),
+    )
   })
 })

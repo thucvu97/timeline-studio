@@ -29,6 +29,7 @@ export function UserSettingsModal() {
     claudeApiKey,
     handleScreenshotsPathChange,
     handleAiApiKeyChange,
+    handleClaudeApiKeyChange,
   } = useUserSettings()
   const { closeModal } = useModal()
   const { t } = useTranslation()
@@ -38,7 +39,11 @@ export function UserSettingsModal() {
     useState<LanguageCode>(currentLanguage)
   const [selectedScreenshotsPath, setSelectedScreenshotsPath] =
     useState<string>(screenshotsPath)
-  const [selectedAiApiKey, setSelectedAiApiKey] = useState<string>(openAiApiKey)
+
+  // Обновляем локальное состояние при изменении значений в контексте
+  useEffect(() => {
+    setSelectedScreenshotsPath(screenshotsPath)
+  }, [screenshotsPath])
 
   // Обновляем выбранный язык при изменении языка в контексте
   useEffect(() => {
@@ -49,11 +54,6 @@ export function UserSettingsModal() {
   useEffect(() => {
     setSelectedScreenshotsPath(screenshotsPath)
   }, [screenshotsPath])
-
-  // Обновляем выбранный API ключ при изменении в контексте
-  useEffect(() => {
-    setSelectedAiApiKey(openAiApiKey)
-  }, [openAiApiKey])
 
   // Обработчик изменения языка - применяет изменения сразу
   const handleLanguageSelect = (value: string) => {
@@ -73,33 +73,9 @@ export function UserSettingsModal() {
   ) => {
     const newPath = e.target.value
     setSelectedScreenshotsPath(newPath)
-  }
-
-  // Обработчик изменения API ключа
-  const handleAiApiKeyInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newApiKey = e.target.value
-    setSelectedAiApiKey(newApiKey)
-  }
-
-  // Обработчик сохранения настроек
-  const handleSaveSettings = () => {
-    // Применяем изменения пути скриншотов
-    if (selectedScreenshotsPath !== screenshotsPath) {
-      console.log("Applying screenshots path change:", selectedScreenshotsPath)
-      handleScreenshotsPathChange(selectedScreenshotsPath)
-    }
-
-    // Применяем изменения API ключа
-    if (selectedAiApiKey !== openAiApiKey) {
-      console.log(
-        "Applying AI API key change:",
-        selectedAiApiKey ? "***" : "(empty)",
-      )
-      handleAiApiKeyChange(selectedAiApiKey)
-    }
-
-    // Закрываем диалог
-    closeModal()
+    // Сразу применяем изменения пути скриншотов
+    handleScreenshotsPathChange(newPath)
+    console.log("Screenshots path updated in modal:", newPath)
   }
 
   return (
@@ -141,9 +117,10 @@ export function UserSettingsModal() {
                 selectedScreenshotsPath !== "public/screenshots" && (
                   <button
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
                       setSelectedScreenshotsPath("public/screenshots")
-                    }
+                      handleScreenshotsPathChange("public/screenshots")
+                    }}
                     className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                     title={t("dialogs.userSettings.clearPath")}
                   >
@@ -169,6 +146,11 @@ export function UserSettingsModal() {
                     // Если пользователь выбрал директорию, обновляем путь
                     if (selectedFolder && !Array.isArray(selectedFolder)) {
                       setSelectedScreenshotsPath(selectedFolder)
+                      handleScreenshotsPathChange(selectedFolder)
+                      console.log(
+                        "Screenshots path updated from folder dialog:",
+                        selectedFolder,
+                      )
                     }
                   } catch (error) {
                     console.error("Ошибка при выборе директории:", error)
@@ -187,7 +169,13 @@ export function UserSettingsModal() {
                     )
 
                     if (promptResult) {
-                      setSelectedScreenshotsPath(promptResult.trim())
+                      const trimmedPath = promptResult.trim()
+                      setSelectedScreenshotsPath(trimmedPath)
+                      handleScreenshotsPathChange(trimmedPath)
+                      console.log(
+                        "Screenshots path updated from prompt:",
+                        trimmedPath,
+                      )
                     }
                   }
                 })()
@@ -200,23 +188,61 @@ export function UserSettingsModal() {
 
         <div className="flex flex-col space-y-2">
           <Label className="text-xs font-medium">
-            {t("dialogs.userSettings.aiApiKey", "API ключ для ИИ")}
+            {t("dialogs.userSettings.aiApiKey", "API ключ для OpenAI")}
           </Label>
           <div className="relative flex-1">
             <Input
               type="password"
-              value={selectedAiApiKey}
-              onChange={handleAiApiKeyInput}
+              value={openAiApiKey}
+              onChange={(e) => {
+                // Обновляем значение в машине состояний
+                handleAiApiKeyChange(e.target.value)
+              }}
               placeholder={t(
                 "dialogs.userSettings.enterApiKey",
                 "Введите API ключ",
               )}
               className="h-9 pr-8 font-mono text-sm"
             />
-            {selectedAiApiKey && (
+            {openAiApiKey && (
               <button
                 type="button"
-                onClick={() => setSelectedAiApiKey("")}
+                onClick={() => handleAiApiKeyChange("")}
+                className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                title={t(
+                  "dialogs.userSettings.clearApiKey",
+                  "Очистить API ключ",
+                )}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col space-y-2">
+          <Label className="text-xs font-medium">
+            {t("dialogs.userSettings.aiApiKey", "API ключ для Claude")}
+          </Label>
+          <div className="relative flex-1">
+            <Input
+              type="password"
+              value={claudeApiKey}
+              onChange={(e) => {
+                // Обновляем значение в машине состояний
+                handleClaudeApiKeyChange(e.target.value)
+              }}
+              placeholder={t(
+                "dialogs.userSettings.claudeApiKey",
+                "Введите API ключ Claude",
+              )}
+              className="h-9 pr-8 font-mono text-sm"
+            />
+            {claudeApiKey && (
+              <button
+                type="button"
+                onClick={() => {
+                  handleClaudeApiKeyChange("")
+                }}
                 className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 title={t(
                   "dialogs.userSettings.clearApiKey",
@@ -240,7 +266,12 @@ export function UserSettingsModal() {
         <Button
           variant="default"
           className="flex-1 cursor-pointer bg-[#00CCC0] text-black hover:bg-[#00AAA0]"
-          onClick={handleSaveSettings}
+          onClick={() => {
+            console.log(
+              "Closing modal with save button, all changes already applied",
+            )
+            closeModal()
+          }}
         >
           {t("dialogs.userSettings.save")}
         </Button>

@@ -1,24 +1,22 @@
 "use client"
 
-import { useState } from "react"
-
 import { ModalContainer } from "@/features/modals/components"
 import { TopBar } from "@/features/top-bar/components/top-bar"
+import { useUserSettings } from "@/features/user-settings/user-settings-provider"
 
 import {
   DefaultLayout,
   DualLayout,
-  LayoutMode,
   OptionsLayout,
   VerticalLayout,
 } from "./layouts"
 
 export function MediaStudio() {
-  const [layoutMode, setLayoutMode] = useState("default" as LayoutMode)
+  const { layoutMode } = useUserSettings()
 
   return (
     <div className="flex flex-col h-screen w-screen m-0 p-0">
-      <TopBar layoutMode={layoutMode} onLayoutChange={setLayoutMode} />
+      <TopBar />
       <div className="flex-1">
         {layoutMode === "default" && <DefaultLayout />}
         {layoutMode === "options" && <OptionsLayout />}

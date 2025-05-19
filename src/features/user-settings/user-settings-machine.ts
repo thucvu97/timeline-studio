@@ -61,7 +61,9 @@ interface UserSettingsLoadedEvent {
   activeTab: BrowserTab
   layoutMode: LayoutMode
   screenshotsPath: string
-  aiApiKey: string
+  playerScreenshotsPath: string
+  openAiApiKey: string
+  claudeApiKey: string
 }
 interface UpdatePreviewSizeEvent {
   type: "UPDATE_PREVIEW_SIZE"
@@ -148,8 +150,14 @@ export const userSettingsMachine = createMachine(
           UPDATE_SCREENSHOTS_PATH: {
             actions: ["updateScreenshotsPath"],
           },
-          UPDATE_AI_API_KEY: {
-            actions: ["updateAiApiKey"],
+          UPDATE_PLAYER_SCREENSHOTS_PATH: {
+            actions: ["updatePlayerScreenshotsPath"],
+          },
+          UPDATE_OPENAI_API_KEY: {
+            actions: ["updateOpenAiApiKey"],
+          },
+          UPDATE_CLAUDE_API_KEY: {
+            actions: ["updateClaudeApiKey"],
           },
         },
       },
@@ -170,13 +178,21 @@ export const userSettingsMachine = createMachine(
           const typedEvent = event as UserSettingsLoadedEvent
           return typedEvent.layoutMode ?? DEFAULT_LAYOUT
         },
+        playerScreenshotsPath: (_, event) => {
+          const typedEvent = event as UserSettingsLoadedEvent
+          return typedEvent.playerScreenshotsPath ?? "public/media"
+        },
         screenshotsPath: (_, event) => {
           const typedEvent = event as UserSettingsLoadedEvent
           return typedEvent.screenshotsPath ?? "public/screenshots"
         },
-        aiApiKey: (_, event) => {
+        openAiApiKey: (_, event) => {
           const typedEvent = event as UserSettingsLoadedEvent
-          return typedEvent.aiApiKey ?? ""
+          return typedEvent.openAiApiKey ?? ""
+        },
+        claudeApiKey: (_, event) => {
+          const typedEvent = event as UserSettingsLoadedEvent
+          return typedEvent.claudeApiKey ?? ""
         },
         isLoaded: (_) => true,
       }),
@@ -253,7 +269,10 @@ export const userSettingsMachine = createMachine(
 
       updateOpenAiApiKey: assign((context, event) => {
         const typedEvent = event as UpdateOpenAiApiKeyEvent
-        console.log("Updating OpenAI API key:", typedEvent.apiKey ? "***" : "(empty)")
+        console.log(
+          "Updating OpenAI API key:",
+          typedEvent.apiKey ? "***" : "(empty)",
+        )
 
         return {
           ...context,
@@ -263,7 +282,10 @@ export const userSettingsMachine = createMachine(
 
       updateClaudeApiKey: assign((context, event) => {
         const typedEvent = event as UpdateClaudeApiKeyEvent
-        console.log("Updating Claude API key:", typedEvent.apiKey ? "***" : "(empty)")
+        console.log(
+          "Updating Claude API key:",
+          typedEvent.apiKey ? "***" : "(empty)",
+        )
 
         return {
           ...context,

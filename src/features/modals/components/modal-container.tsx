@@ -28,24 +28,57 @@ export function ModalContainer() {
   const { modalType, modalData, isOpen, closeModal } = useModal()
   const { t } = useTranslation() // Получаем функцию перевода
 
-  // Функция для рендеринга содержимого модального окна
-  const renderModalContent = () => {
-    switch (modalType) {
-      case "project-settings":
-        return <ProjectSettingsModal />
-      case "keyboard-shortcuts":
-        return <KeyboardShortcutsModal />
-      case "user-settings":
-        return <UserSettingsModal />
-      case "camera-capture":
-        return <CameraCaptureModal />
-      case "voice-recording":
-        return <VoiceRecordModal />
-      case "export":
-        return <ExportModal />
-      default:
-        return null
-    }
+  // Рендерим все модальные окна, но показываем только активное
+  const renderAllModals = () => {
+    return (
+      <>
+        {/* ProjectSettingsModal */}
+        <div
+          style={{
+            display: modalType === "project-settings" ? "block" : "none",
+          }}
+        >
+          <ProjectSettingsModal />
+        </div>
+
+        {/* KeyboardShortcutsModal */}
+        <div
+          style={{
+            display: modalType === "keyboard-shortcuts" ? "block" : "none",
+          }}
+        >
+          <KeyboardShortcutsModal />
+        </div>
+
+        {/* UserSettingsModal */}
+        <div
+          style={{ display: modalType === "user-settings" ? "block" : "none" }}
+        >
+          <UserSettingsModal />
+        </div>
+
+        {/* CameraCaptureModal */}
+        <div
+          style={{ display: modalType === "camera-capture" ? "block" : "none" }}
+        >
+          <CameraCaptureModal />
+        </div>
+
+        {/* VoiceRecordModal */}
+        <div
+          style={{
+            display: modalType === "voice-recording" ? "block" : "none",
+          }}
+        >
+          <VoiceRecordModal />
+        </div>
+
+        {/* ExportModal */}
+        <div style={{ display: modalType === "export" ? "block" : "none" }}>
+          <ExportModal />
+        </div>
+      </>
+    )
   }
 
   // Функция для получения заголовка модального окна с использованием i18n
@@ -84,7 +117,7 @@ export function ModalContainer() {
         <DialogHeader>
           <DialogTitle>{getModalTitle()}</DialogTitle>
         </DialogHeader>
-        {renderModalContent()}
+        {renderAllModals()}
       </DialogContent>
     </Dialog>
   )
