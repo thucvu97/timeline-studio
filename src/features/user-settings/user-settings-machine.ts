@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
-import { assign, createMachine } from "xstate"
+import { assign, createMachine, fromPromise } from "xstate"
+
+import { userSettingsDbService } from "../media-studio/indexed-db-service"
 
 export const PREVIEW_SIZES = [
-  60, 80, 100, 125, 150, 200, 250, 300, 400,
+  60, 80, 100, 125, 150, 200, 250, 300, 400, 500,
 ] as const
 export const DEFAULT_SIZE = 100
 export const MIN_SIZE = 60
@@ -46,25 +48,12 @@ const initialContext: UserSettingsContext = {
   activeTab: DEFAULT_TAB,
   layoutMode: DEFAULT_LAYOUT,
   screenshotsPath: "public/screenshots",
-  playerScreenshotsPath: "public/screenshots",
+  playerScreenshotsPath: "public/media",
   openAiApiKey: "",
   claudeApiKey: "",
   isLoaded: false,
 }
 
-interface LoadUserSettingsEvent {
-  type: "LOAD_SETTINGS"
-}
-interface UserSettingsLoadedEvent {
-  type: "SETTINGS_LOADED"
-  previewSizes: Record<"MEDIA" | "TRANSITIONS" | "TEMPLATES", PreviewSize>
-  activeTab: BrowserTab
-  layoutMode: LayoutMode
-  screenshotsPath: string
-  playerScreenshotsPath: string
-  openAiApiKey: string
-  claudeApiKey: string
-}
 interface UpdatePreviewSizeEvent {
   type: "UPDATE_PREVIEW_SIZE"
   key: "MEDIA" | "TRANSITIONS" | "TEMPLATES"
@@ -84,7 +73,7 @@ interface UpdateScreenshotsPathEvent {
 }
 
 interface UpdateAllSettingsEvent {
-  type: "UPDATE_ALL_SETTINGS"
+  type: "UPDATE_ALL"
   settings: Partial<UserSettingsContext>
 }
 
@@ -103,9 +92,24 @@ interface UpdateClaudeApiKeyEvent {
   apiKey: string
 }
 
+interface LoadUserSettingsEvent {
+  type: "LOAD_SETTINGS"
+  settings: Partial<UserSettingsContext>
+}
+
+interface UserSettingsLoadedEvent {
+  type: "SETTINGS_LOADED"
+  previewSizes: Record<"MEDIA" | "TRANSITIONS" | "TEMPLATES", PreviewSize>
+  activeTab: BrowserTab
+  layoutMode: LayoutMode
+  screenshotsPath: string
+  playerScreenshotsPath: string
+  openAiApiKey: string
+  claudeApiKey: string
+}
+
 export type UserSettingsEvent =
   | LoadUserSettingsEvent
-  | UserSettingsLoadedEvent
   | UpdatePreviewSizeEvent
   | UpdateActiveTabEvent
   | UpdateLayoutEvent
@@ -115,18 +119,73 @@ export type UserSettingsEvent =
   | UpdateClaudeApiKeyEvent
   | UpdateAllSettingsEvent
 
+// Функция для загрузки состояния таймлайна из IndexedDB
+const loadTimelineState = fromPromise(async () => {
+  try {
+    // Загружаем состояние из IndexedDB
+    const state = await userSettingsDbService.loadTimelineState()
+    if (state && Object.keys(state).length > 0) {
+      console.log(
+        `[userSettingsMachine] Состояние настроек загружено из IndexedDB`,
+      )
+      return state
+    }
+    console.log(
+      "[userSettingsMachine] В IndexedDB нет сохраненного состояния настроек",
+    )
+    return null
+  } catch (error) {
+    console.error(
+      "[userSettingsMachine] Ошибка при загрузке состояния настроек:",
+      error,
+    )
+    return null
+  }
+})
+
 export const userSettingsMachine = createMachine(
   {
-    id: "userSettings",
+    id: "user-settings-v2", // Изменяем ID, чтобы сбросить кэш
     initial: "loading",
     context: initialContext,
     states: {
       loading: {
-        entry: ["loadSettings"],
-        on: {
-          SETTINGS_LOADED: {
+        invoke: {
+          src: loadTimelineState,
+          onDone: {
             target: "idle",
-            actions: ["updateSettings"],
+            actions: [
+              assign(({ event }) => {
+                const loadedState = event.output
+                if (loadedState) {
+                  console.log(
+                    "[timelineMachine] Восстанавливаем состояние из IndexedDB",
+                  )
+                  return {
+                    ...initialContext,
+                    ...loadedState,
+                  }
+                }
+                return initialContext
+              }),
+            ],
+          },
+          onError: {
+            target: "idle",
+            actions: [
+              ({ event }) => {
+                if (event && event.error) {
+                  console.error(
+                    "[timelineMachine] Ошибка при загрузке состояния:",
+                    event.error,
+                  )
+                } else {
+                  console.error(
+                    "[timelineMachine] Неизвестная ошибка при загрузке состояния",
+                  )
+                }
+              },
+            ],
           },
         },
       },
@@ -134,30 +193,36 @@ export const userSettingsMachine = createMachine(
         entry: () => {
           console.log("UserSettingsMachine entered idle state")
         },
+        // Используем вложенные состояния, чтобы машина не останавливалась
+        initial: "ready",
+        states: {
+          ready: {},
+        },
         on: {
-          UPDATE_ALL_SETTINGS: {
+          UPDATE_ALL: {
             actions: ["updateAllSettings"],
+            // Не указываем target, чтобы это был внутренний переход
           },
           UPDATE_PREVIEW_SIZE: {
-            actions: ["updatePreviewSize"],
+            actions: ["updatePreviewSize", "saveToDb"],
           },
           UPDATE_ACTIVE_TAB: {
-            actions: ["updateActiveTab"],
+            actions: ["updateActiveTab", "saveToDb"],
           },
           UPDATE_LAYOUT: {
-            actions: ["updateLayout"],
+            actions: ["updateLayout", "saveToDb"],
           },
           UPDATE_SCREENSHOTS_PATH: {
-            actions: ["updateScreenshotsPath"],
+            actions: ["updateScreenshotsPath", "saveToDb"],
           },
           UPDATE_PLAYER_SCREENSHOTS_PATH: {
-            actions: ["updatePlayerScreenshotsPath"],
+            actions: ["updatePlayerScreenshotsPath", "saveToDb"],
           },
           UPDATE_OPENAI_API_KEY: {
-            actions: ["updateOpenAiApiKey"],
+            actions: ["updateOpenAiApiKey", "saveToDb"],
           },
           UPDATE_CLAUDE_API_KEY: {
-            actions: ["updateClaudeApiKey"],
+            actions: ["updateClaudeApiKey", "saveToDb"],
           },
         },
       },
@@ -165,50 +230,9 @@ export const userSettingsMachine = createMachine(
   },
   {
     actions: {
-      // Действие для загрузки настроек из IndexedDB
-      // Это действие вызывается при входе в состояние "loading"
-      // Но фактическая загрузка происходит в компоненте UserSettingsProvider
-      loadSettings: () => {
-        console.log("Loading settings action called")
-      },
-
-      updateSettings: assign({
-        previewSizes: (_, event) => {
-          const typedEvent = event as UserSettingsLoadedEvent
-          return typedEvent.previewSizes
-        },
-        activeTab: (_, event) => {
-          const typedEvent = event as UserSettingsLoadedEvent
-          return typedEvent.activeTab
-        },
-        layoutMode: (_, event) => {
-          const typedEvent = event as UserSettingsLoadedEvent
-          return typedEvent.layoutMode ?? DEFAULT_LAYOUT
-        },
-        playerScreenshotsPath: (_, event) => {
-          const typedEvent = event as UserSettingsLoadedEvent
-          return typedEvent.playerScreenshotsPath ?? "public/media"
-        },
-        screenshotsPath: (_, event) => {
-          const typedEvent = event as UserSettingsLoadedEvent
-          return typedEvent.screenshotsPath ?? "public/screenshots"
-        },
-        openAiApiKey: (_, event) => {
-          const typedEvent = event as UserSettingsLoadedEvent
-          return typedEvent.openAiApiKey ?? ""
-        },
-        claudeApiKey: (_, event) => {
-          const typedEvent = event as UserSettingsLoadedEvent
-          return typedEvent.claudeApiKey ?? ""
-        },
-        isLoaded: (_) => true,
-      }),
-
-      // Метод для обновления всех настроек сразу
-      updateAllSettings: assign((context, event) => {
+      updateAllSettings: assign(({ context, event }) => {
         const typedEvent = event as UpdateAllSettingsEvent
         console.log("Updating all settings:", typedEvent.settings)
-
         // Возвращаем обновленный контекст
         return {
           ...context,
@@ -217,7 +241,7 @@ export const userSettingsMachine = createMachine(
       }),
 
       // Метод для обновления размера превью
-      updatePreviewSize: assign((context, event) => {
+      updatePreviewSize: assign(({ context, event }) => {
         const typedEvent = event as UpdatePreviewSizeEvent
         console.log("Updating preview size:", typedEvent.key, typedEvent.size)
 
@@ -233,7 +257,7 @@ export const userSettingsMachine = createMachine(
       }),
 
       // Метод для обновления активной вкладки
-      updateActiveTab: assign((context, event) => {
+      updateActiveTab: assign(({ context, event }) => {
         const typedEvent = event as UpdateActiveTabEvent
         console.log("Updating active tab:", typedEvent.tab)
 
@@ -244,7 +268,7 @@ export const userSettingsMachine = createMachine(
       }),
 
       // Метод для обновления режима макета
-      updateLayout: assign((context, event) => {
+      updateLayout: assign(({ context, event }) => {
         const typedEvent = event as UpdateLayoutEvent
         console.log("Updating layout mode:", typedEvent.layoutMode)
 
@@ -254,7 +278,7 @@ export const userSettingsMachine = createMachine(
         }
       }),
 
-      updatePlayerScreenshotsPath: assign((context, event) => {
+      updatePlayerScreenshotsPath: assign(({ context, event }) => {
         const typedEvent = event as UpdatePlayerScreenshotsPathEvent
         console.log("Updating player screenshots path:", typedEvent.path)
 
@@ -264,7 +288,7 @@ export const userSettingsMachine = createMachine(
         }
       }),
 
-      updateScreenshotsPath: assign((context, event) => {
+      updateScreenshotsPath: assign(({ context, event }) => {
         const typedEvent = event as UpdateScreenshotsPathEvent
         console.log("Updating screenshots path:", typedEvent.path)
 
@@ -274,7 +298,7 @@ export const userSettingsMachine = createMachine(
         }
       }),
 
-      updateOpenAiApiKey: assign((context, event) => {
+      updateOpenAiApiKey: assign(({ context, event }) => {
         const typedEvent = event as UpdateOpenAiApiKeyEvent
         console.log(
           "Updating OpenAI API key:",
@@ -287,7 +311,7 @@ export const userSettingsMachine = createMachine(
         }
       }),
 
-      updateClaudeApiKey: assign((context, event) => {
+      updateClaudeApiKey: assign(({ context, event }) => {
         const typedEvent = event as UpdateClaudeApiKeyEvent
         console.log(
           "Updating Claude API key:",
@@ -299,6 +323,18 @@ export const userSettingsMachine = createMachine(
           claudeApiKey: typedEvent.apiKey,
         }
       }),
+
+      saveToDb: ({ context }) => {
+        console.log("Saving settings to IndexedDB")
+        userSettingsDbService
+          .saveState(context)
+          .then(() => {
+            console.log("User Settings saved to IndexedDB: ", context)
+          })
+          .catch((error: unknown) => {
+            console.error("Error saving settings to IndexedDB: ", error)
+          })
+      },
     },
   },
 )

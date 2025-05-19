@@ -3,25 +3,26 @@ import { get, set } from "idb-keyval"
 import { UserSettingsContext } from "../user-settings/user-settings-machine"
 
 // Ключи для хранения данных в IndexedDB
-export const TIMELINE_USER_SETTINGS_STATE_KEY = "timeline-user-settings-state"
-export const TIMELINE_USER_SETTINGS_STATE_TIMESTAMP_KEY = "timeline-user-settings-state-timestamp"
+export const USER_SETTINGS_STATE_KEY = "timeline-user-settings-state"
+export const USER_SETTINGS_STATE_TIMESTAMP_KEY =
+  "timeline-user-settings-state-timestamp"
 
 /**
- * Сервис для работы с IndexedDB для таймлайна
- * Предоставляет методы для сохранения и загрузки состояния таймлайна
+ * Сервис для работы с IndexedDB
+ * Предоставляет методы для сохранения и загрузки состояния
  */
-export class TimelineIndexedDBService {
-  private static instance: TimelineIndexedDBService
+export class IndexedDBService {
+  private static instance: IndexedDBService
 
   /**
    * Получить экземпляр сервиса (Singleton)
    */
-  public static getInstance(): TimelineIndexedDBService {
+  public static getInstance(): IndexedDBService {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!TimelineIndexedDBService.instance) {
-      TimelineIndexedDBService.instance = new TimelineIndexedDBService()
+    if (!IndexedDBService.instance) {
+      IndexedDBService.instance = new IndexedDBService()
     }
-    return TimelineIndexedDBService.instance
+    return IndexedDBService.instance
   }
 
   /**
@@ -59,68 +60,61 @@ export class TimelineIndexedDBService {
   }
 
   /**
-   * Сохраняет состояние таймлайна в IndexedDB
-   * @param state Состояние таймлайна
+   * Сохраняет состояние в IndexedDB
+   * @param state Состояние
    */
-  public async saveTimelineState(
-    state: Partial<UserSettingsContext>,
-  ): Promise<void> {
+  public async saveState(state: Partial<UserSettingsContext>): Promise<void> {
     try {
       // Удаляем функции из объекта перед сохранением
       const safeStateToSave = this.removeFunctions(state)
 
       // Сохраняем состояние
-      await set(TIMELINE_USER_SETTINGS_STATE_KEY, safeStateToSave)
+      await set(USER_SETTINGS_STATE_KEY, safeStateToSave)
       // Сохраняем временную метку
-      await set(TIMELINE_USER_SETTINGS_STATE_TIMESTAMP_KEY, Date.now())
+      await set(USER_SETTINGS_STATE_TIMESTAMP_KEY, Date.now())
       console.log(
-        `[TimelineIndexedDBService] Состояние таймлайна сохранено в IndexedDB`,
+        `[IndexedDBService] Состояние таймлайна сохранено в IndexedDB`,
       )
     } catch (error) {
       console.error(
-        "[TimelineIndexedDBService] Ошибка при сохранении состояния таймлайна:",
+        "[IndexedDBService] Ошибка при сохранении состояния:",
         error,
       )
     }
   }
 
   /**
-   * Загружает состояние таймлайна из IndexedDB
-   * @returns Состояние таймлайна или null, если данных нет
+   * Загружает состояние из IndexedDB
+   * @returns Состояние или null, если данных нет
    */
   public async loadTimelineState(): Promise<Partial<UserSettingsContext> | null> {
     try {
-      const state = await get<Partial<UserSettingsContext>>(TIMELINE_USER_SETTINGS_STATE_KEY)
+      const state = await get<Partial<UserSettingsContext>>(
+        USER_SETTINGS_STATE_KEY,
+      )
       if (state && Object.keys(state).length > 0) {
-        console.log(
-          `[TimelineIndexedDBService] Состояние таймлайна загружено из IndexedDB`,
-        )
+        console.log(`[IndexedDBService] Состояние загружено из IndexedDB`)
         return state
       }
-      console.log(
-        "[TimelineIndexedDBService] В IndexedDB нет сохраненного состояния таймлайна",
-      )
+      console.log("[IndexedDBService] В IndexedDB нет сохраненного состояния")
       return null
     } catch (error) {
-      console.error(
-        "[TimelineIndexedDBService] Ошибка при загрузке состояния таймлайна:",
-        error,
-      )
+      console.error("[IndexedDBService] Ошибка при загрузке состояния:", error)
       return null
     }
   }
 
   /**
-   * Получает временную метку последнего сохранения состояния таймлайна
+   * Получает временную метку последнего сохранения состояния
    * @returns Временная метка или null, если данных нет
    */
   public async getLastSaveTimestamp(): Promise<number | null> {
     try {
-      const timestamp = await get<number>(TIMELINE_USER_SETTINGS_STATE_TIMESTAMP_KEY)
+      const timestamp = await get<number>(USER_SETTINGS_STATE_TIMESTAMP_KEY)
       return timestamp ?? null
     } catch (error) {
       console.error(
-        "[TimelineIndexedDBService] Ошибка при получении временной метки:",
+        "[IndexedDBService] Ошибка при получении временной метки:",
         error,
       )
       return null
@@ -143,4 +137,4 @@ export class TimelineIndexedDBService {
 }
 
 // Экспортируем экземпляр сервиса
-export const timelineIndexedDBService = TimelineIndexedDBService.getInstance()
+export const userSettingsDbService = IndexedDBService.getInstance()
