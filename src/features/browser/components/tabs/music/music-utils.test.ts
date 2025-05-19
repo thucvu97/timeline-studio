@@ -158,12 +158,24 @@ describe("music-utils", () => {
       ]
 
       // Не должно выбрасывать ошибку
-      expect(() => sortFiles(filesWithMissingProps, "title", "asc")).not.toThrow()
-      expect(() => sortFiles(filesWithMissingProps, "artist", "asc")).not.toThrow()
-      expect(() => sortFiles(filesWithMissingProps, "date", "asc")).not.toThrow()
-      expect(() => sortFiles(filesWithMissingProps, "duration", "asc")).not.toThrow()
-      expect(() => sortFiles(filesWithMissingProps, "size", "asc")).not.toThrow()
-      expect(() => sortFiles(filesWithMissingProps, "genre", "asc")).not.toThrow()
+      expect(() =>
+        sortFiles(filesWithMissingProps, "title", "asc"),
+      ).not.toThrow()
+      expect(() =>
+        sortFiles(filesWithMissingProps, "artist", "asc"),
+      ).not.toThrow()
+      expect(() =>
+        sortFiles(filesWithMissingProps, "date", "asc"),
+      ).not.toThrow()
+      expect(() =>
+        sortFiles(filesWithMissingProps, "duration", "asc"),
+      ).not.toThrow()
+      expect(() =>
+        sortFiles(filesWithMissingProps, "size", "asc"),
+      ).not.toThrow()
+      expect(() =>
+        sortFiles(filesWithMissingProps, "genre", "asc"),
+      ).not.toThrow()
     })
   })
 
@@ -200,7 +212,13 @@ describe("music-utils", () => {
     })
 
     it("should filter files by favorites", () => {
-      const filtered = filterFiles(mockMediaFiles, "", "all", true, mockMediaContext)
+      const filtered = filterFiles(
+        mockMediaFiles,
+        "",
+        "all",
+        true,
+        mockMediaContext,
+      )
       expect(filtered.length).toBe(1)
       expect(filtered[0].id).toBe("1")
     })
@@ -213,7 +231,13 @@ describe("music-utils", () => {
       expect(filtered[1].name).toBe("test3.mp3")
 
       // Фильтрация по расширению, поисковому запросу и избранному
-      const filteredWithFavorites = filterFiles(mockMediaFiles, "Test", "mp3", true, mockMediaContext)
+      const filteredWithFavorites = filterFiles(
+        mockMediaFiles,
+        "Test",
+        "mp3",
+        true,
+        mockMediaContext,
+      )
       expect(filteredWithFavorites.length).toBe(1)
       expect(filteredWithFavorites[0].id).toBe("1")
     })
@@ -245,7 +269,9 @@ describe("music-utils", () => {
       ]
 
       // Не должно выбрасывать ошибку
-      expect(() => filterFiles(filesWithMissingProps, "test", "all")).not.toThrow()
+      expect(() =>
+        filterFiles(filesWithMissingProps, "test", "all"),
+      ).not.toThrow()
     })
   })
 })

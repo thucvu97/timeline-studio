@@ -3,6 +3,105 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { Browser } from "./browser"
 
+// Мокаем xstate
+vi.mock("xstate", () => ({
+  createMachine: vi.fn(),
+  createActor: vi.fn(),
+  setup: vi.fn(),
+  fromPromise: vi.fn().mockReturnValue({
+    onDone: vi.fn().mockReturnValue({
+      run: vi.fn(),
+    }),
+  }),
+  assign: vi.fn().mockImplementation((fn) => fn),
+}))
+
+// Мокаем useMachine
+vi.mock("@xstate/react", () => ({
+  useMachine: () => [
+    {
+      context: {
+        musicFiles: [],
+        filteredFiles: [],
+        searchQuery: "",
+        sortBy: "name",
+        sortOrder: "asc",
+        filterType: "all",
+        viewMode: "list",
+        groupBy: "none",
+        availableExtensions: [],
+        showFavoritesOnly: false,
+      },
+      matches: vi.fn().mockReturnValue(true),
+      can: vi.fn().mockReturnValue(true),
+    },
+    vi.fn(),
+  ],
+}))
+
+// Мокаем ResourcesProvider
+vi.mock("@/features/browser/resources/resources-provider", () => ({
+  ResourcesProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+  useResources: () => ({
+    getResourcePath: vi.fn(),
+    getResourceUrl: vi.fn(),
+    getResourceThumbnail: vi.fn(),
+    getResourceMetadata: vi.fn(),
+    addMusic: vi.fn(),
+    removeResource: vi.fn(),
+    mediaResources: [],
+    musicResources: [],
+    effectsResources: [],
+    filtersResources: [],
+    transitionsResources: [],
+    templatesResources: [],
+    isMusicFileAdded: vi.fn().mockReturnValue(false),
+  }),
+}))
+
+// Мокаем resources-machine
+vi.mock("@/features/browser/resources/resources-machine", () => ({
+  resourcesMachine: {
+    createMachine: vi.fn(),
+  },
+}))
+
+// Мокаем MediaProvider
+vi.mock("@/features/browser/media", () => ({
+  MediaProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+  useMedia: () => ({
+    isItemFavorite: vi.fn().mockReturnValue(false),
+    toggleFavorite: vi.fn(),
+    currentAudio: null,
+    isPlaying: false,
+    playAudio: vi.fn(),
+    pauseAudio: vi.fn(),
+  }),
+}))
+
+// Мокаем компоненты preview
+vi.mock("@/features/browser/components/preview/audio-preview", () => ({
+  AudioPreview: vi.fn(() => (
+    <div data-testid="audio-preview">AudioPreview</div>
+  )),
+}))
+
+vi.mock("@/features/browser/components/preview/video-preview", () => ({
+  VideoPreview: vi.fn(() => (
+    <div data-testid="video-preview">VideoPreview</div>
+  )),
+}))
+
+vi.mock("@/features/browser/components/preview/image-preview", () => ({
+  ImagePreview: vi.fn(() => (
+    <div data-testid="image-preview">ImagePreview</div>
+  )),
+}))
+
 // Мокаем компоненты Lucide
 vi.mock("lucide-react", () => ({
   Image: vi.fn(() => <div data-testid="image-icon">Image</div>),
@@ -13,6 +112,58 @@ vi.mock("lucide-react", () => ({
     <div data-testid="flip-horizontal-icon">FlipHorizontal2</div>
   )),
   Grid2X2: vi.fn(() => <div data-testid="grid-icon">Grid2X2</div>),
+  File: vi.fn(() => <div data-testid="file-icon">File</div>),
+  Mic: vi.fn(() => <div data-testid="mic-icon">Mic</div>),
+  Play: vi.fn(() => <div data-testid="play-icon">Play</div>),
+  Pause: vi.fn(() => <div data-testid="pause-icon">Pause</div>),
+  Heart: vi.fn(() => <div data-testid="heart-icon">Heart</div>),
+  Search: vi.fn(() => <div data-testid="search-icon">Search</div>),
+  SortAsc: vi.fn(() => <div data-testid="sort-asc-icon">SortAsc</div>),
+  SortDesc: vi.fn(() => <div data-testid="sort-desc-icon">SortDesc</div>),
+  Grid: vi.fn(() => <div data-testid="grid-icon">Grid</div>),
+  List: vi.fn(() => <div data-testid="list-icon">List</div>),
+  Folder: vi.fn(() => <div data-testid="folder-icon">Folder</div>),
+  FolderOpen: vi.fn(() => <div data-testid="folder-open-icon">FolderOpen</div>),
+  Plus: vi.fn(() => <div data-testid="plus-icon">Plus</div>),
+  X: vi.fn(() => <div data-testid="x-icon">X</div>),
+  ChevronDown: vi.fn(() => (
+    <div data-testid="chevron-down-icon">ChevronDown</div>
+  )),
+  ChevronUp: vi.fn(() => <div data-testid="chevron-up-icon">ChevronUp</div>),
+  ChevronLeft: vi.fn(() => (
+    <div data-testid="chevron-left-icon">ChevronLeft</div>
+  )),
+  ChevronRight: vi.fn(() => (
+    <div data-testid="chevron-right-icon">ChevronRight</div>
+  )),
+  Star: vi.fn(() => <div data-testid="star-icon">Star</div>),
+  Grid2x2: vi.fn(() => <div data-testid="grid2x2-icon">Grid2x2</div>),
+  Check: vi.fn(() => <div data-testid="check-icon">Check</div>),
+  Filter: vi.fn(() => <div data-testid="filter-icon">Filter</div>),
+  ListFilterPlus: vi.fn(() => (
+    <div data-testid="list-filter-plus-icon">ListFilterPlus</div>
+  )),
+  ArrowDownUp: vi.fn(() => (
+    <div data-testid="arrow-down-up-icon">ArrowDownUp</div>
+  )),
+  ArrowUpDown: vi.fn(() => (
+    <div data-testid="arrow-up-down-icon">ArrowUpDown</div>
+  )),
+}))
+
+// Мокаем modal-machine
+vi.mock("@/features/modals/services/modal-machine", () => ({
+  modalMachine: {
+    createMachine: vi.fn(),
+  },
+}))
+
+// Мокаем modal-provider
+const mockOpenModal = vi.fn()
+vi.mock("@/features/modals/services/modal-provider", () => ({
+  useModal: () => ({
+    openModal: mockOpenModal,
+  }),
 }))
 
 // Мокаем компоненты UI
@@ -65,7 +216,18 @@ vi.mock("react-i18next", () => ({
       }
       return translations[key] || key
     },
+    i18n: {
+      changeLanguage: vi.fn(),
+      language: "ru",
+    },
   }),
+  // Добавляем initReactI18next
+  initReactI18next: {
+    type: "3rdParty",
+    init: vi.fn(),
+  },
+  // Добавляем I18nextProvider
+  I18nextProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
 describe("Browser", () => {

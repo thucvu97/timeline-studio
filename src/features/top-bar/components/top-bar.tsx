@@ -56,6 +56,7 @@ export function TopBar() {
               variant="ghost"
               size="icon"
               title={t("topBar.layout")}
+              data-testid="layout-button"
             >
               <Layout className="h-5 w-5" />
             </Button>
@@ -66,13 +67,16 @@ export function TopBar() {
         </Popover>
       </div>
       <div className="flex items-center">
-        <ThemeToggle />
+        <div data-testid="theme-toggle">
+          <ThemeToggle />
+        </div>
         <Button
           className="hover:bg-secondary h-7 w-7 cursor-pointer p-0"
           variant="ghost"
           size="icon"
           title={t("topBar.keyboardShortcuts")}
           onClick={() => handleOpenModal("keyboard-shortcuts")}
+          data-testid="keyboard-shortcuts-button"
         >
           <Keyboard className="h-5 w-5" />
         </Button>
@@ -82,6 +86,7 @@ export function TopBar() {
           size="icon"
           title={t("topBar.projectSettings")}
           onClick={() => handleOpenModal("project-settings")}
+          data-testid="project-settings-button"
         >
           <Settings className="h-5 w-5" />
         </Button>
@@ -95,6 +100,7 @@ export function TopBar() {
           // title={isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved")}
           // onClick={handleSave}
           // disabled={!isDirty}
+          data-testid="save-button"
         >
           <Save className="h-5 w-5" />
         </Button>
@@ -133,6 +139,7 @@ export function TopBar() {
           className="h-7 w-7 cursor-pointer p-0"
           title={t("topBar.cameraCapture")}
           onClick={() => handleOpenModal("camera-capture")}
+          data-testid="camera-capture-button"
         >
           <Webcam size={16} />
         </Button>
@@ -142,6 +149,7 @@ export function TopBar() {
           className="h-7 w-7 cursor-pointer p-0"
           title={t("topBar.voiceRecording")}
           onClick={() => handleOpenModal("voice-recording")}
+          data-testid="voice-recording-button"
         >
           <Mic className="h-5 w-5" />
         </Button>
@@ -152,6 +160,7 @@ export function TopBar() {
               variant="ghost"
               size="icon"
               title={t("topBar.publish")}
+              data-testid="publish-button"
             >
               <Send className="h-5 w-5" />
             </Button>
@@ -173,6 +182,7 @@ export function TopBar() {
               variant="ghost"
               size="icon"
               title={t("topBar.editingTasks")}
+              data-testid="editing-tasks-button"
             >
               <ListTodo className="h-5 w-5" />
             </Button>
@@ -192,6 +202,7 @@ export function TopBar() {
           className="mr-1 h-7 w-7 cursor-pointer p-0"
           title={t("topBar.userSettings")}
           onClick={() => handleOpenModal("user-settings")}
+          data-testid="user-settings-button"
         >
           <UserCog className="h-5 w-5" />
         </Button>
@@ -200,6 +211,7 @@ export function TopBar() {
           size="sm"
           className="h-6 w-24 cursor-pointer items-center gap-1 border-none rounded-sm bg-[#38dacac3] px-1 text-sm text-black hover:bg-[#35d1c1] hover:text-black dark:bg-[#35d1c1] dark:hover:bg-[#35d1c1]"
           onClick={() => handleOpenModal("export")}
+          data-testid="export-button"
         >
           <span className="px-2 text-xs">{t("topBar.export")}</span>
           <Upload className="h-5 w-5" />

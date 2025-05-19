@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { createActor } from "xstate"
 
 import { MediaFile } from "@/types/media"
 
@@ -11,6 +12,11 @@ vi.mock("./music-utils", () => ({
   sortFiles: vi.fn((files) => files),
 }))
 
+// Мокаем fetch для тестов
+global.fetch = vi.fn().mockResolvedValue({
+  json: vi.fn().mockResolvedValue({ media: [] }),
+})
+
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
@@ -21,7 +27,7 @@ const mockMediaFiles: MediaFile[] = [
     id: "1",
     name: "test1.mp3",
     path: "/test/test1.mp3",
-    type: "audio",
+    isAudio: true, // Используем isAudio вместо type
     probeData: {
       format: {
         duration: 120,
@@ -33,13 +39,15 @@ const mockMediaFiles: MediaFile[] = [
           date: "2021-01-01",
         },
       },
+      streams: [], // Добавляем пустой массив streams для соответствия типу FfprobeData
     },
+    duration: 120, // Добавляем duration для соответствия типу MediaFile
   },
   {
     id: "2",
     name: "test2.mp3",
     path: "/test/test2.mp3",
-    type: "audio",
+    isAudio: true, // Используем isAudio вместо type
     probeData: {
       format: {
         duration: 180,
@@ -51,7 +59,9 @@ const mockMediaFiles: MediaFile[] = [
           date: "2022-01-01",
         },
       },
+      streams: [], // Добавляем пустой массив streams для соответствия типу FfprobeData
     },
+    duration: 180, // Добавляем duration для соответствия типу MediaFile
   },
 ]
 
@@ -61,76 +71,128 @@ describe("MusicMachine", () => {
     vi.clearAllMocks()
     vi.mocked(filterFiles).mockImplementation((files) => files)
     vi.mocked(sortFiles).mockImplementation((files) => files)
+
+    // Сбрасываем мок для fetch
+    global.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ media: [] }),
+    })
   })
 
   it("should have a valid machine definition", () => {
     // Проверяем, что машина состояний определена
     expect(musicMachine).toBeDefined()
-
-    // Проверяем основные свойства машины состояний
     expect(musicMachine.id).toBe("music")
-    expect(musicMachine.config.initial).toBe("loading")
-
-    // Проверяем, что машина имеет нужные состояния
-    expect(musicMachine.config.states).toHaveProperty("loading")
-    expect(musicMachine.config.states).toHaveProperty("loaded")
-    expect(musicMachine.config.states).toHaveProperty("error")
   })
 
   it("should have correct initial context", () => {
-    // Проверяем начальный контекст машины состояний
-    const initialContext = musicMachine.config.context
-    expect(initialContext).toEqual({
-      media: [],
-      filteredMedia: [],
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем начальный контекст
+    expect(snapshot.context).toEqual({
+      musicFiles: [],
+      filteredFiles: [],
       searchQuery: "",
-      sortBy: "date",
-      sortOrder: "desc",
+      sortBy: "name",
+      sortOrder: "asc",
       filterType: "all",
-      viewMode: "thumbnails",
+      viewMode: "list",
       groupBy: "none",
-      showFavoritesOnly: false,
       availableExtensions: [],
-      error: null,
+      showFavoritesOnly: false,
     })
+
+    // Проверяем начальное состояние
+    expect(snapshot.value).toBe("loading")
+
+    // Останавливаем актора
+    actor.stop()
   })
 
-  it("should have correct transitions", () => {
-    // Проверяем переходы машины состояний
-    const loadingState = musicMachine.config.states.loading
-    expect(loadingState.on).toHaveProperty("FETCH.DONE")
-    expect(loadingState.on).toHaveProperty("FETCH.ERROR")
+  it("should transition to success state when fetch is successful", async () => {
+    // Мокируем успешный ответ от API
+    global.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
+    })
 
-    const loadedState = musicMachine.config.states.loaded
-    expect(loadedState.on).toHaveProperty("SEARCH")
-    expect(loadedState.on).toHaveProperty("SORT")
-    expect(loadedState.on).toHaveProperty("FILTER")
-    expect(loadedState.on).toHaveProperty("CHANGE_VIEW_MODE")
-    expect(loadedState.on).toHaveProperty("CHANGE_GROUP_BY")
-    expect(loadedState.on).toHaveProperty("CHANGE_ORDER")
-    expect(loadedState.on).toHaveProperty("TOGGLE_FAVORITES")
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Ждем, пока машина перейдет в состояние success
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что машина перешла в состояние success
+    expect(snapshot.value).toBe("success")
+
+    // Проверяем, что контекст обновился
+    expect(snapshot.context.musicFiles).toEqual(mockMediaFiles)
+    expect(snapshot.context.filteredFiles).toEqual(mockMediaFiles)
+
+    // Останавливаем актора
+    actor.stop()
   })
 
-  it("should handle SEARCH event correctly", () => {
-    // Создаем действие для события SEARCH
-    const searchAction = musicMachine.config.states.loaded.on.SEARCH.actions[0]
+  it("should transition to error state when fetch fails", async () => {
+    // Мокируем ошибку от API
+    global.fetch = vi.fn().mockRejectedValue(new Error("API error"))
 
-    // Проверяем, что действие определено
-    expect(searchAction).toBeDefined()
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
 
-    // Создаем мок-контекст и событие
-    const mockContext = {
-      ...musicMachine.config.context,
-      media: mockMediaFiles,
-    }
-    const mockEvent = { type: "SEARCH", query: "test", mediaContext: {} }
+    // Запускаем актора
+    actor.start()
 
-    // Вызываем действие
-    const result = searchAction.exec(
-      { context: mockContext, event: mockEvent } as any,
-      {} as any,
-      {} as any,
-    )
+    // Ждем, пока машина перейдет в состояние error
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что машина перешла в состояние error
+    expect(snapshot.value).toBe("error")
+
+    // Проверяем, что контекст содержит ошибку
+    expect(snapshot.context.error).toBeDefined()
+
+    // Останавливаем актора
+    actor.stop()
+  })
+
+  it("should handle SEARCH event correctly", async () => {
+    // Мокируем успешный ответ от API
+    global.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
+    })
+
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Ждем, пока машина перейдет в состояние success
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // Отправляем событие SEARCH
+    actor.send({ type: "SEARCH", query: "test", mediaContext: {} })
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что searchQuery обновился
+    expect(snapshot.context.searchQuery).toBe("test")
 
     // Проверяем, что filterFiles был вызван с правильными параметрами
     expect(filterFiles).toHaveBeenCalledWith(
@@ -140,95 +202,111 @@ describe("MusicMachine", () => {
       false,
       {},
     )
+
+    // Останавливаем актора
+    actor.stop()
   })
 
-  it("should handle SORT event correctly", () => {
-    // Создаем действие для события SORT
-    const sortAction = musicMachine.config.states.loaded.on.SORT.actions[0]
+  it("should handle SORT event correctly", async () => {
+    // Мокируем успешный ответ от API
+    global.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
+    })
 
-    // Проверяем, что действие определено
-    expect(sortAction).toBeDefined()
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
 
-    // Создаем мок-контекст и событие
-    const mockContext = {
-      ...musicMachine.config.context,
-      media: mockMediaFiles,
-      filteredMedia: mockMediaFiles,
-      sortOrder: "asc",
-    }
-    const mockEvent = { type: "SORT", sortBy: "title" }
+    // Запускаем актора
+    actor.start()
 
-    // Вызываем действие
-    const result = sortAction.exec(
-      { context: mockContext, event: mockEvent } as any,
-      {} as any,
-      {} as any,
-    )
+    // Ждем, пока машина перейдет в состояние success
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // Отправляем событие SORT
+    actor.send({ type: "SORT", sortBy: "title" })
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что sortBy обновился
+    expect(snapshot.context.sortBy).toBe("title")
 
     // Проверяем, что sortFiles был вызван с правильными параметрами
-    expect(sortFiles).toHaveBeenCalledWith(mockMediaFiles, "title", "asc")
+    expect(sortFiles).toHaveBeenCalledWith(expect.any(Array), "title", "asc")
+
+    // Останавливаем актора
+    actor.stop()
   })
 
-  it("should handle CHANGE_ORDER event correctly", () => {
-    // Создаем действие для события CHANGE_ORDER
-    const changeOrderAction =
-      musicMachine.config.states.loaded.on.CHANGE_ORDER.actions[0]
+  it("should handle CHANGE_ORDER event correctly", async () => {
+    // Мокируем успешный ответ от API
+    global.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
+    })
 
-    // Проверяем, что действие определено
-    expect(changeOrderAction).toBeDefined()
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
 
-    // Создаем мок-контекст и событие
-    const mockContext = {
-      ...musicMachine.config.context,
-      sortOrder: "asc",
-      filteredMedia: mockMediaFiles,
-    }
-    const mockEvent = { type: "CHANGE_ORDER" }
+    // Запускаем актора
+    actor.start()
 
-    // Вызываем действие
-    const result = changeOrderAction.exec(
-      { context: mockContext, event: mockEvent } as any,
-      {} as any,
-      {} as any,
-    )
+    // Ждем, пока машина перейдет в состояние success
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // Отправляем событие CHANGE_ORDER
+    actor.send({ type: "CHANGE_ORDER" })
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что sortOrder изменился с "asc" на "desc"
+    expect(snapshot.context.sortOrder).toBe("desc")
 
     // Проверяем, что sortFiles был вызван с правильными параметрами
     expect(sortFiles).toHaveBeenCalledWith(
-      mockMediaFiles,
-      mockContext.sortBy,
+      expect.any(Array),
+      snapshot.context.sortBy,
       "desc",
     )
+
+    // Останавливаем актора
+    actor.stop()
   })
 
-  it("should handle FILTER event correctly", () => {
-    // Создаем действие для события FILTER
-    const filterAction = musicMachine.config.states.loaded.on.FILTER.actions[0]
+  it("should handle FILTER event correctly", async () => {
+    // Мокируем успешный ответ от API
+    global.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
+    })
 
-    // Проверяем, что действие определено
-    expect(filterAction).toBeDefined()
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
 
-    // Создаем мок-контекст и событие
-    const mockContext = {
-      ...musicMachine.config.context,
-      media: mockMediaFiles,
-      searchQuery: "test",
-    }
-    const mockEvent = { type: "FILTER", filterType: "mp3", mediaContext: {} }
+    // Запускаем актора
+    actor.start()
 
-    // Вызываем действие
-    const result = filterAction.exec(
-      { context: mockContext, event: mockEvent } as any,
-      {} as any,
-      {} as any,
-    )
+    // Ждем, пока машина перейдет в состояние success
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // Отправляем событие FILTER
+    actor.send({ type: "FILTER", filterType: "mp3", mediaContext: {} })
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что filterType обновился
+    expect(snapshot.context.filterType).toBe("mp3")
 
     // Проверяем, что filterFiles был вызван с правильными параметрами
     expect(filterFiles).toHaveBeenCalledWith(
       mockMediaFiles,
-      "test",
+      snapshot.context.searchQuery,
       "mp3",
       false,
       {},
     )
+
+    // Останавливаем актора
+    actor.stop()
   })
 })

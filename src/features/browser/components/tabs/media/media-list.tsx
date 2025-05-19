@@ -198,7 +198,7 @@ const saveSettings = (settings: any) => {
 }
 
 // Оборачиваем в memo для предотвращения ненужных рендеров
-export const MediaFileList = memo(function MediaFileList({
+export const MediaList = memo(function MediaList({
   viewMode: initialViewMode = "list",
 }: {
   viewMode?: ViewMode

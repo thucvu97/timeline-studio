@@ -12,6 +12,8 @@ import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { MusicList } from "./tabs"
+
 export const TAB_TRIGGER_STYLES =
   "text-xs text-gray-800 dark:bg-[#1b1a1f] border-none " +
   "bg-gray-200 data-[state=active]:bg-secondary data-[state=active]:text-[#38dacac3] " +
@@ -77,7 +79,7 @@ export function Browser() {
           value="music"
           className="bg-secondary m-0 flex-1 overflow-auto"
         >
-          <div />
+          <MusicList />
         </TabsContent>
         <TabsContent
           value="transitions"

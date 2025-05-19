@@ -130,7 +130,7 @@ export const AudioPreview = memo(function AudioPreview({
         void audioContextRef.current.close()
       }
     }
-  }, [])
+  }, [mediaRecorder])
 
   return (
     <div

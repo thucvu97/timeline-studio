@@ -1,12 +1,15 @@
-import { describe, expect, it } from "vitest"
-
-import { render, screen } from "@/test/test-utils"
+import { render, screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
 // Импортируем MediaStudio напрямую
 import { MediaStudio } from "./media-studio"
 
 // Мокаем компоненты, которые используются в MediaStudio
-// Моки должны быть определены в файле src/test/setup.ts
+vi.mock("@/features/user-settings/user-settings-provider", () => ({
+  useUserSettings: () => ({
+    layoutMode: "default",
+  }),
+}))
 
 describe("MediaStudio", () => {
   it("renders correctly with default layout", () => {

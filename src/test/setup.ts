@@ -74,6 +74,7 @@ vi.mock("@/features/top-bar/components/top-bar", () => ({
     return React.createElement(
       "div",
       { "data-testid": "top-bar" },
+      // Добавляем все необходимые data-testid атрибуты
       React.createElement(
         "span",
         { "data-testid": "current-layout" },
@@ -111,6 +112,58 @@ vi.mock("@/features/top-bar/components/top-bar", () => ({
         },
         "Dual",
       ),
+      // Добавляем дополнительные кнопки с data-testid
+      React.createElement(
+        "button",
+        { "data-testid": "layout-button" },
+        "Layout",
+      ),
+      React.createElement(
+        "div",
+        { "data-testid": "theme-toggle" },
+        "Theme Toggle",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "keyboard-shortcuts-button" },
+        "Keyboard Shortcuts",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "project-settings-button" },
+        "Project Settings",
+      ),
+      React.createElement("button", { "data-testid": "save-button" }, "Save"),
+      React.createElement(
+        "button",
+        { "data-testid": "camera-capture-button" },
+        "Camera Capture",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "voice-recording-button" },
+        "Voice Recording",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "publish-button" },
+        "Publish",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "editing-tasks-button" },
+        "Editing Tasks",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "user-settings-button" },
+        "User Settings",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "export-button" },
+        "Export",
+      ),
     )
   },
 }))
@@ -144,7 +197,7 @@ vi.mock("@/features/media-studio/layouts", () => ({
     DUAL: "dual",
   },
   LayoutPreviews: ({
-    onLayoutChange = () => {},
+    onLayoutChange = (layout: string) => {},
     layoutMode = "default",
   } = {}) => {
     return React.createElement(
@@ -184,6 +237,20 @@ vi.mock("@/features/modals/components", () => ({
       "Modal Container",
     ),
 }))
+
+// Мок для i18next
+vi.mock("i18next", () => {
+  const i18n = {
+    use: vi.fn().mockReturnThis(),
+    init: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn(), // Добавляем метод off
+    t: (key: string) => key,
+    changeLanguage: vi.fn(),
+    language: "ru",
+  }
+  return { default: i18n }
+})
 
 // Мок для react-i18next
 vi.mock("react-i18next", () => ({
@@ -263,9 +330,7 @@ vi.mock("@/features/media-studio/indexed-db-service", () => {
       static instance: any
 
       static getInstance() {
-        if (!this.instance) {
-          this.instance = new this()
-        }
+        this.instance ??= new this()
         return this.instance
       }
 

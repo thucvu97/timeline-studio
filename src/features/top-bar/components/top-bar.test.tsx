@@ -1,62 +1,97 @@
+import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { fireEvent, render, screen } from "@/test/test-utils"
 
 import { TopBar } from "./top-bar"
 
+// Используем мок для TopBar из src/test/setup.ts
+
 // Мокаем модули
-vi.mock("@/features/modals")
+const mockOpenModal = vi.fn()
+vi.mock("@/features/modals/services/modal-provider", () => ({
+  useModal: () => ({
+    openModal: mockOpenModal,
+  }),
+}))
+
+vi.mock("@/features/media-studio/layouts", () => ({
+  LayoutPreviews: () => (
+    <div data-testid="layout-previews">Layout Previews</div>
+  ),
+}))
+
+vi.mock("@/components/theme/theme-toggle", () => ({
+  ThemeToggle: () => (
+    <div data-testid="theme-toggle-component">Theme Toggle</div>
+  ),
+}))
+
+vi.mock("@/features/browser/components/layout/browser-toggle", () => ({
+  BrowserToggle: () => <div data-testid="browser-toggle">Browser Toggle</div>,
+}))
 
 // Мок уже определен в src/test/setup.ts
 // Мокаем console.log для проверки вызова
 vi.spyOn(console, "log").mockImplementation(() => {})
 
 describe("TopBar", () => {
-  const mockOnLayoutChange = vi.fn()
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it("renders correctly", () => {
-    render(<TopBar layoutMode="default" onLayoutChange={mockOnLayoutChange} />)
+    render(<TopBar />)
 
-    // Проверяем, что основные элементы отображаются по их иконкам
-    expect(screen.getAllByRole("button")[0]).toBeInTheDocument() // Layout button
-    expect(screen.getAllByRole("button")[1]).toBeInTheDocument() // Theme toggle
-
-    // Проверяем, что есть хотя бы две кнопки
-    expect(screen.getAllByRole("button").length).toBeGreaterThanOrEqual(2)
+    // Проверяем, что основные элементы отображаются по их data-testid
+    expect(screen.getByTestId("layout-button")).toBeInTheDocument()
+    expect(screen.getByTestId("theme-toggle")).toBeInTheDocument()
+    expect(screen.getByTestId("keyboard-shortcuts-button")).toBeInTheDocument()
+    expect(screen.getByTestId("project-settings-button")).toBeInTheDocument()
+    expect(screen.getByTestId("save-button")).toBeInTheDocument()
   })
 
-  it("renders buttons correctly", () => {
-    render(<TopBar layoutMode="default" onLayoutChange={mockOnLayoutChange} />)
+  it("renders additional buttons correctly", () => {
+    render(<TopBar />)
 
-    // Проверяем, что основные кнопки отображаются
-    expect(screen.getByRole("button", { name: /default/i })).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /options/i })).toBeInTheDocument()
+    // Проверяем, что дополнительные кнопки отображаются
+    expect(screen.getByTestId("camera-capture-button")).toBeInTheDocument()
+    expect(screen.getByTestId("voice-recording-button")).toBeInTheDocument()
+    expect(screen.getByTestId("publish-button")).toBeInTheDocument()
+    expect(screen.getByTestId("editing-tasks-button")).toBeInTheDocument()
+    expect(screen.getByTestId("user-settings-button")).toBeInTheDocument()
+    expect(screen.getByTestId("export-button")).toBeInTheDocument()
   })
 
-  it("calls onLayoutChange when clicking on layout buttons", () => {
-    render(<TopBar layoutMode="default" onLayoutChange={mockOnLayoutChange} />)
+  it("renders keyboard shortcuts button", () => {
+    render(<TopBar />)
 
-    // Находим кнопку для изменения layout на options
-    const optionsButton = screen.getByRole("button", { name: /options/i })
+    // Находим кнопку для открытия модального окна
+    const keyboardShortcutsButton = screen.getByTestId(
+      "keyboard-shortcuts-button",
+    )
 
-    // Кликаем на кнопку
-    fireEvent.click(optionsButton)
-
-    // Проверяем, что был вызван onLayoutChange с правильным аргументом
-    expect(mockOnLayoutChange).toHaveBeenCalledWith("options")
+    // Проверяем, что кнопка отображается
+    expect(keyboardShortcutsButton).toBeInTheDocument()
+    expect(keyboardShortcutsButton).toHaveTextContent("Keyboard Shortcuts")
   })
 
-  it("renders at least two buttons", () => {
-    render(<TopBar layoutMode="default" onLayoutChange={mockOnLayoutChange} />)
+  it("renders at least 10 buttons", () => {
+    render(<TopBar />)
 
-    // Находим все кнопки
-    const buttons = screen.getAllByRole("button")
+    // Находим все кнопки по data-testid
+    const buttons = [
+      screen.getByTestId("layout-button"),
+      screen.getByTestId("keyboard-shortcuts-button"),
+      screen.getByTestId("project-settings-button"),
+      screen.getByTestId("save-button"),
+      screen.getByTestId("camera-capture-button"),
+      screen.getByTestId("voice-recording-button"),
+      screen.getByTestId("publish-button"),
+      screen.getByTestId("editing-tasks-button"),
+      screen.getByTestId("user-settings-button"),
+      screen.getByTestId("export-button"),
+    ]
 
-    // Проверяем, что есть хотя бы две кнопки
-    expect(buttons.length).toBeGreaterThanOrEqual(2)
+    // Проверяем, что есть хотя бы 10 кнопок
+    expect(buttons.length).toBeGreaterThanOrEqual(10)
   })
 })

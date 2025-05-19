@@ -153,20 +153,75 @@ export function MusicList() {
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col" data-testid="music-list-container">
       <MusicToolbar
         onImport={handleImport}
         onImportFile={handleImportFile}
         onImportFolder={handleImportFolder}
       />
-      <div className="flex-1 overflow-y-auto p-1 dark:bg-[#1b1a1f]">
+      <div
+        className="flex-1 overflow-y-auto p-1 dark:bg-[#1b1a1f]"
+        data-testid="music-list-content"
+      >
+        {/* Состояние загрузки */}
+        {filteredFiles.length === 0 && (
+          <>
+            {/* Состояние загрузки */}
+            {useMusicMachine().isLoading && (
+              <div
+                data-testid="music-list-loading"
+                className="flex h-full items-center justify-center"
+              >
+                <p>{t("browser.loading")}</p>
+              </div>
+            )}
+
+            {/* Состояние ошибки */}
+            {useMusicMachine().isError && (
+              <div
+                data-testid="music-list-error"
+                className="flex h-full flex-col items-center justify-center"
+              >
+                <p>{t("browser.error_loading")}</p>
+                <p>{useMusicMachine().error}</p>
+              </div>
+            )}
+
+            {/* Пустое состояние */}
+            {!useMusicMachine().isLoading && !useMusicMachine().isError && (
+              <div
+                data-testid="music-list-empty"
+                className="flex h-full items-center justify-center"
+              >
+                <p>{t("browser.no_music_files")}</p>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Список файлов */}
         {Object.entries(groupedFiles).map(([group, files]) => (
-          <div key={group} className="">
+          <div
+            key={group}
+            className=""
+            data-testid={
+              group ? `music-list-group-${group}` : "music-list-group-default"
+            }
+          >
             {group && (
-              <h2 className="mb-2 px-4 text-lg font-semibold">{group}</h2>
+              <h2
+                className="mb-2 px-4 text-lg font-semibold"
+                data-testid="music-list-group-title"
+              >
+                {group}
+              </h2>
             )}
             {viewMode === "list" ? (
-              <div key={group} className="h-full overflow-y-hidden">
+              <div
+                key={group}
+                className="h-full overflow-y-hidden"
+                data-testid="music-list-view-list"
+              >
                 <div className="space-y-1">
                   {files.map((file) => (
                     <div
@@ -257,7 +312,10 @@ export function MusicList() {
                 </div>
               </div>
             ) : (
-              <div className="flex w-full flex-wrap gap-3 p-2">
+              <div
+                className="flex w-full flex-wrap gap-3 p-2"
+                data-testid="music-list-view-thumbnails"
+              >
                 {files.map((file) => (
                   <div
                     key={file.path}

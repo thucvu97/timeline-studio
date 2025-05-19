@@ -1,5 +1,4 @@
-import { renderHook } from "@testing-library/react"
-import { act } from "react-dom/test-utils"
+import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useMusicMachine } from "./use-music-machine"
