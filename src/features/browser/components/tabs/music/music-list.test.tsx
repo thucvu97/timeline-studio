@@ -78,7 +78,7 @@ const baseMusicMachineMock = {
 }
 
 // Мокаем модули на уровне модуля
-vi.mock("./use-music-machine", () => ({
+vi.mock("@/features/browser/components/tabs/music/use-music-machine", () => ({
   useMusicMachine: () => baseMusicMachineMock,
 }))
 

@@ -15,7 +15,19 @@
     "utils": "@/lib/utils",
     "ui": "@/components/ui",
     "lib": "@/lib",
-    "hooks": "@/hooks"
+    "hooks": "@/hooks",
+    "types": "@/types",
+    "features": "@/features",
+    "browser": "@/features/browser",
+    "chat": "@/features/chat",
+    "media-studio": "@/features/media-studio",
+    "modals": "@/features/modals",
+    "options": "@/features/options",
+    "project-settings": "@/features/project-settings",
+    "timeline": "@/features/timeline",
+    "top-bar": "@/features/top-bar",
+    "user-settings": "@/features/user-settings",
+    "video-player": "@/features/video-player"
   },
   "iconLibrary": "lucide"
 }

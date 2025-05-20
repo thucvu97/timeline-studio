@@ -20,7 +20,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@types/*": ["./src/types/*"],
+      "@features/*": ["./src/features/*"],
+      "@browser/*": ["./src/features/browser/*"]
     }
   },
   "include": [

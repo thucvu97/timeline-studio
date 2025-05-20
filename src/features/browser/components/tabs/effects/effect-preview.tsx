@@ -158,6 +158,7 @@ export function EffectPreview({
           muted
           playsInline
           preload="auto"
+          data-testid="effect-video"
         />
 
         {/* Кнопка избранного */}

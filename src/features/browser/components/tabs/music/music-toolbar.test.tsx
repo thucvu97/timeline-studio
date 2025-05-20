@@ -25,7 +25,7 @@ const initialState = {
 }
 
 // Мокируем хук useMusicMachine
-vi.mock("./use-music-machine", () => ({
+vi.mock("@/features/browser/components/tabs/music/use-music-machine", () => ({
   useMusicMachine: () => ({
     ...initialState,
     search: mockSearch,

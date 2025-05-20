@@ -219,6 +219,7 @@ export const MediaList = memo(function MediaList({
     savedSettings.groupBy ?? "none",
   )
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">(
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     (savedSettings.sortOrder as "asc" | "desc") || "desc",
   )
   const [searchQuery, setSearchQuery] = useState<string>("")
@@ -374,7 +375,7 @@ export const MediaList = memo(function MediaList({
         // Получаем размер из метаданных или из поля size
         const getSizeValue = (file: MediaFile): number => {
           // Приоритетно используем размер из метаданных, если он доступен
-          if (file.probeData?.format?.size !== undefined) {
+          if (file.probeData?.format.size !== undefined) {
             return file.probeData.format.size
           }
 
@@ -855,11 +856,7 @@ export const MediaList = memo(function MediaList({
     )
   }, [filteredAndSortedMedia, groupedFiles, renderGroup])
 
-  if (
-    media.isLoading ||
-    !media.allMediaFiles ||
-    media.allMediaFiles.length === 0
-  ) {
+  if (media.isLoading) {
     return (
       <div className="flex flex-col overflow-hidden">
         <div className="flex-1 p-3 pb-1">
@@ -885,7 +882,7 @@ export const MediaList = memo(function MediaList({
     )
   }
 
-  if (!media.isLoading && !media.allMediaFiles) {
+  if (media.allMediaFiles.length === 0) {
     return <NoFiles />
   }
 

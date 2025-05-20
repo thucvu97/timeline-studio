@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
+import { useResources } from "@/features/browser/resources"
 import { MediaFile } from "@/types/media"
 import { TransitionResource } from "@/types/resources"
 import { transitions as transitionEffects } from "@/types/transitions"
@@ -272,6 +273,7 @@ export function TransitionPreview({
                 playsInline
                 preload="auto"
                 onError={() => setIsError(true)}
+                data-testid="source-video"
               />
               <video
                 ref={targetVideoRef}
@@ -281,6 +283,7 @@ export function TransitionPreview({
                 playsInline
                 preload="auto"
                 onError={() => setIsError(true)}
+                data-testid="target-video"
               />
               {/* Кнопка избранного */}
               <FavoriteButton

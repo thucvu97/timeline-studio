@@ -7,7 +7,7 @@ import { musicMachine } from "./music-machine"
 import { filterFiles, sortFiles } from "./music-utils"
 
 // Мокаем модуль music-utils
-vi.mock("./music-utils", () => ({
+vi.mock("@/features/browser/components/tabs/music/music-utils", () => ({
   filterFiles: vi.fn((files) => files),
   sortFiles: vi.fn((files) => files),
 }))

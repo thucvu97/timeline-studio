@@ -22,7 +22,7 @@ export interface MediaTemplate {
   id: string
   split: "vertical" | "horizontal" | "diagonal" | "custom" | "grid"
   resizable?: boolean // Флаг, указывающий, что шаблон поддерживает изменение размеров
-  screens: number // Количество экранов/секций в шаблоне
+  screens: number // Количество экранов в шаблоне
   splitPoints?: SplitPoint[] // Координаты точек разделения (для нестандартных разделений)
   splitPosition?: number // Позиция разделения в процентах (от 0 до 100)
   cellConfig?: CellConfig | CellConfig[] // Настройки для ячеек шаблона (общие или для каждой ячейки)
