@@ -192,7 +192,7 @@ export const groupFilesByDate = (media: MediaFile[]): DateGroup[] => {
 export const calculateRealDimensions = (
   stream: VideoStream & { width: number; height: number },
 ): Dimensions => {
-  const rotation = stream.rotation ? parseInt(stream.rotation) : 0
+  const rotation = stream.rotation ? Number.parseInt(stream.rotation) : 0
   const { width, height } = stream
 
   if (Math.abs(rotation) === 90 || Math.abs(rotation) === 270) {
@@ -611,7 +611,10 @@ export const createTracksFromFiles = (
             sector.tracks.push({
               ...track,
               videos: updatedVideos,
-              startTime: Math.min(track.startTime ?? Infinity, fileStartTime),
+              startTime: Math.min(
+                track.startTime ?? Number.POSITIVE_INFINITY,
+                fileStartTime,
+              ),
               endTime: Math.max(track.endTime ?? 0, fileEndTime),
               combinedDuration: (track.combinedDuration ?? 0) + fileDuration,
               timeRanges: calculateTimeRanges(updatedVideos),
@@ -628,7 +631,8 @@ export const createTracksFromFiles = (
                 ...sector.tracks[trackIndex],
                 videos: updatedVideos,
                 startTime: Math.min(
-                  sector.tracks[trackIndex].startTime ?? Infinity,
+                  sector.tracks[trackIndex].startTime ??
+                    Number.POSITIVE_INFINITY,
                   fileStartTime,
                 ),
                 endTime: Math.max(
@@ -704,7 +708,10 @@ export const createTracksFromFiles = (
             sector.tracks.push({
               ...track,
               videos: [...(track.videos ?? []), file],
-              startTime: Math.min(track.startTime ?? Infinity, fileStartTime),
+              startTime: Math.min(
+                track.startTime ?? Number.POSITIVE_INFINITY,
+                fileStartTime,
+              ),
               endTime: Math.max(track.endTime ?? 0, fileEndTime),
               combinedDuration: (track.combinedDuration ?? 0) + fileDuration,
               timeRanges: calculateTimeRanges([...(track.videos ?? []), file]),
@@ -721,7 +728,8 @@ export const createTracksFromFiles = (
                 ...sector.tracks[trackIndex],
                 videos: updatedVideos,
                 startTime: Math.min(
-                  sector.tracks[trackIndex].startTime ?? Infinity,
+                  sector.tracks[trackIndex].startTime ??
+                    Number.POSITIVE_INFINITY,
                   fileStartTime,
                 ),
                 endTime: Math.max(
@@ -770,7 +778,7 @@ export const createTracksFromFiles = (
         for (const track of sector.tracks) {
           const cameraMatch = track.name?.match(/Camera (\d+)/)
           if (cameraMatch) {
-            const cameraNumber = parseInt(cameraMatch[1], 10)
+            const cameraNumber = Number.parseInt(cameraMatch[1], 10)
             if (cameraNumber > maxCameraNumber) {
               maxCameraNumber = cameraNumber
             }
@@ -964,7 +972,10 @@ export const createTracksFromFiles = (
             sector.tracks.push({
               ...track,
               videos: updatedVideos,
-              startTime: Math.min(track.startTime ?? Infinity, fileStartTime),
+              startTime: Math.min(
+                track.startTime ?? Number.POSITIVE_INFINITY,
+                fileStartTime,
+              ),
               endTime: Math.max(track.endTime ?? 0, fileEndTime),
               combinedDuration: (track.combinedDuration ?? 0) + fileDuration,
               timeRanges: calculateTimeRanges(updatedVideos),
@@ -981,7 +992,8 @@ export const createTracksFromFiles = (
                 ...sector.tracks[trackIndex],
                 videos: updatedVideos,
                 startTime: Math.min(
-                  sector.tracks[trackIndex].startTime ?? Infinity,
+                  sector.tracks[trackIndex].startTime ??
+                    Number.POSITIVE_INFINITY,
                   fileStartTime,
                 ),
                 endTime: Math.max(

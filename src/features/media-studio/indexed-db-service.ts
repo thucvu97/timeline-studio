@@ -126,7 +126,7 @@ export class IndexedDBService {
    * @param maxAgeMs Максимальный возраст данных в миллисекундах (по умолчанию 1 час)
    * @returns true, если данные устарели и нужно обновить
    */
-  public async shouldRefreshData(maxAgeMs: number = 3600000): Promise<boolean> {
+  public async shouldRefreshData(maxAgeMs = 3600000): Promise<boolean> {
     const timestamp = await this.getLastSaveTimestamp()
     if (!timestamp) return true
 

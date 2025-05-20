@@ -156,7 +156,7 @@ export function MediaList() {
               const sizeStr = file.size as string // явное приведение типа для линтера
               const match = /^([\d.]+)\s*([KMGT]?B)?$/i.exec(sizeStr)
               if (match) {
-                const value = parseFloat(match[1])
+                const value = Number.parseFloat(match[1])
                 const unit = (match[2] || "").toUpperCase()
 
                 if (unit === "KB") return value * 1024
@@ -165,7 +165,7 @@ export function MediaList() {
                 if (unit === "TB") return value * 1024 * 1024 * 1024 * 1024
                 return value // Просто байты
               }
-              return parseFloat(sizeStr) || 0
+              return Number.parseFloat(sizeStr) || 0
             }
           }
 
@@ -191,7 +191,7 @@ export function MediaList() {
               return parts[0] * 60 + parts[1]
             }
             // Если только число
-            return parseFloat(duration) || 0
+            return Number.parseFloat(duration) || 0
           }
           return 0
         }

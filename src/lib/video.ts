@@ -128,17 +128,16 @@ export const getFps = (stream?: { r_frame_rate?: string }): number | null => {
 
     if (fpsMatch) {
       // Если строка в формате "num/den", вычисляем деление
-      const numerator = parseInt(fpsMatch[1], 10)
-      const denominator = parseInt(fpsMatch[2], 10)
+      const numerator = Number.parseInt(fpsMatch[1], 10)
+      const denominator = Number.parseInt(fpsMatch[2], 10)
 
       if (denominator === 0) return null
 
       return numerator / denominator
-    } else {
-      // Если строка просто число, парсим его
-      const fps = parseFloat(fpsStr)
-      return isNaN(fps) ? null : fps
     }
+
+    const fps = Number.parseFloat(fpsStr)
+    return Number.isNaN(fps) ? null : fps
   } catch {
     return null
   }
@@ -154,7 +153,7 @@ export const getFps = (stream?: { r_frame_rate?: string }): number | null => {
  */
 export const getFrameTime = (
   videoOrStream?: MediaFile | { r_frame_rate?: string },
-  defaultFps: number = 25,
+  defaultFps = 25,
 ): number => {
   if (!videoOrStream) return 1 / defaultFps
 
@@ -270,8 +269,8 @@ export const parseRotation = (
 ): number | undefined => {
   if (rotation === undefined) return undefined
   if (typeof rotation === "number") return rotation
-  const parsed = parseInt(rotation, 10)
-  return isNaN(parsed) ? undefined : parsed
+  const parsed = Number.parseInt(rotation, 10)
+  return Number.isNaN(parsed) ? undefined : parsed
 }
 
 /**

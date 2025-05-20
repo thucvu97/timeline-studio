@@ -113,7 +113,7 @@ export function generateVideoId(videos: MediaFile[]): string {
   const maxNumber = sortedVideos.reduce((max, video) => {
     const match = /V(\d+)/.exec(video.id)
     if (match) {
-      const num = parseInt(match[1])
+      const num = Number.parseInt(match[1])
       return num > max ? num : max
     }
     return max
@@ -140,7 +140,7 @@ export function generateVideoId(videos: MediaFile[]): string {
 export function isVideoAvailable(
   video: MediaFile,
   currentTime: number,
-  tolerance: number = 0.3,
+  tolerance = 0.3,
 ): boolean {
   const startTime = video.startTime ?? 0
   const endTime = startTime + (video.duration ?? 0)

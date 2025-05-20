@@ -73,7 +73,7 @@ export const filterFiles = (
   files: MediaFile[],
   searchQuery: string,
   filterType: string,
-  showFavoritesOnly: boolean = false,
+  showFavoritesOnly = false,
   mediaContext: any = null,
 ): MediaFile[] => {
   let filtered = files

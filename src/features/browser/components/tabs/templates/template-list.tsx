@@ -128,7 +128,7 @@ export function TemplateList() {
 
     // Проверяем, является ли запрос одной цифрой (поиск по количеству экранов)
     if (/^\d+$/.test(searchLower)) {
-      const screenCount = parseInt(searchLower, 10)
+      const screenCount = Number.parseInt(searchLower, 10)
       return template.screens === screenCount // Сравниваем с количеством экранов шаблона
     }
 

@@ -341,7 +341,7 @@ export function ProjectSettingsModal() {
               type="number"
               value={customWidth}
               onChange={(e) => {
-                const width = parseInt(e.target.value, 10)
+                const width = Number.parseInt(e.target.value, 10)
                 if (!isNaN(width) && width > 0) {
                   setCustomWidth(width)
 
@@ -406,7 +406,7 @@ export function ProjectSettingsModal() {
               type="number"
               value={customHeight}
               onChange={(e) => {
-                const height = parseInt(e.target.value, 10)
+                const height = Number.parseInt(e.target.value, 10)
                 if (!isNaN(height) && height > 0) {
                   setCustomHeight(height)
 

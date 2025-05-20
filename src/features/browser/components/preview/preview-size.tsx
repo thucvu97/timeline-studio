@@ -52,7 +52,7 @@ export const getSavedSize = (key: keyof typeof STORAGE_KEYS): number => {
   try {
     const savedValue = localStorage.getItem(STORAGE_KEYS[key])
     if (savedValue) {
-      const parsedValue = parseInt(savedValue, 10)
+      const parsedValue = Number.parseInt(savedValue, 10)
       // Проверяем, что значение входит в допустимый диапазон и находится между минимальным и максимальным для данного типа
       if (
         PREVIEW_SIZES.includes(parsedValue as (typeof PREVIEW_SIZES)[number]) &&

@@ -60,7 +60,7 @@ vi.mock("@/features/browser/resources", () => ({
 // Мокируем HTMLVideoElement
 Object.defineProperty(window.HTMLVideoElement.prototype, "play", {
   configurable: true,
-  value: vi.fn().mockImplementation(function () {
+  value: vi.fn().mockImplementation(() => {
     // Эмулируем успешное воспроизведение
     return Promise.resolve()
   }),

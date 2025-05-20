@@ -5,6 +5,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 mod language;
 use language::{get_app_language, set_app_language};
 
+// Модуль для работы с медиафайлами
+mod media;
+use media::{get_media_metadata, get_media_files};
+
 #[tauri::command]
 fn greet() -> String {
   let now = SystemTime::now();
@@ -25,7 +29,9 @@ pub fn run() {
     .invoke_handler(tauri::generate_handler![
       greet,
       get_app_language,
-      set_app_language
+      set_app_language,
+      get_media_metadata,
+      get_media_files
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

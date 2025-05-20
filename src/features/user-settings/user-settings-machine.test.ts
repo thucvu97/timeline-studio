@@ -153,7 +153,9 @@ describe("UserSettingsMachine", () => {
 
       // Проверяем, что события имеют действия
       expect(idleState?.on?.UPDATE_LAYOUT?.actions).toBeDefined()
-      expect(idleState?.on?.UPDATE_PLAYER_SCREENSHOTS_PATH?.actions).toBeDefined()
+      expect(
+        idleState?.on?.UPDATE_PLAYER_SCREENSHOTS_PATH?.actions,
+      ).toBeDefined()
       expect(idleState?.on?.UPDATE_SCREENSHOTS_PATH?.actions).toBeDefined()
       expect(idleState?.on?.UPDATE_OPENAI_API_KEY?.actions).toBeDefined()
       expect(idleState?.on?.UPDATE_CLAUDE_API_KEY?.actions).toBeDefined()
