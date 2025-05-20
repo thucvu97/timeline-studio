@@ -15,8 +15,8 @@ import { useMedia } from "@/features/browser/media"
 import { cn } from "@/lib/utils"
 import { VideoEffect } from "@/types/effects"
 
-import { usePreviewSize } from "../media"
 import { EffectPreview } from "./effect-preview"
+import { usePreviewSize } from "../../preview/preview-size"
 
 import { effects } from "."
 

@@ -243,6 +243,9 @@ vi.mock("./tabs", () => ({
   SubtitlesList: () => <div data-testid="subtitles-list">Subtitles List</div>,
   TemplateList: () => <div data-testid="template-list">Template List</div>,
   MediaList: () => <div data-testid="media-list">Media List</div>,
+  MediaListProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
 }))
 
 describe("Browser", () => {

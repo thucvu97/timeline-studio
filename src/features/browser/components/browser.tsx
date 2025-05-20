@@ -15,6 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   EffectList,
   FilterList,
+  MediaList,
+  MediaListProvider,
   MusicList,
   SubtitlesList,
   TemplateList,
@@ -80,7 +82,9 @@ export function Browser() {
           value="media"
           className="bg-secondary m-0 flex-1 overflow-auto"
         >
-          <div />
+          <MediaListProvider>
+            <MediaList />
+          </MediaListProvider>
         </TabsContent>
         <TabsContent
           value="music"

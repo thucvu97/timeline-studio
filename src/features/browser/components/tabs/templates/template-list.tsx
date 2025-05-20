@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { usePreviewSize } from "@/features/browser/components/tabs/media"
 import { useMedia } from "@/features/browser/media"
 import { useProjectSettings } from "@/features/project-settings/project-settings-provider"
 
@@ -10,6 +9,7 @@ import { getTemplateLabels } from "./template-labels"
 import { TemplateListToolbar } from "./template-list-toolbar"
 import { TemplatePreview } from "./template-preview"
 import { MediaTemplate, TEMPLATE_MAP } from "./templates"
+import { usePreviewSize } from "../../preview/preview-size"
 
 /**
  * Преобразует метку соотношения сторон в группу шаблонов

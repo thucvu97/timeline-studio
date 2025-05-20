@@ -17,7 +17,7 @@ import { MediaFile } from "@/types/media"
 
 import { TransitionPreview } from "./transition-preview"
 import { transitions } from "./transitions"
-import { usePreviewSize } from "../media"
+import { usePreviewSize } from "../../preview/preview-size"
 
 /**
  * Компонент для отображения списка доступных переходов между видео

@@ -1,0 +1,532 @@
+import { assign, createMachine, fromPromise } from "xstate"
+
+import { MediaFile } from "@/types/media"
+
+/**
+ * Константы для размеров превью
+ */
+export const MIN_PREVIEW_SIZE = 80
+export const MAX_PREVIEW_SIZE = 200
+export const DEFAULT_PREVIEW_SIZE = 120
+
+/**
+ * Интерфейс контекста машины состояний для медиа-файлов
+ */
+export interface MediaListContextType {
+  mediaFiles: MediaFile[] // Все медиа-файлы
+  filteredFiles: MediaFile[] // Отфильтрованные медиа-файлы
+  error: string | null // Сообщение об ошибке
+  isLoading: boolean // Флаг загрузки
+  searchQuery: string // Поисковый запрос
+  sortBy: string // Критерий сортировки
+  sortOrder: "asc" | "desc" // Порядок сортировки
+  filterType: string // Тип фильтра
+  viewMode: "list" | "grid" | "thumbnails" // Режим отображения
+  groupBy: string // Критерий группировки
+  showFavoritesOnly: boolean // Показывать только избранные
+  availableExtensions: string[] // Доступные расширения файлов
+  previewSize: number // Размер превью
+  canIncreaseSize: boolean // Можно ли увеличить размер превью
+  canDecreaseSize: boolean // Можно ли уменьшить размер превью
+}
+
+/**
+ * Типы событий для машины состояний медиа-файлов
+ */
+export type MediaListEventType =
+  | { type: "FETCH_MEDIA" } // Загрузить медиа-файлы
+  | { type: "RETRY" } // Повторить загрузку
+  | { type: "SORT"; sortBy: string } // Сортировать файлы
+  | { type: "CHANGE_ORDER" } // Изменить порядок сортировки
+  | { type: "FILTER"; filterType: string; mediaContext: any } // Фильтровать файлы
+  | { type: "SEARCH"; query: string; mediaContext: any } // Искать файлы
+  | { type: "SET_SEARCH_QUERY"; query: string } // Установить поисковый запрос
+  | { type: "CHANGE_VIEW_MODE"; mode: "list" | "grid" | "thumbnails" } // Изменить режим отображения
+  | { type: "CHANGE_GROUP_BY"; groupBy: string } // Изменить группировку
+  | { type: "TOGGLE_FAVORITES"; mediaContext: any } // Переключить режим избранного
+  | { type: "SET_SHOW_FAVORITES_ONLY"; value: boolean } // Установить флаг отображения только избранных
+  | { type: "INCREASE_PREVIEW_SIZE" } // Увеличить размер превью
+  | { type: "DECREASE_PREVIEW_SIZE" } // Уменьшить размер превью
+  | { type: "SET_PREVIEW_SIZE"; size: number } // Установить размер превью
+
+/**
+ * Функция для загрузки медиафайлов с сервера
+ * В случае ошибки возвращает пустой массив вместо выбрасывания исключения
+ *
+ * @returns {Promise<MediaFile[]>} Массив медиафайлов или пустой массив в случае ошибки
+ */
+const fetchMediaFiles = fromPromise(async () => {
+  try {
+    console.log("[mediaListMachine] Загружаем файлы с сервера")
+    const response = await fetch("/api/media")
+    if (!response.ok) {
+      console.warn(
+        `[mediaListMachine] Ошибка загрузки медиафайлов: ${response.status} ${response.statusText}`,
+      )
+      return [] // Возвращаем пустой массив вместо выбрасывания исключения
+    }
+
+    const data = await response.json()
+
+    if (!data || typeof data !== "object" || !("media" in data)) {
+      console.warn("[mediaListMachine] Некорректный формат данных от сервера")
+      return [] // Возвращаем пустой массив вместо выбрасывания исключения
+    }
+
+    const files = data.media
+    if (!Array.isArray(files)) {
+      console.warn(
+        "[mediaListMachine] Некорректный формат данных от сервера (media не является массивом)",
+      )
+      return [] // Возвращаем пустой массив вместо выбрасывания исключения
+    }
+
+    const validFiles = files.filter(
+      (file) =>
+        file &&
+        typeof file === "object" &&
+        (file.isVideo ?? file.isAudio ?? file.isImage),
+    )
+
+    if (validFiles.length === 0) {
+      console.warn("[mediaListMachine] Не найдено валидных медиафайлов")
+      return [] // Возвращаем пустой массив, если нет валидных файлов
+    }
+
+    return validFiles // Возвращаем валидные файлы
+  } catch (error) {
+    console.error("[mediaListMachine] Ошибка при загрузке файлов:", error)
+    return [] // Возвращаем пустой массив вместо выбрасывания исключения
+  }
+})
+
+/**
+ * Машина состояний для управления медиа-файлами
+ * Обрабатывает загрузку, фильтрацию, сортировку и группировку медиа-файлов
+ *
+ * Состояния машины:
+ * - loading: Загрузка медиа-файлов
+ * - success: Успешная загрузка, обработка событий сортировки и фильтрации
+ * - error: Ошибка загрузки
+ */
+export const mediaListMachine = createMachine({
+  id: "mediaList", // Идентификатор машины
+  initial: "loading", // Начальное состояние - загрузка
+
+  // Начальный контекст машины
+  context: {
+    mediaFiles: [], // Все медиа-файлы
+    filteredFiles: [], // Отфильтрованные медиа-файлы
+    error: null, // Сообщение об ошибке
+    isLoading: true, // Флаг загрузки
+    searchQuery: "", // Поисковый запрос
+    sortBy: "date", // Критерий сортировки по умолчанию
+    sortOrder: "desc", // Порядок сортировки по умолчанию
+    filterType: "all", // Тип фильтра по умолчанию
+    viewMode: "list", // Режим отображения по умолчанию
+    groupBy: "none", // Критерий группировки по умолчанию
+    showFavoritesOnly: false, // Показывать только избранные
+    availableExtensions: [], // Доступные расширения файлов
+    previewSize: DEFAULT_PREVIEW_SIZE, // Размер превью по умолчанию
+    canIncreaseSize: true, // Можно ли увеличить размер превью
+    canDecreaseSize: true, // Можно ли уменьшить размер превью
+  } as MediaListContextType,
+
+  // Состояния машины
+  states: {
+    /**
+     * Состояние загрузки медиа-файлов
+     * Вызывает сервис для загрузки файлов с сервера
+     */
+    loading: {
+      // Устанавливаем флаг загрузки при входе в состояние
+      entry: assign({
+        isLoading: true,
+        error: null,
+      }),
+
+      // Вызываем сервис для загрузки файлов
+      invoke: {
+        src: fetchMediaFiles,
+
+        // Обработка успешной загрузки
+        onDone: {
+          target: "success", // Переход в состояние успеха
+          actions: assign({
+            mediaFiles: ({ event }) => event.output, // Сохраняем загруженные файлы
+            filteredFiles: ({ event }) => event.output, // Инициализируем отфильтрованные файлы
+            isLoading: false, // Сбрасываем флаг загрузки
+
+            // Собираем доступные расширения файлов
+            availableExtensions: ({ event }) => {
+              const extensions = new Set<string>()
+              event.output.forEach((file: MediaFile) => {
+                const extension = file.name.split(".").pop()?.toLowerCase()
+                if (extension) {
+                  extensions.add(extension)
+                }
+              })
+              return Array.from(extensions)
+            },
+          }),
+        },
+
+        // Обработка ошибки загрузки
+        onError: {
+          target: "error", // Переход в состояние ошибки
+          actions: assign({
+            error: ({ event }) => String(event.error), // Сохраняем сообщение об ошибке
+            isLoading: false, // Сбрасываем флаг загрузки
+            mediaFiles: () => [], // Инициализируем пустой массив медиа-файлов
+            filteredFiles: () => [], // Инициализируем пустой массив отфильтрованных файлов
+            availableExtensions: () => [], // Инициализируем пустой массив доступных расширений
+          }),
+        },
+      },
+    },
+
+    /**
+     * Состояние успешной загрузки медиа-файлов
+     * Обрабатывает события сортировки, фильтрации и группировки
+     */
+    success: {
+      on: {
+        /**
+         * Обработка события сортировки
+         * Сортирует файлы по указанному критерию
+         */
+        SORT: {
+          actions: assign({
+            // Сохраняем новый критерий сортировки
+            sortBy: ({ event }) => event.sortBy,
+
+            // Обновляем отфильтрованные файлы с новой сортировкой
+            // Логика сортировки будет реализована в компоненте
+          }),
+        },
+
+        /**
+         * Обработка события изменения порядка сортировки
+         * Инвертирует порядок сортировки (asc/desc)
+         */
+        CHANGE_ORDER: {
+          actions: assign({
+            // Инвертируем порядок сортировки
+            sortOrder: ({ context }) =>
+              context.sortOrder === "asc" ? "desc" : "asc",
+          }),
+        },
+
+        /**
+         * Обработка события фильтрации
+         * Фильтрует файлы по указанному типу
+         */
+        FILTER: {
+          actions: assign({
+            // Сохраняем новый тип фильтра
+            filterType: ({ event }) => event.filterType,
+          }),
+        },
+
+        /**
+         * Обработка события поиска
+         * Фильтрует файлы по поисковому запросу
+         */
+        SEARCH: {
+          actions: assign({
+            // Сохраняем новый поисковый запрос
+            searchQuery: ({ event }) => event.query,
+          }),
+        },
+
+        /**
+         * Обработка события установки поискового запроса
+         * Устанавливает поисковый запрос без выполнения поиска
+         */
+        SET_SEARCH_QUERY: {
+          actions: assign({
+            // Обновляем поисковый запрос
+            searchQuery: ({ event }) => event.query,
+          }),
+        },
+
+        /**
+         * Обработка события изменения режима отображения
+         * Устанавливает новый режим отображения (list/grid/thumbnails)
+         */
+        CHANGE_VIEW_MODE: {
+          actions: assign({
+            // Устанавливаем новый режим отображения
+            viewMode: ({ event }) => event.mode,
+          }),
+        },
+
+        /**
+         * Обработка события изменения группировки
+         * Устанавливает новый критерий группировки
+         */
+        CHANGE_GROUP_BY: {
+          actions: assign({
+            // Устанавливаем новый критерий группировки
+            groupBy: ({ event }) => event.groupBy,
+          }),
+        },
+
+        /**
+         * Обработка события переключения режима избранного
+         * Включает/выключает отображение только избранных файлов
+         */
+        TOGGLE_FAVORITES: {
+          actions: assign({
+            // Инвертируем флаг отображения только избранных
+            showFavoritesOnly: ({ context }) => !context.showFavoritesOnly,
+          }),
+        },
+
+        /**
+         * Обработка события установки флага отображения только избранных
+         * Устанавливает флаг в указанное значение
+         */
+        SET_SHOW_FAVORITES_ONLY: {
+          actions: assign({
+            // Устанавливаем флаг отображения только избранных
+            showFavoritesOnly: ({ event }) => event.value,
+          }),
+        },
+
+        /**
+         * Обработка события увеличения размера превью
+         */
+        INCREASE_PREVIEW_SIZE: {
+          actions: assign({
+            // Увеличиваем размер превью на 20, но не больше максимального
+            previewSize: ({ context }) => {
+              const newSize = Math.min(
+                context.previewSize + 20,
+                MAX_PREVIEW_SIZE,
+              )
+              return newSize
+            },
+            // Обновляем флаги возможности изменения размера
+            canIncreaseSize: ({ context }) =>
+              context.previewSize + 20 < MAX_PREVIEW_SIZE,
+            canDecreaseSize: () => true,
+          }),
+        },
+
+        /**
+         * Обработка события уменьшения размера превью
+         */
+        DECREASE_PREVIEW_SIZE: {
+          actions: assign({
+            // Уменьшаем размер превью на 20, но не меньше минимального
+            previewSize: ({ context }) => {
+              const newSize = Math.max(
+                context.previewSize - 20,
+                MIN_PREVIEW_SIZE,
+              )
+              return newSize
+            },
+            // Обновляем флаги возможности изменения размера
+            canDecreaseSize: ({ context }) =>
+              context.previewSize - 20 > MIN_PREVIEW_SIZE,
+            canIncreaseSize: () => true,
+          }),
+        },
+
+        /**
+         * Обработка события установки размера превью
+         */
+        SET_PREVIEW_SIZE: {
+          actions: assign({
+            // Устанавливаем размер превью в пределах допустимых значений
+            previewSize: ({ event }) => {
+              const newSize = Math.max(
+                MIN_PREVIEW_SIZE,
+                Math.min(event.size, MAX_PREVIEW_SIZE),
+              )
+              return newSize
+            },
+            // Обновляем флаги возможности изменения размера
+            canIncreaseSize: ({ event }) => event.size < MAX_PREVIEW_SIZE,
+            canDecreaseSize: ({ event }) => event.size > MIN_PREVIEW_SIZE,
+          }),
+        },
+
+        /**
+         * Обработка события повторной загрузки
+         * Возвращает машину в состояние загрузки
+         */
+        RETRY: {
+          target: "loading", // Переход в состояние загрузки
+        },
+      },
+    },
+
+    /**
+     * Состояние ошибки загрузки медиа-файлов
+     * Позволяет повторить попытку загрузки и обрабатывать события сортировки/фильтрации
+     */
+    error: {
+      on: {
+        /**
+         * Обработка события повторной попытки загрузки
+         * Возвращает машину в состояние загрузки
+         */
+        RETRY: {
+          target: "loading", // Переход в состояние загрузки
+        },
+
+        /**
+         * Обработка события сортировки в состоянии ошибки
+         */
+        SORT: {
+          actions: assign({
+            // Сохраняем новый критерий сортировки
+            sortBy: ({ event }) => event.sortBy,
+          }),
+        },
+
+        /**
+         * Обработка события изменения порядка сортировки в состоянии ошибки
+         */
+        CHANGE_ORDER: {
+          actions: assign({
+            // Инвертируем порядок сортировки
+            sortOrder: ({ context }) =>
+              context.sortOrder === "asc" ? "desc" : "asc",
+          }),
+        },
+
+        /**
+         * Обработка события фильтрации в состоянии ошибки
+         */
+        FILTER: {
+          actions: assign({
+            // Сохраняем новый тип фильтра
+            filterType: ({ event }) => event.filterType,
+          }),
+        },
+
+        /**
+         * Обработка события поиска в состоянии ошибки
+         */
+        SEARCH: {
+          actions: assign({
+            // Сохраняем новый поисковый запрос
+            searchQuery: ({ event }) => event.query,
+          }),
+        },
+
+        /**
+         * Обработка события установки поискового запроса в состоянии ошибки
+         */
+        SET_SEARCH_QUERY: {
+          actions: assign({
+            // Обновляем поисковый запрос
+            searchQuery: ({ event }) => event.query,
+          }),
+        },
+
+        /**
+         * Обработка события изменения режима отображения в состоянии ошибки
+         */
+        CHANGE_VIEW_MODE: {
+          actions: assign({
+            // Устанавливаем новый режим отображения
+            viewMode: ({ event }) => event.mode,
+          }),
+        },
+
+        /**
+         * Обработка события изменения группировки в состоянии ошибки
+         */
+        CHANGE_GROUP_BY: {
+          actions: assign({
+            // Устанавливаем новый критерий группировки
+            groupBy: ({ event }) => event.groupBy,
+          }),
+        },
+
+        /**
+         * Обработка события переключения режима избранного в состоянии ошибки
+         */
+        TOGGLE_FAVORITES: {
+          actions: assign({
+            // Инвертируем флаг отображения только избранных
+            showFavoritesOnly: ({ context }) => !context.showFavoritesOnly,
+          }),
+        },
+
+        /**
+         * Обработка события установки флага отображения только избранных в состоянии ошибки
+         */
+        SET_SHOW_FAVORITES_ONLY: {
+          actions: assign({
+            // Устанавливаем флаг отображения только избранных
+            showFavoritesOnly: ({ event }) => event.value,
+          }),
+        },
+
+        /**
+         * Обработка события увеличения размера превью в состоянии ошибки
+         */
+        INCREASE_PREVIEW_SIZE: {
+          actions: assign({
+            // Увеличиваем размер превью на 20, но не больше максимального
+            previewSize: ({ context }) => {
+              const newSize = Math.min(
+                context.previewSize + 20,
+                MAX_PREVIEW_SIZE,
+              )
+              return newSize
+            },
+            // Обновляем флаги возможности изменения размера
+            canIncreaseSize: ({ context }) =>
+              context.previewSize + 20 < MAX_PREVIEW_SIZE,
+            canDecreaseSize: () => true,
+          }),
+        },
+
+        /**
+         * Обработка события уменьшения размера превью в состоянии ошибки
+         */
+        DECREASE_PREVIEW_SIZE: {
+          actions: assign({
+            // Уменьшаем размер превью на 20, но не меньше минимального
+            previewSize: ({ context }) => {
+              const newSize = Math.max(
+                context.previewSize - 20,
+                MIN_PREVIEW_SIZE,
+              )
+              return newSize
+            },
+            // Обновляем флаги возможности изменения размера
+            canDecreaseSize: ({ context }) =>
+              context.previewSize - 20 > MIN_PREVIEW_SIZE,
+            canIncreaseSize: () => true,
+          }),
+        },
+
+        /**
+         * Обработка события установки размера превью в состоянии ошибки
+         */
+        SET_PREVIEW_SIZE: {
+          actions: assign({
+            // Устанавливаем размер превью в пределах допустимых значений
+            previewSize: ({ event }) => {
+              const newSize = Math.max(
+                MIN_PREVIEW_SIZE,
+                Math.min(event.size, MAX_PREVIEW_SIZE),
+              )
+              return newSize
+            },
+            // Обновляем флаги возможности изменения размера
+            canIncreaseSize: ({ event }) => event.size < MAX_PREVIEW_SIZE,
+            canDecreaseSize: ({ event }) => event.size > MIN_PREVIEW_SIZE,
+          }),
+        },
+      },
+    },
+  },
+})

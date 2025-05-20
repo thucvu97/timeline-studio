@@ -46,8 +46,9 @@ export function TopBar() {
   }
 
   return (
-    <div className="relative flex w-full items-center justify-between bg-gray-200 px-1 py-0 dark:bg-[#383838]">
-      <div className="flex h-6 items-center">
+    <div className="relative flex w-full items-center justify-between bg-gray-200 px-1 py-0 dark:bg-[#383838] gap-2">
+      {/* Группа 1: Переключатель браузера и макет */}
+      <div className="flex h-6 items-center justify-center">
         <BrowserToggle />
         <Popover>
           <PopoverTrigger asChild>
@@ -66,7 +67,9 @@ export function TopBar() {
           </PopoverContent>
         </Popover>
       </div>
-      <div className="flex items-center">
+
+      {/* Группа 2: Переключатель темы и быстрые клавиши */}
+      <div className="flex h-6 items-center justify-center">
         <div data-testid="theme-toggle">
           <ThemeToggle />
         </div>
@@ -80,6 +83,10 @@ export function TopBar() {
         >
           <Keyboard className="h-5 w-5" />
         </Button>
+      </div>
+
+      {/* Группа 3: Настройки проекта, сохранение и имя проекта */}
+      <div className="flex h-6 items-center justify-center">
         <Button
           className="hover:bg-secondary h-7 w-7 cursor-pointer p-0"
           variant="ghost"
@@ -132,7 +139,9 @@ export function TopBar() {
           )}
         </div>
       </div>
-      <div className="flex h-6 items-center">
+
+      {/* Группа 4: Запись видео и голоса */}
+      <div className="flex h-6 items-center justify-center">
         <Button
           variant="ghost"
           size="icon"
@@ -153,6 +162,10 @@ export function TopBar() {
         >
           <Mic className="h-5 w-5" />
         </Button>
+      </div>
+
+      {/* Группа 5: Публикация, задачи, настройки пользователя и экспорт */}
+      <div className="flex h-6 items-center justify-center">
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -209,7 +222,7 @@ export function TopBar() {
         <Button
           variant="outline"
           size="sm"
-          className="h-6 w-24 cursor-pointer items-center gap-1 border-none rounded-sm bg-[#38dacac3] px-1 text-sm text-black hover:bg-[#35d1c1] hover:text-black dark:bg-[#35d1c1] dark:hover:bg-[#35d1c1]"
+          className="h-5 w-24 cursor-pointer items-center gap-1 border-none rounded-sm bg-[#38dacac3] px-1 text-sm text-black hover:bg-[#35d1c1] hover:text-black dark:bg-[#35d1c1] dark:hover:bg-[#35d1c1]"
           onClick={() => handleOpenModal("export")}
           data-testid="export-button"
         >

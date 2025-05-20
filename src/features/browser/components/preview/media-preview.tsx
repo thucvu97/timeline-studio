@@ -1,5 +1,3 @@
-import { memo } from "react"
-
 import { MediaFile } from "@/types/media"
 
 import { AudioPreview } from "./audio-preview"
@@ -34,7 +32,7 @@ interface MediaPreviewProps {
  * @param dimensions - Соотношение сторон контейнера [ширина, высота], по умолчанию [16, 9]
  * @param ignoreRatio - Флаг для игнорирования соотношения сторон (по умолчанию false)
  */
-export const MediaPreview = memo(function MediaPreview({
+export function MediaPreview({
   file,
   onAddMedia,
   isAdded,
@@ -80,4 +78,4 @@ export const MediaPreview = memo(function MediaPreview({
       dimensions={dimensions}
     />
   )
-})
+}

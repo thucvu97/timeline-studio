@@ -14,9 +14,9 @@ import {
 import { useMedia } from "@/features/browser/media"
 import { cn } from "@/lib/utils"
 
-import { VideoFilter, filters } from "./filters"
-import { usePreviewSize } from "../media"
 import { FilterPreview } from "./filter-preview"
+import { VideoFilter, filters } from "./filters"
+import { usePreviewSize } from "../../preview/preview-size"
 
 /**
  * Компонент для отображения списка доступных видеофильтров

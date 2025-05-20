@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 
 import {
   ArrowDownUp,
@@ -35,99 +35,81 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useMedia } from "@/features/browser/media"
 import { useModal } from "@/features/modals"
 import { cn } from "@/lib/utils"
 
-interface MediaToolbarProps {
-  viewMode: "list" | "grid" | "thumbnails"
-  onViewModeChange: (mode: "list" | "grid" | "thumbnails") => void
-  searchQuery?: string
-  setSearchQuery?: (query: string) => void
-  onSort: (sortBy: string) => void
-  onFilter: (filterType: string) => void
-  onGroupBy: (groupBy: string) => void
-  onChangeOrder?: () => void
-  sortOrder?: "asc" | "desc"
-  currentSortBy?: string
-  currentFilterType?: string
-  currentGroupBy?: string
-  onIncreaseSize?: () => void
-  onDecreaseSize?: () => void
-  canIncreaseSize?: boolean
-  canDecreaseSize?: boolean
-  showFavoritesOnly?: boolean
-  onToggleFavorites?: () => void
-}
+import { useMediaList } from "./media-list-provider"
 
 /**
  * Компонент для управления медиа-инструментами
+ * Использует контекст из MediaListProvider вместо пропсов
  *
- * @param viewMode - Режим просмотра (список, сетка, миниатюры)
- * @param onViewModeChange - Callback для изменения режима просмотра
- * @param searchQuery - Текущий запрос поиска
- * @param setSearchQuery - Callback для установки запроса поиска
- * @param onSort - Callback для сортировки
- * @param onFilter - Callback для фильтрации
- * @param onGroupBy - Callback для группировки
- * @param onChangeOrder - Callback для изменения порядка сортировки
- * @param sortOrder - Порядок сортировки (возрастание, убывание)
- * @param currentSortBy - Текущий параметр сортировки
- * @param currentFilterType - Текущий тип фильтра
- * @param currentGroupBy - Текущий параметр группировки
- * @param onIncreaseSize - Callback для увеличения размера превью
- * @param onDecreaseSize - Callback для уменьшения размера превью
- * @param canIncreaseSize - Флаг, указывающий на возможность увеличения размера превью
- * @param canDecreaseSize - Флаг, указывающий на возможность уменьшения размера превью
+ * @returns {JSX.Element} Панель инструментов для управления медиа-файлами
  */
-export function MediaToolbar({
-  viewMode = "thumbnails",
-  onViewModeChange,
-  searchQuery = "",
-  setSearchQuery = () => {},
-  onSort,
-  onFilter,
-  onGroupBy,
-  onChangeOrder = () => {},
-  sortOrder = "desc",
-  currentSortBy = "date",
-  currentFilterType = "all",
-  currentGroupBy = "none",
-  onIncreaseSize = () => {},
-  onDecreaseSize = () => {},
-  canIncreaseSize = true,
-  canDecreaseSize = true,
-  showFavoritesOnly = false,
-  onToggleFavorites = () => {},
-}: MediaToolbarProps) {
+export function MediaToolbar() {
   const { t } = useTranslation()
-  // Внутренний стейт для управления текущим выбором
-  const [internalSortBy, setInternalSortBy] = useState(currentSortBy)
-  const [internalFilterType, setInternalFilterType] =
-    useState(currentFilterType)
-  const [internalGroupBy, setInternalGroupBy] = useState(currentGroupBy)
-  // Синхронизация внутреннего стейта с пропсами
-  useEffect(() => {
-    setInternalSortBy(currentSortBy)
-  }, [currentSortBy])
+  const media = useMedia()
 
-  useEffect(() => {
-    setInternalFilterType(currentFilterType)
-  }, [currentFilterType])
+  // Извлекаем значения из контекста
+  const {
+    viewMode,
+    sortBy,
+    sortOrder,
+    filterType,
+    groupBy,
+    changeViewMode,
+    sort,
+    filter,
+    changeGroupBy,
+    changeOrder,
+    search,
+    toggleFavorites,
+    canIncreaseSize,
+    canDecreaseSize,
+    increasePreviewSize,
+    decreasePreviewSize,
+    searchQuery,
+    showFavoritesOnly,
+    setSearchQuery,
+  } = useMediaList()
 
-  // Обработчики для обновления стейта и вызова колбэков
+  // Обработчики для обновления стейта и вызова методов из контекста
   const handleSort = (sortBy: string) => {
-    setInternalSortBy(sortBy)
-    onSort(sortBy)
+    console.log(`Sort requested in toolbar: "${sortBy}"`)
+    sort(sortBy)
   }
 
   const handleFilter = (filterType: string) => {
-    setInternalFilterType(filterType)
-    onFilter(filterType)
+    console.log(`Filter requested in toolbar: "${filterType}"`)
+    filter(filterType, media)
   }
 
   const handleGroupBy = (groupBy: string) => {
-    setInternalGroupBy(groupBy)
-    onGroupBy(groupBy)
+    console.log(`Group by requested in toolbar: "${groupBy}"`)
+    changeGroupBy(groupBy)
+  }
+
+  const handleChangeOrder = () => {
+    console.log("Change order requested in toolbar")
+    changeOrder()
+  }
+
+  const handleToggleFavorites = () => {
+    console.log("Toggle favorites requested in toolbar")
+    // Используем только toggleFavorites, который уже инвертирует флаг в машине состояний
+    toggleFavorites(media)
+  }
+
+  const handleSearch = (query: string) => {
+    console.log(`Search requested in toolbar: "${query}"`)
+    setSearchQuery(query)
+    search(query, media)
+  }
+
+  const handleViewModeChange = (mode: "list" | "grid" | "thumbnails") => {
+    console.log(`View mode change requested in toolbar: "${mode}"`)
+    changeViewMode(mode)
   }
 
   const { openModal } = useModal()
@@ -207,7 +189,7 @@ export function MediaToolbar({
           </div>
         </Button>
 
-        <Button
+        {/* <Button
           variant="outline"
           size="sm"
           className="flex cursor-pointer items-center gap-1 bg-[#dddbdd] px-1 text-xs hover:bg-[#d1d1d1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25"
@@ -247,7 +229,7 @@ export function MediaToolbar({
               <TooltipContent>{t("browser.media.recordVoice")}</TooltipContent>
             </Tooltip>
           </div>
-        </Button>
+        </Button> */}
 
         <Input
           type="search"
@@ -257,7 +239,7 @@ export function MediaToolbar({
             backgroundColor: "transparent",
           }}
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
         />
       </div>
 
@@ -275,7 +257,7 @@ export function MediaToolbar({
                     "mr-0 ml-1 h-6 w-6 cursor-pointer",
                     showFavoritesOnly ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                   )}
-                  onClick={onToggleFavorites}
+                  onClick={handleToggleFavorites}
                 >
                   <Star
                     size={16}
@@ -295,7 +277,7 @@ export function MediaToolbar({
                     "mr-0 ml-2 h-6 w-6 cursor-pointer",
                     viewMode === "grid" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                   )}
-                  onClick={() => onViewModeChange("grid")}
+                  onClick={() => handleViewModeChange("grid")}
                 >
                   <Grid size={16} />
                 </Button>
@@ -314,7 +296,7 @@ export function MediaToolbar({
                       ? "bg-[#dddbdd] dark:bg-[#45444b]"
                       : "",
                   )}
-                  onClick={() => onViewModeChange("thumbnails")}
+                  onClick={() => handleViewModeChange("thumbnails")}
                 >
                   <LayoutDashboard size={16} />
                 </Button>
@@ -330,7 +312,7 @@ export function MediaToolbar({
                     "mr-1 h-6 w-6 cursor-pointer",
                     viewMode === "list" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                   )}
-                  onClick={() => onViewModeChange("list")}
+                  onClick={() => handleViewModeChange("list")}
                 >
                   <LayoutList size={16} />
                 </Button>
@@ -354,7 +336,7 @@ export function MediaToolbar({
                     "mr-1 h-6 w-6 cursor-pointer",
                     !canDecreaseSize && "cursor-not-allowed opacity-50",
                   )}
-                  onClick={onDecreaseSize}
+                  onClick={decreasePreviewSize}
                   disabled={!canDecreaseSize}
                 >
                   <ZoomOut size={16} />
@@ -372,7 +354,7 @@ export function MediaToolbar({
                     "mr-1 h-6 w-6 cursor-pointer",
                     !canIncreaseSize && "cursor-not-allowed opacity-50",
                   )}
-                  onClick={onIncreaseSize}
+                  onClick={increasePreviewSize}
                   disabled={!canIncreaseSize}
                 >
                   <ZoomIn size={16} />
@@ -394,9 +376,7 @@ export function MediaToolbar({
                     size="icon"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      internalSortBy !== "name"
-                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                        : "",
+                      sortBy !== "name" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                     )}
                   >
                     <SortDesc size={16} />
@@ -410,25 +390,31 @@ export function MediaToolbar({
                   onClick={() => handleSort("name")}
                 >
                   <div className="flex items-center gap-2">
-                    {internalSortBy === "name" && <Check className="h-4 w-4" />}
+                    {sortBy === "name" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.name")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="h-6 cursor-pointer"
-                  onClick={() => handleSort("date")}
+                  onClick={() => {
+                    console.log("Сортировка по дате запрошена из UI")
+                    handleSort("date")
+                  }}
                 >
                   <div className="flex items-center gap-2">
-                    {internalSortBy === "date" && <Check className="h-4 w-4" />}
+                    {sortBy === "date" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.date")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="h-6 cursor-pointer"
-                  onClick={() => handleSort("size")}
+                  onClick={() => {
+                    console.log("Сортировка по размеру запрошена из UI")
+                    handleSort("size")
+                  }}
                 >
                   <div className="flex items-center gap-2">
-                    {internalSortBy === "size" && <Check className="h-4 w-4" />}
+                    {sortBy === "size" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.size")}</span>
                   </div>
                 </DropdownMenuItem>
@@ -437,9 +423,7 @@ export function MediaToolbar({
                   onClick={() => handleSort("duration")}
                 >
                   <div className="flex items-center gap-2">
-                    {internalSortBy === "duration" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {sortBy === "duration" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.duration")}</span>
                   </div>
                 </DropdownMenuItem>
@@ -459,7 +443,7 @@ export function MediaToolbar({
                     size="icon"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      internalFilterType !== "all"
+                      filterType !== "all"
                         ? "bg-[#dddbdd] dark:bg-[#45444b]"
                         : "",
                     )}
@@ -472,34 +456,26 @@ export function MediaToolbar({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => handleFilter("all")}>
                   <div className="flex items-center gap-2">
-                    {internalFilterType === "all" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {filterType === "all" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.filterBy.all")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => handleFilter("video")}>
                   <div className="flex items-center gap-2">
-                    {internalFilterType === "video" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {filterType === "video" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.filterBy.video")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleFilter("audio")}>
                   <div className="flex items-center gap-2">
-                    {internalFilterType === "audio" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {filterType === "audio" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.filterBy.audio")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleFilter("image")}>
                   <div className="flex items-center gap-2">
-                    {internalFilterType === "image" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {filterType === "image" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.filterBy.image")}</span>
                   </div>
                 </DropdownMenuItem>
@@ -519,7 +495,7 @@ export function MediaToolbar({
                     size="icon"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      internalGroupBy !== "none"
+                      groupBy !== "none"
                         ? "bg-[#dddbdd] dark:bg-[#45444b]"
                         : "",
                     )}
@@ -532,34 +508,26 @@ export function MediaToolbar({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => handleGroupBy("none")}>
                   <div className="flex items-center gap-2">
-                    {internalGroupBy === "none" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {groupBy === "none" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.groupBy.none")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => handleGroupBy("type")}>
                   <div className="flex items-center gap-2">
-                    {internalGroupBy === "type" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {groupBy === "type" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.groupBy.type")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleGroupBy("date")}>
                   <div className="flex items-center gap-2">
-                    {internalGroupBy === "date" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {groupBy === "date" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.groupBy.date")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleGroupBy("duration")}>
                   <div className="flex items-center gap-2">
-                    {internalGroupBy === "duration" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {groupBy === "duration" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.groupBy.duration")}</span>
                   </div>
                 </DropdownMenuItem>
@@ -576,7 +544,7 @@ export function MediaToolbar({
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 cursor-pointer"
-                onClick={onChangeOrder}
+                onClick={handleChangeOrder}
               >
                 {sortOrder === "asc" ? (
                   <ArrowDownUp size={16} />

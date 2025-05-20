@@ -28,7 +28,7 @@ vi.mock("@/features/browser/media", () => ({
 const mockHandleIncreaseSize = vi.fn()
 const mockHandleDecreaseSize = vi.fn()
 
-vi.mock("../media", () => ({
+vi.mock("../../preview/preview-size", () => ({
   usePreviewSize: () => ({
     previewSize: 100,
     isSizeLoaded: true,

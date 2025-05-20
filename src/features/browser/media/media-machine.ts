@@ -35,24 +35,36 @@ export type MediaEventType =
   | { type: "REMOVE_FROM_FAVORITES"; item: any; itemType: string }
   | { type: "CLEAR_FAVORITES"; itemType?: string }
 
+/**
+ * Функция для загрузки медиафайлов с сервера
+ * В случае ошибки возвращает пустой массив вместо выбрасывания исключения
+ *
+ * @returns {Promise<MediaFile[]>} Массив медиафайлов или пустой массив в случае ошибки
+ */
 const fetchMedia = fromPromise(async () => {
   try {
     console.log("[mediaMachine] Загружаем файлы с сервера")
     const response = await fetch("/api/media")
     if (!response.ok) {
-      throw new Error(
-        `Ошибка загрузки медиафайлов: ${response.status} ${response.statusText}`,
+      console.warn(
+        `[mediaMachine] Ошибка загрузки медиафайлов: ${response.status} ${response.statusText}`,
       )
+      return [] // Возвращаем пустой массив вместо выбрасывания исключения
     }
+
     const data = await response.json()
 
     if (!data || typeof data !== "object" || !("media" in data)) {
-      throw new Error("Некорректный формат данных от сервера")
+      console.warn("[mediaMachine] Некорректный формат данных от сервера")
+      return [] // Возвращаем пустой массив вместо выбрасывания исключения
     }
 
     const files = data.media
     if (!Array.isArray(files)) {
-      throw new Error("Некорректный формат данных от сервера")
+      console.warn(
+        "[mediaMachine] Некорректный формат данных от сервера (media не является массивом)",
+      )
+      return [] // Возвращаем пустой массив вместо выбрасывания исключения
     }
 
     const validFiles = files.filter(
@@ -64,11 +76,14 @@ const fetchMedia = fromPromise(async () => {
     )
 
     if (validFiles.length === 0) {
-      console.warn("Не найдено валидных медиафайлов")
+      console.warn("[mediaMachine] Не найдено валидных медиафайлов")
+      return [] // Возвращаем пустой массив, если нет валидных файлов
     }
+
+    return validFiles // Возвращаем валидные файлы
   } catch (error) {
     console.error("[mediaMachine] Ошибка при загрузке файлов:", error)
-    throw error
+    return [] // Возвращаем пустой массив вместо выбрасывания исключения
   }
 })
 
@@ -110,6 +125,7 @@ export const mediaMachine = createMachine({
           actions: assign({
             error: ({ event }) => (event.error as Error).message,
             isLoading: false,
+            allMediaFiles: () => [], // Устанавливаем пустой массив файлов при ошибке
           }),
         },
       },
@@ -181,7 +197,8 @@ export const mediaMachine = createMachine({
         addMediaFiles: {
           actions: [
             assign({
-              allMediaFiles: ({ context, event }) => {
+              allMediaFiles: ({ context }) => {
+                // Просто возвращаем копию текущего массива файлов
                 return [...context.allMediaFiles]
               },
             }),
@@ -314,7 +331,145 @@ export const mediaMachine = createMachine({
     },
     error: {
       on: {
+        // Повторная загрузка данных
         RELOAD: "loading",
+
+        // Обработка событий даже в состоянии ошибки
+        ADD_TO_FAVORITES: {
+          actions: assign({
+            favorites: ({ context, event }) => {
+              const { item, itemType } = event
+              const currentFavorites = { ...context.favorites }
+
+              // Создаем массив, если его еще нет
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              if (!currentFavorites[itemType]) {
+                currentFavorites[itemType] = []
+              }
+
+              // Проверяем, есть ли уже такой элемент в избранном
+              const isAlreadyFavorite = currentFavorites[itemType].some(
+                (favItem: any) => favItem.id === item.id,
+              )
+
+              // Если элемента еще нет в избранном, добавляем его
+              if (!isAlreadyFavorite) {
+                currentFavorites[itemType] = [
+                  ...currentFavorites[itemType],
+                  item,
+                ]
+              }
+
+              return currentFavorites
+            },
+          }),
+        },
+
+        REMOVE_FROM_FAVORITES: {
+          actions: assign({
+            favorites: ({ context, event }) => {
+              const { item, itemType } = event
+              const currentFavorites = { ...context.favorites }
+
+              // Если массив существует, удаляем элемент
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              if (currentFavorites[itemType]) {
+                currentFavorites[itemType] = currentFavorites[itemType].filter(
+                  (favItem: any) => favItem.id !== item.id,
+                )
+              }
+
+              return currentFavorites
+            },
+          }),
+        },
+
+        CLEAR_FAVORITES: {
+          actions: assign({
+            favorites: ({ context, event }) => {
+              const currentFavorites = { ...context.favorites }
+
+              // Если указан тип, очищаем только его
+              if (event.itemType) {
+                currentFavorites[event.itemType] = []
+              } else {
+                // Иначе очищаем все типы
+                Object.keys(currentFavorites).forEach((key) => {
+                  currentFavorites[key] = []
+                })
+              }
+
+              return currentFavorites
+            },
+          }),
+        },
+
+        // Обработка событий для работы с файлами (даже если массив пустой)
+        INCLUDE_FILES: {
+          actions: [
+            assign({
+              allMediaFiles: ({ context, event }) => {
+                return context.allMediaFiles.map((file) => {
+                  const isInEventFiles = event.files.some(
+                    (f: MediaFile) => f.path === file.path,
+                  )
+                  if (isInEventFiles) {
+                    return {
+                      ...file,
+                      isIncluded: true,
+                      lastCheckedAt: Date.now(),
+                    }
+                  }
+                  return file
+                })
+              },
+            }),
+          ],
+        },
+
+        REMOVE_FILE: {
+          actions: [
+            assign({
+              allMediaFiles: ({ context, event }) => {
+                return context.allMediaFiles.map((file) => {
+                  if (file.path === event.path) {
+                    return {
+                      ...file,
+                      isIncluded: false,
+                      lastCheckedAt: Date.now(),
+                    }
+                  }
+                  return file
+                })
+              },
+            }),
+          ],
+        },
+
+        CLEAR_FILES: {
+          actions: [
+            assign({
+              allMediaFiles: ({ context }) => {
+                const now = Date.now()
+                return context.allMediaFiles.map((file) => {
+                  return {
+                    ...file,
+                    isIncluded: false,
+                    lastCheckedAt: now,
+                  }
+                })
+              },
+            }),
+          ],
+        },
+
+        setAllMediaFiles: {
+          actions: [
+            assign({
+              allMediaFiles: ({ event }) => event.files,
+            }),
+          ],
+        },
       },
     },
   },
