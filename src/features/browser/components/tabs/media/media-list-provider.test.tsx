@@ -66,6 +66,7 @@ vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Компонент-обертка для тестирования хука useMediaList
+// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 function MediaListWrapper({ children }: { children: React.ReactNode }) {
   return <MediaListProvider>{children}</MediaListProvider>
 }

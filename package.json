@@ -18,7 +18,7 @@
     "format:imports": "eslint --fix \"src/**/*.{ts,tsx}\" --rule \"import/order: warn\"",
     "format:imports:windows": "eslint --fix src/**/*.{ts,tsx} --rule \"import/order: warn\"",
     "lint:rust": "cd src-tauri && cargo clippy -- -D warnings",
-    "lint:rust:fix": "cd src-tauri && cargo clippy --fix -- -D warnings",
+    "lint:rust:fix": "cd src-tauri && cargo clippy --fix --allow-dirty -- -D warnings",
     "format:rust": "cd src-tauri && cargo fmt",
     "format:rust:check": "cd src-tauri && cargo fmt --check",
     "check:rust": "npm run lint:rust && npm run format:rust:check",

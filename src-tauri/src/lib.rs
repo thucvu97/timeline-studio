@@ -7,7 +7,7 @@ use language::{get_app_language, set_app_language};
 
 // Модуль для работы с медиафайлами
 mod media;
-use media::{get_media_metadata, get_media_files};
+use media::{get_media_files, get_media_metadata};
 
 #[tauri::command]
 fn greet() -> String {
