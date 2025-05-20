@@ -34,7 +34,7 @@ export function getDialogClassForType(modalType: ModalType): string {
     case "export":
       return "h-[max(700px,min(80vh,900px))] w-[max(800px,min(90vw,1200px))]"
     case "project-settings":
-      return "h-[max(500px,min(60vh,700px))] w-[max(600px,min(80vw,800px))]"
+      return "h-[max(500px,min(60vh,700px))] w-[800px]"
     case "user-settings":
       return "h-[max(550px,min(65vh,750px))] w-[max(650px,min(75vw,850px))]"
     case "keyboard-shortcuts":

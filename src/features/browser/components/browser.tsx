@@ -24,11 +24,10 @@ import {
 } from "./tabs"
 
 export const TAB_TRIGGER_STYLES =
-  "text-xs text-gray-800 dark:bg-[#1b1a1f] border-none " +
-  "bg-gray-200 data-[state=active]:bg-secondary data-[state=active]:text-[#38dacac3] " +
-  "dark:data-[state=active]:bg-secondary dark:data-[state=active]:text-[#35d1c1] " +
-  "hover:text-gray-800 dark:text-gray-400 dark:hover:bg-secondary dark:hover:text-gray-100 " +
-  "border-1 border-transparent flex flex-col items-center justify-center gap-1 py-2 " +
+  "text-xs text-[#969696] dark:bg-[#2D2D2D] border-none " +
+  "dark:data-[state=active]:bg-[#252526] dark:data-[state=active]:text-[#35d1c1] " +
+  "hover:text-[#969696] dark:text-gray-400 dark:hover:bg-[#252526] dark:hover:text-gray-100 " +
+  "flex flex-col items-center justify-center gap-1 py-2 " +
   "[&>svg]:data-[state=active]:text-[#38dacac3] cursor-pointer data-[state=active]:cursor-default rounded-none"
 
 // Клиентский компонент Browser
@@ -46,9 +45,9 @@ export function Browser() {
         value={activeTab}
         onValueChange={handleTabChange}
         defaultValue="media"
-        className="flex h-full w-full flex-col items-stretch overflow-hidden"
+        className="flex h-full w-full flex-col overflow-hidden"
       >
-        <TabsList className="h-[50px] flex-shrink-0 justify-start border-none bg-transparent p-0">
+        <TabsList className="h-[50px] flex-shrink-0 justify-start border-none rounded-none dark:bg-[#252526] p-0 px-1">
           <TabsTrigger value="media" className={TAB_TRIGGER_STYLES}>
             <Image className="h-4 w-4" />
             <span>{t("browser.tabs.media")}</span>

@@ -110,9 +110,7 @@ export function ModalContainer() {
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
       <DialogContent
         aria-describedby="modal"
-        className={
-          dialogClass + " bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden"
-        }
+        className={`${dialogClass} bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden p-4`}
       >
         <DialogHeader>
           <DialogTitle>{getModalTitle()}</DialogTitle>

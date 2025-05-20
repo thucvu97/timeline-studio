@@ -223,381 +223,379 @@ export function ProjectSettingsModal() {
   }
 
   return (
-    <>
-      <div className="flex flex-col space-y-1 py-1">
-        {/* Выбор соотношения сторон */}
-        <div className="flex items-center justify-end">
-          <Label className="mr-2 text-xs">
-            {t("dialogs.projectSettings.aspectRatio")}
-          </Label>
-          <Select
-            value={settings.aspectRatio.label}
-            onValueChange={handleAspectRatioChange}
-          >
-            <SelectTrigger className="w-[300px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="">
-              {/* Отображение списка доступных соотношений сторон */}
-              {ASPECT_RATIOS.map((item) => (
-                <SelectItem key={item.label} value={item.label} className="">
-                  {/* Для пользовательского соотношения показываем специальную метку */}
-                  {item.label === "custom"
-                    ? t("dialogs.projectSettings.aspectRatioLabels.custom")
-                    : `${item.label} ${item.textLabel ? `(${getAspectRatioLabel(item.textLabel)})` : ""}`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="flex h-full flex-col justify-between items-stretch py-1">
+      {/* Выбор соотношения сторон */}
+      <div className="flex items-center justify-end">
+        <Label className="mr-2 text-xs">
+          {t("dialogs.projectSettings.aspectRatio")}
+        </Label>
+        <Select
+          value={settings.aspectRatio.label}
+          onValueChange={handleAspectRatioChange}
+        >
+          <SelectTrigger className="w-[300px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="">
+            {/* Отображение списка доступных соотношений сторон */}
+            {ASPECT_RATIOS.map((item) => (
+              <SelectItem key={item.label} value={item.label} className="">
+                {/* Для пользовательского соотношения показываем специальную метку */}
+                {item.label === "custom"
+                  ? t("dialogs.projectSettings.aspectRatioLabels.custom")
+                  : `${item.label} ${item.textLabel ? `(${getAspectRatioLabel(item.textLabel)})` : ""}`}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* Выбор разрешения */}
-        <div className="flex items-center justify-end">
-          <Label className="mr-2 text-xs">
-            {t("dialogs.projectSettings.resolution")}
-          </Label>
-          <Select
-            value={
-              // Для пользовательского соотношения сторон всегда показываем "custom"
-              settings.aspectRatio.label === "custom"
-                ? "custom"
-                : settings.resolution
+      {/* Выбор разрешения */}
+      <div className="flex items-center justify-end">
+        <Label className="mr-2 text-xs">
+          {t("dialogs.projectSettings.resolution")}
+        </Label>
+        <Select
+          value={
+            // Для пользовательского соотношения сторон всегда показываем "custom"
+            settings.aspectRatio.label === "custom"
+              ? "custom"
+              : settings.resolution
+          }
+          onValueChange={(value: string) => {
+            // Для пользовательского соотношения сторон блокируем изменение разрешения
+            if (settings.aspectRatio.label === "custom") {
+              // Для пользовательского соотношения сторон всегда используем пользовательское разрешение
+              return
             }
-            onValueChange={(value: string) => {
-              // Для пользовательского соотношения сторон блокируем изменение разрешения
-              if (settings.aspectRatio.label === "custom") {
-                // Для пользовательского соотношения сторон всегда используем пользовательское разрешение
-                return
+
+            // Находим выбранное разрешение в списке доступных
+            const selectedResolution = availableResolutions.find(
+              (res) => res.value === value,
+            )
+
+            if (selectedResolution) {
+              // Создаем новые настройки с обновленным разрешением и размерами
+              const newSettings = {
+                ...settings,
+                resolution: value,
+                aspectRatio: {
+                  ...settings.aspectRatio,
+                  value: {
+                    ...settings.aspectRatio.value,
+                    width: selectedResolution.width,
+                    height: selectedResolution.height,
+                  },
+                },
               }
 
-              // Находим выбранное разрешение в списке доступных
-              const selectedResolution = availableResolutions.find(
-                (res) => res.value === value,
-              )
+              // Применяем новые настройки
+              updateSettings(newSettings)
 
-              if (selectedResolution) {
-                // Создаем новые настройки с обновленным разрешением и размерами
-                const newSettings = {
-                  ...settings,
-                  resolution: value,
-                  aspectRatio: {
-                    ...settings.aspectRatio,
-                    value: {
-                      ...settings.aspectRatio.value,
-                      width: selectedResolution.width,
-                      height: selectedResolution.height,
+              // Обновляем значения пользовательской ширины и высоты
+              setCustomWidth(selectedResolution.width)
+              setCustomHeight(selectedResolution.height)
+            } else {
+              // Если разрешение не найдено, просто обновляем значение
+              updateSettings({
+                ...settings,
+                resolution: value,
+              })
+            }
+          }}
+        >
+          <SelectTrigger className="w-[300px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="">
+            {/* Для пользовательского соотношения сторон показываем только "custom" */}
+            {settings.aspectRatio.label === "custom" ? (
+              <SelectItem value="custom" className="">
+                {t("dialogs.projectSettings.aspectRatioLabels.custom")}
+              </SelectItem>
+            ) : (
+              // Для стандартных соотношений показываем список доступных разрешений
+              availableResolutions.map((option) => (
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                  className=""
+                >
+                  {option.label}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Поля для ввода пользовательских размеров (ширина и высота) */}
+      <div className="flex items-center justify-end">
+        <Label className="mr-2 text-xs">
+          {t("dialogs.projectSettings.customSize")}
+        </Label>
+        <div className="flex items-center">
+          {/* Поле ввода ширины */}
+          <Input
+            type="number"
+            value={customWidth}
+            onChange={(e) => {
+              const width = Number.parseInt(e.target.value, 10)
+              if (!isNaN(width) && width > 0) {
+                setCustomWidth(width)
+
+                // Если соотношение сторон заблокировано, обновляем высоту пропорционально
+                // для сохранения выбранного соотношения сторон
+                if (
+                  aspectRatioLocked &&
+                  settings.aspectRatio.label !== "custom"
+                ) {
+                  // Вычисляем текущее соотношение сторон
+                  const aspectRatio =
+                    settings.aspectRatio.value.width /
+                    settings.aspectRatio.value.height
+
+                  // Вычисляем новую высоту на основе соотношения сторон
+                  const newHeight = Math.round(width / aspectRatio)
+                  setCustomHeight(newHeight)
+
+                  // Обновляем настройки проекта с новыми размерами,
+                  // сохраняя соотношение сторон
+                  const newSettings = {
+                    ...settings,
+                    aspectRatio: {
+                      ...settings.aspectRatio,
+                      value: {
+                        ...settings.aspectRatio.value,
+                        width,
+                        height: newHeight,
+                      },
                     },
-                  },
+                    resolution: `${width}x${newHeight}`,
+                  }
+                  updateSettings(newSettings)
+                } else {
+                  // Если соотношение сторон не заблокировано или пользовательское,
+                  // просто обновляем ширину без изменения высоты
+                  const newSettings = {
+                    ...settings,
+                    aspectRatio: {
+                      ...settings.aspectRatio,
+                      value: {
+                        ...settings.aspectRatio.value,
+                        width,
+                      },
+                    },
+                    resolution: `${width}x${customHeight}`,
+                  }
+                  updateSettings(newSettings)
                 }
-
-                // Применяем новые настройки
-                updateSettings(newSettings)
-
-                // Обновляем значения пользовательской ширины и высоты
-                setCustomWidth(selectedResolution.width)
-                setCustomHeight(selectedResolution.height)
-              } else {
-                // Если разрешение не найдено, просто обновляем значение
-                updateSettings({
-                  ...settings,
-                  resolution: value,
-                })
               }
             }}
-          >
-            <SelectTrigger className="w-[300px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="">
-              {/* Для пользовательского соотношения сторон показываем только "custom" */}
-              {settings.aspectRatio.label === "custom" ? (
-                <SelectItem value="custom" className="">
-                  {t("dialogs.projectSettings.aspectRatioLabels.custom")}
-                </SelectItem>
+            className="w-20 text-center"
+            min={320} // Минимальная ширина
+            max={7680} // Максимальная ширина (8K)
+          />
+
+          {/* Разделитель между полями ширины и высоты */}
+          <span className="mx-2 text-sm">x</span>
+
+          {/* Поле ввода высоты */}
+          <Input
+            type="number"
+            value={customHeight}
+            onChange={(e) => {
+              const height = Number.parseInt(e.target.value, 10)
+              if (!isNaN(height) && height > 0) {
+                setCustomHeight(height)
+
+                // Если соотношение сторон заблокировано, обновляем ширину пропорционально
+                // для сохранения выбранного соотношения сторон
+                if (
+                  aspectRatioLocked &&
+                  settings.aspectRatio.label !== "custom"
+                ) {
+                  // Вычисляем текущее соотношение сторон
+                  const aspectRatio =
+                    settings.aspectRatio.value.width /
+                    settings.aspectRatio.value.height
+
+                  // Вычисляем новую ширину на основе соотношения сторон
+                  const newWidth = Math.round(height * aspectRatio)
+                  setCustomWidth(newWidth)
+
+                  // Обновляем настройки проекта с новыми размерами,
+                  // сохраняя соотношение сторон
+                  const newSettings = {
+                    ...settings,
+                    aspectRatio: {
+                      ...settings.aspectRatio,
+                      value: {
+                        ...settings.aspectRatio.value,
+                        width: newWidth,
+                        height,
+                      },
+                    },
+                    resolution: `${newWidth}x${height}`,
+                  }
+                  updateSettings(newSettings)
+                } else {
+                  // Если соотношение сторон не заблокировано или пользовательское,
+                  // просто обновляем высоту без изменения ширины
+                  const newSettings = {
+                    ...settings,
+                    aspectRatio: {
+                      ...settings.aspectRatio,
+                      value: {
+                        ...settings.aspectRatio.value,
+                        height,
+                      },
+                    },
+                    resolution: `${customWidth}x${height}`,
+                  }
+                  updateSettings(newSettings)
+                }
+              }
+            }}
+            className="w-20 text-center"
+            min={240} // Минимальная высота
+            max={4320} // Максимальная высота (4K)
+          />
+
+          {/* Кнопка блокировки/разблокировки соотношения сторон */}
+          {/* Отображается только для стандартных соотношений сторон */}
+          {settings.aspectRatio.label !== "custom" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`ml-2 h-7 w-7 cursor-pointer p-0 ${
+                // Подсвечиваем кнопку, если соотношение сторон заблокировано
+                aspectRatioLocked
+                  ? "text-[#00CCC0]"
+                  : "text-gray-400 hover:text-gray-200"
+              }`}
+              onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
+              title={
+                // Подсказка при наведении
+                aspectRatioLocked
+                  ? t("dialogs.projectSettings.unlockAspectRatio")
+                  : t("dialogs.projectSettings.lockAspectRatio")
+              }
+            >
+              {/* Иконка в зависимости от состояния блокировки */}
+              {aspectRatioLocked ? (
+                <Lock className="h-4 w-4" />
               ) : (
-                // Для стандартных соотношений показываем список доступных разрешений
-                availableResolutions.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                    className=""
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))
+                <Unlock className="h-4 w-4" />
               )}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Поля для ввода пользовательских размеров (ширина и высота) */}
-        <div className="flex items-center justify-end">
-          <Label className="mr-2 text-xs">
-            {t("dialogs.projectSettings.customSize")}
-          </Label>
-          <div className="flex items-center">
-            {/* Поле ввода ширины */}
-            <Input
-              type="number"
-              value={customWidth}
-              onChange={(e) => {
-                const width = Number.parseInt(e.target.value, 10)
-                if (!isNaN(width) && width > 0) {
-                  setCustomWidth(width)
-
-                  // Если соотношение сторон заблокировано, обновляем высоту пропорционально
-                  // для сохранения выбранного соотношения сторон
-                  if (
-                    aspectRatioLocked &&
-                    settings.aspectRatio.label !== "custom"
-                  ) {
-                    // Вычисляем текущее соотношение сторон
-                    const aspectRatio =
-                      settings.aspectRatio.value.width /
-                      settings.aspectRatio.value.height
-
-                    // Вычисляем новую высоту на основе соотношения сторон
-                    const newHeight = Math.round(width / aspectRatio)
-                    setCustomHeight(newHeight)
-
-                    // Обновляем настройки проекта с новыми размерами,
-                    // сохраняя соотношение сторон
-                    const newSettings = {
-                      ...settings,
-                      aspectRatio: {
-                        ...settings.aspectRatio,
-                        value: {
-                          ...settings.aspectRatio.value,
-                          width,
-                          height: newHeight,
-                        },
-                      },
-                      resolution: `${width}x${newHeight}`,
-                    }
-                    updateSettings(newSettings)
-                  } else {
-                    // Если соотношение сторон не заблокировано или пользовательское,
-                    // просто обновляем ширину без изменения высоты
-                    const newSettings = {
-                      ...settings,
-                      aspectRatio: {
-                        ...settings.aspectRatio,
-                        value: {
-                          ...settings.aspectRatio.value,
-                          width,
-                        },
-                      },
-                      resolution: `${width}x${customHeight}`,
-                    }
-                    updateSettings(newSettings)
-                  }
-                }
-              }}
-              className="w-20 text-center"
-              min={320} // Минимальная ширина
-              max={7680} // Максимальная ширина (8K)
-            />
-
-            {/* Разделитель между полями ширины и высоты */}
-            <span className="mx-2 text-sm">x</span>
-
-            {/* Поле ввода высоты */}
-            <Input
-              type="number"
-              value={customHeight}
-              onChange={(e) => {
-                const height = Number.parseInt(e.target.value, 10)
-                if (!isNaN(height) && height > 0) {
-                  setCustomHeight(height)
-
-                  // Если соотношение сторон заблокировано, обновляем ширину пропорционально
-                  // для сохранения выбранного соотношения сторон
-                  if (
-                    aspectRatioLocked &&
-                    settings.aspectRatio.label !== "custom"
-                  ) {
-                    // Вычисляем текущее соотношение сторон
-                    const aspectRatio =
-                      settings.aspectRatio.value.width /
-                      settings.aspectRatio.value.height
-
-                    // Вычисляем новую ширину на основе соотношения сторон
-                    const newWidth = Math.round(height * aspectRatio)
-                    setCustomWidth(newWidth)
-
-                    // Обновляем настройки проекта с новыми размерами,
-                    // сохраняя соотношение сторон
-                    const newSettings = {
-                      ...settings,
-                      aspectRatio: {
-                        ...settings.aspectRatio,
-                        value: {
-                          ...settings.aspectRatio.value,
-                          width: newWidth,
-                          height,
-                        },
-                      },
-                      resolution: `${newWidth}x${height}`,
-                    }
-                    updateSettings(newSettings)
-                  } else {
-                    // Если соотношение сторон не заблокировано или пользовательское,
-                    // просто обновляем высоту без изменения ширины
-                    const newSettings = {
-                      ...settings,
-                      aspectRatio: {
-                        ...settings.aspectRatio,
-                        value: {
-                          ...settings.aspectRatio.value,
-                          height,
-                        },
-                      },
-                      resolution: `${customWidth}x${height}`,
-                    }
-                    updateSettings(newSettings)
-                  }
-                }
-              }}
-              className="w-20 text-center"
-              min={240} // Минимальная высота
-              max={4320} // Максимальная высота (4K)
-            />
-
-            {/* Кнопка блокировки/разблокировки соотношения сторон */}
-            {/* Отображается только для стандартных соотношений сторон */}
-            {settings.aspectRatio.label !== "custom" && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`ml-2 h-7 w-7 cursor-pointer p-0 ${
-                  // Подсвечиваем кнопку, если соотношение сторон заблокировано
-                  aspectRatioLocked
-                    ? "text-[#00CCC0]"
-                    : "text-gray-400 hover:text-gray-200"
-                }`}
-                onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
-                title={
-                  // Подсказка при наведении
-                  aspectRatioLocked
-                    ? t("dialogs.projectSettings.unlockAspectRatio")
-                    : t("dialogs.projectSettings.lockAspectRatio")
-                }
-              >
-                {/* Иконка в зависимости от состояния блокировки */}
-                {aspectRatioLocked ? (
-                  <Lock className="h-4 w-4" />
-                ) : (
-                  <Unlock className="h-4 w-4" />
-                )}
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Информация о текущем соотношении сторон */}
-        <div className="flex items-center justify-center">
-          <div className="flex items-center text-xs text-gray-400">
-            {settings.aspectRatio.label !== "custom" ? (
-              // Для стандартных соотношений сторон показываем статус блокировки
-              aspectRatioLocked ? (
-                // Заблокированное соотношение сторон
-                <>
-                  <Lock className="mr-1 h-3 w-3 text-[#00CCC0]" />
-                  <span className="text-[#00CCC0]">
-                    {t("dialogs.projectSettings.aspectRatioLocked", {
-                      ratio: settings.aspectRatio.label,
-                    })}
-                  </span>
-                </>
-              ) : (
-                // Разблокированное соотношение сторон
-                <>
-                  <Unlock className="mr-1 h-3 w-3" />
-                  {t("dialogs.projectSettings.aspectRatioUnlocked", {
-                    ratio: settings.aspectRatio.label,
-                  })}
-                </>
-              )
-            ) : (
-              // Для пользовательского соотношения сторон показываем вычисленное значение
-              <>
-                {t("dialogs.projectSettings.aspectRatioValue", {
-                  ratio: getAspectRatioString(customWidth, customHeight),
-                })}
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Выбор частоты кадров */}
-        <div className="flex items-center justify-end">
-          <Label className="mr-2 text-xs">
-            {t("dialogs.projectSettings.frameRate")}
-          </Label>
-          <Select
-            value={settings.frameRate}
-            onValueChange={(value: FrameRate) =>
-              // Обновляем настройки с новой частотой кадров
-              updateSettings({
-                ...settings,
-                frameRate: value,
-              })
-            }
-          >
-            <SelectTrigger className="w-[300px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="">
-              {/* Отображение списка доступных частот кадров */}
-              {FRAME_RATES.map((frameRate) => (
-                <SelectItem
-                  key={frameRate.value}
-                  value={frameRate.value}
-                  className=""
-                >
-                  {frameRate.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Выбор цветового пространства */}
-        <div className="flex items-center justify-end">
-          <Label className="mr-2 text-xs">
-            {t("dialogs.projectSettings.colorSpace")}
-          </Label>
-          <Select
-            value={settings.colorSpace}
-            onValueChange={(value: ColorSpace) =>
-              // Обновляем настройки с новым цветовым пространством
-              updateSettings({
-                ...settings,
-                colorSpace: value,
-              })
-            }
-          >
-            <SelectTrigger className="w-[300px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="">
-              {/* Отображение списка доступных цветовых пространств */}
-              {COLOR_SPACES.map((colorSpace) => (
-                <SelectItem
-                  key={colorSpace.value}
-                  value={colorSpace.value}
-                  className=""
-                >
-                  {colorSpace.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            </Button>
+          )}
         </div>
       </div>
 
+      {/* Информация о текущем соотношении сторон */}
+      <div className="flex items-center justify-center">
+        <div className="flex items-center text-xs text-gray-400">
+          {settings.aspectRatio.label !== "custom" ? (
+            // Для стандартных соотношений сторон показываем статус блокировки
+            aspectRatioLocked ? (
+              // Заблокированное соотношение сторон
+              <>
+                <Lock className="mr-1 h-3 w-3 text-[#00CCC0]" />
+                <span className="text-[#00CCC0]">
+                  {t("dialogs.projectSettings.aspectRatioLocked", {
+                    ratio: settings.aspectRatio.label,
+                  })}
+                </span>
+              </>
+            ) : (
+              // Разблокированное соотношение сторон
+              <>
+                <Unlock className="mr-1 h-3 w-3" />
+                {t("dialogs.projectSettings.aspectRatioUnlocked", {
+                  ratio: settings.aspectRatio.label,
+                })}
+              </>
+            )
+          ) : (
+            // Для пользовательского соотношения сторон показываем вычисленное значение
+            <>
+              {t("dialogs.projectSettings.aspectRatioValue", {
+                ratio: getAspectRatioString(customWidth, customHeight),
+              })}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Выбор частоты кадров */}
+      <div className="flex items-center justify-end">
+        <Label className="mr-2 text-xs">
+          {t("dialogs.projectSettings.frameRate")}
+        </Label>
+        <Select
+          value={settings.frameRate}
+          onValueChange={(value: FrameRate) =>
+            // Обновляем настройки с новой частотой кадров
+            updateSettings({
+              ...settings,
+              frameRate: value,
+            })
+          }
+        >
+          <SelectTrigger className="w-[300px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="">
+            {/* Отображение списка доступных частот кадров */}
+            {FRAME_RATES.map((frameRate) => (
+              <SelectItem
+                key={frameRate.value}
+                value={frameRate.value}
+                className=""
+              >
+                {frameRate.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Выбор цветового пространства */}
+      <div className="flex items-center justify-end">
+        <Label className="mr-2 text-xs">
+          {t("dialogs.projectSettings.colorSpace")}
+        </Label>
+        <Select
+          value={settings.colorSpace}
+          onValueChange={(value: ColorSpace) =>
+            // Обновляем настройки с новым цветовым пространством
+            updateSettings({
+              ...settings,
+              colorSpace: value,
+            })
+          }
+        >
+          <SelectTrigger className="w-[300px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="">
+            {/* Отображение списка доступных цветовых пространств */}
+            {COLOR_SPACES.map((colorSpace) => (
+              <SelectItem
+                key={colorSpace.value}
+                value={colorSpace.value}
+                className=""
+              >
+                {colorSpace.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Кнопки действий в нижней части модального окна */}
-      <DialogFooter className="flex justify-between space-x-4">
+      <DialogFooter className="flex justify-between space-x-4 h-[50px]">
         {/* Кнопка отмены */}
         <Button
           variant="default"
@@ -677,6 +675,6 @@ export function ProjectSettingsModal() {
           {t("dialogs.projectSettings.save")}
         </Button>
       </DialogFooter>
-    </>
+    </div>
   )
 }

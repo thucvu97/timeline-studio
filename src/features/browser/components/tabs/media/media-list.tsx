@@ -425,7 +425,7 @@ export function MediaList() {
       style={{ height: "100%" }}
     >
       <MediaToolbar />
-      <div className="min-h-0 flex-1 overflow-y-auto p-0 dark:bg-[#1b1a1f]">
+      <div className="min-h-0 flex-1 overflow-y-auto p-0 dark:bg-[#1e1e1e]">
         <MediaContent
           groupedFiles={groupedFiles}
           viewMode={viewMode}
