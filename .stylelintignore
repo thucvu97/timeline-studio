@@ -1,9 +1,15 @@
-# Игнорировать сгенерированные файлы
+# Игнорировать node_modules
 node_modules
 .next
+
+# Игнорировать файлы сборки
 dist
 build
 out
+
+# Игнорировать файлы тестирования
+playwright-report
+test-results
 coverage
 
 # Игнорировать файлы в директории public
