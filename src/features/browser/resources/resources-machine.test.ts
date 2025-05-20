@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
+import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
 import { VideoEffect } from "@/types/effects"
 import { VideoFilter } from "@/types/filters"
 import { MediaFile } from "@/types/media"
-import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
 import { TransitionEffect } from "@/types/transitions"
 
 import { resourcesMachine } from "./resources-machine"
@@ -313,7 +313,9 @@ describe("resourcesMachine", () => {
     expect(snapshot.context.resources.length).toBe(1)
     expect(snapshot.context.transitionResources.length).toBe(1)
     expect(snapshot.context.resources[0].resourceId).toBe(testTransition.id)
-    expect(snapshot.context.transitionResources[0].resourceId).toBe(testTransition.id)
+    expect(snapshot.context.transitionResources[0].resourceId).toBe(
+      testTransition.id,
+    )
 
     // Останавливаем актора
     actor.stop()
@@ -349,7 +351,9 @@ describe("resourcesMachine", () => {
     expect(snapshot.context.resources.length).toBe(1)
     expect(snapshot.context.templateResources.length).toBe(1)
     expect(snapshot.context.resources[0].resourceId).toBe(testTemplate.id)
-    expect(snapshot.context.templateResources[0].resourceId).toBe(testTemplate.id)
+    expect(snapshot.context.templateResources[0].resourceId).toBe(
+      testTemplate.id,
+    )
 
     // Останавливаем актора
     actor.stop()

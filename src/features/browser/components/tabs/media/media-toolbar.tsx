@@ -151,7 +151,7 @@ export function MediaToolbar() {
           variant="outline"
           size="sm"
           className="flex cursor-pointer items-center gap-1 bg-[#dddbdd] px-1 text-xs hover:bg-[#d1d1d1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25"
-          onClick={() => void handleImportFile()}
+          onClick={() => handleImportFile()}
         >
           <span className="px-2 text-xs">{t("common.import")}</span>
           <div className="flex items-center gap-1">
@@ -161,7 +161,7 @@ export function MediaToolbar() {
                   className="cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25"
                   onClick={(e) => {
                     e.stopPropagation()
-                    void handleImportFile()
+                    handleImportFile()
                   }}
                 >
                   <File size={12} />
@@ -175,7 +175,7 @@ export function MediaToolbar() {
                   className="cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25"
                   onClick={(e) => {
                     e.stopPropagation()
-                    void handleImportFolder()
+                    handleImportFolder()
                   }}
                   data-testid="folder-import-button"
                 >

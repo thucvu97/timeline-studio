@@ -1,38 +1,38 @@
 import { act, render, renderHook, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import {
-  MediaListProvider,
-  useMediaList,
-} from "./media-list-provider"
+import { MediaListProvider, useMediaList } from "./media-list-provider"
+
+// Создаем моковый объект для send
+const mockSend = vi.fn()
+
+// Создаем моковый объект для состояния
+const mockState = {
+  context: {
+    mediaFiles: [],
+    filteredFiles: [],
+    searchQuery: "",
+    sortBy: "date",
+    sortOrder: "desc",
+    filterType: "all",
+    viewMode: "list",
+    groupBy: "none",
+    availableExtensions: [],
+    showFavoritesOnly: false,
+    previewSize: 120,
+    canIncreaseSize: true,
+    canDecreaseSize: true,
+    isLoading: false,
+    error: null,
+  },
+  matches: (state: string) => state === "success",
+  status: "active",
+  value: "success",
+}
 
 // Мокаем useMachine из @xstate/react
 vi.mock("@xstate/react", () => ({
-  useMachine: vi.fn(() => [
-    {
-      context: {
-        mediaFiles: [],
-        filteredFiles: [],
-        searchQuery: "",
-        sortBy: "date",
-        sortOrder: "desc",
-        filterType: "all",
-        viewMode: "list",
-        groupBy: "none",
-        availableExtensions: [],
-        showFavoritesOnly: false,
-        previewSize: 120,
-        canIncreaseSize: true,
-        canDecreaseSize: true,
-        isLoading: false,
-        error: null,
-      },
-      matches: (state: string) => state === "success",
-      status: "active",
-      value: "success",
-    },
-    vi.fn(), // mock для send
-  ]),
+  useMachine: vi.fn(() => [mockState, mockSend]),
 }))
 
 // Мокаем mediaListMachine
@@ -66,9 +66,9 @@ vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Компонент-обертка для тестирования хука useMediaList
-const MediaListWrapper = ({ children }: { children: React.ReactNode }) => (
-  <MediaListProvider>{children}</MediaListProvider>
-)
+function MediaListWrapper({ children }: { children: React.ReactNode }) {
+  return <MediaListProvider>{children}</MediaListProvider>
+}
 
 describe("MediaListProvider", () => {
   beforeEach(() => {
@@ -163,5 +163,355 @@ describe("MediaListProvider", () => {
     )
 
     console.error = consoleError // Восстанавливаем console.error
+  })
+
+  it("should call send with correct parameters when sorting", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Вызываем метод сортировки
+    act(() => {
+      result.current.sort("name")
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "SORT",
+      sortBy: "name",
+    })
+  })
+
+  it("should not call send with invalid sort criteria", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Мокаем console.error для проверки ошибки
+    const originalConsoleError = console.error
+    console.error = vi.fn()
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Вызываем метод сортировки с недопустимым критерием
+    act(() => {
+      result.current.sort("invalid_criteria")
+    })
+
+    // Проверяем, что send не был вызван
+    expect(mockSend).not.toHaveBeenCalled()
+
+    // Проверяем, что была выведена ошибка
+    expect(console.error).toHaveBeenCalledWith(
+      "Invalid sort criteria:",
+      "invalid_criteria",
+    )
+
+    // Восстанавливаем console.error
+    console.error = originalConsoleError
+  })
+
+  it("should call send with correct parameters when filtering", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Создаем моковый медиа-контекст
+    const mockMediaContext = {
+      allMediaFiles: [],
+      includedFiles: [],
+      favorites: {
+        media: [],
+        audio: [],
+        transition: [],
+        effect: [],
+        template: [],
+        filter: [],
+      },
+    }
+
+    // Вызываем метод фильтрации
+    act(() => {
+      result.current.filter("video", mockMediaContext)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "FILTER",
+      filterType: "video",
+      mediaContext: mockMediaContext,
+    })
+  })
+
+  it("should call send with correct parameters when searching", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Создаем моковый медиа-контекст
+    const mockMediaContext = {
+      allMediaFiles: [],
+      includedFiles: [],
+      favorites: {
+        media: [],
+        audio: [],
+        transition: [],
+        effect: [],
+        template: [],
+        filter: [],
+      },
+    }
+
+    // Вызываем метод поиска
+    act(() => {
+      result.current.search("test query", mockMediaContext)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "SEARCH",
+      query: "test query",
+      mediaContext: mockMediaContext,
+    })
+  })
+
+  it("should call send with correct parameters when changing view mode", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Вызываем метод изменения режима отображения
+    act(() => {
+      result.current.changeViewMode("grid")
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "CHANGE_VIEW_MODE",
+      mode: "grid",
+    })
+  })
+
+  it("should call send with correct parameters when changing group by", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Вызываем метод изменения группировки
+    act(() => {
+      result.current.changeGroupBy("type")
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "CHANGE_GROUP_BY",
+      groupBy: "type",
+    })
+  })
+
+  it("should call send with correct parameters when changing order", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Вызываем метод изменения порядка сортировки
+    act(() => {
+      result.current.changeOrder()
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "CHANGE_ORDER",
+    })
+  })
+
+  it("should call send with correct parameters when toggling favorites", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Создаем моковый медиа-контекст
+    const mockMediaContext = {
+      allMediaFiles: [],
+      includedFiles: [],
+      favorites: {
+        media: [],
+        audio: [],
+        transition: [],
+        effect: [],
+        template: [],
+        filter: [],
+      },
+    }
+
+    // Вызываем метод переключения избранных
+    act(() => {
+      result.current.toggleFavorites(mockMediaContext)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "TOGGLE_FAVORITES",
+      mediaContext: mockMediaContext,
+    })
+  })
+
+  it("should call send with correct parameters when increasing preview size", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Устанавливаем возможность увеличения размера превью
+    mockState.context.canIncreaseSize = true
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Вызываем метод увеличения размера превью
+    act(() => {
+      result.current.increasePreviewSize()
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "INCREASE_PREVIEW_SIZE",
+    })
+  })
+
+  it("should not call send when increasing preview size if canIncreaseSize is false", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Устанавливаем невозможность увеличения размера превью
+    mockState.context.canIncreaseSize = false
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Вызываем метод увеличения размера превью
+    act(() => {
+      result.current.increasePreviewSize()
+    })
+
+    // Проверяем, что send не был вызван
+    expect(mockSend).not.toHaveBeenCalled()
+  })
+
+  it("should call send with correct parameters when decreasing preview size", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Устанавливаем возможность уменьшения размера превью
+    mockState.context.canDecreaseSize = true
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Вызываем метод уменьшения размера превью
+    act(() => {
+      result.current.decreasePreviewSize()
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "DECREASE_PREVIEW_SIZE",
+    })
+  })
+
+  it("should call send with correct parameters when setting preview size", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useMediaList
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    // Вызываем метод установки размера превью
+    act(() => {
+      result.current.setPreviewSize(150)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "SET_PREVIEW_SIZE",
+      size: 150,
+    })
+  })
+
+  it("should update UI when state changes", () => {
+    // Изменяем состояние в моке
+    Object.assign(mockState.context, {
+      mediaFiles: [
+        { id: "test-file", name: "test.mp4", path: "/test/test.mp4" },
+      ],
+      filteredFiles: [
+        { id: "test-file", name: "test.mp4", path: "/test/test.mp4" },
+      ],
+      searchQuery: "test",
+      sortBy: "name",
+      sortOrder: "asc",
+      filterType: "video",
+      viewMode: "grid",
+      groupBy: "type",
+      previewSize: 150,
+    })
+
+    // Рендерим компонент
+    render(
+      <MediaListProvider>
+        <div data-testid="test-child">Test Child</div>
+      </MediaListProvider>,
+    )
+
+    // Проверяем, что контекст обновился
+    const { result } = renderHook(() => useMediaList(), {
+      wrapper: MediaListWrapper,
+    })
+
+    expect(result.current.mediaFiles).toHaveLength(1)
+    expect(result.current.filteredFiles).toHaveLength(1)
+    expect(result.current.searchQuery).toBe("test")
+    expect(result.current.sortBy).toBe("name")
+    expect(result.current.sortOrder).toBe("asc")
+    expect(result.current.filterType).toBe("video")
+    expect(result.current.viewMode).toBe("grid")
+    expect(result.current.groupBy).toBe("type")
+    expect(result.current.previewSize).toBe(150)
   })
 })

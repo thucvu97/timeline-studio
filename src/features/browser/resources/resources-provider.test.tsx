@@ -1,4 +1,15 @@
 // Создаем моковый объект для send
+import { act, render, renderHook, screen } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
+import { VideoEffect } from "@/types/effects"
+import { VideoFilter } from "@/types/filters"
+import { MediaFile } from "@/types/media"
+import { TransitionEffect } from "@/types/transitions"
+
+import { ResourcesProvider, useResources } from "./resources-provider"
+
 const mockSend = vi.fn()
 
 // Создаем моковый объект для состояния
@@ -33,17 +44,6 @@ vi.mock("./resources-machine", () => ({
     }),
   },
 }))
-
-import { act, render, renderHook, screen } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { VideoEffect } from "@/types/effects"
-import { VideoFilter } from "@/types/filters"
-import { MediaFile } from "@/types/media"
-import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
-import { TransitionEffect } from "@/types/transitions"
-
-import { ResourcesProvider, useResources } from "./resources-provider"
 
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {})
@@ -344,5 +344,156 @@ describe("ResourcesProvider", () => {
       type: "ADD_MUSIC",
       file: testFile,
     })
+  })
+
+  it("should call send with correct parameters when removing a resource", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useResources
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
+
+    // Вызываем метод удаления ресурса
+    act(() => {
+      result.current.removeResource("test-resource-id")
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "REMOVE_RESOURCE",
+      resourceId: "test-resource-id",
+    })
+  })
+
+  it("should call send with correct parameters when updating a resource", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useResources
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
+
+    // Создаем параметры для обновления
+    const updateParams = { opacity: 0.5, duration: 2000 }
+
+    // Вызываем метод обновления ресурса
+    act(() => {
+      result.current.updateResource("test-resource-id", updateParams)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "UPDATE_RESOURCE",
+      resourceId: "test-resource-id",
+      params: updateParams,
+    })
+  })
+
+  it("should check if an effect is added", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Изменяем состояние в моке для имитации добавленного эффекта
+    const testEffect: VideoEffect = {
+      id: "test-effect",
+      name: "Test Effect",
+      type: "blur",
+      duration: 0,
+      ffmpegCommand: () => "gblur=sigma=5",
+      params: { intensity: 0.5 },
+      previewPath: "/effects/test-preview.mp4",
+      labels: {
+        ru: "Тестовый эффект",
+        en: "Test Effect",
+      },
+    }
+
+    // Обновляем мок-состояние
+    Object.assign(mockState.context, {
+      effectResources: [
+        {
+          id: "test-resource",
+          resourceId: "test-effect",
+          resourceType: "effect",
+          params: {},
+        },
+      ],
+    })
+
+    // Используем renderHook для тестирования хука useResources
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
+
+    // Проверяем, что метод isEffectAdded возвращает правильное значение
+    expect(result.current.isEffectAdded(testEffect)).toBe(true)
+  })
+
+  it("should update UI when state changes", () => {
+    // Изменяем состояние в моке
+    Object.assign(mockState.context, {
+      resources: [
+        {
+          id: "test-resource",
+          resourceId: "test",
+          resourceType: "effect",
+          params: {},
+        },
+      ],
+      effectResources: [
+        {
+          id: "test-resource",
+          resourceId: "test",
+          resourceType: "effect",
+          params: {},
+        },
+      ],
+    })
+
+    // Рендерим компонент
+    render(
+      <ResourcesProvider>
+        <TestComponent />
+      </ResourcesProvider>,
+    )
+
+    // Проверяем, что UI отображает правильные данные
+    expect(screen.getByTestId("resources-count").textContent).toBe("1")
+    expect(screen.getByTestId("effect-resources-count").textContent).toBe("1")
+    expect(screen.getByTestId("filter-resources-count").textContent).toBe("0")
+  })
+
+  it("should provide all required methods in context", () => {
+    // Сбрасываем состояние мока перед тестом
+    Object.assign(mockState.context, {
+      resources: [],
+      effectResources: [],
+      filterResources: [],
+      transitionResources: [],
+      templateResources: [],
+      musicResources: [],
+    })
+
+    // Используем renderHook для тестирования хука useResources
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
+
+    // Проверяем наличие всех необходимых методов
+    expect(typeof result.current.addEffect).toBe("function")
+    expect(typeof result.current.addFilter).toBe("function")
+    expect(typeof result.current.addTransition).toBe("function")
+    expect(typeof result.current.addTemplate).toBe("function")
+    expect(typeof result.current.addMusic).toBe("function")
+    expect(typeof result.current.removeResource).toBe("function")
+    expect(typeof result.current.updateResource).toBe("function")
+    expect(typeof result.current.isEffectAdded).toBe("function")
+    expect(typeof result.current.isFilterAdded).toBe("function")
+    expect(typeof result.current.isTransitionAdded).toBe("function")
+    expect(typeof result.current.isTemplateAdded).toBe("function")
+    expect(typeof result.current.isMusicFileAdded).toBe("function")
   })
 })
