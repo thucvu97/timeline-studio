@@ -30,7 +30,6 @@ const mockMediaFiles: MediaFile[] = [
     isVideo: true,
     duration: 120,
     size: 1000,
-    creationTime: "2021-01-01T00:00:00.000Z",
   },
   {
     id: "2",
@@ -38,7 +37,6 @@ const mockMediaFiles: MediaFile[] = [
     path: "/test/test2.jpg",
     isImage: true,
     size: 500,
-    creationTime: "2022-01-01T00:00:00.000Z",
   },
 ]
 

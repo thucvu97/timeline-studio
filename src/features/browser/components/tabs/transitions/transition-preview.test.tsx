@@ -166,7 +166,8 @@ describe("TransitionPreview", () => {
     const container = sourceVideo.closest("div")
 
     // Симулируем наведение мыши
-    fireEvent.mouseEnter(container!)
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        fireEvent.mouseEnter(container!)
 
     // Проверяем, что видео начинает воспроизводиться
     await waitFor(() => {
@@ -174,6 +175,7 @@ describe("TransitionPreview", () => {
     })
 
     // Симулируем уход мыши
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     fireEvent.mouseLeave(container!)
 
     // Проверяем, что видео останавливается
@@ -188,6 +190,7 @@ describe("TransitionPreview", () => {
 
     const sourceVideo = screen.getByTestId("source-video")
     const container = sourceVideo.closest("div")
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     fireEvent.click(container!)
 
     expect(mockProps.onClick).toHaveBeenCalledTimes(1)
@@ -241,7 +244,8 @@ describe("TransitionPreview", () => {
     const container = sourceVideo.closest("div")
 
     // Симулируем наведение мыши
-    fireEvent.mouseEnter(container!)
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        fireEvent.mouseEnter(container!)
 
     // Проверяем, что видео начинает воспроизводиться
     await waitFor(() => {

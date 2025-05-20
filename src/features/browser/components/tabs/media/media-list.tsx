@@ -187,7 +187,7 @@ export function MediaList() {
               return parts[0] * 3600 + parts[1] * 60 + parts[2]
             }
             // Если формат "01:23"
-            else if (parts.length === 2) {
+            if (parts.length === 2) {
               return parts[0] * 60 + parts[1]
             }
             // Если только число
@@ -230,6 +230,7 @@ export function MediaList() {
         image: [],
       }
 
+      // biome-ignore lint/complexity/noForEach: <explanation>
       filteredAndSortedMedia.forEach((file) => {
         const fileType = getFileType(file)
         if (fileType === "video") {
@@ -261,6 +262,7 @@ export function MediaList() {
       const currentLanguage = i18n.language || "ru"
       const noDateText = i18n.t("dates.noDate", { defaultValue: "No date" })
 
+      // biome-ignore lint/complexity/noForEach: <explanation>
       filteredAndSortedMedia.forEach((file) => {
         // Для изображений используем дату создания файла, если она доступна
         let timestamp = file.startTime
@@ -313,6 +315,7 @@ export function MediaList() {
         extraLong: [], // 3+ часа
       }
 
+      // biome-ignore lint/complexity/noForEach: <explanation>
       filteredAndSortedMedia.forEach((file) => {
         // Для изображений используем специальную логику
         if (/\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)) {
