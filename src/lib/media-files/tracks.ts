@@ -110,7 +110,8 @@ export const createTracksFromFiles = (
 
     // Получаем существующие треки для этого дня или создаем новый сектор
     // Ищем существующий сектор по дате или по имени, содержащему дату
-    let existingSector = existingSectorsByDay[date].sector
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    let existingSector = existingSectorsByDay[date]?.sector
 
     // Если сектор не найден по дате, ищем по имени в существующих секторах
     if (!existingSector) {
