@@ -17,7 +17,6 @@ const mockIsMusicFileAdded = vi.fn().mockReturnValue(false)
 const mockPlayAudio = vi.fn()
 const mockToggleFavorite = vi.fn()
 
-// Базовый мок для useMusicMachine
 const baseMusicMachineMock = {
   filteredFiles: [
     {
@@ -151,7 +150,6 @@ describe("MusicList", () => {
     // Очищаем моки перед каждым тестом
     vi.clearAllMocks()
 
-    // Сбрасываем состояние мока useMusicMachine к базовому
     Object.assign(baseMusicMachineMock, {
       filteredFiles: [
         {

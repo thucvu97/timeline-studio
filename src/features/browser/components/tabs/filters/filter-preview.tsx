@@ -165,7 +165,8 @@ export function FilterPreview({ filter, onClick, size }: FilterPreviewProps) {
       </div>
       {/* Название фильтра */}
       <div className="mt-1 text-xs text-gray-300">
-        {t(`filters.presets.${filter.id}`)} {/* Локализованное название фильтра */}
+        {t(`filters.presets.${filter.id}`)}{" "}
+        {/* Локализованное название фильтра */}
       </div>
     </div>
   )

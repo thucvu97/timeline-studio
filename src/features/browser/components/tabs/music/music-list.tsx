@@ -17,52 +17,73 @@ import { sortFiles } from "./music-utils"
 import { AddMediaButton } from "../../layout/add-media-button"
 import { FavoriteButton } from "../../layout/favorite-button"
 
+/**
+ * Компонент для отображения списка музыкальных файлов
+ * Позволяет просматривать, воспроизводить, фильтровать и добавлять музыкальные файлы в проект
+ *
+ * @returns {JSX.Element} Компонент списка музыкальных файлов
+ */
 export function MusicList() {
-  const { t } = useTranslation()
-  const [activeFile, setActiveFile] = useState<MediaFile | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const { t } = useTranslation() // Хук для интернационализации
+  const [activeFile, setActiveFile] = useState<MediaFile | null>(null) // Активный (воспроизводимый) файл
+  const [isPlaying, setIsPlaying] = useState(false) // Состояние воспроизведения
+  const audioRef = useRef<HTMLAudioElement | null>(null) // Ссылка на аудио-элемент
+
+  // Получаем методы для работы с ресурсами
   const { addMusic, removeResource, musicResources, isMusicFileAdded } =
     useResources()
 
+  // Получаем состояние из музыкальной машины состояний
   const {
-    filteredFiles,
-    sortBy,
-    sortOrder,
-    viewMode,
-    showFavoritesOnly,
-    groupBy,
-    isLoading,
-    isError,
-    error,
+    filteredFiles, // Отфильтрованные музыкальные файлы
+    sortBy, // Текущий критерий сортировки
+    sortOrder, // Порядок сортировки (asc/desc)
+    viewMode, // Режим отображения (list/thumbnails)
+    showFavoritesOnly, // Флаг отображения только избранных файлов
+    groupBy, // Группировка файлов (none/artist/genre/album)
+    isLoading, // Флаг загрузки
+    isError, // Флаг ошибки
+    error, // Сообщение об ошибке
   } = useMusic()
 
-  const media = useMedia()
+  const media = useMedia() // Хук для работы с медиа-файлами и избранным
+
+  /**
+   * Мемоизированная функция для группировки и сортировки музыкальных файлов
+   * Группирует файлы по выбранному критерию (artist, genre, album) и сортирует их
+   */
   const groupedFiles = useMemo(() => {
     // Фильтруем файлы по избранному, если включена соответствующая опция
     const favoritesFilteredFiles = showFavoritesOnly
       ? filteredFiles.filter((file) => media.isItemFavorite(file, "audio"))
       : filteredFiles
 
+    // Если группировка отключена, возвращаем все файлы в одной группе
     if (groupBy === "none") {
       return { "": favoritesFilteredFiles }
     }
 
+    // Получаем метку для неизвестных значений
     const unknownLabel = t("browser.common.unknown")
+
+    // Группируем файлы по выбранному критерию
     const groups = favoritesFilteredFiles.reduce<Record<string, MediaFile[]>>(
       (acc, file) => {
+        // Получаем значение для группировки (artist, genre, album) или "Неизвестно"
         const key = file.probeData?.format.tags?.[groupBy] ?? unknownLabel
+        // Создаем массив для группы, если его еще нет
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!acc[key]) {
           acc[key] = []
         }
+        // Добавляем файл в соответствующую группу
         acc[key].push(file)
         return acc
       },
       {},
     )
 
-    // Сортируем группы
+    // Сортируем группы по названию
     const sortedGroups = Object.entries(groups).sort(([a], [b]) => {
       // Перемещаем "Неизвестно" в конец списка
       if (a === unknownLabel) return 1
@@ -70,60 +91,92 @@ export function MusicList() {
 
       // Обычная сортировка для остальных элементов
       if (sortOrder === "asc") {
-        return a.localeCompare(b)
+        return a.localeCompare(b) // По возрастанию
       }
-      return b.localeCompare(a)
+      return b.localeCompare(a) // По убыванию
     })
 
-    // Сортируем файлы внутри групп
+    // Сортируем файлы внутри каждой группы и возвращаем результат
     return Object.fromEntries(
       sortedGroups.map(([group, files]) => [
         group,
-        sortFiles(files, sortBy, sortOrder),
+        sortFiles(files, sortBy, sortOrder), // Сортируем файлы по выбранному критерию
       ]),
     )
   }, [filteredFiles, groupBy, sortBy, sortOrder, media, showFavoritesOnly, t])
 
+  /**
+   * Обработчик воспроизведения/паузы музыкального файла
+   * Управляет воспроизведением аудио и обновляет состояние UI
+   *
+   * @param {React.MouseEvent} e - Событие клика
+   * @param {MediaFile} file - Музыкальный файл для воспроизведения
+   */
   const handlePlayPause = (e: React.MouseEvent, file: MediaFile) => {
-    e.stopPropagation()
+    e.stopPropagation() // Предотвращаем всплытие события
 
     if (activeFile?.path === file.path) {
+      // Если это тот же файл, что уже активен - переключаем воспроизведение/паузу
       setIsPlaying(!isPlaying)
       if (audioRef.current) {
         void (isPlaying ? audioRef.current.pause() : audioRef.current.play())
       }
     } else {
+      // Если выбран новый файл - останавливаем текущий и запускаем новый
       if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.removeEventListener("ended", handleAudioEnd)
+        audioRef.current.pause() // Останавливаем текущий аудио
+        audioRef.current.removeEventListener("ended", handleAudioEnd) // Удаляем обработчик
       }
+      // Создаем новый аудио-элемент
       const audio = new Audio(file.path)
-      audio.addEventListener("ended", handleAudioEnd)
+      audio.addEventListener("ended", handleAudioEnd) // Добавляем обработчик окончания
       audioRef.current = audio
-      void audio.play()
-      setActiveFile(file)
-      setIsPlaying(true)
+      void audio.play() // Запускаем воспроизведение
+      setActiveFile(file) // Обновляем активный файл
+      setIsPlaying(true) // Устанавливаем состояние воспроизведения
     }
   }
 
+  /**
+   * Обработчик окончания воспроизведения аудио
+   * Вызывается, когда аудио-файл проигран до конца
+   */
   const handleAudioEnd = () => {
-    setIsPlaying(false)
+    setIsPlaying(false) // Сбрасываем состояние воспроизведения
   }
 
+  /**
+   * Обработчик импорта музыкальных файлов
+   * Заглушка для будущей реализации
+   */
   const handleImport = () => {
     console.log("Импорт файлов")
   }
 
+  /**
+   * Обработчик импорта отдельных музыкальных файлов
+   * Заглушка для будущей реализации
+   */
   const handleImportFile = () => {
     console.log("Импорт отдельных файлов")
   }
 
+  /**
+   * Обработчик импорта папки с музыкальными файлами
+   * Заглушка для будущей реализации
+   */
   const handleImportFolder = () => {
     console.log("Импорт папки")
   }
 
+  /**
+   * Обработчик добавления музыкального файла в проект
+   *
+   * @param {MouseEvent} e - Событие клика
+   * @param {MediaFile} file - Музыкальный файл для добавления
+   */
   const handleAdd = (e: MouseEvent, file: MediaFile) => {
-    e.stopPropagation()
+    e.stopPropagation() // Предотвращаем всплытие события
 
     // Проверяем, не добавлен ли файл уже
     if (isMusicFileAdded(file)) {
@@ -133,12 +186,18 @@ export function MusicList() {
 
     console.log("[handleAdd] Adding music file:", file.name)
 
-    // Добавляем музыкальный файл только в ресурсы
+    // Добавляем музыкальный файл в ресурсы проекта
     addMusic(file)
   }
 
+  /**
+   * Обработчик удаления музыкального файла из проекта
+   *
+   * @param {MouseEvent} e - Событие клика
+   * @param {MediaFile} file - Музыкальный файл для удаления
+   */
   const handleRemove = (e: MouseEvent, file: MediaFile) => {
-    e.stopPropagation()
+    e.stopPropagation() // Предотвращаем всплытие события
     console.log("[handleRemove] Removing music file:", file.name)
 
     // Находим ресурс с этим музыкальным файлом
@@ -147,7 +206,7 @@ export function MusicList() {
     )
 
     if (musicResource) {
-      removeResource(musicResource.id)
+      removeResource(musicResource.id) // Удаляем ресурс из проекта
     } else {
       console.warn(
         `Не удалось найти ресурс музыкального файла с ID ${file.id} для удаления`,
@@ -157,19 +216,22 @@ export function MusicList() {
 
   return (
     <div className="flex h-full flex-col" data-testid="music-list-container">
+      {/* Панель инструментов с кнопками импорта и фильтрации */}
       <MusicToolbar
         onImport={handleImport}
         onImportFile={handleImportFile}
         onImportFolder={handleImportFolder}
       />
+
+      {/* Основной контейнер для списка музыкальных файлов */}
       <div
         className="flex-1 overflow-y-auto p-1 dark:bg-[#1b1a1f]"
         data-testid="music-list-content"
       >
-        {/* Состояние загрузки */}
+        {/* Отображение различных состояний, когда нет файлов */}
         {filteredFiles.length === 0 && (
           <>
-            {/* Состояние загрузки */}
+            {/* Состояние загрузки - отображается индикатор загрузки */}
             {isLoading && (
               <div
                 data-testid="music-list-loading"
@@ -179,7 +241,7 @@ export function MusicList() {
               </div>
             )}
 
-            {/* Состояние ошибки */}
+            {/* Состояние ошибки - отображается сообщение об ошибке */}
             {isError && (
               <div
                 data-testid="music-list-error"
@@ -190,7 +252,7 @@ export function MusicList() {
               </div>
             )}
 
-            {/* Пустое состояние */}
+            {/* Пустое состояние - отображается сообщение об отсутствии файлов */}
             {!isLoading && !isError && (
               <div
                 data-testid="music-list-empty"
@@ -202,7 +264,7 @@ export function MusicList() {
           </>
         )}
 
-        {/* Список файлов */}
+        {/* Отображение сгруппированных музыкальных файлов */}
         {Object.entries(groupedFiles).map(([group, files]) => (
           <div
             key={group}
@@ -211,6 +273,7 @@ export function MusicList() {
               group ? `music-list-group-${group}` : "music-list-group-default"
             }
           >
+            {/* Заголовок группы (отображается только если группировка включена) */}
             {group && (
               <h2
                 className="mb-2 px-4 text-lg font-semibold"
@@ -219,6 +282,8 @@ export function MusicList() {
                 {group}
               </h2>
             )}
+
+            {/* Отображение в режиме списка */}
             {viewMode === "list" ? (
               <div
                 key={group}
@@ -226,13 +291,16 @@ export function MusicList() {
                 data-testid="music-list-view-list"
               >
                 <div className="space-y-1">
+                  {/* Отображение каждого файла в группе */}
                   {files.map((file) => (
                     <div
                       key={file.path}
                       className="group relative flex cursor-pointer items-center gap-1 rounded-sm border border-transparent p-0 hover:bg-gray-100 dark:bg-[#25242b] dark:hover:border-[#35d1c1] dark:hover:bg-[#2f2d38]"
                     >
+                      {/* Контейнер для кнопки воспроизведения */}
                       <div className="relative">
                         <div className="flex h-12 w-12 flex-shrink-0 cursor-pointer items-center justify-center rounded">
+                          {/* Кнопка воспроизведения/паузы */}
                           <button
                             onClick={(e) => handlePlayPause(e, file)}
                             className={`absolute inset-0 flex cursor-pointer items-center justify-center rounded bg-black/30 opacity-50 transition-opacity duration-200 group-hover:opacity-100 ${
@@ -241,6 +309,7 @@ export function MusicList() {
                                 : ""
                             }`}
                           >
+                            {/* Иконка в зависимости от состояния воспроизведения */}
                             {activeFile?.path === file.path && isPlaying ? (
                               <CirclePause className="h-6 w-6 text-white" />
                             ) : (
@@ -249,14 +318,19 @@ export function MusicList() {
                           </button>
                         </div>
                       </div>
+
+                      {/* Информация о музыкальном файле */}
                       <div
                         className="flex h-12 min-w-0 flex-1 flex-col justify-between p-1"
                         onClick={(e) => handlePlayPause(e, file)}
                       >
+                        {/* Верхняя строка: название и длительность */}
                         <div className="flex items-center justify-between">
+                          {/* Название трека (из метаданных или имя файла) */}
                           <p className="max-w-[300px] truncate text-sm font-medium text-gray-900 dark:text-gray-100">
                             {file.probeData?.format.tags?.title ?? file.name}
                           </p>
+                          {/* Длительность трека */}
                           <p className="min-w-12 text-right text-xs text-gray-900 dark:text-gray-100">
                             {file.probeData?.format.duration && (
                               <span className="text-gray-500 dark:text-gray-400">
@@ -265,28 +339,35 @@ export function MusicList() {
                             )}
                           </p>
                         </div>
+
+                        {/* Нижняя строка: метаданные (исполнитель, альбом, жанр, дата) */}
                         <div className="flex items-center justify-between truncate pr-7">
                           <div className="w-full truncate text-xs text-gray-500">
+                            {/* Исполнитель */}
                             {file.probeData?.format.tags?.artist && (
                               <span className="mr-4 text-gray-500 dark:text-gray-400">
                                 {file.probeData.format.tags.artist}
                               </span>
                             )}
+                            {/* Альбом */}
                             {file.probeData?.format.tags?.album && (
                               <span className="mr-4 text-gray-500 dark:text-gray-400">
                                 {file.probeData.format.tags.album}
                               </span>
                             )}
+                            {/* Название (закомментировано, т.к. уже отображается выше) */}
                             {/* {file.probeData?.format.tags?.title && (
                               <span className="mr-4 text-gray-500 dark:text-gray-400">
                                 {file.probeData.format.tags.title}
                               </span>
                             )} */}
+                            {/* Жанр */}
                             {file.probeData?.format.tags?.genre && (
                               <span className="mr-4 text-gray-500 dark:text-gray-400">
                                 {file.probeData.format.tags.genre}
                               </span>
                             )}
+                            {/* Дата выпуска */}
                             {(file.probeData?.format.tags?.date ??
                               file.probeData?.format.tags?.TDOR) && (
                               <span className="mr-4 text-gray-500 dark:text-gray-400">
@@ -301,8 +382,12 @@ export function MusicList() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Кнопки действий (избранное и добавление в проект) */}
                       <div className="flex items-center">
+                        {/* Кнопка добавления в избранное */}
                         <FavoriteButton file={file} size={60} type="audio" />
+                        {/* Кнопка добавления/удаления из проекта */}
                         <AddMediaButton
                           file={file}
                           onAddMedia={handleAdd}
@@ -315,17 +400,19 @@ export function MusicList() {
                 </div>
               </div>
             ) : (
+              /* Отображение в режиме миниатюр */
               <div
                 className="flex w-full flex-wrap gap-3 p-2"
                 data-testid="music-list-view-thumbnails"
               >
+                {/* Отображение каждого файла в виде карточки */}
                 {files.map((file) => (
                   <div
                     key={file.path}
                     className="group relative cursor-pointer"
                   >
                     <div className="flex h-15 w-[260px] items-center overflow-hidden rounded-lg border border-transparent bg-gray-100 hover:bg-gray-100 dark:bg-[#25242b] dark:group-hover:bg-[#25242b] dark:hover:border-[#35d1c1] dark:hover:bg-[#2f2d38]">
-                      {/* Левая часть с кнопкой play */}
+                      {/* Левая часть с кнопкой воспроизведения */}
                       <div className="flex h-full w-12 items-center justify-center">
                         <button
                           onClick={(e) => handlePlayPause(e, file)}
@@ -333,6 +420,7 @@ export function MusicList() {
                             activeFile?.path === file.path ? "opacity-100" : ""
                           }`}
                         >
+                          {/* Иконка в зависимости от состояния воспроизведения */}
                           {activeFile?.path === file.path && isPlaying ? (
                             <Pause
                               className={cn(
@@ -349,11 +437,12 @@ export function MusicList() {
                         </button>
                       </div>
 
-                      {/* Правая часть с информацией */}
+                      {/* Правая часть с информацией о файле */}
                       <div
                         className="flex flex-1 flex-col justify-between gap-5 px-0 py-0 pr-10"
                         onClick={(e) => handlePlayPause(e, file)}
                       >
+                        {/* Место для визуализатора аудио (закомментировано) */}
                         <div className="absolute top-1 right-1">
                           {/* {activeFile?.path === file.path && mediaRecorder && isPlaying && (
                             <LiveAudioVisualizer
@@ -367,6 +456,8 @@ export function MusicList() {
                           />
                           )} */}
                         </div>
+
+                        {/* Название и длительность */}
                         <div className="flex w-[170px] items-center justify-between">
                           <p className="max-w-[120px] truncate text-xs font-medium">
                             {file.probeData?.format.tags?.title ?? file.name}
@@ -379,6 +470,8 @@ export function MusicList() {
                             )}
                           </p>
                         </div>
+
+                        {/* Исполнитель */}
                         <div className="flex w-[170px] items-center justify-between">
                           <span className="max-w-[170px] truncate text-xs text-gray-500">
                             {file.probeData?.format.tags?.artist ?? ""}
@@ -386,8 +479,11 @@ export function MusicList() {
                         </div>
                       </div>
 
+                      {/* Кнопки действий (избранное и добавление в проект) */}
                       <div className="flex items-center">
+                        {/* Кнопка добавления в избранное */}
                         <FavoriteButton file={file} size={120} type="audio" />
+                        {/* Кнопка добавления/удаления из проекта */}
                         <AddMediaButton
                           file={file}
                           size={120}

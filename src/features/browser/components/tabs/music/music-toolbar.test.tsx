@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MusicToolbar } from "./music-toolbar"
 
-// Мокаем хук useMusicMachine
 const mockSearch = vi.fn()
 const mockSort = vi.fn()
 const mockFilter = vi.fn()
@@ -192,7 +191,7 @@ describe("MusicToolbar", () => {
     expect(mockChangeGroupBy).toHaveBeenCalledWith(groupOption)
   })
 
-  it("should reflect the current state from useMusicMachine", () => {
+  it("should reflect the current state from useMusic", () => {
     // Рендерим компонент
     render(<MusicToolbar {...mockProps} />)
 
