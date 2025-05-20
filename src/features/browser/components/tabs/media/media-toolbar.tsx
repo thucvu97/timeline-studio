@@ -34,8 +34,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useMedia } from "@/features/browser/media"
-import { useModal } from "@/features/modals"
 import { cn } from "@/lib/utils"
+import { MediaFile } from "@/types/media"
 
 import { useMediaList } from "./media-list-provider"
 
@@ -48,6 +48,7 @@ import { useMediaList } from "./media-list-provider"
 export function MediaToolbar() {
   const { t } = useTranslation()
   const media = useMedia()
+  const { addMediaFiles } = useMedia()
 
   // Извлекаем значения из контекста
   const {
@@ -150,7 +151,7 @@ export function MediaToolbar() {
           variant="outline"
           size="sm"
           className="flex cursor-pointer items-center gap-1 bg-[#dddbdd] px-1 text-xs hover:bg-[#d1d1d1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25"
-          onClick={handleImportFile}
+          onClick={() => void handleImportFile()}
         >
           <span className="px-2 text-xs">{t("common.import")}</span>
           <div className="flex items-center gap-1">
@@ -160,7 +161,7 @@ export function MediaToolbar() {
                   className="cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25"
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleImportFile()
+                    void handleImportFile()
                   }}
                 >
                   <File size={12} />
@@ -174,7 +175,7 @@ export function MediaToolbar() {
                   className="cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25"
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleImportFolder()
+                    void handleImportFolder()
                   }}
                   data-testid="folder-import-button"
                 >

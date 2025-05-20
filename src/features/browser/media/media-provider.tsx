@@ -14,6 +14,7 @@ interface MediaContextType {
   unavailableFiles: MediaFile[] // Вычисляемое поле на основе allMediaFiles с isUnavailable=true
   favorites: FavoritesType
 
+  addMediaFiles: (files: MediaFile[]) => void
   includeFiles: (files: MediaFile[]) => void
   removeFile: (path: string) => void
   clearFiles: () => void
@@ -69,6 +70,11 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   }, [mediaSend])
 
   const includedFilePaths = includedFiles.map((file: MediaFile) => file.path)
+
+  const addMediaFiles = (files: MediaFile[]) => {
+    console.log("Adding media files:", files)
+    mediaSend({ type: "addMediaFiles", files })
+  }
 
   const includeFiles = (files: MediaFile[]) => {
     console.log("Including files:", files)
@@ -127,6 +133,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     isLoading: mediaState.context.isLoading,
     unavailableFiles, // Используем вычисляемое поле
     favorites: mediaState.context.favorites,
+    addMediaFiles,
     includeFiles,
     removeFile,
     clearFiles,

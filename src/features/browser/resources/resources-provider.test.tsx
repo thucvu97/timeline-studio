@@ -1,26 +1,22 @@
-import { act, render, renderHook, screen } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+// Создаем моковый объект для send
+const mockSend = vi.fn()
 
-import { ResourcesProvider, useResources } from "./resources-provider"
+// Создаем моковый объект для состояния
+const mockState = {
+  context: {
+    resources: [],
+    effectResources: [],
+    filterResources: [],
+    transitionResources: [],
+    templateResources: [],
+    musicResources: [],
+  },
+}
 
 // Мокаем useMachine из @xstate/react
-vi.mock("@xstate/react", () => {
-  const mockSend = vi.fn()
-  const mockState = {
-    context: {
-      resources: [],
-      effectResources: [],
-      filterResources: [],
-      transitionResources: [],
-      templateResources: [],
-      musicResources: [],
-    },
-  }
-
-  return {
-    useMachine: vi.fn(() => [mockState, mockSend]),
-  }
-})
+vi.mock("@xstate/react", () => ({
+  useMachine: () => [mockState, mockSend],
+}))
 
 // Мокаем resourcesMachine
 vi.mock("./resources-machine", () => ({
@@ -38,17 +34,28 @@ vi.mock("./resources-machine", () => ({
   },
 }))
 
+import { act, render, renderHook, screen } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { VideoEffect } from "@/types/effects"
+import { VideoFilter } from "@/types/filters"
+import { MediaFile } from "@/types/media"
+import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
+import { TransitionEffect } from "@/types/transitions"
+
+import { ResourcesProvider, useResources } from "./resources-provider"
+
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Компонент-обертка для тестирования хука useResources
-const ResourcesWrapper = ({ children }: { children: React.ReactNode }) => {
+function ResourcesWrapper({ children }: { children: React.ReactNode }) {
   return <ResourcesProvider>{children}</ResourcesProvider>
 }
 
 // Тестовый компонент, который использует хук useResources
-const TestComponent = () => {
+function TestComponent() {
   const {
     resources,
     effectResources,
@@ -154,5 +161,188 @@ describe("ResourcesProvider", () => {
     // Проверяем, что метод addMusic существует
     expect(result.current.addMusic).toBeDefined()
     expect(typeof result.current.addMusic).toBe("function")
+  })
+
+  it("should call send with correct parameters when adding an effect", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useResources
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
+
+    // Создаем тестовый эффект
+    const testEffect: VideoEffect = {
+      id: "test-effect",
+      name: "Test Effect",
+      type: "blur",
+      duration: 0,
+      ffmpegCommand: () => "gblur=sigma=5",
+      params: { intensity: 0.5 },
+      previewPath: "/effects/test-preview.mp4",
+      labels: {
+        ru: "Тестовый эффект",
+        en: "Test Effect",
+      },
+    }
+
+    // Вызываем метод добавления эффекта
+    act(() => {
+      result.current.addEffect(testEffect)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "ADD_EFFECT",
+      effect: testEffect,
+    })
+  })
+
+  it("should call send with correct parameters when adding a filter", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useResources
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
+
+    // Создаем тестовый фильтр
+    const testFilter: VideoFilter = {
+      id: "test-filter",
+      name: "Test Filter",
+      type: "color",
+      ffmpegCommand: () => "colorchannelmixer=rr=0.5:gg=0.5:bb=0.5",
+      params: { intensity: 0.5 },
+      previewPath: "/filters/test-preview.mp4",
+      labels: {
+        ru: "Тестовый фильтр",
+        en: "Test Filter",
+      },
+    }
+
+    // Вызываем метод добавления фильтра
+    act(() => {
+      result.current.addFilter(testFilter)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "ADD_FILTER",
+      filter: testFilter,
+    })
+  })
+
+  it("should call send with correct parameters when adding a transition", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useResources
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
+
+    // Создаем тестовый переход
+    const testTransition: TransitionEffect = {
+      id: "test-transition",
+      name: "Test Transition",
+      type: "fade",
+      duration: 1000,
+      ffmpegCommand: () => "fade=t=in:st=0:d=1",
+      previewPath: "/transitions/test-preview.mp4",
+      labels: {
+        ru: "Тестовый переход",
+        en: "Test Transition",
+      },
+    }
+
+    // Вызываем метод добавления перехода
+    act(() => {
+      result.current.addTransition(testTransition)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "ADD_TRANSITION",
+      transition: testTransition,
+    })
+  })
+
+  it("should call send with correct parameters when adding a template", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useResources
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
+
+    // Создаем тестовый шаблон
+    const testTemplate: MediaTemplate = {
+      id: "test-template",
+      name: "Test Template",
+      previewPath: "/templates/test-preview.jpg",
+      duration: 10000,
+      elements: [],
+      labels: {
+        ru: "Тестовый шаблон",
+        en: "Test Template",
+      },
+    }
+
+    // Вызываем метод добавления шаблона
+    act(() => {
+      result.current.addTemplate(testTemplate)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "ADD_TEMPLATE",
+      template: testTemplate,
+    })
+  })
+
+  it("should call send with correct parameters when adding a music file", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useResources
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
+
+    // Создаем тестовый музыкальный файл
+    const testFile: MediaFile = {
+      id: "test-music",
+      name: "test.mp3",
+      path: "/test/test.mp3",
+      isAudio: true,
+      duration: 120,
+      probeData: {
+        format: {
+          duration: 120,
+          size: 1000,
+          tags: {
+            title: "Test Song",
+            artist: "Test Artist",
+            genre: "Test Genre",
+            date: "2021-01-01",
+          },
+        },
+        streams: [],
+      },
+    }
+
+    // Вызываем метод добавления музыкального файла
+    act(() => {
+      result.current.addMusic(testFile)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "ADD_MUSIC",
+      file: testFile,
+    })
   })
 })

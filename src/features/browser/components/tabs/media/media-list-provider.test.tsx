@@ -2,7 +2,6 @@ import { act, render, renderHook, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
-  MediaListContext,
   MediaListProvider,
   useMediaList,
 } from "./media-list-provider"

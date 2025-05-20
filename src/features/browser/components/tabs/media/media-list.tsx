@@ -35,7 +35,8 @@ const addFilesToTimeline = (files: MediaFile[]) => {
  */
 export function MediaList() {
   const { t } = useTranslation()
-  const media = useMedia()
+  const { allMediaFiles, isLoading, error, isItemFavorite, includedFiles } =
+    useMedia()
 
   // Получаем значения из контекста
   const {
@@ -55,8 +56,8 @@ export function MediaList() {
     // Сначала фильтрация по типу
     let filtered =
       filterType === "all"
-        ? media.allMediaFiles
-        : media.allMediaFiles.filter((file: MediaFile) => {
+        ? allMediaFiles
+        : allMediaFiles.filter((file: MediaFile) => {
             try {
               if (
                 filterType === "video" &&
@@ -98,7 +99,7 @@ export function MediaList() {
             itemType = "audio"
           }
 
-          return media.isItemFavorite(file, itemType)
+          return isItemFavorite(file, itemType)
         } catch (error) {
           console.error("Error filtering favorite file:", file, error)
           return false // Пропускаем файл при ошибке
@@ -206,7 +207,15 @@ export function MediaList() {
       const timeB = b.startTime ?? 0
       return orderMultiplier * (timeB - timeA)
     })
-  }, [media, filterType, sortBy, sortOrder, searchQuery, showFavoritesOnly])
+  }, [
+    filterType,
+    allMediaFiles,
+    showFavoritesOnly,
+    searchQuery,
+    isItemFavorite,
+    sortOrder,
+    sortBy,
+  ])
 
   // Группируем файлы
   const groupedFiles = useMemo<GroupedMediaFiles[]>(() => {
@@ -361,25 +370,25 @@ export function MediaList() {
 
   // Мемоизируем другие вычисления
   const sortedDates = useMemo(
-    () => groupFilesByDate(media.allMediaFiles),
-    [media.allMediaFiles],
+    () => groupFilesByDate(allMediaFiles),
+    [allMediaFiles],
   )
 
   const handleAddAllFiles = useCallback(() => {
-    const nonImageFiles = media.allMediaFiles.filter(
+    const nonImageFiles = allMediaFiles.filter(
       (file: MediaFile) => !file.isImage,
     )
     if (nonImageFiles.length > 0) {
       addFilesToTimeline(nonImageFiles)
     }
-  }, [media.allMediaFiles])
+  }, [allMediaFiles])
 
   const addDateFiles = useCallback((files: MediaFile[]) => {
     addFilesToTimeline(files)
   }, [])
 
   const handleAddAllVideoFiles = useCallback(() => {
-    const videoFiles = media.allMediaFiles.filter((file: MediaFile) =>
+    const videoFiles = allMediaFiles.filter((file: MediaFile) =>
       file.probeData?.streams.some(
         (stream: FfprobeStream) => stream.codec_type === "video",
       ),
@@ -387,10 +396,10 @@ export function MediaList() {
     if (videoFiles.length > 0) {
       addFilesToTimeline(videoFiles)
     }
-  }, [media.allMediaFiles])
+  }, [allMediaFiles])
 
   const handleAddAllAudioFiles = useCallback(() => {
-    const audioFiles = media.allMediaFiles.filter(
+    const audioFiles = allMediaFiles.filter(
       (file: MediaFile) =>
         !file.probeData?.streams.some(
           (stream: FfprobeStream) => stream.codec_type === "video",
@@ -402,41 +411,7 @@ export function MediaList() {
     if (audioFiles.length > 0) {
       addFilesToTimeline(audioFiles)
     }
-  }, [media.allMediaFiles])
-
-  const handleAddMedia = useCallback(
-    (e: React.MouseEvent, file: MediaFile) => {
-      e.stopPropagation()
-      console.log("[handleAddMedia] Adding media file:", file.name)
-
-      // Проверяем, не добавлен ли файл уже
-      if (media.isFileAdded(file)) {
-        console.log(
-          `[handleAddMedia] Файл ${file.name} уже добавлен в медиафайлы`,
-        )
-        return
-      }
-
-      // Проверяем, является ли файл изображением
-      if (file.isImage) {
-        console.log(
-          "[handleAddMedia] Добавляем изображение только в медиафайлы:",
-          file.name,
-        )
-        return
-      }
-
-      // Добавляем файл на таймлайн
-      if (file.path) {
-        console.log(
-          "[handleAddMedia] Вызываем addFilesToTimeline с файлом:",
-          file,
-        )
-        addFilesToTimeline([file])
-      }
-    },
-    [media],
-  )
+  }, [allMediaFiles])
 
   // Обработчик повторной загрузки
   const handleRetry = useCallback(() => {
@@ -455,8 +430,8 @@ export function MediaList() {
           groupedFiles={groupedFiles}
           viewMode={viewMode}
           previewSize={previewSize}
-          isLoading={media.isLoading}
-          error={media.error}
+          isLoading={isLoading}
+          error={error}
           addFilesToTimeline={addFilesToTimeline}
           onRetry={handleRetry}
         />
@@ -470,7 +445,7 @@ export function MediaList() {
             onAddDateFiles={addDateFiles}
             onAddAllFiles={handleAddAllFiles}
             sortedDates={sortedDates}
-            addedFiles={media.includedFiles}
+            addedFiles={includedFiles}
           />
         </div>
       )}
