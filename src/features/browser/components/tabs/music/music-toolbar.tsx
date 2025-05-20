@@ -33,7 +33,7 @@ import {
 import { useMedia } from "@/features/browser/media"
 import { cn } from "@/lib/utils"
 
-import { useMusicMachine } from "./use-music-machine"
+import { useMusic } from "./music-provider"
 
 interface MusicToolbarProps {
   onImport: () => void
@@ -56,7 +56,7 @@ export function MusicToolbar({
   const { t } = useTranslation()
   const media = useMedia()
 
-  // Получаем все данные и методы из хука useMusicMachine
+  // Получаем все данные и методы из хука useMusic
   const {
     searchQuery,
     sortBy: currentSortBy,
@@ -73,7 +73,7 @@ export function MusicToolbar({
     changeViewMode,
     changeGroupBy,
     toggleFavorites,
-  } = useMusicMachine()
+  } = useMusic()
 
   // Функции для обработки изменений
   const handleViewModeChange = (mode: "list" | "thumbnails") => {

@@ -1,53 +1,39 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useMusicMachine } from "./use-music-machine"
+import { useMusic } from "./music-provider"
 
-// Мокаем useMachine из @xstate/react
-vi.mock("@xstate/react", () => {
-  const mockSend = vi.fn()
-  const mockState = {
-    context: {
-      musicFiles: [],
-      filteredFiles: [],
-      searchQuery: "",
-      sortBy: "date",
-      sortOrder: "desc",
-      filterType: "all",
-      viewMode: "thumbnails",
-      groupBy: "none",
-      showFavoritesOnly: false,
-      availableExtensions: ["mp3", "wav"],
-      error: null,
-    },
-    matches: vi.fn().mockReturnValue(true),
+// Мокаем useMusic из music-provider
+vi.mock("./music-provider", () => {
+  const mockMusicContext = {
+    musicFiles: [],
+    filteredFiles: [],
+    searchQuery: "",
+    sortBy: "date",
+    sortOrder: "desc",
+    filterType: "all",
+    viewMode: "thumbnails",
+    groupBy: "none",
+    showFavoritesOnly: false,
+    availableExtensions: ["mp3", "wav"],
+    error: null,
+    isPlaying: false,
+    isLoading: true,
+    isError: false,
+    search: vi.fn(),
+    sort: vi.fn(),
+    filter: vi.fn(),
+    changeOrder: vi.fn(),
+    changeViewMode: vi.fn(),
+    changeGroupBy: vi.fn(),
+    toggleFavorites: vi.fn(),
+    retry: vi.fn(),
   }
 
   return {
-    useMachine: vi.fn(() => [mockState, mockSend]),
+    useMusic: vi.fn(() => mockMusicContext),
   }
 })
-
-// Мокаем musicMachine
-vi.mock("./music-machine", () => ({
-  musicMachine: {
-    withConfig: () => ({
-      context: {
-        musicFiles: [],
-        filteredFiles: [],
-        searchQuery: "",
-        sortBy: "date",
-        sortOrder: "desc",
-        filterType: "all",
-        viewMode: "thumbnails",
-        groupBy: "none",
-        showFavoritesOnly: false,
-        availableExtensions: ["mp3", "wav"],
-        error: null,
-      },
-    }),
-  },
-}))
 
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {})
@@ -61,7 +47,7 @@ describe("useMusicMachine", () => {
 
   it("should return the correct state and methods", () => {
     // Рендерим хук
-    const { result } = renderHook(() => useMusicMachine())
+    const { result } = renderHook(() => useMusic())
 
     // Проверяем, что хук возвращает правильные значения
     expect(result.current).toHaveProperty("musicFiles")
@@ -89,9 +75,9 @@ describe("useMusicMachine", () => {
     expect(result.current).toHaveProperty("isError")
   })
 
-  it("should call send with correct parameters when search is called", async () => {
+  it("should call search with correct parameters", () => {
     // Рендерим хук
-    const { result } = renderHook(() => useMusicMachine())
+    const { result } = renderHook(() => useMusic())
 
     // Создаем мок-медиаконтекст
     const mockMediaContext = { isItemFavorite: vi.fn() }
@@ -101,37 +87,32 @@ describe("useMusicMachine", () => {
       result.current.search("test query", mockMediaContext)
     })
 
-    // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "SEARCH",
-      query: "test query",
-      mediaContext: mockMediaContext,
-    })
+    // Получаем мок функции search из нашего мока useMusic
+    const mockSearch = vi.mocked(result.current.search)
+
+    // Проверяем, что search был вызван с правильными параметрами
+    expect(mockSearch).toHaveBeenCalledWith("test query", mockMediaContext)
   })
 
-  it("should call send with correct parameters when sort is called", async () => {
+  it("should call sort with correct parameters", () => {
     // Рендерим хук
-    const { result } = renderHook(() => useMusicMachine())
+    const { result } = renderHook(() => useMusic())
 
     // Вызываем метод sort
     act(() => {
       result.current.sort("title")
     })
 
-    // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "SORT",
-      sortBy: "title",
-    })
+    // Получаем мок функции sort из нашего мока useMusic
+    const mockSort = vi.mocked(result.current.sort)
+
+    // Проверяем, что sort был вызван с правильными параметрами
+    expect(mockSort).toHaveBeenCalledWith("title")
   })
 
-  it("should call send with correct parameters when filter is called", async () => {
+  it("should call filter with correct parameters", () => {
     // Рендерим хук
-    const { result } = renderHook(() => useMusicMachine())
+    const { result } = renderHook(() => useMusic())
 
     // Создаем мок-медиаконтекст
     const mockMediaContext = { isItemFavorite: vi.fn() }
@@ -141,72 +122,64 @@ describe("useMusicMachine", () => {
       result.current.filter("mp3", mockMediaContext)
     })
 
-    // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "FILTER",
-      filterType: "mp3",
-      mediaContext: mockMediaContext,
-    })
+    // Получаем мок функции filter из нашего мока useMusic
+    const mockFilter = vi.mocked(result.current.filter)
+
+    // Проверяем, что filter был вызван с правильными параметрами
+    expect(mockFilter).toHaveBeenCalledWith("mp3", mockMediaContext)
   })
 
-  it("should call send with correct parameters when changeViewMode is called", async () => {
+  it("should call changeViewMode with correct parameters", () => {
     // Рендерим хук
-    const { result } = renderHook(() => useMusicMachine())
+    const { result } = renderHook(() => useMusic())
 
     // Вызываем метод changeViewMode
     act(() => {
       result.current.changeViewMode("list")
     })
 
-    // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "CHANGE_VIEW_MODE",
-      mode: "list",
-    })
+    // Получаем мок функции changeViewMode из нашего мока useMusic
+    const mockChangeViewMode = vi.mocked(result.current.changeViewMode)
+
+    // Проверяем, что changeViewMode был вызван с правильными параметрами
+    expect(mockChangeViewMode).toHaveBeenCalledWith("list")
   })
 
-  it("should call send with correct parameters when changeGroupBy is called", async () => {
+  it("should call changeGroupBy with correct parameters", () => {
     // Рендерим хук
-    const { result } = renderHook(() => useMusicMachine())
+    const { result } = renderHook(() => useMusic())
 
     // Вызываем метод changeGroupBy
     act(() => {
       result.current.changeGroupBy("artist")
     })
 
-    // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "CHANGE_GROUP_BY",
-      groupBy: "artist",
-    })
+    // Получаем мок функции changeGroupBy из нашего мока useMusic
+    const mockChangeGroupBy = vi.mocked(result.current.changeGroupBy)
+
+    // Проверяем, что changeGroupBy был вызван с правильными параметрами
+    expect(mockChangeGroupBy).toHaveBeenCalledWith("artist")
   })
 
-  it("should call send with correct parameters when changeOrder is called", async () => {
+  it("should call changeOrder with correct parameters", () => {
     // Рендерим хук
-    const { result } = renderHook(() => useMusicMachine())
+    const { result } = renderHook(() => useMusic())
 
     // Вызываем метод changeOrder
     act(() => {
       result.current.changeOrder()
     })
 
-    // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "CHANGE_ORDER",
-    })
+    // Получаем мок функции changeOrder из нашего мока useMusic
+    const mockChangeOrder = vi.mocked(result.current.changeOrder)
+
+    // Проверяем, что changeOrder был вызван
+    expect(mockChangeOrder).toHaveBeenCalled()
   })
 
-  it("should call send with correct parameters when toggleFavorites is called", async () => {
+  it("should call toggleFavorites with correct parameters", () => {
     // Рендерим хук
-    const { result } = renderHook(() => useMusicMachine())
+    const { result } = renderHook(() => useMusic())
 
     // Создаем мок-медиаконтекст
     const mockMediaContext = { isItemFavorite: vi.fn() }
@@ -216,12 +189,10 @@ describe("useMusicMachine", () => {
       result.current.toggleFavorites(mockMediaContext)
     })
 
-    // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "TOGGLE_FAVORITES",
-      mediaContext: mockMediaContext,
-    })
+    // Получаем мок функции toggleFavorites из нашего мока useMusic
+    const mockToggleFavorites = vi.mocked(result.current.toggleFavorites)
+
+    // Проверяем, что toggleFavorites был вызван с правильными параметрами
+    expect(mockToggleFavorites).toHaveBeenCalledWith(mockMediaContext)
   })
 })

@@ -12,7 +12,14 @@ import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { MusicList } from "./tabs"
+import {
+  EffectList,
+  FilterList,
+  MusicList,
+  SubtitlesList,
+  TemplateList,
+  TransitionsList,
+} from "./tabs"
 
 export const TAB_TRIGGER_STYLES =
   "text-xs text-gray-800 dark:bg-[#1b1a1f] border-none " +
@@ -85,31 +92,31 @@ export function Browser() {
           value="transitions"
           className="bg-secondary m-0 flex-1 overflow-auto"
         >
-          <div />
+          <TransitionsList />
         </TabsContent>
         <TabsContent
           value="effects"
           className="bg-secondary m-0 flex-1 overflow-auto"
         >
-          <div />
+          <EffectList />
         </TabsContent>
         <TabsContent
           value="subtitles"
           className="bg-secondary m-0 flex-1 overflow-auto"
         >
-          <div />
+          <SubtitlesList />
         </TabsContent>
         <TabsContent
           value="filters"
           className="bg-secondary m-0 flex-1 overflow-auto"
         >
-          <div />
+          <FilterList />
         </TabsContent>
         <TabsContent
           value="templates"
           className="bg-secondary m-0 flex-1 overflow-auto"
         >
-          <div />
+          <TemplateList />
         </TabsContent>
       </Tabs>
     </div>

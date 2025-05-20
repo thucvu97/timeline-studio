@@ -28,6 +28,12 @@ vi.mock("@/features/project-settings/project-settings-provider", () => ({
   ),
 }))
 
+vi.mock("@/features/browser/components/tabs/music/music-provider", () => ({
+  MusicProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="music-provider">{children}</div>
+  ),
+}))
+
 describe("Providers", () => {
   // Очищаем моки перед каждым тестом
   beforeEach(() => {
@@ -51,11 +57,12 @@ describe("Providers", () => {
     const html = container.innerHTML
 
     // Проверяем, что провайдеры вложены в правильном порядке
-    // I18nProvider -> ModalProvider -> BrowserVisibilityProvider -> ProjectSettingsProvider -> TestComponent
+    // I18nProvider -> ModalProvider -> BrowserVisibilityProvider -> ProjectSettingsProvider -> MusicProvider -> TestComponent
     expect(html).toContain('data-testid="i18n-provider"')
     expect(html).toContain('data-testid="modal-provider"')
     expect(html).toContain('data-testid="browser-visibility-provider"')
     expect(html).toContain('data-testid="project-settings-provider"')
+    expect(html).toContain('data-testid="music-provider"')
     expect(html).toContain('data-testid="test-component"')
 
     // Проверяем порядок вложенности
@@ -121,6 +128,9 @@ describe("Providers", () => {
     ).toBeInTheDocument()
     expect(
       container.querySelector('[data-testid="project-settings-provider"]'),
+    ).toBeInTheDocument()
+    expect(
+      container.querySelector('[data-testid="music-provider"]'),
     ).toBeInTheDocument()
     expect(
       container.querySelector('[data-testid="test-component"]'),

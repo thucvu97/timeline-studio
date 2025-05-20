@@ -24,9 +24,9 @@ const initialState = {
   showFavoritesOnly: false,
 }
 
-// Мокируем хук useMusicMachine
-vi.mock("@/features/browser/components/tabs/music/use-music-machine", () => ({
-  useMusicMachine: () => ({
+// Мокируем хук useMusic
+vi.mock("@/features/browser/components/tabs/music/music-provider", () => ({
+  useMusic: () => ({
     ...initialState,
     search: mockSearch,
     sort: mockSort,

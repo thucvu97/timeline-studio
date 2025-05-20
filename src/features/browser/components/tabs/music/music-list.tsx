@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils"
 import { MediaFile } from "@/types/media"
 import { MusicResource } from "@/types/resources"
 
+import { useMusic } from "./music-provider"
 import { MusicToolbar } from "./music-toolbar"
 import { sortFiles } from "./music-utils"
-import { useMusicMachine } from "./use-music-machine"
 import { AddMediaButton } from "../../layout/add-media-button"
 import { FavoriteButton } from "../../layout/favorite-button"
 
@@ -32,7 +32,10 @@ export function MusicList() {
     viewMode,
     showFavoritesOnly,
     groupBy,
-  } = useMusicMachine()
+    isLoading,
+    isError,
+    error,
+  } = useMusic()
 
   const media = useMedia()
   const groupedFiles = useMemo(() => {
@@ -167,7 +170,7 @@ export function MusicList() {
         {filteredFiles.length === 0 && (
           <>
             {/* Состояние загрузки */}
-            {useMusicMachine().isLoading && (
+            {isLoading && (
               <div
                 data-testid="music-list-loading"
                 className="flex h-full items-center justify-center"
@@ -177,18 +180,18 @@ export function MusicList() {
             )}
 
             {/* Состояние ошибки */}
-            {useMusicMachine().isError && (
+            {isError && (
               <div
                 data-testid="music-list-error"
                 className="flex h-full flex-col items-center justify-center"
               >
                 <p>{t("browser.error_loading")}</p>
-                <p>{useMusicMachine().error}</p>
+                <p>{error}</p>
               </div>
             )}
 
             {/* Пустое состояние */}
-            {!useMusicMachine().isLoading && !useMusicMachine().isError && (
+            {!isLoading && !isError && (
               <div
                 data-testid="music-list-empty"
                 className="flex h-full items-center justify-center"
@@ -287,7 +290,7 @@ export function MusicList() {
                             {(file.probeData?.format.tags?.date ??
                               file.probeData?.format.tags?.TDOR) && (
                               <span className="mr-4 text-gray-500 dark:text-gray-400">
-                                {file.probeData.format.tags.date ||
+                                {file.probeData.format.tags.date ??
                                   file.probeData.format.tags.TDOR}
                               </span>
                             )}

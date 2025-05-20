@@ -2,6 +2,7 @@ import React, { ReactNode, createContext, useContext } from "react"
 
 import { useMachine } from "@xstate/react"
 
+import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
 import { VideoEffect } from "@/types/effects"
 import { VideoFilter } from "@/types/filters"
 import { MediaFile } from "@/types/media"
@@ -12,7 +13,6 @@ import {
   TemplateResource,
   TransitionResource,
 } from "@/types/resources"
-import { MediaTemplate } from "@/types/templates/templates"
 import { TransitionEffect } from "@/types/transitions"
 
 import { ResourcesMachineContext, resourcesMachine } from "./resources-machine"

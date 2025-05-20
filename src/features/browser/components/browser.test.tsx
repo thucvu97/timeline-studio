@@ -230,6 +230,21 @@ vi.mock("react-i18next", () => ({
   I18nextProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
+// Мокаем компоненты вкладок
+vi.mock("./tabs", () => ({
+  MusicList: () => <div data-testid="music-list">Music List</div>,
+  TransitionsList: () => (
+    <div data-testid="transitions-list">Transitions List</div>
+  ),
+  EffectsList: () => <div data-testid="effects-list">Effects List</div>,
+  EffectList: () => <div data-testid="effect-list">Effect List</div>,
+  FiltersList: () => <div data-testid="filters-list">Filters List</div>,
+  FilterList: () => <div data-testid="filter-list">Filter List</div>,
+  SubtitlesList: () => <div data-testid="subtitles-list">Subtitles List</div>,
+  TemplateList: () => <div data-testid="template-list">Template List</div>,
+  MediaList: () => <div data-testid="media-list">Media List</div>,
+}))
+
 describe("Browser", () => {
   // Очищаем моки перед каждым тестом
   beforeEach(() => {
