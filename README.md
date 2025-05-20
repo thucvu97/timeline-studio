@@ -7,6 +7,7 @@
 [![Lint CSS](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml)
 [![Lint Node.js](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
 [![Lint Rust](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml)
+[![DeepSource](https://deepsource.io/gh/chatman-media/timeline-studio.svg/?label=active+issues&show_trend=true&token=YOUR_TOKEN_HERE)](https://deepsource.io/gh/chatman-media/timeline-studio/?ref=repository-badge)
 
 ## Обзор проекта
 
