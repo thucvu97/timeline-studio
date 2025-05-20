@@ -237,8 +237,8 @@ pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
         }
 
         // Если нет видео и аудио, но есть размеры, считаем изображением
-        if !is_video && !is_audio && ffprobe_streams.len() > 0 {
-            if let (Some(width), Some(height)) = (
+        if !is_video && !is_audio && !ffprobe_streams.is_empty() {
+            if let (Some(_width), Some(_height)) = (
                 ffprobe_streams[0].width,
                 ffprobe_streams[0].height
             ) {
