@@ -4,20 +4,20 @@ version = 1
 name = "javascript"
 enabled = true
 
-[analyzers.meta]
-environment = ["nodejs"]
-plugins = ["react"]
-style_guide = "standard"
-root = "."
-exclude_patterns = ["src/lib/dayjs.ts"]
-
-[[transformers]]
-name = "prettier"
-enabled = true
+  [analyzers.meta]
+  environment = ["nodejs"]
+  plugins = ["react"]
+  style_guide = "standard"
+  root = "."
+  exclude_patterns = ["src/lib/dayjs.ts"]
 
 [[analyzers]]
 name = "rust"
 enabled = true
 
-[analyzers.meta]
-root = "src-tauri"
+  [analyzers.meta]
+  root = "src-tauri"
+
+[[transformers]]
+name = "prettier"
+enabled = true
