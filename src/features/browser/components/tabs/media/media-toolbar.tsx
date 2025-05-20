@@ -11,10 +11,8 @@ import {
   LayoutDashboard,
   LayoutList,
   ListFilterPlus,
-  Mic,
   SortDesc,
   Star,
-  Webcam,
   ZoomIn,
   ZoomOut,
 } from "lucide-react"
@@ -112,8 +110,6 @@ export function MediaToolbar() {
     changeViewMode(mode)
   }
 
-  const { openModal } = useModal()
-
   const handleImportFile = () => {
     console.log("Импорт файла")
     // Показываем диалог выбора файлов
@@ -180,6 +176,7 @@ export function MediaToolbar() {
                     e.stopPropagation()
                     handleImportFolder()
                   }}
+                  data-testid="folder-import-button"
                 >
                   <Folder size={12} />
                 </div>
@@ -258,6 +255,7 @@ export function MediaToolbar() {
                     showFavoritesOnly ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                   )}
                   onClick={handleToggleFavorites}
+                  data-testid="favorites-button"
                 >
                   <Star
                     size={16}
@@ -278,6 +276,7 @@ export function MediaToolbar() {
                     viewMode === "grid" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                   )}
                   onClick={() => handleViewModeChange("grid")}
+                  data-testid="grid-view-button"
                 >
                   <Grid size={16} />
                 </Button>
@@ -297,6 +296,7 @@ export function MediaToolbar() {
                       : "",
                   )}
                   onClick={() => handleViewModeChange("thumbnails")}
+                  data-testid="thumbnails-view-button"
                 >
                   <LayoutDashboard size={16} />
                 </Button>
@@ -313,6 +313,7 @@ export function MediaToolbar() {
                     viewMode === "list" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                   )}
                   onClick={() => handleViewModeChange("list")}
+                  data-testid="list-view-button"
                 >
                   <LayoutList size={16} />
                 </Button>
@@ -338,6 +339,7 @@ export function MediaToolbar() {
                   )}
                   onClick={decreasePreviewSize}
                   disabled={!canDecreaseSize}
+                  data-testid="zoom-out-button"
                 >
                   <ZoomOut size={16} />
                 </Button>
@@ -356,6 +358,7 @@ export function MediaToolbar() {
                   )}
                   onClick={increasePreviewSize}
                   disabled={!canIncreaseSize}
+                  data-testid="zoom-in-button"
                 >
                   <ZoomIn size={16} />
                 </Button>
@@ -545,6 +548,7 @@ export function MediaToolbar() {
                 size="icon"
                 className="h-6 w-6 cursor-pointer"
                 onClick={handleChangeOrder}
+                data-testid="sort-order-button"
               >
                 {sortOrder === "asc" ? (
                   <ArrowDownUp size={16} />

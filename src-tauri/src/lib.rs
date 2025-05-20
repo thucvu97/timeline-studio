@@ -1,6 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::time::{SystemTime, UNIX_EPOCH};
-use tauri_plugin_dialog;
 
 // Модуль для работы с языком
 mod language;

@@ -1,5 +1,3 @@
-import { memo } from "react"
-
 import { useTranslation } from "react-i18next"
 
 import { formatDuration, formatTimeWithMilliseconds } from "@/lib/date"
@@ -18,7 +16,7 @@ interface FileMetadataProps {
  * @param file - Объект файла с метаданными
  * @param size - Размер контейнера в пикселях
  */
-export const FileMetadata = memo(function FileMetadata({
+export const FileMetadata = function FileMetadata({
   file,
   size = 100,
 }: FileMetadataProps) {
@@ -113,4 +111,4 @@ export const FileMetadata = memo(function FileMetadata({
       )}
     </div>
   )
-})
+}
