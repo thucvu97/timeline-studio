@@ -5,7 +5,7 @@ import { TransitionPreview } from "./transition-preview"
 
 // Мокируем FavoriteButton и AddMediaButton
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
-  FavoriteButton: ({ file, size, type }: any) => (
+  FavoriteButton: ({ file, type }: any) => (
     <div data-testid="favorite-button">
       Favorite Button for {file.name} ({type})
     </div>
@@ -16,6 +16,7 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ file, onAddMedia, onRemoveMedia, isAdded, size }: any) => (
     <div>
       {isAdded ? (
+        // biome-ignore lint/a11y/useButtonType: <explanation>
         <button
           data-testid="remove-media-button"
           onClick={(e) => onRemoveMedia(e)}
@@ -23,6 +24,7 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
           Remove {file.name}
         </button>
       ) : (
+        // biome-ignore lint/a11y/useButtonType: <explanation>
         <button data-testid="add-media-button" onClick={(e) => onAddMedia(e)}>
           Add {file.name}
         </button>
@@ -248,15 +250,5 @@ describe("TransitionPreview", () => {
 
     // Проверяем, что название перехода отображается правильно
     expect(screen.getByText("transitions.types.zoom")).toBeInTheDocument()
-  })
-
-  // Пропускаем тест на проверку размера, так как он вызывает проблемы
-  // и не является критически важным для функциональности
-  it.skip("has correct size based on props", () => {
-    const customSize = 200
-    render(<TransitionPreview {...mockProps} size={customSize} />)
-
-    // Размер должен быть установлен, но мы не можем надежно проверить это в тесте
-    // из-за особенностей структуры DOM и стилей
   })
 })

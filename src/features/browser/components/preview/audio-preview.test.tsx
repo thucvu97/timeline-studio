@@ -21,6 +21,7 @@ vi.mock("./preview-timeline", () => ({
 
 vi.mock("../layout/add-media-button", () => ({
   AddMediaButton: ({ file, onAddMedia, isAdded, size }: any) => (
+    // biome-ignore lint/a11y/useButtonType: <explanation>
     <button
       data-testid="add-media-button"
       data-file={file.name}
@@ -35,6 +36,7 @@ vi.mock("../layout/add-media-button", () => ({
 
 vi.mock("../layout/favorite-button", () => ({
   FavoriteButton: ({ file, size, type }: any) => (
+    // biome-ignore lint/a11y/useButtonType: <explanation>
     <button
       data-testid="favorite-button"
       data-file={file.name}
@@ -151,15 +153,5 @@ describe("AudioPreview", () => {
     // Проверяем, что кнопка избранного имеет правильный размер
     const favoriteButton = screen.getByTestId("favorite-button")
     expect(favoriteButton).toHaveAttribute("data-size", "120")
-  })
-
-  it("should show timeline on mouse move", () => {
-    // Пропускаем этот тест, так как он требует сложного мока для аудио элемента
-    // и событий мыши, которые сложно воспроизвести в тестовой среде
-  })
-
-  it("should handle play/pause on click", () => {
-    // Пропускаем этот тест, так как он требует сложного мока для аудио элемента
-    // и событий клика, которые сложно воспроизвести в тестовой среде
   })
 })

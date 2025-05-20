@@ -38,12 +38,24 @@ describe("FavoriteButton", () => {
     id: "test-id",
     name: "test-file.mp4",
     path: "/path/to/test-file.mp4",
-    type: "video",
+    isVideo: true,
+    isAudio: false,
+    isImage: false,
     size: 1024,
     duration: 60,
-    width: 1920,
-    height: 1080,
-    thumbnail: "/path/to/thumbnail.jpg",
+    probeData: {
+      format: {
+        duration: 60,
+        size: 1024,
+        tags: {
+          title: "Test File",
+          artist: "Test Artist",
+          genre: "Test Genre",
+          date: "2021-01-01",
+        },
+      },
+      streams: [],
+    },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }

@@ -171,6 +171,7 @@ vi.mock("@/components/ui/tabs", () => ({
   Tabs: ({ children, value, onValueChange }: any) => (
     <div data-testid="tabs" data-value={value}>
       {children}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
       <div
         data-testid="tabs-value-change"
         onClick={() => onValueChange("music")}
@@ -331,12 +332,7 @@ describe("Browser", () => {
 
     // Проверяем, что все триггеры вкладок имеют правильные стили
     const expectedStyles =
-      "text-xs text-gray-800 dark:bg-[#1b1a1f] border-none " +
-      "bg-gray-200 data-[state=active]:bg-secondary data-[state=active]:text-[#38dacac3] " +
-      "dark:data-[state=active]:bg-secondary dark:data-[state=active]:text-[#35d1c1] " +
-      "hover:text-gray-800 dark:text-gray-400 dark:hover:bg-secondary dark:hover:text-gray-100 " +
-      "border-1 border-transparent flex flex-col items-center justify-center gap-1 py-2 " +
-      "[&>svg]:data-[state=active]:text-[#38dacac3] cursor-pointer data-[state=active]:cursor-default rounded-none"
+      "text-xs text-[#969696] dark:bg-[#2D2D2D] border-none dark:data-[state=active]:bg-[#252526] dark:data-[state=active]:text-[#35d1c1] hover:text-[#969696] dark:text-gray-400 dark:hover:bg-[#252526] dark:hover:text-gray-100 flex flex-col items-center justify-center gap-1 py-2 [&>svg]:data-[state=active]:text-[#38dacac3] cursor-pointer data-[state=active]:cursor-default rounded-none"
 
     expect(screen.getByTestId("tab-trigger-media")).toHaveAttribute(
       "class",

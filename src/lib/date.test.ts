@@ -145,25 +145,6 @@ describe("formatDuration", () => {
   })
 })
 
-describe("formatTimeWithMilliseconds", () => {
-  // Пропускаем тесты, так как они требуют сложного мока dayjs
-  it.skip("should format time with hours, minutes, seconds and milliseconds", () => {
-    // Тест пропущен
-  })
-
-  it.skip("should format time with date", () => {
-    // Тест пропущен
-  })
-
-  it.skip("should format time without seconds", () => {
-    // Тест пропущен
-  })
-
-  it.skip("should format time without milliseconds", () => {
-    // Тест пропущен
-  })
-})
-
 describe("formatTime", () => {
   it("should format zero time", () => {
     expect(formatTime(0)).toBe("0:00:00")
