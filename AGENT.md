@@ -1,4 +1,4 @@
-# AGENT.md - Timeline Tauri App coding guide
+# AGENT.md - Timeline Studio coding guide
 
 ## Commands
 - **Build frontend**: `bun build`
