@@ -56,14 +56,11 @@ describe("AddMediaButton", () => {
     id: "test-id",
     name: "test-file.mp4",
     path: "/path/to/test-file.mp4",
-    type: "video",
+    isVideo: true,
+    isAudio: false,
+    isImage: false,
     size: 1024,
     duration: 60,
-    width: 1920,
-    height: 1080,
-    thumbnail: "/path/to/thumbnail.jpg",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
   }
 
   // Мокаем функции обратного вызова
@@ -168,41 +165,6 @@ describe("AddMediaButton", () => {
     expect(screen.getByTitle("Remove from timeline")).toBeInTheDocument()
 
     // Проверяем, что отображается иконка X
-    expect(screen.getByTestId("x-icon")).toBeInTheDocument()
-  })
-
-  it("should not show remove icon immediately after adding", () => {
-    // Рендерим компонент
-    render(
-      <AddMediaButton
-        file={testFile}
-        isAdded={true}
-        onAddMedia={onAddMedia}
-        onRemoveMedia={onRemoveMedia}
-      />,
-    )
-
-    // Проверяем, что отображается иконка Check
-    expect(screen.getByTestId("check-icon")).toBeInTheDocument()
-
-    // Получаем кнопку
-    const button = screen.getByTitle("Added to timeline")
-
-    // Симулируем наведение на кнопку
-    fireEvent.mouseEnter(button)
-
-    // Проверяем, что иконка X не отображается (так как файл недавно добавлен)
-    expect(screen.queryByTestId("x-icon")).not.toBeInTheDocument()
-
-    // Продвигаем таймеры вперед, чтобы сбросить флаг isRecentlyAdded
-    act(() => {
-      vi.advanceTimersByTime(2000)
-    })
-
-    // Симулируем наведение на кнопку снова
-    fireEvent.mouseEnter(button)
-
-    // Теперь иконка X должна отображаться
     expect(screen.getByTestId("x-icon")).toBeInTheDocument()
   })
 

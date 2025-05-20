@@ -46,11 +46,7 @@ export const AddMediaButton = memo(function AddMediaButton({
 
   // Обновляем состояние при изменении isAdded
   useEffect(() => {
-    // Обновляем состояние при изменении isAdded
     if (isAdded !== prevIsAddedRef.current) {
-      // Отключаем логирование для уменьшения количества сообщений
-      // console.log(`Файл ${file.name} ${isAdded ? "добавлен" : "удален"}, обновляем состояние`)
-
       // Если файл добавлен, устанавливаем флаг isRecentlyAdded
       if (isAdded) {
         setIsRecentlyAdded(true)
@@ -60,7 +56,7 @@ export const AddMediaButton = memo(function AddMediaButton({
           clearTimeout(timerRef.current)
         }
 
-        // Через 3 секунды сбрасываем флаг
+        // Через 1.5 секунды сбрасываем флаг
         timerRef.current = setTimeout(() => {
           setIsRecentlyAdded(false)
           timerRef.current = null
@@ -87,26 +83,7 @@ export const AddMediaButton = memo(function AddMediaButton({
         timerRef.current = null
       }
     }
-  }, [isAdded, file.name])
-
-  // Принудительно обновляем состояние при монтировании компонента
-  useEffect(() => {
-    // Если файл уже добавлен при монтировании компонента
-    if (isAdded) {
-      // Полностью отключаем логирование
-      setIsRecentlyAdded(true)
-      prevIsAddedRef.current = true
-
-      // Через 3 секунды сбрасываем флаг
-      const timer = setTimeout(() => {
-        setIsRecentlyAdded(false)
-      }, 1500)
-
-      return () => clearTimeout(timer)
-    }
-    // Зависимость isAdded не добавлена намеренно, чтобы эффект выполнялся только при монтировании
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [isAdded])
 
   if (!onAddMedia) return null
 
@@ -116,7 +93,7 @@ export const AddMediaButton = memo(function AddMediaButton({
   const iconSize = size > 100 ? "h-3.5 w-3.5" : "h-2.5 w-2.5"
 
   // Определяем, можно ли показывать кнопку удаления
-  // Не показываем кнопку удаления в течение 3 секунд после добавления
+  // Не показываем кнопку удаления в течение 1.5 секунд после добавления
   const canShowRemoveButton = !isRecentlyAdded
 
   return (
@@ -136,18 +113,10 @@ export const AddMediaButton = memo(function AddMediaButton({
         e.preventDefault()
 
         if (isAdded && isHovering && canShowRemoveButton) {
-          // Отключаем логирование для уменьшения количества сообщений
-          // console.log(`Удаляем файл ${file.name}`)
           handleRemove(e, file)
         } else if (!isAdded) {
-          // Отключаем логирование для уменьшения количества сообщений
-          // console.log(`Добавляем файл ${file.name}`)
           onAddMedia(e, file)
-          // Немедленно обновляем визуальное состояние
           setIsRecentlyAdded(true)
-        } else {
-          // Отключаем логирование для уменьшения количества сообщений
-          // console.log(`Файл ${file.name} уже добавлен, но не в режиме удаления`)
         }
       }}
       onMouseEnter={() => setIsHovering(true)}

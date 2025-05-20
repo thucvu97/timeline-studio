@@ -167,7 +167,7 @@ describe("TransitionPreview", () => {
 
     // Симулируем наведение мыши
     // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        fireEvent.mouseEnter(container!)
+    fireEvent.mouseEnter(container!)
 
     // Проверяем, что видео начинает воспроизводиться
     await waitFor(() => {
@@ -245,7 +245,7 @@ describe("TransitionPreview", () => {
 
     // Симулируем наведение мыши
     // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        fireEvent.mouseEnter(container!)
+    fireEvent.mouseEnter(container!)
 
     // Проверяем, что видео начинает воспроизводиться
     await waitFor(() => {
