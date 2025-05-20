@@ -131,6 +131,11 @@ const fetchMusicFiles = fromPromise<FetchOutput, unknown>(async () => {
 /**
  * Машина состояний для управления музыкальными файлами
  * Обрабатывает загрузку, фильтрацию, сортировку и группировку музыкальных файлов
+ *
+ * Состояния машины:
+ * - loading: Загрузка музыкальных файлов
+ * - success: Успешная загрузка, обработка событий сортировки и фильтрации
+ * - error: Ошибка загрузки
  */
 export const musicMachine = createMachine({
   id: "music", // Идентификатор машины
@@ -209,6 +214,9 @@ export const musicMachine = createMachine({
           target: "error", // Переход в состояние ошибки
           actions: assign({
             error: ({ event }) => String(event.error), // Сохраняем сообщение об ошибке
+            musicFiles: () => [], // Инициализируем пустой массив музыкальных файлов
+            filteredFiles: () => [], // Инициализируем пустой массив отфильтрованных файлов
+            availableExtensions: () => [], // Инициализируем пустой массив доступных расширений
           }),
         },
       },
@@ -354,7 +362,7 @@ export const musicMachine = createMachine({
     },
     /**
      * Состояние ошибки загрузки музыкальных файлов
-     * Позволяет повторить попытку загрузки
+     * Позволяет повторить попытку загрузки и обрабатывать события сортировки/фильтрации
      */
     error: {
       on: {
@@ -364,6 +372,128 @@ export const musicMachine = createMachine({
          */
         RETRY: {
           target: "loading", // Переход в состояние загрузки
+        },
+
+        /**
+         * Обработка события сортировки даже в состоянии ошибки
+         * Позволяет сортировать файлы, даже если загрузка не удалась
+         */
+        SORT: {
+          actions: assign({
+            // Сохраняем новый критерий сортировки
+            sortBy: ({ event }) => event.sortBy,
+
+            // Сортируем файлы по новому критерию
+            filteredFiles: ({ context, event }) => {
+              return sortFiles(
+                context.filteredFiles,
+                event.sortBy,
+                context.sortOrder,
+              )
+            },
+          }),
+        },
+
+        /**
+         * Обработка события изменения порядка сортировки в состоянии ошибки
+         */
+        CHANGE_ORDER: {
+          actions: assign({
+            // Инвертируем порядок сортировки
+            sortOrder: ({ context }) =>
+              context.sortOrder === "asc" ? "desc" : "asc",
+
+            // Сортируем файлы в новом порядке
+            filteredFiles: ({ context }) => {
+              const newOrder = context.sortOrder === "asc" ? "desc" : "asc"
+              return sortFiles(context.filteredFiles, context.sortBy, newOrder)
+            },
+          }),
+        },
+
+        /**
+         * Обработка события фильтрации в состоянии ошибки
+         */
+        FILTER: {
+          actions: assign({
+            // Сохраняем новый тип фильтра
+            filterType: ({ event }) => event.filterType,
+
+            // Фильтруем и сортируем файлы по новому типу
+            filteredFiles: ({ context, event }) => {
+              const filtered = filterFiles(
+                context.musicFiles,
+                context.searchQuery,
+                event.filterType,
+                context.showFavoritesOnly,
+                event.mediaContext,
+              )
+              return sortFiles(filtered, context.sortBy, context.sortOrder)
+            },
+          }),
+        },
+
+        /**
+         * Обработка события поиска в состоянии ошибки
+         */
+        SEARCH: {
+          actions: assign({
+            // Сохраняем новый поисковый запрос
+            searchQuery: ({ event }) => event.query,
+
+            // Фильтруем и сортируем файлы по новому запросу
+            filteredFiles: ({ context, event }) => {
+              const filtered = filterFiles(
+                context.musicFiles,
+                event.query,
+                context.filterType,
+                context.showFavoritesOnly,
+                event.mediaContext,
+              )
+              return sortFiles(filtered, context.sortBy, context.sortOrder)
+            },
+          }),
+        },
+
+        /**
+         * Обработка события изменения режима отображения в состоянии ошибки
+         */
+        CHANGE_VIEW_MODE: {
+          actions: assign(({ event }) => ({
+            viewMode: event.mode, // Устанавливаем новый режим отображения
+          })),
+        },
+
+        /**
+         * Обработка события изменения группировки в состоянии ошибки
+         */
+        CHANGE_GROUP_BY: {
+          actions: assign({
+            groupBy: ({ event }) => event.groupBy, // Устанавливаем новый тип группировки
+          }),
+        },
+
+        /**
+         * Обработка события переключения режима избранного в состоянии ошибки
+         */
+        TOGGLE_FAVORITES: {
+          actions: assign({
+            // Инвертируем флаг отображения только избранных
+            showFavoritesOnly: ({ context }) => !context.showFavoritesOnly,
+
+            // Перефильтровываем файлы с новым значением флага
+            filteredFiles: ({ context, event }) => {
+              const newShowFavoritesOnly = !context.showFavoritesOnly
+              const filtered = filterFiles(
+                context.musicFiles,
+                context.searchQuery,
+                context.filterType,
+                newShowFavoritesOnly,
+                event.mediaContext,
+              )
+              return sortFiles(filtered, context.sortBy, context.sortOrder)
+            },
+          }),
         },
       },
     },
