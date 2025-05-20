@@ -185,8 +185,7 @@ export function EffectList() {
         {/* Состояние загрузки - пустой контейнер */}
         {!isSizeLoaded ? (
           <div className="flex h-full items-center justify-center text-gray-500" />
-        ) :
-        /* Состояние "ничего не найдено" - сообщение */
+        ) : /* Состояние "ничего не найдено" - сообщение */
         filteredEffects.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-500">
             {t("browser.tabs.effects")} {t("common.notFound")}

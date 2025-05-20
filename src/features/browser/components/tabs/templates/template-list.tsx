@@ -39,7 +39,8 @@ export function TemplateList() {
     "landscape", // По умолчанию - горизонтальные шаблоны
   )
   const [currentDimensions, setCurrentDimensions] = useState<[number, number]>([
-    1920, 1080, // Размеры по умолчанию
+    1920,
+    1080, // Размеры по умолчанию
   ])
   const [templates, setTemplates] = useState<MediaTemplate[]>([]) // Список шаблонов
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false) // Флаг отображения только избранных
@@ -206,8 +207,7 @@ export function TemplateList() {
         {/* Состояние загрузки - пустой контейнер */}
         {!isSizeLoaded ? (
           <div className="flex h-full items-center justify-center text-gray-500" />
-        ) :
-        /* Состояние "ничего не найдено" - сообщение */
+        ) : /* Состояние "ничего не найдено" - сообщение */
         filteredTemplates.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-500">
             {t("browser.tabs.templates")} {t("common.notFound")}
@@ -262,7 +262,8 @@ export function TemplateList() {
                         title={getTemplateLabels(template.id) || template.id} // Полное название в тултипе
                         style={{ width: `${previewSize}px` }} // Ширина равна ширине превью
                       >
-                        {getTemplateLabels(template.id) || template.id} {/* Локализованное название или ID */}
+                        {getTemplateLabels(template.id) || template.id}{" "}
+                        {/* Локализованное название или ID */}
                       </div>
                     </div>
                   ))}

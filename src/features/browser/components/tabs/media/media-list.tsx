@@ -205,7 +205,7 @@ export const MediaList = memo(function MediaList({
 }) {
   const { t } = useTranslation()
   const media = useMedia()
-  const savedSettings = useUserSettings()
+  const savedSettings = getSavedSize("MEDIA")
 
   // Инициализируем состояние с сохраненными настройками
   const [viewMode, setViewMode] = useState<"list" | "grid" | "thumbnails">(
@@ -269,7 +269,7 @@ export const MediaList = memo(function MediaList({
 
   // Функция для получения текущего минимального размера на основе режима
   const getMinSizeForCurrentMode = useCallback(() => {
-    if (viewMode === "thumbnails") return MIN_SIZE_THUMBNAILS
+    if (viewMode === "thumbnails") return 100
     return MIN_SIZE
   }, [viewMode])
 

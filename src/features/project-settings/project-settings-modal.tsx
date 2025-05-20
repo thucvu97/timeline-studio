@@ -471,7 +471,9 @@ export function ProjectSettingsModal() {
                 size="icon"
                 className={`ml-2 h-7 w-7 cursor-pointer p-0 ${
                   // Подсвечиваем кнопку, если соотношение сторон заблокировано
-                  aspectRatioLocked ? "text-[#00CCC0]" : "text-gray-400 hover:text-gray-200"
+                  aspectRatioLocked
+                    ? "text-[#00CCC0]"
+                    : "text-gray-400 hover:text-gray-200"
                 }`}
                 onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
                 title={

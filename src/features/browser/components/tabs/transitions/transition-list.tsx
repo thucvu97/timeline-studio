@@ -188,8 +188,7 @@ export function TransitionsList({
         {/* Состояние загрузки - пустой контейнер */}
         {!isSizeLoaded ? (
           <div className="flex h-full items-center justify-center text-gray-500"></div>
-        ) :
-        /* Состояние "ничего не найдено" - сообщение */
+        ) : /* Состояние "ничего не найдено" - сообщение */
         filteredTransitions.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-500">
             {t("browser.tabs.transitions")} {t("common.notFound")}
