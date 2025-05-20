@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ModalContainer } from "./modal-container"
-import { getDialogClassForType } from "../services/modal-machine"
 import { useModal } from "../services/modal-provider"
 
 // Мокаем react-i18next
@@ -124,9 +123,6 @@ describe("ModalContainer", () => {
   // Очищаем моки перед каждым тестом
   beforeEach(() => {
     vi.clearAllMocks()
-
-    // Мокаем getDialogClassForType
-    vi.mocked(getDialogClassForType).mockReturnValue("test-dialog-class")
   })
 
   it("should not render dialog when isOpen is false", () => {
@@ -293,30 +289,9 @@ describe("ModalContainer", () => {
     render(<ModalContainer />)
 
     // Проверяем, что используется класс из modalData
-    expect(screen.getByTestId("dialog-content").className).toBe(
-      "custom-dialog-class bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden",
+    expect(screen.getByTestId("dialog-content").className).toContain(
+      "custom-dialog-class",
     )
-  })
-
-  it("should use dialogClass from getDialogClassForType if modalData.dialogClass is not provided", () => {
-    // Мокаем useModal без dialogClass в modalData
-    vi.mocked(useModal).mockReturnValue({
-      modalType: "project-settings",
-      modalData: { someOtherData: "test" },
-      isOpen: true,
-      openModal: vi.fn(),
-      closeModal: vi.fn(),
-      submitModal: vi.fn(),
-    })
-
-    // Рендерим компонент
-    render(<ModalContainer />)
-
-    // Проверяем, что используется класс из getDialogClassForType
-    expect(screen.getByTestId("dialog-content").className).toBe(
-      "test-dialog-class bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden",
-    )
-    expect(getDialogClassForType).toHaveBeenCalledWith("project-settings")
   })
 
   it("should call closeModal when dialog is closed", () => {

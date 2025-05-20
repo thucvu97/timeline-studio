@@ -1,15 +1,4 @@
 // Мокаем console.log и console.error
-vi.spyOn(console, "log").mockImplementation(() => {})
-vi.spyOn(console, "error").mockImplementation(() => {})
-
-// Мокаем userSettingsDbService
-vi.mock("../media-studio/indexed-db-service", () => ({
-  userSettingsDbService: {
-    loadTimelineState: vi.fn().mockResolvedValue(null),
-    saveTimelineState: vi.fn().mockResolvedValue(undefined),
-  },
-}))
-
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
@@ -21,6 +10,17 @@ import {
   PREVIEW_SIZES,
   userSettingsMachine,
 } from "./user-settings-machine"
+
+vi.spyOn(console, "log").mockImplementation(() => {})
+vi.spyOn(console, "error").mockImplementation(() => {})
+
+// Мокаем userSettingsDbService
+vi.mock("../media-studio/indexed-db-service", () => ({
+  userSettingsDbService: {
+    loadTimelineState: vi.fn().mockResolvedValue(null),
+    saveTimelineState: vi.fn().mockResolvedValue(undefined),
+  },
+}))
 
 describe("UserSettingsMachine", () => {
   beforeEach(() => {

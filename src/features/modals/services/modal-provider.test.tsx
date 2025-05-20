@@ -25,7 +25,6 @@ vi.mock("./modal-machine", () => ({
   modalMachine: {
     provide: vi.fn(),
   },
-  getDialogClassForType: vi.fn().mockReturnValue("test-class"),
 }))
 
 // Мокаем console.log для проверки вызова

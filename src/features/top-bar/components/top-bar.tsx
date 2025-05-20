@@ -39,9 +39,6 @@ export function TopBar() {
 
   const handleOpenModal = (modal: string) => {
     console.log(`Opening modal: ${modal}`)
-
-    // Открываем модальное окно без указания размера
-    // Размер будет определен автоматически в функции getDialogClassForType
     openModal(modal as any)
   }
 

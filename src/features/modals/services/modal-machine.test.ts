@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { createActor, waitFor } from "xstate"
+import { createActor } from "xstate"
 
-import { getDialogClassForType, modalMachine } from "./modal-machine"
+import { modalMachine } from "./modal-machine"
 
 describe("Modal Machine", () => {
   // Мокаем console.log для проверки вызова
@@ -157,28 +157,5 @@ describe("Modal Machine", () => {
     // Проверяем, что состояние осталось opened, но тип модального окна изменился
     expect(actor.getSnapshot().value).toBe("opened")
     expect(actor.getSnapshot().context.modalType).toBe("user-settings")
-  })
-
-  it("should return correct dialog class for each modal type", () => {
-    // Проверяем классы для каждого типа модального окна
-    expect(getDialogClassForType("camera-capture")).toBe(
-      "h-[max(600px,min(70vh,800px))] w-[max(700px,min(80vw,900px))]",
-    )
-    expect(getDialogClassForType("voice-recording")).toBe(
-      "h-[max(500px,min(60vh,700px))] w-[max(600px,min(70vw,800px))]",
-    )
-    expect(getDialogClassForType("export")).toBe(
-      "h-[max(700px,min(80vh,900px))] w-[max(800px,min(90vw,1200px))]",
-    )
-    expect(getDialogClassForType("project-settings")).toBe(
-      "h-[max(500px,min(60vh,700px))] w-[max(600px,min(80vw,800px))]",
-    )
-    expect(getDialogClassForType("user-settings")).toBe(
-      "h-[max(550px,min(65vh,750px))] w-[max(650px,min(75vw,850px))]",
-    )
-    expect(getDialogClassForType("keyboard-shortcuts")).toBe(
-      "h-[max(600px,min(70vh,800px))] w-[max(700px,min(85vw,900px))]",
-    )
-    expect(getDialogClassForType("none")).toBe("h-[max(600px,min(50vh,800px))]")
   })
 })

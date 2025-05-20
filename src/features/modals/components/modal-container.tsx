@@ -11,7 +11,7 @@ import {
 import { ProjectSettingsModal } from "@/features/project-settings/project-settings-modal"
 import { UserSettingsModal } from "@/features/user-settings/user-settings-modal"
 
-import { getDialogClassForType } from "../services/modal-machine"
+import { ModalType } from "../services"
 import { useModal } from "../services/modal-provider"
 
 import {
@@ -28,57 +28,43 @@ export function ModalContainer() {
   const { modalType, modalData, isOpen, closeModal } = useModal()
   const { t } = useTranslation() // Получаем функцию перевода
 
-  // Рендерим все модальные окна, но показываем только активное
+  // Рендерим только активное модальное окно с помощью switch
   const renderAllModals = () => {
-    return (
-      <>
-        {/* ProjectSettingsModal */}
-        <div
-          style={{
-            display: modalType === "project-settings" ? "block" : "none",
-          }}
-        >
-          <ProjectSettingsModal />
-        </div>
+    switch (modalType) {
+      case "project-settings":
+        return <ProjectSettingsModal />
+      case "keyboard-shortcuts":
+        return <KeyboardShortcutsModal />
+      case "user-settings":
+        return <UserSettingsModal />
+      case "camera-capture":
+        return <CameraCaptureModal />
+      case "voice-recording":
+        return <VoiceRecordModal />
+      case "export":
+        return <ExportModal />
+      default:
+        return null
+    }
+  }
 
-        {/* KeyboardShortcutsModal */}
-        <div
-          style={{
-            display: modalType === "keyboard-shortcuts" ? "block" : "none",
-          }}
-        >
-          <KeyboardShortcutsModal />
-        </div>
-
-        {/* UserSettingsModal */}
-        <div
-          style={{ display: modalType === "user-settings" ? "block" : "none" }}
-        >
-          <UserSettingsModal />
-        </div>
-
-        {/* CameraCaptureModal */}
-        <div
-          style={{ display: modalType === "camera-capture" ? "block" : "none" }}
-        >
-          <CameraCaptureModal />
-        </div>
-
-        {/* VoiceRecordModal */}
-        <div
-          style={{
-            display: modalType === "voice-recording" ? "block" : "none",
-          }}
-        >
-          <VoiceRecordModal />
-        </div>
-
-        {/* ExportModal */}
-        <div style={{ display: modalType === "export" ? "block" : "none" }}>
-          <ExportModal />
-        </div>
-      </>
-    )
+  const getDialogClassForType = (modalType: ModalType): string => {
+    switch (modalType) {
+      case "camera-capture":
+        return "h-[max(600px,min(70vh,800px))] w-[max(700px,min(80vw,900px))]"
+      case "voice-recording":
+        return "h-[max(500px,min(60vh,700px))] w-[max(600px,min(70vw,800px))]"
+      case "export":
+        return "h-[max(700px,min(80vh,900px))] w-[max(800px,min(90vw,1200px))]"
+      case "project-settings":
+        return "h-[max(500px,min(60vh,700px))] w-[800px]"
+      case "user-settings":
+        return "h-[max(550px,min(65vh,750px))] w-[max(650px,min(75vw,850px))]"
+      case "keyboard-shortcuts":
+        return "h-[max(600px,min(70vh,800px))] w-[max(700px,min(85vw,900px))]"
+      default:
+        return "h-[max(600px,min(50vh,800px))]"
+    }
   }
 
   // Функция для получения заголовка модального окна с использованием i18n
@@ -103,19 +89,18 @@ export function ModalContainer() {
     }
   }
 
-  // Получаем класс размера из данных модального окна или используем значение из функции getDialogClassForType
   const dialogClass = modalData?.dialogClass ?? getDialogClassForType(modalType)
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
       <DialogContent
         aria-describedby="modal"
-        className={`${dialogClass} bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden p-4`}
+        className={`${dialogClass} bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden px-4 py-2 flex flex-col`}
       >
-        <DialogHeader>
-          <DialogTitle>{getModalTitle()}</DialogTitle>
+        <DialogHeader className="flex-shrink-0 h-[50px] flex items-center justify-center">
+          <DialogTitle className="text-center">{getModalTitle()}</DialogTitle>
         </DialogHeader>
-        {renderAllModals()}
+        <div className="flex-1 overflow-auto">{renderAllModals()}</div>
       </DialogContent>
     </Dialog>
   )
