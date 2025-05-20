@@ -24,7 +24,7 @@
     "check:rust": "npm run lint:rust && npm run format:rust:check",
     "fix:rust": "npm run format:rust && npm run lint:rust:fix",
     "check:all": "npm run lint && npm run lint:css && npm run format:imports && npm run check:rust && npm run test",
-    "fix:all": "npm run lint:fix && npm run lint:css:fix && npm run format:imports && npm run fix:rust",
+    "fix:all": "npm run lint:css:fix && npm run format:imports && npm run fix:rust",
     "tauri": "tauri",
     "test": "vitest run",
     "test:app": "vitest run src/features",
