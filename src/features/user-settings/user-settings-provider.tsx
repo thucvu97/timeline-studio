@@ -10,39 +10,66 @@ import {
   userSettingsMachine,
 } from "./user-settings-machine"
 
+/**
+ * Интерфейс значения контекста пользовательских настроек
+ * Определяет данные и методы, доступные через хук useUserSettings
+ *
+ * @interface UserSettingsContextValue
+ */
 interface UserSettingsContextValue {
-  activeTab: BrowserTab
-  layoutMode: LayoutMode
-  playerScreenshotsPath: string
-  screenshotsPath: string
-  openAiApiKey: string
-  claudeApiKey: string
+  // Данные настроек
+  activeTab: BrowserTab // Активная вкладка в браузере
+  layoutMode: LayoutMode // Текущий макет интерфейса
+  playerScreenshotsPath: string // Путь для сохранения скриншотов плеера
+  screenshotsPath: string // Путь для сохранения скриншотов
+  openAiApiKey: string // API ключ OpenAI
+  claudeApiKey: string // API ключ Claude
 
-  handleTabChange: (value: string) => void
-  handleLayoutChange: (value: LayoutMode) => void
-  handleScreenshotsPathChange: (value: string) => void
-  handlePlayerScreenshotsPathChange: (value: string) => void
-  handleAiApiKeyChange: (value: string) => void
-  handleClaudeApiKeyChange: (value: string) => void
+  // Методы для изменения настроек
+  handleTabChange: (value: string) => void // Изменение активной вкладки
+  handleLayoutChange: (value: LayoutMode) => void // Изменение макета интерфейса
+  handleScreenshotsPathChange: (value: string) => void // Изменение пути для скриншотов
+  handlePlayerScreenshotsPathChange: (value: string) => void // Изменение пути для скриншотов плеера
+  handleAiApiKeyChange: (value: string) => void // Изменение API ключа OpenAI
+  handleClaudeApiKeyChange: (value: string) => void // Изменение API ключа Claude
 }
 
+/**
+ * Контекст для хранения и предоставления доступа к пользовательским настройкам
+ * Изначально не имеет значения (undefined)
+ */
 export const UserSettingsContext = createContext<
   UserSettingsContextValue | undefined
 >(undefined)
 
+/**
+ * Провайдер пользовательских настроек
+ * Компонент, который предоставляет доступ к пользовательским настройкам через контекст
+ * Использует XState машину состояний для управления настройками
+ *
+ * @param {Object} props - Пропсы компонента
+ * @param {React.ReactNode} props.children - Дочерние компоненты
+ * @returns {JSX.Element} Провайдер контекста с пользовательскими настройками
+ */
 export function UserSettingsProvider({
   children,
 }: { children: React.ReactNode }) {
   console.log("UserSettingsProvider rendering")
 
-  // Используем useState для отслеживания изменений состояния
+  // Инициализируем машину состояний для управления пользовательскими настройками
   const [state, send] = useMachine(userSettingsMachine)
 
+  // Отладочные логи
   console.log("UserSettingsProvider state:", state.context)
   console.log("UserSettingsProvider state status:", state.status)
 
+  /**
+   * Эффект для сохранения настроек в IndexedDB при их изменении
+   * Сохраняет настройки в базу данных для персистентности между сессиями
+   */
   useEffect(() => {
     console.log("Saving settings to IndexedDB")
+    // Асинхронно сохраняем настройки в IndexedDB
     userSettingsDbService
       .saveState(state.context)
       .then(() => {
@@ -51,9 +78,11 @@ export function UserSettingsProvider({
       .catch((error: unknown) => {
         console.error("Error saving settings to IndexedDB: ", error)
       })
-  }, [state.context])
+  }, [state.context]) // Зависимость от контекста машины состояний
 
+  // Создаем значение контекста, которое будет доступно через хук useUserSettings
   const value = {
+    // Данные настроек из контекста машины состояний
     activeTab: state.context.activeTab,
     layoutMode: state.context.layoutMode,
     screenshotsPath: state.context.screenshotsPath,
@@ -61,6 +90,10 @@ export function UserSettingsProvider({
     openAiApiKey: state.context.openAiApiKey,
     claudeApiKey: state.context.claudeApiKey,
 
+    /**
+     * Обработчик изменения активной вкладки
+     * @param {string} value - Новое значение активной вкладки
+     */
     handleTabChange: (value: string) => {
       console.log("Tab change requested:", value)
       // Проверяем, что значение является допустимым BrowserTab
@@ -74,6 +107,7 @@ export function UserSettingsProvider({
           "templates",
         ].includes(value)
       ) {
+        // Отправляем событие в машину состояний
         send({
           type: "UPDATE_ACTIVE_TAB",
           tab: value as BrowserTab,
@@ -84,6 +118,10 @@ export function UserSettingsProvider({
       }
     },
 
+    /**
+     * Обработчик изменения макета интерфейса
+     * @param {LayoutMode} value - Новый макет интерфейса
+     */
     handleLayoutChange: (value: LayoutMode) => {
       console.log("Layout change requested:", value)
       console.log("Current layoutMode before update:", state.context.layoutMode)
@@ -91,6 +129,7 @@ export function UserSettingsProvider({
       // Проверяем, что значение является допустимым LayoutMode
       if (["default", "options", "vertical", "dual"].includes(value)) {
         console.log("Updating layoutMode:", value)
+        // Отправляем событие в машину состояний
         send({
           type: "UPDATE_LAYOUT",
           layoutMode: value,
@@ -100,8 +139,13 @@ export function UserSettingsProvider({
       }
     },
 
+    /**
+     * Обработчик изменения пути для скриншотов плеера
+     * @param {string} value - Новый путь для скриншотов плеера
+     */
     handlePlayerScreenshotsPathChange: (value: string) => {
       console.log("Player screenshots path change requested:", value)
+      // Отправляем событие в машину состояний
       send({
         type: "UPDATE_PLAYER_SCREENSHOTS_PATH",
         path: value,
@@ -109,8 +153,13 @@ export function UserSettingsProvider({
       console.log("Player screenshots path updated:", value)
     },
 
+    /**
+     * Обработчик изменения пути для скриншотов
+     * @param {string} value - Новый путь для скриншотов
+     */
     handleScreenshotsPathChange: (value: string) => {
       console.log("Screenshots path change requested:", value)
+      // Отправляем событие в машину состояний
       send({
         type: "UPDATE_SCREENSHOTS_PATH",
         path: value,
@@ -118,8 +167,14 @@ export function UserSettingsProvider({
       console.log("Screenshots path updated:", value)
     },
 
+    /**
+     * Обработчик изменения API ключа OpenAI
+     * @param {string} value - Новый API ключ OpenAI
+     */
     handleAiApiKeyChange: (value: string) => {
+      // Скрываем API ключ в логах для безопасности
       console.log("AI API key change requested:", value ? "***" : "(empty)")
+      // Отправляем событие в машину состояний
       send({
         type: "UPDATE_OPENAI_API_KEY",
         apiKey: value,
@@ -127,8 +182,14 @@ export function UserSettingsProvider({
       console.log("AI API key updated")
     },
 
+    /**
+     * Обработчик изменения API ключа Claude
+     * @param {string} value - Новый API ключ Claude
+     */
     handleClaudeApiKeyChange: (value: string) => {
+      // Скрываем API ключ в логах для безопасности
       console.log("Claude API key change requested:", value ? "***" : "(empty)")
+      // Отправляем событие в машину состояний
       send({
         type: "UPDATE_CLAUDE_API_KEY",
         apiKey: value,
@@ -137,6 +198,7 @@ export function UserSettingsProvider({
     },
   }
 
+  // Возвращаем провайдер контекста с созданным значением
   return (
     <UserSettingsContext.Provider value={value}>
       {children}
@@ -144,12 +206,24 @@ export function UserSettingsProvider({
   )
 }
 
+/**
+ * Хук для доступа к пользовательским настройкам
+ * Предоставляет доступ к текущим настройкам и методам для их изменения
+ *
+ * @returns {UserSettingsContextValue} Объект с настройками и методами для их изменения
+ * @throws {Error} Если хук используется вне компонента UserSettingsProvider
+ */
 export function useUserSettings() {
+  // Получаем значение контекста
   const context = useContext(UserSettingsContext)
+
+  // Проверяем, что хук используется внутри провайдера
   if (!context) {
     throw new Error(
       "useUserSettings must be used within a UserSettingsProvider",
     )
   }
+
+  // Возвращаем значение контекста
   return context
 }

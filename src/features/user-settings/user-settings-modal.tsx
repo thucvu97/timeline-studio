@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { open } from "@tauri-apps/plugin-dialog"
 import { Folder, X } from "lucide-react"
@@ -21,27 +21,46 @@ import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
 import { useUserSettings } from "./user-settings-provider"
 import { useModal } from "../modals"
 
+/**
+ * Модальное окно пользовательских настроек
+ * Позволяет пользователю настраивать различные параметры приложения:
+ * - Язык интерфейса
+ * - Пути для сохранения скриншотов
+ * - API ключи для сервисов ИИ
+ *
+ * @returns {JSX.Element} Компонент модального окна настроек пользователя
+ */
 export function UserSettingsModal() {
+  // Получаем настройки и методы для их изменения из контекста
   const {
-    screenshotsPath,
-    playerScreenshotsPath,
-    openAiApiKey,
-    claudeApiKey,
-    handlePlayerScreenshotsPathChange,
-    handleScreenshotsPathChange,
-    handleAiApiKeyChange,
-    handleClaudeApiKeyChange,
+    screenshotsPath, // Путь для сохранения скриншотов
+    playerScreenshotsPath, // Путь для сохранения скриншотов плеера
+    openAiApiKey, // API ключ OpenAI
+    claudeApiKey, // API ключ Claude
+    handlePlayerScreenshotsPathChange, // Метод для изменения пути скриншотов плеера
+    handleScreenshotsPathChange, // Метод для изменения пути скриншотов
+    handleAiApiKeyChange, // Метод для изменения API ключа OpenAI
+    handleClaudeApiKeyChange, // Метод для изменения API ключа Claude
   } = useUserSettings()
-  const { closeModal } = useModal()
-  const { t } = useTranslation()
-  const { currentLanguage, changeLanguage } = useLanguage()
 
+  const { closeModal } = useModal() // Хук для закрытия модального окна
+  const { t } = useTranslation() // Хук для интернационализации
+  const { currentLanguage, changeLanguage } = useLanguage() // Хук для управления языком
+
+  // Локальное состояние для выбранного языка
   const [selectedLanguage, setSelectedLanguage] =
     useState<LanguageCode>(currentLanguage)
 
-  // Обработчик изменения языка - применяет изменения сразу
+  /**
+   * Обработчик изменения языка интерфейса
+   * Применяет изменения языка немедленно
+   *
+   * @param {string} value - Код выбранного языка
+   */
   const handleLanguageSelect = (value: string) => {
+    // Приводим значение к типу LanguageCode
     const newLanguage = value as LanguageCode
+    // Обновляем локальное состояние
     setSelectedLanguage(newLanguage)
 
     // Сразу применяем изменения языка через хук useLanguage
@@ -54,6 +73,7 @@ export function UserSettingsModal() {
   return (
     <>
       <div className="flex flex-col space-y-6 py-1">
+        {/* Выбор языка интерфейса */}
         <div className="flex items-center justify-end">
           <Label className="mr-2 text-xs">
             {t("dialogs.userSettings.interfaceLanguage")}
@@ -65,8 +85,10 @@ export function UserSettingsModal() {
               />
             </SelectTrigger>
             <SelectContent>
+              {/* Отображение списка поддерживаемых языков */}
               {SUPPORTED_LANGUAGES.map((lang) => (
                 <SelectItem key={lang} value={lang}>
+                  {/* Отображение названия языка на его родном языке */}
                   {t(`language.native.${lang}`)}
                 </SelectItem>
               ))}
@@ -74,12 +96,14 @@ export function UserSettingsModal() {
           </Select>
         </div>
 
+        {/* Настройка пути для сохранения скриншотов */}
         <div className="flex flex-col space-y-2">
           <Label className="text-xs font-medium">
             {t("dialogs.userSettings.screenshotsPath")}
           </Label>
           <div className="flex gap-2">
             <div className="relative flex-1">
+              {/* Поле ввода пути для скриншотов */}
               <Input
                 value={screenshotsPath}
                 onChange={(e) => {
@@ -88,6 +112,7 @@ export function UserSettingsModal() {
                 placeholder="public/screenshots"
                 className="h-9 pr-8 font-mono text-sm"
               />
+              {/* Кнопка сброса пути к значению по умолчанию */}
               {screenshotsPath && screenshotsPath !== "public/screenshots" && (
                 <button
                   type="button"
@@ -101,6 +126,7 @@ export function UserSettingsModal() {
                 </button>
               )}
             </div>
+            {/* Кнопка выбора директории */}
             <Button
               variant="outline"
               size="icon"
@@ -157,6 +183,7 @@ export function UserSettingsModal() {
           </div>
         </div>
 
+        {/* Настройка пути для сохранения скриншотов плеера */}
         <div className="flex flex-col space-y-2">
           <Label className="text-xs font-medium">
             {t(
@@ -166,6 +193,7 @@ export function UserSettingsModal() {
           </Label>
           <div className="flex gap-2">
             <div className="relative flex-1">
+              {/* Поле ввода пути для скриншотов плеера */}
               <Input
                 value={playerScreenshotsPath}
                 onChange={(e) => {
@@ -174,6 +202,7 @@ export function UserSettingsModal() {
                 placeholder="public/media"
                 className="h-9 pr-8 font-mono text-sm"
               />
+              {/* Кнопка сброса пути к значению по умолчанию */}
               {playerScreenshotsPath &&
                 playerScreenshotsPath !== "public/media" && (
                   <button
@@ -189,6 +218,7 @@ export function UserSettingsModal() {
                 )}
             </div>
 
+            {/* Кнопка выбора директории */}
             <Button
               variant="outline"
               size="icon"
@@ -240,11 +270,13 @@ export function UserSettingsModal() {
           </div>
         </div>
 
+        {/* Настройка API ключа OpenAI */}
         <div className="flex flex-col space-y-2">
           <Label className="text-xs font-medium">
             {t("dialogs.userSettings.openAiApiKey", "OpenAI API ключ")}
           </Label>
           <div className="relative flex-1">
+            {/* Поле ввода API ключа OpenAI (скрытое) */}
             <Input
               type="password"
               value={openAiApiKey}
@@ -258,6 +290,7 @@ export function UserSettingsModal() {
               )}
               className="h-9 pr-8 font-mono text-sm"
             />
+            {/* Кнопка очистки API ключа */}
             {openAiApiKey && (
               <button
                 type="button"
@@ -273,11 +306,14 @@ export function UserSettingsModal() {
             )}
           </div>
         </div>
+
+        {/* Настройка API ключа Claude */}
         <div className="flex flex-col space-y-2">
           <Label className="text-xs font-medium">
             {t("dialogs.userSettings.claudeApiKey", "Claude API ключ")}
           </Label>
           <div className="relative flex-1">
+            {/* Поле ввода API ключа Claude (скрытое) */}
             <Input
               type="password"
               value={claudeApiKey}
@@ -291,6 +327,7 @@ export function UserSettingsModal() {
               )}
               className="h-9 pr-8 font-mono text-sm"
             />
+            {/* Кнопка очистки API ключа */}
             {claudeApiKey && (
               <button
                 type="button"
@@ -309,18 +346,24 @@ export function UserSettingsModal() {
           </div>
         </div>
       </div>
+
+      {/* Кнопки действий в нижней части модального окна */}
       <DialogFooter className="flex justify-between space-x-4">
+        {/* Кнопка отмены */}
         <Button
           variant="default"
           className="flex-1 cursor-pointer"
-          onClick={() => closeModal()}
+          onClick={() => closeModal()} // Закрываем модальное окно без сохранения
         >
           {t("dialogs.userSettings.cancel")}
         </Button>
+
+        {/* Кнопка сохранения */}
         <Button
           variant="default"
           className="flex-1 cursor-pointer bg-[#00CCC0] text-black hover:bg-[#00AAA0]"
           onClick={() => {
+            // Все изменения уже применены, просто закрываем модальное окно
             console.log(
               "Closing modal with save button, all changes already applied",
             )
