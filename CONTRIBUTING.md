@@ -11,8 +11,8 @@
 
 2. Клонируйте репозиторий:
    ```bash
-   git clone https://github.com/your-username/timeline-tauri.git
-   cd timeline-tauri
+   git clone https://github.com/your-username/timeline-studio.git
+   cd timeline-studio
    ```
 
 3. Установите зависимости:

@@ -2,8 +2,8 @@
 
 Приложение для создания и редактирования видео, построенное на базе Tauri, React и XState.
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/your-username/timeline-tauri/check-all.yml?branch=main)
-![GitHub License](https://img.shields.io/github/license/your-username/timeline-tauri)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/check-all.yml?branch=main)
+![GitHub License](https://img.shields.io/github/license/chatman-media/timeline-studio)
 ![CSS Linting](https://img.shields.io/badge/css%20linting-stylelint-blueviolet)
 
 ## Обзор проекта
@@ -33,8 +33,8 @@ Timeline Studio - это настольное приложение для соз
 1. Клонируйте репозиторий:
 
 ```bash
-git clone https://github.com/your-username/timeline-tauri.git
-cd timeline-tauri
+git clone https://github.com/your-username/timeline-studio.git
+cd timeline-studio
 ```
 
 2. Установите зависимости:
@@ -58,7 +58,7 @@ bun tauri build
 ## Структура проекта
 
 ```
-timeline-tauri/
+timeline-studio/
 ├── src/                  # Исходный код фронтенда (React, Next.js)
 │   ├── features/         # Функциональные модули приложения
 │   │   ├── browser/      # Компоненты браузера файлов

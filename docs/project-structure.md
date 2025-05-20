@@ -14,7 +14,7 @@ Timeline Studio - это настольное приложение для соз
 ## Корневая структура
 
 ```
-timeline-tauri/
+timeline-studio/
 ├── .github/                # GitHub Actions и конфигурация CI/CD
 ├── .vscode/                # Настройки VS Code
 ├── docs/                   # Документация проекта
