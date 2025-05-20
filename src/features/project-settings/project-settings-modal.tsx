@@ -28,19 +28,42 @@ import {
 import { useProjectSettings } from "./project-settings-provider"
 import { useModal } from "../modals"
 
+/**
+ * Модальное окно настроек проекта
+ * Позволяет пользователю настраивать параметры проекта, такие как:
+ * - Соотношение сторон
+ * - Разрешение
+ * - Частота кадров
+ * - Цветовое пространство
+ *
+ * @returns {JSX.Element} Компонент модального окна настроек проекта
+ */
 export function ProjectSettingsModal() {
-  const { t } = useTranslation()
-  const { closeModal } = useModal()
-  const { settings, updateSettings } = useProjectSettings()
+  const { t } = useTranslation() // Хук для интернационализации
+  const { closeModal } = useModal() // Хук для управления модальными окнами
+  const { settings, updateSettings } = useProjectSettings() // Хук для доступа к настройкам проекта
+
+  // Состояние для хранения доступных разрешений для выбранного соотношения сторон
   const [availableResolutions, setAvailableResolutions] = useState<
     ResolutionOption[]
   >([])
+
+  // Состояние для пользовательских значений ширины и высоты
   const [customWidth, setCustomWidth] = useState<number>(1920)
   const [customHeight, setCustomHeight] = useState<number>(1080)
+
+  // Флаг блокировки соотношения сторон (при изменении ширины/высоты)
   const [aspectRatioLocked, setAspectRatioLocked] = useState<boolean>(true)
 
-  // Функция для получения локализованного названия соотношения сторон
+  /**
+   * Функция для получения локализованного названия соотношения сторон
+   * Преобразует текстовые метки в локализованные строки
+   *
+   * @param {string} textLabel - Текстовая метка соотношения сторон
+   * @returns {string} Локализованное название соотношения сторон
+   */
   const getAspectRatioLabel = (textLabel: string): string => {
+    // Карта соответствия текстовых меток и ключей локализации
     const labelMap: Record<string, string> = {
       Широкоэкнранный: t(
         "dialogs.projectSettings.aspectRatioLabels.widescreen",
@@ -52,12 +75,21 @@ export function ProjectSettingsModal() {
       Кинотеатр: t("dialogs.projectSettings.aspectRatioLabels.cinema"),
     }
 
+    // Возвращаем локализованную строку или исходную метку, если перевод не найден
     return labelMap[textLabel] || textLabel
   }
 
-  // Функция для преобразования ширины и высоты в строку формата X:Y
+  /**
+   * Функция для преобразования ширины и высоты в строку формата X:Y
+   * Определяет стандартные соотношения сторон или вычисляет соотношение
+   *
+   * @param {number} width - Ширина в пикселях
+   * @param {number} height - Высота в пикселях
+   * @returns {string} Строка соотношения сторон в формате "X:Y"
+   */
   const getAspectRatioString = (width: number, height: number): string => {
-    // Стандартные соотношения сторон
+    // Проверяем на соответствие стандартным соотношениям сторон
+    // Используем небольшую погрешность для учета округлений
     if (Math.abs(width / height - 16 / 9) < 0.01) return "16:9"
     if (Math.abs(width / height - 9 / 16) < 0.01) return "9:16"
     if (Math.abs(width / height - 1) < 0.01) return "1:1"
@@ -67,29 +99,44 @@ export function ProjectSettingsModal() {
     if (Math.abs(width / height - 5 / 4) < 0.01) return "5:4"
     if (Math.abs(width / height - 21 / 9) < 0.01) return "21:9"
 
-    // Находим наибольший общий делитель
+    /**
+     * Вспомогательная функция для нахождения наибольшего общего делителя
+     * Используется алгоритм Евклида
+     *
+     * @param {number} a - Первое число
+     * @param {number} b - Второе число
+     * @returns {number} Наибольший общий делитель
+     */
     const gcd = (a: number, b: number): number => {
       return b === 0 ? a : gcd(b, a % b)
     }
 
+    // Вычисляем наибольший общий делитель и сокращаем дробь
     const divisor = gcd(width, height)
     const x = width / divisor
     const y = height / divisor
 
-    // Если соотношение получается слишком сложным, возвращаем десятичную дробь с 2 знаками после запятой
+    // Если соотношение получается слишком сложным (большие числа),
+    // возвращаем десятичную дробь с 2 знаками после запятой
     if (x > 30 || y > 30) {
       return (width / height).toFixed(2).replace(".", ":")
     }
 
+    // Возвращаем соотношение в формате "X:Y"
     return `${Math.round(x)}:${Math.round(y)}`
   }
 
-  // Обновляем доступные разрешения при изменении соотношения сторон
+  /**
+   * Эффект для обновления доступных разрешений при изменении соотношения сторон
+   * Загружает список разрешений, соответствующих выбранному соотношению сторон
+   */
   useEffect(() => {
+    // Получаем список доступных разрешений для текущего соотношения сторон
     const resolutions = getResolutionsForAspectRatio(settings.aspectRatio.label)
     setAvailableResolutions(resolutions)
 
     // Обновляем значения пользовательской ширины и высоты
+    // в соответствии с текущими настройками проекта
     setCustomWidth(settings.aspectRatio.value.width)
     setCustomHeight(settings.aspectRatio.value.height)
 
@@ -97,13 +144,20 @@ export function ProjectSettingsModal() {
       "[ProjectSettingsDialog] Доступные разрешения обновлены:",
       resolutions,
     )
-  }, [settings.aspectRatio])
+  }, [settings.aspectRatio]) // Зависимость от соотношения сторон
 
-  // Функция для обновления соотношения сторон и автоматического обновления разрешения
+  /**
+   * Функция для обновления соотношения сторон и автоматического обновления разрешения
+   * Вызывается при выборе нового соотношения сторон в выпадающем списке
+   *
+   * @param {string} value - Выбранное соотношение сторон (например, "16:9", "1:1", "custom")
+   */
   const handleAspectRatioChange = (value: string) => {
+    // Находим объект соотношения сторон по выбранному значению
     const newAspectRatio = ASPECT_RATIOS.find((item) => item.label === value)
     if (newAspectRatio) {
       // Если выбрано пользовательское соотношение сторон, отключаем блокировку
+      // чтобы пользователь мог свободно изменять ширину и высоту
       if (value === "custom" && aspectRatioLocked) {
         setAspectRatioLocked(false)
       }
@@ -111,14 +165,15 @@ export function ProjectSettingsModal() {
       // Получаем рекомендуемое разрешение для нового соотношения сторон
       const recommendedResolution = getDefaultResolutionForAspectRatio(value)
 
-      // Обновляем настройки проекта с новым соотношением сторон и разрешением
+      // Создаем новый объект настроек с обновленным соотношением сторон и разрешением
       const newSettings = {
         ...settings,
         aspectRatio: newAspectRatio,
+        // Для пользовательского соотношения используем "custom", иначе рекомендуемое разрешение
         resolution: value === "custom" ? "custom" : recommendedResolution.value,
       }
 
-      // Обновляем размеры в соответствии с рекомендуемым разрешением или пользовательскими значениями
+      // Обновляем размеры в соответствии с выбранным соотношением сторон
       if (value === "custom") {
         // Для пользовательского соотношения используем текущие значения ширины и высоты
         newSettings.aspectRatio = {
@@ -141,13 +196,15 @@ export function ProjectSettingsModal() {
         }
 
         // Обновляем значения пользовательской ширины и высоты
+        // для отображения в полях ввода
         setCustomWidth(recommendedResolution.width)
         setCustomHeight(recommendedResolution.height)
       }
 
-      // Применяем новые настройки
+      // Применяем новые настройки через контекст
       updateSettings(newSettings)
 
+      // Отладочный вывод
       console.log("[ProjectSettingsDialog] Соотношение сторон изменено:", {
         aspectRatio: newAspectRatio.label,
         resolution: newSettings.resolution,
@@ -155,7 +212,8 @@ export function ProjectSettingsModal() {
         height: newSettings.aspectRatio.value.height,
       })
 
-      // Принудительно обновляем компоненты
+      // Принудительно обновляем компоненты, зависящие от размеров
+      // через событие изменения размера окна
       setTimeout(() => {
         if (typeof window !== "undefined") {
           window.dispatchEvent(new Event("resize"))
@@ -167,6 +225,7 @@ export function ProjectSettingsModal() {
   return (
     <>
       <div className="flex flex-col space-y-1 py-1">
+        {/* Выбор соотношения сторон */}
         <div className="flex items-center justify-end">
           <Label className="mr-2 text-xs">
             {t("dialogs.projectSettings.aspectRatio")}
@@ -179,8 +238,10 @@ export function ProjectSettingsModal() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="">
+              {/* Отображение списка доступных соотношений сторон */}
               {ASPECT_RATIOS.map((item) => (
                 <SelectItem key={item.label} value={item.label} className="">
+                  {/* Для пользовательского соотношения показываем специальную метку */}
                   {item.label === "custom"
                     ? t("dialogs.projectSettings.aspectRatioLabels.custom")
                     : `${item.label} ${item.textLabel ? `(${getAspectRatioLabel(item.textLabel)})` : ""}`}
@@ -190,17 +251,20 @@ export function ProjectSettingsModal() {
           </Select>
         </div>
 
+        {/* Выбор разрешения */}
         <div className="flex items-center justify-end">
           <Label className="mr-2 text-xs">
             {t("dialogs.projectSettings.resolution")}
           </Label>
           <Select
             value={
+              // Для пользовательского соотношения сторон всегда показываем "custom"
               settings.aspectRatio.label === "custom"
                 ? "custom"
                 : settings.resolution
             }
             onValueChange={(value: string) => {
+              // Для пользовательского соотношения сторон блокируем изменение разрешения
               if (settings.aspectRatio.label === "custom") {
                 // Для пользовательского соотношения сторон всегда используем пользовательское разрешение
                 return
@@ -245,11 +309,13 @@ export function ProjectSettingsModal() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="">
+              {/* Для пользовательского соотношения сторон показываем только "custom" */}
               {settings.aspectRatio.label === "custom" ? (
                 <SelectItem value="custom" className="">
                   {t("dialogs.projectSettings.aspectRatioLabels.custom")}
                 </SelectItem>
               ) : (
+                // Для стандартных соотношений показываем список доступных разрешений
                 availableResolutions.map((option) => (
                   <SelectItem
                     key={option.value}
@@ -264,12 +330,13 @@ export function ProjectSettingsModal() {
           </Select>
         </div>
 
-        {/* Поля для ввода ширины и высоты (всегда видимы) */}
+        {/* Поля для ввода пользовательских размеров (ширина и высота) */}
         <div className="flex items-center justify-end">
           <Label className="mr-2 text-xs">
             {t("dialogs.projectSettings.customSize")}
           </Label>
           <div className="flex items-center">
+            {/* Поле ввода ширины */}
             <Input
               type="number"
               value={customWidth}
@@ -279,17 +346,22 @@ export function ProjectSettingsModal() {
                   setCustomWidth(width)
 
                   // Если соотношение сторон заблокировано, обновляем высоту пропорционально
+                  // для сохранения выбранного соотношения сторон
                   if (
                     aspectRatioLocked &&
                     settings.aspectRatio.label !== "custom"
                   ) {
+                    // Вычисляем текущее соотношение сторон
                     const aspectRatio =
                       settings.aspectRatio.value.width /
                       settings.aspectRatio.value.height
+
+                    // Вычисляем новую высоту на основе соотношения сторон
                     const newHeight = Math.round(width / aspectRatio)
                     setCustomHeight(newHeight)
 
-                    // Обновляем настройки проекта с новыми размерами
+                    // Обновляем настройки проекта с новыми размерами,
+                    // сохраняя соотношение сторон
                     const newSettings = {
                       ...settings,
                       aspectRatio: {
@@ -304,7 +376,8 @@ export function ProjectSettingsModal() {
                     }
                     updateSettings(newSettings)
                   } else {
-                    // Если соотношение сторон не заблокировано или пользовательское, просто обновляем ширину
+                    // Если соотношение сторон не заблокировано или пользовательское,
+                    // просто обновляем ширину без изменения высоты
                     const newSettings = {
                       ...settings,
                       aspectRatio: {
@@ -321,10 +394,14 @@ export function ProjectSettingsModal() {
                 }
               }}
               className="w-20 text-center"
-              min={320}
-              max={7680}
+              min={320} // Минимальная ширина
+              max={7680} // Максимальная ширина (8K)
             />
+
+            {/* Разделитель между полями ширины и высоты */}
             <span className="mx-2 text-sm">x</span>
+
+            {/* Поле ввода высоты */}
             <Input
               type="number"
               value={customHeight}
@@ -334,17 +411,22 @@ export function ProjectSettingsModal() {
                   setCustomHeight(height)
 
                   // Если соотношение сторон заблокировано, обновляем ширину пропорционально
+                  // для сохранения выбранного соотношения сторон
                   if (
                     aspectRatioLocked &&
                     settings.aspectRatio.label !== "custom"
                   ) {
+                    // Вычисляем текущее соотношение сторон
                     const aspectRatio =
                       settings.aspectRatio.value.width /
                       settings.aspectRatio.value.height
+
+                    // Вычисляем новую ширину на основе соотношения сторон
                     const newWidth = Math.round(height * aspectRatio)
                     setCustomWidth(newWidth)
 
-                    // Обновляем настройки проекта с новыми размерами
+                    // Обновляем настройки проекта с новыми размерами,
+                    // сохраняя соотношение сторон
                     const newSettings = {
                       ...settings,
                       aspectRatio: {
@@ -359,7 +441,8 @@ export function ProjectSettingsModal() {
                     }
                     updateSettings(newSettings)
                   } else {
-                    // Если соотношение сторон не заблокировано или пользовательское, просто обновляем высоту
+                    // Если соотношение сторон не заблокировано или пользовательское,
+                    // просто обновляем высоту без изменения ширины
                     const newSettings = {
                       ...settings,
                       aspectRatio: {
@@ -376,21 +459,29 @@ export function ProjectSettingsModal() {
                 }
               }}
               className="w-20 text-center"
-              min={240}
-              max={4320}
+              min={240} // Минимальная высота
+              max={4320} // Максимальная высота (4K)
             />
+
+            {/* Кнопка блокировки/разблокировки соотношения сторон */}
+            {/* Отображается только для стандартных соотношений сторон */}
             {settings.aspectRatio.label !== "custom" && (
               <Button
                 variant="ghost"
                 size="icon"
-                className={`ml-2 h-7 w-7 cursor-pointer p-0 ${aspectRatioLocked ? "text-[#00CCC0]" : "text-gray-400 hover:text-gray-200"}`}
+                className={`ml-2 h-7 w-7 cursor-pointer p-0 ${
+                  // Подсвечиваем кнопку, если соотношение сторон заблокировано
+                  aspectRatioLocked ? "text-[#00CCC0]" : "text-gray-400 hover:text-gray-200"
+                }`}
                 onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
                 title={
+                  // Подсказка при наведении
                   aspectRatioLocked
                     ? t("dialogs.projectSettings.unlockAspectRatio")
                     : t("dialogs.projectSettings.lockAspectRatio")
                 }
               >
+                {/* Иконка в зависимости от состояния блокировки */}
                 {aspectRatioLocked ? (
                   <Lock className="h-4 w-4" />
                 ) : (
@@ -401,10 +492,13 @@ export function ProjectSettingsModal() {
           </div>
         </div>
 
+        {/* Информация о текущем соотношении сторон */}
         <div className="flex items-center justify-center">
           <div className="flex items-center text-xs text-gray-400">
             {settings.aspectRatio.label !== "custom" ? (
+              // Для стандартных соотношений сторон показываем статус блокировки
               aspectRatioLocked ? (
+                // Заблокированное соотношение сторон
                 <>
                   <Lock className="mr-1 h-3 w-3 text-[#00CCC0]" />
                   <span className="text-[#00CCC0]">
@@ -414,6 +508,7 @@ export function ProjectSettingsModal() {
                   </span>
                 </>
               ) : (
+                // Разблокированное соотношение сторон
                 <>
                   <Unlock className="mr-1 h-3 w-3" />
                   {t("dialogs.projectSettings.aspectRatioUnlocked", {
@@ -422,6 +517,7 @@ export function ProjectSettingsModal() {
                 </>
               )
             ) : (
+              // Для пользовательского соотношения сторон показываем вычисленное значение
               <>
                 {t("dialogs.projectSettings.aspectRatioValue", {
                   ratio: getAspectRatioString(customWidth, customHeight),
@@ -431,6 +527,7 @@ export function ProjectSettingsModal() {
           </div>
         </div>
 
+        {/* Выбор частоты кадров */}
         <div className="flex items-center justify-end">
           <Label className="mr-2 text-xs">
             {t("dialogs.projectSettings.frameRate")}
@@ -438,6 +535,7 @@ export function ProjectSettingsModal() {
           <Select
             value={settings.frameRate}
             onValueChange={(value: FrameRate) =>
+              // Обновляем настройки с новой частотой кадров
               updateSettings({
                 ...settings,
                 frameRate: value,
@@ -448,6 +546,7 @@ export function ProjectSettingsModal() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="">
+              {/* Отображение списка доступных частот кадров */}
               {FRAME_RATES.map((frameRate) => (
                 <SelectItem
                   key={frameRate.value}
@@ -461,6 +560,7 @@ export function ProjectSettingsModal() {
           </Select>
         </div>
 
+        {/* Выбор цветового пространства */}
         <div className="flex items-center justify-end">
           <Label className="mr-2 text-xs">
             {t("dialogs.projectSettings.colorSpace")}
@@ -468,6 +568,7 @@ export function ProjectSettingsModal() {
           <Select
             value={settings.colorSpace}
             onValueChange={(value: ColorSpace) =>
+              // Обновляем настройки с новым цветовым пространством
               updateSettings({
                 ...settings,
                 colorSpace: value,
@@ -478,6 +579,7 @@ export function ProjectSettingsModal() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="">
+              {/* Отображение списка доступных цветовых пространств */}
               {COLOR_SPACES.map((colorSpace) => (
                 <SelectItem
                   key={colorSpace.value}
@@ -491,20 +593,25 @@ export function ProjectSettingsModal() {
           </Select>
         </div>
       </div>
+
+      {/* Кнопки действий в нижней части модального окна */}
       <DialogFooter className="flex justify-between space-x-4">
+        {/* Кнопка отмены */}
         <Button
           variant="default"
           className="flex-1 cursor-pointer"
-          onClick={() => closeModal()}
+          onClick={() => closeModal()} // Закрываем модальное окно без сохранения
         >
           {t("dialogs.projectSettings.cancel")}
         </Button>
+
+        {/* Кнопка сохранения */}
         <Button
           variant="default"
           className="flex-1 cursor-pointer bg-[#00CCC0] text-black hover:bg-[#00AAA0]"
           onClick={() => {
-            // Force a refresh of the UI by triggering a small update to settings
-            // This ensures all components react to the settings changes
+            // Создаем копию текущих настроек для обновления
+            // Это обеспечивает обновление всех компонентов, зависящих от настроек
             const currentSettings = { ...settings }
 
             // Обновляем размеры в соответствии с текущим разрешением
@@ -522,6 +629,7 @@ export function ProjectSettingsModal() {
               // Устанавливаем разрешение в формате "ширинаxвысота"
               currentSettings.resolution = `${customWidth}x${customHeight}`
             } else if (currentSettings.resolution) {
+              // Для стандартных разрешений парсим значения из строки
               const resolutionParts = currentSettings.resolution.split("x")
               if (resolutionParts.length === 2) {
                 const width = Number.parseInt(resolutionParts[0], 10)
@@ -541,10 +649,12 @@ export function ProjectSettingsModal() {
               }
             }
 
-            // This will trigger a re-render of all components that depend on settings
-            // and ensure the settings are saved to localStorage
+            // Применяем обновленные настройки
+            // Это вызовет перерисовку всех компонентов, зависящих от настроек,
+            // и обеспечит сохранение настроек в localStorage
             updateSettings(currentSettings)
 
+            // Отладочный вывод
             console.log(
               "[ProjectSettingsDialog] Applied settings:",
               currentSettings,
