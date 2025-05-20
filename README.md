@@ -2,9 +2,11 @@
 
 Приложение для создания и редактирования видео, построенное на базе Tauri, React и XState.
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/check-all.yml?branch=main)
-![GitHub License](https://img.shields.io/github/license/chatman-media/timeline-studio)
-![CSS Linting](https://img.shields.io/badge/css%20linting-stylelint-blueviolet)
+[![Build Status](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml)
+![Check all Status](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/check-all.yml?branch=main)
+[![Lint CSS](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml)
+[![Lint Node.js](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
+[![Lint Rust](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml)
 
 ## Обзор проекта
 
