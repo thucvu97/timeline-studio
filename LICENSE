@@ -1,61 +1,41 @@
-# Коммерческая лицензия с разделением прибыли
+"Commons Clause" License Condition v1.0
 
-Copyright (c) 2025 Alexander Kireyev
+The Software is provided to you by the Licensor under the License, as defined below, subject to the following condition.
 
-## Определения
+Without limiting other conditions in the License, the grant of rights under the License will not include, and the License does not grant to you, the right to Sell the Software.
 
-"Программное обеспечение" означает приложение Timeline, его исходный код, документацию и любые производные работы.
-"Автор" означает Alexander Kireyev и других правообладателей, указанных в исходном коде.
-"Коммерческое использование" означает использование Программного обеспечения с целью получения прямой или косвенной коммерческой выгоды.
-"Пользователь" означает физическое или юридическое лицо, использующее Программное обеспечение.
+For purposes of the foregoing, "Sell" means practicing any or all of the rights granted to you under the License to provide to third parties, for a fee or other consideration (including without limitation fees for hosting or consulting/ support services related to the Software), a product or service whose value derives, entirely or substantially, from the functionality of the Software. Any license notice or attribution required by the License must also include this Commons Clause License Condition notice.
 
-## Условия использования
-
-1. **Некоммерческое использование**
-   
-   Разрешается свободное использование, модификация и распространение Программного обеспечения в некоммерческих целях при условии сохранения данного уведомления об авторских правах и условиях лицензии.
-
-2. **Коммерческое использование**
-
-   Коммерческое использование Программного обеспечения разрешается при соблюдении следующих условий:
-   
-   a) Пользователь обязан заключить отдельное соглашение с Автором о разделении прибыли, полученной от коммерческого использования Программного обеспечения.
-   
-   b) Если не оговорено иное в отдельном соглашении, Пользователь обязан выплачивать Автору 15% от чистой прибыли, полученной от коммерческого использования Программного обеспечения.
-   
-   c) Пользователь обязан предоставлять Автору ежеквартальные отчеты о доходах, полученных от коммерческого использования Программного обеспечения.
-   
-   d) Автор имеет право проверять финансовую отчетность Пользователя, связанную с коммерческим использованием Программного обеспечения.
-
-3. **Распространение**
-
-   При распространении Программного обеспечения или его модификаций, Пользователь обязан:
-   
-   a) Сохранять данное уведомление об авторских правах и условиях лицензии.
-   
-   b) Указывать все внесенные изменения.
-   
-   c) Не использовать имя Автора для продвижения производных продуктов без письменного разрешения.
-
-4. **Отказ от гарантий**
-
-   ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ "КАК ЕСТЬ", БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНЫХ ИЛИ ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ ГАРАНТИЯМИ ТОВАРНОЙ ПРИГОДНОСТИ, СООТВЕТСТВИЯ ОПРЕДЕЛЕННЫМ ЦЕЛЯМ И НЕНАРУШЕНИЯ ПРАВ. АВТОР НЕ НЕСЕТ ОТВЕТСТВЕННОСТИ ЗА ЛЮБЫЕ ПРЕТЕНЗИИ, УБЫТКИ ИЛИ ДРУГИЕ ОБЯЗАТЕЛЬСТВА, ВОЗНИКАЮЩИЕ В СВЯЗИ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ ИЛИ ЕГО ИСПОЛЬЗОВАНИЕМ.
-
-5. **Прекращение действия**
-
-   Данная лицензия автоматически прекращает свое действие, если Пользователь нарушает любое из ее условий. При прекращении действия лицензии Пользователь обязан прекратить использование Программного обеспечения.
-
-6. **Применимое право**
-
-   Данная лицензия регулируется и толкуется в соответствии с законодательством Российской Федерации.
-
-## Контактная информация
-
-Для получения дополнительной информации или заключения коммерческого соглашения, пожалуйста, свяжитесь с Автором:
-
-Alexander Kireyev
-Email: ak.chatman.media@gmail.com
+Software: Timeline Studio
+License: MIT
+Licensor: Alexander Kireyev (Chatman Media)
 
 ---
 
-Последнее обновление: 19 февраля 2024 г.
+MIT License
+
+Copyright (c) 2023-2025 Alexander Kireyev (Chatman Media)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+For commercial licensing inquiries, please contact:
+Alexander Kireyev
+Email: ak.chatman.media@gmail.com

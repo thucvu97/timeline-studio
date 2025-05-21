@@ -6,11 +6,13 @@
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue)](https://chatman-media.github.io/timeline-studio/api-docs/)
 [![Website](https://img.shields.io/badge/website-Promo-brightgreen)](https://chatman-media.github.io/timeline-studio/)
+[![API Docs](https://github.com/chatman-media/timeline-studio/actions/workflows/docs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/docs.yml)
+[![Deploy Promo](https://github.com/chatman-media/timeline-studio/actions/workflows/deploy-promo.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/deploy-promo.yml)
 [![Check Status](https://github.com/chatman-media/timeline-studio/actions/workflows/check-all.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/check-all.yml)
 [![Lint CSS](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml)
 [![Lint TypeScript](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
 [![Lint Rust](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml)
-[![DeepSource](https://deepsource.io/gh/chatman-media/timeline-studio.svg/?label=active+issues&show_trend=true&token=YOUR_TOKEN_HERE)](https://deepsource.io/gh/chatman-media/timeline-studio/?ref=repository-badge)
+[![DeepSource](https://deepsource.io/gh/chatman-media/timeline-studio.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/chatman-media/timeline-studio/?ref=repository-badge)
 
 ## Обзор проекта
 
@@ -39,7 +41,7 @@ Timeline Studio - это настольное приложение для соз
 1. Клонируйте репозиторий:
 
 ```bash
-git clone https://github.com/your-username/timeline-studio.git
+git clone https://github.com/chatman-media/timeline-studio.git
 cd timeline-studio
 ```
 
@@ -129,14 +131,19 @@ bun test
 bun test:coverage
 ```
 
-## Непрерывная интеграция
+## Непрерывная интеграция и развертывание
 
-Проект настроен для использования GitHub Actions для непрерывной интеграции. Рабочие процессы:
+Проект настроен для использования GitHub Actions для непрерывной интеграции и развертывания. Рабочие процессы:
 
+### Проверка и сборка
 - `lint.yml` - Проверка JavaScript/TypeScript, CSS и Rust кода
 - `lint-css.yml` - Проверка только CSS кода (запускается при изменении CSS файлов)
 - `build.yml` - Сборка проекта
 - `check-all.yml` - Запуск всех проверок и тестов
+
+### Развертывание
+- `docs.yml` - Генерация и публикация API документации на GitHub Pages
+- `deploy-promo.yml` - Сборка и публикация промо-страницы на GitHub Pages
 
 ### Конфигурация линтеров
 
@@ -160,10 +167,6 @@ bun lint:css
 bun lint:css:fix
 ```
 
-## Лицензия
-
-[MIT](LICENSE)
-
 ## Документация API
 
 Документация API доступна по адресу: [https://chatman-media.github.io/timeline-studio/api-docs/](https://chatman-media.github.io/timeline-studio/api-docs/)
@@ -182,11 +185,30 @@ bun run docs
 bun run docs:watch
 ```
 
+Документация автоматически обновляется при изменении исходного кода в ветке `main` с помощью GitHub Actions workflow `docs.yml`.
+
 ## Промо-страница
 
 Промо-страница проекта доступна по адресу: [https://chatman-media.github.io/timeline-studio/](https://chatman-media.github.io/timeline-studio/)
 
 Исходный код промо-страницы находится в папке `promo/`.
+
+Для локальной разработки промо-страницы используйте команды:
+
+```bash
+cd promo
+npm install
+npm run dev
+```
+
+Для сборки промо-страницы:
+
+```bash
+cd promo
+npm run build
+```
+
+Промо-страница автоматически обновляется при изменении файлов в папке `promo/` в ветке `main` с помощью GitHub Actions workflow `deploy-promo.yml`.
 
 ## Дополнительные ресурсы
 
@@ -200,13 +222,33 @@ bun run docs:watch
 - [Playwright Documentation](https://playwright.dev/docs/intro)
 - [TypeDoc Documentation](https://typedoc.org/)
 
-### Лицензия
+## Лицензия
 
-Данный проект распространяется под специальной коммерческой лицензией с разделением прибыли.
+Данный проект распространяется под лицензией MIT с условием Commons Clause.
 
 **Основные условия:**
 
-- **Некоммерческое использование**: Разрешается свободно использовать, модифицировать и распространять программное обеспечение в некоммерческих целях.
-- **Коммерческое использование**: Требуется заключение соглашения с автором о разделении прибыли.
+- **Открытый исходный код**: Вы можете свободно использовать, модифицировать и распространять код в соответствии с условиями лицензии MIT.
+- **Ограничение на коммерческое использование**: Commons Clause запрещает "продажу" программного обеспечения без отдельного соглашения с автором.
+- **"Продажа"** означает использование функциональности программного обеспечения для предоставления третьим лицам продукта или услуги за плату.
 
-Для получения полной информации о лицензии, пожалуйста, ознакомьтесь с файлом [LICENSE](./LICENSE).
+Эта лицензия позволяет:
+- Использовать код для личных и некоммерческих проектов
+- Изучать и модифицировать код
+- Распространять модификации под той же лицензией
+
+Но запрещает:
+- Создавать коммерческие продукты или услуги на основе кода без лицензии
+
+Для получения коммерческой лицензии, пожалуйста, свяжитесь с автором: ak.chatman.media@gmail.com
+
+Полный текст лицензии доступен в файле [LICENSE](./LICENSE)
+
+## GitHub Pages
+
+Проект использует GitHub Pages для размещения документации API и промо-страницы:
+
+- **Промо-страница**: [https://chatman-media.github.io/timeline-studio/](https://chatman-media.github.io/timeline-studio/)
+- **Документация API**: [https://chatman-media.github.io/timeline-studio/api-docs/](https://chatman-media.github.io/timeline-studio/api-docs/)
+
+Обе страницы автоматически обновляются при изменении соответствующих файлов в ветке `main` с помощью GitHub Actions workflows.
