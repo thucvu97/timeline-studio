@@ -121,6 +121,12 @@ jobs:
           # Обновляем package.json, чтобы использовать этот файл для тестов на Ubuntu
           sed -i 's/"test": "vitest run"/"test": "node ubuntu-test-skip.js"/g' package.json
 
+      # Исправляем имя продукта в tauri.conf.json перед сборкой
+      - name: Fix product name
+        run: |
+          # Заменяем пробелы на дефисы в имени продукта
+          sed -i 's/"productName": "Timeline Studio"/"productName": "timeline-studio"/g' src-tauri/tauri.conf.json
+
       - name: Build the app (macOS universal)
         if: matrix.platform == 'macos-latest'
         uses: tauri-apps/tauri-action@v0.5.0
