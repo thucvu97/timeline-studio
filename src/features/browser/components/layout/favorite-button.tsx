@@ -12,10 +12,12 @@ interface FavoriteButtonProps {
   type?: "media" | "audio" | "transition" | "effect" | "template" | "filter"
   isFavorite?: boolean
   onAddToFavorites?: (
+    e: React.MouseEvent | React.KeyboardEvent,
     file: MediaFile,
     type: string,
   ) => void
   onRemoveFromFavorites?: (
+    e: React.MouseEvent | React.KeyboardEvent,
     file: MediaFile,
     type: string,
   ) => void
@@ -118,16 +120,21 @@ export const FavoriteButton = memo(function FavoriteButton({
 
     if (isFavorite && isHovering && canShowRemoveButton) {
       // Удаляем из избранного
-      onRemoveFromFavorites?.(file, type)
+      onRemoveFromFavorites?.(e, file, type)
     } else if (!isFavorite) {
       // Добавляем в избранное
-      onAddToFavorites?.(file, type)
+      onAddToFavorites?.(e, file, type)
       // Немедленно обновляем визуальное состояние
       setIsRecentlyAdded(true)
     }
   }
 
   const iconSize = size > 100 ? "h-3.5 w-3.5" : "h-2.5 w-2.5"
+
+  // Не рендерим компонент, если не предоставлены обработчики
+  if (!onAddToFavorites && !onRemoveFromFavorites) {
+    return null;
+  }
 
   return (
     <button

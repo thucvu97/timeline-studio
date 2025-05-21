@@ -1,15 +1,15 @@
 # AGENT.md - Timeline Studio coding guide
 
 ## Commands
-- **Build frontend**: `bun build`
-- **Dev with hot reload**: `bun dev`
-- **Lint**: `bun lint` (JS/TS), `bun lint:css` (CSS), `bun lint:rust` (Rust)
-- **Format**: `bun format:imports` (JS/TS imports), `bun format:rust` (Rust)
-- **Fix**: `bun lint:fix` (JS/TS), `bun lint:css:fix` (CSS), `bun fix:rust` (Rust)
-- **Test**: `bun test` (all), `bun test:app` (features), `bun test:watch` (watch mode)
-- **Run single test**: `bun test src/path/to/file.test.ts` or `vitest run src/path/to/file.test.ts`
-- **Typecheck**: `bun check:all` (runs lint and tests)
-- **Run Tauri**: `bun tauri dev` (development), `bun tauri build` (production)
+- **Build frontend**: `bun run build`
+- **Dev with hot reload**: `bun run dev`
+- **Lint**: `bun run lint` (JS/TS), `bun run lint:css` (CSS), `bun run lint:rust` (Rust)
+- **Format**: `bun run format:imports` (JS/TS imports), `bun run format:rust` (Rust)
+- **Fix**: `bun run lint:fix` (JS/TS), `bun run lint:css:fix` (CSS), `bun run fix:rust` (Rust)
+- **Test**: `bun run test` (all), `bun run test:app` (features), `bun run test:watch` (watch mode)
+- **Run single test**: `bun run test src/path/to/file.test.ts` or `vitest run src/path/to/file.test.ts`
+- **Typecheck**: `bun run check:all` (runs lint and tests)
+- **Run Tauri**: `bun run tauri dev` (development), `bun run tauri build` (production)
 
 ## MCP Configuration
 ```json
