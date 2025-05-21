@@ -125,7 +125,13 @@ jobs:
       - name: Fix product name
         run: |
           # Заменяем пробелы на дефисы в имени продукта
-          sed -i 's/"productName": "Timeline Studio"/"productName": "timeline-studio"/g' src-tauri/tauri.conf.json
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            # macOS требует указания расширения для опции -i
+            sed -i '' 's/"productName": "Timeline Studio"/"productName": "timeline-studio"/g' src-tauri/tauri.conf.json
+          else
+            # Linux и Windows
+            sed -i 's/"productName": "Timeline Studio"/"productName": "timeline-studio"/g' src-tauri/tauri.conf.json
+          fi
 
       - name: Build the app (macOS universal)
         if: matrix.platform == 'macos-latest'
