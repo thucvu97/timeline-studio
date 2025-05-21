@@ -94,18 +94,27 @@ jobs:
           fi
 
       - name: Install frontend dependencies
-        run: npm install
+        run: |
+          # Создаем файл .npmrc, чтобы указать использование npm
+          echo "engine-strict=false" > .npmrc
+          npm install
 
       - name: Install Tauri CLI
-        run: npm install -g @tauri-apps/cli
+        run: |
+          # Устанавливаем Tauri CLI глобально
+          npm install -g @tauri-apps/cli
+          # Создаем символическую ссылку на Tauri CLI в директории проекта
+          mkdir -p node_modules/.bin
+          ln -sf $(which tauri) node_modules/.bin/tauri
 
       - name: Build the app (macOS universal)
         if: matrix.platform == 'macos-latest'
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@v0.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          TAURI_CLI_PACKAGE_MANAGER: "npm"
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
@@ -114,14 +123,19 @@ jobs:
           releaseDraft: false
           prerelease: ${{ github.event.inputs.prerelease }}
           args: --target universal-apple-darwin
+          includeDebug: false
+          includeRelease: true
+          includeUpdaterJson: true
+          tauriScript: "npm run tauri"
 
       - name: Build the app (Windows/Linux)
         if: matrix.platform != 'macos-latest'
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@v0.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          TAURI_CLI_PACKAGE_MANAGER: "npm"
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
@@ -129,6 +143,10 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: false
           prerelease: ${{ github.event.inputs.prerelease }}
+          includeDebug: false
+          includeRelease: true
+          includeUpdaterJson: true
+          tauriScript: "npm run tauri"
 
   update-promo-page:
     needs: [create-release, build-tauri]
