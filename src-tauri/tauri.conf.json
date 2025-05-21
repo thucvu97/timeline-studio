@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "identifier": "com.chatman-media.timeline-studio",
   "build": {
-    "beforeDevCommand": "bun dev",
+    "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:3000",
-    "beforeBuildCommand": "bun run next build",
+    "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
   "app": {
