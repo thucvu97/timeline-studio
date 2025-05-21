@@ -5,6 +5,8 @@ import {
   Layout,
   ListTodo,
   Mic,
+  PanelLeftClose,
+  PanelLeftOpen,
   Save,
   Send,
   Settings,
@@ -21,15 +23,29 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { BrowserToggle } from "@/features/browser/components/layout/browser-toggle"
+import { useBrowserVisibility } from "@/features/browser/providers/browser-visibility-provider"
 import { LayoutPreviews } from "@/features/media-studio/layouts"
+import { ModalType } from "@/features/modals"
 import { useModal } from "@/features/modals/services/modal-provider"
 import { cn } from "@/lib/utils"
 
 export function TopBar() {
   const { t } = useTranslation()
   const { openModal } = useModal()
+  const { isBrowserVisible, toggleBrowserVisibility } = useBrowserVisibility()
   const [isEditing, setIsEditing] = useState(false)
+  const [isDirty, setIsDirty] = useState(false)
+  const [name, setName] = useState("New Project")
+
+  const handleOpenModal = (modal: string) => {
+    console.log(`Opening modal: ${modal}`)
+    openModal(modal as ModalType)
+  }
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value)
+    setIsDirty(true)
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -37,20 +53,34 @@ export function TopBar() {
     }
   }
 
-  const handleOpenModal = (modal: string) => {
-    console.log(`Opening modal: ${modal}`)
-    openModal(modal as any)
+  const handleSave = () => {
+    setIsDirty(false)
   }
 
   return (
     <div className="relative flex w-full items-center justify-between bg-gray-200 px-1 py-0 dark:bg-[#383838] gap-2">
       {/* Группа 1: Переключатель браузера и макет */}
-      <div className="flex h-6 items-center justify-center">
-        <BrowserToggle />
+      <div className="flex items-center justify-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          className={
+            "transition-all duration-300 hover:bg-secondary h-7 w-7 cursor-pointer p-0"
+          }
+          onClick={toggleBrowserVisibility}
+          title={isBrowserVisible ? t("browser.hide") : t("browser.show")}
+        >
+          {isBrowserVisible ? (
+            <PanelLeftClose size={16} />
+          ) : (
+            <PanelLeftOpen size={16} />
+          )}
+        </Button>
+
         <Popover>
           <PopoverTrigger asChild>
             <Button
-              className="hover:bg-secondary h-7 w-7 cursor-pointer p-0"
+              className="h-7 w-7 cursor-pointer p-0"
               variant="ghost"
               size="icon"
               title={t("topBar.layout")}
@@ -66,12 +96,12 @@ export function TopBar() {
       </div>
 
       {/* Группа 2: Переключатель темы и быстрые клавиши */}
-      <div className="flex h-6 items-center justify-center">
+      <div className="flex items-center justify-center">
         <div data-testid="theme-toggle">
           <ThemeToggle />
         </div>
         <Button
-          className="hover:bg-secondary h-7 w-7 cursor-pointer p-0"
+          className="h-7 w-7 cursor-pointer p-0"
           variant="ghost"
           size="icon"
           title={t("topBar.keyboardShortcuts")}
@@ -83,9 +113,9 @@ export function TopBar() {
       </div>
 
       {/* Группа 3: Настройки проекта, сохранение и имя проекта */}
-      <div className="flex h-6 items-center justify-center">
+      <div className="flex items-center justify-center">
         <Button
-          className="hover:bg-secondary h-7 w-7 cursor-pointer p-0"
+          className="h-7 w-7 cursor-pointer p-0"
           variant="ghost"
           size="icon"
           title={t("topBar.projectSettings")}
@@ -96,19 +126,24 @@ export function TopBar() {
         </Button>
         <Button
           className={cn(
-            "hover:bg-secondary h-7 w-7 cursor-pointer p-0",
-            // isDirty ? "hover:bg-accent opacity-100" : "opacity-50 hover:opacity-50",
+            "h-7 w-7 cursor-pointer p-0",
+            isDirty
+              ? "hover:bg-accent opacity-100"
+              : "opacity-50 hover:opacity-50",
           )}
           variant="ghost"
           size="icon"
-          // title={isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved")}
-          // onClick={handleSave}
-          // disabled={!isDirty}
+          title={
+            isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved")
+          }
+          onClick={handleSave}
+          disabled={!isDirty}
           data-testid="save-button"
         >
           <Save className="h-5 w-5" />
         </Button>
 
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
         <div
           className={cn(
             "group relative ml-1 w-[130px] text-xs",
@@ -122,23 +157,24 @@ export function TopBar() {
             <input
               id="project-name-input"
               type="text"
-              // value={name}
-              // onChange={handleNameChange}
+              value={name}
+              onChange={handleNameChange}
               onKeyDown={handleKeyDown}
               onBlur={() => setIsEditing(false)}
               className="w-full bg-transparent pl-[1px] text-xs focus:outline-none"
+              // biome-ignore lint/a11y/noAutofocus: <explanation>
               autoFocus
             />
           ) : (
             <span className="block truncate pl-[1px] hover:border hover:border-[#35d1c1] hover:pl-[0px]">
-              {/* {name} */}
+              {name}
             </span>
           )}
         </div>
       </div>
 
       {/* Группа 4: Запись видео и голоса */}
-      <div className="flex h-6 items-center justify-center">
+      <div className="flex items-center justify-center">
         <Button
           variant="ghost"
           size="icon"
@@ -162,7 +198,7 @@ export function TopBar() {
       </div>
 
       {/* Группа 5: Публикация, задачи, настройки пользователя и экспорт */}
-      <div className="flex h-6 items-center justify-center">
+      <div className="flex items-center justify-center">
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -180,7 +216,7 @@ export function TopBar() {
               <h4 className="text-sm font-semibold">
                 {t("topBar.publicationTasks")}
               </h4>
-              <div className="h-10"></div>
+              <div className="h-10" />
             </div>
           </PopoverContent>
         </Popover>
@@ -202,7 +238,7 @@ export function TopBar() {
               <h4 className="text-sm font-semibold">
                 {t("topBar.projectTasks")}
               </h4>
-              <div className="h-10"></div>
+              <div className="h-10" />
             </div>
           </PopoverContent>
         </Popover>
@@ -219,7 +255,7 @@ export function TopBar() {
         <Button
           variant="outline"
           size="sm"
-          className="h-5 w-24 cursor-pointer items-center gap-1 border-none rounded-sm bg-[#38dacac3] px-1 text-sm text-black hover:bg-[#35d1c1] hover:text-black dark:bg-[#35d1c1] dark:hover:bg-[#35d1c1]"
+          className="h-6 w-24 cursor-pointer items-center gap-1 border-none rounded-sm bg-[#38dacac3] px-1 text-sm text-black hover:bg-[#35d1c1] hover:text-black dark:bg-[#35d1c1] dark:hover:bg-[#35d1c1]"
           onClick={() => handleOpenModal("export")}
           data-testid="export-button"
         >

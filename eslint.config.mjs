@@ -68,14 +68,12 @@ const eslintConfig = tseslint.config(
       "react/no-danger-with-children": "off",
       "react/void-dom-elements-no-children": "off",
       // eslint-plugin-react-hooks rules replaced by Biome
-      "react-hooks/exhaustive-deps": "off",
       "react-hooks/rules-of-hooks": "off",
       // typescript-eslint rules replaced by Biome
       "@typescript-eslint/adjacent-overload-signatures": "off",
       "@typescript-eslint/array-type": "off",
       "@typescript-eslint/ban-types": "off",
       "@typescript-eslint/consistent-type-exports": "off",
-      "@typescript-eslint/consistent-type-imports": "off",
       "@typescript-eslint/default-param-last": "off",
       "@typescript-eslint/dot-notation": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
