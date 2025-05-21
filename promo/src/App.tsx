@@ -91,7 +91,14 @@ const App: React.FC = () => {
             <DownloadButton platform="Linux" icon="linux" />
           </div>
           <p className="mt-8 text-gray-600">
-            Или посетите <a href="https://github.com/chatman-media/timeline-studio/releases" className="text-blue-600 hover:underline">страницу релизов</a> для загрузки других версий.
+            <span className="font-semibold">Последняя версия: </span>
+            <a href="https://github.com/chatman-media/timeline-studio/releases/latest" className="text-blue-600 hover:underline">
+              Проверить на GitHub
+            </a>
+            <span className="mx-2">•</span>
+            <a href="https://github.com/chatman-media/timeline-studio/releases" className="text-blue-600 hover:underline">
+              Все версии
+            </a>
           </p>
         </div>
       </section>
@@ -162,9 +169,23 @@ const FeatureCard: React.FC<{ title: string; description: string; icon: string }
 
 // Компонент кнопки загрузки
 const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform, icon }) => {
+  // Определяем правильное расширение файла в зависимости от платформы
+  const getFileExtension = () => {
+    switch (platform.toLowerCase()) {
+      case 'windows':
+        return 'windows-x64.msi';
+      case 'macos':
+        return 'macos-x64.dmg';
+      case 'linux':
+        return 'linux-x86_64.AppImage';
+      default:
+        return `${platform.toLowerCase()}.zip`;
+    }
+  };
+
   return (
     <a
-      href={`https://github.com/chatman-media/timeline-studio/releases/latest/download/timeline-studio-${platform.toLowerCase()}.zip`}
+      href={`https://github.com/chatman-media/timeline-studio/releases/latest/download/timeline-studio-${getFileExtension()}`}
       className="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-4 px-8 rounded-lg shadow-md transition duration-300 flex items-center justify-center"
     >
       <span className="mr-2">{platform}</span>

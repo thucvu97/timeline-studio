@@ -1,0 +1,160 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 0.1.0)'
+        required: true
+        default: ''
+      prerelease:
+        description: 'Is this a pre-release?'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create_release.outputs.id }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ github.event.inputs.version }}
+
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: Timeline Studio v${{ github.event.inputs.version }}
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+          body: |
+            Timeline Studio v${{ github.event.inputs.version }}
+
+            ## Загрузки
+
+            - [Windows (x64)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-windows-x64.msi)
+            - [macOS (Intel)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-macos-x64.dmg)
+            - [macOS (Apple Silicon)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-macos-aarch64.dmg)
+            - [Linux (AppImage)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-linux-x86_64.AppImage)
+            - [Linux (Debian/Ubuntu)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-linux-amd64.deb)
+
+            ## Изменения
+
+            - Новые возможности
+            - Исправления ошибок
+            - Улучшения производительности
+
+  build-tauri:
+    needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+          - platform: macos-latest
+            arch: [x64, aarch64]
+          - platform: ubuntu-latest
+            arch: [x64]
+          - platform: windows-latest
+            arch: [x64]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build the app (macOS universal)
+        if: matrix.platform == 'macos-latest'
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          tagName: v${{ needs.create-release.outputs.version }}
+          releaseName: "Timeline Studio v${{ needs.create-release.outputs.version }}"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+          args: --target universal-apple-darwin
+
+      - name: Build the app (Windows/Linux)
+        if: matrix.platform != 'macos-latest'
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          tagName: v${{ needs.create-release.outputs.version }}
+          releaseName: "Timeline Studio v${{ needs.create-release.outputs.version }}"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+
+  update-promo-page:
+    needs: [create-release, build-tauri]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd promo
+          npm install
+
+      - name: Update download links
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+
+          # Обновляем компонент DownloadButton в App.tsx для использования конкретной версии вместо latest
+          sed -i "s|https://github.com/chatman-media/timeline-studio/releases/latest/download/timeline-studio-|https://github.com/chatman-media/timeline-studio/releases/download/v${VERSION}/timeline-studio-${VERSION}-|g" promo/src/App.tsx
+
+          # Обновляем информацию о последней версии
+          sed -i "s|<span className=\"font-semibold\">Последняя версия: </span>|<span className=\"font-semibold\">Последняя версия: v${VERSION} </span>|g" promo/src/App.tsx
+
+      - name: Build promo page
+        run: |
+          cd promo
+          # Используем сборку без проверки типов
+          npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: promo/dist
+          branch: gh-pages
+          clean: false
+          token: ${{ secrets.GITHUB_TOKEN }}
