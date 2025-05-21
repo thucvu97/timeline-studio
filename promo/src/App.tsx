@@ -168,6 +168,7 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
       className="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-4 px-8 rounded-lg shadow-md transition duration-300 flex items-center justify-center"
     >
       <span className="mr-2">{platform}</span>
+      <span className="text-sm">{icon}</span>
     </a>
   );
 };
