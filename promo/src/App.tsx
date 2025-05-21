@@ -169,23 +169,23 @@ const FeatureCard: React.FC<{ title: string; description: string; icon: string }
 
 // Компонент кнопки загрузки
 const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform, icon }) => {
-  // Определяем правильное расширение файла в зависимости от платформы
-  const getFileExtension = () => {
+  // Определяем правильный путь к файлу в зависимости от платформы
+  const getDownloadPath = () => {
     switch (platform.toLowerCase()) {
       case 'windows':
-        return 'windows-x64.msi';
+        return 'timeline-studio-windows-x64.msi';
       case 'macos':
-        return 'macos-x64.dmg';
+        return 'timeline-studio-macos-x64.dmg';
       case 'linux':
-        return 'linux-x86_64.AppImage';
+        return 'timeline-studio-linux-x86_64.AppImage';
       default:
-        return `${platform.toLowerCase()}.zip`;
+        return `timeline-studio-${platform.toLowerCase()}.zip`;
     }
   };
 
   return (
     <a
-      href={`https://github.com/chatman-media/timeline-studio/releases/latest/download/timeline-studio-${getFileExtension()}`}
+      href={`https://github.com/chatman-media/timeline-studio/releases/latest/download/${getDownloadPath()}`}
       className="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-4 px-8 rounded-lg shadow-md transition duration-300 flex items-center justify-center"
     >
       <span className="mr-2">{platform}</span>

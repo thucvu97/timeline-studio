@@ -140,7 +140,12 @@ jobs:
           VERSION="${{ needs.create-release.outputs.version }}"
 
           # Обновляем компонент DownloadButton в App.tsx для использования конкретной версии вместо latest
-          sed -i "s|https://github.com/chatman-media/timeline-studio/releases/latest/download/timeline-studio-|https://github.com/chatman-media/timeline-studio/releases/download/v${VERSION}/timeline-studio-${VERSION}-|g" promo/src/App.tsx
+          sed -i "s|https://github.com/chatman-media/timeline-studio/releases/latest/download/|https://github.com/chatman-media/timeline-studio/releases/download/v${VERSION}/|g" promo/src/App.tsx
+
+          # Обновляем имена файлов, чтобы включить версию
+          sed -i "s|timeline-studio-windows-x64.msi|timeline-studio-${VERSION}-windows-x64.msi|g" promo/src/App.tsx
+          sed -i "s|timeline-studio-macos-x64.dmg|timeline-studio-${VERSION}-macos-x64.dmg|g" promo/src/App.tsx
+          sed -i "s|timeline-studio-linux-x86_64.AppImage|timeline-studio-${VERSION}-linux-x86_64.AppImage|g" promo/src/App.tsx
 
           # Обновляем информацию о последней версии
           sed -i "s|<span className=\"font-semibold\">Последняя версия: </span>|<span className=\"font-semibold\">Последняя версия: v${VERSION} </span>|g" promo/src/App.tsx
