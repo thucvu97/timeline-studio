@@ -4,6 +4,8 @@
 
 [![Build Status](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml)
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg)](https://www.npmjs.com/package/timeline-studio)
+[![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue)](https://chatman-media.github.io/timeline-studio/api-docs/)
+[![Website](https://img.shields.io/badge/website-Promo-brightgreen)](https://chatman-media.github.io/timeline-studio/)
 [![Check Status](https://github.com/chatman-media/timeline-studio/actions/workflows/check-all.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/check-all.yml)
 [![Lint CSS](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml)
 [![Lint TypeScript](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
@@ -12,12 +14,12 @@
 
 ## Обзор проекта
 
-Timeline Studio - это настольное приложение для создания и редактирования видео, которое сочетает в себе мощь Rust на бэкенде и современный React-интерфейс на фронтенде. Приложение использует архитектуру, основанную на конечных автоматах (XState), для управления сложной логикой состояний.
+Timeline Studio - это настольное приложение для создания и редактирования видео. Приложение использует архитектуру, основанную на конечных автоматах (XState), для управления сложной логикой состояний.
 
 ### Ключевые особенности
 
-- 🎬 Создание и редактирование видеопроектов с различными соотношениями сторон и разрешениями
-- 🖥️ Кроссплатформенность (Windows, macOS, Linux) благодаря Tauri
+- 🎬 Создание и редактирование видеопроектов
+- 🖥️ Кроссплатформенность (Windows, macOS, Linux)
 - 🧠 Управление состоянием с помощью XState
 - 🌐 Поддержка интернационализации (i18n)
 - 🧪 Полное тестовое покрытие с использованием Vitest
@@ -162,6 +164,30 @@ bun lint:css:fix
 
 [MIT](LICENSE)
 
+## Документация API
+
+Документация API доступна по адресу: [https://chatman-media.github.io/timeline-studio/api-docs/](https://chatman-media.github.io/timeline-studio/api-docs/)
+
+Для локальной генерации документации используйте команду:
+
+```bash
+bun run docs
+```
+
+Документация будет доступна в папке `docs/`.
+
+Для разработки документации в режиме реального времени используйте:
+
+```bash
+bun run docs:watch
+```
+
+## Промо-страница
+
+Промо-страница проекта доступна по адресу: [https://chatman-media.github.io/timeline-studio/](https://chatman-media.github.io/timeline-studio/)
+
+Исходный код промо-страницы находится в папке `promo/`.
+
 ## Дополнительные ресурсы
 
 - [Next.js Documentation](https://nextjs.org/docs)
@@ -172,6 +198,7 @@ bun lint:css:fix
 - [Stylelint Documentation](https://stylelint.io/)
 - [ESLint Documentation](https://eslint.org/docs/latest/)
 - [Playwright Documentation](https://playwright.dev/docs/intro)
+- [TypeDoc Documentation](https://typedoc.org/)
 
 ### Лицензия
 

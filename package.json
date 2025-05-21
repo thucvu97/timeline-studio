@@ -32,7 +32,12 @@
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "playwright:install": "playwright install"
+    "playwright:install": "playwright install",
+    "docs": "typedoc",
+    "docs:watch": "typedoc --watch",
+    "promo:dev": "cd promo && bun run dev",
+    "promo:build": "cd promo && bun run build",
+    "promo:preview": "cd promo && bun run preview"
   },
   "dependencies": {
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -106,6 +111,7 @@
     "stylelint-config-tailwindcss": "^1.0.0",
     "tailwindcss": "^4.1.7",
     "tw-animate-css": "^1.3.0",
+    "typedoc": "^0.28.4",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.32.1",
     "vitest": "^3.1.4"

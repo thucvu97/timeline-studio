@@ -1,0 +1,16 @@
+{
+  "entryPoints": ["src/"],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeExternals": true,
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/test/**"],
+  "theme": "default",
+  "name": "Timeline Studio API Documentation",
+  "readme": "README.md",
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "categoryOrder": ["Core", "Features", "Utils", "*"],
+  "sort": ["static-first", "alphabetical"]
+}
