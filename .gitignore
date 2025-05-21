@@ -41,3 +41,4 @@ yarn-error.log*
 
 playwright-report/
 test-results/
+promo/node_modules
