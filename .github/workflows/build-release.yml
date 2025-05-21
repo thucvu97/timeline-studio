@@ -97,7 +97,10 @@ jobs:
         run: |
           # Создаем файл .npmrc, чтобы указать использование npm
           echo "engine-strict=false" > .npmrc
+          # Устанавливаем все зависимости, включая dev-зависимости
           npm install
+          # Устанавливаем дополнительные зависимости для тестирования
+          npm install --save-dev @testing-library/dom @testing-library/react @testing-library/user-event @testing-library/jest-dom
 
       - name: Install Tauri CLI
         run: |
@@ -122,7 +125,7 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: false
           prerelease: ${{ github.event.inputs.prerelease }}
-          args: --target universal-apple-darwin
+          args: --target universal-apple-darwin --ci
           includeDebug: false
           includeRelease: true
           includeUpdaterJson: true
@@ -147,6 +150,7 @@ jobs:
           includeRelease: true
           includeUpdaterJson: true
           tauriScript: "npm run tauri"
+          args: --ci
 
   update-promo-page:
     needs: [create-release, build-tauri]
