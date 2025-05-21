@@ -12,12 +12,10 @@ interface FavoriteButtonProps {
   type?: "media" | "audio" | "transition" | "effect" | "template" | "filter"
   isFavorite?: boolean
   onAddToFavorites?: (
-    e: React.MouseEvent,
     file: MediaFile,
     type: string,
   ) => void
   onRemoveFromFavorites?: (
-    e: React.MouseEvent,
     file: MediaFile,
     type: string,
   ) => void
@@ -35,6 +33,9 @@ interface FavoriteButtonProps {
  * @param file - Объект медиафайла или другого элемента
  * @param size - Размер кнопки (по умолчанию 60)
  * @param type - Тип элемента (по умолчанию "media")
+ * @param isFavorite - Флаг, указывающий, добавлен ли элемент в избранное
+ * @param onAddToFavorites - Callback для добавления элемента в избранное
+ * @param onRemoveFromFavorites - Callback для удаления элемента из избранного
  */
 export const FavoriteButton = memo(function FavoriteButton({
   file,
@@ -45,18 +46,11 @@ export const FavoriteButton = memo(function FavoriteButton({
   onRemoveFromFavorites,
 }: FavoriteButtonProps) {
   const { t } = useTranslation()
-
-  // Если не переданы обработчики, не рендерим компонент
-  if (!onAddToFavorites && !onRemoveFromFavorites) {
-    return null
-  }
-
   const [isHovering, setIsHovering] = useState(false)
   const [isRecentlyAdded, setIsRecentlyAdded] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const prevIsFavoriteRef = useRef(isFavorite)
 
-  // Немедленно устанавливаем состояние при изменении isFavorite
   useEffect(() => {
     // Обновляем состояние немедленно при изменении isFavorite
     if (isFavorite !== prevIsFavoriteRef.current) {
@@ -69,7 +63,7 @@ export const FavoriteButton = memo(function FavoriteButton({
           clearTimeout(timerRef.current)
         }
 
-        // Через 3 секунды сбрасываем флаг
+        // Через 1.5 секунды сбрасываем флаг
         timerRef.current = setTimeout(() => {
           setIsRecentlyAdded(false)
           timerRef.current = null
@@ -96,7 +90,7 @@ export const FavoriteButton = memo(function FavoriteButton({
         timerRef.current = null
       }
     }
-  }, [isFavorite, file.name])
+  }, [isFavorite])
 
   // Принудительно обновляем состояние при монтировании компонента
   useEffect(() => {
@@ -105,7 +99,7 @@ export const FavoriteButton = memo(function FavoriteButton({
       setIsRecentlyAdded(true)
       prevIsFavoriteRef.current = true
 
-      // Через 3 секунды сбрасываем флаг
+      // Через 1.5 секунды сбрасываем флаг
       const timer = setTimeout(() => {
         setIsRecentlyAdded(false)
       }, 1500)
@@ -118,16 +112,16 @@ export const FavoriteButton = memo(function FavoriteButton({
   // Не показываем кнопку удаления в течение 3 секунд после добавления
   const canShowRemoveButton = !isRecentlyAdded
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
+  const handleToggleFavorite = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation()
     e.preventDefault()
 
     if (isFavorite && isHovering && canShowRemoveButton) {
       // Удаляем из избранного
-      onRemoveFromFavorites?.(e, file, type)
+      onRemoveFromFavorites?.(file, type)
     } else if (!isFavorite) {
       // Добавляем в избранное
-      onAddToFavorites?.(e, file, type)
+      onAddToFavorites?.(file, type)
       // Немедленно обновляем визуальное состояние
       setIsRecentlyAdded(true)
     }
@@ -136,17 +130,25 @@ export const FavoriteButton = memo(function FavoriteButton({
   const iconSize = size > 100 ? "h-3.5 w-3.5" : "h-2.5 w-2.5"
 
   return (
-    <div
+    <button
+      type="button"
       className={cn(
-        "absolute z-10 cursor-pointer rounded-full p-1 text-white transition-all duration-150 dark:hover:text-black/70",
+        "absolute z-10 cursor-pointer rounded-full p-1 text-white transition-all duration-150 dark:hover:text-black/70 border-0 outline-none focus:ring-2 focus:ring-teal-light",
         size > 100 ? "right-[36px] bottom-1" : "right-[28px] bottom-0.5",
         isFavorite
           ? isRecentlyAdded
-            ? "visible scale-110 bg-[#38dacac3] dark:bg-[#35d1c1]" // Яркий цвет и увеличенный размер для недавно добавленных
-            : "visible bg-[#38dacac3] dark:bg-[#35d1c1]" // Добавлен класс visible
-          : "invisible bg-[#2f2d38] group-hover:visible group-hover:bg-[#35d1c1]/75 hover:bg-[#35d1c1] dark:group-hover:bg-[#35d1c1] dark:hover:bg-[#35d1c1]", // Скрыта по умолчанию, видима при наведении
+            ? "visible scale-110 bg-teal dark:bg-teal" // Яркий цвет и увеличенный размер для недавно добавленных
+            : "visible bg-teal dark:bg-teal" // Добавлен класс visible
+          : "invisible bg-secondary dark:bg-secondary group-hover:visible group-hover:bg-teal-light/75 hover:bg-teal-light dark:group-hover:bg-teal-light/75 dark:hover:bg-teal-light", // Скрыта по умолчанию, видима при наведении
       )}
       onClick={handleToggleFavorite}
+      onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          // Вызываем без аргумента, так как функция ожидает MouseEvent
+          handleToggleFavorite(e);
+        }
+      }}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       title={
@@ -161,6 +163,6 @@ export const FavoriteButton = memo(function FavoriteButton({
         className={`${iconSize} ${isFavorite ? "fill-white" : ""} transition-transform duration-150 hover:scale-110`}
         strokeWidth={2}
       />
-    </div>
+    </button>
   )
 })

@@ -269,7 +269,7 @@ describe("FavoriteButton", () => {
     )
 
     // Находим кнопку в контейнере
-    const button = container.querySelector('div[title="In favorites"]')
+    const button = container.querySelector('button[title="In favorites"]')
     expect(button).not.toBeNull()
 
     // Проверяем, что кнопка имеет класс scale-110 (анимация)
@@ -290,7 +290,7 @@ describe("FavoriteButton", () => {
     )
 
     // Находим кнопку снова после перерендеринга
-    const updatedButton = container.querySelector('div[title="In favorites"]')
+    const updatedButton = container.querySelector('button[title="In favorites"]')
     expect(updatedButton).not.toBeNull()
 
     // Проверяем, что кнопка больше не имеет класс scale-110

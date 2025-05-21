@@ -104,9 +104,9 @@ export const AddMediaButton = memo(function AddMediaButton({
         size > 100 ? "right-[5px] bottom-1" : "right-1 bottom-0.5",
         isAdded
           ? isRecentlyAdded
-            ? "visible scale-110 bg-teal dark:bg-teal-dark" // Яркий цвет и увеличенный размер для недавно добавленных
-            : "visible bg-teal dark:bg-teal-dark" // Добавлен класс visible
-          : "invisible bg-teal group-hover:visible group-hover:bg-teal-light/75 hover:bg-teal-light dark:group-hover:bg-teal-dark dark:hover:bg-teal-dark", // Скрыта по умолчанию, видима при наведении
+            ? "visible scale-110 bg-teal dark:bg-teal" // Яркий цвет и увеличенный размер для недавно добавленных
+            : "visible bg-teal dark:bg-teal" // Добавлен класс visible
+          : "invisible bg-teal group-hover:visible group-hover:bg-teal-light/75 hover:bg-teal-light dark:group-hover:bg-teal-light/75 dark:hover:bg-teal-light", // Скрыта по умолчанию, видима при наведении
       )}
       onClick={(e) => {
         e.stopPropagation()

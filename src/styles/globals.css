@@ -105,9 +105,9 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --teal: 175 65% 42%;
-    --teal-light: 175 65% 52%;
-    --teal-dark: 175 65% 32%;
+    --teal: 175 65% 58%;
+    --teal-light: 175 65% 68%;
+    --teal-dark: 175 65% 48%;
   }
 }
 
@@ -180,6 +180,23 @@ input[type="range"]::-moz-range-thumb {
 
 input[type="range"]::-moz-range-thumb:hover {
   transform: scale(1.1);
+  background: var(--color-teal-light);
+}
+
+/* Стили для ползунка в темной теме */
+.dark input[type="range"]::-webkit-slider-thumb {
+  background: var(--color-teal);
+}
+
+.dark input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--color-teal-light);
+}
+
+.dark input[type="range"]::-moz-range-thumb {
+  background: var(--color-teal);
+}
+
+.dark input[type="range"]::-moz-range-thumb:hover {
   background: var(--color-teal-light);
 }
 
