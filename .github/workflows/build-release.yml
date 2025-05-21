@@ -110,15 +110,11 @@ jobs:
           mkdir -p node_modules/.bin
           ln -sf $(which tauri) node_modules/.bin/tauri
 
-      # Создаем заглушки для тестов
-      - name: Setup test mocks
+      # Устанавливаем зависимости для тестов
+      - name: Setup tests
         run: |
-          # Создаем директории для заглушек
-          mkdir -p node_modules/@testing-library/dom/dist
-
-          # Создаем заглушку для @testing-library/dom
-          echo 'module.exports = { prettyDOM: () => "", getQueriesForElement: () => ({}), within: () => ({}) };' > node_modules/@testing-library/dom/dist/index.js
-          echo '{ "name": "@testing-library/dom", "version": "8.0.0", "main": "dist/index.js" }' > node_modules/@testing-library/dom/package.json
+          # Устанавливаем все необходимые зависимости для тестирования
+          npm install --save-dev @testing-library/dom@9.3.4 @testing-library/react@14.2.1 @testing-library/user-event@14.5.2 @testing-library/jest-dom@6.4.2
 
           # Создаем файл для пропуска тестов
           echo 'console.log("Skipping tests in CI"); process.exit(0);' > skip-tests.js
