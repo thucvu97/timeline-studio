@@ -14,12 +14,13 @@ import {
 } from "@/components/ui/select"
 
 // Импортируем типы и функции из наших новых модулей
-import { PresetType, createPresets } from "./keyboard-shortcuts"
-import { useModal } from "../services"
+import { useModal } from "@/features/modals/services/modal-provider"
+
+import { PresetType, createPresets } from "./presets"
 
 export function KeyboardShortcutsModal() {
-  const { t, i18n } = useTranslation()
-  const { isOpen, closeModal } = useModal()
+  const { t } = useTranslation()
+  const { closeModal } = useModal()
 
   // Создаем предустановки с локализацией
   const PRESETS = useMemo(() => createPresets(t), [t])

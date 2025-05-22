@@ -8,18 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { ProjectSettingsModal } from "@/features/project-settings/project-settings-modal"
-import { UserSettingsModal } from "@/features/user-settings/user-settings-modal"
 
-import { ModalType } from "../services"
-import { useModal } from "../services/modal-provider"
-
-import {
-  CameraCaptureModal,
-  ExportModal,
-  KeyboardShortcutsModal,
-  VoiceRecordModal,
-} from "."
+import { CameraCaptureModal, ExportModal, KeyboardShortcutsModal, ProjectSettingsModal, UserSettingsModal, VoiceRecordModal } from "../features"
+import { ModalType, useModal } from "../services"
 
 /**
  * Контейнер для модальных окон

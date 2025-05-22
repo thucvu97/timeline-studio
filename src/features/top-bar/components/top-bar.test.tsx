@@ -26,7 +26,7 @@ vi.mock("@/components/theme/theme-toggle", () => ({
 }))
 
 // Мокаем useUserSettings
-vi.mock("@/features/user-settings/user-settings-provider", () => ({
+vi.mock("@/features/modals/features/user-settings/user-settings-provider", () => ({
   useUserSettings: () => ({
     isBrowserVisible: true,
     toggleBrowserVisibility: vi.fn(),

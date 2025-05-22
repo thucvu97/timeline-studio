@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { useModal } from "@/features/modals/services/modal-provider"
 import { useLanguage } from "@/hooks/use-language"
 
 import { UserSettingsModal } from "./user-settings-modal"
 import { useUserSettings } from "./user-settings-provider"
-import { useModal } from "../modals"
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
@@ -30,7 +30,7 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 // Мокаем хуки
 vi.mock("@/hooks/use-language")
 vi.mock("./user-settings-provider")
-vi.mock("../modals")
+vi.mock("@/features/modals/services/modal-provider")
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => key,
@@ -52,29 +52,36 @@ describe("UserSettingsModal", () => {
     vi.clearAllMocks()
 
     // Устанавливаем моки по умолчанию
-    vi.mocked(useUserSettings).mockReturnValue({
+    vi.mocked(useUserSettings).mockImplementation(() => ({
       screenshotsPath: "public/screenshots",
       playerScreenshotsPath: "public/media",
       openAiApiKey: "",
       claudeApiKey: "",
+      isBrowserVisible: true,
+      activeTab: "media",
+      layoutMode: "default",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
       handleClaudeApiKeyChange: vi.fn(),
       handlePlayerScreenshotsPathChange: vi.fn(),
-    } as any)
+      handleTabChange: vi.fn(),
+      handleLayoutChange: vi.fn(),
+      toggleBrowserVisibility: vi.fn(),
+    }))
 
-    vi.mocked(useLanguage).mockReturnValue({
+    vi.mocked(useLanguage).mockImplementation(() => ({
       currentLanguage: "ru",
       changeLanguage: mockChangeLanguage,
       systemLanguage: "ru",
       isLoading: false,
       error: null,
       refreshLanguage: vi.fn(),
-    } as any)
+    }))
 
-    vi.mocked(useModal).mockReturnValue({
+    vi.mocked(useModal).mockImplementation(() => ({
+      openModal: vi.fn(),
       closeModal: mockCloseModal,
-    } as any)
+    }))
   })
 
   it("should render correctly", () => {
@@ -168,12 +175,22 @@ describe("UserSettingsModal", () => {
 
   it("should clear screenshots path when X button is clicked", () => {
     // Переопределяем значение screenshotsPath для этого теста
-    vi.mocked(useUserSettings).mockReturnValue({
+    vi.mocked(useUserSettings).mockImplementation(() => ({
       screenshotsPath: "custom/path",
-      aiApiKey: "",
+      playerScreenshotsPath: "public/media",
+      openAiApiKey: "",
+      claudeApiKey: "",
+      isBrowserVisible: true,
+      activeTab: "media",
+      layoutMode: "default",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
-    } as any)
+      handleClaudeApiKeyChange: vi.fn(),
+      handlePlayerScreenshotsPathChange: vi.fn(),
+      handleTabChange: vi.fn(),
+      handleLayoutChange: vi.fn(),
+      toggleBrowserVisibility: vi.fn(),
+    }))
 
     render(<UserSettingsModal />)
 
@@ -191,15 +208,22 @@ describe("UserSettingsModal", () => {
 
   it("should clear API key when X button is clicked", () => {
     // Переопределяем значение openAiApiKey для этого теста
-    vi.mocked(useUserSettings).mockReturnValue({
+    vi.mocked(useUserSettings).mockImplementation(() => ({
       screenshotsPath: "public/screenshots",
-      playerScreenshotsPath: "",
+      playerScreenshotsPath: "public/media",
       openAiApiKey: "test-api-key",
       claudeApiKey: "",
+      isBrowserVisible: true,
+      activeTab: "media",
+      layoutMode: "default",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
       handleClaudeApiKeyChange: vi.fn(),
-    } as any)
+      handlePlayerScreenshotsPathChange: vi.fn(),
+      handleTabChange: vi.fn(),
+      handleLayoutChange: vi.fn(),
+      toggleBrowserVisibility: vi.fn(),
+    }))
 
     render(<UserSettingsModal />)
 
@@ -227,14 +251,14 @@ describe("UserSettingsModal", () => {
     expect(selectValue).toHaveTextContent("ru")
 
     // Изменяем язык в контексте
-    vi.mocked(useLanguage).mockReturnValue({
+    vi.mocked(useLanguage).mockImplementation(() => ({
       currentLanguage: "en",
       changeLanguage: mockChangeLanguage,
       systemLanguage: "ru",
       isLoading: false,
       error: null,
       refreshLanguage: vi.fn(),
-    } as any)
+    }))
 
     // Перерендериваем компонент
     render(<UserSettingsModal />)
@@ -254,12 +278,22 @@ describe("UserSettingsModal", () => {
     expect(screenshotsPathInput).toHaveValue("public/screenshots")
 
     // Изменяем путь скриншотов в контексте
-    vi.mocked(useUserSettings).mockReturnValue({
+    vi.mocked(useUserSettings).mockImplementation(() => ({
       screenshotsPath: "new/path",
+      playerScreenshotsPath: "public/media",
       openAiApiKey: "",
+      claudeApiKey: "",
+      isBrowserVisible: true,
+      activeTab: "media",
+      layoutMode: "default",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
-    } as any)
+      handleClaudeApiKeyChange: vi.fn(),
+      handlePlayerScreenshotsPathChange: vi.fn(),
+      handleTabChange: vi.fn(),
+      handleLayoutChange: vi.fn(),
+      toggleBrowserVisibility: vi.fn(),
+    }))
 
     // Перерендериваем компонент
     render(<UserSettingsModal />)
@@ -327,16 +361,22 @@ describe("UserSettingsModal", () => {
     })
 
     // Имитируем обновление состояния после выбора директории
-    vi.mocked(useUserSettings).mockReturnValue({
+    vi.mocked(useUserSettings).mockImplementation(() => ({
       screenshotsPath: "selected/directory/path",
-      playerScreenshotsPath: "",
+      playerScreenshotsPath: "public/media",
       openAiApiKey: "",
       claudeApiKey: "",
+      isBrowserVisible: true,
+      activeTab: "media",
+      layoutMode: "default",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
       handleClaudeApiKeyChange: vi.fn(),
       handlePlayerScreenshotsPathChange: vi.fn(),
-    } as any)
+      handleTabChange: vi.fn(),
+      handleLayoutChange: vi.fn(),
+      toggleBrowserVisibility: vi.fn(),
+    }))
 
     // Перерендериваем компонент
     rerender(<UserSettingsModal />)

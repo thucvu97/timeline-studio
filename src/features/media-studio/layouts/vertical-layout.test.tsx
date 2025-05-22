@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useUserSettings } from "@/features/user-settings/user-settings-provider"
+import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
 
 import { VerticalLayout } from "./vertical-layout"
 
 // Мокаем зависимости
-vi.mock("@/features/user-settings/user-settings-provider")
+vi.mock("@/features/modals/features/user-settings/user-settings-provider")
 vi.mock("@/components/ui/resizable", () => ({
   ResizablePanelGroup: ({
     children,

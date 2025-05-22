@@ -5,11 +5,11 @@ import { ReactNode } from "react"
 import { MusicProvider } from "@/features/browser/components/tabs/music/music-provider"
 import { ResourcesProvider } from "@/features/browser/resources/resources-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
-import { ProjectSettingsProvider } from "@/features/project-settings/project-settings-provider"
-import { UserSettingsProvider } from "@/features/user-settings/user-settings-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
 
 import { MediaProvider } from "../browser/media"
+import { ProjectSettingsProvider } from "../modals/features/project-settings/project-settings-provider"
+import { UserSettingsProvider } from "../modals/features/user-settings/user-settings-provider"
 
 interface ProvidersProps {
   children: ReactNode

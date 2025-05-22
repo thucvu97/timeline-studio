@@ -16,7 +16,7 @@ vi.mock("@/i18n/i18n-provider", () => ({
   ),
 }))
 
-vi.mock("@/features/project-settings/project-settings-provider", () => ({
+vi.mock("@/features/modals/features/project-settings/project-settings-provider", () => ({
   ProjectSettingsProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="project-settings-provider">{children}</div>
   ),

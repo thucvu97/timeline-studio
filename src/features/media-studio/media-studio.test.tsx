@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import { MediaStudio } from "./media-studio"
 
 // Мокаем компоненты, которые используются в MediaStudio
-vi.mock("@/features/user-settings/user-settings-provider", () => ({
+vi.mock("@/features/modals/features/user-settings/user-settings-provider", () => ({
   useUserSettings: () => ({
     layoutMode: "default",
   }),

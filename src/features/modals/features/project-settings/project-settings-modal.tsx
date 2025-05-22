@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useModal } from "@/features/modals/services/modal-provider"
 import {
   ASPECT_RATIOS,
   COLOR_SPACES,
@@ -26,7 +27,6 @@ import {
 } from "@/types/project"
 
 import { useProjectSettings } from "./project-settings-provider"
-import { useModal } from "../modals"
 
 /**
  * Модальное окно настроек проекта

@@ -1,6 +1,6 @@
 import { get, set } from "idb-keyval"
 
-import { UserSettingsContext } from "../user-settings/user-settings-machine"
+import { UserSettingsContext } from "../modals/features/user-settings/user-settings-machine"
 
 // Ключи для хранения данных в IndexedDB
 export const USER_SETTINGS_STATE_KEY = "timeline-user-settings-state"

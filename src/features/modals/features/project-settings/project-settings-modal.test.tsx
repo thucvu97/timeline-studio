@@ -1,15 +1,15 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider"
+import { useModal } from "@/features/modals/services/modal-provider"
 import { DEFAULT_PROJECT_SETTINGS } from "@/types/project"
 
 import { ProjectSettingsModal } from "./project-settings-modal"
-import { useProjectSettings } from "./project-settings-provider"
-import { useModal } from "../modals"
 
 // Мокаем хуки
-vi.mock("./project-settings-provider")
-vi.mock("../modals")
+vi.mock("@/features/modals/features/project-settings/project-settings-provider")
+vi.mock("@/features/modals/services/modal-provider")
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => key,

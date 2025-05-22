@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import { assign, createMachine, fromPromise } from "xstate"
 
-import { userSettingsDbService } from "../media-studio/indexed-db-service"
+import { userSettingsDbService } from "@/features/media-studio/indexed-db-service"
 
 /**
  * Допустимые размеры превью для медиа-элементов

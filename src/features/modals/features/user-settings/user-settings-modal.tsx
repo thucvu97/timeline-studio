@@ -15,11 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useModal } from "@/features/modals/services/modal-provider"
 import { useLanguage } from "@/hooks/use-language"
 import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
 
 import { useUserSettings } from "./user-settings-provider"
-import { useModal } from "../modals"
+
 
 /**
  * Модальное окно пользовательских настроек

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 
-import { useUserSettings } from "@/features/user-settings/user-settings-provider"
+import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
 
 import {
   DefaultLayout,

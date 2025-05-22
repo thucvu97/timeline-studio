@@ -2,12 +2,12 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useUserSettings } from "@/features/user-settings/user-settings-provider"
+import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
 
 import { BrowserToggle } from "./browser-toggle"
 
 // Мокаем хук useUserSettings
-vi.mock("@/features/user-settings/user-settings-provider")
+vi.mock("@/features/modals/features/user-settings/user-settings-provider")
 
 // Мокаем компоненты Lucide
 vi.mock("lucide-react", () => ({
