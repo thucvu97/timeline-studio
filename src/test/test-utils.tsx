@@ -4,17 +4,17 @@ import { RenderOptions, render } from "@testing-library/react"
 
 import { ThemeProvider } from "@/components/theme/theme-context"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
-import { BrowserVisibilityProvider , UserSettingsProvider } from "@/features/user-settings/user-settings-provider"
+import { UserSettingsProvider } from "@/features/user-settings/user-settings-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
 
 // Провайдер для всех тестов
-const AllProviders = ({ children }: { children: ReactNode }) => {
+export const AllProviders = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeProvider>
       <I18nProvider>
         <UserSettingsProvider>
           <ModalProvider>
-            <BrowserVisibilityProvider>{children}</BrowserVisibilityProvider>
+            {children}
           </ModalProvider>
         </UserSettingsProvider>
       </I18nProvider>
@@ -32,4 +32,5 @@ const customRender = (
 export { screen, fireEvent, waitFor, within } from "@testing-library/react"
 
 // Переопределение функции render
+// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export { customRender as render }
