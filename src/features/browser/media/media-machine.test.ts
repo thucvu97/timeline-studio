@@ -42,13 +42,7 @@ describe("Media Machine", () => {
     })
   })
 
-  it("should transition to loading state when FETCH_MEDIA event is sent", () => {
-    // Мокаем успешный ответ от fetch
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ media: [] }),
-    } as Response)
-
+  it("should transition to loaded state when FETCH_MEDIA event is sent", () => {
     // Создаем актора машины состояний
     const actor = createActor(mediaMachine)
 
@@ -58,8 +52,9 @@ describe("Media Machine", () => {
     // Отправляем событие FETCH_MEDIA
     actor.send({ type: "FETCH_MEDIA" })
 
-    // Проверяем, что состояние изменилось на loading
-    expect(actor.getSnapshot().value).toBe("loading")
-    expect(actor.getSnapshot().context.isLoading).toBe(true)
+    // Проверяем, что состояние изменилось на loaded (т.к. теперь мы сразу переходим в loaded)
+    expect(actor.getSnapshot().value).toBe("loaded")
+    expect(actor.getSnapshot().context.isLoading).toBe(false)
+    expect(actor.getSnapshot().context.allMediaFiles).toEqual([])
   })
 })

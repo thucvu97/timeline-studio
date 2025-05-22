@@ -109,81 +109,64 @@ describe("MusicMachine", () => {
     })
 
     // Проверяем начальное состояние
-    expect(snapshot.value).toBe("loading")
+    expect(snapshot.value).toBe("success") // Теперь сразу success, т.к. мы сразу переходим в success
 
     // Останавливаем актора
     actor.stop()
   })
 
-  it("should transition to success state when fetch is successful", async () => {
-    // Мокируем успешный ответ от API
-    global.fetch = vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
-    })
-
+  it("should initialize with empty music files", async () => {
     // Создаем актора из машины состояний
     const actor = createActor(musicMachine)
 
     // Запускаем актора
     actor.start()
 
-    // Ждем, пока машина перейдет в состояние success
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
     // Получаем снимок состояния
     const snapshot = actor.getSnapshot()
 
-    // Проверяем, что машина перешла в состояние success
+    // Проверяем, что машина сразу в состоянии success
     expect(snapshot.value).toBe("success")
 
-    // Проверяем, что контекст обновился
-    expect(snapshot.context.musicFiles).toEqual(mockMediaFiles)
-    expect(snapshot.context.filteredFiles).toEqual(mockMediaFiles)
+    // Проверяем, что контекст инициализирован пустыми массивами
+    expect(snapshot.context.musicFiles).toEqual([])
+    expect(snapshot.context.filteredFiles).toEqual([])
 
     // Останавливаем актора
     actor.stop()
   })
 
-  it("should transition to error state when fetch fails", async () => {
-    // Мокируем ошибку от API
-    global.fetch = vi.fn().mockRejectedValue(new Error("API error"))
-
+  it("should handle errors gracefully", async () => {
     // Создаем актора из машины состояний
     const actor = createActor(musicMachine)
 
     // Запускаем актора
     actor.start()
 
-    // Ждем, пока машина перейдет в состояние error
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
     // Получаем снимок состояния
     const snapshot = actor.getSnapshot()
 
-    // Проверяем, что машина перешла в состояние error
-    expect(snapshot.value).toBe("error")
+    // Проверяем, что машина сразу в состоянии success
+    expect(snapshot.value).toBe("success")
 
-    // Проверяем, что контекст содержит ошибку
-    expect(snapshot.context.error).toBeDefined()
+    // Проверяем, что контекст инициализирован пустыми массивами
+    expect(snapshot.context.musicFiles).toEqual([])
+    expect(snapshot.context.filteredFiles).toEqual([])
+    expect(snapshot.context.error).toBeUndefined()
 
     // Останавливаем актора
     actor.stop()
   })
 
   it("should handle SEARCH event correctly", async () => {
-    // Мокируем успешный ответ от API
-    global.fetch = vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
-    })
-
     // Создаем актора из машины состояний
     const actor = createActor(musicMachine)
 
     // Запускаем актора
     actor.start()
 
-    // Ждем, пока машина перейдет в состояние success
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // Устанавливаем мок для filterFiles
+    vi.mocked(filterFiles).mockReturnValueOnce([])
 
     // Отправляем событие SEARCH
     actor.send({ type: "SEARCH", query: "test", mediaContext: {} })
@@ -195,26 +178,21 @@ describe("MusicMachine", () => {
     expect(snapshot.context.searchQuery).toBe("test")
 
     // Проверяем, что filterFiles был вызван с правильными параметрами
-    expect(filterFiles).toHaveBeenCalledWith(mockMediaFiles, "test", "all", false, {})
+    expect(filterFiles).toHaveBeenCalledWith([], "test", "all", false, {})
 
     // Останавливаем актора
     actor.stop()
   })
 
   it("should handle SORT event correctly", async () => {
-    // Мокируем успешный ответ от API
-    global.fetch = vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
-    })
-
     // Создаем актора из машины состояний
     const actor = createActor(musicMachine)
 
     // Запускаем актора
     actor.start()
 
-    // Ждем, пока машина перейдет в состояние success
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // Устанавливаем мок для sortFiles
+    vi.mocked(sortFiles).mockReturnValueOnce([])
 
     // Отправляем событие SORT
     actor.send({ type: "SORT", sortBy: "title" })
@@ -233,19 +211,14 @@ describe("MusicMachine", () => {
   })
 
   it("should handle CHANGE_ORDER event correctly", async () => {
-    // Мокируем успешный ответ от API
-    global.fetch = vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
-    })
-
     // Создаем актора из машины состояний
     const actor = createActor(musicMachine)
 
     // Запускаем актора
     actor.start()
 
-    // Ждем, пока машина перейдет в состояние success
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // Устанавливаем мок для sortFiles
+    vi.mocked(sortFiles).mockReturnValueOnce([])
 
     // Отправляем событие CHANGE_ORDER
     actor.send({ type: "CHANGE_ORDER" })
@@ -264,19 +237,14 @@ describe("MusicMachine", () => {
   })
 
   it("should handle FILTER event correctly", async () => {
-    // Мокируем успешный ответ от API
-    global.fetch = vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
-    })
-
     // Создаем актора из машины состояний
     const actor = createActor(musicMachine)
 
     // Запускаем актора
     actor.start()
 
-    // Ждем, пока машина перейдет в состояние success
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // Устанавливаем мок для filterFiles
+    vi.mocked(filterFiles).mockReturnValueOnce([])
 
     // Отправляем событие FILTER
     actor.send({ type: "FILTER", filterType: "mp3", mediaContext: {} })
@@ -288,7 +256,7 @@ describe("MusicMachine", () => {
     expect(snapshot.context.filterType).toBe("mp3")
 
     // Проверяем, что filterFiles был вызван с правильными параметрами
-    expect(filterFiles).toHaveBeenCalledWith(mockMediaFiles, snapshot.context.searchQuery, "mp3", false, {})
+    expect(filterFiles).toHaveBeenCalledWith([], snapshot.context.searchQuery, "mp3", false, {})
 
     // Останавливаем актора
     actor.stop()

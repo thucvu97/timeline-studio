@@ -1,4 +1,4 @@
-import { assign, createMachine, fromPromise } from "xstate"
+import { assign, createMachine } from "xstate"
 
 import { MediaFile } from "@/types/media"
 
@@ -110,23 +110,7 @@ type MusicEvent =
   | ToggleFavoritesEvent
   | RetryEvent
 
-/**
- * Интерфейс результата загрузки музыкальных файлов
- * @interface FetchOutput
- */
-interface FetchOutput {
-  media: MediaFile[] // Массив музыкальных файлов
-}
-
-/**
- * Функция для асинхронной загрузки музыкальных файлов
- * Выполняет запрос к API и возвращает результат
- */
-const fetchMusicFiles = fromPromise<FetchOutput, unknown>(async () => {
-  const response = await fetch(`/api/music`) // Запрос к API
-  const data = await response.json() // Парсинг ответа
-  return data // Возврат данных
-})
+// Музыкальные файлы будут добавляться пользователем, начинаем с пустого массива
 
 /**
  * Машина состояний для управления музыкальными файлами
@@ -165,61 +149,20 @@ export const musicMachine = createMachine({
   states: {
     /**
      * Состояние загрузки музыкальных файлов
-     * Выполняет запрос к API и обрабатывает результат
+     * Инициализирует пустой массив файлов
      */
     loading: {
-      invoke: {
-        id: "fetchFiles", // Идентификатор вызова
-        src: fetchMusicFiles, // Функция для загрузки файлов
-        input: () => ({}), // Входные данные (пустые)
-
-        // Обработка успешной загрузки
-        onDone: {
-          target: "success", // Переход в состояние успеха
-          actions: assign({
-            // Сохраняем все музыкальные файлы
-            musicFiles: ({ event }) => {
-              console.log("Получено файлов из API:", event.output.media.length)
-              return event.output.media
-            },
-
-            // Фильтруем и сортируем файлы
-            filteredFiles: ({ event, context }) => {
-              const filtered = filterFiles(
-                event.output.media,
-                context.searchQuery,
-                context.filterType,
-                context.showFavoritesOnly,
-              )
-              console.log("Итоговое количество файлов:", filtered.length)
-              return sortFiles(filtered, context.sortBy, context.sortOrder)
-            },
-
-            // Извлекаем доступные расширения файлов
-            availableExtensions: ({ event }) => {
-              const extensions = new Set<string>()
-              event.output.media.forEach((file: MediaFile) => {
-                const extension = file.name.split(".").pop()?.toLowerCase()
-                if (extension) {
-                  extensions.add(extension)
-                }
-              })
-              return Array.from(extensions).sort()
-            },
-          }),
-        },
-
-        // Обработка ошибки загрузки
-        onError: {
-          target: "error", // Переход в состояние ошибки
-          actions: assign({
-            error: ({ event }) => String(event.error), // Сохраняем сообщение об ошибке
-            musicFiles: () => [], // Инициализируем пустой массив музыкальных файлов
-            filteredFiles: () => [], // Инициализируем пустой массив отфильтрованных файлов
-            availableExtensions: () => [], // Инициализируем пустой массив доступных расширений
-          }),
-        },
-      },
+      entry: [
+        // Инициализируем пустые массивы и переходим в состояние успеха
+        assign({
+          musicFiles: () => [], // Инициализируем пустой массив музыкальных файлов
+          filteredFiles: () => [], // Инициализируем пустой массив отфильтрованных файлов
+          availableExtensions: () => [], // Инициализируем пустой массив доступных расширений
+          error: () => undefined, // Сбрасываем ошибку
+        })
+      ],
+      // Сразу переходим в состояние успеха
+      always: { target: "success" }
     },
     /**
      * Состояние успешной загрузки музыкальных файлов

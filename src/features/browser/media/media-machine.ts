@@ -1,4 +1,4 @@
-import { assign, createMachine, fromPromise } from "xstate"
+import { assign, createMachine } from "xstate"
 
 import { MediaFile } from "@/types/media"
 
@@ -36,53 +36,7 @@ export type MediaEventType =
   | { type: "REMOVE_FROM_FAVORITES"; item: any; itemType: string }
   | { type: "CLEAR_FAVORITES"; itemType?: string }
 
-/**
- * Функция для загрузки медиафайлов с сервера
- * В случае ошибки возвращает пустой массив вместо выбрасывания исключения
- *
- * @returns {Promise<MediaFile[]>} Массив медиафайлов или пустой массив в случае ошибки
- */
-const fetchMedia = fromPromise(async () => {
-  try {
-    console.log("[mediaMachine] Загружаем файлы с сервера")
-    const response = await fetch("/api/media")
-    if (!response.ok) {
-      console.warn(`[mediaMachine] Ошибка загрузки медиафайлов: ${response.status} ${response.statusText}`)
-      return [] // Возвращаем пустой массив вместо выбрасывания исключения
-    }
-
-    const data = await response.json()
-
-    if (!data || typeof data !== "object" || !("media" in data)) {
-      console.warn("[mediaMachine] Некорректный формат данных от сервера")
-      return [] // Возвращаем пустой массив вместо выбрасывания исключения
-    }
-
-    const files = data.media
-    if (!Array.isArray(files)) {
-      console.warn("[mediaMachine] Некорректный формат данных от сервера (media не является массивом)")
-      return [] // Возвращаем пустой массив вместо выбрасывания исключения
-    }
-
-    const validFiles = files.filter(
-      (file) =>
-        file &&
-        typeof file === "object" &&
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        (file.isVideo || file.isAudio || file.isImage),
-    )
-
-    if (validFiles.length === 0) {
-      console.warn("[mediaMachine] Не найдено валидных медиафайлов")
-      return [] // Возвращаем пустой массив, если нет валидных файлов
-    }
-
-    return validFiles // Возвращаем валидные файлы
-  } catch (error) {
-    console.error("[mediaMachine] Ошибка при загрузке файлов:", error)
-    return [] // Возвращаем пустой массив вместо выбрасывания исключения
-  }
-})
+// Медиафайлы будут добавляться пользователем, начинаем с пустого массива
 
 export const mediaMachine = createMachine({
   id: "media",
@@ -108,25 +62,15 @@ export const mediaMachine = createMachine({
       },
     },
     loading: {
-      entry: assign({ isLoading: true, error: null }),
-      invoke: {
-        src: fetchMedia,
-        onDone: {
-          target: "loaded",
-          actions: assign({
-            allMediaFiles: ({ event }) => event.output,
-            isLoading: false,
-          }),
-        },
-        onError: {
-          target: "error",
-          actions: assign({
-            error: ({ event }) => (event.error as Error).message,
-            isLoading: false,
-            allMediaFiles: () => [], // Устанавливаем пустой массив файлов при ошибке
-          }),
-        },
-      },
+      entry: [
+        assign({ isLoading: true, error: null }),
+        // Сразу переходим в состояние loaded с пустым массивом
+        assign({
+          allMediaFiles: () => [],
+          isLoading: false,
+        })
+      ],
+      always: { target: "loaded" }
     },
     loaded: {
       on: {

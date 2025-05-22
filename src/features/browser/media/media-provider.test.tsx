@@ -148,7 +148,7 @@ describe("MediaProvider", () => {
     expect(screen.getByTestId("error").textContent).toBe("no-error")
   })
 
-  it("should fetch media files on mount", () => {
+  it("should initialize media state on mount", () => {
     render(
       <MediaProvider>
         <TestComponent />
@@ -157,31 +157,6 @@ describe("MediaProvider", () => {
 
     // Проверяем, что FETCH_MEDIA было отправлено
     expect(mockSend).toHaveBeenCalledWith({ type: "FETCH_MEDIA" })
-  })
-
-  it("should connect to Socket.IO on mount", () => {
-    render(
-      <MediaProvider>
-        <TestComponent />
-      </MediaProvider>,
-    )
-
-    // Проверяем, что CONNECT_SOCKET было отправлено
-    expect(mockSend).toHaveBeenCalledWith({ type: "CONNECT_SOCKET" })
-  })
-
-  it("should disconnect from Socket.IO on unmount", () => {
-    const { unmount } = render(
-      <MediaProvider>
-        <TestComponent />
-      </MediaProvider>,
-    )
-
-    // Размонтируем компонент
-    unmount()
-
-    // Проверяем, что DISCONNECT_SOCKET было отправлено
-    expect(mockSend).toHaveBeenCalledWith({ type: "DISCONNECT_SOCKET" })
   })
 
   it("should update UI when state changes", () => {

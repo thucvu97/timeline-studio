@@ -74,7 +74,7 @@ describe("MediaListMachine", () => {
       mediaFiles: [],
       filteredFiles: [],
       error: null,
-      isLoading: true,
+      isLoading: false, // Теперь isLoading сразу false, т.к. мы сразу переходим в success
       searchQuery: "",
       sortBy: "date",
       sortOrder: "desc",
@@ -89,37 +89,28 @@ describe("MediaListMachine", () => {
     })
 
     // Проверяем начальное состояние
-    expect(snapshot.value).toBe("loading")
+    expect(snapshot.value).toBe("success") // Теперь сразу success, т.к. мы сразу переходим в success
 
     // Останавливаем актора
     actor.stop()
   })
 
-  it("should transition to success state when fetch is successful", async () => {
-    // Мокируем успешный ответ от API
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({ media: mockMediaFiles }),
-    })
-
+  it("should initialize with empty media files", async () => {
     // Создаем актора из машины состояний
     const actor = createActor(mediaListMachine)
 
     // Запускаем актора
     actor.start()
 
-    // Ждем, пока машина перейдет в состояние success
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
     // Получаем снимок состояния
     const snapshot = actor.getSnapshot()
 
-    // Проверяем, что машина перешла в состояние success
+    // Проверяем, что машина сразу в состоянии success
     expect(snapshot.value).toBe("success")
 
-    // Проверяем, что контекст обновился
-    expect(snapshot.context.mediaFiles).toEqual(mockMediaFiles)
-    expect(snapshot.context.filteredFiles).toEqual(mockMediaFiles)
+    // Проверяем, что контекст инициализирован пустыми массивами
+    expect(snapshot.context.mediaFiles).toEqual([])
+    expect(snapshot.context.filteredFiles).toEqual([])
     expect(snapshot.context.isLoading).toBe(false)
     expect(snapshot.context.error).toBeNull()
 

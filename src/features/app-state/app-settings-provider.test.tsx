@@ -16,6 +16,8 @@ vi.mock("@tauri-apps/api/path", () => ({
     const parts = path.split("/")
     return parts[parts.length - 1]
   }),
+  appDataDir: vi.fn().mockResolvedValue("/app/data/dir"),
+  join: vi.fn().mockImplementation(async (dir, file) => `${dir}/${file}`),
 }))
 
 // Мокаем машину состояний
@@ -209,7 +211,7 @@ describe("AppSettingsProvider", () => {
   it("should handle openProject function", async () => {
     // Получаем моки из модулей
     const { open } = await import("@tauri-apps/plugin-dialog")
-    const { basename } = await import("@tauri-apps/api/path")
+    const { basename, appDataDir } = await import("@tauri-apps/api/path")
 
     render(
       <AppSettingsProvider>
@@ -220,9 +222,23 @@ describe("AppSettingsProvider", () => {
     // Нажимаем на кнопку открытия проекта
     fireEvent.click(screen.getByTestId("open-project"))
 
-    // Проверяем, что диалог открытия файла был вызван
+    // Проверяем, что appDataDir был вызван
     await waitFor(() => {
-      expect(open).toHaveBeenCalled()
+      expect(appDataDir).toHaveBeenCalled()
+    })
+
+    // Проверяем, что диалог открытия файла был вызван с правильными параметрами
+    await waitFor(() => {
+      expect(open).toHaveBeenCalledWith({
+        multiple: false,
+        filters: [
+          {
+            name: "Timeline Studio Project",
+            extensions: ["tlsp"],
+          },
+        ],
+        defaultPath: "/app/data/dir"
+      })
     })
 
     // Проверяем, что basename был вызван для получения имени файла
@@ -243,6 +259,7 @@ describe("AppSettingsProvider", () => {
   it("should handle saveProject function", async () => {
     // Получаем моки из модулей
     const { save } = await import("@tauri-apps/plugin-dialog")
+    const { appDataDir, join } = await import("@tauri-apps/api/path")
 
     render(
       <AppSettingsProvider>
@@ -253,7 +270,17 @@ describe("AppSettingsProvider", () => {
     // Нажимаем на кнопку сохранения проекта
     fireEvent.click(screen.getByTestId("save-project"))
 
-    // Проверяем, что диалог сохранения файла был вызван
+    // Проверяем, что appDataDir был вызван
+    await waitFor(() => {
+      expect(appDataDir).toHaveBeenCalled()
+    })
+
+    // Проверяем, что join был вызван для формирования пути к файлу
+    await waitFor(() => {
+      expect(join).toHaveBeenCalledWith("/app/data/dir", "Test Project.tlsp")
+    })
+
+    // Проверяем, что диалог сохранения файла был вызван с правильными параметрами
     await waitFor(() => {
       expect(save).toHaveBeenCalledWith({
         filters: [
@@ -262,7 +289,7 @@ describe("AppSettingsProvider", () => {
             extensions: ["tlsp"],
           },
         ],
-        defaultPath: "Test Project.tlsp",
+        defaultPath: "/app/data/dir/Test Project.tlsp",
       })
     })
 

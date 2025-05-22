@@ -1,4 +1,4 @@
-import { assign, createMachine, fromPromise } from "xstate"
+import { assign, createMachine } from "xstate"
 
 import { MediaFile } from "@/types/media"
 
@@ -9,7 +9,7 @@ import { MediaFile } from "@/types/media"
  * Массив доступных размеров превью
  * Используется для переключения между размерами при увеличении/уменьшении
  */
-export const PREVIEW_SIZES = [60, 80, 100, 125, 150, 200, 250, 300, 400]
+export const PREVIEW_SIZES = [80, 100, 125, 150, 200, 250, 300, 400]
 
 /**
  * Тип для размеров превью
@@ -68,50 +68,6 @@ export type MediaListEventType =
   | { type: "SET_PREVIEW_SIZE"; size: number } // Установить размер превью
 
 /**
- * Функция для загрузки медиафайлов с сервера
- * В случае ошибки возвращает пустой массив вместо выбрасывания исключения
- *
- * @returns {Promise<MediaFile[]>} Массив медиафайлов или пустой массив в случае ошибки
- */
-const fetchMediaFiles = fromPromise(async () => {
-  try {
-    console.log("[mediaListMachine] Загружаем файлы с сервера")
-    const response = await fetch("/api/media")
-    if (!response.ok) {
-      console.warn(`[mediaListMachine] Ошибка загрузки медиафайлов: ${response.status} ${response.statusText}`)
-      return [] // Возвращаем пустой массив вместо выбрасывания исключения
-    }
-
-    const data = await response.json()
-
-    if (!data || typeof data !== "object" || !("media" in data)) {
-      console.warn("[mediaListMachine] Некорректный формат данных от сервера")
-      return [] // Возвращаем пустой массив вместо выбрасывания исключения
-    }
-
-    const files = data.media
-    if (!Array.isArray(files)) {
-      console.warn("[mediaListMachine] Некорректный формат данных от сервера (media не является массивом)")
-      return [] // Возвращаем пустой массив вместо выбрасывания исключения
-    }
-
-    const validFiles = files.filter(
-      (file) => file && typeof file === "object" && (file.isVideo ?? file.isAudio ?? file.isImage),
-    )
-
-    if (validFiles.length === 0) {
-      console.warn("[mediaListMachine] Не найдено валидных медиафайлов")
-      return [] // Возвращаем пустой массив, если нет валидных файлов
-    }
-
-    return validFiles // Возвращаем валидные файлы
-  } catch (error) {
-    console.error("[mediaListMachine] Ошибка при загрузке файлов:", error)
-    return [] // Возвращаем пустой массив вместо выбрасывания исключения
-  }
-})
-
-/**
  * Машина состояний для управления медиа-файлами
  * Обрабатывает загрузку, фильтрацию, сортировку и группировку медиа-файлов
  *
@@ -147,53 +103,25 @@ export const mediaListMachine = createMachine({
   states: {
     /**
      * Состояние загрузки медиа-файлов
-     * Вызывает сервис для загрузки файлов с сервера
+     * Инициализирует пустой массив файлов
      */
     loading: {
-      // Устанавливаем флаг загрузки при входе в состояние
-      entry: assign({
-        isLoading: true,
-        error: null,
-      }),
-
-      // Вызываем сервис для загрузки файлов
-      invoke: {
-        src: fetchMediaFiles,
-
-        // Обработка успешной загрузки
-        onDone: {
-          target: "success", // Переход в состояние успеха
-          actions: assign({
-            mediaFiles: ({ event }) => event.output, // Сохраняем загруженные файлы
-            filteredFiles: ({ event }) => event.output, // Инициализируем отфильтрованные файлы
-            isLoading: false, // Сбрасываем флаг загрузки
-
-            // Собираем доступные расширения файлов
-            availableExtensions: ({ event }) => {
-              const extensions = new Set<string>()
-              event.output.forEach((file: MediaFile) => {
-                const extension = file.name.split(".").pop()?.toLowerCase()
-                if (extension) {
-                  extensions.add(extension)
-                }
-              })
-              return Array.from(extensions)
-            },
-          }),
-        },
-
-        // Обработка ошибки загрузки
-        onError: {
-          target: "error", // Переход в состояние ошибки
-          actions: assign({
-            error: ({ event }) => String(event.error), // Сохраняем сообщение об ошибке
-            isLoading: false, // Сбрасываем флаг загрузки
-            mediaFiles: () => [], // Инициализируем пустой массив медиа-файлов
-            filteredFiles: () => [], // Инициализируем пустой массив отфильтрованных файлов
-            availableExtensions: () => [], // Инициализируем пустой массив доступных расширений
-          }),
-        },
-      },
+      entry: [
+        // Устанавливаем флаг загрузки при входе в состояние
+        assign({
+          isLoading: true,
+          error: null,
+        }),
+        // Сразу инициализируем пустые массивы и переходим в состояние успеха
+        assign({
+          mediaFiles: () => [], // Инициализируем пустой массив медиа-файлов
+          filteredFiles: () => [], // Инициализируем пустой массив отфильтрованных файлов
+          isLoading: false, // Сбрасываем флаг загрузки
+          availableExtensions: () => [], // Инициализируем пустой массив доступных расширений
+        })
+      ],
+      // Сразу переходим в состояние успеха
+      always: { target: "success" }
     },
 
     /**

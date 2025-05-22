@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useContext, useEffect } from "react"
 
-import { basename } from "@tauri-apps/api/path"
+import { appDataDir, basename, join } from "@tauri-apps/api/path"
 import { open, save } from "@tauri-apps/plugin-dialog"
 import { useMachine } from "@xstate/react"
 
@@ -105,6 +105,9 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
 
   const openProject = async () => {
     try {
+      // Получаем директорию данных приложения
+      const appDir = await appDataDir().catch(() => null)
+
       // Открываем диалог выбора файла
       const selected = await open({
         multiple: false,
@@ -114,6 +117,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
             extensions: ["tlsp"],
           },
         ],
+        // Если директория приложения доступна, используем её как начальную директорию
+        defaultPath: appDir || undefined
       })
 
       // Если пользователь отменил выбор, возвращаемся
@@ -147,6 +152,12 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
         return { path: currentProject.path, name }
       }
 
+      // Получаем директорию данных приложения
+      const appDir = await appDataDir().catch(() => null)
+
+      // Формируем путь к файлу по умолчанию
+      const defaultFilePath = appDir ? await join(appDir, `${name}.tlsp`) : `${name}.tlsp`
+
       // Иначе открываем диалог сохранения файла
       const path = await save({
         filters: [
@@ -155,7 +166,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
             extensions: ["tlsp"],
           },
         ],
-        defaultPath: `${name}.tlsp`,
+        defaultPath: defaultFilePath,
       })
 
       // Если пользователь отменил выбор, возвращаемся
