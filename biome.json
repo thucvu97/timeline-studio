@@ -7,7 +7,19 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": []
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "**/test/**",
+      "**/tests/**",
+      "**/__tests__/**",
+      "**/__mocks__/**",
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**"
+    ]
   },
   "formatter": {
     "lineWidth": 120,
