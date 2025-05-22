@@ -5,9 +5,29 @@ import { MediaFile } from "@/types/media"
 /**
  * Константы для размеров превью
  */
-export const MIN_PREVIEW_SIZE = 80
-export const MAX_PREVIEW_SIZE = 200
-export const DEFAULT_PREVIEW_SIZE = 120
+/**
+ * Массив доступных размеров превью
+ * Используется для переключения между размерами при увеличении/уменьшении
+ */
+export const PREVIEW_SIZES = [
+  60, 80, 100, 125, 150, 200, 250, 300, 400,
+]
+
+/**
+ * Тип для размеров превью
+ */
+export type PreviewSizeType = typeof PREVIEW_SIZES[number]
+
+/**
+ * Минимальный и максимальный размеры превью (первый и последний элементы массива)
+ */
+export const MIN_PREVIEW_SIZE = PREVIEW_SIZES[0]
+export const MAX_PREVIEW_SIZE = PREVIEW_SIZES[PREVIEW_SIZES.length - 1]
+
+/**
+ * Размер превью по умолчанию
+ */
+export const DEFAULT_PREVIEW_SIZE = 100
 
 /**
  * Интерфейс контекста машины состояний для медиа-файлов
@@ -296,60 +316,116 @@ export const mediaListMachine = createMachine({
 
         /**
          * Обработка события увеличения размера превью
+         * Выбирает следующий размер из массива PREVIEW_SIZES
          */
         INCREASE_PREVIEW_SIZE: {
           actions: assign({
-            // Увеличиваем размер превью на 20, но не больше максимального
+            // Находим следующий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
-              const newSize = Math.min(
-                context.previewSize + 20,
-                MAX_PREVIEW_SIZE,
-              )
-              return newSize
+              // Находим индекс текущего размера или ближайшего к нему
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize
+              );
+
+              // Если текущий размер больше максимального в массиве или это последний элемент
+              if (currentIndex === -1 || currentIndex === PREVIEW_SIZES.length - 1) {
+                return MAX_PREVIEW_SIZE;
+              }
+
+              // Возвращаем следующий размер из массива
+              return PREVIEW_SIZES[currentIndex + 1];
             },
             // Обновляем флаги возможности изменения размера
-            canIncreaseSize: ({ context }) =>
-              context.previewSize + 20 < MAX_PREVIEW_SIZE,
+            canIncreaseSize: ({ context }) => {
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize
+              );
+              return currentIndex < PREVIEW_SIZES.length - 1;
+            },
             canDecreaseSize: () => true,
           }),
         },
 
         /**
          * Обработка события уменьшения размера превью
+         * Выбирает предыдущий размер из массива PREVIEW_SIZES
          */
         DECREASE_PREVIEW_SIZE: {
           actions: assign({
-            // Уменьшаем размер превью на 20, но не меньше минимального
+            // Находим предыдущий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
-              const newSize = Math.max(
-                context.previewSize - 20,
-                MIN_PREVIEW_SIZE,
-              )
-              return newSize
+              // Находим индекс текущего размера или ближайшего к нему большего
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize
+              );
+
+              // Если текущий размер меньше минимального в массиве
+              if (currentIndex === -1) {
+                return MIN_PREVIEW_SIZE;
+              }
+
+              // Если текущий размер равен первому элементу массива
+              if (currentIndex === 0) {
+                return MIN_PREVIEW_SIZE;
+              }
+
+              // Возвращаем предыдущий размер из массива
+              return PREVIEW_SIZES[currentIndex - 1];
             },
             // Обновляем флаги возможности изменения размера
-            canDecreaseSize: ({ context }) =>
-              context.previewSize - 20 > MIN_PREVIEW_SIZE,
+            canDecreaseSize: ({ context }) => {
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize
+              );
+              return currentIndex > 0;
+            },
             canIncreaseSize: () => true,
           }),
         },
 
         /**
          * Обработка события установки размера превью
+         * Выбирает ближайший размер из массива PREVIEW_SIZES
          */
         SET_PREVIEW_SIZE: {
           actions: assign({
-            // Устанавливаем размер превью в пределах допустимых значений
+            // Устанавливаем размер превью, выбирая ближайший из массива PREVIEW_SIZES
             previewSize: ({ event }) => {
-              const newSize = Math.max(
+              // Ограничиваем размер в пределах допустимых значений
+              const clampedSize = Math.max(
                 MIN_PREVIEW_SIZE,
-                Math.min(event.size, MAX_PREVIEW_SIZE),
-              )
-              return newSize
+                Math.min(event.size, MAX_PREVIEW_SIZE)
+              );
+
+              // Находим ближайший размер в массиве PREVIEW_SIZES
+              let closestSize = PREVIEW_SIZES[0];
+              let minDiff = Math.abs(clampedSize - closestSize);
+
+              for (let i = 1; i < PREVIEW_SIZES.length; i++) {
+                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i]);
+                if (diff < minDiff) {
+                  minDiff = diff;
+                  closestSize = PREVIEW_SIZES[i];
+                }
+              }
+
+              return closestSize;
             },
             // Обновляем флаги возможности изменения размера
-            canIncreaseSize: ({ event }) => event.size < MAX_PREVIEW_SIZE,
-            canDecreaseSize: ({ event }) => event.size > MIN_PREVIEW_SIZE,
+            canIncreaseSize: ({ event }) => {
+              // Находим ближайший размер в массиве
+              const closestSizeIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= event.size
+              );
+              return closestSizeIndex < PREVIEW_SIZES.length - 1;
+            },
+            canDecreaseSize: ({ event }) => {
+              // Находим ближайший размер в массиве
+              const closestSizeIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= event.size
+              );
+              return closestSizeIndex > 0;
+            },
           }),
         },
 
@@ -470,60 +546,116 @@ export const mediaListMachine = createMachine({
 
         /**
          * Обработка события увеличения размера превью в состоянии ошибки
+         * Выбирает следующий размер из массива PREVIEW_SIZES
          */
         INCREASE_PREVIEW_SIZE: {
           actions: assign({
-            // Увеличиваем размер превью на 20, но не больше максимального
+            // Находим следующий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
-              const newSize = Math.min(
-                context.previewSize + 20,
-                MAX_PREVIEW_SIZE,
-              )
-              return newSize
+              // Находим индекс текущего размера или ближайшего к нему
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize
+              );
+
+              // Если текущий размер больше максимального в массиве или это последний элемент
+              if (currentIndex === -1 || currentIndex === PREVIEW_SIZES.length - 1) {
+                return MAX_PREVIEW_SIZE;
+              }
+
+              // Возвращаем следующий размер из массива
+              return PREVIEW_SIZES[currentIndex + 1];
             },
             // Обновляем флаги возможности изменения размера
-            canIncreaseSize: ({ context }) =>
-              context.previewSize + 20 < MAX_PREVIEW_SIZE,
+            canIncreaseSize: ({ context }) => {
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize
+              );
+              return currentIndex < PREVIEW_SIZES.length - 1;
+            },
             canDecreaseSize: () => true,
           }),
         },
 
         /**
          * Обработка события уменьшения размера превью в состоянии ошибки
+         * Выбирает предыдущий размер из массива PREVIEW_SIZES
          */
         DECREASE_PREVIEW_SIZE: {
           actions: assign({
-            // Уменьшаем размер превью на 20, но не меньше минимального
+            // Находим предыдущий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
-              const newSize = Math.max(
-                context.previewSize - 20,
-                MIN_PREVIEW_SIZE,
-              )
-              return newSize
+              // Находим индекс текущего размера или ближайшего к нему большего
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize
+              );
+
+              // Если текущий размер меньше минимального в массиве
+              if (currentIndex === -1) {
+                return MIN_PREVIEW_SIZE;
+              }
+
+              // Если текущий размер равен первому элементу массива
+              if (currentIndex === 0) {
+                return MIN_PREVIEW_SIZE;
+              }
+
+              // Возвращаем предыдущий размер из массива
+              return PREVIEW_SIZES[currentIndex - 1];
             },
             // Обновляем флаги возможности изменения размера
-            canDecreaseSize: ({ context }) =>
-              context.previewSize - 20 > MIN_PREVIEW_SIZE,
+            canDecreaseSize: ({ context }) => {
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize
+              );
+              return currentIndex > 0;
+            },
             canIncreaseSize: () => true,
           }),
         },
 
         /**
          * Обработка события установки размера превью в состоянии ошибки
+         * Выбирает ближайший размер из массива PREVIEW_SIZES
          */
         SET_PREVIEW_SIZE: {
           actions: assign({
-            // Устанавливаем размер превью в пределах допустимых значений
+            // Устанавливаем размер превью, выбирая ближайший из массива PREVIEW_SIZES
             previewSize: ({ event }) => {
-              const newSize = Math.max(
+              // Ограничиваем размер в пределах допустимых значений
+              const clampedSize = Math.max(
                 MIN_PREVIEW_SIZE,
-                Math.min(event.size, MAX_PREVIEW_SIZE),
-              )
-              return newSize
+                Math.min(event.size, MAX_PREVIEW_SIZE)
+              );
+
+              // Находим ближайший размер в массиве PREVIEW_SIZES
+              let closestSize = PREVIEW_SIZES[0];
+              let minDiff = Math.abs(clampedSize - closestSize);
+
+              for (let i = 1; i < PREVIEW_SIZES.length; i++) {
+                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i]);
+                if (diff < minDiff) {
+                  minDiff = diff;
+                  closestSize = PREVIEW_SIZES[i];
+                }
+              }
+
+              return closestSize;
             },
             // Обновляем флаги возможности изменения размера
-            canIncreaseSize: ({ event }) => event.size < MAX_PREVIEW_SIZE,
-            canDecreaseSize: ({ event }) => event.size > MIN_PREVIEW_SIZE,
+            canIncreaseSize: ({ event }) => {
+              // Находим ближайший размер в массиве
+              const closestSizeIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= event.size
+              );
+              return closestSizeIndex < PREVIEW_SIZES.length - 1;
+            },
+            canDecreaseSize: ({ event }) => {
+              // Находим ближайший размер в массиве
+              const closestSizeIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= event.size
+              );
+              return closestSizeIndex > 0;
+            },
           }),
         },
       },

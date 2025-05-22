@@ -7,6 +7,7 @@ import {
   DEFAULT_PREVIEW_SIZE,
   MAX_PREVIEW_SIZE,
   MIN_PREVIEW_SIZE,
+  PREVIEW_SIZES,
   mediaListMachine,
 } from "./media-list-machine"
 
@@ -211,14 +212,22 @@ describe("MediaListMachine", () => {
     // Сохраняем текущий размер превью
     const initialSize = actor.getSnapshot().context.previewSize
 
+    // Находим индекс текущего размера в массиве PREVIEW_SIZES
+    const currentIndex = PREVIEW_SIZES.findIndex(size => size >= initialSize)
+
+    // Определяем ожидаемый следующий размер
+    const expectedNextSize = currentIndex < PREVIEW_SIZES.length - 1
+      ? PREVIEW_SIZES[currentIndex + 1]
+      : MAX_PREVIEW_SIZE
+
     // Отправляем событие INCREASE_PREVIEW_SIZE
     actor.send({ type: "INCREASE_PREVIEW_SIZE" })
 
     // Получаем снимок состояния
     const snapshot = actor.getSnapshot()
 
-    // Проверяем, что размер превью увеличился на 20
-    expect(snapshot.context.previewSize).toBe(initialSize + 20)
+    // Проверяем, что размер превью увеличился до следующего значения в массиве
+    expect(snapshot.context.previewSize).toBe(expectedNextSize)
 
     // Останавливаем актора
     actor.stop()
@@ -243,14 +252,22 @@ describe("MediaListMachine", () => {
     // Сохраняем текущий размер превью
     const initialSize = actor.getSnapshot().context.previewSize
 
+    // Находим индекс текущего размера в массиве PREVIEW_SIZES
+    const currentIndex = PREVIEW_SIZES.findIndex(size => size >= initialSize)
+
+    // Определяем ожидаемый предыдущий размер
+    const expectedPrevSize = currentIndex > 0
+      ? PREVIEW_SIZES[currentIndex - 1]
+      : MIN_PREVIEW_SIZE
+
     // Отправляем событие DECREASE_PREVIEW_SIZE
     actor.send({ type: "DECREASE_PREVIEW_SIZE" })
 
     // Получаем снимок состояния
     const snapshot = actor.getSnapshot()
 
-    // Проверяем, что размер превью уменьшился на 20
-    expect(snapshot.context.previewSize).toBe(initialSize - 20)
+    // Проверяем, что размер превью уменьшился до предыдущего значения в массиве
+    expect(snapshot.context.previewSize).toBe(expectedPrevSize)
 
     // Останавливаем актора
     actor.stop()

@@ -7,6 +7,8 @@ import { ResourcesProvider } from "@/features/browser/resources/resources-provid
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
 
+import { PreviewSizeProvider } from "../browser/components/preview/preview-size-provider"
+import { TemplateListProvider } from "../browser/components/tabs/templates/template-list-provider"
 import { MediaProvider } from "../browser/media"
 import { ProjectSettingsProvider } from "../modals/features/project-settings/project-settings-provider"
 import { UserSettingsProvider } from "../modals/features/user-settings/user-settings-provider"
@@ -36,6 +38,8 @@ const AppProvider = composeProviders(
   ResourcesProvider,
   MusicProvider,
   MediaProvider,
+  PreviewSizeProvider,
+  TemplateListProvider
 )
 
 export function Providers({ children }: ProvidersProps) {

@@ -144,7 +144,7 @@ export function MediaToolbar() {
 
   return (
     <div className="flex items-center justify-between p-1 dark:bg-[#252526]">
-      <div className="flex h-7 w-[calc(100%-100px)] items-center gap-2">
+      <div className="flex h-8 w-[calc(100%-100px)] items-center gap-2">
         <Button
           variant="ghost"
           size="sm"

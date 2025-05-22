@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
@@ -6,10 +6,10 @@ import { useMedia } from "@/features/browser/media"
 import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider"
 
 import { getTemplateLabels } from "./template-labels"
+import { useTemplateList } from "./template-list-provider"
 import { TemplateListToolbar } from "./template-list-toolbar"
 import { TemplatePreview } from "./template-preview"
 import { MediaTemplate, TEMPLATE_MAP } from "./templates"
-import { usePreviewSize } from "../../preview/preview-size"
 
 /**
  * Преобразует метку соотношения сторон в группу шаблонов
@@ -33,7 +33,6 @@ function mapAspectLabelToGroup(
  */
 export function TemplateList() {
   const { t, i18n } = useTranslation() // Хук для интернационализации
-  const [searchQuery, setSearchQuery] = useState("") // Поисковый запрос
   const [, setActiveTemplate] = useState<MediaTemplate | null>(null) // Активный шаблон
   const [, setCurrentGroup] = useState<"landscape" | "portrait" | "square">(
     "landscape", // По умолчанию - горизонтальные шаблоны
@@ -43,31 +42,26 @@ export function TemplateList() {
     1080, // Размеры по умолчанию
   ])
   const [templates, setTemplates] = useState<MediaTemplate[]>([]) // Список шаблонов
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false) // Флаг отображения только избранных
   const { settings } = useProjectSettings() // Настройки проекта
-
-  /**
-   * Обработчик переключения режима отображения избранных шаблонов
-   */
-  const handleToggleFavorites = useCallback(() => {
-    setShowFavoritesOnly((prev) => !prev) // Инвертируем текущее значение
-  }, [])
 
   // Получаем доступ к контексту медиа для работы с медиафайлами
   const media = useMedia()
 
   /**
-   * Получаем параметры размера превью из хука usePreviewSize
-   * Используется для управления размером отображаемых шаблонов
+   * Получаем параметры из хука useTemplateList
+   * Используется для управления размером отображаемых шаблонов и фильтрацией
    */
   const {
     previewSize, // Текущий размер превью
-    isSizeLoaded, // Флаг загрузки размера
-    handleIncreaseSize, // Функция увеличения размера
-    handleDecreaseSize, // Функция уменьшения размера
+    increaseSize, // Функция увеличения размера
+    decreaseSize, // Функция уменьшения размера
     canIncreaseSize, // Флаг возможности увеличения
     canDecreaseSize, // Флаг возможности уменьшения
-  } = usePreviewSize("TEMPLATES")
+    searchQuery, // Поисковый запрос
+    setSearchQuery, // Функция установки поискового запроса
+    showFavoritesOnly, // Флаг отображения только избранных
+    toggleFavorites, // Функция переключения отображения избранных
+  } = useTemplateList()
 
   /**
    * Эффект для инициализации и обновления шаблонов при изменении настроек проекта
@@ -196,19 +190,16 @@ export function TemplateList() {
         setSearchQuery={setSearchQuery}
         canDecreaseSize={canDecreaseSize}
         canIncreaseSize={canIncreaseSize}
-        handleDecreaseSize={handleDecreaseSize}
-        handleIncreaseSize={handleIncreaseSize}
+        handleDecreaseSize={decreaseSize}
+        handleIncreaseSize={increaseSize}
         showFavoritesOnly={showFavoritesOnly}
-        onToggleFavorites={handleToggleFavorites}
+        onToggleFavorites={toggleFavorites}
       />
 
       {/* Контейнер для списка шаблонов с прокруткой */}
       <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-3">
         {/* Состояние загрузки - пустой контейнер */}
-        {!isSizeLoaded ? (
-          <div className="flex h-full items-center justify-center text-gray-500" />
-        ) : /* Состояние "ничего не найдено" - сообщение */
-        filteredTemplates.length === 0 ? (
+        {filteredTemplates.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-500">
             {t("browser.tabs.templates")} {t("common.notFound")}
           </div>

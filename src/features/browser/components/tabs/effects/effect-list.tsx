@@ -11,12 +11,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider"
 import { useMedia } from "@/features/browser/media"
 import { cn } from "@/lib/utils"
 import { VideoEffect } from "@/types/effects"
 
 import { EffectPreview } from "./effect-preview"
-import { usePreviewSize } from "../../preview/preview-size"
 
 import { effects } from "."
 
@@ -38,12 +38,11 @@ export function EffectList() {
    */
   const {
     previewSize, // Текущий размер превью
-    isSizeLoaded, // Флаг загрузки размера
-    handleIncreaseSize, // Функция увеличения размера
-    handleDecreaseSize, // Функция уменьшения размера
+    increaseSize, // Функция увеличения размера
+    decreaseSize, // Функция уменьшения размера
     canIncreaseSize, // Флаг возможности увеличения
     canDecreaseSize, // Флаг возможности уменьшения
-  } = usePreviewSize("TRANSITIONS")
+  } = usePreviewSize()
 
   /**
    * Обработчик переключения режима отображения избранных эффектов
@@ -144,7 +143,7 @@ export function EffectList() {
                       // Делаем кнопку неактивной, если нельзя уменьшить размер
                       !canDecreaseSize && "cursor-not-allowed opacity-50",
                     )}
-                    onClick={handleDecreaseSize}
+                    onClick={decreaseSize}
                     disabled={!canDecreaseSize}
                   >
                     <ZoomOut size={16} />
@@ -164,7 +163,7 @@ export function EffectList() {
                       // Делаем кнопку неактивной, если нельзя увеличить размер
                       !canIncreaseSize && "cursor-not-allowed opacity-50",
                     )}
-                    onClick={handleIncreaseSize}
+                    onClick={increaseSize}
                     disabled={!canIncreaseSize}
                   >
                     <ZoomIn size={16} />
@@ -180,10 +179,7 @@ export function EffectList() {
       {/* Контейнер для списка эффектов с прокруткой */}
       <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3">
         {/* Состояние загрузки - пустой контейнер */}
-        {!isSizeLoaded ? (
-          <div className="flex h-full items-center justify-center text-gray-500" />
-        ) : /* Состояние "ничего не найдено" - сообщение */
-        filteredEffects.length === 0 ? (
+        {filteredEffects.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-500">
             {t("browser.tabs.effects")} {t("common.notFound")}
           </div>

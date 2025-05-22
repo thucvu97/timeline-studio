@@ -28,12 +28,11 @@ vi.mock("@/features/browser/media", () => ({
 const mockHandleIncreaseSize = vi.fn()
 const mockHandleDecreaseSize = vi.fn()
 
-vi.mock("../../preview/preview-size", () => ({
+vi.mock("@/features/browser/components/preview/preview-size-provider", () => ({
   usePreviewSize: () => ({
     previewSize: 100,
-    isSizeLoaded: true,
-    handleIncreaseSize: mockHandleIncreaseSize,
-    handleDecreaseSize: mockHandleDecreaseSize,
+    increaseSize: mockHandleIncreaseSize,
+    decreaseSize: mockHandleDecreaseSize,
     canIncreaseSize: true,
     canDecreaseSize: true,
   }),
@@ -204,25 +203,25 @@ describe("FilterList", () => {
     ).not.toBeInTheDocument()
   })
 
-  it("calls handleIncreaseSize when zoom in button is clicked", () => {
+  it("calls increaseSize when zoom in button is clicked", () => {
     render(<FilterList />)
 
     // Находим кнопку увеличения размера и кликаем по ней
     const zoomInButton = screen.getByTestId("zoom-in-icon").closest("button")
     fireEvent.click(zoomInButton!)
 
-    // Проверяем, что handleIncreaseSize был вызван
+    // Проверяем, что increaseSize был вызван
     expect(mockHandleIncreaseSize).toHaveBeenCalledTimes(1)
   })
 
-  it("calls handleDecreaseSize when zoom out button is clicked", () => {
+  it("calls decreaseSize when zoom out button is clicked", () => {
     render(<FilterList />)
 
     // Находим кнопку уменьшения размера и кликаем по ней
     const zoomOutButton = screen.getByTestId("zoom-out-icon").closest("button")
     fireEvent.click(zoomOutButton!)
 
-    // Проверяем, что handleDecreaseSize был вызван
+    // Проверяем, что decreaseSize был вызван
     expect(mockHandleDecreaseSize).toHaveBeenCalledTimes(1)
   })
 

@@ -11,12 +11,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider"
 import { useMedia } from "@/features/browser/media"
 import { cn } from "@/lib/utils"
 
 import { FilterPreview } from "./filter-preview"
 import { VideoFilter, filters } from "./filters"
-import { usePreviewSize } from "../../preview/preview-size"
 
 /**
  * Компонент для отображения списка доступных видеофильтров
@@ -34,12 +34,11 @@ export function FilterList() {
   // Получаем параметры размера превью из хука
   const {
     previewSize, // Текущий размер превью
-    isSizeLoaded, // Флаг загрузки размера
-    handleIncreaseSize, // Функция увеличения размера
-    handleDecreaseSize, // Функция уменьшения размера
+    increaseSize, // Функция увеличения размера
+    decreaseSize, // Функция уменьшения размера
     canIncreaseSize, // Флаг возможности увеличения
     canDecreaseSize, // Флаг возможности уменьшения
-  } = usePreviewSize("TRANSITIONS")
+  } = usePreviewSize()
 
   /**
    * Обработчик переключения режима отображения избранных фильтров
@@ -130,7 +129,7 @@ export function FilterList() {
                       "mr-1 ml-2 h-6 w-6 cursor-pointer",
                       !canDecreaseSize && "cursor-not-allowed opacity-50",
                     )}
-                    onClick={handleDecreaseSize}
+                    onClick={decreaseSize}
                     disabled={!canDecreaseSize}
                   >
                     <ZoomOut size={16} />
@@ -149,7 +148,7 @@ export function FilterList() {
                       "mr-1 h-6 w-6 cursor-pointer",
                       !canIncreaseSize && "cursor-not-allowed opacity-50",
                     )}
-                    onClick={handleIncreaseSize}
+                    onClick={increaseSize}
                     disabled={!canIncreaseSize}
                   >
                     <ZoomIn size={16} />
@@ -164,10 +163,7 @@ export function FilterList() {
 
       {/* Контейнер для списка фильтров с прокруткой */}
       <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3">
-        {!isSizeLoaded ? (
-          // Отображаем пустой контейнер, пока размер не загружен
-          <div className="flex h-full items-center justify-center text-gray-500" />
-        ) : filteredFilters.length === 0 ? (
+        {filteredFilters.length === 0 ? (
           // Отображаем сообщение, если фильтры не найдены
           <div className="flex h-full items-center justify-center text-gray-500">
             {t("browser.tabs.filters")} {t("common.notFound")}
