@@ -1,40 +1,13 @@
 import { useState } from "react"
 
-import {
-  Blend,
-  FlipHorizontal2,
-  Grid2X2,
-  Image,
-  Music,
-  Sparkles,
-  Type,
-} from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { Tabs } from "@/components/ui/tabs"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-import {
-  EffectList,
-  FilterList,
-  MediaList,
-  MediaListProvider,
-  MusicList,
-  SubtitlesList,
-  TemplateList,
-  TransitionsList,
-} from "./tabs"
-
-const TAB_TRIGGER_STYLES =
-  "text-xs text-gray-600 dark:bg-[#2D2D2D] border-none " +
-  "dark:data-[state=active]:bg-[#252526] dark:data-[state=active]:text-[#35d1c1] data-[state=active]:text-text-gray-900" +
-  "hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#252526] dark:hover:text-gray-100 " +
-  "flex flex-col items-center justify-center gap-1 py-2 " +
-  "[&>svg]:data-[state=active]:text-[#38dacac3] cursor-pointer data-[state=active]:cursor-default rounded-none"
+import { BrowserContent } from "./browser-content"
+import { BrowserTabs } from "./browser-tabs"
 
 // Клиентский компонент Browser
 export function Browser() {
   const [activeTab, setActiveTab] = useState("media")
-  const { t } = useTranslation()
 
   const handleTabChange = (value: string) => {
     setActiveTab(value)
@@ -48,80 +21,8 @@ export function Browser() {
         defaultValue="media"
         className="flex h-full w-full flex-col overflow-hidden gap-0 dark:bg-[#2D2D2D]"
       >
-        <TabsList className="h-[50px] flex-shrink-0 justify-start border-none rounded-none dark:bg-[#252526]  m-0 p-0">
-          <TabsTrigger value="media" className={TAB_TRIGGER_STYLES}>
-            <Image className="h-4 w-4" />
-            <span>{t("browser.tabs.media")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="music" className={TAB_TRIGGER_STYLES}>
-            <Music className="h-4 w-4" />
-            <span>{t("browser.tabs.music")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="effects" className={TAB_TRIGGER_STYLES}>
-            <Sparkles className="h-4 w-4" />
-            <span>{t("browser.tabs.effects")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="filters" className={TAB_TRIGGER_STYLES}>
-            <Blend className="h-4 w-4" />
-            <span>{t("browser.tabs.filters")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="subtitles" className={TAB_TRIGGER_STYLES}>
-              <Type className="h-4 w-4" />
-              <span>{t("browser.tabs.subtitles")}</span>
-            </TabsTrigger>
-          <TabsTrigger value="transitions" className={TAB_TRIGGER_STYLES}>
-            <FlipHorizontal2 className="h-4 w-4" />
-            <span>{t("browser.tabs.transitions")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="templates" className={TAB_TRIGGER_STYLES}>
-            <Grid2X2 className="h-4 w-4" />
-            <span>{t("browser.tabs.templates")}</span>
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent
-          value="media"
-          className="bg-background m-0 flex-1 overflow-auto"
-        >
-          <MediaListProvider>
-            <MediaList />
-          </MediaListProvider>
-        </TabsContent>
-        <TabsContent
-          value="music"
-          className="bg-background m-0 flex-1 overflow-auto"
-        >
-          <MusicList />
-        </TabsContent>
-        <TabsContent
-          value="transitions"
-          className="bg-background m-0 flex-1 overflow-auto"
-        >
-          <TransitionsList />
-        </TabsContent>
-        <TabsContent
-          value="effects"
-          className="bg-background m-0 flex-1 overflow-auto"
-        >
-          <EffectList />
-        </TabsContent>
-        <TabsContent
-          value="subtitles"
-          className="bg-background m-0 flex-1 overflow-auto"
-        >
-          <SubtitlesList />
-        </TabsContent>
-        <TabsContent
-          value="filters"
-          className="bg-background m-0 flex-1 overflow-auto"
-        >
-          <FilterList />
-        </TabsContent>
-        <TabsContent
-          value="templates"
-          className="bg-background m-0 flex-1 overflow-auto"
-        >
-          <TemplateList />
-        </TabsContent>
+        <BrowserTabs activeTab={activeTab} onTabChange={handleTabChange} />
+        <BrowserContent />
       </Tabs>
     </div>
   )

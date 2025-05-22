@@ -3,6 +3,70 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { Browser } from "./browser"
 
+// Мокаем компоненты BrowserTabs и BrowserContent
+vi.mock("./browser-tabs", () => ({
+  BrowserTabs: vi.fn(({ activeTab, onTabChange }) => (
+    <div data-testid="browser-tabs" data-active-tab={activeTab}>
+      <button
+        data-testid="tab-trigger-media"
+        onClick={() => onTabChange("media")}
+      >
+        Media
+      </button>
+      <button
+        data-testid="tab-trigger-music"
+        onClick={() => onTabChange("music")}
+      >
+        Music
+      </button>
+      <button
+        data-testid="tab-trigger-effects"
+        onClick={() => onTabChange("effects")}
+      >
+        Effects
+      </button>
+      <button
+        data-testid="tab-trigger-filters"
+        onClick={() => onTabChange("filters")}
+      >
+        Filters
+      </button>
+      <button
+        data-testid="tab-trigger-subtitles"
+        onClick={() => onTabChange("subtitles")}
+      >
+        Subtitles
+      </button>
+      <button
+        data-testid="tab-trigger-transitions"
+        onClick={() => onTabChange("transitions")}
+      >
+        Transitions
+      </button>
+      <button
+        data-testid="tab-trigger-templates"
+        onClick={() => onTabChange("templates")}
+      >
+        Templates
+      </button>
+    </div>
+  )),
+}))
+
+vi.mock("./browser-content", () => ({
+  BrowserContent: vi.fn(({ activeTab }) => (
+    <div data-testid="browser-content" data-active-tab={activeTab}>
+      <div data-testid="tab-content-media">Media Content</div>
+      <div data-testid="tab-content-music">Music Content</div>
+      <div data-testid="tab-content-effects">Effects Content</div>
+      <div data-testid="tab-content-filters">Filters Content</div>
+      <div data-testid="tab-content-subtitles">Subtitles Content</div>
+      <div data-testid="tab-content-transitions">Transitions Content</div>
+      <div data-testid="tab-content-templates">Templates Content</div>
+    </div>
+  )),
+}))
+
 // Мокаем xstate
 vi.mock("xstate", () => ({
   createMachine: vi.fn(),
@@ -213,6 +277,7 @@ vi.mock("react-i18next", () => ({
         "browser.tabs.music": "Music",
         "browser.tabs.effects": "Effects",
         "browser.tabs.filters": "Filters",
+        "browser.tabs.subtitles": "Subtitles",
         "browser.tabs.transitions": "Transitions",
         "browser.tabs.templates": "Templates",
       }
@@ -265,10 +330,12 @@ describe("Browser", () => {
     expect(screen.getByTestId("tab-trigger-music")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-effects")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-filters")).toBeInTheDocument()
+    expect(screen.getByTestId("tab-trigger-subtitles")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-transitions")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-templates")).toBeInTheDocument()
 
-    // Проверяем, что все содержимое вкладок отображается
+    // Проверяем, что все содержимое вкладок отображается через BrowserContent
+    expect(screen.getByTestId("browser-content")).toBeInTheDocument()
     expect(screen.getByTestId("tab-content-media")).toBeInTheDocument()
     expect(screen.getByTestId("tab-content-music")).toBeInTheDocument()
     expect(screen.getByTestId("tab-content-transitions")).toBeInTheDocument()
@@ -288,6 +355,7 @@ describe("Browser", () => {
     expect(screen.getAllByText("Music").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Effects").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Filters").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Subtitles").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Transitions").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Templates").length).toBeGreaterThan(0)
   })
@@ -301,6 +369,7 @@ describe("Browser", () => {
     expect(screen.getByTestId("music-icon")).toBeInTheDocument()
     expect(screen.getByTestId("sparkles-icon")).toBeInTheDocument()
     expect(screen.getByTestId("blend-icon")).toBeInTheDocument()
+    expect(screen.getByTestId("type-icon")).toBeInTheDocument()
     expect(screen.getByTestId("flip-horizontal-icon")).toBeInTheDocument()
     expect(screen.getByTestId("grid-icon")).toBeInTheDocument()
   })
