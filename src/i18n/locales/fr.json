@@ -478,7 +478,8 @@
       "transitions": "Transitions",
       "effects": "Effets",
       "filters": "Filtres",
-      "templates": "Multicam"
+      "templates": "Multicam",
+      "subtitles": "Sous-titres"
     },
     "templateScreens": {
       "one": "écran",

@@ -156,11 +156,8 @@ export function ProjectSettingsModal() {
     // Находим объект соотношения сторон по выбранному значению
     const newAspectRatio = ASPECT_RATIOS.find((item) => item.label === value)
     if (newAspectRatio) {
-      // Если выбрано пользовательское соотношение сторон, отключаем блокировку
-      // чтобы пользователь мог свободно изменять ширину и высоту
-      if (value === "custom" && aspectRatioLocked) {
-        setAspectRatioLocked(false)
-      }
+      // Сохраняем текущее состояние блокировки соотношения сторон
+      // даже для пользовательского соотношения
 
       // Получаем рекомендуемое разрешение для нового соотношения сторон
       const recommendedResolution = getDefaultResolutionForAspectRatio(value)
@@ -346,10 +343,7 @@ export function ProjectSettingsModal() {
 
                 // Если соотношение сторон заблокировано, обновляем высоту пропорционально
                 // для сохранения выбранного соотношения сторон
-                if (
-                  aspectRatioLocked &&
-                  settings.aspectRatio.label !== "custom"
-                ) {
+                if (aspectRatioLocked) {
                   // Вычисляем текущее соотношение сторон
                   const aspectRatio =
                     settings.aspectRatio.value.width /
@@ -411,10 +405,7 @@ export function ProjectSettingsModal() {
 
                 // Если соотношение сторон заблокировано, обновляем ширину пропорционально
                 // для сохранения выбранного соотношения сторон
-                if (
-                  aspectRatioLocked &&
-                  settings.aspectRatio.label !== "custom"
-                ) {
+                if (aspectRatioLocked) {
                   // Вычисляем текущее соотношение сторон
                   const aspectRatio =
                     settings.aspectRatio.value.width /
@@ -463,66 +454,62 @@ export function ProjectSettingsModal() {
           />
 
           {/* Кнопка блокировки/разблокировки соотношения сторон */}
-          {/* Отображается только для стандартных соотношений сторон */}
-          {settings.aspectRatio.label !== "custom" && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`ml-2 h-7 w-7 cursor-pointer p-0 ${
-                // Подсвечиваем кнопку, если соотношение сторон заблокировано
-                aspectRatioLocked
-                  ? "text-[#00CCC0]"
-                  : "text-gray-400 hover:text-gray-200"
-              }`}
-              onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
-              title={
-                // Подсказка при наведении
-                aspectRatioLocked
-                  ? t("dialogs.projectSettings.unlockAspectRatio")
-                  : t("dialogs.projectSettings.lockAspectRatio")
-              }
-            >
-              {/* Иконка в зависимости от состояния блокировки */}
-              {aspectRatioLocked ? (
-                <Lock className="h-4 w-4" />
-              ) : (
-                <Unlock className="h-4 w-4" />
-              )}
-            </Button>
-          )}
+          {/* Отображается для всех соотношений сторон */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`ml-2 h-7 w-7 cursor-pointer p-0 ${
+              // Подсвечиваем кнопку, если соотношение сторон заблокировано
+              aspectRatioLocked
+                ? "text-[#00CCC0]"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
+            onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
+            title={
+              // Подсказка при наведении
+              aspectRatioLocked
+                ? t("dialogs.projectSettings.unlockAspectRatio")
+                : t("dialogs.projectSettings.lockAspectRatio")
+            }
+          >
+            {/* Иконка в зависимости от состояния блокировки */}
+            {aspectRatioLocked ? (
+              <Lock className="h-4 w-4" />
+            ) : (
+              <Unlock className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </div>
 
       {/* Информация о текущем соотношении сторон */}
       <div className="flex items-center justify-center">
         <div className="flex items-center text-xs text-gray-400">
-          {settings.aspectRatio.label !== "custom" ? (
-            // Для стандартных соотношений сторон показываем статус блокировки
-            aspectRatioLocked ? (
-              // Заблокированное соотношение сторон
-              <>
-                <Lock className="mr-1 h-3 w-3 text-[#00CCC0]" />
-                <span className="text-[#00CCC0]">
-                  {t("dialogs.projectSettings.aspectRatioLocked", {
-                    ratio: settings.aspectRatio.label,
-                  })}
-                </span>
-              </>
-            ) : (
-              // Разблокированное соотношение сторон
-              <>
-                <Unlock className="mr-1 h-3 w-3" />
-                {t("dialogs.projectSettings.aspectRatioUnlocked", {
-                  ratio: settings.aspectRatio.label,
-                })}
-              </>
-            )
-          ) : (
-            // Для пользовательского соотношения сторон показываем вычисленное значение
+          {aspectRatioLocked ? (
+            // Заблокированное соотношение сторон
             <>
-              {t("dialogs.projectSettings.aspectRatioValue", {
-                ratio: getAspectRatioString(customWidth, customHeight),
-              })}
+              <Lock className="mr-1 h-3 w-3 text-[#00CCC0]" />
+              <span className="text-[#00CCC0]">
+                {settings.aspectRatio.label !== "custom"
+                  ? t("dialogs.projectSettings.aspectRatioLocked", {
+                      ratio: settings.aspectRatio.label,
+                    })
+                  : t("dialogs.projectSettings.aspectRatioLocked", {
+                      ratio: getAspectRatioString(customWidth, customHeight),
+                    })}
+              </span>
+            </>
+          ) : (
+            // Разблокированное соотношение сторон
+            <>
+              <Unlock className="mr-1 h-3 w-3" />
+              {settings.aspectRatio.label !== "custom"
+                ? t("dialogs.projectSettings.aspectRatioUnlocked", {
+                    ratio: settings.aspectRatio.label,
+                  })
+                : t("dialogs.projectSettings.aspectRatioUnlocked", {
+                    ratio: getAspectRatioString(customWidth, customHeight),
+                  })}
             </>
           )}
         </div>

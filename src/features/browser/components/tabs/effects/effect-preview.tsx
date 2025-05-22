@@ -248,7 +248,7 @@ export function EffectPreview({
         </div>
       </div>
       {/* Название эффекта */}
-      <div className="mt-1 text-xs text-gray-300">
+      <div className="mt-1 text-xs">
         {t(`effects.presets.${effectType}`)}{" "}
         {/* Локализованное название эффекта */}
       </div>

@@ -38,6 +38,7 @@ describe("Media Machine", () => {
       effect: [],
       template: [],
       filter: [],
+      subtitle: [],
     })
   })
 

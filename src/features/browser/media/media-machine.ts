@@ -10,6 +10,7 @@ export interface FavoritesType {
   effect: any[]
   template: any[]
   filter: any[]
+  subtitle: any[]
 }
 
 export interface MediaContextType {
@@ -101,6 +102,7 @@ export const mediaMachine = createMachine({
       effect: [],
       template: [],
       filter: [],
+      subtitle: [],
     },
   } as MediaContextType,
   states: {

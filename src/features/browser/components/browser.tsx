@@ -7,6 +7,7 @@ import {
   Image,
   Music,
   Sparkles,
+  Type,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -24,9 +25,9 @@ import {
 } from "./tabs"
 
 const TAB_TRIGGER_STYLES =
-  "text-xs text-[#969696] dark:bg-[#2D2D2D] border-none " +
-  "dark:data-[state=active]:bg-[#252526] dark:data-[state=active]:text-[#35d1c1] " +
-  "hover:text-[#969696] dark:text-gray-400 dark:hover:bg-[#252526] dark:hover:text-gray-100 " +
+  "text-xs text-gray-600 dark:bg-[#2D2D2D] border-none " +
+  "dark:data-[state=active]:bg-[#252526] dark:data-[state=active]:text-[#35d1c1] data-[state=active]:text-text-gray-900" +
+  "hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#252526] dark:hover:text-gray-100 " +
   "flex flex-col items-center justify-center gap-1 py-2 " +
   "[&>svg]:data-[state=active]:text-[#38dacac3] cursor-pointer data-[state=active]:cursor-default rounded-none"
 
@@ -64,10 +65,10 @@ export function Browser() {
             <Blend className="h-4 w-4" />
             <span>{t("browser.tabs.filters")}</span>
           </TabsTrigger>
-          {/* <TabsTrigger value="subtitles" className={TAB_TRIGGER_STYLES}>
+          <TabsTrigger value="subtitles" className={TAB_TRIGGER_STYLES}>
               <Type className="h-4 w-4" />
-              <span>{t("titles.add")}</span>
-            </TabsTrigger> */}
+              <span>{t("browser.tabs.subtitles")}</span>
+            </TabsTrigger>
           <TabsTrigger value="transitions" className={TAB_TRIGGER_STYLES}>
             <FlipHorizontal2 className="h-4 w-4" />
             <span>{t("browser.tabs.transitions")}</span>

@@ -630,7 +630,8 @@
       "transitions": "Переходы",
       "effects": "Эффекты",
       "filters": "Фильтры",
-      "templates": "Камеры"
+      "templates": "Камеры",
+      "subtitles": "Субтитры"
     },
     "templateScreens": {
       "one": "экран",

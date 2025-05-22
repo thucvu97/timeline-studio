@@ -400,7 +400,7 @@ export function TransitionPreview({
         </div>
       </div>
       {/* Название перехода */}
-      <div className="mt-1 text-xs text-gray-300">
+      <div className="mt-1 text-xs">
         {t(`transitions.types.${transitionType}`)}{" "}
         {/* Локализованное название перехода */}
       </div>

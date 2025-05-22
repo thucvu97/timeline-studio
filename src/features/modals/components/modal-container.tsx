@@ -48,11 +48,11 @@ export function ModalContainer() {
       case "export":
         return "h-[max(700px,min(80vh,900px))] w-[max(800px,min(90vw,1200px))]"
       case "project-settings":
-        return "h-[max(500px,min(60vh,700px))] w-[800px]"
+        return "h-[450px] w-[800px]"
       case "user-settings":
-        return "h-[max(550px,min(65vh,750px))] w-[max(650px,min(75vw,850px))]"
+        return "h-[580px] w-[max(650px,min(75vw,850px))]"
       case "keyboard-shortcuts":
-        return "h-[max(600px,min(70vh,800px))] w-[max(700px,min(85vw,900px))]"
+        return "h-[max(600px,min(70vh,800px))] w-[1200px]"
       default:
         return "h-[max(600px,min(50vh,800px))]"
     }

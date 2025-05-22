@@ -110,7 +110,7 @@ export function FilterPreview({ filter, onClick, size }: FilterPreviewProps) {
     <div className="flex flex-col items-center">
       {/* Контейнер превью фильтра */}
       <div
-        className="group relative cursor-pointer rounded-xs bg-black"
+        className="group relative cursor-pointer rounded-xs bg-background"
         style={{ width: `${size}px`, height: `${size}px` }}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
@@ -164,7 +164,7 @@ export function FilterPreview({ filter, onClick, size }: FilterPreviewProps) {
         </div>
       </div>
       {/* Название фильтра */}
-      <div className="mt-1 text-xs text-gray-300">
+      <div className="mt-1 text-xs">
         {t(`filters.presets.${filter.id}`)}{" "}
         {/* Локализованное название фильтра */}
       </div>

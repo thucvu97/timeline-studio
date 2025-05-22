@@ -1,3 +1,4 @@
+import { SubtitleStyle } from "@/features/browser/components/tabs/subtitles/subtitles"
 import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
 import { MediaFile } from "@/types/media"
 import { TransitionEffect } from "@/types/transitions"
@@ -21,6 +22,7 @@ export type ResourceType =
   | "transition"
   | "template"
   | "music"
+  | "subtitle"
 
 // Интерфейс для эффектов
 export interface EffectResource extends Resource {
@@ -57,6 +59,13 @@ export interface MusicResource extends Resource {
   params?: Record<string, any> // Параметры музыкального файла
 }
 
+// Интерфейс для стилей субтитров
+export interface SubtitleResource extends Resource {
+  type: "subtitle"
+  style: SubtitleStyle
+  params?: Record<string, any> // Параметры стиля субтитров
+}
+
 // Тип для всех ресурсов
 export type TimelineResource =
   | EffectResource
@@ -64,6 +73,7 @@ export type TimelineResource =
   | TransitionResource
   | TemplateResource
   | MusicResource
+  | SubtitleResource
 
 // Функция для создания ресурса эффекта
 export function createEffectResource(effect: VideoEffect): EffectResource {
@@ -133,6 +143,19 @@ export function createMusicResource(file: MediaFile): MusicResource {
     resourceId: file.id,
     addedAt: Date.now(),
     file,
+    params: {},
+  }
+}
+
+// Функция для создания ресурса стиля субтитров
+export function createSubtitleResource(style: SubtitleStyle): SubtitleResource {
+  return {
+    id: `subtitle-${style.id}-${Date.now()}`,
+    type: "subtitle",
+    name: style.name,
+    resourceId: style.id,
+    addedAt: Date.now(),
+    style,
     params: {},
   }
 }

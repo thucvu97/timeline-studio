@@ -72,8 +72,7 @@ export function UserSettingsModal() {
   }
 
   return (
-    <>
-      <div className="flex flex-col space-y-6 py-1">
+      <div className="flex flex-col h-full space-y-6 py-1">
         {/* Выбор языка интерфейса */}
         <div className="flex items-center justify-end">
           <Label className="mr-2 text-xs">
@@ -346,10 +345,9 @@ export function UserSettingsModal() {
             )}
           </div>
         </div>
-      </div>
 
       {/* Кнопки действий в нижней части модального окна */}
-      <DialogFooter className="flex justify-between space-x-4">
+      <DialogFooter className="flex justify-between space-x-4 mt-10">
         {/* Кнопка отмены */}
         <Button
           variant="default"
@@ -374,6 +372,6 @@ export function UserSettingsModal() {
           {t("dialogs.userSettings.save")}
         </Button>
       </DialogFooter>
-    </>
+      </div>
   )
 }

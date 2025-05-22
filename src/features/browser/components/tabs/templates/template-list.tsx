@@ -249,7 +249,7 @@ export function TemplateList() {
 
                       {/* Название шаблона под превью */}
                       <div
-                        className="mt-1 truncate text-center text-xs text-gray-400"
+                        className="mt-1 truncate text-center text-xs"
                         title={getTemplateLabels(template.id) || template.id} // Полное название в тултипе
                         style={{ width: `${previewSize}px` }} // Ширина равна ширине превью
                       >

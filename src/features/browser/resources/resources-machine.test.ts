@@ -43,6 +43,7 @@ describe("resourcesMachine", () => {
       transitionResources: [],
       templateResources: [],
       musicResources: [],
+      subtitleResources: [],
     })
 
     // Проверяем начальное состояние

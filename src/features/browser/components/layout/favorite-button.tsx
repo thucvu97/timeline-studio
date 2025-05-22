@@ -11,7 +11,7 @@ import { useMedia } from "../../media"
 interface FavoriteButtonProps {
   file: MediaFile
   size?: number
-  type?: "media" | "audio" | "transition" | "effect" | "template" | "filter"
+  type?: "media" | "audio" | "transition" | "effect" | "template" | "filter" | "subtitle"
 }
 
 /**

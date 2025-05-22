@@ -2,6 +2,7 @@ import React, { ReactNode, createContext, useContext } from "react"
 
 import { useMachine } from "@xstate/react"
 
+import { SubtitleStyle } from "@/features/browser/components/tabs/subtitles/subtitles"
 import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
 import { VideoEffect } from "@/types/effects"
 import { VideoFilter } from "@/types/filters"
@@ -10,6 +11,7 @@ import {
   EffectResource,
   FilterResource,
   MusicResource,
+  SubtitleResource,
   TemplateResource,
   TransitionResource,
 } from "@/types/resources"
@@ -24,6 +26,7 @@ interface ResourcesContextType extends ResourcesMachineContext {
   addTransition: (transition: TransitionEffect) => void
   addTemplate: (template: MediaTemplate) => void
   addMusic: (file: MediaFile) => void
+  addSubtitle: (style: SubtitleStyle) => void
   removeResource: (resourceId: string) => void
   updateResource: (resourceId: string, params: Record<string, any>) => void
 
@@ -33,6 +36,7 @@ interface ResourcesContextType extends ResourcesMachineContext {
   isTransitionAdded: (transition: TransitionEffect) => boolean
   isTemplateAdded: (template: MediaTemplate) => boolean
   isMusicFileAdded: (file: MediaFile) => boolean
+  isSubtitleAdded: (style: SubtitleStyle) => boolean
 }
 
 interface ResourcesProviderProps {
@@ -60,6 +64,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     transitionResources,
     templateResources,
     musicResources,
+    subtitleResources,
   } = state.context
 
   // Методы для работы с ресурсами
@@ -96,6 +101,14 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     (file: MediaFile) => {
       console.log("Adding music file to resources:", file.name)
       send({ type: "ADD_MUSIC", file })
+    },
+    [send],
+  )
+
+  const handleAddSubtitle = React.useCallback(
+    (style: SubtitleStyle) => {
+      console.log("Adding subtitle style to resources:", style.name)
+      send({ type: "ADD_SUBTITLE", style })
     },
     [send],
   )
@@ -272,6 +285,39 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     [musicResources],
   )
 
+  // Создаем кэш для результатов проверки стилей субтитров
+  const subtitleAddedCache = React.useRef<Record<string, boolean>>({})
+
+  // Сбрасываем кэш при изменении subtitleResources
+  React.useEffect(() => {
+    subtitleAddedCache.current = {}
+  }, [subtitleResources])
+
+  const isSubtitleAdded = React.useCallback(
+    (style: SubtitleStyle) => {
+      // Проверяем, есть ли результат в кэше
+      if (subtitleAddedCache.current[style.id]) {
+        return subtitleAddedCache.current[style.id]
+      }
+
+      // Если результата нет в кэше, вычисляем его
+      const isAdded = subtitleResources.some(
+        (resource: SubtitleResource) => resource.resourceId === style.id,
+      )
+
+      // Сохраняем результат в кэше
+      subtitleAddedCache.current[style.id] = isAdded
+
+      // Логируем только при первой проверке для каждого стиля
+      console.log("Checking if subtitle style is added:", style.name, style.id)
+      console.log("Current subtitle resources:", subtitleResources)
+      console.log("Subtitle style isAdded result:", isAdded)
+
+      return isAdded
+    },
+    [subtitleResources],
+  )
+
   const value: ResourcesContextType = {
     // Данные из контекста машины состояний
     resources,
@@ -280,6 +326,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     transitionResources,
     templateResources,
     musicResources,
+    subtitleResources,
 
     // Методы для работы с ресурсами
     addEffect: handleAddEffect,
@@ -287,6 +334,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     addTransition: handleAddTransition,
     addTemplate: handleAddTemplate,
     addMusic: handleAddMusic,
+    addSubtitle: handleAddSubtitle,
     removeResource: handleRemoveResource,
     updateResource: handleUpdateResource,
 
@@ -296,6 +344,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     isTransitionAdded,
     isTemplateAdded,
     isMusicFileAdded,
+    isSubtitleAdded,
   }
 
   return (

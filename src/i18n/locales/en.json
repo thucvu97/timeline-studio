@@ -630,7 +630,8 @@
       "transitions": "Transitions",
       "effects": "Effects",
       "filters": "Filters",
-      "templates": "Multicam"
+      "templates": "Multicam",
+      "subtitles": "Subtitles"
     },
     "templateScreens": {
       "one": "screen",

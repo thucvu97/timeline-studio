@@ -1,5 +1,6 @@
 import { assign, createMachine, setup } from "xstate"
 
+import { SubtitleStyle } from "@/features/browser/components/tabs/subtitles/subtitles"
 import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
 import { VideoEffect } from "@/types/effects"
 import { VideoFilter } from "@/types/filters"
@@ -8,12 +9,14 @@ import {
   EffectResource,
   FilterResource,
   MusicResource,
+  SubtitleResource,
   TemplateResource,
   TimelineResource,
   TransitionResource,
   createEffectResource,
   createFilterResource,
   createMusicResource,
+  createSubtitleResource,
   createTemplateResource,
   createTransitionResource,
 } from "@/types/resources"
@@ -27,6 +30,7 @@ export interface ResourcesMachineContext {
   transitionResources: TransitionResource[] // Переходы
   templateResources: TemplateResource[] // Шаблоны
   musicResources: MusicResource[] // Музыкальные файлы
+  subtitleResources: SubtitleResource[] // Стили субтитров
 }
 
 // Типы событий, которые может обрабатывать машина
@@ -36,6 +40,7 @@ type ResourcesMachineEvent =
   | { type: "ADD_TRANSITION"; transition: TransitionEffect }
   | { type: "ADD_TEMPLATE"; template: MediaTemplate }
   | { type: "ADD_MUSIC"; file: MediaFile }
+  | { type: "ADD_SUBTITLE"; style: SubtitleStyle }
   | { type: "REMOVE_RESOURCE"; resourceId: string }
   | { type: "UPDATE_RESOURCE"; resourceId: string; params: Record<string, any> }
   | { type: "LOAD_RESOURCES"; resources: TimelineResource[] }
@@ -231,6 +236,40 @@ export const resourcesMachine = setup({
       },
     }),
 
+    // Добавление стиля субтитров
+    addSubtitle: assign({
+      resources: ({ context, event }) => {
+        if (event.type !== "ADD_SUBTITLE") return context.resources
+
+        // Проверяем, есть ли уже такой стиль субтитров
+        const existingResource = context.subtitleResources.find(
+          (resource) => resource.resourceId === event.style.id,
+        )
+
+        if (existingResource) {
+          return context.resources
+        }
+
+        const newResource = createSubtitleResource(event.style)
+        return [...context.resources, newResource]
+      },
+      subtitleResources: ({ context, event }) => {
+        if (event.type !== "ADD_SUBTITLE") return context.subtitleResources
+
+        // Проверяем, есть ли уже такой стиль субтитров
+        const existingResource = context.subtitleResources.find(
+          (resource) => resource.resourceId === event.style.id,
+        )
+
+        if (existingResource) {
+          return context.subtitleResources
+        }
+
+        const newResource = createSubtitleResource(event.style)
+        return [...context.subtitleResources, newResource]
+      },
+    }),
+
     // Удаление ресурса
     removeResource: assign({
       resources: ({ context, event }) => {
@@ -266,6 +305,12 @@ export const resourcesMachine = setup({
       musicResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.musicResources
         return context.musicResources.filter(
+          (resource) => resource.id !== event.resourceId,
+        )
+      },
+      subtitleResources: ({ context, event }) => {
+        if (event.type !== "REMOVE_RESOURCE") return context.subtitleResources
+        return context.subtitleResources.filter(
           (resource) => resource.id !== event.resourceId,
         )
       },
@@ -369,6 +414,22 @@ export const resourcesMachine = setup({
           return resource
         })
       },
+      subtitleResources: ({ context, event }) => {
+        if (event.type !== "UPDATE_RESOURCE") return context.subtitleResources
+
+        return context.subtitleResources.map((resource) => {
+          if (resource.id === event.resourceId) {
+            return {
+              ...resource,
+              params: {
+                ...resource.params,
+                ...event.params,
+              },
+            }
+          }
+          return resource
+        })
+      },
     }),
   },
 }).createMachine({
@@ -381,6 +442,7 @@ export const resourcesMachine = setup({
     transitionResources: [],
     templateResources: [],
     musicResources: [],
+    subtitleResources: [],
   },
   states: {
     active: {
@@ -399,6 +461,9 @@ export const resourcesMachine = setup({
         },
         ADD_MUSIC: {
           actions: "addMusic",
+        },
+        ADD_SUBTITLE: {
+          actions: "addSubtitle",
         },
         REMOVE_RESOURCE: {
           actions: "removeResource",

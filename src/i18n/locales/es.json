@@ -487,7 +487,8 @@
       "transitions": "Transiciones",
       "effects": "Efectos",
       "filters": "Filtros",
-      "templates": "Multicámara"
+      "templates": "Multicámara",
+      "subtitles": "Subtítulos"
     },
     "templateScreens": {
       "one": "pantalla",

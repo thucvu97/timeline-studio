@@ -123,6 +123,7 @@ vi.mock("lucide-react", () => ({
   Grid: vi.fn(() => <div data-testid="grid-icon">Grid</div>),
   List: vi.fn(() => <div data-testid="list-icon">List</div>),
   Folder: vi.fn(() => <div data-testid="folder-icon">Folder</div>),
+  Type: vi.fn(() => <div data-testid="type-icon">Type</div>),
   FolderOpen: vi.fn(() => <div data-testid="folder-open-icon">FolderOpen</div>),
   Plus: vi.fn(() => <div data-testid="plus-icon">Plus</div>),
   X: vi.fn(() => <div data-testid="x-icon">X</div>),
