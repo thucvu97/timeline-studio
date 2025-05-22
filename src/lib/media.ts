@@ -94,13 +94,13 @@ export async function getMediaFiles(directory: string): Promise<string[]> {
 }
 
 /**
- * Открытие диалога выбора файла
- * @returns Путь к выбранному файлу или null, если отменено
+ * Открытие диалога выбора файлов
+ * @returns Массив путей к выбранным файлам или null, если отменено
  */
-export async function selectMediaFile(): Promise<string | null> {
+export async function selectMediaFile(): Promise<string[] | null> {
   try {
     const selected = await open({
-      multiple: false,
+      multiple: true,
       filters: [
         {
           name: "Media",
@@ -128,9 +128,10 @@ export async function selectMediaFile(): Promise<string | null> {
       return null
     }
 
-    return selected
+    // Если выбран один файл, open возвращает строку, иначе массив строк
+    return Array.isArray(selected) ? selected : [selected]
   } catch (error) {
-    console.error("Ошибка при выборе файла:", error)
+    console.error("Ошибка при выборе файлов:", error)
     throw error
   }
 }

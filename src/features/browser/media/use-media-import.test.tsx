@@ -41,7 +41,7 @@ vi.mock("@/lib/media", () => ({
       },
     })
   }),
-  selectMediaFile: vi.fn().mockResolvedValue("/path/to/file.mp4"),
+  selectMediaFile: vi.fn().mockResolvedValue(["/path/to/file.mp4", "/path/to/file2.mp3"]),
   selectMediaDirectory: vi.fn().mockResolvedValue("/path/to/directory"),
 }))
 
@@ -55,7 +55,7 @@ describe("useMediaImport", () => {
     expect(typeof result.current.importFolder).toBe("function")
   })
 
-  it("should import a single file", async () => {
+  it("should import multiple files", async () => {
     const { result } = renderHook(() => useMediaImport())
 
     let importResult: any
@@ -66,10 +66,13 @@ describe("useMediaImport", () => {
 
     expect(importResult).toBeDefined()
     expect(importResult.success).toBe(true)
-    expect(importResult.files.length).toBe(1)
+    expect(importResult.files.length).toBe(2)
     expect(importResult.files[0].path).toBe("/path/to/file.mp4")
+    expect(importResult.files[1].path).toBe("/path/to/file2.mp3")
     expect(importResult.files[0].isVideo).toBe(true)
+    expect(importResult.files[1].isAudio).toBe(true)
     expect(importResult.files[0].isLoadingMetadata).toBe(false)
+    expect(importResult.files[1].isLoadingMetadata).toBe(false)
   })
 
   it("should import files from a folder", async () => {
