@@ -145,39 +145,90 @@ export const mediaMachine = createMachine({
                   return [...context.allMediaFiles]
                 }
 
-                // Проверяем, есть ли уже такие файлы в списке
-                const existingPaths = new Set(context.allMediaFiles.map((file: MediaFile) => file.path))
+                // Создаем карту существующих файлов для быстрого доступа
+                const existingFilesMap = new Map(
+                  context.allMediaFiles.map((file: MediaFile) => [file.path, file])
+                );
 
-                // Фильтруем только новые файлы
-                const filesToAdd = newFiles.filter((file: MediaFile) => !existingPaths.has(file.path))
+                // Разделяем новые файлы на те, которые нужно обновить, и те, которые нужно добавить
+                const filesToUpdate: MediaFile[] = [];
+                const filesToAdd: MediaFile[] = [];
 
-                // Если нет новых файлов, возвращаем текущий массив
-                if (filesToAdd.length === 0) {
-                  console.log("Все файлы уже добавлены")
-                  return [...context.allMediaFiles]
+                newFiles.forEach((file: MediaFile) => {
+                  if (existingFilesMap.has(file.path)) {
+                    filesToUpdate.push(file);
+                  } else {
+                    filesToAdd.push(file);
+                  }
+                });
+
+                console.log(`Файлов для обновления: ${filesToUpdate.length}, для добавления: ${filesToAdd.length}`);
+
+                // Если нет новых файлов и нет файлов для обновления, возвращаем текущий массив
+                if (filesToAdd.length === 0 && filesToUpdate.length === 0) {
+                  console.log("Нет файлов для добавления или обновления");
+                  return [...context.allMediaFiles];
                 }
 
-                // Добавляем метку времени и флаг isIncluded
-                const now = Date.now()
-                const filesWithMetadata = filesToAdd.map((file: MediaFile) => {
+                // Обновляем существующие файлы
+                const updatedFiles = context.allMediaFiles.map((file: MediaFile) => {
+                  // Ищем файл для обновления с тем же путем
+                  const updateFile = filesToUpdate.find(f => f.path === file.path);
+
+                  if (updateFile) {
+                    // Проверяем, что probeData существует и содержит все необходимые поля
+                    const probeData = updateFile.probeData ? {
+                      streams: updateFile.probeData.streams,
+                      format: updateFile.probeData.format
+                    } : file.probeData; // Сохраняем существующие probeData, если новых нет
+
+                    // Обновляем файл, сохраняя существующие свойства
+                    return {
+                      ...file,
+                      ...updateFile,
+                      lastCheckedAt: Date.now(),
+                      probeData,
+                      // Важно: сохраняем флаг isIncluded из существующего файла
+                      isIncluded: file.isIncluded !== undefined ? file.isIncluded : false,
+                      // Обновляем флаг загрузки метаданных
+                      // Если в обновленном файле флаг isLoadingMetadata равен false, то устанавливаем его в false
+                      // Это гарантирует, что если метаданные были загружены, то флаг будет сброшен
+                      isLoadingMetadata: updateFile.isLoadingMetadata === false ? false : (file.isLoadingMetadata !== undefined ? file.isLoadingMetadata : true)
+                    };
+                  }
+
+                  return file;
+                });
+
+                // Если нет новых файлов для добавления, возвращаем только обновленные
+                if (filesToAdd.length === 0) {
+                  console.log("Обновлены существующие файлы");
+                  return updatedFiles;
+                }
+
+                // Добавляем метку времени и флаг isIncluded к новым файлам
+                const now = Date.now();
+                const newFilesWithMetadata = filesToAdd.map((file: MediaFile) => {
                   // Проверяем, что probeData существует и содержит все необходимые поля
                   const probeData = file.probeData ? {
                     streams: file.probeData.streams,
                     format: file.probeData.format
-                  } : undefined
+                  } : undefined;
 
                   return {
                     ...file,
                     lastCheckedAt: now,
                     isIncluded: false, // По умолчанию файлы не включены в таймлайн
-                    probeData // Сохраняем probeData для отображения
-                  }
-                })
+                    probeData, // Сохраняем probeData для отображения
+                    // Сохраняем флаг загрузки метаданных (если он есть)
+                    isLoadingMetadata: file.isLoadingMetadata !== undefined ? file.isLoadingMetadata : false
+                  };
+                });
 
-                console.log(`Добавлено ${filesWithMetadata.length} новых файлов`)
+                console.log(`Добавлено ${newFilesWithMetadata.length} новых файлов`);
 
-                // Объединяем существующие и новые файлы
-                return [...context.allMediaFiles, ...filesWithMetadata]
+                // Объединяем обновленные и новые файлы
+                return [...updatedFiles, ...newFilesWithMetadata];
               },
             }),
           ],

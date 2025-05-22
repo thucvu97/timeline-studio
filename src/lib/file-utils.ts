@@ -9,23 +9,13 @@ import { convertFileSrc } from "@tauri-apps/api/core"
  */
 export function getFileUrl(filePath: string): string {
   try {
-    // Проверяем, начинается ли путь с маленькой буквы 'users/'
-    if (filePath.startsWith('users/')) {
-      // Заменяем 'users/' на '/Users/'
-      filePath = '/Users/' + filePath.substring(6)
-    }
-
-    // Если путь не начинается с '/', добавляем его
-    if (!filePath.startsWith('/')) {
-      filePath = '/' + filePath
-    }
-
-    // Используем Tauri API для конвертации пути файла в URL
-    const fileUrl = convertFileSrc(filePath)
+    // Собираем путь обратно
     console.log("[getFileUrl] Исходный путь:", filePath)
-    console.log("[getFileUrl] Конвертированный URL:", fileUrl)
+    const result = convertFileSrc(filePath)
+    // Проверяем, что URL корректный
+    console.log("[getFileUrl] Финальный URL:", result)
 
-    return fileUrl
+    return result
   } catch (error) {
     console.error("[getFileUrl] Ошибка при конвертации пути файла:", error)
     // В случае ошибки пробуем использовать convertFileSrc напрямую

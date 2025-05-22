@@ -24,7 +24,7 @@
       }
     ],
     "security": {
-      "csp": null,
+      "csp": "default-src 'self'; media-src 'self' asset: tauri:; script-src 'self' 'unsafe-inline';",
       "assetProtocol": {
         "enable": true,
         "scope": {
@@ -49,7 +49,7 @@
       "icons/icon.ico"
     ],
     "publisher": "Chatman Media",
-    "copyright": "© 2023-2025 Chatman Media",
+    "copyright": "© 2024-2025 Chatman Media",
     "category": "Video",
     "shortDescription": "Приложение для создания и редактирования видео",
     "longDescription": "Timeline Studio - мощное приложение для создания и редактирования видео, построенное на базе Tauri, React и XState."

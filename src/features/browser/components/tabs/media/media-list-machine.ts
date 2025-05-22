@@ -61,6 +61,7 @@ export type MediaListEventType =
   | { type: "SET_SEARCH_QUERY"; query: string } // Установить поисковый запрос
   | { type: "CHANGE_VIEW_MODE"; mode: "list" | "grid" | "thumbnails" } // Изменить режим отображения
   | { type: "CHANGE_GROUP_BY"; groupBy: string } // Изменить группировку
+  | { type: "UPDATE_MEDIA_FILES"; files: MediaFile[] } // Обновить список медиа-файлов
   | { type: "TOGGLE_FAVORITES"; mediaContext: any } // Переключить режим избранного
   | { type: "SET_SHOW_FAVORITES_ONLY"; value: boolean } // Установить флаг отображения только избранных
   | { type: "INCREASE_PREVIEW_SIZE" } // Увеличить размер превью
@@ -339,6 +340,65 @@ export const mediaListMachine = createMachine({
         RETRY: {
           target: "loading", // Переход в состояние загрузки
         },
+
+        /**
+         * Обработка события обновления списка медиа-файлов
+         * Обновляет список файлов в контексте машины
+         */
+        UPDATE_MEDIA_FILES: {
+          actions: assign({
+            // Обновляем список медиа-файлов
+            mediaFiles: ({ event }) => event.files,
+            // Обновляем отфильтрованные файлы с учетом текущих фильтров
+            filteredFiles: ({ context, event }) => {
+              // Получаем новые файлы
+              const newFiles = event.files;
+
+              // Применяем текущие фильтры
+              let filtered = newFiles;
+
+              // Фильтрация по типу
+              if (context.filterType !== "all") {
+                filtered = filtered.filter((file: MediaFile) => {
+                  try {
+                    // Проверяем, загружены ли метаданные
+                    if (file.isLoadingMetadata === true) {
+                      // Если метаданные еще загружаются, используем базовые свойства файла
+                      if (context.filterType === "video" && file.isVideo) return true;
+                      if (context.filterType === "audio" && file.isAudio) return true;
+                      if (context.filterType === "image" && file.isImage) return true;
+                      return false;
+                    }
+
+                    // Если метаданные загружены, используем их для более точной фильтрации
+                    if (context.filterType === "video" && (
+                      file.isVideo ||
+                      file.probeData?.streams.some(s => s.codec_type === "video")
+                    )) return true;
+
+                    if (context.filterType === "audio" && (
+                      file.isAudio ||
+                      file.probeData?.streams.some(s => s.codec_type === "audio")
+                    )) return true;
+
+                    if (context.filterType === "image" && (
+                      file.isImage ||
+                      /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)
+                    )) return true;
+
+                    return false;
+                  } catch (error) {
+                    console.error("Error filtering file:", file, error);
+                    return false; // Пропускаем файл при ошибке
+                  }
+                });
+              }
+
+              // Возвращаем отфильтрованные файлы
+              return filtered;
+            },
+          }),
+        },
       },
     },
 
@@ -354,6 +414,69 @@ export const mediaListMachine = createMachine({
          */
         RETRY: {
           target: "loading", // Переход в состояние загрузки
+        },
+
+        /**
+         * Обработка события обновления списка медиа-файлов в состоянии ошибки
+         * Обновляет список файлов в контексте машины и переходит в состояние успеха
+         */
+        UPDATE_MEDIA_FILES: {
+          actions: assign({
+            // Обновляем список медиа-файлов
+            mediaFiles: ({ event }) => event.files,
+            // Обновляем отфильтрованные файлы с учетом текущих фильтров
+            filteredFiles: ({ context, event }) => {
+              // Получаем новые файлы
+              const newFiles = event.files;
+
+              // Применяем текущие фильтры
+              let filtered = newFiles;
+
+              // Фильтрация по типу
+              if (context.filterType !== "all") {
+                filtered = filtered.filter((file: MediaFile) => {
+                  try {
+                    // Проверяем, загружены ли метаданные
+                    if (file.isLoadingMetadata === true) {
+                      // Если метаданные еще загружаются, используем базовые свойства файла
+                      if (context.filterType === "video" && file.isVideo) return true;
+                      if (context.filterType === "audio" && file.isAudio) return true;
+                      if (context.filterType === "image" && file.isImage) return true;
+                      return false;
+                    }
+
+                    // Если метаданные загружены, используем их для более точной фильтрации
+                    if (context.filterType === "video" && (
+                      file.isVideo ||
+                      file.probeData?.streams.some(s => s.codec_type === "video")
+                    )) return true;
+
+                    if (context.filterType === "audio" && (
+                      file.isAudio ||
+                      file.probeData?.streams.some(s => s.codec_type === "audio")
+                    )) return true;
+
+                    if (context.filterType === "image" && (
+                      file.isImage ||
+                      /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)
+                    )) return true;
+
+                    return false;
+                  } catch (error) {
+                    console.error("Error filtering file:", file, error);
+                    return false; // Пропускаем файл при ошибке
+                  }
+                });
+              }
+
+              // Возвращаем отфильтрованные файлы
+              return filtered;
+            },
+            // Сбрасываем ошибку
+            error: null,
+          }),
+          // Переходим в состояние успеха
+          target: "success",
         },
 
         /**

@@ -90,6 +90,7 @@ export const getAspectRatio = (stream?: FfprobeStream): string | null => {
 
   console.log("[getAspectRatio] stream:", stream)
 
+  // Проверяем наличие специальных соотношений
   if (stream.display_aspect_ratio === "960:409") {
     return "2.35:1"
   }
@@ -99,6 +100,20 @@ export const getAspectRatio = (stream?: FfprobeStream): string | null => {
     return stream.display_aspect_ratio
   }
 
+  // Если есть sample_aspect_ratio, можно использовать его вместе с width и height
+  if (stream.sample_aspect_ratio && stream.width && stream.height) {
+    const [sar_num, sar_den] = stream.sample_aspect_ratio.split(':').map(Number);
+    if (!isNaN(sar_num) && !isNaN(sar_den) && sar_den !== 0) {
+      const dar_width = stream.width * sar_num;
+      const dar_height = stream.height * sar_den;
+
+      const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
+      const divisor = gcd(dar_width, dar_height);
+
+      return `${dar_width / divisor}:${dar_height / divisor}`;
+    }
+  }
+
   // Если есть width и height, вычисляем соотношение
   if (stream.width && stream.height) {
     const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a)
@@ -106,7 +121,8 @@ export const getAspectRatio = (stream?: FfprobeStream): string | null => {
     return `${stream.width / divisor}:${stream.height / divisor}`
   }
 
-  return null
+  // Если ничего не подошло, возвращаем стандартное соотношение 16:9
+  return "16:9"
 }
 
 /**

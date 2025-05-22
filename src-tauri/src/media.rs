@@ -53,6 +53,7 @@ pub enum MediaMetadata {
 /// Структура для потока в формате FFprobe
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FfprobeStream {
+  pub index: u32,
   pub codec_type: String,
   pub codec_name: Option<String>,
   pub width: Option<u32>,
@@ -61,6 +62,7 @@ pub struct FfprobeStream {
   pub r_frame_rate: Option<String>,
   pub sample_rate: Option<String>,
   pub channels: Option<u8>,
+  pub display_aspect_ratio: Option<String>,
 }
 
 /// Структура для формата в формате FFprobe
@@ -185,7 +187,13 @@ pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
       .map(String::from);
 
     // Обрабатываем потоки
-    for stream in streams_array {
+    for (i, stream) in streams_array.iter().enumerate() {
+      let index = stream
+        .get("index")
+        .and_then(|v| v.as_u64())
+        .map(|v| v as u32)
+        .unwrap_or(i as u32);
+
       let codec_type = stream
         .get("codec_type")
         .and_then(|v| v.as_str())
@@ -227,6 +235,11 @@ pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
         .and_then(|v| v.as_u64())
         .map(|v| v as u8);
 
+      let display_aspect_ratio = stream
+        .get("display_aspect_ratio")
+        .and_then(|v| v.as_str())
+        .map(String::from);
+
       // Определяем тип файла
       if codec_type == "video"
         && stream
@@ -242,6 +255,7 @@ pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
 
       // Добавляем поток в список
       ffprobe_streams.push(FfprobeStream {
+        index,
         codec_type,
         codec_name,
         width,
@@ -250,6 +264,7 @@ pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
         r_frame_rate,
         sample_rate,
         channels,
+        display_aspect_ratio,
       });
     }
 

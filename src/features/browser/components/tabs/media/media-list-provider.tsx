@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react"
+import React, { createContext, useContext, useEffect } from "react"
 
 import { useMachine } from "@xstate/react"
 import { useTranslation } from "react-i18next"
@@ -63,6 +63,39 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
   // Получаем доступ к медиа-контексту
   const media = useMedia()
   const { t } = useTranslation()
+
+  // Обновляем состояние машины при изменении списка медиафайлов в MediaProvider
+  useEffect(() => {
+    console.log("MediaListProvider: Media files changed, updating state", media.allMediaFiles.length)
+
+    // Отправляем событие обновления списка медиафайлов
+    if (media.allMediaFiles.length > 0) {
+      send({ type: "UPDATE_MEDIA_FILES", files: media.allMediaFiles })
+    }
+  }, [media.allMediaFiles, send])
+
+  // Отслеживаем изменения в метаданных файлов
+  useEffect(() => {
+    // Проверяем, есть ли файлы с загруженными метаданными
+    const filesWithLoadedMetadata = media.allMediaFiles.filter(file => file.isLoadingMetadata === false)
+    const filesStillLoading = media.allMediaFiles.filter(file => file.isLoadingMetadata === true)
+
+    console.log(
+      "MediaListProvider: Metadata loading status:",
+      `Loaded: ${filesWithLoadedMetadata.length}`,
+      `Loading: ${filesStillLoading.length}`,
+      `Total: ${media.allMediaFiles.length}`
+    )
+
+    // Принудительно обновляем состояние машины при любом изменении статуса загрузки метаданных
+    send({ type: "UPDATE_MEDIA_FILES", files: media.allMediaFiles })
+
+  }, [
+    // Отслеживаем изменения в статусе загрузки метаданных
+    media.allMediaFiles.map(file => `${file.path}:${file.isLoadingMetadata}`).join(','),
+    send,
+    media.allMediaFiles
+  ])
 
   /**
    * Сортирует медиа-файлы по указанному критерию

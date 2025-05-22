@@ -32,6 +32,7 @@ export function useMediaImport() {
 
   /**
    * Создает базовый объект медиафайла с минимальной информацией
+   * Определяет тип файла по расширению и устанавливает флаг загрузки метаданных
    */
   const createBasicMediaFile = (filePath: string): MediaFile => {
     const fileName = filePath.split('/').pop() ?? 'unknown'
@@ -42,6 +43,7 @@ export function useMediaImport() {
     const isAudio = ['mp3', 'wav', 'ogg', 'flac'].includes(fileExtension)
     const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)
 
+    // Создаем базовый объект с минимальной информацией
     return {
       id: filePath,
       name: fileName,
@@ -50,7 +52,12 @@ export function useMediaImport() {
       isAudio,
       isImage,
       // Устанавливаем флаг, что метаданные еще загружаются
-      isLoadingMetadata: true
+      isLoadingMetadata: true,
+      // Добавляем пустой объект probeData, чтобы избежать ошибок при доступе к нему
+      probeData: {
+        streams: [],
+        format: {}
+      }
     }
   }
 
@@ -102,9 +109,40 @@ export function useMediaImport() {
         }
       } catch (error) {
         console.error(`Ошибка при обработке файла ${filePath}:`, error)
+
+        // Даже при ошибке обновляем файл, чтобы снять флаг загрузки метаданных
+        const errorMediaFile: MediaFile = {
+          id: filePath,
+          name: filePath.split('/').pop() ?? 'unknown',
+          path: filePath,
+          isVideo: false,
+          isAudio: false,
+          isImage: false,
+          probeData: {
+            streams: [],
+            format: {}
+          },
+          // Важно: снимаем флаг загрузки метаданных даже при ошибке
+          isLoadingMetadata: false
+        }
+
+        // Обновляем файл в медиа-контексте
+        media.addMediaFiles([errorMediaFile])
+
+        return errorMediaFile
       }
 
-      return null
+      // Если мы дошли до этой точки, значит, метаданные не были получены
+      // Создаем объект с флагом isLoadingMetadata: false
+      const fallbackMediaFile: MediaFile = {
+        ...createBasicMediaFile(filePath),
+        isLoadingMetadata: false
+      }
+
+      // Обновляем файл в медиа-контексте
+      media.addMediaFiles([fallbackMediaFile])
+
+      return fallbackMediaFile
     }
 
     // Обрабатываем файлы пакетами с ограничением на количество одновременных запросов
