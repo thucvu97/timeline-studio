@@ -2,7 +2,7 @@ import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
-import { useBrowserVisibility } from "@/features/browser/providers/browser-visibility-provider"
+import { useUserSettings } from "@/features/user-settings/user-settings-provider"
 
 /**
  * Компонент для переключения видимости браузера
@@ -10,7 +10,7 @@ import { useBrowserVisibility } from "@/features/browser/providers/browser-visib
  */
 export function BrowserToggle() {
   const { t } = useTranslation()
-  const { isBrowserVisible, toggleBrowserVisibility } = useBrowserVisibility()
+  const { isBrowserVisible, toggleBrowserVisibility } = useUserSettings()
 
   return (
     <Button

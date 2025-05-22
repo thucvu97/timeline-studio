@@ -55,6 +55,7 @@ export interface UserSettingsContext {
   playerScreenshotsPath: string // Путь для сохранения скриншотов из плеера
   openAiApiKey: string // API ключ для OpenAI
   claudeApiKey: string // API ключ для Claude
+  isBrowserVisible: boolean // Флаг видимости браузера
   isLoaded: boolean // Флаг загрузки настроек
 }
 
@@ -75,6 +76,7 @@ const initialContext: UserSettingsContext = {
   playerScreenshotsPath: "public/media", // Путь для скриншотов плеера по умолчанию
   openAiApiKey: "", // Пустой API ключ OpenAI
   claudeApiKey: "", // Пустой API ключ Claude
+  isBrowserVisible: true, // Браузер виден по умолчанию
   isLoaded: false, // Флаг загрузки настроек (изначально false)
 }
 
@@ -153,6 +155,14 @@ interface UpdateClaudeApiKeyEvent {
 }
 
 /**
+ * Интерфейс события переключения видимости браузера
+ * @interface ToggleBrowserVisibilityEvent
+ */
+interface ToggleBrowserVisibilityEvent {
+  type: "TOGGLE_BROWSER_VISIBILITY" // Тип события
+}
+
+/**
  * Интерфейс события загрузки пользовательских настроек
  * @interface LoadUserSettingsEvent
  */
@@ -174,6 +184,7 @@ export type UserSettingsEvent =
   | UpdatePlayerScreenshotsPathEvent
   | UpdateOpenAiApiKeyEvent
   | UpdateClaudeApiKeyEvent
+  | ToggleBrowserVisibilityEvent
   | UpdateAllSettingsEvent
 
 /**
@@ -335,6 +346,11 @@ export const userSettingsMachine = createMachine(
           UPDATE_CLAUDE_API_KEY: {
             actions: ["updateClaudeApiKey"],
           },
+
+          // Переключение видимости браузера
+          TOGGLE_BROWSER_VISIBILITY: {
+            actions: ["toggleBrowserVisibility"],
+          },
         },
       },
     },
@@ -474,6 +490,27 @@ export const userSettingsMachine = createMachine(
         return {
           ...context,
           claudeApiKey: typedEvent.apiKey, // Новый API ключ Claude
+        }
+      }),
+
+      /**
+       * Действие для переключения видимости браузера
+       * Инвертирует текущее значение флага видимости
+       */
+      toggleBrowserVisibility: assign(({ context }) => {
+        console.log("Toggling browser visibility:", !context.isBrowserVisible)
+
+        // Сохраняем новое значение в localStorage для совместимости
+        try {
+          localStorage.setItem("browser-visible", (!context.isBrowserVisible).toString())
+        } catch (error) {
+          // Игнорируем ошибки при записи в localStorage
+        }
+
+        // Возвращаем обновленный контекст
+        return {
+          ...context,
+          isBrowserVisible: !context.isBrowserVisible, // Инвертируем текущее значение
         }
       }),
     },

@@ -25,8 +25,24 @@ vi.mock("@/components/theme/theme-toggle", () => ({
   ),
 }))
 
-vi.mock("@/features/browser/components/layout/browser-toggle", () => ({
-  BrowserToggle: () => <div data-testid="browser-toggle">Browser Toggle</div>,
+// Мокаем useUserSettings
+vi.mock("@/features/user-settings/user-settings-provider", () => ({
+  useUserSettings: () => ({
+    isBrowserVisible: true,
+    toggleBrowserVisibility: vi.fn(),
+    activeTab: "media",
+    layoutMode: "default",
+    playerScreenshotsPath: "",
+    screenshotsPath: "",
+    openAiApiKey: "",
+    claudeApiKey: "",
+    handleTabChange: vi.fn(),
+    handleLayoutChange: vi.fn(),
+    handleScreenshotsPathChange: vi.fn(),
+    handlePlayerScreenshotsPathChange: vi.fn(),
+    handleAiApiKeyChange: vi.fn(),
+    handleClaudeApiKeyChange: vi.fn(),
+  }),
 }))
 
 // Мок уже определен в src/test/setup.ts

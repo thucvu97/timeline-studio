@@ -1,9 +1,79 @@
+
+// Мокаем модули на уровне модуля
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ResourcesProvider } from "@/features/browser/resources/resources-provider"
 
 import { MusicList } from "./music-list"
+
+vi.mock("@/features/browser/components/tabs/music/music-provider", () => ({
+  useMusic: () => baseMusicMachineMock,
+}))
+
+vi.mock("@/features/browser/resources/resources-provider", () => ({
+  ResourcesProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+  useResources: () => ({
+    getResourcePath: vi.fn(),
+    getResourceUrl: vi.fn(),
+    getResourceThumbnail: vi.fn(),
+    getResourceMetadata: vi.fn(),
+    addMusic: vi.fn(),
+    removeResource: vi.fn(),
+    musicResources: [],
+    isMusicFileAdded: mockIsMusicFileAdded,
+  }),
+}))
+
+vi.mock("@/features/browser/media", () => ({
+  useMedia: () => ({
+    isItemFavorite: vi.fn().mockReturnValue(false),
+    toggleFavorite: mockToggleFavorite,
+    currentAudio: null,
+    isPlaying: false,
+    playAudio: mockPlayAudio,
+    pauseAudio: vi.fn(),
+  }),
+}))
+
+// Используем стандартный подход к мокированию react-i18next
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      // Возвращаем ключи для тестирования
+      const translations: Record<string, string> = {
+        "browser.loading": "Loading...",
+        "browser.error_loading": "Error loading",
+        "browser.no_music_files": "No music files",
+        "browser.duration": "Duration",
+        "browser.play": "Play",
+        "browser.add_to_favorites": "Add to favorites",
+      }
+      return translations[key] || key
+    },
+    i18n: {
+      changeLanguage: vi.fn(),
+      language: "ru",
+    },
+  }),
+  // Добавляем initReactI18next
+  initReactI18next: {
+    type: "3rdParty",
+    init: vi.fn(),
+  },
+  // Добавляем I18nextProvider
+  I18nextProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+vi.mock("./music-utils", () => ({
+  sortFiles: vi.fn((files) => files),
+}))
+
+// Мокаем console.log и console.error
+vi.spyOn(console, "log").mockImplementation(() => {})
+vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Создаем моки для функций
 const mockSearch = vi.fn()
@@ -75,75 +145,6 @@ const baseMusicMachineMock = {
   changeGroupBy: mockChangeGroupBy,
   toggleFavorites: mockToggleFavorites,
 }
-
-// Мокаем модули на уровне модуля
-vi.mock("@/features/browser/components/tabs/music/music-provider", () => ({
-  useMusic: () => baseMusicMachineMock,
-}))
-
-vi.mock("@/features/browser/resources/resources-provider", () => ({
-  ResourcesProvider: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-  useResources: () => ({
-    getResourcePath: vi.fn(),
-    getResourceUrl: vi.fn(),
-    getResourceThumbnail: vi.fn(),
-    getResourceMetadata: vi.fn(),
-    addMusic: vi.fn(),
-    removeResource: vi.fn(),
-    musicResources: [],
-    isMusicFileAdded: mockIsMusicFileAdded,
-  }),
-}))
-
-vi.mock("@/features/browser/media", () => ({
-  useMedia: () => ({
-    isItemFavorite: vi.fn().mockReturnValue(false),
-    toggleFavorite: mockToggleFavorite,
-    currentAudio: null,
-    isPlaying: false,
-    playAudio: mockPlayAudio,
-    pauseAudio: vi.fn(),
-  }),
-}))
-
-// Используем стандартный подход к мокированию react-i18next
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      // Возвращаем ключи для тестирования
-      const translations: Record<string, string> = {
-        "browser.loading": "Loading...",
-        "browser.error_loading": "Error loading",
-        "browser.no_music_files": "No music files",
-        "browser.duration": "Duration",
-        "browser.play": "Play",
-        "browser.add_to_favorites": "Add to favorites",
-      }
-      return translations[key] || key
-    },
-    i18n: {
-      changeLanguage: vi.fn(),
-      language: "ru",
-    },
-  }),
-  // Добавляем initReactI18next
-  initReactI18next: {
-    type: "3rdParty",
-    init: vi.fn(),
-  },
-  // Добавляем I18nextProvider
-  I18nextProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
-
-vi.mock("./music-utils", () => ({
-  sortFiles: vi.fn((files) => files),
-}))
-
-// Мокаем console.log и console.error
-vi.spyOn(console, "log").mockImplementation(() => {})
-vi.spyOn(console, "error").mockImplementation(() => {})
 
 describe("MusicList", () => {
   beforeEach(() => {

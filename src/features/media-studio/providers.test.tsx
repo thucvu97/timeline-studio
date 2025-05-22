@@ -16,12 +16,6 @@ vi.mock("@/i18n/i18n-provider", () => ({
   ),
 }))
 
-vi.mock("@/features/browser/providers/browser-visibility-provider", () => ({
-  BrowserVisibilityProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="browser-visibility-provider">{children}</div>
-  ),
-}))
-
 vi.mock("@/features/project-settings/project-settings-provider", () => ({
   ProjectSettingsProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="project-settings-provider">{children}</div>
@@ -60,7 +54,6 @@ describe("Providers", () => {
     // I18nProvider -> ModalProvider -> BrowserVisibilityProvider -> ProjectSettingsProvider -> MusicProvider -> TestComponent
     expect(html).toContain('data-testid="i18n-provider"')
     expect(html).toContain('data-testid="modal-provider"')
-    expect(html).toContain('data-testid="browser-visibility-provider"')
     expect(html).toContain('data-testid="project-settings-provider"')
     expect(html).toContain('data-testid="music-provider"')
     expect(html).toContain('data-testid="test-component"')
@@ -68,9 +61,6 @@ describe("Providers", () => {
     // Проверяем порядок вложенности
     const i18nIndex = html.indexOf('data-testid="i18n-provider"')
     const modalIndex = html.indexOf('data-testid="modal-provider"')
-    const browserIndex = html.indexOf(
-      'data-testid="browser-visibility-provider"',
-    )
     const projectSettingsIndex = html.indexOf(
       'data-testid="project-settings-provider"',
     )
@@ -78,10 +68,6 @@ describe("Providers", () => {
 
     // I18nProvider должен быть самым внешним (первым в HTML)
     expect(i18nIndex).toBeLessThan(modalIndex)
-    // ModalProvider должен быть внутри I18nProvider, но снаружи BrowserVisibilityProvider
-    expect(modalIndex).toBeLessThan(browserIndex)
-    // BrowserVisibilityProvider должен быть внутри ModalProvider, но снаружи ProjectSettingsProvider
-    expect(browserIndex).toBeLessThan(projectSettingsIndex)
     // ProjectSettingsProvider должен быть внутри BrowserVisibilityProvider, но снаружи TestComponent
     expect(projectSettingsIndex).toBeLessThan(componentIndex)
   })
@@ -122,9 +108,6 @@ describe("Providers", () => {
     ).toBeInTheDocument()
     expect(
       container.querySelector('[data-testid="modal-provider"]'),
-    ).toBeInTheDocument()
-    expect(
-      container.querySelector('[data-testid="browser-visibility-provider"]'),
     ).toBeInTheDocument()
     expect(
       container.querySelector('[data-testid="project-settings-provider"]'),

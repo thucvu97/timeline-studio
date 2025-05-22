@@ -23,16 +23,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useBrowserVisibility } from "@/features/browser/providers/browser-visibility-provider"
 import { LayoutPreviews } from "@/features/media-studio/layouts"
 import { ModalType } from "@/features/modals"
 import { useModal } from "@/features/modals/services/modal-provider"
+import { useUserSettings } from "@/features/user-settings/user-settings-provider"
 import { cn } from "@/lib/utils"
 
 export function TopBar() {
   const { t } = useTranslation()
   const { openModal } = useModal()
-  const { isBrowserVisible, toggleBrowserVisibility } = useBrowserVisibility()
+  const { isBrowserVisible, toggleBrowserVisibility } = useUserSettings()
   const [isEditing, setIsEditing] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
   const [name, setName] = useState("New Project")

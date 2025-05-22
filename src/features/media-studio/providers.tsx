@@ -3,7 +3,6 @@
 import { ReactNode } from "react"
 
 import { MusicProvider } from "@/features/browser/components/tabs/music/music-provider"
-import { BrowserVisibilityProvider } from "@/features/browser/providers/browser-visibility-provider"
 import { ResourcesProvider } from "@/features/browser/resources/resources-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings/project-settings-provider"
@@ -32,7 +31,6 @@ const composeProviders = (
 const AppProvider = composeProviders(
   I18nProvider,
   ModalProvider,
-  BrowserVisibilityProvider,
   ProjectSettingsProvider,
   UserSettingsProvider,
   ResourcesProvider,

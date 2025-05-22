@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useBrowserVisibility } from "@/features/browser/providers/browser-visibility-provider"
+import { useUserSettings } from "@/features/user-settings/user-settings-provider"
 
 import { DefaultLayout } from "./default-layout"
 
 // Мокаем зависимости
-vi.mock("@/features/browser/providers/browser-visibility-provider")
+vi.mock("@/features/user-settings/user-settings-provider")
 vi.mock("@/components/ui/resizable", () => ({
   ResizablePanelGroup: ({
     children,
@@ -55,8 +55,8 @@ describe("DefaultLayout", () => {
   })
 
   it("should render with browser visible", () => {
-    // Мокаем useBrowserVisibility, чтобы вернуть isBrowserVisible = true
-    vi.mocked(useBrowserVisibility).mockReturnValue({
+    // Мокаем useUserSettings, чтобы вернуть isBrowserVisible = true
+    vi.mocked(useUserSettings).mockReturnValue({
       isBrowserVisible: true,
       toggleBrowserVisibility: vi.fn(),
     })
@@ -90,8 +90,8 @@ describe("DefaultLayout", () => {
   })
 
   it("should render without browser panel when browser is not visible", () => {
-    // Мокаем useBrowserVisibility, чтобы вернуть isBrowserVisible = false
-    vi.mocked(useBrowserVisibility).mockReturnValue({
+    // Мокаем useUserSettings, чтобы вернуть isBrowserVisible = false
+    vi.mocked(useUserSettings).mockReturnValue({
       isBrowserVisible: false,
       toggleBrowserVisibility: vi.fn(),
     })
@@ -123,8 +123,8 @@ describe("DefaultLayout", () => {
   })
 
   it("should have correct panel sizes", () => {
-    // Мокаем useBrowserVisibility, чтобы вернуть isBrowserVisible = true
-    vi.mocked(useBrowserVisibility).mockReturnValue({
+    // Мокаем useUserSettings, чтобы вернуть isBrowserVisible = true
+    vi.mocked(useUserSettings).mockReturnValue({
       isBrowserVisible: true,
       toggleBrowserVisibility: vi.fn(),
     })

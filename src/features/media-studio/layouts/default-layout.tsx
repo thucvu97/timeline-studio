@@ -6,12 +6,12 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { Browser } from "@/features/browser/components/browser"
-import { useBrowserVisibility } from "@/features/browser/providers/browser-visibility-provider"
 import { Timeline } from "@/features/timeline/components/timeline"
+import { useUserSettings } from "@/features/user-settings/user-settings-provider"
 import { VideoPlayer } from "@/features/video-player/components/video-player"
 
 export function DefaultLayout() {
-  const { isBrowserVisible } = useBrowserVisibility()
+  const { isBrowserVisible } = useUserSettings()
 
   return (
     <ResizablePanelGroup

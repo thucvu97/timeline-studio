@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect } from "react"
 
 import { useMachine } from "@xstate/react"
+import { useHotkeys } from "react-hotkeys-hook"
 
 import { userSettingsDbService } from "@/features/media-studio/indexed-db-service"
 
@@ -24,6 +25,7 @@ interface UserSettingsContextValue {
   screenshotsPath: string // Путь для сохранения скриншотов
   openAiApiKey: string // API ключ OpenAI
   claudeApiKey: string // API ключ Claude
+  isBrowserVisible: boolean // Флаг видимости браузера
 
   // Методы для изменения настроек
   handleTabChange: (value: string) => void // Изменение активной вкладки
@@ -32,13 +34,16 @@ interface UserSettingsContextValue {
   handlePlayerScreenshotsPathChange: (value: string) => void // Изменение пути для скриншотов плеера
   handleAiApiKeyChange: (value: string) => void // Изменение API ключа OpenAI
   handleClaudeApiKeyChange: (value: string) => void // Изменение API ключа Claude
+  toggleBrowserVisibility: () => void // Переключение видимости браузера
 }
 
 /**
  * Контекст для хранения и предоставления доступа к пользовательским настройкам
  * Изначально не имеет значения (undefined)
  */
-export const UserSettingsContext = createContext<
+
+// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
+export  const UserSettingsContext = createContext<
   UserSettingsContextValue | undefined
 >(undefined)
 
@@ -62,6 +67,21 @@ export function UserSettingsProvider({
   // Отладочные логи
   console.log("UserSettingsProvider state:", state.context)
   console.log("UserSettingsProvider state status:", state.status)
+
+  // Добавляем обработчик горячих клавиш Cmd+B/Ctrl+B для переключения видимости браузера
+  useHotkeys(
+    "mod+b",
+    (event) => {
+      event.preventDefault()
+      send({
+        type: "TOGGLE_BROWSER_VISIBILITY",
+      })
+    },
+    {
+      enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+      preventDefault: true,
+    },
+  )
 
   /**
    * Эффект для сохранения настроек в IndexedDB при их изменении
@@ -89,6 +109,7 @@ export function UserSettingsProvider({
     playerScreenshotsPath: state.context.playerScreenshotsPath,
     openAiApiKey: state.context.openAiApiKey,
     claudeApiKey: state.context.claudeApiKey,
+    isBrowserVisible: state.context.isBrowserVisible,
 
     /**
      * Обработчик изменения активной вкладки
@@ -195,6 +216,19 @@ export function UserSettingsProvider({
         apiKey: value,
       })
       console.log("Claude API key updated")
+    },
+
+    /**
+     * Обработчик переключения видимости браузера
+     * Инвертирует текущее значение флага видимости
+     */
+    toggleBrowserVisibility: () => {
+      console.log("Browser visibility toggle requested")
+      // Отправляем событие в машину состояний
+      send({
+        type: "TOGGLE_BROWSER_VISIBILITY",
+      })
+      console.log("Browser visibility toggled")
     },
   }
 

@@ -151,7 +151,7 @@ export function TemplateList() {
 
     // Поиск по локализованным названиям шаблонов
     const label = getTemplateLabels(template.id) // Получаем ключ локализации
-    if (label && label.toLowerCase().includes(searchLower)) {
+    if (label.toLowerCase().includes(searchLower)) {
       return true
     }
 
