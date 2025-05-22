@@ -2,9 +2,11 @@ import React from "react"
 
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider"
+import { getFileUrl } from "@/lib/file-utils"
 import { MediaFile } from "@/types/media"
 
 import { PlayerControls } from "./player-controls"
+import { usePlayer } from "./player-provider"
 
 /**
  * Компонент медиа-плеера для воспроизведения видео
@@ -13,9 +15,11 @@ export function VideoPlayer() {
   const {
     settings: { aspectRatio },
   } = useProjectSettings()
+  const { video } = usePlayer()
+
   // Вычисляем соотношение сторон для AspectRatio
   const aspectRatioValue = aspectRatio.value.width / aspectRatio.value.height
-  const videoItem: MediaFile | null = null
+
   // Вычисляем стили для контейнера видео
   const containerStyle = {
     position: "relative" as const,
@@ -34,10 +38,9 @@ export function VideoPlayer() {
           <div className="max-h-[calc(100%-85px)] w-full max-w-[100%]">
             <AspectRatio ratio={aspectRatioValue} className="bg-black">
               <div className="relative h-full w-full">
-                {videoItem && videoItem?.path && (
                   <video
-                    key={videoItem.id}
-                    src={videoItem.path}
+                    key={video?.id ?? "no-video"}
+                    src={video?.path ? getFileUrl(video.path) : ""}
                     controls={false}
                     autoPlay={false}
                     loop={false}
@@ -56,13 +59,12 @@ export function VideoPlayer() {
                       display: "block",
                     }}
                   />
-                )}
               </div>
             </AspectRatio>
           </div>
         </div>
       </div>
-      <PlayerControls currentTime={0} />
+      <PlayerControls currentTime={0} file={video ?? {} as MediaFile} />
     </div>
   )
 }

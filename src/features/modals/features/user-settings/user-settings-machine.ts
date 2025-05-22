@@ -49,6 +49,7 @@ export interface UserSettingsContext {
   layoutMode: LayoutMode // Текущий макет интерфейса
   screenshotsPath: string // Путь для сохранения скриншотов
   playerScreenshotsPath: string // Путь для сохранения скриншотов из плеера
+  playerVolume: number // Громкость плеера (0-100)
   openAiApiKey: string // API ключ для OpenAI
   claudeApiKey: string // API ключ для Claude
   isBrowserVisible: boolean // Флаг видимости браузера
@@ -70,6 +71,7 @@ const initialContext: UserSettingsContext = {
   layoutMode: DEFAULT_LAYOUT, // Макет по умолчанию
   screenshotsPath: "public/screenshots", // Путь для скриншотов по умолчанию
   playerScreenshotsPath: "public/media", // Путь для скриншотов плеера по умолчанию
+  playerVolume: 100, // Громкость плеера по умолчанию (100%)
   openAiApiKey: "", // Пустой API ключ OpenAI
   claudeApiKey: "", // Пустой API ключ Claude
   isBrowserVisible: true, // Браузер виден по умолчанию
@@ -159,6 +161,15 @@ interface ToggleBrowserVisibilityEvent {
 }
 
 /**
+ * Интерфейс события обновления громкости плеера
+ * @interface UpdatePlayerVolumeEvent
+ */
+interface UpdatePlayerVolumeEvent {
+  type: "UPDATE_PLAYER_VOLUME" // Тип события
+  volume: number // Новое значение громкости (0-100)
+}
+
+/**
  * Интерфейс события загрузки пользовательских настроек
  * @interface LoadUserSettingsEvent
  */
@@ -181,6 +192,7 @@ export type UserSettingsEvent =
   | UpdateOpenAiApiKeyEvent
   | UpdateClaudeApiKeyEvent
   | ToggleBrowserVisibilityEvent
+  | UpdatePlayerVolumeEvent
   | UpdateAllSettingsEvent
 
 /**
@@ -260,6 +272,11 @@ export const userSettingsMachine = createMachine(
           // Переключение видимости браузера
           TOGGLE_BROWSER_VISIBILITY: {
             actions: ["toggleBrowserVisibility"],
+          },
+
+          // Обновление громкости плеера
+          UPDATE_PLAYER_VOLUME: {
+            actions: ["updatePlayerVolume"],
           },
         },
       },
@@ -408,6 +425,21 @@ export const userSettingsMachine = createMachine(
         return {
           ...context,
           isBrowserVisible: !context.isBrowserVisible, // Инвертируем текущее значение
+        }
+      }),
+
+      /**
+       * Действие для обновления громкости плеера
+       * Устанавливает новое значение громкости
+       */
+      updatePlayerVolume: assign(({ context, event }) => {
+        const typedEvent = event as UpdatePlayerVolumeEvent
+        console.log("Updating player volume:", typedEvent.volume)
+
+        // Возвращаем обновленный контекст
+        return {
+          ...context,
+          playerVolume: typedEvent.volume, // Новое значение громкости
         }
       }),
     },

@@ -137,9 +137,47 @@ export const mediaMachine = createMachine({
         addMediaFiles: {
           actions: [
             assign({
-              allMediaFiles: ({ context }) => {
-                // Просто возвращаем копию текущего массива файлов
-                return [...context.allMediaFiles]
+              allMediaFiles: ({ context, event }) => {
+                // Получаем новые файлы из события
+                const newFiles = event.files ?? []
+
+                if (newFiles.length === 0) {
+                  return [...context.allMediaFiles]
+                }
+
+                // Проверяем, есть ли уже такие файлы в списке
+                const existingPaths = new Set(context.allMediaFiles.map((file: MediaFile) => file.path))
+
+                // Фильтруем только новые файлы
+                const filesToAdd = newFiles.filter((file: MediaFile) => !existingPaths.has(file.path))
+
+                // Если нет новых файлов, возвращаем текущий массив
+                if (filesToAdd.length === 0) {
+                  console.log("Все файлы уже добавлены")
+                  return [...context.allMediaFiles]
+                }
+
+                // Добавляем метку времени и флаг isIncluded
+                const now = Date.now()
+                const filesWithMetadata = filesToAdd.map((file: MediaFile) => {
+                  // Проверяем, что probeData существует и содержит все необходимые поля
+                  const probeData = file.probeData ? {
+                    streams: file.probeData.streams,
+                    format: file.probeData.format
+                  } : undefined
+
+                  return {
+                    ...file,
+                    lastCheckedAt: now,
+                    isIncluded: false, // По умолчанию файлы не включены в таймлайн
+                    probeData // Сохраняем probeData для отображения
+                  }
+                })
+
+                console.log(`Добавлено ${filesWithMetadata.length} новых файлов`)
+
+                // Объединяем существующие и новые файлы
+                return [...context.allMediaFiles, ...filesWithMetadata]
               },
             }),
           ],

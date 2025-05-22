@@ -5,6 +5,11 @@ import { MediaFile } from "@/types/media"
 
 import { ImagePreview } from "./image-preview"
 
+// Мокаем функцию getFileUrl
+vi.mock("@/lib/file-utils", () => ({
+  getFileUrl: vi.fn().mockImplementation((path) => `converted-${path}`),
+}))
+
 // Мокаем компоненты, которые используются в ImagePreview
 vi.mock("../layout/add-media-button", () => ({
   AddMediaButton: ({ file, onAddMedia, isAdded, size }: any) => (

@@ -17,6 +17,7 @@ interface UserSettingsContextValue {
   layoutMode: LayoutMode // Текущий макет интерфейса
   playerScreenshotsPath: string // Путь для сохранения скриншотов плеера
   screenshotsPath: string // Путь для сохранения скриншотов
+  playerVolume: number // Громкость плеера (0-100)
   openAiApiKey: string // API ключ OpenAI
   claudeApiKey: string // API ключ Claude
   isBrowserVisible: boolean // Флаг видимости браузера
@@ -26,6 +27,7 @@ interface UserSettingsContextValue {
   handleLayoutChange: (value: LayoutMode) => void // Изменение макета интерфейса
   handleScreenshotsPathChange: (value: string) => void // Изменение пути для скриншотов
   handlePlayerScreenshotsPathChange: (value: string) => void // Изменение пути для скриншотов плеера
+  handlePlayerVolumeChange: (value: number) => void // Изменение громкости плеера
   handleAiApiKeyChange: (value: string) => void // Изменение API ключа OpenAI
   handleClaudeApiKeyChange: (value: string) => void // Изменение API ключа Claude
   toggleBrowserVisibility: () => void // Переключение видимости браузера
@@ -83,6 +85,7 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
     layoutMode: state.context.layoutMode,
     screenshotsPath: state.context.screenshotsPath,
     playerScreenshotsPath: state.context.playerScreenshotsPath,
+    playerVolume: state.context.playerVolume,
     openAiApiKey: state.context.openAiApiKey,
     claudeApiKey: state.context.claudeApiKey,
     isBrowserVisible: state.context.isBrowserVisible,
@@ -183,6 +186,20 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
         apiKey: value,
       })
       console.log("Claude API key updated")
+    },
+
+    /**
+     * Обработчик изменения громкости плеера
+     * @param {number} value - Новое значение громкости (0-100)
+     */
+    handlePlayerVolumeChange: (value: number) => {
+      console.log("Player volume change requested:", value)
+      // Отправляем событие в машину состояний
+      send({
+        type: "UPDATE_PLAYER_VOLUME",
+        volume: value,
+      })
+      console.log("Player volume updated")
     },
 
     /**

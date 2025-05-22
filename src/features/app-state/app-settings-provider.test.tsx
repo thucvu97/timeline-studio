@@ -129,15 +129,15 @@ const TestComponent = () => {
   return (
     <div>
       <div data-testid="loading">{isLoadingValue ? "Loading" : "Not Loading"}</div>
-      <div data-testid="error">{errorValue || "No Error"}</div>
+      <div data-testid="error">{errorValue ?? "No Error"}</div>
       <div data-testid="project-name">{currentProject.name}</div>
-      <div data-testid="project-path">{currentProject.path || "No Path"}</div>
+      <div data-testid="project-path">{currentProject.path ?? "No Path"}</div>
       <div data-testid="project-dirty">{currentProject.isDirty ? "Dirty" : "Not Dirty"}</div>
       <div data-testid="project-new">{currentProject.isNew ? "New" : "Not New"}</div>
       <button data-testid="create-project" onClick={() => createNewProject("Test Project")}>
         Create Project
       </button>
-      <button data-testid="open-project" onClick={() => openProject()}>
+      <button data-testid="open-project" onClick={() => { return openProject() }}>
         Open Project
       </button>
       <button data-testid="save-project" onClick={() => saveProject("Test Project")}>

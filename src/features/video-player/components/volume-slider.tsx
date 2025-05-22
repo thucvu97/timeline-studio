@@ -11,7 +11,7 @@ export interface VolumeSliderProps {
 }
 
 // Мемоизированный компонент слайдера громкости для предотвращения лишних рендеров
-export const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCommit }: VolumeSliderProps) => {
+const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCommit }: VolumeSliderProps) => {
   // Используем локальное состояние для отображения слайдера
   const [localVolume, setLocalVolume] = useState(volume)
 
@@ -32,7 +32,7 @@ export const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCom
   // Обработчик изменения громкости внутри компонента
   const handleLocalVolumeChange = useCallback(
     (value: number[]) => {
-      const newVolume = value[0]
+      const newVolume = value[0] // Теперь значение уже в диапазоне 0-100
 
       // Устанавливаем флаг, что слайдер перетаскивается
       isDraggingRef.current = true
@@ -75,8 +75,9 @@ export const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCom
   }, [onValueCommit])
 
   // Вычисляем стили для слайдера
-  const fillStyle = useMemo(() => ({ width: `${localVolume * 100}%` }), [localVolume])
-  const thumbStyle = useMemo(() => ({ left: `calc(${localVolume * 100}% - 5px)` }), [localVolume])
+  const normalizedVolume = localVolume / 100 // Преобразуем из диапазона 0-100 в 0-1 для стилей
+  const fillStyle = useMemo(() => ({ width: `${normalizedVolume * 100}%` }), [normalizedVolume])
+  const thumbStyle = useMemo(() => ({ left: `calc(${normalizedVolume * 100}% - 5px)` }), [normalizedVolume])
 
   return (
     <div className="relative h-1 w-full rounded-full border border-white bg-gray-800">
@@ -88,8 +89,8 @@ export const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCom
       <Slider
         value={[localVolume]}
         min={0}
-        max={1}
-        step={0.01}
+        max={100}
+        step={1}
         onValueChange={handleLocalVolumeChange}
         onValueCommit={handleValueCommit}
         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
@@ -97,3 +98,7 @@ export const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCom
     </div>
   )
 })
+
+VolumeSlider.displayName = "VolumeSlider"
+
+export { VolumeSlider }

@@ -3,6 +3,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Film } from "lucide-react"
 
 import { formatDuration } from "@/lib/date"
+import { getFileUrl } from "@/lib/file-utils"
 import { cn, formatResolution } from "@/lib/utils"
 import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/lib/video"
 import { FfprobeStream } from "@/types/ffprobe"
@@ -134,9 +135,10 @@ export const VideoPreview = memo(function VideoPreview({
 
   // Функция для получения URL видео
   const getVideoUrl = useCallback(() => {
-    // Просто возвращаем путь к файлу
-    return file.path
-  }, [file])
+    const url = getFileUrl(file.path)
+    console.log("[VideoPreview] Сконвертированный URL:", url)
+    return url
+  }, [file.path])
 
   // Оптимизируем вычисления с помощью useMemo
   const videoData = useMemo(() => {

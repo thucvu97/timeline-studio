@@ -120,6 +120,7 @@ function getDefaultSettings(): AppSettings {
       layoutMode: "default",
       screenshotsPath: "",
       playerScreenshotsPath: "",
+      playerVolume: 100, // Громкость плеера по умолчанию (100%)
       openAiApiKey: "",
       claudeApiKey: "",
       isBrowserVisible: true,
@@ -172,6 +173,7 @@ export const appSettingsMachine = createMachine({
       layoutMode: "default",
       screenshotsPath: "",
       playerScreenshotsPath: "",
+      playerVolume: 100, // Громкость плеера по умолчанию (100%)
       openAiApiKey: "",
       claudeApiKey: "",
       isBrowserVisible: true,
@@ -378,7 +380,7 @@ export const appSettingsMachine = createMachine({
               currentProject: ({ event }) => ({
                 path: null,
                 // Используем переданное имя или имя по умолчанию
-                name: event.name || getDefaultProjectName(),
+                name: event.name ?? getDefaultProjectName(),
                 isDirty: false,
                 isNew: true,
               }),

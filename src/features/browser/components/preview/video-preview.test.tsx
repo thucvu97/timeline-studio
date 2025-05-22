@@ -54,6 +54,11 @@ vi.mock("@/lib/utils", () => ({
   formatResolution: vi.fn().mockReturnValue("FHD"),
 }))
 
+// Мокаем функцию getFileUrl
+vi.mock("@/lib/file-utils", () => ({
+  getFileUrl: vi.fn().mockImplementation((path) => `converted-${path}`),
+}))
+
 // Мокаем функции из lib/date
 vi.mock("@/lib/date", () => ({
   formatDuration: vi.fn().mockReturnValue("3:00"),
@@ -126,7 +131,7 @@ describe("VideoPreview", () => {
     // Проверяем, что видео элемент отображается
     const videoElement = document.querySelector("video")
     expect(videoElement).not.toBeNull()
-    expect(videoElement).toHaveAttribute("src", "/path/to/video.mp4")
+    expect(videoElement).toHaveAttribute("src", "converted-/path/to/video.mp4")
 
     // Проверяем, что иконка фильма отображается
     const filmIcon = screen.getByTestId("film-icon")
@@ -180,7 +185,7 @@ describe("VideoPreview", () => {
 
     // Проверяем, что оба элемента имеют одинаковый src
     videoElements.forEach((element) => {
-      expect(element).toHaveAttribute("src", "/path/to/multi-stream.mp4")
+      expect(element).toHaveAttribute("src", "converted-/path/to/multi-stream.mp4")
     })
   })
 

@@ -17,6 +17,8 @@ export interface PlayerContextType {
   isResizableMode: boolean // Флаг, указывающий, что шаблоны должны быть resizable
 }
 
+// Начальный контекст для машины состояний плеера
+// Значение громкости будет заменено на значение из пользовательских настроек в провайдере
 const initialContext: PlayerContextType = {
   video: null,
   currentTime: 0,
@@ -28,7 +30,7 @@ const initialContext: PlayerContextType = {
   isVideoReady: false,
   isResizableMode: true, // По умолчанию включен режим resizable
   duration: 0,
-  volume: 100,
+  volume: 100, // Значение по умолчанию, будет заменено из пользовательских настроек
 }
 
 interface SetCurrentTimeEvent {

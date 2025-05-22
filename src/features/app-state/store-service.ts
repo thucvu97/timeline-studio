@@ -104,7 +104,7 @@ export class StoreService {
 
       // Используем синхронный метод get
       const settings = await this.store.get<AppSettings>("app-settings")
-      return settings || null
+      return settings ?? null
     } catch (error) {
       console.error("[StoreService] Error getting settings:", error)
       return null
@@ -146,7 +146,7 @@ export class StoreService {
    */
   public async getUserSettings(): Promise<UserSettingsContext | null> {
     const settings = await this.getSettings()
-    return settings?.userSettings || null
+    return settings?.userSettings ?? null
   }
 
   /**
@@ -199,7 +199,7 @@ export class StoreService {
    */
   public async getRecentProjects(): Promise<AppSettings["recentProjects"]> {
     const settings = await this.getSettings()
-    return settings?.recentProjects || []
+    return settings?.recentProjects ?? []
   }
 
   /**
@@ -229,7 +229,7 @@ export class StoreService {
   public async getFavorites(): Promise<FavoritesType> {
     const settings = await this.getSettings()
     return (
-      settings?.favorites || {
+      settings?.favorites ?? {
         media: [],
         audio: [],
         transition: [],

@@ -7,6 +7,7 @@ import { AppSettingsProvider } from "@/features/app-state/app-settings-provider"
 import { ProjectSettingsProvider } from "@/features/modals/features/project-settings/project-settings-provider"
 import { UserSettingsProvider } from "@/features/modals/features/user-settings/user-settings-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
+import { PlayerProvider } from "@/features/video-player/components/player-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
 
 // Провайдер для всех тестов
@@ -17,7 +18,9 @@ export const AllProviders = ({ children }: { children: ReactNode }) => {
         <AppSettingsProvider>
           <ProjectSettingsProvider>
             <UserSettingsProvider>
-              <ModalProvider>{children}</ModalProvider>
+              <PlayerProvider>
+                <ModalProvider>{children}</ModalProvider>
+              </PlayerProvider>
             </UserSettingsProvider>
           </ProjectSettingsProvider>
         </AppSettingsProvider>

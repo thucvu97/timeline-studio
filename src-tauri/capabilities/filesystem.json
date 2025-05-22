@@ -1,0 +1,31 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "filesystem-capability",
+  "description": "Capability for filesystem access",
+  "windows": ["main"],
+  "permissions": [
+    "fs:default",
+    "fs:allow-read-file",
+    "fs:allow-read-dir",
+    "fs:allow-exists",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$HOME" },
+        { "path": "$HOME/**" },
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/**" },
+        { "path": "$DOCUMENT" },
+        { "path": "$DOCUMENT/**" },
+        { "path": "$DOWNLOAD" },
+        { "path": "$DOWNLOAD/**" },
+        { "path": "$PICTURE" },
+        { "path": "$PICTURE/**" },
+        { "path": "$VIDEO" },
+        { "path": "$VIDEO/**" },
+        { "path": "$AUDIO" },
+        { "path": "$AUDIO/**" }
+      ]
+    }
+  ]
+}

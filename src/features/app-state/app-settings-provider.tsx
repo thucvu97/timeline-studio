@@ -118,7 +118,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
           },
         ],
         // Если директория приложения доступна, используем её как начальную директорию
-        defaultPath: appDir || undefined,
+        defaultPath: appDir ?? undefined,
       })
 
       // Если пользователь отменил выбор, возвращаемся

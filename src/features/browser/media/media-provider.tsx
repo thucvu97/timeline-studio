@@ -29,7 +29,7 @@ interface MediaContextType {
   isItemFavorite: (item: any, itemType: string) => boolean
 }
 
-const MediaContext = createContext<MediaContextType | null>(null)
+export const MediaContext = createContext<MediaContextType | null>(null)
 
 export function MediaProvider({ children }: { children: React.ReactNode }) {
   const [mediaState, mediaSend] = useMachine(mediaMachine)

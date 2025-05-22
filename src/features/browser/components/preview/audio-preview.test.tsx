@@ -5,6 +5,11 @@ import { MediaFile } from "@/types/media"
 
 import { AudioPreview } from "./audio-preview"
 
+// Мокаем функцию getFileUrl
+vi.mock("@/lib/file-utils", () => ({
+  getFileUrl: vi.fn().mockImplementation((path) => `converted-${path}`),
+}))
+
 // Мокаем компоненты, которые используются в AudioPreview
 vi.mock("./preview-timeline", () => ({
   PreviewTimeline: ({ time, duration, videoRef }: any) => (
@@ -102,7 +107,7 @@ describe("AudioPreview", () => {
     // Проверяем, что аудио элемент отображается
     const audioElement = document.querySelector("audio")
     expect(audioElement).not.toBeNull()
-    expect(audioElement).toHaveAttribute("src", "/path/to/audio.mp3")
+    expect(audioElement).toHaveAttribute("src", "converted-/path/to/audio.mp3")
 
     // Проверяем, что иконка музыки отображается
     const musicIcon = screen.getByTestId("music-icon")

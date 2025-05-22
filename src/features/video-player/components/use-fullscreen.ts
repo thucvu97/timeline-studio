@@ -10,9 +10,9 @@ export function useFullscreen() {
   useEffect(() => {
     const handleFullscreen = () => {
       const isCurrentlyFullscreen =
-        document.fullscreenElement ||
-        (document as any).webkitFullscreenElement ||
-        (document as any).mozFullScreenElement ||
+        document.fullscreenElement ??
+        (document as any).webkitFullscreenElement ??
+        (document as any).mozFullScreenElement ??
         (document as any).msFullscreenElement
 
       setIsFullscreen(!!isCurrentlyFullscreen)
@@ -40,7 +40,7 @@ export function useFullscreen() {
    */
   const enterFullscreen = (element: HTMLElement) => {
     if (element.requestFullscreen) {
-      element.requestFullscreen()
+      void element.requestFullscreen()
     } else if ((element as any).webkitRequestFullscreen) {
       ;(element as any).webkitRequestFullscreen()
     } else if ((element as any).mozRequestFullScreen) {
@@ -55,7 +55,7 @@ export function useFullscreen() {
    */
   const exitFullscreen = () => {
     if (document.exitFullscreen) {
-      document.exitFullscreen()
+      void document.exitFullscreen()
     } else if ((document as any).webkitExitFullscreen) {
       ;(document as any).webkitExitFullscreen()
     } else if ((document as any).mozCancelFullScreen) {

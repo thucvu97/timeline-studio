@@ -30,16 +30,22 @@ import { useFullscreen } from "./use-fullscreen"
 import { VolumeSlider } from "./volume-slider"
 
 interface PlayerControlsProps {
+  /**
+   * Текущее время воспроизведения в секундах
+   */
   currentTime: number
+
+  /**
+   * Медиафайл для воспроизведения (опционально)
+   */
+  file: MediaFile
 }
 
-export function PlayerControls({ currentTime }: PlayerControlsProps) {
+export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
   const { t } = useTranslation()
   const {
     isPlaying,
     setIsPlaying,
-    video,
-    setVideo,
     setCurrentTime,
     volume,
     setVolume,
@@ -47,43 +53,23 @@ export function PlayerControls({ currentTime }: PlayerControlsProps) {
     setIsRecording,
     setIsSeeking,
     isChangingCamera,
-    setIsChangingCamera,
     isResizableMode,
     setIsResizableMode,
   } = usePlayer()
 
   // Используем состояние для хранения текущего времени воспроизведения
   const [localDisplayTime, setLocalDisplayTime] = useState(0)
-  const lastSaveTime = useRef(0)
-  const SAVE_INTERVAL = 25000 // Сохраняем каждые 25 секунд
 
   // Используем хук для отслеживания полноэкранного режима
   const { isFullscreen } = useFullscreen()
 
-  // Удаляем неиспользуемый ref
-
-  // Временно отключаем сохранение состояния периодически
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now()
-      if (now - lastSaveTime.current >= SAVE_INTERVAL) {
-        lastSaveTime.current = now
-      }
-    }, SAVE_INTERVAL)
-
-    return () => clearInterval(interval)
-  }, [video])
+  // Создаем ref для хранения текущего значения громкости
+  const volumeRef = useRef<number>(volume)
 
   // Функция для переключения полноэкранного режима
   const handleFullscreen = useCallback(() => {
-    // Проверяем, есть ли активное видео
-    if (!video) {
-      console.log("[handleFullscreen] Нет активного видео для отображения в полноэкранном режиме")
-      return
-    }
-
     // Находим контейнер медиаплеера
-    const playerContainer = document.querySelector(".media-player-container")!
+    const playerContainer = document.querySelector(".media-player-container")
 
     if (!playerContainer) {
       console.error("[handleFullscreen] Не найден контейнер медиаплеера")
@@ -92,10 +78,10 @@ export function PlayerControls({ currentTime }: PlayerControlsProps) {
 
     // Используем функцию toggleFullscreen из хука useFullscreenChange
     const { toggleFullscreen } = useFullscreen()
-    toggleFullscreen(playerContainer)
+    toggleFullscreen(playerContainer as HTMLElement)
 
     console.log(`[handleFullscreen] ${isFullscreen ? "Выход из" : "Вход в"} полноэкранный режим`)
-  }, [video, isFullscreen])
+  }, [file, isFullscreen])
 
   // Нормализуем currentTime для отображения, если это Unix timestamp
   const calculatedDisplayTime = useMemo(() => {
@@ -107,21 +93,17 @@ export function PlayerControls({ currentTime }: PlayerControlsProps) {
     return currentTime
   }, [currentTime, localDisplayTime])
 
-  if (!video) {
-    return null
-  }
-
   // Получаем frameTime с помощью функции getFrameTime
-  const frameTime = getFrameTime(video || undefined)
+  const frameTime = getFrameTime(file)
 
   // Определяем isFirstFrame и isLastFrame на основе мемоизированных значений
   const isFirstFrame = useMemo(() => {
-    return Math.abs(currentTime - video.startTime) < frameTime
-  }, [currentTime, video?.startTime, frameTime])
+    return Math.abs(currentTime - (file.startTime ?? 0)) < frameTime
+  }, [currentTime, file.startTime, frameTime])
 
   const isLastFrame = useMemo(() => {
-    return Math.abs(currentTime - video.endTime) < frameTime
-  }, [currentTime, video?.endTime, frameTime])
+    return Math.abs(currentTime - (file.endTime ?? 0)) < frameTime
+  }, [currentTime, file.endTime, frameTime])
 
   const handleTimeChange = useCallback(
     (value: number[]) => {
@@ -142,32 +124,61 @@ export function PlayerControls({ currentTime }: PlayerControlsProps) {
   }, [isPlaying, setIsPlaying])
 
   const handleSkipForward = useCallback(() => {
-    const newTime = Math.min(currentTime + frameTime, video.endTime)
+    const newTime = Math.min(currentTime + frameTime, file.endTime ?? file.duration ?? 0)
     setLocalDisplayTime(newTime)
     setCurrentTime(newTime)
     setIsSeeking(true)
-  }, [currentTime, frameTime, video.endTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
+  }, [currentTime, frameTime, file.endTime, file.duration, setLocalDisplayTime, setCurrentTime, setIsSeeking])
 
   const handleSkipBackward = useCallback(() => {
-    const newTime = Math.max(currentTime - frameTime, video.startTime)
+    const newTime = Math.max(currentTime - frameTime, file.startTime ?? 0)
     setLocalDisplayTime(newTime)
     setCurrentTime(newTime)
     setIsSeeking(true)
-  }, [currentTime, frameTime, video.startTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
+  }, [currentTime, frameTime, file.startTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
 
   const handleChevronFirst = useCallback(() => {
-    const newTime = video.startTime
+    const newTime = file.startTime ?? 0
     setLocalDisplayTime(newTime)
     setCurrentTime(newTime)
     setIsSeeking(true)
-  }, [video.startTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
+  }, [file.startTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
 
   const handleChevronLast = useCallback(() => {
-    const newTime = video.endTime
+    const newTime = file.endTime ?? 0
     setLocalDisplayTime(newTime)
     setCurrentTime(newTime)
     setIsSeeking(true)
-  }, [video.endTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
+  }, [file.endTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
+
+  // Функция для переключения звука (вкл/выкл)
+  const handleToggleMute = useCallback(() => {
+    // Если звук выключен, устанавливаем последнее сохраненное значение или 100%
+    if (volume === 0) {
+      const newVolume = volumeRef.current > 0 ? volumeRef.current : 100
+      setVolume(newVolume)
+      console.log("[handleToggleMute] Unmute, volume:", newVolume)
+    } else {
+      // Сохраняем текущее значение громкости перед выключением
+      volumeRef.current = volume
+      setVolume(0)
+      console.log("[handleToggleMute] Mute, saved volume:", volumeRef.current)
+    }
+  }, [volume, setVolume])
+
+  // Функция для изменения громкости
+  const handleVolumeChange = useCallback(
+    (value: number[]) => {
+      const newVolume = value[0] // Значение уже в диапазоне 0-100
+      setVolume(newVolume)
+    },
+    [setVolume]
+  )
+
+  // Функция, вызываемая при завершении изменения громкости
+  const handleVolumeChangeEnd = useCallback(() => {
+    console.log("[handleVolumeChangeEnd] Volume change completed:", volume)
+  }, [volume])
 
   return (
     <div className="flex w-full flex-col">
@@ -179,19 +190,19 @@ export function PlayerControls({ currentTime }: PlayerControlsProps) {
               <div
                 className="absolute top-0 left-0 h-full rounded-full bg-white transition-all duration-200 ease-out"
                 style={{
-                  width: `${(Math.max(0, calculatedDisplayTime) / (video?.duration || 100)) * 100}%`,
+                  width: `${(Math.max(0, calculatedDisplayTime) / (file.duration ?? 100)) * 100}%`,
                 }}
               />
               <div
                 className="absolute top-1/2 h-[13px] w-[13px] -translate-y-1/2 rounded-full border border-white bg-white transition-all duration-200 ease-out"
                 style={{
-                  left: `calc(${(Math.max(0, calculatedDisplayTime) / (video?.duration || 100)) * 100}% - 6px)`,
+                  left: `calc(${(Math.max(0, calculatedDisplayTime) / (file.duration ?? 100)) * 100}% - 6px)`,
                 }}
               />
               <Slider
                 value={[Math.max(0, calculatedDisplayTime)]}
                 min={0}
-                max={video?.duration || 100}
+                max={file.duration ?? 100}
                 step={0.001}
                 onValueChange={handleTimeChange}
                 className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
@@ -200,13 +211,11 @@ export function PlayerControls({ currentTime }: PlayerControlsProps) {
             </div>
           </div>
           <span className="rounded-md bg-white px-1 text-xs text-black transition-opacity duration-200 ease-out dark:bg-black dark:text-white">
-            {currentTime > 365 * 24 * 60 * 60
-              ? formatSectorTime(Math.max(0, calculatedDisplayTime), video?.startTime)
-              : formatRelativeTime(Math.max(0, calculatedDisplayTime))}
+            {file.startTime ?? 0}
           </span>
           <span className="mb-[3px]">/</span>
           <span className="rounded-md bg-white px-1 text-xs text-black transition-opacity duration-200 ease-out dark:bg-black dark:text-white">
-            {formatRelativeTime(video?.duration || 0)}
+            {file.duration ?? 0}
           </span>
 
           {/* Скрытый элемент для обновления компонента при воспроизведении */}
@@ -385,7 +394,7 @@ export function PlayerControls({ currentTime }: PlayerControlsProps) {
             </div>
 
             <Button
-              className={`ml-1 h-8 w-8 ${!video ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+              className={`ml-1 h-8 w-8 ${!file ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
               variant="ghost"
               size="icon"
               title={
@@ -396,7 +405,7 @@ export function PlayerControls({ currentTime }: PlayerControlsProps) {
                   : "Fullscreen"
               }
               onClick={handleFullscreen}
-              disabled={!video}
+              disabled={!file}
             >
               {isFullscreen ? <Minimize2 className="h-8 w-8" /> : <Maximize2 className="h-8 w-8" />}
             </Button>

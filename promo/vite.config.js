@@ -2,9 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
-const config = {
+export default defineConfig({
   plugins: [react()],
   base: '', // Пустая строка для относительных путей
-}
-
-export default defineConfig(config)
+})

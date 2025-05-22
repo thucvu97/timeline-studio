@@ -1,7 +1,8 @@
-import { memo } from "react"
+import { memo, useCallback } from "react"
 
 import { Image } from "lucide-react"
 
+import { getFileUrl } from "@/lib/file-utils"
 import { MediaFile } from "@/types/media"
 
 import { AddMediaButton } from "../layout/add-media-button"
@@ -48,6 +49,13 @@ export const ImagePreview = memo(function ImagePreview({
     return (size * width) / height
   }
 
+  // Функция для получения URL изображения
+  const getImageUrl = useCallback(() => {
+    const url = getFileUrl(file.path)
+    console.log("[ImagePreview] Сконвертированный URL:", url)
+    return url
+  }, [file.path])
+
   return (
     <div
       className="group relative h-full flex-shrink-0"
@@ -65,7 +73,16 @@ export const ImagePreview = memo(function ImagePreview({
       )}
 
       <div className="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-700">
-        <Image path={file.path} className="h-full w-full object-contain" />
+        <img
+          src={getImageUrl()}
+          alt={file.name}
+          className="h-full w-full object-contain"
+          onError={(e) => {
+            console.error("[ImagePreview] Ошибка загрузки изображения:", e)
+            // Заменяем на иконку при ошибке
+            e.currentTarget.style.display = 'none'
+          }}
+        />
       </div>
 
       <div

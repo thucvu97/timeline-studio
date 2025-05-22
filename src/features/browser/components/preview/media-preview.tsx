@@ -1,3 +1,6 @@
+import { Loader2 } from "lucide-react"
+
+import { cn } from "@/lib/utils"
 import { MediaFile } from "@/types/media"
 
 import { AudioPreview } from "./audio-preview"
@@ -41,6 +44,29 @@ export function MediaPreview({
   dimensions = [16, 9],
   ignoreRatio = false,
 }: MediaPreviewProps) {
+  // Если метаданные еще загружаются, показываем индикатор загрузки
+  if (file.isLoadingMetadata) {
+    return (
+      <div
+        className={cn(
+          "flex items-center justify-center bg-gray-100 dark:bg-gray-800",
+          ignoreRatio ? "w-full h-full" : "aspect-video"
+        )}
+        style={{
+          width: ignoreRatio ? "100%" : `${((size * dimensions[0]) / dimensions[1]).toFixed(0)}px`,
+          height: ignoreRatio ? "100%" : `${size}px`,
+        }}
+      >
+        <div className="flex flex-col items-center justify-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            {showFileName ? file.name : "Загрузка метаданных..."}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (file.isVideo) {
     return (
       <VideoPreview

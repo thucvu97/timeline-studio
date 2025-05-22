@@ -19,6 +19,7 @@ export interface MediaFile {
   isIncluded?: boolean // Флаг, указывающий, включен ли файл в проект
   isUnavailable?: boolean // Флаг, указывающий, недоступен ли файл
   lastCheckedAt?: number // Время последней проверки файла (timestamp)
+  isLoadingMetadata?: boolean // Флаг, указывающий, что метаданные файла еще загружаются
   source?: "browser" | "timeline"
   proxy?: {
     path: string

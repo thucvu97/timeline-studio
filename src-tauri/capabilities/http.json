@@ -1,0 +1,9 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "http-capability",
+  "description": "Capability for HTTP requests",
+  "windows": ["main"],
+  "permissions": [
+    "core:default"
+  ]
+}

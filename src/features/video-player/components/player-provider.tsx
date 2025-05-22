@@ -1,7 +1,8 @@
-import { createContext, useContext } from "react"
+import { createContext, useContext, useEffect } from "react"
 
 import { useMachine } from "@xstate/react"
 
+import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
 import { MediaFile } from "@/types/media"
 
 import { PlayerContextType as MachineContextType, playerMachine } from "./player-machine"
@@ -35,7 +36,19 @@ declare global {
 }
 
 export function PlayerProvider({ children }: PlayerProviderProps) {
+  // Получаем доступ к пользовательским настройкам
+  const userSettings = useUserSettings()
+
+  // Инициализируем машину состояний
   const [state, send] = useMachine(playerMachine)
+
+  // Устанавливаем громкость из пользовательских настроек при монтировании
+  useEffect(() => {
+    if (userSettings.playerVolume >= 0) {
+      console.log("[PlayerProvider] Initializing volume from user settings:", userSettings.playerVolume)
+      send({ type: "setVolume", volume: userSettings.playerVolume })
+    }
+  }, [userSettings.playerVolume, send])
 
   const contextValue = {
     ...state.context,
@@ -49,7 +62,15 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     setIsRecording: (isRecording: boolean) => send({ type: "setIsRecording", isRecording }),
     setVideo: (video: MediaFile) => send({ type: "setVideo", video }),
     setDuration: (duration: number) => send({ type: "setDuration", duration }),
-    setVolume: (volume: number) => send({ type: "setVolume", volume }),
+    setVolume: (volume: number) => {
+      // Обновляем громкость в машине состояний
+      send({ type: "setVolume", volume })
+
+      // Обновляем громкость в пользовательских настройках
+      userSettings.handlePlayerVolumeChange(volume)
+
+      console.log("[PlayerProvider] Volume updated:", volume)
+    },
     setVideoLoading: (isLoading: boolean) => send({ type: "setVideoLoading", isVideoLoading: isLoading }),
     setVideoReady: (isReady: boolean) => send({ type: "setVideoReady", isVideoReady: isReady }),
     setIsResizableMode: (isResizableMode: boolean) => send({ type: "setIsResizableMode", isResizableMode }),

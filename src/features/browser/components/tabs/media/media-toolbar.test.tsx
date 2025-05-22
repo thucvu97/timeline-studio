@@ -1,7 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { MediaProvider } from "@/features/browser/media/media-provider"
+
 import { MediaToolbar } from "./media-toolbar"
+
+// Импортируем MediaProvider
+
+// Создаем компонент-обертку для тестов
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <MediaProvider>{children}</MediaProvider>
+)
 
 // Мокаем useTranslation
 vi.mock("react-i18next", () => ({
@@ -90,6 +99,20 @@ vi.mock("@/features/browser/media", () => ({
       template: [],
       filter: [],
     },
+    addMediaFiles: vi.fn(),
+  }),
+}))
+
+// Мокаем useMediaImport
+const mockImportFile = vi.fn().mockResolvedValue({ success: true, message: "Файл успешно импортирован", files: [] })
+const mockImportFolder = vi.fn().mockResolvedValue({ success: true, message: "Папка успешно импортирована", files: [] })
+
+vi.mock("@/features/browser/media/use-media-import", () => ({
+  useMediaImport: () => ({
+    importFile: mockImportFile,
+    importFolder: mockImportFolder,
+    isImporting: false,
+    progress: 0,
   }),
 }))
 
@@ -103,13 +126,44 @@ vi.mock("@/features/modals", () => ({
 // Мокаем console.log
 vi.spyOn(console, "log").mockImplementation(() => {})
 
+// Мокаем функции Tauri API
+vi.mock("@tauri-apps/api/dialog", () => ({
+  open: vi.fn().mockResolvedValue("/path/to/file.mp4"),
+}))
+
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: vi.fn().mockResolvedValue(["/path/to/file1.mp4", "/path/to/file2.mp4"]),
+}))
+
+vi.mock("@/lib/media", () => ({
+  selectMediaFile: vi.fn().mockResolvedValue("/path/to/file.mp4"),
+  selectMediaDirectory: vi.fn().mockResolvedValue("/path/to/directory"),
+  getMediaMetadata: vi.fn().mockResolvedValue({
+    is_video: true,
+    is_audio: false,
+    is_image: false,
+    size: 1024,
+    duration: 60,
+    start_time: 0,
+    creation_time: "2023-01-01",
+    probe_data: {
+      streams: [],
+      format: {},
+    },
+  }),
+}))
+
 describe("MediaToolbar", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it("should render correctly", () => {
-    render(<MediaToolbar />)
+    render(
+      <TestWrapper>
+        <MediaToolbar />
+      </TestWrapper>
+    )
 
     // Проверяем наличие основных элементов
     expect(screen.getByText("Import")).toBeInTheDocument()
@@ -117,7 +171,11 @@ describe("MediaToolbar", () => {
   })
 
   it("should handle search input", () => {
-    render(<MediaToolbar />)
+    render(
+      <TestWrapper>
+        <MediaToolbar />
+      </TestWrapper>
+    )
 
     const searchInput = screen.getByPlaceholderText("Search")
     fireEvent.change(searchInput, { target: { value: "test" } })
@@ -127,7 +185,11 @@ describe("MediaToolbar", () => {
   })
 
   it("should handle view mode changes", () => {
-    render(<MediaToolbar />)
+    render(
+      <TestWrapper>
+        <MediaToolbar />
+      </TestWrapper>
+    )
 
     // Находим кнопки режимов отображения по иконкам
     const gridButton = screen.getByTestId("grid-view-button")
@@ -148,7 +210,11 @@ describe("MediaToolbar", () => {
   })
 
   it("should handle preview size changes", () => {
-    render(<MediaToolbar />)
+    render(
+      <TestWrapper>
+        <MediaToolbar />
+      </TestWrapper>
+    )
 
     // Находим кнопки изменения размера превью
     const zoomOutButton = screen.getByTestId("zoom-out-button")
@@ -164,7 +230,11 @@ describe("MediaToolbar", () => {
   })
 
   it("should handle favorites toggle", () => {
-    render(<MediaToolbar />)
+    render(
+      <TestWrapper>
+        <MediaToolbar />
+      </TestWrapper>
+    )
 
     // Находим кнопку избранного
     const favoritesButton = screen.getByTestId("favorites-button")
@@ -175,7 +245,11 @@ describe("MediaToolbar", () => {
   })
 
   it("should handle sort order change", () => {
-    render(<MediaToolbar />)
+    render(
+      <TestWrapper>
+        <MediaToolbar />
+      </TestWrapper>
+    )
 
     // Находим кнопку изменения порядка сортировки
     const sortOrderButton = screen.getByTestId("sort-order-button")
@@ -185,25 +259,12 @@ describe("MediaToolbar", () => {
     expect(mockChangeOrder).toHaveBeenCalled()
   })
 
-  it("should handle import button click", () => {
-    // Мокируем метод click для элемента input
-    const mockClick = vi.fn()
-    // Сохраняем оригинальный метод
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const originalCreateElement = document.createElement.bind(document)
-
-    // Мокируем document.createElement только для создания input
-    vi.spyOn(document, "createElement").mockImplementation((tagName) => {
-      if (tagName === "input") {
-        const input = originalCreateElement("input")
-        // Добавляем мок для метода click
-        input.click = mockClick
-        return input
-      }
-      return originalCreateElement(tagName)
-    })
-
-    render(<MediaToolbar />)
+  it("should handle import button click", async () => {
+    render(
+      <TestWrapper>
+        <MediaToolbar />
+      </TestWrapper>
+    )
 
     // Находим кнопку импорта
     const importButton = screen.getByText("Import")
@@ -211,37 +272,16 @@ describe("MediaToolbar", () => {
     // Кликаем на кнопку импорта
     fireEvent.click(importButton)
 
-    // Проверяем, что был создан input
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    expect(document.createElement).toHaveBeenCalledWith("input")
-    expect(mockClick).toHaveBeenCalled()
-
-    // Восстанавливаем оригинальный метод
-    vi.restoreAllMocks()
+    // Проверяем, что была вызвана функция importFile из хука useMediaImport
+    expect(mockImportFile).toHaveBeenCalled()
   })
 
-  it("should handle folder import button click", () => {
-    // Мокируем методы для элемента input
-    const mockClick = vi.fn()
-    const mockSetAttribute = vi.fn()
-
-    // Сохраняем оригинальный метод
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const originalCreateElement = document.createElement.bind(document)
-
-    // Мокируем document.createElement только для создания input
-    vi.spyOn(document, "createElement").mockImplementation((tagName) => {
-      if (tagName === "input") {
-        const input = originalCreateElement("input")
-        // Добавляем моки для методов
-        input.click = mockClick
-        input.setAttribute = mockSetAttribute
-        return input
-      }
-      return originalCreateElement(tagName)
-    })
-
-    render(<MediaToolbar />)
+  it("should handle folder import button click", async () => {
+    render(
+      <TestWrapper>
+        <MediaToolbar />
+      </TestWrapper>
+    )
 
     // Находим кнопку импорта папки
     const folderButton = screen.getByTestId("folder-import-button")
@@ -249,14 +289,7 @@ describe("MediaToolbar", () => {
     // Кликаем на кнопку импорта папки
     fireEvent.click(folderButton)
 
-    // Проверяем, что был создан input с правильными параметрами
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    expect(document.createElement).toHaveBeenCalledWith("input")
-    expect(mockSetAttribute).toHaveBeenCalledWith("webkitdirectory", "")
-    expect(mockSetAttribute).toHaveBeenCalledWith("directory", "")
-    expect(mockClick).toHaveBeenCalled()
-
-    // Восстанавливаем оригинальный метод
-    vi.restoreAllMocks()
+    // Проверяем, что была вызвана функция importFolder из хука useMediaImport
+    expect(mockImportFolder).toHaveBeenCalled()
   })
 })

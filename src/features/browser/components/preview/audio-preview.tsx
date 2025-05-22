@@ -3,6 +3,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { Music } from "lucide-react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 
+import { getFileUrl } from "@/lib/file-utils"
 import { MediaFile } from "@/types/media"
 
 import { AddMediaButton } from "../layout/add-media-button"
@@ -92,6 +93,13 @@ export const AudioPreview = memo(function AudioPreview({
     }
   }, [isPlaying])
 
+  // Функция для получения URL аудио
+  const getAudioUrl = useCallback(() => {
+    const url = getFileUrl(file.path)
+    console.log("[AudioPreview] Сконвертированный URL:", url)
+    return url
+  }, [file.path])
+
   useEffect(() => {
     const audioElement = audioRef.current
     if (!audioElement) return
@@ -146,12 +154,13 @@ export const AudioPreview = memo(function AudioPreview({
       {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
       <audio
         ref={audioRef}
-        src={file.path}
+        src={getAudioUrl()}
         preload="auto"
         tabIndex={0}
         className="pointer-events-none absolute inset-0 h-full w-full focus:outline-none"
         onEnded={() => setIsPlaying(false)}
         onLoadedMetadata={() => setIsLoaded(true)}
+        onError={(e) => console.error("[AudioPreview] Ошибка загрузки аудио:", e)}
         onKeyDown={(e) => {
           if (e.code === "Space") {
             e.preventDefault()

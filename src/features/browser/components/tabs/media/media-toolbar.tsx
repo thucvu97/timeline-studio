@@ -29,7 +29,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useMedia } from "@/features/browser/media"
+import { useMediaImport } from "@/features/browser/media/use-media-import"
 import { cn } from "@/lib/utils"
+import { MediaFile } from "@/types/media"
 
 import { useMediaList } from "./media-list-provider"
 
@@ -42,6 +44,7 @@ import { useMediaList } from "./media-list-provider"
 export function MediaToolbar() {
   const { t } = useTranslation()
   const media = useMedia()
+  const { importFile, importFolder, isImporting } = useMediaImport()
 
   // Извлекаем значения из контекста
   const {
@@ -104,37 +107,34 @@ export function MediaToolbar() {
     changeViewMode(mode)
   }
 
-  const handleImportFile = () => {
-    console.log("Импорт файла")
-    // Показываем диалог выбора файлов
-    const input = document.createElement("input")
-    input.type = "file"
-    input.multiple = true
-    input.accept = "video/*,audio/*,image/*"
+  const handleImportFile = async () => {
+    console.log("Импорт файла через оптимизированный хук")
+    try {
+      const result = await importFile()
 
-    input.onchange = () => {
-      console.log("Файлы выбраны, закрываем диалог")
-      // Тут просто закрываем диалог, не обрабатываем файлы
+      if (result.success) {
+        console.log(result.message)
+      } else {
+        console.error(result.message)
+      }
+    } catch (error) {
+      console.error("Ошибка при импорте файла:", error)
     }
-
-    input.click()
   }
 
-  const handleImportFolder = () => {
-    console.log("Импорт папки")
-    // Показываем диалог выбора папки
-    const input = document.createElement("input")
-    input.type = "file"
-    // Используем setAttribute для webkitdirectory, так как это нестандартный атрибут
-    input.setAttribute("webkitdirectory", "")
-    input.setAttribute("directory", "")
+  const handleImportFolder = async () => {
+    console.log("Импорт папки через оптимизированный хук")
+    try {
+      const result = await importFolder()
 
-    input.onchange = () => {
-      console.log("Папка выбрана, закрываем диалог")
-      // Тут просто закрываем диалог, не обрабатываем файлы
+      if (result.success) {
+        console.log(result.message)
+      } else {
+        console.error(result.message)
+      }
+    } catch (error) {
+      console.error("Ошибка при импорте папки:", error)
     }
-
-    input.click()
   }
 
   return (
@@ -143,22 +143,31 @@ export function MediaToolbar() {
         <Button
           variant="ghost"
           size="sm"
-          className="flex cursor-pointer items-center gap-1 bg-[#dddbdd] px-1 text-xs hover:bg-[#d1d1d1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25"
+          className={cn(
+            "flex cursor-pointer items-center gap-1 bg-[#dddbdd] px-1 text-xs hover:bg-[#d1d1d1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25",
+            isImporting && "opacity-70 cursor-wait"
+          )}
           onClick={() => handleImportFile()}
+          disabled={isImporting}
         >
-          <span className="px-2 text-xs">{t("common.import")}</span>
+          <span className="px-2 text-xs">
+            {isImporting ? t("common.importing") || "Importing..." : t("common.import")}
+          </span>
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <div
-                  className="cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25"
+                  className={cn(
+                    "cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25",
+                    isImporting && "opacity-50 cursor-wait"
+                  )}
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleImportFile()
+                    if (!isImporting) void handleImportFile()
                   }}
                 >
-                  <File size={12} />
+                  <File size={12} className={isImporting ? "animate-pulse" : ""} />
                 </div>
               </TooltipTrigger>
               <TooltipContent>{t("browser.media.uploadMedia")}</TooltipContent>
@@ -167,14 +176,17 @@ export function MediaToolbar() {
               <TooltipTrigger asChild>
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <div
-                  className="cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25"
+                  className={cn(
+                    "cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25",
+                    isImporting && "opacity-50 cursor-wait"
+                  )}
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleImportFolder()
+                    if (!isImporting) void handleImportFolder()
                   }}
                   data-testid="folder-import-button"
                 >
-                  <Folder size={12} />
+                  <Folder size={12} className={isImporting ? "animate-pulse" : ""} />
                 </div>
               </TooltipTrigger>
               <TooltipContent>{t("browser.media.addFolder")}</TooltipContent>
