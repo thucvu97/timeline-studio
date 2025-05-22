@@ -404,13 +404,6 @@ export const userSettingsMachine = createMachine(
       toggleBrowserVisibility: assign(({ context }) => {
         console.log("Toggling browser visibility:", !context.isBrowserVisible)
 
-        // Сохраняем новое значение в localStorage для совместимости
-        try {
-          localStorage.setItem("browser-visible", (!context.isBrowserVisible).toString())
-        } catch (error) {
-          // Игнорируем ошибки при записи в localStorage
-        }
-
         // Возвращаем обновленный контекст
         return {
           ...context,

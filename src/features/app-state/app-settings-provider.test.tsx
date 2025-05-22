@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { AppSettingsContext } from "./app-settings-machine"
 import { AppSettingsProvider, useAppSettings } from "./app-settings-provider"
 
 // Мокаем диалоги Tauri
@@ -19,16 +20,21 @@ vi.mock("@tauri-apps/api/path", () => ({
 
 // Мокаем машину состояний
 vi.mock("./app-settings-machine", () => {
-  const mockSend = vi.fn()
   return {
+    AppSettingsContext: vi.fn(),
     appSettingsMachine: {
       id: "appSettings",
       initial: "idle",
       context: {
         userSettings: {
-          previewSizes: { MEDIA: 120, TRANSITIONS: 100, TEMPLATES: 125 },
+          previewSizes: { MEDIA: 100, TRANSITIONS: 100, TEMPLATES: 125 },
           activeTab: "media",
           layoutMode: "default",
+          screenshotsPath: "",
+          playerScreenshotsPath: "",
+          openAiApiKey: "",
+          claudeApiKey: "",
+          isBrowserVisible: true,
           isLoaded: true,
         },
         recentProjects: [],
@@ -59,145 +65,52 @@ vi.mock("./app-settings-machine", () => {
   }
 })
 
-// Мокаем useAppSettings
-vi.mock("./app-settings-provider", async (importOriginal) => {
-  const originalModule = await importOriginal()
-
-  // Мокируем только хук useAppSettings, оставляя компонент AppSettingsProvider оригинальным
-  return {
-    ...originalModule,
-    useAppSettings: vi.fn(() => {
-      // Данные для геттеров
-      const userSettingsData = {
-        previewSizes: { MEDIA: 120, TRANSITIONS: 100, TEMPLATES: 125 },
-        activeTab: "media",
-        layoutMode: "default",
-        isLoaded: true,
-      }
-
-      const recentProjectsData = []
-
-      const currentProjectData = {
-        path: null,
-        name: "Новый проект",
-        isDirty: false,
-        isNew: true,
-      }
-
-      const favoritesData = {
-        media: [],
-        audio: [],
-        transition: [],
-        effect: [],
-        template: [],
-        filter: [],
-        subtitle: [],
-      }
-
-      const mediaFilesData = {
-        allMediaFiles: [],
-        error: null,
-        isLoading: false,
-      }
-
-      const isLoadingData = false
-      const errorData = null
-
-      // Методы
-      const createNewProject = vi.fn()
-      const openProject = vi.fn().mockResolvedValue({
-        path: "/path/to/project.tlsp",
-        name: "project.tlsp",
-      })
-      const saveProject = vi.fn().mockResolvedValue({
-        path: "/path/to/saved/project.tlsp",
-        name: "project.tlsp",
-      })
-      const setProjectDirty = vi.fn()
-      const updateMediaFiles = vi.fn()
-      const updateUserSettings = vi.fn()
-      const addToFavorites = vi.fn()
-      const removeFromFavorites = vi.fn()
-
-      // Геттеры
-      const getUserSettings = () => userSettingsData
-      const getRecentProjects = () => recentProjectsData
-      const getCurrentProject = () => currentProjectData
-      const getFavorites = () => favoritesData
-      const getMediaFiles = () => mediaFilesData
-      const isLoading = () => isLoadingData
-      const getError = () => errorData
-
-      return {
-        // Методы
-        createNewProject,
-        openProject,
-        saveProject,
-        setProjectDirty,
-        updateMediaFiles,
-        updateUserSettings,
-        addToFavorites,
-        removeFromFavorites,
-
-        // Геттеры
-        getUserSettings,
-        getRecentProjects,
-        getCurrentProject,
-        getFavorites,
-        getMediaFiles,
-        isLoading,
-        getError,
-
-        // Для обратной совместимости с тестами
-        currentProject: currentProjectData,
-        error: errorData,
-      }
-    }),
-  }
-})
-
 // Мокаем useMachine из XState
+const mockSend = vi.fn()
+const mockState = {
+  context: {
+    userSettings: {
+      previewSizes: { MEDIA: 100, TRANSITIONS: 100, TEMPLATES: 125 },
+      activeTab: "media",
+      layoutMode: "default",
+      screenshotsPath: "",
+      playerScreenshotsPath: "",
+      openAiApiKey: "",
+      claudeApiKey: "",
+      isBrowserVisible: true,
+      isLoaded: true,
+    },
+    recentProjects: [],
+    currentProject: {
+      path: null,
+      name: "Новый проект",
+      isDirty: false,
+      isNew: true,
+    },
+    favorites: {
+      media: [],
+      audio: [],
+      transition: [],
+      effect: [],
+      template: [],
+      filter: [],
+      subtitle: [],
+    },
+    mediaFiles: {
+      allMediaFiles: [],
+      error: null,
+      isLoading: false,
+    },
+    isLoading: false,
+    error: null,
+  },
+  matches: vi.fn((state) => state === "idle"),
+  can: vi.fn(() => true),
+}
+
 vi.mock("@xstate/react", () => {
-  const mockSend = vi.fn()
   return {
-    useMachine: vi.fn(() => [
-      {
-        context: {
-          userSettings: {
-            previewSizes: { MEDIA: 120, TRANSITIONS: 100, TEMPLATES: 125 },
-            activeTab: "media",
-            layoutMode: "default",
-            isLoaded: true,
-          },
-          recentProjects: [],
-          currentProject: {
-            path: null,
-            name: "Новый проект",
-            isDirty: false,
-            isNew: true,
-          },
-          favorites: {
-            media: [],
-            audio: [],
-            transition: [],
-            effect: [],
-            template: [],
-            filter: [],
-            subtitle: [],
-          },
-          mediaFiles: {
-            allMediaFiles: [],
-            error: null,
-            isLoading: false,
-          },
-          isLoading: false,
-          error: null,
-        },
-        matches: (state: string) => state === "idle",
-      },
-      mockSend,
-      { send: mockSend },
-    ]),
+    useMachine: vi.fn(() => [mockState, mockSend, { send: mockSend }]),
   }
 })
 
@@ -265,43 +178,6 @@ describe("AppSettingsProvider", () => {
     expect(screen.getByTestId("project-new")).toHaveTextContent("New")
   })
 
-  it("should handle openProject function", async () => {
-    render(
-      <AppSettingsProvider>
-        <TestComponent />
-      </AppSettingsProvider>,
-    )
-
-    // Получаем мокированную функцию openProject из TestComponent
-    const openProjectButton = screen.getByTestId("open-project")
-
-    // Нажимаем на кнопку открытия проекта
-    fireEvent.click(openProjectButton)
-
-    // Проверяем, что функция openProject была вызвана
-    // Это косвенно подтверждает, что функция работает
-    // Для полной проверки нужно использовать spy на openProject
-    expect(openProjectButton).toBeInTheDocument()
-  })
-
-  it("should handle saveProject function", async () => {
-    render(
-      <AppSettingsProvider>
-        <TestComponent />
-      </AppSettingsProvider>,
-    )
-
-    // Получаем кнопку сохранения проекта
-    const saveProjectButton = screen.getByTestId("save-project")
-
-    // Нажимаем на кнопку сохранения проекта
-    fireEvent.click(saveProjectButton)
-
-    // Проверяем, что кнопка существует в документе
-    // Это косвенно подтверждает, что функция работает
-    expect(saveProjectButton).toBeInTheDocument()
-  })
-
   it("should handle createNewProject function", async () => {
     render(
       <AppSettingsProvider>
@@ -313,8 +189,7 @@ describe("AppSettingsProvider", () => {
     fireEvent.click(screen.getByTestId("create-project"))
 
     // Проверяем, что событие было отправлено в машину состояний
-    // Это сложно проверить напрямую из-за моков, но мы можем проверить, что функция была вызвана
-    // Для полной проверки нужно использовать spy на send в useMachine
+    expect(mockSend).toHaveBeenCalledWith({ type: "CREATE_NEW_PROJECT", name: "Test Project" })
   })
 
   it("should handle setProjectDirty function", async () => {
@@ -328,7 +203,76 @@ describe("AppSettingsProvider", () => {
     fireEvent.click(screen.getByTestId("set-dirty"))
 
     // Проверяем, что событие было отправлено в машину состояний
-    // Это сложно проверить напрямую из-за моков, но мы можем проверить, что функция была вызвана
-    // Для полной проверки нужно использовать spy на send в useMachine
+    expect(mockSend).toHaveBeenCalledWith({ type: "SET_PROJECT_DIRTY", isDirty: true })
+  })
+
+  it("should handle openProject function", async () => {
+    // Получаем моки из модулей
+    const { open } = await import("@tauri-apps/plugin-dialog")
+    const { basename } = await import("@tauri-apps/api/path")
+
+    render(
+      <AppSettingsProvider>
+        <TestComponent />
+      </AppSettingsProvider>,
+    )
+
+    // Нажимаем на кнопку открытия проекта
+    fireEvent.click(screen.getByTestId("open-project"))
+
+    // Проверяем, что диалог открытия файла был вызван
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled()
+    })
+
+    // Проверяем, что basename был вызван для получения имени файла
+    await waitFor(() => {
+      expect(basename).toHaveBeenCalledWith("/path/to/project.tlsp")
+    })
+
+    // Проверяем, что событие было отправлено в машину состояний
+    await waitFor(() => {
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "OPEN_PROJECT",
+        path: "/path/to/project.tlsp",
+        name: "project.tlsp",
+      })
+    })
+  })
+
+  it("should handle saveProject function", async () => {
+    // Получаем моки из модулей
+    const { save } = await import("@tauri-apps/plugin-dialog")
+
+    render(
+      <AppSettingsProvider>
+        <TestComponent />
+      </AppSettingsProvider>,
+    )
+
+    // Нажимаем на кнопку сохранения проекта
+    fireEvent.click(screen.getByTestId("save-project"))
+
+    // Проверяем, что диалог сохранения файла был вызван
+    await waitFor(() => {
+      expect(save).toHaveBeenCalledWith({
+        filters: [
+          {
+            name: "Timeline Studio Project",
+            extensions: ["tlsp"],
+          },
+        ],
+        defaultPath: "Test Project.tlsp",
+      })
+    })
+
+    // Проверяем, что событие было отправлено в машину состояний
+    await waitFor(() => {
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "SAVE_PROJECT",
+        path: "/path/to/saved/project.tlsp",
+        name: "Test Project",
+      })
+    })
   })
 })

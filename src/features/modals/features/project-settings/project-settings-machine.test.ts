@@ -8,8 +8,6 @@ import * as projectSettingsModule from "./project-settings-machine"
 
 const { projectSettingsMachine, initialProjectContext } = projectSettingsModule
 
-// Примечание: Мок для localStorage удален, так как теперь используется Tauri Store
-
 describe("Project Settings Machine", () => {
   beforeEach(() => {
     // Очищаем моки
@@ -54,8 +52,6 @@ describe("Project Settings Machine", () => {
 
     // Проверяем, что контекст обновился
     expect(actor.getSnapshot().context.settings).toEqual(newSettings)
-
-    // Примечание: Проверка сохранения в localStorage удалена, так как теперь используется Tauri Store
   })
 
   it("should reset settings when RESET_SETTINGS event is sent", () => {
@@ -85,11 +81,7 @@ describe("Project Settings Machine", () => {
 
     // Проверяем, что настройки сбросились до значений по умолчанию
     expect(actor.getSnapshot().context.settings).toEqual(DEFAULT_PROJECT_SETTINGS)
-
-    // Примечание: Проверка удаления из localStorage удалена, так как теперь используется Tauri Store
   })
-
-  // Примечание: Тест для обработки ошибок localStorage удален, так как теперь используется Tauri Store
 
   it("should update settings when UPDATE_SETTINGS event is sent with custom settings", () => {
     // Создаем актора машины состояний
@@ -114,6 +106,4 @@ describe("Project Settings Machine", () => {
     // Проверяем, что настройки были обновлены
     expect(actor.getSnapshot().context.settings).toEqual(testSettings)
   })
-
-  // Примечание: Тест для обработки ошибок localStorage удален, так как теперь используется Tauri Store
 })

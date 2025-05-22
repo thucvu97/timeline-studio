@@ -3,11 +3,6 @@ import { assign, createMachine } from "xstate"
 import { DEFAULT_PROJECT_SETTINGS, ProjectSettings } from "@/types/project"
 
 /**
- * Примечание: Функции для работы с localStorage удалены, так как теперь используется
- * централизованное хранилище с Tauri Store через app-settings-provider
- */
-
-/**
  * Интерфейс контекста машины состояний настроек проекта
  * Содержит текущие настройки проекта
  *
@@ -100,9 +95,6 @@ export const projectSettingsMachine = createMachine({
                 ...(event as any).settings,
               }
 
-              // Примечание: Сохранение в localStorage удалено, так как теперь настройки проекта
-              // сохраняются в файле проекта через app-settings-provider
-
               // Возвращаем обновленный контекст
               return {
                 settings: newSettings,
@@ -118,8 +110,6 @@ export const projectSettingsMachine = createMachine({
             assign({
               settings: DEFAULT_PROJECT_SETTINGS,
             }),
-            // Примечание: Удаление из localStorage удалено, так как теперь настройки проекта
-            // сохраняются в файле проекта через app-settings-provider
           ],
         },
       },

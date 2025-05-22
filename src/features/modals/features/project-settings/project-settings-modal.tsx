@@ -585,8 +585,6 @@ export function ProjectSettingsModal() {
             }
 
             // Применяем обновленные настройки
-            // Это вызовет перерисовку всех компонентов, зависящих от настроек,
-            // и обеспечит сохранение настроек в localStorage
             updateSettings(currentSettings)
 
             // Отладочный вывод
