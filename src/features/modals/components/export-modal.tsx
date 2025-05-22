@@ -24,7 +24,7 @@ export function ExportModal() {
 
   return (
     <Tabs defaultValue="local" className="flex flex-1 flex-col">
-      <div className="bg-gray-50 dark:bg-[#1b1a1f]">
+      <div className="bg-gray-50">
         <TabsList className="mx-4 mt-2 mb-2 h-8 w-auto bg-transparent">
           <TabsTrigger
             value="local"

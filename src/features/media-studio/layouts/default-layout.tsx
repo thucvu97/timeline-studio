@@ -32,7 +32,7 @@ export function DefaultLayout() {
                 overflow: "hidden",
               }}
             >
-              <div className="relative h-full flex-1 bg-[#252526]">
+              <div className="relative h-full flex-1">
                 <Browser />
               </div>
             </ResizablePanel>

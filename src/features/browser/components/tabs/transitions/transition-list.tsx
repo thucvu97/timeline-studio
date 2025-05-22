@@ -96,9 +96,9 @@ export function TransitionsList({
   })
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <div className="flex h-full flex-1 flex-col bg-background">
       {/* Панель инструментов с поиском и кнопками управления */}
-      <div className="flex items-center justify-between p-1">
+      <div className="flex items-center justify-between p-1 bg-[#2D2D2D]">
         {/* Поле поиска переходов */}
         <Input
           type="search"
@@ -184,10 +184,10 @@ export function TransitionsList({
       </div>
 
       {/* Контейнер для списка переходов с прокруткой */}
-      <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3 dark:bg-[#1b1a1f]">
+      <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3">
         {/* Состояние загрузки - пустой контейнер */}
         {!isSizeLoaded ? (
-          <div className="flex h-full items-center justify-center text-gray-500"></div>
+          <div className="flex h-full items-center justify-center text-gray-500"/>
         ) : /* Состояние "ничего не найдено" - сообщение */
         filteredTransitions.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-500">

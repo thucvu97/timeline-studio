@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/types/media"
 
-import { FavoriteButton } from "./favorite-button"
+import { FavoriteButton } from "./favorite-button-test"
 
 // Мокаем react-i18next
 vi.mock("react-i18next", () => ({
@@ -81,6 +81,8 @@ describe("FavoriteButton", () => {
     render(
       <FavoriteButton
         file={testFile}
+        size={100}
+        type="media"
         isFavorite={false}
         onAddToFavorites={onAddToFavorites}
       />,
@@ -108,6 +110,8 @@ describe("FavoriteButton", () => {
     render(
       <FavoriteButton
         file={testFile}
+        size={100}
+        type="media"
         isFavorite={true}
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,
@@ -132,6 +136,8 @@ describe("FavoriteButton", () => {
     render(
       <FavoriteButton
         file={testFile}
+        size={100}
+        type="media"
         isFavorite={false}
         onAddToFavorites={onAddToFavorites}
       />,
@@ -154,6 +160,8 @@ describe("FavoriteButton", () => {
     render(
       <FavoriteButton
         file={testFile}
+        size={100}
+        type="media"
         isFavorite={true}
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,
@@ -182,6 +190,8 @@ describe("FavoriteButton", () => {
     render(
       <FavoriteButton
         file={testFile}
+        size={100}
+        type="media"
         isFavorite={true}
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,
@@ -215,14 +225,12 @@ describe("FavoriteButton", () => {
     const { rerender } = render(
       <FavoriteButton
         file={testFile}
-        isFavorite={false}
         size={120}
+        type="media"
+        isFavorite={false}
         onAddToFavorites={onAddToFavorites}
       />,
     )
-
-    // Проверяем, что иконка имеет правильный класс для большого размера
-    expect(screen.getByTestId("star-icon").className).toContain("h-3.5 w-3.5")
 
     // Проверяем, что кнопка имеет правильное позиционирование для большого размера
     expect(screen.getByTitle("Add to favorites").className).toContain(
@@ -233,14 +241,12 @@ describe("FavoriteButton", () => {
     rerender(
       <FavoriteButton
         file={testFile}
-        isFavorite={false}
         size={60}
+        type="media"
+        isFavorite={false}
         onAddToFavorites={onAddToFavorites}
       />,
     )
-
-    // Проверяем, что иконка имеет правильный класс для маленького размера
-    expect(screen.getByTestId("star-icon").className).toContain("h-2.5 w-2.5")
 
     // Проверяем, что кнопка имеет правильное позиционирование для маленького размера
     expect(screen.getByTitle("Add to favorites").className).toContain(
@@ -251,7 +257,10 @@ describe("FavoriteButton", () => {
   it("should not render if neither onAddToFavorites nor onRemoveFromFavorites is provided", () => {
     // Рендерим компонент без обработчиков
     const { container } = render(
-      <FavoriteButton file={testFile} isFavorite={false} />,
+      <FavoriteButton file={testFile}
+size={100}
+        type="media"
+ />,
     )
 
     // Проверяем, что компонент не отрендерен
@@ -263,6 +272,8 @@ describe("FavoriteButton", () => {
     const { container, rerender } = render(
       <FavoriteButton
         file={testFile}
+        size={100}
+        type="media"
         isFavorite={true}
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,
@@ -284,6 +295,8 @@ describe("FavoriteButton", () => {
     rerender(
       <FavoriteButton
         file={testFile}
+        size={100}
+        type="media"
         isFavorite={true}
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,

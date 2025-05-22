@@ -23,7 +23,7 @@ import {
   TransitionsList,
 } from "./tabs"
 
-export const TAB_TRIGGER_STYLES =
+const TAB_TRIGGER_STYLES =
   "text-xs text-[#969696] dark:bg-[#2D2D2D] border-none " +
   "dark:data-[state=active]:bg-[#252526] dark:data-[state=active]:text-[#35d1c1] " +
   "hover:text-[#969696] dark:text-gray-400 dark:hover:bg-[#252526] dark:hover:text-gray-100 " +
@@ -45,7 +45,7 @@ export function Browser() {
         value={activeTab}
         onValueChange={handleTabChange}
         defaultValue="media"
-        className="flex h-full w-full flex-col overflow-hidden"
+        className="flex h-full w-full flex-col overflow-hidden gap-0"
       >
         <TabsList className="h-[50px] flex-shrink-0 justify-start border-none rounded-none dark:bg-[#252526] p-0 px-1">
           <TabsTrigger value="media" className={TAB_TRIGGER_STYLES}>
@@ -79,7 +79,7 @@ export function Browser() {
         </TabsList>
         <TabsContent
           value="media"
-          className="bg-secondary m-0 flex-1 overflow-auto"
+          className="bg-background m-0 flex-1 overflow-auto"
         >
           <MediaListProvider>
             <MediaList />
@@ -87,37 +87,37 @@ export function Browser() {
         </TabsContent>
         <TabsContent
           value="music"
-          className="bg-secondary m-0 flex-1 overflow-auto"
+          className="bg-background m-0 flex-1 overflow-auto"
         >
           <MusicList />
         </TabsContent>
         <TabsContent
           value="transitions"
-          className="bg-secondary m-0 flex-1 overflow-auto"
+          className="bg-background m-0 flex-1 overflow-auto"
         >
           <TransitionsList />
         </TabsContent>
         <TabsContent
           value="effects"
-          className="bg-secondary m-0 flex-1 overflow-auto"
+          className="bg-background m-0 flex-1 overflow-auto"
         >
           <EffectList />
         </TabsContent>
         <TabsContent
           value="subtitles"
-          className="bg-secondary m-0 flex-1 overflow-auto"
+          className="bg-background m-0 flex-1 overflow-auto"
         >
           <SubtitlesList />
         </TabsContent>
         <TabsContent
           value="filters"
-          className="bg-secondary m-0 flex-1 overflow-auto"
+          className="bg-background m-0 flex-1 overflow-auto"
         >
           <FilterList />
         </TabsContent>
         <TabsContent
           value="templates"
-          className="bg-secondary m-0 flex-1 overflow-auto"
+          className="bg-background m-0 flex-1 overflow-auto"
         >
           <TemplateList />
         </TabsContent>

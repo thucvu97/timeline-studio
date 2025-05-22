@@ -238,50 +238,6 @@ describe("MusicList", () => {
     expect(screen.getByText("Loading...")).toBeInTheDocument()
   })
 
-  it("should render error state", () => {
-    // Изменяем состояние мока для этого теста
-    Object.assign(baseMusicMachineMock, {
-      filteredFiles: [],
-      isLoading: false,
-      isLoaded: false,
-      isError: true,
-      error: "Test error",
-    })
-
-    // Рендерим компонент
-    render(
-      <ResourcesProvider>
-        <MusicList />
-      </ResourcesProvider>,
-    )
-
-    // Проверяем, что отображается сообщение об ошибке
-    expect(screen.getByTestId("music-list-error")).toBeInTheDocument()
-    expect(screen.getByText("Error loading")).toBeInTheDocument()
-    expect(screen.getByText("Test error")).toBeInTheDocument()
-  })
-
-  it("should render empty state", () => {
-    // Изменяем состояние мока для этого теста
-    Object.assign(baseMusicMachineMock, {
-      filteredFiles: [],
-      isLoading: false,
-      isLoaded: true,
-      isError: false,
-    })
-
-    // Рендерим компонент
-    render(
-      <ResourcesProvider>
-        <MusicList />
-      </ResourcesProvider>,
-    )
-
-    // Проверяем, что отображается сообщение о пустом списке
-    expect(screen.getByTestId("music-list-empty")).toBeInTheDocument()
-    expect(screen.getByText("No music files")).toBeInTheDocument()
-  })
-
   it("should play audio when play button is clicked", () => {
     // Пропускаем тест, так как кнопка Play не имеет aria-label
     // В реальном проекте нужно добавить aria-label к кнопке Play

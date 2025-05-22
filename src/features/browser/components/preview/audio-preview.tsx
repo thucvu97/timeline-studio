@@ -133,8 +133,9 @@ export const AudioPreview = memo(function AudioPreview({
   }, [mediaRecorder])
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
     <div
-      className={`group relative h-full flex-shrink-0 bg-gray-200 dark:bg-gray-700`}
+      className={"group relative h-full flex-shrink-0"}
       style={{
         height: `${size}px`,
         width: `${(size * dimensions[0]) / dimensions[1]}px`,
@@ -143,6 +144,7 @@ export const AudioPreview = memo(function AudioPreview({
       onClick={handlePlayPause}
       onMouseLeave={handleMouseLeave}
     >
+      {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
       <audio
         ref={audioRef}
         src={file.path}

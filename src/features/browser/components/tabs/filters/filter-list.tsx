@@ -83,9 +83,9 @@ export function FilterList() {
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <div className="flex h-full flex-1 flex-col bg-background">
       {/* Панель инструментов с поиском и кнопками */}
-      <div className="flex items-center justify-between p-1">
+      <div className="flex items-center justify-between p-1 bg-[#2D2D2D]">
         {/* Поле поиска фильтров */}
         <Input
           type="search"
@@ -166,7 +166,7 @@ export function FilterList() {
       </div>
 
       {/* Контейнер для списка фильтров с прокруткой */}
-      <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3 dark:bg-[#1b1a1f]">
+      <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3">
         {!isSizeLoaded ? (
           // Отображаем пустой контейнер, пока размер не загружен
           <div className="flex h-full items-center justify-center text-gray-500" />

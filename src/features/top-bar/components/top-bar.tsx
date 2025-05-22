@@ -58,7 +58,7 @@ export function TopBar() {
   }
 
   return (
-    <div className="relative flex w-full items-center justify-between bg-gray-200 px-1 py-0 dark:bg-[#383838] gap-2">
+    <div className="relative flex w-full items-center justify-between bg-gray-200 px-1 py-0 dark:bg-[#3C3C3C] gap-2">
       {/* Группа 1: Переключатель браузера и макет */}
       <div className="flex items-center justify-center">
         <Button
@@ -148,8 +148,8 @@ export function TopBar() {
           className={cn(
             "group relative ml-1 w-[130px] text-xs",
             isEditing
-              ? "ring-1 ring-[#35d1c1]"
-              : "transition-colors group-hover:ring-1 group-hover:ring-[#35d1c1]",
+              ? "ring-1 ring-teal"
+              : "transition-colors group-hover:ring-1 group-hover:ring-teal",
           )}
           onClick={() => setIsEditing(true)}
         >
@@ -161,12 +161,12 @@ export function TopBar() {
               onChange={handleNameChange}
               onKeyDown={handleKeyDown}
               onBlur={() => setIsEditing(false)}
-              className="w-full bg-transparent pl-[1px] text-xs focus:outline-none"
+              className="w-full h-5 bg-transparent pl-[1px] text-xs focus:outline-none"
               // biome-ignore lint/a11y/noAutofocus: <explanation>
               autoFocus
             />
           ) : (
-            <span className="block truncate pl-[1px] hover:border hover:border-[#35d1c1] hover:pl-[0px]">
+            <span className="block truncate pl-[1px] hover:border hover:border-teal hover:pl-[0px]">
               {name}
             </span>
           )}
@@ -255,7 +255,7 @@ export function TopBar() {
         <Button
           variant="outline"
           size="sm"
-          className="h-6 w-24 cursor-pointer items-center gap-1 border-none rounded-sm bg-[#38dacac3] px-1 text-sm text-black hover:bg-[#35d1c1] hover:text-black dark:bg-[#35d1c1] dark:hover:bg-[#35d1c1]"
+          className="h-6 w-24 cursor-pointer items-center gap-1 border-none rounded-sm bg-teal px-1 text-sm text-black hover:bg-teal hover:text-black dark:bg-teal dark:hover:bg-teal"
           onClick={() => handleOpenModal("export")}
           data-testid="export-button"
         >

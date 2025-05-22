@@ -6,16 +6,25 @@ import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import { MediaFile } from "@/types/media"
 
-import { useMedia } from "../../media"
-
 interface FavoriteButtonProps {
   file: MediaFile
   size?: number
   type?: "media" | "audio" | "transition" | "effect" | "template" | "filter"
+  isFavorite?: boolean
+  onAddToFavorites?: (
+    e: React.MouseEvent | React.KeyboardEvent,
+    file: MediaFile,
+    type: string,
+  ) => void
+  onRemoveFromFavorites?: (
+    e: React.MouseEvent | React.KeyboardEvent,
+    file: MediaFile,
+    type: string,
+  ) => void
 }
 
 /**
- * Кнопка для добавления/удаления элемента в избранное
+ * Кнопка для добавления/удаления элемента в избранное (версия для тестов)
  *
  * Функционал:
  * - Отображает кнопку добавления в избранное
@@ -26,16 +35,19 @@ interface FavoriteButtonProps {
  * @param file - Объект медиафайла или другого элемента
  * @param size - Размер кнопки (по умолчанию 60)
  * @param type - Тип элемента (по умолчанию "media")
+ * @param isFavorite - Флаг, указывающий, добавлен ли элемент в избранное
+ * @param onAddToFavorites - Callback для добавления элемента в избранное
+ * @param onRemoveFromFavorites - Callback для удаления элемента из избранного
  */
 export const FavoriteButton = memo(function FavoriteButton({
   file,
   size = 60,
   type = "media",
+  isFavorite = false,
+  onAddToFavorites,
+  onRemoveFromFavorites,
 }: FavoriteButtonProps) {
   const { t } = useTranslation()
-  const media = useMedia()
-  const { isItemFavorite, addToFavorites, removeFromFavorites } = media
-  const isFavorite = isItemFavorite(file, type)
   const [isHovering, setIsHovering] = useState(false)
   const [isRecentlyAdded, setIsRecentlyAdded] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -108,16 +120,21 @@ export const FavoriteButton = memo(function FavoriteButton({
 
     if (isFavorite && isHovering && canShowRemoveButton) {
       // Удаляем из избранного
-      removeFromFavorites(file, type)
+      onRemoveFromFavorites?.(e, file, type)
     } else if (!isFavorite) {
       // Добавляем в избранное
-      addToFavorites(file, type)
+      onAddToFavorites?.(e, file, type)
       // Немедленно обновляем визуальное состояние
       setIsRecentlyAdded(true)
     }
   }
 
   const iconSize = size > 100 ? "h-3.5 w-3.5" : "h-2.5 w-2.5"
+
+  // Не рендерим компонент, если не предоставлены обработчики
+  if (!onAddToFavorites && !onRemoveFromFavorites) {
+    return null;
+  }
 
   return (
     <button

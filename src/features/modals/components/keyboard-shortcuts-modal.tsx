@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 
-import { Search } from "lucide-react"
+import { Search, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -44,7 +44,8 @@ export function KeyboardShortcutsModal() {
   const [activeSection, setActiveSection] = useState<number>(0)
 
   // Собственная реализация scrollspy
-  useEffect(() => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
     const scrollContainer = scrollContainerRef.current
     if (!scrollContainer) return
 
@@ -266,6 +267,7 @@ export function KeyboardShortcutsModal() {
       <div className="flex-shrink-0 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex w-1/2 items-center space-x-2">
+            {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
             <label className="text-sm whitespace-nowrap">
               {t(
                 "dialogs.keyboardShortcuts.switchPreset",
@@ -318,20 +320,7 @@ export function KeyboardShortcutsModal() {
                   "Очистить поиск",
                 )}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+                <X />
               </button>
             )}
           </div>
@@ -373,7 +362,7 @@ export function KeyboardShortcutsModal() {
 
         {/* Правая панель с горячими клавишами */}
         <div
-          className="w-3/4 overflow-y-auto bg-white pl-4 dark:bg-[#1b1a1f]"
+          className="w-3/4 overflow-y-auto bg-white pl-4"
           ref={scrollContainerRef}
         >
           {filteredCategories.map((category, index) => {
@@ -405,7 +394,6 @@ export function KeyboardShortcutsModal() {
                           e.stopPropagation()
                           handleKeyDown(e)
                         }}
-                        tabIndex={0}
                       >
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           {shortcut.name}

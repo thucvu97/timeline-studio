@@ -101,10 +101,10 @@ export function MusicToolbar({
   }
 
   return (
-    <div className="flex items-center justify-between p-1">
+    <div className="flex items-center justify-between p-1 bg-[#2D2D2D]">
       <div className="flex w-[calc(100%-100px)] items-center gap-2">
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           className="flex cursor-pointer items-center gap-1 bg-[#dddbdd] px-1 text-xs hover:bg-[#d1d1d1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25"
           onClick={onImport}
@@ -113,8 +113,9 @@ export function MusicToolbar({
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <div
-                  className="cursor-pointer rounded-sm p-1 hover:bg-[#dddbdd] dark:hover:bg-[#dddbdd]/25"
+                  className="cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25"
                   onClick={(e) => {
                     e.stopPropagation()
                     onImportFile()
@@ -127,8 +128,9 @@ export function MusicToolbar({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <div
-                  className="cursor-pointer rounded-sm p-1 hover:bg-[#dddbdd] dark:hover:bg-[#dddbdd]/25"
+                  className="cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25"
                   onClick={(e) => {
                     e.stopPropagation()
                     onImportFolder()

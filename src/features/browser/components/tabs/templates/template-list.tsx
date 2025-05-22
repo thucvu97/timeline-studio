@@ -189,7 +189,7 @@ export function TemplateList() {
     .sort((a, b) => a - b) // Сортируем по возрастанию
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
+    <div className="flex h-full flex-1 flex-col bg-background">
       {/* Панель инструментов с поиском и кнопками управления */}
       <TemplateListToolbar
         searchQuery={searchQuery}
@@ -203,7 +203,7 @@ export function TemplateList() {
       />
 
       {/* Контейнер для списка шаблонов с прокруткой */}
-      <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-3 dark:bg-[#1b1a1f]">
+      <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-3">
         {/* Состояние загрузки - пустой контейнер */}
         {!isSizeLoaded ? (
           <div className="flex h-full items-center justify-center text-gray-500" />

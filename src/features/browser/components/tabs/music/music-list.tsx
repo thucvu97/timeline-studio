@@ -14,6 +14,7 @@ import { MusicResource } from "@/types/resources"
 import { useMusic } from "./music-provider"
 import { MusicToolbar } from "./music-toolbar"
 import { sortFiles } from "./music-utils"
+import { NoFiles } from "../../layout"
 import { AddMediaButton } from "../../layout/add-media-button"
 import { FavoriteButton } from "../../layout/favorite-button"
 
@@ -224,8 +225,7 @@ export function MusicList() {
       />
 
       {/* Основной контейнер для списка музыкальных файлов */}
-      <div
-        className="flex-1 overflow-y-auto p-1 dark:bg-[#1b1a1f]"
+      <div className="min-h-0 flex-1 overflow-y-auto p-0 bg-background"
         data-testid="music-list-content"
       >
         {/* Отображение различных состояний, когда нет файлов */}
@@ -243,23 +243,12 @@ export function MusicList() {
 
             {/* Состояние ошибки - отображается сообщение об ошибке */}
             {isError && (
-              <div
-                data-testid="music-list-error"
-                className="flex h-full flex-col items-center justify-center"
-              >
-                <p>{t("browser.error_loading")}</p>
-                <p>{error}</p>
-              </div>
+              <NoFiles />
             )}
 
             {/* Пустое состояние - отображается сообщение об отсутствии файлов */}
             {!isLoading && !isError && (
-              <div
-                data-testid="music-list-empty"
-                className="flex h-full items-center justify-center"
-              >
-                <p>{t("browser.no_music_files")}</p>
-              </div>
+              <NoFiles />
             )}
           </>
         )}
@@ -301,6 +290,7 @@ export function MusicList() {
                       <div className="relative">
                         <div className="flex h-12 w-12 flex-shrink-0 cursor-pointer items-center justify-center rounded">
                           {/* Кнопка воспроизведения/паузы */}
+                          {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
                           <button
                             onClick={(e) => handlePlayPause(e, file)}
                             className={`absolute inset-0 flex cursor-pointer items-center justify-center rounded bg-black/30 opacity-50 transition-opacity duration-200 group-hover:opacity-100 ${
@@ -320,6 +310,7 @@ export function MusicList() {
                       </div>
 
                       {/* Информация о музыкальном файле */}
+                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                       <div
                         className="flex h-12 min-w-0 flex-1 flex-col justify-between p-1"
                         onClick={(e) => handlePlayPause(e, file)}
@@ -414,6 +405,7 @@ export function MusicList() {
                     <div className="flex h-15 w-[260px] items-center overflow-hidden rounded-lg border border-transparent bg-gray-100 hover:bg-gray-100 dark:bg-[#25242b] dark:group-hover:bg-[#25242b] dark:hover:border-[#35d1c1] dark:hover:bg-[#2f2d38]">
                       {/* Левая часть с кнопкой воспроизведения */}
                       <div className="flex h-full w-12 items-center justify-center">
+                        {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
                         <button
                           onClick={(e) => handlePlayPause(e, file)}
                           className={`flex h-full w-full cursor-pointer items-center justify-center ${
@@ -438,6 +430,7 @@ export function MusicList() {
                       </div>
 
                       {/* Правая часть с информацией о файле */}
+                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                       <div
                         className="flex flex-1 flex-col justify-between gap-5 px-0 py-0 pr-10"
                         onClick={(e) => handlePlayPause(e, file)}

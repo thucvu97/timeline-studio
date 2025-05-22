@@ -55,7 +55,7 @@ export function StatusBar({
             <Button
               variant="ghost"
               size="sm"
-              className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-[#38dacac3] dark:hover:bg-[#35d1c1] dark:hover:text-black"
+              className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-teal dark:hover:bg-teal"
               title={t("browser.media.addAllVideo")}
               onClick={onAddAllVideoFiles}
             >
@@ -67,7 +67,7 @@ export function StatusBar({
             <Button
               variant="ghost"
               size="sm"
-              className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-[#38dacac3] dark:hover:bg-[#35d1c1] dark:hover:text-black"
+              className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-teal dark:hover:bg-teal"
               title={t("browser.media.addAllAudio")}
               onClick={onAddAllAudioFiles}
             >
@@ -81,21 +81,20 @@ export function StatusBar({
         topDateWithRemainingFiles.remainingFiles.length > 0 && (
           <div className="flex flex-row items-end justify-center gap-0 text-xs">
             {/* <Button
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-1 text-xs rounded-sm cursor-pointer px-2 h-6 hover:bg-[#38dacac3] dark:hover:bg-[#35d1c1] bg-secondary"
-          title={`Пропустить дату`}
-          onClick={() => {}}
-        >
-          <SquareArrowDown size={10} className="" />
-        </Button> */}
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-1 text-xs rounded-sm cursor-pointer px-2 h-6 hover:bg-teal dark:hover:bg-teal"
+              title={`Пропустить дату`}
+              onClick={() => {}}
+            >
+              <SquareArrowDown size={10} className="" />
+            </Button> */}
             <Button
               variant="ghost"
               size="sm"
-              className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-[#38dacac3] dark:hover:bg-[#35d1c1] dark:hover:text-black"
+              className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-teal dark:hover:bg-teal"
               title={
-                t("browser.media.addDate") +
-                `: ${topDateWithRemainingFiles.date}`
+                `${t("browser.media.addDate")}: ${topDateWithRemainingFiles.date}`
               }
               onClick={() => {
                 onAddDateFiles(topDateWithRemainingFiles.files)
@@ -115,7 +114,7 @@ export function StatusBar({
           <Button
             variant="ghost"
             size="sm"
-            className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-[#38dacac3] dark:hover:bg-[#35d1c1] dark:hover:text-black"
+            className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-teal dark:hover:bg-teal"
             title={t("browser.media.addAll")}
             onClick={onAddAllFiles}
           >
