@@ -118,10 +118,10 @@ export const mediaListMachine = createMachine({
           filteredFiles: () => [], // Инициализируем пустой массив отфильтрованных файлов
           isLoading: false, // Сбрасываем флаг загрузки
           availableExtensions: () => [], // Инициализируем пустой массив доступных расширений
-        })
+        }),
       ],
       // Сразу переходим в состояние успеха
-      always: { target: "success" }
+      always: { target: "success" },
     },
 
     /**

@@ -68,9 +68,9 @@ export const mediaMachine = createMachine({
         assign({
           allMediaFiles: () => [],
           isLoading: false,
-        })
+        }),
       ],
-      always: { target: "loaded" }
+      always: { target: "loaded" },
     },
     loaded: {
       on: {

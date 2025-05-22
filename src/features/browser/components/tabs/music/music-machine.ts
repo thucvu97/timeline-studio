@@ -159,10 +159,10 @@ export const musicMachine = createMachine({
           filteredFiles: () => [], // Инициализируем пустой массив отфильтрованных файлов
           availableExtensions: () => [], // Инициализируем пустой массив доступных расширений
           error: () => undefined, // Сбрасываем ошибку
-        })
+        }),
       ],
       // Сразу переходим в состояние успеха
-      always: { target: "success" }
+      always: { target: "success" },
     },
     /**
      * Состояние успешной загрузки музыкальных файлов

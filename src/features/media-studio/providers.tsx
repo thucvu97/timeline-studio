@@ -13,6 +13,7 @@ import { TemplateListProvider } from "../browser/components/tabs/templates/templ
 import { MediaProvider } from "../browser/media"
 import { ProjectSettingsProvider } from "../modals/features/project-settings/project-settings-provider"
 import { UserSettingsProvider } from "../modals/features/user-settings/user-settings-provider"
+import { PlayerProvider } from "../video-player/components/player-provider"
 
 interface ProvidersProps {
   children: ReactNode
@@ -37,6 +38,7 @@ const AppProvider = composeProviders(
   MediaProvider,
   PreviewSizeProvider,
   TemplateListProvider,
+  PlayerProvider,
 )
 
 export function Providers({ children }: ProvidersProps) {

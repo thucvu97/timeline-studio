@@ -60,7 +60,11 @@ export const getSavedTemplateSize = (): number => {
     if (savedValue) {
       const parsedValue = Number.parseInt(savedValue, 10)
       // Проверяем, что значение входит в допустимый диапазон
-      if (!isNaN(parsedValue) && parsedValue >= MIN_TEMPLATE_PREVIEW_SIZE && parsedValue <= MAX_TEMPLATE_PREVIEW_SIZE) {
+      if (
+        !Number.isNaN(parsedValue) &&
+        parsedValue >= MIN_TEMPLATE_PREVIEW_SIZE &&
+        parsedValue <= MAX_TEMPLATE_PREVIEW_SIZE
+      ) {
         return parsedValue
       }
     }
