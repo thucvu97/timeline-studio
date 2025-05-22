@@ -8,7 +8,7 @@ vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
-        "browser.toolbar.searchByName": "Search by name",
+        "common.search": "Search",
         "browser.media.favorites": "Favorites",
         "browser.toolbar.zoomOut": "Zoom Out",
         "browser.toolbar.zoomIn": "Zoom In",
@@ -62,7 +62,7 @@ describe("TemplateListToolbar", () => {
     render(<TemplateListToolbar {...mockProps} />)
 
     // Проверяем, что поле поиска отрендерилось
-    const searchInput = screen.getByPlaceholderText("Search by name")
+    const searchInput = screen.getByPlaceholderText("Search")
     expect(searchInput).toBeInTheDocument()
     expect(searchInput).toHaveValue("test")
 
@@ -76,7 +76,7 @@ describe("TemplateListToolbar", () => {
     render(<TemplateListToolbar {...mockProps} />)
 
     // Находим поле поиска и вводим текст
-    const searchInput = screen.getByPlaceholderText("Search by name")
+    const searchInput = screen.getByPlaceholderText("Search")
     fireEvent.change(searchInput, { target: { value: "new search" } })
 
     // Проверяем, что setSearchQuery был вызван с новым значением

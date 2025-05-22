@@ -45,9 +45,9 @@ export function Browser() {
         value={activeTab}
         onValueChange={handleTabChange}
         defaultValue="media"
-        className="flex h-full w-full flex-col overflow-hidden gap-0"
+        className="flex h-full w-full flex-col overflow-hidden gap-0 dark:bg-[#2D2D2D]"
       >
-        <TabsList className="h-[50px] flex-shrink-0 justify-start border-none rounded-none dark:bg-[#252526] p-0 px-1">
+        <TabsList className="h-[50px] flex-shrink-0 justify-start border-none rounded-none dark:bg-[#252526]  m-0 p-0">
           <TabsTrigger value="media" className={TAB_TRIGGER_STYLES}>
             <Image className="h-4 w-4" />
             <span>{t("browser.tabs.media")}</span>

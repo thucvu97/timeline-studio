@@ -101,7 +101,7 @@ export function MusicToolbar({
   }
 
   return (
-    <div className="flex items-center justify-between p-1 dark:bg-[#2D2D2D]">
+    <div className="flex items-center justify-between p-1 dark:bg-[#252526]">
       <div className="flex w-[calc(100%-100px)] items-center gap-2">
         <Button
           variant="ghost"
@@ -148,9 +148,6 @@ export function MusicToolbar({
           type="search"
           placeholder={t("common.search")}
           className="mr-5 h-7 w-full max-w-[400px] rounded-sm border border-gray-300 text-xs outline-none focus:border-gray-400 focus:ring-0 focus-visible:ring-0 dark:border-gray-600 dark:focus:border-gray-500"
-          style={{
-            backgroundColor: "transparent",
-          }}
           value={searchQuery}
           onChange={handleSearchChange}
         />

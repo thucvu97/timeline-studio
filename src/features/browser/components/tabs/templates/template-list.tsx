@@ -189,7 +189,7 @@ export function TemplateList() {
     .sort((a, b) => a - b) // Сортируем по возрастанию
 
   return (
-    <div className="flex h-full flex-1 flex-col bg-background">
+    <div className="flex h-full flex-1 flex-col">
       {/* Панель инструментов с поиском и кнопками управления */}
       <TemplateListToolbar
         searchQuery={searchQuery}

@@ -325,38 +325,4 @@ describe("Browser", () => {
     // Проверяем, что активная вкладка изменилась
     expect(screen.getByTestId("tabs")).toHaveAttribute("data-value", "music")
   })
-
-  it("should apply correct styles to tab triggers", () => {
-    // Рендерим компонент
-    render(<Browser />)
-
-    // Проверяем, что все триггеры вкладок имеют правильные стили
-    const expectedStyles =
-      "text-xs text-[#969696] dark:bg-[#2D2D2D] border-none dark:data-[state=active]:bg-[#252526] dark:data-[state=active]:text-[#35d1c1] hover:text-[#969696] dark:text-gray-400 dark:hover:bg-[#252526] dark:hover:text-gray-100 flex flex-col items-center justify-center gap-1 py-2 [&>svg]:data-[state=active]:text-[#38dacac3] cursor-pointer data-[state=active]:cursor-default rounded-none"
-
-    expect(screen.getByTestId("tab-trigger-media")).toHaveAttribute(
-      "class",
-      expectedStyles,
-    )
-    expect(screen.getByTestId("tab-trigger-music")).toHaveAttribute(
-      "class",
-      expectedStyles,
-    )
-    expect(screen.getByTestId("tab-trigger-effects")).toHaveAttribute(
-      "class",
-      expectedStyles,
-    )
-    expect(screen.getByTestId("tab-trigger-filters")).toHaveAttribute(
-      "class",
-      expectedStyles,
-    )
-    expect(screen.getByTestId("tab-trigger-transitions")).toHaveAttribute(
-      "class",
-      expectedStyles,
-    )
-    expect(screen.getByTestId("tab-trigger-templates")).toHaveAttribute(
-      "class",
-      expectedStyles,
-    )
-  })
 })

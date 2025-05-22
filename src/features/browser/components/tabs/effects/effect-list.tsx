@@ -95,15 +95,12 @@ export function EffectList() {
   return (
     <div className="flex h-full flex-1 flex-col bg-background">
       {/* Панель инструментов с поиском и кнопками управления */}
-      <div className="flex items-center justify-between p-1 dark:bg-[#2D2D2D]">
+    <div className="flex items-center justify-between p-1 dark:bg-[#252526]">
         {/* Поле поиска эффектов */}
         <Input
           type="search"
           placeholder={t("common.search")}
           className="mr-5 h-7 w-full max-w-[400px] rounded-sm border border-gray-300 text-xs outline-none focus:border-gray-400 focus:ring-0 focus-visible:ring-0 dark:border-gray-600 dark:focus:border-gray-500"
-          style={{
-            backgroundColor: "transparent",
-          }}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           data-testid="search-input" // Идентификатор для тестирования
