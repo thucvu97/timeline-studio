@@ -71,10 +71,7 @@ describe("I18nProvider", () => {
     )
 
     // Проверяем, что подписка на событие initialized была создана
-    expect(i18nMock.on).toHaveBeenCalledWith(
-      "initialized",
-      expect.any(Function),
-    )
+    expect(i18nMock.on).toHaveBeenCalledWith("initialized", expect.any(Function))
 
     // Проверяем, что дочерний компонент не отрендерен
     expect(screen.queryByTestId("test-child")).toBeNull()
@@ -95,10 +92,7 @@ describe("I18nProvider", () => {
     )
 
     // Проверяем, что подписка на событие initialized была создана
-    expect(i18nMock.on).toHaveBeenCalledWith(
-      "initialized",
-      expect.any(Function),
-    )
+    expect(i18nMock.on).toHaveBeenCalledWith("initialized", expect.any(Function))
 
     // Получаем обработчик события
     const initHandler = vi.mocked(i18nMock.on).mock.calls[0][1] as () => void

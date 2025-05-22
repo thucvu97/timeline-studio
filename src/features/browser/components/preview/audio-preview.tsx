@@ -102,8 +102,7 @@ export const AudioPreview = memo(function AudioPreview({
 
         const audioContext = audioContextRef.current
 
-        sourceRef.current ??=
-          audioContext.createMediaElementSource(audioElement)
+        sourceRef.current ??= audioContext.createMediaElementSource(audioElement)
 
         const destination = audioContext.createMediaStreamDestination()
         sourceRef.current.connect(destination)
@@ -171,9 +170,7 @@ export const AudioPreview = memo(function AudioPreview({
       {/* Имя файла */}
       {showFileName && (
         <div
-          className={`absolute font-medium ${size > 100 ? "top-1" : "top-0.5"} ${
-            size > 100 ? "left-1" : "left-0.5"
-          } ${
+          className={`absolute font-medium ${size > 100 ? "top-1" : "top-0.5"} ${size > 100 ? "left-1" : "left-0.5"} ${
             size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"
           } line-clamp-1 max-w-[calc(60%)] rounded-xs bg-black/50 text-xs leading-[16px] text-white`}
           style={{
@@ -188,14 +185,7 @@ export const AudioPreview = memo(function AudioPreview({
       <FavoriteButton file={file} size={size} type="audio" />
 
       {/* кнопка добавления */}
-      {onAddMedia && isLoaded && (
-        <AddMediaButton
-          file={file}
-          onAddMedia={onAddMedia}
-          isAdded={isAdded}
-          size={size}
-        />
-      )}
+      {onAddMedia && isLoaded && <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />}
 
       {/* Аудио визуализация */}
       <div

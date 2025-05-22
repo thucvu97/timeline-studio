@@ -16,10 +16,7 @@ vi.mock("../../layout/add-media-button", () => ({
   AddMediaButton: ({ file, onAddMedia, onRemoveMedia, isAdded, size }: any) => (
     <div>
       {isAdded ? (
-        <button
-          data-testid="remove-media-button"
-          onClick={(e) => onRemoveMedia(e)}
-        >
+        <button data-testid="remove-media-button" onClick={(e) => onRemoveMedia(e)}>
           Remove {file.name}
         </button>
       ) : (
@@ -51,9 +48,7 @@ vi.mock("@/features/browser/resources", () => ({
     addFilter: mockAddFilter,
     removeResource: mockRemoveResource,
     isFilterAdded: mockIsFilterAdded,
-    filterResources: [
-      { id: "filter-resource-1", resourceId: "s-log", type: "filter" },
-    ],
+    filterResources: [{ id: "filter-resource-1", resourceId: "s-log", type: "filter" }],
   }),
 }))
 
@@ -210,13 +205,7 @@ describe("FilterPreview", () => {
       },
     }
 
-    render(
-      <FilterPreview
-        filter={portraitFilter}
-        onClick={mockProps.onClick}
-        size={mockProps.size}
-      />,
-    )
+    render(<FilterPreview filter={portraitFilter} onClick={mockProps.onClick} size={mockProps.size} />)
 
     const videoElement = screen.getByTestId("filter-video")
     const container = videoElement.parentElement

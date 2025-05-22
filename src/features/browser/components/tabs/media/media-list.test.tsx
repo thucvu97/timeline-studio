@@ -87,21 +87,12 @@ vi.mock("./media-toolbar", () => ({
 
 // Мокаем MediaContent
 vi.mock("./media-content", () => ({
-  MediaContent: ({
-    groupedFiles,
-    viewMode,
-    previewSize,
-    isLoading,
-    error,
-    addFilesToTimeline,
-    onRetry,
-  }) => (
+  MediaContent: ({ groupedFiles, viewMode, previewSize, isLoading, error, addFilesToTimeline, onRetry }) => (
     <div
       data-testid="media-content"
       data-groups-count={groupedFiles.length}
       data-files-count={groupedFiles.reduce(
-        (acc: number, group: { files: MediaFile[] }) =>
-          acc + group.files.length,
+        (acc: number, group: { files: MediaFile[] }) => acc + group.files.length,
         0,
       )}
       data-view-mode={viewMode}

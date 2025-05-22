@@ -23,12 +23,7 @@ vi.mock("../layout/add-media-button", () => ({
 
 vi.mock("../layout/favorite-button", () => ({
   FavoriteButton: ({ file, size, type }: any) => (
-    <button
-      data-testid="favorite-button"
-      data-file={file.name}
-      data-size={size}
-      data-type={type}
-    >
+    <button data-testid="favorite-button" data-file={file.name} data-size={size} data-type={type}>
       Favorite
     </button>
   ),

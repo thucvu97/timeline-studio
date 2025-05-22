@@ -9,14 +9,12 @@ import { MediaFile } from "@/types/media"
  * Массив доступных размеров превью
  * Используется для переключения между размерами при увеличении/уменьшении
  */
-export const PREVIEW_SIZES = [
-  60, 80, 100, 125, 150, 200, 250, 300, 400,
-]
+export const PREVIEW_SIZES = [60, 80, 100, 125, 150, 200, 250, 300, 400]
 
 /**
  * Тип для размеров превью
  */
-export type PreviewSizeType = typeof PREVIEW_SIZES[number]
+export type PreviewSizeType = (typeof PREVIEW_SIZES)[number]
 
 /**
  * Минимальный и максимальный размеры превью (первый и последний элементы массива)
@@ -80,9 +78,7 @@ const fetchMediaFiles = fromPromise(async () => {
     console.log("[mediaListMachine] Загружаем файлы с сервера")
     const response = await fetch("/api/media")
     if (!response.ok) {
-      console.warn(
-        `[mediaListMachine] Ошибка загрузки медиафайлов: ${response.status} ${response.statusText}`,
-      )
+      console.warn(`[mediaListMachine] Ошибка загрузки медиафайлов: ${response.status} ${response.statusText}`)
       return [] // Возвращаем пустой массив вместо выбрасывания исключения
     }
 
@@ -95,17 +91,12 @@ const fetchMediaFiles = fromPromise(async () => {
 
     const files = data.media
     if (!Array.isArray(files)) {
-      console.warn(
-        "[mediaListMachine] Некорректный формат данных от сервера (media не является массивом)",
-      )
+      console.warn("[mediaListMachine] Некорректный формат данных от сервера (media не является массивом)")
       return [] // Возвращаем пустой массив вместо выбрасывания исключения
     }
 
     const validFiles = files.filter(
-      (file) =>
-        file &&
-        typeof file === "object" &&
-        (file.isVideo ?? file.isAudio ?? file.isImage),
+      (file) => file && typeof file === "object" && (file.isVideo ?? file.isAudio ?? file.isImage),
     )
 
     if (validFiles.length === 0) {
@@ -232,8 +223,7 @@ export const mediaListMachine = createMachine({
         CHANGE_ORDER: {
           actions: assign({
             // Инвертируем порядок сортировки
-            sortOrder: ({ context }) =>
-              context.sortOrder === "asc" ? "desc" : "asc",
+            sortOrder: ({ context }) => (context.sortOrder === "asc" ? "desc" : "asc"),
           }),
         },
 
@@ -323,24 +313,20 @@ export const mediaListMachine = createMachine({
             // Находим следующий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему
-              const currentIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
+              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
 
               // Если текущий размер больше максимального в массиве или это последний элемент
               if (currentIndex === -1 || currentIndex === PREVIEW_SIZES.length - 1) {
-                return MAX_PREVIEW_SIZE;
+                return MAX_PREVIEW_SIZE
               }
 
               // Возвращаем следующий размер из массива
-              return PREVIEW_SIZES[currentIndex + 1];
+              return PREVIEW_SIZES[currentIndex + 1]
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ context }) => {
-              const currentIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
-              return currentIndex < PREVIEW_SIZES.length - 1;
+              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              return currentIndex < PREVIEW_SIZES.length - 1
             },
             canDecreaseSize: () => true,
           }),
@@ -355,29 +341,25 @@ export const mediaListMachine = createMachine({
             // Находим предыдущий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему большего
-              const currentIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
+              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
 
               // Если текущий размер меньше минимального в массиве
               if (currentIndex === -1) {
-                return MIN_PREVIEW_SIZE;
+                return MIN_PREVIEW_SIZE
               }
 
               // Если текущий размер равен первому элементу массива
               if (currentIndex === 0) {
-                return MIN_PREVIEW_SIZE;
+                return MIN_PREVIEW_SIZE
               }
 
               // Возвращаем предыдущий размер из массива
-              return PREVIEW_SIZES[currentIndex - 1];
+              return PREVIEW_SIZES[currentIndex - 1]
             },
             // Обновляем флаги возможности изменения размера
             canDecreaseSize: ({ context }) => {
-              const currentIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
-              return currentIndex > 0;
+              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              return currentIndex > 0
             },
             canIncreaseSize: () => true,
           }),
@@ -392,39 +374,32 @@ export const mediaListMachine = createMachine({
             // Устанавливаем размер превью, выбирая ближайший из массива PREVIEW_SIZES
             previewSize: ({ event }) => {
               // Ограничиваем размер в пределах допустимых значений
-              const clampedSize = Math.max(
-                MIN_PREVIEW_SIZE,
-                Math.min(event.size, MAX_PREVIEW_SIZE)
-              );
+              const clampedSize = Math.max(MIN_PREVIEW_SIZE, Math.min(event.size, MAX_PREVIEW_SIZE))
 
               // Находим ближайший размер в массиве PREVIEW_SIZES
-              let closestSize = PREVIEW_SIZES[0];
-              let minDiff = Math.abs(clampedSize - closestSize);
+              let closestSize = PREVIEW_SIZES[0]
+              let minDiff = Math.abs(clampedSize - closestSize)
 
               for (let i = 1; i < PREVIEW_SIZES.length; i++) {
-                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i]);
+                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i])
                 if (diff < minDiff) {
-                  minDiff = diff;
-                  closestSize = PREVIEW_SIZES[i];
+                  minDiff = diff
+                  closestSize = PREVIEW_SIZES[i]
                 }
               }
 
-              return closestSize;
+              return closestSize
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= event.size
-              );
-              return closestSizeIndex < PREVIEW_SIZES.length - 1;
+              const closestSizeIndex = PREVIEW_SIZES.findIndex((size) => size >= event.size)
+              return closestSizeIndex < PREVIEW_SIZES.length - 1
             },
             canDecreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= event.size
-              );
-              return closestSizeIndex > 0;
+              const closestSizeIndex = PREVIEW_SIZES.findIndex((size) => size >= event.size)
+              return closestSizeIndex > 0
             },
           }),
         },
@@ -469,8 +444,7 @@ export const mediaListMachine = createMachine({
         CHANGE_ORDER: {
           actions: assign({
             // Инвертируем порядок сортировки
-            sortOrder: ({ context }) =>
-              context.sortOrder === "asc" ? "desc" : "asc",
+            sortOrder: ({ context }) => (context.sortOrder === "asc" ? "desc" : "asc"),
           }),
         },
 
@@ -553,24 +527,20 @@ export const mediaListMachine = createMachine({
             // Находим следующий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему
-              const currentIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
+              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
 
               // Если текущий размер больше максимального в массиве или это последний элемент
               if (currentIndex === -1 || currentIndex === PREVIEW_SIZES.length - 1) {
-                return MAX_PREVIEW_SIZE;
+                return MAX_PREVIEW_SIZE
               }
 
               // Возвращаем следующий размер из массива
-              return PREVIEW_SIZES[currentIndex + 1];
+              return PREVIEW_SIZES[currentIndex + 1]
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ context }) => {
-              const currentIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
-              return currentIndex < PREVIEW_SIZES.length - 1;
+              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              return currentIndex < PREVIEW_SIZES.length - 1
             },
             canDecreaseSize: () => true,
           }),
@@ -585,29 +555,25 @@ export const mediaListMachine = createMachine({
             // Находим предыдущий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему большего
-              const currentIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
+              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
 
               // Если текущий размер меньше минимального в массиве
               if (currentIndex === -1) {
-                return MIN_PREVIEW_SIZE;
+                return MIN_PREVIEW_SIZE
               }
 
               // Если текущий размер равен первому элементу массива
               if (currentIndex === 0) {
-                return MIN_PREVIEW_SIZE;
+                return MIN_PREVIEW_SIZE
               }
 
               // Возвращаем предыдущий размер из массива
-              return PREVIEW_SIZES[currentIndex - 1];
+              return PREVIEW_SIZES[currentIndex - 1]
             },
             // Обновляем флаги возможности изменения размера
             canDecreaseSize: ({ context }) => {
-              const currentIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
-              return currentIndex > 0;
+              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              return currentIndex > 0
             },
             canIncreaseSize: () => true,
           }),
@@ -622,39 +588,32 @@ export const mediaListMachine = createMachine({
             // Устанавливаем размер превью, выбирая ближайший из массива PREVIEW_SIZES
             previewSize: ({ event }) => {
               // Ограничиваем размер в пределах допустимых значений
-              const clampedSize = Math.max(
-                MIN_PREVIEW_SIZE,
-                Math.min(event.size, MAX_PREVIEW_SIZE)
-              );
+              const clampedSize = Math.max(MIN_PREVIEW_SIZE, Math.min(event.size, MAX_PREVIEW_SIZE))
 
               // Находим ближайший размер в массиве PREVIEW_SIZES
-              let closestSize = PREVIEW_SIZES[0];
-              let minDiff = Math.abs(clampedSize - closestSize);
+              let closestSize = PREVIEW_SIZES[0]
+              let minDiff = Math.abs(clampedSize - closestSize)
 
               for (let i = 1; i < PREVIEW_SIZES.length; i++) {
-                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i]);
+                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i])
                 if (diff < minDiff) {
-                  minDiff = diff;
-                  closestSize = PREVIEW_SIZES[i];
+                  minDiff = diff
+                  closestSize = PREVIEW_SIZES[i]
                 }
               }
 
-              return closestSize;
+              return closestSize
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= event.size
-              );
-              return closestSizeIndex < PREVIEW_SIZES.length - 1;
+              const closestSizeIndex = PREVIEW_SIZES.findIndex((size) => size >= event.size)
+              return closestSizeIndex < PREVIEW_SIZES.length - 1
             },
             canDecreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = PREVIEW_SIZES.findIndex(
-                (size) => size >= event.size
-              );
-              return closestSizeIndex > 0;
+              const closestSizeIndex = PREVIEW_SIZES.findIndex((size) => size >= event.size)
+              return closestSizeIndex > 0
             },
           }),
         },

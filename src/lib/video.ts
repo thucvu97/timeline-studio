@@ -56,9 +56,7 @@ export const calculateTimeRanges = (videos: MediaFile[]): TimeRange[] => {
   }
 
   for (let i = 1; i < sortedTimes.length; i++) {
-    const currentTime = Math.floor(
-      sortedTimes[i] / TIME_CONSTANTS.MILLISECONDS_IN_SECOND,
-    )
+    const currentTime = Math.floor(sortedTimes[i] / TIME_CONSTANTS.MILLISECONDS_IN_SECOND)
     const gap = currentTime - currentRange.end
 
     if (gap > TIME_CONSTANTS.MAX_GAP_SECONDS) {
@@ -151,18 +149,11 @@ export const getFps = (stream?: { r_frame_rate?: string }): number | null => {
  * @example
  * const frameTime = getFrameTime(video); // 0.033333... (для 30 fps)
  */
-export const getFrameTime = (
-  videoOrStream?: MediaFile | { r_frame_rate?: string },
-  defaultFps = 25,
-): number => {
+export const getFrameTime = (videoOrStream?: MediaFile | { r_frame_rate?: string }, defaultFps = 25): number => {
   if (!videoOrStream) return 1 / defaultFps
 
   // Если передан MediaFile, извлекаем поток
-  const stream = (
-    "probeData" in videoOrStream
-      ? videoOrStream.probeData?.streams[0]
-      : videoOrStream
-  ) as FfprobeStream
+  const stream = ("probeData" in videoOrStream ? videoOrStream.probeData?.streams[0] : videoOrStream) as FfprobeStream
 
   // Получаем FPS
   const fps = getFps(stream)
@@ -229,12 +220,7 @@ export const getNextVolumeState = (currentVolume: number): VolumeState => {
  * calculateWidth(1920, 1080, 600, 90) // 338
  * ```
  */
-export function calculateWidth(
-  width: number,
-  height: number,
-  containerHeight: number,
-  rotation?: number,
-): number {
+export function calculateWidth(width: number, height: number, containerHeight: number, rotation?: number): number {
   // Если нет размеров, возвращаем высоту контейнера
   if (!width || !height) return containerHeight
 
@@ -264,9 +250,7 @@ export function calculateWidth(
  * parseRotation(undefined) // undefined
  * ```
  */
-export const parseRotation = (
-  rotation?: string | number,
-): number | undefined => {
+export const parseRotation = (rotation?: string | number): number | undefined => {
   if (rotation === undefined) return undefined
   if (typeof rotation === "number") return rotation
   const parsed = Number.parseInt(rotation, 10)
@@ -294,11 +278,7 @@ export const parseRotation = (
  * calculateAdaptiveWidth(1280, false, "21:9") // "853.3333333333334px"
  * ```
  */
-export function calculateAdaptiveWidth(
-  width: number,
-  isMultipleStreams: boolean,
-  displayAspectRatio?: string,
-): string {
+export function calculateAdaptiveWidth(width: number, isMultipleStreams: boolean, displayAspectRatio?: string): string {
   if (isMultipleStreams) {
     return `${(width / 9) * 8}px`
   }

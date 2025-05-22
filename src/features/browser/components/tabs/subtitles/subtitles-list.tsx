@@ -1,22 +1,17 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState } from "react"
 
-import { Star, ZoomIn, ZoomOut } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import { Star, ZoomIn, ZoomOut } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { usePreviewSize } from '@/features/browser/components/preview/preview-size-provider';
-import { useMedia } from '@/features/browser/media';
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider"
+import { useMedia } from "@/features/browser/media"
+import { cn } from "@/lib/utils"
 
-import { SUBTITLE_CATEGORIES, SubtitleStyle } from './subtitles';
-import { SubtitlesPreview } from './subtitles-preview';
+import { SUBTITLE_CATEGORIES, SubtitleStyle } from "./subtitles"
+import { SubtitlesPreview } from "./subtitles-preview"
 
 /**
  * Компонент для отображения списка доступных стилей субтитров
@@ -25,11 +20,11 @@ import { SubtitlesPreview } from './subtitles-preview';
  * @returns {JSX.Element} Компонент списка стилей субтитров
  */
 export function SubtitlesList() {
-  const { t } = useTranslation(); // Хук для интернационализации
-  const [searchQuery, setSearchQuery] = useState(""); // Поисковый запрос
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false); // Флаг отображения только избранных
-  const media = useMedia(); // Доступ к контексту медиа
-  const { isItemFavorite } = media;
+  const { t } = useTranslation() // Хук для интернационализации
+  const [searchQuery, setSearchQuery] = useState("") // Поисковый запрос
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false) // Флаг отображения только избранных
+  const media = useMedia() // Доступ к контексту медиа
+  const { isItemFavorite } = media
 
   /**
    * Получаем параметры размера превью из хука usePreviewSize
@@ -41,26 +36,31 @@ export function SubtitlesList() {
     decreaseSize, // Функция уменьшения размера
     canIncreaseSize, // Флаг возможности увеличения
     canDecreaseSize, // Флаг возможности уменьшения
-  } = usePreviewSize();
+  } = usePreviewSize()
 
   /**
    * Обработчик переключения режима отображения избранных стилей
    */
   const handleToggleFavorites = useCallback(() => {
-    setShowFavoritesOnly((prev) => !prev); // Инвертируем текущее значение
-  }, []);
+    setShowFavoritesOnly((prev) => !prev) // Инвертируем текущее значение
+  }, [])
 
   // Обработчик выбора стиля субтитров
   const handleSelectStyle = (style: SubtitleStyle) => {
-    console.log('Selected subtitle style:', style);
+    console.log("Selected subtitle style:", style)
     // В будущем здесь будет логика добавления субтитров на временную шкалу
-    alert(t('subtitles.addedToTimeline', { name: style.name, defaultValue: `Стиль субтитров "${style.name}" добавлен на таймлайн` }));
-  };
+    alert(
+      t("subtitles.addedToTimeline", {
+        name: style.name,
+        defaultValue: `Стиль субтитров "${style.name}" добавлен на таймлайн`,
+      }),
+    )
+  }
 
   /**
    * Получаем все стили субтитров из всех категорий
    */
-  const allSubtitleStyles = SUBTITLE_CATEGORIES.flatMap(category => category.styles);
+  const allSubtitleStyles = SUBTITLE_CATEGORIES.flatMap((category) => category.styles)
 
   /**
    * Фильтрация стилей по поисковому запросу и избранному
@@ -68,22 +68,19 @@ export function SubtitlesList() {
    */
   const filteredStyles = allSubtitleStyles.filter((style) => {
     // Фильтрация по поисковому запросу
-    const searchLower = searchQuery.toLowerCase(); // Приводим запрос к нижнему регистру
+    const searchLower = searchQuery.toLowerCase() // Приводим запрос к нижнему регистру
 
     // Проверяем, соответствует ли стиль поисковому запросу
-    const matchesSearch = style.name.toLowerCase().includes(searchLower);
+    const matchesSearch = style.name.toLowerCase().includes(searchLower)
 
     // Фильтрация по избранному
     const matchesFavorites =
       !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
-      isItemFavorite(
-        { id: style.id, path: "", name: style.name },
-        "sbtitle",
-      );
+      isItemFavorite({ id: style.id, path: "", name: style.name }, "sbtitle")
 
     // Стиль должен соответствовать обоим условиям
-    return matchesSearch && matchesFavorites;
-  });
+    return matchesSearch && matchesFavorites
+  })
 
   return (
     <div className="flex h-full flex-1 flex-col bg-background">
@@ -181,9 +178,7 @@ export function SubtitlesList() {
           /* Отображение найденных стилей в виде сетки */
           <div
             className="grid grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))] gap-2"
-            style={
-              { "--preview-size": `${previewSize}px` } as React.CSSProperties
-            }
+            style={{ "--preview-size": `${previewSize}px` } as React.CSSProperties}
           >
             {/* Отображение каждого стиля */}
             {filteredStyles.map((style) => (
@@ -198,7 +193,7 @@ export function SubtitlesList() {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SubtitlesList;
+export default SubtitlesList

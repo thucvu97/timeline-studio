@@ -38,7 +38,7 @@ describe("PreviewSizeProvider", () => {
     render(
       <PreviewSizeProvider>
         <div data-testid="test-child">Test Child</div>
-      </PreviewSizeProvider>
+      </PreviewSizeProvider>,
     )
 
     expect(screen.getByTestId("test-child")).toBeInTheDocument()
@@ -60,7 +60,7 @@ describe("PreviewSizeProvider", () => {
     render(
       <PreviewSizeProvider>
         <TestComponent />
-      </PreviewSizeProvider>
+      </PreviewSizeProvider>,
     )
 
     expect(screen.getByTestId("preview-size").textContent).toBe("100")

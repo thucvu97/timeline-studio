@@ -29,10 +29,7 @@ export interface MediaTemplate {
   render: () => JSX.Element
 }
 
-export const TEMPLATE_MAP: Record<
-  "landscape" | "portrait" | "square",
-  MediaTemplate[]
-> = {
+export const TEMPLATE_MAP: Record<"landscape" | "portrait" | "square", MediaTemplate[]> = {
   landscape: landscapeTemplates,
   portrait: portraitTemplates,
   square: squareTemplates,

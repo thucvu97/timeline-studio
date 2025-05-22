@@ -17,10 +17,7 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
     <div>
       {isAdded ? (
         // biome-ignore lint/a11y/useButtonType: <explanation>
-        <button
-          data-testid="remove-media-button"
-          onClick={(e) => onRemoveMedia(e)}
-        >
+        <button data-testid="remove-media-button" onClick={(e) => onRemoveMedia(e)}>
           Remove {file.name}
         </button>
       ) : (
@@ -53,9 +50,7 @@ vi.mock("@/features/browser/resources", () => ({
     addTransition: mockAddTransition,
     removeResource: mockRemoveResource,
     isTransitionAdded: mockIsTransitionAdded,
-    transitionResources: [
-      { id: "transition-resource-1", resourceId: "fade", type: "transition" },
-    ],
+    transitionResources: [{ id: "transition-resource-1", resourceId: "fade", type: "transition" }],
   }),
 }))
 

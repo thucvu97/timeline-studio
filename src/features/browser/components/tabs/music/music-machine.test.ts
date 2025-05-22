@@ -195,13 +195,7 @@ describe("MusicMachine", () => {
     expect(snapshot.context.searchQuery).toBe("test")
 
     // Проверяем, что filterFiles был вызван с правильными параметрами
-    expect(filterFiles).toHaveBeenCalledWith(
-      mockMediaFiles,
-      "test",
-      "all",
-      false,
-      {},
-    )
+    expect(filterFiles).toHaveBeenCalledWith(mockMediaFiles, "test", "all", false, {})
 
     // Останавливаем актора
     actor.stop()
@@ -263,11 +257,7 @@ describe("MusicMachine", () => {
     expect(snapshot.context.sortOrder).toBe("desc")
 
     // Проверяем, что sortFiles был вызван с правильными параметрами
-    expect(sortFiles).toHaveBeenCalledWith(
-      expect.any(Array),
-      snapshot.context.sortBy,
-      "desc",
-    )
+    expect(sortFiles).toHaveBeenCalledWith(expect.any(Array), snapshot.context.sortBy, "desc")
 
     // Останавливаем актора
     actor.stop()
@@ -298,13 +288,7 @@ describe("MusicMachine", () => {
     expect(snapshot.context.filterType).toBe("mp3")
 
     // Проверяем, что filterFiles был вызван с правильными параметрами
-    expect(filterFiles).toHaveBeenCalledWith(
-      mockMediaFiles,
-      snapshot.context.searchQuery,
-      "mp3",
-      false,
-      {},
-    )
+    expect(filterFiles).toHaveBeenCalledWith(mockMediaFiles, snapshot.context.searchQuery, "mp3", false, {})
 
     // Останавливаем актора
     actor.stop()

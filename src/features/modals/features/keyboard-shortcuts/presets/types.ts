@@ -1,8 +1,5 @@
 // Типы предустановок
-export type PresetType =
-  | "Timeline"
-  | "Wondershare Filmora"
-  | "Adobe Premier Pro"
+export type PresetType = "Timeline" | "Wondershare Filmora" | "Adobe Premier Pro"
 
 // Интерфейс для категории горячих клавиш
 export interface ShortcutCategory {

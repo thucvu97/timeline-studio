@@ -41,10 +41,7 @@ export class StorageService {
         this.cache[key] = value
         return value as unknown as T
       } catch (error) {
-        console.error(
-          `[StorageService] Error reading language from localStorage:`,
-          error,
-        )
+        console.error(`[StorageService] Error reading language from localStorage:`, error)
         return defaultValue
       }
     }
@@ -71,10 +68,7 @@ export class StorageService {
         return value as unknown as T
       }
     } catch (error) {
-      console.error(
-        `[StorageService] Error reading from localStorage for ${key}:`,
-        error,
-      )
+      console.error(`[StorageService] Error reading from localStorage for ${key}:`, error)
       return defaultValue
     }
   }
@@ -101,22 +95,14 @@ export class StorageService {
 
         // Для ключа app-language выводим дополнительную информацию
         if (key === "app-language") {
-          console.log(
-            `[StorageService] Language saved to localStorage: ${value}`,
-          )
-          console.log(
-            `[StorageService] Verified language in localStorage:`,
-            localStorage.getItem(key),
-          )
+          console.log(`[StorageService] Language saved to localStorage: ${value}`)
+          console.log(`[StorageService] Verified language in localStorage:`, localStorage.getItem(key))
         }
       } else {
         localStorage.setItem(key, JSON.stringify(value))
       }
     } catch (error) {
-      console.error(
-        `[StorageService] Error saving to localStorage for ${key}:`,
-        error,
-      )
+      console.error(`[StorageService] Error saving to localStorage for ${key}:`, error)
     }
   }
 
@@ -138,10 +124,7 @@ export class StorageService {
       // Удаляем значение из localStorage
       localStorage.removeItem(key)
     } catch (error) {
-      console.error(
-        `[StorageService] Error removing from localStorage for ${key}:`,
-        error,
-      )
+      console.error(`[StorageService] Error removing from localStorage for ${key}:`, error)
     }
   }
 
@@ -178,10 +161,7 @@ export class StorageService {
     try {
       return Object.keys(localStorage)
     } catch (error) {
-      console.error(
-        "[StorageService] Error getting keys from localStorage:",
-        error,
-      )
+      console.error("[StorageService] Error getting keys from localStorage:", error)
       return []
     }
   }

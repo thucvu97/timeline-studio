@@ -7,13 +7,7 @@ import { Button } from "@/components/ui/button"
 import { DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useModal } from "@/features/modals/services/modal-provider"
 import {
   ASPECT_RATIOS,
@@ -44,9 +38,7 @@ export function ProjectSettingsModal() {
   const { settings, updateSettings } = useProjectSettings() // Хук для доступа к настройкам проекта
 
   // Состояние для хранения доступных разрешений для выбранного соотношения сторон
-  const [availableResolutions, setAvailableResolutions] = useState<
-    ResolutionOption[]
-  >([])
+  const [availableResolutions, setAvailableResolutions] = useState<ResolutionOption[]>([])
 
   // Состояние для пользовательских значений ширины и высоты
   const [customWidth, setCustomWidth] = useState<number>(1920)
@@ -65,9 +57,7 @@ export function ProjectSettingsModal() {
   const getAspectRatioLabel = (textLabel: string): string => {
     // Карта соответствия текстовых меток и ключей локализации
     const labelMap: Record<string, string> = {
-      Широкоэкнранный: t(
-        "dialogs.projectSettings.aspectRatioLabels.widescreen",
-      ),
+      Широкоэкнранный: t("dialogs.projectSettings.aspectRatioLabels.widescreen"),
       Портрет: t("dialogs.projectSettings.aspectRatioLabels.portrait"),
       "Социальные сети": t("dialogs.projectSettings.aspectRatioLabels.social"),
       Стандарт: t("dialogs.projectSettings.aspectRatioLabels.standard"),
@@ -140,10 +130,7 @@ export function ProjectSettingsModal() {
     setCustomWidth(settings.aspectRatio.value.width)
     setCustomHeight(settings.aspectRatio.value.height)
 
-    console.log(
-      "[ProjectSettingsDialog] Доступные разрешения обновлены:",
-      resolutions,
-    )
+    console.log("[ProjectSettingsDialog] Доступные разрешения обновлены:", resolutions)
   }, [settings.aspectRatio]) // Зависимость от соотношения сторон
 
   /**
@@ -223,13 +210,8 @@ export function ProjectSettingsModal() {
     <div className="flex h-full flex-col justify-between items-stretch py-1">
       {/* Выбор соотношения сторон */}
       <div className="flex items-center justify-end">
-        <Label className="mr-2 text-xs">
-          {t("dialogs.projectSettings.aspectRatio")}
-        </Label>
-        <Select
-          value={settings.aspectRatio.label}
-          onValueChange={handleAspectRatioChange}
-        >
+        <Label className="mr-2 text-xs">{t("dialogs.projectSettings.aspectRatio")}</Label>
+        <Select value={settings.aspectRatio.label} onValueChange={handleAspectRatioChange}>
           <SelectTrigger className="w-[300px]">
             <SelectValue />
           </SelectTrigger>
@@ -249,15 +231,11 @@ export function ProjectSettingsModal() {
 
       {/* Выбор разрешения */}
       <div className="flex items-center justify-end">
-        <Label className="mr-2 text-xs">
-          {t("dialogs.projectSettings.resolution")}
-        </Label>
+        <Label className="mr-2 text-xs">{t("dialogs.projectSettings.resolution")}</Label>
         <Select
           value={
             // Для пользовательского соотношения сторон всегда показываем "custom"
-            settings.aspectRatio.label === "custom"
-              ? "custom"
-              : settings.resolution
+            settings.aspectRatio.label === "custom" ? "custom" : settings.resolution
           }
           onValueChange={(value: string) => {
             // Для пользовательского соотношения сторон блокируем изменение разрешения
@@ -267,9 +245,7 @@ export function ProjectSettingsModal() {
             }
 
             // Находим выбранное разрешение в списке доступных
-            const selectedResolution = availableResolutions.find(
-              (res) => res.value === value,
-            )
+            const selectedResolution = availableResolutions.find((res) => res.value === value)
 
             if (selectedResolution) {
               // Создаем новые настройки с обновленным разрешением и размерами
@@ -313,11 +289,7 @@ export function ProjectSettingsModal() {
             ) : (
               // Для стандартных соотношений показываем список доступных разрешений
               availableResolutions.map((option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                  className=""
-                >
+                <SelectItem key={option.value} value={option.value} className="">
                   {option.label}
                 </SelectItem>
               ))
@@ -328,9 +300,7 @@ export function ProjectSettingsModal() {
 
       {/* Поля для ввода пользовательских размеров (ширина и высота) */}
       <div className="flex items-center justify-end">
-        <Label className="mr-2 text-xs">
-          {t("dialogs.projectSettings.customSize")}
-        </Label>
+        <Label className="mr-2 text-xs">{t("dialogs.projectSettings.customSize")}</Label>
         <div className="flex items-center">
           {/* Поле ввода ширины */}
           <Input
@@ -345,9 +315,7 @@ export function ProjectSettingsModal() {
                 // для сохранения выбранного соотношения сторон
                 if (aspectRatioLocked) {
                   // Вычисляем текущее соотношение сторон
-                  const aspectRatio =
-                    settings.aspectRatio.value.width /
-                    settings.aspectRatio.value.height
+                  const aspectRatio = settings.aspectRatio.value.width / settings.aspectRatio.value.height
 
                   // Вычисляем новую высоту на основе соотношения сторон
                   const newHeight = Math.round(width / aspectRatio)
@@ -407,9 +375,7 @@ export function ProjectSettingsModal() {
                 // для сохранения выбранного соотношения сторон
                 if (aspectRatioLocked) {
                   // Вычисляем текущее соотношение сторон
-                  const aspectRatio =
-                    settings.aspectRatio.value.width /
-                    settings.aspectRatio.value.height
+                  const aspectRatio = settings.aspectRatio.value.width / settings.aspectRatio.value.height
 
                   // Вычисляем новую ширину на основе соотношения сторон
                   const newWidth = Math.round(height * aspectRatio)
@@ -460,9 +426,7 @@ export function ProjectSettingsModal() {
             size="icon"
             className={`ml-2 h-7 w-7 cursor-pointer p-0 ${
               // Подсвечиваем кнопку, если соотношение сторон заблокировано
-              aspectRatioLocked
-                ? "text-[#00CCC0]"
-                : "text-gray-400 hover:text-gray-200"
+              aspectRatioLocked ? "text-[#00CCC0]" : "text-gray-400 hover:text-gray-200"
             }`}
             onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
             title={
@@ -473,11 +437,7 @@ export function ProjectSettingsModal() {
             }
           >
             {/* Иконка в зависимости от состояния блокировки */}
-            {aspectRatioLocked ? (
-              <Lock className="h-4 w-4" />
-            ) : (
-              <Unlock className="h-4 w-4" />
-            )}
+            {aspectRatioLocked ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
           </Button>
         </div>
       </div>
@@ -517,9 +477,7 @@ export function ProjectSettingsModal() {
 
       {/* Выбор частоты кадров */}
       <div className="flex items-center justify-end">
-        <Label className="mr-2 text-xs">
-          {t("dialogs.projectSettings.frameRate")}
-        </Label>
+        <Label className="mr-2 text-xs">{t("dialogs.projectSettings.frameRate")}</Label>
         <Select
           value={settings.frameRate}
           onValueChange={(value: FrameRate) =>
@@ -536,11 +494,7 @@ export function ProjectSettingsModal() {
           <SelectContent className="">
             {/* Отображение списка доступных частот кадров */}
             {FRAME_RATES.map((frameRate) => (
-              <SelectItem
-                key={frameRate.value}
-                value={frameRate.value}
-                className=""
-              >
+              <SelectItem key={frameRate.value} value={frameRate.value} className="">
                 {frameRate.label}
               </SelectItem>
             ))}
@@ -550,9 +504,7 @@ export function ProjectSettingsModal() {
 
       {/* Выбор цветового пространства */}
       <div className="flex items-center justify-end">
-        <Label className="mr-2 text-xs">
-          {t("dialogs.projectSettings.colorSpace")}
-        </Label>
+        <Label className="mr-2 text-xs">{t("dialogs.projectSettings.colorSpace")}</Label>
         <Select
           value={settings.colorSpace}
           onValueChange={(value: ColorSpace) =>
@@ -569,11 +521,7 @@ export function ProjectSettingsModal() {
           <SelectContent className="">
             {/* Отображение списка доступных цветовых пространств */}
             {COLOR_SPACES.map((colorSpace) => (
-              <SelectItem
-                key={colorSpace.value}
-                value={colorSpace.value}
-                className=""
-              >
+              <SelectItem key={colorSpace.value} value={colorSpace.value} className="">
                 {colorSpace.label}
               </SelectItem>
             ))}
@@ -642,10 +590,7 @@ export function ProjectSettingsModal() {
             updateSettings(currentSettings)
 
             // Отладочный вывод
-            console.log(
-              "[ProjectSettingsDialog] Applied settings:",
-              currentSettings,
-            )
+            console.log("[ProjectSettingsDialog] Applied settings:", currentSettings)
 
             // Закрываем диалог с небольшой задержкой, чтобы дать время обновиться всем компонентам
             setTimeout(() => {

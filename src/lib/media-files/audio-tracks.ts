@@ -19,26 +19,20 @@ import { doTimeRangesOverlap } from "./utils"
 export function processAudioFiles(
   sortedAudioFiles: MediaFile[],
   sectors: Sector[],
-  existingSectorsByDay: Record<
-    string,
-    { sector: Sector | null; tracks: Track[] }
-  >,
+  existingSectorsByDay: Record<string, { sector: Sector | null; tracks: Track[] }>,
   currentLanguage: string,
 ): void {
   // Группируем аудио файлы по дням
-  const audioFilesByDay = sortedAudioFiles.reduce<Record<string, MediaFile[]>>(
-    (acc, file) => {
-      const startTime = file.startTime ?? Date.now() / 1000
-      const date = new Date(startTime * 1000).toISOString().split("T")[0]
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!acc[date]) {
-        acc[date] = []
-      }
-      acc[date].push(file)
-      return acc
-    },
-    {},
-  )
+  const audioFilesByDay = sortedAudioFiles.reduce<Record<string, MediaFile[]>>((acc, file) => {
+    const startTime = file.startTime ?? Date.now() / 1000
+    const date = new Date(startTime * 1000).toISOString().split("T")[0]
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!acc[date]) {
+      acc[date] = []
+    }
+    acc[date].push(file)
+    return acc
+  }, {})
 
   // Обрабатываем аудио файлы по дням
   for (const [date, dayFiles] of Object.entries(audioFilesByDay)) {
@@ -116,14 +110,7 @@ export function processAudioFiles(
             const audioDuration = audio.duration ?? 0
             const audioEndTime = audioStartTime + audioDuration
 
-            if (
-              doTimeRangesOverlap(
-                fileStartTime,
-                fileEndTime,
-                audioStartTime,
-                audioEndTime,
-              )
-            ) {
+            if (doTimeRangesOverlap(fileStartTime, fileEndTime, audioStartTime, audioEndTime)) {
               hasOverlap = true
               break
             }
@@ -138,10 +125,7 @@ export function processAudioFiles(
             sector.tracks.push({
               ...track,
               videos: updatedVideos,
-              startTime: Math.min(
-                track.startTime ?? Number.POSITIVE_INFINITY,
-                fileStartTime,
-              ),
+              startTime: Math.min(track.startTime ?? Number.POSITIVE_INFINITY, fileStartTime),
               endTime: Math.max(track.endTime ?? 0, fileEndTime),
               combinedDuration: (track.combinedDuration ?? 0) + fileDuration,
               timeRanges: calculateTimeRanges(updatedVideos),
@@ -150,25 +134,13 @@ export function processAudioFiles(
             // Обновляем существующую дорожку в текущем секторе
             const trackIndex = sector.tracks.findIndex((t) => t.id === track.id)
             if (trackIndex !== -1) {
-              const updatedVideos = [
-                ...(sector.tracks[trackIndex].videos ?? []),
-                file,
-              ]
+              const updatedVideos = [...(sector.tracks[trackIndex].videos ?? []), file]
               sector.tracks[trackIndex] = {
                 ...sector.tracks[trackIndex],
                 videos: updatedVideos,
-                startTime: Math.min(
-                  sector.tracks[trackIndex].startTime ??
-                    Number.POSITIVE_INFINITY,
-                  fileStartTime,
-                ),
-                endTime: Math.max(
-                  sector.tracks[trackIndex].endTime ?? 0,
-                  fileEndTime,
-                ),
-                combinedDuration:
-                  (sector.tracks[trackIndex].combinedDuration ?? 0) +
-                  fileDuration,
+                startTime: Math.min(sector.tracks[trackIndex].startTime ?? Number.POSITIVE_INFINITY, fileStartTime),
+                endTime: Math.max(sector.tracks[trackIndex].endTime ?? 0, fileEndTime),
+                combinedDuration: (sector.tracks[trackIndex].combinedDuration ?? 0) + fileDuration,
                 timeRanges: calculateTimeRanges(updatedVideos),
               }
             }
@@ -181,14 +153,7 @@ export function processAudioFiles(
 
       // Если не нашли подходящую дорожку, создаем новую
       if (!trackFound) {
-        createNewAudioTrack(
-          file,
-          sector,
-          existingDayTracks,
-          fileStartTime,
-          fileEndTime,
-          fileDuration,
-        )
+        createNewAudioTrack(file, sector, existingDayTracks, fileStartTime, fileEndTime, fileDuration)
       }
     }
 
@@ -233,12 +198,8 @@ function createNewAudioTrack(
   // Определяем максимальный номер аудиодорожки для этого дня
   const maxAudioIndex = Math.max(
     0,
-    ...sector.tracks
-      .filter((track) => track.type === "audio")
-      .map((track) => Number(track.index) || 0),
-    ...existingDayTracks
-      .filter((track) => track.type === "audio")
-      .map((track) => Number(track.index) || 0),
+    ...sector.tracks.filter((track) => track.type === "audio").map((track) => Number(track.index) || 0),
+    ...existingDayTracks.filter((track) => track.type === "audio").map((track) => Number(track.index) || 0),
   )
 
   // Создаем новую дорожку

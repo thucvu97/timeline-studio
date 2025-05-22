@@ -38,9 +38,7 @@ vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Компонент-обертка для тестирования хука useMusic
-const MusicWrapper = ({ children }: { children: React.ReactNode }) => (
-  <MusicProvider>{children}</MusicProvider>
-)
+const MusicWrapper = ({ children }: { children: React.ReactNode }) => <MusicProvider>{children}</MusicProvider>
 
 describe("MusicProvider", () => {
   beforeEach(() => {
@@ -115,9 +113,7 @@ describe("MusicProvider", () => {
     const consoleError = console.error
     console.error = vi.fn() // Подавляем ошибки в консоли во время теста
 
-    expect(() => renderHook(() => useMusic())).toThrow(
-      "useMusic must be used within a MusicProvider",
-    )
+    expect(() => renderHook(() => useMusic())).toThrow("useMusic must be used within a MusicProvider")
 
     console.error = consoleError // Восстанавливаем console.error
   })

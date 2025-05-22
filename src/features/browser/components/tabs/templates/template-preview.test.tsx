@@ -15,21 +15,14 @@ vi.mock("@/features/browser/resources", () => ({
     addTemplate: mockAddTemplate,
     removeResource: mockRemoveResource,
     isTemplateAdded: mockIsTemplateAdded,
-    templateResources: [
-      { id: "template-resource-1", resourceId: "template-1" },
-    ],
+    templateResources: [{ id: "template-resource-1", resourceId: "template-1" }],
   }),
 }))
 
 // Мокаем FavoriteButton и AddMediaButton
 vi.mock("../../layout", () => ({
   FavoriteButton: ({ file, size, type }: any) => (
-    <div
-      data-testid="favorite-button"
-      data-file-id={file.id}
-      data-size={size}
-      data-type={type}
-    >
+    <div data-testid="favorite-button" data-file-id={file.id} data-size={size} data-type={type}>
       Favorite Button
     </div>
   ),
@@ -72,12 +65,7 @@ describe("TemplatePreview", () => {
 
   it("should render the template preview correctly", () => {
     render(
-      <TemplatePreview
-        template={mockTemplate}
-        onClick={mockOnClick}
-        size={mockSize}
-        dimensions={mockDimensions}
-      />,
+      <TemplatePreview template={mockTemplate} onClick={mockOnClick} size={mockSize} dimensions={mockDimensions} />,
     )
 
     // Проверяем, что контент шаблона отрендерился
@@ -92,12 +80,7 @@ describe("TemplatePreview", () => {
 
   it("should call onClick when clicked", () => {
     render(
-      <TemplatePreview
-        template={mockTemplate}
-        onClick={mockOnClick}
-        size={mockSize}
-        dimensions={mockDimensions}
-      />,
+      <TemplatePreview template={mockTemplate} onClick={mockOnClick} size={mockSize} dimensions={mockDimensions} />,
     )
 
     // Кликаем по компоненту
@@ -110,12 +93,7 @@ describe("TemplatePreview", () => {
 
   it("should add template when add button is clicked", () => {
     render(
-      <TemplatePreview
-        template={mockTemplate}
-        onClick={mockOnClick}
-        size={mockSize}
-        dimensions={mockDimensions}
-      />,
+      <TemplatePreview template={mockTemplate} onClick={mockOnClick} size={mockSize} dimensions={mockDimensions} />,
     )
 
     // Кликаем по кнопке добавления
@@ -132,12 +110,7 @@ describe("TemplatePreview", () => {
     mockIsTemplateAdded.mockReturnValue(true)
 
     render(
-      <TemplatePreview
-        template={mockTemplate}
-        onClick={mockOnClick}
-        size={mockSize}
-        dimensions={mockDimensions}
-      />,
+      <TemplatePreview template={mockTemplate} onClick={mockOnClick} size={mockSize} dimensions={mockDimensions} />,
     )
 
     // Кликаем по кнопке удаления
@@ -149,14 +122,7 @@ describe("TemplatePreview", () => {
   })
 
   it("should calculate dimensions correctly for landscape template", () => {
-    render(
-      <TemplatePreview
-        template={mockTemplate}
-        onClick={mockOnClick}
-        size={mockSize}
-        dimensions={[1920, 1080]}
-      />,
-    )
+    render(<TemplatePreview template={mockTemplate} onClick={mockOnClick} size={mockSize} dimensions={[1920, 1080]} />)
 
     // Проверяем, что размеры рассчитаны правильно
     const previewElement = screen.getByTestId("template-content").parentElement
@@ -169,14 +135,7 @@ describe("TemplatePreview", () => {
   })
 
   it("should calculate dimensions correctly for portrait template", () => {
-    render(
-      <TemplatePreview
-        template={mockTemplate}
-        onClick={mockOnClick}
-        size={mockSize}
-        dimensions={[1080, 1920]}
-      />,
-    )
+    render(<TemplatePreview template={mockTemplate} onClick={mockOnClick} size={mockSize} dimensions={[1080, 1920]} />)
 
     // Проверяем, что размеры рассчитаны правильно для вертикального шаблона
     const previewElement = screen.getByTestId("template-content").parentElement

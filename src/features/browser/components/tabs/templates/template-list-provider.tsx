@@ -27,9 +27,7 @@ interface TemplateListProviderContextType extends TemplateListContextType {
 /**
  * Контекст для списка шаблонов
  */
-const TemplateListContext = createContext<TemplateListProviderContextType | undefined>(
-  undefined
-)
+const TemplateListContext = createContext<TemplateListProviderContextType | undefined>(undefined)
 
 /**
  * Пропсы для провайдера списка шаблонов
@@ -137,11 +135,7 @@ export function TemplateListProvider({ children }: TemplateListProviderProps) {
     [state.context, send],
   )
 
-  return (
-    <TemplateListContext.Provider value={value}>
-      {children}
-    </TemplateListContext.Provider>
-  )
+  return <TemplateListContext.Provider value={value}>{children}</TemplateListContext.Provider>
 }
 
 /**

@@ -14,29 +14,22 @@ export const groupFilesByDate = (media: MediaFile[]): DateGroup[] => {
   const currentLanguage = i18n.language || "ru"
   const noDateText = i18n.t("dates.noDate", { defaultValue: "No date" })
 
-  const videoFilesByDate = media.reduce<Record<string, MediaFile[]>>(
-    (acc, file) => {
-      // Форматируем дату с помощью универсального метода
-      const date = file.startTime
-        ? formatDateByLanguage(
-            new Date(file.startTime * 1000),
-            currentLanguage,
-            {
-              includeYear: true,
-              longFormat: true,
-            },
-          )
-        : noDateText
+  const videoFilesByDate = media.reduce<Record<string, MediaFile[]>>((acc, file) => {
+    // Форматируем дату с помощью универсального метода
+    const date = file.startTime
+      ? formatDateByLanguage(new Date(file.startTime * 1000), currentLanguage, {
+          includeYear: true,
+          longFormat: true,
+        })
+      : noDateText
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!acc[date]) {
-        acc[date] = []
-      }
-      acc[date].push(file)
-      return acc
-    },
-    {},
-  )
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!acc[date]) {
+      acc[date] = []
+    }
+    acc[date].push(file)
+    return acc
+  }, {})
 
   return Object.entries(videoFilesByDate)
     .sort(([a], [b]) => {
@@ -52,9 +45,7 @@ export const groupFilesByDate = (media: MediaFile[]): DateGroup[] => {
  * @param files - Массив медиафайлов
  * @returns Объект с сгруппированными файлами
  */
-export const getGroupedFiles = (
-  files: MediaFile[],
-): Record<string, MediaFile[]> => {
+export const getGroupedFiles = (files: MediaFile[]): Record<string, MediaFile[]> => {
   const groups: Record<string, MediaFile[]> = {}
 
   files.forEach((file) => {
@@ -86,32 +77,22 @@ export const getGroupedFiles = (
 export function getTopDateWithRemainingFiles(
   sortedDates: { date: string; files: MediaFile[] }[],
   addedFiles: Set<string>,
-):
-  | { date: string; files: MediaFile[]; remainingFiles: MediaFile[] }
-  | undefined {
+): { date: string; files: MediaFile[]; remainingFiles: MediaFile[] } | undefined {
   const isVideoWithAudio = (file: MediaFile): boolean => {
-    const hasVideo = file.probeData?.streams.some(
-      (s) => s.codec_type === "video",
-    )
+    const hasVideo = file.probeData?.streams.some((s) => s.codec_type === "video")
     return !!hasVideo
   }
 
   const datesByFileCount = [...sortedDates].sort((a, b) => {
-    const aCount = a.files.filter(
-      (f) => !addedFiles.has(f.path) && isVideoWithAudio(f),
-    ).length
-    const bCount = b.files.filter(
-      (f) => !addedFiles.has(f.path) && isVideoWithAudio(f),
-    ).length
+    const aCount = a.files.filter((f) => !addedFiles.has(f.path) && isVideoWithAudio(f)).length
+    const bCount = b.files.filter((f) => !addedFiles.has(f.path) && isVideoWithAudio(f)).length
     return bCount - aCount
   })
 
   const result = datesByFileCount
     .map((dateInfo) => ({
       ...dateInfo,
-      remainingFiles: dateInfo.files.filter(
-        (file) => !addedFiles.has(file.path) && isVideoWithAudio(file),
-      ),
+      remainingFiles: dateInfo.files.filter((file) => !addedFiles.has(file.path) && isVideoWithAudio(file)),
     }))
     .find((dateInfo) => dateInfo.remainingFiles.length > 0)
 

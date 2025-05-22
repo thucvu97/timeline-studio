@@ -82,13 +82,8 @@ export const MediaContent: React.FC<MediaContentProps> = ({
       <div className="flex h-full w-full flex-col items-center justify-center">
         <div className="text-center">
           <h3 className="mb-2 text-lg font-medium">{t("common.error")}</h3>
-          <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-            {error}
-          </p>
-          <button
-            className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            onClick={onRetry}
-          >
+          <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">{error}</p>
+          <button className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600" onClick={onRetry}>
             {t("common.retry")}
           </button>
         </div>

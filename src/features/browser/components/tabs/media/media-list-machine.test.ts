@@ -213,12 +213,11 @@ describe("MediaListMachine", () => {
     const initialSize = actor.getSnapshot().context.previewSize
 
     // Находим индекс текущего размера в массиве PREVIEW_SIZES
-    const currentIndex = PREVIEW_SIZES.findIndex(size => size >= initialSize)
+    const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= initialSize)
 
     // Определяем ожидаемый следующий размер
-    const expectedNextSize = currentIndex < PREVIEW_SIZES.length - 1
-      ? PREVIEW_SIZES[currentIndex + 1]
-      : MAX_PREVIEW_SIZE
+    const expectedNextSize =
+      currentIndex < PREVIEW_SIZES.length - 1 ? PREVIEW_SIZES[currentIndex + 1] : MAX_PREVIEW_SIZE
 
     // Отправляем событие INCREASE_PREVIEW_SIZE
     actor.send({ type: "INCREASE_PREVIEW_SIZE" })
@@ -253,12 +252,10 @@ describe("MediaListMachine", () => {
     const initialSize = actor.getSnapshot().context.previewSize
 
     // Находим индекс текущего размера в массиве PREVIEW_SIZES
-    const currentIndex = PREVIEW_SIZES.findIndex(size => size >= initialSize)
+    const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= initialSize)
 
     // Определяем ожидаемый предыдущий размер
-    const expectedPrevSize = currentIndex > 0
-      ? PREVIEW_SIZES[currentIndex - 1]
-      : MIN_PREVIEW_SIZE
+    const expectedPrevSize = currentIndex > 0 ? PREVIEW_SIZES[currentIndex - 1] : MIN_PREVIEW_SIZE
 
     // Отправляем событие DECREASE_PREVIEW_SIZE
     actor.send({ type: "DECREASE_PREVIEW_SIZE" })

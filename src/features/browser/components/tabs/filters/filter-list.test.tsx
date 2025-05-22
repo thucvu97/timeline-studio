@@ -81,9 +81,7 @@ vi.mock("@/components/ui/input", () => ({
 
 vi.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: any) => <>{children}</>,
-  TooltipContent: ({ children }: any) => (
-    <div data-testid="tooltip-content">{children}</div>
-  ),
+  TooltipContent: ({ children }: any) => <div data-testid="tooltip-content">{children}</div>,
   TooltipProvider: ({ children }: any) => <>{children}</>,
   TooltipTrigger: ({ children, asChild }: any) => <>{children}</>,
 }))
@@ -198,9 +196,7 @@ describe("FilterList", () => {
     // Проверяем, что отображается только фильтр "s-log" (он в избранном)
     expect(screen.getByTestId("filter-preview-s-log")).toBeInTheDocument()
     expect(screen.queryByTestId("filter-preview-d-log")).not.toBeInTheDocument()
-    expect(
-      screen.queryByTestId("filter-preview-portrait"),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByTestId("filter-preview-portrait")).not.toBeInTheDocument()
   })
 
   it("calls increaseSize when zoom in button is clicked", () => {
@@ -255,8 +251,6 @@ describe("FilterList", () => {
     fireEvent.change(searchInput, { target: { value: "nonexistent" } })
 
     // Проверяем, что отображается сообщение "not found"
-    expect(
-      screen.getByText("browser.tabs.filters common.notFound"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("browser.tabs.filters common.notFound")).toBeInTheDocument()
   })
 })

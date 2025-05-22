@@ -227,20 +227,10 @@ describe("resourcesMachine", () => {
     const snapshotAfterUpdate = actor.getSnapshot()
 
     // Проверяем, что ресурс обновлен
-    expect(snapshotAfterUpdate.context.resources[0].params).toHaveProperty(
-      "opacity",
-      0.5,
-    )
-    expect(snapshotAfterUpdate.context.resources[0].params).toHaveProperty(
-      "duration",
-      2000,
-    )
-    expect(
-      snapshotAfterUpdate.context.effectResources[0].params,
-    ).toHaveProperty("opacity", 0.5)
-    expect(
-      snapshotAfterUpdate.context.effectResources[0].params,
-    ).toHaveProperty("duration", 2000)
+    expect(snapshotAfterUpdate.context.resources[0].params).toHaveProperty("opacity", 0.5)
+    expect(snapshotAfterUpdate.context.resources[0].params).toHaveProperty("duration", 2000)
+    expect(snapshotAfterUpdate.context.effectResources[0].params).toHaveProperty("opacity", 0.5)
+    expect(snapshotAfterUpdate.context.effectResources[0].params).toHaveProperty("duration", 2000)
 
     // Останавливаем актора
     actor.stop()
@@ -314,9 +304,7 @@ describe("resourcesMachine", () => {
     expect(snapshot.context.resources.length).toBe(1)
     expect(snapshot.context.transitionResources.length).toBe(1)
     expect(snapshot.context.resources[0].resourceId).toBe(testTransition.id)
-    expect(snapshot.context.transitionResources[0].resourceId).toBe(
-      testTransition.id,
-    )
+    expect(snapshot.context.transitionResources[0].resourceId).toBe(testTransition.id)
 
     // Останавливаем актора
     actor.stop()
@@ -352,9 +340,7 @@ describe("resourcesMachine", () => {
     expect(snapshot.context.resources.length).toBe(1)
     expect(snapshot.context.templateResources.length).toBe(1)
     expect(snapshot.context.resources[0].resourceId).toBe(testTemplate.id)
-    expect(snapshot.context.templateResources[0].resourceId).toBe(
-      testTemplate.id,
-    )
+    expect(snapshot.context.templateResources[0].resourceId).toBe(testTemplate.id)
 
     // Останавливаем актора
     actor.stop()

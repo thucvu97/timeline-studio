@@ -47,9 +47,7 @@ const fetchMedia = fromPromise(async () => {
     console.log("[mediaMachine] Загружаем файлы с сервера")
     const response = await fetch("/api/media")
     if (!response.ok) {
-      console.warn(
-        `[mediaMachine] Ошибка загрузки медиафайлов: ${response.status} ${response.statusText}`,
-      )
+      console.warn(`[mediaMachine] Ошибка загрузки медиафайлов: ${response.status} ${response.statusText}`)
       return [] // Возвращаем пустой массив вместо выбрасывания исключения
     }
 
@@ -62,9 +60,7 @@ const fetchMedia = fromPromise(async () => {
 
     const files = data.media
     if (!Array.isArray(files)) {
-      console.warn(
-        "[mediaMachine] Некорректный формат данных от сервера (media не является массивом)",
-      )
+      console.warn("[mediaMachine] Некорректный формат данных от сервера (media не является массивом)")
       return [] // Возвращаем пустой массив вместо выбрасывания исключения
     }
 
@@ -139,9 +135,7 @@ export const mediaMachine = createMachine({
             assign({
               allMediaFiles: ({ context, event }) => {
                 return context.allMediaFiles.map((file) => {
-                  const isInEventFiles = event.files.some(
-                    (f: MediaFile) => f.path === file.path,
-                  )
+                  const isInEventFiles = event.files.some((f: MediaFile) => f.path === file.path)
                   if (isInEventFiles) {
                     return {
                       ...file,
@@ -210,9 +204,7 @@ export const mediaMachine = createMachine({
           actions: [
             assign({
               allMediaFiles: ({ context, event }) =>
-                context.allMediaFiles.filter(
-                  (f) => !event.files.some((e: MediaFile) => e.path === f.path),
-                ),
+                context.allMediaFiles.filter((f) => !event.files.some((e: MediaFile) => e.path === f.path)),
             }),
           ],
         },
@@ -222,9 +214,7 @@ export const mediaMachine = createMachine({
               allMediaFiles: ({ context, event }) => {
                 const now = Date.now()
                 return context.allMediaFiles.map((file) => {
-                  const isInEventFiles = event.files.some(
-                    (f: MediaFile) => f.path === file.path,
-                  )
+                  const isInEventFiles = event.files.some((f: MediaFile) => f.path === file.path)
                   return {
                     ...file,
                     isIncluded: isInEventFiles,
@@ -241,9 +231,7 @@ export const mediaMachine = createMachine({
               allMediaFiles: ({ context, event }) => {
                 const now = Date.now()
                 return context.allMediaFiles.map((file) => {
-                  const isInEventFiles = event.files.some(
-                    (f: MediaFile) => f.path === file.path,
-                  )
+                  const isInEventFiles = event.files.some((f: MediaFile) => f.path === file.path)
                   if (isInEventFiles) {
                     return {
                       ...file,
@@ -275,16 +263,11 @@ export const mediaMachine = createMachine({
               }
 
               // Проверяем, есть ли уже такой элемент в избранном
-              const isAlreadyFavorite = currentFavorites[itemType].some(
-                (favItem: any) => favItem.id === item.id,
-              )
+              const isAlreadyFavorite = currentFavorites[itemType].some((favItem: any) => favItem.id === item.id)
 
               // Если элемента еще нет в избранном, добавляем его
               if (!isAlreadyFavorite) {
-                currentFavorites[itemType] = [
-                  ...currentFavorites[itemType],
-                  item,
-                ]
+                currentFavorites[itemType] = [...currentFavorites[itemType], item]
               }
 
               return currentFavorites
@@ -300,9 +283,7 @@ export const mediaMachine = createMachine({
               // Если массив существует, удаляем элемент
               // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               if (currentFavorites[itemType]) {
-                currentFavorites[itemType] = currentFavorites[itemType].filter(
-                  (favItem: any) => favItem.id !== item.id,
-                )
+                currentFavorites[itemType] = currentFavorites[itemType].filter((favItem: any) => favItem.id !== item.id)
               }
 
               return currentFavorites
@@ -350,16 +331,11 @@ export const mediaMachine = createMachine({
               }
 
               // Проверяем, есть ли уже такой элемент в избранном
-              const isAlreadyFavorite = currentFavorites[itemType].some(
-                (favItem: any) => favItem.id === item.id,
-              )
+              const isAlreadyFavorite = currentFavorites[itemType].some((favItem: any) => favItem.id === item.id)
 
               // Если элемента еще нет в избранном, добавляем его
               if (!isAlreadyFavorite) {
-                currentFavorites[itemType] = [
-                  ...currentFavorites[itemType],
-                  item,
-                ]
+                currentFavorites[itemType] = [...currentFavorites[itemType], item]
               }
 
               return currentFavorites
@@ -376,9 +352,7 @@ export const mediaMachine = createMachine({
               // Если массив существует, удаляем элемент
               // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               if (currentFavorites[itemType]) {
-                currentFavorites[itemType] = currentFavorites[itemType].filter(
-                  (favItem: any) => favItem.id !== item.id,
-                )
+                currentFavorites[itemType] = currentFavorites[itemType].filter((favItem: any) => favItem.id !== item.id)
               }
 
               return currentFavorites
@@ -412,9 +386,7 @@ export const mediaMachine = createMachine({
             assign({
               allMediaFiles: ({ context, event }) => {
                 return context.allMediaFiles.map((file) => {
-                  const isInEventFiles = event.files.some(
-                    (f: MediaFile) => f.path === file.path,
-                  )
+                  const isInEventFiles = event.files.some((f: MediaFile) => f.path === file.path)
                   if (isInEventFiles) {
                     return {
                       ...file,

@@ -5,12 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider"
 import { useMedia } from "@/features/browser/media"
 import { cn } from "@/lib/utils"
@@ -27,9 +22,7 @@ import { transitions } from "./transitions"
  * @param {Function} [props.onSelect] - Функция обратного вызова при выборе перехода
  * @returns {JSX.Element} Компонент списка переходов
  */
-export function TransitionsList({
-  onSelect,
-}: { onSelect?: (id: string) => void }) {
+export function TransitionsList({ onSelect }: { onSelect?: (id: string) => void }) {
   const { t } = useTranslation() // Хук для интернационализации
   const [searchQuery, setSearchQuery] = useState("") // Поисковый запрос
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false) // Флаг отображения только избранных
@@ -72,23 +65,16 @@ export function TransitionsList({
     const searchLower = searchQuery.toLowerCase() // Приводим запрос к нижнему регистру
 
     // Получаем локализованное название перехода
-    const localizedName = t(
-      `transitions.types.${transition.type}`,
-    ).toLowerCase()
+    const localizedName = t(`transitions.types.${transition.type}`).toLowerCase()
 
     // Проверяем, соответствует ли переход поисковому запросу
     // Ищем совпадения в локализованном названии или ID перехода
-    const matchesSearch =
-      localizedName.includes(searchLower) ||
-      transition.id.toLowerCase().includes(searchLower)
+    const matchesSearch = localizedName.includes(searchLower) || transition.id.toLowerCase().includes(searchLower)
 
     // Фильтрация по избранному
     const matchesFavorites =
       !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
-      media.isItemFavorite(
-        { id: transition.id, path: "", name: transition.id },
-        "transition",
-      )
+      media.isItemFavorite({ id: transition.id, path: "", name: transition.id }, "transition")
 
     // Переход должен соответствовать обоим условиям
     return matchesSearch && matchesFavorites
@@ -190,9 +176,7 @@ export function TransitionsList({
           /* Отображение найденных переходов в виде сетки */
           <div
             className="grid grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))] gap-2"
-            style={
-              { "--preview-size": `${previewSize}px` } as React.CSSProperties
-            }
+            style={{ "--preview-size": `${previewSize}px` } as React.CSSProperties}
           >
             {/* Отображение каждого перехода */}
             {filteredTransitions.map((transition) => (

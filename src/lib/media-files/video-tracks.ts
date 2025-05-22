@@ -13,11 +13,7 @@ import { doTimeRangesOverlap } from "./utils"
  * @param sector - Сектор, в который добавляются дорожки
  * @param existingDayTracks - Существующие дорожки
  */
-export function processVideoFiles(
-  dayFiles: MediaFile[],
-  sector: Sector,
-  existingDayTracks: Track[],
-): void {
+export function processVideoFiles(dayFiles: MediaFile[], sector: Sector, existingDayTracks: Track[]): void {
   for (const file of dayFiles) {
     const fileStartTime = file.startTime ?? 0
     const fileDuration = file.duration ?? 0
@@ -30,9 +26,7 @@ export function processVideoFiles(
     let cameraId = null
 
     // Получаем видеопоток из probeData
-    const videoStream = file.probeData?.streams.find(
-      (stream) => stream.codec_type === "video",
-    )
+    const videoStream = file.probeData?.streams.find((stream) => stream.codec_type === "video")
 
     // Используем разрешение как идентификатор камеры, если доступно
     if (videoStream?.width && videoStream.height) {
@@ -44,9 +38,7 @@ export function processVideoFiles(
       console.log(`Using generated camera ID for ${file.name}: ${cameraId}`)
     }
 
-    console.log(
-      `Extracted camera ID for file ${file.name}: ${cameraId || "unknown"}`,
-    )
+    console.log(`Extracted camera ID for file ${file.name}: ${cameraId || "unknown"}`)
 
     // Сначала проверяем существующие дорожки в порядке их индекса (сверху вниз)
     const sortedTracks = [...existingDayTracks, ...sector.tracks]
@@ -74,9 +66,7 @@ export function processVideoFiles(
         // используем разрешение или генерируем уникальный ID
         if (!trackCameraId) {
           // Получаем видеопоток из probeData
-          const trackVideoStream = trackVideo.probeData?.streams.find(
-            (stream) => stream.codec_type === "video",
-          )
+          const trackVideoStream = trackVideo.probeData?.streams.find((stream) => stream.codec_type === "video")
 
           // Используем разрешение как идентификатор камеры
           if (trackVideoStream?.width && trackVideoStream.height) {
@@ -85,9 +75,7 @@ export function processVideoFiles(
           } else {
             // Если разрешение не определено, используем уникальный идентификатор
             trackCameraId = `camera-${nanoid(6)}`
-            console.log(
-              `Using generated camera ID for track with video ${trackVideo.name}: ${trackCameraId}`,
-            )
+            console.log(`Using generated camera ID for track with video ${trackVideo.name}: ${trackCameraId}`)
           }
         }
 
@@ -100,12 +88,7 @@ export function processVideoFiles(
           const videoDuration = video.duration ?? 0
           const videoEndTime = videoStartTime + videoDuration
 
-          const overlap = doTimeRangesOverlap(
-            fileStartTime,
-            fileEndTime,
-            videoStartTime,
-            videoEndTime,
-          )
+          const overlap = doTimeRangesOverlap(fileStartTime, fileEndTime, videoStartTime, videoEndTime)
 
           if (overlap) {
             hasTimeOverlap = true
@@ -138,10 +121,7 @@ export function processVideoFiles(
           sector.tracks.push({
             ...track,
             videos: updatedVideos,
-            startTime: Math.min(
-              track.startTime ?? Number.POSITIVE_INFINITY,
-              fileStartTime,
-            ),
+            startTime: Math.min(track.startTime ?? Number.POSITIVE_INFINITY, fileStartTime),
             endTime: Math.max(track.endTime ?? 0, fileEndTime),
             combinedDuration: (track.combinedDuration ?? 0) + fileDuration,
             timeRanges: calculateTimeRanges(updatedVideos),
@@ -150,24 +130,13 @@ export function processVideoFiles(
           // Обновляем существующую дорожку в текущем секторе
           const trackIndex = sector.tracks.findIndex((t) => t.id === track.id)
           if (trackIndex !== -1) {
-            const updatedVideos = [
-              ...(sector.tracks[trackIndex].videos ?? []),
-              file,
-            ]
+            const updatedVideos = [...(sector.tracks[trackIndex].videos ?? []), file]
             sector.tracks[trackIndex] = {
               ...sector.tracks[trackIndex],
               videos: updatedVideos,
-              startTime: Math.min(
-                sector.tracks[trackIndex].startTime ?? Number.POSITIVE_INFINITY,
-                fileStartTime,
-              ),
-              endTime: Math.max(
-                sector.tracks[trackIndex].endTime ?? 0,
-                fileEndTime,
-              ),
-              combinedDuration:
-                (sector.tracks[trackIndex].combinedDuration ?? 0) +
-                fileDuration,
+              startTime: Math.min(sector.tracks[trackIndex].startTime ?? Number.POSITIVE_INFINITY, fileStartTime),
+              endTime: Math.max(sector.tracks[trackIndex].endTime ?? 0, fileEndTime),
+              combinedDuration: (sector.tracks[trackIndex].combinedDuration ?? 0) + fileDuration,
               timeRanges: calculateTimeRanges(updatedVideos),
             }
           }
@@ -194,14 +163,7 @@ export function processVideoFiles(
             const videoDuration = video.duration ?? 0
             const videoEndTime = videoStartTime + videoDuration
 
-            if (
-              doTimeRangesOverlap(
-                fileStartTime,
-                fileEndTime,
-                videoStartTime,
-                videoEndTime,
-              )
-            ) {
+            if (doTimeRangesOverlap(fileStartTime, fileEndTime, videoStartTime, videoEndTime)) {
               hasOverlap = true
               break
             }
@@ -217,19 +179,14 @@ export function processVideoFiles(
       // Если нашли дорожки без перекрытия, используем самую раннюю (с наименьшим индексом)
       if (tracksWithoutOverlap.length > 0) {
         // Сортируем по индексу и берем первую дорожку
-        const track = tracksWithoutOverlap.sort(
-          (a, b) => (Number(a.index) || 0) - (Number(b.index) || 0),
-        )[0]
+        const track = tracksWithoutOverlap.sort((a, b) => (Number(a.index) || 0) - (Number(b.index) || 0))[0]
 
         // Если это дорожка из существующего сектора, добавляем ее в текущий сектор
         if (!sector.tracks.includes(track)) {
           sector.tracks.push({
             ...track,
             videos: [...(track.videos ?? []), file],
-            startTime: Math.min(
-              track.startTime ?? Number.POSITIVE_INFINITY,
-              fileStartTime,
-            ),
+            startTime: Math.min(track.startTime ?? Number.POSITIVE_INFINITY, fileStartTime),
             endTime: Math.max(track.endTime ?? 0, fileEndTime),
             combinedDuration: (track.combinedDuration ?? 0) + fileDuration,
             timeRanges: calculateTimeRanges([...(track.videos ?? []), file]),
@@ -238,24 +195,13 @@ export function processVideoFiles(
           // Обновляем существующую дорожку в текущем секторе
           const trackIndex = sector.tracks.findIndex((t) => t.id === track.id)
           if (trackIndex !== -1) {
-            const updatedVideos = [
-              ...(sector.tracks[trackIndex].videos ?? []),
-              file,
-            ]
+            const updatedVideos = [...(sector.tracks[trackIndex].videos ?? []), file]
             sector.tracks[trackIndex] = {
               ...sector.tracks[trackIndex],
               videos: updatedVideos,
-              startTime: Math.min(
-                sector.tracks[trackIndex].startTime ?? Number.POSITIVE_INFINITY,
-                fileStartTime,
-              ),
-              endTime: Math.max(
-                sector.tracks[trackIndex].endTime ?? 0,
-                fileEndTime,
-              ),
-              combinedDuration:
-                (sector.tracks[trackIndex].combinedDuration ?? 0) +
-                fileDuration,
+              startTime: Math.min(sector.tracks[trackIndex].startTime ?? Number.POSITIVE_INFINITY, fileStartTime),
+              endTime: Math.max(sector.tracks[trackIndex].endTime ?? 0, fileEndTime),
+              combinedDuration: (sector.tracks[trackIndex].combinedDuration ?? 0) + fileDuration,
               timeRanges: calculateTimeRanges(updatedVideos),
             }
           }
@@ -267,15 +213,7 @@ export function processVideoFiles(
 
     // Если все еще не нашли подходящую дорожку, создаем новую
     if (!trackFound) {
-      createNewVideoTrack(
-        file,
-        sector,
-        existingDayTracks,
-        fileStartTime,
-        fileEndTime,
-        fileDuration,
-        cameraId,
-      )
+      createNewVideoTrack(file, sector, existingDayTracks, fileStartTime, fileEndTime, fileDuration, cameraId)
     }
   }
 }
@@ -302,12 +240,8 @@ function createNewVideoTrack(
   // Определяем максимальный номер видеодорожки для этого дня
   const maxVideoIndex = Math.max(
     0,
-    ...sector.tracks
-      .filter((track) => track.type === "video")
-      .map((track) => Number(track.index) || 0),
-    ...existingDayTracks
-      .filter((track) => track.type === "video")
-      .map((track) => Number(track.index) || 0),
+    ...sector.tracks.filter((track) => track.type === "video").map((track) => Number(track.index) || 0),
+    ...existingDayTracks.filter((track) => track.type === "video").map((track) => Number(track.index) || 0),
   )
 
   // Находим максимальный номер камеры в текущем секторе

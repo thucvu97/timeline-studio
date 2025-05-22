@@ -60,14 +60,8 @@ vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Компонент-обертка для тестирования хука useUserSettings
 const TestComponent = () => {
-  const {
-    activeTab,
-    layoutMode,
-    screenshotsPath,
-    playerScreenshotsPath,
-    openAiApiKey,
-    claudeApiKey,
-  } = useUserSettings()
+  const { activeTab, layoutMode, screenshotsPath, playerScreenshotsPath, openAiApiKey, claudeApiKey } =
+    useUserSettings()
   return (
     <div>
       <div data-testid="active-tab">{activeTab}</div>
@@ -96,12 +90,8 @@ describe("UserSettingsProvider", () => {
     // Проверяем, что контекст предоставляет правильные значения
     expect(screen.getByTestId("active-tab").textContent).toBe("media")
     expect(screen.getByTestId("layout-mode").textContent).toBe("default")
-    expect(screen.getByTestId("screenshots-path").textContent).toBe(
-      "public/screenshots",
-    )
-    expect(screen.getByTestId("player-screenshots-path").textContent).toBe(
-      "public/media",
-    )
+    expect(screen.getByTestId("screenshots-path").textContent).toBe("public/screenshots")
+    expect(screen.getByTestId("player-screenshots-path").textContent).toBe("public/media")
     expect(screen.getByTestId("open-ai-api-key").textContent).toBe("")
     expect(screen.getByTestId("claude-api-key").textContent).toBe("")
   })

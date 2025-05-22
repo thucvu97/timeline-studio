@@ -1,15 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
-import { assign, createMachine, fromPromise } from "xstate"
-
-import { userSettingsDbService } from "@/features/media-studio/indexed-db-service"
+import { assign, createMachine } from "xstate"
 
 /**
  * Допустимые размеры превью для медиа-элементов
  * Используются для настройки размера отображения элементов в браузере
  */
-export const PREVIEW_SIZES = [
-  60, 80, 100, 125, 150, 200, 250, 300, 400, 500,
-] as const
+export const PREVIEW_SIZES = [60, 80, 100, 125, 150, 200, 250, 300, 400, 500] as const
 export const DEFAULT_SIZE = 100 // Размер превью по умолчанию
 export const MIN_SIZE = 60 // Минимальный размер превью
 
@@ -24,6 +19,7 @@ export const BROWSER_TABS = [
   "effects", // Эффекты для видео
   "filters", // Фильтры для видео
   "templates", // Шаблоны проектов
+  "subtitles", // Субтитры
 ] as const
 export const DEFAULT_TAB = "media" // Таб по умолчанию
 
@@ -188,106 +184,20 @@ export type UserSettingsEvent =
   | UpdateAllSettingsEvent
 
 /**
- * Функция для загрузки состояния пользовательских настроек из IndexedDB
- * Асинхронно загружает сохраненные настройки или возвращает null в случае ошибки
- *
- * @returns {Promise<UserSettingsContext | null>} Сохраненные настройки или null
- */
-const loadTimelineState = fromPromise(async () => {
-  try {
-    // Загружаем состояние из IndexedDB
-    const state = await userSettingsDbService.loadTimelineState()
-
-    // Проверяем, что состояние загружено и содержит данные
-    if (state && Object.keys(state).length > 0) {
-      console.log(
-        `[userSettingsMachine] Состояние настроек загружено из IndexedDB`,
-      )
-      return state
-    }
-
-    // Если состояние не найдено, логируем сообщение и возвращаем null
-    console.log(
-      "[userSettingsMachine] В IndexedDB нет сохраненного состояния настроек",
-    )
-    return null
-  } catch (error) {
-    // В случае ошибки логируем сообщение и возвращаем null
-    console.error(
-      "[userSettingsMachine] Ошибка при загрузке состояния настроек:",
-      error,
-    )
-    return null
-  }
-})
-
-/**
  * Машина состояний для управления пользовательскими настройками
- * Обрабатывает загрузку настроек из IndexedDB и события обновления настроек
+ * Обрабатывает события обновления настроек
  */
 export const userSettingsMachine = createMachine(
   {
-    id: "user-settings-v2", // Изменяем ID, чтобы сбросить кэш
-    initial: "loading", // Начальное состояние - загрузка
-    context: initialContext, // Начальный контекст с настройками по умолчанию
+    id: "user-settings-v3", // Изменяем ID, чтобы сбросить кэш
+    initial: "idle", // Начальное состояние - ожидание (без загрузки из IndexedDB)
+    context: {
+      ...initialContext,
+      isLoaded: true, // Устанавливаем флаг загрузки в true, так как загрузка происходит в app-settings-provider
+    }, // Начальный контекст с настройками по умолчанию
 
     // Определение состояний машины
     states: {
-      /**
-       * Состояние загрузки настроек
-       * Загружает сохраненные настройки из IndexedDB
-       */
-      loading: {
-        invoke: {
-          src: loadTimelineState, // Функция для загрузки настроек
-
-          // Обработка успешной загрузки
-          onDone: {
-            target: "idle", // Переход в состояние ожидания
-            actions: [
-              // Обновляем контекст загруженными настройками
-              assign(({ event }) => {
-                const loadedState = event.output
-
-                // Если настройки загружены, объединяем их с начальными
-                if (loadedState) {
-                  console.log(
-                    "[timelineMachine] Восстанавливаем состояние из IndexedDB",
-                  )
-                  return {
-                    ...initialContext, // Базовые настройки
-                    ...loadedState, // Загруженные настройки
-                  }
-                }
-
-                // Если настройки не загружены, используем начальные
-                return initialContext
-              }),
-            ],
-          },
-
-          // Обработка ошибки загрузки
-          onError: {
-            target: "idle", // Переход в состояние ожидания
-            actions: [
-              // Логируем ошибку
-              ({ event }) => {
-                if (event && event.error) {
-                  console.error(
-                    "[timelineMachine] Ошибка при загрузке состояния:",
-                    event.error,
-                  )
-                } else {
-                  console.error(
-                    "[timelineMachine] Неизвестная ошибка при загрузке состояния",
-                  )
-                }
-              },
-            ],
-          },
-        },
-      },
-
       /**
        * Состояние ожидания (основное состояние машины)
        * Обрабатывает события обновления настроек
@@ -462,10 +372,7 @@ export const userSettingsMachine = createMachine(
       updateOpenAiApiKey: assign(({ context, event }) => {
         const typedEvent = event as UpdateOpenAiApiKeyEvent
         // Скрываем API ключ в логах для безопасности
-        console.log(
-          "Updating OpenAI API key:",
-          typedEvent.apiKey ? "***" : "(empty)",
-        )
+        console.log("Updating OpenAI API key:", typedEvent.apiKey ? "***" : "(empty)")
 
         // Возвращаем обновленный контекст
         return {
@@ -481,10 +388,7 @@ export const userSettingsMachine = createMachine(
       updateClaudeApiKey: assign(({ context, event }) => {
         const typedEvent = event as UpdateClaudeApiKeyEvent
         // Скрываем API ключ в логах для безопасности
-        console.log(
-          "Updating Claude API key:",
-          typedEvent.apiKey ? "***" : "(empty)",
-        )
+        console.log("Updating Claude API key:", typedEvent.apiKey ? "***" : "(empty)")
 
         // Возвращаем обновленный контекст
         return {

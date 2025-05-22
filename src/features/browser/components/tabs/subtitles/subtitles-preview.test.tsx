@@ -16,10 +16,7 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ file, onAddMedia, onRemoveMedia, isAdded, size }: any) => (
     <div>
       {isAdded ? (
-        <button
-          data-testid="remove-media-button"
-          onClick={(e) => onRemoveMedia(e)}
-        >
+        <button data-testid="remove-media-button" onClick={(e) => onRemoveMedia(e)}>
           Remove {file.name}
         </button>
       ) : (
@@ -69,9 +66,7 @@ vi.mock("@/features/browser/resources", () => ({
     addSubtitle: mockAddSubtitle,
     removeResource: mockRemoveResource,
     isSubtitleAdded: mockIsSubtitleAdded,
-    subtitleResources: [
-      { id: "subtitle-resource-1", resourceId: "default", type: "subtitle" },
-    ],
+    subtitleResources: [{ id: "subtitle-resource-1", resourceId: "default", type: "subtitle" }],
   }),
 }))
 

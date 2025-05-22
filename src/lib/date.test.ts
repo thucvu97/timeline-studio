@@ -92,9 +92,7 @@ describe("formatDate", () => {
     })
 
     // Мокаем console.error
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
     // Timestamp для 19 мая 2024 года
     const timestamp = 1716076800 // 2024-05-19T00:00:00Z

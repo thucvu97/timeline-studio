@@ -27,11 +27,7 @@ interface FavoriteButtonProps {
  * @param size - Размер кнопки (по умолчанию 60)
  * @param type - Тип элемента (по умолчанию "media")
  */
-export const FavoriteButton = memo(function FavoriteButton({
-  file,
-  size = 60,
-  type = "media",
-}: FavoriteButtonProps) {
+export const FavoriteButton = memo(function FavoriteButton({ file, size = 60, type = "media" }: FavoriteButtonProps) {
   const { t } = useTranslation()
   const media = useMedia()
   const { isItemFavorite, addToFavorites, removeFromFavorites } = media
@@ -133,8 +129,8 @@ export const FavoriteButton = memo(function FavoriteButton({
       )}
       onClick={handleToggleFavorite}
       onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          handleToggleFavorite(e);
+        if (e.key === "Enter" || e.key === " ") {
+          handleToggleFavorite(e)
         }
       }}
       onMouseEnter={() => setIsHovering(true)}

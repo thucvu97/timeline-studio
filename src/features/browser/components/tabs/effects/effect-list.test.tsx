@@ -81,9 +81,7 @@ vi.mock("@/components/ui/input", () => ({
 
 vi.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: any) => <>{children}</>,
-  TooltipContent: ({ children }: any) => (
-    <div data-testid="tooltip-content">{children}</div>
-  ),
+  TooltipContent: ({ children }: any) => <div data-testid="tooltip-content">{children}</div>,
   TooltipProvider: ({ children }: any) => <>{children}</>,
   TooltipTrigger: ({ children, asChild }: any) => <>{children}</>,
 }))
@@ -166,9 +164,7 @@ describe("EffectList", () => {
 
     // Проверяем, что отображается только эффект "contrast"
     expect(screen.getByTestId("effect-preview-contrast")).toBeInTheDocument()
-    expect(
-      screen.queryByTestId("effect-preview-brightness"),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByTestId("effect-preview-brightness")).not.toBeInTheDocument()
     expect(screen.queryByTestId("effect-preview-sepia")).not.toBeInTheDocument()
   })
 
@@ -186,9 +182,7 @@ describe("EffectList", () => {
 
     // Проверяем, что отображается только эффект "brightness" (он в избранном)
     expect(screen.getByTestId("effect-preview-brightness")).toBeInTheDocument()
-    expect(
-      screen.queryByTestId("effect-preview-contrast"),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByTestId("effect-preview-contrast")).not.toBeInTheDocument()
     expect(screen.queryByTestId("effect-preview-sepia")).not.toBeInTheDocument()
   })
 
@@ -239,8 +233,6 @@ describe("EffectList", () => {
     fireEvent.change(searchInput, { target: { value: "nonexistent" } })
 
     // Проверяем, что отображается сообщение "not found"
-    expect(
-      screen.getByText("browser.tabs.effects common.notFound"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("browser.tabs.effects common.notFound")).toBeInTheDocument()
   })
 })

@@ -14,10 +14,7 @@ import { processVideoFiles } from "./video-tracks"
  * @param existingTracks - Существующие треки (опционально)
  * @returns Массив созданных секторов
  */
-export const createTracksFromFiles = (
-  files: MediaFile[],
-  existingTracks: Track[] = [],
-): Sector[] => {
+export const createTracksFromFiles = (files: MediaFile[], existingTracks: Track[] = []): Sector[] => {
   console.log(
     "createTracksFromFiles called with files:",
     files.map((f) => f.name),
@@ -28,14 +25,10 @@ export const createTracksFromFiles = (
   )
 
   // Разделяем файлы на видео и аудио
-  const videoFiles = files.filter((file) =>
-    file.probeData?.streams.some((stream) => stream.codec_type === "video"),
-  )
+  const videoFiles = files.filter((file) => file.probeData?.streams.some((stream) => stream.codec_type === "video"))
   const audioFiles = files.filter(
     (file) =>
-      !file.probeData?.streams.some(
-        (stream) => stream.codec_type === "video",
-      ) &&
+      !file.probeData?.streams.some((stream) => stream.codec_type === "video") &&
       file.probeData?.streams.some((stream) => stream.codec_type === "audio"),
   )
 
@@ -49,12 +42,8 @@ export const createTracksFromFiles = (
   )
 
   // Сортируем файлы по времени начала
-  const sortedVideoFiles = [...videoFiles].sort(
-    (a, b) => (a.startTime ?? 0) - (b.startTime ?? 0),
-  )
-  const sortedAudioFiles = [...audioFiles].sort(
-    (a, b) => (a.startTime ?? 0) - (b.startTime ?? 0),
-  )
+  const sortedVideoFiles = [...videoFiles].sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0))
+  const sortedAudioFiles = [...audioFiles].sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0))
 
   const sectors: Sector[] = []
 
@@ -62,20 +51,17 @@ export const createTracksFromFiles = (
   const currentLanguage = i18n.language || "ru"
 
   // Группируем видео по дням
-  const videoFilesByDay = sortedVideoFiles.reduce<Record<string, MediaFile[]>>(
-    (acc, file) => {
-      const startTime = file.startTime ?? Date.now() / 1000
-      const date = new Date(startTime * 1000).toISOString().split("T")[0]
+  const videoFilesByDay = sortedVideoFiles.reduce<Record<string, MediaFile[]>>((acc, file) => {
+    const startTime = file.startTime ?? Date.now() / 1000
+    const date = new Date(startTime * 1000).toISOString().split("T")[0]
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!acc[date]) {
-        acc[date] = []
-      }
-      acc[date].push(file)
-      return acc
-    },
-    {},
-  )
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!acc[date]) {
+      acc[date] = []
+    }
+    acc[date].push(file)
+    return acc
+  }, {})
 
   console.log(
     "videoFilesByDay:",
@@ -87,22 +73,23 @@ export const createTracksFromFiles = (
   )
 
   // Получаем существующие секторы и треки по дням
-  const existingSectorsByDay = existingTracks.reduce<
-    Record<string, { sector: Sector | null; tracks: Track[] }>
-  >((acc, track) => {
-    if (!track.videos || track.videos.length === 0) return acc
+  const existingSectorsByDay = existingTracks.reduce<Record<string, { sector: Sector | null; tracks: Track[] }>>(
+    (acc, track) => {
+      if (!track.videos || track.videos.length === 0) return acc
 
-    const startTime = track.videos[0].startTime ?? Date.now() / 1000
-    const date = new Date(startTime * 1000).toISOString().split("T")[0]
+      const startTime = track.videos[0].startTime ?? Date.now() / 1000
+      const date = new Date(startTime * 1000).toISOString().split("T")[0]
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!acc[date]) {
-      acc[date] = { sector: null, tracks: [] }
-    }
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!acc[date]) {
+        acc[date] = { sector: null, tracks: [] }
+      }
 
-    acc[date].tracks.push(track)
-    return acc
-  }, {})
+      acc[date].tracks.push(track)
+      return acc
+    },
+    {},
+  )
 
   // Обрабатываем видео файлы по дням
   for (const [date, dayFiles] of Object.entries(videoFilesByDay)) {
@@ -135,9 +122,7 @@ export const createTracksFromFiles = (
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const existingDayTracks = existingSectorsByDay[date]?.tracks || []
 
-    console.log(
-      `Existing sector for date ${date}: ${existingSector ? "yes" : "no"}`,
-    )
+    console.log(`Existing sector for date ${date}: ${existingSector ? "yes" : "no"}`)
     console.log(`Existing tracks for date ${date}: ${existingDayTracks.length}`)
 
     // Форматируем дату для отображения с помощью универсального метода
@@ -163,9 +148,7 @@ export const createTracksFromFiles = (
       scrollPosition: 0,
     }
 
-    console.log(
-      `Using sector ${sector.name} with ${sector.tracks.length} tracks`,
-    )
+    console.log(`Using sector ${sector.name} with ${sector.tracks.length} tracks`)
 
     // Обрабатываем каждый файл и добавляем его на подходящую дорожку
     processVideoFiles(dayFiles, sector, existingDayTracks)
@@ -191,12 +174,7 @@ export const createTracksFromFiles = (
   }
 
   // Обрабатываем аудио файлы по дням
-  processAudioFiles(
-    sortedAudioFiles,
-    sectors,
-    existingSectorsByDay,
-    currentLanguage,
-  )
+  processAudioFiles(sortedAudioFiles, sectors, existingSectorsByDay, currentLanguage)
 
   console.log(
     "Created sectors:",

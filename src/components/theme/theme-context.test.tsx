@@ -38,8 +38,6 @@ describe("ThemeProvider", () => {
     expect(screen.getByTestId("next-theme-provider")).toBeInTheDocument()
 
     // Проверяем, что дочерний компонент находится внутри NextThemeProvider
-    expect(screen.getByTestId("next-theme-provider")).toContainElement(
-      screen.getByTestId("test-child"),
-    )
+    expect(screen.getByTestId("next-theme-provider")).toContainElement(screen.getByTestId("test-child"))
   })
 })

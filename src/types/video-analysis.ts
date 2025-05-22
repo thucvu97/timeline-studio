@@ -190,10 +190,7 @@ export function createEmptyVideoAnalysis(
 /**
  * Создает пустой упрощенный анализ видео
  */
-export function createEmptySimpleVideoAnalysis(
-  videoId: string,
-  duration: number,
-): SimpleVideoAnalysis {
+export function createEmptySimpleVideoAnalysis(videoId: string, duration: number): SimpleVideoAnalysis {
   return {
     videoId,
     duration,

@@ -7,20 +7,13 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export function ExportModal() {
   const { t } = useTranslation()
-  const [selectedSocialNetwork, setSelectedSocialNetwork] =
-    useState<string>("youtube")
+  const [selectedSocialNetwork, setSelectedSocialNetwork] = useState<string>("youtube")
 
   return (
     <Tabs defaultValue="local" className="flex flex-1 flex-col">
@@ -52,9 +45,7 @@ export function ExportModal() {
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="bg-muted flex aspect-video w-full items-center justify-center rounded-lg">
-                <div className="text-muted-foreground">
-                  {t("dialogs.export.cover")}
-                </div>
+                <div className="text-muted-foreground">{t("dialogs.export.cover")}</div>
               </div>
               <Button variant="outline" className="w-full">
                 {t("dialogs.export.edit")}
@@ -89,17 +80,11 @@ export function ExportModal() {
                 <Label>{t("dialogs.export.preset")}</Label>
                 <Select defaultValue="match">
                   <SelectTrigger>
-                    <SelectValue
-                      placeholder={t("dialogs.export.defaultPreset")}
-                    />
+                    <SelectValue placeholder={t("dialogs.export.defaultPreset")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="match">
-                      {t("dialogs.export.defaultPreset")}
-                    </SelectItem>
-                    <SelectItem value="custom">
-                      {t("dialogs.export.custom")}
-                    </SelectItem>
+                    <SelectItem value="match">{t("dialogs.export.defaultPreset")}</SelectItem>
+                    <SelectItem value="custom">{t("dialogs.export.custom")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -123,9 +108,7 @@ export function ExportModal() {
                   <div className="flex gap-4">
                     <div className="flex items-center gap-2">
                       <Switch id="normal" />
-                      <Label htmlFor="normal">
-                        {t("dialogs.export.normal")}
-                      </Label>
+                      <Label htmlFor="normal">{t("dialogs.export.normal")}</Label>
                     </div>
                     <div className="flex items-center gap-2">
                       <Switch id="good" defaultChecked />
@@ -195,16 +178,11 @@ export function ExportModal() {
           </div>
         </TabsContent>
 
-        <TabsContent
-          value="device"
-          className="h-full overflow-y-auto px-6 pt-4"
-        >
+        <TabsContent value="device" className="h-full overflow-y-auto px-6 pt-4">
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="bg-muted flex aspect-video w-full items-center justify-center rounded-lg">
-                <div className="text-muted-foreground">
-                  {t("dialogs.export.cover")}
-                </div>
+                <div className="text-muted-foreground">{t("dialogs.export.cover")}</div>
               </div>
               <Button variant="outline" className="w-full">
                 {t("dialogs.export.edit")}
@@ -215,10 +193,7 @@ export function ExportModal() {
               <div className="space-y-2">
                 <Label>{t("dialogs.export.titles")}</Label>
                 <div className="grid grid-cols-[1fr,auto] items-center gap-2">
-                  <Input
-                    placeholder={t("dialogs.export.name")}
-                    defaultValue="Room"
-                  />
+                  <Input placeholder={t("dialogs.export.name")} defaultValue="Room" />
                   <Button variant="ghost" size="icon">
                     <Info className="h-4 w-4" />
                   </Button>
@@ -239,17 +214,11 @@ export function ExportModal() {
                 <Label>{t("dialogs.export.preset")}</Label>
                 <Select defaultValue="default">
                   <SelectTrigger>
-                    <SelectValue
-                      placeholder={t("dialogs.export.defaultPreset")}
-                    />
+                    <SelectValue placeholder={t("dialogs.export.defaultPreset")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="default">
-                      {t("dialogs.export.defaultPreset")}
-                    </SelectItem>
-                    <SelectItem value="custom">
-                      {t("dialogs.export.custom")}
-                    </SelectItem>
+                    <SelectItem value="default">{t("dialogs.export.defaultPreset")}</SelectItem>
+                    <SelectItem value="custom">{t("dialogs.export.custom")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -262,15 +231,9 @@ export function ExportModal() {
                       <SelectValue placeholder="iPhone" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="iphone">
-                        {t("dialogs.export.device_types.iphone")}
-                      </SelectItem>
-                      <SelectItem value="ipad">
-                        {t("dialogs.export.device_types.ipad")}
-                      </SelectItem>
-                      <SelectItem value="android">
-                        {t("dialogs.export.device_types.android")}
-                      </SelectItem>
+                      <SelectItem value="iphone">{t("dialogs.export.device_types.iphone")}</SelectItem>
+                      <SelectItem value="ipad">{t("dialogs.export.device_types.ipad")}</SelectItem>
+                      <SelectItem value="android">{t("dialogs.export.device_types.android")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -306,9 +269,7 @@ export function ExportModal() {
                 <div className="flex items-center gap-2">
                   <span className="text-sm">30 {t("dialogs.export.fps")}</span>
                   <span className="mx-2 text-sm">•</span>
-                  <span className="text-sm">
-                    6000 {t("dialogs.export.kbps")}
-                  </span>
+                  <span className="text-sm">6000 {t("dialogs.export.kbps")}</span>
                   <span className="mx-2 text-sm">•</span>
                   <span className="text-sm">{t("dialogs.export.sdr")}</span>
                 </div>
@@ -338,64 +299,37 @@ export function ExportModal() {
           </div>
         </TabsContent>
 
-        <TabsContent
-          value="social"
-          className="h-full overflow-y-auto px-6 pt-4"
-        >
+        <TabsContent value="social" className="h-full overflow-y-auto px-6 pt-4">
           <div className="grid grid-cols-[250px,1fr] gap-6">
             <div className="space-y-2">
               <div
                 className={`flex cursor-pointer items-center gap-2 rounded p-2 ${selectedSocialNetwork === "youtube" ? "bg-accent" : "hover:bg-accent"}`}
                 onClick={() => setSelectedSocialNetwork("youtube")}
               >
-                <Image
-                  src="/youtube-new.svg"
-                  width={24}
-                  height={24}
-                  className="h-6 w-6"
-                  alt="YouTube"
-                />
+                <Image src="/youtube-new.svg" width={24} height={24} className="h-6 w-6" alt="YouTube" />
                 <div>
                   <div>{t("dialogs.export.youtube")}</div>
-                  <div className="text-muted-foreground text-xs">
-                    {t("dialogs.export.notLoggedIn")}
-                  </div>
+                  <div className="text-muted-foreground text-xs">{t("dialogs.export.notLoggedIn")}</div>
                 </div>
               </div>
               <div
                 className={`flex cursor-pointer items-center gap-2 rounded p-2 ${selectedSocialNetwork === "tiktok" ? "bg-accent" : "hover:bg-accent"}`}
                 onClick={() => setSelectedSocialNetwork("tiktok")}
               >
-                <Image
-                  src="/tiktok-new.svg"
-                  width={24}
-                  height={24}
-                  className="h-6 w-6"
-                  alt="TikTok"
-                />
+                <Image src="/tiktok-new.svg" width={24} height={24} className="h-6 w-6" alt="TikTok" />
                 <div>
                   <div>{t("dialogs.export.tiktok")}</div>
-                  <div className="text-muted-foreground text-xs">
-                    {t("dialogs.export.notLoggedIn")}
-                  </div>
+                  <div className="text-muted-foreground text-xs">{t("dialogs.export.notLoggedIn")}</div>
                 </div>
               </div>
               <div
                 className={`flex cursor-pointer items-center gap-2 rounded p-2 ${selectedSocialNetwork === "telegram" ? "bg-accent" : "hover:bg-accent"}`}
                 onClick={() => setSelectedSocialNetwork("telegram")}
               >
-                <Image
-                  src="/telegram.svg"
-                  width={24}
-                  height={24}
-                  className="h-6 w-6"
-                  alt="Telegram"
-                />
+                <Image src="/telegram.svg" width={24} height={24} className="h-6 w-6" alt="Telegram" />
                 <div>
                   <div>{t("dialogs.export.telegram")}</div>
-                  <div className="text-muted-foreground text-xs">
-                    {t("dialogs.export.notLoggedIn")}
-                  </div>
+                  <div className="text-muted-foreground text-xs">{t("dialogs.export.notLoggedIn")}</div>
                 </div>
               </div>
               {/* {t("dialogs.export.otherNetworks")} */}
@@ -403,39 +337,21 @@ export function ExportModal() {
             <div className="flex items-center justify-center">
               {selectedSocialNetwork === "youtube" && (
                 <div className="space-y-4 text-center">
-                  <Image
-                    src="/youtube-new.svg"
-                    width={96}
-                    height={96}
-                    className="mx-auto h-24 w-24"
-                    alt="YouTube"
-                  />
+                  <Image src="/youtube-new.svg" width={96} height={96} className="mx-auto h-24 w-24" alt="YouTube" />
                   <div>{t("dialogs.export.loginPrompt.youtube")}</div>
                   <Button>{t("dialogs.export.login")}</Button>
                 </div>
               )}
               {selectedSocialNetwork === "tiktok" && (
                 <div className="space-y-4 text-center">
-                  <Image
-                    src="/tiktok-new.svg"
-                    width={96}
-                    height={96}
-                    className="mx-auto h-24 w-24"
-                    alt="TikTok"
-                  />
+                  <Image src="/tiktok-new.svg" width={96} height={96} className="mx-auto h-24 w-24" alt="TikTok" />
                   <div>{t("dialogs.export.loginPrompt.tiktok")}</div>
                   <Button>{t("dialogs.export.login")}</Button>
                 </div>
               )}
               {selectedSocialNetwork === "telegram" && (
                 <div className="space-y-4 text-center">
-                  <Image
-                    src="/telegram.svg"
-                    width={96}
-                    height={96}
-                    className="mx-auto h-24 w-24"
-                    alt="Telegram"
-                  />
+                  <Image src="/telegram.svg" width={96} height={96} className="mx-auto h-24 w-24" alt="Telegram" />
                   <div>{t("dialogs.export.loginPrompt.telegram")}</div>
                   <Button>{t("dialogs.export.login")}</Button>
                 </div>

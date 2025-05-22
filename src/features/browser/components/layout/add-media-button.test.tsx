@@ -22,29 +22,17 @@ vi.mock("react-i18next", () => ({
 // Мокаем Lucide иконки
 vi.mock("lucide-react", () => ({
   Plus: ({ className, strokeWidth }: any) => (
-    <div
-      data-testid="plus-icon"
-      className={className}
-      data-stroke-width={strokeWidth}
-    >
+    <div data-testid="plus-icon" className={className} data-stroke-width={strokeWidth}>
       Plus Icon
     </div>
   ),
   Check: ({ className, strokeWidth }: any) => (
-    <div
-      data-testid="check-icon"
-      className={className}
-      data-stroke-width={strokeWidth}
-    >
+    <div data-testid="check-icon" className={className} data-stroke-width={strokeWidth}>
       Check Icon
     </div>
   ),
   X: ({ className, strokeWidth }: any) => (
-    <div
-      data-testid="x-icon"
-      className={className}
-      data-stroke-width={strokeWidth}
-    >
+    <div data-testid="x-icon" className={className} data-stroke-width={strokeWidth}>
       X Icon
     </div>
   ),
@@ -81,13 +69,7 @@ describe("AddMediaButton", () => {
 
   it("should render add button when isAdded is false", () => {
     // Рендерим компонент
-    render(
-      <AddMediaButton
-        file={testFile}
-        isAdded={false}
-        onAddMedia={onAddMedia}
-      />,
-    )
+    render(<AddMediaButton file={testFile} isAdded={false} onAddMedia={onAddMedia} />)
 
     // Проверяем, что отображается иконка Plus
     expect(screen.getByTestId("plus-icon")).toBeInTheDocument()
@@ -103,9 +85,7 @@ describe("AddMediaButton", () => {
 
   it("should render check icon when isAdded is true", () => {
     // Рендерим компонент
-    render(
-      <AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} />,
-    )
+    render(<AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} />)
 
     // Проверяем, что отображается иконка Check
     expect(screen.getByTestId("check-icon")).toBeInTheDocument()
@@ -120,13 +100,7 @@ describe("AddMediaButton", () => {
 
   it("should call onAddMedia when clicked and not added", () => {
     // Рендерим компонент
-    render(
-      <AddMediaButton
-        file={testFile}
-        isAdded={false}
-        onAddMedia={onAddMedia}
-      />,
-    )
+    render(<AddMediaButton file={testFile} isAdded={false} onAddMedia={onAddMedia} />)
 
     // Кликаем на кнопку
     fireEvent.click(screen.getByTitle("Add to timeline"))
@@ -138,14 +112,7 @@ describe("AddMediaButton", () => {
 
   it("should show remove icon on hover when isAdded is true and not recently added", () => {
     // Рендерим компонент
-    render(
-      <AddMediaButton
-        file={testFile}
-        isAdded={true}
-        onAddMedia={onAddMedia}
-        onRemoveMedia={onRemoveMedia}
-      />,
-    )
+    render(<AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} onRemoveMedia={onRemoveMedia} />)
 
     // Проверяем, что изначально отображается иконка Check
     expect(screen.getByTestId("check-icon")).toBeInTheDocument()
@@ -170,14 +137,7 @@ describe("AddMediaButton", () => {
 
   it("should call onRemoveMedia when clicked on remove icon", () => {
     // Рендерим компонент
-    render(
-      <AddMediaButton
-        file={testFile}
-        isAdded={true}
-        onAddMedia={onAddMedia}
-        onRemoveMedia={onRemoveMedia}
-      />,
-    )
+    render(<AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} onRemoveMedia={onRemoveMedia} />)
 
     // Продвигаем таймеры вперед, чтобы сбросить флаг isRecentlyAdded
     act(() => {
@@ -200,9 +160,7 @@ describe("AddMediaButton", () => {
 
   it("should use onAddMedia as fallback if onRemoveMedia is not provided", () => {
     // Рендерим компонент без onRemoveMedia
-    render(
-      <AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} />,
-    )
+    render(<AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} />)
 
     // Продвигаем таймеры вперед, чтобы сбросить флаг isRecentlyAdded
     act(() => {
@@ -225,47 +183,27 @@ describe("AddMediaButton", () => {
 
   it("should apply different styles based on size prop", () => {
     // Рендерим компонент с большим размером
-    const { rerender } = render(
-      <AddMediaButton
-        file={testFile}
-        isAdded={false}
-        size={120}
-        onAddMedia={onAddMedia}
-      />,
-    )
+    const { rerender } = render(<AddMediaButton file={testFile} isAdded={false} size={120} onAddMedia={onAddMedia} />)
 
     // Проверяем, что иконка имеет правильный класс для большого размера
     expect(screen.getByTestId("plus-icon").className).toContain("h-3.5 w-3.5")
 
     // Проверяем, что кнопка имеет правильное позиционирование для большого размера
-    expect(screen.getByTitle("Add to timeline").className).toContain(
-      "right-[5px] bottom-1",
-    )
+    expect(screen.getByTitle("Add to timeline").className).toContain("right-[5px] bottom-1")
 
     // Перерендериваем компонент с маленьким размером
-    rerender(
-      <AddMediaButton
-        file={testFile}
-        isAdded={false}
-        size={60}
-        onAddMedia={onAddMedia}
-      />,
-    )
+    rerender(<AddMediaButton file={testFile} isAdded={false} size={60} onAddMedia={onAddMedia} />)
 
     // Проверяем, что иконка имеет правильный класс для маленького размера
     expect(screen.getByTestId("plus-icon").className).toContain("h-2.5 w-2.5")
 
     // Проверяем, что кнопка имеет правильное позиционирование для маленького размера
-    expect(screen.getByTitle("Add to timeline").className).toContain(
-      "right-1 bottom-0.5",
-    )
+    expect(screen.getByTitle("Add to timeline").className).toContain("right-1 bottom-0.5")
   })
 
   it("should not render if onAddMedia is not provided", () => {
     // Рендерим компонент без onAddMedia
-    const { container } = render(
-      <AddMediaButton file={testFile} isAdded={false} />,
-    )
+    const { container } = render(<AddMediaButton file={testFile} isAdded={false} />)
 
     // Проверяем, что компонент не отрендерен
     expect(container.firstChild).toBeNull()

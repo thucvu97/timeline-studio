@@ -2,12 +2,7 @@ import { useTranslation } from "react-i18next"
 
 import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
 
-import {
-  DefaultLayout,
-  DualLayout,
-  OptionsLayout,
-  VerticalLayout,
-} from "./layouts-markup"
+import { DefaultLayout, DualLayout, OptionsLayout, VerticalLayout } from "./layouts-markup"
 
 // Создаем тип для макетов
 export type LayoutMode = "default" | "options" | "vertical" | "dual"

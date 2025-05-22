@@ -1,10 +1,6 @@
 import { useState } from "react"
 
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Browser } from "@/features/browser/components/browser"
 import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
 import { Timeline } from "@/features/timeline/components/timeline"
@@ -14,11 +10,7 @@ export function DefaultLayout() {
   const { isBrowserVisible } = useUserSettings()
 
   return (
-    <ResizablePanelGroup
-      direction="vertical"
-      className="min-h-0 flex-grow"
-      autoSaveId="default-layout"
-    >
+    <ResizablePanelGroup direction="vertical" className="min-h-0 flex-grow" autoSaveId="default-layout">
       <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>
         {isBrowserVisible ? (
           // Если браузер видим, показываем обычный макет с двумя панелями

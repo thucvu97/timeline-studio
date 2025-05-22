@@ -131,10 +131,7 @@ describe("Modal Machine", () => {
     })
 
     // Проверяем, что был вызван console.log с правильными аргументами
-    expect(console.log).toHaveBeenCalledWith(
-      "Modal project-settings submitted with data:",
-      submitData,
-    )
+    expect(console.log).toHaveBeenCalledWith("Modal project-settings submitted with data:", submitData)
   })
 
   it("should allow changing modal type without closing when in opened state", () => {

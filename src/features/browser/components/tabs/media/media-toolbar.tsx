@@ -27,12 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useMedia } from "@/features/browser/media"
 import { cn } from "@/lib/utils"
 
@@ -255,10 +250,7 @@ export function MediaToolbar() {
                   onClick={handleToggleFavorites}
                   data-testid="favorites-button"
                 >
-                  <Star
-                    size={16}
-                    className={showFavoritesOnly ? "fill-current" : ""}
-                  />
+                  <Star size={16} className={showFavoritesOnly ? "fill-current" : ""} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t("browser.media.favorites")}</TooltipContent>
@@ -289,9 +281,7 @@ export function MediaToolbar() {
                   size="icon"
                   className={cn(
                     "mr-0 h-6 w-6 cursor-pointer",
-                    viewMode === "thumbnails"
-                      ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                      : "",
+                    viewMode === "thumbnails" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                   )}
                   onClick={() => handleViewModeChange("thumbnails")}
                   data-testid="thumbnails-view-button"
@@ -331,10 +321,7 @@ export function MediaToolbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={cn(
-                    "mr-1 h-6 w-6 cursor-pointer",
-                    !canDecreaseSize && "cursor-not-allowed opacity-50",
-                  )}
+                  className={cn("mr-1 h-6 w-6 cursor-pointer", !canDecreaseSize && "cursor-not-allowed opacity-50")}
                   onClick={decreasePreviewSize}
                   disabled={!canDecreaseSize}
                   data-testid="zoom-out-button"
@@ -350,10 +337,7 @@ export function MediaToolbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={cn(
-                    "mr-1 h-6 w-6 cursor-pointer",
-                    !canIncreaseSize && "cursor-not-allowed opacity-50",
-                  )}
+                  className={cn("mr-1 h-6 w-6 cursor-pointer", !canIncreaseSize && "cursor-not-allowed opacity-50")}
                   onClick={increasePreviewSize}
                   disabled={!canIncreaseSize}
                   data-testid="zoom-in-button"
@@ -375,10 +359,7 @@ export function MediaToolbar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn(
-                      "h-6 w-6 cursor-pointer",
-                      sortBy !== "name" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
-                    )}
+                    className={cn("h-6 w-6 cursor-pointer", sortBy !== "name" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "")}
                   >
                     <SortDesc size={16} />
                   </Button>
@@ -386,10 +367,7 @@ export function MediaToolbar() {
               </TooltipTrigger>
               <TooltipContent>{t("browser.toolbar.sort")}</TooltipContent>
               <DropdownMenuContent className="space-y-1" align="end">
-                <DropdownMenuItem
-                  className="h-6 cursor-pointer"
-                  onClick={() => handleSort("name")}
-                >
+                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("name")}>
                   <div className="flex items-center gap-2">
                     {sortBy === "name" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.name")}</span>
@@ -419,10 +397,7 @@ export function MediaToolbar() {
                     <span>{t("browser.toolbar.sortBy.size")}</span>
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="h-6 cursor-pointer"
-                  onClick={() => handleSort("duration")}
-                >
+                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("duration")}>
                   <div className="flex items-center gap-2">
                     {sortBy === "duration" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.duration")}</span>
@@ -444,9 +419,7 @@ export function MediaToolbar() {
                     size="icon"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      filterType !== "all"
-                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                        : "",
+                      filterType !== "all" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                     )}
                   >
                     <Filter size={16} />
@@ -494,12 +467,7 @@ export function MediaToolbar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn(
-                      "h-6 w-6 cursor-pointer",
-                      groupBy !== "none"
-                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                        : "",
-                    )}
+                    className={cn("h-6 w-6 cursor-pointer", groupBy !== "none" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "")}
                   >
                     <ListFilterPlus size={16} />
                   </Button>
@@ -548,17 +516,11 @@ export function MediaToolbar() {
                 onClick={handleChangeOrder}
                 data-testid="sort-order-button"
               >
-                {sortOrder === "asc" ? (
-                  <ArrowDownUp size={16} />
-                ) : (
-                  <ArrowUpDown size={16} />
-                )}
+                {sortOrder === "asc" ? <ArrowDownUp size={16} /> : <ArrowUpDown size={16} />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {sortOrder === "asc"
-                ? t("browser.toolbar.sortOrder.desc")
-                : t("browser.toolbar.sortOrder.asc")}
+              {sortOrder === "asc" ? t("browser.toolbar.sortOrder.desc") : t("browser.toolbar.sortOrder.asc")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

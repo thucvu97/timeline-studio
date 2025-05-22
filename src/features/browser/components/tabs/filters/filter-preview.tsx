@@ -31,8 +31,7 @@ interface FilterPreviewProps {
  */
 export function FilterPreview({ filter, onClick, size }: FilterPreviewProps) {
   const { t } = useTranslation() // Хук для интернационализации
-  const { addFilter, isFilterAdded, removeResource, filterResources } =
-    useResources() // Получаем методы для работы с ресурсами
+  const { addFilter, isFilterAdded, removeResource, filterResources } = useResources() // Получаем методы для работы с ресурсами
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
   const videoRef = useRef<HTMLVideoElement>(null) // Ссылка на элемент видео
   const timeoutRef = useRef<NodeJS.Timeout>(null) // Ссылка на таймер для воспроизведения видео
@@ -47,8 +46,7 @@ export function FilterPreview({ filter, onClick, size }: FilterPreviewProps) {
    * @returns {string} CSS-строка с фильтрами
    */
   const getFilterStyle = () => {
-    const { brightness, contrast, saturation, gamma, temperature, tint } =
-      filter.params
+    const { brightness, contrast, saturation, gamma, temperature, tint } = filter.params
     const filters = []
 
     // Добавляем CSS-фильтры в зависимости от наличия параметров
@@ -128,11 +126,7 @@ export function FilterPreview({ filter, onClick, size }: FilterPreviewProps) {
         />
 
         {/* Кнопка добавления в избранное */}
-        <FavoriteButton
-          file={{ id: filter.id, path: "", name: filter.name }}
-          size={size}
-          type="filter"
-        />
+        <FavoriteButton file={{ id: filter.id, path: "", name: filter.name }} size={size} type="filter" />
 
         {/* Кнопка добавления фильтра в проект */}
         <div
@@ -147,15 +141,11 @@ export function FilterPreview({ filter, onClick, size }: FilterPreviewProps) {
             onRemoveMedia={(e) => {
               e.stopPropagation() // Предотвращаем всплытие события клика
               // Находим ресурс с этим фильтром и удаляем его
-              const resource = filterResources.find(
-                (res: FilterResource) => res.resourceId === filter.id,
-              )
+              const resource = filterResources.find((res: FilterResource) => res.resourceId === filter.id)
               if (resource) {
                 removeResource(resource.id) // Удаляем ресурс из проекта
               } else {
-                console.warn(
-                  `Не удалось найти ресурс фильтра с ID ${filter.id} для удаления`,
-                )
+                console.warn(`Не удалось найти ресурс фильтра с ID ${filter.id} для удаления`)
               }
             }}
             isAdded={isAdded}
@@ -165,8 +155,7 @@ export function FilterPreview({ filter, onClick, size }: FilterPreviewProps) {
       </div>
       {/* Название фильтра */}
       <div className="mt-1 text-xs">
-        {t(`filters.presets.${filter.id}`)}{" "}
-        {/* Локализованное название фильтра */}
+        {t(`filters.presets.${filter.id}`)} {/* Локализованное название фильтра */}
       </div>
     </div>
   )

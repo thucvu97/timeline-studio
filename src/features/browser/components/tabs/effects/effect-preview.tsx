@@ -31,14 +31,9 @@ interface EffectPreviewProps {
  * @param {EffectPreviewProps} props - Пропсы компонента
  * @returns {JSX.Element} Компонент превью эффекта
  */
-export function EffectPreview({
-  effectType,
-  onClick,
-  size,
-}: EffectPreviewProps) {
+export function EffectPreview({ effectType, onClick, size }: EffectPreviewProps) {
   const { t } = useTranslation() // Хук для интернационализации
-  const { addEffect, isEffectAdded, removeResource, effectResources } =
-    useResources() // Получаем методы для работы с ресурсами
+  const { addEffect, isEffectAdded, removeResource, effectResources } = useResources() // Получаем методы для работы с ресурсами
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
   const videoRef = useRef<HTMLVideoElement>(null) // Ссылка на элемент видео
   const timeoutRef = useRef<NodeJS.Timeout>(null) // Ссылка на таймер для воспроизведения видео
@@ -91,13 +86,11 @@ export function EffectPreview({
           break
         case "vintage":
           // Винтажный эффект (комбинация фильтров)
-          videoElement.style.filter =
-            "sepia(0.5) contrast(1.2) brightness(0.9) saturate(0.8)"
+          videoElement.style.filter = "sepia(0.5) contrast(1.2) brightness(0.9) saturate(0.8)"
           break
         case "duotone":
           // Эффект дуотон (комбинация фильтров)
-          videoElement.style.filter =
-            "grayscale(1) brightness(1.2) contrast(1.5) sepia(0.5)"
+          videoElement.style.filter = "grayscale(1) brightness(1.2) contrast(1.5) sepia(0.5)"
           break
         case "speed":
           // Эффект ускорения видео
@@ -105,53 +98,43 @@ export function EffectPreview({
           break
         case "noir":
           // Эффект нуар (черно-белый с контрастом)
-          videoElement.style.filter =
-            "grayscale(1) contrast(1.5) brightness(0.8)"
+          videoElement.style.filter = "grayscale(1) contrast(1.5) brightness(0.8)"
           break
         case "cyberpunk":
           // Эффект киберпанк (яркие неоновые цвета)
-          videoElement.style.filter =
-            "hue-rotate(180deg) saturate(2) contrast(1.3) brightness(1.2)"
+          videoElement.style.filter = "hue-rotate(180deg) saturate(2) contrast(1.3) brightness(1.2)"
           break
         case "dreamy":
           // Эффект мечтательности (мягкие, теплые тона)
-          videoElement.style.filter =
-            "brightness(1.1) contrast(0.9) saturate(0.8) hue-rotate(30deg)"
+          videoElement.style.filter = "brightness(1.1) contrast(0.9) saturate(0.8) hue-rotate(30deg)"
           break
         case "infrared":
           // Эффект инфракрасной съемки
-          videoElement.style.filter =
-            "hue-rotate(-30deg) saturate(2) contrast(1.5) brightness(1.2)"
+          videoElement.style.filter = "hue-rotate(-30deg) saturate(2) contrast(1.5) brightness(1.2)"
           break
         case "matrix":
           // Эффект "Матрица" (зеленоватый оттенок)
-          videoElement.style.filter =
-            "brightness(1.2) saturate(1.5) hue-rotate(100deg)"
+          videoElement.style.filter = "brightness(1.2) saturate(1.5) hue-rotate(100deg)"
           break
         case "arctic":
           // Эффект арктики (холодные, голубоватые тона)
-          videoElement.style.filter =
-            "brightness(1.2) saturate(0.8) contrast(1.1) hue-rotate(180deg)"
+          videoElement.style.filter = "brightness(1.2) saturate(0.8) contrast(1.1) hue-rotate(180deg)"
           break
         case "sunset":
           // Эффект заката (теплые, оранжевые тона)
-          videoElement.style.filter =
-            "brightness(1.1) contrast(1.2) saturate(1.5) hue-rotate(30deg) sepia(0.3)"
+          videoElement.style.filter = "brightness(1.1) contrast(1.2) saturate(1.5) hue-rotate(30deg) sepia(0.3)"
           break
         case "lomo":
           // Эффект ломографии
-          videoElement.style.filter =
-            "contrast(1.4) brightness(0.9) sepia(0.3) saturate(1.5)"
+          videoElement.style.filter = "contrast(1.4) brightness(0.9) sepia(0.3) saturate(1.5)"
           break
         case "twilight":
           // Эффект сумерек (приглушенные, синеватые тона)
-          videoElement.style.filter =
-            "brightness(0.9) contrast(1.1) saturate(0.8) hue-rotate(-20deg)"
+          videoElement.style.filter = "brightness(0.9) contrast(1.1) saturate(0.8) hue-rotate(-20deg)"
           break
         case "neon":
           // Эффект неона (яркие, насыщенные цвета)
-          videoElement.style.filter =
-            "brightness(1.2) contrast(1.4) saturate(2) hue-rotate(180deg)"
+          videoElement.style.filter = "brightness(1.2) contrast(1.4) saturate(2) hue-rotate(180deg)"
           break
       }
 
@@ -206,13 +189,7 @@ export function EffectPreview({
         />
 
         {/* Кнопка добавления в избранное */}
-        {effect && (
-          <FavoriteButton
-            file={{ id: effect.id, path: "", name: effect.name }}
-            size={size}
-            type="effect"
-          />
-        )}
+        {effect && <FavoriteButton file={{ id: effect.id, path: "", name: effect.name }} size={size} type="effect" />}
 
         {/* Кнопка добавления эффекта в проект */}
         <div
@@ -230,15 +207,11 @@ export function EffectPreview({
               e.stopPropagation() // Предотвращаем всплытие события клика
               if (effect) {
                 // Находим ресурс с этим эффектом и удаляем его
-                const resource = effectResources.find(
-                  (res: EffectResource) => res.resourceId === effect.id,
-                )
+                const resource = effectResources.find((res: EffectResource) => res.resourceId === effect.id)
                 if (resource) {
                   removeResource(resource.id) // Удаляем ресурс из проекта
                 } else {
-                  console.warn(
-                    `Не удалось найти ресурс эффекта с ID ${effect.id} для удаления`,
-                  )
+                  console.warn(`Не удалось найти ресурс эффекта с ID ${effect.id} для удаления`)
                 }
               }
             }}
@@ -249,8 +222,7 @@ export function EffectPreview({
       </div>
       {/* Название эффекта */}
       <div className="mt-1 text-xs">
-        {t(`effects.presets.${effectType}`)}{" "}
-        {/* Локализованное название эффекта */}
+        {t(`effects.presets.${effectType}`)} {/* Локализованное название эффекта */}
       </div>
     </div>
   )

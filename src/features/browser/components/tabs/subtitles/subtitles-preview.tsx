@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useResources } from "@/features/browser/resources"
 import { SubtitleResource } from "@/types/resources"
 
-import { SUBTITLE_PREVIEW_TEXT, SubtitleStyle, subtitleStyleToCss } from './subtitles'
+import { SUBTITLE_PREVIEW_TEXT, SubtitleStyle, subtitleStyleToCss } from "./subtitles"
 import { AddMediaButton } from "../../layout/add-media-button"
 import { FavoriteButton } from "../../layout/favorite-button"
 
@@ -29,14 +29,9 @@ interface SubtitlesPreviewProps {
  * @param {SubtitlesPreviewProps} props - Пропсы компонента
  * @returns {JSX.Element} Компонент превью стиля субтитров
  */
-export function SubtitlesPreview({
-  style,
-  onClick,
-  size,
-}: SubtitlesPreviewProps) {
+export function SubtitlesPreview({ style, onClick, size }: SubtitlesPreviewProps) {
   const { t } = useTranslation() // Хук для интернационализации
-  const { addSubtitle, isSubtitleAdded, removeResource, subtitleResources } =
-    useResources() // Получаем методы для работы с ресурсами
+  const { addSubtitle, isSubtitleAdded, removeResource, subtitleResources } = useResources() // Получаем методы для работы с ресурсами
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
 
   // Преобразуем стиль субтитров в CSS объект
@@ -67,7 +62,7 @@ export function SubtitlesPreview({
             style={{
               ...subtitleCss,
               fontSize: `${scaledFontSize}px`,
-              maxWidth: '90%',
+              maxWidth: "90%",
             }}
           >
             {SUBTITLE_PREVIEW_TEXT}
@@ -75,11 +70,7 @@ export function SubtitlesPreview({
         </div>
 
         {/* Кнопка добавления в избранное */}
-        <FavoriteButton
-          file={{ id: style.id, path: "", name: style.name }}
-          size={size}
-          type="subtitle"
-        />
+        <FavoriteButton file={{ id: style.id, path: "", name: style.name }} size={size} type="subtitle" />
 
         {/* Кнопка добавления стиля в проект */}
         <div
@@ -94,15 +85,11 @@ export function SubtitlesPreview({
             onRemoveMedia={(e: React.MouseEvent) => {
               e.stopPropagation() // Предотвращаем всплытие события клика
               // Находим ресурс с этим стилем и удаляем его
-              const resource = subtitleResources.find(
-                (res: SubtitleResource) => res.resourceId === style.id,
-              )
+              const resource = subtitleResources.find((res: SubtitleResource) => res.resourceId === style.id)
               if (resource) {
                 removeResource(resource.id) // Удаляем ресурс из проекта
               } else {
-                console.warn(
-                  `Не удалось найти ресурс стиля субтитров с ID ${style.id} для удаления`,
-                )
+                console.warn(`Не удалось найти ресурс стиля субтитров с ID ${style.id} для удаления`)
               }
             }}
             isAdded={isAdded}
@@ -111,9 +98,7 @@ export function SubtitlesPreview({
         </div>
       </div>
       {/* Название стиля субтитров */}
-      <div className="mt-1 text-xs">
-        {style.name}
-      </div>
+      <div className="mt-1 text-xs">{style.name}</div>
     </div>
   )
 }

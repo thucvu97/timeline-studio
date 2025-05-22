@@ -35,21 +35,11 @@ const addFilesToTimeline = (files: MediaFile[]) => {
  */
 export function MediaList() {
   const { t } = useTranslation()
-  const { allMediaFiles, isLoading, error, isItemFavorite, includedFiles } =
-    useMedia()
+  const { allMediaFiles, isLoading, error, isItemFavorite, includedFiles } = useMedia()
 
   // Получаем значения из контекста
-  const {
-    searchQuery,
-    showFavoritesOnly,
-    viewMode,
-    sortBy,
-    filterType,
-    groupBy,
-    sortOrder,
-    previewSize,
-    retry,
-  } = useMediaList()
+  const { searchQuery, showFavoritesOnly, viewMode, sortBy, filterType, groupBy, sortOrder, previewSize, retry } =
+    useMediaList()
 
   // Фильтрация и сортировка
   const filteredAndSortedMedia = useMemo(() => {
@@ -59,21 +49,9 @@ export function MediaList() {
         ? allMediaFiles
         : allMediaFiles.filter((file: MediaFile) => {
             try {
-              if (
-                filterType === "video" &&
-                file.probeData?.streams[0]?.codec_type === "video"
-              )
-                return true
-              if (
-                filterType === "audio" &&
-                file.probeData?.streams[0]?.codec_type === "audio"
-              )
-                return true
-              if (
-                filterType === "image" &&
-                /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)
-              )
-                return true
+              if (filterType === "video" && file.probeData?.streams[0]?.codec_type === "video") return true
+              if (filterType === "audio" && file.probeData?.streams[0]?.codec_type === "audio") return true
+              if (filterType === "image" && /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)) return true
               return false
             } catch (error) {
               console.error("Error filtering file:", file, error)
@@ -92,9 +70,7 @@ export function MediaList() {
           if (
             file.isAudio ||
             (file.probeData?.streams[0]?.codec_type === "audio" &&
-              !file.probeData.streams.some(
-                (stream) => stream.codec_type === "video",
-              ))
+              !file.probeData.streams.some((stream) => stream.codec_type === "video"))
           ) {
             itemType = "audio"
           }
@@ -196,10 +172,7 @@ export function MediaList() {
           return 0
         }
 
-        return (
-          orderMultiplier *
-          (getDurationInSeconds(b.duration) - getDurationInSeconds(a.duration))
-        )
+        return orderMultiplier * (getDurationInSeconds(b.duration) - getDurationInSeconds(a.duration))
       }
 
       // По умолчанию сортируем по дате
@@ -207,15 +180,7 @@ export function MediaList() {
       const timeB = b.startTime ?? 0
       return orderMultiplier * (timeB - timeA)
     })
-  }, [
-    filterType,
-    allMediaFiles,
-    showFavoritesOnly,
-    searchQuery,
-    isItemFavorite,
-    sortOrder,
-    sortBy,
-  ])
+  }, [filterType, allMediaFiles, showFavoritesOnly, searchQuery, isItemFavorite, sortOrder, sortBy])
 
   // Группируем файлы
   const groupedFiles = useMemo<GroupedMediaFiles[]>(() => {
@@ -269,8 +234,7 @@ export function MediaList() {
         if (!timestamp && /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)) {
           // Пробуем получить дату из метаданных
           timestamp = file.probeData?.format.tags?.creation_time
-            ? new Date(file.probeData.format.tags.creation_time).getTime() /
-              1000
+            ? new Date(file.probeData.format.tags.creation_time).getTime() / 1000
             : 0
         }
 
@@ -294,9 +258,7 @@ export function MediaList() {
           if (b === noDateText) return -1
           const dateA = new Date(a)
           const dateB = new Date(b)
-          return sortOrder === "asc"
-            ? dateA.getTime() - dateB.getTime()
-            : dateB.getTime() - dateA.getTime()
+          return sortOrder === "asc" ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime()
         })
         .map(([date, files]) => ({
           title: date,
@@ -345,15 +307,7 @@ export function MediaList() {
         }
       })
 
-      const groupOrder = [
-        "noDuration",
-        "veryShort",
-        "short",
-        "medium",
-        "long",
-        "veryLong",
-        "extraLong",
-      ]
+      const groupOrder = ["noDuration", "veryShort", "short", "medium", "long", "veryLong", "extraLong"]
 
       return Object.entries(groups)
         .filter(([, files]) => files.length > 0)
@@ -372,15 +326,10 @@ export function MediaList() {
   }, [filteredAndSortedMedia, groupBy, sortOrder, t])
 
   // Мемоизируем другие вычисления
-  const sortedDates = useMemo(
-    () => groupFilesByDate(allMediaFiles),
-    [allMediaFiles],
-  )
+  const sortedDates = useMemo(() => groupFilesByDate(allMediaFiles), [allMediaFiles])
 
   const handleAddAllFiles = useCallback(() => {
-    const nonImageFiles = allMediaFiles.filter(
-      (file: MediaFile) => !file.isImage,
-    )
+    const nonImageFiles = allMediaFiles.filter((file: MediaFile) => !file.isImage)
     if (nonImageFiles.length > 0) {
       addFilesToTimeline(nonImageFiles)
     }
@@ -392,9 +341,7 @@ export function MediaList() {
 
   const handleAddAllVideoFiles = useCallback(() => {
     const videoFiles = allMediaFiles.filter((file: MediaFile) =>
-      file.probeData?.streams.some(
-        (stream: FfprobeStream) => stream.codec_type === "video",
-      ),
+      file.probeData?.streams.some((stream: FfprobeStream) => stream.codec_type === "video"),
     )
     if (videoFiles.length > 0) {
       addFilesToTimeline(videoFiles)
@@ -404,12 +351,8 @@ export function MediaList() {
   const handleAddAllAudioFiles = useCallback(() => {
     const audioFiles = allMediaFiles.filter(
       (file: MediaFile) =>
-        !file.probeData?.streams.some(
-          (stream: FfprobeStream) => stream.codec_type === "video",
-        ) &&
-        file.probeData?.streams.some(
-          (stream: FfprobeStream) => stream.codec_type === "audio",
-        ),
+        !file.probeData?.streams.some((stream: FfprobeStream) => stream.codec_type === "video") &&
+        file.probeData?.streams.some((stream: FfprobeStream) => stream.codec_type === "audio"),
     )
     if (audioFiles.length > 0) {
       addFilesToTimeline(audioFiles)
@@ -423,10 +366,7 @@ export function MediaList() {
   }, [retry])
 
   return (
-    <div
-      className="flex h-full w-full flex-col overflow-hidden"
-      style={{ height: "100%" }}
-    >
+    <div className="flex h-full w-full flex-col overflow-hidden" style={{ height: "100%" }}>
       <MediaToolbar />
       <div className="min-h-0 flex-1 overflow-y-auto p-0 bg-background">
         <MediaContent

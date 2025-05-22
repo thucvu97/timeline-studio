@@ -22,12 +22,7 @@ vi.mock("../layout/add-media-button", () => ({
 
 vi.mock("../layout/favorite-button", () => ({
   FavoriteButton: ({ file, size, type }: any) => (
-    <button
-      data-testid="favorite-button"
-      data-file={file.name}
-      data-size={size}
-      data-type={type}
-    >
+    <button data-testid="favorite-button" data-file={file.name} data-size={size} data-type={type}>
       Favorite
     </button>
   ),
@@ -35,12 +30,7 @@ vi.mock("../layout/favorite-button", () => ({
 
 vi.mock("lucide-react", () => ({
   Image: ({ path, className, size }: any) => (
-    <div
-      data-testid="lucide-image"
-      data-path={path}
-      data-class-name={className}
-      data-size={size}
-    >
+    <div data-testid="lucide-image" data-path={path} data-class-name={className} data-size={size}>
       Image Icon
     </div>
   ),
@@ -89,9 +79,7 @@ describe("ImagePreview", () => {
 
     // Проверяем, что иконка имеет больший размер
     const imageIcons = screen.getAllByTestId("lucide-image")
-    const smallIcon = imageIcons.find(
-      (icon) => icon.getAttribute("data-size") === "16",
-    )
+    const smallIcon = imageIcons.find((icon) => icon.getAttribute("data-size") === "16")
     expect(smallIcon).toBeDefined()
 
     // Проверяем, что кнопка избранного имеет правильный размер
@@ -101,9 +89,7 @@ describe("ImagePreview", () => {
 
   it("should render add media button when onAddMedia is provided", () => {
     const onAddMedia = vi.fn()
-    render(
-      <ImagePreview file={imageFile} onAddMedia={onAddMedia} isAdded={false} />,
-    )
+    render(<ImagePreview file={imageFile} onAddMedia={onAddMedia} isAdded={false} />)
 
     // Проверяем, что кнопка добавления отображается
     const addButton = screen.getByTestId("add-media-button")

@@ -34,9 +34,7 @@ interface ProjectSettingsContextType {
  * Контекст для хранения и предоставления доступа к настройкам проекта
  * Изначально не имеет значения (undefined)
  */
-const ProjectSettingsContext = createContext<
-  ProjectSettingsContextType | undefined
->(undefined)
+const ProjectSettingsContext = createContext<ProjectSettingsContextType | undefined>(undefined)
 
 /**
  * Провайдер настроек проекта
@@ -56,8 +54,7 @@ export function ProjectSettingsProvider({ children }: ProjectProviderProps) {
     () => ({
       ...state.context, // Передаем текущий контекст машины состояний (настройки)
       // Метод для обновления настроек проекта
-      updateSettings: (settings: ProjectSettings) =>
-        send({ type: "UPDATE_SETTINGS", settings }),
+      updateSettings: (settings: ProjectSettings) => send({ type: "UPDATE_SETTINGS", settings }),
       // Метод для сброса настроек проекта к значениям по умолчанию
       resetSettings: () => send({ type: "RESET_SETTINGS" }),
     }),
@@ -65,11 +62,7 @@ export function ProjectSettingsProvider({ children }: ProjectProviderProps) {
   )
 
   // Возвращаем провайдер контекста с созданным значением
-  return (
-    <ProjectSettingsContext.Provider value={value}>
-      {children}
-    </ProjectSettingsContext.Provider>
-  )
+  return <ProjectSettingsContext.Provider value={value}>{children}</ProjectSettingsContext.Provider>
 }
 
 /**
@@ -85,9 +78,7 @@ export function useProjectSettings(): ProjectSettingsContextType {
 
   // Проверяем, что хук используется внутри провайдера
   if (!context) {
-    throw new Error(
-      "useProjectSettingsContext must be used within a ProjectProvider",
-    )
+    throw new Error("useProjectSettingsContext must be used within a ProjectProvider")
   }
 
   // Возвращаем значение контекста

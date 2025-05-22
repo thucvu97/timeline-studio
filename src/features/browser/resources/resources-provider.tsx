@@ -144,9 +144,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
       }
 
       // Если результата нет в кэше, вычисляем его
-      const isAdded = effectResources.some(
-        (resource: EffectResource) => resource.resourceId === effect.id,
-      )
+      const isAdded = effectResources.some((resource: EffectResource) => resource.resourceId === effect.id)
 
       // Сохраняем результат в кэше
       effectAddedCache.current[effect.id] = isAdded
@@ -172,9 +170,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
       }
 
       // Если результата нет в кэше, вычисляем его
-      const isAdded = filterResources.some(
-        (resource: FilterResource) => resource.resourceId === filter.id,
-      )
+      const isAdded = filterResources.some((resource: FilterResource) => resource.resourceId === filter.id)
 
       // Сохраняем результат в кэше
       filterAddedCache.current[filter.id] = isAdded
@@ -201,14 +197,9 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
       }
 
       // Если результата нет в кэше, вычисляем его
-      const isAdded = transitionResources.some(
-        (resource: TransitionResource) => {
-          return (
-            resource.resourceId === transition.id ||
-            resource.resourceId === transition.type
-          )
-        },
-      )
+      const isAdded = transitionResources.some((resource: TransitionResource) => {
+        return resource.resourceId === transition.id || resource.resourceId === transition.type
+      })
 
       // Сохраняем результат в кэше
       transitionAddedCache.current[cacheKey] = isAdded
@@ -239,9 +230,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
       }
 
       // Если результата нет в кэше, вычисляем его
-      const isAdded = templateResources.some(
-        (resource: TemplateResource) => resource.resourceId === template.id,
-      )
+      const isAdded = templateResources.some((resource: TemplateResource) => resource.resourceId === template.id)
 
       // Сохраняем результат в кэше
       templateAddedCache.current[template.id] = isAdded
@@ -268,9 +257,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
       }
 
       // Если результата нет в кэше, вычисляем его
-      const isAdded = musicResources.some(
-        (resource: MusicResource) => resource.resourceId === file.id,
-      )
+      const isAdded = musicResources.some((resource: MusicResource) => resource.resourceId === file.id)
 
       // Сохраняем результат в кэше
       musicFileAddedCache.current[file.id] = isAdded
@@ -301,9 +288,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
       }
 
       // Если результата нет в кэше, вычисляем его
-      const isAdded = subtitleResources.some(
-        (resource: SubtitleResource) => resource.resourceId === style.id,
-      )
+      const isAdded = subtitleResources.some((resource: SubtitleResource) => resource.resourceId === style.id)
 
       // Сохраняем результат в кэше
       subtitleAddedCache.current[style.id] = isAdded
@@ -347,9 +332,5 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     isSubtitleAdded,
   }
 
-  return (
-    <ResourcesContext.Provider value={value}>
-      {children}
-    </ResourcesContext.Provider>
-  )
+  return <ResourcesContext.Provider value={value}>{children}</ResourcesContext.Provider>
 }

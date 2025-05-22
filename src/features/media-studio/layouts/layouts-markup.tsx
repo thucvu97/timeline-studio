@@ -10,9 +10,7 @@ export function DefaultLayout({ isActive, onClick }: LayoutProps) {
   const { t } = useTranslation()
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center ${
-        isActive ? "bg-muted" : "hover:bg-muted"
-      } p-2 pb-1`}
+      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted" : "hover:bg-muted"} p-2 pb-1`}
       onClick={onClick}
     >
       <div className="bg-muted mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
@@ -49,9 +47,7 @@ export function DefaultLayout({ isActive, onClick }: LayoutProps) {
           </div>
         </div>
       </div>
-      <span className="text-[10px] font-medium">
-        {t("topBar.layouts.default")}
-      </span>
+      <span className="text-[10px] font-medium">{t("topBar.layouts.default")}</span>
     </div>
   )
 }
@@ -60,9 +56,7 @@ export function OptionsLayout({ isActive, onClick }: LayoutProps) {
   const { t } = useTranslation()
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center ${
-        isActive ? "bg-muted" : "hover:bg-muted"
-      } p-2 pb-1`}
+      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted" : "hover:bg-muted"} p-2 pb-1`}
       onClick={onClick}
     >
       <div className="bg-muted mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
@@ -106,9 +100,7 @@ export function OptionsLayout({ isActive, onClick }: LayoutProps) {
           <div className="bg-primary/70 h-1 w-full rounded-sm"></div>
         </div>
       </div>
-      <span className="text-[10px] font-medium">
-        {t("topBar.layouts.options")}
-      </span>
+      <span className="text-[10px] font-medium">{t("topBar.layouts.options")}</span>
     </div>
   )
 }
@@ -117,9 +109,7 @@ export function VerticalLayout({ isActive, onClick }: LayoutProps) {
   const { t } = useTranslation()
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center ${
-        isActive ? "bg-muted" : "hover:bg-muted"
-      } p-2 pb-1`}
+      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted" : "hover:bg-muted"} p-2 pb-1`}
       onClick={onClick}
     >
       <div className="bg-muted mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
@@ -162,9 +152,7 @@ export function VerticalLayout({ isActive, onClick }: LayoutProps) {
           </div>
         </div>
       </div>
-      <span className="text-[10px] font-medium">
-        {t("topBar.layouts.vertical")}
-      </span>
+      <span className="text-[10px] font-medium">{t("topBar.layouts.vertical")}</span>
     </div>
   )
 }
@@ -173,11 +161,7 @@ interface DualLayoutProps extends LayoutProps {
   hasExternalDisplay: boolean
 }
 
-export function DualLayout({
-  isActive,
-  onClick,
-  hasExternalDisplay,
-}: DualLayoutProps) {
+export function DualLayout({ isActive, onClick, hasExternalDisplay }: DualLayoutProps) {
   const { t } = useTranslation()
   return (
     <div
@@ -185,11 +169,7 @@ export function DualLayout({
         hasExternalDisplay ? "cursor-pointer" : "cursor-not-allowed opacity-50"
       } ${isActive ? "bg-muted" : hasExternalDisplay ? "hover:bg-muted" : ""} p-2 pb-1`}
       onClick={onClick}
-      title={
-        hasExternalDisplay
-          ? t("topBar.layouts.dual")
-          : t("topBar.layouts.externalDisplayRequired")
-      }
+      title={hasExternalDisplay ? t("topBar.layouts.dual") : t("topBar.layouts.externalDisplayRequired")}
     >
       <div className="bg-background relative mb-1 flex h-24 w-40 items-center justify-center">
         <div className="bg-muted absolute right-4 h-14 w-24 translate-y-2 border-2 border-gray-700">
@@ -214,13 +194,9 @@ export function DualLayout({
           </div>
         </div>
       </div>
-      <span className="text-[10px] font-medium">
-        {t("topBar.layouts.dual")}
-      </span>
+      <span className="text-[10px] font-medium">{t("topBar.layouts.dual")}</span>
       {!hasExternalDisplay && (
-        <span className="text-muted-foreground text-[9px]">
-          {t("topBar.layouts.externalDisplayRequired")}
-        </span>
+        <span className="text-muted-foreground text-[9px]">{t("topBar.layouts.externalDisplayRequired")}</span>
       )}
     </div>
   )

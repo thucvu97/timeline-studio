@@ -30,36 +30,25 @@ vi.mock("lucide-react", () => ({
 
 // Мокаем функции из lib/media-files
 vi.mock("@/lib/media-files", () => ({
-  getRemainingMediaCounts: vi
-    .fn()
-    .mockImplementation((media, addedFilesSet) => {
-      const remainingVideoCount = media.filter(
-        (file) => file.isVideo && !addedFilesSet.has(file.path),
-      ).length
-      const remainingAudioCount = media.filter(
-        (file) => file.isAudio && !addedFilesSet.has(file.path),
-      ).length
-      const allFilesAdded =
-        remainingVideoCount === 0 && remainingAudioCount === 0
-      return { remainingVideoCount, remainingAudioCount, allFilesAdded }
-    }),
-  getTopDateWithRemainingFiles: vi
-    .fn()
-    .mockImplementation((sortedDates, addedFilesSet) => {
-      for (const dateGroup of sortedDates) {
-        const remainingFiles = dateGroup.files.filter(
-          (file) => !addedFilesSet.has(file.path),
-        )
-        if (remainingFiles.length > 0) {
-          return {
-            date: dateGroup.date,
-            files: dateGroup.files,
-            remainingFiles,
-          }
+  getRemainingMediaCounts: vi.fn().mockImplementation((media, addedFilesSet) => {
+    const remainingVideoCount = media.filter((file) => file.isVideo && !addedFilesSet.has(file.path)).length
+    const remainingAudioCount = media.filter((file) => file.isAudio && !addedFilesSet.has(file.path)).length
+    const allFilesAdded = remainingVideoCount === 0 && remainingAudioCount === 0
+    return { remainingVideoCount, remainingAudioCount, allFilesAdded }
+  }),
+  getTopDateWithRemainingFiles: vi.fn().mockImplementation((sortedDates, addedFilesSet) => {
+    for (const dateGroup of sortedDates) {
+      const remainingFiles = dateGroup.files.filter((file) => !addedFilesSet.has(file.path))
+      if (remainingFiles.length > 0) {
+        return {
+          date: dateGroup.date,
+          files: dateGroup.files,
+          remainingFiles,
         }
       }
-      return null
-    }),
+    }
+    return null
+  }),
 }))
 
 describe("StatusBar", () => {

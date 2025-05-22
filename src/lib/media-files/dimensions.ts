@@ -11,9 +11,7 @@ import { Dimensions, VideoStream } from "./types"
  *   rotation: "90"
  * });
  */
-export const calculateRealDimensions = (
-  stream: VideoStream & { width: number; height: number },
-): Dimensions => {
+export const calculateRealDimensions = (stream: VideoStream & { width: number; height: number }): Dimensions => {
   const rotation = stream.rotation ? Number.parseInt(stream.rotation) : 0
   const { width, height } = stream
 

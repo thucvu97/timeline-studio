@@ -300,8 +300,7 @@ export const musicMachine = createMachine({
         CHANGE_ORDER: {
           actions: assign({
             // Инвертируем порядок сортировки
-            sortOrder: ({ context }) =>
-              context.sortOrder === "asc" ? "desc" : "asc",
+            sortOrder: ({ context }) => (context.sortOrder === "asc" ? "desc" : "asc"),
 
             // Сортируем файлы в новом порядке
             filteredFiles: ({ context }) => {
@@ -385,11 +384,7 @@ export const musicMachine = createMachine({
 
             // Сортируем файлы по новому критерию
             filteredFiles: ({ context, event }) => {
-              return sortFiles(
-                context.filteredFiles,
-                event.sortBy,
-                context.sortOrder,
-              )
+              return sortFiles(context.filteredFiles, event.sortBy, context.sortOrder)
             },
           }),
         },
@@ -400,8 +395,7 @@ export const musicMachine = createMachine({
         CHANGE_ORDER: {
           actions: assign({
             // Инвертируем порядок сортировки
-            sortOrder: ({ context }) =>
-              context.sortOrder === "asc" ? "desc" : "asc",
+            sortOrder: ({ context }) => (context.sortOrder === "asc" ? "desc" : "asc"),
 
             // Сортируем файлы в новом порядке
             filteredFiles: ({ context }) => {

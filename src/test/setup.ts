@@ -26,25 +26,23 @@ Object.defineProperty(window, "matchMedia", {
 
 // Мок для Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi
-    .fn()
-    .mockImplementation((cmd: string, args?: Record<string, unknown>) => {
-      if (cmd === "get_app_language") {
-        return Promise.resolve({
-          language: "ru",
-          system_language: "ru",
-        })
-      }
-      if (cmd === "set_app_language") {
-        // Безопасное приведение типа
-        const lang = args && "lang" in args ? String(args.lang) : "ru"
-        return Promise.resolve({
-          language: lang,
-          system_language: "ru",
-        })
-      }
-      return Promise.resolve(null)
-    }),
+  invoke: vi.fn().mockImplementation((cmd: string, args?: Record<string, unknown>) => {
+    if (cmd === "get_app_language") {
+      return Promise.resolve({
+        language: "ru",
+        system_language: "ru",
+      })
+    }
+    if (cmd === "set_app_language") {
+      // Безопасное приведение типа
+      const lang = args && "lang" in args ? String(args.lang) : "ru"
+      return Promise.resolve({
+        language: lang,
+        system_language: "ru",
+      })
+    }
+    return Promise.resolve(null)
+  }),
 }))
 
 // Мок для react-hotkeys-hook
@@ -67,19 +65,12 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
 
 // Мок для TopBar
 vi.mock("@/features/top-bar/components/top-bar", () => ({
-  TopBar: ({
-    layoutMode = "default",
-    onLayoutChange = (layoutMode: any) => {},
-  } = {}) => {
+  TopBar: ({ layoutMode = "default", onLayoutChange = (layoutMode: any) => {} } = {}) => {
     return React.createElement(
       "div",
       { "data-testid": "top-bar" },
       // Добавляем все необходимые data-testid атрибуты
-      React.createElement(
-        "span",
-        { "data-testid": "current-layout" },
-        layoutMode,
-      ),
+      React.createElement("span", { "data-testid": "current-layout" }, layoutMode),
       React.createElement(
         "button",
         {
@@ -113,101 +104,38 @@ vi.mock("@/features/top-bar/components/top-bar", () => ({
         "Dual",
       ),
       // Добавляем дополнительные кнопки с data-testid
-      React.createElement(
-        "button",
-        { "data-testid": "layout-button" },
-        "Layout",
-      ),
-      React.createElement(
-        "div",
-        { "data-testid": "theme-toggle" },
-        "Theme Toggle",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "keyboard-shortcuts-button" },
-        "Keyboard Shortcuts",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "project-settings-button" },
-        "Project Settings",
-      ),
+      React.createElement("button", { "data-testid": "layout-button" }, "Layout"),
+      React.createElement("div", { "data-testid": "theme-toggle" }, "Theme Toggle"),
+      React.createElement("button", { "data-testid": "keyboard-shortcuts-button" }, "Keyboard Shortcuts"),
+      React.createElement("button", { "data-testid": "project-settings-button" }, "Project Settings"),
       React.createElement("button", { "data-testid": "save-button" }, "Save"),
-      React.createElement(
-        "button",
-        { "data-testid": "camera-capture-button" },
-        "Camera Capture",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "voice-recording-button" },
-        "Voice Recording",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "publish-button" },
-        "Publish",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "editing-tasks-button" },
-        "Editing Tasks",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "user-settings-button" },
-        "User Settings",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "export-button" },
-        "Export",
-      ),
+      React.createElement("button", { "data-testid": "camera-capture-button" }, "Camera Capture"),
+      React.createElement("button", { "data-testid": "voice-recording-button" }, "Voice Recording"),
+      React.createElement("button", { "data-testid": "publish-button" }, "Publish"),
+      React.createElement("button", { "data-testid": "editing-tasks-button" }, "Editing Tasks"),
+      React.createElement("button", { "data-testid": "user-settings-button" }, "User Settings"),
+      React.createElement("button", { "data-testid": "export-button" }, "Export"),
     )
   },
 }))
 
 // Мок для layouts
 vi.mock("@/features/media-studio/layouts", () => ({
-  DefaultLayout: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "default-layout" },
-      "Default Layout",
-    ),
-  OptionsLayout: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "options-layout" },
-      "Options Layout",
-    ),
-  VerticalLayout: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "vertical-layout" },
-      "Vertical Layout",
-    ),
-  DualLayout: () =>
-    React.createElement("div", { "data-testid": "dual-layout" }, "Dual Layout"),
+  DefaultLayout: () => React.createElement("div", { "data-testid": "default-layout" }, "Default Layout"),
+  OptionsLayout: () => React.createElement("div", { "data-testid": "options-layout" }, "Options Layout"),
+  VerticalLayout: () => React.createElement("div", { "data-testid": "vertical-layout" }, "Vertical Layout"),
+  DualLayout: () => React.createElement("div", { "data-testid": "dual-layout" }, "Dual Layout"),
   LayoutMode: {
     DEFAULT: "default",
     OPTIONS: "options",
     VERTICAL: "vertical",
     DUAL: "dual",
   },
-  LayoutPreviews: ({
-    onLayoutChange = (layout: string) => {},
-    layoutMode = "default",
-  } = {}) => {
+  LayoutPreviews: ({ onLayoutChange = (layout: string) => {}, layoutMode = "default" } = {}) => {
     return React.createElement(
       "div",
       { "data-testid": "layout-previews" },
-      React.createElement(
-        "span",
-        { "data-testid": "current-layout" },
-        layoutMode,
-      ),
+      React.createElement("span", { "data-testid": "current-layout" }, layoutMode),
       React.createElement(
         "button",
         {
@@ -230,12 +158,7 @@ vi.mock("@/features/media-studio/layouts", () => ({
 
 // Мок для ModalContainer
 vi.mock("@/features/modals/components", () => ({
-  ModalContainer: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "modal-container" },
-      "Modal Container",
-    ),
+  ModalContainer: () => React.createElement("div", { "data-testid": "modal-container" }, "Modal Container"),
 }))
 
 // Мок для i18next
@@ -283,9 +206,7 @@ const localStorageMock = (() => {
     },
     removeItem: (key: string) => {
       // Используем присвоение undefined вместо delete
-      store = Object.fromEntries(
-        Object.entries(store).filter(([k]) => k !== key),
-      )
+      store = Object.fromEntries(Object.entries(store).filter(([k]) => k !== key))
     },
     clear: () => {
       store = {}
@@ -340,9 +261,7 @@ vi.mock("@/features/media-studio/indexed-db-service", () => {
       }
 
       async loadTimelineState() {
-        console.log(
-          "[userSettingsMachine] В IndexedDB нет сохраненного состояния настроек",
-        )
+        console.log("[userSettingsMachine] В IndexedDB нет сохраненного состояния настроек")
         return Promise.resolve(null)
       }
 
@@ -379,11 +298,7 @@ vi.mock("@/features/media-studio/media-studio", () => {
         React.createElement(
           "div",
           { "data-testid": "top-bar" },
-          React.createElement(
-            "span",
-            { "data-testid": "current-layout" },
-            currentLayoutMode,
-          ),
+          React.createElement("span", { "data-testid": "current-layout" }, currentLayoutMode),
           React.createElement(
             "button",
             {
@@ -427,35 +342,14 @@ vi.mock("@/features/media-studio/media-studio", () => {
         ),
         // Отображаем соответствующий layout в зависимости от currentLayoutMode
         currentLayoutMode === "default" &&
-          React.createElement(
-            "div",
-            { "data-testid": "default-layout" },
-            "Default Layout",
-          ),
+          React.createElement("div", { "data-testid": "default-layout" }, "Default Layout"),
         currentLayoutMode === "options" &&
-          React.createElement(
-            "div",
-            { "data-testid": "options-layout" },
-            "Options Layout",
-          ),
+          React.createElement("div", { "data-testid": "options-layout" }, "Options Layout"),
         currentLayoutMode === "vertical" &&
-          React.createElement(
-            "div",
-            { "data-testid": "vertical-layout" },
-            "Vertical Layout",
-          ),
-        currentLayoutMode === "dual" &&
-          React.createElement(
-            "div",
-            { "data-testid": "dual-layout" },
-            "Dual Layout",
-          ),
+          React.createElement("div", { "data-testid": "vertical-layout" }, "Vertical Layout"),
+        currentLayoutMode === "dual" && React.createElement("div", { "data-testid": "dual-layout" }, "Dual Layout"),
         // ModalContainer
-        React.createElement(
-          "div",
-          { "data-testid": "modal-container" },
-          "Modal Container",
-        ),
+        React.createElement("div", { "data-testid": "modal-container" }, "Modal Container"),
       )
     },
   }

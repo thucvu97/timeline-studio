@@ -9,14 +9,11 @@ vi.mock("react-i18next", () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
         "browser.noFiles.title": "No files found",
-        "browser.noFiles.addFilesPrompt":
-          "Add files to the following directories:",
+        "browser.noFiles.addFilesPrompt": "Add files to the following directories:",
         "browser.noFiles.mediaTypes": "Video and image files",
         "browser.noFiles.musicType": "Audio files",
-        "browser.noFiles.supportedVideoFormats":
-          "Supported video formats: MP4, MOV, AVI, MKV",
-        "browser.noFiles.supportedAudioFormats":
-          "Supported audio formats: MP3, WAV, OGG, FLAC",
+        "browser.noFiles.supportedVideoFormats": "Supported video formats: MP4, MOV, AVI, MKV",
+        "browser.noFiles.supportedAudioFormats": "Supported audio formats: MP3, WAV, OGG, FLAC",
       }
       return translations[key] || key
     },
@@ -31,9 +28,7 @@ describe("NoFiles", () => {
     expect(screen.getByText("No files found")).toBeInTheDocument()
 
     // Проверяем, что подсказка отображается
-    expect(
-      screen.getByText("Add files to the following directories:"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("Add files to the following directories:")).toBeInTheDocument()
 
     // Проверяем, что пути к директориям отображаются
     expect(screen.getByText("/public/media/")).toBeInTheDocument()
@@ -53,9 +48,7 @@ describe("NoFiles", () => {
     render(<NoFiles />)
 
     // Проверяем, что контейнер существует
-    const container = screen
-      .getByText("No files found")
-      .closest("div")?.parentElement
+    const container = screen.getByText("No files found").closest("div")?.parentElement
     expect(container).toBeInTheDocument()
 
     // Проверяем, что заголовок существует

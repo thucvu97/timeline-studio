@@ -8,27 +8,13 @@ import { DualLayout } from "./dual-layout"
 // Мокаем зависимости
 vi.mock("@/features/modals/features/user-settings/user-settings-provider")
 vi.mock("@/components/ui/resizable", () => ({
-  ResizablePanelGroup: ({
-    children,
-    direction,
-    className,
-    autoSaveId,
-  }: any) => (
-    <div
-      data-testid={`resizable-panel-group-${autoSaveId}`}
-      data-direction={direction}
-      className={className}
-    >
+  ResizablePanelGroup: ({ children, direction, className, autoSaveId }: any) => (
+    <div data-testid={`resizable-panel-group-${autoSaveId}`} data-direction={direction} className={className}>
       {children}
     </div>
   ),
   ResizablePanel: ({ children, defaultSize, minSize, maxSize }: any) => (
-    <div
-      data-testid="resizable-panel"
-      data-default-size={defaultSize}
-      data-min-size={minSize}
-      data-max-size={maxSize}
-    >
+    <div data-testid="resizable-panel" data-default-size={defaultSize} data-min-size={minSize} data-max-size={maxSize}>
       {children}
     </div>
   ),
@@ -48,9 +34,7 @@ vi.mock("@/features/timeline/components/timeline", () => ({
 }))
 
 vi.mock("@/features/video-player/components/video-player", () => ({
-  VideoPlayer: () => (
-    <div data-testid="video-player">Video Player Component</div>
-  ),
+  VideoPlayer: () => <div data-testid="video-player">Video Player Component</div>,
 }))
 
 describe("DualLayout", () => {
@@ -69,27 +53,15 @@ describe("DualLayout", () => {
     render(<DualLayout />)
 
     // Проверяем, что основная группа панелей отрендерена
-    expect(
-      screen.getByTestId("resizable-panel-group-dual-main-layout"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByTestId("resizable-panel-group-dual-main-layout"),
-    ).toHaveAttribute("data-direction", "vertical")
+    expect(screen.getByTestId("resizable-panel-group-dual-main-layout")).toBeInTheDocument()
+    expect(screen.getByTestId("resizable-panel-group-dual-main-layout")).toHaveAttribute("data-direction", "vertical")
 
     // Проверяем, что вложенные группы панелей отрендерены
-    expect(
-      screen.getByTestId("resizable-panel-group-dual-top-layout"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByTestId("resizable-panel-group-dual-top-layout"),
-    ).toHaveAttribute("data-direction", "horizontal")
+    expect(screen.getByTestId("resizable-panel-group-dual-top-layout")).toBeInTheDocument()
+    expect(screen.getByTestId("resizable-panel-group-dual-top-layout")).toHaveAttribute("data-direction", "horizontal")
 
-    expect(
-      screen.getByTestId("resizable-panel-group-dual-bottom-layout"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByTestId("resizable-panel-group-dual-bottom-layout"),
-    ).toHaveAttribute("data-direction", "vertical")
+    expect(screen.getByTestId("resizable-panel-group-dual-bottom-layout")).toBeInTheDocument()
+    expect(screen.getByTestId("resizable-panel-group-dual-bottom-layout")).toHaveAttribute("data-direction", "vertical")
 
     // Проверяем, что компоненты отрендерены
     expect(screen.getByTestId("browser")).toBeInTheDocument()
@@ -112,9 +84,7 @@ describe("DualLayout", () => {
     render(<DualLayout />)
 
     // Проверяем, что основная группа панелей отрендерена
-    expect(
-      screen.getByTestId("resizable-panel-group-dual-main-layout"),
-    ).toBeInTheDocument()
+    expect(screen.getByTestId("resizable-panel-group-dual-main-layout")).toBeInTheDocument()
 
     // Проверяем, что компонент браузера не отрендерен
     expect(screen.queryByTestId("browser")).not.toBeInTheDocument()

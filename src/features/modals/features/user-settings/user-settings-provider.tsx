@@ -1,15 +1,9 @@
-import { createContext, useContext, useEffect } from "react"
+import { createContext, useContext } from "react"
 
 import { useMachine } from "@xstate/react"
 import { useHotkeys } from "react-hotkeys-hook"
 
-import { userSettingsDbService } from "@/features/media-studio/indexed-db-service"
-
-import {
-  BrowserTab,
-  LayoutMode,
-  userSettingsMachine,
-} from "./user-settings-machine"
+import { BrowserTab, LayoutMode, userSettingsMachine } from "./user-settings-machine"
 
 /**
  * Интерфейс значения контекста пользовательских настроек
@@ -43,9 +37,7 @@ interface UserSettingsContextValue {
  */
 
 // biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
-export  const UserSettingsContext = createContext<
-  UserSettingsContextValue | undefined
->(undefined)
+export const UserSettingsContext = createContext<UserSettingsContextValue | undefined>(undefined)
 
 /**
  * Провайдер пользовательских настроек
@@ -56,9 +48,7 @@ export  const UserSettingsContext = createContext<
  * @param {React.ReactNode} props.children - Дочерние компоненты
  * @returns {JSX.Element} Провайдер контекста с пользовательскими настройками
  */
-export function UserSettingsProvider({
-  children,
-}: { children: React.ReactNode }) {
+export function UserSettingsProvider({ children }: { children: React.ReactNode }) {
   console.log("UserSettingsProvider rendering")
 
   // Инициализируем машину состояний для управления пользовательскими настройками
@@ -83,22 +73,8 @@ export function UserSettingsProvider({
     },
   )
 
-  /**
-   * Эффект для сохранения настроек в IndexedDB при их изменении
-   * Сохраняет настройки в базу данных для персистентности между сессиями
-   */
-  useEffect(() => {
-    console.log("Saving settings to IndexedDB")
-    // Асинхронно сохраняем настройки в IndexedDB
-    userSettingsDbService
-      .saveState(state.context)
-      .then(() => {
-        console.log("User Settings saved to IndexedDB: ", state.context)
-      })
-      .catch((error: unknown) => {
-        console.error("Error saving settings to IndexedDB: ", error)
-      })
-  }, [state.context]) // Зависимость от контекста машины состояний
+  // Примечание: Сохранение настроек в IndexedDB удалено, так как теперь используется Tauri Store
+  // для централизованного хранения данных через app-settings-provider
 
   // Создаем значение контекста, которое будет доступно через хук useUserSettings
   const value = {
@@ -118,16 +94,7 @@ export function UserSettingsProvider({
     handleTabChange: (value: string) => {
       console.log("Tab change requested:", value)
       // Проверяем, что значение является допустимым BrowserTab
-      if (
-        [
-          "media",
-          "music",
-          "transitions",
-          "effects",
-          "filters",
-          "templates",
-        ].includes(value)
-      ) {
+      if (["media", "music", "transitions", "effects", "filters", "templates"].includes(value)) {
         // Отправляем событие в машину состояний
         send({
           type: "UPDATE_ACTIVE_TAB",
@@ -233,11 +200,7 @@ export function UserSettingsProvider({
   }
 
   // Возвращаем провайдер контекста с созданным значением
-  return (
-    <UserSettingsContext.Provider value={value}>
-      {children}
-    </UserSettingsContext.Provider>
-  )
+  return <UserSettingsContext.Provider value={value}>{children}</UserSettingsContext.Provider>
 }
 
 /**
@@ -253,9 +216,7 @@ export function useUserSettings() {
 
   // Проверяем, что хук используется внутри провайдера
   if (!context) {
-    throw new Error(
-      "useUserSettings must be used within a UserSettingsProvider",
-    )
+    throw new Error("useUserSettings must be used within a UserSettingsProvider")
   }
 
   // Возвращаем значение контекста

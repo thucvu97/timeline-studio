@@ -4,12 +4,7 @@ import { ModalContainer } from "@/features/modals/components"
 import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
 import { TopBar } from "@/features/top-bar/components/top-bar"
 
-import {
-  DefaultLayout,
-  DualLayout,
-  OptionsLayout,
-  VerticalLayout,
-} from "./layouts"
+import { DefaultLayout, DualLayout, OptionsLayout, VerticalLayout } from "./layouts"
 
 export function MediaStudio() {
   const { layoutMode } = useUserSettings()

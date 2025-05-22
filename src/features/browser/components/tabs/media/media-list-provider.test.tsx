@@ -159,9 +159,7 @@ describe("MediaListProvider", () => {
     const consoleError = console.error
     console.error = vi.fn() // Подавляем ошибки в консоли во время теста
 
-    expect(() => renderHook(() => useMediaList())).toThrow(
-      "useMediaList must be used within a MediaListProvider",
-    )
+    expect(() => renderHook(() => useMediaList())).toThrow("useMediaList must be used within a MediaListProvider")
 
     console.error = consoleError // Восстанавливаем console.error
   })
@@ -209,10 +207,7 @@ describe("MediaListProvider", () => {
     expect(mockSend).not.toHaveBeenCalled()
 
     // Проверяем, что была выведена ошибка
-    expect(console.error).toHaveBeenCalledWith(
-      "Invalid sort criteria:",
-      "invalid_criteria",
-    )
+    expect(console.error).toHaveBeenCalledWith("Invalid sort criteria:", "invalid_criteria")
 
     // Восстанавливаем console.error
     console.error = originalConsoleError
@@ -478,12 +473,8 @@ describe("MediaListProvider", () => {
   it("should update UI when state changes", () => {
     // Изменяем состояние в моке
     Object.assign(mockState.context, {
-      mediaFiles: [
-        { id: "test-file", name: "test.mp4", path: "/test/test.mp4" },
-      ],
-      filteredFiles: [
-        { id: "test-file", name: "test.mp4", path: "/test/test.mp4" },
-      ],
+      mediaFiles: [{ id: "test-file", name: "test.mp4", path: "/test/test.mp4" }],
+      filteredFiles: [{ id: "test-file", name: "test.mp4", path: "/test/test.mp4" }],
       searchQuery: "test",
       sortBy: "name",
       sortOrder: "asc",

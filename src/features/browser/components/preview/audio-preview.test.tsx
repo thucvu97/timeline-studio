@@ -37,12 +37,7 @@ vi.mock("../layout/add-media-button", () => ({
 vi.mock("../layout/favorite-button", () => ({
   FavoriteButton: ({ file, size, type }: any) => (
     // biome-ignore lint/a11y/useButtonType: <explanation>
-    <button
-      data-testid="favorite-button"
-      data-file={file.name}
-      data-size={size}
-      data-type={type}
-    >
+    <button data-testid="favorite-button" data-file={file.name} data-size={size} data-type={type}>
       Favorite
     </button>
   ),
@@ -57,15 +52,7 @@ vi.mock("lucide-react", () => ({
 }))
 
 vi.mock("react-audio-visualize", () => ({
-  LiveAudioVisualizer: ({
-    mediaRecorder,
-    width,
-    height,
-    barWidth,
-    gap,
-    barColor,
-    backgroundColor,
-  }: any) => (
+  LiveAudioVisualizer: ({ mediaRecorder, width, height, barWidth, gap, barColor, backgroundColor }: any) => (
     <div
       data-testid="audio-visualizer"
       data-width={width}

@@ -13,11 +13,7 @@ interface PreviewTimelineProps {
  * @param duration - Длительность видео в секундах
  * @param videoRef - Ссылка на HTMLVideoElement или HTMLAudioElement
  */
-export function PreviewTimeline({
-  time,
-  duration,
-  videoRef,
-}: PreviewTimelineProps) {
+export function PreviewTimeline({ time, duration, videoRef }: PreviewTimelineProps) {
   const animationRef = useRef<number | undefined>(undefined)
   const [displayTime, setDisplayTime] = useState(time)
   const lastTimeRef = useRef<number>(time)

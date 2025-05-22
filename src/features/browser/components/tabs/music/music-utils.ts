@@ -8,29 +8,25 @@ import { MediaFile } from "@/types/media"
  * @param sortOrder - Порядок сортировки (asc - по возрастанию, desc - по убыванию)
  * @returns Отсортированный массив медиафайлов
  */
-export const sortFiles = (
-  files: MediaFile[],
-  sortBy: string,
-  sortOrder: "asc" | "desc",
-): MediaFile[] => {
+export const sortFiles = (files: MediaFile[], sortBy: string, sortOrder: "asc" | "desc"): MediaFile[] => {
   return [...files].sort((a, b) => {
     let comparison = 0
 
     switch (sortBy) {
       case "name":
-        comparison = String(
-          a.probeData?.format.tags?.TOPE ?? a.name,
-        ).localeCompare(String(b.probeData?.format.tags?.TOPE ?? b.name))
+        comparison = String(a.probeData?.format.tags?.TOPE ?? a.name).localeCompare(
+          String(b.probeData?.format.tags?.TOPE ?? b.name),
+        )
         break
       case "title":
-        comparison = String(
-          a.probeData?.format.tags?.title ?? a.name,
-        ).localeCompare(String(b.probeData?.format.tags?.title ?? b.name))
+        comparison = String(a.probeData?.format.tags?.title ?? a.name).localeCompare(
+          String(b.probeData?.format.tags?.title ?? b.name),
+        )
         break
       case "artist":
-        comparison = String(
-          a.probeData?.format.tags?.artist ?? "",
-        ).localeCompare(String(b.probeData?.format.tags?.artist ?? ""))
+        comparison = String(a.probeData?.format.tags?.artist ?? "").localeCompare(
+          String(b.probeData?.format.tags?.artist ?? ""),
+        )
         break
       case "date":
         comparison =
@@ -38,18 +34,15 @@ export const sortFiles = (
           new Date(b.probeData?.format.tags?.date ?? "1970-01-01").getTime()
         break
       case "duration":
-        comparison =
-          (a.probeData?.format.duration ?? 0) -
-          (b.probeData?.format.duration ?? 0)
+        comparison = (a.probeData?.format.duration ?? 0) - (b.probeData?.format.duration ?? 0)
         break
       case "size":
-        comparison =
-          (a.probeData?.format.size ?? 0) - (b.probeData?.format.size ?? 0)
+        comparison = (a.probeData?.format.size ?? 0) - (b.probeData?.format.size ?? 0)
         break
       case "genre":
-        comparison = String(
-          a.probeData?.format.tags?.genre ?? "",
-        ).localeCompare(String(b.probeData?.format.tags?.genre ?? ""))
+        comparison = String(a.probeData?.format.tags?.genre ?? "").localeCompare(
+          String(b.probeData?.format.tags?.genre ?? ""),
+        )
         break
       default:
         comparison = 0

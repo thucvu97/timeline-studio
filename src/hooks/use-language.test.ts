@@ -116,9 +116,7 @@ describe("useLanguage", () => {
 
   it("should handle error when fetching language", async () => {
     // Мокаем invoke для возврата ошибки
-    vi.mocked(invoke).mockRejectedValueOnce(
-      new Error("Failed to fetch language"),
-    )
+    vi.mocked(invoke).mockRejectedValueOnce(new Error("Failed to fetch language"))
 
     const { result } = renderHook(() => useLanguage())
 

@@ -51,20 +51,9 @@ interface TransitionPreviewProps {
  * @param {TransitionPreviewProps} props - Пропсы компонента
  * @returns {JSX.Element} Компонент превью перехода
  */
-export function TransitionPreview({
-  sourceVideo,
-  targetVideo,
-  transitionType,
-  onClick,
-  size,
-}: TransitionPreviewProps) {
+export function TransitionPreview({ sourceVideo, targetVideo, transitionType, onClick, size }: TransitionPreviewProps) {
   const { t } = useTranslation() // Хук для интернационализации
-  const {
-    addTransition,
-    isTransitionAdded,
-    removeResource,
-    transitionResources,
-  } = useResources() // Получаем методы для работы с ресурсами
+  const { addTransition, isTransitionAdded, removeResource, transitionResources } = useResources() // Получаем методы для работы с ресурсами
 
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
   const [isError, setIsError] = useState(false) // Состояние ошибки загрузки видео
@@ -76,17 +65,13 @@ export function TransitionPreview({
   const loopTimeoutRef = useRef<NodeJS.Timeout>(null) // Таймер для зацикливания демонстрации
 
   // Находим переход по типу из списка доступных переходов
-  const transition = transitionEffects.find(
-    (t) => t.id === transitionType || t.type === transitionType,
-  )
+  const transition = transitionEffects.find((t) => t.id === transitionType || t.type === transitionType)
 
   // Создаем объект перехода с правильным id, если его нет в transitionEffects
   const transitionObj = transition ?? {
     id: transitionType,
     type: transitionType as any,
-    name:
-      transitions.find((t) => t.type === transitionType)?.labels.ru ??
-      transitionType,
+    name: transitions.find((t) => t.type === transitionType)?.labels.ru ?? transitionType,
     duration: 1.5,
     ffmpegCommand: () => "",
     params: {},
@@ -239,8 +224,7 @@ export function TransitionPreview({
           // Эффект отскока: исходное видео уменьшается с эффектом пружины
           sourceVideo.style.transform = "scale(0)"
           sourceVideo.style.opacity = "0"
-          sourceVideo.style.transition =
-            "all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+          sourceVideo.style.transition = "all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
           break
 
         case "swirl":
@@ -296,8 +280,7 @@ export function TransitionPreview({
       sourceVideo.pause()
       targetVideo.pause()
       // Очищаем таймеры
-      if (transitionTimeoutRef.current)
-        clearTimeout(transitionTimeoutRef.current)
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current)
       if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current)
     }
 
@@ -307,8 +290,7 @@ export function TransitionPreview({
       sourceVideo.removeEventListener("error", handleError)
       targetVideo.removeEventListener("error", handleError)
       // Очищаем таймеры
-      if (transitionTimeoutRef.current)
-        clearTimeout(transitionTimeoutRef.current)
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current)
       if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current)
     }
   }, [isHovering, startTransition, resetVideos])
@@ -380,15 +362,12 @@ export function TransitionPreview({
                     // Находим ресурс с этим переходом и удаляем его
                     const resource = transitionResources.find(
                       (res: TransitionResource) =>
-                        res.resourceId === transitionObj.id ||
-                        res.resourceId === transitionObj.type,
+                        res.resourceId === transitionObj.id || res.resourceId === transitionObj.type,
                     )
                     if (resource) {
                       removeResource(resource.id) // Удаляем ресурс из проекта
                     } else {
-                      console.warn(
-                        `Не удалось найти ресурс перехода с ID ${transitionObj.id} для удаления`,
-                      )
+                      console.warn(`Не удалось найти ресурс перехода с ID ${transitionObj.id} для удаления`)
                     }
                   }}
                   isAdded={isAdded}
@@ -401,8 +380,7 @@ export function TransitionPreview({
       </div>
       {/* Название перехода */}
       <div className="mt-1 text-xs">
-        {t(`transitions.types.${transitionType}`)}{" "}
-        {/* Локализованное название перехода */}
+        {t(`transitions.types.${transitionType}`)} {/* Локализованное название перехода */}
       </div>
     </div>
   )

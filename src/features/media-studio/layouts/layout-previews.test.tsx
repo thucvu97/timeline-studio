@@ -34,29 +34,17 @@ vi.mock("@/features/modals/features/user-settings/user-settings-provider", () =>
 
 vi.mock("./layouts-markup", () => ({
   DefaultLayout: vi.fn(({ isActive, onClick }: any) => (
-    <div
-      data-testid="default-layout-preview"
-      data-active={isActive}
-      onClick={onClick}
-    >
+    <div data-testid="default-layout-preview" data-active={isActive} onClick={onClick}>
       Default Layout Preview
     </div>
   )),
   OptionsLayout: vi.fn(({ isActive, onClick }: any) => (
-    <div
-      data-testid="options-layout-preview"
-      data-active={isActive}
-      onClick={onClick}
-    >
+    <div data-testid="options-layout-preview" data-active={isActive} onClick={onClick}>
       Options Layout Preview
     </div>
   )),
   VerticalLayout: vi.fn(({ isActive, onClick }: any) => (
-    <div
-      data-testid="vertical-layout-preview"
-      data-active={isActive}
-      onClick={onClick}
-    >
+    <div data-testid="vertical-layout-preview" data-active={isActive} onClick={onClick}>
       Vertical Layout Preview
     </div>
   )),
@@ -113,22 +101,10 @@ describe("LayoutPreviews", () => {
     render(<LayoutPreviews />)
 
     // Проверяем, что правильный макет отмечен как активный
-    expect(screen.getByTestId("default-layout-preview")).toHaveAttribute(
-      "data-active",
-      "false",
-    )
-    expect(screen.getByTestId("options-layout-preview")).toHaveAttribute(
-      "data-active",
-      "true",
-    )
-    expect(screen.getByTestId("vertical-layout-preview")).toHaveAttribute(
-      "data-active",
-      "false",
-    )
-    expect(screen.getByTestId("dual-layout-preview")).toHaveAttribute(
-      "data-active",
-      "false",
-    )
+    expect(screen.getByTestId("default-layout-preview")).toHaveAttribute("data-active", "false")
+    expect(screen.getByTestId("options-layout-preview")).toHaveAttribute("data-active", "true")
+    expect(screen.getByTestId("vertical-layout-preview")).toHaveAttribute("data-active", "false")
+    expect(screen.getByTestId("dual-layout-preview")).toHaveAttribute("data-active", "false")
   })
 
   it("should call handleLayoutChange when a layout preview is clicked", () => {

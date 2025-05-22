@@ -44,9 +44,7 @@ describe("i18n constants", () => {
     })
 
     it("should return default locale for unsupported language", () => {
-      expect(getLocaleByLanguage("unsupported")).toBe(
-        LANGUAGE_LOCALES[DEFAULT_LANGUAGE],
-      )
+      expect(getLocaleByLanguage("unsupported")).toBe(LANGUAGE_LOCALES[DEFAULT_LANGUAGE])
     })
   })
 

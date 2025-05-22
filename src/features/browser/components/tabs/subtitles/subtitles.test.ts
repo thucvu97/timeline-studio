@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import {
-  SUBTITLE_CATEGORIES,
-  SUBTITLE_PREVIEW_TEXT,
-  SubtitleStyle,
-  subtitleStyleToCss,
-} from "./subtitles"
+import { SUBTITLE_CATEGORIES, SUBTITLE_PREVIEW_TEXT, SubtitleStyle, subtitleStyleToCss } from "./subtitles"
 
 describe("subtitles", () => {
   describe("SUBTITLE_CATEGORIES", () => {

@@ -4,11 +4,7 @@ import { Film } from "lucide-react"
 
 import { formatDuration } from "@/lib/date"
 import { cn, formatResolution } from "@/lib/utils"
-import {
-  calculateAdaptiveWidth,
-  calculateWidth,
-  parseRotation,
-} from "@/lib/video"
+import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/lib/video"
 import { FfprobeStream } from "@/types/ffprobe"
 import { MediaFile } from "@/types/media"
 
@@ -62,8 +58,7 @@ export const VideoPreview = memo(function VideoPreview({
 
   // Создаем стабильные ключи для рефов
   useEffect(() => {
-    const videoStreams =
-      file.probeData?.streams.filter((s) => s.codec_type === "video") ?? []
+    const videoStreams = file.probeData?.streams.filter((s) => s.codec_type === "video") ?? []
     // biome-ignore lint/complexity/noForEach: <explanation>
     videoStreams.forEach((stream) => {
       const key = stream.streamKey ?? `stream-${stream.index}`
@@ -123,14 +118,7 @@ export const VideoPreview = memo(function VideoPreview({
         if (hoverTime !== null) {
           videoRef.currentTime = hoverTime
         }
-        videoRef
-          .play()
-          .catch((err: unknown) =>
-            console.error(
-              "[VideoPreview] Ошибка воспроизведения в превью:",
-              err,
-            ),
-          )
+        videoRef.play().catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения в превью:", err))
       } else {
         // Останавливаем воспроизведение в превью
         videoRef.pause()
@@ -139,10 +127,7 @@ export const VideoPreview = memo(function VideoPreview({
       // Обновляем локальное состояние воспроизведения
       setIsPlaying(newPlayingState)
 
-      console.log(
-        `[VideoPreview] Видео ${newPlayingState ? "запущено" : "остановлено"} в превью:`,
-        file.name,
-      )
+      console.log(`[VideoPreview] Видео ${newPlayingState ? "запущено" : "остановлено"} в превью:`, file.name)
     },
     [isPlaying, hoverTime, file],
   )
@@ -155,8 +140,7 @@ export const VideoPreview = memo(function VideoPreview({
 
   // Оптимизируем вычисления с помощью useMemo
   const videoData = useMemo(() => {
-    const videoStreams =
-      file.probeData?.streams.filter((s) => s.codec_type === "video") ?? []
+    const videoStreams = file.probeData?.streams.filter((s) => s.codec_type === "video") ?? []
     const isMultipleStreams = videoStreams.length > 1
 
     return { videoStreams, isMultipleStreams }
@@ -167,23 +151,12 @@ export const VideoPreview = memo(function VideoPreview({
       {videoData.videoStreams.map((stream: FfprobeStream) => {
         const key = stream.streamKey ?? `stream-${stream.index}`
         const isMultipleStreams = videoData.isMultipleStreams
-        const width = calculateWidth(
-          stream.width ?? 0,
-          stream.height ?? 0,
-          size,
-          parseRotation(stream.rotation),
-        )
+        const width = calculateWidth(stream.width ?? 0, stream.height ?? 0, size, parseRotation(stream.rotation))
 
-        const adptivedWidth = calculateAdaptiveWidth(
-          width,
-          isMultipleStreams,
-          stream.display_aspect_ratio,
-        )
+        const adptivedWidth = calculateAdaptiveWidth(width, isMultipleStreams, stream.display_aspect_ratio)
 
         // Исправляем проблему с деструктуризацией
-        const aspectRatio = stream.display_aspect_ratio
-          ?.split(":")
-          .map(Number) ?? [16, 9]
+        const aspectRatio = stream.display_aspect_ratio?.split(":").map(Number) ?? [16, 9]
         const ratio = aspectRatio[0] / aspectRatio[1]
 
         return (
@@ -218,10 +191,7 @@ export const VideoPreview = memo(function VideoPreview({
                 tabIndex={0}
                 playsInline
                 muted={false} // Включаем звук в превью по запросу пользователя
-                className={cn(
-                  "absolute inset-0 h-full w-full focus:outline-none",
-                  isAdded ? "opacity-50" : "",
-                )}
+                className={cn("absolute inset-0 h-full w-full focus:outline-none", isAdded ? "opacity-50" : "")}
                 style={{
                   transition: "opacity 0.2s ease-in-out",
                 }}
@@ -270,9 +240,7 @@ export const VideoPreview = memo(function VideoPreview({
                 <div
                   className={cn(
                     "pointer-events-none absolute rounded-xs bg-black/50 text-xs leading-[16px] text-white",
-                    size > 100
-                      ? "top-1 right-1 px-[4px] py-[2px]"
-                      : "top-0.5 right-0.5 px-0.5 py-0",
+                    size > 100 ? "top-1 right-1 px-[4px] py-[2px]" : "top-0.5 right-0.5 px-0.5 py-0",
                   )}
                   style={{
                     fontSize: size > 100 ? "13px" : "11px",
@@ -295,9 +263,7 @@ export const VideoPreview = memo(function VideoPreview({
               )}
 
               {/* Кнопка избранного */}
-              {!(isMultipleStreams && stream.index !== 0) && (
-                <FavoriteButton file={file} size={size} type="media" />
-              )}
+              {!(isMultipleStreams && stream.index !== 0) && <FavoriteButton file={file} size={size} type="media" />}
 
               {/* Разрешение видео */}
               {isLoaded && !(isMultipleStreams && stream.index !== 0) && (
@@ -334,17 +300,8 @@ export const VideoPreview = memo(function VideoPreview({
               {/* Кнопка добавления */}
               {onAddMedia &&
                 isLoaded &&
-                stream.index ===
-                  (file.probeData?.streams.filter(
-                    (s) => s.codec_type === "video",
-                  ).length ?? 0) -
-                    1 && (
-                  <AddMediaButton
-                    file={file}
-                    onAddMedia={onAddMedia}
-                    isAdded={isAdded}
-                    size={size}
-                  />
+                stream.index === (file.probeData?.streams.filter((s) => s.codec_type === "video").length ?? 0) - 1 && (
+                  <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />
                 )}
             </div>
           </div>

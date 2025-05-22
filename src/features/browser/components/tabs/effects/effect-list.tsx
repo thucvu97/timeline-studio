@@ -5,12 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider"
 import { useMedia } from "@/features/browser/media"
 import { cn } from "@/lib/utils"
@@ -64,17 +59,12 @@ export function EffectList() {
 
     // Проверяем, соответствует ли эффект поисковому запросу
     // Ищем совпадения в локализованном названии или имени эффекта
-    const matchesSearch =
-      localizedName.includes(searchLower) ||
-      effect.name.toLowerCase().includes(searchLower)
+    const matchesSearch = localizedName.includes(searchLower) || effect.name.toLowerCase().includes(searchLower)
 
     // Фильтрация по избранному
     const matchesFavorites =
       !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
-      media.isItemFavorite(
-        { id: effect.id, path: "", name: effect.name },
-        "effect",
-      )
+      media.isItemFavorite({ id: effect.id, path: "", name: effect.name }, "effect")
 
     // Эффект должен соответствовать обоим условиям
     return matchesSearch && matchesFavorites
@@ -94,7 +84,7 @@ export function EffectList() {
   return (
     <div className="flex h-full flex-1 flex-col bg-background">
       {/* Панель инструментов с поиском и кнопками управления */}
-    <div className="flex items-center justify-between p-1 dark:bg-[#252526]">
+      <div className="flex items-center justify-between p-1 dark:bg-[#252526]">
         {/* Поле поиска эффектов */}
         <Input
           type="search"
@@ -187,9 +177,7 @@ export function EffectList() {
           /* Отображение найденных эффектов в виде сетки */
           <div
             className="grid grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))] gap-2"
-            style={
-              { "--preview-size": `${previewSize}px` } as React.CSSProperties
-            }
+            style={{ "--preview-size": `${previewSize}px` } as React.CSSProperties}
           >
             {/* Отображение каждого эффекта */}
             {filteredEffects.map((effect) => (

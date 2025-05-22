@@ -108,10 +108,7 @@ describe("ModalProvider", () => {
     screen.getByTestId("open-modal-button").click()
 
     // Проверяем, что был вызван console.log с правильными аргументами
-    expect(console.log).toHaveBeenCalledWith(
-      "Открываем модальное окно:",
-      "project-settings",
-    )
+    expect(console.log).toHaveBeenCalledWith("Открываем модальное окно:", "project-settings")
 
     // Кликаем на кнопку закрытия модального окна
     screen.getByTestId("close-modal-button").click()
@@ -123,9 +120,8 @@ describe("ModalProvider", () => {
     screen.getByTestId("submit-modal-button").click()
 
     // Проверяем, что был вызван console.log с правильными аргументами
-    expect(console.log).toHaveBeenCalledWith(
-      "Отправляем данные модального окна:",
-      { testData: "test" },
-    )
+    expect(console.log).toHaveBeenCalledWith("Отправляем данные модального окна:", {
+      testData: "test",
+    })
   })
 })

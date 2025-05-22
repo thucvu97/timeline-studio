@@ -4,8 +4,7 @@ import { UserSettingsContext } from "../modals/features/user-settings/user-setti
 
 // Ключи для хранения данных в IndexedDB
 export const USER_SETTINGS_STATE_KEY = "timeline-user-settings-state"
-export const USER_SETTINGS_STATE_TIMESTAMP_KEY =
-  "timeline-user-settings-state-timestamp"
+export const USER_SETTINGS_STATE_TIMESTAMP_KEY = "timeline-user-settings-state-timestamp"
 
 /**
  * Сервис для работы с IndexedDB
@@ -72,14 +71,9 @@ export class IndexedDBService {
       await set(USER_SETTINGS_STATE_KEY, safeStateToSave)
       // Сохраняем временную метку
       await set(USER_SETTINGS_STATE_TIMESTAMP_KEY, Date.now())
-      console.log(
-        `[IndexedDBService] Состояние таймлайна сохранено в IndexedDB`,
-      )
+      console.log(`[IndexedDBService] Состояние таймлайна сохранено в IndexedDB`)
     } catch (error) {
-      console.error(
-        "[IndexedDBService] Ошибка при сохранении состояния:",
-        error,
-      )
+      console.error("[IndexedDBService] Ошибка при сохранении состояния:", error)
     }
   }
 
@@ -89,9 +83,7 @@ export class IndexedDBService {
    */
   public async loadTimelineState(): Promise<Partial<UserSettingsContext> | null> {
     try {
-      const state = await get<Partial<UserSettingsContext>>(
-        USER_SETTINGS_STATE_KEY,
-      )
+      const state = await get<Partial<UserSettingsContext>>(USER_SETTINGS_STATE_KEY)
       if (state && Object.keys(state).length > 0) {
         console.log(`[IndexedDBService] Состояние загружено из IndexedDB`)
         return state
@@ -113,10 +105,7 @@ export class IndexedDBService {
       const timestamp = await get<number>(USER_SETTINGS_STATE_TIMESTAMP_KEY)
       return timestamp ?? null
     } catch (error) {
-      console.error(
-        "[IndexedDBService] Ошибка при получении временной метки:",
-        error,
-      )
+      console.error("[IndexedDBService] Ошибка при получении временной метки:", error)
       return null
     }
   }

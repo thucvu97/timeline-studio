@@ -36,15 +36,11 @@ interface MediaListProviderContextType extends MediaListContextType {
   setSortBy: (sortBy: string) => void
   setFilterType: (filterType: string) => void
   setGroupBy: (groupBy: string) => void
-  setSortOrder: (
-    orderOrUpdater: "asc" | "desc" | ((prev: "asc" | "desc") => "asc" | "desc"),
-  ) => void
+  setSortOrder: (orderOrUpdater: "asc" | "desc" | ((prev: "asc" | "desc") => "asc" | "desc")) => void
 }
 
 // Создаем контекст для провайдера
-const MediaListContext = createContext<MediaListProviderContextType | null>(
-  null,
-)
+const MediaListContext = createContext<MediaListProviderContextType | null>(null)
 
 /**
  * Провайдер для управления списком медиа-файлов
@@ -201,9 +197,7 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    *
    * @param {string | ((prev: "asc" | "desc") => "asc" | "desc")} orderOrUpdater - Новый порядок сортировки или функция обновления
    */
-  const setSortOrder = (
-    orderOrUpdater: "asc" | "desc" | ((prev: "asc" | "desc") => "asc" | "desc"),
-  ) => {
+  const setSortOrder = (orderOrUpdater: "asc" | "desc" | ((prev: "asc" | "desc") => "asc" | "desc")) => {
     if (typeof orderOrUpdater === "function") {
       // Если передана функция, вычисляем новое значение
       const newOrder = orderOrUpdater(state.context.sortOrder)
@@ -296,11 +290,7 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Возвращаем провайдер с контекстом
-  return (
-    <MediaListContext.Provider value={contextValue}>
-      {children}
-    </MediaListContext.Provider>
-  )
+  return <MediaListContext.Provider value={contextValue}>{children}</MediaListContext.Provider>
 }
 
 /**

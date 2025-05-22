@@ -29,12 +29,7 @@ interface TemplatePreviewProps {
  * @param {TemplatePreviewProps} props - Пропсы компонента
  * @returns {JSX.Element} Компонент превью шаблона
  */
-export function TemplatePreview({
-  template,
-  onClick,
-  size,
-  dimensions,
-}: TemplatePreviewProps) {
+export function TemplatePreview({ template, onClick, size, dimensions }: TemplatePreviewProps) {
   const [width, height] = dimensions // Извлекаем ширину и высоту из размеров
 
   // Локальное состояние для отслеживания добавления шаблона
@@ -69,8 +64,7 @@ export function TemplatePreview({
   const { height: previewHeight, width: previewWidth } = calculateDimensions()
 
   // Получаем методы для работы с ресурсами шаблонов
-  const { addTemplate, isTemplateAdded, removeResource, templateResources } =
-    useResources()
+  const { addTemplate, isTemplateAdded, removeResource, templateResources } = useResources()
 
   // Создаем клон элемента с добавлением ключа для предотвращения предупреждения React
   const renderedTemplate = template.render()
@@ -127,17 +121,13 @@ export function TemplatePreview({
     setLocalIsAdded(false)
 
     // Находим ресурс с этим шаблоном в списке ресурсов
-    const resource = templateResources.find(
-      (res: TemplateResource) => res.resourceId === template.id,
-    )
+    const resource = templateResources.find((res: TemplateResource) => res.resourceId === template.id)
 
     if (resource) {
       // Удаляем ресурс из хранилища
       removeResource(resource.id)
     } else {
-      console.warn(
-        `Не удалось найти ресурс шаблона с ID ${template.id} для удаления`,
-      )
+      console.warn(`Не удалось найти ресурс шаблона с ID ${template.id} для удаления`)
     }
   }
 
@@ -158,11 +148,7 @@ export function TemplatePreview({
       })}
 
       {/* Кнопка добавления в избранное */}
-      <FavoriteButton
-        file={{ id: template.id, path: "", name: template.id }}
-        size={previewWidth}
-        type="template"
-      />
+      <FavoriteButton file={{ id: template.id, path: "", name: template.id }} size={previewWidth} type="template" />
 
       {/* Контейнер для кнопки добавления/удаления шаблона */}
       <div

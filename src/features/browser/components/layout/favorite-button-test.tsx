@@ -11,16 +11,8 @@ interface FavoriteButtonProps {
   size?: number
   type?: "media" | "audio" | "transition" | "effect" | "template" | "filter"
   isFavorite?: boolean
-  onAddToFavorites?: (
-    e: React.MouseEvent | React.KeyboardEvent,
-    file: MediaFile,
-    type: string,
-  ) => void
-  onRemoveFromFavorites?: (
-    e: React.MouseEvent | React.KeyboardEvent,
-    file: MediaFile,
-    type: string,
-  ) => void
+  onAddToFavorites?: (e: React.MouseEvent | React.KeyboardEvent, file: MediaFile, type: string) => void
+  onRemoveFromFavorites?: (e: React.MouseEvent | React.KeyboardEvent, file: MediaFile, type: string) => void
 }
 
 /**
@@ -133,7 +125,7 @@ export const FavoriteButton = memo(function FavoriteButton({
 
   // Не рендерим компонент, если не предоставлены обработчики
   if (!onAddToFavorites && !onRemoveFromFavorites) {
-    return null;
+    return null
   }
 
   return (
@@ -150,8 +142,8 @@ export const FavoriteButton = memo(function FavoriteButton({
       )}
       onClick={handleToggleFavorite}
       onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          handleToggleFavorite(e);
+        if (e.key === "Enter" || e.key === " ") {
+          handleToggleFavorite(e)
         }
       }}
       onMouseEnter={() => setIsHovering(true)}

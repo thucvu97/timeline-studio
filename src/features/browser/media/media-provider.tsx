@@ -35,12 +35,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   const [mediaState, mediaSend] = useMachine(mediaMachine)
 
   // Вычисляем includedFiles и unavailableFiles на основе allMediaFiles
-  const includedFiles = mediaState.context.allMediaFiles.filter(
-    (file) => file.isIncluded,
-  )
-  const unavailableFiles = mediaState.context.allMediaFiles.filter(
-    (file) => file.isUnavailable,
-  )
+  const includedFiles = mediaState.context.allMediaFiles.filter((file) => file.isIncluded)
+  const unavailableFiles = mediaState.context.allMediaFiles.filter((file) => file.isUnavailable)
 
   // Добавляем логирование при изменении состояния
   useEffect(() => {
@@ -105,8 +101,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     return includedFilePaths.includes(file.path)
   }
 
-  const areAllFilesAdded = (files: MediaFile[]) =>
-    files.every((file) => isFileAdded(file))
+  const areAllFilesAdded = (files: MediaFile[]) => files.every((file) => isFileAdded(file))
 
   // Методы для работы с избранным
   const addToFavorites = (item: any, itemType: string) => {

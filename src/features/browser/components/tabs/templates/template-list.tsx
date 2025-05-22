@@ -17,9 +17,7 @@ import { MediaTemplate, TEMPLATE_MAP } from "./templates"
  * @param {string} label - Метка соотношения сторон (например, "16:9", "1:1")
  * @returns {"landscape" | "square" | "portrait"} Группа шаблонов
  */
-function mapAspectLabelToGroup(
-  label: string,
-): "landscape" | "square" | "portrait" {
+function mapAspectLabelToGroup(label: string): "landscape" | "square" | "portrait" {
   if (label === "1:1") return "square" // Квадратные шаблоны
   if (label === "9:16" || label === "4:5") return "portrait" // Вертикальные шаблоны
   return "landscape" // По умолчанию - горизонтальные шаблоны
@@ -72,10 +70,7 @@ export function TemplateList() {
     const group = mapAspectLabelToGroup(settings.aspectRatio.label)
 
     // Получаем размеры из настроек проекта
-    const dimensions: [number, number] = [
-      settings.aspectRatio.value.width,
-      settings.aspectRatio.value.height,
-    ]
+    const dimensions: [number, number] = [settings.aspectRatio.value.width, settings.aspectRatio.value.height]
 
     // Обновляем состояние компонента
     setCurrentGroup(group) // Устанавливаем текущую группу
@@ -104,10 +99,7 @@ export function TemplateList() {
     // Фильтрация по избранному
     const matchesFavorites =
       !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
-      media.isItemFavorite(
-        { id: template.id, path: "", name: template.id },
-        "template",
-      )
+      media.isItemFavorite({ id: template.id, path: "", name: template.id }, "template")
 
     // Если не проходит фильтр по избранному, сразу возвращаем false
     // Это оптимизирует фильтрацию, избегая лишних проверок
@@ -157,9 +149,7 @@ export function TemplateList() {
    * Группируем шаблоны по количеству экранов
    * Создаем объект, где ключи - количество экранов, а значения - массивы шаблонов
    */
-  const groupedTemplates = filteredTemplates.reduce<
-    Record<number, MediaTemplate[]>
-  >((acc, template) => {
+  const groupedTemplates = filteredTemplates.reduce<Record<number, MediaTemplate[]>>((acc, template) => {
     // Получаем количество экранов шаблона (или 1, если не указано)
     const screenCount = template.screens || 1
 
@@ -211,8 +201,7 @@ export function TemplateList() {
               <div key={screenCount} className="mb-4">
                 {/* Заголовок группы с количеством экранов */}
                 <h3 className="mb-3 text-sm font-medium text-gray-400">
-                  {screenCount}{" "}
-                  {/* Локализованное название с учетом числа экранов и языка */}
+                  {screenCount} {/* Локализованное название с учетом числа экранов и языка */}
                   {t(
                     `browser.templateScreens.${screenCount === 1 ? "one" : i18n.language === "ru" && screenCount < 5 ? "few" : "many"}`,
                     {
@@ -233,10 +222,7 @@ export function TemplateList() {
                 >
                   {/* Отображение каждого шаблона в группе */}
                   {groupedTemplates[screenCount].map((template) => (
-                    <div
-                      key={template.id}
-                      className="flex flex-col items-center"
-                    >
+                    <div key={template.id} className="flex flex-col items-center">
                       {/* Компонент превью шаблона */}
                       <TemplatePreview
                         template={template}
@@ -253,8 +239,7 @@ export function TemplateList() {
                         title={getTemplateLabels(template.id) || template.id} // Полное название в тултипе
                         style={{ width: `${previewSize}px` }} // Ширина равна ширине превью
                       >
-                        {getTemplateLabels(template.id) || template.id}{" "}
-                        {/* Локализованное название или ID */}
+                        {getTemplateLabels(template.id) || template.id} {/* Локализованное название или ID */}
                       </div>
                     </div>
                   ))}

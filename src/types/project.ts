@@ -6,15 +6,7 @@ export interface ResolutionOption {
 }
 
 export type Resolution = string
-export type FrameRate =
-  | "23.97"
-  | "24"
-  | "25"
-  | "29.97"
-  | "30"
-  | "50"
-  | "59.94"
-  | "60"
+export type FrameRate = "23.97" | "24" | "25" | "29.97" | "30" | "50" | "59.94" | "60"
 
 // Константа с доступными значениями FPS на основе типа FrameRate
 export const FRAME_RATES: { value: FrameRate; label: string }[] = [
@@ -243,9 +235,7 @@ export const RESOLUTIONS_21_9: ResolutionOption[] = [
 ]
 
 // Функция для получения разрешений для конкретного соотношения сторон
-export function getResolutionsForAspectRatio(
-  aspectRatioLabel: string,
-): ResolutionOption[] {
+export function getResolutionsForAspectRatio(aspectRatioLabel: string): ResolutionOption[] {
   switch (aspectRatioLabel) {
     case "16:9":
       return RESOLUTIONS_16_9
@@ -265,9 +255,7 @@ export function getResolutionsForAspectRatio(
 }
 
 // Функция для получения рекомендуемого разрешения для соотношения сторон
-export function getDefaultResolutionForAspectRatio(
-  aspectRatioLabel: string,
-): ResolutionOption {
+export function getDefaultResolutionForAspectRatio(aspectRatioLabel: string): ResolutionOption {
   const resolutions = getResolutionsForAspectRatio(aspectRatioLabel)
   // Возвращаем второе разрешение в списке (обычно Full HD или эквивалент)
   return resolutions.length > 1 ? resolutions[1] : resolutions[0]

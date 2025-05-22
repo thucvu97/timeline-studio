@@ -32,13 +32,7 @@ interface MediaGroupProps {
  * @param {MediaGroupProps} props - Свойства компонента
  * @returns {JSX.Element | null} Компонент группы медиа-файлов или null, если группа пуста
  */
-export const MediaGroup: React.FC<MediaGroupProps> = ({
-  title,
-  files,
-  viewMode,
-  previewSize,
-  addFilesToTimeline,
-}) => {
+export const MediaGroup: React.FC<MediaGroupProps> = ({ title, files, viewMode, previewSize, addFilesToTimeline }) => {
   const { t } = useTranslation()
   const media = useMedia()
 
@@ -54,27 +48,19 @@ export const MediaGroup: React.FC<MediaGroupProps> = ({
   const handleAddMedia = (file: MediaFile) => {
     // Проверяем, не добавлен ли файл уже
     if (media.isFileAdded(file)) {
-      console.log(
-        `[handleAddMedia] Файл ${file.name} уже добавлен в медиафайлы`,
-      )
+      console.log(`[handleAddMedia] Файл ${file.name} уже добавлен в медиафайлы`)
       return
     }
 
     // Проверяем, является ли файл изображением
     if (file.isImage) {
-      console.log(
-        "[handleAddMedia] Добавляем изображение только в медиафайлы:",
-        file.name,
-      )
+      console.log("[handleAddMedia] Добавляем изображение только в медиафайлы:", file.name)
       return
     }
 
     // Добавляем файл на таймлайн
     if (file.path) {
-      console.log(
-        "[handleAddMedia] Вызываем addFilesToTimeline с файлом:",
-        file,
-      )
+      console.log("[handleAddMedia] Вызываем addFilesToTimeline с файлом:", file)
       addFilesToTimeline([file])
     }
   }
@@ -129,18 +115,12 @@ export const MediaGroup: React.FC<MediaGroupProps> = ({
           }}
           disabled={allFilesAdded}
         >
-          <span className="px-1 text-xs">
-            {allFilesAdded ? t("browser.media.added") : t("browser.media.add")}
-          </span>
+          <span className="px-1 text-xs">{allFilesAdded ? t("browser.media.added") : t("browser.media.add")}</span>
           <CopyPlus className="mr-1 h-3 w-3" />
         </Button>
       </div>
       <div
-        className={
-          viewMode === "grid" || viewMode === "thumbnails"
-            ? "items-left flex flex-wrap gap-3"
-            : "space-y-1"
-        }
+        className={viewMode === "grid" || viewMode === "thumbnails" ? "items-left flex flex-wrap gap-3" : "space-y-1"}
       >
         {files.map((file, index) => (
           <MediaItem

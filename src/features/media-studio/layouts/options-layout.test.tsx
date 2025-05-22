@@ -8,27 +8,13 @@ import { OptionsLayout } from "./options-layout"
 // Мокаем зависимости
 vi.mock("@/features/modals/features/user-settings/user-settings-provider")
 vi.mock("@/components/ui/resizable", () => ({
-  ResizablePanelGroup: ({
-    children,
-    direction,
-    className,
-    autoSaveId,
-  }: any) => (
-    <div
-      data-testid={`resizable-panel-group-${autoSaveId}`}
-      data-direction={direction}
-      className={className}
-    >
+  ResizablePanelGroup: ({ children, direction, className, autoSaveId }: any) => (
+    <div data-testid={`resizable-panel-group-${autoSaveId}`} data-direction={direction} className={className}>
       {children}
     </div>
   ),
   ResizablePanel: ({ children, defaultSize, minSize, maxSize }: any) => (
-    <div
-      data-testid="resizable-panel"
-      data-default-size={defaultSize}
-      data-min-size={minSize}
-      data-max-size={maxSize}
-    >
+    <div data-testid="resizable-panel" data-default-size={defaultSize} data-min-size={minSize} data-max-size={maxSize}>
       {children}
     </div>
   ),
@@ -48,9 +34,7 @@ vi.mock("@/features/timeline/components/timeline", () => ({
 }))
 
 vi.mock("@/features/video-player/components/video-player", () => ({
-  VideoPlayer: () => (
-    <div data-testid="video-player">Video Player Component</div>
-  ),
+  VideoPlayer: () => <div data-testid="video-player">Video Player Component</div>,
 }))
 
 describe("OptionsLayout", () => {
@@ -69,28 +53,25 @@ describe("OptionsLayout", () => {
     render(<OptionsLayout />)
 
     // Проверяем, что основная группа панелей отрендерена
-    expect(
-      screen.getByTestId("resizable-panel-group-default-main-layout"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByTestId("resizable-panel-group-default-main-layout"),
-    ).toHaveAttribute("data-direction", "horizontal")
+    expect(screen.getByTestId("resizable-panel-group-default-main-layout")).toBeInTheDocument()
+    expect(screen.getByTestId("resizable-panel-group-default-main-layout")).toHaveAttribute(
+      "data-direction",
+      "horizontal",
+    )
 
     // Проверяем, что вложенная группа панелей отрендерена
-    expect(
-      screen.getByTestId("resizable-panel-group-vertical-left-layout"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByTestId("resizable-panel-group-vertical-left-layout"),
-    ).toHaveAttribute("data-direction", "vertical")
+    expect(screen.getByTestId("resizable-panel-group-vertical-left-layout")).toBeInTheDocument()
+    expect(screen.getByTestId("resizable-panel-group-vertical-left-layout")).toHaveAttribute(
+      "data-direction",
+      "vertical",
+    )
 
     // Проверяем, что группа панелей верхнего уровня отрендерена
-    expect(
-      screen.getByTestId("resizable-panel-group-vertical-top-layout"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByTestId("resizable-panel-group-vertical-top-layout"),
-    ).toHaveAttribute("data-direction", "horizontal")
+    expect(screen.getByTestId("resizable-panel-group-vertical-top-layout")).toBeInTheDocument()
+    expect(screen.getByTestId("resizable-panel-group-vertical-top-layout")).toHaveAttribute(
+      "data-direction",
+      "horizontal",
+    )
 
     // Проверяем, что компоненты отрендерены
     expect(screen.getByTestId("browser")).toBeInTheDocument()
@@ -113,9 +94,7 @@ describe("OptionsLayout", () => {
     render(<OptionsLayout />)
 
     // Проверяем, что основная группа панелей отрендерена
-    expect(
-      screen.getByTestId("resizable-panel-group-default-main-layout"),
-    ).toBeInTheDocument()
+    expect(screen.getByTestId("resizable-panel-group-default-main-layout")).toBeInTheDocument()
 
     // Проверяем, что компонент браузера не отрендерен
     expect(screen.queryByTestId("browser")).not.toBeInTheDocument()

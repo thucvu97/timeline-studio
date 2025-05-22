@@ -1,10 +1,6 @@
 import dayjs from "dayjs"
 
-import {
-  DEFAULT_LANGUAGE,
-  LanguageCode,
-  formatDateByLanguage,
-} from "@/i18n/constants"
+import { DEFAULT_LANGUAGE, LanguageCode, formatDateByLanguage } from "@/i18n/constants"
 
 /**
  * Форматирует UNIX-timestamp в строку даты с учетом текущего языка приложения
@@ -60,11 +56,7 @@ export function formatDate(timestamp: number): string {
  * formatDuration(3665, 2, true) // "01:01:05:00"
  * ```
  */
-export function formatDuration(
-  seconds: number,
-  afterComa = 3,
-  showHours = false,
-): string {
+export function formatDuration(seconds: number, afterComa = 3, showHours = false): string {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const secs = Math.floor(seconds % 60)

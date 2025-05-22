@@ -7,13 +7,7 @@ import { MediaPreview } from "./media-preview"
 
 // Мокаем компоненты для разных типов медиа
 vi.mock("./video-preview", () => ({
-  VideoPreview: ({
-    file,
-    size,
-    showFileName,
-    dimensions,
-    ignoreRatio,
-  }: any) => (
+  VideoPreview: ({ file, size, showFileName, dimensions, ignoreRatio }: any) => (
     <div
       data-testid="video-preview"
       data-file={file.name}

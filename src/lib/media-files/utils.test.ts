@@ -2,13 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import type { MediaFile } from "@/types/media"
 
-import {
-  doTimeRangesOverlap,
-  getFileType,
-  getRemainingMediaCounts,
-  hasAudioStream,
-  isHorizontalVideo,
-} from "./utils"
+import { doTimeRangesOverlap, getFileType, getRemainingMediaCounts, hasAudioStream, isHorizontalVideo } from "./utils"
 
 describe("hasAudioStream", () => {
   it("должен вернуть true, если файл содержит аудиопоток", () => {

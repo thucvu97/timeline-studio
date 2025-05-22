@@ -29,13 +29,7 @@ interface MediaItemProps {
  * @param {MediaItemProps} props - Свойства компонента
  * @returns {JSX.Element} Компонент медиа-элемента
  */
-export const MediaItem: React.FC<MediaItemProps> = ({
-  file,
-  index,
-  viewMode,
-  previewSize,
-  onAddMedia,
-}) => {
+export const MediaItem: React.FC<MediaItemProps> = ({ file, index, viewMode, previewSize, onAddMedia }) => {
   // Получаем доступ к медиа-контексту
   const media = useMedia()
 
@@ -87,12 +81,7 @@ export const MediaItem: React.FC<MediaItemProps> = ({
           }}
         >
           <div className="group relative w-full flex-1 flex-grow flex-row">
-            <MediaPreview
-              file={file}
-              onAddMedia={handleAddMedia}
-              isAdded={isAdded}
-              size={previewSize}
-            />
+            <MediaPreview file={file} onAddMedia={handleAddMedia} isAdded={isAdded} size={previewSize} />
           </div>
           <div
             className="truncate p-1 text-xs"

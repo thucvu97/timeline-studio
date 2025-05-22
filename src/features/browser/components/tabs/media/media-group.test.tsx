@@ -20,9 +20,7 @@ vi.mock("react-i18next", () => ({
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
     isFileAdded: vi.fn((file) => file.id === "added-file"),
-    areAllFilesAdded: vi.fn((files) =>
-      files.every((file) => file.id === "added-file"),
-    ),
+    areAllFilesAdded: vi.fn((files) => files.every((file) => file.id === "added-file")),
   }),
 }))
 

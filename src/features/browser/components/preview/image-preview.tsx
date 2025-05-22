@@ -77,14 +77,7 @@ export const ImagePreview = memo(function ImagePreview({
       {/* Кнопка избранного */}
       <FavoriteButton file={file} size={size} type="media" />
 
-      {onAddMedia && (
-        <AddMediaButton
-          file={file}
-          onAddMedia={onAddMedia}
-          isAdded={isAdded}
-          size={size}
-        />
-      )}
+      {onAddMedia && <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />}
     </div>
   )
 })

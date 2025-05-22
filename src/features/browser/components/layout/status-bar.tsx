@@ -2,10 +2,7 @@ import { CopyPlus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
-import {
-  getRemainingMediaCounts,
-  getTopDateWithRemainingFiles,
-} from "@/lib/media-files"
+import { getRemainingMediaCounts, getTopDateWithRemainingFiles } from "@/lib/media-files"
 import { MediaFile } from "@/types/media"
 
 interface StatusBarProps {
@@ -40,12 +37,8 @@ export function StatusBar({
 }: StatusBarProps) {
   const { t } = useTranslation()
   const addedFilesSet = new Set(addedFiles.map((file) => file.path))
-  const { remainingVideoCount, remainingAudioCount, allFilesAdded } =
-    getRemainingMediaCounts(media, addedFilesSet)
-  const topDateWithRemainingFiles = getTopDateWithRemainingFiles(
-    sortedDates,
-    addedFilesSet,
-  )
+  const { remainingVideoCount, remainingAudioCount, allFilesAdded } = getRemainingMediaCounts(media, addedFilesSet)
+  const topDateWithRemainingFiles = getTopDateWithRemainingFiles(sortedDates, addedFilesSet)
 
   return (
     <div className="flex w-full items-center justify-between gap-2 p-1 text-sm">
@@ -77,10 +70,9 @@ export function StatusBar({
           )}
         </span>
       </div>
-      {topDateWithRemainingFiles &&
-        topDateWithRemainingFiles.remainingFiles.length > 0 && (
-          <div className="flex flex-row items-end justify-center gap-0 text-xs">
-            {/* <Button
+      {topDateWithRemainingFiles && topDateWithRemainingFiles.remainingFiles.length > 0 && (
+        <div className="flex flex-row items-end justify-center gap-0 text-xs">
+          {/* <Button
               variant="ghost"
               size="sm"
               className="flex items-center gap-1 text-xs rounded-sm cursor-pointer px-2 h-6 hover:bg-teal dark:hover:bg-teal"
@@ -89,22 +81,20 @@ export function StatusBar({
             >
               <SquareArrowDown size={10} className="" />
             </Button> */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-teal dark:hover:bg-teal"
-              title={
-                `${t("browser.media.addDate")}: ${topDateWithRemainingFiles.date}`
-              }
-              onClick={() => {
-                onAddDateFiles(topDateWithRemainingFiles.files)
-              }}
-            >
-              {`${topDateWithRemainingFiles.remainingFiles.length} ${t("browser.media.video")} ${topDateWithRemainingFiles.date}`}
-              <CopyPlus size={10} className="" />
-            </Button>
-          </div>
-        )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="bg-secondary flex h-6 cursor-pointer items-center gap-1 rounded-sm px-2 text-xs hover:bg-teal dark:hover:bg-teal"
+            title={`${t("browser.media.addDate")}: ${topDateWithRemainingFiles.date}`}
+            onClick={() => {
+              onAddDateFiles(topDateWithRemainingFiles.files)
+            }}
+          >
+            {`${topDateWithRemainingFiles.remainingFiles.length} ${t("browser.media.video")} ${topDateWithRemainingFiles.date}`}
+            <CopyPlus size={10} className="" />
+          </Button>
+        </div>
+      )}
       <div className="flex flex-col items-end justify-center gap-0 text-xs">
         {allFilesAdded ? (
           <div className="flex items-center gap-1 px-2 font-medium text-[#49a293]">

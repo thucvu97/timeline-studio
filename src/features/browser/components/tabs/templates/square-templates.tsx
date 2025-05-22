@@ -202,9 +202,7 @@ export const squareTemplates: MediaTemplate[] = [
             border: "1px solid rgba(156, 163, 175, 0.3)",
           }}
         >
-          <div style={{ position: "relative", left: "-25%", top: "-25%" }}>
-            1
-          </div>
+          <div style={{ position: "relative", left: "-25%", top: "-25%" }}>1</div>
         </div>
 
         {/* Верхний правый экран */}
@@ -219,9 +217,7 @@ export const squareTemplates: MediaTemplate[] = [
             border: "1px solid rgba(156, 163, 175, 0.3)",
           }}
         >
-          <div style={{ position: "relative", left: "25%", top: "-25%" }}>
-            2
-          </div>
+          <div style={{ position: "relative", left: "25%", top: "-25%" }}>2</div>
         </div>
 
         {/* Нижний левый экран */}
@@ -236,9 +232,7 @@ export const squareTemplates: MediaTemplate[] = [
             border: "1px solid rgba(156, 163, 175, 0.3)",
           }}
         >
-          <div style={{ position: "relative", left: "-25%", top: "25%" }}>
-            3
-          </div>
+          <div style={{ position: "relative", left: "-25%", top: "25%" }}>3</div>
         </div>
 
         {/* Нижний правый экран */}
@@ -2196,14 +2190,10 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -2261,14 +2251,10 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -2323,14 +2309,10 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -2385,14 +2367,10 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -2450,14 +2428,10 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -2515,14 +2489,10 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -2580,14 +2550,10 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -2644,14 +2610,10 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -2706,14 +2668,10 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}

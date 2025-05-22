@@ -88,20 +88,12 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Проверяем, что компонент отрендерился
-    expect(
-      screen.getByText("dialogs.userSettings.interfaceLanguage"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("dialogs.userSettings.screenshotsPath"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("dialogs.userSettings.interfaceLanguage")).toBeInTheDocument()
+    expect(screen.getByText("dialogs.userSettings.screenshotsPath")).toBeInTheDocument()
 
     // Проверяем, что есть элементы для API ключей (OpenAI и Claude)
-    expect(
-      screen.getByText("dialogs.userSettings.openAiApiKey", { exact: false }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("dialogs.userSettings.claudeApiKey", { exact: false }),
-    ).toBeInTheDocument()
+    expect(screen.getByText("dialogs.userSettings.openAiApiKey", { exact: false })).toBeInTheDocument()
+    expect(screen.getByText("dialogs.userSettings.claudeApiKey", { exact: false })).toBeInTheDocument()
 
     expect(screen.getByText("dialogs.userSettings.cancel")).toBeInTheDocument()
     expect(screen.getByText("dialogs.userSettings.save")).toBeInTheDocument()
@@ -111,9 +103,7 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Проверяем, что селект языка отображается
-    expect(
-      screen.getByText("dialogs.userSettings.interfaceLanguage"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("dialogs.userSettings.interfaceLanguage")).toBeInTheDocument()
 
     // Симулируем выбор языка, вызывая напрямую функцию changeLanguage
     void vi.mocked(useLanguage)().changeLanguage("en")
@@ -126,8 +116,7 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Находим инпут пути скриншотов
-    const screenshotsPathInput =
-      screen.getByPlaceholderText("public/screenshots")
+    const screenshotsPathInput = screen.getByPlaceholderText("public/screenshots")
 
     // Вводим новый путь
     fireEvent.change(screenshotsPathInput, { target: { value: "new/path" } })
@@ -144,9 +133,7 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Находим инпуты API ключей (OpenAI и Claude)
-    const apiKeyInputs = screen.getAllByPlaceholderText(
-      "dialogs.userSettings.enterApiKey",
-    )
+    const apiKeyInputs = screen.getAllByPlaceholderText("dialogs.userSettings.enterApiKey")
 
     // Первый инпут - для OpenAI
     const openAiKeyInput = apiKeyInputs[0]
@@ -201,9 +188,7 @@ describe("UserSettingsModal", () => {
     fireEvent.click(clearButton)
 
     // Проверяем, что handleScreenshotsPathChange был вызван с правильным значением
-    expect(mockHandleScreenshotsPathChange).toHaveBeenCalledWith(
-      "public/screenshots",
-    )
+    expect(mockHandleScreenshotsPathChange).toHaveBeenCalledWith("public/screenshots")
   })
 
   it("should clear API key when X button is clicked", () => {
@@ -228,9 +213,7 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Находим кнопки X рядом с инпутами API ключей
-    const clearButtons = screen.getAllByTitle(
-      "dialogs.userSettings.clearApiKey",
-    )
+    const clearButtons = screen.getAllByTitle("dialogs.userSettings.clearApiKey")
 
     // Первая кнопка - для OpenAI
     const clearOpenAiButton = clearButtons[0]
@@ -273,8 +256,7 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Проверяем, что начальное значение пути скриншотов установлено правильно
-    const screenshotsPathInput =
-      screen.getByPlaceholderText("public/screenshots")
+    const screenshotsPathInput = screen.getByPlaceholderText("public/screenshots")
     expect(screenshotsPathInput).toHaveValue("public/screenshots")
 
     // Изменяем путь скриншотов в контексте
@@ -299,8 +281,7 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Проверяем, что значение пути скриншотов обновилось
-    const updatedScreenshotsPathInput =
-      screen.getAllByPlaceholderText("public/screenshots")[1]
+    const updatedScreenshotsPathInput = screen.getAllByPlaceholderText("public/screenshots")[1]
     expect(updatedScreenshotsPathInput).toHaveValue("new/path")
   })
 
@@ -309,9 +290,7 @@ describe("UserSettingsModal", () => {
     render(<UserSettingsModal />)
 
     // Находим поле ввода для OpenAI API key
-    const openAiApiKeyInput = screen.getAllByPlaceholderText(
-      "dialogs.userSettings.enterApiKey",
-    )[0]
+    const openAiApiKeyInput = screen.getAllByPlaceholderText("dialogs.userSettings.enterApiKey")[0]
 
     // Вводим значение в поле
     fireEvent.change(openAiApiKeyInput, { target: { value: "openai-api-key" } })
@@ -382,8 +361,7 @@ describe("UserSettingsModal", () => {
     rerender(<UserSettingsModal />)
 
     // Проверяем, что путь скриншотов был обновлен
-    const screenshotsPathInput =
-      screen.getByPlaceholderText("public/screenshots")
+    const screenshotsPathInput = screen.getByPlaceholderText("public/screenshots")
     expect(screenshotsPathInput).toHaveValue("selected/directory/path")
   })
 
@@ -421,8 +399,7 @@ describe("UserSettingsModal", () => {
     })
 
     // Проверяем, что путь скриншотов не изменился
-    const screenshotsPathInput =
-      screen.getByPlaceholderText("public/screenshots")
+    const screenshotsPathInput = screen.getByPlaceholderText("public/screenshots")
     expect(screenshotsPathInput).toHaveValue("public/screenshots")
   })
 })

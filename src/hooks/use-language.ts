@@ -3,11 +3,7 @@ import { useCallback, useEffect, useState } from "react"
 import { invoke } from "@tauri-apps/api/core"
 import { useTranslation } from "react-i18next"
 
-import {
-  DEFAULT_LANGUAGE,
-  LanguageCode,
-  isSupportedLanguage,
-} from "@/i18n/constants"
+import { DEFAULT_LANGUAGE, LanguageCode, isSupportedLanguage } from "@/i18n/constants"
 
 interface LanguageResponse {
   language: string
@@ -22,8 +18,7 @@ export function useLanguage() {
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [systemLanguage, setSystemLanguage] =
-    useState<LanguageCode>(DEFAULT_LANGUAGE)
+  const [systemLanguage, setSystemLanguage] = useState<LanguageCode>(DEFAULT_LANGUAGE)
 
   // Получение языка из бэкенда Tauri
   const fetchLanguage = useCallback(async () => {
@@ -35,9 +30,7 @@ export function useLanguage() {
       const response = await invoke<LanguageResponse>("get_app_language")
 
       // Проверяем, поддерживается ли язык
-      const appLang = isSupportedLanguage(response.language)
-        ? (response.language as LanguageCode)
-        : DEFAULT_LANGUAGE
+      const appLang = isSupportedLanguage(response.language) ? (response.language as LanguageCode) : DEFAULT_LANGUAGE
 
       const sysLang = isSupportedLanguage(response.system_language)
         ? (response.system_language as LanguageCode)

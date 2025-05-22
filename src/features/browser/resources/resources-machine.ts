@@ -68,9 +68,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_EFFECT") return context.resources
 
         // Проверяем, есть ли уже такой эффект
-        const existingResource = context.effectResources.find(
-          (resource) => resource.resourceId === event.effect.id,
-        )
+        const existingResource = context.effectResources.find((resource) => resource.resourceId === event.effect.id)
 
         if (existingResource) {
           return context.resources
@@ -83,9 +81,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_EFFECT") return context.effectResources
 
         // Проверяем, есть ли уже такой эффект
-        const existingResource = context.effectResources.find(
-          (resource) => resource.resourceId === event.effect.id,
-        )
+        const existingResource = context.effectResources.find((resource) => resource.resourceId === event.effect.id)
 
         if (existingResource) {
           return context.effectResources
@@ -102,9 +98,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_FILTER") return context.resources
 
         // Проверяем, есть ли уже такой фильтр
-        const existingResource = context.filterResources.find(
-          (resource) => resource.resourceId === event.filter.id,
-        )
+        const existingResource = context.filterResources.find((resource) => resource.resourceId === event.filter.id)
 
         if (existingResource) {
           return context.resources
@@ -117,9 +111,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_FILTER") return context.filterResources
 
         // Проверяем, есть ли уже такой фильтр
-        const existingResource = context.filterResources.find(
-          (resource) => resource.resourceId === event.filter.id,
-        )
+        const existingResource = context.filterResources.find((resource) => resource.resourceId === event.filter.id)
 
         if (existingResource) {
           return context.filterResources
@@ -137,9 +129,7 @@ export const resourcesMachine = setup({
 
         // Проверяем, есть ли уже такой переход
         const existingResource = context.transitionResources.find(
-          (resource) =>
-            resource.resourceId === event.transition.id ||
-            resource.resourceId === event.transition.type,
+          (resource) => resource.resourceId === event.transition.id || resource.resourceId === event.transition.type,
         )
 
         if (existingResource) {
@@ -154,9 +144,7 @@ export const resourcesMachine = setup({
 
         // Проверяем, есть ли уже такой переход
         const existingResource = context.transitionResources.find(
-          (resource) =>
-            resource.resourceId === event.transition.id ||
-            resource.resourceId === event.transition.type,
+          (resource) => resource.resourceId === event.transition.id || resource.resourceId === event.transition.type,
         )
 
         if (existingResource) {
@@ -174,9 +162,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_TEMPLATE") return context.resources
 
         // Проверяем, есть ли уже такой шаблон
-        const existingResource = context.templateResources.find(
-          (resource) => resource.resourceId === event.template.id,
-        )
+        const existingResource = context.templateResources.find((resource) => resource.resourceId === event.template.id)
 
         if (existingResource) {
           return context.resources
@@ -189,9 +175,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_TEMPLATE") return context.templateResources
 
         // Проверяем, есть ли уже такой шаблон
-        const existingResource = context.templateResources.find(
-          (resource) => resource.resourceId === event.template.id,
-        )
+        const existingResource = context.templateResources.find((resource) => resource.resourceId === event.template.id)
 
         if (existingResource) {
           return context.templateResources
@@ -208,9 +192,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_MUSIC") return context.resources
 
         // Проверяем, есть ли уже такой музыкальный файл
-        const existingResource = context.musicResources.find(
-          (resource) => resource.resourceId === event.file.id,
-        )
+        const existingResource = context.musicResources.find((resource) => resource.resourceId === event.file.id)
 
         if (existingResource) {
           return context.resources
@@ -223,9 +205,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_MUSIC") return context.musicResources
 
         // Проверяем, есть ли уже такой музыкальный файл
-        const existingResource = context.musicResources.find(
-          (resource) => resource.resourceId === event.file.id,
-        )
+        const existingResource = context.musicResources.find((resource) => resource.resourceId === event.file.id)
 
         if (existingResource) {
           return context.musicResources
@@ -242,9 +222,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_SUBTITLE") return context.resources
 
         // Проверяем, есть ли уже такой стиль субтитров
-        const existingResource = context.subtitleResources.find(
-          (resource) => resource.resourceId === event.style.id,
-        )
+        const existingResource = context.subtitleResources.find((resource) => resource.resourceId === event.style.id)
 
         if (existingResource) {
           return context.resources
@@ -257,9 +235,7 @@ export const resourcesMachine = setup({
         if (event.type !== "ADD_SUBTITLE") return context.subtitleResources
 
         // Проверяем, есть ли уже такой стиль субтитров
-        const existingResource = context.subtitleResources.find(
-          (resource) => resource.resourceId === event.style.id,
-        )
+        const existingResource = context.subtitleResources.find((resource) => resource.resourceId === event.style.id)
 
         if (existingResource) {
           return context.subtitleResources
@@ -274,45 +250,31 @@ export const resourcesMachine = setup({
     removeResource: assign({
       resources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.resources
-        return context.resources.filter(
-          (resource) => resource.id !== event.resourceId,
-        )
+        return context.resources.filter((resource) => resource.id !== event.resourceId)
       },
       effectResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.effectResources
-        return context.effectResources.filter(
-          (resource) => resource.id !== event.resourceId,
-        )
+        return context.effectResources.filter((resource) => resource.id !== event.resourceId)
       },
       filterResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.filterResources
-        return context.filterResources.filter(
-          (resource) => resource.id !== event.resourceId,
-        )
+        return context.filterResources.filter((resource) => resource.id !== event.resourceId)
       },
       transitionResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.transitionResources
-        return context.transitionResources.filter(
-          (resource) => resource.id !== event.resourceId,
-        )
+        return context.transitionResources.filter((resource) => resource.id !== event.resourceId)
       },
       templateResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.templateResources
-        return context.templateResources.filter(
-          (resource) => resource.id !== event.resourceId,
-        )
+        return context.templateResources.filter((resource) => resource.id !== event.resourceId)
       },
       musicResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.musicResources
-        return context.musicResources.filter(
-          (resource) => resource.id !== event.resourceId,
-        )
+        return context.musicResources.filter((resource) => resource.id !== event.resourceId)
       },
       subtitleResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.subtitleResources
-        return context.subtitleResources.filter(
-          (resource) => resource.id !== event.resourceId,
-        )
+        return context.subtitleResources.filter((resource) => resource.id !== event.resourceId)
       },
     }),
 

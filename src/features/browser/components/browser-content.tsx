@@ -16,48 +16,27 @@ export function BrowserContent() {
 
   return (
     <>
-      <TabsContent
-        value="media"
-        className={contentClassName}
-      >
+      <TabsContent value="media" className={contentClassName}>
         <MediaListProvider>
           <MediaList />
         </MediaListProvider>
       </TabsContent>
-      <TabsContent
-        value="music"
-        className={contentClassName}
-      >
+      <TabsContent value="music" className={contentClassName}>
         <MusicList />
       </TabsContent>
-      <TabsContent
-        value="transitions"
-        className={contentClassName}
-      >
+      <TabsContent value="transitions" className={contentClassName}>
         <TransitionsList />
       </TabsContent>
-      <TabsContent
-        value="effects"
-        className={contentClassName}
-      >
+      <TabsContent value="effects" className={contentClassName}>
         <EffectList />
       </TabsContent>
-      <TabsContent
-        value="subtitles"
-        className={contentClassName}
-      >
+      <TabsContent value="subtitles" className={contentClassName}>
         <SubtitlesList />
       </TabsContent>
-      <TabsContent
-        value="filters"
-        className={contentClassName}
-      >
+      <TabsContent value="filters" className={contentClassName}>
         <FilterList />
       </TabsContent>
-      <TabsContent
-        value="templates"
-        className={contentClassName}
-      >
+      <TabsContent value="templates" className={contentClassName}>
         <TemplateList />
       </TabsContent>
     </>

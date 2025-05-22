@@ -3,35 +3,24 @@
 import { CreatePresetsFunction, ShortcutCategory } from "./types"
 
 // Функция для создания предустановки Timeline
-export const createTimelinePreset: CreatePresetsFunction = (
-  t: any,
-): ShortcutCategory[] => [
+export const createTimelinePreset: CreatePresetsFunction = (t: any): ShortcutCategory[] => [
   {
     id: "preferences",
     name: t("dialogs.keyboardShortcuts.categories.preferences", "Настройки"),
     shortcuts: [
       {
         id: "preferences",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.preferences",
-          "Настройки пользователя",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.preferences", "Настройки пользователя"),
         keys: "⌥⌘.",
       },
       {
         id: "project-settings",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.project-settings",
-          "Настройки проекта",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.project-settings", "Настройки проекта"),
         keys: "⌥⌘,",
       },
       {
         id: "shortcuts",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.shortcuts",
-          "Быстрые клавиши",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.shortcuts", "Быстрые клавиши"),
         keys: "⌥⌘K",
       },
     ],
@@ -42,50 +31,32 @@ export const createTimelinePreset: CreatePresetsFunction = (
     shortcuts: [
       {
         id: "new-project",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.new-project",
-          "Создать новый проект",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.new-project", "Создать новый проект"),
         keys: "⌘N",
       },
       {
         id: "open-project",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.open-project",
-          "Открыть Проект",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.open-project", "Открыть Проект"),
         keys: "⌘O",
       },
       {
         id: "save-project",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.save-project",
-          "Сохранить проект",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.save-project", "Сохранить проект"),
         keys: "⌘S",
       },
       {
         id: "save-as",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.save-as",
-          "Сохранить проект как",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.save-as", "Сохранить проект как"),
         keys: "⇧⌘S",
       },
       {
         id: "archive",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.archive",
-          "Архивный проект",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.archive", "Архивный проект"),
         keys: "⇧⌘A",
       },
       {
         id: "import",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.import",
-          "Импорт Медиафайлов",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.import", "Импорт Медиафайлов"),
         keys: "⌘I",
       },
     ],
@@ -126,10 +97,7 @@ export const createTimelinePreset: CreatePresetsFunction = (
       },
       {
         id: "select-all",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.select-all",
-          "Выбрать все",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.select-all", "Выбрать все"),
         keys: "⌘A",
       },
     ],
@@ -150,26 +118,17 @@ export const createTimelinePreset: CreatePresetsFunction = (
       },
       {
         id: "fit-to-screen",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.fit-to-screen",
-          "По размеру экрана",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.fit-to-screen", "По размеру экрана"),
         keys: "⌘0",
       },
       {
         id: "toggle-browser",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.toggle-browser",
-          "Показать/скрыть браузер",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.toggle-browser", "Показать/скрыть браузер"),
         keys: "⌘B",
       },
       {
         id: "toggle-timeline",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.toggle-timeline",
-          "Показать/скрыть таймлайн",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.toggle-timeline", "Показать/скрыть таймлайн"),
         keys: "⌘T",
       },
     ],
@@ -180,34 +139,22 @@ export const createTimelinePreset: CreatePresetsFunction = (
     shortcuts: [
       {
         id: "selection",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.selection",
-          "Инструмент выделения",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.selection", "Инструмент выделения"),
         keys: "V",
       },
       {
         id: "cut-tool",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.cut-tool",
-          "Инструмент разрезания",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.cut-tool", "Инструмент разрезания"),
         keys: "C",
       },
       {
         id: "hand-tool",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.hand-tool",
-          "Инструмент рука",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.hand-tool", "Инструмент рука"),
         keys: "H",
       },
       {
         id: "zoom-tool",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.zoom-tool",
-          "Инструмент масштаб",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.zoom-tool", "Инструмент масштаб"),
         keys: "Z",
       },
     ],
@@ -218,67 +165,43 @@ export const createTimelinePreset: CreatePresetsFunction = (
     shortcuts: [
       {
         id: "add-marker",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.add-marker",
-          "Добавить маркер",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.add-marker", "Добавить маркер"),
         keys: "M",
       },
       {
         id: "next-marker",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.next-marker",
-          "Следующий маркер",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.next-marker", "Следующий маркер"),
         keys: "⇧M",
       },
       {
         id: "prev-marker",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.prev-marker",
-          "Предыдущий маркер",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.prev-marker", "Предыдущий маркер"),
         keys: "⌥M",
       },
     ],
   },
   {
     id: "multicam",
-    name: t(
-      "dialogs.keyboardShortcuts.categories.multicam",
-      "Мультикамерный монтаж",
-    ),
+    name: t("dialogs.keyboardShortcuts.categories.multicam", "Мультикамерный монтаж"),
     shortcuts: [
       {
         id: "switch-camera-1",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.switch-camera-1",
-          "Переключиться на камеру 1",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.switch-camera-1", "Переключиться на камеру 1"),
         keys: "1",
       },
       {
         id: "switch-camera-2",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.switch-camera-2",
-          "Переключиться на камеру 2",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.switch-camera-2", "Переключиться на камеру 2"),
         keys: "2",
       },
       {
         id: "switch-camera-3",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.switch-camera-3",
-          "Переключиться на камеру 3",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.switch-camera-3", "Переключиться на камеру 3"),
         keys: "3",
       },
       {
         id: "switch-camera-4",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.switch-camera-4",
-          "Переключиться на камеру 4",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.switch-camera-4", "Переключиться на камеру 4"),
         keys: "4",
       },
     ],
@@ -289,42 +212,27 @@ export const createTimelinePreset: CreatePresetsFunction = (
     shortcuts: [
       {
         id: "play-pause",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.play-pause",
-          "Воспроизведение/Пауза",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.play-pause", "Воспроизведение/Пауза"),
         keys: "Space",
       },
       {
         id: "next-frame",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.next-frame",
-          "Следующий кадр",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.next-frame", "Следующий кадр"),
         keys: "→",
       },
       {
         id: "prev-frame",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.prev-frame",
-          "Предыдущий кадр",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.prev-frame", "Предыдущий кадр"),
         keys: "←",
       },
       {
         id: "volume-up",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.volume-up",
-          "Увеличить громкость",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.volume-up", "Увеличить громкость"),
         keys: "⌘↑",
       },
       {
         id: "volume-down",
-        name: t(
-          "dialogs.keyboardShortcuts.shortcuts.volume-down",
-          "Уменьшить громкость",
-        ),
+        name: t("dialogs.keyboardShortcuts.shortcuts.volume-down", "Уменьшить громкость"),
         keys: "⌘↓",
       },
       {

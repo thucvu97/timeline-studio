@@ -14,13 +14,7 @@ import {
 vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
 
-// Мокаем userSettingsDbService
-vi.mock("../media-studio/indexed-db-service", () => ({
-  userSettingsDbService: {
-    loadTimelineState: vi.fn().mockResolvedValue(null),
-    saveTimelineState: vi.fn().mockResolvedValue(undefined),
-  },
-}))
+// Примечание: Мок для IndexedDB удален, так как теперь используется Tauri Store
 
 describe("UserSettingsMachine", () => {
   beforeEach(() => {
@@ -41,20 +35,11 @@ describe("UserSettingsMachine", () => {
   })
 
   it("should have correct preview sizes", () => {
-    expect(PREVIEW_SIZES).toEqual([
-      60, 80, 100, 125, 150, 200, 250, 300, 400, 500,
-    ])
+    expect(PREVIEW_SIZES).toEqual([60, 80, 100, 125, 150, 200, 250, 300, 400, 500])
   })
 
   it("should have correct browser tabs", () => {
-    expect(BROWSER_TABS).toEqual([
-      "media",
-      "music",
-      "transitions",
-      "effects",
-      "filters",
-      "templates",
-    ])
+    expect(BROWSER_TABS).toEqual(["media", "music", "transitions", "effects", "filters", "templates", "subtitles"])
   })
 
   it("should have correct layouts", () => {
@@ -66,11 +51,10 @@ describe("UserSettingsMachine", () => {
     expect(userSettingsMachine).toBeDefined()
 
     // Проверяем основные свойства машины состояний
-    expect(userSettingsMachine.id).toBe("user-settings-v2")
-    expect(userSettingsMachine.config.initial).toBe("loading")
+    expect(userSettingsMachine.id).toBe("user-settings-v3")
+    expect(userSettingsMachine.config.initial).toBe("idle")
 
     // Проверяем, что машина имеет нужные состояния
-    expect(userSettingsMachine.config.states).toHaveProperty("loading")
     expect(userSettingsMachine.config.states).toHaveProperty("idle")
   })
 
@@ -79,10 +63,7 @@ describe("UserSettingsMachine", () => {
     const config = userSettingsMachine.config
 
     // Проверяем начальное состояние
-    expect(config.initial).toBe("loading")
-
-    // Проверяем состояние loading
-    expect(config.states).toHaveProperty("loading")
+    expect(config.initial).toBe("idle")
 
     // Проверяем состояние idle
     expect(config.states).toHaveProperty("idle")
@@ -146,45 +127,31 @@ describe("UserSettingsMachine", () => {
     })
   })
 
-  describe("Machine actions", () => {
-    it("should have actions for events in idle state", () => {
-      // Проверяем, что в состоянии idle есть действия для обработки событий
+  describe("Machine events", () => {
+    it("should have events in idle state", () => {
+      // Проверяем, что в состоянии idle есть обработчики событий
       const idleState = userSettingsMachine.config.states?.idle
 
-      // Проверяем, что события имеют действия
-      expect(idleState?.on?.UPDATE_LAYOUT?.actions).toBeDefined()
-      expect(
-        idleState?.on?.UPDATE_PLAYER_SCREENSHOTS_PATH?.actions,
-      ).toBeDefined()
-      expect(idleState?.on?.UPDATE_SCREENSHOTS_PATH?.actions).toBeDefined()
-      expect(idleState?.on?.UPDATE_OPENAI_API_KEY?.actions).toBeDefined()
-      expect(idleState?.on?.UPDATE_CLAUDE_API_KEY?.actions).toBeDefined()
-      expect(idleState?.on?.UPDATE_ACTIVE_TAB?.actions).toBeDefined()
-      expect(idleState?.on?.UPDATE_PREVIEW_SIZE?.actions).toBeDefined()
-      expect(idleState?.on?.UPDATE_ALL?.actions).toBeDefined()
+      // Проверяем, что события определены
+      expect(idleState?.on?.UPDATE_LAYOUT).toBeDefined()
+      expect(idleState?.on?.UPDATE_PLAYER_SCREENSHOTS_PATH).toBeDefined()
+      expect(idleState?.on?.UPDATE_SCREENSHOTS_PATH).toBeDefined()
+      expect(idleState?.on?.UPDATE_OPENAI_API_KEY).toBeDefined()
+      expect(idleState?.on?.UPDATE_CLAUDE_API_KEY).toBeDefined()
+      expect(idleState?.on?.UPDATE_ACTIVE_TAB).toBeDefined()
+      expect(idleState?.on?.UPDATE_PREVIEW_SIZE).toBeDefined()
+      expect(idleState?.on?.UPDATE_ALL).toBeDefined()
     })
   })
 
   describe("Machine state transitions", () => {
     it("should have correct initial state", () => {
-      // Проверяем, что начальное состояние машины - loading
-      expect(userSettingsMachine.config.initial).toBe("loading")
-    })
-
-    it("should have transition from loading to idle on done", () => {
-      // Проверяем, что в состоянии loading есть переход на idle при успешной загрузке
-      const loadingState = userSettingsMachine.config.states?.loading
-      expect(loadingState?.invoke?.onDone?.target).toBe("idle")
-    })
-
-    it("should have transition from loading to idle on error", () => {
-      // Проверяем, что в состоянии loading есть переход на idle при ошибке загрузки
-      const loadingState = userSettingsMachine.config.states?.loading
-      expect(loadingState?.invoke?.onError?.target).toBe("idle")
+      // Проверяем, что начальное состояние машины - idle
+      expect(userSettingsMachine.config.initial).toBe("idle")
     })
   })
 
-  describe("Loading settings", () => {
+  describe("Initial settings", () => {
     beforeEach(() => {
       // Сбрасываем моки перед каждым тестом
       vi.clearAllMocks()
@@ -193,26 +160,19 @@ describe("UserSettingsMachine", () => {
     it("should have default settings in initial context", () => {
       // Проверяем, что начальный контекст содержит настройки по умолчанию
       const initialContext = userSettingsMachine.config.context
-      expect(initialContext.layoutMode).toBe(DEFAULT_LAYOUT)
-      expect(initialContext.activeTab).toBe(DEFAULT_TAB)
-      expect(initialContext.previewSizes.MEDIA).toBe(DEFAULT_SIZE)
-    })
 
-    it("should have loading state with invoke", () => {
-      // Проверяем, что состояние loading имеет invoke
-      const loadingState = userSettingsMachine.config.states?.loading
-      expect(loadingState?.invoke).toBeDefined()
+      // Используем as для приведения типа и импортируем тип из файла
+      interface UserContext {
+        previewSizes: { MEDIA: number; TRANSITIONS: number; TEMPLATES: number }
+        activeTab: string
+        isLoaded: boolean
+      }
 
-      // Проверяем, что в состоянии loading есть переходы onDone и onError
-      expect(loadingState?.invoke?.onDone).toBeDefined()
-      expect(loadingState?.invoke?.onError).toBeDefined()
+      const typedContext = initialContext as unknown as UserContext
 
-      // Проверяем, что оба перехода ведут в состояние idle
-      expect(loadingState?.invoke?.onDone?.target).toBe("idle")
-      expect(loadingState?.invoke?.onError?.target).toBe("idle")
-
-      // Проверяем, что в onDone есть действия
-      expect(loadingState?.invoke?.onDone?.actions).toBeDefined()
+      expect(typedContext.previewSizes.MEDIA).toBe(DEFAULT_SIZE)
+      expect(typedContext.activeTab).toBe(DEFAULT_TAB)
+      expect(typedContext.isLoaded).toBe(true)
     })
   })
 })

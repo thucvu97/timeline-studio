@@ -11,12 +11,8 @@ vi.mock("@/features/modals/features/user-settings/user-settings-provider")
 
 // Мокаем компоненты Lucide
 vi.mock("lucide-react", () => ({
-  PanelLeftClose: vi.fn(() => (
-    <div data-testid="panel-left-close">PanelLeftClose</div>
-  )),
-  PanelLeftOpen: vi.fn(() => (
-    <div data-testid="panel-left-open">PanelLeftOpen</div>
-  )),
+  PanelLeftClose: vi.fn(() => <div data-testid="panel-left-close">PanelLeftClose</div>),
+  PanelLeftOpen: vi.fn(() => <div data-testid="panel-left-open">PanelLeftOpen</div>),
 }))
 
 // Мокаем react-i18next

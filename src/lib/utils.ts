@@ -137,16 +137,10 @@ export function generateVideoId(videos: MediaFile[]): string {
  * isVideoAvailable(video, 20) // false
  * ```
  */
-export function isVideoAvailable(
-  video: MediaFile,
-  currentTime: number,
-  tolerance = 0.3,
-): boolean {
+export function isVideoAvailable(video: MediaFile, currentTime: number, tolerance = 0.3): boolean {
   const startTime = video.startTime ?? 0
   const endTime = startTime + (video.duration ?? 0)
-  return (
-    currentTime >= startTime - tolerance && currentTime <= endTime + tolerance
-  )
+  return currentTime >= startTime - tolerance && currentTime <= endTime + tolerance
 }
 
 /**
@@ -225,9 +219,7 @@ export function getMediaCreationTime(probeData: FfprobeData): number {
   }
 
   // 2. Try to parse from filename (e.g. "20240910_170942")
-  const parsedDate = probeData.format.filename
-    ? parseFileNameDateTime(probeData.format.filename)
-    : null
+  const parsedDate = probeData.format.filename ? parseFileNameDateTime(probeData.format.filename) : null
   if (parsedDate) {
     const time = parsedDate.getTime() / 1000
     // console.log(
@@ -239,9 +231,7 @@ export function getMediaCreationTime(probeData: FfprobeData): number {
   // 3. Try to get from probeData start_time
   const startTime = probeData.format.start_time
   if (startTime) {
-    console.log(
-      `[getMediaCreationTime] Время из start_time: ${new Date(startTime * 1000).toISOString()}`,
-    )
+    console.log(`[getMediaCreationTime] Время из start_time: ${new Date(startTime * 1000).toISOString()}`)
     return startTime
   }
 

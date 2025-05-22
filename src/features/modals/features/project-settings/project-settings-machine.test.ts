@@ -8,32 +8,12 @@ import * as projectSettingsModule from "./project-settings-machine"
 
 const { projectSettingsMachine, initialProjectContext } = projectSettingsModule
 
-// Мокаем localStorage
-const localStorageMock = (() => {
-  let store: Record<string, string> = {}
-  return {
-    getItem: vi.fn((key: string) => store[key] || null),
-    setItem: vi.fn((key: string, value: string) => {
-      store[key] = value
-    }),
-    removeItem: vi.fn((key: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete store[key]
-    }),
-    clear: vi.fn(() => {
-      store = {}
-    }),
-  }
-})()
+// Примечание: Мок для localStorage удален, так как теперь используется Tauri Store
 
 describe("Project Settings Machine", () => {
   beforeEach(() => {
-    // Мокаем localStorage
-    Object.defineProperty(window, "localStorage", { value: localStorageMock })
-
     // Очищаем моки
     vi.clearAllMocks()
-    localStorageMock.clear()
     vi.spyOn(console, "error").mockImplementation(() => {})
   })
 
@@ -49,9 +29,7 @@ describe("Project Settings Machine", () => {
 
     // Проверяем, что начальный контекст правильный
     expect(actor.getSnapshot().context).toEqual(initialProjectContext)
-    expect(actor.getSnapshot().context.settings).toEqual(
-      DEFAULT_PROJECT_SETTINGS,
-    )
+    expect(actor.getSnapshot().context.settings).toEqual(DEFAULT_PROJECT_SETTINGS)
   })
 
   it("should update settings when UPDATE_SETTINGS event is sent", () => {
@@ -77,11 +55,7 @@ describe("Project Settings Machine", () => {
     // Проверяем, что контекст обновился
     expect(actor.getSnapshot().context.settings).toEqual(newSettings)
 
-    // Проверяем, что настройки были сохранены в localStorage
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
-      "timeline-studio-project-settings",
-      JSON.stringify(newSettings),
-    )
+    // Примечание: Проверка сохранения в localStorage удалена, так как теперь используется Tauri Store
   })
 
   it("should reset settings when RESET_SETTINGS event is sent", () => {
@@ -110,40 +84,12 @@ describe("Project Settings Machine", () => {
     actor.send({ type: "RESET_SETTINGS" })
 
     // Проверяем, что настройки сбросились до значений по умолчанию
-    expect(actor.getSnapshot().context.settings).toEqual(
-      DEFAULT_PROJECT_SETTINGS,
-    )
+    expect(actor.getSnapshot().context.settings).toEqual(DEFAULT_PROJECT_SETTINGS)
 
-    // Проверяем, что настройки были удалены из localStorage
-    expect(localStorageMock.removeItem).toHaveBeenCalledWith(
-      "timeline-studio-project-settings",
-    )
+    // Примечание: Проверка удаления из localStorage удалена, так как теперь используется Tauri Store
   })
 
-  it("should handle localStorage errors gracefully", () => {
-    // Мокаем ошибку при сохранении в localStorage
-    localStorageMock.setItem.mockImplementationOnce(() => {
-      throw new Error("Storage error")
-    })
-
-    // Создаем актора машины состояний
-    const actor = createActor(projectSettingsMachine)
-
-    // Запускаем актора
-    actor.start()
-
-    // Отправляем событие UPDATE_SETTINGS
-    actor.send({
-      type: "UPDATE_SETTINGS",
-      settings: DEFAULT_PROJECT_SETTINGS,
-    })
-
-    // Проверяем, что ошибка была обработана и логирована
-    expect(console.error).toHaveBeenCalledWith(
-      "[projectSettingsMachine] Error saving settings to localStorage:",
-      expect.any(Error),
-    )
-  })
+  // Примечание: Тест для обработки ошибок localStorage удален, так как теперь используется Tauri Store
 
   it("should update settings when UPDATE_SETTINGS event is sent with custom settings", () => {
     // Создаем актора машины состояний
@@ -169,31 +115,5 @@ describe("Project Settings Machine", () => {
     expect(actor.getSnapshot().context.settings).toEqual(testSettings)
   })
 
-  it("should handle localStorage errors when saving settings", () => {
-    // Мокаем ошибку при сохранении в localStorage
-    localStorageMock.setItem.mockImplementationOnce(() => {
-      throw new Error("Storage error")
-    })
-
-    // Мокаем console.error для проверки вызова
-    const consoleErrorSpy = vi.spyOn(console, "error")
-
-    // Создаем актора машины состояний
-    const actor = createActor(projectSettingsMachine)
-
-    // Запускаем актора
-    actor.start()
-
-    // Отправляем событие UPDATE_SETTINGS
-    actor.send({
-      type: "UPDATE_SETTINGS",
-      settings: DEFAULT_PROJECT_SETTINGS,
-    })
-
-    // Проверяем, что ошибка была обработана и логирована
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "[projectSettingsMachine] Error saving settings to localStorage:",
-      expect.any(Error),
-    )
-  })
+  // Примечание: Тест для обработки ошибок localStorage удален, так как теперь используется Tauri Store
 })

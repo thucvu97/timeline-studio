@@ -22,11 +22,7 @@ vi.mock("react-i18next", () => ({
 // Мокаем Lucide иконки
 vi.mock("lucide-react", () => ({
   Star: ({ className, strokeWidth }: any) => (
-    <div
-      data-testid="star-icon"
-      className={className}
-      data-stroke-width={strokeWidth}
-    >
+    <div data-testid="star-icon" className={className} data-stroke-width={strokeWidth}>
       Star Icon
     </div>
   ),
@@ -79,22 +75,14 @@ describe("FavoriteButton", () => {
   it("should render star icon when not in favorites", () => {
     // Рендерим компонент
     render(
-      <FavoriteButton
-        file={testFile}
-        size={100}
-        type="media"
-        isFavorite={false}
-        onAddToFavorites={onAddToFavorites}
-      />,
+      <FavoriteButton file={testFile} size={100} type="media" isFavorite={false} onAddToFavorites={onAddToFavorites} />,
     )
 
     // Проверяем, что отображается иконка Star
     expect(screen.getByTestId("star-icon")).toBeInTheDocument()
 
     // Проверяем, что иконка не имеет класс fill-white (не заполнена)
-    expect(screen.getByTestId("star-icon").className).not.toContain(
-      "fill-white",
-    )
+    expect(screen.getByTestId("star-icon").className).not.toContain("fill-white")
 
     // Проверяем, что кнопка имеет правильный title
     expect(screen.getByTitle("Add to favorites")).toBeInTheDocument()
@@ -134,13 +122,7 @@ describe("FavoriteButton", () => {
   it("should call onAddToFavorites when clicked and not in favorites", () => {
     // Рендерим компонент
     render(
-      <FavoriteButton
-        file={testFile}
-        size={100}
-        type="media"
-        isFavorite={false}
-        onAddToFavorites={onAddToFavorites}
-      />,
+      <FavoriteButton file={testFile} size={100} type="media" isFavorite={false} onAddToFavorites={onAddToFavorites} />,
     )
 
     // Кликаем на кнопку
@@ -148,11 +130,7 @@ describe("FavoriteButton", () => {
 
     // Проверяем, что onAddToFavorites был вызван с правильными аргументами
     expect(onAddToFavorites).toHaveBeenCalledTimes(1)
-    expect(onAddToFavorites).toHaveBeenCalledWith(
-      expect.anything(),
-      testFile,
-      "media",
-    )
+    expect(onAddToFavorites).toHaveBeenCalledWith(expect.anything(), testFile, "media")
   })
 
   it("should change title on hover when in favorites", () => {
@@ -213,55 +191,30 @@ describe("FavoriteButton", () => {
 
     // Проверяем, что onRemoveFromFavorites был вызван с правильными аргументами
     expect(onRemoveFromFavorites).toHaveBeenCalledTimes(1)
-    expect(onRemoveFromFavorites).toHaveBeenCalledWith(
-      expect.anything(),
-      testFile,
-      "media",
-    )
+    expect(onRemoveFromFavorites).toHaveBeenCalledWith(expect.anything(), testFile, "media")
   })
 
   it("should apply different styles based on size prop", () => {
     // Рендерим компонент с большим размером
     const { rerender } = render(
-      <FavoriteButton
-        file={testFile}
-        size={120}
-        type="media"
-        isFavorite={false}
-        onAddToFavorites={onAddToFavorites}
-      />,
+      <FavoriteButton file={testFile} size={120} type="media" isFavorite={false} onAddToFavorites={onAddToFavorites} />,
     )
 
     // Проверяем, что кнопка имеет правильное позиционирование для большого размера
-    expect(screen.getByTitle("Add to favorites").className).toContain(
-      "right-[36px] bottom-1",
-    )
+    expect(screen.getByTitle("Add to favorites").className).toContain("right-[36px] bottom-1")
 
     // Перерендериваем компонент с маленьким размером
     rerender(
-      <FavoriteButton
-        file={testFile}
-        size={60}
-        type="media"
-        isFavorite={false}
-        onAddToFavorites={onAddToFavorites}
-      />,
+      <FavoriteButton file={testFile} size={60} type="media" isFavorite={false} onAddToFavorites={onAddToFavorites} />,
     )
 
     // Проверяем, что кнопка имеет правильное позиционирование для маленького размера
-    expect(screen.getByTitle("Add to favorites").className).toContain(
-      "right-[28px] bottom-0.5",
-    )
+    expect(screen.getByTitle("Add to favorites").className).toContain("right-[28px] bottom-0.5")
   })
 
   it("should not render if neither onAddToFavorites nor onRemoveFromFavorites is provided", () => {
     // Рендерим компонент без обработчиков
-    const { container } = render(
-      <FavoriteButton file={testFile}
-size={100}
-        type="media"
- />,
-    )
+    const { container } = render(<FavoriteButton file={testFile} size={100} type="media" />)
 
     // Проверяем, что компонент не отрендерен
     expect(container.firstChild).toBeNull()

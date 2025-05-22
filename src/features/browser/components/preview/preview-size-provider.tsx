@@ -2,12 +2,7 @@ import { createContext, useContext, useEffect, useMemo } from "react"
 
 import { useMachine } from "@xstate/react"
 
-import {
-  PreviewSizeEventType,
-  getSavedSize,
-  previewSizeMachine,
-  saveSize,
-} from "./preview-size-machine"
+import { PreviewSizeEventType, getSavedSize, previewSizeMachine, saveSize } from "./preview-size-machine"
 
 /**
  * Интерфейс контекста размера превью
@@ -24,9 +19,7 @@ interface PreviewSizeContextType {
 /**
  * Контекст для размера превью
  */
-const PreviewSizeContext = createContext<PreviewSizeContextType | undefined>(
-  undefined
-)
+const PreviewSizeContext = createContext<PreviewSizeContextType | undefined>(undefined)
 
 /**
  * Пропсы для провайдера размера превью
@@ -97,11 +90,7 @@ export function PreviewSizeProvider({ children }: PreviewSizeProviderProps) {
     [state.context, send],
   )
 
-  return (
-    <PreviewSizeContext.Provider value={value}>
-      {children}
-    </PreviewSizeContext.Provider>
-  )
+  return <PreviewSizeContext.Provider value={value}>{children}</PreviewSizeContext.Provider>
 }
 
 /**

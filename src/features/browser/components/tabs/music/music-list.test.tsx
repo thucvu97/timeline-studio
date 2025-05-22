@@ -1,4 +1,3 @@
-
 // Мокаем модули на уровне модуля
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
@@ -12,9 +11,7 @@ vi.mock("@/features/browser/components/tabs/music/music-provider", () => ({
 }))
 
 vi.mock("@/features/browser/resources/resources-provider", () => ({
-  ResourcesProvider: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
+  ResourcesProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useResources: () => ({
     getResourcePath: vi.fn(),
     getResourceUrl: vi.fn(),
@@ -350,9 +347,7 @@ describe("MusicList", () => {
     )
 
     // Проверяем, что отображается группировка
-    expect(
-      screen.getByTestId("music-list-group-Test Artist 1"),
-    ).toBeInTheDocument()
+    expect(screen.getByTestId("music-list-group-Test Artist 1")).toBeInTheDocument()
     expect(screen.getByTestId("music-list-group-title")).toBeInTheDocument()
     expect(screen.getAllByText("Test Artist 1").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Test Song 1")).toHaveLength(1)

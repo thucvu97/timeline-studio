@@ -42,9 +42,7 @@ interface MusicContextValue {
  * Контекст для предоставления доступа к музыкальной машине состояний
  * Используется с хуком useMusic для доступа к состоянию и методам
  */
-export const MusicContext = createContext<MusicContextValue | undefined>(
-  undefined,
-)
+export const MusicContext = createContext<MusicContextValue | undefined>(undefined)
 
 /**
  * Провайдер для музыкальной машины состояний

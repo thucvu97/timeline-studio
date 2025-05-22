@@ -49,22 +49,10 @@ describe("PreviewTimeline", () => {
     render(<PreviewTimeline time={10} duration={60} videoRef={videoRef} />)
 
     // Проверяем, что addEventListener был вызван
-    expect(videoRef.addEventListener).toHaveBeenCalledWith(
-      "mouseenter",
-      expect.any(Function),
-    )
-    expect(videoRef.addEventListener).toHaveBeenCalledWith(
-      "mouseleave",
-      expect.any(Function),
-    )
-    expect(videoRef.addEventListener).toHaveBeenCalledWith(
-      "timeupdate",
-      expect.any(Function),
-    )
-    expect(videoRef.addEventListener).toHaveBeenCalledWith(
-      "mousemove",
-      expect.any(Function),
-    )
+    expect(videoRef.addEventListener).toHaveBeenCalledWith("mouseenter", expect.any(Function))
+    expect(videoRef.addEventListener).toHaveBeenCalledWith("mouseleave", expect.any(Function))
+    expect(videoRef.addEventListener).toHaveBeenCalledWith("timeupdate", expect.any(Function))
+    expect(videoRef.addEventListener).toHaveBeenCalledWith("mousemove", expect.any(Function))
   })
 
   it("should handle zero duration correctly", () => {

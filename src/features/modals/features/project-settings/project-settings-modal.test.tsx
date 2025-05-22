@@ -57,24 +57,12 @@ describe("ProjectSettingsModal", () => {
     render(<ProjectSettingsModal />)
 
     // Проверяем, что компонент отрендерился
-    expect(
-      screen.getByText("dialogs.projectSettings.aspectRatio"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("dialogs.projectSettings.resolution"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("dialogs.projectSettings.customSize"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("dialogs.projectSettings.frameRate"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("dialogs.projectSettings.colorSpace"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("dialogs.projectSettings.cancel"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("dialogs.projectSettings.aspectRatio")).toBeInTheDocument()
+    expect(screen.getByText("dialogs.projectSettings.resolution")).toBeInTheDocument()
+    expect(screen.getByText("dialogs.projectSettings.customSize")).toBeInTheDocument()
+    expect(screen.getByText("dialogs.projectSettings.frameRate")).toBeInTheDocument()
+    expect(screen.getByText("dialogs.projectSettings.colorSpace")).toBeInTheDocument()
+    expect(screen.getByText("dialogs.projectSettings.cancel")).toBeInTheDocument()
     expect(screen.getByText("dialogs.projectSettings.save")).toBeInTheDocument()
   })
 
@@ -82,17 +70,13 @@ describe("ProjectSettingsModal", () => {
     render(<ProjectSettingsModal />)
 
     // Находим селект соотношения сторон
-    const aspectRatioSelect = screen.getByText(
-      "dialogs.projectSettings.aspectRatio",
-    ).nextSibling as HTMLElement
+    const aspectRatioSelect = screen.getByText("dialogs.projectSettings.aspectRatio").nextSibling as HTMLElement
 
     // Симулируем выбор нового соотношения сторон
     fireEvent.click(aspectRatioSelect)
 
     // Находим опцию 9:16 и кликаем по ней
-    const option = screen.getByText(
-      "9:16 (dialogs.projectSettings.aspectRatioLabels.portrait)",
-    )
+    const option = screen.getByText("9:16 (dialogs.projectSettings.aspectRatioLabels.portrait)")
     fireEvent.click(option)
 
     // Проверяем, что updateSettings был вызван с правильными параметрами
@@ -109,9 +93,7 @@ describe("ProjectSettingsModal", () => {
     render(<ProjectSettingsModal />)
 
     // Находим селект разрешения
-    const resolutionSelect = screen.getByText(
-      "dialogs.projectSettings.resolution",
-    ).nextSibling as HTMLElement
+    const resolutionSelect = screen.getByText("dialogs.projectSettings.resolution").nextSibling as HTMLElement
 
     // Симулируем выбор нового разрешения
     fireEvent.click(resolutionSelect)
@@ -182,36 +164,26 @@ describe("ProjectSettingsModal", () => {
     render(<ProjectSettingsModal />)
 
     // Находим кнопку блокировки соотношения сторон
-    const lockButton = screen.getByTitle(
-      "dialogs.projectSettings.unlockAspectRatio",
-    )
+    const lockButton = screen.getByTitle("dialogs.projectSettings.unlockAspectRatio")
 
     // Кликаем по кнопке, чтобы разблокировать соотношение сторон
     fireEvent.click(lockButton)
 
     // Проверяем, что кнопка изменила свой title
-    expect(
-      screen.getByTitle("dialogs.projectSettings.lockAspectRatio"),
-    ).toBeInTheDocument()
+    expect(screen.getByTitle("dialogs.projectSettings.lockAspectRatio")).toBeInTheDocument()
 
     // Кликаем по кнопке еще раз, чтобы заблокировать соотношение сторон
-    fireEvent.click(
-      screen.getByTitle("dialogs.projectSettings.lockAspectRatio"),
-    )
+    fireEvent.click(screen.getByTitle("dialogs.projectSettings.lockAspectRatio"))
 
     // Проверяем, что кнопка вернула свой title
-    expect(
-      screen.getByTitle("dialogs.projectSettings.unlockAspectRatio"),
-    ).toBeInTheDocument()
+    expect(screen.getByTitle("dialogs.projectSettings.unlockAspectRatio")).toBeInTheDocument()
   })
 
   it("should handle frame rate change", () => {
     render(<ProjectSettingsModal />)
 
     // Находим селект частоты кадров
-    const frameRateSelect = screen.getByText(
-      "dialogs.projectSettings.frameRate",
-    ).nextSibling as HTMLElement
+    const frameRateSelect = screen.getByText("dialogs.projectSettings.frameRate").nextSibling as HTMLElement
 
     // Симулируем выбор новой частоты кадров
     fireEvent.click(frameRateSelect)
@@ -232,9 +204,7 @@ describe("ProjectSettingsModal", () => {
     render(<ProjectSettingsModal />)
 
     // Находим селект цветового пространства
-    const colorSpaceSelect = screen.getByText(
-      "dialogs.projectSettings.colorSpace",
-    ).nextSibling as HTMLElement
+    const colorSpaceSelect = screen.getByText("dialogs.projectSettings.colorSpace").nextSibling as HTMLElement
 
     // Симулируем выбор нового цветового пространства
     fireEvent.click(colorSpaceSelect)

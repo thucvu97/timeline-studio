@@ -3,10 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { DEFAULT_PROJECT_SETTINGS } from "@/types/project"
 
-import {
-  ProjectSettingsProvider,
-  useProjectSettings,
-} from "./project-settings-provider"
+import { ProjectSettingsProvider, useProjectSettings } from "./project-settings-provider"
 
 // Мокаем машину состояний
 vi.mock("./project-settings-machine", () => {
@@ -80,9 +77,7 @@ describe("ProjectSettingsProvider", () => {
     // Проверяем, что хук выбрасывает ошибку вне провайдера
     expect(() => {
       renderHook(() => useProjectSettings())
-    }).toThrow(
-      "useProjectSettingsContext must be used within a ProjectProvider",
-    )
+    }).toThrow("useProjectSettingsContext must be used within a ProjectProvider")
 
     // Восстанавливаем console.error
     console.error = originalConsoleError

@@ -31,8 +31,7 @@ export function MusicList() {
   const audioRef = useRef<HTMLAudioElement | null>(null) // Ссылка на аудио-элемент
 
   // Получаем методы для работы с ресурсами
-  const { addMusic, removeResource, musicResources, isMusicFileAdded } =
-    useResources()
+  const { addMusic, removeResource, musicResources, isMusicFileAdded } = useResources()
 
   // Получаем состояние из музыкальной машины состояний
   const {
@@ -68,21 +67,18 @@ export function MusicList() {
     const unknownLabel = t("browser.common.unknown")
 
     // Группируем файлы по выбранному критерию
-    const groups = favoritesFilteredFiles.reduce<Record<string, MediaFile[]>>(
-      (acc, file) => {
-        // Получаем значение для группировки (artist, genre, album) или "Неизвестно"
-        const key = file.probeData?.format.tags?.[groupBy] ?? unknownLabel
-        // Создаем массив для группы, если его еще нет
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (!acc[key]) {
-          acc[key] = []
-        }
-        // Добавляем файл в соответствующую группу
-        acc[key].push(file)
-        return acc
-      },
-      {},
-    )
+    const groups = favoritesFilteredFiles.reduce<Record<string, MediaFile[]>>((acc, file) => {
+      // Получаем значение для группировки (artist, genre, album) или "Неизвестно"
+      const key = file.probeData?.format.tags?.[groupBy] ?? unknownLabel
+      // Создаем массив для группы, если его еще нет
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!acc[key]) {
+        acc[key] = []
+      }
+      // Добавляем файл в соответствующую группу
+      acc[key].push(file)
+      return acc
+    }, {})
 
     // Сортируем группы по названию
     const sortedGroups = Object.entries(groups).sort(([a], [b]) => {
@@ -202,83 +198,53 @@ export function MusicList() {
     console.log("[handleRemove] Removing music file:", file.name)
 
     // Находим ресурс с этим музыкальным файлом
-    const musicResource = musicResources.find(
-      (resource: MusicResource) => resource.resourceId === file.id,
-    )
+    const musicResource = musicResources.find((resource: MusicResource) => resource.resourceId === file.id)
 
     if (musicResource) {
       removeResource(musicResource.id) // Удаляем ресурс из проекта
     } else {
-      console.warn(
-        `Не удалось найти ресурс музыкального файла с ID ${file.id} для удаления`,
-      )
+      console.warn(`Не удалось найти ресурс музыкального файла с ID ${file.id} для удаления`)
     }
   }
 
   return (
     <div className="flex h-full flex-col" data-testid="music-list-container">
       {/* Панель инструментов с кнопками импорта и фильтрации */}
-      <MusicToolbar
-        onImport={handleImport}
-        onImportFile={handleImportFile}
-        onImportFolder={handleImportFolder}
-      />
+      <MusicToolbar onImport={handleImport} onImportFile={handleImportFile} onImportFolder={handleImportFolder} />
 
       {/* Основной контейнер для списка музыкальных файлов */}
-      <div className="min-h-0 flex-1 overflow-y-auto p-0 bg-background"
-        data-testid="music-list-content"
-      >
+      <div className="min-h-0 flex-1 overflow-y-auto p-0 bg-background" data-testid="music-list-content">
         {/* Отображение различных состояний, когда нет файлов */}
         {filteredFiles.length === 0 && (
           <>
             {/* Состояние загрузки - отображается индикатор загрузки */}
             {isLoading && (
-              <div
-                data-testid="music-list-loading"
-                className="flex h-full items-center justify-center"
-              >
+              <div data-testid="music-list-loading" className="flex h-full items-center justify-center">
                 <p>{t("browser.loading")}</p>
               </div>
             )}
 
             {/* Состояние ошибки - отображается сообщение об ошибке */}
-            {isError && (
-              <NoFiles />
-            )}
+            {isError && <NoFiles />}
 
             {/* Пустое состояние - отображается сообщение об отсутствии файлов */}
-            {!isLoading && !isError && (
-              <NoFiles />
-            )}
+            {!isLoading && !isError && <NoFiles />}
           </>
         )}
 
         {/* Отображение сгруппированных музыкальных файлов */}
         {Object.entries(groupedFiles).map(([group, files]) => (
-          <div
-            key={group}
-            className=""
-            data-testid={
-              group ? `music-list-group-${group}` : "music-list-group-default"
-            }
-          >
+          <div key={group} className="" data-testid={group ? `music-list-group-${group}` : "music-list-group-default"}>
             {/* Заголовок группы (отображается только если группировка включена) */}
             {group && (
-              <h2
-                className="mb-2 px-4 text-lg font-semibold"
-                data-testid="music-list-group-title"
-              >
+              <h2 className="mb-2 px-4 text-lg font-semibold" data-testid="music-list-group-title">
                 {group}
               </h2>
             )}
 
             {/* Отображение в режиме списка */}
             {viewMode === "list" ? (
-              <div
-                key={group}
-                className="h-full overflow-y-hidden"
-                data-testid="music-list-view-list"
-              >
+              <div key={group} className="h-full overflow-y-hidden" data-testid="music-list-view-list">
                 <div className="space-y-1">
                   {/* Отображение каждого файла в группе */}
                   {files.map((file) => (
@@ -294,9 +260,7 @@ export function MusicList() {
                           <button
                             onClick={(e) => handlePlayPause(e, file)}
                             className={`absolute inset-0 flex cursor-pointer items-center justify-center rounded bg-black/30 opacity-50 transition-opacity duration-200 group-hover:opacity-100 ${
-                              activeFile?.path === file.path
-                                ? "opacity-100"
-                                : ""
+                              activeFile?.path === file.path ? "opacity-100" : ""
                             }`}
                           >
                             {/* Иконка в зависимости от состояния воспроизведения */}
@@ -359,11 +323,9 @@ export function MusicList() {
                               </span>
                             )}
                             {/* Дата выпуска */}
-                            {(file.probeData?.format.tags?.date ??
-                              file.probeData?.format.tags?.TDOR) && (
+                            {(file.probeData?.format.tags?.date ?? file.probeData?.format.tags?.TDOR) && (
                               <span className="mr-4 text-gray-500 dark:text-gray-400">
-                                {file.probeData.format.tags.date ??
-                                  file.probeData.format.tags.TDOR}
+                                {file.probeData.format.tags.date ?? file.probeData.format.tags.TDOR}
                               </span>
                             )}
                           </div>
@@ -392,16 +354,10 @@ export function MusicList() {
               </div>
             ) : (
               /* Отображение в режиме миниатюр */
-              <div
-                className="flex w-full flex-wrap gap-3 p-2"
-                data-testid="music-list-view-thumbnails"
-              >
+              <div className="flex w-full flex-wrap gap-3 p-2" data-testid="music-list-view-thumbnails">
                 {/* Отображение каждого файла в виде карточки */}
                 {files.map((file) => (
-                  <div
-                    key={file.path}
-                    className="group relative cursor-pointer"
-                  >
+                  <div key={file.path} className="group relative cursor-pointer">
                     <div className="flex h-15 w-[260px] items-center overflow-hidden rounded-lg border border-transparent bg-gray-100 hover:bg-gray-100 dark:bg-[#25242b] dark:group-hover:bg-[#25242b] dark:hover:border-[#35d1c1] dark:hover:bg-[#2f2d38]">
                       {/* Левая часть с кнопкой воспроизведения */}
                       <div className="flex h-full w-12 items-center justify-center">
@@ -415,16 +371,11 @@ export function MusicList() {
                           {/* Иконка в зависимости от состояния воспроизведения */}
                           {activeFile?.path === file.path && isPlaying ? (
                             <Pause
-                              className={cn(
-                                "h-5 w-5 text-white opacity-50 group-hover:opacity-100",
-                              )}
+                              className={cn("h-5 w-5 text-white opacity-50 group-hover:opacity-100")}
                               strokeWidth={1.5}
                             />
                           ) : (
-                            <Play
-                              className="h-5 w-5 text-white opacity-50 group-hover:opacity-100"
-                              strokeWidth={1.5}
-                            />
+                            <Play className="h-5 w-5 text-white opacity-50 group-hover:opacity-100" strokeWidth={1.5} />
                           )}
                         </button>
                       </div>

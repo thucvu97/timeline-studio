@@ -3,11 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import * as i18nConstants from "@/i18n/constants"
 import type { MediaFile } from "@/types/media"
 
-import {
-  getGroupedFiles,
-  getTopDateWithRemainingFiles,
-  groupFilesByDate,
-} from "./grouping"
+import { getGroupedFiles, getTopDateWithRemainingFiles, groupFilesByDate } from "./grouping"
 
 // Мокируем i18n и formatDateByLanguage
 beforeEach(() => {
@@ -218,8 +214,6 @@ describe("getTopDateWithRemainingFiles", () => {
     // Проверяем, что в remainingFiles есть хотя бы один элемент
     expect(result?.remainingFiles.length).toBeGreaterThan(0)
     // Проверяем, что в remainingFiles есть файл video2.mp4
-    expect(
-      result?.remainingFiles.some((file) => file.path === "video2.mp4"),
-    ).toBe(true)
+    expect(result?.remainingFiles.some((file) => file.path === "video2.mp4")).toBe(true)
   })
 })

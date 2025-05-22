@@ -6,9 +6,7 @@ import type { MediaFile } from "@/types/media"
  * @returns true, если файл содержит аудиопоток
  */
 export function hasAudioStream(file: MediaFile): boolean {
-  const hasAudio =
-    file.probeData?.streams.some((stream) => stream.codec_type === "audio") ??
-    false
+  const hasAudio = file.probeData?.streams.some((stream) => stream.codec_type === "audio") ?? false
   return hasAudio
 }
 
@@ -18,9 +16,7 @@ export function hasAudioStream(file: MediaFile): boolean {
  * @returns "video" или "audio" или "image"
  */
 export const getFileType = (file: MediaFile): "video" | "audio" | "image" => {
-  const hasVideoStream = file.probeData?.streams.some(
-    (stream) => stream.codec_type === "video",
-  )
+  const hasVideoStream = file.probeData?.streams.some((stream) => stream.codec_type === "video")
   if (file.isImage) return "image"
   if (hasVideoStream) return "video"
   return "audio"
@@ -41,26 +37,15 @@ export function getRemainingMediaCounts(
   allFilesAdded: boolean
 } {
   const remainingVideoCount = media.filter(
-    (f) =>
-      getFileType(f) === "video" &&
-      f.path &&
-      !addedFiles.has(f.path) &&
-      hasAudioStream(f),
+    (f) => getFileType(f) === "video" && f.path && !addedFiles.has(f.path) && hasAudioStream(f),
   ).length
 
   const remainingAudioCount = media.filter(
-    (f) =>
-      getFileType(f) === "audio" &&
-      f.path &&
-      !addedFiles.has(f.path) &&
-      hasAudioStream(f),
+    (f) => getFileType(f) === "audio" && f.path && !addedFiles.has(f.path) && hasAudioStream(f),
   ).length
 
   const allFilesAdded =
-    media.length > 0 &&
-    media
-      .filter(hasAudioStream)
-      .every((file) => file.path && addedFiles.has(file.path))
+    media.length > 0 && media.filter(hasAudioStream).every((file) => file.path && addedFiles.has(file.path))
 
   return {
     remainingVideoCount,
@@ -76,11 +61,7 @@ export function getRemainingMediaCounts(
  * @param rotation - Угол поворота (опционально)
  * @returns true если видео горизонтальное
  */
-export function isHorizontalVideo(
-  width: number,
-  height: number,
-  rotation?: number,
-): boolean {
+export function isHorizontalVideo(width: number, height: number, rotation?: number): boolean {
   // Если видео повернуто на 90 или 270 градусов, меняем местами ширину и высоту
   if (rotation === 90 || rotation === -90 || rotation === 270) {
     return width <= height
@@ -98,12 +79,7 @@ export function isHorizontalVideo(
  * @param end2 - Конец второго интервала
  * @returns true, если интервалы пересекаются, иначе false
  */
-export const doTimeRangesOverlap = (
-  start1: number,
-  end1: number,
-  start2: number,
-  end2: number,
-): boolean => {
+export const doTimeRangesOverlap = (start1: number, end1: number, start2: number, end2: number): boolean => {
   // Добавим небольшой зазор (1 секунда) между видео, чтобы они не считались пересекающимися,
   // если конец одного видео совпадает с началом другого
   const overlapWithGap = start1 < end2 - 1 && start2 < end1 - 1

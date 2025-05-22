@@ -70,9 +70,7 @@ export type MediaMetadata =
  * @param filePath Путь к файлу
  * @returns Метаданные файла
  */
-export async function getMediaMetadata(
-  filePath: string,
-): Promise<MediaMetadata> {
+export async function getMediaMetadata(filePath: string): Promise<MediaMetadata> {
   try {
     return await invoke<MediaMetadata>("get_media_metadata", { filePath })
   } catch (error) {

@@ -40,13 +40,7 @@ vi.mock("@/features/browser/components/preview/preview-size-provider", () => ({
 
 // Мокируем TransitionPreview
 vi.mock("./transition-preview", () => ({
-  TransitionPreview: ({
-    sourceVideo,
-    targetVideo,
-    transitionType,
-    onClick,
-    size,
-  }: any) => (
+  TransitionPreview: ({ sourceVideo, targetVideo, transitionType, onClick, size }: any) => (
     <div
       data-testid={`transition-preview-${transitionType}`}
       onClick={onClick}
@@ -87,9 +81,7 @@ vi.mock("@/components/ui/input", () => ({
 
 vi.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: any) => <>{children}</>,
-  TooltipContent: ({ children }: any) => (
-    <div data-testid="tooltip-content">{children}</div>
-  ),
+  TooltipContent: ({ children }: any) => <div data-testid="tooltip-content">{children}</div>,
   TooltipProvider: ({ children }: any) => <>{children}</>,
   TooltipTrigger: ({ children, asChild }: any) => <>{children}</>,
 }))
@@ -168,12 +160,8 @@ describe("TransitionsList", () => {
 
     // Проверяем, что отображается только переход "zoom"
     expect(screen.getByTestId("transition-preview-zoom")).toBeInTheDocument()
-    expect(
-      screen.queryByTestId("transition-preview-fade"),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByTestId("transition-preview-slide"),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByTestId("transition-preview-fade")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("transition-preview-slide")).not.toBeInTheDocument()
   })
 
   it("toggles favorites filter", () => {
@@ -190,12 +178,8 @@ describe("TransitionsList", () => {
 
     // Проверяем, что отображается только переход "fade" (он в избранном)
     expect(screen.getByTestId("transition-preview-fade")).toBeInTheDocument()
-    expect(
-      screen.queryByTestId("transition-preview-zoom"),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByTestId("transition-preview-slide"),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByTestId("transition-preview-zoom")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("transition-preview-slide")).not.toBeInTheDocument()
   })
 
   it("calls increaseSize when zoom in button is clicked", () => {
@@ -240,8 +224,6 @@ describe("TransitionsList", () => {
     fireEvent.change(searchInput, { target: { value: "nonexistent" } })
 
     // Проверяем, что отображается сообщение "not found"
-    expect(
-      screen.getByText("browser.tabs.transitions common.notFound"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("browser.tabs.transitions common.notFound")).toBeInTheDocument()
   })
 })

@@ -20,12 +20,10 @@ describe("processVideoFiles", () => {
     vi.spyOn(videoModule, "calculateTimeRanges").mockReturnValue([])
 
     // Мокируем doTimeRangesOverlap
-    vi.spyOn(utilsModule, "doTimeRangesOverlap").mockImplementation(
-      (start1, end1, start2, end2) => {
-        // Простая реализация для тестов
-        return start1 < end2 && start2 < end1
-      },
-    )
+    vi.spyOn(utilsModule, "doTimeRangesOverlap").mockImplementation((start1, end1, start2, end2) => {
+      // Простая реализация для тестов
+      return start1 < end2 && start2 < end1
+    })
 
     // Мокируем console.log, чтобы не засорять вывод тестов
     vi.spyOn(console, "log").mockImplementation(() => {})
@@ -39,10 +37,7 @@ describe("processVideoFiles", () => {
       startTime: 100,
       duration: 60,
       probeData: {
-        streams: [
-          { codec_type: "video", width: 1920, height: 1080 },
-          { codec_type: "audio" },
-        ],
+        streams: [{ codec_type: "video", width: 1920, height: 1080 }, { codec_type: "audio" }],
       },
     }
 
@@ -77,10 +72,7 @@ describe("processVideoFiles", () => {
       startTime: 100,
       duration: 60,
       probeData: {
-        streams: [
-          { codec_type: "video", width: 1920, height: 1080 },
-          { codec_type: "audio" },
-        ],
+        streams: [{ codec_type: "video", width: 1920, height: 1080 }, { codec_type: "audio" }],
       },
     }
 
@@ -90,10 +82,7 @@ describe("processVideoFiles", () => {
       startTime: 200, // После окончания первого видео
       duration: 60,
       probeData: {
-        streams: [
-          { codec_type: "video", width: 1920, height: 1080 },
-          { codec_type: "audio" },
-        ],
+        streams: [{ codec_type: "video", width: 1920, height: 1080 }, { codec_type: "audio" }],
       },
     }
 
@@ -142,10 +131,7 @@ describe("processVideoFiles", () => {
       startTime: 100,
       duration: 60,
       probeData: {
-        streams: [
-          { codec_type: "video", width: 1920, height: 1080 },
-          { codec_type: "audio" },
-        ],
+        streams: [{ codec_type: "video", width: 1920, height: 1080 }, { codec_type: "audio" }],
       },
     }
 
@@ -207,10 +193,7 @@ describe("processVideoFiles", () => {
       startTime: 100,
       duration: 60,
       probeData: {
-        streams: [
-          { codec_type: "video", width: 1920, height: 1080 },
-          { codec_type: "audio" },
-        ],
+        streams: [{ codec_type: "video", width: 1920, height: 1080 }, { codec_type: "audio" }],
       },
     }
 

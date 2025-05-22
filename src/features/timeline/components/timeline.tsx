@@ -1,10 +1,6 @@
 import React from "react"
 
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { AiChat } from "@/features/chat/components/ai-chat"
 
 export function Timeline() {
@@ -30,12 +26,7 @@ export function Timeline() {
 
       <ResizableHandle />
 
-      <ResizablePanel
-        defaultSize={20}
-        minSize={10}
-        maxSize={50}
-        className="flex-shrink-0"
-      >
+      <ResizablePanel defaultSize={20} minSize={10} maxSize={50} className="flex-shrink-0">
         <AiChat />
       </ResizablePanel>
     </ResizablePanelGroup>

@@ -4,14 +4,12 @@ import { assign, createMachine } from "xstate"
  * Массив доступных размеров превью для шаблонов
  * Начинается с 125
  */
-export const TEMPLATE_PREVIEW_SIZES = [
-  125, 150, 200, 250, 300, 400,
-]
+export const TEMPLATE_PREVIEW_SIZES = [125, 150, 200, 250, 300, 400]
 
 /**
  * Тип для размеров превью
  */
-export type TemplatePreviewSizeType = typeof TEMPLATE_PREVIEW_SIZES[number]
+export type TemplatePreviewSizeType = (typeof TEMPLATE_PREVIEW_SIZES)[number]
 
 /**
  * Минимальный и максимальный размеры превью (первый и последний элементы массива)
@@ -62,11 +60,7 @@ export const getSavedTemplateSize = (): number => {
     if (savedValue) {
       const parsedValue = Number.parseInt(savedValue, 10)
       // Проверяем, что значение входит в допустимый диапазон
-      if (
-        !isNaN(parsedValue) &&
-        parsedValue >= MIN_TEMPLATE_PREVIEW_SIZE &&
-        parsedValue <= MAX_TEMPLATE_PREVIEW_SIZE
-      ) {
+      if (!isNaN(parsedValue) && parsedValue >= MIN_TEMPLATE_PREVIEW_SIZE && parsedValue <= MAX_TEMPLATE_PREVIEW_SIZE) {
         return parsedValue
       }
     }
@@ -86,10 +80,7 @@ export const saveTemplateSize = (size: number): void => {
 
   try {
     // Проверяем, что размер находится в пределах допустимых значений
-    const validSize = Math.max(
-      MIN_TEMPLATE_PREVIEW_SIZE,
-      Math.min(size, MAX_TEMPLATE_PREVIEW_SIZE)
-    )
+    const validSize = Math.max(MIN_TEMPLATE_PREVIEW_SIZE, Math.min(size, MAX_TEMPLATE_PREVIEW_SIZE))
     localStorage.setItem(TEMPLATE_STORAGE_KEY, validSize.toString())
   } catch (error) {
     console.error("[TemplatePreviewSize] Error saving to localStorage:", error)
@@ -159,24 +150,20 @@ export const templateListMachine = createMachine({
             // Находим следующий размер в массиве TEMPLATE_PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему
-              const currentIndex = TEMPLATE_PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
-              
+              const currentIndex = TEMPLATE_PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+
               // Если текущий размер больше максимального в массиве или это последний элемент
               if (currentIndex === -1 || currentIndex === TEMPLATE_PREVIEW_SIZES.length - 1) {
-                return MAX_TEMPLATE_PREVIEW_SIZE;
+                return MAX_TEMPLATE_PREVIEW_SIZE
               }
-              
+
               // Возвращаем следующий размер из массива
-              return TEMPLATE_PREVIEW_SIZES[currentIndex + 1];
+              return TEMPLATE_PREVIEW_SIZES[currentIndex + 1]
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ context }) => {
-              const currentIndex = TEMPLATE_PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
-              return currentIndex < TEMPLATE_PREVIEW_SIZES.length - 1;
+              const currentIndex = TEMPLATE_PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              return currentIndex < TEMPLATE_PREVIEW_SIZES.length - 1
             },
             canDecreaseSize: () => true,
           }),
@@ -191,29 +178,25 @@ export const templateListMachine = createMachine({
             // Находим предыдущий размер в массиве TEMPLATE_PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему большего
-              const currentIndex = TEMPLATE_PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
-              
+              const currentIndex = TEMPLATE_PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+
               // Если текущий размер меньше минимального в массиве
               if (currentIndex === -1) {
-                return MIN_TEMPLATE_PREVIEW_SIZE;
+                return MIN_TEMPLATE_PREVIEW_SIZE
               }
-              
+
               // Если текущий размер равен первому элементу массива
               if (currentIndex === 0) {
-                return MIN_TEMPLATE_PREVIEW_SIZE;
+                return MIN_TEMPLATE_PREVIEW_SIZE
               }
-              
+
               // Возвращаем предыдущий размер из массива
-              return TEMPLATE_PREVIEW_SIZES[currentIndex - 1];
+              return TEMPLATE_PREVIEW_SIZES[currentIndex - 1]
             },
             // Обновляем флаги возможности изменения размера
             canDecreaseSize: ({ context }) => {
-              const currentIndex = TEMPLATE_PREVIEW_SIZES.findIndex(
-                (size) => size >= context.previewSize
-              );
-              return currentIndex > 0;
+              const currentIndex = TEMPLATE_PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              return currentIndex > 0
             },
             canIncreaseSize: () => true,
           }),
@@ -228,39 +211,32 @@ export const templateListMachine = createMachine({
             // Устанавливаем размер превью, выбирая ближайший из массива TEMPLATE_PREVIEW_SIZES
             previewSize: ({ event }) => {
               // Ограничиваем размер в пределах допустимых значений
-              const clampedSize = Math.max(
-                MIN_TEMPLATE_PREVIEW_SIZE,
-                Math.min(event.size, MAX_TEMPLATE_PREVIEW_SIZE)
-              );
-              
+              const clampedSize = Math.max(MIN_TEMPLATE_PREVIEW_SIZE, Math.min(event.size, MAX_TEMPLATE_PREVIEW_SIZE))
+
               // Находим ближайший размер в массиве TEMPLATE_PREVIEW_SIZES
-              let closestSize = TEMPLATE_PREVIEW_SIZES[0];
-              let minDiff = Math.abs(clampedSize - closestSize);
-              
+              let closestSize = TEMPLATE_PREVIEW_SIZES[0]
+              let minDiff = Math.abs(clampedSize - closestSize)
+
               for (let i = 1; i < TEMPLATE_PREVIEW_SIZES.length; i++) {
-                const diff = Math.abs(clampedSize - TEMPLATE_PREVIEW_SIZES[i]);
+                const diff = Math.abs(clampedSize - TEMPLATE_PREVIEW_SIZES[i])
                 if (diff < minDiff) {
-                  minDiff = diff;
-                  closestSize = TEMPLATE_PREVIEW_SIZES[i];
+                  minDiff = diff
+                  closestSize = TEMPLATE_PREVIEW_SIZES[i]
                 }
               }
-              
-              return closestSize;
+
+              return closestSize
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = TEMPLATE_PREVIEW_SIZES.findIndex(
-                (size) => size >= event.size
-              );
-              return closestSizeIndex < TEMPLATE_PREVIEW_SIZES.length - 1;
+              const closestSizeIndex = TEMPLATE_PREVIEW_SIZES.findIndex((size) => size >= event.size)
+              return closestSizeIndex < TEMPLATE_PREVIEW_SIZES.length - 1
             },
             canDecreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = TEMPLATE_PREVIEW_SIZES.findIndex(
-                (size) => size >= event.size
-              );
-              return closestSizeIndex > 0;
+              const closestSizeIndex = TEMPLATE_PREVIEW_SIZES.findIndex((size) => size >= event.size)
+              return closestSizeIndex > 0
             },
           }),
         },

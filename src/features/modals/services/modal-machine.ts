@@ -42,10 +42,7 @@ export const modalMachine = setup({
      */
     logFormSubmission: ({ context, event }) => {
       if (event.type === "SUBMIT_MODAL") {
-        console.log(
-          `Modal ${context.modalType} submitted with data:`,
-          event.data,
-        )
+        console.log(`Modal ${context.modalType} submitted with data:`, event.data)
       }
     },
   },

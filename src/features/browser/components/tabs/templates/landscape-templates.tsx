@@ -393,14 +393,10 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -1299,14 +1295,10 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -1361,14 +1353,10 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -1633,14 +1621,10 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -1698,14 +1682,10 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
@@ -1767,22 +1747,10 @@ export const landscapeTemplates: MediaTemplate[] = [
                 height: "20%",
                 top: `${rowIndex * 20}%`,
                 left: `${colIndex * 20}%`,
-                borderTop:
-                  rowIndex === 0
-                    ? "1px solid rgba(156, 163, 175, 0.3)"
-                    : "none",
-                borderBottom:
-                  rowIndex === 4
-                    ? "1px solid rgba(156, 163, 175, 0.3)"
-                    : "none",
-                borderLeft:
-                  colIndex === 0
-                    ? "1px solid rgba(156, 163, 175, 0.3)"
-                    : "none",
-                borderRight:
-                  colIndex === 4
-                    ? "1px solid rgba(156, 163, 175, 0.3)"
-                    : "none",
+                borderTop: rowIndex === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                borderBottom: rowIndex === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                borderLeft: colIndex === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                borderRight: colIndex === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
               }}
             >
               {cellIndex}
@@ -1843,14 +1811,10 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop:
-                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom:
-                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft:
-                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight:
-                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}

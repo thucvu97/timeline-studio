@@ -14,15 +14,11 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
 }))
 
 vi.mock("@/features/media-studio/layouts", () => ({
-  LayoutPreviews: () => (
-    <div data-testid="layout-previews">Layout Previews</div>
-  ),
+  LayoutPreviews: () => <div data-testid="layout-previews">Layout Previews</div>,
 }))
 
 vi.mock("@/components/theme/theme-toggle", () => ({
-  ThemeToggle: () => (
-    <div data-testid="theme-toggle-component">Theme Toggle</div>
-  ),
+  ThemeToggle: () => <div data-testid="theme-toggle-component">Theme Toggle</div>,
 }))
 
 // Мокаем useUserSettings
@@ -81,9 +77,7 @@ describe("TopBar", () => {
     render(<TopBar />)
 
     // Находим кнопку для открытия модального окна
-    const keyboardShortcutsButton = screen.getByTestId(
-      "keyboard-shortcuts-button",
-    )
+    const keyboardShortcutsButton = screen.getByTestId("keyboard-shortcuts-button")
 
     // Проверяем, что кнопка отображается
     expect(keyboardShortcutsButton).toBeInTheDocument()

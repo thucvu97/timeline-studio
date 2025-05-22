@@ -56,26 +56,16 @@ function ResourcesWrapper({ children }: { children: React.ReactNode }) {
 
 // Тестовый компонент, который использует хук useResources
 function TestComponent() {
-  const {
-    resources,
-    effectResources,
-    filterResources,
-    transitionResources,
-    templateResources,
-    musicResources,
-  } = useResources()
+  const { resources, effectResources, filterResources, transitionResources, templateResources, musicResources } =
+    useResources()
 
   return (
     <div>
       <div data-testid="resources-count">{resources.length}</div>
       <div data-testid="effect-resources-count">{effectResources.length}</div>
       <div data-testid="filter-resources-count">{filterResources.length}</div>
-      <div data-testid="transition-resources-count">
-        {transitionResources.length}
-      </div>
-      <div data-testid="template-resources-count">
-        {templateResources.length}
-      </div>
+      <div data-testid="transition-resources-count">{transitionResources.length}</div>
+      <div data-testid="template-resources-count">{templateResources.length}</div>
       <div data-testid="music-resources-count">{musicResources.length}</div>
     </div>
   )
@@ -99,9 +89,7 @@ describe("ResourcesProvider", () => {
     expect(screen.getByTestId("resources-count").textContent).toBe("0")
     expect(screen.getByTestId("effect-resources-count").textContent).toBe("0")
     expect(screen.getByTestId("filter-resources-count").textContent).toBe("0")
-    expect(screen.getByTestId("transition-resources-count").textContent).toBe(
-      "0",
-    )
+    expect(screen.getByTestId("transition-resources-count").textContent).toBe("0")
     expect(screen.getByTestId("template-resources-count").textContent).toBe("0")
     expect(screen.getByTestId("music-resources-count").textContent).toBe("0")
   })

@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import {
+  FolderOpen,
   Keyboard,
   Layout,
   ListTodo,
@@ -18,11 +19,8 @@ import { useTranslation } from "react-i18next"
 
 import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { Button } from "@/components/ui/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useCurrentProject } from "@/features/app-state/app-settings-provider"
 import { LayoutPreviews } from "@/features/media-studio/layouts"
 import { ModalType } from "@/features/modals"
 import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
@@ -33,9 +31,9 @@ export function TopBar() {
   const { t } = useTranslation()
   const { openModal } = useModal()
   const { isBrowserVisible, toggleBrowserVisibility } = useUserSettings()
+  const { currentProject, openProject, saveProject, setProjectDirty } = useCurrentProject()
   const [isEditing, setIsEditing] = useState(false)
-  const [isDirty, setIsDirty] = useState(false)
-  const [name, setName] = useState("New Project")
+  const [projectName, setProjectName] = useState(currentProject.name)
 
   const handleOpenModal = (modal: string) => {
     console.log(`Opening modal: ${modal}`)
@@ -43,8 +41,8 @@ export function TopBar() {
   }
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value)
-    setIsDirty(true)
+    setProjectName(e.target.value)
+    setProjectDirty(true)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -53,8 +51,24 @@ export function TopBar() {
     }
   }
 
-  const handleSave = () => {
-    setIsDirty(false)
+  const handleSave = async () => {
+    try {
+      // Сохраняем проект
+      await saveProject(projectName)
+      console.log("Project saved successfully")
+    } catch (error) {
+      console.error("[handleSave] Error saving project:", error)
+    }
+  }
+
+  const handleOpenProject = async () => {
+    try {
+      // Открываем проект
+      await openProject()
+      console.log("Project opened successfully")
+    } catch (error) {
+      console.error("[handleOpenProject] Error opening project:", error)
+    }
   }
 
   return (
@@ -64,17 +78,11 @@ export function TopBar() {
         <Button
           variant="ghost"
           size="icon"
-          className={
-            "transition-all duration-300 hover:bg-secondary h-7 w-7 cursor-pointer p-0"
-          }
+          className={"transition-all duration-300 hover:bg-secondary h-7 w-7 cursor-pointer p-0"}
           onClick={toggleBrowserVisibility}
           title={isBrowserVisible ? t("browser.hide") : t("browser.show")}
         >
-          {isBrowserVisible ? (
-            <PanelLeftClose size={16} />
-          ) : (
-            <PanelLeftOpen size={16} />
-          )}
+          {isBrowserVisible ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
         </Button>
 
         <Popover>
@@ -125,19 +133,26 @@ export function TopBar() {
           <Settings className="h-5 w-5" />
         </Button>
         <Button
+          className="h-7 w-7 cursor-pointer p-0"
+          variant="ghost"
+          size="icon"
+          title={t("topBar.openProject")}
+          onClick={handleOpenProject}
+          data-testid="open-project-button"
+        >
+          <FolderOpen className="h-5 w-5" />
+        </Button>
+
+        <Button
           className={cn(
             "h-7 w-7 cursor-pointer p-0",
-            isDirty
-              ? "hover:bg-accent opacity-100"
-              : "opacity-50 hover:opacity-50",
+            currentProject.isDirty ? "hover:bg-accent opacity-100" : "opacity-50 hover:opacity-50",
           )}
           variant="ghost"
           size="icon"
-          title={
-            isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved")
-          }
+          title={currentProject.isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved")}
           onClick={handleSave}
-          disabled={!isDirty}
+          disabled={!currentProject.isDirty}
           data-testid="save-button"
         >
           <Save className="h-5 w-5" />
@@ -147,9 +162,7 @@ export function TopBar() {
         <div
           className={cn(
             "group relative ml-1 w-[130px] text-xs",
-            isEditing
-              ? "ring-1 ring-teal"
-              : "transition-colors group-hover:ring-1 group-hover:ring-teal",
+            isEditing ? "ring-1 ring-teal" : "transition-colors group-hover:ring-1 group-hover:ring-teal",
           )}
           onClick={() => setIsEditing(true)}
         >
@@ -157,7 +170,7 @@ export function TopBar() {
             <input
               id="project-name-input"
               type="text"
-              value={name}
+              value={projectName}
               onChange={handleNameChange}
               onKeyDown={handleKeyDown}
               onBlur={() => setIsEditing(false)}
@@ -166,9 +179,7 @@ export function TopBar() {
               autoFocus
             />
           ) : (
-            <span className="block truncate pl-[1px] hover:border hover:border-teal hover:pl-[0px]">
-              {name}
-            </span>
+            <span className="block truncate pl-[1px] hover:border hover:border-teal hover:pl-[0px]">{projectName}</span>
           )}
         </div>
       </div>
@@ -213,9 +224,7 @@ export function TopBar() {
           </PopoverTrigger>
           <PopoverContent className="w-64" sideOffset={0}>
             <div className="">
-              <h4 className="text-sm font-semibold">
-                {t("topBar.publicationTasks")}
-              </h4>
+              <h4 className="text-sm font-semibold">{t("topBar.publicationTasks")}</h4>
               <div className="h-10" />
             </div>
           </PopoverContent>
@@ -235,9 +244,7 @@ export function TopBar() {
           </PopoverTrigger>
           <PopoverContent className="w-64" sideOffset={0}>
             <div className="">
-              <h4 className="text-sm font-semibold">
-                {t("topBar.projectTasks")}
-              </h4>
+              <h4 className="text-sm font-semibold">{t("topBar.projectTasks")}</h4>
               <div className="h-10" />
             </div>
           </PopoverContent>

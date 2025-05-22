@@ -16,13 +16,7 @@ export interface Resource {
 }
 
 // Типы ресурсов
-export type ResourceType =
-  | "effect"
-  | "filter"
-  | "transition"
-  | "template"
-  | "music"
-  | "subtitle"
+export type ResourceType = "effect" | "filter" | "transition" | "template" | "music" | "subtitle"
 
 // Интерфейс для эффектов
 export interface EffectResource extends Resource {
@@ -102,9 +96,7 @@ export function createFilterResource(filter: VideoFilter): FilterResource {
 }
 
 // Функция для создания ресурса перехода
-export function createTransitionResource(
-  transition: TransitionEffect,
-): TransitionResource {
+export function createTransitionResource(transition: TransitionEffect): TransitionResource {
   console.log("Creating transition resource from:", transition)
   const resource: TransitionResource = {
     id: `transition-${transition.id}-${Date.now()}`,
@@ -120,9 +112,7 @@ export function createTransitionResource(
 }
 
 // Функция для создания ресурса шаблона
-export function createTemplateResource(
-  template: MediaTemplate,
-): TemplateResource {
+export function createTemplateResource(template: MediaTemplate): TemplateResource {
   return {
     id: `template-${template.id}-${Date.now()}`,
     type: "template",

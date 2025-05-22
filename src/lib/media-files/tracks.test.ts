@@ -15,30 +15,18 @@ describe("createTracksFromFiles", () => {
 
     // Мокируем зависимости
     vi.spyOn(videoModule, "calculateTimeRanges").mockReturnValue([])
-    vi.spyOn(audioTracksModule, "processAudioFiles").mockImplementation(
-      () => {},
-    )
-    vi.spyOn(videoTracksModule, "processVideoFiles").mockImplementation(
-      () => {},
-    )
-    vi.spyOn(tracksUtilsModule, "updateSectorTimeRange").mockImplementation(
-      (sector) => {
-        // Простая реализация для тестов
-        if (sector.tracks.length > 0) {
-          const allVideos = sector.tracks.flatMap((track) => track.videos ?? [])
-          if (allVideos.length > 0) {
-            sector.startTime = Math.min(
-              ...allVideos.map((video) => video.startTime ?? 0),
-            )
-            sector.endTime = Math.max(
-              ...allVideos.map(
-                (video) => (video.startTime ?? 0) + (video.duration ?? 0),
-              ),
-            )
-          }
+    vi.spyOn(audioTracksModule, "processAudioFiles").mockImplementation(() => {})
+    vi.spyOn(videoTracksModule, "processVideoFiles").mockImplementation(() => {})
+    vi.spyOn(tracksUtilsModule, "updateSectorTimeRange").mockImplementation((sector) => {
+      // Простая реализация для тестов
+      if (sector.tracks.length > 0) {
+        const allVideos = sector.tracks.flatMap((track) => track.videos ?? [])
+        if (allVideos.length > 0) {
+          sector.startTime = Math.min(...allVideos.map((video) => video.startTime ?? 0))
+          sector.endTime = Math.max(...allVideos.map((video) => (video.startTime ?? 0) + (video.duration ?? 0)))
         }
-      },
-    )
+      }
+    })
 
     // Мокируем formatDateByLanguage для тестов
     vi.spyOn(i18nConstants, "formatDateByLanguage").mockImplementation(

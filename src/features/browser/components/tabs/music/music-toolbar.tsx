@@ -24,12 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useMedia } from "@/features/browser/media"
 import { cn } from "@/lib/utils"
 
@@ -48,11 +43,7 @@ interface MusicToolbarProps {
  * @param onImportFile - Callback для импорта файлов
  * @param onImportFolder - Callback для импорта папок
  */
-export function MusicToolbar({
-  onImport,
-  onImportFile,
-  onImportFolder,
-}: MusicToolbarProps) {
+export function MusicToolbar({ onImport, onImportFile, onImportFolder }: MusicToolbarProps) {
   const { t } = useTranslation()
   const media = useMedia()
 
@@ -161,16 +152,10 @@ export function MusicToolbar({
               <Button
                 variant="ghost"
                 size="icon"
-                className={cn(
-                  "mr-1 h-6 w-6 cursor-pointer",
-                  showFavoritesOnly ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
-                )}
+                className={cn("mr-1 h-6 w-6 cursor-pointer", showFavoritesOnly ? "bg-[#dddbdd] dark:bg-[#45444b]" : "")}
                 onClick={handleToggleFavorites}
               >
-                <Star
-                  size={16}
-                  className={showFavoritesOnly ? "fill-current" : ""}
-                />
+                <Star size={16} className={showFavoritesOnly ? "fill-current" : ""} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>{t("browser.media.favorites")}</TooltipContent>
@@ -185,10 +170,7 @@ export function MusicToolbar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={cn(
-                    "mr-1 h-6 w-6 cursor-pointer",
-                    viewMode === "list" && "bg-[#dddbdd] dark:bg-[#45444b]",
-                  )}
+                  className={cn("mr-1 h-6 w-6 cursor-pointer", viewMode === "list" && "bg-[#dddbdd] dark:bg-[#45444b]")}
                   onClick={() => handleViewModeChange("list")}
                 >
                   <List size={16} />
@@ -204,8 +186,7 @@ export function MusicToolbar({
                   size="icon"
                   className={cn(
                     "mr-1 h-6 w-6 cursor-pointer",
-                    viewMode === "thumbnails" &&
-                      "bg-[#dddbdd] dark:bg-[#45444b]",
+                    viewMode === "thumbnails" && "bg-[#dddbdd] dark:bg-[#45444b]",
                   )}
                   onClick={() => handleViewModeChange("thumbnails")}
                 >
@@ -228,9 +209,7 @@ export function MusicToolbar({
                     size="sm"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      currentSortBy !== "name"
-                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                        : "",
+                      currentSortBy !== "name" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                     )}
                   >
                     <SortDesc size={16} />
@@ -239,61 +218,39 @@ export function MusicToolbar({
               </TooltipTrigger>
               <TooltipContent>{t("browser.toolbar.sort")}</TooltipContent>
               <DropdownMenuContent className="space-y-1" align="end">
-                <DropdownMenuItem
-                  className="h-6 cursor-pointer"
-                  onClick={() => handleSort("name")}
-                >
+                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("name")}>
                   <div className="flex items-center gap-2">
                     {currentSortBy === "name" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.name")}</span>
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="h-6 cursor-pointer"
-                  onClick={() => handleSort("title")}
-                >
+                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("title")}>
                   <div className="flex items-center gap-2">
                     {currentSortBy === "title" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.title")}</span>
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="h-6 cursor-pointer"
-                  onClick={() => handleSort("artist")}
-                >
+                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("artist")}>
                   <div className="flex items-center gap-2">
-                    {currentSortBy === "artist" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {currentSortBy === "artist" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.artist")}</span>
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="h-6 cursor-pointer"
-                  onClick={() => handleSort("date")}
-                >
+                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("date")}>
                   <div className="flex items-center gap-2">
                     {currentSortBy === "date" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.date")}</span>
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="h-6 cursor-pointer"
-                  onClick={() => handleSort("size")}
-                >
+                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("size")}>
                   <div className="flex items-center gap-2">
                     {currentSortBy === "size" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.size")}</span>
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="h-6 cursor-pointer"
-                  onClick={() => handleSort("duration")}
-                >
+                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("duration")}>
                   <div className="flex items-center gap-2">
-                    {currentSortBy === "duration" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {currentSortBy === "duration" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.duration")}</span>
                   </div>
                 </DropdownMenuItem>
@@ -313,9 +270,7 @@ export function MusicToolbar({
                     size="sm"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      currentFilterType !== "all"
-                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                        : "",
+                      currentFilterType !== "all" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                     )}
                   >
                     <Filter size={16} />
@@ -326,22 +281,15 @@ export function MusicToolbar({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => handleFilter("all")}>
                   <div className="flex items-center gap-2">
-                    {currentFilterType === "all" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {currentFilterType === "all" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.filterBy.all")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {availableExtensions.map((extension) => (
-                  <DropdownMenuItem
-                    key={extension}
-                    onClick={() => handleFilter(extension)}
-                  >
+                  <DropdownMenuItem key={extension} onClick={() => handleFilter(extension)}>
                     <div className="flex items-center gap-2">
-                      {currentFilterType === extension && (
-                        <Check className="h-4 w-4" />
-                      )}
+                      {currentFilterType === extension && <Check className="h-4 w-4" />}
                       <span>{extension.toUpperCase()}</span>
                     </div>
                   </DropdownMenuItem>
@@ -362,9 +310,7 @@ export function MusicToolbar({
                     size="icon"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      currentGroupBy !== "none"
-                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                        : "",
+                      currentGroupBy !== "none" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                     )}
                   >
                     <ListFilterPlus size={16} />
@@ -382,25 +328,19 @@ export function MusicToolbar({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => handleGroupBy("artist")}>
                   <div className="flex items-center gap-2">
-                    {currentGroupBy === "artist" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {currentGroupBy === "artist" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.groupBy.artist")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleGroupBy("genre")}>
                   <div className="flex items-center gap-2">
-                    {currentGroupBy === "genre" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {currentGroupBy === "genre" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.groupBy.genre")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleGroupBy("album")}>
                   <div className="flex items-center gap-2">
-                    {currentGroupBy === "album" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {currentGroupBy === "album" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.groupBy.album")}</span>
                   </div>
                 </DropdownMenuItem>
@@ -413,23 +353,12 @@ export function MusicToolbar({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 cursor-pointer"
-                onClick={changeOrder}
-              >
-                {sortOrder === "asc" ? (
-                  <ArrowDownUp size={16} />
-                ) : (
-                  <ArrowUpDown size={16} />
-                )}
+              <Button variant="ghost" size="icon" className="h-6 w-6 cursor-pointer" onClick={changeOrder}>
+                {sortOrder === "asc" ? <ArrowDownUp size={16} /> : <ArrowUpDown size={16} />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {sortOrder === "asc"
-                ? t("browser.toolbar.sortOrder.desc")
-                : t("browser.toolbar.sortOrder.asc")}
+              {sortOrder === "asc" ? t("browser.toolbar.sortOrder.desc") : t("browser.toolbar.sortOrder.asc")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
