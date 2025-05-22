@@ -64,7 +64,7 @@ export function TemplateListToolbar({
   }
 
   return (
-    <div className="flex items-center justify-between p-1 bg-[#2D2D2D]">
+    <div className="flex items-center justify-between p-1 dark:bg-[#2D2D2D]">
       {/* Поле поиска шаблонов */}
       <Input
         type="search"
