@@ -5,11 +5,11 @@ import { useTranslation } from "react-i18next"
 import { useMedia } from "@/features/browser/media"
 import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider"
 
-import { getTemplateLabels } from "../lib/template-labels"
-import { useTemplateList } from "../services/template-list-provider"
 import { TemplateListToolbar } from "./template-list-toolbar"
 import { TemplatePreview } from "./template-preview"
+import { getTemplateLabels } from "../lib/template-labels"
 import { MediaTemplate, TEMPLATE_MAP } from "../lib/templates"
+import { useTemplateList } from "../services/template-list-provider"
 
 /**
  * Преобразует метку соотношения сторон в группу шаблонов
