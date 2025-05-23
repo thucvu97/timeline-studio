@@ -88,7 +88,7 @@ export function TimelineResources() {
   }
 
   return (
-    <div className="flex h-full flex-col bg-[#1a1a1a] text-white">
+    <div className="flex h-full flex-col bg-background text-white">
       <div className="border-b border-[#333] p-1.5">
         <h3 className="text-xs font-medium">
           {t("resources.title", "Ресурсы")}

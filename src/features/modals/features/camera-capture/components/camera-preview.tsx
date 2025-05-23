@@ -32,6 +32,7 @@ export function CameraPreview({
         autoPlay
         playsInline
         muted
+        data-testid="video-element"
         style={{
           display: "block",
           width: "100%",

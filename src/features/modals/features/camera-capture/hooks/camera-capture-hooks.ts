@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
 import { COMMON_FRAMERATES, COMMON_RESOLUTIONS, ResolutionOption } from "@/types/project"
 
-interface CaptureDevice {
+// Интерфейс для устройств захвата (камеры, микрофоны)
+export interface CaptureDevice {
   deviceId: string
   label: string
 }
@@ -100,7 +101,6 @@ export function useDeviceCapabilities(
   const [supportedResolutions, setSupportedResolutions] = useState<ResolutionOption[]>([])
   const [supportedFrameRates, setSupportedFrameRates] = useState<number[]>([])
   const [isLoadingCapabilities, setIsLoadingCapabilities] = useState<boolean>(false)
-  const [errorMessage, setErrorMessage] = useState<string>("")
 
   const getDeviceCapabilities = useCallback(async (deviceId: string) => {
     setIsLoadingCapabilities(true)
@@ -130,13 +130,27 @@ export function useDeviceCapabilities(
 
           console.log(`Максимальное разрешение устройства: ${deviceWidthMax}x${deviceHeightMax}`)
 
-          // Добавляем максимальное разрешение устройства
-          resolutions.push({
-            width: deviceWidthMax,
-            height: deviceHeightMax,
-            label: `${deviceWidthMax}x${deviceHeightMax}`,
-            value: `${deviceWidthMax}x${deviceHeightMax}`,
-          })
+          // Проверяем, что максимальное разрешение имеет стандартное соотношение сторон
+          const aspectRatio = deviceWidthMax / deviceHeightMax
+          const isStandardAspectRatio =
+            Math.abs(aspectRatio - 16/9) < 0.1 || // 16:9
+            Math.abs(aspectRatio - 9/16) < 0.1 || // 9:16
+            Math.abs(aspectRatio - 1) < 0.1 ||    // 1:1
+            Math.abs(aspectRatio - 4/3) < 0.1 ||  // 4:3
+            Math.abs(aspectRatio - 4/5) < 0.1 ||  // 4:5
+            Math.abs(aspectRatio - 21/9) < 0.1;   // 21:9
+
+          // Добавляем максимальное разрешение устройства только если оно имеет стандартное соотношение сторон
+          if (isStandardAspectRatio) {
+            resolutions.push({
+              width: deviceWidthMax,
+              height: deviceHeightMax,
+              label: `${deviceWidthMax}x${deviceHeightMax}`,
+              value: `${deviceWidthMax}x${deviceHeightMax}`,
+            })
+          } else {
+            console.log(`Максимальное разрешение устройства ${deviceWidthMax}x${deviceHeightMax} имеет нестандартное соотношение сторон ${aspectRatio.toFixed(2)}`)
+          }
 
           // Добавляем стандартные разрешения, которые меньше максимального
           for (const res of COMMON_RESOLUTIONS) {
@@ -238,9 +252,9 @@ export function useDeviceCapabilities(
       setSelectedResolution(COMMON_RESOLUTIONS[0].value)
       setSupportedFrameRates(COMMON_FRAMERATES)
       setFrameRate(30)
-      
-      // Показываем ошибку пользователю
-      setErrorMessage(t("dialogs.cameraCapture.errorGettingCapabilities", 
+
+      // Логируем ошибку
+      console.error(t("dialogs.cameraCapture.errorGettingCapabilities",
         "Не удалось получить информацию о возможностях камеры. Используются стандартные настройки."))
     } finally {
       setIsLoadingCapabilities(false)
