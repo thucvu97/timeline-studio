@@ -9,7 +9,7 @@ import { I18nProvider } from "@/i18n/i18n-provider"
 
 import { AppSettingsProvider } from "../app-state/app-settings-provider"
 import { PreviewSizeProvider } from "../browser/components/preview/preview-size-provider"
-import { TemplateListProvider } from "../browser/components/tabs/templates/template-list-provider"
+import { TemplateListProvider } from "../browser/components/tabs/templates/services/template-list-provider"
 import { MediaProvider } from "../browser/media"
 import { ChatProvider } from "../chat/services/chat-provider"
 import { ProjectSettingsProvider } from "../modals/features/project-settings/project-settings-provider"

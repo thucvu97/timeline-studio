@@ -1,8 +1,8 @@
 import { JSX } from "react"
 
-import { landscapeTemplates } from "./landscape-templates"
-import { portraitTemplates } from "./portrait-templates"
-import { squareTemplates } from "./square-templates"
+import { landscapeTemplates } from "../components/template-previews/landscape-templates"
+import { portraitTemplates } from "../components/template-previews/portrait-templates"
+import { squareTemplates } from "../components/template-previews/square-templates"
 
 export interface SplitPoint {
   x: number // Координата X точки разделения (в процентах от 0 до 100)

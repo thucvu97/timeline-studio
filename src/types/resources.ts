@@ -1,5 +1,5 @@
 import { SubtitleStyle } from "@/features/browser/components/tabs/subtitles/subtitles"
-import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
+import { MediaTemplate } from "@/features/browser/components/tabs/templates/lib/templates"
 import { MediaFile } from "@/types/media"
 import { TransitionEffect } from "@/types/transitions"
 

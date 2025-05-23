@@ -3,7 +3,7 @@ import React, { ReactNode, createContext, useContext } from "react"
 import { useMachine } from "@xstate/react"
 
 import { SubtitleStyle } from "@/features/browser/components/tabs/subtitles/subtitles"
-import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
+import { MediaTemplate } from "@/features/browser/components/tabs/templates/lib/templates"
 import { VideoEffect } from "@/types/effects"
 import { VideoFilter } from "@/types/filters"
 import { MediaFile } from "@/types/media"

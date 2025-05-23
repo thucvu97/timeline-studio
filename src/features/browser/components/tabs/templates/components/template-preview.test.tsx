@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
+import { MediaTemplate } from "@/features/browser/components/tabs/templates/lib/templates"
 
 import { TemplatePreview } from "./template-preview"
 
@@ -20,7 +20,7 @@ vi.mock("@/features/browser/resources", () => ({
 }))
 
 // Мокаем FavoriteButton и AddMediaButton
-vi.mock("../../layout", () => ({
+vi.mock("../../../layout", () => ({
   FavoriteButton: ({ file, size, type }: any) => (
     <div data-testid="favorite-button" data-file-id={file.id} data-size={size} data-type={type}>
       Favorite Button

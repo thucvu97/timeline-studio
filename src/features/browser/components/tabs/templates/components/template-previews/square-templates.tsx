@@ -1,4 +1,4 @@
-import { MediaTemplate } from "./templates"
+import { MediaTemplate } from "../../lib/templates"
 
 export const squareTemplates: MediaTemplate[] = [
   // Шаблоны с 2 экранами

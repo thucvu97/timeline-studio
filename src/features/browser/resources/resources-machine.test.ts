@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
-import { MediaTemplate } from "@/features/browser/components/tabs/templates/templates"
+import { MediaTemplate } from "@/features/browser/components/tabs/templates/lib/templates"
 import { VideoEffect } from "@/types/effects"
 import { VideoFilter } from "@/types/filters"
 import { MediaFile } from "@/types/media"

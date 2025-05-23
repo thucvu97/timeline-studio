@@ -4,8 +4,8 @@ import { useResources } from "@/features/browser/resources"
 import { MediaFile } from "@/types/media"
 import { TemplateResource } from "@/types/resources"
 
-import { MediaTemplate } from "./templates"
-import { AddMediaButton, FavoriteButton } from "../../layout"
+import { MediaTemplate } from "../lib/templates"
+import { AddMediaButton, FavoriteButton } from "../../../layout"
 
 /**
  * Интерфейс пропсов для компонента TemplatePreview
