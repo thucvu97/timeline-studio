@@ -1,4 +1,4 @@
-import { Music, Package, Palette, Scissors, Video } from "lucide-react"
+import { Music, Package, Palette, Scissors, Subtitles, Video } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { useResources } from "@/features/browser/resources"
@@ -11,7 +11,7 @@ export function TimelineResources() {
   const { t, i18n } = useTranslation()
 
   // Полностью отключаем логирование
-  const { effectResources, filterResources, transitionResources, templateResources, musicResources } = useResources()
+  const { effectResources, filterResources, transitionResources, templateResources, musicResources, subtitleResources } = useResources()
 
   // Полностью отключаем логирование
 
@@ -47,6 +47,12 @@ export function TimelineResources() {
       icon: <Music className="h-3.5 w-3.5 text-gray-400" />,
       resources: musicResources,
     },
+    {
+      id: "subtitles",
+      name: t("resources.subtitles", "Субтитры"),
+      icon: <Subtitles className="h-3.5 w-3.5 text-gray-400" />,
+      resources: subtitleResources,
+    },
   ]
 
   // Функция для отображения списка ресурсов
@@ -70,6 +76,7 @@ export function TimelineResources() {
                 {resource.type === "transition" && <Scissors className="h-4 w-4" />}
                 {resource.type === "template" && <Video className="h-4 w-4" />}
                 {resource.type === "music" && <Music className="h-4 w-4" />}
+                {resource.type === "subtitle" && <Subtitles className="h-4 w-4" />}
               </div>
 
               {/* Название ресурса (справа) */}
