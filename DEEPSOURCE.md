@@ -23,6 +23,7 @@ export DEEPSOURCE_DSN=https://your-dsn@deepsource.io
 ### Анализ покрытия тестами
 
 #### JavaScript/TypeScript
+
 ```bash
 # Запуск тестов с генерацией отчета покрытия
 npm run test:coverage
@@ -32,6 +33,7 @@ npm run test:coverage:report
 ```
 
 #### Rust
+
 ```bash
 # Предварительные требования (выполнить один раз)
 # 1. Установить rustup (если Rust установлен через Homebrew)
@@ -81,6 +83,7 @@ cargo llvm-cov --lcov --output-path coverage.info
 ## Исключения
 
 Следующие файлы и папки исключены из анализа:
+
 - `node_modules/**`
 - `dist/**`, `build/**`, `.next/**`
 - `coverage/**`, `docs/**`
