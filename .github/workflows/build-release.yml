@@ -130,55 +130,29 @@ jobs:
           npm install --save-dev @testing-library/dom @testing-library/react @testing-library/user-event @testing-library/jest-dom
 
       - name: Install Tauri CLI
-        run: |
-          # Устанавливаем Tauri CLI глобально
-          npm install -g @tauri-apps/cli
-          # Создаем символическую ссылку на Tauri CLI в директории проекта
-          if [ ! -d "node_modules/.bin" ]; then
-            mkdir -p node_modules/.bin
-          fi
+        run: npm install -g @tauri-apps/cli
 
-          # Создаем символическую ссылку (с учетом разных ОС)
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            # Windows
-            if [ -f "$(which tauri)" ]; then
-              cp "$(which tauri)" node_modules/.bin/tauri
-            fi
-          else
-            # Linux и macOS
-            if [ -f "$(which tauri)" ]; then
-              ln -sf "$(which tauri)" node_modules/.bin/tauri
-            fi
-          fi
-
-      # Полностью отключаем тесты
-      - name: Disable tests
-        run: |
-          # Создаем временный package.json без тестов
-          cat package.json | jq '.scripts.test = "exit 0"' > package.json.new
-          mv package.json.new package.json
-
-          # Создаем пустой файл vitest.config.js
-          echo 'export default { test: { exclude: ["**/*.test.ts", "**/*.test.tsx"] } }' > vitest.config.js
-
-          # Создаем пустую директорию для тестов
-          mkdir -p .vitest
-
-          # Устанавливаем переменные окружения для пропуска тестов
-          echo "VITEST_SKIP=true" > .env
-          echo "NODE_ENV=production" >> .env
+      - name: Run tests
+        run: npm run test
 
       # Исправляем имя продукта в tauri.conf.json перед сборкой
-      - name: Fix product name
+      - name: Fix product name (Unix)
+        if: runner.os != 'Windows'
         run: |
           # Заменяем пробелы на дефисы в имени продукта
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             # macOS требует указания расширения для опции -i
             sed -i '' 's/"productName": "Timeline Studio"/"productName": "timeline-studio"/g' src-tauri/tauri.conf.json
           else
-            # Linux и Windows
+            # Linux
             sed -i 's/"productName": "Timeline Studio"/"productName": "timeline-studio"/g' src-tauri/tauri.conf.json
           fi
+
+      - name: Fix product name (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          # Заменяем пробелы на дефисы в имени продукта
+          (Get-Content src-tauri/tauri.conf.json) -replace '"productName": "Timeline Studio"', '"productName": "timeline-studio"' | Set-Content src-tauri/tauri.conf.json
 
       - name: Install macOS targets
         if: matrix.platform == 'macos-latest'
@@ -192,9 +166,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_CLI_PACKAGE_MANAGER: "npm"
-          # Переменные для пропуска тестов
-          VITEST_SKIP: "true"
-          NODE_ENV: "production"
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
@@ -214,9 +185,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_CLI_PACKAGE_MANAGER: "npm"
-          # Переменные для пропуска тестов
-          VITEST_SKIP: "true"
-          NODE_ENV: "production"
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
