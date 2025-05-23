@@ -153,6 +153,12 @@ jobs:
             sed -i 's/"productName": "Timeline Studio"/"productName": "timeline-studio"/g' src-tauri/tauri.conf.json
           fi
 
+      - name: Install macOS targets
+        if: matrix.platform == 'macos-latest'
+        run: |
+          rustup target add aarch64-apple-darwin
+          rustup target add x86_64-apple-darwin
+
       - name: Build the app (macOS universal)
         if: matrix.platform == 'macos-latest'
         uses: tauri-apps/tauri-action@v0.5.0
