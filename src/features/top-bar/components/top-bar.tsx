@@ -121,6 +121,16 @@ export function TopBar() {
             <Keyboard className="h-5 w-5" />
           </Button>
           <Button
+            variant="ghost"
+            size="icon"
+            className="mr-1 h-7 w-7 cursor-pointer p-0"
+            title={t("topBar.userSettings")}
+            onClick={() => handleOpenModal("user-settings")}
+            data-testid="user-settings-button"
+          >
+            <UserCog className="h-5 w-5" />
+          </Button>
+          <Button
             className="h-7 w-7 cursor-pointer p-0"
             variant="ghost"
             size="icon"
@@ -253,16 +263,6 @@ export function TopBar() {
               </div>
             </PopoverContent>
           </Popover>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mr-1 h-7 w-7 cursor-pointer p-0"
-            title={t("topBar.userSettings")}
-            onClick={() => handleOpenModal("user-settings")}
-            data-testid="user-settings-button"
-          >
-            <UserCog className="h-5 w-5" />
-          </Button>
           <Button
             variant="outline"
             size="sm"
