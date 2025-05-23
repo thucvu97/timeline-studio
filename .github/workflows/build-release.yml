@@ -32,13 +32,9 @@ jobs:
             const releaseName = `Timeline Studio v${{ github.event.inputs.version }}`;
             const releaseBody = `Timeline Studio v${{ github.event.inputs.version }}
 
-            ## Загрузки
+            ## Статус сборки
 
-            - [Windows (x64)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-windows-x64.msi)
-            - [macOS (Intel)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-macos-x64.dmg)
-            - [macOS (Apple Silicon)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-macos-aarch64.dmg)
-            - [Linux (AppImage)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-linux-x86_64.AppImage)
-            - [Linux (Debian/Ubuntu)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ github.event.inputs.version }}/timeline-studio-${{ github.event.inputs.version }}-linux-amd64.deb)
+            🔄 Файлы собираются... Ссылки для загрузки появятся после завершения сборки.
 
             ## Изменения
 
@@ -234,8 +230,41 @@ jobs:
           tauriScript: "npm run tauri"
           args: --ci
 
-  update-promo-page:
+  update-release-description:
     needs: [create-release, build-tauri]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Release Description
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tag = `v${{ needs.create-release.outputs.version }}`;
+            const releaseBody = `Timeline Studio v${{ needs.create-release.outputs.version }}
+
+            ## Загрузки
+
+            - [Windows (x64)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ needs.create-release.outputs.version }}/timeline-studio-${{ needs.create-release.outputs.version }}-windows-x64.msi)
+            - [macOS (Intel)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ needs.create-release.outputs.version }}/timeline-studio-${{ needs.create-release.outputs.version }}-macos-x64.dmg)
+            - [macOS (Apple Silicon)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ needs.create-release.outputs.version }}/timeline-studio-${{ needs.create-release.outputs.version }}-macos-aarch64.dmg)
+            - [Linux (AppImage)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ needs.create-release.outputs.version }}/timeline-studio-${{ needs.create-release.outputs.version }}-linux-x86_64.AppImage)
+            - [Linux (Debian/Ubuntu)](https://github.com/chatman-media/timeline-studio/releases/download/v${{ needs.create-release.outputs.version }}/timeline-studio-${{ needs.create-release.outputs.version }}-linux-amd64.deb)
+
+            ## Изменения
+
+            - Новые возможности
+            - Исправления ошибок
+            - Улучшения производительности`;
+
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ needs.create-release.outputs.release_id }},
+              body: releaseBody
+            });
+
+  update-promo-page:
+    needs: [create-release, build-tauri, update-release-description]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
