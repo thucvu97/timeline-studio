@@ -164,8 +164,6 @@ jobs:
         uses: tauri-apps/tauri-action@v0.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
           TAURI_CLI_PACKAGE_MANAGER: "npm"
           # Переменные для пропуска тестов
           VITEST_SKIP: "true"
@@ -188,8 +186,6 @@ jobs:
         uses: tauri-apps/tauri-action@v0.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
           TAURI_CLI_PACKAGE_MANAGER: "npm"
           # Переменные для пропуска тестов
           VITEST_SKIP: "true"
