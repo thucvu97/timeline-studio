@@ -43,27 +43,27 @@ export function VideoPlayer() {
           <div className="max-h-[calc(100%-85px)] w-full max-w-[100%]">
             <AspectRatio ratio={aspectRatioValue} className="bg-black">
               <div className="relative h-full w-full">
-                  <video
-                    key={video.id || "no-video"}
-                    src={convertFileSrc(video.path)}
-                    controls={false}
-                    autoPlay={false}
-                    loop={false}
-                    disablePictureInPicture
-                    preload="auto"
-                    tabIndex={0}
-                    playsInline
-                    muted={false}
-                    className="absolute inset-0 h-full w-full focus:outline-none"
-                    style={{
-                      position: "absolute" as const,
-                      top: "0",
-                      left: "0",
-                      width: "100%",
-                      height: "100%",
-                      display: "block",
-                    }}
-                  />
+                <video
+                  key={video.id || "no-video"}
+                  src={convertFileSrc(video.path)}
+                  controls={false}
+                  autoPlay={false}
+                  loop={false}
+                  disablePictureInPicture
+                  preload="auto"
+                  tabIndex={0}
+                  playsInline
+                  muted={false}
+                  className="absolute inset-0 h-full w-full focus:outline-none"
+                  style={{
+                    position: "absolute" as const,
+                    top: "0",
+                    left: "0",
+                    width: "100%",
+                    height: "100%",
+                    display: "block",
+                  }}
+                />
               </div>
             </AspectRatio>
           </div>

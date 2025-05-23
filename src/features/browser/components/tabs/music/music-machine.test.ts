@@ -20,6 +20,7 @@ global.fetch = vi.fn().mockResolvedValue({
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
+vi.spyOn(console, "warn").mockImplementation(() => {})
 
 // Создаем моковые медиафайлы для тестов
 const mockMediaFiles: MediaFile[] = [
@@ -260,5 +261,307 @@ describe("MusicMachine", () => {
 
     // Останавливаем актора
     actor.stop()
+  })
+
+  it("should handle CHANGE_VIEW_MODE event correctly", async () => {
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Отправляем событие CHANGE_VIEW_MODE
+    actor.send({ type: "CHANGE_VIEW_MODE", mode: "thumbnails" })
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что viewMode обновился
+    expect(snapshot.context.viewMode).toBe("thumbnails")
+
+    // Останавливаем актора
+    actor.stop()
+  })
+
+  it("should handle CHANGE_GROUP_BY event correctly", async () => {
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Отправляем событие CHANGE_GROUP_BY
+    actor.send({ type: "CHANGE_GROUP_BY", groupBy: "artist" })
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что groupBy обновился
+    expect(snapshot.context.groupBy).toBe("artist")
+
+    // Останавливаем актора
+    actor.stop()
+  })
+
+  it("should handle TOGGLE_FAVORITES event correctly", async () => {
+    // Создаем актора из машины состояний
+    const actor = createActor(musicMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Устанавливаем мок для filterFiles
+    vi.mocked(filterFiles).mockReturnValueOnce([])
+
+    // Отправляем событие TOGGLE_FAVORITES
+    actor.send({ type: "TOGGLE_FAVORITES", mediaContext: {} })
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что showFavoritesOnly обновился
+    expect(snapshot.context.showFavoritesOnly).toBe(true)
+
+    // Проверяем, что filterFiles был вызван с правильными параметрами
+    expect(filterFiles).toHaveBeenCalledWith([], snapshot.context.searchQuery, snapshot.context.filterType, true, {})
+
+    // Отправляем событие TOGGLE_FAVORITES еще раз, чтобы переключить обратно
+    actor.send({ type: "TOGGLE_FAVORITES", mediaContext: {} })
+
+    // Получаем снимок состояния
+    const newSnapshot = actor.getSnapshot()
+
+    // Проверяем, что showFavoritesOnly переключился обратно
+    expect(newSnapshot.context.showFavoritesOnly).toBe(false)
+
+    // Останавливаем актора
+    actor.stop()
+  })
+
+  describe("Error state", () => {
+    it("should handle RETRY event correctly in error state", async () => {
+      // Создаем актора из машины состояний с начальным состоянием error
+      const errorMachine = musicMachine.provide({
+        actors: {
+          fetchMusicFiles: () => {
+            throw new Error("Test error")
+          },
+        },
+      })
+
+      const actor = createActor(errorMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Переводим машину в состояние ошибки
+      actor.send({ type: "RETRY" })
+
+      // Отправляем событие RETRY
+      actor.send({ type: "RETRY" })
+
+      // Получаем снимок состояния
+      const snapshot = actor.getSnapshot()
+
+      // Проверяем, что машина перешла в состояние loading
+      expect(snapshot.value).toBe("success")
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should handle error state correctly", async () => {
+      // Создаем актора из машины состояний
+      const actor = createActor(musicMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Симулируем ошибку, устанавливая контекст напрямую
+      actor.send({
+        type: "RETRY",
+        error: "Test error"
+      })
+
+      // Получаем снимок состояния
+      const snapshot = actor.getSnapshot()
+
+      // Проверяем, что контекст содержит ожидаемые значения
+      expect(snapshot.context.musicFiles).toEqual([])
+      expect(snapshot.context.filteredFiles).toEqual([])
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should handle SORT event correctly in error state", async () => {
+      // Создаем актора из машины состояний
+      const actor = createActor(musicMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Устанавливаем мок для sortFiles
+      vi.mocked(sortFiles).mockReturnValueOnce([])
+
+      // Отправляем событие SORT
+      actor.send({ type: "SORT", sortBy: "title" })
+
+      // Получаем снимок состояния
+      const snapshot = actor.getSnapshot()
+
+      // Проверяем, что sortBy обновился
+      expect(snapshot.context.sortBy).toBe("title")
+
+      // Проверяем, что sortFiles был вызван с правильными параметрами
+      expect(sortFiles).toHaveBeenCalledWith(expect.any(Array), "title", "asc")
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should handle FILTER event correctly in error state", async () => {
+      // Создаем актора из машины состояний
+      const actor = createActor(musicMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Устанавливаем мок для filterFiles
+      vi.mocked(filterFiles).mockReturnValueOnce([])
+
+      // Отправляем событие FILTER
+      actor.send({ type: "FILTER", filterType: "mp3", mediaContext: {} })
+
+      // Получаем снимок состояния
+      const snapshot = actor.getSnapshot()
+
+      // Проверяем, что filterType обновился
+      expect(snapshot.context.filterType).toBe("mp3")
+
+      // Проверяем, что filterFiles был вызван с правильными параметрами
+      expect(filterFiles).toHaveBeenCalledWith([], snapshot.context.searchQuery, "mp3", false, {})
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should handle SEARCH event correctly in error state", async () => {
+      // Создаем актора из машины состояний
+      const actor = createActor(musicMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Устанавливаем мок для filterFiles
+      vi.mocked(filterFiles).mockReturnValueOnce([])
+
+      // Отправляем событие SEARCH
+      actor.send({ type: "SEARCH", query: "test", mediaContext: {} })
+
+      // Получаем снимок состояния
+      const snapshot = actor.getSnapshot()
+
+      // Проверяем, что searchQuery обновился
+      expect(snapshot.context.searchQuery).toBe("test")
+
+      // Проверяем, что filterFiles был вызван с правильными параметрами
+      expect(filterFiles).toHaveBeenCalledWith([], "test", "all", false, {})
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should handle CHANGE_VIEW_MODE event correctly in error state", async () => {
+      // Создаем актора из машины состояний
+      const actor = createActor(musicMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Отправляем событие CHANGE_VIEW_MODE
+      actor.send({ type: "CHANGE_VIEW_MODE", mode: "thumbnails" })
+
+      // Получаем снимок состояния
+      const snapshot = actor.getSnapshot()
+
+      // Проверяем, что viewMode обновился
+      expect(snapshot.context.viewMode).toBe("thumbnails")
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should handle TOGGLE_FAVORITES event correctly in error state", async () => {
+      // Создаем актора из машины состояний
+      const actor = createActor(musicMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Устанавливаем мок для filterFiles
+      vi.mocked(filterFiles).mockReturnValueOnce([])
+
+      // Отправляем событие TOGGLE_FAVORITES
+      actor.send({ type: "TOGGLE_FAVORITES", mediaContext: {} })
+
+      // Получаем снимок состояния
+      const snapshot = actor.getSnapshot()
+
+      // Проверяем, что showFavoritesOnly обновился
+      expect(snapshot.context.showFavoritesOnly).toBe(true)
+
+      // Проверяем, что filterFiles был вызван с правильными параметрами
+      expect(filterFiles).toHaveBeenCalledWith([], snapshot.context.searchQuery, snapshot.context.filterType, true, {})
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should handle CHANGE_GROUP_BY event correctly in error state", async () => {
+      // Создаем актора из машины состояний
+      const actor = createActor(musicMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Отправляем событие CHANGE_GROUP_BY
+      actor.send({ type: "CHANGE_GROUP_BY", groupBy: "artist" })
+
+      // Получаем снимок состояния
+      const snapshot = actor.getSnapshot()
+
+      // Проверяем, что groupBy обновился
+      expect(snapshot.context.groupBy).toBe("artist")
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should handle CHANGE_ORDER event correctly in error state", async () => {
+      // Создаем актора из машины состояний
+      const actor = createActor(musicMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Устанавливаем мок для sortFiles
+      vi.mocked(sortFiles).mockReturnValueOnce([])
+
+      // Отправляем событие CHANGE_ORDER
+      actor.send({ type: "CHANGE_ORDER" })
+
+      // Получаем снимок состояния
+      const snapshot = actor.getSnapshot()
+
+      // Проверяем, что sortOrder изменился с "asc" на "desc"
+      expect(snapshot.context.sortOrder).toBe("desc")
+
+      // Проверяем, что sortFiles был вызван с правильными параметрами
+      expect(sortFiles).toHaveBeenCalledWith(expect.any(Array), snapshot.context.sortBy, "desc")
+
+      // Останавливаем актора
+      actor.stop()
+    })
   })
 })

@@ -145,9 +145,11 @@ export function MediaToolbar() {
           size="sm"
           className={cn(
             "flex cursor-pointer items-center gap-1 bg-[#dddbdd] px-1 text-xs hover:bg-[#d1d1d1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25",
-            isImporting && "opacity-70 cursor-wait"
+            isImporting && "opacity-70 cursor-wait",
           )}
-          onClick={() => { void handleImportFile(); }}
+          onClick={() => {
+            void handleImportFile()
+          }}
           disabled={isImporting}
         >
           <span className="px-2 text-xs">
@@ -160,7 +162,7 @@ export function MediaToolbar() {
                 <div
                   className={cn(
                     "cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25",
-                    isImporting && "opacity-50 cursor-wait"
+                    isImporting && "opacity-50 cursor-wait",
                   )}
                   onClick={(e) => {
                     e.stopPropagation()
@@ -178,7 +180,7 @@ export function MediaToolbar() {
                 <div
                   className={cn(
                     "cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25",
-                    isImporting && "opacity-50 cursor-wait"
+                    isImporting && "opacity-50 cursor-wait",
                   )}
                   onClick={(e) => {
                     e.stopPropagation()

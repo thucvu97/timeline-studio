@@ -77,23 +77,25 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
   // Отслеживаем изменения в метаданных файлов
   useEffect(() => {
     // Проверяем, есть ли файлы с загруженными метаданными
-    const filesWithLoadedMetadata = media.allMediaFiles.filter(file => file.isLoadingMetadata === false)
-    const filesStillLoading = media.allMediaFiles.filter(file => file.isLoadingMetadata === true)
+    const filesWithLoadedMetadata = media.allMediaFiles.filter((file) => file.isLoadingMetadata === false)
+    const filesStillLoading = media.allMediaFiles.filter((file) => file.isLoadingMetadata === true)
 
     console.log(
       "MediaListProvider: Metadata loading status:",
       `Loaded: ${filesWithLoadedMetadata.length}`,
       `Loading: ${filesStillLoading.length}`,
-      `Total: ${media.allMediaFiles.length}`
+      `Total: ${media.allMediaFiles.length}`,
     )
 
     // Принудительно обновляем состояние машины при любом изменении статуса загрузки метаданных
     send({ type: "UPDATE_MEDIA_FILES", files: media.allMediaFiles })
   }, [
     // Отслеживаем изменения в статусе загрузки метаданных
-    media.allMediaFiles.map(file => `${file.path}:${file.isLoadingMetadata}`).join(','),
-    send,
     media.allMediaFiles
+      .map((file) => `${file.path}:${file.isLoadingMetadata}`)
+      .join(","),
+    send,
+    media.allMediaFiles,
   ])
 
   /**

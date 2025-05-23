@@ -88,7 +88,6 @@ export const ImagePreview = memo(function ImagePreview({
         URL.revokeObjectURL(imageUrl)
       }
     }
-
   }, [file.path, loadImageFile, imageUrl])
 
   return (
@@ -116,7 +115,7 @@ export const ImagePreview = memo(function ImagePreview({
           onError={(e) => {
             console.error("[ImagePreview] Ошибка загрузки изображения:", e)
             // Заменяем на иконку при ошибке
-            e.currentTarget.style.display = 'none'
+            e.currentTarget.style.display = "none"
           }}
         />
       </div>

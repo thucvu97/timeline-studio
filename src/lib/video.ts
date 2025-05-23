@@ -102,15 +102,15 @@ export const getAspectRatio = (stream?: FfprobeStream): string | null => {
 
   // Если есть sample_aspect_ratio, можно использовать его вместе с width и height
   if (stream.sample_aspect_ratio && stream.width && stream.height) {
-    const [sar_num, sar_den] = stream.sample_aspect_ratio.split(':').map(Number);
+    const [sar_num, sar_den] = stream.sample_aspect_ratio.split(":").map(Number)
     if (!isNaN(sar_num) && !isNaN(sar_den) && sar_den !== 0) {
-      const dar_width = stream.width * sar_num;
-      const dar_height = stream.height * sar_den;
+      const dar_width = stream.width * sar_num
+      const dar_height = stream.height * sar_den
 
-      const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
-      const divisor = gcd(dar_width, dar_height);
+      const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a)
+      const divisor = gcd(dar_width, dar_height)
 
-      return `${dar_width / divisor}:${dar_height / divisor}`;
+      return `${dar_width / divisor}:${dar_height / divisor}`
     }
   }
 

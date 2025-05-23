@@ -93,7 +93,6 @@ export function KeyboardShortcutsModal() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-     
   }, [listeningForKeys])
 
   // Добавляем обработчик нажатия Escape для отмены редактирования
@@ -114,7 +113,6 @@ export function KeyboardShortcutsModal() {
     return () => {
       document.removeEventListener("keydown", handleEscape)
     }
-     
   }, [listeningForKeys])
 
   // Эффект для инициализации при первом рендере

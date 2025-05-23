@@ -50,7 +50,7 @@ export function MediaPreview({
       <div
         className={cn(
           "flex items-center justify-center bg-gray-100 dark:bg-gray-800",
-          ignoreRatio ? "w-full h-full" : "aspect-video"
+          ignoreRatio ? "w-full h-full" : "aspect-video",
         )}
         style={{
           width: ignoreRatio ? "100%" : `${((size * dimensions[0]) / dimensions[1]).toFixed(0)}px`,

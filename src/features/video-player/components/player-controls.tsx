@@ -172,7 +172,7 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
       const newVolume = value[0] // Значение уже в диапазоне 0-100
       setVolume(newVolume)
     },
-    [setVolume]
+    [setVolume],
   )
 
   // Функция, вызываемая при завершении изменения громкости

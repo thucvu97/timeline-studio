@@ -35,13 +35,13 @@ export function useMediaImport() {
    * Определяет тип файла по расширению и устанавливает флаг загрузки метаданных
    */
   const createBasicMediaFile = (filePath: string): MediaFile => {
-    const fileName = filePath.split('/').pop() ?? 'unknown'
-    const fileExtension = fileName.split('.').pop()?.toLowerCase() ?? ''
+    const fileName = filePath.split("/").pop() ?? "unknown"
+    const fileExtension = fileName.split(".").pop()?.toLowerCase() ?? ""
 
     // Определяем тип файла по расширению
-    const isVideo = ['mp4', 'avi', 'mkv', 'mov', 'webm'].includes(fileExtension)
-    const isAudio = ['mp3', 'wav', 'ogg', 'flac'].includes(fileExtension)
-    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)
+    const isVideo = ["mp4", "avi", "mkv", "mov", "webm"].includes(fileExtension)
+    const isAudio = ["mp3", "wav", "ogg", "flac"].includes(fileExtension)
+    const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(fileExtension)
 
     // Создаем базовый объект с минимальной информацией
     return {
@@ -56,8 +56,8 @@ export function useMediaImport() {
       // Добавляем пустой объект probeData, чтобы избежать ошибок при доступе к нему
       probeData: {
         streams: [],
-        format: {}
-      }
+        format: {},
+      },
     }
   }
 
@@ -87,7 +87,7 @@ export function useMediaImport() {
           // Создаем полный объект медиафайла с метаданными
           const mediaFile: MediaFile = {
             id: filePath,
-            name: filePath.split('/').pop() ?? 'unknown',
+            name: filePath.split("/").pop() ?? "unknown",
             path: filePath,
             isVideo: metadata.is_video,
             isAudio: metadata.is_audio,
@@ -99,10 +99,10 @@ export function useMediaImport() {
             // Важно: сохраняем probeData для отображения
             probeData: {
               streams: metadata.probe_data?.streams ?? [],
-              format: metadata.probe_data?.format ?? {}
+              format: metadata.probe_data?.format ?? {},
             },
             // Снимаем флаг загрузки метаданных
-            isLoadingMetadata: false
+            isLoadingMetadata: false,
           }
 
           return mediaFile
@@ -113,17 +113,17 @@ export function useMediaImport() {
         // Даже при ошибке обновляем файл, чтобы снять флаг загрузки метаданных
         const errorMediaFile: MediaFile = {
           id: filePath,
-          name: filePath.split('/').pop() ?? 'unknown',
+          name: filePath.split("/").pop() ?? "unknown",
           path: filePath,
           isVideo: false,
           isAudio: false,
           isImage: false,
           probeData: {
             streams: [],
-            format: {}
+            format: {},
           },
           // Важно: снимаем флаг загрузки метаданных даже при ошибке
-          isLoadingMetadata: false
+          isLoadingMetadata: false,
         }
 
         // Обновляем файл в медиа-контексте
@@ -136,7 +136,7 @@ export function useMediaImport() {
       // Создаем объект с флагом isLoadingMetadata: false
       const fallbackMediaFile: MediaFile = {
         ...createBasicMediaFile(filePath),
-        isLoadingMetadata: false
+        isLoadingMetadata: false,
       }
 
       // Обновляем файл в медиа-контексте
@@ -148,11 +148,7 @@ export function useMediaImport() {
     // Обрабатываем файлы пакетами с ограничением на количество одновременных запросов
     for (let i = 0; i < filePaths.length; i += CONCURRENT_PROCESSING_LIMIT) {
       const batch = filePaths.slice(i, i + CONCURRENT_PROCESSING_LIMIT)
-      const batchResults = await Promise.all(
-        batch.map((filePath, batchIndex) =>
-          processFile(filePath, i + batchIndex)
-        )
-      )
+      const batchResults = await Promise.all(batch.map((filePath, batchIndex) => processFile(filePath, i + batchIndex)))
 
       // Фильтруем null значения и добавляем результаты в общий массив
       const validResults = batchResults.filter(Boolean) as MediaFile[]
@@ -183,7 +179,7 @@ export function useMediaImport() {
         return {
           success: false,
           message: "Файлы не выбраны",
-          files: []
+          files: [],
         }
       }
 
@@ -198,7 +194,7 @@ export function useMediaImport() {
       return {
         success: true,
         message: `Успешно импортировано ${processedFiles.length} файлов`,
-        files: processedFiles
+        files: processedFiles,
       }
     } catch (error) {
       console.error("Ошибка при импорте файлов:", error)
@@ -207,10 +203,9 @@ export function useMediaImport() {
         success: false,
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         message: `Ошибка при импорте файлов: ${error}`,
-        files: []
+        files: [],
       }
     }
-   
   }, [media, processFilesInBatches])
 
   /**
@@ -229,7 +224,7 @@ export function useMediaImport() {
         return {
           success: false,
           message: "Директория не выбрана",
-          files: []
+          files: [],
         }
       }
 
@@ -244,7 +239,7 @@ export function useMediaImport() {
         return {
           success: false,
           message: "В выбранной директории нет медиафайлов",
-          files: []
+          files: [],
         }
       }
 
@@ -257,7 +252,7 @@ export function useMediaImport() {
       return {
         success: true,
         message: `Успешно импортировано ${processedFiles.length} файлов`,
-        files: processedFiles
+        files: processedFiles,
       }
     } catch (error) {
       console.error("Ошибка при импорте папки:", error)
@@ -266,7 +261,7 @@ export function useMediaImport() {
         success: false,
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         message: `Ошибка при импорте папки: ${error}`,
-        files: []
+        files: [],
       }
     }
   }, [media, processFilesInBatches])
@@ -275,6 +270,6 @@ export function useMediaImport() {
     importFile,
     importFolder,
     isImporting,
-    progress
+    progress,
   }
 }

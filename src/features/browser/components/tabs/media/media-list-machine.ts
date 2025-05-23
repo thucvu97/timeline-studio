@@ -352,10 +352,10 @@ export const mediaListMachine = createMachine({
             // Обновляем отфильтрованные файлы с учетом текущих фильтров
             filteredFiles: ({ context, event }) => {
               // Получаем новые файлы
-              const newFiles = event.files;
+              const newFiles = event.files
 
               // Применяем текущие фильтры
-              let filtered = newFiles;
+              let filtered = newFiles
 
               // Фильтрация по типу
               if (context.filterType !== "all") {
@@ -364,38 +364,41 @@ export const mediaListMachine = createMachine({
                     // Проверяем, загружены ли метаданные
                     if (file.isLoadingMetadata === true) {
                       // Если метаданные еще загружаются, используем базовые свойства файла
-                      if (context.filterType === "video" && file.isVideo) return true;
-                      if (context.filterType === "audio" && file.isAudio) return true;
-                      if (context.filterType === "image" && file.isImage) return true;
-                      return false;
+                      if (context.filterType === "video" && file.isVideo) return true
+                      if (context.filterType === "audio" && file.isAudio) return true
+                      if (context.filterType === "image" && file.isImage) return true
+                      return false
                     }
 
                     // Если метаданные загружены, используем их для более точной фильтрации
-                    if (context.filterType === "video" && (
-                      file.isVideo ||
-                      file.probeData?.streams.some(s => s.codec_type === "video")
-                    )) return true;
+                    if (
+                      context.filterType === "video" &&
+                      (file.isVideo || file.probeData?.streams.some((s) => s.codec_type === "video"))
+                    )
+                      return true
 
-                    if (context.filterType === "audio" && (
-                      file.isAudio ||
-                      file.probeData?.streams.some(s => s.codec_type === "audio")
-                    )) return true;
+                    if (
+                      context.filterType === "audio" &&
+                      (file.isAudio || file.probeData?.streams.some((s) => s.codec_type === "audio"))
+                    )
+                      return true
 
-                    if (context.filterType === "image" && (
-                      file.isImage ||
-                      /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)
-                    )) return true;
+                    if (
+                      context.filterType === "image" &&
+                      (file.isImage || /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name))
+                    )
+                      return true
 
-                    return false;
+                    return false
                   } catch (error) {
-                    console.error("Error filtering file:", file, error);
-                    return false; // Пропускаем файл при ошибке
+                    console.error("Error filtering file:", file, error)
+                    return false // Пропускаем файл при ошибке
                   }
-                });
+                })
               }
 
               // Возвращаем отфильтрованные файлы
-              return filtered;
+              return filtered
             },
           }),
         },
@@ -427,10 +430,10 @@ export const mediaListMachine = createMachine({
             // Обновляем отфильтрованные файлы с учетом текущих фильтров
             filteredFiles: ({ context, event }) => {
               // Получаем новые файлы
-              const newFiles = event.files;
+              const newFiles = event.files
 
               // Применяем текущие фильтры
-              let filtered = newFiles;
+              let filtered = newFiles
 
               // Фильтрация по типу
               if (context.filterType !== "all") {
@@ -439,38 +442,41 @@ export const mediaListMachine = createMachine({
                     // Проверяем, загружены ли метаданные
                     if (file.isLoadingMetadata === true) {
                       // Если метаданные еще загружаются, используем базовые свойства файла
-                      if (context.filterType === "video" && file.isVideo) return true;
-                      if (context.filterType === "audio" && file.isAudio) return true;
-                      if (context.filterType === "image" && file.isImage) return true;
-                      return false;
+                      if (context.filterType === "video" && file.isVideo) return true
+                      if (context.filterType === "audio" && file.isAudio) return true
+                      if (context.filterType === "image" && file.isImage) return true
+                      return false
                     }
 
                     // Если метаданные загружены, используем их для более точной фильтрации
-                    if (context.filterType === "video" && (
-                      file.isVideo ||
-                      file.probeData?.streams.some(s => s.codec_type === "video")
-                    )) return true;
+                    if (
+                      context.filterType === "video" &&
+                      (file.isVideo || file.probeData?.streams.some((s) => s.codec_type === "video"))
+                    )
+                      return true
 
-                    if (context.filterType === "audio" && (
-                      file.isAudio ||
-                      file.probeData?.streams.some(s => s.codec_type === "audio")
-                    )) return true;
+                    if (
+                      context.filterType === "audio" &&
+                      (file.isAudio || file.probeData?.streams.some((s) => s.codec_type === "audio"))
+                    )
+                      return true
 
-                    if (context.filterType === "image" && (
-                      file.isImage ||
-                      /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)
-                    )) return true;
+                    if (
+                      context.filterType === "image" &&
+                      (file.isImage || /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name))
+                    )
+                      return true
 
-                    return false;
+                    return false
                   } catch (error) {
-                    console.error("Error filtering file:", file, error);
-                    return false; // Пропускаем файл при ошибке
+                    console.error("Error filtering file:", file, error)
+                    return false // Пропускаем файл при ошибке
                   }
-                });
+                })
               }
 
               // Возвращаем отфильтрованные файлы
-              return filtered;
+              return filtered
             },
             // Сбрасываем ошибку
             error: null,

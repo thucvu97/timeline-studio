@@ -174,7 +174,6 @@ export const VideoPreview = memo(function VideoPreview({
         URL.revokeObjectURL(videoUrl)
       }
     }
-   
   }, [file.path, loadVideoFile, videoUrl])
 
   // Оптимизируем вычисления с помощью useMemo
@@ -253,24 +252,29 @@ export const VideoPreview = memo(function VideoPreview({
                     lastUpdateTimeRef.current = now
                     console.log(
                       "Time update for stream:",
-                      typeof stream.index !== 'undefined' ? stream.index : key,
+                      typeof stream.index !== "undefined" ? stream.index : key,
                       "current time:",
                       e.currentTarget.currentTime.toFixed(2),
                     )
                   }
                 }}
                 onError={(e) => {
-                  console.log("Video error for stream:", typeof stream.index !== 'undefined' ? stream.index : key, e)
+                  console.log("Video error for stream:", typeof stream.index !== "undefined" ? stream.index : key, e)
 
                   // Получаем элемент видео
                   const video = e.currentTarget as HTMLVideoElement
 
                   // Проверяем, какая ошибка произошла
                   if (video.error) {
-                    console.error("[VideoPreview] Ошибка загрузки видео:",
-                      video.error.code, video.error.message,
-                      "для файла:", file.name,
-                      "URL:", video.src)
+                    console.error(
+                      "[VideoPreview] Ошибка загрузки видео:",
+                      video.error.code,
+                      video.error.message,
+                      "для файла:",
+                      file.name,
+                      "URL:",
+                      video.src,
+                    )
                   }
                 }}
                 onKeyDown={(e) => {
@@ -280,7 +284,7 @@ export const VideoPreview = memo(function VideoPreview({
                   }
                 }}
                 onLoadedData={() => {
-                  console.log("Video loaded for stream:", typeof stream.index !== 'undefined' ? stream.index : key)
+                  console.log("Video loaded for stream:", typeof stream.index !== "undefined" ? stream.index : key)
                   setIsLoaded(true)
 
                   // Проверяем, есть ли у файла probeData и streams
@@ -291,7 +295,7 @@ export const VideoPreview = memo(function VideoPreview({
               />
 
               {/* Продолжительность видео */}
-              {!(isMultipleStreams && typeof stream.index !== 'undefined' && stream.index === 0) && (
+              {!(isMultipleStreams && typeof stream.index !== "undefined" && stream.index === 0) && (
                 <div
                   className={cn(
                     "pointer-events-none absolute rounded-xs bg-black/50 text-xs leading-[16px] text-white",
@@ -306,7 +310,7 @@ export const VideoPreview = memo(function VideoPreview({
               )}
 
               {/* Иконка видео */}
-              {!(isMultipleStreams && typeof stream.index !== 'undefined' && stream.index !== 0) && (
+              {!(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
                 <div
                   className={cn(
                     "pointer-events-none absolute rounded-xs bg-black/50 p-0.5 text-white",
@@ -318,10 +322,12 @@ export const VideoPreview = memo(function VideoPreview({
               )}
 
               {/* Кнопка избранного */}
-              {!(isMultipleStreams && typeof stream.index !== 'undefined' && stream.index !== 0) && <FavoriteButton file={file} size={size} type="media" />}
+              {!(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
+                <FavoriteButton file={file} size={size} type="media" />
+              )}
 
               {/* Разрешение видео */}
-              {isLoaded && !(isMultipleStreams && typeof stream.index !== 'undefined' && stream.index !== 0) && (
+              {isLoaded && !(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
                 <div
                   className={`pointer-events-none absolute ${
                     size > 100 ? "left-[28px]" : "left-[22px]"
@@ -337,7 +343,7 @@ export const VideoPreview = memo(function VideoPreview({
               )}
 
               {/* Имя файла */}
-              {showFileName && !(isMultipleStreams && typeof stream.index !== 'undefined' && stream.index !== 0) && (
+              {showFileName && !(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
                 <div
                   className={`absolute font-medium ${size > 100 ? "top-1" : "top-0.5"} ${
                     size > 100 ? "left-1" : "left-0.5"
@@ -355,7 +361,7 @@ export const VideoPreview = memo(function VideoPreview({
               {/* Кнопка добавления */}
               {onAddMedia &&
                 isLoaded &&
-                typeof stream.index !== 'undefined' &&
+                typeof stream.index !== "undefined" &&
                 stream.index === (file.probeData?.streams.filter((s) => s.codec_type === "video").length ?? 0) - 1 && (
                   <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />
                 )}

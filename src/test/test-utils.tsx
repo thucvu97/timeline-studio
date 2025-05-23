@@ -4,6 +4,7 @@ import { RenderOptions, render } from "@testing-library/react"
 
 import { ThemeProvider } from "@/components/theme/theme-context"
 import { AppSettingsProvider } from "@/features/app-state/app-settings-provider"
+import { ResourcesProvider } from "@/features/browser/resources"
 import { ProjectSettingsProvider } from "@/features/modals/features/project-settings/project-settings-provider"
 import { UserSettingsProvider } from "@/features/modals/features/user-settings/user-settings-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
@@ -19,7 +20,11 @@ export const AllProviders = ({ children }: { children: ReactNode }) => {
           <ProjectSettingsProvider>
             <UserSettingsProvider>
               <PlayerProvider>
-                <ModalProvider>{children}</ModalProvider>
+                <ModalProvider>
+                  <ResourcesProvider>
+                    {children}
+                  </ResourcesProvider>
+                </ModalProvider>
               </PlayerProvider>
             </UserSettingsProvider>
           </ProjectSettingsProvider>

@@ -181,7 +181,9 @@ export function TopBar() {
                 autoFocus
               />
             ) : (
-              <span className="block truncate pl-[1px] hover:border hover:border-teal hover:pl-[0px]">{projectName}</span>
+              <span className="block truncate pl-[1px] hover:border hover:border-teal hover:pl-[0px]">
+                {projectName}
+              </span>
             )}
           </div>
         </div>
