@@ -154,7 +154,6 @@ export function TemplateList() {
     const screenCount = template.screens || 1
 
     // Создаем массив для группы, если его еще нет
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!acc[screenCount]) {
       acc[screenCount] = []
     }

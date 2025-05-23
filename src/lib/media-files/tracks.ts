@@ -55,7 +55,6 @@ export const createTracksFromFiles = (files: MediaFile[], existingTracks: Track[
     const startTime = file.startTime ?? Date.now() / 1000
     const date = new Date(startTime * 1000).toISOString().split("T")[0]
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!acc[date]) {
       acc[date] = []
     }
@@ -80,8 +79,7 @@ export const createTracksFromFiles = (files: MediaFile[], existingTracks: Track[
       const startTime = track.videos[0].startTime ?? Date.now() / 1000
       const date = new Date(startTime * 1000).toISOString().split("T")[0]
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!acc[date]) {
+        if (!acc[date]) {
         acc[date] = { sector: null, tracks: [] }
       }
 
@@ -97,7 +95,6 @@ export const createTracksFromFiles = (files: MediaFile[], existingTracks: Track[
 
     // Получаем существующие треки для этого дня или создаем новый сектор
     // Ищем существующий сектор по дате или по имени, содержащему дату
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     let existingSector = existingSectorsByDay[date]?.sector
 
     // Если сектор не найден по дате, ищем по имени в существующих секторах
@@ -119,7 +116,6 @@ export const createTracksFromFiles = (files: MediaFile[], existingTracks: Track[
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const existingDayTracks = existingSectorsByDay[date]?.tracks || []
 
     console.log(`Existing sector for date ${date}: ${existingSector ? "yes" : "no"}`)

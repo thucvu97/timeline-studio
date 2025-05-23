@@ -281,7 +281,7 @@ describe("MusicList", () => {
     // Находим кнопку добавления в избранное
     // Это может быть сложно без aria-label, но можно попробовать найти по классу или содержимому
     const favoriteButtons = allButtons.filter(button =>
-      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+       
       button.closest("div")?.className.includes("favorite") ||
       button.innerHTML.includes("heart") ||
       button.innerHTML.includes("star")

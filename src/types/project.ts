@@ -234,6 +234,16 @@ export const RESOLUTIONS_21_9: ResolutionOption[] = [
   },
 ]
 
+export const COMMON_RESOLUTIONS: ResolutionOption[] = RESOLUTIONS_16_9.map((res) => ({
+  width: res.width,
+  height: res.height,
+  label: res.label, // Используем полную метку разрешения
+  value: res.value,
+}))
+
+export const COMMON_FRAMERATES = FRAME_RATES.map((fr) => Number.parseInt(fr.value)).filter((fr) => !Number.isNaN(fr))
+
+
 // Функция для получения разрешений для конкретного соотношения сторон
 export function getResolutionsForAspectRatio(aspectRatioLabel: string): ResolutionOption[] {
   switch (aspectRatioLabel) {

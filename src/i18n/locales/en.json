@@ -272,7 +272,13 @@
       "retryRequest": "Retry request",
       "retry": "Retry",
       "currentResolution": "Current resolution: {{width}}x{{height}}",
-      "requestedResolution": "Requested: {{resolution}}"
+      "requestedResolution": "Requested: {{resolution}}",
+      "errorGettingCapabilities": "Failed to get camera capabilities. Using default settings.",
+      "errorRequestingStream": "Failed to get stream with requested resolution. Trying to get stream with default settings.",
+      "errorRequestingStreamFallback": "Failed to get camera stream. Please check your camera settings and permissions.",
+      "videoElementError": "Error initializing video element. Please try another device or resolution.",
+      "cameraInitError": "Error initializing camera. Please check your camera settings and permissions.",
+      "errorGettingDevices": "Failed to get device list"
     },
     "cameraPreview": {
       "title": "Recording Preview",

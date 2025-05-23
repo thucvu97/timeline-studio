@@ -266,8 +266,7 @@ export function MediaList() {
             })
           : noDateText
 
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (!groups[date]) {
+            if (!groups[date]) {
           groups[date] = []
         }
         groups[date].push(file)

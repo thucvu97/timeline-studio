@@ -26,7 +26,6 @@ export function processAudioFiles(
   const audioFilesByDay = sortedAudioFiles.reduce<Record<string, MediaFile[]>>((acc, file) => {
     const startTime = file.startTime ?? Date.now() / 1000
     const date = new Date(startTime * 1000).toISOString().split("T")[0]
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!acc[date]) {
       acc[date] = []
     }
@@ -38,7 +37,6 @@ export function processAudioFiles(
   for (const [date, dayFiles] of Object.entries(audioFilesByDay)) {
     // Получаем существующие треки для этого дня или создаем новый сектор
     // Ищем существующий сектор по дате или по имени, содержащему дату
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     let existingSector = existingSectorsByDay[date]?.sector
 
     // Если сектор не найден по дате, ищем по имени в существующих секторах
@@ -60,7 +58,6 @@ export function processAudioFiles(
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const existingDayTracks = existingSectorsByDay[date]?.tracks ?? []
 
     // Форматируем дату для отображения с помощью универсального метода

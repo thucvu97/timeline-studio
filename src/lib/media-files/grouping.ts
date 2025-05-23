@@ -23,7 +23,6 @@ export const groupFilesByDate = (media: MediaFile[]): DateGroup[] => {
         })
       : noDateText
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!acc[date]) {
       acc[date] = []
     }
@@ -52,8 +51,7 @@ export const getGroupedFiles = (files: MediaFile[]): Record<string, MediaFile[]>
     const match = /(.+?)(?:_(\d+))?\.([^.]+)$/.exec(file.name)
     if (match) {
       const baseName = match[1]
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!groups[baseName]) {
+        if (!groups[baseName]) {
         groups[baseName] = []
       }
       groups[baseName].push(file)

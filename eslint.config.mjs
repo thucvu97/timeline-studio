@@ -172,6 +172,21 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/no-unsafe-argument": "off",
       // Отключаем правило unbound-method, которое вызывает проблемы в тестах
       "@typescript-eslint/unbound-method": "off",
+      // Отключаем правило prefer-nullish-coalescing, которое часто вызывает ложные срабатывания
+      "@typescript-eslint/prefer-nullish-coalescing": "off",
+      // Отключаем правило no-unnecessary-condition, которое часто вызывает ложные срабатывания
+      "@typescript-eslint/no-unnecessary-condition": "off",
+      // Отключаем правило no-misused-promises, которое часто вызывает ложные срабатывания
+      "@typescript-eslint/no-misused-promises": "off",
+      // Устанавливаем максимальную длину строки в 120 символов
+      "max-len": ["warn", {
+        "code": 120,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
+        "ignoreRegExpLiterals": true,
+        "ignoreComments": true
+      }],
     },
     languageOptions: {
       parserOptions: {
