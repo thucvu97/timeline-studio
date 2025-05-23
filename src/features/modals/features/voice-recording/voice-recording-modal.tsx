@@ -17,16 +17,13 @@ import { AudioPermissionRequest } from "./components/audio-permission-request"
 import { useAudioDevices } from "./hooks/use-audio-devices"
 import { useAudioPermissions } from "./hooks/use-audio-permissions"
 import { useVoiceRecording } from "./hooks/use-voice-recording"
+import { useModal } from "../../services"
 
-interface VoiceRecordModalProps {
-  isOpen: boolean
-  onClose: () => void
-}
-
-export function VoiceRecordModal({ isOpen, onClose }: VoiceRecordModalProps) {
+export function VoiceRecordModal() {
   const { t } = useTranslation()
   const [savePath, setSavePath] = useState<string>("")
   const [isMuted] = useState<boolean>(true)
+  const { isOpen, closeModal } = useModal()
 
   // Используем хук для управления разрешениями на доступ к микрофону
   const { permissionStatus, errorMessage, requestPermissions, setErrorMessage } = useAudioPermissions()
@@ -53,13 +50,13 @@ export function VoiceRecordModal({ isOpen, onClose }: VoiceRecordModalProps) {
         // a.click()
 
         // Закрываем диалог после успешного сохранения
-        onClose()
+        closeModal()
       } catch (error) {
         console.error("Ошибка при сохранении аудиозаписи:", error)
         setErrorMessage(t("dialogs.voiceRecord.saveError", "Ошибка при сохранении аудиозаписи"))
       }
     },
-    [onClose, setErrorMessage, t],
+    [closeModal, setErrorMessage, t],
   )
 
   // Используем хук для управления записью голоса
