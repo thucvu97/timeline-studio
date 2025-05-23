@@ -72,7 +72,7 @@ export function TopBar() {
   }
 
   return (
-    <div className="relative flex w-full items-center bg-gray-200 px-1 py-0 dark:bg-[#3C3C3C]">
+    <div className="relative flex w-full items-center bg-gray-200 px-1 py-0 dark:bg-[#343434]">
       {/* Используем grid для равномерного распределения групп */}
       <div className="grid w-full grid-cols-5 items-center">
         {/* Группа 1: Переключатель браузера и макет */}
