@@ -16,6 +16,7 @@ import {
   useRecording,
 } from "./hooks"
 import { useModal } from "../../services"
+import { Button } from "@/components/ui/button"
 
 /**
  * Модальное окно для захвата видео с камеры
@@ -23,7 +24,7 @@ import { useModal } from "../../services"
 export function CameraCaptureModal() {
   const { t } = useTranslation()
 
-  const { isOpen } = useModal()
+  const { isOpen, closeModal } = useModal()
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const [errorMessage, setErrorMessage] = useState<string>("")
@@ -210,6 +211,15 @@ export function CameraCaptureModal() {
             />
           </div>
         </div>
+        <div className="flex justify-end border-t border-[#333] p-4">
+          <Button
+            className="bg-[#0CC] px-6 font-medium text-black hover:bg-[#0AA]"
+            onClick={closeModal}
+          >
+            {t("common.ok")}
+          </Button>
+        </div>
+
       </>
   )
 }
