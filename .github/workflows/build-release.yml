@@ -22,18 +22,15 @@ jobs:
       version: ${{ github.event.inputs.version }}
 
     steps:
-      - name: Create Release
+      - name: Create or Get Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/github-script@v6
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          release_name: Timeline Studio v${{ github.event.inputs.version }}
-          draft: false
-          prerelease: ${{ github.event.inputs.prerelease }}
-          body: |
-            Timeline Studio v${{ github.event.inputs.version }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tag = `v${{ github.event.inputs.version }}`;
+            const releaseName = `Timeline Studio v${{ github.event.inputs.version }}`;
+            const releaseBody = `Timeline Studio v${{ github.event.inputs.version }}
 
             ## Загрузки
 
@@ -47,7 +44,41 @@ jobs:
 
             - Новые возможности
             - Исправления ошибок
-            - Улучшения производительности
+            - Улучшения производительности`;
+
+            try {
+              // Попробуем получить существующий релиз
+              const existingRelease = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: tag
+              });
+
+              console.log(`Release ${tag} already exists, using existing release`);
+              core.setOutput('id', existingRelease.data.id);
+              core.setOutput('upload_url', existingRelease.data.upload_url);
+              return existingRelease.data;
+            } catch (error) {
+              if (error.status === 404) {
+                // Релиз не существует, создаем новый
+                console.log(`Creating new release ${tag}`);
+                const newRelease = await github.rest.repos.createRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tag_name: tag,
+                  name: releaseName,
+                  body: releaseBody,
+                  draft: false,
+                  prerelease: ${{ github.event.inputs.prerelease }}
+                });
+
+                core.setOutput('id', newRelease.data.id);
+                core.setOutput('upload_url', newRelease.data.upload_url);
+                return newRelease.data;
+              } else {
+                throw error;
+              }
+            }
 
   build-tauri:
     needs: create-release
