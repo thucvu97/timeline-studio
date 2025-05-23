@@ -7,16 +7,14 @@ import { useTranslation } from "react-i18next"
  */
 export function useAudioPermissions() {
   const { t } = useTranslation()
-  const [permissionStatus, setPermissionStatus] = useState<"pending" | "granted" | "denied" | "error">(
-    "pending"
-  )
+  const [permissionStatus, setPermissionStatus] = useState<"pending" | "granted" | "denied" | "error">("pending")
   const [errorMessage, setErrorMessage] = useState<string>("")
 
   // Проверяем текущий статус разрешений
   const checkPermissions = useCallback(async () => {
     try {
       // В тестовой среде просто возвращаем true
-      if (process.env.NODE_ENV === 'test') {
+      if (process.env.NODE_ENV === "test") {
         return true
       }
 
@@ -30,7 +28,7 @@ export function useAudioPermissions() {
         } else if (result.state === "denied") {
           setPermissionStatus("denied")
           setErrorMessage(
-            t("dialogs.voiceRecord.permissionsDenied", "Доступ к микрофону запрещен. Проверьте настройки браузера.")
+            t("dialogs.voiceRecord.permissionsDenied", "Доступ к микрофону запрещен. Проверьте настройки браузера."),
           )
           return false
         } else {
@@ -46,7 +44,7 @@ export function useAudioPermissions() {
       console.error("Ошибка при проверке разрешений:", error)
       setPermissionStatus("error")
       setErrorMessage(
-        t("dialogs.voiceRecord.permissionCheckError", "Не удалось проверить разрешения. Попробуйте еще раз.")
+        t("dialogs.voiceRecord.permissionCheckError", "Не удалось проверить разрешения. Попробуйте еще раз."),
       )
       return false
     }
@@ -59,7 +57,7 @@ export function useAudioPermissions() {
       setErrorMessage("")
 
       // В тестовой среде имитируем успешный запрос разрешений
-      if (process.env.NODE_ENV === 'test') {
+      if (process.env.NODE_ENV === "test") {
         setPermissionStatus("granted")
         return true
       }
@@ -82,23 +80,23 @@ export function useAudioPermissions() {
         if (error.name === "NotFoundError") {
           setPermissionStatus("error")
           setErrorMessage(
-            t("dialogs.voiceRecord.deviceNotFound", "Микрофон не найден. Подключите микрофон и попробуйте снова.")
+            t("dialogs.voiceRecord.deviceNotFound", "Микрофон не найден. Подключите микрофон и попробуйте снова."),
           )
         } else if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
           setPermissionStatus("denied")
           setErrorMessage(
-            t("dialogs.voiceRecord.permissionsDenied", "Доступ к микрофону запрещен. Проверьте настройки браузера.")
+            t("dialogs.voiceRecord.permissionsDenied", "Доступ к микрофону запрещен. Проверьте настройки браузера."),
           )
         } else {
           setPermissionStatus("error")
           setErrorMessage(
-            t("dialogs.voiceRecord.permissionError", "Не удалось получить доступ к микрофону. Проверьте настройки.")
+            t("dialogs.voiceRecord.permissionError", "Не удалось получить доступ к микрофону. Проверьте настройки."),
           )
         }
       } else {
         setPermissionStatus("error")
         setErrorMessage(
-          t("dialogs.voiceRecord.unknownError", "Произошла неизвестная ошибка при запросе доступа к микрофону.")
+          t("dialogs.voiceRecord.unknownError", "Произошла неизвестная ошибка при запросе доступа к микрофону."),
         )
       }
 

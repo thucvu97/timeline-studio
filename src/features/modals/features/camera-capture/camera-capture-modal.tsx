@@ -4,19 +4,8 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 
-import {
-  CameraPermissionRequest,
-  CameraPreview,
-  CameraSettings,
-  RecordingControls,
-} from "./components"
-import {
-  useCameraPermissions,
-  useCameraStream,
-  useDeviceCapabilities,
-  useDevices,
-  useRecording,
-} from "./hooks"
+import { CameraPermissionRequest, CameraPreview, CameraSettings, RecordingControls } from "./components"
+import { useCameraPermissions, useCameraStream, useDeviceCapabilities, useDevices, useRecording } from "./hooks"
 import { useModal } from "../../services"
 
 /**
@@ -53,8 +42,7 @@ export function CameraCaptureModal() {
   } = useDevices(getDeviceCapabilities, setErrorMessage)
 
   // Запрашиваем разрешения на доступ к камере и микрофону
-  const { permissionStatus, errorMessage: permissionError, requestPermissions } =
-    useCameraPermissions(getDevices)
+  const { permissionStatus, errorMessage: permissionError, requestPermissions } = useCameraPermissions(getDevices)
 
   // Управляем потоком с камеры
   const { isDeviceReady, setIsDeviceReady, initCamera, streamRef } = useCameraStream(
@@ -64,25 +52,23 @@ export function CameraCaptureModal() {
     selectedResolution,
     frameRate,
     availableResolutions,
-    setErrorMessage
+    setErrorMessage,
   )
 
   // Обработка записанного видео
   const handleVideoRecorded = async (blob: Blob, fileName: string) => {
     // try {
-      // Импортируем записанное видео
+    // Импортируем записанное видео
     //   await importMedia([
     //     {
     //       file: new File([blob], fileName, { type: "video/webm" }),
     //       type: "video",
     //     },
     //   ])
-
     //   toast({
     //     title: t("dialogs.cameraCapture.recordingSuccess", "Запись успешно сохранена"),
     //     description: fileName,
     //   })
-
     //   // Закрываем модальное окно
     //   closeModal()
     // } catch (error) {
@@ -159,68 +145,64 @@ export function CameraCaptureModal() {
 
   return (
     <>
-        {/* Запрос разрешений */}
-        <CameraPermissionRequest
-          permissionStatus={permissionStatus}
-          errorMessage={permissionError || errorMessage}
-          onRequestPermissions={requestPermissions}
-        />
+      {/* Запрос разрешений */}
+      <CameraPermissionRequest
+        permissionStatus={permissionStatus}
+        errorMessage={permissionError || errorMessage}
+        onRequestPermissions={requestPermissions}
+      />
 
-        <div className="flex flex-row gap-4">
-          {/* Левая колонка - видео */}
-          <div className="flex flex-col w-3/5">
-            {/* Предпросмотр видео */}
-            <CameraPreview
-              videoRef={videoRef}
-              isDeviceReady={isDeviceReady}
-              showCountdown={showCountdown}
-              countdown={countdown}
-            />
+      <div className="flex flex-row gap-4">
+        {/* Левая колонка - видео */}
+        <div className="flex flex-col w-3/5">
+          {/* Предпросмотр видео */}
+          <CameraPreview
+            videoRef={videoRef}
+            isDeviceReady={isDeviceReady}
+            showCountdown={showCountdown}
+            countdown={countdown}
+          />
 
-            {/* Управление записью */}
-            <RecordingControls
-              isRecording={isRecording}
-              recordingTime={recordingTime}
-              isDeviceReady={isDeviceReady}
-              onStartRecording={startCountdown}
-              onStopRecording={stopRecording}
-              formatRecordingTime={formatRecordingTime}
-            />
-          </div>
-
-          {/* Правая колонка - настройки */}
-          <div className="flex flex-col w-2/5">
-            {/* Настройки камеры */}
-            <CameraSettings
-              devices={devices}
-              selectedDevice={selectedDevice}
-              onDeviceChange={handleDeviceChange}
-              audioDevices={audioDevices}
-              selectedAudioDevice={selectedAudioDevice}
-              onAudioDeviceChange={handleAudioDeviceChange}
-              availableResolutions={availableResolutions}
-              selectedResolution={selectedResolution}
-              onResolutionChange={handleResolutionChange}
-              supportedResolutions={supportedResolutions}
-              frameRate={frameRate}
-              onFrameRateChange={handleFrameRateChange}
-              supportedFrameRates={supportedFrameRates}
-              countdown={countdown}
-              onCountdownChange={handleCountdownChange}
-              isRecording={isRecording}
-              isLoadingCapabilities={isLoadingCapabilities}
-            />
-          </div>
-        </div>
-        <div className="flex justify-end border-t border-[#333] p-4">
-          <Button
-            className="bg-[#0CC] px-6 font-medium text-black hover:bg-[#0AA]"
-            onClick={closeModal}
-          >
-            {t("common.ok")}
-          </Button>
+          {/* Управление записью */}
+          <RecordingControls
+            isRecording={isRecording}
+            recordingTime={recordingTime}
+            isDeviceReady={isDeviceReady}
+            onStartRecording={startCountdown}
+            onStopRecording={stopRecording}
+            formatRecordingTime={formatRecordingTime}
+          />
         </div>
 
-      </>
+        {/* Правая колонка - настройки */}
+        <div className="flex flex-col w-2/5">
+          {/* Настройки камеры */}
+          <CameraSettings
+            devices={devices}
+            selectedDevice={selectedDevice}
+            onDeviceChange={handleDeviceChange}
+            audioDevices={audioDevices}
+            selectedAudioDevice={selectedAudioDevice}
+            onAudioDeviceChange={handleAudioDeviceChange}
+            availableResolutions={availableResolutions}
+            selectedResolution={selectedResolution}
+            onResolutionChange={handleResolutionChange}
+            supportedResolutions={supportedResolutions}
+            frameRate={frameRate}
+            onFrameRateChange={handleFrameRateChange}
+            supportedFrameRates={supportedFrameRates}
+            countdown={countdown}
+            onCountdownChange={handleCountdownChange}
+            isRecording={isRecording}
+            isLoadingCapabilities={isLoadingCapabilities}
+          />
+        </div>
+      </div>
+      <div className="flex justify-end border-t border-[#333] p-4">
+        <Button className="bg-[#0CC] px-6 font-medium text-black hover:bg-[#0AA]" onClick={closeModal}>
+          {t("common.ok")}
+        </Button>
+      </div>
+    </>
   )
 }

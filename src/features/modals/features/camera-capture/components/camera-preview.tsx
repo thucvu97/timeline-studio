@@ -12,12 +12,7 @@ interface CameraPreviewProps {
 /**
  * Компонент для отображения предпросмотра видео с камеры
  */
-export function CameraPreview({
-  videoRef,
-  isDeviceReady,
-  showCountdown,
-  countdown,
-}: CameraPreviewProps) {
+export function CameraPreview({ videoRef, isDeviceReady, showCountdown, countdown }: CameraPreviewProps) {
   const { t } = useTranslation()
 
   return (

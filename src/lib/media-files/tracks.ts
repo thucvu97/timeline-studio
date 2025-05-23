@@ -79,7 +79,7 @@ export const createTracksFromFiles = (files: MediaFile[], existingTracks: Track[
       const startTime = track.videos[0].startTime ?? Date.now() / 1000
       const date = new Date(startTime * 1000).toISOString().split("T")[0]
 
-        if (!acc[date]) {
+      if (!acc[date]) {
         acc[date] = { sector: null, tracks: [] }
       }
 

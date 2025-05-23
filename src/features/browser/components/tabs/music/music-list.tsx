@@ -71,7 +71,7 @@ export function MusicList() {
       // Получаем значение для группировки (artist, genre, album) или "Неизвестно"
       const key = file.probeData?.format.tags?.[groupBy] ?? unknownLabel
       // Создаем массив для группы, если его еще нет
-        if (!acc[key]) {
+      if (!acc[key]) {
         acc[key] = []
       }
       // Добавляем файл в соответствующую группу

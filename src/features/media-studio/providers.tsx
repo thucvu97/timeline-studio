@@ -11,6 +11,7 @@ import { AppSettingsProvider } from "../app-state/app-settings-provider"
 import { PreviewSizeProvider } from "../browser/components/preview/preview-size-provider"
 import { TemplateListProvider } from "../browser/components/tabs/templates/template-list-provider"
 import { MediaProvider } from "../browser/media"
+import { ChatProvider } from "../chat/services/chat-provider"
 import { ProjectSettingsProvider } from "../modals/features/project-settings/project-settings-provider"
 import { UserSettingsProvider } from "../modals/features/user-settings/user-settings-provider"
 import { PlayerProvider } from "../video-player/components/player-provider"
@@ -39,6 +40,7 @@ const AppProvider = composeProviders(
   PreviewSizeProvider,
   TemplateListProvider,
   PlayerProvider,
+  ChatProvider,
 )
 
 export function Providers({ children }: ProvidersProps) {

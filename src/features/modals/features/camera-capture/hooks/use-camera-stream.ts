@@ -22,7 +22,7 @@ export function useCameraStream(
   selectedResolution: string,
   frameRate: number,
   availableResolutions: ResolutionOption[],
-  setErrorMessage: (message: string) => void
+  setErrorMessage: (message: string) => void,
 ): UseCameraStreamResult {
   const { t } = useTranslation()
   const [isDeviceReady, setIsDeviceReady] = useState<boolean>(false)
@@ -54,14 +54,14 @@ export function useCameraStream(
 
         const resolutionMatch = /(\d+)x(\d+)/.exec(selectedResolution)
         if (resolutionMatch && resolutionMatch.length >= 3) {
-          width = parseInt(resolutionMatch[1], 10)
-          height = parseInt(resolutionMatch[2], 10)
+          width = Number.parseInt(resolutionMatch[1], 10)
+          height = Number.parseInt(resolutionMatch[2], 10)
           console.log(`Извлечено разрешение: ${width}x${height}`)
         } else {
           console.warn("Не удалось извлечь разрешение из строки:", selectedResolution)
 
           // Ищем разрешение в доступных разрешениях
-          const resolution = availableResolutions.find(r => r.value === selectedResolution)
+          const resolution = availableResolutions.find((r) => r.value === selectedResolution)
           if (resolution) {
             width = resolution.width
             height = resolution.height
@@ -91,9 +91,7 @@ export function useCameraStream(
 
       // Проверяем, что разрешение имеет разумные значения
       if (width < 640 || height < 480) {
-        console.warn(
-          `Обнаружено слишком низкое разрешение ${width}x${height}, устанавливаем минимальное 640x480`,
-        )
+        console.warn(`Обнаружено слишком низкое разрешение ${width}x${height}, устанавливаем минимальное 640x480`)
         width = 640
         height = 480
       }
@@ -127,8 +125,12 @@ export function useCameraStream(
         }
       } catch (error) {
         console.error("Ошибка при получении потока с запрошенным разрешением:", error)
-        setErrorMessage(t("dialogs.cameraCapture.errorRequestingStream",
-          "Не удалось получить поток с запрошенным разрешением. Пробуем получить поток с настройками по умолчанию."))
+        setErrorMessage(
+          t(
+            "dialogs.cameraCapture.errorRequestingStream",
+            "Не удалось получить поток с запрошенным разрешением. Пробуем получить поток с настройками по умолчанию.",
+          ),
+        )
 
         // Пробуем получить поток без указания разрешения
         console.log("Пробуем получить поток без указания разрешения")
@@ -145,8 +147,12 @@ export function useCameraStream(
           streamRef.current = stream
         } catch (fallbackError) {
           console.error("Ошибка при получении потока с резервными настройками:", fallbackError)
-          setErrorMessage(t("dialogs.cameraCapture.errorRequestingStreamFallback",
-            "Не удалось получить поток с камеры. Пожалуйста, проверьте настройки камеры и разрешения."))
+          setErrorMessage(
+            t(
+              "dialogs.cameraCapture.errorRequestingStreamFallback",
+              "Не удалось получить поток с камеры. Пожалуйста, проверьте настройки камеры и разрешения.",
+            ),
+          )
           setIsDeviceReady(false)
           return
         }
@@ -175,8 +181,12 @@ export function useCameraStream(
           // Добавляем обработчик ошибок
           video.onerror = (e) => {
             console.error("Ошибка видео элемента:", e)
-            setErrorMessage(t("dialogs.cameraCapture.videoElementError",
-              "Ошибка при инициализации видео элемента. Пожалуйста, попробуйте другое устройство или разрешение."))
+            setErrorMessage(
+              t(
+                "dialogs.cameraCapture.videoElementError",
+                "Ошибка при инициализации видео элемента. Пожалуйста, попробуйте другое устройство или разрешение.",
+              ),
+            )
             setIsDeviceReady(false)
           }
         } else {
@@ -189,8 +199,12 @@ export function useCameraStream(
       }
     } catch (error) {
       console.error("Ошибка при инициализации камеры:", error)
-      setErrorMessage(t("dialogs.cameraCapture.cameraInitError",
-        "Ошибка при инициализации камеры. Пожалуйста, проверьте настройки камеры и разрешения."))
+      setErrorMessage(
+        t(
+          "dialogs.cameraCapture.cameraInitError",
+          "Ошибка при инициализации камеры. Пожалуйста, проверьте настройки камеры и разрешения.",
+        ),
+      )
       setIsDeviceReady(false)
     }
   }, [

@@ -25,11 +25,7 @@ export function AudioPermissionRequest({
 
   return (
     <div className="mb-4">
-      {permissionStatus === "pending" && (
-        <div className="text-center text-sm">
-          Запрашиваем разрешения...
-        </div>
-      )}
+      {permissionStatus === "pending" && <div className="text-center text-sm">Запрашиваем разрешения...</div>}
 
       {permissionStatus === "denied" && (
         <div className="rounded-md bg-red-900/50 p-3 text-sm text-red-100">

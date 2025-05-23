@@ -196,6 +196,6 @@ export function useVoiceRecording({
     stopRecording,
     startCountdown,
     initAudio,
-    cleanup
+    cleanup,
   }
 }

@@ -16,14 +16,14 @@ interface UseRecordingResult {
  */
 export function useRecording(
   streamRef: RefObject<MediaStream | null>,
-  initialCountdown: number = 3,
-  onVideoRecorded: (blob: Blob, fileName: string) => void
+  initialCountdown = 3,
+  onVideoRecorded: (blob: Blob, fileName: string) => void,
 ): UseRecordingResult {
   const [isRecording, setIsRecording] = useState<boolean>(false)
   const [recordingTime, setRecordingTime] = useState<number>(0)
   const [showCountdown, setShowCountdown] = useState<boolean>(false)
   const [countdown, setCountdown] = useState<number>(initialCountdown)
-  
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const timerRef = useRef<number | null>(null)

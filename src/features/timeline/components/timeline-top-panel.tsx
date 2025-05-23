@@ -80,7 +80,7 @@ export function TimelineTopPanel() {
               // delete track
               deleteTrack()
             }}
-                    className={cn(ICON_STYLE, !isTrashActive && "pointer-events-none")}
+            className={cn(ICON_STYLE, !isTrashActive && "pointer-events-none")}
             title={t("timeline.toolbar.delete")}
           >
             <Trash2 size={16} />
@@ -91,7 +91,7 @@ export function TimelineTopPanel() {
             onClick={() => {
               cutTrack()
             }}
-                    className={cn(ICON_STYLE, !isCutActive && "pointer-events-none")}
+            className={cn(ICON_STYLE, !isCutActive && "pointer-events-none")}
             title={t("timeline.toolbar.cut")}
           >
             <Scissors size={16} className="rotate-270" />
@@ -102,7 +102,7 @@ export function TimelineTopPanel() {
           <Button
             onClick={() => {
               // Вызываем функцию fitToScreen через родительский компонент
-                        if (isAbleToFitToTracks) {
+              if (isAbleToFitToTracks) {
                 // Получаем контейнер таймлайна
                 const timelineContainer = document.querySelector(".timeline-container")
                 if (timelineContainer) {
@@ -122,7 +122,7 @@ export function TimelineTopPanel() {
             className={cn(
               ICON_STYLE,
               "relative flex items-center justify-center",
-                        !isAbleToFitToTracks && "pointer-events-none",
+              !isAbleToFitToTracks && "pointer-events-none",
             )}
             title={t("timeline.toolbar.fitToScreen")}
           >
@@ -132,7 +132,7 @@ export function TimelineTopPanel() {
             onClick={handleScaleDecrease}
             className={cn(
               "flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-1 border-white bg-gray-800 text-gray-200 hover:bg-[#45444b]",
-                        !isAbleToScaleDown && "pointer-events-none",
+              !isAbleToScaleDown && "pointer-events-none",
             )}
             title={t("timeline.toolbar.zoomOut")}
           >
@@ -143,7 +143,7 @@ export function TimelineTopPanel() {
           <div
             className={cn(
               "relative h-1 w-24 rounded-full border border-white bg-gray-800",
-                        !isAbleToScale && "pointer-events-none opacity-50",
+              !isAbleToScale && "pointer-events-none opacity-50",
             )}
           >
             <div className="absolute top-0 left-0 h-full rounded-full bg-white" style={{ width: `${sliderValue}%` }} />
@@ -162,7 +162,7 @@ export function TimelineTopPanel() {
             onClick={handleScaleIncrease}
             className={cn(
               "flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-1 border-white bg-gray-800 text-gray-200 hover:bg-[#45444b]",
-                        !isAbleToScaleUp && "pointer-events-none opacity-50",
+              !isAbleToScaleUp && "pointer-events-none opacity-50",
             )}
             title={t("timeline.toolbar.zoomIn")}
           >

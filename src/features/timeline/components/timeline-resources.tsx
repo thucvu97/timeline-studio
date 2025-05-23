@@ -11,7 +11,14 @@ export function TimelineResources() {
   const { t, i18n } = useTranslation()
 
   // Полностью отключаем логирование
-  const { effectResources, filterResources, transitionResources, templateResources, musicResources, subtitleResources } = useResources()
+  const {
+    effectResources,
+    filterResources,
+    transitionResources,
+    templateResources,
+    musicResources,
+    subtitleResources,
+  } = useResources()
 
   // Полностью отключаем логирование
 
@@ -97,9 +104,7 @@ export function TimelineResources() {
   return (
     <div className="flex h-full flex-col bg-background text-white">
       <div className="border-b border-[#333] p-1.5">
-        <h3 className="text-xs font-medium">
-          {t("resources.title", "Ресурсы")}
-        </h3>
+        <h3 className="text-xs font-medium">{t("resources.title", "Ресурсы")}</h3>
       </div>
 
       {/* Прокручиваемый контейнер для всех категорий */}

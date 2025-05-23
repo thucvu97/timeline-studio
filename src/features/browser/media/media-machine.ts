@@ -293,7 +293,7 @@ export const mediaMachine = createMachine({
               const currentFavorites = { ...context.favorites }
 
               // Создаем массив, если его еще нет
-                        if (!currentFavorites[itemType]) {
+              if (!currentFavorites[itemType]) {
                 currentFavorites[itemType] = []
               }
 
@@ -316,7 +316,7 @@ export const mediaMachine = createMachine({
               const currentFavorites = { ...context.favorites }
 
               // Если массив существует, удаляем элемент
-                        if (currentFavorites[itemType]) {
+              if (currentFavorites[itemType]) {
                 currentFavorites[itemType] = currentFavorites[itemType].filter((favItem: any) => favItem.id !== item.id)
               }
 
@@ -359,7 +359,7 @@ export const mediaMachine = createMachine({
               const currentFavorites = { ...context.favorites }
 
               // Создаем массив, если его еще нет
-                        if (!currentFavorites[itemType]) {
+              if (!currentFavorites[itemType]) {
                 currentFavorites[itemType] = []
               }
 
@@ -383,7 +383,7 @@ export const mediaMachine = createMachine({
               const currentFavorites = { ...context.favorites }
 
               // Если массив существует, удаляем элемент
-                        if (currentFavorites[itemType]) {
+              if (currentFavorites[itemType]) {
                 currentFavorites[itemType] = currentFavorites[itemType].filter((favItem: any) => favItem.id !== item.id)
               }
 

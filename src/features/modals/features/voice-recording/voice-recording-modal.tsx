@@ -5,13 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { AudioPermissionRequest } from "./components/audio-permission-request"
 import { useAudioDevices } from "./hooks/use-audio-devices"
@@ -30,7 +24,7 @@ export function VoiceRecordModal() {
 
   // Используем хук для управления аудио устройствами
   const { audioDevices, selectedAudioDevice, setSelectedAudioDevice, getDevices } = useAudioDevices({
-    setErrorMessage
+    setErrorMessage,
   })
 
   // Функция для сохранения аудиозаписи (временная заглушка)
@@ -72,12 +66,12 @@ export function VoiceRecordModal() {
     stopRecording,
     startCountdown,
     initAudio,
-    cleanup
+    cleanup,
   } = useVoiceRecording({
     selectedAudioDevice,
     isMuted,
     setErrorMessage,
-    onSaveRecording: saveAudioToServer
+    onSaveRecording: saveAudioToServer,
   })
 
   // Получаем устройства после получения разрешений
@@ -128,15 +122,9 @@ export function VoiceRecordModal() {
 
           {/* Настройки устройств */}
           <div className="mb-8 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-5">
-            <div className="text-sm text-gray-300">
-              {t("dialogs.voiceRecord.device", { defaultValue: "Device" })}:
-            </div>
+            <div className="text-sm text-gray-300">{t("dialogs.voiceRecord.device", { defaultValue: "Device" })}:</div>
             <div className="flex items-center gap-2">
-              <Select
-                value={selectedAudioDevice}
-                onValueChange={setSelectedAudioDevice}
-                disabled={isRecording}
-              >
+              <Select value={selectedAudioDevice} onValueChange={setSelectedAudioDevice} disabled={isRecording}>
                 <SelectTrigger className="w-full border-[#444] bg-[#222] focus:ring-0 focus:ring-offset-0">
                   <SelectValue />
                 </SelectTrigger>
@@ -187,7 +175,7 @@ export function VoiceRecordModal() {
               min="0"
               max="10"
               value={countdown}
-              onChange={(e) => setCountdown(parseInt(e.target.value) || 0)}
+              onChange={(e) => setCountdown(Number.parseInt(e.target.value) || 0)}
               className="w-20 border-[#444] bg-[#222] text-white focus:border-[#666]"
               disabled={isRecording}
             />

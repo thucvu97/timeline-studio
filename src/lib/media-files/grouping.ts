@@ -51,7 +51,7 @@ export const getGroupedFiles = (files: MediaFile[]): Record<string, MediaFile[]>
     const match = /(.+?)(?:_(\d+))?\.([^.]+)$/.exec(file.name)
     if (match) {
       const baseName = match[1]
-        if (!groups[baseName]) {
+      if (!groups[baseName]) {
         groups[baseName] = []
       }
       groups[baseName].push(file)

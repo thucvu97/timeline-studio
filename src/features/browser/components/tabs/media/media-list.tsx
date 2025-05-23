@@ -266,7 +266,7 @@ export function MediaList() {
             })
           : noDateText
 
-            if (!groups[date]) {
+        if (!groups[date]) {
           groups[date] = []
         }
         groups[date].push(file)

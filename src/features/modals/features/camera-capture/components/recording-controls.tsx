@@ -27,8 +27,7 @@ export function RecordingControls({
   return (
     <div className="flex flex-row items-center justify-between px-4 py-3 bg-gray-900 rounded-md">
       <div className="font-mono text-lg font-semibold">
-        {t("dialogs.cameraCapture.recordingTime")}{" "}
-        {formatRecordingTime(recordingTime)}
+        {t("dialogs.cameraCapture.recordingTime")} {formatRecordingTime(recordingTime)}
       </div>
       <div className="flex items-center justify-center">
         {!isRecording ? (

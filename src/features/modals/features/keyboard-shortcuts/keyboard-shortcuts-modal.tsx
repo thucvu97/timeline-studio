@@ -246,7 +246,7 @@ export function KeyboardShortcutsModal() {
       console.log("Key event received:", e.key)
 
       // Проверяем, что мы все еще в режиме прослушивания
-        if (!listeningForKeys || !editingShortcut) {
+      if (!listeningForKeys || !editingShortcut) {
         console.log("Not listening for keys or no editing shortcut")
         return
       }
@@ -326,7 +326,7 @@ export function KeyboardShortcutsModal() {
 
     // Добавляем обработчик для клика, чтобы отменить режим редактирования при клике вне
     const handleGlobalClick = () => {
-        if (listeningForKeys && editingShortcut) {
+      if (listeningForKeys && editingShortcut) {
         console.log("Canceling editing due to click outside")
         setEditingShortcut(null)
         setListeningForKeys(false)

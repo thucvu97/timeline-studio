@@ -55,14 +55,8 @@ export function CameraSettings({
 
   return (
     <div className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-4 h-full">
-      <div className="text-sm text-gray-300">
-        {t("dialogs.cameraCapture.device")}:
-      </div>
-      <Select
-        value={selectedDevice}
-        onValueChange={onDeviceChange}
-        disabled={isRecording || isLoadingCapabilities}
-      >
+      <div className="text-sm text-gray-300">{t("dialogs.cameraCapture.device")}:</div>
+      <Select value={selectedDevice} onValueChange={onDeviceChange} disabled={isRecording || isLoadingCapabilities}>
         <SelectTrigger className="w-full border-[#444] bg-[#222] focus:ring-0 focus:ring-offset-0">
           <SelectValue />
         </SelectTrigger>
@@ -82,9 +76,7 @@ export function CameraSettings({
         </SelectContent>
       </Select>
 
-      <div className="text-sm text-gray-300">
-        {t("dialogs.cameraCapture.audioDevice")}:
-      </div>
+      <div className="text-sm text-gray-300">{t("dialogs.cameraCapture.audioDevice")}:</div>
       <Select
         value={selectedAudioDevice}
         onValueChange={onAudioDeviceChange}
@@ -109,9 +101,7 @@ export function CameraSettings({
         </SelectContent>
       </Select>
 
-      <div className="text-sm text-gray-300">
-        {t("dialogs.cameraCapture.resolution")}:
-      </div>
+      <div className="text-sm text-gray-300">{t("dialogs.cameraCapture.resolution")}:</div>
       <div>
         {isLoadingCapabilities ? (
           <div className="flex items-center text-xs text-gray-400">
@@ -120,15 +110,16 @@ export function CameraSettings({
             </div>
           </div>
         ) : (
-          <Select
-            value={selectedResolution}
-            onValueChange={onResolutionChange}
-            disabled={isRecording}
-          >
+          <Select value={selectedResolution} onValueChange={onResolutionChange} disabled={isRecording}>
             <SelectTrigger className="w-full border-[#444] bg-[#222] focus:ring-0 focus:ring-offset-0">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="max-h-56 w-full overflow-y-auto border-[#444] bg-[#222]" sideOffset={4} position="popper" align="start">
+            <SelectContent
+              className="max-h-56 w-full overflow-y-auto border-[#444] bg-[#222]"
+              sideOffset={4}
+              position="popper"
+              align="start"
+            >
               {availableResolutions.map(
                 (res) =>
                   res.label && (
@@ -154,9 +145,7 @@ export function CameraSettings({
         )}
       </div>
 
-      <div className="text-sm text-gray-300">
-        {t("dialogs.cameraCapture.frameRate")}:
-      </div>
+      <div className="text-sm text-gray-300">{t("dialogs.cameraCapture.frameRate")}:</div>
       <div>
         {isLoadingCapabilities ? (
           <div className="flex items-center text-xs text-gray-400">
@@ -196,9 +185,7 @@ export function CameraSettings({
         )}
       </div>
 
-      <div className="text-sm text-gray-300">
-        {t("dialogs.cameraCapture.countdown")}:
-      </div>
+      <div className="text-sm text-gray-300">{t("dialogs.cameraCapture.countdown")}:</div>
       <div className="flex items-center">
         <Input
           type="number"
@@ -209,9 +196,7 @@ export function CameraSettings({
           className="mr-2 w-20 border-[#444] bg-[#222] text-center"
           disabled={isRecording}
         />
-        <span className="text-sm text-gray-300">
-          {t("dialogs.cameraCapture.seconds")}
-        </span>
+        <span className="text-sm text-gray-300">{t("dialogs.cameraCapture.seconds")}</span>
       </div>
     </div>
   )

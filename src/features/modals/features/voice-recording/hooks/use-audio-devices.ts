@@ -61,6 +61,6 @@ export function useAudioDevices({ setErrorMessage }: UseAudioDevicesProps) {
     audioDevices,
     selectedAudioDevice,
     setSelectedAudioDevice,
-    getDevices
+    getDevices,
   }
 }

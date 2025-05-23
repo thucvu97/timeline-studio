@@ -22,7 +22,7 @@ interface UseDevicesResult {
  */
 export function useDevices(
   getDeviceCapabilities: (deviceId: string) => Promise<void>,
-  setErrorMessage: (message: string) => void
+  setErrorMessage: (message: string) => void,
 ): UseDevicesResult {
   const { t } = useTranslation()
   const [devices, setDevices] = useState<CaptureDevice[]>([])

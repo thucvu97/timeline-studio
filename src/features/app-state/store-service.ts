@@ -67,7 +67,6 @@ export class StoreService {
    * Получить экземпляр сервиса (Singleton)
    */
   public static getInstance(): StoreService {
-     
     if (!StoreService.instance) {
       StoreService.instance = new StoreService()
     }
