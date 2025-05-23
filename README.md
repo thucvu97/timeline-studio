@@ -1,14 +1,12 @@
 # Timeline Studio
 
-Приложение для создания и редактирования видео, построенное на базе Tauri, React и XState.
+Видеоредактор на базе Tauri, React и XState.
 
 [![Build Status](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml)
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue)](https://chatman-media.github.io/timeline-studio/api-docs/)
 [![Website](https://img.shields.io/badge/website-Promo-brightgreen)](https://chatman-media.github.io/timeline-studio/)
 [![API Docs](https://github.com/chatman-media/timeline-studio/actions/workflows/docs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/docs.yml)
-[![Deploy Promo](https://github.com/chatman-media/timeline-studio/actions/workflows/deploy-promo.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/deploy-promo.yml)
-[![Check Status](https://github.com/chatman-media/timeline-studio/actions/workflows/check-all.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/check-all.yml)
 [![Lint CSS](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml)
 [![Lint TypeScript](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
 [![Lint Rust](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml)
@@ -19,13 +17,15 @@
 
 Timeline Studio - это настольное приложение для создания и редактирования видео. Приложение использует архитектуру, основанную на конечных автоматах (XState), для управления сложной логикой состояний.
 
+![Интерфейс таймлайна](/public/screen1.png)
+![Интерфейс таймлайна](/public/screen2.png)
+
 ### Ключевые особенности
 
 - 🎬 Создание и редактирование видеопроектов
 - 🖥️ Кроссплатформенность (Windows, macOS, Linux)
 - 🧠 Управление состоянием с помощью XState
 - 🌐 Поддержка интернационализации (i18n)
-- 🧪 Полное тестовое покрытие с использованием Vitest
 - 🎨 Современный UI с использованием Tailwind CSS
 - 🔍 Строгий контроль качества кода с помощью ESLint, Stylelint и Clippy
 
