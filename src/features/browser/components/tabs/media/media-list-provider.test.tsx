@@ -185,7 +185,7 @@ describe("MediaListProvider", () => {
     })
   })
 
-  it("should not call send with invalid sort criteria", () => {
+  it("should not call send with SORT event when using invalid sort criteria", () => {
     // Очищаем моковый объект перед тестом
     mockSend.mockClear()
 
@@ -203,8 +203,12 @@ describe("MediaListProvider", () => {
       result.current.sort("invalid_criteria")
     })
 
-    // Проверяем, что send не был вызван
-    expect(mockSend).not.toHaveBeenCalled()
+    // Проверяем, что send не был вызван с событием SORT
+    // Другие события, такие как UPDATE_MEDIA_FILES, могут вызываться из useEffect
+    expect(mockSend).not.toHaveBeenCalledWith({
+      type: "SORT",
+      sortBy: "invalid_criteria",
+    })
 
     // Проверяем, что была выведена ошибка
     expect(console.error).toHaveBeenCalledWith("Invalid sort criteria:", "invalid_criteria")
@@ -405,7 +409,7 @@ describe("MediaListProvider", () => {
     })
   })
 
-  it("should not call send when increasing preview size if canIncreaseSize is false", () => {
+  it("should not call send with INCREASE_PREVIEW_SIZE when canIncreaseSize is false", () => {
     // Очищаем моковый объект перед тестом
     mockSend.mockClear()
 
@@ -422,8 +426,11 @@ describe("MediaListProvider", () => {
       result.current.increasePreviewSize()
     })
 
-    // Проверяем, что send не был вызван
-    expect(mockSend).not.toHaveBeenCalled()
+    // Проверяем, что send не был вызван с событием INCREASE_PREVIEW_SIZE
+    // Другие события, такие как UPDATE_MEDIA_FILES, могут вызываться из useEffect
+    expect(mockSend).not.toHaveBeenCalledWith({
+      type: "INCREASE_PREVIEW_SIZE",
+    })
   })
 
   it("should call send with correct parameters when decreasing preview size", () => {

@@ -43,6 +43,10 @@ vi.mock("@tauri-apps/api/core", () => ({
     }
     return Promise.resolve(null)
   }),
+  // Добавляем мок для convertFileSrc
+  convertFileSrc: vi.fn().mockImplementation((path: string) => {
+    return `converted-${path}`
+  }),
 }))
 
 // Мок для react-hotkeys-hook
