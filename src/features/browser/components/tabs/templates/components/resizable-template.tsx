@@ -5,7 +5,6 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 import { usePlayer } from "@/features/video-player/components/player-provider"
 import { MediaFile } from "@/types/media"
 
-import { VideoPanel } from "./templates/common"
 import {
   SplitCustom53Square,
   SplitCustom54,
