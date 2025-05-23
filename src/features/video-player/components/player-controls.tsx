@@ -81,7 +81,7 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
     toggleFullscreen(playerContainer as HTMLElement)
 
     console.log(`[handleFullscreen] ${isFullscreen ? "Выход из" : "Вход в"} полноэкранный режим`)
-  }, [file, isFullscreen])
+  }, [isFullscreen])
 
   // Нормализуем currentTime для отображения, если это Unix timestamp
   const calculatedDisplayTime = useMemo(() => {
@@ -394,7 +394,7 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
             </div>
 
             <Button
-              className={`ml-1 h-8 w-8 ${!file ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+              className="ml-1 h-8 w-8 cursor-pointer"
               variant="ghost"
               size="icon"
               title={

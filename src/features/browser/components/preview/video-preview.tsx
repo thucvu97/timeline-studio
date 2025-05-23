@@ -1,9 +1,10 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
+import { convertFileSrc } from "@tauri-apps/api/core"
+import { readFile } from "@tauri-apps/plugin-fs"
 import { Film } from "lucide-react"
 
 import { formatDuration } from "@/lib/date"
-import { getFileUrl } from "@/lib/file-utils"
 import { cn, formatResolution } from "@/lib/utils"
 import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/lib/video"
 import { FfprobeStream } from "@/types/ffprobe"
@@ -133,6 +134,49 @@ export const VideoPreview = memo(function VideoPreview({
     [isPlaying, hoverTime, file],
   )
 
+  // Состояние для хранения объекта URL
+  const [videoUrl, setVideoUrl] = useState<string>("")
+
+  // Функция для чтения файла и создания объекта URL
+  const loadVideoFile = useCallback(async (path: string) => {
+    try {
+      console.log("[VideoPreview] Чтение файла через readFile:", path)
+      const fileData = await readFile(path)
+      const blob = new Blob([fileData], { type: "video/mp4" })
+      const url = URL.createObjectURL(blob)
+      console.log("[VideoPreview] Создан объект URL:", url)
+      setVideoUrl(url)
+      return url
+    } catch (error) {
+      console.error("[VideoPreview] Ошибка при загрузке видео:", error)
+      // В случае ошибки используем convertFileSrc
+      const assetUrl = convertFileSrc(path)
+      console.log("[VideoPreview] Используем asset URL:", assetUrl)
+      setVideoUrl(assetUrl)
+      return assetUrl
+    }
+  }, [])
+
+  // Эффект для загрузки видео при монтировании компонента
+  useEffect(() => {
+    let isMounted = true
+
+    void loadVideoFile(file.path).then((url) => {
+      if (isMounted) {
+        setVideoUrl(url)
+      }
+    })
+
+    // Очистка объекта URL при размонтировании компонента
+    return () => {
+      isMounted = false
+      if (videoUrl && videoUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(videoUrl)
+      }
+    }
+   
+  }, [file.path, loadVideoFile, videoUrl])
+
   // Оптимизируем вычисления с помощью useMemo
   const videoData = useMemo(() => {
     const videoStreams = file.probeData?.streams.filter((s) => s.codec_type === "video") ?? []
@@ -143,7 +187,7 @@ export const VideoPreview = memo(function VideoPreview({
 
   return (
     <div className={cn("flex h-full w-full items-center justify-center")}>
-      {videoData.videoStreams?.map((stream: FfprobeStream) => {
+      {videoData.videoStreams.map((stream: FfprobeStream) => {
         const key = stream.streamKey ?? `stream-${stream.index}`
         const isMultipleStreams = videoData.isMultipleStreams
         const width = calculateWidth(stream.width ?? 0, stream.height ?? 0, size, parseRotation(stream.rotation))
@@ -181,7 +225,7 @@ export const VideoPreview = memo(function VideoPreview({
                 ref={(el) => {
                   videoRefs.current[key] = el
                 }}
-                src={getFileUrl(file.path)}
+                src={videoUrl || convertFileSrc(file.path)}
                 preload="auto"
                 tabIndex={0}
                 playsInline

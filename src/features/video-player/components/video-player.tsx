@@ -1,8 +1,9 @@
 import React from "react"
 
+import { convertFileSrc } from "@tauri-apps/api/core"
+
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider"
-import { getFileUrl } from "@/lib/file-utils"
 import { MediaFile } from "@/types/media"
 
 import { PlayerControls } from "./player-controls"
@@ -31,6 +32,10 @@ export function VideoPlayer() {
     overflow: "hidden",
   }
 
+  if (!video?.path) {
+    return null
+  }
+
   return (
     <div className="media-player-container relative flex h-full flex-col">
       <div className="relative flex-1 bg-black" style={containerStyle}>
@@ -39,8 +44,8 @@ export function VideoPlayer() {
             <AspectRatio ratio={aspectRatioValue} className="bg-black">
               <div className="relative h-full w-full">
                   <video
-                    key={video?.id ?? "no-video"}
-                    src={video?.path ? getFileUrl(video.path) : ""}
+                    key={video.id || "no-video"}
+                    src={convertFileSrc(video.path)}
                     controls={false}
                     autoPlay={false}
                     loop={false}
@@ -64,7 +69,7 @@ export function VideoPlayer() {
           </div>
         </div>
       </div>
-      <PlayerControls currentTime={0} file={video ?? {} as MediaFile} />
+      <PlayerControls currentTime={0} file={video} />
     </div>
   )
 }

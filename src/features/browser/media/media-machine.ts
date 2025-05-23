@@ -189,11 +189,11 @@ export const mediaMachine = createMachine({
                       lastCheckedAt: Date.now(),
                       probeData,
                       // Важно: сохраняем флаг isIncluded из существующего файла
-                      isIncluded: file.isIncluded !== undefined ? file.isIncluded : false,
+                      isIncluded: !!file.isIncluded,
                       // Обновляем флаг загрузки метаданных
                       // Если в обновленном файле флаг isLoadingMetadata равен false, то устанавливаем его в false
                       // Это гарантирует, что если метаданные были загружены, то флаг будет сброшен
-                      isLoadingMetadata: updateFile.isLoadingMetadata === false ? false : (file.isLoadingMetadata !== undefined ? file.isLoadingMetadata : true)
+                      isLoadingMetadata: updateFile.isLoadingMetadata === false ? false : (file.isLoadingMetadata ?? true)
                     };
                   }
 
@@ -221,7 +221,7 @@ export const mediaMachine = createMachine({
                     isIncluded: false, // По умолчанию файлы не включены в таймлайн
                     probeData, // Сохраняем probeData для отображения
                     // Сохраняем флаг загрузки метаданных (если он есть)
-                    isLoadingMetadata: file.isLoadingMetadata !== undefined ? file.isLoadingMetadata : false
+                    isLoadingMetadata: file.isLoadingMetadata ?? false
                   };
                 });
 

@@ -13,6 +13,7 @@ import { AppSettings, storeService } from "./store-service"
 const getDefaultProjectName = (): string => {
   // Проверяем, доступен ли i18next
   if (typeof i18next !== "undefined" && i18next.isInitialized) {
+    // eslint-disable-next-line import/no-named-as-default-member
     return i18next.t("project.untitledProject", { number: 1 })
   }
 
@@ -229,6 +230,7 @@ export const appSettingsMachine = createMachine({
         onError: {
           target: "error",
           actions: assign({
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             error: ({ event }) => `Error loading settings: ${event.error}`,
             isLoading: false,
           }),

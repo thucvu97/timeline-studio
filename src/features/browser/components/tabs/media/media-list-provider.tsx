@@ -89,7 +89,6 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
 
     // Принудительно обновляем состояние машины при любом изменении статуса загрузки метаданных
     send({ type: "UPDATE_MEDIA_FILES", files: media.allMediaFiles })
-
   }, [
     // Отслеживаем изменения в статусе загрузки метаданных
     media.allMediaFiles.map(file => `${file.path}:${file.isLoadingMetadata}`).join(','),

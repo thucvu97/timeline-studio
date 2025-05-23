@@ -1,0 +1,28 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "fs-capability",
+  "description": "Capability for file system access",
+  "windows": ["main"],
+  "permissions": [
+    "fs:default",
+    "fs:read-all",
+    "fs:write-all",
+    "fs:scope-home-recursive",
+    "fs:scope-picture-recursive",
+    "fs:scope-video-recursive",
+    "fs:scope-audio-recursive",
+    "fs:scope-download-recursive",
+    "fs:scope-document-recursive",
+    "fs:scope-appdata-recursive",
+    "fs:scope-resource-recursive",
+    "fs:scope-temp-recursive",
+    "fs:allow-read-file",
+    "fs:allow-write-file",
+    "fs:allow-read",
+    "fs:allow-write",
+    "fs:allow-open",
+    "fs:allow-exists",
+    "fs:allow-read-dir",
+    "fs:allow-stat"
+  ]
+}

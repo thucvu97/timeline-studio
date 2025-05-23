@@ -6,8 +6,6 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-// Импортируем типы и функции из наших новых модулей
 import { useModal } from "@/features/modals/services/modal-provider"
 
 import { PresetType, createPresets } from "./presets"
@@ -95,7 +93,7 @@ export function KeyboardShortcutsModal() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [listeningForKeys])
 
   // Добавляем обработчик нажатия Escape для отмены редактирования
@@ -116,7 +114,7 @@ export function KeyboardShortcutsModal() {
     return () => {
       document.removeEventListener("keydown", handleEscape)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [listeningForKeys])
 
   // Эффект для инициализации при первом рендере
@@ -250,6 +248,7 @@ export function KeyboardShortcutsModal() {
       console.log("Key event received:", e.key)
 
       // Проверяем, что мы все еще в режиме прослушивания
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (!listeningForKeys || !editingShortcut) {
         console.log("Not listening for keys or no editing shortcut")
         return
@@ -330,6 +329,7 @@ export function KeyboardShortcutsModal() {
 
     // Добавляем обработчик для клика, чтобы отменить режим редактирования при клике вне
     const handleGlobalClick = () => {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (listeningForKeys && editingShortcut) {
         console.log("Canceling editing due to click outside")
         setEditingShortcut(null)

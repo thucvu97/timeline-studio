@@ -91,7 +91,6 @@ export function useLanguage() {
 
   useEffect(() => {
     void fetchLanguage()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return {

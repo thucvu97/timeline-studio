@@ -54,11 +54,6 @@ vi.mock("@/lib/utils", () => ({
   formatResolution: vi.fn().mockReturnValue("FHD"),
 }))
 
-// Мокаем функцию getFileUrl
-vi.mock("@/lib/file-utils", () => ({
-  getFileUrl: vi.fn().mockImplementation((path) => `converted-${path}`),
-}))
-
 // Мокаем функции из lib/date
 vi.mock("@/lib/date", () => ({
   formatDuration: vi.fn().mockReturnValue("3:00"),

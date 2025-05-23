@@ -137,10 +137,10 @@ const TestComponent = () => {
       <button data-testid="create-project" onClick={() => createNewProject("Test Project")}>
         Create Project
       </button>
-      <button data-testid="open-project" onClick={() => { return openProject() }}>
+      <button data-testid="open-project" onClick={() => { void openProject(); }}>
         Open Project
       </button>
-      <button data-testid="save-project" onClick={() => saveProject("Test Project")}>
+      <button data-testid="save-project" onClick={() => { void saveProject("Test Project"); }}>
         Save Project
       </button>
       <button data-testid="set-dirty" onClick={() => setProjectDirty(true)}>

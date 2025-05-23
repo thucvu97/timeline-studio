@@ -67,7 +67,7 @@ export interface AppState {
   // Состояние модальных окон
   modal: {
     modalType: string
-    modalData: any | null
+    modalData: any
     isOpen: boolean
   }
 

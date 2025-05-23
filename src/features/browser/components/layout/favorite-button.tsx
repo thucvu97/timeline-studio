@@ -119,7 +119,7 @@ export const FavoriteButton = memo(function FavoriteButton({ file, size = 60, ty
     <button
       type="button"
       className={cn(
-        "absolute z-10 cursor-pointer rounded-full p-1 text-white transition-all duration-150 border-0 outline-none focus:ring-2 focus:ring-teal-light",
+        "absolute z-[1] cursor-pointer rounded-full p-1 text-white transition-all duration-150 border-0 outline-none focus:ring-2 focus:ring-teal-light",
         size > 100 ? "right-[36px] bottom-1" : "right-[28px] bottom-0.5",
         isFavorite
           ? isRecentlyAdded

@@ -51,20 +51,20 @@ export function TopBar() {
     }
   }
 
-  const handleSave = async () => {
+  const handleSave = () => {
     try {
       // Сохраняем проект
-      await saveProject(projectName)
+      void saveProject(projectName)
       console.log("Project saved successfully")
     } catch (error) {
       console.error("[handleSave] Error saving project:", error)
     }
   }
 
-  const handleOpenProject = async () => {
+  const handleOpenProject = () => {
     try {
       // Открываем проект
-      await openProject()
+      void openProject()
       console.log("Project opened successfully")
     } catch (error) {
       console.error("[handleOpenProject] Error opening project:", error)

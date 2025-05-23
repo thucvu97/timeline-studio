@@ -1,8 +1,9 @@
-import { memo, useCallback } from "react"
+import { memo, useCallback, useEffect, useState } from "react"
 
+import { convertFileSrc } from "@tauri-apps/api/core"
+import { readFile } from "@tauri-apps/plugin-fs"
 import { Image } from "lucide-react"
 
-import { getFileUrl } from "@/lib/file-utils"
 import { MediaFile } from "@/types/media"
 
 import { AddMediaButton } from "../layout/add-media-button"
@@ -49,12 +50,46 @@ export const ImagePreview = memo(function ImagePreview({
     return (size * width) / height
   }
 
-  // Функция для получения URL изображения
-  const getImageUrl = useCallback(() => {
-    const url = getFileUrl(file.path)
-    console.log("[ImagePreview] Сконвертированный URL:", url)
-    return url
-  }, [file.path])
+  // Состояние для хранения объекта URL
+  const [imageUrl, setImageUrl] = useState<string>("")
+
+  // Функция для чтения файла и создания объекта URL
+  const loadImageFile = useCallback(async (path: string) => {
+    try {
+      console.log("[ImagePreview] Чтение файла через readFile:", path)
+      const fileData = await readFile(path)
+      const blob = new Blob([fileData], { type: "image/jpeg" }) // Можно определить тип по расширению файла
+      const url = URL.createObjectURL(blob)
+      console.log("[ImagePreview] Создан объект URL:", url)
+      return url
+    } catch (error) {
+      console.error("[ImagePreview] Ошибка при загрузке изображения:", error)
+      // В случае ошибки используем convertFileSrc
+      const assetUrl = convertFileSrc(path)
+      console.log("[ImagePreview] Используем asset URL:", assetUrl)
+      return assetUrl
+    }
+  }, [])
+
+  // Эффект для загрузки изображения при монтировании компонента
+  useEffect(() => {
+    let isMounted = true
+
+    void loadImageFile(file.path).then((url) => {
+      if (isMounted) {
+        setImageUrl(url)
+      }
+    })
+
+    // Очистка объекта URL при размонтировании компонента
+    return () => {
+      isMounted = false
+      if (imageUrl && imageUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(imageUrl)
+      }
+    }
+
+  }, [file.path, loadImageFile, imageUrl])
 
   return (
     <div
@@ -73,8 +108,9 @@ export const ImagePreview = memo(function ImagePreview({
       )}
 
       <div className="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-700">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={getImageUrl()}
+          src={imageUrl || convertFileSrc(file.path)}
           alt={file.name}
           className="h-full w-full object-contain"
           onError={(e) => {

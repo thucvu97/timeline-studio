@@ -5,11 +5,6 @@ import { MediaFile } from "@/types/media"
 
 import { AudioPreview } from "./audio-preview"
 
-// Мокаем функцию getFileUrl
-vi.mock("@/lib/file-utils", () => ({
-  getFileUrl: vi.fn().mockImplementation((path) => `converted-${path}`),
-}))
-
 // Мокаем компоненты, которые используются в AudioPreview
 vi.mock("./preview-timeline", () => ({
   PreviewTimeline: ({ time, duration, videoRef }: any) => (

@@ -24,7 +24,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; media-src 'self' asset: tauri:; script-src 'self' 'unsafe-inline';",
+      "csp": "default-src 'self'; media-src 'self' asset: tauri: file: http: https:; img-src 'self' asset: tauri: file: http: https:; script-src 'self' 'unsafe-inline';",
       "assetProtocol": {
         "enable": true,
         "scope": {
@@ -36,7 +36,8 @@
   "plugins": {
     "fs": {
       "requireLiteralLeadingDot": false
-    }
+    },
+    "shell": {}
   },
   "bundle": {
     "active": true,

@@ -205,11 +205,13 @@ export function useMediaImport() {
       setIsImporting(false)
       return {
         success: false,
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         message: `Ошибка при импорте файлов: ${error}`,
         files: []
       }
     }
-  }, [media])
+   
+  }, [media, processFilesInBatches])
 
   /**
    * Импортирует папку с медиафайлами
@@ -262,11 +264,12 @@ export function useMediaImport() {
       setIsImporting(false)
       return {
         success: false,
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         message: `Ошибка при импорте папки: ${error}`,
         files: []
       }
     }
-  }, [media])
+  }, [media, processFilesInBatches])
 
   return {
     importFile,

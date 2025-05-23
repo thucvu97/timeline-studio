@@ -101,7 +101,6 @@ export function FilterPreview({ filter, onClick, size }: FilterPreviewProps) {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHovering, filter])
 
   return (

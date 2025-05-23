@@ -1,9 +1,10 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 
+import { convertFileSrc } from "@tauri-apps/api/core"
+import { readFile } from "@tauri-apps/plugin-fs"
 import { Music } from "lucide-react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 
-import { getFileUrl } from "@/lib/file-utils"
 import { MediaFile } from "@/types/media"
 
 import { AddMediaButton } from "../layout/add-media-button"
@@ -93,12 +94,46 @@ export const AudioPreview = memo(function AudioPreview({
     }
   }, [isPlaying])
 
-  // Функция для получения URL аудио
-  const getAudioUrl = useCallback(() => {
-    const url = getFileUrl(file.path)
-    console.log("[AudioPreview] Сконвертированный URL:", url)
-    return url
-  }, [file.path])
+  // Состояние для хранения объекта URL
+  const [audioUrl, setAudioUrl] = useState<string>("")
+
+  // Функция для чтения файла и создания объекта URL
+  const loadAudioFile = useCallback(async (path: string) => {
+    try {
+      console.log("[AudioPreview] Чтение файла через readFile:", path)
+      const fileData = await readFile(path)
+      const blob = new Blob([fileData], { type: "audio/mp3" }) // Можно определить тип по расширению файла
+      const url = URL.createObjectURL(blob)
+      console.log("[AudioPreview] Создан объект URL:", url)
+      return url
+    } catch (error) {
+      console.error("[AudioPreview] Ошибка при загрузке аудио:", error)
+      // В случае ошибки используем convertFileSrc
+      const assetUrl = convertFileSrc(path)
+      console.log("[AudioPreview] Используем asset URL:", assetUrl)
+      return assetUrl
+    }
+  }, [])
+
+  // Эффект для загрузки аудио при монтировании компонента
+  useEffect(() => {
+    let isMounted = true
+
+    void loadAudioFile(file.path).then((url) => {
+      if (isMounted) {
+        setAudioUrl(url)
+      }
+    })
+
+    // Очистка объекта URL при размонтировании компонента
+    return () => {
+      isMounted = false
+      if (audioUrl && audioUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(audioUrl)
+      }
+    }
+   
+  }, [file.path, loadAudioFile, audioUrl])
 
   useEffect(() => {
     const audioElement = audioRef.current
@@ -154,7 +189,7 @@ export const AudioPreview = memo(function AudioPreview({
       {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
       <audio
         ref={audioRef}
-        src={getAudioUrl()}
+        src={audioUrl || convertFileSrc(file.path)}
         preload="auto"
         tabIndex={0}
         className="pointer-events-none absolute inset-0 h-full w-full focus:outline-none"

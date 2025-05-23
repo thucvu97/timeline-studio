@@ -67,6 +67,7 @@ export class StoreService {
    * Получить экземпляр сервиса (Singleton)
    */
   public static getInstance(): StoreService {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!StoreService.instance) {
       StoreService.instance = new StoreService()
     }

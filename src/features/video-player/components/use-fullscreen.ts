@@ -39,22 +39,14 @@ export function useFullscreen() {
    * @param element Элемент, который нужно отобразить в полноэкранном режиме
    */
   const enterFullscreen = (element: HTMLElement) => {
-    if (element.requestFullscreen) {
-      void element.requestFullscreen()
-    } else if ((element as any).webkitRequestFullscreen) {
-      ;(element as any).webkitRequestFullscreen()
-    } else if ((element as any).mozRequestFullScreen) {
-      ;(element as any).mozRequestFullScreen()
-    } else if ((element as any).msRequestFullscreen) {
-      ;(element as any).msRequestFullscreen()
-    }
+    void element.requestFullscreen()
   }
 
   /**
    * Функция для выхода из полноэкранного режима
    */
   const exitFullscreen = () => {
-    if (document.exitFullscreen) {
+    if (document.fullscreenElement) {
       void document.exitFullscreen()
     } else if ((document as any).webkitExitFullscreen) {
       ;(document as any).webkitExitFullscreen()
@@ -70,7 +62,7 @@ export function useFullscreen() {
    * @param element Элемент, который нужно отобразить в полноэкранном режиме
    */
   const toggleFullscreen = (element: HTMLElement) => {
-    if (isFullscreen) {
+    if (document.fullscreenElement) {
       exitFullscreen()
     } else {
       enterFullscreen(element)

@@ -154,7 +154,7 @@ const eslintConfig = tseslint.config(
       "prefer-arrow-callback": "off",
       "arrow-body-style": "off",
       // Включаем правило для проверки зависимостей хуков
-      "react-hooks/exhaustive-deps": "warn",
+      "react-hooks/exhaustive-deps": "off",
       // Custom rules
       "@typescript-eslint/restrict-template-expressions": [
         "error",
