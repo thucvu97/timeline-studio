@@ -43,3 +43,6 @@ playwright-report/
 test-results/
 promo/node_modules
 promo/dist/
+
+# DeepSource CLI
+bin/deepsource
