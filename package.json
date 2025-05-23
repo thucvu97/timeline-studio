@@ -87,7 +87,6 @@
     "xstate": "^5.19.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.27.0",
     "@next/eslint-plugin-next": "^15.3.2",

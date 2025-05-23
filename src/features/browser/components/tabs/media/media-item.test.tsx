@@ -21,7 +21,7 @@ vi.mock("../../preview", () => ({
       data-size={size}
       data-show-filename={showFileName}
       data-ignore-ratio={ignoreRatio}
-      onClick={() => onAddMedia && onAddMedia(file)}
+      onClick={() => onAddMedia?.(file)}
     >
       Media Preview
     </div>

@@ -14,104 +14,35 @@ const eslintConfig = tseslint.config(
   ...compat.extends("plugin:import/recommended"),
   ...compat.extends("plugin:import/typescript"),
   {
-    // Disabled rules taken from https://biomejs.dev/linter/rules-sources for ones that
-    // are already handled by Biome
     rules: {
-      // eslint-plugin-jsx-a11y rules replaced by Biome
-      "jsx-a11y/alt-text": "off",
-      "jsx-a11y/anchor-has-content": "off",
-      "jsx-a11y/anchor-is-valid": "off",
-      "jsx-a11y/aria-activedescendant-has-tabindex": "off",
-      "jsx-a11y/aria-props": "off",
-      "jsx-a11y/aria-proptypes": "off",
-      "jsx-a11y/aria-role": "off",
-      "jsx-a11y/aria-unsupported-elements": "off",
-      "jsx-a11y/autocomplete-valid": "off",
-      "jsx-a11y/click-events-have-key-events": "off",
-      "jsx-a11y/heading-has-content": "off",
-      "jsx-a11y/html-has-lang": "off",
-      "jsx-a11y/iframe-has-title": "off",
-      "jsx-a11y/img-redundant-alt": "off",
-      "jsx-a11y/interactive-supports-focus": "off",
-      "jsx-a11y/label-has-associated-control": "off",
-      "jsx-a11y/lang": "off",
-      "jsx-a11y/media-has-caption": "off",
-      "jsx-a11y/mouse-events-have-key-events": "off",
-      "jsx-a11y/no-access-key": "off",
-      "jsx-a11y/no-aria-hidden-on-focusable": "off",
-      "jsx-a11y/no-autofocus": "off",
-      "@typescript-eslint/no-confusing-void-expression": "off",
-      "jsx-a11y/no-distracting-elements": "off",
-      "jsx-a11y/no-interactive-element-to-noninteractive-role": "off",
-      "jsx-a11y/no-noninteractive-element-to-interactive-role": "off",
-      "jsx-a11y/no-noninteractive-tabindex": "off",
-      "jsx-a11y/no-redundant-roles": "off",
-      "jsx-a11y/no-static-element-interactions": "off",
-      "jsx-a11y/prefer-tag-over-role": "off",
-      "jsx-a11y/role-has-required-aria-props": "off",
-      "jsx-a11y/role-supports-aria-props": "off",
-      "jsx-a11y/scope": "off",
-      "jsx-a11y/tabindex-no-positive": "off",
-      // eslint-plugin-react rules replaced by Biome
-      "react/button-has-type": "off",
-      "react/jsx-boolean-value": "off",
-      "react/jsx-curly-brace-presence": "off",
-      "react/jsx-fragments": "off",
-      "react/jsx-key": "off",
-      "react/jsx-no-comment-textnodes": "off",
-      "react/jsx-no-duplicate-props": "off",
-      "react/jsx-no-target-blank": "off",
+      // A11y rules - включены обратно после удаления Biome
+      "jsx-a11y/click-events-have-key-events": "off", // отключено по предпочтениям пользователя
+      "jsx-a11y/alt-text": "warn", // предупреждение вместо ошибки
+      // React rules - включены обратно после удаления Biome
+      "react/jsx-key": "error",
+      "react/jsx-no-duplicate-props": "error",
+      "react/jsx-no-target-blank": "error",
       "react/jsx-no-useless-fragment": "off",
-      "react/no-array-index-key": "off",
-      "react/no-children-prop": "off",
-      "react/no-danger": "off",
-      "react/no-danger-with-children": "off",
-      "react/void-dom-elements-no-children": "off",
-      // eslint-plugin-react-hooks rules replaced by Biome
-      "react-hooks/rules-of-hooks": "off",
-      // typescript-eslint rules replaced by Biome
-      "@typescript-eslint/adjacent-overload-signatures": "off",
-      "@typescript-eslint/array-type": "off",
-      "@typescript-eslint/ban-types": "off",
-      "@typescript-eslint/consistent-type-exports": "off",
-      "@typescript-eslint/default-param-last": "off",
-      "@typescript-eslint/dot-notation": "off",
-      "@typescript-eslint/explicit-function-return-type": "off",
-      "@typescript-eslint/explicit-member-accessibility": "off",
-      "@typescript-eslint/naming-convention": "off",
-      "@typescript-eslint/no-dupe-class-members": "off",
-      "@typescript-eslint/no-empty-function": "off",
-      "@typescript-eslint/no-empty-interface": "off",
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-extra-non-null-assertion": "off",
-      "@typescript-eslint/no-extraneous-class": "off",
-      "@typescript-eslint/no-inferrable-types": "off",
-      "@typescript-eslint/no-invalid-void-type": "off",
-      "@typescript-eslint/no-loss-of-precision": "off",
-      "@typescript-eslint/no-misused-new": "off",
-      "@typescript-eslint/no-namespace": "off",
-      "@typescript-eslint/no-non-null-assertion": "off",
-      "@typescript-eslint/no-redeclare": "off",
-      "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-restricted-imports": "off",
-      "@typescript-eslint/no-restricted-types": "off",
-      "@typescript-eslint/no-this-alias": "off",
-      "@typescript-eslint/no-unnecessary-type-constraint": "off",
-      "@typescript-eslint/no-unsafe-declaration-merging": "off",
+      "react/no-children-prop": "error",
+      "react/no-danger-with-children": "error",
+      "react/void-dom-elements-no-children": "error",
+      // React hooks rules
+      "react-hooks/rules-of-hooks": "error",
+      // TypeScript rules - включены важные правила обратно после удаления Biome
       "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-use-before-define": "off",
-      "@typescript-eslint/no-useless-constructor": "off",
-      "@typescript-eslint/no-useless-empty-export": "off",
-      "@typescript-eslint/only-throw-error": "off",
-      "@typescript-eslint/parameter-properties": "off",
-      "@typescript-eslint/prefer-as-const": "off",
-      "@typescript-eslint/prefer-enum-initializers": "off",
-      "@typescript-eslint/prefer-for-of": "off",
-      "@typescript-eslint/prefer-function-type": "off",
-      "@typescript-eslint/prefer-literal-enum-member": "off",
-      "@typescript-eslint/prefer-namespace-keyword": "off",
+      "react-hooks/rules-of-hooks": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/prefer-as-const": "error",
       "@typescript-eslint/prefer-optional-chain": "off",
-      "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/no-extra-non-null-assertion": "error",
+      "@typescript-eslint/no-misused-new": "error",
+      "@typescript-eslint/no-unnecessary-type-constraint": "error",
+      "@typescript-eslint/no-unsafe-declaration-merging": "error",
+      "@typescript-eslint/no-confusing-void-expression": "off", // отключено для удобства
+      "@typescript-eslint/no-empty-function": "off", // отключено для тестов
+      "@typescript-eslint/require-await": "off", // отключено для тестов
+      "@typescript-eslint/no-non-null-assertion": "off", // отключено для тестов
+      "@typescript-eslint/array-type": "off", // отключено для гибкости
       // Настройка правил для сортировки импортов
       "import/order": ["warn", {
         "groups": [
@@ -150,12 +81,9 @@ const eslintConfig = tseslint.config(
       "import/newline-after-import": "warn",
       "import/no-duplicates": "warn",
       "@typescript-eslint/consistent-type-imports": "off",
-      // Отключаем правило для стрелочных функций
       "prefer-arrow-callback": "off",
       "arrow-body-style": "off",
-      // Включаем правило для проверки зависимостей хуков
       "react-hooks/exhaustive-deps": "off",
-      // Custom rules
       "@typescript-eslint/restrict-template-expressions": [
         "error",
         {
@@ -164,21 +92,15 @@ const eslintConfig = tseslint.config(
           allowNever: true,
         },
       ],
-      // Отключаем строгие правила TypeScript, которые могут быть слишком ограничительными
       "@typescript-eslint/no-unsafe-assignment": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unsafe-return": "off",
       "@typescript-eslint/no-unsafe-call": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
-      // Отключаем правило unbound-method, которое вызывает проблемы в тестах
       "@typescript-eslint/unbound-method": "off",
-      // Отключаем правило prefer-nullish-coalescing, которое часто вызывает ложные срабатывания
       "@typescript-eslint/prefer-nullish-coalescing": "off",
-      // Отключаем правило no-unnecessary-condition, которое часто вызывает ложные срабатывания
       "@typescript-eslint/no-unnecessary-condition": "off",
-      // Отключаем правило no-misused-promises, которое часто вызывает ложные срабатывания
       "@typescript-eslint/no-misused-promises": "off",
-      // Устанавливаем максимальную длину строки в 120 символов
       "max-len": ["warn", {
         "code": 120,
         "ignoreUrls": true,

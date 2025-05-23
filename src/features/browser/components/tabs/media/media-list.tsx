@@ -216,7 +216,6 @@ export function MediaList() {
         image: [],
       }
 
-      // biome-ignore lint/complexity/noForEach: <explanation>
       filteredAndSortedMedia.forEach((file) => {
         const fileType = getFileType(file)
         if (fileType === "video") {
@@ -248,7 +247,6 @@ export function MediaList() {
       const currentLanguage = i18n.language || "ru"
       const noDateText = i18n.t("dates.noDate", { defaultValue: "No date" })
 
-      // biome-ignore lint/complexity/noForEach: <explanation>
       filteredAndSortedMedia.forEach((file) => {
         // Для изображений используем дату создания файла, если она доступна
         let timestamp = file.startTime
@@ -297,7 +295,6 @@ export function MediaList() {
         extraLong: [], // 3+ часа
       }
 
-      // biome-ignore lint/complexity/noForEach: <explanation>
       filteredAndSortedMedia.forEach((file) => {
         // Для изображений используем специальную логику
         if (/\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)) {

@@ -41,7 +41,7 @@ const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCommit }: 
       setLocalVolume(newVolume)
 
       // Обновляем значение в volumeRef, если он предоставлен
-      if (volumeRef && typeof volumeRef.current !== "undefined") {
+      if (typeof volumeRef?.current !== "undefined") {
         volumeRef.current = newVolume
       }
 

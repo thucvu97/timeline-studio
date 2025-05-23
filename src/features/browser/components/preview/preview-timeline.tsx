@@ -81,14 +81,12 @@ export function PreviewTimeline({ time, duration, videoRef }: PreviewTimelinePro
   if (positionPercent === 0 || !isVisible) return <></>
 
   return (
-    <>
-      <div
+    <div
         data-testid="preview-timeline"
         className="pointer-events-none absolute top-0 bottom-0 z-10 w-[1px] bg-red-500"
         style={{
           left: `${positionPercent}%`,
         }}
       />
-    </>
   )
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 
 import {
   Camera,
@@ -26,8 +26,8 @@ import { getFrameTime } from "@/lib/video"
 import { MediaFile } from "@/types/media"
 
 import { usePlayer } from "./player-provider"
-import { useFullscreen } from "./use-fullscreen"
 import { VolumeSlider } from "./volume-slider"
+import { useFullscreen } from "../hooks/use-fullscreen"
 
 interface PlayerControlsProps {
   /**

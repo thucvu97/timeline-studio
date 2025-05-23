@@ -38,7 +38,6 @@ interface UserSettingsContextValue {
  * Изначально не имеет значения (undefined)
  */
 
-// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export const UserSettingsContext = createContext<UserSettingsContextValue | undefined>(undefined)
 
 /**

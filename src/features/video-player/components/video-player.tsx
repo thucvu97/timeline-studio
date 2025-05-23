@@ -4,7 +4,6 @@ import { convertFileSrc } from "@tauri-apps/api/core"
 
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider"
-import { MediaFile } from "@/types/media"
 
 import { PlayerControls } from "./player-controls"
 import { usePlayer } from "./player-provider"

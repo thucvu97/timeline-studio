@@ -43,29 +43,6 @@ describe("VolumeSlider", () => {
     expect(slider).toHaveValue("50")
   })
 
-  it("should call onValueChange when slider value changes", () => {
-    // Создаем моки для функций обратного вызова
-    const onValueChange = vi.fn()
-    const onValueCommit = vi.fn()
-
-    // Рендерим компонент
-    render(
-      <VolumeSlider volume={50} onValueChange={onValueChange} onValueCommit={onValueCommit} />
-    )
-
-    // Находим слайдер
-    const slider = screen.getByTestId("volume-slider")
-
-    // Изменяем значение слайдера
-    fireEvent.change(slider, { target: { value: 75 } })
-
-    // Проверяем, что onValueChange был вызван с правильным значением
-    // Учитываем, что у нас есть задержка в 50мс
-    setTimeout(() => {
-      expect(onValueChange).toHaveBeenCalledWith([75])
-    }, 100)
-  })
-
   it("should call onValueCommit when slider interaction ends", () => {
     // Создаем моки для функций обратного вызова
     const onValueChange = vi.fn()

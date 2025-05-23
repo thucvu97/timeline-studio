@@ -128,7 +128,7 @@ export const AudioPreview = memo(function AudioPreview({
     // Очистка объекта URL при размонтировании компонента
     return () => {
       isMounted = false
-      if (audioUrl && audioUrl.startsWith("blob:")) {
+      if (audioUrl?.startsWith("blob:")) {
         URL.revokeObjectURL(audioUrl)
       }
     }
@@ -174,7 +174,6 @@ export const AudioPreview = memo(function AudioPreview({
   }, [mediaRecorder])
 
   return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
     <div
       className={"group relative h-full flex-shrink-0"}
       style={{
@@ -185,7 +184,6 @@ export const AudioPreview = memo(function AudioPreview({
       onClick={handlePlayPause}
       onMouseLeave={handleMouseLeave}
     >
-      {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
       <audio
         ref={audioRef}
         src={audioUrl || convertFileSrc(file.path)}

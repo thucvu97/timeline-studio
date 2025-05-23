@@ -17,7 +17,7 @@ vi.mock("@/components/ui/select", () => ({
   Select: ({ children, value, onValueChange, disabled }: any) => (
     <div data-testid="select" data-value={value} data-disabled={disabled}>
       <button
-        onClick={() => !disabled && onValueChange && onValueChange("test-value")}
+        onClick={() => !disabled && onValueChange?.("test-value")}
         data-testid="select-trigger"
       >
         Select

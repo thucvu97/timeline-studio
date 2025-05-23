@@ -42,5 +42,4 @@ const customRender = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">
 export { screen, fireEvent, waitFor, within } from "@testing-library/react"
 
 // Переопределение функции render
-// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export { customRender as render }

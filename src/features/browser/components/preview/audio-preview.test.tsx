@@ -21,7 +21,6 @@ vi.mock("./preview-timeline", () => ({
 
 vi.mock("../layout/add-media-button", () => ({
   AddMediaButton: ({ file, onAddMedia, isAdded, size }: any) => (
-    // biome-ignore lint/a11y/useButtonType: <explanation>
     <button
       data-testid="add-media-button"
       data-file={file.name}
@@ -36,7 +35,6 @@ vi.mock("../layout/add-media-button", () => ({
 
 vi.mock("../layout/favorite-button", () => ({
   FavoriteButton: ({ file, size, type }: any) => (
-    // biome-ignore lint/a11y/useButtonType: <explanation>
     <button data-testid="favorite-button" data-file={file.name} data-size={size} data-type={type}>
       Favorite
     </button>

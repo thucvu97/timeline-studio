@@ -26,7 +26,7 @@ export const FileMetadata = function FileMetadata({ file, size = 100 }: FileMeta
       <div className="flex w-full justify-between p-2">
         <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{file.name}</p>
         {!file.isImage && file.probeData?.format.duration && (
-          <p className="flex-shrink-0 font-medium" style={{ fontSize: size > 100 ? `13px` : "12px" }}>
+          <p className="flex-shrink-0 font-medium" style={{ fontSize: size > 100 ? "13px" : "12px" }}>
             {formatDuration(file.probeData.format.duration, 3, true)}
           </p>
         )}

@@ -58,7 +58,6 @@ export function AiChat() {
   }, [])
 
   // Функция для автоматического изменения высоты textarea
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const autoResizeTextarea = useCallback(() => {
     if (inputRef.current) {
       // Сбрасываем высоту до минимальной
@@ -70,7 +69,6 @@ export function AiChat() {
   }, [inputRef])
 
   // Прокрутка при добавлении новых сообщений
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     scrollToBottom()
   }, [chatMessages, scrollToBottom])

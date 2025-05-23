@@ -31,7 +31,7 @@ vi.mock("./player-provider", () => ({
 
 // Мокаем useFullscreen из use-fullscreen
 const mockToggleFullscreen = vi.fn()
-vi.mock("./use-fullscreen", () => ({
+vi.mock("../hooks/use-fullscreen", () => ({
   useFullscreen: () => ({
     isFullscreen: false,
     toggleFullscreen: mockToggleFullscreen,

@@ -40,7 +40,7 @@ export function VideoPanelComponent({
       videoRefs[video.id] = videoRef.current
 
       // Проверяем, что src установлен правильно
-      if (video.path && (!videoRef.current.src || !videoRef.current.src.includes(video.id))) {
+      if (video.path && (!videoRef.current.src?.includes(video.id))) {
         console.log(`[VideoPanel] Принудительно обновляем src для видео ${video.id}: ${video.path}`)
 
         // Сохраняем текущее время и состояние воспроизведения

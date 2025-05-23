@@ -61,7 +61,6 @@ export const VideoPreview = memo(function VideoPreview({
   // Создаем стабильные ключи для рефов
   useEffect(() => {
     const videoStreams = file.probeData?.streams.filter((s) => s.codec_type === "video") ?? []
-    // biome-ignore lint/complexity/noForEach: <explanation>
     videoStreams.forEach((stream) => {
       const key = stream.streamKey ?? `stream-${stream.index}`
       videoRefs.current[key] ??= null
@@ -98,7 +97,6 @@ export const VideoPreview = memo(function VideoPreview({
     setHoverTime(null)
     // При уходе мыши останавливаем воспроизведение всех видео, кроме видео в шаблоне
     if (isPlaying) {
-      // stopAllVideos(true)
       setIsPlaying(false)
     }
   }, [isPlaying])
@@ -170,7 +168,7 @@ export const VideoPreview = memo(function VideoPreview({
     // Очистка объекта URL при размонтировании компонента
     return () => {
       isMounted = false
-      if (videoUrl && videoUrl.startsWith("blob:")) {
+      if (videoUrl?.startsWith("blob:")) {
         URL.revokeObjectURL(videoUrl)
       }
     }
@@ -198,7 +196,6 @@ export const VideoPreview = memo(function VideoPreview({
         const ratio = aspectRatio[0] / aspectRatio[1]
 
         return (
-          // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
           <div
             key={key}
             className="relative flex-shrink-0"

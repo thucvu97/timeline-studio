@@ -244,7 +244,6 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const musicFileAddedCache = React.useRef<Record<string, boolean>>({})
 
   // Сбрасываем кэш при изменении musicResources
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     musicFileAddedCache.current = {}
   }, [musicResources])

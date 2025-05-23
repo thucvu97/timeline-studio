@@ -237,7 +237,6 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
  * Хук для доступа к контексту настроек приложения
  */
 
-// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export function useAppSettings() {
   const context = useContext(AppSettingsContext)
 
@@ -252,7 +251,6 @@ export function useAppSettings() {
  * Хук для доступа к списку последних открытых проектов
  */
 
-// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export function useRecentProjects() {
   const { getRecentProjects, addRecentProject, removeRecentProject, clearRecentProjects } = useAppSettings()
 
@@ -267,7 +265,6 @@ export function useRecentProjects() {
 /**
  * Хук для доступа к избранным элементам
  */
-// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export function useFavorites() {
   const { getFavorites, updateFavorites, addToFavorites, removeFromFavorites } = useAppSettings()
 
@@ -283,7 +280,6 @@ export function useFavorites() {
  * Хук для доступа к текущему проекту
  */
 
-// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export function useCurrentProject() {
   const { getCurrentProject, createNewProject, openProject, saveProject, setProjectDirty } = useAppSettings()
 
@@ -299,7 +295,6 @@ export function useCurrentProject() {
 /**
  * Хук для доступа к медиа-файлам
  */
-// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export function useMediaFiles() {
   const { getMediaFiles, updateMediaFiles } = useAppSettings()
 

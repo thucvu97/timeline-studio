@@ -24,7 +24,6 @@ export interface ChatContextType {
 }
 
 // Создаем контекст
-// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export const ChatContext = createContext<ChatContextType | null>(null)
 
 // Интерфейс пропсов провайдера

@@ -187,7 +187,6 @@ export function TopBar() {
                 onKeyDown={handleKeyDown}
                 onBlur={() => setIsEditing(false)}
                 className="w-full h-5 bg-transparent pl-[1px] text-xs focus:outline-none"
-                // biome-ignore lint/a11y/noAutofocus: <explanation>
                 autoFocus
               />
             ) : (

@@ -16,12 +16,10 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ file, onAddMedia, onRemoveMedia, isAdded, size }: any) => (
     <div>
       {isAdded ? (
-        // biome-ignore lint/a11y/useButtonType: <explanation>
         <button data-testid="remove-media-button" onClick={(e) => onRemoveMedia(e)}>
           Remove {file.name}
         </button>
       ) : (
-        // biome-ignore lint/a11y/useButtonType: <explanation>
         <button data-testid="add-media-button" onClick={(e) => onAddMedia(e)}>
           Add {file.name}
         </button>
@@ -161,7 +159,6 @@ describe("TransitionPreview", () => {
     const container = sourceVideo.closest("div")
 
     // Симулируем наведение мыши
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     fireEvent.mouseEnter(container!)
 
     // Проверяем, что видео начинает воспроизводиться
@@ -170,7 +167,6 @@ describe("TransitionPreview", () => {
     })
 
     // Симулируем уход мыши
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     fireEvent.mouseLeave(container!)
 
     // Проверяем, что видео останавливается
@@ -185,7 +181,6 @@ describe("TransitionPreview", () => {
 
     const sourceVideo = screen.getByTestId("source-video")
     const container = sourceVideo.closest("div")
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     fireEvent.click(container!)
 
     expect(mockProps.onClick).toHaveBeenCalledTimes(1)
@@ -239,7 +234,6 @@ describe("TransitionPreview", () => {
     const container = sourceVideo.closest("div")
 
     // Симулируем наведение мыши
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     fireEvent.mouseEnter(container!)
 
     // Проверяем, что видео начинает воспроизводиться

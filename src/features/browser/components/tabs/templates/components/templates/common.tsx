@@ -31,7 +31,7 @@ export function VideoPanel({
 
   // Если видео не существует или не имеет пути, показываем сообщение об ошибке
   // Для пустых видео с id, начинающимся с "empty-", показываем пустой черный экран
-  if (!video || !video.path) {
+  if (!video?.path) {
     if (video?.id?.startsWith("empty-")) {
       return <div className="relative h-full w-full bg-black" />
     }

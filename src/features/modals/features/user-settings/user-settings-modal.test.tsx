@@ -20,7 +20,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 // Мокаем Tauri Dialog Plugin
 vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: vi.fn().mockImplementation((options) => {
-    if (options && options.directory) {
+    if (options?.directory) {
       return Promise.resolve("selected/directory/path")
     }
     return Promise.resolve(null)
