@@ -189,7 +189,7 @@ export function TopBar() {
         </div>
 
         {/* Группа 4: Запись видео и голоса */}
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-end">
           <Button
             variant="ghost"
             size="icon"
