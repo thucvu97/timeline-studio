@@ -1,22 +1,40 @@
 version = 1
 
+test_patterns = [
+  "**/*.test.ts",
+  "**/*.test.tsx",
+  "**/*.spec.ts",
+  "**/*.spec.tsx"
+]
+
+exclude_patterns = [
+  "src/lib/dayjs.ts",
+  "node_modules/**",
+  "dist/**",
+  "build/**",
+  ".next/**",
+  "coverage/**",
+  "docs/**",
+  "promo/**"
+]
+
 [[analyzers]]
 name = "javascript"
 enabled = true
 
   [analyzers.meta]
-  environment = ["nodejs"]
+  environment = ["nodejs", "browser", "jest", "vitest"]
   plugins = ["react"]
   style_guide = "standard"
-  root = "."
-  exclude_patterns = ["src/lib/dayjs.ts"]
+  module_system = "es-modules"
+  dialect = "typescript"
 
 [[analyzers]]
 name = "rust"
 enabled = true
 
   [analyzers.meta]
-  root = "src-tauri"
+  msrv = "stable"
 
 [[transformers]]
 name = "prettier"
