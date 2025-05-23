@@ -97,7 +97,9 @@ export function useDevices(
       return true
     } catch (error) {
       console.error("Error getting devices:", error)
-      setErrorMessage(t("dialogs.cameraCapture.errorGettingDevices", "Failed to get device list"))
+      if (setErrorMessage) {
+        setErrorMessage(t("dialogs.cameraCapture.errorGettingDevices", "Failed to get device list"))
+      }
       return false
     }
   }, [selectedDevice, selectedAudioDevice, getDeviceCapabilities, t, setErrorMessage])
