@@ -1,7 +1,7 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select"
 import { useTranslation } from "react-i18next"
 
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ResolutionOption } from "@/types/project"
 
 interface CaptureDevice {
@@ -54,7 +54,7 @@ export function CameraSettings({
   const { t } = useTranslation()
 
   return (
-    <div className="mb-8 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-5">
+    <div className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-4 h-full">
       <div className="text-sm text-gray-300">
         {t("dialogs.cameraCapture.device")}:
       </div>
@@ -66,7 +66,7 @@ export function CameraSettings({
         <SelectTrigger className="w-full border-[#444] bg-[#222] focus:ring-0 focus:ring-offset-0">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="w-full border-[#444] bg-[#222]">
+        <SelectContent className="w-full border-[#444] bg-[#222]" sideOffset={4} position="popper" align="start">
           {devices.map(
             (device) =>
               device.deviceId && (
@@ -93,7 +93,7 @@ export function CameraSettings({
         <SelectTrigger className="w-full border-[#444] bg-[#222] focus:ring-0 focus:ring-offset-0">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="w-full border-[#444] bg-[#222]">
+        <SelectContent className="w-full border-[#444] bg-[#222]" sideOffset={4} position="popper" align="start">
           {audioDevices.map(
             (device) =>
               device.deviceId && (
@@ -115,7 +115,7 @@ export function CameraSettings({
       <div>
         {isLoadingCapabilities ? (
           <div className="flex items-center text-xs text-gray-400">
-            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-[#0CC] border-t-transparent">
+            <div className="mr-2 h-4 w-4 rounded-full border-2 border-[#0CC] border-t-transparent">
               {t("dialogs.cameraCapture.determiningCapabilities")}
             </div>
           </div>
@@ -128,7 +128,7 @@ export function CameraSettings({
             <SelectTrigger className="w-full border-[#444] bg-[#222] focus:ring-0 focus:ring-offset-0">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="max-h-56 w-full overflow-y-auto border-[#444] bg-[#222]">
+            <SelectContent className="max-h-56 w-full overflow-y-auto border-[#444] bg-[#222]" sideOffset={4} position="popper" align="start">
               {availableResolutions.map(
                 (res) =>
                   res.label && (
@@ -160,7 +160,7 @@ export function CameraSettings({
       <div>
         {isLoadingCapabilities ? (
           <div className="flex items-center text-xs text-gray-400">
-            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-[#0CC] border-t-transparent">
+            <div className="mr-2 h-4 w-4 rounded-full border-2 border-[#0CC] border-t-transparent">
               {t("dialogs.cameraCapture.determiningCapabilities")}
             </div>
           </div>
@@ -173,7 +173,7 @@ export function CameraSettings({
             <SelectTrigger className="w-full border-[#444] bg-[#222] focus:ring-0 focus:ring-offset-0">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="w-full border-[#444] bg-[#222]">
+            <SelectContent className="w-full border-[#444] bg-[#222]" sideOffset={4} position="popper" align="start">
               {supportedFrameRates.map((fps) => (
                 <SelectItem
                   key={fps.toString()}

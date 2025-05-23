@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-
 import {
   CameraPermissionRequest,
   CameraPreview,
@@ -25,7 +23,7 @@ import { useModal } from "../../services"
 export function CameraCaptureModal() {
   const { t } = useTranslation()
 
-  const { isOpen, closeModal } = useModal()
+  const { isOpen } = useModal()
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const [errorMessage, setErrorMessage] = useState<string>("")
@@ -57,7 +55,7 @@ export function CameraCaptureModal() {
     useCameraPermissions(getDevices)
 
   // Управляем потоком с камеры
-  const { isDeviceReady, initCamera, streamRef } = useCameraStream(
+  const { isDeviceReady, setIsDeviceReady, initCamera, streamRef } = useCameraStream(
     videoRef,
     selectedDevice,
     selectedAudioDevice,
@@ -115,13 +113,20 @@ export function CameraCaptureModal() {
     }
   }, [selectedDevice, selectedResolution, frameRate, permissionStatus, initCamera])
 
-  // Запрашиваем разрешения при открытии модального окна
+  // Запрашиваем разрешения при открытии модального окна и останавливаем камеру при закрытии
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       requestPermissions()
+    } else {
+      // Останавливаем все треки камеры при закрытии модального окна
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop())
+        streamRef.current = null
+      }
+      setIsDeviceReady(false)
     }
-  }, [isOpen, requestPermissions])
+  }, [isOpen, requestPermissions, streamRef])
 
   // Обработчик изменения устройства
   const handleDeviceChange = (deviceId: string) => {
@@ -151,60 +156,60 @@ export function CameraCaptureModal() {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>{t("dialogs.cameraCapture.title", "Запись с камеры")}</DialogTitle>
-        </DialogHeader>
+    <>
+        {/* Запрос разрешений */}
+        <CameraPermissionRequest
+          permissionStatus={permissionStatus}
+          errorMessage={permissionError || errorMessage}
+          onRequestPermissions={requestPermissions}
+        />
 
-        <div className="flex flex-col">
-          {/* Запрос разрешений */}
-          <CameraPermissionRequest
-            permissionStatus={permissionStatus}
-            errorMessage={permissionError || errorMessage}
-            onRequestPermissions={requestPermissions}
-          />
+        <div className="flex flex-row gap-4">
+          {/* Левая колонка - видео */}
+          <div className="flex flex-col w-3/5">
+            {/* Предпросмотр видео */}
+            <CameraPreview
+              videoRef={videoRef}
+              isDeviceReady={isDeviceReady}
+              showCountdown={showCountdown}
+              countdown={countdown}
+            />
 
-          {/* Предпросмотр видео */}
-          <CameraPreview
-            videoRef={videoRef}
-            isDeviceReady={isDeviceReady}
-            showCountdown={showCountdown}
-            countdown={countdown}
-          />
+            {/* Управление записью */}
+            <RecordingControls
+              isRecording={isRecording}
+              recordingTime={recordingTime}
+              isDeviceReady={isDeviceReady}
+              onStartRecording={startCountdown}
+              onStopRecording={stopRecording}
+              formatRecordingTime={formatRecordingTime}
+            />
+          </div>
 
-          {/* Настройки камеры */}
-          <CameraSettings
-            devices={devices}
-            selectedDevice={selectedDevice}
-            onDeviceChange={handleDeviceChange}
-            audioDevices={audioDevices}
-            selectedAudioDevice={selectedAudioDevice}
-            onAudioDeviceChange={handleAudioDeviceChange}
-            availableResolutions={availableResolutions}
-            selectedResolution={selectedResolution}
-            onResolutionChange={handleResolutionChange}
-            supportedResolutions={supportedResolutions}
-            frameRate={frameRate}
-            onFrameRateChange={handleFrameRateChange}
-            supportedFrameRates={supportedFrameRates}
-            countdown={countdown}
-            onCountdownChange={handleCountdownChange}
-            isRecording={isRecording}
-            isLoadingCapabilities={isLoadingCapabilities}
-          />
-
-          {/* Управление записью */}
-          <RecordingControls
-            isRecording={isRecording}
-            recordingTime={recordingTime}
-            isDeviceReady={isDeviceReady}
-            onStartRecording={startCountdown}
-            onStopRecording={stopRecording}
-            formatRecordingTime={formatRecordingTime}
-          />
+          {/* Правая колонка - настройки */}
+          <div className="flex flex-col w-2/5">
+            {/* Настройки камеры */}
+            <CameraSettings
+              devices={devices}
+              selectedDevice={selectedDevice}
+              onDeviceChange={handleDeviceChange}
+              audioDevices={audioDevices}
+              selectedAudioDevice={selectedAudioDevice}
+              onAudioDeviceChange={handleAudioDeviceChange}
+              availableResolutions={availableResolutions}
+              selectedResolution={selectedResolution}
+              onResolutionChange={handleResolutionChange}
+              supportedResolutions={supportedResolutions}
+              frameRate={frameRate}
+              onFrameRateChange={handleFrameRateChange}
+              supportedFrameRates={supportedFrameRates}
+              countdown={countdown}
+              onCountdownChange={handleCountdownChange}
+              isRecording={isRecording}
+              isLoadingCapabilities={isLoadingCapabilities}
+            />
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </>
   )
 }

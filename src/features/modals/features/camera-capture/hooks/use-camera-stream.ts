@@ -6,6 +6,7 @@ import { ResolutionOption } from "@/types/project"
 
 interface UseCameraStreamResult {
   isDeviceReady: boolean
+  setIsDeviceReady: (ready: boolean) => void
   errorMessage: string
   initCamera: () => Promise<void>
   streamRef: RefObject<MediaStream | null>
@@ -15,7 +16,7 @@ interface UseCameraStreamResult {
  * Хук для управления потоком с камеры
  */
 export function useCameraStream(
-  videoRef: RefObject<HTMLVideoElement>,
+  videoRef: RefObject<HTMLVideoElement | null>,
   selectedDevice: string,
   selectedAudioDevice: string,
   selectedResolution: string,
@@ -153,32 +154,37 @@ export function useCameraStream(
 
       if (videoRef.current && streamRef.current) {
         console.log("Устанавливаем srcObject для видео элемента")
-        videoRef.current.srcObject = streamRef.current
+        // Дополнительная проверка, что videoRef.current не null
+        const video = videoRef.current
+        if (video) {
+          video.srcObject = streamRef.current
 
-        // Добавляем обработчик события loadedmetadata
-        videoRef.current.onloadedmetadata = () => {
-          console.log("Видео метаданные загружены, начинаем воспроизведение")
-          videoRef.current?.play().catch((e: unknown) => console.error("Ошибка воспроизведения:", e))
+          // Добавляем обработчик события loadedmetadata
+          video.onloadedmetadata = () => {
+            console.log("Видео метаданные загружены, начинаем воспроизведение")
+            video.play().catch((e: unknown) => console.error("Ошибка воспроизведения:", e))
 
-          // Получаем фактическое разрешение видео для логирования
-          if (videoRef.current) {
-            const actualWidth = videoRef.current.videoWidth
-            const actualHeight = videoRef.current.videoHeight
+            // Получаем фактическое разрешение видео для логирования
+            const actualWidth = video.videoWidth
+            const actualHeight = video.videoHeight
             console.log(`Фактическое разрешение видео: ${actualWidth}x${actualHeight}`)
+
+            setIsDeviceReady(true)
           }
 
-          setIsDeviceReady(true)
-        }
-
-        // Добавляем обработчик ошибок
-        videoRef.current.onerror = (e) => {
-          console.error("Ошибка видео элемента:", e)
-          setErrorMessage(t("dialogs.cameraCapture.videoElementError",
-            "Ошибка при инициализации видео элемента. Пожалуйста, попробуйте другое устройство или разрешение."))
+          // Добавляем обработчик ошибок
+          video.onerror = (e) => {
+            console.error("Ошибка видео элемента:", e)
+            setErrorMessage(t("dialogs.cameraCapture.videoElementError",
+              "Ошибка при инициализации видео элемента. Пожалуйста, попробуйте другое устройство или разрешение."))
+            setIsDeviceReady(false)
+          }
+        } else {
+          console.error("Ссылка на видео элемент отсутствует")
           setIsDeviceReady(false)
         }
       } else {
-        console.error("Ссылка на видео элемент отсутствует")
+        console.error("Ссылка на видео элемент или поток отсутствует")
         setIsDeviceReady(false)
       }
     } catch (error) {
@@ -209,6 +215,7 @@ export function useCameraStream(
 
   return {
     isDeviceReady,
+    setIsDeviceReady,
     errorMessage: "",
     initCamera,
     streamRef,

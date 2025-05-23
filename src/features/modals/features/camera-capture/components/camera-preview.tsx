@@ -3,7 +3,7 @@ import { RefObject } from "react"
 import { useTranslation } from "react-i18next"
 
 interface CameraPreviewProps {
-  videoRef: RefObject<HTMLVideoElement>
+  videoRef: RefObject<HTMLVideoElement | null>
   isDeviceReady: boolean
   showCountdown: boolean
   countdown: number
@@ -21,7 +21,7 @@ export function CameraPreview({
   const { t } = useTranslation()
 
   return (
-    <div className="relative flex h-[450px] w-full items-center justify-center rounded-md border border-gray-800 bg-black shadow-lg">
+    <div className="relative flex h-[400px] w-full items-center justify-center rounded-md border border-gray-800 bg-black shadow-lg mb-4">
       {!isDeviceReady && (
         <div className="absolute inset-0 flex items-center justify-center text-gray-400">
           {t("dialogs.cameraCapture.initializingCamera")}
