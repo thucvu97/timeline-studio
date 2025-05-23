@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const ICON_STYLE =
-  "flex rounded-sm items-center justify-center w-8 h-8 hover:bg-[#dddbdd] dark:hover:bg-[#45444b] cursor-pointer"
+  "flex rounded-sm items-center justify-center w-7 h-7 hover:bg-[#dddbdd] dark:hover:bg-[#45444b] cursor-pointer dark:bg-[#45444b] text-gray-200 hover:bg-[#45444b]"
 
 export function TimelineTopPanel() {
   const { t } = useTranslation()
@@ -35,43 +35,43 @@ export function TimelineTopPanel() {
   const maxScale = 200
 
   return (
-    <div className="bg-secondary sticky top-0 flex-shrink-0">
+    <div className="sticky top-0 flex-shrink-0 dark:bg-[#2D2D2D]">
       <div className="border-border flex items-center justify-between border-t px-2">
         <div className="flex items-center gap-1">
           {/* Layout */}
           <Button
             onClick={() => {}}
-            className="flex h-8 w-8 items-center justify-center rounded-sm opacity-50"
+            className={cn(ICON_STYLE, "pointer-events-none")}
             title={t("timeline.toolbar.layout")}
           >
-            <LayoutTemplate size={16} />
+            <LayoutTemplate size={12} />
           </Button>
 
           {/* Mouse pointer */}
           <Button
             onClick={() => {}}
-            className="flex h-8 w-8 items-center justify-center rounded-sm opacity-50"
+            className={cn(ICON_STYLE, "pointer-events-none")}
             title={t("timeline.toolbar.pointer")}
           >
-            <SquareMousePointer size={16} />
+            <SquareMousePointer size={12} />
           </Button>
 
           {/* Back */}
           <Button
             onClick={() => {}}
-            className="flex h-8 w-8 items-center justify-center rounded-sm opacity-50"
+            className={cn(ICON_STYLE, "pointer-events-none")}
             title={t("timeline.toolbar.undo")}
           >
-            <Undo2 size={16} />
+            <Undo2 size={12} />
           </Button>
 
           {/* Forward */}
           <Button
             onClick={() => {}}
-            className="flex h-8 w-8 items-center justify-center rounded-sm opacity-50"
+            className={cn(ICON_STYLE, "pointer-events-none")}
             title={t("timeline.toolbar.redo")}
           >
-            <Redo2 size={16} />
+            <Redo2 size={12} />
           </Button>
 
           {/* Delete track */}
@@ -81,7 +81,7 @@ export function TimelineTopPanel() {
               deleteTrack()
             }}
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            className={cn(ICON_STYLE, !isTrashActive && "pointer-events-none opacity-50")}
+            className={cn(ICON_STYLE, !isTrashActive && "pointer-events-none")}
             title={t("timeline.toolbar.delete")}
           >
             <Trash2 size={16} />
@@ -93,7 +93,7 @@ export function TimelineTopPanel() {
               cutTrack()
             }}
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            className={cn(ICON_STYLE, !isCutActive && "pointer-events-none opacity-50")}
+            className={cn(ICON_STYLE, !isCutActive && "pointer-events-none")}
             title={t("timeline.toolbar.cut")}
           >
             <Scissors size={16} className="rotate-270" />
@@ -126,7 +126,7 @@ export function TimelineTopPanel() {
               ICON_STYLE,
               "relative flex items-center justify-center",
               // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-              !isAbleToFitToTracks && "pointer-events-none opacity-50",
+              !isAbleToFitToTracks && "pointer-events-none",
             )}
             title={t("timeline.toolbar.fitToScreen")}
           >
@@ -137,7 +137,7 @@ export function TimelineTopPanel() {
             className={cn(
               "flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-1 border-white bg-gray-800 text-gray-200 hover:bg-[#45444b]",
               // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-              !isAbleToScaleDown && "pointer-events-none opacity-50",
+              !isAbleToScaleDown && "pointer-events-none",
             )}
             title={t("timeline.toolbar.zoomOut")}
           >

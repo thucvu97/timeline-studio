@@ -19,32 +19,31 @@ export function TimelineResources() {
   const categories = [
     {
       id: "effects",
-      name: t("timeline.resources.effects", "Эффекты"),
+      name: t("resources.effects", "Эффекты"),
       icon: <Package className="h-3.5 w-3.5 text-gray-400" />,
       resources: effectResources,
     },
     {
       id: "filters",
-      name: t("timeline.resources.filters", "Фильтры"),
+      name: t("resources.filters", "Фильтры"),
       icon: <Palette className="h-3.5 w-3.5 text-gray-400" />,
       resources: filterResources,
     },
     {
       id: "transitions",
-      name: t("timeline.resources.transitions", "Переходы"),
+      name: t("resources.transitions", "Переходы"),
       icon: <Scissors className="h-3.5 w-3.5 text-gray-400" />,
       resources: transitionResources,
     },
     {
       id: "templates",
-      // Явно указываем ключ перевода и запасное значение
-      name: i18n.exists("timeline.resources.templates") ? t("timeline.resources.templates") : "Шаблоны",
+      name: t("resources.templates", "Шаблоны"),
       icon: <Video className="h-3.5 w-3.5 text-gray-400" />,
       resources: templateResources,
     },
     {
       id: "music",
-      name: t("timeline.resources.music", "Музыка"),
+      name: t("resources.music", "Музыка"),
       icon: <Music className="h-3.5 w-3.5 text-gray-400" />,
       resources: musicResources,
     },
@@ -66,21 +65,19 @@ export function TimelineResources() {
             >
               {/* Иконка ресурса (слева) */}
               <div className="flex-shrink-0">
-                {resource.type === "effect" && <Package className="h-4 w-4 text-gray-400" />}
-                {resource.type === "filter" && <Palette className="h-4 w-4 text-gray-400" />}
-                {resource.type === "transition" && <Scissors className="h-4 w-4 text-gray-400" />}
-                {resource.type === "template" && <Video className="h-4 w-4 text-gray-400" />}
-                {resource.type === "music" && <Music className="h-4 w-4 text-gray-400" />}
+                {resource.type === "effect" && <Package className="h-4 w-4" />}
+                {resource.type === "filter" && <Palette className="h-4 w-4" />}
+                {resource.type === "transition" && <Scissors className="h-4 w-4" />}
+                {resource.type === "template" && <Video className="h-4 w-4" />}
+                {resource.type === "music" && <Music className="h-4 w-4" />}
               </div>
 
               {/* Название ресурса (справа) */}
               <div className="flex-1 overflow-hidden">
                 <div className="truncate text-[10px] text-gray-300">
-                  {resource.type === "template" &&
-                    (i18n.exists(`templates.templateLabels.${resource.name}`)
-                      ? t(`templates.templateLabels.${resource.name}`, resource.name)
-                      : resource.name)}
-                  {resource.type !== "template" && resource.name}
+                  {resource.type === "template"
+                    ? t(`templates.templateLabels.${resource.name}`, resource.name)
+                    : resource.name}
                 </div>
               </div>
             </div>
@@ -94,7 +91,7 @@ export function TimelineResources() {
     <div className="flex h-full flex-col bg-[#1a1a1a] text-white">
       <div className="border-b border-[#333] p-1.5">
         <h3 className="text-xs font-medium">
-          {i18n.exists("timeline.resources.title") ? t("timeline.resources.title") : "Ресурсы"}
+          {t("resources.title", "Ресурсы")}
         </h3>
       </div>
 
@@ -118,9 +115,7 @@ export function TimelineResources() {
               {/* Сообщение, если нет ресурсов */}
               {category.resources.length === 0 && (
                 <div className="pl-1 text-[10px] text-gray-500">
-                  {i18n.exists("timeline.resources.noResources")
-                    ? t("timeline.resources.noResources")
-                    : "Нет добавленных ресурсов"}
+                  {t("resources.noResources", "Нет добавленных ресурсов")}
                 </div>
               )}
             </div>
