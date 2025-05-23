@@ -1,5 +1,6 @@
 // Мокаем console.log и console.error
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { createActor } from "xstate"
 
 import {
   BROWSER_TABS,
@@ -141,6 +142,8 @@ describe("UserSettingsMachine", () => {
       expect(idleState?.on?.UPDATE_ACTIVE_TAB).toBeDefined()
       expect(idleState?.on?.UPDATE_PREVIEW_SIZE).toBeDefined()
       expect(idleState?.on?.UPDATE_ALL).toBeDefined()
+      expect(idleState?.on?.TOGGLE_BROWSER_VISIBILITY).toBeDefined()
+      expect(idleState?.on?.UPDATE_PLAYER_VOLUME).toBeDefined()
     })
   })
 
@@ -166,6 +169,8 @@ describe("UserSettingsMachine", () => {
         previewSizes: { MEDIA: number; TRANSITIONS: number; TEMPLATES: number }
         activeTab: string
         isLoaded: boolean
+        isBrowserVisible: boolean
+        playerVolume: number
       }
 
       const typedContext = initialContext as unknown as UserContext
@@ -173,6 +178,70 @@ describe("UserSettingsMachine", () => {
       expect(typedContext.previewSizes.MEDIA).toBe(DEFAULT_SIZE)
       expect(typedContext.activeTab).toBe(DEFAULT_TAB)
       expect(typedContext.isLoaded).toBe(true)
+      expect(typedContext.isBrowserVisible).toBe(true)
+      expect(typedContext.playerVolume).toBe(100)
+    })
+  })
+
+  describe("Browser visibility functionality", () => {
+    it("should toggle browser visibility when TOGGLE_BROWSER_VISIBILITY event is sent", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Проверяем начальное значение видимости браузера
+      expect(actor.getSnapshot().context.isBrowserVisible).toBe(true)
+
+      // Отправляем событие TOGGLE_BROWSER_VISIBILITY
+      actor.send({ type: "TOGGLE_BROWSER_VISIBILITY" })
+
+      // Проверяем, что видимость браузера изменилась
+      expect(actor.getSnapshot().context.isBrowserVisible).toBe(false)
+
+      // Отправляем событие TOGGLE_BROWSER_VISIBILITY еще раз
+      actor.send({ type: "TOGGLE_BROWSER_VISIBILITY" })
+
+      // Проверяем, что видимость браузера вернулась к исходному значению
+      expect(actor.getSnapshot().context.isBrowserVisible).toBe(true)
+
+      // Останавливаем актора
+      actor.stop()
+    })
+  })
+
+  describe("Player volume functionality", () => {
+    it("should update player volume when UPDATE_PLAYER_VOLUME event is sent", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Проверяем начальное значение громкости плеера
+      expect(actor.getSnapshot().context.playerVolume).toBe(100)
+
+      // Отправляем событие UPDATE_PLAYER_VOLUME с новым значением громкости
+      actor.send({ type: "UPDATE_PLAYER_VOLUME", volume: 50 })
+
+      // Проверяем, что громкость плеера изменилась
+      expect(actor.getSnapshot().context.playerVolume).toBe(50)
+
+      // Отправляем событие UPDATE_PLAYER_VOLUME с минимальным значением громкости
+      actor.send({ type: "UPDATE_PLAYER_VOLUME", volume: 0 })
+
+      // Проверяем, что громкость плеера изменилась на минимальное значение
+      expect(actor.getSnapshot().context.playerVolume).toBe(0)
+
+      // Отправляем событие UPDATE_PLAYER_VOLUME с максимальным значением громкости
+      actor.send({ type: "UPDATE_PLAYER_VOLUME", volume: 100 })
+
+      // Проверяем, что громкость плеера изменилась на максимальное значение
+      expect(actor.getSnapshot().context.playerVolume).toBe(100)
+
+      // Останавливаем актора
+      actor.stop()
     })
   })
 })
