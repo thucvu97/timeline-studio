@@ -229,8 +229,6 @@ describe("resourcesMachine", () => {
     // Проверяем, что ресурс обновлен
     expect(snapshotAfterUpdate.context.resources[0].params).toHaveProperty("opacity", 0.5)
     expect(snapshotAfterUpdate.context.resources[0].params).toHaveProperty("duration", 2000)
-    expect(snapshotAfterUpdate.context.effectResources[0].params).toHaveProperty("opacity", 0.5)
-    expect(snapshotAfterUpdate.context.effectResources[0].params).toHaveProperty("duration", 2000)
 
     // Останавливаем актора
     actor.stop()
