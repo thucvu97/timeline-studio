@@ -1,21 +1,21 @@
-import { memo, useCallback, useEffect, useState } from "react"
+import { memo, useCallback, useEffect, useState } from "react";
 
-import { convertFileSrc } from "@tauri-apps/api/core"
-import { readFile } from "@tauri-apps/plugin-fs"
-import { Image } from "lucide-react"
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { readFile } from "@tauri-apps/plugin-fs";
+import { Image } from "lucide-react";
 
-import { MediaFile } from "@/types/media"
+import { MediaFile } from "@/types/media";
 
-import { AddMediaButton } from "../layout/add-media-button"
-import { FavoriteButton } from "../layout/favorite-button"
+import { AddMediaButton } from "../layout/add-media-button";
+import { FavoriteButton } from "../layout/favorite-button";
 
 interface ImagePreviewProps {
-  file: MediaFile
-  onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void
-  isAdded?: boolean
-  size?: number
-  showFileName?: boolean
-  dimensions?: [number, number]
+  file: MediaFile;
+  onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void;
+  isAdded?: boolean;
+  size?: number;
+  showFileName?: boolean;
+  dimensions?: [number, number];
 }
 
 /**
@@ -46,49 +46,49 @@ export const ImagePreview = memo(function ImagePreview({
   dimensions = [16, 9],
 }: ImagePreviewProps) {
   const calculateWidth = (): number => {
-    const [width, height] = dimensions
-    return (size * width) / height
-  }
+    const [width, height] = dimensions;
+    return (size * width) / height;
+  };
 
   // Состояние для хранения объекта URL
-  const [imageUrl, setImageUrl] = useState<string>("")
+  const [imageUrl, setImageUrl] = useState<string>("");
 
   // Функция для чтения файла и создания объекта URL
   const loadImageFile = useCallback(async (path: string) => {
     try {
-      console.log("[ImagePreview] Чтение файла через readFile:", path)
-      const fileData = await readFile(path)
-      const blob = new Blob([fileData], { type: "image/jpeg" }) // Можно определить тип по расширению файла
-      const url = URL.createObjectURL(blob)
-      console.log("[ImagePreview] Создан объект URL:", url)
-      return url
+      console.log("[ImagePreview] Чтение файла через readFile:", path);
+      const fileData = await readFile(path);
+      const blob = new Blob([fileData], { type: "image/jpeg" }); // Можно определить тип по расширению файла
+      const url = URL.createObjectURL(blob);
+      console.log("[ImagePreview] Создан объект URL:", url);
+      return url;
     } catch (error) {
-      console.error("[ImagePreview] Ошибка при загрузке изображения:", error)
+      console.error("[ImagePreview] Ошибка при загрузке изображения:", error);
       // В случае ошибки используем convertFileSrc
-      const assetUrl = convertFileSrc(path)
-      console.log("[ImagePreview] Используем asset URL:", assetUrl)
-      return assetUrl
+      const assetUrl = convertFileSrc(path);
+      console.log("[ImagePreview] Используем asset URL:", assetUrl);
+      return assetUrl;
     }
-  }, [])
+  }, []);
 
   // Эффект для загрузки изображения при монтировании компонента
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
     void loadImageFile(file.path).then((url) => {
       if (isMounted) {
-        setImageUrl(url)
+        setImageUrl(url);
       }
-    })
+    });
 
     // Очистка объекта URL при размонтировании компонента
     return () => {
-      isMounted = false
+      isMounted = false;
       if (imageUrl && imageUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(imageUrl)
+        URL.revokeObjectURL(imageUrl);
       }
-    }
-  }, [file.path, loadImageFile]) // Убираем imageUrl из зависимостей
+    };
+  }, [file.path, loadImageFile]); // Убираем imageUrl из зависимостей
 
   return (
     <div
@@ -113,9 +113,9 @@ export const ImagePreview = memo(function ImagePreview({
           alt={file.name}
           className="h-full w-full object-contain"
           onError={(e) => {
-            console.error("[ImagePreview] Ошибка загрузки изображения:", e)
+            console.error("[ImagePreview] Ошибка загрузки изображения:", e);
             // Заменяем на иконку при ошибке
-            e.currentTarget.style.display = "none"
+            e.currentTarget.style.display = "none";
           }}
         />
       </div>
@@ -129,7 +129,14 @@ export const ImagePreview = memo(function ImagePreview({
       {/* Кнопка избранного */}
       <FavoriteButton file={file} size={size} type="media" />
 
-      {onAddMedia && <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />}
+      {onAddMedia && (
+        <AddMediaButton
+          file={file}
+          onAddMedia={onAddMedia}
+          isAdded={isAdded}
+          size={size}
+        />
+      )}
     </div>
-  )
-})
+  );
+});
