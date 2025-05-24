@@ -1,8 +1,8 @@
-import { assign, createMachine } from "xstate"
+import { assign, createMachine } from "xstate";
 
-import { MediaFile } from "@/types/media"
+import { MediaFile } from "@/types/media";
 
-import { filterFiles, sortFiles } from "./music-utils"
+import { filterFiles, sortFiles } from "./music-utils";
 
 /**
  * Интерфейс контекста музыкальной машины состояний
@@ -11,17 +11,17 @@ import { filterFiles, sortFiles } from "./music-utils"
  * @interface MusicContext
  */
 interface MusicContext {
-  musicFiles: MediaFile[] // Все музыкальные файлы
-  filteredFiles: MediaFile[] // Отфильтрованные музыкальные файлы
-  searchQuery: string // Текущий поисковый запрос
-  sortBy: string // Критерий сортировки
-  sortOrder: "asc" | "desc" // Порядок сортировки (по возрастанию/убыванию)
-  filterType: string // Тип фильтра
-  viewMode: "list" | "thumbnails" // Режим отображения (список/миниатюры)
-  groupBy: "none" | "artist" | "genre" | "album" // Группировка файлов
-  availableExtensions: string[] // Доступные расширения файлов
-  showFavoritesOnly: boolean // Флаг отображения только избранных файлов
-  error?: string // Сообщение об ошибке, если есть
+  musicFiles: MediaFile[]; // Все музыкальные файлы
+  filteredFiles: MediaFile[]; // Отфильтрованные музыкальные файлы
+  searchQuery: string; // Текущий поисковый запрос
+  sortBy: string; // Критерий сортировки
+  sortOrder: "asc" | "desc"; // Порядок сортировки (по возрастанию/убыванию)
+  filterType: string; // Тип фильтра
+  viewMode: "list" | "thumbnails"; // Режим отображения (список/миниатюры)
+  groupBy: "none" | "artist" | "genre" | "album"; // Группировка файлов
+  availableExtensions: string[]; // Доступные расширения файлов
+  showFavoritesOnly: boolean; // Флаг отображения только избранных файлов
+  error?: string; // Сообщение об ошибке, если есть
 }
 
 /**
@@ -29,9 +29,9 @@ interface MusicContext {
  * @interface SearchEvent
  */
 interface SearchEvent {
-  type: "SEARCH" // Тип события
-  query: string // Поисковый запрос
-  mediaContext?: any // Контекст медиа для проверки избранных файлов
+  type: "SEARCH"; // Тип события
+  query: string; // Поисковый запрос
+  mediaContext?: any; // Контекст медиа для проверки избранных файлов
 }
 
 /**
@@ -39,8 +39,8 @@ interface SearchEvent {
  * @interface SortEvent
  */
 interface SortEvent {
-  type: "SORT" // Тип события
-  sortBy: string // Критерий сортировки
+  type: "SORT"; // Тип события
+  sortBy: string; // Критерий сортировки
 }
 
 /**
@@ -48,9 +48,9 @@ interface SortEvent {
  * @interface FilterEvent
  */
 interface FilterEvent {
-  type: "FILTER" // Тип события
-  filterType: string // Тип фильтра
-  mediaContext?: any // Контекст медиа для проверки избранных файлов
+  type: "FILTER"; // Тип события
+  filterType: string; // Тип фильтра
+  mediaContext?: any; // Контекст медиа для проверки избранных файлов
 }
 
 /**
@@ -58,7 +58,7 @@ interface FilterEvent {
  * @interface ChangeOrderEvent
  */
 interface ChangeOrderEvent {
-  type: "CHANGE_ORDER" // Тип события
+  type: "CHANGE_ORDER"; // Тип события
 }
 
 /**
@@ -66,8 +66,8 @@ interface ChangeOrderEvent {
  * @interface ChangeViewModeEvent
  */
 interface ChangeViewModeEvent {
-  type: "CHANGE_VIEW_MODE" // Тип события
-  mode: "list" | "thumbnails" // Новый режим отображения
+  type: "CHANGE_VIEW_MODE"; // Тип события
+  mode: "list" | "thumbnails"; // Новый режим отображения
 }
 
 /**
@@ -75,8 +75,8 @@ interface ChangeViewModeEvent {
  * @interface ChangeGroupByEvent
  */
 interface ChangeGroupByEvent {
-  type: "CHANGE_GROUP_BY" // Тип события
-  groupBy: "none" | "artist" | "genre" | "album" // Новый тип группировки
+  type: "CHANGE_GROUP_BY"; // Тип события
+  groupBy: "none" | "artist" | "genre" | "album"; // Новый тип группировки
 }
 
 /**
@@ -84,7 +84,7 @@ interface ChangeGroupByEvent {
  * @interface RetryEvent
  */
 interface RetryEvent {
-  type: "RETRY" // Тип события
+  type: "RETRY"; // Тип события
 }
 
 /**
@@ -92,8 +92,8 @@ interface RetryEvent {
  * @interface ToggleFavoritesEvent
  */
 interface ToggleFavoritesEvent {
-  type: "TOGGLE_FAVORITES" // Тип события
-  mediaContext?: any // Контекст медиа для проверки избранных файлов
+  type: "TOGGLE_FAVORITES"; // Тип события
+  mediaContext?: any; // Контекст медиа для проверки избранных файлов
 }
 
 /**
@@ -101,8 +101,8 @@ interface ToggleFavoritesEvent {
  * @interface AddMusicFilesEvent
  */
 interface AddMusicFilesEvent {
-  type: "ADD_MUSIC_FILES" // Тип события
-  files: MediaFile[] // Массив музыкальных файлов для добавления
+  type: "ADD_MUSIC_FILES"; // Тип события
+  files: MediaFile[]; // Массив музыкальных файлов для добавления
 }
 
 /**
@@ -110,8 +110,8 @@ interface AddMusicFilesEvent {
  * @interface UpdateMusicFilesEvent
  */
 interface UpdateMusicFilesEvent {
-  type: "UPDATE_MUSIC_FILES" // Тип события
-  files: MediaFile[] // Массив музыкальных файлов для обновления
+  type: "UPDATE_MUSIC_FILES"; // Тип события
+  files: MediaFile[]; // Массив музыкальных файлов для обновления
 }
 
 /**
@@ -128,7 +128,7 @@ type MusicEvent =
   | ToggleFavoritesEvent
   | RetryEvent
   | AddMusicFilesEvent
-  | UpdateMusicFilesEvent
+  | UpdateMusicFilesEvent;
 
 // Музыкальные файлы будут добавляться пользователем, начинаем с пустого массива
 
@@ -207,8 +207,8 @@ export const musicMachine = createMachine({
                 context.filterType,
                 context.showFavoritesOnly,
                 event.mediaContext,
-              )
-              return sortFiles(filtered, context.sortBy, context.sortOrder)
+              );
+              return sortFiles(filtered, context.sortBy, context.sortOrder);
             },
           }),
         },
@@ -228,7 +228,7 @@ export const musicMachine = createMachine({
                 context.filteredFiles,
                 event.sortBy, // Используем новый критерий сортировки
                 context.sortOrder,
-              )
+              );
             },
           }),
         },
@@ -250,8 +250,8 @@ export const musicMachine = createMachine({
                 event.filterType, // Используем новый тип фильтра
                 context.showFavoritesOnly,
                 event.mediaContext,
-              )
-              return sortFiles(filtered, context.sortBy, context.sortOrder)
+              );
+              return sortFiles(filtered, context.sortBy, context.sortOrder);
             },
           }),
         },
@@ -263,12 +263,13 @@ export const musicMachine = createMachine({
         CHANGE_ORDER: {
           actions: assign({
             // Инвертируем порядок сортировки
-            sortOrder: ({ context }) => (context.sortOrder === "asc" ? "desc" : "asc"),
+            sortOrder: ({ context }) =>
+              context.sortOrder === "asc" ? "desc" : "asc",
 
             // Сортируем файлы в новом порядке
             filteredFiles: ({ context }) => {
-              const newOrder = context.sortOrder === "asc" ? "desc" : "asc"
-              return sortFiles(context.filteredFiles, context.sortBy, newOrder)
+              const newOrder = context.sortOrder === "asc" ? "desc" : "asc";
+              return sortFiles(context.filteredFiles, context.sortBy, newOrder);
             },
           }),
         },
@@ -305,7 +306,7 @@ export const musicMachine = createMachine({
             // Перефильтровываем файлы с новым значением флага
             filteredFiles: ({ context, event }) => {
               // Получаем новое значение showFavoritesOnly (инвертированное текущее)
-              const newShowFavoritesOnly = !context.showFavoritesOnly
+              const newShowFavoritesOnly = !context.showFavoritesOnly;
 
               // Перефильтровываем файлы с новым значением showFavoritesOnly
               const filtered = filterFiles(
@@ -314,9 +315,9 @@ export const musicMachine = createMachine({
                 context.filterType,
                 newShowFavoritesOnly, // Используем новое значение флага
                 event.mediaContext,
-              )
+              );
 
-              return sortFiles(filtered, context.sortBy, context.sortOrder)
+              return sortFiles(filtered, context.sortBy, context.sortOrder);
             },
           }),
         },
@@ -329,38 +330,50 @@ export const musicMachine = createMachine({
           actions: assign({
             // Добавляем новые файлы к существующим, избегая дубликатов
             musicFiles: ({ context, event }) => {
-              const existingIds = new Set(context.musicFiles.map(file => file.id))
-              const newFiles = event.files.filter(file => !existingIds.has(file.id))
-              return [...context.musicFiles, ...newFiles]
+              const existingIds = new Set(
+                context.musicFiles.map((file) => file.id),
+              );
+              const newFiles = event.files.filter(
+                (file) => !existingIds.has(file.id),
+              );
+              return [...context.musicFiles, ...newFiles];
             },
 
             // Обновляем отфильтрованные файлы
             filteredFiles: ({ context, event }) => {
-              const existingIds = new Set(context.musicFiles.map(file => file.id))
-              const newFiles = event.files.filter(file => !existingIds.has(file.id))
-              const allFiles = [...context.musicFiles, ...newFiles]
+              const existingIds = new Set(
+                context.musicFiles.map((file) => file.id),
+              );
+              const newFiles = event.files.filter(
+                (file) => !existingIds.has(file.id),
+              );
+              const allFiles = [...context.musicFiles, ...newFiles];
 
               const filtered = filterFiles(
                 allFiles,
                 context.searchQuery,
                 context.filterType,
                 context.showFavoritesOnly,
-              )
-              return sortFiles(filtered, context.sortBy, context.sortOrder)
+              );
+              return sortFiles(filtered, context.sortBy, context.sortOrder);
             },
 
             // Обновляем доступные расширения
             availableExtensions: ({ context, event }) => {
-              const existingIds = new Set(context.musicFiles.map(file => file.id))
-              const newFiles = event.files.filter(file => !existingIds.has(file.id))
-              const allFiles = [...context.musicFiles, ...newFiles]
+              const existingIds = new Set(
+                context.musicFiles.map((file) => file.id),
+              );
+              const newFiles = event.files.filter(
+                (file) => !existingIds.has(file.id),
+              );
+              const allFiles = [...context.musicFiles, ...newFiles];
 
-              const extensions = new Set<string>()
-              allFiles.forEach(file => {
-                const ext = file.name.split('.').pop()?.toLowerCase()
-                if (ext) extensions.add(ext)
-              })
-              return Array.from(extensions)
+              const extensions = new Set<string>();
+              allFiles.forEach((file) => {
+                const ext = file.name.split(".").pop()?.toLowerCase();
+                if (ext) extensions.add(ext);
+              });
+              return Array.from(extensions);
             },
           }),
         },
@@ -373,26 +386,34 @@ export const musicMachine = createMachine({
           actions: assign({
             // Обновляем существующие файлы
             musicFiles: ({ context, event }) => {
-              const updatedFilesMap = new Map(event.files.map(file => [file.id, file]))
-              return context.musicFiles.map(file =>
-                updatedFilesMap.has(file.id) ? updatedFilesMap.get(file.id)! : file
-              )
+              const updatedFilesMap = new Map(
+                event.files.map((file) => [file.id, file]),
+              );
+              return context.musicFiles.map((file) =>
+                updatedFilesMap.has(file.id)
+                  ? updatedFilesMap.get(file.id)!
+                  : file,
+              );
             },
 
             // Обновляем отфильтрованные файлы
             filteredFiles: ({ context, event }) => {
-              const updatedFilesMap = new Map(event.files.map(file => [file.id, file]))
-              const updatedMusicFiles = context.musicFiles.map(file =>
-                updatedFilesMap.has(file.id) ? updatedFilesMap.get(file.id)! : file
-              )
+              const updatedFilesMap = new Map(
+                event.files.map((file) => [file.id, file]),
+              );
+              const updatedMusicFiles = context.musicFiles.map((file) =>
+                updatedFilesMap.has(file.id)
+                  ? updatedFilesMap.get(file.id)!
+                  : file,
+              );
 
               const filtered = filterFiles(
                 updatedMusicFiles,
                 context.searchQuery,
                 context.filterType,
                 context.showFavoritesOnly,
-              )
-              return sortFiles(filtered, context.sortBy, context.sortOrder)
+              );
+              return sortFiles(filtered, context.sortBy, context.sortOrder);
             },
           }),
         },
@@ -423,7 +444,11 @@ export const musicMachine = createMachine({
 
             // Сортируем файлы по новому критерию
             filteredFiles: ({ context, event }) => {
-              return sortFiles(context.filteredFiles, event.sortBy, context.sortOrder)
+              return sortFiles(
+                context.filteredFiles,
+                event.sortBy,
+                context.sortOrder,
+              );
             },
           }),
         },
@@ -434,12 +459,13 @@ export const musicMachine = createMachine({
         CHANGE_ORDER: {
           actions: assign({
             // Инвертируем порядок сортировки
-            sortOrder: ({ context }) => (context.sortOrder === "asc" ? "desc" : "asc"),
+            sortOrder: ({ context }) =>
+              context.sortOrder === "asc" ? "desc" : "asc",
 
             // Сортируем файлы в новом порядке
             filteredFiles: ({ context }) => {
-              const newOrder = context.sortOrder === "asc" ? "desc" : "asc"
-              return sortFiles(context.filteredFiles, context.sortBy, newOrder)
+              const newOrder = context.sortOrder === "asc" ? "desc" : "asc";
+              return sortFiles(context.filteredFiles, context.sortBy, newOrder);
             },
           }),
         },
@@ -460,8 +486,8 @@ export const musicMachine = createMachine({
                 event.filterType,
                 context.showFavoritesOnly,
                 event.mediaContext,
-              )
-              return sortFiles(filtered, context.sortBy, context.sortOrder)
+              );
+              return sortFiles(filtered, context.sortBy, context.sortOrder);
             },
           }),
         },
@@ -482,8 +508,8 @@ export const musicMachine = createMachine({
                 context.filterType,
                 context.showFavoritesOnly,
                 event.mediaContext,
-              )
-              return sortFiles(filtered, context.sortBy, context.sortOrder)
+              );
+              return sortFiles(filtered, context.sortBy, context.sortOrder);
             },
           }),
         },
@@ -516,19 +542,19 @@ export const musicMachine = createMachine({
 
             // Перефильтровываем файлы с новым значением флага
             filteredFiles: ({ context, event }) => {
-              const newShowFavoritesOnly = !context.showFavoritesOnly
+              const newShowFavoritesOnly = !context.showFavoritesOnly;
               const filtered = filterFiles(
                 context.musicFiles,
                 context.searchQuery,
                 context.filterType,
                 newShowFavoritesOnly,
                 event.mediaContext,
-              )
-              return sortFiles(filtered, context.sortBy, context.sortOrder)
+              );
+              return sortFiles(filtered, context.sortBy, context.sortOrder);
             },
           }),
         },
       },
     },
   },
-})
+});
