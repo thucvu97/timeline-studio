@@ -1,3 +1,2 @@
-export * from "./lib/template-labels"
-export * from "./components/template-list"
-export * from "./components/template-list-toolbar"
+export * from "./lib"
+export * from "./services"
