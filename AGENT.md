@@ -1,6 +1,7 @@
 # AGENT.md - Timeline Studio coding guide
 
 ## Commands
+
 - **Build frontend**: `bun run build`
 - **Dev with hot reload**: `bun run dev`
 - **Lint**: `bun run lint` (JS/TS), `bun run lint:css` (CSS), `bun run lint:rust` (Rust)
@@ -12,6 +13,7 @@
 - **Run Tauri**: `bun run tauri dev` (development), `bun run tauri build` (production)
 
 ## MCP Configuration
+
 ```json
 {
   "servers": {
@@ -25,6 +27,7 @@
 ```
 
 ## Code style
+
 - **JS/TS**: ESLint, semicolons as needed, double quotes
 - **Imports**: Grouped (builtin → external → internal → sibling/parent → CSS)
 - **Components**: Follow feature-based organization in `src/features/`
@@ -35,6 +38,7 @@
 - **Rust**: 2-space indentation, 100 column width, use clippy
 
 ## Тестирование
+
 - **Инструменты**: Vitest + Testing Library + XState Test
 - **Структура**: Тесты располагаются рядом с тестируемыми файлами (.test.ts/.test.tsx)
 - **Утилиты**: В `src/test/` находятся вспомогательные утилиты и настройки:
@@ -288,10 +292,10 @@ describe("FilterPreview", () => {
 ## Тестирование XState машин с асинхронными действиями
 
 ```typescript
-import { beforeEach, describe, expect, it, vi } from "vitest"
-import { createActor } from "xstate"
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createActor } from "xstate";
 
-import { resourcesMachine } from "./resources-machine"
+import { resourcesMachine } from "./resources-machine";
 
 // Мокируем IndexedDB
 vi.mock("@/services/storage", () => ({
@@ -303,47 +307,47 @@ vi.mock("@/services/storage", () => ({
             { id: "resource-1", type: "effect", resourceId: "brightness" },
             { id: "resource-2", type: "filter", resourceId: "contrast" },
           ],
-        })
+        });
       }
-      return Promise.resolve(null)
+      return Promise.resolve(null);
     }),
     setItem: vi.fn().mockResolvedValue(undefined),
   },
-}))
+}));
 
 describe("Resources Machine", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
   it("should start in the loading state", () => {
-    const actor = createActor(resourcesMachine)
-    actor.start()
+    const actor = createActor(resourcesMachine);
+    actor.start();
 
-    expect(actor.getSnapshot().value).toBe("loading")
-    expect(actor.getSnapshot().context.resources).toEqual([])
-  })
+    expect(actor.getSnapshot().value).toBe("loading");
+    expect(actor.getSnapshot().context.resources).toEqual([]);
+  });
 
   it("should load resources from storage and transition to idle", async () => {
-    const actor = createActor(resourcesMachine)
-    actor.start()
+    const actor = createActor(resourcesMachine);
+    actor.start();
 
     // Ждем, пока машина перейдет в состояние idle
-    await new Promise((resolve) => setTimeout(resolve, 50))
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(actor.getSnapshot().value).toBe("idle")
+    expect(actor.getSnapshot().value).toBe("idle");
     expect(actor.getSnapshot().context.resources).toEqual([
       { id: "resource-1", type: "effect", resourceId: "brightness" },
       { id: "resource-2", type: "filter", resourceId: "contrast" },
-    ])
-  })
+    ]);
+  });
 
   it("should add a new effect resource when ADD_EFFECT event is sent", async () => {
-    const actor = createActor(resourcesMachine)
-    actor.start()
+    const actor = createActor(resourcesMachine);
+    actor.start();
 
     // Ждем, пока машина перейдет в состояние idle
-    await new Promise((resolve) => setTimeout(resolve, 50))
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     const effect = {
       id: "new-effect",
@@ -352,35 +356,37 @@ describe("Resources Machine", () => {
       duration: 0,
       ffmpegCommand: () => "",
       params: {},
-    }
+    };
 
-    actor.send({ type: "ADD_EFFECT", effect })
+    actor.send({ type: "ADD_EFFECT", effect });
 
     // Проверяем, что ресурс был добавлен
-    expect(actor.getSnapshot().context.resources).toHaveLength(3)
-    expect(actor.getSnapshot().context.resources[2].resourceId).toBe("new-effect")
-    expect(actor.getSnapshot().context.resources[2].type).toBe("effect")
-  })
-})
+    expect(actor.getSnapshot().context.resources).toHaveLength(3);
+    expect(actor.getSnapshot().context.resources[2].resourceId).toBe(
+      "new-effect",
+    );
+    expect(actor.getSnapshot().context.resources[2].type).toBe("effect");
+  });
+});
 ```
 
 ## XState Machine Template
 
 ```typescript
-import { assign, setup } from "xstate"
+import { assign, setup } from "xstate";
 
 // Define types for context and events
 export interface MyContext {
-  data: string[]
-  isLoading: boolean
-  error: string | null
+  data: string[];
+  isLoading: boolean;
+  error: string | null;
 }
 
 export type MyEvent =
   | { type: "FETCH" }
   | { type: "ADD"; item: string }
   | { type: "REMOVE"; index: number }
-  | { type: "RESET" }
+  | { type: "RESET" };
 
 // Create machine with setup method (XState v5 pattern)
 export const myMachine = setup({
@@ -390,7 +396,7 @@ export const myMachine = setup({
   },
   actions: {
     logAction: ({ context, event }) => {
-      console.log(`Action triggered by ${event.type}`, context)
+      console.log(`Action triggered by ${event.type}`, context);
     },
   },
 }).createMachine({
@@ -429,70 +435,70 @@ export const myMachine = setup({
       // ... more states
     },
   },
-})
+});
 
-export type MyMachine = typeof myMachine
+export type MyMachine = typeof myMachine;
 ```
 
 ## XState Machine Test Template
 
 ```typescript
-import { beforeEach, describe, expect, it, vi } from "vitest"
-import { createActor } from "xstate"
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createActor } from "xstate";
 
-import { myMachine } from "./my-machine"
+import { myMachine } from "./my-machine";
 
 describe("My Machine", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.clearAllMocks();
     // Mock external dependencies
-    vi.spyOn(console, "log").mockImplementation(() => {})
-  })
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
 
   it("should start in the correct initial state", () => {
-    const actor = createActor(myMachine)
-    actor.start()
+    const actor = createActor(myMachine);
+    actor.start();
 
-    expect(actor.getSnapshot().value).toBe("idle")
+    expect(actor.getSnapshot().value).toBe("idle");
     expect(actor.getSnapshot().context).toEqual({
       data: [],
       isLoading: false,
-      error: null
-    })
-  })
+      error: null,
+    });
+  });
 
   it("should add items to context when ADD event is sent", () => {
-    const actor = createActor(myMachine)
-    actor.start()
+    const actor = createActor(myMachine);
+    actor.start();
 
-    actor.send({ type: "ADD", item: "test item" })
+    actor.send({ type: "ADD", item: "test item" });
 
-    expect(actor.getSnapshot().value).toBe("idle")
-    expect(actor.getSnapshot().context.data).toEqual(["test item"])
-  })
+    expect(actor.getSnapshot().value).toBe("idle");
+    expect(actor.getSnapshot().context.data).toEqual(["test item"]);
+  });
 
   it("should transition to loading state when FETCH event is sent", () => {
-    const actor = createActor(myMachine)
-    actor.start()
+    const actor = createActor(myMachine);
+    actor.start();
 
-    actor.send({ type: "FETCH" })
+    actor.send({ type: "FETCH" });
 
-    expect(actor.getSnapshot().value).toBe("loading")
-    expect(actor.getSnapshot().context.isLoading).toBe(true)
-  })
+    expect(actor.getSnapshot().value).toBe("loading");
+    expect(actor.getSnapshot().context.isLoading).toBe(true);
+  });
 
   it("should reset context when RESET event is sent", () => {
-    const actor = createActor(myMachine)
-    actor.start()
+    const actor = createActor(myMachine);
+    actor.start();
 
     // First add some data
-    actor.send({ type: "ADD", item: "item 1" })
-    actor.send({ type: "ADD", item: "item 2" })
+    actor.send({ type: "ADD", item: "item 1" });
+    actor.send({ type: "ADD", item: "item 2" });
 
     // Then reset
-    actor.send({ type: "RESET" })
+    actor.send({ type: "RESET" });
 
-    expect(actor.getSnapshot().context.data).toEqual([])
-  })
-})
+    expect(actor.getSnapshot().context.data).toEqual([]);
+  });
+});
 ```
