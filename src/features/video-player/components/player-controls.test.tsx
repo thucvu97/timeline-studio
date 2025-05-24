@@ -13,7 +13,7 @@ const mockSetIsRecording = vi.fn()
 const mockSetIsSeeking = vi.fn()
 const mockSetIsResizableMode = vi.fn()
 
-vi.mock("./player-provider", () => ({
+vi.mock("../services/player-provider", () => ({
   usePlayer: () => ({
     isPlaying: false,
     setIsPlaying: mockSetIsPlaying,

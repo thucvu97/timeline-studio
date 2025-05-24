@@ -1,5 +1,4 @@
 import { TabsContent } from "@/components/ui/tabs"
-
 import {
   EffectList,
   FilterList,
@@ -9,7 +8,7 @@ import {
   SubtitlesList,
   TemplateList,
   TransitionsList,
-} from "./tabs"
+} from "@/features"
 
 export function BrowserContent() {
   const contentClassName = "bg-background m-0 flex-1 overflow-auto"

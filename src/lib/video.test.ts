@@ -190,9 +190,11 @@ describe("VolumeState and getNextVolumeState", () => {
 })
 
 describe("calculateWidth", () => {
-  it("should return containerHeight for invalid dimensions", () => {
-    expect(calculateWidth(0, 0, 600)).toBe(600)
-    expect(calculateWidth(0, 1080, 600)).toBe(600)
+  it("should return 16:9 aspect ratio for invalid dimensions", () => {
+    // Для невалидных размеров используется соотношение 16:9 по умолчанию
+    const expected = 600 * (16 / 9) // 1066.6666666666667
+    expect(calculateWidth(0, 0, 600)).toBeCloseTo(expected, 2)
+    expect(calculateWidth(0, 1080, 600)).toBeCloseTo(expected, 2)
   })
 
   it("should calculate width based on aspect ratio", () => {

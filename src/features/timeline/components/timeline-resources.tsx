@@ -1,7 +1,7 @@
 import { Music, Package, Palette, Scissors, Subtitles, Video } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { useResources } from "@/features/browser/resources"
+import { useResources } from "@/features/resources"
 import { TimelineResource } from "@/types/resources"
 
 /**

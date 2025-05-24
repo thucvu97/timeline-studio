@@ -46,7 +46,7 @@ const mockVideo: MediaFile = {
   duration: 120,
 }
 
-vi.mock("./player-provider", () => ({
+vi.mock("../services/player-provider", () => ({
   usePlayer: () => ({
     video: mockVideo,
   }),

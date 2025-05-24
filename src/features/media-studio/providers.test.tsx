@@ -24,8 +24,51 @@ vi.mock("@/features/modals/features/project-settings/project-settings-provider",
   ),
 }))
 
-vi.mock("@/features/browser/components/tabs/music/music-provider", () => ({
+vi.mock("@/features/music/music-provider", () => ({
   MusicProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="music-provider">{children}</div>,
+}))
+
+// Добавляем моки для остальных провайдеров
+vi.mock("@/features/modals/features/user-settings/user-settings-provider", () => ({
+  UserSettingsProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="user-settings-provider">{children}</div>
+  ),
+}))
+
+vi.mock("@/features/resources/resources-provider", () => ({
+  ResourcesProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="resources-provider">{children}</div>
+  ),
+}))
+
+vi.mock("@/features/browser/media", () => ({
+  MediaProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="media-provider">{children}</div>
+  ),
+}))
+
+vi.mock("@/features/browser/components/preview/preview-size-provider", () => ({
+  PreviewSizeProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="preview-size-provider">{children}</div>
+  ),
+}))
+
+vi.mock("@/features/templates/services/template-list-provider", () => ({
+  TemplateListProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="template-list-provider">{children}</div>
+  ),
+}))
+
+vi.mock("@/features/video-player/services/player-provider", () => ({
+  PlayerProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="player-provider">{children}</div>
+  ),
+}))
+
+vi.mock("@/features/ai-chat/services/chat-provider", () => ({
+  ChatProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="chat-provider">{children}</div>
+  ),
 }))
 
 describe("Providers", () => {

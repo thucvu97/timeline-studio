@@ -153,28 +153,26 @@ export const VideoPreview = memo(function VideoPreview({
   // Функция для чтения файла и создания объекта URL
   const loadVideoFile = useCallback(async (path: string) => {
     try {
-      console.log("[VideoPreview] Чтение файла через readFile:", path);
       const fileData = await readFile(path);
       const blob = new Blob([fileData], { type: "video/mp4" });
       const url = URL.createObjectURL(blob);
-      console.log("[VideoPreview] Создан объект URL:", url);
-      setVideoUrl(url);
       return url;
     } catch (error) {
       console.error("[VideoPreview] Ошибка при загрузке видео:", error);
       // В случае ошибки используем convertFileSrc
       const assetUrl = convertFileSrc(path);
-      console.log("[VideoPreview] Используем asset URL:", assetUrl);
-      setVideoUrl(assetUrl);
       return assetUrl;
     }
   }, []);
+
+  // Мемоизируем путь к файлу для предотвращения лишних перезагрузок
+  const filePath = useMemo(() => file.path, [file.path]);
 
   // Эффект для загрузки видео при монтировании компонента
   useEffect(() => {
     let isMounted = true;
 
-    void loadVideoFile(file.path).then((url) => {
+    void loadVideoFile(filePath).then((url) => {
       if (isMounted) {
         setVideoUrl(url);
       }
@@ -187,7 +185,7 @@ export const VideoPreview = memo(function VideoPreview({
         URL.revokeObjectURL(videoUrl);
       }
     };
-  }, [file.path, loadVideoFile]); // Убираем videoUrl из зависимостей
+  }, [filePath, loadVideoFile]); // Используем мемоизированный путь
 
   // Оптимизируем вычисления с помощью useMemo
   const videoData = useMemo(() => {
@@ -511,4 +509,28 @@ export const VideoPreview = memo(function VideoPreview({
       )}
     </div>
   );
+}, (prevProps, nextProps) => {
+  // Сравниваем только важные свойства для предотвращения лишних перерендеров
+  const isSameFile = prevProps.file.path === nextProps.file.path;
+  const isSameMetadataState = prevProps.file.isLoadingMetadata === nextProps.file.isLoadingMetadata;
+  const isSameProps = (
+    prevProps.isAdded === nextProps.isAdded &&
+    prevProps.size === nextProps.size &&
+    prevProps.showFileName === nextProps.showFileName &&
+    prevProps.ignoreRatio === nextProps.ignoreRatio &&
+    prevProps.onAddMedia === nextProps.onAddMedia
+  );
+
+  // Сравниваем количество потоков (главный индикатор изменения метаданных)
+  const prevStreamsCount = prevProps.file.probeData?.streams?.length ?? 0;
+  const nextStreamsCount = nextProps.file.probeData?.streams?.length ?? 0;
+  const isSameStreamsCount = prevStreamsCount === nextStreamsCount;
+
+  // Если метаданные уже загружены и количество потоков не изменилось - не перерендериваем
+  if (!nextProps.file.isLoadingMetadata && isSameStreamsCount && isSameFile && isSameProps) {
+    return true;
+  }
+
+  // Перерендериваем только при изменении ключевых свойств
+  return isSameFile && isSameMetadataState && isSameProps && isSameStreamsCount;
 });

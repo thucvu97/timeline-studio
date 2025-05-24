@@ -13,7 +13,7 @@ vi.mock('./timeline-top-panel', () => ({
   TimelineTopPanel: () => <div data-testid="timeline-top-panel">Timeline Top Panel</div>,
 }))
 
-vi.mock('@/features/chat/components/ai-chat', () => ({
+vi.mock('@/features/ai-chat/components/ai-chat', () => ({
   AiChat: () => <div data-testid="ai-chat">AI Chat</div>,
 }))
 

@@ -31,14 +31,14 @@ vi.mock("lucide-react", () => ({
 // Мокаем функции из lib/media-files
 vi.mock("@/lib/media-files", () => ({
   getRemainingMediaCounts: vi.fn().mockImplementation((media, addedFilesSet) => {
-    const remainingVideoCount = media.filter((file) => file.isVideo && !addedFilesSet.has(file.path)).length
-    const remainingAudioCount = media.filter((file) => file.isAudio && !addedFilesSet.has(file.path)).length
+    const remainingVideoCount = media.filter((file: { isVideo: any; path: any }) => file.isVideo && !addedFilesSet.has(file.path)).length
+    const remainingAudioCount = media.filter((file: { isAudio: any; path: any }) => file.isAudio && !addedFilesSet.has(file.path)).length
     const allFilesAdded = remainingVideoCount === 0 && remainingAudioCount === 0
     return { remainingVideoCount, remainingAudioCount, allFilesAdded }
   }),
   getTopDateWithRemainingFiles: vi.fn().mockImplementation((sortedDates, addedFilesSet) => {
     for (const dateGroup of sortedDates) {
-      const remainingFiles = dateGroup.files.filter((file) => !addedFilesSet.has(file.path))
+      const remainingFiles = dateGroup.files.filter((file: { path: any }) => !addedFilesSet.has(file.path))
       if (remainingFiles.length > 0) {
         return {
           date: dateGroup.date,

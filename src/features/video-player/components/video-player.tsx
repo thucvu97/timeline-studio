@@ -6,7 +6,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider"
 
 import { PlayerControls } from "./player-controls"
-import { usePlayer } from "./player-provider"
+import { usePlayer } from "../services/player-provider"
 
 /**
  * Компонент медиа-плеера для воспроизведения видео

@@ -36,13 +36,8 @@ interface PreviewSizeProviderProps {
  * @returns {JSX.Element} Провайдер контекста с размером превью
  */
 export function PreviewSizeProvider({ children }: PreviewSizeProviderProps) {
-  console.log("PreviewSizeProvider rendering")
-
   // Инициализируем машину состояний
   const [state, send] = useMachine(previewSizeMachine)
-
-  console.log("PreviewSizeProvider state:", state.context)
-  console.log("PreviewSizeProvider state status:", state.status)
 
   // Загружаем сохраненный размер при монтировании компонента
   useEffect(() => {

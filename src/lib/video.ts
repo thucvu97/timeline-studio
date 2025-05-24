@@ -88,8 +88,6 @@ export const calculateTimeRanges = (videos: MediaFile[]): TimeRange[] => {
 export const getAspectRatio = (stream?: FfprobeStream): string | null => {
   if (!stream) return null
 
-  console.log("[getAspectRatio] stream:", stream)
-
   // Проверяем наличие специальных соотношений
   if (stream.display_aspect_ratio === "960:409") {
     return "2.35:1"

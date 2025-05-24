@@ -13,7 +13,7 @@ vi.mock("@/components/ui/tabs", () => ({
 }))
 
 // Мокаем компоненты вкладок
-vi.mock("./tabs", () => ({
+vi.mock("@/features", () => ({
   MusicList: () => <div data-testid="music-list">Music List</div>,
   TransitionsList: () => <div data-testid="transitions-list">Transitions List</div>,
   EffectList: () => <div data-testid="effect-list">Effect List</div>,

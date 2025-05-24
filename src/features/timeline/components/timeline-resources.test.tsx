@@ -2,7 +2,7 @@ import React from 'react'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { useResources } from '@/features/browser/resources'
+import { useResources } from '@/features/resources'
 import { fireEvent, render, screen } from '@/test/test-utils'
 
 import { TimelineResources } from './timeline-resources'
@@ -60,7 +60,7 @@ const mockMusicResources = [
 ] as any
 
 // Мокаем модуль resources
-vi.mock('@/features/browser/resources', async (importOriginal) => {
+vi.mock('@/features/resources', async (importOriginal) => {
   const actual = await importOriginal() as any
   return {
     ...actual,

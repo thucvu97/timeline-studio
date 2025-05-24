@@ -38,47 +38,30 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   const includedFiles = mediaState.context.allMediaFiles.filter((file) => file.isIncluded)
   const unavailableFiles = mediaState.context.allMediaFiles.filter((file) => file.isUnavailable)
 
-  // Добавляем логирование при изменении состояния
-  useEffect(() => {
-    console.log("Media state changed:", {
-      allMediaFiles: mediaState.context.allMediaFiles,
-      includedFiles,
-      isLoading: mediaState.context.isLoading,
-      error: mediaState.context.error,
-      favorites: mediaState.context.favorites,
-    })
-  }, [mediaState.context, includedFiles])
-
   // Инициализируем медиа-машину при монтировании
   useEffect(() => {
-    console.log("Initializing media state...")
     mediaSend({ type: "FETCH_MEDIA" })
-  }, [mediaSend])
+  }, []) // Убираем mediaSend из зависимостей
 
   const includedFilePaths = includedFiles.map((file: MediaFile) => file.path)
 
   const addMediaFiles = (files: MediaFile[]) => {
-    console.log("Adding media files:", files)
     mediaSend({ type: "addMediaFiles", files })
   }
 
   const includeFiles = (files: MediaFile[]) => {
-    console.log("Including files:", files)
     mediaSend({ type: "INCLUDE_FILES", files })
   }
 
   const removeFile = (path: string) => {
-    console.log("Removing file:", path)
     mediaSend({ type: "REMOVE_FILE", path })
   }
 
   const clearFiles = () => {
-    console.log("Clearing all files")
     mediaSend({ type: "CLEAR_FILES" })
   }
 
   const reload = () => {
-    console.log("Reloading media files")
     mediaSend({ type: "RELOAD" })
   }
 

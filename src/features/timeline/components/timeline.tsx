@@ -1,7 +1,7 @@
 import React from "react"
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-import { AiChat } from "@/features/chat/components/ai-chat"
+import { AiChat } from "@/features/ai-chat/components/ai-chat"
 
 import { TimelineResources } from "./timeline-resources"
 import { TimelineTopPanel } from "./timeline-top-panel"

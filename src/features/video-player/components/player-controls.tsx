@@ -25,9 +25,9 @@ import { cn } from "@/lib/utils";
 import { getFrameTime } from "@/lib/video";
 import { MediaFile } from "@/types/media";
 
-import { usePlayer } from "./player-provider";
 import { VolumeSlider } from "./volume-slider";
 import { useFullscreen } from "../hooks/use-fullscreen";
+import { usePlayer } from "../services/player-provider";
 
 interface PlayerControlsProps {
   /**
