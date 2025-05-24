@@ -52,17 +52,19 @@
 
 ```typescript
 // Frontend: Tauri диалог выбора файлов
-const selectedFiles = await selectMediaFile()
+const selectedFiles = await selectMediaFile();
 ```
 
 **Tauri команда `open()`** открывает системный диалог с фильтрами:
 
 **Для медиафайлов (`selectMediaFile`):**
+
 - **Видео**: `.mp4`, `.avi`, `.mkv`, `.mov`, `.webm`
 - **Аудио**: `.mp3`, `.wav`, `.ogg`, `.flac`
 - **Изображения**: `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`
 
 **Для музыкальных файлов (`selectAudioFile`):**
+
 - **Аудио**: `.mp3`, `.wav`, `.ogg`, `.flac`, `.aac`, `.m4a`, `.wma`
 
 ### 2. Обработка файлов в Rust бэкенде
@@ -106,10 +108,11 @@ const processFilesInBatches = async (filePaths: string[])
 
 ```typescript
 // Добавление в медиа-контекст
-media.addMediaFiles(processedFiles)
+media.addMediaFiles(processedFiles);
 ```
 
 **Результат:**
+
 - Файлы появляются в браузере медиафайлов
 - Доступны для предпросмотра и добавления на таймлайн
 - Сохраняются в состоянии приложения до закрытия
@@ -164,18 +167,20 @@ src/features/browser/components/
 ### Tauri команды и API
 
 **Frontend API (`src/lib/media.ts`):**
+
 ```typescript
 // Выбор файлов через системный диалог
-export async function selectMediaFile(): Promise<string[] | null>
+export async function selectMediaFile(): Promise<string[] | null>;
 
 // Получение метаданных файла
-export async function getMediaMetadata(filePath: string): Promise<any>
+export async function getMediaMetadata(filePath: string): Promise<any>;
 
 // Получение списка файлов в директории
-export async function getMediaFiles(directory: string): Promise<string[]>
+export async function getMediaFiles(directory: string): Promise<string[]>;
 ```
 
 **Backend команды (`src-tauri/src/media.rs`):**
+
 ```rust
 // Получение метаданных медиафайла с помощью FFmpeg
 #[command]
@@ -187,6 +192,7 @@ pub fn get_media_files(directory: String) -> Result<Vec<String>, String>
 ```
 
 **Структуры данных:**
+
 - `MediaFile` - полная информация о медиафайле
 - `ProbeData` - данные FFprobe (потоки и формат)
 - `VideoMetadata`, `AudioMetadata`, `ImageMetadata` - типизированные метаданные
@@ -194,25 +200,27 @@ pub fn get_media_files(directory: String) -> Result<Vec<String>, String>
 ### Хуки для импорта
 
 **`useMediaImport` (`src/features/browser/media/use-media-import.ts`):**
+
 ```typescript
-const { importFile, importDirectory, isImporting, progress } = useMediaImport()
+const { importFile, importDirectory, isImporting, progress } = useMediaImport();
 
 // Импорт отдельных медиафайлов
-const result = await importFile()
+const result = await importFile();
 
 // Импорт всей директории
-const result = await importDirectory()
+const result = await importDirectory();
 ```
 
 **`useMusicImport` (`src/features/browser/components/tabs/music/use-music-import.ts`):**
+
 ```typescript
-const { importFile, importDirectory, isImporting, progress } = useMusicImport()
+const { importFile, importDirectory, isImporting, progress } = useMusicImport();
 
 // Импорт отдельных аудиофайлов (только аудио)
-const result = await importFile()
+const result = await importFile();
 
 // Импорт всей директории (фильтрует только аудиофайлы)
-const result = await importDirectory()
+const result = await importDirectory();
 ```
 
 ## Поддерживаемые типы файлов
@@ -240,11 +248,13 @@ const result = await importDirectory()
 ### Режимы отображения
 
 1. **List** - список с метаданными
+
    - Горизонтальное расположение
    - Превью слева, метаданные справа
    - Компактное отображение информации
 
 2. **Grid** - сетка с превью
+
    - Вертикальные карточки
    - Крупные превью
    - Название файла под превью
@@ -321,16 +331,16 @@ const result = await importDirectory()
 
 ```typescript
 // В компоненте MediaItem
-const { addFilesToTimeline } = useMedia()
+const { addFilesToTimeline } = useMedia();
 
 const handleAddMedia = () => {
-  addFilesToTimeline([file])
-}
+  addFilesToTimeline([file]);
+};
 
 // Использование в MediaGroup для добавления всех файлов группы
 const handleAddAllFiles = () => {
-  addFilesToTimeline(files)
-}
+  addFilesToTimeline(files);
+};
 ```
 
 ### Управление состоянием списка медиафайлов
@@ -343,18 +353,18 @@ const {
   searchQuery,
   setSearchQuery,
   sortBy,
-  setSortBy
-} = useMediaList()
+  setSortBy,
+} = useMediaList();
 
 // Изменение режима отображения
 const handleViewModeChange = (mode: "list" | "grid" | "thumbnails") => {
-  setViewMode(mode)
-}
+  setViewMode(mode);
+};
 
 // Поиск файлов
 const handleSearch = (query: string) => {
-  setSearchQuery(query)
-}
+  setSearchQuery(query);
+};
 ```
 
 ### Работа с превью файлов
@@ -362,55 +372,56 @@ const handleSearch = (query: string) => {
 ```typescript
 // В компоненте MediaPreview
 interface MediaPreviewProps {
-  file: MediaFile
-  onAddMedia: (file: MediaFile) => void
-  isAdded: boolean
-  size: number
-  ignoreRatio?: boolean
+  file: MediaFile;
+  onAddMedia: (file: MediaFile) => void;
+  isAdded: boolean;
+  size: number;
+  ignoreRatio?: boolean;
 }
 
 // Проверка добавленных файлов
-const { isFileAdded } = useMedia()
-const isAdded = isFileAdded(file)
+const { isFileAdded } = useMedia();
+const isAdded = isFileAdded(file);
 ```
 
 ### Импорт музыкальных файлов
 
 ```typescript
 // В компоненте MusicList
-const { importFile, importDirectory } = useMusicImport()
+const { importFile, importDirectory } = useMusicImport();
 
 // Импорт отдельных аудиофайлов
 const handleImportFile = async () => {
-  const result = await importFile()
+  const result = await importFile();
   if (result.success) {
-    console.log(result.message)
+    console.log(result.message);
   }
-}
+};
 
 // Импорт всей директории с музыкой
 const handleImportFolder = async () => {
-  const result = await importDirectory()
+  const result = await importDirectory();
   if (result.success) {
-    console.log(result.message)
+    console.log(result.message);
   }
-}
+};
 ```
 
 ### Управление состоянием музыки
 
 ```typescript
 // В MusicProvider
-const { addMusicFiles, updateMusicFiles } = useMusic()
+const { addMusicFiles, updateMusicFiles } = useMusic();
 
 // Добавление новых музыкальных файлов
-addMusicFiles(newAudioFiles)
+addMusicFiles(newAudioFiles);
 
 // Обновление существующих файлов (например, после загрузки метаданных)
-updateMusicFiles(updatedAudioFiles)
+updateMusicFiles(updatedAudioFiles);
 ```
 
 ## Планы по развитию
+
 - Проработка механизма добавления/переноса эффектов, фильтров и переходов на таймлайн
 - Разработка системы добавления шаблонов на объединенный схема-таймлайн
 - Реализация синхронизации настроек предпросмотра между вкладками
