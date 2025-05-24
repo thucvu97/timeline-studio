@@ -132,7 +132,7 @@ export const AudioPreview = memo(function AudioPreview({
         URL.revokeObjectURL(audioUrl)
       }
     }
-  }, [file.path, loadAudioFile, audioUrl])
+  }, [file.path, loadAudioFile]) // Убираем audioUrl из зависимостей
 
   useEffect(() => {
     const audioElement = audioRef.current

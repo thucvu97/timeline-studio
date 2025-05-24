@@ -88,7 +88,7 @@ export const ImagePreview = memo(function ImagePreview({
         URL.revokeObjectURL(imageUrl)
       }
     }
-  }, [file.path, loadImageFile, imageUrl])
+  }, [file.path, loadImageFile]) // Убираем imageUrl из зависимостей
 
   return (
     <div

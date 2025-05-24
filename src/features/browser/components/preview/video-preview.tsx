@@ -172,7 +172,7 @@ export const VideoPreview = memo(function VideoPreview({
         URL.revokeObjectURL(videoUrl)
       }
     }
-  }, [file.path, loadVideoFile, videoUrl])
+  }, [file.path, loadVideoFile]) // Убираем videoUrl из зависимостей
 
   // Оптимизируем вычисления с помощью useMemo
   const videoData = useMemo(() => {
