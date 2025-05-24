@@ -9,6 +9,9 @@ use language::{get_app_language, set_app_language};
 mod media;
 use media::{get_media_files, get_media_metadata};
 
+// Модуль для работы с файловой системой
+mod filesystem;
+
 #[tauri::command]
 fn greet() -> String {
   let now = SystemTime::now();
@@ -32,7 +35,12 @@ pub fn run() {
       get_app_language,
       set_app_language,
       get_media_metadata,
-      get_media_files
+      get_media_files,
+      filesystem::file_exists,
+      filesystem::get_file_stats,
+      filesystem::get_platform,
+      filesystem::search_files_by_name,
+      filesystem::get_absolute_path
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

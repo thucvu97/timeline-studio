@@ -127,6 +127,64 @@ export const DEFAULT_PROJECT_SETTINGS: ProjectSettings = {
   colorSpace: "sdr",
 }
 
+/**
+ * Полная структура файла проекта Timeline Studio (.tlsp)
+ */
+export interface ProjectFile {
+  /** Настройки проекта (разрешение, FPS, цветовое пространство) */
+  settings: ProjectSettings
+
+  /** Медиабиблиотека проекта с импортированными файлами */
+  mediaLibrary?: {
+    mediaFiles: import('./saved-media').SavedMediaFile[]
+    musicFiles: import('./saved-media').SavedMusicFile[]
+    lastUpdated: number
+    version: string
+  }
+
+  /** Состояние браузера медиафайлов */
+  browserState?: {
+    media: {
+      viewMode: "list" | "grid" | "thumbnails"
+      sortBy: string
+      sortOrder: "asc" | "desc"
+      searchQuery: string
+      filterType: string
+      groupBy: string
+    }
+    music: {
+      viewMode: "list" | "thumbnails"
+      sortBy: string
+      sortOrder: "asc" | "desc"
+      searchQuery: string
+      filterType: string
+      groupBy: "none" | "artist" | "genre" | "album"
+      showFavoritesOnly: boolean
+    }
+  }
+
+  /** Избранные файлы, специфичные для проекта */
+  projectFavorites?: {
+    mediaFiles: string[]
+    musicFiles: string[]
+  }
+
+  /** Состояние таймлайна (будет добавлено позже) */
+  timeline?: {
+    tracks: any[]
+    resources: any[]
+    // ... другие данные таймлайна
+  }
+
+  /** Метаданные проекта */
+  meta: {
+    version: string
+    createdAt: number
+    lastModified: number
+    originalPlatform?: string
+  }
+}
+
 // "16:9" | "9:16" | "1:1" | "4:3" | "4:5" | "21:9" | "custom"
 
 export interface AspectRatio {

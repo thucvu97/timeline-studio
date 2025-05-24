@@ -2,11 +2,13 @@ import { useCallback, useState } from "react";
 
 import { invoke } from "@tauri-apps/api/core";
 
+import { useCurrentProject } from "@/features/app-state/app-settings-provider";
 import {
   getMediaMetadata,
   selectAudioFile,
   selectMediaDirectory,
 } from "@/lib/media";
+import { convertToSavedMusicFile } from "@/lib/saved-media-utils";
 import { MediaFile } from "@/types/media";
 
 import { useMusic } from "./music-provider";
@@ -36,6 +38,33 @@ export function useMusicImport() {
 
   // Получаем методы из музыкального контекста
   const { addMusicFiles, updateMusicFiles } = useMusic();
+  const { currentProject, setProjectDirty } = useCurrentProject();
+
+  /**
+   * Сохраняет импортированные музыкальные файлы в проект (если проект открыт)
+   */
+  const saveFilesToProject = useCallback(async (files: MediaFile[]) => {
+    // Сохраняем только если есть открытый проект
+    if (!currentProject.path || files.length === 0) {
+      return;
+    }
+
+    try {
+      // Конвертируем MediaFile в SavedMusicFile
+      const savedFiles = await Promise.all(
+        files.map(file => convertToSavedMusicFile(file, currentProject.path || undefined))
+      );
+
+      // TODO: Здесь нужно будет добавить логику сохранения в проект
+      // Пока просто логируем для отладки
+      console.log(`Сохранено ${savedFiles.length} музыкальных файлов в проект:`, savedFiles);
+
+      // Отмечаем проект как измененный
+      setProjectDirty(true);
+    } catch (error) {
+      console.error("Ошибка при сохранении музыкальных файлов в проект:", error);
+    }
+  }, [currentProject.path, setProjectDirty]);
 
   /**
    * Создает базовый объект музыкального файла с минимальной информацией
@@ -207,6 +236,9 @@ export function useMusicImport() {
       // Обрабатываем файлы пакетами
       const processedFiles = await processFilesInBatches(selectedFiles);
 
+      // Сохраняем файлы в проект (если проект открыт)
+      await saveFilesToProject(processedFiles);
+
       setIsImporting(false);
       setProgress(100);
 
@@ -225,7 +257,7 @@ export function useMusicImport() {
         files: [],
       };
     }
-  }, []);
+  }, [processFilesInBatches, saveFilesToProject]);
 
   /**
    * Импортирует музыкальные файлы из директории
@@ -276,6 +308,9 @@ export function useMusicImport() {
       // Обрабатываем файлы пакетами
       const processedFiles = await processFilesInBatches(audioFiles);
 
+      // Сохраняем файлы в проект (если проект открыт)
+      await saveFilesToProject(processedFiles);
+
       setIsImporting(false);
       setProgress(100);
 
@@ -294,7 +329,7 @@ export function useMusicImport() {
         files: [],
       };
     }
-  }, []);
+  }, [processFilesInBatches, saveFilesToProject]);
 
   return {
     importFile,

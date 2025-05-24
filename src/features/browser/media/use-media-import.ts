@@ -2,7 +2,9 @@ import { useCallback, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 
+import { useCurrentProject } from "@/features/app-state/app-settings-provider"
 import { getMediaMetadata, selectMediaDirectory, selectMediaFile } from "@/lib/media"
+import { convertToSavedMediaFile } from "@/lib/saved-media-utils"
 import { MediaFile } from "@/types/media"
 
 import { useMedia } from "./use-media"
@@ -27,8 +29,35 @@ interface ImportResult {
  */
 export function useMediaImport() {
   const media = useMedia()
+  const { currentProject, setProjectDirty } = useCurrentProject()
   const [isImporting, setIsImporting] = useState(false)
   const [progress, setProgress] = useState(0)
+
+  /**
+   * Сохраняет импортированные медиафайлы в проект (если проект открыт)
+   */
+  const saveFilesToProject = useCallback(async (files: MediaFile[]) => {
+    // Сохраняем только если есть открытый проект
+    if (!currentProject.path || files.length === 0) {
+      return
+    }
+
+    try {
+      // Конвертируем MediaFile в SavedMediaFile
+      const savedFiles = await Promise.all(
+        files.map(file => convertToSavedMediaFile(file, currentProject.path || undefined))
+      )
+
+      // TODO: Здесь нужно будет добавить логику сохранения в проект
+      // Пока просто логируем для отладки
+      console.log(`Сохранено ${savedFiles.length} медиафайлов в проект:`, savedFiles)
+
+      // Отмечаем проект как измененный
+      setProjectDirty(true)
+    } catch (error) {
+      console.error("Ошибка при сохранении файлов в проект:", error)
+    }
+  }, [currentProject.path, setProjectDirty])
 
   /**
    * Создает базовый объект медиафайла с минимальной информацией
@@ -188,6 +217,9 @@ export function useMediaImport() {
       // Обрабатываем файлы пакетами
       const processedFiles = await processFilesInBatches(selectedFiles)
 
+      // Сохраняем файлы в проект (если проект открыт)
+      await saveFilesToProject(processedFiles)
+
       setIsImporting(false)
       setProgress(100)
 
@@ -206,7 +238,7 @@ export function useMediaImport() {
         files: [],
       }
     }
-  }, [media, processFilesInBatches])
+  }, [media, processFilesInBatches, saveFilesToProject])
 
   /**
    * Импортирует папку с медиафайлами
@@ -246,6 +278,9 @@ export function useMediaImport() {
       // Обрабатываем файлы пакетами
       const processedFiles = await processFilesInBatches(mediaFiles)
 
+      // Сохраняем файлы в проект (если проект открыт)
+      await saveFilesToProject(processedFiles)
+
       setIsImporting(false)
       setProgress(100)
 
@@ -264,7 +299,7 @@ export function useMediaImport() {
         files: [],
       }
     }
-  }, [media, processFilesInBatches])
+  }, [media, processFilesInBatches, saveFilesToProject])
 
   return {
     importFile,

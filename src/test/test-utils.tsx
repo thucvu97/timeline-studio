@@ -4,7 +4,12 @@ import { RenderOptions, render } from "@testing-library/react"
 
 import { ThemeProvider } from "@/components/theme/theme-context"
 import { AppSettingsProvider } from "@/features/app-state/app-settings-provider"
+import { PreviewSizeProvider } from "@/features/browser/components/preview/preview-size-provider"
+import { MediaListProvider } from "@/features/browser/components/tabs/media/media-list-provider"
+import { TemplateListProvider } from "@/features/browser/components/tabs/templates/services/template-list-provider"
+import { MediaProvider } from "@/features/browser/media"
 import { ResourcesProvider } from "@/features/browser/resources"
+import { ChatProvider } from "@/features/chat/services/chat-provider"
 import { ProjectSettingsProvider } from "@/features/modals/features/project-settings/project-settings-provider"
 import { UserSettingsProvider } from "@/features/modals/features/user-settings/user-settings-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
@@ -16,19 +21,29 @@ export const AllProviders = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <AppSettingsProvider>
-          <ProjectSettingsProvider>
-            <UserSettingsProvider>
-              <PlayerProvider>
-                <ModalProvider>
-                  <ResourcesProvider>
-                    {children}
-                  </ResourcesProvider>
-                </ModalProvider>
-              </PlayerProvider>
-            </UserSettingsProvider>
-          </ProjectSettingsProvider>
-        </AppSettingsProvider>
+        <ModalProvider>
+          <AppSettingsProvider>
+            <ProjectSettingsProvider>
+              <UserSettingsProvider>
+                <ResourcesProvider>
+                  <MediaProvider>
+                    <MediaListProvider>
+                      <PreviewSizeProvider>
+                        <TemplateListProvider>
+                          <PlayerProvider>
+                            <ChatProvider>
+                              {children}
+                            </ChatProvider>
+                          </PlayerProvider>
+                        </TemplateListProvider>
+                      </PreviewSizeProvider>
+                    </MediaListProvider>
+                  </MediaProvider>
+                </ResourcesProvider>
+              </UserSettingsProvider>
+            </ProjectSettingsProvider>
+          </AppSettingsProvider>
+        </ModalProvider>
       </I18nProvider>
     </ThemeProvider>
   )

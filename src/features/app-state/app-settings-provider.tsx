@@ -4,8 +4,11 @@ import { appDataDir, basename, join } from "@tauri-apps/api/path"
 import { open, save } from "@tauri-apps/plugin-dialog"
 import { useMachine } from "@xstate/react"
 
+import { MissingFilesDialog } from "@/components/dialogs/missing-files-dialog"
 import { FavoritesType } from "@/features/browser/media/media-machine"
 import { UserSettingsContext } from "@/features/modals/features/user-settings/user-settings-machine"
+import { useMediaRestoration } from "@/hooks/use-media-restoration"
+import { ProjectFileService } from "@/lib/project-file-service"
 
 import { AppSettingsContext as AppSettingsContextType, appSettingsMachine } from "./app-settings-machine"
 
@@ -56,6 +59,15 @@ const AppSettingsContext = createContext<AppSettingsProviderContext | undefined>
 export function AppSettingsProvider({ children }: { children: ReactNode }) {
   // Используем машину состояний
   const [state, send] = useMachine(appSettingsMachine)
+
+  // Хук для восстановления медиафайлов
+  const {
+    restoreProjectMedia,
+    handleMissingFilesResolution,
+    cancelMissingFilesDialog,
+    showMissingFilesDialog,
+    getMissingFiles
+  } = useMediaRestoration()
 
   // Проверяем, есть ли открытый проект, и если нет, создаем новый
   useEffect(() => {
@@ -132,10 +144,53 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       // Получаем имя файла из пути
       const name = await basename(path)
 
-      // Отправляем событие в машину состояний
-      send({ type: "OPEN_PROJECT", path, name })
+      try {
+        // Загружаем содержимое проекта
+        const projectData = await ProjectFileService.loadProject(path)
 
-      return { path, name }
+        // Отправляем событие в машину состояний с данными проекта
+        // TODO: Обновить тип события в машине состояний для поддержки projectData
+        send({
+          type: "OPEN_PROJECT",
+          path,
+          name,
+          // projectData // Временно закомментировано
+        })
+
+        // Восстанавливаем медиафайлы проекта
+        if (projectData.mediaLibrary) {
+          try {
+            const restorationResult = await restoreProjectMedia(
+              projectData.mediaLibrary.mediaFiles || [],
+              projectData.mediaLibrary.musicFiles || [],
+              path,
+              { showDialog: true } // Показываем диалог для отсутствующих файлов
+            )
+
+            console.log('Медиафайлы восстановлены:', restorationResult.result.stats)
+
+            // TODO: Добавить восстановленные файлы в провайдеры медиа и музыки
+            // updateMediaFiles(restorationResult.restoredMedia)
+            // updateMusicFiles(restorationResult.restoredMusic)
+
+          } catch (restorationError) {
+            console.error('Ошибка при восстановлении медиафайлов:', restorationError)
+            // Не прерываем открытие проекта из-за ошибок восстановления
+          }
+        }
+
+        return { path, name, projectData }
+      } catch (projectError) {
+        console.error("Failed to load project data:", projectError)
+
+        // Отправляем событие без данных проекта (для совместимости)
+        send({ type: "OPEN_PROJECT", path, name })
+
+        // Показываем предупреждение пользователю
+        console.warn(`Проект открыт, но не удалось загрузить данные: ${String(projectError)}`)
+
+        return { path, name, error: String(projectError) }
+      }
     } catch (error) {
       console.error("[openProject] Error opening project:", error)
       throw error
@@ -148,8 +203,25 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
 
       // Если у проекта уже есть путь, сохраняем по этому пути
       if (currentProject.path) {
-        send({ type: "SAVE_PROJECT", path: currentProject.path, name })
-        return { path: currentProject.path, name }
+        try {
+          // Создаем базовые данные проекта для сохранения
+          const projectData = ProjectFileService.createNewProject(name)
+
+          // TODO: Здесь будем собирать данные из провайдеров медиа и музыки
+          // const mediaFiles = await collectMediaFiles()
+          // const musicFiles = await collectMusicFiles()
+          // projectData = ProjectFileService.updateMediaLibrary(projectData, mediaFiles, musicFiles)
+
+          // Сохраняем проект в файл
+          await ProjectFileService.saveProject(currentProject.path, projectData)
+
+          // Отправляем событие в машину состояний
+          send({ type: "SAVE_PROJECT", path: currentProject.path, name })
+          return { path: currentProject.path, name }
+        } catch (saveError) {
+          console.error("Failed to save project:", saveError)
+          throw new Error(`Не удалось сохранить проект: ${String(saveError)}`)
+        }
       }
 
       // Получаем директорию данных приложения
@@ -174,10 +246,23 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
         return null
       }
 
-      // Отправляем событие в машину состояний
-      send({ type: "SAVE_PROJECT", path, name })
+      try {
+        // Создаем данные нового проекта
+        const projectData = ProjectFileService.createNewProject(name)
 
-      return { path, name }
+        // TODO: Здесь будем собирать данные из провайдеров медиа и музыки
+
+        // Сохраняем проект в файл
+        await ProjectFileService.saveProject(path, projectData)
+
+        // Отправляем событие в машину состояний
+        send({ type: "SAVE_PROJECT", path, name })
+
+        return { path, name }
+      } catch (saveError) {
+        console.error("Failed to save new project:", saveError)
+        throw new Error(`Не удалось сохранить новый проект: ${String(saveError)}`)
+      }
     } catch (error) {
       console.error("[saveProject] Error saving project:", error)
       throw error
@@ -230,7 +315,19 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     getError,
   }
 
-  return <AppSettingsContext.Provider value={value}>{children}</AppSettingsContext.Provider>
+  return (
+    <AppSettingsContext.Provider value={value}>
+      {children}
+
+      {/* Диалог для обработки отсутствующих медиафайлов */}
+      <MissingFilesDialog
+        open={showMissingFilesDialog}
+        onOpenChange={cancelMissingFilesDialog}
+        missingFiles={getMissingFiles()}
+        onResolve={handleMissingFilesResolution}
+      />
+    </AppSettingsContext.Provider>
+  )
 }
 
 /**

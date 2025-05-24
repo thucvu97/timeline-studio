@@ -41,12 +41,52 @@ vi.mock("@tauri-apps/api/core", () => ({
         system_language: "ru",
       })
     }
+    if (cmd === "file_exists") {
+      return Promise.resolve(true)
+    }
+    if (cmd === "get_file_stats") {
+      return Promise.resolve({
+        size: 1024,
+        lastModified: Date.now()
+      })
+    }
+    if (cmd === "read_text_file") {
+      return Promise.resolve('{"test": "data"}')
+    }
+    if (cmd === "write_text_file") {
+      return Promise.resolve()
+    }
+    if (cmd === "search_files_by_name") {
+      return Promise.resolve([])
+    }
+    if (cmd === "get_absolute_path") {
+      const path = args && "path" in args ? String(args.path) : ""
+      return Promise.resolve(`/absolute${path}`)
+    }
     return Promise.resolve(null)
   }),
   // Добавляем мок для convertFileSrc
   convertFileSrc: vi.fn().mockImplementation((path: string) => {
     return `converted-${path}`
   }),
+}))
+
+// Мок для Tauri path API
+vi.mock("@tauri-apps/api/path", () => ({
+  dirname: vi.fn().mockResolvedValue("/project/dir"),
+  basename: vi.fn().mockImplementation((path: string) => path.split('/').pop() || ''),
+  join: vi.fn().mockImplementation((...paths: string[]) => paths.join('/')),
+}))
+
+// Мок для Tauri dialog API
+vi.mock("@tauri-apps/plugin-dialog", () => ({
+  open: vi.fn().mockResolvedValue(null),
+}))
+
+// Мок для Tauri FS API
+vi.mock("@tauri-apps/plugin-fs", () => ({
+  readTextFile: vi.fn().mockResolvedValue('{"test": "data"}'),
+  writeTextFile: vi.fn().mockResolvedValue(undefined),
 }))
 
 // Мок для react-hotkeys-hook

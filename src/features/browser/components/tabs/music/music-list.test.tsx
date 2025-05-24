@@ -68,6 +68,15 @@ vi.mock("./music-utils", () => ({
   sortFiles: vi.fn((files) => files),
 }))
 
+vi.mock("./use-music-import", () => ({
+  useMusicImport: () => ({
+    importFile: vi.fn(),
+    importDirectory: vi.fn(),
+    isImporting: false,
+    progress: 0,
+  }),
+}))
+
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
@@ -281,7 +290,7 @@ describe("MusicList", () => {
     // Находим кнопку добавления в избранное
     // Это может быть сложно без aria-label, но можно попробовать найти по классу или содержимому
     const favoriteButtons = allButtons.filter(button =>
-       
+
       button.closest("div")?.className.includes("favorite") ||
       button.innerHTML.includes("heart") ||
       button.innerHTML.includes("star")

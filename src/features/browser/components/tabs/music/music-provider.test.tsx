@@ -1,7 +1,7 @@
 import { act, render, renderHook, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MusicContext, MusicProvider, useMusic } from "./music-provider"
+import { MusicProvider, useMusic } from "./music-provider"
 
 // Создаем моковый объект для send
 const mockSend = vi.fn()

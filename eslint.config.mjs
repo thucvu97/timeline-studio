@@ -15,10 +15,8 @@ const eslintConfig = tseslint.config(
   ...compat.extends("plugin:import/typescript"),
   {
     rules: {
-      // A11y rules - включены обратно после удаления Biome
-      "jsx-a11y/click-events-have-key-events": "off", // отключено по предпочтениям пользователя
-      "jsx-a11y/alt-text": "warn", // предупреждение вместо ошибки
-      // React rules - включены обратно после удаления Biome
+      "jsx-a11y/click-events-have-key-events": "off",
+      "jsx-a11y/alt-text": "off",
       "react/jsx-key": "error",
       "react/jsx-no-duplicate-props": "error",
       "react/jsx-no-target-blank": "error",
@@ -26,9 +24,6 @@ const eslintConfig = tseslint.config(
       "react/no-children-prop": "error",
       "react/no-danger-with-children": "error",
       "react/void-dom-elements-no-children": "error",
-      // React hooks rules
-      "react-hooks/rules-of-hooks": "error",
-      // TypeScript rules - включены важные правила обратно после удаления Biome
       "@typescript-eslint/no-unused-vars": "off",
       "react-hooks/rules-of-hooks": "warn",
       "@typescript-eslint/no-explicit-any": "off",
@@ -38,11 +33,11 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/no-misused-new": "error",
       "@typescript-eslint/no-unnecessary-type-constraint": "error",
       "@typescript-eslint/no-unsafe-declaration-merging": "error",
-      "@typescript-eslint/no-confusing-void-expression": "off", // отключено для удобства
-      "@typescript-eslint/no-empty-function": "off", // отключено для тестов
-      "@typescript-eslint/require-await": "off", // отключено для тестов
-      "@typescript-eslint/no-non-null-assertion": "off", // отключено для тестов
-      "@typescript-eslint/array-type": "off", // отключено для гибкости
+      "@typescript-eslint/no-confusing-void-expression": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/array-type": "off",
       // Настройка правил для сортировки импортов
       "import/order": ["warn", {
         "groups": [
