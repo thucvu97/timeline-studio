@@ -114,43 +114,52 @@ export function useMediaImport() {
   /**
    * Быстро создает файлы с минимумом данных, затем асинхронно загружает метаданные
    */
-  const processFiles = useCallback(async (
-    filePaths: string[],
-  ): Promise<MediaFile[]> => {
-    const totalFiles = filePaths.length;
+  const processFiles = useCallback(
+    async (filePaths: string[]): Promise<MediaFile[]> => {
+      const totalFiles = filePaths.length;
 
-    // ШАГ 1: Быстро создаем базовые объекты для всех файлов
-    console.log(`Создание ${totalFiles} базовых файлов...`);
-    const basicMediaFiles = filePaths.map(createBasicMediaFile);
+      // ШАГ 1: Быстро создаем базовые объекты для всех файлов
+      console.log(`Создание ${totalFiles} базовых файлов...`);
+      const basicMediaFiles = filePaths.map(createBasicMediaFile);
 
-    // Сразу добавляем базовые объекты в медиа-контекст - пользователь сразу видит файлы
-    media.addMediaFiles(basicMediaFiles);
+      // Сразу добавляем базовые объекты в медиа-контекст - пользователь сразу видит файлы
+      media.addMediaFiles(basicMediaFiles);
 
-    // ШАГ 2: Асинхронно загружаем метаданные для каждого файла по очереди
-    console.log(`Начинаем загрузку метаданных для ${totalFiles} файлов...`);
+      // ШАГ 2: Асинхронно загружаем метаданные для каждого файла по очереди
+      console.log(`Начинаем загрузку метаданных для ${totalFiles} файлов...`);
 
-    // Запускаем асинхронную загрузку метаданных (не блокируем UI)
-    setTimeout(() => {
-      void loadMetadataWithPool(filePaths, totalFiles);
-    }, 100); // Небольшая задержка, чтобы UI успел отрендериться
+      // Запускаем асинхронную загрузку метаданных (не блокируем UI)
+      setTimeout(() => {
+        void loadMetadataWithPool(filePaths, totalFiles);
+      }, 100); // Небольшая задержка, чтобы UI успел отрендериться
 
-    return basicMediaFiles;
-  }, [media]);
+      return basicMediaFiles;
+    },
+    [media],
+  );
 
   /**
    * Загружает метаданные с ограниченным пулом одновременных запросов
    */
-  const loadMetadataWithPool = async (filePaths: string[], totalFiles: number) => {
+  const loadMetadataWithPool = async (
+    filePaths: string[],
+    totalFiles: number,
+  ) => {
     let completedCount = 0;
     let activeRequests = 0;
     let currentIndex = 0;
 
     // Функция для обработки одного файла
-    const processFile = async (filePath: string, fileIndex: number): Promise<void> => {
+    const processFile = async (
+      filePath: string,
+      fileIndex: number,
+    ): Promise<void> => {
       activeRequests++;
 
       try {
-        console.log(`[${fileIndex + 1}/${totalFiles}] 🔄 Загрузка метаданных: ${filePath.split('/').pop()}`);
+        console.log(
+          `[${fileIndex + 1}/${totalFiles}] 🔄 Загрузка метаданных: ${filePath.split("/").pop()}`,
+        );
 
         // Получаем метаданные файла
         const metadata = await getMediaMetadata(filePath);
@@ -183,7 +192,9 @@ export function useMediaImport() {
             media.addMediaFiles([updatedMediaFile]);
           });
 
-          console.log(`[${fileIndex + 1}/${totalFiles}] ✅ Метаданные загружены: ${filePath.split('/').pop()}`);
+          console.log(
+            `[${fileIndex + 1}/${totalFiles}] ✅ Метаданные загружены: ${filePath.split("/").pop()}`,
+          );
         } else {
           // Если метаданные не получены, просто снимаем флаг загрузки
           const fallbackMediaFile: MediaFile = {
@@ -194,10 +205,15 @@ export function useMediaImport() {
             media.addMediaFiles([fallbackMediaFile]);
           });
 
-          console.log(`[${fileIndex + 1}/${totalFiles}] ⚠️ Метаданные не получены: ${filePath.split('/').pop()}`);
+          console.log(
+            `[${fileIndex + 1}/${totalFiles}] ⚠️ Метаданные не получены: ${filePath.split("/").pop()}`,
+          );
         }
       } catch (error) {
-        console.error(`[${fileIndex + 1}/${totalFiles}] ❌ Ошибка при загрузке метаданных ${filePath.split('/').pop()}:`, error);
+        console.error(
+          `[${fileIndex + 1}/${totalFiles}] ❌ Ошибка при загрузке метаданных ${filePath.split("/").pop()}:`,
+          error,
+        );
 
         // При ошибке снимаем флаг загрузки метаданных
         const errorMediaFile: MediaFile = {
@@ -218,7 +234,10 @@ export function useMediaImport() {
 
     // Функция для запуска следующего файла, если есть свободные слоты
     const startNextFile = async (): Promise<void> => {
-      if (currentIndex >= filePaths.length || activeRequests >= MAX_CONCURRENT_REQUESTS) {
+      if (
+        currentIndex >= filePaths.length ||
+        activeRequests >= MAX_CONCURRENT_REQUESTS
+      ) {
         return;
       }
 
@@ -233,18 +252,26 @@ export function useMediaImport() {
     };
 
     // Запускаем начальные запросы
-    console.log(`🚀 Начинаем загрузку метаданных для ${totalFiles} файлов (пул: ${MAX_CONCURRENT_REQUESTS})`);
+    console.log(
+      `🚀 Начинаем загрузку метаданных для ${totalFiles} файлов (пул: ${MAX_CONCURRENT_REQUESTS})`,
+    );
 
-    for (let i = 0; i < Math.min(MAX_CONCURRENT_REQUESTS, filePaths.length); i++) {
+    for (
+      let i = 0;
+      i < Math.min(MAX_CONCURRENT_REQUESTS, filePaths.length);
+      i++
+    ) {
       setTimeout(() => startNextFile(), i * REQUEST_DELAY);
     }
 
     // Ждем завершения всех запросов
     while (completedCount < totalFiles) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    console.log(`🎉 Загрузка метаданных завершена для всех ${totalFiles} файлов`);
+    console.log(
+      `🎉 Загрузка метаданных завершена для всех ${totalFiles} файлов`,
+    );
   };
 
   /**

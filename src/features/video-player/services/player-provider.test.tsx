@@ -1,15 +1,18 @@
-import { render, screen } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { PlayerProvider } from "./player-provider"
+import { PlayerProvider } from "./player-provider";
 
 // Мокаем useUserSettings
-vi.mock("@/features/modals/features/user-settings/user-settings-provider", () => ({
-  useUserSettings: () => ({
-    playerVolume: 100,
-    handlePlayerVolumeChange: vi.fn(),
+vi.mock(
+  "@/features/modals/features/user-settings/user-settings-provider",
+  () => ({
+    useUserSettings: () => ({
+      playerVolume: 100,
+      handlePlayerVolumeChange: vi.fn(),
+    }),
   }),
-}))
+);
 
 // Мокаем useMachine из @xstate/react
 vi.mock("@xstate/react", () => ({
@@ -31,7 +34,7 @@ vi.mock("@xstate/react", () => ({
     },
     vi.fn(), // mock для send
   ]),
-}))
+}));
 
 // Мокаем playerMachine
 vi.mock("./player-machine", () => ({
@@ -53,13 +56,13 @@ vi.mock("./player-machine", () => ({
     },
   },
   PlayerContextType: {},
-}))
+}));
 
 // Мокаем console.log для проверки вызова
 beforeEach(() => {
-  vi.clearAllMocks()
-  vi.spyOn(console, "log").mockImplementation(() => {})
-})
+  vi.clearAllMocks();
+  vi.spyOn(console, "log").mockImplementation(() => {});
+});
 
 describe("PlayerProvider", () => {
   it("should render without errors", () => {
@@ -68,10 +71,10 @@ describe("PlayerProvider", () => {
       <PlayerProvider>
         <div data-testid="test-content">Test Content</div>
       </PlayerProvider>,
-    )
+    );
 
     // Проверяем, что содержимое отрендерилось
-    expect(screen.getByTestId("test-content")).toBeInTheDocument()
-    expect(screen.getByTestId("test-content").textContent).toBe("Test Content")
-  })
-})
+    expect(screen.getByTestId("test-content")).toBeInTheDocument();
+    expect(screen.getByTestId("test-content").textContent).toBe("Test Content");
+  });
+});

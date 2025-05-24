@@ -1,4 +1,4 @@
-import { VideoEffect } from "@/types/effects"
+import { VideoEffect } from "@/types/effects";
 
 export const effects: VideoEffect[] = [
   {
@@ -51,7 +51,8 @@ export const effects: VideoEffect[] = [
     name: "Сепия",
     type: "sepia",
     duration: 0,
-    ffmpegCommand: ({ intensity = 0.3 }) => `colorize=color=brown:blend=${intensity}`,
+    ffmpegCommand: ({ intensity = 0.3 }) =>
+      `colorize=color=brown:blend=${intensity}`,
     params: {
       intensity: 0.3,
     },
@@ -164,7 +165,8 @@ export const effects: VideoEffect[] = [
     name: "Киберпанк",
     type: "cyberpunk",
     duration: 0,
-    ffmpegCommand: ({ intensity = 0.5 }) => `colorbalance=rs=${intensity}:gs=-${intensity}:bs=${intensity * 1.6}`,
+    ffmpegCommand: ({ intensity = 0.5 }) =>
+      `colorbalance=rs=${intensity}:gs=-${intensity}:bs=${intensity * 1.6}`,
     params: {
       intensity: 0.5,
     },
@@ -195,7 +197,8 @@ export const effects: VideoEffect[] = [
     name: "Инфракрасный",
     type: "infrared",
     duration: 0,
-    ffmpegCommand: ({ intensity = 0.8 }) => `colorbalance=rs=${intensity}:gs=-${intensity}:bs=-${intensity}`,
+    ffmpegCommand: ({ intensity = 0.8 }) =>
+      `colorbalance=rs=${intensity}:gs=-${intensity}:bs=-${intensity}`,
     params: {
       intensity: 0.8,
     },
@@ -210,7 +213,8 @@ export const effects: VideoEffect[] = [
     name: "Матрица",
     type: "matrix",
     duration: 0,
-    ffmpegCommand: ({ intensity = 0.8 }) => `colorbalance=rs=-${intensity}:gs=${intensity}:bs=-${intensity}`,
+    ffmpegCommand: ({ intensity = 0.8 }) =>
+      `colorbalance=rs=-${intensity}:gs=${intensity}:bs=-${intensity}`,
     params: {
       intensity: 0.8,
     },
@@ -225,7 +229,8 @@ export const effects: VideoEffect[] = [
     name: "Арктика",
     type: "arctic",
     duration: 0,
-    ffmpegCommand: ({ intensity = 0.2 }) => `colorbalance=rs=-${intensity}:gs=${intensity}:bs=${intensity * 2}`,
+    ffmpegCommand: ({ intensity = 0.2 }) =>
+      `colorbalance=rs=-${intensity}:gs=${intensity}:bs=${intensity * 2}`,
     params: {
       intensity: 0.2,
     },
@@ -240,7 +245,8 @@ export const effects: VideoEffect[] = [
     name: "Закат",
     type: "sunset",
     duration: 0,
-    ffmpegCommand: ({ intensity = 0.4 }) => `colorbalance=rs=${intensity}:gs=${intensity / 4}:bs=-${intensity}`,
+    ffmpegCommand: ({ intensity = 0.4 }) =>
+      `colorbalance=rs=${intensity}:gs=${intensity / 4}:bs=-${intensity}`,
     params: {
       intensity: 0.4,
     },
@@ -268,7 +274,8 @@ export const effects: VideoEffect[] = [
     name: "Сумерки",
     type: "twilight",
     duration: 0,
-    ffmpegCommand: ({ intensity = 0.2 }) => `colorbalance=rs=-${intensity}:gs=-${intensity / 2}:bs=${intensity * 1.5}`,
+    ffmpegCommand: ({ intensity = 0.2 }) =>
+      `colorbalance=rs=-${intensity}:gs=-${intensity / 2}:bs=${intensity * 1.5}`,
     params: {
       intensity: 0.2,
     },
@@ -294,4 +301,4 @@ export const effects: VideoEffect[] = [
       en: "Neon",
     },
   },
-]
+];

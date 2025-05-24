@@ -22,9 +22,7 @@ export const BaseProviders = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <AppSettingsProvider>
-          {children}
-        </AppSettingsProvider>
+        <AppSettingsProvider>{children}</AppSettingsProvider>
       </I18nProvider>
     </ThemeProvider>
   );
@@ -37,9 +35,7 @@ export const MediaProviders = ({ children }: { children: ReactNode }) => {
       <ResourcesProvider>
         <MediaProvider>
           <MediaListProvider>
-            <PreviewSizeProvider>
-              {children}
-            </PreviewSizeProvider>
+            <PreviewSizeProvider>{children}</PreviewSizeProvider>
           </MediaListProvider>
         </MediaProvider>
       </ResourcesProvider>
@@ -53,9 +49,7 @@ export const MusicProviders = ({ children }: { children: ReactNode }) => {
     <BaseProviders>
       <ResourcesProvider>
         <MediaProvider>
-          <MusicProvider>
-            {children}
-          </MusicProvider>
+          <MusicProvider>{children}</MusicProvider>
         </MediaProvider>
       </ResourcesProvider>
     </BaseProviders>
@@ -66,9 +60,7 @@ export const MusicProviders = ({ children }: { children: ReactNode }) => {
 export const PlayerProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
-      <PlayerProvider>
-        {children}
-      </PlayerProvider>
+      <PlayerProvider>{children}</PlayerProvider>
     </BaseProviders>
   );
 };
@@ -79,9 +71,7 @@ export const ModalProviders = ({ children }: { children: ReactNode }) => {
     <BaseProviders>
       <ModalProvider>
         <ProjectSettingsProvider>
-          <UserSettingsProvider>
-            {children}
-          </UserSettingsProvider>
+          <UserSettingsProvider>{children}</UserSettingsProvider>
         </ProjectSettingsProvider>
       </ModalProvider>
     </BaseProviders>

@@ -1,40 +1,51 @@
-import React from "react"
+import React from "react";
 
-import { useTranslation } from "react-i18next"
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { useTranslation } from "react-i18next";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { VideoPanelComponent } from "../../video-panel-component"
-import { TemplateProps } from "../types"
+import { VideoPanelComponent } from "../../video-panel-component";
+import { TemplateProps } from "../types";
 
 /**
  * Шаблон "3 слева + 1 справа" - ландшафтный формат
  * ID: split-3-1-right-landscape
  */
-export function Split31RightLandscape({ videos, activeVideoId, videoRefs, isResizable = true }: TemplateProps) {
+export function Split31RightLandscape({
+  videos,
+  activeVideoId,
+  videoRefs,
+  isResizable = true,
+}: TemplateProps) {
   // Используем хук для локализации
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation();
 
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
-  const videoCount = Math.min(validVideos.length, 4)
+  const validVideos = videos.filter((v) => v?.path);
+  const videoCount = Math.min(validVideos.length, 4);
 
   // Получаем локализованное название шаблона
-  const templateName = t("templates.split_3_1_right")
+  const templateName = t("templates.split_3_1_right");
 
-  console.log(`[Split31RightLandscape] Рендеринг шаблона (${templateName}) с параметрами:`, {
-    isResizable,
-    language: i18n.language,
-  })
+  console.log(
+    `[Split31RightLandscape] Рендеринг шаблона (${templateName}) с параметрами:`,
+    {
+      isResizable,
+      language: i18n.language,
+    },
+  );
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 4) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div className="flex h-full w-full" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="flex h-full w-full"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Левая секция (3 маленьких видео) */}
         <div className="flex h-full w-1/2 flex-col">
           {/* Верхнее видео */}
@@ -87,12 +98,15 @@ export function Split31RightLandscape({ videos, activeVideoId, videoRefs, isResi
           />
         </div>
       </div>
-    )
+    );
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
+    <div
+      className="h-full w-full"
+      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
+    >
       <PanelGroup direction="horizontal">
         {/* Левая секция (3 маленьких видео) */}
         <Panel defaultSize={50} minSize={20}>
@@ -140,5 +154,5 @@ export function Split31RightLandscape({ videos, activeVideoId, videoRefs, isResi
         </Panel>
       </PanelGroup>
     </div>
-  )
+  );
 }

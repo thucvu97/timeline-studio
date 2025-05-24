@@ -2,38 +2,38 @@
  * Интерфейс, описывающий стиль субтитров
  */
 export interface SubtitleStyle {
-  id: string // Уникальный идентификатор стиля
-  name: string // Название стиля
-  category: string // Категория стиля
-  previewUrl?: string // URL превью стиля (если есть)
-  isFavorite?: boolean // Флаг избранного стиля
-  description?: string // Описание стиля
-  fontFamily: string // Семейство шрифта
-  fontSize: number // Размер шрифта
-  fontWeight: string | number // Жирность шрифта
-  fontStyle: string // Стиль шрифта (normal, italic)
-  color: string // Цвет текста
-  backgroundColor?: string // Цвет фона
-  textShadow?: string // Тень текста
-  letterSpacing?: number // Межбуквенное расстояние
-  lineHeight?: number // Высота строки
-  textAlign?: string // Выравнивание текста
-  padding?: string | number // Отступы
-  borderRadius?: string | number // Скругление углов фона
-  animation?: string // Анимация появления/исчезновения
-  textTransform?: string // Трансформация текста (uppercase, lowercase, capitalize)
-  opacity?: number // Прозрачность
-  border?: string // Граница
+  id: string; // Уникальный идентификатор стиля
+  name: string; // Название стиля
+  category: string; // Категория стиля
+  previewUrl?: string; // URL превью стиля (если есть)
+  isFavorite?: boolean; // Флаг избранного стиля
+  description?: string; // Описание стиля
+  fontFamily: string; // Семейство шрифта
+  fontSize: number; // Размер шрифта
+  fontWeight: string | number; // Жирность шрифта
+  fontStyle: string; // Стиль шрифта (normal, italic)
+  color: string; // Цвет текста
+  backgroundColor?: string; // Цвет фона
+  textShadow?: string; // Тень текста
+  letterSpacing?: number; // Межбуквенное расстояние
+  lineHeight?: number; // Высота строки
+  textAlign?: string; // Выравнивание текста
+  padding?: string | number; // Отступы
+  borderRadius?: string | number; // Скругление углов фона
+  animation?: string; // Анимация появления/исчезновения
+  textTransform?: string; // Трансформация текста (uppercase, lowercase, capitalize)
+  opacity?: number; // Прозрачность
+  border?: string; // Граница
 }
 
 /**
  * Интерфейс, описывающий категорию стилей субтитров
  */
 export interface SubtitleCategory {
-  id: string // Уникальный идентификатор категории
-  name: string // Название категории
-  description?: string // Описание категории
-  styles: SubtitleStyle[] // Список стилей в категории
+  id: string; // Уникальный идентификатор категории
+  name: string; // Название категории
+  description?: string; // Описание категории
+  styles: SubtitleStyle[]; // Список стилей в категории
 }
 
 /**
@@ -147,7 +147,7 @@ export const SUBTITLE_STYLES: SubtitleStyle[] = [
     padding: 6,
     textAlign: "center",
   },
-]
+];
 
 /**
  * Категории стилей субтитров
@@ -177,31 +177,35 @@ export const SUBTITLE_CATEGORIES: SubtitleCategory[] = [
     description: "Простые и лаконичные стили",
     styles: SUBTITLE_STYLES.filter((style) => style.category === "minimal"),
   },
-]
+];
 
 /**
  * Пример текста для превью субтитров
  */
-export const SUBTITLE_PREVIEW_TEXT = "Пример текста субтитров"
+export const SUBTITLE_PREVIEW_TEXT = "Пример текста субтитров";
 
 /**
  * Получение стиля субтитров по ID
  */
 export const getSubtitleStyleById = (id: string): SubtitleStyle | undefined => {
-  return SUBTITLE_STYLES.find((style) => style.id === id)
-}
+  return SUBTITLE_STYLES.find((style) => style.id === id);
+};
 
 /**
  * Получение категории субтитров по ID
  */
-export const getSubtitleCategoryById = (id: string): SubtitleCategory | undefined => {
-  return SUBTITLE_CATEGORIES.find((category) => category.id === id)
-}
+export const getSubtitleCategoryById = (
+  id: string,
+): SubtitleCategory | undefined => {
+  return SUBTITLE_CATEGORIES.find((category) => category.id === id);
+};
 
 /**
  * Преобразование стиля субтитров в CSS объект
  */
-export const subtitleStyleToCss = (style: SubtitleStyle): React.CSSProperties => {
+export const subtitleStyleToCss = (
+  style: SubtitleStyle,
+): React.CSSProperties => {
   return {
     fontFamily: style.fontFamily,
     fontSize: `${style.fontSize}px`,
@@ -218,5 +222,5 @@ export const subtitleStyleToCss = (style: SubtitleStyle): React.CSSProperties =>
     textTransform: style.textTransform as any,
     opacity: style.opacity,
     border: style.border,
-  }
-}
+  };
+};

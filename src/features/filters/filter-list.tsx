@@ -1,17 +1,22 @@
-import { useCallback, useState } from "react"
+import { useCallback, useState } from "react";
 
-import { Star, ZoomIn, ZoomOut } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { Star, ZoomIn, ZoomOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider"
-import { useMedia } from "@/features/browser/media"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider";
+import { useMedia } from "@/features/browser/media";
+import { cn } from "@/lib/utils";
 
-import { FilterPreview } from "./filter-preview"
-import { VideoFilter, filters } from "./filters"
+import { FilterPreview } from "./filter-preview";
+import { VideoFilter, filters } from "./filters";
 
 /**
  * Компонент для отображения списка доступных видеофильтров
@@ -20,11 +25,11 @@ import { VideoFilter, filters } from "./filters"
  * @returns {JSX.Element} Компонент списка фильтров
  */
 export function FilterList() {
-  const { t } = useTranslation() // Хук для интернационализации
-  const [searchQuery, setSearchQuery] = useState("") // Состояние поискового запроса
-  const [, setActiveFilter] = useState<VideoFilter | null>(null) // Состояние активного фильтра
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false) // Флаг отображения только избранных фильтров
-  const media = useMedia() // Хук для работы с медиа-файлами и избранным
+  const { t } = useTranslation(); // Хук для интернационализации
+  const [searchQuery, setSearchQuery] = useState(""); // Состояние поискового запроса
+  const [, setActiveFilter] = useState<VideoFilter | null>(null); // Состояние активного фильтра
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false); // Флаг отображения только избранных фильтров
+  const media = useMedia(); // Хук для работы с медиа-файлами и избранным
 
   // Получаем параметры размера превью из хука
   const {
@@ -33,31 +38,37 @@ export function FilterList() {
     decreaseSize, // Функция уменьшения размера
     canIncreaseSize, // Флаг возможности увеличения
     canDecreaseSize, // Флаг возможности уменьшения
-  } = usePreviewSize()
+  } = usePreviewSize();
 
   /**
    * Обработчик переключения режима отображения избранных фильтров
    */
   const handleToggleFavorites = useCallback(() => {
-    setShowFavoritesOnly((prev) => !prev)
-  }, [])
+    setShowFavoritesOnly((prev) => !prev);
+  }, []);
 
   /**
    * Фильтрация списка фильтров по поисковому запросу и избранному
    */
   const filteredFilters = filters.filter((filter) => {
     // Фильтрация по поисковому запросу
-    const searchLower = searchQuery.toLowerCase()
-    const localizedName = t(`filters.presets.${filter.id}`).toLowerCase()
-    const matchesSearch = localizedName.includes(searchLower) || filter.name.toLowerCase().includes(searchLower)
+    const searchLower = searchQuery.toLowerCase();
+    const localizedName = t(`filters.presets.${filter.id}`).toLowerCase();
+    const matchesSearch =
+      localizedName.includes(searchLower) ||
+      filter.name.toLowerCase().includes(searchLower);
 
     // Фильтрация по избранному
     const matchesFavorites =
-      !showFavoritesOnly || media.isItemFavorite({ id: filter.id, path: "", name: filter.name }, "filter")
+      !showFavoritesOnly ||
+      media.isItemFavorite(
+        { id: filter.id, path: "", name: filter.name },
+        "filter",
+      );
 
     // Фильтр должен соответствовать обоим условиям
-    return matchesSearch && matchesFavorites
-  })
+    return matchesSearch && matchesFavorites;
+  });
 
   /**
    * Обработчик клика по фильтру
@@ -66,9 +77,9 @@ export function FilterList() {
    * @param {VideoFilter} filter - Выбранный фильтр
    */
   const handleFilterClick = (filter: VideoFilter) => {
-    setActiveFilter(filter) // Устанавливаем активный фильтр
-    console.log("Applying filter:", filter.name, filter.params) // Отладочный вывод
-  }
+    setActiveFilter(filter); // Устанавливаем активный фильтр
+    console.log("Applying filter:", filter.name, filter.params); // Отладочный вывод
+  };
 
   return (
     <div className="flex h-full flex-1 flex-col bg-background">
@@ -99,7 +110,10 @@ export function FilterList() {
                     )}
                     onClick={handleToggleFavorites}
                   >
-                    <Star size={16} className={showFavoritesOnly ? "fill-current" : ""} />
+                    <Star
+                      size={16}
+                      className={showFavoritesOnly ? "fill-current" : ""}
+                    />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{t("browser.media.favorites")}</TooltipContent>
@@ -130,7 +144,10 @@ export function FilterList() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn("mr-1 h-6 w-6 cursor-pointer", !canIncreaseSize && "cursor-not-allowed opacity-50")}
+                    className={cn(
+                      "mr-1 h-6 w-6 cursor-pointer",
+                      !canIncreaseSize && "cursor-not-allowed opacity-50",
+                    )}
                     onClick={increaseSize}
                     disabled={!canIncreaseSize}
                   >
@@ -155,7 +172,9 @@ export function FilterList() {
           // Отображаем сетку с превью фильтров
           <div
             className="grid grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))] gap-2"
-            style={{ "--preview-size": `${previewSize}px` } as React.CSSProperties}
+            style={
+              { "--preview-size": `${previewSize}px` } as React.CSSProperties
+            }
           >
             {/* Отображаем компоненты превью для каждого фильтра */}
             {filteredFilters.map((filter) => (
@@ -170,5 +189,5 @@ export function FilterList() {
         )}
       </div>
     </div>
-  )
+  );
 }

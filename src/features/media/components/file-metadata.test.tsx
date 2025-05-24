@@ -1,7 +1,7 @@
-import { render, screen } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { FileMetadata } from "./file-metadata"
+import { FileMetadata } from "./file-metadata";
 
 // Мокаем useTranslation
 vi.mock("react-i18next", () => ({
@@ -10,29 +10,29 @@ vi.mock("react-i18next", () => ({
       language: "ru",
     },
   }),
-}))
+}));
 
 // Мокаем функции форматирования
 vi.mock("@/lib/date", () => ({
   formatDuration: (duration: number) => `${duration} сек`,
   formatTimeWithMilliseconds: () => "01:23:45.678",
-}))
+}));
 
 vi.mock("@/lib/utils", () => ({
   formatBitrate: (bitrate: number) => `${bitrate / 1000} Kbps`,
   formatFileSize: (size: number) => `${size / (1024 * 1024)} MB`,
-}))
+}));
 
 vi.mock("@/lib/video", () => ({
   getAspectRatio: () => "16:9",
   getFps: () => "30",
-}))
+}));
 
 describe("FileMetadata", () => {
   beforeEach(() => {
     // Мокируем console.log
-    vi.spyOn(console, "log").mockImplementation(() => {})
-  })
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
 
   it("should render video file metadata correctly", () => {
     const videoFile = {
@@ -57,37 +57,37 @@ describe("FileMetadata", () => {
           size: 10485760, // 10 MB
         },
       },
-    }
+    };
 
-    render(<FileMetadata file={videoFile} size={100} />)
+    render(<FileMetadata file={videoFile} size={100} />);
 
     // Проверяем, что имя файла отображается
-    expect(screen.getByText("video-file.mp4")).toBeInTheDocument()
+    expect(screen.getByText("video-file.mp4")).toBeInTheDocument();
 
     // Проверяем, что длительность отображается
-    expect(screen.getByText("120 сек")).toBeInTheDocument()
+    expect(screen.getByText("120 сек")).toBeInTheDocument();
 
     // Проверяем, что временная метка отображается
-    expect(screen.getByText("01:23:45.678")).toBeInTheDocument()
+    expect(screen.getByText("01:23:45.678")).toBeInTheDocument();
 
     // Проверяем, что разрешение отображается
-    expect(screen.getByText("1920x1080")).toBeInTheDocument()
+    expect(screen.getByText("1920x1080")).toBeInTheDocument();
 
     // Проверяем, что мегапиксели отображаются
-    expect(screen.getByText("2.1 MP")).toBeInTheDocument()
+    expect(screen.getByText("2.1 MP")).toBeInTheDocument();
 
     // Проверяем, что соотношение сторон отображается
-    expect(screen.getByText("16:9")).toBeInTheDocument()
+    expect(screen.getByText("16:9")).toBeInTheDocument();
 
     // Проверяем, что битрейт отображается
-    expect(screen.getByText("5000 Kbps")).toBeInTheDocument()
+    expect(screen.getByText("5000 Kbps")).toBeInTheDocument();
 
     // Проверяем, что fps отображается
-    expect(screen.getByText("30 fps")).toBeInTheDocument()
+    expect(screen.getByText("30 fps")).toBeInTheDocument();
 
     // Проверяем, что размер файла отображается
-    expect(screen.getByText("10 MB")).toBeInTheDocument()
-  })
+    expect(screen.getByText("10 MB")).toBeInTheDocument();
+  });
 
   it("should render audio file metadata correctly", () => {
     const audioFile = {
@@ -109,19 +109,19 @@ describe("FileMetadata", () => {
           size: 5242880, // 5 MB
         },
       },
-    }
+    };
 
-    render(<FileMetadata file={audioFile} size={100} />)
+    render(<FileMetadata file={audioFile} size={100} />);
 
     // Проверяем, что имя файла отображается
-    expect(screen.getByText("audio-file.mp3")).toBeInTheDocument()
+    expect(screen.getByText("audio-file.mp3")).toBeInTheDocument();
 
     // Проверяем, что длительность отображается
-    expect(screen.getByText("180 сек")).toBeInTheDocument()
+    expect(screen.getByText("180 сек")).toBeInTheDocument();
 
     // Проверяем, что размер файла отображается
-    expect(screen.getByText("5 MB")).toBeInTheDocument()
-  })
+    expect(screen.getByText("5 MB")).toBeInTheDocument();
+  });
 
   it("should render image file metadata correctly", () => {
     const imageFile = {
@@ -144,17 +144,17 @@ describe("FileMetadata", () => {
           size: 2097152, // 2 MB
         },
       },
-    }
+    };
 
-    render(<FileMetadata file={imageFile} size={100} />)
+    render(<FileMetadata file={imageFile} size={100} />);
 
     // Проверяем, что имя файла отображается
-    expect(screen.getByText("image-file.jpg")).toBeInTheDocument()
+    expect(screen.getByText("image-file.jpg")).toBeInTheDocument();
 
     // Проверяем, что дата создания отображается
     // Примечание: точный формат даты зависит от локализации, поэтому проверяем только наличие элемента
-    expect(screen.getByText("2 MB")).toBeInTheDocument()
-  })
+    expect(screen.getByText("2 MB")).toBeInTheDocument();
+  });
 
   it("should adjust font size based on container size", () => {
     const videoFile = {
@@ -178,21 +178,23 @@ describe("FileMetadata", () => {
           size: 10485760,
         },
       },
-    }
+    };
 
     // Рендерим с размером > 100
-    const { container, rerender } = render(<FileMetadata file={videoFile} size={120} />)
+    const { container, rerender } = render(
+      <FileMetadata file={videoFile} size={120} />,
+    );
 
     // Проверяем, что стиль font-size установлен на 13px
-    const durationElement = screen.getByText("120 сек")
-    expect(durationElement).toHaveStyle("font-size: 13px")
+    const durationElement = screen.getByText("120 сек");
+    expect(durationElement).toHaveStyle("font-size: 13px");
 
     // Перерендериваем с размером <= 100
-    rerender(<FileMetadata file={videoFile} size={100} />)
+    rerender(<FileMetadata file={videoFile} size={100} />);
 
     // Проверяем, что стиль font-size установлен на 12px
-    expect(durationElement).toHaveStyle("font-size: 12px")
-  })
+    expect(durationElement).toHaveStyle("font-size: 12px");
+  });
 
   it("should use default size if not provided", () => {
     const videoFile = {
@@ -216,12 +218,12 @@ describe("FileMetadata", () => {
           size: 10485760,
         },
       },
-    }
+    };
 
-    const { container } = render(<FileMetadata file={videoFile} />)
+    const { container } = render(<FileMetadata file={videoFile} />);
 
     // Проверяем, что контейнер имеет высоту 100px (значение по умолчанию)
-    const mainContainer = container.firstChild as HTMLElement
-    expect(mainContainer).toHaveStyle("height: 100px")
-  })
-})
+    const mainContainer = container.firstChild as HTMLElement;
+    expect(mainContainer).toHaveStyle("height: 100px");
+  });
+});

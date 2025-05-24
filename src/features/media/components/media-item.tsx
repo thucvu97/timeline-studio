@@ -40,9 +40,9 @@ export const MediaItem: React.FC<MediaItemProps> = ({
   const media = useMedia();
 
   // Мемоизируем уникальный ключ для предотвращения перерендеров
-  const fileId = useMemo(() =>
-    `${file.id || file.path || file.name}-${index}`,
-    [file.id, file.path, file.name, index]
+  const fileId = useMemo(
+    () => `${file.id || file.path || file.name}-${index}`,
+    [file.id, file.path, file.name, index],
   );
 
   const isAdded = media.isFileAdded(file);

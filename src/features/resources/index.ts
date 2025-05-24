@@ -1,2 +1,2 @@
-export * from "./resources-provider"
-export * from "./resources-machine"
+export * from "./resources-provider";
+export * from "./resources-machine";

@@ -1,16 +1,16 @@
-import { fireEvent, render, screen } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { MediaProvider } from "@/features/browser/media/media-provider"
+import { MediaProvider } from "@/features/browser/media/media-provider";
 
-import { MediaToolbar } from "./media-toolbar"
+import { MediaToolbar } from "./media-toolbar";
 
 // Импортируем MediaProvider
 
 // Создаем компонент-обертку для тестов
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <MediaProvider>{children}</MediaProvider>
-)
+);
 
 // Мокаем useTranslation
 vi.mock("react-i18next", () => ({
@@ -44,23 +44,23 @@ vi.mock("react-i18next", () => ({
         "browser.toolbar.groupBy.duration": "Duration",
         "browser.toolbar.sortOrder.asc": "Ascending",
         "browser.toolbar.sortOrder.desc": "Descending",
-      }
-      return translations[key] || key
+      };
+      return translations[key] || key;
     },
   }),
-}))
+}));
 
 // Мокаем useMediaList
-const mockSort = vi.fn()
-const mockFilter = vi.fn()
-const mockSearch = vi.fn()
-const mockChangeViewMode = vi.fn()
-const mockChangeGroupBy = vi.fn()
-const mockChangeOrder = vi.fn()
-const mockToggleFavorites = vi.fn()
-const mockIncreasePreviewSize = vi.fn()
-const mockDecreasePreviewSize = vi.fn()
-const mockSetSearchQuery = vi.fn()
+const mockSort = vi.fn();
+const mockFilter = vi.fn();
+const mockSearch = vi.fn();
+const mockChangeViewMode = vi.fn();
+const mockChangeGroupBy = vi.fn();
+const mockChangeOrder = vi.fn();
+const mockToggleFavorites = vi.fn();
+const mockIncreasePreviewSize = vi.fn();
+const mockDecreasePreviewSize = vi.fn();
+const mockSetSearchQuery = vi.fn();
 
 vi.mock("../services/media-list-provider", () => ({
   useMediaList: () => ({
@@ -84,7 +84,7 @@ vi.mock("../services/media-list-provider", () => ({
     showFavoritesOnly: false,
     setSearchQuery: mockSetSearchQuery,
   }),
-}))
+}));
 
 // Мокаем useMedia
 vi.mock("@/features/browser/media", () => ({
@@ -101,11 +101,19 @@ vi.mock("@/features/browser/media", () => ({
     },
     addMediaFiles: vi.fn(),
   }),
-}))
+}));
 
 // Мокаем useMediaImport
-const mockImportFile = vi.fn().mockResolvedValue({ success: true, message: "Файл успешно импортирован", files: [] })
-const mockImportFolder = vi.fn().mockResolvedValue({ success: true, message: "Папка успешно импортирована", files: [] })
+const mockImportFile = vi.fn().mockResolvedValue({
+  success: true,
+  message: "Файл успешно импортирован",
+  files: [],
+});
+const mockImportFolder = vi.fn().mockResolvedValue({
+  success: true,
+  message: "Папка успешно импортирована",
+  files: [],
+});
 
 vi.mock("@/features/browser/media/use-media-import", () => ({
   useMediaImport: () => ({
@@ -114,26 +122,28 @@ vi.mock("@/features/browser/media/use-media-import", () => ({
     isImporting: false,
     progress: 0,
   }),
-}))
+}));
 
 // Мокаем useModal
 vi.mock("@/features/modals", () => ({
   useModal: () => ({
     openModal: vi.fn(),
   }),
-}))
+}));
 
 // Мокаем console.log
-vi.spyOn(console, "log").mockImplementation(() => {})
+vi.spyOn(console, "log").mockImplementation(() => {});
 
 // Мокаем функции Tauri API
 vi.mock("@tauri-apps/api/dialog", () => ({
   open: vi.fn().mockResolvedValue("/path/to/file.mp4"),
-}))
+}));
 
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn().mockResolvedValue(["/path/to/file1.mp4", "/path/to/file2.mp4"]),
-}))
+  invoke: vi
+    .fn()
+    .mockResolvedValue(["/path/to/file1.mp4", "/path/to/file2.mp4"]),
+}));
 
 vi.mock("@/lib/media", () => ({
   selectMediaFile: vi.fn().mockResolvedValue("/path/to/file.mp4"),
@@ -151,145 +161,145 @@ vi.mock("@/lib/media", () => ({
       format: {},
     },
   }),
-}))
+}));
 
 describe("MediaToolbar", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
   it("should render correctly", () => {
     render(
       <TestWrapper>
         <MediaToolbar />
-      </TestWrapper>
-    )
+      </TestWrapper>,
+    );
 
     // Проверяем наличие основных элементов
-    expect(screen.getByText("Import")).toBeInTheDocument()
-    expect(screen.getByPlaceholderText("Search")).toBeInTheDocument()
-  })
+    expect(screen.getByText("Import")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Search")).toBeInTheDocument();
+  });
 
   it("should handle search input", () => {
     render(
       <TestWrapper>
         <MediaToolbar />
-      </TestWrapper>
-    )
+      </TestWrapper>,
+    );
 
-    const searchInput = screen.getByPlaceholderText("Search")
-    fireEvent.change(searchInput, { target: { value: "test" } })
+    const searchInput = screen.getByPlaceholderText("Search");
+    fireEvent.change(searchInput, { target: { value: "test" } });
 
-    expect(mockSetSearchQuery).toHaveBeenCalledWith("test")
-    expect(mockSearch).toHaveBeenCalled()
-  })
+    expect(mockSetSearchQuery).toHaveBeenCalledWith("test");
+    expect(mockSearch).toHaveBeenCalled();
+  });
 
   it("should handle view mode changes", () => {
     render(
       <TestWrapper>
         <MediaToolbar />
-      </TestWrapper>
-    )
+      </TestWrapper>,
+    );
 
     // Находим кнопки режимов отображения по иконкам
-    const gridButton = screen.getByTestId("grid-view-button")
-    const thumbnailsButton = screen.getByTestId("thumbnails-view-button")
-    const listButton = screen.getByTestId("list-view-button")
+    const gridButton = screen.getByTestId("grid-view-button");
+    const thumbnailsButton = screen.getByTestId("thumbnails-view-button");
+    const listButton = screen.getByTestId("list-view-button");
 
     // Кликаем на кнопку Grid
-    fireEvent.click(gridButton)
-    expect(mockChangeViewMode).toHaveBeenCalledWith("grid")
+    fireEvent.click(gridButton);
+    expect(mockChangeViewMode).toHaveBeenCalledWith("grid");
 
     // Кликаем на кнопку Thumbnails
-    fireEvent.click(thumbnailsButton)
-    expect(mockChangeViewMode).toHaveBeenCalledWith("thumbnails")
+    fireEvent.click(thumbnailsButton);
+    expect(mockChangeViewMode).toHaveBeenCalledWith("thumbnails");
 
     // Кликаем на кнопку List
-    fireEvent.click(listButton)
-    expect(mockChangeViewMode).toHaveBeenCalledWith("list")
-  })
+    fireEvent.click(listButton);
+    expect(mockChangeViewMode).toHaveBeenCalledWith("list");
+  });
 
   it("should handle preview size changes", () => {
     render(
       <TestWrapper>
         <MediaToolbar />
-      </TestWrapper>
-    )
+      </TestWrapper>,
+    );
 
     // Находим кнопки изменения размера превью
-    const zoomOutButton = screen.getByTestId("zoom-out-button")
-    const zoomInButton = screen.getByTestId("zoom-in-button")
+    const zoomOutButton = screen.getByTestId("zoom-out-button");
+    const zoomInButton = screen.getByTestId("zoom-in-button");
 
     // Кликаем на кнопку Zoom Out
-    fireEvent.click(zoomOutButton)
-    expect(mockDecreasePreviewSize).toHaveBeenCalled()
+    fireEvent.click(zoomOutButton);
+    expect(mockDecreasePreviewSize).toHaveBeenCalled();
 
     // Кликаем на кнопку Zoom In
-    fireEvent.click(zoomInButton)
-    expect(mockIncreasePreviewSize).toHaveBeenCalled()
-  })
+    fireEvent.click(zoomInButton);
+    expect(mockIncreasePreviewSize).toHaveBeenCalled();
+  });
 
   it("should handle favorites toggle", () => {
     render(
       <TestWrapper>
         <MediaToolbar />
-      </TestWrapper>
-    )
+      </TestWrapper>,
+    );
 
     // Находим кнопку избранного
-    const favoritesButton = screen.getByTestId("favorites-button")
+    const favoritesButton = screen.getByTestId("favorites-button");
 
     // Кликаем на кнопку избранного
-    fireEvent.click(favoritesButton)
-    expect(mockToggleFavorites).toHaveBeenCalled()
-  })
+    fireEvent.click(favoritesButton);
+    expect(mockToggleFavorites).toHaveBeenCalled();
+  });
 
   it("should handle sort order change", () => {
     render(
       <TestWrapper>
         <MediaToolbar />
-      </TestWrapper>
-    )
+      </TestWrapper>,
+    );
 
     // Находим кнопку изменения порядка сортировки
-    const sortOrderButton = screen.getByTestId("sort-order-button")
+    const sortOrderButton = screen.getByTestId("sort-order-button");
 
     // Кликаем на кнопку изменения порядка сортировки
-    fireEvent.click(sortOrderButton)
-    expect(mockChangeOrder).toHaveBeenCalled()
-  })
+    fireEvent.click(sortOrderButton);
+    expect(mockChangeOrder).toHaveBeenCalled();
+  });
 
   it("should handle import button click", async () => {
     render(
       <TestWrapper>
         <MediaToolbar />
-      </TestWrapper>
-    )
+      </TestWrapper>,
+    );
 
     // Находим кнопку импорта
-    const importButton = screen.getByText("Import")
+    const importButton = screen.getByText("Import");
 
     // Кликаем на кнопку импорта
-    fireEvent.click(importButton)
+    fireEvent.click(importButton);
 
     // Проверяем, что была вызвана функция importFile из хука useMediaImport
-    expect(mockImportFile).toHaveBeenCalled()
-  })
+    expect(mockImportFile).toHaveBeenCalled();
+  });
 
   it("should handle folder import button click", async () => {
     render(
       <TestWrapper>
         <MediaToolbar />
-      </TestWrapper>
-    )
+      </TestWrapper>,
+    );
 
     // Находим кнопку импорта папки
-    const folderButton = screen.getByTestId("folder-import-button")
+    const folderButton = screen.getByTestId("folder-import-button");
 
     // Кликаем на кнопку импорта папки
-    fireEvent.click(folderButton)
+    fireEvent.click(folderButton);
 
     // Проверяем, что была вызвана функция importFolder из хука useMediaImport
-    expect(mockImportFolder).toHaveBeenCalled()
-  })
-})
+    expect(mockImportFolder).toHaveBeenCalled();
+  });
+});

@@ -1,28 +1,36 @@
-import React from "react"
+import React from "react";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { VideoPanelComponent } from "../../video-panel-component"
-import { TemplateProps } from "../types"
+import { VideoPanelComponent } from "../../video-panel-component";
+import { TemplateProps } from "../types";
 
 /**
  * Шаблон "5 экранов: вариант 2 (4 маленьких слева, 1 большой справа)" - ландшафтный формат
  * ID: split-custom-5-2-landscape
  */
-export function SplitCustom52Landscape({ videos, activeVideoId, videoRefs, isResizable = true }: TemplateProps) {
+export function SplitCustom52Landscape({
+  videos,
+  activeVideoId,
+  videoRefs,
+  isResizable = true,
+}: TemplateProps) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
-  const videoCount = Math.min(validVideos.length, 5)
+  const validVideos = videos.filter((v) => v?.path);
+  const videoCount = Math.min(validVideos.length, 5);
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 5) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div className="flex h-full w-full" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="flex h-full w-full"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Левая секция (4 маленьких видео) */}
         <div className="flex h-full w-1/2 flex-col">
           {/* Верхняя левая секция */}
@@ -94,12 +102,15 @@ export function SplitCustom52Landscape({ videos, activeVideoId, videoRefs, isRes
           />
         </div>
       </div>
-    )
+    );
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
+    <div
+      className="h-full w-full"
+      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
+    >
       <PanelGroup direction="horizontal">
         {/* Левая секция (4 маленьких видео) */}
         <Panel defaultSize={50} minSize={20}>
@@ -167,5 +178,5 @@ export function SplitCustom52Landscape({ videos, activeVideoId, videoRefs, isRes
         </Panel>
       </PanelGroup>
     </div>
-  )
+  );
 }

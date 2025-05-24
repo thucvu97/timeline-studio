@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 import {
   ArrowDownUp,
@@ -15,25 +15,30 @@ import {
   Star,
   ZoomIn,
   ZoomOut,
-} from "lucide-react"
-import { useTranslation } from "react-i18next"
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { useMedia } from "@/features/browser/media"
-import { useMediaImport } from "@/features/browser/media/use-media-import"
-import { cn } from "@/lib/utils"
-import { MediaFile } from "@/types/media"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useMedia } from "@/features/browser/media";
+import { useMediaImport } from "@/features/browser/media/use-media-import";
+import { cn } from "@/lib/utils";
+import { MediaFile } from "@/types/media";
 
-import { useMediaList } from "../services/media-list-provider"
+import { useMediaList } from "../services/media-list-provider";
 
 /**
  * Компонент для управления медиа-инструментами
@@ -42,9 +47,9 @@ import { useMediaList } from "../services/media-list-provider"
  * @returns {JSX.Element} Панель инструментов для управления медиа-файлами
  */
 export function MediaToolbar() {
-  const { t } = useTranslation()
-  const media = useMedia()
-  const { importFile, importFolder, isImporting } = useMediaImport()
+  const { t } = useTranslation();
+  const media = useMedia();
+  const { importFile, importFolder, isImporting } = useMediaImport();
 
   // Извлекаем значения из контекста
   const {
@@ -67,75 +72,75 @@ export function MediaToolbar() {
     searchQuery,
     showFavoritesOnly,
     setSearchQuery,
-  } = useMediaList()
+  } = useMediaList();
 
   // Обработчики для обновления стейта и вызова методов из контекста
   const handleSort = (sortBy: string) => {
-    console.log(`Sort requested in toolbar: "${sortBy}"`)
-    sort(sortBy)
-  }
+    console.log(`Sort requested in toolbar: "${sortBy}"`);
+    sort(sortBy);
+  };
 
   const handleFilter = (filterType: string) => {
-    console.log(`Filter requested in toolbar: "${filterType}"`)
-    filter(filterType, media)
-  }
+    console.log(`Filter requested in toolbar: "${filterType}"`);
+    filter(filterType, media);
+  };
 
   const handleGroupBy = (groupBy: string) => {
-    console.log(`Group by requested in toolbar: "${groupBy}"`)
-    changeGroupBy(groupBy)
-  }
+    console.log(`Group by requested in toolbar: "${groupBy}"`);
+    changeGroupBy(groupBy);
+  };
 
   const handleChangeOrder = () => {
-    console.log("Change order requested in toolbar")
-    changeOrder()
-  }
+    console.log("Change order requested in toolbar");
+    changeOrder();
+  };
 
   const handleToggleFavorites = () => {
-    console.log("Toggle favorites requested in toolbar")
+    console.log("Toggle favorites requested in toolbar");
     // Используем только toggleFavorites, который уже инвертирует флаг в машине состояний
-    toggleFavorites(media)
-  }
+    toggleFavorites(media);
+  };
 
   const handleSearch = (query: string) => {
-    console.log(`Search requested in toolbar: "${query}"`)
-    setSearchQuery(query)
-    search(query, media)
-  }
+    console.log(`Search requested in toolbar: "${query}"`);
+    setSearchQuery(query);
+    search(query, media);
+  };
 
   const handleViewModeChange = (mode: "list" | "grid" | "thumbnails") => {
-    console.log(`View mode change requested in toolbar: "${mode}"`)
-    changeViewMode(mode)
-  }
+    console.log(`View mode change requested in toolbar: "${mode}"`);
+    changeViewMode(mode);
+  };
 
   const handleImportFile = async () => {
-    console.log("Импорт файла через оптимизированный хук")
+    console.log("Импорт файла через оптимизированный хук");
     try {
-      const result = await importFile()
+      const result = await importFile();
 
       if (result.success) {
-        console.log(result.message)
+        console.log(result.message);
       } else {
-        console.error(result.message)
+        console.error(result.message);
       }
     } catch (error) {
-      console.error("Ошибка при импорте файла:", error)
+      console.error("Ошибка при импорте файла:", error);
     }
-  }
+  };
 
   const handleImportFolder = async () => {
-    console.log("Импорт папки через оптимизированный хук")
+    console.log("Импорт папки через оптимизированный хук");
     try {
-      const result = await importFolder()
+      const result = await importFolder();
 
       if (result.success) {
-        console.log(result.message)
+        console.log(result.message);
       } else {
-        console.error(result.message)
+        console.error(result.message);
       }
     } catch (error) {
-      console.error("Ошибка при импорте папки:", error)
+      console.error("Ошибка при импорте папки:", error);
     }
-  }
+  };
 
   return (
     <div className="flex items-center justify-between p-1 dark:bg-[#252526]">
@@ -148,12 +153,14 @@ export function MediaToolbar() {
             isImporting && "opacity-70 cursor-wait",
           )}
           onClick={() => {
-            void handleImportFile()
+            void handleImportFile();
           }}
           disabled={isImporting}
         >
           <span className="px-2 text-xs">
-            {isImporting ? t("common.importing") || "Importing..." : t("common.import")}
+            {isImporting
+              ? t("common.importing") || "Importing..."
+              : t("common.import")}
           </span>
           <div className="flex items-center gap-1">
             <Tooltip>
@@ -165,11 +172,14 @@ export function MediaToolbar() {
                     isImporting && "opacity-50 cursor-wait",
                   )}
                   onClick={(e) => {
-                    e.stopPropagation()
-                    if (!isImporting) void handleImportFile()
+                    e.stopPropagation();
+                    if (!isImporting) void handleImportFile();
                   }}
                 >
-                  <File size={12} className={isImporting ? "animate-pulse" : ""} />
+                  <File
+                    size={12}
+                    className={isImporting ? "animate-pulse" : ""}
+                  />
                 </div>
               </TooltipTrigger>
               <TooltipContent>{t("browser.media.uploadMedia")}</TooltipContent>
@@ -183,12 +193,15 @@ export function MediaToolbar() {
                     isImporting && "opacity-50 cursor-wait",
                   )}
                   onClick={(e) => {
-                    e.stopPropagation()
-                    if (!isImporting) void handleImportFolder()
+                    e.stopPropagation();
+                    if (!isImporting) void handleImportFolder();
                   }}
                   data-testid="folder-import-button"
                 >
-                  <Folder size={12} className={isImporting ? "animate-pulse" : ""} />
+                  <Folder
+                    size={12}
+                    className={isImporting ? "animate-pulse" : ""}
+                  />
                 </div>
               </TooltipTrigger>
               <TooltipContent>{t("browser.media.addFolder")}</TooltipContent>
@@ -264,7 +277,10 @@ export function MediaToolbar() {
                   onClick={handleToggleFavorites}
                   data-testid="favorites-button"
                 >
-                  <Star size={16} className={showFavoritesOnly ? "fill-current" : ""} />
+                  <Star
+                    size={16}
+                    className={showFavoritesOnly ? "fill-current" : ""}
+                  />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t("browser.media.favorites")}</TooltipContent>
@@ -295,7 +311,9 @@ export function MediaToolbar() {
                   size="icon"
                   className={cn(
                     "mr-0 h-6 w-6 cursor-pointer",
-                    viewMode === "thumbnails" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
+                    viewMode === "thumbnails"
+                      ? "bg-[#dddbdd] dark:bg-[#45444b]"
+                      : "",
                   )}
                   onClick={() => handleViewModeChange("thumbnails")}
                   data-testid="thumbnails-view-button"
@@ -335,7 +353,10 @@ export function MediaToolbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={cn("mr-1 h-6 w-6 cursor-pointer", !canDecreaseSize && "cursor-not-allowed opacity-50")}
+                  className={cn(
+                    "mr-1 h-6 w-6 cursor-pointer",
+                    !canDecreaseSize && "cursor-not-allowed opacity-50",
+                  )}
                   onClick={decreasePreviewSize}
                   disabled={!canDecreaseSize}
                   data-testid="zoom-out-button"
@@ -351,7 +372,10 @@ export function MediaToolbar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={cn("mr-1 h-6 w-6 cursor-pointer", !canIncreaseSize && "cursor-not-allowed opacity-50")}
+                  className={cn(
+                    "mr-1 h-6 w-6 cursor-pointer",
+                    !canIncreaseSize && "cursor-not-allowed opacity-50",
+                  )}
                   onClick={increasePreviewSize}
                   disabled={!canIncreaseSize}
                   data-testid="zoom-in-button"
@@ -373,7 +397,10 @@ export function MediaToolbar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn("h-6 w-6 cursor-pointer", sortBy !== "name" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "")}
+                    className={cn(
+                      "h-6 w-6 cursor-pointer",
+                      sortBy !== "name" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
+                    )}
                   >
                     <SortDesc size={16} />
                   </Button>
@@ -381,7 +408,10 @@ export function MediaToolbar() {
               </TooltipTrigger>
               <TooltipContent>{t("browser.toolbar.sort")}</TooltipContent>
               <DropdownMenuContent className="space-y-1" align="end">
-                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("name")}>
+                <DropdownMenuItem
+                  className="h-6 cursor-pointer"
+                  onClick={() => handleSort("name")}
+                >
                   <div className="flex items-center gap-2">
                     {sortBy === "name" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.name")}</span>
@@ -390,8 +420,8 @@ export function MediaToolbar() {
                 <DropdownMenuItem
                   className="h-6 cursor-pointer"
                   onClick={() => {
-                    console.log("Сортировка по дате запрошена из UI")
-                    handleSort("date")
+                    console.log("Сортировка по дате запрошена из UI");
+                    handleSort("date");
                   }}
                 >
                   <div className="flex items-center gap-2">
@@ -402,8 +432,8 @@ export function MediaToolbar() {
                 <DropdownMenuItem
                   className="h-6 cursor-pointer"
                   onClick={() => {
-                    console.log("Сортировка по размеру запрошена из UI")
-                    handleSort("size")
+                    console.log("Сортировка по размеру запрошена из UI");
+                    handleSort("size");
                   }}
                 >
                   <div className="flex items-center gap-2">
@@ -411,7 +441,10 @@ export function MediaToolbar() {
                     <span>{t("browser.toolbar.sortBy.size")}</span>
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="h-6 cursor-pointer" onClick={() => handleSort("duration")}>
+                <DropdownMenuItem
+                  className="h-6 cursor-pointer"
+                  onClick={() => handleSort("duration")}
+                >
                   <div className="flex items-center gap-2">
                     {sortBy === "duration" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.sortBy.duration")}</span>
@@ -433,7 +466,9 @@ export function MediaToolbar() {
                     size="icon"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      filterType !== "all" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
+                      filterType !== "all"
+                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
+                        : "",
                     )}
                   >
                     <Filter size={16} />
@@ -481,7 +516,12 @@ export function MediaToolbar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn("h-6 w-6 cursor-pointer", groupBy !== "none" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "")}
+                    className={cn(
+                      "h-6 w-6 cursor-pointer",
+                      groupBy !== "none"
+                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
+                        : "",
+                    )}
                   >
                     <ListFilterPlus size={16} />
                   </Button>
@@ -530,15 +570,21 @@ export function MediaToolbar() {
                 onClick={handleChangeOrder}
                 data-testid="sort-order-button"
               >
-                {sortOrder === "asc" ? <ArrowDownUp size={16} /> : <ArrowUpDown size={16} />}
+                {sortOrder === "asc" ? (
+                  <ArrowDownUp size={16} />
+                ) : (
+                  <ArrowUpDown size={16} />
+                )}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {sortOrder === "asc" ? t("browser.toolbar.sortOrder.desc") : t("browser.toolbar.sortOrder.asc")}
+              {sortOrder === "asc"
+                ? t("browser.toolbar.sortOrder.desc")
+                : t("browser.toolbar.sortOrder.asc")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
     </div>
-  )
+  );
 }

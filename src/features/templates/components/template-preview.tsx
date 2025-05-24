@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 
-import { useResources } from "@/features/resources"
-import { MediaFile } from "@/types/media"
-import { TemplateResource } from "@/types/resources"
+import { useResources } from "@/features/resources";
+import { MediaFile } from "@/types/media";
+import { TemplateResource } from "@/types/resources";
 
-import { AddMediaButton, FavoriteButton } from "../../browser/components/layout"
-import { MediaTemplate } from "../lib/templates"
+import {
+  AddMediaButton,
+  FavoriteButton,
+} from "../../browser/components/layout";
+import { MediaTemplate } from "../lib/templates";
 
 /**
  * Интерфейс пропсов для компонента TemplatePreview
@@ -16,10 +19,10 @@ import { MediaTemplate } from "../lib/templates"
  * @property {[number, number]} dimensions - Размеры шаблона [ширина, высота]
  */
 interface TemplatePreviewProps {
-  template: MediaTemplate
-  onClick: () => void
-  size: number
-  dimensions: [number, number]
+  template: MediaTemplate;
+  onClick: () => void;
+  size: number;
+  dimensions: [number, number];
 }
 
 /**
@@ -29,12 +32,17 @@ interface TemplatePreviewProps {
  * @param {TemplatePreviewProps} props - Пропсы компонента
  * @returns {JSX.Element} Компонент превью шаблона
  */
-export function TemplatePreview({ template, onClick, size, dimensions }: TemplatePreviewProps) {
-  const [width, height] = dimensions // Извлекаем ширину и высоту из размеров
+export function TemplatePreview({
+  template,
+  onClick,
+  size,
+  dimensions,
+}: TemplatePreviewProps) {
+  const [width, height] = dimensions; // Извлекаем ширину и высоту из размеров
 
   // Локальное состояние для отслеживания добавления шаблона
   // Используется для мгновенного обновления UI без ожидания обновления из хранилища
-  const [localIsAdded, setLocalIsAdded] = useState(false)
+  const [localIsAdded, setLocalIsAdded] = useState(false);
 
   /**
    * Вычисляет размеры превью, сохраняя соотношение сторон оригинального шаблона
@@ -43,46 +51,47 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
   const calculateDimensions = (): { width: number; height: number } => {
     // Для квадратных шаблонов используем одинаковую ширину и высоту
     if (width === height) {
-      return { width: size, height: size }
+      return { width: size, height: size };
     }
 
     // Для вертикальных шаблонов (портретная ориентация)
     // используем максимально возможную ширину и увеличиваем высоту пропорционально
     if (height > width) {
       // Вычисляем ширину с сохранением пропорций
-      const fixedWidth = (size / height) * width
-      return { width: fixedWidth, height: size }
+      const fixedWidth = (size / height) * width;
+      return { width: fixedWidth, height: size };
     }
 
     // Для горизонтальных шаблонов (альбомная ориентация)
     // уменьшаем высоту пропорционально
-    const calculatedHeight = Math.min((size * height) / width, size)
-    return { width: size, height: calculatedHeight }
-  }
+    const calculatedHeight = Math.min((size * height) / width, size);
+    return { width: size, height: calculatedHeight };
+  };
 
   // Получаем вычисленные размеры превью
-  const { height: previewHeight, width: previewWidth } = calculateDimensions()
+  const { height: previewHeight, width: previewWidth } = calculateDimensions();
 
   // Получаем методы для работы с ресурсами шаблонов
-  const { addTemplate, isTemplateAdded, removeResource, templateResources } = useResources()
+  const { addTemplate, isTemplateAdded, removeResource, templateResources } =
+    useResources();
 
   // Создаем клон элемента с добавлением ключа для предотвращения предупреждения React
-  const renderedTemplate = template.render()
+  const renderedTemplate = template.render();
 
   // Проверяем, добавлен ли шаблон уже в хранилище ресурсов
-  const isAddedFromStore = isTemplateAdded(template)
+  const isAddedFromStore = isTemplateAdded(template);
 
   /**
    * Эффект для синхронизации локального состояния с состоянием из хранилища
    * При изменении состояния в хранилище, обновляем локальное состояние
    */
   useEffect(() => {
-    setLocalIsAdded(isAddedFromStore)
-  }, [isAddedFromStore])
+    setLocalIsAdded(isAddedFromStore);
+  }, [isAddedFromStore]);
 
   // Используем комбинированное состояние - либо из хранилища, либо локальное
   // Это позволяет мгновенно обновлять UI при добавлении/удалении шаблона
-  const isAdded = isAddedFromStore || localIsAdded
+  const isAdded = isAddedFromStore || localIsAdded;
 
   /**
    * Обработчик добавления шаблона в проект
@@ -91,22 +100,22 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
    * @param {MediaFile} _file - Объект файла (не используется)
    */
   const handleAddTemplate = (e: React.MouseEvent, _file: MediaFile) => {
-    e.stopPropagation() // Предотвращаем всплытие события
+    e.stopPropagation(); // Предотвращаем всплытие события
 
     // Немедленно обновляем локальное состояние для мгновенного отклика UI
-    setLocalIsAdded(true)
+    setLocalIsAdded(true);
 
     // Добавляем шаблон в хранилище ресурсов
-    addTemplate(template)
+    addTemplate(template);
 
     // Принудительно обновляем состояние через небольшую задержку,
     // чтобы кнопка стала видимой сразу после добавления
     setTimeout(() => {
       // Это вызовет перерисовку компонента
-      const isAdded = isTemplateAdded(template)
-      console.log(`Шаблон ${template.id} добавлен: ${isAdded}`)
-    }, 10)
-  }
+      const isAdded = isTemplateAdded(template);
+      console.log(`Шаблон ${template.id} добавлен: ${isAdded}`);
+    }, 10);
+  };
 
   /**
    * Обработчик удаления шаблона из проекта
@@ -115,21 +124,25 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
    * @param {MediaFile} _file - Объект файла (не используется)
    */
   const handleRemoveTemplate = (e: React.MouseEvent, _file: MediaFile) => {
-    e.stopPropagation() // Предотвращаем всплытие события
+    e.stopPropagation(); // Предотвращаем всплытие события
 
     // Немедленно обновляем локальное состояние для мгновенного отклика UI
-    setLocalIsAdded(false)
+    setLocalIsAdded(false);
 
     // Находим ресурс с этим шаблоном в списке ресурсов
-    const resource = templateResources.find((res: TemplateResource) => res.resourceId === template.id)
+    const resource = templateResources.find(
+      (res: TemplateResource) => res.resourceId === template.id,
+    );
 
     if (resource) {
       // Удаляем ресурс из хранилища
-      removeResource(resource.id)
+      removeResource(resource.id);
     } else {
-      console.warn(`Не удалось найти ресурс шаблона с ID ${template.id} для удаления`)
+      console.warn(
+        `Не удалось найти ресурс шаблона с ID ${template.id} для удаления`,
+      );
     }
-  }
+  };
 
   return (
     <div
@@ -148,7 +161,11 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
       })}
 
       {/* Кнопка добавления в избранное */}
-      <FavoriteButton file={{ id: template.id, path: "", name: template.id }} size={previewWidth} type="template" />
+      <FavoriteButton
+        file={{ id: template.id, path: "", name: template.id }}
+        size={previewWidth}
+        type="template"
+      />
 
       {/* Контейнер для кнопки добавления/удаления шаблона */}
       <div
@@ -169,5 +186,5 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
         />
       </div>
     </div>
-  )
+  );
 }

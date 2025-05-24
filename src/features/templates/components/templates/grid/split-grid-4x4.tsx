@@ -1,31 +1,39 @@
-import React from "react"
+import React from "react";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { VideoPanelComponent } from "../../video-panel-component"
-import { TemplateProps } from "../types"
+import { VideoPanelComponent } from "../../video-panel-component";
+import { TemplateProps } from "../types";
 
 /**
  * Шаблон "Сетка 4x4" (16 экранов)
  */
-export function SplitGrid4x4({ videos, activeVideoId, videoRefs, isResizable = true }: TemplateProps) {
+export function SplitGrid4x4({
+  videos,
+  activeVideoId,
+  videoRefs,
+  isResizable = true,
+}: TemplateProps) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
-  const videoCount = Math.min(validVideos.length, 16)
+  const validVideos = videos.filter((v) => v?.path);
+  const videoCount = Math.min(validVideos.length, 16);
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 16) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="relative h-full w-full"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Рендерим видео */}
         {validVideos.slice(0, videoCount).map((video, index) => {
-          const row = Math.floor(index / 4)
-          const col = index % 4
+          const row = Math.floor(index / 4);
+          const col = index % 4;
 
           return (
             <div
@@ -46,7 +54,7 @@ export function SplitGrid4x4({ videos, activeVideoId, videoRefs, isResizable = t
                 index={index}
               />
             </div>
-          )
+          );
         })}
 
         {/* Добавляем разделительные линии */}
@@ -78,39 +86,48 @@ export function SplitGrid4x4({ videos, activeVideoId, videoRefs, isResizable = t
           />
         ))}
       </div>
-    )
+    );
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
+    <div
+      className="h-full w-full"
+      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
+    >
       <PanelGroup direction="vertical">
         {[0, 1, 2, 3].map((rowIndex) => (
           <React.Fragment key={`row-${rowIndex}`}>
             <Panel defaultSize={25} minSize={10}>
               <PanelGroup direction="horizontal">
                 {[0, 1, 2, 3].map((colIndex) => {
-                  const videoIndex = rowIndex * 4 + colIndex
+                  const videoIndex = rowIndex * 4 + colIndex;
                   return (
                     <React.Fragment key={`col-${colIndex}`}>
                       <Panel defaultSize={25} minSize={10}>
                         <VideoPanelComponent
                           video={validVideos[videoIndex]}
-                          isActive={validVideos[videoIndex]?.id === activeVideoId}
+                          isActive={
+                            validVideos[videoIndex]?.id === activeVideoId
+                          }
                           videoRefs={videoRefs}
                           index={videoIndex}
                         />
                       </Panel>
-                      {colIndex < 3 && <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
+                      {colIndex < 3 && (
+                        <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
+                      )}
                     </React.Fragment>
-                  )
+                  );
                 })}
               </PanelGroup>
             </Panel>
-            {rowIndex < 3 && <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
+            {rowIndex < 3 && (
+              <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
+            )}
           </React.Fragment>
         ))}
       </PanelGroup>
     </div>
-  )
+  );
 }

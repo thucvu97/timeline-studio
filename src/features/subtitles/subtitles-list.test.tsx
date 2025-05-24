@@ -1,7 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SubtitlesList } from "./subtitles-list"
+import { SubtitlesList } from "./subtitles-list";
 
 // Мокируем useTranslation
 vi.mock("react-i18next", () => ({
@@ -9,27 +9,27 @@ vi.mock("react-i18next", () => ({
     t: (key: string, options?: any) => {
       // Возвращаем ключ как значение для простоты тестирования
       if (options?.defaultValue) {
-        return options.defaultValue
+        return options.defaultValue;
       }
-      return key
+      return key;
     },
   }),
-}))
+}));
 
 // Мокируем useMedia
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
     isItemFavorite: vi.fn().mockImplementation((file, type) => {
       // Для тестирования считаем, что файл с id "default" в избранном
-      return file.id === "default"
+      return file.id === "default";
     }),
     toggleFavorite: vi.fn(),
   }),
-}))
+}));
 
 // Мокируем usePreviewSize
-const mockHandleIncreaseSize = vi.fn()
-const mockHandleDecreaseSize = vi.fn()
+const mockHandleIncreaseSize = vi.fn();
+const mockHandleDecreaseSize = vi.fn();
 
 vi.mock("@/features/browser/components/preview/preview-size-provider", () => ({
   usePreviewSize: () => ({
@@ -39,7 +39,7 @@ vi.mock("@/features/browser/components/preview/preview-size-provider", () => ({
     canIncreaseSize: true,
     canDecreaseSize: true,
   }),
-}))
+}));
 
 // Мокируем SubtitlesPreview
 vi.mock("./subtitles-preview", () => ({
@@ -52,7 +52,7 @@ vi.mock("./subtitles-preview", () => ({
       Subtitle Preview: {style.name}
     </div>
   ),
-}))
+}));
 
 // Мокируем компоненты UI
 vi.mock("@/components/ui/button", () => ({
@@ -67,7 +67,7 @@ vi.mock("@/components/ui/button", () => ({
       {children}
     </button>
   ),
-}))
+}));
 
 vi.mock("@/components/ui/input", () => ({
   Input: ({ value, onChange, placeholder, className, ...props }: any) => (
@@ -80,14 +80,16 @@ vi.mock("@/components/ui/input", () => ({
       {...props}
     />
   ),
-}))
+}));
 
 vi.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: any) => <>{children}</>,
-  TooltipContent: ({ children }: any) => <div data-testid="tooltip-content">{children}</div>,
+  TooltipContent: ({ children }: any) => (
+    <div data-testid="tooltip-content">{children}</div>
+  ),
   TooltipProvider: ({ children }: any) => <>{children}</>,
   TooltipTrigger: ({ children, asChild }: any) => <>{children}</>,
-}))
+}));
 
 // Мокируем lucide-react
 vi.mock("lucide-react", () => ({
@@ -98,12 +100,12 @@ vi.mock("lucide-react", () => ({
   ),
   ZoomIn: ({ size }: any) => <div data-testid="zoom-in-icon">Zoom In</div>,
   ZoomOut: ({ size }: any) => <div data-testid="zoom-out-icon">Zoom Out</div>,
-}))
+}));
 
 // Мокируем cn
 vi.mock("@/lib/utils", () => ({
   cn: (...args: any[]) => args.filter(Boolean).join(" "),
-}))
+}));
 
 // Мокируем SUBTITLE_CATEGORIES
 vi.mock("./subtitles", () => ({
@@ -180,107 +182,119 @@ vi.mock("./subtitles", () => ({
     borderRadius: `${style.borderRadius}px`,
     outline: style.outline,
   }),
-}))
+}));
 
 describe("SubtitlesList", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.clearAllMocks();
     // Мокируем window.alert
-    vi.spyOn(window, "alert").mockImplementation(() => {})
-  })
+    vi.spyOn(window, "alert").mockImplementation(() => {});
+  });
 
   it("renders correctly with all elements", () => {
-    render(<SubtitlesList />)
+    render(<SubtitlesList />);
 
     // Проверяем, что поле поиска отображается
-    expect(screen.getByTestId("search-input")).toBeInTheDocument()
+    expect(screen.getByTestId("search-input")).toBeInTheDocument();
 
     // Проверяем, что кнопки управления отображаются
-    expect(screen.getByTestId("star-icon")).toBeInTheDocument()
-    expect(screen.getByTestId("zoom-in-icon")).toBeInTheDocument()
-    expect(screen.getByTestId("zoom-out-icon")).toBeInTheDocument()
+    expect(screen.getByTestId("star-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("zoom-in-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("zoom-out-icon")).toBeInTheDocument();
 
     // Проверяем, что все стили субтитров отображаются
-    expect(screen.getByTestId("subtitle-preview-default")).toBeInTheDocument()
-    expect(screen.getByTestId("subtitle-preview-bold")).toBeInTheDocument()
-    expect(screen.getByTestId("subtitle-preview-fancy1")).toBeInTheDocument()
-  })
+    expect(screen.getByTestId("subtitle-preview-default")).toBeInTheDocument();
+    expect(screen.getByTestId("subtitle-preview-bold")).toBeInTheDocument();
+    expect(screen.getByTestId("subtitle-preview-fancy1")).toBeInTheDocument();
+  });
 
   it("filters subtitle styles by search query", () => {
-    render(<SubtitlesList />)
+    render(<SubtitlesList />);
 
     // Вводим поисковый запрос
-    const searchInput = screen.getByTestId("search-input")
-    fireEvent.change(searchInput, { target: { value: "fancy" } })
+    const searchInput = screen.getByTestId("search-input");
+    fireEvent.change(searchInput, { target: { value: "fancy" } });
 
     // Проверяем, что отображается только стиль "Fancy 1"
-    expect(screen.getByTestId("subtitle-preview-fancy1")).toBeInTheDocument()
-    expect(screen.queryByTestId("subtitle-preview-default")).not.toBeInTheDocument()
-    expect(screen.queryByTestId("subtitle-preview-bold")).not.toBeInTheDocument()
-  })
+    expect(screen.getByTestId("subtitle-preview-fancy1")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("subtitle-preview-default"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("subtitle-preview-bold"),
+    ).not.toBeInTheDocument();
+  });
 
   it("toggles favorites filter", () => {
-    render(<SubtitlesList />)
+    render(<SubtitlesList />);
 
     // Проверяем, что изначально отображаются все стили
-    expect(screen.getByTestId("subtitle-preview-default")).toBeInTheDocument()
-    expect(screen.getByTestId("subtitle-preview-bold")).toBeInTheDocument()
-    expect(screen.getByTestId("subtitle-preview-fancy1")).toBeInTheDocument()
+    expect(screen.getByTestId("subtitle-preview-default")).toBeInTheDocument();
+    expect(screen.getByTestId("subtitle-preview-bold")).toBeInTheDocument();
+    expect(screen.getByTestId("subtitle-preview-fancy1")).toBeInTheDocument();
 
     // Нажимаем на кнопку избранного
-    const favoriteButton = screen.getByTestId("star-icon").closest("button")
-    fireEvent.click(favoriteButton!)
+    const favoriteButton = screen.getByTestId("star-icon").closest("button");
+    fireEvent.click(favoriteButton!);
 
     // Проверяем, что отображается только стиль "Default" (он в избранном)
-    expect(screen.getByTestId("subtitle-preview-default")).toBeInTheDocument()
-    expect(screen.queryByTestId("subtitle-preview-bold")).not.toBeInTheDocument()
-    expect(screen.queryByTestId("subtitle-preview-fancy1")).not.toBeInTheDocument()
-  })
+    expect(screen.getByTestId("subtitle-preview-default")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("subtitle-preview-bold"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("subtitle-preview-fancy1"),
+    ).not.toBeInTheDocument();
+  });
 
   it("calls increaseSize when zoom in button is clicked", () => {
-    render(<SubtitlesList />)
+    render(<SubtitlesList />);
 
     // Находим кнопку увеличения размера и кликаем по ней
-    const zoomInButton = screen.getByTestId("zoom-in-icon").closest("button")
-    fireEvent.click(zoomInButton!)
+    const zoomInButton = screen.getByTestId("zoom-in-icon").closest("button");
+    fireEvent.click(zoomInButton!);
 
     // Проверяем, что increaseSize был вызван
-    expect(mockHandleIncreaseSize).toHaveBeenCalledTimes(1)
-  })
+    expect(mockHandleIncreaseSize).toHaveBeenCalledTimes(1);
+  });
 
   it("calls decreaseSize when zoom out button is clicked", () => {
-    render(<SubtitlesList />)
+    render(<SubtitlesList />);
 
     // Находим кнопку уменьшения размера и кликаем по ней
-    const zoomOutButton = screen.getByTestId("zoom-out-icon").closest("button")
-    fireEvent.click(zoomOutButton!)
+    const zoomOutButton = screen.getByTestId("zoom-out-icon").closest("button");
+    fireEvent.click(zoomOutButton!);
 
     // Проверяем, что decreaseSize был вызван
-    expect(mockHandleDecreaseSize).toHaveBeenCalledTimes(1)
-  })
+    expect(mockHandleDecreaseSize).toHaveBeenCalledTimes(1);
+  });
 
   it("shows alert when subtitle style is clicked", () => {
     // Мокируем window.alert
-    const alertSpy = vi.spyOn(window, "alert")
+    const alertSpy = vi.spyOn(window, "alert");
 
-    render(<SubtitlesList />)
+    render(<SubtitlesList />);
 
     // Находим стиль и кликаем по нему
-    const subtitlePreview = screen.getByTestId("subtitle-preview-default")
-    fireEvent.click(subtitlePreview)
+    const subtitlePreview = screen.getByTestId("subtitle-preview-default");
+    fireEvent.click(subtitlePreview);
 
     // Проверяем, что alert был вызван с правильными параметрами
-    expect(alertSpy).toHaveBeenCalledWith('Стиль субтитров "Default" добавлен на таймлайн')
-  })
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Стиль субтитров "Default" добавлен на таймлайн',
+    );
+  });
 
   it("shows 'not found' message when no styles match search", () => {
-    render(<SubtitlesList />)
+    render(<SubtitlesList />);
 
     // Вводим поисковый запрос, который не соответствует ни одному стилю
-    const searchInput = screen.getByTestId("search-input")
-    fireEvent.change(searchInput, { target: { value: "nonexistent" } })
+    const searchInput = screen.getByTestId("search-input");
+    fireEvent.change(searchInput, { target: { value: "nonexistent" } });
 
     // Проверяем, что отображается сообщение "not found"
-    expect(screen.getByText("browser.tabs.subtitles common.notFound")).toBeInTheDocument()
-  })
-})
+    expect(
+      screen.getByText("browser.tabs.subtitles common.notFound"),
+    ).toBeInTheDocument();
+  });
+});

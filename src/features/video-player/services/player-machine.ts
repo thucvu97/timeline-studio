@@ -1,20 +1,20 @@
-import { assign, createMachine } from "xstate"
+import { assign, createMachine } from "xstate";
 
-import { MediaFile } from "@/types/media"
+import { MediaFile } from "@/types/media";
 
 export interface PlayerContextType {
-  video: MediaFile | null
-  currentTime: number
-  duration: number
-  volume: number
+  video: MediaFile | null;
+  currentTime: number;
+  duration: number;
+  volume: number;
 
-  isPlaying: boolean
-  isSeeking: boolean
-  isChangingCamera: boolean
-  isRecording: boolean
-  isVideoLoading: boolean
-  isVideoReady: boolean
-  isResizableMode: boolean // Флаг, указывающий, что шаблоны должны быть resizable
+  isPlaying: boolean;
+  isSeeking: boolean;
+  isChangingCamera: boolean;
+  isRecording: boolean;
+  isVideoLoading: boolean;
+  isVideoReady: boolean;
+  isResizableMode: boolean; // Флаг, указывающий, что шаблоны должны быть resizable
 }
 
 // Начальный контекст для машины состояний плеера
@@ -31,61 +31,61 @@ const initialContext: PlayerContextType = {
   isResizableMode: true, // По умолчанию включен режим resizable
   duration: 0,
   volume: 100, // Значение по умолчанию, будет заменено из пользовательских настроек
-}
+};
 
 interface SetCurrentTimeEvent {
-  type: "setCurrentTime"
-  currentTime: number
+  type: "setCurrentTime";
+  currentTime: number;
 }
 
 interface SetIsPlayingEvent {
-  type: "setIsPlaying"
-  isPlaying: boolean
+  type: "setIsPlaying";
+  isPlaying: boolean;
 }
 
 interface SetIsSeekingEvent {
-  type: "setIsSeeking"
-  isSeeking: boolean
+  type: "setIsSeeking";
+  isSeeking: boolean;
 }
 
 interface SetIsChangingCameraEvent {
-  type: "setIsChangingCamera"
-  isChangingCamera: boolean
+  type: "setIsChangingCamera";
+  isChangingCamera: boolean;
 }
 
 interface SetIsRecordingEvent {
-  type: "setIsRecording"
-  isRecording: boolean
+  type: "setIsRecording";
+  isRecording: boolean;
 }
 
 interface SetDurationEvent {
-  type: "setDuration"
-  duration: number
+  type: "setDuration";
+  duration: number;
 }
 
 interface SetVolumeEvent {
-  type: "setVolume"
-  volume: number
+  type: "setVolume";
+  volume: number;
 }
 
 interface SetVideoEvent {
-  type: "setVideo"
-  video: MediaFile
+  type: "setVideo";
+  video: MediaFile;
 }
 
 interface SetVideoLoadingEvent {
-  type: "setVideoLoading"
-  isVideoLoading: boolean
+  type: "setVideoLoading";
+  isVideoLoading: boolean;
 }
 
 interface SetVideoReadyEvent {
-  type: "setVideoReady"
-  isVideoReady: boolean
+  type: "setVideoReady";
+  isVideoReady: boolean;
 }
 
 interface SetIsResizableModeEvent {
-  type: "setIsResizableMode"
-  isResizableMode: boolean
+  type: "setIsResizableMode";
+  isResizableMode: boolean;
 }
 
 export type PlayerEvent =
@@ -99,7 +99,7 @@ export type PlayerEvent =
   | SetVideoEvent
   | SetVideoLoadingEvent
   | SetVideoReadyEvent
-  | SetIsResizableModeEvent
+  | SetIsResizableModeEvent;
 
 export const playerMachine = createMachine({
   id: "player",
@@ -115,7 +115,9 @@ export const playerMachine = createMachine({
             assign({ isVideoLoading: true }),
             // Добавляем логирование
             ({ event }) => {
-              console.log(`[PlayerMachine] Установлено видео: ${event.video?.id}, path=${event.video?.path}`)
+              console.log(
+                `[PlayerMachine] Установлено видео: ${event.video?.id}, path=${event.video?.path}`,
+              );
             },
           ],
         },
@@ -143,7 +145,9 @@ export const playerMachine = createMachine({
           actions: assign({ volume: ({ event }) => event.volume }),
         },
         setIsResizableMode: {
-          actions: assign({ isResizableMode: ({ event }) => event.isResizableMode }),
+          actions: assign({
+            isResizableMode: ({ event }) => event.isResizableMode,
+          }),
         },
       },
     },
@@ -155,7 +159,9 @@ export const playerMachine = createMachine({
             assign({ isVideoReady: true, isVideoLoading: false }),
             // Добавляем логирование
             ({ context }) => {
-              console.log(`[PlayerMachine] Видео ${context.video?.id} готово к воспроизведению`)
+              console.log(
+                `[PlayerMachine] Видео ${context.video?.id} готово к воспроизведению`,
+              );
             },
           ],
         },
@@ -188,7 +194,9 @@ export const playerMachine = createMachine({
           actions: assign({ volume: ({ event }) => event.volume }),
         },
         setIsResizableMode: {
-          actions: assign({ isResizableMode: ({ event }) => event.isResizableMode }),
+          actions: assign({
+            isResizableMode: ({ event }) => event.isResizableMode,
+          }),
         },
       },
     },
@@ -203,7 +211,7 @@ export const playerMachine = createMachine({
             ({ event }) => {
               console.log(
                 `[PlayerMachine] Установлено видео в состоянии ready: ${event.video?.id}, path=${event.video?.path}`,
-              )
+              );
             },
           ],
         },
@@ -231,9 +239,11 @@ export const playerMachine = createMachine({
           actions: assign({ volume: ({ event }) => event.volume }),
         },
         setIsResizableMode: {
-          actions: assign({ isResizableMode: ({ event }) => event.isResizableMode }),
+          actions: assign({
+            isResizableMode: ({ event }) => event.isResizableMode,
+          }),
         },
       },
     },
   },
-})
+});

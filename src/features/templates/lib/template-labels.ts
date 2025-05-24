@@ -1,7 +1,7 @@
-import i18n from "@/i18n"
+import i18n from "@/i18n";
 
 export interface TemplateDescription {
-  id: string
+  id: string;
 }
 
 /**
@@ -10,7 +10,7 @@ export interface TemplateDescription {
  * @returns Локализованное название шаблона
  */
 export function getTemplateLabels(id: string): string {
-  return i18n.t(`templates.templateLabels.${id}`)
+  return i18n.t(`templates.templateLabels.${id}`);
 }
 
 /**
@@ -19,5 +19,5 @@ export function getTemplateLabels(id: string): string {
  * @returns Локализованное описание шаблона
  */
 export function getTemplateDescription(id: string): string {
-  return i18n.t(`templates.templateDescriptions.${id}`)
+  return i18n.t(`templates.templateDescriptions.${id}`);
 }

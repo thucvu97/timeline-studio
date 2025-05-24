@@ -1,27 +1,35 @@
-import React from "react"
+import React from "react";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { VideoPanelComponent } from "../../video-panel-component"
-import { TemplateProps } from "../types"
+import { VideoPanelComponent } from "../../video-panel-component";
+import { TemplateProps } from "../types";
 
 /**
  * Шаблон "Сетка 3x3" (9 экранов)
  */
-export function SplitGrid3x3({ videos, activeVideoId, videoRefs, isResizable = true }: TemplateProps) {
+export function SplitGrid3x3({
+  videos,
+  activeVideoId,
+  videoRefs,
+  isResizable = true,
+}: TemplateProps) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
-  const videoCount = Math.min(validVideos.length, 9)
+  const validVideos = videos.filter((v) => v?.path);
+  const videoCount = Math.min(validVideos.length, 9);
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 9) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div className="flex h-full w-full flex-col" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="flex h-full w-full flex-col"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Верхний ряд */}
         <div className="flex h-1/3 w-full">
           {/* Верхний левый экран */}
@@ -145,12 +153,15 @@ export function SplitGrid3x3({ videos, activeVideoId, videoRefs, isResizable = t
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
+    <div
+      className="h-full w-full"
+      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
+    >
       <PanelGroup direction="vertical">
         {/* Верхний ряд */}
         <Panel defaultSize={33.33} minSize={10}>
@@ -258,5 +269,5 @@ export function SplitGrid3x3({ videos, activeVideoId, videoRefs, isResizable = t
         </Panel>
       </PanelGroup>
     </div>
-  )
+  );
 }

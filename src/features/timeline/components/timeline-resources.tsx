@@ -1,14 +1,21 @@
-import { Music, Package, Palette, Scissors, Subtitles, Video } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import {
+  Music,
+  Package,
+  Palette,
+  Scissors,
+  Subtitles,
+  Video,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { useResources } from "@/features/resources"
-import { TimelineResource } from "@/types/resources"
+import { useResources } from "@/features/resources";
+import { TimelineResource } from "@/types/resources";
 
 /**
  * Компонент для отображения ресурсов таймлайна в левой панели
  */
 export function TimelineResources() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   // Полностью отключаем логирование
   const {
@@ -18,7 +25,7 @@ export function TimelineResources() {
     templateResources,
     musicResources,
     subtitleResources,
-  } = useResources()
+  } = useResources();
 
   // Полностью отключаем логирование
 
@@ -60,12 +67,12 @@ export function TimelineResources() {
       icon: <Subtitles className="h-3.5 w-3.5 text-gray-400" />,
       resources: subtitleResources,
     },
-  ]
+  ];
 
   // Функция для отображения списка ресурсов
   const renderResourceList = (resources: TimelineResource[]) => {
     if (resources.length === 0) {
-      return null // Если ресурсов нет, не показываем ничего
+      return null; // Если ресурсов нет, не показываем ничего
     }
 
     return (
@@ -80,17 +87,24 @@ export function TimelineResources() {
               <div className="flex-shrink-0">
                 {resource.type === "effect" && <Package className="h-4 w-4" />}
                 {resource.type === "filter" && <Palette className="h-4 w-4" />}
-                {resource.type === "transition" && <Scissors className="h-4 w-4" />}
+                {resource.type === "transition" && (
+                  <Scissors className="h-4 w-4" />
+                )}
                 {resource.type === "template" && <Video className="h-4 w-4" />}
                 {resource.type === "music" && <Music className="h-4 w-4" />}
-                {resource.type === "subtitle" && <Subtitles className="h-4 w-4" />}
+                {resource.type === "subtitle" && (
+                  <Subtitles className="h-4 w-4" />
+                )}
               </div>
 
               {/* Название ресурса (справа) */}
               <div className="flex-1 overflow-hidden">
                 <div className="truncate text-[10px] text-gray-300">
                   {resource.type === "template"
-                    ? t(`templates.templateLabels.${resource.name}`, resource.name)
+                    ? t(
+                        `templates.templateLabels.${resource.name}`,
+                        resource.name,
+                      )
                     : resource.name}
                 </div>
               </div>
@@ -98,13 +112,15 @@ export function TimelineResources() {
           ))}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="flex h-full flex-col bg-background text-white">
       <div className="border-b border-[#333] p-1.5">
-        <h3 className="text-xs font-medium">{t("timeline.resources.title", "Ресурсы")}</h3>
+        <h3 className="text-xs font-medium">
+          {t("timeline.resources.title", "Ресурсы")}
+        </h3>
       </div>
 
       {/* Прокручиваемый контейнер для всех категорий */}
@@ -117,7 +133,9 @@ export function TimelineResources() {
                 {category.icon}
                 {category.name}
                 {category.resources.length > 0 && (
-                  <span className="ml-1 text-[9px] text-gray-500">({category.resources.length})</span>
+                  <span className="ml-1 text-[9px] text-gray-500">
+                    ({category.resources.length})
+                  </span>
                 )}
               </div>
 
@@ -127,7 +145,10 @@ export function TimelineResources() {
               {/* Сообщение, если нет ресурсов */}
               {category.resources.length === 0 && (
                 <div className="pl-1 text-[10px] text-gray-500">
-                  {t("timeline.resources.noResources", "Нет добавленных ресурсов")}
+                  {t(
+                    "timeline.resources.noResources",
+                    "Нет добавленных ресурсов",
+                  )}
                 </div>
               )}
             </div>
@@ -135,5 +156,5 @@ export function TimelineResources() {
         </div>
       </div>
     </div>
-  )
+  );
 }

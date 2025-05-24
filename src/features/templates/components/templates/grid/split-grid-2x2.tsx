@@ -1,9 +1,9 @@
-import React from "react"
+import React from "react";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { VideoPanelComponent } from "../../video-panel-component"
-import { TemplateProps } from "../types"
+import { VideoPanelComponent } from "../../video-panel-component";
+import { TemplateProps } from "../types";
 
 /**
  * Шаблон "Сетка 2x2" (4 экрана)
@@ -17,18 +17,21 @@ export function SplitGrid2x2({
   templateId,
 }: TemplateProps & { templateId?: string }) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
-  const videoCount = Math.min(validVideos.length, 4)
+  const validVideos = videos.filter((v) => v?.path);
+  const videoCount = Math.min(validVideos.length, 4);
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 4) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div className="flex h-full w-full flex-col" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="flex h-full w-full flex-col"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Верхний ряд */}
         <div className="flex h-1/2 w-full">
           {/* Верхний левый экран */}
@@ -84,12 +87,15 @@ export function SplitGrid2x2({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
+    <div
+      className="h-full w-full"
+      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
+    >
       <PanelGroup direction="vertical">
         {/* Верхний ряд */}
         <Panel defaultSize={50} minSize={10}>
@@ -142,5 +148,5 @@ export function SplitGrid2x2({
         </Panel>
       </PanelGroup>
     </div>
-  )
+  );
 }
