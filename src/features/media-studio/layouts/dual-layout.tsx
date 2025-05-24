@@ -1,5 +1,3 @@
-import { useState } from "react"
-
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Browser } from "@/features/browser/components/browser"
 import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"

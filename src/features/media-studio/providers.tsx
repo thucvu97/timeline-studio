@@ -2,19 +2,18 @@
 
 import { ReactNode } from "react"
 
+import { AppSettingsProvider } from "@/features/app-state/app-settings-provider"
+import { PreviewSizeProvider } from "@/features/browser/components/preview/preview-size-provider"
 import { MusicProvider } from "@/features/browser/components/tabs/music/music-provider"
+import { TemplateListProvider } from "@/features/browser/components/tabs/templates/services/template-list-provider"
+import { MediaProvider } from "@/features/browser/media"
 import { ResourcesProvider } from "@/features/browser/resources/resources-provider"
+import { ChatProvider } from "@/features/chat/services/chat-provider"
+import { ProjectSettingsProvider } from "@/features/modals/features/project-settings/project-settings-provider"
+import { UserSettingsProvider } from "@/features/modals/features/user-settings/user-settings-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
+import { PlayerProvider } from "@/features/video-player/components/player-provider"
 import { I18nProvider } from "@/i18n/i18n-provider"
-
-import { AppSettingsProvider } from "../app-state/app-settings-provider"
-import { PreviewSizeProvider } from "../browser/components/preview/preview-size-provider"
-import { TemplateListProvider } from "../browser/components/tabs/templates/services/template-list-provider"
-import { MediaProvider } from "../browser/media"
-import { ChatProvider } from "../chat/services/chat-provider"
-import { ProjectSettingsProvider } from "../modals/features/project-settings/project-settings-provider"
-import { UserSettingsProvider } from "../modals/features/user-settings/user-settings-provider"
-import { PlayerProvider } from "../video-player/components/player-provider"
 
 interface ProvidersProps {
   children: ReactNode
