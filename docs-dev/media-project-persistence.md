@@ -9,18 +9,21 @@
 ### Основные компоненты
 
 1. **Типы данных** (`src/types/saved-media.ts`)
+
    - `SavedMediaFile` - структура для сохранения медиафайлов
    - `SavedMusicFile` - расширение для музыкальных файлов с метаданными
    - `ProjectMediaLibrary` - медиабиблиотека проекта
    - `ProjectFile` - полная структура файла проекта
 
 2. **Утилиты** (`src/lib/saved-media-utils.ts`)
+
    - Конвертация между типами MediaFile и SavedMediaFile
    - Генерация уникальных ID файлов
    - Валидация целостности файлов
    - Работа с относительными путями
 
 3. **Сервисы**
+
    - `ProjectFileService` - загрузка/сохранение проектов
    - `MediaRestorationService` - восстановление медиафайлов
 
@@ -37,39 +40,40 @@
 ```typescript
 // Автоматическое сохранение при импорте
 const saveFilesToProject = async (files: MediaFile[]) => {
-  if (!currentProject.path || files.length === 0) return
+  if (!currentProject.path || files.length === 0) return;
 
   // Конвертируем MediaFile в SavedMediaFile
   const savedFiles = await Promise.all(
-    files.map(file => convertToSavedMediaFile(file, currentProject.path))
-  )
+    files.map((file) => convertToSavedMediaFile(file, currentProject.path)),
+  );
 
   // Отмечаем проект как измененный
-  setProjectDirty(true)
-}
+  setProjectDirty(true);
+};
 ```
 
 ### 2. Структура сохраненного файла
 
 ```typescript
 interface SavedMediaFile {
-  id: string                    // Уникальный ID файла
-  originalPath: string          // Оригинальный путь к файлу
-  relativePath?: string         // Относительный путь (если в поддиректории проекта)
-  name: string                  // Имя файла
-  size: number                  // Размер файла
-  lastModified: number          // Время последней модификации
-  isVideo: boolean              // Тип файла
-  isAudio: boolean
-  isImage: boolean
-  metadata: {                   // Метаданные файла
-    duration?: number
-    startTime?: number
-    createdAt?: string
-    probeData?: FfprobeData
-  }
-  status: FileStatus            // Статус файла
-  lastChecked: number           // Время последней проверки
+  id: string; // Уникальный ID файла
+  originalPath: string; // Оригинальный путь к файлу
+  relativePath?: string; // Относительный путь (если в поддиректории проекта)
+  name: string; // Имя файла
+  size: number; // Размер файла
+  lastModified: number; // Время последней модификации
+  isVideo: boolean; // Тип файла
+  isAudio: boolean;
+  isImage: boolean;
+  metadata: {
+    // Метаданные файла
+    duration?: number;
+    startTime?: number;
+    createdAt?: string;
+    probeData?: FfprobeData;
+  };
+  status: FileStatus; // Статус файла
+  lastChecked: number; // Время последней проверки
 }
 ```
 
@@ -79,17 +83,25 @@ interface SavedMediaFile {
 
 ```typescript
 const projectData: ProjectFile = {
-  settings: { /* настройки проекта */ },
-  mediaLibrary: {
-    mediaFiles: savedMediaFiles,    // Сохраненные медиафайлы
-    musicFiles: savedMusicFiles,    // Сохраненные музыкальные файлы
-    lastUpdated: Date.now(),
-    version: "1.0.0"
+  settings: {
+    /* настройки проекта */
   },
-  browserState: { /* состояние браузера */ },
-  projectFavorites: { /* избранные файлы */ },
-  meta: { /* метаданные проекта */ }
-}
+  mediaLibrary: {
+    mediaFiles: savedMediaFiles, // Сохраненные медиафайлы
+    musicFiles: savedMusicFiles, // Сохраненные музыкальные файлы
+    lastUpdated: Date.now(),
+    version: "1.0.0",
+  },
+  browserState: {
+    /* состояние браузера */
+  },
+  projectFavorites: {
+    /* избранные файлы */
+  },
+  meta: {
+    /* метаданные проекта */
+  },
+};
 ```
 
 ## Процесс восстановления медиафайлов
@@ -100,7 +112,7 @@ const projectData: ProjectFile = {
 
 ```typescript
 // Загружаем содержимое проекта
-const projectData = await ProjectFileService.loadProject(path)
+const projectData = await ProjectFileService.loadProject(path);
 
 // Восстанавливаем медиафайлы
 if (projectData.mediaLibrary) {
@@ -108,8 +120,8 @@ if (projectData.mediaLibrary) {
     projectData.mediaLibrary.mediaFiles || [],
     projectData.mediaLibrary.musicFiles || [],
     path,
-    { showDialog: true }
-  )
+    { showDialog: true },
+  );
 }
 ```
 
@@ -118,83 +130,93 @@ if (projectData.mediaLibrary) {
 Для каждого сохраненного файла выполняется многоуровневый поиск:
 
 #### Этап 1: Проверка по оригинальному пути
+
 ```typescript
-const originalExists = await fileExists(savedFile.originalPath)
+const originalExists = await fileExists(savedFile.originalPath);
 if (originalExists) {
-  const validation = await validateFileIntegrity(savedFile.originalPath, savedFile)
+  const validation = await validateFileIntegrity(
+    savedFile.originalPath,
+    savedFile,
+  );
   if (validation.isValid) {
     // Файл найден и валиден
-    return { status: 'found', restoredFile }
+    return { status: "found", restoredFile };
   }
 }
 ```
 
 #### Этап 2: Проверка по относительному пути
+
 ```typescript
 if (savedFile.relativePath) {
-  const relativePath = await join(projectDir, savedFile.relativePath)
-  const relativeExists = await fileExists(relativePath)
+  const relativePath = await join(projectDir, savedFile.relativePath);
+  const relativeExists = await fileExists(relativePath);
   if (relativeExists && validation.isValid) {
     // Файл найден по относительному пути
-    return { status: 'relocated', restoredFile, newPath: relativePath }
+    return { status: "relocated", restoredFile, newPath: relativePath };
   }
 }
 ```
 
 #### Этап 3: Поиск в альтернативных местах
+
 ```typescript
 const alternativePaths = [
-  await join(projectDir, fileName),           // В корне проекта
-  await join(projectDir, 'media', fileName),  // В папке media
-  await join(projectDir, 'assets', fileName), // В папке assets
-  await join(projectDir, 'files', fileName)   // В папке files
-]
+  await join(projectDir, fileName), // В корне проекта
+  await join(projectDir, "media", fileName), // В папке media
+  await join(projectDir, "assets", fileName), // В папке assets
+  await join(projectDir, "files", fileName), // В папке files
+];
 
 // Дополнительно используем системный поиск для глубокого поиска
-const foundPaths = await searchFilesByName(projectDir, fileName, 3) // Максимум 3 уровня
-alternativePaths.push(...foundPaths)
+const foundPaths = await searchFilesByName(projectDir, fileName, 3); // Максимум 3 уровня
+alternativePaths.push(...foundPaths);
 
 for (const altPath of alternativePaths) {
-  if (await fileExists(altPath) && validation.isValid) {
-    return { status: 'relocated', restoredFile, newPath: altPath }
+  if ((await fileExists(altPath)) && validation.isValid) {
+    return { status: "relocated", restoredFile, newPath: altPath };
   }
 }
 ```
 
 #### Этап 4: Пользовательский выбор
+
 Если файл не найден автоматически, показывается диалог `MissingFilesDialog`.
 
 ### 3. Валидация целостности файлов
 
 ```typescript
-const validateFileIntegrity = async (filePath: string, saved: SavedMediaFile) => {
-  const issues: string[] = []
-  let confidence = 1.0
+const validateFileIntegrity = async (
+  filePath: string,
+  saved: SavedMediaFile,
+) => {
+  const issues: string[] = [];
+  let confidence = 1.0;
 
   // Проверяем размер файла
   if (stats.size !== saved.size) {
-    issues.push(`File size mismatch`)
-    confidence -= 0.3
+    issues.push(`File size mismatch`);
+    confidence -= 0.3;
   }
 
   // Проверяем время модификации (с погрешностью 1 секунда)
   if (Math.abs(stats.lastModified - saved.lastModified) > 1000) {
-    issues.push(`Modification date mismatch`)
-    confidence -= 0.2
+    issues.push(`Modification date mismatch`);
+    confidence -= 0.2;
   }
 
   // Проверяем имя файла
   if (currentName !== saved.name) {
-    issues.push(`Filename mismatch`)
-    confidence -= 0.1
+    issues.push(`Filename mismatch`);
+    confidence -= 0.1;
   }
 
   return {
     isValid: confidence > 0.5,
     confidence: Math.max(0, confidence),
-    issues
-  }
-}
+    issues,
+  };
+};
 ```
 
 ## Диалог обработки отсутствующих файлов
@@ -211,14 +233,16 @@ const validateFileIntegrity = async (filePath: string, saved: SavedMediaFile) =>
 
 ```typescript
 interface MissingFilesDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  missingFiles: SavedMediaFile[]
-  onResolve: (resolved: Array<{
-    file: SavedMediaFile
-    newPath?: string
-    action: 'found' | 'remove'
-  }>) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  missingFiles: SavedMediaFile[];
+  onResolve: (
+    resolved: Array<{
+      file: SavedMediaFile;
+      newPath?: string;
+      action: "found" | "remove";
+    }>,
+  ) => void;
 }
 ```
 
@@ -235,13 +259,16 @@ interface MissingFilesDialogProps {
 
 ```typescript
 const generateFileId = (filePath: string, metadata: any): string => {
-  const data = `${filePath}:${metadata.size || 0}:${metadata.lastModified || Date.now()}`
-  const hash = btoa(data).replace(/[^a-zA-Z0-9]/g, '').substring(0, 24)
-  return hash || `fallback_${Date.now()}`
-}
+  const data = `${filePath}:${metadata.size || 0}:${metadata.lastModified || Date.now()}`;
+  const hash = btoa(data)
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .substring(0, 24);
+  return hash || `fallback_${Date.now()}`;
+};
 ```
 
 Это обеспечивает:
+
 - Уникальность ID для разных файлов
 - Стабильность ID для одного файла
 - Детекцию изменений файла
@@ -252,19 +279,22 @@ const generateFileId = (filePath: string, metadata: any): string => {
 
 ```typescript
 const calculateRelativePath = async (filePath: string, projectPath: string) => {
-  const projectDir = await dirname(projectPath)
+  const projectDir = await dirname(projectPath);
 
   if (filePath.startsWith(projectDir)) {
     // Убираем путь к директории проекта
-    const relativePath = filePath.substring(projectDir.length).replace(/^[/\\]/, '')
-    return relativePath || undefined
+    const relativePath = filePath
+      .substring(projectDir.length)
+      .replace(/^[/\\]/, "");
+    return relativePath || undefined;
   }
 
-  return undefined
-}
+  return undefined;
+};
 ```
 
 Это позволяет:
+
 - Переносить проекты между компьютерами
 - Сохранять структуру файлов проекта
 - Автоматически находить файлы при изменении расположения проекта
@@ -284,10 +314,10 @@ const calculateRelativePath = async (filePath: string, projectPath: string) => {
 Все операции логируются для отладки:
 
 ```typescript
-console.log('Начинаем восстановление медиафайлов...')
-console.log('Медиафайлы восстановлены:', restorationResult.stats)
-console.warn('Файл не найден:', savedFile.originalPath)
-console.error('Ошибка при восстановлении:', error)
+console.log("Начинаем восстановление медиафайлов...");
+console.log("Медиафайлы восстановлены:", restorationResult.stats);
+console.warn("Файл не найден:", savedFile.originalPath);
+console.error("Ошибка при восстановлении:", error);
 ```
 
 ## Производительность
@@ -327,8 +357,8 @@ meta: {
 ```typescript
 const migrateProject = (project: ProjectFile): ProjectFile => {
   // Логика миграции между версиями
-  return project
-}
+  return project;
+};
 ```
 
 ## Тестирование
@@ -348,16 +378,16 @@ const migrateProject = (project: ProjectFile): ProjectFile => {
 
 ```typescript
 const validateProjectStructure = (project: any): void => {
-  if (!project || typeof project !== 'object') {
-    throw new Error('Invalid project structure')
+  if (!project || typeof project !== "object") {
+    throw new Error("Invalid project structure");
   }
 
   if (!project.settings || !project.meta) {
-    throw new Error('Missing required fields')
+    throw new Error("Missing required fields");
   }
 
   // Дополнительные проверки...
-}
+};
 ```
 
 ### Ограничения доступа

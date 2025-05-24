@@ -1,8 +1,13 @@
-import { invoke } from "@tauri-apps/api/core"
-import { basename, dirname, join } from "@tauri-apps/api/path"
+import { invoke } from "@tauri-apps/api/core";
+import { basename, dirname, join } from "@tauri-apps/api/path";
 
-import { MediaFile } from "@/types/media"
-import { FileStatus, MusicMetadata, SavedMediaFile, SavedMusicFile } from "@/types/saved-media"
+import { MediaFile } from "@/types/media";
+import {
+  FileStatus,
+  MusicMetadata,
+  SavedMediaFile,
+  SavedMusicFile,
+} from "@/types/saved-media";
 
 /**
  * Генерирует уникальный ID для медиафайла
@@ -10,15 +15,15 @@ import { FileStatus, MusicMetadata, SavedMediaFile, SavedMusicFile } from "@/typ
  */
 export function generateFileId(filePath: string, metadata: any): string {
   try {
-    const data = `${filePath}:${metadata.size || 0}:${metadata.lastModified || Date.now()}`
+    const data = `${filePath}:${metadata.size || 0}:${metadata.lastModified || Date.now()}`;
     // Создаем простой hash и конвертируем в base64, затем очищаем от специальных символов
-    const hash = btoa(data).replace(/[^a-zA-Z0-9]/g, '')
+    const hash = btoa(data).replace(/[^a-zA-Z0-9]/g, "");
     // Берем больше символов для уникальности, но ограничиваем разумным размером
-    return hash.substring(0, 24) || `fallback_${Date.now()}`
+    return hash.substring(0, 24) || `fallback_${Date.now()}`;
   } catch (error) {
-    console.warn('Error generating file ID:', error)
+    console.warn("Error generating file ID:", error);
     // Fallback: используем timestamp + случайное число
-    return `file_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
+    return `file_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   }
 }
 
@@ -28,24 +33,26 @@ export function generateFileId(filePath: string, metadata: any): string {
  */
 export async function calculateRelativePath(
   filePath: string,
-  projectPath: string | null
+  projectPath: string | null,
 ): Promise<string | undefined> {
-  if (!projectPath) return undefined
+  if (!projectPath) return undefined;
 
   try {
-    const projectDir = await dirname(projectPath)
+    const projectDir = await dirname(projectPath);
 
     // Простая проверка: если файл начинается с директории проекта
     if (filePath.startsWith(projectDir)) {
       // Убираем путь к директории проекта и начальный слеш
-      const relativePath = filePath.substring(projectDir.length).replace(/^[/\\]/, '')
-      return relativePath || undefined
+      const relativePath = filePath
+        .substring(projectDir.length)
+        .replace(/^[/\\]/, "");
+      return relativePath || undefined;
     }
   } catch (error) {
-    console.warn('Could not calculate relative path:', error)
+    console.warn("Could not calculate relative path:", error);
   }
 
-  return undefined
+  return undefined;
 }
 
 /**
@@ -53,11 +60,11 @@ export async function calculateRelativePath(
  */
 export async function fileExists(filePath: string): Promise<boolean> {
   try {
-    const result = await invoke<boolean>('file_exists', { path: filePath })
-    return result
+    const result = await invoke<boolean>("file_exists", { path: filePath });
+    return result;
   } catch (error) {
-    console.warn(`Error checking file existence for ${filePath}:`, error)
-    return false
+    console.warn(`Error checking file existence for ${filePath}:`, error);
+    return false;
   }
 }
 
@@ -65,17 +72,20 @@ export async function fileExists(filePath: string): Promise<boolean> {
  * Получает статистику файла (размер, время модификации)
  */
 export async function getFileStats(filePath: string): Promise<{
-  size: number
-  lastModified: number
+  size: number;
+  lastModified: number;
 } | null> {
   try {
-    const stats = await invoke<{ size: number; lastModified: number }>('get_file_stats', {
-      path: filePath
-    })
-    return stats
+    const stats = await invoke<{ size: number; lastModified: number }>(
+      "get_file_stats",
+      {
+        path: filePath,
+      },
+    );
+    return stats;
   } catch (error) {
-    console.warn(`Error getting file stats for ${filePath}:`, error)
-    return null
+    console.warn(`Error getting file stats for ${filePath}:`, error);
+    return null;
   }
 }
 
@@ -84,11 +94,11 @@ export async function getFileStats(filePath: string): Promise<{
  */
 export async function getPlatform(): Promise<string> {
   try {
-    const platform = await invoke<string>('get_platform')
-    return platform
+    const platform = await invoke<string>("get_platform");
+    return platform;
   } catch (error) {
-    console.warn('Error getting platform:', error)
-    return 'unknown'
+    console.warn("Error getting platform:", error);
+    return "unknown";
   }
 }
 
@@ -97,9 +107,11 @@ export async function getPlatform(): Promise<string> {
  */
 export async function convertToSavedMediaFile(
   file: MediaFile,
-  projectPath?: string
+  projectPath?: string,
 ): Promise<SavedMediaFile> {
-  const relativePath = projectPath ? await calculateRelativePath(file.path, projectPath) : undefined
+  const relativePath = projectPath
+    ? await calculateRelativePath(file.path, projectPath)
+    : undefined;
 
   return {
     id: file.id,
@@ -119,7 +131,7 @@ export async function convertToSavedMediaFile(
     },
     status: "available" as FileStatus,
     lastChecked: Date.now(),
-  }
+  };
 }
 
 /**
@@ -127,27 +139,47 @@ export async function convertToSavedMediaFile(
  */
 export async function convertToSavedMusicFile(
   file: MediaFile,
-  projectPath?: string
+  projectPath?: string,
 ): Promise<SavedMusicFile> {
-  const savedFile = await convertToSavedMediaFile(file, projectPath)
+  const savedFile = await convertToSavedMediaFile(file, projectPath);
 
   // Извлекаем музыкальные метаданные из probeData, если они есть
-  const musicMetadata: MusicMetadata = {}
+  const musicMetadata: MusicMetadata = {};
 
   if (file.probeData?.format?.tags) {
-    const tags = file.probeData.format.tags
-    musicMetadata.artist = typeof tags.artist === 'string' ? tags.artist : (typeof tags.ARTIST === 'string' ? tags.ARTIST : undefined)
-    musicMetadata.album = typeof tags.album === 'string' ? tags.album : (typeof tags.ALBUM === 'string' ? tags.ALBUM : undefined)
-    musicMetadata.genre = typeof tags.genre === 'string' ? tags.genre : (typeof tags.GENRE === 'string' ? tags.GENRE : undefined)
-    musicMetadata.title = typeof tags.title === 'string' ? tags.title : (typeof tags.TITLE === 'string' ? tags.TITLE : undefined)
-    musicMetadata.year = tags.date ? parseInt(String(tags.date)) : undefined
-    musicMetadata.track = tags.track ? parseInt(String(tags.track)) : undefined
+    const tags = file.probeData.format.tags;
+    musicMetadata.artist =
+      typeof tags.artist === "string"
+        ? tags.artist
+        : typeof tags.ARTIST === "string"
+          ? tags.ARTIST
+          : undefined;
+    musicMetadata.album =
+      typeof tags.album === "string"
+        ? tags.album
+        : typeof tags.ALBUM === "string"
+          ? tags.ALBUM
+          : undefined;
+    musicMetadata.genre =
+      typeof tags.genre === "string"
+        ? tags.genre
+        : typeof tags.GENRE === "string"
+          ? tags.GENRE
+          : undefined;
+    musicMetadata.title =
+      typeof tags.title === "string"
+        ? tags.title
+        : typeof tags.TITLE === "string"
+          ? tags.TITLE
+          : undefined;
+    musicMetadata.year = tags.date ? parseInt(String(tags.date)) : undefined;
+    musicMetadata.track = tags.track ? parseInt(String(tags.track)) : undefined;
   }
 
   return {
     ...savedFile,
     musicMetadata,
-  }
+  };
 }
 
 /**
@@ -171,32 +203,32 @@ export function convertFromSavedMediaFile(saved: SavedMediaFile): MediaFile {
     // Добавляем информацию о статусе для UI (расширяем тип)
     lastCheckedAt: saved.lastChecked,
   } as MediaFile & {
-    _savedFileStatus?: typeof saved.status
-    _lastChecked?: number
-  }
+    _savedFileStatus?: typeof saved.status;
+    _lastChecked?: number;
+  };
 }
 
 /**
  * Получает расширения файлов для фильтра диалога на основе SavedMediaFile
  */
 export function getExtensionsForFile(file: SavedMediaFile): string[] {
-  const extension = file.name.split('.').pop()?.toLowerCase()
+  const extension = file.name.split(".").pop()?.toLowerCase();
 
-  if (!extension) return ['*']
+  if (!extension) return ["*"];
 
   if (file.isVideo) {
-    return ['mp4', 'avi', 'mkv', 'mov', 'webm', extension]
+    return ["mp4", "avi", "mkv", "mov", "webm", extension];
   }
 
   if (file.isAudio) {
-    return ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'wma', extension]
+    return ["mp3", "wav", "ogg", "flac", "aac", "m4a", "wma", extension];
   }
 
   if (file.isImage) {
-    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', extension]
+    return ["jpg", "jpeg", "png", "gif", "webp", "heic", extension];
   }
 
-  return [extension]
+  return [extension];
 }
 
 /**
@@ -204,37 +236,37 @@ export function getExtensionsForFile(file: SavedMediaFile): string[] {
  */
 export async function generateAlternativePaths(
   originalPath: string,
-  projectDir: string
+  projectDir: string,
 ): Promise<string[]> {
-  const alternatives: string[] = []
-  const fileName = await basename(originalPath)
+  const alternatives: string[] = [];
+  const fileName = await basename(originalPath);
 
   try {
     // Добавляем путь в директории проекта
-    alternatives.push(await join(projectDir, fileName))
+    alternatives.push(await join(projectDir, fileName));
 
     // Добавляем путь в поддиректории 'media' проекта
-    alternatives.push(await join(projectDir, 'media', fileName))
+    alternatives.push(await join(projectDir, "media", fileName));
 
     // Добавляем путь в поддиректории 'assets' проекта
-    alternatives.push(await join(projectDir, 'assets', fileName))
+    alternatives.push(await join(projectDir, "assets", fileName));
 
     // Добавляем путь в поддиректории 'files' проекта
-    alternatives.push(await join(projectDir, 'files', fileName))
+    alternatives.push(await join(projectDir, "files", fileName));
 
     // Используем системный поиск для более глубокого поиска
     try {
-      const foundPaths = await searchFilesByName(projectDir, fileName, 3) // Максимум 3 уровня
-      alternatives.push(...foundPaths)
+      const foundPaths = await searchFilesByName(projectDir, fileName, 3); // Максимум 3 уровня
+      alternatives.push(...foundPaths);
     } catch (searchError) {
-      console.warn('System search failed:', searchError)
+      console.warn("System search failed:", searchError);
     }
   } catch (error) {
-    console.warn('Error generating alternative paths:', error)
+    console.warn("Error generating alternative paths:", error);
   }
 
   // Убираем дубликаты
-  return [...new Set(alternatives)]
+  return [...new Set(alternatives)];
 }
 
 /**
@@ -243,18 +275,18 @@ export async function generateAlternativePaths(
 export async function searchFilesByName(
   directory: string,
   filename: string,
-  maxDepth = 3
+  maxDepth = 3,
 ): Promise<string[]> {
   try {
-    const result = await invoke<string[]>('search_files_by_name', {
+    const result = await invoke<string[]>("search_files_by_name", {
       directory,
       filename,
-      maxDepth
-    })
-    return result
+      maxDepth,
+    });
+    return result;
   } catch (error) {
-    console.warn(`Error searching for files named ${filename}:`, error)
-    return []
+    console.warn(`Error searching for files named ${filename}:`, error);
+    return [];
   }
 }
 
@@ -263,11 +295,11 @@ export async function searchFilesByName(
  */
 export async function getAbsolutePath(path: string): Promise<string | null> {
   try {
-    const result = await invoke<string>('get_absolute_path', { path })
-    return result
+    const result = await invoke<string>("get_absolute_path", { path });
+    return result;
   } catch (error) {
-    console.warn(`Error getting absolute path for ${path}:`, error)
-    return null
+    console.warn(`Error getting absolute path for ${path}:`, error);
+    return null;
   }
 }
 
@@ -276,78 +308,84 @@ export async function getAbsolutePath(path: string): Promise<string | null> {
  */
 export async function validateFileIntegrity(
   filePath: string,
-  saved: SavedMediaFile
+  saved: SavedMediaFile,
 ): Promise<{
-  isValid: boolean
-  confidence: number
-  issues: string[]
+  isValid: boolean;
+  confidence: number;
+  issues: string[];
 }> {
-  const issues: string[] = []
-  let confidence = 1.0
+  const issues: string[] = [];
+  let confidence = 1.0;
 
   try {
     // Проверяем существование файла
-    const exists = await fileExists(filePath)
+    const exists = await fileExists(filePath);
     if (!exists) {
       return {
         isValid: false,
         confidence: 0,
-        issues: ['File does not exist']
-      }
+        issues: ["File does not exist"],
+      };
     }
 
     // Проверяем размер и дату модификации
-    const stats = await getFileStats(filePath)
+    const stats = await getFileStats(filePath);
     if (stats) {
       if (stats.size !== saved.size) {
-        issues.push(`File size mismatch: expected ${saved.size}, got ${stats.size}`)
-        confidence -= 0.3
+        issues.push(
+          `File size mismatch: expected ${saved.size}, got ${stats.size}`,
+        );
+        confidence -= 0.3;
       }
 
-      if (Math.abs(stats.lastModified - saved.lastModified) > 1000) { // 1 секунда погрешности
-        issues.push(`Modification date mismatch`)
-        confidence -= 0.2
+      if (Math.abs(stats.lastModified - saved.lastModified) > 1000) {
+        // 1 секунда погрешности
+        issues.push(`Modification date mismatch`);
+        confidence -= 0.2;
       }
     } else {
-      issues.push('Could not get file stats')
-      confidence -= 0.1
+      issues.push("Could not get file stats");
+      confidence -= 0.1;
     }
 
     // Проверяем имя файла
-    const currentName = await basename(filePath)
+    const currentName = await basename(filePath);
     if (currentName !== saved.name) {
-      issues.push(`Filename mismatch: expected ${saved.name}, got ${currentName}`)
-      confidence -= 0.1
+      issues.push(
+        `Filename mismatch: expected ${saved.name}, got ${currentName}`,
+      );
+      confidence -= 0.1;
     }
-
   } catch (error) {
-    issues.push(`Error validating file: ${String(error)}`)
-    confidence = 0
+    issues.push(`Error validating file: ${String(error)}`);
+    confidence = 0;
   }
 
   return {
     isValid: confidence > 0.5,
     confidence: Math.max(0, confidence),
-    issues
-  }
+    issues,
+  };
 }
 
 /**
  * Создает время создания проекта по умолчанию
  */
 export function getDefaultProjectCreationTime(): number {
-  return Date.now()
+  return Date.now();
 }
 
 /**
  * Получает время создания существующего проекта из файла
  */
-export async function getProjectCreationTime(projectPath: string): Promise<number> {
+export async function getProjectCreationTime(
+  projectPath: string,
+): Promise<number> {
   try {
-    const stats = await getFileStats(projectPath)
-    return stats?.lastModified || getDefaultProjectCreationTime()
+    const stats = await getFileStats(projectPath);
+    return stats?.lastModified || getDefaultProjectCreationTime();
   } catch (error) {
-    console.warn('Error getting project creation time:', error)
-    return getDefaultProjectCreationTime()
+    console.warn("Error getting project creation time:", error);
+    return getDefaultProjectCreationTime();
   }
 }

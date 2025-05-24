@@ -1,12 +1,20 @@
 export interface ResolutionOption {
-  value: string
-  label: string
-  width: number
-  height: number
+  value: string;
+  label: string;
+  width: number;
+  height: number;
 }
 
-export type Resolution = string
-export type FrameRate = "23.97" | "24" | "25" | "29.97" | "30" | "50" | "59.94" | "60"
+export type Resolution = string;
+export type FrameRate =
+  | "23.97"
+  | "24"
+  | "25"
+  | "29.97"
+  | "30"
+  | "50"
+  | "59.94"
+  | "60";
 
 // Константа с доступными значениями FPS на основе типа FrameRate
 export const FRAME_RATES: { value: FrameRate; label: string }[] = [
@@ -18,9 +26,9 @@ export const FRAME_RATES: { value: FrameRate; label: string }[] = [
   { value: "50", label: "50 fps" },
   { value: "59.94", label: "59.94 fps" },
   { value: "60", label: "60 fps" },
-]
+];
 
-export type ColorSpace = "sdr" | "dci-p3" | "p3-d65" | "hdr-hlg" | "hdr-pq"
+export type ColorSpace = "sdr" | "dci-p3" | "p3-d65" | "hdr-hlg" | "hdr-pq";
 
 // Константа с доступными значениями цветовых пространств
 export const COLOR_SPACES: { value: ColorSpace; label: string }[] = [
@@ -29,7 +37,7 @@ export const COLOR_SPACES: { value: ColorSpace; label: string }[] = [
   { value: "p3-d65", label: "P3-D65" },
   { value: "hdr-hlg", label: "HDR - Rec.2100HLG" },
   { value: "hdr-pq", label: "HDR - Rec.2100PQ" },
-]
+];
 
 export const ASPECT_RATIOS: AspectRatio[] = [
   {
@@ -102,13 +110,13 @@ export const ASPECT_RATIOS: AspectRatio[] = [
       name: "custom",
     },
   },
-]
+];
 
 export interface ProjectSettings {
-  aspectRatio: AspectRatio
-  resolution: Resolution
-  frameRate: FrameRate
-  colorSpace: ColorSpace
+  aspectRatio: AspectRatio;
+  resolution: Resolution;
+  frameRate: FrameRate;
+  colorSpace: ColorSpace;
 }
 
 export const DEFAULT_PROJECT_SETTINGS: ProjectSettings = {
@@ -125,79 +133,79 @@ export const DEFAULT_PROJECT_SETTINGS: ProjectSettings = {
   resolution: "1920x1080",
   frameRate: "30",
   colorSpace: "sdr",
-}
+};
 
 /**
  * Полная структура файла проекта Timeline Studio (.tlsp)
  */
 export interface ProjectFile {
   /** Настройки проекта (разрешение, FPS, цветовое пространство) */
-  settings: ProjectSettings
+  settings: ProjectSettings;
 
   /** Медиабиблиотека проекта с импортированными файлами */
   mediaLibrary?: {
-    mediaFiles: import('./saved-media').SavedMediaFile[]
-    musicFiles: import('./saved-media').SavedMusicFile[]
-    lastUpdated: number
-    version: string
-  }
+    mediaFiles: import("./saved-media").SavedMediaFile[];
+    musicFiles: import("./saved-media").SavedMusicFile[];
+    lastUpdated: number;
+    version: string;
+  };
 
   /** Состояние браузера медиафайлов */
   browserState?: {
     media: {
-      viewMode: "list" | "grid" | "thumbnails"
-      sortBy: string
-      sortOrder: "asc" | "desc"
-      searchQuery: string
-      filterType: string
-      groupBy: string
-    }
+      viewMode: "list" | "grid" | "thumbnails";
+      sortBy: string;
+      sortOrder: "asc" | "desc";
+      searchQuery: string;
+      filterType: string;
+      groupBy: string;
+    };
     music: {
-      viewMode: "list" | "thumbnails"
-      sortBy: string
-      sortOrder: "asc" | "desc"
-      searchQuery: string
-      filterType: string
-      groupBy: "none" | "artist" | "genre" | "album"
-      showFavoritesOnly: boolean
-    }
-  }
+      viewMode: "list" | "thumbnails";
+      sortBy: string;
+      sortOrder: "asc" | "desc";
+      searchQuery: string;
+      filterType: string;
+      groupBy: "none" | "artist" | "genre" | "album";
+      showFavoritesOnly: boolean;
+    };
+  };
 
   /** Избранные файлы, специфичные для проекта */
   projectFavorites?: {
-    mediaFiles: string[]
-    musicFiles: string[]
-  }
+    mediaFiles: string[];
+    musicFiles: string[];
+  };
 
   /** Состояние таймлайна (будет добавлено позже) */
   timeline?: {
-    tracks: any[]
-    resources: any[]
+    tracks: any[];
+    resources: any[];
     // ... другие данные таймлайна
-  }
+  };
 
   /** Метаданные проекта */
   meta: {
-    version: string
-    createdAt: number
-    lastModified: number
-    originalPlatform?: string
-  }
+    version: string;
+    createdAt: number;
+    lastModified: number;
+    originalPlatform?: string;
+  };
 }
 
 // "16:9" | "9:16" | "1:1" | "4:3" | "4:5" | "21:9" | "custom"
 
 export interface AspectRatio {
-  label: string
-  textLabel: string
-  value: AspectRatioValue
-  description: string
+  label: string;
+  textLabel: string;
+  value: AspectRatioValue;
+  description: string;
 }
 
 interface AspectRatioValue {
-  width: number
-  height: number
-  name: string
+  width: number;
+  height: number;
+  name: string;
 }
 
 // Разрешения для соотношения сторон 16:9
@@ -221,7 +229,7 @@ export const RESOLUTIONS_16_9: ResolutionOption[] = [
     width: 3840,
     height: 2160,
   },
-]
+];
 
 // Разрешения для соотношения сторон 9:16
 export const RESOLUTIONS_9_16: ResolutionOption[] = [
@@ -244,7 +252,7 @@ export const RESOLUTIONS_9_16: ResolutionOption[] = [
     width: 2160,
     height: 3840,
   },
-]
+];
 
 // Разрешения для соотношения сторон 1:1
 export const RESOLUTIONS_1_1: ResolutionOption[] = [
@@ -252,7 +260,7 @@ export const RESOLUTIONS_1_1: ResolutionOption[] = [
   { value: "1080x1080", label: "1080x1080", width: 1080, height: 1080 },
   { value: "1440x1440", label: "1440x1440", width: 1440, height: 1440 },
   { value: "2160x2160", label: "2160x2160", width: 2160, height: 2160 },
-]
+];
 
 // Разрешения для соотношения сторон 4:3
 export const RESOLUTIONS_4_3: ResolutionOption[] = [
@@ -260,7 +268,7 @@ export const RESOLUTIONS_4_3: ResolutionOption[] = [
   { value: "1440x1080", label: "1440x1080", width: 1440, height: 1080 },
   { value: "1920x1440", label: "1920x1440", width: 1920, height: 1440 },
   { value: "2880x2160", label: "2880x2160", width: 2880, height: 2160 },
-]
+];
 
 // Разрешения для соотношения сторон 4:5
 export const RESOLUTIONS_4_5: ResolutionOption[] = [
@@ -268,7 +276,7 @@ export const RESOLUTIONS_4_5: ResolutionOption[] = [
   { value: "1024x1280", label: "1024x1280", width: 1024, height: 1280 },
   { value: "1536x1920", label: "1536x1920", width: 1536, height: 1920 },
   { value: "2048x2560", label: "2048x2560", width: 2048, height: 2560 },
-]
+];
 
 // Разрешения для соотношения сторон 21:9
 export const RESOLUTIONS_21_9: ResolutionOption[] = [
@@ -290,7 +298,7 @@ export const RESOLUTIONS_21_9: ResolutionOption[] = [
     width: 5120,
     height: 2160,
   },
-]
+];
 
 export const COMMON_RESOLUTIONS: ResolutionOption[] = [
   ...RESOLUTIONS_16_9.map((res) => ({
@@ -305,33 +313,39 @@ export const COMMON_RESOLUTIONS: ResolutionOption[] = [
     label: res.label, // Используем полную метку разрешения
     value: res.value,
   })),
-]
+];
 
-export const COMMON_FRAMERATES = FRAME_RATES.map((fr) => Number.parseInt(fr.value)).filter((fr) => !Number.isNaN(fr))
+export const COMMON_FRAMERATES = FRAME_RATES.map((fr) =>
+  Number.parseInt(fr.value),
+).filter((fr) => !Number.isNaN(fr));
 
 // Функция для получения разрешений для конкретного соотношения сторон
-export function getResolutionsForAspectRatio(aspectRatioLabel: string): ResolutionOption[] {
+export function getResolutionsForAspectRatio(
+  aspectRatioLabel: string,
+): ResolutionOption[] {
   switch (aspectRatioLabel) {
     case "16:9":
-      return RESOLUTIONS_16_9
+      return RESOLUTIONS_16_9;
     case "9:16":
-      return RESOLUTIONS_9_16
+      return RESOLUTIONS_9_16;
     case "1:1":
-      return RESOLUTIONS_1_1
+      return RESOLUTIONS_1_1;
     case "4:3":
-      return RESOLUTIONS_4_3
+      return RESOLUTIONS_4_3;
     case "4:5":
-      return RESOLUTIONS_4_5
+      return RESOLUTIONS_4_5;
     case "21:9":
-      return RESOLUTIONS_21_9
+      return RESOLUTIONS_21_9;
     default:
-      return RESOLUTIONS_16_9 // По умолчанию возвращаем разрешения для 16:9
+      return RESOLUTIONS_16_9; // По умолчанию возвращаем разрешения для 16:9
   }
 }
 
 // Функция для получения рекомендуемого разрешения для соотношения сторон
-export function getDefaultResolutionForAspectRatio(aspectRatioLabel: string): ResolutionOption {
-  const resolutions = getResolutionsForAspectRatio(aspectRatioLabel)
+export function getDefaultResolutionForAspectRatio(
+  aspectRatioLabel: string,
+): ResolutionOption {
+  const resolutions = getResolutionsForAspectRatio(aspectRatioLabel);
   // Возвращаем второе разрешение в списке (обычно Full HD или эквивалент)
-  return resolutions.length > 1 ? resolutions[1] : resolutions[0]
+  return resolutions.length > 1 ? resolutions[1] : resolutions[0];
 }
