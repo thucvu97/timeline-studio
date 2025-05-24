@@ -200,12 +200,74 @@ export const VideoPreview = memo(function VideoPreview({
 
   return (
     <div className={cn("flex h-full w-full items-center justify-center")}>
-      {videoData.videoStreams.map((stream: FfprobeStream) => {
+      {videoData.videoStreams.length === 0 ? (
+        // Плейсхолдер с соотношением 16:9 пока метаданные не загрузились
+        <div
+          className="relative flex-shrink-0"
+          style={{
+            height: `${size}px`,
+            width: `${size * (16 / 9)}px`,
+          }}
+        >
+          <div className="group relative h-full w-full">
+            <video
+              src={videoUrl || convertFileSrc(file.path)}
+              preload="auto"
+              tabIndex={0}
+              playsInline
+              muted={false}
+              className={cn(
+                "absolute inset-0 h-full w-full focus:outline-none",
+                isAdded ? "opacity-50" : "",
+              )}
+              style={{
+                transition: "opacity 0.2s ease-in-out",
+              }}
+              onLoadedData={() => {
+                console.log("Video loaded (placeholder)");
+                setIsLoaded(true);
+              }}
+            />
+
+            {/* Иконка видео для плейсхолдера */}
+            <div
+              className={cn(
+                "pointer-events-none absolute rounded-xs bg-black/60 p-0.5",
+                size > 100 ? "bottom-1 left-1" : "bottom-0.5 left-0.5",
+              )}
+              style={{
+                color: "#ffffff",
+              }}
+            >
+              <Film size={size > 100 ? 16 : 12} />
+            </div>
+
+            {/* Кнопка избранного для плейсхолдера */}
+            <FavoriteButton file={file} size={size} type="media" />
+
+            {/* Кнопка добавления для плейсхолдера */}
+            {onAddMedia && (
+              <AddMediaButton
+                file={file}
+                onAddMedia={onAddMedia}
+                isAdded={isAdded}
+                size={size}
+              />
+            )}
+          </div>
+        </div>
+      ) : (
+        videoData.videoStreams.map((stream: FfprobeStream) => {
         const key = stream.streamKey ?? `stream-${stream.index}`;
         const isMultipleStreams = videoData.isMultipleStreams;
+
+        // Используем размеры из метаданных или значения по умолчанию для 16:9
+        const videoWidth = stream.width || 1920;
+        const videoHeight = stream.height || 1080;
+
         const width = calculateWidth(
-          stream.width ?? 0,
-          stream.height ?? 0,
+          videoWidth,
+          videoHeight,
           size,
           parseRotation(stream.rotation),
         );
@@ -213,10 +275,10 @@ export const VideoPreview = memo(function VideoPreview({
         const adptivedWidth = calculateAdaptiveWidth(
           width,
           isMultipleStreams,
-          stream.display_aspect_ratio,
+          stream.display_aspect_ratio || "16:9",
         );
 
-        // Исправляем проблему с деструктуризацией
+        // Используем соотношение сторон из метаданных или 16:9 по умолчанию
         const aspectRatio = stream.display_aspect_ratio
           ?.split(":")
           .map(Number) ?? [16, 9];
@@ -342,13 +404,14 @@ export const VideoPreview = memo(function VideoPreview({
               ) && (
                 <div
                   className={cn(
-                    "pointer-events-none absolute rounded-xs bg-black/50 text-xs leading-[16px] text-white",
+                    "pointer-events-none absolute rounded-xs bg-black/60 text-xs leading-[16px]",
                     size > 100
                       ? "top-1 right-1 px-[4px] py-[2px]"
                       : "top-0.5 right-0.5 px-0.5 py-0",
                   )}
                   style={{
                     fontSize: size > 100 ? "13px" : "11px",
+                    color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
                   }}
                 >
                   {formatDuration(file.duration ?? 0, 0, true)}
@@ -363,9 +426,12 @@ export const VideoPreview = memo(function VideoPreview({
               ) && (
                 <div
                   className={cn(
-                    "pointer-events-none absolute rounded-xs bg-black/50 p-0.5 text-white",
+                    "pointer-events-none absolute rounded-xs bg-black/60 p-0.5",
                     size > 100 ? "bottom-1 left-1" : "bottom-0.5 left-0.5",
                   )}
+                  style={{
+                    color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+                  }}
                 >
                   <Film size={size > 100 ? 16 : 12} />
                 </div>
@@ -388,11 +454,12 @@ export const VideoPreview = memo(function VideoPreview({
                   <div
                     className={`pointer-events-none absolute ${
                       size > 100 ? "left-[28px]" : "left-[22px]"
-                    } rounded-xs bg-black/50 text-xs leading-[16px] ${size > 100 ? "bottom-1" : "bottom-0.5"} ${
+                    } rounded-xs bg-black/60 text-xs leading-[16px] ${size > 100 ? "bottom-1" : "bottom-0.5"} ${
                       size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"
-                    } text-white`}
+                    }`}
                     style={{
                       fontSize: size > 100 ? "13px" : "11px",
+                      color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
                     }}
                   >
                     {formatResolution(stream.width ?? 0, stream.height ?? 0)}
@@ -411,9 +478,10 @@ export const VideoPreview = memo(function VideoPreview({
                       size > 100 ? "left-1" : "left-0.5"
                     } ${
                       size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"
-                    } line-clamp-1 rounded-xs bg-black/50 text-xs leading-[16px] text-white ${isMultipleStreams ? "max-w-[100%]" : "max-w-[60%]"}`}
+                    } line-clamp-1 rounded-xs bg-black/60 text-xs leading-[16px] ${isMultipleStreams ? "max-w-[100%]" : "max-w-[60%]"}`}
                     style={{
                       fontSize: size > 100 ? "13px" : "11px",
+                      color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
                     }}
                   >
                     {file.name}
@@ -439,7 +507,8 @@ export const VideoPreview = memo(function VideoPreview({
             </div>
           </div>
         );
-      })}
+        })
+      )}
     </div>
   );
 });

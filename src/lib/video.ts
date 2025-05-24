@@ -237,8 +237,10 @@ export const getNextVolumeState = (currentVolume: number): VolumeState => {
  * ```
  */
 export function calculateWidth(width: number, height: number, containerHeight: number, rotation?: number): number {
-  // Если нет размеров, возвращаем высоту контейнера
-  if (!width || !height) return containerHeight
+  // Если нет размеров, используем соотношение 16:9 по умолчанию
+  if (!width || !height) {
+    return containerHeight * (16 / 9)
+  }
 
   // Для повернутого видео меняем местами ширину и высоту
   let aspectRatio = width / height
@@ -299,12 +301,15 @@ export function calculateAdaptiveWidth(width: number, isMultipleStreams: boolean
     return `${(width / 9) * 8}px`
   }
 
-  // Если нет соотношения сторон, возвращаем обычную ширину
-  if (!displayAspectRatio) {
+  // Если нет соотношения сторон, используем 16:9 по умолчанию
+  const aspectRatio = displayAspectRatio || "16:9"
+  const [w, h] = aspectRatio.split(":").map(Number)
+
+  // Проверяем, что парсинг прошел успешно
+  if (isNaN(w) || isNaN(h) || h === 0) {
     return `${width}px`
   }
 
-  const [w, h] = displayAspectRatio.split(":").map(Number)
   const ratio = w / h
 
   // Для широкоформатного видео (2.35:1 или близко к этому)

@@ -208,7 +208,10 @@ export const AudioPreview = memo(function AudioPreview({
 
       {/* Иконка музыки */}
       <div
-        className={`absolute ${size > 100 ? "bottom-1 left-1" : "bottom-0.5 left-0.5"} cursor-pointer rounded-xs bg-black/50 p-0.5 text-white`}
+        className={`absolute ${size > 100 ? "bottom-1 left-1" : "bottom-0.5 left-0.5"} cursor-pointer rounded-xs bg-black/50 p-0.5`}
+        style={{
+          color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+        }}
       >
         <Music size={size > 100 ? 16 : 12} />
       </div>
@@ -218,9 +221,10 @@ export const AudioPreview = memo(function AudioPreview({
         <div
           className={`absolute font-medium ${size > 100 ? "top-1" : "top-0.5"} ${size > 100 ? "left-1" : "left-0.5"} ${
             size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"
-          } line-clamp-1 max-w-[calc(60%)] rounded-xs bg-black/50 text-xs leading-[16px] text-white`}
+          } line-clamp-1 max-w-[calc(60%)] rounded-xs bg-black/50 text-xs leading-[16px]`}
           style={{
             fontSize: size > 100 ? "13px" : "11px",
+            color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
           }}
         >
           {file.name}

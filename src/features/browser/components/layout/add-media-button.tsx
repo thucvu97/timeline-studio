@@ -100,7 +100,7 @@ export const AddMediaButton = memo(function AddMediaButton({
     <button
       type="button"
       className={cn(
-        "absolute z-[1] cursor-pointer rounded-full p-1 text-white transition-all duration-150 dark:hover:text-black/50 border-0 outline-none focus:ring-2 focus:ring-teal-light",
+        "absolute z-[1] cursor-pointer rounded-full p-1 transition-all duration-150 dark:hover:text-black/50 border-0 outline-none focus:ring-2 focus:ring-teal-light",
         size > 100 ? "right-[5px] bottom-1" : "right-1 bottom-0.5",
         isAdded
           ? isRecentlyAdded
@@ -108,6 +108,7 @@ export const AddMediaButton = memo(function AddMediaButton({
             : "visible bg-teal dark:bg-teal" // Добавлен класс visible
           : "invisible bg-teal group-hover:visible group-hover:bg-teal-light/75 hover:bg-teal-light dark:group-hover:bg-teal-light/75 dark:hover:bg-teal-light", // Скрыта по умолчанию, видима при наведении
       )}
+      style={{ color: "#ffffff" }}
       onClick={(e) => {
         e.stopPropagation()
         // Предотвращаем двойные клики
@@ -134,10 +135,14 @@ export const AddMediaButton = memo(function AddMediaButton({
         isHovering && canShowRemoveButton ? (
           <X className={`${iconSize} text-black/50`} strokeWidth={3} />
         ) : (
-          <Check className={`${iconSize} text-white`} strokeWidth={2} />
+          <Check className={iconSize} strokeWidth={2} style={{ color: "#ffffff" }} />
         )
       ) : (
-        <Plus className={`${iconSize} fill-white transition-transform duration-150 hover:scale-110`} strokeWidth={2} />
+        <Plus 
+          className={`${iconSize} transition-transform duration-150 hover:scale-110`}
+          strokeWidth={2}
+          style={{ color: "#ffffff" }}
+        />
       )}
     </button>
   )
