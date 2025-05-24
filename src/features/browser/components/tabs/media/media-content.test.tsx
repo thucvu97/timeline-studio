@@ -1,7 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import { MediaContent } from "./media-content"
+import { MediaContent } from "./media-content";
 
 // Мокаем useTranslation
 vi.mock("react-i18next", () => ({
@@ -10,16 +10,16 @@ vi.mock("react-i18next", () => ({
       const translations: Record<string, string> = {
         "common.error": "Error",
         "common.retry": "Retry",
-      }
-      return translations[key] || key
+      };
+      return translations[key] || key;
     },
   }),
-}))
+}));
 
 // Мокаем NoFiles
 vi.mock("../../layout/no-files", () => ({
   NoFiles: () => <div data-testid="no-files">No files found</div>,
-}))
+}));
 
 // Мокаем MediaGroup
 vi.mock("./media-group", () => ({
@@ -35,7 +35,7 @@ vi.mock("./media-group", () => ({
       Media Group: {title ?? "Untitled"}
     </div>
   ),
-}))
+}));
 
 describe("MediaContent", () => {
   const mockFiles = [
@@ -55,7 +55,7 @@ describe("MediaContent", () => {
       size: 1000,
       creationTime: "2023-01-01T00:00:00.000Z",
     },
-  ]
+  ];
 
   const mockGroupedFiles = [
     {
@@ -66,10 +66,10 @@ describe("MediaContent", () => {
       title: "Group 2",
       files: mockFiles,
     },
-  ]
+  ];
 
-  const mockAddFilesToTimeline = vi.fn()
-  const mockOnRetry = vi.fn()
+  const mockAddFilesToTimeline = vi.fn();
+  const mockOnRetry = vi.fn();
 
   it("should render loading skeleton when isLoading is true", () => {
     render(
@@ -82,13 +82,13 @@ describe("MediaContent", () => {
         addFilesToTimeline={mockAddFilesToTimeline}
         onRetry={mockOnRetry}
       />,
-    )
+    );
 
     // Проверяем, что скелетон загрузки отображается
     // Skeleton компоненты имеют класс, а не роль
-    const skeletons = document.querySelectorAll(".h-4, .h-12")
-    expect(skeletons.length).toBeGreaterThan(0)
-  })
+    const skeletons = document.querySelectorAll(".h-4, .h-12");
+    expect(skeletons.length).toBeGreaterThan(0);
+  });
 
   it("should render error message when there is an error", () => {
     render(
@@ -101,22 +101,22 @@ describe("MediaContent", () => {
         addFilesToTimeline={mockAddFilesToTimeline}
         onRetry={mockOnRetry}
       />,
-    )
+    );
 
     // Проверяем, что сообщение об ошибке отображается
-    expect(screen.getByText("Error")).toBeInTheDocument()
-    expect(screen.getByText("Failed to load media files")).toBeInTheDocument()
+    expect(screen.getByText("Error")).toBeInTheDocument();
+    expect(screen.getByText("Failed to load media files")).toBeInTheDocument();
 
     // Проверяем, что кнопка Retry отображается
-    const retryButton = screen.getByText("Retry")
-    expect(retryButton).toBeInTheDocument()
+    const retryButton = screen.getByText("Retry");
+    expect(retryButton).toBeInTheDocument();
 
     // Кликаем на кнопку Retry
-    fireEvent.click(retryButton)
+    fireEvent.click(retryButton);
 
     // Проверяем, что вызвана функция onRetry
-    expect(mockOnRetry).toHaveBeenCalled()
-  })
+    expect(mockOnRetry).toHaveBeenCalled();
+  });
 
   it("should render NoFiles when there are no files", () => {
     render(
@@ -129,11 +129,11 @@ describe("MediaContent", () => {
         addFilesToTimeline={mockAddFilesToTimeline}
         onRetry={mockOnRetry}
       />,
-    )
+    );
 
     // Проверяем, что компонент NoFiles отображается
-    expect(screen.getByTestId("no-files")).toBeInTheDocument()
-  })
+    expect(screen.getByTestId("no-files")).toBeInTheDocument();
+  });
 
   it("should render NoFiles when groupedFiles has empty files array", () => {
     render(
@@ -146,11 +146,11 @@ describe("MediaContent", () => {
         addFilesToTimeline={mockAddFilesToTimeline}
         onRetry={mockOnRetry}
       />,
-    )
+    );
 
     // Проверяем, что компонент NoFiles отображается
-    expect(screen.getByTestId("no-files")).toBeInTheDocument()
-  })
+    expect(screen.getByTestId("no-files")).toBeInTheDocument();
+  });
 
   it("should render MediaGroup components for each group", () => {
     render(
@@ -163,24 +163,24 @@ describe("MediaContent", () => {
         addFilesToTimeline={mockAddFilesToTimeline}
         onRetry={mockOnRetry}
       />,
-    )
+    );
 
     // Проверяем, что компоненты MediaGroup отображаются для каждой группы
-    const mediaGroups = screen.getAllByTestId("media-group")
-    expect(mediaGroups).toHaveLength(2)
+    const mediaGroups = screen.getAllByTestId("media-group");
+    expect(mediaGroups).toHaveLength(2);
 
     // Проверяем, что заголовки групп отображаются правильно
-    expect(mediaGroups[0].dataset.title).toBe("Group 1")
-    expect(mediaGroups[1].dataset.title).toBe("Group 2")
+    expect(mediaGroups[0].dataset.title).toBe("Group 1");
+    expect(mediaGroups[1].dataset.title).toBe("Group 2");
 
     // Проверяем, что количество файлов в группах правильное
-    expect(mediaGroups[0].dataset.filesCount).toBe("2")
-    expect(mediaGroups[1].dataset.filesCount).toBe("2")
+    expect(mediaGroups[0].dataset.filesCount).toBe("2");
+    expect(mediaGroups[1].dataset.filesCount).toBe("2");
 
     // Проверяем, что режим отображения и размер превью переданы правильно
-    expect(mediaGroups[0].dataset.viewMode).toBe("list")
-    expect(mediaGroups[0].dataset.previewSize).toBe("100")
-  })
+    expect(mediaGroups[0].dataset.viewMode).toBe("list");
+    expect(mediaGroups[0].dataset.previewSize).toBe("100");
+  });
 
   it("should pass addFilesToTimeline to MediaGroup", () => {
     render(
@@ -193,12 +193,12 @@ describe("MediaContent", () => {
         addFilesToTimeline={mockAddFilesToTimeline}
         onRetry={mockOnRetry}
       />,
-    )
+    );
 
     // Кликаем на первую группу
-    fireEvent.click(screen.getAllByTestId("media-group")[0])
+    fireEvent.click(screen.getAllByTestId("media-group")[0]);
 
     // Проверяем, что вызвана функция addFilesToTimeline с правильными параметрами
-    expect(mockAddFilesToTimeline).toHaveBeenCalledWith(mockFiles)
-  })
-})
+    expect(mockAddFilesToTimeline).toHaveBeenCalledWith(mockFiles);
+  });
+});
