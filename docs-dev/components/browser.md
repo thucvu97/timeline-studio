@@ -56,9 +56,14 @@ const selectedFiles = await selectMediaFile()
 ```
 
 **Tauri команда `open()`** открывает системный диалог с фильтрами:
+
+**Для медиафайлов (`selectMediaFile`):**
 - **Видео**: `.mp4`, `.avi`, `.mkv`, `.mov`, `.webm`
 - **Аудио**: `.mp3`, `.wav`, `.ogg`, `.flac`
 - **Изображения**: `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`
+
+**Для музыкальных файлов (`selectAudioFile`):**
+- **Аудио**: `.mp3`, `.wav`, `.ogg`, `.flac`, `.aac`, `.m4a`, `.wma`
 
 ### 2. Обработка файлов в Rust бэкенде
 
@@ -192,10 +197,21 @@ pub fn get_media_files(directory: String) -> Result<Vec<String>, String>
 ```typescript
 const { importFile, importDirectory, isImporting, progress } = useMediaImport()
 
-// Импорт отдельных файлов
+// Импорт отдельных медиафайлов
 const result = await importFile()
 
 // Импорт всей директории
+const result = await importDirectory()
+```
+
+**`useMusicImport` (`src/features/browser/components/tabs/music/use-music-import.ts`):**
+```typescript
+const { importFile, importDirectory, isImporting, progress } = useMusicImport()
+
+// Импорт отдельных аудиофайлов (только аудио)
+const result = await importFile()
+
+// Импорт всей директории (фильтрует только аудиофайлы)
 const result = await importDirectory()
 ```
 
@@ -356,6 +372,42 @@ interface MediaPreviewProps {
 // Проверка добавленных файлов
 const { isFileAdded } = useMedia()
 const isAdded = isFileAdded(file)
+```
+
+### Импорт музыкальных файлов
+
+```typescript
+// В компоненте MusicList
+const { importFile, importDirectory } = useMusicImport()
+
+// Импорт отдельных аудиофайлов
+const handleImportFile = async () => {
+  const result = await importFile()
+  if (result.success) {
+    console.log(result.message)
+  }
+}
+
+// Импорт всей директории с музыкой
+const handleImportFolder = async () => {
+  const result = await importDirectory()
+  if (result.success) {
+    console.log(result.message)
+  }
+}
+```
+
+### Управление состоянием музыки
+
+```typescript
+// В MusicProvider
+const { addMusicFiles, updateMusicFiles } = useMusic()
+
+// Добавление новых музыкальных файлов
+addMusicFiles(newAudioFiles)
+
+// Обновление существующих файлов (например, после загрузки метаданных)
+updateMusicFiles(updatedAudioFiles)
 ```
 
 ## Планы по развитию

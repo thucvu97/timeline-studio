@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect } from "react"
 
 import { useMachine } from "@xstate/react"
 
+import { MediaFile } from "@/types/media"
+
 import { musicMachine } from "./music-machine"
 
 /**
@@ -36,6 +38,8 @@ interface MusicContextValue {
   changeGroupBy: (groupBy: "none" | "artist" | "genre" | "album") => void // Изменение группировки
   toggleFavorites: (mediaContext: any) => void // Переключение режима избранного
   retry: () => void // Повторная попытка загрузки при ошибке
+  addMusicFiles: (files: MediaFile[]) => void // Добавление музыкальных файлов
+  updateMusicFiles: (files: MediaFile[]) => void // Обновление музыкальных файлов
 }
 
 /**
@@ -154,6 +158,24 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     send({ type: "RETRY" })
   }
 
+  /**
+   * Добавляет музыкальные файлы в машину состояний
+   * @param {MediaFile[]} files - Массив музыкальных файлов для добавления
+   */
+  const addMusicFiles = (files: MediaFile[]) => {
+    console.log("Adding music files:", files.length)
+    send({ type: "ADD_MUSIC_FILES", files })
+  }
+
+  /**
+   * Обновляет существующие музыкальные файлы в машине состояний
+   * @param {MediaFile[]} files - Массив музыкальных файлов для обновления
+   */
+  const updateMusicFiles = (files: MediaFile[]) => {
+    console.log("Updating music files:", files.length)
+    send({ type: "UPDATE_MUSIC_FILES", files })
+  }
+
   // Создаем значение контекста с состояниями и методами
   const value: MusicContextValue = {
     // Состояния из машины состояний
@@ -181,6 +203,8 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
     changeGroupBy,
     toggleFavorites,
     retry,
+    addMusicFiles,
+    updateMusicFiles,
   }
 
   // Предоставляем значение контекста дочерним компонентам

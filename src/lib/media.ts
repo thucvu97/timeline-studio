@@ -137,6 +137,42 @@ export async function selectMediaFile(): Promise<string[] | null> {
 }
 
 /**
+ * Открытие диалога выбора аудиофайлов
+ * @returns Массив путей к выбранным аудиофайлам или null, если отменено
+ */
+export async function selectAudioFile(): Promise<string[] | null> {
+  try {
+    const selected = await open({
+      multiple: true,
+      filters: [
+        {
+          name: "Audio",
+          extensions: [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "aac",
+            "m4a",
+            "wma",
+          ],
+        },
+      ],
+    })
+
+    if (selected === null) {
+      return null
+    }
+
+    // Если выбран один файл, open возвращает строку, иначе массив строк
+    return Array.isArray(selected) ? selected : [selected]
+  } catch (error) {
+    console.error("Ошибка при выборе аудиофайлов:", error)
+    throw error
+  }
+}
+
+/**
  * Открытие диалога выбора директории
  * @returns Путь к выбранной директории или null, если отменено
  */

@@ -77,6 +77,7 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
     }
 
     // Используем функцию toggleFullscreen из хука useFullscreenChange
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const { toggleFullscreen } = useFullscreen()
     toggleFullscreen(playerContainer as HTMLElement)
 

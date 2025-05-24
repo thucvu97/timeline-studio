@@ -97,6 +97,24 @@ interface ToggleFavoritesEvent {
 }
 
 /**
+ * Интерфейс события добавления музыкальных файлов
+ * @interface AddMusicFilesEvent
+ */
+interface AddMusicFilesEvent {
+  type: "ADD_MUSIC_FILES" // Тип события
+  files: MediaFile[] // Массив музыкальных файлов для добавления
+}
+
+/**
+ * Интерфейс события обновления музыкальных файлов
+ * @interface UpdateMusicFilesEvent
+ */
+interface UpdateMusicFilesEvent {
+  type: "UPDATE_MUSIC_FILES" // Тип события
+  files: MediaFile[] // Массив музыкальных файлов для обновления
+}
+
+/**
  * Объединенный тип всех событий музыкальной машины состояний
  * @type MusicEvent
  */
@@ -109,6 +127,8 @@ type MusicEvent =
   | ChangeGroupByEvent
   | ToggleFavoritesEvent
   | RetryEvent
+  | AddMusicFilesEvent
+  | UpdateMusicFilesEvent
 
 // Музыкальные файлы будут добавляться пользователем, начинаем с пустого массива
 
@@ -296,6 +316,82 @@ export const musicMachine = createMachine({
                 event.mediaContext,
               )
 
+              return sortFiles(filtered, context.sortBy, context.sortOrder)
+            },
+          }),
+        },
+
+        /**
+         * Обработка события добавления музыкальных файлов
+         * Добавляет новые файлы к существующим
+         */
+        ADD_MUSIC_FILES: {
+          actions: assign({
+            // Добавляем новые файлы к существующим, избегая дубликатов
+            musicFiles: ({ context, event }) => {
+              const existingIds = new Set(context.musicFiles.map(file => file.id))
+              const newFiles = event.files.filter(file => !existingIds.has(file.id))
+              return [...context.musicFiles, ...newFiles]
+            },
+
+            // Обновляем отфильтрованные файлы
+            filteredFiles: ({ context, event }) => {
+              const existingIds = new Set(context.musicFiles.map(file => file.id))
+              const newFiles = event.files.filter(file => !existingIds.has(file.id))
+              const allFiles = [...context.musicFiles, ...newFiles]
+
+              const filtered = filterFiles(
+                allFiles,
+                context.searchQuery,
+                context.filterType,
+                context.showFavoritesOnly,
+              )
+              return sortFiles(filtered, context.sortBy, context.sortOrder)
+            },
+
+            // Обновляем доступные расширения
+            availableExtensions: ({ context, event }) => {
+              const existingIds = new Set(context.musicFiles.map(file => file.id))
+              const newFiles = event.files.filter(file => !existingIds.has(file.id))
+              const allFiles = [...context.musicFiles, ...newFiles]
+
+              const extensions = new Set<string>()
+              allFiles.forEach(file => {
+                const ext = file.name.split('.').pop()?.toLowerCase()
+                if (ext) extensions.add(ext)
+              })
+              return Array.from(extensions)
+            },
+          }),
+        },
+
+        /**
+         * Обработка события обновления музыкальных файлов
+         * Обновляет существующие файлы (например, после загрузки метаданных)
+         */
+        UPDATE_MUSIC_FILES: {
+          actions: assign({
+            // Обновляем существующие файлы
+            musicFiles: ({ context, event }) => {
+              const updatedFilesMap = new Map(event.files.map(file => [file.id, file]))
+              return context.musicFiles.map(file =>
+                updatedFilesMap.has(file.id) ? updatedFilesMap.get(file.id)! : file
+              )
+            },
+
+            // Обновляем отфильтрованные файлы
+            filteredFiles: ({ context, event }) => {
+              const updatedFilesMap = new Map(event.files.map(file => [file.id, file]))
+              const updatedMusicFiles = context.musicFiles.map(file =>
+                updatedFilesMap.has(file.id) ? updatedFilesMap.get(file.id)! : file
+              )
+
+              const filtered = filterFiles(
+                updatedMusicFiles,
+                context.searchQuery,
+                context.filterType,
+                context.showFavoritesOnly,
+              )
               return sortFiles(filtered, context.sortBy, context.sortOrder)
             },
           }),

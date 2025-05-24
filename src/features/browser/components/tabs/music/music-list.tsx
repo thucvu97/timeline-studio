@@ -14,6 +14,7 @@ import { MusicResource } from "@/types/resources"
 import { useMusic } from "./music-provider"
 import { MusicToolbar } from "./music-toolbar"
 import { sortFiles } from "./music-utils"
+import { useMusicImport } from "./use-music-import"
 import { NoFiles } from "../../layout"
 import { AddMediaButton } from "../../layout/add-media-button"
 import { FavoriteButton } from "../../layout/favorite-button"
@@ -47,6 +48,9 @@ export function MusicList() {
   } = useMusic()
 
   const media = useMedia() // Хук для работы с медиа-файлами и избранным
+
+  // Хук для импорта музыкальных файлов
+  const { importFile, importDirectory } = useMusicImport()
 
   /**
    * Мемоизированная функция для группировки и сортировки музыкальных файлов
@@ -143,26 +147,56 @@ export function MusicList() {
 
   /**
    * Обработчик импорта музыкальных файлов
-   * Заглушка для будущей реализации
+   * Использует хук useMusicImport для импорта отдельных файлов
    */
-  const handleImport = () => {
-    console.log("Импорт файлов")
+  const handleImport = async () => {
+    console.log("Импорт музыкальных файлов")
+    try {
+      const result = await importFile()
+      if (result.success) {
+        console.log(result.message)
+      } else {
+        console.error(result.message)
+      }
+    } catch (error) {
+      console.error("Ошибка при импорте файлов:", error)
+    }
   }
 
   /**
    * Обработчик импорта отдельных музыкальных файлов
-   * Заглушка для будущей реализации
+   * Использует хук useMusicImport для импорта отдельных файлов
    */
-  const handleImportFile = () => {
-    console.log("Импорт отдельных файлов")
+  const handleImportFile = async () => {
+    console.log("Импорт отдельных музыкальных файлов")
+    try {
+      const result = await importFile()
+      if (result.success) {
+        console.log(result.message)
+      } else {
+        console.error(result.message)
+      }
+    } catch (error) {
+      console.error("Ошибка при импорте файлов:", error)
+    }
   }
 
   /**
    * Обработчик импорта папки с музыкальными файлами
-   * Заглушка для будущей реализации
+   * Использует хук useMusicImport для импорта директории
    */
-  const handleImportFolder = () => {
-    console.log("Импорт папки")
+  const handleImportFolder = async () => {
+    console.log("Импорт папки с музыкальными файлами")
+    try {
+      const result = await importDirectory()
+      if (result.success) {
+        console.log(result.message)
+      } else {
+        console.error(result.message)
+      }
+    } catch (error) {
+      console.error("Ошибка при импорте папки:", error)
+    }
   }
 
   /**
