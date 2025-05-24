@@ -25,7 +25,7 @@
 ```
 
 ## Code style
-- **JS/TS**: Biome + ESLint, semicolons as needed, double quotes
+- **JS/TS**: ESLint, semicolons as needed, double quotes
 - **Imports**: Grouped (builtin → external → internal → sibling/parent → CSS)
 - **Components**: Follow feature-based organization in `src/features/`
 - **State management**: Use XState for complex state (create machines with `setup` method)
