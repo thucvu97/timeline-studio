@@ -122,7 +122,7 @@ describe("AudioPreview", () => {
   })
 
   it("should show filename when showFileName is true", () => {
-    render(<AudioPreview file={audioFile} showFileName={true} />)
+    render(<AudioPreview file={audioFile} showFileName />)
 
     // Проверяем, что имя файла отображается
     expect(screen.getByText("audio.mp3")).toBeInTheDocument()

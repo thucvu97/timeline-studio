@@ -174,7 +174,7 @@ describe("CameraSettings", () => {
   })
 
   it("disables controls when isRecording is true", () => {
-    render(<CameraSettings {...defaultProps} isRecording={true} />)
+    render(<CameraSettings {...defaultProps} isRecording />)
 
     // Проверяем, что все селекты отключены
     const selects = screen.getAllByTestId("select")
@@ -188,7 +188,7 @@ describe("CameraSettings", () => {
   })
 
   it("shows loading state when isLoadingCapabilities is true", () => {
-    render(<CameraSettings {...defaultProps} isLoadingCapabilities={true} />)
+    render(<CameraSettings {...defaultProps} isLoadingCapabilities />)
 
     // Проверяем, что отображаются элементы загрузки
     const loadingElements = screen.getAllByText("dialogs.cameraCapture.determiningCapabilities")

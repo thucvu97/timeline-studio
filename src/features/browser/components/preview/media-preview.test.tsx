@@ -112,11 +112,11 @@ describe("MediaPreview", () => {
       <MediaPreview
         file={videoFile}
         onAddMedia={onAddMedia}
-        isAdded={true}
+        isAdded
         size={120}
-        showFileName={true}
+        showFileName
         dimensions={[4, 3]}
-        ignoreRatio={true}
+        ignoreRatio
       />,
     )
 

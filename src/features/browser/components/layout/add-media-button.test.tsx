@@ -85,7 +85,7 @@ describe("AddMediaButton", () => {
 
   it("should render check icon when isAdded is true", () => {
     // Рендерим компонент
-    render(<AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} />)
+    render(<AddMediaButton file={testFile} isAdded onAddMedia={onAddMedia} />)
 
     // Проверяем, что отображается иконка Check
     expect(screen.getByTestId("check-icon")).toBeInTheDocument()
@@ -112,7 +112,7 @@ describe("AddMediaButton", () => {
 
   it("should show remove icon on hover when isAdded is true and not recently added", () => {
     // Рендерим компонент
-    render(<AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} onRemoveMedia={onRemoveMedia} />)
+    render(<AddMediaButton file={testFile} isAdded onAddMedia={onAddMedia} onRemoveMedia={onRemoveMedia} />)
 
     // Проверяем, что изначально отображается иконка Check
     expect(screen.getByTestId("check-icon")).toBeInTheDocument()
@@ -137,7 +137,7 @@ describe("AddMediaButton", () => {
 
   it("should call onRemoveMedia when clicked on remove icon", () => {
     // Рендерим компонент
-    render(<AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} onRemoveMedia={onRemoveMedia} />)
+    render(<AddMediaButton file={testFile} isAdded onAddMedia={onAddMedia} onRemoveMedia={onRemoveMedia} />)
 
     // Продвигаем таймеры вперед, чтобы сбросить флаг isRecentlyAdded
     act(() => {
@@ -160,7 +160,7 @@ describe("AddMediaButton", () => {
 
   it("should use onAddMedia as fallback if onRemoveMedia is not provided", () => {
     // Рендерим компонент без onRemoveMedia
-    render(<AddMediaButton file={testFile} isAdded={true} onAddMedia={onAddMedia} />)
+    render(<AddMediaButton file={testFile} isAdded onAddMedia={onAddMedia} />)
 
     // Продвигаем таймеры вперед, чтобы сбросить флаг isRecentlyAdded
     act(() => {

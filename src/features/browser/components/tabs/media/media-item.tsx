@@ -60,7 +60,7 @@ export const MediaItem: React.FC<MediaItemProps> = ({ file, index, viewMode, pre
               onAddMedia={handleAddMedia}
               isAdded={isAdded}
               size={previewSize}
-              ignoreRatio={true}
+              ignoreRatio
             />
           </div>
           <FileMetadata file={file} size={previewSize} />
@@ -110,8 +110,8 @@ export const MediaItem: React.FC<MediaItemProps> = ({ file, index, viewMode, pre
               onAddMedia={handleAddMedia}
               isAdded={isAdded}
               size={previewSize}
-              showFileName={true}
-              ignoreRatio={true}
+              showFileName
+              ignoreRatio
             />
           </div>
         </div>

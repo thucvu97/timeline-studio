@@ -100,7 +100,7 @@ describe("FavoriteButton", () => {
         file={testFile}
         size={100}
         type="media"
-        isFavorite={true}
+        isFavorite
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,
     )
@@ -140,7 +140,7 @@ describe("FavoriteButton", () => {
         file={testFile}
         size={100}
         type="media"
-        isFavorite={true}
+        isFavorite
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,
     )
@@ -170,7 +170,7 @@ describe("FavoriteButton", () => {
         file={testFile}
         size={100}
         type="media"
-        isFavorite={true}
+        isFavorite
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,
     )
@@ -227,7 +227,7 @@ describe("FavoriteButton", () => {
         file={testFile}
         size={100}
         type="media"
-        isFavorite={true}
+        isFavorite
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,
     )
@@ -250,7 +250,7 @@ describe("FavoriteButton", () => {
         file={testFile}
         size={100}
         type="media"
-        isFavorite={true}
+        isFavorite
         onRemoveFromFavorites={onRemoveFromFavorites}
       />,
     )

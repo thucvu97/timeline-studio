@@ -40,7 +40,7 @@ describe("CameraPreview", () => {
     render(
       <CameraPreview
         videoRef={videoRef}
-        isDeviceReady={true}
+        isDeviceReady
         showCountdown={false}
         countdown={0}
       />
@@ -58,8 +58,8 @@ describe("CameraPreview", () => {
     render(
       <CameraPreview
         videoRef={videoRef}
-        isDeviceReady={true}
-        showCountdown={true}
+        isDeviceReady
+        showCountdown
         countdown={3}
       />
     )
@@ -72,7 +72,7 @@ describe("CameraPreview", () => {
     render(
       <CameraPreview
         videoRef={videoRef}
-        isDeviceReady={true}
+        isDeviceReady
         showCountdown={false}
         countdown={3}
       />
@@ -86,8 +86,8 @@ describe("CameraPreview", () => {
     render(
       <CameraPreview
         videoRef={videoRef}
-        isDeviceReady={true}
-        showCountdown={true}
+        isDeviceReady
+        showCountdown
         countdown={0}
       />
     )
@@ -100,7 +100,7 @@ describe("CameraPreview", () => {
     render(
       <CameraPreview
         videoRef={videoRef}
-        isDeviceReady={true}
+        isDeviceReady
         showCountdown={false}
         countdown={0}
       />

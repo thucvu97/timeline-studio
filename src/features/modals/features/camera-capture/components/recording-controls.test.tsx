@@ -59,7 +59,7 @@ describe("RecordingControls", () => {
   })
 
   it("renders stop recording button when recording", () => {
-    render(<RecordingControls {...defaultProps} isRecording={true} />)
+    render(<RecordingControls {...defaultProps} isRecording />)
 
     // Проверяем, что отображается кнопка остановки записи
     const button = screen.getByTestId("button")
@@ -88,7 +88,7 @@ describe("RecordingControls", () => {
   })
 
   it("calls onStopRecording when stop button is clicked", () => {
-    render(<RecordingControls {...defaultProps} isRecording={true} />)
+    render(<RecordingControls {...defaultProps} isRecording />)
 
     // Находим кнопку остановки записи и кликаем по ней
     const button = screen.getByTestId("button")

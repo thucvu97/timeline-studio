@@ -77,7 +77,7 @@ describe("MediaContent", () => {
         groupedFiles={mockGroupedFiles}
         viewMode="list"
         previewSize={100}
-        isLoading={true}
+        isLoading
         error={null}
         addFilesToTimeline={mockAddFilesToTimeline}
         onRetry={mockOnRetry}

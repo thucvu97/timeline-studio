@@ -22,7 +22,7 @@ describe("Layout Components", () => {
 
     it("should apply active styles when isActive is true", () => {
       const onClick = vi.fn()
-      const { container } = render(<DefaultLayout isActive={true} onClick={onClick} />)
+      const { container } = render(<DefaultLayout isActive onClick={onClick} />)
 
       // Проверяем, что применены стили активного элемента
       const layoutElement = container.firstChild as HTMLElement
@@ -53,7 +53,7 @@ describe("Layout Components", () => {
 
     it("should apply active styles when isActive is true", () => {
       const onClick = vi.fn()
-      const { container } = render(<OptionsLayout isActive={true} onClick={onClick} />)
+      const { container } = render(<OptionsLayout isActive onClick={onClick} />)
 
       // Проверяем, что применены стили активного элемента
       const layoutElement = container.firstChild as HTMLElement
@@ -84,7 +84,7 @@ describe("Layout Components", () => {
 
     it("should apply active styles when isActive is true", () => {
       const onClick = vi.fn()
-      const { container } = render(<VerticalLayout isActive={true} onClick={onClick} />)
+      const { container } = render(<VerticalLayout isActive onClick={onClick} />)
 
       // Проверяем, что применены стили активного элемента
       const layoutElement = container.firstChild as HTMLElement
@@ -107,7 +107,7 @@ describe("Layout Components", () => {
   describe("DualLayout", () => {
     it("should render correctly with external display", () => {
       const onClick = vi.fn()
-      render(<DualLayout isActive={false} onClick={onClick} hasExternalDisplay={true} />)
+      render(<DualLayout isActive={false} onClick={onClick} hasExternalDisplay />)
 
       // Проверяем, что компонент отрендерен
       expect(screen.getByText("topBar.layouts.dual")).toBeInTheDocument()
@@ -129,7 +129,7 @@ describe("Layout Components", () => {
 
     it("should apply active styles when isActive is true and hasExternalDisplay is true", () => {
       const onClick = vi.fn()
-      const { container } = render(<DualLayout isActive={true} onClick={onClick} hasExternalDisplay={true} />)
+      const { container } = render(<DualLayout isActive onClick={onClick} hasExternalDisplay />)
 
       // Проверяем, что применены стили активного элемента
       const layoutElement = container.firstChild as HTMLElement
@@ -150,7 +150,7 @@ describe("Layout Components", () => {
 
     it("should call onClick when clicked and hasExternalDisplay is true", () => {
       const onClick = vi.fn()
-      render(<DualLayout isActive={false} onClick={onClick} hasExternalDisplay={true} />)
+      render(<DualLayout isActive={false} onClick={onClick} hasExternalDisplay />)
 
       // Кликаем по компоненту
       fireEvent.click(screen.getByText("topBar.layouts.dual"))

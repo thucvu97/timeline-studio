@@ -68,7 +68,7 @@ describe("ImagePreview", () => {
   })
 
   it("should show filename when showFileName is true", () => {
-    render(<ImagePreview file={imageFile} showFileName={true} />)
+    render(<ImagePreview file={imageFile} showFileName />)
 
     // Проверяем, что имя файла отображается
     expect(screen.getByText("image.jpg")).toBeInTheDocument()

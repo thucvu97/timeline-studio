@@ -148,7 +148,7 @@ describe("VideoPreview", () => {
   })
 
   it("should show filename when showFileName is true", () => {
-    render(<VideoPreview file={singleStreamVideoFile} showFileName={true} />)
+    render(<VideoPreview file={singleStreamVideoFile} showFileName />)
 
     // Проверяем, что имя файла отображается
     expect(screen.getByText("video.mp4")).toBeInTheDocument()
