@@ -8,7 +8,7 @@ import { TimelineResource } from "@/types/resources"
  * Компонент для отображения ресурсов таймлайна в левой панели
  */
 export function TimelineResources() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   // Полностью отключаем логирование
   const {
@@ -26,37 +26,37 @@ export function TimelineResources() {
   const categories = [
     {
       id: "effects",
-      name: t("resources.effects", "Эффекты"),
+      name: t("timeline.resources.effects", "Эффекты"),
       icon: <Package className="h-3.5 w-3.5 text-gray-400" />,
       resources: effectResources,
     },
     {
       id: "filters",
-      name: t("resources.filters", "Фильтры"),
+      name: t("timeline.resources.filters", "Фильтры"),
       icon: <Palette className="h-3.5 w-3.5 text-gray-400" />,
       resources: filterResources,
     },
     {
       id: "transitions",
-      name: t("resources.transitions", "Переходы"),
+      name: t("timeline.resources.transitions", "Переходы"),
       icon: <Scissors className="h-3.5 w-3.5 text-gray-400" />,
       resources: transitionResources,
     },
     {
       id: "templates",
-      name: t("resources.templates", "Шаблоны"),
+      name: t("timeline.resources.templates", "Шаблоны"),
       icon: <Video className="h-3.5 w-3.5 text-gray-400" />,
       resources: templateResources,
     },
     {
       id: "music",
-      name: t("resources.music", "Музыка"),
+      name: t("timeline.resources.music", "Музыка"),
       icon: <Music className="h-3.5 w-3.5 text-gray-400" />,
       resources: musicResources,
     },
     {
       id: "subtitles",
-      name: t("resources.subtitles", "Субтитры"),
+      name: t("timeline.resources.subtitles", "Субтитры"),
       icon: <Subtitles className="h-3.5 w-3.5 text-gray-400" />,
       resources: subtitleResources,
     },
@@ -104,7 +104,7 @@ export function TimelineResources() {
   return (
     <div className="flex h-full flex-col bg-background text-white">
       <div className="border-b border-[#333] p-1.5">
-        <h3 className="text-xs font-medium">{t("resources.title", "Ресурсы")}</h3>
+        <h3 className="text-xs font-medium">{t("timeline.resources.title", "Ресурсы")}</h3>
       </div>
 
       {/* Прокручиваемый контейнер для всех категорий */}
@@ -127,7 +127,7 @@ export function TimelineResources() {
               {/* Сообщение, если нет ресурсов */}
               {category.resources.length === 0 && (
                 <div className="pl-1 text-[10px] text-gray-500">
-                  {t("resources.noResources", "Нет добавленных ресурсов")}
+                  {t("timeline.resources.noResources", "Нет добавленных ресурсов")}
                 </div>
               )}
             </div>
