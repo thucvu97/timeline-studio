@@ -7,16 +7,17 @@ import { useTranslation } from "react-i18next";
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
 import { NoFiles } from "@/features/browser/components/layout/no-files";
-import { useMedia } from "../browser/media";
-import { useResources } from "../resources";
 import { formatTime } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { MediaFile } from "@/types/media";
 import { MusicResource } from "@/types/resources";
 
+
 import { useMusic } from "./music-provider";
 import { MusicToolbar } from "./music-toolbar";
 import { sortFiles } from "./music-utils";
+import { useMedia } from "../browser/media";
+import { useResources } from "../resources";
 import { useMusicImport } from "./use-music-import";
 
 /**
