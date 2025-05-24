@@ -43,28 +43,39 @@ export function useMusicImport() {
   /**
    * Сохраняет импортированные музыкальные файлы в проект (если проект открыт)
    */
-  const saveFilesToProject = useCallback(async (files: MediaFile[]) => {
-    // Сохраняем только если есть открытый проект
-    if (!currentProject.path || files.length === 0) {
-      return;
-    }
+  const saveFilesToProject = useCallback(
+    async (files: MediaFile[]) => {
+      // Сохраняем только если есть открытый проект
+      if (!currentProject.path || files.length === 0) {
+        return;
+      }
 
-    try {
-      // Конвертируем MediaFile в SavedMusicFile
-      const savedFiles = await Promise.all(
-        files.map(file => convertToSavedMusicFile(file, currentProject.path || undefined))
-      );
+      try {
+        // Конвертируем MediaFile в SavedMusicFile
+        const savedFiles = await Promise.all(
+          files.map((file) =>
+            convertToSavedMusicFile(file, currentProject.path || undefined),
+          ),
+        );
 
-      // TODO: Здесь нужно будет добавить логику сохранения в проект
-      // Пока просто логируем для отладки
-      console.log(`Сохранено ${savedFiles.length} музыкальных файлов в проект:`, savedFiles);
+        // TODO: Здесь нужно будет добавить логику сохранения в проект
+        // Пока просто логируем для отладки
+        console.log(
+          `Сохранено ${savedFiles.length} музыкальных файлов в проект:`,
+          savedFiles,
+        );
 
-      // Отмечаем проект как измененный
-      setProjectDirty(true);
-    } catch (error) {
-      console.error("Ошибка при сохранении музыкальных файлов в проект:", error);
-    }
-  }, [currentProject.path, setProjectDirty]);
+        // Отмечаем проект как измененный
+        setProjectDirty(true);
+      } catch (error) {
+        console.error(
+          "Ошибка при сохранении музыкальных файлов в проект:",
+          error,
+        );
+      }
+    },
+    [currentProject.path, setProjectDirty],
+  );
 
   /**
    * Создает базовый объект музыкального файла с минимальной информацией

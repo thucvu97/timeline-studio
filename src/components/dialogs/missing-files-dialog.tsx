@@ -1,8 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
-import { AlertTriangle, CheckCircle, FileX, Search, Trash2 } from "lucide-react"
+import {
+  AlertTriangle,
+  CheckCircle,
+  FileX,
+  Search,
+  Trash2,
+} from "lucide-react";
 
 import {
   AlertDialog,
@@ -13,123 +19,135 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { MediaRestorationService } from "@/lib/media-restoration-service"
-import { SavedMediaFile } from "@/types/saved-media"
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { MediaRestorationService } from "@/lib/media-restoration-service";
+import { SavedMediaFile } from "@/types/saved-media";
 
 interface MissingFilesDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  missingFiles: SavedMediaFile[]
-  onResolve: (resolved: Array<{ file: SavedMediaFile; newPath?: string; action: 'found' | 'remove' }>) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  missingFiles: SavedMediaFile[];
+  onResolve: (
+    resolved: Array<{
+      file: SavedMediaFile;
+      newPath?: string;
+      action: "found" | "remove";
+    }>,
+  ) => void;
 }
 
 interface FileResolution {
-  file: SavedMediaFile
-  action: 'pending' | 'found' | 'remove' | 'skip'
-  newPath?: string
-  isProcessing?: boolean
+  file: SavedMediaFile;
+  action: "pending" | "found" | "remove" | "skip";
+  newPath?: string;
+  isProcessing?: boolean;
 }
 
 export function MissingFilesDialog({
   open,
   onOpenChange,
   missingFiles,
-  onResolve
+  onResolve,
 }: MissingFilesDialogProps) {
   const [resolutions, setResolutions] = useState<FileResolution[]>(() =>
-    missingFiles.map(file => ({ file, action: 'pending' }))
-  )
+    missingFiles.map((file) => ({ file, action: "pending" })),
+  );
 
   const handleFindFile = async (index: number) => {
-    const resolution = resolutions[index]
+    const resolution = resolutions[index];
 
     // Обновляем состояние - показываем, что файл обрабатывается
-    setResolutions(prev => prev.map((r, i) =>
-      i === index ? { ...r, isProcessing: true } : r
-    ))
+    setResolutions((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, isProcessing: true } : r)),
+    );
 
     try {
-      const newPath = await MediaRestorationService.promptUserToFindFile(resolution.file)
+      const newPath = await MediaRestorationService.promptUserToFindFile(
+        resolution.file,
+      );
 
-      setResolutions(prev => prev.map((r, i) =>
-        i === index
-          ? {
-              ...r,
-              action: newPath ? 'found' : 'skip',
-              newPath: newPath || undefined,
-              isProcessing: false
-            }
-          : r
-      ))
+      setResolutions((prev) =>
+        prev.map((r, i) =>
+          i === index
+            ? {
+                ...r,
+                action: newPath ? "found" : "skip",
+                newPath: newPath || undefined,
+                isProcessing: false,
+              }
+            : r,
+        ),
+      );
     } catch (error) {
-      console.error('Ошибка при поиске файла:', error)
-      setResolutions(prev => prev.map((r, i) =>
-        i === index ? { ...r, isProcessing: false } : r
-      ))
+      console.error("Ошибка при поиске файла:", error);
+      setResolutions((prev) =>
+        prev.map((r, i) => (i === index ? { ...r, isProcessing: false } : r)),
+      );
     }
-  }
+  };
 
   const handleRemoveFile = (index: number) => {
-    setResolutions(prev => prev.map((r, i) =>
-      i === index ? { ...r, action: 'remove' } : r
-    ))
-  }
+    setResolutions((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, action: "remove" } : r)),
+    );
+  };
 
   const handleSkipFile = (index: number) => {
-    setResolutions(prev => prev.map((r, i) =>
-      i === index ? { ...r, action: 'skip' } : r
-    ))
-  }
+    setResolutions((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, action: "skip" } : r)),
+    );
+  };
 
   const handleResolveAll = () => {
     const resolved = resolutions
-      .filter(r => r.action === 'found' || r.action === 'remove')
-      .map(r => ({
+      .filter((r) => r.action === "found" || r.action === "remove")
+      .map((r) => ({
         file: r.file,
         newPath: r.newPath,
-        action: r.action as 'found' | 'remove'
-      }))
+        action: r.action as "found" | "remove",
+      }));
 
-    onResolve(resolved)
-    onOpenChange(false)
-  }
+    onResolve(resolved);
+    onOpenChange(false);
+  };
 
   const handleSkipAll = () => {
-    onResolve([])
-    onOpenChange(false)
-  }
+    onResolve([]);
+    onOpenChange(false);
+  };
 
-  const getActionIcon = (action: FileResolution['action']) => {
+  const getActionIcon = (action: FileResolution["action"]) => {
     switch (action) {
-      case 'found':
-        return <CheckCircle className="h-4 w-4 text-green-500" />
-      case 'remove':
-        return <Trash2 className="h-4 w-4 text-red-500" />
-      case 'skip':
-        return <FileX className="h-4 w-4 text-gray-500" />
+      case "found":
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case "remove":
+        return <Trash2 className="h-4 w-4 text-red-500" />;
+      case "skip":
+        return <FileX className="h-4 w-4 text-gray-500" />;
       default:
-        return <AlertTriangle className="h-4 w-4 text-yellow-500" />
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
     }
-  }
+  };
 
-  const getActionText = (action: FileResolution['action']) => {
+  const getActionText = (action: FileResolution["action"]) => {
     switch (action) {
-      case 'found':
-        return 'Найден'
-      case 'remove':
-        return 'Удалить'
-      case 'skip':
-        return 'Пропущен'
+      case "found":
+        return "Найден";
+      case "remove":
+        return "Удалить";
+      case "skip":
+        return "Пропущен";
       default:
-        return 'Ожидает'
+        return "Ожидает";
     }
-  }
+  };
 
-  const resolvedCount = resolutions.filter(r => r.action === 'found' || r.action === 'remove').length
-  const canProceed = resolvedCount > 0
+  const resolvedCount = resolutions.filter(
+    (r) => r.action === "found" || r.action === "remove",
+  ).length;
+  const canProceed = resolvedCount > 0;
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -140,15 +158,18 @@ export function MissingFilesDialog({
             Отсутствующие медиафайлы
           </AlertDialogTitle>
           <AlertDialogDescription>
-            При открытии проекта обнаружены отсутствующие файлы.
-            Выберите действие для каждого файла: найти новое расположение или удалить из проекта.
+            При открытии проекта обнаружены отсутствующие файлы. Выберите
+            действие для каждого файла: найти новое расположение или удалить из
+            проекта.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>Файлов: {missingFiles.length}</span>
-            <span>Обработано: {resolvedCount}/{missingFiles.length}</span>
+            <span>
+              Обработано: {resolvedCount}/{missingFiles.length}
+            </span>
           </div>
 
           <div className="h-[300px] w-full border rounded-md p-4 overflow-y-auto">
@@ -171,13 +192,14 @@ export function MissingFilesDialog({
                       </p>
                       {resolution.file.size && (
                         <p className="text-xs text-muted-foreground">
-                          Размер: {(resolution.file.size / 1024 / 1024).toFixed(1)} МБ
+                          Размер:{" "}
+                          {(resolution.file.size / 1024 / 1024).toFixed(1)} МБ
                         </p>
                       )}
                     </div>
 
                     <div className="flex gap-1">
-                      {resolution.action === 'pending' && (
+                      {resolution.action === "pending" && (
                         <>
                           <Button
                             size="sm"
@@ -199,7 +221,7 @@ export function MissingFilesDialog({
                         </>
                       )}
 
-                      {resolution.action !== 'pending' && (
+                      {resolution.action !== "pending" && (
                         <Button
                           size="sm"
                           variant="ghost"
@@ -244,5 +266,5 @@ export function MissingFilesDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

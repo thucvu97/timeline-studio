@@ -1,13 +1,13 @@
-import "@testing-library/jest-dom"
-import React from "react"
+import "@testing-library/jest-dom";
+import React from "react";
 
-import { cleanup } from "@testing-library/react"
-import { afterEach, vi } from "vitest"
+import { cleanup } from "@testing-library/react";
+import { afterEach, vi } from "vitest";
 
 // Автоматическая очистка после каждого теста
 afterEach(() => {
-  cleanup()
-})
+  cleanup();
+});
 
 // Мок для window.matchMedia
 Object.defineProperty(window, "matchMedia", {
@@ -22,77 +22,81 @@ Object.defineProperty(window, "matchMedia", {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-})
+});
 
 // Мок для Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn().mockImplementation((cmd: string, args?: Record<string, unknown>) => {
-    if (cmd === "get_app_language") {
-      return Promise.resolve({
-        language: "ru",
-        system_language: "ru",
-      })
-    }
-    if (cmd === "set_app_language") {
-      // Безопасное приведение типа
-      const lang = args && "lang" in args ? String(args.lang) : "ru"
-      return Promise.resolve({
-        language: lang,
-        system_language: "ru",
-      })
-    }
-    if (cmd === "file_exists") {
-      return Promise.resolve(true)
-    }
-    if (cmd === "get_file_stats") {
-      return Promise.resolve({
-        size: 1024,
-        lastModified: Date.now()
-      })
-    }
-    if (cmd === "read_text_file") {
-      return Promise.resolve('{"test": "data"}')
-    }
-    if (cmd === "write_text_file") {
-      return Promise.resolve()
-    }
-    if (cmd === "search_files_by_name") {
-      return Promise.resolve([])
-    }
-    if (cmd === "get_absolute_path") {
-      const path = args && "path" in args ? String(args.path) : ""
-      return Promise.resolve(`/absolute${path}`)
-    }
-    return Promise.resolve(null)
-  }),
+  invoke: vi
+    .fn()
+    .mockImplementation((cmd: string, args?: Record<string, unknown>) => {
+      if (cmd === "get_app_language") {
+        return Promise.resolve({
+          language: "ru",
+          system_language: "ru",
+        });
+      }
+      if (cmd === "set_app_language") {
+        // Безопасное приведение типа
+        const lang = args && "lang" in args ? String(args.lang) : "ru";
+        return Promise.resolve({
+          language: lang,
+          system_language: "ru",
+        });
+      }
+      if (cmd === "file_exists") {
+        return Promise.resolve(true);
+      }
+      if (cmd === "get_file_stats") {
+        return Promise.resolve({
+          size: 1024,
+          lastModified: Date.now(),
+        });
+      }
+      if (cmd === "read_text_file") {
+        return Promise.resolve('{"test": "data"}');
+      }
+      if (cmd === "write_text_file") {
+        return Promise.resolve();
+      }
+      if (cmd === "search_files_by_name") {
+        return Promise.resolve([]);
+      }
+      if (cmd === "get_absolute_path") {
+        const path = args && "path" in args ? String(args.path) : "";
+        return Promise.resolve(`/absolute${path}`);
+      }
+      return Promise.resolve(null);
+    }),
   // Добавляем мок для convertFileSrc
   convertFileSrc: vi.fn().mockImplementation((path: string) => {
-    return `converted-${path}`
+    return `converted-${path}`;
   }),
-}))
+}));
 
 // Мок для Tauri path API
 vi.mock("@tauri-apps/api/path", () => ({
   dirname: vi.fn().mockResolvedValue("/project/dir"),
-  basename: vi.fn().mockImplementation((path: string) => path.split('/').pop() || ''),
-  join: vi.fn().mockImplementation((...paths: string[]) => paths.join('/')),
-}))
+  basename: vi
+    .fn()
+    .mockImplementation((path: string) => path.split("/").pop() || ""),
+  join: vi.fn().mockImplementation((...paths: string[]) => paths.join("/")),
+}));
 
 // Мок для Tauri dialog API
 vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: vi.fn().mockResolvedValue(null),
-}))
+}));
 
 // Мок для Tauri FS API
 vi.mock("@tauri-apps/plugin-fs", () => ({
   readTextFile: vi.fn().mockResolvedValue('{"test": "data"}'),
   writeTextFile: vi.fn().mockResolvedValue(undefined),
-}))
+}));
 
 // Мок для react-hotkeys-hook
 vi.mock("react-hotkeys-hook", () => ({
   useHotkeys: vi.fn(),
-}))
+}));
 
 // Мок для useModal
 vi.mock("@/features/modals/services/modal-provider", () => ({
@@ -105,16 +109,23 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
     submitModal: vi.fn(),
   }),
   ModalProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
+}));
 
 // Мок для TopBar
 vi.mock("@/features/top-bar/components/top-bar", () => ({
-  TopBar: ({ layoutMode = "default", onLayoutChange = (layoutMode: any) => {} } = {}) => {
+  TopBar: ({
+    layoutMode = "default",
+    onLayoutChange = (layoutMode: any) => {},
+  } = {}) => {
     return React.createElement(
       "div",
       { "data-testid": "top-bar" },
       // Добавляем все необходимые data-testid атрибуты
-      React.createElement("span", { "data-testid": "current-layout" }, layoutMode),
+      React.createElement(
+        "span",
+        { "data-testid": "current-layout" },
+        layoutMode,
+      ),
       React.createElement(
         "button",
         {
@@ -148,38 +159,101 @@ vi.mock("@/features/top-bar/components/top-bar", () => ({
         "Dual",
       ),
       // Добавляем дополнительные кнопки с data-testid
-      React.createElement("button", { "data-testid": "layout-button" }, "Layout"),
-      React.createElement("div", { "data-testid": "theme-toggle" }, "Theme Toggle"),
-      React.createElement("button", { "data-testid": "keyboard-shortcuts-button" }, "Keyboard Shortcuts"),
-      React.createElement("button", { "data-testid": "project-settings-button" }, "Project Settings"),
+      React.createElement(
+        "button",
+        { "data-testid": "layout-button" },
+        "Layout",
+      ),
+      React.createElement(
+        "div",
+        { "data-testid": "theme-toggle" },
+        "Theme Toggle",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "keyboard-shortcuts-button" },
+        "Keyboard Shortcuts",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "project-settings-button" },
+        "Project Settings",
+      ),
       React.createElement("button", { "data-testid": "save-button" }, "Save"),
-      React.createElement("button", { "data-testid": "camera-capture-button" }, "Camera Capture"),
-      React.createElement("button", { "data-testid": "voice-recording-button" }, "Voice Recording"),
-      React.createElement("button", { "data-testid": "publish-button" }, "Publish"),
-      React.createElement("button", { "data-testid": "editing-tasks-button" }, "Editing Tasks"),
-      React.createElement("button", { "data-testid": "user-settings-button" }, "User Settings"),
-      React.createElement("button", { "data-testid": "export-button" }, "Export"),
-    )
+      React.createElement(
+        "button",
+        { "data-testid": "camera-capture-button" },
+        "Camera Capture",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "voice-recording-button" },
+        "Voice Recording",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "publish-button" },
+        "Publish",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "editing-tasks-button" },
+        "Editing Tasks",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "user-settings-button" },
+        "User Settings",
+      ),
+      React.createElement(
+        "button",
+        { "data-testid": "export-button" },
+        "Export",
+      ),
+    );
   },
-}))
+}));
 
 // Мок для layouts
 vi.mock("@/features/media-studio/layouts", () => ({
-  DefaultLayout: () => React.createElement("div", { "data-testid": "default-layout" }, "Default Layout"),
-  OptionsLayout: () => React.createElement("div", { "data-testid": "options-layout" }, "Options Layout"),
-  VerticalLayout: () => React.createElement("div", { "data-testid": "vertical-layout" }, "Vertical Layout"),
-  DualLayout: () => React.createElement("div", { "data-testid": "dual-layout" }, "Dual Layout"),
+  DefaultLayout: () =>
+    React.createElement(
+      "div",
+      { "data-testid": "default-layout" },
+      "Default Layout",
+    ),
+  OptionsLayout: () =>
+    React.createElement(
+      "div",
+      { "data-testid": "options-layout" },
+      "Options Layout",
+    ),
+  VerticalLayout: () =>
+    React.createElement(
+      "div",
+      { "data-testid": "vertical-layout" },
+      "Vertical Layout",
+    ),
+  DualLayout: () =>
+    React.createElement("div", { "data-testid": "dual-layout" }, "Dual Layout"),
   LayoutMode: {
     DEFAULT: "default",
     OPTIONS: "options",
     VERTICAL: "vertical",
     DUAL: "dual",
   },
-  LayoutPreviews: ({ onLayoutChange = (layout: string) => {}, layoutMode = "default" } = {}) => {
+  LayoutPreviews: ({
+    onLayoutChange = (layout: string) => {},
+    layoutMode = "default",
+  } = {}) => {
     return React.createElement(
       "div",
       { "data-testid": "layout-previews" },
-      React.createElement("span", { "data-testid": "current-layout" }, layoutMode),
+      React.createElement(
+        "span",
+        { "data-testid": "current-layout" },
+        layoutMode,
+      ),
       React.createElement(
         "button",
         {
@@ -196,14 +270,19 @@ vi.mock("@/features/media-studio/layouts", () => ({
         },
         "Options",
       ),
-    )
+    );
   },
-}))
+}));
 
 // Мок для ModalContainer
 vi.mock("@/features/modals/components", () => ({
-  ModalContainer: () => React.createElement("div", { "data-testid": "modal-container" }, "Modal Container"),
-}))
+  ModalContainer: () =>
+    React.createElement(
+      "div",
+      { "data-testid": "modal-container" },
+      "Modal Container",
+    ),
+}));
 
 // Мок для i18next
 vi.mock("i18next", () => {
@@ -215,9 +294,9 @@ vi.mock("i18next", () => {
     t: (key: string) => key,
     changeLanguage: vi.fn(),
     language: "ru",
-  }
-  return { default: i18n }
-})
+  };
+  return { default: i18n };
+});
 
 // Мок для react-i18next
 vi.mock("react-i18next", () => ({
@@ -229,7 +308,7 @@ vi.mock("react-i18next", () => ({
         changeLanguage: vi.fn(),
         language: "ru",
       },
-    }
+    };
   },
   // Добавляем initReactI18next
   initReactI18next: {
@@ -238,34 +317,36 @@ vi.mock("react-i18next", () => ({
   },
   // Добавляем I18nextProvider
   I18nextProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
+}));
 
 // Мок для localStorage
 const localStorageMock = (() => {
-  let store: Record<string, string> = {}
+  let store: Record<string, string> = {};
   return {
     getItem: (key: string) => store[key] ?? null,
     setItem: (key: string, value: string) => {
-      store[key] = value.toString()
+      store[key] = value.toString();
     },
     removeItem: (key: string) => {
       // Используем присвоение undefined вместо delete
-      store = Object.fromEntries(Object.entries(store).filter(([k]) => k !== key))
+      store = Object.fromEntries(
+        Object.entries(store).filter(([k]) => k !== key),
+      );
     },
     clear: () => {
-      store = {}
+      store = {};
     },
-  }
-})()
+  };
+})();
 
 Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
-})
+});
 
 // Мок для MediaStudio
 vi.mock("@/features/media-studio/media-studio", () => {
   // Создаем состояние для хранения текущего layoutMode
-  let currentLayoutMode = "default"
+  let currentLayoutMode = "default";
 
   return {
     MediaStudio: () => {
@@ -276,13 +357,17 @@ vi.mock("@/features/media-studio/media-studio", () => {
         React.createElement(
           "div",
           { "data-testid": "top-bar" },
-          React.createElement("span", { "data-testid": "current-layout" }, currentLayoutMode),
+          React.createElement(
+            "span",
+            { "data-testid": "current-layout" },
+            currentLayoutMode,
+          ),
           React.createElement(
             "button",
             {
               "data-testid": "change-layout-default",
               onClick: () => {
-                currentLayoutMode = "default"
+                currentLayoutMode = "default";
               },
             },
             "Default",
@@ -292,7 +377,7 @@ vi.mock("@/features/media-studio/media-studio", () => {
             {
               "data-testid": "change-layout-options",
               onClick: () => {
-                currentLayoutMode = "options"
+                currentLayoutMode = "options";
               },
             },
             "Options",
@@ -302,7 +387,7 @@ vi.mock("@/features/media-studio/media-studio", () => {
             {
               "data-testid": "change-layout-vertical",
               onClick: () => {
-                currentLayoutMode = "vertical"
+                currentLayoutMode = "vertical";
               },
             },
             "Vertical",
@@ -312,7 +397,7 @@ vi.mock("@/features/media-studio/media-studio", () => {
             {
               "data-testid": "change-layout-dual",
               onClick: () => {
-                currentLayoutMode = "dual"
+                currentLayoutMode = "dual";
               },
             },
             "Dual",
@@ -320,15 +405,36 @@ vi.mock("@/features/media-studio/media-studio", () => {
         ),
         // Отображаем соответствующий layout в зависимости от currentLayoutMode
         currentLayoutMode === "default" &&
-          React.createElement("div", { "data-testid": "default-layout" }, "Default Layout"),
+          React.createElement(
+            "div",
+            { "data-testid": "default-layout" },
+            "Default Layout",
+          ),
         currentLayoutMode === "options" &&
-          React.createElement("div", { "data-testid": "options-layout" }, "Options Layout"),
+          React.createElement(
+            "div",
+            { "data-testid": "options-layout" },
+            "Options Layout",
+          ),
         currentLayoutMode === "vertical" &&
-          React.createElement("div", { "data-testid": "vertical-layout" }, "Vertical Layout"),
-        currentLayoutMode === "dual" && React.createElement("div", { "data-testid": "dual-layout" }, "Dual Layout"),
+          React.createElement(
+            "div",
+            { "data-testid": "vertical-layout" },
+            "Vertical Layout",
+          ),
+        currentLayoutMode === "dual" &&
+          React.createElement(
+            "div",
+            { "data-testid": "dual-layout" },
+            "Dual Layout",
+          ),
         // ModalContainer
-        React.createElement("div", { "data-testid": "modal-container" }, "Modal Container"),
-      )
+        React.createElement(
+          "div",
+          { "data-testid": "modal-container" },
+          "Modal Container",
+        ),
+      );
     },
-  }
-})
+  };
+});

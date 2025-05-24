@@ -1,32 +1,32 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Создаем моки для функций, которые используются в хуке
-const mockAddMediaFiles = vi.fn()
+const mockAddMediaFiles = vi.fn();
 
 // Создаем мок для useMediaImport
-const mockUseMediaImport = vi.fn()
+const mockUseMediaImport = vi.fn();
 
 // Мокаем хук useMedia
 vi.mock("./use-media", () => ({
   useMedia: () => ({
     addMediaFiles: mockAddMediaFiles,
   }),
-}))
+}));
 
 // Мокаем сам хук useMediaImport
 vi.mock("./use-media-import", () => ({
   useMediaImport: mockUseMediaImport,
-}))
+}));
 
 // Мокаем модули
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn().mockImplementation((cmd: string) => {
     if (cmd === "get_media_files") {
-      return Promise.resolve(["/path/to/file1.mp4", "/path/to/file2.mp3"])
+      return Promise.resolve(["/path/to/file1.mp4", "/path/to/file2.mp3"]);
     }
-    return Promise.resolve()
+    return Promise.resolve();
   }),
-}))
+}));
 
 vi.mock("@/lib/media", () => ({
   getMediaMetadata: vi.fn().mockImplementation((path: string) => {
@@ -42,15 +42,17 @@ vi.mock("@/lib/media", () => ({
         streams: [],
         format: {},
       },
-    })
+    });
   }),
-  selectMediaFile: vi.fn().mockResolvedValue(["/path/to/file.mp4", "/path/to/file2.mp3"]),
+  selectMediaFile: vi
+    .fn()
+    .mockResolvedValue(["/path/to/file.mp4", "/path/to/file2.mp3"]),
   selectMediaDirectory: vi.fn().mockResolvedValue("/path/to/directory"),
-}))
+}));
 
 describe("useMediaImport", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.clearAllMocks();
 
     // Настраиваем мок для возврата базовых значений
     mockUseMediaImport.mockReturnValue({
@@ -58,88 +60,88 @@ describe("useMediaImport", () => {
       progress: 0,
       importFile: vi.fn(),
       importFolder: vi.fn(),
-    })
-  })
+    });
+  });
 
   it("should initialize with default values", () => {
-    const result = mockUseMediaImport()
+    const result = mockUseMediaImport();
 
-    expect(result.isImporting).toBe(false)
-    expect(result.progress).toBe(0)
-    expect(typeof result.importFile).toBe("function")
-    expect(typeof result.importFolder).toBe("function")
-  })
+    expect(result.isImporting).toBe(false);
+    expect(result.progress).toBe(0);
+    expect(typeof result.importFile).toBe("function");
+    expect(typeof result.importFolder).toBe("function");
+  });
 
   it("should import multiple files", async () => {
     const mockImportFile = vi.fn().mockResolvedValue({
       success: true,
       files: [
         { path: "/path/to/file.mp4", isVideo: true, isLoadingMetadata: false },
-        { path: "/path/to/file2.mp3", isAudio: true, isLoadingMetadata: false }
-      ]
-    })
+        { path: "/path/to/file2.mp3", isAudio: true, isLoadingMetadata: false },
+      ],
+    });
 
     mockUseMediaImport.mockReturnValue({
       isImporting: false,
       progress: 0,
       importFile: mockImportFile,
       importFolder: vi.fn(),
-    })
+    });
 
-    const result = mockUseMediaImport()
-    const importResult = await result.importFile()
+    const result = mockUseMediaImport();
+    const importResult = await result.importFile();
 
-    expect(importResult).toBeDefined()
-    expect(importResult.success).toBe(true)
-    expect(importResult.files.length).toBe(2)
-    expect(importResult.files[0].path).toBe("/path/to/file.mp4")
-    expect(importResult.files[1].path).toBe("/path/to/file2.mp3")
-    expect(importResult.files[0].isVideo).toBe(true)
-    expect(importResult.files[1].isAudio).toBe(true)
-    expect(importResult.files[0].isLoadingMetadata).toBe(false)
-    expect(importResult.files[1].isLoadingMetadata).toBe(false)
-  })
+    expect(importResult).toBeDefined();
+    expect(importResult.success).toBe(true);
+    expect(importResult.files.length).toBe(2);
+    expect(importResult.files[0].path).toBe("/path/to/file.mp4");
+    expect(importResult.files[1].path).toBe("/path/to/file2.mp3");
+    expect(importResult.files[0].isVideo).toBe(true);
+    expect(importResult.files[1].isAudio).toBe(true);
+    expect(importResult.files[0].isLoadingMetadata).toBe(false);
+    expect(importResult.files[1].isLoadingMetadata).toBe(false);
+  });
 
   it("should import files from a folder", async () => {
     const mockImportFolder = vi.fn().mockResolvedValue({
       success: true,
       files: [
         { path: "/path/to/file1.mp4", isVideo: true },
-        { path: "/path/to/file2.mp3", isAudio: true }
-      ]
-    })
+        { path: "/path/to/file2.mp3", isAudio: true },
+      ],
+    });
 
     mockUseMediaImport.mockReturnValue({
       isImporting: false,
       progress: 0,
       importFile: vi.fn(),
       importFolder: mockImportFolder,
-    })
+    });
 
-    const result = mockUseMediaImport()
-    const importResult = await result.importFolder()
+    const result = mockUseMediaImport();
+    const importResult = await result.importFolder();
 
-    expect(importResult).toBeDefined()
-    expect(importResult.success).toBe(true)
-    expect(importResult.files.length).toBe(2)
-    expect(importResult.files[0].path).toBe("/path/to/file1.mp4")
-    expect(importResult.files[1].path).toBe("/path/to/file2.mp3")
-    expect(importResult.files[0].isVideo).toBe(true)
-    expect(importResult.files[1].isAudio).toBe(true)
-  })
+    expect(importResult).toBeDefined();
+    expect(importResult.success).toBe(true);
+    expect(importResult.files.length).toBe(2);
+    expect(importResult.files[0].path).toBe("/path/to/file1.mp4");
+    expect(importResult.files[1].path).toBe("/path/to/file2.mp3");
+    expect(importResult.files[0].isVideo).toBe(true);
+    expect(importResult.files[1].isAudio).toBe(true);
+  });
 
   it("should handle file selection cancellation", async () => {
-    const result = mockUseMediaImport()
-    expect(typeof result.importFile).toBe("function")
-  })
+    const result = mockUseMediaImport();
+    expect(typeof result.importFile).toBe("function");
+  });
 
   it("should handle folder selection cancellation", async () => {
-    const result = mockUseMediaImport()
-    expect(typeof result.importFolder).toBe("function")
-  })
+    const result = mockUseMediaImport();
+    expect(typeof result.importFolder).toBe("function");
+  });
 
   it("should handle empty folder", async () => {
-    const result = mockUseMediaImport()
-    expect(typeof result.importFolder).toBe("function")
-  })
-})
+    const result = mockUseMediaImport();
+    expect(typeof result.importFolder).toBe("function");
+  });
+});
