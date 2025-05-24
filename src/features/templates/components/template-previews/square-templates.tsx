@@ -1,4 +1,4 @@
-import { MediaTemplate } from "../../lib/templates"
+import { MediaTemplate } from "../../lib/templates";
 
 export const squareTemplates: MediaTemplate[] = [
   // Шаблоны с 2 экранами
@@ -202,7 +202,9 @@ export const squareTemplates: MediaTemplate[] = [
             border: "1px solid rgba(156, 163, 175, 0.3)",
           }}
         >
-          <div style={{ position: "relative", left: "-25%", top: "-25%" }}>1</div>
+          <div style={{ position: "relative", left: "-25%", top: "-25%" }}>
+            1
+          </div>
         </div>
 
         {/* Верхний правый экран */}
@@ -217,7 +219,9 @@ export const squareTemplates: MediaTemplate[] = [
             border: "1px solid rgba(156, 163, 175, 0.3)",
           }}
         >
-          <div style={{ position: "relative", left: "25%", top: "-25%" }}>2</div>
+          <div style={{ position: "relative", left: "25%", top: "-25%" }}>
+            2
+          </div>
         </div>
 
         {/* Нижний левый экран */}
@@ -232,7 +236,9 @@ export const squareTemplates: MediaTemplate[] = [
             border: "1px solid rgba(156, 163, 175, 0.3)",
           }}
         >
-          <div style={{ position: "relative", left: "-25%", top: "25%" }}>3</div>
+          <div style={{ position: "relative", left: "-25%", top: "25%" }}>
+            3
+          </div>
         </div>
 
         {/* Нижний правый экран */}
@@ -2180,9 +2186,9 @@ export const squareTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-3 grid-rows-3">
           {Array.from({ length: 9 }).map((_, index) => {
-            const row = Math.floor(index / 3)
-            const col = index % 3
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2190,15 +2196,19 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2241,9 +2251,9 @@ export const squareTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-5 grid-rows-2">
           {Array.from({ length: 10 }).map((_, index) => {
-            const row = Math.floor(index / 5)
-            const col = index % 5
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 5);
+            const col = index % 5;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2251,15 +2261,19 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2299,9 +2313,9 @@ export const squareTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-2 grid-rows-5">
           {Array.from({ length: 10 }).map((_, index) => {
-            const row = Math.floor(index / 2)
-            const col = index % 2
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 2);
+            const col = index % 2;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2309,15 +2323,19 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2357,9 +2375,9 @@ export const squareTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-4 grid-rows-3">
           {Array.from({ length: 12 }).map((_, index) => {
-            const row = Math.floor(index / 4)
-            const col = index % 4
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 4);
+            const col = index % 4;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2367,15 +2385,19 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2418,9 +2440,9 @@ export const squareTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-3 grid-rows-4">
           {Array.from({ length: 12 }).map((_, index) => {
-            const row = Math.floor(index / 3)
-            const col = index % 3
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2428,15 +2450,19 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2479,9 +2505,9 @@ export const squareTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-4 grid-rows-4">
           {Array.from({ length: 16 }).map((_, index) => {
-            const row = Math.floor(index / 4)
-            const col = index % 4
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 4);
+            const col = index % 4;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2489,15 +2515,19 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2540,9 +2570,9 @@ export const squareTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-5 grid-rows-5">
           {Array.from({ length: 25 }).map((_, index) => {
-            const row = Math.floor(index / 5)
-            const col = index % 5
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 5);
+            const col = index % 5;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2550,15 +2580,19 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2600,9 +2634,9 @@ export const squareTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-2 grid-rows-4">
           {Array.from({ length: 8 }).map((_, index) => {
-            const row = Math.floor(index / 2)
-            const col = index % 2
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 2);
+            const col = index % 2;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2610,15 +2644,19 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2658,9 +2696,9 @@ export const squareTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-4 grid-rows-2">
           {Array.from({ length: 8 }).map((_, index) => {
-            const row = Math.floor(index / 4)
-            const col = index % 4
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 4);
+            const col = index % 4;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2668,15 +2706,19 @@ export const squareTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2705,4 +2747,4 @@ export const squareTemplates: MediaTemplate[] = [
       </div>
     ),
   },
-]
+];

@@ -1,19 +1,24 @@
-import { useCallback, useState } from "react"
+import { useCallback, useState } from "react";
 
-import { Star, ZoomIn, ZoomOut } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { Star, ZoomIn, ZoomOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider"
-import { useMedia } from "@/features/browser/media"
-import { cn } from "@/lib/utils"
-import { VideoEffect } from "@/types/effects"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider";
+import { useMedia } from "@/features/browser/media";
+import { cn } from "@/lib/utils";
+import { VideoEffect } from "@/types/effects";
 
-import { EffectPreview } from "./effect-preview"
+import { EffectPreview } from "./effect-preview";
 
-import { effects } from "."
+import { effects } from ".";
 
 /**
  * Компонент для отображения списка доступных видеоэффектов
@@ -22,10 +27,10 @@ import { effects } from "."
  * @returns {JSX.Element} Компонент списка эффектов
  */
 export function EffectList() {
-  const { t } = useTranslation() // Хук для интернационализации
-  const [searchQuery, setSearchQuery] = useState("") // Поисковый запрос
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false) // Флаг отображения только избранных
-  const media = useMedia() // Доступ к контексту медиа
+  const { t } = useTranslation(); // Хук для интернационализации
+  const [searchQuery, setSearchQuery] = useState(""); // Поисковый запрос
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false); // Флаг отображения только избранных
+  const media = useMedia(); // Доступ к контексту медиа
 
   /**
    * Получаем параметры размера превью из хука usePreviewSize
@@ -37,14 +42,14 @@ export function EffectList() {
     decreaseSize, // Функция уменьшения размера
     canIncreaseSize, // Флаг возможности увеличения
     canDecreaseSize, // Флаг возможности уменьшения
-  } = usePreviewSize()
+  } = usePreviewSize();
 
   /**
    * Обработчик переключения режима отображения избранных эффектов
    */
   const handleToggleFavorites = useCallback(() => {
-    setShowFavoritesOnly((prev) => !prev) // Инвертируем текущее значение
-  }, [])
+    setShowFavoritesOnly((prev) => !prev); // Инвертируем текущее значение
+  }, []);
 
   /**
    * Фильтрация эффектов по поисковому запросу и избранному
@@ -52,23 +57,28 @@ export function EffectList() {
    */
   const filteredEffects = effects.filter((effect) => {
     // Фильтрация по поисковому запросу
-    const searchLower = searchQuery.toLowerCase() // Приводим запрос к нижнему регистру
+    const searchLower = searchQuery.toLowerCase(); // Приводим запрос к нижнему регистру
 
     // Получаем локализованное название эффекта
-    const localizedName = t(`effects.presets.${effect.type}`).toLowerCase()
+    const localizedName = t(`effects.presets.${effect.type}`).toLowerCase();
 
     // Проверяем, соответствует ли эффект поисковому запросу
     // Ищем совпадения в локализованном названии или имени эффекта
-    const matchesSearch = localizedName.includes(searchLower) || effect.name.toLowerCase().includes(searchLower)
+    const matchesSearch =
+      localizedName.includes(searchLower) ||
+      effect.name.toLowerCase().includes(searchLower);
 
     // Фильтрация по избранному
     const matchesFavorites =
       !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
-      media.isItemFavorite({ id: effect.id, path: "", name: effect.name }, "effect")
+      media.isItemFavorite(
+        { id: effect.id, path: "", name: effect.name },
+        "effect",
+      );
 
     // Эффект должен соответствовать обоим условиям
-    return matchesSearch && matchesFavorites
-  })
+    return matchesSearch && matchesFavorites;
+  });
 
   /**
    * Обработчик клика по эффекту
@@ -77,9 +87,9 @@ export function EffectList() {
    * @param {VideoEffect} effect - Выбранный эффект
    */
   const handleEffectClick = (effect: VideoEffect) => {
-    console.log("Applying effect:", effect.name) // Отладочный вывод
+    console.log("Applying effect:", effect.name); // Отладочный вывод
     // Здесь может быть логика применения эффекта к видео
-  }
+  };
 
   return (
     <div className="flex h-full flex-1 flex-col bg-background">
@@ -177,7 +187,9 @@ export function EffectList() {
           /* Отображение найденных эффектов в виде сетки */
           <div
             className="grid grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))] gap-2"
-            style={{ "--preview-size": `${previewSize}px` } as React.CSSProperties}
+            style={
+              { "--preview-size": `${previewSize}px` } as React.CSSProperties
+            }
           >
             {/* Отображение каждого эффекта */}
             {filteredEffects.map((effect) => (
@@ -192,5 +204,5 @@ export function EffectList() {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,28 +1,36 @@
-import React from "react"
+import React from "react";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { VideoPanelComponent } from "../../video-panel-component"
-import { TemplateProps } from "../types"
+import { VideoPanelComponent } from "../../video-panel-component";
+import { TemplateProps } from "../types";
 
 /**
  * Шаблон "3 экрана по горизонтали" - ландшафтный формат
  * ID: split-horizontal-3-landscape
  */
-export function SplitHorizontal3Landscape({ videos, activeVideoId, videoRefs, isResizable = true }: TemplateProps) {
+export function SplitHorizontal3Landscape({
+  videos,
+  activeVideoId,
+  videoRefs,
+  isResizable = true,
+}: TemplateProps) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
-  const videoCount = Math.min(validVideos.length, 3)
+  const validVideos = videos.filter((v) => v?.path);
+  const videoCount = Math.min(validVideos.length, 3);
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 3) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div className="flex h-full w-full flex-col" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="flex h-full w-full flex-col"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Первое видео */}
         <div className="h-1/3 w-full">
           <VideoPanelComponent
@@ -59,12 +67,15 @@ export function SplitHorizontal3Landscape({ videos, activeVideoId, videoRefs, is
           />
         </div>
       </div>
-    )
+    );
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
+    <div
+      className="h-full w-full"
+      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
+    >
       <PanelGroup direction="vertical">
         {/* Первая секция */}
         <Panel defaultSize={33.33} minSize={10}>
@@ -97,5 +108,5 @@ export function SplitHorizontal3Landscape({ videos, activeVideoId, videoRefs, is
         </Panel>
       </PanelGroup>
     </div>
-  )
+  );
 }

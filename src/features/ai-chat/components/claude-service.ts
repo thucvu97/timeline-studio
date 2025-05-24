@@ -1,73 +1,73 @@
 /**
  * Специализированный сервис для работы с Claude API
  */
-import { AiMessage } from "./ai-chat"
+import { AiMessage } from "./ai-chat";
 
 // Доступные модели Claude
 export const CLAUDE_MODELS = {
   CLAUDE_4_SONNET: "claude-4-sonnet",
   CLAUDE_4_OPUS: "claude-4-opus",
-}
+};
 
 // Интерфейс для инструмента Claude
 export interface ClaudeTool {
-  name: string
-  description: string
+  name: string;
+  description: string;
   input_schema: {
-    type: string
-    properties: Record<string, any>
-    required?: string[]
-  }
+    type: string;
+    properties: Record<string, any>;
+    required?: string[];
+  };
 }
 
 // Интерфейс для вызова инструмента
 export interface ClaudeToolUse {
-  name: string
-  input: Record<string, any>
+  name: string;
+  input: Record<string, any>;
 }
 
 // Интерфейс для запроса к Claude API
 interface ClaudeApiRequest {
-  model: string
-  messages: AiMessage[]
-  system?: string
-  temperature?: number
-  max_tokens?: number
-  tools?: ClaudeTool[]
-  tool_choice?: "auto" | "any" | { name: string }
+  model: string;
+  messages: AiMessage[];
+  system?: string;
+  temperature?: number;
+  max_tokens?: number;
+  tools?: ClaudeTool[];
+  tool_choice?: "auto" | "any" | { name: string };
 }
 
 // Интерфейс для ответа от Claude API
 interface ClaudeApiResponse {
-  id: string
-  type: string
-  role: string
+  id: string;
+  type: string;
+  role: string;
   content: {
-    type: string
-    text: string
-  }[]
-  model: string
-  stop_reason: string
-  stop_sequence: string | null
+    type: string;
+    text: string;
+  }[];
+  model: string;
+  stop_reason: string;
+  stop_sequence: string | null;
   usage: {
-    input_tokens: number
-    output_tokens: number
-  }
+    input_tokens: number;
+    output_tokens: number;
+  };
   tool_use?: {
-    id: string
-    name: string
-    input: Record<string, any>
-  }
+    id: string;
+    name: string;
+    input: Record<string, any>;
+  };
 }
 
 /**
  * Класс для работы с Claude API
  */
 export class ClaudeService {
-  private static instance: ClaudeService
-  private apiKey = ""
-  private apiUrl = "https://api.anthropic.com/v1/messages"
-  private apiVersion = "2023-06-01"
+  private static instance: ClaudeService;
+  private apiKey = "";
+  private apiUrl = "https://api.anthropic.com/v1/messages";
+  private apiVersion = "2023-06-01";
 
   private constructor() {
     // Конструктор пустой, API ключ будет устанавливаться извне
@@ -78,9 +78,9 @@ export class ClaudeService {
    */
   public static getInstance(): ClaudeService {
     if (!ClaudeService.instance) {
-      ClaudeService.instance = new ClaudeService()
+      ClaudeService.instance = new ClaudeService();
     }
-    return ClaudeService.instance
+    return ClaudeService.instance;
   }
 
   /**
@@ -88,15 +88,15 @@ export class ClaudeService {
    * @param apiKey Новый API ключ
    */
   public setApiKey(apiKey: string): void {
-    this.apiKey = apiKey
-    console.log("Claude API key updated:", apiKey ? "***" : "(empty)")
+    this.apiKey = apiKey;
+    console.log("Claude API key updated:", apiKey ? "***" : "(empty)");
   }
 
   /**
    * Проверить, установлен ли API ключ
    */
   public hasApiKey(): boolean {
-    return !!this.apiKey
+    return !!this.apiKey;
   }
 
   /**
@@ -109,15 +109,17 @@ export class ClaudeService {
     model: string,
     messages: AiMessage[],
     options: {
-      system?: string
-      temperature?: number
-      max_tokens?: number
-      tools?: ClaudeTool[]
-      tool_choice?: "auto" | "any" | { name: string }
+      system?: string;
+      temperature?: number;
+      max_tokens?: number;
+      tools?: ClaudeTool[];
+      tool_choice?: "auto" | "any" | { name: string };
     } = {},
   ): Promise<string> {
     if (!this.apiKey) {
-      throw new Error("API ключ не установлен. Пожалуйста, добавьте API ключ в настройках.")
+      throw new Error(
+        "API ключ не установлен. Пожалуйста, добавьте API ключ в настройках.",
+      );
     }
 
     try {
@@ -126,17 +128,17 @@ export class ClaudeService {
         messages,
         temperature: options.temperature || 0.7,
         max_tokens: options.max_tokens || 1000,
-      }
+      };
 
       // Добавляем системное сообщение, если оно есть
       if (options.system) {
-        requestBody.system = options.system
+        requestBody.system = options.system;
       }
 
       // Добавляем инструменты, если они есть
       if (options.tools && options.tools.length > 0) {
-        requestBody.tools = options.tools
-        requestBody.tool_choice = options.tool_choice || "auto"
+        requestBody.tools = options.tools;
+        requestBody.tool_choice = options.tool_choice || "auto";
       }
 
       const response = await fetch(this.apiUrl, {
@@ -147,25 +149,25 @@ export class ClaudeService {
           "anthropic-version": this.apiVersion,
         },
         body: JSON.stringify(requestBody),
-      })
+      });
 
       if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Ошибка Claude API: ${response.status} ${errorText}`)
+        const errorText = await response.text();
+        throw new Error(`Ошибка Claude API: ${response.status} ${errorText}`);
       }
 
-      const data = (await response.json()) as ClaudeApiResponse
+      const data = (await response.json()) as ClaudeApiResponse;
 
       // Проверяем, использовал ли Claude инструмент
       if (data.tool_use) {
-        return `[Использован инструмент: ${data.tool_use.name}]\n\nВходные данные: ${JSON.stringify(data.tool_use.input, null, 2)}`
+        return `[Использован инструмент: ${data.tool_use.name}]\n\nВходные данные: ${JSON.stringify(data.tool_use.input, null, 2)}`;
       }
 
       // Возвращаем текст ответа
-      return data.content[0].text
+      return data.content[0].text;
     } catch (error) {
-      console.error("Ошибка при отправке запроса к Claude API:", error)
-      throw error
+      console.error("Ошибка при отправке запроса к Claude API:", error);
+      throw error;
     }
   }
 
@@ -181,14 +183,16 @@ export class ClaudeService {
     messages: AiMessage[],
     tools: ClaudeTool[],
     options: {
-      system?: string
-      temperature?: number
-      max_tokens?: number
-      tool_choice?: "auto" | "any" | { name: string }
+      system?: string;
+      temperature?: number;
+      max_tokens?: number;
+      tool_choice?: "auto" | "any" | { name: string };
     } = {},
   ): Promise<{ text: string; tool_use?: ClaudeToolUse }> {
     if (!this.apiKey) {
-      throw new Error("API ключ не установлен. Пожалуйста, добавьте API ключ в настройках.")
+      throw new Error(
+        "API ключ не установлен. Пожалуйста, добавьте API ключ в настройках.",
+      );
     }
 
     try {
@@ -199,11 +203,11 @@ export class ClaudeService {
         tool_choice: options.tool_choice || "auto",
         temperature: options.temperature || 0.7,
         max_tokens: options.max_tokens || 1000,
-      }
+      };
 
       // Добавляем системное сообщение, если оно есть
       if (options.system) {
-        requestBody.system = options.system
+        requestBody.system = options.system;
       }
 
       const response = await fetch(this.apiUrl, {
@@ -214,14 +218,14 @@ export class ClaudeService {
           "anthropic-version": this.apiVersion,
         },
         body: JSON.stringify(requestBody),
-      })
+      });
 
       if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Ошибка Claude API: ${response.status} ${errorText}`)
+        const errorText = await response.text();
+        throw new Error(`Ошибка Claude API: ${response.status} ${errorText}`);
       }
 
-      const data = (await response.json()) as ClaudeApiResponse
+      const data = (await response.json()) as ClaudeApiResponse;
 
       // Проверяем, использовал ли Claude инструмент
       if (data.tool_use) {
@@ -231,14 +235,17 @@ export class ClaudeService {
             name: data.tool_use.name,
             input: data.tool_use.input,
           },
-        }
+        };
       }
 
       // Возвращаем только текст ответа, если инструмент не использовался
-      return { text: data.content[0].text }
+      return { text: data.content[0].text };
     } catch (error) {
-      console.error("Ошибка при отправке запроса к Claude API с инструментами:", error)
-      throw error
+      console.error(
+        "Ошибка при отправке запроса к Claude API с инструментами:",
+        error,
+      );
+      throw error;
     }
   }
 }

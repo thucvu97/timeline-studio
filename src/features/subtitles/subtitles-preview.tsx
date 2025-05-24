@@ -1,13 +1,17 @@
-import { useState } from "react"
+import { useState } from "react";
 
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next";
 
-import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
-import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
-import { useResources } from "@/features/resources"
-import { SubtitleResource } from "@/types/resources"
+import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
+import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
+import { useResources } from "@/features/resources";
+import { SubtitleResource } from "@/types/resources";
 
-import { SUBTITLE_PREVIEW_TEXT, SubtitleStyle, subtitleStyleToCss } from "./subtitles"
+import {
+  SUBTITLE_PREVIEW_TEXT,
+  SubtitleStyle,
+  subtitleStyleToCss,
+} from "./subtitles";
 
 /**
  * Интерфейс пропсов для компонента SubtitlesPreview
@@ -17,9 +21,9 @@ import { SUBTITLE_PREVIEW_TEXT, SubtitleStyle, subtitleStyleToCss } from "./subt
  * @property {number} size - Размер превью в пикселях
  */
 interface SubtitlesPreviewProps {
-  style: SubtitleStyle
-  onClick: () => void
-  size: number
+  style: SubtitleStyle;
+  onClick: () => void;
+  size: number;
 }
 
 /**
@@ -29,19 +33,24 @@ interface SubtitlesPreviewProps {
  * @param {SubtitlesPreviewProps} props - Пропсы компонента
  * @returns {JSX.Element} Компонент превью стиля субтитров
  */
-export function SubtitlesPreview({ style, onClick, size }: SubtitlesPreviewProps) {
-  const { t } = useTranslation() // Хук для интернационализации
-  const { addSubtitle, isSubtitleAdded, removeResource, subtitleResources } = useResources() // Получаем методы для работы с ресурсами
-  const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
+export function SubtitlesPreview({
+  style,
+  onClick,
+  size,
+}: SubtitlesPreviewProps) {
+  const { t } = useTranslation(); // Хук для интернационализации
+  const { addSubtitle, isSubtitleAdded, removeResource, subtitleResources } =
+    useResources(); // Получаем методы для работы с ресурсами
+  const [isHovering, setIsHovering] = useState(false); // Состояние наведения мыши
 
   // Преобразуем стиль субтитров в CSS объект
-  const subtitleCss = subtitleStyleToCss(style)
+  const subtitleCss = subtitleStyleToCss(style);
 
   // Вычисляем размер шрифта относительно размера превью
-  const scaledFontSize = Math.max(12, Math.round(size / 10))
+  const scaledFontSize = Math.max(12, Math.round(size / 10));
 
   // Проверяем, добавлен ли стиль субтитров уже в хранилище ресурсов
-  const isAdded = isSubtitleAdded(style)
+  const isAdded = isSubtitleAdded(style);
 
   return (
     <div className="flex flex-col items-center">
@@ -70,7 +79,11 @@ export function SubtitlesPreview({ style, onClick, size }: SubtitlesPreviewProps
         </div>
 
         {/* Кнопка добавления в избранное */}
-        <FavoriteButton file={{ id: style.id, path: "", name: style.name }} size={size} type="subtitle" />
+        <FavoriteButton
+          file={{ id: style.id, path: "", name: style.name }}
+          size={size}
+          type="subtitle"
+        />
 
         {/* Кнопка добавления стиля в проект */}
         <div
@@ -79,17 +92,21 @@ export function SubtitlesPreview({ style, onClick, size }: SubtitlesPreviewProps
           <AddMediaButton
             file={{ id: style.id, path: "", name: style.name }}
             onAddMedia={(e) => {
-              e.stopPropagation() // Предотвращаем всплытие события клика
-              addSubtitle(style) // Добавляем стиль субтитров в ресурсы проекта
+              e.stopPropagation(); // Предотвращаем всплытие события клика
+              addSubtitle(style); // Добавляем стиль субтитров в ресурсы проекта
             }}
             onRemoveMedia={(e: React.MouseEvent) => {
-              e.stopPropagation() // Предотвращаем всплытие события клика
+              e.stopPropagation(); // Предотвращаем всплытие события клика
               // Находим ресурс с этим стилем и удаляем его
-              const resource = subtitleResources.find((res: SubtitleResource) => res.resourceId === style.id)
+              const resource = subtitleResources.find(
+                (res: SubtitleResource) => res.resourceId === style.id,
+              );
               if (resource) {
-                removeResource(resource.id) // Удаляем ресурс из проекта
+                removeResource(resource.id); // Удаляем ресурс из проекта
               } else {
-                console.warn(`Не удалось найти ресурс стиля субтитров с ID ${style.id} для удаления`)
+                console.warn(
+                  `Не удалось найти ресурс стиля субтитров с ID ${style.id} для удаления`,
+                );
               }
             }}
             isAdded={isAdded}
@@ -100,5 +117,5 @@ export function SubtitlesPreview({ style, onClick, size }: SubtitlesPreviewProps
       {/* Название стиля субтитров */}
       <div className="mt-1 text-xs">{style.name}</div>
     </div>
-  )
+  );
 }

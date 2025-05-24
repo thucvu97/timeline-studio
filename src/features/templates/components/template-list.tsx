@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next";
 
-import { useMedia } from "@/features/browser/media"
-import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider"
+import { useMedia } from "@/features/browser/media";
+import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider";
 
-import { TemplateListToolbar } from "./template-list-toolbar"
-import { TemplatePreview } from "./template-preview"
-import { getTemplateLabels } from "../lib/template-labels"
-import { MediaTemplate, TEMPLATE_MAP } from "../lib/templates"
-import { useTemplateList } from "../services/template-list-provider"
+import { TemplateListToolbar } from "./template-list-toolbar";
+import { TemplatePreview } from "./template-preview";
+import { getTemplateLabels } from "../lib/template-labels";
+import { MediaTemplate, TEMPLATE_MAP } from "../lib/templates";
+import { useTemplateList } from "../services/template-list-provider";
 
 /**
  * Преобразует метку соотношения сторон в группу шаблонов
@@ -17,10 +17,12 @@ import { useTemplateList } from "../services/template-list-provider"
  * @param {string} label - Метка соотношения сторон (например, "16:9", "1:1")
  * @returns {"landscape" | "square" | "portrait"} Группа шаблонов
  */
-function mapAspectLabelToGroup(label: string): "landscape" | "square" | "portrait" {
-  if (label === "1:1") return "square" // Квадратные шаблоны
-  if (label === "9:16" || label === "4:5") return "portrait" // Вертикальные шаблоны
-  return "landscape" // По умолчанию - горизонтальные шаблоны
+function mapAspectLabelToGroup(
+  label: string,
+): "landscape" | "square" | "portrait" {
+  if (label === "1:1") return "square"; // Квадратные шаблоны
+  if (label === "9:16" || label === "4:5") return "portrait"; // Вертикальные шаблоны
+  return "landscape"; // По умолчанию - горизонтальные шаблоны
 }
 
 /**
@@ -30,20 +32,20 @@ function mapAspectLabelToGroup(label: string): "landscape" | "square" | "portrai
  * @returns {JSX.Element} Компонент списка шаблонов
  */
 export function TemplateList() {
-  const { t, i18n } = useTranslation() // Хук для интернационализации
-  const [, setActiveTemplate] = useState<MediaTemplate | null>(null) // Активный шаблон
+  const { t, i18n } = useTranslation(); // Хук для интернационализации
+  const [, setActiveTemplate] = useState<MediaTemplate | null>(null); // Активный шаблон
   const [, setCurrentGroup] = useState<"landscape" | "portrait" | "square">(
     "landscape", // По умолчанию - горизонтальные шаблоны
-  )
+  );
   const [currentDimensions, setCurrentDimensions] = useState<[number, number]>([
     1920,
     1080, // Размеры по умолчанию
-  ])
-  const [templates, setTemplates] = useState<MediaTemplate[]>([]) // Список шаблонов
-  const { settings } = useProjectSettings() // Настройки проекта
+  ]);
+  const [templates, setTemplates] = useState<MediaTemplate[]>([]); // Список шаблонов
+  const { settings } = useProjectSettings(); // Настройки проекта
 
   // Получаем доступ к контексту медиа для работы с медиафайлами
-  const media = useMedia()
+  const media = useMedia();
 
   /**
    * Получаем параметры из хука useTemplateList
@@ -59,7 +61,7 @@ export function TemplateList() {
     setSearchQuery, // Функция установки поискового запроса
     showFavoritesOnly, // Флаг отображения только избранных
     toggleFavorites, // Функция переключения отображения избранных
-  } = useTemplateList()
+  } = useTemplateList();
 
   /**
    * Эффект для инициализации и обновления шаблонов при изменении настроек проекта
@@ -67,15 +69,18 @@ export function TemplateList() {
    */
   useEffect(() => {
     // Определяем группу шаблонов на основе соотношения сторон
-    const group = mapAspectLabelToGroup(settings.aspectRatio.label)
+    const group = mapAspectLabelToGroup(settings.aspectRatio.label);
 
     // Получаем размеры из настроек проекта
-    const dimensions: [number, number] = [settings.aspectRatio.value.width, settings.aspectRatio.value.height]
+    const dimensions: [number, number] = [
+      settings.aspectRatio.value.width,
+      settings.aspectRatio.value.height,
+    ];
 
     // Обновляем состояние компонента
-    setCurrentGroup(group) // Устанавливаем текущую группу
-    setCurrentDimensions(dimensions) // Устанавливаем текущие размеры
-    setTemplates(TEMPLATE_MAP[group]) // Загружаем шаблоны для выбранной группы
+    setCurrentGroup(group); // Устанавливаем текущую группу
+    setCurrentDimensions(dimensions); // Устанавливаем текущие размеры
+    setTemplates(TEMPLATE_MAP[group]); // Загружаем шаблоны для выбранной группы
 
     // Отладочный вывод
     console.log("[TemplateList] Templates updated:", {
@@ -85,8 +90,8 @@ export function TemplateList() {
       dimensions,
       width: settings.aspectRatio.value.width,
       height: settings.aspectRatio.value.height,
-    })
-  }, [settings.aspectRatio, settings.resolution])
+    });
+  }, [settings.aspectRatio, settings.resolution]);
 
   /**
    * Фильтрация шаблонов по поисковому запросу и избранному
@@ -94,74 +99,79 @@ export function TemplateList() {
    */
   const filteredTemplates = templates.filter((template) => {
     // Приводим поисковый запрос к нижнему регистру и удаляем пробелы по краям
-    const searchLower = searchQuery.toLowerCase().trim()
+    const searchLower = searchQuery.toLowerCase().trim();
 
     // Фильтрация по избранному
     const matchesFavorites =
       !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
-      media.isItemFavorite({ id: template.id, path: "", name: template.id }, "template")
+      media.isItemFavorite(
+        { id: template.id, path: "", name: template.id },
+        "template",
+      );
 
     // Если не проходит фильтр по избранному, сразу возвращаем false
     // Это оптимизирует фильтрацию, избегая лишних проверок
     if (!matchesFavorites) {
-      return false
+      return false;
     }
 
     // Если поисковый запрос пустой, возвращаем все шаблоны (с учетом фильтра по избранному)
     if (!searchLower) {
-      return true
+      return true;
     }
 
     // Проверяем, является ли запрос одной цифрой (поиск по количеству экранов)
     if (/^\d+$/.test(searchLower)) {
-      const screenCount = Number.parseInt(searchLower, 10)
-      return template.screens === screenCount // Сравниваем с количеством экранов шаблона
+      const screenCount = Number.parseInt(searchLower, 10);
+      return template.screens === screenCount; // Сравниваем с количеством экранов шаблона
     }
 
     // Проверяем, является ли запрос двумя цифрами, разделенными пробелом или x/х
     // Например, "5 2" или "5x2" - для поиска шаблонов с определенной структурой
-    const twoDigitsMatch = /^(\d+)[\s×x](\d+)$/.exec(searchLower)
+    const twoDigitsMatch = /^(\d+)[\s×x](\d+)$/.exec(searchLower);
     if (twoDigitsMatch) {
-      const [, firstDigit, secondDigit] = twoDigitsMatch // Извлекаем цифры из запроса
+      const [, firstDigit, secondDigit] = twoDigitsMatch; // Извлекаем цифры из запроса
 
       // Проверяем, содержит ли ID шаблона эти две цифры в правильном порядке
       // Используем регулярное выражение для поиска цифр с возможными символами между ними
-      const digitPattern = new RegExp(`${firstDigit}[^\\d]*${secondDigit}`)
-      return digitPattern.test(template.id)
+      const digitPattern = new RegExp(`${firstDigit}[^\\d]*${secondDigit}`);
+      return digitPattern.test(template.id);
     }
 
     // Стандартный поиск по ID шаблона
     if (template.id.toLowerCase().includes(searchLower)) {
-      return true
+      return true;
     }
 
     // Поиск по локализованным названиям шаблонов
-    const label = getTemplateLabels(template.id) // Получаем ключ локализации
+    const label = getTemplateLabels(template.id); // Получаем ключ локализации
     if (label.toLowerCase().includes(searchLower)) {
-      return true
+      return true;
     }
 
     // Если ни одно условие не выполнено, шаблон не соответствует поиску
-    return false
-  })
+    return false;
+  });
 
   /**
    * Группируем шаблоны по количеству экранов
    * Создаем объект, где ключи - количество экранов, а значения - массивы шаблонов
    */
-  const groupedTemplates = filteredTemplates.reduce<Record<number, MediaTemplate[]>>((acc, template) => {
+  const groupedTemplates = filteredTemplates.reduce<
+    Record<number, MediaTemplate[]>
+  >((acc, template) => {
     // Получаем количество экранов шаблона (или 1, если не указано)
-    const screenCount = template.screens || 1
+    const screenCount = template.screens || 1;
 
     // Создаем массив для группы, если его еще нет
     if (!acc[screenCount]) {
-      acc[screenCount] = []
+      acc[screenCount] = [];
     }
 
     // Добавляем шаблон в соответствующую группу
-    acc[screenCount].push(template)
-    return acc
-  }, {})
+    acc[screenCount].push(template);
+    return acc;
+  }, {});
 
   /**
    * Получаем отсортированные ключи групп (количество экранов)
@@ -169,7 +179,7 @@ export function TemplateList() {
    */
   const sortedGroups = Object.keys(groupedTemplates)
     .map(Number) // Преобразуем строки в числа
-    .sort((a, b) => a - b) // Сортируем по возрастанию
+    .sort((a, b) => a - b); // Сортируем по возрастанию
 
   return (
     <div className="flex h-full flex-1 flex-col">
@@ -200,7 +210,8 @@ export function TemplateList() {
               <div key={screenCount} className="mb-4">
                 {/* Заголовок группы с количеством экранов */}
                 <h3 className="mb-3 text-sm font-medium text-gray-400">
-                  {screenCount} {/* Локализованное название с учетом числа экранов и языка */}
+                  {screenCount}{" "}
+                  {/* Локализованное название с учетом числа экранов и языка */}
                   {t(
                     `browser.templateScreens.${screenCount === 1 ? "one" : i18n.language === "ru" && screenCount < 5 ? "few" : "many"}`,
                     {
@@ -221,12 +232,15 @@ export function TemplateList() {
                 >
                   {/* Отображение каждого шаблона в группе */}
                   {groupedTemplates[screenCount].map((template) => (
-                    <div key={template.id} className="flex flex-col items-center">
+                    <div
+                      key={template.id}
+                      className="flex flex-col items-center"
+                    >
                       {/* Компонент превью шаблона */}
                       <TemplatePreview
                         template={template}
                         onClick={() => {
-                          console.log("Clicked", template.id) // Отладочный вывод при клике
+                          console.log("Clicked", template.id); // Отладочный вывод при клике
                         }}
                         size={previewSize} // Размер превью
                         dimensions={currentDimensions} // Размеры шаблона
@@ -238,7 +252,8 @@ export function TemplateList() {
                         title={getTemplateLabels(template.id) || template.id} // Полное название в тултипе
                         style={{ width: `${previewSize}px` }} // Ширина равна ширине превью
                       >
-                        {getTemplateLabels(template.id) || template.id} {/* Локализованное название или ID */}
+                        {getTemplateLabels(template.id) || template.id}{" "}
+                        {/* Локализованное название или ID */}
                       </div>
                     </div>
                   ))}
@@ -249,5 +264,5 @@ export function TemplateList() {
         )}
       </div>
     </div>
-  )
+  );
 }

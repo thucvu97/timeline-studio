@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useEffect } from "react"
+import React, { createContext, useContext, useEffect } from "react";
 
-import { useMachine } from "@xstate/react"
-import { useTranslation } from "react-i18next"
+import { useMachine } from "@xstate/react";
+import { useTranslation } from "react-i18next";
 
-import { useMedia } from "@/features/browser/media"
+import { useMedia } from "@/features/browser/media";
 
-import { MediaListContextType, mediaListMachine } from "./media-list-machine"
+import { MediaListContextType, mediaListMachine } from "./media-list-machine";
 
 /**
  * Интерфейс контекста для провайдера медиа-списка
@@ -13,34 +13,38 @@ import { MediaListContextType, mediaListMachine } from "./media-list-machine"
  */
 interface MediaListProviderContextType extends MediaListContextType {
   // Методы для управления состоянием
-  sort: (sortBy: string) => void
-  filter: (filterType: string, mediaContext: any) => void
-  search: (query: string, mediaContext: any) => void
-  changeViewMode: (mode: "list" | "grid" | "thumbnails") => void
-  changeGroupBy: (groupBy: string) => void
-  changeOrder: () => void
-  toggleFavorites: (mediaContext: any) => void
-  retry: () => void
+  sort: (sortBy: string) => void;
+  filter: (filterType: string, mediaContext: any) => void;
+  search: (query: string, mediaContext: any) => void;
+  changeViewMode: (mode: "list" | "grid" | "thumbnails") => void;
+  changeGroupBy: (groupBy: string) => void;
+  changeOrder: () => void;
+  toggleFavorites: (mediaContext: any) => void;
+  retry: () => void;
 
   // Методы для управления размером превью
-  increasePreviewSize: () => void
-  decreasePreviewSize: () => void
-  setPreviewSize: (size: number) => void
+  increasePreviewSize: () => void;
+  decreasePreviewSize: () => void;
+  setPreviewSize: (size: number) => void;
 
   // Методы для управления поиском и фильтрацией
-  setSearchQuery: (query: string) => void
-  setShowFavoritesOnly: (value: boolean) => void
+  setSearchQuery: (query: string) => void;
+  setShowFavoritesOnly: (value: boolean) => void;
 
   // Дополнительные методы для прямого обновления состояния
-  setViewMode: (mode: "list" | "grid" | "thumbnails") => void
-  setSortBy: (sortBy: string) => void
-  setFilterType: (filterType: string) => void
-  setGroupBy: (groupBy: string) => void
-  setSortOrder: (orderOrUpdater: "asc" | "desc" | ((prev: "asc" | "desc") => "asc" | "desc")) => void
+  setViewMode: (mode: "list" | "grid" | "thumbnails") => void;
+  setSortBy: (sortBy: string) => void;
+  setFilterType: (filterType: string) => void;
+  setGroupBy: (groupBy: string) => void;
+  setSortOrder: (
+    orderOrUpdater: "asc" | "desc" | ((prev: "asc" | "desc") => "asc" | "desc"),
+  ) => void;
 }
 
 // Создаем контекст для провайдера
-const MediaListContext = createContext<MediaListProviderContextType | null>(null)
+const MediaListContext = createContext<MediaListProviderContextType | null>(
+  null,
+);
 
 /**
  * Провайдер для управления списком медиа-файлов
@@ -51,24 +55,24 @@ const MediaListContext = createContext<MediaListProviderContextType | null>(null
  */
 export function MediaListProvider({ children }: { children: React.ReactNode }) {
   // Инициализируем машину состояний XState
-  const [state, send] = useMachine(mediaListMachine)
+  const [state, send] = useMachine(mediaListMachine);
 
   // Получаем доступ к медиа-контексту
-  const media = useMedia()
-  const { t } = useTranslation()
+  const media = useMedia();
+  const { t } = useTranslation();
 
   // Обновляем состояние машины при изменении списка медиафайлов в MediaProvider
   useEffect(() => {
     // Отправляем событие обновления списка медиафайлов
     if (media.allMediaFiles.length > 0) {
-      send({ type: "UPDATE_MEDIA_FILES", files: media.allMediaFiles })
+      send({ type: "UPDATE_MEDIA_FILES", files: media.allMediaFiles });
     }
-  }, [media.allMediaFiles, send])
+  }, [media.allMediaFiles, send]);
 
   // Отслеживаем изменения в метаданных файлов
   useEffect(() => {
     // Принудительно обновляем состояние машины при любом изменении статуса загрузки метаданных
-    send({ type: "UPDATE_MEDIA_FILES", files: media.allMediaFiles })
+    send({ type: "UPDATE_MEDIA_FILES", files: media.allMediaFiles });
   }, [
     // Отслеживаем изменения в статусе загрузки метаданных
     media.allMediaFiles
@@ -76,7 +80,7 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
       .join(","),
     send,
     media.allMediaFiles,
-  ])
+  ]);
 
   /**
    * Сортирует медиа-файлы по указанному критерию
@@ -88,11 +92,11 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
     // Проверяем, что критерий сортировки допустимый
     if (["name", "date", "size", "duration"].includes(sortBy)) {
       // Отправляем событие в машину состояний
-      send({ type: "SORT", sortBy })
+      send({ type: "SORT", sortBy });
     } else {
-      console.error("Invalid sort criteria:", sortBy)
+      console.error("Invalid sort criteria:", sortBy);
     }
-  }
+  };
 
   /**
    * Фильтрует медиа-файлы по типу
@@ -101,8 +105,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {any} mediaContext - Контекст медиа для проверки избранных файлов
    */
   const filter = (filterType: string, mediaContext: any) => {
-    send({ type: "FILTER", filterType, mediaContext })
-  }
+    send({ type: "FILTER", filterType, mediaContext });
+  };
 
   /**
    * Выполняет поиск медиа-файлов по запросу
@@ -111,8 +115,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {any} mediaContext - Контекст медиа для проверки избранных файлов
    */
   const search = (query: string, mediaContext: any) => {
-    send({ type: "SEARCH", query, mediaContext })
-  }
+    send({ type: "SEARCH", query, mediaContext });
+  };
 
   /**
    * Изменяет режим отображения медиа-файлов
@@ -120,8 +124,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {string} mode - Режим отображения (list, grid, thumbnails)
    */
   const changeViewMode = (mode: "list" | "grid" | "thumbnails") => {
-    send({ type: "CHANGE_VIEW_MODE", mode })
-  }
+    send({ type: "CHANGE_VIEW_MODE", mode });
+  };
 
   /**
    * Изменяет критерий группировки медиа-файлов
@@ -129,15 +133,15 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {string} groupBy - Критерий группировки (none, type, date, duration)
    */
   const changeGroupBy = (groupBy: string) => {
-    send({ type: "CHANGE_GROUP_BY", groupBy })
-  }
+    send({ type: "CHANGE_GROUP_BY", groupBy });
+  };
 
   /**
    * Изменяет порядок сортировки медиа-файлов
    */
   const changeOrder = () => {
-    send({ type: "CHANGE_ORDER" })
-  }
+    send({ type: "CHANGE_ORDER" });
+  };
 
   /**
    * Переключает режим отображения только избранных файлов
@@ -145,15 +149,15 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {any} mediaContext - Контекст медиа для проверки избранных файлов
    */
   const toggleFavorites = (mediaContext: any) => {
-    send({ type: "TOGGLE_FAVORITES", mediaContext })
-  }
+    send({ type: "TOGGLE_FAVORITES", mediaContext });
+  };
 
   /**
    * Повторяет загрузку медиа-файлов
    */
   const retry = () => {
-    send({ type: "RETRY" })
-  }
+    send({ type: "RETRY" });
+  };
 
   /**
    * Устанавливает режим отображения напрямую
@@ -161,8 +165,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {string} mode - Режим отображения (list, grid, thumbnails)
    */
   const setViewMode = (mode: "list" | "grid" | "thumbnails") => {
-    changeViewMode(mode)
-  }
+    changeViewMode(mode);
+  };
 
   /**
    * Устанавливает критерий сортировки напрямую
@@ -170,8 +174,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {string} sortBy - Критерий сортировки
    */
   const setSortBy = (sortBy: string) => {
-    sort(sortBy)
-  }
+    sort(sortBy);
+  };
 
   /**
    * Устанавливает тип фильтра напрямую
@@ -179,8 +183,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {string} filterType - Тип фильтра
    */
   const setFilterType = (filterType: string) => {
-    filter(filterType, media)
-  }
+    filter(filterType, media);
+  };
 
   /**
    * Устанавливает критерий группировки напрямую
@@ -188,8 +192,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {string} groupBy - Критерий группировки
    */
   const setGroupBy = (groupBy: string) => {
-    changeGroupBy(groupBy)
-  }
+    changeGroupBy(groupBy);
+  };
 
   /**
    * Устанавливает порядок сортировки напрямую
@@ -197,40 +201,42 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    *
    * @param {string | ((prev: "asc" | "desc") => "asc" | "desc")} orderOrUpdater - Новый порядок сортировки или функция обновления
    */
-  const setSortOrder = (orderOrUpdater: "asc" | "desc" | ((prev: "asc" | "desc") => "asc" | "desc")) => {
+  const setSortOrder = (
+    orderOrUpdater: "asc" | "desc" | ((prev: "asc" | "desc") => "asc" | "desc"),
+  ) => {
     if (typeof orderOrUpdater === "function") {
       // Если передана функция, вычисляем новое значение
-      const newOrder = orderOrUpdater(state.context.sortOrder)
+      const newOrder = orderOrUpdater(state.context.sortOrder);
 
       // Если новый порядок отличается от текущего, меняем его
       if (newOrder !== state.context.sortOrder) {
-        changeOrder()
+        changeOrder();
       }
     } else {
       // Если передано значение напрямую
       if (orderOrUpdater !== state.context.sortOrder) {
-        changeOrder()
+        changeOrder();
       }
     }
-  }
+  };
 
   /**
    * Увеличивает размер превью
    */
   const increasePreviewSize = () => {
     if (state.context.canIncreaseSize) {
-      send({ type: "INCREASE_PREVIEW_SIZE" })
+      send({ type: "INCREASE_PREVIEW_SIZE" });
     }
-  }
+  };
 
   /**
    * Уменьшает размер превью
    */
   const decreasePreviewSize = () => {
     if (state.context.canDecreaseSize) {
-      send({ type: "DECREASE_PREVIEW_SIZE" })
+      send({ type: "DECREASE_PREVIEW_SIZE" });
     }
-  }
+  };
 
   /**
    * Устанавливает размер превью
@@ -238,8 +244,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {number} size - Новый размер превью
    */
   const setPreviewSize = (size: number) => {
-    send({ type: "SET_PREVIEW_SIZE", size })
-  }
+    send({ type: "SET_PREVIEW_SIZE", size });
+  };
 
   /**
    * Устанавливает поисковый запрос
@@ -247,8 +253,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {string} query - Новый поисковый запрос
    */
   const setSearchQuery = (query: string) => {
-    send({ type: "SET_SEARCH_QUERY", query })
-  }
+    send({ type: "SET_SEARCH_QUERY", query });
+  };
 
   /**
    * Устанавливает флаг отображения только избранных
@@ -256,8 +262,8 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
    * @param {boolean} value - Новое значение флага
    */
   const setShowFavoritesOnly = (value: boolean) => {
-    send({ type: "SET_SHOW_FAVORITES_ONLY", value })
-  }
+    send({ type: "SET_SHOW_FAVORITES_ONLY", value });
+  };
 
   // Создаем значение контекста
   const contextValue: MediaListProviderContextType = {
@@ -280,10 +286,14 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
     setFilterType,
     setGroupBy,
     setSortOrder,
-  }
+  };
 
   // Возвращаем провайдер с контекстом
-  return <MediaListContext.Provider value={contextValue}>{children}</MediaListContext.Provider>
+  return (
+    <MediaListContext.Provider value={contextValue}>
+      {children}
+    </MediaListContext.Provider>
+  );
 }
 
 /**
@@ -293,9 +303,9 @@ export function MediaListProvider({ children }: { children: React.ReactNode }) {
  * @throws {Error} Если хук используется вне MediaListProvider
  */
 export function useMediaList() {
-  const context = useContext(MediaListContext)
+  const context = useContext(MediaListContext);
   if (!context) {
-    throw new Error("useMediaList must be used within a MediaListProvider")
+    throw new Error("useMediaList must be used within a MediaListProvider");
   }
-  return context
+  return context;
 }

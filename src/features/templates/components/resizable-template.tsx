@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { usePlayer } from "@/features/video-player/services/player-provider"
-import { MediaFile } from "@/types/media"
+import { usePlayer } from "@/features/video-player/services/player-provider";
+import { MediaFile } from "@/types/media";
 
 import {
   SplitCustom53Square,
@@ -14,7 +14,7 @@ import {
   SplitVertical,
   SplitVertical3,
   SplitVertical4,
-} from "./templates/custom"
+} from "./templates/custom";
 import {
   SplitGrid2x2,
   SplitGrid2x3,
@@ -26,7 +26,7 @@ import {
   SplitGrid4x4,
   SplitGrid5x2,
   SplitGrid5x5,
-} from "./templates/grid"
+} from "./templates/grid";
 // Импорт шаблонов
 import {
   Split13BottomLandscape,
@@ -40,35 +40,47 @@ import {
   SplitHorizontal3Landscape,
   SplitMixed1Landscape,
   SplitMixed2Landscape,
-} from "./templates/landscape"
-import { SplitCustom51Portrait, SplitCustom52Portrait, SplitCustom53Portrait } from "./templates/portrait"
-import { VideoPanelComponent } from "./video-panel-component"
-import { AppliedTemplate, getVideoStyleForTemplate } from "../services/template-service"
+} from "./templates/landscape";
+import {
+  SplitCustom51Portrait,
+  SplitCustom52Portrait,
+  SplitCustom53Portrait,
+} from "./templates/portrait";
+import { VideoPanelComponent } from "./video-panel-component";
+import {
+  AppliedTemplate,
+  getVideoStyleForTemplate,
+} from "../services/template-service";
 
 interface ResizableTemplateProps {
-  appliedTemplate: AppliedTemplate
-  videos: MediaFile[]
-  activeVideoId: string | null
-  videoRefs?: Record<string, HTMLVideoElement>
+  appliedTemplate: AppliedTemplate;
+  videos: MediaFile[];
+  activeVideoId: string | null;
+  videoRefs?: Record<string, HTMLVideoElement>;
 }
 
 /**
  * Компонент для отображения настраиваемого шаблона с возможностью изменения размеров панелей
  */
-export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, videoRefs }: ResizableTemplateProps) {
+export function ResizableTemplate({
+  appliedTemplate,
+  videos,
+  activeVideoId,
+  videoRefs,
+}: ResizableTemplateProps) {
   // Получаем флаг isResizableMode из контекста плеера
-  const { isResizableMode } = usePlayer()
+  const { isResizableMode } = usePlayer();
 
   // Определяем тип шаблона и количество видео
-  const template = appliedTemplate.template
+  const template = appliedTemplate.template;
 
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
+  const validVideos = videos.filter((v) => v?.path);
 
-  const videoCount = Math.min(validVideos.length, template?.screens || 1)
+  const videoCount = Math.min(validVideos.length, template?.screens || 1);
 
   // Состояние для хранения размеров панелей
-  const [panelSizes, setPanelSizes] = useState<number[]>([])
+  const [panelSizes, setPanelSizes] = useState<number[]>([]);
 
   // Состояние для хранения текущего положения диагональной линии для диагонального шаблона
   const [splitPoints, setSplitPoints] = useState<{ x: number; y: number }[]>(
@@ -78,169 +90,174 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           { x: 66.67, y: 0 }, // Начальная точка (2/3 от левого края, верх)
           { x: 33.33, y: 100 }, // Конечная точка (1/3 от левого края, низ)
         ],
-  )
+  );
 
   // Состояние для отслеживания перетаскивания
-  const [isDragging, setIsDragging] = useState(false)
+  const [isDragging, setIsDragging] = useState(false);
 
   // Смещение курсора относительно линии при начале перетаскивания
-  const [dragOffset, setDragOffset] = useState<number>(0)
+  const [dragOffset, setDragOffset] = useState<number>(0);
 
   // Состояние для отслеживания, какую точку перетаскиваем (0 - верхнюю, 1 - нижнюю)
-  const [dragPoint, setDragPoint] = useState<number | null>(null)
+  const [dragPoint, setDragPoint] = useState<number | null>(null);
 
   // Ссылка на контейнер для диагонального шаблона
-  const diagonalContainerRef = useRef<HTMLDivElement>(null)
+  const diagonalContainerRef = useRef<HTMLDivElement>(null);
 
   // Обработчик начала перетаскивания
   const handleMouseDown = useCallback(
     (e: React.MouseEvent, pointIndex = 0) => {
-      e.preventDefault()
+      e.preventDefault();
 
       // Запоминаем, какую точку перетаскиваем
-      setDragPoint(pointIndex)
+      setDragPoint(pointIndex);
 
       // Вычисляем смещение курсора относительно выбранной точки или центра линии
       if (diagonalContainerRef.current) {
-        const rect = diagonalContainerRef.current.getBoundingClientRect()
-        const cursorX = ((e.clientX - rect.left) / rect.width) * 100
+        const rect = diagonalContainerRef.current.getBoundingClientRect();
+        const cursorX = ((e.clientX - rect.left) / rect.width) * 100;
 
         // Если перетаскиваем всю линию (pointIndex === 2), используем центр линии
         if (pointIndex === 2) {
-          const centerX = (splitPoints[0].x + splitPoints[1].x) / 2
-          setDragOffset(cursorX - centerX)
+          const centerX = (splitPoints[0].x + splitPoints[1].x) / 2;
+          setDragOffset(cursorX - centerX);
         } else {
           // Иначе используем выбранную точку
-          setDragOffset(cursorX - splitPoints[pointIndex].x)
+          setDragOffset(cursorX - splitPoints[pointIndex].x);
         }
       }
 
-      setIsDragging(true)
+      setIsDragging(true);
     },
     [splitPoints],
-  )
+  );
 
   // Обработчик перетаскивания
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (!isDragging || !diagonalContainerRef.current || dragPoint === null) return
+      if (!isDragging || !diagonalContainerRef.current || dragPoint === null)
+        return;
 
       // Получаем размеры и позицию контейнера из ref
-      const rect = diagonalContainerRef.current.getBoundingClientRect()
+      const rect = diagonalContainerRef.current.getBoundingClientRect();
 
       // Вычисляем относительную позицию курсора в процентах
-      const x = ((e.clientX - rect.left) / rect.width) * 100
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
 
       // Создаем копию текущих точек
-      const newPoints = [...splitPoints]
+      const newPoints = [...splitPoints];
 
       // Вычисляем новую позицию с учетом смещения
-      const newX = x - dragOffset
+      const newX = x - dragOffset;
 
       if (dragPoint === 2) {
         // Если перетаскиваем всю линию, смещаем обе точки
-        const diffX = newX - (splitPoints[0].x + splitPoints[1].x) / 2
-        newPoints[0].x = splitPoints[0].x + diffX
-        newPoints[1].x = splitPoints[1].x + diffX
+        const diffX = newX - (splitPoints[0].x + splitPoints[1].x) / 2;
+        newPoints[0].x = splitPoints[0].x + diffX;
+        newPoints[1].x = splitPoints[1].x + diffX;
       } else {
         // Иначе обновляем только выбранную точку
-        newPoints[dragPoint].x = newX
+        newPoints[dragPoint].x = newX;
       }
 
       // Для совместимости с остальным кодом
-      let newX1 = newPoints[0].x
-      let newX2 = newPoints[1].x
+      let newX1 = newPoints[0].x;
+      let newX2 = newPoints[1].x;
 
       // Проверяем, не выходит ли линия за границы
       if (dragPoint === 2) {
         // Если перетаскиваем всю линию, проверяем обе точки
         // Верхняя точка должна быть в пределах от 0% до 100%
         if (newX1 < 0) {
-          const adjustment = -newX1
-          newX1 += adjustment
-          newX2 += adjustment
+          const adjustment = -newX1;
+          newX1 += adjustment;
+          newX2 += adjustment;
         } else if (newX1 > 100) {
-          const adjustment = newX1 - 100
-          newX1 -= adjustment
-          newX2 -= adjustment
+          const adjustment = newX1 - 100;
+          newX1 -= adjustment;
+          newX2 -= adjustment;
         }
 
         // Нижняя точка должна быть в пределах от 0% до 100%
         if (newX2 < 0) {
-          const adjustment = -newX2
-          newX1 += adjustment
-          newX2 += adjustment
+          const adjustment = -newX2;
+          newX1 += adjustment;
+          newX2 += adjustment;
         } else if (newX2 > 100) {
-          const adjustment = newX2 - 100
-          newX1 -= adjustment
-          newX2 -= adjustment
+          const adjustment = newX2 - 100;
+          newX1 -= adjustment;
+          newX2 -= adjustment;
         }
       } else if (dragPoint === 0) {
         // Если перетаскиваем верхнюю точку, ограничиваем только её
-        newX1 = Math.max(0, Math.min(100, newX1))
+        newX1 = Math.max(0, Math.min(100, newX1));
       } else if (dragPoint === 1) {
         // Если перетаскиваем нижнюю точку, ограничиваем только её
-        newX2 = Math.max(0, Math.min(100, newX2))
+        newX2 = Math.max(0, Math.min(100, newX2));
       }
 
       // Обновляем положение линии
       setSplitPoints([
         { x: newX1, y: 0 },
         { x: newX2, y: 100 },
-      ])
+      ]);
     },
     [isDragging, splitPoints, dragOffset, dragPoint],
-  )
+  );
 
   // Обработчик окончания перетаскивания
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-    setDragPoint(null)
-  }, [])
+    setIsDragging(false);
+    setDragPoint(null);
+  }, []);
 
   // Добавляем и удаляем обработчики событий для перетаскивания
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove)
-      document.addEventListener("mouseup", handleMouseUp)
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
     }
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove)
-      document.removeEventListener("mouseup", handleMouseUp)
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp])
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   // Эффект для инициализации размеров панелей
   useEffect(() => {
     if (template && videoCount > 0) {
       // Инициализируем размеры панелей равномерно
-      const initialSizes = Array(videoCount).fill(100 / videoCount)
-      setPanelSizes(initialSizes)
+      const initialSizes = Array(videoCount).fill(100 / videoCount);
+      setPanelSizes(initialSizes);
     }
-  }, [template, videoCount])
+  }, [template, videoCount]);
 
   // Обработчик изменения размера панели
   const handlePanelResize = useCallback((panelIndex: number, size: number) => {
     setPanelSizes((prevSizes) => {
-      const newSizes = [...prevSizes]
-      newSizes[panelIndex] = size
-      return newSizes
-    })
-  }, [])
+      const newSizes = [...prevSizes];
+      newSizes[panelIndex] = size;
+      return newSizes;
+    });
+  }, []);
 
   // Если нет шаблона или видео, возвращаем пустой div
   if (!template || videoCount === 0) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Определяем направление разделения в зависимости от типа шаблона
   // Если тип "resizable", то обрабатываем его как "horizontal"
-  const effectiveSplit = template.resizable ? "horizontal" : template.split === "grid" ? "horizontal" : template.split
+  const effectiveSplit = template.resizable
+    ? "horizontal"
+    : template.split === "grid"
+      ? "horizontal"
+      : template.split;
 
   // Для вертикального разделения (split=vertical) используем horizontal direction в PanelGroup
   // Для горизонтального разделения (split=horizontal) используем vertical direction в PanelGroup
-  const direction = effectiveSplit === "vertical" ? "horizontal" : "vertical"
+  const direction = effectiveSplit === "vertical" ? "horizontal" : "vertical";
 
   // Проверяем, можем ли мы использовать импортированные шаблоны
   if (template.id) {
@@ -257,7 +274,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (
       template.id === "split-horizontal-landscape" ||
@@ -271,7 +288,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (
       template.id === "split-vertical-3-landscape" ||
@@ -286,7 +303,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-horizontal-3-landscape" ||
@@ -300,7 +317,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (
       template.id === "split-vertical-4-landscape" ||
@@ -315,7 +332,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-horizontal-4-landscape" ||
@@ -330,7 +347,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-diagonal-landscape" ||
@@ -346,7 +363,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-mixed-1-landscape" ||
@@ -360,7 +377,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (
       template.id === "split-mixed-2-landscape" ||
@@ -374,7 +391,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (
       template.id === "split-grid-2x2-landscape" ||
@@ -389,9 +406,12 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
-    if (template.id === "split-grid-2x3-portrait" || template.id === "split-grid-2x3-square") {
+    if (
+      template.id === "split-grid-2x3-portrait" ||
+      template.id === "split-grid-2x3-square"
+    ) {
       return (
         <SplitGrid2x3
           videos={validVideos}
@@ -400,7 +420,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-grid-3x2-landscape" ||
@@ -416,7 +436,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-grid-3x3-landscape" ||
@@ -430,7 +450,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (
       template.id === "split-grid-4x4-landscape" ||
@@ -444,7 +464,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (
       template.id === "split-grid-5x5-landscape" ||
@@ -459,7 +479,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-grid-4x2-landscape" ||
@@ -476,7 +496,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-grid-4x3-landscape" ||
@@ -491,7 +511,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-grid-3x4-landscape" ||
@@ -506,7 +526,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (
       template.id === "split-3-1-bottom-landscape" ||
@@ -521,9 +541,12 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
-    if (template.id === "split-3-1-right-landscape" || template.id === "split-3-1-portrait") {
+    if (
+      template.id === "split-3-1-right-landscape" ||
+      template.id === "split-3-1-portrait"
+    ) {
       return (
         <Split31RightLandscape
           videos={validVideos}
@@ -531,7 +554,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (
       template.id === "split-1-3-landscape" ||
@@ -546,7 +569,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (template.id === "split-custom-5-1-landscape") {
       return (
@@ -556,7 +579,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (template.id === "split-custom-5-2-landscape") {
       return (
@@ -566,11 +589,15 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
 
     // Шаблоны сетки 5x2 и 2x5
-    if (template.id && (template.id.includes("split-grid-5x2") || template.id.includes("split-grid-2x5"))) {
+    if (
+      template.id &&
+      (template.id.includes("split-grid-5x2") ||
+        template.id.includes("split-grid-2x5"))
+    ) {
       return (
         <SplitGrid5x2
           videos={validVideos}
@@ -579,7 +606,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
     if (template.id === "split-custom-5-3-landscape") {
       return (
@@ -589,7 +616,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (template.id === "split-custom-5-1-portrait") {
       return (
@@ -599,7 +626,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (template.id === "split-custom-5-2-portrait") {
       return (
@@ -609,7 +636,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (template.id === "split-custom-5-3-portrait") {
       return (
@@ -619,7 +646,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
     if (
       template.id === "split-1-3-bottom-landscape" ||
@@ -633,12 +660,14 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           videoRefs={videoRefs}
           isResizable={isResizableMode}
         />
-      )
+      );
     }
 
     // Для шаблона "1 посередине + по 2 сверху и снизу" (5 экранов) - квадратный формат
     if (template.id && template.id === "split-custom-5-3-square") {
-      console.log("[ResizableTemplate] Рендеринг шаблона split-custom-5-3-square")
+      console.log(
+        "[ResizableTemplate] Рендеринг шаблона split-custom-5-3-square",
+      );
       return (
         <SplitCustom53Square
           videos={validVideos}
@@ -647,12 +676,14 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
 
     // Для шаблона "5 экранов: 2 + 1 + 2 (по бокам)" (5 экранов) - квадратный формат
     if (template.id && template.id === "split-custom-5-4-square") {
-      console.log("[ResizableTemplate] Рендеринг шаблона split-custom-5-4-square")
+      console.log(
+        "[ResizableTemplate] Рендеринг шаблона split-custom-5-4-square",
+      );
       return (
         <SplitCustom54
           videos={validVideos}
@@ -661,7 +692,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
 
     // Для шаблонов с 7 экранами (варианты 1-4) - все форматы (квадратный, ландшафтный, портретный)
@@ -672,7 +703,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
         template.id === "split-custom-7-3-square" ||
         template.id === "split-custom-7-4-square")
     ) {
-      console.log(`[ResizableTemplate] Рендеринг шаблона ${template.id}`)
+      console.log(`[ResizableTemplate] Рендеринг шаблона ${template.id}`);
       return (
         <SplitCustom7
           videos={validVideos}
@@ -681,25 +712,32 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           isResizable={isResizableMode}
           templateId={template.id}
         />
-      )
+      );
     }
   }
 
   // Функция для рендеринга шаблона в фиксированном режиме
   const renderFixedTemplate = () => {
     // Создаем модифицированный шаблон с линиями цвета #35d1c1
-    const modifiedTemplate = template.render()
+    const modifiedTemplate = template.render();
 
     // Стандартный рендеринг для остальных шаблонов
     return (
-      <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="relative h-full w-full"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Рендерим модифицированный шаблон как фон */}
         {modifiedTemplate}
 
         {/* Рендерим видео поверх шаблона с оптимизированной загрузкой */}
         {validVideos.slice(0, videoCount).map((video, index) => {
           // Получаем стили для видео в зависимости от шаблона
-          const videoStyle = getVideoStyleForTemplate(template, index, videoCount)
+          const videoStyle = getVideoStyleForTemplate(
+            template,
+            index,
+            videoCount,
+          );
 
           return (
             <div
@@ -721,7 +759,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
                 index={index}
               />
             </div>
-          )
+          );
         })}
 
         {/* Добавляем дополнительные разделительные линии для шаблонов */}
@@ -729,7 +767,10 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           <div className="absolute inset-y-0 right-0 left-0 z-30 flex">
             {Array.from({ length: template.screens - 1 }).map((_, i) => (
               <div key={`v-line-${+i}`} className="flex-1">
-                <div className="absolute inset-y-0 right-0 w-1" style={{ backgroundColor: "#35d1c1", opacity: 0.8 }} />
+                <div
+                  className="absolute inset-y-0 right-0 w-1"
+                  style={{ backgroundColor: "#35d1c1", opacity: 0.8 }}
+                />
               </div>
             ))}
           </div>
@@ -739,22 +780,30 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
           <div className="absolute inset-x-0 top-0 bottom-0 z-30 flex flex-col">
             {Array.from({ length: template.screens - 1 }).map((_, i) => (
               <div key={`h-line-${+i}`} className="flex-1">
-                <div className="absolute inset-x-0 bottom-0 h-1" style={{ backgroundColor: "#35d1c1", opacity: 0.8 }} />
+                <div
+                  className="absolute inset-x-0 bottom-0 h-1"
+                  style={{ backgroundColor: "#35d1c1", opacity: 0.8 }}
+                />
               </div>
             ))}
           </div>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   // Добавляем отладочный вывод
-  console.log("[ResizableTemplate] Рендеринг шаблона:", template.id, "isResizableMode:", isResizableMode)
+  console.log(
+    "[ResizableTemplate] Рендеринг шаблона:",
+    template.id,
+    "isResizableMode:",
+    isResizableMode,
+  );
 
   // Проверяем, включен ли режим resizable
   // Если режим resizable выключен, используем стандартный рендеринг шаблона с видео
   if (!isResizableMode) {
-    return renderFixedTemplate()
+    return renderFixedTemplate();
   }
 
   // Для диагональных шаблонов
@@ -765,10 +814,14 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
       const clipPaths = [
         `polygon(0 0, ${splitPoints[0].x}% 0, ${splitPoints[1].x}% 100%, 0 100%)`,
         `polygon(${splitPoints[0].x}% 0, 100% 0, 100% 100%, ${splitPoints[1].x}% 100%)`,
-      ]
+      ];
 
       return (
-        <div ref={diagonalContainerRef} className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
+        <div
+          ref={diagonalContainerRef}
+          className="relative h-full w-full"
+          style={{ border: "1px solid #35d1c1" }}
+        >
           {/* Рендерим видео с оптимизированной загрузкой */}
           {validVideos.slice(0, videoCount).map((video, index) => {
             return (
@@ -793,22 +846,22 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
                   labelPosition={index % 2 === 0 ? "left" : "right"}
                 />
               </div>
-            )
+            );
           })}
 
           {/* Добавляем разделительную линию с учетом угла наклона */}
           {(() => {
             // Рассчитываем угол наклона линии
-            const dx = splitPoints[1].x - splitPoints[0].x
-            const dy = splitPoints[1].y - splitPoints[0].y
-            const angle = Math.atan2(dy, dx)
+            const dx = splitPoints[1].x - splitPoints[0].x;
+            const dy = splitPoints[1].y - splitPoints[0].y;
+            const angle = Math.atan2(dy, dx);
 
             // Рассчитываем ширину линии в зависимости от угла
             // Чем ближе угол к 90 градусам (вертикальная линия), тем меньше ширина
             // Чем ближе угол к 0 градусам (горизонтальная линия), тем больше ширина
-            const baseWidth = 0.1 // Базовая ширина линии
-            const widthFactor = Math.abs(Math.cos(angle)) // Фактор изменения ширины
-            const lineWidth = baseWidth + baseWidth * widthFactor
+            const baseWidth = 0.1; // Базовая ширина линии
+            const widthFactor = Math.abs(Math.cos(angle)); // Фактор изменения ширины
+            const lineWidth = baseWidth + baseWidth * widthFactor;
 
             return (
               <div
@@ -824,7 +877,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
                   pointerEvents: "none", // Отключаем события мыши для линии
                 }}
               />
-            )
+            );
           })()}
 
           {/* Центральная область для перетаскивания всей линии */}
@@ -871,17 +924,20 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
 
           {/* Надписи с названиями камер добавляются в компоненте VideoPanel */}
         </div>
-      )
+      );
     }
 
     // Для других диагональных шаблонов используем стандартный рендеринг
-    return renderFixedTemplate()
+    return renderFixedTemplate();
   }
 
   // Для всех остальных шаблонов используем PanelGroup с оптимизированной загрузкой
   return (
     <div className="h-full w-full" style={{ overflow: "visible" }}>
-      <PanelGroup direction={direction} onLayout={(sizes) => setPanelSizes(sizes)}>
+      <PanelGroup
+        direction={direction}
+        onLayout={(sizes) => setPanelSizes(sizes)}
+      >
         {validVideos.slice(0, videoCount).map((video, index) => {
           return (
             <React.Fragment key={`fragment-${video.id}-${index}`}>
@@ -905,9 +961,9 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
                 />
               )}
             </React.Fragment>
-          )
+          );
         })}
       </PanelGroup>
     </div>
-  )
+  );
 }

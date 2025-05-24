@@ -1,4 +1,4 @@
-import { MediaTemplate } from "../../lib/templates"
+import { MediaTemplate } from "../../lib/templates";
 
 export const landscapeTemplates: MediaTemplate[] = [
   // Шаблоны с 2 экранами (с возможностью изменения размеров)
@@ -383,9 +383,9 @@ export const landscapeTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-2 grid-rows-2">
           {Array.from({ length: 4 }).map((_, index) => {
-            const row = Math.floor(index / 2)
-            const col = index % 2
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 2);
+            const col = index % 2;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -393,15 +393,19 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -1285,9 +1289,9 @@ export const landscapeTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-3 grid-rows-2">
           {Array.from({ length: 6 }).map((_, index) => {
-            const row = Math.floor(index / 3)
-            const col = index % 3
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -1295,15 +1299,19 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -1343,9 +1351,9 @@ export const landscapeTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-3 grid-rows-3">
           {Array.from({ length: 9 }).map((_, index) => {
-            const row = Math.floor(index / 3)
-            const col = index % 3
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -1353,15 +1361,19 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -1611,9 +1623,9 @@ export const landscapeTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-4 grid-rows-3">
           {Array.from({ length: 12 }).map((_, index) => {
-            const row = Math.floor(index / 4)
-            const col = index % 4
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 4);
+            const col = index % 4;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -1621,15 +1633,19 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -1672,9 +1688,9 @@ export const landscapeTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-3 grid-rows-4">
           {Array.from({ length: 12 }).map((_, index) => {
-            const row = Math.floor(index / 3)
-            const col = index % 3
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -1682,15 +1698,19 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -1733,10 +1753,10 @@ export const landscapeTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         {/* Создаем сетку 5x5 */}
         {Array.from({ length: 25 }).map((_, index) => {
-          const rowIndex = Math.floor(index / 5)
-          const colIndex = index % 5
-          const cellIndex = index + 1
-          const isEvenCell = (rowIndex + colIndex) % 2 === 0
+          const rowIndex = Math.floor(index / 5);
+          const colIndex = index % 5;
+          const cellIndex = index + 1;
+          const isEvenCell = (rowIndex + colIndex) % 2 === 0;
           return (
             <div
               key={`cell-${rowIndex}-${colIndex}`}
@@ -1747,15 +1767,27 @@ export const landscapeTemplates: MediaTemplate[] = [
                 height: "20%",
                 top: `${rowIndex * 20}%`,
                 left: `${colIndex * 20}%`,
-                borderTop: rowIndex === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                borderBottom: rowIndex === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                borderLeft: colIndex === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                borderRight: colIndex === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                borderTop:
+                  rowIndex === 0
+                    ? "1px solid rgba(156, 163, 175, 0.3)"
+                    : "none",
+                borderBottom:
+                  rowIndex === 4
+                    ? "1px solid rgba(156, 163, 175, 0.3)"
+                    : "none",
+                borderLeft:
+                  colIndex === 0
+                    ? "1px solid rgba(156, 163, 175, 0.3)"
+                    : "none",
+                borderRight:
+                  colIndex === 4
+                    ? "1px solid rgba(156, 163, 175, 0.3)"
+                    : "none",
               }}
             >
               {cellIndex}
             </div>
-          )
+          );
         })}
 
         {/* Горизонтальные линии разделения */}
@@ -1801,9 +1833,9 @@ export const landscapeTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-4 grid-rows-4">
           {Array.from({ length: 16 }).map((_, index) => {
-            const row = Math.floor(index / 4)
-            const col = index % 4
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 4);
+            const col = index % 4;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -1811,15 +1843,19 @@ export const landscapeTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2024,4 +2060,4 @@ export const landscapeTemplates: MediaTemplate[] = [
       </div>
     ),
   },
-]
+];

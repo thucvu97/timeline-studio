@@ -69,9 +69,7 @@ vi.mock("@/features/browser/components/layout", () => ({
     </button>
   ),
   FavoriteButton: ({ file, type }: any) => (
-    <button onClick={() => mockToggleFavorite(file, type)}>
-      Favorite
-    </button>
+    <button onClick={() => mockToggleFavorite(file, type)}>Favorite</button>
   ),
 }));
 

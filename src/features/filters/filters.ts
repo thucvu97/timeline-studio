@@ -1,18 +1,18 @@
 export interface VideoFilter {
-  id: string
-  name: string
+  id: string;
+  name: string;
   labels: {
-    ru: string
-    en: string
-  }
+    ru: string;
+    en: string;
+  };
   params: {
-    brightness?: number
-    contrast?: number
-    saturation?: number
-    gamma?: number
-    temperature?: number
-    tint?: number
-  }
+    brightness?: number;
+    contrast?: number;
+    saturation?: number;
+    gamma?: number;
+    temperature?: number;
+    tint?: number;
+  };
 }
 
 export const filters: VideoFilter[] = [
@@ -174,4 +174,4 @@ export const filters: VideoFilter[] = [
       tint: -2,
     },
   },
-]
+];

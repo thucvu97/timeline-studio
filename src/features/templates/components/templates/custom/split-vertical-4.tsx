@@ -1,9 +1,9 @@
-import React from "react"
+import React from "react";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { VideoPanelComponent } from "../../video-panel-component"
-import { TemplateProps } from "../types"
+import { VideoPanelComponent } from "../../video-panel-component";
+import { TemplateProps } from "../types";
 
 /**
  * Универсальный шаблон "4 экрана по вертикали"
@@ -17,24 +17,29 @@ export function SplitVertical4({
   templateId,
 }: TemplateProps & { templateId?: string }) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
-  const videoCount = Math.min(validVideos.length, 4)
+  const validVideos = videos.filter((v) => v?.path);
+  const videoCount = Math.min(validVideos.length, 4);
 
   // Определяем ориентацию на основе ID шаблона
-  const isPortrait = templateId ? templateId.includes("portrait") : false
-  const isSquare = templateId ? templateId.includes("square") : false
-  const isLandscape = templateId ? templateId.includes("landscape") || (!isPortrait && !isSquare) : true
+  const isPortrait = templateId ? templateId.includes("portrait") : false;
+  const isSquare = templateId ? templateId.includes("square") : false;
+  const isLandscape = templateId
+    ? templateId.includes("landscape") || (!isPortrait && !isSquare)
+    : true;
 
-  console.log(`[SplitVertical4] Рендеринг шаблона ${templateId} с параметрами:`, {
-    isPortrait,
-    isSquare,
-    isLandscape,
-    isResizable,
-  })
+  console.log(
+    `[SplitVertical4] Рендеринг шаблона ${templateId} с параметрами:`,
+    {
+      isPortrait,
+      isSquare,
+      isLandscape,
+      isResizable,
+    },
+  );
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 4) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Рендеринг в режиме без возможности изменения размеров
@@ -42,7 +47,10 @@ export function SplitVertical4({
     if (isPortrait) {
       // Портретный режим - горизонтальные экраны (друг под другом)
       return (
-        <div className="flex h-full w-full flex-col" style={{ border: "1px solid #35d1c1" }}>
+        <div
+          className="flex h-full w-full flex-col"
+          style={{ border: "1px solid #35d1c1" }}
+        >
           {/* Первое видео */}
           <div className="h-1/4 w-full">
             <VideoPanelComponent
@@ -92,11 +100,14 @@ export function SplitVertical4({
             />
           </div>
         </div>
-      )
+      );
     }
     // Ландшафтный или квадратный режим - вертикальные экраны (в ряд)
     return (
-      <div className="flex h-full w-full" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="flex h-full w-full"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Первое видео */}
         <div className="h-full w-1/4">
           <VideoPanelComponent
@@ -146,14 +157,17 @@ export function SplitVertical4({
           />
         </div>
       </div>
-    )
+    );
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   if (isPortrait) {
     // Портретный режим - горизонтальные экраны (друг под другом)
     return (
-      <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
+      <div
+        className="h-full w-full"
+        style={{ overflow: "visible", border: "1px solid #35d1c1" }}
+      >
         <PanelGroup direction="vertical">
           {/* Первая секция */}
           <Panel defaultSize={25} minSize={10}>
@@ -196,11 +210,14 @@ export function SplitVertical4({
           </Panel>
         </PanelGroup>
       </div>
-    )
+    );
   }
   // Ландшафтный или квадратный режим - вертикальные экраны (в ряд)
   return (
-    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
+    <div
+      className="h-full w-full"
+      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
+    >
       <PanelGroup direction="horizontal">
         {/* Первая секция */}
         <Panel defaultSize={25} minSize={10}>
@@ -243,5 +260,5 @@ export function SplitVertical4({
         </Panel>
       </PanelGroup>
     </div>
-  )
+  );
 }

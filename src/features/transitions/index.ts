@@ -1,3 +1,3 @@
-export * from "./transition-list"
-export * from "./transition-preview"
-export * from "./transitions"
+export * from "./transition-list";
+export * from "./transition-preview";
+export * from "./transitions";

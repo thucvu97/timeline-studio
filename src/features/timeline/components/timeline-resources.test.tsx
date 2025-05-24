@@ -1,19 +1,19 @@
-import React from 'react'
+import React from "react";
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useResources } from '@/features/resources'
-import { fireEvent, render, screen } from '@/test/test-utils'
+import { useResources } from "@/features/resources";
+import { fireEvent, render, screen } from "@/test/test-utils";
 
-import { TimelineResources } from './timeline-resources'
+import { TimelineResources } from "./timeline-resources";
 
 // Создаем моки для функций
-const mockAddEffect = vi.fn()
-const mockAddFilter = vi.fn()
-const mockAddTransition = vi.fn()
-const mockAddTemplate = vi.fn()
-const mockAddMusic = vi.fn()
-const mockRemoveResource = vi.fn()
+const mockAddEffect = vi.fn();
+const mockAddFilter = vi.fn();
+const mockAddTransition = vi.fn();
+const mockAddTemplate = vi.fn();
+const mockAddMusic = vi.fn();
+const mockRemoveResource = vi.fn();
 
 // Создаем типизированные моки ресурсов
 const createMockResource = (type: string, id: string, name: string) => ({
@@ -23,54 +23,61 @@ const createMockResource = (type: string, id: string, name: string) => ({
   resourceId: `${type}-${id}`,
   path: `/mock/path/${type}/${id}`,
   metadata: {
-    duration: type === 'music' ? 120 : undefined,
+    duration: type === "music" ? 120 : undefined,
     size: { width: 1920, height: 1080 },
-    format: type === 'music' ? 'mp3' : 'mp4',
+    format: type === "music" ? "mp3" : "mp4",
   },
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
-})
+});
 
 // Создаем наборы тестовых данных
 const mockEffectResources = [
-  createMockResource('effect', 'brightness', 'Brightness Effect'),
-  createMockResource('effect', 'contrast', 'Contrast Effect'),
-  createMockResource('effect', 'blur', 'Blur Effect'),
-] as any
+  createMockResource("effect", "brightness", "Brightness Effect"),
+  createMockResource("effect", "contrast", "Contrast Effect"),
+  createMockResource("effect", "blur", "Blur Effect"),
+] as any;
 
 const mockFilterResources = [
-  createMockResource('filter', 'vintage', 'Vintage Filter'),
-  createMockResource('filter', 'sepia', 'Sepia Filter'),
-] as any
+  createMockResource("filter", "vintage", "Vintage Filter"),
+  createMockResource("filter", "sepia", "Sepia Filter"),
+] as any;
 
 const mockTransitionResources = [
-  createMockResource('transition', 'fade', 'Fade Transition'),
-  createMockResource('transition', 'slide', 'Slide Transition'),
-  createMockResource('transition', 'zoom', 'Zoom Transition'),
-] as any
+  createMockResource("transition", "fade", "Fade Transition"),
+  createMockResource("transition", "slide", "Slide Transition"),
+  createMockResource("transition", "zoom", "Zoom Transition"),
+] as any;
 
 const mockTemplateResources = [
-  createMockResource('template', 'basic', 'Basic Template'),
-  createMockResource('template', 'advanced', 'Advanced Template'),
-] as any
+  createMockResource("template", "basic", "Basic Template"),
+  createMockResource("template", "advanced", "Advanced Template"),
+] as any;
 
 const mockMusicResources = [
-  createMockResource('music', 'background', 'Background Music'),
-  createMockResource('music', 'ambient', 'Ambient Sound'),
-] as any
+  createMockResource("music", "background", "Background Music"),
+  createMockResource("music", "ambient", "Ambient Sound"),
+] as any;
 
 // Мокаем модуль resources
-vi.mock('@/features/resources', async (importOriginal) => {
-  const actual = await importOriginal() as any
+vi.mock("@/features/resources", async (importOriginal) => {
+  const actual = (await importOriginal()) as any;
   return {
     ...actual,
     useResources: vi.fn(),
-  }
-})
+  };
+});
 
 // Мокаем иконки Lucide
-vi.mock('lucide-react', () => ({
-  Music: ({ className, size = 16, onClick, onMouseEnter, onMouseLeave, ...props }: any) => (
+vi.mock("lucide-react", () => ({
+  Music: ({
+    className,
+    size = 16,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    ...props
+  }: any) => (
     <div
       data-testid="music-icon"
       className={className}
@@ -83,7 +90,14 @@ vi.mock('lucide-react', () => ({
       {...props}
     />
   ),
-  Package: ({ className, size = 16, onClick, onMouseEnter, onMouseLeave, ...props }: any) => (
+  Package: ({
+    className,
+    size = 16,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    ...props
+  }: any) => (
     <div
       data-testid="package-icon"
       className={className}
@@ -96,7 +110,14 @@ vi.mock('lucide-react', () => ({
       {...props}
     />
   ),
-  Palette: ({ className, size = 16, onClick, onMouseEnter, onMouseLeave, ...props }: any) => (
+  Palette: ({
+    className,
+    size = 16,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    ...props
+  }: any) => (
     <div
       data-testid="palette-icon"
       className={className}
@@ -109,7 +130,14 @@ vi.mock('lucide-react', () => ({
       {...props}
     />
   ),
-  Scissors: ({ className, size = 16, onClick, onMouseEnter, onMouseLeave, ...props }: any) => (
+  Scissors: ({
+    className,
+    size = 16,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    ...props
+  }: any) => (
     <div
       data-testid="scissors-icon"
       className={className}
@@ -122,7 +150,14 @@ vi.mock('lucide-react', () => ({
       {...props}
     />
   ),
-  Video: ({ className, size = 16, onClick, onMouseEnter, onMouseLeave, ...props }: any) => (
+  Video: ({
+    className,
+    size = 16,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    ...props
+  }: any) => (
     <div
       data-testid="video-icon"
       className={className}
@@ -135,36 +170,36 @@ vi.mock('lucide-react', () => ({
       {...props}
     />
   ),
-}))
+}));
 
 // Мокаем переводы
-vi.mock('react-i18next', () => ({
+vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
-        'timeline.resources.title': 'Ресурсы таймлайна',
-        'timeline.resources.effects': 'Эффекты',
-        'timeline.resources.filters': 'Фильтры',
-        'timeline.resources.transitions': 'Переходы',
-        'timeline.resources.templates': 'Шаблоны',
-        'timeline.resources.music': 'Музыка',
-        'timeline.resources.noResources': 'Нет доступных ресурсов',
-      }
-      return translations[key] || key
+        "timeline.resources.title": "Ресурсы таймлайна",
+        "timeline.resources.effects": "Эффекты",
+        "timeline.resources.filters": "Фильтры",
+        "timeline.resources.transitions": "Переходы",
+        "timeline.resources.templates": "Шаблоны",
+        "timeline.resources.music": "Музыка",
+        "timeline.resources.noResources": "Нет доступных ресурсов",
+      };
+      return translations[key] || key;
     },
   }),
   initReactI18next: {
-    type: '3rdParty',
+    type: "3rdParty",
     init: vi.fn(),
   },
-}))
+}));
 
 // Используем стандартный рендеринг с AllProviders
 // AllProviders уже включает в себя ResourcesProvider
 
-describe('TimelineResources', () => {
+describe("TimelineResources", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.clearAllMocks();
 
     // Дефолтные пустые ресурсы
     vi.mocked(useResources).mockReturnValue({
@@ -189,47 +224,47 @@ describe('TimelineResources', () => {
       isTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
-    })
-  })
+    });
+  });
 
-  it('должен корректно рендериться', () => {
-    const { container } = render(<TimelineResources />)
+  it("должен корректно рендериться", () => {
+    const { container } = render(<TimelineResources />);
 
     // Проверяем, что компонент рендерится без ошибок
-    expect(container.firstChild).toBeInTheDocument()
-  })
+    expect(container.firstChild).toBeInTheDocument();
+  });
 
-  it.skip('должен отображать все категории ресурсов', () => {
-    render(<TimelineResources />)
+  it.skip("должен отображать все категории ресурсов", () => {
+    render(<TimelineResources />);
 
     // Проверяем наличие всех категорий
-    expect(screen.getByText('Эффекты')).toBeInTheDocument()
-    expect(screen.getByText('Фильтры')).toBeInTheDocument()
-    expect(screen.getByText('Переходы')).toBeInTheDocument()
-    expect(screen.getByText('Шаблоны')).toBeInTheDocument()
-    expect(screen.getByText('Музыка')).toBeInTheDocument()
-  })
+    expect(screen.getByText("Эффекты")).toBeInTheDocument();
+    expect(screen.getByText("Фильтры")).toBeInTheDocument();
+    expect(screen.getByText("Переходы")).toBeInTheDocument();
+    expect(screen.getByText("Шаблоны")).toBeInTheDocument();
+    expect(screen.getByText("Музыка")).toBeInTheDocument();
+  });
 
-  it.skip('должен отображать правильные иконки для каждой категории', () => {
-    render(<TimelineResources />)
+  it.skip("должен отображать правильные иконки для каждой категории", () => {
+    render(<TimelineResources />);
 
     // Проверяем наличие иконок
-    expect(screen.getByTestId('package-icon')).toBeInTheDocument() // Effects
-    expect(screen.getByTestId('palette-icon')).toBeInTheDocument() // Filters
-    expect(screen.getByTestId('scissors-icon')).toBeInTheDocument() // Transitions
-    expect(screen.getByTestId('video-icon')).toBeInTheDocument() // Templates
-    expect(screen.getByTestId('music-icon')).toBeInTheDocument() // Music
-  })
+    expect(screen.getByTestId("package-icon")).toBeInTheDocument(); // Effects
+    expect(screen.getByTestId("palette-icon")).toBeInTheDocument(); // Filters
+    expect(screen.getByTestId("scissors-icon")).toBeInTheDocument(); // Transitions
+    expect(screen.getByTestId("video-icon")).toBeInTheDocument(); // Templates
+    expect(screen.getByTestId("music-icon")).toBeInTheDocument(); // Music
+  });
 
   it.skip('должен отображать сообщение "нет ресурсов" когда категории пустые', () => {
-    render(<TimelineResources />)
+    render(<TimelineResources />);
 
     // Проверяем сообщения об отсутствии ресурсов
-    const noResourcesMessages = screen.getAllByText('Нет добавленных ресурсов')
-    expect(noResourcesMessages).toHaveLength(5) // По одному для каждой категории
-  })
+    const noResourcesMessages = screen.getAllByText("Нет добавленных ресурсов");
+    expect(noResourcesMessages).toHaveLength(5); // По одному для каждой категории
+  });
 
-  it.skip('should display resources when they exist', () => {
+  it.skip("should display resources when they exist", () => {
     // Мокаем ресурсы с данными
     vi.mocked(useResources).mockReturnValue({
       resources: [],
@@ -253,19 +288,19 @@ describe('TimelineResources', () => {
       isTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
-    })
+    });
 
-    render(<TimelineResources />)
+    render(<TimelineResources />);
 
     // Проверяем отображение ресурсов
-    expect(screen.getByText('Brightness Effect')).toBeInTheDocument()
-    expect(screen.getByText('Vintage Filter')).toBeInTheDocument()
-    expect(screen.getByText('Fade Transition')).toBeInTheDocument()
-    expect(screen.getByText('Basic Template')).toBeInTheDocument()
-    expect(screen.getByText('Background Music')).toBeInTheDocument()
-  })
+    expect(screen.getByText("Brightness Effect")).toBeInTheDocument();
+    expect(screen.getByText("Vintage Filter")).toBeInTheDocument();
+    expect(screen.getByText("Fade Transition")).toBeInTheDocument();
+    expect(screen.getByText("Basic Template")).toBeInTheDocument();
+    expect(screen.getByText("Background Music")).toBeInTheDocument();
+  });
 
-  it.skip('should display correct resource counts in category headers', () => {
+  it.skip("should display correct resource counts in category headers", () => {
     // Мокаем ресурсы с данными
     vi.mocked(useResources).mockReturnValue({
       resources: [],
@@ -289,16 +324,16 @@ describe('TimelineResources', () => {
       isTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
-    })
+    });
 
-    render(<TimelineResources />)
+    render(<TimelineResources />);
 
     // Проверяем счетчики
-    expect(screen.getByText('(3)')).toBeInTheDocument() // Effects
-    expect(screen.getByText('(1)')).toBeInTheDocument() // Filters
-  })
+    expect(screen.getByText("(3)")).toBeInTheDocument(); // Effects
+    expect(screen.getByText("(1)")).toBeInTheDocument(); // Filters
+  });
 
-  it.skip('should call addEffect when effect resource is clicked', () => {
+  it.skip("should call addEffect when effect resource is clicked", () => {
     // Мокаем ресурсы с данными
     vi.mocked(useResources).mockReturnValue({
       resources: [],
@@ -322,19 +357,19 @@ describe('TimelineResources', () => {
       isTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
-    })
+    });
 
-    render(<TimelineResources />)
+    render(<TimelineResources />);
 
     // Находим и кликаем по эффекту
-    const effectElement = screen.getByText('Brightness Effect')
-    fireEvent.click(effectElement)
+    const effectElement = screen.getByText("Brightness Effect");
+    fireEvent.click(effectElement);
 
     // Проверяем, что addEffect был вызван с правильными параметрами
-    expect(mockAddEffect).toHaveBeenCalledWith(mockEffectResources[0])
-  })
+    expect(mockAddEffect).toHaveBeenCalledWith(mockEffectResources[0]);
+  });
 
-  it.skip('should call addFilter when filter resource is clicked', () => {
+  it.skip("should call addFilter when filter resource is clicked", () => {
     // Мокаем ресурсы с данными
     vi.mocked(useResources).mockReturnValue({
       resources: [],
@@ -358,15 +393,15 @@ describe('TimelineResources', () => {
       isTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
-    })
+    });
 
-    render(<TimelineResources />)
+    render(<TimelineResources />);
 
     // Находим и кликаем по фильтру
-    const filterElement = screen.getByText('Vintage Filter')
-    fireEvent.click(filterElement)
+    const filterElement = screen.getByText("Vintage Filter");
+    fireEvent.click(filterElement);
 
     // Проверяем, что addFilter был вызван с правильными параметрами
-    expect(mockAddFilter).toHaveBeenCalledWith(mockFilterResources[0])
-  })
-})
+    expect(mockAddFilter).toHaveBeenCalledWith(mockFilterResources[0]);
+  });
+});

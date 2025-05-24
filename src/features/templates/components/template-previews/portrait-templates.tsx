@@ -1,4 +1,4 @@
-import { MediaTemplate } from "../../lib/templates"
+import { MediaTemplate } from "../../lib/templates";
 
 export const portraitTemplates: MediaTemplate[] = [
   // Шаблоны с 2 экранами
@@ -1378,9 +1378,9 @@ export const portraitTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-3 grid-rows-4">
           {Array.from({ length: 12 }).map((_, index) => {
-            const row = Math.floor(index / 3)
-            const col = index % 3
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -1388,15 +1388,19 @@ export const portraitTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -1439,9 +1443,9 @@ export const portraitTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-4 grid-rows-3">
           {Array.from({ length: 12 }).map((_, index) => {
-            const row = Math.floor(index / 4)
-            const col = index % 4
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 4);
+            const col = index % 4;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -1449,15 +1453,19 @@ export const portraitTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -1500,9 +1508,9 @@ export const portraitTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-2 grid-rows-4">
           {Array.from({ length: 8 }).map((_, index) => {
-            const row = Math.floor(index / 2)
-            const col = index % 2
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 2);
+            const col = index % 2;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -1510,15 +1518,19 @@ export const portraitTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 1 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -1963,9 +1975,9 @@ export const portraitTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-3 grid-rows-3">
           {Array.from({ length: 9 }).map((_, index) => {
-            const row = Math.floor(index / 3)
-            const col = index % 3
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -1973,15 +1985,19 @@ export const portraitTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-lg font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 2 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2024,9 +2040,9 @@ export const portraitTemplates: MediaTemplate[] = [
       <div className="relative h-full w-full">
         <div className="grid h-full w-full grid-cols-4 grid-rows-4">
           {Array.from({ length: 16 }).map((_, index) => {
-            const row = Math.floor(index / 4)
-            const col = index % 4
-            const isEven = (row + col) % 2 === 0
+            const row = Math.floor(index / 4);
+            const col = index % 4;
+            const isEven = (row + col) % 2 === 0;
 
             return (
               <div
@@ -2034,15 +2050,19 @@ export const portraitTemplates: MediaTemplate[] = [
                 className="flex items-center justify-center text-sm font-normal text-gray-400"
                 style={{
                   background: isEven ? "#23262b" : "#2a2e36",
-                  borderTop: row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderBottom: row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderLeft: col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                  borderRight: col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderTop:
+                    row === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderBottom:
+                    row === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderLeft:
+                    col === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                  borderRight:
+                    col === 3 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
                 }}
               >
                 {index + 1}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -2087,8 +2107,8 @@ export const portraitTemplates: MediaTemplate[] = [
         {Array.from({ length: 5 }).map((i, rowIndex) => (
           <div key={`row-${rowIndex}`}>
             {Array.from({ length: 5 }).map((_, colIndex) => {
-              const cellIndex = rowIndex * 5 + colIndex + 1
-              const isEvenCell = (rowIndex + colIndex) % 2 === 0
+              const cellIndex = rowIndex * 5 + colIndex + 1;
+              const isEvenCell = (rowIndex + colIndex) % 2 === 0;
               return (
                 <div
                   key={`cell-${rowIndex}-${colIndex}`}
@@ -2099,15 +2119,27 @@ export const portraitTemplates: MediaTemplate[] = [
                     height: "20%",
                     top: `${rowIndex * 20}%`,
                     left: `${colIndex * 20}%`,
-                    borderTop: rowIndex === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                    borderBottom: rowIndex === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                    borderLeft: colIndex === 0 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
-                    borderRight: colIndex === 4 ? "1px solid rgba(156, 163, 175, 0.3)" : "none",
+                    borderTop:
+                      rowIndex === 0
+                        ? "1px solid rgba(156, 163, 175, 0.3)"
+                        : "none",
+                    borderBottom:
+                      rowIndex === 4
+                        ? "1px solid rgba(156, 163, 175, 0.3)"
+                        : "none",
+                    borderLeft:
+                      colIndex === 0
+                        ? "1px solid rgba(156, 163, 175, 0.3)"
+                        : "none",
+                    borderRight:
+                      colIndex === 4
+                        ? "1px solid rgba(156, 163, 175, 0.3)"
+                        : "none",
                   }}
                 >
                   {cellIndex}
                 </div>
-              )
+              );
             })}
           </div>
         ))}
@@ -2144,4 +2176,4 @@ export const portraitTemplates: MediaTemplate[] = [
       </div>
     ),
   },
-]
+];

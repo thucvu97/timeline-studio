@@ -1,6 +1,6 @@
-import { assign, createMachine } from "xstate"
+import { assign, createMachine } from "xstate";
 
-import { MediaFile } from "@/types/media"
+import { MediaFile } from "@/types/media";
 
 /**
  * Константы для размеров превью
@@ -9,43 +9,43 @@ import { MediaFile } from "@/types/media"
  * Массив доступных размеров превью
  * Используется для переключения между размерами при увеличении/уменьшении
  */
-export const PREVIEW_SIZES = [80, 100, 125, 150, 200, 250, 300, 400]
+export const PREVIEW_SIZES = [80, 100, 125, 150, 200, 250, 300, 400];
 
 /**
  * Тип для размеров превью
  */
-export type PreviewSizeType = (typeof PREVIEW_SIZES)[number]
+export type PreviewSizeType = (typeof PREVIEW_SIZES)[number];
 
 /**
  * Минимальный и максимальный размеры превью (первый и последний элементы массива)
  */
-export const MIN_PREVIEW_SIZE = PREVIEW_SIZES[0]
-export const MAX_PREVIEW_SIZE = PREVIEW_SIZES[PREVIEW_SIZES.length - 1]
+export const MIN_PREVIEW_SIZE = PREVIEW_SIZES[0];
+export const MAX_PREVIEW_SIZE = PREVIEW_SIZES[PREVIEW_SIZES.length - 1];
 
 /**
  * Размер превью по умолчанию
  */
-export const DEFAULT_PREVIEW_SIZE = 100
+export const DEFAULT_PREVIEW_SIZE = 100;
 
 /**
  * Интерфейс контекста машины состояний для медиа-файлов
  */
 export interface MediaListContextType {
-  mediaFiles: MediaFile[] // Все медиа-файлы
-  filteredFiles: MediaFile[] // Отфильтрованные медиа-файлы
-  error: string | null // Сообщение об ошибке
-  isLoading: boolean // Флаг загрузки
-  searchQuery: string // Поисковый запрос
-  sortBy: string // Критерий сортировки
-  sortOrder: "asc" | "desc" // Порядок сортировки
-  filterType: string // Тип фильтра
-  viewMode: "list" | "grid" | "thumbnails" // Режим отображения
-  groupBy: string // Критерий группировки
-  showFavoritesOnly: boolean // Показывать только избранные
-  availableExtensions: string[] // Доступные расширения файлов
-  previewSize: number // Размер превью
-  canIncreaseSize: boolean // Можно ли увеличить размер превью
-  canDecreaseSize: boolean // Можно ли уменьшить размер превью
+  mediaFiles: MediaFile[]; // Все медиа-файлы
+  filteredFiles: MediaFile[]; // Отфильтрованные медиа-файлы
+  error: string | null; // Сообщение об ошибке
+  isLoading: boolean; // Флаг загрузки
+  searchQuery: string; // Поисковый запрос
+  sortBy: string; // Критерий сортировки
+  sortOrder: "asc" | "desc"; // Порядок сортировки
+  filterType: string; // Тип фильтра
+  viewMode: "list" | "grid" | "thumbnails"; // Режим отображения
+  groupBy: string; // Критерий группировки
+  showFavoritesOnly: boolean; // Показывать только избранные
+  availableExtensions: string[]; // Доступные расширения файлов
+  previewSize: number; // Размер превью
+  canIncreaseSize: boolean; // Можно ли увеличить размер превью
+  canDecreaseSize: boolean; // Можно ли уменьшить размер превью
 }
 
 /**
@@ -66,7 +66,7 @@ export type MediaListEventType =
   | { type: "SET_SHOW_FAVORITES_ONLY"; value: boolean } // Установить флаг отображения только избранных
   | { type: "INCREASE_PREVIEW_SIZE" } // Увеличить размер превью
   | { type: "DECREASE_PREVIEW_SIZE" } // Уменьшить размер превью
-  | { type: "SET_PREVIEW_SIZE"; size: number } // Установить размер превью
+  | { type: "SET_PREVIEW_SIZE"; size: number }; // Установить размер превью
 
 /**
  * Машина состояний для управления медиа-файлами
@@ -152,7 +152,8 @@ export const mediaListMachine = createMachine({
         CHANGE_ORDER: {
           actions: assign({
             // Инвертируем порядок сортировки
-            sortOrder: ({ context }) => (context.sortOrder === "asc" ? "desc" : "asc"),
+            sortOrder: ({ context }) =>
+              context.sortOrder === "asc" ? "desc" : "asc",
           }),
         },
 
@@ -242,20 +243,27 @@ export const mediaListMachine = createMachine({
             // Находим следующий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему
-              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize,
+              );
 
               // Если текущий размер больше максимального в массиве или это последний элемент
-              if (currentIndex === -1 || currentIndex === PREVIEW_SIZES.length - 1) {
-                return MAX_PREVIEW_SIZE
+              if (
+                currentIndex === -1 ||
+                currentIndex === PREVIEW_SIZES.length - 1
+              ) {
+                return MAX_PREVIEW_SIZE;
               }
 
               // Возвращаем следующий размер из массива
-              return PREVIEW_SIZES[currentIndex + 1]
+              return PREVIEW_SIZES[currentIndex + 1];
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ context }) => {
-              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
-              return currentIndex < PREVIEW_SIZES.length - 1
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize,
+              );
+              return currentIndex < PREVIEW_SIZES.length - 1;
             },
             canDecreaseSize: () => true,
           }),
@@ -270,25 +278,29 @@ export const mediaListMachine = createMachine({
             // Находим предыдущий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему большего
-              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize,
+              );
 
               // Если текущий размер меньше минимального в массиве
               if (currentIndex === -1) {
-                return MIN_PREVIEW_SIZE
+                return MIN_PREVIEW_SIZE;
               }
 
               // Если текущий размер равен первому элементу массива
               if (currentIndex === 0) {
-                return MIN_PREVIEW_SIZE
+                return MIN_PREVIEW_SIZE;
               }
 
               // Возвращаем предыдущий размер из массива
-              return PREVIEW_SIZES[currentIndex - 1]
+              return PREVIEW_SIZES[currentIndex - 1];
             },
             // Обновляем флаги возможности изменения размера
             canDecreaseSize: ({ context }) => {
-              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
-              return currentIndex > 0
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize,
+              );
+              return currentIndex > 0;
             },
             canIncreaseSize: () => true,
           }),
@@ -303,32 +315,39 @@ export const mediaListMachine = createMachine({
             // Устанавливаем размер превью, выбирая ближайший из массива PREVIEW_SIZES
             previewSize: ({ event }) => {
               // Ограничиваем размер в пределах допустимых значений
-              const clampedSize = Math.max(MIN_PREVIEW_SIZE, Math.min(event.size, MAX_PREVIEW_SIZE))
+              const clampedSize = Math.max(
+                MIN_PREVIEW_SIZE,
+                Math.min(event.size, MAX_PREVIEW_SIZE),
+              );
 
               // Находим ближайший размер в массиве PREVIEW_SIZES
-              let closestSize = PREVIEW_SIZES[0]
-              let minDiff = Math.abs(clampedSize - closestSize)
+              let closestSize = PREVIEW_SIZES[0];
+              let minDiff = Math.abs(clampedSize - closestSize);
 
               for (let i = 1; i < PREVIEW_SIZES.length; i++) {
-                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i])
+                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i]);
                 if (diff < minDiff) {
-                  minDiff = diff
-                  closestSize = PREVIEW_SIZES[i]
+                  minDiff = diff;
+                  closestSize = PREVIEW_SIZES[i];
                 }
               }
 
-              return closestSize
+              return closestSize;
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = PREVIEW_SIZES.findIndex((size) => size >= event.size)
-              return closestSizeIndex < PREVIEW_SIZES.length - 1
+              const closestSizeIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= event.size,
+              );
+              return closestSizeIndex < PREVIEW_SIZES.length - 1;
             },
             canDecreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = PREVIEW_SIZES.findIndex((size) => size >= event.size)
-              return closestSizeIndex > 0
+              const closestSizeIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= event.size,
+              );
+              return closestSizeIndex > 0;
             },
           }),
         },
@@ -352,10 +371,10 @@ export const mediaListMachine = createMachine({
             // Обновляем отфильтрованные файлы с учетом текущих фильтров
             filteredFiles: ({ context, event }) => {
               // Получаем новые файлы
-              const newFiles = event.files
+              const newFiles = event.files;
 
               // Применяем текущие фильтры
-              let filtered = newFiles
+              let filtered = newFiles;
 
               // Фильтрация по типу
               if (context.filterType !== "all") {
@@ -364,41 +383,51 @@ export const mediaListMachine = createMachine({
                     // Проверяем, загружены ли метаданные
                     if (file.isLoadingMetadata === true) {
                       // Если метаданные еще загружаются, используем базовые свойства файла
-                      if (context.filterType === "video" && file.isVideo) return true
-                      if (context.filterType === "audio" && file.isAudio) return true
-                      if (context.filterType === "image" && file.isImage) return true
-                      return false
+                      if (context.filterType === "video" && file.isVideo)
+                        return true;
+                      if (context.filterType === "audio" && file.isAudio)
+                        return true;
+                      if (context.filterType === "image" && file.isImage)
+                        return true;
+                      return false;
                     }
 
                     // Если метаданные загружены, используем их для более точной фильтрации
                     if (
                       context.filterType === "video" &&
-                      (file.isVideo || file.probeData?.streams.some((s) => s.codec_type === "video"))
+                      (file.isVideo ||
+                        file.probeData?.streams.some(
+                          (s) => s.codec_type === "video",
+                        ))
                     )
-                      return true
+                      return true;
 
                     if (
                       context.filterType === "audio" &&
-                      (file.isAudio || file.probeData?.streams.some((s) => s.codec_type === "audio"))
+                      (file.isAudio ||
+                        file.probeData?.streams.some(
+                          (s) => s.codec_type === "audio",
+                        ))
                     )
-                      return true
+                      return true;
 
                     if (
                       context.filterType === "image" &&
-                      (file.isImage || /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name))
+                      (file.isImage ||
+                        /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name))
                     )
-                      return true
+                      return true;
 
-                    return false
+                    return false;
                   } catch (error) {
-                    console.error("Error filtering file:", file, error)
-                    return false // Пропускаем файл при ошибке
+                    console.error("Error filtering file:", file, error);
+                    return false; // Пропускаем файл при ошибке
                   }
-                })
+                });
               }
 
               // Возвращаем отфильтрованные файлы
-              return filtered
+              return filtered;
             },
           }),
         },
@@ -430,10 +459,10 @@ export const mediaListMachine = createMachine({
             // Обновляем отфильтрованные файлы с учетом текущих фильтров
             filteredFiles: ({ context, event }) => {
               // Получаем новые файлы
-              const newFiles = event.files
+              const newFiles = event.files;
 
               // Применяем текущие фильтры
-              let filtered = newFiles
+              let filtered = newFiles;
 
               // Фильтрация по типу
               if (context.filterType !== "all") {
@@ -442,41 +471,51 @@ export const mediaListMachine = createMachine({
                     // Проверяем, загружены ли метаданные
                     if (file.isLoadingMetadata === true) {
                       // Если метаданные еще загружаются, используем базовые свойства файла
-                      if (context.filterType === "video" && file.isVideo) return true
-                      if (context.filterType === "audio" && file.isAudio) return true
-                      if (context.filterType === "image" && file.isImage) return true
-                      return false
+                      if (context.filterType === "video" && file.isVideo)
+                        return true;
+                      if (context.filterType === "audio" && file.isAudio)
+                        return true;
+                      if (context.filterType === "image" && file.isImage)
+                        return true;
+                      return false;
                     }
 
                     // Если метаданные загружены, используем их для более точной фильтрации
                     if (
                       context.filterType === "video" &&
-                      (file.isVideo || file.probeData?.streams.some((s) => s.codec_type === "video"))
+                      (file.isVideo ||
+                        file.probeData?.streams.some(
+                          (s) => s.codec_type === "video",
+                        ))
                     )
-                      return true
+                      return true;
 
                     if (
                       context.filterType === "audio" &&
-                      (file.isAudio || file.probeData?.streams.some((s) => s.codec_type === "audio"))
+                      (file.isAudio ||
+                        file.probeData?.streams.some(
+                          (s) => s.codec_type === "audio",
+                        ))
                     )
-                      return true
+                      return true;
 
                     if (
                       context.filterType === "image" &&
-                      (file.isImage || /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name))
+                      (file.isImage ||
+                        /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name))
                     )
-                      return true
+                      return true;
 
-                    return false
+                    return false;
                   } catch (error) {
-                    console.error("Error filtering file:", file, error)
-                    return false // Пропускаем файл при ошибке
+                    console.error("Error filtering file:", file, error);
+                    return false; // Пропускаем файл при ошибке
                   }
-                })
+                });
               }
 
               // Возвращаем отфильтрованные файлы
-              return filtered
+              return filtered;
             },
             // Сбрасываем ошибку
             error: null,
@@ -501,7 +540,8 @@ export const mediaListMachine = createMachine({
         CHANGE_ORDER: {
           actions: assign({
             // Инвертируем порядок сортировки
-            sortOrder: ({ context }) => (context.sortOrder === "asc" ? "desc" : "asc"),
+            sortOrder: ({ context }) =>
+              context.sortOrder === "asc" ? "desc" : "asc",
           }),
         },
 
@@ -584,20 +624,27 @@ export const mediaListMachine = createMachine({
             // Находим следующий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему
-              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize,
+              );
 
               // Если текущий размер больше максимального в массиве или это последний элемент
-              if (currentIndex === -1 || currentIndex === PREVIEW_SIZES.length - 1) {
-                return MAX_PREVIEW_SIZE
+              if (
+                currentIndex === -1 ||
+                currentIndex === PREVIEW_SIZES.length - 1
+              ) {
+                return MAX_PREVIEW_SIZE;
               }
 
               // Возвращаем следующий размер из массива
-              return PREVIEW_SIZES[currentIndex + 1]
+              return PREVIEW_SIZES[currentIndex + 1];
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ context }) => {
-              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
-              return currentIndex < PREVIEW_SIZES.length - 1
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize,
+              );
+              return currentIndex < PREVIEW_SIZES.length - 1;
             },
             canDecreaseSize: () => true,
           }),
@@ -612,25 +659,29 @@ export const mediaListMachine = createMachine({
             // Находим предыдущий размер в массиве PREVIEW_SIZES
             previewSize: ({ context }) => {
               // Находим индекс текущего размера или ближайшего к нему большего
-              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize,
+              );
 
               // Если текущий размер меньше минимального в массиве
               if (currentIndex === -1) {
-                return MIN_PREVIEW_SIZE
+                return MIN_PREVIEW_SIZE;
               }
 
               // Если текущий размер равен первому элементу массива
               if (currentIndex === 0) {
-                return MIN_PREVIEW_SIZE
+                return MIN_PREVIEW_SIZE;
               }
 
               // Возвращаем предыдущий размер из массива
-              return PREVIEW_SIZES[currentIndex - 1]
+              return PREVIEW_SIZES[currentIndex - 1];
             },
             // Обновляем флаги возможности изменения размера
             canDecreaseSize: ({ context }) => {
-              const currentIndex = PREVIEW_SIZES.findIndex((size) => size >= context.previewSize)
-              return currentIndex > 0
+              const currentIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= context.previewSize,
+              );
+              return currentIndex > 0;
             },
             canIncreaseSize: () => true,
           }),
@@ -645,36 +696,43 @@ export const mediaListMachine = createMachine({
             // Устанавливаем размер превью, выбирая ближайший из массива PREVIEW_SIZES
             previewSize: ({ event }) => {
               // Ограничиваем размер в пределах допустимых значений
-              const clampedSize = Math.max(MIN_PREVIEW_SIZE, Math.min(event.size, MAX_PREVIEW_SIZE))
+              const clampedSize = Math.max(
+                MIN_PREVIEW_SIZE,
+                Math.min(event.size, MAX_PREVIEW_SIZE),
+              );
 
               // Находим ближайший размер в массиве PREVIEW_SIZES
-              let closestSize = PREVIEW_SIZES[0]
-              let minDiff = Math.abs(clampedSize - closestSize)
+              let closestSize = PREVIEW_SIZES[0];
+              let minDiff = Math.abs(clampedSize - closestSize);
 
               for (let i = 1; i < PREVIEW_SIZES.length; i++) {
-                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i])
+                const diff = Math.abs(clampedSize - PREVIEW_SIZES[i]);
                 if (diff < minDiff) {
-                  minDiff = diff
-                  closestSize = PREVIEW_SIZES[i]
+                  minDiff = diff;
+                  closestSize = PREVIEW_SIZES[i];
                 }
               }
 
-              return closestSize
+              return closestSize;
             },
             // Обновляем флаги возможности изменения размера
             canIncreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = PREVIEW_SIZES.findIndex((size) => size >= event.size)
-              return closestSizeIndex < PREVIEW_SIZES.length - 1
+              const closestSizeIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= event.size,
+              );
+              return closestSizeIndex < PREVIEW_SIZES.length - 1;
             },
             canDecreaseSize: ({ event }) => {
               // Находим ближайший размер в массиве
-              const closestSizeIndex = PREVIEW_SIZES.findIndex((size) => size >= event.size)
-              return closestSizeIndex > 0
+              const closestSizeIndex = PREVIEW_SIZES.findIndex(
+                (size) => size >= event.size,
+              );
+              return closestSizeIndex > 0;
             },
           }),
         },
       },
     },
   },
-})
+});

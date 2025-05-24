@@ -1,9 +1,9 @@
-import React from "react"
+import React from "react";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { VideoPanelComponent } from "../../video-panel-component"
-import { TemplateProps } from "../types"
+import { VideoPanelComponent } from "../../video-panel-component";
+import { TemplateProps } from "../types";
 
 /**
  * Шаблон "5 экранов: 2 + 1 + 2 (сверху и снизу)"
@@ -17,26 +17,32 @@ export function SplitCustom53Square({
   templateId,
 }: TemplateProps & { templateId?: string }) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
-  const videoCount = Math.min(validVideos.length, 5)
+  const validVideos = videos.filter((v) => v?.path);
+  const videoCount = Math.min(validVideos.length, 5);
 
   // Определяем ориентацию на основе ID шаблона
-  const isSquare = templateId ? templateId.includes("square") : false
+  const isSquare = templateId ? templateId.includes("square") : false;
 
-  console.log(`[SplitCustom53Square] Рендеринг шаблона ${templateId} с параметрами:`, {
-    isSquare,
-    isResizable,
-  })
+  console.log(
+    `[SplitCustom53Square] Рендеринг шаблона ${templateId} с параметрами:`,
+    {
+      isSquare,
+      isResizable,
+    },
+  );
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 5) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div className="flex h-full w-full flex-col" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="flex h-full w-full flex-col"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Верхняя секция с 2 видео */}
         <div className="flex h-1/3 w-full">
           {/* Левое верхнее видео */}
@@ -105,12 +111,15 @@ export function SplitCustom53Square({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
+    <div
+      className="h-full w-full"
+      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
+    >
       <PanelGroup direction="vertical">
         {/* Верхняя секция с 2 видео */}
         <Panel defaultSize={33.33} minSize={20}>
@@ -173,5 +182,5 @@ export function SplitCustom53Square({
         </Panel>
       </PanelGroup>
     </div>
-  )
+  );
 }

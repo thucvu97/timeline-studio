@@ -23,8 +23,18 @@ vi.mock("../../browser/components/layout/no-files", () => ({
 
 // Мокаем MediaGroup
 vi.mock("./media-group", () => ({
-  MediaGroup: ({ title, files, viewMode, previewSize, addFilesToTimeline }: {
-    title: string; files: any[]; viewMode: string; previewSize: number; addFilesToTimeline: (files: any[]) => void;
+  MediaGroup: ({
+    title,
+    files,
+    viewMode,
+    previewSize,
+    addFilesToTimeline,
+  }: {
+    title: string;
+    files: any[];
+    viewMode: string;
+    previewSize: number;
+    addFilesToTimeline: (files: any[]) => void;
   }) => (
     <div
       data-testid="media-group"

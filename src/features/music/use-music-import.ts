@@ -116,43 +116,54 @@ export function useMusicImport() {
   /**
    * Быстро создает музыкальные файлы с минимумом данных, затем асинхронно загружает метаданные
    */
-  const processFiles = useCallback(async (
-    filePaths: string[],
-  ): Promise<MediaFile[]> => {
-    const totalFiles = filePaths.length;
+  const processFiles = useCallback(
+    async (filePaths: string[]): Promise<MediaFile[]> => {
+      const totalFiles = filePaths.length;
 
-    // ШАГ 1: Быстро создаем базовые объекты для всех файлов
-    console.log(`Создание ${totalFiles} базовых музыкальных файлов...`);
-    const basicMusicFiles = filePaths.map(createBasicMusicFile);
+      // ШАГ 1: Быстро создаем базовые объекты для всех файлов
+      console.log(`Создание ${totalFiles} базовых музыкальных файлов...`);
+      const basicMusicFiles = filePaths.map(createBasicMusicFile);
 
-    // Сразу добавляем базовые объекты в музыкальный контекст - пользователь сразу видит файлы
-    addMusicFiles(basicMusicFiles);
+      // Сразу добавляем базовые объекты в музыкальный контекст - пользователь сразу видит файлы
+      addMusicFiles(basicMusicFiles);
 
-    // ШАГ 2: Асинхронно загружаем метаданные для каждого файла по очереди
-    console.log(`Начинаем загрузку метаданных для ${totalFiles} музыкальных файлов...`);
+      // ШАГ 2: Асинхронно загружаем метаданные для каждого файла по очереди
+      console.log(
+        `Начинаем загрузку метаданных для ${totalFiles} музыкальных файлов...`,
+      );
 
-    // Запускаем асинхронную загрузку метаданных (не блокируем UI)
-    setTimeout(() => {
-      void loadMusicMetadataWithPool(filePaths, totalFiles);
-    }, 100); // Небольшая задержка, чтобы UI успел отрендериться
+      // Запускаем асинхронную загрузку метаданных (не блокируем UI)
+      setTimeout(() => {
+        void loadMusicMetadataWithPool(filePaths, totalFiles);
+      }, 100); // Небольшая задержка, чтобы UI успел отрендериться
 
-    return basicMusicFiles;
-  }, [addMusicFiles]);
+      return basicMusicFiles;
+    },
+    [addMusicFiles],
+  );
 
   /**
    * Загружает метаданные музыки с ограниченным пулом одновременных запросов
    */
-  const loadMusicMetadataWithPool = async (filePaths: string[], totalFiles: number) => {
+  const loadMusicMetadataWithPool = async (
+    filePaths: string[],
+    totalFiles: number,
+  ) => {
     let completedCount = 0;
     let activeRequests = 0;
     let currentIndex = 0;
 
     // Функция для обработки одного музыкального файла
-    const processFile = async (filePath: string, fileIndex: number): Promise<void> => {
+    const processFile = async (
+      filePath: string,
+      fileIndex: number,
+    ): Promise<void> => {
       activeRequests++;
 
       try {
-        console.log(`[${fileIndex + 1}/${totalFiles}] 🎵 Загрузка метаданных музыки: ${filePath.split('/').pop()}`);
+        console.log(
+          `[${fileIndex + 1}/${totalFiles}] 🎵 Загрузка метаданных музыки: ${filePath.split("/").pop()}`,
+        );
 
         // Получаем метаданные файла
         const metadata = await getMediaMetadata(filePath);
@@ -185,7 +196,9 @@ export function useMusicImport() {
             updateMusicFiles([updatedMusicFile]);
           });
 
-          console.log(`[${fileIndex + 1}/${totalFiles}] ✅ Метаданные музыки загружены: ${filePath.split('/').pop()}`);
+          console.log(
+            `[${fileIndex + 1}/${totalFiles}] ✅ Метаданные музыки загружены: ${filePath.split("/").pop()}`,
+          );
         } else {
           // Если метаданные не получены, просто снимаем флаг загрузки
           const fallbackMusicFile: MediaFile = {
@@ -196,10 +209,15 @@ export function useMusicImport() {
             updateMusicFiles([fallbackMusicFile]);
           });
 
-          console.log(`[${fileIndex + 1}/${totalFiles}] ⚠️ Метаданные музыки не получены: ${filePath.split('/').pop()}`);
+          console.log(
+            `[${fileIndex + 1}/${totalFiles}] ⚠️ Метаданные музыки не получены: ${filePath.split("/").pop()}`,
+          );
         }
       } catch (error) {
-        console.error(`[${fileIndex + 1}/${totalFiles}] ❌ Ошибка при загрузке метаданных музыки ${filePath.split('/').pop()}:`, error);
+        console.error(
+          `[${fileIndex + 1}/${totalFiles}] ❌ Ошибка при загрузке метаданных музыки ${filePath.split("/").pop()}:`,
+          error,
+        );
 
         // При ошибке снимаем флаг загрузки метаданных
         const errorMusicFile: MediaFile = {
@@ -220,7 +238,10 @@ export function useMusicImport() {
 
     // Функция для запуска следующего файла, если есть свободные слоты
     const startNextFile = async (): Promise<void> => {
-      if (currentIndex >= filePaths.length || activeRequests >= MAX_CONCURRENT_REQUESTS) {
+      if (
+        currentIndex >= filePaths.length ||
+        activeRequests >= MAX_CONCURRENT_REQUESTS
+      ) {
         return;
       }
 
@@ -235,18 +256,26 @@ export function useMusicImport() {
     };
 
     // Запускаем начальные запросы
-    console.log(`🎵 Начинаем загрузку метаданных для ${totalFiles} музыкальных файлов (пул: ${MAX_CONCURRENT_REQUESTS})`);
+    console.log(
+      `🎵 Начинаем загрузку метаданных для ${totalFiles} музыкальных файлов (пул: ${MAX_CONCURRENT_REQUESTS})`,
+    );
 
-    for (let i = 0; i < Math.min(MAX_CONCURRENT_REQUESTS, filePaths.length); i++) {
+    for (
+      let i = 0;
+      i < Math.min(MAX_CONCURRENT_REQUESTS, filePaths.length);
+      i++
+    ) {
       setTimeout(() => startNextFile(), i * REQUEST_DELAY);
     }
 
     // Ждем завершения всех запросов
     while (completedCount < totalFiles) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    console.log(`🎉 Загрузка метаданных музыки завершена для всех ${totalFiles} файлов`);
+    console.log(
+      `🎉 Загрузка метаданных музыки завершена для всех ${totalFiles} файлов`,
+    );
   };
 
   /**

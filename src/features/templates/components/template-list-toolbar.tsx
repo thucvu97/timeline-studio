@@ -1,12 +1,17 @@
-import type { ChangeEvent } from "react"
+import type { ChangeEvent } from "react";
 
-import { Star, ZoomIn, ZoomOut } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { Star, ZoomIn, ZoomOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 /**
  * Интерфейс пропсов для компонента TemplateListToolbar
@@ -21,14 +26,14 @@ import { cn } from "@/lib/utils"
  * @property {Function} [onToggleFavorites] - Обработчик переключения режима избранного
  */
 interface TemplateListToolbarProps {
-  searchQuery: string
-  setSearchQuery: (value: string) => void
-  canDecreaseSize: boolean
-  canIncreaseSize: boolean
-  handleDecreaseSize: () => void
-  handleIncreaseSize: () => void
-  showFavoritesOnly?: boolean
-  onToggleFavorites?: () => void
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+  canDecreaseSize: boolean;
+  canIncreaseSize: boolean;
+  handleDecreaseSize: () => void;
+  handleIncreaseSize: () => void;
+  showFavoritesOnly?: boolean;
+  onToggleFavorites?: () => void;
 }
 
 /**
@@ -48,14 +53,14 @@ export function TemplateListToolbar({
   showFavoritesOnly = false, // По умолчанию не показываем только избранные
   onToggleFavorites = () => {}, // Пустая функция по умолчанию
 }: TemplateListToolbarProps) {
-  const { t } = useTranslation() // Хук для интернационализации
+  const { t } = useTranslation(); // Хук для интернационализации
 
   /**
    * Обработчик изменения поискового запроса
    * @param {ChangeEvent<HTMLInputElement>} e - Событие изменения ввода
    */
   function onSearchChange(e: ChangeEvent<HTMLInputElement>) {
-    setSearchQuery(e.target.value) // Обновляем поисковый запрос
+    setSearchQuery(e.target.value); // Обновляем поисковый запрос
   }
 
   return (
@@ -139,5 +144,5 @@ export function TemplateListToolbar({
         </TooltipProvider>
       </div>
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-import React from "react"
+import React from "react";
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-import { VideoPanelComponent } from "../../video-panel-component"
-import { TemplateProps } from "../types"
+import { VideoPanelComponent } from "../../video-panel-component";
+import { TemplateProps } from "../types";
 
 /**
  * Шаблон "Сетка 3x2" (6 экранов)
@@ -17,33 +17,36 @@ export function SplitGrid3x2({
   templateId,
 }: TemplateProps & { templateId?: string }) {
   // Определяем ориентацию на основе ID шаблона
-  const isPortrait = templateId ? templateId.includes("portrait") : false
-  const isSquare = templateId ? templateId.includes("square") : false
+  const isPortrait = templateId ? templateId.includes("portrait") : false;
+  const isSquare = templateId ? templateId.includes("square") : false;
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path)
-  const videoCount = Math.min(validVideos.length, 6)
+  const validVideos = videos.filter((v) => v?.path);
+  const videoCount = Math.min(validVideos.length, 6);
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 6) {
-    return <div className="h-full w-full bg-black" />
+    return <div className="h-full w-full bg-black" />;
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
+      <div
+        className="relative h-full w-full"
+        style={{ border: "1px solid #35d1c1" }}
+      >
         {/* Рендерим видео */}
         {validVideos.slice(0, videoCount).map((video, index) => {
           // Вычисляем позицию и размер для каждого видео
-          const row = Math.floor(index / 3)
-          const col = index % 3
+          const row = Math.floor(index / 3);
+          const col = index % 3;
 
           const style = {
             top: `${row * 50}%`,
             left: `${col * 33.33}%`,
             width: "33.33%",
             height: "50%",
-          }
+          };
 
           return (
             <div
@@ -64,7 +67,7 @@ export function SplitGrid3x2({
                 index={index}
               />
             </div>
-          )
+          );
         })}
 
         {/* Добавляем разделительные линии */}
@@ -95,7 +98,7 @@ export function SplitGrid3x2({
           }}
         />
       </div>
-    )
+    );
   }
 
   // Ландшафтный режим (3x2) или квадратный режим по умолчанию
@@ -173,5 +176,5 @@ export function SplitGrid3x2({
         </Panel>
       </PanelGroup>
     </div>
-  )
+  );
 }
