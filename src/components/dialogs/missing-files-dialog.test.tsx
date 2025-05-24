@@ -117,7 +117,7 @@ describe("MissingFilesDialog", () => {
   it("должен отображаться когда open=true", () => {
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
@@ -146,7 +146,7 @@ describe("MissingFilesDialog", () => {
   it("должен отображать список отсутствующих файлов", () => {
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
@@ -162,7 +162,7 @@ describe("MissingFilesDialog", () => {
   it("должен показывать правильные иконки статуса", () => {
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
@@ -179,7 +179,7 @@ describe("MissingFilesDialog", () => {
 
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={[mockMissingFiles[0]]}
         onResolve={mockOnResolve}
@@ -206,7 +206,7 @@ describe("MissingFilesDialog", () => {
 
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={[mockMissingFiles[0]]}
         onResolve={mockOnResolve}
@@ -228,7 +228,7 @@ describe("MissingFilesDialog", () => {
 
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
@@ -273,7 +273,7 @@ describe("MissingFilesDialog", () => {
 
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
@@ -289,7 +289,7 @@ describe("MissingFilesDialog", () => {
   it("должен показывать правильное количество файлов в заголовке", () => {
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
@@ -306,7 +306,7 @@ describe("MissingFilesDialog", () => {
 
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={[mockMissingFiles[0]]}
         onResolve={mockOnResolve}
@@ -327,7 +327,7 @@ describe("MissingFilesDialog", () => {
   it("должен показывать размер файла в читаемом формате", () => {
     render(
       <MissingFilesDialog
-        open={true}
+        open
         onOpenChange={mockOnOpenChange}
         missingFiles={[mockMissingFiles[0]]}
         onResolve={mockOnResolve}
