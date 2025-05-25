@@ -68,11 +68,10 @@ export function TransitionList() {
   /**
    * Демонстрационные видео для превью переходов
    * Используются для визуализации эффекта перехода
-   * В Tauri используем относительные пути к файлам в bundle
    */
   const demoVideos = {
-    source: { path: "./t1.mp4" } as MediaFile, // Исходное видео
-    target: { path: "./t2.mp4" } as MediaFile, // Целевое видео
+    source: { path: "/t1.mp4" } as MediaFile, // Исходное видео
+    target: { path: "/t2.mp4" } as MediaFile, // Целевое видео
   };
 
   /**

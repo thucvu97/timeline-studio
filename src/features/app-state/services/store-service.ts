@@ -135,7 +135,8 @@ export class StoreService {
       // Явно сохраняем изменения на диск
       await this.store.save()
 
-      console.log("[StoreService] Settings saved successfully")
+      // Убираем лог для уменьшения шума в консоли
+      // console.log("[StoreService] Settings saved successfully")
     } catch (error) {
       console.error("[StoreService] Error saving settings:", error)
     }

@@ -81,6 +81,7 @@
     "layout": "Макет",
     "keyboardShortcuts": "Быстрые клавиши",
     "projectSettings": "Настройки проекта",
+    "openProject": "Открыть проект",
     "saveChanges": "Сохранить изменения",
     "allChangesSaved": "Все изменения сохранены",
     "publish": "Опубликовать",

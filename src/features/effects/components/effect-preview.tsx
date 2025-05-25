@@ -161,9 +161,24 @@ export function EffectPreview({
 
         {/* Индикаторы эффекта */}
         {effect && (
-          <div className="absolute top-1 right-1">
-            <EffectIndicators effect={effect} size="sm" />
-          </div>
+          <>
+            {/* Цветовой индикатор сложности слева */}
+            <div className="absolute top-1 left-1">
+              <div
+                className={`h-2 w-2 rounded-full ${
+                  effect.complexity === "basic" ? "bg-green-500" :
+                  effect.complexity === "intermediate" ? "bg-yellow-500" :
+                  effect.complexity === "advanced" ? "bg-red-500" : "bg-gray-500"
+                }`}
+                title={`effects.complexity.${effect.complexity || "basic"}`}
+              />
+            </div>
+
+            {/* Индикаторы категории и тегов справа */}
+            <div className="absolute top-1 right-1">
+              <EffectIndicators effect={effect} size="sm" />
+            </div>
+          </>
         )}
 
         {/* Кнопка добавления в избранное */}

@@ -211,17 +211,18 @@ export function FilterPreview({
           data-testid="filter-video"
         />
 
-        {/* Индикаторы сложности и категории */}
-        <div className="absolute top-1 left-1 flex gap-1">
-          {/* Индикатор сложности */}
+        {/* Индикатор сложности слева */}
+        <div className="absolute top-1 left-1">
           <div
             className={`h-2 w-2 rounded-full ${getComplexityColor(filter.complexity || "basic")}`}
             title={t(`filters.complexity.${filter.complexity || "basic"}`)}
           />
+        </div>
 
-          {/* Индикатор категории */}
+        {/* Индикатор категории справа */}
+        <div className="absolute top-1 right-1">
           <div
-            className="bg-black/70 text-white text-[8px] px-1 py-0.5 rounded"
+            className="bg-black/70 text-white font-medium text-[11px] px-1 py-0.5 rounded"
             title={t(`filters.categories.${filter.category}`)}
           >
             {getCategoryAbbreviation(filter.category)}

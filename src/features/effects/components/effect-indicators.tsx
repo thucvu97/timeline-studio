@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { VideoEffect } from "@/types/effects";
 
 interface EffectIndicatorsProps {
@@ -5,80 +7,58 @@ interface EffectIndicatorsProps {
   size?: "sm" | "md";
 }
 
-const MAIN_STYLE = "pointer-events-none dark:bg-black/70 dark:text-gray-100 rounded-xs";
-
 /**
  * Компонент для отображения индикаторов эффекта (сложность, теги)
- * Простой дизайн: только 3-буквенные аббревиатуры без цветов и иконок
+ * Цветовой кружок сложности слева + текстовые индикаторы тегов
  */
 export function EffectIndicators({ effect, size = "sm" }: EffectIndicatorsProps) {
-  const textSize = size === "sm" ? "text-[11px]" : "text-sm";
-  const padding = size === "sm" ? "px-1 py-0" : "px-1.5 py-0.5";
-  const position = size === "md" ? "bottom-1 left-1" : "bottom-0.5 left-0.5"
-  const gap = size === "sm" ? "gap-1.5" : "gap-2";
+  const { t } = useTranslation();
+  const textSize = size === "sm" ? "text-[11px]" : "text-[12px]";
+  const padding = size === "sm" ? "px-1 py-0.5" : "px-1.5 py-0.5";
+  const gap = size === "sm" ? "gap-1" : "gap-1.5";
 
   // Проверяем наличие новых полей для обратной совместимости
-  const complexity = effect.complexity || "basic";
   const tags = effect.tags || [];
 
-  return (
-    <div className={`flex ${gap}`}>
-      {/* Индикатор сложности */}
-      {complexity === "advanced" && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
-          <span>ADV</span>
-        </div>
-      )}
-      {complexity === "intermediate" && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
-          <span>INT</span>
-        </div>
-      )}
+  // Получаем аббревиатуру для категории эффекта
+  const getCategoryAbbreviation = (category: string) => {
+    switch (category) {
+      case "color-correction": return "CC";
+      case "artistic": return "ART";
+      case "vintage": return "VIN";
+      case "cinematic": return "CIN";
+      case "creative": return "CRE";
+      case "technical": return "TEC";
+      case "motion": return "MOT";
+      case "distortion": return "DIS";
+      default: return "EFF";
+    }
+  };
 
-      {/* Индикаторы тегов - только 3-буквенные аббревиатуры */}
+  return (
+    <div className={`flex items-center ${gap}`}>
+      {/* Индикатор категории */}
+      <div
+        className={`bg-black/70 text-white font-medium ${textSize} ${padding} rounded`}
+        title={t(`effects.categories.${effect.category}`)}
+      >
+        {getCategoryAbbreviation(effect.category)}
+      </div>
+
+      {/* Индикаторы тегов - только самые важные */}
       {tags.includes("popular") && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
+        <div className={`bg-black/70 text-white font-medium ${textSize} ${padding} rounded`}>
           <span>POP</span>
         </div>
       )}
       {tags.includes("professional") && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
+        <div className={`bg-black/70 text-white font-medium ${textSize} ${padding} rounded`}>
           <span>PRO</span>
         </div>
       )}
       {tags.includes("experimental") && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
+        <div className={`bg-black/70 text-white font-medium ${textSize} ${padding} rounded`}>
           <span>EXP</span>
-        </div>
-      )}
-      {tags.includes("beginner-friendly") && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
-          <span>BEG</span>
-        </div>
-      )}
-      {tags.includes("retro") && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
-          <span>RET</span>
-        </div>
-      )}
-      {tags.includes("dramatic") && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
-          <span>DRA</span>
-        </div>
-      )}
-      {tags.includes("subtle") && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
-          <span>SUB</span>
-        </div>
-      )}
-      {tags.includes("intense") && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
-          <span>INT</span>
-        </div>
-      )}
-      {tags.includes("modern") && (
-        <div className={`${MAIN_STYLE} ${position} ${textSize} ${padding}`}>
-          <span>MOD</span>
         </div>
       )}
     </div>

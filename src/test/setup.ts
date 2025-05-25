@@ -44,18 +44,34 @@ afterEach(() => {
   cleanup();
 });
 
-// Мок для window.matchMedia
+// Мок для window.matchMedia (расширенный для next-themes)
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
+    addListener: vi.fn(), // Deprecated but still used by some libraries
+    removeListener: vi.fn(), // Deprecated but still used by some libraries
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Мок для next-themes
+vi.mock("next-themes", () => ({
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => (
+    React.createElement("div", { "data-testid": "next-theme-provider" }, children)
+  ),
+  useTheme: () => ({
+    theme: "light",
+    setTheme: vi.fn(),
+    resolvedTheme: "light",
+    themes: ["light", "dark", "system"],
+    systemTheme: "light",
+  }),
+}));
 
 // Мок для Tauri API
 vi.mock("@tauri-apps/api/core", () => ({

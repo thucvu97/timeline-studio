@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 
-import { exists, readDir } from "@tauri-apps/plugin-fs";
-
 /**
  * Структура для автозагрузки пользовательских данных
  */
@@ -23,7 +21,7 @@ interface UserDataDirectories {
  * - public/subtitles/
  * - public/templates/
  * - public/style-templates/
- * 
+ *
  * И автоматически загружает найденные JSON файлы
  */
 export function useAutoLoadUserData() {
@@ -39,10 +37,26 @@ export function useAutoLoadUserData() {
   const [error, setError] = useState<string | null>(null);
 
   /**
+   * Проверяет, работаем ли мы в Tauri окружении
+   */
+  const isTauriEnvironment = () => {
+    return typeof window !== 'undefined' && '__TAURI__' in window;
+  };
+
+  /**
    * Проверяет существование директории и возвращает список JSON файлов
    */
   const scanDirectory = async (dirPath: string): Promise<string[]> => {
     try {
+      // В веб-браузере не можем сканировать файловую систему
+      if (!isTauriEnvironment()) {
+        console.log(`Веб-браузер: пропускаем сканирование ${dirPath}`);
+        return [];
+      }
+
+      // Динамически импортируем Tauri API только если мы в Tauri окружении
+      const { exists, readDir } = await import("@tauri-apps/plugin-fs");
+
       const dirExists = await exists(dirPath);
       if (!dirExists) {
         console.log(`Директория ${dirPath} не существует`);
@@ -51,8 +65,8 @@ export function useAutoLoadUserData() {
 
       const entries = await readDir(dirPath);
       const jsonFiles = entries
-        .filter(entry => entry.isFile && entry.name.endsWith('.json'))
-        .map(entry => `${dirPath}/${entry.name}`);
+        .filter((entry: any) => entry.isFile && entry.name.endsWith('.json'))
+        .map((entry: any) => `${dirPath}/${entry.name}`);
 
       console.log(`Найдено ${jsonFiles.length} JSON файлов в ${dirPath}:`, jsonFiles);
       return jsonFiles;
@@ -67,7 +81,9 @@ export function useAutoLoadUserData() {
    */
   const loadJsonFile = async (filePath: string): Promise<any> => {
     try {
-      const response = await fetch(`file://${filePath}`);
+      // В веб-браузере используем обычный HTTP запрос
+      const url = isTauriEnvironment() ? `file://${filePath}` : `/${filePath}`;
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -93,7 +109,7 @@ export function useAutoLoadUserData() {
       // Определяем пути к директориям
       const directories = {
         effects: "public/effects",
-        transitions: "public/transitions", 
+        transitions: "public/transitions",
         filters: "public/filters",
         subtitles: "public/subtitles",
         templates: "public/templates",
@@ -129,7 +145,7 @@ export function useAutoLoadUserData() {
 
       if (allFiles.length > 0) {
         console.log(`Загружаем ${allFiles.length} пользовательских файлов...`);
-        
+
         // Загружаем все файлы параллельно
         const loadedFiles = await Promise.all(
           allFiles.map(filePath => loadJsonFile(filePath))

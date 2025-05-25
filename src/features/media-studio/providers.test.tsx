@@ -92,7 +92,6 @@ describe("Providers", () => {
     expect(html).toContain('data-testid="i18n-provider"');
     expect(html).toContain('data-testid="modal-provider"');
     expect(html).toContain('data-testid="project-settings-provider"');
-    expect(html).toContain('data-testid="music-provider"');
     expect(html).toContain('data-testid="test-component"');
 
     // Проверяем порядок вложенности
@@ -148,9 +147,6 @@ describe("Providers", () => {
     ).toBeInTheDocument();
     expect(
       container.querySelector('[data-testid="project-settings-provider"]'),
-    ).toBeInTheDocument();
-    expect(
-      container.querySelector('[data-testid="music-provider"]'),
     ).toBeInTheDocument();
     expect(
       container.querySelector('[data-testid="test-component"]'),

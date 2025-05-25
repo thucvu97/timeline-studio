@@ -51,16 +51,22 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
           const testTemplates: StyleTemplate[] = [
             {
               id: "modern-intro-1",
-              name: "Современное интро",
+              name: {
+                ru: "Современное интро",
+                en: "Modern Intro"
+              },
               category: "intro",
               style: "modern",
               aspectRatio: "16:9",
               duration: 3,
               hasText: true,
               hasAnimation: true,
-              thumbnail: "/style-templates/modern-intro-1-thumb.jpg",
-              previewVideo: "/style-templates/modern-intro-1-preview.mp4",
-              tags: ["intro", "modern", "text", "animation"],
+              thumbnail: null,
+              previewVideo: null,
+              tags: {
+                ru: ["интро", "современный", "текст", "анимация"],
+                en: ["intro", "modern", "text", "animation"]
+              },
               description: {
                 ru: "Современное интро с анимированным текстом",
                 en: "Modern intro with animated text"
@@ -69,16 +75,22 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
             },
             {
               id: "minimal-outro-1",
-              name: "Минималистичная концовка",
+              name: {
+                ru: "Минималистичная концовка",
+                en: "Minimal Outro"
+              },
               category: "outro",
               style: "minimal",
               aspectRatio: "16:9",
               duration: 4,
               hasText: true,
               hasAnimation: true,
-              thumbnail: "/style-templates/minimal-outro-1-thumb.jpg",
-              previewVideo: "/style-templates/minimal-outro-1-preview.mp4",
-              tags: ["outro", "minimal", "clean", "simple"],
+              thumbnail: null,
+              previewVideo: null,
+              tags: {
+                ru: ["концовка", "минимализм", "чистый", "простой"],
+                en: ["outro", "minimal", "clean", "simple"]
+              },
               description: {
                 ru: "Минималистичная концовка с простой анимацией",
                 en: "Minimalist outro with simple animation"
@@ -87,15 +99,21 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
             },
             {
               id: "corporate-lower-third-1",
-              name: "Корпоративная нижняя треть",
+              name: {
+                ru: "Корпоративная нижняя треть",
+                en: "Corporate Lower Third"
+              },
               category: "lower-third",
               style: "corporate",
               aspectRatio: "16:9",
               duration: 5,
               hasText: true,
               hasAnimation: true,
-              thumbnail: "/style-templates/corporate-lower-third-1-thumb.jpg",
-              tags: ["lower-third", "corporate", "professional"],
+              thumbnail: null,
+              tags: {
+                ru: ["нижняя треть", "корпоративный", "профессиональный"],
+                en: ["lower-third", "corporate", "professional"]
+              },
               description: {
                 ru: "Профессиональная нижняя треть для корпоративных видео",
                 en: "Professional lower third for corporate videos"

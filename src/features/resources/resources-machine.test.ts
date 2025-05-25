@@ -5,7 +5,7 @@ import { MediaTemplate } from "@/features/templates/lib/templates";
 import { VideoEffect } from "@/types/effects";
 import { VideoFilter } from "@/types/filters";
 import { MediaFile } from "@/types/media";
-import { TransitionEffect } from "@/types/transitions";
+import { Transition } from "@/types/transitions";
 
 import { resourcesMachine } from "./resources-machine";
 
@@ -44,6 +44,7 @@ describe("resourcesMachine", () => {
       templateResources: [],
       musicResources: [],
       subtitleResources: [],
+      styleTemplateResources: [],
     });
 
     // Проверяем начальное состояние
@@ -285,7 +286,7 @@ describe("resourcesMachine", () => {
     actor.start();
 
     // Создаем тестовый переход
-    const testTransition: TransitionEffect = {
+    const testTransition: Transition = {
       id: "test-transition",
       name: "Test Transition",
       type: "fade",
