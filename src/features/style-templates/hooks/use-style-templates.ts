@@ -179,7 +179,10 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
 
     switch (sortBy) {
       case "name":
-        comparison = a.name.localeCompare(b.name);
+        // Обрабатываем name как объект с языками
+        const nameA = typeof a.name === 'string' ? a.name : (a.name?.ru || a.name?.en || "");
+        const nameB = typeof b.name === 'string' ? b.name : (b.name?.ru || b.name?.en || "");
+        comparison = nameA.localeCompare(nameB);
         break;
       case "duration":
         comparison = a.duration - b.duration;

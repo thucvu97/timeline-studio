@@ -20,7 +20,12 @@ export function StyleTemplateList(): React.ReactElement {
   const { templates, loading, error } = useStyleTemplates();
   const media = useMedia(); // Для работы с избранным
 
-  console.log("StyleTemplateList render:", { templates, loading, error });
+  console.log("🎨 [StyleTemplateList] Render:", {
+    templatesCount: templates.length,
+    loading,
+    error,
+    templates: templates.slice(0, 2) // Показываем первые 2 для отладки
+  });
 
   // Получаем текущий язык
   const currentLanguage = (i18n.language || 'ru') as 'ru' | 'en';
