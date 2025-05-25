@@ -973,6 +973,19 @@
     "remove": "Remove effect",
     "duration": "Duration",
     "intensity": "Intensity",
+    "viewMode": {
+      "grid": "Grid",
+      "categories": "Categories"
+    },
+    "filters": {
+      "category": "Category",
+      "complexity": "Complexity",
+      "tags": "Tags",
+      "allCategories": "All categories",
+      "allComplexity": "All levels",
+      "allTags": "All tags",
+      "favoritesOnly": "Favorites only"
+    },
     "categories": {
       "transition": "Transitions",
       "motion": "Motion",
@@ -980,7 +993,30 @@
       "particle": "Particles",
       "text": "Text",
       "3d": "3D",
-      "other": "Other"
+      "other": "Other",
+      "color-correction": "Color Correction",
+      "artistic": "Artistic",
+      "vintage": "Vintage",
+      "cinematic": "Cinematic",
+      "creative": "Creative",
+      "technical": "Technical",
+      "distortion": "Distortion"
+    },
+    "complexity": {
+      "basic": "Basic",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "tags": {
+      "popular": "Popular",
+      "professional": "Professional",
+      "beginner-friendly": "Beginner Friendly",
+      "experimental": "Experimental",
+      "retro": "Retro",
+      "modern": "Modern",
+      "dramatic": "Dramatic",
+      "subtle": "Subtle",
+      "intense": "Intense"
     },
     "names": {
       "fade": "Fade",
@@ -1025,6 +1061,27 @@
       "lomo": "Lomo",
       "twilight": "Twilight",
       "neon": "Neon"
+    },
+    "errors": {
+      "invalidEffectsData": "Invalid effects data structure",
+      "invalidCategoriesData": "Invalid categories data structure",
+      "unknownError": "Unknown error",
+      "failedToLoadEffects": "Failed to load effects: {{error}}",
+      "failedToLoadCategories": "Failed to load categories: {{error}}",
+      "fallbackEffects": "Failed to load effects, using fallback",
+      "fallbackCategories": "Failed to load categories, using fallback"
+    },
+    "messages": {
+      "effectsLoaded": "Loaded {{count}} effects from JSON",
+      "categoriesLoaded": "Loaded {{count}} effect categories from JSON"
+    },
+    "detail": {
+      "description": "Description",
+      "category": "Category",
+      "parameters": "Parameters",
+      "presets": "Presets",
+      "ffmpegCommand": "FFmpeg Command",
+      "applyEffect": "Apply Effect"
     }
   },
   "project": {

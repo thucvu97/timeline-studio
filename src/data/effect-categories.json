@@ -1,0 +1,142 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-15",
+  "categories": {
+    "color-correction": {
+      "name": {
+        "ru": "Цветокоррекция",
+        "en": "Color Correction",
+        "es": "Corrección de Color",
+        "fr": "Correction des Couleurs",
+        "de": "Farbkorrektur"
+      },
+      "description": {
+        "ru": "Базовые инструменты цветокоррекции для улучшения изображения",
+        "en": "Basic color correction tools for image enhancement",
+        "es": "Herramientas básicas de corrección de color para mejorar la imagen",
+        "fr": "Outils de base pour la correction des couleurs et l'amélioration de l'image",
+        "de": "Grundlegende Farbkorrektur-Tools zur Bildverbesserung"
+      },
+      "order": 1
+    },
+    "vintage": {
+      "name": {
+        "ru": "Винтажные",
+        "en": "Vintage",
+        "es": "Vintage",
+        "fr": "Vintage",
+        "de": "Vintage"
+      },
+      "description": {
+        "ru": "Винтажные и ретро эффекты для создания атмосферы прошлого",
+        "en": "Vintage and retro effects for creating nostalgic atmosphere",
+        "es": "Efectos vintage y retro para crear una atmósfera nostálgica",
+        "fr": "Effets vintage et rétro pour créer une atmosphère nostalgique",
+        "de": "Vintage- und Retro-Effekte für nostalgische Atmosphäre"
+      },
+      "order": 2
+    },
+    "artistic": {
+      "name": {
+        "ru": "Художественные",
+        "en": "Artistic",
+        "es": "Artísticos",
+        "fr": "Artistiques",
+        "de": "Künstlerisch"
+      },
+      "description": {
+        "ru": "Художественные эффекты для творческого самовыражения",
+        "en": "Artistic effects for creative expression",
+        "es": "Efectos artísticos para la expresión creativa",
+        "fr": "Effets artistiques pour l'expression créative",
+        "de": "Künstlerische Effekte für kreativen Ausdruck"
+      },
+      "order": 3
+    },
+    "cinematic": {
+      "name": {
+        "ru": "Кинематографические",
+        "en": "Cinematic",
+        "es": "Cinematográficos",
+        "fr": "Cinématographiques",
+        "de": "Kinematografisch"
+      },
+      "description": {
+        "ru": "Кинематографические эффекты для профессионального вида",
+        "en": "Cinematic effects for professional look",
+        "es": "Efectos cinematográficos para un aspecto profesional",
+        "fr": "Effets cinématographiques pour un aspect professionnel",
+        "de": "Kinematografische Effekte für professionelles Aussehen"
+      },
+      "order": 4
+    },
+    "creative": {
+      "name": {
+        "ru": "Креативные",
+        "en": "Creative",
+        "es": "Creativos",
+        "fr": "Créatifs",
+        "de": "Kreativ"
+      },
+      "description": {
+        "ru": "Креативные и экспериментальные эффекты",
+        "en": "Creative and experimental effects",
+        "es": "Efectos creativos y experimentales",
+        "fr": "Effets créatifs et expérimentaux",
+        "de": "Kreative und experimentelle Effekte"
+      },
+      "order": 5
+    },
+    "technical": {
+      "name": {
+        "ru": "Технические",
+        "en": "Technical",
+        "es": "Técnicos",
+        "fr": "Techniques",
+        "de": "Technisch"
+      },
+      "description": {
+        "ru": "Технические эффекты для улучшения качества видео",
+        "en": "Technical effects for video quality improvement",
+        "es": "Efectos técnicos para mejorar la calidad del video",
+        "fr": "Effets techniques pour améliorer la qualité vidéo",
+        "de": "Technische Effekte zur Verbesserung der Videoqualität"
+      },
+      "order": 6
+    },
+    "motion": {
+      "name": {
+        "ru": "Движение",
+        "en": "Motion",
+        "es": "Movimiento",
+        "fr": "Mouvement",
+        "de": "Bewegung"
+      },
+      "description": {
+        "ru": "Эффекты движения и скорости",
+        "en": "Motion and speed effects",
+        "es": "Efectos de movimiento y velocidad",
+        "fr": "Effets de mouvement et de vitesse",
+        "de": "Bewegungs- und Geschwindigkeitseffekte"
+      },
+      "order": 7
+    },
+    "distortion": {
+      "name": {
+        "ru": "Искажения",
+        "en": "Distortion",
+        "es": "Distorsión",
+        "fr": "Distorsion",
+        "de": "Verzerrung"
+      },
+      "description": {
+        "ru": "Специальные искажения изображения",
+        "en": "Special image distortions",
+        "es": "Distorsiones especiales de imagen",
+        "fr": "Distorsions d'image spéciales",
+        "de": "Spezielle Bildverzerrungen"
+      },
+      "order": 8
+    }
+  }
+}

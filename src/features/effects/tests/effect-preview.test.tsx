@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { EffectPreview } from "./effect-preview";
+import { EffectPreview } from "../components/effect-preview";
 
 // Мокируем FavoriteButton и AddMediaButton
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
@@ -31,15 +31,7 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   ),
 }));
 
-// Мокируем useTranslation
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      // Возвращаем ключ как значение для простоты тестирования
-      return key;
-    },
-  }),
-}));
+// react-i18next мокируется в setup.ts
 
 // Мокируем useResources
 const mockAddEffect = vi.fn();
@@ -71,30 +63,37 @@ Object.defineProperty(window.HTMLVideoElement.prototype, "pause", {
   value: vi.fn(),
 });
 
-// Мокируем effects из index
-vi.mock(".", () => ({
-  effects: [
-    {
-      id: "brightness",
-      name: "Яркость",
-      type: "brightness",
-      duration: 0,
-      ffmpegCommand: () => "eq=brightness=1.2",
-      params: { intensity: 1.2 },
-      previewPath: "/effects/brightness-preview.mp4",
-      labels: { ru: "Яркость", en: "Brightness" },
-    },
-    {
-      id: "contrast",
-      name: "Контраст",
-      type: "contrast",
-      duration: 0,
-      ffmpegCommand: () => "eq=contrast=1.5",
-      params: { intensity: 1.5 },
-      previewPath: "/effects/contrast-preview.mp4",
-      labels: { ru: "Контраст", en: "Contrast" },
-    },
-  ],
+// Мокируем useEffects хук
+vi.mock("../hooks/use-effects", () => ({
+  useEffects: () => ({
+    effects: [
+      {
+        id: "brightness",
+        name: "Яркость",
+        type: "brightness",
+        duration: 0,
+        ffmpegCommand: () => "eq=brightness=1.2",
+        cssFilter: () => "brightness(1.5)", // Добавляем CSS фильтр
+        params: { intensity: 1.2 },
+        previewPath: "/effects/brightness-preview.mp4",
+        labels: { ru: "Яркость", en: "Brightness" },
+      },
+      {
+        id: "contrast",
+        name: "Контраст",
+        type: "contrast",
+        duration: 0,
+        ffmpegCommand: () => "eq=contrast=1.5",
+        cssFilter: () => "contrast(1.5)", // Добавляем CSS фильтр
+        params: { intensity: 1.5 },
+        previewPath: "/effects/contrast-preview.mp4",
+        labels: { ru: "Контраст", en: "Contrast" },
+      },
+    ],
+    loading: false,
+    error: null,
+    isReady: true,
+  }),
 }));
 
 describe("EffectPreview", () => {
@@ -118,8 +117,8 @@ describe("EffectPreview", () => {
     expect(videoElement).toBeInTheDocument();
     expect(videoElement).toHaveAttribute("src", "/t1.mp4");
 
-    // Проверяем, что название эффекта отображается
-    expect(screen.getByText("effects.presets.brightness")).toBeInTheDocument();
+    // Проверяем, что название эффекта отображается (используется labels.ru)
+    expect(screen.getByText("Яркость")).toBeInTheDocument();
 
     // Проверяем, что кнопка добавления эффекта отображается
     expect(screen.getByTestId("add-media-button")).toBeInTheDocument();

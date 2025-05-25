@@ -806,6 +806,19 @@
     "remove": "Effekt entfernen",
     "duration": "Dauer",
     "intensity": "Intensität",
+    "viewMode": {
+      "grid": "Raster",
+      "categories": "Kategorien"
+    },
+    "filters": {
+      "category": "Kategorie",
+      "complexity": "Komplexität",
+      "tags": "Tags",
+      "allCategories": "Alle Kategorien",
+      "allComplexity": "Alle Stufen",
+      "allTags": "Alle Tags",
+      "favoritesOnly": "Nur Favoriten"
+    },
     "categories": {
       "transition": "Übergänge",
       "motion": "Bewegung",
@@ -813,7 +826,30 @@
       "particle": "Partikel",
       "text": "Text",
       "3d": "3D",
-      "other": "Andere"
+      "other": "Andere",
+      "color-correction": "Farbkorrektur",
+      "artistic": "Künstlerisch",
+      "vintage": "Vintage",
+      "cinematic": "Kinematografisch",
+      "creative": "Kreativ",
+      "technical": "Technisch",
+      "distortion": "Verzerrung"
+    },
+    "complexity": {
+      "basic": "Grundlegend",
+      "intermediate": "Fortgeschritten",
+      "advanced": "Experte"
+    },
+    "tags": {
+      "popular": "Beliebt",
+      "professional": "Professionell",
+      "beginner-friendly": "Anfängerfreundlich",
+      "experimental": "Experimentell",
+      "retro": "Retro",
+      "modern": "Modern",
+      "dramatic": "Dramatisch",
+      "subtle": "Subtil",
+      "intense": "Intensiv"
     },
     "names": {
       "fade": "Überblenden",
@@ -858,6 +894,27 @@
       "lomo": "Lomo",
       "twilight": "Dämmerung",
       "neon": "Neon"
+    },
+    "errors": {
+      "invalidEffectsData": "Ungültige Effektdatenstruktur",
+      "invalidCategoriesData": "Ungültige Kategoriedatenstruktur",
+      "unknownError": "Unbekannter Fehler",
+      "failedToLoadEffects": "Fehler beim Laden der Effekte: {{error}}",
+      "failedToLoadCategories": "Fehler beim Laden der Kategorien: {{error}}",
+      "fallbackEffects": "Fehler beim Laden der Effekte, verwende Fallback",
+      "fallbackCategories": "Fehler beim Laden der Kategorien, verwende Fallback"
+    },
+    "messages": {
+      "effectsLoaded": "{{count}} Effekte aus JSON geladen",
+      "categoriesLoaded": "{{count}} Effektkategorien aus JSON geladen"
+    },
+    "detail": {
+      "description": "Beschreibung",
+      "category": "Kategorie",
+      "parameters": "Parameter",
+      "presets": "Voreinstellungen",
+      "ffmpegCommand": "FFmpeg-Befehl",
+      "applyEffect": "Effekt Anwenden"
     }
   },
   "project": {

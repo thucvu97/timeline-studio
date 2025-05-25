@@ -1,17 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { EffectList } from "./effect-list";
+import { EffectList } from "../components/effect-list";
 
-// Мокируем useTranslation
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      // Возвращаем ключ как значение для простоты тестирования
-      return key;
-    },
-  }),
-}));
+// react-i18next мокируется в setup.ts
 
 // Мокируем useMedia
 vi.mock("@/features/browser/media", () => ({
@@ -24,22 +16,10 @@ vi.mock("@/features/browser/media", () => ({
   }),
 }));
 
-// Мокируем usePreviewSize
-const mockHandleIncreaseSize = vi.fn();
-const mockHandleDecreaseSize = vi.fn();
-
-vi.mock("@/features/browser/components/preview/preview-size-provider", () => ({
-  usePreviewSize: () => ({
-    previewSize: 100,
-    increaseSize: mockHandleIncreaseSize,
-    decreaseSize: mockHandleDecreaseSize,
-    canIncreaseSize: true,
-    canDecreaseSize: true,
-  }),
-}));
+// usePreviewSize больше не используется в EffectList
 
 // Мокируем EffectPreview
-vi.mock("./effect-preview", () => ({
+vi.mock("../components/effect-preview", () => ({
   EffectPreview: ({ effectType, onClick, size }: any) => (
     <div
       data-testid={`effect-preview-${effectType}`}
@@ -90,49 +70,52 @@ vi.mock("@/components/ui/tooltip", () => ({
 
 // Мокируем lucide-react
 vi.mock("lucide-react", () => ({
-  Star: ({ size, className }: any) => (
+  Star: ({ className }: any) => (
     <div data-testid="star-icon" className={className}>
       Star Icon
     </div>
   ),
-  ZoomIn: ({ size }: any) => <div data-testid="zoom-in-icon">Zoom In</div>,
-  ZoomOut: ({ size }: any) => <div data-testid="zoom-out-icon">Zoom Out</div>,
 }));
 
-// Мокируем effects
-vi.mock(".", () => ({
-  effects: [
-    {
-      id: "brightness",
-      name: "Яркость",
-      type: "brightness",
-      duration: 0,
-      ffmpegCommand: () => "eq=brightness=1.2",
-      params: { intensity: 1.2 },
-      previewPath: "/effects/brightness-preview.mp4",
-      labels: { ru: "Яркость", en: "Brightness" },
-    },
-    {
-      id: "contrast",
-      name: "Контраст",
-      type: "contrast",
-      duration: 0,
-      ffmpegCommand: () => "eq=contrast=1.5",
-      params: { intensity: 1.5 },
-      previewPath: "/effects/contrast-preview.mp4",
-      labels: { ru: "Контраст", en: "Contrast" },
-    },
-    {
-      id: "sepia",
-      name: "Сепия",
-      type: "sepia",
-      duration: 0,
-      ffmpegCommand: () => "colorize=color=brown:blend=0.3",
-      params: { intensity: 0.3 },
-      previewPath: "/effects/sepia-preview.mp4",
-      labels: { ru: "Сепия", en: "Sepia" },
-    },
-  ],
+// Мокируем useEffects хук
+vi.mock("../hooks/use-effects", () => ({
+  useEffects: () => ({
+    effects: [
+      {
+        id: "brightness",
+        name: "Яркость",
+        type: "brightness",
+        duration: 0,
+        ffmpegCommand: () => "eq=brightness=1.2",
+        params: { intensity: 1.2 },
+        previewPath: "/effects/brightness-preview.mp4",
+        labels: { ru: "Яркость", en: "Brightness" },
+      },
+      {
+        id: "contrast",
+        name: "Контраст",
+        type: "contrast",
+        duration: 0,
+        ffmpegCommand: () => "eq=contrast=1.5",
+        params: { intensity: 1.5 },
+        previewPath: "/effects/contrast-preview.mp4",
+        labels: { ru: "Контраст", en: "Contrast" },
+      },
+      {
+        id: "sepia",
+        name: "Сепия",
+        type: "sepia",
+        duration: 0,
+        ffmpegCommand: () => "colorize=color=brown:blend=0.3",
+        params: { intensity: 0.3 },
+        previewPath: "/effects/sepia-preview.mp4",
+        labels: { ru: "Сепия", en: "Sepia" },
+      },
+    ],
+    loading: false,
+    error: null,
+    isReady: true,
+  }),
 }));
 
 describe("EffectList", () => {
@@ -146,10 +129,8 @@ describe("EffectList", () => {
     // Проверяем, что поле поиска отображается
     expect(screen.getByTestId("search-input")).toBeInTheDocument();
 
-    // Проверяем, что кнопки управления отображаются
+    // Проверяем, что кнопка избранного отображается
     expect(screen.getByTestId("star-icon")).toBeInTheDocument();
-    expect(screen.getByTestId("zoom-in-icon")).toBeInTheDocument();
-    expect(screen.getByTestId("zoom-out-icon")).toBeInTheDocument();
 
     // Проверяем, что все эффекты отображаются
     expect(screen.getByTestId("effect-preview-brightness")).toBeInTheDocument();
@@ -196,27 +177,7 @@ describe("EffectList", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("calls increaseSize when zoom in button is clicked", () => {
-    render(<EffectList />);
-
-    // Находим кнопку увеличения размера и кликаем по ней
-    const zoomInButton = screen.getByTestId("zoom-in-icon").closest("button");
-    fireEvent.click(zoomInButton!);
-
-    // Проверяем, что increaseSize был вызван
-    expect(mockHandleIncreaseSize).toHaveBeenCalledTimes(1);
-  });
-
-  it("calls decreaseSize when zoom out button is clicked", () => {
-    render(<EffectList />);
-
-    // Находим кнопку уменьшения размера и кликаем по ней
-    const zoomOutButton = screen.getByTestId("zoom-out-icon").closest("button");
-    fireEvent.click(zoomOutButton!);
-
-    // Проверяем, что decreaseSize был вызван
-    expect(mockHandleDecreaseSize).toHaveBeenCalledTimes(1);
-  });
+  // Тесты для кнопок zoom удалены, так как они больше не используются в компоненте
 
   it("logs effect name when effect is clicked", () => {
     // Мокируем console.log
@@ -235,16 +196,14 @@ describe("EffectList", () => {
     consoleSpy.mockRestore();
   });
 
-  it("shows 'not found' message when no effects match search", () => {
+  it("shows 'no results' message when no effects match search", () => {
     render(<EffectList />);
 
     // Вводим поисковый запрос, который не соответствует ни одному эффекту
     const searchInput = screen.getByTestId("search-input");
     fireEvent.change(searchInput, { target: { value: "nonexistent" } });
 
-    // Проверяем, что отображается сообщение "not found"
-    expect(
-      screen.getByText("browser.tabs.effects common.notFound"),
-    ).toBeInTheDocument();
+    // Проверяем, что отображается сообщение "no results"
+    expect(screen.getByText("common.noResults")).toBeInTheDocument();
   });
 });

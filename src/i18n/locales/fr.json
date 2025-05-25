@@ -876,6 +876,19 @@
     "remove": "Supprimer l'effet",
     "duration": "Durée",
     "intensity": "Intensité",
+    "viewMode": {
+      "grid": "Grille",
+      "categories": "Catégories"
+    },
+    "filters": {
+      "category": "Catégorie",
+      "complexity": "Complexité",
+      "tags": "Étiquettes",
+      "allCategories": "Toutes les catégories",
+      "allComplexity": "Tous les niveaux",
+      "allTags": "Toutes les étiquettes",
+      "favoritesOnly": "Favoris uniquement"
+    },
     "categories": {
       "transition": "Transitions",
       "motion": "Mouvement",
@@ -883,7 +896,30 @@
       "particle": "Particules",
       "text": "Texte",
       "3d": "3D",
-      "other": "Autre"
+      "other": "Autre",
+      "color-correction": "Correction Couleur",
+      "artistic": "Artistiques",
+      "vintage": "Vintage",
+      "cinematic": "Cinématographiques",
+      "creative": "Créatifs",
+      "technical": "Techniques",
+      "distortion": "Distorsion"
+    },
+    "complexity": {
+      "basic": "Basique",
+      "intermediate": "Intermédiaire",
+      "advanced": "Avancé"
+    },
+    "tags": {
+      "popular": "Populaire",
+      "professional": "Professionnel",
+      "beginner-friendly": "Débutant",
+      "experimental": "Expérimental",
+      "retro": "Rétro",
+      "modern": "Moderne",
+      "dramatic": "Dramatique",
+      "subtle": "Subtil",
+      "intense": "Intense"
     },
     "names": {
       "fade": "Fondu",
@@ -928,6 +964,27 @@
       "lomo": "Lomo",
       "twilight": "Crépuscule",
       "neon": "Néon"
+    },
+    "errors": {
+      "invalidEffectsData": "Structure de données d'effets invalide",
+      "invalidCategoriesData": "Structure de données de catégories invalide",
+      "unknownError": "Erreur inconnue",
+      "failedToLoadEffects": "Échec du chargement des effets : {{error}}",
+      "failedToLoadCategories": "Échec du chargement des catégories : {{error}}",
+      "fallbackEffects": "Échec du chargement des effets, utilisation de secours",
+      "fallbackCategories": "Échec du chargement des catégories, utilisation de secours"
+    },
+    "messages": {
+      "effectsLoaded": "{{count}} effets chargés depuis JSON",
+      "categoriesLoaded": "{{count}} catégories d'effets chargées depuis JSON"
+    },
+    "detail": {
+      "description": "Description",
+      "category": "Catégorie",
+      "parameters": "Paramètres",
+      "presets": "Préréglages",
+      "ffmpegCommand": "Commande FFmpeg",
+      "applyEffect": "Appliquer l'Effet"
     }
   },
   "templates": {

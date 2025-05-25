@@ -989,6 +989,19 @@
     "remove": "Eliminar efecto",
     "duration": "Duración",
     "intensity": "Intensidad",
+    "viewMode": {
+      "grid": "Cuadrícula",
+      "categories": "Categorías"
+    },
+    "filters": {
+      "category": "Categoría",
+      "complexity": "Complejidad",
+      "tags": "Etiquetas",
+      "allCategories": "Todas las categorías",
+      "allComplexity": "Todos los niveles",
+      "allTags": "Todas las etiquetas",
+      "favoritesOnly": "Solo favoritos"
+    },
     "categories": {
       "transition": "Transiciones",
       "motion": "Movimiento",
@@ -996,7 +1009,30 @@
       "particle": "Partículas",
       "text": "Texto",
       "3d": "3D",
-      "other": "Otros"
+      "other": "Otros",
+      "color-correction": "Corrección de Color",
+      "artistic": "Artísticos",
+      "vintage": "Vintage",
+      "cinematic": "Cinematográficos",
+      "creative": "Creativos",
+      "technical": "Técnicos",
+      "distortion": "Distorsión"
+    },
+    "complexity": {
+      "basic": "Básico",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado"
+    },
+    "tags": {
+      "popular": "Popular",
+      "professional": "Profesional",
+      "beginner-friendly": "Para Principiantes",
+      "experimental": "Experimental",
+      "retro": "Retro",
+      "modern": "Moderno",
+      "dramatic": "Dramático",
+      "subtle": "Sutil",
+      "intense": "Intenso"
     },
     "names": {
       "fade": "Desvanecer",
@@ -1041,6 +1077,27 @@
       "lomo": "Lomo",
       "twilight": "Crepúsculo",
       "neon": "Neón"
+    },
+    "errors": {
+      "invalidEffectsData": "Estructura de datos de efectos inválida",
+      "invalidCategoriesData": "Estructura de datos de categorías inválida",
+      "unknownError": "Error desconocido",
+      "failedToLoadEffects": "Error al cargar efectos: {{error}}",
+      "failedToLoadCategories": "Error al cargar categorías: {{error}}",
+      "fallbackEffects": "Error al cargar efectos, usando respaldo",
+      "fallbackCategories": "Error al cargar categorías, usando respaldo"
+    },
+    "messages": {
+      "effectsLoaded": "Cargados {{count}} efectos desde JSON",
+      "categoriesLoaded": "Cargadas {{count}} categorías de efectos desde JSON"
+    },
+    "detail": {
+      "description": "Descripción",
+      "category": "Categoría",
+      "parameters": "Parámetros",
+      "presets": "Preajustes",
+      "ffmpegCommand": "Comando FFmpeg",
+      "applyEffect": "Aplicar Efecto"
     }
   },
   "project": {

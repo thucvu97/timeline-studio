@@ -1,0 +1,818 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2024-01-15",
+  "totalEffects": 28,
+  "categories": ["color-correction", "vintage", "artistic", "cinematic", "creative", "technical", "motion", "distortion"],
+  "effects": [
+    {
+      "id": "brightness",
+      "name": "Яркость",
+      "type": "brightness",
+      "duration": 0,
+      "category": "color-correction",
+      "complexity": "basic",
+      "tags": ["popular", "beginner-friendly"],
+      "description": {
+        "ru": "Регулирует яркость видео, делая изображение светлее или темнее",
+        "en": "Adjusts video brightness, making the image lighter or darker"
+      },
+      "ffmpegCommand": "eq=brightness={intensity}",
+      "cssFilter": "brightness({intensity})",
+      "params": {
+        "intensity": 1.2
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Яркость",
+        "en": "Brightness",
+        "es": "Brillo",
+        "fr": "Luminosité",
+        "de": "Helligkeit"
+      },
+      "presets": {
+        "subtle": {
+          "name": { "ru": "Тонкий", "en": "Subtle" },
+          "params": { "intensity": 1.1 },
+          "description": { "ru": "Легкое увеличение яркости", "en": "Light brightness increase" }
+        },
+        "moderate": {
+          "name": { "ru": "Умеренный", "en": "Moderate" },
+          "params": { "intensity": 1.3 },
+          "description": { "ru": "Заметное увеличение яркости", "en": "Noticeable brightness increase" }
+        },
+        "dramatic": {
+          "name": { "ru": "Драматический", "en": "Dramatic" },
+          "params": { "intensity": 1.6 },
+          "description": { "ru": "Сильное увеличение яркости", "en": "Strong brightness increase" }
+        }
+      }
+    },
+    {
+      "id": "contrast",
+      "name": "Контраст",
+      "type": "contrast",
+      "duration": 0,
+      "category": "color-correction",
+      "complexity": "basic",
+      "tags": ["popular", "beginner-friendly"],
+      "description": {
+        "ru": "Увеличивает разность между светлыми и темными областями изображения",
+        "en": "Increases the difference between light and dark areas of the image"
+      },
+      "ffmpegCommand": "eq=contrast={intensity}",
+      "cssFilter": "contrast({intensity})",
+      "params": {
+        "intensity": 1.5
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Контраст",
+        "en": "Contrast",
+        "es": "Contraste",
+        "fr": "Contraste",
+        "de": "Kontrast"
+      },
+      "presets": {
+        "low": {
+          "name": { "ru": "Низкий", "en": "Low" },
+          "params": { "intensity": 1.2 },
+          "description": { "ru": "Мягкое увеличение контраста", "en": "Soft contrast increase" }
+        },
+        "high": {
+          "name": { "ru": "Высокий", "en": "High" },
+          "params": { "intensity": 1.8 },
+          "description": { "ru": "Сильное увеличение контраста", "en": "Strong contrast increase" }
+        }
+      }
+    },
+    {
+      "id": "saturation",
+      "name": "Насыщенность",
+      "type": "saturation",
+      "duration": 0,
+      "category": "color-correction",
+      "complexity": "basic",
+      "tags": ["popular", "beginner-friendly"],
+      "description": {
+        "ru": "Регулирует насыщенность цветов, делая их более яркими или приглушенными",
+        "en": "Adjusts color saturation, making colors more vibrant or muted"
+      },
+      "ffmpegCommand": "eq=saturation={intensity}",
+      "cssFilter": "saturate({intensity})",
+      "params": {
+        "intensity": 2
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Насыщенность",
+        "en": "Saturation",
+        "es": "Saturación",
+        "fr": "Saturation",
+        "de": "Sättigung"
+      },
+      "presets": {
+        "desaturated": {
+          "name": { "ru": "Приглушенный", "en": "Desaturated" },
+          "params": { "intensity": 0.7 },
+          "description": { "ru": "Уменьшенная насыщенность цветов", "en": "Reduced color saturation" }
+        },
+        "vibrant": {
+          "name": { "ru": "Яркий", "en": "Vibrant" },
+          "params": { "intensity": 1.5 },
+          "description": { "ru": "Повышенная насыщенность цветов", "en": "Enhanced color saturation" }
+        },
+        "hypersaturated": {
+          "name": { "ru": "Гиперяркий", "en": "Hypersaturated" },
+          "params": { "intensity": 2.5 },
+          "description": { "ru": "Максимальная насыщенность цветов", "en": "Maximum color saturation" }
+        }
+      }
+    },
+    {
+      "id": "sepia",
+      "name": "Сепия",
+      "type": "sepia",
+      "duration": 0,
+      "category": "vintage",
+      "complexity": "basic",
+      "tags": ["retro", "popular"],
+      "description": {
+        "ru": "Создает теплый коричневатый оттенок, характерный для старых фотографий",
+        "en": "Creates a warm brownish tone characteristic of old photographs"
+      },
+      "ffmpegCommand": "colorize=color=brown:blend={intensity}",
+      "cssFilter": "sepia({intensity})",
+      "params": {
+        "intensity": 0.8
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Сепия",
+        "en": "Sepia",
+        "es": "Sepia",
+        "fr": "Sépia",
+        "de": "Sepia"
+      }
+    },
+    {
+      "id": "grayscale",
+      "name": "Черно-белый",
+      "type": "grayscale",
+      "duration": 0,
+      "category": "artistic",
+      "complexity": "basic",
+      "tags": ["popular"],
+      "description": {
+        "ru": "Преобразует видео в черно-белое изображение",
+        "en": "Converts video to black and white"
+      },
+      "ffmpegCommand": "colorchannelmixer=.3:.4:.3:0:.3:.4:.3:0:.3:.4:.3",
+      "cssFilter": "grayscale(1)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Черно-белый",
+        "en": "Grayscale",
+        "es": "Escala de Grises",
+        "fr": "Niveaux de Gris",
+        "de": "Graustufen"
+      }
+    },
+    {
+      "id": "vintage",
+      "name": "Винтаж",
+      "type": "vintage",
+      "duration": 0,
+      "category": "vintage",
+      "complexity": "basic",
+      "tags": ["retro", "popular"],
+      "description": {
+        "ru": "Создает винтажный эффект с теплыми тонами",
+        "en": "Creates a vintage effect with warm tones"
+      },
+      "ffmpegCommand": "curves=vintage",
+      "cssFilter": "sepia(0.5) contrast(1.2) brightness(0.9) saturate(0.8)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Винтаж",
+        "en": "Vintage",
+        "es": "Vintage",
+        "fr": "Vintage",
+        "de": "Vintage"
+      }
+    },
+    {
+      "id": "neon",
+      "name": "Неон",
+      "type": "neon",
+      "duration": 0,
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["modern", "dramatic", "intense"],
+      "description": {
+        "ru": "Создает яркий неоновый эффект с повышенным контрастом",
+        "en": "Creates a bright neon effect with enhanced contrast"
+      },
+      "ffmpegCommand": "colorbalance=rs={intensity}:gs={intensity}:bs={intensity * 1.6},curves=increase_contrast",
+      "cssFilter": "brightness(1.2) contrast(1.4) saturate(2) hue-rotate(180deg)",
+      "params": {
+        "intensity": 0.5
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Неон",
+        "en": "Neon",
+        "es": "Neón",
+        "fr": "Néon",
+        "de": "Neon"
+      }
+    },
+    {
+      "id": "vignette",
+      "name": "Виньетка",
+      "type": "vignette",
+      "duration": 0,
+      "category": "cinematic",
+      "complexity": "basic",
+      "tags": ["popular", "professional", "subtle"],
+      "description": {
+        "ru": "Затемняет края кадра, создавая эффект виньетки",
+        "en": "Darkens the edges of the frame, creating a vignette effect"
+      },
+      "ffmpegCommand": "vignette=angle=PI/4:mode=backward:eval=frame:dither=1:aspect=16/9:x0=w/2:y0=h/2:r0={radius}*min(w\\,h)/2:r1={radius + intensity}*min(w\\,h)/2",
+      "cssFilter": "brightness({0.9 + intensity * 0.1}) contrast({1.1 + intensity * 0.2})",
+      "params": {
+        "intensity": 0.3,
+        "radius": 0.8
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Виньетка",
+        "en": "Vignette",
+        "es": "Viñeta",
+        "fr": "Vignette",
+        "de": "Vignette"
+      },
+      "presets": {
+        "subtle": {
+          "name": { "ru": "Тонкая", "en": "Subtle" },
+          "params": { "intensity": 0.2, "radius": 0.9 },
+          "description": { "ru": "Легкое затемнение краев", "en": "Light edge darkening" }
+        },
+        "dramatic": {
+          "name": { "ru": "Драматическая", "en": "Dramatic" },
+          "params": { "intensity": 0.5, "radius": 0.6 },
+          "description": { "ru": "Сильное затемнение краев", "en": "Strong edge darkening" }
+        }
+      }
+    },
+    {
+      "id": "sunset",
+      "name": "Закат",
+      "type": "sunset",
+      "duration": 0,
+      "category": "artistic",
+      "complexity": "basic",
+      "tags": ["popular", "dramatic"],
+      "description": {
+        "ru": "Создает теплые оранжевые тона заката",
+        "en": "Creates warm orange sunset tones"
+      },
+      "ffmpegCommand": "colorbalance=rs=0.3:gs=0.2:bs=-0.1,eq=brightness=1.1:contrast=1.2:saturation=1.5",
+      "cssFilter": "brightness(1.1) contrast(1.2) saturate(1.5) hue-rotate(30deg) sepia(0.3)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Закат",
+        "en": "Sunset",
+        "es": "Atardecer",
+        "fr": "Coucher de Soleil",
+        "de": "Sonnenuntergang"
+      }
+    },
+    {
+      "id": "lomo",
+      "name": "Ломография",
+      "type": "lomo",
+      "duration": 0,
+      "category": "vintage",
+      "complexity": "intermediate",
+      "tags": ["retro", "artistic"],
+      "description": {
+        "ru": "Эффект ломографии с повышенным контрастом и виньеткой",
+        "en": "Lomography effect with increased contrast and vignette"
+      },
+      "ffmpegCommand": "curves=strong_contrast,colorbalance=rs=0.1:gs=0.1:bs=-0.1",
+      "cssFilter": "contrast(1.4) brightness(0.9) sepia(0.3) saturate(1.5)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Ломография",
+        "en": "Lomo",
+        "es": "Lomografía",
+        "fr": "Lomographie",
+        "de": "Lomografie"
+      }
+    },
+    {
+      "id": "twilight",
+      "name": "Сумерки",
+      "type": "twilight",
+      "duration": 0,
+      "category": "cinematic",
+      "complexity": "basic",
+      "tags": ["subtle", "professional"],
+      "description": {
+        "ru": "Создает приглушенные синеватые тона сумерек",
+        "en": "Creates muted bluish twilight tones"
+      },
+      "ffmpegCommand": "colorbalance=rs=-0.1:gs=-0.1:bs=0.2,eq=brightness=0.9:contrast=1.1:saturation=0.8",
+      "cssFilter": "brightness(0.9) contrast(1.1) saturate(0.8) hue-rotate(-20deg)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Сумерки",
+        "en": "Twilight",
+        "es": "Crepúsculo",
+        "fr": "Crépuscule",
+        "de": "Dämmerung"
+      }
+    },
+    {
+      "id": "sharpen",
+      "name": "Резкость",
+      "type": "sharpen",
+      "duration": 0,
+      "category": "technical",
+      "complexity": "basic",
+      "tags": ["professional", "beginner-friendly"],
+      "description": {
+        "ru": "Увеличивает резкость и четкость изображения",
+        "en": "Increases image sharpness and clarity"
+      },
+      "ffmpegCommand": "unsharp=5:5:{intensity}:5:5:0.0",
+      "cssFilter": "contrast({1 + (intensity || 1.0) * 0.4}) brightness(1.05) saturate(1.1)",
+      "params": {
+        "intensity": 1.0
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Резкость",
+        "en": "Sharpen",
+        "es": "Nitidez",
+        "fr": "Netteté",
+        "de": "Schärfe"
+      },
+      "presets": {
+        "light": {
+          "name": { "ru": "Легкая", "en": "Light" },
+          "params": { "intensity": 0.5 },
+          "description": { "ru": "Легкое увеличение резкости", "en": "Light sharpening" }
+        },
+        "strong": {
+          "name": { "ru": "Сильная", "en": "Strong" },
+          "params": { "intensity": 1.5 },
+          "description": { "ru": "Сильное увеличение резкости", "en": "Strong sharpening" }
+        }
+      }
+    },
+    {
+      "id": "chromatic-aberration",
+      "name": "Хроматическая аберрация",
+      "type": "chromatic-aberration",
+      "duration": 0,
+      "category": "distortion",
+      "complexity": "advanced",
+      "tags": ["experimental", "modern"],
+      "description": {
+        "ru": "Создает эффект хроматической аберрации с цветовыми искажениями",
+        "en": "Creates chromatic aberration effect with color distortions"
+      },
+      "ffmpegCommand": "split[main][chroma];[chroma]hue=h={intensity * 10}[chroma_shifted];[main][chroma_shifted]blend=all_mode=screen:all_opacity=0.3",
+      "cssFilter": "hue-rotate({(intensity || 0.5) * 15}deg) contrast(1.2) saturate(1.1)",
+      "params": {
+        "intensity": 0.5
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Хроматическая аберрация",
+        "en": "Chromatic Aberration",
+        "es": "Aberración Cromática",
+        "fr": "Aberration Chromatique",
+        "de": "Chromatische Aberration"
+      }
+    },
+    {
+      "id": "lens-flare",
+      "name": "Блики линз",
+      "type": "lens-flare",
+      "duration": 0,
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["dramatic", "modern"],
+      "description": {
+        "ru": "Добавляет эффект бликов от линз объектива",
+        "en": "Adds lens flare effect from camera lens"
+      },
+      "ffmpegCommand": "lenscorrection=k1=0.1:k2=0.1,eq=brightness={1 + (intensity || 0.5) * 0.4}:saturation=1.4",
+      "cssFilter": "brightness({1 + (intensity || 0.5) * 0.5}) saturate(1.4) contrast(1.1)",
+      "params": {
+        "intensity": 0.5
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Блики линз",
+        "en": "Lens Flare",
+        "es": "Destello de Lente",
+        "fr": "Reflet d'Objectif",
+        "de": "Linsenreflex"
+      }
+    },
+    {
+      "id": "glow",
+      "name": "Свечение",
+      "type": "glow",
+      "duration": 0,
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["dramatic", "modern", "intense"],
+      "description": {
+        "ru": "Создает эффект мягкого свечения вокруг ярких областей",
+        "en": "Creates a soft glow effect around bright areas"
+      },
+      "ffmpegCommand": "gblur=sigma={intensity * 2},blend=all_mode=screen:all_opacity={intensity}",
+      "cssFilter": "brightness({1 + (intensity || 0.5) * 0.4}) saturate(1.3) blur(0.5px)",
+      "params": {
+        "intensity": 0.5
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Свечение",
+        "en": "Glow",
+        "es": "Resplandor",
+        "fr": "Lueur",
+        "de": "Glühen"
+      },
+      "presets": {
+        "soft": {
+          "name": { "ru": "Мягкое", "en": "Soft" },
+          "params": { "intensity": 0.3 },
+          "description": { "ru": "Мягкое свечение", "en": "Soft glow" }
+        },
+        "intense": {
+          "name": { "ru": "Интенсивное", "en": "Intense" },
+          "params": { "intensity": 0.8 },
+          "description": { "ru": "Интенсивное свечение", "en": "Intense glow" }
+        }
+      }
+    },
+    {
+      "id": "film-grain",
+      "name": "Пленочное зерно",
+      "type": "film-grain",
+      "duration": 0,
+      "category": "vintage",
+      "complexity": "intermediate",
+      "tags": ["retro", "professional"],
+      "description": {
+        "ru": "Добавляет текстуру пленочного зерна для винтажного вида",
+        "en": "Adds film grain texture for a vintage look"
+      },
+      "ffmpegCommand": "noise=alls={intensity}:allf=t+u,eq=contrast={1 + amount}",
+      "cssFilter": "contrast({1 + (amount || 0.5) * 0.3}) brightness(0.95) blur(0.3px)",
+      "params": {
+        "intensity": 0.02,
+        "amount": 0.5
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Пленочное зерно",
+        "en": "Film Grain",
+        "es": "Grano de Película",
+        "fr": "Grain de Film",
+        "de": "Filmkorn"
+      }
+    },
+    {
+      "id": "invert",
+      "name": "Инверсия",
+      "type": "invert",
+      "duration": 0,
+      "category": "artistic",
+      "complexity": "basic",
+      "tags": ["experimental", "dramatic"],
+      "description": {
+        "ru": "Инвертирует цвета изображения",
+        "en": "Inverts image colors"
+      },
+      "ffmpegCommand": "negate",
+      "cssFilter": "invert({intensity || 0.8})",
+      "params": {
+        "intensity": 0.8
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Инверсия",
+        "en": "Invert",
+        "es": "Invertir",
+        "fr": "Inverser",
+        "de": "Invertieren"
+      }
+    },
+    {
+      "id": "hue-rotate",
+      "name": "Поворот оттенка",
+      "type": "hue-rotate",
+      "duration": 0,
+      "category": "color-correction",
+      "complexity": "basic",
+      "tags": ["beginner-friendly", "experimental"],
+      "description": {
+        "ru": "Поворачивает цветовой оттенок изображения",
+        "en": "Rotates the color hue of the image"
+      },
+      "ffmpegCommand": "hue=h={angle}",
+      "cssFilter": "hue-rotate({angle || 90}deg)",
+      "params": {
+        "angle": 90
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Поворот оттенка",
+        "en": "Hue Rotate",
+        "es": "Rotar Matiz",
+        "fr": "Rotation de Teinte",
+        "de": "Farbton Drehen"
+      },
+      "presets": {
+        "rainbow": {
+          "name": { "ru": "Радуга", "en": "Rainbow" },
+          "params": { "angle": 180 },
+          "description": { "ru": "Радужный эффект", "en": "Rainbow effect" }
+        },
+        "cool": {
+          "name": { "ru": "Холодный", "en": "Cool" },
+          "params": { "angle": 240 },
+          "description": { "ru": "Холодные тона", "en": "Cool tones" }
+        }
+      }
+    },
+    {
+      "id": "blur",
+      "name": "Размытие",
+      "type": "blur",
+      "duration": 0,
+      "category": "artistic",
+      "complexity": "basic",
+      "tags": ["beginner-friendly", "subtle"],
+      "description": {
+        "ru": "Создает эффект размытия изображения",
+        "en": "Creates image blur effect"
+      },
+      "ffmpegCommand": "gblur=sigma={radius}",
+      "cssFilter": "blur({radius || 2}px)",
+      "params": {
+        "radius": 2
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Размытие",
+        "en": "Blur",
+        "es": "Desenfoque",
+        "fr": "Flou",
+        "de": "Unschärfe"
+      },
+      "presets": {
+        "light": {
+          "name": { "ru": "Легкое", "en": "Light" },
+          "params": { "radius": 1 },
+          "description": { "ru": "Легкое размытие", "en": "Light blur" }
+        },
+        "strong": {
+          "name": { "ru": "Сильное", "en": "Strong" },
+          "params": { "radius": 5 },
+          "description": { "ru": "Сильное размытие", "en": "Strong blur" }
+        }
+      }
+    },
+    {
+      "id": "duotone",
+      "name": "Дуотон",
+      "type": "duotone",
+      "duration": 0,
+      "category": "artistic",
+      "complexity": "intermediate",
+      "tags": ["modern", "artistic"],
+      "description": {
+        "ru": "Создает двухцветный эффект",
+        "en": "Creates two-tone effect"
+      },
+      "ffmpegCommand": "colorchannelmixer=.3:.4:.3:0:.3:.4:.3:0:.3:.4:.3,eq=brightness=1.2:contrast=1.5,colorize=color=sepia:blend=0.5",
+      "cssFilter": "grayscale(1) brightness(1.2) contrast(1.5) sepia(0.5)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Дуотон",
+        "en": "Duotone",
+        "es": "Duotono",
+        "fr": "Bichromie",
+        "de": "Duoton"
+      }
+    },
+    {
+      "id": "noir",
+      "name": "Нуар",
+      "type": "noir",
+      "duration": 0,
+      "category": "cinematic",
+      "complexity": "intermediate",
+      "tags": ["dramatic", "professional"],
+      "description": {
+        "ru": "Создает драматический черно-белый эффект в стиле нуар",
+        "en": "Creates dramatic black and white noir effect"
+      },
+      "ffmpegCommand": "colorchannelmixer=.3:.4:.3:0:.3:.4:.3:0:.3:.4:.3,eq=contrast=1.5:brightness=0.8",
+      "cssFilter": "grayscale(1) contrast(1.5) brightness(0.8)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Нуар",
+        "en": "Noir",
+        "es": "Negro",
+        "fr": "Noir",
+        "de": "Noir"
+      }
+    },
+    {
+      "id": "cyberpunk",
+      "name": "Киберпанк",
+      "type": "cyberpunk",
+      "duration": 0,
+      "category": "creative",
+      "complexity": "advanced",
+      "tags": ["modern", "intense", "experimental"],
+      "description": {
+        "ru": "Создает футуристический киберпанк эффект с неоновыми цветами",
+        "en": "Creates futuristic cyberpunk effect with neon colors"
+      },
+      "ffmpegCommand": "hue=h=180,eq=saturation=2:contrast=1.3:brightness=1.2",
+      "cssFilter": "hue-rotate(180deg) saturate(2) contrast(1.3) brightness(1.2)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Киберпанк",
+        "en": "Cyberpunk",
+        "es": "Ciberpunk",
+        "fr": "Cyberpunk",
+        "de": "Cyberpunk"
+      }
+    },
+    {
+      "id": "dreamy",
+      "name": "Мечтательный",
+      "type": "dreamy",
+      "duration": 0,
+      "category": "artistic",
+      "complexity": "basic",
+      "tags": ["subtle", "artistic"],
+      "description": {
+        "ru": "Создает мягкий мечтательный эффект",
+        "en": "Creates soft dreamy effect"
+      },
+      "ffmpegCommand": "eq=brightness=1.1:contrast=0.9:saturation=0.8,hue=h=30",
+      "cssFilter": "brightness(1.1) contrast(0.9) saturate(0.8) hue-rotate(30deg)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Мечтательный",
+        "en": "Dreamy",
+        "es": "Soñador",
+        "fr": "Rêveur",
+        "de": "Verträumt"
+      }
+    },
+    {
+      "id": "infrared",
+      "name": "Инфракрасный",
+      "type": "infrared",
+      "duration": 0,
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["experimental", "dramatic"],
+      "description": {
+        "ru": "Имитирует инфракрасную съемку",
+        "en": "Simulates infrared photography"
+      },
+      "ffmpegCommand": "hue=h=-30,eq=saturation=2:contrast=1.5:brightness=1.2",
+      "cssFilter": "hue-rotate(-30deg) saturate(2) contrast(1.5) brightness(1.2)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Инфракрасный",
+        "en": "Infrared",
+        "es": "Infrarrojo",
+        "fr": "Infrarouge",
+        "de": "Infrarot"
+      }
+    },
+    {
+      "id": "matrix",
+      "name": "Матрица",
+      "type": "matrix",
+      "duration": 0,
+      "category": "creative",
+      "complexity": "advanced",
+      "tags": ["modern", "intense", "experimental"],
+      "description": {
+        "ru": "Создает зеленый эффект в стиле фильма Матрица",
+        "en": "Creates green Matrix movie style effect"
+      },
+      "ffmpegCommand": "eq=brightness=1.2:saturation=1.5,hue=h=100",
+      "cssFilter": "brightness(1.2) saturate(1.5) hue-rotate(100deg)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Матрица",
+        "en": "Matrix",
+        "es": "Matrix",
+        "fr": "Matrix",
+        "de": "Matrix"
+      }
+    },
+    {
+      "id": "arctic",
+      "name": "Арктический",
+      "type": "arctic",
+      "duration": 0,
+      "category": "cinematic",
+      "complexity": "basic",
+      "tags": ["subtle", "professional"],
+      "description": {
+        "ru": "Создает холодный арктический эффект",
+        "en": "Creates cold arctic effect"
+      },
+      "ffmpegCommand": "eq=brightness=1.2:saturation=0.8:contrast=1.1,hue=h=180",
+      "cssFilter": "brightness(1.2) saturate(0.8) contrast(1.1) hue-rotate(180deg)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Арктический",
+        "en": "Arctic",
+        "es": "Ártico",
+        "fr": "Arctique",
+        "de": "Arktisch"
+      }
+    },
+    {
+      "id": "noise-reduction",
+      "name": "Шумоподавление",
+      "type": "noise-reduction",
+      "duration": 0,
+      "category": "technical",
+      "complexity": "advanced",
+      "tags": ["professional"],
+      "description": {
+        "ru": "Уменьшает шум в изображении",
+        "en": "Reduces image noise"
+      },
+      "ffmpegCommand": "bm3d=sigma={intensity}:block=4:bstep=2:group=1:range=9",
+      "cssFilter": "blur(0.5px) contrast(0.95) brightness(1.02)",
+      "params": {
+        "intensity": 3.0
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Шумоподавление",
+        "en": "Noise Reduction",
+        "es": "Reducción de Ruido",
+        "fr": "Réduction du Bruit",
+        "de": "Rauschunterdrückung"
+      }
+    },
+    {
+      "id": "stabilization",
+      "name": "Стабилизация",
+      "type": "stabilization",
+      "duration": 0,
+      "category": "technical",
+      "complexity": "advanced",
+      "tags": ["professional"],
+      "description": {
+        "ru": "Стабилизирует дрожание камеры",
+        "en": "Stabilizes camera shake"
+      },
+      "ffmpegCommand": "vidstabdetect=stepsize=6:shakiness=8:accuracy=9:result=transforms.trf,vidstabtransform=input=transforms.trf:zoom=5:smoothing=30",
+      "cssFilter": "brightness(1)",
+      "params": {},
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Стабилизация",
+        "en": "Stabilization",
+        "es": "Estabilización",
+        "fr": "Stabilisation",
+        "de": "Stabilisierung"
+      }
+    }
+  ]
+}

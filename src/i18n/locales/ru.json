@@ -993,6 +993,19 @@
     "remove": "Удалить эффект",
     "duration": "Длительность",
     "intensity": "Интенсивность",
+    "viewMode": {
+      "grid": "Сетка",
+      "categories": "По категориям"
+    },
+    "filters": {
+      "category": "Категория",
+      "complexity": "Сложность",
+      "tags": "Теги",
+      "allCategories": "Все категории",
+      "allComplexity": "Все уровни",
+      "allTags": "Все теги",
+      "favoritesOnly": "Только избранные"
+    },
     "categories": {
       "transition": "Переходы",
       "motion": "Движение",
@@ -1000,7 +1013,30 @@
       "particle": "Частицы",
       "text": "Текст",
       "3d": "3D",
-      "other": "Другие"
+      "other": "Другие",
+      "color-correction": "Цветокоррекция",
+      "artistic": "Художественные",
+      "vintage": "Винтажные",
+      "cinematic": "Кинематографические",
+      "creative": "Креативные",
+      "technical": "Технические",
+      "distortion": "Искажения"
+    },
+    "complexity": {
+      "basic": "Базовый",
+      "intermediate": "Средний",
+      "advanced": "Продвинутый"
+    },
+    "tags": {
+      "popular": "Популярный",
+      "professional": "Профессиональный",
+      "beginner-friendly": "Для начинающих",
+      "experimental": "Экспериментальный",
+      "retro": "Ретро",
+      "modern": "Современный",
+      "dramatic": "Драматический",
+      "subtle": "Тонкий",
+      "intense": "Интенсивный"
     },
     "names": {
       "fade": "Затухание",
@@ -1078,6 +1114,44 @@
       "objectDetectionDescription": "Включить распознавание объектов на скриншотах с помощью ИИ.",
       "confidenceThreshold": "Порог уверенности",
       "confidenceThresholdDescription": "Минимальный уровень уверенности для обнаруженных объектов. Более высокие значения уменьшают количество ложных срабатываний."
+    }
+  },
+  "effects": {
+    "errors": {
+      "invalidEffectsData": "Неверная структура данных эффектов",
+      "invalidCategoriesData": "Неверная структура данных категорий",
+      "unknownError": "Неизвестная ошибка",
+      "failedToLoadEffects": "Не удалось загрузить эффекты: {{error}}",
+      "failedToLoadCategories": "Не удалось загрузить категории: {{error}}",
+      "fallbackEffects": "Не удалось загрузить эффекты, используются резервные",
+      "fallbackCategories": "Не удалось загрузить категории, используются резервные"
+    },
+    "messages": {
+      "effectsLoaded": "Загружено {{count}} эффектов из JSON",
+      "categoriesLoaded": "Загружено {{count}} категорий эффектов из JSON"
+    },
+    "categories": {
+      "colorCorrection": {
+        "name": "Цветокоррекция",
+        "description": "Базовые инструменты цветокоррекции"
+      },
+      "artistic": {
+        "name": "Художественные",
+        "description": "Художественные эффекты"
+      }
+    },
+    "filters": {
+      "allCategories": "Все категории",
+      "allComplexity": "Любая сложность",
+      "allTags": "Все теги"
+    },
+    "detail": {
+      "description": "Описание",
+      "category": "Категория",
+      "parameters": "Параметры",
+      "presets": "Пресеты",
+      "ffmpegCommand": "FFmpeg команда",
+      "applyEffect": "Применить эффект"
     }
   }
 }
