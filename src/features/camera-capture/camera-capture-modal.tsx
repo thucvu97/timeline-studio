@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
+import { useModal } from "@/features/modals"
 
 import { CameraPermissionRequest, CameraPreview, CameraSettings, RecordingControls } from "./components"
 import { useCameraPermissions, useCameraStream, useDeviceCapabilities, useDevices, useRecording } from "./hooks"
-import { useModal } from "@/features/modals"
 
 /**
  * Модальное окно для захвата видео с камеры

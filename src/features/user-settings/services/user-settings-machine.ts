@@ -38,6 +38,7 @@ export const DEFAULT_LAYOUT = "default" // Макет по умолчанию
 export type PreviewSize = (typeof PREVIEW_SIZES)[number] // Тип размера превью
 export type BrowserTab = (typeof BROWSER_TABS)[number] // Тип таба браузера
 export type LayoutMode = (typeof LAYOUTS)[number] // Тип макета интерфейса
+export type PreviewSizeKey = "MEDIA" | "TRANSITIONS" | "TEMPLATES" | "EFFECTS" | "FILTERS" | "SUBTITLES" | "STYLE_TEMPLATES" | "MUSIC" // Тип ключа размера превью
 
 /**
  * Интерфейс контекста пользовательских настроек
@@ -46,7 +47,7 @@ export type LayoutMode = (typeof LAYOUTS)[number] // Тип макета инт�
  * @interface UserSettingsContextType
  */
 export interface UserSettingsContextType {
-  previewSizes: Record<"MEDIA" | "TRANSITIONS" | "TEMPLATES", PreviewSize> // Размеры превью для разных типов контента
+  previewSizes: Record<PreviewSizeKey, PreviewSize> // Размеры превью для разных типов контента
   activeTab: BrowserTab // Активный таб в браузере
   layoutMode: LayoutMode // Текущий макет интерфейса
   screenshotsPath: string // Путь для сохранения скриншотов
@@ -69,6 +70,11 @@ const initialContext: UserSettingsContextType = {
     MEDIA: DEFAULT_SIZE,
     TRANSITIONS: DEFAULT_SIZE,
     TEMPLATES: DEFAULT_SIZE,
+    EFFECTS: DEFAULT_SIZE,
+    FILTERS: DEFAULT_SIZE,
+    SUBTITLES: DEFAULT_SIZE,
+    STYLE_TEMPLATES: DEFAULT_SIZE,
+    MUSIC: DEFAULT_SIZE,
   },
   activeTab: DEFAULT_TAB, // Активный таб по умолчанию
   layoutMode: DEFAULT_LAYOUT, // Макет по умолчанию
@@ -87,7 +93,7 @@ const initialContext: UserSettingsContextType = {
  */
 interface UpdatePreviewSizeEvent {
   type: "UPDATE_PREVIEW_SIZE" // Тип события
-  key: "MEDIA" | "TRANSITIONS" | "TEMPLATES" // Тип контента для обновления размера
+  key: PreviewSizeKey // Тип контента для обновления размера
   size: PreviewSize // Новый размер превью
 }
 
@@ -125,7 +131,7 @@ interface UpdateScreenshotsPathEvent {
  */
 interface UpdateAllSettingsEvent {
   type: "UPDATE_ALL" // Тип события
-  settings: Partial<UserSettingsContext> // Частичные настройки для обновления
+  settings: Partial<UserSettingsContextType> // Частичные настройки для обновления
 }
 
 /**
@@ -178,7 +184,7 @@ interface UpdatePlayerVolumeEvent {
  */
 interface LoadUserSettingsEvent {
   type: "LOAD_SETTINGS" // Тип события
-  settings: Partial<UserSettingsContext> // Загруженные настройки
+  settings: Partial<UserSettingsContextType> // Загруженные настройки
 }
 
 /**

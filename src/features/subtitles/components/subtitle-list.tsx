@@ -1,14 +1,15 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
 import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
 import { useBrowserState } from "@/components/common/browser-state-provider";
+import { ContentGroup } from "@/components/common/content-group";
 import { useMedia } from "@/features/browser/media";
 import { useProjectSettings } from "@/features/project-settings";
 import { SubtitleStyle } from "@/types/subtitles";
 
-import { SubtitleGroup } from "./subtitle-group";
+import { SubtitlePreview } from "./subtitle-preview";
 import { useSubtitles } from "../hooks/use-subtitle-styles";
 
 /**
@@ -17,7 +18,6 @@ import { useSubtitles } from "../hooks/use-subtitle-styles";
  */
 export function SubtitleList() {
   const { t } = useTranslation(); // Хук для интернационализации
-  const [, setActiveStyle] = useState<SubtitleStyle | null>(null); // Состояние активного стиля
   const media = useMedia(); // Хук для работы с медиа-файлами и избранным
 
   // Загружаем субтитры из JSON
@@ -37,7 +37,6 @@ export function SubtitleList() {
     sortOrder,
     groupBy,
     filterType,
-    viewMode,
     previewSizeIndex,
   } = currentTabSettings;
 
@@ -200,13 +199,10 @@ export function SubtitleList() {
 
   /**
    * Обработчик клика по стилю субтитров
-   * Устанавливает выбранный стиль как активный
-   *
-   * @param {SubtitleStyle} style - Выбранный стиль
    */
   const handleStyleClick = (style: SubtitleStyle) => {
-    setActiveStyle(style); // Устанавливаем активный стиль
     console.log("Applying subtitle style:", style.name, style.style); // Отладочный вывод
+    // Здесь может быть логика применения стиля субтитров к видео
   };
 
   // Показываем состояние загрузки
@@ -246,14 +242,25 @@ export function SubtitleList() {
           // Отображаем сгруппированные стили
           <div className="space-y-4">
             {groupedStyles.map((group) => (
-              <SubtitleGroup
+              <ContentGroup
                 key={group.title || "ungrouped"}
                 title={group.title}
-                subtitles={group.styles}
-                previewSize={basePreviewSize}
-                previewWidth={previewDimensions.width}
-                previewHeight={previewDimensions.height}
-                onSubtitleClick={handleStyleClick}
+                items={group.styles}
+                viewMode="thumbnails"
+                renderItem={(style: SubtitleStyle) => (
+                  <SubtitlePreview
+                    key={style.id}
+                    style={style}
+                    onClick={() => handleStyleClick(style)}
+                    size={basePreviewSize}
+                    previewWidth={previewDimensions.width}
+                    previewHeight={previewDimensions.height}
+                  />
+                )}
+                itemsContainerClassName="grid gap-2"
+                itemsContainerStyle={{
+                  gridTemplateColumns: `repeat(auto-fill, minmax(${previewDimensions.width}px, 1fr))`,
+                }}
               />
             ))}
           </div>

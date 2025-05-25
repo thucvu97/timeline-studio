@@ -211,7 +211,7 @@ const result = await importFile();
 const result = await importDirectory();
 ```
 
-**`useMusicImport` (`src/features/browser/components/tabs/music/use-music-import.ts`):**
+**`useMusicImport` (`src/features/music/hooks/use-music-import.ts`):**
 
 ```typescript
 const { importFile, importDirectory, isImporting, progress } = useMusicImport();
@@ -223,16 +223,102 @@ const result = await importFile();
 const result = await importDirectory();
 ```
 
+**`useEffectsImport` (`src/features/effects/hooks/use-effects-import.ts`):**
+
+```typescript
+const { importEffectsFile, importEffectFile, isImporting, progress } = useEffectsImport();
+
+// Импорт JSON файла с эффектами
+const result = await importEffectsFile();
+
+// Импорт отдельных файлов эффектов (.cube, .3dl, .lut, .preset)
+const result = await importEffectFile();
+```
+
+**`useFiltersImport` (`src/features/filters/hooks/use-filters-import.ts`):**
+
+```typescript
+const { importFiltersFile, importFilterFile, isImporting } = useFiltersImport();
+
+// Импорт JSON файла с фильтрами
+const result = await importFiltersFile();
+
+// Импорт отдельных файлов фильтров (.cube, .3dl, .lut, .preset)
+const result = await importFilterFile();
+```
+
+**`useTransitionsImport` (`src/features/transitions/hooks/use-transitions-import.ts`):**
+
+```typescript
+const { importTransitionsFile, importTransitionFile, isImporting } = useTransitionsImport();
+
+// Импорт JSON файла с переходами
+const result = await importTransitionsFile();
+
+// Импорт отдельных файлов переходов
+const result = await importTransitionFile();
+```
+
+**`useSubtitlesImport` (`src/features/subtitles/hooks/use-subtitles-import.ts`):**
+
+```typescript
+const { importSubtitlesFile, importSubtitleFile, isImporting } = useSubtitlesImport();
+
+// Импорт JSON файла со стилями субтитров
+const result = await importSubtitlesFile();
+
+// Импорт отдельных файлов стилей (.css, .json, .srt, .vtt, .ass)
+const result = await importSubtitleFile();
+```
+
+**`useTemplatesImport` (`src/features/templates/hooks/use-templates-import.ts`):**
+
+```typescript
+const { importTemplatesFile, importTemplateFile, isImporting } = useTemplatesImport();
+
+// Импорт JSON файла с многокамерными шаблонами
+const result = await importTemplatesFile();
+
+// Импорт отдельных файлов шаблонов (пока только JSON)
+const result = await importTemplateFile();
+```
+
+**`useStyleTemplatesImport` (`src/features/style-templates/hooks/use-style-templates-import.ts`):**
+
+```typescript
+const { importStyleTemplatesFile, importStyleTemplateFile, isImporting } = useStyleTemplatesImport();
+
+// Импорт JSON файла со стилистическими шаблонами
+const result = await importStyleTemplatesFile();
+
+// Импорт отдельных файлов стилистических шаблонов (пока только JSON)
+const result = await importStyleTemplateFile();
+```
+
 ## Поддерживаемые типы файлов
 
 - **Видео**: `.mp4`, `.mov`, `.avi`, `.mkv`, `.webm`
-- **Аудио**: `.mp3`, `.wav`, `.aac`, `.ogg`, `.flac`
+- **Аудио**: `.mp3`, `.wav`, `.aac`, `.ogg`, `.flac`, `.m4a`, `.wma`
 - **Изображения**: `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.heic`
 - **Субтитры**: `.srt`, `.vtt`
-- **Эффекты**: `.json` (пресеты)
-- **Переходы**: `.json` (пресеты)
-- **Фильтры**: `.json` (пресеты)
-- **Шаблоны**: `.json` (конфигурации)
+- **Эффекты**:
+  - JSON файлы с эффектами: `.json`
+  - Файлы эффектов: `.cube`, `.3dl`, `.lut`, `.preset`
+- **Переходы**:
+  - JSON файлы с переходами: `.json`
+  - Файлы переходов: `.json`, `.preset`, `.transition`
+- **Фильтры**:
+  - JSON файлы с фильтрами: `.json`
+  - Файлы фильтров: `.cube`, `.3dl`, `.lut`, `.preset`
+- **Стили субтитров**:
+  - JSON файлы со стилями: `.json`
+  - Файлы стилей: `.css`, `.json`, `.srt`, `.vtt`, `.ass`
+- **Многокамерные шаблоны**:
+  - JSON файлы с шаблонами: `.json`
+  - Планируется: `.bundle` (Filmora), `.cct` (CapCut), `.zip`, `.mogrt` (Adobe)
+- **Стилистические шаблоны**:
+  - JSON файлы со стилями: `.json`
+  - Планируется: `.bundle` (Filmora), `.zip`, `.css`, `.aep` (After Effects)
 
 ## Функциональность вкладки Media
 

@@ -2,12 +2,12 @@ import { assign, createMachine } from "xstate";
 
 // Общие размеры превью для всех вкладок браузера
 export const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400];
-export const DEFAULT_PREVIEW_SIZE_INDEX = 1; // 125px (по умолчанию)
+export const DEFAULT_PREVIEW_SIZE_INDEX = 2; // 150px (по умолчанию)
 
 /**
  * Тип вкладки браузера
  */
-export type BrowserTab = "media" | "music" | "effects" | "filters" | "transitions" | "subtitles";
+export type BrowserTab = "media" | "music" | "effects" | "filters" | "transitions" | "subtitles" | "templates" | "style-templates";
 
 /**
  * Режимы отображения для разных типов контента
@@ -53,16 +53,51 @@ export type BrowserEvent =
 /**
  * Начальные настройки для каждой вкладки
  */
-const getInitialTabSettings = (tab: BrowserTab) => ({
-  searchQuery: "",
-  showFavoritesOnly: false,
-  sortBy: "name",
-  sortOrder: "asc" as const,
-  groupBy: "none",
-  filterType: "all",
-  viewMode: (tab === "music" ? "list" : "thumbnails") as ViewMode,
-  previewSizeIndex: DEFAULT_PREVIEW_SIZE_INDEX,
-});
+const getInitialTabSettings = (tab: BrowserTab) => {
+  // Базовые настройки
+  const baseSettings = {
+    searchQuery: "",
+    showFavoritesOnly: false,
+    sortBy: "name",
+    sortOrder: "asc" as const,
+    groupBy: "none",
+    filterType: "all",
+    viewMode: "thumbnails" as ViewMode,
+    previewSizeIndex: DEFAULT_PREVIEW_SIZE_INDEX,
+  };
+
+  // Специфичные настройки для разных вкладок
+  switch (tab) {
+    case "music":
+      return {
+        ...baseSettings,
+        viewMode: "list" as ViewMode,
+        sortBy: "title",
+      };
+    case "templates":
+      return {
+        ...baseSettings,
+        sortBy: "screens",
+        groupBy: "screens",
+      };
+    case "style-templates":
+      return {
+        ...baseSettings,
+        sortBy: "category",
+        groupBy: "category",
+      };
+    case "effects":
+    case "filters":
+    case "transitions":
+      return {
+        ...baseSettings,
+        sortBy: "category",
+        groupBy: "category",
+      };
+    default:
+      return baseSettings;
+  }
+};
 
 /**
  * Начальный контекст машины состояния
@@ -76,6 +111,8 @@ const initialContext: BrowserContext = {
     filters: getInitialTabSettings("filters"),
     transitions: getInitialTabSettings("transitions"),
     subtitles: getInitialTabSettings("subtitles"),
+    templates: getInitialTabSettings("templates"),
+    "style-templates": getInitialTabSettings("style-templates"),
   },
 };
 

@@ -2,7 +2,7 @@ import i18next from "i18next"
 import { assign, createMachine, fromPromise } from "xstate"
 
 import { FavoritesType } from "@/features/browser/media/media-machine"
-import { UserSettingsContext } from "@/features/user-settings/user-settings-machine"
+import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
 
 import { AppSettings, storeService } from "./store-service"
 
@@ -23,9 +23,9 @@ const getDefaultProjectName = (): string => {
 /**
  * Интерфейс контекста машины состояний настроек приложения
  */
-export interface AppSettingsContext {
+export interface AppSettingsContextType {
   // Пользовательские настройки
-  userSettings: UserSettingsContext
+  userSettings: UserSettingsContextType
 
   // Последние открытые проекты
   recentProjects: {
@@ -65,7 +65,7 @@ export interface AppSettingsContext {
  * Типы событий для машины состояний настроек приложения
  */
 export type AppSettingsEvent =
-  | { type: "UPDATE_USER_SETTINGS"; settings: Partial<UserSettingsContext> }
+  | { type: "UPDATE_USER_SETTINGS"; settings: Partial<UserSettingsContextType> }
   | { type: "ADD_RECENT_PROJECT"; path: string; name: string }
   | { type: "REMOVE_RECENT_PROJECT"; path: string }
   | { type: "CLEAR_RECENT_PROJECTS" }
@@ -203,11 +203,11 @@ export const appSettingsMachine = createMachine({
     },
     isLoading: true,
     error: null,
-  } as AppSettingsContext,
+  } as AppSettingsContextType,
 
   // Типы для TypeScript
   types: {
-    context: {} as AppSettingsContext,
+    context: {} as AppSettingsContextType,
     events: {} as AppSettingsEvent,
   },
 

@@ -637,6 +637,7 @@
       "effects": "Effects",
       "filters": "Filters",
       "templates": "Multicam",
+      "styleTemplates": "Styles",
       "subtitles": "Subtitles"
     },
     "templateScreens": {
@@ -1226,6 +1227,37 @@
       "parameters": "Parameters",
       "tags": "Tags",
       "applyTransition": "Apply Transition"
+    }
+  },
+  "styleTemplates": {
+    "loading": "Loading templates...",
+    "error": "Error loading templates",
+    "noResults": "No templates found",
+    "search": "Search templates...",
+    "addToResources": "Add to resources",
+    "addedToResources": "Added to resources",
+    "hasText": "Contains text",
+    "hasAnimation": "Contains animation",
+    "categories": {
+      "intro": "Intro",
+      "outro": "Outro",
+      "lowerThird": "Lower Third",
+      "title": "Title",
+      "transition": "Transition",
+      "overlay": "Overlay"
+    },
+    "styles": {
+      "modern": "Modern",
+      "vintage": "Vintage",
+      "minimal": "Minimal",
+      "corporate": "Corporate",
+      "creative": "Creative",
+      "cinematic": "Cinematic"
+    },
+    "duration": {
+      "short": "Short (≤3s)",
+      "medium": "Medium (3-6s)",
+      "long": "Long (>6s)"
     }
   }
 }

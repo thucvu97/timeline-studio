@@ -23,11 +23,6 @@ export function SplitDiagonalLandscape({
   const validVideos = videos.filter((v) => v?.path);
   const videoCount = Math.min(validVideos.length, 2);
 
-  // Если недостаточно видео, возвращаем пустой div
-  if (videoCount < 2) {
-    return <div className="h-full w-full bg-black" />;
-  }
-
   // Определяем ориентацию и тип шаблона на основе ID шаблона
   const isPortrait = templateId ? templateId.includes("portrait") : false;
   const isSquare = templateId ? templateId.includes("square") : false;
@@ -294,6 +289,11 @@ export function SplitDiagonalLandscape({
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  // Если недостаточно видео, возвращаем пустой div
+  if (videoCount < 2) {
+    return <div className="h-full w-full bg-black" />;
+  }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {

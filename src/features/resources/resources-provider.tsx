@@ -2,6 +2,7 @@ import React, { ReactNode, createContext, useContext } from "react";
 
 import { useMachine } from "@xstate/react";
 
+import { StyleTemplate } from "@/features/style-templates/types";
 import { MediaTemplate } from "@/features/templates/lib/templates";
 import { VideoEffect } from "@/types/effects";
 import { VideoFilter } from "@/types/filters";
@@ -10,6 +11,7 @@ import {
   EffectResource,
   FilterResource,
   MusicResource,
+  StyleTemplateResource,
   SubtitleResource,
   TemplateResource,
   TransitionResource,
@@ -25,6 +27,7 @@ interface ResourcesContextType extends ResourcesMachineContext {
   addFilter: (filter: VideoFilter) => void;
   addTransition: (transition: TransitionEffect) => void;
   addTemplate: (template: MediaTemplate) => void;
+  addStyleTemplate: (template: StyleTemplate) => void;
   addMusic: (file: MediaFile) => void;
   addSubtitle: (style: SubtitleStyle) => void;
   removeResource: (resourceId: string) => void;
@@ -35,6 +38,7 @@ interface ResourcesContextType extends ResourcesMachineContext {
   isFilterAdded: (filter: VideoFilter) => boolean;
   isTransitionAdded: (transition: TransitionEffect) => boolean;
   isTemplateAdded: (template: MediaTemplate) => boolean;
+  isStyleTemplateAdded: (template: StyleTemplate) => boolean;
   isMusicFileAdded: (file: MediaFile) => boolean;
   isSubtitleAdded: (style: SubtitleStyle) => boolean;
 }
@@ -63,6 +67,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     filterResources,
     transitionResources,
     templateResources,
+    styleTemplateResources,
     musicResources,
     subtitleResources,
   } = state.context;
@@ -93,6 +98,13 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const handleAddTemplate = React.useCallback(
     (template: MediaTemplate) => {
       send({ type: "ADD_TEMPLATE", template });
+    },
+    [send],
+  );
+
+  const handleAddStyleTemplate = React.useCallback(
+    (template: StyleTemplate) => {
+      send({ type: "ADD_STYLE_TEMPLATE", template });
     },
     [send],
   );
@@ -246,6 +258,34 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     [templateResources],
   );
 
+  // Создаем кэш для результатов проверки стилистических шаблонов
+  const styleTemplateAddedCache = React.useRef<Record<string, boolean>>({});
+
+  // Сбрасываем кэш при изменении styleTemplateResources
+  React.useEffect(() => {
+    styleTemplateAddedCache.current = {};
+  }, [styleTemplateResources]);
+
+  const isStyleTemplateAdded = React.useCallback(
+    (template: StyleTemplate) => {
+      // Проверяем, есть ли результат в кэше
+      if (template.id in styleTemplateAddedCache.current) {
+        return styleTemplateAddedCache.current[template.id];
+      }
+
+      // Если результата нет в кэше, вычисляем его
+      const isAdded = styleTemplateResources.some(
+        (resource: StyleTemplateResource) => resource.resourceId === template.id,
+      );
+
+      // Сохраняем результат в кэше
+      styleTemplateAddedCache.current[template.id] = isAdded;
+
+      return isAdded;
+    },
+    [styleTemplateResources],
+  );
+
   // Создаем кэш для результатов проверки музыкальных файлов
   const musicFileAddedCache = React.useRef<Record<string, boolean>>({});
 
@@ -310,6 +350,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     filterResources,
     transitionResources,
     templateResources,
+    styleTemplateResources,
     musicResources,
     subtitleResources,
 
@@ -318,6 +359,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     addFilter: handleAddFilter,
     addTransition: handleAddTransition,
     addTemplate: handleAddTemplate,
+    addStyleTemplate: handleAddStyleTemplate,
     addMusic: handleAddMusic,
     addSubtitle: handleAddSubtitle,
     removeResource: handleRemoveResource,
@@ -328,6 +370,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     isFilterAdded,
     isTransitionAdded,
     isTemplateAdded,
+    isStyleTemplateAdded,
     isMusicFileAdded,
     isSubtitleAdded,
   };

@@ -4,6 +4,41 @@ import React from "react";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
+// Мок для HTMLVideoElement - переопределяем прототип
+Object.defineProperty(window.HTMLVideoElement.prototype, 'play', {
+  writable: true,
+  value: vi.fn().mockResolvedValue(undefined),
+});
+
+Object.defineProperty(window.HTMLVideoElement.prototype, 'pause', {
+  writable: true,
+  value: vi.fn(),
+});
+
+Object.defineProperty(window.HTMLVideoElement.prototype, 'load', {
+  writable: true,
+  value: vi.fn(),
+});
+
+// Также мокаем HTMLMediaElement для совместимости
+Object.defineProperty(window.HTMLMediaElement.prototype, 'play', {
+  writable: true,
+  value: vi.fn().mockResolvedValue(undefined),
+});
+
+Object.defineProperty(window.HTMLMediaElement.prototype, 'pause', {
+  writable: true,
+  value: vi.fn(),
+});
+
+Object.defineProperty(window.HTMLMediaElement.prototype, 'load', {
+  writable: true,
+  value: vi.fn(),
+});
+
+// Не переопределяем document.createElement, так как это ломает jsdom
+// Вместо этого моки для HTMLVideoElement уже настроены выше через прототип
+
 // Автоматическая очистка после каждого теста
 afterEach(() => {
   cleanup();
@@ -96,6 +131,112 @@ vi.mock("react-hotkeys-hook", () => ({
   useHotkeys: vi.fn(),
 }));
 
+// Мок для browser-state-provider
+const mockSetPreviewSize = vi.fn();
+
+vi.mock("@/components/common/browser-state-provider", () => ({
+  useBrowserState: () => ({
+    state: {
+      activeTab: "media",
+      tabSettings: {
+        media: {
+          searchQuery: "",
+          showFavoritesOnly: false,
+          sortBy: "name",
+          sortOrder: "asc",
+          groupBy: "none",
+          filterType: "all",
+          viewMode: "thumbnails",
+          previewSizeIndex: 2,
+        },
+      },
+    },
+    activeTab: "media",
+    currentTabSettings: {
+      searchQuery: "",
+      showFavoritesOnly: false,
+      sortBy: "name",
+      sortOrder: "asc",
+      groupBy: "none",
+      filterType: "all",
+      viewMode: "thumbnails",
+      previewSizeIndex: 2,
+    },
+    previewSize: 150,
+    switchTab: vi.fn(),
+    setSearchQuery: vi.fn(),
+    toggleFavorites: vi.fn(),
+    setSort: vi.fn(),
+    setGroupBy: vi.fn(),
+    setFilter: vi.fn(),
+    setViewMode: vi.fn(),
+    setPreviewSize: mockSetPreviewSize,
+    resetTabSettings: vi.fn(),
+    // Добавляем методы для увеличения/уменьшения размера
+    increaseSize: vi.fn(),
+    decreaseSize: vi.fn(),
+    canIncreaseSize: true,
+    canDecreaseSize: true,
+  }),
+  BrowserStateProvider: ({ children }: { children: React.ReactNode }) => children,
+  PREVIEW_SIZES: [100, 125, 150, 200, 250, 300, 400],
+}));
+
+// Мок для project-settings-provider
+vi.mock("@/features/project-settings/hooks/use-project-settings", () => ({
+  useProjectSettings: () => ({
+    settings: {
+      fps: { value: 30 },
+      width: { value: 1920 },
+      height: { value: 1080 },
+      aspectRatio: {
+        value: {
+          width: 1920,
+          height: 1080
+        }
+      },
+      sampleRate: { value: 44100 },
+      channels: { value: 2 },
+      bitrate: { value: 128 },
+      frameRate: "30",
+      colorSpace: "srgb",
+      resolution: "1920x1080",
+    },
+    projectSettings: {
+      videoSettings: {
+        fps: 30,
+        width: 1920,
+        height: 1080,
+        aspectRatio: "16:9",
+      },
+      audioSettings: {
+        sampleRate: 44100,
+        channels: 2,
+        bitrate: 128,
+      },
+    },
+    updateSettings: vi.fn(),
+    updateProjectSettings: vi.fn(),
+    resetSettings: vi.fn(),
+    resetProjectSettings: vi.fn(),
+  }),
+}));
+
+// Мок для resources provider
+vi.mock("@/features/resources", () => ({
+  useResources: () => ({
+    addTransition: vi.fn(),
+    removeResource: vi.fn(),
+    isTransitionAdded: vi.fn().mockReturnValue(false),
+    transitionResources: [],
+    mediaResources: [],
+    effectResources: [],
+    filterResources: [],
+    subtitleResources: [],
+    templateResources: [],
+  }),
+}));
+
 // Мок для useModal
 vi.mock("@/features/modals/services/modal-provider", () => ({
   useModal: () => ({
@@ -107,6 +248,24 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
     submitModal: vi.fn(),
   }),
   ModalProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+// Мок для ChatProvider (AI Chat)
+vi.mock("@/features/ai-chat/services/chat-provider", () => ({
+  useChat: () => ({
+    chatMessages: [],
+    selectedAgentId: null,
+    isProcessing: false,
+    error: null,
+    sendChatMessage: vi.fn(),
+    receiveChatMessage: vi.fn(),
+    selectAgent: vi.fn(),
+    setProcessing: vi.fn(),
+    setError: vi.fn(),
+    clearMessages: vi.fn(),
+    removeMessage: vi.fn(),
+  }),
+  ChatProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // Мок для TopBar

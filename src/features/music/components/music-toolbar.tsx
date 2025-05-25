@@ -1,10 +1,10 @@
 import React from "react";
 
+import { useBrowserState } from "@/components/common/browser-state-provider";
 import { MediaToolbar } from "@/components/common/media-toolbar";
 import { getToolbarConfigForContent } from "@/components/common/media-toolbar-configs";
 import { useMedia } from "@/features/browser/media";
 
-import { useMusic } from "../hooks/use-music";
 
 interface MusicToolbarProps {
   onImport: () => void;

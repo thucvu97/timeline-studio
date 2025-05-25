@@ -4,10 +4,8 @@ import { RenderOptions, render } from "@testing-library/react";
 
 import { ThemeProvider } from "@/components/theme/theme-context";
 import { AppSettingsProvider } from "@/features/app-state/app-settings-provider";
-import { PreviewSizeProvider } from "@/features/browser/components/preview/preview-size-provider";
 import { MediaProvider } from "@/features/browser/media";
 import { ModalProvider } from "@/features/modals/services/modal-provider";
-import { MusicProvider } from "@/features/music/services/music-provider";
 import { ProjectSettingsProvider } from "@/features/project-settings";
 import { ResourcesProvider } from "@/features/resources";
 import { UserSettingsProvider } from "@/features/user-settings";
@@ -31,20 +29,7 @@ export const MediaProviders = ({ children }: { children: ReactNode }) => {
     <BaseProviders>
       <ResourcesProvider>
         <MediaProvider>
-            <PreviewSizeProvider>{children}</PreviewSizeProvider>
-        </MediaProvider>
-      </ResourcesProvider>
-    </BaseProviders>
-  );
-};
-
-// ✅ Провайдеры для музыки
-export const MusicProviders = ({ children }: { children: ReactNode }) => {
-  return (
-    <BaseProviders>
-      <ResourcesProvider>
-        <MediaProvider>
-          <MusicProvider>{children}</MusicProvider>
+            {children}
         </MediaProvider>
       </ResourcesProvider>
     </BaseProviders>
@@ -78,7 +63,7 @@ const TemplateProviders = ({ children }: { children: ReactNode }) => {
     <BaseProviders>
       <ResourcesProvider>
         <MediaProvider>
-          <PreviewSizeProvider>{children}</PreviewSizeProvider>
+          {children}
         </MediaProvider>
       </ResourcesProvider>
     </BaseProviders>
@@ -95,11 +80,6 @@ export const renderWithMedia = (
   ui: ReactElement,
   options?: Omit<RenderOptions, "wrapper">,
 ) => render(ui, { wrapper: MediaProviders, ...options });
-
-export const renderWithMusic = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, "wrapper">,
-) => render(ui, { wrapper: MusicProviders, ...options });
 
 export const renderWithPlayer = (
   ui: ReactElement,

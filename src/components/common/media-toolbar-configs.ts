@@ -150,6 +150,37 @@ export const subtitlesFilterOptions = [
   { value: "modern", label: "subtitles.categories.modern" },
 ];
 
+// Опции фильтрации для шаблонов
+export const templatesFilterOptions = [
+  { value: "2", label: "templates.screens.2" },
+  { value: "3", label: "templates.screens.3" },
+  { value: "4", label: "templates.screens.4" },
+  { value: "6", label: "templates.screens.6" },
+  { value: "8", label: "templates.screens.8" },
+  { value: "9", label: "templates.screens.9" },
+  { value: "12", label: "templates.screens.12" },
+  { value: "16", label: "templates.screens.16" },
+  { value: "25", label: "templates.screens.25" },
+];
+
+// Опции фильтрации для стилистических шаблонов
+export const styleTemplatesFilterOptions = [
+  // По категориям
+  { value: "intro", label: "styleTemplates.categories.intro" },
+  { value: "outro", label: "styleTemplates.categories.outro" },
+  { value: "lower-third", label: "styleTemplates.categories.lowerThird" },
+  { value: "title", label: "styleTemplates.categories.title" },
+  { value: "transition", label: "styleTemplates.categories.transition" },
+  { value: "overlay", label: "styleTemplates.categories.overlay" },
+  // По стилям
+  { value: "modern", label: "styleTemplates.styles.modern" },
+  { value: "vintage", label: "styleTemplates.styles.vintage" },
+  { value: "minimal", label: "styleTemplates.styles.minimal" },
+  { value: "corporate", label: "styleTemplates.styles.corporate" },
+  { value: "creative", label: "styleTemplates.styles.creative" },
+  { value: "cinematic", label: "styleTemplates.styles.cinematic" },
+];
+
 /**
  * Функция для получения конфигурации режимов просмотра по типу контента
  */
@@ -171,7 +202,7 @@ export function getViewModesForContent(contentType: "media" | "music" | "effects
 /**
  * Функция для получения полной конфигурации тулбара по типу контента
  */
-export function getToolbarConfigForContent(contentType: "media" | "music" | "effects" | "filters" | "transitions" | "subtitles") {
+export function getToolbarConfigForContent(contentType: "media" | "music" | "effects" | "filters" | "transitions" | "subtitles" | "templates" | "style-templates") {
   switch (contentType) {
     case "media":
       return {
@@ -267,6 +298,42 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
         filterOptions: subtitlesFilterOptions, // Фильтрация по сложности и категориям
         showZoom: true, // Размеры превью нужны
         showGroupBy: true, // Группировка по категориям и тэгам
+      };
+    case "templates":
+      return {
+        viewModes: effectsViewModes, // Шаблоны используют только превью как эффекты
+        sortOptions: [
+          { value: "name", label: "browser.toolbar.sortBy.name" },
+          { value: "screens", label: "browser.toolbar.sortBy.screens" },
+          { value: "category", label: "browser.toolbar.sortBy.category" },
+        ],
+        groupOptions: [
+          { value: "none", label: "browser.toolbar.groupBy.none" },
+          { value: "screens", label: "browser.toolbar.groupBy.screens" },
+          { value: "category", label: "browser.toolbar.groupBy.category" },
+        ],
+        filterOptions: templatesFilterOptions, // Фильтрация по количеству экранов
+        showZoom: true, // Размеры превью нужны
+        showGroupBy: true, // Группировка по экранам
+      };
+    case "style-templates":
+      return {
+        viewModes: effectsViewModes, // Стилистические шаблоны используют только превью
+        sortOptions: [
+          { value: "name", label: "browser.toolbar.sortBy.name" },
+          { value: "category", label: "browser.toolbar.sortBy.category" },
+          { value: "style", label: "browser.toolbar.sortBy.style" },
+          { value: "duration", label: "browser.toolbar.sortBy.duration" },
+        ],
+        groupOptions: [
+          { value: "none", label: "browser.toolbar.groupBy.none" },
+          { value: "category", label: "browser.toolbar.groupBy.category" },
+          { value: "style", label: "browser.toolbar.groupBy.style" },
+          { value: "duration", label: "browser.toolbar.groupBy.duration" },
+        ],
+        filterOptions: styleTemplatesFilterOptions, // Фильтрация по категориям и стилям
+        showZoom: true, // Размеры превью нужны
+        showGroupBy: true, // Группировка по категориям и стилям
       };
     default:
       return getToolbarConfigForContent("music");

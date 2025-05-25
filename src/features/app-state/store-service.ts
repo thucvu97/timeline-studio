@@ -1,7 +1,7 @@
 import { Store, load } from "@tauri-apps/plugin-store"
 
 import { FavoritesType } from "@/features/browser/media/media-machine"
-import { UserSettingsContext } from "@/features/user-settings"
+import { UserSettingsContextType } from "@/features/user-settings"
 
 /**
  * Ключ для хранилища пользовательских настроек
@@ -12,8 +12,8 @@ export const USER_SETTINGS_STORE_PATH = ".timeline-studio-settings.json"
  * Интерфейс для хранилища пользовательских настроек
  */
 export interface AppSettings {
-  // Пользовательские настройки из UserSettingsContext
-  userSettings: UserSettingsContext
+  // Пользовательские настройки из UserSettingsContextType
+  userSettings: UserSettingsContextType
 
   // Информация о последних открытых проектах
   recentProjects: {
@@ -144,7 +144,7 @@ export class StoreService {
   /**
    * Получить пользовательские настройки
    */
-  public async getUserSettings(): Promise<UserSettingsContext | null> {
+  public async getUserSettings(): Promise<UserSettingsContextType | null> {
     const settings = await this.getSettings()
     return settings?.userSettings ?? null
   }
@@ -152,7 +152,7 @@ export class StoreService {
   /**
    * Сохранить пользовательские настройки
    */
-  public async saveUserSettings(userSettings: UserSettingsContext): Promise<void> {
+  public async saveUserSettings(userSettings: UserSettingsContextType): Promise<void> {
     const settings = await this.getSettings()
 
     if (settings) {

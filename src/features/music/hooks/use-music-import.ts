@@ -41,7 +41,7 @@ export function useMusicImport() {
   const [isImporting, setIsImporting] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Получаем методы из музыкального контекста
+  // Получаем методы из музыкального контекста (теперь заглушки)
   const { addMusicFiles, updateMusicFiles } = useMusic();
   const { currentProject, setProjectDirty } = useCurrentProject();
 
@@ -124,8 +124,9 @@ export function useMusicImport() {
       console.log(`Создание ${totalFiles} базовых музыкальных файлов...`);
       const basicMusicFiles = filePaths.map(createBasicMusicFile);
 
-      // Сразу добавляем базовые объекты в музыкальный контекст - пользователь сразу видит файлы
-      addMusicFiles(basicMusicFiles);
+      // TODO: Добавить файлы в хранилище
+      // addMusicFiles(basicMusicFiles); // Удален
+      console.log("Добавлено файлов:", basicMusicFiles.length);
 
       // ШАГ 2: Асинхронно загружаем метаданные для каждого файла по очереди
       console.log(
@@ -139,7 +140,7 @@ export function useMusicImport() {
 
       return basicMusicFiles;
     },
-    [addMusicFiles],
+    [], // Убрали зависимость от addMusicFiles
   );
 
   /**
@@ -190,11 +191,9 @@ export function useMusicImport() {
             isLoadingMetadata: false,
           };
 
-          // Обновляем файл в музыкальном контексте (заменяем базовый объект)
-          // Используем requestAnimationFrame для оптимизации обновлений
-          requestAnimationFrame(() => {
-            updateMusicFiles([updatedMusicFile]);
-          });
+          // TODO: Обновить файл в хранилище
+          // updateMusicFiles([updatedMusicFile]); // Удален
+          console.log("Метаданные загружены для:", updatedMusicFile.name);
 
           console.log(
             `[${fileIndex + 1}/${totalFiles}] ✅ Метаданные музыки загружены: ${filePath.split("/").pop()}`,
@@ -205,9 +204,9 @@ export function useMusicImport() {
             ...createBasicMusicFile(filePath),
             isLoadingMetadata: false,
           };
-          requestAnimationFrame(() => {
-            updateMusicFiles([fallbackMusicFile]);
-          });
+          // TODO: Обновить файл в хранилище
+          // updateMusicFiles([fallbackMusicFile]); // Удален
+          console.log("Fallback для:", fallbackMusicFile.name);
 
           console.log(
             `[${fileIndex + 1}/${totalFiles}] ⚠️ Метаданные музыки не получены: ${filePath.split("/").pop()}`,
@@ -224,9 +223,9 @@ export function useMusicImport() {
           ...createBasicMusicFile(filePath),
           isLoadingMetadata: false,
         };
-        requestAnimationFrame(() => {
-          updateMusicFiles([errorMusicFile]);
-        });
+        // TODO: Обновить файл в хранилище
+        // updateMusicFiles([errorMusicFile]); // Удален
+        console.log("Ошибка для:", errorMusicFile.name);
       } finally {
         activeRequests--;
         completedCount++;

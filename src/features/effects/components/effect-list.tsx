@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
@@ -10,6 +10,7 @@ import { VideoEffect } from "@/types/effects";
 
 import { EffectGroup } from "./effect-group";
 import { useEffects } from "../hooks/use-effects";
+import { useEffectsImport } from "../hooks/use-effects-import";
 
 /**
  * Компонент для отображения списка эффектов
@@ -19,6 +20,7 @@ export function EffectList() {
   const { t } = useTranslation(); // Хук для интернационализации
   const media = useMedia(); // Хук для работы с медиафайлами и избранным
   const { effects, loading, error } = useEffects(); // Хук для загрузки эффектов
+  const { importEffectsFile, importEffectFile, isImporting } = useEffectsImport(); // Хук для импорта эффектов
 
   // Используем общий провайдер состояния браузера
   const { currentTabSettings } = useBrowserState();
@@ -214,6 +216,8 @@ export function EffectList() {
     console.log("Applying effect:", effect.name); // Отладочный вывод
     // Здесь может быть логика применения эффекта к видео
   };
+
+
 
   // Показываем индикатор загрузки
   if (loading) {

@@ -69,11 +69,21 @@ describe("App Settings Machine", () => {
     // Мокируем успешную загрузку настроек
     const mockSettings = {
       userSettings: {
-        previewSizes: { MEDIA: 120, TRANSITIONS: 100, TEMPLATES: 125 },
+        previewSizes: {
+          MEDIA: 125,
+          TRANSITIONS: 100,
+          TEMPLATES: 125,
+          EFFECTS: 100,
+          FILTERS: 100,
+          SUBTITLES: 100,
+          STYLE_TEMPLATES: 125,
+          MUSIC: 100,
+        },
         activeTab: "media",
         layoutMode: "default",
         screenshotsPath: "/path/to/screenshots",
         playerScreenshotsPath: "/path/to/player/screenshots",
+        playerVolume: 100,
         openAiApiKey: "test-key",
         claudeApiKey: "test-key",
         isBrowserVisible: true,

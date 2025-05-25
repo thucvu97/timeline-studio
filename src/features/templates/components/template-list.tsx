@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 
+import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
+import { useBrowserState } from "@/components/common/browser-state-provider";
+import { ContentGroup } from "@/components/common/content-group";
 import { useMedia } from "@/features/browser/media";
 import { useProjectSettings } from "@/features/project-settings";
 
-import { TemplateListToolbar } from "./template-list-toolbar";
 import { TemplatePreview } from "./template-preview";
 import { getTemplateLabels } from "../lib/template-labels";
 import { MediaTemplate, TEMPLATE_MAP } from "../lib/templates";
-import { useTemplateList } from "../services/template-list-provider";
 
 /**
  * Преобразует метку соотношения сторон в группу шаблонов
@@ -33,7 +34,6 @@ function mapAspectLabelToGroup(
  */
 export function TemplateList() {
   const { t, i18n } = useTranslation(); // Хук для интернационализации
-  const [, setActiveTemplate] = useState<MediaTemplate | null>(null); // Активный шаблон
   const [, setCurrentGroup] = useState<"landscape" | "portrait" | "square">(
     "landscape", // По умолчанию - горизонтальные шаблоны
   );
@@ -47,21 +47,18 @@ export function TemplateList() {
   // Получаем доступ к контексту медиа для работы с медиафайлами
   const media = useMedia();
 
-  /**
-   * Получаем параметры из хука useTemplateList
-   * Используется для управления размером отображаемых шаблонов и фильтрацией
-   */
+  // Используем общий провайдер состояния браузера
+  const { currentTabSettings } = useBrowserState();
+
+  // Извлекаем настройки для шаблонов
   const {
-    previewSize, // Текущий размер превью
-    increaseSize, // Функция увеличения размера
-    decreaseSize, // Функция уменьшения размера
-    canIncreaseSize, // Флаг возможности увеличения
-    canDecreaseSize, // Флаг возможности уменьшения
-    searchQuery, // Поисковый запрос
-    setSearchQuery, // Функция установки поискового запроса
-    showFavoritesOnly, // Флаг отображения только избранных
-    toggleFavorites, // Функция переключения отображения избранных
-  } = useTemplateList();
+    searchQuery,
+    showFavoritesOnly,
+    previewSizeIndex,
+  } = currentTabSettings;
+
+  // Получаем текущий размер превью из массива
+  const previewSize = PREVIEW_SIZES[previewSizeIndex];
 
   /**
    * Эффект для инициализации и обновления шаблонов при изменении настроек проекта
@@ -181,84 +178,68 @@ export function TemplateList() {
     .map(Number) // Преобразуем строки в числа
     .sort((a, b) => a - b); // Сортируем по возрастанию
 
-  return (
-    <div className="flex h-full flex-1 flex-col">
-      {/* Панель инструментов с поиском и кнопками управления */}
-      <TemplateListToolbar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        canDecreaseSize={canDecreaseSize}
-        canIncreaseSize={canIncreaseSize}
-        handleDecreaseSize={decreaseSize}
-        handleIncreaseSize={increaseSize}
-        showFavoritesOnly={showFavoritesOnly}
-        onToggleFavorites={toggleFavorites}
-      />
+  // Обработчик клика по шаблону
+  const handleTemplateClick = (template: MediaTemplate) => {
+    console.log("Applying template:", template.id); // Отладочный вывод
+    // Здесь может быть логика применения шаблона к проекту
+  };
 
+  // Показываем состояние загрузки
+  if (templates.length === 0) {
+    return (
+      <div className="flex h-full flex-1 flex-col bg-background">
+        <div className="flex h-full items-center justify-center text-gray-500">
+          {t("common.loading", "Загрузка...")}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-1 flex-col bg-background">
       {/* Контейнер для списка шаблонов с прокруткой */}
-      <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-3">
-        {/* Состояние загрузки - пустой контейнер */}
+      <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3">
         {filteredTemplates.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-500">
-            {t("browser.tabs.templates")} {t("common.notFound")}
+            {showFavoritesOnly
+              ? t("browser.media.noFavorites")
+              : t("common.noResults")}
           </div>
         ) : (
           /* Отображение найденных шаблонов */
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Выводим шаблоны, сгруппированные по количеству экранов */}
             {sortedGroups.map((screenCount) => (
-              <div key={screenCount} className="mb-4">
-                {/* Заголовок группы с количеством экранов */}
-                <h3 className="mb-3 text-sm font-medium text-gray-400">
-                  {screenCount}{" "}
-                  {/* Локализованное название с учетом числа экранов и языка */}
-                  {t(
-                    `browser.templateScreens.${screenCount === 1 ? "one" : i18n.language === "ru" && screenCount < 5 ? "few" : "many"}`,
-                    {
-                      count: screenCount,
-                      defaultValue: screenCount === 1 ? "screen" : "screens",
-                    },
-                  )}
-                </h3>
-
-                {/* Контейнер для шаблонов в группе */}
-                <div
-                  className="flex flex-wrap gap-4"
-                  style={
-                    {
-                      "--preview-size": `${previewSize}px`, // CSS-переменная для размера превью
-                    } as React.CSSProperties
-                  }
-                >
-                  {/* Отображение каждого шаблона в группе */}
-                  {groupedTemplates[screenCount].map((template) => (
+              <ContentGroup
+                key={screenCount}
+                title={`${screenCount} ${t(
+                  `browser.templateScreens.${screenCount === 1 ? "one" : i18n.language === "ru" && screenCount < 5 ? "few" : "many"}`,
+                  {
+                    count: screenCount,
+                    defaultValue: screenCount === 1 ? "screen" : "screens",
+                  },
+                )}`}
+                items={groupedTemplates[screenCount]}
+                viewMode="thumbnails"
+                renderItem={(template: MediaTemplate) => (
+                  <div key={template.id} className="flex flex-col items-center">
+                    <TemplatePreview
+                      template={template}
+                      onClick={() => handleTemplateClick(template)}
+                      size={previewSize}
+                      dimensions={currentDimensions}
+                    />
                     <div
-                      key={template.id}
-                      className="flex flex-col items-center"
+                      className="mt-1 truncate text-center text-xs"
+                      title={getTemplateLabels(template.id) || template.id}
+                      style={{ width: `${previewSize}px` }}
                     >
-                      {/* Компонент превью шаблона */}
-                      <TemplatePreview
-                        template={template}
-                        onClick={() => {
-                          console.log("Clicked", template.id); // Отладочный вывод при клике
-                        }}
-                        size={previewSize} // Размер превью
-                        dimensions={currentDimensions} // Размеры шаблона
-                      />
-
-                      {/* Название шаблона под превью */}
-                      <div
-                        className="mt-1 truncate text-center text-xs"
-                        title={getTemplateLabels(template.id) || template.id} // Полное название в тултипе
-                        style={{ width: `${previewSize}px` }} // Ширина равна ширине превью
-                      >
-                        {getTemplateLabels(template.id) || template.id}{" "}
-                        {/* Локализованное название или ID */}
-                      </div>
+                      {getTemplateLabels(template.id) || template.id}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                )}
+                itemsContainerClassName="flex flex-wrap gap-4"
+              />
             ))}
           </div>
         )}

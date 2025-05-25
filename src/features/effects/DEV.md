@@ -14,7 +14,8 @@ src/features/effects/
 │   └── effect-presets.tsx ✅
 ├── hooks/
 │   ├── use-effects.ts ✅
-│   └── use-effect-categories.ts ✅
+│   ├── use-effect-categories.ts ✅
+│   └── use-effects-import.ts ✅
 ├── utils/
 │   ├── css-effects.ts ✅
 │   └── effect-processor.ts ✅
@@ -144,6 +145,19 @@ type EffectTag =
 **Файл**: `hooks/use-effect-categories.ts`
 **Описание**: Хук для загрузки категорий эффектов с переводами
 **Возвращает**: `{ categories, loading, error, reload }`
+
+### useEffectsImport()
+**Файл**: `hooks/use-effects-import.ts`
+**Статус**: ✅ Полностью реализован
+**Описание**: Хук для импорта пользовательских эффектов
+**Возвращает**: `{ importEffectsFile, importEffectFile, isImporting, progress }`
+
+**Функционал**:
+- Импорт JSON файлов с эффектами
+- Импорт отдельных файлов эффектов (.cube, .3dl, .lut, .preset)
+- Валидация структуры эффектов
+- Обработка ошибок и отображение прогресса
+- Интеграция с общим тулбаром браузера
 
 ### useEffectsSearch()
 **Описание**: Хук для поиска эффектов по тексту

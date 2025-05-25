@@ -1,13 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
 import { useBrowserState } from "@/components/common/browser-state-provider";
+import { ContentGroup } from "@/components/common/content-group";
 import { useMedia } from "@/features/browser/media";
 import { useProjectSettings } from "@/features/project-settings";
 import { VideoFilter } from "@/types/filters";
 
-import { FilterGroup } from "./components/filter-group";
+import { FilterPreview } from "./components/filter-preview";
 import { useFilters } from "./hooks/use-filters";
 
 const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400];
@@ -18,7 +19,6 @@ const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400];
  */
 export function FilterList() {
   const { t } = useTranslation(); // Хук для интернационализации
-  const [, setActiveFilter] = useState<VideoFilter | null>(null); // Состояние активного фильтра
   const media = useMedia(); // Хук для работы с медиа-файлами и избранным
 
   // Загружаем фильтры из JSON
@@ -38,7 +38,6 @@ export function FilterList() {
     sortOrder,
     groupBy,
     filterType,
-    viewMode,
     previewSizeIndex,
   } = currentTabSettings;
 
@@ -203,13 +202,10 @@ export function FilterList() {
 
   /**
    * Обработчик клика по фильтру
-   * Устанавливает выбранный фильтр как активный
-   *
-   * @param {VideoFilter} filter - Выбранный фильтр
    */
   const handleFilterClick = (filter: VideoFilter) => {
-    setActiveFilter(filter); // Устанавливаем активный фильтр
     console.log("Applying filter:", filter.name, filter.params); // Отладочный вывод
+    // Здесь может быть логика применения фильтра к видео
   };
 
   // Показываем состояние загрузки
@@ -249,14 +245,25 @@ export function FilterList() {
           // Отображаем сгруппированные фильтры
           <div className="space-y-4">
             {groupedFilters.map((group) => (
-              <FilterGroup
+              <ContentGroup
                 key={group.title || "ungrouped"}
                 title={group.title}
-                filters={group.filters}
-                previewSize={basePreviewSize}
-                previewWidth={previewDimensions.width}
-                previewHeight={previewDimensions.height}
-                onFilterClick={handleFilterClick}
+                items={group.filters}
+                viewMode="thumbnails"
+                renderItem={(filter: VideoFilter) => (
+                  <FilterPreview
+                    key={filter.id}
+                    filter={filter}
+                    onClick={() => handleFilterClick(filter)}
+                    size={basePreviewSize}
+                    previewWidth={previewDimensions.width}
+                    previewHeight={previewDimensions.height}
+                  />
+                )}
+                itemsContainerClassName="grid gap-2"
+                itemsContainerStyle={{
+                  gridTemplateColumns: `repeat(auto-fill, minmax(${previewDimensions.width}px, 1fr))`,
+                }}
               />
             ))}
           </div>

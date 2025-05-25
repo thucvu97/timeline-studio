@@ -4,19 +4,54 @@ import { useMemo, useRef, useState } from "react";
 import { CirclePause, CirclePlay, Pause, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { useBrowserState } from "@/components/common/browser-state-provider";
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
 import { NoFiles } from "@/features/browser/components/layout/no-files";
+import { useMedia } from "@/features/browser/media";
+import { useResources } from "@/features/resources";
 import { formatTime } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { MediaFile } from "@/types/media";
 import { MusicResource } from "@/types/resources";
 
-import { useMedia } from "../../browser/media";
-import { useResources } from "../../resources";
-import { useMusic } from "../hooks/use-music";
 import { useMusicImport } from "../hooks/use-music-import";
-import { sortFiles } from "../utils/music-utils";
+
+// Простая функция сортировки файлов
+const sortFiles = (files: MediaFile[], sortBy: string, sortOrder: string) => {
+  return [...files].sort((a, b) => {
+    let aValue: string | number = "";
+    let bValue: string | number = "";
+
+    switch (sortBy) {
+      case "name":
+        aValue = a.name.toLowerCase();
+        bValue = b.name.toLowerCase();
+        break;
+      case "size":
+        aValue = a.size || 0;
+        bValue = b.size || 0;
+        break;
+      case "duration":
+        aValue = a.probeData?.format.duration || 0;
+        bValue = b.probeData?.format.duration || 0;
+        break;
+      case "artist":
+        aValue = (a.probeData?.format.tags?.artist || "").toLowerCase();
+        bValue = (b.probeData?.format.tags?.artist || "").toLowerCase();
+        break;
+      default:
+        aValue = a.name.toLowerCase();
+        bValue = b.name.toLowerCase();
+    }
+
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortOrder === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+    } else {
+      return sortOrder === "asc" ? (aValue as number) - (bValue as number) : (bValue as number) - (aValue as number);
+    }
+  });
+};
 
 /**
  * Компонент для отображения списка музыкальных файлов
@@ -34,18 +69,22 @@ export function MusicList() {
   const { addMusic, removeResource, musicResources, isMusicFileAdded } =
     useResources();
 
-  // Получаем состояние из музыкальной машины состояний
+  // Получаем состояние из общего провайдера браузера
+  const { currentTabSettings } = useBrowserState();
   const {
-    filteredFiles, // Отфильтрованные музыкальные файлы
-    sortBy, // Текущий критерий сортировки
-    sortOrder, // Порядок сортировки (asc/desc)
-    viewMode, // Режим отображения (list/thumbnails)
-    showFavoritesOnly, // Флаг отображения только избранных файлов
-    groupBy, // Группировка файлов (none/artist/genre/album)
-    isLoading, // Флаг загрузки
-    isError, // Флаг ошибки
-    error, // Сообщение об ошибке
-  } = useMusic();
+    searchQuery,
+    showFavoritesOnly,
+    sortBy,
+    sortOrder,
+    groupBy,
+    filterType,
+    viewMode,
+  } = currentTabSettings;
+
+  // Заглушки для совместимости (пока нет реальных данных)
+  const filteredFiles: MediaFile[] = []; // TODO: подключить реальные данные
+  const isLoading = false;
+  const isError = false;
 
   const media = useMedia(); // Хук для работы с медиа-файлами и избранным
 

@@ -1,156 +1,166 @@
 import { act, render, renderHook, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { UserSettingsProvider, useUserSettings } from "./user-settings-provider"
+import { UserSettingsProvider } from "./user-settings-provider"
+import { useUserSettings } from "../hooks/use-user-settings"
 
-// Мокаем машину состояний
-vi.mock("./user-settings-machine", () => {
-  const mockContext = {
+// Создаем моковый объект для send
+const mockSend = vi.fn()
+
+// Создаем моковый объект для состояния
+const mockState = {
+  context: {
     activeTab: "media",
     layoutMode: "default",
     screenshotsPath: "public/screenshots",
     playerScreenshotsPath: "public/media",
+    playerVolume: 100,
     openAiApiKey: "",
     claudeApiKey: "",
+    isBrowserVisible: true,
     isLoaded: true,
     previewSizes: {
       MEDIA: 100,
       TRANSITIONS: 100,
       TEMPLATES: 100,
     },
-  }
-
-  return {
-    userSettingsMachine: {
-      withConfig: () => ({
-        context: mockContext,
-      }),
-    },
-  }
-})
+  },
+  status: "active",
+}
 
 // Мокаем useMachine из @xstate/react
-vi.mock("@xstate/react", () => {
-  const mockSend = vi.fn()
-  const mockState = {
-    context: {
-      activeTab: "media",
-      layoutMode: "default",
-      screenshotsPath: "public/screenshots",
-      playerScreenshotsPath: "public/media",
-      openAiApiKey: "",
-      claudeApiKey: "",
-      isLoaded: true,
-      previewSizes: {
-        MEDIA: 100,
-        TRANSITIONS: 100,
-        TEMPLATES: 100,
-      },
-    },
-  }
+vi.mock("@xstate/react", () => ({
+  useMachine: vi.fn(() => [mockState, mockSend]),
+}))
 
-  return {
-    useMachine: vi.fn(() => [mockState, mockSend]),
-  }
-})
+// Мокаем userSettingsMachine
+vi.mock("./user-settings-machine", () => ({
+  userSettingsMachine: {
+    createMachine: vi.fn(),
+  },
+}))
 
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Компонент-обертка для тестирования хука useUserSettings
-const TestComponent = () => {
-  const { activeTab, layoutMode, screenshotsPath, playerScreenshotsPath, openAiApiKey, claudeApiKey } =
-    useUserSettings()
-  return (
-    <div>
-      <div data-testid="active-tab">{activeTab}</div>
-      <div data-testid="layout-mode">{layoutMode}</div>
-      <div data-testid="screenshots-path">{screenshotsPath}</div>
-      <div data-testid="player-screenshots-path">{playerScreenshotsPath}</div>
-      <div data-testid="open-ai-api-key">{openAiApiKey}</div>
-      <div data-testid="claude-api-key">{claudeApiKey}</div>
-    </div>
-  )
-}
+const UserSettingsWrapper = ({ children }: { children: React.ReactNode }) => (
+  <UserSettingsProvider>{children}</UserSettingsProvider>
+)
 
 describe("UserSettingsProvider", () => {
   beforeEach(() => {
-    // Очищаем моки перед каждым тестом
     vi.clearAllMocks()
+
+    // Сбрасываем состояние мока перед каждым тестом
+    Object.assign(mockState.context, {
+      activeTab: "media",
+      layoutMode: "default",
+      screenshotsPath: "public/screenshots",
+      playerScreenshotsPath: "public/media",
+      playerVolume: 100,
+      openAiApiKey: "",
+      claudeApiKey: "",
+      isBrowserVisible: true,
+      isLoaded: true,
+      previewSizes: {
+        MEDIA: 100,
+        TRANSITIONS: 100,
+        TEMPLATES: 100,
+      },
+    })
   })
 
-  it("should provide user settings context", () => {
+  it("should render children", () => {
     render(
       <UserSettingsProvider>
-        <TestComponent />
+        <div data-testid="test-child">Test Child</div>
       </UserSettingsProvider>,
     )
 
-    // Проверяем, что контекст предоставляет правильные значения
-    expect(screen.getByTestId("active-tab").textContent).toBe("media")
-    expect(screen.getByTestId("layout-mode").textContent).toBe("default")
-    expect(screen.getByTestId("screenshots-path").textContent).toBe("public/screenshots")
-    expect(screen.getByTestId("player-screenshots-path").textContent).toBe("public/media")
-    expect(screen.getByTestId("open-ai-api-key").textContent).toBe("")
-    expect(screen.getByTestId("claude-api-key").textContent).toBe("")
+    expect(screen.getByTestId("test-child")).toBeInTheDocument()
+  })
+
+  it("should provide UserSettingsContext", () => {
+    const { result } = renderHook(() => useUserSettings(), {
+      wrapper: UserSettingsWrapper,
+    })
+
+    // Проверяем, что контекст содержит ожидаемые свойства
+    expect(result.current).toBeDefined()
+    expect(result.current.activeTab).toBe("media")
+    expect(result.current.layoutMode).toBe("default")
+    expect(result.current.screenshotsPath).toBe("public/screenshots")
+    expect(result.current.playerScreenshotsPath).toBe("public/media")
+    expect(result.current.playerVolume).toBe(100)
+    expect(result.current.openAiApiKey).toBe("")
+    expect(result.current.claudeApiKey).toBe("")
+    expect(result.current.isBrowserVisible).toBe(true)
+  })
+
+  it("should provide methods for interacting with user settings", () => {
+    const { result } = renderHook(() => useUserSettings(), {
+      wrapper: UserSettingsWrapper,
+    })
+
+    // Проверяем наличие всех методов
+    expect(result.current.handleTabChange).toBeDefined()
+    expect(typeof result.current.handleTabChange).toBe("function")
+
+    expect(result.current.handleLayoutChange).toBeDefined()
+    expect(typeof result.current.handleLayoutChange).toBe("function")
+
+    expect(result.current.handleScreenshotsPathChange).toBeDefined()
+    expect(typeof result.current.handleScreenshotsPathChange).toBe("function")
+
+    expect(result.current.handlePlayerScreenshotsPathChange).toBeDefined()
+    expect(typeof result.current.handlePlayerScreenshotsPathChange).toBe("function")
+
+    expect(result.current.handlePlayerVolumeChange).toBeDefined()
+    expect(typeof result.current.handlePlayerVolumeChange).toBe("function")
+
+    expect(result.current.handleAiApiKeyChange).toBeDefined()
+    expect(typeof result.current.handleAiApiKeyChange).toBe("function")
+
+    expect(result.current.handleClaudeApiKeyChange).toBeDefined()
+    expect(typeof result.current.handleClaudeApiKeyChange).toBe("function")
+
+    expect(result.current.toggleBrowserVisibility).toBeDefined()
+    expect(typeof result.current.toggleBrowserVisibility).toBe("function")
   })
 
   it("should throw error when useUserSettings is used outside of provider", () => {
-    // Мокаем console.error, чтобы подавить ошибки в консоли
-    const originalConsoleError = console.error
-    console.error = vi.fn()
+    // Проверяем, что хук выбрасывает ошибку, если используется вне провайдера
+    const consoleError = console.error
+    console.error = vi.fn() // Подавляем ошибки в консоли во время теста
 
-    // Проверяем, что хук выбрасывает ошибку вне провайдера
-    expect(() => {
-      renderHook(() => useUserSettings())
-    }).toThrow("useUserSettings must be used within a UserSettingsProvider")
-
-    // Восстанавливаем console.error
-    console.error = originalConsoleError
-  })
-
-  it("should log state information", async () => {
-    render(
-      <UserSettingsProvider>
-        <TestComponent />
-      </UserSettingsProvider>,
+    expect(() => renderHook(() => useUserSettings())).toThrow(
+      "useUserSettings must be used within a UserSettingsProvider",
     )
 
-    // Проверяем, что состояние логируется
-    expect(console.log).toHaveBeenCalledWith("UserSettingsProvider rendering")
-
-    expect(console.log).toHaveBeenCalledWith(
-      "UserSettingsProvider state:",
-      expect.objectContaining({
-        activeTab: "media",
-        layoutMode: "default",
-        screenshotsPath: "public/screenshots",
-        isLoaded: true,
-      }),
-    )
+    console.error = consoleError // Восстанавливаем console.error
   })
 
-  it("should handle tab change", async () => {
-    // Получаем доступ к send из мока useMachine
+  it("should call send with UPDATE_ACTIVE_TAB event when handleTabChange is called", () => {
+    // Очищаем моковый объект перед тестом
+    mockSend.mockClear()
+
+    // Используем renderHook для тестирования хука useUserSettings
     const { result } = renderHook(() => useUserSettings(), {
-      wrapper: UserSettingsProvider,
+      wrapper: UserSettingsWrapper,
     })
 
-    // Изменяем активную вкладку
+    // Вызываем метод изменения вкладки
     act(() => {
       result.current.handleTabChange("music")
     })
 
     // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "UPDATE_ACTIVE_TAB",
-        tab: "music",
-      }),
-    )
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "UPDATE_ACTIVE_TAB",
+      tab: "music",
+    })
   })
 
   it("should handle layout change", async () => {

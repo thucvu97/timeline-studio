@@ -588,10 +588,7 @@ export const AppProvider = composeProviders(
   ProjectSettingsProvider,   // Настройки проекта
   UserSettingsProvider,      // Пользовательские настройки
   ResourcesProvider,         // Ресурсы таймлайна
-  MusicProvider,             // Музыкальные файлы
   MediaProvider,             // Медиафайлы
-  PreviewSizeProvider,       // Размеры превью
-  TemplateListProvider,      // Шаблоны
   PlayerProvider,            // Видеоплеер
   ChatProvider,              // AI чат
 )

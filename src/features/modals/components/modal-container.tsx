@@ -3,7 +3,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-
 import { CameraCaptureModal } from "@/features/camera-capture"
 import { ExportModal } from "@/features/export"
 import { KeyboardShortcutsModal } from "@/features/keyboard-shortcuts"

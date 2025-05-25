@@ -39,6 +39,8 @@ const getInitialContext = (): BrowserContext => ({
     filters: getInitialTabSettings("filters"),
     transitions: getInitialTabSettings("transitions"),
     subtitles: getInitialTabSettings("subtitles"),
+    templates: getInitialTabSettings("templates"),
+    "style-templates": getInitialTabSettings("style-templates"),
   },
 });
 
@@ -106,8 +108,8 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
 
   // Геттеры
   const activeTab = state.activeTab;
-  const currentTabSettings = state.tabSettings[activeTab];
-  const previewSize = PREVIEW_SIZES[currentTabSettings.previewSizeIndex];
+  const currentTabSettings = state.tabSettings[activeTab] || getInitialTabSettings(activeTab);
+  const previewSize = PREVIEW_SIZES[currentTabSettings.previewSizeIndex] || PREVIEW_SIZES[DEFAULT_PREVIEW_SIZE_INDEX];
 
   // Действия
   const switchTab = (tab: BrowserTab) => {
@@ -121,7 +123,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
       tabSettings: {
         ...prev.tabSettings,
         [targetTab]: {
-          ...prev.tabSettings[targetTab],
+          ...(prev.tabSettings[targetTab] || getInitialTabSettings(targetTab)),
           searchQuery: query,
         },
       },

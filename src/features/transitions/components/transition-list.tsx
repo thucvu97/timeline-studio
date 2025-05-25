@@ -1,28 +1,24 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
 import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
 import { useBrowserState } from "@/components/common/browser-state-provider";
+import { ContentGroup } from "@/components/common/content-group";
 import { useMedia } from "@/features/browser/media";
 import { useProjectSettings } from "@/features/project-settings";
 import { MediaFile } from "@/types/media";
 import { Transition } from "@/types/transitions";
 
-import { TransitionGroup } from "./transition-group";
+import { TransitionPreview } from "./transition-preview";
 import { useTransitions } from "../hooks/use-transitions";
 
 /**
  * Компонент для отображения списка доступных переходов между видео
  * Позволяет просматривать, фильтровать и выбирать переходы для применения в проекте
  */
-export function TransitionList({
-  onSelect,
-}: {
-  onSelect?: (id: string) => void;
-}) {
+export function TransitionList() {
   const { t } = useTranslation(); // Хук для интернационализации
-  const [, setActiveTransition] = useState<Transition | null>(null); // Состояние активного перехода
   const media = useMedia(); // Доступ к контексту медиа
 
   // Загружаем переходы из JSON
@@ -83,8 +79,8 @@ export function TransitionList({
    * Обработчик клика по переходу
    */
   const handleTransitionClick = (transition: Transition) => {
-    setActiveTransition(transition);
-    onSelect?.(transition.id);
+    console.log("Applying transition:", transition.name); // Отладочный вывод
+    // Здесь может быть логика применения перехода к видео
   };
 
   /**
@@ -271,15 +267,28 @@ export function TransitionList({
           // Отображаем сгруппированные переходы
           <div className="space-y-4">
             {groupedTransitions.map((group) => (
-              <TransitionGroup
+              <ContentGroup
                 key={group.title || "ungrouped"}
                 title={group.title}
-                transitions={group.transitions}
-                previewSize={basePreviewSize}
-                previewWidth={previewDimensions.width}
-                previewHeight={previewDimensions.height}
-                demoVideos={demoVideos}
-                onTransitionClick={handleTransitionClick}
+                items={group.transitions}
+                viewMode="thumbnails"
+                renderItem={(transition: Transition) => (
+                  <TransitionPreview
+                    key={transition.id}
+                    transition={transition}
+                    sourceVideo={demoVideos.source}
+                    targetVideo={demoVideos.target}
+                    transitionType={transition.type}
+                    onClick={() => handleTransitionClick(transition)}
+                    size={basePreviewSize}
+                    previewWidth={previewDimensions.width}
+                    previewHeight={previewDimensions.height}
+                  />
+                )}
+                itemsContainerClassName="grid gap-2"
+                itemsContainerStyle={{
+                  gridTemplateColumns: `repeat(auto-fill, minmax(${previewDimensions.width}px, 1fr))`,
+                }}
               />
             ))}
           </div>

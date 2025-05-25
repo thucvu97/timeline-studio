@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
 import { useModal } from "@/features/modals"
+
 import { AudioPermissionRequest } from "./components/audio-permission-request"
 import { useAudioDevices } from "./hooks/use-audio-devices"
 import { useAudioPermissions } from "./hooks/use-audio-permissions"

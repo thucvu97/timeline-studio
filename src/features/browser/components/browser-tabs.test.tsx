@@ -15,6 +15,7 @@ vi.mock("react-i18next", () => ({
         "browser.tabs.subtitles": "Subtitles",
         "browser.tabs.transitions": "Transitions",
         "browser.tabs.templates": "Templates",
+        "browser.tabs.styleTemplates": "Style Templates",
       }
       return translations[key] || key
     },
@@ -30,6 +31,7 @@ vi.mock("lucide-react", () => ({
   Type: () => <div data-testid="type-icon">Type</div>,
   FlipHorizontal2: () => <div data-testid="flip-horizontal-icon">FlipHorizontal2</div>,
   Grid2X2: () => <div data-testid="grid-icon">Grid2X2</div>,
+  Palette: () => <div data-testid="palette-icon">Palette</div>,
 }))
 
 // Мокаем компоненты UI
@@ -67,6 +69,7 @@ describe("BrowserTabs", () => {
     expect(screen.getByTestId("tab-trigger-subtitles")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-transitions")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-templates")).toBeInTheDocument()
+    expect(screen.getByTestId("tab-trigger-style-templates")).toBeInTheDocument()
   })
 
   it("highlights the active tab", () => {
@@ -102,5 +105,6 @@ describe("BrowserTabs", () => {
     expect(screen.getByTestId("type-icon")).toBeInTheDocument()
     expect(screen.getByTestId("flip-horizontal-icon")).toBeInTheDocument()
     expect(screen.getByTestId("grid-icon")).toBeInTheDocument()
+    expect(screen.getByTestId("palette-icon")).toBeInTheDocument()
   })
 })

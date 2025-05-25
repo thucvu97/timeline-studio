@@ -130,6 +130,10 @@ export function TopBar() {
           >
             <UserCog className="h-5 w-5" />
           </Button>
+        </div>
+
+        {/* Группа 3: Открытие, сохранение и редактирование названия */}
+        <div className="flex items-center justify-center">
           <Button
             className="h-7 w-7 cursor-pointer p-0"
             variant="ghost"
@@ -140,10 +144,6 @@ export function TopBar() {
           >
             <Settings className="h-5 w-5" />
           </Button>
-        </div>
-
-        {/* Группа 3: Открытие, сохранение и редактирование названия */}
-        <div className="flex items-center justify-center">
           <Button
             className="h-7 w-7 cursor-pointer p-0"
             variant="ghost"
@@ -198,7 +198,7 @@ export function TopBar() {
         </div>
 
         {/* Группа 4: Запись видео и голоса */}
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end pr-8">
           <Button
             variant="ghost"
             size="icon"

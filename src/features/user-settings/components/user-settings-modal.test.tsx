@@ -5,7 +5,7 @@ import { useModal } from "@/features/modals/services/modal-provider"
 import { useLanguage } from "@/hooks/use-language"
 
 import { UserSettingsModal } from "./user-settings-modal"
-import { useUserSettings } from "./user-settings-provider"
+import { useUserSettings } from "../hooks/use-user-settings"
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
@@ -29,7 +29,7 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 
 // Мокаем хуки
 vi.mock("@/hooks/use-language")
-vi.mock("./user-settings-provider")
+vi.mock("../hooks/use-user-settings")
 vi.mock("@/features/modals/services/modal-provider")
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({

@@ -1,3 +1,4 @@
+import { StyleTemplate } from "@/features/style-templates/types";
 import { MediaTemplate } from "@/features/templates/lib/templates";
 import { MediaFile } from "@/types/media";
 import { SubtitleStyle } from "@/types/subtitles";
@@ -21,6 +22,7 @@ export type ResourceType =
   | "filter"
   | "transition"
   | "template"
+  | "style-template"
   | "music"
   | "subtitle";
 
@@ -52,6 +54,13 @@ export interface TemplateResource extends Resource {
   params?: Record<string, any>; // Параметры шаблона
 }
 
+// Интерфейс для стилистических шаблонов
+export interface StyleTemplateResource extends Resource {
+  type: "style-template";
+  template: StyleTemplate;
+  params?: Record<string, any>; // Параметры стилистического шаблона
+}
+
 // Интерфейс для музыкальных файлов
 export interface MusicResource extends Resource {
   type: "music";
@@ -72,6 +81,7 @@ export type TimelineResource =
   | FilterResource
   | TransitionResource
   | TemplateResource
+  | StyleTemplateResource
   | MusicResource
   | SubtitleResource;
 
@@ -127,6 +137,21 @@ export function createTemplateResource(
     id: `template-${template.id}-${Date.now()}`,
     type: "template",
     name: template.id,
+    resourceId: template.id,
+    addedAt: Date.now(),
+    template,
+    params: {},
+  };
+}
+
+// Функция для создания ресурса стилистического шаблона
+export function createStyleTemplateResource(
+  template: StyleTemplate,
+): StyleTemplateResource {
+  return {
+    id: `style-template-${template.id}-${Date.now()}`,
+    type: "style-template",
+    name: template.name,
     resourceId: template.id,
     addedAt: Date.now(),
     template,

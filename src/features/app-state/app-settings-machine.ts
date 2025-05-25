@@ -2,7 +2,7 @@ import i18next from "i18next"
 import { assign, createMachine, fromPromise } from "xstate"
 
 import { FavoritesType } from "@/features/browser/media/media-machine"
-import { UserSettingsContext } from "@/features/user-settings"
+import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
 
 import { AppSettings, storeService } from "./store-service"
 
@@ -25,7 +25,7 @@ const getDefaultProjectName = (): string => {
  */
 export interface AppSettingsContext {
   // Пользовательские настройки
-  userSettings: UserSettingsContext
+  userSettings: UserSettingsContextType
 
   // Последние открытые проекты
   recentProjects: {
@@ -65,7 +65,7 @@ export interface AppSettingsContext {
  * Типы событий для машины состояний настроек приложения
  */
 export type AppSettingsEvent =
-  | { type: "UPDATE_USER_SETTINGS"; settings: Partial<UserSettingsContext> }
+  | { type: "UPDATE_USER_SETTINGS"; settings: Partial<UserSettingsContextType> }
   | { type: "ADD_RECENT_PROJECT"; path: string; name: string }
   | { type: "REMOVE_RECENT_PROJECT"; path: string }
   | { type: "CLEAR_RECENT_PROJECTS" }
@@ -116,6 +116,11 @@ function getDefaultSettings(): AppSettings {
         MEDIA: 100,
         TRANSITIONS: 100,
         TEMPLATES: 125,
+        EFFECTS: 100,
+        FILTERS: 100,
+        SUBTITLES: 100,
+        STYLE_TEMPLATES: 125,
+        MUSIC: 100,
       },
       activeTab: "media",
       layoutMode: "default",
@@ -169,6 +174,11 @@ export const appSettingsMachine = createMachine({
         MEDIA: 100,
         TRANSITIONS: 100,
         TEMPLATES: 125,
+        EFFECTS: 100,
+        FILTERS: 100,
+        SUBTITLES: 100,
+        STYLE_TEMPLATES: 125,
+        MUSIC: 100,
       },
       activeTab: "media",
       layoutMode: "default",

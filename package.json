@@ -1,6 +1,6 @@
 {
   "name": "timeline-studio",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "license": "SEE LICENSE IN LICENSE",
   "author": "Alexander Kireyev <ak.chatman.media@gmail.com>",
   "type": "module",
@@ -74,11 +74,11 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
-    "i18next": "^25.2.0",
+    "i18next": "^25.2.1",
     "i18next-browser-languagedetector": "^8.1.0",
     "idb-keyval": "^6.2.2",
     "lucide-react": "^0.511.0",
-    "next": "^15.1.8",
+    "next": "^15.3.2",
     "next-themes": "^0.4.6",
     "react": "^19.1.0",
     "react-audio-visualize": "github:eadwinCode/react-audio-visualize",
@@ -93,7 +93,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.27.0",
-    "@next/eslint-plugin-next": "^15.1.8",
+    "@next/eslint-plugin-next": "^15.3.2",
     "@playwright/test": "^1.52.0",
     "@tailwindcss/postcss": "^4.1.7",
     "@tauri-apps/cli": "^2.5.0",
@@ -112,7 +112,7 @@
     "@vitest/ui": "3.1.4",
     "@xstate/graph": "^3.0.3",
     "eslint": "^9.27.0",
-    "eslint-config-next": "^15.1.8",
+    "eslint-config-next": "^15.4.0-canary.51",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^26.1.0",
@@ -128,7 +128,7 @@
     "vitest": "^3.1.4"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.41.0",
+    "@rollup/rollup-linux-x64-gnu": "^4.41.1",
     "lightningcss-darwin-arm64": "^1.30.1",
     "lightningcss-darwin-x64": "^1.30.1",
     "lightningcss-linux-arm64-gnu": "^1.30.1",

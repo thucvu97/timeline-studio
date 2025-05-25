@@ -1,5 +1,6 @@
 import { assign, setup } from "xstate";
 
+import { StyleTemplate } from "@/features/style-templates/types";
 import { MediaTemplate } from "@/features/templates/lib/templates";
 import { VideoEffect } from "@/types/effects";
 import { VideoFilter } from "@/types/filters";
@@ -8,6 +9,7 @@ import {
   EffectResource,
   FilterResource,
   MusicResource,
+  StyleTemplateResource,
   SubtitleResource,
   TemplateResource,
   TimelineResource,
@@ -15,6 +17,7 @@ import {
   createEffectResource,
   createFilterResource,
   createMusicResource,
+  createStyleTemplateResource,
   createSubtitleResource,
   createTemplateResource,
   createTransitionResource,
@@ -29,6 +32,7 @@ export interface ResourcesMachineContext {
   filterResources: FilterResource[]; // Фильтры
   transitionResources: TransitionResource[]; // Переходы
   templateResources: TemplateResource[]; // Шаблоны
+  styleTemplateResources: StyleTemplateResource[]; // Стилистические шаблоны
   musicResources: MusicResource[]; // Музыкальные файлы
   subtitleResources: SubtitleResource[]; // Стили субтитров
 }
@@ -39,6 +43,7 @@ type ResourcesMachineEvent =
   | { type: "ADD_FILTER"; filter: VideoFilter }
   | { type: "ADD_TRANSITION"; transition: TransitionEffect }
   | { type: "ADD_TEMPLATE"; template: MediaTemplate }
+  | { type: "ADD_STYLE_TEMPLATE"; template: StyleTemplate }
   | { type: "ADD_MUSIC"; file: MediaFile }
   | { type: "ADD_SUBTITLE"; style: SubtitleStyle }
   | { type: "REMOVE_RESOURCE"; resourceId: string }
@@ -202,6 +207,40 @@ export const resourcesMachine = setup({
       },
     }),
 
+    // Добавление стилистического шаблона
+    addStyleTemplate: assign({
+      resources: ({ context, event }) => {
+        if (event.type !== "ADD_STYLE_TEMPLATE") return context.resources;
+
+        // Проверяем, есть ли уже такой стилистический шаблон
+        const existingResource = context.styleTemplateResources.find(
+          (resource) => resource.resourceId === event.template.id,
+        );
+
+        if (existingResource) {
+          return context.resources;
+        }
+
+        const newResource = createStyleTemplateResource(event.template);
+        return [...context.resources, newResource];
+      },
+      styleTemplateResources: ({ context, event }) => {
+        if (event.type !== "ADD_STYLE_TEMPLATE") return context.styleTemplateResources;
+
+        // Проверяем, есть ли уже такой стилистический шаблон
+        const existingResource = context.styleTemplateResources.find(
+          (resource) => resource.resourceId === event.template.id,
+        );
+
+        if (existingResource) {
+          return context.styleTemplateResources;
+        }
+
+        const newResource = createStyleTemplateResource(event.template);
+        return [...context.styleTemplateResources, newResource];
+      },
+    }),
+
     // Добавление музыкального файла
     addMusic: assign({
       resources: ({ context, event }) => {
@@ -303,6 +342,12 @@ export const resourcesMachine = setup({
           (resource) => resource.id !== event.resourceId,
         );
       },
+      styleTemplateResources: ({ context, event }) => {
+        if (event.type !== "REMOVE_RESOURCE") return context.styleTemplateResources;
+        return context.styleTemplateResources.filter(
+          (resource) => resource.id !== event.resourceId,
+        );
+      },
       musicResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.musicResources;
         return context.musicResources.filter(
@@ -400,6 +445,22 @@ export const resourcesMachine = setup({
           return resource;
         });
       },
+      styleTemplateResources: ({ context, event }) => {
+        if (event.type !== "UPDATE_RESOURCE") return context.styleTemplateResources;
+
+        return context.styleTemplateResources.map((resource) => {
+          if (resource.id === event.resourceId) {
+            return {
+              ...resource,
+              params: {
+                ...resource.params,
+                ...event.params,
+              },
+            };
+          }
+          return resource;
+        });
+      },
       musicResources: ({ context, event }) => {
         if (event.type !== "UPDATE_RESOURCE") return context.musicResources;
 
@@ -443,6 +504,7 @@ export const resourcesMachine = setup({
     filterResources: [],
     transitionResources: [],
     templateResources: [],
+    styleTemplateResources: [],
     musicResources: [],
     subtitleResources: [],
   },
@@ -460,6 +522,9 @@ export const resourcesMachine = setup({
         },
         ADD_TEMPLATE: {
           actions: "addTemplate",
+        },
+        ADD_STYLE_TEMPLATE: {
+          actions: "addStyleTemplate",
         },
         ADD_MUSIC: {
           actions: "addMusic",

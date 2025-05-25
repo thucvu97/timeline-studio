@@ -1,4 +1,4 @@
-import { Blend, FlipHorizontal2, Grid2X2, Image, Music, Sparkles, Type } from "lucide-react"
+import { Blend, FlipHorizontal2, Grid2X2, Image, Music, Palette, Sparkles, Type } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -82,6 +82,15 @@ export function BrowserTabs({ activeTab, onTabChange }: BrowserTabsProps) {
       >
         <Grid2X2 className="h-4 w-4" />
         <span>{t("browser.tabs.templates")}</span>
+      </TabsTrigger>
+      <TabsTrigger
+        value="style-templates"
+        className={TAB_TRIGGER_STYLES}
+        onClick={() => onTabChange("style-templates")}
+        data-state={activeTab === "style-templates" ? "active" : "inactive"}
+      >
+        <Palette className="h-4 w-4" />
+        <span>{t("browser.tabs.styleTemplates")}</span>
       </TabsTrigger>
     </TabsList>
   )

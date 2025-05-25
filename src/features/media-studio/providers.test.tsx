@@ -31,12 +31,6 @@ vi.mock(
   }),
 );
 
-vi.mock("@/features/music/music-provider", () => ({
-  MusicProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="music-provider">{children}</div>
-  ),
-}));
-
 // Добавляем моки для остальных провайдеров
 vi.mock(
   "@/features/user-settings",
@@ -56,18 +50,6 @@ vi.mock("@/features/resources/resources-provider", () => ({
 vi.mock("@/features/browser/media", () => ({
   MediaProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="media-provider">{children}</div>
-  ),
-}));
-
-vi.mock("@/features/browser/components/preview/preview-size-provider", () => ({
-  PreviewSizeProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="preview-size-provider">{children}</div>
-  ),
-}));
-
-vi.mock("@/features/templates/services/template-list-provider", () => ({
-  TemplateListProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="template-list-provider">{children}</div>
   ),
 }));
 
@@ -106,7 +88,7 @@ describe("Providers", () => {
     const html = container.innerHTML;
 
     // Проверяем, что провайдеры вложены в правильном порядке
-    // I18nProvider -> ModalProvider -> BrowserVisibilityProvider -> ProjectSettingsProvider -> MusicProvider -> TestComponent
+    // I18nProvider -> ModalProvider -> BrowserVisibilityProvider -> ProjectSettingsProvider -> TestComponent
     expect(html).toContain('data-testid="i18n-provider"');
     expect(html).toContain('data-testid="modal-provider"');
     expect(html).toContain('data-testid="project-settings-provider"');

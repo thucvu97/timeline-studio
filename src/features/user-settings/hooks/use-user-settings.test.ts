@@ -1,3 +1,5 @@
+import { useContext } from "react";
+
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -34,7 +36,6 @@ vi.mock("react", async () => {
 
 describe("useUserSettings", () => {
   it("should return context value when used within UserSettingsProvider", () => {
-    const { useContext } = require("react");
     vi.mocked(useContext).mockReturnValue(mockContextValue);
 
     const { result } = renderHook(() => useUserSettings());
@@ -43,7 +44,6 @@ describe("useUserSettings", () => {
   });
 
   it("should throw error when used outside UserSettingsProvider", () => {
-    const { useContext } = require("react");
     vi.mocked(useContext).mockReturnValue(null);
 
     const consoleError = console.error;

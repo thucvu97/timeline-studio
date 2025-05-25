@@ -4,9 +4,6 @@ import { useUserSettings } from "@/features/user-settings"
 
 import { DefaultLayout, DualLayout, OptionsLayout, VerticalLayout } from "./layouts-markup"
 
-// Создаем тип для макетов
-export type LayoutMode = "default" | "options" | "vertical" | "dual"
-
 export function LayoutPreviews() {
   const { layoutMode, handleLayoutChange } = useUserSettings()
   const { t } = useTranslation()

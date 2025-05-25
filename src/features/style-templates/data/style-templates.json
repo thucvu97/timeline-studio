@@ -1,0 +1,243 @@
+{
+  "templates": [
+    {
+      "id": "modern-intro-1",
+      "name": {
+        "ru": "Современное интро",
+        "en": "Modern Intro"
+      },
+      "category": "intro",
+      "style": "modern",
+      "aspectRatio": "16:9",
+      "duration": 3,
+      "hasText": true,
+      "hasAnimation": true,
+      "thumbnail": "/style-templates/modern-intro-1-thumb.jpg",
+      "previewVideo": "/style-templates/modern-intro-1-preview.mp4",
+      "tags": {
+        "ru": ["интро", "современный", "текст", "анимация"],
+        "en": ["intro", "modern", "text", "animation"]
+      },
+      "description": {
+        "ru": "Современное интро с анимированным текстом",
+        "en": "Modern intro with animated text"
+      },
+      "elements": [
+        {
+          "id": "title-text",
+          "type": "text",
+          "name": {
+            "ru": "Заголовок",
+            "en": "Title"
+          },
+          "position": { "x": 50, "y": 40 },
+          "size": { "width": 60, "height": 15 },
+          "timing": { "start": 0.5, "end": 3 },
+          "properties": {
+            "text": "Ваш заголовок",
+            "fontSize": 48,
+            "fontFamily": "Arial",
+            "color": "#ffffff",
+            "textAlign": "center",
+            "fontWeight": "bold"
+          },
+          "animations": [
+            {
+              "id": "title-fade-in",
+              "type": "fadeIn",
+              "duration": 0.8,
+              "delay": 0.5,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "id": "subtitle-text",
+          "type": "text",
+          "name": "Подзаголовок",
+          "position": { "x": 50, "y": 60 },
+          "size": { "width": 40, "height": 8 },
+          "timing": { "start": 1.2, "end": 3 },
+          "properties": {
+            "text": "Ваш подзаголовок",
+            "fontSize": 24,
+            "fontFamily": "Arial",
+            "color": "#cccccc",
+            "textAlign": "center",
+            "fontWeight": "normal"
+          },
+          "animations": [
+            {
+              "id": "subtitle-slide-in",
+              "type": "slideIn",
+              "duration": 0.6,
+              "delay": 1.2,
+              "direction": "up",
+              "easing": "ease-out"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "minimal-outro-1",
+      "name": "Минималистичная концовка",
+      "category": "outro",
+      "style": "minimal",
+      "aspectRatio": "16:9",
+      "duration": 4,
+      "hasText": true,
+      "hasAnimation": true,
+      "thumbnail": "/style-templates/minimal-outro-1-thumb.jpg",
+      "previewVideo": "/style-templates/minimal-outro-1-preview.mp4",
+      "tags": ["outro", "minimal", "clean", "simple"],
+      "description": {
+        "ru": "Минималистичная концовка с простой анимацией",
+        "en": "Minimalist outro with simple animation"
+      },
+      "elements": [
+        {
+          "id": "thanks-text",
+          "type": "text",
+          "name": "Благодарность",
+          "position": { "x": 50, "y": 45 },
+          "size": { "width": 50, "height": 12 },
+          "timing": { "start": 0.8, "end": 4 },
+          "properties": {
+            "text": "Спасибо за просмотр!",
+            "fontSize": 36,
+            "fontFamily": "Arial",
+            "color": "#333333",
+            "textAlign": "center",
+            "fontWeight": "normal"
+          },
+          "animations": [
+            {
+              "id": "thanks-fade-in",
+              "type": "fadeIn",
+              "duration": 1,
+              "delay": 0.8,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "id": "subscribe-text",
+          "type": "text",
+          "name": "Подписка",
+          "position": { "x": 50, "y": 65 },
+          "size": { "width": 35, "height": 8 },
+          "timing": { "start": 2, "end": 4 },
+          "properties": {
+            "text": "Подпишитесь на канал",
+            "fontSize": 18,
+            "fontFamily": "Arial",
+            "color": "#666666",
+            "textAlign": "center",
+            "fontWeight": "normal"
+          },
+          "animations": [
+            {
+              "id": "subscribe-slide-in",
+              "type": "slideIn",
+              "duration": 0.8,
+              "delay": 2,
+              "direction": "up",
+              "easing": "ease-out"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "corporate-lower-third-1",
+      "name": "Корпоративная нижняя треть",
+      "category": "lower-third",
+      "style": "corporate",
+      "aspectRatio": "16:9",
+      "duration": 5,
+      "hasText": true,
+      "hasAnimation": true,
+      "thumbnail": "/style-templates/corporate-lower-third-1-thumb.jpg",
+      "tags": ["lower-third", "corporate", "professional"],
+      "description": {
+        "ru": "Профессиональная нижняя треть для корпоративных видео",
+        "en": "Professional lower third for corporate videos"
+      },
+      "elements": [
+        {
+          "id": "background-shape",
+          "type": "shape",
+          "name": "Фон",
+          "position": { "x": 5, "y": 75 },
+          "size": { "width": 40, "height": 20 },
+          "timing": { "start": 0, "end": 5 },
+          "properties": {
+            "backgroundColor": "#1e3a8a",
+            "borderRadius": 8,
+            "opacity": 0.9
+          },
+          "animations": [
+            {
+              "id": "bg-slide-in",
+              "type": "slideIn",
+              "duration": 0.5,
+              "direction": "left",
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "id": "name-text",
+          "type": "text",
+          "name": "Имя",
+          "position": { "x": 7, "y": 78 },
+          "size": { "width": 36, "height": 6 },
+          "timing": { "start": 0.3, "end": 5 },
+          "properties": {
+            "text": "Имя Фамилия",
+            "fontSize": 24,
+            "fontFamily": "Arial",
+            "color": "#ffffff",
+            "textAlign": "left",
+            "fontWeight": "bold"
+          },
+          "animations": [
+            {
+              "id": "name-fade-in",
+              "type": "fadeIn",
+              "duration": 0.4,
+              "delay": 0.3,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "id": "title-text",
+          "type": "text",
+          "name": "Должность",
+          "position": { "x": 7, "y": 85 },
+          "size": { "width": 36, "height": 4 },
+          "timing": { "start": 0.6, "end": 5 },
+          "properties": {
+            "text": "Должность",
+            "fontSize": 16,
+            "fontFamily": "Arial",
+            "color": "#e5e7eb",
+            "textAlign": "left",
+            "fontWeight": "normal"
+          },
+          "animations": [
+            {
+              "id": "title-fade-in",
+              "type": "fadeIn",
+              "duration": 0.4,
+              "delay": 0.6,
+              "easing": "ease-out"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
