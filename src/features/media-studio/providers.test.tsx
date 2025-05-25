@@ -23,7 +23,7 @@ vi.mock("@/features/app-state/app-settings-provider", () => ({
 }));
 
 vi.mock(
-  "@/features/modals/features/project-settings/project-settings-provider",
+  "@/features/project-settings",
   () => ({
     ProjectSettingsProvider: ({ children }: { children: React.ReactNode }) => (
       <div data-testid="project-settings-provider">{children}</div>
@@ -39,7 +39,7 @@ vi.mock("@/features/music/music-provider", () => ({
 
 // Добавляем моки для остальных провайдеров
 vi.mock(
-  "@/features/modals/features/user-settings/user-settings-provider",
+  "@/features/user-settings",
   () => ({
     UserSettingsProvider: ({ children }: { children: React.ReactNode }) => (
       <div data-testid="user-settings-provider">{children}</div>

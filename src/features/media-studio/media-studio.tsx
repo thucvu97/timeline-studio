@@ -1,8 +1,8 @@
 "use client"
 
 import { ModalContainer } from "@/features/modals/components"
-import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
 import { TopBar } from "@/features/top-bar/components/top-bar"
+import { useUserSettings } from "@/features/user-settings"
 
 import { DefaultLayout, DualLayout, OptionsLayout, VerticalLayout } from "./layouts"
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { X, Play, Pause, RotateCcw } from "lucide-react";
+import { Pause, Play, RotateCcw, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";

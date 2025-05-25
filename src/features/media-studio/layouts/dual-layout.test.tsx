@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
+import { useUserSettings } from "@/features/user-settings"
 
 import { DualLayout } from "./dual-layout"
 
 // Мокаем зависимости
-vi.mock("@/features/modals/features/user-settings/user-settings-provider")
+vi.mock("@/features/user-settings")
 vi.mock("@/components/ui/resizable", () => ({
   ResizablePanelGroup: ({ children, direction, className, autoSaveId }: any) => (
     <div data-testid={`resizable-panel-group-${autoSaveId}`} data-direction={direction} className={className}>

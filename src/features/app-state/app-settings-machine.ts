@@ -2,7 +2,7 @@ import i18next from "i18next"
 import { assign, createMachine, fromPromise } from "xstate"
 
 import { FavoritesType } from "@/features/browser/media/media-machine"
-import { UserSettingsContext } from "@/features/modals/features/user-settings/user-settings-machine"
+import { UserSettingsContext } from "@/features/user-settings"
 
 import { AppSettings, storeService } from "./store-service"
 

@@ -1,8 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
+
 import { VideoFilter } from '@/types/filters';
-// Импортируем JSON файл напрямую - в Tauri это работает отлично
+
 import filtersData from '../../../data/filters.json';
+import { createFallbackFilter, processFilters, validateFiltersData } from '../utils/filter-processor';
+// Импортируем JSON файл напрямую - в Tauri это работает отлично
 
 interface UseFiltersReturn {
   filters: VideoFilter[];
@@ -33,21 +37,12 @@ export function useFilters(): UseFiltersReturn {
       const data = filtersData;
 
       // Валидируем данные
-      if (!data || !Array.isArray(data.filters)) {
+      if (!validateFiltersData(data)) {
         throw new Error(t('filters.errors.invalidFiltersData', 'Invalid filters data structure'));
       }
 
-      // Преобразуем данные в нужный формат
-      const processedFilters: VideoFilter[] = data.filters.map((filter: any) => ({
-        id: filter.id,
-        name: filter.name,
-        category: filter.category,
-        complexity: filter.complexity,
-        tags: filter.tags || [],
-        description: filter.description,
-        labels: filter.labels,
-        params: filter.params
-      }));
+      // Обрабатываем фильтры (преобразуем в типизированные объекты)
+      const processedFilters = processFilters(data.filters);
 
       setFilters(processedFilters);
 
@@ -58,28 +53,10 @@ export function useFilters(): UseFiltersReturn {
       setError(t('filters.errors.failedToLoadFilters', 'Failed to load filters: {{error}}', { error: errorMessage }));
 
       // Создаем fallback фильтры в случае ошибки
-      const fallbackFilters: VideoFilter[] = [
-        {
-          id: 'neutral',
-          name: 'Neutral',
-          category: 'color-correction',
-          complexity: 'basic',
-          tags: ['neutral', 'standard'],
-          description: {
-            ru: 'Нейтральные настройки без изменений',
-            en: 'Neutral settings with no changes'
-          },
-          labels: {
-            ru: 'Нейтральный',
-            en: 'Neutral'
-          },
-          params: {
-            brightness: 0,
-            contrast: 1,
-            saturation: 1,
-            gamma: 1
-          }
-        }
+      const fallbackFilters = [
+        createFallbackFilter('neutral'),
+        createFallbackFilter('brightness'),
+        createFallbackFilter('contrast')
       ];
 
       setFilters(fallbackFilters);

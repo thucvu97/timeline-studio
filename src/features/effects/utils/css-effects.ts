@@ -4,7 +4,7 @@ import { VideoEffect } from "@/types/effects";
  * Утилитарная функция для генерации CSS-фильтров на основе параметров эффекта
  * Все эффекты теперь содержат cssFilter в JSON данных
  */
-export function generateCSSFilter(effect: VideoEffect): string {
+export function generateCSSFilterForEffect(effect: VideoEffect): string {
   const params = effect.params || {};
 
   // Все эффекты должны иметь cssFilter функцию из JSON

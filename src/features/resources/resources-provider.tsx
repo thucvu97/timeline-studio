@@ -2,7 +2,6 @@ import React, { ReactNode, createContext, useContext } from "react";
 
 import { useMachine } from "@xstate/react";
 
-import { SubtitleStyle } from "@/features/subtitles/subtitles";
 import { MediaTemplate } from "@/features/templates/lib/templates";
 import { VideoEffect } from "@/types/effects";
 import { VideoFilter } from "@/types/filters";
@@ -15,6 +14,7 @@ import {
   TemplateResource,
   TransitionResource,
 } from "@/types/resources";
+import { SubtitleStyle } from "@/types/subtitles";
 import { TransitionEffect } from "@/types/transitions";
 
 import { ResourcesMachineContext, resourcesMachine } from "./resources-machine";
@@ -139,7 +139,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const isEffectAdded = React.useCallback(
     (effect: VideoEffect) => {
       // Проверяем, есть ли результат в кэше
-      if (effectAddedCache.current[effect.id]) {
+      if (effect.id in effectAddedCache.current) {
         return effectAddedCache.current[effect.id];
       }
 
@@ -167,7 +167,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const isFilterAdded = React.useCallback(
     (filter: VideoFilter) => {
       // Проверяем, есть ли результат в кэше
-      if (filterAddedCache.current[filter.id]) {
+      if (filter.id in filterAddedCache.current) {
         return filterAddedCache.current[filter.id];
       }
 
@@ -196,7 +196,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     (transition: TransitionEffect) => {
       // Проверяем, есть ли результат в кэше
       const cacheKey = transition.id || transition.type;
-      if (transitionAddedCache.current[cacheKey]) {
+      if (cacheKey in transitionAddedCache.current) {
         return transitionAddedCache.current[cacheKey];
       }
 
@@ -212,11 +212,6 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
 
       // Сохраняем результат в кэше
       transitionAddedCache.current[cacheKey] = isAdded;
-
-      // Логируем только при первой проверке для каждого перехода
-      console.log("Checking if transition is added:", transition);
-      console.log("Current transitionResources:", transitionResources);
-      console.log("Transition isAdded result:", isAdded);
 
       return isAdded;
     },
@@ -234,7 +229,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const isTemplateAdded = React.useCallback(
     (template: MediaTemplate) => {
       // Проверяем, есть ли результат в кэше
-      if (templateAddedCache.current[template.id]) {
+      if (template.id in templateAddedCache.current) {
         return templateAddedCache.current[template.id];
       }
 
@@ -262,7 +257,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const isMusicFileAdded = React.useCallback(
     (file: MediaFile) => {
       // Проверяем, есть ли результат в кэше
-      if (musicFileAddedCache.current[file.id]) {
+      if (file.id in musicFileAddedCache.current) {
         return musicFileAddedCache.current[file.id];
       }
 
@@ -273,11 +268,6 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
 
       // Сохраняем результат в кэше
       musicFileAddedCache.current[file.id] = isAdded;
-
-      // Логируем только при первой проверке для каждого файла
-      console.log("Checking if music file is added:", file.name, file.id);
-      console.log("Current music resources:", musicResources);
-      console.log("Music file isAdded result:", isAdded);
 
       return isAdded;
     },
@@ -294,8 +284,9 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
 
   const isSubtitleAdded = React.useCallback(
     (style: SubtitleStyle) => {
-      // Проверяем, есть ли результат в кэше
-      if (subtitleAddedCache.current[style.id]) {
+      // Проверяем, есть ли результат в кэше (используем hasOwnProperty для проверки наличия ключа)
+      // eslint-disable-next-line no-prototype-builtins
+      if (subtitleAddedCache.current.hasOwnProperty(style.id)) {
         return subtitleAddedCache.current[style.id];
       }
 
@@ -306,11 +297,6 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
 
       // Сохраняем результат в кэше
       subtitleAddedCache.current[style.id] = isAdded;
-
-      // Логируем только при первой проверке для каждого стиля
-      console.log("Checking if subtitle style is added:", style.name, style.id);
-      console.log("Current subtitle resources:", subtitleResources);
-      console.log("Subtitle style isAdded result:", isAdded);
 
       return isAdded;
     },

@@ -1,7 +1,7 @@
 import { Store, load } from "@tauri-apps/plugin-store"
 
 import { FavoritesType } from "@/features/browser/media/media-machine"
-import { UserSettingsContext } from "@/features/modals/features/user-settings/user-settings-machine"
+import { UserSettingsContext } from "@/features/user-settings"
 
 /**
  * Ключ для хранилища пользовательских настроек

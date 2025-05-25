@@ -135,10 +135,25 @@ export const transitionsFilterOptions = [
   { value: "cinematic", label: "transitions.categories.cinematic" },
 ];
 
+// Опции фильтрации для субтитров
+export const subtitlesFilterOptions = [
+  // По сложности
+  { value: "basic", label: "subtitles.complexity.basic" },
+  { value: "intermediate", label: "subtitles.complexity.intermediate" },
+  { value: "advanced", label: "subtitles.complexity.advanced" },
+  // По категориям
+  { value: "basic", label: "subtitles.categories.basic" },
+  { value: "cinematic", label: "subtitles.categories.cinematic" },
+  { value: "stylized", label: "subtitles.categories.stylized" },
+  { value: "minimal", label: "subtitles.categories.minimal" },
+  { value: "animated", label: "subtitles.categories.animated" },
+  { value: "modern", label: "subtitles.categories.modern" },
+];
+
 /**
  * Функция для получения конфигурации режимов просмотра по типу контента
  */
-export function getViewModesForContent(contentType: "media" | "music" | "effects"): ViewModeConfig[] {
+export function getViewModesForContent(contentType: "media" | "music" | "effects" | "subtitles"): ViewModeConfig[] {
   switch (contentType) {
     case "media":
       return mediaViewModes;
@@ -146,6 +161,8 @@ export function getViewModesForContent(contentType: "media" | "music" | "effects
       return musicViewModes;
     case "effects":
       return effectsViewModes;
+    case "subtitles":
+      return effectsViewModes; // Субтитры используют только превью как эффекты
     default:
       return musicViewModes; // Дефолт для музыки (2 режима)
   }
@@ -154,7 +171,7 @@ export function getViewModesForContent(contentType: "media" | "music" | "effects
 /**
  * Функция для получения полной конфигурации тулбара по типу контента
  */
-export function getToolbarConfigForContent(contentType: "media" | "music" | "effects" | "filters" | "transitions") {
+export function getToolbarConfigForContent(contentType: "media" | "music" | "effects" | "filters" | "transitions" | "subtitles") {
   switch (contentType) {
     case "media":
       return {
@@ -230,6 +247,24 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
           { value: "duration", label: "browser.toolbar.groupBy.duration" },
         ],
         filterOptions: transitionsFilterOptions, // Фильтрация по сложности и категориям
+        showZoom: true, // Размеры превью нужны
+        showGroupBy: true, // Группировка по категориям и тэгам
+      };
+    case "subtitles":
+      return {
+        viewModes: effectsViewModes, // Субтитры используют только превью как эффекты
+        sortOptions: [
+          { value: "name", label: "browser.toolbar.sortBy.name" },
+          { value: "complexity", label: "browser.toolbar.sortBy.complexity" },
+          { value: "category", label: "browser.toolbar.sortBy.category" },
+        ],
+        groupOptions: [
+          { value: "none", label: "browser.toolbar.groupBy.none" },
+          { value: "category", label: "browser.toolbar.groupBy.category" },
+          { value: "complexity", label: "browser.toolbar.groupBy.complexity" },
+          { value: "tags", label: "browser.toolbar.groupBy.tags" },
+        ],
+        filterOptions: subtitlesFilterOptions, // Фильтрация по сложности и категориям
         showZoom: true, // Размеры превью нужны
         showGroupBy: true, // Группировка по категориям и тэгам
       };

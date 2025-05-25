@@ -108,8 +108,7 @@ export interface VideoEffect {
     de: string
   }
   // Рекомендуемые настройки для разных сценариев
-  presets?: {
-    [presetName: string]: {
+  presets?: Record<string, {
       name: {
         ru: string
         en: string
@@ -119,6 +118,5 @@ export interface VideoEffect {
         ru: string
         en: string
       }
-    }
-  }
+    }>
 }

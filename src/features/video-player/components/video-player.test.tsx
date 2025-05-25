@@ -26,7 +26,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 
 // Мокаем useProjectSettings из project-settings-provider
 vi.mock(
-  "@/features/modals/features/project-settings/project-settings-provider",
+  "@/features/project-settings",
   () => ({
     useProjectSettings: () => ({
       settings: {

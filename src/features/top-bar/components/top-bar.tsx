@@ -23,8 +23,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useCurrentProject } from "@/features/app-state/app-settings-provider"
 import { LayoutPreviews } from "@/features/media-studio/layouts"
 import { ModalType } from "@/features/modals"
-import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider"
 import { useModal } from "@/features/modals/services/modal-provider"
+import { useUserSettings } from "@/features/user-settings"
 import { cn } from "@/lib/utils"
 
 export function TopBar() {

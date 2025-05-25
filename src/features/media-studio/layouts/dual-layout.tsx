@@ -4,9 +4,9 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { Browser } from "@/features/browser/components/browser";
-import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider";
 import { Options } from "@/features/options/components/options";
 import { Timeline } from "@/features/timeline/components/timeline";
+import { useUserSettings } from "@/features/user-settings"
 import { VideoPlayer } from "@/features/video-player/components/video-player";
 
 export function DualLayout() {

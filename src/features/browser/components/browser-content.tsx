@@ -2,16 +2,16 @@ import { useBrowserState } from "@/components/common/browser-state-provider";
 import { MediaToolbar } from "@/components/common/media-toolbar";
 import { getToolbarConfigForContent } from "@/components/common/media-toolbar-configs";
 import { TabsContent } from "@/components/ui/tabs";
-import { useMediaImport } from "@/features/browser/media/use-media-import";
 import {
   EffectList,
   FilterList,
   MediaList,
   MusicList,
-  SubtitlesList,
+  SubtitleList,
   TemplateList,
-  TransitionsList,
+  TransitionList,
 } from "@/features";
+import { useMediaImport } from "@/features/browser/media/use-media-import";
 
 export function BrowserContent() {
   const contentClassName = "bg-background m-0 flex-1 overflow-auto";
@@ -149,13 +149,13 @@ export function BrowserContent() {
         <MusicList />
       </TabsContent>
       <TabsContent value="transitions" className={contentClassName}>
-        <TransitionsList />
+        <TransitionList />
       </TabsContent>
       <TabsContent value="effects" className={contentClassName}>
         <EffectList />
       </TabsContent>
       <TabsContent value="subtitles" className={contentClassName}>
-        <SubtitlesList />
+        <SubtitleList />
       </TabsContent>
       <TabsContent value="filters" className={contentClassName}>
         <FilterList />

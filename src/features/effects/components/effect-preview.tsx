@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 
+import { useBrowserState } from "@/components/common/browser-state-provider";
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
 import { useResources } from "@/features/resources";
 import { VideoEffect } from "@/types/effects";
 import { EffectResource } from "@/types/resources";
 
-import { useEffects } from "../hooks/use-effects";
-import { generateCSSFilter, getPlaybackRate } from "../utils/css-effects";
 import { EffectIndicators } from "./effect-indicators";
+import { useEffects } from "../hooks/use-effects";
+import { generateCSSFilterForEffect, getPlaybackRate } from "../utils/css-effects";
 
 // Всегда используем общее тестовое видео для демонстрации CSS-эффектов
 // CSS-фильтры применяются динамически в компоненте
@@ -46,11 +47,21 @@ export function EffectPreview({
   const videoRef = useRef<HTMLVideoElement>(null); // Ссылка на элемент видео
   const timeoutRef = useRef<NodeJS.Timeout>(null); // Ссылка на таймер для воспроизведения видео
 
+  // Получаем активную вкладку для оптимизации
+  const { activeTab } = useBrowserState();
+
   // Находим эффект по типу из списка доступных эффектов
   const effect = effects.find((e: VideoEffect) => e.type === effectType);
 
   // Проверяем, добавлен ли эффект уже в хранилище ресурсов
-  const isAdded = effect ? isEffectAdded(effect) : false;
+  // Мемоизируем результат и проверяем только если вкладка активна
+  const isAdded = useMemo(() => {
+    // Проверяем только если текущая вкладка - effects
+    if (activeTab !== "effects") {
+      return false; // Возвращаем false для неактивных вкладок
+    }
+    return effect ? isEffectAdded(effect) : false;
+  }, [activeTab, effect, isEffectAdded]);
 
   /**
    * Эффект для управления воспроизведением видео и применением эффектов
@@ -71,7 +82,7 @@ export function EffectPreview({
       videoElement.playbackRate = 1; // Сбрасываем скорость воспроизведения
 
       // Применяем CSS-фильтр на основе параметров эффекта
-      const cssFilter = generateCSSFilter(effect);
+      const cssFilter = generateCSSFilterForEffect(effect);
       if (cssFilter) {
         videoElement.style.filter = cssFilter;
       }

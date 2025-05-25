@@ -1229,5 +1229,42 @@
       "tags": "Теги",
       "applyTransition": "Применить переход"
     }
+  },
+  "subtitles": {
+    "categories": {
+      "basic": "Базовые",
+      "cinematic": "Кинематографические",
+      "stylized": "Стилизованные",
+      "minimal": "Минималистичные",
+      "animated": "Анимированные",
+      "modern": "Современные"
+    },
+    "complexity": {
+      "basic": "Базовый",
+      "intermediate": "Средний",
+      "advanced": "Продвинутый"
+    },
+    "filters": {
+      "allCategories": "Все категории",
+      "allComplexity": "Любая сложность",
+      "allTags": "Все теги"
+    },
+    "errors": {
+      "invalidStylesData": "Неверная структура данных субтитров",
+      "unknownError": "Неизвестная ошибка",
+      "failedToLoadStyles": "Не удалось загрузить субтитры: {{error}}",
+      "fallbackStyles": "Не удалось загрузить субтитры, используются резервные"
+    },
+    "messages": {
+      "stylesLoaded": "Загружено {{count}} субтитров из JSON"
+    },
+    "detail": {
+      "description": "Описание",
+      "category": "Категория",
+      "complexity": "Сложность",
+      "parameters": "Параметры",
+      "tags": "Теги",
+      "applySubtitle": "Применить субтитр"
+    }
   }
 }

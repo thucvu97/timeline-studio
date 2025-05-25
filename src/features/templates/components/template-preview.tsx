@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
+import { useBrowserState } from "@/components/common/browser-state-provider";
 import { useResources } from "@/features/resources";
 import { MediaFile } from "@/types/media";
 import { TemplateResource } from "@/types/resources";
@@ -71,6 +72,9 @@ export function TemplatePreview({
   // Получаем вычисленные размеры превью
   const { height: previewHeight, width: previewWidth } = calculateDimensions();
 
+  // Получаем активную вкладку для оптимизации
+  const { activeTab } = useBrowserState();
+
   // Получаем методы для работы с ресурсами шаблонов
   const { addTemplate, isTemplateAdded, removeResource, templateResources } =
     useResources();
@@ -79,7 +83,14 @@ export function TemplatePreview({
   const renderedTemplate = template.render();
 
   // Проверяем, добавлен ли шаблон уже в хранилище ресурсов
-  const isAddedFromStore = isTemplateAdded(template);
+  // Мемоизируем результат и проверяем только если вкладка активна
+  const isAddedFromStore = useMemo(() => {
+    // Проверяем только если текущая вкладка - media (где находятся шаблоны)
+    if (activeTab !== "media") {
+      return false; // Возвращаем false для неактивных вкладок
+    }
+    return isTemplateAdded(template);
+  }, [activeTab, isTemplateAdded, template]);
 
   /**
    * Эффект для синхронизации локального состояния с состоянием из хранилища

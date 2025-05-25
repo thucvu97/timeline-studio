@@ -5,7 +5,7 @@ import { PlayerProvider } from "./player-provider";
 
 // Мокаем useUserSettings
 vi.mock(
-  "@/features/modals/features/user-settings/user-settings-provider",
+  "@/features/user-settings",
   () => ({
     useUserSettings: () => ({
       playerVolume: 100,

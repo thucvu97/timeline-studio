@@ -2,14 +2,14 @@ import { useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
-import { useBrowserState } from "@/components/common/browser-state-provider";
 import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
+import { useBrowserState } from "@/components/common/browser-state-provider";
 import { useMedia } from "@/features/browser/media";
-import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider";
+import { useProjectSettings } from "@/features/project-settings";
 import { VideoEffect } from "@/types/effects";
 
-import { useEffects } from "../hooks/use-effects";
 import { EffectGroup } from "./effect-group";
+import { useEffects } from "../hooks/use-effects";
 
 /**
  * Компонент для отображения списка эффектов
@@ -69,7 +69,7 @@ export function EffectList() {
    */
   const processedEffects = (() => {
     // 1. Фильтрация
-    let filtered = effects.filter((effect) => {
+    const filtered = effects.filter((effect) => {
       // Фильтрация по поисковому запросу
       const matchesSearch =
         !searchQuery ||
@@ -152,7 +152,7 @@ export function EffectList() {
       return [{ title: "", effects: processedEffects }];
     }
 
-    const groups: { [key: string]: VideoEffect[] } = {};
+    const groups: Record<string, VideoEffect[]> = {};
 
     processedEffects.forEach((effect) => {
       let groupKey = "";

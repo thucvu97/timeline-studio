@@ -16,8 +16,6 @@ Object.defineProperty(window, "matchMedia", {
     matches: false,
     media: query,
     onchange: null,
-    addListener: vi.fn(), // устаревший
-    removeListener: vi.fn(), // устаревший
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),

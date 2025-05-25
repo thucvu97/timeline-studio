@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect } from "react";
 
 import { useMachine } from "@xstate/react";
 
-import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider";
+import { useUserSettings } from "@/features/user-settings"
 import { MediaFile } from "@/types/media";
 
 import {

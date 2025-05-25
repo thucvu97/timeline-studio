@@ -1,0 +1,362 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-15",
+  "totalStyles": 20,
+  "categories": ["basic", "cinematic", "stylized", "minimal", "animated", "modern"],
+  "styles": [
+    {
+      "id": "basic-white",
+      "name": "Basic White",
+      "category": "basic",
+      "complexity": "basic",
+      "tags": ["simple", "clean", "readable"],
+      "description": {
+        "ru": "Базовый белый стиль с тенью для хорошей читаемости",
+        "en": "Basic white style with shadow for good readability"
+      },
+      "labels": {
+        "ru": "Базовый белый",
+        "en": "Basic White",
+        "es": "Blanco Básico",
+        "fr": "Blanc de Base",
+        "de": "Basis Weiß"
+      },
+      "style": {
+        "fontFamily": "Arial, sans-serif",
+        "fontSize": 24,
+        "fontWeight": "normal",
+        "fontStyle": "normal",
+        "color": "#ffffff",
+        "textShadow": "0 2px 4px rgba(0, 0, 0, 0.8)",
+        "textAlign": "center",
+        "lineHeight": 1.4,
+        "letterSpacing": 0
+      }
+    },
+    {
+      "id": "basic-yellow",
+      "name": "Basic Yellow",
+      "category": "basic",
+      "complexity": "basic",
+      "tags": ["simple", "bright", "classic"],
+      "description": {
+        "ru": "Классический желтый стиль субтитров",
+        "en": "Classic yellow subtitle style"
+      },
+      "labels": {
+        "ru": "Базовый желтый",
+        "en": "Basic Yellow",
+        "es": "Amarillo Básico",
+        "fr": "Jaune de Base",
+        "de": "Basis Gelb"
+      },
+      "style": {
+        "fontFamily": "Arial, sans-serif",
+        "fontSize": 24,
+        "fontWeight": "normal",
+        "fontStyle": "normal",
+        "color": "#ffff00",
+        "textShadow": "0 2px 4px rgba(0, 0, 0, 0.8)",
+        "textAlign": "center",
+        "lineHeight": 1.4,
+        "letterSpacing": 0
+      }
+    },
+    {
+      "id": "cinematic-elegant",
+      "name": "Cinematic Elegant",
+      "category": "cinematic",
+      "complexity": "intermediate",
+      "tags": ["elegant", "movie", "professional"],
+      "description": {
+        "ru": "Элегантный кинематографический стиль с засечками",
+        "en": "Elegant cinematic style with serifs"
+      },
+      "labels": {
+        "ru": "Кинематографический элегантный",
+        "en": "Cinematic Elegant",
+        "es": "Cinematográfico Elegante",
+        "fr": "Cinématographique Élégant",
+        "de": "Kinematografisch Elegant"
+      },
+      "style": {
+        "fontFamily": "Georgia, serif",
+        "fontSize": 26,
+        "fontWeight": "normal",
+        "fontStyle": "normal",
+        "color": "#f5f5f5",
+        "textShadow": "0 3px 6px rgba(0, 0, 0, 0.9)",
+        "textAlign": "center",
+        "lineHeight": 1.5,
+        "letterSpacing": 1
+      }
+    },
+    {
+      "id": "cinematic-bold",
+      "name": "Cinematic Bold",
+      "category": "cinematic",
+      "complexity": "intermediate",
+      "tags": ["bold", "impact", "dramatic"],
+      "description": {
+        "ru": "Жирный кинематографический стиль для драматических сцен",
+        "en": "Bold cinematic style for dramatic scenes"
+      },
+      "labels": {
+        "ru": "Кинематографический жирный",
+        "en": "Cinematic Bold",
+        "es": "Cinematográfico Negrita",
+        "fr": "Cinématographique Gras",
+        "de": "Kinematografisch Fett"
+      },
+      "style": {
+        "fontFamily": "Impact, Arial Black, sans-serif",
+        "fontSize": 28,
+        "fontWeight": "bold",
+        "fontStyle": "normal",
+        "color": "#ffffff",
+        "textShadow": "0 4px 8px rgba(0, 0, 0, 1), 0 0 20px rgba(0, 0, 0, 0.5)",
+        "textAlign": "center",
+        "lineHeight": 1.3,
+        "letterSpacing": 2,
+        "textTransform": "uppercase"
+      }
+    },
+    {
+      "id": "stylized-neon",
+      "name": "Stylized Neon",
+      "category": "stylized",
+      "complexity": "advanced",
+      "tags": ["neon", "glow", "futuristic", "cyberpunk"],
+      "description": {
+        "ru": "Неоновый стиль с эффектом свечения",
+        "en": "Neon style with glow effect"
+      },
+      "labels": {
+        "ru": "Стилизованный неон",
+        "en": "Stylized Neon",
+        "es": "Neón Estilizado",
+        "fr": "Néon Stylisé",
+        "de": "Stilisiertes Neon"
+      },
+      "style": {
+        "fontFamily": "Orbitron, monospace",
+        "fontSize": 24,
+        "fontWeight": "bold",
+        "fontStyle": "normal",
+        "color": "#00ffff",
+        "textShadow": "0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff",
+        "textAlign": "center",
+        "lineHeight": 1.4,
+        "letterSpacing": 3,
+        "textTransform": "uppercase"
+      }
+    },
+    {
+      "id": "stylized-retro",
+      "name": "Stylized Retro",
+      "category": "stylized",
+      "complexity": "intermediate",
+      "tags": ["retro", "vintage", "80s", "colorful"],
+      "description": {
+        "ru": "Ретро стиль в духе 80-х с градиентом",
+        "en": "Retro 80s style with gradient"
+      },
+      "labels": {
+        "ru": "Стилизованный ретро",
+        "en": "Stylized Retro",
+        "es": "Retro Estilizado",
+        "fr": "Rétro Stylisé",
+        "de": "Stilisiertes Retro"
+      },
+      "style": {
+        "fontFamily": "Courier New, monospace",
+        "fontSize": 26,
+        "fontWeight": "bold",
+        "fontStyle": "normal",
+        "color": "#ff6b9d",
+        "textShadow": "2px 2px 0px #4ecdc4, 4px 4px 0px #45b7aa",
+        "textAlign": "center",
+        "lineHeight": 1.3,
+        "letterSpacing": 2,
+        "textTransform": "uppercase"
+      }
+    },
+    {
+      "id": "minimal-clean",
+      "name": "Minimal Clean",
+      "category": "minimal",
+      "complexity": "basic",
+      "tags": ["minimal", "clean", "modern", "simple"],
+      "description": {
+        "ru": "Чистый минималистичный стиль без лишних элементов",
+        "en": "Clean minimal style without extra elements"
+      },
+      "labels": {
+        "ru": "Минималистичный чистый",
+        "en": "Minimal Clean",
+        "es": "Minimalista Limpio",
+        "fr": "Minimaliste Propre",
+        "de": "Minimal Sauber"
+      },
+      "style": {
+        "fontFamily": "Helvetica, Arial, sans-serif",
+        "fontSize": 22,
+        "fontWeight": 300,
+        "fontStyle": "normal",
+        "color": "#ffffff",
+        "letterSpacing": 1,
+        "textAlign": "center",
+        "lineHeight": 1.5
+      }
+    },
+    {
+      "id": "minimal-background",
+      "name": "Minimal Background",
+      "category": "minimal",
+      "complexity": "basic",
+      "tags": ["minimal", "background", "readable"],
+      "description": {
+        "ru": "Минималистичный стиль с полупрозрачным фоном",
+        "en": "Minimal style with semi-transparent background"
+      },
+      "labels": {
+        "ru": "Минималистичный с фоном",
+        "en": "Minimal Background",
+        "es": "Minimalista con Fondo",
+        "fr": "Minimaliste avec Arrière-plan",
+        "de": "Minimal mit Hintergrund"
+      },
+      "style": {
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 20,
+        "fontWeight": "normal",
+        "fontStyle": "normal",
+        "color": "#f0f0f0",
+        "backgroundColor": "rgba(0, 0, 0, 0.6)",
+        "padding": "8px 16px",
+        "borderRadius": "4px",
+        "textAlign": "center",
+        "lineHeight": 1.4
+      }
+    },
+    {
+      "id": "animated-typewriter",
+      "name": "Animated Typewriter",
+      "category": "animated",
+      "complexity": "advanced",
+      "tags": ["animated", "typewriter", "retro", "mechanical"],
+      "description": {
+        "ru": "Анимированный стиль печатной машинки",
+        "en": "Animated typewriter style"
+      },
+      "labels": {
+        "ru": "Анимированная печатная машинка",
+        "en": "Animated Typewriter",
+        "es": "Máquina de Escribir Animada",
+        "fr": "Machine à Écrire Animée",
+        "de": "Animierte Schreibmaschine"
+      },
+      "style": {
+        "fontFamily": "Courier New, monospace",
+        "fontSize": 24,
+        "fontWeight": "normal",
+        "fontStyle": "normal",
+        "color": "#00ff00",
+        "backgroundColor": "rgba(0, 0, 0, 0.8)",
+        "padding": "4px 8px",
+        "textAlign": "left",
+        "lineHeight": 1.2,
+        "letterSpacing": 1,
+        "animation": "typewriter 2s steps(40) infinite"
+      }
+    },
+    {
+      "id": "animated-fade",
+      "name": "Animated Fade",
+      "category": "animated",
+      "complexity": "intermediate",
+      "tags": ["animated", "fade", "smooth", "elegant"],
+      "description": {
+        "ru": "Анимированный стиль с плавным появлением",
+        "en": "Animated style with smooth fade-in"
+      },
+      "labels": {
+        "ru": "Анимированное затухание",
+        "en": "Animated Fade",
+        "es": "Desvanecimiento Animado",
+        "fr": "Fondu Animé",
+        "de": "Animiertes Ausblenden"
+      },
+      "style": {
+        "fontFamily": "Open Sans, sans-serif",
+        "fontSize": 24,
+        "fontWeight": "normal",
+        "fontStyle": "normal",
+        "color": "#ffffff",
+        "textShadow": "0 2px 4px rgba(0, 0, 0, 0.7)",
+        "textAlign": "center",
+        "lineHeight": 1.4,
+        "animation": "fadeInOut 3s ease-in-out infinite"
+      }
+    },
+    {
+      "id": "modern-sans",
+      "name": "Modern Sans",
+      "category": "modern",
+      "complexity": "basic",
+      "tags": ["modern", "sans-serif", "clean", "professional"],
+      "description": {
+        "ru": "Современный стиль без засечек",
+        "en": "Modern sans-serif style"
+      },
+      "labels": {
+        "ru": "Современный без засечек",
+        "en": "Modern Sans",
+        "es": "Sans Moderno",
+        "fr": "Sans Moderne",
+        "de": "Moderne Sans"
+      },
+      "style": {
+        "fontFamily": "Inter, system-ui, sans-serif",
+        "fontSize": 24,
+        "fontWeight": 500,
+        "fontStyle": "normal",
+        "color": "#ffffff",
+        "textShadow": "0 1px 3px rgba(0, 0, 0, 0.8)",
+        "textAlign": "center",
+        "lineHeight": 1.5,
+        "letterSpacing": 0.5
+      }
+    },
+    {
+      "id": "modern-gradient",
+      "name": "Modern Gradient",
+      "category": "modern",
+      "complexity": "advanced",
+      "tags": ["modern", "gradient", "colorful", "trendy"],
+      "description": {
+        "ru": "Современный стиль с градиентной заливкой",
+        "en": "Modern style with gradient fill"
+      },
+      "labels": {
+        "ru": "Современный градиент",
+        "en": "Modern Gradient",
+        "es": "Gradiente Moderno",
+        "fr": "Dégradé Moderne",
+        "de": "Moderner Gradient"
+      },
+      "style": {
+        "fontFamily": "Poppins, sans-serif",
+        "fontSize": 26,
+        "fontWeight": "bold",
+        "fontStyle": "normal",
+        "background": "linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1)",
+        "WebkitBackgroundClip": "text",
+        "WebkitTextFillColor": "transparent",
+        "textAlign": "center",
+        "lineHeight": 1.4,
+        "letterSpacing": 1
+      }
+    }
+  ]
+}

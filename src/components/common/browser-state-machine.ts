@@ -7,7 +7,7 @@ export const DEFAULT_PREVIEW_SIZE_INDEX = 1; // 125px (по умолчанию)
 /**
  * Тип вкладки браузера
  */
-export type BrowserTab = "media" | "music" | "effects" | "filters" | "transitions";
+export type BrowserTab = "media" | "music" | "effects" | "filters" | "transitions" | "subtitles";
 
 /**
  * Режимы отображения для разных типов контента
@@ -22,8 +22,7 @@ export interface BrowserContext {
   activeTab: BrowserTab;
 
   // Настройки для каждой вкладки
-  tabSettings: {
-    [K in BrowserTab]: {
+  tabSettings: Record<BrowserTab, {
       searchQuery: string;
       showFavoritesOnly: boolean;
       sortBy: string;
@@ -32,8 +31,7 @@ export interface BrowserContext {
       filterType: string;
       viewMode: ViewMode;
       previewSizeIndex: number;
-    };
-  };
+    }>;
 }
 
 /**
@@ -77,6 +75,7 @@ const initialContext: BrowserContext = {
     effects: getInitialTabSettings("effects"),
     filters: getInitialTabSettings("filters"),
     transitions: getInitialTabSettings("transitions"),
+    subtitles: getInitialTabSettings("subtitles"),
   },
 };
 
@@ -140,13 +139,13 @@ export const browserMachine = createMachine({
         },
         SET_GROUP_BY: {
           actions: assign({
-            tabSettings: (context, event) => {
-              const tab = event.tab || context.activeTab;
+            tabSettings: ({ context, event }) => {
+              const tab = (event as any).tab || context.activeTab;
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab],
-                  groupBy: event.groupBy,
+                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  groupBy: (event as any).groupBy,
                 },
               };
             },
@@ -154,13 +153,13 @@ export const browserMachine = createMachine({
         },
         SET_FILTER: {
           actions: assign({
-            tabSettings: (context, event) => {
-              const tab = event.tab || context.activeTab;
+            tabSettings: ({ context, event }) => {
+              const tab = (event as any).tab || context.activeTab;
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab],
-                  filterType: event.filterType,
+                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  filterType: (event as any).filterType,
                 },
               };
             },
@@ -168,13 +167,13 @@ export const browserMachine = createMachine({
         },
         SET_VIEW_MODE: {
           actions: assign({
-            tabSettings: (context, event) => {
-              const tab = event.tab || context.activeTab;
+            tabSettings: ({ context, event }) => {
+              const tab = (event as any).tab || context.activeTab;
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab],
-                  viewMode: event.viewMode,
+                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  viewMode: (event as any).viewMode,
                 },
               };
             },
@@ -182,13 +181,13 @@ export const browserMachine = createMachine({
         },
         SET_PREVIEW_SIZE: {
           actions: assign({
-            tabSettings: (context, event) => {
-              const tab = event.tab || context.activeTab;
+            tabSettings: ({ context, event }) => {
+              const tab = (event as any).tab || context.activeTab;
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab],
-                  previewSizeIndex: event.sizeIndex,
+                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  previewSizeIndex: (event as any).sizeIndex,
                 },
               };
             },
@@ -196,16 +195,16 @@ export const browserMachine = createMachine({
         },
         RESET_TAB_SETTINGS: {
           actions: assign({
-            tabSettings: (context, event) => ({
+            tabSettings: ({ context, event }) => ({
               ...context.tabSettings,
-              [event.tab]: getInitialTabSettings(event.tab),
+              [(event as any).tab]: getInitialTabSettings((event as any).tab),
             }),
           }),
         },
         LOAD_SETTINGS: {
-          actions: assign((context, event) => ({
+          actions: assign(({ context, event }) => ({
             ...context,
-            ...event.settings,
+            ...(event as any).settings,
           })),
         },
         SAVE_SETTINGS: {

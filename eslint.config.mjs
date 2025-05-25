@@ -38,6 +38,8 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/require-await": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/array-type": "off",
+      // no-case-declarations
+      "no-case-declarations": "off",
       // Настройка правил для сортировки импортов
       "import/order": [
         "warn",

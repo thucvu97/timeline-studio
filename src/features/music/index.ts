@@ -1,5 +1,6 @@
-export * from "./music-list";
-export * from "./music-machine";
-export * from "./music-utils";
-export * from "./music-provider";
-export * from "./use-music-import";
+export * from "./components";
+export * from "./services";
+
+export * from "./utils/music-utils";
+
+export * from "./hooks";

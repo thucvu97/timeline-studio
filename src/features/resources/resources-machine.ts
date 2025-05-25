@@ -1,6 +1,5 @@
 import { assign, setup } from "xstate";
 
-import { SubtitleStyle } from "@/features/subtitles/subtitles";
 import { MediaTemplate } from "@/features/templates/lib/templates";
 import { VideoEffect } from "@/types/effects";
 import { VideoFilter } from "@/types/filters";
@@ -20,6 +19,7 @@ import {
   createTemplateResource,
   createTransitionResource,
 } from "@/types/resources";
+import { SubtitleStyle } from "@/types/subtitles";
 import { TransitionEffect } from "@/types/transitions";
 
 // Интерфейс контекста машины состояний

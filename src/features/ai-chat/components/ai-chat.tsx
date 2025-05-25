@@ -10,7 +10,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { useModal } from "@/features/modals";
-import { useUserSettings } from "@/features/modals/features/user-settings/user-settings-provider";
+import { useUserSettings } from "@/features/user-settings"
 
 import { useChat } from "..";
 import { CLAUDE_MODELS } from "./claude-service";

@@ -14,7 +14,7 @@ vi.mock("react-i18next", () => ({
 // Создаем мок для handleLayoutChange
 const handleLayoutChangeMock = vi.fn()
 
-vi.mock("@/features/modals/features/user-settings/user-settings-provider", () => {
+vi.mock("@/features/user-settings", () => {
   return {
     useUserSettings: () => ({
       activeTab: "media",
@@ -79,7 +79,7 @@ describe("LayoutPreviews", () => {
 
   it("should mark the active layout preview", () => {
     // Переопределяем мок для useUserSettings с активным макетом "options"
-    vi.mock("@/features/modals/features/user-settings/user-settings-provider", () => {
+    vi.mock("@/features/user-settings", () => {
       return {
         useUserSettings: () => ({
           activeTab: "media",

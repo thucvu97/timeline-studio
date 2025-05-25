@@ -1,0 +1,120 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-05-31",
+  "categories": {
+    "basic": {
+      "name": {
+        "ru": "Базовые",
+        "en": "Basic",
+        "es": "Básico",
+        "fr": "De Base",
+        "de": "Basis"
+      },
+      "description": {
+        "ru": "Простые и универсальные переходы для повседневного использования",
+        "en": "Simple and universal transitions for everyday use",
+        "es": "Transiciones simples y universales para uso diario",
+        "fr": "Transitions simples et universelles pour un usage quotidien",
+        "de": "Einfache und universelle Übergänge für den täglichen Gebrauch"
+      },
+      "order": 1,
+      "icon": "ArrowRight",
+      "color": "#6b7280"
+    },
+    "advanced": {
+      "name": {
+        "ru": "Продвинутые",
+        "en": "Advanced",
+        "es": "Avanzado",
+        "fr": "Avancé",
+        "de": "Erweitert"
+      },
+      "description": {
+        "ru": "Сложные переходы с продвинутыми эффектами",
+        "en": "Complex transitions with advanced effects",
+        "es": "Transiciones complejas con efectos avanzados",
+        "fr": "Transitions complexes avec des effets avancés",
+        "de": "Komplexe Übergänge mit erweiterten Effekten"
+      },
+      "order": 2,
+      "icon": "Zap",
+      "color": "#dc2626"
+    },
+    "creative": {
+      "name": {
+        "ru": "Креативные",
+        "en": "Creative",
+        "es": "Creativo",
+        "fr": "Créatif",
+        "de": "Kreativ"
+      },
+      "description": {
+        "ru": "Творческие переходы для художественных проектов",
+        "en": "Creative transitions for artistic projects",
+        "es": "Transiciones creativas para proyectos artísticos",
+        "fr": "Transitions créatives pour projets artistiques",
+        "de": "Kreative Übergänge für künstlerische Projekte"
+      },
+      "order": 3,
+      "icon": "Sparkles",
+      "color": "#7c3aed"
+    },
+    "3d": {
+      "name": {
+        "ru": "3D",
+        "en": "3D",
+        "es": "3D",
+        "fr": "3D",
+        "de": "3D"
+      },
+      "description": {
+        "ru": "Трёхмерные переходы с эффектом глубины",
+        "en": "Three-dimensional transitions with depth effect",
+        "es": "Transiciones tridimensionales con efecto de profundidad",
+        "fr": "Transitions tridimensionnelles avec effet de profondeur",
+        "de": "Dreidimensionale Übergänge mit Tiefeneffekt"
+      },
+      "order": 4,
+      "icon": "Box",
+      "color": "#059669"
+    },
+    "artistic": {
+      "name": {
+        "ru": "Художественные",
+        "en": "Artistic",
+        "es": "Artístico",
+        "fr": "Artistique",
+        "de": "Künstlerisch"
+      },
+      "description": {
+        "ru": "Художественные переходы с уникальными визуальными эффектами",
+        "en": "Artistic transitions with unique visual effects",
+        "es": "Transiciones artísticas con efectos visuales únicos",
+        "fr": "Transitions artistiques avec des effets visuels uniques",
+        "de": "Künstlerische Übergänge mit einzigartigen visuellen Effekten"
+      },
+      "order": 5,
+      "icon": "Palette",
+      "color": "#ea580c"
+    },
+    "cinematic": {
+      "name": {
+        "ru": "Кинематографические",
+        "en": "Cinematic",
+        "es": "Cinematográfico",
+        "fr": "Cinématographique",
+        "de": "Kinematografisch"
+      },
+      "description": {
+        "ru": "Профессиональные переходы для кинематографа",
+        "en": "Professional transitions for cinematography",
+        "es": "Transiciones profesionales para cinematografía",
+        "fr": "Transitions professionnelles pour la cinématographie",
+        "de": "Professionelle Übergänge für die Kinematografie"
+      },
+      "order": 6,
+      "icon": "Film",
+      "color": "#0891b2"
+    }
+  }
+}

@@ -5,9 +5,9 @@ import { useAppSettings } from "@/features/app-state/app-settings-provider";
 import {
   BrowserContext,
   BrowserTab,
+  DEFAULT_PREVIEW_SIZE_INDEX,
   PREVIEW_SIZES,
   ViewMode,
-  DEFAULT_PREVIEW_SIZE_INDEX,
 } from "./browser-state-machine";
 
 // Реэкспортируем для удобства
@@ -38,6 +38,7 @@ const getInitialContext = (): BrowserContext => ({
     effects: getInitialTabSettings("effects"),
     filters: getInitialTabSettings("filters"),
     transitions: getInitialTabSettings("transitions"),
+    subtitles: getInitialTabSettings("subtitles"),
   },
 });
 

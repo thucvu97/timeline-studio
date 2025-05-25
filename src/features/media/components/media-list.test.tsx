@@ -65,21 +65,6 @@ vi.mock("@/features/browser", () => ({
   }),
 }));
 
-// Мокаем useMediaList
-vi.mock("../services/media-list-provider", () => ({
-  useMediaList: () => ({
-    searchQuery: "",
-    showFavoritesOnly: false,
-    viewMode: "list",
-    sortBy: "date",
-    filterType: "all",
-    groupBy: "none",
-    sortOrder: "desc",
-    previewSize: 100,
-    retry: vi.fn(),
-  }),
-}));
-
 // Мокаем MediaToolbar
 vi.mock("./media-toolbar", () => ({
   MediaToolbar: () => <div data-testid="media-toolbar">Media Toolbar</div>,

@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { MediaTemplate } from "@/features/templates/lib/templates";
-
 import { TemplatePreview } from "./template-preview";
+import { MediaTemplate } from "../lib/templates";
+
 
 // Мокаем useResources
 const mockAddTemplate = vi.fn();

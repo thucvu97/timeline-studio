@@ -3,17 +3,14 @@ import { ReactElement, ReactNode } from "react";
 import { RenderOptions, render } from "@testing-library/react";
 
 import { ThemeProvider } from "@/components/theme/theme-context";
-import { ChatProvider } from "@/features/ai-chat/services/chat-provider";
 import { AppSettingsProvider } from "@/features/app-state/app-settings-provider";
 import { PreviewSizeProvider } from "@/features/browser/components/preview/preview-size-provider";
 import { MediaProvider } from "@/features/browser/media";
-import { MediaListProvider } from "@/features/media/services/media-list-provider";
-import { ProjectSettingsProvider } from "@/features/modals/features/project-settings/project-settings-provider";
-import { UserSettingsProvider } from "@/features/modals/features/user-settings/user-settings-provider";
 import { ModalProvider } from "@/features/modals/services/modal-provider";
-import { MusicProvider } from "@/features/music/music-provider";
+import { MusicProvider } from "@/features/music/services/music-provider";
+import { ProjectSettingsProvider } from "@/features/project-settings";
 import { ResourcesProvider } from "@/features/resources";
-import { TemplateListProvider } from "@/features/templates/services/template-list-provider";
+import { UserSettingsProvider } from "@/features/user-settings";
 import { PlayerProvider } from "@/features/video-player/services/player-provider";
 import { I18nProvider } from "@/i18n/i18n-provider";
 
@@ -34,9 +31,7 @@ export const MediaProviders = ({ children }: { children: ReactNode }) => {
     <BaseProviders>
       <ResourcesProvider>
         <MediaProvider>
-          <MediaListProvider>
             <PreviewSizeProvider>{children}</PreviewSizeProvider>
-          </MediaListProvider>
         </MediaProvider>
       </ResourcesProvider>
     </BaseProviders>
@@ -78,36 +73,15 @@ export const ModalProviders = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// ❌ Монстр-провайдер (только для интеграционных тестов)
-export const AllProviders = ({ children }: { children: ReactNode }) => {
+const TemplateProviders = ({ children }: { children: ReactNode }) => {
   return (
-    <ThemeProvider>
-      <I18nProvider>
-        <ModalProvider>
-          <AppSettingsProvider>
-            <ProjectSettingsProvider>
-              <UserSettingsProvider>
-                <ResourcesProvider>
-                  <MediaProvider>
-                    <MediaListProvider>
-                      <MusicProvider>
-                        <PreviewSizeProvider>
-                          <TemplateListProvider>
-                            <PlayerProvider>
-                              <ChatProvider>{children}</ChatProvider>
-                            </PlayerProvider>
-                          </TemplateListProvider>
-                        </PreviewSizeProvider>
-                      </MusicProvider>
-                    </MediaListProvider>
-                  </MediaProvider>
-                </ResourcesProvider>
-              </UserSettingsProvider>
-            </ProjectSettingsProvider>
-          </AppSettingsProvider>
-        </ModalProvider>
-      </I18nProvider>
-    </ThemeProvider>
+    <BaseProviders>
+      <ResourcesProvider>
+        <MediaProvider>
+          <PreviewSizeProvider>{children}</PreviewSizeProvider>
+        </MediaProvider>
+      </ResourcesProvider>
+    </BaseProviders>
   );
 };
 
@@ -137,11 +111,10 @@ export const renderWithModal = (
   options?: Omit<RenderOptions, "wrapper">,
 ) => render(ui, { wrapper: ModalProviders, ...options });
 
-// ❌ Полный рендер (только для интеграционных тестов)
-export const renderWithAll = (
+export const renderWithTemplates = (
   ui: ReactElement,
   options?: Omit<RenderOptions, "wrapper">,
-) => render(ui, { wrapper: AllProviders, ...options });
+) => render(ui, { wrapper: TemplateProviders, ...options });
 
 // 🎯 Умная функция рендеринга (по умолчанию базовые провайдеры)
 const customRender = (

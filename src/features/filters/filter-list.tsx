@@ -3,13 +3,14 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useBrowserState } from "@/components/common/browser-state-provider";
-import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
 import { useMedia } from "@/features/browser/media";
-import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider";
+import { useProjectSettings } from "@/features/project-settings";
 import { VideoFilter } from "@/types/filters";
 
-import { FilterGroup } from "./filter-group";
+import { FilterGroup } from "./components/filter-group";
 import { useFilters } from "./hooks/use-filters";
+
+const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400];
 
 /**
  * Компонент для отображения списка доступных видеофильтров
@@ -72,7 +73,7 @@ export function FilterList() {
    */
   const processedFilters = useMemo(() => {
     // 1. Фильтрация
-    let filtered = filters.filter((filter) => {
+    const filtered = filters.filter((filter) => {
       // Фильтрация по поисковому запросу
       const matchesSearch =
         !searchQuery ||
@@ -153,7 +154,7 @@ export function FilterList() {
       return [{ title: "", filters: processedFilters }];
     }
 
-    const groups: { [key: string]: VideoFilter[] } = {};
+    const groups: Record<string, VideoFilter[]> = {};
 
     processedFilters.forEach((filter) => {
       let groupKey = "";

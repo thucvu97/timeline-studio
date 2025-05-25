@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useMedia } from "@/features/browser/media";
-import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider";
+import { useProjectSettings } from "@/features/project-settings";
 
 import { TemplateListToolbar } from "./template-list-toolbar";
 import { TemplatePreview } from "./template-preview";

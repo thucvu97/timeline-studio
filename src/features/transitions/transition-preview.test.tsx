@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TransitionPreview } from "./transition-preview";
+import { TransitionPreview } from "./components/transition-preview";
 
 // Мокируем FavoriteButton и AddMediaButton
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({

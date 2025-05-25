@@ -1,9 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
+
 import { VideoEffect } from '@/types/effects';
-import { processEffects, validateEffectsData, createFallbackEffect } from '../utils/effect-processor';
-// Импортируем JSON файл напрямую - в Tauri это работает отлично
+
 import effectsData from '../../../data/effects.json';
+import { createFallbackEffect, processEffects, validateEffectsData } from '../utils/effect-processor';
+// Импортируем JSON файл напрямую - в Tauri это работает отлично
 
 interface UseEffectsReturn {
   effects: VideoEffect[];

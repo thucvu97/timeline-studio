@@ -1,0 +1,257 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-05-31",
+  "totalTransitions": 20,
+  "categories": ["basic", "advanced", "creative", "3d", "artistic", "cinematic"],
+  "transitions": [
+    {
+      "id": "zoom",
+      "type": "zoom",
+      "labels": {
+        "ru": "Зум",
+        "en": "Zoom",
+        "es": "Zoom",
+        "fr": "Zoom",
+        "de": "Zoom"
+      },
+      "description": {
+        "ru": "Плавное увеличение или уменьшение изображения",
+        "en": "Smooth zoom in or zoom out effect"
+      },
+      "category": "basic",
+      "complexity": "basic",
+      "tags": ["zoom", "scale", "smooth"],
+      "duration": { "min": 0.5, "max": 3.0, "default": 1.0 },
+      "parameters": {
+        "direction": "center",
+        "easing": "ease-in-out",
+        "intensity": 0.8
+      },
+      "ffmpegTemplate": "zoompan=z='if(lte(zoom,1.0),1.5,max(1.001,zoom-0.0015))':d={duration}*{fps}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={width}x{height}"
+    },
+    {
+      "id": "fade",
+      "type": "fade",
+      "labels": {
+        "ru": "Затухание",
+        "en": "Fade",
+        "es": "Desvanecer",
+        "fr": "Fondu",
+        "de": "Ausblenden"
+      },
+      "description": {
+        "ru": "Плавное появление и исчезновение изображения",
+        "en": "Smooth fade in and fade out effect"
+      },
+      "category": "basic",
+      "complexity": "basic",
+      "tags": ["fade", "opacity", "smooth", "classic"],
+      "duration": { "min": 0.3, "max": 2.0, "default": 0.8 },
+      "parameters": {
+        "easing": "ease-in-out",
+        "intensity": 1.0
+      },
+      "ffmpegTemplate": "fade=t=in:st=0:d={duration}"
+    },
+    {
+      "id": "slide",
+      "type": "slide",
+      "labels": {
+        "ru": "Слайд",
+        "en": "Slide",
+        "es": "Deslizar",
+        "fr": "Glisser",
+        "de": "Gleiten"
+      },
+      "description": {
+        "ru": "Скольжение изображения в заданном направлении",
+        "en": "Sliding effect in specified direction"
+      },
+      "category": "basic",
+      "complexity": "basic",
+      "tags": ["slide", "movement", "direction"],
+      "duration": { "min": 0.5, "max": 2.5, "default": 1.2 },
+      "parameters": {
+        "direction": "left",
+        "easing": "ease-out",
+        "intensity": 1.0
+      },
+      "ffmpegTemplate": "overlay=x='if(eq(mod(n,2),0),0,W-w)':y=0"
+    },
+    {
+      "id": "scale",
+      "type": "scale",
+      "labels": {
+        "ru": "Масштабирование",
+        "en": "Scale",
+        "es": "Escalar",
+        "fr": "Échelle",
+        "de": "Skalieren"
+      },
+      "description": {
+        "ru": "Изменение размера изображения с анимацией",
+        "en": "Animated scaling effect"
+      },
+      "category": "basic",
+      "complexity": "basic",
+      "tags": ["scale", "size", "transform"],
+      "duration": { "min": 0.4, "max": 2.0, "default": 1.0 },
+      "parameters": {
+        "direction": "center",
+        "easing": "ease-in-out",
+        "intensity": 0.9
+      },
+      "ffmpegTemplate": "scale=w='iw*{scale}':h='ih*{scale}'"
+    },
+    {
+      "id": "rotate",
+      "type": "rotate",
+      "labels": {
+        "ru": "Поворот",
+        "en": "Rotate",
+        "es": "Rotar",
+        "fr": "Rotation",
+        "de": "Drehen"
+      },
+      "description": {
+        "ru": "Вращение изображения вокруг центра",
+        "en": "Rotation effect around center point"
+      },
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["rotate", "spin", "transform"],
+      "duration": { "min": 0.8, "max": 3.0, "default": 1.5 },
+      "parameters": {
+        "direction": "center",
+        "easing": "ease-in-out",
+        "intensity": 0.7
+      },
+      "ffmpegTemplate": "rotate=angle='2*PI*t/{duration}':fillcolor=black"
+    },
+    {
+      "id": "flip",
+      "type": "flip",
+      "labels": {
+        "ru": "Переворот",
+        "en": "Flip",
+        "es": "Voltear",
+        "fr": "Retourner",
+        "de": "Umdrehen"
+      },
+      "description": {
+        "ru": "Переворачивание изображения по горизонтали или вертикали",
+        "en": "Flipping effect horizontally or vertically"
+      },
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["flip", "mirror", "transform"],
+      "duration": { "min": 0.6, "max": 2.0, "default": 1.0 },
+      "parameters": {
+        "direction": "left",
+        "easing": "ease-in-out",
+        "intensity": 1.0
+      },
+      "ffmpegTemplate": "hflip"
+    },
+    {
+      "id": "push",
+      "type": "push",
+      "labels": {
+        "ru": "Выталкивание",
+        "en": "Push",
+        "es": "Empujar",
+        "fr": "Pousser",
+        "de": "Schieben"
+      },
+      "description": {
+        "ru": "Выталкивание одного изображения другим",
+        "en": "One image pushes another out of frame"
+      },
+      "category": "basic",
+      "complexity": "intermediate",
+      "tags": ["push", "movement", "displacement"],
+      "duration": { "min": 0.8, "max": 2.5, "default": 1.3 },
+      "parameters": {
+        "direction": "right",
+        "easing": "ease-out",
+        "intensity": 1.0
+      },
+      "ffmpegTemplate": "overlay=x='W-w*t/{duration}':y=0"
+    },
+    {
+      "id": "squeeze",
+      "type": "squeeze",
+      "labels": {
+        "ru": "Сжатие",
+        "en": "Squeeze",
+        "es": "Apretar",
+        "fr": "Presser",
+        "de": "Quetschen"
+      },
+      "description": {
+        "ru": "Сжатие изображения с последующим расширением",
+        "en": "Squeezing effect with expansion"
+      },
+      "category": "advanced",
+      "complexity": "advanced",
+      "tags": ["squeeze", "compress", "elastic"],
+      "duration": { "min": 1.0, "max": 3.0, "default": 1.8 },
+      "parameters": {
+        "direction": "center",
+        "easing": "bounce",
+        "intensity": 0.8
+      },
+      "ffmpegTemplate": "scale=w='iw*(1-0.5*sin(2*PI*t/{duration}))':h='ih'"
+    },
+    {
+      "id": "diagonal",
+      "type": "diagonal",
+      "labels": {
+        "ru": "Диагональ",
+        "en": "Diagonal",
+        "es": "Diagonal",
+        "fr": "Diagonale",
+        "de": "Diagonal"
+      },
+      "description": {
+        "ru": "Диагональное перемещение изображения",
+        "en": "Diagonal movement transition"
+      },
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["diagonal", "angle", "movement"],
+      "duration": { "min": 0.7, "max": 2.2, "default": 1.2 },
+      "parameters": {
+        "direction": "up",
+        "easing": "ease-in-out",
+        "intensity": 0.9
+      },
+      "ffmpegTemplate": "overlay=x='W*t/{duration}':y='H*t/{duration}'"
+    },
+    {
+      "id": "spiral",
+      "type": "spiral",
+      "labels": {
+        "ru": "Спираль",
+        "en": "Spiral",
+        "es": "Espiral",
+        "fr": "Spirale",
+        "de": "Spirale"
+      },
+      "description": {
+        "ru": "Спиральное вращение с изменением масштаба",
+        "en": "Spiral rotation with scaling effect"
+      },
+      "category": "3d",
+      "complexity": "advanced",
+      "tags": ["spiral", "rotation", "3d", "complex"],
+      "duration": { "min": 1.2, "max": 4.0, "default": 2.0 },
+      "parameters": {
+        "direction": "center",
+        "easing": "ease-in-out",
+        "intensity": 0.6
+      },
+      "ffmpegTemplate": "rotate=angle='4*PI*t/{duration}':fillcolor=black,scale=w='iw*(1+0.5*t/{duration})':h='ih*(1+0.5*t/{duration})'"
+    }
+  ]
+}

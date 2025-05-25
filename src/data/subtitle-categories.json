@@ -1,0 +1,120 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-15",
+  "categories": {
+    "basic": {
+      "name": {
+        "ru": "Базовые",
+        "en": "Basic",
+        "es": "Básico",
+        "fr": "De Base",
+        "de": "Basis"
+      },
+      "description": {
+        "ru": "Простые и читаемые стили для повседневного использования",
+        "en": "Simple and readable styles for everyday use",
+        "es": "Estilos simples y legibles para uso diario",
+        "fr": "Styles simples et lisibles pour un usage quotidien",
+        "de": "Einfache und lesbare Stile für den täglichen Gebrauch"
+      },
+      "order": 1,
+      "icon": "Type",
+      "color": "#6b7280"
+    },
+    "cinematic": {
+      "name": {
+        "ru": "Кинематографические",
+        "en": "Cinematic",
+        "es": "Cinematográfico",
+        "fr": "Cinématographique",
+        "de": "Kinematografisch"
+      },
+      "description": {
+        "ru": "Профессиональные стили для фильмов и видеопроизводства",
+        "en": "Professional styles for movies and video production",
+        "es": "Estilos profesionales para películas y producción de video",
+        "fr": "Styles professionnels pour films et production vidéo",
+        "de": "Professionelle Stile für Filme und Videoproduktion"
+      },
+      "order": 2,
+      "icon": "Film",
+      "color": "#dc2626"
+    },
+    "stylized": {
+      "name": {
+        "ru": "Стилизованные",
+        "en": "Stylized",
+        "es": "Estilizado",
+        "fr": "Stylisé",
+        "de": "Stilisiert"
+      },
+      "description": {
+        "ru": "Художественные стили с уникальным дизайном и эффектами",
+        "en": "Artistic styles with unique design and effects",
+        "es": "Estilos artísticos con diseño único y efectos",
+        "fr": "Styles artistiques avec design unique et effets",
+        "de": "Künstlerische Stile mit einzigartigem Design und Effekten"
+      },
+      "order": 3,
+      "icon": "Palette",
+      "color": "#7c3aed"
+    },
+    "minimal": {
+      "name": {
+        "ru": "Минималистичные",
+        "en": "Minimal",
+        "es": "Minimalista",
+        "fr": "Minimaliste",
+        "de": "Minimal"
+      },
+      "description": {
+        "ru": "Лаконичные стили без лишних элементов",
+        "en": "Concise styles without unnecessary elements",
+        "es": "Estilos concisos sin elementos innecesarios",
+        "fr": "Styles concis sans éléments inutiles",
+        "de": "Prägnante Stile ohne unnötige Elemente"
+      },
+      "order": 4,
+      "icon": "Minus",
+      "color": "#059669"
+    },
+    "animated": {
+      "name": {
+        "ru": "Анимированные",
+        "en": "Animated",
+        "es": "Animado",
+        "fr": "Animé",
+        "de": "Animiert"
+      },
+      "description": {
+        "ru": "Динамические стили с анимацией и движением",
+        "en": "Dynamic styles with animation and movement",
+        "es": "Estilos dinámicos con animación y movimiento",
+        "fr": "Styles dynamiques avec animation et mouvement",
+        "de": "Dynamische Stile mit Animation und Bewegung"
+      },
+      "order": 5,
+      "icon": "Play",
+      "color": "#ea580c"
+    },
+    "modern": {
+      "name": {
+        "ru": "Современные",
+        "en": "Modern",
+        "es": "Moderno",
+        "fr": "Moderne",
+        "de": "Modern"
+      },
+      "description": {
+        "ru": "Актуальные стили в современном дизайне",
+        "en": "Current styles in modern design",
+        "es": "Estilos actuales en diseño moderno",
+        "fr": "Styles actuels en design moderne",
+        "de": "Aktuelle Stile im modernen Design"
+      },
+      "order": 6,
+      "icon": "Sparkles",
+      "color": "#0891b2"
+    }
+  }
+}

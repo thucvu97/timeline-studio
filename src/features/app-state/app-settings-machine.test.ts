@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
 import { FavoritesType } from "@/features/browser/media/media-machine"
-import { UserSettingsContext } from "@/features/modals/features/user-settings/user-settings-machine"
+import { UserSettingsContext } from "@/features/user-settings"
 
 import { AppSettingsContext, appSettingsMachine } from "./app-settings-machine"
 import { storeService } from "./store-service"

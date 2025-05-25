@@ -1,6 +1,6 @@
-import { SubtitleStyle } from "@/features/subtitles/subtitles";
 import { MediaTemplate } from "@/features/templates/lib/templates";
 import { MediaFile } from "@/types/media";
+import { SubtitleStyle } from "@/types/subtitles";
 import { TransitionEffect } from "@/types/transitions";
 
 import { VideoEffect } from "./effects";

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TransitionsList } from "./transition-list";
+import { TransitionList } from "./components/transition-list";
 
 // Мокируем useTranslation
 vi.mock("react-i18next", () => ({
@@ -135,7 +135,7 @@ vi.mock("./transitions", () => ({
   ],
 }));
 
-describe("TransitionsList", () => {
+describe("TransitionList", () => {
   const mockOnSelect = vi.fn();
 
   beforeEach(() => {
@@ -143,7 +143,7 @@ describe("TransitionsList", () => {
   });
 
   it("renders correctly with all elements", () => {
-    render(<TransitionsList onSelect={mockOnSelect} />);
+    render(<TransitionList onSelect={mockOnSelect} />);
 
     // Проверяем, что поле поиска отображается
     expect(screen.getByTestId("search-input")).toBeInTheDocument();
@@ -160,7 +160,7 @@ describe("TransitionsList", () => {
   });
 
   it("filters transitions by search query", () => {
-    render(<TransitionsList onSelect={mockOnSelect} />);
+    render(<TransitionList onSelect={mockOnSelect} />);
 
     // Вводим поисковый запрос
     const searchInput = screen.getByTestId("search-input");
@@ -177,7 +177,7 @@ describe("TransitionsList", () => {
   });
 
   it("toggles favorites filter", () => {
-    render(<TransitionsList onSelect={mockOnSelect} />);
+    render(<TransitionList onSelect={mockOnSelect} />);
 
     // Проверяем, что изначально отображаются все переходы
     expect(screen.getByTestId("transition-preview-fade")).toBeInTheDocument();
@@ -199,7 +199,7 @@ describe("TransitionsList", () => {
   });
 
   it("calls increaseSize when zoom in button is clicked", () => {
-    render(<TransitionsList onSelect={mockOnSelect} />);
+    render(<TransitionList onSelect={mockOnSelect} />);
 
     // Находим кнопку увеличения размера и кликаем по ней
     const zoomInButton = screen.getByTestId("zoom-in-icon").closest("button");
@@ -210,7 +210,7 @@ describe("TransitionsList", () => {
   });
 
   it("calls decreaseSize when zoom out button is clicked", () => {
-    render(<TransitionsList onSelect={mockOnSelect} />);
+    render(<TransitionList onSelect={mockOnSelect} />);
 
     // Находим кнопку уменьшения размера и кликаем по ней
     const zoomOutButton = screen.getByTestId("zoom-out-icon").closest("button");
@@ -221,7 +221,7 @@ describe("TransitionsList", () => {
   });
 
   it("calls onSelect when transition is clicked", () => {
-    render(<TransitionsList onSelect={mockOnSelect} />);
+    render(<TransitionList onSelect={mockOnSelect} />);
 
     // Находим переход и кликаем по нему
     const transitionPreview = screen.getByTestId("transition-preview-fade");
@@ -233,7 +233,7 @@ describe("TransitionsList", () => {
   });
 
   it("shows 'not found' message when no transitions match search", () => {
-    render(<TransitionsList onSelect={mockOnSelect} />);
+    render(<TransitionList onSelect={mockOnSelect} />);
 
     // Вводим поисковый запрос, который не соответствует ни одному переходу
     const searchInput = screen.getByTestId("search-input");

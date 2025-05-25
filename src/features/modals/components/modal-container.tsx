@@ -4,14 +4,13 @@ import { useTranslation } from "react-i18next"
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
-import {
-  CameraCaptureModal,
-  ExportModal,
-  KeyboardShortcutsModal,
-  ProjectSettingsModal,
-  UserSettingsModal,
-  VoiceRecordModal,
-} from "../features"
+import { CameraCaptureModal } from "@/features/camera-capture"
+import { ExportModal } from "@/features/export"
+import { KeyboardShortcutsModal } from "@/features/keyboard-shortcuts"
+import { ProjectSettingsModal } from "@/features/project-settings"
+import { UserSettingsModal } from "@/features/user-settings"
+import { VoiceRecordModal } from "@/features/voice-recording"
+
 import { ModalType, useModal } from "../services"
 
 /**
