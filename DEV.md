@@ -154,28 +154,28 @@ AppProvider = composeProviders(
 ### 📋 Полный список документации
 
 #### ✅ Полностью готовые features (13):
-1. `src/features/browser/` - browser-features.md, browser-technical.md
-2. `src/features/media/` - media-features.md, media-technical.md
-3. `src/features/video-player/` - video-player-features.md, video-player-technical.md
-4. `src/features/music/` - music-features.md, music-technical.md
-5. `src/features/effects/` - effects-features.md, effects-technical.md
-6. `src/features/filters/` - filters-features.md, filters-technical.md
-7. `src/features/transitions/` - transitions-features.md, transitions-technical.md
-8. `src/features/subtitles/` - subtitles-features.md, subtitles-technical.md
-9. `src/features/templates/` - templates-features.md, templates-technical.md
-10. `src/features/app-state/` - app-state-features.md, app-state-technical.md
-11. `src/features/modals/` - modals-features.md, modals-technical.md
-12. `src/features/top-bar/` - top-bar-features.md, top-bar-technical.md
-13. `src/features/media-studio/` - media-studio-features.md, media-studio-technical.md
+1. `src/features/browser/` - README.md, DEV.md
+2. `src/features/media/` - README.md, DEV.md
+3. `src/features/video-player/` - README.md, DEV.md
+4. `src/features/music/` - README.md, DEV.md
+5. `src/features/effects/` - README.md, DEV.md
+6. `src/features/filters/` - README.md, DEV.md
+7. `src/features/transitions/` - README.md, DEV.md
+8. `src/features/subtitles/` - README.md, DEV.md
+9. `src/features/templates/` - README.md, DEV.md
+10. `src/features/app-state/` - README.md, DEV.md
+11. `src/features/modals/` - README.md, DEV.md
+12. `src/features/top-bar/` - README.md, DEV.md
+13. `src/features/media-studio/` - README.md, DEV.md
 
 #### ⚠️ Частично готовые features (4):
-14. `src/features/timeline/` - timeline-features.md, timeline-technical.md
-15. `src/features/resources/` - resources-features.md, resources-technical.md
-16. `src/features/ai-chat/` - ai-chat-features.md
-17. `src/features/options/` - options-features.md, options-technical.md
+14. `src/features/timeline/` - README.md, DEV.md
+15. `src/features/resources/` - README.md, DEV.md
+16. `src/features/ai-chat/` - README.md
+17. `src/features/options/` - README.md, DEV.md
 
 ### 📊 Общий обзор
-- `src/features/README.md` - полный обзор всех features с приоритетами
+- `src/features/OVERVIEW.md` - полный обзор всех features с приоритетами
 
 ## 🚀 Следующие шаги разработки
 
