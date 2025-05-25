@@ -1,74 +1,204 @@
-import { useCallback, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { Star, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider";
+import { useBrowserState } from "@/components/common/browser-state-provider";
+import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
 import { useMedia } from "@/features/browser/media";
-import { cn } from "@/lib/utils";
+import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider";
+import { VideoFilter } from "@/types/filters";
 
-import { FilterPreview } from "./filter-preview";
-import { VideoFilter, filters } from "./filters";
+import { FilterGroup } from "./filter-group";
+import { useFilters } from "./hooks/use-filters";
 
 /**
  * Компонент для отображения списка доступных видеофильтров
  * Позволяет просматривать, искать и добавлять фильтры в проект
- *
- * @returns {JSX.Element} Компонент списка фильтров
  */
 export function FilterList() {
   const { t } = useTranslation(); // Хук для интернационализации
-  const [searchQuery, setSearchQuery] = useState(""); // Состояние поискового запроса
   const [, setActiveFilter] = useState<VideoFilter | null>(null); // Состояние активного фильтра
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false); // Флаг отображения только избранных фильтров
   const media = useMedia(); // Хук для работы с медиа-файлами и избранным
 
-  // Получаем параметры размера превью из хука
+  // Загружаем фильтры из JSON
+  const { filters, loading, error } = useFilters();
+
+  // Используем общий провайдер состояния браузера
+  const { currentTabSettings } = useBrowserState();
+
+  // Получаем настройки проекта для соотношения сторон
+  const { settings } = useProjectSettings();
+
+  // Извлекаем настройки для фильтров
   const {
-    previewSize, // Текущий размер превью
-    increaseSize, // Функция увеличения размера
-    decreaseSize, // Функция уменьшения размера
-    canIncreaseSize, // Флаг возможности увеличения
-    canDecreaseSize, // Флаг возможности уменьшения
-  } = usePreviewSize();
+    searchQuery,
+    showFavoritesOnly,
+    sortBy,
+    sortOrder,
+    groupBy,
+    filterType,
+    viewMode,
+    previewSizeIndex,
+  } = currentTabSettings;
+
+  // Получаем текущий размер превью из массива
+  const basePreviewSize = PREVIEW_SIZES[previewSizeIndex];
+
+  // Вычисляем размеры превью с учетом соотношения сторон проекта
+  const previewDimensions = useMemo(() => {
+    const aspectRatio = settings.aspectRatio.value;
+    const ratio = aspectRatio.width / aspectRatio.height;
+
+    let width: number;
+    let height: number;
+
+    if (ratio >= 1) {
+      // Горизонтальное или квадратное видео
+      width = basePreviewSize;
+      height = Math.round(basePreviewSize / ratio);
+    } else {
+      // Вертикальное видео
+      height = basePreviewSize;
+      width = Math.round(basePreviewSize * ratio);
+    }
+
+    return { width, height };
+  }, [basePreviewSize, settings.aspectRatio]);
+
+
 
   /**
-   * Обработчик переключения режима отображения избранных фильтров
+   * Фильтрация, сортировка и группировка фильтров
    */
-  const handleToggleFavorites = useCallback(() => {
-    setShowFavoritesOnly((prev) => !prev);
-  }, []);
+  const processedFilters = useMemo(() => {
+    // 1. Фильтрация
+    let filtered = filters.filter((filter) => {
+      // Фильтрация по поисковому запросу
+      const matchesSearch =
+        !searchQuery ||
+        filter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (filter.labels?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (filter.labels?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (filter.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (filter.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (filter.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      // Фильтрация по избранному
+      const matchesFavorites =
+        !showFavoritesOnly ||
+        media.isItemFavorite(
+          { id: filter.id, path: "", name: filter.name },
+          "filter",
+        );
+
+      // Фильтрация по типу (сложность или категория)
+      const matchesFilter = (() => {
+        if (filterType === "all") return true;
+
+        // Фильтрация по сложности
+        if (["basic", "intermediate", "advanced"].includes(filterType)) {
+          return (filter.complexity || "basic") === filterType;
+        }
+
+        // Фильтрация по категории
+        if (["color-correction", "creative", "cinematic", "vintage", "technical", "artistic"].includes(filterType)) {
+          return filter.category === filterType;
+        }
+
+        return true;
+      })();
+
+      return matchesSearch && matchesFavorites && matchesFilter;
+    });
+
+    // 2. Сортировка
+    filtered.sort((a, b) => {
+      let result = 0;
+
+      switch (sortBy) {
+        case "name":
+          const nameA = a.name.toLowerCase();
+          const nameB = b.name.toLowerCase();
+          result = nameA.localeCompare(nameB);
+          break;
+
+        case "complexity":
+          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 };
+          const complexityA = complexityOrder[a.complexity || "basic"];
+          const complexityB = complexityOrder[b.complexity || "basic"];
+          result = complexityA - complexityB;
+          break;
+
+        case "category":
+          const categoryA = (a.category || "").toLowerCase();
+          const categoryB = (b.category || "").toLowerCase();
+          result = categoryA.localeCompare(categoryB);
+          break;
+
+        default:
+          result = 0;
+      }
+
+      return sortOrder === "asc" ? result : -result;
+    });
+
+    return filtered;
+  }, [filters, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media]);
 
   /**
-   * Фильтрация списка фильтров по поисковому запросу и избранному
+   * Группировка фильтров по выбранному критерию
    */
-  const filteredFilters = filters.filter((filter) => {
-    // Фильтрация по поисковому запросу
-    const searchLower = searchQuery.toLowerCase();
-    const localizedName = t(`filters.presets.${filter.id}`).toLowerCase();
-    const matchesSearch =
-      localizedName.includes(searchLower) ||
-      filter.name.toLowerCase().includes(searchLower);
+  const groupedFilters = useMemo(() => {
+    if (groupBy === "none") {
+      return [{ title: "", filters: processedFilters }];
+    }
 
-    // Фильтрация по избранному
-    const matchesFavorites =
-      !showFavoritesOnly ||
-      media.isItemFavorite(
-        { id: filter.id, path: "", name: filter.name },
-        "filter",
-      );
+    const groups: { [key: string]: VideoFilter[] } = {};
 
-    // Фильтр должен соответствовать обоим условиям
-    return matchesSearch && matchesFavorites;
-  });
+    processedFilters.forEach((filter) => {
+      let groupKey = "";
+
+      switch (groupBy) {
+        case "category":
+          groupKey = filter.category || "other";
+          break;
+        case "complexity":
+          groupKey = filter.complexity || "basic";
+          break;
+        case "tags":
+          groupKey = (filter.tags && filter.tags.length > 0) ? filter.tags[0] : "untagged";
+          break;
+        default:
+          groupKey = "ungrouped";
+      }
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(filter);
+    });
+
+    // Преобразуем в массив групп с переводами заголовков
+    return Object.entries(groups).map(([key, filters]) => {
+      let title = "";
+
+      switch (groupBy) {
+        case "category":
+          title = t(`filters.categories.${key}`, key);
+          break;
+        case "complexity":
+          title = t(`filters.complexity.${key}`, key);
+          break;
+        case "tags":
+          title = key === "untagged" ? t("filters.filters.allTags", "Без тегов") : key;
+          break;
+        default:
+          title = key;
+      }
+
+      return { title, filters };
+    }).sort((a, b) => a.title.localeCompare(b.title));
+  }, [processedFilters, groupBy, t]);
 
   /**
    * Обработчик клика по фильтру
@@ -81,108 +211,51 @@ export function FilterList() {
     console.log("Applying filter:", filter.name, filter.params); // Отладочный вывод
   };
 
-  return (
-    <div className="flex h-full flex-1 flex-col bg-background">
-      {/* Панель инструментов с поиском и кнопками */}
-      <div className="flex items-center justify-between p-1 dark:bg-[#252526]">
-        {/* Поле поиска фильтров */}
-        <Input
-          type="search"
-          placeholder={t("common.search")}
-          className="mr-5 h-7 w-full max-w-[400px] rounded-sm border border-gray-300 text-xs outline-none focus:border-gray-400 focus:ring-0 focus-visible:ring-0 dark:border-gray-600 dark:focus:border-gray-500"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        {/* Контейнер для кнопок управления */}
-        <div className="flex items-center gap-1">
-          {/* Кнопки изменения размера и избранного */}
-          <TooltipProvider>
-            <div className="mr-2 flex overflow-hidden rounded-md">
-              {/* Кнопка переключения режима избранного */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "mr-0 ml-1 h-6 w-6 cursor-pointer",
-                      showFavoritesOnly ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
-                    )}
-                    onClick={handleToggleFavorites}
-                  >
-                    <Star
-                      size={16}
-                      className={showFavoritesOnly ? "fill-current" : ""}
-                    />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t("browser.media.favorites")}</TooltipContent>
-              </Tooltip>
-
-              {/* Кнопка уменьшения размера превью */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "mr-1 ml-2 h-6 w-6 cursor-pointer",
-                      !canDecreaseSize && "cursor-not-allowed opacity-50",
-                    )}
-                    onClick={decreaseSize}
-                    disabled={!canDecreaseSize}
-                  >
-                    <ZoomOut size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t("browser.toolbar.zoomOut")}</TooltipContent>
-              </Tooltip>
-
-              {/* Кнопка увеличения размера превью */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "mr-1 h-6 w-6 cursor-pointer",
-                      !canIncreaseSize && "cursor-not-allowed opacity-50",
-                    )}
-                    onClick={increaseSize}
-                    disabled={!canIncreaseSize}
-                  >
-                    <ZoomIn size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t("browser.toolbar.zoomIn")}</TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
+  // Показываем состояние загрузки
+  if (loading) {
+    return (
+      <div className="flex h-full flex-1 flex-col bg-background">
+        <div className="flex h-full items-center justify-center text-gray-500">
+          {t("common.loading", "Загрузка...")}
         </div>
       </div>
+    );
+  }
 
+  // Показываем ошибку загрузки
+  if (error) {
+    return (
+      <div className="flex h-full flex-1 flex-col bg-background">
+        <div className="flex h-full items-center justify-center text-red-500">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-1 flex-col bg-background">
       {/* Контейнер для списка фильтров с прокруткой */}
       <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3">
-        {filteredFilters.length === 0 ? (
+        {processedFilters.length === 0 ? (
           // Отображаем сообщение, если фильтры не найдены
           <div className="flex h-full items-center justify-center text-gray-500">
-            {t("browser.tabs.filters")} {t("common.notFound")}
+            {showFavoritesOnly
+              ? t("browser.media.noFavorites")
+              : t("common.noResults")}
           </div>
         ) : (
-          // Отображаем сетку с превью фильтров
-          <div
-            className="grid grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))] gap-2"
-            style={
-              { "--preview-size": `${previewSize}px` } as React.CSSProperties
-            }
-          >
-            {/* Отображаем компоненты превью для каждого фильтра */}
-            {filteredFilters.map((filter) => (
-              <FilterPreview
-                key={filter.id}
-                filter={filter}
-                onClick={() => handleFilterClick(filter)}
-                size={previewSize}
+          // Отображаем сгруппированные фильтры
+          <div className="space-y-4">
+            {groupedFilters.map((group) => (
+              <FilterGroup
+                key={group.title || "ungrouped"}
+                title={group.title}
+                filters={group.filters}
+                previewSize={basePreviewSize}
+                previewWidth={previewDimensions.width}
+                previewHeight={previewDimensions.height}
+                onFilterClick={handleFilterClick}
               />
             ))}
           </div>

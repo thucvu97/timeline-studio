@@ -9,54 +9,35 @@ import { MediaFile } from "@/types/media";
 import { TransitionResource } from "@/types/resources";
 import { transitions as transitionEffects } from "@/types/transitions";
 
-import { transitions } from "./transitions";
+import { Transition, transitions } from "./transitions";
 
 /**
  * Интерфейс пропсов для компонента TransitionPreview
- * @interface TransitionPreviewProps
- * @property {MediaFile} sourceVideo - Исходное видео для перехода
- * @property {MediaFile} targetVideo - Целевое видео для перехода
- * @property {string} transitionType - Тип перехода (zoom, fade, slide и т.д.)
- * @property {Function} onClick - Функция обработки клика по превью
- * @property {number} size - Размер превью в пикселях
  */
 interface TransitionPreviewProps {
+  transition?: Transition;
   sourceVideo: MediaFile;
   targetVideo: MediaFile;
-  transitionType:
-    | "zoom"
-    | "fade"
-    | "slide"
-    | "scale"
-    | "rotate"
-    | "flip"
-    | "push"
-    | "squeeze"
-    | "diagonal"
-    | "spiral"
-    | "fold"
-    | "wave"
-    | "shutter"
-    | "bounce"
-    | "swirl"
-    | "dissolve";
+  transitionType: string;
   onClick: () => void;
   size: number;
+  previewWidth?: number;
+  previewHeight?: number;
 }
 
 /**
  * Компонент для отображения превью перехода между видео
  * Показывает анимированный переход между двумя видео и позволяет добавить переход в проект
- *
- * @param {TransitionPreviewProps} props - Пропсы компонента
- * @returns {JSX.Element} Компонент превью перехода
  */
 export function TransitionPreview({
+  transition,
   sourceVideo,
   targetVideo,
   transitionType,
   onClick,
   size,
+  previewWidth,
+  previewHeight,
 }: TransitionPreviewProps) {
   const { t } = useTranslation(); // Хук для интернационализации
   const {
@@ -75,23 +56,67 @@ export function TransitionPreview({
   const transitionTimeoutRef = useRef<NodeJS.Timeout>(null); // Таймер для запуска перехода
   const loopTimeoutRef = useRef<NodeJS.Timeout>(null); // Таймер для зацикливания демонстрации
 
+  // Получаем переход из пропсов или находим по типу
+  const currentTransition = transition || transitions.find(
+    (t) => t.id === transitionType || t.type === transitionType,
+  );
+
   // Находим переход по типу из списка доступных переходов
-  const transition = transitionEffects.find(
+  const transitionEffect = transitionEffects.find(
     (t) => t.id === transitionType || t.type === transitionType,
   );
 
   // Создаем объект перехода с правильным id, если его нет в transitionEffects
-  const transitionObj = transition ?? {
+  const transitionObj = transitionEffect ?? {
     id: transitionType,
     type: transitionType as any,
-    name:
-      transitions.find((t) => t.type === transitionType)?.labels.ru ??
-      transitionType,
-    duration: 1.5,
+    name: currentTransition?.labels.ru ?? transitionType,
+    duration: currentTransition?.duration?.default ?? 1.5,
     ffmpegCommand: () => "",
     params: {},
     previewPath: "",
   };
+
+  // Вычисляем размеры превью
+  const actualWidth = previewWidth || size;
+  const actualHeight = previewHeight || size;
+
+  // Функция для получения индикатора сложности
+  const getComplexityIndicator = (complexity: string) => {
+    switch (complexity) {
+      case "basic":
+        return { color: "bg-green-500", label: "BSC" };
+      case "intermediate":
+        return { color: "bg-yellow-500", label: "INT" };
+      case "advanced":
+        return { color: "bg-red-500", label: "ADV" };
+      default:
+        return { color: "bg-gray-500", label: "UNK" };
+    }
+  };
+
+  // Функция для получения индикатора категории
+  const getCategoryIndicator = (category: string) => {
+    switch (category) {
+      case "basic":
+        return "BSC";
+      case "advanced":
+        return "ADV";
+      case "creative":
+        return "CRE";
+      case "3d":
+        return "3D";
+      case "artistic":
+        return "ART";
+      case "cinematic":
+        return "CIN";
+      default:
+        return "UNK";
+    }
+  };
+
+  const complexityIndicator = getComplexityIndicator(currentTransition?.complexity || "basic");
+  const categoryIndicator = getCategoryIndicator(currentTransition?.category || "basic");
 
   // Проверяем, добавлен ли переход уже в хранилище ресурсов
   const isAdded = isTransitionAdded(transitionObj);
@@ -271,8 +296,7 @@ export function TransitionPreview({
   }, [isHovering, transitionType, isError, resetVideos]);
 
   /**
-   * Эффект для управления воспроизведением видео и обработки ошибок
-   * Запускает переход при наведении и останавливает при уходе курсора
+   * Эффект для инициализации видео и обработки ошибок
    */
   useEffect(() => {
     if (!sourceVideoRef.current || !targetVideoRef.current) return;
@@ -287,19 +311,9 @@ export function TransitionPreview({
     sourceVideo.addEventListener("error", handleError);
     targetVideo.addEventListener("error", handleError);
 
-    if (isHovering) {
-      // Если курсор наведен - запускаем переход
-      startTransition();
-    } else {
-      // Если курсор не наведен - останавливаем видео и сбрасываем стили
-      resetVideos();
-      sourceVideo.pause();
-      targetVideo.pause();
-      // Очищаем таймеры
-      if (transitionTimeoutRef.current)
-        clearTimeout(transitionTimeoutRef.current);
-      if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current);
-    }
+    // Запускаем исходное видео сразу для показа превью
+    resetVideos();
+    void sourceVideo.play();
 
     // Функция очистки при размонтировании компонента
     return () => {
@@ -311,6 +325,26 @@ export function TransitionPreview({
         clearTimeout(transitionTimeoutRef.current);
       if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current);
     };
+  }, [resetVideos]);
+
+  /**
+   * Эффект для управления переходами при наведении
+   */
+  useEffect(() => {
+    if (isHovering) {
+      // Если курсор наведен - запускаем переход
+      startTransition();
+    } else {
+      // Если курсор не наведен - сбрасываем к исходному состоянию
+      resetVideos();
+      if (sourceVideoRef.current) {
+        void sourceVideoRef.current.play();
+      }
+      // Очищаем таймеры
+      if (transitionTimeoutRef.current)
+        clearTimeout(transitionTimeoutRef.current);
+      if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current);
+    }
   }, [isHovering, startTransition, resetVideos]);
 
   return (
@@ -318,12 +352,47 @@ export function TransitionPreview({
       <div className="group relative">
         {/* Контейнер превью перехода */}
         <div
-          className="flex cursor-pointer overflow-hidden rounded-xs bg-[#1a1a1a]"
-          style={{ width: `${size}px`, height: `${size}px` }}
+          className="flex cursor-pointer overflow-hidden rounded-xs bg-[#1a1a1a] relative"
+          style={{ width: `${actualWidth}px`, height: `${actualHeight}px` }}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           onClick={onClick}
         >
+          {/* Индикаторы сложности и категории */}
+          {currentTransition && (
+            <>
+              {/* Индикатор сложности */}
+              <div className="absolute top-1 left-1 z-10">
+                <div
+                  className={`${complexityIndicator.color} rounded-full w-3 h-3 flex items-center justify-center`}
+                  title={t(`transitions.complexity.${currentTransition.complexity}`, currentTransition.complexity)}
+                >
+                  <span className="text-[8px] font-bold text-white">
+                    {complexityIndicator.label[0]}
+                  </span>
+                </div>
+              </div>
+
+              {/* Индикатор категории */}
+              <div className="absolute top-1 right-1 z-10">
+                <div
+                  className="bg-gray-700 text-white rounded px-1 py-0.5 text-[8px] font-medium"
+                  title={t(`transitions.categories.${currentTransition.category}`, currentTransition.category)}
+                >
+                  {categoryIndicator}
+                </div>
+              </div>
+
+              {/* Индикатор длительности */}
+              {currentTransition.duration && (
+                <div className="absolute bottom-1 left-1 z-10">
+                  <div className="bg-black bg-opacity-60 text-white rounded px-1 py-0.5 text-[8px]">
+                    {currentTransition.duration.default.toFixed(1)}s
+                  </div>
+                </div>
+              )}
+            </>
+          )}
           {isError ? (
             // Отображаем сообщение об ошибке, если видео не загрузилось
             <div className="flex h-full items-center justify-center text-white">
@@ -338,6 +407,7 @@ export function TransitionPreview({
                 src={sourceVideo.path}
                 className="h-full w-full origin-center object-cover transition-all duration-1000"
                 muted
+                loop
                 playsInline
                 preload="auto"
                 onError={() => setIsError(true)}
@@ -349,6 +419,7 @@ export function TransitionPreview({
                 src={targetVideo.path}
                 className="absolute inset-0 h-full w-full origin-center object-cover opacity-0 transition-all duration-1000"
                 muted
+                loop
                 playsInline
                 preload="auto"
                 onError={() => setIsError(true)}
@@ -400,9 +471,8 @@ export function TransitionPreview({
         </div>
       </div>
       {/* Название перехода */}
-      <div className="mt-1 text-xs">
-        {t(`transitions.types.${transitionType}`)}{" "}
-        {/* Локализованное название перехода */}
+      <div className="mt-1 text-xs text-center max-w-[120px] truncate">
+        {currentTransition?.labels?.ru || t(`transitions.types.${transitionType}`, transitionType)}
       </div>
     </div>
   );

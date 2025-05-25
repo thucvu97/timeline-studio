@@ -1,0 +1,408 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-15",
+  "totalFilters": 15,
+  "categories": ["color-correction", "creative", "cinematic", "vintage", "technical", "artistic"],
+  "filters": [
+    {
+      "id": "s-log",
+      "name": "S-Log",
+      "category": "technical",
+      "complexity": "advanced",
+      "tags": ["log", "sony", "professional"],
+      "description": {
+        "ru": "Логарифмический профиль Sony для расширенного динамического диапазона",
+        "en": "Sony logarithmic profile for extended dynamic range"
+      },
+      "labels": {
+        "ru": "S-Log",
+        "en": "S-Log",
+        "es": "S-Log",
+        "fr": "S-Log",
+        "de": "S-Log"
+      },
+      "params": {
+        "brightness": 0.1,
+        "contrast": 0.8,
+        "saturation": 0.9,
+        "gamma": 1.2,
+        "shadows": 0.1,
+        "highlights": -0.1
+      }
+    },
+    {
+      "id": "d-log",
+      "name": "D-Log",
+      "category": "technical",
+      "complexity": "advanced",
+      "tags": ["log", "dji", "professional"],
+      "description": {
+        "ru": "Логарифмический профиль DJI для дронов и камер",
+        "en": "DJI logarithmic profile for drones and cameras"
+      },
+      "labels": {
+        "ru": "D-Log",
+        "en": "D-Log",
+        "es": "D-Log",
+        "fr": "D-Log",
+        "de": "D-Log"
+      },
+      "params": {
+        "brightness": 0.05,
+        "contrast": 0.85,
+        "saturation": 0.95,
+        "gamma": 1.1,
+        "shadows": 0.05,
+        "highlights": -0.05
+      }
+    },
+    {
+      "id": "v-log",
+      "name": "V-Log",
+      "category": "technical",
+      "complexity": "advanced",
+      "tags": ["log", "panasonic", "professional"],
+      "description": {
+        "ru": "Логарифмический профиль Panasonic для профессиональной съемки",
+        "en": "Panasonic logarithmic profile for professional filming"
+      },
+      "labels": {
+        "ru": "V-Log",
+        "en": "V-Log",
+        "es": "V-Log",
+        "fr": "V-Log",
+        "de": "V-Log"
+      },
+      "params": {
+        "brightness": 0.15,
+        "contrast": 0.75,
+        "saturation": 0.85,
+        "gamma": 1.3,
+        "shadows": 0.15,
+        "highlights": -0.15
+      }
+    },
+    {
+      "id": "hlg",
+      "name": "HLG",
+      "category": "technical",
+      "complexity": "intermediate",
+      "tags": ["hdr", "broadcast", "professional"],
+      "description": {
+        "ru": "Hybrid Log-Gamma для HDR контента",
+        "en": "Hybrid Log-Gamma for HDR content"
+      },
+      "labels": {
+        "ru": "HLG",
+        "en": "HLG",
+        "es": "HLG",
+        "fr": "HLG",
+        "de": "HLG"
+      },
+      "params": {
+        "brightness": 0.2,
+        "contrast": 0.9,
+        "saturation": 1.1,
+        "gamma": 1.4,
+        "shadows": 0.1,
+        "highlights": -0.1
+      }
+    },
+    {
+      "id": "rec709",
+      "name": "Rec.709",
+      "category": "color-correction",
+      "complexity": "basic",
+      "tags": ["standard", "broadcast", "hd"],
+      "description": {
+        "ru": "Стандартное цветовое пространство для HD видео",
+        "en": "Standard color space for HD video"
+      },
+      "labels": {
+        "ru": "Rec.709",
+        "en": "Rec.709",
+        "es": "Rec.709",
+        "fr": "Rec.709",
+        "de": "Rec.709"
+      },
+      "params": {
+        "brightness": 0,
+        "contrast": 1,
+        "saturation": 1,
+        "gamma": 1
+      }
+    },
+    {
+      "id": "rec2020",
+      "name": "Rec.2020",
+      "category": "color-correction",
+      "complexity": "intermediate",
+      "tags": ["uhd", "4k", "wide-gamut"],
+      "description": {
+        "ru": "Расширенное цветовое пространство для UHD/4K",
+        "en": "Wide color gamut for UHD/4K content"
+      },
+      "labels": {
+        "ru": "Rec.2020",
+        "en": "Rec.2020",
+        "es": "Rec.2020",
+        "fr": "Rec.2020",
+        "de": "Rec.2020"
+      },
+      "params": {
+        "brightness": 0.1,
+        "contrast": 1.1,
+        "saturation": 1.2,
+        "gamma": 1.1
+      }
+    },
+    {
+      "id": "cinestyle",
+      "name": "CineStyle",
+      "category": "cinematic",
+      "complexity": "intermediate",
+      "tags": ["cinematic", "flat", "grading"],
+      "description": {
+        "ru": "Плоский профиль для кинематографической цветокоррекции",
+        "en": "Flat profile for cinematic color grading"
+      },
+      "labels": {
+        "ru": "CineStyle",
+        "en": "CineStyle",
+        "es": "CineStyle",
+        "fr": "CineStyle",
+        "de": "CineStyle"
+      },
+      "params": {
+        "brightness": 0.05,
+        "contrast": 0.9,
+        "saturation": 0.8,
+        "gamma": 1.15,
+        "shadows": 0.05,
+        "highlights": -0.05
+      }
+    },
+    {
+      "id": "flat",
+      "name": "Flat",
+      "category": "color-correction",
+      "complexity": "basic",
+      "tags": ["flat", "neutral", "grading"],
+      "description": {
+        "ru": "Нейтральный плоский профиль для последующей обработки",
+        "en": "Neutral flat profile for post-processing"
+      },
+      "labels": {
+        "ru": "Плоский",
+        "en": "Flat",
+        "es": "Plano",
+        "fr": "Plat",
+        "de": "Flach"
+      },
+      "params": {
+        "brightness": 0,
+        "contrast": 0.7,
+        "saturation": 0.7,
+        "gamma": 1
+      }
+    },
+    {
+      "id": "neutral",
+      "name": "Neutral",
+      "category": "color-correction",
+      "complexity": "basic",
+      "tags": ["neutral", "standard", "basic"],
+      "description": {
+        "ru": "Нейтральные настройки без изменений",
+        "en": "Neutral settings with no changes"
+      },
+      "labels": {
+        "ru": "Нейтральный",
+        "en": "Neutral",
+        "es": "Neutral",
+        "fr": "Neutre",
+        "de": "Neutral"
+      },
+      "params": {
+        "brightness": 0,
+        "contrast": 1,
+        "saturation": 1,
+        "gamma": 1
+      }
+    },
+    {
+      "id": "portrait",
+      "name": "Portrait",
+      "category": "artistic",
+      "complexity": "basic",
+      "tags": ["portrait", "skin", "soft"],
+      "description": {
+        "ru": "Оптимизирован для портретной съемки с мягкими тонами кожи",
+        "en": "Optimized for portrait photography with soft skin tones"
+      },
+      "labels": {
+        "ru": "Портрет",
+        "en": "Portrait",
+        "es": "Retrato",
+        "fr": "Portrait",
+        "de": "Porträt"
+      },
+      "params": {
+        "brightness": 0.1,
+        "contrast": 1.1,
+        "saturation": 0.9,
+        "gamma": 1.05,
+        "temperature": 10,
+        "tint": 5,
+        "clarity": -0.2,
+        "vibrance": 0.1
+      }
+    },
+    {
+      "id": "landscape",
+      "name": "Landscape",
+      "category": "artistic",
+      "complexity": "basic",
+      "tags": ["landscape", "nature", "vibrant"],
+      "description": {
+        "ru": "Усиливает природные цвета и детали пейзажей",
+        "en": "Enhances natural colors and landscape details"
+      },
+      "labels": {
+        "ru": "Пейзаж",
+        "en": "Landscape",
+        "es": "Paisaje",
+        "fr": "Paysage",
+        "de": "Landschaft"
+      },
+      "params": {
+        "brightness": 0.05,
+        "contrast": 1.2,
+        "saturation": 1.3,
+        "gamma": 1.1,
+        "temperature": -5,
+        "tint": -2,
+        "clarity": 0.3,
+        "vibrance": 0.2,
+        "dehaze": 0.1
+      }
+    },
+    {
+      "id": "vintage-film",
+      "name": "Vintage Film",
+      "category": "vintage",
+      "complexity": "intermediate",
+      "tags": ["vintage", "film", "warm", "retro"],
+      "description": {
+        "ru": "Имитация старой пленочной фотографии с теплыми тонами",
+        "en": "Emulates old film photography with warm tones"
+      },
+      "labels": {
+        "ru": "Винтажная пленка",
+        "en": "Vintage Film",
+        "es": "Película Vintage",
+        "fr": "Film Vintage",
+        "de": "Vintage Film"
+      },
+      "params": {
+        "brightness": -0.1,
+        "contrast": 0.9,
+        "saturation": 0.8,
+        "gamma": 1.1,
+        "temperature": 15,
+        "tint": 8,
+        "vignette": 0.3,
+        "grain": 0.2,
+        "highlights": -0.2,
+        "shadows": 0.1
+      }
+    },
+    {
+      "id": "warm-sunset",
+      "name": "Warm Sunset",
+      "category": "creative",
+      "complexity": "basic",
+      "tags": ["warm", "sunset", "golden", "romantic"],
+      "description": {
+        "ru": "Теплые золотистые тона заката",
+        "en": "Warm golden sunset tones"
+      },
+      "labels": {
+        "ru": "Теплый закат",
+        "en": "Warm Sunset",
+        "es": "Atardecer Cálido",
+        "fr": "Coucher de Soleil Chaud",
+        "de": "Warmer Sonnenuntergang"
+      },
+      "params": {
+        "brightness": 0.1,
+        "contrast": 1.1,
+        "saturation": 1.2,
+        "gamma": 1.05,
+        "temperature": 25,
+        "tint": 10,
+        "hue": 10,
+        "vibrance": 0.2,
+        "highlights": -0.1
+      }
+    },
+    {
+      "id": "cold-blue",
+      "name": "Cold Blue",
+      "category": "creative",
+      "complexity": "basic",
+      "tags": ["cold", "blue", "winter", "cool"],
+      "description": {
+        "ru": "Холодная цветовая схема с синими тонами",
+        "en": "Cool color scheme with blue tones"
+      },
+      "labels": {
+        "ru": "Холодный синий",
+        "en": "Cold Blue",
+        "es": "Azul Frío",
+        "fr": "Bleu Froid",
+        "de": "Kaltes Blau"
+      },
+      "params": {
+        "brightness": -0.05,
+        "contrast": 1.1,
+        "saturation": 0.9,
+        "gamma": 1.0,
+        "temperature": -20,
+        "tint": -10,
+        "hue": -15,
+        "vibrance": 0.1,
+        "shadows": 0.1
+      }
+    },
+    {
+      "id": "dramatic-contrast",
+      "name": "Dramatic Contrast",
+      "category": "cinematic",
+      "complexity": "intermediate",
+      "tags": ["dramatic", "contrast", "cinematic", "bold"],
+      "description": {
+        "ru": "Драматический контраст для кинематографического эффекта",
+        "en": "Dramatic contrast for cinematic effect"
+      },
+      "labels": {
+        "ru": "Драматический контраст",
+        "en": "Dramatic Contrast",
+        "es": "Contraste Dramático",
+        "fr": "Contraste Dramatique",
+        "de": "Dramatischer Kontrast"
+      },
+      "params": {
+        "brightness": 0.05,
+        "contrast": 1.4,
+        "saturation": 1.1,
+        "gamma": 0.9,
+        "shadows": -0.2,
+        "highlights": 0.1,
+        "blacks": -0.1,
+        "whites": 0.1,
+        "clarity": 0.3
+      }
+    }
+  ]
+}

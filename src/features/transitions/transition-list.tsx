@@ -1,31 +1,19 @@
-import { useCallback, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { Star, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { usePreviewSize } from "@/features/browser/components/preview/preview-size-provider";
+import { useBrowserState } from "@/components/common/browser-state-provider";
+import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
 import { useMedia } from "@/features/browser/media";
-import { cn } from "@/lib/utils";
+import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider";
 import { MediaFile } from "@/types/media";
 
-import { TransitionPreview } from "./transition-preview";
-import { transitions } from "./transitions";
+import { TransitionGroup } from "./transition-group";
+import { Transition, transitions } from "./transitions";
 
 /**
  * Компонент для отображения списка доступных переходов между видео
  * Позволяет просматривать, фильтровать и выбирать переходы для применения в проекте
- *
- * @param {Object} props - Пропсы компонента
- * @param {Function} [props.onSelect] - Функция обратного вызова при выборе перехода
- * @returns {JSX.Element} Компонент списка переходов
  */
 export function TransitionsList({
   onSelect,
@@ -33,178 +21,239 @@ export function TransitionsList({
   onSelect?: (id: string) => void;
 }) {
   const { t } = useTranslation(); // Хук для интернационализации
-  const [searchQuery, setSearchQuery] = useState(""); // Поисковый запрос
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false); // Флаг отображения только избранных
+  const [, setActiveTransition] = useState<Transition | null>(null); // Состояние активного перехода
   const media = useMedia(); // Доступ к контексту медиа
 
-  /**
-   * Получаем параметры размера превью из хука usePreviewSize
-   * Используется для управления размером отображаемых превью переходов
-   */
-  const {
-    previewSize, // Текущий размер превью
-    increaseSize, // Функция увеличения размера
-    decreaseSize, // Функция уменьшения размера
-    canIncreaseSize, // Флаг возможности увеличения
-    canDecreaseSize, // Флаг возможности уменьшения
-  } = usePreviewSize();
+  // Используем общий провайдер состояния браузера
+  const { currentTabSettings } = useBrowserState();
 
-  /**
-   * Обработчик переключения режима отображения избранных переходов
-   */
-  const handleToggleFavorites = useCallback(() => {
-    setShowFavoritesOnly((prev) => !prev); // Инвертируем текущее значение
-  }, []);
+  // Получаем настройки проекта для соотношения сторон
+  const { settings } = useProjectSettings();
+
+  // Извлекаем настройки для переходов
+  const {
+    searchQuery,
+    showFavoritesOnly,
+    sortBy,
+    sortOrder,
+    groupBy,
+    filterType,
+    previewSizeIndex,
+  } = currentTabSettings;
+
+  // Получаем текущий размер превью из массива
+  const basePreviewSize = PREVIEW_SIZES[previewSizeIndex];
+
+  // Вычисляем размеры превью с учетом соотношения сторон проекта
+  const previewDimensions = useMemo(() => {
+    const aspectRatio = settings.aspectRatio.value;
+    const ratio = aspectRatio.width / aspectRatio.height;
+
+    let width: number;
+    let height: number;
+
+    if (ratio >= 1) {
+      // Горизонтальное или квадратное видео
+      width = basePreviewSize;
+      height = Math.round(basePreviewSize / ratio);
+    } else {
+      // Вертикальное видео
+      height = basePreviewSize;
+      width = Math.round(basePreviewSize * ratio);
+    }
+
+    return { width, height };
+  }, [basePreviewSize, settings.aspectRatio]);
 
   /**
    * Демонстрационные видео для превью переходов
    * Используются для визуализации эффекта перехода
+   * В Tauri используем относительные пути к файлам в bundle
    */
   const demoVideos = {
-    source: { path: "t1.mp4" } as MediaFile, // Исходное видео
-    target: { path: "t2.mp4" } as MediaFile, // Целевое видео
+    source: { path: "./t1.mp4" } as MediaFile, // Исходное видео
+    target: { path: "./t2.mp4" } as MediaFile, // Целевое видео
   };
 
   /**
-   * Фильтрация переходов по поисковому запросу и избранному
-   * Возвращает переходы, соответствующие критериям поиска и фильтрации
+   * Обработчик клика по переходу
    */
-  const filteredTransitions = transitions.filter((transition) => {
-    // Фильтрация по поисковому запросу
-    const searchLower = searchQuery.toLowerCase(); // Приводим запрос к нижнему регистру
+  const handleTransitionClick = (transition: Transition) => {
+    setActiveTransition(transition);
+    onSelect?.(transition.id);
+  };
 
-    // Получаем локализованное название перехода
-    const localizedName = t(
-      `transitions.types.${transition.type}`,
-    ).toLowerCase();
+  /**
+   * Фильтрация, сортировка и группировка переходов
+   */
+  const processedTransitions = useMemo(() => {
+    // 1. Фильтрация
+    let filtered = transitions.filter((transition) => {
+      // Фильтрация по поисковому запросу
+      const matchesSearch =
+        !searchQuery ||
+        transition.labels?.ru?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        transition.labels?.en?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (transition.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (transition.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (transition.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    // Проверяем, соответствует ли переход поисковому запросу
-    // Ищем совпадения в локализованном названии или ID перехода
-    const matchesSearch =
-      localizedName.includes(searchLower) ||
-      transition.id.toLowerCase().includes(searchLower);
+      // Фильтрация по избранному
+      const matchesFavorites =
+        !showFavoritesOnly ||
+        media.isItemFavorite(
+          { id: transition.id, path: "", name: transition.id },
+          "transition",
+        );
 
-    // Фильтрация по избранному
-    const matchesFavorites =
-      !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
-      media.isItemFavorite(
-        { id: transition.id, path: "", name: transition.id },
-        "transition",
-      );
+      // Фильтрация по типу (сложность или категория)
+      const matchesFilter = (() => {
+        if (filterType === "all") return true;
 
-    // Переход должен соответствовать обоим условиям
-    return matchesSearch && matchesFavorites;
-  });
+        // Фильтрация по сложности
+        if (["basic", "intermediate", "advanced"].includes(filterType)) {
+          return (transition.complexity || "basic") === filterType;
+        }
+
+        // Фильтрация по категории
+        if (["basic", "advanced", "creative", "3d", "artistic", "cinematic"].includes(filterType)) {
+          return transition.category === filterType;
+        }
+
+        return true;
+      })();
+
+      return matchesSearch && matchesFavorites && matchesFilter;
+    });
+
+    // 2. Сортировка
+    filtered.sort((a, b) => {
+      let result = 0;
+
+      switch (sortBy) {
+        case "name":
+          const nameA = (a.labels?.ru || a.id).toLowerCase();
+          const nameB = (b.labels?.ru || b.id).toLowerCase();
+          result = nameA.localeCompare(nameB);
+          break;
+
+        case "complexity":
+          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 };
+          const complexityA = complexityOrder[a.complexity || "basic"];
+          const complexityB = complexityOrder[b.complexity || "basic"];
+          result = complexityA - complexityB;
+          break;
+
+        case "category":
+          const categoryA = (a.category || "").toLowerCase();
+          const categoryB = (b.category || "").toLowerCase();
+          result = categoryA.localeCompare(categoryB);
+          break;
+
+        case "duration":
+          const durationA = a.duration?.default || 1.0;
+          const durationB = b.duration?.default || 1.0;
+          result = durationA - durationB;
+          break;
+
+        default:
+          result = 0;
+      }
+
+      return sortOrder === "asc" ? result : -result;
+    });
+
+    return filtered;
+  }, [transitions, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media]);
+
+  /**
+   * Группировка переходов по выбранному критерию
+   */
+  const groupedTransitions = useMemo(() => {
+    if (groupBy === "none") {
+      return [{ title: "", transitions: processedTransitions }];
+    }
+
+    const groups: { [key: string]: Transition[] } = {};
+
+    processedTransitions.forEach((transition) => {
+      let groupKey = "";
+
+      switch (groupBy) {
+        case "category":
+          groupKey = transition.category || "other";
+          break;
+        case "complexity":
+          groupKey = transition.complexity || "basic";
+          break;
+        case "tags":
+          groupKey = (transition.tags && transition.tags.length > 0) ? transition.tags[0] : "untagged";
+          break;
+        case "duration":
+          const duration = transition.duration?.default || 1.0;
+          if (duration < 1.0) groupKey = "short";
+          else if (duration < 2.0) groupKey = "medium";
+          else groupKey = "long";
+          break;
+        default:
+          groupKey = "ungrouped";
+      }
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(transition);
+    });
+
+    // Преобразуем в массив групп с переводами заголовков
+    return Object.entries(groups).map(([key, transitions]) => {
+      let title = "";
+
+      switch (groupBy) {
+        case "category":
+          title = t(`transitions.categories.${key}`, key);
+          break;
+        case "complexity":
+          title = t(`transitions.complexity.${key}`, key);
+          break;
+        case "tags":
+          title = key === "untagged" ? t("transitions.filters.allTags", "Без тегов") : key;
+          break;
+        case "duration":
+          title = t(`transitions.duration.${key}`, key);
+          break;
+        default:
+          title = key;
+      }
+
+      return { title, transitions };
+    }).sort((a, b) => a.title.localeCompare(b.title));
+  }, [processedTransitions, groupBy, t]);
 
   return (
     <div className="flex h-full flex-1 flex-col bg-background">
-      {/* Панель инструментов с поиском и кнопками управления */}
-      <div className="flex items-center justify-between p-1 dark:bg-[#252526]">
-        {/* Поле поиска переходов */}
-        <Input
-          type="search"
-          placeholder={t("common.search")}
-          className="mr-5 h-7 w-full max-w-[400px] rounded-sm border border-gray-300 text-xs outline-none focus:border-gray-400 focus:ring-0 focus-visible:ring-0 dark:border-gray-600 dark:focus:border-gray-500"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          data-testid="search-input" // Идентификатор для тестирования
-        />
-
-        {/* Контейнер для кнопок управления */}
-        <div className="flex items-center gap-1">
-          <TooltipProvider>
-            <div className="mr-2 flex overflow-hidden rounded-md">
-              {/* Кнопка переключения режима избранного */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "mr-0 ml-1 h-6 w-6 cursor-pointer",
-                      // Добавляем фон, если активен режим избранного
-                      showFavoritesOnly ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
-                    )}
-                    onClick={handleToggleFavorites}
-                  >
-                    <Star
-                      size={16}
-                      // Заполняем звезду, если активен режим избранного
-                      className={showFavoritesOnly ? "fill-current" : ""}
-                    />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t("browser.media.favorites")}</TooltipContent>
-              </Tooltip>
-
-              {/* Кнопка уменьшения размера превью */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "mr-1 ml-2 h-6 w-6 cursor-pointer",
-                      // Делаем кнопку неактивной, если нельзя уменьшить размер
-                      !canDecreaseSize && "cursor-not-allowed opacity-50",
-                    )}
-                    onClick={decreaseSize}
-                    disabled={!canDecreaseSize}
-                  >
-                    <ZoomOut size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t("browser.toolbar.zoomOut")}</TooltipContent>
-              </Tooltip>
-
-              {/* Кнопка увеличения размера превью */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "mr-1 h-6 w-6 cursor-pointer",
-                      // Делаем кнопку неактивной, если нельзя увеличить размер
-                      !canIncreaseSize && "cursor-not-allowed opacity-50",
-                    )}
-                    onClick={increaseSize}
-                    disabled={!canIncreaseSize}
-                  >
-                    <ZoomIn size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t("browser.toolbar.zoomIn")}</TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
-        </div>
-      </div>
-
       {/* Контейнер для списка переходов с прокруткой */}
       <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3">
-        {/* Состояние загрузки - пустой контейнер */}
-        {filteredTransitions.length === 0 ? (
+        {processedTransitions.length === 0 ? (
+          // Отображаем сообщение, если переходы не найдены
           <div className="flex h-full items-center justify-center text-gray-500">
-            {t("browser.tabs.transitions")} {t("common.notFound")}
+            {showFavoritesOnly
+              ? t("browser.media.noFavorites")
+              : t("common.noResults")}
           </div>
         ) : (
-          /* Отображение найденных переходов в виде сетки */
-          <div
-            className="grid grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))] gap-2"
-            style={
-              { "--preview-size": `${previewSize}px` } as React.CSSProperties
-            }
-          >
-            {/* Отображение каждого перехода */}
-            {filteredTransitions.map((transition) => (
-              <TransitionPreview
-                key={transition.id}
-                sourceVideo={demoVideos.source} // Исходное видео для превью
-                targetVideo={demoVideos.target} // Целевое видео для превью
-                transitionType={transition.type} // Тип перехода
-                onClick={() => onSelect?.(transition.id)} // Обработчик клика
-                size={previewSize} // Размер превью
+          // Отображаем сгруппированные переходы
+          <div className="space-y-4">
+            {groupedTransitions.map((group) => (
+              <TransitionGroup
+                key={group.title || "ungrouped"}
+                title={group.title}
+                transitions={group.transitions}
+                previewSize={basePreviewSize}
+                previewWidth={previewDimensions.width}
+                previewHeight={previewDimensions.height}
+                demoVideos={demoVideos}
+                onTransitionClick={handleTransitionClick}
               />
             ))}
           </div>

@@ -726,7 +726,9 @@
         "artist": "By artist",
         "date": "By date",
         "size": "By size",
-        "duration": "By duration"
+        "duration": "By duration",
+        "complexity": "By complexity",
+        "category": "By category"
       },
       "filterBy": {
         "all": "All files",
@@ -741,7 +743,10 @@
         "duration": "By duration",
         "artist": "By artist",
         "genre": "By genre",
-        "album": "By album"
+        "album": "By album",
+        "category": "By category",
+        "complexity": "By complexity",
+        "tags": "By tags"
       },
       "duration": {
         "noDuration": "Files without duration",
@@ -1142,5 +1147,85 @@
   "source": {
     "timeline": "Timeline",
     "browser": "Browser"
+  },
+  "filters": {
+    "categories": {
+      "color-correction": "Color Correction",
+      "creative": "Creative",
+      "cinematic": "Cinematic",
+      "vintage": "Vintage",
+      "technical": "Technical",
+      "artistic": "Artistic"
+    },
+    "complexity": {
+      "basic": "Basic",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "filters": {
+      "allCategories": "All Categories",
+      "allComplexity": "Any Complexity",
+      "allTags": "All Tags"
+    },
+    "errors": {
+      "invalidFiltersData": "Invalid filters data structure",
+      "unknownError": "Unknown error",
+      "failedToLoadFilters": "Failed to load filters: {{error}}",
+      "fallbackFilters": "Failed to load filters, using fallback"
+    },
+    "messages": {
+      "filtersLoaded": "Loaded {{count}} filters from JSON"
+    },
+    "detail": {
+      "description": "Description",
+      "category": "Category",
+      "complexity": "Complexity",
+      "parameters": "Parameters",
+      "tags": "Tags",
+      "applyFilter": "Apply Filter"
+    }
+  },
+  "transitions": {
+    "categories": {
+      "basic": "Basic",
+      "advanced": "Advanced",
+      "creative": "Creative",
+      "3d": "3D",
+      "artistic": "Artistic",
+      "cinematic": "Cinematic"
+    },
+    "complexity": {
+      "basic": "Basic",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "duration": {
+      "short": "Short",
+      "medium": "Medium",
+      "long": "Long"
+    },
+    "filters": {
+      "allCategories": "All Categories",
+      "allComplexity": "Any Complexity",
+      "allTags": "All Tags"
+    },
+    "errors": {
+      "invalidTransitionsData": "Invalid transitions data structure",
+      "unknownError": "Unknown error",
+      "failedToLoadTransitions": "Failed to load transitions: {{error}}",
+      "fallbackTransitions": "Failed to load transitions, using fallback"
+    },
+    "messages": {
+      "transitionsLoaded": "Loaded {{count}} transitions from JSON"
+    },
+    "detail": {
+      "description": "Description",
+      "category": "Category",
+      "complexity": "Complexity",
+      "duration": "Duration",
+      "parameters": "Parameters",
+      "tags": "Tags",
+      "applyTransition": "Apply Transition"
+    }
   }
 }

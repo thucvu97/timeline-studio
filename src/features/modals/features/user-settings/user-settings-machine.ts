@@ -1,5 +1,7 @@
 import { assign, createMachine } from "xstate"
 
+import type { BrowserContext } from "@/components/common/browser-state-machine"
+
 /**
  * Допустимые размеры превью для медиа-элементов
  * Используются для настройки размера отображения элементов в браузере
@@ -54,6 +56,7 @@ export interface UserSettingsContext {
   claudeApiKey: string // API ключ для Claude
   isBrowserVisible: boolean // Флаг видимости браузера
   isLoaded: boolean // Флаг загрузки настроек
+  browserSettings?: BrowserContext // Настройки состояния браузера (опционально)
 }
 
 /**

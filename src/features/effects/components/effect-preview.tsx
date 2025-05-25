@@ -23,6 +23,8 @@ interface EffectPreviewProps {
   effectType: VideoEffect["type"];
   onClick: () => void;
   size: number;
+  width?: number; // Ширина превью (опционально, по умолчанию равна size)
+  height?: number; // Высота превью (опционально, по умолчанию равна size)
 }
 
 /**
@@ -33,6 +35,8 @@ export function EffectPreview({
   effectType,
   onClick,
   size,
+  width = size, // По умолчанию ширина равна size (квадратное превью)
+  height = size, // По умолчанию высота равна size (квадратное превью)
 }: EffectPreviewProps) {
   const { i18n } = useTranslation(); // Хук для интернационализации
   const { addEffect, isEffectAdded, removeResource, effectResources } =
@@ -77,7 +81,7 @@ export function EffectPreview({
         // Создаем эффект виньетки через box-shadow
         const intensity = effect.params?.intensity || 0.3;
         const radius = effect.params?.radius || 0.8;
-        const shadowSize = Math.round(size * (1 - radius) * 0.5);
+        const shadowSize = Math.round(Math.min(width, height) * (1 - radius) * 0.5);
         const shadowBlur = Math.round(shadowSize * intensity * 2);
         videoElement.style.boxShadow = `inset 0 0 ${shadowBlur}px ${shadowSize}px rgba(0,0,0,${intensity})`;
       } else {
@@ -116,14 +120,14 @@ export function EffectPreview({
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [isHovering, effect, size]);
+  }, [isHovering, effect, width, height]);
 
   return (
     <div className="flex flex-col items-center">
       {/* Контейнер превью эффекта */}
       <div
         className="group relative cursor-pointer rounded-xs bg-black"
-        style={{ width: `${size}px`, height: `${size}px` }}
+        style={{ width: `${width}px`, height: `${height}px` }}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         onClick={onClick}
@@ -132,7 +136,12 @@ export function EffectPreview({
         <video
           ref={videoRef}
           src={PREVIEW_VIDEO_PATH}
-          className="absolute top-1/2 left-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 rounded-xs object-cover"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xs"
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+            objectFit: "cover", // Обрезаем видео по размерам контейнера
+          }}
           muted
           playsInline
           preload="auto"
@@ -150,7 +159,7 @@ export function EffectPreview({
         {effect && (
           <FavoriteButton
             file={{ id: effect.id, path: "", name: effect.name }}
-            size={size}
+            size={Math.min(width, height)} // Используем минимальный размер для правильного масштабирования
             type="effect"
           />
         )}
@@ -184,7 +193,7 @@ export function EffectPreview({
               }
             }}
             isAdded={isAdded}
-            size={size}
+            size={Math.min(width, height)} // Используем минимальный размер для правильного масштабирования
           />
         </div>
       </div>

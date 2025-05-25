@@ -725,7 +725,9 @@
         "artist": "По артисту",
         "date": "По дате",
         "size": "По размеру",
-        "duration": "По длительности"
+        "duration": "По длительности",
+        "complexity": "По сложности",
+        "category": "По категории"
       },
       "filterBy": {
         "all": "Все файлы",
@@ -740,7 +742,10 @@
         "duration": "По длительности",
         "artist": "По артисту",
         "genre": "По жанру",
-        "album": "По альбому"
+        "album": "По альбому",
+        "category": "По категории",
+        "complexity": "По сложности",
+        "tags": "По тэгам"
       },
       "duration": {
         "noDuration": "Файлы без длительности",
@@ -1130,16 +1135,7 @@
       "effectsLoaded": "Загружено {{count}} эффектов из JSON",
       "categoriesLoaded": "Загружено {{count}} категорий эффектов из JSON"
     },
-    "categories": {
-      "colorCorrection": {
-        "name": "Цветокоррекция",
-        "description": "Базовые инструменты цветокоррекции"
-      },
-      "artistic": {
-        "name": "Художественные",
-        "description": "Художественные эффекты"
-      }
-    },
+
     "filters": {
       "allCategories": "Все категории",
       "allComplexity": "Любая сложность",
@@ -1152,6 +1148,86 @@
       "presets": "Пресеты",
       "ffmpegCommand": "FFmpeg команда",
       "applyEffect": "Применить эффект"
+    }
+  },
+  "filters": {
+    "categories": {
+      "color-correction": "Цветокоррекция",
+      "creative": "Креативные",
+      "cinematic": "Кинематографические",
+      "vintage": "Винтажные",
+      "technical": "Технические",
+      "artistic": "Художественные"
+    },
+    "complexity": {
+      "basic": "Базовый",
+      "intermediate": "Средний",
+      "advanced": "Продвинутый"
+    },
+    "filters": {
+      "allCategories": "Все категории",
+      "allComplexity": "Любая сложность",
+      "allTags": "Все теги"
+    },
+    "errors": {
+      "invalidFiltersData": "Неверная структура данных фильтров",
+      "unknownError": "Неизвестная ошибка",
+      "failedToLoadFilters": "Не удалось загрузить фильтры: {{error}}",
+      "fallbackFilters": "Не удалось загрузить фильтры, используются резервные"
+    },
+    "messages": {
+      "filtersLoaded": "Загружено {{count}} фильтров из JSON"
+    },
+    "detail": {
+      "description": "Описание",
+      "category": "Категория",
+      "complexity": "Сложность",
+      "parameters": "Параметры",
+      "tags": "Теги",
+      "applyFilter": "Применить фильтр"
+    }
+  },
+  "transitions": {
+    "categories": {
+      "basic": "Базовые",
+      "advanced": "Продвинутые",
+      "creative": "Креативные",
+      "3d": "3D",
+      "artistic": "Художественные",
+      "cinematic": "Кинематографические"
+    },
+    "complexity": {
+      "basic": "Базовый",
+      "intermediate": "Средний",
+      "advanced": "Продвинутый"
+    },
+    "duration": {
+      "short": "Короткие",
+      "medium": "Средние",
+      "long": "Длинные"
+    },
+    "filters": {
+      "allCategories": "Все категории",
+      "allComplexity": "Любая сложность",
+      "allTags": "Все теги"
+    },
+    "errors": {
+      "invalidTransitionsData": "Неверная структура данных переходов",
+      "unknownError": "Неизвестная ошибка",
+      "failedToLoadTransitions": "Не удалось загрузить переходы: {{error}}",
+      "fallbackTransitions": "Не удалось загрузить переходы, используются резервные"
+    },
+    "messages": {
+      "transitionsLoaded": "Загружено {{count}} переходов из JSON"
+    },
+    "detail": {
+      "description": "Описание",
+      "category": "Категория",
+      "complexity": "Сложность",
+      "duration": "Длительность",
+      "parameters": "Параметры",
+      "tags": "Теги",
+      "applyTransition": "Применить переход"
     }
   }
 }

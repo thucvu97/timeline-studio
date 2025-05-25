@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
+import { useBrowserState } from "@/components/common/browser-state-provider";
 import { useMedia } from "@/features/browser";
 import i18n from "@/i18n";
 import { formatDateByLanguage } from "@/i18n/constants";
@@ -10,9 +11,7 @@ import { FfprobeStream } from "@/types/ffprobe";
 import { MediaFile } from "@/types/media";
 
 import { MediaContent } from "./media-content";
-import { MediaToolbar } from "./media-toolbar";
 import { StatusBar } from "../../browser/components/layout/status-bar";
-import { useMediaList } from "../services/media-list-provider";
 
 interface GroupedMediaFiles {
   title: string;
@@ -38,7 +37,10 @@ export function MediaList() {
   const { allMediaFiles, isLoading, error, isItemFavorite, includedFiles } =
     useMedia();
 
-  // Получаем значения из контекста
+  // Получаем значения из общего провайдера состояния браузера
+  const { currentTabSettings, previewSize } = useBrowserState();
+
+  // Извлекаем настройки для медиа-вкладки
   const {
     searchQuery,
     showFavoritesOnly,
@@ -47,9 +49,7 @@ export function MediaList() {
     filterType,
     groupBy,
     sortOrder,
-    previewSize,
-    retry,
-  } = useMediaList();
+  } = currentTabSettings;
 
   // Фильтрация и сортировка
   const filteredAndSortedMedia = useMemo(() => {
@@ -430,15 +430,14 @@ export function MediaList() {
   // Обработчик повторной загрузки
   const handleRetry = useCallback(() => {
     console.log("Retry requested");
-    retry();
-  }, [retry]);
+    // TODO: Реализовать повторную загрузку через useMedia
+  }, []);
 
   return (
     <div
       className="flex h-full w-full flex-col overflow-hidden"
       style={{ height: "100%" }}
     >
-      <MediaToolbar />
       <div className="min-h-0 flex-1 overflow-y-auto p-0 bg-background">
         <MediaContent
           groupedFiles={groupedFiles}

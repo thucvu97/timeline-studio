@@ -1,22 +1,15 @@
-import { useState } from "react";
+import { useMemo } from "react";
 
-import { Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { useBrowserState } from "@/components/common/browser-state-provider";
+import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
 import { useMedia } from "@/features/browser/media";
+import { useProjectSettings } from "@/features/modals/features/project-settings/project-settings-provider";
 import { VideoEffect } from "@/types/effects";
-import { cn } from "@/lib/utils";
 
 import { useEffects } from "../hooks/use-effects";
-import { EffectPreview } from "./effect-preview";
+import { EffectGroup } from "./effect-group";
 
 /**
  * Компонент для отображения списка эффектов
@@ -26,42 +19,192 @@ export function EffectList() {
   const { t } = useTranslation(); // Хук для интернационализации
   const media = useMedia(); // Хук для работы с медиафайлами и избранным
   const { effects, loading, error } = useEffects(); // Хук для загрузки эффектов
-  const [searchQuery, setSearchQuery] = useState(""); // Состояние поискового запроса
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false); // Состояние фильтра избранного
-  const [previewSize, setPreviewSize] = useState(120); // Размер превью эффектов
+
+  // Используем общий провайдер состояния браузера
+  const { currentTabSettings } = useBrowserState();
+
+  // Извлекаем настройки для эффектов
+  const {
+    searchQuery,
+    showFavoritesOnly,
+    sortBy,
+    sortOrder,
+    groupBy,
+    filterType,
+    previewSizeIndex,
+  } = currentTabSettings;
+
+  // Получаем настройки проекта для соотношения сторон
+  const { settings } = useProjectSettings();
+
+  // Получаем текущий размер превью из массива
+  const basePreviewSize = PREVIEW_SIZES[previewSizeIndex];
+
+  // Вычисляем размеры превью с учетом соотношения сторон проекта
+  const previewDimensions = useMemo(() => {
+    const aspectRatio = settings.aspectRatio.value;
+    const ratio = aspectRatio.width / aspectRatio.height;
+
+    let width: number;
+    let height: number;
+
+    if (ratio >= 1) {
+      // Горизонтальное или квадратное видео
+      width = basePreviewSize;
+      height = Math.round(basePreviewSize / ratio);
+    } else {
+      // Вертикальное видео
+      height = basePreviewSize;
+      width = Math.round(basePreviewSize * ratio);
+    }
+
+    return { width, height };
+  }, [basePreviewSize, settings.aspectRatio]);
+
+
 
   /**
-   * Обработчик переключения режима "только избранное"
+   * Фильтрация, сортировка и группировка эффектов
+   * @returns {VideoEffect[]} Обработанный массив эффектов
    */
-  const handleToggleFavorites = () => {
-    setShowFavoritesOnly(!showFavoritesOnly);
-  };
+  const processedEffects = (() => {
+    // 1. Фильтрация
+    let filtered = effects.filter((effect) => {
+      // Фильтрация по поисковому запросу
+      const matchesSearch =
+        !searchQuery ||
+        effect.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (effect.labels?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (effect.labels?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (effect.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (effect.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (effect.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      // Фильтрация по избранному
+      const matchesFavorites =
+        !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
+        media.isItemFavorite(
+          { id: effect.id, path: "", name: effect.name },
+          "effect",
+        );
+
+      // Фильтрация по типу (сложность или категория)
+      const matchesFilter = (() => {
+        if (filterType === "all") return true;
+
+        // Фильтрация по сложности
+        if (["basic", "intermediate", "advanced"].includes(filterType)) {
+          return (effect.complexity || "basic") === filterType;
+        }
+
+        // Фильтрация по категории
+        if (["color-correction", "artistic", "vintage", "cinematic", "creative", "technical", "distortion"].includes(filterType)) {
+          return effect.category === filterType;
+        }
+
+        return true;
+      })();
+
+      // Эффект должен соответствовать всем условиям
+      return matchesSearch && matchesFavorites && matchesFilter;
+    });
+
+    // 2. Сортировка
+    filtered.sort((a, b) => {
+      let result = 0;
+
+      switch (sortBy) {
+        case "name":
+          const nameA = a.name.toLowerCase();
+          const nameB = b.name.toLowerCase();
+          result = nameA.localeCompare(nameB);
+          break;
+
+        case "complexity":
+          // Определяем порядок сложности: basic < intermediate < advanced
+          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 };
+          const complexityA = complexityOrder[a.complexity || "basic"];
+          const complexityB = complexityOrder[b.complexity || "basic"];
+          result = complexityA - complexityB;
+          break;
+
+        case "category":
+          const categoryA = (a.category || "").toLowerCase();
+          const categoryB = (b.category || "").toLowerCase();
+          result = categoryA.localeCompare(categoryB);
+          break;
+
+        default:
+          result = 0;
+      }
+
+      return sortOrder === "asc" ? result : -result;
+    });
+
+    return filtered;
+  })();
 
   /**
-   * Фильтрация эффектов на основе поискового запроса и настроек избранного
-   * @returns {VideoEffect[]} Отфильтрованный массив эффектов
+   * Группировка эффектов по выбранному критерию
    */
-  const filteredEffects = effects.filter((effect) => {
-    // Фильтрация по поисковому запросу
-    const matchesSearch =
-      !searchQuery ||
-      effect.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (effect.labels?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (effect.labels?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (effect.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (effect.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase());
+  const groupedEffects = useMemo(() => {
+    if (groupBy === "none") {
+      return [{ title: "", effects: processedEffects }];
+    }
 
-    // Фильтрация по избранному
-    const matchesFavorites =
-      !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
-      media.isItemFavorite(
-        { id: effect.id, path: "", name: effect.name },
-        "effect",
-      );
+    const groups: { [key: string]: VideoEffect[] } = {};
 
-    // Эффект должен соответствовать обоим условиям
-    return matchesSearch && matchesFavorites;
-  });
+    processedEffects.forEach((effect) => {
+      let groupKey = "";
+
+      switch (groupBy) {
+        case "category":
+          groupKey = effect.category || "other";
+          break;
+        case "complexity":
+          groupKey = effect.complexity || "basic";
+          break;
+        case "type":
+          groupKey = effect.type || "unknown";
+          break;
+        case "tags":
+          // Группируем по первому тегу или "untagged"
+          groupKey = (effect.tags && effect.tags.length > 0) ? effect.tags[0] : "untagged";
+          break;
+        default:
+          groupKey = "ungrouped";
+      }
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(effect);
+    });
+
+    // Преобразуем в массив групп с переводами заголовков
+    return Object.entries(groups).map(([key, effects]) => {
+      let title = "";
+
+      switch (groupBy) {
+        case "category":
+          title = t(`effects.categories.${key}`, key);
+          break;
+        case "complexity":
+          title = t(`effects.complexity.${key}`, key);
+          break;
+        case "type":
+          title = t(`effects.names.${key}`, key);
+          break;
+        case "tags":
+          title = key === "untagged" ? t("effects.filters.allTags", "Без тегов") : key;
+          break;
+        default:
+          title = key;
+      }
+
+      return { title, effects };
+    }).sort((a, b) => a.title.localeCompare(b.title));
+  }, [processedEffects, groupBy, t]);
 
   /**
    * Обработчик клика по эффекту
@@ -102,66 +245,25 @@ export function EffectList() {
 
   return (
     <div className="flex h-full flex-1 flex-col bg-background">
-      {/* Панель поиска и фильтров */}
-      <div className="flex items-center gap-2 p-3">
-        {/* Поле поиска */}
-        <Input
-          type="search"
-          placeholder={t("common.search")}
-          className="flex-1"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-
-        {/* Контейнер для кнопок управления */}
-        <div className="flex items-center gap-1">
-          <TooltipProvider>
-            <div className="mr-2 flex overflow-hidden rounded-md">
-              {/* Кнопка переключения режима избранного */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "mr-0 ml-1 h-6 w-6 cursor-pointer",
-                      // Добавляем фон, если активен режим избранного
-                      showFavoritesOnly ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
-                    )}
-                    onClick={handleToggleFavorites}
-                  >
-                    <Star
-                      size={16}
-                      // Заполняем звезду, если активен режим избранного
-                      className={showFavoritesOnly ? "fill-current" : ""}
-                    />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t("browser.media.favorites")}</TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
-        </div>
-      </div>
-
       {/* Сетка эффектов */}
       <div className="flex-1 overflow-y-auto p-3">
-        <div
-          className="grid grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))] gap-2"
-          style={{ "--preview-size": `${previewSize}px` } as React.CSSProperties}
-        >
-          {filteredEffects.map((effect) => (
-            <EffectPreview
-              key={effect.id}
-              effectType={effect.type}
-              onClick={() => handleEffectClick(effect)}
-              size={previewSize}
+        {/* Отображение сгруппированных эффектов */}
+        <div className="space-y-4">
+          {groupedEffects.map((group) => (
+            <EffectGroup
+              key={group.title || "ungrouped"}
+              title={group.title}
+              effects={group.effects}
+              previewSize={basePreviewSize}
+              previewWidth={previewDimensions.width}
+              previewHeight={previewDimensions.height}
+              onEffectClick={handleEffectClick}
             />
           ))}
         </div>
 
         {/* Сообщение, если эффекты не найдены */}
-        {filteredEffects.length === 0 && (
+        {processedEffects.length === 0 && (
           <div className="flex h-32 items-center justify-center text-gray-500">
             {showFavoritesOnly
               ? t("browser.media.noFavorites")

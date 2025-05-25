@@ -568,7 +568,9 @@
         "artist": "Par artiste",
         "date": "Par date",
         "size": "Par taille",
-        "duration": "Par durée"
+        "duration": "Par durée",
+        "complexity": "Par complexité",
+        "category": "Par catégorie"
       },
       "filterBy": {
         "all": "Tous les fichiers",
@@ -583,7 +585,9 @@
         "duration": "Par durée",
         "artist": "Par artiste",
         "genre": "Par genre",
-        "album": "Par album"
+        "album": "Par album",
+        "category": "Par catégorie",
+        "tags": "Par tags"
       },
       "duration": {
         "noDuration": "Fichiers sans durée",
@@ -1097,6 +1101,86 @@
       "objectDetectionDescription": "Activer la détection d'objets par IA dans les captures d'écran.",
       "confidenceThreshold": "Seuil de confiance",
       "confidenceThresholdDescription": "Niveau de confiance minimum pour les objets détectés. Des valeurs plus élevées réduisent les faux positifs."
+    }
+  },
+  "filters": {
+    "categories": {
+      "color-correction": "Correction Couleur",
+      "creative": "Créatifs",
+      "cinematic": "Cinématographiques",
+      "vintage": "Vintage",
+      "technical": "Techniques",
+      "artistic": "Artistiques"
+    },
+    "complexity": {
+      "basic": "Basique",
+      "intermediate": "Intermédiaire",
+      "advanced": "Avancé"
+    },
+    "filters": {
+      "allCategories": "Toutes les Catégories",
+      "allComplexity": "Toute Complexité",
+      "allTags": "Tous les Tags"
+    },
+    "errors": {
+      "invalidFiltersData": "Structure de données de filtres invalide",
+      "unknownError": "Erreur inconnue",
+      "failedToLoadFilters": "Échec du chargement des filtres : {{error}}",
+      "fallbackFilters": "Échec du chargement des filtres, utilisation de secours"
+    },
+    "messages": {
+      "filtersLoaded": "{{count}} filtres chargés depuis JSON"
+    },
+    "detail": {
+      "description": "Description",
+      "category": "Catégorie",
+      "complexity": "Complexité",
+      "parameters": "Paramètres",
+      "tags": "Tags",
+      "applyFilter": "Appliquer le Filtre"
+    }
+  },
+  "transitions": {
+    "categories": {
+      "basic": "Basiques",
+      "advanced": "Avancées",
+      "creative": "Créatives",
+      "3d": "3D",
+      "artistic": "Artistiques",
+      "cinematic": "Cinématographiques"
+    },
+    "complexity": {
+      "basic": "Basique",
+      "intermediate": "Intermédiaire",
+      "advanced": "Avancé"
+    },
+    "duration": {
+      "short": "Courtes",
+      "medium": "Moyennes",
+      "long": "Longues"
+    },
+    "filters": {
+      "allCategories": "Toutes les Catégories",
+      "allComplexity": "Toute Complexité",
+      "allTags": "Tous les Tags"
+    },
+    "errors": {
+      "invalidTransitionsData": "Structure de données de transitions invalide",
+      "unknownError": "Erreur inconnue",
+      "failedToLoadTransitions": "Échec du chargement des transitions : {{error}}",
+      "fallbackTransitions": "Échec du chargement des transitions, utilisation de secours"
+    },
+    "messages": {
+      "transitionsLoaded": "{{count}} transitions chargées depuis JSON"
+    },
+    "detail": {
+      "description": "Description",
+      "category": "Catégorie",
+      "complexity": "Complexité",
+      "duration": "Durée",
+      "parameters": "Paramètres",
+      "tags": "Tags",
+      "applyTransition": "Appliquer la Transition"
     }
   }
 }

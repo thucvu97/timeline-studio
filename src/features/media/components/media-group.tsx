@@ -1,11 +1,7 @@
 import React from "react";
 
-import { CopyPlus } from "lucide-react";
-import { useTranslation } from "react-i18next";
-
-import { Button } from "@/components/ui/button";
+import { ContentGroup } from "@/components/common/content-group";
 import { useMedia } from "@/features/browser/media";
-import { cn } from "@/lib/utils";
 import { MediaFile } from "@/types/media";
 
 import { MediaItem } from "./media-item";
@@ -39,16 +35,7 @@ export const MediaGroup: React.FC<MediaGroupProps> = ({
   previewSize,
   addFilesToTimeline,
 }) => {
-  const { t } = useTranslation();
   const media = useMedia();
-
-  // Не показываем группу, если в ней нет файлов
-  if (files.length === 0) {
-    return null;
-  }
-
-  // Проверяем, все ли файлы в группе уже добавлены
-  const allFilesAdded = media.areAllFilesAdded(files);
 
   // Обработчик добавления медиа-файла
   const handleAddMedia = (file: MediaFile) => {
@@ -79,80 +66,39 @@ export const MediaGroup: React.FC<MediaGroupProps> = ({
     }
   };
 
-  // Если группа не имеет заголовка, отображаем только файлы
-  if (!title || title === "") {
-    return (
-      <div
-        key="ungrouped"
-        className={
-          viewMode === "grid"
-            ? "items-left flex flex-wrap gap-3"
-            : viewMode === "thumbnails"
-              ? "flex flex-wrap justify-between gap-3"
-              : "space-y-1"
-        }
-      >
-        {files.map((file, index) => (
-          <MediaItem
-            key={`${file.id || file.path || file.name}-${index}`}
-            file={file}
-            index={index}
-            viewMode={viewMode}
-            previewSize={previewSize}
-            onAddMedia={handleAddMedia}
-          />
-        ))}
-      </div>
-    );
-  }
+  // Функция рендеринга медиа-элемента
+  const renderMediaItem = (file: MediaFile, index: number) => (
+    <MediaItem
+      key={`${file.id || file.path || file.name}-${index}`}
+      file={file}
+      index={index}
+      viewMode={viewMode}
+      previewSize={previewSize}
+      onAddMedia={handleAddMedia}
+    />
+  );
 
-  // Если группа имеет заголовок, отображаем заголовок и файлы
+  // Обработчик добавления всех файлов
+  const handleAddAllFiles = (files: MediaFile[]) => {
+    // Фильтруем файлы - изображения не добавляем на таймлайн
+    const nonImageFiles = files.filter((file) => !file.isImage);
+
+    // Добавляем видео и аудио файлы на таймлайн
+    if (nonImageFiles.length > 0) {
+      addFilesToTimeline(nonImageFiles);
+    }
+  };
+
   return (
-    <div key={title} className="mb-4">
-      <div className="mb-2 flex items-center justify-between pl-2">
-        <h3 className="text-sm font-medium">{title}</h3>
-        <Button
-          variant="secondary"
-          size="sm"
-          className={cn(
-            "flex h-7 cursor-pointer items-center gap-1 rounded-sm bg-[#dddbdd] px-2 text-xs hover:bg-[#38dacac3] dark:bg-[#45444b] dark:hover:bg-[#35d1c1] dark:hover:text-black",
-            allFilesAdded && "cursor-not-allowed opacity-50",
-          )}
-          onClick={() => {
-            // Фильтруем файлы - изображения не добавляем на таймлайн
-            const nonImageFiles = files.filter((file) => !file.isImage);
-
-            // Добавляем видео и аудио файлы на таймлайн
-            if (nonImageFiles.length > 0) {
-              addFilesToTimeline(nonImageFiles);
-            }
-          }}
-          disabled={allFilesAdded}
-        >
-          <span className="px-1 text-xs">
-            {allFilesAdded ? t("browser.media.added") : t("browser.media.add")}
-          </span>
-          <CopyPlus className="mr-1 h-3 w-3" />
-        </Button>
-      </div>
-      <div
-        className={
-          viewMode === "grid" || viewMode === "thumbnails"
-            ? "items-left flex flex-wrap gap-3"
-            : "space-y-1"
-        }
-      >
-        {files.map((file, index) => (
-          <MediaItem
-            key={`${file.id || file.path || file.name}-${index}`}
-            file={file}
-            index={index}
-            viewMode={viewMode}
-            previewSize={previewSize}
-            onAddMedia={handleAddMedia}
-          />
-        ))}
-      </div>
-    </div>
+    <ContentGroup
+      title={title}
+      items={files}
+      viewMode={viewMode}
+      renderItem={renderMediaItem}
+      onAddAll={handleAddAllFiles}
+      areAllItemsAdded={media.areAllFilesAdded}
+      addButtonText="browser.media.add"
+      addedButtonText="browser.media.added"
+    />
   );
 };

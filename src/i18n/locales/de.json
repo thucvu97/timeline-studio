@@ -332,7 +332,9 @@
         "artist": "Nach Künstler",
         "date": "Nach Datum",
         "size": "Nach Größe",
-        "duration": "Nach Dauer"
+        "duration": "Nach Dauer",
+        "complexity": "Nach Komplexität",
+        "category": "Nach Kategorie"
       },
       "filterBy": {
         "all": "Alle Dateien",
@@ -347,7 +349,9 @@
         "duration": "Nach Dauer",
         "artist": "Nach Künstler",
         "genre": "Nach Genre",
-        "album": "Nach Album"
+        "album": "Nach Album",
+        "category": "Nach Kategorie",
+        "tags": "Nach Tags"
       },
       "duration": {
         "noDuration": "Dateien ohne Dauer",
@@ -1092,6 +1096,86 @@
       "split-grid-3x4-landscape": "Zwölf Bildschirme in einem 3×4-Raster",
       "split-grid-4x4-landscape": "Sechzehn Bildschirme in einem 4×4-Raster",
       "split-grid-5x5-landscape": "Fünfundzwanzig Bildschirme in einem 5×5-Raster"
+    }
+  },
+  "filters": {
+    "categories": {
+      "color-correction": "Farbkorrektur",
+      "creative": "Kreativ",
+      "cinematic": "Kinematografisch",
+      "vintage": "Vintage",
+      "technical": "Technisch",
+      "artistic": "Künstlerisch"
+    },
+    "complexity": {
+      "basic": "Grundlegend",
+      "intermediate": "Fortgeschritten",
+      "advanced": "Experte"
+    },
+    "filters": {
+      "allCategories": "Alle Kategorien",
+      "allComplexity": "Alle Schwierigkeitsgrade",
+      "allTags": "Alle Tags"
+    },
+    "errors": {
+      "invalidFiltersData": "Ungültige Filter-Datenstruktur",
+      "unknownError": "Unbekannter Fehler",
+      "failedToLoadFilters": "Filter konnten nicht geladen werden: {{error}}",
+      "fallbackFilters": "Filter konnten nicht geladen werden, verwende Fallback"
+    },
+    "messages": {
+      "filtersLoaded": "{{count}} Filter aus JSON geladen"
+    },
+    "detail": {
+      "description": "Beschreibung",
+      "category": "Kategorie",
+      "complexity": "Schwierigkeit",
+      "parameters": "Parameter",
+      "tags": "Tags",
+      "applyFilter": "Filter Anwenden"
+    }
+  },
+  "transitions": {
+    "categories": {
+      "basic": "Grundlegend",
+      "advanced": "Fortgeschritten",
+      "creative": "Kreativ",
+      "3d": "3D",
+      "artistic": "Künstlerisch",
+      "cinematic": "Kinematografisch"
+    },
+    "complexity": {
+      "basic": "Grundlegend",
+      "intermediate": "Fortgeschritten",
+      "advanced": "Experte"
+    },
+    "duration": {
+      "short": "Kurz",
+      "medium": "Mittel",
+      "long": "Lang"
+    },
+    "filters": {
+      "allCategories": "Alle Kategorien",
+      "allComplexity": "Alle Schwierigkeitsgrade",
+      "allTags": "Alle Tags"
+    },
+    "errors": {
+      "invalidTransitionsData": "Ungültige Übergänge-Datenstruktur",
+      "unknownError": "Unbekannter Fehler",
+      "failedToLoadTransitions": "Übergänge konnten nicht geladen werden: {{error}}",
+      "fallbackTransitions": "Übergänge konnten nicht geladen werden, verwende Fallback"
+    },
+    "messages": {
+      "transitionsLoaded": "{{count}} Übergänge aus JSON geladen"
+    },
+    "detail": {
+      "description": "Beschreibung",
+      "category": "Kategorie",
+      "complexity": "Schwierigkeit",
+      "duration": "Dauer",
+      "parameters": "Parameter",
+      "tags": "Tags",
+      "applyTransition": "Übergang Anwenden"
     }
   }
 }

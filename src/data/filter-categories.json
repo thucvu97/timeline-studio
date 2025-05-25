@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-15",
+  "categories": {
+    "color-correction": {
+      "name": {
+        "ru": "Цветокоррекция",
+        "en": "Color Correction",
+        "es": "Corrección de Color",
+        "fr": "Correction des Couleurs",
+        "de": "Farbkorrektur"
+      },
+      "description": {
+        "ru": "Базовые инструменты цветокоррекции и стандартные цветовые профили",
+        "en": "Basic color correction tools and standard color profiles",
+        "es": "Herramientas básicas de corrección de color y perfiles de color estándar",
+        "fr": "Outils de base pour la correction des couleurs et profils de couleur standard",
+        "de": "Grundlegende Farbkorrektur-Tools und Standard-Farbprofile"
+      },
+      "order": 1
+    },
+    "technical": {
+      "name": {
+        "ru": "Технические",
+        "en": "Technical",
+        "es": "Técnico",
+        "fr": "Technique",
+        "de": "Technisch"
+      },
+      "description": {
+        "ru": "Профессиональные логарифмические профили и технические настройки",
+        "en": "Professional logarithmic profiles and technical settings",
+        "es": "Perfiles logarítmicos profesionales y configuraciones técnicas",
+        "fr": "Profils logarithmiques professionnels et paramètres techniques",
+        "de": "Professionelle logarithmische Profile und technische Einstellungen"
+      },
+      "order": 2
+    },
+    "cinematic": {
+      "name": {
+        "ru": "Кинематографические",
+        "en": "Cinematic",
+        "es": "Cinematográfico",
+        "fr": "Cinématographique",
+        "de": "Kinematografisch"
+      },
+      "description": {
+        "ru": "Фильтры для создания кинематографического вида",
+        "en": "Filters for creating cinematic look",
+        "es": "Filtros para crear un aspecto cinematográfico",
+        "fr": "Filtres pour créer un aspect cinématographique",
+        "de": "Filter für kinematografischen Look"
+      },
+      "order": 3
+    },
+    "artistic": {
+      "name": {
+        "ru": "Художественные",
+        "en": "Artistic",
+        "es": "Artístico",
+        "fr": "Artistique",
+        "de": "Künstlerisch"
+      },
+      "description": {
+        "ru": "Художественные фильтры для портретов и пейзажей",
+        "en": "Artistic filters for portraits and landscapes",
+        "es": "Filtros artísticos para retratos y paisajes",
+        "fr": "Filtres artistiques pour portraits et paysages",
+        "de": "Künstlerische Filter für Porträts und Landschaften"
+      },
+      "order": 4
+    },
+    "creative": {
+      "name": {
+        "ru": "Креативные",
+        "en": "Creative",
+        "es": "Creativo",
+        "fr": "Créatif",
+        "de": "Kreativ"
+      },
+      "description": {
+        "ru": "Креативные цветовые схемы и стилизация",
+        "en": "Creative color schemes and stylization",
+        "es": "Esquemas de color creativos y estilización",
+        "fr": "Schémas de couleurs créatifs et stylisation",
+        "de": "Kreative Farbschemata und Stilisierung"
+      },
+      "order": 5
+    },
+    "vintage": {
+      "name": {
+        "ru": "Винтажные",
+        "en": "Vintage",
+        "es": "Vintage",
+        "fr": "Vintage",
+        "de": "Vintage"
+      },
+      "description": {
+        "ru": "Винтажные и ретро эффекты",
+        "en": "Vintage and retro effects",
+        "es": "Efectos vintage y retro",
+        "fr": "Effets vintage et rétro",
+        "de": "Vintage- und Retro-Effekte"
+      },
+      "order": 6
+    }
+  }
+}

@@ -1,16 +1,15 @@
-import { useState } from "react"
-
+import { BrowserStateProvider, useBrowserState } from "@/components/common/browser-state-provider"
 import { Tabs } from "@/components/ui/tabs"
 
 import { BrowserContent } from "./browser-content"
 import { BrowserTabs } from "./browser-tabs"
 
-// Клиентский компонент Browser
-export function Browser() {
-  const [activeTab, setActiveTab] = useState("media")
+// Внутренний компонент, который использует состояние браузера
+function BrowserWithState() {
+  const { activeTab, switchTab } = useBrowserState()
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value)
+    switchTab(value as any) // TODO: типизировать правильно
   }
 
   return (
@@ -25,5 +24,14 @@ export function Browser() {
         <BrowserContent />
       </Tabs>
     </div>
+  )
+}
+
+// Клиентский компонент Browser
+export function Browser() {
+  return (
+    <BrowserStateProvider>
+      <BrowserWithState />
+    </BrowserStateProvider>
   )
 }

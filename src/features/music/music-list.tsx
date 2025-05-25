@@ -13,7 +13,6 @@ import { MediaFile } from "@/types/media";
 import { MusicResource } from "@/types/resources";
 
 import { useMusic } from "./music-provider";
-import { MusicToolbar } from "./music-toolbar";
 import { sortFiles } from "./music-utils";
 import { useMedia } from "../browser/media";
 import { useResources } from "../resources";
@@ -251,11 +250,6 @@ export function MusicList() {
   return (
     <div className="flex h-full flex-col" data-testid="music-list-container">
       {/* Панель инструментов с кнопками импорта и фильтрации */}
-      <MusicToolbar
-        onImport={handleImport}
-        onImportFile={handleImportFile}
-        onImportFolder={handleImportFolder}
-      />
 
       {/* Основной контейнер для списка музыкальных файлов */}
       <div
