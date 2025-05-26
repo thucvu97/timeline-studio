@@ -9,8 +9,8 @@ import { SubtitlePreview } from "../components/subtitle-preview";
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => key,
-    i18n: { language: "ru" }
-  })
+    i18n: { language: "ru" },
+  }),
 }));
 
 // Мокаем хук ресурсов
@@ -23,17 +23,20 @@ vi.mock("@/features/resources", () => ({
     addSubtitle: mockAddSubtitle,
     isSubtitleAdded: mockIsSubtitleAdded,
     removeResource: mockRemoveResource,
-    subtitleResources: []
-  })
+    subtitleResources: [],
+  }),
 }));
 
 // Мокаем компоненты браузера
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ onAddMedia, isAdded, size }: any) => (
-    <div data-testid={isAdded ? "remove-button" : "add-button"} onClick={onAddMedia}>
+    <div
+      data-testid={isAdded ? "remove-button" : "add-button"}
+      onClick={onAddMedia}
+    >
       {isAdded ? "Remove" : "Add"} (size: {size})
     </div>
-  )
+  ),
 }));
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
@@ -41,7 +44,7 @@ vi.mock("@/features/browser/components/layout/favorite-button", () => ({
     <div data-testid="favorite-button">
       Favorite {file.name} (size: {size}, type: {type})
     </div>
-  )
+  ),
 }));
 
 // Мокаем CSS утилиты
@@ -53,8 +56,8 @@ vi.mock("../utils/css-styles", () => ({
     backgroundColor: style.style.backgroundColor || "transparent",
     textAlign: style.style.textAlign || "center",
     fontWeight: style.style.fontWeight || "normal",
-    textShadow: style.style.textShadow || "2px 2px 4px rgba(0,0,0,0.8)"
-  })
+    textShadow: style.style.textShadow || "2px 2px 4px rgba(0,0,0,0.8)",
+  }),
 }));
 
 describe("SubtitlePreview", () => {
@@ -66,7 +69,7 @@ describe("SubtitlePreview", () => {
       en: "Test Subtitle",
       es: "Subtítulo de prueba",
       fr: "Sous-titre de test",
-      de: "Test-Untertitel"
+      de: "Test-Untertitel",
     },
     description: { ru: "Тестовый стиль субтитров", en: "Test subtitle style" },
     category: "basic",
@@ -79,8 +82,8 @@ describe("SubtitlePreview", () => {
       backgroundColor: "transparent",
       textAlign: "center",
       fontWeight: "normal",
-      textShadow: "2px 2px 4px rgba(0,0,0,0.8)"
-    }
+      textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
+    },
   };
 
   const defaultProps = {
@@ -88,7 +91,7 @@ describe("SubtitlePreview", () => {
     onClick: vi.fn(),
     size: 200,
     previewWidth: 200,
-    previewHeight: 112
+    previewHeight: 112,
   };
 
   beforeEach(() => {
@@ -123,7 +126,7 @@ describe("SubtitlePreview", () => {
       fontFamily: "Arial, sans-serif",
       color: "#ffffff",
       textAlign: "center",
-      fontWeight: "normal"
+      fontWeight: "normal",
     });
   });
 
@@ -182,7 +185,9 @@ describe("SubtitlePreview", () => {
     render(<SubtitlePreview {...defaultProps} onClick={mockOnClick} />);
 
     // Кликаем на контейнер превью
-    const container = screen.getByTestId("subtitle-preview-text").closest("div");
+    const container = screen
+      .getByTestId("subtitle-preview-text")
+      .closest("div");
     fireEvent.click(container!);
 
     // Проверяем, что обработчик вызван
@@ -200,37 +205,49 @@ describe("SubtitlePreview", () => {
   });
 
   it("should use custom preview dimensions", () => {
-    render(<SubtitlePreview {...defaultProps} previewWidth={300} previewHeight={200} />);
+    render(
+      <SubtitlePreview
+        {...defaultProps}
+        previewWidth={300}
+        previewHeight={200}
+      />,
+    );
 
     // Ищем контейнер с правильными размерами (родительский элемент)
-    const container = screen.getByTestId("subtitle-preview-text").closest("div")?.parentElement;
+    const container = screen
+      .getByTestId("subtitle-preview-text")
+      .closest("div")?.parentElement;
     expect(container).toHaveStyle({
       width: "300px",
-      height: "200px"
+      height: "200px",
     });
   });
 
   it("should handle different complexity levels", () => {
     const advancedSubtitle = {
       ...mockSubtitleStyle,
-      complexity: "advanced" as const
+      complexity: "advanced" as const,
     };
 
     render(<SubtitlePreview {...defaultProps} style={advancedSubtitle} />);
 
-    const complexityIndicator = screen.getByTitle("subtitles.complexity.advanced");
+    const complexityIndicator = screen.getByTitle(
+      "subtitles.complexity.advanced",
+    );
     expect(complexityIndicator).toHaveClass("bg-red-500");
   });
 
   it("should handle different categories", () => {
     const creativeSubtitle = {
       ...mockSubtitleStyle,
-      category: "creative" as const
+      category: "creative" as const,
     };
 
     render(<SubtitlePreview {...defaultProps} style={creativeSubtitle} />);
 
-    const categoryIndicator = screen.getByTitle("subtitles.categories.creative");
+    const categoryIndicator = screen.getByTitle(
+      "subtitles.categories.creative",
+    );
     expect(categoryIndicator).toHaveClass("bg-black/70");
     expect(categoryIndicator).toHaveTextContent("SUB"); // fallback для creative
   });
@@ -240,8 +257,8 @@ describe("SubtitlePreview", () => {
       ...mockSubtitleStyle,
       style: {
         ...mockSubtitleStyle.style,
-        animation: "fadeInOut 2s ease-in-out infinite"
-      }
+        animation: "fadeInOut 2s ease-in-out infinite",
+      },
     };
 
     render(<SubtitlePreview {...defaultProps} style={animatedSubtitle} />);
@@ -264,15 +281,15 @@ describe("SubtitlePreview", () => {
         ...mockSubtitleStyle.style,
         backgroundColor: "rgba(0,0,0,0.8)",
         padding: "8px 16px",
-        borderRadius: "4px"
-      }
+        borderRadius: "4px",
+      },
     };
 
     render(<SubtitlePreview {...defaultProps} style={backgroundSubtitle} />);
 
     const previewText = screen.getByTestId("subtitle-preview-text");
     expect(previewText).toHaveStyle({
-      backgroundColor: "rgba(0,0,0,0.8)"
+      backgroundColor: "rgba(0,0,0,0.8)",
     });
   });
 
@@ -283,8 +300,8 @@ describe("SubtitlePreview", () => {
         ...mockSubtitleStyle.style,
         fontFamily: "Georgia, serif",
         fontWeight: "bold",
-        fontSize: "32px"
-      }
+        fontSize: "32px",
+      },
     };
 
     render(<SubtitlePreview {...defaultProps} style={customFontSubtitle} />);
@@ -293,7 +310,7 @@ describe("SubtitlePreview", () => {
     expect(previewText).toHaveStyle({
       fontFamily: "Georgia, serif",
       fontWeight: "bold",
-      fontSize: "32px"
+      fontSize: "32px",
     });
   });
 });

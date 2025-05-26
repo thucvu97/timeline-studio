@@ -9,12 +9,12 @@ vi.mock("react-i18next", async () => {
     ...actual,
     useTranslation: () => ({
       t: (key: string, fallback?: string) => fallback || key,
-      i18n: { language: "ru" }
+      i18n: { language: "ru" },
     }),
     initReactI18next: {
       type: "3rdParty",
-      init: vi.fn()
-    }
+      init: vi.fn(),
+    },
   };
 });
 
@@ -25,7 +25,7 @@ vi.mock("lucide-react", () => ({
   Volume2: () => <div data-testid="volume-icon">Volume</div>,
   Settings: () => <div data-testid="settings-icon">Settings</div>,
   Maximize: () => <div data-testid="maximize-icon">Maximize</div>,
-  Plus: () => <div data-testid="plus-icon">Plus</div>
+  Plus: () => <div data-testid="plus-icon">Plus</div>,
 }));
 
 // Мокаем компоненты UI
@@ -40,7 +40,7 @@ vi.mock("@/components/ui/button", () => ({
     >
       {children}
     </button>
-  )
+  ),
 }));
 
 vi.mock("@/components/ui/card", () => ({
@@ -53,7 +53,7 @@ vi.mock("@/components/ui/card", () => ({
     <div className={className} data-testid="card-content">
       {children}
     </div>
-  )
+  ),
 }));
 
 describe("VideoPanelComponent", () => {

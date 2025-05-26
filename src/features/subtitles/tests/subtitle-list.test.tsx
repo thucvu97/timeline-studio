@@ -7,8 +7,8 @@ import { SubtitleList } from "../components/subtitle-list";
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string) => fallback || key,
-    i18n: { language: "ru" }
-  })
+    i18n: { language: "ru" },
+  }),
 }));
 
 // Простые моки для тестирования
@@ -28,8 +28,8 @@ const mockSubtitles = [
       backgroundColor: "transparent",
       textAlign: "center",
       fontWeight: "normal",
-      textShadow: "2px 2px 4px rgba(0,0,0,0.8)"
-    }
+      textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
+    },
   },
   {
     id: "test-subtitle-2",
@@ -48,9 +48,9 @@ const mockSubtitles = [
       fontWeight: "bold",
       textShadow: "3px 3px 6px rgba(0,0,0,1)",
       padding: "8px 16px",
-      borderRadius: "4px"
-    }
-  }
+      borderRadius: "4px",
+    },
+  },
 ];
 
 // Простые моки
@@ -60,14 +60,14 @@ vi.mock("../hooks/use-subtitle-styles", () => ({
     loading: false,
     error: null,
     reload: vi.fn(),
-    isReady: true
-  })
+    isReady: true,
+  }),
 }));
 
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
-    isItemFavorite: vi.fn().mockReturnValue(false)
-  })
+    isItemFavorite: vi.fn().mockReturnValue(false),
+  }),
 }));
 
 vi.mock("@/features/browser/state", () => ({
@@ -79,15 +79,15 @@ vi.mock("@/features/browser/state", () => ({
       sortOrder: "asc",
       groupBy: "none",
       filterType: "all",
-      previewSizeIndex: 2
-    }
-  })
+      previewSizeIndex: 2,
+    },
+  }),
 }));
 
 vi.mock("@/features/project/settings", () => ({
   useProjectSettings: () => ({
-    settings: { video: { aspectRatio: "16:9" } }
-  })
+    settings: { video: { aspectRatio: "16:9" } },
+  }),
 }));
 
 vi.mock("@/features/browser/components/layout/content-group", () => ({
@@ -99,7 +99,7 @@ vi.mock("@/features/browser/components/layout/content-group", () => ({
         </div>
       ))}
     </div>
-  )
+  ),
 }));
 
 vi.mock("../components/subtitle-preview", () => ({
@@ -107,7 +107,7 @@ vi.mock("../components/subtitle-preview", () => ({
     <div data-testid={`subtitle-preview-${style.id}`}>
       Subtitle Preview: {style.labels.ru}
     </div>
-  )
+  ),
 }));
 
 describe("SubtitleList", () => {
@@ -115,23 +115,33 @@ describe("SubtitleList", () => {
     render(<SubtitleList />);
 
     // Проверяем, что субтитры отображаются
-    expect(screen.getByTestId("subtitle-preview-test-subtitle-1")).toBeInTheDocument();
-    expect(screen.getByTestId("subtitle-preview-test-subtitle-2")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("subtitle-preview-test-subtitle-1"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("subtitle-preview-test-subtitle-2"),
+    ).toBeInTheDocument();
   });
 
   it("should render subtitle previews with correct content", () => {
     render(<SubtitleList />);
 
     // Проверяем содержимое превью субтитров
-    expect(screen.getByText("Subtitle Preview: Базовый белый")).toBeInTheDocument();
-    expect(screen.getByText("Subtitle Preview: Креативный жирный")).toBeInTheDocument();
+    expect(
+      screen.getByText("Subtitle Preview: Базовый белый"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Subtitle Preview: Креативный жирный"),
+    ).toBeInTheDocument();
   });
 
   it("should render subtitles in grid layout", () => {
     render(<SubtitleList />);
 
     // Проверяем, что есть grid контейнер
-    const gridContainer = screen.getByTestId("subtitle-preview-test-subtitle-1").parentElement;
+    const gridContainer = screen.getByTestId(
+      "subtitle-preview-test-subtitle-1",
+    ).parentElement;
     expect(gridContainer).toHaveClass("grid");
     expect(gridContainer).toHaveClass("gap-2");
   });
@@ -142,7 +152,11 @@ describe("SubtitleList Loading States", () => {
     render(<SubtitleList />);
 
     // Проверяем, что компонент рендерится без ошибок
-    expect(screen.getByTestId("subtitle-preview-test-subtitle-1")).toBeInTheDocument();
-    expect(screen.getByTestId("subtitle-preview-test-subtitle-2")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("subtitle-preview-test-subtitle-1"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("subtitle-preview-test-subtitle-2"),
+    ).toBeInTheDocument();
   });
 });

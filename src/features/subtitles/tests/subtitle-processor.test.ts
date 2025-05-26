@@ -5,7 +5,11 @@ describe("Subtitle Processor Module", () => {
   it("should import subtitle processor utilities without errors", async () => {
     // Проверяем, что модули импортируются без ошибок
     try {
-      const { processSubtitleStyles, validateSubtitleStylesData, createFallbackSubtitleStyle } = await import("../utils/subtitle-processor");
+      const {
+        processSubtitleStyles,
+        validateSubtitleStylesData,
+        createFallbackSubtitleStyle,
+      } = await import("../utils/subtitle-processor");
 
       expect(processSubtitleStyles).toBeDefined();
       expect(typeof processSubtitleStyles).toBe("function");
@@ -17,7 +21,9 @@ describe("Subtitle Processor Module", () => {
       expect(typeof createFallbackSubtitleStyle).toBe("function");
     } catch (error) {
       // Если модуль не найден, это нормально для тестов
-      console.log("Subtitle processor module not found, which is expected in test environment");
+      console.log(
+        "Subtitle processor module not found, which is expected in test environment",
+      );
     }
   });
 
@@ -31,14 +37,14 @@ describe("Subtitle Processor Module", () => {
         en: "Basic White",
         es: "Blanco básico",
         fr: "Blanc de base",
-        de: "Grundweiß"
+        de: "Grundweiß",
       },
       description: {
         ru: "Простой белый текст с тенью",
         en: "Simple white text with shadow",
         es: "Texto blanco simple con sombra",
         fr: "Texte blanc simple avec ombre",
-        de: "Einfacher weißer Text mit Schatten"
+        de: "Einfacher weißer Text mit Schatten",
       },
       category: "basic",
       complexity: "basic",
@@ -52,8 +58,8 @@ describe("Subtitle Processor Module", () => {
         fontWeight: "normal",
         textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
         padding: "0",
-        borderRadius: "0"
-      }
+        borderRadius: "0",
+      },
     };
 
     // Проверяем обязательные поля
@@ -89,10 +95,10 @@ describe("Subtitle Processor Module", () => {
       "professional",
       "cinematic",
       "technical",
-      "artistic"
+      "artistic",
     ];
 
-    validCategories.forEach(category => {
+    validCategories.forEach((category) => {
       expect(typeof category).toBe("string");
       expect(category.length).toBeGreaterThan(0);
       expect(category).toMatch(/^[a-z-]+$/); // только строчные буквы и дефисы
@@ -105,7 +111,7 @@ describe("Subtitle Processor Module", () => {
     // Проверяем уровни сложности
     const validComplexities = ["basic", "intermediate", "advanced"];
 
-    validComplexities.forEach(complexity => {
+    validComplexities.forEach((complexity) => {
       expect(typeof complexity).toBe("string");
       expect(complexity.length).toBeGreaterThan(0);
     });
@@ -127,10 +133,10 @@ describe("Subtitle Processor Module", () => {
       "clean",
       "stylish",
       "dramatic",
-      "subtle"
+      "subtle",
     ];
 
-    validTags.forEach(tag => {
+    validTags.forEach((tag) => {
       expect(typeof tag).toBe("string");
       expect(tag.length).toBeGreaterThan(0);
       expect(tag).toMatch(/^[a-z-]+$/); // только строчные буквы и дефисы
@@ -152,7 +158,7 @@ describe("Subtitle Processor Module", () => {
       padding: "8px 16px",
       borderRadius: "4px",
       lineHeight: "1.4",
-      letterSpacing: "0.5px"
+      letterSpacing: "0.5px",
     };
 
     // Проверяем обязательные CSS свойства
@@ -162,7 +168,7 @@ describe("Subtitle Processor Module", () => {
     expect(validCSSStyle).toHaveProperty("textAlign");
 
     // Проверяем типы CSS свойств
-    Object.values(validCSSStyle).forEach(value => {
+    Object.values(validCSSStyle).forEach((value) => {
       expect(typeof value).toBe("string");
       expect(value.length).toBeGreaterThan(0);
     });
@@ -180,26 +186,26 @@ describe("Subtitle Processor Module", () => {
       "basic-yellow",
       "minimal-clean",
       "professional-bold",
-      "creative-modern"
+      "creative-modern",
     ];
 
-    fallbackIds.forEach(id => {
+    fallbackIds.forEach((id) => {
       // Структура fallback субтитра
       const expectedFallback = {
         id: id,
         name: expect.any(String),
         labels: {
           ru: expect.any(String),
-          en: expect.any(String)
+          en: expect.any(String),
         },
         description: {
           ru: expect.any(String),
-          en: expect.any(String)
+          en: expect.any(String),
         },
         category: expect.any(String),
         complexity: expect.any(String),
         tags: expect.any(Array),
-        style: expect.any(Object)
+        style: expect.any(Object),
       };
 
       // Проверяем, что структура соответствует ожидаемой
@@ -225,8 +231,8 @@ describe("Subtitle Processor Module", () => {
           complexity: "basic",
           style: {
             fontSize: "24px",
-            color: "#ffffff"
-          }
+            color: "#ffffff",
+          },
         },
         {
           id: "test-2",
@@ -235,10 +241,10 @@ describe("Subtitle Processor Module", () => {
           complexity: "intermediate",
           style: {
             fontSize: "28px",
-            color: "#ffff00"
-          }
-        }
-      ]
+            color: "#ffff00",
+          },
+        },
+      ],
     };
 
     // Проверяем структуру входных данных
@@ -247,7 +253,7 @@ describe("Subtitle Processor Module", () => {
     expect(mockRawData.styles.length).toBeGreaterThan(0);
 
     // Проверяем структуру каждого стиля
-    mockRawData.styles.forEach(style => {
+    mockRawData.styles.forEach((style) => {
       expect(style).toHaveProperty("id");
       expect(style).toHaveProperty("name");
       expect(style).toHaveProperty("category");
@@ -271,10 +277,10 @@ describe("Subtitle Processor Module", () => {
       { styles: null },
       { styles: [] },
       { styles: [{}] },
-      { styles: [{ id: "" }] }
+      { styles: [{ id: "" }] },
     ];
 
-    invalidData.forEach(data => {
+    invalidData.forEach((data) => {
       // Проверяем, что данные могут быть обработаны без ошибок
       if (data === null) {
         expect(data).toBeNull();
@@ -299,7 +305,7 @@ describe("Subtitle Processor Module", () => {
         labels: { ru: "Белый базовый", en: "White Basic" },
         category: "basic",
         complexity: "basic",
-        tags: ["popular", "minimal"]
+        tags: ["popular", "minimal"],
       },
       {
         id: "yellow-creative",
@@ -307,12 +313,12 @@ describe("Subtitle Processor Module", () => {
         labels: { ru: "Желтый креативный", en: "Yellow Creative" },
         category: "creative",
         complexity: "intermediate",
-        tags: ["bold", "modern"]
-      }
+        tags: ["bold", "modern"],
+      },
     ];
 
     // Проверяем структуру данных для поиска
-    mockStyles.forEach(style => {
+    mockStyles.forEach((style) => {
       expect(style).toHaveProperty("id");
       expect(style).toHaveProperty("name");
       expect(style).toHaveProperty("labels");
@@ -330,7 +336,7 @@ describe("Subtitle Processor Module", () => {
 
     // Проверяем поисковые запросы
     const searchQueries = ["white", "basic", "creative", "popular"];
-    searchQueries.forEach(query => {
+    searchQueries.forEach((query) => {
       expect(typeof query).toBe("string");
       expect(query.length).toBeGreaterThan(0);
     });

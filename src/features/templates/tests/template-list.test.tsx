@@ -9,12 +9,12 @@ vi.mock("react-i18next", async () => {
     ...actual,
     useTranslation: () => ({
       t: (key: string, fallback?: string) => fallback || key,
-      i18n: { language: "ru" }
+      i18n: { language: "ru" },
     }),
     initReactI18next: {
       type: "3rdParty",
-      init: vi.fn()
-    }
+      init: vi.fn(),
+    },
   };
 });
 
@@ -31,20 +31,22 @@ vi.mock("@/features/resources", async () => {
       addTemplate: mockAddTemplate,
       isTemplateAdded: mockIsTemplateAdded,
       removeResource: mockRemoveResource,
-      templateResources: []
-    })
+      templateResources: [],
+    }),
   };
 });
 
 // Мокаем MediaProvider
 vi.mock("@/features/browser/media", () => ({
-  MediaProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="media-provider">{children}</div>,
+  MediaProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="media-provider">{children}</div>
+  ),
   useMedia: () => ({
     files: [],
     addFiles: vi.fn(),
     removeFile: vi.fn(),
-    updateFile: vi.fn()
-  })
+    updateFile: vi.fn(),
+  }),
 }));
 
 // Мокаем состояние браузера
@@ -57,16 +59,16 @@ vi.mock("@/components/common/browser-state-provider", () => ({
       sortOrder: "asc",
       groupBy: "none",
       filterType: "all",
-      viewMode: "grid"
-    }
-  })
+      viewMode: "grid",
+    },
+  }),
 }));
 
 // Мокаем медиа хук
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
-    isItemFavorite: vi.fn().mockReturnValue(false)
-  })
+    isItemFavorite: vi.fn().mockReturnValue(false),
+  }),
 }));
 
 // Мокаем настройки проекта
@@ -76,10 +78,10 @@ vi.mock("@/features/project/settings", () => ({
       video: {
         aspectRatio: "16:9",
         width: 1920,
-        height: 1080
-      }
-    }
-  })
+        height: 1080,
+      },
+    },
+  }),
 }));
 
 // Мокаем шаблоны
@@ -92,7 +94,13 @@ vi.mock("../lib/templates", () => ({
         resizable: true,
         screens: 2,
         splitPosition: 50,
-        render: () => ({ type: "div", props: { "data-testid": "template-vertical", children: "Vertical Split" } })
+        render: () => ({
+          type: "div",
+          props: {
+            "data-testid": "template-vertical",
+            children: "Vertical Split",
+          },
+        }),
       },
       {
         id: "split-horizontal-landscape",
@@ -100,19 +108,28 @@ vi.mock("../lib/templates", () => ({
         resizable: true,
         screens: 2,
         splitPosition: 50,
-        render: () => ({ type: "div", props: { "data-testid": "template-horizontal", children: "Horizontal Split" } })
+        render: () => ({
+          type: "div",
+          props: {
+            "data-testid": "template-horizontal",
+            children: "Horizontal Split",
+          },
+        }),
       },
       {
         id: "split-grid-2x2-landscape",
         split: "grid",
         resizable: true,
         screens: 4,
-        render: () => ({ type: "div", props: { "data-testid": "template-grid", children: "Grid 2x2" } })
-      }
+        render: () => ({
+          type: "div",
+          props: { "data-testid": "template-grid", children: "Grid 2x2" },
+        }),
+      },
     ],
     portrait: [],
-    square: []
-  }
+    square: [],
+  },
 }));
 
 // Мокаем компоненты
@@ -125,7 +142,7 @@ vi.mock("@/features/browser/components/layout/content-group", () => ({
         </div>
       ))}
     </div>
-  )
+  ),
 }));
 
 vi.mock("../components/template-preview", () => ({
@@ -142,7 +159,7 @@ vi.mock("../components/template-preview", () => ({
         <div data-testid="template-resizable">Resizable</div>
       )}
     </div>
-  )
+  ),
 }));
 
 describe("TemplateList", () => {
@@ -171,7 +188,7 @@ describe("TemplateList Template Types", () => {
       id: "simple-icon",
       split: "vertical",
       screens: 2,
-      render: () => <div data-testid="simple-icon">Simple Icon</div>
+      render: () => <div data-testid="simple-icon">Simple Icon</div>,
     };
 
     // Проверяем структуру простого шаблона
@@ -190,15 +207,20 @@ describe("TemplateList Template Types", () => {
       resizable: true,
       screens: 3,
       splitPosition: 60,
-      splitPoints: [{ x: 50, y: 0 }, { x: 50, y: 100 }],
+      splitPoints: [
+        { x: 50, y: 0 },
+        { x: 50, y: 100 },
+      ],
       cellConfig: {
         fitMode: "cover",
         alignX: "center",
         alignY: "center",
         initialScale: 1.0,
-        initialPosition: { x: 0, y: 0 }
+        initialPosition: { x: 0, y: 0 },
       },
-      render: () => <div data-testid="configurable-template">Configurable Template</div>
+      render: () => (
+        <div data-testid="configurable-template">Configurable Template</div>
+      ),
     };
 
     // Проверяем структуру настраиваемого шаблона

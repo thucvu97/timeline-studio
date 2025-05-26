@@ -7,8 +7,8 @@ import { TransitionList } from "../components/transition-list";
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string) => fallback || key,
-    i18n: { language: "ru" }
-  })
+    i18n: { language: "ru" },
+  }),
 }));
 
 // Простые моки для тестирования
@@ -23,7 +23,7 @@ const mockTransitions = [
     tags: ["popular"],
     duration: { min: 0.5, max: 2.0, default: 1.0 },
     parameters: { easing: "ease-in-out", intensity: 1.0 },
-    ffmpegCommand: () => "fade=t=in:st=0:d=1.0"
+    ffmpegCommand: () => "fade=t=in:st=0:d=1.0",
   },
   {
     id: "test-transition-2",
@@ -35,8 +35,8 @@ const mockTransitions = [
     tags: ["dynamic"],
     duration: { min: 0.5, max: 3.0, default: 1.5 },
     parameters: { easing: "ease-out", intensity: 0.8, scale: 2.0 },
-    ffmpegCommand: () => "zoompan=z='zoom+0.002':d=125"
-  }
+    ffmpegCommand: () => "zoompan=z='zoom+0.002':d=125",
+  },
 ];
 
 // Простые моки
@@ -46,14 +46,14 @@ vi.mock("../hooks/use-transitions", () => ({
     loading: false,
     error: null,
     reload: vi.fn(),
-    isReady: true
-  })
+    isReady: true,
+  }),
 }));
 
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
-    isItemFavorite: vi.fn().mockReturnValue(false)
-  })
+    isItemFavorite: vi.fn().mockReturnValue(false),
+  }),
 }));
 
 vi.mock("@/features/browser/state", () => ({
@@ -65,15 +65,15 @@ vi.mock("@/features/browser/state", () => ({
       sortOrder: "asc",
       groupBy: "none",
       filterType: "all",
-      previewSizeIndex: 2
-    }
-  })
+      previewSizeIndex: 2,
+    },
+  }),
 }));
 
 vi.mock("@/features/project/settings", () => ({
   useProjectSettings: () => ({
-    settings: { video: { aspectRatio: "16:9" } }
-  })
+    settings: { video: { aspectRatio: "16:9" } },
+  }),
 }));
 
 vi.mock("@/features/browser/components/layout/content-group", () => ({
@@ -85,7 +85,7 @@ vi.mock("@/features/browser/components/layout/content-group", () => ({
         </div>
       ))}
     </div>
-  )
+  ),
 }));
 
 vi.mock("../components/transition-preview", () => ({
@@ -93,7 +93,7 @@ vi.mock("../components/transition-preview", () => ({
     <div data-testid={`transition-preview-${transition.id}`}>
       Transition Preview: {transition.labels.ru}
     </div>
-  )
+  ),
 }));
 
 describe("TransitionList", () => {
@@ -101,23 +101,33 @@ describe("TransitionList", () => {
     render(<TransitionList />);
 
     // Проверяем, что переходы отображаются
-    expect(screen.getByTestId("transition-preview-test-transition-1")).toBeInTheDocument();
-    expect(screen.getByTestId("transition-preview-test-transition-2")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("transition-preview-test-transition-1"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("transition-preview-test-transition-2"),
+    ).toBeInTheDocument();
   });
 
   it("should render transition previews with correct content", () => {
     render(<TransitionList />);
 
     // Проверяем содержимое превью переходов
-    expect(screen.getByText("Transition Preview: Затухание")).toBeInTheDocument();
-    expect(screen.getByText("Transition Preview: Увеличение")).toBeInTheDocument();
+    expect(
+      screen.getByText("Transition Preview: Затухание"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Transition Preview: Увеличение"),
+    ).toBeInTheDocument();
   });
 
   it("should render transitions in grid layout", () => {
     render(<TransitionList />);
 
     // Проверяем, что есть grid контейнер
-    const gridContainer = screen.getByTestId("transition-preview-test-transition-1").parentElement;
+    const gridContainer = screen.getByTestId(
+      "transition-preview-test-transition-1",
+    ).parentElement;
     expect(gridContainer).toHaveClass("grid");
     expect(gridContainer).toHaveClass("gap-2");
   });
@@ -128,7 +138,11 @@ describe("TransitionList Loading States", () => {
     render(<TransitionList />);
 
     // Проверяем, что компонент рендерится без ошибок
-    expect(screen.getByTestId("transition-preview-test-transition-1")).toBeInTheDocument();
-    expect(screen.getByTestId("transition-preview-test-transition-2")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("transition-preview-test-transition-1"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("transition-preview-test-transition-2"),
+    ).toBeInTheDocument();
   });
 });

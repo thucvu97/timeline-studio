@@ -2,11 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   getTemplateDescription,
-  getTemplateLabels
+  getTemplateLabels,
 } from "../lib/template-labels";
 
 describe("Template Labels", () => {
-
   describe("getTemplateLabels", () => {
     it("should return template label for valid id", () => {
       const label = getTemplateLabels("split-vertical-landscape");
@@ -19,10 +18,10 @@ describe("Template Labels", () => {
         "split-vertical-landscape",
         "split-horizontal-landscape",
         "split-grid-2x2-landscape",
-        "split-diagonal-landscape"
+        "split-diagonal-landscape",
       ];
 
-      templateIds.forEach(id => {
+      templateIds.forEach((id) => {
         const label = getTemplateLabels(id);
         expect(typeof label).toBe("string");
         expect(label.length).toBeGreaterThan(0);
@@ -48,10 +47,10 @@ describe("Template Labels", () => {
         "split-vertical-landscape",
         "split-horizontal-landscape",
         "split-grid-2x2-landscape",
-        "split-diagonal-landscape"
+        "split-diagonal-landscape",
       ];
 
-      templateIds.forEach(id => {
+      templateIds.forEach((id) => {
         const description = getTemplateDescription(id);
         expect(typeof description).toBe("string");
         expect(description.length).toBeGreaterThan(0);
@@ -82,7 +81,7 @@ describe("Template Labels", () => {
       // Проверяем, что функции всегда возвращают строки
       const testIds = ["test1", "test2", "unknown"];
 
-      testIds.forEach(id => {
+      testIds.forEach((id) => {
         const label = getTemplateLabels(id);
         const description = getTemplateDescription(id);
 

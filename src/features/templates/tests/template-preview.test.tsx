@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TemplatePreview } from "../components/template-preview";
 import { MediaTemplate } from "../lib/templates";
 
-
 // Мокаем useResources
 const mockAddTemplate = vi.fn();
 const mockRemoveResource = vi.fn();

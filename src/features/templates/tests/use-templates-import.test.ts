@@ -5,10 +5,8 @@ import { useTemplatesImport } from "../hooks/use-templates-import";
 
 // Мокаем Tauri dialog
 vi.mock("@tauri-apps/plugin-dialog", () => ({
-  open: vi.fn()
+  open: vi.fn(),
 }));
-
-
 
 describe("useTemplatesImport", () => {
   let mockOpen: any;
@@ -48,9 +46,9 @@ describe("useTemplatesImport", () => {
       filters: [
         {
           name: "Template Files",
-          extensions: ["json"]
-        }
-      ]
+          extensions: ["json"],
+        },
+      ],
     });
   });
 
@@ -70,9 +68,9 @@ describe("useTemplatesImport", () => {
       filters: [
         {
           name: "Templates JSON",
-          extensions: ["json"]
-        }
-      ]
+          extensions: ["json"],
+        },
+      ],
     });
   });
 
@@ -135,10 +133,7 @@ describe("useTemplatesImport", () => {
   });
 
   it("should handle multiple file import", async () => {
-    const mockFiles = [
-      "/path/to/template1.json",
-      "/path/to/template2.json"
-    ];
+    const mockFiles = ["/path/to/template1.json", "/path/to/template2.json"];
 
     mockOpen.mockResolvedValue(mockFiles);
 
@@ -154,9 +149,9 @@ describe("useTemplatesImport", () => {
       filters: [
         {
           name: "Template Files",
-          extensions: ["json"]
-        }
-      ]
+          extensions: ["json"],
+        },
+      ],
     });
   });
 
@@ -171,7 +166,7 @@ describe("useTemplatesImport", () => {
       const promises = [
         result.current.importTemplateFile(),
         result.current.importTemplateFile(),
-        result.current.importTemplatesFile()
+        result.current.importTemplatesFile(),
       ];
       await Promise.all(promises);
     });

@@ -7,8 +7,8 @@ import { MusicList } from "../components/music-list";
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string) => fallback || key,
-    i18n: { language: "ru" }
-  })
+    i18n: { language: "ru" },
+  }),
 }));
 
 // Мокаем хук ресурсов
@@ -21,8 +21,8 @@ vi.mock("@/features/resources", () => ({
     addMusic: mockAddMusic,
     isMusicFileAdded: mockIsMusicFileAdded,
     removeResource: mockRemoveResource,
-    musicResources: []
-  })
+    musicResources: [],
+  }),
 }));
 
 // Мокаем состояние браузера
@@ -35,16 +35,16 @@ vi.mock("@/components/common/browser-state-provider", () => ({
       sortOrder: "asc",
       groupBy: "none",
       filterType: "all",
-      viewMode: "list"
-    }
-  })
+      viewMode: "list",
+    },
+  }),
 }));
 
 // Мокаем медиа хук
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
-    isItemFavorite: vi.fn().mockReturnValue(false)
-  })
+    isItemFavorite: vi.fn().mockReturnValue(false),
+  }),
 }));
 
 // Мокаем хук импорта музыки
@@ -56,42 +56,40 @@ vi.mock("../hooks/use-music-import", () => ({
     importFile: mockImportFile,
     importDirectory: mockImportDirectory,
     isImporting: false,
-    error: null
-  })
+    error: null,
+  }),
 }));
 
 // Мокаем компоненты
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ onAddMedia, isAdded }: any) => (
-    <div data-testid={isAdded ? "remove-button" : "add-button"} onClick={onAddMedia}>
+    <div
+      data-testid={isAdded ? "remove-button" : "add-button"}
+      onClick={onAddMedia}
+    >
       {isAdded ? "Remove" : "Add"}
     </div>
-  )
+  ),
 }));
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
   FavoriteButton: ({ file }: any) => (
-    <div data-testid="favorite-button">
-      Favorite {file.name}
-    </div>
-  )
+    <div data-testid="favorite-button">Favorite {file.name}</div>
+  ),
 }));
 
 vi.mock("@/features/browser/components/layout/no-files", () => ({
-  NoFiles: () => (
-    <div data-testid="no-files">
-      No music files found
-    </div>
-  )
+  NoFiles: () => <div data-testid="no-files">No music files found</div>,
 }));
 
 // Мокаем утилиты
 vi.mock("@/lib/date", () => ({
-  formatTime: (seconds: number) => `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`
+  formatTime: (seconds: number) =>
+    `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, "0")}`,
 }));
 
 vi.mock("@/lib/utils", () => ({
-  cn: (...classes: any[]) => classes.filter(Boolean).join(" ")
+  cn: (...classes: any[]) => classes.filter(Boolean).join(" "),
 }));
 
 describe("MusicList", () => {
@@ -145,7 +143,8 @@ describe("MusicList", () => {
     render(<MusicList />);
 
     // Проверяем секцию с кнопками импорта
-    const importSection = screen.getByTestId("music-list-content").parentElement;
+    const importSection =
+      screen.getByTestId("music-list-content").parentElement;
     expect(importSection).toBeInTheDocument();
   });
 

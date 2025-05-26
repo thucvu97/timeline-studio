@@ -10,8 +10,8 @@ import { TransitionPreview } from "../components/transition-preview";
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => key,
-    i18n: { language: "ru" }
-  })
+    i18n: { language: "ru" },
+  }),
 }));
 
 // Мокаем хук ресурсов
@@ -24,17 +24,20 @@ vi.mock("@/features/resources", () => ({
     addTransition: mockAddTransition,
     isTransitionAdded: mockIsTransitionAdded,
     removeResource: mockRemoveResource,
-    transitionResources: []
-  })
+    transitionResources: [],
+  }),
 }));
 
 // Мокаем компоненты браузера
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ onAddMedia, isAdded, size }: any) => (
-    <div data-testid={isAdded ? "remove-button" : "add-button"} onClick={onAddMedia}>
+    <div
+      data-testid={isAdded ? "remove-button" : "add-button"}
+      onClick={onAddMedia}
+    >
       {isAdded ? "Remove" : "Add"} (size: {size})
     </div>
-  )
+  ),
 }));
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
@@ -42,7 +45,7 @@ vi.mock("@/features/browser/components/layout/favorite-button", () => ({
     <div data-testid="favorite-button">
       Favorite {file.name} (size: {size}, type: {type})
     </div>
-  )
+  ),
 }));
 
 // Мокаем хук переходов
@@ -57,8 +60,8 @@ const mockTransitions = [
     tags: ["popular"],
     duration: { min: 0.5, max: 2.0, default: 1.0 },
     parameters: { easing: "ease-in-out", intensity: 1.0 },
-    ffmpegCommand: () => "fade=t=in:st=0:d=1.0"
-  }
+    ffmpegCommand: () => "fade=t=in:st=0:d=1.0",
+  },
 ];
 
 vi.mock("../hooks/use-transitions", () => ({
@@ -66,8 +69,8 @@ vi.mock("../hooks/use-transitions", () => ({
     transitions: mockTransitions,
     loading: false,
     error: null,
-    isReady: true
-  })
+    isReady: true,
+  }),
 }));
 
 describe("TransitionPreview", () => {
@@ -79,7 +82,7 @@ describe("TransitionPreview", () => {
       en: "Test Transition",
       es: "Transición de prueba",
       fr: "Transition de test",
-      de: "Test-Übergang"
+      de: "Test-Übergang",
     },
     description: { ru: "Тестовый переход", en: "Test Transition" },
     category: "basic",
@@ -88,9 +91,9 @@ describe("TransitionPreview", () => {
     duration: { min: 0.5, max: 2.0, default: 1.0 },
     parameters: {
       easing: "ease-in-out",
-      intensity: 1.0
+      intensity: 1.0,
     },
-    ffmpegCommand: () => "fade=t=in:st=0:d=1.0"
+    ffmpegCommand: () => "fade=t=in:st=0:d=1.0",
   };
 
   const mockSourceVideo: MediaFile = {
@@ -101,7 +104,7 @@ describe("TransitionPreview", () => {
     size: 1000000,
     duration: 10,
     createdAt: new Date(),
-    modifiedAt: new Date()
+    modifiedAt: new Date(),
   };
 
   const mockTargetVideo: MediaFile = {
@@ -112,7 +115,7 @@ describe("TransitionPreview", () => {
     size: 1000000,
     duration: 10,
     createdAt: new Date(),
-    modifiedAt: new Date()
+    modifiedAt: new Date(),
   };
 
   const defaultProps = {
@@ -123,7 +126,7 @@ describe("TransitionPreview", () => {
     onClick: vi.fn(),
     size: 200,
     previewWidth: 200,
-    previewHeight: 112
+    previewHeight: 112,
   };
 
   beforeEach(() => {
@@ -155,7 +158,9 @@ describe("TransitionPreview", () => {
     render(<TransitionPreview {...defaultProps} />);
 
     // Проверяем индикатор сложности (зеленый для basic)
-    const complexityIndicator = screen.getByTitle("transitions.complexity.basic");
+    const complexityIndicator = screen.getByTitle(
+      "transitions.complexity.basic",
+    );
     expect(complexityIndicator).toBeInTheDocument();
     expect(complexityIndicator).toHaveClass("bg-green-500");
   });
@@ -244,45 +249,63 @@ describe("TransitionPreview", () => {
     fireEvent.click(addButton);
 
     // Проверяем, что переход добавлен
-    expect(mockAddTransition).toHaveBeenCalledWith(expect.objectContaining({
-      id: mockTransition.id,
-      type: mockTransition.type,
-      name: mockTransition.labels.ru
-    }));
+    expect(mockAddTransition).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: mockTransition.id,
+        type: mockTransition.type,
+        name: mockTransition.labels.ru,
+      }),
+    );
   });
 
   it("should use custom preview dimensions", () => {
-    render(<TransitionPreview {...defaultProps} previewWidth={300} previewHeight={200} />);
+    render(
+      <TransitionPreview
+        {...defaultProps}
+        previewWidth={300}
+        previewHeight={200}
+      />,
+    );
 
     // Ищем контейнер с правильными размерами
-    const container = screen.getByTestId("source-video").closest("div")?.parentElement;
+    const container = screen
+      .getByTestId("source-video")
+      .closest("div")?.parentElement;
     expect(container).toHaveStyle({
       width: "300px",
-      height: "200px"
+      height: "200px",
     });
   });
 
   it("should handle different complexity levels", () => {
     const advancedTransition = {
       ...mockTransition,
-      complexity: "advanced" as const
+      complexity: "advanced" as const,
     };
 
-    render(<TransitionPreview {...defaultProps} transition={advancedTransition} />);
+    render(
+      <TransitionPreview {...defaultProps} transition={advancedTransition} />,
+    );
 
-    const complexityIndicator = screen.getByTitle("transitions.complexity.advanced");
+    const complexityIndicator = screen.getByTitle(
+      "transitions.complexity.advanced",
+    );
     expect(complexityIndicator).toHaveClass("bg-red-500");
   });
 
   it("should handle different categories", () => {
     const creativeTransition = {
       ...mockTransition,
-      category: "creative" as const
+      category: "creative" as const,
     };
 
-    render(<TransitionPreview {...defaultProps} transition={creativeTransition} />);
+    render(
+      <TransitionPreview {...defaultProps} transition={creativeTransition} />,
+    );
 
-    const categoryIndicator = screen.getByTitle("transitions.categories.creative");
+    const categoryIndicator = screen.getByTitle(
+      "transitions.categories.creative",
+    );
     expect(categoryIndicator).toHaveClass("bg-gray-700");
     expect(categoryIndicator).toHaveTextContent("CRE");
   });
