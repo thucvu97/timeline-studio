@@ -107,3 +107,6 @@ export { screen, fireEvent, waitFor, within } from "@testing-library/react";
 
 // Переопределение функции render (теперь с базовыми провайдерами)
 export { customRender as render };
+
+// Алиас для совместимости с существующими тестами
+export { renderWithTemplates as renderWithProviders };

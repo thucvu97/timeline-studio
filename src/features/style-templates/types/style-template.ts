@@ -116,4 +116,5 @@ export interface StyleTemplateFilter {
 }
 
 export type StyleTemplateSortBy = "name" | "duration" | "category" | "style" | "recent";
+export type StyleTemplateSortField = "name" | "duration" | "category" | "style";
 export type StyleTemplateSortOrder = "asc" | "desc";
