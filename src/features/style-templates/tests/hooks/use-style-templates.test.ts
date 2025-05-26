@@ -177,8 +177,12 @@ describe("useStyleTemplates", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.filteredTemplates[0].name.ru).toBe("Тестовый шаблон 2");
-      expect(result.current.filteredTemplates[1].name.ru).toBe("Тестовый шаблон 1");
+      expect(result.current.filteredTemplates[0].name.ru).toBe(
+        "Тестовый шаблон 2",
+      );
+      expect(result.current.filteredTemplates[1].name.ru).toBe(
+        "Тестовый шаблон 1",
+      );
     });
   });
 

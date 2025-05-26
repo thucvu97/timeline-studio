@@ -8,8 +8,20 @@ export interface StyleTemplate {
     ru: string;
     en: string;
   };
-  category: "intro" | "outro" | "lower-third" | "title" | "transition" | "overlay";
-  style: "modern" | "vintage" | "minimal" | "corporate" | "creative" | "cinematic";
+  category:
+    | "intro"
+    | "outro"
+    | "lower-third"
+    | "title"
+    | "transition"
+    | "overlay";
+  style:
+    | "modern"
+    | "vintage"
+    | "minimal"
+    | "corporate"
+    | "creative"
+    | "cinematic";
   aspectRatio: "16:9" | "9:16" | "1:1";
   duration: number; // Длительность в секундах
   hasText: boolean; // Есть ли текстовые элементы
@@ -80,7 +92,15 @@ export interface ElementProperties {
 
 export interface Animation {
   id: string;
-  type: "fadeIn" | "fadeOut" | "slideIn" | "slideOut" | "scaleIn" | "scaleOut" | "bounce" | "shake";
+  type:
+    | "fadeIn"
+    | "fadeOut"
+    | "slideIn"
+    | "slideOut"
+    | "scaleIn"
+    | "scaleOut"
+    | "bounce"
+    | "shake";
   duration: number; // Длительность анимации в секундах
   delay?: number; // Задержка перед началом
   easing?: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out";
@@ -115,6 +135,11 @@ export interface StyleTemplateFilter {
   };
 }
 
-export type StyleTemplateSortBy = "name" | "duration" | "category" | "style" | "recent";
+export type StyleTemplateSortBy =
+  | "name"
+  | "duration"
+  | "category"
+  | "style"
+  | "recent";
 export type StyleTemplateSortField = "name" | "duration" | "category" | "style";
 export type StyleTemplateSortOrder = "asc" | "desc";

@@ -134,7 +134,7 @@ describe("style-template-utils", () => {
     it("должен фильтровать по наличию текста", () => {
       const result = filterTemplates(mockTemplates, { hasText: true });
       expect(result).toHaveLength(2);
-      expect(result.map(t => t.id)).toEqual(["template-1", "template-3"]);
+      expect(result.map((t) => t.id)).toEqual(["template-1", "template-3"]);
     });
 
     it("должен фильтровать по наличию анимации", () => {
@@ -148,7 +148,7 @@ describe("style-template-utils", () => {
         duration: { min: 3, max: 5 },
       });
       expect(result).toHaveLength(2);
-      expect(result.map(t => t.id)).toEqual(["template-1", "template-2"]);
+      expect(result.map((t) => t.id)).toEqual(["template-1", "template-2"]);
     });
 
     it("должен применять комбинированные фильтры", () => {
