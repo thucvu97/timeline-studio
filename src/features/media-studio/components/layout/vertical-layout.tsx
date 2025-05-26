@@ -1,20 +1,34 @@
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-import { Browser } from "@/features/browser/components/browser"
-import { Options } from "@/features/options/components/options"
-import { Timeline } from "@/features/timeline/components/timeline"
-import { useUserSettings } from "@/features/user-settings"
-import { VideoPlayer } from "@/features/video-player/components/video-player"
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { Browser } from "@/features/browser/components/browser";
+import { Options } from "@/features/options/components/options";
+import { Timeline } from "@/features/timeline/components/timeline";
+import { useUserSettings } from "@/features/user-settings";
+import { VideoPlayer } from "@/features/video-player/components/video-player";
 
 export function VerticalLayout() {
-  const { isBrowserVisible } = useUserSettings()
+  const { isBrowserVisible } = useUserSettings();
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="vertical-main-layout">
+    <ResizablePanelGroup
+      direction="horizontal"
+      className="min-h-0 flex-grow"
+      autoSaveId="vertical-main-layout"
+    >
       <ResizablePanel defaultSize={67} minSize={50} maxSize={80}>
-        <ResizablePanelGroup direction="vertical" autoSaveId="vertical-left-layout">
+        <ResizablePanelGroup
+          direction="vertical"
+          autoSaveId="vertical-left-layout"
+        >
           <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
             <div className="h-full overflow-hidden p-0">
-              <ResizablePanelGroup direction="horizontal" autoSaveId="vertical-top-layout">
+              <ResizablePanelGroup
+                direction="horizontal"
+                autoSaveId="vertical-top-layout"
+              >
                 {isBrowserVisible ? (
                   <>
                     <ResizablePanel defaultSize={40} minSize={10} maxSize={80}>
@@ -25,7 +39,11 @@ export function VerticalLayout() {
                     <ResizableHandle />
                   </>
                 ) : null}
-                <ResizablePanel defaultSize={isBrowserVisible ? 60 : 100} minSize={20} maxSize={100}>
+                <ResizablePanel
+                  defaultSize={isBrowserVisible ? 60 : 100}
+                  minSize={20}
+                  maxSize={100}
+                >
                   <div className="h-full flex-1">
                     <Options />
                   </div>
@@ -50,5 +68,5 @@ export function VerticalLayout() {
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
-  )
+  );
 }

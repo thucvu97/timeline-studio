@@ -8,7 +8,13 @@ import { TransitionGroup } from "../../components/transition-group";
 
 // Мокаем TransitionPreview компонент
 vi.mock("../../components/transition-preview", () => ({
-  TransitionPreview: ({ transition, onClick, size, previewWidth, previewHeight }: any) => (
+  TransitionPreview: ({
+    transition,
+    onClick,
+    size,
+    previewWidth,
+    previewHeight,
+  }: any) => (
     <div
       data-testid={`transition-preview-${transition.id}`}
       data-size={size}
@@ -135,7 +141,10 @@ describe("TransitionGroup", () => {
   it("должен вызывать onTransitionClick при клике на переход", () => {
     const mockOnTransitionClick = vi.fn();
     renderWithBase(
-      <TransitionGroup {...defaultProps} onTransitionClick={mockOnTransitionClick} />
+      <TransitionGroup
+        {...defaultProps}
+        onTransitionClick={mockOnTransitionClick}
+      />,
     );
 
     const fadePreview = screen.getByTestId("transition-preview-fade-1");
@@ -147,7 +156,10 @@ describe("TransitionGroup", () => {
   it("должен вызывать onTransitionClick для разных переходов", () => {
     const mockOnTransitionClick = vi.fn();
     renderWithBase(
-      <TransitionGroup {...defaultProps} onTransitionClick={mockOnTransitionClick} />
+      <TransitionGroup
+        {...defaultProps}
+        onTransitionClick={mockOnTransitionClick}
+      />,
     );
 
     // Кликаем на первый переход
@@ -159,8 +171,14 @@ describe("TransitionGroup", () => {
     zoomPreview.click();
 
     expect(mockOnTransitionClick).toHaveBeenCalledTimes(2);
-    expect(mockOnTransitionClick).toHaveBeenNthCalledWith(1, mockTransitions[0]);
-    expect(mockOnTransitionClick).toHaveBeenNthCalledWith(2, mockTransitions[1]);
+    expect(mockOnTransitionClick).toHaveBeenNthCalledWith(
+      1,
+      mockTransitions[0],
+    );
+    expect(mockOnTransitionClick).toHaveBeenNthCalledWith(
+      2,
+      mockTransitions[1],
+    );
   });
 
   it("не должен рендериться если нет переходов", () => {
@@ -168,7 +186,7 @@ describe("TransitionGroup", () => {
 
     // Проверяем, что нет заголовка группы
     expect(screen.queryByText("Basic Transitions")).not.toBeInTheDocument();
-    
+
     // Проверяем, что нет переходов
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
@@ -187,16 +205,22 @@ describe("TransitionGroup", () => {
   it("должен применять правильные CSS классы для сетки", () => {
     renderWithBase(<TransitionGroup {...defaultProps} />);
 
-    const gridContainer = screen.getByTestId("transition-preview-fade-1").parentElement;
+    const gridContainer = screen.getByTestId(
+      "transition-preview-fade-1",
+    ).parentElement;
     expect(gridContainer).toHaveClass("grid");
     expect(gridContainer).toHaveClass("gap-2");
-    expect(gridContainer).toHaveClass("grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))]");
+    expect(gridContainer).toHaveClass(
+      "grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))]",
+    );
   });
 
   it("должен устанавливать правильную CSS переменную для размера превью", () => {
     renderWithBase(<TransitionGroup {...defaultProps} previewWidth={150} />);
 
-    const gridContainer = screen.getByTestId("transition-preview-fade-1").parentElement;
+    const gridContainer = screen.getByTestId(
+      "transition-preview-fade-1",
+    ).parentElement;
     expect(gridContainer).toHaveStyle({ "--preview-size": "150px" });
   });
 
@@ -215,7 +239,7 @@ describe("TransitionGroup", () => {
         previewWidth={200}
         previewHeight={150}
         previewSize={3}
-      />
+      />,
     );
 
     fadePreview = screen.getByTestId("transition-preview-fade-1");
@@ -233,10 +257,14 @@ describe("TransitionGroup", () => {
 
   it("должен обрабатывать один переход", () => {
     const singleTransition = [mockTransitions[0]];
-    renderWithBase(<TransitionGroup {...defaultProps} transitions={singleTransition} />);
+    renderWithBase(
+      <TransitionGroup {...defaultProps} transitions={singleTransition} />,
+    );
 
     expect(screen.getByTestId("transition-preview-fade-1")).toBeInTheDocument();
-    expect(screen.queryByTestId("transition-preview-zoom-1")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("transition-preview-zoom-1"),
+    ).not.toBeInTheDocument();
 
     const transitionPreviews = screen.getAllByRole("button");
     expect(transitionPreviews).toHaveLength(1);
@@ -247,7 +275,12 @@ describe("TransitionGroup", () => {
 
     const title = screen.getByText("Basic Transitions");
     expect(title.tagName).toBe("H3");
-    expect(title).toHaveClass("text-sm", "font-medium", "text-gray-700", "dark:text-gray-300");
+    expect(title).toHaveClass(
+      "text-sm",
+      "font-medium",
+      "text-gray-700",
+      "dark:text-gray-300",
+    );
   });
 
   it("должен применять правильные CSS классы к контейнеру", () => {

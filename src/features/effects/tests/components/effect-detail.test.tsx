@@ -50,17 +50,41 @@ vi.mock("react-i18next", () => ({
 
 // Мокаем lucide-react иконки
 vi.mock("lucide-react", () => ({
-  Pause: ({ size }: any) => <div data-testid="pause-icon" data-size={size}>Pause</div>,
-  Play: ({ size }: any) => <div data-testid="play-icon" data-size={size}>Play</div>,
-  RotateCcw: ({ size }: any) => <div data-testid="rotate-icon" data-size={size}>Rotate</div>,
-  X: ({ size }: any) => <div data-testid="x-icon" data-size={size}>X</div>,
+  Pause: ({ size }: any) => (
+    <div data-testid="pause-icon" data-size={size}>
+      Pause
+    </div>
+  ),
+  Play: ({ size }: any) => (
+    <div data-testid="play-icon" data-size={size}>
+      Play
+    </div>
+  ),
+  RotateCcw: ({ size }: any) => (
+    <div data-testid="rotate-icon" data-size={size}>
+      Rotate
+    </div>
+  ),
+  X: ({ size }: any) => (
+    <div data-testid="x-icon" data-size={size}>
+      X
+    </div>
+  ),
   Star: ({ className, strokeWidth }: any) => (
-    <div data-testid="star-icon" data-classname={className} data-stroke-width={strokeWidth}>
+    <div
+      data-testid="star-icon"
+      data-classname={className}
+      data-stroke-width={strokeWidth}
+    >
       Star Icon
     </div>
   ),
   Plus: ({ className, strokeWidth }: any) => (
-    <div data-testid="plus-icon" data-classname={className} data-stroke-width={strokeWidth}>
+    <div
+      data-testid="plus-icon"
+      data-classname={className}
+      data-stroke-width={strokeWidth}
+    >
       Plus Icon
     </div>
   ),

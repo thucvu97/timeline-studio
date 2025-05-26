@@ -90,7 +90,10 @@ describe("useFiltersImport", () => {
         await result.current.importFiltersFile();
       });
 
-      expect(console.log).toHaveBeenCalledWith("Импорт JSON файла с фильтрами:", filePath);
+      expect(console.log).toHaveBeenCalledWith(
+        "Импорт JSON файла с фильтрами:",
+        filePath,
+      );
     });
 
     it("не должен делать ничего если файл не выбран", async () => {
@@ -113,7 +116,10 @@ describe("useFiltersImport", () => {
         await result.current.importFiltersFile();
       });
 
-      expect(console.error).toHaveBeenCalledWith("Ошибка при импорте фильтров:", error);
+      expect(console.error).toHaveBeenCalledWith(
+        "Ошибка при импорте фильтров:",
+        error,
+      );
       expect(result.current.isImporting).toBe(false);
     });
 
@@ -178,7 +184,10 @@ describe("useFiltersImport", () => {
         await result.current.importFilterFile();
       });
 
-      expect(console.log).toHaveBeenCalledWith("Импорт файлов фильтров:", files);
+      expect(console.log).toHaveBeenCalledWith(
+        "Импорт файлов фильтров:",
+        files,
+      );
     });
 
     it("должен обрабатывать одиночный файл как массив", async () => {
@@ -190,7 +199,9 @@ describe("useFiltersImport", () => {
         await result.current.importFilterFile();
       });
 
-      expect(console.log).toHaveBeenCalledWith("Импорт файлов фильтров:", [file]);
+      expect(console.log).toHaveBeenCalledWith("Импорт файлов фильтров:", [
+        file,
+      ]);
     });
 
     it("должен устанавливать isImporting в true во время импорта", async () => {
@@ -242,7 +253,10 @@ describe("useFiltersImport", () => {
         await result.current.importFilterFile();
       });
 
-      expect(console.error).toHaveBeenCalledWith("Ошибка при импорте файлов фильтров:", error);
+      expect(console.error).toHaveBeenCalledWith(
+        "Ошибка при импорте файлов фильтров:",
+        error,
+      );
       expect(result.current.isImporting).toBe(false);
     });
 

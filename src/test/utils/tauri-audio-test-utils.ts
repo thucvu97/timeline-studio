@@ -7,12 +7,14 @@ import { vi } from "vitest";
 /**
  * Создает мок для аудио файла с реалистичными данными
  */
-export function createMockAudioFile(options: {
-  name?: string;
-  path?: string;
-  duration?: number;
-  size?: number;
-} = {}) {
+export function createMockAudioFile(
+  options: {
+    name?: string;
+    path?: string;
+    duration?: number;
+    size?: number;
+  } = {},
+) {
   const {
     name = "test-audio.mp3",
     path = "/path/to/test-audio.mp3",
@@ -48,8 +50,8 @@ export function createMockAudioData(size = 1024): Uint8Array {
   data[5] = 0x00; // Flags
 
   // MP3 frame header
-  data[10] = 0xFF;
-  data[11] = 0xFB;
+  data[10] = 0xff;
+  data[11] = 0xfb;
   data[12] = 0x90;
   data[13] = 0x00;
 
@@ -86,7 +88,7 @@ export function mockTauriConvertFileSrc() {
   }));
 
   convertFileSrc.mockImplementation((path: string) => {
-    return `tauri://localhost/${path.replace(/^\//, '')}`;
+    return `tauri://localhost/${path.replace(/^\//, "")}`;
   });
 
   return convertFileSrc;
@@ -111,7 +113,7 @@ export function createWebAudioMocks() {
       createMediaStreamDestination: vi.fn().mockReturnValue(mockDestination),
       destination: {},
       close: vi.fn().mockResolvedValue(undefined),
-      state: 'running',
+      state: "running",
       sampleRate: 44100,
     };
   });
@@ -121,7 +123,7 @@ export function createWebAudioMocks() {
     stop: vi.fn(),
     pause: vi.fn(),
     resume: vi.fn(),
-    state: 'inactive',
+    state: "inactive",
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
@@ -154,7 +156,7 @@ export function createAudioElementMock() {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
-    src: '',
+    src: "",
   };
 
   return audioElement;
@@ -165,11 +167,11 @@ export function createAudioElementMock() {
  */
 export async function simulateAudioLoad(audioElement: HTMLAudioElement) {
   // Симулируем событие loadedmetadata
-  const loadedEvent = new Event('loadedmetadata');
+  const loadedEvent = new Event("loadedmetadata");
   audioElement.dispatchEvent(loadedEvent);
 
   // Ждем небольшую задержку для имитации загрузки
-  await new Promise(resolve => setTimeout(resolve, 50));
+  await new Promise((resolve) => setTimeout(resolve, 50));
 }
 
 /**
@@ -177,16 +179,16 @@ export async function simulateAudioLoad(audioElement: HTMLAudioElement) {
  */
 export async function simulateAudioPlay(audioElement: HTMLAudioElement) {
   // Обновляем состояние
-  Object.defineProperty(audioElement, 'paused', {
+  Object.defineProperty(audioElement, "paused", {
     value: false,
     writable: true,
     configurable: true,
   });
 
-  const playEvent = new Event('play');
+  const playEvent = new Event("play");
   audioElement.dispatchEvent(playEvent);
 
-  await new Promise(resolve => setTimeout(resolve, 10));
+  await new Promise((resolve) => setTimeout(resolve, 10));
 }
 
 /**
@@ -194,16 +196,16 @@ export async function simulateAudioPlay(audioElement: HTMLAudioElement) {
  */
 export async function simulateAudioPause(audioElement: HTMLAudioElement) {
   // Обновляем состояние
-  Object.defineProperty(audioElement, 'paused', {
+  Object.defineProperty(audioElement, "paused", {
     value: true,
     writable: true,
     configurable: true,
   });
 
-  const pauseEvent = new Event('pause');
+  const pauseEvent = new Event("pause");
   audioElement.dispatchEvent(pauseEvent);
 
-  await new Promise(resolve => setTimeout(resolve, 10));
+  await new Promise((resolve) => setTimeout(resolve, 10));
 }
 
 /**
@@ -211,49 +213,52 @@ export async function simulateAudioPause(audioElement: HTMLAudioElement) {
  */
 export async function simulateAudioEnd(audioElement: HTMLAudioElement) {
   // Создаем мок объект с нужными свойствами
-  Object.defineProperty(audioElement, 'paused', {
+  Object.defineProperty(audioElement, "paused", {
     value: true,
     writable: true,
     configurable: true,
   });
 
-  Object.defineProperty(audioElement, 'ended', {
+  Object.defineProperty(audioElement, "ended", {
     value: true,
     writable: true,
     configurable: true,
   });
 
-  Object.defineProperty(audioElement, 'currentTime', {
+  Object.defineProperty(audioElement, "currentTime", {
     value: audioElement.duration || 0,
     writable: true,
     configurable: true,
   });
 
-  const endedEvent = new Event('ended');
+  const endedEvent = new Event("ended");
   audioElement.dispatchEvent(endedEvent);
 
-  await new Promise(resolve => setTimeout(resolve, 10));
+  await new Promise((resolve) => setTimeout(resolve, 10));
 }
 
 /**
  * Симулирует ошибку загрузки аудио
  */
-export async function simulateAudioError(audioElement: HTMLAudioElement, errorCode = 4) {
+export async function simulateAudioError(
+  audioElement: HTMLAudioElement,
+  errorCode = 4,
+) {
   // Создаем кастомное событие с правильной структурой
-  const errorEvent = new CustomEvent('error', {
+  const errorEvent = new CustomEvent("error", {
     detail: {
       error: {
         code: errorCode,
-        message: 'Mock audio error',
+        message: "Mock audio error",
       },
     },
   });
 
   // Добавляем error свойство к аудио элементу
-  Object.defineProperty(audioElement, 'error', {
+  Object.defineProperty(audioElement, "error", {
     value: {
       code: errorCode,
-      message: 'Mock audio error',
+      message: "Mock audio error",
     },
     writable: true,
     configurable: true,
@@ -261,7 +266,7 @@ export async function simulateAudioError(audioElement: HTMLAudioElement, errorCo
 
   audioElement.dispatchEvent(errorEvent);
 
-  await new Promise(resolve => setTimeout(resolve, 10));
+  await new Promise((resolve) => setTimeout(resolve, 10));
 }
 
 /**
@@ -299,5 +304,5 @@ export function setupAudioTestEnvironment() {
  * Ждет инициализации аудио контекста (имитирует setTimeout в компоненте)
  */
 export async function waitForAudioContextInit(delay = 150) {
-  await new Promise(resolve => setTimeout(resolve, delay));
+  await new Promise((resolve) => setTimeout(resolve, delay));
 }

@@ -77,8 +77,8 @@ renderWithBase(<ComponentWithProviders />)
 // Глобальный мок в setup.ts просто рендерит children
 
 // ✅ Правильно: отключить мок для конкретного теста
-vi.unmock("@/i18n/i18n-provider")
-import { I18nProvider } from "./i18n-provider"
+vi.unmock("@/i18n/i18n-provider");
+import { I18nProvider } from "./i18n-provider";
 ```
 
 ## 📝 Шаблоны для тестов
@@ -112,17 +112,17 @@ vi.mock('lucide-react', () => ({
 ### XState машина
 
 ```typescript
-import { createActor } from 'xstate'
-import { myMachine } from './my-machine'
+import { createActor } from "xstate";
+import { myMachine } from "./my-machine";
 
-describe('MyMachine', () => {
-  it('должна начинать в правильном состоянии', () => {
-    const actor = createActor(myMachine)
-    actor.start()
-    
-    expect(actor.getSnapshot().value).toBe('idle')
-  })
-})
+describe("MyMachine", () => {
+  it("должна начинать в правильном состоянии", () => {
+    const actor = createActor(myMachine);
+    actor.start();
+
+    expect(actor.getSnapshot().value).toBe("idle");
+  });
+});
 ```
 
 ## 🚀 Команды для отладки

@@ -24,12 +24,20 @@ vi.mock("react-i18next", () => ({
 // Мокаем lucide-react иконки
 vi.mock("lucide-react", () => ({
   Star: ({ className, strokeWidth }: any) => (
-    <div data-testid="star-icon" data-classname={className} data-stroke-width={strokeWidth}>
+    <div
+      data-testid="star-icon"
+      data-classname={className}
+      data-stroke-width={strokeWidth}
+    >
       Star Icon
     </div>
   ),
   Plus: ({ className, strokeWidth }: any) => (
-    <div data-testid="plus-icon" data-classname={className} data-stroke-width={strokeWidth}>
+    <div
+      data-testid="plus-icon"
+      data-classname={className}
+      data-stroke-width={strokeWidth}
+    >
       Plus Icon
     </div>
   ),

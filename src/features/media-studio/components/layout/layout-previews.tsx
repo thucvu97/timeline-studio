@@ -1,29 +1,34 @@
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next";
 
-import { useUserSettings } from "@/features/user-settings"
+import { useUserSettings } from "@/features/user-settings";
 
-import { DefaultLayout, DualLayout, OptionsLayout, VerticalLayout } from "./layouts-markup"
+import {
+  DefaultLayout,
+  DualLayout,
+  OptionsLayout,
+  VerticalLayout,
+} from "./layouts-markup";
 
 export function LayoutPreviews() {
-  const { layoutMode, handleLayoutChange } = useUserSettings()
-  const { t } = useTranslation()
+  const { layoutMode, handleLayoutChange } = useUserSettings();
+  const { t } = useTranslation();
 
-  console.log("LayoutPreviews rendered with layoutMode:", layoutMode)
+  console.log("LayoutPreviews rendered with layoutMode:", layoutMode);
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-around gap-2">
         <DefaultLayout
           isActive={layoutMode === "default"}
           onClick={() => {
-            console.log("Clicking on DefaultLayout")
-            handleLayoutChange("default")
+            console.log("Clicking on DefaultLayout");
+            handleLayoutChange("default");
           }}
         />
         <OptionsLayout
           isActive={layoutMode === "options"}
           onClick={() => {
-            console.log("Clicking on OptionsLayout")
-            handleLayoutChange("options")
+            console.log("Clicking on OptionsLayout");
+            handleLayoutChange("options");
           }}
         />
       </div>
@@ -31,19 +36,19 @@ export function LayoutPreviews() {
         <VerticalLayout
           isActive={layoutMode === "vertical"}
           onClick={() => {
-            console.log("Clicking on VerticalLayout")
-            handleLayoutChange("vertical")
+            console.log("Clicking on VerticalLayout");
+            handleLayoutChange("vertical");
           }}
         />
         <DualLayout
           isActive={layoutMode === "dual"}
           hasExternalDisplay={false}
           onClick={() => {
-            console.log("Clicking on DualLayout")
-            handleLayoutChange("dual")
+            console.log("Clicking on DualLayout");
+            handleLayoutChange("dual");
           }}
         />
       </div>
     </div>
-  )
+  );
 }

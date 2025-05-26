@@ -7,7 +7,13 @@ import { FilterGroup } from "../../components/filter-group";
 
 // Мокаем FilterPreview компонент
 vi.mock("../../components/filter-preview", () => ({
-  FilterPreview: ({ filter, onClick, size, previewWidth, previewHeight }: any) => (
+  FilterPreview: ({
+    filter,
+    onClick,
+    size,
+    previewWidth,
+    previewHeight,
+  }: any) => (
     <div
       data-testid={`filter-preview-${filter.id}`}
       data-size={size}
@@ -81,7 +87,9 @@ describe("FilterGroup", () => {
     expect(screen.getByText("Color Correction")).toBeInTheDocument();
 
     // Проверяем наличие фильтров
-    expect(screen.getByTestId("filter-preview-brightness-1")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("filter-preview-brightness-1"),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("filter-preview-contrast-1")).toBeInTheDocument();
   });
 
@@ -109,7 +117,7 @@ describe("FilterGroup", () => {
   it("должен вызывать onFilterClick при клике на фильтр", () => {
     const mockOnFilterClick = vi.fn();
     renderWithBase(
-      <FilterGroup {...defaultProps} onFilterClick={mockOnFilterClick} />
+      <FilterGroup {...defaultProps} onFilterClick={mockOnFilterClick} />,
     );
 
     const brightnessPreview = screen.getByTestId("filter-preview-brightness-1");
@@ -121,7 +129,7 @@ describe("FilterGroup", () => {
   it("должен вызывать onFilterClick для разных фильтров", () => {
     const mockOnFilterClick = vi.fn();
     renderWithBase(
-      <FilterGroup {...defaultProps} onFilterClick={mockOnFilterClick} />
+      <FilterGroup {...defaultProps} onFilterClick={mockOnFilterClick} />,
     );
 
     // Кликаем на первый фильтр
@@ -154,23 +162,31 @@ describe("FilterGroup", () => {
     expect(screen.queryByText("Color Correction")).not.toBeInTheDocument();
 
     // Но фильтры должны быть
-    expect(screen.getByTestId("filter-preview-brightness-1")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("filter-preview-brightness-1"),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("filter-preview-contrast-1")).toBeInTheDocument();
   });
 
   it("должен применять правильные CSS классы для сетки", () => {
     renderWithBase(<FilterGroup {...defaultProps} />);
 
-    const gridContainer = screen.getByTestId("filter-preview-brightness-1").parentElement;
+    const gridContainer = screen.getByTestId(
+      "filter-preview-brightness-1",
+    ).parentElement;
     expect(gridContainer).toHaveClass("grid");
     expect(gridContainer).toHaveClass("gap-2");
-    expect(gridContainer).toHaveClass("grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))]");
+    expect(gridContainer).toHaveClass(
+      "grid-cols-[repeat(auto-fill,minmax(0,calc(var(--preview-size)+12px)))]",
+    );
   });
 
   it("должен устанавливать правильную CSS переменную для размера превью", () => {
     renderWithBase(<FilterGroup {...defaultProps} previewWidth={150} />);
 
-    const gridContainer = screen.getByTestId("filter-preview-brightness-1").parentElement;
+    const gridContainer = screen.getByTestId(
+      "filter-preview-brightness-1",
+    ).parentElement;
     expect(gridContainer).toHaveStyle({ "--preview-size": "150px" });
   });
 
@@ -189,7 +205,7 @@ describe("FilterGroup", () => {
         previewWidth={200}
         previewHeight={150}
         previewSize={3}
-      />
+      />,
     );
 
     brightnessPreview = screen.getByTestId("filter-preview-brightness-1");
@@ -209,8 +225,12 @@ describe("FilterGroup", () => {
     const singleFilter = [mockFilters[0]];
     renderWithBase(<FilterGroup {...defaultProps} filters={singleFilter} />);
 
-    expect(screen.getByTestId("filter-preview-brightness-1")).toBeInTheDocument();
-    expect(screen.queryByTestId("filter-preview-contrast-1")).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("filter-preview-brightness-1"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("filter-preview-contrast-1"),
+    ).not.toBeInTheDocument();
 
     const filterPreviews = screen.getAllByRole("button");
     expect(filterPreviews).toHaveLength(1);
@@ -221,7 +241,12 @@ describe("FilterGroup", () => {
 
     const title = screen.getByText("Color Correction");
     expect(title.tagName).toBe("H3");
-    expect(title).toHaveClass("text-sm", "font-medium", "text-gray-700", "dark:text-gray-300");
+    expect(title).toHaveClass(
+      "text-sm",
+      "font-medium",
+      "text-gray-700",
+      "dark:text-gray-300",
+    );
   });
 
   it("должен применять правильные CSS классы к контейнеру", () => {

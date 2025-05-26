@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { DefaultLayout, DualLayout, OptionsLayout, VerticalLayout } from "../../components/layout/layouts-markup";
+import {
+  DefaultLayout,
+  DualLayout,
+  OptionsLayout,
+  VerticalLayout,
+} from "../../components/layout/layouts-markup";
 
 // Мокаем react-i18next
 vi.mock("react-i18next", () => ({

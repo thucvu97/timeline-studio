@@ -5,16 +5,19 @@
 ## Основные возможности
 
 ### 🎵 Мокирование аудио данных
+
 - Создание реалистичных MP3 данных для тестирования
 - Мокирование Tauri API для чтения файлов
 - Поддержка различных форматов аудио
 
 ### 🔊 Web Audio API моки
+
 - Полная имитация AudioContext
 - Мокирование MediaRecorder
 - Поддержка аудио визуализации
 
 ### 🎮 Симуляция аудио событий
+
 - Загрузка, воспроизведение, пауза
 - Обработка ошибок
 - Управление временем воспроизведения
@@ -44,7 +47,10 @@ describe("AudioComponent", () => {
 ### Создание тестовых данных
 
 ```typescript
-import { createMockAudioFile, createMockAudioData } from "@/test/utils/tauri-audio-test-utils";
+import {
+  createMockAudioFile,
+  createMockAudioData,
+} from "@/test/utils/tauri-audio-test-utils";
 
 // Создание мок аудио файла
 const audioFile = createMockAudioFile({
@@ -91,6 +97,7 @@ await simulateAudioError(audioElement, 4); // MEDIA_ELEMENT_ERROR
 Создает полную среду для тестирования аудио компонентов.
 
 **Возвращает:**
+
 ```typescript
 {
   webAudio: {
@@ -114,6 +121,7 @@ await simulateAudioError(audioElement, 4); // MEDIA_ELEMENT_ERROR
 Создает мок объект аудио файла.
 
 **Параметры:**
+
 - `name?: string` - Имя файла (по умолчанию: "test-audio.mp3")
 - `path?: string` - Путь к файлу (по умолчанию: "/path/to/test-audio.mp3")
 - `duration?: number` - Длительность в секундах (по умолчанию: 180)
@@ -124,6 +132,7 @@ await simulateAudioError(audioElement, 4); // MEDIA_ELEMENT_ERROR
 Создает реалистичные аудио данные в формате Uint8Array.
 
 **Параметры:**
+
 - `size?: number` - Размер данных в байтах (по умолчанию: 1024)
 
 ### createAudioElementMock()
@@ -135,6 +144,7 @@ await simulateAudioError(audioElement, 4); // MEDIA_ELEMENT_ERROR
 Ждет инициализации аудио контекста (имитирует setTimeout в компоненте).
 
 **Параметры:**
+
 - `delay?: number` - Задержка в миллисекундах (по умолчанию: 150)
 
 ## Примеры тестов
@@ -159,10 +169,10 @@ it("should load audio file and create blob URL", async () => {
 ```typescript
 it("should play audio on click", async () => {
   const { container } = render(<AudioPreview file={audioFile} />);
-  
+
   const audioElement = container.querySelector("audio") as HTMLAudioElement;
   const mockAudio = createAudioElementMock();
-  
+
   audioElement.play = mockAudio.play;
 
   const containerDiv = container.firstChild as HTMLElement;
@@ -214,12 +224,15 @@ vi.mock("@context7/api", () => ({
 ## Устранение неполадок
 
 ### Проблема: "AudioContext is not defined"
+
 **Решение:** Убедитесь, что вы используете `setupAudioTestEnvironment()` в beforeEach
 
 ### Проблема: "MediaRecorder.isTypeSupported is not a function"
+
 **Решение:** Моки в setup.ts уже включают этот метод
 
 ### Проблема: Тесты не ждут асинхронные операции
+
 **Решение:** Используйте `waitFor` и `waitForAudioContextInit`
 
 ## Совместимость

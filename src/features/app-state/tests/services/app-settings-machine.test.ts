@@ -1,11 +1,14 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
-import { createActor } from "xstate"
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createActor } from "xstate";
 
-import { FavoritesType } from "@/features/browser/media/media-machine"
-import { UserSettingsContextType } from "@/features/user-settings"
+import { FavoritesType } from "@/features/browser/media/media-machine";
+import { UserSettingsContextType } from "@/features/user-settings";
 
-import { AppSettingsContextType, appSettingsMachine } from "../../services/app-settings-machine"
-import { storeService } from "../../services/store-service"
+import {
+  AppSettingsContextType,
+  appSettingsMachine,
+} from "../../services/app-settings-machine";
+import { storeService } from "../../services/store-service";
 
 // Мокаем storeService
 vi.mock("../../services/store-service", () => ({
@@ -17,53 +20,54 @@ vi.mock("../../services/store-service", () => ({
     addRecentProject: vi.fn().mockResolvedValue(undefined),
     saveFavorites: vi.fn().mockResolvedValue(undefined),
   },
-}))
+}));
 
 describe("App Settings Machine", () => {
   beforeEach(() => {
     // Очищаем моки перед каждым тестом
-    vi.clearAllMocks()
-    vi.spyOn(console, "error").mockImplementation(() => {})
-    vi.spyOn(console, "log").mockImplementation(() => {})
-  })
+    vi.clearAllMocks();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
 
   it("should have a valid machine definition", () => {
     // Проверяем, что машина состояний определена
-    expect(appSettingsMachine).toBeDefined()
+    expect(appSettingsMachine).toBeDefined();
 
     // Проверяем основные свойства машины состояний
-    expect(appSettingsMachine.id).toBe("appSettings")
+    expect(appSettingsMachine.id).toBe("appSettings");
 
     // Проверяем, что машина имеет нужные состояния
-    expect(appSettingsMachine.states).toHaveProperty("loading")
-    expect(appSettingsMachine.states).toHaveProperty("idle")
-    expect(appSettingsMachine.states).toHaveProperty("error")
-  })
+    expect(appSettingsMachine.states).toHaveProperty("loading");
+    expect(appSettingsMachine.states).toHaveProperty("idle");
+    expect(appSettingsMachine.states).toHaveProperty("error");
+  });
 
   it("should have correct initial context", () => {
     // Проверяем начальный контекст
-    const initialContext = appSettingsMachine.config.context as AppSettingsContextType
+    const initialContext = appSettingsMachine.config
+      .context as AppSettingsContextType;
 
     // Проверяем структуру контекста
-    expect(initialContext).toHaveProperty("userSettings")
-    expect(initialContext).toHaveProperty("recentProjects")
-    expect(initialContext).toHaveProperty("currentProject")
-    expect(initialContext).toHaveProperty("favorites")
-    expect(initialContext).toHaveProperty("mediaFiles")
-    expect(initialContext).toHaveProperty("isLoading")
-    expect(initialContext).toHaveProperty("error")
+    expect(initialContext).toHaveProperty("userSettings");
+    expect(initialContext).toHaveProperty("recentProjects");
+    expect(initialContext).toHaveProperty("currentProject");
+    expect(initialContext).toHaveProperty("favorites");
+    expect(initialContext).toHaveProperty("mediaFiles");
+    expect(initialContext).toHaveProperty("isLoading");
+    expect(initialContext).toHaveProperty("error");
 
     // Проверяем значения по умолчанию
-    expect(initialContext.isLoading).toBe(true)
-    expect(initialContext.error).toBeNull()
-    expect(initialContext.recentProjects).toEqual([])
+    expect(initialContext.isLoading).toBe(true);
+    expect(initialContext.error).toBeNull();
+    expect(initialContext.recentProjects).toEqual([]);
     expect(initialContext.currentProject).toEqual({
       path: null,
       name: "Новый проект",
       isDirty: false,
       isNew: true,
-    })
-  })
+    });
+  });
 
   it("should transition from loading to idle on successful load", async () => {
     // Мокируем успешную загрузку настроек
@@ -118,67 +122,77 @@ describe("App Settings Machine", () => {
         lastUpdated: 123456789,
         version: "1.0.0",
       },
-    }
+    };
 
     // Устанавливаем мок для getSettings
-    vi.mocked(storeService.getSettings).mockResolvedValueOnce(mockSettings)
+    vi.mocked(storeService.getSettings).mockResolvedValueOnce(mockSettings);
 
     // Создаем актора машины состояний
-    const actor = createActor(appSettingsMachine)
+    const actor = createActor(appSettingsMachine);
 
     // Запускаем актора
-    actor.start()
+    actor.start();
 
     // Проверяем, что начальное состояние - loading
-    expect(actor.getSnapshot().value).toBe("loading")
+    expect(actor.getSnapshot().value).toBe("loading");
 
     // Ждем, пока машина перейдет в состояние idle
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Проверяем, что машина перешла в состояние idle
-    expect(actor.getSnapshot().value).toBe("idle")
+    expect(actor.getSnapshot().value).toBe("idle");
 
     // Проверяем, что контекст обновился
-    expect(actor.getSnapshot().context.userSettings).toEqual(mockSettings.userSettings)
-    expect(actor.getSnapshot().context.recentProjects).toEqual(mockSettings.recentProjects)
-    expect(actor.getSnapshot().context.favorites).toEqual(mockSettings.favorites)
-    expect(actor.getSnapshot().context.isLoading).toBe(false)
-    expect(actor.getSnapshot().context.error).toBeNull()
-  })
+    expect(actor.getSnapshot().context.userSettings).toEqual(
+      mockSettings.userSettings,
+    );
+    expect(actor.getSnapshot().context.recentProjects).toEqual(
+      mockSettings.recentProjects,
+    );
+    expect(actor.getSnapshot().context.favorites).toEqual(
+      mockSettings.favorites,
+    );
+    expect(actor.getSnapshot().context.isLoading).toBe(false);
+    expect(actor.getSnapshot().context.error).toBeNull();
+  });
 
   it("should transition from loading to error on failed load", async () => {
     // Мокируем ошибку при загрузке настроек
-    vi.mocked(storeService.getSettings).mockRejectedValueOnce(new Error("Failed to load settings"))
+    vi.mocked(storeService.getSettings).mockRejectedValueOnce(
+      new Error("Failed to load settings"),
+    );
 
     // Создаем актора машины состояний
-    const actor = createActor(appSettingsMachine)
+    const actor = createActor(appSettingsMachine);
 
     // Запускаем актора
-    actor.start()
+    actor.start();
 
     // Проверяем, что начальное состояние - loading
-    expect(actor.getSnapshot().value).toBe("loading")
+    expect(actor.getSnapshot().value).toBe("loading");
 
     // Ждем, пока машина перейдет в состояние error
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Проверяем, что машина перешла в состояние error
-    expect(actor.getSnapshot().value).toBe("error")
+    expect(actor.getSnapshot().value).toBe("error");
 
     // Проверяем, что контекст обновился
-    expect(actor.getSnapshot().context.isLoading).toBe(false)
-    expect(actor.getSnapshot().context.error).toContain("Error loading settings")
-  })
+    expect(actor.getSnapshot().context.isLoading).toBe(false);
+    expect(actor.getSnapshot().context.error).toContain(
+      "Error loading settings",
+    );
+  });
 
   it("should handle UPDATE_USER_SETTINGS event", async () => {
     // Создаем актора машины состояний
-    const actor = createActor(appSettingsMachine)
+    const actor = createActor(appSettingsMachine);
 
     // Запускаем актора
-    actor.start()
+    actor.start();
 
     // Ждем, пока машина перейдет в состояние idle
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Отправляем событие UPDATE_USER_SETTINGS
     actor.send({
@@ -187,31 +201,35 @@ describe("App Settings Machine", () => {
         layoutMode: "vertical",
         activeTab: "transitions",
       },
-    })
+    });
 
     // Проверяем, что контекст обновился
-    expect(actor.getSnapshot().context.userSettings.layoutMode).toBe("vertical")
-    expect(actor.getSnapshot().context.userSettings.activeTab).toBe("transitions")
+    expect(actor.getSnapshot().context.userSettings.layoutMode).toBe(
+      "vertical",
+    );
+    expect(actor.getSnapshot().context.userSettings.activeTab).toBe(
+      "transitions",
+    );
 
     // Проверяем, что метод saveUserSettings был вызван
-    expect(storeService.saveUserSettings).toHaveBeenCalled()
-  })
+    expect(storeService.saveUserSettings).toHaveBeenCalled();
+  });
 
   it("should handle CREATE_NEW_PROJECT event", async () => {
     // Создаем актора машины состояний
-    const actor = createActor(appSettingsMachine)
+    const actor = createActor(appSettingsMachine);
 
     // Запускаем актора
-    actor.start()
+    actor.start();
 
     // Ждем, пока машина перейдет в состояние idle
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Отправляем событие CREATE_NEW_PROJECT
     actor.send({
       type: "CREATE_NEW_PROJECT",
       name: "Test Project",
-    })
+    });
 
     // Проверяем, что контекст обновился
     expect(actor.getSnapshot().context.currentProject).toEqual({
@@ -219,28 +237,28 @@ describe("App Settings Machine", () => {
       name: "Test Project",
       isDirty: false,
       isNew: true,
-    })
+    });
 
     // Проверяем, что метод saveSettings был вызван
-    expect(storeService.saveSettings).toHaveBeenCalled()
-  })
+    expect(storeService.saveSettings).toHaveBeenCalled();
+  });
 
   it("should handle OPEN_PROJECT event", async () => {
     // Создаем актора машины состояний
-    const actor = createActor(appSettingsMachine)
+    const actor = createActor(appSettingsMachine);
 
     // Запускаем актора
-    actor.start()
+    actor.start();
 
     // Ждем, пока машина перейдет в состояние idle
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Отправляем событие OPEN_PROJECT
     actor.send({
       type: "OPEN_PROJECT",
       path: "/path/to/project",
       name: "Opened Project",
-    })
+    });
 
     // Проверяем, что контекст обновился
     expect(actor.getSnapshot().context.currentProject).toEqual({
@@ -248,16 +266,16 @@ describe("App Settings Machine", () => {
       name: "Opened Project",
       isDirty: false,
       isNew: false,
-    })
+    });
 
     // Проверяем, что проект добавлен в список последних открытых
     expect(actor.getSnapshot().context.recentProjects[0]).toEqual({
       path: "/path/to/project",
       name: "Opened Project",
       lastOpened: expect.any(Number),
-    })
+    });
 
     // Проверяем, что метод saveSettings был вызван
-    expect(storeService.saveSettings).toHaveBeenCalled()
-  })
-})
+    expect(storeService.saveSettings).toHaveBeenCalled();
+  });
+});

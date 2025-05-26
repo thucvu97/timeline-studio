@@ -53,12 +53,20 @@ vi.mock("lucide-react", () => ({
     </div>
   ),
   Star: ({ className, strokeWidth }: any) => (
-    <div data-testid="star-icon" data-classname={className} data-stroke-width={strokeWidth}>
+    <div
+      data-testid="star-icon"
+      data-classname={className}
+      data-stroke-width={strokeWidth}
+    >
       Star Icon
     </div>
   ),
   Plus: ({ className, strokeWidth }: any) => (
-    <div data-testid="plus-icon" data-classname={className} data-stroke-width={strokeWidth}>
+    <div
+      data-testid="plus-icon"
+      data-classname={className}
+      data-stroke-width={strokeWidth}
+    >
       Plus Icon
     </div>
   ),
@@ -136,7 +144,7 @@ describe("AudioPreview", () => {
     await act(async () => {
       render(<AudioPreview file={audioFile} />);
       // Ждем инициализации компонента
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     });
 
     // Проверяем, что аудио элемент отображается
@@ -172,7 +180,7 @@ describe("AudioPreview", () => {
     await act(async () => {
       render(<AudioPreview file={audioFile} size={120} dimensions={[4, 3]} />);
       // Ждем инициализации компонента
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     });
 
     // Проверяем, что иконка музыки имеет больший размер
@@ -188,7 +196,7 @@ describe("AudioPreview", () => {
     render(<AudioPreview file={audioFile} />);
 
     // Ждем загрузки компонента
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Проверяем, что URL.createObjectURL был вызван
     expect(global.URL.createObjectURL).toHaveBeenCalled();
@@ -198,7 +206,7 @@ describe("AudioPreview", () => {
     render(<AudioPreview file={audioFile} />);
 
     // Ждем инициализации аудио контекста
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     // Проверяем, что AudioContext был создан
     expect(global.AudioContext).toHaveBeenCalled();
@@ -265,7 +273,7 @@ describe("AudioPreview", () => {
     render(<AudioPreview file={audioFile} />);
 
     // Ждем инициализации
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     // Проверяем, что визуализатор отображается
     const visualizer = screen.getByTestId("audio-visualizer");
@@ -280,7 +288,7 @@ describe("AudioPreview", () => {
     audioElement.play = playMock;
 
     // Симулируем нажатие пробела
-    fireEvent.keyDown(audioElement, { code: 'Space' });
+    fireEvent.keyDown(audioElement, { code: "Space" });
 
     expect(playMock).toHaveBeenCalled();
   });
@@ -290,7 +298,7 @@ describe("AudioPreview", () => {
 
     // Ждем создания blob URL и инициализации компонента
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
     });
 
     // Проверяем, что URL.createObjectURL был вызван (blob URL создан)
@@ -303,7 +311,7 @@ describe("AudioPreview", () => {
 
     // Ждем завершения cleanup
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
     });
 
     // Проверяем, что компонент был размонтирован
