@@ -29,7 +29,7 @@ const PARAMETER_CONFIG = {
     step: 1,
     default: 50,
     label: { ru: "Интенсивность", en: "Intensity" },
-    description: { ru: "Сила применения эффекта", en: "Effect strength" }
+    description: { ru: "Сила применения эффекта", en: "Effect strength" },
   },
   speed: {
     min: 0.1,
@@ -37,7 +37,7 @@ const PARAMETER_CONFIG = {
     step: 0.1,
     default: 1.0,
     label: { ru: "Скорость", en: "Speed" },
-    description: { ru: "Скорость воспроизведения", en: "Playback speed" }
+    description: { ru: "Скорость воспроизведения", en: "Playback speed" },
   },
   angle: {
     min: 0,
@@ -45,7 +45,10 @@ const PARAMETER_CONFIG = {
     step: 1,
     default: 0,
     label: { ru: "Угол", en: "Angle" },
-    description: { ru: "Угол поворота в градусах", en: "Rotation angle in degrees" }
+    description: {
+      ru: "Угол поворота в градусах",
+      en: "Rotation angle in degrees",
+    },
   },
   radius: {
     min: 0,
@@ -53,7 +56,10 @@ const PARAMETER_CONFIG = {
     step: 0.5,
     default: 5,
     label: { ru: "Радиус", en: "Radius" },
-    description: { ru: "Радиус размытия или эффекта", en: "Blur or effect radius" }
+    description: {
+      ru: "Радиус размытия или эффекта",
+      en: "Blur or effect radius",
+    },
   },
   amount: {
     min: 0,
@@ -61,7 +67,7 @@ const PARAMETER_CONFIG = {
     step: 1,
     default: 100,
     label: { ru: "Количество", en: "Amount" },
-    description: { ru: "Количество эффекта", en: "Effect amount" }
+    description: { ru: "Количество эффекта", en: "Effect amount" },
   },
   threshold: {
     min: 0,
@@ -69,7 +75,7 @@ const PARAMETER_CONFIG = {
     step: 1,
     default: 50,
     label: { ru: "Порог", en: "Threshold" },
-    description: { ru: "Пороговое значение", en: "Threshold value" }
+    description: { ru: "Пороговое значение", en: "Threshold value" },
   },
   temperature: {
     min: -100,
@@ -77,7 +83,7 @@ const PARAMETER_CONFIG = {
     step: 1,
     default: 0,
     label: { ru: "Температура", en: "Temperature" },
-    description: { ru: "Цветовая температура", en: "Color temperature" }
+    description: { ru: "Цветовая температура", en: "Color temperature" },
   },
   tint: {
     min: -100,
@@ -85,8 +91,8 @@ const PARAMETER_CONFIG = {
     step: 1,
     default: 0,
     label: { ru: "Оттенок", en: "Tint" },
-    description: { ru: "Цветовой оттенок", en: "Color tint" }
-  }
+    description: { ru: "Цветовой оттенок", en: "Color tint" },
+  },
 } as const;
 
 /**
@@ -96,10 +102,10 @@ export function EffectParameterControls({
   effect,
   onParametersChange,
   selectedPreset,
-  onSavePreset
+  onSavePreset,
 }: EffectParameterControlsProps) {
   const { i18n, t } = useTranslation();
-  const currentLang = i18n.language as 'ru' | 'en';
+  const currentLang = i18n.language as "ru" | "en";
 
   // Состояние параметров
   const [parameters, setParameters] = useState<Record<string, number>>(() => {
@@ -107,7 +113,7 @@ export function EffectParameterControls({
     const defaultParams: Record<string, number> = {};
 
     if (effect.params) {
-      Object.keys(effect.params).forEach(key => {
+      Object.keys(effect.params).forEach((key) => {
         const config = PARAMETER_CONFIG[key as keyof typeof PARAMETER_CONFIG];
         const paramKey = key as keyof typeof effect.params;
         defaultParams[key] = effect.params![paramKey] ?? config?.default ?? 0;
@@ -127,19 +133,22 @@ export function EffectParameterControls({
   }, [selectedPreset, effect.presets, onParametersChange]);
 
   // Обработчик изменения параметра
-  const handleParameterChange = useCallback((paramName: string, value: number[]) => {
-    const newValue = value[0];
-    const newParameters = { ...parameters, [paramName]: newValue };
-    setParameters(newParameters);
-    onParametersChange(newParameters);
-  }, [parameters, onParametersChange]);
+  const handleParameterChange = useCallback(
+    (paramName: string, value: number[]) => {
+      const newValue = value[0];
+      const newParameters = { ...parameters, [paramName]: newValue };
+      setParameters(newParameters);
+      onParametersChange(newParameters);
+    },
+    [parameters, onParametersChange],
+  );
 
   // Сброс к значениям по умолчанию
   const handleReset = useCallback(() => {
     const defaultParams: Record<string, number> = {};
 
     if (effect.params) {
-      Object.keys(effect.params).forEach(key => {
+      Object.keys(effect.params).forEach((key) => {
         const config = PARAMETER_CONFIG[key as keyof typeof PARAMETER_CONFIG];
         defaultParams[key] = config?.default ?? 0;
       });
@@ -168,7 +177,9 @@ export function EffectParameterControls({
     <div className="space-y-4">
       {/* Заголовок с кнопками действий */}
       <div className="flex items-center justify-between">
-        <h3 className="font-medium">{t('effects.detail.parameters', 'Параметры')}</h3>
+        <h3 className="font-medium">
+          {t("effects.detail.parameters", "Параметры")}
+        </h3>
         <div className="flex gap-2">
           <TooltipProvider>
             <Tooltip>
@@ -178,7 +189,10 @@ export function EffectParameterControls({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                {t('effects.detail.resetToDefault', 'Сбросить к значениям по умолчанию')}
+                {t(
+                  "effects.detail.resetToDefault",
+                  "Сбросить к значениям по умолчанию",
+                )}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -187,12 +201,16 @@ export function EffectParameterControls({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={handleSavePreset}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSavePreset}
+                  >
                     <Save size={14} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {t('effects.detail.savePreset', 'Сохранить как пресет')}
+                  {t("effects.detail.savePreset", "Сохранить как пресет")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -202,8 +220,9 @@ export function EffectParameterControls({
 
       {/* Контролы параметров */}
       <div className="space-y-4">
-        {availableParams.map(paramName => {
-          const config = PARAMETER_CONFIG[paramName as keyof typeof PARAMETER_CONFIG];
+        {availableParams.map((paramName) => {
+          const config =
+            PARAMETER_CONFIG[paramName as keyof typeof PARAMETER_CONFIG];
           if (!config) return null;
 
           const currentValue = parameters[paramName] ?? config.default;
@@ -225,7 +244,9 @@ export function EffectParameterControls({
                     <div>
                       <Slider
                         value={[currentValue]}
-                        onValueChange={(value) => handleParameterChange(paramName, value)}
+                        onValueChange={(value) =>
+                          handleParameterChange(paramName, value)
+                        }
                         min={config.min}
                         max={config.max}
                         step={config.step}
@@ -239,7 +260,8 @@ export function EffectParameterControls({
                         {config.label[currentLang] || config.label.en}
                       </div>
                       <div className="text-sm text-gray-400">
-                        {config.description[currentLang] || config.description.en}
+                        {config.description[currentLang] ||
+                          config.description.en}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
                         {config.min} - {config.max}
@@ -255,10 +277,12 @@ export function EffectParameterControls({
 
       {/* Информация о текущих параметрах */}
       <div className="text-xs text-gray-500 space-y-1">
-        <div>{t('effects.detail.currentValues', 'Текущие значения')}:</div>
+        <div>{t("effects.detail.currentValues", "Текущие значения")}:</div>
         <div className="font-mono bg-gray-50 dark:bg-gray-800 p-2 rounded">
           {Object.entries(parameters).map(([key, value]) => (
-            <div key={key}>{key}: {value}</div>
+            <div key={key}>
+              {key}: {value}
+            </div>
           ))}
         </div>
       </div>

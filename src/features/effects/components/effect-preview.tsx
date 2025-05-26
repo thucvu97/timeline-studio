@@ -63,8 +63,8 @@ export function EffectPreview({
         ...baseEffect,
         params: {
           ...baseEffect.params,
-          ...customParams
-        }
+          ...customParams,
+        },
       };
     }
 

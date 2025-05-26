@@ -69,16 +69,22 @@ export function processEffects(rawEffects: RawEffectData[]): VideoEffect[] {
  * Валидирует структуру данных эффекта
  */
 export function validateEffect(effect: any): effect is RawEffectData {
-  if (!effect || typeof effect !== 'object') {
+  if (!effect || typeof effect !== "object") {
     return false;
   }
 
   const requiredFields = [
-    'id', 'name', 'type', 'category', 'complexity',
-    'description', 'ffmpegCommand', 'labels'
+    "id",
+    "name",
+    "type",
+    "category",
+    "complexity",
+    "description",
+    "ffmpegCommand",
+    "labels",
   ];
 
-  return requiredFields.every(field => field in effect);
+  return requiredFields.every((field) => field in effect);
 }
 
 /**
@@ -91,7 +97,9 @@ export function validateEffectsData(data: any): boolean {
 
   // Проверяем метаданные
   if (data.version && data.totalEffects) {
-    console.log(`📊 Effects metadata: v${data.version}, ${data.totalEffects} effects, updated: ${data.lastUpdated || 'unknown'}`);
+    console.log(
+      `📊 Effects metadata: v${data.version}, ${data.totalEffects} effects, updated: ${data.lastUpdated || "unknown"}`,
+    );
   }
 
   return data.effects.every(validateEffect);
@@ -111,7 +119,7 @@ export function createFallbackEffect(id: string): VideoEffect {
     tags: [],
     description: {
       ru: "Эффект не найден",
-      en: "Effect not found"
+      en: "Effect not found",
     },
     ffmpegCommand: () => "brightness=1",
     cssFilter: () => "brightness(1)",
@@ -122,7 +130,7 @@ export function createFallbackEffect(id: string): VideoEffect {
       en: "Unknown",
       es: "Desconocido",
       fr: "Inconnu",
-      de: "Unbekannt"
-    }
+      de: "Unbekannt",
+    },
   };
 }
