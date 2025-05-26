@@ -1,7 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { I18nProvider } from "./i18n-provider"
+
+// Отключаем глобальный мок для этого теста
+vi.unmock("@/i18n/i18n-provider")
 
 // Мокаем i18n
 vi.mock("./index", () => {

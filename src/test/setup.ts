@@ -143,11 +143,148 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 vi.mock("@tauri-apps/plugin-fs", () => ({
   readTextFile: vi.fn().mockResolvedValue('{"test": "data"}'),
   writeTextFile: vi.fn().mockResolvedValue(undefined),
+  readFile: vi.fn().mockImplementation((path: string) => {
+    // Создаем фейковые аудио данные для тестирования
+    const fakeAudioData = new Uint8Array([
+      0x49, 0x44, 0x33, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // ID3 header
+      0xFF, 0xFB, 0x90, 0x00, // MP3 frame header
+      // Добавляем еще немного данных для реалистичности
+      ...Array(100).fill(0).map(() => Math.floor(Math.random() * 256))
+    ]);
+    return Promise.resolve(fakeAudioData);
+  }),
 }));
 
 // Мок для react-hotkeys-hook
 vi.mock("react-hotkeys-hook", () => ({
   useHotkeys: vi.fn(),
+}));
+
+// Мок для lucide-react
+vi.mock("lucide-react", () => {
+  const createMockIcon = (name: string) => {
+    const MockIcon = React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) =>
+      React.createElement("svg", {
+        ...props,
+        ref,
+        "data-testid": `${name.toLowerCase()}-icon`,
+        "data-icon": name,
+      }, name)
+    );
+    MockIcon.displayName = `Mock${name}Icon`;
+    return MockIcon;
+  };
+
+  return {
+    AlertTriangle: createMockIcon("AlertTriangle"),
+    Blend: createMockIcon("Blend"),
+    Bot: createMockIcon("Bot"),
+    Check: createMockIcon("Check"),
+    CheckIcon: createMockIcon("CheckIcon"),
+    ChevronDown: createMockIcon("ChevronDown"),
+    ChevronDownIcon: createMockIcon("ChevronDownIcon"),
+    ChevronRight: createMockIcon("ChevronRight"),
+    ChevronRightIcon: createMockIcon("ChevronRightIcon"),
+    ChevronUpIcon: createMockIcon("ChevronUpIcon"),
+    CircleIcon: createMockIcon("CircleIcon"),
+    CirclePause: createMockIcon("CirclePause"),
+    CirclePlay: createMockIcon("CirclePlay"),
+    CopyPlus: createMockIcon("CopyPlus"),
+    Film: createMockIcon("Film"),
+    FlipHorizontal2: createMockIcon("FlipHorizontal2"),
+    Folder: createMockIcon("Folder"),
+    Grid: createMockIcon("Grid"),
+    Grid2x2: createMockIcon("Grid2x2"),
+    Grid2X2: createMockIcon("Grid2X2"),
+    GripVerticalIcon: createMockIcon("GripVerticalIcon"),
+    Image: createMockIcon("Image"),
+    Info: createMockIcon("Info"),
+    LayoutDashboard: createMockIcon("LayoutDashboard"),
+    List: createMockIcon("List"),
+    Loader2: createMockIcon("Loader2"),
+    Lock: createMockIcon("Lock"),
+    Moon: createMockIcon("Moon"),
+    Music: createMockIcon("Music"),
+    Palette: createMockIcon("Palette"),
+    PanelLeftClose: createMockIcon("PanelLeftClose"),
+    PanelLeftOpen: createMockIcon("PanelLeftOpen"),
+    Pause: createMockIcon("Pause"),
+    Play: createMockIcon("Play"),
+    Plus: createMockIcon("Plus"),
+    RefreshCw: createMockIcon("RefreshCw"),
+    RotateCcw: createMockIcon("RotateCcw"),
+    Save: createMockIcon("Save"),
+    Search: createMockIcon("Search"),
+    Send: createMockIcon("Send"),
+    SendHorizonal: createMockIcon("SendHorizonal"),
+    Settings: createMockIcon("Settings"),
+    Sparkles: createMockIcon("Sparkles"),
+    Star: createMockIcon("Star"),
+    StopCircle: createMockIcon("StopCircle"),
+    Subtitles: createMockIcon("Subtitles"),
+    Sun: createMockIcon("Sun"),
+    Type: createMockIcon("Type"),
+    Unlock: createMockIcon("Unlock"),
+    User: createMockIcon("User"),
+    X: createMockIcon("X"),
+    XIcon: createMockIcon("XIcon"),
+  };
+});
+
+// Мок для useAutoLoadUserData
+vi.mock("@/hooks/use-auto-load-user-data", () => ({
+  useAutoLoadUserData: () => ({
+    isLoading: false,
+    loadedData: {
+      effects: [],
+      transitions: [],
+      filters: [],
+      subtitles: [],
+      templates: [],
+      styleTemplates: [],
+    },
+    error: null,
+    reload: vi.fn(),
+  }),
+}));
+
+// Мок для useCurrentProject
+vi.mock("@/features/app-state/hooks/use-current-project", () => ({
+  useCurrentProject: () => ({
+    currentProject: {
+      id: "test-project",
+      name: "Test Project",
+      path: "/test/project",
+      isDirty: false,
+      isNew: false,
+    },
+    openProject: vi.fn(),
+    saveProject: vi.fn(),
+    setProjectDirty: vi.fn(),
+  }),
+}));
+
+// Мок для useUserSettings
+vi.mock("@/features/user-settings", () => ({
+  useUserSettings: () => ({
+    activeTab: "media",
+    layoutMode: "default",
+    screenshotsPath: "public/screenshots",
+    playerScreenshotsPath: "public/media",
+    playerVolume: 100,
+    openAiApiKey: "",
+    claudeApiKey: "",
+    isBrowserVisible: true,
+    handleTabChange: vi.fn(),
+    handleLayoutChange: vi.fn(),
+    handleScreenshotsPathChange: vi.fn(),
+    handlePlayerScreenshotsPathChange: vi.fn(),
+    handlePlayerVolumeChange: vi.fn(),
+    handleAiApiKeyChange: vi.fn(),
+    handleClaudeApiKeyChange: vi.fn(),
+    toggleBrowserVisibility: vi.fn(),
+  }),
+  UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // Мок для browser-state-provider
@@ -255,6 +392,23 @@ vi.mock("@/features/resources", () => ({
     subtitleResources: [],
     templateResources: [],
   }),
+  ResourcesProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+// Мок для MediaProvider
+vi.mock("@/features/browser/media", () => ({
+  useMedia: () => ({
+    mediaFiles: [],
+    addMediaFiles: vi.fn(),
+    updateMediaFile: vi.fn(),
+    removeMediaFile: vi.fn(),
+    getMediaFile: vi.fn(),
+    isItemFavorite: vi.fn().mockReturnValue(false),
+    addToFavorites: vi.fn(),
+    removeFromFavorites: vi.fn(),
+    isFileAdded: vi.fn().mockReturnValue(false),
+  }),
+  MediaProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // Мок для useModal
@@ -451,6 +605,8 @@ vi.mock("@/features/media-studio/layouts", () => ({
   },
 }));
 
+
+
 // Мок для ModalContainer
 vi.mock("@/features/modals/components", () => ({
   ModalContainer: () =>
@@ -496,6 +652,139 @@ vi.mock("react-i18next", () => ({
   I18nextProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
+// Мок для I18nProvider
+vi.mock("@/i18n/i18n-provider", () => ({
+  I18nProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+
+
+// Мок для resizable компонентов
+vi.mock("@/components/ui/resizable", () => ({
+  ResizablePanelGroup: ({
+    children,
+    direction,
+    className,
+    autoSaveId
+  }: {
+    children: React.ReactNode;
+    direction: string;
+    className?: string;
+    autoSaveId?: string;
+  }) =>
+    React.createElement(
+      "div",
+      {
+        "data-testid": `resizable-panel-group-${autoSaveId}`,
+        "data-direction": direction,
+        className,
+      },
+      children,
+    ),
+  ResizablePanel: ({
+    children,
+    defaultSize,
+    minSize,
+    maxSize
+  }: {
+    children: React.ReactNode;
+    defaultSize?: number;
+    minSize?: number;
+    maxSize?: number;
+  }) =>
+    React.createElement(
+      "div",
+      {
+        "data-testid": "resizable-panel",
+        "data-default-size": defaultSize?.toString(),
+        "data-min-size": minSize?.toString(),
+        "data-max-size": maxSize?.toString(),
+      },
+      children,
+    ),
+  ResizableHandle: () =>
+    React.createElement("div", { "data-testid": "resizable-handle" }),
+}));
+
+// Моки для компонентов, используемых в layouts
+vi.mock("@/features/browser/components/browser", () => ({
+  Browser: () => React.createElement("div", { "data-testid": "browser" }, "Browser"),
+}));
+
+vi.mock("@/features/options/components/options", () => ({
+  Options: () => React.createElement("div", { "data-testid": "options" }, "Options"),
+}));
+
+vi.mock("@/features/timeline/components/timeline", () => ({
+  Timeline: () => React.createElement("div", { "data-testid": "timeline" }, "Timeline"),
+}));
+
+vi.mock("@/features/video-player/components/video-player", () => ({
+  VideoPlayer: () => React.createElement("div", { "data-testid": "video-player" }, "Video Player"),
+}));
+
+// Мок для MediaGroup
+vi.mock("@/features/media/components/media-group", () => ({
+  MediaGroup: ({
+    title,
+    files,
+    viewMode,
+    previewSize,
+    addFilesToTimeline,
+  }: {
+    title: string;
+    files: any[];
+    viewMode: string;
+    previewSize: number;
+    addFilesToTimeline: (files: any[]) => void;
+  }) => (
+    React.createElement(
+      "div",
+      {
+        "data-testid": "media-group",
+        "data-title": title,
+        "data-files-count": files.length,
+        "data-view-mode": viewMode,
+        "data-preview-size": previewSize,
+        onClick: () => addFilesToTimeline(files),
+      },
+      `Media Group: ${title ?? "Untitled"}`,
+    )
+  ),
+}));
+
+// Мок для dayjs
+vi.mock("dayjs", () => {
+  const mockDayjs = (date?: any) => ({
+    utc: () => ({
+      tz: () => ({
+        format: (format?: string) => {
+          if (format === "HH:mm:ss.SSS") return "00:01:23.456";
+          return "2023-01-01T00:01:23.456Z";
+        },
+        hour: () => 0,
+        minute: () => 1,
+        second: () => 23,
+        millisecond: () => 456,
+      }),
+    }),
+    format: (format?: string) => {
+      if (format === "HH:mm:ss.SSS") return "00:01:23.456";
+      return "2023-01-01T00:01:23.456Z";
+    },
+    hour: () => 0,
+    minute: () => 1,
+    second: () => 23,
+    millisecond: () => 456,
+  });
+
+  mockDayjs.tz = {
+    guess: () => "UTC",
+  };
+
+  return { default: mockDayjs };
+});
+
 // Мок для localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -519,6 +808,56 @@ const localStorageMock = (() => {
 Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
+
+// Моки для Web Audio API
+global.AudioContext = vi.fn().mockImplementation(() => ({
+  createMediaElementSource: vi.fn().mockReturnValue({
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+  }),
+  createMediaStreamDestination: vi.fn().mockReturnValue({
+    stream: new MediaStream(),
+  }),
+  destination: {},
+  close: vi.fn().mockResolvedValue(undefined),
+  state: 'running',
+  sampleRate: 44100,
+}));
+
+const MockMediaRecorder = vi.fn().mockImplementation(() => ({
+  start: vi.fn(),
+  stop: vi.fn(),
+  pause: vi.fn(),
+  resume: vi.fn(),
+  state: 'inactive',
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+})) as any;
+
+// Добавляем статический метод isTypeSupported
+MockMediaRecorder.isTypeSupported = vi.fn().mockReturnValue(true);
+
+global.MediaRecorder = MockMediaRecorder;
+
+// Мок для MediaStream
+global.MediaStream = vi.fn().mockImplementation(() => ({
+  getTracks: vi.fn().mockReturnValue([]),
+  getAudioTracks: vi.fn().mockReturnValue([]),
+  getVideoTracks: vi.fn().mockReturnValue([]),
+  addTrack: vi.fn(),
+  removeTrack: vi.fn(),
+  clone: vi.fn(),
+  active: true,
+  id: 'mock-stream-id',
+}));
+
+// Мок для URL.createObjectURL и URL.revokeObjectURL
+global.URL.createObjectURL = vi.fn().mockImplementation(() => {
+  return `blob:mock-url-${Math.random().toString(36).substring(2, 11)}`;
+});
+
+global.URL.revokeObjectURL = vi.fn();
 
 // Мок для MediaStudio
 vi.mock("@/features/media-studio/media-studio", () => {

@@ -16,7 +16,7 @@ const mockCurrentProject = {
 
 const mockSetProjectDirty = vi.fn();
 
-vi.mock("@/features/app-state/app-settings-provider", () => ({
+vi.mock("@/features/app-state/hooks/use-current-project", () => ({
   useCurrentProject: () => ({
     currentProject: mockCurrentProject,
     setProjectDirty: mockSetProjectDirty,

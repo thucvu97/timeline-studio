@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+ import { useCallback, useState } from "react";
 
 import { Pause, Play, RotateCcw, X } from "lucide-react";
 import { useTranslation } from "react-i18next";

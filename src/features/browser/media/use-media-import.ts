@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 
 import { invoke } from "@tauri-apps/api/core";
 
-import { useCurrentProject } from "@/features/app-state/app-settings-provider";
+import { useCurrentProject } from "@/features/app-state/hooks/use-current-project";
 import {
   getMediaMetadata,
   selectMediaDirectory,

@@ -3,7 +3,7 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useResources } from "@/features/resources";
-import { fireEvent, render, screen } from "@/test/test-utils";
+import { fireEvent, renderWithBase, screen } from "@/test/test-utils";
 
 import { TimelineResources } from "./timeline-resources";
 
@@ -70,6 +70,26 @@ vi.mock("@/features/resources", async (importOriginal) => {
 
 // Мокаем иконки Lucide
 vi.mock("lucide-react", () => ({
+  AlertTriangle: ({
+    className,
+    size = 16,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    ...props
+  }: any) => (
+    <div
+      data-testid="alert-triangle-icon"
+      className={className}
+      data-size={size}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      role="img"
+      aria-label="Alert Triangle Icon"
+      {...props}
+    />
+  ),
   Music: ({
     className,
     size = 16,
@@ -147,6 +167,26 @@ vi.mock("lucide-react", () => ({
       onMouseLeave={onMouseLeave}
       role="img"
       aria-label="Scissors Icon"
+      {...props}
+    />
+  ),
+  Subtitles: ({
+    className,
+    size = 16,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    ...props
+  }: any) => (
+    <div
+      data-testid="subtitles-icon"
+      className={className}
+      data-size={size}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      role="img"
+      aria-label="Subtitles Icon"
       {...props}
     />
   ),
@@ -228,14 +268,14 @@ describe("TimelineResources", () => {
   });
 
   it("должен корректно рендериться", () => {
-    const { container } = render(<TimelineResources />);
+    const { container } = renderWithBase(<TimelineResources />);
 
     // Проверяем, что компонент рендерится без ошибок
     expect(container.firstChild).toBeInTheDocument();
   });
 
   it.skip("должен отображать все категории ресурсов", () => {
-    render(<TimelineResources />);
+    renderWithBase(<TimelineResources />);
 
     // Проверяем наличие всех категорий
     expect(screen.getByText("Эффекты")).toBeInTheDocument();
@@ -246,7 +286,7 @@ describe("TimelineResources", () => {
   });
 
   it.skip("должен отображать правильные иконки для каждой категории", () => {
-    render(<TimelineResources />);
+    renderWithBase(<TimelineResources />);
 
     // Проверяем наличие иконок
     expect(screen.getByTestId("package-icon")).toBeInTheDocument(); // Effects
@@ -257,7 +297,7 @@ describe("TimelineResources", () => {
   });
 
   it.skip('должен отображать сообщение "нет ресурсов" когда категории пустые', () => {
-    render(<TimelineResources />);
+    renderWithBase(<TimelineResources />);
 
     // Проверяем сообщения об отсутствии ресурсов
     const noResourcesMessages = screen.getAllByText("Нет добавленных ресурсов");
@@ -290,7 +330,7 @@ describe("TimelineResources", () => {
       isSubtitleAdded: vi.fn(),
     });
 
-    render(<TimelineResources />);
+    renderWithBase(<TimelineResources />);
 
     // Проверяем отображение ресурсов
     expect(screen.getByText("Brightness Effect")).toBeInTheDocument();
@@ -326,7 +366,7 @@ describe("TimelineResources", () => {
       isSubtitleAdded: vi.fn(),
     });
 
-    render(<TimelineResources />);
+    renderWithBase(<TimelineResources />);
 
     // Проверяем счетчики
     expect(screen.getByText("(3)")).toBeInTheDocument(); // Effects
@@ -359,7 +399,7 @@ describe("TimelineResources", () => {
       isSubtitleAdded: vi.fn(),
     });
 
-    render(<TimelineResources />);
+    renderWithBase(<TimelineResources />);
 
     // Находим и кликаем по эффекту
     const effectElement = screen.getByText("Brightness Effect");
@@ -395,7 +435,7 @@ describe("TimelineResources", () => {
       isSubtitleAdded: vi.fn(),
     });
 
-    render(<TimelineResources />);
+    renderWithBase(<TimelineResources />);
 
     // Находим и кликаем по фильтру
     const filterElement = screen.getByText("Vintage Filter");

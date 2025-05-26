@@ -3,7 +3,7 @@ import { ReactElement, ReactNode } from "react";
 import { RenderOptions, render } from "@testing-library/react";
 
 import { ThemeProvider } from "@/components/theme/theme-context";
-import { AppSettingsProvider } from "@/features/app-state/app-settings-provider";
+import { AppSettingsProvider } from "@/features/app-state";
 import { MediaProvider } from "@/features/browser/media";
 import { ModalProvider } from "@/features/modals/services/modal-provider";
 import { ProjectSettingsProvider } from "@/features/project-settings";

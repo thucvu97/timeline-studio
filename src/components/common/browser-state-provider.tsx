@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-import { useAppSettings } from "@/features/app-state/app-settings-provider";
+import { useAppSettings } from "@/features/app-state";
 
 import {
   BrowserContext,

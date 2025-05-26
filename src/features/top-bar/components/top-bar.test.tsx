@@ -13,7 +13,7 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
   }),
 }))
 
-vi.mock("@/features/media-studio/layouts", () => ({
+vi.mock("@/features/media-studio", () => ({
   LayoutPreviews: () => <div data-testid="layout-previews">Layout Previews</div>,
 }))
 

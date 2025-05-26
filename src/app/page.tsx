@@ -1,6 +1,6 @@
 "use client"
 
-import { MediaStudio } from "@/features/media-studio/media-studio"
+import { MediaStudio } from "@/features/media-studio/components/media-studio"
 
 import "@/lib/dayjs"
 
