@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TemplatePreview } from "./template-preview";
+import { TemplatePreview } from "../components/template-preview";
 import { MediaTemplate } from "../lib/templates";
 
 
