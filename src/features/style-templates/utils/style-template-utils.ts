@@ -1,9 +1,15 @@
-import { StyleTemplate, StyleTemplateFilter, StyleTemplateSortField } from "../types";
+import {
+  StyleTemplate,
+  StyleTemplateFilter,
+  StyleTemplateSortField,
+} from "../types";
 
 /**
  * Получает сокращение для категории шаблона
  */
-export function getCategoryAbbreviation(category: StyleTemplate["category"]): string {
+export function getCategoryAbbreviation(
+  category: StyleTemplate["category"],
+): string {
   const abbreviations = {
     intro: "ИНТ",
     outro: "КОН",
@@ -37,7 +43,7 @@ export function getStyleAbbreviation(style: StyleTemplate["style"]): string {
  */
 export function filterTemplates(
   templates: StyleTemplate[],
-  filter: StyleTemplateFilter
+  filter: StyleTemplateFilter,
 ): StyleTemplate[] {
   return templates.filter((template) => {
     // Фильтр по категории
@@ -56,7 +62,10 @@ export function filterTemplates(
     }
 
     // Фильтр по наличию анимации
-    if (filter.hasAnimation !== undefined && template.hasAnimation !== filter.hasAnimation) {
+    if (
+      filter.hasAnimation !== undefined &&
+      template.hasAnimation !== filter.hasAnimation
+    ) {
       return false;
     }
 
@@ -86,7 +95,7 @@ export function filterTemplates(
 export function sortTemplates(
   templates: StyleTemplate[],
   sortBy: StyleTemplateSortField,
-  sortOrder: "asc" | "desc"
+  sortOrder: "asc" | "desc",
 ): StyleTemplate[] {
   const sorted = [...templates].sort((a, b) => {
     let comparison = 0;
@@ -119,20 +128,23 @@ export function sortTemplates(
  */
 export function groupTemplates(
   templates: StyleTemplate[],
-  groupBy: "category" | "style" | "none"
+  groupBy: "category" | "style" | "none",
 ): Record<string, StyleTemplate[]> {
   if (groupBy === "none") {
     return { all: templates };
   }
 
-  return templates.reduce<Record<string, StyleTemplate[]>>((groups, template) => {
-    const key = template[groupBy];
-    if (!groups[key]) {
-      groups[key] = [];
-    }
-    groups[key].push(template);
-    return groups;
-  }, {});
+  return templates.reduce<Record<string, StyleTemplate[]>>(
+    (groups, template) => {
+      const key = template[groupBy];
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+      groups[key].push(template);
+      return groups;
+    },
+    {},
+  );
 }
 
 /**
@@ -141,7 +153,7 @@ export function groupTemplates(
 export function searchTemplates(
   templates: StyleTemplate[],
   query: string,
-  language: "ru" | "en" = "ru"
+  language: "ru" | "en" = "ru",
 ): StyleTemplate[] {
   if (!query.trim()) {
     return templates;
@@ -161,7 +173,11 @@ export function searchTemplates(
     }
 
     // Поиск в тегах
-    if (template.tags?.[language]?.some(tag => tag.toLowerCase().includes(searchQuery))) {
+    if (
+      template.tags?.[language]?.some((tag) =>
+        tag.toLowerCase().includes(searchQuery),
+      )
+    ) {
       return true;
     }
 
@@ -172,7 +188,10 @@ export function searchTemplates(
 /**
  * Получает локализованное название категории
  */
-export function getCategoryName(category: StyleTemplate["category"], language: "ru" | "en" = "ru"): string {
+export function getCategoryName(
+  category: StyleTemplate["category"],
+  language: "ru" | "en" = "ru",
+): string {
   const names = {
     intro: { ru: "Интро", en: "Intro" },
     outro: { ru: "Концовка", en: "Outro" },
@@ -188,7 +207,10 @@ export function getCategoryName(category: StyleTemplate["category"], language: "
 /**
  * Получает локализованное название стиля
  */
-export function getStyleName(style: StyleTemplate["style"], language: "ru" | "en" = "ru"): string {
+export function getStyleName(
+  style: StyleTemplate["style"],
+  language: "ru" | "en" = "ru",
+): string {
   const names = {
     modern: { ru: "Современный", en: "Modern" },
     vintage: { ru: "Винтажный", en: "Vintage" },

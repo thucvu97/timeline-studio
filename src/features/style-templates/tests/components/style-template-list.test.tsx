@@ -166,8 +166,12 @@ describe("StyleTemplateList", () => {
 
     render(<StyleTemplateList />);
 
-    expect(screen.getByTestId("template-preview-template-1")).toBeInTheDocument();
-    expect(screen.getByTestId("template-preview-template-2")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("template-preview-template-1"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("template-preview-template-2"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Современное интро")).toBeInTheDocument();
     expect(screen.getByText("Минималистичная концовка")).toBeInTheDocument();
   });
@@ -208,7 +212,10 @@ describe("StyleTemplateList", () => {
     const templatePreview = screen.getByTestId("template-preview-template-1");
     templatePreview.click();
 
-    expect(consoleSpy).toHaveBeenCalledWith("Выбран стилистический шаблон:", "template-1");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Выбран стилистический шаблон:",
+      "template-1",
+    );
 
     consoleSpy.mockRestore();
   });

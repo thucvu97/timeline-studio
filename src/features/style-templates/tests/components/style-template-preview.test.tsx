@@ -95,7 +95,7 @@ describe("StyleTemplatePreview", () => {
       <StyleTemplatePreview
         {...defaultProps}
         template={mockTemplateWithoutThumbnail}
-      />
+      />,
     );
 
     expect(screen.getByText("🎨")).toBeInTheDocument();
@@ -150,9 +150,7 @@ describe("StyleTemplatePreview", () => {
 
   it("должен применять правильные размеры", () => {
     const size = 200;
-    render(
-      <StyleTemplatePreview {...defaultProps} size={size} />
-    );
+    render(<StyleTemplatePreview {...defaultProps} size={size} />);
 
     const container = screen.getByRole("img").parentElement!;
     expect(container).toHaveStyle({
@@ -167,9 +165,7 @@ describe("StyleTemplatePreview", () => {
       category: "outro",
     };
 
-    render(
-      <StyleTemplatePreview {...defaultProps} template={outroTemplate} />
-    );
+    render(<StyleTemplatePreview {...defaultProps} template={outroTemplate} />);
 
     expect(screen.getByText("КОН")).toBeInTheDocument(); // Концовка -> КОН
   });
@@ -181,7 +177,7 @@ describe("StyleTemplatePreview", () => {
     };
 
     render(
-      <StyleTemplatePreview {...defaultProps} template={minimalTemplate} />
+      <StyleTemplatePreview {...defaultProps} template={minimalTemplate} />,
     );
 
     expect(screen.getByText("МИН")).toBeInTheDocument(); // Минимализм -> МИН

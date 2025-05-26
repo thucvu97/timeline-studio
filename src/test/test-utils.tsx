@@ -28,9 +28,7 @@ export const MediaProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
       <ResourcesProvider>
-        <MediaProvider>
-            {children}
-        </MediaProvider>
+        <MediaProvider>{children}</MediaProvider>
       </ResourcesProvider>
     </BaseProviders>
   );
@@ -62,9 +60,7 @@ const TemplateProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
       <ResourcesProvider>
-        <MediaProvider>
-          {children}
-        </MediaProvider>
+        <MediaProvider>{children}</MediaProvider>
       </ResourcesProvider>
     </BaseProviders>
   );

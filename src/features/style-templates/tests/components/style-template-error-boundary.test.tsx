@@ -25,7 +25,7 @@ describe("StyleTemplateErrorBoundary", () => {
     render(
       <StyleTemplateErrorBoundary>
         <ThrowError shouldThrow={false} />
-      </StyleTemplateErrorBoundary>
+      </StyleTemplateErrorBoundary>,
     );
 
     expect(screen.getByText("No error")).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe("StyleTemplateErrorBoundary", () => {
     render(
       <StyleTemplateErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </StyleTemplateErrorBoundary>
+      </StyleTemplateErrorBoundary>,
     );
 
     expect(screen.getByText("Ошибка загрузки шаблонов")).toBeInTheDocument();
@@ -45,31 +45,35 @@ describe("StyleTemplateErrorBoundary", () => {
     render(
       <StyleTemplateErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </StyleTemplateErrorBoundary>
+      </StyleTemplateErrorBoundary>,
     );
 
-    expect(screen.getByRole("button", { name: /попробовать снова/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /попробовать снова/i }),
+    ).toBeInTheDocument();
   });
 
   it("должен сбрасывать ошибку при нажатии на кнопку повтора", () => {
     const { rerender } = render(
       <StyleTemplateErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </StyleTemplateErrorBoundary>
+      </StyleTemplateErrorBoundary>,
     );
 
     // Проверяем, что отображается ошибка
     expect(screen.getByText("Ошибка загрузки шаблонов")).toBeInTheDocument();
 
     // Нажимаем кнопку повтора
-    const retryButton = screen.getByRole("button", { name: /попробовать снова/i });
+    const retryButton = screen.getByRole("button", {
+      name: /попробовать снова/i,
+    });
     retryButton.click();
 
     // Перерендериваем с исправленным компонентом
     rerender(
       <StyleTemplateErrorBoundary>
         <ThrowError shouldThrow={false} />
-      </StyleTemplateErrorBoundary>
+      </StyleTemplateErrorBoundary>,
     );
 
     // Проверяем, что ошибка исчезла
@@ -80,28 +84,44 @@ describe("StyleTemplateErrorBoundary", () => {
     const { container } = render(
       <StyleTemplateErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </StyleTemplateErrorBoundary>
+      </StyleTemplateErrorBoundary>,
     );
 
-    expect(container.firstChild).toHaveClass("flex", "h-64", "w-full", "flex-col", "items-center", "justify-center");
+    expect(container.firstChild).toHaveClass(
+      "flex",
+      "h-64",
+      "w-full",
+      "flex-col",
+      "items-center",
+      "justify-center",
+    );
   });
 
   it("должен центрировать содержимое ошибки", () => {
     render(
       <StyleTemplateErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </StyleTemplateErrorBoundary>
+      </StyleTemplateErrorBoundary>,
     );
 
-    const errorContainer = screen.getByText("Ошибка загрузки шаблонов").parentElement;
-    expect(errorContainer).toHaveClass("flex", "h-64", "w-full", "flex-col", "items-center", "justify-center");
+    const errorContainer = screen.getByText(
+      "Ошибка загрузки шаблонов",
+    ).parentElement;
+    expect(errorContainer).toHaveClass(
+      "flex",
+      "h-64",
+      "w-full",
+      "flex-col",
+      "items-center",
+      "justify-center",
+    );
   });
 
   it("должен отображать иконку ошибки", () => {
     render(
       <StyleTemplateErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </StyleTemplateErrorBoundary>
+      </StyleTemplateErrorBoundary>,
     );
 
     expect(screen.getByTestId("alerttriangle-icon")).toBeInTheDocument();

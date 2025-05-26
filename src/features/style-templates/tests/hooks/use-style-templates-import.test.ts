@@ -269,7 +269,7 @@ describe("useStyleTemplatesImport", () => {
   it("должен корректно обрабатывать параллельные вызовы разных методов импорта", async () => {
     let resolveTemplatesOpen: (value: string) => void;
     let resolveTemplateOpen: (value: string[]) => void;
-    
+
     const templatesOpenPromise = new Promise<string>((resolve) => {
       resolveTemplatesOpen = resolve;
     });
