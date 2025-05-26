@@ -11,7 +11,9 @@ describe("MusicToolbar Module", () => {
       expect(typeof MusicToolbar).toBe("function");
     } catch (error) {
       // Если компонент не найден или имеет зависимости, это нормально для тестов
-      console.log("MusicToolbar component not found or has dependencies, which is expected in test environment");
+      console.log(
+        "MusicToolbar component not found or has dependencies, which is expected in test environment",
+      );
     }
   });
 
@@ -22,23 +24,23 @@ describe("MusicToolbar Module", () => {
         { value: "name", label: "Name" },
         { value: "date", label: "Date" },
         { value: "size", label: "Size" },
-        { value: "duration", label: "Duration" }
+        { value: "duration", label: "Duration" },
       ],
       groupOptions: [
         { value: "none", label: "None" },
         { value: "artist", label: "Artist" },
         { value: "album", label: "Album" },
-        { value: "genre", label: "Genre" }
+        { value: "genre", label: "Genre" },
       ],
       filterOptions: [
         { value: "all", label: "All" },
         { value: "mp3", label: "MP3" },
         { value: "wav", label: "WAV" },
-        { value: "flac", label: "FLAC" }
+        { value: "flac", label: "FLAC" },
       ],
       viewModes: ["list", "thumbnails"],
       showGroupBy: true,
-      showZoom: false
+      showZoom: false,
     };
 
     // Проверяем структуру конфигурации
@@ -50,7 +52,7 @@ describe("MusicToolbar Module", () => {
     expect(typeof expectedConfig.showZoom).toBe("boolean");
 
     // Проверяем опции сортировки
-    expectedConfig.sortOptions.forEach(option => {
+    expectedConfig.sortOptions.forEach((option) => {
       expect(option).toHaveProperty("value");
       expect(option).toHaveProperty("label");
       expect(typeof option.value).toBe("string");
@@ -58,7 +60,7 @@ describe("MusicToolbar Module", () => {
     });
 
     // Проверяем опции группировки
-    expectedConfig.groupOptions.forEach(option => {
+    expectedConfig.groupOptions.forEach((option) => {
       expect(option).toHaveProperty("value");
       expect(option).toHaveProperty("label");
       expect(typeof option.value).toBe("string");
@@ -66,7 +68,7 @@ describe("MusicToolbar Module", () => {
     });
 
     // Проверяем опции фильтрации
-    expectedConfig.filterOptions.forEach(option => {
+    expectedConfig.filterOptions.forEach((option) => {
       expect(option).toHaveProperty("value");
       expect(option).toHaveProperty("label");
       expect(typeof option.value).toBe("string");
@@ -74,7 +76,7 @@ describe("MusicToolbar Module", () => {
     });
 
     // Проверяем режимы просмотра
-    expectedConfig.viewModes.forEach(mode => {
+    expectedConfig.viewModes.forEach((mode) => {
       expect(typeof mode).toBe("string");
       expect(["list", "thumbnails", "grid"]).toContain(mode);
     });
@@ -84,7 +86,7 @@ describe("MusicToolbar Module", () => {
     // Тестируем поддерживаемые расширения музыкальных файлов
     const supportedExtensions = ["mp3", "wav", "flac", "aac", "ogg", "m4a"];
 
-    supportedExtensions.forEach(ext => {
+    supportedExtensions.forEach((ext) => {
       expect(typeof ext).toBe("string");
       expect(ext.length).toBeGreaterThan(0);
       expect(ext).toMatch(/^[a-z0-9]+$/); // только строчные буквы и цифры
@@ -101,7 +103,7 @@ describe("MusicToolbar Module", () => {
     const mockProps = {
       onImport: vi.fn(),
       onImportFile: vi.fn(),
-      onImportFolder: vi.fn()
+      onImportFolder: vi.fn(),
     };
 
     // Проверяем типы функций

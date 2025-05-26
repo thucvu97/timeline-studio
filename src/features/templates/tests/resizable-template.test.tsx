@@ -9,12 +9,12 @@ vi.mock("react-i18next", async () => {
     ...actual,
     useTranslation: () => ({
       t: (key: string, fallback?: string) => fallback || key,
-      i18n: { language: "ru" }
+      i18n: { language: "ru" },
     }),
     initReactI18next: {
       type: "3rdParty",
-      init: vi.fn()
-    }
+      init: vi.fn(),
+    },
   };
 });
 
@@ -40,23 +40,17 @@ vi.mock("@/components/ui/resizable", () => ({
     </div>
   ),
   ResizableHandle: ({ className }: any) => (
-    <div
-      data-testid="resizable-handle"
-      className={className}
-    />
-  )
+    <div data-testid="resizable-handle" className={className} />
+  ),
 }));
 
 // Мокаем VideoPanelComponent
 vi.mock("../components/video-panel-component", () => ({
   VideoPanelComponent: ({ panelId, className }: any) => (
-    <div
-      data-testid={`video-panel-${panelId}`}
-      className={className}
-    >
+    <div data-testid={`video-panel-${panelId}`} className={className}>
       Video Panel {panelId}
     </div>
-  )
+  ),
 }));
 
 describe("ResizableTemplate", () => {
@@ -85,7 +79,8 @@ describe("ResizableTemplate", () => {
       resizable: true,
       screens: 2,
       splitPosition: 50,
-      render: () => ({ type: "div", props: { children: "Test Template" } } as any)
+      render: () =>
+        ({ type: "div", props: { children: "Test Template" } }) as any,
     };
 
     expect(mockTemplate).toHaveProperty("id");

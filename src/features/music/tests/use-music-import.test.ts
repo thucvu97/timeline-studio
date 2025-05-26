@@ -4,14 +4,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Мокаем Tauri API
 const mockInvoke = vi.fn();
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: mockInvoke
+  invoke: mockInvoke,
 }));
 
 // Мокаем хук текущего проекта
 const mockCurrentProject = {
   id: "test-project",
   name: "Test Project",
-  path: "/test/project"
+  path: "/test/project",
 };
 
 const mockSetProjectDirty = vi.fn();
@@ -19,8 +19,8 @@ const mockSetProjectDirty = vi.fn();
 vi.mock("@/features/app-state/app-settings-provider", () => ({
   useCurrentProject: () => ({
     currentProject: mockCurrentProject,
-    setProjectDirty: mockSetProjectDirty
-  })
+    setProjectDirty: mockSetProjectDirty,
+  }),
 }));
 
 // Мокаем медиа утилиты
@@ -31,14 +31,14 @@ const mockGetMediaMetadata = vi.fn();
 vi.mock("@/lib/media", () => ({
   selectAudioFile: mockSelectAudioFile,
   selectMediaDirectory: mockSelectMediaDirectory,
-  getMediaMetadata: mockGetMediaMetadata
+  getMediaMetadata: mockGetMediaMetadata,
 }));
 
 // Мокаем утилиты сохранения медиа
 const mockConvertToSavedMusicFile = vi.fn();
 
 vi.mock("@/lib/saved-media-utils", () => ({
-  convertToSavedMusicFile: mockConvertToSavedMusicFile
+  convertToSavedMusicFile: mockConvertToSavedMusicFile,
 }));
 
 // Мокаем хук музыки
@@ -48,8 +48,8 @@ const mockUpdateMusicFiles = vi.fn();
 vi.mock("../hooks/use-music", () => ({
   useMusic: () => ({
     addMusicFiles: mockAddMusicFiles,
-    updateMusicFiles: mockUpdateMusicFiles
-  })
+    updateMusicFiles: mockUpdateMusicFiles,
+  }),
 }));
 
 describe("useMusicImport", () => {
@@ -93,7 +93,7 @@ describe("useMusicImport", () => {
       sampleRate: 44100,
       artist: "Test Artist",
       title: "Test Song",
-      album: "Test Album"
+      album: "Test Album",
     };
     mockGetMediaMetadata.mockResolvedValue(mockMetadata);
 
@@ -106,7 +106,7 @@ describe("useMusicImport", () => {
       size: 5000000,
       duration: 180,
       createdAt: new Date(),
-      modifiedAt: new Date()
+      modifiedAt: new Date(),
     };
     mockConvertToSavedMusicFile.mockResolvedValue(mockSavedFile);
 
@@ -134,20 +134,20 @@ describe("useMusicImport", () => {
     const mockFiles = [
       "/path/to/music/folder/song1.mp3",
       "/path/to/music/folder/song2.wav",
-      "/path/to/music/folder/song3.flac"
+      "/path/to/music/folder/song3.flac",
     ];
     mockInvoke.mockResolvedValue(mockFiles);
 
     // Мокаем метаданные для каждого файла
     mockGetMediaMetadata.mockImplementation((path: string) => {
-      const filename = path.split('/').pop();
+      const filename = path.split("/").pop();
       return Promise.resolve({
         duration: 180,
         bitrate: 320,
         sampleRate: 44100,
         artist: "Test Artist",
-        title: filename?.split('.')[0],
-        album: "Test Album"
+        title: filename?.split(".")[0],
+        album: "Test Album",
       });
     });
 
@@ -156,12 +156,12 @@ describe("useMusicImport", () => {
       return Promise.resolve({
         id: `test-id-${file.path}`,
         path: file.path,
-        name: file.path.split('/').pop(),
+        name: file.path.split("/").pop(),
         type: "audio",
         size: 5000000,
         duration: 180,
         createdAt: new Date(),
-        modifiedAt: new Date()
+        modifiedAt: new Date(),
       });
     });
 
@@ -175,7 +175,7 @@ describe("useMusicImport", () => {
     // Проверяем, что функции были вызваны
     expect(mockSelectMediaDirectory).toHaveBeenCalledTimes(1);
     expect(mockInvoke).toHaveBeenCalledWith("get_media_files", {
-      directory: mockDirectory
+      directory: mockDirectory,
     });
     // Метаданные загружаются асинхронно, поэтому не проверяем их сразу
     expect(mockConvertToSavedMusicFile).toHaveBeenCalledTimes(3);
@@ -236,8 +236,6 @@ describe("useMusicImport", () => {
     expect(mockConvertToSavedMusicFile).not.toHaveBeenCalled();
   });
 
-
-
   it("should validate audio file formats", async () => {
     const { useMusicImport } = await import("../hooks/use-music-import");
 
@@ -245,11 +243,11 @@ describe("useMusicImport", () => {
     const validFormats = [".mp3", ".wav", ".flac", ".aac", ".ogg"];
     const invalidFormats = [".txt", ".jpg", ".mp4", ".pdf"];
 
-    validFormats.forEach(format => {
+    validFormats.forEach((format) => {
       expect(format).toMatch(/\.(mp3|wav|flac|aac|ogg)$/i);
     });
 
-    invalidFormats.forEach(format => {
+    invalidFormats.forEach((format) => {
       expect(format).not.toMatch(/\.(mp3|wav|flac|aac|ogg)$/i);
     });
   });
@@ -262,7 +260,7 @@ describe("useMusicImport", () => {
     mockGetMediaMetadata.mockResolvedValue({
       duration: 180,
       bitrate: 320,
-      sampleRate: 44100
+      sampleRate: 44100,
     });
     mockConvertToSavedMusicFile.mockResolvedValue({
       id: "test-id",
@@ -272,7 +270,7 @@ describe("useMusicImport", () => {
       size: 5000000,
       duration: 180,
       createdAt: new Date(),
-      modifiedAt: new Date()
+      modifiedAt: new Date(),
     });
 
     const { result } = renderHook(() => useMusicImport());
@@ -282,7 +280,7 @@ describe("useMusicImport", () => {
       const promises = [
         result.current.importFile(),
         result.current.importFile(),
-        result.current.importFile()
+        result.current.importFile(),
       ];
       await Promise.all(promises);
     });

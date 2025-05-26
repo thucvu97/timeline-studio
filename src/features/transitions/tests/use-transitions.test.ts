@@ -4,14 +4,15 @@ import { describe, expect, it } from "vitest";
 describe("Transitions Module", () => {
   it("should import transitions hooks without errors", async () => {
     // Проверяем, что модули импортируются без ошибок
-    const { useTransitions, useTransitionById, useTransitionsByCategory } = await import("../hooks/use-transitions");
-    
+    const { useTransitions, useTransitionById, useTransitionsByCategory } =
+      await import("../hooks/use-transitions");
+
     expect(useTransitions).toBeDefined();
     expect(typeof useTransitions).toBe("function");
-    
+
     expect(useTransitionById).toBeDefined();
     expect(typeof useTransitionById).toBe("function");
-    
+
     expect(useTransitionsByCategory).toBeDefined();
     expect(typeof useTransitionsByCategory).toBe("function");
   });
@@ -22,11 +23,11 @@ describe("Transitions Module", () => {
       const transitionsData = await import("../../../data/transitions.json");
       expect(transitionsData).toBeDefined();
       expect(transitionsData.default).toBeDefined();
-      
+
       if (transitionsData.default.transitions) {
         expect(Array.isArray(transitionsData.default.transitions)).toBe(true);
         expect(transitionsData.default.transitions.length).toBeGreaterThan(0);
-        
+
         // Проверяем структуру первого перехода
         const firstTransition = transitionsData.default.transitions[0];
         expect(firstTransition).toHaveProperty("id");
@@ -37,26 +38,34 @@ describe("Transitions Module", () => {
       }
     } catch (error) {
       // Если JSON файл не найден, это нормально для тестов
-      console.log("Transitions JSON file not found, which is expected in test environment");
+      console.log(
+        "Transitions JSON file not found, which is expected in test environment",
+      );
     }
   });
 
   it("should import transitions utilities without errors", async () => {
     // Проверяем, что утилиты импортируются
     try {
-      const { processTransitions, validateTransitionsData, createFallbackTransition } = await import("../utils/transition-processor");
-      
+      const {
+        processTransitions,
+        validateTransitionsData,
+        createFallbackTransition,
+      } = await import("../utils/transition-processor");
+
       expect(processTransitions).toBeDefined();
       expect(typeof processTransitions).toBe("function");
-      
+
       expect(validateTransitionsData).toBeDefined();
       expect(typeof validateTransitionsData).toBe("function");
-      
+
       expect(createFallbackTransition).toBeDefined();
       expect(typeof createFallbackTransition).toBe("function");
     } catch (error) {
       // Если утилиты не найдены, это нормально для тестов
-      console.log("Transition utilities not found, which is expected in test environment");
+      console.log(
+        "Transition utilities not found, which is expected in test environment",
+      );
     }
   });
 
@@ -67,20 +76,20 @@ describe("Transitions Module", () => {
       "creative",
       "cinematic",
       "technical",
-      "artistic"
+      "artistic",
     ];
-    
+
     const validComplexities = ["basic", "intermediate", "advanced"];
-    
+
     const validTransitionTypes = [
       "fade",
-      "zoom", 
+      "zoom",
       "slide",
       "scale",
       "wipe",
-      "dissolve"
+      "dissolve",
     ];
-    
+
     expect(validCategories.length).toBeGreaterThan(0);
     expect(validComplexities.length).toBe(3);
     expect(validTransitionTypes.length).toBeGreaterThan(0);
@@ -91,13 +100,13 @@ describe("Transitions Module", () => {
     const validDuration = {
       min: 0.5,
       max: 3.0,
-      default: 1.5
+      default: 1.5,
     };
-    
+
     expect(typeof validDuration.min).toBe("number");
     expect(typeof validDuration.max).toBe("number");
     expect(typeof validDuration.default).toBe("number");
-    
+
     expect(validDuration.min).toBeGreaterThan(0);
     expect(validDuration.max).toBeGreaterThan(validDuration.min);
     expect(validDuration.default).toBeGreaterThanOrEqual(validDuration.min);
@@ -111,12 +120,18 @@ describe("Transitions Module", () => {
       easing: "ease-in-out",
       intensity: 0.8,
       scale: 1.2,
-      smoothness: 0.9
+      smoothness: 0.9,
     };
-    
+
     const validDirections = ["left", "right", "up", "down", "center"];
-    const validEasings = ["linear", "ease-in", "ease-out", "ease-in-out", "bounce"];
-    
+    const validEasings = [
+      "linear",
+      "ease-in",
+      "ease-out",
+      "ease-in-out",
+      "bounce",
+    ];
+
     expect(validDirections).toContain(validParameters.direction);
     expect(validEasings).toContain(validParameters.easing);
     expect(validParameters.intensity).toBeGreaterThanOrEqual(0);
@@ -133,15 +148,15 @@ describe("Transitions Module", () => {
       width: 1920,
       height: 1080,
       scale: 1.0,
-      duration: 1.5
+      duration: 1.5,
     };
-    
+
     expect(typeof mockFFmpegParams.fps).toBe("number");
     expect(typeof mockFFmpegParams.width).toBe("number");
     expect(typeof mockFFmpegParams.height).toBe("number");
     expect(typeof mockFFmpegParams.scale).toBe("number");
     expect(typeof mockFFmpegParams.duration).toBe("number");
-    
+
     expect(mockFFmpegParams.fps).toBeGreaterThan(0);
     expect(mockFFmpegParams.width).toBeGreaterThan(0);
     expect(mockFFmpegParams.height).toBeGreaterThan(0);
