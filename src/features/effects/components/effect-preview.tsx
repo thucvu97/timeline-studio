@@ -28,6 +28,7 @@ interface EffectPreviewProps {
   size: number;
   width?: number; // Ширина превью (опционально, по умолчанию равна size)
   height?: number; // Высота превью (опционально, по умолчанию равна size)
+  customParams?: Record<string, number>; // Пользовательские параметры для эффекта
 }
 
 /**
@@ -40,6 +41,7 @@ export function EffectPreview({
   size,
   width = size, // По умолчанию ширина равна size (квадратное превью)
   height = size, // По умолчанию высота равна size (квадратное превью)
+  customParams, // Пользовательские параметры для эффекта
 }: EffectPreviewProps) {
   const { i18n } = useTranslation(); // Хук для интернационализации
   const { addEffect, isEffectAdded, removeResource, effectResources } =
@@ -50,7 +52,24 @@ export function EffectPreview({
   const timeoutRef = useRef<NodeJS.Timeout>(null); // Ссылка на таймер для воспроизведения видео
 
   // Находим эффект по типу из списка доступных эффектов
-  const effect = effects.find((e: VideoEffect) => e.type === effectType);
+  const baseEffect = effects.find((e: VideoEffect) => e.type === effectType);
+
+  // Создаем эффект с пользовательскими параметрами, если они переданы
+  const effect = useMemo(() => {
+    if (!baseEffect) return null;
+
+    if (customParams && Object.keys(customParams).length > 0) {
+      return {
+        ...baseEffect,
+        params: {
+          ...baseEffect.params,
+          ...customParams
+        }
+      };
+    }
+
+    return baseEffect;
+  }, [baseEffect, customParams]);
 
   // Проверяем, добавлен ли эффект уже в хранилище ресурсов
   // Мемоизируем результат для оптимизации
@@ -128,7 +147,7 @@ export function EffectPreview({
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [isHovering, effect, width, height]);
+  }, [isHovering, effect, width, height, customParams]);
 
   return (
     <div className="flex flex-col items-center">

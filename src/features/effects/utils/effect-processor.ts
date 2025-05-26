@@ -69,6 +69,10 @@ export function processEffects(rawEffects: RawEffectData[]): VideoEffect[] {
  * Валидирует структуру данных эффекта
  */
 export function validateEffect(effect: any): effect is RawEffectData {
+  if (!effect || typeof effect !== 'object') {
+    return false;
+  }
+
   const requiredFields = [
     'id', 'name', 'type', 'category', 'complexity',
     'description', 'ffmpegCommand', 'labels'

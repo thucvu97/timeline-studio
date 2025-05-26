@@ -187,18 +187,26 @@ export function useEffectsImport() {
         const effect: VideoEffect = {
           id: `user-${Date.now()}-${i}`,
           name: fileName.replace(/\.[^/.]+$/, ""), // Убираем расширение
-          type: extension === "cube" || extension === "3dl" ? "lut" : "custom",
+          type: extension === "cube" || extension === "3dl" ? "vintage" : "glow", // Используем существующие типы
           duration: 0,
-          category: "user-imported",
+          category: "creative", // Используем существующую категорию
           complexity: "intermediate",
-          tags: ["user", "imported", extension || "custom"],
+          tags: ["experimental"], // Используем существующие теги
           description: {
             ru: `Пользовательский эффект: ${fileName}`,
             en: `User effect: ${fileName}`,
           },
-          ffmpegCommand: extension === "cube" ? `lut3d=${filePath}` : `custom=${filePath}`,
-          cssFilter: "",
-          params: { filePath },
+          ffmpegCommand: (params) => {
+            // Используем intensity как основной параметр для пользовательских эффектов
+            const intensity = params.intensity || 50;
+            return extension === "cube" || extension === "3dl"
+              ? `lut3d=${filePath}:interp=trilinear:amount=${intensity / 100}`
+              : `custom=${filePath}:intensity=${intensity}`;
+          },
+          params: {
+            intensity: 50, // Интенсивность применения эффекта
+            amount: 100    // Количество эффекта
+          },
           previewPath: "/t1.mp4",
           labels: {
             ru: fileName.replace(/\.[^/.]+$/, ""),

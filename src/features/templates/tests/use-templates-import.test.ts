@@ -116,7 +116,7 @@ describe("useTemplatesImport", () => {
 
     // Начинаем импорт
     act(() => {
-      result.current.importTemplateFile();
+      void result.current.importTemplateFile();
     });
 
     // Проверяем состояние во время импорта

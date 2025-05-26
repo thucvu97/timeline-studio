@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Pause, Play, RotateCcw, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { VideoEffect } from "@/types/effects";
 
 import { EffectIndicators } from "./effect-indicators";
+import { EffectParameterControls } from "./effect-parameter-controls";
 import { EffectPresets } from "./effect-presets";
 import { EffectPreview } from "./effect-preview";
 
@@ -21,7 +22,7 @@ interface EffectDetailProps {
   effect: VideoEffect | null;
   isOpen: boolean;
   onClose: () => void;
-  onApplyEffect: (effect: VideoEffect, preset?: string) => void;
+  onApplyEffect: (effect: VideoEffect, preset?: string, customParams?: Record<string, number>) => void;
 }
 
 /**
@@ -31,20 +32,48 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
   const { i18n, t } = useTranslation();
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentParameters, setCurrentParameters] = useState<Record<string, number>>({});
+  const [previewKey, setPreviewKey] = useState(0); // Для обновления превью
   const currentLang = i18n.language as 'ru' | 'en';
 
   if (!effect) return null;
 
-  const handleApplyPreset = (presetName: string, params: Record<string, number>) => {
+  // Обработчик применения пресета
+  const handleApplyPreset = useCallback((presetName: string, params: Record<string, number>) => {
     setSelectedPreset(presetName);
-    // Здесь можно добавить логику применения параметров к превью
-    console.log('Applying preset:', presetName, params);
-  };
+    setCurrentParameters(params);
+    setPreviewKey(prev => prev + 1); // Обновляем превью
+  }, []);
 
-  const handleApplyEffect = () => {
-    onApplyEffect(effect, selectedPreset);
+  // Обработчик изменения параметров
+  const handleParametersChange = useCallback((params: Record<string, number>) => {
+    setCurrentParameters(params);
+    setPreviewKey(prev => prev + 1); // Обновляем превью
+    // Сбрасываем выбранный пресет при ручном изменении
+    if (selectedPreset) {
+      setSelectedPreset(undefined);
+    }
+  }, [selectedPreset]);
+
+  // Обработчик сохранения пользовательского пресета
+  const handleSavePreset = useCallback((name: string, params: Record<string, number>) => {
+    // Здесь можно добавить логику сохранения пресета в localStorage или на сервер
+    console.log('Saving custom preset:', name, params);
+    // TODO: Реализовать сохранение пользовательских пресетов
+  }, []);
+
+  // Обработчик применения эффекта
+  const handleApplyEffect = useCallback(() => {
+    onApplyEffect(effect, selectedPreset, currentParameters);
     onClose();
-  };
+  }, [effect, selectedPreset, currentParameters, onApplyEffect, onClose]);
+
+  // Обработчик сброса параметров
+  const handleReset = useCallback(() => {
+    setSelectedPreset(undefined);
+    setCurrentParameters({});
+    setPreviewKey(prev => prev + 1);
+  }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -66,9 +95,11 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
           <div className="space-y-4">
             <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
               <EffectPreview
+                key={previewKey} // Обновляем превью при изменении параметров
                 effectType={effect.type}
                 onClick={() => setIsPlaying(!isPlaying)}
                 size={400}
+                customParams={currentParameters} // Передаем текущие параметры
               />
 
               {/* Контролы воспроизведения */}
@@ -83,10 +114,8 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => {
-                    setSelectedPreset(undefined);
-                    // Сброс параметров к значениям по умолчанию
-                  }}
+                  onClick={handleReset}
+                  title={t('effects.detail.resetToDefault', 'Сбросить к значениям по умолчанию')}
                 >
                   <RotateCcw size={16} />
                 </Button>
@@ -126,26 +155,22 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
               selectedPreset={selectedPreset}
             />
 
-            {/* Параметры эффекта */}
-            {effect.params && Object.keys(effect.params).length > 0 && (
-              <div className="space-y-3">
-                <h3 className="font-medium">{t('effects.detail.parameters', 'Параметры')}</h3>
-                <div className="space-y-2">
-                  {Object.entries(effect.params).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between">
-                      <label className="text-sm capitalize">{key}</label>
-                      <span className="text-sm text-gray-500">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Интерактивные контролы параметров */}
+            <EffectParameterControls
+              effect={effect}
+              onParametersChange={handleParametersChange}
+              selectedPreset={selectedPreset}
+              onSavePreset={handleSavePreset}
+            />
 
             {/* FFmpeg команда */}
             <div className="space-y-2">
               <h3 className="font-medium">{t('effects.detail.ffmpegCommand', 'FFmpeg команда')}</h3>
               <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono overflow-x-auto">
-                {effect.ffmpegCommand(effect.params || {})}
+                {effect.ffmpegCommand({
+                  ...effect.params,
+                  ...currentParameters
+                })}
               </div>
             </div>
 
