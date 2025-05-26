@@ -1,3 +1,4 @@
+export * from "./camera-capture-modal"
 export * from "./camera-permission-request"
 export * from "./camera-preview"
 export * from "./camera-settings"

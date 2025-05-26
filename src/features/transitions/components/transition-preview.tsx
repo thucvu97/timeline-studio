@@ -66,26 +66,7 @@ export function TransitionPreview({
       (t: Transition) => t.id === transitionType || t.type === transitionType,
     );
 
-  // Создаем объект перехода для совместимости с ресурсами
-  const transitionObj = currentTransition
-    ? {
-        id: currentTransition.id,
-        type: currentTransition.type,
-        name: currentTransition.labels.ru,
-        duration: currentTransition.duration.default,
-        ffmpegCommand: currentTransition.ffmpegCommand,
-        params: currentTransition.parameters || {},
-        previewPath: currentTransition.previewPath || "",
-      }
-    : {
-        id: transitionType,
-        type: transitionType,
-        name: transitionType,
-        duration: 1.5,
-        ffmpegCommand: () => "",
-        params: {},
-        previewPath: "",
-      };
+
 
   // Вычисляем размеры превью с учетом aspect ratio
   const { actualWidth, actualHeight } = useMemo(() => {
@@ -101,11 +82,11 @@ export function TransitionPreview({
   // Мемоизируем объекты для кнопок
   const favoriteFile = useMemo(
     () => ({
-      id: transitionObj.id,
+      id: currentTransition?.id || transitionType,
       path: "",
-      name: transitionObj.name,
+      name: currentTransition?.labels?.ru || transitionType,
     }),
-    [transitionObj.id, transitionObj.name],
+    [currentTransition?.id, currentTransition?.labels?.ru, transitionType],
   );
 
   const addMediaFile = useMemo(
@@ -121,28 +102,32 @@ export function TransitionPreview({
   const handleAddMedia = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      addTransition(transitionObj);
+      if (currentTransition) {
+        addTransition(currentTransition);
+      }
     },
-    [addTransition, transitionObj],
+    [addTransition, currentTransition],
   );
 
   const handleRemoveMedia = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      if (!currentTransition) return;
+
       const resource = transitionResources.find(
         (res: TransitionResource) =>
-          res.resourceId === transitionObj.id ||
-          res.resourceId === transitionObj.type,
+          res.resourceId === currentTransition.id ||
+          res.resourceId === currentTransition.type,
       );
       if (resource) {
         removeResource(resource.id);
       } else {
         console.warn(
-          `Не удалось найти ресурс перехода с ID ${transitionObj.id} для удаления`,
+          `Не удалось найти ресурс перехода с ID ${currentTransition.id} для удаления`,
         );
       }
     },
-    [removeResource, transitionResources, transitionObj.id, transitionObj.type],
+    [removeResource, transitionResources, currentTransition],
   );
 
   // Функция для получения индикатора сложности
@@ -191,8 +176,8 @@ export function TransitionPreview({
   // Проверяем, добавлен ли переход уже в хранилище ресурсов
   // Мемоизируем результат для оптимизации
   const isAdded = useMemo(() => {
-    return isTransitionAdded(transitionObj);
-  }, [isTransitionAdded, transitionObj]);
+    return currentTransition ? isTransitionAdded(currentTransition) : false;
+  }, [isTransitionAdded, currentTransition]);
 
   // Отладочный вывод
   // useEffect(() => {

@@ -19,12 +19,12 @@ interface ProjectProviderProps {
  * Интерфейс контекста настроек проекта
  * Определяет данные и методы, доступные через хук useProjectSettings
  *
- * @interface ProjectSettingsContextType
+ * @interface ProjectSettingsProviderType
  * @property {ProjectSettings} settings - Текущие настройки проекта
  * @property {Function} updateSettings - Функция для обновления настроек проекта
  * @property {Function} resetSettings - Функция для сброса настроек проекта к значениям по умолчанию
  */
-interface ProjectSettingsContextType {
+export interface ProjectSettingsProviderType {
   settings: ProjectSettings
   updateSettings: (settings: ProjectSettings) => void
   resetSettings: () => void
@@ -34,7 +34,7 @@ interface ProjectSettingsContextType {
  * Контекст для хранения и предоставления доступа к настройкам проекта
  * Изначально не имеет значения (undefined)
  */
-export const ProjectSettingsContext = createContext<ProjectSettingsContextType | undefined>(undefined)
+export const ProjectSettingsContext = createContext<ProjectSettingsProviderType | undefined>(undefined)
 
 /**
  * Провайдер настроек проекта

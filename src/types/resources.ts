@@ -2,7 +2,7 @@ import { StyleTemplate } from "@/features/style-templates/types";
 import { MediaTemplate } from "@/features/templates/lib/templates";
 import { MediaFile } from "@/types/media";
 import { SubtitleStyle } from "@/types/subtitles";
-import { TransitionEffect } from "@/types/transitions";
+import { Transition } from "@/types/transitions";
 
 import { VideoEffect } from "./effects";
 import { VideoFilter } from "./filters";
@@ -43,7 +43,7 @@ export interface FilterResource extends Resource {
 // Интерфейс для переходов
 export interface TransitionResource extends Resource {
   type: "transition";
-  transition: TransitionEffect;
+  transition: Transition;
   params?: Record<string, any>; // Параметры перехода
 }
 
@@ -113,17 +113,17 @@ export function createFilterResource(filter: VideoFilter): FilterResource {
 
 // Функция для создания ресурса перехода
 export function createTransitionResource(
-  transition: TransitionEffect,
+  transition: Transition,
 ): TransitionResource {
   console.log("Creating transition resource from:", transition);
   const resource: TransitionResource = {
     id: `transition-${transition.id}-${Date.now()}`,
     type: "transition",
-    name: transition.name || transition.id,
+    name: transition.labels?.ru || transition.id,
     resourceId: transition.id,
     addedAt: Date.now(),
     transition,
-    params: transition.params ? { ...transition.params } : {},
+    params: transition.parameters ? { ...transition.parameters } : {},
   };
   console.log("Created transition resource:", resource);
   return resource;
@@ -151,7 +151,7 @@ export function createStyleTemplateResource(
   return {
     id: `style-template-${template.id}-${Date.now()}`,
     type: "style-template",
-    name: template.name,
+    name: template.name.ru,
     resourceId: template.id,
     addedAt: Date.now(),
     template,

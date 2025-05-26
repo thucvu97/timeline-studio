@@ -25,6 +25,7 @@ export type FilterTag =
   | "dramatic"           // Драматический
   | "soft"               // Мягкий
   | "vibrant"            // Яркий
+  | "fallback"           // Резервный
 
 export interface VideoFilter {
   id: string

@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 
 import { open } from "@tauri-apps/plugin-dialog";
 
-import { VideoTransition } from "@/types/transitions";
+import { Transition } from "@/types/transitions";
 
 /**
  * Интерфейс для результата импорта переходов
@@ -10,7 +10,7 @@ import { VideoTransition } from "@/types/transitions";
 interface ImportResult {
   success: boolean;
   message: string;
-  transitions: VideoTransition[];
+  transitions: Transition[];
 }
 
 /**
@@ -24,7 +24,7 @@ export function useTransitionsImport() {
   /**
    * Валидация структуры перехода
    */
-  const validateTransition = (transition: any): transition is VideoTransition => {
+  const validateTransition = (transition: any): transition is Transition => {
     return (
       transition &&
       typeof transition.id === "string" &&
@@ -83,7 +83,7 @@ export function useTransitionsImport() {
       setProgress(50);
 
       // Валидируем структуру
-      let transitions: VideoTransition[] = [];
+      let transitions: Transition[] = [];
 
       if (Array.isArray(data)) {
         // Массив переходов
@@ -175,7 +175,7 @@ export function useTransitionsImport() {
       const files = Array.isArray(selected) ? selected : [selected];
       setProgress(25);
 
-      const importedTransitions: VideoTransition[] = [];
+      const importedTransitions: Transition[] = [];
 
       for (let i = 0; i < files.length; i++) {
         const filePath = files[i];
@@ -183,7 +183,7 @@ export function useTransitionsImport() {
         const extension = fileName.split(".").pop()?.toLowerCase();
 
         // Создаем базовый переход на основе файла
-        const transition: VideoTransition = {
+        const transition: Transition = {
           id: `user-${Date.now()}-${i}`,
           type: extension === "transition" ? "custom" : "imported",
           labels: {
@@ -197,12 +197,12 @@ export function useTransitionsImport() {
             ru: `Пользовательский переход: ${fileName}`,
             en: `User transition: ${fileName}`,
           },
-          category: "user-imported",
+          category: "creative",
           complexity: "intermediate",
-          tags: ["user", "imported", extension || "custom"],
+          tags: ["fallback"],
           duration: { min: 0.5, max: 3.0, default: 1.0 },
-          parameters: { filePath },
-          ffmpegTemplate: `custom=${filePath}`,
+          parameters: {},
+          ffmpegCommand: () => `custom=${filePath}`,
         };
 
         importedTransitions.push(transition);

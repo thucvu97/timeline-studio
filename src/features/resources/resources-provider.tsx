@@ -17,7 +17,7 @@ import {
   TransitionResource,
 } from "@/types/resources";
 import { SubtitleStyle } from "@/types/subtitles";
-import { TransitionEffect } from "@/types/transitions";
+import { Transition } from "@/types/transitions";
 
 import { ResourcesMachineContext, resourcesMachine } from "./resources-machine";
 
@@ -25,7 +25,7 @@ interface ResourcesContextType extends ResourcesMachineContext {
   // Методы для работы с ресурсами
   addEffect: (effect: VideoEffect) => void;
   addFilter: (filter: VideoFilter) => void;
-  addTransition: (transition: TransitionEffect) => void;
+  addTransition: (transition: Transition) => void;
   addTemplate: (template: MediaTemplate) => void;
   addStyleTemplate: (template: StyleTemplate) => void;
   addMusic: (file: MediaFile) => void;
@@ -36,7 +36,7 @@ interface ResourcesContextType extends ResourcesMachineContext {
   // Методы для проверки наличия ресурса в хранилище
   isEffectAdded: (effect: VideoEffect) => boolean;
   isFilterAdded: (filter: VideoFilter) => boolean;
-  isTransitionAdded: (transition: TransitionEffect) => boolean;
+  isTransitionAdded: (transition: Transition) => boolean;
   isTemplateAdded: (template: MediaTemplate) => boolean;
   isStyleTemplateAdded: (template: StyleTemplate) => boolean;
   isMusicFileAdded: (file: MediaFile) => boolean;
@@ -88,7 +88,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   );
 
   const handleAddTransition = React.useCallback(
-    (transition: TransitionEffect) => {
+    (transition: Transition) => {
       console.log("Adding transition:", transition);
       send({ type: "ADD_TRANSITION", transition });
     },
@@ -205,7 +205,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   }, [transitionResources]);
 
   const isTransitionAdded = React.useCallback(
-    (transition: TransitionEffect) => {
+    (transition: Transition) => {
       // Проверяем, есть ли результат в кэше
       const cacheKey = transition.id || transition.type;
       if (cacheKey in transitionAddedCache.current) {

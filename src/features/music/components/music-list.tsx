@@ -37,8 +37,8 @@ const sortFiles = (files: MediaFile[], sortBy: string, sortOrder: string) => {
         bValue = b.probeData?.format.duration || 0;
         break;
       case "artist":
-        aValue = (a.probeData?.format.tags?.artist || "").toLowerCase();
-        bValue = (b.probeData?.format.tags?.artist || "").toLowerCase();
+        aValue = String(a.probeData?.format.tags?.artist || "").toLowerCase();
+        bValue = String(b.probeData?.format.tags?.artist || "").toLowerCase();
         break;
       default:
         aValue = a.name.toLowerCase();

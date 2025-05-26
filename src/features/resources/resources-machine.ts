@@ -23,7 +23,7 @@ import {
   createTransitionResource,
 } from "@/types/resources";
 import { SubtitleStyle } from "@/types/subtitles";
-import { TransitionEffect } from "@/types/transitions";
+import { Transition } from "@/types/transitions";
 
 // Интерфейс контекста машины состояний
 export interface ResourcesMachineContext {
@@ -41,7 +41,7 @@ export interface ResourcesMachineContext {
 type ResourcesMachineEvent =
   | { type: "ADD_EFFECT"; effect: VideoEffect }
   | { type: "ADD_FILTER"; filter: VideoFilter }
-  | { type: "ADD_TRANSITION"; transition: TransitionEffect }
+  | { type: "ADD_TRANSITION"; transition: Transition }
   | { type: "ADD_TEMPLATE"; template: MediaTemplate }
   | { type: "ADD_STYLE_TEMPLATE"; template: StyleTemplate }
   | { type: "ADD_MUSIC"; file: MediaFile }

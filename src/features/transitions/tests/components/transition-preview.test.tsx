@@ -248,14 +248,8 @@ describe("TransitionPreview", () => {
     const addButton = screen.getByTestId("add-button");
     fireEvent.click(addButton);
 
-    // Проверяем, что переход добавлен
-    expect(mockAddTransition).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: mockTransition.id,
-        type: mockTransition.type,
-        name: mockTransition.labels.ru,
-      }),
-    );
+    // Проверяем, что переход добавлен с полным объектом Transition
+    expect(mockAddTransition).toHaveBeenCalledWith(mockTransition);
   });
 
   it("should use custom preview dimensions", () => {

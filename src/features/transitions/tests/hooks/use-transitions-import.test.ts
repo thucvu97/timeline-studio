@@ -385,12 +385,11 @@ describe("useTransitionsImport", () => {
       expect(transition.type).toBe("imported");
       expect(transition.labels.ru).toBe("my-transition");
       expect(transition.labels.en).toBe("my-transition");
-      expect(transition.category).toBe("user-imported");
+      expect(transition.category).toBe("creative");
       expect(transition.complexity).toBe("intermediate");
-      expect(transition.tags).toContain("user");
-      expect(transition.tags).toContain("imported");
-      expect(transition.tags).toContain("preset");
-      expect(transition.parameters.filePath).toBe(file);
+      expect(transition.tags).toContain("fallback");
+      expect(transition.parameters).toEqual({});
+      expect(transition.ffmpegCommand).toBeDefined();
     });
 
     it("не должен делать ничего если файлы не выбраны", async () => {

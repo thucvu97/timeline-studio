@@ -32,6 +32,7 @@ export type SubtitleTag =
   | "fade"         // Затухание
   | "gradient"     // Градиент
   | "colorful"     // Цветной
+  | "fallback"     // Резервный
 
 /**
  * Интерфейс, описывающий стиль субтитров

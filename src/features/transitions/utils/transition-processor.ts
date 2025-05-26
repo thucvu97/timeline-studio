@@ -25,7 +25,7 @@ interface RawTransitionData {
     max: number;
     default: number;
   };
-  parameters: {
+  parameters?: {
     direction?: string;
     easing?: string;
     intensity?: number;
@@ -61,7 +61,13 @@ export function processTransitions(rawTransitions: RawTransitionData[]): Transit
     complexity: rawTransition.complexity as Transition['complexity'],
     tags: rawTransition.tags as Transition['tags'],
     duration: rawTransition.duration,
-    parameters: rawTransition.parameters,
+    parameters: {
+      direction: rawTransition.parameters?.direction as "left" | "right" | "up" | "down" | "center" | undefined,
+      easing: rawTransition.parameters?.easing as "linear" | "ease-in" | "ease-out" | "ease-in-out" | "bounce" | undefined,
+      intensity: rawTransition.parameters?.intensity,
+      scale: rawTransition.parameters?.scale,
+      smoothness: rawTransition.parameters?.smoothness,
+    },
     ffmpegCommand: createFFmpegCommand(rawTransition.ffmpegTemplate)
   }));
 }
