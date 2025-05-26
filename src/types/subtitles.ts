@@ -1,38 +1,38 @@
 // Категории стилей субтитров
 export type SubtitleCategory =
-  | "basic"        // Базовые
-  | "cinematic"    // Кинематографические
-  | "stylized"     // Стилизованные
-  | "minimal"      // Минималистичные
-  | "animated"     // Анимированные
-  | "modern"       // Современные
+  | "basic" // Базовые
+  | "cinematic" // Кинематографические
+  | "stylized" // Стилизованные
+  | "minimal" // Минималистичные
+  | "animated" // Анимированные
+  | "modern"; // Современные
 
 // Сложность стиля субтитров
-export type SubtitleComplexity = "basic" | "intermediate" | "advanced"
+export type SubtitleComplexity = "basic" | "intermediate" | "advanced";
 
 // Теги для стилей субтитров
 export type SubtitleTag =
-  | "simple"       // Простой
-  | "clean"        // Чистый
-  | "readable"     // Читаемый
-  | "elegant"      // Элегантный
+  | "simple" // Простой
+  | "clean" // Чистый
+  | "readable" // Читаемый
+  | "elegant" // Элегантный
   | "professional" // Профессиональный
-  | "movie"        // Кинематографический
-  | "bold"         // Жирный
-  | "dramatic"     // Драматический
-  | "neon"         // Неоновый
-  | "glow"         // Свечение
-  | "futuristic"   // Футуристический
-  | "retro"        // Ретро
-  | "vintage"      // Винтажный
-  | "minimal"      // Минималистичный
-  | "modern"       // Современный
-  | "animated"     // Анимированный
-  | "typewriter"   // Печатная машинка
-  | "fade"         // Затухание
-  | "gradient"     // Градиент
-  | "colorful"     // Цветной
-  | "fallback"     // Резервный
+  | "movie" // Кинематографический
+  | "bold" // Жирный
+  | "dramatic" // Драматический
+  | "neon" // Неоновый
+  | "glow" // Свечение
+  | "futuristic" // Футуристический
+  | "retro" // Ретро
+  | "vintage" // Винтажный
+  | "minimal" // Минималистичный
+  | "modern" // Современный
+  | "animated" // Анимированный
+  | "typewriter" // Печатная машинка
+  | "fade" // Затухание
+  | "gradient" // Градиент
+  | "colorful" // Цветной
+  | "fallback"; // Резервный
 
 /**
  * Интерфейс, описывающий стиль субтитров

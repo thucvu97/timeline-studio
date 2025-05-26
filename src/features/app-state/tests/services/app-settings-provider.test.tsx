@@ -29,7 +29,16 @@ vi.mock("../../services/app-settings-machine", () => {
       initial: "idle",
       context: {
         userSettings: {
-          previewSizes: { MEDIA: 100, TRANSITIONS: 100, TEMPLATES: 125, EFFECTS: 100, FILTERS: 100, SUBTITLES: 100, STYLE_TEMPLATES: 125, MUSIC: 100 },
+          previewSizes: {
+            MEDIA: 100,
+            TRANSITIONS: 100,
+            TEMPLATES: 125,
+            EFFECTS: 100,
+            FILTERS: 100,
+            SUBTITLES: 100,
+            STYLE_TEMPLATES: 125,
+            MUSIC: 100,
+          },
           activeTab: "media",
           layoutMode: "default",
           screenshotsPath: "",
@@ -72,7 +81,16 @@ const mockSend = vi.fn();
 const mockState = {
   context: {
     userSettings: {
-      previewSizes: { MEDIA: 100, TRANSITIONS: 100, TEMPLATES: 125, EFFECTS: 100, FILTERS: 100, SUBTITLES: 100, STYLE_TEMPLATES: 125, MUSIC: 100 },
+      previewSizes: {
+        MEDIA: 100,
+        TRANSITIONS: 100,
+        TEMPLATES: 125,
+        EFFECTS: 100,
+        FILTERS: 100,
+        SUBTITLES: 100,
+        STYLE_TEMPLATES: 125,
+        MUSIC: 100,
+      },
       activeTab: "media",
       layoutMode: "default",
       screenshotsPath: "",

@@ -179,7 +179,8 @@ export function useTransitionsImport() {
 
       for (let i = 0; i < files.length; i++) {
         const filePath = files[i];
-        const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || "unknown";
+        const fileName =
+          filePath.split("/").pop() || filePath.split("\\").pop() || "unknown";
         const extension = fileName.split(".").pop()?.toLowerCase();
 
         // Создаем базовый переход на основе файла

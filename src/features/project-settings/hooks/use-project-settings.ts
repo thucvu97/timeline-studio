@@ -1,6 +1,9 @@
 import { useContext } from "react";
 
-import { ProjectSettingsContext, ProjectSettingsProviderType } from "../services/project-settings-provider";
+import {
+  ProjectSettingsContext,
+  ProjectSettingsProviderType,
+} from "../services/project-settings-provider";
 
 /**
  * Хук для доступа к настройкам проекта
@@ -15,7 +18,9 @@ export function useProjectSettings(): ProjectSettingsProviderType {
 
   // Проверяем, что хук используется внутри провайдера
   if (!context) {
-    throw new Error("useProjectSettings must be used within a ProjectSettingsProvider");
+    throw new Error(
+      "useProjectSettings must be used within a ProjectSettingsProvider",
+    );
   }
 
   // Возвращаем значение контекста

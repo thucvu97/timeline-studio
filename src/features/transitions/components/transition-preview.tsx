@@ -66,8 +66,6 @@ export function TransitionPreview({
       (t: Transition) => t.id === transitionType || t.type === transitionType,
     );
 
-
-
   // Вычисляем размеры превью с учетом aspect ratio
   const { actualWidth, actualHeight } = useMemo(() => {
     // Если переданы конкретные размеры, используем их

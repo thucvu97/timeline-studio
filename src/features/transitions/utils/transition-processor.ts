@@ -51,24 +51,38 @@ interface TransitionsDataFile {
  * @param rawTransitions - Массив сырых данных переходов
  * @returns Массив обработанных переходов
  */
-export function processTransitions(rawTransitions: RawTransitionData[]): Transition[] {
+export function processTransitions(
+  rawTransitions: RawTransitionData[],
+): Transition[] {
   return rawTransitions.map((rawTransition) => ({
     id: rawTransition.id,
     type: rawTransition.type,
     labels: rawTransition.labels,
     description: rawTransition.description,
-    category: rawTransition.category as Transition['category'],
-    complexity: rawTransition.complexity as Transition['complexity'],
-    tags: rawTransition.tags as Transition['tags'],
+    category: rawTransition.category as Transition["category"],
+    complexity: rawTransition.complexity as Transition["complexity"],
+    tags: rawTransition.tags as Transition["tags"],
     duration: rawTransition.duration,
     parameters: {
-      direction: rawTransition.parameters?.direction as "left" | "right" | "up" | "down" | "center" | undefined,
-      easing: rawTransition.parameters?.easing as "linear" | "ease-in" | "ease-out" | "ease-in-out" | "bounce" | undefined,
+      direction: rawTransition.parameters?.direction as
+        | "left"
+        | "right"
+        | "up"
+        | "down"
+        | "center"
+        | undefined,
+      easing: rawTransition.parameters?.easing as
+        | "linear"
+        | "ease-in"
+        | "ease-out"
+        | "ease-in-out"
+        | "bounce"
+        | undefined,
       intensity: rawTransition.parameters?.intensity,
       scale: rawTransition.parameters?.scale,
       smoothness: rawTransition.parameters?.smoothness,
     },
-    ffmpegCommand: createFFmpegCommand(rawTransition.ffmpegTemplate)
+    ffmpegCommand: createFFmpegCommand(rawTransition.ffmpegTemplate),
   }));
 }
 
@@ -92,7 +106,10 @@ function createFFmpegCommand(template: string) {
     command = command.replace(/{width}/g, (params.width || 1920).toString());
     command = command.replace(/{height}/g, (params.height || 1080).toString());
     command = command.replace(/{scale}/g, (params.scale || 1.0).toString());
-    command = command.replace(/{duration}/g, (params.duration || 1.0).toString());
+    command = command.replace(
+      /{duration}/g,
+      (params.duration || 1.0).toString(),
+    );
 
     return command;
   };
@@ -103,8 +120,10 @@ function createFFmpegCommand(template: string) {
  * @param data - Данные для валидации
  * @returns true если данные валидны, false в противном случае
  */
-export function validateTransitionsData(data: any): data is TransitionsDataFile {
-  if (!data || typeof data !== 'object') {
+export function validateTransitionsData(
+  data: any,
+): data is TransitionsDataFile {
+  if (!data || typeof data !== "object") {
     return false;
   }
 
@@ -117,21 +136,21 @@ export function validateTransitionsData(data: any): data is TransitionsDataFile 
   return data.transitions.every((transition: any) => {
     return (
       transition &&
-      typeof transition.id === 'string' &&
-      typeof transition.type === 'string' &&
-      typeof transition.category === 'string' &&
-      typeof transition.complexity === 'string' &&
+      typeof transition.id === "string" &&
+      typeof transition.type === "string" &&
+      typeof transition.category === "string" &&
+      typeof transition.complexity === "string" &&
       Array.isArray(transition.tags) &&
       transition.labels &&
-      typeof transition.labels.ru === 'string' &&
-      typeof transition.labels.en === 'string' &&
+      typeof transition.labels.ru === "string" &&
+      typeof transition.labels.en === "string" &&
       transition.description &&
-      typeof transition.description.ru === 'string' &&
-      typeof transition.description.en === 'string' &&
+      typeof transition.description.ru === "string" &&
+      typeof transition.description.en === "string" &&
       transition.duration &&
-      typeof transition.duration.min === 'number' &&
-      typeof transition.duration.max === 'number' &&
-      typeof transition.duration.default === 'number'
+      typeof transition.duration.min === "number" &&
+      typeof transition.duration.max === "number" &&
+      typeof transition.duration.default === "number"
     );
   });
 }
@@ -147,24 +166,24 @@ export function createFallbackTransition(id: string): Transition {
     type: id,
     labels: {
       ru: id.charAt(0).toUpperCase() + id.slice(1),
-      en: id.charAt(0).toUpperCase() + id.slice(1)
+      en: id.charAt(0).toUpperCase() + id.slice(1),
     },
     description: {
       ru: `Базовый переход ${id}`,
-      en: `Basic transition ${id}`
+      en: `Basic transition ${id}`,
     },
-    category: 'basic',
-    complexity: 'basic',
-    tags: ['fallback'],
+    category: "basic",
+    complexity: "basic",
+    tags: ["fallback"],
     duration: { min: 0.5, max: 2.0, default: 1.0 },
     parameters: {
-      easing: 'ease-in-out',
-      intensity: 1.0
+      easing: "ease-in-out",
+      intensity: 1.0,
     },
     ffmpegCommand: (params) => {
       // Простая fallback команда
       return `fade=t=in:st=0:d=${params.duration || 1.0}`;
-    }
+    },
   };
 }
 
@@ -178,7 +197,7 @@ export function createFallbackTransition(id: string): Transition {
 export function searchTransitions(
   transitions: Transition[],
   query: string,
-  lang: 'ru' | 'en' = 'ru'
+  lang: "ru" | "en" = "ru",
 ): Transition[] {
   if (!query.trim()) {
     return transitions;
@@ -186,10 +205,17 @@ export function searchTransitions(
 
   const lowercaseQuery = query.toLowerCase();
 
-  return transitions.filter(transition =>
-    (transition.labels?.[lang] || transition.id || "").toLowerCase().includes(lowercaseQuery) ||
-    (transition.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
-    (transition.tags || []).some(tag => tag.toLowerCase().includes(lowercaseQuery))
+  return transitions.filter(
+    (transition) =>
+      (transition.labels?.[lang] || transition.id || "")
+        .toLowerCase()
+        .includes(lowercaseQuery) ||
+      (transition.description?.[lang] || "")
+        .toLowerCase()
+        .includes(lowercaseQuery) ||
+      (transition.tags || []).some((tag) =>
+        tag.toLowerCase().includes(lowercaseQuery),
+      ),
   );
 }
 
@@ -201,9 +227,9 @@ export function searchTransitions(
  */
 export function groupTransitions(
   transitions: Transition[],
-  groupBy: 'category' | 'complexity' | 'tags' | 'duration' | 'none'
+  groupBy: "category" | "complexity" | "tags" | "duration" | "none",
 ): Record<string, Transition[]> {
-  if (groupBy === 'none') {
+  if (groupBy === "none") {
     return { all: transitions };
   }
 
@@ -220,7 +246,10 @@ export function groupTransitions(
         groupKey = transition.complexity || "basic";
         break;
       case "tags":
-        groupKey = (transition.tags && transition.tags.length > 0) ? transition.tags[0] : "untagged";
+        groupKey =
+          transition.tags && transition.tags.length > 0
+            ? transition.tags[0]
+            : "untagged";
         break;
       case "duration":
         const duration = transition.duration?.default || 1.0;
@@ -250,8 +279,8 @@ export function groupTransitions(
  */
 export function sortTransitions(
   transitions: Transition[],
-  sortBy: 'name' | 'complexity' | 'category' | 'duration',
-  order: 'asc' | 'desc' = 'asc'
+  sortBy: "name" | "complexity" | "category" | "duration",
+  order: "asc" | "desc" = "asc",
 ): Transition[] {
   const sorted = [...transitions].sort((a, b) => {
     let result = 0;

@@ -225,7 +225,8 @@ export const resourcesMachine = setup({
         return [...context.resources, newResource];
       },
       styleTemplateResources: ({ context, event }) => {
-        if (event.type !== "ADD_STYLE_TEMPLATE") return context.styleTemplateResources;
+        if (event.type !== "ADD_STYLE_TEMPLATE")
+          return context.styleTemplateResources;
 
         // Проверяем, есть ли уже такой стилистический шаблон
         const existingResource = context.styleTemplateResources.find(
@@ -343,7 +344,8 @@ export const resourcesMachine = setup({
         );
       },
       styleTemplateResources: ({ context, event }) => {
-        if (event.type !== "REMOVE_RESOURCE") return context.styleTemplateResources;
+        if (event.type !== "REMOVE_RESOURCE")
+          return context.styleTemplateResources;
         return context.styleTemplateResources.filter(
           (resource) => resource.id !== event.resourceId,
         );
@@ -446,7 +448,8 @@ export const resourcesMachine = setup({
         });
       },
       styleTemplateResources: ({ context, event }) => {
-        if (event.type !== "UPDATE_RESOURCE") return context.styleTemplateResources;
+        if (event.type !== "UPDATE_RESOURCE")
+          return context.styleTemplateResources;
 
         return context.styleTemplateResources.map((resource) => {
           if (resource.id === event.resourceId) {
