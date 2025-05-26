@@ -60,7 +60,11 @@ interface BrowserStateContextValue {
   switchTab: (tab: BrowserTab) => void;
   setSearchQuery: (query: string, tab?: BrowserTab) => void;
   toggleFavorites: (tab?: BrowserTab) => void;
-  setSort: (sortBy: string, sortOrder: "asc" | "desc", tab?: BrowserTab) => void;
+  setSort: (
+    sortBy: string,
+    sortOrder: "asc" | "desc",
+    tab?: BrowserTab,
+  ) => void;
   setGroupBy: (groupBy: string, tab?: BrowserTab) => void;
   setFilter: (filterType: string, tab?: BrowserTab) => void;
   setViewMode: (viewMode: ViewMode, tab?: BrowserTab) => void;
@@ -71,7 +75,9 @@ interface BrowserStateContextValue {
 /**
  * Контекст провайдера браузера
  */
-const BrowserStateContext = createContext<BrowserStateContextValue | null>(null);
+const BrowserStateContext = createContext<BrowserStateContextValue | null>(
+  null,
+);
 
 /**
  * Интерфейс свойств провайдера браузера
@@ -108,17 +114,20 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
 
   // Геттеры
   const activeTab = state.activeTab;
-  const currentTabSettings = state.tabSettings[activeTab] || getInitialTabSettings(activeTab);
-  const previewSize = PREVIEW_SIZES[currentTabSettings.previewSizeIndex] || PREVIEW_SIZES[DEFAULT_PREVIEW_SIZE_INDEX];
+  const currentTabSettings =
+    state.tabSettings[activeTab] || getInitialTabSettings(activeTab);
+  const previewSize =
+    PREVIEW_SIZES[currentTabSettings.previewSizeIndex] ||
+    PREVIEW_SIZES[DEFAULT_PREVIEW_SIZE_INDEX];
 
   // Действия
   const switchTab = (tab: BrowserTab) => {
-    setState(prev => ({ ...prev, activeTab: tab }));
+    setState((prev) => ({ ...prev, activeTab: tab }));
   };
 
   const setSearchQuery = (query: string, tab?: BrowserTab) => {
     const targetTab = tab || activeTab;
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       tabSettings: {
         ...prev.tabSettings,
@@ -132,7 +141,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
 
   const toggleFavorites = (tab?: BrowserTab) => {
     const targetTab = tab || activeTab;
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       tabSettings: {
         ...prev.tabSettings,
@@ -144,9 +153,13 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
     }));
   };
 
-  const setSort = (sortBy: string, sortOrder: "asc" | "desc", tab?: BrowserTab) => {
+  const setSort = (
+    sortBy: string,
+    sortOrder: "asc" | "desc",
+    tab?: BrowserTab,
+  ) => {
     const targetTab = tab || activeTab;
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       tabSettings: {
         ...prev.tabSettings,
@@ -161,7 +174,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
 
   const setGroupBy = (groupBy: string, tab?: BrowserTab) => {
     const targetTab = tab || activeTab;
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       tabSettings: {
         ...prev.tabSettings,
@@ -175,7 +188,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
 
   const setFilter = (filterType: string, tab?: BrowserTab) => {
     const targetTab = tab || activeTab;
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       tabSettings: {
         ...prev.tabSettings,
@@ -189,7 +202,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
 
   const setViewMode = (viewMode: ViewMode, tab?: BrowserTab) => {
     const targetTab = tab || activeTab;
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       tabSettings: {
         ...prev.tabSettings,
@@ -203,7 +216,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
 
   const setPreviewSize = (sizeIndex: number, tab?: BrowserTab) => {
     const targetTab = tab || activeTab;
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       tabSettings: {
         ...prev.tabSettings,
@@ -216,7 +229,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
   };
 
   const resetTabSettings = (tab: BrowserTab) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       tabSettings: {
         ...prev.tabSettings,
@@ -254,7 +267,9 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({
 export const useBrowserState = (): BrowserStateContextValue => {
   const context = useContext(BrowserStateContext);
   if (!context) {
-    throw new Error("useBrowserState must be used within a BrowserStateProvider");
+    throw new Error(
+      "useBrowserState must be used within a BrowserStateProvider",
+    );
   }
   return context;
 };

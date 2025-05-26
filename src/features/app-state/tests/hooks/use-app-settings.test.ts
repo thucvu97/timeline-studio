@@ -67,7 +67,7 @@ describe("useAppSettings", () => {
     console.error = vi.fn(); // Подавляем ошибки в консоли во время теста
 
     expect(() => renderHook(() => useAppSettings())).toThrow(
-      "useAppSettings must be used within an AppSettingsProvider"
+      "useAppSettings must be used within an AppSettingsProvider",
     );
 
     console.error = consoleError; // Восстанавливаем console.error

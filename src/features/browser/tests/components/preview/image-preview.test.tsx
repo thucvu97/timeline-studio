@@ -7,7 +7,9 @@ import { ImagePreview } from "../../../components/preview/image-preview";
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
-  convertFileSrc: vi.fn().mockImplementation((path: string) => `converted-${path}`),
+  convertFileSrc: vi
+    .fn()
+    .mockImplementation((path: string) => `converted-${path}`),
 }));
 
 vi.mock("@tauri-apps/plugin-fs", () => ({

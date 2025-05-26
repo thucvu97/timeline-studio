@@ -385,7 +385,10 @@ describe("filter-processor", () => {
         { ...filters[0], category: undefined as any },
       ];
 
-      const result = groupFilters(filtersWithoutCategory as VideoFilter[], "category");
+      const result = groupFilters(
+        filtersWithoutCategory as VideoFilter[],
+        "category",
+      );
       expect(result.other).toHaveLength(1);
     });
 
@@ -394,14 +397,15 @@ describe("filter-processor", () => {
         { ...filters[0], complexity: undefined as any },
       ];
 
-      const result = groupFilters(filtersWithoutComplexity as VideoFilter[], "complexity");
+      const result = groupFilters(
+        filtersWithoutComplexity as VideoFilter[],
+        "complexity",
+      );
       expect(result.basic).toHaveLength(1);
     });
 
     it("should handle filters without tags", () => {
-      const filtersWithoutTags = [
-        { ...filters[0], tags: undefined as any },
-      ];
+      const filtersWithoutTags = [{ ...filters[0], tags: undefined as any }];
 
       const result = groupFilters(filtersWithoutTags as VideoFilter[], "tags");
       expect(result.untagged).toHaveLength(1);
@@ -505,7 +509,11 @@ describe("filter-processor", () => {
         filters[1],
       ] as VideoFilter[];
 
-      const result = sortFilters(filtersWithMissingComplexity, "complexity", "asc");
+      const result = sortFilters(
+        filtersWithMissingComplexity,
+        "complexity",
+        "asc",
+      );
 
       // Фильтр без complexity должен считаться как "basic"
       expect(result[0].complexity).toBeUndefined();
@@ -526,11 +534,11 @@ describe("filter-processor", () => {
     });
 
     it("should not mutate original array", () => {
-      const originalOrder = filters.map(f => f.name);
+      const originalOrder = filters.map((f) => f.name);
       sortFilters(filters, "name", "asc");
 
       // Проверяем, что исходный массив не изменился
-      expect(filters.map(f => f.name)).toEqual(originalOrder);
+      expect(filters.map((f) => f.name)).toEqual(originalOrder);
     });
 
     it("should default to ascending order", () => {

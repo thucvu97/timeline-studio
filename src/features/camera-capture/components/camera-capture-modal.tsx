@@ -1,35 +1,46 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react";
 
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button"
-import { useModal } from "@/features/modals"
+import { Button } from "@/components/ui/button";
+import { useModal } from "@/features/modals";
 
-import { useCameraPermissions, useCameraStream, useDeviceCapabilities, useDevices, useRecording } from "../hooks"
+import {
+  useCameraPermissions,
+  useCameraStream,
+  useDeviceCapabilities,
+  useDevices,
+  useRecording,
+} from "../hooks";
 
-import { CameraPermissionRequest, CameraPreview, CameraSettings, RecordingControls } from "."
+import {
+  CameraPermissionRequest,
+  CameraPreview,
+  CameraSettings,
+  RecordingControls,
+} from ".";
 
 /**
  * Модальное окно для захвата видео с камеры
  */
 export function CameraCaptureModal() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const { isOpen, closeModal } = useModal()
+  const { isOpen, closeModal } = useModal();
 
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [errorMessage, setErrorMessage] = useState<string>("")
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Получаем возможности устройства (разрешения, частоты кадров)
-  const [selectedResolution, setSelectedResolution] = useState<string>("")
-  const [frameRate, setFrameRate] = useState<number>(30)
+  const [selectedResolution, setSelectedResolution] = useState<string>("");
+  const [frameRate, setFrameRate] = useState<number>(30);
   const {
     availableResolutions,
     supportedResolutions,
     supportedFrameRates,
     isLoadingCapabilities,
     getDeviceCapabilities,
-  } = useDeviceCapabilities(setSelectedResolution, setFrameRate)
+  } = useDeviceCapabilities(setSelectedResolution, setFrameRate);
 
   // Получаем список устройств
   const {
@@ -40,21 +51,26 @@ export function CameraCaptureModal() {
     setSelectedDevice,
     setSelectedAudioDevice,
     getDevices,
-  } = useDevices(getDeviceCapabilities, setErrorMessage)
+  } = useDevices(getDeviceCapabilities, setErrorMessage);
 
   // Запрашиваем разрешения на доступ к камере и микрофону
-  const { permissionStatus, errorMessage: permissionError, requestPermissions } = useCameraPermissions(getDevices)
+  const {
+    permissionStatus,
+    errorMessage: permissionError,
+    requestPermissions,
+  } = useCameraPermissions(getDevices);
 
   // Управляем потоком с камеры
-  const { isDeviceReady, setIsDeviceReady, initCamera, streamRef } = useCameraStream(
-    videoRef,
-    selectedDevice,
-    selectedAudioDevice,
-    selectedResolution,
-    frameRate,
-    availableResolutions,
-    setErrorMessage,
-  )
+  const { isDeviceReady, setIsDeviceReady, initCamera, streamRef } =
+    useCameraStream(
+      videoRef,
+      selectedDevice,
+      selectedAudioDevice,
+      selectedResolution,
+      frameRate,
+      availableResolutions,
+      setErrorMessage,
+    );
 
   // Обработка записанного видео
   const handleVideoRecorded = async (blob: Blob, fileName: string) => {
@@ -80,7 +96,7 @@ export function CameraCaptureModal() {
     //     variant: "destructive",
     //   })
     // }
-  }
+  };
 
   // Управляем записью
   const {
@@ -92,57 +108,63 @@ export function CameraCaptureModal() {
     startCountdown,
     stopRecording,
     formatRecordingTime,
-  } = useRecording(streamRef, 3, handleVideoRecorded)
+  } = useRecording(streamRef, 3, handleVideoRecorded);
 
   // Инициализируем камеру при изменении выбранного устройства или разрешения
   useEffect(() => {
     if (selectedDevice && permissionStatus === "granted") {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      initCamera()
+      initCamera();
     }
-  }, [selectedDevice, selectedResolution, frameRate, permissionStatus, initCamera])
+  }, [
+    selectedDevice,
+    selectedResolution,
+    frameRate,
+    permissionStatus,
+    initCamera,
+  ]);
 
   // Запрашиваем разрешения при открытии модального окна и останавливаем камеру при закрытии
   useEffect(() => {
     if (isOpen) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      requestPermissions()
+      requestPermissions();
     } else {
       // Останавливаем все треки камеры при закрытии модального окна
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop())
-        streamRef.current = null
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
       }
-      setIsDeviceReady(false)
+      setIsDeviceReady(false);
     }
-  }, [isOpen, requestPermissions, streamRef])
+  }, [isOpen, requestPermissions, streamRef]);
 
   // Обработчик изменения устройства
   const handleDeviceChange = (deviceId: string) => {
-    setSelectedDevice(deviceId)
+    setSelectedDevice(deviceId);
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    getDeviceCapabilities(deviceId)
-  }
+    getDeviceCapabilities(deviceId);
+  };
 
   // Обработчик изменения аудио устройства
   const handleAudioDeviceChange = (deviceId: string) => {
-    setSelectedAudioDevice(deviceId)
-  }
+    setSelectedAudioDevice(deviceId);
+  };
 
   // Обработчик изменения разрешения
   const handleResolutionChange = (resolution: string) => {
-    setSelectedResolution(resolution)
-  }
+    setSelectedResolution(resolution);
+  };
 
   // Обработчик изменения частоты кадров
   const handleFrameRateChange = (fps: number) => {
-    setFrameRate(fps)
-  }
+    setFrameRate(fps);
+  };
 
   // Обработчик изменения обратного отсчета
   const handleCountdownChange = (value: number) => {
-    setCountdown(value)
-  }
+    setCountdown(value);
+  };
 
   return (
     <>
@@ -200,10 +222,13 @@ export function CameraCaptureModal() {
         </div>
       </div>
       <div className="flex justify-end border-t border-[#333] p-4">
-        <Button className="bg-[#0CC] px-6 font-medium text-black hover:bg-[#0AA]" onClick={closeModal}>
+        <Button
+          className="bg-[#0CC] px-6 font-medium text-black hover:bg-[#0AA]"
+          onClick={closeModal}
+        >
           {t("common.ok")}
         </Button>
       </div>
     </>
-  )
+  );
 }

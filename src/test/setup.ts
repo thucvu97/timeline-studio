@@ -146,10 +146,24 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
   readFile: vi.fn().mockImplementation((path: string) => {
     // Создаем фейковые аудио данные для тестирования
     const fakeAudioData = new Uint8Array([
-      0x49, 0x44, 0x33, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // ID3 header
-      0xFF, 0xFB, 0x90, 0x00, // MP3 frame header
+      0x49,
+      0x44,
+      0x33,
+      0x03,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00, // ID3 header
+      0xff,
+      0xfb,
+      0x90,
+      0x00, // MP3 frame header
       // Добавляем еще немного данных для реалистичности
-      ...Array(100).fill(0).map(() => Math.floor(Math.random() * 256))
+      ...Array(100)
+        .fill(0)
+        .map(() => Math.floor(Math.random() * 256)),
     ]);
     return Promise.resolve(fakeAudioData);
   }),
@@ -163,13 +177,20 @@ vi.mock("react-hotkeys-hook", () => ({
 // Мок для lucide-react
 vi.mock("lucide-react", () => {
   const createMockIcon = (name: string) => {
-    const MockIcon = React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) =>
-      React.createElement("svg", {
-        ...props,
-        ref,
-        "data-testid": `${name.toLowerCase()}-icon`,
-        "data-icon": name,
-      }, name)
+    const MockIcon = React.forwardRef<
+      SVGSVGElement,
+      React.SVGProps<SVGSVGElement>
+    >((props, ref) =>
+      React.createElement(
+        "svg",
+        {
+          ...props,
+          ref,
+          "data-testid": `${name.toLowerCase()}-icon`,
+          "data-icon": name,
+        },
+        name,
+      ),
     );
     MockIcon.displayName = `Mock${name}Icon`;
     return MockIcon;
@@ -284,7 +305,8 @@ vi.mock("@/features/user-settings", () => ({
     handleClaudeApiKeyChange: vi.fn(),
     toggleBrowserVisibility: vi.fn(),
   }),
-  UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
+  UserSettingsProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
 }));
 
 // Мок для browser-state-provider
@@ -605,8 +627,6 @@ vi.mock("@/features/media-studio/layouts", () => ({
   },
 }));
 
-
-
 // Мок для ModalContainer
 vi.mock("@/features/modals/components", () => ({
   ModalContainer: () =>
@@ -657,15 +677,13 @@ vi.mock("@/i18n/i18n-provider", () => ({
   I18nProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-
-
 // Мок для resizable компонентов
 vi.mock("@/components/ui/resizable", () => ({
   ResizablePanelGroup: ({
     children,
     direction,
     className,
-    autoSaveId
+    autoSaveId,
   }: {
     children: React.ReactNode;
     direction: string;
@@ -685,7 +703,7 @@ vi.mock("@/components/ui/resizable", () => ({
     children,
     defaultSize,
     minSize,
-    maxSize
+    maxSize,
   }: {
     children: React.ReactNode;
     defaultSize?: number;
@@ -708,19 +726,27 @@ vi.mock("@/components/ui/resizable", () => ({
 
 // Моки для компонентов, используемых в layouts
 vi.mock("@/features/browser/components/browser", () => ({
-  Browser: () => React.createElement("div", { "data-testid": "browser" }, "Browser"),
+  Browser: () =>
+    React.createElement("div", { "data-testid": "browser" }, "Browser"),
 }));
 
 vi.mock("@/features/options/components/options", () => ({
-  Options: () => React.createElement("div", { "data-testid": "options" }, "Options"),
+  Options: () =>
+    React.createElement("div", { "data-testid": "options" }, "Options"),
 }));
 
 vi.mock("@/features/timeline/components/timeline", () => ({
-  Timeline: () => React.createElement("div", { "data-testid": "timeline" }, "Timeline"),
+  Timeline: () =>
+    React.createElement("div", { "data-testid": "timeline" }, "Timeline"),
 }));
 
 vi.mock("@/features/video-player/components/video-player", () => ({
-  VideoPlayer: () => React.createElement("div", { "data-testid": "video-player" }, "Video Player"),
+  VideoPlayer: () =>
+    React.createElement(
+      "div",
+      { "data-testid": "video-player" },
+      "Video Player",
+    ),
 }));
 
 // Мок для MediaGroup
@@ -737,7 +763,7 @@ vi.mock("@/features/media/components/media-group", () => ({
     viewMode: string;
     previewSize: number;
     addFilesToTimeline: (files: any[]) => void;
-  }) => (
+  }) =>
     React.createElement(
       "div",
       {
@@ -749,8 +775,7 @@ vi.mock("@/features/media/components/media-group", () => ({
         onClick: () => addFilesToTimeline(files),
       },
       `Media Group: ${title ?? "Untitled"}`,
-    )
-  ),
+    ),
 }));
 
 // Мок для dayjs
@@ -820,7 +845,7 @@ global.AudioContext = vi.fn().mockImplementation(() => ({
   }),
   destination: {},
   close: vi.fn().mockResolvedValue(undefined),
-  state: 'running',
+  state: "running",
   sampleRate: 44100,
 }));
 
@@ -829,7 +854,7 @@ const MockMediaRecorder = vi.fn().mockImplementation(() => ({
   stop: vi.fn(),
   pause: vi.fn(),
   resume: vi.fn(),
-  state: 'inactive',
+  state: "inactive",
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
   dispatchEvent: vi.fn(),
@@ -849,7 +874,7 @@ global.MediaStream = vi.fn().mockImplementation(() => ({
   removeTrack: vi.fn(),
   clone: vi.fn(),
   active: true,
-  id: 'mock-stream-id',
+  id: "mock-stream-id",
 }));
 
 // Мок для URL.createObjectURL и URL.revokeObjectURL

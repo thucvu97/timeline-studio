@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/resizable";
 import { Browser } from "@/features/browser/components/browser";
 import { Timeline } from "@/features/timeline/components/timeline";
-import { useUserSettings } from "@/features/user-settings"
+import { useUserSettings } from "@/features/user-settings";
 import { VideoPlayer } from "@/features/video-player/components/video-player";
 
 export function DefaultLayout() {

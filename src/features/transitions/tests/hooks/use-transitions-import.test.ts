@@ -97,16 +97,19 @@ describe("useTransitionsImport", () => {
     it("должен обновлять прогресс во время импорта", async () => {
       mockOpen.mockResolvedValue("/path/to/transitions.json");
       mockFetch.mockResolvedValue({
-        json: () => Promise.resolve({
-          transitions: [{
-            id: "test",
-            type: "fade",
-            labels: { ru: "Тест", en: "Test" },
-            category: "basic",
-            complexity: "basic",
-            tags: ["test"],
-          }],
-        }),
+        json: () =>
+          Promise.resolve({
+            transitions: [
+              {
+                id: "test",
+                type: "fade",
+                labels: { ru: "Тест", en: "Test" },
+                category: "basic",
+                complexity: "basic",
+                tags: ["test"],
+              },
+            ],
+          }),
       } as Response);
 
       const { result } = renderHook(() => useTransitionsImport());
@@ -250,7 +253,9 @@ describe("useTransitionsImport", () => {
       });
 
       expect(importResult.success).toBe(false);
-      expect(importResult.message).toBe("В файле не найдено валидных переходов");
+      expect(importResult.message).toBe(
+        "В файле не найдено валидных переходов",
+      );
     });
 
     it("должен обрабатывать ошибки", async () => {
@@ -267,7 +272,10 @@ describe("useTransitionsImport", () => {
 
       expect(importResult.success).toBe(false);
       expect(importResult.message).toContain("Ошибка при импорте");
-      expect(console.error).toHaveBeenCalledWith("Ошибка при импорте переходов:", error);
+      expect(console.error).toHaveBeenCalledWith(
+        "Ошибка при импорте переходов:",
+        error,
+      );
       expect(result.current.isImporting).toBe(false);
     });
 
@@ -329,7 +337,10 @@ describe("useTransitionsImport", () => {
     });
 
     it("должен обрабатывать множественный выбор файлов", async () => {
-      const files = ["/path/to/transition1.preset", "/path/to/transition2.json"];
+      const files = [
+        "/path/to/transition1.preset",
+        "/path/to/transition2.json",
+      ];
       mockOpen.mockResolvedValue(files);
       const { result } = renderHook(() => useTransitionsImport());
 
@@ -340,7 +351,9 @@ describe("useTransitionsImport", () => {
 
       expect(importResult.success).toBe(true);
       expect(importResult.transitions).toHaveLength(2);
-      expect(importResult.message).toBe("Успешно импортировано 2 файлов переходов");
+      expect(importResult.message).toBe(
+        "Успешно импортировано 2 файлов переходов",
+      );
     });
 
     it("должен обрабатывать одиночный файл как массив", async () => {
@@ -406,7 +419,10 @@ describe("useTransitionsImport", () => {
 
       expect(importResult.success).toBe(false);
       expect(importResult.message).toContain("Ошибка при импорте");
-      expect(console.error).toHaveBeenCalledWith("Ошибка при импорте файлов переходов:", error);
+      expect(console.error).toHaveBeenCalledWith(
+        "Ошибка при импорте файлов переходов:",
+        error,
+      );
       expect(result.current.isImporting).toBe(false);
     });
 
