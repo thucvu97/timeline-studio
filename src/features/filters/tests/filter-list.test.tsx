@@ -7,8 +7,8 @@ import { FilterList } from "../filter-list";
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string) => fallback || key,
-    i18n: { language: "ru" }
-  })
+    i18n: { language: "ru" },
+  }),
 }));
 
 // Простые моки для тестирования
@@ -20,7 +20,7 @@ const mockFilters = [
     complexity: "basic",
     tags: ["professional"],
     labels: { ru: "Тест 1", en: "Test 1" },
-    params: {}
+    params: {},
   },
   {
     id: "test-filter-2",
@@ -29,8 +29,8 @@ const mockFilters = [
     complexity: "intermediate",
     tags: ["standard"],
     labels: { ru: "Тест 2", en: "Test 2" },
-    params: {}
-  }
+    params: {},
+  },
 ];
 
 // Простые моки
@@ -40,14 +40,14 @@ vi.mock("../hooks/use-filters", () => ({
     loading: false,
     error: null,
     reload: vi.fn(),
-    isReady: true
-  })
+    isReady: true,
+  }),
 }));
 
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
-    isItemFavorite: vi.fn().mockReturnValue(false)
-  })
+    isItemFavorite: vi.fn().mockReturnValue(false),
+  }),
 }));
 
 vi.mock("@/features/browser/state", () => ({
@@ -59,15 +59,15 @@ vi.mock("@/features/browser/state", () => ({
       sortOrder: "asc",
       groupBy: "none",
       filterType: "all",
-      previewSizeIndex: 2
-    }
-  })
+      previewSizeIndex: 2,
+    },
+  }),
 }));
 
 vi.mock("@/features/project/settings", () => ({
   useProjectSettings: () => ({
-    settings: { video: { aspectRatio: "16:9" } }
-  })
+    settings: { video: { aspectRatio: "16:9" } },
+  }),
 }));
 
 vi.mock("@/features/browser/components/layout/content-group", () => ({
@@ -79,7 +79,7 @@ vi.mock("@/features/browser/components/layout/content-group", () => ({
         </div>
       ))}
     </div>
-  )
+  ),
 }));
 
 vi.mock("../components/filter-preview", () => ({
@@ -87,7 +87,7 @@ vi.mock("../components/filter-preview", () => ({
     <div data-testid={`filter-preview-${filter.id}`}>
       Filter Preview: {filter.name}
     </div>
-  )
+  ),
 }));
 
 describe("FilterList", () => {
@@ -95,23 +95,33 @@ describe("FilterList", () => {
     render(<FilterList />);
 
     // Проверяем, что фильтры отображаются
-    expect(screen.getByTestId("filter-preview-test-filter-1")).toBeInTheDocument();
-    expect(screen.getByTestId("filter-preview-test-filter-2")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("filter-preview-test-filter-1"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("filter-preview-test-filter-2"),
+    ).toBeInTheDocument();
   });
 
   it("should render filter previews with correct content", () => {
     render(<FilterList />);
 
     // Проверяем содержимое превью фильтров
-    expect(screen.getByText("Filter Preview: Test Filter 1")).toBeInTheDocument();
-    expect(screen.getByText("Filter Preview: Test Filter 2")).toBeInTheDocument();
+    expect(
+      screen.getByText("Filter Preview: Test Filter 1"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Filter Preview: Test Filter 2"),
+    ).toBeInTheDocument();
   });
 
   it("should render filters in grid layout", () => {
     render(<FilterList />);
 
     // Проверяем, что есть grid контейнер
-    const gridContainer = screen.getByTestId("filter-preview-test-filter-1").parentElement;
+    const gridContainer = screen.getByTestId(
+      "filter-preview-test-filter-1",
+    ).parentElement;
     expect(gridContainer).toHaveClass("grid");
     expect(gridContainer).toHaveClass("gap-2");
   });

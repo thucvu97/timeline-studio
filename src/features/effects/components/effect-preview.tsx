@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 
-
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
 import { useResources } from "@/features/resources";
@@ -11,7 +10,10 @@ import { EffectResource } from "@/types/resources";
 
 import { EffectIndicators } from "./effect-indicators";
 import { useEffects } from "../hooks/use-effects";
-import { generateCSSFilterForEffect, getPlaybackRate } from "../utils/css-effects";
+import {
+  generateCSSFilterForEffect,
+  getPlaybackRate,
+} from "../utils/css-effects";
 
 // Всегда используем общее тестовое видео для демонстрации CSS-эффектов
 // CSS-фильтры применяются динамически в компоненте
@@ -85,7 +87,9 @@ export function EffectPreview({
         // Создаем эффект виньетки через box-shadow
         const intensity = effect.params?.intensity || 0.3;
         const radius = effect.params?.radius || 0.8;
-        const shadowSize = Math.round(Math.min(width, height) * (1 - radius) * 0.5);
+        const shadowSize = Math.round(
+          Math.min(width, height) * (1 - radius) * 0.5,
+        );
         const shadowBlur = Math.round(shadowSize * intensity * 2);
         videoElement.style.boxShadow = `inset 0 0 ${shadowBlur}px ${shadowSize}px rgba(0,0,0,${intensity})`;
       } else {
@@ -159,9 +163,13 @@ export function EffectPreview({
             <div className="absolute top-1 left-1">
               <div
                 className={`h-2 w-2 rounded-full ${
-                  effect.complexity === "basic" ? "bg-green-500" :
-                  effect.complexity === "intermediate" ? "bg-yellow-500" :
-                  effect.complexity === "advanced" ? "bg-red-500" : "bg-gray-500"
+                  effect.complexity === "basic"
+                    ? "bg-green-500"
+                    : effect.complexity === "intermediate"
+                      ? "bg-yellow-500"
+                      : effect.complexity === "advanced"
+                        ? "bg-red-500"
+                        : "bg-gray-500"
                 }`}
                 title={`effects.complexity.${effect.complexity || "basic"}`}
               />
@@ -218,11 +226,11 @@ export function EffectPreview({
       </div>
       {/* Название эффекта */}
       <div className="mt-1 text-xs text-center">
-        {effect ?
-          (effect.labels?.[i18n.language as keyof typeof effect.labels] ||
-           effect.labels?.en ||
-           effect.name ||
-           effectType)
+        {effect
+          ? effect.labels?.[i18n.language as keyof typeof effect.labels] ||
+            effect.labels?.en ||
+            effect.name ||
+            effectType
           : effectType}
       </div>
     </div>

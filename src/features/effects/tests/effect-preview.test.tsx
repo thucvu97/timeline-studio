@@ -13,8 +13,8 @@ vi.mock("@/features/resources", () => ({
     addEffect: mockAddEffect,
     removeResource: mockRemoveResource,
     isEffectAdded: mockIsEffectAdded,
-    effectResources: []
-  })
+    effectResources: [],
+  }),
 }));
 
 // Мокаем хук эффектов
@@ -28,20 +28,20 @@ const mockEffects = [
     tags: ["blur", "artistic"],
     description: {
       ru: "Эффект размытия",
-      en: "Blur effect"
+      en: "Blur effect",
     },
     labels: {
       ru: "Размытие",
-      en: "Blur"
+      en: "Blur",
     },
     params: {
       intensity: 0.5,
-      radius: 5
+      radius: 5,
     },
     ffmpegCommand: () => "gblur=sigma=5",
     previewPath: "/effects/blur-preview.mp4",
-    duration: 0
-  }
+    duration: 0,
+  },
 ];
 
 vi.mock("../hooks/use-effects", () => ({
@@ -49,27 +49,29 @@ vi.mock("../hooks/use-effects", () => ({
     effects: mockEffects,
     loading: false,
     error: null,
-    isReady: true
-  })
+    isReady: true,
+  }),
 }));
 
 // Мокаем CSS эффекты
 vi.mock("../utils/css-effects", () => ({
   generateCSSFilterForEffect: vi.fn().mockReturnValue("blur(5px)"),
-  getPlaybackRate: vi.fn().mockReturnValue(1)
+  getPlaybackRate: vi.fn().mockReturnValue(1),
 }));
 
 // Мокаем компоненты
 vi.mock("../components/effect-indicators", () => ({
   EffectIndicators: ({ effect }: { effect: any }) => (
     <div data-testid="effect-indicators">{effect.category}</div>
-  )
+  ),
 }));
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
   FavoriteButton: ({ file, type }: { file: any; type: string }) => (
-    <button data-testid="favorite-button">{file.name} - {type}</button>
-  )
+    <button data-testid="favorite-button">
+      {file.name} - {type}
+    </button>
+  ),
 }));
 
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
@@ -77,7 +79,7 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
     file,
     onAddMedia,
     onRemoveMedia,
-    isAdded
+    isAdded,
   }: {
     file: any;
     onAddMedia: (e: any) => void;
@@ -97,14 +99,14 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
         </button>
       )}
     </div>
-  )
+  ),
 }));
 
 describe("EffectPreview", () => {
   const defaultProps = {
     effectType: "blur" as const,
     size: 200,
-    onClick: vi.fn()
+    onClick: vi.fn(),
   };
 
   beforeEach(() => {
@@ -229,13 +231,13 @@ describe("EffectPreview", () => {
     const container = screen.getByTestId("effect-video").closest("div");
     expect(container).toHaveStyle({
       width: "300px",
-      height: "200px"
+      height: "200px",
     });
 
     const video = screen.getByTestId("effect-video");
     expect(video).toHaveStyle({
       width: "300px",
-      height: "200px"
+      height: "200px",
     });
   });
 

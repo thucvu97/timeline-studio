@@ -4,7 +4,12 @@ import { describe, expect, it } from "vitest";
 describe("Filters Module", () => {
   it("should import filters hooks without errors", async () => {
     // Проверяем, что модули импортируются без ошибок
-    const { useFilters, useFilterById, useFiltersByCategory, useFiltersSearch } = await import("../hooks/use-filters");
+    const {
+      useFilters,
+      useFilterById,
+      useFiltersByCategory,
+      useFiltersSearch,
+    } = await import("../hooks/use-filters");
 
     expect(useFilters).toBeDefined();
     expect(typeof useFilters).toBe("function");
@@ -40,14 +45,17 @@ describe("Filters Module", () => {
       }
     } catch (error) {
       // Если JSON файл не найден, это нормально для тестов
-      console.log("Filters JSON file not found, which is expected in test environment");
+      console.log(
+        "Filters JSON file not found, which is expected in test environment",
+      );
     }
   });
 
   it("should import filters utilities without errors", async () => {
     // Проверяем, что утилиты импортируются
     try {
-      const { processFilters, validateFiltersData, createFallbackFilter } = await import("../utils/filter-processor");
+      const { processFilters, validateFiltersData, createFallbackFilter } =
+        await import("../utils/filter-processor");
 
       expect(processFilters).toBeDefined();
       expect(typeof processFilters).toBe("function");
@@ -59,7 +67,9 @@ describe("Filters Module", () => {
       expect(typeof createFallbackFilter).toBe("function");
     } catch (error) {
       // Если утилиты не найдены, это нормально для тестов
-      console.log("Filter utilities not found, which is expected in test environment");
+      console.log(
+        "Filter utilities not found, which is expected in test environment",
+      );
     }
   });
 
@@ -71,7 +81,7 @@ describe("Filters Module", () => {
       "cinematic",
       "vintage",
       "technical",
-      "artistic"
+      "artistic",
     ];
 
     const validComplexities = ["basic", "intermediate", "advanced"];

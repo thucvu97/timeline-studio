@@ -40,7 +40,7 @@ export function useAutoLoadUserData() {
    * Проверяет, работаем ли мы в Tauri окружении
    */
   const isTauriEnvironment = () => {
-    return typeof window !== 'undefined' && '__TAURI__' in window;
+    return typeof window !== "undefined" && "__TAURI__" in window;
   };
 
   /**
@@ -65,10 +65,13 @@ export function useAutoLoadUserData() {
 
       const entries = await readDir(dirPath);
       const jsonFiles = entries
-        .filter((entry: any) => entry.isFile && entry.name.endsWith('.json'))
+        .filter((entry: any) => entry.isFile && entry.name.endsWith(".json"))
         .map((entry: any) => `${dirPath}/${entry.name}`);
 
-      console.log(`Найдено ${jsonFiles.length} JSON файлов в ${dirPath}:`, jsonFiles);
+      console.log(
+        `Найдено ${jsonFiles.length} JSON файлов в ${dirPath}:`,
+        jsonFiles,
+      );
       return jsonFiles;
     } catch (error) {
       console.error(`Ошибка при сканировании ${dirPath}:`, error);
@@ -148,12 +151,14 @@ export function useAutoLoadUserData() {
 
         // Загружаем все файлы параллельно
         const loadedFiles = await Promise.all(
-          allFiles.map(filePath => loadJsonFile(filePath))
+          allFiles.map((filePath) => loadJsonFile(filePath)),
         );
 
         // Фильтруем успешно загруженные файлы
-        const validFiles = loadedFiles.filter(data => data !== null);
-        console.log(`Успешно загружено ${validFiles.length} из ${allFiles.length} файлов`);
+        const validFiles = loadedFiles.filter((data) => data !== null);
+        console.log(
+          `Успешно загружено ${validFiles.length} из ${allFiles.length} файлов`,
+        );
 
         // TODO: Здесь можно добавить валидацию и интеграцию с соответствующими хуками
         // Например, добавить загруженные эффекты в useEffects, переходы в useTransitions и т.д.

@@ -9,8 +9,8 @@ import { EffectIndicators } from "../components/effect-indicators";
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string) => fallback || key,
-    i18n: { language: "ru" }
-  })
+    i18n: { language: "ru" },
+  }),
 }));
 
 describe("EffectIndicators", () => {
@@ -27,12 +27,12 @@ describe("EffectIndicators", () => {
       en: "Test",
       es: "Prueba",
       fr: "Test",
-      de: "Test"
+      de: "Test",
     },
     params: {},
     ffmpegCommand: () => "test",
     previewPath: "/effects/test.mp4",
-    duration: 0
+    duration: 0,
   };
 
   it("should render category indicator", () => {
@@ -48,7 +48,7 @@ describe("EffectIndicators", () => {
   it("should render tag indicators when present", () => {
     const effectWithTags: VideoEffect = {
       ...baseEffect,
-      tags: ["popular", "professional", "experimental"]
+      tags: ["popular", "professional", "experimental"],
     };
 
     render(<EffectIndicators effect={effectWithTags} />);
@@ -81,7 +81,7 @@ describe("EffectIndicators", () => {
       { category: "cinematic", expected: "CIN" },
       { category: "creative", expected: "CRE" },
       { category: "technical", expected: "TEC" },
-      { category: "unknown", expected: "EFF" }
+      { category: "unknown", expected: "EFF" },
     ];
 
     categories.forEach(({ category, expected }) => {
@@ -107,14 +107,14 @@ describe("EffectIndicators", () => {
       "text-[11px]",
       "px-1",
       "py-0.5",
-      "rounded"
+      "rounded",
     );
   });
 
   it("should handle missing or undefined category gracefully", () => {
     const incompleteEffect = {
       ...baseEffect,
-      category: undefined as any
+      category: undefined as any,
     };
 
     render(<EffectIndicators effect={incompleteEffect} />);
@@ -127,11 +127,15 @@ describe("EffectIndicators", () => {
     render(<EffectIndicators effect={baseEffect} />);
 
     // Проверяем accessibility атрибуты
-    expect(screen.getByTitle("effects.categories.artistic")).toBeInTheDocument();
+    expect(
+      screen.getByTitle("effects.categories.artistic"),
+    ).toBeInTheDocument();
   });
 
   it("should support different sizes", () => {
-    const { unmount } = render(<EffectIndicators effect={baseEffect} size="md" />);
+    const { unmount } = render(
+      <EffectIndicators effect={baseEffect} size="md" />,
+    );
 
     const categoryIndicator = screen.getByText("ART");
     expect(categoryIndicator).toHaveClass("text-[12px]", "px-1.5");

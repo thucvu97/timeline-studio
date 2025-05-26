@@ -14,16 +14,16 @@ const mockEffects = [
     tags: ["blur", "artistic"],
     description: {
       ru: "Эффект размытия",
-      en: "Blur effect"
+      en: "Blur effect",
     },
     labels: {
       ru: "Размытие",
-      en: "Blur"
+      en: "Blur",
     },
     params: { intensity: 0.5 },
     ffmpegCommand: () => "gblur=sigma=5",
     previewPath: "/effects/blur-preview.mp4",
-    duration: 0
+    duration: 0,
   },
   {
     id: "sepia-1",
@@ -34,16 +34,17 @@ const mockEffects = [
     tags: ["sepia", "vintage"],
     description: {
       ru: "Эффект сепии",
-      en: "Sepia effect"
+      en: "Sepia effect",
     },
     labels: {
       ru: "Сепия",
-      en: "Sepia"
+      en: "Sepia",
     },
     params: { intensity: 0.8 },
-    ffmpegCommand: () => "colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131",
+    ffmpegCommand: () =>
+      "colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131",
     previewPath: "/effects/sepia-preview.mp4",
-    duration: 0
+    duration: 0,
   },
   {
     id: "brightness-1",
@@ -54,17 +55,17 @@ const mockEffects = [
     tags: ["brightness", "color"],
     description: {
       ru: "Эффект яркости",
-      en: "Brightness effect"
+      en: "Brightness effect",
     },
     labels: {
       ru: "Яркость",
-      en: "Brightness"
+      en: "Brightness",
     },
     params: { value: 1.2 },
     ffmpegCommand: () => "eq=brightness=0.2",
     previewPath: "/effects/brightness-preview.mp4",
-    duration: 0
-  }
+    duration: 0,
+  },
 ];
 
 vi.mock("../hooks/use-effects", () => ({
@@ -72,8 +73,8 @@ vi.mock("../hooks/use-effects", () => ({
     effects: mockEffects,
     loading: false,
     error: null,
-    isReady: true
-  })
+    isReady: true,
+  }),
 }));
 
 // Мокаем browser state
@@ -84,41 +85,47 @@ const mockCurrentTabSettings = {
   sortOrder: "asc",
   groupBy: "none",
   filterType: "all",
-  previewSizeIndex: 2
+  previewSizeIndex: 2,
 };
 
 vi.mock("@/components/common/browser-state-provider", () => ({
   useBrowserState: () => ({
-    currentTabSettings: mockCurrentTabSettings
-  })
+    currentTabSettings: mockCurrentTabSettings,
+  }),
 }));
 
 // Мокаем preview sizes
 vi.mock("@/components/common/browser-state-machine", () => ({
-  PREVIEW_SIZES: [100, 125, 150, 200, 250, 300, 400]
+  PREVIEW_SIZES: [100, 125, 150, 200, 250, 300, 400],
 }));
 
 // Мокаем media hook для избранного
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
-    isItemFavorite: vi.fn().mockReturnValue(false)
-  })
+    isItemFavorite: vi.fn().mockReturnValue(false),
+  }),
 }));
 
 // Мокаем компоненты
 vi.mock("../components/effect-preview", () => ({
-  EffectPreview: ({ effectType, onClick }: { effectType: string; onClick: () => void }) => (
+  EffectPreview: ({
+    effectType,
+    onClick,
+  }: {
+    effectType: string;
+    onClick: () => void;
+  }) => (
     <div data-testid={`effect-preview-${effectType}`} onClick={onClick}>
       Effect Preview: {effectType}
     </div>
-  )
+  ),
 }));
 
 vi.mock("@/components/common/content-group", () => ({
   ContentGroup: ({
     title,
     items,
-    renderItem
+    renderItem,
   }: {
     title: string;
     items: any[];
@@ -134,7 +141,7 @@ vi.mock("@/components/common/content-group", () => ({
         ))}
       </div>
     </div>
-  )
+  ),
 }));
 
 describe("EffectList", () => {
@@ -148,7 +155,7 @@ describe("EffectList", () => {
       sortOrder: "asc",
       groupBy: "none",
       filterType: "all",
-      previewSizeIndex: 2
+      previewSizeIndex: 2,
     });
   });
 
@@ -169,8 +176,12 @@ describe("EffectList", () => {
 
     // Должен отображаться только blur эффект
     expect(screen.getByTestId("effect-preview-blur")).toBeInTheDocument();
-    expect(screen.queryByTestId("effect-preview-sepia")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("effect-preview-brightness")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("effect-preview-sepia"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("effect-preview-brightness"),
+    ).not.toBeInTheDocument();
   });
 
   it("should filter effects by category", () => {
@@ -181,8 +192,12 @@ describe("EffectList", () => {
 
     // Должен отображаться только artistic эффект
     expect(screen.getByTestId("effect-preview-blur")).toBeInTheDocument();
-    expect(screen.queryByTestId("effect-preview-sepia")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("effect-preview-brightness")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("effect-preview-sepia"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("effect-preview-brightness"),
+    ).not.toBeInTheDocument();
   });
 
   it("should filter effects by complexity", () => {
@@ -193,8 +208,12 @@ describe("EffectList", () => {
 
     // Должен отображаться только basic эффект
     expect(screen.getByTestId("effect-preview-blur")).toBeInTheDocument();
-    expect(screen.queryByTestId("effect-preview-sepia")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("effect-preview-brightness")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("effect-preview-sepia"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("effect-preview-brightness"),
+    ).not.toBeInTheDocument();
   });
 
   it("should sort effects by name ascending", () => {

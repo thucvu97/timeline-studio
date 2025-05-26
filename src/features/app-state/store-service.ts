@@ -1,50 +1,50 @@
-import { Store, load } from "@tauri-apps/plugin-store"
+import { Store, load } from "@tauri-apps/plugin-store";
 
-import { FavoritesType } from "@/features/browser/media/media-machine"
-import { UserSettingsContextType } from "@/features/user-settings"
+import { FavoritesType } from "@/features/browser/media/media-machine";
+import { UserSettingsContextType } from "@/features/user-settings";
 
 /**
  * Ключ для хранилища пользовательских настроек
  */
-export const USER_SETTINGS_STORE_PATH = ".timeline-studio-settings.json"
+export const USER_SETTINGS_STORE_PATH = ".timeline-studio-settings.json";
 
 /**
  * Интерфейс для хранилища пользовательских настроек
  */
 export interface AppSettings {
   // Пользовательские настройки из UserSettingsContextType
-  userSettings: UserSettingsContextType
+  userSettings: UserSettingsContextType;
 
   // Информация о последних открытых проектах
   recentProjects: {
-    path: string
-    name: string
-    lastOpened: number
-  }[]
+    path: string;
+    name: string;
+    lastOpened: number;
+  }[];
 
   // Информация о текущем открытом проекте
   currentProject: {
-    path: string | null
-    name: string
-    isDirty: boolean
-    isNew: boolean
-  }
+    path: string | null;
+    name: string;
+    isDirty: boolean;
+    isNew: boolean;
+  };
 
   // Избранные элементы
-  favorites: FavoritesType
+  favorites: FavoritesType;
 
   // Медиа файлы
   mediaFiles: {
-    allMediaFiles: any[]
-    error: string | null
-    isLoading: boolean
-  }
+    allMediaFiles: any[];
+    error: string | null;
+    isLoading: boolean;
+  };
 
   // Метаданные хранилища
   meta: {
-    lastUpdated: number
-    version: string
-  }
+    lastUpdated: number;
+    version: string;
+  };
 }
 
 /**
@@ -52,9 +52,9 @@ export interface AppSettings {
  * Предоставляет методы для сохранения и загрузки настроек приложения
  */
 export class StoreService {
-  private static instance: StoreService
-  private store: Store | null = null
-  private isInitialized = false
+  private static instance: StoreService;
+  private store: Store | null = null;
+  private isInitialized = false;
 
   /**
    * Приватный конструктор для реализации паттерна Singleton
@@ -68,9 +68,9 @@ export class StoreService {
    */
   public static getInstance(): StoreService {
     if (!StoreService.instance) {
-      StoreService.instance = new StoreService()
+      StoreService.instance = new StoreService();
     }
-    return StoreService.instance
+    return StoreService.instance;
   }
 
   /**
@@ -78,18 +78,18 @@ export class StoreService {
    * Загружает данные из файла хранилища
    */
   public async initialize(): Promise<void> {
-    if (this.isInitialized) return
+    if (this.isInitialized) return;
 
     try {
       // Используем метод load вместо конструктора Store
-      this.store = await load(USER_SETTINGS_STORE_PATH, { autoSave: true })
-      this.isInitialized = true
-      console.log("[StoreService] Store initialized successfully")
+      this.store = await load(USER_SETTINGS_STORE_PATH, { autoSave: true });
+      this.isInitialized = true;
+      console.log("[StoreService] Store initialized successfully");
     } catch (error) {
-      console.error("[StoreService] Error initializing store:", error)
+      console.error("[StoreService] Error initializing store:", error);
       // Создаем новое хранилище, если не удалось загрузить существующее
-      this.store = null
-      this.isInitialized = true
+      this.store = null;
+      this.isInitialized = true;
     }
   }
 
@@ -97,17 +97,17 @@ export class StoreService {
    * Получить все настройки приложения
    */
   public async getSettings(): Promise<AppSettings | null> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     try {
-      if (!this.store) return null
+      if (!this.store) return null;
 
       // Используем синхронный метод get
-      const settings = await this.store.get<AppSettings>("app-settings")
-      return settings ?? null
+      const settings = await this.store.get<AppSettings>("app-settings");
+      return settings ?? null;
     } catch (error) {
-      console.error("[StoreService] Error getting settings:", error)
-      return null
+      console.error("[StoreService] Error getting settings:", error);
+      return null;
     }
   }
 
@@ -115,10 +115,10 @@ export class StoreService {
    * Сохранить настройки приложения
    */
   public async saveSettings(settings: AppSettings): Promise<void> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     try {
-      if (!this.store) return
+      if (!this.store) return;
 
       // Обновляем метаданные
       const updatedSettings = {
@@ -127,18 +127,18 @@ export class StoreService {
           ...settings.meta,
           lastUpdated: Date.now(),
         },
-      }
+      };
 
       // Сохраняем настройки
-      await this.store.set("app-settings", updatedSettings)
+      await this.store.set("app-settings", updatedSettings);
 
       // Явно сохраняем изменения на диск
-      await this.store.save()
+      await this.store.save();
 
       // Убираем лог для уменьшения шума в консоли
       // console.log("[StoreService] Settings saved successfully")
     } catch (error) {
-      console.error("[StoreService] Error saving settings:", error)
+      console.error("[StoreService] Error saving settings:", error);
     }
   }
 
@@ -146,22 +146,24 @@ export class StoreService {
    * Получить пользовательские настройки
    */
   public async getUserSettings(): Promise<UserSettingsContextType | null> {
-    const settings = await this.getSettings()
-    return settings?.userSettings ?? null
+    const settings = await this.getSettings();
+    return settings?.userSettings ?? null;
   }
 
   /**
    * Сохранить пользовательские настройки
    */
-  public async saveUserSettings(userSettings: UserSettingsContextType): Promise<void> {
-    const settings = await this.getSettings()
+  public async saveUserSettings(
+    userSettings: UserSettingsContextType,
+  ): Promise<void> {
+    const settings = await this.getSettings();
 
     if (settings) {
       // Обновляем существующие настройки
       await this.saveSettings({
         ...settings,
         userSettings,
-      })
+      });
     } else {
       // Создаем новые настройки с дефолтным проектом
       await this.saveSettings({
@@ -191,7 +193,7 @@ export class StoreService {
           lastUpdated: Date.now(),
           version: "1.0.0",
         },
-      })
+      });
     }
   }
 
@@ -199,28 +201,33 @@ export class StoreService {
    * Получить список последних открытых проектов
    */
   public async getRecentProjects(): Promise<AppSettings["recentProjects"]> {
-    const settings = await this.getSettings()
-    return settings?.recentProjects ?? []
+    const settings = await this.getSettings();
+    return settings?.recentProjects ?? [];
   }
 
   /**
    * Добавить проект в список последних открытых
    */
   public async addRecentProject(path: string, name: string): Promise<void> {
-    const settings = await this.getSettings()
+    const settings = await this.getSettings();
 
     if (settings) {
       // Фильтруем список, чтобы удалить проект с таким же путем, если он уже есть
-      const filteredProjects = settings.recentProjects.filter((p) => p.path !== path)
+      const filteredProjects = settings.recentProjects.filter(
+        (p) => p.path !== path,
+      );
 
       // Добавляем проект в начало списка
-      const updatedProjects = [{ path, name, lastOpened: Date.now() }, ...filteredProjects].slice(0, 10) // Ограничиваем список 10 последними проектами
+      const updatedProjects = [
+        { path, name, lastOpened: Date.now() },
+        ...filteredProjects,
+      ].slice(0, 10); // Ограничиваем список 10 последними проектами
 
       // Сохраняем обновленный список
       await this.saveSettings({
         ...settings,
         recentProjects: updatedProjects,
-      })
+      });
     }
   }
 
@@ -228,7 +235,7 @@ export class StoreService {
    * Получить избранные элементы
    */
   public async getFavorites(): Promise<FavoritesType> {
-    const settings = await this.getSettings()
+    const settings = await this.getSettings();
     return (
       settings?.favorites ?? {
         media: [],
@@ -239,20 +246,20 @@ export class StoreService {
         filter: [],
         subtitle: [],
       }
-    )
+    );
   }
 
   /**
    * Сохранить избранные элементы
    */
   public async saveFavorites(favorites: FavoritesType): Promise<void> {
-    const settings = await this.getSettings()
+    const settings = await this.getSettings();
 
     if (settings) {
       await this.saveSettings({
         ...settings,
         favorites,
-      })
+      });
     }
   }
 
@@ -262,10 +269,10 @@ export class StoreService {
    */
   private async ensureInitialized(): Promise<void> {
     if (!this.isInitialized) {
-      await this.initialize()
+      await this.initialize();
     }
   }
 }
 
 // Экспортируем экземпляр сервиса
-export const storeService = StoreService.getInstance()
+export const storeService = StoreService.getInstance();

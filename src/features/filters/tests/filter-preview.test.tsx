@@ -9,8 +9,8 @@ import { FilterPreview } from "../components/filter-preview";
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => key,
-    i18n: { language: "ru" }
-  })
+    i18n: { language: "ru" },
+  }),
 }));
 
 // Мокаем хук ресурсов
@@ -23,17 +23,20 @@ vi.mock("@/features/resources", () => ({
     addFilter: mockAddFilter,
     isFilterAdded: mockIsFilterAdded,
     removeResource: mockRemoveResource,
-    filterResources: []
-  })
+    filterResources: [],
+  }),
 }));
 
 // Мокаем компоненты браузера
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ onAddMedia, onRemoveMedia, isAdded, size }: any) => (
-    <div data-testid={isAdded ? "remove-button" : "add-button"} onClick={onAddMedia}>
+    <div
+      data-testid={isAdded ? "remove-button" : "add-button"}
+      onClick={onAddMedia}
+    >
       {isAdded ? "Remove" : "Add"} (size: {size})
     </div>
-  )
+  ),
 }));
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
@@ -41,7 +44,7 @@ vi.mock("@/features/browser/components/layout/favorite-button", () => ({
     <div data-testid="favorite-button">
       Favorite {file.name} (size: {size}, type: {type})
     </div>
-  )
+  ),
 }));
 
 describe("FilterPreview", () => {
@@ -57,19 +60,19 @@ describe("FilterPreview", () => {
       en: "Test",
       es: "Prueba",
       fr: "Test",
-      de: "Test"
+      de: "Test",
     },
     params: {
       brightness: 0.1,
       contrast: 1.2,
-      saturation: 1.1
-    }
+      saturation: 1.1,
+    },
   };
 
   const defaultProps = {
     filter: mockFilter,
     size: 200,
-    onClick: vi.fn()
+    onClick: vi.fn(),
   };
 
   beforeEach(() => {
@@ -108,7 +111,9 @@ describe("FilterPreview", () => {
     render(<FilterPreview {...defaultProps} />);
 
     // Проверяем индикатор категории
-    const categoryIndicator = screen.getByTitle("filters.categories.color-correction");
+    const categoryIndicator = screen.getByTitle(
+      "filters.categories.color-correction",
+    );
     expect(categoryIndicator).toBeInTheDocument();
     expect(categoryIndicator).toHaveClass("bg-black/70");
     expect(categoryIndicator).toHaveClass("text-white");
@@ -189,31 +194,39 @@ describe("FilterPreview", () => {
   });
 
   it("should use custom preview dimensions", () => {
-    render(<FilterPreview {...defaultProps} previewWidth={300} previewHeight={200} />);
+    render(
+      <FilterPreview
+        {...defaultProps}
+        previewWidth={300}
+        previewHeight={200}
+      />,
+    );
 
     const container = screen.getByTestId("filter-video").closest("div");
     expect(container).toHaveStyle({
       width: "300px",
-      height: "200px"
+      height: "200px",
     });
   });
 
   it("should handle different complexity levels", () => {
     const intermediateFilter = {
       ...mockFilter,
-      complexity: "intermediate" as const
+      complexity: "intermediate" as const,
     };
 
     render(<FilterPreview {...defaultProps} filter={intermediateFilter} />);
 
-    const complexityIndicator = screen.getByTitle("filters.complexity.intermediate");
+    const complexityIndicator = screen.getByTitle(
+      "filters.complexity.intermediate",
+    );
     expect(complexityIndicator).toHaveClass("bg-yellow-500");
   });
 
   it("should handle different categories", () => {
     const creativeFilter = {
       ...mockFilter,
-      category: "creative" as const
+      category: "creative" as const,
     };
 
     render(<FilterPreview {...defaultProps} filter={creativeFilter} />);

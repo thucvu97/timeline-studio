@@ -19,46 +19,62 @@ interface StyleTemplatePreviewProps {
  * Компонент превью стилистического шаблона
  * Отображает миниатюру, название, длительность и индикаторы функций
  */
-export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplatePreviewProps): React.ReactElement {
+export function StyleTemplatePreview({
+  template,
+  size,
+  onSelect,
+}: StyleTemplatePreviewProps): React.ReactElement {
   const { t, i18n } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const { addStyleTemplate, isStyleTemplateAdded } = useResources();
 
   // Получаем текущий язык
-  const currentLanguage = (i18n.language || 'ru') as 'ru' | 'en';
+  const currentLanguage = (i18n.language || "ru") as "ru" | "en";
 
   // Проверяем, добавлен ли шаблон в ресурсы
-  const isAdded = useMemo(() => isStyleTemplateAdded(template), [isStyleTemplateAdded, template]);
+  const isAdded = useMemo(
+    () => isStyleTemplateAdded(template),
+    [isStyleTemplateAdded, template],
+  );
 
   // Делаем превью квадратными, как в Effects
   const width = size;
   const height = size;
 
   // Получаем локализованное название категории
-  const getCategoryName = useCallback((category: string) => {
-    const categoryMap: Record<string, string> = {
-      intro: t("styleTemplates.categories.intro", "Интро"),
-      outro: t("styleTemplates.categories.outro", "Концовка"),
-      "lower-third": t("styleTemplates.categories.lowerThird", "Нижняя треть"),
-      title: t("styleTemplates.categories.title", "Заголовок"),
-      transition: t("styleTemplates.categories.transition", "Переход"),
-      overlay: t("styleTemplates.categories.overlay", "Наложение"),
-    };
-    return categoryMap[category] || category;
-  }, [t]);
+  const getCategoryName = useCallback(
+    (category: string) => {
+      const categoryMap: Record<string, string> = {
+        intro: t("styleTemplates.categories.intro", "Интро"),
+        outro: t("styleTemplates.categories.outro", "Концовка"),
+        "lower-third": t(
+          "styleTemplates.categories.lowerThird",
+          "Нижняя треть",
+        ),
+        title: t("styleTemplates.categories.title", "Заголовок"),
+        transition: t("styleTemplates.categories.transition", "Переход"),
+        overlay: t("styleTemplates.categories.overlay", "Наложение"),
+      };
+      return categoryMap[category] || category;
+    },
+    [t],
+  );
 
   // Получаем локализованное название стиля
-  const getStyleName = useCallback((style: string) => {
-    const styleMap: Record<string, string> = {
-      modern: t("styleTemplates.styles.modern", "Современный"),
-      vintage: t("styleTemplates.styles.vintage", "Винтаж"),
-      minimal: t("styleTemplates.styles.minimal", "Минимализм"),
-      corporate: t("styleTemplates.styles.corporate", "Корпоративный"),
-      creative: t("styleTemplates.styles.creative", "Креативный"),
-      cinematic: t("styleTemplates.styles.cinematic", "Кинематографический"),
-    };
-    return styleMap[style] || style;
-  }, [t]);
+  const getStyleName = useCallback(
+    (style: string) => {
+      const styleMap: Record<string, string> = {
+        modern: t("styleTemplates.styles.modern", "Современный"),
+        vintage: t("styleTemplates.styles.vintage", "Винтаж"),
+        minimal: t("styleTemplates.styles.minimal", "Минимализм"),
+        corporate: t("styleTemplates.styles.corporate", "Корпоративный"),
+        creative: t("styleTemplates.styles.creative", "Креативный"),
+        cinematic: t("styleTemplates.styles.cinematic", "Кинематографический"),
+      };
+      return styleMap[style] || style;
+    },
+    [t],
+  );
 
   const handleClick = useCallback(() => {
     if (!isAdded) {
@@ -91,11 +107,15 @@ export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplate
           />
         ) : (
           // Заглушка если нет превью
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-gray-800 rounded-xs"
-               style={{ width: `${width}px`, height: `${height}px` }}>
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-gray-800 rounded-xs"
+            style={{ width: `${width}px`, height: `${height}px` }}
+          >
             <div className="text-center text-gray-400">
               <div className="mb-2 text-2xl">🎨</div>
-              <div className="text-xs">{getCategoryName(template.category)}</div>
+              <div className="text-xs">
+                {getCategoryName(template.category)}
+              </div>
             </div>
           </div>
         )}
@@ -124,7 +144,11 @@ export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplate
 
         {/* Кнопка избранного */}
         <FavoriteButton
-          file={{ id: template.id, path: "", name: template.name[currentLanguage] }}
+          file={{
+            id: template.id,
+            path: "",
+            name: template.name[currentLanguage],
+          }}
           size={Math.min(width, height)}
           type="template"
         />
@@ -134,7 +158,11 @@ export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplate
           className={`${isAdded ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-200`}
         >
           <AddMediaButton
-            file={{ id: template.id, path: "", name: template.name[currentLanguage] }}
+            file={{
+              id: template.id,
+              path: "",
+              name: template.name[currentLanguage],
+            }}
             onAddMedia={(e) => {
               e.stopPropagation();
               addStyleTemplate(template);

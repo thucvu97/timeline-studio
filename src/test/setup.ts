@@ -5,33 +5,33 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
 // Мок для HTMLVideoElement - переопределяем прототип
-Object.defineProperty(window.HTMLVideoElement.prototype, 'play', {
+Object.defineProperty(window.HTMLVideoElement.prototype, "play", {
   writable: true,
   value: vi.fn().mockResolvedValue(undefined),
 });
 
-Object.defineProperty(window.HTMLVideoElement.prototype, 'pause', {
+Object.defineProperty(window.HTMLVideoElement.prototype, "pause", {
   writable: true,
   value: vi.fn(),
 });
 
-Object.defineProperty(window.HTMLVideoElement.prototype, 'load', {
+Object.defineProperty(window.HTMLVideoElement.prototype, "load", {
   writable: true,
   value: vi.fn(),
 });
 
 // Также мокаем HTMLMediaElement для совместимости
-Object.defineProperty(window.HTMLMediaElement.prototype, 'play', {
+Object.defineProperty(window.HTMLMediaElement.prototype, "play", {
   writable: true,
   value: vi.fn().mockResolvedValue(undefined),
 });
 
-Object.defineProperty(window.HTMLMediaElement.prototype, 'pause', {
+Object.defineProperty(window.HTMLMediaElement.prototype, "pause", {
   writable: true,
   value: vi.fn(),
 });
 
-Object.defineProperty(window.HTMLMediaElement.prototype, 'load', {
+Object.defineProperty(window.HTMLMediaElement.prototype, "load", {
   writable: true,
   value: vi.fn(),
 });
@@ -61,9 +61,12 @@ Object.defineProperty(window, "matchMedia", {
 
 // Мок для next-themes
 vi.mock("next-themes", () => ({
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => (
-    React.createElement("div", { "data-testid": "next-theme-provider" }, children)
-  ),
+  ThemeProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(
+      "div",
+      { "data-testid": "next-theme-provider" },
+      children,
+    ),
   useTheme: () => ({
     theme: "light",
     setTheme: vi.fn(),
@@ -194,7 +197,8 @@ vi.mock("@/components/common/browser-state-provider", () => ({
     canIncreaseSize: true,
     canDecreaseSize: true,
   }),
-  BrowserStateProvider: ({ children }: { children: React.ReactNode }) => children,
+  BrowserStateProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
   PREVIEW_SIZES: [100, 125, 150, 200, 250, 300, 400],
 }));
 
@@ -208,8 +212,8 @@ vi.mock("@/features/project-settings/hooks/use-project-settings", () => ({
       aspectRatio: {
         value: {
           width: 1920,
-          height: 1080
-        }
+          height: 1080,
+        },
       },
       sampleRate: { value: 44100 },
       channels: { value: 2 },
