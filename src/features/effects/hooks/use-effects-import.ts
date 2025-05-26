@@ -180,14 +180,16 @@ export function useEffectsImport() {
 
       for (let i = 0; i < files.length; i++) {
         const filePath = files[i];
-        const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || "unknown";
+        const fileName =
+          filePath.split("/").pop() || filePath.split("\\").pop() || "unknown";
         const extension = fileName.split(".").pop()?.toLowerCase();
 
         // Создаем базовый эффект на основе файла
         const effect: VideoEffect = {
           id: `user-${Date.now()}-${i}`,
           name: fileName.replace(/\.[^/.]+$/, ""), // Убираем расширение
-          type: extension === "cube" || extension === "3dl" ? "vintage" : "glow", // Используем существующие типы
+          type:
+            extension === "cube" || extension === "3dl" ? "vintage" : "glow", // Используем существующие типы
           duration: 0,
           category: "creative", // Используем существующую категорию
           complexity: "intermediate",
@@ -205,7 +207,7 @@ export function useEffectsImport() {
           },
           params: {
             intensity: 50, // Интенсивность применения эффекта
-            amount: 100    // Количество эффекта
+            amount: 100, // Количество эффекта
           },
           previewPath: "/t1.mp4",
           labels: {

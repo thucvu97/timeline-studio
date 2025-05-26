@@ -22,45 +22,65 @@ interface EffectDetailProps {
   effect: VideoEffect | null;
   isOpen: boolean;
   onClose: () => void;
-  onApplyEffect: (effect: VideoEffect, preset?: string, customParams?: Record<string, number>) => void;
+  onApplyEffect: (
+    effect: VideoEffect,
+    preset?: string,
+    customParams?: Record<string, number>,
+  ) => void;
 }
 
 /**
  * Компонент для детального просмотра эффекта с возможностью настройки параметров
  */
-export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectDetailProps) {
+export function EffectDetail({
+  effect,
+  isOpen,
+  onClose,
+  onApplyEffect,
+}: EffectDetailProps) {
   const { i18n, t } = useTranslation();
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>();
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentParameters, setCurrentParameters] = useState<Record<string, number>>({});
+  const [currentParameters, setCurrentParameters] = useState<
+    Record<string, number>
+  >({});
   const [previewKey, setPreviewKey] = useState(0); // Для обновления превью
-  const currentLang = i18n.language as 'ru' | 'en';
+  const currentLang = i18n.language as "ru" | "en";
 
   if (!effect) return null;
 
   // Обработчик применения пресета
-  const handleApplyPreset = useCallback((presetName: string, params: Record<string, number>) => {
-    setSelectedPreset(presetName);
-    setCurrentParameters(params);
-    setPreviewKey(prev => prev + 1); // Обновляем превью
-  }, []);
+  const handleApplyPreset = useCallback(
+    (presetName: string, params: Record<string, number>) => {
+      setSelectedPreset(presetName);
+      setCurrentParameters(params);
+      setPreviewKey((prev) => prev + 1); // Обновляем превью
+    },
+    [],
+  );
 
   // Обработчик изменения параметров
-  const handleParametersChange = useCallback((params: Record<string, number>) => {
-    setCurrentParameters(params);
-    setPreviewKey(prev => prev + 1); // Обновляем превью
-    // Сбрасываем выбранный пресет при ручном изменении
-    if (selectedPreset) {
-      setSelectedPreset(undefined);
-    }
-  }, [selectedPreset]);
+  const handleParametersChange = useCallback(
+    (params: Record<string, number>) => {
+      setCurrentParameters(params);
+      setPreviewKey((prev) => prev + 1); // Обновляем превью
+      // Сбрасываем выбранный пресет при ручном изменении
+      if (selectedPreset) {
+        setSelectedPreset(undefined);
+      }
+    },
+    [selectedPreset],
+  );
 
   // Обработчик сохранения пользовательского пресета
-  const handleSavePreset = useCallback((name: string, params: Record<string, number>) => {
-    // Здесь можно добавить логику сохранения пресета в localStorage или на сервер
-    console.log('Saving custom preset:', name, params);
-    // TODO: Реализовать сохранение пользовательских пресетов
-  }, []);
+  const handleSavePreset = useCallback(
+    (name: string, params: Record<string, number>) => {
+      // Здесь можно добавить логику сохранения пресета в localStorage или на сервер
+      console.log("Saving custom preset:", name, params);
+      // TODO: Реализовать сохранение пользовательских пресетов
+    },
+    [],
+  );
 
   // Обработчик применения эффекта
   const handleApplyEffect = useCallback(() => {
@@ -72,7 +92,7 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
   const handleReset = useCallback(() => {
     setSelectedPreset(undefined);
     setCurrentParameters({});
-    setPreviewKey(prev => prev + 1);
+    setPreviewKey((prev) => prev + 1);
   }, []);
 
   return (
@@ -115,7 +135,10 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
                   variant="secondary"
                   size="sm"
                   onClick={handleReset}
-                  title={t('effects.detail.resetToDefault', 'Сбросить к значениям по умолчанию')}
+                  title={t(
+                    "effects.detail.resetToDefault",
+                    "Сбросить к значениям по умолчанию",
+                  )}
                 >
                   <RotateCcw size={16} />
                 </Button>
@@ -124,7 +147,9 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
 
             {/* Информация об эффекте */}
             <div className="space-y-2">
-              <h3 className="font-medium">{t('effects.detail.description', 'Описание')}</h3>
+              <h3 className="font-medium">
+                {t("effects.detail.description", "Описание")}
+              </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {effect.description[currentLang] || effect.description.en}
               </p>
@@ -132,13 +157,18 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
 
             {/* Категория и теги */}
             <div className="space-y-2">
-              <h3 className="font-medium">{t('effects.detail.category', 'Категория')}</h3>
+              <h3 className="font-medium">
+                {t("effects.detail.category", "Категория")}
+              </h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded">
                   {effect.category}
                 </span>
-                {effect.tags.map(tag => (
-                  <span key={tag} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded">
+                {effect.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded"
+                  >
                     {tag}
                   </span>
                 ))}
@@ -165,11 +195,13 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
 
             {/* FFmpeg команда */}
             <div className="space-y-2">
-              <h3 className="font-medium">{t('effects.detail.ffmpegCommand', 'FFmpeg команда')}</h3>
+              <h3 className="font-medium">
+                {t("effects.detail.ffmpegCommand", "FFmpeg команда")}
+              </h3>
               <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono overflow-x-auto">
                 {effect.ffmpegCommand({
                   ...effect.params,
-                  ...currentParameters
+                  ...currentParameters,
                 })}
               </div>
             </div>
@@ -179,10 +211,10 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
             {/* Кнопки действий */}
             <div className="flex gap-2">
               <Button onClick={handleApplyEffect} className="flex-1">
-                {t('effects.detail.applyEffect', 'Применить эффект')}
+                {t("effects.detail.applyEffect", "Применить эффект")}
               </Button>
               <Button variant="outline" onClick={onClose}>
-                {t('common.cancel', 'Отмена')}
+                {t("common.cancel", "Отмена")}
               </Button>
             </div>
           </div>
