@@ -32,8 +32,6 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
         setLoading(true);
         setError(null);
 
-        console.log("Начинаем загрузку стилистических шаблонов...");
-
         // Современный подход с динамическим импортом
         try {
           const { default: data } = await import("../data/style-templates.json");
@@ -42,8 +40,8 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
             throw new Error("Неверная структура данных шаблонов");
           }
 
-          console.log("Загружены шаблоны из JSON:", data.templates.length);
-          setTemplates(data.templates as StyleTemplate[]);
+          console.log("✅ Загружено", data.templates.length, "стильных шаблонов из JSON");
+          setTemplates(data.templates as unknown as StyleTemplate[]);
         } catch (importError) {
           console.warn("Не удалось загрузить JSON файл, используем тестовые данные:", importError);
 
@@ -61,8 +59,8 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
               duration: 3,
               hasText: true,
               hasAnimation: true,
-              thumbnail: null,
-              previewVideo: null,
+              thumbnail: undefined,
+              previewVideo: undefined,
               tags: {
                 ru: ["интро", "современный", "текст", "анимация"],
                 en: ["intro", "modern", "text", "animation"]
@@ -85,8 +83,8 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
               duration: 4,
               hasText: true,
               hasAnimation: true,
-              thumbnail: null,
-              previewVideo: null,
+              thumbnail: undefined,
+              previewVideo: undefined,
               tags: {
                 ru: ["концовка", "минимализм", "чистый", "простой"],
                 en: ["outro", "minimal", "clean", "simple"]
@@ -109,7 +107,7 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
               duration: 5,
               hasText: true,
               hasAnimation: true,
-              thumbnail: null,
+              thumbnail: undefined,
               tags: {
                 ru: ["нижняя треть", "корпоративный", "профессиональный"],
                 en: ["lower-third", "corporate", "professional"]
@@ -122,7 +120,7 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
             }
           ];
 
-          console.log("Загружены тестовые шаблоны:", testTemplates.length);
+          console.log("✅ Загружено", testTemplates.length, "тестовых стильных шаблонов");
           setTemplates(testTemplates);
         }
       } catch (err) {

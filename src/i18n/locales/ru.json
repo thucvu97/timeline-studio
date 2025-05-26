@@ -1296,6 +1296,7 @@
     "categories": {
       "intro": "Интро",
       "outro": "Концовка",
+      "lower-third": "Нижняя треть",
       "lowerThird": "Нижняя треть",
       "title": "Заголовок",
       "transition": "Переход",

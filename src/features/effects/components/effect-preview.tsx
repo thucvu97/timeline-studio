@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 
-import { useBrowserState } from "@/components/common/browser-state-provider";
+
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
 import { useResources } from "@/features/resources";
@@ -47,21 +47,14 @@ export function EffectPreview({
   const videoRef = useRef<HTMLVideoElement>(null); // Ссылка на элемент видео
   const timeoutRef = useRef<NodeJS.Timeout>(null); // Ссылка на таймер для воспроизведения видео
 
-  // Получаем активную вкладку для оптимизации
-  const { activeTab } = useBrowserState();
-
   // Находим эффект по типу из списка доступных эффектов
   const effect = effects.find((e: VideoEffect) => e.type === effectType);
 
   // Проверяем, добавлен ли эффект уже в хранилище ресурсов
-  // Мемоизируем результат и проверяем только если вкладка активна
+  // Мемоизируем результат для оптимизации
   const isAdded = useMemo(() => {
-    // Проверяем только если текущая вкладка - effects
-    if (activeTab !== "effects") {
-      return false; // Возвращаем false для неактивных вкладок
-    }
     return effect ? isEffectAdded(effect) : false;
-  }, [activeTab, effect, isEffectAdded]);
+  }, [effect, isEffectAdded]);
 
   /**
    * Эффект для управления воспроизведением видео и применением эффектов

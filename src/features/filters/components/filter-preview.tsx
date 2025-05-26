@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 
-import { useBrowserState } from "@/components/common/browser-state-provider";
+
 import { useResources } from "@/features/resources";
 import { VideoFilter } from "@/types/filters";
 import { FilterResource } from "@/types/resources";
@@ -36,7 +36,6 @@ export function FilterPreview({
   previewHeight = size
 }: FilterPreviewProps) {
   const { t } = useTranslation(); // Хук для интернационализации
-  const { activeTab } = useBrowserState(); // Получаем активную вкладку для оптимизации
   const { addFilter, isFilterAdded, removeResource, filterResources } =
     useResources(); // Получаем методы для работы с ресурсами
   const [isHovering, setIsHovering] = useState(false); // Состояние наведения мыши
@@ -44,14 +43,10 @@ export function FilterPreview({
   const timeoutRef = useRef<NodeJS.Timeout>(null); // Ссылка на таймер для воспроизведения видео
 
   // Проверяем, добавлен ли фильтр уже в хранилище ресурсов
-  // Мемоизируем результат и проверяем только если вкладка активна
+  // Мемоизируем результат для оптимизации
   const isAdded = useMemo(() => {
-    // Проверяем только если текущая вкладка - filters
-    if (activeTab !== "filters") {
-      return false; // Возвращаем false для неактивных вкладок
-    }
     return isFilterAdded(filter);
-  }, [activeTab, isFilterAdded, filter]);
+  }, [isFilterAdded, filter]);
 
   /**
    * Формирует CSS-строку для применения фильтров к видео
@@ -267,7 +262,10 @@ export function FilterPreview({
       </div>
 
       {/* Название фильтра */}
-      <div className="mt-1 text-xs text-center max-w-[120px] truncate">
+      <div
+        className="mt-1 text-xs text-center truncate"
+        style={{ maxWidth: `${previewWidth}px` }}
+      >
         {filter.labels?.ru || filter.name}
       </div>
     </div>

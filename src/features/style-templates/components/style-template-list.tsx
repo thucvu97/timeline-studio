@@ -20,12 +20,12 @@ export function StyleTemplateList(): React.ReactElement {
   const { templates, loading, error } = useStyleTemplates();
   const media = useMedia(); // Для работы с избранным
 
-  console.log("🎨 [StyleTemplateList] Render:", {
-    templatesCount: templates.length,
-    loading,
-    error,
-    templates: templates.slice(0, 2) // Показываем первые 2 для отладки
-  });
+  // Мемоизируем функцию проверки избранного
+  const isItemFavorite = useCallback((item: any, type: string) => {
+    return media.isItemFavorite(item, type);
+  }, [media.isItemFavorite]);
+
+  // console.log("🎨 [StyleTemplateList] Render:", templates.length, "templates");
 
   // Получаем текущий язык
   const currentLanguage = (i18n.language || 'ru') as 'ru' | 'en';
@@ -56,7 +56,7 @@ export function StyleTemplateList(): React.ReactElement {
       // Фильтрация по избранному
       const matchesFavorites =
         !showFavoritesOnly ||
-        media.isItemFavorite(
+        isItemFavorite(
           { id: template.id, path: "", name: template.name[currentLanguage] },
           "template",
         );
@@ -126,7 +126,7 @@ export function StyleTemplateList(): React.ReactElement {
     });
 
     return filtered;
-  }, [templates, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, currentLanguage, media]);
+  }, [templates, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, currentLanguage, isItemFavorite]);
 
   /**
    * Группировка шаблонов по выбранному критерию
@@ -193,7 +193,12 @@ export function StyleTemplateList(): React.ReactElement {
 
       return { title, templates };
     }).sort((a, b) => a.title.localeCompare(b.title));
-  }, [processedTemplates, groupBy, t]);
+  }, [processedTemplates, groupBy]);
+
+  // Мемоизируем стиль контейнера
+  const itemsContainerStyle = useMemo(() => ({
+    gridTemplateColumns: `repeat(auto-fill, minmax(${basePreviewSize}px, 1fr))`,
+  }), [basePreviewSize]);
 
   // Обработчик выбора шаблона
   const handleTemplateSelect = useCallback((templateId: string) => {
@@ -257,9 +262,7 @@ export function StyleTemplateList(): React.ReactElement {
                   />
                 )}
                 itemsContainerClassName="grid gap-3"
-                itemsContainerStyle={{
-                  gridTemplateColumns: `repeat(auto-fill, minmax(${basePreviewSize}px, 1fr))`,
-                }}
+                itemsContainerStyle={itemsContainerStyle}
               />
             ))}
           </div>

@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { Check, Clock, Play, Plus, Type, Zap } from "lucide-react";
+import { Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
 import { useResources } from "@/features/resources";
 
@@ -29,11 +30,9 @@ export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplate
   // Проверяем, добавлен ли шаблон в ресурсы
   const isAdded = useMemo(() => isStyleTemplateAdded(template), [isStyleTemplateAdded, template]);
 
-  // Вычисляем высоту на основе соотношения сторон
-  const height = useMemo(() => {
-    const ratio = template.aspectRatio === "9:16" ? 16/9 : template.aspectRatio === "1:1" ? 1 : 9/16;
-    return size / ratio;
-  }, [template.aspectRatio, size]);
+  // Делаем превью квадратными, как в Effects
+  const width = size;
+  const height = size;
 
   // Получаем локализованное название категории
   const getCategoryName = useCallback((category: string) => {
@@ -68,34 +67,32 @@ export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplate
     onSelect(template.id);
   }, [isAdded, addStyleTemplate, template, onSelect]);
 
-  const handleAddToResources = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    addStyleTemplate(template);
-  }, [addStyleTemplate, template]);
-
   return (
-    <div
-      className="group relative cursor-pointer overflow-hidden rounded-lg border border-gray-700 bg-gray-800 transition-all duration-200 hover:border-blue-500 hover:shadow-lg"
-      style={{ width: size, height: height + 80 }} // +80 для информации внизу
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={handleClick}
-    >
-      {/* Превью */}
+    <div className="flex flex-col items-center">
+      {/* Контейнер превью шаблона */}
       <div
-        className="relative overflow-hidden bg-gray-900"
-        style={{ width: size, height }}
+        className="group relative cursor-pointer rounded-xs bg-black"
+        style={{ width: `${width}px`, height: `${height}px` }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={handleClick}
       >
         {template.thumbnail ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={template.thumbnail}
             alt={template.name[currentLanguage]}
-            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xs"
+            style={{
+              width: `${width}px`,
+              height: `${height}px`,
+              objectFit: "cover",
+            }}
           />
         ) : (
           // Заглушка если нет превью
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-700 to-gray-900">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-gray-800 rounded-xs"
+               style={{ width: `${width}px`, height: `${height}px` }}>
             <div className="text-center text-gray-400">
               <div className="mb-2 text-2xl">🎨</div>
               <div className="text-xs">{getCategoryName(template.category)}</div>
@@ -112,60 +109,50 @@ export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplate
           </div>
         )}
 
-        {/* Индикаторы в углах */}
-        <div className="absolute top-2 left-2 flex gap-1">
-          {template.hasText && (
-            <div className="rounded bg-blue-600 p-1" title={t("styleTemplates.hasText", "Содержит текст")}>
-              <Type className="h-3 w-3 text-white" />
-            </div>
-          )}
-          {template.hasAnimation && (
-            <div className="rounded bg-purple-600 p-1" title={t("styleTemplates.hasAnimation", "Содержит анимацию")}>
-              <Zap className="h-3 w-3 text-white" />
-            </div>
-          )}
+        {/* Индикаторы стиля и категории */}
+        <div className="absolute top-1 left-1">
+          <div className="bg-black bg-opacity-60 text-white rounded px-1 py-0.5 text-[8px]">
+            {getStyleName(template.style).slice(0, 3).toUpperCase()}
+          </div>
         </div>
 
-        {/* Длительность */}
-        <div className="absolute bottom-2 right-2 flex items-center gap-1 rounded bg-black bg-opacity-70 px-2 py-1 text-xs text-white">
-          <Clock className="h-3 w-3" />
-          <span>{template.duration}s</span>
+        <div className="absolute top-1 right-1">
+          <div className="bg-black bg-opacity-60 text-white rounded px-1 py-0.5 text-[8px]">
+            {getCategoryName(template.category).slice(0, 3).toUpperCase()}
+          </div>
         </div>
 
         {/* Кнопка избранного */}
         <FavoriteButton
           file={{ id: template.id, path: "", name: template.name[currentLanguage] }}
-          size={size}
+          size={Math.min(width, height)}
           type="template"
         />
 
         {/* Кнопка добавления в ресурсы */}
-        <div className="absolute top-2 right-2">
-          {isAdded ? (
-            <div className="rounded bg-green-600 p-1" title={t("styleTemplates.addedToResources", "Добавлено в ресурсы")}>
-              <Check className="h-3 w-3 text-white" />
-            </div>
-          ) : (
-            <button
-              onClick={handleAddToResources}
-              className="rounded bg-blue-600 p-1 transition-colors hover:bg-blue-700"
-              title={t("styleTemplates.addToResources", "Добавить в ресурсы")}
-            >
-              <Plus className="h-3 w-3 text-white" />
-            </button>
-          )}
+        <div
+          className={`${isAdded ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-200`}
+        >
+          <AddMediaButton
+            file={{ id: template.id, path: "", name: template.name[currentLanguage] }}
+            onAddMedia={(e) => {
+              e.stopPropagation();
+              addStyleTemplate(template);
+            }}
+            onRemoveMedia={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              // Логика удаления из ресурсов (если нужна)
+              console.log("Remove style template:", template.id);
+            }}
+            isAdded={isAdded}
+            size={Math.min(width, height)}
+          />
         </div>
       </div>
 
-      {/* Информация о шаблоне */}
-      <div className="p-3">
-        <div className="mb-1 truncate text-sm font-medium text-white">
-          {template.name[currentLanguage]}
-        </div>
-        <div className="flex items-center justify-between text-xs text-gray-400">
-          <span>{getCategoryName(template.category)}</span>
-          <span>{getStyleName(template.style)}</span>
-        </div>
+      {/* Название шаблона */}
+      <div className="mt-1 text-xs text-center">
+        {template.name[currentLanguage]}
       </div>
     </div>
   );

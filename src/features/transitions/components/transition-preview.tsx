@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 
-import { useBrowserState } from "@/components/common/browser-state-provider";
+
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
 import { useResources } from "@/features/resources";
@@ -84,9 +84,16 @@ export function TransitionPreview({
     previewPath: "",
   };
 
-  // Вычисляем размеры превью
-  const actualWidth = previewWidth || size;
-  const actualHeight = previewHeight || size;
+  // Вычисляем размеры превью с учетом aspect ratio
+  const { actualWidth, actualHeight } = useMemo(() => {
+    // Если переданы конкретные размеры, используем их
+    if (previewWidth && previewHeight) {
+      return { actualWidth: previewWidth, actualHeight: previewHeight };
+    }
+
+    // Иначе используем квадратный размер как fallback
+    return { actualWidth: size, actualHeight: size };
+  }, [previewWidth, previewHeight, size]);
 
   // Мемоизируем объекты для кнопок
   const favoriteFile = useMemo(() => ({
@@ -166,18 +173,11 @@ export function TransitionPreview({
     [currentTransition?.category]
   );
 
-  // Получаем активную вкладку для оптимизации
-  const { activeTab } = useBrowserState();
-
   // Проверяем, добавлен ли переход уже в хранилище ресурсов
-  // Мемоизируем результат и проверяем только если вкладка активна
+  // Мемоизируем результат для оптимизации
   const isAdded = useMemo(() => {
-    // Проверяем только если текущая вкладка - transitions
-    if (activeTab !== "transitions") {
-      return false; // Возвращаем false для неактивных вкладок
-    }
     return isTransitionAdded(transitionObj);
-  }, [activeTab, isTransitionAdded, transitionObj]);
+  }, [isTransitionAdded, transitionObj]);
 
   // Отладочный вывод
   // useEffect(() => {
@@ -357,29 +357,44 @@ export function TransitionPreview({
    * Эффект для инициализации видео и обработки ошибок
    */
   useEffect(() => {
-    if (!sourceVideoRef.current || !targetVideoRef.current) return;
+    if (!sourceVideoRef.current || !targetVideoRef.current) {
+      console.warn(`🎬 [TransitionPreview] Видео элементы не найдены для ${transitionType}`);
+      return;
+    }
 
-    const sourceVideo = sourceVideoRef.current;
-    const targetVideo = targetVideoRef.current;
+    const sourceVideoElement = sourceVideoRef.current;
+    const targetVideoElement = targetVideoRef.current;
 
     // Функция обработки ошибок загрузки видео
-    const handleError = () => setIsError(true);
+    const handleError = (e: Event) => {
+      console.error(`🎬 [TransitionPreview] Ошибка загрузки видео для ${transitionType}:`, e);
+      setIsError(true);
+    };
 
-    // Добавляем обработчики ошибок для обоих видео
-    sourceVideo.addEventListener("error", handleError);
-    targetVideo.addEventListener("error", handleError);
+    // Функция обработки успешной загрузки
+    const handleLoadedData = () => {
+      // Видео успешно загружено
+    };
 
-    // Запускаем исходное видео сразу для показа превью только один раз
+    // Добавляем обработчики событий для обоих видео
+    sourceVideoElement.addEventListener("error", handleError);
+    targetVideoElement.addEventListener("error", handleError);
+    sourceVideoElement.addEventListener("loadeddata", handleLoadedData);
+    targetVideoElement.addEventListener("loadeddata", handleLoadedData);
+
+    // Сбрасываем видео к начальному состоянию, но НЕ запускаем автоматически
     resetVideos();
-    sourceVideo.play().catch(() => {
-      // Игнорируем ошибки воспроизведения
-    });
+    // Устанавливаем первый кадр как превью
+    sourceVideoElement.currentTime = 0;
+    targetVideoElement.currentTime = 0;
 
     // Функция очистки при размонтировании компонента
     return () => {
-      // Удаляем обработчики ошибок
-      sourceVideo.removeEventListener("error", handleError);
-      targetVideo.removeEventListener("error", handleError);
+      // Удаляем обработчики событий
+      sourceVideoElement.removeEventListener("error", handleError);
+      targetVideoElement.removeEventListener("error", handleError);
+      sourceVideoElement.removeEventListener("loadeddata", handleLoadedData);
+      targetVideoElement.removeEventListener("loadeddata", handleLoadedData);
       // Очищаем таймеры
       if (transitionTimeoutRef.current)
         clearTimeout(transitionTimeoutRef.current);
@@ -397,10 +412,14 @@ export function TransitionPreview({
     } else {
       // Если курсор не наведен - сбрасываем к исходному состоянию
       resetVideos();
+      // Останавливаем все видео и показываем первый кадр
       if (sourceVideoRef.current) {
-        void sourceVideoRef.current.play().catch(() => {
-          // Игнорируем ошибки воспроизведения
-        });
+        sourceVideoRef.current.pause();
+        sourceVideoRef.current.currentTime = 0;
+      }
+      if (targetVideoRef.current) {
+        targetVideoRef.current.pause();
+        targetVideoRef.current.currentTime = 0;
       }
       // Очищаем таймеры
       if (transitionTimeoutRef.current)
@@ -414,7 +433,7 @@ export function TransitionPreview({
       <div className="group relative">
         {/* Контейнер превью перехода */}
         <div
-          className="flex cursor-pointer overflow-hidden rounded-xs bg-[#1a1a1a] relative"
+          className="flex cursor-pointer rounded-xs bg-[#1a1a1a] relative"
           style={{ width: `${actualWidth}px`, height: `${actualHeight}px` }}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
@@ -511,7 +530,10 @@ export function TransitionPreview({
         </div>
       </div>
       {/* Название перехода */}
-      <div className="mt-1 text-xs text-center max-w-[120px] truncate">
+      <div
+        className="mt-1 text-xs text-center truncate"
+        style={{ maxWidth: `${actualWidth}px` }}
+      >
         {currentTransition?.labels?.ru || t(`transitions.types.${transitionType}`, transitionType)}
       </div>
     </div>

@@ -72,9 +72,6 @@ export function TemplatePreview({
   // Получаем вычисленные размеры превью
   const { height: previewHeight, width: previewWidth } = calculateDimensions();
 
-  // Получаем активную вкладку для оптимизации
-  const { activeTab } = useBrowserState();
-
   // Получаем методы для работы с ресурсами шаблонов
   const { addTemplate, isTemplateAdded, removeResource, templateResources } =
     useResources();
@@ -83,14 +80,10 @@ export function TemplatePreview({
   const renderedTemplate = template.render();
 
   // Проверяем, добавлен ли шаблон уже в хранилище ресурсов
-  // Мемоизируем результат и проверяем только если вкладка активна
+  // Мемоизируем результат для оптимизации
   const isAddedFromStore = useMemo(() => {
-    // Проверяем только если текущая вкладка - media (где находятся шаблоны)
-    if (activeTab !== "media") {
-      return false; // Возвращаем false для неактивных вкладок
-    }
     return isTemplateAdded(template);
-  }, [activeTab, isTemplateAdded, template]);
+  }, [isTemplateAdded, template]);
 
   /**
    * Эффект для синхронизации локального состояния с состоянием из хранилища

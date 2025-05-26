@@ -1241,6 +1241,7 @@
     "categories": {
       "intro": "Intro",
       "outro": "Outro",
+      "lower-third": "Lower Third",
       "lowerThird": "Lower Third",
       "title": "Title",
       "transition": "Transition",
