@@ -11,8 +11,6 @@ import {
 import { convertToSavedMusicFile } from "@/lib/saved-media-utils";
 import { MediaFile } from "@/types/media";
 
-import { useMusic } from "./use-music";
-
 /**
  * Максимальное количество одновременных запросов к Tauri
  */
@@ -42,7 +40,6 @@ export function useMusicImport() {
   const [progress, setProgress] = useState(0);
 
   // Получаем методы из музыкального контекста (теперь заглушки)
-  const { addMusicFiles, updateMusicFiles } = useMusic();
   const { currentProject, setProjectDirty } = useCurrentProject();
 
   /**

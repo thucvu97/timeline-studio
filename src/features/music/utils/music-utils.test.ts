@@ -273,5 +273,112 @@ describe("music-utils", () => {
         filterFiles(filesWithMissingProps, "test", "all"),
       ).not.toThrow();
     });
+
+    it("should be case insensitive for search queries", () => {
+      const filtered = filterFiles(mockMediaFiles, "ARTIST", "all");
+      expect(filtered.length).toBe(3); // Все файлы содержат "Artist" в названии исполнителя
+    });
+
+    it("should filter by multiple file extensions", () => {
+      const filteredMp3 = filterFiles(mockMediaFiles, "", "mp3");
+      const filteredWav = filterFiles(mockMediaFiles, "", "wav");
+
+      expect(filteredMp3.length).toBe(2);
+      expect(filteredWav.length).toBe(1);
+      expect(filteredWav[0].name).toBe("test2.wav");
+    });
+
+    it("should handle special characters in search", () => {
+      const filesWithSpecialChars = [
+        ...mockMediaFiles,
+        {
+          id: "5",
+          name: "test-file_with@special#chars.mp3",
+          path: "/test/test-file_with@special#chars.mp3",
+          type: "audio",
+          probeData: {
+            format: {
+              tags: {
+                title: "Song with (special) chars!",
+                artist: "Artist & Band",
+              },
+            },
+          },
+        },
+      ];
+
+      const filtered = filterFiles(filesWithSpecialChars, "special", "all");
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].name).toBe("test-file_with@special#chars.mp3");
+    });
+  });
+
+  describe("edge cases and performance", () => {
+    it("should handle large arrays efficiently", () => {
+      // Создаем большой массив файлов
+      const largeFileArray = Array.from({ length: 1000 }, (_, i) => ({
+        id: `${i}`,
+        name: `test${i}.mp3`,
+        path: `/test/test${i}.mp3`,
+        type: "audio" as const,
+        probeData: {
+          format: {
+            duration: 120 + i,
+            size: 1000 + i,
+            tags: {
+              title: `Test Song ${i}`,
+              artist: `Test Artist ${i % 10}`,
+              genre: ["Rock", "Pop", "Jazz"][i % 3],
+            },
+          },
+        },
+      }));
+
+      const start = performance.now();
+      const sorted = sortFiles(largeFileArray, "name", "asc");
+      const filtered = filterFiles(sorted, "Test", "all");
+      const end = performance.now();
+
+      expect(sorted.length).toBe(1000);
+      expect(filtered.length).toBe(1000);
+      expect(end - start).toBeLessThan(100); // Должно выполняться быстро
+    });
+
+    it("should handle null and undefined values", () => {
+      const filesWithNulls = [
+        {
+          id: "null-test",
+          name: "test-null.mp3",
+          path: "/test/test-null.mp3",
+          type: "audio" as const,
+          probeData: {
+            format: {
+              duration: null,
+              size: undefined,
+              tags: {
+                title: null,
+                artist: undefined,
+                genre: "",
+              },
+            },
+          },
+        },
+      ];
+
+      expect(() => sortFiles(filesWithNulls, "title", "asc")).not.toThrow();
+      expect(() => sortFiles(filesWithNulls, "duration", "asc")).not.toThrow();
+      expect(() => filterFiles(filesWithNulls, "test", "all")).not.toThrow();
+    });
+
+    it("should maintain original array immutability", () => {
+      const originalFiles = [...mockMediaFiles];
+      const sorted = sortFiles(mockMediaFiles, "name", "desc");
+      const filtered = filterFiles(mockMediaFiles, "test", "all");
+
+      // Проверяем, что оригинальный массив не изменился
+      expect(mockMediaFiles).toEqual(originalFiles);
+      expect(sorted).not.toBe(mockMediaFiles);
+      expect(filtered).not.toBe(mockMediaFiles);
+    });
   });
 });

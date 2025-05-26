@@ -6,7 +6,7 @@ import { useMachine } from "@xstate/react";
 
 import { MissingFilesDialog } from "@/components/dialogs/missing-files-dialog";
 import { FavoritesType } from "@/features/browser/media/media-machine";
-import { UserSettingsContextValue } from "@/features/user-settings";
+import { UserSettingsContextType } from "@/features/user-settings";
 import { useMediaRestoration } from "@/hooks/use-media-restoration";
 import { ProjectFileService } from "@/lib/project-file-service";
 
@@ -27,7 +27,7 @@ interface AppSettingsProviderContext {
   };
 
   // Методы для работы с настройками
-  updateUserSettings: (settings: Partial<UserSettingsContextValue>) => void;
+  updateUserSettings: (settings: Partial<UserSettingsContextType>) => void;
   addRecentProject: (path: string, name: string) => void;
   removeRecentProject: (path: string) => void;
   clearRecentProjects: () => void;
@@ -44,7 +44,7 @@ interface AppSettingsProviderContext {
   updateMediaFiles: (files: any[]) => void;
 
   // Геттеры для удобного доступа к данным
-  getUserSettings: () => UserSettingsContextValue;
+  getUserSettings: () => UserSettingsContextType;
   getRecentProjects: () => AppSettingsContextType["recentProjects"];
   getFavorites: () => FavoritesType;
   getCurrentProject: () => AppSettingsContextType["currentProject"];
@@ -92,7 +92,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   ]);
 
   // Методы для работы с настройками
-  const updateUserSettings = (settings: Partial<UserSettingsContextValue>) => {
+  const updateUserSettings = (settings: Partial<UserSettingsContextType>) => {
     send({ type: "UPDATE_USER_SETTINGS", settings });
   };
 
