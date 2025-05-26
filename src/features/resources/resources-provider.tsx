@@ -275,7 +275,8 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
 
       // Если результата нет в кэше, вычисляем его
       const isAdded = styleTemplateResources.some(
-        (resource: StyleTemplateResource) => resource.resourceId === template.id,
+        (resource: StyleTemplateResource) =>
+          resource.resourceId === template.id,
       );
 
       // Сохраняем результат в кэше
