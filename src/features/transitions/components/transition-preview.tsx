@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 
-
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
 import { useResources } from "@/features/resources";
@@ -61,28 +60,32 @@ export function TransitionPreview({
   const { transitions } = useTransitions();
 
   // Получаем переход из пропсов или находим по типу
-  const currentTransition = transition || transitions.find(
-    (t: Transition) => t.id === transitionType || t.type === transitionType,
-  );
+  const currentTransition =
+    transition ||
+    transitions.find(
+      (t: Transition) => t.id === transitionType || t.type === transitionType,
+    );
 
   // Создаем объект перехода для совместимости с ресурсами
-  const transitionObj = currentTransition ? {
-    id: currentTransition.id,
-    type: currentTransition.type,
-    name: currentTransition.labels.ru,
-    duration: currentTransition.duration.default,
-    ffmpegCommand: currentTransition.ffmpegCommand,
-    params: currentTransition.parameters || {},
-    previewPath: currentTransition.previewPath || "",
-  } : {
-    id: transitionType,
-    type: transitionType,
-    name: transitionType,
-    duration: 1.5,
-    ffmpegCommand: () => "",
-    params: {},
-    previewPath: "",
-  };
+  const transitionObj = currentTransition
+    ? {
+        id: currentTransition.id,
+        type: currentTransition.type,
+        name: currentTransition.labels.ru,
+        duration: currentTransition.duration.default,
+        ffmpegCommand: currentTransition.ffmpegCommand,
+        params: currentTransition.parameters || {},
+        previewPath: currentTransition.previewPath || "",
+      }
+    : {
+        id: transitionType,
+        type: transitionType,
+        name: transitionType,
+        duration: 1.5,
+        ffmpegCommand: () => "",
+        params: {},
+        previewPath: "",
+      };
 
   // Вычисляем размеры превью с учетом aspect ratio
   const { actualWidth, actualHeight } = useMemo(() => {
@@ -96,39 +99,51 @@ export function TransitionPreview({
   }, [previewWidth, previewHeight, size]);
 
   // Мемоизируем объекты для кнопок
-  const favoriteFile = useMemo(() => ({
-    id: transitionObj.id,
-    path: "",
-    name: transitionObj.name,
-  }), [transitionObj.id, transitionObj.name]);
+  const favoriteFile = useMemo(
+    () => ({
+      id: transitionObj.id,
+      path: "",
+      name: transitionObj.name,
+    }),
+    [transitionObj.id, transitionObj.name],
+  );
 
-  const addMediaFile = useMemo(() => ({
-    id: transitionType,
-    path: "",
-    name: transitionType
-  }), [transitionType]);
+  const addMediaFile = useMemo(
+    () => ({
+      id: transitionType,
+      path: "",
+      name: transitionType,
+    }),
+    [transitionType],
+  );
 
   // Мемоизируем обработчики событий
-  const handleAddMedia = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    addTransition(transitionObj);
-  }, [addTransition, transitionObj]);
+  const handleAddMedia = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      addTransition(transitionObj);
+    },
+    [addTransition, transitionObj],
+  );
 
-  const handleRemoveMedia = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    const resource = transitionResources.find(
-      (res: TransitionResource) =>
-        res.resourceId === transitionObj.id ||
-        res.resourceId === transitionObj.type,
-    );
-    if (resource) {
-      removeResource(resource.id);
-    } else {
-      console.warn(
-        `Не удалось найти ресурс перехода с ID ${transitionObj.id} для удаления`,
+  const handleRemoveMedia = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const resource = transitionResources.find(
+        (res: TransitionResource) =>
+          res.resourceId === transitionObj.id ||
+          res.resourceId === transitionObj.type,
       );
-    }
-  }, [removeResource, transitionResources, transitionObj.id, transitionObj.type]);
+      if (resource) {
+        removeResource(resource.id);
+      } else {
+        console.warn(
+          `Не удалось найти ресурс перехода с ID ${transitionObj.id} для удаления`,
+        );
+      }
+    },
+    [removeResource, transitionResources, transitionObj.id, transitionObj.type],
+  );
 
   // Функция для получения индикатора сложности
   const getComplexityIndicator = (complexity: string) => {
@@ -164,13 +179,13 @@ export function TransitionPreview({
     }
   };
 
-  const complexityIndicator = useMemo(() =>
-    getComplexityIndicator(currentTransition?.complexity || "basic"),
-    [currentTransition?.complexity]
+  const complexityIndicator = useMemo(
+    () => getComplexityIndicator(currentTransition?.complexity || "basic"),
+    [currentTransition?.complexity],
   );
-  const categoryIndicator = useMemo(() =>
-    getCategoryIndicator(currentTransition?.category || "basic"),
-    [currentTransition?.category]
+  const categoryIndicator = useMemo(
+    () => getCategoryIndicator(currentTransition?.category || "basic"),
+    [currentTransition?.category],
   );
 
   // Проверяем, добавлен ли переход уже в хранилище ресурсов
@@ -358,7 +373,9 @@ export function TransitionPreview({
    */
   useEffect(() => {
     if (!sourceVideoRef.current || !targetVideoRef.current) {
-      console.warn(`🎬 [TransitionPreview] Видео элементы не найдены для ${transitionType}`);
+      console.warn(
+        `🎬 [TransitionPreview] Видео элементы не найдены для ${transitionType}`,
+      );
       return;
     }
 
@@ -367,7 +384,10 @@ export function TransitionPreview({
 
     // Функция обработки ошибок загрузки видео
     const handleError = (e: Event) => {
-      console.error(`🎬 [TransitionPreview] Ошибка загрузки видео для ${transitionType}:`, e);
+      console.error(
+        `🎬 [TransitionPreview] Ошибка загрузки видео для ${transitionType}:`,
+        e,
+      );
       setIsError(true);
     };
 
@@ -446,7 +466,10 @@ export function TransitionPreview({
               <div className="absolute top-1 left-1 z-10">
                 <div
                   className={`${complexityIndicator.color} rounded-full w-3 h-3 flex items-center justify-center`}
-                  title={t(`transitions.complexity.${currentTransition.complexity}`, currentTransition.complexity)}
+                  title={t(
+                    `transitions.complexity.${currentTransition.complexity}`,
+                    currentTransition.complexity,
+                  )}
                 >
                   <span className="text-[8px] font-bold text-white">
                     {complexityIndicator.label[0]}
@@ -458,7 +481,10 @@ export function TransitionPreview({
               <div className="absolute top-1 right-1 z-10">
                 <div
                   className="bg-gray-700 text-white rounded px-1 py-0.5 text-[8px] font-medium"
-                  title={t(`transitions.categories.${currentTransition.category}`, currentTransition.category)}
+                  title={t(
+                    `transitions.categories.${currentTransition.category}`,
+                    currentTransition.category,
+                  )}
                 >
                   {categoryIndicator}
                 </div>
@@ -534,7 +560,8 @@ export function TransitionPreview({
         className="mt-1 text-xs text-center truncate"
         style={{ maxWidth: `${actualWidth}px` }}
       >
-        {currentTransition?.labels?.ru || t(`transitions.types.${transitionType}`, transitionType)}
+        {currentTransition?.labels?.ru ||
+          t(`transitions.types.${transitionType}`, transitionType)}
       </div>
     </div>
   );

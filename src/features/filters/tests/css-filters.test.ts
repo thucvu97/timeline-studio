@@ -7,22 +7,24 @@ describe("CSS Filters Module", () => {
     try {
       const cssFiltersModule = await import("../utils/css-filters");
       expect(cssFiltersModule).toBeDefined();
-      
+
       // Проверяем основные экспорты
       if (cssFiltersModule.generateCSSFilter) {
         expect(typeof cssFiltersModule.generateCSSFilter).toBe("function");
       }
-      
+
       if (cssFiltersModule.applyCSSFilter) {
         expect(typeof cssFiltersModule.applyCSSFilter).toBe("function");
       }
-      
+
       if (cssFiltersModule.resetCSSFilter) {
         expect(typeof cssFiltersModule.resetCSSFilter).toBe("function");
       }
     } catch (error) {
       // Если модуль не найден, это нормально для тестов
-      console.log("CSS filters module not found, which is expected in test environment");
+      console.log(
+        "CSS filters module not found, which is expected in test environment",
+      );
     }
   });
 
@@ -31,34 +33,36 @@ describe("CSS Filters Module", () => {
     try {
       const processorModule = await import("../utils/filter-processor");
       expect(processorModule).toBeDefined();
-      
+
       // Проверяем основные экспорты
       if (processorModule.processFilters) {
         expect(typeof processorModule.processFilters).toBe("function");
       }
-      
+
       if (processorModule.validateFiltersData) {
         expect(typeof processorModule.validateFiltersData).toBe("function");
       }
-      
+
       if (processorModule.createFallbackFilter) {
         expect(typeof processorModule.createFallbackFilter).toBe("function");
       }
-      
+
       if (processorModule.searchFilters) {
         expect(typeof processorModule.searchFilters).toBe("function");
       }
-      
+
       if (processorModule.groupFilters) {
         expect(typeof processorModule.groupFilters).toBe("function");
       }
-      
+
       if (processorModule.sortFilters) {
         expect(typeof processorModule.sortFilters).toBe("function");
       }
     } catch (error) {
       // Если модуль не найден, это нормально для тестов
-      console.log("Filter processor module not found, which is expected in test environment");
+      console.log(
+        "Filter processor module not found, which is expected in test environment",
+      );
     }
   });
 
@@ -66,15 +70,15 @@ describe("CSS Filters Module", () => {
     // Проверяем, что типы фильтров определены правильно
     const validCategories = [
       "color-correction",
-      "creative", 
+      "creative",
       "cinematic",
       "vintage",
       "technical",
-      "artistic"
+      "artistic",
     ];
-    
+
     const validComplexities = ["basic", "intermediate", "advanced"];
-    
+
     expect(validCategories.length).toBeGreaterThan(0);
     expect(validComplexities.length).toBe(3);
   });
@@ -86,16 +90,16 @@ describe("CSS Filters Module", () => {
       contrast: 1.1,
       saturation: 0.8,
       hue: 180,
-      gamma: 1.0
+      gamma: 1.0,
     };
-    
+
     // Проверяем, что параметры имеют правильные типы
     expect(typeof validParams.brightness).toBe("number");
     expect(typeof validParams.contrast).toBe("number");
     expect(typeof validParams.saturation).toBe("number");
     expect(typeof validParams.hue).toBe("number");
     expect(typeof validParams.gamma).toBe("number");
-    
+
     // Проверяем диапазоны значений
     expect(validParams.brightness).toBeGreaterThan(0);
     expect(validParams.contrast).toBeGreaterThan(0);
@@ -110,17 +114,17 @@ describe("CSS Filters Module", () => {
     const testParams = {
       brightness: 1.2,
       contrast: 1.1,
-      saturation: 0.8
+      saturation: 0.8,
     };
-    
+
     // Проверяем формат CSS filter строки
     const expectedParts = [
       `brightness(${testParams.brightness})`,
       `contrast(${testParams.contrast})`,
-      `saturate(${testParams.saturation})`
+      `saturate(${testParams.saturation})`,
     ];
-    
-    expectedParts.forEach(part => {
+
+    expectedParts.forEach((part) => {
       expect(part).toMatch(/^[a-z]+\([0-9.]+\)$/);
     });
   });
@@ -135,16 +139,16 @@ describe("CSS Filters Module", () => {
       { saturation: 0, expected: "valid" }, // черно-белое
       { saturation: 2, expected: "valid" }, // высокая насыщенность
       { hue: 0, expected: "valid" }, // начало спектра
-      { hue: 360, expected: "valid" } // конец спектра
+      { hue: 360, expected: "valid" }, // конец спектра
     ];
-    
-    edgeCases.forEach(testCase => {
+
+    edgeCases.forEach((testCase) => {
       const param = Object.keys(testCase)[0];
       const value = Object.values(testCase)[0];
-      
+
       if (typeof value === "number") {
         expect(value).toBeGreaterThanOrEqual(0);
-        
+
         if (param === "hue") {
           expect(value).toBeLessThanOrEqual(360);
         }
@@ -157,23 +161,23 @@ describe("CSS Filters Module", () => {
     const commonPresets = [
       {
         name: "warm",
-        params: { temperature: 200, tint: 10 }
+        params: { temperature: 200, tint: 10 },
       },
       {
-        name: "cool", 
-        params: { temperature: -200, tint: -10 }
+        name: "cool",
+        params: { temperature: -200, tint: -10 },
       },
       {
         name: "vintage",
-        params: { brightness: -0.1, saturation: 0.7, gamma: 1.2 }
+        params: { brightness: -0.1, saturation: 0.7, gamma: 1.2 },
       },
       {
         name: "cinematic",
-        params: { contrast: 1.2, saturation: 0.9, shadows: -20 }
-      }
+        params: { contrast: 1.2, saturation: 0.9, shadows: -20 },
+      },
     ];
-    
-    commonPresets.forEach(preset => {
+
+    commonPresets.forEach((preset) => {
       expect(preset.name).toBeTruthy();
       expect(typeof preset.params).toBe("object");
       expect(Object.keys(preset.params).length).toBeGreaterThan(0);

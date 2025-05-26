@@ -91,11 +91,21 @@ export function TransitionList() {
       // Фильтрация по поисковому запросу
       const matchesSearch =
         !searchQuery ||
-        transition.labels?.ru?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        transition.labels?.en?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (transition.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (transition.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (transition.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        transition.labels?.ru
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        transition.labels?.en
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (transition.description?.ru || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (transition.description?.en || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (transition.tags || []).some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
 
       // Фильтрация по избранному
       const matchesFavorites =
@@ -115,7 +125,16 @@ export function TransitionList() {
         }
 
         // Фильтрация по категории
-        if (["basic", "advanced", "creative", "3d", "artistic", "cinematic"].includes(filterType)) {
+        if (
+          [
+            "basic",
+            "advanced",
+            "creative",
+            "3d",
+            "artistic",
+            "cinematic",
+          ].includes(filterType)
+        ) {
           return transition.category === filterType;
         }
 
@@ -163,7 +182,15 @@ export function TransitionList() {
     });
 
     return filtered;
-  }, [transitions, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media]);
+  }, [
+    transitions,
+    searchQuery,
+    showFavoritesOnly,
+    filterType,
+    sortBy,
+    sortOrder,
+    media,
+  ]);
 
   /**
    * Группировка переходов по выбранному критерию
@@ -186,7 +213,10 @@ export function TransitionList() {
           groupKey = transition.complexity || "basic";
           break;
         case "tags":
-          groupKey = (transition.tags && transition.tags.length > 0) ? transition.tags[0] : "untagged";
+          groupKey =
+            transition.tags && transition.tags.length > 0
+              ? transition.tags[0]
+              : "untagged";
           break;
         case "duration":
           const duration = transition.duration?.default || 1.0;
@@ -205,28 +235,33 @@ export function TransitionList() {
     });
 
     // Преобразуем в массив групп с переводами заголовков
-    return Object.entries(groups).map(([key, transitions]) => {
-      let title = "";
+    return Object.entries(groups)
+      .map(([key, transitions]) => {
+        let title = "";
 
-      switch (groupBy) {
-        case "category":
-          title = t(`transitions.categories.${key}`, key);
-          break;
-        case "complexity":
-          title = t(`transitions.complexity.${key}`, key);
-          break;
-        case "tags":
-          title = key === "untagged" ? t("transitions.filters.allTags", "Без тегов") : key;
-          break;
-        case "duration":
-          title = t(`transitions.duration.${key}`, key);
-          break;
-        default:
-          title = key;
-      }
+        switch (groupBy) {
+          case "category":
+            title = t(`transitions.categories.${key}`, key);
+            break;
+          case "complexity":
+            title = t(`transitions.complexity.${key}`, key);
+            break;
+          case "tags":
+            title =
+              key === "untagged"
+                ? t("transitions.filters.allTags", "Без тегов")
+                : key;
+            break;
+          case "duration":
+            title = t(`transitions.duration.${key}`, key);
+            break;
+          default:
+            title = key;
+        }
 
-      return { title, transitions };
-    }).sort((a, b) => a.title.localeCompare(b.title));
+        return { title, transitions };
+      })
+      .sort((a, b) => a.title.localeCompare(b.title));
   }, [processedTransitions, groupBy, t]);
 
   // Показываем состояние загрузки

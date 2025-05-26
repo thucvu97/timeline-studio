@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useTranslation } from "react-i18next";
 
-
 import { useResources } from "@/features/resources";
 import { VideoFilter } from "@/types/filters";
 import { FilterResource } from "@/types/resources";
@@ -33,7 +32,7 @@ export function FilterPreview({
   onClick,
   size,
   previewWidth = size,
-  previewHeight = size
+  previewHeight = size,
 }: FilterPreviewProps) {
   const { t } = useTranslation(); // Хук для интернационализации
   const { addFilter, isFilterAdded, removeResource, filterResources } =
@@ -71,14 +70,17 @@ export function FilterPreview({
       clarity,
       dehaze,
       vignette,
-      grain
+      grain,
     } = filter.params;
     const filters = [];
 
     // Основные CSS-фильтры
-    if (brightness !== undefined) filters.push(`brightness(${Math.max(0, 1 + brightness)})`);
-    if (contrast !== undefined) filters.push(`contrast(${Math.max(0, contrast)})`);
-    if (saturation !== undefined) filters.push(`saturate(${Math.max(0, saturation)})`);
+    if (brightness !== undefined)
+      filters.push(`brightness(${Math.max(0, 1 + brightness)})`);
+    if (contrast !== undefined)
+      filters.push(`contrast(${Math.max(0, contrast)})`);
+    if (saturation !== undefined)
+      filters.push(`saturate(${Math.max(0, saturation)})`);
 
     // Цветовые корректировки
     if (hue !== undefined) filters.push(`hue-rotate(${hue}deg)`);
@@ -96,24 +98,24 @@ export function FilterPreview({
     // Дополнительные эффекты (эмулируем через доступные CSS-фильтры)
     if (clarity !== undefined && clarity !== 0) {
       // Clarity через contrast и небольшой sharpen эффект
-      const clarityValue = 1 + (clarity * 0.3);
+      const clarityValue = 1 + clarity * 0.3;
       filters.push(`contrast(${Math.max(0.1, clarityValue)})`);
     }
 
     if (vibrance !== undefined && vibrance !== 0) {
       // Vibrance через дополнительную насыщенность
-      const vibranceValue = 1 + (vibrance * 0.5);
+      const vibranceValue = 1 + vibrance * 0.5;
       filters.push(`saturate(${Math.max(0.1, vibranceValue)})`);
     }
 
     // Shadows и highlights эмулируем через brightness корректировки
     if (shadows !== undefined && shadows !== 0) {
-      const shadowValue = 1 + (shadows * 0.2);
+      const shadowValue = 1 + shadows * 0.2;
       filters.push(`brightness(${Math.max(0.1, shadowValue)})`);
     }
 
     if (highlights !== undefined && highlights !== 0) {
-      const highlightValue = 1 - (highlights * 0.1);
+      const highlightValue = 1 - highlights * 0.1;
       filters.push(`brightness(${Math.max(0.1, highlightValue)})`);
     }
 
@@ -166,22 +168,33 @@ export function FilterPreview({
   // Получаем цвета для индикаторов
   const getComplexityColor = (complexity: string) => {
     switch (complexity) {
-      case "basic": return "bg-green-500";
-      case "intermediate": return "bg-yellow-500";
-      case "advanced": return "bg-red-500";
-      default: return "bg-gray-500";
+      case "basic":
+        return "bg-green-500";
+      case "intermediate":
+        return "bg-yellow-500";
+      case "advanced":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
   const getCategoryAbbreviation = (category: string) => {
     switch (category) {
-      case "color-correction": return "CC";
-      case "creative": return "CRE";
-      case "cinematic": return "CIN";
-      case "vintage": return "VIN";
-      case "technical": return "TEC";
-      case "artistic": return "ART";
-      default: return "FIL";
+      case "color-correction":
+        return "CC";
+      case "creative":
+        return "CRE";
+      case "cinematic":
+        return "CIN";
+      case "vintage":
+        return "VIN";
+      case "technical":
+        return "TEC";
+      case "artistic":
+        return "ART";
+      default:
+        return "FIL";
     }
   };
 

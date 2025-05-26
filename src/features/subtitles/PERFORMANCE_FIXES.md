@@ -5,6 +5,7 @@
 **Проблема**: Зависимость от `activeTab` в `useMemo` вызывала постоянные ре-рендеры всех Preview компонентов при переключении вкладок.
 
 **Решение**: Удалили проверку `activeTab` из всех Preview компонентов:
+
 - `TransitionPreview`
 - `EffectPreview`
 - `FilterPreview`
@@ -12,6 +13,7 @@
 - `TemplatePreview`
 
 **Было**:
+
 ```typescript
 const isAdded = useMemo(() => {
   if (activeTab !== "transitions") {
@@ -22,6 +24,7 @@ const isAdded = useMemo(() => {
 ```
 
 **Стало**:
+
 ```typescript
 const isAdded = useMemo(() => {
   return isTransitionAdded(transitionObj);
@@ -37,6 +40,7 @@ const isAdded = useMemo(() => {
 При переходе на другую вкладку браузера все Preview компоненты продолжали выполнять проверки `isAdded()`, что приводило к:
 
 - **Бесконечным логам** в консоли:
+
   ```
   [Log] Checking if subtitle style is added: – "Basic White" – "basic-white"
   [Log] Current subtitle resources: – [] (0)
@@ -50,12 +54,14 @@ const isAdded = useMemo(() => {
 ## 🔍 Причина
 
 1. **Неправильное кэширование** в `resources-provider.tsx`:
+
    ```typescript
    // Проблемный код:
    if (subtitleAddedCache.current[style.id]) {
      return subtitleAddedCache.current[style.id];
    }
    ```
+
    Если значение `false`, условие не выполнялось и функция пересчитывала результат каждый раз.
 
 2. **Отсутствие проверки активности вкладки** в SubtitlePreview:
@@ -67,6 +73,7 @@ const isAdded = useMemo(() => {
 ### 1. Исправлено кэширование в resources-provider.tsx
 
 **До:**
+
 ```typescript
 if (subtitleAddedCache.current[style.id]) {
   return subtitleAddedCache.current[style.id];
@@ -74,6 +81,7 @@ if (subtitleAddedCache.current[style.id]) {
 ```
 
 **После:**
+
 ```typescript
 if (subtitleAddedCache.current.hasOwnProperty(style.id)) {
   return subtitleAddedCache.current[style.id];
@@ -85,11 +93,13 @@ if (subtitleAddedCache.current.hasOwnProperty(style.id)) {
 #### SubtitlePreview
 
 **До:**
+
 ```typescript
 const isAdded = isSubtitleAdded(style);
 ```
 
 **После:**
+
 ```typescript
 const isAdded = useMemo(() => {
   // Проверяем только если текущая вкладка - subtitles
@@ -101,6 +111,7 @@ const isAdded = useMemo(() => {
 ```
 
 #### TransitionPreview
+
 ```typescript
 const isAdded = useMemo(() => {
   if (activeTab !== "transitions") {
@@ -111,6 +122,7 @@ const isAdded = useMemo(() => {
 ```
 
 #### EffectPreview
+
 ```typescript
 const isAdded = useMemo(() => {
   if (activeTab !== "effects") {
@@ -121,6 +133,7 @@ const isAdded = useMemo(() => {
 ```
 
 #### FilterPreview
+
 ```typescript
 const isAdded = useMemo(() => {
   if (activeTab !== "filters") {
@@ -131,6 +144,7 @@ const isAdded = useMemo(() => {
 ```
 
 #### TemplatePreview
+
 ```typescript
 const isAddedFromStore = useMemo(() => {
   if (activeTab !== "media") {
@@ -143,6 +157,7 @@ const isAddedFromStore = useMemo(() => {
 ### 3. Удалены избыточные логи
 
 Убраны логи из функций кэширования:
+
 - `isSubtitleAdded`
 - `isMusicFileAdded`
 - `isTemplateAdded`
@@ -152,18 +167,22 @@ const isAddedFromStore = useMemo(() => {
 ## 🚀 Результаты
 
 ### Производительность:
+
 - ❌ **Было**: Постоянные вычисления на всех вкладках
 - ✅ **Стало**: Вычисления только на активной вкладке
 
 ### Консоль:
+
 - ❌ **Было**: Бесконечные логи проверки isAdded
 - ✅ **Стало**: Чистая консоль без спама
 
 ### Кэширование:
+
 - ❌ **Было**: Кэш не работал для значений `false`
 - ✅ **Стало**: Корректное кэширование всех значений
 
 ### Пользовательский опыт:
+
 - ❌ **Было**: Лаги при переключении вкладок
 - ✅ **Стало**: Плавная работа интерфейса
 
@@ -177,10 +196,12 @@ const isAddedFromStore = useMemo(() => {
 ## 📊 Метрики улучшения
 
 ### Количество вызовов isAdded функций:
+
 - **До**: ~100-500 вызовов в секунду на каждой неактивной вкладке
 - **После**: 0 вызовов на неактивных вкладках
 
 ### Затронутые компоненты:
+
 - ✅ **SubtitlePreview** - проверка `isSubtitleAdded()`
 - ✅ **TransitionPreview** - проверка `isTransitionAdded()`
 - ✅ **EffectPreview** - проверка `isEffectAdded()`
@@ -188,10 +209,12 @@ const isAddedFromStore = useMemo(() => {
 - ✅ **TemplatePreview** - проверка `isTemplateAdded()`
 
 ### Логи в консоли:
+
 - **До**: Постоянный поток логов
 - **После**: Полное отсутствие спама
 
 ### Производительность:
+
 - **До**: Заметные лаги при переключении
 - **После**: Мгновенная реакция
 

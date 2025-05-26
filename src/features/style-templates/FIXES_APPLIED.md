@@ -3,33 +3,41 @@
 ## 🔧 КРИТИЧЕСКИЕ ИСПРАВЛЕНИЯ (Декабрь 2024)
 
 ### ✅ 1. Ошибка сортировки шаблонов
+
 **Проблема**: `a.name.localeCompare is not a function`
+
 - Поле `name` является объектом `{ ru: string, en: string }`, а не строкой
 - Код пытался вызвать `localeCompare()` напрямую на объекте
 
 **Файлы**: `src/features/style-templates/hooks/use-style-templates.ts`
 
 **Исправление**:
+
 ```typescript
 // Было:
 comparison = a.name.localeCompare(b.name);
 
 // Стало:
-const nameA = typeof a.name === 'string' ? a.name : (a.name?.ru || a.name?.en || "");
-const nameB = typeof b.name === 'string' ? b.name : (b.name?.ru || b.name?.en || "");
+const nameA =
+  typeof a.name === "string" ? a.name : a.name?.ru || a.name?.en || "";
+const nameB =
+  typeof b.name === "string" ? b.name : b.name?.ru || b.name?.en || "";
 comparison = nameA.localeCompare(nameB);
 ```
 
 ### ✅ 2. Tauri совместимость
+
 **Проблема**: `Cannot read properties of undefined (reading 'invoke')`
+
 - Хук `use-auto-load-user-data.ts` пытался использовать Tauri API в веб-браузере
 
 **Файлы**: `src/hooks/use-auto-load-user-data.ts`
 
 **Исправление**:
+
 ```typescript
 const isTauriEnvironment = () => {
-  return typeof window !== 'undefined' && '__TAURI__' in window;
+  return typeof window !== "undefined" && "__TAURI__" in window;
 };
 
 if (!isTauriEnvironment()) {
@@ -39,22 +47,27 @@ if (!isTauriEnvironment()) {
 ```
 
 ### ✅ 3. Структура данных JSON
+
 **Проблема**: Несоответствие структуры данных TypeScript типам
 
 **Файлы**: `src/features/style-templates/data/style-templates.json`
 
 **Исправления**:
+
 - Поле `name`: строка → объект с языками
 - Поле `tags`: массив → объект с языками
 
 ### ✅ 4. Отсутствующие папки
+
 **Проблема**: Ошибки "forbidden path" для несуществующих папок
 
 **Созданы папки**:
+
 - `public/effects/`, `public/transitions/`, `public/filters/`
 - `public/subtitles/`, `public/templates/`, `public/style-templates/`
 
 ### ✅ 5. Неправильные пути к демо-видео
+
 **Проблема**: Переходы использовали `./t1.mp4` вместо `/t1.mp4`
 
 **Файлы**: `src/features/transitions/components/transition-list.tsx`
@@ -62,11 +75,13 @@ if (!isTauriEnvironment()) {
 ---
 
 ## 🎯 Цель (Ранее)
+
 Завершить унификацию Style Templates с общей архитектурой браузера, добавив поддержку `ContentGroup` и избранного.
 
 ## ✅ Выполненные исправления (Ранее)
 
 ### 1. Заменена собственная группировка на ContentGroup
+
 ```typescript
 // ❌ Было - собственная реализация
 <div className="space-y-4">
@@ -117,6 +132,7 @@ if (!isTauriEnvironment()) {
 ```
 
 ### 2. Добавлена поддержка избранного
+
 ```typescript
 // ✅ Добавлен импорт useMedia
 import { useMedia } from "@/features/browser/media";
@@ -138,6 +154,7 @@ const matchesFavorites =
 ```
 
 ### 3. Добавлена кнопка избранного в превью
+
 ```typescript
 // ✅ Добавлен импорт FavoriteButton
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
@@ -152,30 +169,44 @@ import { FavoriteButton } from "@/features/browser/components/layout/favorite-bu
 ```
 
 ### 4. Улучшено сообщение об отсутствии результатов
+
 ```typescript
 // ❌ Было - только общее сообщение
-{t("styleTemplates.noResults", "Шаблоны не найдены")}
+{
+  t("styleTemplates.noResults", "Шаблоны не найдены");
+}
 
 // ✅ Стало - учитывает режим избранного
-{showFavoritesOnly
-  ? t("browser.media.noFavorites")
-  : t("common.noResults")}
+{
+  showFavoritesOnly ? t("browser.media.noFavorites") : t("common.noResults");
+}
 ```
 
 ### 5. Убрана неиспользуемая переменная
+
 ```typescript
 // ❌ Было - неиспользуемая переменная
 const { aspectRatio, height } = useMemo(() => {
-  const ratio = template.aspectRatio === "9:16" ? 16/9 : template.aspectRatio === "1:1" ? 1 : 9/16;
+  const ratio =
+    template.aspectRatio === "9:16"
+      ? 16 / 9
+      : template.aspectRatio === "1:1"
+        ? 1
+        : 9 / 16;
   return {
     aspectRatio: ratio, // ← не использовалась
-    height: size / ratio
+    height: size / ratio,
   };
 }, [template.aspectRatio, size]);
 
 // ✅ Стало - только нужная переменная
 const height = useMemo(() => {
-  const ratio = template.aspectRatio === "9:16" ? 16/9 : template.aspectRatio === "1:1" ? 1 : 9/16;
+  const ratio =
+    template.aspectRatio === "9:16"
+      ? 16 / 9
+      : template.aspectRatio === "1:1"
+        ? 1
+        : 9 / 16;
   return size / ratio;
 }, [template.aspectRatio, size]);
 ```
@@ -183,6 +214,7 @@ const height = useMemo(() => {
 ## 🔍 Что уже работало правильно
 
 ### ✅ Уже было интегрировано:
+
 1. **Общий тулбар** - использовал `useBrowserState()`
 2. **JSON данные** - загружались через `useStyleTemplates()`
 3. **Фильтрация и сортировка** - полная поддержка всех опций
@@ -191,6 +223,7 @@ const height = useMemo(() => {
 6. **Превью изображений** - с поддержкой разных соотношений сторон
 
 ### ⚠️ Специфика Style Templates
+
 - Превью изображений вместо видео
 - Сложная фильтрация по категориям и стилям
 - Поддержка разных соотношений сторон (16:9, 9:16, 1:1)
@@ -200,6 +233,7 @@ const height = useMemo(() => {
 ## 📊 Результат
 
 ### До исправлений:
+
 - ✅ Интеграция с `useBrowserState()` - уже работала
 - ✅ JSON данные - уже работали
 - ✅ Фильтрация и сортировка - уже работали
@@ -207,6 +241,7 @@ const height = useMemo(() => {
 - ❌ НЕ поддерживал избранное
 
 ### После исправлений:
+
 - ✅ Полная интеграция с `useBrowserState()`
 - ✅ JSON данные через хуки
 - ✅ Использует общий `ContentGroup`
@@ -243,6 +278,7 @@ const height = useMemo(() => {
 **ВСЕ 8 ВКЛАДОК** теперь полностью унифицированы! 🚀
 
 ### 🏆 Итоговая таблица:
+
 - **Media** ✅ - эталон для файлов
 - **Music** ✅ - эталон для аудио
 - **Effects** ✅ - эталон для JSON данных
@@ -253,7 +289,9 @@ const height = useMemo(() => {
 - **Style Templates** ✅ - **ИСПРАВЛЕНО**
 
 ### 🎯 Единая архитектура:
+
 **ВСЕ ВКЛАДКИ** теперь используют:
+
 - ✅ Общий `useBrowserState()` для состояния
 - ✅ Общий тулбар через MediaToolbar
 - ✅ Общий `ContentGroup` для группировки (7 из 8)

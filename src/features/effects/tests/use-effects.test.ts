@@ -4,7 +4,9 @@ import { describe, expect, it } from "vitest";
 describe("Effects Module", () => {
   it("should import effects hooks without errors", async () => {
     // Проверяем, что модули импортируются без ошибок
-    const { useEffects, useEffectById, useEffectsByCategory } = await import("../hooks/use-effects");
+    const { useEffects, useEffectById, useEffectsByCategory } = await import(
+      "../hooks/use-effects"
+    );
 
     expect(useEffects).toBeDefined();
     expect(typeof useEffects).toBe("function");
@@ -18,7 +20,9 @@ describe("Effects Module", () => {
 
   it("should import effects utilities without errors", async () => {
     // Проверяем, что утилиты импортируются
-    const { generateCSSFilterForEffect, getPlaybackRate } = await import("../utils/css-effects");
+    const { generateCSSFilterForEffect, getPlaybackRate } = await import(
+      "../utils/css-effects"
+    );
 
     expect(generateCSSFilterForEffect).toBeDefined();
     expect(typeof generateCSSFilterForEffect).toBe("function");
@@ -36,7 +40,7 @@ describe("Effects Module", () => {
       "motion",
       "distortion",
       "noise",
-      "other"
+      "other",
     ];
 
     const validComplexities = ["basic", "intermediate", "advanced"];

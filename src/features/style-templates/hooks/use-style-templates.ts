@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { StyleTemplate, StyleTemplateFilter, StyleTemplateSortBy, StyleTemplateSortOrder } from "../types";
+import {
+  StyleTemplate,
+  StyleTemplateFilter,
+  StyleTemplateSortBy,
+  StyleTemplateSortOrder,
+} from "../types";
 
 interface UseStyleTemplatesReturn {
   templates: StyleTemplate[];
@@ -8,7 +13,10 @@ interface UseStyleTemplatesReturn {
   error: string | null;
   filteredTemplates: StyleTemplate[];
   setFilter: (filter: StyleTemplateFilter) => void;
-  setSorting: (sortBy: StyleTemplateSortBy, order: StyleTemplateSortOrder) => void;
+  setSorting: (
+    sortBy: StyleTemplateSortBy,
+    order: StyleTemplateSortOrder,
+  ) => void;
   getTemplateById: (id: string) => StyleTemplate | undefined;
   getTemplatesByCategory: (category: string) => StyleTemplate[];
 }
@@ -34,16 +42,25 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
 
         // Современный подход с динамическим импортом
         try {
-          const { default: data } = await import("../data/style-templates.json");
+          const { default: data } = await import(
+            "../data/style-templates.json"
+          );
 
           if (!data.templates || !Array.isArray(data.templates)) {
             throw new Error("Неверная структура данных шаблонов");
           }
 
-          console.log("✅ Загружено", data.templates.length, "стильных шаблонов из JSON");
+          console.log(
+            "✅ Загружено",
+            data.templates.length,
+            "стильных шаблонов из JSON",
+          );
           setTemplates(data.templates as unknown as StyleTemplate[]);
         } catch (importError) {
-          console.warn("Не удалось загрузить JSON файл, используем тестовые данные:", importError);
+          console.warn(
+            "Не удалось загрузить JSON файл, используем тестовые данные:",
+            importError,
+          );
 
           // Fallback: тестовые данные
           const testTemplates: StyleTemplate[] = [
@@ -51,7 +68,7 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
               id: "modern-intro-1",
               name: {
                 ru: "Современное интро",
-                en: "Modern Intro"
+                en: "Modern Intro",
               },
               category: "intro",
               style: "modern",
@@ -63,19 +80,19 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
               previewVideo: undefined,
               tags: {
                 ru: ["интро", "современный", "текст", "анимация"],
-                en: ["intro", "modern", "text", "animation"]
+                en: ["intro", "modern", "text", "animation"],
               },
               description: {
                 ru: "Современное интро с анимированным текстом",
-                en: "Modern intro with animated text"
+                en: "Modern intro with animated text",
               },
-              elements: []
+              elements: [],
             },
             {
               id: "minimal-outro-1",
               name: {
                 ru: "Минималистичная концовка",
-                en: "Minimal Outro"
+                en: "Minimal Outro",
               },
               category: "outro",
               style: "minimal",
@@ -87,19 +104,19 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
               previewVideo: undefined,
               tags: {
                 ru: ["концовка", "минимализм", "чистый", "простой"],
-                en: ["outro", "minimal", "clean", "simple"]
+                en: ["outro", "minimal", "clean", "simple"],
               },
               description: {
                 ru: "Минималистичная концовка с простой анимацией",
-                en: "Minimalist outro with simple animation"
+                en: "Minimalist outro with simple animation",
               },
-              elements: []
+              elements: [],
             },
             {
               id: "corporate-lower-third-1",
               name: {
                 ru: "Корпоративная нижняя треть",
-                en: "Corporate Lower Third"
+                en: "Corporate Lower Third",
               },
               category: "lower-third",
               style: "corporate",
@@ -110,17 +127,21 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
               thumbnail: undefined,
               tags: {
                 ru: ["нижняя треть", "корпоративный", "профессиональный"],
-                en: ["lower-third", "corporate", "professional"]
+                en: ["lower-third", "corporate", "professional"],
               },
               description: {
                 ru: "Профессиональная нижняя треть для корпоративных видео",
-                en: "Professional lower third for corporate videos"
+                en: "Professional lower third for corporate videos",
               },
-              elements: []
-            }
+              elements: [],
+            },
           ];
 
-          console.log("✅ Загружено", testTemplates.length, "тестовых стильных шаблонов");
+          console.log(
+            "✅ Загружено",
+            testTemplates.length,
+            "тестовых стильных шаблонов",
+          );
           setTemplates(testTemplates);
         }
       } catch (err) {
@@ -135,81 +156,101 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
   }, []);
 
   // Фильтрация шаблонов
-  const filteredTemplates = templates.filter((template) => {
-    // Фильтр по категории
-    if (filter.category && template.category !== filter.category) {
-      return false;
-    }
-
-    // Фильтр по стилю
-    if (filter.style && template.style !== filter.style) {
-      return false;
-    }
-
-    // Фильтр по соотношению сторон
-    if (filter.aspectRatio && template.aspectRatio !== filter.aspectRatio) {
-      return false;
-    }
-
-    // Фильтр по наличию текста
-    if (filter.hasText !== undefined && template.hasText !== filter.hasText) {
-      return false;
-    }
-
-    // Фильтр по наличию анимации
-    if (filter.hasAnimation !== undefined && template.hasAnimation !== filter.hasAnimation) {
-      return false;
-    }
-
-    // Фильтр по длительности
-    if (filter.duration) {
-      if (filter.duration.min !== undefined && template.duration < filter.duration.min) {
+  const filteredTemplates = templates
+    .filter((template) => {
+      // Фильтр по категории
+      if (filter.category && template.category !== filter.category) {
         return false;
       }
-      if (filter.duration.max !== undefined && template.duration > filter.duration.max) {
+
+      // Фильтр по стилю
+      if (filter.style && template.style !== filter.style) {
         return false;
       }
-    }
 
-    return true;
-  }).sort((a, b) => {
-    let comparison = 0;
+      // Фильтр по соотношению сторон
+      if (filter.aspectRatio && template.aspectRatio !== filter.aspectRatio) {
+        return false;
+      }
 
-    switch (sortBy) {
-      case "name":
-        // Обрабатываем name как объект с языками
-        const nameA = typeof a.name === 'string' ? a.name : (a.name?.ru || a.name?.en || "");
-        const nameB = typeof b.name === 'string' ? b.name : (b.name?.ru || b.name?.en || "");
-        comparison = nameA.localeCompare(nameB);
-        break;
-      case "duration":
-        comparison = a.duration - b.duration;
-        break;
-      case "category":
-        comparison = a.category.localeCompare(b.category);
-        break;
-      case "style":
-        comparison = a.style.localeCompare(b.style);
-        break;
-      default:
-        comparison = 0;
-    }
+      // Фильтр по наличию текста
+      if (filter.hasText !== undefined && template.hasText !== filter.hasText) {
+        return false;
+      }
 
-    return sortOrder === "asc" ? comparison : -comparison;
-  });
+      // Фильтр по наличию анимации
+      if (
+        filter.hasAnimation !== undefined &&
+        template.hasAnimation !== filter.hasAnimation
+      ) {
+        return false;
+      }
+
+      // Фильтр по длительности
+      if (filter.duration) {
+        if (
+          filter.duration.min !== undefined &&
+          template.duration < filter.duration.min
+        ) {
+          return false;
+        }
+        if (
+          filter.duration.max !== undefined &&
+          template.duration > filter.duration.max
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case "name":
+          // Обрабатываем name как объект с языками
+          const nameA =
+            typeof a.name === "string"
+              ? a.name
+              : a.name?.ru || a.name?.en || "";
+          const nameB =
+            typeof b.name === "string"
+              ? b.name
+              : b.name?.ru || b.name?.en || "";
+          comparison = nameA.localeCompare(nameB);
+          break;
+        case "duration":
+          comparison = a.duration - b.duration;
+          break;
+        case "category":
+          comparison = a.category.localeCompare(b.category);
+          break;
+        case "style":
+          comparison = a.style.localeCompare(b.style);
+          break;
+        default:
+          comparison = 0;
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
 
   // Получение шаблона по ID
   const getTemplateById = (id: string): StyleTemplate | undefined => {
-    return templates.find(template => template.id === id);
+    return templates.find((template) => template.id === id);
   };
 
   // Получение шаблонов по категории
   const getTemplatesByCategory = (category: string): StyleTemplate[] => {
-    return templates.filter(template => template.category === category);
+    return templates.filter((template) => template.category === category);
   };
 
   // Функция для установки сортировки
-  const setSorting = (newSortBy: StyleTemplateSortBy, newSortOrder: StyleTemplateSortOrder) => {
+  const setSorting = (
+    newSortBy: StyleTemplateSortBy,
+    newSortOrder: StyleTemplateSortOrder,
+  ) => {
     setSortBy(newSortBy);
     setSortOrder(newSortOrder);
   };

@@ -22,24 +22,18 @@ vi.mock("@/features/app-state/app-settings-provider", () => ({
   ),
 }));
 
-vi.mock(
-  "@/features/project-settings",
-  () => ({
-    ProjectSettingsProvider: ({ children }: { children: React.ReactNode }) => (
-      <div data-testid="project-settings-provider">{children}</div>
-    ),
-  }),
-);
+vi.mock("@/features/project-settings", () => ({
+  ProjectSettingsProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="project-settings-provider">{children}</div>
+  ),
+}));
 
 // Добавляем моки для остальных провайдеров
-vi.mock(
-  "@/features/user-settings",
-  () => ({
-    UserSettingsProvider: ({ children }: { children: React.ReactNode }) => (
-      <div data-testid="user-settings-provider">{children}</div>
-    ),
-  }),
-);
+vi.mock("@/features/user-settings", () => ({
+  UserSettingsProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="user-settings-provider">{children}</div>
+  ),
+}));
 
 vi.mock("@/features/resources/resources-provider", () => ({
   ResourcesProvider: ({ children }: { children: React.ReactNode }) => (

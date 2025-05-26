@@ -2,7 +2,6 @@ import { useCallback, useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
-
 import { useResources } from "@/features/resources";
 import { SubtitleResource } from "@/types/resources";
 import { SubtitleStyle } from "@/types/subtitles";
@@ -55,10 +54,14 @@ export function SubtitlePreview({
   const getComplexityColor = useMemo(() => {
     return (complexity: string) => {
       switch (complexity) {
-        case "basic": return "bg-green-500";
-        case "intermediate": return "bg-yellow-500";
-        case "advanced": return "bg-red-500";
-        default: return "bg-gray-500";
+        case "basic":
+          return "bg-green-500";
+        case "intermediate":
+          return "bg-yellow-500";
+        case "advanced":
+          return "bg-red-500";
+        default:
+          return "bg-gray-500";
       }
     };
   }, []);
@@ -66,13 +69,20 @@ export function SubtitlePreview({
   const getCategoryAbbreviation = useMemo(() => {
     return (category: string) => {
       switch (category) {
-        case "basic": return "BAS";
-        case "cinematic": return "CIN";
-        case "stylized": return "STY";
-        case "minimal": return "MIN";
-        case "animated": return "ANI";
-        case "modern": return "MOD";
-        default: return "SUB";
+        case "basic":
+          return "BAS";
+        case "cinematic":
+          return "CIN";
+        case "stylized":
+          return "STY";
+        case "minimal":
+          return "MIN";
+        case "animated":
+          return "ANI";
+        case "modern":
+          return "MOD";
+        default:
+          return "SUB";
       }
     };
   }, []);
@@ -82,38 +92,47 @@ export function SubtitlePreview({
     return {
       ...cssStyle,
       // Адаптируем размер шрифта под размер превью
-      fontSize: cssStyle.fontSize ?
-        `${Math.min(parseInt(cssStyle.fontSize.toString()) * (previewWidth / 200), parseInt(cssStyle.fontSize.toString()))}px` :
-        `${Math.max(12, previewWidth / 10)}px`
+      fontSize: cssStyle.fontSize
+        ? `${Math.min(parseInt(cssStyle.fontSize.toString()) * (previewWidth / 200), parseInt(cssStyle.fontSize.toString()))}px`
+        : `${Math.max(12, previewWidth / 10)}px`,
     };
   }, [cssStyle, previewWidth]);
 
   // Мемоизируем объекты для кнопок
-  const fileObject = useMemo(() => ({
-    id: style.id,
-    path: "",
-    name: style.name
-  }), [style.id, style.name]);
+  const fileObject = useMemo(
+    () => ({
+      id: style.id,
+      path: "",
+      name: style.name,
+    }),
+    [style.id, style.name],
+  );
 
   // Мемоизируем обработчики событий
-  const handleAddMedia = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    addSubtitle(style);
-  }, [addSubtitle, style]);
+  const handleAddMedia = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      addSubtitle(style);
+    },
+    [addSubtitle, style],
+  );
 
-  const handleRemoveMedia = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    const resource = subtitleResources.find(
-      (res: SubtitleResource) => res.resourceId === style.id,
-    );
-    if (resource) {
-      removeResource(resource.id);
-    } else {
-      console.warn(
-        `Не удалось найти ресурс стиля субтитров с ID ${style.id} для удаления`,
+  const handleRemoveMedia = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const resource = subtitleResources.find(
+        (res: SubtitleResource) => res.resourceId === style.id,
       );
-    }
-  }, [removeResource, subtitleResources, style.id]);
+      if (resource) {
+        removeResource(resource.id);
+      } else {
+        console.warn(
+          `Не удалось найти ресурс стиля субтитров с ID ${style.id} для удаления`,
+        );
+      }
+    },
+    [removeResource, subtitleResources, style.id],
+  );
 
   return (
     <div className="flex flex-col items-center">
@@ -151,11 +170,7 @@ export function SubtitlePreview({
         </div>
 
         {/* Кнопка добавления в избранное */}
-        <FavoriteButton
-          file={fileObject}
-          size={size}
-          type="subtitle"
-        />
+        <FavoriteButton file={fileObject} size={size} type="subtitle" />
 
         {/* Кнопка добавления стиля в проект */}
         <div
