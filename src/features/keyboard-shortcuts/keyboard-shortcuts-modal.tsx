@@ -423,7 +423,6 @@ export function KeyboardShortcutsModal() {
       <div className="flex-shrink-0 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex w-1/2 items-center space-x-2">
-            {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
             <label className="text-sm whitespace-nowrap">
               {t("dialogs.keyboardShortcuts.switchPreset", "Переключиться на другую предустановку ярлыков:")}
             </label>

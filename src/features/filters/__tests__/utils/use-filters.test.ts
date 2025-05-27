@@ -25,7 +25,7 @@ describe("Filters Module", () => {
   it("should import filters data without errors", async () => {
     // Проверяем, что JSON данные импортируются
     try {
-      const filtersData = await import("../../../../data/filters.json")
+      const filtersData = await import("../../data/filters.json")
       expect(filtersData).toBeDefined()
       expect(filtersData.default).toBeDefined()
 

@@ -19,7 +19,7 @@ describe("Transitions Module", () => {
   it("should import transitions data without errors", async () => {
     // Проверяем, что JSON данные импортируются
     try {
-      const transitionsData = await import("../../../../data/transitions.json")
+      const transitionsData = await import("../../data/transitions.json")
       expect(transitionsData).toBeDefined()
       expect(transitionsData.default).toBeDefined()
 

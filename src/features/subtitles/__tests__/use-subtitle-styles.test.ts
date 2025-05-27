@@ -25,7 +25,7 @@ describe("Subtitle Styles Module", () => {
   it("should import subtitle styles data without errors", async () => {
     // Проверяем, что JSON данные импортируются
     try {
-      const subtitleStylesData = await import("../../../data/subtitle-styles.json")
+      const subtitleStylesData = await import("../data/subtitle-styles.json")
       expect(subtitleStylesData).toBeDefined()
       expect(subtitleStylesData.default).toBeDefined()
 

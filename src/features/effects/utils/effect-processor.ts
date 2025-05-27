@@ -73,7 +73,7 @@ export function validateEffect(effect: any): effect is RawEffectData {
 
   const requiredFields = ["id", "name", "type", "category", "complexity", "description", "ffmpegCommand", "labels"]
 
-  return requiredFields.every((field) => field in effect)
+  return requiredFields.every((field) => field in effect && effect[field] !== undefined)
 }
 
 /**

@@ -137,7 +137,8 @@ describe("filter-processor", () => {
     })
 
     it("should reject filter missing required fields", () => {
-      const invalidFilter = ({ ...mockRawFilter }(invalidFilter as any).id = undefined)
+      const invalidFilter = { ...mockRawFilter }
+      ;(invalidFilter as any).id = undefined
 
       const invalidData = {
         filters: [invalidFilter],
@@ -148,7 +149,8 @@ describe("filter-processor", () => {
     })
 
     it("should reject filter missing name", () => {
-      const invalidFilter = ({ ...mockRawFilter }(invalidFilter as any).name = undefined)
+      const invalidFilter = { ...mockRawFilter }
+      ;(invalidFilter as any).name = undefined
 
       const invalidData = {
         filters: [invalidFilter],
@@ -159,7 +161,8 @@ describe("filter-processor", () => {
     })
 
     it("should reject filter missing description", () => {
-      const invalidFilter = ({ ...mockRawFilter }(invalidFilter as any).description = undefined)
+      const invalidFilter = { ...mockRawFilter }
+      ;(invalidFilter as any).description = undefined
 
       const invalidData = {
         filters: [invalidFilter],
@@ -170,7 +173,8 @@ describe("filter-processor", () => {
     })
 
     it("should reject filter missing labels", () => {
-      const invalidFilter = ({ ...mockRawFilter }(invalidFilter as any).labels = undefined)
+      const invalidFilter = { ...mockRawFilter }
+      ;(invalidFilter as any).labels = undefined
 
       const invalidData = {
         filters: [invalidFilter],

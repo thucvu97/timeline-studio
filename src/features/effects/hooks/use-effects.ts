@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { VideoEffect } from "@/types/effects"
 
-import effectsData from "../../../data/effects.json"
+import effectsData from "../data/effects.json"
 import { createFallbackEffect, processEffects, validateEffectsData } from "../utils/effect-processor"
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
 

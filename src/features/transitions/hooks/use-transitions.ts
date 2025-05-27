@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { Transition } from "@/types/transitions"
 
-import transitionsData from "../../../data/transitions.json"
+import transitionsData from "../data/transitions.json"
 import { createFallbackTransition, processTransitions, validateTransitionsData } from "../utils/transition-processor"
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
 
