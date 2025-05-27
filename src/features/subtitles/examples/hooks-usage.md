@@ -91,7 +91,7 @@ function StyleSearch() {
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Поиск стилей..."
       />
-      
+
       <div>
         Найдено: {results.length} стилей
         {results.map(style => (
@@ -156,7 +156,7 @@ function StylePreview({ style }: { style: SubtitleStyle }) {
 
   return (
     <div className="preview-container">
-      <div 
+      <div
         className="subtitle-preview"
         style={cssStyle}
       >
@@ -196,19 +196,19 @@ function StyleGenerator({ style }: { style: SubtitleStyle }) {
 ```typescript
 import { getSubtitleAnimation, subtitleAnimations } from '@/features/subtitles/utils/css-styles';
 
-function AnimatedSubtitle({ text, animationType }: { 
-  text: string; 
-  animationType: keyof typeof subtitleAnimations 
+function AnimatedSubtitle({ text, animationType }: {
+  text: string;
+  animationType: keyof typeof subtitleAnimations
 }) {
   const animationCSS = getSubtitleAnimation(animationType);
 
   return (
     <div>
       <style>{animationCSS}</style>
-      <div 
+      <div
         className="animated-subtitle"
-        style={{ 
-          animation: `${animationType} 2s ease-in-out infinite` 
+        style={{
+          animation: `${animationType} 2s ease-in-out infinite`
         }}
       >
         {text}
@@ -223,21 +223,21 @@ function AnimatedSubtitle({ text, animationType }: {
 ```typescript
 import { useState } from 'react';
 import { useSubtitleStyles, useSubtitleStylesSearch } from '@/features/subtitles';
-import { SubtitleCategory } from '@/types/subtitles';
+import { SubtitleCategory } from '@/features/subtitles/types';
 
 function AdvancedStyleBrowser() {
   const { styles, loading, error } = useSubtitleStyles();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<SubtitleCategory | 'all'>('all');
-  
+
   // Фильтрация по категории
-  const categoryFiltered = selectedCategory === 'all' 
-    ? styles 
+  const categoryFiltered = selectedCategory === 'all'
+    ? styles
     : styles.filter(s => s.category === selectedCategory);
-  
+
   // Поиск в отфильтрованных результатах
   const searchResults = useSubtitleStylesSearch(searchQuery, 'ru');
-  const finalResults = searchQuery 
+  const finalResults = searchQuery
     ? searchResults.filter(s => selectedCategory === 'all' || s.category === selectedCategory)
     : categoryFiltered;
 
@@ -253,10 +253,10 @@ function AdvancedStyleBrowser() {
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Поиск стилей..."
       />
-      
+
       {/* Фильтр по категории */}
-      <select 
-        value={selectedCategory} 
+      <select
+        value={selectedCategory}
         onChange={(e) => setSelectedCategory(e.target.value as SubtitleCategory | 'all')}
       >
         <option value="all">Все категории</option>
@@ -267,7 +267,7 @@ function AdvancedStyleBrowser() {
         <option value="animated">Анимированные</option>
         <option value="modern">Современные</option>
       </select>
-      
+
       {/* Результаты */}
       <div>
         Найдено: {finalResults.length} стилей

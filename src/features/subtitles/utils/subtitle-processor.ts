@@ -1,4 +1,4 @@
-import { SubtitleStyle } from "@/types/subtitles";
+import { SubtitleStyle } from "../types/subtitles";
 
 /**
  * Интерфейс для сырых данных стиля субтитров из JSON

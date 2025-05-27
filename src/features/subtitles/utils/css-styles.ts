@@ -1,4 +1,4 @@
-import { SubtitleStyle } from "@/types/subtitles";
+import { SubtitleStyle } from "../types/subtitles";
 
 /**
  * Интерфейс для CSS стилей субтитров
@@ -46,8 +46,8 @@ export function subtitleStyleToCSS(style: SubtitleStyle): React.CSSProperties {
   // Эффекты текста
   if (style.style.textShadow) cssStyle.textShadow = style.style.textShadow;
   if (style.style.letterSpacing) {
-    cssStyle.letterSpacing = typeof style.style.letterSpacing === 'number' 
-      ? `${style.style.letterSpacing}px` 
+    cssStyle.letterSpacing = typeof style.style.letterSpacing === 'number'
+      ? `${style.style.letterSpacing}px`
       : style.style.letterSpacing;
   }
   if (style.style.lineHeight) cssStyle.lineHeight = style.style.lineHeight;
@@ -56,13 +56,13 @@ export function subtitleStyleToCSS(style: SubtitleStyle): React.CSSProperties {
 
   // Отступы и границы
   if (style.style.padding) {
-    cssStyle.padding = typeof style.style.padding === 'number' 
-      ? `${style.style.padding}px` 
+    cssStyle.padding = typeof style.style.padding === 'number'
+      ? `${style.style.padding}px`
       : style.style.padding;
   }
   if (style.style.borderRadius) {
-    cssStyle.borderRadius = typeof style.style.borderRadius === 'number' 
-      ? `${style.style.borderRadius}px` 
+    cssStyle.borderRadius = typeof style.style.borderRadius === 'number'
+      ? `${style.style.borderRadius}px`
       : style.style.borderRadius;
   }
   if (style.style.border) cssStyle.border = style.style.border;
@@ -94,7 +94,7 @@ export function subtitleStyleToCSS(style: SubtitleStyle): React.CSSProperties {
  */
 export function applySubtitleStyle(element: HTMLElement, style: SubtitleStyle): void {
   const cssStyle = subtitleStyleToCSS(style);
-  
+
   Object.entries(cssStyle).forEach(([property, value]) => {
     if (value !== undefined) {
       (element.style as any)[property] = value;
@@ -128,7 +128,7 @@ export function resetSubtitleStyle(element: HTMLElement): void {
  */
 export function generateSubtitleCSS(style: SubtitleStyle): string {
   const cssStyle = subtitleStyleToCSS(style);
-  
+
   const cssRules = Object.entries(cssStyle)
     .filter(([, value]) => value !== undefined)
     .map(([property, value]) => {
@@ -159,47 +159,47 @@ export const subtitleAnimations = {
   `,
   slideInFromBottom: `
     @keyframes slideInFromBottom {
-      from { 
-        transform: translateY(100%); 
-        opacity: 0; 
+      from {
+        transform: translateY(100%);
+        opacity: 0;
       }
-      to { 
-        transform: translateY(0); 
-        opacity: 1; 
+      to {
+        transform: translateY(0);
+        opacity: 1;
       }
     }
   `,
   slideInFromTop: `
     @keyframes slideInFromTop {
-      from { 
-        transform: translateY(-100%); 
-        opacity: 0; 
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
       }
-      to { 
-        transform: translateY(0); 
-        opacity: 1; 
+      to {
+        transform: translateY(0);
+        opacity: 1;
       }
     }
   `,
   scaleIn: `
     @keyframes scaleIn {
-      from { 
-        transform: scale(0); 
-        opacity: 0; 
+      from {
+        transform: scale(0);
+        opacity: 0;
       }
-      to { 
-        transform: scale(1); 
-        opacity: 1; 
+      to {
+        transform: scale(1);
+        opacity: 1;
       }
     }
   `,
   glow: `
     @keyframes glow {
-      0%, 100% { 
-        text-shadow: 0 0 5px currentColor; 
+      0%, 100% {
+        text-shadow: 0 0 5px currentColor;
       }
-      50% { 
-        text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; 
+      50% {
+        text-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
       }
     }
   `
@@ -224,11 +224,11 @@ export function validateSubtitleStyle(style: CSSSubtitleStyle): boolean {
   if (style.fontSize && typeof style.fontSize === 'number' && style.fontSize <= 0) {
     return false;
   }
-  
+
   if (style.opacity !== undefined && (style.opacity < 0 || style.opacity > 1)) {
     return false;
   }
-  
+
   if (style.lineHeight && typeof style.lineHeight === 'number' && style.lineHeight <= 0) {
     return false;
   }
@@ -237,7 +237,7 @@ export function validateSubtitleStyle(style: CSSSubtitleStyle): boolean {
   if (style.color && !isValidColor(style.color)) {
     return false;
   }
-  
+
   if (style.backgroundColor && !isValidColor(style.backgroundColor)) {
     return false;
   }
@@ -263,12 +263,12 @@ function isValidColor(color: string): boolean {
  */
 export function createSubtitleCSSVariables(style: SubtitleStyle): Record<string, string> {
   const variables: Record<string, string> = {};
-  
+
   if (style.style.color) variables['--subtitle-color'] = style.style.color;
   if (style.style.backgroundColor) variables['--subtitle-bg-color'] = style.style.backgroundColor;
   if (style.style.fontSize) variables['--subtitle-font-size'] = `${style.style.fontSize}px`;
   if (style.style.fontFamily) variables['--subtitle-font-family'] = style.style.fontFamily;
   if (style.style.textShadow) variables['--subtitle-text-shadow'] = style.style.textShadow;
-  
+
   return variables;
 }

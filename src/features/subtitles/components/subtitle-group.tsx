@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 
-import { SubtitleStyle } from "@/types/subtitles";
-
 import { SubtitlePreview } from "./subtitle-preview";
+import { SubtitleStyle } from "../types/subtitles";
+
 
 interface SubtitleGroupProps {
   title: string;

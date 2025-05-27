@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next";
 
 import { useResources } from "@/features/resources";
 import { SubtitleResource } from "@/types/resources";
-import { SubtitleStyle } from "@/types/subtitles";
+
 
 import { AddMediaButton } from "../../browser/components/layout/add-media-button";
 import { FavoriteButton } from "../../browser/components/layout/favorite-button";
+import { SubtitleStyle } from "../types/subtitles";
 import { subtitleStyleToCSS } from "../utils/css-styles";
 
 /**

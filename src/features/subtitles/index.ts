@@ -1,3 +1,6 @@
+// Типы
+export * from "./types";
+
 // Компоненты
 export * from "./components/subtitle-list";
 export * from "./components/subtitle-group";

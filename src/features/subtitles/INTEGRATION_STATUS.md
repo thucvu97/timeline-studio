@@ -5,7 +5,7 @@
 ### 1. Структура данных
 - ✅ `src/data/subtitle-styles.json` - 12 профессиональных субтитров
 - ✅ `src/data/subtitle-categories.json` - 6 категорий с переводами
-- ✅ `src/types/subtitles.ts` - полная типизация TypeScript
+- ✅ `src/features/subtitles/types/subtitles.ts` - полная типизация TypeScript
 
 ### 2. Компоненты
 - ✅ `SubtitleList` - основной список субтитров
