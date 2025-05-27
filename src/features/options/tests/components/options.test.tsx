@@ -52,7 +52,9 @@ vi.mock("@/components/ui/tabs", () => ({
     </div>
   ),
   TabsList: ({ children, ...props }: any) => (
-    <div data-testid="options-tabs-list" {...props}>{children}</div>
+    <div data-testid="options-tabs-list" {...props}>
+      {children}
+    </div>
   ),
   TabsTrigger: ({ children, value, onClick, ...props }: any) => (
     <button

@@ -24,10 +24,13 @@ export interface OptionsProps {
   onMediaFileSelect?: (file: MediaFile) => void;
 }
 
-export function Options({ selectedMediaFile, onMediaFileSelect }: OptionsProps) {
+export function Options({
+  selectedMediaFile,
+  onMediaFileSelect,
+}: OptionsProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<OptionsTab>(
-    selectedMediaFile ? "info" : "video"
+    selectedMediaFile ? "info" : "video",
   );
 
   // Автоматически переключаемся на вкладку "info" при выборе медиафайла
@@ -60,7 +63,10 @@ export function Options({ selectedMediaFile, onMediaFileSelect }: OptionsProps) 
         data-testid="options-tabs"
       >
         {/* Вкладки */}
-        <TabsList className="grid w-full grid-cols-4" data-testid="options-tabs-list">
+        <TabsList
+          className="grid w-full grid-cols-4"
+          data-testid="options-tabs-list"
+        >
           {TABS.map((tab) => (
             <TabsTrigger
               key={tab.id}

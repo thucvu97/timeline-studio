@@ -53,7 +53,9 @@ export function AudioSettings() {
 
         {/* Частота дискретизации */}
         <div className="space-y-2">
-          <Label>{t("options.audio.sampleRate", "Частота дискретизации")}</Label>
+          <Label>
+            {t("options.audio.sampleRate", "Частота дискретизации")}
+          </Label>
           <Select defaultValue="48000">
             <SelectTrigger>
               <SelectValue />
@@ -110,14 +112,11 @@ export function AudioSettings() {
 
         {/* Громкость по умолчанию */}
         <div className="space-y-4">
-          <Label>{t("options.audio.defaultVolume", "Громкость по умолчанию")}</Label>
+          <Label>
+            {t("options.audio.defaultVolume", "Громкость по умолчанию")}
+          </Label>
           <div className="space-y-2">
-            <Slider
-              defaultValue={[75]}
-              max={100}
-              step={1}
-              className="w-full"
-            />
+            <Slider defaultValue={[75]} max={100} step={1} className="w-full" />
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>0%</span>
               <span>75%</span>
@@ -155,7 +154,13 @@ export function AudioSettings() {
 
           <div className="space-y-2">
             <Label>{t("options.audio.bufferSize", "Размер буфера (мс)")}</Label>
-            <Input type="number" defaultValue="512" min="128" max="2048" step="128" />
+            <Input
+              type="number"
+              defaultValue="512"
+              min="128"
+              max="2048"
+              step="128"
+            />
           </div>
 
           <div className="space-y-2">
@@ -168,12 +173,8 @@ export function AudioSettings() {
 
         {/* Кнопки действий */}
         <div className="flex gap-2">
-          <Button variant="outline">
-            {t("common.reset", "Сбросить")}
-          </Button>
-          <Button>
-            {t("common.apply", "Применить")}
-          </Button>
+          <Button variant="outline">{t("common.reset", "Сбросить")}</Button>
+          <Button>{t("common.apply", "Применить")}</Button>
         </div>
       </div>
     </div>

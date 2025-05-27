@@ -70,9 +70,9 @@ function formatDuration(seconds: number): string {
   const secs = seconds % 60;
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
-  return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
 
 function formatBitrate(bitrate: number): string {
@@ -94,13 +94,20 @@ export function MediaInfo({ selectedMediaFile }: MediaInfoProps) {
   // Конвертируем MediaFile в MediaFileInfo
   const convertMediaFileToInfo = (mediaFile: MediaFile): MediaFileInfo => {
     // Извлекаем данные из probeData если доступны
-    const videoStream = mediaFile.probeData?.streams?.find(s => s.codec_type === "video");
-    const audioStream = mediaFile.probeData?.streams?.find(s => s.codec_type === "audio");
+    const videoStream = mediaFile.probeData?.streams?.find(
+      (s) => s.codec_type === "video",
+    );
+    const audioStream = mediaFile.probeData?.streams?.find(
+      (s) => s.codec_type === "audio",
+    );
 
     return {
       name: mediaFile.name,
       size: mediaFile.size || 0,
-      duration: mediaFile.duration || Number(mediaFile.probeData?.format?.duration) || 0,
+      duration:
+        mediaFile.duration ||
+        Number(mediaFile.probeData?.format?.duration) ||
+        0,
       resolution: {
         width: videoStream?.width || 0,
         height: videoStream?.height || 0,
@@ -159,7 +166,9 @@ export function MediaInfo({ selectedMediaFile }: MediaInfoProps) {
         {/* Выбор файла */}
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>{t("options.info.selectFile", "Выберите файл для анализа")}</Label>
+            <Label>
+              {t("options.info.selectFile", "Выберите файл для анализа")}
+            </Label>
             <div className="flex gap-2">
               <Input
                 placeholder={t("options.info.noFileSelected", "Файл не выбран")}
@@ -168,7 +177,9 @@ export function MediaInfo({ selectedMediaFile }: MediaInfoProps) {
               />
               <Button onClick={handleFileSelect} disabled={isLoading}>
                 <Upload className="w-4 h-4 mr-2" />
-                {isLoading ? t("common.loading", "Загрузка...") : t("common.browse", "Обзор")}
+                {isLoading
+                  ? t("common.loading", "Загрузка...")
+                  : t("common.browse", "Обзор")}
               </Button>
             </div>
           </div>
@@ -217,7 +228,9 @@ export function MediaInfo({ selectedMediaFile }: MediaInfoProps) {
             {/* Видео поток */}
             <Card>
               <CardHeader>
-                <CardTitle>{t("options.info.videoStream", "Видео поток")}</CardTitle>
+                <CardTitle>
+                  {t("options.info.videoStream", "Видео поток")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <InfoRow
@@ -238,7 +251,9 @@ export function MediaInfo({ selectedMediaFile }: MediaInfoProps) {
             {/* Аудио поток */}
             <Card>
               <CardHeader>
-                <CardTitle>{t("options.info.audioStream", "Аудио поток")}</CardTitle>
+                <CardTitle>
+                  {t("options.info.audioStream", "Аудио поток")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <InfoRow
@@ -263,7 +278,9 @@ export function MediaInfo({ selectedMediaFile }: MediaInfoProps) {
             {/* Метаданные */}
             <Card>
               <CardHeader>
-                <CardTitle>{t("options.info.metadata", "Метаданные")}</CardTitle>
+                <CardTitle>
+                  {t("options.info.metadata", "Метаданные")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <InfoRow

@@ -26,10 +26,14 @@ describe("SpeedSettings", () => {
     renderWithBase(<SpeedSettings />);
 
     // Проверяем основные элементы управления
-    expect(screen.getByText("options.speed.defaultPlayback")).toBeInTheDocument();
+    expect(
+      screen.getByText("options.speed.defaultPlayback"),
+    ).toBeInTheDocument();
     expect(screen.getByText("options.speed.customSpeed")).toBeInTheDocument();
     expect(screen.getByText("options.speed.interpolation")).toBeInTheDocument();
     expect(screen.getByText("options.speed.motionBlur")).toBeInTheDocument();
-    expect(screen.getByText("options.speed.smoothPlayback")).toBeInTheDocument();
+    expect(
+      screen.getByText("options.speed.smoothPlayback"),
+    ).toBeInTheDocument();
   });
 });

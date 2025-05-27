@@ -51,7 +51,12 @@ export function SpeedSettings() {
 
         {/* Скорость воспроизведения по умолчанию */}
         <div className="space-y-2">
-          <Label>{t("options.speed.defaultPlayback", "Скорость воспроизведения по умолчанию")}</Label>
+          <Label>
+            {t(
+              "options.speed.defaultPlayback",
+              "Скорость воспроизведения по умолчанию",
+            )}
+          </Label>
           <Select defaultValue="1">
             <SelectTrigger>
               <SelectValue />
@@ -68,9 +73,18 @@ export function SpeedSettings() {
 
         {/* Пользовательская скорость */}
         <div className="space-y-2">
-          <Label>{t("options.speed.customSpeed", "Пользовательская скорость")}</Label>
+          <Label>
+            {t("options.speed.customSpeed", "Пользовательская скорость")}
+          </Label>
           <div className="flex items-center space-x-2">
-            <Input type="number" defaultValue="1.0" min="0.1" max="10" step="0.1" className="w-24" />
+            <Input
+              type="number"
+              defaultValue="1.0"
+              min="0.1"
+              max="10"
+              step="0.1"
+              className="w-24"
+            />
             <span className="text-sm text-muted-foreground">x</span>
           </div>
         </div>
@@ -85,7 +99,9 @@ export function SpeedSettings() {
 
           {/* Интерполяция кадров */}
           <div className="space-y-2">
-            <Label>{t("options.speed.interpolation", "Интерполяция кадров")}</Label>
+            <Label>
+              {t("options.speed.interpolation", "Интерполяция кадров")}
+            </Label>
             <Select defaultValue="cubic">
               <SelectTrigger>
                 <SelectValue />
@@ -129,12 +145,17 @@ export function SpeedSettings() {
           <div className="flex items-center space-x-2">
             <Checkbox id="enable-smooth" defaultChecked />
             <Label htmlFor="enable-smooth">
-              {t("options.speed.enableSmooth", "Включить плавное воспроизведение")}
+              {t(
+                "options.speed.enableSmooth",
+                "Включить плавное воспроизведение",
+              )}
             </Label>
           </div>
 
           <div className="space-y-2">
-            <Label>{t("options.speed.smoothness", "Уровень сглаживания")}</Label>
+            <Label>
+              {t("options.speed.smoothness", "Уровень сглаживания")}
+            </Label>
             <div className="space-y-2">
               <Slider
                 defaultValue={[50]}
@@ -143,7 +164,9 @@ export function SpeedSettings() {
                 className="w-full"
               />
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>{t("options.speed.performance", "Производительность")}</span>
+                <span>
+                  {t("options.speed.performance", "Производительность")}
+                </span>
                 <span>{t("options.speed.quality", "Качество")}</span>
               </div>
             </div>
@@ -161,19 +184,27 @@ export function SpeedSettings() {
           <div className="flex items-center space-x-2">
             <Checkbox id="preserve-pitch" defaultChecked />
             <Label htmlFor="preserve-pitch">
-              {t("options.speed.preservePitch", "Сохранять тональность при изменении скорости")}
+              {t(
+                "options.speed.preservePitch",
+                "Сохранять тональность при изменении скорости",
+              )}
             </Label>
           </div>
 
           <div className="flex items-center space-x-2">
             <Checkbox id="auto-keyframes" />
             <Label htmlFor="auto-keyframes">
-              {t("options.speed.autoKeyframes", "Автоматические ключевые кадры")}
+              {t(
+                "options.speed.autoKeyframes",
+                "Автоматические ключевые кадры",
+              )}
             </Label>
           </div>
 
           <div className="space-y-2">
-            <Label>{t("options.speed.maxSpeed", "Максимальная скорость")}</Label>
+            <Label>
+              {t("options.speed.maxSpeed", "Максимальная скорость")}
+            </Label>
             <Input type="number" defaultValue="10" min="1" max="100" step="1" />
           </div>
         </div>
@@ -182,12 +213,8 @@ export function SpeedSettings() {
 
         {/* Кнопки действий */}
         <div className="flex gap-2">
-          <Button variant="outline">
-            {t("common.reset", "Сбросить")}
-          </Button>
-          <Button>
-            {t("common.apply", "Применить")}
-          </Button>
+          <Button variant="outline">{t("common.reset", "Сбросить")}</Button>
+          <Button>{t("common.apply", "Применить")}</Button>
         </div>
       </div>
     </div>

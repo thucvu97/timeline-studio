@@ -22,7 +22,9 @@ describe("VideoSettings", () => {
     expect(screen.getByText("options.video.resolution")).toBeInTheDocument();
     expect(screen.getByText("options.video.fps")).toBeInTheDocument();
     expect(screen.getByText("options.video.aspectRatio")).toBeInTheDocument();
-    expect(screen.getByText("options.video.previewQuality")).toBeInTheDocument();
+    expect(
+      screen.getByText("options.video.previewQuality"),
+    ).toBeInTheDocument();
     expect(screen.getByText("options.video.defaultCodec")).toBeInTheDocument();
   });
 });
