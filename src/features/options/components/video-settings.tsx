@@ -172,12 +172,8 @@ export function VideoSettings() {
 
         {/* Кнопки действий */}
         <div className="flex gap-2">
-          <Button variant="outline">
-            {t("common.reset", "Сбросить")}
-          </Button>
-          <Button>
-            {t("common.apply", "Применить")}
-          </Button>
+          <Button variant="outline">{t("common.reset", "Сбросить")}</Button>
+          <Button>{t("common.apply", "Применить")}</Button>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { Dimensions, VideoStream } from "./types"
+import { Dimensions, VideoStream } from "./types";
 
 /**
  * Вычисляет реальные размеры видео с учетом поворота
@@ -11,17 +11,19 @@ import { Dimensions, VideoStream } from "./types"
  *   rotation: "90"
  * });
  */
-export const calculateRealDimensions = (stream: VideoStream & { width: number; height: number }): Dimensions => {
-  const rotation = stream.rotation ? Number.parseInt(stream.rotation) : 0
-  const { width, height } = stream
+export const calculateRealDimensions = (
+  stream: VideoStream & { width: number; height: number },
+): Dimensions => {
+  const rotation = stream.rotation ? Number.parseInt(stream.rotation) : 0;
+  const { width, height } = stream;
 
   if (Math.abs(rotation) === 90 || Math.abs(rotation) === 270) {
     return {
       width: height,
       height: width,
       style: "",
-    }
+    };
   }
 
-  return { width, height, style: "" }
-}
+  return { width, height, style: "" };
+};

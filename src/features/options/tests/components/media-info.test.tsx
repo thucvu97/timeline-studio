@@ -9,7 +9,9 @@ import { MediaInfo } from "../../components/media-info";
 vi.mock("lucide-react", () => ({
   FileVideo: () => <div data-testid="file-video-icon">FileVideo</div>,
   Upload: () => <div data-testid="upload-icon">Upload</div>,
-  AlertTriangle: () => <div data-testid="alert-triangle-icon">AlertTriangle</div>,
+  AlertTriangle: () => (
+    <div data-testid="alert-triangle-icon">AlertTriangle</div>
+  ),
 }));
 
 // Моковый медиафайл для тестов
