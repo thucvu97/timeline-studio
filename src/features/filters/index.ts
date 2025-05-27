@@ -1,5 +1,5 @@
 // Компоненты
-export * from "./filter-list";
+export * from "./components/filter-list";
 export * from "./components/filter-group";
 export * from "./components/filter-preview";
 

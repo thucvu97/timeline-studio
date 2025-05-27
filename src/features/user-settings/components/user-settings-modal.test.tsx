@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useModal } from "@/features/modals/services/modal-provider";
@@ -132,11 +132,31 @@ describe("UserSettingsModal", () => {
       screen.getByPlaceholderText("public/screenshots");
 
     // Вводим новый путь
-    fireEvent.change(screenshotsPathInput, { target: { value: "new/path" } });
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.change(screenshotsPathInput, { target: { value: "new/path" } });
+
+
+      });
+
+    });
 
     // Нажимаем кнопку "Сохранить"
     const saveButton = screen.getByText("dialogs.userSettings.save");
-    fireEvent.click(saveButton);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(saveButton);
+
+
+      });
+
+    });
 
     // Проверяем, что handleScreenshotsPathChange был вызван с правильными параметрами
     expect(mockHandleScreenshotsPathChange).toHaveBeenCalledWith("new/path");
@@ -154,11 +174,31 @@ describe("UserSettingsModal", () => {
     const openAiKeyInput = apiKeyInputs[0];
 
     // Вводим новый API ключ
-    fireEvent.change(openAiKeyInput, { target: { value: "test-api-key" } });
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.change(openAiKeyInput, { target: { value: "test-api-key" } });
+
+
+      });
+
+    });
 
     // Нажимаем кнопку "Сохранить"
     const saveButton = screen.getByText("dialogs.userSettings.save");
-    fireEvent.click(saveButton);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(saveButton);
+
+
+      });
+
+    });
 
     // Проверяем, что handleAiApiKeyChange был вызван с правильными параметрами
     expect(mockHandleAiApiKeyChange).toHaveBeenCalledWith("test-api-key");
@@ -169,7 +209,17 @@ describe("UserSettingsModal", () => {
 
     // Нажимаем кнопку "Отмена"
     const cancelButton = screen.getByText("dialogs.userSettings.cancel");
-    fireEvent.click(cancelButton);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(cancelButton);
+
+
+      });
+
+    });
 
     // Проверяем, что closeModal был вызван
     expect(mockCloseModal).toHaveBeenCalled();
@@ -200,7 +250,17 @@ describe("UserSettingsModal", () => {
     const clearButton = screen.getByTitle("dialogs.userSettings.clearPath");
 
     // Кликаем по кнопке X
-    fireEvent.click(clearButton);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(clearButton);
+
+
+      });
+
+    });
 
     // Проверяем, что handleScreenshotsPathChange был вызван с правильным значением
     expect(mockHandleScreenshotsPathChange).toHaveBeenCalledWith(
@@ -238,7 +298,17 @@ describe("UserSettingsModal", () => {
     const clearOpenAiButton = clearButtons[0];
 
     // Кликаем по кнопке X
-    fireEvent.click(clearOpenAiButton);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(clearOpenAiButton);
+
+
+      });
+
+    });
 
     // Проверяем, что handleAiApiKeyChange был вызван с пустой строкой
     expect(mockHandleAiApiKeyChange).toHaveBeenCalledWith("");
@@ -317,8 +387,18 @@ describe("UserSettingsModal", () => {
     )[0];
 
     // Вводим значение в поле
-    fireEvent.change(openAiApiKeyInput, {
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.change(openAiApiKeyInput, {
       target: { value: "openai-api-key" },
+    });
+
+
+      });
+
     });
 
     // Проверяем, что handleAiApiKeyChange был вызван с правильным значением
@@ -340,7 +420,7 @@ describe("UserSettingsModal", () => {
     mockOpen.mockClear();
 
     // Рендерим компонент
-    const { rerender } = render(<UserSettingsModal />);
+    const { rerender  } = render(<UserSettingsModal />);
 
     // Находим кнопки выбора папки (у нас их две - для screenshotsPath и playerScreenshotsPath)
     const folderButtons = screen.getAllByRole("button", {
@@ -351,7 +431,17 @@ describe("UserSettingsModal", () => {
     const folderButton = folderButtons[0];
 
     // Кликаем по кнопке
-    fireEvent.click(folderButton);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(folderButton);
+
+
+      });
+
+    });
 
     // Ждем, пока асинхронные операции завершатся
     await vi.waitFor(() => {
@@ -384,7 +474,11 @@ describe("UserSettingsModal", () => {
     }));
 
     // Перерендериваем компонент
-    rerender(<UserSettingsModal />);
+    act(() => {
+
+      rerender(<UserSettingsModal />);
+
+    });
 
     // Проверяем, что путь скриншотов был обновлен
     const screenshotsPathInput =
@@ -411,7 +505,17 @@ describe("UserSettingsModal", () => {
     const folderButton = folderButtons[0];
 
     // Кликаем по кнопке
-    fireEvent.click(folderButton);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(folderButton);
+
+
+      });
+
+    });
 
     // Ждем, пока асинхронные операции завершатся
     await vi.waitFor(() => {

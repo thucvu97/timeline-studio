@@ -26,13 +26,13 @@ describe("TimelineTopPanel", () => {
   });
 
   it("должен корректно рендериться", () => {
-    const { container } = renderWithTimeline(<TimelineTopPanel />);
-    expect(container.firstChild).toBeInTheDocument();
+    const renderResult = renderWithTimeline(<TimelineTopPanel />);
+    expect(renderResult.container.firstChild).toBeInTheDocument();
   });
 
   it("должен рендериться без ошибок", () => {
-    const { container } = renderWithTimeline(<TimelineTopPanel />);
-    expect(container).toBeInTheDocument();
+    const renderResult = renderWithTimeline(<TimelineTopPanel />);
+    expect(renderResult.container).toBeInTheDocument();
   });
 
   it.skip("должен иметь слайдер с правильным aria-label", () => {

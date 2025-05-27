@@ -1,3 +1,4 @@
+import { act } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Создаем моки для функций, которые используются в хуке

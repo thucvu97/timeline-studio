@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { I18nProvider } from "./i18n-provider";
@@ -91,7 +91,7 @@ describe("I18nProvider", () => {
     vi.mocked(i18nMock).isInitialized = false;
 
     // Рендерим компонент
-    const { unmount } = render(
+    const renderResult = render(
       <I18nProvider>
         <div data-testid="test-child">Test</div>
       </I18nProvider>,
@@ -107,7 +107,7 @@ describe("I18nProvider", () => {
     const initHandler = vi.mocked(i18nMock.on).mock.calls[0][1] as () => void;
 
     // Размонтируем компонент
-    unmount();
+    renderResult.unmount();
 
     // Проверяем, что отписка от события initialized была выполнена
     expect(i18nMock.off).toHaveBeenCalledWith("initialized", initHandler);

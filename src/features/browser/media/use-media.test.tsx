@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { renderHook } from "@testing-library/react"
+import { act, renderHook } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { MediaProvider } from "./media-provider"

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useBrowserState } from "@/components/common/browser-state-provider";
 import { useMedia } from "@/features/browser";
 import { MediaFile } from "@/features/media/types/media";
+import { useTimelineActions } from "@/features/timeline/hooks";
 import i18n from "@/i18n";
 import { formatDateByLanguage } from "@/i18n/constants";
 import { getFileType, groupFilesByDate } from "@/lib/media-files";
@@ -19,15 +20,6 @@ interface GroupedMediaFiles {
 }
 
 /**
- * Функция для добавления файлов на таймлайн
- *
- * @param {MediaFile[]} files - Файлы для добавления на таймлайн
- */
-const addFilesToTimeline = (files: MediaFile[]) => {
-  console.log("Adding files to timeline, files: ", files);
-};
-
-/**
  * Компонент для отображения списка медиа-файлов
  *
  * @returns {JSX.Element} Компонент списка медиа-файлов
@@ -36,6 +28,9 @@ export function MediaList() {
   const { t } = useTranslation();
   const { allMediaFiles, isLoading, error, isItemFavorite, includedFiles } =
     useMedia();
+
+  // Хук для добавления медиафайлов на таймлайн
+  const { addMediaToTimeline } = useTimelineActions();
 
   // Получаем значения из общего провайдера состояния браузера
   const { currentTabSettings, previewSize } = useBrowserState();
@@ -393,13 +388,13 @@ export function MediaList() {
       (file: MediaFile) => !file.isImage,
     );
     if (nonImageFiles.length > 0) {
-      addFilesToTimeline(nonImageFiles);
+      addMediaToTimeline(nonImageFiles);
     }
-  }, [allMediaFiles]);
+  }, [allMediaFiles, addMediaToTimeline]);
 
   const addDateFiles = useCallback((files: MediaFile[]) => {
-    addFilesToTimeline(files);
-  }, []);
+    addMediaToTimeline(files);
+  }, [addMediaToTimeline]);
 
   const handleAddAllVideoFiles = useCallback(() => {
     const videoFiles = allMediaFiles.filter((file: MediaFile) =>
@@ -408,9 +403,9 @@ export function MediaList() {
       ),
     );
     if (videoFiles.length > 0) {
-      addFilesToTimeline(videoFiles);
+      addMediaToTimeline(videoFiles);
     }
-  }, [allMediaFiles]);
+  }, [allMediaFiles, addMediaToTimeline]);
 
   const handleAddAllAudioFiles = useCallback(() => {
     const audioFiles = allMediaFiles.filter(
@@ -423,9 +418,9 @@ export function MediaList() {
         ),
     );
     if (audioFiles.length > 0) {
-      addFilesToTimeline(audioFiles);
+      addMediaToTimeline(audioFiles);
     }
-  }, [allMediaFiles]);
+  }, [allMediaFiles, addMediaToTimeline]);
 
   // Обработчик повторной загрузки
   const handleRetry = useCallback(() => {
@@ -445,7 +440,7 @@ export function MediaList() {
           previewSize={previewSize}
           isLoading={isLoading}
           error={error}
-          addFilesToTimeline={addFilesToTimeline}
+          addFilesToTimeline={addMediaToTimeline}
           onRetry={handleRetry}
         />
       </div>

@@ -68,7 +68,7 @@ describe("Timeline", () => {
   });
 
   it("должен рендериться без ошибок", () => {
-    const { container } = render(<Timeline />);
-    expect(container).toBeInTheDocument();
+    const renderResult = render(<Timeline />);
+    expect(renderResult.container).toBeInTheDocument();
   });
 });

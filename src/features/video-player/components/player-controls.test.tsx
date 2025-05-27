@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MediaFile } from "@/features/media/types/media";
@@ -122,8 +122,8 @@ vi.mock("@/components/ui/slider", () => ({
 // Мокаем console.log для проверки вызова
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.spyOn(console, "log").mockImplementation(() => {});
-  vi.spyOn(console, "error").mockImplementation(() => {});
+  vi.spyOn(console, "log").mockImplementation(() => { });
+  vi.spyOn(console, "error").mockImplementation(() => { });
 });
 
 // Создаем тестовый объект MediaFile
@@ -156,7 +156,17 @@ describe("PlayerControls", () => {
 
     // Кликаем по кнопке
     if (playButton) {
-      fireEvent.click(playButton);
+      act(() => {
+
+        act(() => {
+
+
+          fireEvent.click(playButton);
+
+
+        });
+
+      });
     }
 
     // Проверяем, что setIsPlaying был вызван с правильным значением
@@ -174,7 +184,17 @@ describe("PlayerControls", () => {
 
     // Кликаем по кнопке
     if (recordButton) {
-      fireEvent.click(recordButton);
+      act(() => {
+
+        act(() => {
+
+
+          fireEvent.click(recordButton);
+
+
+        });
+
+      });
     }
 
     // Проверяем, что setIsRecording был вызван с правильным значением
@@ -192,7 +212,17 @@ describe("PlayerControls", () => {
 
     // Кликаем по кнопке
     if (nextFrameButton) {
-      fireEvent.click(nextFrameButton);
+      act(() => {
+
+        act(() => {
+
+
+          fireEvent.click(nextFrameButton);
+
+
+        });
+
+      });
     }
 
     // Проверяем, что setCurrentTime был вызван с правильным значением (текущее время + frameTime)
@@ -211,7 +241,17 @@ describe("PlayerControls", () => {
 
     // Кликаем по кнопке
     if (prevFrameButton) {
-      fireEvent.click(prevFrameButton);
+      act(() => {
+
+        act(() => {
+
+
+          fireEvent.click(prevFrameButton);
+
+
+        });
+
+      });
     }
 
     // Проверяем, что setCurrentTime был вызван с правильным значением (текущее время - frameTime)
@@ -230,7 +270,17 @@ describe("PlayerControls", () => {
 
     // Кликаем по кнопке
     if (firstFrameButton) {
-      fireEvent.click(firstFrameButton);
+      act(() => {
+
+        act(() => {
+
+
+          fireEvent.click(firstFrameButton);
+
+
+        });
+
+      });
     }
 
     // Проверяем, что setCurrentTime был вызван с правильным значением (startTime)
@@ -249,7 +299,17 @@ describe("PlayerControls", () => {
 
     // Кликаем по кнопке
     if (lastFrameButton) {
-      fireEvent.click(lastFrameButton);
+      act(() => {
+
+        act(() => {
+
+
+          fireEvent.click(lastFrameButton);
+
+
+        });
+
+      });
     }
 
     // Проверяем, что setCurrentTime был вызван с правильным значением (endTime)
@@ -268,7 +328,17 @@ describe("PlayerControls", () => {
 
     // Кликаем по кнопке
     if (resizableButton) {
-      fireEvent.click(resizableButton);
+      act(() => {
+
+        act(() => {
+
+
+          fireEvent.click(resizableButton);
+
+
+        });
+
+      });
     }
 
     // Проверяем, что setIsResizableMode был вызван с правильным значением
@@ -283,7 +353,17 @@ describe("PlayerControls", () => {
     const volumeChangeButton = screen.getByTestId("volume-slider-change");
 
     // Кликаем по кнопке
-    fireEvent.click(volumeChangeButton);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(volumeChangeButton);
+
+
+      });
+
+    });
 
     // Проверяем, что setVolume был вызван с правильным значением
     expect(mockSetVolume).toHaveBeenCalledWith(75);
@@ -305,7 +385,17 @@ describe("PlayerControls", () => {
 
     // Кликаем по кнопке
     if (fullscreenButton) {
-      fireEvent.click(fullscreenButton);
+      act(() => {
+
+        act(() => {
+
+
+          fireEvent.click(fullscreenButton);
+
+
+        });
+
+      });
     }
 
     // Проверяем, что querySelector был вызван с правильным селектором

@@ -1,3 +1,4 @@
+import { act } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MediaFile } from "@/features/media/types/media";

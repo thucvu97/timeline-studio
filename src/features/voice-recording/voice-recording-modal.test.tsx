@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { VoiceRecordModal } from "./voice-recording-modal";
@@ -52,9 +52,9 @@ vi.mock("react-i18next", () => ({
 
 describe("VoiceRecordModal", () => {
   it("renders the component", () => {
-    const { container } = render(
+    const renderResult = render(
       <VoiceRecordModal isOpen onClose={() => {}} />,
     );
-    expect(container.firstChild).not.toBeNull();
+    expect(renderResult.container.firstChild).not.toBeNull();
   });
 });

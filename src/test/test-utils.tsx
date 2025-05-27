@@ -70,7 +70,9 @@ const TemplateProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
       <ResourcesProvider>
-        <MediaProvider>{children}</MediaProvider>
+        <MediaProvider>
+          <PlayerProvider>{children}</PlayerProvider>
+        </MediaProvider>
       </ResourcesProvider>
     </BaseProviders>
   );

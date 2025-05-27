@@ -307,6 +307,391 @@ vi.mock("@/features/app-state/hooks/use-current-project", () => ({
   }),
 }));
 
+// Общие моки для шаблонов
+vi.mock("@/features/templates/lib/templates", () => ({
+  TEMPLATE_MAP: {
+    landscape: [
+      {
+        id: "split-vertical-landscape",
+        split: "vertical",
+        resizable: true,
+        screens: 2,
+        splitPosition: 50,
+        render: () => ({
+          type: "div",
+          props: {
+            "data-testid": "template-vertical",
+            children: "Vertical Split",
+          },
+        }),
+      },
+      {
+        id: "split-horizontal-landscape",
+        split: "horizontal",
+        resizable: true,
+        screens: 2,
+        splitPosition: 50,
+        render: () => ({
+          type: "div",
+          props: {
+            "data-testid": "template-horizontal",
+            children: "Horizontal Split",
+          },
+        }),
+      },
+      {
+        id: "split-grid-2x2-landscape",
+        split: "grid",
+        resizable: true,
+        screens: 4,
+        render: () => ({
+          type: "div",
+          props: { "data-testid": "template-grid", children: "Grid 2x2" },
+        }),
+      },
+    ],
+    portrait: [
+      {
+        id: "split-vertical-portrait",
+        split: "vertical",
+        resizable: true,
+        screens: 2,
+        splitPosition: 50,
+        render: () => ({
+          type: "div",
+          props: {
+            "data-testid": "template-vertical-portrait",
+            children: "Vertical Split Portrait",
+          },
+        }),
+      },
+    ],
+    square: [
+      {
+        id: "split-grid-2x2-square",
+        split: "grid",
+        resizable: true,
+        screens: 4,
+        render: () => ({
+          type: "div",
+          props: { "data-testid": "template-grid-square", children: "Grid 2x2 Square" },
+        }),
+      },
+    ],
+  },
+  getTemplatesByAspectRatio: vi.fn().mockImplementation((aspectRatio: string) => {
+    const templates = {
+      "16:9": [
+        {
+          id: "split-vertical-landscape",
+          split: "vertical",
+          resizable: true,
+          screens: 2,
+          splitPosition: 50,
+        },
+      ],
+      "9:16": [
+        {
+          id: "split-vertical-portrait",
+          split: "vertical",
+          resizable: true,
+          screens: 2,
+          splitPosition: 50,
+        },
+      ],
+      "1:1": [
+        {
+          id: "split-grid-2x2-square",
+          split: "grid",
+          resizable: true,
+          screens: 4,
+        },
+      ],
+    };
+    return templates[aspectRatio as keyof typeof templates] || [];
+  }),
+}));
+
+// Мок для template labels
+vi.mock("@/features/templates/lib/template-labels", () => ({
+  getTemplateLabels: vi.fn().mockImplementation((templateId: string) => {
+    const labels: Record<string, string> = {
+      "split-vertical-landscape": "Вертикальное разделение",
+      "split-horizontal-landscape": "Горизонтальное разделение",
+      "split-grid-2x2-landscape": "Сетка 2x2",
+      "split-vertical-portrait": "Вертикальное разделение (портрет)",
+      "split-grid-2x2-square": "Сетка 2x2 (квадрат)",
+    };
+    return labels[templateId] || templateId;
+  }),
+  getTemplateDescription: vi.fn().mockImplementation((templateId: string) => {
+    const descriptions: Record<string, string> = {
+      "split-vertical-landscape": "Разделяет экран вертикально на две части",
+      "split-horizontal-landscape": "Разделяет экран горизонтально на две части",
+      "split-grid-2x2-landscape": "Создает сетку 2x2 для четырех видео",
+      "split-vertical-portrait": "Вертикальное разделение для портретного режима",
+      "split-grid-2x2-square": "Сетка 2x2 для квадратного формата",
+    };
+    return descriptions[templateId] || `Описание для ${templateId}`;
+  }),
+}));
+
+// Общие моки для компонентов шаблонов
+vi.mock("@/components/common/content-group", () => ({
+  ContentGroup: ({ items, renderItem, title }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "content-group" },
+      title && React.createElement("h3", { "data-testid": "content-group-title" }, title),
+      React.createElement(
+        "div",
+        { "data-testid": "content-group-items" },
+        items.map((item: any, index: number) =>
+          React.createElement(
+            "div",
+            { key: item.id, "data-testid": `group-item-${item.id}` },
+            renderItem(item, index),
+          ),
+        ),
+      ),
+    ),
+}));
+
+vi.mock("@/features/browser/components/layout", () => ({
+  FavoriteButton: ({ file, size, type }: any) =>
+    React.createElement(
+      "div",
+      {
+        "data-testid": "favorite-button",
+        "data-file-id": file.id,
+        "data-size": size,
+        "data-type": type,
+      },
+      "Favorite Button",
+    ),
+  AddMediaButton: ({ file, onAddMedia, onRemoveMedia, isAdded, size }: any) =>
+    React.createElement(
+      "div",
+      {
+        "data-testid": "add-media-button",
+        "data-file-id": file.id,
+        "data-is-added": isAdded ? "true" : "false",
+        "data-size": size,
+        onClick: (e: any) => (isAdded ? onRemoveMedia(e, file) : onAddMedia(e, file)),
+      },
+      isAdded ? "Remove Media" : "Add Media",
+    ),
+}));
+
+// Моки для компонентов шаблонов
+vi.mock("@/features/templates/components/templates/custom", () => ({
+  SplitVertical: ({ videos, activeVideoId }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "split-vertical" },
+      videos.map((video: any, index: number) =>
+        React.createElement(
+          "div",
+          {
+            key: video.id,
+            "data-testid": `video-panel-${index + 1}`,
+            "data-video-id": video.id,
+            "data-is-active": activeVideoId === video.id
+          },
+          `Video Panel ${index + 1}`,
+        ),
+      ),
+    ),
+  SplitHorizontal: ({ videos, activeVideoId }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "split-horizontal" },
+      videos.map((video: any, index: number) =>
+        React.createElement(
+          "div",
+          {
+            key: video.id,
+            "data-testid": `video-panel-${index + 1}`,
+            "data-video-id": video.id,
+            "data-is-active": activeVideoId === video.id
+          },
+          `Video Panel ${index + 1}`,
+        ),
+      ),
+    ),
+  SplitVertical3: ({ videos, activeVideoId }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "split-vertical-3" },
+      videos.slice(0, 3).map((video: any, index: number) =>
+        React.createElement(
+          "div",
+          {
+            key: video.id,
+            "data-testid": `video-panel-${index + 1}`,
+            "data-video-id": video.id,
+            "data-is-active": activeVideoId === video.id
+          },
+          `Video Panel ${index + 1}`,
+        ),
+      ),
+    ),
+  SplitVertical4: ({ videos, activeVideoId }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "split-vertical-4" },
+      videos.slice(0, 4).map((video: any, index: number) =>
+        React.createElement(
+          "div",
+          {
+            key: video.id,
+            "data-testid": `video-panel-${index + 1}`,
+            "data-video-id": video.id,
+            "data-is-active": activeVideoId === video.id
+          },
+          `Video Panel ${index + 1}`,
+        ),
+      ),
+    ),
+  SplitHorizontal4: ({ videos, activeVideoId }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "split-horizontal-4" },
+      videos.slice(0, 4).map((video: any, index: number) =>
+        React.createElement(
+          "div",
+          {
+            key: video.id,
+            "data-testid": `video-panel-${index + 1}`,
+            "data-video-id": video.id,
+            "data-is-active": activeVideoId === video.id
+          },
+          `Video Panel ${index + 1}`,
+        ),
+      ),
+    ),
+}));
+
+// Моки для grid шаблонов
+vi.mock("@/features/templates/components/templates/grid", () => ({
+  SplitGrid2x2: ({ videos, activeVideoId }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "split-grid-2x2" },
+      videos.slice(0, 4).map((video: any, index: number) =>
+        React.createElement(
+          "div",
+          {
+            key: video.id,
+            "data-testid": `video-panel-${index + 1}`,
+            "data-video-id": video.id,
+            "data-is-active": activeVideoId === video.id
+          },
+          `Video Panel ${index + 1}`,
+        ),
+      ),
+    ),
+  SplitGrid2x3: ({ videos, activeVideoId }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "split-grid-2x3" },
+      videos.slice(0, 6).map((video: any, index: number) =>
+        React.createElement(
+          "div",
+          {
+            key: video.id,
+            "data-testid": `video-panel-${index + 1}`,
+            "data-video-id": video.id,
+            "data-is-active": activeVideoId === video.id
+          },
+          `Video Panel ${index + 1}`,
+        ),
+      ),
+    ),
+  SplitGrid3x2: ({ videos, activeVideoId }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "split-grid-3x2" },
+      videos.slice(0, 6).map((video: any, index: number) =>
+        React.createElement(
+          "div",
+          {
+            key: video.id,
+            "data-testid": `video-panel-${index + 1}`,
+            "data-video-id": video.id,
+            "data-is-active": activeVideoId === video.id
+          },
+          `Video Panel ${index + 1}`,
+        ),
+      ),
+    ),
+  SplitGrid3x3: ({ videos, activeVideoId }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "split-grid-3x3" },
+      videos.slice(0, 9).map((video: any, index: number) =>
+        React.createElement(
+          "div",
+          {
+            key: video.id,
+            "data-testid": `video-panel-${index + 1}`,
+            "data-video-id": video.id,
+            "data-is-active": activeVideoId === video.id
+          },
+          `Video Panel ${index + 1}`,
+        ),
+      ),
+    ),
+  SplitGrid3x4: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-grid-3x4" }, "Grid 3x4"),
+  SplitGrid4x2: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-grid-4x2" }, "Grid 4x2"),
+  SplitGrid4x3: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-grid-4x3" }, "Grid 4x3"),
+  SplitGrid4x4: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-grid-4x4" }, "Grid 4x4"),
+  SplitGrid5x2: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-grid-5x2" }, "Grid 5x2"),
+  SplitGrid5x5: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-grid-5x5" }, "Grid 5x5"),
+}));
+
+// Моки для landscape шаблонов
+vi.mock("@/features/templates/components/templates/landscape", () => ({
+  Split13BottomLandscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-1-3-bottom-landscape" }, "1-3 Bottom"),
+  Split13Landscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-1-3-landscape" }, "1-3 Landscape"),
+  Split31BottomLandscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-3-1-bottom-landscape" }, "3-1 Bottom"),
+  Split31RightLandscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-3-1-right-landscape" }, "3-1 Right"),
+  SplitCustom51Landscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-custom-5-1-landscape" }, "Custom 5-1"),
+  SplitCustom52Landscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-custom-5-2-landscape" }, "Custom 5-2"),
+  SplitCustom53Landscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-custom-5-3-landscape" }, "Custom 5-3"),
+  SplitDiagonalLandscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-diagonal-landscape" }, "Diagonal"),
+  SplitHorizontal3Landscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-horizontal-3-landscape" }, "Horizontal 3"),
+  SplitMixed1Landscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-mixed-1-landscape" }, "Mixed 1"),
+  SplitMixed2Landscape: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-mixed-2-landscape" }, "Mixed 2"),
+}));
+
+// Моки для portrait шаблонов
+vi.mock("@/features/templates/components/templates/portrait", () => ({
+  SplitCustom51Portrait: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-custom-5-1-portrait" }, "Custom 5-1 Portrait"),
+  SplitCustom52Portrait: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-custom-5-2-portrait" }, "Custom 5-2 Portrait"),
+  SplitCustom53Portrait: ({ videos, activeVideoId }: any) =>
+    React.createElement("div", { "data-testid": "split-custom-5-3-portrait" }, "Custom 5-3 Portrait"),
+}));
+
 // Мок для useUserSettings
 vi.mock("@/features/user-settings", () => ({
   useUserSettings: () => ({
@@ -468,6 +853,26 @@ vi.mock("@/features/browser/media", () => ({
     isFileAdded: vi.fn().mockReturnValue(false),
   }),
   MediaProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+// Мок для PlayerProvider
+vi.mock("@/features/video-player/services/player-provider", () => ({
+  usePlayer: () => ({
+    isPlaying: false,
+    currentTime: 0,
+    duration: 0,
+    volume: 1,
+    isMuted: false,
+    playbackRate: 1,
+    play: vi.fn(),
+    pause: vi.fn(),
+    seek: vi.fn(),
+    setVolume: vi.fn(),
+    toggleMute: vi.fn(),
+    setPlaybackRate: vi.fn(),
+    reset: vi.fn(),
+  }),
+  PlayerProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // Мок для useModal
@@ -920,6 +1325,13 @@ global.URL.createObjectURL = vi.fn().mockImplementation(() => {
 });
 
 global.URL.revokeObjectURL = vi.fn();
+
+// Мок для navigator.clipboard
+Object.assign(navigator, {
+  clipboard: {
+    writeText: vi.fn(),
+  },
+});
 
 // Мок для MediaStudio
 vi.mock("@/features/media-studio/media-studio", () => {

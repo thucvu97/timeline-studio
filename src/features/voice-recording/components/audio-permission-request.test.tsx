@@ -1,11 +1,11 @@
-import { fireEvent, render, screen } from "@testing-library/react"
+import { act, fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { AudioPermissionRequest } from "./audio-permission-request"
 
 describe("AudioPermissionRequest", () => {
   it("renders nothing when permission is granted", () => {
-    const { container } = render(
+    const renderResult = render(
       <AudioPermissionRequest
         permissionStatus="granted"
         errorMessage=""
@@ -13,7 +13,7 @@ describe("AudioPermissionRequest", () => {
       />
     )
 
-    expect(container.firstChild).toBeNull()
+    expect(renderResult.container.firstChild).toBeNull()
   })
 
   it("renders pending state correctly", () => {

@@ -1,3 +1,4 @@
+import { act } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { renderWithBase, screen } from "@/test/test-utils";
@@ -64,7 +65,17 @@ describe("NoFiles", () => {
     renderWithBase(<NoFiles type="media" onImport={mockImport} />);
 
     const importButton = screen.getByText("Импортировать медиафайлы");
-    importButton.click();
+    act(() => {
+
+      act(() => {
+
+
+        importButton.click();
+
+
+      });
+
+    });
 
     expect(mockImport).toHaveBeenCalledTimes(1);
   });
@@ -108,13 +119,25 @@ describe("NoFiles", () => {
   });
 
   it("должен показывать правильную иконку для каждого типа", () => {
-    const { rerender } = renderWithBase(<NoFiles type="media" />);
+    const { rerender  } = renderWithBase(<NoFiles type="media" />);
     expect(screen.getByTestId("video-icon")).toBeInTheDocument();
 
-    rerender(<NoFiles type="music" />);
+    act(() => {
+
+
+      rerender(<NoFiles type="music" />);
+
+
+    });
     expect(screen.getByTestId("music-icon")).toBeInTheDocument();
 
-    rerender(<NoFiles type="effects" />);
+    act(() => {
+
+
+      rerender(<NoFiles type="effects" />);
+
+
+    });
     expect(screen.getByTestId("sparkles-icon")).toBeInTheDocument();
   });
 });

@@ -1,3 +1,4 @@
+import { act } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { render, screen } from "@/test/test-utils";
@@ -21,7 +22,9 @@ describe("Track", () => {
   };
 
   it("should render track with header and content", () => {
-    render(<Track {...defaultProps} />);
+    act(() => {
+      render(<Track {...defaultProps} />);
+    });
 
     // Проверяем что трек отображается
     expect(screen.getByText("Test Track")).toBeInTheDocument();
@@ -29,7 +32,9 @@ describe("Track", () => {
   });
 
   it("should show selected state", () => {
-    render(<Track {...defaultProps} isSelected={true} />);
+    act(() => {
+      render(<Track {...defaultProps} isSelected={true} />);
+    });
 
     // Проверяем что заголовок трека выделен (имеет соответствующие классы)
     const headerElement = screen.getByText("Test Track").closest("div")
@@ -39,19 +44,36 @@ describe("Track", () => {
 
   it("should call onSelect when clicked", () => {
     const onSelect = vi.fn();
-    render(<Track {...defaultProps} onSelect={onSelect} />);
+    act(() => {
+      render(<Track {...defaultProps} onSelect={onSelect} />);
+    });
 
     // Кликаем на трек
     const trackElement = screen
       .getByText("Test Track")
       .closest("div")?.parentElement;
-    trackElement?.click();
+
+    act(() => {
+      act(() => {
+
+        act(() => {
+
+
+          trackElement?.click();
+
+
+        });
+
+      });
+    });
 
     expect(onSelect).toHaveBeenCalledWith(mockTrack.id);
   });
 
   it("should show track controls", () => {
-    render(<Track {...defaultProps} />);
+    act(() => {
+      render(<Track {...defaultProps} />);
+    });
 
     // Проверяем наличие кнопок управления (используем правильные title из компонента)
     expect(screen.getByTitle("Скрыть трек")).toBeInTheDocument();

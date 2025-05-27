@@ -1,5 +1,6 @@
 import React from "react";
 
+import { act } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fireEvent, renderWithBase, screen } from "@/test/test-utils";
@@ -59,9 +60,12 @@ const mockMusicResources = [
   createMockResource("music", "ambient", "Ambient Sound"),
 ] as any;
 
+// Создаем мок функцию
+const mockUseResources = vi.fn();
+
 // Мокаем модуль resources
-vi.mock("../../resources-provider", () => ({
-  useResources: vi.fn(),
+vi.mock("../../services/resources-provider", () => ({
+  useResources: mockUseResources,
 }));
 
 // Мокаем иконки Lucide
@@ -258,7 +262,7 @@ describe("ResourcesPanel", () => {
     vi.clearAllMocks();
 
     // Дефолтные пустые ресурсы
-    vi.mocked(useResources).mockReturnValue({
+    mockUseResources.mockReturnValue({
       resources: [],
       effectResources: [],
       filterResources: [],
@@ -287,10 +291,10 @@ describe("ResourcesPanel", () => {
   });
 
   it("должен корректно рендериться", () => {
-    const { container } = renderWithBase(<ResourcesPanel />);
+    const renderResult = renderWithBase(<ResourcesPanel />);
 
     // Проверяем, что компонент рендерится без ошибок
-    expect(container.firstChild).toBeInTheDocument();
+    expect(renderResult.container.firstChild).toBeInTheDocument();
   });
 
   it.skip("должен отображать все категории ресурсов", () => {
@@ -325,7 +329,7 @@ describe("ResourcesPanel", () => {
 
   it.skip("should display resources when they exist", () => {
     // Мокаем ресурсы с данными
-    vi.mocked(useResources).mockReturnValue({
+    mockUseResources.mockReturnValue({
       resources: [],
       effectResources: mockEffectResources,
       filterResources: mockFilterResources,
@@ -364,7 +368,7 @@ describe("ResourcesPanel", () => {
 
   it.skip("should display correct resource counts in category headers", () => {
     // Мокаем ресурсы с данными
-    vi.mocked(useResources).mockReturnValue({
+    mockUseResources.mockReturnValue({
       resources: [],
       effectResources: mockEffectResources, // 3 элемента
       filterResources: mockFilterResources.slice(0, 1), // 1 элемент
@@ -400,7 +404,7 @@ describe("ResourcesPanel", () => {
 
   it.skip("should call addEffect when effect resource is clicked", () => {
     // Мокаем ресурсы с данными
-    vi.mocked(useResources).mockReturnValue({
+    mockUseResources.mockReturnValue({
       resources: [],
       effectResources: mockEffectResources,
       filterResources: [],
@@ -431,7 +435,17 @@ describe("ResourcesPanel", () => {
 
     // Находим и кликаем по эффекту
     const effectElement = screen.getByText("Brightness Effect");
-    fireEvent.click(effectElement);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(effectElement);
+
+
+      });
+
+    });
 
     // Проверяем, что addEffect был вызван с правильными параметрами
     expect(mockAddEffect).toHaveBeenCalledWith(mockEffectResources[0]);
@@ -439,7 +453,7 @@ describe("ResourcesPanel", () => {
 
   it.skip("should call addFilter when filter resource is clicked", () => {
     // Мокаем ресурсы с данными
-    vi.mocked(useResources).mockReturnValue({
+    mockUseResources.mockReturnValue({
       resources: [],
       effectResources: [],
       filterResources: mockFilterResources,
@@ -470,7 +484,17 @@ describe("ResourcesPanel", () => {
 
     // Находим и кликаем по фильтру
     const filterElement = screen.getByText("Vintage Filter");
-    fireEvent.click(filterElement);
+    act(() => {
+
+      act(() => {
+
+
+        fireEvent.click(filterElement);
+
+
+      });
+
+    });
 
     // Проверяем, что addFilter был вызван с правильными параметрами
     expect(mockAddFilter).toHaveBeenCalledWith(mockFilterResources[0]);
