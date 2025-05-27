@@ -184,11 +184,13 @@ const initialContext: TimelineContext = {
 // ============================================================================
 
 const guards = {
-  hasProject: ({ context }: { context: TimelineContext }) => context.project !== null,
+  hasProject: ({ context }: { context: TimelineContext }) =>
+    context.project !== null,
   hasSelection: ({ context }: { context: TimelineContext }) =>
     context.uiState.selectedClipIds.length > 0 ||
     context.uiState.selectedTrackIds.length > 0,
-  canUndo: ({ context }: { context: TimelineContext }) => context.uiState.historyIndex > 0,
+  canUndo: ({ context }: { context: TimelineContext }) =>
+    context.uiState.historyIndex > 0,
   canRedo: ({ context }: { context: TimelineContext }) =>
     context.uiState.historyIndex < context.uiState.history.length - 1,
   hasClipboard: ({ context }: { context: TimelineContext }) =>
@@ -331,7 +333,13 @@ const actions = {
 
   // Выделение
   selectClips: assign({
-    uiState: ({ context, event }: { context: TimelineContext; event: any }) => ({
+    uiState: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext;
+      event: any;
+    }) => ({
       ...context.uiState,
       selectedClipIds: event.addToSelection
         ? [...new Set([...context.uiState.selectedClipIds, ...event.clipIds])]
@@ -363,7 +371,13 @@ const actions = {
 
   seek: assign({
     currentTime: ({ event }: { event: any }) => event.time,
-    uiState: ({ context, event }: { context: TimelineContext; event: any }) => ({
+    uiState: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext;
+      event: any;
+    }) => ({
       ...context.uiState,
       currentTime: event.time,
       playheadPosition: event.time * context.uiState.timeScale,
@@ -373,7 +387,13 @@ const actions = {
 
   // UI
   setTimeScale: assign({
-    uiState: ({ context, event }: { context: TimelineContext; event: any }) => ({
+    uiState: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext;
+      event: any;
+    }) => ({
       ...context.uiState,
       timeScale: event.scale,
       playheadPosition: context.currentTime * event.scale,
