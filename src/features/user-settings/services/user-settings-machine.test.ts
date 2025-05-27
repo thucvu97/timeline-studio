@@ -2,13 +2,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
+import { DEFAULT_SIZE, PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
+
 import {
   BROWSER_TABS,
   DEFAULT_LAYOUT,
-  DEFAULT_SIZE,
   DEFAULT_TAB,
   LAYOUTS,
-  PREVIEW_SIZES,
   userSettingsMachine,
 } from "./user-settings-machine"
 
@@ -36,7 +36,7 @@ describe("UserSettingsMachine", () => {
   })
 
   it("should have correct preview sizes", () => {
-    expect(PREVIEW_SIZES).toEqual([60, 80, 100, 125, 150, 200, 250, 300, 400, 500])
+    expect(PREVIEW_SIZES).toEqual([100, 125, 150, 200, 250, 300, 400, 500])
   })
 
   it("should have correct browser tabs", () => {

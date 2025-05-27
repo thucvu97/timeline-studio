@@ -1,11 +1,13 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { ProjectSettings } from '@/types/project'
+
 import {
-  updateSettingsWithNewWidth,
-  updateSettingsWithNewHeight,
   createSettingsWithNewAspectRatio,
   triggerWindowResize,
+  updateSettingsWithNewHeight,
+  updateSettingsWithNewWidth,
 } from '../../utils/settings-utils'
-import type { ProjectSettings } from '@/types/project'
 
 describe('settings-utils', () => {
   const mockSettings: ProjectSettings = {

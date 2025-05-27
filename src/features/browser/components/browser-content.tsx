@@ -1,3 +1,5 @@
+import React from "react";
+
 import { useBrowserState } from "@/components/common/browser-state-provider";
 import { MediaToolbar } from "@/components/common/media-toolbar";
 import { getToolbarConfigForContent } from "@/components/common/media-toolbar-configs";
@@ -20,7 +22,7 @@ import { useStyleTemplatesImport } from "@/features/style-templates/hooks/use-st
 import { useSubtitlesImport } from "@/features/subtitles/hooks/use-subtitles-import";
 import { useTemplatesImport } from "@/features/templates/hooks/use-templates-import";
 import { useTransitionsImport } from "@/features/transitions/hooks/use-transitions-import";
-import { useAutoLoadUserData } from "@/hooks/use-auto-load-user-data";
+import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
 
 export function BrowserContent() {
   const contentClassName = "bg-background m-0 flex-1 overflow-auto";
@@ -126,12 +128,19 @@ export function BrowserContent() {
   };
 
   const handleZoomIn = () => {
-    setPreviewSize(previewSizeIndex + 1, activeTab);
+    if (previewSizeIndex < PREVIEW_SIZES.length - 1) {
+      setPreviewSize(previewSizeIndex + 1, activeTab);
+    }
   };
 
   const handleZoomOut = () => {
-    setPreviewSize(previewSizeIndex - 1, activeTab);
+    if (previewSizeIndex > 0) {
+      setPreviewSize(previewSizeIndex - 1, activeTab);
+    }
   };
+
+  const canZoomIn = previewSizeIndex < PREVIEW_SIZES.length - 1;
+  const canZoomOut = previewSizeIndex > 0;
 
   const handleImportFile = async () => {
     switch (activeTab) {
@@ -262,8 +271,8 @@ export function BrowserContent() {
         // Зум
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
-        canZoomIn={previewSizeIndex < 6} // Максимальный индекс в PREVIEW_SIZES
-        canZoomOut={previewSizeIndex > 0} // Минимальный индекс
+        canZoomIn={canZoomIn}
+        canZoomOut={canZoomOut}
       />
 
       <TabsContent value="media" className={contentClassName}>

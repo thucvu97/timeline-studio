@@ -3,9 +3,9 @@ import {
   Package,
   Palette,
   Scissors,
+  Sticker,
   Subtitles,
   Video,
-  Sticker,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 

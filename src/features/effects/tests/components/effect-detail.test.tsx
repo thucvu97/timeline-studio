@@ -160,19 +160,6 @@ describe("EffectDetail", () => {
   const mockOnClose = vi.fn();
   const mockOnApplyEffect = vi.fn();
 
-  it("should not render when effect is null", () => {
-    const { container } = render(
-      <EffectDetail
-        effect={null}
-        isOpen={true}
-        onClose={mockOnClose}
-        onApplyEffect={mockOnApplyEffect}
-      />,
-    );
-
-    expect(container.firstChild).toBeNull();
-  });
-
   it("should render effect detail dialog when open", () => {
     const { container } = render(
       <EffectDetail

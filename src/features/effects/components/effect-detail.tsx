@@ -19,7 +19,7 @@ import { EffectPresets } from "./effect-presets";
 import { EffectPreview } from "./effect-preview";
 
 interface EffectDetailProps {
-  effect: VideoEffect | null;
+  effect: VideoEffect;
   isOpen: boolean;
   onClose: () => void;
   onApplyEffect: (
@@ -38,6 +38,9 @@ export function EffectDetail({
   onClose,
   onApplyEffect,
 }: EffectDetailProps) {
+  // Ранний возврат, если эффект не передан
+  // if (!effect) return null;
+
   const { i18n, t } = useTranslation();
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -46,8 +49,6 @@ export function EffectDetail({
   >({});
   const [previewKey, setPreviewKey] = useState(0); // Для обновления превью
   const currentLang = i18n.language as "ru" | "en";
-
-  if (!effect) return null;
 
   // Обработчик применения пресета
   const handleApplyPreset = useCallback(
@@ -101,7 +102,7 @@ export function EffectDetail({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3">
-              <span>{effect.labels[currentLang] || effect.labels.en}</span>
+              <span>{effect?.labels[currentLang] ?? effect?.labels?.en ?? "Unnamed effect"}</span>
               <EffectIndicators effect={effect} size="md" />
             </DialogTitle>
             <Button variant="ghost" size="sm" onClick={onClose}>
@@ -116,7 +117,7 @@ export function EffectDetail({
             <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
               <EffectPreview
                 key={previewKey} // Обновляем превью при изменении параметров
-                effectType={effect.type}
+                effectType={effect?.type}
                 onClick={() => setIsPlaying(!isPlaying)}
                 size={400}
                 customParams={currentParameters} // Передаем текущие параметры
@@ -151,7 +152,7 @@ export function EffectDetail({
                 {t("effects.detail.description", "Описание")}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {effect.description[currentLang] || effect.description.en}
+                {effect?.description[currentLang] || effect?.description?.en}
               </p>
             </div>
 
@@ -162,9 +163,9 @@ export function EffectDetail({
               </h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded">
-                  {effect.category}
+                  {effect?.category}
                 </span>
-                {effect.tags.map((tag) => (
+                {effect?.tags.map((tag) => (
                   <span
                     key={tag}
                     className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded"
@@ -199,8 +200,8 @@ export function EffectDetail({
                 {t("effects.detail.ffmpegCommand", "FFmpeg команда")}
               </h3>
               <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono overflow-x-auto">
-                {effect.ffmpegCommand({
-                  ...effect.params,
+                {effect?.ffmpegCommand({
+                  ...effect?.params,
                   ...currentParameters,
                 })}
               </div>

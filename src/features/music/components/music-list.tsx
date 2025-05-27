@@ -5,9 +5,9 @@ import { CirclePause, CirclePlay, Pause, Play } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { useBrowserState } from "@/components/common/browser-state-provider";
+import { NoFiles } from "@/components/common/no-files";
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
-import { NoFiles } from "@/features/browser/components/layout/no-files";
 import { useMedia } from "@/features/browser/media";
 import { useResources } from "@/features/resources";
 import { formatTime } from "@/lib/date";
@@ -313,10 +313,10 @@ export function MusicList() {
             )}
 
             {/* Состояние ошибки - отображается сообщение об ошибке */}
-            {isError && <NoFiles />}
+            {isError && <NoFiles type="music" />}
 
             {/* Пустое состояние - отображается сообщение об отсутствии файлов */}
-            {!isLoading && !isError && <NoFiles />}
+            {!isLoading && !isError && <NoFiles type="music" />}
           </>
         )}
 

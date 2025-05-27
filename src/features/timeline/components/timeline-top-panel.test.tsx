@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { renderWithBase, screen } from "@/test/test-utils";
+import { renderWithTimeline, screen } from "@/test/test-utils";
 
 import { TimelineTopPanel } from "./timeline-top-panel";
 
@@ -26,17 +26,17 @@ describe("TimelineTopPanel", () => {
   });
 
   it("должен корректно рендериться", () => {
-    const { container } = renderWithBase(<TimelineTopPanel />);
+    const { container } = renderWithTimeline(<TimelineTopPanel />);
     expect(container.firstChild).toBeInTheDocument();
   });
 
   it("должен рендериться без ошибок", () => {
-    const { container } = renderWithBase(<TimelineTopPanel />);
+    const { container } = renderWithTimeline(<TimelineTopPanel />);
     expect(container).toBeInTheDocument();
   });
 
   it.skip("должен иметь слайдер с правильным aria-label", () => {
-    renderWithBase(<TimelineTopPanel />);
+    renderWithTimeline(<TimelineTopPanel />);
 
     // Находим слайдер
     const sliders = screen.getAllByRole("slider", { hidden: true });
@@ -48,7 +48,7 @@ describe("TimelineTopPanel", () => {
   });
 
   it.skip("должен иметь класс rotate-270 для иконки ножниц", () => {
-    renderWithBase(<TimelineTopPanel />);
+    renderWithTimeline(<TimelineTopPanel />);
 
     // Проверяем, что иконка ножниц имеет класс rotate-270
     const scissorsIcon = screen.getByTestId("scissors-icon");

@@ -2,10 +2,11 @@ import React, { useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
-import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
 import { useBrowserState } from "@/components/common/browser-state-provider";
+import { NoFiles } from "@/components/common/no-files";
 import { useMedia } from "@/features/browser/media";
 import { useProjectSettings } from "@/features/project-settings";
+import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
 import { VideoEffect } from "@/types/effects";
 
 import { EffectGroup } from "./effect-group";
@@ -267,11 +268,14 @@ export function EffectList() {
         </div>
 
         {/* Сообщение, если эффекты не найдены */}
-        {processedEffects.length === 0 && (
+        {processedEffects.length === 0 && !showFavoritesOnly && (
+          <NoFiles type="effects" />
+        )}
+
+        {/* Сообщение для избранного */}
+        {processedEffects.length === 0 && showFavoritesOnly && (
           <div className="flex h-32 items-center justify-center text-gray-500">
-            {showFavoritesOnly
-              ? t("browser.media.noFavorites")
-              : t("common.noResults")}
+            {t("browser.media.noFavorites")}
           </div>
         )}
       </div>

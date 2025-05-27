@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
+
 import {
   getAspectRatioLabel,
+  getCustomAspectRatioText,
   getLockedAspectRatioText,
   getUnlockedAspectRatioText,
-  getCustomAspectRatioText,
 } from '../../utils/localization-utils'
 
 describe('localization-utils', () => {

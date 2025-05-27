@@ -2,12 +2,12 @@ import React from "react";
 
 import { useTranslation } from "react-i18next";
 
+import { NoFiles } from "@/components/common/no-files";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MediaFile } from "@/types/media";
 
 import { MediaGroup } from "./media-group";
-import { NoFiles } from "../../browser/components/layout/no-files";
 
 /**
  * Интерфейс свойств компонента MediaContent
@@ -96,7 +96,7 @@ export const MediaContent: React.FC<MediaContentProps> = ({
 
   // Если нет файлов, показываем сообщение об отсутствии файлов
   if (groupedFiles.length === 0 || groupedFiles[0].files.length === 0) {
-    return <NoFiles />;
+    return <NoFiles type="media" />;
   }
 
   // Отображаем группы файлов

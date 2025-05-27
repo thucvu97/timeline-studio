@@ -69,6 +69,7 @@ describe("UserSettingsModal", () => {
       toggleBrowserVisibility: vi.fn(),
     }))
 
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     vi.mocked(useLanguage).mockImplementation(() => ({
       currentLanguage: "ru",
       changeLanguage: mockChangeLanguage,
@@ -106,6 +107,7 @@ describe("UserSettingsModal", () => {
     expect(screen.getByText("dialogs.userSettings.interfaceLanguage")).toBeInTheDocument()
 
     // Симулируем выбор языка, вызывая напрямую функцию changeLanguage
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     void vi.mocked(useLanguage)().changeLanguage("en")
 
     // Проверяем, что changeLanguage был вызван
@@ -234,6 +236,7 @@ describe("UserSettingsModal", () => {
     expect(selectValue).toHaveTextContent("ru")
 
     // Изменяем язык в контексте
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     vi.mocked(useLanguage).mockImplementation(() => ({
       currentLanguage: "en",
       changeLanguage: mockChangeLanguage,

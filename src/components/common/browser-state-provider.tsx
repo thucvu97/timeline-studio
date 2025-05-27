@@ -1,17 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { useAppSettings } from "@/features/app-state";
+import { DEFAULT_PREVIEW_SIZE_INDEX, PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
 
 import {
   BrowserContext,
   BrowserTab,
-  DEFAULT_PREVIEW_SIZE_INDEX,
-  PREVIEW_SIZES,
   ViewMode,
 } from "./browser-state-machine";
 
 // Реэкспортируем для удобства
-export { PREVIEW_SIZES } from "./browser-state-machine";
+export { PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
 
 /**
  * Начальные настройки для каждой вкладки

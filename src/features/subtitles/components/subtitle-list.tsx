@@ -2,11 +2,11 @@ import { useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
-import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
 import { useBrowserState } from "@/components/common/browser-state-provider";
 import { ContentGroup } from "@/components/common/content-group";
 import { useMedia } from "@/features/browser/media";
 import { useProjectSettings } from "@/features/project-settings";
+import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
 import { SubtitleStyle } from "@/types/subtitles";
 
 import { SubtitlePreview } from "./subtitle-preview";

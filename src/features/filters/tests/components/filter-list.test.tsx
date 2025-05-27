@@ -22,26 +22,35 @@ vi.mock("react-i18next", () => ({
 }));
 
 // Мокаем lucide-react иконки
-vi.mock("lucide-react", () => ({
-  Star: ({ className, strokeWidth }: any) => (
-    <div
-      data-testid="star-icon"
-      data-classname={className}
-      data-stroke-width={strokeWidth}
-    >
-      Star Icon
-    </div>
-  ),
-  Plus: ({ className, strokeWidth }: any) => (
-    <div
-      data-testid="plus-icon"
-      data-classname={className}
-      data-stroke-width={strokeWidth}
-    >
-      Plus Icon
-    </div>
-  ),
-}));
+vi.mock("lucide-react", () => {
+  const createMockIcon = (name: string) => {
+    const MockIcon = ({ className, strokeWidth }: any) => (
+      <div
+        data-testid={`${name.toLowerCase()}-icon`}
+        data-classname={className}
+        data-stroke-width={strokeWidth}
+      >
+        {name}
+      </div>
+    );
+    MockIcon.displayName = `Mock${name}Icon`;
+    return MockIcon;
+  };
+
+  return {
+    Star: createMockIcon("Star"),
+    Plus: createMockIcon("Plus"),
+    Video: createMockIcon("Video"),
+    Music: createMockIcon("Music"),
+    Filter: createMockIcon("Filter"),
+    Sparkles: createMockIcon("Sparkles"),
+    Palette: createMockIcon("Palette"),
+    FileText: createMockIcon("FileText"),
+    Image: createMockIcon("Image"),
+    Upload: createMockIcon("Upload"),
+    FolderOpen: createMockIcon("FolderOpen"),
+  };
+});
 
 // Простые моки для тестирования
 const mockFilters = [

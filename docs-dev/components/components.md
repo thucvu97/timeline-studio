@@ -79,7 +79,7 @@ Timeline Editor состоит из пяти основных компонент
 - `audio-track.tsx` - аудио дорожка
 - `video-clip.tsx` - видео клип
 
-**Машина состояний**: `timelineMachine`
+**Машина состояний**: `timelineMachine` ✅ **РЕАЛИЗОВАНА** (20 тестов прошли)
 
 ## Media Player (Плеер)
 

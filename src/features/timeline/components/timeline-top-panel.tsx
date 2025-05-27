@@ -14,24 +14,60 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+import { useTimeline } from "../timeline-provider"
+
 const ICON_STYLE =
   "flex rounded-sm items-center justify-center w-7 h-7 hover:bg-[#dddbdd] dark:hover:bg-[#45444b] cursor-pointer dark:bg-[#45444b] text-gray-200 hover:bg-[#45444b]"
 
 export function TimelineTopPanel() {
   const { t } = useTranslation()
 
-  const isTrashActive = false
-  const isCutActive = false
-  const isAbleToScale = false
-  const isAbleToScaleUp = false
-  const isAbleToScaleDown = false
-  const isAbleToFitToTracks = false
-  const deleteTrack = () => {}
-  const cutTrack = () => {}
-  const handleScaleDecrease = () => {}
-  const handleScaleIncrease = () => {}
-  const handleSliderChange = () => {}
-  const sliderValue = 50
+  // Получаем данные и методы из Timeline
+  const {
+    project,
+    uiState,
+    undo,
+    redo,
+    setTimeScale,
+    setEditMode,
+    clearSelection
+  } = useTimeline()
+
+  // Состояние для UI
+  const isTrashActive = project !== null
+  const isCutActive = project !== null
+  const isAbleToScale = project !== null
+  const isAbleToScaleUp = project !== null && uiState.timeScale < 200
+  const isAbleToScaleDown = project !== null && uiState.timeScale > 10
+  const isAbleToFitToTracks = project !== null
+
+  // Обработчики
+  const deleteTrack = () => {
+    clearSelection()
+  }
+
+  const cutTrack = () => {
+    setEditMode("cut")
+  }
+
+  const handleScaleDecrease = () => {
+    if (isAbleToScaleDown) {
+      setTimeScale(Math.max(10, uiState.timeScale - 10))
+    }
+  }
+
+  const handleScaleIncrease = () => {
+    if (isAbleToScaleUp) {
+      setTimeScale(Math.min(200, uiState.timeScale + 10))
+    }
+  }
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value)
+    setTimeScale(value)
+  }
+
+  const sliderValue = uiState.timeScale
   const maxScale = 200
 
   return (

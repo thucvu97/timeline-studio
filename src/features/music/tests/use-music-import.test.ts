@@ -55,6 +55,12 @@ vi.mock("../hooks/use-music", () => ({
 describe("useMusicImport", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Сбрасываем все моки к их изначальному состоянию
+    mockSelectAudioFile.mockReset();
+    mockSelectMediaDirectory.mockReset();
+    mockGetMediaMetadata.mockReset();
+    mockConvertToSavedMusicFile.mockReset();
+    mockInvoke.mockReset();
   });
 
   it("should import useMusicImport hook without errors", async () => {

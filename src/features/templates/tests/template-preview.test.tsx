@@ -157,12 +157,14 @@ describe("TemplatePreview", () => {
       />,
     );
 
-    // Проверяем, что размеры рассчитаны правильно
+    // Проверяем, что размеры рассчитаны правильно с учетом минимума 150px для шаблонов
     const previewElement = screen.getByTestId("template-content").parentElement;
     if (previewElement) {
-      expect(previewElement).toHaveStyle({ width: `${mockSize}px` });
+      // Для шаблонов применяется минимум 150px по длинному краю
+      const effectiveSize = Math.max(mockSize, 150); // 150px минимум
+      expect(previewElement).toHaveStyle({ width: `${effectiveSize}px` });
       expect(previewElement).toHaveStyle({
-        height: `${mockSize * (1080 / 1920)}px`,
+        height: `${Math.round(effectiveSize * (1080 / 1920))}px`,
       });
     }
   });
@@ -177,13 +179,15 @@ describe("TemplatePreview", () => {
       />,
     );
 
-    // Проверяем, что размеры рассчитаны правильно для вертикального шаблона
+    // Проверяем, что размеры рассчитаны правильно для вертикального шаблона с учетом минимума 150px
     const previewElement = screen.getByTestId("template-content").parentElement;
     if (previewElement) {
+      // Для вертикальных шаблонов длинный край - это высота
+      const effectiveSize = Math.max(mockSize, 150); // 150px минимум
       expect(previewElement).toHaveStyle({
-        width: `${mockSize * (1080 / 1920)}px`,
+        width: `${Math.round(effectiveSize * (1080 / 1920))}px`,
       });
-      expect(previewElement).toHaveStyle({ height: `${mockSize}px` });
+      expect(previewElement).toHaveStyle({ height: `${effectiveSize}px` });
     }
   });
 });

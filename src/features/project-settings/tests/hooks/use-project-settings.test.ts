@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from 'vitest'
-import { renderHook } from '@testing-library/react'
 import React, { ReactNode } from 'react'
+
+import { renderHook } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+
 import { useProjectSettings } from '../../hooks/use-project-settings'
 
 // Мокируем провайдер

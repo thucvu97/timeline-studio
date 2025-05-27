@@ -105,6 +105,9 @@ export interface MediaToolbarProps {
   showGroupBy?: boolean;
   showZoom?: boolean;
   className?: string;
+
+  // Дополнительные кнопки для конкретных вкладок
+  extraButtons?: React.ReactNode;
 }
 
 /**
@@ -154,6 +157,9 @@ export function MediaToolbar({
   showGroupBy = true,
   showZoom = false,
   className,
+
+  // Дополнительные кнопки
+  extraButtons,
 }: MediaToolbarProps) {
   const { t } = useTranslation();
 
@@ -260,6 +266,9 @@ export function MediaToolbar({
       </div>
 
       <div className="flex items-end gap-2">
+        {/* Дополнительные кнопки для конкретных вкладок */}
+        {extraButtons}
+
         {/* Кнопка избранного */}
         <TooltipProvider>
           <Tooltip>

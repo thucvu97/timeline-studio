@@ -1,5 +1,6 @@
 import { FavoritesType } from "@/features/browser/media/media-machine"
-import { BrowserTab, LayoutMode, PreviewSize } from "@/features/user-settings"
+import { BrowserTab, LayoutMode } from "@/features/user-settings"
+import { PreviewSize } from "@/lib/constants/preview-sizes"
 import { MediaFile } from "@/types/media"
 import { ProjectSettings } from "@/types/project"
 import { TimelineResource } from "@/types/resources"

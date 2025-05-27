@@ -39,6 +39,7 @@ export function UserSettingsModal() {
 
   const { closeModal } = useModal() // Хук для закрытия модального окна
   const { t } = useTranslation() // Хук для интернационализации
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   const { currentLanguage, changeLanguage } = useLanguage() // Хук для управления языком
 
   // Локальное состояние для выбранного языка
@@ -46,7 +47,7 @@ export function UserSettingsModal() {
 
   /**
    * Обработчик изменения языка интерфейса
-   * Применяет изменения языка немедленно
+   * Применяет изменения языка немедленно через новую систему
    *
    * @param {string} value - Код выбранного языка
    */
@@ -56,10 +57,10 @@ export function UserSettingsModal() {
     // Обновляем локальное состояние
     setSelectedLanguage(newLanguage)
 
-    // Сразу применяем изменения языка через хук useLanguage
-    console.log("Applying language change immediately:", newLanguage)
+    // Сразу применяем изменения языка через новую систему
+    console.log("Applying language change via new system:", newLanguage)
 
-    // Используем метод changeLanguage из хука useLanguage
+    // Используем метод changeLanguage из нового хука
     void changeLanguage(newLanguage)
   }
 

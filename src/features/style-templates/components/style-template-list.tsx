@@ -2,11 +2,11 @@ import { useCallback, useMemo } from "react";
 
 import { useTranslation } from "react-i18next";
 
-import { PREVIEW_SIZES } from "@/components/common/browser-state-machine";
 import { useBrowserState } from "@/components/common/browser-state-provider";
 import { ContentGroup } from "@/components/common/content-group";
 import { useMedia } from "@/features/browser/media";
 import { StyleTemplatePreview } from "@/features/style-templates/components/style-template-preview";
+import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
 
 import { useStyleTemplates } from "../hooks";
 import { StyleTemplate } from "../types";

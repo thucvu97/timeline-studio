@@ -1,3 +1,8 @@
+/**
+ * DEPRECATED: Используйте useLanguage из @/features/language вместо этого хука
+ * Этот хук оставлен для обратной совместимости
+ */
+
 import { useCallback, useEffect, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
@@ -11,7 +16,8 @@ interface LanguageResponse {
 }
 
 /**
- * Хук для управления языком приложения
+ * @deprecated Используйте useLanguage из @/features/language
+ * Хук для управления языком приложения (устаревший)
  * Синхронизирует язык между фронтендом и бэкендом Tauri
  */
 export function useLanguage() {

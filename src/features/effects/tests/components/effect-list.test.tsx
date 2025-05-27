@@ -105,7 +105,7 @@ vi.mock("@/components/common/browser-state-provider", () => ({
 }));
 
 // Мокаем preview sizes
-vi.mock("@/components/common/browser-state-machine", () => ({
+vi.mock("@/lib/constants/preview-sizes", () => ({
   PREVIEW_SIZES: [100, 125, 150, 200, 250, 300, 400],
 }));
 
@@ -282,7 +282,7 @@ describe("EffectList", () => {
     render(<EffectList />);
 
     // Проверяем сообщение об отсутствии результатов
-    expect(screen.getByText("common.noResults")).toBeInTheDocument();
+    expect(screen.getByText("Эффекты не найдены")).toBeInTheDocument();
   });
 
   it("should handle effect selection", () => {

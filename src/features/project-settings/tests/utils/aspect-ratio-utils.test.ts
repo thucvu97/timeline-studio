@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
+
 import {
-  getAspectRatioString,
-  gcd,
   calculateHeightFromWidth,
   calculateWidthFromHeight,
+  gcd,
+  getAspectRatioString,
   isStandardAspectRatio,
 } from '../../utils/aspect-ratio-utils'
 

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { useBrowserState } from "@/components/common/browser-state-provider";
 import { ContentGroup } from "@/components/common/content-group";
+import { NoFiles } from "@/components/common/no-files";
 import { useMedia } from "@/features/browser/media";
 import { useProjectSettings } from "@/features/project-settings";
 import { VideoFilter } from "@/types/filters";
@@ -236,11 +237,14 @@ export function FilterList() {
       <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3">
         {processedFilters.length === 0 ? (
           // Отображаем сообщение, если фильтры не найдены
-          <div className="flex h-full items-center justify-center text-gray-500">
-            {showFavoritesOnly
-              ? t("browser.media.noFavorites")
-              : t("common.noResults")}
-          </div>
+          <>
+            {!showFavoritesOnly && <NoFiles type="filters" />}
+            {showFavoritesOnly && (
+              <div className="flex h-full items-center justify-center text-gray-500">
+                {t("browser.media.noFavorites")}
+              </div>
+            )}
+          </>
         ) : (
           // Отображаем сгруппированные фильтры
           <div className="space-y-4">

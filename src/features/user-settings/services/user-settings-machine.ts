@@ -1,14 +1,14 @@
 import { assign, createMachine } from "xstate"
 
 import type { BrowserContext } from "@/components/common/browser-state-machine"
-
-/**
- * Допустимые размеры превью для медиа-элементов
- * Используются для настройки размера отображения элементов в браузере
- */
-export const PREVIEW_SIZES = [60, 80, 100, 125, 150, 200, 250, 300, 400, 500] as const
-export const DEFAULT_SIZE = 100 // Размер превью по умолчанию
-export const MIN_SIZE = 60 // Минимальный размер превью
+import {
+  DEFAULT_CONTENT_SIZES,
+  DEFAULT_SIZE,
+  MIN_SIZE,
+  PREVIEW_SIZES,
+  type PreviewSize,
+  type PreviewSizeKey
+} from "@/lib/constants/preview-sizes"
 
 /**
  * Допустимые значения для активного таба в браузере
@@ -35,10 +35,8 @@ export const DEFAULT_LAYOUT = "default" // Макет по умолчанию
 /**
  * Типы для TypeScript, основанные на константах
  */
-export type PreviewSize = (typeof PREVIEW_SIZES)[number] // Тип размера превью
 export type BrowserTab = (typeof BROWSER_TABS)[number] // Тип таба браузера
 export type LayoutMode = (typeof LAYOUTS)[number] // Тип макета интерфейса
-export type PreviewSizeKey = "MEDIA" | "TRANSITIONS" | "TEMPLATES" | "EFFECTS" | "FILTERS" | "SUBTITLES" | "STYLE_TEMPLATES" | "MUSIC" // Тип ключа размера превью
 
 /**
  * Интерфейс контекста пользовательских настроек
@@ -66,16 +64,7 @@ export interface UserSettingsContextType {
  */
 const initialContext: UserSettingsContextType = {
   // Размеры превью по умолчанию для разных типов контента
-  previewSizes: {
-    MEDIA: DEFAULT_SIZE,
-    TRANSITIONS: DEFAULT_SIZE,
-    TEMPLATES: DEFAULT_SIZE,
-    EFFECTS: DEFAULT_SIZE,
-    FILTERS: DEFAULT_SIZE,
-    SUBTITLES: DEFAULT_SIZE,
-    STYLE_TEMPLATES: DEFAULT_SIZE,
-    MUSIC: DEFAULT_SIZE,
-  },
+  previewSizes: DEFAULT_CONTENT_SIZES,
   activeTab: DEFAULT_TAB, // Активный таб по умолчанию
   layoutMode: DEFAULT_LAYOUT, // Макет по умолчанию
   screenshotsPath: "public/screenshots", // Путь для скриншотов по умолчанию

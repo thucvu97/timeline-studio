@@ -132,7 +132,7 @@ describe("MediaContent", () => {
     );
 
     // Проверяем, что компонент NoFiles отображается
-    expect(screen.getByTestId("no-files")).toBeInTheDocument();
+    expect(screen.getByText("Медиафайлы не найдены")).toBeInTheDocument();
   });
 
   it("should render NoFiles when groupedFiles has empty files array", () => {
@@ -149,7 +149,7 @@ describe("MediaContent", () => {
     );
 
     // Проверяем, что компонент NoFiles отображается
-    expect(screen.getByTestId("no-files")).toBeInTheDocument();
+    expect(screen.getByText("Медиафайлы не найдены")).toBeInTheDocument();
   });
 
   it("should render MediaGroup components for each group", () => {

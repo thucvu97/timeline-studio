@@ -8,6 +8,7 @@ import { MediaProvider } from "@/features/browser/media";
 import { ModalProvider } from "@/features/modals/services/modal-provider";
 import { ProjectSettingsProvider } from "@/features/project-settings";
 import { ResourcesProvider } from "@/features/resources";
+import { TimelineProvider } from "@/features/timeline/timeline-provider";
 import { UserSettingsProvider } from "@/features/user-settings";
 import { PlayerProvider } from "@/features/video-player/services/player-provider";
 import { I18nProvider } from "@/i18n/i18n-provider";
@@ -39,6 +40,15 @@ export const PlayerProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
       <PlayerProvider>{children}</PlayerProvider>
+    </BaseProviders>
+  );
+};
+
+// ✅ Провайдеры для Timeline
+export const TimelineProviders = ({ children }: { children: ReactNode }) => {
+  return (
+    <BaseProviders>
+      <TimelineProvider>{children}</TimelineProvider>
     </BaseProviders>
   );
 };
@@ -81,6 +91,11 @@ export const renderWithPlayer = (
   ui: ReactElement,
   options?: Omit<RenderOptions, "wrapper">,
 ) => render(ui, { wrapper: PlayerProviders, ...options });
+
+export const renderWithTimeline = (
+  ui: ReactElement,
+  options?: Omit<RenderOptions, "wrapper">,
+) => render(ui, { wrapper: TimelineProviders, ...options });
 
 export const renderWithModal = (
   ui: ReactElement,

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-import { useBrowserState } from "@/components/common/browser-state-provider";
 import { useResources } from "@/features/resources";
+import { calculateDimensionsWithAspectRatio } from "@/lib/constants/preview-sizes";
 import { MediaFile } from "@/types/media";
 import { TemplateResource } from "@/types/resources";
 
@@ -45,32 +45,12 @@ export function TemplatePreview({
   // Используется для мгновенного обновления UI без ожидания обновления из хранилища
   const [localIsAdded, setLocalIsAdded] = useState(false);
 
-  /**
-   * Вычисляет размеры превью, сохраняя соотношение сторон оригинального шаблона
-   * @returns {{width: number, height: number}} Объект с вычисленными размерами
-   */
-  const calculateDimensions = (): { width: number; height: number } => {
-    // Для квадратных шаблонов используем одинаковую ширину и высоту
-    if (width === height) {
-      return { width: size, height: size };
-    }
-
-    // Для вертикальных шаблонов (портретная ориентация)
-    // используем максимально возможную ширину и увеличиваем высоту пропорционально
-    if (height > width) {
-      // Вычисляем ширину с сохранением пропорций
-      const fixedWidth = (size / height) * width;
-      return { width: fixedWidth, height: size };
-    }
-
-    // Для горизонтальных шаблонов (альбомная ориентация)
-    // уменьшаем высоту пропорционально
-    const calculatedHeight = Math.min((size * height) / width, size);
-    return { width: size, height: calculatedHeight };
-  };
-
-  // Получаем вычисленные размеры превью
-  const { height: previewHeight, width: previewWidth } = calculateDimensions();
+  // Получаем вычисленные размеры превью с минимумом 150px для шаблонов
+  const { height: previewHeight, width: previewWidth } = calculateDimensionsWithAspectRatio(
+    size,
+    { width, height },
+    true // isTemplate = true для применения минимума 150px
+  );
 
   // Получаем методы для работы с ресурсами шаблонов
   const { addTemplate, isTemplateAdded, removeResource, templateResources } =

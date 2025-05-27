@@ -3,8 +3,11 @@ import { assign, createMachine, fromPromise } from "xstate";
 
 import { FavoritesType } from "@/features/browser/media/media-machine";
 import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine";
+import { DEFAULT_CONTENT_SIZES } from "@/lib/constants/preview-sizes";
+
 
 import { AppSettings, storeService } from "./store-service";
+
 
 /**
  * Функция для получения локализованного названия проекта по умолчанию
@@ -112,16 +115,7 @@ const loadSettings = fromPromise(async () => {
 function getDefaultSettings(): AppSettings {
   return {
     userSettings: {
-      previewSizes: {
-        MEDIA: 100,
-        TRANSITIONS: 100,
-        TEMPLATES: 125,
-        EFFECTS: 100,
-        FILTERS: 100,
-        SUBTITLES: 100,
-        STYLE_TEMPLATES: 125,
-        MUSIC: 100,
-      },
+      previewSizes: DEFAULT_CONTENT_SIZES,
       activeTab: "media",
       layoutMode: "default",
       screenshotsPath: "",

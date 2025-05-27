@@ -64,6 +64,7 @@ describe("useLanguage", () => {
   })
 
   it("should initialize with default language", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const { result } = renderHook(() => useLanguage())
 
     // Проверяем начальное состояние
@@ -95,6 +96,7 @@ describe("useLanguage", () => {
         system_language: "ru",
       })
 
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const { result } = renderHook(() => useLanguage())
 
     // Ждем завершения загрузки
@@ -118,6 +120,7 @@ describe("useLanguage", () => {
     // Мокаем invoke для возврата ошибки
     vi.mocked(invoke).mockRejectedValueOnce(new Error("Failed to fetch language"))
 
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const { result } = renderHook(() => useLanguage())
 
     // Ждем завершения загрузки
@@ -144,6 +147,7 @@ describe("useLanguage", () => {
       })
       .mockRejectedValueOnce(new Error("Failed to change language"))
 
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const { result } = renderHook(() => useLanguage())
 
     // Ждем завершения загрузки
@@ -170,6 +174,7 @@ describe("useLanguage", () => {
       system_language: "unsupported",
     })
 
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const { result } = renderHook(() => useLanguage())
 
     // Ждем завершения загрузки
@@ -194,6 +199,7 @@ describe("useLanguage", () => {
         system_language: "ru",
       })
 
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const { result } = renderHook(() => useLanguage())
 
     // Ждем завершения загрузки

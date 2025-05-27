@@ -1,8 +1,11 @@
 import { assign, createMachine } from "xstate";
 
-// Общие размеры превью для всех вкладок браузера
-export const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400];
-export const DEFAULT_PREVIEW_SIZE_INDEX = 2; // 150px (по умолчанию)
+import {
+  DEFAULT_PREVIEW_SIZE_INDEX,
+  PREVIEW_SIZES,
+  type PreviewSize,
+  getPreviewSizeIndex
+} from "@/lib/constants/preview-sizes";
 
 /**
  * Тип вкладки браузера
@@ -79,12 +82,14 @@ const getInitialTabSettings = (tab: BrowserTab) => {
         ...baseSettings,
         sortBy: "screens",
         groupBy: "screens",
+        previewSizeIndex: getPreviewSizeIndex(150), // Больший размер для шаблонов
       };
     case "style-templates":
       return {
         ...baseSettings,
         sortBy: "category",
         groupBy: "category",
+        previewSizeIndex: getPreviewSizeIndex(125), // Средний размер для стилевых шаблонов
       };
     case "effects":
     case "filters":
