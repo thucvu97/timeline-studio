@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { SubtitlePreview } from "./subtitle-preview";
 import { SubtitleStyle } from "../types/subtitles";
 
-
 interface SubtitleGroupProps {
   title: string;
   subtitles: SubtitleStyle[];

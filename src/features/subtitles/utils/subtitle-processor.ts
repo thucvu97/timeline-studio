@@ -39,16 +39,18 @@ interface SubtitleStylesDataFile {
  * @param rawStyles - Массив сырых данных стилей
  * @returns Массив обработанных стилей субтитров
  */
-export function processSubtitleStyles(rawStyles: RawSubtitleStyleData[]): SubtitleStyle[] {
+export function processSubtitleStyles(
+  rawStyles: RawSubtitleStyleData[],
+): SubtitleStyle[] {
   return rawStyles.map((rawStyle) => ({
     id: rawStyle.id,
     name: rawStyle.name,
-    category: rawStyle.category as SubtitleStyle['category'],
-    complexity: rawStyle.complexity as SubtitleStyle['complexity'],
-    tags: rawStyle.tags as SubtitleStyle['tags'],
+    category: rawStyle.category as SubtitleStyle["category"],
+    complexity: rawStyle.complexity as SubtitleStyle["complexity"],
+    tags: rawStyle.tags as SubtitleStyle["tags"],
     description: rawStyle.description,
     labels: rawStyle.labels,
-    style: rawStyle.style
+    style: rawStyle.style,
   }));
 }
 
@@ -57,8 +59,10 @@ export function processSubtitleStyles(rawStyles: RawSubtitleStyleData[]): Subtit
  * @param data - Данные для валидации
  * @returns true если данные валидны, false в противном случае
  */
-export function validateSubtitleStylesData(data: any): data is SubtitleStylesDataFile {
-  if (!data || typeof data !== 'object') {
+export function validateSubtitleStylesData(
+  data: any,
+): data is SubtitleStylesDataFile {
+  if (!data || typeof data !== "object") {
     return false;
   }
 
@@ -71,19 +75,19 @@ export function validateSubtitleStylesData(data: any): data is SubtitleStylesDat
   return data.styles.every((style: any) => {
     return (
       style &&
-      typeof style.id === 'string' &&
-      typeof style.name === 'string' &&
-      typeof style.category === 'string' &&
-      typeof style.complexity === 'string' &&
+      typeof style.id === "string" &&
+      typeof style.name === "string" &&
+      typeof style.category === "string" &&
+      typeof style.complexity === "string" &&
       Array.isArray(style.tags) &&
       style.description &&
-      typeof style.description.ru === 'string' &&
-      typeof style.description.en === 'string' &&
+      typeof style.description.ru === "string" &&
+      typeof style.description.en === "string" &&
       style.labels &&
-      typeof style.labels.ru === 'string' &&
-      typeof style.labels.en === 'string' &&
+      typeof style.labels.ru === "string" &&
+      typeof style.labels.en === "string" &&
       style.style &&
-      typeof style.style === 'object'
+      typeof style.style === "object"
     );
   });
 }
@@ -97,27 +101,27 @@ export function createFallbackSubtitleStyle(id: string): SubtitleStyle {
   return {
     id,
     name: id.charAt(0).toUpperCase() + id.slice(1),
-    category: 'basic',
-    complexity: 'basic',
-    tags: ['fallback'],
+    category: "basic",
+    complexity: "basic",
+    tags: ["fallback"],
     description: {
       ru: `Базовый стиль ${id}`,
-      en: `Basic style ${id}`
+      en: `Basic style ${id}`,
     },
     labels: {
       ru: id.charAt(0).toUpperCase() + id.slice(1),
-      en: id.charAt(0).toUpperCase() + id.slice(1)
+      en: id.charAt(0).toUpperCase() + id.slice(1),
     },
     style: {
-      fontFamily: 'Arial, sans-serif',
+      fontFamily: "Arial, sans-serif",
       fontSize: 24,
-      fontWeight: 'normal',
-      fontStyle: 'normal',
-      color: '#ffffff',
-      textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)',
-      textAlign: 'center',
-      lineHeight: 1.4
-    }
+      fontWeight: "normal",
+      fontStyle: "normal",
+      color: "#ffffff",
+      textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
+      textAlign: "center",
+      lineHeight: 1.4,
+    },
   };
 }
 
@@ -131,7 +135,7 @@ export function createFallbackSubtitleStyle(id: string): SubtitleStyle {
 export function searchSubtitleStyles(
   styles: SubtitleStyle[],
   query: string,
-  lang: 'ru' | 'en' = 'ru'
+  lang: "ru" | "en" = "ru",
 ): SubtitleStyle[] {
   if (!query.trim()) {
     return styles;
@@ -139,10 +143,17 @@ export function searchSubtitleStyles(
 
   const lowercaseQuery = query.toLowerCase();
 
-  return styles.filter(style =>
-    (style.labels?.[lang] || style.name || "").toLowerCase().includes(lowercaseQuery) ||
-    (style.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
-    (style.tags || []).some(tag => tag.toLowerCase().includes(lowercaseQuery))
+  return styles.filter(
+    (style) =>
+      (style.labels?.[lang] || style.name || "")
+        .toLowerCase()
+        .includes(lowercaseQuery) ||
+      (style.description?.[lang] || "")
+        .toLowerCase()
+        .includes(lowercaseQuery) ||
+      (style.tags || []).some((tag) =>
+        tag.toLowerCase().includes(lowercaseQuery),
+      ),
   );
 }
 
@@ -154,9 +165,9 @@ export function searchSubtitleStyles(
  */
 export function groupSubtitleStyles(
   styles: SubtitleStyle[],
-  groupBy: 'category' | 'complexity' | 'tags' | 'none'
+  groupBy: "category" | "complexity" | "tags" | "none",
 ): Record<string, SubtitleStyle[]> {
-  if (groupBy === 'none') {
+  if (groupBy === "none") {
     return { all: styles };
   }
 
@@ -173,7 +184,8 @@ export function groupSubtitleStyles(
         groupKey = style.complexity || "basic";
         break;
       case "tags":
-        groupKey = (style.tags && style.tags.length > 0) ? style.tags[0] : "untagged";
+        groupKey =
+          style.tags && style.tags.length > 0 ? style.tags[0] : "untagged";
         break;
       default:
         groupKey = "ungrouped";
@@ -197,8 +209,8 @@ export function groupSubtitleStyles(
  */
 export function sortSubtitleStyles(
   styles: SubtitleStyle[],
-  sortBy: 'name' | 'complexity' | 'category',
-  order: 'asc' | 'desc' = 'asc'
+  sortBy: "name" | "complexity" | "category",
+  order: "asc" | "desc" = "asc",
 ): SubtitleStyle[] {
   const sorted = [...styles].sort((a, b) => {
     let result = 0;

@@ -5,7 +5,6 @@ import { SubtitlePreview } from "../components/subtitle-preview";
 
 import type { SubtitleStyle } from "../types/subtitles";
 
-
 // Мокаем хук переводов
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({

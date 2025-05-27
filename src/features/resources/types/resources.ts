@@ -6,7 +6,6 @@ import { VideoEffect } from "@/types/effects";
 import { VideoFilter } from "@/types/filters";
 import { Transition } from "@/types/transitions";
 
-
 // Общий интерфейс для всех ресурсов
 export interface Resource {
   id: string;
