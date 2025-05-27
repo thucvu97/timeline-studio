@@ -4,18 +4,18 @@
 
 import React from "react";
 
-import { 
-  Eye, 
-  EyeOff, 
-  Image, 
-  Lock, 
-  Mic, 
-  Music, 
-  Type, 
-  Unlock, 
+import {
+  Eye,
+  EyeOff,
+  Image,
+  Lock,
+  Mic,
+  Music,
+  Type,
+  Unlock,
   Video,
   Volume2,
-  VolumeX
+  VolumeX,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -46,7 +46,7 @@ const TRACK_TYPE_ICONS: Record<TrackType, React.ComponentType<any>> = {
 // Цвета для разных типов треков
 const TRACK_TYPE_COLORS: Record<TrackType, string> = {
   video: "text-blue-500",
-  audio: "text-green-500", 
+  audio: "text-green-500",
   image: "text-purple-500",
   title: "text-orange-500",
   subtitle: "text-yellow-500",
@@ -94,11 +94,13 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
   };
 
   return (
-    <div className={cn(
-      "h-full p-2 flex flex-col justify-between",
-      "bg-muted/30 border-r border-border",
-      isSelected && "bg-accent/20"
-    )}>
+    <div
+      className={cn(
+        "h-full p-2 flex flex-col justify-between",
+        "bg-muted/30 border-r border-border",
+        isSelected && "bg-accent/20",
+      )}
+    >
       {/* Верхняя часть - иконка типа и название */}
       <div className="space-y-2">
         {/* Иконка типа трека */}
@@ -131,7 +133,11 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
       </div>
 
       {/* Средняя часть - слайдер громкости (для аудио треков) */}
-      {(track.type === "audio" || track.type === "music" || track.type === "voiceover" || track.type === "sfx" || track.type === "ambient") && (
+      {(track.type === "audio" ||
+        track.type === "music" ||
+        track.type === "voiceover" ||
+        track.type === "sfx" ||
+        track.type === "ambient") && (
         <div className="py-2">
           <div className="text-xs text-muted-foreground mb-1">
             Громкость: {Math.round(track.volume * 100)}%
@@ -180,7 +186,11 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
         </Button>
 
         {/* Кнопка отключения звука (для аудио треков) */}
-        {(track.type === "audio" || track.type === "music" || track.type === "voiceover" || track.type === "sfx" || track.type === "ambient") && (
+        {(track.type === "audio" ||
+          track.type === "music" ||
+          track.type === "voiceover" ||
+          track.type === "sfx" ||
+          track.type === "ambient") && (
           <Button
             variant="ghost"
             size="sm"

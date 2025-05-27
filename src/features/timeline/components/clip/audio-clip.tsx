@@ -42,21 +42,31 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
   // Определяем цвет клипа в зависимости от типа аудио
   const getClipColor = () => {
     switch (track.type) {
-      case "music": return "bg-pink-500";
-      case "voiceover": return "bg-cyan-500";
-      case "sfx": return "bg-red-500";
-      case "ambient": return "bg-gray-500";
-      default: return "bg-green-500";
+      case "music":
+        return "bg-pink-500";
+      case "voiceover":
+        return "bg-cyan-500";
+      case "sfx":
+        return "bg-red-500";
+      case "ambient":
+        return "bg-gray-500";
+      default:
+        return "bg-green-500";
     }
   };
 
   const getClipColorHover = () => {
     switch (track.type) {
-      case "music": return "bg-pink-600";
-      case "voiceover": return "bg-cyan-600";
-      case "sfx": return "bg-red-600";
-      case "ambient": return "bg-gray-600";
-      default: return "bg-green-600";
+      case "music":
+        return "bg-pink-600";
+      case "voiceover":
+        return "bg-cyan-600";
+      case "sfx":
+        return "bg-red-600";
+      case "ambient":
+        return "bg-gray-600";
+      default:
+        return "bg-green-600";
     }
   };
 
@@ -82,7 +92,7 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
         clipColor,
         isHovered && clipColorHover,
         clip.isSelected && "ring-2 ring-white ring-offset-1",
-        clip.isLocked && "opacity-60"
+        clip.isLocked && "opacity-60",
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -155,14 +165,20 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
         {/* Индикаторы эффектов */}
         {clip.effects.length > 0 && (
           <div className="absolute bottom-1 left-1">
-            <div className="w-2 h-2 bg-yellow-400 rounded-full" title="Эффекты применены" />
+            <div
+              className="w-2 h-2 bg-yellow-400 rounded-full"
+              title="Эффекты применены"
+            />
           </div>
         )}
 
         {/* Индикаторы фильтров */}
         {clip.filters.length > 0 && (
           <div className="absolute bottom-1 left-4">
-            <div className="w-2 h-2 bg-green-400 rounded-full" title="Фильтры применены" />
+            <div
+              className="w-2 h-2 bg-green-400 rounded-full"
+              title="Фильтры применены"
+            />
           </div>
         )}
       </div>

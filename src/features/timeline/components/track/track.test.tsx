@@ -32,7 +32,8 @@ describe("Track", () => {
     render(<Track {...defaultProps} isSelected={true} />);
 
     // Проверяем что заголовок трека выделен (имеет соответствующие классы)
-    const headerElement = screen.getByText("Test Track").closest("div")?.parentElement?.parentElement;
+    const headerElement = screen.getByText("Test Track").closest("div")
+      ?.parentElement?.parentElement;
     expect(headerElement).toHaveClass("bg-accent/20");
   });
 
@@ -41,7 +42,9 @@ describe("Track", () => {
     render(<Track {...defaultProps} onSelect={onSelect} />);
 
     // Кликаем на трек
-    const trackElement = screen.getByText("Test Track").closest("div")?.parentElement;
+    const trackElement = screen
+      .getByText("Test Track")
+      .closest("div")?.parentElement;
     trackElement?.click();
 
     expect(onSelect).toHaveBeenCalledWith(mockTrack.id);

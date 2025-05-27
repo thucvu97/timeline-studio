@@ -1,6 +1,6 @@
 /**
  * Track - Основной компонент трека Timeline
- * 
+ *
  * Отображает трек с заголовком и содержимым (клипами)
  */
 
@@ -29,7 +29,7 @@ export function Track({
   isSelected = false,
   onSelect,
   onUpdate,
-  className
+  className,
 }: TrackProps) {
   const handleSelect = () => {
     onSelect?.(track.id);
@@ -46,7 +46,7 @@ export function Track({
         "hover:bg-accent/5 transition-colors",
         isSelected && "bg-accent/10 border-accent",
         track.isHidden && "opacity-50",
-        className
+        className,
       )}
       style={{ height: track.height }}
       onClick={handleSelect}
