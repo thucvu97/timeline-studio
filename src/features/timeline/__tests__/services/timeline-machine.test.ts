@@ -6,8 +6,8 @@ import { act } from "@testing-library/react"
 import { beforeEach, describe, expect, it } from "vitest"
 import { createActor } from "xstate"
 
-import { timelineMachine } from "../services/timeline-machine"
-import { createTimelineProject } from "../types"
+import { timelineMachine } from "../../services/timeline-machine"
+import { createTimelineProject } from "../../types"
 
 describe("Timeline Machine", () => {
   let actor: any

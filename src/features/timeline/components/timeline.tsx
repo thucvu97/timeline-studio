@@ -3,15 +3,26 @@ import React from "react"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { AiChat } from "@/features/ai-chat/components/ai-chat"
 import { ResourcesPanel } from "@/features/resources"
+import { cn } from "@/lib/utils"
 
 import { TimelineProvider } from "../timeline-provider"
 import { TimelineContent } from "./timeline-content"
 import { TimelineTopPanel } from "./timeline-top-panel"
 
-export function Timeline() {
+interface TimelineProps {
+  className?: string
+  style?: React.CSSProperties
+}
+
+export function Timeline({ className, style }: TimelineProps = {}) {
   return (
     <TimelineProvider>
-      <ResizablePanelGroup direction="horizontal" className="h-full">
+      <ResizablePanelGroup
+        direction="horizontal"
+        className={cn("h-full timeline", className)}
+        data-testid="timeline"
+        style={style}
+      >
         {/* Левая панель - Ресурсы */}
         <ResizablePanel defaultSize={15} minSize={5} maxSize={30}>
           <ResourcesPanel />

@@ -4,6 +4,13 @@ import React from "react"
 import { cleanup } from "@testing-library/react"
 import { afterEach, vi } from "vitest"
 
+// Мок для ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
+
 // Мок для HTMLVideoElement - переопределяем прототип
 Object.defineProperty(window.HTMLVideoElement.prototype, "play", {
   writable: true,
@@ -887,6 +894,150 @@ vi.mock("@/features/ai-chat/services/chat-provider", () => ({
     removeMessage: vi.fn(),
   }),
   ChatProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+// Мок для TimelineProvider
+vi.mock("@/features/timeline/timeline-provider", () => ({
+  useTimeline: () => ({
+    project: {
+      id: "test-project",
+      name: "Test Project",
+      sections: [],
+      globalTracks: [],
+      settings: {
+        resolution: { width: 1920, height: 1080 },
+        fps: 30,
+        aspectRatio: "16:9",
+        sampleRate: 44100,
+        channels: 2,
+      },
+    },
+    uiState: {
+      selectedClipIds: [],
+      selectedTrackIds: [],
+      currentTime: 0,
+      zoom: 1,
+      scrollPosition: 0,
+    },
+    addTrack: vi.fn(),
+    removeTrack: vi.fn(),
+    updateTrack: vi.fn(),
+    addClip: vi.fn(),
+    removeClip: vi.fn(),
+    updateClip: vi.fn(),
+    selectClips: vi.fn(),
+    selectTracks: vi.fn(),
+    clearSelection: vi.fn(),
+  }),
+  TimelineProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+// Мок для timeline hooks
+vi.mock("@/features/timeline/hooks/use-clips", () => ({
+  useClips: () => ({
+    clips: [],
+    selectedClips: [],
+    clipsByTrack: {},
+    findClip: vi.fn(() => null),
+    getClipsByTrack: vi.fn(() => []),
+    isClipSelected: vi.fn(() => false),
+    getClipAtTime: vi.fn(() => null),
+    getClipStats: vi.fn(() => ({
+      totalClips: 0,
+      totalDuration: 0,
+      selectedCount: 0,
+      clipsByType: { video: 0, audio: 0, image: 0 },
+    })),
+    canPlaceClip: vi.fn(() => false),
+    getClipConflicts: vi.fn(() => []),
+  }),
+}))
+
+vi.mock("@/features/timeline/hooks/use-tracks", () => ({
+  useTracks: () => ({
+    tracks: [],
+    selectedTracks: [],
+    visibleTracks: [],
+    sectionTracks: [],
+    globalTracks: [],
+    findTrack: vi.fn(() => null),
+    getTracksByType: vi.fn(() => []),
+    getTracksBySection: vi.fn(() => []),
+    canAddTrackToSection: vi.fn(() => false),
+    getTrackStats: vi.fn(() => ({
+      clipCount: 0,
+      totalDuration: 0,
+      isEmpty: true,
+    })),
+  }),
+}))
+
+vi.mock("@/features/timeline/hooks/use-timeline-actions", () => ({
+  useTimelineActions: () => ({
+    addMediaToTimeline: vi.fn(),
+    addSingleMediaToTimeline: vi.fn(),
+    getTrackTypeForMedia: vi.fn(() => "video"),
+    findBestTrackForMedia: vi.fn(() => null),
+    calculateClipStartTime: vi.fn(() => 0),
+  }),
+}))
+
+vi.mock("@/features/timeline/hooks/use-timeline-selection", () => ({
+  useTimelineSelection: () => ({
+    // Current selection
+    selectedClips: [],
+    selectedTracks: [],
+    selectedSections: [],
+
+    // Selection state
+    hasSelection: false,
+    selectionCount: { clips: 0, tracks: 0, sections: 0, total: 0 },
+    selectionBounds: null,
+
+    // Selection actions
+    selectClip: vi.fn(),
+    selectTrack: vi.fn(),
+    selectSection: vi.fn(),
+    selectMultiple: vi.fn(),
+    selectAll: vi.fn(),
+    selectNone: vi.fn(),
+    invertSelection: vi.fn(),
+
+    // Area selection
+    selectInTimeRange: vi.fn(),
+    selectByType: vi.fn(),
+
+    // Operations on selected
+    deleteSelected: vi.fn(),
+    duplicateSelected: vi.fn(),
+    groupSelected: vi.fn(),
+    ungroupSelected: vi.fn(),
+
+    // Properties of selected
+    setSelectedVolume: vi.fn(),
+    setSelectedSpeed: vi.fn(),
+    setSelectedOpacity: vi.fn(),
+    muteSelected: vi.fn(),
+    unmuteSelected: vi.fn(),
+    lockSelected: vi.fn(),
+    unlockSelected: vi.fn(),
+
+    // Clipboard operations
+    copySelected: vi.fn(),
+    cutSelected: vi.fn(),
+    pasteAtTime: vi.fn(),
+
+    // Utilities
+    isClipSelected: vi.fn(() => false),
+    isTrackSelected: vi.fn(() => false),
+    isSectionSelected: vi.fn(() => false),
+    getSelectionStats: vi.fn(() => ({
+      totalDuration: 0,
+      averageVolume: 0,
+      trackTypes: [],
+      mediaTypes: [],
+    })),
+  }),
 }))
 
 // Мок для TopBar

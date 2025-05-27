@@ -13,24 +13,43 @@ import { TrackContent } from "./track-content"
 import { TrackHeader } from "./track-header"
 
 interface TrackProps {
-  track: TimelineTrack
-  timeScale: number // Пикселей на секунду
-  currentTime: number
+  track: TimelineTrack | null
+  timeScale?: number // Пикселей на секунду
+  currentTime?: number
   isSelected?: boolean
   onSelect?: (trackId: string) => void
   onUpdate?: (track: TimelineTrack) => void
+  onMuteToggle?: (trackId: string) => void
+  onLockToggle?: (trackId: string) => void
   className?: string
+  style?: React.CSSProperties
 }
 
 export function Track({
   track,
-  timeScale,
-  currentTime,
+  timeScale = 100,
+  currentTime = 0,
   isSelected = false,
   onSelect,
   onUpdate,
+  onMuteToggle,
+  onLockToggle,
   className,
+  style,
 }: TrackProps) {
+  // Обработка null track
+  if (!track) {
+    return (
+      <div
+        data-testid="track"
+        className={cn("flex border-b border-border bg-background track", className)}
+        style={style}
+      >
+        <div className="p-4 text-muted-foreground">Invalid track</div>
+      </div>
+    )
+  }
+
   const handleSelect = () => {
     onSelect?.(track.id)
   }
@@ -41,15 +60,24 @@ export function Track({
 
   return (
     <div
+      data-testid="track"
       className={cn(
-        "flex border-b border-border bg-background",
+        "flex border-b border-border bg-background track",
         "hover:bg-accent/5 transition-colors",
         isSelected && "bg-accent/10 border-accent",
         track.isHidden && "opacity-50",
         className,
       )}
-      style={{ height: track.height }}
+      style={{ height: track.height, ...style }}
       onClick={handleSelect}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          handleSelect()
+        }
+      }}
     >
       {/* Заголовок трека (фиксированная ширина) */}
       <div className="flex-shrink-0 w-48 border-r border-border">

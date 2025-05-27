@@ -158,6 +158,7 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
           className="w-6 h-6 p-0"
           onClick={toggleLock}
           title={track.isLocked ? "Разблокировать трек" : "Заблокировать трек"}
+          data-testid="track-lock-button"
         >
           {track.isLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
         </Button>
@@ -174,6 +175,7 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
             className="w-6 h-6 p-0"
             onClick={toggleMute}
             title={track.isMuted ? "Включить звук" : "Отключить звук"}
+            data-testid="track-mute-button"
           >
             {track.isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
           </Button>
