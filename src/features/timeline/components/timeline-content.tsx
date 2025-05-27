@@ -35,7 +35,7 @@ export function TimelineContent() {
   } = useTimeline();
 
   const { tracks } = useTracks();
-  const { clips, clipsByTrack } = useClips();
+  const { clips } = useClips();
 
   // Получаем данные реального проекта
   const { currentProject } = useCurrentProject();
@@ -115,7 +115,7 @@ export function TimelineContent() {
             <p className="text-sm text-muted-foreground">
               {projectSettings
                 ? `${projectSettings.aspectRatio.value.width}x${projectSettings.aspectRatio.value.height} @ ${projectSettings.frameRate}fps`
-                : `${project.settings.width}x${project.settings.height} @ ${project.settings.frameRate}fps`}
+                : `${project.settings.resolution.width}x${project.settings.resolution.height} @ ${project.settings.fps}fps`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -180,7 +180,7 @@ export function TimelineContent() {
                 currentTime={currentTime}
                 isSelected={uiState.selectedTrackIds.includes(track.id)}
                 onSelect={(trackId) => selectTracks([trackId])}
-                onUpdate={updateTrack}
+                onUpdate={(updates) => updateTrack(track.id, updates)}
               />
             ))}
           </div>

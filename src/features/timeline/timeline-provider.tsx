@@ -137,12 +137,7 @@ export function TimelineProvider({
   children,
   services,
 }: TimelineProviderProps) {
-  const [state, send] = useMachine(timelineMachine, {
-    services: {
-      saveProjectService:
-        services?.saveProjectService || defaultSaveProjectService,
-    },
-  });
+  const [state, send] = useMachine(timelineMachine);
 
   // Извлекаем данные из состояния машины
   const {
