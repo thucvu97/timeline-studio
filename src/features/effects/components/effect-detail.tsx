@@ -102,7 +102,11 @@ export function EffectDetail({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3">
-              <span>{effect?.labels[currentLang] ?? effect?.labels?.en ?? "Unnamed effect"}</span>
+              <span>
+                {effect?.labels[currentLang] ??
+                  effect?.labels?.en ??
+                  "Unnamed effect"}
+              </span>
               <EffectIndicators effect={effect} size="md" />
             </DialogTitle>
             <Button variant="ghost" size="sm" onClick={onClose}>

@@ -9,15 +9,25 @@ describe("NoFiles", () => {
     renderWithBase(<NoFiles type="media" />);
 
     expect(screen.getByText("Медиафайлы не найдены")).toBeInTheDocument();
-    expect(screen.getByText("Добавьте видео, аудио или фото файлы для работы с проектом")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Добавьте видео, аудио или фото файлы для работы с проектом",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText("/public/media/")).toBeInTheDocument();
   });
 
   it("должен рендериться для типа music", () => {
     renderWithBase(<NoFiles type="music" />);
 
-    expect(screen.getByText("Музыкальные файлы не найдены")).toBeInTheDocument();
-    expect(screen.getByText("Добавьте музыку и звуковые эффекты для озвучивания проекта")).toBeInTheDocument();
+    expect(
+      screen.getByText("Музыкальные файлы не найдены"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Добавьте музыку и звуковые эффекты для озвучивания проекта",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText("/public/music/")).toBeInTheDocument();
   });
 
@@ -25,7 +35,9 @@ describe("NoFiles", () => {
     renderWithBase(<NoFiles type="effects" />);
 
     expect(screen.getByText("Эффекты не найдены")).toBeInTheDocument();
-    expect(screen.getByText("Добавьте видеоэффекты для улучшения ваших клипов")).toBeInTheDocument();
+    expect(
+      screen.getByText("Добавьте видеоэффекты для улучшения ваших клипов"),
+    ).toBeInTheDocument();
     expect(screen.getByText("/public/effects/")).toBeInTheDocument();
   });
 
@@ -33,7 +45,9 @@ describe("NoFiles", () => {
     renderWithBase(<NoFiles type="filters" />);
 
     expect(screen.getByText("Фильтры не найдены")).toBeInTheDocument();
-    expect(screen.getByText("Добавьте цветовые фильтры и коррекцию для видео")).toBeInTheDocument();
+    expect(
+      screen.getByText("Добавьте цветовые фильтры и коррекцию для видео"),
+    ).toBeInTheDocument();
     expect(screen.getByText("/public/filters/")).toBeInTheDocument();
   });
 
@@ -58,28 +72,38 @@ describe("NoFiles", () => {
   it("не должен показывать кнопку импорта когда onImport не передан", () => {
     renderWithBase(<NoFiles type="media" />);
 
-    expect(screen.queryByText("Импортировать медиафайлы")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Импортировать медиафайлы"),
+    ).not.toBeInTheDocument();
   });
 
   it("должен показывать поддерживаемые форматы для media", () => {
     renderWithBase(<NoFiles type="media" />);
 
     expect(screen.getByText("Поддерживаемые форматы:")).toBeInTheDocument();
-    expect(screen.getByText("Видео: MP4, MOV, AVI, MKV, WEBM, INSV (360°)")).toBeInTheDocument();
-    expect(screen.getByText("Аудио: MP3, WAV, AAC, ALAC, OGG, FLAC")).toBeInTheDocument();
+    expect(
+      screen.getByText("Видео: MP4, MOV, AVI, MKV, WEBM, INSV (360°)"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Аудио: MP3, WAV, AAC, ALAC, OGG, FLAC"),
+    ).toBeInTheDocument();
   });
 
   it("должен показывать правильные форматы для music", () => {
     renderWithBase(<NoFiles type="music" />);
 
-    expect(screen.getByText("MP3, WAV, AAC, ALAC, OGG, FLAC")).toBeInTheDocument();
+    expect(
+      screen.getByText("MP3, WAV, AAC, ALAC, OGG, FLAC"),
+    ).toBeInTheDocument();
   });
 
   it("должен применять переданный className", () => {
     renderWithBase(<NoFiles type="media" className="custom-class" />);
 
     // Проверяем что className применился к основному контейнеру
-    const container = screen.getByText("Медиафайлы не найдены").closest('.custom-class');
+    const container = screen
+      .getByText("Медиафайлы не найдены")
+      .closest(".custom-class");
     expect(container).toBeInTheDocument();
   });
 

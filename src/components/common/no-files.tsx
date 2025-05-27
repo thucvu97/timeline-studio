@@ -16,13 +16,12 @@ import {
   Palette,
   Sparkles,
   Upload,
-  Video
+  Video,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
 
 export type MediaType =
   | "media"
@@ -59,10 +58,10 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     formats: [
       "Видео: MP4, MOV, AVI, MKV, WEBM, INSV (360°)",
       "Аудио: MP3, WAV, AAC, ALAC, OGG, FLAC",
-      "Фото: JPG, PNG, GIF, WEBP, TIFF, BMP"
+      "Фото: JPG, PNG, GIF, WEBP, TIFF, BMP",
     ],
     importText: "Импортировать медиафайлы",
-    folderText: "Или поместите файлы в папку"
+    folderText: "Или поместите файлы в папку",
   },
   music: {
     title: "Музыкальные файлы не найдены",
@@ -71,7 +70,7 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     folders: ["/public/music/"],
     formats: ["MP3, WAV, AAC, ALAC, OGG, FLAC"],
     importText: "Импортировать музыку",
-    folderText: "Или поместите музыку в папку"
+    folderText: "Или поместите музыку в папку",
   },
   effects: {
     title: "Эффекты не найдены",
@@ -80,7 +79,7 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     folders: ["/public/effects/"],
     formats: ["JSON файлы с описанием эффектов"],
     importText: "Импортировать эффекты",
-    folderText: "Или поместите эффекты в папку"
+    folderText: "Или поместите эффекты в папку",
   },
   filters: {
     title: "Фильтры не найдены",
@@ -89,7 +88,7 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     folders: ["/public/filters/"],
     formats: ["JSON файлы с настройками фильтров"],
     importText: "Импортировать фильтры",
-    folderText: "Или поместите фильтры в папку"
+    folderText: "Или поместите фильтры в папку",
   },
   transitions: {
     title: "Переходы не найдены",
@@ -98,7 +97,7 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     folders: ["/public/transitions/"],
     formats: ["JSON файлы с анимациями переходов"],
     importText: "Импортировать переходы",
-    folderText: "Или поместите переходы в папку"
+    folderText: "Или поместите переходы в папку",
   },
   templates: {
     title: "Шаблоны не найдены",
@@ -107,7 +106,7 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     folders: ["/public/templates/"],
     formats: ["JSON файлы с настройками шаблонов"],
     importText: "Импортировать шаблоны",
-    folderText: "Или поместите шаблоны в папку"
+    folderText: "Или поместите шаблоны в папку",
   },
   "style-templates": {
     title: "Стильные шаблоны не найдены",
@@ -116,7 +115,7 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     folders: ["/public/style-templates/"],
     formats: ["JSON файлы со стилями и настройками"],
     importText: "Импортировать стильные шаблоны",
-    folderText: "Или поместите шаблоны в папку"
+    folderText: "Или поместите шаблоны в папку",
   },
   subtitles: {
     title: "Субтитры не найдены",
@@ -125,8 +124,8 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     folders: ["/public/subtitles/"],
     formats: ["SRT, VTT, ASS, SSA файлы субтитров"],
     importText: "Импортировать субтитры",
-    folderText: "Или поместите субтитры в папку"
-  }
+    folderText: "Или поместите субтитры в папку",
+  },
 };
 
 export function NoFiles({ type, onImport, className }: NoFilesProps) {
@@ -134,7 +133,10 @@ export function NoFiles({ type, onImport, className }: NoFilesProps) {
   const IconComponent = config.icon;
 
   return (
-    <div className={`flex h-full items-center justify-center p-8 ${className || ""}`} data-testid="no-files">
+    <div
+      className={`flex h-full items-center justify-center p-8 ${className || ""}`}
+      data-testid="no-files"
+    >
       <Card className="w-full max-w-md">
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
@@ -148,7 +150,9 @@ export function NoFiles({ type, onImport, className }: NoFilesProps) {
             {/* Заголовок и описание */}
             <div className="space-y-2">
               <h3 className="font-semibold text-foreground">{config.title}</h3>
-              <p className="text-sm text-muted-foreground">{config.description}</p>
+              <p className="text-sm text-muted-foreground">
+                {config.description}
+              </p>
             </div>
 
             {/* Кнопка импорта */}
@@ -166,7 +170,10 @@ export function NoFiles({ type, onImport, className }: NoFilesProps) {
               </div>
 
               {config.folders.map((folder, index) => (
-                <div key={index} className="flex items-center justify-center gap-2">
+                <div
+                  key={index}
+                  className="flex items-center justify-center gap-2"
+                >
                   <FolderOpen className="h-4 w-4 text-muted-foreground" />
                   <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
                     {folder}
@@ -177,7 +184,9 @@ export function NoFiles({ type, onImport, className }: NoFilesProps) {
 
             {/* Поддерживаемые форматы */}
             <div className="space-y-2 pt-2">
-              <p className="text-xs text-muted-foreground">Поддерживаемые форматы:</p>
+              <p className="text-xs text-muted-foreground">
+                Поддерживаемые форматы:
+              </p>
               <div className="flex flex-wrap gap-1 justify-center">
                 {config.formats.map((format, index) => (
                   <Badge key={index} variant="outline" className="text-xs">

@@ -46,11 +46,12 @@ export function TemplatePreview({
   const [localIsAdded, setLocalIsAdded] = useState(false);
 
   // Получаем вычисленные размеры превью с минимумом 150px для шаблонов
-  const { height: previewHeight, width: previewWidth } = calculateDimensionsWithAspectRatio(
-    size,
-    { width, height },
-    true // isTemplate = true для применения минимума 150px
-  );
+  const { height: previewHeight, width: previewWidth } =
+    calculateDimensionsWithAspectRatio(
+      size,
+      { width, height },
+      true, // isTemplate = true для применения минимума 150px
+    );
 
   // Получаем методы для работы с ресурсами шаблонов
   const { addTemplate, isTemplateAdded, removeResource, templateResources } =

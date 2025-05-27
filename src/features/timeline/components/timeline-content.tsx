@@ -26,7 +26,7 @@ export function TimelineContent() {
     addSection,
     seek,
     error,
-    clearError
+    clearError,
   } = useTimeline();
 
   const { tracks } = useTracks();
@@ -42,7 +42,7 @@ export function TimelineContent() {
       createProject(currentProject.name, {
         width: projectSettings.aspectRatio.value.width,
         height: projectSettings.aspectRatio.value.height,
-        frameRate: parseInt(projectSettings.frameRate)
+        frameRate: parseInt(projectSettings.frameRate),
       });
     }
   }, [project, currentProject, projectSettings, createProject]);
@@ -58,7 +58,7 @@ export function TimelineContent() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleSeek = (time: number) => {
@@ -100,29 +100,23 @@ export function TimelineContent() {
 
   return (
     <div className="flex h-full flex-col">
-
       {/* Информация о проекте */}
       <div className="p-4 border-b bg-background">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-foreground">{currentProject?.name || project.name}</h3>
+            <h3 className="font-semibold text-foreground">
+              {currentProject?.name || project.name}
+            </h3>
             <p className="text-sm text-muted-foreground">
-              {projectSettings ?
-                `${projectSettings.aspectRatio.value.width}x${projectSettings.aspectRatio.value.height} @ ${projectSettings.frameRate}fps` :
-                `${project.settings.width}x${project.settings.height} @ ${project.settings.frameRate}fps`
-              }
+              {projectSettings
+                ? `${projectSettings.aspectRatio.value.width}x${projectSettings.aspectRatio.value.height} @ ${projectSettings.frameRate}fps`
+                : `${project.settings.width}x${project.settings.height} @ ${project.settings.frameRate}fps`}
             </p>
           </div>
           <div className="flex gap-2">
-            <Badge variant="outline">
-              {project.sections.length} секций
-            </Badge>
-            <Badge variant="outline">
-              {tracks.length} треков
-            </Badge>
-            <Badge variant="outline">
-              {clips.length} клипов
-            </Badge>
+            <Badge variant="outline">{project.sections.length} секций</Badge>
+            <Badge variant="outline">{tracks.length} треков</Badge>
+            <Badge variant="outline">{clips.length} клипов</Badge>
           </div>
         </div>
       </div>
@@ -139,7 +133,9 @@ export function TimelineContent() {
               onClick={() => handleSeek(time)}
             >
               <div className="w-px h-4 bg-border ml-2"></div>
-              <span className="text-xs text-muted-foreground ml-1">{formatTime(time)}</span>
+              <span className="text-xs text-muted-foreground ml-1">
+                {formatTime(time)}
+              </span>
             </div>
           ))}
 
@@ -166,11 +162,16 @@ export function TimelineContent() {
         ) : (
           <div className="space-y-3 p-4">
             {tracks.map((track) => (
-              <Card key={track.id} className="border-l-4 border-l-primary/60 shadow-sm hover:shadow-md transition-shadow">
+              <Card
+                key={track.id}
+                className="border-l-4 border-l-primary/60 shadow-sm hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium text-foreground">{track.name}</h4>
+                      <h4 className="font-medium text-foreground">
+                        {track.name}
+                      </h4>
                       <p className="text-sm text-muted-foreground">
                         Клипов: {clipsByTrack?.[track.id]?.length || 0}
                       </p>
@@ -178,26 +179,25 @@ export function TimelineContent() {
                   </div>
 
                   {/* Клипы трека */}
-                  {clipsByTrack?.[track.id] && clipsByTrack[track.id].length > 0 && (
-                    <div className="mt-3 flex gap-2 flex-wrap">
-                      {clipsByTrack[track.id].map((clip) => (
-                        <div
-                          key={clip.id}
-                          className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-md text-sm text-foreground hover:bg-primary/20 transition-colors"
-                        >
-                          {clip.name || `Клип ${clip.id.slice(0, 8)}`}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  {clipsByTrack?.[track.id] &&
+                    clipsByTrack[track.id].length > 0 && (
+                      <div className="mt-3 flex gap-2 flex-wrap">
+                        {clipsByTrack[track.id].map((clip) => (
+                          <div
+                            key={clip.id}
+                            className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-md text-sm text-foreground hover:bg-primary/20 transition-colors"
+                          >
+                            {clip.name || `Клип ${clip.id.slice(0, 8)}`}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
       </div>
-
-
     </div>
   );
 }

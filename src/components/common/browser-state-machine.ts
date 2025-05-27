@@ -4,13 +4,21 @@ import {
   DEFAULT_PREVIEW_SIZE_INDEX,
   PREVIEW_SIZES,
   type PreviewSize,
-  getPreviewSizeIndex
+  getPreviewSizeIndex,
 } from "@/lib/constants/preview-sizes";
 
 /**
  * Тип вкладки браузера
  */
-export type BrowserTab = "media" | "music" | "effects" | "filters" | "transitions" | "subtitles" | "templates" | "style-templates";
+export type BrowserTab =
+  | "media"
+  | "music"
+  | "effects"
+  | "filters"
+  | "transitions"
+  | "subtitles"
+  | "templates"
+  | "style-templates";
 
 /**
  * Режимы отображения для разных типов контента
@@ -25,7 +33,9 @@ export interface BrowserContext {
   activeTab: BrowserTab;
 
   // Настройки для каждой вкладки
-  tabSettings: Record<BrowserTab, {
+  tabSettings: Record<
+    BrowserTab,
+    {
       searchQuery: string;
       showFavoritesOnly: boolean;
       sortBy: string;
@@ -34,7 +44,8 @@ export interface BrowserContext {
       filterType: string;
       viewMode: ViewMode;
       previewSizeIndex: number;
-    }>;
+    }
+  >;
 }
 
 /**
@@ -44,7 +55,12 @@ export type BrowserEvent =
   | { type: "SWITCH_TAB"; tab: BrowserTab }
   | { type: "SET_SEARCH_QUERY"; query: string; tab?: BrowserTab }
   | { type: "TOGGLE_FAVORITES"; tab?: BrowserTab }
-  | { type: "SET_SORT"; sortBy: string; sortOrder: "asc" | "desc"; tab?: BrowserTab }
+  | {
+      type: "SET_SORT";
+      sortBy: string;
+      sortOrder: "asc" | "desc";
+      tab?: BrowserTab;
+    }
   | { type: "SET_GROUP_BY"; groupBy: string; tab?: BrowserTab }
   | { type: "SET_FILTER"; filterType: string; tab?: BrowserTab }
   | { type: "SET_VIEW_MODE"; viewMode: ViewMode; tab?: BrowserTab }
@@ -143,7 +159,9 @@ export const browserMachine = createMachine({
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  ...context.tabSettings[
+                    tab as keyof typeof context.tabSettings
+                  ],
                   searchQuery: (event as any).query,
                 },
               };
@@ -157,8 +175,13 @@ export const browserMachine = createMachine({
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
-                  showFavoritesOnly: !context.tabSettings[tab as keyof typeof context.tabSettings].showFavoritesOnly,
+                  ...context.tabSettings[
+                    tab as keyof typeof context.tabSettings
+                  ],
+                  showFavoritesOnly:
+                    !context.tabSettings[
+                      tab as keyof typeof context.tabSettings
+                    ].showFavoritesOnly,
                 },
               };
             },
@@ -171,7 +194,9 @@ export const browserMachine = createMachine({
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  ...context.tabSettings[
+                    tab as keyof typeof context.tabSettings
+                  ],
                   sortBy: (event as any).sortBy,
                   sortOrder: (event as any).sortOrder,
                 },
@@ -186,7 +211,9 @@ export const browserMachine = createMachine({
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  ...context.tabSettings[
+                    tab as keyof typeof context.tabSettings
+                  ],
                   groupBy: (event as any).groupBy,
                 },
               };
@@ -200,7 +227,9 @@ export const browserMachine = createMachine({
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  ...context.tabSettings[
+                    tab as keyof typeof context.tabSettings
+                  ],
                   filterType: (event as any).filterType,
                 },
               };
@@ -214,7 +243,9 @@ export const browserMachine = createMachine({
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  ...context.tabSettings[
+                    tab as keyof typeof context.tabSettings
+                  ],
                   viewMode: (event as any).viewMode,
                 },
               };
@@ -228,7 +259,9 @@ export const browserMachine = createMachine({
               return {
                 ...context.tabSettings,
                 [tab]: {
-                  ...context.tabSettings[tab as keyof typeof context.tabSettings],
+                  ...context.tabSettings[
+                    tab as keyof typeof context.tabSettings
+                  ],
                   previewSizeIndex: (event as any).sizeIndex,
                 },
               };
