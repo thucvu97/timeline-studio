@@ -231,6 +231,7 @@ vi.mock("lucide-react", () => {
     List: createMockIcon("List"),
     Loader2: createMockIcon("Loader2"),
     Lock: createMockIcon("Lock"),
+    Mic: createMockIcon("Mic"),
     Minus: createMockIcon("Minus"),
     Moon: createMockIcon("Moon"),
     MoveHorizontal: createMockIcon("MoveHorizontal"),
@@ -266,6 +267,8 @@ vi.mock("lucide-react", () => {
     Upload: createMockIcon("Upload"),
     User: createMockIcon("User"),
     Video: createMockIcon("Video"),
+    Volume2: createMockIcon("Volume2"),
+    VolumeX: createMockIcon("VolumeX"),
     X: createMockIcon("X"),
     XIcon: createMockIcon("XIcon"),
   };

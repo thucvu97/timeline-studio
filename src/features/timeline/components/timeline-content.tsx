@@ -17,13 +17,18 @@ import { useProjectSettings } from "@/features/project-settings/hooks/use-projec
 import { useClips } from "../hooks/use-clips";
 import { useTracks } from "../hooks/use-tracks";
 import { useTimeline } from "../timeline-provider";
+import { Track } from "./track/track";
 
 export function TimelineContent() {
   const {
     project,
+    uiState,
     currentTime,
     createProject,
     addSection,
+    addTrack,
+    updateTrack,
+    selectTracks,
     seek,
     error,
     clearError,
@@ -155,45 +160,28 @@ export function TimelineContent() {
               <CardContent className="pt-6">
                 <div className="text-center">
                   <p className="text-muted-foreground">Треки не найдены</p>
+                  <Button
+                    className="mt-4"
+                    onClick={() => addTrack("video", "Видео трек")}
+                  >
+                    Добавить видео трек
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
         ) : (
-          <div className="space-y-3 p-4">
+          <div className="space-y-0">
             {tracks.map((track) => (
-              <Card
+              <Track
                 key={track.id}
-                className="border-l-4 border-l-primary/60 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium text-foreground">
-                        {track.name}
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Клипов: {clipsByTrack?.[track.id]?.length || 0}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Клипы трека */}
-                  {clipsByTrack?.[track.id] &&
-                    clipsByTrack[track.id].length > 0 && (
-                      <div className="mt-3 flex gap-2 flex-wrap">
-                        {clipsByTrack[track.id].map((clip) => (
-                          <div
-                            key={clip.id}
-                            className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-md text-sm text-foreground hover:bg-primary/20 transition-colors"
-                          >
-                            {clip.name || `Клип ${clip.id.slice(0, 8)}`}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                </CardContent>
-              </Card>
+                track={track}
+                timeScale={uiState.timeScale}
+                currentTime={currentTime}
+                isSelected={uiState.selectedTrackIds.includes(track.id)}
+                onSelect={(trackId) => selectTracks([trackId])}
+                onUpdate={updateTrack}
+              />
             ))}
           </div>
         )}
