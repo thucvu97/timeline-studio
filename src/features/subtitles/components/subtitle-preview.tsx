@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { useResources } from "@/features/resources";
 import { SubtitleResource } from "@/types/resources";
 
-
 import { AddMediaButton } from "../../browser/components/layout/add-media-button";
 import { FavoriteButton } from "../../browser/components/layout/favorite-button";
 import { SubtitleStyle } from "../types/subtitles";

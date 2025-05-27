@@ -1,10 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
-import subtitleStylesData from '../../../data/subtitle-styles.json';
-import { SubtitleStyle } from '../types/subtitles';
-import { createFallbackSubtitleStyle, processSubtitleStyles, validateSubtitleStylesData } from '../utils/subtitle-processor';
+import subtitleStylesData from "../../../data/subtitle-styles.json";
+import { SubtitleStyle } from "../types/subtitles";
+import {
+  createFallbackSubtitleStyle,
+  processSubtitleStyles,
+  validateSubtitleStylesData,
+} from "../utils/subtitle-processor";
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
 
 interface UseSubtitlesReturn {
@@ -37,7 +41,12 @@ export function useSubtitles(): UseSubtitlesReturn {
 
       // Валидируем данные
       if (!validateSubtitleStylesData(data)) {
-        throw new Error(t('subtitles.errors.invalidStylesData', 'Invalid subtitle styles data structure'));
+        throw new Error(
+          t(
+            "subtitles.errors.invalidStylesData",
+            "Invalid subtitle styles data structure",
+          ),
+        );
       }
 
       // Обрабатываем стили (преобразуем в типизированные объекты)
@@ -45,22 +54,35 @@ export function useSubtitles(): UseSubtitlesReturn {
 
       setSubtitles(processedStyles);
 
-      console.log(`✅ ${t('subtitles.messages.stylesLoaded', 'Loaded {{count}} subtitle styles from JSON', { count: processedStyles.length })}`);
-
+      console.log(
+        `✅ ${t("subtitles.messages.stylesLoaded", "Loaded {{count}} subtitle styles from JSON", { count: processedStyles.length })}`,
+      );
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t('subtitles.errors.unknownError', 'Unknown error');
-      setError(t('subtitles.errors.failedToLoadStyles', 'Failed to load subtitle styles: {{error}}', { error: errorMessage }));
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : t("subtitles.errors.unknownError", "Unknown error");
+      setError(
+        t(
+          "subtitles.errors.failedToLoadStyles",
+          "Failed to load subtitle styles: {{error}}",
+          { error: errorMessage },
+        ),
+      );
 
       // Создаем fallback стили в случае ошибки
       const fallbackStyles = [
-        createFallbackSubtitleStyle('basic-white'),
-        createFallbackSubtitleStyle('basic-yellow'),
-        createFallbackSubtitleStyle('minimal-clean')
+        createFallbackSubtitleStyle("basic-white"),
+        createFallbackSubtitleStyle("basic-yellow"),
+        createFallbackSubtitleStyle("minimal-clean"),
       ];
 
       setSubtitles(fallbackStyles);
 
-      console.error(`❌ ${t('subtitles.errors.fallbackStyles', 'Failed to load subtitle styles, using fallback')}:`, err);
+      console.error(
+        `❌ ${t("subtitles.errors.fallbackStyles", "Failed to load subtitle styles, using fallback")}:`,
+        err,
+      );
     } finally {
       setLoading(false);
     }
@@ -76,7 +98,7 @@ export function useSubtitles(): UseSubtitlesReturn {
     loading,
     error,
     reload: loadStyles,
-    isReady: !loading && subtitles.length > 0
+    isReady: !loading && subtitles.length > 0,
   };
 }
 
@@ -90,7 +112,10 @@ export function useSubtitleById(subtitleId: string): SubtitleStyle | null {
     return null;
   }
 
-  return subtitles.find((subtitle: SubtitleStyle) => subtitle.id === subtitleId) || null;
+  return (
+    subtitles.find((subtitle: SubtitleStyle) => subtitle.id === subtitleId) ||
+    null
+  );
 }
 
 /**
@@ -103,13 +128,18 @@ export function useSubtitlesByCategory(category: string): SubtitleStyle[] {
     return [];
   }
 
-  return subtitles.filter((subtitle: SubtitleStyle) => subtitle.category === category);
+  return subtitles.filter(
+    (subtitle: SubtitleStyle) => subtitle.category === category,
+  );
 }
 
 /**
  * Хук для поиска субтитров
  */
-export function useSubtitlesSearch(query: string, lang: 'ru' | 'en' = 'ru'): SubtitleStyle[] {
+export function useSubtitlesSearch(
+  query: string,
+  lang: "ru" | "en" = "ru",
+): SubtitleStyle[] {
   const { subtitles, isReady } = useSubtitles();
 
   if (!isReady || !query.trim()) {
@@ -118,9 +148,16 @@ export function useSubtitlesSearch(query: string, lang: 'ru' | 'en' = 'ru'): Sub
 
   const lowercaseQuery = query.toLowerCase();
 
-  return subtitles.filter((subtitle: SubtitleStyle) =>
-    (subtitle.labels?.[lang] || subtitle.name || "").toLowerCase().includes(lowercaseQuery) ||
-    (subtitle.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
-    (subtitle.tags || []).some((tag: string) => tag.toLowerCase().includes(lowercaseQuery))
+  return subtitles.filter(
+    (subtitle: SubtitleStyle) =>
+      (subtitle.labels?.[lang] || subtitle.name || "")
+        .toLowerCase()
+        .includes(lowercaseQuery) ||
+      (subtitle.description?.[lang] || "")
+        .toLowerCase()
+        .includes(lowercaseQuery) ||
+      (subtitle.tags || []).some((tag: string) =>
+        tag.toLowerCase().includes(lowercaseQuery),
+      ),
   );
 }
