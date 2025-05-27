@@ -8,7 +8,6 @@ import { createActor } from "xstate";
 import { timelineMachine } from "../services/timeline-machine";
 import { createTimelineProject } from "../types";
 
-
 describe("Timeline Machine", () => {
   let actor: any;
 

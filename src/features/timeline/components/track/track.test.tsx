@@ -5,7 +5,6 @@ import { render, screen } from "@/test/test-utils";
 import { Track } from "./track";
 import { createTimelineClip, createTimelineTrack } from "../../types";
 
-
 describe("Track", () => {
   const mockTrack = createTimelineTrack("Test Track", "video");
   const mockClip = createTimelineClip("media-1", mockTrack.id, 0, 10);

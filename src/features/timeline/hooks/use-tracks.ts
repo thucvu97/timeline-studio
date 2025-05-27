@@ -14,7 +14,6 @@ import {
 import { useTimeline } from "../timeline-provider";
 import { TimelineTrack, TrackType } from "../types";
 
-
 export interface UseTracksReturn {
   // Данные
   tracks: TimelineTrack[];

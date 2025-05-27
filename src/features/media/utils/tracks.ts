@@ -2,7 +2,6 @@ import i18n from "@/i18n";
 import { formatDateByLanguage } from "@/i18n/constants";
 import { calculateTimeRanges } from "@/lib/video";
 
-
 import { processAudioFiles } from "./audio-tracks";
 import { updateSectorTimeRange } from "./tracks-utils";
 import { Sector } from "./types";

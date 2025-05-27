@@ -16,7 +16,6 @@ import {
 import { useTimeline } from "../timeline-provider";
 import { TimelineClip, TrackType } from "../types";
 
-
 export interface UseClipsReturn {
   // Данные
   clips: TimelineClip[];
