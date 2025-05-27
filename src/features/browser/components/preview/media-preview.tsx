@@ -10,6 +10,7 @@ import { VideoPreview } from "./video-preview"
 interface MediaPreviewProps {
   file: MediaFile
   onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void
+  onDoubleClick?: (file: MediaFile) => void
   isAdded?: boolean
   size?: number
   showFileName?: boolean
@@ -38,6 +39,7 @@ interface MediaPreviewProps {
 export function MediaPreview({
   file,
   onAddMedia,
+  onDoubleClick,
   isAdded,
   size = 60,
   showFileName = false,
@@ -72,6 +74,7 @@ export function MediaPreview({
       <VideoPreview
         file={file}
         onAddMedia={onAddMedia}
+        onDoubleClick={onDoubleClick}
         isAdded={isAdded}
         size={size}
         showFileName={showFileName}
@@ -86,6 +89,7 @@ export function MediaPreview({
       <AudioPreview
         file={file}
         onAddMedia={onAddMedia}
+        onDoubleClick={onDoubleClick}
         isAdded={isAdded}
         size={size}
         showFileName={showFileName}

@@ -13,6 +13,7 @@ import { FavoriteButton } from "../layout/favorite-button";
 interface AudioPreviewProps {
   file: MediaFile;
   onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void;
+  onDoubleClick?: (file: MediaFile) => void;
   isAdded?: boolean;
   size?: number;
   showFileName?: boolean;
@@ -40,6 +41,7 @@ interface AudioPreviewProps {
 export const AudioPreview = memo(function AudioPreview({
   file,
   onAddMedia,
+  onDoubleClick,
   isAdded,
   size = 60,
   showFileName = false,
@@ -185,6 +187,7 @@ export const AudioPreview = memo(function AudioPreview({
       }}
       onMouseMove={handleMouseMove}
       onClick={handlePlayPause}
+      onDoubleClick={() => onDoubleClick?.(file)}
       onMouseLeave={handleMouseLeave}
     >
       <audio

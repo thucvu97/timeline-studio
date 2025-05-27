@@ -20,6 +20,7 @@ import { FavoriteButton } from "../layout/favorite-button";
 interface VideoPreviewProps {
   file: MediaFile;
   onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void;
+  onDoubleClick?: (file: MediaFile) => void;
   isAdded?: boolean;
   size?: number;
   showFileName?: boolean;
@@ -50,6 +51,7 @@ export const VideoPreview = memo(
   function VideoPreview({
     file,
     onAddMedia,
+    onDoubleClick,
     isAdded,
     size = 60,
     showFileName = false,
@@ -299,6 +301,7 @@ export const VideoPreview = memo(
                         : adptivedWidth,
                 }}
                 onClick={(e) => handlePlayPause(e, stream)}
+                onDoubleClick={() => onDoubleClick?.(file)}
               >
                 <div
                   className="group relative h-full w-full"

@@ -61,6 +61,13 @@ describe("useMusicImport", () => {
     mockGetMediaMetadata.mockReset();
     mockConvertToSavedMusicFile.mockReset();
     mockInvoke.mockReset();
+    mockAddMusicFiles.mockReset();
+    mockUpdateMusicFiles.mockReset();
+    mockSetProjectDirty.mockReset();
+
+    // Убираем все implementation моки
+    mockGetMediaMetadata.mockClear();
+    mockConvertToSavedMusicFile.mockClear();
   });
 
   it("should import useMusicImport hook without errors", async () => {
@@ -242,9 +249,7 @@ describe("useMusicImport", () => {
     expect(mockConvertToSavedMusicFile).not.toHaveBeenCalled();
   });
 
-  it("should validate audio file formats", async () => {
-    const { useMusicImport } = await import("../hooks/use-music-import");
-
+  it("should validate audio file formats", () => {
     // Тестируем различные форматы файлов
     const validFormats = [".mp3", ".wav", ".flac", ".aac", ".ogg"];
     const invalidFormats = [".txt", ".jpg", ".mp4", ".pdf"];
