@@ -5,6 +5,7 @@ import {
   Scissors,
   Subtitles,
   Video,
+  Sticker,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +24,7 @@ export function TimelineResources() {
     filterResources,
     transitionResources,
     templateResources,
+    styleTemplateResources,
     musicResources,
     subtitleResources,
   } = useResources();
@@ -32,40 +34,46 @@ export function TimelineResources() {
   // Категории ресурсов с их данными
   const categories = [
     {
-      id: "effects",
-      name: t("timeline.resources.effects", "Эффекты"),
-      icon: <Package className="h-3.5 w-3.5 text-gray-400" />,
-      resources: effectResources,
-    },
-    {
-      id: "filters",
-      name: t("timeline.resources.filters", "Фильтры"),
-      icon: <Palette className="h-3.5 w-3.5 text-gray-400" />,
-      resources: filterResources,
-    },
-    {
-      id: "transitions",
-      name: t("timeline.resources.transitions", "Переходы"),
-      icon: <Scissors className="h-3.5 w-3.5 text-gray-400" />,
-      resources: transitionResources,
-    },
-    {
-      id: "templates",
-      name: t("timeline.resources.templates", "Шаблоны"),
-      icon: <Video className="h-3.5 w-3.5 text-gray-400" />,
-      resources: templateResources,
-    },
-    {
       id: "music",
-      name: t("timeline.resources.music", "Музыка"),
+      name: t("browser.tabs.music"),
       icon: <Music className="h-3.5 w-3.5 text-gray-400" />,
       resources: musicResources,
     },
     {
       id: "subtitles",
-      name: t("timeline.resources.subtitles", "Субтитры"),
+      name: t("browser.tabs.subtitles"),
       icon: <Subtitles className="h-3.5 w-3.5 text-gray-400" />,
       resources: subtitleResources,
+    },
+    {
+      id: "effects",
+      name: t("browser.tabs.effects"),
+      icon: <Package className="h-3.5 w-3.5 text-gray-400" />,
+      resources: effectResources,
+    },
+    {
+      id: "filters",
+      name: t("browser.tabs.filters"),
+      icon: <Palette className="h-3.5 w-3.5 text-gray-400" />,
+      resources: filterResources,
+    },
+    {
+      id: "transitions",
+      name: t("browser.tabs.transitions"),
+      icon: <Scissors className="h-3.5 w-3.5 text-gray-400" />,
+      resources: transitionResources,
+    },
+    {
+      id: "templates",
+      name: t("browser.tabs.templates"),
+      icon: <Video className="h-3.5 w-3.5 text-gray-400" />,
+      resources: templateResources,
+    },
+    {
+      id: "style-templates",
+      name: t("browser.tabs.styleTemplates"),
+      icon: <Sticker className="h-3.5 w-3.5 text-gray-400" />,
+      resources: styleTemplateResources,
     },
   ];
 
@@ -91,6 +99,7 @@ export function TimelineResources() {
                   <Scissors className="h-4 w-4" />
                 )}
                 {resource.type === "template" && <Video className="h-4 w-4" />}
+                {resource.type === "style-template" && <Sticker className="h-4 w-4" />}
                 {resource.type === "music" && <Music className="h-4 w-4" />}
                 {resource.type === "subtitle" && (
                   <Subtitles className="h-4 w-4" />
@@ -103,6 +112,11 @@ export function TimelineResources() {
                   {resource.type === "template"
                     ? t(
                         `templates.templateLabels.${resource.name}`,
+                        resource.name,
+                      )
+                    : resource.type === "style-template"
+                    ? t(
+                        `styleTemplates.${resource.name}`,
                         resource.name,
                       )
                     : resource.name}

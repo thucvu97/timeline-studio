@@ -33,7 +33,8 @@ vi.mock("lucide-react", () => ({
     <div data-testid="flip-horizontal-icon">FlipHorizontal2</div>
   ),
   Grid2X2: () => <div data-testid="grid-icon">Grid2X2</div>,
-  Palette: () => <div data-testid="palette-icon">Palette</div>,
+  LayoutTemplate: () => <div data-testid="layout-template-icon">LayoutTemplate</div>,
+  Sticker: () => <div data-testid="sticker-icon">Sticker</div>,
 }));
 
 // Мокаем компоненты UI
@@ -123,6 +124,6 @@ describe("BrowserTabs", () => {
     expect(screen.getByTestId("type-icon")).toBeInTheDocument();
     expect(screen.getByTestId("flip-horizontal-icon")).toBeInTheDocument();
     expect(screen.getByTestId("grid-icon")).toBeInTheDocument();
-    expect(screen.getByTestId("palette-icon")).toBeInTheDocument();
+    expect(screen.getByTestId("sticker-icon")).toBeInTheDocument();
   });
 });

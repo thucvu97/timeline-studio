@@ -1,4 +1,4 @@
-import { Blend, FlipHorizontal2, Grid2X2, Image, Music, Palette, Sparkles, Type } from "lucide-react"
+import { Blend, FlipHorizontal2, Grid2X2, Image, Music, Sparkles, Sticker, Type } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -39,6 +39,15 @@ export function BrowserTabs({ activeTab, onTabChange }: BrowserTabsProps) {
         <span>{t("browser.tabs.music")}</span>
       </TabsTrigger>
       <TabsTrigger
+        value="subtitles"
+        className={TAB_TRIGGER_STYLES}
+        onClick={() => onTabChange("subtitles")}
+        data-state={activeTab === "subtitles" ? "active" : "inactive"}
+      >
+        <Type className="h-4 w-4" />
+        <span>{t("browser.tabs.subtitles")}</span>
+      </TabsTrigger>
+      <TabsTrigger
         value="effects"
         className={TAB_TRIGGER_STYLES}
         onClick={() => onTabChange("effects")}
@@ -55,15 +64,6 @@ export function BrowserTabs({ activeTab, onTabChange }: BrowserTabsProps) {
       >
         <Blend className="h-4 w-4" />
         <span>{t("browser.tabs.filters")}</span>
-      </TabsTrigger>
-      <TabsTrigger
-        value="subtitles"
-        className={TAB_TRIGGER_STYLES}
-        onClick={() => onTabChange("subtitles")}
-        data-state={activeTab === "subtitles" ? "active" : "inactive"}
-      >
-        <Type className="h-4 w-4" />
-        <span>{t("browser.tabs.subtitles")}</span>
       </TabsTrigger>
       <TabsTrigger
         value="transitions"
@@ -89,7 +89,7 @@ export function BrowserTabs({ activeTab, onTabChange }: BrowserTabsProps) {
         onClick={() => onTabChange("style-templates")}
         data-state={activeTab === "style-templates" ? "active" : "inactive"}
       >
-        <Palette className="h-4 w-4" />
+        <Sticker className="h-4 w-4" />
         <span>{t("browser.tabs.styleTemplates")}</span>
       </TabsTrigger>
     </TabsList>

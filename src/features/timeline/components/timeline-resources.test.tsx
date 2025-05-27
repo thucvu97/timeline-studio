@@ -210,6 +210,26 @@ vi.mock("lucide-react", () => ({
       {...props}
     />
   ),
+  Sticker: ({
+    className,
+    size = 16,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    ...props
+  }: any) => (
+    <div
+      data-testid="sticker-icon"
+      className={className}
+      data-size={size}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      role="img"
+      aria-label="Sticker Icon"
+      {...props}
+    />
+  ),
 }));
 
 // Мокаем переводы
@@ -248,12 +268,14 @@ describe("TimelineResources", () => {
       filterResources: [],
       transitionResources: [],
       templateResources: [],
+      styleTemplateResources: [],
       musicResources: [],
       subtitleResources: [],
       addEffect: mockAddEffect,
       addFilter: mockAddFilter,
       addTransition: mockAddTransition,
       addTemplate: mockAddTemplate,
+      addStyleTemplate: vi.fn(),
       addMusic: mockAddMusic,
       addSubtitle: vi.fn(),
       removeResource: mockRemoveResource,
@@ -262,6 +284,7 @@ describe("TimelineResources", () => {
       isFilterAdded: vi.fn(),
       isTransitionAdded: vi.fn(),
       isTemplateAdded: vi.fn(),
+      isStyleTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
     });
@@ -312,12 +335,14 @@ describe("TimelineResources", () => {
       filterResources: mockFilterResources,
       transitionResources: mockTransitionResources,
       templateResources: mockTemplateResources,
+      styleTemplateResources: [],
       musicResources: mockMusicResources,
       subtitleResources: [],
       addEffect: mockAddEffect,
       addFilter: mockAddFilter,
       addTransition: mockAddTransition,
       addTemplate: mockAddTemplate,
+      addStyleTemplate: vi.fn(),
       addMusic: mockAddMusic,
       addSubtitle: vi.fn(),
       removeResource: mockRemoveResource,
@@ -326,6 +351,7 @@ describe("TimelineResources", () => {
       isFilterAdded: vi.fn(),
       isTransitionAdded: vi.fn(),
       isTemplateAdded: vi.fn(),
+      isStyleTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
     });
@@ -348,12 +374,14 @@ describe("TimelineResources", () => {
       filterResources: mockFilterResources.slice(0, 1), // 1 элемент
       transitionResources: [],
       templateResources: [],
+      styleTemplateResources: [],
       musicResources: [],
       subtitleResources: [],
       addEffect: mockAddEffect,
       addFilter: mockAddFilter,
       addTransition: mockAddTransition,
       addTemplate: mockAddTemplate,
+      addStyleTemplate: vi.fn(),
       addMusic: mockAddMusic,
       addSubtitle: vi.fn(),
       removeResource: mockRemoveResource,
@@ -362,6 +390,7 @@ describe("TimelineResources", () => {
       isFilterAdded: vi.fn(),
       isTransitionAdded: vi.fn(),
       isTemplateAdded: vi.fn(),
+      isStyleTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
     });
@@ -381,12 +410,14 @@ describe("TimelineResources", () => {
       filterResources: [],
       transitionResources: [],
       templateResources: [],
+      styleTemplateResources: [],
       musicResources: [],
       subtitleResources: [],
       addEffect: mockAddEffect,
       addFilter: mockAddFilter,
       addTransition: mockAddTransition,
       addTemplate: mockAddTemplate,
+      addStyleTemplate: vi.fn(),
       addMusic: mockAddMusic,
       addSubtitle: vi.fn(),
       removeResource: mockRemoveResource,
@@ -395,6 +426,7 @@ describe("TimelineResources", () => {
       isFilterAdded: vi.fn(),
       isTransitionAdded: vi.fn(),
       isTemplateAdded: vi.fn(),
+      isStyleTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
     });
@@ -417,12 +449,14 @@ describe("TimelineResources", () => {
       filterResources: mockFilterResources,
       transitionResources: [],
       templateResources: [],
+      styleTemplateResources: [],
       musicResources: [],
       subtitleResources: [],
       addEffect: mockAddEffect,
       addFilter: mockAddFilter,
       addTransition: mockAddTransition,
       addTemplate: mockAddTemplate,
+      addStyleTemplate: vi.fn(),
       addMusic: mockAddMusic,
       addSubtitle: vi.fn(),
       removeResource: mockRemoveResource,
@@ -431,6 +465,7 @@ describe("TimelineResources", () => {
       isFilterAdded: vi.fn(),
       isTransitionAdded: vi.fn(),
       isTemplateAdded: vi.fn(),
+      isStyleTemplateAdded: vi.fn(),
       isMusicFileAdded: vi.fn(),
       isSubtitleAdded: vi.fn(),
     });

@@ -649,7 +649,7 @@
       "effects": "Эффекты",
       "filters": "Фильтры",
       "templates": "Камеры",
-      "styleTemplates": "Стили",
+      "styleTemplates": "Шаблоны",
       "subtitles": "Титры"
     },
     "templateScreens": {
@@ -891,7 +891,8 @@
       "effects": "Эффекты",
       "filters": "Фильтры",
       "transitions": "Переходы",
-      "templates": "Шаблоны",
+      "templates": "Камеры",
+      "styleTemplates": "Шаблоны",
       "subtitles": "Субтитры",
       "music": "Музыка",
       "noResources": "Нет добавленных ресурсов"
@@ -946,7 +947,21 @@
       "distortion": "Искажение",
       "noise": "Шум",
       "vintage": "Винтаж",
-      "other": "Другие"
+      "other": "Другие",
+      "color-correction": "Цветокоррекция",
+      "creative": "Креативные",
+      "cinematic": "Кинематографические",
+      "technical": "Технические"
+    },
+    "complexity": {
+      "basic": "Базовый",
+      "intermediate": "Средний",
+      "advanced": "Продвинутый"
+    },
+    "filters": {
+      "allCategories": "Все категории",
+      "allComplexity": "Любая сложность",
+      "allTags": "Все теги"
     },
     "names": {
       "grayscale": "Оттенки серого",
@@ -982,14 +997,54 @@
       "neutral": "Нейтральный",
       "portrait": "Портрет",
       "landscape": "Пейзаж"
+    },
+    "errors": {
+      "invalidFiltersData": "Неверная структура данных фильтров",
+      "unknownError": "Неизвестная ошибка",
+      "failedToLoadFilters": "Не удалось загрузить фильтры: {{error}}",
+      "fallbackFilters": "Не удалось загрузить фильтры, используются резервные"
+    },
+    "messages": {
+      "filtersLoaded": "Загружено {{count}} фильтров из JSON"
+    },
+    "detail": {
+      "description": "Описание",
+      "category": "Категория",
+      "complexity": "Сложность",
+      "parameters": "Параметры",
+      "tags": "Теги",
+      "applyFilter": "Применить фильтр"
     }
   },
   "transitions": {
     "add": "Добавить переход",
     "edit": "Редактировать переход",
     "remove": "Удалить переход",
-    "duration": "Длительность",
+    "durationLabel": "Длительность",
     "intensity": "Интенсивность",
+    "categories": {
+      "basic": "Базовые",
+      "advanced": "Продвинутые",
+      "creative": "Креативные",
+      "3d": "3D",
+      "artistic": "Художественные",
+      "cinematic": "Кинематографические"
+    },
+    "complexity": {
+      "basic": "Базовый",
+      "intermediate": "Средний",
+      "advanced": "Продвинутый"
+    },
+    "duration": {
+      "short": "Короткие",
+      "medium": "Средние",
+      "long": "Длинные"
+    },
+    "filters": {
+      "allCategories": "Все категории",
+      "allComplexity": "Любая сложность",
+      "allTags": "Все теги"
+    },
     "types": {
       "zoom": "Зум",
       "fade": "Затухание",
@@ -1007,6 +1062,24 @@
       "bounce": "Отскок",
       "swirl": "Вихрь",
       "dissolve": "Растворение"
+    },
+    "errors": {
+      "invalidTransitionsData": "Неверная структура данных переходов",
+      "unknownError": "Неизвестная ошибка",
+      "failedToLoadTransitions": "Не удалось загрузить переходы: {{error}}",
+      "fallbackTransitions": "Не удалось загрузить переходы, используются резервные"
+    },
+    "messages": {
+      "transitionsLoaded": "Загружено {{count}} переходов из JSON"
+    },
+    "detail": {
+      "description": "Описание",
+      "category": "Категория",
+      "complexity": "Сложность",
+      "duration": "Длительность",
+      "parameters": "Параметры",
+      "tags": "Теги",
+      "applyTransition": "Применить переход"
     }
   },
   "effects": {
@@ -1103,6 +1176,27 @@
       "lomo": "Ломо",
       "twilight": "Сумерки",
       "neon": "Неон"
+    },
+    "errors": {
+      "invalidEffectsData": "Неверная структура данных эффектов",
+      "invalidCategoriesData": "Неверная структура данных категорий",
+      "unknownError": "Неизвестная ошибка",
+      "failedToLoadEffects": "Не удалось загрузить эффекты: {{error}}",
+      "failedToLoadCategories": "Не удалось загрузить категории: {{error}}",
+      "fallbackEffects": "Не удалось загрузить эффекты, используются резервные",
+      "fallbackCategories": "Не удалось загрузить категории, используются резервные"
+    },
+    "messages": {
+      "effectsLoaded": "Загружено {{count}} эффектов из JSON",
+      "categoriesLoaded": "Загружено {{count}} категорий эффектов из JSON"
+    },
+    "detail": {
+      "description": "Описание",
+      "category": "Категория",
+      "parameters": "Параметры",
+      "presets": "Пресеты",
+      "ffmpegCommand": "FFmpeg команда",
+      "applyEffect": "Применить эффект"
     }
   },
   "project": {
@@ -1136,115 +1230,6 @@
       "objectDetectionDescription": "Включить распознавание объектов на скриншотах с помощью ИИ.",
       "confidenceThreshold": "Порог уверенности",
       "confidenceThresholdDescription": "Минимальный уровень уверенности для обнаруженных объектов. Более высокие значения уменьшают количество ложных срабатываний."
-    }
-  },
-  "effects": {
-    "errors": {
-      "invalidEffectsData": "Неверная структура данных эффектов",
-      "invalidCategoriesData": "Неверная структура данных категорий",
-      "unknownError": "Неизвестная ошибка",
-      "failedToLoadEffects": "Не удалось загрузить эффекты: {{error}}",
-      "failedToLoadCategories": "Не удалось загрузить категории: {{error}}",
-      "fallbackEffects": "Не удалось загрузить эффекты, используются резервные",
-      "fallbackCategories": "Не удалось загрузить категории, используются резервные"
-    },
-    "messages": {
-      "effectsLoaded": "Загружено {{count}} эффектов из JSON",
-      "categoriesLoaded": "Загружено {{count}} категорий эффектов из JSON"
-    },
-
-    "filters": {
-      "allCategories": "Все категории",
-      "allComplexity": "Любая сложность",
-      "allTags": "Все теги"
-    },
-    "detail": {
-      "description": "Описание",
-      "category": "Категория",
-      "parameters": "Параметры",
-      "presets": "Пресеты",
-      "ffmpegCommand": "FFmpeg команда",
-      "applyEffect": "Применить эффект"
-    }
-  },
-  "filters": {
-    "categories": {
-      "color-correction": "Цветокоррекция",
-      "creative": "Креативные",
-      "cinematic": "Кинематографические",
-      "vintage": "Винтажные",
-      "technical": "Технические",
-      "artistic": "Художественные"
-    },
-    "complexity": {
-      "basic": "Базовый",
-      "intermediate": "Средний",
-      "advanced": "Продвинутый"
-    },
-    "filters": {
-      "allCategories": "Все категории",
-      "allComplexity": "Любая сложность",
-      "allTags": "Все теги"
-    },
-    "errors": {
-      "invalidFiltersData": "Неверная структура данных фильтров",
-      "unknownError": "Неизвестная ошибка",
-      "failedToLoadFilters": "Не удалось загрузить фильтры: {{error}}",
-      "fallbackFilters": "Не удалось загрузить фильтры, используются резервные"
-    },
-    "messages": {
-      "filtersLoaded": "Загружено {{count}} фильтров из JSON"
-    },
-    "detail": {
-      "description": "Описание",
-      "category": "Категория",
-      "complexity": "Сложность",
-      "parameters": "Параметры",
-      "tags": "Теги",
-      "applyFilter": "Применить фильтр"
-    }
-  },
-  "transitions": {
-    "categories": {
-      "basic": "Базовые",
-      "advanced": "Продвинутые",
-      "creative": "Креативные",
-      "3d": "3D",
-      "artistic": "Художественные",
-      "cinematic": "Кинематографические"
-    },
-    "complexity": {
-      "basic": "Базовый",
-      "intermediate": "Средний",
-      "advanced": "Продвинутый"
-    },
-    "duration": {
-      "short": "Короткие",
-      "medium": "Средние",
-      "long": "Длинные"
-    },
-    "filters": {
-      "allCategories": "Все категории",
-      "allComplexity": "Любая сложность",
-      "allTags": "Все теги"
-    },
-    "errors": {
-      "invalidTransitionsData": "Неверная структура данных переходов",
-      "unknownError": "Неизвестная ошибка",
-      "failedToLoadTransitions": "Не удалось загрузить переходы: {{error}}",
-      "fallbackTransitions": "Не удалось загрузить переходы, используются резервные"
-    },
-    "messages": {
-      "transitionsLoaded": "Загружено {{count}} переходов из JSON"
-    },
-    "detail": {
-      "description": "Описание",
-      "category": "Категория",
-      "complexity": "Сложность",
-      "duration": "Длительность",
-      "parameters": "Параметры",
-      "tags": "Теги",
-      "applyTransition": "Применить переход"
     }
   },
   "subtitles": {

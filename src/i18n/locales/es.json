@@ -924,7 +924,21 @@
       "distortion": "Distorsión",
       "noise": "Ruido",
       "vintage": "Vintage",
-      "other": "Otros"
+      "other": "Otros",
+      "color-correction": "Corrección de Color",
+      "creative": "Creativos",
+      "cinematic": "Cinematográficos",
+      "technical": "Técnicos"
+    },
+    "complexity": {
+      "basic": "Básico",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado"
+    },
+    "filters": {
+      "allCategories": "Todas las Categorías",
+      "allComplexity": "Cualquier Complejidad",
+      "allTags": "Todas las Etiquetas"
     },
     "names": {
       "grayscale": "Escala de grises",
@@ -960,14 +974,54 @@
       "neutral": "Neutral",
       "portrait": "Retrato",
       "landscape": "Paisaje"
+    },
+    "errors": {
+      "invalidFiltersData": "Estructura de datos de filtros inválida",
+      "unknownError": "Error desconocido",
+      "failedToLoadFilters": "Error al cargar filtros: {{error}}",
+      "fallbackFilters": "Error al cargar filtros, usando respaldo"
+    },
+    "messages": {
+      "filtersLoaded": "Cargados {{count}} filtros desde JSON"
+    },
+    "detail": {
+      "description": "Descripción",
+      "category": "Categoría",
+      "complexity": "Complejidad",
+      "parameters": "Parámetros",
+      "tags": "Etiquetas",
+      "applyFilter": "Aplicar Filtro"
     }
   },
   "transitions": {
     "add": "Añadir transición",
     "edit": "Editar transición",
     "remove": "Eliminar transición",
-    "duration": "Duración",
+    "durationLabel": "Duración",
     "intensity": "Intensidad",
+    "categories": {
+      "basic": "Básicas",
+      "advanced": "Avanzadas",
+      "creative": "Creativas",
+      "3d": "3D",
+      "artistic": "Artísticas",
+      "cinematic": "Cinematográficas"
+    },
+    "complexity": {
+      "basic": "Básico",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado"
+    },
+    "duration": {
+      "short": "Cortas",
+      "medium": "Medias",
+      "long": "Largas"
+    },
+    "filters": {
+      "allCategories": "Todas las Categorías",
+      "allComplexity": "Cualquier Complejidad",
+      "allTags": "Todas las Etiquetas"
+    },
     "types": {
       "zoom": "Zoom",
       "fade": "Desvanecer",
@@ -985,6 +1039,24 @@
       "bounce": "Rebote",
       "swirl": "Remolino",
       "dissolve": "Disolver"
+    },
+    "errors": {
+      "invalidTransitionsData": "Estructura de datos de transiciones inválida",
+      "unknownError": "Error desconocido",
+      "failedToLoadTransitions": "Error al cargar transiciones: {{error}}",
+      "fallbackTransitions": "Error al cargar transiciones, usando respaldo"
+    },
+    "messages": {
+      "transitionsLoaded": "Cargadas {{count}} transiciones desde JSON"
+    },
+    "detail": {
+      "description": "Descripción",
+      "category": "Categoría",
+      "complexity": "Complejidad",
+      "duration": "Duración",
+      "parameters": "Parámetros",
+      "tags": "Etiquetas",
+      "applyTransition": "Aplicar Transición"
     }
   },
   "effects": {
@@ -1135,86 +1207,6 @@
       "objectDetectionDescription": "Habilitar detección de objetos con IA en las capturas.",
       "confidenceThreshold": "Umbral de confianza",
       "confidenceThresholdDescription": "Nivel mínimo de confianza para los objetos detectados. Valores más altos reducen los falsos positivos."
-    }
-  },
-  "filters": {
-    "categories": {
-      "color-correction": "Corrección de Color",
-      "creative": "Creativos",
-      "cinematic": "Cinematográficos",
-      "vintage": "Vintage",
-      "technical": "Técnicos",
-      "artistic": "Artísticos"
-    },
-    "complexity": {
-      "basic": "Básico",
-      "intermediate": "Intermedio",
-      "advanced": "Avanzado"
-    },
-    "filters": {
-      "allCategories": "Todas las Categorías",
-      "allComplexity": "Cualquier Complejidad",
-      "allTags": "Todas las Etiquetas"
-    },
-    "errors": {
-      "invalidFiltersData": "Estructura de datos de filtros inválida",
-      "unknownError": "Error desconocido",
-      "failedToLoadFilters": "Error al cargar filtros: {{error}}",
-      "fallbackFilters": "Error al cargar filtros, usando respaldo"
-    },
-    "messages": {
-      "filtersLoaded": "Cargados {{count}} filtros desde JSON"
-    },
-    "detail": {
-      "description": "Descripción",
-      "category": "Categoría",
-      "complexity": "Complejidad",
-      "parameters": "Parámetros",
-      "tags": "Etiquetas",
-      "applyFilter": "Aplicar Filtro"
-    }
-  },
-  "transitions": {
-    "categories": {
-      "basic": "Básicas",
-      "advanced": "Avanzadas",
-      "creative": "Creativas",
-      "3d": "3D",
-      "artistic": "Artísticas",
-      "cinematic": "Cinematográficas"
-    },
-    "complexity": {
-      "basic": "Básico",
-      "intermediate": "Intermedio",
-      "advanced": "Avanzado"
-    },
-    "duration": {
-      "short": "Cortas",
-      "medium": "Medias",
-      "long": "Largas"
-    },
-    "filters": {
-      "allCategories": "Todas las Categorías",
-      "allComplexity": "Cualquier Complejidad",
-      "allTags": "Todas las Etiquetas"
-    },
-    "errors": {
-      "invalidTransitionsData": "Estructura de datos de transiciones inválida",
-      "unknownError": "Error desconocido",
-      "failedToLoadTransitions": "Error al cargar transiciones: {{error}}",
-      "fallbackTransitions": "Error al cargar transiciones, usando respaldo"
-    },
-    "messages": {
-      "transitionsLoaded": "Cargadas {{count}} transiciones desde JSON"
-    },
-    "detail": {
-      "description": "Descripción",
-      "category": "Categoría",
-      "complexity": "Complejidad",
-      "duration": "Duración",
-      "parameters": "Parámetros",
-      "tags": "Etiquetas",
-      "applyTransition": "Aplicar Transición"
     }
   }
 }
