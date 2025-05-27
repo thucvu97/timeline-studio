@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react"
 
-import { MediaFile } from "@/types/media"
+import { MediaFile } from "@/features/media/types/media";
 
 /**
  * Хук для создания и управления видео элементами

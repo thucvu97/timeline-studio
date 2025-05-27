@@ -2,7 +2,7 @@ import React from "react";
 
 import { ContentGroup } from "@/components/common/content-group";
 import { useMedia } from "@/features/browser/media";
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 
 import { MediaItem } from "./media-item";
 

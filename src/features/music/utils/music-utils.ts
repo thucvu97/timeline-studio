@@ -1,4 +1,4 @@
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 
 /**
  * Сортирует массив медиафайлов по указанному критерию

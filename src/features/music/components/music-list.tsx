@@ -9,10 +9,10 @@ import { NoFiles } from "@/components/common/no-files";
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
 import { useMedia } from "@/features/browser/media";
+import { MediaFile } from "@/features/media/types/media";
 import { useResources } from "@/features/resources";
 import { formatTime } from "@/lib/date";
 import { cn } from "@/lib/utils";
-import { MediaFile } from "@/types/media";
 import { MusicResource } from "@/types/resources";
 
 import { useMusicImport } from "../hooks/use-music-import";

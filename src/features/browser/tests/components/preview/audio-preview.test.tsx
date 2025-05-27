@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 
 import { AudioPreview } from "../../../components/preview/audio-preview";
 

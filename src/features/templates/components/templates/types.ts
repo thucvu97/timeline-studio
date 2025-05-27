@@ -1,6 +1,6 @@
 import React from "react";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 
 // Общие типы для всех шаблонов
 export interface TemplateProps {

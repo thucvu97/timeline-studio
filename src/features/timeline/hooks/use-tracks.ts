@@ -10,9 +10,10 @@ import {
   getTracksByType,
   sortTracksByOrder,
 } from "@/lib/timeline/utils";
-import { TimelineTrack, TrackType } from "@/types/timeline";
 
 import { useTimeline } from "../timeline-provider";
+import { TimelineTrack, TrackType } from "../types";
+
 
 export interface UseTracksReturn {
   // Данные

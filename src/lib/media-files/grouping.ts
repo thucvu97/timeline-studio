@@ -1,6 +1,6 @@
+import type { MediaFile } from "@/features/media/types/media";
 import i18n from "@/i18n"
 import { formatDateByLanguage } from "@/i18n/constants"
-import type { MediaFile } from "@/types/media"
 
 import { DateGroup } from "./types"
 import { hasAudioStream } from "./utils"

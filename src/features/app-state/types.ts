@@ -1,7 +1,7 @@
 import { FavoritesType } from "@/features/browser/media/media-machine";
+import { MediaFile } from "@/features/media/types/media";
 import { BrowserTab, LayoutMode } from "@/features/user-settings";
 import { PreviewSize } from "@/lib/constants/preview-sizes";
-import { MediaFile } from "@/types/media";
 import { ProjectSettings } from "@/types/project";
 import { TimelineResource } from "@/types/resources";
 

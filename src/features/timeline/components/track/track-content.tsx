@@ -5,8 +5,8 @@
 import React from "react";
 
 import { cn } from "@/lib/utils";
-import { TimelineTrack } from "@/types/timeline";
 
+import { TimelineTrack } from "../../types";
 import { Clip } from "../clip/clip";
 
 interface TrackContentProps {

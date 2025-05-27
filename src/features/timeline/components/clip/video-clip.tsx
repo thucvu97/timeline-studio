@@ -8,7 +8,8 @@ import { Copy, Image, Scissors, Trash2, Video } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { TimelineClip, TimelineTrack } from "@/types/timeline";
+
+import { TimelineClip, TimelineTrack } from "../../types";
 
 interface VideoClipProps {
   clip: TimelineClip;

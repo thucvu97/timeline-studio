@@ -3,8 +3,8 @@ import { memo, useEffect, useRef, useState } from "react"
 import { Star } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { MediaFile } from "@/features/media/types/media";
 import { cn } from "@/lib/utils"
-import { MediaFile } from "@/types/media"
 
 import { useMedia } from "../../media"
 

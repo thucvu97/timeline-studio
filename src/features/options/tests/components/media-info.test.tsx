@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { MediaFile } from "@/features/media/types/media";
 import { renderWithBase, screen } from "@/test/test-utils";
-import { MediaFile } from "@/types/media";
 
 import { MediaInfo } from "../../components/media-info";
 

@@ -2,7 +2,7 @@ import { createContext, useEffect } from "react";
 
 import { useMachine } from "@xstate/react";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 
 import { FavoritesType, mediaMachine } from "./media-machine";
 

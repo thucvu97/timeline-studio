@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 
 import { useMedia } from "@/features/browser";
+import { MediaFile } from "@/features/media/types/media";
 import { cn } from "@/lib/utils";
-import { MediaFile } from "@/types/media";
 
 import { FileMetadata } from "./file-metadata";
 import { MediaPreview } from "../../browser/components/preview";

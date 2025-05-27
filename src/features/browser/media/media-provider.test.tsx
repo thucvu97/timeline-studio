@@ -3,7 +3,7 @@ import * as React from "react"
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/types/media"
+import { MediaFile } from "@/features/media/types/media";
 
 import { MediaContext, MediaProvider } from "./media-provider"
 

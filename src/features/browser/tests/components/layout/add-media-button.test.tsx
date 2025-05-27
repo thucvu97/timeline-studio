@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 
 import { AddMediaButton } from "../../../components/layout/add-media-button";
 

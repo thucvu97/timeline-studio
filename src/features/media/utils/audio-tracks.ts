@@ -8,6 +8,7 @@ import { updateSectorTimeRange } from "./tracks-utils";
 import { Sector } from "./types";
 import { doTimeRangesOverlap } from "./utils";
 
+
 import type { MediaFile, MediaTrack } from "../types/media";
 
 /**
@@ -20,10 +21,7 @@ import type { MediaFile, MediaTrack } from "../types/media";
 export function processAudioFiles(
   sortedAudioFiles: MediaFile[],
   sectors: Sector[],
-  existingSectorsByDay: Record<
-    string,
-    { sector: Sector | null; tracks: MediaTrack[] }
-  >,
+  existingSectorsByDay: Record<string, { sector: Sector | null }>,
   currentLanguage: string,
 ): void {
   // Группируем аудио файлы по дням
@@ -65,7 +63,7 @@ export function processAudioFiles(
       }
     }
 
-    const existingDayTracks = existingSectorsByDay[date]?.tracks ?? [];
+    // existingDayTracks убраны для упрощения архитектуры
 
     // Форматируем дату для отображения с помощью универсального метода
     const dateObj = new Date(date);
@@ -100,7 +98,7 @@ export function processAudioFiles(
       let trackFound = false;
 
       // Сначала проверяем существующие дорожки в порядке их индекса (сверху вниз)
-      const sortedTracks = [...existingDayTracks, ...sector.tracks]
+      const sortedTracks = sector.tracks
         .filter((track) => track.type === "audio")
         .sort((a, b) => (Number(a.index) || 0) - (Number(b.index) || 0));
 
@@ -184,7 +182,6 @@ export function processAudioFiles(
         createNewAudioTrack(
           file,
           sector,
-          existingDayTracks,
           fileStartTime,
           fileEndTime,
           fileDuration,
@@ -217,7 +214,6 @@ export function processAudioFiles(
  * Создает новую аудиодорожку
  * @param file - Файл для добавления
  * @param sector - Сектор, в который добавляется дорожка
- * @param existingDayTracks - Существующие дорожки
  * @param fileStartTime - Время начала файла
  * @param fileEndTime - Время окончания файла
  * @param fileDuration - Длительность файла
@@ -225,7 +221,6 @@ export function processAudioFiles(
 function createNewAudioTrack(
   file: MediaFile,
   sector: Sector,
-  existingDayTracks: MediaTrack[],
   fileStartTime: number,
   fileEndTime: number,
   fileDuration: number,
@@ -234,9 +229,6 @@ function createNewAudioTrack(
   const maxAudioIndex = Math.max(
     0,
     ...sector.tracks
-      .filter((track) => track.type === "audio")
-      .map((track) => Number(track.index) || 0),
-    ...existingDayTracks
       .filter((track) => track.type === "audio")
       .map((track) => Number(track.index) || 0),
   );

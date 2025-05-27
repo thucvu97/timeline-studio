@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 
+import { MediaFile } from "@/features/media/types/media";
 import { useResources } from "@/features/resources";
 import { calculateDimensionsWithAspectRatio } from "@/lib/constants/preview-sizes";
-import { MediaFile } from "@/types/media";
 import { TemplateResource } from "@/types/resources";
 
 import {

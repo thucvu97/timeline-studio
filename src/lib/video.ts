@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
+import type { MediaFile } from "@/features/media/types/media";
 import { FfprobeStream } from "@/types/ffprobe";
-import type { MediaFile } from "@/types/media";
 import type { TimeRange } from "@/types/time-range";
 
 /**

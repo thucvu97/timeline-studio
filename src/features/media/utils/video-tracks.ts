@@ -17,7 +17,6 @@ import type { MediaFile, MediaTrack } from "../types/media";
 export function processVideoFiles(
   dayFiles: MediaFile[],
   sector: Sector,
-  existingDayTracks: MediaTrack[],
 ): void {
   for (const file of dayFiles) {
     const fileStartTime = file.startTime ?? 0;
@@ -50,7 +49,7 @@ export function processVideoFiles(
     );
 
     // Сначала проверяем существующие дорожки в порядке их индекса (сверху вниз)
-    const sortedTracks = [...existingDayTracks, ...sector.tracks]
+    const sortedTracks = sector.tracks
       .filter((track) => track.type === "video")
       .sort((a, b) => (Number(a.index) || 0) - (Number(b.index) || 0));
 
@@ -271,7 +270,6 @@ export function processVideoFiles(
       createNewVideoTrack(
         file,
         sector,
-        existingDayTracks,
         fileStartTime,
         fileEndTime,
         fileDuration,
@@ -285,7 +283,6 @@ export function processVideoFiles(
  * Создает новую видеодорожку
  * @param file - Файл для добавления
  * @param sector - Сектор, в который добавляется дорожка
- * @param existingDayTracks - Существующие дорожки
  * @param fileStartTime - Время начала файла
  * @param fileEndTime - Время окончания файла
  * @param fileDuration - Длительность файла
@@ -294,7 +291,6 @@ export function processVideoFiles(
 function createNewVideoTrack(
   file: MediaFile,
   sector: Sector,
-  existingDayTracks: MediaTrack[],
   fileStartTime: number,
   fileEndTime: number,
   fileDuration: number,
@@ -304,9 +300,6 @@ function createNewVideoTrack(
   const maxVideoIndex = Math.max(
     0,
     ...sector.tracks
-      .filter((track) => track.type === "video")
-      .map((track) => Number(track.index) || 0),
-    ...existingDayTracks
       .filter((track) => track.type === "video")
       .map((track) => Number(track.index) || 0),
   );

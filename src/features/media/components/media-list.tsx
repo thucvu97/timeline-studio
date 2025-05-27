@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next";
 
 import { useBrowserState } from "@/components/common/browser-state-provider";
 import { useMedia } from "@/features/browser";
+import { MediaFile } from "@/features/media/types/media";
 import i18n from "@/i18n";
 import { formatDateByLanguage } from "@/i18n/constants";
 import { getFileType, groupFilesByDate } from "@/lib/media-files";
 import { FfprobeStream } from "@/types/ffprobe";
-import { MediaFile } from "@/types/media";
 
 import { MediaContent } from "./media-content";
 import { StatusBar } from "../../browser/components/layout/status-bar";

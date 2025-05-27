@@ -1,4 +1,4 @@
-import type { MediaFile } from "@/types/media"
+import type { MediaFile } from "@/features/media/types/media";
 
 /**
  * Проверяет, содержит ли файл аудиопоток

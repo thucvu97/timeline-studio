@@ -10,8 +10,4 @@ export * from "./dimensions"
 // Экспортируем функции для группировки
 export * from "./grouping"
 
-// Экспортируем функции для работы с треками
-export * from "./tracks"
-export * from "./tracks-utils"
-export * from "./video-tracks"
-export * from "./audio-tracks"
+// Функции для работы с треками перенесены в src/features/media/utils/

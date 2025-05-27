@@ -1,10 +1,10 @@
 import { useCallback, useState } from "react";
 
+import { MediaFile } from "@/features/media/types/media";
 import {
   MediaRestorationService,
   ProjectRestorationResult,
 } from "@/lib/media-restoration-service";
-import { MediaFile } from "@/types/media";
 import { SavedMediaFile, SavedMusicFile } from "@/types/saved-media";
 
 /**

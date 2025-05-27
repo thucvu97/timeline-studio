@@ -1,6 +1,6 @@
 import { assign, createMachine } from "xstate"
 
-import { MediaFile } from "@/types/media"
+import { MediaFile } from "@/features/media/types/media";
 
 export interface FavoritesType {
   [key: string]: any[]

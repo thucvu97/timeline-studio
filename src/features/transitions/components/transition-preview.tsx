@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
+import { MediaFile } from "@/features/media/types/media";
 import { useResources } from "@/features/resources";
-import { MediaFile } from "@/types/media";
 import { TransitionResource } from "@/types/resources";
 import { Transition } from "@/types/transitions";
 

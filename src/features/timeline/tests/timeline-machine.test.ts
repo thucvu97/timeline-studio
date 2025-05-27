@@ -5,9 +5,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { createActor } from "xstate";
 
-import { createTimelineProject } from "@/types/timeline";
-
 import { timelineMachine } from "../services/timeline-machine";
+import { createTimelineProject } from "../types";
+
 
 describe("Timeline Machine", () => {
   let actor: any;

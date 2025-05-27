@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { basename, dirname, join } from "@tauri-apps/api/path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 
 import {
   calculateRelativePath,

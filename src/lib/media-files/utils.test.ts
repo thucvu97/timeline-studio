@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import type { MediaFile } from "@/types/media"
+import type { MediaFile } from "@/features/media/types/media";
 
 import { doTimeRangesOverlap, getFileType, getRemainingMediaCounts, hasAudioStream, isHorizontalVideo } from "./utils"
 

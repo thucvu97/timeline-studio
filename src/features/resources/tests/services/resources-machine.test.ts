@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createActor } from "xstate";
 
+import { MediaFile } from "@/features/media/types/media";
 import { MediaTemplate } from "@/features/templates/lib/templates";
 import { VideoEffect } from "@/types/effects";
 import { VideoFilter } from "@/types/filters";
-import { MediaFile } from "@/types/media";
 import { Transition } from "@/types/transitions";
 
-import { resourcesMachine } from "./resources-machine";
+import { resourcesMachine } from "../../services/resources-machine";
 
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {});

@@ -84,19 +84,19 @@ export interface MediaTrack {
   isActive?: boolean;
   videos?: MediaFile[];
   segments?: VideoSegment[];
-  startTime?: number;
-  endTime?: number;
-  combinedDuration?: number;
+  startTime: number;
+  endTime: number;
+  combinedDuration: number;
   timeRanges?: TimeRange[];
-  index: string | number;
+  index: number; // Обязательный индекс для сортировки треков
   cameraId?: string;
   cameraName?: string; // Пользовательское название камеры (например, "Sony Alpha")
   sectionDuration?: number; // Длительность секции для расчета позиции видео
 
-  volume?: number;
-  isMuted?: boolean;
-  isLocked?: boolean;
-  isVisible?: boolean;
+  volume: number;
+  isMuted: boolean;
+  isLocked: boolean;
+  isVisible: boolean;
 }
 
 export interface TimelineTimeRange {

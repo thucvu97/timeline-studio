@@ -2,8 +2,8 @@ import { createContext, useContext, useEffect } from "react";
 
 import { useMachine } from "@xstate/react";
 
+import { MediaFile } from "@/features/media/types/media";
 import { useUserSettings } from "@/features/user-settings"
-import { MediaFile } from "@/types/media";
 
 import {
   PlayerContextType as MachineContextType,

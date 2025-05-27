@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 
 // Типы для информации о медиафайле
 interface MediaFileInfo {

@@ -4,7 +4,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { Image } from "lucide-react";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 
 import { AddMediaButton } from "../layout/add-media-button";
 import { FavoriteButton } from "../layout/favorite-button";

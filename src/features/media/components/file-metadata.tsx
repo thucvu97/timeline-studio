@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 
+import { MediaFile } from "@/features/media/types/media";
 import { formatDuration, formatTimeWithMilliseconds } from "@/lib/date";
 import { formatBitrate, formatFileSize } from "@/lib/utils";
 import { getAspectRatio, getFps } from "@/lib/video";
-import { MediaFile } from "@/types/media";
 
 interface FileMetadataProps {
   file: MediaFile;

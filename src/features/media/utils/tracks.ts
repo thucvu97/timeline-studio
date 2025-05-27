@@ -2,6 +2,7 @@ import i18n from "@/i18n";
 import { formatDateByLanguage } from "@/i18n/constants";
 import { calculateTimeRanges } from "@/lib/video";
 
+
 import { processAudioFiles } from "./audio-tracks";
 import { updateSectorTimeRange } from "./tracks-utils";
 import { Sector } from "./types";
@@ -86,22 +87,8 @@ export const createTracksFromFiles = (
     })),
   );
 
-  // Получаем существующие секторы и треки по дням
-  const existingSectorsByDay = existingTracks.reduce<
-    Record<string, { sector: Sector | null; tracks: MediaTrack[] }>
-  >((acc, track) => {
-    if (!track.videos || track.videos.length === 0) return acc;
-
-    const startTime = track.videos[0].startTime ?? Date.now() / 1000;
-    const date = new Date(startTime * 1000).toISOString().split("T")[0];
-
-    if (!acc[date]) {
-      acc[date] = { sector: null, tracks: [] };
-    }
-
-    acc[date].tracks.push(track);
-    return acc;
-  }, {});
+  // Получаем существующие секторы по дням (упрощено)
+  const existingSectorsByDay: Record<string, { sector: Sector | null }> = {};
 
   // Обрабатываем видео файлы по дням
   for (const [date, dayFiles] of Object.entries(videoFilesByDay)) {
@@ -130,13 +117,8 @@ export const createTracksFromFiles = (
       }
     }
 
-    const existingDayTracks = existingSectorsByDay[date]?.tracks || [];
-
     console.log(
       `Existing sector for date ${date}: ${existingSector ? "yes" : "no"}`,
-    );
-    console.log(
-      `Existing tracks for date ${date}: ${existingDayTracks.length}`,
     );
 
     // Форматируем дату для отображения с помощью универсального метода
@@ -167,7 +149,7 @@ export const createTracksFromFiles = (
     );
 
     // Обрабатываем каждый файл и добавляем его на подходящую дорожку
-    processVideoFiles(dayFiles, sector, existingDayTracks);
+    processVideoFiles(dayFiles, sector);
 
     // Обновляем timeRanges сектора
     sector.timeRanges = calculateTimeRanges(dayFiles);

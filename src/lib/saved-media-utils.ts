@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { basename, dirname, join } from "@tauri-apps/api/path";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 import {
   FileStatus,
   MusicMetadata,

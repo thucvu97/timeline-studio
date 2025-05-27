@@ -2,13 +2,13 @@
 import { act, render, renderHook, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { MediaFile } from "@/features/media/types/media";
 import { MediaTemplate } from "@/features/templates/lib/templates";
 import { VideoEffect } from "@/types/effects";
 import { VideoFilter } from "@/types/filters";
-import { MediaFile } from "@/types/media";
-import { TransitionEffect } from "@/types/transitions";
+import { Transition } from "@/types/transitions";
 
-import { ResourcesProvider, useResources } from "./resources-provider";
+import { ResourcesProvider, useResources } from "../../services/resources-provider";
 
 const mockSend = vi.fn();
 
@@ -246,7 +246,7 @@ describe("ResourcesProvider", () => {
     });
 
     // Создаем тестовый переход
-    const testTransition: TransitionEffect = {
+    const testTransition: Transition = {
       id: "test-transition",
       name: "Test Transition",
       type: "fade",

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { MediaFile } from "@/features/media/types/media";
 import * as i18nConstants from "@/i18n/constants"
-import type { MediaFile } from "@/types/media"
 
 import { getGroupedFiles, getTopDateWithRemainingFiles, groupFilesByDate } from "./grouping"
 
@@ -17,16 +17,19 @@ describe("groupFilesByDate", () => {
   it("должен группировать файлы по дате", () => {
     const mediaFiles: MediaFile[] = [
       {
+        id: "1",
         path: "video1.mp4",
         name: "video1.mp4",
         startTime: 1609459200, // 2021-01-01
       },
       {
+        id: "2",
         path: "video2.mp4",
         name: "video2.mp4",
         startTime: 1609459200, // 2021-01-01
       },
       {
+        id: "3",
         path: "video3.mp4",
         name: "video3.mp4",
         startTime: 1612137600, // 2021-02-01
@@ -45,11 +48,13 @@ describe("groupFilesByDate", () => {
   it("должен помещать файлы без даты в конец списка", () => {
     const mediaFiles: MediaFile[] = [
       {
+        id: "1",
         path: "video1.mp4",
         name: "video1.mp4",
         startTime: 1609459200, // 2021-01-01
       },
       {
+        id: "2",
         path: "video2.mp4",
         name: "video2.mp4",
         startTime: undefined,
@@ -70,16 +75,19 @@ describe("getGroupedFiles", () => {
   it("должен группировать файлы по базовому имени", () => {
     const mediaFiles: MediaFile[] = [
       {
+        id: "1",
         path: "video_1.mp4",
         name: "video_1.mp4",
         startTime: 100,
       },
       {
+        id: "2",
         path: "video_2.mp4",
         name: "video_2.mp4",
         startTime: 200,
       },
       {
+        id: "3",
         path: "other_1.mp4",
         name: "other_1.mp4",
         startTime: 300,
@@ -96,11 +104,13 @@ describe("getGroupedFiles", () => {
   it("должен сортировать файлы в группе по startTime", () => {
     const mediaFiles: MediaFile[] = [
       {
+        id: "1",
         path: "video_2.mp4",
         name: "video_2.mp4",
         startTime: 200,
       },
       {
+        id: "2",
         path: "video_1.mp4",
         name: "video_1.mp4",
         startTime: 100,
@@ -121,15 +131,21 @@ describe("getTopDateWithRemainingFiles", () => {
         date: "2021-01-01",
         files: [
           {
+            id: "1",
+            name: "video1.mp4",
             path: "video1.mp4",
             probeData: {
-              streams: [{ codec_type: "video" }, { codec_type: "audio" }],
+              streams: [{ index: 0, codec_type: "video" }, { index: 1, codec_type: "audio" }],
+              format: { duration: 60 },
             },
           },
           {
+            id: "2",
+            name: "video2.mp4",
             path: "video2.mp4",
             probeData: {
-              streams: [{ codec_type: "video" }, { codec_type: "audio" }],
+              streams: [{ index: 0, codec_type: "video" }, { index: 1, codec_type: "audio" }],
+              format: { duration: 60 },
             },
           },
         ],
@@ -138,9 +154,12 @@ describe("getTopDateWithRemainingFiles", () => {
         date: "2021-02-01",
         files: [
           {
+            id: "3",
+            name: "video3.mp4",
             path: "video3.mp4",
             probeData: {
-              streams: [{ codec_type: "video" }, { codec_type: "audio" }],
+              streams: [{ index: 0, codec_type: "video" }, { index: 1, codec_type: "audio" }],
+              format: { duration: 60 },
             },
           },
         ],
@@ -162,9 +181,12 @@ describe("getTopDateWithRemainingFiles", () => {
         date: "2021-01-01",
         files: [
           {
+            id: "1",
+            name: "video1.mp4",
             path: "video1.mp4",
             probeData: {
-              streams: [{ codec_type: "video" }, { codec_type: "audio" }],
+              streams: [{ index: 0, codec_type: "video" }, { index: 1, codec_type: "audio" }],
+              format: { duration: 60 },
             },
           },
         ],
@@ -184,21 +206,30 @@ describe("getTopDateWithRemainingFiles", () => {
         date: "2021-01-01",
         files: [
           {
+            id: "1",
+            name: "video1.mp4",
             path: "video1.mp4",
             probeData: {
-              streams: [{ codec_type: "video" }], // Без аудио
+              streams: [{ index: 0, codec_type: "video" }], // Без аудио
+              format: { duration: 60 },
             },
           },
           {
+            id: "2",
+            name: "audio1.mp3",
             path: "audio1.mp3",
             probeData: {
-              streams: [{ codec_type: "audio" }], // Только аудио
+              streams: [{ index: 0, codec_type: "audio" }], // Только аудио
+              format: { duration: 60 },
             },
           },
           {
+            id: "3",
+            name: "video2.mp4",
             path: "video2.mp4",
             probeData: {
-              streams: [{ codec_type: "video" }, { codec_type: "audio" }], // С аудио
+              streams: [{ index: 0, codec_type: "video" }, { index: 1, codec_type: "audio" }], // С аудио
+              format: { duration: 60 },
             },
           },
         ],

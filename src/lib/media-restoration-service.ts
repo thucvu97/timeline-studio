@@ -1,7 +1,7 @@
 import { dirname } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/plugin-dialog";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
 import { SavedMediaFile, SavedMusicFile } from "@/types/saved-media";
 
 import {

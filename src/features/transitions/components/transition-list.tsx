@@ -6,9 +6,9 @@ import { useBrowserState } from "@/components/common/browser-state-provider";
 import { ContentGroup } from "@/components/common/content-group";
 import { NoFiles } from "@/components/common/no-files";
 import { useMedia } from "@/features/browser/media";
+import { MediaFile } from "@/features/media/types/media";
 import { useProjectSettings } from "@/features/project-settings";
 import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
-import { MediaFile } from "@/types/media";
 import { Transition } from "@/types/transitions";
 
 import { TransitionPreview } from "./transition-preview";

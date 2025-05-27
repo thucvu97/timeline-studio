@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { MediaFile } from "@/features/media/types/media";
 import { FfprobeStream } from "@/types/ffprobe";
-import { MediaFile } from "@/types/media";
 
 import {
   VolumeState,

@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
+import { MediaFile } from "@/features/media/types/media";
 import { usePlayer } from "@/features/video-player/services/player-provider";
-import { MediaFile } from "@/types/media";
 
 import {
   SplitCustom53Square,

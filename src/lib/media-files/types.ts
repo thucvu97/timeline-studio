@@ -1,4 +1,4 @@
-import type { MediaFile, Track } from "@/types/media"
+import type { MediaFile, MediaTrack } from "@/features/media/types"
 import type { TimeRange } from "@/types/time-range"
 
 /**
@@ -28,18 +28,6 @@ export interface DateGroup {
   files: MediaFile[]
 }
 
-/**
- * Интерфейс для сектора на таймлайне
- */
-export interface Sector {
-  id: string
-  name: string
-  tracks: Track[]
-  timeRanges: TimeRange[]
-  zoomLevel?: number
-  scrollPosition?: number
-  startTime: number
-  endTime: number
-}
+// Тип Sector перенесен в src/features/media/utils/types.ts
 
-export type { MediaFile, Track, TimeRange }
+export type { MediaFile, MediaTrack, TimeRange }

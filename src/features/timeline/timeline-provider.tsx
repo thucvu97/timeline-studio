@@ -13,7 +13,13 @@ import React, {
 
 import { useMachine } from "@xstate/react";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
+
+import {
+  TimelineContext as MachineContext,
+  TimelineEvents,
+  timelineMachine,
+} from "./services/timeline-machine";
 import {
   TimelineClip,
   TimelineProject,
@@ -21,13 +27,8 @@ import {
   TimelineTrack,
   TimelineUIState,
   TrackType,
-} from "@/types/timeline";
+} from "./types";
 
-import {
-  TimelineContext as MachineContext,
-  TimelineEvents,
-  timelineMachine,
-} from "./services/timeline-machine";
 
 // ============================================================================
 // CONTEXT TYPES

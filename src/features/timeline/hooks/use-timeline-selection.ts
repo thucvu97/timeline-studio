@@ -4,9 +4,8 @@
 
 import { useMemo } from "react";
 
-import { TimelineClip, TimelineSection, TimelineTrack } from "@/types/timeline";
-
 import { useTimeline } from "../timeline-provider";
+import { TimelineClip, TimelineSection, TimelineTrack } from "../types";
 import { useClips } from "./use-clips";
 import { useTracks } from "./use-tracks";
 

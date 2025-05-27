@@ -6,7 +6,8 @@
 
 import { assign, createMachine } from "xstate";
 
-import { MediaFile } from "@/types/media";
+import { MediaFile } from "@/features/media/types/media";
+
 import {
   TimelineClip,
   TimelineProject,
@@ -18,7 +19,7 @@ import {
   createTimelineProject,
   createTimelineSection,
   createTimelineTrack,
-} from "@/types/timeline";
+} from "../types";
 
 // ============================================================================
 // CONTEXT TYPES

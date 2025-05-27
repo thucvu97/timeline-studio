@@ -11,7 +11,7 @@ import {
   createTimelineClip,
   TimelineProject,
   TrackType,
-} from "../src/types/timeline";
+} from "../src/features/timeline/types";
 
 import {
   calculateProjectDuration,
