@@ -129,8 +129,13 @@ jobs:
           # Устанавливаем дополнительные зависимости для тестирования
           npm install --save-dev @testing-library/dom @testing-library/react @testing-library/user-event @testing-library/jest-dom
 
-      - name: Ensure Tauri CLI binaries
-        run: npx tauri --help
+      - name: Install Tauri CLI
+        run: |
+          # Устанавливаем Tauri CLI через cargo для надежности
+          cargo install tauri-cli --version "^2.0.0"
+
+          # Проверяем установку
+          cargo tauri --version
 
       - name: Run tests
         run: npm run test
@@ -165,7 +170,6 @@ jobs:
         uses: tauri-apps/tauri-action@v0.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_CLI_PACKAGE_MANAGER: "npm"
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
@@ -177,14 +181,13 @@ jobs:
           includeDebug: false
           includeRelease: true
           includeUpdaterJson: true
-          tauriScript: "npm run tauri"
+          tauriScript: "cargo tauri"
 
       - name: Build the app (Windows/Linux)
         if: matrix.platform != 'macos-latest'
         uses: tauri-apps/tauri-action@v0.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_CLI_PACKAGE_MANAGER: "npm"
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
@@ -195,7 +198,7 @@ jobs:
           includeDebug: false
           includeRelease: true
           includeUpdaterJson: true
-          tauriScript: "npm run tauri"
+          tauriScript: "cargo tauri"
           args: --ci
 
   update-release-description:
