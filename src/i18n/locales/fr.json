@@ -80,6 +80,7 @@
     "layout": "Disposition",
     "keyboardShortcuts": "Raccourcis clavier",
     "projectSettings": "Paramètres du projet",
+    "openProject": "Ouvrir un projet",
     "saveChanges": "Enregistrer les modifications",
     "allChangesSaved": "Toutes les modifications enregistrées",
     "publish": "Publier",

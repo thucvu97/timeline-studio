@@ -34,7 +34,14 @@ export function I18nProvider({ children }: I18nProviderProps) {
 
   // Показываем загрузку, пока i18n не инициализирован
   if (!isI18nInitialized) {
-    return null // или можно показать индикатор загрузки
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 mx-auto"></div>
+          <p className="text-gray-600">Loading translations...</p>
+        </div>
+      </div>
+    )
   }
 
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>

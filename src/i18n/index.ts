@@ -57,8 +57,8 @@ const initI18n = () => {
     }
   }
 
-  // Инициализируем i18n и игнорируем промис, так как мы обрабатываем состояние через события
-  void instance.init({
+  // Инициализируем i18n
+  const initResult = instance.init({
     resources,
     lng: savedLanguage, // Используем сохраненный язык
     fallbackLng: "en", // Язык по умолчанию, если сохраненный недоступен
@@ -77,7 +77,14 @@ const initI18n = () => {
         caches: ["localStorage"],
       },
     }),
-  })
+  });
+
+  // Безопасно обрабатываем результат инициализации
+  if (initResult && typeof initResult.catch === 'function') {
+    initResult.catch((error) => {
+      console.error("i18n: Failed to initialize:", error);
+    });
+  }
 
   // Обработчик изменения языка
   i18n.on("languageChanged", (lng) => {

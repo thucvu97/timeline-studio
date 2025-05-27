@@ -81,6 +81,7 @@
     "layout": "Layout",
     "keyboardShortcuts": "Keyboard Shortcuts",
     "projectSettings": "Project Settings",
+    "openProject": "Open Project",
     "saveChanges": "Save changes",
     "allChangesSaved": "All changes saved",
     "publish": "Publish",

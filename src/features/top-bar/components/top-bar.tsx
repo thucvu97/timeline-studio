@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 
 import {
   FolderOpen,
@@ -31,7 +31,7 @@ import { useModal } from "@/features/modals/services/modal-provider";
 import { useUserSettings } from "@/features/user-settings";
 import { cn } from "@/lib/utils";
 
-export function TopBar() {
+const TopBarComponent = function TopBar() {
   const { t } = useTranslation();
   const { openModal } = useModal();
   const { isBrowserVisible, toggleBrowserVisibility } = useUserSettings();
@@ -40,23 +40,28 @@ export function TopBar() {
   const [isEditing, setIsEditing] = useState(false);
   const [projectName, setProjectName] = useState(currentProject.name);
 
-  const handleOpenModal = (modal: string) => {
+  // Синхронизируем projectName с currentProject.name
+  useEffect(() => {
+    setProjectName(currentProject.name);
+  }, [currentProject.name]);
+
+  const handleOpenModal = useCallback((modal: string) => {
     console.log(`Opening modal: ${modal}`);
     openModal(modal as ModalType);
-  };
+  }, [openModal]);
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setProjectName(e.target.value);
     setProjectDirty(true);
-  };
+  }, [setProjectDirty]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       setIsEditing(false);
     }
-  };
+  }, []);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     try {
       // Сохраняем проект
       void saveProject(projectName);
@@ -64,9 +69,9 @@ export function TopBar() {
     } catch (error) {
       console.error("[handleSave] Error saving project:", error);
     }
-  };
+  }, [saveProject, projectName]);
 
-  const handleOpenProject = () => {
+  const handleOpenProject = useCallback(() => {
     try {
       // Открываем проект
       void openProject();
@@ -74,7 +79,38 @@ export function TopBar() {
     } catch (error) {
       console.error("[handleOpenProject] Error opening project:", error);
     }
-  };
+  }, [openProject]);
+
+  // Мемоизируем заголовки для кнопок
+  const buttonTitles = useMemo(() => ({
+    browser: isBrowserVisible ? t("browser.hide") : t("browser.show"),
+    layout: t("topBar.layout"),
+    keyboardShortcuts: t("topBar.keyboardShortcuts"),
+    userSettings: t("topBar.userSettings"),
+    projectSettings: t("topBar.projectSettings"),
+    openProject: t("topBar.openProject"),
+    save: currentProject.isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved"),
+    cameraCapture: t("topBar.cameraCapture"),
+    voiceRecording: t("topBar.voiceRecording"),
+    publish: t("topBar.publish"),
+    editingTasks: t("topBar.editingTasks"),
+    export: t("topBar.export"),
+  }), [t, isBrowserVisible, currentProject.isDirty]);
+
+  // Мемоизируем CSS классы
+  const saveButtonClassName = useMemo(() => cn(
+    "h-7 w-7 cursor-pointer p-0",
+    currentProject.isDirty
+      ? "hover:bg-accent opacity-100"
+      : "opacity-50 hover:opacity-50",
+  ), [currentProject.isDirty]);
+
+  const projectNameClassName = useMemo(() => cn(
+    "group relative ml-1 w-[100px] text-xs",
+    isEditing
+      ? "ring-1 ring-teal"
+      : "transition-colors group-hover:ring-1 group-hover:ring-teal",
+  ), [isEditing]);
 
   return (
     <div className="relative flex w-full items-center bg-gray-200 px-1 py-0 dark:bg-[#343434]">
@@ -89,7 +125,7 @@ export function TopBar() {
               "transition-all duration-300 hover:bg-secondary h-7 w-7 cursor-pointer p-0"
             }
             onClick={toggleBrowserVisibility}
-            title={isBrowserVisible ? t("browser.hide") : t("browser.show")}
+            title={buttonTitles.browser}
           >
             {isBrowserVisible ? (
               <PanelLeftClose size={16} />
@@ -104,7 +140,7 @@ export function TopBar() {
                 className="h-7 w-7 cursor-pointer p-0"
                 variant="ghost"
                 size="icon"
-                title={t("topBar.layout")}
+                title={buttonTitles.layout}
                 data-testid="layout-button"
               >
                 <Layout className="h-5 w-5" />
@@ -125,7 +161,7 @@ export function TopBar() {
             className="h-7 w-7 cursor-pointer p-0"
             variant="ghost"
             size="icon"
-            title={t("topBar.keyboardShortcuts")}
+            title={buttonTitles.keyboardShortcuts}
             onClick={() => handleOpenModal("keyboard-shortcuts")}
             data-testid="keyboard-shortcuts-button"
           >
@@ -135,7 +171,7 @@ export function TopBar() {
             className="h-7 w-7 cursor-pointer p-0"
             variant="ghost"
             size="icon"
-            title={t("topBar.userSettings")}
+            title={buttonTitles.userSettings}
             onClick={() => handleOpenModal("user-settings")}
             data-testid="user-settings-button"
           >
@@ -149,7 +185,7 @@ export function TopBar() {
             className="h-7 w-7 cursor-pointer p-0"
             variant="ghost"
             size="icon"
-            title={t("topBar.projectSettings")}
+            title={buttonTitles.projectSettings}
             onClick={() => handleOpenModal("project-settings")}
             data-testid="project-settings-button"
           >
@@ -159,7 +195,7 @@ export function TopBar() {
             className="h-7 w-7 cursor-pointer p-0"
             variant="ghost"
             size="icon"
-            title={t("topBar.openProject")}
+            title={buttonTitles.openProject}
             onClick={handleOpenProject}
             data-testid="open-project-button"
           >
@@ -167,19 +203,10 @@ export function TopBar() {
           </Button>
 
           <Button
-            className={cn(
-              "h-7 w-7 cursor-pointer p-0",
-              currentProject.isDirty
-                ? "hover:bg-accent opacity-100"
-                : "opacity-50 hover:opacity-50",
-            )}
+            className={saveButtonClassName}
             variant="ghost"
             size="icon"
-            title={
-              currentProject.isDirty
-                ? t("topBar.saveChanges")
-                : t("topBar.allChangesSaved")
-            }
+            title={buttonTitles.save}
             onClick={handleSave}
             disabled={!currentProject.isDirty}
             data-testid="save-button"
@@ -189,12 +216,7 @@ export function TopBar() {
 
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
           <div
-            className={cn(
-              "group relative ml-1 w-[100px] text-xs",
-              isEditing
-                ? "ring-1 ring-teal"
-                : "transition-colors group-hover:ring-1 group-hover:ring-teal",
-            )}
+            className={projectNameClassName}
             onClick={() => setIsEditing(true)}
           >
             {isEditing ? (
@@ -222,7 +244,7 @@ export function TopBar() {
             variant="ghost"
             size="icon"
             className="h-7 w-7 cursor-pointer p-0"
-            title={t("topBar.cameraCapture")}
+            title={buttonTitles.cameraCapture}
             onClick={() => handleOpenModal("camera-capture")}
             data-testid="camera-capture-button"
           >
@@ -232,7 +254,7 @@ export function TopBar() {
             variant="ghost"
             size="icon"
             className="h-7 w-7 cursor-pointer p-0"
-            title={t("topBar.voiceRecording")}
+            title={buttonTitles.voiceRecording}
             onClick={() => handleOpenModal("voice-recording")}
             data-testid="voice-recording-button"
           >
@@ -248,7 +270,7 @@ export function TopBar() {
                 className="h-7 w-7 cursor-pointer p-0"
                 variant="ghost"
                 size="icon"
-                title={t("topBar.publish")}
+                title={buttonTitles.publish}
                 data-testid="publish-button"
               >
                 <Send className="h-5 w-5" />
@@ -270,7 +292,7 @@ export function TopBar() {
                 className="h-7 w-7 cursor-pointer p-0"
                 variant="ghost"
                 size="icon"
-                title={t("topBar.editingTasks")}
+                title={buttonTitles.editingTasks}
                 data-testid="editing-tasks-button"
               >
                 <ListTodo className="h-5 w-5" />
@@ -292,11 +314,14 @@ export function TopBar() {
             onClick={() => handleOpenModal("export")}
             data-testid="export-button"
           >
-            <span className="px-2 text-xs">{t("topBar.export")}</span>
+            <span className="px-2 text-xs">{buttonTitles.export}</span>
             <Upload className="h-5 w-5" />
           </Button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+// Мемоизируем компонент для предотвращения лишних перерисовок
+export const TopBar = (TopBarComponent);
