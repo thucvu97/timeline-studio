@@ -129,13 +129,6 @@ jobs:
           # Устанавливаем дополнительные зависимости для тестирования
           npm install --save-dev @testing-library/dom @testing-library/react @testing-library/user-event @testing-library/jest-dom
 
-      - name: Setup Tailwind CSS fallback for CI
-        if: matrix.platform == 'ubuntu-latest'
-        run: |
-          # Устанавливаем переменную окружения для использования fallback в Tailwind CSS v4
-          echo "TAILWIND_DISABLE_TOUCH=true" >> $GITHUB_ENV
-          echo "NODE_ENV=production" >> $GITHUB_ENV
-
       - name: Install Tauri CLI
         run: |
           # Устанавливаем Tauri CLI через cargo для надежности
@@ -277,8 +270,7 @@ jobs:
       - name: Build promo page
         run: |
           cd promo
-          # Используем сборку с fallback для CI
-          TAILWIND_DISABLE_TOUCH=true NODE_ENV=production npm run build
+          npm run build
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4

@@ -24,14 +24,8 @@ jobs:
       - name: Clean install dependencies
         run: npm ci --cache clean --force
 
-      - name: Setup Tailwind CSS fallback for CI
-        run: |
-          # Устанавливаем переменные окружения для использования fallback в Tailwind CSS v4
-          echo "TAILWIND_DISABLE_TOUCH=true" >> $GITHUB_ENV
-          echo "NODE_ENV=production" >> $GITHUB_ENV
-
       - name: Build Next.js app
-        run: npm run build:ci
+        run: npm run build
 
       - name: Run tests
         run: npm run test
