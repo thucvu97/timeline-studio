@@ -5,9 +5,9 @@ import { render } from "@/test/test-utils";
 import { Timeline } from "./timeline";
 
 // Мокаем дочерние компоненты
-vi.mock("./timeline-resources", () => ({
-  TimelineResources: () => (
-    <div data-testid="timeline-resources">Timeline Resources</div>
+vi.mock("@/features/resources", () => ({
+  ResourcesPanel: () => (
+    <div data-testid="resources-panel">Resources Panel</div>
   ),
 }));
 

@@ -15,7 +15,7 @@ import { TimelineResource } from "@/types/resources";
 /**
  * Компонент для отображения ресурсов таймлайна в левой панели
  */
-export function TimelineResources() {
+export function ResourcesPanel() {
   const { t } = useTranslation();
 
   // Полностью отключаем логирование

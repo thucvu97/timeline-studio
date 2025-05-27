@@ -2,10 +2,10 @@ import React from "react";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useResources } from "@/features/resources";
+import { useResources } from "../../resources-provider";
 import { fireEvent, renderWithBase, screen } from "@/test/test-utils";
 
-import { TimelineResources } from "./timeline-resources";
+import { ResourcesPanel } from "../../components/resources-panel";
 
 // Создаем моки для функций
 const mockAddEffect = vi.fn();
@@ -60,13 +60,9 @@ const mockMusicResources = [
 ] as any;
 
 // Мокаем модуль resources
-vi.mock("@/features/resources", async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
-  return {
-    ...actual,
-    useResources: vi.fn(),
-  };
-});
+vi.mock("../../resources-provider", () => ({
+  useResources: vi.fn(),
+}));
 
 // Мокаем иконки Lucide
 vi.mock("lucide-react", () => ({
@@ -257,7 +253,7 @@ vi.mock("react-i18next", () => ({
 // Используем стандартный рендеринг с AllProviders
 // AllProviders уже включает в себя ResourcesProvider
 
-describe("TimelineResources", () => {
+describe("ResourcesPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -291,14 +287,14 @@ describe("TimelineResources", () => {
   });
 
   it("должен корректно рендериться", () => {
-    const { container } = renderWithBase(<TimelineResources />);
+    const { container } = renderWithBase(<ResourcesPanel />);
 
     // Проверяем, что компонент рендерится без ошибок
     expect(container.firstChild).toBeInTheDocument();
   });
 
   it.skip("должен отображать все категории ресурсов", () => {
-    renderWithBase(<TimelineResources />);
+    renderWithBase(<ResourcesPanel />);
 
     // Проверяем наличие всех категорий
     expect(screen.getByText("Эффекты")).toBeInTheDocument();
@@ -309,7 +305,7 @@ describe("TimelineResources", () => {
   });
 
   it.skip("должен отображать правильные иконки для каждой категории", () => {
-    renderWithBase(<TimelineResources />);
+    renderWithBase(<ResourcesPanel />);
 
     // Проверяем наличие иконок
     expect(screen.getByTestId("package-icon")).toBeInTheDocument(); // Effects
@@ -320,7 +316,7 @@ describe("TimelineResources", () => {
   });
 
   it.skip('должен отображать сообщение "нет ресурсов" когда категории пустые', () => {
-    renderWithBase(<TimelineResources />);
+    renderWithBase(<ResourcesPanel />);
 
     // Проверяем сообщения об отсутствии ресурсов
     const noResourcesMessages = screen.getAllByText("Нет добавленных ресурсов");
@@ -356,7 +352,7 @@ describe("TimelineResources", () => {
       isSubtitleAdded: vi.fn(),
     });
 
-    renderWithBase(<TimelineResources />);
+    renderWithBase(<ResourcesPanel />);
 
     // Проверяем отображение ресурсов
     expect(screen.getByText("Brightness Effect")).toBeInTheDocument();
@@ -395,7 +391,7 @@ describe("TimelineResources", () => {
       isSubtitleAdded: vi.fn(),
     });
 
-    renderWithBase(<TimelineResources />);
+    renderWithBase(<ResourcesPanel />);
 
     // Проверяем счетчики
     expect(screen.getByText("(3)")).toBeInTheDocument(); // Effects
@@ -431,7 +427,7 @@ describe("TimelineResources", () => {
       isSubtitleAdded: vi.fn(),
     });
 
-    renderWithBase(<TimelineResources />);
+    renderWithBase(<ResourcesPanel />);
 
     // Находим и кликаем по эффекту
     const effectElement = screen.getByText("Brightness Effect");
@@ -470,7 +466,7 @@ describe("TimelineResources", () => {
       isSubtitleAdded: vi.fn(),
     });
 
-    renderWithBase(<TimelineResources />);
+    renderWithBase(<ResourcesPanel />);
 
     // Находим и кликаем по фильтру
     const filterElement = screen.getByText("Vintage Filter");

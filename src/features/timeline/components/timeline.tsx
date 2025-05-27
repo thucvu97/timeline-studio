@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/resizable";
 import { AiChat } from "@/features/ai-chat/components/ai-chat";
 
-import { TimelineResources } from "./timeline-resources";
+import { ResourcesPanel } from "@/features/resources";
 import { TimelineTopPanel } from "./timeline-top-panel";
 
 export function Timeline() {
@@ -15,7 +15,7 @@ export function Timeline() {
     <ResizablePanelGroup direction="horizontal" className="h-full">
       {/* Левая панель - Ресурсы */}
       <ResizablePanel defaultSize={15} minSize={5} maxSize={30}>
-        <TimelineResources />
+        <ResourcesPanel />
       </ResizablePanel>
 
       <ResizableHandle />
