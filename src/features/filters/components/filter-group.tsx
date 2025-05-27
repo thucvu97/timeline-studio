@@ -1,16 +1,16 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { VideoFilter } from "@/types/filters";
+import { VideoFilter } from "@/types/filters"
 
-import { FilterPreview } from "./filter-preview";
+import { FilterPreview } from "./filter-preview"
 
 interface FilterGroupProps {
-  title: string;
-  filters: VideoFilter[];
-  previewSize: number;
-  previewWidth: number;
-  previewHeight: number;
-  onFilterClick: (filter: VideoFilter) => void;
+  title: string
+  filters: VideoFilter[]
+  previewSize: number
+  previewWidth: number
+  previewHeight: number
+  onFilterClick: (filter: VideoFilter) => void
 }
 
 /**
@@ -25,20 +25,16 @@ export function FilterGroup({
   previewHeight,
   onFilterClick,
 }: FilterGroupProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   if (filters.length === 0) {
-    return null;
+    return null
   }
 
   return (
     <div className="space-y-2">
       {/* Заголовок группы (если есть) */}
-      {title && (
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {title}
-        </h3>
-      )}
+      {title && <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{title}</h3>}
 
       {/* Сетка фильтров */}
       <div
@@ -57,5 +53,5 @@ export function FilterGroup({
         ))}
       </div>
     </div>
-  );
+  )
 }

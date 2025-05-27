@@ -1,14 +1,8 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useState } from "react"
 
-import {
-  AlertTriangle,
-  CheckCircle,
-  FileX,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { AlertTriangle, CheckCircle, FileX, Search, Trash2 } from "lucide-react"
 
 import {
   AlertDialog,
@@ -19,54 +13,45 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { MediaRestorationService } from "@/lib/media-restoration-service";
-import { SavedMediaFile } from "@/types/saved-media";
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { MediaRestorationService } from "@/lib/media-restoration-service"
+import { SavedMediaFile } from "@/types/saved-media"
 
 interface MissingFilesDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  missingFiles: SavedMediaFile[];
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  missingFiles: SavedMediaFile[]
   onResolve: (
     resolved: Array<{
-      file: SavedMediaFile;
-      newPath?: string;
-      action: "found" | "remove";
+      file: SavedMediaFile
+      newPath?: string
+      action: "found" | "remove"
     }>,
-  ) => void;
+  ) => void
 }
 
 interface FileResolution {
-  file: SavedMediaFile;
-  action: "pending" | "found" | "remove" | "skip";
-  newPath?: string;
-  isProcessing?: boolean;
+  file: SavedMediaFile
+  action: "pending" | "found" | "remove" | "skip"
+  newPath?: string
+  isProcessing?: boolean
 }
 
-export function MissingFilesDialog({
-  open,
-  onOpenChange,
-  missingFiles,
-  onResolve,
-}: MissingFilesDialogProps) {
+export function MissingFilesDialog({ open, onOpenChange, missingFiles, onResolve }: MissingFilesDialogProps) {
   const [resolutions, setResolutions] = useState<FileResolution[]>(() =>
     missingFiles.map((file) => ({ file, action: "pending" })),
-  );
+  )
 
   const handleFindFile = async (index: number) => {
-    const resolution = resolutions[index];
+    const resolution = resolutions[index]
 
     // Обновляем состояние - показываем, что файл обрабатывается
-    setResolutions((prev) =>
-      prev.map((r, i) => (i === index ? { ...r, isProcessing: true } : r)),
-    );
+    setResolutions((prev) => prev.map((r, i) => (i === index ? { ...r, isProcessing: true } : r)))
 
     try {
-      const newPath = await MediaRestorationService.promptUserToFindFile(
-        resolution.file,
-      );
+      const newPath = await MediaRestorationService.promptUserToFindFile(resolution.file)
 
       setResolutions((prev) =>
         prev.map((r, i) =>
@@ -79,26 +64,20 @@ export function MissingFilesDialog({
               }
             : r,
         ),
-      );
+      )
     } catch (error) {
-      console.error("Ошибка при поиске файла:", error);
-      setResolutions((prev) =>
-        prev.map((r, i) => (i === index ? { ...r, isProcessing: false } : r)),
-      );
+      console.error("Ошибка при поиске файла:", error)
+      setResolutions((prev) => prev.map((r, i) => (i === index ? { ...r, isProcessing: false } : r)))
     }
-  };
+  }
 
   const handleRemoveFile = (index: number) => {
-    setResolutions((prev) =>
-      prev.map((r, i) => (i === index ? { ...r, action: "remove" } : r)),
-    );
-  };
+    setResolutions((prev) => prev.map((r, i) => (i === index ? { ...r, action: "remove" } : r)))
+  }
 
   const handleSkipFile = (index: number) => {
-    setResolutions((prev) =>
-      prev.map((r, i) => (i === index ? { ...r, action: "skip" } : r)),
-    );
-  };
+    setResolutions((prev) => prev.map((r, i) => (i === index ? { ...r, action: "skip" } : r)))
+  }
 
   const handleResolveAll = () => {
     const resolved = resolutions
@@ -107,47 +86,45 @@ export function MissingFilesDialog({
         file: r.file,
         newPath: r.newPath,
         action: r.action as "found" | "remove",
-      }));
+      }))
 
-    onResolve(resolved);
-    onOpenChange(false);
-  };
+    onResolve(resolved)
+    onOpenChange(false)
+  }
 
   const handleSkipAll = () => {
-    onResolve([]);
-    onOpenChange(false);
-  };
+    onResolve([])
+    onOpenChange(false)
+  }
 
   const getActionIcon = (action: FileResolution["action"]) => {
     switch (action) {
       case "found":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-green-500" />
       case "remove":
-        return <Trash2 className="h-4 w-4 text-red-500" />;
+        return <Trash2 className="h-4 w-4 text-red-500" />
       case "skip":
-        return <FileX className="h-4 w-4 text-gray-500" />;
+        return <FileX className="h-4 w-4 text-gray-500" />
       default:
-        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />
     }
-  };
+  }
 
   const getActionText = (action: FileResolution["action"]) => {
     switch (action) {
       case "found":
-        return "Найден";
+        return "Найден"
       case "remove":
-        return "Удалить";
+        return "Удалить"
       case "skip":
-        return "Пропущен";
+        return "Пропущен"
       default:
-        return "Ожидает";
+        return "Ожидает"
     }
-  };
+  }
 
-  const resolvedCount = resolutions.filter(
-    (r) => r.action === "found" || r.action === "remove",
-  ).length;
-  const canProceed = resolvedCount > 0;
+  const resolvedCount = resolutions.filter((r) => r.action === "found" || r.action === "remove").length
+  const canProceed = resolvedCount > 0
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -158,9 +135,8 @@ export function MissingFilesDialog({
             Отсутствующие медиафайлы
           </AlertDialogTitle>
           <AlertDialogDescription>
-            При открытии проекта обнаружены отсутствующие файлы. Выберите
-            действие для каждого файла: найти новое расположение или удалить из
-            проекта.
+            При открытии проекта обнаружены отсутствующие файлы. Выберите действие для каждого файла: найти новое
+            расположение или удалить из проекта.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -180,9 +156,7 @@ export function MissingFilesDialog({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         {getActionIcon(resolution.action)}
-                        <span className="font-medium truncate">
-                          {resolution.file.name}
-                        </span>
+                        <span className="font-medium truncate">{resolution.file.name}</span>
                         <span className="text-xs px-2 py-1 bg-gray-100 rounded border text-gray-700">
                           {getActionText(resolution.action)}
                         </span>
@@ -192,8 +166,7 @@ export function MissingFilesDialog({
                       </p>
                       {resolution.file.size && (
                         <p className="text-xs text-muted-foreground">
-                          Размер:{" "}
-                          {(resolution.file.size / 1024 / 1024).toFixed(1)} МБ
+                          Размер: {(resolution.file.size / 1024 / 1024).toFixed(1)} МБ
                         </p>
                       )}
                     </div>
@@ -243,17 +216,10 @@ export function MissingFilesDialog({
 
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">
           <div className="flex gap-2 w-full sm:w-auto">
-            <AlertDialogCancel
-              onClick={handleSkipAll}
-              className="flex-1 sm:flex-none"
-            >
+            <AlertDialogCancel onClick={handleSkipAll} className="flex-1 sm:flex-none">
               Пропустить все
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleResolveAll}
-              disabled={!canProceed}
-              className="flex-1 sm:flex-none"
-            >
+            <AlertDialogAction onClick={handleResolveAll} disabled={!canProceed} className="flex-1 sm:flex-none">
               Применить изменения
             </AlertDialogAction>
           </div>
@@ -266,5 +232,5 @@ export function MissingFilesDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }

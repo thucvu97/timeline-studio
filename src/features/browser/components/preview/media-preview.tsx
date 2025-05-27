@@ -1,21 +1,21 @@
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react"
 
-import { MediaFile } from "@/features/media/types/media";
-import { cn } from "@/lib/utils";
+import { MediaFile } from "@/features/media/types/media"
+import { cn } from "@/lib/utils"
 
-import { AudioPreview } from "./audio-preview";
-import { ImagePreview } from "./image-preview";
-import { VideoPreview } from "./video-preview";
+import { AudioPreview } from "./audio-preview"
+import { ImagePreview } from "./image-preview"
+import { VideoPreview } from "./video-preview"
 
 interface MediaPreviewProps {
-  file: MediaFile;
-  onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void;
-  onDoubleClick?: (file: MediaFile) => void;
-  isAdded?: boolean;
-  size?: number;
-  showFileName?: boolean;
-  dimensions?: [number, number];
-  ignoreRatio?: boolean;
+  file: MediaFile
+  onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void
+  onDoubleClick?: (file: MediaFile) => void
+  isAdded?: boolean
+  size?: number
+  showFileName?: boolean
+  dimensions?: [number, number]
+  ignoreRatio?: boolean
 }
 
 /**
@@ -55,9 +55,7 @@ export function MediaPreview({
           ignoreRatio ? "w-full h-full" : "aspect-video",
         )}
         style={{
-          width: ignoreRatio
-            ? "100%"
-            : `${((size * dimensions[0]) / dimensions[1]).toFixed(0)}px`,
+          width: ignoreRatio ? "100%" : `${((size * dimensions[0]) / dimensions[1]).toFixed(0)}px`,
           height: ignoreRatio ? "100%" : `${size}px`,
         }}
       >
@@ -68,7 +66,7 @@ export function MediaPreview({
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   if (file.isVideo) {
@@ -83,7 +81,7 @@ export function MediaPreview({
         dimensions={dimensions}
         ignoreRatio={ignoreRatio}
       />
-    );
+    )
   }
 
   if (file.isAudio) {
@@ -97,7 +95,7 @@ export function MediaPreview({
         showFileName={showFileName}
         dimensions={dimensions}
       />
-    );
+    )
   }
 
   return (
@@ -109,5 +107,5 @@ export function MediaPreview({
       showFileName={showFileName}
       dimensions={dimensions}
     />
-  );
+  )
 }

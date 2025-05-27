@@ -1,7 +1,7 @@
-import { act, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, render, screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { FilterList } from "../../components/filter-list";
+import { FilterList } from "../../components/filter-list"
 
 // Мокаем useResources хук
 vi.mock("@/features/resources", () => ({
@@ -11,7 +11,7 @@ vi.mock("@/features/resources", () => ({
     isFilterAdded: vi.fn().mockReturnValue(false),
     filterResources: [],
   }),
-}));
+}))
 
 // Мокаем хук переводов
 vi.mock("react-i18next", () => ({
@@ -19,23 +19,19 @@ vi.mock("react-i18next", () => ({
     t: (key: string, fallback?: string) => fallback || key,
     i18n: { language: "ru" },
   }),
-}));
+}))
 
 // Мокаем lucide-react иконки
 vi.mock("lucide-react", () => {
   const createMockIcon = (name: string) => {
     const MockIcon = ({ className, strokeWidth }: any) => (
-      <div
-        data-testid={`${name.toLowerCase()}-icon`}
-        data-classname={className}
-        data-stroke-width={strokeWidth}
-      >
+      <div data-testid={`${name.toLowerCase()}-icon`} data-classname={className} data-stroke-width={strokeWidth}>
         {name}
       </div>
-    );
-    MockIcon.displayName = `Mock${name}Icon`;
-    return MockIcon;
-  };
+    )
+    MockIcon.displayName = `Mock${name}Icon`
+    return MockIcon
+  }
 
   return {
     Star: createMockIcon("Star"),
@@ -49,8 +45,8 @@ vi.mock("lucide-react", () => {
     Image: createMockIcon("Image"),
     Upload: createMockIcon("Upload"),
     FolderOpen: createMockIcon("FolderOpen"),
-  };
-});
+  }
+})
 
 // Простые моки для тестирования
 const mockFilters = [
@@ -72,7 +68,7 @@ const mockFilters = [
     labels: { ru: "Тест 2", en: "Test 2" },
     params: {},
   },
-];
+]
 
 // Простые моки
 vi.mock("../../hooks/use-filters", () => ({
@@ -83,13 +79,13 @@ vi.mock("../../hooks/use-filters", () => ({
     reload: vi.fn(),
     isReady: true,
   }),
-}));
+}))
 
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
     isItemFavorite: vi.fn().mockReturnValue(false),
   }),
-}));
+}))
 
 vi.mock("@/features/browser/state", () => ({
   useBrowserState: () => ({
@@ -103,13 +99,13 @@ vi.mock("@/features/browser/state", () => ({
       previewSizeIndex: 2,
     },
   }),
-}));
+}))
 
 vi.mock("@/features/project/settings", () => ({
   useProjectSettings: () => ({
     settings: { video: { aspectRatio: "16:9" } },
   }),
-}));
+}))
 
 vi.mock("@/features/browser/components/layout/content-group", () => ({
   ContentGroup: ({ items, renderItem }: any) => (
@@ -121,53 +117,39 @@ vi.mock("@/features/browser/components/layout/content-group", () => ({
       ))}
     </div>
   ),
-}));
+}))
 
 vi.mock("../../components/filter-preview", () => ({
   FilterPreview: ({ filter }: any) => (
-    <div data-testid={`filter-preview-${filter.id}`}>
-      Filter Preview: {filter.name}
-    </div>
+    <div data-testid={`filter-preview-${filter.id}`}>Filter Preview: {filter.name}</div>
   ),
-}));
+}))
 
 describe("FilterList", () => {
   it("should render filters", () => {
-    render(<FilterList />);
+    render(<FilterList />)
 
     // Проверяем, что фильтры отображаются
-    expect(
-      screen.getByTestId("filter-preview-test-filter-1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("filter-preview-test-filter-2"),
-    ).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("filter-preview-test-filter-1")).toBeInTheDocument()
+    expect(screen.getByTestId("filter-preview-test-filter-2")).toBeInTheDocument()
+  })
 
   it("should render filter previews with correct content", () => {
-    render(<FilterList />);
+    render(<FilterList />)
 
     // Проверяем содержимое превью фильтров
-    expect(
-      screen.getByText("Filter Preview: Test Filter 1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Filter Preview: Test Filter 2"),
-    ).toBeInTheDocument();
-  });
+    expect(screen.getByText("Filter Preview: Test Filter 1")).toBeInTheDocument()
+    expect(screen.getByText("Filter Preview: Test Filter 2")).toBeInTheDocument()
+  })
 
   it("should render filters in grid layout", () => {
-    render(<FilterList />);
+    render(<FilterList />)
 
     // Проверяем, что фильтры отрендерились
-    expect(
-      screen.getByTestId("filter-preview-test-filter-1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("filter-preview-test-filter-2"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("filter-preview-test-filter-1")).toBeInTheDocument()
+    expect(screen.getByTestId("filter-preview-test-filter-2")).toBeInTheDocument()
 
     // Проверяем, что есть контейнер с группами
-    expect(screen.getByTestId("content-group")).toBeInTheDocument();
-  });
-});
+    expect(screen.getByTestId("content-group")).toBeInTheDocument()
+  })
+})

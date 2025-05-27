@@ -1,10 +1,10 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { MediaFile } from "@/features/media/types/media";
-import type { Transition } from "@/types/transitions";
+import type { MediaFile } from "@/features/media/types/media"
+import type { Transition } from "@/types/transitions"
 
-import { TransitionPreview } from "../../components/transition-preview";
+import { TransitionPreview } from "../../components/transition-preview"
 
 // Мокаем хук переводов
 vi.mock("react-i18next", () => ({
@@ -12,12 +12,12 @@ vi.mock("react-i18next", () => ({
     t: (key: string) => key,
     i18n: { language: "ru" },
   }),
-}));
+}))
 
 // Мокаем хук ресурсов
-const mockAddTransition = vi.fn();
-const mockIsTransitionAdded = vi.fn().mockReturnValue(false);
-const mockRemoveResource = vi.fn();
+const mockAddTransition = vi.fn()
+const mockIsTransitionAdded = vi.fn().mockReturnValue(false)
+const mockRemoveResource = vi.fn()
 
 vi.mock("@/features/resources", () => ({
   useResources: () => ({
@@ -26,19 +26,16 @@ vi.mock("@/features/resources", () => ({
     removeResource: mockRemoveResource,
     transitionResources: [],
   }),
-}));
+}))
 
 // Мокаем компоненты браузера
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ onAddMedia, isAdded, size }: any) => (
-    <div
-      data-testid={isAdded ? "remove-button" : "add-button"}
-      onClick={onAddMedia}
-    >
+    <div data-testid={isAdded ? "remove-button" : "add-button"} onClick={onAddMedia}>
       {isAdded ? "Remove" : "Add"} (size: {size})
     </div>
   ),
-}));
+}))
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
   FavoriteButton: ({ file, size, type }: any) => (
@@ -46,7 +43,7 @@ vi.mock("@/features/browser/components/layout/favorite-button", () => ({
       Favorite {file.name} (size: {size}, type: {type})
     </div>
   ),
-}));
+}))
 
 // Мокаем хук переходов
 const mockTransitions = [
@@ -62,7 +59,7 @@ const mockTransitions = [
     parameters: { easing: "ease-in-out", intensity: 1.0 },
     ffmpegCommand: () => "fade=t=in:st=0:d=1.0",
   },
-];
+]
 
 vi.mock("../../hooks/use-transitions", () => ({
   useTransitions: () => ({
@@ -71,7 +68,7 @@ vi.mock("../../hooks/use-transitions", () => ({
     error: null,
     isReady: true,
   }),
-}));
+}))
 
 describe("TransitionPreview", () => {
   const mockTransition: Transition = {
@@ -94,7 +91,7 @@ describe("TransitionPreview", () => {
       intensity: 1.0,
     },
     ffmpegCommand: () => "fade=t=in:st=0:d=1.0",
-  };
+  }
 
   const mockSourceVideo: MediaFile = {
     id: "source",
@@ -105,7 +102,7 @@ describe("TransitionPreview", () => {
     duration: 10,
     createdAt: new Date(),
     modifiedAt: new Date(),
-  };
+  }
 
   const mockTargetVideo: MediaFile = {
     id: "target",
@@ -116,7 +113,7 @@ describe("TransitionPreview", () => {
     duration: 10,
     createdAt: new Date(),
     modifiedAt: new Date(),
-  };
+  }
 
   const defaultProps = {
     transition: mockTransition,
@@ -127,238 +124,196 @@ describe("TransitionPreview", () => {
     size: 200,
     previewWidth: 200,
     previewHeight: 112,
-  };
+  }
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockIsTransitionAdded.mockReturnValue(false);
-  });
+    vi.clearAllMocks()
+    mockIsTransitionAdded.mockReturnValue(false)
+  })
 
   it("should render transition preview with videos", () => {
-    render(<TransitionPreview {...defaultProps} />);
+    render(<TransitionPreview {...defaultProps} />)
 
     // Проверяем наличие видео элементов
-    const sourceVideo = screen.getByTestId("source-video");
-    const targetVideo = screen.getByTestId("target-video");
+    const sourceVideo = screen.getByTestId("source-video")
+    const targetVideo = screen.getByTestId("target-video")
 
-    expect(sourceVideo).toBeInTheDocument();
-    expect(targetVideo).toBeInTheDocument();
-    expect(sourceVideo).toHaveAttribute("src", "/t1.mp4");
-    expect(targetVideo).toHaveAttribute("src", "/t2.mp4");
-  });
+    expect(sourceVideo).toBeInTheDocument()
+    expect(targetVideo).toBeInTheDocument()
+    expect(sourceVideo).toHaveAttribute("src", "/t1.mp4")
+    expect(targetVideo).toHaveAttribute("src", "/t2.mp4")
+  })
 
   it("should render transition name", () => {
-    render(<TransitionPreview {...defaultProps} />);
+    render(<TransitionPreview {...defaultProps} />)
 
     // Проверяем отображение названия перехода
-    expect(screen.getByText("Тестовый переход")).toBeInTheDocument();
-  });
+    expect(screen.getByText("Тестовый переход")).toBeInTheDocument()
+  })
 
   it("should render complexity indicator", () => {
-    render(<TransitionPreview {...defaultProps} />);
+    render(<TransitionPreview {...defaultProps} />)
 
     // Проверяем индикатор сложности (зеленый для basic)
-    const complexityIndicator = screen.getByTitle(
-      "transitions.complexity.basic",
-    );
-    expect(complexityIndicator).toBeInTheDocument();
-    expect(complexityIndicator).toHaveClass("bg-green-500");
-  });
+    const complexityIndicator = screen.getByTitle("transitions.complexity.basic")
+    expect(complexityIndicator).toBeInTheDocument()
+    expect(complexityIndicator).toHaveClass("bg-green-500")
+  })
 
   it("should render category indicator", () => {
-    render(<TransitionPreview {...defaultProps} />);
+    render(<TransitionPreview {...defaultProps} />)
 
     // Проверяем индикатор категории
-    const categoryIndicator = screen.getByTitle("transitions.categories.basic");
-    expect(categoryIndicator).toBeInTheDocument();
-    expect(categoryIndicator).toHaveClass("bg-gray-700");
-    expect(categoryIndicator).toHaveClass("text-white");
-    expect(categoryIndicator).toHaveTextContent("BSC");
-  });
+    const categoryIndicator = screen.getByTitle("transitions.categories.basic")
+    expect(categoryIndicator).toBeInTheDocument()
+    expect(categoryIndicator).toHaveClass("bg-gray-700")
+    expect(categoryIndicator).toHaveClass("text-white")
+    expect(categoryIndicator).toHaveTextContent("BSC")
+  })
 
   it("should render favorite button", () => {
-    render(<TransitionPreview {...defaultProps} />);
+    render(<TransitionPreview {...defaultProps} />)
 
     // Проверяем кнопку избранного
-    const favoriteButton = screen.getByTestId("favorite-button");
-    expect(favoriteButton).toBeInTheDocument();
-    expect(favoriteButton).toHaveTextContent("Favorite Тестовый переход");
-  });
+    const favoriteButton = screen.getByTestId("favorite-button")
+    expect(favoriteButton).toBeInTheDocument()
+    expect(favoriteButton).toHaveTextContent("Favorite Тестовый переход")
+  })
 
   it("should render add media button", () => {
-    render(<TransitionPreview {...defaultProps} />);
+    render(<TransitionPreview {...defaultProps} />)
 
     // Проверяем кнопку добавления медиа
-    const addButton = screen.getByTestId("add-button");
-    expect(addButton).toBeInTheDocument();
-    expect(addButton).toHaveTextContent("Add");
-  });
+    const addButton = screen.getByTestId("add-button")
+    expect(addButton).toBeInTheDocument()
+    expect(addButton).toHaveTextContent("Add")
+  })
 
   it("should show remove button when transition is added", () => {
-    mockIsTransitionAdded.mockReturnValue(true);
+    mockIsTransitionAdded.mockReturnValue(true)
 
-    render(<TransitionPreview {...defaultProps} />);
+    render(<TransitionPreview {...defaultProps} />)
 
     // Проверяем кнопку удаления
-    const removeButton = screen.getByTestId("remove-button");
-    expect(removeButton).toBeInTheDocument();
-    expect(removeButton).toHaveTextContent("Remove");
-  });
+    const removeButton = screen.getByTestId("remove-button")
+    expect(removeButton).toBeInTheDocument()
+    expect(removeButton).toHaveTextContent("Remove")
+  })
 
   it("should handle click event", () => {
-    const mockOnClick = vi.fn();
+    const mockOnClick = vi.fn()
 
-    render(<TransitionPreview {...defaultProps} onClick={mockOnClick} />);
+    render(<TransitionPreview {...defaultProps} onClick={mockOnClick} />)
 
     // Кликаем на контейнер превью
-    const container = screen.getByTestId("source-video").closest("div");
+    const container = screen.getByTestId("source-video").closest("div")
     act(() => {
-
       act(() => {
-
-
-        fireEvent.click(container!);
-
-
-      });
-
-    });
+        fireEvent.click(container!)
+      })
+    })
 
     // Проверяем, что обработчик вызван
-    expect(mockOnClick).toHaveBeenCalledTimes(1);
-  });
+    expect(mockOnClick).toHaveBeenCalledTimes(1)
+  })
 
   it("should handle mouse hover events", async () => {
-    render(<TransitionPreview {...defaultProps} />);
+    render(<TransitionPreview {...defaultProps} />)
 
-    const container = screen.getByTestId("source-video").closest("div");
-    const sourceVideo = screen.getByTestId("source-video");
-    const targetVideo = screen.getByTestId("target-video");
+    const container = screen.getByTestId("source-video").closest("div")
+    const sourceVideo = screen.getByTestId("source-video")
+    const targetVideo = screen.getByTestId("target-video")
 
     // Мокаем методы видео
-    sourceVideo.play = vi.fn().mockResolvedValue(undefined);
-    sourceVideo.pause = vi.fn();
-    targetVideo.play = vi.fn().mockResolvedValue(undefined);
-    targetVideo.pause = vi.fn();
+    sourceVideo.play = vi.fn().mockResolvedValue(undefined)
+    sourceVideo.pause = vi.fn()
+    targetVideo.play = vi.fn().mockResolvedValue(undefined)
+    targetVideo.pause = vi.fn()
 
     // Наводим мышь
     act(() => {
-
       act(() => {
-
-
-        fireEvent.mouseEnter(container!);
-
-
-      });
-
-    });
+        fireEvent.mouseEnter(container!)
+      })
+    })
 
     // Убираем мышь
     act(() => {
-
       act(() => {
-
-
-        fireEvent.mouseLeave(container!);
-
-
-      });
-
-    });
+        fireEvent.mouseLeave(container!)
+      })
+    })
 
     // Проверяем, что методы видео были вызваны
-    expect(sourceVideo.pause).toHaveBeenCalled();
-    expect(targetVideo.pause).toHaveBeenCalled();
-  });
+    expect(sourceVideo.pause).toHaveBeenCalled()
+    expect(targetVideo.pause).toHaveBeenCalled()
+  })
 
   it("should handle add transition action", () => {
-    render(<TransitionPreview {...defaultProps} />);
+    render(<TransitionPreview {...defaultProps} />)
 
-    const addButton = screen.getByTestId("add-button");
+    const addButton = screen.getByTestId("add-button")
     act(() => {
-
       act(() => {
-
-
-        fireEvent.click(addButton);
-
-
-      });
-
-    });
+        fireEvent.click(addButton)
+      })
+    })
 
     // Проверяем, что переход добавлен с полным объектом Transition
-    expect(mockAddTransition).toHaveBeenCalledWith(mockTransition);
-  });
+    expect(mockAddTransition).toHaveBeenCalledWith(mockTransition)
+  })
 
   it("should use custom preview dimensions", () => {
-    render(
-      <TransitionPreview
-        {...defaultProps}
-        previewWidth={300}
-        previewHeight={200}
-      />,
-    );
+    render(<TransitionPreview {...defaultProps} previewWidth={300} previewHeight={200} />)
 
     // Ищем контейнер с правильными размерами
-    const container = screen
-      .getByTestId("source-video")
-      .closest("div")?.parentElement;
+    const container = screen.getByTestId("source-video").closest("div")?.parentElement
     expect(container).toHaveStyle({
       width: "300px",
       height: "200px",
-    });
-  });
+    })
+  })
 
   it("should handle different complexity levels", () => {
     const advancedTransition = {
       ...mockTransition,
       complexity: "advanced" as const,
-    };
+    }
 
-    render(
-      <TransitionPreview {...defaultProps} transition={advancedTransition} />,
-    );
+    render(<TransitionPreview {...defaultProps} transition={advancedTransition} />)
 
-    const complexityIndicator = screen.getByTitle(
-      "transitions.complexity.advanced",
-    );
-    expect(complexityIndicator).toHaveClass("bg-red-500");
-  });
+    const complexityIndicator = screen.getByTitle("transitions.complexity.advanced")
+    expect(complexityIndicator).toHaveClass("bg-red-500")
+  })
 
   it("should handle different categories", () => {
     const creativeTransition = {
       ...mockTransition,
       category: "creative" as const,
-    };
+    }
 
-    render(
-      <TransitionPreview {...defaultProps} transition={creativeTransition} />,
-    );
+    render(<TransitionPreview {...defaultProps} transition={creativeTransition} />)
 
-    const categoryIndicator = screen.getByTitle(
-      "transitions.categories.creative",
-    );
-    expect(categoryIndicator).toHaveClass("bg-gray-700");
-    expect(categoryIndicator).toHaveTextContent("CRE");
-  });
+    const categoryIndicator = screen.getByTitle("transitions.categories.creative")
+    expect(categoryIndicator).toHaveClass("bg-gray-700")
+    expect(categoryIndicator).toHaveTextContent("CRE")
+  })
 
   it("should handle transition without transition prop", () => {
-    const { transition, ...propsWithoutTransition } = defaultProps;
+    const { transition, ...propsWithoutTransition } = defaultProps
 
-    render(<TransitionPreview {...propsWithoutTransition} />);
+    render(<TransitionPreview {...propsWithoutTransition} />)
 
     // Должен найти переход по типу из хука
-    expect(screen.getByText("Затухание")).toBeInTheDocument();
-  });
+    expect(screen.getByText("Затухание")).toBeInTheDocument()
+  })
 
   it("should handle fallback when transition not found", () => {
-    render(<TransitionPreview {...defaultProps} transitionType="unknown" />);
+    render(<TransitionPreview {...defaultProps} transitionType="unknown" />)
 
     // Должен отображать fallback название (в данном случае создается fallback объект)
     // Проверяем, что компонент рендерится без ошибок
-    expect(screen.getByTestId("source-video")).toBeInTheDocument();
-    expect(screen.getByTestId("target-video")).toBeInTheDocument();
-  });
-});
+    expect(screen.getByTestId("source-video")).toBeInTheDocument()
+    expect(screen.getByTestId("target-video")).toBeInTheDocument()
+  })
+})

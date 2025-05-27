@@ -16,7 +16,7 @@ interface UseRecordingResult {
  */
 export function useRecording(
   streamRef: RefObject<MediaStream | null>,
-  initialCountdown = 3,
+  initialCountdown,
   onVideoRecorded: (blob: Blob, fileName: string) => void,
 ): UseRecordingResult {
   const [isRecording, setIsRecording] = useState<boolean>(false)

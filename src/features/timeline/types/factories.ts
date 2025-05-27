@@ -2,14 +2,7 @@
  * Factory functions for creating Timeline objects
  */
 
-import {
-  ProjectSettings,
-  TimelineClip,
-  TimelineProject,
-  TimelineSection,
-  TimelineTrack,
-  TrackType,
-} from "./timeline";
+import { ProjectSettings, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "./timeline"
 
 // ============================================================================
 // FACTORY FUNCTIONS
@@ -18,10 +11,7 @@ import {
 /**
  * Создает новый проект Timeline
  */
-export function createTimelineProject(
-  name: string,
-  settings?: Partial<ProjectSettings>,
-): TimelineProject {
+export function createTimelineProject(name: string, settings?: Partial<ProjectSettings>): TimelineProject {
   return {
     id: `project-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
     name,
@@ -48,7 +38,7 @@ export function createTimelineProject(
     createdAt: new Date(),
     updatedAt: new Date(),
     version: "2.0.0",
-  };
+  }
 }
 
 /**
@@ -69,22 +59,16 @@ export function createTimelineSection(
     endTime: startTime + duration,
     duration,
     realStartTime,
-    realEndTime: realStartTime
-      ? new Date(realStartTime.getTime() + duration * 1000)
-      : undefined,
+    realEndTime: realStartTime ? new Date(realStartTime.getTime() + duration * 1000) : undefined,
     tracks: [],
     isCollapsed: false,
-  };
+  }
 }
 
 /**
  * Создает новый трек Timeline
  */
-export function createTimelineTrack(
-  name: string,
-  type: TrackType,
-  sectionId?: string,
-): TimelineTrack {
+export function createTimelineTrack(name: string, type: TrackType, sectionId?: string): TimelineTrack {
   return {
     id: `track-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
     name,
@@ -101,7 +85,7 @@ export function createTimelineTrack(
     height: type === "video" ? 120 : type === "audio" ? 80 : 60,
     trackEffects: [],
     trackFilters: [],
-  };
+  }
 }
 
 /**
@@ -134,5 +118,5 @@ export function createTimelineClip(
     isLocked: false,
     createdAt: new Date(),
     updatedAt: new Date(),
-  };
+  }
 }

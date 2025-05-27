@@ -1,37 +1,37 @@
-import { SubtitleStyle } from "../types/subtitles";
+import { SubtitleStyle } from "../types/subtitles"
 
 /**
  * Интерфейс для сырых данных стиля субтитров из JSON
  */
 interface RawSubtitleStyleData {
-  id: string;
-  name: string;
-  category: string;
-  complexity: string;
-  tags: string[];
+  id: string
+  name: string
+  category: string
+  complexity: string
+  tags: string[]
   description: {
-    ru: string;
-    en: string;
-  };
+    ru: string
+    en: string
+  }
   labels: {
-    ru: string;
-    en: string;
-    es?: string;
-    fr?: string;
-    de?: string;
-  };
-  style: Record<string, any>;
+    ru: string
+    en: string
+    es?: string
+    fr?: string
+    de?: string
+  }
+  style: Record<string, any>
 }
 
 /**
  * Интерфейс для данных стилей субтитров из JSON файла
  */
 interface SubtitleStylesDataFile {
-  version: string;
-  lastUpdated: string;
-  totalStyles: number;
-  categories: string[];
-  styles: RawSubtitleStyleData[];
+  version: string
+  lastUpdated: string
+  totalStyles: number
+  categories: string[]
+  styles: RawSubtitleStyleData[]
 }
 
 /**
@@ -39,9 +39,7 @@ interface SubtitleStylesDataFile {
  * @param rawStyles - Массив сырых данных стилей
  * @returns Массив обработанных стилей субтитров
  */
-export function processSubtitleStyles(
-  rawStyles: RawSubtitleStyleData[],
-): SubtitleStyle[] {
+export function processSubtitleStyles(rawStyles: RawSubtitleStyleData[]): SubtitleStyle[] {
   return rawStyles.map((rawStyle) => ({
     id: rawStyle.id,
     name: rawStyle.name,
@@ -51,7 +49,7 @@ export function processSubtitleStyles(
     description: rawStyle.description,
     labels: rawStyle.labels,
     style: rawStyle.style,
-  }));
+  }))
 }
 
 /**
@@ -59,16 +57,14 @@ export function processSubtitleStyles(
  * @param data - Данные для валидации
  * @returns true если данные валидны, false в противном случае
  */
-export function validateSubtitleStylesData(
-  data: any,
-): data is SubtitleStylesDataFile {
+export function validateSubtitleStylesData(data: any): data is SubtitleStylesDataFile {
   if (!data || typeof data !== "object") {
-    return false;
+    return false
   }
 
   // Проверяем обязательные поля
   if (!data.version || !data.styles || !Array.isArray(data.styles)) {
-    return false;
+    return false
   }
 
   // Проверяем структуру каждого стиля
@@ -88,8 +84,8 @@ export function validateSubtitleStylesData(
       typeof style.labels.en === "string" &&
       style.style &&
       typeof style.style === "object"
-    );
-  });
+    )
+  })
 }
 
 /**
@@ -122,7 +118,7 @@ export function createFallbackSubtitleStyle(id: string): SubtitleStyle {
       textAlign: "center",
       lineHeight: 1.4,
     },
-  };
+  }
 }
 
 /**
@@ -138,23 +134,17 @@ export function searchSubtitleStyles(
   lang: "ru" | "en" = "ru",
 ): SubtitleStyle[] {
   if (!query.trim()) {
-    return styles;
+    return styles
   }
 
-  const lowercaseQuery = query.toLowerCase();
+  const lowercaseQuery = query.toLowerCase()
 
   return styles.filter(
     (style) =>
-      (style.labels?.[lang] || style.name || "")
-        .toLowerCase()
-        .includes(lowercaseQuery) ||
-      (style.description?.[lang] || "")
-        .toLowerCase()
-        .includes(lowercaseQuery) ||
-      (style.tags || []).some((tag) =>
-        tag.toLowerCase().includes(lowercaseQuery),
-      ),
-  );
+      (style.labels?.[lang] || style.name || "").toLowerCase().includes(lowercaseQuery) ||
+      (style.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
+      (style.tags || []).some((tag) => tag.toLowerCase().includes(lowercaseQuery)),
+  )
 }
 
 /**
@@ -168,36 +158,35 @@ export function groupSubtitleStyles(
   groupBy: "category" | "complexity" | "tags" | "none",
 ): Record<string, SubtitleStyle[]> {
   if (groupBy === "none") {
-    return { all: styles };
+    return { all: styles }
   }
 
-  const groups: Record<string, SubtitleStyle[]> = {};
+  const groups: Record<string, SubtitleStyle[]> = {}
 
   styles.forEach((style) => {
-    let groupKey = "";
+    let groupKey = ""
 
     switch (groupBy) {
       case "category":
-        groupKey = style.category || "other";
-        break;
+        groupKey = style.category || "other"
+        break
       case "complexity":
-        groupKey = style.complexity || "basic";
-        break;
+        groupKey = style.complexity || "basic"
+        break
       case "tags":
-        groupKey =
-          style.tags && style.tags.length > 0 ? style.tags[0] : "untagged";
-        break;
+        groupKey = style.tags && style.tags.length > 0 ? style.tags[0] : "untagged"
+        break
       default:
-        groupKey = "ungrouped";
+        groupKey = "ungrouped"
     }
 
     if (!groups[groupKey]) {
-      groups[groupKey] = [];
+      groups[groupKey] = []
     }
-    groups[groupKey].push(style);
-  });
+    groups[groupKey].push(style)
+  })
 
-  return groups;
+  return groups
 }
 
 /**
@@ -213,34 +202,34 @@ export function sortSubtitleStyles(
   order: "asc" | "desc" = "asc",
 ): SubtitleStyle[] {
   const sorted = [...styles].sort((a, b) => {
-    let result = 0;
+    let result = 0
 
     switch (sortBy) {
       case "name":
-        const nameA = a.name.toLowerCase();
-        const nameB = b.name.toLowerCase();
-        result = nameA.localeCompare(nameB);
-        break;
+        const nameA = a.name.toLowerCase()
+        const nameB = b.name.toLowerCase()
+        result = nameA.localeCompare(nameB)
+        break
 
       case "complexity":
-        const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 };
-        const complexityA = complexityOrder[a.complexity || "basic"];
-        const complexityB = complexityOrder[b.complexity || "basic"];
-        result = complexityA - complexityB;
-        break;
+        const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
+        const complexityA = complexityOrder[a.complexity || "basic"]
+        const complexityB = complexityOrder[b.complexity || "basic"]
+        result = complexityA - complexityB
+        break
 
       case "category":
-        const categoryA = (a.category || "").toLowerCase();
-        const categoryB = (b.category || "").toLowerCase();
-        result = categoryA.localeCompare(categoryB);
-        break;
+        const categoryA = (a.category || "").toLowerCase()
+        const categoryB = (b.category || "").toLowerCase()
+        result = categoryA.localeCompare(categoryB)
+        break
 
       default:
-        result = 0;
+        result = 0
     }
 
-    return order === "asc" ? result : -result;
-  });
+    return order === "asc" ? result : -result
+  })
 
-  return sorted;
+  return sorted
 }

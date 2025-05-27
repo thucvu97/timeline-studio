@@ -1,15 +1,15 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { SubtitlePreview } from "./subtitle-preview";
-import { SubtitleStyle } from "../types/subtitles";
+import { SubtitleStyle } from "../types/subtitles"
+import { SubtitlePreview } from "./subtitle-preview"
 
 interface SubtitleGroupProps {
-  title: string;
-  subtitles: SubtitleStyle[];
-  previewSize: number;
-  previewWidth: number;
-  previewHeight: number;
-  onSubtitleClick: (subtitle: SubtitleStyle) => void;
+  title: string
+  subtitles: SubtitleStyle[]
+  previewSize: number
+  previewWidth: number
+  previewHeight: number
+  onSubtitleClick: (subtitle: SubtitleStyle) => void
 }
 
 /**
@@ -24,20 +24,16 @@ export function SubtitleGroup({
   previewHeight,
   onSubtitleClick,
 }: SubtitleGroupProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   if (subtitles.length === 0) {
-    return null;
+    return null
   }
 
   return (
     <div className="space-y-2">
       {/* Заголовок группы (если есть) */}
-      {title && (
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {title}
-        </h3>
-      )}
+      {title && <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{title}</h3>}
 
       {/* Сетка субтитров */}
       <div
@@ -56,5 +52,5 @@ export function SubtitleGroup({
         ))}
       </div>
     </div>
-  );
+  )
 }

@@ -2,7 +2,16 @@
   "version": "2.0.0",
   "lastUpdated": "2024-01-15",
   "totalEffects": 28,
-  "categories": ["color-correction", "vintage", "artistic", "cinematic", "creative", "technical", "motion", "distortion"],
+  "categories": [
+    "color-correction",
+    "vintage",
+    "artistic",
+    "cinematic",
+    "creative",
+    "technical",
+    "motion",
+    "distortion"
+  ],
   "effects": [
     {
       "id": "brightness",

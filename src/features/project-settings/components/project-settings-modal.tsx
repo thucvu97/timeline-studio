@@ -20,11 +20,8 @@ import {
   getResolutionsForAspectRatio,
 } from "@/types/project"
 
-import { useProjectSettings } from "../hooks/use-project-settings";
-import {
-  getAspectRatioLabel,
-  getAspectRatioString,
-} from "../utils";
+import { useProjectSettings } from "../hooks/use-project-settings"
+import { getAspectRatioLabel, getAspectRatioString } from "../utils"
 
 /**
  * Модальное окно настроек проекта
@@ -50,8 +47,6 @@ export function ProjectSettingsModal() {
 
   // Флаг блокировки соотношения сторон (при изменении ширины/высоты)
   const [aspectRatioLocked, setAspectRatioLocked] = useState<boolean>(true)
-
-
 
   /**
    * Эффект для обновления доступных разрешений при изменении соотношения сторон
@@ -245,7 +240,7 @@ export function ProjectSettingsModal() {
             value={customWidth}
             onChange={(e) => {
               const width = Number.parseInt(e.target.value, 10)
-              if (!isNaN(width) && width > 0) {
+              if (!Number.isNaN(width) && width > 0) {
                 setCustomWidth(width)
 
                 // Если соотношение сторон заблокировано, обновляем высоту пропорционально
@@ -305,7 +300,7 @@ export function ProjectSettingsModal() {
             value={customHeight}
             onChange={(e) => {
               const height = Number.parseInt(e.target.value, 10)
-              if (!isNaN(height) && height > 0) {
+              if (!Number.isNaN(height) && height > 0) {
                 setCustomHeight(height)
 
                 // Если соотношение сторон заблокировано, обновляем ширину пропорционально

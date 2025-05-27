@@ -1,21 +1,21 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { MediaFile } from "@/features/media/types/media";
-import { Transition } from "@/types/transitions";
+import { MediaFile } from "@/features/media/types/media"
+import { Transition } from "@/types/transitions"
 
-import { TransitionPreview } from "./transition-preview";
+import { TransitionPreview } from "./transition-preview"
 
 interface TransitionGroupProps {
-  title: string;
-  transitions: Transition[];
-  previewSize: number;
-  previewWidth: number;
-  previewHeight: number;
+  title: string
+  transitions: Transition[]
+  previewSize: number
+  previewWidth: number
+  previewHeight: number
   demoVideos: {
-    source: MediaFile;
-    target: MediaFile;
-  };
-  onTransitionClick: (transition: Transition) => void;
+    source: MediaFile
+    target: MediaFile
+  }
+  onTransitionClick: (transition: Transition) => void
 }
 
 /**
@@ -31,20 +31,16 @@ export function TransitionGroup({
   demoVideos,
   onTransitionClick,
 }: TransitionGroupProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   if (transitions.length === 0) {
-    return null;
+    return null
   }
 
   return (
     <div className="space-y-2">
       {/* Заголовок группы (если есть) */}
-      {title && (
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {title}
-        </h3>
-      )}
+      {title && <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{title}</h3>}
 
       {/* Сетка переходов */}
       <div
@@ -66,5 +62,5 @@ export function TransitionGroup({
         ))}
       </div>
     </div>
-  );
+  )
 }

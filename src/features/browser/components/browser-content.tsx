@@ -1,31 +1,23 @@
-import React from "react";
+import React from "react"
 
-import { useBrowserState } from "@/components/common/browser-state-provider";
-import { MediaToolbar } from "@/components/common/media-toolbar";
-import { getToolbarConfigForContent } from "@/components/common/media-toolbar-configs";
-import { TabsContent } from "@/components/ui/tabs";
-import {
-  EffectList,
-  FilterList,
-  MediaList,
-  MusicList,
-  SubtitleList,
-  TemplateList,
-  TransitionList,
-} from "@/features";
-import { useMediaImport } from "@/features/browser/media/use-media-import";
-import { useEffectsImport } from "@/features/effects/hooks/use-effects-import";
-import { useFiltersImport } from "@/features/filters/hooks/use-filters-import";
-import { useMusicImport } from "@/features/music/hooks/use-music-import";
-import { StyleTemplateList } from "@/features/style-templates";
-import { useStyleTemplatesImport } from "@/features/style-templates/hooks/use-style-templates-import";
-import { useSubtitlesImport } from "@/features/subtitles/hooks/use-subtitles-import";
-import { useTemplatesImport } from "@/features/templates/hooks/use-templates-import";
-import { useTransitionsImport } from "@/features/transitions/hooks/use-transitions-import";
-import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
+import { useBrowserState } from "@/components/common/browser-state-provider"
+import { MediaToolbar } from "@/components/common/media-toolbar"
+import { getToolbarConfigForContent } from "@/components/common/media-toolbar-configs"
+import { TabsContent } from "@/components/ui/tabs"
+import { EffectList, FilterList, MediaList, MusicList, SubtitleList, TemplateList, TransitionList } from "@/features"
+import { useMediaImport } from "@/features/browser/media/use-media-import"
+import { useEffectsImport } from "@/features/effects/hooks/use-effects-import"
+import { useFiltersImport } from "@/features/filters/hooks/use-filters-import"
+import { useMusicImport } from "@/features/music/hooks/use-music-import"
+import { StyleTemplateList } from "@/features/style-templates"
+import { useStyleTemplatesImport } from "@/features/style-templates/hooks/use-style-templates-import"
+import { useSubtitlesImport } from "@/features/subtitles/hooks/use-subtitles-import"
+import { useTemplatesImport } from "@/features/templates/hooks/use-templates-import"
+import { useTransitionsImport } from "@/features/transitions/hooks/use-transitions-import"
+import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
 
 export function BrowserContent() {
-  const contentClassName = "bg-background m-0 flex-1 overflow-auto";
+  const contentClassName = "bg-background m-0 flex-1 overflow-auto"
 
   // Получаем состояние браузера
   const {
@@ -38,195 +30,167 @@ export function BrowserContent() {
     setFilter,
     setViewMode,
     setPreviewSize,
-  } = useBrowserState();
+  } = useBrowserState()
 
   // Получаем функции импорта для всех вкладок
   const {
     importFile: importMediaFile,
     importFolder: importMediaFolder,
     isImporting: isImportingMedia,
-  } = useMediaImport();
+  } = useMediaImport()
   const {
     importFile: importMusicFile,
     importDirectory: importMusicDirectory,
     isImporting: isImportingMusic,
-  } = useMusicImport();
-  const {
-    importEffectsFile,
-    importEffectFile,
-    isImporting: isImportingEffects,
-  } = useEffectsImport();
-  const {
-    importFiltersFile,
-    importFilterFile,
-    isImporting: isImportingFilters,
-  } = useFiltersImport();
-  const {
-    importSubtitlesFile,
-    importSubtitleFile,
-    isImporting: isImportingSubtitles,
-  } = useSubtitlesImport();
-  const {
-    importTransitionsFile,
-    importTransitionFile,
-    isImporting: isImportingTransitions,
-  } = useTransitionsImport();
-  const {
-    importTemplatesFile,
-    importTemplateFile,
-    isImporting: isImportingTemplates,
-  } = useTemplatesImport();
+  } = useMusicImport()
+  const { importEffectsFile, importEffectFile, isImporting: isImportingEffects } = useEffectsImport()
+  const { importFiltersFile, importFilterFile, isImporting: isImportingFilters } = useFiltersImport()
+  const { importSubtitlesFile, importSubtitleFile, isImporting: isImportingSubtitles } = useSubtitlesImport()
+  const { importTransitionsFile, importTransitionFile, isImporting: isImportingTransitions } = useTransitionsImport()
+  const { importTemplatesFile, importTemplateFile, isImporting: isImportingTemplates } = useTemplatesImport()
   const {
     importStyleTemplatesFile,
     importStyleTemplateFile,
     isImporting: isImportingStyleTemplates,
-  } = useStyleTemplatesImport();
+  } = useStyleTemplatesImport()
 
   // Извлекаем настройки для текущей вкладки
-  const {
-    searchQuery,
-    showFavoritesOnly,
-    viewMode,
-    sortBy,
-    filterType,
-    groupBy,
-    sortOrder,
-    previewSizeIndex,
-  } = currentTabSettings;
+  const { searchQuery, showFavoritesOnly, viewMode, sortBy, filterType, groupBy, sortOrder, previewSizeIndex } =
+    currentTabSettings
 
   // Получаем конфигурацию тулбара для текущей вкладки
-  const toolbarConfig = getToolbarConfigForContent(activeTab);
+  const toolbarConfig = getToolbarConfigForContent(activeTab)
 
   // Обработчики
   const handleSearch = (query: string) => {
-    setSearchQuery(query, activeTab);
-  };
+    setSearchQuery(query, activeTab)
+  }
 
   const handleSort = (sortBy: string) => {
-    setSort(sortBy, sortOrder, activeTab);
-  };
+    setSort(sortBy, sortOrder, activeTab)
+  }
 
   const handleFilter = (filterType: string) => {
-    setFilter(filterType, activeTab);
-  };
+    setFilter(filterType, activeTab)
+  }
 
   const handleChangeOrder = () => {
-    const newOrder = sortOrder === "asc" ? "desc" : "asc";
-    setSort(sortBy, newOrder, activeTab);
-  };
+    const newOrder = sortOrder === "asc" ? "desc" : "asc"
+    setSort(sortBy, newOrder, activeTab)
+  }
 
   const handleViewModeChange = (mode: "list" | "grid" | "thumbnails") => {
-    setViewMode(mode as any, activeTab);
-  };
+    setViewMode(mode as any, activeTab)
+  }
 
   const handleGroupBy = (groupBy: string) => {
-    setGroupBy(groupBy, activeTab);
-  };
+    setGroupBy(groupBy, activeTab)
+  }
 
   const handleToggleFavorites = () => {
-    toggleFavorites(activeTab);
-  };
+    toggleFavorites(activeTab)
+  }
 
   const handleZoomIn = () => {
     if (previewSizeIndex < PREVIEW_SIZES.length - 1) {
-      setPreviewSize(previewSizeIndex + 1, activeTab);
+      setPreviewSize(previewSizeIndex + 1, activeTab)
     }
-  };
+  }
 
   const handleZoomOut = () => {
     if (previewSizeIndex > 0) {
-      setPreviewSize(previewSizeIndex - 1, activeTab);
+      setPreviewSize(previewSizeIndex - 1, activeTab)
     }
-  };
+  }
 
-  const canZoomIn = previewSizeIndex < PREVIEW_SIZES.length - 1;
-  const canZoomOut = previewSizeIndex > 0;
+  const canZoomIn = previewSizeIndex < PREVIEW_SIZES.length - 1
+  const canZoomOut = previewSizeIndex > 0
 
   const handleImportFile = async () => {
     switch (activeTab) {
       case "media":
-        await importMediaFile();
-        break;
+        await importMediaFile()
+        break
       case "music":
-        await importMusicFile();
-        break;
+        await importMusicFile()
+        break
       case "effects":
-        await importEffectsFile();
-        break;
+        await importEffectsFile()
+        break
       case "filters":
-        await importFiltersFile();
-        break;
+        await importFiltersFile()
+        break
       case "subtitles":
-        await importSubtitlesFile();
-        break;
+        await importSubtitlesFile()
+        break
       case "transitions":
-        await importTransitionsFile();
-        break;
+        await importTransitionsFile()
+        break
       case "templates":
-        await importTemplatesFile();
-        break;
+        await importTemplatesFile()
+        break
       case "style-templates":
-        await importStyleTemplatesFile();
-        break;
+        await importStyleTemplatesFile()
+        break
       default:
-        console.log("Импорт файлов не поддерживается для вкладки:", activeTab);
+        console.log("Импорт файлов не поддерживается для вкладки:", activeTab)
     }
-  };
+  }
 
   const handleImportFolder = async () => {
     switch (activeTab) {
       case "media":
-        await importMediaFolder();
-        break;
+        await importMediaFolder()
+        break
       case "music":
-        await importMusicDirectory();
-        break;
+        await importMusicDirectory()
+        break
       case "effects":
-        await importEffectFile();
-        break;
+        await importEffectFile()
+        break
       case "filters":
-        await importFilterFile();
-        break;
+        await importFilterFile()
+        break
       case "subtitles":
-        await importSubtitleFile();
-        break;
+        await importSubtitleFile()
+        break
       case "transitions":
-        await importTransitionFile();
-        break;
+        await importTransitionFile()
+        break
       case "templates":
-        await importTemplateFile();
-        break;
+        await importTemplateFile()
+        break
       case "style-templates":
-        await importStyleTemplateFile();
-        break;
+        await importStyleTemplateFile()
+        break
       default:
-        console.log("Импорт папок не поддерживается для вкладки:", activeTab);
+        console.log("Импорт папок не поддерживается для вкладки:", activeTab)
     }
-  };
+  }
 
   // Определяем состояние импорта для текущей вкладки
   const isImporting = (() => {
     switch (activeTab) {
       case "media":
-        return isImportingMedia;
+        return isImportingMedia
       case "music":
-        return isImportingMusic;
+        return isImportingMusic
       case "effects":
-        return isImportingEffects;
+        return isImportingEffects
       case "filters":
-        return isImportingFilters;
+        return isImportingFilters
       case "subtitles":
-        return isImportingSubtitles;
+        return isImportingSubtitles
       case "transitions":
-        return isImportingTransitions;
+        return isImportingTransitions
       case "templates":
-        return isImportingTemplates;
+        return isImportingTemplates
       case "style-templates":
-        return isImportingStyleTemplates;
+        return isImportingStyleTemplates
       default:
-        return false;
+        return false
     }
-  })();
+  })()
 
   return (
     <>
@@ -295,5 +259,5 @@ export function BrowserContent() {
         <StyleTemplateList />
       </TabsContent>
     </>
-  );
+  )
 }

@@ -2,88 +2,88 @@
  * AudioClip - Компонент аудио клипа
  */
 
-import React from "react";
+import React from "react"
 
-import { Copy, Music, Scissors, Trash2, Volume2 } from "lucide-react";
+import { Copy, Music, Scissors, Trash2, Volume2 } from "lucide-react"
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
-import { TimelineClip, TimelineTrack } from "../../types";
+import { TimelineClip, TimelineTrack } from "../../types"
 
 interface AudioClipProps {
-  clip: TimelineClip;
-  track: TimelineTrack;
-  onUpdate?: (updates: Partial<TimelineClip>) => void;
-  onRemove?: () => void;
+  clip: TimelineClip
+  track: TimelineTrack
+  onUpdate?: (updates: Partial<TimelineClip>) => void
+  onRemove?: () => void
 }
 
 export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
-  const [isHovered, setIsHovered] = React.useState(false);
+  const [isHovered, setIsHovered] = React.useState(false)
 
   const handleSelect = () => {
-    onUpdate?.({ isSelected: !clip.isSelected });
-  };
+    onUpdate?.({ isSelected: !clip.isSelected })
+  }
 
   const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    console.log("Copy audio clip:", clip.id);
-  };
+    e.stopPropagation()
+    console.log("Copy audio clip:", clip.id)
+  }
 
   const handleSplit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    console.log("Split audio clip:", clip.id);
-  };
+    e.stopPropagation()
+    console.log("Split audio clip:", clip.id)
+  }
 
   const handleRemove = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRemove?.();
-  };
+    e.stopPropagation()
+    onRemove?.()
+  }
 
   // Определяем цвет клипа в зависимости от типа аудио
   const getClipColor = () => {
     switch (track.type) {
       case "music":
-        return "bg-pink-500";
+        return "bg-pink-500"
       case "voiceover":
-        return "bg-cyan-500";
+        return "bg-cyan-500"
       case "sfx":
-        return "bg-red-500";
+        return "bg-red-500"
       case "ambient":
-        return "bg-gray-500";
+        return "bg-gray-500"
       default:
-        return "bg-green-500";
+        return "bg-green-500"
     }
-  };
+  }
 
   const getClipColorHover = () => {
     switch (track.type) {
       case "music":
-        return "bg-pink-600";
+        return "bg-pink-600"
       case "voiceover":
-        return "bg-cyan-600";
+        return "bg-cyan-600"
       case "sfx":
-        return "bg-red-600";
+        return "bg-red-600"
       case "ambient":
-        return "bg-gray-600";
+        return "bg-gray-600"
       default:
-        return "bg-green-600";
+        return "bg-green-600"
     }
-  };
+  }
 
-  const clipColor = getClipColor();
-  const clipColorHover = getClipColorHover();
+  const clipColor = getClipColor()
+  const clipColorHover = getClipColorHover()
 
   // Генерируем простую визуализацию аудио волны
   const generateWaveform = () => {
-    const points = 20;
+    const points = 20
     return Array.from({ length: points }, (_, i) => {
-      const height = Math.random() * 60 + 20; // Высота от 20% до 80%
-      return height;
-    });
-  };
+      const height = Math.random() * 60 + 20 // Высота от 20% до 80%
+      return height
+    })
+  }
 
-  const waveform = React.useMemo(() => generateWaveform(), [clip.id]);
+  const waveform = React.useMemo(() => generateWaveform(), [clip.id])
 
   return (
     <div
@@ -103,9 +103,7 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
       <div className="flex items-center justify-between p-1 bg-black/20">
         <div className="flex items-center gap-1 min-w-0">
           <Music className="w-3 h-3 text-white flex-shrink-0" />
-          <span className="text-xs text-white truncate font-medium">
-            {clip.name}
-          </span>
+          <span className="text-xs text-white truncate font-medium">{clip.name}</span>
         </div>
 
         {/* Кнопки управления */}
@@ -147,48 +145,34 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
         {/* Аудио волна */}
         <div className="h-full flex items-end justify-between gap-px">
           {waveform.map((height, index) => (
-            <div
-              key={index}
-              className="bg-white/70 rounded-sm flex-1 min-w-px"
-              style={{ height: `${height}%` }}
-            />
+            <div key={index} className="bg-white/70 rounded-sm flex-1 min-w-px" style={{ height: `${height}%` }} />
           ))}
         </div>
 
         {/* Индикатор громкости */}
         <div className="absolute top-1 right-1 flex items-center gap-1">
           <Volume2 className="w-2.5 h-2.5 text-white/70" />
-          <span className="text-xs text-white/70">
-            {Math.round(clip.volume * 100)}%
-          </span>
+          <span className="text-xs text-white/70">{Math.round(clip.volume * 100)}%</span>
         </div>
 
         {/* Индикаторы эффектов */}
         {clip.effects.length > 0 && (
           <div className="absolute bottom-1 left-1">
-            <div
-              className="w-2 h-2 bg-yellow-400 rounded-full"
-              title="Эффекты применены"
-            />
+            <div className="w-2 h-2 bg-yellow-400 rounded-full" title="Эффекты применены" />
           </div>
         )}
 
         {/* Индикаторы фильтров */}
         {clip.filters.length > 0 && (
           <div className="absolute bottom-1 left-4">
-            <div
-              className="w-2 h-2 bg-green-400 rounded-full"
-              title="Фильтры применены"
-            />
+            <div className="w-2 h-2 bg-green-400 rounded-full" title="Фильтры применены" />
           </div>
         )}
       </div>
 
       {/* Информация о длительности */}
       <div className="px-1 py-0.5 bg-black/30">
-        <span className="text-xs text-white/70">
-          {Math.round(clip.duration)}s
-        </span>
+        <span className="text-xs text-white/70">{Math.round(clip.duration)}s</span>
       </div>
 
       {/* Ручки для изменения размера */}
@@ -199,5 +183,5 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
         </>
       )}
     </div>
-  );
+  )
 }

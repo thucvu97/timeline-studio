@@ -1,10 +1,10 @@
-import { createContext, useMemo } from "react";
+import { createContext, useMemo } from "react"
 
-import { useMachine } from "@xstate/react";
+import { useMachine } from "@xstate/react"
 
-import type { ProjectSettings } from "@/types/project";
+import type { ProjectSettings } from "@/types/project"
 
-import { projectSettingsMachine } from "./project-settings-machine";
+import { projectSettingsMachine } from "./project-settings-machine"
 
 /**
  * Интерфейс пропсов для компонента ProjectSettingsProvider
@@ -12,7 +12,7 @@ import { projectSettingsMachine } from "./project-settings-machine";
  * @property {React.ReactNode} children - Дочерние компоненты, которые будут иметь доступ к контексту
  */
 interface ProjectProviderProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 /**
@@ -25,18 +25,16 @@ interface ProjectProviderProps {
  * @property {Function} resetSettings - Функция для сброса настроек проекта к значениям по умолчанию
  */
 export interface ProjectSettingsProviderType {
-  settings: ProjectSettings;
-  updateSettings: (settings: ProjectSettings) => void;
-  resetSettings: () => void;
+  settings: ProjectSettings
+  updateSettings: (settings: ProjectSettings) => void
+  resetSettings: () => void
 }
 
 /**
  * Контекст для хранения и предоставления доступа к настройкам проекта
  * Изначально не имеет значения (undefined)
  */
-export const ProjectSettingsContext = createContext<
-  ProjectSettingsProviderType | undefined
->(undefined);
+export const ProjectSettingsContext = createContext<ProjectSettingsProviderType | undefined>(undefined)
 
 /**
  * Провайдер настроек проекта
@@ -48,7 +46,7 @@ export const ProjectSettingsContext = createContext<
  */
 export function ProjectSettingsProvider({ children }: ProjectProviderProps) {
   // Инициализируем машину состояний для управления настройками проекта
-  const [state, send] = useMachine(projectSettingsMachine);
+  const [state, send] = useMachine(projectSettingsMachine)
 
   // Создаем значение контекста, которое будет доступно через хук useProjectSettings
   // Используем useMemo для оптимизации производительности
@@ -56,18 +54,13 @@ export function ProjectSettingsProvider({ children }: ProjectProviderProps) {
     () => ({
       ...state.context, // Передаем текущий контекст машины состояний (настройки)
       // Метод для обновления настроек проекта
-      updateSettings: (settings: ProjectSettings) =>
-        send({ type: "UPDATE_SETTINGS", settings }),
+      updateSettings: (settings: ProjectSettings) => send({ type: "UPDATE_SETTINGS", settings }),
       // Метод для сброса настроек проекта к значениям по умолчанию
       resetSettings: () => send({ type: "RESET_SETTINGS" }),
     }),
     [state.context, send], // Пересоздаем значение только при изменении контекста или функции send
-  );
+  )
 
   // Возвращаем провайдер контекста с созданным значением
-  return (
-    <ProjectSettingsContext.Provider value={value}>
-      {children}
-    </ProjectSettingsContext.Provider>
-  );
+  return <ProjectSettingsContext.Provider value={value}>{children}</ProjectSettingsContext.Provider>
 }

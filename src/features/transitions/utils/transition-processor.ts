@@ -1,49 +1,49 @@
-import { Transition } from "@/types/transitions";
+import { Transition } from "@/types/transitions"
 
 /**
  * Интерфейс для сырых данных перехода из JSON
  */
 interface RawTransitionData {
-  id: string;
-  type: string;
+  id: string
+  type: string
   labels: {
-    ru: string;
-    en: string;
-    es?: string;
-    fr?: string;
-    de?: string;
-  };
+    ru: string
+    en: string
+    es?: string
+    fr?: string
+    de?: string
+  }
   description: {
-    ru: string;
-    en: string;
-  };
-  category: string;
-  complexity: string;
-  tags: string[];
+    ru: string
+    en: string
+  }
+  category: string
+  complexity: string
+  tags: string[]
   duration: {
-    min: number;
-    max: number;
-    default: number;
-  };
+    min: number
+    max: number
+    default: number
+  }
   parameters?: {
-    direction?: string;
-    easing?: string;
-    intensity?: number;
-    scale?: number;
-    smoothness?: number;
-  };
-  ffmpegTemplate: string; // Шаблон FFmpeg команды
+    direction?: string
+    easing?: string
+    intensity?: number
+    scale?: number
+    smoothness?: number
+  }
+  ffmpegTemplate: string // Шаблон FFmpeg команды
 }
 
 /**
  * Интерфейс для данных переходов из JSON файла
  */
 interface TransitionsDataFile {
-  version: string;
-  lastUpdated: string;
-  totalTransitions: number;
-  categories: string[];
-  transitions: RawTransitionData[];
+  version: string
+  lastUpdated: string
+  totalTransitions: number
+  categories: string[]
+  transitions: RawTransitionData[]
 }
 
 /**
@@ -51,9 +51,7 @@ interface TransitionsDataFile {
  * @param rawTransitions - Массив сырых данных переходов
  * @returns Массив обработанных переходов
  */
-export function processTransitions(
-  rawTransitions: RawTransitionData[],
-): Transition[] {
+export function processTransitions(rawTransitions: RawTransitionData[]): Transition[] {
   return rawTransitions.map((rawTransition) => ({
     id: rawTransition.id,
     type: rawTransition.type,
@@ -64,13 +62,7 @@ export function processTransitions(
     tags: rawTransition.tags as Transition["tags"],
     duration: rawTransition.duration,
     parameters: {
-      direction: rawTransition.parameters?.direction as
-        | "left"
-        | "right"
-        | "up"
-        | "down"
-        | "center"
-        | undefined,
+      direction: rawTransition.parameters?.direction as "left" | "right" | "up" | "down" | "center" | undefined,
       easing: rawTransition.parameters?.easing as
         | "linear"
         | "ease-in"
@@ -83,7 +75,7 @@ export function processTransitions(
       smoothness: rawTransition.parameters?.smoothness,
     },
     ffmpegCommand: createFFmpegCommand(rawTransition.ffmpegTemplate),
-  }));
+  }))
 }
 
 /**
@@ -93,26 +85,23 @@ export function processTransitions(
  */
 function createFFmpegCommand(template: string) {
   return (params: {
-    fps: number;
-    width?: number;
-    height?: number;
-    scale?: number;
-    duration?: number;
+    fps: number
+    width?: number
+    height?: number
+    scale?: number
+    duration?: number
   }) => {
-    let command = template;
+    let command = template
 
     // Заменяем плейсхолдеры на реальные значения
-    command = command.replace(/{fps}/g, params.fps.toString());
-    command = command.replace(/{width}/g, (params.width || 1920).toString());
-    command = command.replace(/{height}/g, (params.height || 1080).toString());
-    command = command.replace(/{scale}/g, (params.scale || 1.0).toString());
-    command = command.replace(
-      /{duration}/g,
-      (params.duration || 1.0).toString(),
-    );
+    command = command.replace(/{fps}/g, params.fps.toString())
+    command = command.replace(/{width}/g, (params.width || 1920).toString())
+    command = command.replace(/{height}/g, (params.height || 1080).toString())
+    command = command.replace(/{scale}/g, (params.scale || 1.0).toString())
+    command = command.replace(/{duration}/g, (params.duration || 1.0).toString())
 
-    return command;
-  };
+    return command
+  }
 }
 
 /**
@@ -120,16 +109,14 @@ function createFFmpegCommand(template: string) {
  * @param data - Данные для валидации
  * @returns true если данные валидны, false в противном случае
  */
-export function validateTransitionsData(
-  data: any,
-): data is TransitionsDataFile {
+export function validateTransitionsData(data: any): data is TransitionsDataFile {
   if (!data || typeof data !== "object") {
-    return false;
+    return false
   }
 
   // Проверяем обязательные поля
   if (!data.version || !data.transitions || !Array.isArray(data.transitions)) {
-    return false;
+    return false
   }
 
   // Проверяем структуру каждого перехода
@@ -151,8 +138,8 @@ export function validateTransitionsData(
       typeof transition.duration.min === "number" &&
       typeof transition.duration.max === "number" &&
       typeof transition.duration.default === "number"
-    );
-  });
+    )
+  })
 }
 
 /**
@@ -182,9 +169,9 @@ export function createFallbackTransition(id: string): Transition {
     },
     ffmpegCommand: (params) => {
       // Простая fallback команда
-      return `fade=t=in:st=0:d=${params.duration || 1.0}`;
+      return `fade=t=in:st=0:d=${params.duration || 1.0}`
     },
-  };
+  }
 }
 
 /**
@@ -194,29 +181,19 @@ export function createFallbackTransition(id: string): Transition {
  * @param lang - Язык для поиска
  * @returns Отфильтрованный массив переходов
  */
-export function searchTransitions(
-  transitions: Transition[],
-  query: string,
-  lang: "ru" | "en" = "ru",
-): Transition[] {
+export function searchTransitions(transitions: Transition[], query: string, lang: "ru" | "en" = "ru"): Transition[] {
   if (!query.trim()) {
-    return transitions;
+    return transitions
   }
 
-  const lowercaseQuery = query.toLowerCase();
+  const lowercaseQuery = query.toLowerCase()
 
   return transitions.filter(
     (transition) =>
-      (transition.labels?.[lang] || transition.id || "")
-        .toLowerCase()
-        .includes(lowercaseQuery) ||
-      (transition.description?.[lang] || "")
-        .toLowerCase()
-        .includes(lowercaseQuery) ||
-      (transition.tags || []).some((tag) =>
-        tag.toLowerCase().includes(lowercaseQuery),
-      ),
-  );
+      (transition.labels?.[lang] || transition.id || "").toLowerCase().includes(lowercaseQuery) ||
+      (transition.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
+      (transition.tags || []).some((tag) => tag.toLowerCase().includes(lowercaseQuery)),
+  )
 }
 
 /**
@@ -230,44 +207,41 @@ export function groupTransitions(
   groupBy: "category" | "complexity" | "tags" | "duration" | "none",
 ): Record<string, Transition[]> {
   if (groupBy === "none") {
-    return { all: transitions };
+    return { all: transitions }
   }
 
-  const groups: Record<string, Transition[]> = {};
+  const groups: Record<string, Transition[]> = {}
 
   transitions.forEach((transition) => {
-    let groupKey = "";
+    let groupKey = ""
 
     switch (groupBy) {
       case "category":
-        groupKey = transition.category || "other";
-        break;
+        groupKey = transition.category || "other"
+        break
       case "complexity":
-        groupKey = transition.complexity || "basic";
-        break;
+        groupKey = transition.complexity || "basic"
+        break
       case "tags":
-        groupKey =
-          transition.tags && transition.tags.length > 0
-            ? transition.tags[0]
-            : "untagged";
-        break;
+        groupKey = transition.tags && transition.tags.length > 0 ? transition.tags[0] : "untagged"
+        break
       case "duration":
-        const duration = transition.duration?.default || 1.0;
-        if (duration < 1.0) groupKey = "short";
-        else if (duration < 2.0) groupKey = "medium";
-        else groupKey = "long";
-        break;
+        const duration = transition.duration?.default || 1.0
+        if (duration < 1.0) groupKey = "short"
+        else if (duration < 2.0) groupKey = "medium"
+        else groupKey = "long"
+        break
       default:
-        groupKey = "ungrouped";
+        groupKey = "ungrouped"
     }
 
     if (!groups[groupKey]) {
-      groups[groupKey] = [];
+      groups[groupKey] = []
     }
-    groups[groupKey].push(transition);
-  });
+    groups[groupKey].push(transition)
+  })
 
-  return groups;
+  return groups
 }
 
 /**
@@ -283,40 +257,40 @@ export function sortTransitions(
   order: "asc" | "desc" = "asc",
 ): Transition[] {
   const sorted = [...transitions].sort((a, b) => {
-    let result = 0;
+    let result = 0
 
     switch (sortBy) {
       case "name":
-        const nameA = (a.labels?.ru || a.id).toLowerCase();
-        const nameB = (b.labels?.ru || b.id).toLowerCase();
-        result = nameA.localeCompare(nameB);
-        break;
+        const nameA = (a.labels?.ru || a.id).toLowerCase()
+        const nameB = (b.labels?.ru || b.id).toLowerCase()
+        result = nameA.localeCompare(nameB)
+        break
 
       case "complexity":
-        const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 };
-        const complexityA = complexityOrder[a.complexity || "basic"];
-        const complexityB = complexityOrder[b.complexity || "basic"];
-        result = complexityA - complexityB;
-        break;
+        const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
+        const complexityA = complexityOrder[a.complexity || "basic"]
+        const complexityB = complexityOrder[b.complexity || "basic"]
+        result = complexityA - complexityB
+        break
 
       case "category":
-        const categoryA = (a.category || "").toLowerCase();
-        const categoryB = (b.category || "").toLowerCase();
-        result = categoryA.localeCompare(categoryB);
-        break;
+        const categoryA = (a.category || "").toLowerCase()
+        const categoryB = (b.category || "").toLowerCase()
+        result = categoryA.localeCompare(categoryB)
+        break
 
       case "duration":
-        const durationA = a.duration?.default || 1.0;
-        const durationB = b.duration?.default || 1.0;
-        result = durationA - durationB;
-        break;
+        const durationA = a.duration?.default || 1.0
+        const durationB = b.duration?.default || 1.0
+        result = durationA - durationB
+        break
 
       default:
-        result = 0;
+        result = 0
     }
 
-    return order === "asc" ? result : -result;
-  });
+    return order === "asc" ? result : -result
+  })
 
-  return sorted;
+  return sorted
 }

@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useContext } from "react"
 
-import { UserSettingsContext, UserSettingsContextValue } from "../services/user-settings-provider";
+import { UserSettingsContext, UserSettingsContextValue } from "../services/user-settings-provider"
 
 /**
  * Хук для доступа к пользовательским настройкам
@@ -11,13 +11,13 @@ import { UserSettingsContext, UserSettingsContextValue } from "../services/user-
  */
 export function useUserSettings(): UserSettingsContextValue {
   // Получаем значение контекста
-  const context = useContext(UserSettingsContext);
+  const context = useContext(UserSettingsContext)
 
   // Проверяем, что хук используется внутри провайдера
   if (!context) {
-    throw new Error("useUserSettings must be used within a UserSettingsProvider");
+    throw new Error("useUserSettings must be used within a UserSettingsProvider")
   }
 
   // Возвращаем значение контекста
-  return context;
+  return context
 }

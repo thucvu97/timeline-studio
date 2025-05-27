@@ -1,48 +1,48 @@
-import "@testing-library/jest-dom";
-import React from "react";
+import "@testing-library/jest-dom"
+import React from "react"
 
-import { cleanup } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react"
+import { afterEach, vi } from "vitest"
 
 // Мок для HTMLVideoElement - переопределяем прототип
 Object.defineProperty(window.HTMLVideoElement.prototype, "play", {
   writable: true,
   value: vi.fn().mockResolvedValue(undefined),
-});
+})
 
 Object.defineProperty(window.HTMLVideoElement.prototype, "pause", {
   writable: true,
   value: vi.fn(),
-});
+})
 
 Object.defineProperty(window.HTMLVideoElement.prototype, "load", {
   writable: true,
   value: vi.fn(),
-});
+})
 
 // Также мокаем HTMLMediaElement для совместимости
 Object.defineProperty(window.HTMLMediaElement.prototype, "play", {
   writable: true,
   value: vi.fn().mockResolvedValue(undefined),
-});
+})
 
 Object.defineProperty(window.HTMLMediaElement.prototype, "pause", {
   writable: true,
   value: vi.fn(),
-});
+})
 
 Object.defineProperty(window.HTMLMediaElement.prototype, "load", {
   writable: true,
   value: vi.fn(),
-});
+})
 
 // Не переопределяем document.createElement, так как это ломает jsdom
 // Вместо этого моки для HTMLVideoElement уже настроены выше через прототип
 
 // Автоматическая очистка после каждого теста
 afterEach(() => {
-  cleanup();
-});
+  cleanup()
+})
 
 // Мок для window.matchMedia (расширенный для next-themes)
 Object.defineProperty(window, "matchMedia", {
@@ -57,16 +57,12 @@ Object.defineProperty(window, "matchMedia", {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-});
+})
 
 // Мок для next-themes
 vi.mock("next-themes", () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) =>
-    React.createElement(
-      "div",
-      { "data-testid": "next-theme-provider" },
-      children,
-    ),
+    React.createElement("div", { "data-testid": "next-theme-provider" }, children),
   useTheme: () => ({
     theme: "light",
     setTheme: vi.fn(),
@@ -74,70 +70,66 @@ vi.mock("next-themes", () => ({
     themes: ["light", "dark", "system"],
     systemTheme: "light",
   }),
-}));
+}))
 
 // Мок для Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi
-    .fn()
-    .mockImplementation((cmd: string, args?: Record<string, unknown>) => {
-      if (cmd === "get_app_language") {
-        return Promise.resolve({
-          language: "ru",
-          system_language: "ru",
-        });
-      }
-      if (cmd === "set_app_language") {
-        // Безопасное приведение типа
-        const lang = args && "lang" in args ? String(args.lang) : "ru";
-        return Promise.resolve({
-          language: lang,
-          system_language: "ru",
-        });
-      }
-      if (cmd === "file_exists") {
-        return Promise.resolve(true);
-      }
-      if (cmd === "get_file_stats") {
-        return Promise.resolve({
-          size: 1024,
-          lastModified: Date.now(),
-        });
-      }
-      if (cmd === "read_text_file") {
-        return Promise.resolve('{"test": "data"}');
-      }
-      if (cmd === "write_text_file") {
-        return Promise.resolve();
-      }
-      if (cmd === "search_files_by_name") {
-        return Promise.resolve([]);
-      }
-      if (cmd === "get_absolute_path") {
-        const path = args && "path" in args ? String(args.path) : "";
-        return Promise.resolve(`/absolute${path}`);
-      }
-      return Promise.resolve(null);
-    }),
+  invoke: vi.fn().mockImplementation((cmd: string, args?: Record<string, unknown>) => {
+    if (cmd === "get_app_language") {
+      return Promise.resolve({
+        language: "ru",
+        system_language: "ru",
+      })
+    }
+    if (cmd === "set_app_language") {
+      // Безопасное приведение типа
+      const lang = args && "lang" in args ? String(args.lang) : "ru"
+      return Promise.resolve({
+        language: lang,
+        system_language: "ru",
+      })
+    }
+    if (cmd === "file_exists") {
+      return Promise.resolve(true)
+    }
+    if (cmd === "get_file_stats") {
+      return Promise.resolve({
+        size: 1024,
+        lastModified: Date.now(),
+      })
+    }
+    if (cmd === "read_text_file") {
+      return Promise.resolve('{"test": "data"}')
+    }
+    if (cmd === "write_text_file") {
+      return Promise.resolve()
+    }
+    if (cmd === "search_files_by_name") {
+      return Promise.resolve([])
+    }
+    if (cmd === "get_absolute_path") {
+      const path = args && "path" in args ? String(args.path) : ""
+      return Promise.resolve(`/absolute${path}`)
+    }
+    return Promise.resolve(null)
+  }),
   // Добавляем мок для convertFileSrc
   convertFileSrc: vi.fn().mockImplementation((path: string) => {
-    return `converted-${path}`;
+    return `converted-${path}`
   }),
-}));
+}))
 
 // Мок для Tauri path API
 vi.mock("@tauri-apps/api/path", () => ({
   dirname: vi.fn().mockResolvedValue("/project/dir"),
-  basename: vi
-    .fn()
-    .mockImplementation((path: string) => path.split("/").pop() || ""),
+  basename: vi.fn().mockImplementation((path: string) => path.split("/").pop() || ""),
   join: vi.fn().mockImplementation((...paths: string[]) => paths.join("/")),
-}));
+}))
 
 // Мок для Tauri dialog API
 vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: vi.fn().mockResolvedValue(null),
-}));
+}))
 
 // Мок для Tauri FS API
 vi.mock("@tauri-apps/plugin-fs", () => ({
@@ -164,23 +156,20 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
       ...Array(100)
         .fill(0)
         .map(() => Math.floor(Math.random() * 256)),
-    ]);
-    return Promise.resolve(fakeAudioData);
+    ])
+    return Promise.resolve(fakeAudioData)
   }),
-}));
+}))
 
 // Мок для react-hotkeys-hook
 vi.mock("react-hotkeys-hook", () => ({
   useHotkeys: vi.fn(),
-}));
+}))
 
 // Мок для lucide-react
 vi.mock("lucide-react", () => {
   const createMockIcon = (name: string) => {
-    const MockIcon = React.forwardRef<
-      SVGSVGElement,
-      React.SVGProps<SVGSVGElement>
-    >((props, ref) =>
+    const MockIcon = React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) =>
       React.createElement(
         "svg",
         {
@@ -191,10 +180,10 @@ vi.mock("lucide-react", () => {
         },
         name,
       ),
-    );
-    MockIcon.displayName = `Mock${name}Icon`;
-    return MockIcon;
-  };
+    )
+    MockIcon.displayName = `Mock${name}Icon`
+    return MockIcon
+  }
 
   return {
     AlertTriangle: createMockIcon("AlertTriangle"),
@@ -271,8 +260,8 @@ vi.mock("lucide-react", () => {
     VolumeX: createMockIcon("VolumeX"),
     X: createMockIcon("X"),
     XIcon: createMockIcon("XIcon"),
-  };
-});
+  }
+})
 
 // Мок для useAutoLoadUserData
 vi.mock("@/hooks/use-auto-load-user-data", () => ({
@@ -289,7 +278,7 @@ vi.mock("@/hooks/use-auto-load-user-data", () => ({
     error: null,
     reload: vi.fn(),
   }),
-}));
+}))
 
 // Мок для useCurrentProject
 vi.mock("@/features/app-state/hooks/use-current-project", () => ({
@@ -305,7 +294,7 @@ vi.mock("@/features/app-state/hooks/use-current-project", () => ({
     saveProject: vi.fn(),
     setProjectDirty: vi.fn(),
   }),
-}));
+}))
 
 // Общие моки для шаблонов
 vi.mock("@/features/templates/lib/templates", () => ({
@@ -407,10 +396,10 @@ vi.mock("@/features/templates/lib/templates", () => ({
           screens: 4,
         },
       ],
-    };
-    return templates[aspectRatio as keyof typeof templates] || [];
+    }
+    return templates[aspectRatio as keyof typeof templates] || []
   }),
-}));
+}))
 
 // Мок для template labels
 vi.mock("@/features/templates/lib/template-labels", () => ({
@@ -421,8 +410,8 @@ vi.mock("@/features/templates/lib/template-labels", () => ({
       "split-grid-2x2-landscape": "Сетка 2x2",
       "split-vertical-portrait": "Вертикальное разделение (портрет)",
       "split-grid-2x2-square": "Сетка 2x2 (квадрат)",
-    };
-    return labels[templateId] || templateId;
+    }
+    return labels[templateId] || templateId
   }),
   getTemplateDescription: vi.fn().mockImplementation((templateId: string) => {
     const descriptions: Record<string, string> = {
@@ -431,10 +420,10 @@ vi.mock("@/features/templates/lib/template-labels", () => ({
       "split-grid-2x2-landscape": "Создает сетку 2x2 для четырех видео",
       "split-vertical-portrait": "Вертикальное разделение для портретного режима",
       "split-grid-2x2-square": "Сетка 2x2 для квадратного формата",
-    };
-    return descriptions[templateId] || `Описание для ${templateId}`;
+    }
+    return descriptions[templateId] || `Описание для ${templateId}`
   }),
-}));
+}))
 
 // Общие моки для компонентов шаблонов
 vi.mock("@/components/common/content-group", () => ({
@@ -447,15 +436,11 @@ vi.mock("@/components/common/content-group", () => ({
         "div",
         { "data-testid": "content-group-items" },
         items.map((item: any, index: number) =>
-          React.createElement(
-            "div",
-            { key: item.id, "data-testid": `group-item-${item.id}` },
-            renderItem(item, index),
-          ),
+          React.createElement("div", { key: item.id, "data-testid": `group-item-${item.id}` }, renderItem(item, index)),
         ),
       ),
     ),
-}));
+}))
 
 vi.mock("@/features/browser/components/layout", () => ({
   FavoriteButton: ({ file, size, type }: any) =>
@@ -481,7 +466,7 @@ vi.mock("@/features/browser/components/layout", () => ({
       },
       isAdded ? "Remove Media" : "Add Media",
     ),
-}));
+}))
 
 // Моки для компонентов шаблонов
 vi.mock("@/features/templates/components/templates/custom", () => ({
@@ -496,7 +481,7 @@ vi.mock("@/features/templates/components/templates/custom", () => ({
             key: video.id,
             "data-testid": `video-panel-${index + 1}`,
             "data-video-id": video.id,
-            "data-is-active": activeVideoId === video.id
+            "data-is-active": activeVideoId === video.id,
           },
           `Video Panel ${index + 1}`,
         ),
@@ -513,7 +498,7 @@ vi.mock("@/features/templates/components/templates/custom", () => ({
             key: video.id,
             "data-testid": `video-panel-${index + 1}`,
             "data-video-id": video.id,
-            "data-is-active": activeVideoId === video.id
+            "data-is-active": activeVideoId === video.id,
           },
           `Video Panel ${index + 1}`,
         ),
@@ -530,7 +515,7 @@ vi.mock("@/features/templates/components/templates/custom", () => ({
             key: video.id,
             "data-testid": `video-panel-${index + 1}`,
             "data-video-id": video.id,
-            "data-is-active": activeVideoId === video.id
+            "data-is-active": activeVideoId === video.id,
           },
           `Video Panel ${index + 1}`,
         ),
@@ -547,7 +532,7 @@ vi.mock("@/features/templates/components/templates/custom", () => ({
             key: video.id,
             "data-testid": `video-panel-${index + 1}`,
             "data-video-id": video.id,
-            "data-is-active": activeVideoId === video.id
+            "data-is-active": activeVideoId === video.id,
           },
           `Video Panel ${index + 1}`,
         ),
@@ -564,13 +549,13 @@ vi.mock("@/features/templates/components/templates/custom", () => ({
             key: video.id,
             "data-testid": `video-panel-${index + 1}`,
             "data-video-id": video.id,
-            "data-is-active": activeVideoId === video.id
+            "data-is-active": activeVideoId === video.id,
           },
           `Video Panel ${index + 1}`,
         ),
       ),
     ),
-}));
+}))
 
 // Моки для grid шаблонов
 vi.mock("@/features/templates/components/templates/grid", () => ({
@@ -585,7 +570,7 @@ vi.mock("@/features/templates/components/templates/grid", () => ({
             key: video.id,
             "data-testid": `video-panel-${index + 1}`,
             "data-video-id": video.id,
-            "data-is-active": activeVideoId === video.id
+            "data-is-active": activeVideoId === video.id,
           },
           `Video Panel ${index + 1}`,
         ),
@@ -602,7 +587,7 @@ vi.mock("@/features/templates/components/templates/grid", () => ({
             key: video.id,
             "data-testid": `video-panel-${index + 1}`,
             "data-video-id": video.id,
-            "data-is-active": activeVideoId === video.id
+            "data-is-active": activeVideoId === video.id,
           },
           `Video Panel ${index + 1}`,
         ),
@@ -619,7 +604,7 @@ vi.mock("@/features/templates/components/templates/grid", () => ({
             key: video.id,
             "data-testid": `video-panel-${index + 1}`,
             "data-video-id": video.id,
-            "data-is-active": activeVideoId === video.id
+            "data-is-active": activeVideoId === video.id,
           },
           `Video Panel ${index + 1}`,
         ),
@@ -636,7 +621,7 @@ vi.mock("@/features/templates/components/templates/grid", () => ({
             key: video.id,
             "data-testid": `video-panel-${index + 1}`,
             "data-video-id": video.id,
-            "data-is-active": activeVideoId === video.id
+            "data-is-active": activeVideoId === video.id,
           },
           `Video Panel ${index + 1}`,
         ),
@@ -654,7 +639,7 @@ vi.mock("@/features/templates/components/templates/grid", () => ({
     React.createElement("div", { "data-testid": "split-grid-5x2" }, "Grid 5x2"),
   SplitGrid5x5: ({ videos, activeVideoId }: any) =>
     React.createElement("div", { "data-testid": "split-grid-5x5" }, "Grid 5x5"),
-}));
+}))
 
 // Моки для landscape шаблонов
 vi.mock("@/features/templates/components/templates/landscape", () => ({
@@ -680,7 +665,7 @@ vi.mock("@/features/templates/components/templates/landscape", () => ({
     React.createElement("div", { "data-testid": "split-mixed-1-landscape" }, "Mixed 1"),
   SplitMixed2Landscape: ({ videos, activeVideoId }: any) =>
     React.createElement("div", { "data-testid": "split-mixed-2-landscape" }, "Mixed 2"),
-}));
+}))
 
 // Моки для portrait шаблонов
 vi.mock("@/features/templates/components/templates/portrait", () => ({
@@ -690,7 +675,7 @@ vi.mock("@/features/templates/components/templates/portrait", () => ({
     React.createElement("div", { "data-testid": "split-custom-5-2-portrait" }, "Custom 5-2 Portrait"),
   SplitCustom53Portrait: ({ videos, activeVideoId }: any) =>
     React.createElement("div", { "data-testid": "split-custom-5-3-portrait" }, "Custom 5-3 Portrait"),
-}));
+}))
 
 // Мок для useUserSettings
 vi.mock("@/features/user-settings", () => ({
@@ -712,12 +697,11 @@ vi.mock("@/features/user-settings", () => ({
     handleClaudeApiKeyChange: vi.fn(),
     toggleBrowserVisibility: vi.fn(),
   }),
-  UserSettingsProvider: ({ children }: { children: React.ReactNode }) =>
-    children,
-}));
+  UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
 
 // Мок для browser-state-provider
-const mockSetPreviewSize = vi.fn();
+const mockSetPreviewSize = vi.fn()
 
 vi.mock("@/components/common/browser-state-provider", () => ({
   useBrowserState: () => ({
@@ -763,10 +747,9 @@ vi.mock("@/components/common/browser-state-provider", () => ({
     canIncreaseSize: true,
     canDecreaseSize: true,
   }),
-  BrowserStateProvider: ({ children }: { children: React.ReactNode }) =>
-    children,
+  BrowserStateProvider: ({ children }: { children: React.ReactNode }) => children,
   PREVIEW_SIZES: [100, 125, 150, 200, 250, 300, 400],
-}));
+}))
 
 // Мок для project-settings-provider
 vi.mock("@/features/project-settings/hooks/use-project-settings", () => ({
@@ -806,7 +789,7 @@ vi.mock("@/features/project-settings/hooks/use-project-settings", () => ({
     resetSettings: vi.fn(),
     resetProjectSettings: vi.fn(),
   }),
-}));
+}))
 
 // Мок для resources provider
 vi.mock("@/features/resources", () => ({
@@ -837,7 +820,7 @@ vi.mock("@/features/resources", () => ({
     isSubtitleAdded: vi.fn().mockReturnValue(false),
   }),
   ResourcesProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
+}))
 
 // Мок для MediaProvider
 vi.mock("@/features/browser/media", () => ({
@@ -853,7 +836,7 @@ vi.mock("@/features/browser/media", () => ({
     isFileAdded: vi.fn().mockReturnValue(false),
   }),
   MediaProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
+}))
 
 // Мок для PlayerProvider
 vi.mock("@/features/video-player/services/player-provider", () => ({
@@ -873,7 +856,7 @@ vi.mock("@/features/video-player/services/player-provider", () => ({
     reset: vi.fn(),
   }),
   PlayerProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
+}))
 
 // Мок для useModal
 vi.mock("@/features/modals/services/modal-provider", () => ({
@@ -886,7 +869,7 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
     submitModal: vi.fn(),
   }),
   ModalProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
+}))
 
 // Мок для ChatProvider (AI Chat)
 vi.mock("@/features/ai-chat/services/chat-provider", () => ({
@@ -904,23 +887,16 @@ vi.mock("@/features/ai-chat/services/chat-provider", () => ({
     removeMessage: vi.fn(),
   }),
   ChatProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
+}))
 
 // Мок для TopBar
 vi.mock("@/features/top-bar/components/top-bar", () => ({
-  TopBar: ({
-    layoutMode = "default",
-    onLayoutChange = (layoutMode: any) => {},
-  } = {}) => {
+  TopBar: ({ layoutMode = "default", onLayoutChange = (layoutMode: any) => {} } = {}) => {
     return React.createElement(
       "div",
       { "data-testid": "top-bar" },
       // Добавляем все необходимые data-testid атрибуты
-      React.createElement(
-        "span",
-        { "data-testid": "current-layout" },
-        layoutMode,
-      ),
+      React.createElement("span", { "data-testid": "current-layout" }, layoutMode),
       React.createElement(
         "button",
         {
@@ -954,101 +930,38 @@ vi.mock("@/features/top-bar/components/top-bar", () => ({
         "Dual",
       ),
       // Добавляем дополнительные кнопки с data-testid
-      React.createElement(
-        "button",
-        { "data-testid": "layout-button" },
-        "Layout",
-      ),
-      React.createElement(
-        "div",
-        { "data-testid": "theme-toggle" },
-        "Theme Toggle",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "keyboard-shortcuts-button" },
-        "Keyboard Shortcuts",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "project-settings-button" },
-        "Project Settings",
-      ),
+      React.createElement("button", { "data-testid": "layout-button" }, "Layout"),
+      React.createElement("div", { "data-testid": "theme-toggle" }, "Theme Toggle"),
+      React.createElement("button", { "data-testid": "keyboard-shortcuts-button" }, "Keyboard Shortcuts"),
+      React.createElement("button", { "data-testid": "project-settings-button" }, "Project Settings"),
       React.createElement("button", { "data-testid": "save-button" }, "Save"),
-      React.createElement(
-        "button",
-        { "data-testid": "camera-capture-button" },
-        "Camera Capture",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "voice-recording-button" },
-        "Voice Recording",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "publish-button" },
-        "Publish",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "editing-tasks-button" },
-        "Editing Tasks",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "user-settings-button" },
-        "User Settings",
-      ),
-      React.createElement(
-        "button",
-        { "data-testid": "export-button" },
-        "Export",
-      ),
-    );
+      React.createElement("button", { "data-testid": "camera-capture-button" }, "Camera Capture"),
+      React.createElement("button", { "data-testid": "voice-recording-button" }, "Voice Recording"),
+      React.createElement("button", { "data-testid": "publish-button" }, "Publish"),
+      React.createElement("button", { "data-testid": "editing-tasks-button" }, "Editing Tasks"),
+      React.createElement("button", { "data-testid": "user-settings-button" }, "User Settings"),
+      React.createElement("button", { "data-testid": "export-button" }, "Export"),
+    )
   },
-}));
+}))
 
 // Мок для layouts
 vi.mock("@/features/media-studio/layouts", () => ({
-  DefaultLayout: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "default-layout" },
-      "Default Layout",
-    ),
-  OptionsLayout: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "options-layout" },
-      "Options Layout",
-    ),
-  VerticalLayout: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "vertical-layout" },
-      "Vertical Layout",
-    ),
-  DualLayout: () =>
-    React.createElement("div", { "data-testid": "dual-layout" }, "Dual Layout"),
+  DefaultLayout: () => React.createElement("div", { "data-testid": "default-layout" }, "Default Layout"),
+  OptionsLayout: () => React.createElement("div", { "data-testid": "options-layout" }, "Options Layout"),
+  VerticalLayout: () => React.createElement("div", { "data-testid": "vertical-layout" }, "Vertical Layout"),
+  DualLayout: () => React.createElement("div", { "data-testid": "dual-layout" }, "Dual Layout"),
   LayoutMode: {
     DEFAULT: "default",
     OPTIONS: "options",
     VERTICAL: "vertical",
     DUAL: "dual",
   },
-  LayoutPreviews: ({
-    onLayoutChange = (layout: string) => {},
-    layoutMode = "default",
-  } = {}) => {
+  LayoutPreviews: ({ onLayoutChange = (layout: string) => {}, layoutMode = "default" } = {}) => {
     return React.createElement(
       "div",
       { "data-testid": "layout-previews" },
-      React.createElement(
-        "span",
-        { "data-testid": "current-layout" },
-        layoutMode,
-      ),
+      React.createElement("span", { "data-testid": "current-layout" }, layoutMode),
       React.createElement(
         "button",
         {
@@ -1065,19 +978,14 @@ vi.mock("@/features/media-studio/layouts", () => ({
         },
         "Options",
       ),
-    );
+    )
   },
-}));
+}))
 
 // Мок для ModalContainer
 vi.mock("@/features/modals/components", () => ({
-  ModalContainer: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "modal-container" },
-      "Modal Container",
-    ),
-}));
+  ModalContainer: () => React.createElement("div", { "data-testid": "modal-container" }, "Modal Container"),
+}))
 
 // Мок для i18next
 vi.mock("i18next", () => {
@@ -1089,9 +997,9 @@ vi.mock("i18next", () => {
     t: (key: string) => key,
     changeLanguage: vi.fn(),
     language: "ru",
-  };
-  return { default: i18n };
-});
+  }
+  return { default: i18n }
+})
 
 // Мок для react-i18next
 vi.mock("react-i18next", () => ({
@@ -1103,7 +1011,7 @@ vi.mock("react-i18next", () => ({
         changeLanguage: vi.fn(),
         language: "ru",
       },
-    };
+    }
   },
   // Добавляем initReactI18next
   initReactI18next: {
@@ -1112,12 +1020,12 @@ vi.mock("react-i18next", () => ({
   },
   // Добавляем I18nextProvider
   I18nextProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
+}))
 
 // Мок для I18nProvider
 vi.mock("@/i18n/i18n-provider", () => ({
   I18nProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
+}))
 
 // Мок для resizable компонентов
 vi.mock("@/components/ui/resizable", () => ({
@@ -1127,10 +1035,10 @@ vi.mock("@/components/ui/resizable", () => ({
     className,
     autoSaveId,
   }: {
-    children: React.ReactNode;
-    direction: string;
-    className?: string;
-    autoSaveId?: string;
+    children: React.ReactNode
+    direction: string
+    className?: string
+    autoSaveId?: string
   }) =>
     React.createElement(
       "div",
@@ -1147,10 +1055,10 @@ vi.mock("@/components/ui/resizable", () => ({
     minSize,
     maxSize,
   }: {
-    children: React.ReactNode;
-    defaultSize?: number;
-    minSize?: number;
-    maxSize?: number;
+    children: React.ReactNode
+    defaultSize?: number
+    minSize?: number
+    maxSize?: number
   }) =>
     React.createElement(
       "div",
@@ -1162,34 +1070,25 @@ vi.mock("@/components/ui/resizable", () => ({
       },
       children,
     ),
-  ResizableHandle: () =>
-    React.createElement("div", { "data-testid": "resizable-handle" }),
-}));
+  ResizableHandle: () => React.createElement("div", { "data-testid": "resizable-handle" }),
+}))
 
 // Моки для компонентов, используемых в layouts
 vi.mock("@/features/browser/components/browser", () => ({
-  Browser: () =>
-    React.createElement("div", { "data-testid": "browser" }, "Browser"),
-}));
+  Browser: () => React.createElement("div", { "data-testid": "browser" }, "Browser"),
+}))
 
 vi.mock("@/features/options/components/options", () => ({
-  Options: () =>
-    React.createElement("div", { "data-testid": "options" }, "Options"),
-}));
+  Options: () => React.createElement("div", { "data-testid": "options" }, "Options"),
+}))
 
 vi.mock("@/features/timeline/components/timeline", () => ({
-  Timeline: () =>
-    React.createElement("div", { "data-testid": "timeline" }, "Timeline"),
-}));
+  Timeline: () => React.createElement("div", { "data-testid": "timeline" }, "Timeline"),
+}))
 
 vi.mock("@/features/video-player/components/video-player", () => ({
-  VideoPlayer: () =>
-    React.createElement(
-      "div",
-      { "data-testid": "video-player" },
-      "Video Player",
-    ),
-}));
+  VideoPlayer: () => React.createElement("div", { "data-testid": "video-player" }, "Video Player"),
+}))
 
 // Мок для MediaGroup
 vi.mock("@/features/media/components/media-group", () => ({
@@ -1200,11 +1099,11 @@ vi.mock("@/features/media/components/media-group", () => ({
     previewSize,
     addFilesToTimeline,
   }: {
-    title: string;
-    files: any[];
-    viewMode: string;
-    previewSize: number;
-    addFilesToTimeline: (files: any[]) => void;
+    title: string
+    files: any[]
+    viewMode: string
+    previewSize: number
+    addFilesToTimeline: (files: any[]) => void
   }) =>
     React.createElement(
       "div",
@@ -1218,7 +1117,7 @@ vi.mock("@/features/media/components/media-group", () => ({
       },
       `Media Group: ${title ?? "Untitled"}`,
     ),
-}));
+}))
 
 // Мок для dayjs
 vi.mock("dayjs", () => {
@@ -1226,8 +1125,8 @@ vi.mock("dayjs", () => {
     utc: () => ({
       tz: () => ({
         format: (format?: string) => {
-          if (format === "HH:mm:ss.SSS") return "00:01:23.456";
-          return "2023-01-01T00:01:23.456Z";
+          if (format === "HH:mm:ss.SSS") return "00:01:23.456"
+          return "2023-01-01T00:01:23.456Z"
         },
         hour: () => 0,
         minute: () => 1,
@@ -1236,45 +1135,43 @@ vi.mock("dayjs", () => {
       }),
     }),
     format: (format?: string) => {
-      if (format === "HH:mm:ss.SSS") return "00:01:23.456";
-      return "2023-01-01T00:01:23.456Z";
+      if (format === "HH:mm:ss.SSS") return "00:01:23.456"
+      return "2023-01-01T00:01:23.456Z"
     },
     hour: () => 0,
     minute: () => 1,
     second: () => 23,
     millisecond: () => 456,
-  });
+  })
 
   mockDayjs.tz = {
     guess: () => "UTC",
-  };
+  }
 
-  return { default: mockDayjs };
-});
+  return { default: mockDayjs }
+})
 
 // Мок для localStorage
 const localStorageMock = (() => {
-  let store: Record<string, string> = {};
+  let store: Record<string, string> = {}
   return {
     getItem: (key: string) => store[key] ?? null,
     setItem: (key: string, value: string) => {
-      store[key] = value.toString();
+      store[key] = value.toString()
     },
     removeItem: (key: string) => {
       // Используем присвоение undefined вместо delete
-      store = Object.fromEntries(
-        Object.entries(store).filter(([k]) => k !== key),
-      );
+      store = Object.fromEntries(Object.entries(store).filter(([k]) => k !== key))
     },
     clear: () => {
-      store = {};
+      store = {}
     },
-  };
-})();
+  }
+})()
 
 Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
-});
+})
 
 // Моки для Web Audio API
 global.AudioContext = vi.fn().mockImplementation(() => ({
@@ -1289,7 +1186,7 @@ global.AudioContext = vi.fn().mockImplementation(() => ({
   close: vi.fn().mockResolvedValue(undefined),
   state: "running",
   sampleRate: 44100,
-}));
+}))
 
 const MockMediaRecorder = vi.fn().mockImplementation(() => ({
   start: vi.fn(),
@@ -1300,12 +1197,12 @@ const MockMediaRecorder = vi.fn().mockImplementation(() => ({
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
   dispatchEvent: vi.fn(),
-})) as any;
+})) as any
 
 // Добавляем статический метод isTypeSupported
-MockMediaRecorder.isTypeSupported = vi.fn().mockReturnValue(true);
+MockMediaRecorder.isTypeSupported = vi.fn().mockReturnValue(true)
 
-global.MediaRecorder = MockMediaRecorder;
+global.MediaRecorder = MockMediaRecorder
 
 // Мок для MediaStream
 global.MediaStream = vi.fn().mockImplementation(() => ({
@@ -1317,26 +1214,26 @@ global.MediaStream = vi.fn().mockImplementation(() => ({
   clone: vi.fn(),
   active: true,
   id: "mock-stream-id",
-}));
+}))
 
 // Мок для URL.createObjectURL и URL.revokeObjectURL
 global.URL.createObjectURL = vi.fn().mockImplementation(() => {
-  return `blob:mock-url-${Math.random().toString(36).substring(2, 11)}`;
-});
+  return `blob:mock-url-${Math.random().toString(36).substring(2, 11)}`
+})
 
-global.URL.revokeObjectURL = vi.fn();
+global.URL.revokeObjectURL = vi.fn()
 
 // Мок для navigator.clipboard
 Object.assign(navigator, {
   clipboard: {
     writeText: vi.fn(),
   },
-});
+})
 
 // Мок для MediaStudio
 vi.mock("@/features/media-studio/media-studio", () => {
   // Создаем состояние для хранения текущего layoutMode
-  let currentLayoutMode = "default";
+  let currentLayoutMode = "default"
 
   return {
     MediaStudio: () => {
@@ -1347,17 +1244,13 @@ vi.mock("@/features/media-studio/media-studio", () => {
         React.createElement(
           "div",
           { "data-testid": "top-bar" },
-          React.createElement(
-            "span",
-            { "data-testid": "current-layout" },
-            currentLayoutMode,
-          ),
+          React.createElement("span", { "data-testid": "current-layout" }, currentLayoutMode),
           React.createElement(
             "button",
             {
               "data-testid": "change-layout-default",
               onClick: () => {
-                currentLayoutMode = "default";
+                currentLayoutMode = "default"
               },
             },
             "Default",
@@ -1367,7 +1260,7 @@ vi.mock("@/features/media-studio/media-studio", () => {
             {
               "data-testid": "change-layout-options",
               onClick: () => {
-                currentLayoutMode = "options";
+                currentLayoutMode = "options"
               },
             },
             "Options",
@@ -1377,7 +1270,7 @@ vi.mock("@/features/media-studio/media-studio", () => {
             {
               "data-testid": "change-layout-vertical",
               onClick: () => {
-                currentLayoutMode = "vertical";
+                currentLayoutMode = "vertical"
               },
             },
             "Vertical",
@@ -1387,7 +1280,7 @@ vi.mock("@/features/media-studio/media-studio", () => {
             {
               "data-testid": "change-layout-dual",
               onClick: () => {
-                currentLayoutMode = "dual";
+                currentLayoutMode = "dual"
               },
             },
             "Dual",
@@ -1395,36 +1288,15 @@ vi.mock("@/features/media-studio/media-studio", () => {
         ),
         // Отображаем соответствующий layout в зависимости от currentLayoutMode
         currentLayoutMode === "default" &&
-          React.createElement(
-            "div",
-            { "data-testid": "default-layout" },
-            "Default Layout",
-          ),
+          React.createElement("div", { "data-testid": "default-layout" }, "Default Layout"),
         currentLayoutMode === "options" &&
-          React.createElement(
-            "div",
-            { "data-testid": "options-layout" },
-            "Options Layout",
-          ),
+          React.createElement("div", { "data-testid": "options-layout" }, "Options Layout"),
         currentLayoutMode === "vertical" &&
-          React.createElement(
-            "div",
-            { "data-testid": "vertical-layout" },
-            "Vertical Layout",
-          ),
-        currentLayoutMode === "dual" &&
-          React.createElement(
-            "div",
-            { "data-testid": "dual-layout" },
-            "Dual Layout",
-          ),
+          React.createElement("div", { "data-testid": "vertical-layout" }, "Vertical Layout"),
+        currentLayoutMode === "dual" && React.createElement("div", { "data-testid": "dual-layout" }, "Dual Layout"),
         // ModalContainer
-        React.createElement(
-          "div",
-          { "data-testid": "modal-container" },
-          "Modal Container",
-        ),
-      );
+        React.createElement("div", { "data-testid": "modal-container" }, "Modal Container"),
+      )
     },
-  };
-});
+  }
+})

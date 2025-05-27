@@ -1,7 +1,7 @@
 /**
  * Статус доступности сохраненного медиафайла
  */
-export type FileStatus = "available" | "missing" | "moved" | "unknown";
+export type FileStatus = "available" | "missing" | "moved" | "unknown"
 
 /**
  * Интерфейс для сохраненного медиафайла в проекте
@@ -9,43 +9,43 @@ export type FileStatus = "available" | "missing" | "moved" | "unknown";
  */
 export interface SavedMediaFile {
   /** Уникальный ID файла (hash от пути + размера + даты) */
-  id: string;
+  id: string
 
   /** Оригинальный абсолютный путь к файлу */
-  originalPath: string;
+  originalPath: string
 
   /** Относительный путь от файла проекта (если файл в поддиректории проекта) */
-  relativePath?: string;
+  relativePath?: string
 
   /** Имя файла */
-  name: string;
+  name: string
 
   /** Размер файла в байтах */
-  size: number;
+  size: number
 
   /** Время последней модификации файла (timestamp) */
-  lastModified: number;
+  lastModified: number
 
   /** Флаг видеофайла */
-  isVideo: boolean;
+  isVideo: boolean
 
   /** Флаг аудиофайла */
-  isAudio: boolean;
+  isAudio: boolean
 
   /** Флаг изображения */
-  isImage: boolean;
+  isImage: boolean
 
   /** Сохраненные метаданные файла */
-  metadata: SavedFileMetadata;
+  metadata: SavedFileMetadata
 
   /** Текущий статус доступности файла */
-  status: FileStatus;
+  status: FileStatus
 
   /** Альтернативные пути для поиска перемещенных файлов */
-  alternativePaths?: string[];
+  alternativePaths?: string[]
 
   /** Время последней проверки доступности файла */
-  lastChecked: number;
+  lastChecked: number
 }
 
 /**
@@ -54,7 +54,7 @@ export interface SavedMediaFile {
  */
 export interface SavedMusicFile extends SavedMediaFile {
   /** Дополнительные музыкальные метаданные */
-  musicMetadata?: MusicMetadata;
+  musicMetadata?: MusicMetadata
 }
 
 /**
@@ -62,19 +62,19 @@ export interface SavedMusicFile extends SavedMediaFile {
  */
 export interface SavedFileMetadata {
   /** Длительность в секундах (для видео/аудио) */
-  duration?: number;
+  duration?: number
 
   /** Время начала в секундах */
-  startTime?: number;
+  startTime?: number
 
   /** Дата создания файла (ISO string) */
-  createdAt?: string;
+  createdAt?: string
 
   /** Данные FFprobe (streams и format) */
   probeData?: {
-    streams: any[];
-    format: any;
-  };
+    streams: any[]
+    format: any
+  }
 }
 
 /**
@@ -82,25 +82,25 @@ export interface SavedFileMetadata {
  */
 export interface MusicMetadata {
   /** Исполнитель */
-  artist?: string;
+  artist?: string
 
   /** Альбом */
-  album?: string;
+  album?: string
 
   /** Жанр */
-  genre?: string;
+  genre?: string
 
   /** Год выпуска */
-  year?: number;
+  year?: number
 
   /** Номер трека */
-  track?: number;
+  track?: number
 
   /** Название композиции */
-  title?: string;
+  title?: string
 
   /** Длительность альбома */
-  albumDuration?: number;
+  albumDuration?: number
 }
 
 /**
@@ -109,24 +109,24 @@ export interface MusicMetadata {
 export interface SavedBrowserState {
   /** Состояние медиавкладки */
   media: {
-    viewMode: "list" | "grid" | "thumbnails";
-    sortBy: string;
-    sortOrder: "asc" | "desc";
-    searchQuery: string;
-    filterType: string;
-    groupBy: string;
-  };
+    viewMode: "list" | "grid" | "thumbnails"
+    sortBy: string
+    sortOrder: "asc" | "desc"
+    searchQuery: string
+    filterType: string
+    groupBy: string
+  }
 
   /** Состояние музыкальной вкладки */
   music: {
-    viewMode: "list" | "thumbnails";
-    sortBy: string;
-    sortOrder: "asc" | "desc";
-    searchQuery: string;
-    filterType: string;
-    groupBy: "none" | "artist" | "genre" | "album";
-    showFavoritesOnly: boolean;
-  };
+    viewMode: "list" | "thumbnails"
+    sortBy: string
+    sortOrder: "asc" | "desc"
+    searchQuery: string
+    filterType: string
+    groupBy: "none" | "artist" | "genre" | "album"
+    showFavoritesOnly: boolean
+  }
 }
 
 /**
@@ -134,10 +134,10 @@ export interface SavedBrowserState {
  */
 export interface ProjectFavorites {
   /** ID избранных медиафайлов */
-  mediaFiles: string[];
+  mediaFiles: string[]
 
   /** ID избранных музыкальных файлов */
-  musicFiles: string[];
+  musicFiles: string[]
 }
 
 /**
@@ -145,16 +145,16 @@ export interface ProjectFavorites {
  */
 export interface ProjectMediaLibrary {
   /** Сохраненные медиафайлы */
-  mediaFiles: SavedMediaFile[];
+  mediaFiles: SavedMediaFile[]
 
   /** Сохраненные музыкальные файлы */
-  musicFiles: SavedMusicFile[];
+  musicFiles: SavedMusicFile[]
 
   /** Время последнего обновления библиотеки */
-  lastUpdated: number;
+  lastUpdated: number
 
   /** Версия формата библиотеки */
-  version: string;
+  version: string
 }
 
 /**
@@ -162,16 +162,16 @@ export interface ProjectMediaLibrary {
  */
 export interface MediaValidationResult {
   /** Доступные медиафайлы */
-  availableMedia: SavedMediaFile[];
+  availableMedia: SavedMediaFile[]
 
   /** Доступные музыкальные файлы */
-  availableMusic: SavedMusicFile[];
+  availableMusic: SavedMusicFile[]
 
   /** Недостающие файлы */
-  missingFiles: SavedMediaFile[];
+  missingFiles: SavedMediaFile[]
 
   /** Файлы с измененными метаданными */
-  modifiedFiles: SavedMediaFile[];
+  modifiedFiles: SavedMediaFile[]
 }
 
 /**
@@ -179,19 +179,19 @@ export interface MediaValidationResult {
  */
 export interface FileSearchOptions {
   /** Искать в поддиректориях */
-  searchSubdirectories: boolean;
+  searchSubdirectories: boolean
 
   /** Максимальная глубина поиска */
-  maxDepth: number;
+  maxDepth: number
 
   /** Дополнительные директории для поиска */
-  additionalPaths: string[];
+  additionalPaths: string[]
 
   /** Проверять размер файла */
-  checkFileSize: boolean;
+  checkFileSize: boolean
 
   /** Проверять дату модификации */
-  checkModificationDate: boolean;
+  checkModificationDate: boolean
 }
 
 /**
@@ -199,16 +199,16 @@ export interface FileSearchOptions {
  */
 export interface FileSearchResult {
   /** Исходный сохраненный файл */
-  originalFile: SavedMediaFile;
+  originalFile: SavedMediaFile
 
   /** Найденный путь к файлу */
-  foundPath?: string;
+  foundPath?: string
 
   /** Уверенность в совпадении (0-1) */
-  confidence: number;
+  confidence: number
 
   /** Причина, если файл не найден */
-  reason?: string;
+  reason?: string
 }
 
 /**
@@ -216,16 +216,16 @@ export interface FileSearchResult {
  */
 export interface MissingFileActions {
   /** Поиск файлов в новом расположении */
-  relocateFiles: (files: SavedMediaFile[]) => Promise<SavedMediaFile[]>;
+  relocateFiles: (files: SavedMediaFile[]) => Promise<SavedMediaFile[]>
 
   /** Удаление ссылок на недостающие файлы */
-  removeFiles: (files: SavedMediaFile[]) => void;
+  removeFiles: (files: SavedMediaFile[]) => void
 
   /** Игнорировать недостающие файлы */
-  ignore: () => void;
+  ignore: () => void
 
   /** Поиск файлов автоматически */
-  autoSearch: (options: FileSearchOptions) => Promise<FileSearchResult[]>;
+  autoSearch: (options: FileSearchOptions) => Promise<FileSearchResult[]>
 }
 
 /**
@@ -233,19 +233,13 @@ export interface MissingFileActions {
  */
 
 /** Тип для конвертации MediaFile в SavedMediaFile */
-export type MediaFileToSaved = (
-  file: any,
-  projectPath?: string,
-) => Promise<SavedMediaFile>;
+export type MediaFileToSaved = (file: any, projectPath?: string) => Promise<SavedMediaFile>
 
 /** Тип для конвертации SavedMediaFile в MediaFile */
-export type SavedToMediaFile = (saved: SavedMediaFile) => any;
+export type SavedToMediaFile = (saved: SavedMediaFile) => any
 
 /** Тип для генерации уникального ID файла */
-export type FileIdGenerator = (filePath: string, metadata: any) => string;
+export type FileIdGenerator = (filePath: string, metadata: any) => string
 
 /** Тип для вычисления относительного пути */
-export type RelativePathCalculator = (
-  filePath: string,
-  projectPath: string,
-) => Promise<string | undefined>;
+export type RelativePathCalculator = (filePath: string, projectPath: string) => Promise<string | undefined>

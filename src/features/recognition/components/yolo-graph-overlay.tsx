@@ -62,8 +62,7 @@ export function YoloGraphOverlay({
 
     // Функции масштабирования
     const xScale = (time: number) => (time / maxTime) * chartWidth + padding
-    const yScale = (count: number) =>
-      height - padding - (count / maxDetections) * chartHeight
+    const yScale = (count: number) => height - padding - (count / maxDetections) * chartHeight
 
     // Рисуем фон
     ctx.fillStyle = "rgba(0, 0, 0, 0.1)"
@@ -190,7 +189,7 @@ export function YoloGraphOverlay({
 
     // Находим ближайший кадр
     const closestFrame = chartData.reduce((prev, curr) =>
-      Math.abs(curr.timestamp - time) < Math.abs(prev.timestamp - time) ? curr : prev
+      Math.abs(curr.timestamp - time) < Math.abs(prev.timestamp - time) ? curr : prev,
     )
 
     return closestFrame
@@ -222,31 +221,30 @@ export function YoloGraphOverlay({
         <div
           className="absolute z-10 rounded bg-black bg-opacity-80 px-2 py-1 text-xs text-white pointer-events-none"
           style={{
-            left: Math.min(
-              width - 120,
-              Math.max(0, ((hoverTime / maxTime) * width) - 60)
-            ),
+            left: Math.min(width - 120, Math.max(0, (hoverTime / maxTime) * width - 60)),
             top: -40,
           }}
         >
-          <div>{t("Время")}: {hoverTime.toFixed(1)}s</div>
-          <div>{t("Обнаружений")}: {tooltipData.detectionCount}</div>
+          <div>
+            {t("Время")}: {hoverTime.toFixed(1)}s
+          </div>
+          <div>
+            {t("Обнаружений")}: {tooltipData.detectionCount}
+          </div>
         </div>
       )}
 
       {/* Легенда */}
       <div className="mt-2 flex items-center gap-4 text-xs text-gray-600">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-0.5 bg-green-500"></div>
+          <div className="w-3 h-0.5 bg-green-500" />
           <span>{t("Количество обнаружений")}</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-0.5 bg-red-500"></div>
+          <div className="w-3 h-0.5 bg-red-500" />
           <span>{t("Текущее время")}</span>
         </div>
-        <div className="text-gray-500">
-          {t("Кликните для перехода к времени")}
-        </div>
+        <div className="text-gray-500">{t("Кликните для перехода к времени")}</div>
       </div>
     </div>
   )

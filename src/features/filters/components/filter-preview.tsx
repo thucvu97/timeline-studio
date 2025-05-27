@@ -1,23 +1,23 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react"
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { useResources } from "@/features/resources";
-import { VideoFilter } from "@/types/filters";
-import { FilterResource } from "@/types/resources";
+import { useResources } from "@/features/resources"
+import { VideoFilter } from "@/types/filters"
+import { FilterResource } from "@/types/resources"
 
-import { AddMediaButton } from "../../browser/components/layout/add-media-button";
-import { FavoriteButton } from "../../browser/components/layout/favorite-button";
+import { AddMediaButton } from "../../browser/components/layout/add-media-button"
+import { FavoriteButton } from "../../browser/components/layout/favorite-button"
 
 /**
  * Интерфейс пропсов для компонента FilterPreview
  */
 interface FilterPreviewProps {
-  filter: VideoFilter;
-  onClick: () => void;
-  size: number;
-  previewWidth?: number;
-  previewHeight?: number;
+  filter: VideoFilter
+  onClick: () => void
+  size: number
+  previewWidth?: number
+  previewHeight?: number
 }
 
 /**
@@ -34,18 +34,17 @@ export function FilterPreview({
   previewWidth = size,
   previewHeight = size,
 }: FilterPreviewProps) {
-  const { t } = useTranslation(); // Хук для интернационализации
-  const { addFilter, isFilterAdded, removeResource, filterResources } =
-    useResources(); // Получаем методы для работы с ресурсами
-  const [isHovering, setIsHovering] = useState(false); // Состояние наведения мыши
-  const videoRef = useRef<HTMLVideoElement>(null); // Ссылка на элемент видео
-  const timeoutRef = useRef<NodeJS.Timeout>(null); // Ссылка на таймер для воспроизведения видео
+  const { t } = useTranslation() // Хук для интернационализации
+  const { addFilter, isFilterAdded, removeResource, filterResources } = useResources() // Получаем методы для работы с ресурсами
+  const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
+  const videoRef = useRef<HTMLVideoElement>(null) // Ссылка на элемент видео
+  const timeoutRef = useRef<NodeJS.Timeout>(null) // Ссылка на таймер для воспроизведения видео
 
   // Проверяем, добавлен ли фильтр уже в хранилище ресурсов
   // Мемоизируем результат для оптимизации
   const isAdded = useMemo(() => {
-    return isFilterAdded(filter);
-  }, [isFilterAdded, filter]);
+    return isFilterAdded(filter)
+  }, [isFilterAdded, filter])
 
   /**
    * Формирует CSS-строку для применения фильтров к видео
@@ -71,132 +70,129 @@ export function FilterPreview({
       dehaze,
       vignette,
       grain,
-    } = filter.params;
-    const filters = [];
+    } = filter.params
+    const filters = []
 
     // Основные CSS-фильтры
-    if (brightness !== undefined)
-      filters.push(`brightness(${Math.max(0, 1 + brightness)})`);
-    if (contrast !== undefined)
-      filters.push(`contrast(${Math.max(0, contrast)})`);
-    if (saturation !== undefined)
-      filters.push(`saturate(${Math.max(0, saturation)})`);
+    if (brightness !== undefined) filters.push(`brightness(${Math.max(0, 1 + brightness)})`)
+    if (contrast !== undefined) filters.push(`contrast(${Math.max(0, contrast)})`)
+    if (saturation !== undefined) filters.push(`saturate(${Math.max(0, saturation)})`)
 
     // Цветовые корректировки
-    if (hue !== undefined) filters.push(`hue-rotate(${hue}deg)`);
+    if (hue !== undefined) filters.push(`hue-rotate(${hue}deg)`)
     if (temperature !== undefined) {
       // Температура: положительные значения = теплее (желтее), отрицательные = холоднее (синее)
-      const tempValue = Math.abs(temperature) * 0.01; // Нормализуем значение
+      const tempValue = Math.abs(temperature) * 0.01 // Нормализуем значение
       if (temperature > 0) {
-        filters.push(`sepia(${Math.min(1, tempValue)})`);
+        filters.push(`sepia(${Math.min(1, tempValue)})`)
       } else {
-        filters.push(`hue-rotate(${temperature * 2}deg)`);
+        filters.push(`hue-rotate(${temperature * 2}deg)`)
       }
     }
-    if (tint !== undefined) filters.push(`hue-rotate(${tint}deg)`);
+    if (tint !== undefined) filters.push(`hue-rotate(${tint}deg)`)
 
     // Дополнительные эффекты (эмулируем через доступные CSS-фильтры)
     if (clarity !== undefined && clarity !== 0) {
       // Clarity через contrast и небольшой sharpen эффект
-      const clarityValue = 1 + clarity * 0.3;
-      filters.push(`contrast(${Math.max(0.1, clarityValue)})`);
+      const clarityValue = 1 + clarity * 0.3
+      filters.push(`contrast(${Math.max(0.1, clarityValue)})`)
     }
 
     if (vibrance !== undefined && vibrance !== 0) {
       // Vibrance через дополнительную насыщенность
-      const vibranceValue = 1 + vibrance * 0.5;
-      filters.push(`saturate(${Math.max(0.1, vibranceValue)})`);
+      const vibranceValue = 1 + vibrance * 0.5
+      filters.push(`saturate(${Math.max(0.1, vibranceValue)})`)
     }
 
     // Shadows и highlights эмулируем через brightness корректировки
     if (shadows !== undefined && shadows !== 0) {
-      const shadowValue = 1 + shadows * 0.2;
-      filters.push(`brightness(${Math.max(0.1, shadowValue)})`);
+      const shadowValue = 1 + shadows * 0.2
+      filters.push(`brightness(${Math.max(0.1, shadowValue)})`)
     }
 
     if (highlights !== undefined && highlights !== 0) {
-      const highlightValue = 1 - highlights * 0.1;
-      filters.push(`brightness(${Math.max(0.1, highlightValue)})`);
+      const highlightValue = 1 - highlights * 0.1
+      filters.push(`brightness(${Math.max(0.1, highlightValue)})`)
     }
 
     // Объединяем все фильтры в одну строку
-    return filters.join(" ");
-  };
+    return filters.join(" ")
+  }
 
   /**
    * Эффект для управления воспроизведением видео и применением фильтров
    * Запускает видео при наведении и применяет фильтры
    */
   useEffect(() => {
-    if (!videoRef.current) return;
-    const videoElement = videoRef.current;
+    if (!videoRef.current) return
+    const videoElement = videoRef.current
 
     /**
      * Применяет фильтр к видео и запускает его воспроизведение
      * Устанавливает таймер для повторного воспроизведения
      */
     const applyFilter = () => {
-      videoElement.currentTime = 0; // Сбрасываем время видео на начало
-      videoElement.style.filter = getFilterStyle(); // Применяем CSS-фильтры
-      void videoElement.play(); // Запускаем воспроизведение
+      videoElement.currentTime = 0 // Сбрасываем время видео на начало
+      videoElement.style.filter = getFilterStyle() // Применяем CSS-фильтры
+      void videoElement.play() // Запускаем воспроизведение
 
       // Устанавливаем таймер для повторного воспроизведения через 2 секунды
       timeoutRef.current = setTimeout(() => {
         if (isHovering) {
-          applyFilter();
+          applyFilter()
         }
-      }, 2000);
-    };
+      }, 2000)
+    }
 
     // Если курсор наведен на превью - применяем фильтр и запускаем видео
     if (isHovering) {
-      applyFilter();
+      applyFilter()
     } else {
       // Если курсор не наведен - останавливаем видео и сбрасываем фильтры
-      videoElement.pause();
-      videoElement.currentTime = 0;
-      videoElement.style.filter = "";
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      videoElement.pause()
+      videoElement.currentTime = 0
+      videoElement.style.filter = ""
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
 
     // Очищаем таймер при размонтировании компонента
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [isHovering, filter]);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [isHovering, filter])
 
   // Получаем цвета для индикаторов
   const getComplexityColor = (complexity: string) => {
     switch (complexity) {
       case "basic":
-        return "bg-green-500";
+        return "bg-green-500"
       case "intermediate":
-        return "bg-yellow-500";
+        return "bg-yellow-500"
       case "advanced":
-        return "bg-red-500";
+        return "bg-red-500"
       default:
-        return "bg-gray-500";
+        return "bg-gray-500"
     }
-  };
+  }
 
   const getCategoryAbbreviation = (category: string) => {
     switch (category) {
       case "color-correction":
-        return "CC";
+        return "CC"
       case "creative":
-        return "CRE";
+        return "CRE"
       case "cinematic":
-        return "CIN";
+        return "CIN"
       case "vintage":
-        return "VIN";
+        return "VIN"
       case "technical":
-        return "TEC";
+        return "TEC"
       case "artistic":
-        return "ART";
+        return "ART"
       default:
-        return "FIL";
+        return "FIL"
     }
-  };
+  }
 
   return (
     <div className="flex flex-col items-center">
@@ -238,11 +234,7 @@ export function FilterPreview({
         </div>
 
         {/* Кнопка добавления в избранное */}
-        <FavoriteButton
-          file={{ id: filter.id, path: "", name: filter.name }}
-          size={size}
-          type="filter"
-        />
+        <FavoriteButton file={{ id: filter.id, path: "", name: filter.name }} size={size} type="filter" />
 
         {/* Кнопка добавления фильтра в проект */}
         <div
@@ -251,21 +243,17 @@ export function FilterPreview({
           <AddMediaButton
             file={{ id: filter.id, path: "", name: filter.name }}
             onAddMedia={(e) => {
-              e.stopPropagation(); // Предотвращаем всплытие события клика
-              addFilter(filter); // Добавляем фильтр в ресурсы проекта
+              e.stopPropagation() // Предотвращаем всплытие события клика
+              addFilter(filter) // Добавляем фильтр в ресурсы проекта
             }}
             onRemoveMedia={(e) => {
-              e.stopPropagation(); // Предотвращаем всплытие события клика
+              e.stopPropagation() // Предотвращаем всплытие события клика
               // Находим ресурс с этим фильтром и удаляем его
-              const resource = filterResources.find(
-                (res: FilterResource) => res.resourceId === filter.id,
-              );
+              const resource = filterResources.find((res: FilterResource) => res.resourceId === filter.id)
               if (resource) {
-                removeResource(resource.id); // Удаляем ресурс из проекта
+                removeResource(resource.id) // Удаляем ресурс из проекта
               } else {
-                console.warn(
-                  `Не удалось найти ресурс фильтра с ID ${filter.id} для удаления`,
-                );
+                console.warn(`Не удалось найти ресурс фильтра с ID ${filter.id} для удаления`)
               }
             }}
             isAdded={isAdded}
@@ -275,12 +263,9 @@ export function FilterPreview({
       </div>
 
       {/* Название фильтра */}
-      <div
-        className="mt-1 text-xs text-center truncate"
-        style={{ maxWidth: `${previewWidth}px` }}
-      >
+      <div className="mt-1 text-xs text-center truncate" style={{ maxWidth: `${previewWidth}px` }}>
         {filter.labels?.ru || filter.name}
       </div>
     </div>
-  );
+  )
 }

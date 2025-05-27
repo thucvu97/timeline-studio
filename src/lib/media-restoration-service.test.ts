@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media";
-import { SavedMediaFile, SavedMusicFile } from "@/types/saved-media";
+import { MediaFile } from "@/features/media/types/media"
+import { SavedMediaFile, SavedMusicFile } from "@/types/saved-media"
 
-import { MediaRestorationService } from "./media-restoration-service";
+import { MediaRestorationService } from "./media-restoration-service"
 
 // Мокаем утилиты
 vi.mock("./saved-media-utils", () => ({
@@ -12,29 +12,24 @@ vi.mock("./saved-media-utils", () => ({
   generateAlternativePaths: vi.fn(),
   convertFromSavedMediaFile: vi.fn(),
   getExtensionsForFile: vi.fn(),
-}));
+}))
 
 // Импортируем замоканные функции
-const {
-  fileExists,
-  validateFileIntegrity,
-  generateAlternativePaths,
-  convertFromSavedMediaFile,
-  getExtensionsForFile,
-} = await import("./saved-media-utils");
-const mockFileExists = fileExists as any;
-const mockValidateFileIntegrity = validateFileIntegrity as any;
-const mockGenerateAlternativePaths = generateAlternativePaths as any;
-const mockConvertFromSavedMediaFile = convertFromSavedMediaFile as any;
-const mockGetExtensionsForFile = getExtensionsForFile as any;
+const { fileExists, validateFileIntegrity, generateAlternativePaths, convertFromSavedMediaFile, getExtensionsForFile } =
+  await import("./saved-media-utils")
+const mockFileExists = fileExists as any
+const mockValidateFileIntegrity = validateFileIntegrity as any
+const mockGenerateAlternativePaths = generateAlternativePaths as any
+const mockConvertFromSavedMediaFile = convertFromSavedMediaFile as any
+const mockGetExtensionsForFile = getExtensionsForFile as any
 
 describe("MediaRestorationService", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.clearAllMocks()
 
     // Настройка базовых моков
-    mockGetExtensionsForFile.mockReturnValue(["mp4", "avi", "mkv"]);
-  });
+    mockGetExtensionsForFile.mockReturnValue(["mp4", "avi", "mkv"])
+  })
 
   describe("restoreFile", () => {
     const mockSavedFile: SavedMediaFile = {
@@ -52,123 +47,105 @@ describe("MediaRestorationService", () => {
       },
       status: "unknown",
       lastChecked: Date.now(),
-    };
+    }
 
     it("должен восстановить файл по оригинальному пути", async () => {
-      mockFileExists.mockResolvedValue(true);
+      mockFileExists.mockResolvedValue(true)
       mockValidateFileIntegrity.mockResolvedValue({
         isValid: true,
         confidence: 1.0,
         issues: [],
-      });
+      })
       mockConvertFromSavedMediaFile.mockReturnValue({
         id: "test-id",
         name: "video.mp4",
         path: "/original/path/video.mp4",
-      } as MediaFile);
+      } as MediaFile)
 
-      const result = await MediaRestorationService.restoreFile(
-        mockSavedFile,
-        "/project/dir",
-      );
+      const result = await MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")
 
-      expect(result.status).toBe("found");
-      expect(result.restoredFile).toBeDefined();
-      expect(mockFileExists).toHaveBeenCalledWith("/original/path/video.mp4");
-    });
+      expect(result.status).toBe("found")
+      expect(result.restoredFile).toBeDefined()
+      expect(mockFileExists).toHaveBeenCalledWith("/original/path/video.mp4")
+    })
 
     it("должен найти файл по относительному пути", async () => {
       const savedFileWithRelative = {
         ...mockSavedFile,
         relativePath: "media/video.mp4",
-      };
+      }
 
-      mockFileExists.mockResolvedValueOnce(false); // Оригинальный путь не найден
-      mockFileExists.mockResolvedValueOnce(true); // Относительный путь найден
+      mockFileExists.mockResolvedValueOnce(false) // Оригинальный путь не найден
+      mockFileExists.mockResolvedValueOnce(true) // Относительный путь найден
       mockValidateFileIntegrity.mockResolvedValue({
         isValid: true,
         confidence: 1.0,
         issues: [],
-      });
+      })
       mockConvertFromSavedMediaFile.mockReturnValue({
         id: "test-id",
         name: "video.mp4",
         path: "/project/dir/media/video.mp4",
-      } as MediaFile);
+      } as MediaFile)
 
-      const result = await MediaRestorationService.restoreFile(
-        savedFileWithRelative,
-        "/project/dir",
-      );
+      const result = await MediaRestorationService.restoreFile(savedFileWithRelative, "/project/dir")
 
-      expect(result.status).toBe("relocated");
-      expect(result.newPath).toBe("/project/dir/media/video.mp4");
-    });
+      expect(result.status).toBe("relocated")
+      expect(result.newPath).toBe("/project/dir/media/video.mp4")
+    })
 
     it("должен найти файл в альтернативных местах", async () => {
-      mockFileExists.mockResolvedValueOnce(false); // Оригинальный путь
-      mockFileExists.mockResolvedValueOnce(true); // Альтернативный путь
-      mockGenerateAlternativePaths.mockResolvedValue([
-        "/project/dir/video.mp4",
-        "/project/dir/media/video.mp4",
-      ]);
+      mockFileExists.mockResolvedValueOnce(false) // Оригинальный путь
+      mockFileExists.mockResolvedValueOnce(true) // Альтернативный путь
+      mockGenerateAlternativePaths.mockResolvedValue(["/project/dir/video.mp4", "/project/dir/media/video.mp4"])
       mockValidateFileIntegrity.mockResolvedValue({
         isValid: true,
         confidence: 1.0,
         issues: [],
-      });
+      })
       mockConvertFromSavedMediaFile.mockReturnValue({
         id: "test-id",
         name: "video.mp4",
         path: "/project/dir/video.mp4",
-      } as MediaFile);
+      } as MediaFile)
 
-      const result = await MediaRestorationService.restoreFile(
-        mockSavedFile,
-        "/project/dir",
-      );
+      const result = await MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")
 
-      expect(result.status).toBe("relocated");
-      expect(result.newPath).toBe("/project/dir/video.mp4");
-    });
+      expect(result.status).toBe("relocated")
+      expect(result.newPath).toBe("/project/dir/video.mp4")
+    })
 
     it("должен вернуть missing если файл не найден", async () => {
-      mockFileExists.mockResolvedValue(false);
-      mockGenerateAlternativePaths.mockResolvedValue([]);
+      mockFileExists.mockResolvedValue(false)
+      mockGenerateAlternativePaths.mockResolvedValue([])
 
-      const result = await MediaRestorationService.restoreFile(
-        mockSavedFile,
-        "/project/dir",
-      );
+      const result = await MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")
 
-      expect(result.status).toBe("missing");
-      expect(result.restoredFile).toBeUndefined();
-    });
+      expect(result.status).toBe("missing")
+      expect(result.restoredFile).toBeUndefined()
+    })
 
     it("должен обрабатывать ошибки валидации", async () => {
-      mockFileExists.mockResolvedValue(true);
+      mockFileExists.mockResolvedValue(true)
       mockValidateFileIntegrity.mockResolvedValue({
         isValid: false,
         confidence: 0.3,
         issues: ["File size mismatch"],
-      });
+      })
 
-      const result = await MediaRestorationService.restoreFile(
-        mockSavedFile,
-        "/project/dir",
-      );
+      const result = await MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")
 
-      expect(result.status).toBe("corrupted");
-    });
+      expect(result.status).toBe("corrupted")
+    })
 
     it("должен обрабатывать ошибки", async () => {
-      mockFileExists.mockRejectedValue(new Error("File system error"));
+      mockFileExists.mockRejectedValue(new Error("File system error"))
 
-      await expect(
-        MediaRestorationService.restoreFile(mockSavedFile, "/project/dir"),
-      ).rejects.toThrow("File system error");
-    });
-  });
+      await expect(MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")).rejects.toThrow(
+        "File system error",
+      )
+    })
+  })
 
   describe("restoreProjectMedia", () => {
     const mockMediaFiles: SavedMediaFile[] = [
@@ -185,7 +162,7 @@ describe("MediaRestorationService", () => {
         status: "unknown",
         lastChecked: Date.now(),
       },
-    ];
+    ]
 
     const mockMusicFiles: SavedMusicFile[] = [
       {
@@ -202,64 +179,64 @@ describe("MediaRestorationService", () => {
         status: "unknown",
         lastChecked: Date.now(),
       },
-    ];
+    ]
 
     it("должен восстановить все файлы проекта", async () => {
-      mockFileExists.mockResolvedValue(true);
+      mockFileExists.mockResolvedValue(true)
       mockValidateFileIntegrity.mockResolvedValue({
         isValid: true,
         confidence: 1.0,
         issues: [],
-      });
-      mockConvertFromSavedMediaFile.mockReturnValue({} as MediaFile);
+      })
+      mockConvertFromSavedMediaFile.mockReturnValue({} as MediaFile)
 
       const result = await MediaRestorationService.restoreProjectMedia(
         mockMediaFiles,
         mockMusicFiles,
         "/project/path.tlsp",
-      );
+      )
 
-      expect(result.stats.total).toBe(2);
-      expect(result.stats.restored).toBe(2);
-      expect(result.stats.missing).toBe(0);
-    });
+      expect(result.stats.total).toBe(2)
+      expect(result.stats.restored).toBe(2)
+      expect(result.stats.missing).toBe(0)
+    })
 
     it("должен обрабатывать отсутствующие файлы", async () => {
-      mockFileExists.mockResolvedValue(false);
-      mockGenerateAlternativePaths.mockResolvedValue([]);
+      mockFileExists.mockResolvedValue(false)
+      mockGenerateAlternativePaths.mockResolvedValue([])
 
       const result = await MediaRestorationService.restoreProjectMedia(
         mockMediaFiles,
         mockMusicFiles,
         "/project/path.tlsp",
-      );
+      )
 
-      expect(result.stats.missing).toBe(2);
-      expect(result.missingFiles).toHaveLength(2);
-    });
+      expect(result.stats.missing).toBe(2)
+      expect(result.missingFiles).toHaveLength(2)
+    })
 
     it("должен генерировать отчет о восстановлении", async () => {
-      mockFileExists.mockResolvedValue(true);
+      mockFileExists.mockResolvedValue(true)
       mockValidateFileIntegrity.mockResolvedValue({
         isValid: true,
         confidence: 1.0,
         issues: [],
-      });
-      mockConvertFromSavedMediaFile.mockReturnValue({} as MediaFile);
+      })
+      mockConvertFromSavedMediaFile.mockReturnValue({} as MediaFile)
 
       const result = await MediaRestorationService.restoreProjectMedia(
         mockMediaFiles,
         mockMusicFiles,
         "/project/path.tlsp",
-      );
+      )
 
-      const report = MediaRestorationService.generateRestorationReport(result);
+      const report = MediaRestorationService.generateRestorationReport(result)
 
-      expect(report).toContain("Восстановление медиафайлов завершено");
-      expect(report).toContain("Всего файлов: 2");
-      expect(report).toContain("Восстановлено: 2");
-    });
-  });
+      expect(report).toContain("Восстановление медиафайлов завершено")
+      expect(report).toContain("Всего файлов: 2")
+      expect(report).toContain("Восстановлено: 2")
+    })
+  })
 
   describe("promptUserToFindFile", () => {
     const mockSavedFileForDialog: SavedMediaFile = {
@@ -277,37 +254,33 @@ describe("MediaRestorationService", () => {
       },
       status: "unknown",
       lastChecked: Date.now(),
-    };
+    }
 
     it("должен открыть диалог выбора файла", async () => {
-      const { open } = await import("@tauri-apps/plugin-dialog");
-      const mockOpen = vi.mocked(open);
+      const { open } = await import("@tauri-apps/plugin-dialog")
+      const mockOpen = vi.mocked(open)
 
-      mockOpen.mockResolvedValue("/new/path/video.mp4");
+      mockOpen.mockResolvedValue("/new/path/video.mp4")
 
-      const result = await MediaRestorationService.promptUserToFindFile(
-        mockSavedFileForDialog,
-      );
+      const result = await MediaRestorationService.promptUserToFindFile(mockSavedFileForDialog)
 
-      expect(result).toBe("/new/path/video.mp4");
+      expect(result).toBe("/new/path/video.mp4")
       expect(mockOpen).toHaveBeenCalledWith({
         title: "Найти файл: video.mp4",
         multiple: false,
         filters: expect.any(Array),
-      });
-    });
+      })
+    })
 
     it("должен вернуть null если пользователь отменил", async () => {
-      const { open } = await import("@tauri-apps/plugin-dialog");
-      const mockOpen = vi.mocked(open);
+      const { open } = await import("@tauri-apps/plugin-dialog")
+      const mockOpen = vi.mocked(open)
 
-      mockOpen.mockResolvedValue(null);
+      mockOpen.mockResolvedValue(null)
 
-      const result = await MediaRestorationService.promptUserToFindFile(
-        mockSavedFileForDialog,
-      );
+      const result = await MediaRestorationService.promptUserToFindFile(mockSavedFileForDialog)
 
-      expect(result).toBeNull();
-    });
-  });
-});
+      expect(result).toBeNull()
+    })
+  })
+})

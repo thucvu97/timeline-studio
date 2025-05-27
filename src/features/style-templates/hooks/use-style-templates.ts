@@ -1,24 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
-import {
-  StyleTemplate,
-  StyleTemplateFilter,
-  StyleTemplateSortBy,
-  StyleTemplateSortOrder,
-} from "../types";
+import { StyleTemplate, StyleTemplateFilter, StyleTemplateSortBy, StyleTemplateSortOrder } from "../types"
 
 interface UseStyleTemplatesReturn {
-  templates: StyleTemplate[];
-  loading: boolean;
-  error: string | null;
-  filteredTemplates: StyleTemplate[];
-  setFilter: (filter: StyleTemplateFilter) => void;
-  setSorting: (
-    sortBy: StyleTemplateSortBy,
-    order: StyleTemplateSortOrder,
-  ) => void;
-  getTemplateById: (id: string) => StyleTemplate | undefined;
-  getTemplatesByCategory: (category: string) => StyleTemplate[];
+  templates: StyleTemplate[]
+  loading: boolean
+  error: string | null
+  filteredTemplates: StyleTemplate[]
+  setFilter: (filter: StyleTemplateFilter) => void
+  setSorting: (sortBy: StyleTemplateSortBy, order: StyleTemplateSortOrder) => void
+  getTemplateById: (id: string) => StyleTemplate | undefined
+  getTemplatesByCategory: (category: string) => StyleTemplate[]
 }
 
 /**
@@ -26,41 +18,32 @@ interface UseStyleTemplatesReturn {
  * Загружает шаблоны из JSON файла и предоставляет методы для фильтрации и сортировки
  */
 export function useStyleTemplates(): UseStyleTemplatesReturn {
-  const [templates, setTemplates] = useState<StyleTemplate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<StyleTemplateFilter>({});
-  const [sortBy, setSortBy] = useState<StyleTemplateSortBy>("name");
-  const [sortOrder, setSortOrder] = useState<StyleTemplateSortOrder>("asc");
+  const [templates, setTemplates] = useState<StyleTemplate[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [filter, setFilter] = useState<StyleTemplateFilter>({})
+  const [sortBy, setSortBy] = useState<StyleTemplateSortBy>("name")
+  const [sortOrder, setSortOrder] = useState<StyleTemplateSortOrder>("asc")
 
   // Загрузка шаблонов из JSON файла
   useEffect(() => {
     const loadTemplates = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        setLoading(true)
+        setError(null)
 
         // Современный подход с динамическим импортом
         try {
-          const { default: data } = await import(
-            "../data/style-templates.json"
-          );
+          const { default: data } = await import("../data/style-templates.json")
 
           if (!data.templates || !Array.isArray(data.templates)) {
-            throw new Error("Неверная структура данных шаблонов");
+            throw new Error("Неверная структура данных шаблонов")
           }
 
-          console.log(
-            "✅ Загружено",
-            data.templates.length,
-            "стильных шаблонов из JSON",
-          );
-          setTemplates(data.templates as unknown as StyleTemplate[]);
+          console.log("✅ Загружено", data.templates.length, "стильных шаблонов из JSON")
+          setTemplates(data.templates as unknown as StyleTemplate[])
         } catch (importError) {
-          console.warn(
-            "Не удалось загрузить JSON файл, используем тестовые данные:",
-            importError,
-          );
+          console.warn("Не удалось загрузить JSON файл, используем тестовые данные:", importError)
 
           // Fallback: тестовые данные
           const testTemplates: StyleTemplate[] = [
@@ -135,125 +118,103 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
               },
               elements: [],
             },
-          ];
+          ]
 
-          console.log(
-            "✅ Загружено",
-            testTemplates.length,
-            "тестовых стильных шаблонов",
-          );
-          setTemplates(testTemplates);
+          console.log("✅ Загружено", testTemplates.length, "тестовых стильных шаблонов")
+          setTemplates(testTemplates)
         }
       } catch (err) {
-        console.error("Ошибка загрузки стилистических шаблонов:", err);
-        setError(err instanceof Error ? err.message : "Неизвестная ошибка");
+        console.error("Ошибка загрузки стилистических шаблонов:", err)
+        setError(err instanceof Error ? err.message : "Неизвестная ошибка")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    void loadTemplates();
-  }, []);
+    void loadTemplates()
+  }, [])
 
   // Фильтрация шаблонов
   const filteredTemplates = templates
     .filter((template) => {
       // Фильтр по категории
       if (filter.category && template.category !== filter.category) {
-        return false;
+        return false
       }
 
       // Фильтр по стилю
       if (filter.style && template.style !== filter.style) {
-        return false;
+        return false
       }
 
       // Фильтр по соотношению сторон
       if (filter.aspectRatio && template.aspectRatio !== filter.aspectRatio) {
-        return false;
+        return false
       }
 
       // Фильтр по наличию текста
       if (filter.hasText !== undefined && template.hasText !== filter.hasText) {
-        return false;
+        return false
       }
 
       // Фильтр по наличию анимации
-      if (
-        filter.hasAnimation !== undefined &&
-        template.hasAnimation !== filter.hasAnimation
-      ) {
-        return false;
+      if (filter.hasAnimation !== undefined && template.hasAnimation !== filter.hasAnimation) {
+        return false
       }
 
       // Фильтр по длительности
       if (filter.duration) {
-        if (
-          filter.duration.min !== undefined &&
-          template.duration < filter.duration.min
-        ) {
-          return false;
+        if (filter.duration.min !== undefined && template.duration < filter.duration.min) {
+          return false
         }
-        if (
-          filter.duration.max !== undefined &&
-          template.duration > filter.duration.max
-        ) {
-          return false;
+        if (filter.duration.max !== undefined && template.duration > filter.duration.max) {
+          return false
         }
       }
 
-      return true;
+      return true
     })
     .sort((a, b) => {
-      let comparison = 0;
+      let comparison = 0
 
       switch (sortBy) {
         case "name":
           // Обрабатываем name как объект с языками
-          const nameA =
-            typeof a.name === "string"
-              ? a.name
-              : a.name?.ru || a.name?.en || "";
-          const nameB =
-            typeof b.name === "string"
-              ? b.name
-              : b.name?.ru || b.name?.en || "";
-          comparison = nameA.localeCompare(nameB);
-          break;
+          const nameA = typeof a.name === "string" ? a.name : a.name?.ru || a.name?.en || ""
+          const nameB = typeof b.name === "string" ? b.name : b.name?.ru || b.name?.en || ""
+          comparison = nameA.localeCompare(nameB)
+          break
         case "duration":
-          comparison = a.duration - b.duration;
-          break;
+          comparison = a.duration - b.duration
+          break
         case "category":
-          comparison = a.category.localeCompare(b.category);
-          break;
+          comparison = a.category.localeCompare(b.category)
+          break
         case "style":
-          comparison = a.style.localeCompare(b.style);
-          break;
+          comparison = a.style.localeCompare(b.style)
+          break
         default:
-          comparison = 0;
+          comparison = 0
       }
 
-      return sortOrder === "asc" ? comparison : -comparison;
-    });
+      return sortOrder === "asc" ? comparison : -comparison
+    })
 
   // Получение шаблона по ID
   const getTemplateById = (id: string): StyleTemplate | undefined => {
-    return templates.find((template) => template.id === id);
-  };
+    return templates.find((template) => template.id === id)
+  }
 
   // Получение шаблонов по категории
   const getTemplatesByCategory = (category: string): StyleTemplate[] => {
-    return templates.filter((template) => template.category === category);
-  };
+    return templates.filter((template) => template.category === category)
+  }
 
   // Функция для установки сортировки
-  const setSorting = (
-    newSortBy: StyleTemplateSortBy,
-    newSortOrder: StyleTemplateSortOrder,
-  ) => {
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
-  };
+  const setSorting = (newSortBy: StyleTemplateSortBy, newSortOrder: StyleTemplateSortOrder) => {
+    setSortBy(newSortBy)
+    setSortOrder(newSortOrder)
+  }
 
   return {
     templates,
@@ -264,5 +225,5 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
     setSorting,
     getTemplateById,
     getTemplatesByCategory,
-  };
+  }
 }

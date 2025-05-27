@@ -1,6 +1,6 @@
-import { assign, createMachine } from "xstate";
+import { assign, createMachine } from "xstate"
 
-import type { BrowserContext } from "@/components/common/browser-state-machine";
+import type { BrowserContext } from "@/components/common/browser-state-machine"
 import {
   DEFAULT_CONTENT_SIZES,
   DEFAULT_SIZE,
@@ -8,7 +8,7 @@ import {
   PREVIEW_SIZES,
   type PreviewSize,
   type PreviewSizeKey,
-} from "@/lib/constants/preview-sizes";
+} from "@/lib/constants/preview-sizes"
 
 /**
  * Допустимые значения для активного таба в браузере
@@ -22,21 +22,21 @@ export const BROWSER_TABS = [
   "filters", // Фильтры для видео
   "templates", // Шаблоны проектов
   "subtitles", // Субтитры
-] as const;
-export const DEFAULT_TAB = "media"; // Таб по умолчанию
+] as const
+export const DEFAULT_TAB = "media" // Таб по умолчанию
 
 /**
  * Допустимые значения для макета интерфейса
  * Определяют, как организованы элементы интерфейса
  */
-export const LAYOUTS = ["default", "options", "vertical", "dual"] as const;
-export const DEFAULT_LAYOUT = "default"; // Макет по умолчанию
+export const LAYOUTS = ["default", "options", "vertical", "dual"] as const
+export const DEFAULT_LAYOUT = "default" // Макет по умолчанию
 
 /**
  * Типы для TypeScript, основанные на константах
  */
-export type BrowserTab = (typeof BROWSER_TABS)[number]; // Тип таба браузера
-export type LayoutMode = (typeof LAYOUTS)[number]; // Тип макета интерфейса
+export type BrowserTab = (typeof BROWSER_TABS)[number] // Тип таба браузера
+export type LayoutMode = (typeof LAYOUTS)[number] // Тип макета интерфейса
 
 /**
  * Интерфейс контекста пользовательских настроек
@@ -45,17 +45,17 @@ export type LayoutMode = (typeof LAYOUTS)[number]; // Тип макета инт
  * @interface UserSettingsContextType
  */
 export interface UserSettingsContextType {
-  previewSizes: Record<PreviewSizeKey, PreviewSize>; // Размеры превью для разных типов контента
-  activeTab: BrowserTab; // Активный таб в браузере
-  layoutMode: LayoutMode; // Текущий макет интерфейса
-  screenshotsPath: string; // Путь для сохранения скриншотов
-  playerScreenshotsPath: string; // Путь для сохранения скриншотов из плеера
-  playerVolume: number; // Громкость плеера (0-100)
-  openAiApiKey: string; // API ключ для OpenAI
-  claudeApiKey: string; // API ключ для Claude
-  isBrowserVisible: boolean; // Флаг видимости браузера
-  isLoaded: boolean; // Флаг загрузки настроек
-  browserSettings?: BrowserContext; // Настройки состояния браузера (опционально)
+  previewSizes: Record<PreviewSizeKey, PreviewSize> // Размеры превью для разных типов контента
+  activeTab: BrowserTab // Активный таб в браузере
+  layoutMode: LayoutMode // Текущий макет интерфейса
+  screenshotsPath: string // Путь для сохранения скриншотов
+  playerScreenshotsPath: string // Путь для сохранения скриншотов из плеера
+  playerVolume: number // Громкость плеера (0-100)
+  openAiApiKey: string // API ключ для OpenAI
+  claudeApiKey: string // API ключ для Claude
+  isBrowserVisible: boolean // Флаг видимости браузера
+  isLoaded: boolean // Флаг загрузки настроек
+  browserSettings?: BrowserContext // Настройки состояния браузера (опционально)
 }
 
 /**
@@ -74,16 +74,16 @@ const initialContext: UserSettingsContextType = {
   claudeApiKey: "", // Пустой API ключ Claude
   isBrowserVisible: true, // Браузер виден по умолчанию
   isLoaded: false, // Флаг загрузки настроек (изначально false)
-};
+}
 
 /**
  * Интерфейс события обновления размера превью
  * @interface UpdatePreviewSizeEvent
  */
 interface UpdatePreviewSizeEvent {
-  type: "UPDATE_PREVIEW_SIZE"; // Тип события
-  key: PreviewSizeKey; // Тип контента для обновления размера
-  size: PreviewSize; // Новый размер превью
+  type: "UPDATE_PREVIEW_SIZE" // Тип события
+  key: PreviewSizeKey // Тип контента для обновления размера
+  size: PreviewSize // Новый размер превью
 }
 
 /**
@@ -91,8 +91,8 @@ interface UpdatePreviewSizeEvent {
  * @interface UpdateActiveTabEvent
  */
 interface UpdateActiveTabEvent {
-  type: "UPDATE_ACTIVE_TAB"; // Тип события
-  tab: BrowserTab; // Новый активный таб
+  type: "UPDATE_ACTIVE_TAB" // Тип события
+  tab: BrowserTab // Новый активный таб
 }
 
 /**
@@ -100,8 +100,8 @@ interface UpdateActiveTabEvent {
  * @interface UpdateLayoutEvent
  */
 interface UpdateLayoutEvent {
-  type: "UPDATE_LAYOUT"; // Тип события
-  layoutMode: LayoutMode; // Новый макет интерфейса
+  type: "UPDATE_LAYOUT" // Тип события
+  layoutMode: LayoutMode // Новый макет интерфейса
 }
 
 /**
@@ -109,8 +109,8 @@ interface UpdateLayoutEvent {
  * @interface UpdateScreenshotsPathEvent
  */
 interface UpdateScreenshotsPathEvent {
-  type: "UPDATE_SCREENSHOTS_PATH"; // Тип события
-  path: string; // Новый путь для скриншотов
+  type: "UPDATE_SCREENSHOTS_PATH" // Тип события
+  path: string // Новый путь для скриншотов
 }
 
 /**
@@ -119,8 +119,8 @@ interface UpdateScreenshotsPathEvent {
  * @interface UpdateAllSettingsEvent
  */
 interface UpdateAllSettingsEvent {
-  type: "UPDATE_ALL"; // Тип события
-  settings: Partial<UserSettingsContextType>; // Частичные настройки для обновления
+  type: "UPDATE_ALL" // Тип события
+  settings: Partial<UserSettingsContextType> // Частичные настройки для обновления
 }
 
 /**
@@ -128,8 +128,8 @@ interface UpdateAllSettingsEvent {
  * @interface UpdatePlayerScreenshotsPathEvent
  */
 interface UpdatePlayerScreenshotsPathEvent {
-  type: "UPDATE_PLAYER_SCREENSHOTS_PATH"; // Тип события
-  path: string; // Новый путь для скриншотов плеера
+  type: "UPDATE_PLAYER_SCREENSHOTS_PATH" // Тип события
+  path: string // Новый путь для скриншотов плеера
 }
 
 /**
@@ -137,8 +137,8 @@ interface UpdatePlayerScreenshotsPathEvent {
  * @interface UpdateOpenAiApiKeyEvent
  */
 interface UpdateOpenAiApiKeyEvent {
-  type: "UPDATE_OPENAI_API_KEY"; // Тип события
-  apiKey: string; // Новый API ключ
+  type: "UPDATE_OPENAI_API_KEY" // Тип события
+  apiKey: string // Новый API ключ
 }
 
 /**
@@ -146,8 +146,8 @@ interface UpdateOpenAiApiKeyEvent {
  * @interface UpdateClaudeApiKeyEvent
  */
 interface UpdateClaudeApiKeyEvent {
-  type: "UPDATE_CLAUDE_API_KEY"; // Тип события
-  apiKey: string; // Новый API ключ
+  type: "UPDATE_CLAUDE_API_KEY" // Тип события
+  apiKey: string // Новый API ключ
 }
 
 /**
@@ -155,7 +155,7 @@ interface UpdateClaudeApiKeyEvent {
  * @interface ToggleBrowserVisibilityEvent
  */
 interface ToggleBrowserVisibilityEvent {
-  type: "TOGGLE_BROWSER_VISIBILITY"; // Тип события
+  type: "TOGGLE_BROWSER_VISIBILITY" // Тип события
 }
 
 /**
@@ -163,8 +163,8 @@ interface ToggleBrowserVisibilityEvent {
  * @interface UpdatePlayerVolumeEvent
  */
 interface UpdatePlayerVolumeEvent {
-  type: "UPDATE_PLAYER_VOLUME"; // Тип события
-  volume: number; // Новое значение громкости (0-100)
+  type: "UPDATE_PLAYER_VOLUME" // Тип события
+  volume: number // Новое значение громкости (0-100)
 }
 
 /**
@@ -172,8 +172,8 @@ interface UpdatePlayerVolumeEvent {
  * @interface LoadUserSettingsEvent
  */
 interface LoadUserSettingsEvent {
-  type: "LOAD_SETTINGS"; // Тип события
-  settings: Partial<UserSettingsContextType>; // Загруженные настройки
+  type: "LOAD_SETTINGS" // Тип события
+  settings: Partial<UserSettingsContextType> // Загруженные настройки
 }
 
 /**
@@ -191,7 +191,7 @@ export type UserSettingsEvent =
   | UpdateClaudeApiKeyEvent
   | ToggleBrowserVisibilityEvent
   | UpdatePlayerVolumeEvent
-  | UpdateAllSettingsEvent;
+  | UpdateAllSettingsEvent
 
 /**
  * Машина состояний для управления пользовательскими настройками
@@ -215,7 +215,7 @@ export const userSettingsMachine = createMachine(
       idle: {
         // Действие при входе в состояние
         entry: () => {
-          console.log("UserSettingsMachine entered idle state");
+          console.log("UserSettingsMachine entered idle state")
         },
 
         // Используем вложенные состояния, чтобы машина не останавливалась
@@ -288,14 +288,14 @@ export const userSettingsMachine = createMachine(
        * Объединяет текущий контекст с новыми настройками
        */
       updateAllSettings: assign(({ context, event }) => {
-        const typedEvent = event as UpdateAllSettingsEvent;
-        console.log("Updating all settings:", typedEvent.settings);
+        const typedEvent = event as UpdateAllSettingsEvent
+        console.log("Updating all settings:", typedEvent.settings)
 
         // Возвращаем обновленный контекст
         return {
           ...context, // Текущие настройки
           ...typedEvent.settings, // Новые настройки
-        };
+        }
       }),
 
       /**
@@ -303,21 +303,21 @@ export const userSettingsMachine = createMachine(
        * Обновляет размер превью для указанного типа контента
        */
       updatePreviewSize: assign(({ context, event }) => {
-        const typedEvent = event as UpdatePreviewSizeEvent;
-        console.log("Updating preview size:", typedEvent.key, typedEvent.size);
+        const typedEvent = event as UpdatePreviewSizeEvent
+        console.log("Updating preview size:", typedEvent.key, typedEvent.size)
 
         // Создаем копию объекта previewSizes
         const newPreviewSizes = {
           ...context.previewSizes,
-        };
+        }
         // Обновляем размер для указанного типа контента
-        newPreviewSizes[typedEvent.key] = typedEvent.size;
+        newPreviewSizes[typedEvent.key] = typedEvent.size
 
         // Возвращаем обновленный контекст
         return {
           ...context,
           previewSizes: newPreviewSizes,
-        };
+        }
       }),
 
       /**
@@ -325,14 +325,14 @@ export const userSettingsMachine = createMachine(
        * Устанавливает новую активную вкладку в браузере
        */
       updateActiveTab: assign(({ context, event }) => {
-        const typedEvent = event as UpdateActiveTabEvent;
-        console.log("Updating active tab:", typedEvent.tab);
+        const typedEvent = event as UpdateActiveTabEvent
+        console.log("Updating active tab:", typedEvent.tab)
 
         // Возвращаем обновленный контекст
         return {
           ...context,
           activeTab: typedEvent.tab, // Новая активная вкладка
-        };
+        }
       }),
 
       /**
@@ -340,14 +340,14 @@ export const userSettingsMachine = createMachine(
        * Устанавливает новый макет интерфейса
        */
       updateLayout: assign(({ context, event }) => {
-        const typedEvent = event as UpdateLayoutEvent;
-        console.log("Updating layout mode:", typedEvent.layoutMode);
+        const typedEvent = event as UpdateLayoutEvent
+        console.log("Updating layout mode:", typedEvent.layoutMode)
 
         // Возвращаем обновленный контекст
         return {
           ...context,
           layoutMode: typedEvent.layoutMode, // Новый макет интерфейса
-        };
+        }
       }),
 
       /**
@@ -355,14 +355,14 @@ export const userSettingsMachine = createMachine(
        * Устанавливает новый путь для сохранения скриншотов из плеера
        */
       updatePlayerScreenshotsPath: assign(({ context, event }) => {
-        const typedEvent = event as UpdatePlayerScreenshotsPathEvent;
-        console.log("Updating player screenshots path:", typedEvent.path);
+        const typedEvent = event as UpdatePlayerScreenshotsPathEvent
+        console.log("Updating player screenshots path:", typedEvent.path)
 
         // Возвращаем обновленный контекст
         return {
           ...context,
           playerScreenshotsPath: typedEvent.path, // Новый путь для скриншотов плеера
-        };
+        }
       }),
 
       /**
@@ -370,14 +370,14 @@ export const userSettingsMachine = createMachine(
        * Устанавливает новый путь для сохранения скриншотов
        */
       updateScreenshotsPath: assign(({ context, event }) => {
-        const typedEvent = event as UpdateScreenshotsPathEvent;
-        console.log("Updating screenshots path:", typedEvent.path);
+        const typedEvent = event as UpdateScreenshotsPathEvent
+        console.log("Updating screenshots path:", typedEvent.path)
 
         // Возвращаем обновленный контекст
         return {
           ...context,
           screenshotsPath: typedEvent.path, // Новый путь для скриншотов
-        };
+        }
       }),
 
       /**
@@ -385,18 +385,15 @@ export const userSettingsMachine = createMachine(
        * Устанавливает новый API ключ для OpenAI
        */
       updateOpenAiApiKey: assign(({ context, event }) => {
-        const typedEvent = event as UpdateOpenAiApiKeyEvent;
+        const typedEvent = event as UpdateOpenAiApiKeyEvent
         // Скрываем API ключ в логах для безопасности
-        console.log(
-          "Updating OpenAI API key:",
-          typedEvent.apiKey ? "***" : "(empty)",
-        );
+        console.log("Updating OpenAI API key:", typedEvent.apiKey ? "***" : "(empty)")
 
         // Возвращаем обновленный контекст
         return {
           ...context,
           openAiApiKey: typedEvent.apiKey, // Новый API ключ OpenAI
-        };
+        }
       }),
 
       /**
@@ -404,18 +401,15 @@ export const userSettingsMachine = createMachine(
        * Устанавливает новый API ключ для Claude
        */
       updateClaudeApiKey: assign(({ context, event }) => {
-        const typedEvent = event as UpdateClaudeApiKeyEvent;
+        const typedEvent = event as UpdateClaudeApiKeyEvent
         // Скрываем API ключ в логах для безопасности
-        console.log(
-          "Updating Claude API key:",
-          typedEvent.apiKey ? "***" : "(empty)",
-        );
+        console.log("Updating Claude API key:", typedEvent.apiKey ? "***" : "(empty)")
 
         // Возвращаем обновленный контекст
         return {
           ...context,
           claudeApiKey: typedEvent.apiKey, // Новый API ключ Claude
-        };
+        }
       }),
 
       /**
@@ -423,13 +417,13 @@ export const userSettingsMachine = createMachine(
        * Инвертирует текущее значение флага видимости
        */
       toggleBrowserVisibility: assign(({ context }) => {
-        console.log("Toggling browser visibility:", !context.isBrowserVisible);
+        console.log("Toggling browser visibility:", !context.isBrowserVisible)
 
         // Возвращаем обновленный контекст
         return {
           ...context,
           isBrowserVisible: !context.isBrowserVisible, // Инвертируем текущее значение
-        };
+        }
       }),
 
       /**
@@ -437,15 +431,15 @@ export const userSettingsMachine = createMachine(
        * Устанавливает новое значение громкости
        */
       updatePlayerVolume: assign(({ context, event }) => {
-        const typedEvent = event as UpdatePlayerVolumeEvent;
-        console.log("Updating player volume:", typedEvent.volume);
+        const typedEvent = event as UpdatePlayerVolumeEvent
+        console.log("Updating player volume:", typedEvent.volume)
 
         // Возвращаем обновленный контекст
         return {
           ...context,
           playerVolume: typedEvent.volume, // Новое значение громкости
-        };
+        }
       }),
     },
   },
-);
+)

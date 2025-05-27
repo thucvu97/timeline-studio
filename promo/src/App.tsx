@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react"
 
 const App: React.FC = () => {
   return (
@@ -10,18 +10,47 @@ const App: React.FC = () => {
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1a1 1 0 011-1h2a1 1 0 011 1v18a1 1 0 01-1 1H4a1 1 0 01-1-1V1a1 1 0 011-1h2a1 1 0 011 1v3" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1a1 1 0 011-1h2a1 1 0 011 1v18a1 1 0 01-1 1H4a1 1 0 01-1-1V1a1 1 0 011-1h2a1 1 0 011 1v3"
+                  />
                 </svg>
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Timeline Studio</h1>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Timeline Studio
+              </h1>
             </div>
           </div>
           <nav>
             <ul className="flex space-x-8">
-              <li><a href="#features" className="text-gray-300 hover:text-white transition-colors duration-200">Возможности</a></li>
-              <li><a href="#download" className="text-gray-300 hover:text-white transition-colors duration-200">Скачать</a></li>
-              <li><a href="https://chatman-media.github.io/timeline-studio/api-docs/" className="text-gray-300 hover:text-white transition-colors duration-200">Документация</a></li>
-              <li><a href="https://github.com/chatman-media/timeline-studio" className="text-gray-300 hover:text-white transition-colors duration-200">GitHub</a></li>
+              <li>
+                <a href="#features" className="text-gray-300 hover:text-white transition-colors duration-200">
+                  Возможности
+                </a>
+              </li>
+              <li>
+                <a href="#download" className="text-gray-300 hover:text-white transition-colors duration-200">
+                  Скачать
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://chatman-media.github.io/timeline-studio/api-docs/"
+                  className="text-gray-300 hover:text-white transition-colors duration-200"
+                >
+                  Документация
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/chatman-media/timeline-studio"
+                  className="text-gray-300 hover:text-white transition-colors duration-200"
+                >
+                  GitHub
+                </a>
+              </li>
             </ul>
           </nav>
         </div>
@@ -53,19 +82,30 @@ const App: React.FC = () => {
             <span className="text-blue-400 font-semibold">Tauri • React • XState</span>
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <a href="#download" className="group relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
+            <a
+              href="#download"
+              className="group relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+            >
               <span className="relative z-10 flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
                 Скачать бесплатно
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
             </a>
-            <a href="https://github.com/chatman-media/timeline-studio" className="group relative bg-gray-800/50 backdrop-blur-sm border-2 border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white font-bold py-4 px-8 rounded-xl shadow-xl hover:shadow-gray-500/25 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
+            <a
+              href="https://github.com/chatman-media/timeline-studio"
+              className="group relative bg-gray-800/50 backdrop-blur-sm border-2 border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white font-bold py-4 px-8 rounded-xl shadow-xl hover:shadow-gray-500/25 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+            >
               <span className="relative z-10 flex items-center gap-2">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                 </svg>
                 Исходный код
               </span>
@@ -98,11 +138,7 @@ const App: React.FC = () => {
               description="Надежное управление состоянием с помощью XState"
               icon="🧠"
             />
-            <FeatureCard
-              title="Интернационализация"
-              description="Полная поддержка многоязычности (i18n)"
-              icon="🌐"
-            />
+            <FeatureCard title="Интернационализация" description="Полная поддержка многоязычности (i18n)" icon="🌐" />
             <FeatureCard
               title="Тестирование"
               description="Полное тестовое покрытие с использованием Vitest"
@@ -134,11 +170,17 @@ const App: React.FC = () => {
           </div>
           <p className="mt-8 text-gray-400">
             <span className="font-semibold">Последняя версия: </span>
-            <a href="https://github.com/chatman-media/timeline-studio/releases/latest" className="text-blue-400 hover:text-blue-300 transition-colors">
+            <a
+              href="https://github.com/chatman-media/timeline-studio/releases/latest"
+              className="text-blue-400 hover:text-blue-300 transition-colors"
+            >
               Проверить на GitHub
             </a>
             <span className="mx-2">•</span>
-            <a href="https://github.com/chatman-media/timeline-studio/releases" className="text-blue-400 hover:text-blue-300 transition-colors">
+            <a
+              href="https://github.com/chatman-media/timeline-studio/releases"
+              className="text-blue-400 hover:text-blue-300 transition-colors"
+            >
               Все версии
             </a>
           </p>
@@ -156,11 +198,17 @@ const App: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <a href="https://chatman-media.github.io/timeline-studio/api-docs/" className="group relative bg-gray-700/50 backdrop-blur-sm border border-gray-600 hover:border-blue-500 text-gray-300 hover:text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
+            <a
+              href="https://chatman-media.github.io/timeline-studio/api-docs/"
+              className="group relative bg-gray-700/50 backdrop-blur-sm border border-gray-600 hover:border-blue-500 text-gray-300 hover:text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
+            >
               <span className="relative z-10">API документация</span>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300"></div>
             </a>
-            <a href="https://github.com/chatman-media/timeline-studio#начало-работы" className="group relative bg-gray-700/50 backdrop-blur-sm border border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
+            <a
+              href="https://github.com/chatman-media/timeline-studio#начало-работы"
+              className="group relative bg-gray-700/50 backdrop-blur-sm border border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
+            >
               <span className="relative z-10">Руководство пользователя</span>
               <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300"></div>
             </a>
@@ -176,27 +224,71 @@ const App: React.FC = () => {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1a1 1 0 011-1h2a1 1 0 011 1v18a1 1 0 01-1 1H4a1 1 0 01-1-1V1a1 1 0 011-1h2a1 1 0 011 1v3" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1a1 1 0 011-1h2a1 1 0 011 1v18a1 1 0 01-1 1H4a1 1 0 01-1-1V1a1 1 0 011-1h2a1 1 0 011 1v3"
+                    />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Timeline Studio</h2>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Timeline Studio
+                </h2>
               </div>
-              <p className="text-gray-400 max-w-md">Профессиональное приложение для создания и редактирования видео с современными технологиями</p>
+              <p className="text-gray-400 max-w-md">
+                Профессиональное приложение для создания и редактирования видео с современными технологиями
+              </p>
             </div>
             <div className="flex flex-col md:flex-row gap-12">
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-white">Ресурсы</h3>
                 <ul className="space-y-3">
-                  <li><a href="https://github.com/chatman-media/timeline-studio" className="text-gray-400 hover:text-blue-400 transition-colors">GitHub</a></li>
-                  <li><a href="https://www.npmjs.com/package/timeline-studio" className="text-gray-400 hover:text-blue-400 transition-colors">npm</a></li>
-                  <li><a href="https://chatman-media.github.io/timeline-studio/api-docs/" className="text-gray-400 hover:text-blue-400 transition-colors">Документация</a></li>
+                  <li>
+                    <a
+                      href="https://github.com/chatman-media/timeline-studio"
+                      className="text-gray-400 hover:text-blue-400 transition-colors"
+                    >
+                      GitHub
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://www.npmjs.com/package/timeline-studio"
+                      className="text-gray-400 hover:text-blue-400 transition-colors"
+                    >
+                      npm
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://chatman-media.github.io/timeline-studio/api-docs/"
+                      className="text-gray-400 hover:text-blue-400 transition-colors"
+                    >
+                      Документация
+                    </a>
+                  </li>
                 </ul>
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-white">Связаться</h3>
                 <ul className="space-y-3">
-                  <li><a href="https://github.com/chatman-media/timeline-studio/issues" className="text-gray-400 hover:text-blue-400 transition-colors">Сообщить о проблеме</a></li>
-                  <li><a href="mailto:ak.chatman.media@gmail.com" className="text-gray-400 hover:text-blue-400 transition-colors">Электронная почта</a></li>
+                  <li>
+                    <a
+                      href="https://github.com/chatman-media/timeline-studio/issues"
+                      className="text-gray-400 hover:text-blue-400 transition-colors"
+                    >
+                      Сообщить о проблеме
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="mailto:ak.chatman.media@gmail.com"
+                      className="text-gray-400 hover:text-blue-400 transition-colors"
+                    >
+                      Электронная почта
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -207,8 +299,8 @@ const App: React.FC = () => {
         </div>
       </footer>
     </div>
-  );
-};
+  )
+}
 
 // Компонент карточки возможностей
 const FeatureCard: React.FC<{ title: string; description: string; icon: string }> = ({ title, description, icon }) => {
@@ -221,50 +313,50 @@ const FeatureCard: React.FC<{ title: string; description: string; icon: string }
         <p className="text-gray-400 leading-relaxed">{description}</p>
       </div>
     </div>
-  );
-};
+  )
+}
 
 // Компонент кнопки загрузки
 const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform, icon }) => {
   // Определяем правильный путь к файлу в зависимости от платформы
   const getDownloadPath = () => {
     switch (platform.toLowerCase()) {
-      case 'windows':
-        return 'timeline-studio-windows-x64.msi';
-      case 'macos':
-        return 'timeline-studio-macos-x64.dmg';
-      case 'linux':
-        return 'timeline-studio-linux-x86_64.AppImage';
+      case "windows":
+        return "timeline-studio-windows-x64.msi"
+      case "macos":
+        return "timeline-studio-macos-x64.dmg"
+      case "linux":
+        return "timeline-studio-linux-x86_64.AppImage"
       default:
-        return `timeline-studio-${platform.toLowerCase()}.zip`;
+        return `timeline-studio-${platform.toLowerCase()}.zip`
     }
-  };
+  }
 
   const getIcon = (icon: string) => {
     switch (icon) {
       case "windows":
-        return "🪟";
+        return "🪟"
       case "apple":
-        return "🍎";
+        return "🍎"
       case "linux":
-        return "🐧";
+        return "🐧"
       default:
-        return "💻";
+        return "💻"
     }
-  };
+  }
 
   const getGradient = (platform: string) => {
     switch (platform) {
       case "Windows":
-        return "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800";
+        return "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
       case "macOS":
-        return "from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800";
+        return "from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800"
       case "Linux":
-        return "from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700";
+        return "from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
       default:
-        return "from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700";
+        return "from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
     }
-  };
+  }
 
   return (
     <a
@@ -272,12 +364,16 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
       className={`group relative bg-gradient-to-r ${getGradient(platform)} text-white font-bold py-4 px-8 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-3`}
     >
       <span className="relative z-10 flex items-center gap-3">
-        <span className="text-3xl transform group-hover:scale-110 transition-transform duration-300">{getIcon(icon)}</span>
+        <span className="text-3xl transform group-hover:scale-110 transition-transform duration-300">
+          {getIcon(icon)}
+        </span>
         <span>Скачать для {platform}</span>
       </span>
-      <div className={`absolute inset-0 bg-gradient-to-r ${getGradient(platform)} rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300`}></div>
+      <div
+        className={`absolute inset-0 bg-gradient-to-r ${getGradient(platform)} rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300`}
+      ></div>
     </a>
-  );
-};
+  )
+}
 
-export default App;
+export default App

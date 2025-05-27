@@ -1,70 +1,63 @@
-import { useMemo } from "react";
+import { useMemo } from "react"
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { useBrowserState } from "@/components/common/browser-state-provider";
-import { ContentGroup } from "@/components/common/content-group";
-import { NoFiles } from "@/components/common/no-files";
-import { useMedia } from "@/features/browser/media";
-import { useProjectSettings } from "@/features/project-settings";
-import { VideoFilter } from "@/types/filters";
+import { useBrowserState } from "@/components/common/browser-state-provider"
+import { ContentGroup } from "@/components/common/content-group"
+import { NoFiles } from "@/components/common/no-files"
+import { useMedia } from "@/features/browser/media"
+import { useProjectSettings } from "@/features/project-settings"
+import { VideoFilter } from "@/types/filters"
 
-import { FilterPreview } from "./filter-preview";
-import { useFilters } from "../hooks/use-filters";
+import { useFilters } from "../hooks/use-filters"
+import { FilterPreview } from "./filter-preview"
 
-const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400];
+const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400]
 
 /**
  * Компонент для отображения списка доступных видеофильтров
  * Позволяет просматривать, искать и добавлять фильтры в проект
  */
 export function FilterList() {
-  const { t } = useTranslation(); // Хук для интернационализации
-  const media = useMedia(); // Хук для работы с медиа-файлами и избранным
+  const { t } = useTranslation() // Хук для интернационализации
+  const media = useMedia() // Хук для работы с медиа-файлами и избранным
 
   // Загружаем фильтры из JSON
-  const { filters, loading, error } = useFilters();
+  const { filters, loading, error } = useFilters()
 
   // Используем общий провайдер состояния браузера
-  const { currentTabSettings } = useBrowserState();
+  const { currentTabSettings } = useBrowserState()
 
   // Получаем настройки проекта для соотношения сторон
-  const { settings } = useProjectSettings();
+  const { settings } = useProjectSettings()
 
   // Извлекаем настройки для фильтров
-  const {
-    searchQuery,
-    showFavoritesOnly,
-    sortBy,
-    sortOrder,
-    groupBy,
-    filterType,
-    previewSizeIndex,
-  } = currentTabSettings;
+  const { searchQuery, showFavoritesOnly, sortBy, sortOrder, groupBy, filterType, previewSizeIndex } =
+    currentTabSettings
 
   // Получаем текущий размер превью из массива
-  const basePreviewSize = PREVIEW_SIZES[previewSizeIndex];
+  const basePreviewSize = PREVIEW_SIZES[previewSizeIndex]
 
   // Вычисляем размеры превью с учетом соотношения сторон проекта
   const previewDimensions = useMemo(() => {
-    const aspectRatio = settings.aspectRatio.value;
-    const ratio = aspectRatio.width / aspectRatio.height;
+    const aspectRatio = settings.aspectRatio.value
+    const ratio = aspectRatio.width / aspectRatio.height
 
-    let width: number;
-    let height: number;
+    let width: number
+    let height: number
 
     if (ratio >= 1) {
       // Горизонтальное или квадратное видео
-      width = basePreviewSize;
-      height = Math.round(basePreviewSize / ratio);
+      width = basePreviewSize
+      height = Math.round(basePreviewSize / ratio)
     } else {
       // Вертикальное видео
-      height = basePreviewSize;
-      width = Math.round(basePreviewSize * ratio);
+      height = basePreviewSize
+      width = Math.round(basePreviewSize * ratio)
     }
 
-    return { width, height };
-  }, [basePreviewSize, settings.aspectRatio]);
+    return { width, height }
+  }, [basePreviewSize, settings.aspectRatio])
 
   /**
    * Фильтрация, сортировка и группировка фильтров
@@ -76,169 +69,134 @@ export function FilterList() {
       const matchesSearch =
         !searchQuery ||
         filter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (filter.labels?.ru || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (filter.labels?.en || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (filter.description?.ru || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (filter.description?.en || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (filter.tags || []).some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase()),
-        );
+        (filter.labels?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (filter.labels?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (filter.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (filter.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (filter.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
       // Фильтрация по избранному
       const matchesFavorites =
-        !showFavoritesOnly ||
-        media.isItemFavorite(
-          { id: filter.id, path: "", name: filter.name },
-          "filter",
-        );
+        !showFavoritesOnly || media.isItemFavorite({ id: filter.id, path: "", name: filter.name }, "filter")
 
       // Фильтрация по типу (сложность или категория)
       const matchesFilter = (() => {
-        if (filterType === "all") return true;
+        if (filterType === "all") return true
 
         // Фильтрация по сложности
         if (["basic", "intermediate", "advanced"].includes(filterType)) {
-          return (filter.complexity || "basic") === filterType;
+          return (filter.complexity || "basic") === filterType
         }
 
         // Фильтрация по категории
-        if (
-          [
-            "color-correction",
-            "creative",
-            "cinematic",
-            "vintage",
-            "technical",
-            "artistic",
-          ].includes(filterType)
-        ) {
-          return filter.category === filterType;
+        if (["color-correction", "creative", "cinematic", "vintage", "technical", "artistic"].includes(filterType)) {
+          return filter.category === filterType
         }
 
-        return true;
-      })();
+        return true
+      })()
 
-      return matchesSearch && matchesFavorites && matchesFilter;
-    });
+      return matchesSearch && matchesFavorites && matchesFilter
+    })
 
     // 2. Сортировка
     filtered.sort((a, b) => {
-      let result = 0;
+      let result = 0
 
       switch (sortBy) {
         case "name":
-          const nameA = a.name.toLowerCase();
-          const nameB = b.name.toLowerCase();
-          result = nameA.localeCompare(nameB);
-          break;
+          const nameA = a.name.toLowerCase()
+          const nameB = b.name.toLowerCase()
+          result = nameA.localeCompare(nameB)
+          break
 
         case "complexity":
-          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 };
-          const complexityA = complexityOrder[a.complexity || "basic"];
-          const complexityB = complexityOrder[b.complexity || "basic"];
-          result = complexityA - complexityB;
-          break;
+          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
+          const complexityA = complexityOrder[a.complexity || "basic"]
+          const complexityB = complexityOrder[b.complexity || "basic"]
+          result = complexityA - complexityB
+          break
 
         case "category":
-          const categoryA = (a.category || "").toLowerCase();
-          const categoryB = (b.category || "").toLowerCase();
-          result = categoryA.localeCompare(categoryB);
-          break;
+          const categoryA = (a.category || "").toLowerCase()
+          const categoryB = (b.category || "").toLowerCase()
+          result = categoryA.localeCompare(categoryB)
+          break
 
         default:
-          result = 0;
+          result = 0
       }
 
-      return sortOrder === "asc" ? result : -result;
-    });
+      return sortOrder === "asc" ? result : -result
+    })
 
-    return filtered;
-  }, [
-    filters,
-    searchQuery,
-    showFavoritesOnly,
-    filterType,
-    sortBy,
-    sortOrder,
-    media,
-  ]);
+    return filtered
+  }, [filters, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media])
 
   /**
    * Группировка фильтров по выбранному критерию
    */
   const groupedFilters = useMemo(() => {
     if (groupBy === "none") {
-      return [{ title: "", filters: processedFilters }];
+      return [{ title: "", filters: processedFilters }]
     }
 
-    const groups: Record<string, VideoFilter[]> = {};
+    const groups: Record<string, VideoFilter[]> = {}
 
     processedFilters.forEach((filter) => {
-      let groupKey = "";
+      let groupKey = ""
 
       switch (groupBy) {
         case "category":
-          groupKey = filter.category || "other";
-          break;
+          groupKey = filter.category || "other"
+          break
         case "complexity":
-          groupKey = filter.complexity || "basic";
-          break;
+          groupKey = filter.complexity || "basic"
+          break
         case "tags":
-          groupKey =
-            filter.tags && filter.tags.length > 0 ? filter.tags[0] : "untagged";
-          break;
+          groupKey = filter.tags && filter.tags.length > 0 ? filter.tags[0] : "untagged"
+          break
         default:
-          groupKey = "ungrouped";
+          groupKey = "ungrouped"
       }
 
       if (!groups[groupKey]) {
-        groups[groupKey] = [];
+        groups[groupKey] = []
       }
-      groups[groupKey].push(filter);
-    });
+      groups[groupKey].push(filter)
+    })
 
     // Преобразуем в массив групп с переводами заголовков
     return Object.entries(groups)
       .map(([key, filters]) => {
-        let title = "";
+        let title = ""
 
         switch (groupBy) {
           case "category":
-            title = t(`filters.categories.${key}`, key);
-            break;
+            title = t(`filters.categories.${key}`, key)
+            break
           case "complexity":
-            title = t(`filters.complexity.${key}`, key);
-            break;
+            title = t(`filters.complexity.${key}`, key)
+            break
           case "tags":
-            title =
-              key === "untagged"
-                ? t("filters.filters.allTags", "Без тегов")
-                : key;
-            break;
+            title = key === "untagged" ? t("filters.filters.allTags", "Без тегов") : key
+            break
           default:
-            title = key;
+            title = key
         }
 
-        return { title, filters };
+        return { title, filters }
       })
-      .sort((a, b) => a.title.localeCompare(b.title));
-  }, [processedFilters, groupBy, t]);
+      .sort((a, b) => a.title.localeCompare(b.title))
+  }, [processedFilters, groupBy, t])
 
   /**
    * Обработчик клика по фильтру
    */
   const handleFilterClick = (filter: VideoFilter) => {
-    console.log("Applying filter:", filter.name, filter.params); // Отладочный вывод
+    console.log("Applying filter:", filter.name, filter.params) // Отладочный вывод
     // Здесь может быть логика применения фильтра к видео
-  };
+  }
 
   // Показываем состояние загрузки
   if (loading) {
@@ -248,18 +206,16 @@ export function FilterList() {
           {t("common.loading", "Загрузка...")}
         </div>
       </div>
-    );
+    )
   }
 
   // Показываем ошибку загрузки
   if (error) {
     return (
       <div className="flex h-full flex-1 flex-col bg-background">
-        <div className="flex h-full items-center justify-center text-red-500">
-          {error}
-        </div>
+        <div className="flex h-full items-center justify-center text-red-500">{error}</div>
       </div>
-    );
+    )
   }
 
   return (
@@ -305,5 +261,5 @@ export function FilterList() {
         )}
       </div>
     </div>
-  );
+  )
 }

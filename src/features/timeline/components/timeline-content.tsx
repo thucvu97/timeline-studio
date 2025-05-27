@@ -4,20 +4,20 @@
  * Отображает треки, клипы и временную шкалу
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect } from "react"
 
 // Убираем ненужные иконки
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCurrentProject } from "@/features/app-state/hooks/use-current-project";
-import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings";
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
+import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
 
-import { useClips } from "../hooks/use-clips";
-import { useTracks } from "../hooks/use-tracks";
-import { useTimeline } from "../timeline-provider";
-import { Track } from "./track/track";
+import { useClips } from "../hooks/use-clips"
+import { useTracks } from "../hooks/use-tracks"
+import { useTimeline } from "../timeline-provider"
+import { Track } from "./track/track"
 
 export function TimelineContent() {
   const {
@@ -32,14 +32,14 @@ export function TimelineContent() {
     seek,
     error,
     clearError,
-  } = useTimeline();
+  } = useTimeline()
 
-  const { tracks } = useTracks();
-  const { clips } = useClips();
+  const { tracks } = useTracks()
+  const { clips } = useClips()
 
   // Получаем данные реального проекта
-  const { currentProject } = useCurrentProject();
-  const { settings: projectSettings } = useProjectSettings();
+  const { currentProject } = useCurrentProject()
+  const { settings: projectSettings } = useProjectSettings()
 
   // Создаем проект при первой загрузке, используя настройки из реального проекта
   useEffect(() => {
@@ -47,28 +47,28 @@ export function TimelineContent() {
       createProject(currentProject.name, {
         width: projectSettings.aspectRatio.value.width,
         height: projectSettings.aspectRatio.value.height,
-        frameRate: parseInt(projectSettings.frameRate),
-      });
+        frameRate: Number.parseInt(projectSettings.frameRate),
+      })
     }
-  }, [project, currentProject, projectSettings, createProject]);
+  }, [project, currentProject, projectSettings, createProject])
 
   // Добавляем демо секцию
   useEffect(() => {
     if (project && project.sections.length === 0) {
       // Добавляем секцию
-      addSection("Main Section", 0, 300); // 5 минут
+      addSection("Main Section", 0, 300) // 5 минут
     }
-  }, [project, addSection]);
+  }, [project, addSection])
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+  }
 
   const handleSeek = (time: number) => {
-    seek(time);
-  };
+    seek(time)
+  }
 
   if (error) {
     return (
@@ -85,7 +85,7 @@ export function TimelineContent() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   if (!project) {
@@ -100,7 +100,7 @@ export function TimelineContent() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -109,9 +109,7 @@ export function TimelineContent() {
       <div className="p-4 border-b bg-background">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-foreground">
-              {currentProject?.name || project.name}
-            </h3>
+            <h3 className="font-semibold text-foreground">{currentProject?.name || project.name}</h3>
             <p className="text-sm text-muted-foreground">
               {projectSettings
                 ? `${projectSettings.aspectRatio.value.width}x${projectSettings.aspectRatio.value.height} @ ${projectSettings.frameRate}fps`
@@ -137,10 +135,8 @@ export function TimelineContent() {
               style={{ left: `${(time / 300) * 100}%` }}
               onClick={() => handleSeek(time)}
             >
-              <div className="w-px h-4 bg-border ml-2"></div>
-              <span className="text-xs text-muted-foreground ml-1">
-                {formatTime(time)}
-              </span>
+              <div className="w-px h-4 bg-border ml-2" />
+              <span className="text-xs text-muted-foreground ml-1">{formatTime(time)}</span>
             </div>
           ))}
 
@@ -160,10 +156,7 @@ export function TimelineContent() {
               <CardContent className="pt-6">
                 <div className="text-center">
                   <p className="text-muted-foreground">Треки не найдены</p>
-                  <Button
-                    className="mt-4"
-                    onClick={() => addTrack("video", "Видео трек")}
-                  >
+                  <Button className="mt-4" onClick={() => addTrack("video", "Видео трек")}>
                     Добавить видео трек
                   </Button>
                 </div>
@@ -187,5 +180,5 @@ export function TimelineContent() {
         )}
       </div>
     </div>
-  );
+  )
 }

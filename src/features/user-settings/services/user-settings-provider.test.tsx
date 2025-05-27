@@ -1,8 +1,8 @@
 import { act, render, renderHook, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { UserSettingsProvider } from "./user-settings-provider"
 import { useUserSettings } from "../hooks/use-user-settings"
+import { UserSettingsProvider } from "./user-settings-provider"
 
 // Создаем моковый объект для send
 const mockSend = vi.fn()

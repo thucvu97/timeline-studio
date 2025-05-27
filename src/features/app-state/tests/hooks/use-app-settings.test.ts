@@ -1,9 +1,9 @@
-import { useContext } from "react";
+import { useContext } from "react"
 
-import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, renderHook } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { useAppSettings } from "../../hooks/use-app-settings";
+import { useAppSettings } from "../../hooks/use-app-settings"
 
 // Мокаем React Context
 const mockContextValue = {
@@ -40,36 +40,36 @@ const mockContextValue = {
   getMediaFiles: vi.fn(),
   isLoading: vi.fn(),
   getError: vi.fn(),
-};
+}
 
 // Мокаем useContext
 vi.mock("react", async () => {
-  const actual = await vi.importActual("react");
+  const actual = await vi.importActual("react")
   return {
     ...actual,
     useContext: vi.fn(),
-  };
-});
+  }
+})
 
 describe("useAppSettings", () => {
   it("should return context value when used within AppSettingsProvider", () => {
-    vi.mocked(useContext).mockReturnValue(mockContextValue);
+    vi.mocked(useContext).mockReturnValue(mockContextValue)
 
-    const { result } = renderHook(() => useAppSettings());
+    const { result } = renderHook(() => useAppSettings())
 
-    expect(result.current).toBe(mockContextValue);
-  });
+    expect(result.current).toBe(mockContextValue)
+  })
 
   it("should throw error when used outside AppSettingsProvider", () => {
-    vi.mocked(useContext).mockReturnValue(null);
+    vi.mocked(useContext).mockReturnValue(null)
 
-    const consoleError = console.error;
-    console.error = vi.fn(); // Подавляем ошибки в консоли во время теста
+    const consoleError = console.error
+    console.error = vi.fn() // Подавляем ошибки в консоли во время теста
 
     expect(() => renderHook(() => useAppSettings())).toThrow(
       "useAppSettings must be used within an AppSettingsProvider",
-    );
+    )
 
-    console.error = consoleError; // Восстанавливаем console.error
-  });
-});
+    console.error = consoleError // Восстанавливаем console.error
+  })
+})

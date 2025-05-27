@@ -3,7 +3,5 @@
   "identifier": "asset-capability",
   "description": "Capability for asset protocol",
   "windows": ["main"],
-  "permissions": [
-    "core:default"
-  ]
+  "permissions": ["core:default"]
 }

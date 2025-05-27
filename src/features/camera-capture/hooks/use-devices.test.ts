@@ -96,12 +96,8 @@ describe("useDevices", () => {
 
     // Проверяем, что устройства получены с автоматически сгенерированными метками
     await waitFor(() => {
-      expect(result.current.devices).toEqual([
-        { deviceId: "camera1", label: "timeline.tracks.cameraWithNumber" },
-      ])
-      expect(result.current.audioDevices).toEqual([
-        { deviceId: "mic1", label: "timeline.tracks.audioWithNumber" },
-      ])
+      expect(result.current.devices).toEqual([{ deviceId: "camera1", label: "timeline.tracks.cameraWithNumber" }])
+      expect(result.current.audioDevices).toEqual([{ deviceId: "mic1", label: "timeline.tracks.audioWithNumber" }])
     })
   })
 

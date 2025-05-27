@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"
 
 import {
   ArrowDownUp,
@@ -16,98 +16,93 @@ import {
   Star,
   ZoomIn,
   ZoomOut,
-} from "lucide-react";
-import { useTranslation } from "react-i18next";
+} from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
 // Типы режимов просмотра
-export type ViewMode = "list" | "grid" | "thumbnails";
+export type ViewMode = "list" | "grid" | "thumbnails"
 
 // Конфигурация режимов просмотра
 export interface ViewModeConfig {
-  value: ViewMode;
-  icon: React.ComponentType<{ size?: number }>;
-  label: string;
-  testId?: string;
+  value: ViewMode
+  icon: React.ComponentType<{ size?: number }>
+  label: string
+  testId?: string
 }
 
 export interface MediaToolbarProps {
   // Состояние
-  searchQuery: string;
-  sortBy: string;
-  sortOrder: "asc" | "desc";
-  filterType: string;
-  viewMode: ViewMode;
-  groupBy: string;
-  availableExtensions: string[];
-  showFavoritesOnly: boolean;
+  searchQuery: string
+  sortBy: string
+  sortOrder: "asc" | "desc"
+  filterType: string
+  viewMode: ViewMode
+  groupBy: string
+  availableExtensions: string[]
+  showFavoritesOnly: boolean
 
   // Опции для сортировки
   sortOptions: Array<{
-    value: string;
-    label: string;
-  }>;
+    value: string
+    label: string
+  }>
 
   // Опции для группировки
   groupOptions: Array<{
-    value: string;
-    label: string;
-  }>;
+    value: string
+    label: string
+  }>
 
   // Опции для фильтрации (опционально, для медиа)
   filterOptions?: Array<{
-    value: string;
-    label: string;
-  }>;
+    value: string
+    label: string
+  }>
 
   // Доступные режимы просмотра (настраивается для каждой вкладки)
-  availableViewModes?: ViewModeConfig[];
+  availableViewModes?: ViewModeConfig[]
 
   // Колбэки
-  onSearch: (query: string) => void;
-  onSort: (sortBy: string) => void;
-  onFilter: (filterType: string) => void;
-  onChangeOrder: () => void;
-  onChangeViewMode: (mode: ViewMode) => void;
-  onChangeGroupBy: (groupBy: string) => void;
-  onToggleFavorites: () => void;
+  onSearch: (query: string) => void
+  onSort: (sortBy: string) => void
+  onFilter: (filterType: string) => void
+  onChangeOrder: () => void
+  onChangeViewMode: (mode: ViewMode) => void
+  onChangeGroupBy: (groupBy: string) => void
+  onToggleFavorites: () => void
 
   // Импорт (опционально)
-  onImport?: () => void;
-  onImportFile?: () => void;
-  onImportFolder?: () => void;
-  isImporting?: boolean;
+  onImport?: () => void
+  onImportFile?: () => void
+  onImportFolder?: () => void
+  isImporting?: boolean
 
   // Зум (опционально, для медиа)
-  onZoomIn?: () => void;
-  onZoomOut?: () => void;
-  canZoomIn?: boolean;
-  canZoomOut?: boolean;
+  onZoomIn?: () => void
+  onZoomOut?: () => void
+  canZoomIn?: boolean
+  canZoomOut?: boolean
 
   // Настройки отображения
-  showImport?: boolean;
-  showGroupBy?: boolean;
-  showZoom?: boolean;
-  className?: string;
+  showImport?: boolean
+  showGroupBy?: boolean
+  showZoom?: boolean
+  className?: string
 
   // Дополнительные кнопки для конкретных вкладок
-  extraButtons?: React.ReactNode;
+  extraButtons?: React.ReactNode
 }
 
 /**
@@ -161,7 +156,7 @@ export function MediaToolbar({
   // Дополнительные кнопки
   extraButtons,
 }: MediaToolbarProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   // Дефолтные режимы просмотра (если не переданы)
   const defaultViewModes: ViewModeConfig[] = [
@@ -177,22 +172,17 @@ export function MediaToolbar({
       label: "browser.toolbar.thumbnails",
       testId: "thumbnails-view-button",
     },
-  ];
+  ]
 
   // Используем переданные режимы или дефолтные
-  const viewModes = availableViewModes || defaultViewModes;
+  const viewModes = availableViewModes || defaultViewModes
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearch(e.target.value);
-  };
+    onSearch(e.target.value)
+  }
 
   return (
-    <div
-      className={cn(
-        "flex items-center justify-between p-1 dark:bg-[#252526]",
-        className,
-      )}
-    >
+    <div className={cn("flex items-center justify-between p-1 dark:bg-[#252526]", className)}>
       <div className="flex h-8 w-[calc(100%-100px)] items-center gap-2">
         {/* Кнопка импорта */}
         {showImport && onImport && (
@@ -207,9 +197,7 @@ export function MediaToolbar({
             disabled={isImporting}
           >
             <span className="px-2 text-xs">
-              {isImporting
-                ? t("common.importing") || "Importing..."
-                : t("common.import")}
+              {isImporting ? t("common.importing") || "Importing..." : t("common.import")}
             </span>
             <div className="flex items-center gap-1">
               {onImportFile && (
@@ -221,14 +209,11 @@ export function MediaToolbar({
                         isImporting && "opacity-50 cursor-wait",
                       )}
                       onClick={(e) => {
-                        e.stopPropagation();
-                        if (!isImporting) onImportFile();
+                        e.stopPropagation()
+                        if (!isImporting) onImportFile()
                       }}
                     >
-                      <File
-                        size={12}
-                        className={isImporting ? "animate-pulse" : ""}
-                      />
+                      <File size={12} className={isImporting ? "animate-pulse" : ""} />
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>{t("browser.media.addMedia")}</TooltipContent>
@@ -243,19 +228,14 @@ export function MediaToolbar({
                         isImporting && "opacity-50 cursor-wait",
                       )}
                       onClick={(e) => {
-                        e.stopPropagation();
-                        if (!isImporting) onImportFolder();
+                        e.stopPropagation()
+                        if (!isImporting) onImportFolder()
                       }}
                     >
-                      <Folder
-                        size={12}
-                        className={isImporting ? "animate-pulse" : ""}
-                      />
+                      <Folder size={12} className={isImporting ? "animate-pulse" : ""} />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    {t("browser.media.addFolder")}
-                  </TooltipContent>
+                  <TooltipContent>{t("browser.media.addFolder")}</TooltipContent>
                 </Tooltip>
               )}
             </div>
@@ -283,16 +263,10 @@ export function MediaToolbar({
               <Button
                 variant="ghost"
                 size="icon"
-                className={cn(
-                  "mr-1 h-6 w-6 cursor-pointer",
-                  showFavoritesOnly ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
-                )}
+                className={cn("mr-1 h-6 w-6 cursor-pointer", showFavoritesOnly ? "bg-[#dddbdd] dark:bg-[#45444b]" : "")}
                 onClick={onToggleFavorites}
               >
-                <Star
-                  size={16}
-                  className={showFavoritesOnly ? "fill-current" : ""}
-                />
+                <Star size={16} className={showFavoritesOnly ? "fill-current" : ""} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>{t("browser.media.favorites")}</TooltipContent>
@@ -304,7 +278,7 @@ export function MediaToolbar({
           <TooltipProvider>
             <div className="flex overflow-hidden rounded-md">
               {viewModes.map((mode, index) => {
-                const IconComponent = mode.icon;
+                const IconComponent = mode.icon
                 return (
                   <Tooltip key={mode.value}>
                     <TooltipTrigger asChild>
@@ -314,8 +288,7 @@ export function MediaToolbar({
                         className={cn(
                           "h-6 w-6 cursor-pointer",
                           index < viewModes.length - 1 ? "mr-1" : "mr-1",
-                          viewMode === mode.value &&
-                            "bg-[#dddbdd] dark:bg-[#45444b]",
+                          viewMode === mode.value && "bg-[#dddbdd] dark:bg-[#45444b]",
                         )}
                         onClick={() => onChangeViewMode(mode.value)}
                         data-testid={mode.testId}
@@ -325,7 +298,7 @@ export function MediaToolbar({
                     </TooltipTrigger>
                     <TooltipContent>{t(mode.label)}</TooltipContent>
                   </Tooltip>
-                );
+                )
               })}
             </div>
           </TooltipProvider>
@@ -342,9 +315,7 @@ export function MediaToolbar({
                     size="sm"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      sortBy !== sortOptions[0]?.value
-                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                        : "",
+                      sortBy !== sortOptions[0]?.value ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                     )}
                   >
                     <SortDesc size={16} />
@@ -381,9 +352,7 @@ export function MediaToolbar({
                     size="sm"
                     className={cn(
                       "h-6 w-6 cursor-pointer",
-                      filterType !== "all"
-                        ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                        : "",
+                      filterType !== "all" ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                     )}
                   >
                     <Filter size={16} />
@@ -403,28 +372,18 @@ export function MediaToolbar({
                 {/* Кастомные опции фильтров (для медиа) */}
                 {filterOptions
                   ? filterOptions.map((option) => (
-                      <DropdownMenuItem
-                        key={option.value}
-                        onClick={() => onFilter(option.value)}
-                      >
+                      <DropdownMenuItem key={option.value} onClick={() => onFilter(option.value)}>
                         <div className="flex items-center gap-2">
-                          {filterType === option.value && (
-                            <Check className="h-4 w-4" />
-                          )}
+                          {filterType === option.value && <Check className="h-4 w-4" />}
                           <span>{t(option.label)}</span>
                         </div>
                       </DropdownMenuItem>
                     ))
                   : /* Дефолтные фильтры по расширениям (для музыки) */
                     availableExtensions.map((extension) => (
-                      <DropdownMenuItem
-                        key={extension}
-                        onClick={() => onFilter(extension)}
-                      >
+                      <DropdownMenuItem key={extension} onClick={() => onFilter(extension)}>
                         <div className="flex items-center gap-2">
-                          {filterType === extension && (
-                            <Check className="h-4 w-4" />
-                          )}
+                          {filterType === extension && <Check className="h-4 w-4" />}
                           <span>{extension.toUpperCase()}</span>
                         </div>
                       </DropdownMenuItem>
@@ -446,9 +405,7 @@ export function MediaToolbar({
                       size="icon"
                       className={cn(
                         "h-6 w-6 cursor-pointer",
-                        groupBy !== groupOptions[0]?.value
-                          ? "bg-[#dddbdd] dark:bg-[#45444b]"
-                          : "",
+                        groupBy !== groupOptions[0]?.value ? "bg-[#dddbdd] dark:bg-[#45444b]" : "",
                       )}
                     >
                       <ListFilterPlus size={16} />
@@ -458,14 +415,9 @@ export function MediaToolbar({
                 <TooltipContent>{t("browser.toolbar.group")}</TooltipContent>
                 <DropdownMenuContent align="end">
                   {groupOptions.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      onClick={() => onChangeGroupBy(option.value)}
-                    >
+                    <DropdownMenuItem key={option.value} onClick={() => onChangeGroupBy(option.value)}>
                       <div className="flex items-center gap-2">
-                        {groupBy === option.value && (
-                          <Check className="h-4 w-4" />
-                        )}
+                        {groupBy === option.value && <Check className="h-4 w-4" />}
                         <span>{t(option.label)}</span>
                       </div>
                     </DropdownMenuItem>
@@ -485,10 +437,7 @@ export function MediaToolbar({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn(
-                      "mr-1 h-6 w-6 cursor-pointer",
-                      !canZoomOut && "cursor-not-allowed opacity-50",
-                    )}
+                    className={cn("mr-1 h-6 w-6 cursor-pointer", !canZoomOut && "cursor-not-allowed opacity-50")}
                     onClick={onZoomOut}
                     disabled={!canZoomOut}
                   >
@@ -503,10 +452,7 @@ export function MediaToolbar({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={cn(
-                      "mr-1 h-6 w-6 cursor-pointer",
-                      !canZoomIn && "cursor-not-allowed opacity-50",
-                    )}
+                    className={cn("mr-1 h-6 w-6 cursor-pointer", !canZoomIn && "cursor-not-allowed opacity-50")}
                     onClick={onZoomIn}
                     disabled={!canZoomIn}
                   >
@@ -523,27 +469,16 @@ export function MediaToolbar({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 cursor-pointer"
-                onClick={onChangeOrder}
-              >
-                {sortOrder === "asc" ? (
-                  <ArrowDownUp size={16} />
-                ) : (
-                  <ArrowUpDown size={16} />
-                )}
+              <Button variant="ghost" size="icon" className="h-6 w-6 cursor-pointer" onClick={onChangeOrder}>
+                {sortOrder === "asc" ? <ArrowDownUp size={16} /> : <ArrowUpDown size={16} />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {sortOrder === "asc"
-                ? t("browser.toolbar.sortOrder.desc")
-                : t("browser.toolbar.sortOrder.asc")}
+              {sortOrder === "asc" ? t("browser.toolbar.sortOrder.desc") : t("browser.toolbar.sortOrder.asc")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
     </div>
-  );
+  )
 }

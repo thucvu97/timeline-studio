@@ -1,45 +1,38 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react"
 
-import { Play } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { Play } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
-import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
-import { useResources } from "@/features/resources";
+import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
+import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
+import { useResources } from "@/features/resources"
 
-import { StyleTemplate } from "../types";
+import { StyleTemplate } from "../types"
 
 interface StyleTemplatePreviewProps {
-  template: StyleTemplate;
-  size: number;
-  onSelect: (templateId: string) => void;
+  template: StyleTemplate
+  size: number
+  onSelect: (templateId: string) => void
 }
 
 /**
  * Компонент превью стилистического шаблона
  * Отображает миниатюру, название, длительность и индикаторы функций
  */
-export function StyleTemplatePreview({
-  template,
-  size,
-  onSelect,
-}: StyleTemplatePreviewProps): React.ReactElement {
-  const { t, i18n } = useTranslation();
-  const [isHovered, setIsHovered] = useState(false);
-  const { addStyleTemplate, isStyleTemplateAdded } = useResources();
+export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplatePreviewProps): React.ReactElement {
+  const { t, i18n } = useTranslation()
+  const [isHovered, setIsHovered] = useState(false)
+  const { addStyleTemplate, isStyleTemplateAdded } = useResources()
 
   // Получаем текущий язык
-  const currentLanguage = (i18n.language || "ru") as "ru" | "en";
+  const currentLanguage = (i18n.language || "ru") as "ru" | "en"
 
   // Проверяем, добавлен ли шаблон в ресурсы
-  const isAdded = useMemo(
-    () => isStyleTemplateAdded(template),
-    [isStyleTemplateAdded, template],
-  );
+  const isAdded = useMemo(() => isStyleTemplateAdded(template), [isStyleTemplateAdded, template])
 
   // Делаем превью квадратными, как в Effects
-  const width = size;
-  const height = size;
+  const width = size
+  const height = size
 
   // Получаем локализованное название категории
   const getCategoryName = useCallback(
@@ -47,18 +40,15 @@ export function StyleTemplatePreview({
       const categoryMap: Record<string, string> = {
         intro: t("styleTemplates.categories.intro", "Интро"),
         outro: t("styleTemplates.categories.outro", "Концовка"),
-        "lower-third": t(
-          "styleTemplates.categories.lowerThird",
-          "Нижняя треть",
-        ),
+        "lower-third": t("styleTemplates.categories.lowerThird", "Нижняя треть"),
         title: t("styleTemplates.categories.title", "Заголовок"),
         transition: t("styleTemplates.categories.transition", "Переход"),
         overlay: t("styleTemplates.categories.overlay", "Наложение"),
-      };
-      return categoryMap[category] || category;
+      }
+      return categoryMap[category] || category
     },
     [t],
-  );
+  )
 
   // Получаем локализованное название стиля
   const getStyleName = useCallback(
@@ -70,18 +60,18 @@ export function StyleTemplatePreview({
         corporate: t("styleTemplates.styles.corporate", "Корпоративный"),
         creative: t("styleTemplates.styles.creative", "Креативный"),
         cinematic: t("styleTemplates.styles.cinematic", "Кинематографический"),
-      };
-      return styleMap[style] || style;
+      }
+      return styleMap[style] || style
     },
     [t],
-  );
+  )
 
   const handleClick = useCallback(() => {
     if (!isAdded) {
-      addStyleTemplate(template);
+      addStyleTemplate(template)
     }
-    onSelect(template.id);
-  }, [isAdded, addStyleTemplate, template, onSelect]);
+    onSelect(template.id)
+  }, [isAdded, addStyleTemplate, template, onSelect])
 
   return (
     <div className="flex flex-col items-center">
@@ -113,9 +103,7 @@ export function StyleTemplatePreview({
           >
             <div className="text-center text-gray-400">
               <div className="mb-2 text-2xl">🎨</div>
-              <div className="text-xs">
-                {getCategoryName(template.category)}
-              </div>
+              <div className="text-xs">{getCategoryName(template.category)}</div>
             </div>
           </div>
         )}
@@ -164,13 +152,13 @@ export function StyleTemplatePreview({
               name: template.name[currentLanguage],
             }}
             onAddMedia={(e) => {
-              e.stopPropagation();
-              addStyleTemplate(template);
+              e.stopPropagation()
+              addStyleTemplate(template)
             }}
             onRemoveMedia={(e: React.MouseEvent) => {
-              e.stopPropagation();
+              e.stopPropagation()
               // Логика удаления из ресурсов (если нужна)
-              console.log("Remove style template:", template.id);
+              console.log("Remove style template:", template.id)
             }}
             isAdded={isAdded}
             size={Math.min(width, height)}
@@ -179,9 +167,7 @@ export function StyleTemplatePreview({
       </div>
 
       {/* Название шаблона */}
-      <div className="mt-1 text-xs text-center">
-        {template.name[currentLanguage]}
-      </div>
+      <div className="mt-1 text-xs text-center">{template.name[currentLanguage]}</div>
     </div>
-  );
+  )
 }

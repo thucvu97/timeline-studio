@@ -25,21 +25,20 @@ export function useAudioPermissions() {
         if (result.state === "granted") {
           setPermissionStatus("granted")
           return true
-        } else if (result.state === "denied") {
+        }
+        if (result.state === "denied") {
           setPermissionStatus("denied")
           setErrorMessage(
             t("dialogs.voiceRecord.permissionsDenied", "Доступ к микрофону запрещен. Проверьте настройки браузера."),
           )
           return false
-        } else {
-          // Если статус "prompt", нужно запросить разрешение
-          setPermissionStatus("pending")
-          return await requestPermissions()
         }
-      } else {
-        // Если API разрешений не поддерживается, пробуем запросить доступ напрямую
+        // Если статус "prompt", нужно запросить разрешение
+        setPermissionStatus("pending")
         return await requestPermissions()
       }
+      // Если API разрешений не поддерживается, пробуем запросить доступ напрямую
+      return await requestPermissions()
     } catch (error) {
       console.error("Ошибка при проверке разрешений:", error)
       setPermissionStatus("error")

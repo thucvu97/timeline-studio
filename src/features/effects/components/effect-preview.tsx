@@ -1,34 +1,31 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react"
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
-import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
-import { useResources } from "@/features/resources";
-import { VideoEffect } from "@/types/effects";
-import { EffectResource } from "@/types/resources";
+import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
+import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
+import { useResources } from "@/features/resources"
+import { VideoEffect } from "@/types/effects"
+import { EffectResource } from "@/types/resources"
 
-import { EffectIndicators } from "./effect-indicators";
-import { useEffects } from "../hooks/use-effects";
-import {
-  generateCSSFilterForEffect,
-  getPlaybackRate,
-} from "../utils/css-effects";
+import { useEffects } from "../hooks/use-effects"
+import { generateCSSFilterForEffect, getPlaybackRate } from "../utils/css-effects"
+import { EffectIndicators } from "./effect-indicators"
 
 // Всегда используем общее тестовое видео для демонстрации CSS-эффектов
 // CSS-фильтры применяются динамически в компоненте
-const PREVIEW_VIDEO_PATH = "/t1.mp4";
+const PREVIEW_VIDEO_PATH = "/t1.mp4"
 
 /**
  * Интерфейс пропсов для компонента EffectPreview
  */
 interface EffectPreviewProps {
-  effectType: VideoEffect["type"];
-  onClick: () => void;
-  size: number;
-  width?: number; // Ширина превью (опционально, по умолчанию равна size)
-  height?: number; // Высота превью (опционально, по умолчанию равна size)
-  customParams?: Record<string, number>; // Пользовательские параметры для эффекта
+  effectType: VideoEffect["type"]
+  onClick: () => void
+  size: number
+  width?: number // Ширина превью (опционально, по умолчанию равна size)
+  height?: number // Высота превью (опционально, по умолчанию равна size)
+  customParams?: Record<string, number> // Пользовательские параметры для эффекта
 }
 
 /**
@@ -43,20 +40,19 @@ export function EffectPreview({
   height = size, // По умолчанию высота равна size (квадратное превью)
   customParams, // Пользовательские параметры для эффекта
 }: EffectPreviewProps) {
-  const { i18n } = useTranslation(); // Хук для интернационализации
-  const { addEffect, isEffectAdded, removeResource, effectResources } =
-    useResources(); // Получаем методы для работы с ресурсами
-  const { effects } = useEffects(); // Получаем эффекты из хука
-  const [isHovering, setIsHovering] = useState(false); // Состояние наведения мыши
-  const videoRef = useRef<HTMLVideoElement>(null); // Ссылка на элемент видео
-  const timeoutRef = useRef<NodeJS.Timeout>(null); // Ссылка на таймер для воспроизведения видео
+  const { i18n } = useTranslation() // Хук для интернационализации
+  const { addEffect, isEffectAdded, removeResource, effectResources } = useResources() // Получаем методы для работы с ресурсами
+  const { effects } = useEffects() // Получаем эффекты из хука
+  const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
+  const videoRef = useRef<HTMLVideoElement>(null) // Ссылка на элемент видео
+  const timeoutRef = useRef<NodeJS.Timeout>(null) // Ссылка на таймер для воспроизведения видео
 
   // Находим эффект по типу из списка доступных эффектов
-  const baseEffect = effects.find((e: VideoEffect) => e.type === effectType);
+  const baseEffect = effects.find((e: VideoEffect) => e.type === effectType)
 
   // Создаем эффект с пользовательскими параметрами, если они переданы
   const effect = useMemo(() => {
-    if (!baseEffect) return null;
+    if (!baseEffect) return null
 
     if (customParams && Object.keys(customParams).length > 0) {
       return {
@@ -65,89 +61,87 @@ export function EffectPreview({
           ...baseEffect.params,
           ...customParams,
         },
-      };
+      }
     }
 
-    return baseEffect;
-  }, [baseEffect, customParams]);
+    return baseEffect
+  }, [baseEffect, customParams])
 
   // Проверяем, добавлен ли эффект уже в хранилище ресурсов
   // Мемоизируем результат для оптимизации
   const isAdded = useMemo(() => {
-    return effect ? isEffectAdded(effect) : false;
-  }, [effect, isEffectAdded]);
+    return effect ? isEffectAdded(effect) : false
+  }, [effect, isEffectAdded])
 
   /**
    * Эффект для управления воспроизведением видео и применением эффектов
    * Запускает видео при наведении и применяет соответствующий эффект
    */
   useEffect(() => {
-    if (!videoRef.current || !effect) return;
-    const videoElement = videoRef.current;
+    if (!videoRef.current || !effect) return
+    const videoElement = videoRef.current
 
     /**
      * Применяет эффект к видео и запускает его воспроизведение
      * Устанавливает таймер для повторного воспроизведения
      */
     const applyEffect = () => {
-      videoElement.currentTime = 0; // Сбрасываем время видео на начало
-      videoElement.style.filter = ""; // Сбрасываем предыдущие фильтры
-      videoElement.style.boxShadow = ""; // Сбрасываем дополнительные эффекты
-      videoElement.playbackRate = 1; // Сбрасываем скорость воспроизведения
+      videoElement.currentTime = 0 // Сбрасываем время видео на начало
+      videoElement.style.filter = "" // Сбрасываем предыдущие фильтры
+      videoElement.style.boxShadow = "" // Сбрасываем дополнительные эффекты
+      videoElement.playbackRate = 1 // Сбрасываем скорость воспроизведения
 
       // Применяем CSS-фильтр на основе параметров эффекта
-      const cssFilter = generateCSSFilterForEffect(effect);
+      const cssFilter = generateCSSFilterForEffect(effect)
       if (cssFilter) {
-        videoElement.style.filter = cssFilter;
+        videoElement.style.filter = cssFilter
       }
 
       // Специальные эффекты, требующие дополнительных CSS-стилей
       if (effect.type === "vignette") {
         // Создаем эффект виньетки через box-shadow
-        const intensity = effect.params?.intensity || 0.3;
-        const radius = effect.params?.radius || 0.8;
-        const shadowSize = Math.round(
-          Math.min(width, height) * (1 - radius) * 0.5,
-        );
-        const shadowBlur = Math.round(shadowSize * intensity * 2);
-        videoElement.style.boxShadow = `inset 0 0 ${shadowBlur}px ${shadowSize}px rgba(0,0,0,${intensity})`;
+        const intensity = effect.params?.intensity || 0.3
+        const radius = effect.params?.radius || 0.8
+        const shadowSize = Math.round(Math.min(width, height) * (1 - radius) * 0.5)
+        const shadowBlur = Math.round(shadowSize * intensity * 2)
+        videoElement.style.boxShadow = `inset 0 0 ${shadowBlur}px ${shadowSize}px rgba(0,0,0,${intensity})`
       } else {
-        videoElement.style.boxShadow = "";
+        videoElement.style.boxShadow = ""
       }
 
       // Устанавливаем скорость воспроизведения
-      const playbackRate = getPlaybackRate(effect);
-      videoElement.playbackRate = playbackRate;
+      const playbackRate = getPlaybackRate(effect)
+      videoElement.playbackRate = playbackRate
 
       // Запускаем воспроизведение видео
-      void videoElement.play();
+      void videoElement.play()
 
       // Устанавливаем таймер для повторного воспроизведения через 2 секунды
       timeoutRef.current = setTimeout(() => {
         if (isHovering) {
-          applyEffect();
+          applyEffect()
         }
-      }, 2000);
-    };
+      }, 2000)
+    }
 
     // Если курсор наведен на превью - применяем эффект и запускаем видео
     if (isHovering) {
-      applyEffect();
+      applyEffect()
     } else {
       // Если курсор не наведен - останавливаем видео и сбрасываем эффекты
-      videoElement.pause();
-      videoElement.currentTime = 0;
-      videoElement.style.filter = "";
-      videoElement.style.boxShadow = "";
-      videoElement.playbackRate = 1;
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      videoElement.pause()
+      videoElement.currentTime = 0
+      videoElement.style.filter = ""
+      videoElement.style.boxShadow = ""
+      videoElement.playbackRate = 1
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
 
     // Очищаем таймер при размонтировании компонента
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [isHovering, effect, width, height, customParams]);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [isHovering, effect, width, height, customParams])
 
   return (
     <div className="flex flex-col items-center">
@@ -217,24 +211,20 @@ export function EffectPreview({
           <AddMediaButton
             file={{ id: effectType, path: "", name: effectType }}
             onAddMedia={(e) => {
-              e.stopPropagation(); // Предотвращаем всплытие события клика
+              e.stopPropagation() // Предотвращаем всплытие события клика
               if (effect) {
-                addEffect(effect); // Добавляем эффект в ресурсы проекта
+                addEffect(effect) // Добавляем эффект в ресурсы проекта
               }
             }}
             onRemoveMedia={(e: React.MouseEvent) => {
-              e.stopPropagation(); // Предотвращаем всплытие события клика
+              e.stopPropagation() // Предотвращаем всплытие события клика
               if (effect) {
                 // Находим ресурс с этим эффектом и удаляем его
-                const resource = effectResources.find(
-                  (res: EffectResource) => res.resourceId === effect.id,
-                );
+                const resource = effectResources.find((res: EffectResource) => res.resourceId === effect.id)
                 if (resource) {
-                  removeResource(resource.id); // Удаляем ресурс из проекта
+                  removeResource(resource.id) // Удаляем ресурс из проекта
                 } else {
-                  console.warn(
-                    `Не удалось найти ресурс эффекта с ID ${effect.id} для удаления`,
-                  );
+                  console.warn(`Не удалось найти ресурс эффекта с ID ${effect.id} для удаления`)
                 }
               }
             }}
@@ -253,5 +243,5 @@ export function EffectPreview({
           : effectType}
       </div>
     </div>
-  );
+  )
 }

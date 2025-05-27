@@ -218,5 +218,3 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
   // Возвращаем провайдер контекста с созданным значением
   return <UserSettingsContext.Provider value={value}>{children}</UserSettingsContext.Provider>
 }
-
-

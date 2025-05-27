@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi } from "vitest"
 
 /**
  * Утилиты для тестирования аудио компонентов в Tauri приложении
@@ -9,10 +9,10 @@ import { vi } from "vitest";
  */
 export function createMockAudioFile(
   options: {
-    name?: string;
-    path?: string;
-    duration?: number;
-    size?: number;
+    name?: string
+    path?: string
+    duration?: number
+    size?: number
   } = {},
 ) {
   const {
@@ -20,7 +20,7 @@ export function createMockAudioFile(
     path = "/path/to/test-audio.mp3",
     duration = 180,
     size = 1024 * 1024 * 3, // 3MB
-  } = options;
+  } = options
 
   return {
     id: `audio-${Math.random().toString(36).substring(2, 11)}`,
@@ -31,7 +31,7 @@ export function createMockAudioFile(
     isImage: false,
     duration,
     size,
-  };
+  }
 }
 
 /**
@@ -39,28 +39,28 @@ export function createMockAudioFile(
  */
 export function createMockAudioData(size = 1024): Uint8Array {
   // Создаем реалистичные MP3 данные
-  const data = new Uint8Array(size);
+  const data = new Uint8Array(size)
 
   // ID3 header
-  data[0] = 0x49; // 'I'
-  data[1] = 0x44; // 'D'
-  data[2] = 0x33; // '3'
-  data[3] = 0x03; // Version
-  data[4] = 0x00; // Revision
-  data[5] = 0x00; // Flags
+  data[0] = 0x49 // 'I'
+  data[1] = 0x44 // 'D'
+  data[2] = 0x33 // '3'
+  data[3] = 0x03 // Version
+  data[4] = 0x00 // Revision
+  data[5] = 0x00 // Flags
 
   // MP3 frame header
-  data[10] = 0xff;
-  data[11] = 0xfb;
-  data[12] = 0x90;
-  data[13] = 0x00;
+  data[10] = 0xff
+  data[11] = 0xfb
+  data[12] = 0x90
+  data[13] = 0x00
 
   // Заполняем остальные данные случайными значениями
   for (let i = 14; i < size; i++) {
-    data[i] = Math.floor(Math.random() * 256);
+    data[i] = Math.floor(Math.random() * 256)
   }
 
-  return data;
+  return data
 }
 
 /**
@@ -69,14 +69,14 @@ export function createMockAudioData(size = 1024): Uint8Array {
 export function mockTauriReadFile() {
   const { readFile } = vi.hoisted(() => ({
     readFile: vi.fn(),
-  }));
+  }))
 
   readFile.mockImplementation((path: string) => {
-    console.log(`[Mock] Reading file: ${path}`);
-    return Promise.resolve(createMockAudioData());
-  });
+    console.log(`[Mock] Reading file: ${path}`)
+    return Promise.resolve(createMockAudioData())
+  })
 
-  return readFile;
+  return readFile
 }
 
 /**
@@ -85,13 +85,13 @@ export function mockTauriReadFile() {
 export function mockTauriConvertFileSrc() {
   const { convertFileSrc } = vi.hoisted(() => ({
     convertFileSrc: vi.fn(),
-  }));
+  }))
 
   convertFileSrc.mockImplementation((path: string) => {
-    return `tauri://localhost/${path.replace(/^\//, "")}`;
-  });
+    return `tauri://localhost/${path.replace(/^\//, "")}`
+  })
 
-  return convertFileSrc;
+  return convertFileSrc
 }
 
 /**
@@ -102,11 +102,11 @@ export function createWebAudioMocks() {
     const mockSource = {
       connect: vi.fn(),
       disconnect: vi.fn(),
-    };
+    }
 
     const mockDestination = {
       stream: new MediaStream(),
-    };
+    }
 
     return {
       createMediaElementSource: vi.fn().mockReturnValue(mockSource),
@@ -115,8 +115,8 @@ export function createWebAudioMocks() {
       close: vi.fn().mockResolvedValue(undefined),
       state: "running",
       sampleRate: 44100,
-    };
-  });
+    }
+  })
 
   const mockMediaRecorder = vi.fn().mockImplementation(() => ({
     start: vi.fn(),
@@ -127,15 +127,15 @@ export function createWebAudioMocks() {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
-  }));
+  }))
 
   // Добавляем статический метод
-  (mockMediaRecorder as any).isTypeSupported = vi.fn().mockReturnValue(true);
+  ;(mockMediaRecorder as any).isTypeSupported = vi.fn().mockReturnValue(true)
 
   return {
     AudioContext: mockAudioContext,
     MediaRecorder: mockMediaRecorder,
-  };
+  }
 }
 
 /**
@@ -157,9 +157,9 @@ export function createAudioElementMock() {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
     src: "",
-  };
+  }
 
-  return audioElement;
+  return audioElement
 }
 
 /**
@@ -167,11 +167,11 @@ export function createAudioElementMock() {
  */
 export async function simulateAudioLoad(audioElement: HTMLAudioElement) {
   // Симулируем событие loadedmetadata
-  const loadedEvent = new Event("loadedmetadata");
-  audioElement.dispatchEvent(loadedEvent);
+  const loadedEvent = new Event("loadedmetadata")
+  audioElement.dispatchEvent(loadedEvent)
 
   // Ждем небольшую задержку для имитации загрузки
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await new Promise((resolve) => setTimeout(resolve, 50))
 }
 
 /**
@@ -183,12 +183,12 @@ export async function simulateAudioPlay(audioElement: HTMLAudioElement) {
     value: false,
     writable: true,
     configurable: true,
-  });
+  })
 
-  const playEvent = new Event("play");
-  audioElement.dispatchEvent(playEvent);
+  const playEvent = new Event("play")
+  audioElement.dispatchEvent(playEvent)
 
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  await new Promise((resolve) => setTimeout(resolve, 10))
 }
 
 /**
@@ -200,12 +200,12 @@ export async function simulateAudioPause(audioElement: HTMLAudioElement) {
     value: true,
     writable: true,
     configurable: true,
-  });
+  })
 
-  const pauseEvent = new Event("pause");
-  audioElement.dispatchEvent(pauseEvent);
+  const pauseEvent = new Event("pause")
+  audioElement.dispatchEvent(pauseEvent)
 
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  await new Promise((resolve) => setTimeout(resolve, 10))
 }
 
 /**
@@ -217,33 +217,30 @@ export async function simulateAudioEnd(audioElement: HTMLAudioElement) {
     value: true,
     writable: true,
     configurable: true,
-  });
+  })
 
   Object.defineProperty(audioElement, "ended", {
     value: true,
     writable: true,
     configurable: true,
-  });
+  })
 
   Object.defineProperty(audioElement, "currentTime", {
     value: audioElement.duration || 0,
     writable: true,
     configurable: true,
-  });
+  })
 
-  const endedEvent = new Event("ended");
-  audioElement.dispatchEvent(endedEvent);
+  const endedEvent = new Event("ended")
+  audioElement.dispatchEvent(endedEvent)
 
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  await new Promise((resolve) => setTimeout(resolve, 10))
 }
 
 /**
  * Симулирует ошибку загрузки аудио
  */
-export async function simulateAudioError(
-  audioElement: HTMLAudioElement,
-  errorCode = 4,
-) {
+export async function simulateAudioError(audioElement: HTMLAudioElement, errorCode = 4) {
   // Создаем кастомное событие с правильной структурой
   const errorEvent = new CustomEvent("error", {
     detail: {
@@ -252,7 +249,7 @@ export async function simulateAudioError(
         message: "Mock audio error",
       },
     },
-  });
+  })
 
   // Добавляем error свойство к аудио элементу
   Object.defineProperty(audioElement, "error", {
@@ -262,27 +259,27 @@ export async function simulateAudioError(
     },
     writable: true,
     configurable: true,
-  });
+  })
 
-  audioElement.dispatchEvent(errorEvent);
+  audioElement.dispatchEvent(errorEvent)
 
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  await new Promise((resolve) => setTimeout(resolve, 10))
 }
 
 /**
  * Создает полный набор моков для тестирования аудио компонентов
  */
 export function setupAudioTestEnvironment() {
-  const webAudioMocks = createWebAudioMocks();
-  const readFileMock = mockTauriReadFile();
-  const convertFileSrcMock = mockTauriConvertFileSrc();
+  const webAudioMocks = createWebAudioMocks()
+  const readFileMock = mockTauriReadFile()
+  const convertFileSrcMock = mockTauriConvertFileSrc()
 
   // Мокаем URL API
   const createObjectURLMock = vi.fn().mockImplementation(() => {
-    return `blob:mock-url-${Math.random().toString(36).substring(2, 11)}`;
-  });
+    return `blob:mock-url-${Math.random().toString(36).substring(2, 11)}`
+  })
 
-  const revokeObjectURLMock = vi.fn();
+  const revokeObjectURLMock = vi.fn()
 
   return {
     webAudio: webAudioMocks,
@@ -295,14 +292,14 @@ export function setupAudioTestEnvironment() {
       revokeObjectURL: revokeObjectURLMock,
     },
     cleanup: () => {
-      vi.clearAllMocks();
+      vi.clearAllMocks()
     },
-  };
+  }
 }
 
 /**
  * Ждет инициализации аудио контекста (имитирует setTimeout в компоненте)
  */
 export async function waitForAudioContextInit(delay = 150) {
-  await new Promise((resolve) => setTimeout(resolve, delay));
+  await new Promise((resolve) => setTimeout(resolve, delay))
 }

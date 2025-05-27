@@ -1,7 +1,7 @@
-import { act, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, render, screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { SubtitleList } from "../components/subtitle-list";
+import { SubtitleList } from "../components/subtitle-list"
 
 // Мокаем хук переводов
 vi.mock("react-i18next", () => ({
@@ -9,7 +9,7 @@ vi.mock("react-i18next", () => ({
     t: (key: string, fallback?: string) => fallback || key,
     i18n: { language: "ru" },
   }),
-}));
+}))
 
 // Простые моки для тестирования
 const mockSubtitles = [
@@ -51,7 +51,7 @@ const mockSubtitles = [
       borderRadius: "4px",
     },
   },
-];
+]
 
 // Простые моки
 vi.mock("../hooks/use-subtitle-styles", () => ({
@@ -62,13 +62,13 @@ vi.mock("../hooks/use-subtitle-styles", () => ({
     reload: vi.fn(),
     isReady: true,
   }),
-}));
+}))
 
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
     isItemFavorite: vi.fn().mockReturnValue(false),
   }),
-}));
+}))
 
 vi.mock("@/features/browser/state", () => ({
   useBrowserState: () => ({
@@ -82,13 +82,13 @@ vi.mock("@/features/browser/state", () => ({
       previewSizeIndex: 2,
     },
   }),
-}));
+}))
 
 vi.mock("@/features/project/settings", () => ({
   useProjectSettings: () => ({
     settings: { video: { aspectRatio: "16:9" } },
   }),
-}));
+}))
 
 vi.mock("@/features/browser/components/layout/content-group", () => ({
   ContentGroup: ({ items, renderItem }: any) => (
@@ -100,67 +100,49 @@ vi.mock("@/features/browser/components/layout/content-group", () => ({
       ))}
     </div>
   ),
-}));
+}))
 
 vi.mock("../components/subtitle-preview", () => ({
   SubtitlePreview: ({ style }: any) => (
-    <div data-testid={`subtitle-preview-${style.id}`}>
-      Subtitle Preview: {style.labels.ru}
-    </div>
+    <div data-testid={`subtitle-preview-${style.id}`}>Subtitle Preview: {style.labels.ru}</div>
   ),
-}));
+}))
 
 describe("SubtitleList", () => {
   it("should render subtitles", () => {
-    render(<SubtitleList />);
+    render(<SubtitleList />)
 
     // Проверяем, что субтитры отображаются
-    expect(
-      screen.getByTestId("subtitle-preview-test-subtitle-1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("subtitle-preview-test-subtitle-2"),
-    ).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("subtitle-preview-test-subtitle-1")).toBeInTheDocument()
+    expect(screen.getByTestId("subtitle-preview-test-subtitle-2")).toBeInTheDocument()
+  })
 
   it("should render subtitle previews with correct content", () => {
-    render(<SubtitleList />);
+    render(<SubtitleList />)
 
     // Проверяем содержимое превью субтитров
-    expect(
-      screen.getByText("Subtitle Preview: Базовый белый"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Subtitle Preview: Креативный жирный"),
-    ).toBeInTheDocument();
-  });
+    expect(screen.getByText("Subtitle Preview: Базовый белый")).toBeInTheDocument()
+    expect(screen.getByText("Subtitle Preview: Креативный жирный")).toBeInTheDocument()
+  })
 
   it("should render subtitles in grid layout", () => {
-    render(<SubtitleList />);
+    render(<SubtitleList />)
 
     // Проверяем, что субтитры отрендерились
-    expect(
-      screen.getByTestId("subtitle-preview-test-subtitle-1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("subtitle-preview-test-subtitle-2"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("subtitle-preview-test-subtitle-1")).toBeInTheDocument()
+    expect(screen.getByTestId("subtitle-preview-test-subtitle-2")).toBeInTheDocument()
 
     // Проверяем, что есть контейнер с группами
-    expect(screen.getByTestId("content-group")).toBeInTheDocument();
-  });
-});
+    expect(screen.getByTestId("content-group")).toBeInTheDocument()
+  })
+})
 
 describe("SubtitleList Loading States", () => {
   it("should render without errors when data is available", () => {
-    render(<SubtitleList />);
+    render(<SubtitleList />)
 
     // Проверяем, что компонент рендерится без ошибок
-    expect(
-      screen.getByTestId("subtitle-preview-test-subtitle-1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("subtitle-preview-test-subtitle-2"),
-    ).toBeInTheDocument();
-  });
-});
+    expect(screen.getByTestId("subtitle-preview-test-subtitle-1")).toBeInTheDocument()
+    expect(screen.getByTestId("subtitle-preview-test-subtitle-2")).toBeInTheDocument()
+  })
+})

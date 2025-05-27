@@ -1,4 +1,4 @@
-import { useAppSettings } from "./use-app-settings";
+import { useAppSettings } from "./use-app-settings"
 
 /**
  * Хук для доступа к избранным элементам
@@ -7,13 +7,12 @@ import { useAppSettings } from "./use-app-settings";
  * @returns Объект с данными и методами для работы с избранными
  */
 export function useFavorites() {
-  const { getFavorites, updateFavorites, addToFavorites, removeFromFavorites } =
-    useAppSettings();
+  const { getFavorites, updateFavorites, addToFavorites, removeFromFavorites } = useAppSettings()
 
   return {
     favorites: getFavorites(),
     updateFavorites,
     addToFavorites,
     removeFromFavorites,
-  };
+  }
 }

@@ -1,28 +1,28 @@
 // Категории эффектов
 export type EffectCategory =
-  | "color-correction"    // Цветокоррекция
-  | "artistic"           // Художественные
-  | "vintage"            // Винтажные
-  | "cinematic"          // Кинематографические
-  | "creative"           // Креативные
-  | "technical"          // Технические
-  | "motion"             // Движение и скорость
-  | "distortion"         // Искажения
+  | "color-correction" // Цветокоррекция
+  | "artistic" // Художественные
+  | "vintage" // Винтажные
+  | "cinematic" // Кинематографические
+  | "creative" // Креативные
+  | "technical" // Технические
+  | "motion" // Движение и скорость
+  | "distortion" // Искажения
 
 // Сложность эффекта
 export type EffectComplexity = "basic" | "intermediate" | "advanced"
 
 // Теги для эффектов
 export type EffectTag =
-  | "popular"            // Популярный
-  | "professional"       // Профессиональный
-  | "beginner-friendly"  // Для начинающих
-  | "experimental"       // Экспериментальный
-  | "retro"             // Ретро
-  | "modern"            // Современный
-  | "dramatic"          // Драматический
-  | "subtle"            // Тонкий
-  | "intense"           // Интенсивный
+  | "popular" // Популярный
+  | "professional" // Профессиональный
+  | "beginner-friendly" // Для начинающих
+  | "experimental" // Экспериментальный
+  | "retro" // Ретро
+  | "modern" // Современный
+  | "dramatic" // Драматический
+  | "subtle" // Тонкий
+  | "intense" // Интенсивный
 
 export interface VideoEffect {
   id: string
@@ -108,7 +108,9 @@ export interface VideoEffect {
     de: string
   }
   // Рекомендуемые настройки для разных сценариев
-  presets?: Record<string, {
+  presets?: Record<
+    string,
+    {
       name: {
         ru: string
         en: string
@@ -118,5 +120,6 @@ export interface VideoEffect {
         ru: string
         en: string
       }
-    }>
+    }
+  >
 }

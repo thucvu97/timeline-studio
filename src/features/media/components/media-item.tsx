@@ -1,26 +1,26 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react"
 
-import { useMedia } from "@/features/browser";
-import { MediaFile } from "@/features/media/types/media";
-import { cn } from "@/lib/utils";
+import { useMedia } from "@/features/browser"
+import { MediaFile } from "@/features/media/types/media"
+import { cn } from "@/lib/utils"
 
-import { FileMetadata } from "./file-metadata";
-import { MediaPreview } from "../../browser/components/preview";
+import { MediaPreview } from "../../browser/components/preview"
+import { FileMetadata } from "./file-metadata"
 
 /**
  * Интерфейс свойств компонента MediaItem
  */
 interface MediaItemProps {
   /** Медиа-файл для отображения */
-  file: MediaFile;
+  file: MediaFile
   /** Индекс файла в списке */
-  index: number;
+  index: number
   /** Режим отображения (list, grid, thumbnails) */
-  viewMode: "list" | "grid" | "thumbnails";
+  viewMode: "list" | "grid" | "thumbnails"
   /** Размер превью */
-  previewSize: number;
+  previewSize: number
   /** Обработчик добавления медиа */
-  onAddMedia: (file: MediaFile) => void;
+  onAddMedia: (file: MediaFile) => void
 }
 
 /**
@@ -29,28 +29,19 @@ interface MediaItemProps {
  * @param {MediaItemProps} props - Свойства компонента
  * @returns {JSX.Element} Компонент медиа-элемента
  */
-export const MediaItem: React.FC<MediaItemProps> = ({
-  file,
-  index,
-  viewMode,
-  previewSize,
-  onAddMedia,
-}) => {
+export const MediaItem: React.FC<MediaItemProps> = ({ file, index, viewMode, previewSize, onAddMedia }) => {
   // Получаем доступ к медиа-контексту
-  const media = useMedia();
+  const media = useMedia()
 
   // Мемоизируем уникальный ключ для предотвращения перерендеров
-  const fileId = useMemo(
-    () => `${file.id || file.path || file.name}-${index}`,
-    [file.id, file.path, file.name, index],
-  );
+  const fileId = useMemo(() => `${file.id || file.path || file.name}-${index}`, [file.id, file.path, file.name, index])
 
-  const isAdded = media.isFileAdded(file);
+  const isAdded = media.isFileAdded(file)
 
   // Мемоизируем обработчик добавления медиа
   const handleAddMedia = useCallback(() => {
-    onAddMedia(file);
-  }, [onAddMedia, file]);
+    onAddMedia(file)
+  }, [onAddMedia, file])
 
   // Рендерим компонент в зависимости от режима отображения
   switch (viewMode) {
@@ -65,17 +56,11 @@ export const MediaItem: React.FC<MediaItemProps> = ({
           )}
         >
           <div className="relative mr-3 flex h-full flex-shrink-0 gap-1">
-            <MediaPreview
-              file={file}
-              onAddMedia={handleAddMedia}
-              isAdded={isAdded}
-              size={previewSize}
-              ignoreRatio
-            />
+            <MediaPreview file={file} onAddMedia={handleAddMedia} isAdded={isAdded} size={previewSize} ignoreRatio />
           </div>
           <FileMetadata file={file} size={previewSize} />
         </div>
-      );
+      )
 
     case "grid":
       return (
@@ -91,12 +76,7 @@ export const MediaItem: React.FC<MediaItemProps> = ({
           }}
         >
           <div className="group relative w-full flex-1 flex-grow flex-row">
-            <MediaPreview
-              file={file}
-              onAddMedia={handleAddMedia}
-              isAdded={isAdded}
-              size={previewSize}
-            />
+            <MediaPreview file={file} onAddMedia={handleAddMedia} isAdded={isAdded} size={previewSize} />
           </div>
           <div
             className="truncate p-1 text-xs"
@@ -107,7 +87,7 @@ export const MediaItem: React.FC<MediaItemProps> = ({
             {file.name}
           </div>
         </div>
-      );
+      )
 
     case "thumbnails":
       return (
@@ -130,9 +110,9 @@ export const MediaItem: React.FC<MediaItemProps> = ({
             />
           </div>
         </div>
-      );
+      )
 
     default:
-      return null;
+      return null
   }
-};
+}

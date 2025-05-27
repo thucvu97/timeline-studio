@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
 /**
  * Структура для автозагрузки пользовательских данных
  */
 interface UserDataDirectories {
-  effects: string[];
-  transitions: string[];
-  filters: string[];
-  subtitles: string[];
-  templates: string[];
-  styleTemplates: string[];
+  effects: string[]
+  transitions: string[]
+  filters: string[]
+  subtitles: string[]
+  templates: string[]
+  styleTemplates: string[]
 }
 
 /**
@@ -25,7 +25,7 @@ interface UserDataDirectories {
  * И автоматически загружает найденные JSON файлы
  */
 export function useAutoLoadUserData() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
   const [loadedData, setLoadedData] = useState<UserDataDirectories>({
     effects: [],
     transitions: [],
@@ -33,15 +33,15 @@ export function useAutoLoadUserData() {
     subtitles: [],
     templates: [],
     styleTemplates: [],
-  });
-  const [error, setError] = useState<string | null>(null);
+  })
+  const [error, setError] = useState<string | null>(null)
 
   /**
    * Проверяет, работаем ли мы в Tauri окружении
    */
   const isTauriEnvironment = () => {
-    return typeof window !== "undefined" && "__TAURI__" in window;
-  };
+    return typeof window !== "undefined" && "__TAURI__" in window
+  }
 
   /**
    * Проверяет существование директории и возвращает список JSON файлов
@@ -50,34 +50,31 @@ export function useAutoLoadUserData() {
     try {
       // В веб-браузере не можем сканировать файловую систему
       if (!isTauriEnvironment()) {
-        console.log(`Веб-браузер: пропускаем сканирование ${dirPath}`);
-        return [];
+        console.log(`Веб-браузер: пропускаем сканирование ${dirPath}`)
+        return []
       }
 
       // Динамически импортируем Tauri API только если мы в Tauri окружении
-      const { exists, readDir } = await import("@tauri-apps/plugin-fs");
+      const { exists, readDir } = await import("@tauri-apps/plugin-fs")
 
-      const dirExists = await exists(dirPath);
+      const dirExists = await exists(dirPath)
       if (!dirExists) {
-        console.log(`Директория ${dirPath} не существует`);
-        return [];
+        console.log(`Директория ${dirPath} не существует`)
+        return []
       }
 
-      const entries = await readDir(dirPath);
+      const entries = await readDir(dirPath)
       const jsonFiles = entries
         .filter((entry: any) => entry.isFile && entry.name.endsWith(".json"))
-        .map((entry: any) => `${dirPath}/${entry.name}`);
+        .map((entry: any) => `${dirPath}/${entry.name}`)
 
-      console.log(
-        `Найдено ${jsonFiles.length} JSON файлов в ${dirPath}:`,
-        jsonFiles,
-      );
-      return jsonFiles;
+      console.log(`Найдено ${jsonFiles.length} JSON файлов в ${dirPath}:`, jsonFiles)
+      return jsonFiles
     } catch (error) {
-      console.error(`Ошибка при сканировании ${dirPath}:`, error);
-      return [];
+      console.error(`Ошибка при сканировании ${dirPath}:`, error)
+      return []
     }
-  };
+  }
 
   /**
    * Загружает и валидирует JSON файл
@@ -85,29 +82,29 @@ export function useAutoLoadUserData() {
   const loadJsonFile = async (filePath: string): Promise<any> => {
     try {
       // В веб-браузере используем обычный HTTP запрос
-      const url = isTauriEnvironment() ? `file://${filePath}` : `/${filePath}`;
-      const response = await fetch(url);
+      const url = isTauriEnvironment() ? `file://${filePath}` : `/${filePath}`
+      const response = await fetch(url)
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
-      const data = await response.json();
-      console.log(`Загружен файл ${filePath}:`, data);
-      return data;
+      const data = await response.json()
+      console.log(`Загружен файл ${filePath}:`, data)
+      return data
     } catch (error) {
-      console.error(`Ошибка при загрузке ${filePath}:`, error);
-      return null;
+      console.error(`Ошибка при загрузке ${filePath}:`, error)
+      return null
     }
-  };
+  }
 
   /**
    * Основная функция автозагрузки
    */
   const autoLoadUserData = async () => {
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
 
     try {
-      console.log("Начинаем автозагрузку пользовательских данных...");
+      console.log("Начинаем автозагрузку пользовательских данных...")
 
       // Определяем пути к директориям
       const directories = {
@@ -117,24 +114,18 @@ export function useAutoLoadUserData() {
         subtitles: "public/subtitles",
         templates: "public/templates",
         styleTemplates: "public/style-templates",
-      };
+      }
 
       // Сканируем все директории параллельно
-      const [
-        effectsFiles,
-        transitionsFiles,
-        filtersFiles,
-        subtitlesFiles,
-        templatesFiles,
-        styleTemplatesFiles,
-      ] = await Promise.all([
-        scanDirectory(directories.effects),
-        scanDirectory(directories.transitions),
-        scanDirectory(directories.filters),
-        scanDirectory(directories.subtitles),
-        scanDirectory(directories.templates),
-        scanDirectory(directories.styleTemplates),
-      ]);
+      const [effectsFiles, transitionsFiles, filtersFiles, subtitlesFiles, templatesFiles, styleTemplatesFiles] =
+        await Promise.all([
+          scanDirectory(directories.effects),
+          scanDirectory(directories.transitions),
+          scanDirectory(directories.filters),
+          scanDirectory(directories.subtitles),
+          scanDirectory(directories.templates),
+          scanDirectory(directories.styleTemplates),
+        ])
 
       // Загружаем содержимое всех найденных файлов
       const allFiles = [
@@ -144,21 +135,17 @@ export function useAutoLoadUserData() {
         ...subtitlesFiles,
         ...templatesFiles,
         ...styleTemplatesFiles,
-      ];
+      ]
 
       if (allFiles.length > 0) {
-        console.log(`Загружаем ${allFiles.length} пользовательских файлов...`);
+        console.log(`Загружаем ${allFiles.length} пользовательских файлов...`)
 
         // Загружаем все файлы параллельно
-        const loadedFiles = await Promise.all(
-          allFiles.map((filePath) => loadJsonFile(filePath)),
-        );
+        const loadedFiles = await Promise.all(allFiles.map((filePath) => loadJsonFile(filePath)))
 
         // Фильтруем успешно загруженные файлы
-        const validFiles = loadedFiles.filter((data) => data !== null);
-        console.log(
-          `Успешно загружено ${validFiles.length} из ${allFiles.length} файлов`,
-        );
+        const validFiles = loadedFiles.filter((data) => data !== null)
+        console.log(`Успешно загружено ${validFiles.length} из ${allFiles.length} файлов`)
 
         // TODO: Здесь можно добавить валидацию и интеграцию с соответствующими хуками
         // Например, добавить загруженные эффекты в useEffects, переходы в useTransitions и т.д.
@@ -172,26 +159,26 @@ export function useAutoLoadUserData() {
         subtitles: subtitlesFiles,
         templates: templatesFiles,
         styleTemplates: styleTemplatesFiles,
-      });
+      })
 
-      console.log("Автозагрузка пользовательских данных завершена");
+      console.log("Автозагрузка пользовательских данных завершена")
     } catch (error) {
-      console.error("Ошибка при автозагрузке пользовательских данных:", error);
-      setError(error instanceof Error ? error.message : "Неизвестная ошибка");
+      console.error("Ошибка при автозагрузке пользовательских данных:", error)
+      setError(error instanceof Error ? error.message : "Неизвестная ошибка")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   // Запускаем автозагрузку при монтировании компонента
   useEffect(() => {
-    void autoLoadUserData();
-  }, []);
+    void autoLoadUserData()
+  }, [])
 
   return {
     isLoading,
     loadedData,
     error,
     reload: autoLoadUserData,
-  };
+  }
 }

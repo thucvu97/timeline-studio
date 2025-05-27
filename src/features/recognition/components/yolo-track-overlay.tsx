@@ -28,12 +28,17 @@ export function YoloTrackOverlay({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null)
   const [showTrajectories, setShowTrajectories] = useState(initialShowTrajectories)
-  const [trackHistory, setTrackHistory] = useState<Map<string, Array<{
-    timestamp: number
-    x: number
-    y: number
-    class: string
-  }>>>(new Map())
+  const [trackHistory, setTrackHistory] = useState<
+    Map<
+      string,
+      Array<{
+        timestamp: number
+        x: number
+        y: number
+        class: string
+      }>
+    >
+  >(new Map())
 
   // Цвета для разных классов объектов
   const classColors: Record<string, string> = {
@@ -53,12 +58,15 @@ export function YoloTrackOverlay({
 
   // Обновляем историю треков
   useEffect(() => {
-    const newTrackHistory = new Map<string, Array<{
-      timestamp: number
-      x: number
-      y: number
-      class: string
-    }>>()
+    const newTrackHistory = new Map<
+      string,
+      Array<{
+        timestamp: number
+        x: number
+        y: number
+        class: string
+      }>
+    >()
 
     // Группируем обнаружения по трекам (используем простую эвристику)
     yoloData.frames.forEach((frame) => {
@@ -77,11 +85,12 @@ export function YoloTrackOverlay({
         const centerX = detection.bbox.x + detection.bbox.width / 2
         const centerY = detection.bbox.y + detection.bbox.height / 2
 
-        if (!lastPoint ||
-            Math.abs(lastPoint.timestamp - frame.timestamp) > 0.5 ||
-            Math.abs(lastPoint.x - centerX) > 0.05 ||
-            Math.abs(lastPoint.y - centerY) > 0.05) {
-
+        if (
+          !lastPoint ||
+          Math.abs(lastPoint.timestamp - frame.timestamp) > 0.5 ||
+          Math.abs(lastPoint.x - centerX) > 0.05 ||
+          Math.abs(lastPoint.y - centerY) > 0.05
+        ) {
           track.push({
             timestamp: frame.timestamp,
             x: centerX,
@@ -95,7 +104,8 @@ export function YoloTrackOverlay({
     // Фильтруем треки с минимальным количеством точек
     const filteredTracks = new Map()
     newTrackHistory.forEach((track, trackId) => {
-      if (track.length >= 3) { // Минимум 3 точки для трека
+      if (track.length >= 3) {
+        // Минимум 3 точки для трека
         filteredTracks.set(trackId, track)
       }
     })
@@ -133,7 +143,7 @@ export function YoloTrackOverlay({
       const isSelected = selectedTrack === trackId
 
       // Фильтруем точки до текущего времени
-      const visibleTrack = track.filter(point => point.timestamp <= currentTime)
+      const visibleTrack = track.filter((point) => point.timestamp <= currentTime)
 
       if (visibleTrack.length < 2) return
 
@@ -194,9 +204,7 @@ export function YoloTrackOverlay({
     })
 
     // Рисуем текущие обнаружения
-    const currentFrame = yoloData.frames.find(frame =>
-      Math.abs(frame.timestamp - currentTime) < 0.5
-    )
+    const currentFrame = yoloData.frames.find((frame) => Math.abs(frame.timestamp - currentTime) < 0.5)
 
     if (currentFrame) {
       currentFrame.detections.forEach((detection) => {
@@ -217,7 +225,6 @@ export function YoloTrackOverlay({
         ctx.stroke()
       })
     }
-
   }, [trackHistory, currentTime, width, height, showTrajectories, selectedTrack, yoloData])
 
   // Обработчик клика по треку
@@ -231,17 +238,16 @@ export function YoloTrackOverlay({
 
     // Находим ближайший трек к клику
     let closestTrack: string | null = null
-    let minDistance = Infinity
+    let minDistance = Number.POSITIVE_INFINITY
 
     trackHistory.forEach((track, trackId) => {
-      const visibleTrack = track.filter(point => point.timestamp <= currentTime)
+      const visibleTrack = track.filter((point) => point.timestamp <= currentTime)
 
       visibleTrack.forEach((point) => {
-        const distance = Math.sqrt(
-          Math.pow(point.x - clickX, 2) + Math.pow(point.y - clickY, 2)
-        )
+        const distance = Math.sqrt((point.x - clickX) ** 2 + (point.y - clickY) ** 2)
 
-        if (distance < 0.05 && distance < minDistance) { // 5% от размера canvas
+        if (distance < 0.05 && distance < minDistance) {
+          // 5% от размера canvas
           minDistance = distance
           closestTrack = trackId
         }
@@ -304,24 +310,22 @@ export function YoloTrackOverlay({
         <div>
           <div className="font-medium">{t("Выбранный трек")}</div>
           <div className="text-gray-600">
-            {selectedTrack ?
-              trackHistory.get(selectedTrack)?.[0]?.class || t("Неизвестно") :
-              t("Не выбран")
-            }
+            {selectedTrack ? trackHistory.get(selectedTrack)?.[0]?.class || t("Неизвестно") : t("Не выбран")}
           </div>
         </div>
       </div>
 
       {/* Легенда */}
       <div className="flex flex-wrap gap-2">
-        {Array.from(new Set(
-          Array.from(trackHistory.values()).flat().map(point => point.class)
-        )).map((className) => (
+        {Array.from(
+          new Set(
+            Array.from(trackHistory.values())
+              .flat()
+              .map((point) => point.class),
+          ),
+        ).map((className) => (
           <div key={className} className="flex items-center gap-1 text-xs">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: getColorForClass(className) }}
-            />
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getColorForClass(className) }} />
             <span>{className}</span>
           </div>
         ))}

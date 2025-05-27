@@ -2,25 +2,25 @@
  * Тесты для хука useTimelineActions
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media";
+import { MediaFile } from "@/features/media/types/media"
 
-import { useTimelineActions } from "../use-timeline-actions";
+import { useTimelineActions } from "../use-timeline-actions"
 
 // Мокаем зависимости
 vi.mock("../use-clips", () => ({
   useClips: () => ({
     getClipsByTrack: vi.fn(() => []),
   }),
-}));
+}))
 
 vi.mock("../use-tracks", () => ({
   useTracks: () => ({
     tracks: [],
     getTracksByType: vi.fn(() => []),
   }),
-}));
+}))
 
 vi.mock("../../timeline-provider", () => ({
   useTimeline: () => ({
@@ -28,7 +28,7 @@ vi.mock("../../timeline-provider", () => ({
     addTrack: vi.fn(),
     addClip: vi.fn(),
   }),
-}));
+}))
 
 // Мокаем медиафайл для тестов
 const mockVideoFile: MediaFile = {
@@ -52,7 +52,7 @@ const mockVideoFile: MediaFile = {
       },
     ],
   },
-} as MediaFile;
+} as MediaFile
 
 const mockAudioFile: MediaFile = {
   id: "test-audio-1",
@@ -73,48 +73,48 @@ const mockAudioFile: MediaFile = {
       },
     ],
   },
-} as MediaFile;
+} as MediaFile
 
 describe("useTimelineActions", () => {
   it("должен экспортировать хук", () => {
-    expect(useTimelineActions).toBeDefined();
-    expect(typeof useTimelineActions).toBe("function");
-  });
+    expect(useTimelineActions).toBeDefined()
+    expect(typeof useTimelineActions).toBe("function")
+  })
 
   it("должен определять тип трека для видеофайла", () => {
     // Тестируем функцию определения типа медиафайла напрямую
-    expect(mockVideoFile.isVideo).toBe(true);
-    expect(mockVideoFile.isAudio).toBe(false);
-    expect(mockVideoFile.isImage).toBe(false);
-  });
+    expect(mockVideoFile.isVideo).toBe(true)
+    expect(mockVideoFile.isAudio).toBe(false)
+    expect(mockVideoFile.isImage).toBe(false)
+  })
 
   it("должен определять тип трека для аудиофайла", () => {
     // Тестируем функцию определения типа медиафайла напрямую
-    expect(mockAudioFile.isVideo).toBe(false);
-    expect(mockAudioFile.isAudio).toBe(true);
-    expect(mockAudioFile.isImage).toBe(false);
-  });
+    expect(mockAudioFile.isVideo).toBe(false)
+    expect(mockAudioFile.isAudio).toBe(true)
+    expect(mockAudioFile.isImage).toBe(false)
+  })
 
   it("должен иметь правильную структуру медиафайлов", () => {
     // Проверяем, что медиафайлы имеют правильную структуру
-    expect(mockVideoFile).toHaveProperty("id");
-    expect(mockVideoFile).toHaveProperty("name");
-    expect(mockVideoFile).toHaveProperty("path");
-    expect(mockVideoFile).toHaveProperty("duration");
+    expect(mockVideoFile).toHaveProperty("id")
+    expect(mockVideoFile).toHaveProperty("name")
+    expect(mockVideoFile).toHaveProperty("path")
+    expect(mockVideoFile).toHaveProperty("duration")
 
-    expect(mockAudioFile).toHaveProperty("id");
-    expect(mockAudioFile).toHaveProperty("name");
-    expect(mockAudioFile).toHaveProperty("path");
-    expect(mockAudioFile).toHaveProperty("duration");
-  });
+    expect(mockAudioFile).toHaveProperty("id")
+    expect(mockAudioFile).toHaveProperty("name")
+    expect(mockAudioFile).toHaveProperty("path")
+    expect(mockAudioFile).toHaveProperty("duration")
+  })
 
   it("должен иметь правильные метаданные для видеофайла", () => {
-    expect(mockVideoFile.probeData?.streams).toBeDefined();
-    expect(mockVideoFile.probeData?.streams[0].codec_type).toBe("video");
-  });
+    expect(mockVideoFile.probeData?.streams).toBeDefined()
+    expect(mockVideoFile.probeData?.streams[0].codec_type).toBe("video")
+  })
 
   it("должен иметь правильные метаданные для аудиофайла", () => {
-    expect(mockAudioFile.probeData?.streams).toBeDefined();
-    expect(mockAudioFile.probeData?.streams[0].codec_type).toBe("audio");
-  });
-});
+    expect(mockAudioFile.probeData?.streams).toBeDefined()
+    expect(mockAudioFile.probeData?.streams[0].codec_type).toBe("audio")
+  })
+})

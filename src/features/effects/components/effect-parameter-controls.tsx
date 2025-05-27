@@ -1,24 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react"
 
-import { RotateCcw, Save } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { RotateCcw, Save } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { VideoEffect } from "@/types/effects";
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { VideoEffect } from "@/types/effects"
 
 interface EffectParameterControlsProps {
-  effect: VideoEffect;
-  onParametersChange: (params: Record<string, number>) => void;
-  selectedPreset?: string;
-  onSavePreset?: (name: string, params: Record<string, number>) => void;
+  effect: VideoEffect
+  onParametersChange: (params: Record<string, number>) => void
+  selectedPreset?: string
+  onSavePreset?: (name: string, params: Record<string, number>) => void
 }
 
 // Конфигурация параметров с их диапазонами и описаниями
@@ -93,7 +88,7 @@ const PARAMETER_CONFIG = {
     label: { ru: "Оттенок", en: "Tint" },
     description: { ru: "Цветовой оттенок", en: "Color tint" },
   },
-} as const;
+} as const
 
 /**
  * Компонент для интерактивной настройки параметров эффекта
@@ -104,82 +99,80 @@ export function EffectParameterControls({
   selectedPreset,
   onSavePreset,
 }: EffectParameterControlsProps) {
-  const { i18n, t } = useTranslation();
-  const currentLang = i18n.language as "ru" | "en";
+  const { i18n, t } = useTranslation()
+  const currentLang = i18n.language as "ru" | "en"
 
   // Состояние параметров
   const [parameters, setParameters] = useState<Record<string, number>>(() => {
     // Инициализируем значениями по умолчанию или из эффекта
-    const defaultParams: Record<string, number> = {};
+    const defaultParams: Record<string, number> = {}
 
     if (effect.params) {
       Object.keys(effect.params).forEach((key) => {
-        const config = PARAMETER_CONFIG[key as keyof typeof PARAMETER_CONFIG];
-        const paramKey = key as keyof typeof effect.params;
-        defaultParams[key] = effect.params![paramKey] ?? config?.default ?? 0;
-      });
+        const config = PARAMETER_CONFIG[key as keyof typeof PARAMETER_CONFIG]
+        const paramKey = key as keyof typeof effect.params
+        defaultParams[key] = effect.params![paramKey] ?? config?.default ?? 0
+      })
     }
 
-    return defaultParams;
-  });
+    return defaultParams
+  })
 
   // Обновляем параметры при смене пресета
   useEffect(() => {
     if (selectedPreset && effect.presets?.[selectedPreset]) {
-      const presetParams = effect.presets[selectedPreset].params;
-      setParameters(presetParams);
-      onParametersChange(presetParams);
+      const presetParams = effect.presets[selectedPreset].params
+      setParameters(presetParams)
+      onParametersChange(presetParams)
     }
-  }, [selectedPreset, effect.presets, onParametersChange]);
+  }, [selectedPreset, effect.presets, onParametersChange])
 
   // Обработчик изменения параметра
   const handleParameterChange = useCallback(
     (paramName: string, value: number[]) => {
-      const newValue = value[0];
-      const newParameters = { ...parameters, [paramName]: newValue };
-      setParameters(newParameters);
-      onParametersChange(newParameters);
+      const newValue = value[0]
+      const newParameters = { ...parameters, [paramName]: newValue }
+      setParameters(newParameters)
+      onParametersChange(newParameters)
     },
     [parameters, onParametersChange],
-  );
+  )
 
   // Сброс к значениям по умолчанию
   const handleReset = useCallback(() => {
-    const defaultParams: Record<string, number> = {};
+    const defaultParams: Record<string, number> = {}
 
     if (effect.params) {
       Object.keys(effect.params).forEach((key) => {
-        const config = PARAMETER_CONFIG[key as keyof typeof PARAMETER_CONFIG];
-        defaultParams[key] = config?.default ?? 0;
-      });
+        const config = PARAMETER_CONFIG[key as keyof typeof PARAMETER_CONFIG]
+        defaultParams[key] = config?.default ?? 0
+      })
     }
 
-    setParameters(defaultParams);
-    onParametersChange(defaultParams);
-  }, [effect.params, onParametersChange]);
+    setParameters(defaultParams)
+    onParametersChange(defaultParams)
+  }, [effect.params, onParametersChange])
 
   // Сохранение пользовательского пресета
   const handleSavePreset = useCallback(() => {
     if (onSavePreset) {
-      const presetName = `custom_${Date.now()}`;
-      onSavePreset(presetName, parameters);
+      const presetName = `custom_${Date.now()}`
+      onSavePreset(presetName, parameters)
     }
-  }, [onSavePreset, parameters]);
+  }, [onSavePreset, parameters])
 
   // Если у эффекта нет параметров, не показываем контролы
   if (!effect.params || Object.keys(effect.params).length === 0) {
-    return null;
+    return null
   }
 
-  const availableParams = Object.keys(effect.params);
+  const availableParams = Object.keys(effect.params)
 
   return (
     <div className="space-y-4">
       {/* Заголовок с кнопками действий */}
       <div className="flex items-center justify-between">
-        <h3 className="font-medium">
-          {t("effects.detail.parameters", "Параметры")}
-        </h3>
+        <h3 className="font-medium">{t("effects.detail.parameters", "Параметры")}</h3>
         <div className="flex gap-2">
           <TooltipProvider>
             <Tooltip>
@@ -188,12 +181,7 @@ export function EffectParameterControls({
                   <RotateCcw size={14} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
-                {t(
-                  "effects.detail.resetToDefault",
-                  "Сбросить к значениям по умолчанию",
-                )}
-              </TooltipContent>
+              <TooltipContent>{t("effects.detail.resetToDefault", "Сбросить к значениям по умолчанию")}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -201,17 +189,11 @@ export function EffectParameterControls({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSavePreset}
-                  >
+                  <Button variant="outline" size="sm" onClick={handleSavePreset}>
                     <Save size={14} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  {t("effects.detail.savePreset", "Сохранить как пресет")}
-                </TooltipContent>
+                <TooltipContent>{t("effects.detail.savePreset", "Сохранить как пресет")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
@@ -221,21 +203,16 @@ export function EffectParameterControls({
       {/* Контролы параметров */}
       <div className="space-y-4">
         {availableParams.map((paramName) => {
-          const config =
-            PARAMETER_CONFIG[paramName as keyof typeof PARAMETER_CONFIG];
-          if (!config) return null;
+          const config = PARAMETER_CONFIG[paramName as keyof typeof PARAMETER_CONFIG]
+          if (!config) return null
 
-          const currentValue = parameters[paramName] ?? config.default;
+          const currentValue = parameters[paramName] ?? config.default
 
           return (
             <div key={paramName} className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">
-                  {config.label[currentLang] || config.label.en}
-                </Label>
-                <span className="text-sm text-gray-500 font-mono">
-                  {currentValue}
-                </span>
+                <Label className="text-sm font-medium">{config.label[currentLang] || config.label.en}</Label>
+                <span className="text-sm text-gray-500 font-mono">{currentValue}</span>
               </div>
 
               <TooltipProvider>
@@ -244,9 +221,7 @@ export function EffectParameterControls({
                     <div>
                       <Slider
                         value={[currentValue]}
-                        onValueChange={(value) =>
-                          handleParameterChange(paramName, value)
-                        }
+                        onValueChange={(value) => handleParameterChange(paramName, value)}
                         min={config.min}
                         max={config.max}
                         step={config.step}
@@ -256,12 +231,9 @@ export function EffectParameterControls({
                   </TooltipTrigger>
                   <TooltipContent>
                     <div className="text-center">
-                      <div className="font-medium">
-                        {config.label[currentLang] || config.label.en}
-                      </div>
+                      <div className="font-medium">{config.label[currentLang] || config.label.en}</div>
                       <div className="text-sm text-gray-400">
-                        {config.description[currentLang] ||
-                          config.description.en}
+                        {config.description[currentLang] || config.description.en}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
                         {config.min} - {config.max}
@@ -271,7 +243,7 @@ export function EffectParameterControls({
                 </Tooltip>
               </TooltipProvider>
             </div>
-          );
+          )
         })}
       </div>
 
@@ -287,5 +259,5 @@ export function EffectParameterControls({
         </div>
       </div>
     </div>
-  );
+  )
 }

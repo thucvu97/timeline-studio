@@ -1,22 +1,14 @@
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { Browser } from "@/features/browser/components/browser";
-import { Timeline } from "@/features/timeline/components/timeline";
-import { useUserSettings } from "@/features/user-settings";
-import { VideoPlayer } from "@/features/video-player/components/video-player";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { Browser } from "@/features/browser/components/browser"
+import { Timeline } from "@/features/timeline/components/timeline"
+import { useUserSettings } from "@/features/user-settings"
+import { VideoPlayer } from "@/features/video-player/components/video-player"
 
 export function DefaultLayout() {
-  const { isBrowserVisible } = useUserSettings();
+  const { isBrowserVisible } = useUserSettings()
 
   return (
-    <ResizablePanelGroup
-      direction="vertical"
-      className="min-h-0 flex-grow"
-      autoSaveId="default-layout"
-    >
+    <ResizablePanelGroup direction="vertical" className="min-h-0 flex-grow" autoSaveId="default-layout">
       <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>
         {isBrowserVisible ? (
           // Если браузер видим, показываем обычный макет с двумя панелями
@@ -63,5 +55,5 @@ export function DefaultLayout() {
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
-  );
+  )
 }

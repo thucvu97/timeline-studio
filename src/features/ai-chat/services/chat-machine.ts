@@ -1,13 +1,13 @@
-import { assign, setup } from "xstate";
+import { assign, setup } from "xstate"
 
-import { ChatMessage } from "../components/ai-chat";
+import { ChatMessage } from "../components/ai-chat"
 
 // Интерфейс контекста машины состояний чата
 export interface ChatMachineContext {
-  chatMessages: ChatMessage[];
-  selectedAgentId: string | null;
-  isProcessing: boolean;
-  error: string | null;
+  chatMessages: ChatMessage[]
+  selectedAgentId: string | null
+  isProcessing: boolean
+  error: string | null
 }
 
 // Типы событий для машины состояний чата
@@ -18,7 +18,7 @@ export type ChatMachineEvent =
   | { type: "SET_PROCESSING"; isProcessing: boolean }
   | { type: "SET_ERROR"; error: string | null }
   | { type: "CLEAR_MESSAGES" }
-  | { type: "REMOVE_MESSAGE"; messageId: string };
+  | { type: "REMOVE_MESSAGE"; messageId: string }
 
 // Начальный контекст
 const initialContext: ChatMachineContext = {
@@ -26,7 +26,7 @@ const initialContext: ChatMachineContext = {
   selectedAgentId: null,
   isProcessing: false,
   error: null,
-};
+}
 
 /**
  * Машина состояний для управления чатом с ИИ
@@ -48,7 +48,7 @@ export const chatMachine = setup({
      */
     logSendMessage: ({ context, event }) => {
       if (event.type === "SEND_CHAT_MESSAGE") {
-        console.log(`[ChatMachine] Отправка сообщения: ${event.message}`);
+        console.log(`[ChatMachine] Отправка сообщения: ${event.message}`)
       }
     },
 
@@ -59,7 +59,7 @@ export const chatMachine = setup({
       if (event.type === "RECEIVE_CHAT_MESSAGE") {
         console.log(
           `[ChatMachine] Получение сообщения от ${event.message.sender}: ${event.message.text.substring(0, 50)}...`,
-        );
+        )
       }
     },
 
@@ -68,7 +68,7 @@ export const chatMachine = setup({
      */
     logSelectAgent: ({ context, event }) => {
       if (event.type === "SELECT_AGENT") {
-        console.log(`[ChatMachine] Выбран агент: ${event.agentId}`);
+        console.log(`[ChatMachine] Выбран агент: ${event.agentId}`)
       }
     },
   },
@@ -114,8 +114,7 @@ export const chatMachine = setup({
         },
         REMOVE_MESSAGE: {
           actions: assign({
-            chatMessages: ({ context, event }) =>
-              context.chatMessages.filter((msg) => msg.id !== event.messageId),
+            chatMessages: ({ context, event }) => context.chatMessages.filter((msg) => msg.id !== event.messageId),
           }),
         },
       },
@@ -127,10 +126,7 @@ export const chatMachine = setup({
           actions: [
             { type: "logReceiveMessage" },
             assign({
-              chatMessages: ({ context, event }) => [
-                ...context.chatMessages,
-                event.message,
-              ],
+              chatMessages: ({ context, event }) => [...context.chatMessages, event.message],
               isProcessing: false,
               error: null,
             }),
@@ -159,9 +155,9 @@ export const chatMachine = setup({
       },
     },
   },
-});
+})
 
 /**
  * Тип машины состояний чата
  */
-export type ChatMachine = typeof chatMachine;
+export type ChatMachine = typeof chatMachine

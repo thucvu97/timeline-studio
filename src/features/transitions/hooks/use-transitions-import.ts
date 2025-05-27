@@ -1,16 +1,16 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState } from "react"
 
-import { open } from "@tauri-apps/plugin-dialog";
+import { open } from "@tauri-apps/plugin-dialog"
 
-import { Transition } from "@/types/transitions";
+import { Transition } from "@/types/transitions"
 
 /**
  * Интерфейс для результата импорта переходов
  */
 interface ImportResult {
-  success: boolean;
-  message: string;
-  transitions: Transition[];
+  success: boolean
+  message: string
+  transitions: Transition[]
 }
 
 /**
@@ -18,8 +18,8 @@ interface ImportResult {
  * Позволяет импортировать JSON файлы с переходами или отдельные файлы переходов
  */
 export function useTransitionsImport() {
-  const [isImporting, setIsImporting] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [isImporting, setIsImporting] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   /**
    * Валидация структуры перехода
@@ -35,8 +35,8 @@ export function useTransitionsImport() {
       typeof transition.category === "string" &&
       typeof transition.complexity === "string" &&
       Array.isArray(transition.tags)
-    );
-  };
+    )
+  }
 
   /**
    * Импорт JSON файла с переходами
@@ -47,11 +47,11 @@ export function useTransitionsImport() {
         success: false,
         message: "Импорт уже выполняется",
         transitions: [],
-      };
+      }
     }
 
-    setIsImporting(true);
-    setProgress(0);
+    setIsImporting(true)
+    setProgress(0)
 
     try {
       // Открываем диалог выбора JSON файла
@@ -63,78 +63,78 @@ export function useTransitionsImport() {
             extensions: ["json"],
           },
         ],
-      });
+      })
 
       if (!selected) {
-        setIsImporting(false);
+        setIsImporting(false)
         return {
           success: false,
           message: "Файл не выбран",
           transitions: [],
-        };
+        }
       }
 
-      setProgress(25);
+      setProgress(25)
 
       // Читаем файл
-      const response = await fetch(`file://${selected}`);
-      const data = await response.json();
+      const response = await fetch(`file://${selected}`)
+      const data = await response.json()
 
-      setProgress(50);
+      setProgress(50)
 
       // Валидируем структуру
-      let transitions: Transition[] = [];
+      let transitions: Transition[] = []
 
       if (Array.isArray(data)) {
         // Массив переходов
-        transitions = data.filter(validateTransition);
+        transitions = data.filter(validateTransition)
       } else if (data.transitions && Array.isArray(data.transitions)) {
         // Объект с полем transitions
-        transitions = data.transitions.filter(validateTransition);
+        transitions = data.transitions.filter(validateTransition)
       } else if (validateTransition(data)) {
         // Один переход
-        transitions = [data];
+        transitions = [data]
       } else {
-        setIsImporting(false);
+        setIsImporting(false)
         return {
           success: false,
           message: "Неверная структура файла переходов",
           transitions: [],
-        };
+        }
       }
 
-      setProgress(75);
+      setProgress(75)
 
       if (transitions.length === 0) {
-        setIsImporting(false);
+        setIsImporting(false)
         return {
           success: false,
           message: "В файле не найдено валидных переходов",
           transitions: [],
-        };
+        }
       }
 
       // TODO: Сохранить переходы в пользовательскую коллекцию
-      console.log("Импортированные переходы:", transitions);
+      console.log("Импортированные переходы:", transitions)
 
-      setProgress(100);
-      setIsImporting(false);
+      setProgress(100)
+      setIsImporting(false)
 
       return {
         success: true,
         message: `Успешно импортировано ${transitions.length} переходов`,
         transitions,
-      };
+      }
     } catch (error) {
-      console.error("Ошибка при импорте переходов:", error);
-      setIsImporting(false);
+      console.error("Ошибка при импорте переходов:", error)
+      setIsImporting(false)
       return {
         success: false,
         message: `Ошибка при импорте: ${String(error)}`,
         transitions: [],
-      };
+      }
     }
-  }, [isImporting]);
+  }, [isImporting])
 
   /**
    * Импорт отдельного файла перехода
@@ -145,11 +145,11 @@ export function useTransitionsImport() {
         success: false,
         message: "Импорт уже выполняется",
         transitions: [],
-      };
+      }
     }
 
-    setIsImporting(true);
-    setProgress(0);
+    setIsImporting(true)
+    setProgress(0)
 
     try {
       // Открываем диалог выбора файла перехода
@@ -161,27 +161,26 @@ export function useTransitionsImport() {
             extensions: ["json", "preset", "transition"],
           },
         ],
-      });
+      })
 
       if (!selected) {
-        setIsImporting(false);
+        setIsImporting(false)
         return {
           success: false,
           message: "Файлы не выбраны",
           transitions: [],
-        };
+        }
       }
 
-      const files = Array.isArray(selected) ? selected : [selected];
-      setProgress(25);
+      const files = Array.isArray(selected) ? selected : [selected]
+      setProgress(25)
 
-      const importedTransitions: Transition[] = [];
+      const importedTransitions: Transition[] = []
 
       for (let i = 0; i < files.length; i++) {
-        const filePath = files[i];
-        const fileName =
-          filePath.split("/").pop() || filePath.split("\\").pop() || "unknown";
-        const extension = fileName.split(".").pop()?.toLowerCase();
+        const filePath = files[i]
+        const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || "unknown"
+        const extension = fileName.split(".").pop()?.toLowerCase()
 
         // Создаем базовый переход на основе файла
         const transition: Transition = {
@@ -204,38 +203,38 @@ export function useTransitionsImport() {
           duration: { min: 0.5, max: 3.0, default: 1.0 },
           parameters: {},
           ffmpegCommand: () => `custom=${filePath}`,
-        };
+        }
 
-        importedTransitions.push(transition);
-        setProgress(25 + (i + 1) * (50 / files.length));
+        importedTransitions.push(transition)
+        setProgress(25 + (i + 1) * (50 / files.length))
       }
 
       // TODO: Сохранить переходы в пользовательскую коллекцию
-      console.log("Импортированные файлы переходов:", importedTransitions);
+      console.log("Импортированные файлы переходов:", importedTransitions)
 
-      setProgress(100);
-      setIsImporting(false);
+      setProgress(100)
+      setIsImporting(false)
 
       return {
         success: true,
         message: `Успешно импортировано ${importedTransitions.length} файлов переходов`,
         transitions: importedTransitions,
-      };
+      }
     } catch (error) {
-      console.error("Ошибка при импорте файлов переходов:", error);
-      setIsImporting(false);
+      console.error("Ошибка при импорте файлов переходов:", error)
+      setIsImporting(false)
       return {
         success: false,
         message: `Ошибка при импорте: ${String(error)}`,
         transitions: [],
-      };
+      }
     }
-  }, [isImporting]);
+  }, [isImporting])
 
   return {
     importTransitionsFile,
     importTransitionFile,
     isImporting,
     progress,
-  };
+  }
 }

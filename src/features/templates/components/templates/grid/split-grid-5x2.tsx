@@ -1,9 +1,9 @@
-import React from "react";
+import React from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
-import { VideoPanelComponent } from "../../video-panel-component";
-import { TemplateProps } from "../types";
+import { VideoPanelComponent } from "../../video-panel-component"
+import { TemplateProps } from "../types"
 
 /**
  * Шаблон "Сетка 5x2" (10 экранов)
@@ -17,22 +17,22 @@ export function SplitGrid5x2({
   templateId,
 }: TemplateProps & { templateId?: string }) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path);
-  const videoCount = Math.min(validVideos.length, 10);
+  const validVideos = videos.filter((v) => v?.path)
+  const videoCount = Math.min(validVideos.length, 10)
 
   // Определяем ориентацию на основе ID шаблона
-  const isPortrait = templateId ? templateId.includes("portrait") : false;
-  const isSquare = templateId ? templateId.includes("square") : false;
+  const isPortrait = templateId ? templateId.includes("portrait") : false
+  const isSquare = templateId ? templateId.includes("square") : false
 
   // Если нет видео вообще, возвращаем пустой div
   if (videoCount === 0) {
-    return <div className="h-full w-full bg-black" />;
+    return <div className="h-full w-full bg-black" />
   }
 
   // Если видео меньше 10, заполняем оставшиеся ячейки пустыми видео
-  const filledVideos = [...validVideos];
+  const filledVideos = [...validVideos]
   while (filledVideos.length < 10) {
-    filledVideos.push({ id: `empty-${filledVideos.length}`, path: "" } as any);
+    filledVideos.push({ id: `empty-${filledVideos.length}`, path: "" } as any)
   }
 
   // Рендеринг в режиме без возможности изменения размеров
@@ -40,14 +40,11 @@ export function SplitGrid5x2({
     if (isPortrait || (isSquare && templateId?.includes("2x5"))) {
       // Портретный режим (2x5)
       return (
-        <div
-          className="relative h-full w-full"
-          style={{ border: "1px solid #35d1c1" }}
-        >
+        <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
           {/* Рендерим видео */}
           {filledVideos.slice(0, 10).map((video, index) => {
-            const col = Math.floor(index / 5);
-            const row = index % 5;
+            const col = Math.floor(index / 5)
+            const row = index % 5
 
             return (
               <div
@@ -68,7 +65,7 @@ export function SplitGrid5x2({
                   index={index}
                 />
               </div>
-            );
+            )
           })}
 
           {/* Добавляем разделительные линии */}
@@ -96,18 +93,15 @@ export function SplitGrid5x2({
             />
           ))}
         </div>
-      );
+      )
     }
     // Ландшафтный режим (5x2) или квадратный режим по умолчанию
     return (
-      <div
-        className="relative h-full w-full"
-        style={{ border: "1px solid #35d1c1" }}
-      >
+      <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
         {/* Рендерим видео */}
         {filledVideos.slice(0, 10).map((video, index) => {
-          const row = Math.floor(index / 5);
-          const col = index % 5;
+          const row = Math.floor(index / 5)
+          const col = index % 5
 
           return (
             <div
@@ -128,7 +122,7 @@ export function SplitGrid5x2({
                 index={index}
               />
             </div>
-          );
+          )
         })}
 
         {/* Добавляем разделительные линии */}
@@ -156,17 +150,14 @@ export function SplitGrid5x2({
           }}
         />
       </div>
-    );
+    )
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   if (isPortrait || (isSquare && templateId?.includes("2x5"))) {
     // Портретный режим (2x5)
     return (
-      <div
-        className="h-full w-full"
-        style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-      >
+      <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
         <PanelGroup direction="horizontal">
           {/* Левая колонка */}
           <Panel defaultSize={50} minSize={10}>
@@ -181,9 +172,7 @@ export function SplitGrid5x2({
                       index={rowIndex}
                     />
                   </Panel>
-                  {rowIndex < 4 && (
-                    <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                  )}
+                  {rowIndex < 4 && <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
                 </React.Fragment>
               ))}
             </PanelGroup>
@@ -193,37 +182,30 @@ export function SplitGrid5x2({
           <Panel defaultSize={50} minSize={10}>
             <PanelGroup direction="vertical">
               {[0, 1, 2, 3, 4].map((rowIndex) => {
-                const videoIndex = 5 + rowIndex;
+                const videoIndex = 5 + rowIndex
                 return (
                   <React.Fragment key={`right-row-${rowIndex}`}>
                     <Panel defaultSize={20} minSize={10}>
                       <VideoPanelComponent
                         video={filledVideos[videoIndex]}
-                        isActive={
-                          filledVideos[videoIndex]?.id === activeVideoId
-                        }
+                        isActive={filledVideos[videoIndex]?.id === activeVideoId}
                         videoRefs={videoRefs}
                         index={videoIndex}
                       />
                     </Panel>
-                    {rowIndex < 4 && (
-                      <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                    )}
+                    {rowIndex < 4 && <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
                   </React.Fragment>
-                );
+                )
               })}
             </PanelGroup>
           </Panel>
         </PanelGroup>
       </div>
-    );
+    )
   }
   // Ландшафтный режим (5x2) или квадратный режим по умолчанию
   return (
-    <div
-      className="h-full w-full"
-      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-    >
+    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
       <PanelGroup direction="vertical">
         {/* Верхний ряд */}
         <Panel defaultSize={50} minSize={10}>
@@ -238,9 +220,7 @@ export function SplitGrid5x2({
                     index={colIndex}
                   />
                 </Panel>
-                {colIndex < 4 && (
-                  <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                )}
+                {colIndex < 4 && <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
               </React.Fragment>
             ))}
           </PanelGroup>
@@ -250,7 +230,7 @@ export function SplitGrid5x2({
         <Panel defaultSize={50} minSize={10}>
           <PanelGroup direction="horizontal">
             {[0, 1, 2, 3, 4].map((colIndex) => {
-              const videoIndex = 5 + colIndex;
+              const videoIndex = 5 + colIndex
               return (
                 <React.Fragment key={`bottom-col-${colIndex}`}>
                   <Panel defaultSize={20} minSize={10}>
@@ -261,15 +241,13 @@ export function SplitGrid5x2({
                       index={videoIndex}
                     />
                   </Panel>
-                  {colIndex < 4 && (
-                    <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                  )}
+                  {colIndex < 4 && <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
                 </React.Fragment>
-              );
+              )
             })}
           </PanelGroup>
         </Panel>
       </PanelGroup>
     </div>
-  );
+  )
 }

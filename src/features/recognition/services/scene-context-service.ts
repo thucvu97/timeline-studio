@@ -41,11 +41,11 @@ export class SceneContextService {
   public createSceneContext(
     videoInfo: { id: string; name: string },
     detections: YoloDetection[],
-    timestamp: number
+    timestamp: number,
   ): AISceneContext {
     // Подсчитываем объекты по типам
     const objectCounts: Record<string, number> = {}
-    detections.forEach(detection => {
+    detections.forEach((detection) => {
       const className = detection.class
       objectCounts[className] = (objectCounts[className] || 0) + 1
     })
@@ -127,13 +127,14 @@ export class SceneContextService {
     // Определяем размер
     if (area < 0.05) {
       return "маленький"
-    } else if (area < 0.15) {
-      return "средний"
-    } else if (area < 0.4) {
-      return "большой"
-    } else {
-      return "очень большой"
     }
+    if (area < 0.15) {
+      return "средний"
+    }
+    if (area < 0.4) {
+      return "большой"
+    }
+    return "очень большой"
   }
 
   /**
@@ -158,7 +159,7 @@ export class SceneContextService {
    */
   private generateSceneDescription(
     detectedObjects: Array<{ class: string; position: string; size: string }>,
-    objectCounts: Record<string, number>
+    objectCounts: Record<string, number>,
   ): string {
     if (detectedObjects.length === 0) {
       return "В кадре не обнаружено объектов."
@@ -168,16 +169,16 @@ export class SceneContextService {
 
     // Группируем объекты по типам и создаем описания
     Object.entries(objectCounts).forEach(([className, count]) => {
-      const objectsOfClass = detectedObjects.filter(obj => obj.class === className)
-      
+      const objectsOfClass = detectedObjects.filter((obj) => obj.class === className)
+
       if (count === 1) {
         const obj = objectsOfClass[0]
         descriptions.push(`${obj.size} ${className} ${obj.position}`)
       } else {
         // Для множественных объектов создаем обобщенное описание
-        const positions = objectsOfClass.map(obj => obj.position)
+        const positions = objectsOfClass.map((obj) => obj.position)
         const uniquePositions = [...new Set(positions)]
-        
+
         if (uniquePositions.length === 1) {
           descriptions.push(`${count} ${className}(ов) ${uniquePositions[0]}`)
         } else if (uniquePositions.length <= 2) {
@@ -213,7 +214,7 @@ export class SceneContextService {
       return count === 1 ? className : `${count} ${className}(ов)`
     })
 
-    description += classDescriptions.join(", ") + "."
+    description += `${classDescriptions.join(", ")}.`
 
     // Добавляем информацию о доминирующих объектах
     if (context.dominantObjects.length > 0) {
@@ -232,7 +233,7 @@ export class SceneContextService {
     const { detectedObjects, sceneDescription, currentVideo } = context
 
     let description = `Анализ видео "${currentVideo.name}" на временной метке ${currentVideo.timestamp.toFixed(1)} секунд:\n\n`
-    
+
     description += `${sceneDescription}\n\n`
 
     if (detectedObjects.length > 0) {
@@ -261,8 +262,8 @@ export class SceneContextService {
    * @returns Отфильтрованный контекст
    */
   public filterByClass(context: AISceneContext, targetClass: string): AISceneContext {
-    const filteredObjects = context.detectedObjects.filter(obj => obj.class === targetClass)
-    
+    const filteredObjects = context.detectedObjects.filter((obj) => obj.class === targetClass)
+
     const filteredCounts: Record<string, number> = {}
     filteredCounts[targetClass] = context.objectCounts[targetClass] || 0
 

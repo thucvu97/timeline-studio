@@ -16,6 +16,11 @@
     "lint:css:fix": "stylelint \"src/**/*.css\" --fix",
     "format:imports": "eslint --fix \"src/**/*.{ts,tsx}\" --rule \"import/order: warn\"",
     "format:imports:windows": "eslint --fix src/**/*.{ts,tsx} --rule \"import/order: warn\"",
+    "biome:check": "biome check .",
+    "biome:check:apply": "biome check --write .",
+    "biome:format": "biome format --write .",
+    "biome:lint": "biome lint .",
+    "biome:lint:fix": "biome lint --write .",
     "lint:rust": "cd src-tauri && cargo clippy -- -D warnings",
     "lint:rust:fix": "cd src-tauri && cargo clippy --fix --allow-dirty -- -D warnings",
     "format:rust": "cd src-tauri && cargo fmt",
@@ -93,6 +98,7 @@
     "xstate": "^5.19.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.27.0",
     "@next/eslint-plugin-next": "^15.3.2",

@@ -1,9 +1,9 @@
-import { act, render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, render } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { VideoEffect } from "@/types/effects";
+import { VideoEffect } from "@/types/effects"
 
-import { EffectDetail } from "../../components/effect-detail";
+import { EffectDetail } from "../../components/effect-detail"
 
 // Мокаем useResources хук
 vi.mock("@/features/resources", () => ({
@@ -13,7 +13,7 @@ vi.mock("@/features/resources", () => ({
     isEffectAdded: vi.fn().mockReturnValue(false),
     effectResources: [],
   }),
-}));
+}))
 
 // Мокаем useEffects хук
 vi.mock("../../hooks/use-effects", () => ({
@@ -38,7 +38,7 @@ vi.mock("../../hooks/use-effects", () => ({
     error: null,
     isReady: true,
   }),
-}));
+}))
 
 // Мокаем react-i18next
 vi.mock("react-i18next", () => ({
@@ -46,7 +46,7 @@ vi.mock("react-i18next", () => ({
     t: (key: string, fallback?: string) => fallback || key,
     i18n: { language: "en" },
   }),
-}));
+}))
 
 // Мокаем lucide-react иконки
 vi.mock("lucide-react", () => ({
@@ -71,66 +71,49 @@ vi.mock("lucide-react", () => ({
     </div>
   ),
   Star: ({ className, strokeWidth }: any) => (
-    <div
-      data-testid="star-icon"
-      data-classname={className}
-      data-stroke-width={strokeWidth}
-    >
+    <div data-testid="star-icon" data-classname={className} data-stroke-width={strokeWidth}>
       Star Icon
     </div>
   ),
   Plus: ({ className, strokeWidth }: any) => (
-    <div
-      data-testid="plus-icon"
-      data-classname={className}
-      data-stroke-width={strokeWidth}
-    >
+    <div data-testid="plus-icon" data-classname={className} data-stroke-width={strokeWidth}>
       Plus Icon
     </div>
   ),
-}));
+}))
 
 // Мокаем UI компоненты
 vi.mock("@/components/ui/dialog", () => ({
-  Dialog: ({ children, open }: any) =>
-    open ? <div data-testid="dialog">{children}</div> : null,
-  DialogContent: ({ children }: any) => (
-    <div data-testid="dialog-content">{children}</div>
-  ),
-  DialogHeader: ({ children }: any) => (
-    <div data-testid="dialog-header">{children}</div>
-  ),
-  DialogTitle: ({ children }: any) => (
-    <h2 data-testid="dialog-title">{children}</h2>
-  ),
-}));
+  Dialog: ({ children, open }: any) => (open ? <div data-testid="dialog">{children}</div> : null),
+  DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+  DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
+  DialogTitle: ({ children }: any) => <h2 data-testid="dialog-title">{children}</h2>,
+}))
 
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children }: any) => <button>{children}</button>,
-}));
+}))
 
 vi.mock("@/components/ui/separator", () => ({
   Separator: () => <hr data-testid="separator" />,
-}));
+}))
 
 // Мокаем дочерние компоненты
 vi.mock("../../components/effect-indicators", () => ({
   EffectIndicators: () => <div data-testid="effect-indicators">indicators</div>,
-}));
+}))
 
 vi.mock("../../components/effect-preview", () => ({
   EffectPreview: () => <div data-testid="effect-preview">preview</div>,
-}));
+}))
 
 vi.mock("../../components/effect-presets", () => ({
   EffectPresets: () => <div data-testid="effect-presets">presets</div>,
-}));
+}))
 
 vi.mock("../../components/effect-parameter-controls", () => ({
-  EffectParameterControls: () => (
-    <div data-testid="effect-parameter-controls">controls</div>
-  ),
-}));
+  EffectParameterControls: () => <div data-testid="effect-parameter-controls">controls</div>,
+}))
 
 describe("EffectDetail", () => {
   const mockEffect: VideoEffect = {
@@ -155,39 +138,29 @@ describe("EffectDetail", () => {
       fr: "Effet de test",
       de: "Testeffekt",
     },
-  };
+  }
 
-  const mockOnClose = vi.fn();
-  const mockOnApplyEffect = vi.fn();
+  const mockOnClose = vi.fn()
+  const mockOnApplyEffect = vi.fn()
 
   it("should render effect detail dialog when open", () => {
     const { container } = render(
-      <EffectDetail
-        effect={mockEffect}
-        isOpen={true}
-        onClose={mockOnClose}
-        onApplyEffect={mockOnApplyEffect}
-      />,
-    );
+      <EffectDetail effect={mockEffect} isOpen={true} onClose={mockOnClose} onApplyEffect={mockOnApplyEffect} />,
+    )
 
-    expect(container).toBeInTheDocument();
-  });
+    expect(container).toBeInTheDocument()
+  })
 
   it("should not render when isOpen is false", () => {
     const renderResult = render(
-      <EffectDetail
-        effect={mockEffect}
-        isOpen={false}
-        onClose={mockOnClose}
-        onApplyEffect={mockOnApplyEffect}
-      />,
-    );
+      <EffectDetail effect={mockEffect} isOpen={false} onClose={mockOnClose} onApplyEffect={mockOnApplyEffect} />,
+    )
 
-    expect(renderResult.container.firstChild).toBeNull();
-  });
+    expect(renderResult.container.firstChild).toBeNull()
+  })
 
   it("should render with effect that has no params", () => {
-    const effectWithoutParams = { ...mockEffect, params: undefined };
+    const effectWithoutParams = { ...mockEffect, params: undefined }
 
     const { container } = render(
       <EffectDetail
@@ -196,10 +169,10 @@ describe("EffectDetail", () => {
         onClose={mockOnClose}
         onApplyEffect={mockOnApplyEffect}
       />,
-    );
+    )
 
-    expect(container).toBeInTheDocument();
-  });
+    expect(container).toBeInTheDocument()
+  })
 
   it("should render with effect that has presets", () => {
     const effectWithPresets = {
@@ -211,19 +184,14 @@ describe("EffectDetail", () => {
           description: { ru: "Легкий эффект", en: "Light effect" },
         },
       },
-    };
+    }
 
     const { container } = render(
-      <EffectDetail
-        effect={effectWithPresets}
-        isOpen={true}
-        onClose={mockOnClose}
-        onApplyEffect={mockOnApplyEffect}
-      />,
-    );
+      <EffectDetail effect={effectWithPresets} isOpen={true} onClose={mockOnClose} onApplyEffect={mockOnApplyEffect} />,
+    )
 
-    expect(container).toBeInTheDocument();
-  });
+    expect(container).toBeInTheDocument()
+  })
 
   it("should render with complex effect data", () => {
     const complexEffect = {
@@ -248,17 +216,12 @@ describe("EffectDetail", () => {
           description: { ru: "Сильный эффект", en: "Heavy effect" },
         },
       },
-    };
+    }
 
     const { container } = render(
-      <EffectDetail
-        effect={complexEffect}
-        isOpen={true}
-        onClose={mockOnClose}
-        onApplyEffect={mockOnApplyEffect}
-      />,
-    );
+      <EffectDetail effect={complexEffect} isOpen={true} onClose={mockOnClose} onApplyEffect={mockOnApplyEffect} />,
+    )
 
-    expect(container).toBeInTheDocument();
-  });
-});
+    expect(container).toBeInTheDocument()
+  })
+})

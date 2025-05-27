@@ -1,10 +1,10 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
+import { FlatCompat } from "@eslint/eslintrc"
+import eslint from "@eslint/js"
+import tseslint from "typescript-eslint"
 
 const compat = new FlatCompat({
   baseDirectory: import.meta.dirname,
-});
+})
 
 const eslintConfig = tseslint.config(
   eslint.configs.recommended,
@@ -44,15 +44,7 @@ const eslintConfig = tseslint.config(
       "import/order": [
         "warn",
         {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            ["parent", "sibling"],
-            "index",
-            "object",
-            "type",
-          ],
+          groups: ["builtin", "external", "internal", ["parent", "sibling"], "index", "object", "type"],
           pathGroups: [
             {
               pattern: "react",
@@ -123,6 +115,6 @@ const eslintConfig = tseslint.config(
       },
     },
   },
-);
+)
 
-export default eslintConfig;
+export default eslintConfig

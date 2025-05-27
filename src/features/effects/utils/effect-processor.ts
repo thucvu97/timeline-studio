@@ -1,32 +1,32 @@
-import { VideoEffect } from "@/types/effects";
+import { VideoEffect } from "@/types/effects"
 
 /**
  * Интерфейс для сырых данных эффекта из JSON
  */
 interface RawEffectData {
-  id: string;
-  name: string;
-  type: string;
-  duration: number;
-  category: string;
-  complexity: string;
-  tags: string[];
+  id: string
+  name: string
+  type: string
+  duration: number
+  category: string
+  complexity: string
+  tags: string[]
   description: {
-    ru: string;
-    en: string;
-  };
-  ffmpegCommand: string;
-  cssFilter?: string;
-  params: Record<string, any>;
-  previewPath: string;
+    ru: string
+    en: string
+  }
+  ffmpegCommand: string
+  cssFilter?: string
+  params: Record<string, any>
+  previewPath: string
   labels: {
-    ru: string;
-    en: string;
-    es: string;
-    fr: string;
-    de: string;
-  };
-  presets?: Record<string, any>;
+    ru: string
+    en: string
+    es: string
+    fr: string
+    de: string
+  }
+  presets?: Record<string, any>
 }
 
 /**
@@ -36,10 +36,10 @@ interface RawEffectData {
 function createFunctionFromTemplate(template: string) {
   return (params: Record<string, any> = {}) => {
     return template.replace(/\{(\w+)\}/g, (match, key) => {
-      const value = params[key];
-      return value !== undefined ? value.toString() : match;
-    });
-  };
+      const value = params[key]
+      return value !== undefined ? value.toString() : match
+    })
+  }
 }
 
 /**
@@ -50,19 +50,17 @@ export function processEffect(rawEffect: RawEffectData): VideoEffect {
     ...rawEffect,
     // Преобразуем строковые шаблоны в функции
     ffmpegCommand: createFunctionFromTemplate(rawEffect.ffmpegCommand),
-    cssFilter: rawEffect.cssFilter
-      ? createFunctionFromTemplate(rawEffect.cssFilter)
-      : undefined,
-  } as VideoEffect;
+    cssFilter: rawEffect.cssFilter ? createFunctionFromTemplate(rawEffect.cssFilter) : undefined,
+  } as VideoEffect
 
-  return processedEffect;
+  return processedEffect
 }
 
 /**
  * Обрабатывает массив сырых эффектов из JSON
  */
 export function processEffects(rawEffects: RawEffectData[]): VideoEffect[] {
-  return rawEffects.map(processEffect);
+  return rawEffects.map(processEffect)
 }
 
 /**
@@ -70,21 +68,12 @@ export function processEffects(rawEffects: RawEffectData[]): VideoEffect[] {
  */
 export function validateEffect(effect: any): effect is RawEffectData {
   if (!effect || typeof effect !== "object") {
-    return false;
+    return false
   }
 
-  const requiredFields = [
-    "id",
-    "name",
-    "type",
-    "category",
-    "complexity",
-    "description",
-    "ffmpegCommand",
-    "labels",
-  ];
+  const requiredFields = ["id", "name", "type", "category", "complexity", "description", "ffmpegCommand", "labels"]
 
-  return requiredFields.every((field) => field in effect);
+  return requiredFields.every((field) => field in effect)
 }
 
 /**
@@ -92,17 +81,17 @@ export function validateEffect(effect: any): effect is RawEffectData {
  */
 export function validateEffectsData(data: any): boolean {
   if (!data || !Array.isArray(data.effects)) {
-    return false;
+    return false
   }
 
   // Проверяем метаданные
   if (data.version && data.totalEffects) {
     console.log(
       `📊 Effects metadata: v${data.version}, ${data.totalEffects} effects, updated: ${data.lastUpdated || "unknown"}`,
-    );
+    )
   }
 
-  return data.effects.every(validateEffect);
+  return data.effects.every(validateEffect)
 }
 
 /**
@@ -132,5 +121,5 @@ export function createFallbackEffect(id: string): VideoEffect {
       fr: "Inconnu",
       de: "Unbekannt",
     },
-  };
+  }
 }

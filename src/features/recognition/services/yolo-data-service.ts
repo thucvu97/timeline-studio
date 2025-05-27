@@ -65,7 +65,7 @@ export class YoloDataService {
     try {
       // Здесь должна быть логика загрузки данных YOLO из файла или API
       // Пока возвращаем null, так как реальная загрузка не реализована
-      
+
       // Пример структуры данных, которые могли бы быть загружены:
       // const yoloData: YoloVideoData = {
       //   videoId,
@@ -85,7 +85,6 @@ export class YoloDataService {
       // Отмечаем, что данные для этого видео отсутствуют
       this.nonExistentFiles[videoId] = true
       return null
-
     } catch (error) {
       console.error(`[YoloDataService] Ошибка загрузки данных YOLO для видео ${videoId}:`, error)
       this.nonExistentFiles[videoId] = true
@@ -99,10 +98,7 @@ export class YoloDataService {
    * @param timestamp Временная метка (в секундах от начала видео)
    * @returns Массив обнаруженных объектов или пустой массив, если данные не найдены
    */
-  public async getYoloDataAtTimestamp(
-    videoId: string,
-    timestamp: number,
-  ): Promise<YoloDetection[]> {
+  public async getYoloDataAtTimestamp(videoId: string, timestamp: number): Promise<YoloDetection[]> {
     // Проверяем, не пытались ли мы уже загрузить данные для этого видео
     if (this.nonExistentFiles[videoId]) {
       return []
@@ -181,7 +177,7 @@ export class YoloDataService {
             // Создаем новый диапазон, если прошло больше 2 секунд
             classTimeRanges[className].push({
               start: frame.timestamp,
-              end: frame.timestamp
+              end: frame.timestamp,
             })
           } else {
             // Расширяем существующий диапазон

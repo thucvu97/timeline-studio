@@ -1,78 +1,71 @@
-import { MediaFile } from "@/features/media/types/media";
-import { StyleTemplate } from "@/features/style-templates/types";
-import { SubtitleStyle } from "@/features/subtitles/types";
-import { MediaTemplate } from "@/features/templates/lib/templates";
-import { Transition } from "@/types/transitions";
+import { MediaFile } from "@/features/media/types/media"
+import { StyleTemplate } from "@/features/style-templates/types"
+import { SubtitleStyle } from "@/features/subtitles/types"
+import { MediaTemplate } from "@/features/templates/lib/templates"
+import { Transition } from "@/types/transitions"
 
-import { VideoEffect } from "./effects";
-import { VideoFilter } from "./filters";
+import { VideoEffect } from "./effects"
+import { VideoFilter } from "./filters"
 
 // Общий интерфейс для всех ресурсов
 export interface Resource {
-  id: string;
-  type: ResourceType;
-  name: string;
-  resourceId: string; // ID оригинального ресурса (эффекта, фильтра, перехода или шаблона)
-  addedAt: number; // Время добавления ресурса
+  id: string
+  type: ResourceType
+  name: string
+  resourceId: string // ID оригинального ресурса (эффекта, фильтра, перехода или шаблона)
+  addedAt: number // Время добавления ресурса
 }
 
 // Типы ресурсов
-export type ResourceType =
-  | "effect"
-  | "filter"
-  | "transition"
-  | "template"
-  | "style-template"
-  | "music"
-  | "subtitle";
+export type ResourceType = "effect" | "filter" | "transition" | "template" | "style-template" | "music" | "subtitle"
 
 // Интерфейс для эффектов
 export interface EffectResource extends Resource {
-  type: "effect";
-  effect: VideoEffect;
-  params?: Record<string, any>; // Параметры эффекта
+  type: "effect"
+  effect: VideoEffect
+  params?: Record<string, any> // Параметры эффекта
 }
 
 // Интерфейс для фильтров
 export interface FilterResource extends Resource {
-  type: "filter";
-  filter: VideoFilter;
-  params?: Record<string, any>; // Параметры фильтра
+  type: "filter"
+  filter: VideoFilter
+  params?: Record<string, any> // Параметры фильтра
 }
 
 // Интерфейс для переходов
 export interface TransitionResource extends Resource {
-  type: "transition";
-  transition: Transition;
-  params?: Record<string, any>; // Параметры перехода
+  type: "transition"
+  transition: Transition
+  params?: Record<string, any> // Параметры перехода
 }
 
 // Интерфейс для шаблонов
 export interface TemplateResource extends Resource {
-  type: "template";
-  template: MediaTemplate;
-  params?: Record<string, any>; // Параметры шаблона
+  type: "template"
+  template: MediaTemplate
+  params?: Record<string, any> // Параметры шаблона
 }
 
 // Интерфейс для стилистических шаблонов
 export interface StyleTemplateResource extends Resource {
-  type: "style-template";
-  template: StyleTemplate;
-  params?: Record<string, any>; // Параметры стилистического шаблона
+  type: "style-template"
+  template: StyleTemplate
+  params?: Record<string, any> // Параметры стилистического шаблона
 }
 
 // Интерфейс для музыкальных файлов
 export interface MusicResource extends Resource {
-  type: "music";
-  file: MediaFile;
-  params?: Record<string, any>; // Параметры музыкального файла
+  type: "music"
+  file: MediaFile
+  params?: Record<string, any> // Параметры музыкального файла
 }
 
 // Интерфейс для стилей субтитров
 export interface SubtitleResource extends Resource {
-  type: "subtitle";
-  style: SubtitleStyle;
-  params?: Record<string, any>; // Параметры стиля субтитров
+  type: "subtitle"
+  style: SubtitleStyle
+  params?: Record<string, any> // Параметры стиля субтитров
 }
 
 // Тип для всех ресурсов
@@ -83,7 +76,7 @@ export type TimelineResource =
   | TemplateResource
   | StyleTemplateResource
   | MusicResource
-  | SubtitleResource;
+  | SubtitleResource
 
 // Функция для создания ресурса эффекта
 export function createEffectResource(effect: VideoEffect): EffectResource {
@@ -95,7 +88,7 @@ export function createEffectResource(effect: VideoEffect): EffectResource {
     addedAt: Date.now(),
     effect,
     params: effect.params ? { ...effect.params } : {},
-  };
+  }
 }
 
 // Функция для создания ресурса фильтра
@@ -108,14 +101,12 @@ export function createFilterResource(filter: VideoFilter): FilterResource {
     addedAt: Date.now(),
     filter,
     params: { ...filter.params },
-  };
+  }
 }
 
 // Функция для создания ресурса перехода
-export function createTransitionResource(
-  transition: Transition,
-): TransitionResource {
-  console.log("Creating transition resource from:", transition);
+export function createTransitionResource(transition: Transition): TransitionResource {
+  console.log("Creating transition resource from:", transition)
   const resource: TransitionResource = {
     id: `transition-${transition.id}-${Date.now()}`,
     type: "transition",
@@ -124,15 +115,13 @@ export function createTransitionResource(
     addedAt: Date.now(),
     transition,
     params: transition.parameters ? { ...transition.parameters } : {},
-  };
-  console.log("Created transition resource:", resource);
-  return resource;
+  }
+  console.log("Created transition resource:", resource)
+  return resource
 }
 
 // Функция для создания ресурса шаблона
-export function createTemplateResource(
-  template: MediaTemplate,
-): TemplateResource {
+export function createTemplateResource(template: MediaTemplate): TemplateResource {
   return {
     id: `template-${template.id}-${Date.now()}`,
     type: "template",
@@ -141,13 +130,11 @@ export function createTemplateResource(
     addedAt: Date.now(),
     template,
     params: {},
-  };
+  }
 }
 
 // Функция для создания ресурса стилистического шаблона
-export function createStyleTemplateResource(
-  template: StyleTemplate,
-): StyleTemplateResource {
+export function createStyleTemplateResource(template: StyleTemplate): StyleTemplateResource {
   return {
     id: `style-template-${template.id}-${Date.now()}`,
     type: "style-template",
@@ -156,7 +143,7 @@ export function createStyleTemplateResource(
     addedAt: Date.now(),
     template,
     params: {},
-  };
+  }
 }
 
 // Функция для создания ресурса музыкального файла
@@ -169,7 +156,7 @@ export function createMusicResource(file: MediaFile): MusicResource {
     addedAt: Date.now(),
     file,
     params: {},
-  };
+  }
 }
 
 // Функция для создания ресурса стиля субтитров
@@ -182,5 +169,5 @@ export function createSubtitleResource(style: SubtitleStyle): SubtitleResource {
     addedAt: Date.now(),
     style,
     params: {},
-  };
+  }
 }

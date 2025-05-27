@@ -5,23 +5,13 @@
  * с инструкциями по добавлению и поддерживаемыми форматами
  */
 
-import React from "react";
+import React from "react"
 
-import {
-  FileText,
-  Filter,
-  FolderOpen,
-  Image,
-  Music,
-  Palette,
-  Sparkles,
-  Upload,
-  Video,
-} from "lucide-react";
+import { FileText, Filter, FolderOpen, Image, Music, Palette, Sparkles, Upload, Video } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 
 export type MediaType =
   | "media"
@@ -31,22 +21,22 @@ export type MediaType =
   | "transitions"
   | "templates"
   | "style-templates"
-  | "subtitles";
+  | "subtitles"
 
 interface NoFilesProps {
-  type: MediaType;
-  onImport?: () => void;
-  className?: string;
+  type: MediaType
+  onImport?: () => void
+  className?: string
 }
 
 interface MediaTypeConfig {
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  folders: string[];
-  formats: string[];
-  importText: string;
-  folderText: string;
+  title: string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+  folders: string[]
+  formats: string[]
+  importText: string
+  folderText: string
 }
 
 const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
@@ -126,17 +116,14 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     importText: "Импортировать субтитры",
     folderText: "Или поместите субтитры в папку",
   },
-};
+}
 
 export function NoFiles({ type, onImport, className }: NoFilesProps) {
-  const config = MEDIA_CONFIGS[type];
-  const IconComponent = config.icon;
+  const config = MEDIA_CONFIGS[type]
+  const IconComponent = config.icon
 
   return (
-    <div
-      className={`flex h-full items-center justify-center p-8 ${className || ""}`}
-      data-testid="no-files"
-    >
+    <div className={`flex h-full items-center justify-center p-8 ${className || ""}`} data-testid="no-files">
       <Card className="w-full max-w-md">
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
@@ -150,9 +137,7 @@ export function NoFiles({ type, onImport, className }: NoFilesProps) {
             {/* Заголовок и описание */}
             <div className="space-y-2">
               <h3 className="font-semibold text-foreground">{config.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                {config.description}
-              </p>
+              <p className="text-sm text-muted-foreground">{config.description}</p>
             </div>
 
             {/* Кнопка импорта */}
@@ -170,23 +155,16 @@ export function NoFiles({ type, onImport, className }: NoFilesProps) {
               </div>
 
               {config.folders.map((folder, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-center gap-2"
-                >
+                <div key={index} className="flex items-center justify-center gap-2">
                   <FolderOpen className="h-4 w-4 text-muted-foreground" />
-                  <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
-                    {folder}
-                  </code>
+                  <code className="text-xs bg-muted px-2 py-1 rounded font-mono">{folder}</code>
                 </div>
               ))}
             </div>
 
             {/* Поддерживаемые форматы */}
             <div className="space-y-2 pt-2">
-              <p className="text-xs text-muted-foreground">
-                Поддерживаемые форматы:
-              </p>
+              <p className="text-xs text-muted-foreground">Поддерживаемые форматы:</p>
               <div className="flex flex-wrap gap-1 justify-center">
                 {config.formats.map((format, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
@@ -199,5 +177,5 @@ export function NoFiles({ type, onImport, className }: NoFilesProps) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

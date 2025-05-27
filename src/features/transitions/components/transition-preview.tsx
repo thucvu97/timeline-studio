@@ -1,28 +1,28 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { AddMediaButton } from "@/features/browser/components/layout/add-media-button";
-import { FavoriteButton } from "@/features/browser/components/layout/favorite-button";
-import { MediaFile } from "@/features/media/types/media";
-import { useResources } from "@/features/resources";
-import { TransitionResource } from "@/types/resources";
-import { Transition } from "@/types/transitions";
+import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
+import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
+import { MediaFile } from "@/features/media/types/media"
+import { useResources } from "@/features/resources"
+import { TransitionResource } from "@/types/resources"
+import { Transition } from "@/types/transitions"
 
-import { useTransitions } from "../hooks/use-transitions";
+import { useTransitions } from "../hooks/use-transitions"
 
 /**
  * Интерфейс пропсов для компонента TransitionPreview
  */
 interface TransitionPreviewProps {
-  transition?: Transition;
-  sourceVideo: MediaFile;
-  targetVideo: MediaFile;
-  transitionType: string;
-  onClick: () => void;
-  size: number;
-  previewWidth?: number;
-  previewHeight?: number;
+  transition?: Transition
+  sourceVideo: MediaFile
+  targetVideo: MediaFile
+  transitionType: string
+  onClick: () => void
+  size: number
+  previewWidth?: number
+  previewHeight?: number
 }
 
 /**
@@ -39,43 +39,35 @@ export function TransitionPreview({
   previewWidth,
   previewHeight,
 }: TransitionPreviewProps) {
-  const { t } = useTranslation(); // Хук для интернационализации
-  const {
-    addTransition,
-    isTransitionAdded,
-    removeResource,
-    transitionResources,
-  } = useResources(); // Получаем методы для работы с ресурсами
+  const { t } = useTranslation() // Хук для интернационализации
+  const { addTransition, isTransitionAdded, removeResource, transitionResources } = useResources() // Получаем методы для работы с ресурсами
 
-  const [isHovering, setIsHovering] = useState(false); // Состояние наведения мыши
-  const [isError, setIsError] = useState(false); // Состояние ошибки загрузки видео
+  const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
+  const [isError, setIsError] = useState(false) // Состояние ошибки загрузки видео
 
   // Ссылки на элементы видео и таймеры
-  const sourceVideoRef = useRef<HTMLVideoElement>(null); // Ссылка на исходное видео
-  const targetVideoRef = useRef<HTMLVideoElement>(null); // Ссылка на целевое видео
-  const transitionTimeoutRef = useRef<NodeJS.Timeout>(null); // Таймер для запуска перехода
-  const loopTimeoutRef = useRef<NodeJS.Timeout>(null); // Таймер для зацикливания демонстрации
+  const sourceVideoRef = useRef<HTMLVideoElement>(null) // Ссылка на исходное видео
+  const targetVideoRef = useRef<HTMLVideoElement>(null) // Ссылка на целевое видео
+  const transitionTimeoutRef = useRef<NodeJS.Timeout>(null) // Таймер для запуска перехода
+  const loopTimeoutRef = useRef<NodeJS.Timeout>(null) // Таймер для зацикливания демонстрации
 
   // Получаем переходы из хука
-  const { transitions } = useTransitions();
+  const { transitions } = useTransitions()
 
   // Получаем переход из пропсов или находим по типу
   const currentTransition =
-    transition ||
-    transitions.find(
-      (t: Transition) => t.id === transitionType || t.type === transitionType,
-    );
+    transition || transitions.find((t: Transition) => t.id === transitionType || t.type === transitionType)
 
   // Вычисляем размеры превью с учетом aspect ratio
   const { actualWidth, actualHeight } = useMemo(() => {
     // Если переданы конкретные размеры, используем их
     if (previewWidth && previewHeight) {
-      return { actualWidth: previewWidth, actualHeight: previewHeight };
+      return { actualWidth: previewWidth, actualHeight: previewHeight }
     }
 
     // Иначе используем квадратный размер как fallback
-    return { actualWidth: size, actualHeight: size };
-  }, [previewWidth, previewHeight, size]);
+    return { actualWidth: size, actualHeight: size }
+  }, [previewWidth, previewHeight, size])
 
   // Мемоизируем объекты для кнопок
   const favoriteFile = useMemo(
@@ -85,7 +77,7 @@ export function TransitionPreview({
       name: currentTransition?.labels?.ru || transitionType,
     }),
     [currentTransition?.id, currentTransition?.labels?.ru, transitionType],
-  );
+  )
 
   const addMediaFile = useMemo(
     () => ({
@@ -94,88 +86,85 @@ export function TransitionPreview({
       name: transitionType,
     }),
     [transitionType],
-  );
+  )
 
   // Мемоизируем обработчики событий
   const handleAddMedia = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation();
+      e.stopPropagation()
       if (currentTransition) {
-        addTransition(currentTransition);
+        addTransition(currentTransition)
       }
     },
     [addTransition, currentTransition],
-  );
+  )
 
   const handleRemoveMedia = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (!currentTransition) return;
+      e.stopPropagation()
+      if (!currentTransition) return
 
       const resource = transitionResources.find(
         (res: TransitionResource) =>
-          res.resourceId === currentTransition.id ||
-          res.resourceId === currentTransition.type,
-      );
+          res.resourceId === currentTransition.id || res.resourceId === currentTransition.type,
+      )
       if (resource) {
-        removeResource(resource.id);
+        removeResource(resource.id)
       } else {
-        console.warn(
-          `Не удалось найти ресурс перехода с ID ${currentTransition.id} для удаления`,
-        );
+        console.warn(`Не удалось найти ресурс перехода с ID ${currentTransition.id} для удаления`)
       }
     },
     [removeResource, transitionResources, currentTransition],
-  );
+  )
 
   // Функция для получения индикатора сложности
   const getComplexityIndicator = (complexity: string) => {
     switch (complexity) {
       case "basic":
-        return { color: "bg-green-500", label: "BSC" };
+        return { color: "bg-green-500", label: "BSC" }
       case "intermediate":
-        return { color: "bg-yellow-500", label: "INT" };
+        return { color: "bg-yellow-500", label: "INT" }
       case "advanced":
-        return { color: "bg-red-500", label: "ADV" };
+        return { color: "bg-red-500", label: "ADV" }
       default:
-        return { color: "bg-gray-500", label: "UNK" };
+        return { color: "bg-gray-500", label: "UNK" }
     }
-  };
+  }
 
   // Функция для получения индикатора категории
   const getCategoryIndicator = (category: string) => {
     switch (category) {
       case "basic":
-        return "BSC";
+        return "BSC"
       case "advanced":
-        return "ADV";
+        return "ADV"
       case "creative":
-        return "CRE";
+        return "CRE"
       case "3d":
-        return "3D";
+        return "3D"
       case "artistic":
-        return "ART";
+        return "ART"
       case "cinematic":
-        return "CIN";
+        return "CIN"
       default:
-        return "UNK";
+        return "UNK"
     }
-  };
+  }
 
   const complexityIndicator = useMemo(
     () => getComplexityIndicator(currentTransition?.complexity || "basic"),
     [currentTransition?.complexity],
-  );
+  )
   const categoryIndicator = useMemo(
     () => getCategoryIndicator(currentTransition?.category || "basic"),
     [currentTransition?.category],
-  );
+  )
 
   // Проверяем, добавлен ли переход уже в хранилище ресурсов
   // Мемоизируем результат для оптимизации
   const isAdded = useMemo(() => {
-    return currentTransition ? isTransitionAdded(currentTransition) : false;
-  }, [isTransitionAdded, currentTransition]);
+    return currentTransition ? isTransitionAdded(currentTransition) : false
+  }, [isTransitionAdded, currentTransition])
 
   // Отладочный вывод
   // useEffect(() => {
@@ -187,223 +176,216 @@ export function TransitionPreview({
    * Устанавливает время воспроизведения на начало и сбрасывает все CSS-стили
    */
   const resetVideos = useCallback(() => {
-    if (!sourceVideoRef.current || !targetVideoRef.current) return;
+    if (!sourceVideoRef.current || !targetVideoRef.current) return
 
-    const sourceVideo = sourceVideoRef.current;
-    const targetVideo = targetVideoRef.current;
+    const sourceVideo = sourceVideoRef.current
+    const targetVideo = targetVideoRef.current
 
     // Сбрасываем время воспроизведения
-    sourceVideo.currentTime = 0;
-    targetVideo.currentTime = 0;
+    sourceVideo.currentTime = 0
+    targetVideo.currentTime = 0
 
     // Сброс всех возможных стилей для исходного видео
-    sourceVideo.style.transform = "scale(1)";
-    sourceVideo.style.opacity = "1";
-    sourceVideo.style.filter = "blur(0px) wave(0, 0%, 0%)";
-    sourceVideo.style.clipPath = "none";
-    sourceVideo.style.transition = "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
-    sourceVideo.style.mixBlendMode = "normal";
+    sourceVideo.style.transform = "scale(1)"
+    sourceVideo.style.opacity = "1"
+    sourceVideo.style.filter = "blur(0px) wave(0, 0%, 0%)"
+    sourceVideo.style.clipPath = "none"
+    sourceVideo.style.transition = "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)"
+    sourceVideo.style.mixBlendMode = "normal"
 
     // Сброс всех возможных стилей для целевого видео
-    targetVideo.style.opacity = "0"; // Целевое видео изначально скрыто
-    targetVideo.style.transform = "scale(1)";
-    targetVideo.style.filter = "blur(0px)";
-    targetVideo.style.clipPath = "none";
-    targetVideo.style.transition = "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
-    targetVideo.style.mixBlendMode = "normal";
-  }, []);
+    targetVideo.style.opacity = "0" // Целевое видео изначально скрыто
+    targetVideo.style.transform = "scale(1)"
+    targetVideo.style.filter = "blur(0px)"
+    targetVideo.style.clipPath = "none"
+    targetVideo.style.transition = "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)"
+    targetVideo.style.mixBlendMode = "normal"
+  }, [])
 
   /**
    * Запускает анимацию перехода между видео
    * Сначала показывает исходное видео, затем применяет эффект перехода и показывает целевое видео
    */
   const startTransition = useCallback(() => {
-    if (!sourceVideoRef.current || !targetVideoRef.current || isError) return;
+    if (!sourceVideoRef.current || !targetVideoRef.current || isError) return
 
-    const sourceVideo = sourceVideoRef.current;
-    const targetVideo = targetVideoRef.current;
+    const sourceVideo = sourceVideoRef.current
+    const targetVideo = targetVideoRef.current
 
     // Сбрасываем состояние видео перед началом перехода
-    resetVideos();
+    resetVideos()
     // Запускаем воспроизведение исходного видео
-    void sourceVideo.play();
+    void sourceVideo.play()
 
     // Устанавливаем таймер для начала перехода через 1 секунду
     transitionTimeoutRef.current = setTimeout(() => {
       // Показываем целевое видео
-      targetVideo.style.opacity = "1";
+      targetVideo.style.opacity = "1"
 
       // Применяем соответствующий эффект перехода в зависимости от типа
       switch (transitionType) {
         case "zoom":
           // Эффект увеличения: исходное видео увеличивается и исчезает
-          sourceVideo.style.transform = "scale(2)";
-          sourceVideo.style.opacity = "0";
-          break;
+          sourceVideo.style.transform = "scale(2)"
+          sourceVideo.style.opacity = "0"
+          break
 
         case "fade":
           // Эффект затухания: исходное видео плавно исчезает
-          sourceVideo.style.opacity = "0";
-          break;
+          sourceVideo.style.opacity = "0"
+          break
 
         case "slide":
           // Эффект слайда: исходное видео уезжает влево
-          sourceVideo.style.transform = "translateX(-100%)";
-          break;
+          sourceVideo.style.transform = "translateX(-100%)"
+          break
 
         case "scale":
           // Эффект масштабирования: исходное видео уменьшается и исчезает
-          sourceVideo.style.transform = "scale(0.1)";
-          sourceVideo.style.opacity = "0";
-          targetVideo.style.transform = "scale(1)";
-          break;
+          sourceVideo.style.transform = "scale(0.1)"
+          sourceVideo.style.opacity = "0"
+          targetVideo.style.transform = "scale(1)"
+          break
 
         case "rotate":
           // Эффект вращения: исходное видео вращается и уменьшается
-          sourceVideo.style.transform = "rotate(180deg) scale(0.5)";
-          sourceVideo.style.opacity = "0";
-          targetVideo.style.transform = "rotate(0deg) scale(1)";
-          break;
+          sourceVideo.style.transform = "rotate(180deg) scale(0.5)"
+          sourceVideo.style.opacity = "0"
+          targetVideo.style.transform = "rotate(0deg) scale(1)"
+          break
 
         case "flip":
           // Эффект переворота: исходное видео переворачивается по оси Y
-          sourceVideo.style.transform = "rotateY(180deg)";
-          sourceVideo.style.opacity = "0";
-          targetVideo.style.transform = "rotateY(0deg)";
-          break;
+          sourceVideo.style.transform = "rotateY(180deg)"
+          sourceVideo.style.opacity = "0"
+          targetVideo.style.transform = "rotateY(0deg)"
+          break
 
         case "push":
           // Эффект выталкивания: исходное видео выталкивается влево
-          sourceVideo.style.transform = "translateX(-100%)";
-          targetVideo.style.transform = "translateX(0%)";
-          targetVideo.style.transition = "transform 1s ease-in-out";
-          break;
+          sourceVideo.style.transform = "translateX(-100%)"
+          targetVideo.style.transform = "translateX(0%)"
+          targetVideo.style.transition = "transform 1s ease-in-out"
+          break
 
         case "squeeze":
           // Эффект сжатия: исходное видео сжимается по горизонтали
-          sourceVideo.style.transform = "scaleX(0)";
-          sourceVideo.style.opacity = "0";
-          break;
+          sourceVideo.style.transform = "scaleX(0)"
+          sourceVideo.style.opacity = "0"
+          break
 
         case "diagonal":
           // Эффект диагонали: исходное видео уходит по диагонали
-          sourceVideo.style.transform = "translate(-100%, -100%)";
-          sourceVideo.style.opacity = "0";
-          break;
+          sourceVideo.style.transform = "translate(-100%, -100%)"
+          sourceVideo.style.opacity = "0"
+          break
 
         case "spiral":
           // Эффект спирали: исходное видео вращается и уменьшается
-          sourceVideo.style.transform = "rotate(720deg) scale(0)";
-          sourceVideo.style.opacity = "0";
-          break;
+          sourceVideo.style.transform = "rotate(720deg) scale(0)"
+          sourceVideo.style.opacity = "0"
+          break
 
         case "fold":
           // Эффект складывания: исходное видео складывается как страница
-          sourceVideo.style.transform = "perspective(500px) rotateX(90deg)";
-          sourceVideo.style.opacity = "0";
-          break;
+          sourceVideo.style.transform = "perspective(500px) rotateX(90deg)"
+          sourceVideo.style.opacity = "0"
+          break
 
         case "wave":
           // Эффект волны: исходное видео искажается волной и исчезает
-          sourceVideo.style.transform = "scale(1.5)";
-          sourceVideo.style.filter = "wave(16, 50%, 50%)";
-          sourceVideo.style.opacity = "0";
-          break;
+          sourceVideo.style.transform = "scale(1.5)"
+          sourceVideo.style.filter = "wave(16, 50%, 50%)"
+          sourceVideo.style.opacity = "0"
+          break
 
         case "shutter":
           // Эффект шторки: исходное видео закрывается шторкой
-          sourceVideo.style.clipPath = "inset(0 50% 0 50%)";
-          sourceVideo.style.opacity = "0";
-          break;
+          sourceVideo.style.clipPath = "inset(0 50% 0 50%)"
+          sourceVideo.style.opacity = "0"
+          break
 
         case "bounce":
           // Эффект отскока: исходное видео уменьшается с эффектом пружины
-          sourceVideo.style.transform = "scale(0)";
-          sourceVideo.style.opacity = "0";
-          sourceVideo.style.transition =
-            "all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
-          break;
+          sourceVideo.style.transform = "scale(0)"
+          sourceVideo.style.opacity = "0"
+          sourceVideo.style.transition = "all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+          break
 
         case "swirl":
           // Эффект вихря: исходное видео вращается быстрее и исчезает
-          sourceVideo.style.transform = "rotate(1080deg) scale(0)";
-          sourceVideo.style.opacity = "0";
-          sourceVideo.style.transition = "all 1s cubic-bezier(0.4, 0, 0.2, 1)";
-          break;
+          sourceVideo.style.transform = "rotate(1080deg) scale(0)"
+          sourceVideo.style.opacity = "0"
+          sourceVideo.style.transition = "all 1s cubic-bezier(0.4, 0, 0.2, 1)"
+          break
 
         case "dissolve":
           // Эффект растворения: исходное и целевое видео смешиваются
-          sourceVideo.style.mixBlendMode = "multiply";
-          targetVideo.style.mixBlendMode = "screen";
-          sourceVideo.style.opacity = "0";
-          break;
+          sourceVideo.style.mixBlendMode = "multiply"
+          targetVideo.style.mixBlendMode = "screen"
+          sourceVideo.style.opacity = "0"
+          break
       }
 
       // Запускаем воспроизведение целевого видео
-      void targetVideo.play();
+      void targetVideo.play()
 
       // Устанавливаем таймер для повторения перехода через 2 секунды
       loopTimeoutRef.current = setTimeout(() => {
         if (isHovering) {
-          startTransition(); // Повторяем переход, если курсор все еще наведен
+          startTransition() // Повторяем переход, если курсор все еще наведен
         }
-      }, 2000);
-    }, 1000);
-  }, [isHovering, transitionType, isError]); // Убираем resetVideos из зависимостей
+      }, 2000)
+    }, 1000)
+  }, [isHovering, transitionType, isError]) // Убираем resetVideos из зависимостей
 
   /**
    * Эффект для инициализации видео и обработки ошибок
    */
   useEffect(() => {
     if (!sourceVideoRef.current || !targetVideoRef.current) {
-      console.warn(
-        `🎬 [TransitionPreview] Видео элементы не найдены для ${transitionType}`,
-      );
-      return;
+      console.warn(`🎬 [TransitionPreview] Видео элементы не найдены для ${transitionType}`)
+      return
     }
 
-    const sourceVideoElement = sourceVideoRef.current;
-    const targetVideoElement = targetVideoRef.current;
+    const sourceVideoElement = sourceVideoRef.current
+    const targetVideoElement = targetVideoRef.current
 
     // Функция обработки ошибок загрузки видео
     const handleError = (e: Event) => {
-      console.error(
-        `🎬 [TransitionPreview] Ошибка загрузки видео для ${transitionType}:`,
-        e,
-      );
-      setIsError(true);
-    };
+      console.error(`🎬 [TransitionPreview] Ошибка загрузки видео для ${transitionType}:`, e)
+      setIsError(true)
+    }
 
     // Функция обработки успешной загрузки
     const handleLoadedData = () => {
       // Видео успешно загружено
-    };
+    }
 
     // Добавляем обработчики событий для обоих видео
-    sourceVideoElement.addEventListener("error", handleError);
-    targetVideoElement.addEventListener("error", handleError);
-    sourceVideoElement.addEventListener("loadeddata", handleLoadedData);
-    targetVideoElement.addEventListener("loadeddata", handleLoadedData);
+    sourceVideoElement.addEventListener("error", handleError)
+    targetVideoElement.addEventListener("error", handleError)
+    sourceVideoElement.addEventListener("loadeddata", handleLoadedData)
+    targetVideoElement.addEventListener("loadeddata", handleLoadedData)
 
     // Сбрасываем видео к начальному состоянию, но НЕ запускаем автоматически
-    resetVideos();
+    resetVideos()
     // Устанавливаем первый кадр как превью
-    sourceVideoElement.currentTime = 0;
-    targetVideoElement.currentTime = 0;
+    sourceVideoElement.currentTime = 0
+    targetVideoElement.currentTime = 0
 
     // Функция очистки при размонтировании компонента
     return () => {
       // Удаляем обработчики событий
-      sourceVideoElement.removeEventListener("error", handleError);
-      targetVideoElement.removeEventListener("error", handleError);
-      sourceVideoElement.removeEventListener("loadeddata", handleLoadedData);
-      targetVideoElement.removeEventListener("loadeddata", handleLoadedData);
+      sourceVideoElement.removeEventListener("error", handleError)
+      targetVideoElement.removeEventListener("error", handleError)
+      sourceVideoElement.removeEventListener("loadeddata", handleLoadedData)
+      targetVideoElement.removeEventListener("loadeddata", handleLoadedData)
       // Очищаем таймеры
-      if (transitionTimeoutRef.current)
-        clearTimeout(transitionTimeoutRef.current);
-      if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current);
-    };
-  }, []); // Убираем resetVideos из зависимостей
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current)
+      if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current)
+    }
+  }, []) // Убираем resetVideos из зависимостей
 
   /**
    * Эффект для управления переходами при наведении
@@ -411,25 +393,24 @@ export function TransitionPreview({
   useEffect(() => {
     if (isHovering) {
       // Если курсор наведен - запускаем переход
-      startTransition();
+      startTransition()
     } else {
       // Если курсор не наведен - сбрасываем к исходному состоянию
-      resetVideos();
+      resetVideos()
       // Останавливаем все видео и показываем первый кадр
       if (sourceVideoRef.current) {
-        sourceVideoRef.current.pause();
-        sourceVideoRef.current.currentTime = 0;
+        sourceVideoRef.current.pause()
+        sourceVideoRef.current.currentTime = 0
       }
       if (targetVideoRef.current) {
-        targetVideoRef.current.pause();
-        targetVideoRef.current.currentTime = 0;
+        targetVideoRef.current.pause()
+        targetVideoRef.current.currentTime = 0
       }
       // Очищаем таймеры
-      if (transitionTimeoutRef.current)
-        clearTimeout(transitionTimeoutRef.current);
-      if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current);
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current)
+      if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current)
     }
-  }, [isHovering]); // Убираем функции из зависимостей
+  }, [isHovering]) // Убираем функции из зависимостей
 
   return (
     <div className="flex flex-col items-center">
@@ -449,14 +430,9 @@ export function TransitionPreview({
               <div className="absolute top-1 left-1 z-10">
                 <div
                   className={`${complexityIndicator.color} rounded-full w-3 h-3 flex items-center justify-center`}
-                  title={t(
-                    `transitions.complexity.${currentTransition.complexity}`,
-                    currentTransition.complexity,
-                  )}
+                  title={t(`transitions.complexity.${currentTransition.complexity}`, currentTransition.complexity)}
                 >
-                  <span className="text-[8px] font-bold text-white">
-                    {complexityIndicator.label[0]}
-                  </span>
+                  <span className="text-[8px] font-bold text-white">{complexityIndicator.label[0]}</span>
                 </div>
               </div>
 
@@ -464,10 +440,7 @@ export function TransitionPreview({
               <div className="absolute top-1 right-1 z-10">
                 <div
                   className="bg-gray-700 text-white rounded px-1 py-0.5 text-[8px] font-medium"
-                  title={t(
-                    `transitions.categories.${currentTransition.category}`,
-                    currentTransition.category,
-                  )}
+                  title={t(`transitions.categories.${currentTransition.category}`, currentTransition.category)}
                 >
                   {categoryIndicator}
                 </div>
@@ -516,11 +489,7 @@ export function TransitionPreview({
                 data-testid="target-video"
               />
               {/* Кнопка добавления в избранное */}
-              <FavoriteButton
-                file={favoriteFile}
-                size={size}
-                type="transition"
-              />
+              <FavoriteButton file={favoriteFile} size={size} type="transition" />
 
               {/* Кнопка добавления перехода в проект */}
               <div
@@ -539,13 +508,9 @@ export function TransitionPreview({
         </div>
       </div>
       {/* Название перехода */}
-      <div
-        className="mt-1 text-xs text-center truncate"
-        style={{ maxWidth: `${actualWidth}px` }}
-      >
-        {currentTransition?.labels?.ru ||
-          t(`transitions.types.${transitionType}`, transitionType)}
+      <div className="mt-1 text-xs text-center truncate" style={{ maxWidth: `${actualWidth}px` }}>
+        {currentTransition?.labels?.ru || t(`transitions.types.${transitionType}`, transitionType)}
       </div>
     </div>
-  );
+  )
 }

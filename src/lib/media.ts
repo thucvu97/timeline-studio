@@ -1,69 +1,69 @@
-import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
+import { invoke } from "@tauri-apps/api/core"
+import { open } from "@tauri-apps/plugin-dialog"
 
 /**
  * Типы метаданных медиафайлов
  */
 export interface VideoMetadata {
-  duration?: number;
-  width?: number;
-  height?: number;
-  fps?: number;
-  codec?: string;
-  bitrate?: number;
-  size?: number;
-  creation_time?: string;
+  duration?: number
+  width?: number
+  height?: number
+  fps?: number
+  codec?: string
+  bitrate?: number
+  size?: number
+  creation_time?: string
 }
 
 export interface AudioMetadata {
-  duration?: number;
-  codec?: string;
-  bitrate?: number;
-  sample_rate?: number;
-  channels?: number;
-  size?: number;
-  creation_time?: string;
+  duration?: number
+  codec?: string
+  bitrate?: number
+  sample_rate?: number
+  channels?: number
+  size?: number
+  creation_time?: string
 }
 
 export interface ImageMetadata {
-  width?: number;
-  height?: number;
-  format?: string;
-  size?: number;
-  creation_time?: string;
+  width?: number
+  height?: number
+  format?: string
+  size?: number
+  creation_time?: string
 }
 
 export type MediaMetadata =
   | {
-      type: "Video";
-      duration?: number;
-      width?: number;
-      height?: number;
-      fps?: number;
-      codec?: string;
-      bitrate?: number;
-      size?: number;
-      creation_time?: string;
+      type: "Video"
+      duration?: number
+      width?: number
+      height?: number
+      fps?: number
+      codec?: string
+      bitrate?: number
+      size?: number
+      creation_time?: string
     }
   | {
-      type: "Audio";
-      duration?: number;
-      codec?: string;
-      bitrate?: number;
-      sample_rate?: number;
-      channels?: number;
-      size?: number;
-      creation_time?: string;
+      type: "Audio"
+      duration?: number
+      codec?: string
+      bitrate?: number
+      sample_rate?: number
+      channels?: number
+      size?: number
+      creation_time?: string
     }
   | {
-      type: "Image";
-      width?: number;
-      height?: number;
-      format?: string;
-      size?: number;
-      creation_time?: string;
+      type: "Image"
+      width?: number
+      height?: number
+      format?: string
+      size?: number
+      creation_time?: string
     }
-  | { type: "Unknown" };
+  | { type: "Unknown" }
 
 /**
  * Получение метаданных медиафайла
@@ -72,10 +72,10 @@ export type MediaMetadata =
  */
 export async function getMediaMetadata(filePath: string): Promise<any> {
   try {
-    return await invoke("get_media_metadata", { filePath });
+    return await invoke("get_media_metadata", { filePath })
   } catch (error) {
-    console.error("Ошибка при получении метаданных:", error);
-    throw error;
+    console.error("Ошибка при получении метаданных:", error)
+    throw error
   }
 }
 
@@ -86,10 +86,10 @@ export async function getMediaMetadata(filePath: string): Promise<any> {
  */
 export async function getMediaFiles(directory: string): Promise<string[]> {
   try {
-    return await invoke<string[]>("get_media_files", { directory });
+    return await invoke<string[]>("get_media_files", { directory })
   } catch (error) {
-    console.error("Ошибка при получении списка файлов:", error);
-    throw error;
+    console.error("Ошибка при получении списка файлов:", error)
+    throw error
   }
 }
 
@@ -122,17 +122,17 @@ export async function selectMediaFile(): Promise<string[] | null> {
           ],
         },
       ],
-    });
+    })
 
     if (selected === null) {
-      return null;
+      return null
     }
 
     // Если выбран один файл, open возвращает строку, иначе массив строк
-    return Array.isArray(selected) ? selected : [selected];
+    return Array.isArray(selected) ? selected : [selected]
   } catch (error) {
-    console.error("Ошибка при выборе файлов:", error);
-    throw error;
+    console.error("Ошибка при выборе файлов:", error)
+    throw error
   }
 }
 
@@ -150,17 +150,17 @@ export async function selectAudioFile(): Promise<string[] | null> {
           extensions: ["mp3", "wav", "ogg", "flac", "aac", "m4a", "wma"],
         },
       ],
-    });
+    })
 
     if (selected === null) {
-      return null;
+      return null
     }
 
     // Если выбран один файл, open возвращает строку, иначе массив строк
-    return Array.isArray(selected) ? selected : [selected];
+    return Array.isArray(selected) ? selected : [selected]
   } catch (error) {
-    console.error("Ошибка при выборе аудиофайлов:", error);
-    throw error;
+    console.error("Ошибка при выборе аудиофайлов:", error)
+    throw error
   }
 }
 
@@ -173,16 +173,16 @@ export async function selectMediaDirectory(): Promise<string | null> {
     const selected = await open({
       directory: true,
       multiple: false,
-    });
+    })
 
     if (selected === null) {
-      return null;
+      return null
     }
 
-    return selected;
+    return selected
   } catch (error) {
-    console.error("Ошибка при выборе директории:", error);
-    throw error;
+    console.error("Ошибка при выборе директории:", error)
+    throw error
   }
 }
 
@@ -192,18 +192,18 @@ export async function selectMediaDirectory(): Promise<string | null> {
  * @returns Отформатированный размер
  */
 export function formatFileSize(bytes?: number): string {
-  if (bytes === undefined) return "Неизвестно";
+  if (bytes === undefined) return "Неизвестно"
 
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  let size = bytes;
-  let unitIndex = 0;
+  const units = ["B", "KB", "MB", "GB", "TB"]
+  let size = bytes
+  let unitIndex = 0
 
   while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex++;
+    size /= 1024
+    unitIndex++
   }
 
-  return `${size.toFixed(2)} ${units[unitIndex]}`;
+  return `${size.toFixed(2)} ${units[unitIndex]}`
 }
 
 /**
@@ -212,14 +212,14 @@ export function formatFileSize(bytes?: number): string {
  * @returns Отформатированная длительность
  */
 export function formatDuration(seconds?: number): string {
-  if (seconds === undefined) return "Неизвестно";
+  if (seconds === undefined) return "Неизвестно"
 
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = Math.floor(seconds % 60)
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
-  return `${minutes}:${secs.toString().padStart(2, "0")}`;
+  return `${minutes}:${secs.toString().padStart(2, "0")}`
 }

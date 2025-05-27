@@ -4,22 +4,22 @@
  * Отображает трек с заголовком и содержимым (клипами)
  */
 
-import React from "react";
+import React from "react"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-import { TrackContent } from "./track-content";
-import { TrackHeader } from "./track-header";
-import { TimelineTrack } from "../../types";
+import { TimelineTrack } from "../../types"
+import { TrackContent } from "./track-content"
+import { TrackHeader } from "./track-header"
 
 interface TrackProps {
-  track: TimelineTrack;
-  timeScale: number; // Пикселей на секунду
-  currentTime: number;
-  isSelected?: boolean;
-  onSelect?: (trackId: string) => void;
-  onUpdate?: (track: TimelineTrack) => void;
-  className?: string;
+  track: TimelineTrack
+  timeScale: number // Пикселей на секунду
+  currentTime: number
+  isSelected?: boolean
+  onSelect?: (trackId: string) => void
+  onUpdate?: (track: TimelineTrack) => void
+  className?: string
 }
 
 export function Track({
@@ -32,12 +32,12 @@ export function Track({
   className,
 }: TrackProps) {
   const handleSelect = () => {
-    onSelect?.(track.id);
-  };
+    onSelect?.(track.id)
+  }
 
   const handleUpdate = (updates: Partial<TimelineTrack>) => {
-    onUpdate?.({ ...track, ...updates });
-  };
+    onUpdate?.({ ...track, ...updates })
+  }
 
   return (
     <div
@@ -53,22 +53,13 @@ export function Track({
     >
       {/* Заголовок трека (фиксированная ширина) */}
       <div className="flex-shrink-0 w-48 border-r border-border">
-        <TrackHeader
-          track={track}
-          isSelected={isSelected}
-          onUpdate={handleUpdate}
-        />
+        <TrackHeader track={track} isSelected={isSelected} onUpdate={handleUpdate} />
       </div>
 
       {/* Содержимое трека (клипы) */}
       <div className="flex-1 relative overflow-hidden">
-        <TrackContent
-          track={track}
-          timeScale={timeScale}
-          currentTime={currentTime}
-          onUpdate={handleUpdate}
-        />
+        <TrackContent track={track} timeScale={timeScale} currentTime={currentTime} onUpdate={handleUpdate} />
       </div>
     </div>
-  );
+  )
 }

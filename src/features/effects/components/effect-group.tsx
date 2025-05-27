@@ -1,28 +1,28 @@
-import React from "react";
+import React from "react"
 
-import { ContentGroup } from "@/components/common/content-group";
-import { VideoEffect } from "@/types/effects";
+import { ContentGroup } from "@/components/common/content-group"
+import { VideoEffect } from "@/types/effects"
 
-import { EffectPreview } from "./effect-preview";
+import { EffectPreview } from "./effect-preview"
 
 /**
  * Интерфейс свойств компонента EffectGroup
  */
 interface EffectGroupProps {
   /** Заголовок группы */
-  title: string;
+  title: string
   /** Эффекты в группе */
-  effects: VideoEffect[];
+  effects: VideoEffect[]
   /** Размер превью */
-  previewSize: number;
+  previewSize: number
   /** Ширина превью */
-  previewWidth: number;
+  previewWidth: number
   /** Высота превью */
-  previewHeight: number;
+  previewHeight: number
   /** Функция для клика по эффекту */
-  onEffectClick: (effect: VideoEffect) => void;
+  onEffectClick: (effect: VideoEffect) => void
   /** Функция для добавления всех эффектов группы */
-  onAddAllEffects?: (effects: VideoEffect[]) => void;
+  onAddAllEffects?: (effects: VideoEffect[]) => void
 }
 
 /**
@@ -50,7 +50,7 @@ export const EffectGroup: React.FC<EffectGroupProps> = ({
       width={previewWidth}
       height={previewHeight}
     />
-  );
+  )
 
   return (
     <ContentGroup
@@ -65,5 +65,5 @@ export const EffectGroup: React.FC<EffectGroupProps> = ({
         gridTemplateColumns: `repeat(auto-fill, minmax(${previewWidth}px, 1fr))`,
       }}
     />
-  );
-};
+  )
+}

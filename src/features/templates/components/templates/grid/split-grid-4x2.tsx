@@ -1,9 +1,9 @@
-import React from "react";
+import React from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
-import { VideoPanelComponent } from "../../video-panel-component";
-import { TemplateProps } from "../types";
+import { VideoPanelComponent } from "../../video-panel-component"
+import { TemplateProps } from "../types"
 
 /**
  * Шаблон "Сетка 4x2" (8 экранов)
@@ -17,18 +17,16 @@ export function SplitGrid4x2({
   templateId,
 }: TemplateProps & { templateId?: string }) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path);
-  const videoCount = Math.min(validVideos.length, 8);
+  const validVideos = videos.filter((v) => v?.path)
+  const videoCount = Math.min(validVideos.length, 8)
 
   // Определяем ориентацию на основе ID шаблона
   // Для квадратных шаблонов используем явное указание ориентации в ID
-  const isPortrait = templateId
-    ? templateId.includes("portrait") || templateId === "split-grid-2x4-square"
-    : false;
+  const isPortrait = templateId ? templateId.includes("portrait") || templateId === "split-grid-2x4-square" : false
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 8) {
-    return <div className="h-full w-full bg-black" />;
+    return <div className="h-full w-full bg-black" />
   }
 
   // Рендеринг в режиме без возможности изменения размеров
@@ -36,14 +34,11 @@ export function SplitGrid4x2({
     if (isPortrait) {
       // Портретный режим (2x4)
       return (
-        <div
-          className="relative h-full w-full"
-          style={{ border: "1px solid #35d1c1" }}
-        >
+        <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
           {/* Рендерим видео */}
           {validVideos.slice(0, videoCount).map((video, index) => {
-            const col = Math.floor(index / 4);
-            const row = index % 4;
+            const col = Math.floor(index / 4)
+            const row = index % 4
 
             return (
               <div
@@ -64,7 +59,7 @@ export function SplitGrid4x2({
                   index={index}
                 />
               </div>
-            );
+            )
           })}
 
           {/* Добавляем разделительные линии */}
@@ -92,18 +87,15 @@ export function SplitGrid4x2({
             />
           ))}
         </div>
-      );
+      )
     }
     // Ландшафтный режим (4x2)
     return (
-      <div
-        className="relative h-full w-full"
-        style={{ border: "1px solid #35d1c1" }}
-      >
+      <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
         {/* Рендерим видео */}
         {validVideos.slice(0, videoCount).map((video, index) => {
-          const row = Math.floor(index / 4);
-          const col = index % 4;
+          const row = Math.floor(index / 4)
+          const col = index % 4
 
           return (
             <div
@@ -124,7 +116,7 @@ export function SplitGrid4x2({
                 index={index}
               />
             </div>
-          );
+          )
         })}
 
         {/* Добавляем разделительные линии */}
@@ -152,17 +144,14 @@ export function SplitGrid4x2({
           }}
         />
       </div>
-    );
+    )
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   if (isPortrait) {
     // Портретный режим (2x4)
     return (
-      <div
-        className="h-full w-full"
-        style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-      >
+      <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
         <PanelGroup direction="horizontal">
           {/* Левая колонка */}
           <Panel defaultSize={50} minSize={10}>
@@ -177,9 +166,7 @@ export function SplitGrid4x2({
                       index={rowIndex}
                     />
                   </Panel>
-                  {rowIndex < 3 && (
-                    <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                  )}
+                  {rowIndex < 3 && <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
                 </React.Fragment>
               ))}
             </PanelGroup>
@@ -189,7 +176,7 @@ export function SplitGrid4x2({
           <Panel defaultSize={50} minSize={10}>
             <PanelGroup direction="vertical">
               {[0, 1, 2, 3].map((rowIndex) => {
-                const videoIndex = 4 + rowIndex;
+                const videoIndex = 4 + rowIndex
                 return (
                   <React.Fragment key={`right-row-${rowIndex}`}>
                     <Panel defaultSize={25} minSize={10}>
@@ -200,24 +187,19 @@ export function SplitGrid4x2({
                         index={videoIndex}
                       />
                     </Panel>
-                    {rowIndex < 3 && (
-                      <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                    )}
+                    {rowIndex < 3 && <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
                   </React.Fragment>
-                );
+                )
               })}
             </PanelGroup>
           </Panel>
         </PanelGroup>
       </div>
-    );
+    )
   }
   // Ландшафтный режим (4x2)
   return (
-    <div
-      className="h-full w-full"
-      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-    >
+    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
       <PanelGroup direction="vertical">
         {/* Верхний ряд */}
         <Panel defaultSize={50} minSize={10}>
@@ -232,9 +214,7 @@ export function SplitGrid4x2({
                     index={colIndex}
                   />
                 </Panel>
-                {colIndex < 3 && (
-                  <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                )}
+                {colIndex < 3 && <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
               </React.Fragment>
             ))}
           </PanelGroup>
@@ -244,7 +224,7 @@ export function SplitGrid4x2({
         <Panel defaultSize={50} minSize={10}>
           <PanelGroup direction="horizontal">
             {[0, 1, 2, 3].map((colIndex) => {
-              const videoIndex = 4 + colIndex;
+              const videoIndex = 4 + colIndex
               return (
                 <React.Fragment key={`bottom-col-${colIndex}`}>
                   <Panel defaultSize={25} minSize={10}>
@@ -255,15 +235,13 @@ export function SplitGrid4x2({
                       index={videoIndex}
                     />
                   </Panel>
-                  {colIndex < 3 && (
-                    <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                  )}
+                  {colIndex < 3 && <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
                 </React.Fragment>
-              );
+              )
             })}
           </PanelGroup>
         </Panel>
       </PanelGroup>
     </div>
-  );
+  )
 }

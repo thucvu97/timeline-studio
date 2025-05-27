@@ -51,8 +51,8 @@ describe("useCameraStream", () => {
         "1920x1080",
         30,
         [{ value: "1920x1080", label: "1920x1080", width: 1920, height: 1080 }],
-        mockSetErrorMessage
-      )
+        mockSetErrorMessage,
+      ),
     )
 
     expect(result.current.isDeviceReady).toBe(false)
@@ -65,14 +65,14 @@ describe("useCameraStream", () => {
       getTracks: () => [
         {
           getSettings: () => ({ width: 1920, height: 1080, frameRate: 30 }),
-          stop: vi.fn()
-        }
+          stop: vi.fn(),
+        },
       ],
       getVideoTracks: () => [
         {
           getSettings: () => ({ width: 1920, height: 1080, frameRate: 30 }),
-          stop: vi.fn()
-        }
+          stop: vi.fn(),
+        },
       ],
     }
     mockGetUserMedia.mockResolvedValueOnce(mockStream)
@@ -85,8 +85,8 @@ describe("useCameraStream", () => {
         "1920x1080",
         30,
         [{ value: "1920x1080", label: "1920x1080", width: 1920, height: 1080 }],
-        mockSetErrorMessage
-      )
+        mockSetErrorMessage,
+      ),
     )
 
     // Инициализируем камеру
@@ -118,8 +118,8 @@ describe("useCameraStream", () => {
         "1920x1080",
         30,
         [{ value: "1920x1080", label: "1920x1080", width: 1920, height: 1080 }],
-        mockSetErrorMessage
-      )
+        mockSetErrorMessage,
+      ),
     )
 
     // Инициализируем камеру
@@ -138,14 +138,14 @@ describe("useCameraStream", () => {
       getTracks: () => [
         {
           getSettings: () => ({ width: 1280, height: 720, frameRate: 30 }),
-          stop: vi.fn()
-        }
+          stop: vi.fn(),
+        },
       ],
       getVideoTracks: () => [
         {
           getSettings: () => ({ width: 1280, height: 720, frameRate: 30 }),
-          stop: vi.fn()
-        }
+          stop: vi.fn(),
+        },
       ],
     }
     mockGetUserMedia
@@ -160,8 +160,8 @@ describe("useCameraStream", () => {
         "1920x1080",
         30,
         [{ value: "1920x1080", label: "1920x1080", width: 1920, height: 1080 }],
-        mockSetErrorMessage
-      )
+        mockSetErrorMessage,
+      ),
     )
 
     // Инициализируем камеру
@@ -185,14 +185,12 @@ describe("useCameraStream", () => {
     // Мокируем успешное получение потока
     const mockTrackStop = vi.fn()
     const mockStream = {
-      getTracks: () => [
-        { stop: mockTrackStop }
-      ],
+      getTracks: () => [{ stop: mockTrackStop }],
       getVideoTracks: () => [
         {
           getSettings: () => ({ width: 1920, height: 1080, frameRate: 30 }),
-          stop: mockTrackStop
-        }
+          stop: mockTrackStop,
+        },
       ],
     }
     mockGetUserMedia.mockResolvedValueOnce(mockStream)
@@ -205,8 +203,8 @@ describe("useCameraStream", () => {
         "1920x1080",
         30,
         [{ value: "1920x1080", label: "1920x1080", width: 1920, height: 1080 }],
-        mockSetErrorMessage
-      )
+        mockSetErrorMessage,
+      ),
     )
 
     // Инициализируем камеру

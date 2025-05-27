@@ -4,9 +4,9 @@
  * Машина состояний для управления Timeline
  */
 
-import { assign, createMachine } from "xstate";
+import { assign, createMachine } from "xstate"
 
-import { MediaFile } from "@/features/media/types/media";
+import { MediaFile } from "@/features/media/types/media"
 
 import {
   TimelineClip,
@@ -19,7 +19,7 @@ import {
   createTimelineProject,
   createTimelineSection,
   createTimelineTrack,
-} from "../types";
+} from "../types"
 
 // ============================================================================
 // CONTEXT TYPES
@@ -27,21 +27,21 @@ import {
 
 export interface TimelineContext {
   // Основные данные
-  project: TimelineProject | null;
-  uiState: TimelineUIState;
+  project: TimelineProject | null
+  uiState: TimelineUIState
 
   // Временное состояние
-  isPlaying: boolean;
-  isRecording: boolean;
-  currentTime: number;
+  isPlaying: boolean
+  isRecording: boolean
+  currentTime: number
 
   // Операции
-  draggedClip: TimelineClip | null;
-  draggedTrack: TimelineTrack | null;
+  draggedClip: TimelineClip | null
+  draggedTrack: TimelineTrack | null
 
   // Ошибки
-  error: string | null;
-  lastAction: string | null;
+  error: string | null
+  lastAction: string | null
 }
 
 // ============================================================================
@@ -57,25 +57,25 @@ export type TimelineEvents =
 
   // Секции
   | {
-      type: "ADD_SECTION";
-      name: string;
-      startTime: number;
-      duration: number;
-      realStartTime?: Date;
+      type: "ADD_SECTION"
+      name: string
+      startTime: number
+      duration: number
+      realStartTime?: Date
     }
   | { type: "REMOVE_SECTION"; sectionId: string }
   | {
-      type: "UPDATE_SECTION";
-      sectionId: string;
-      updates: Partial<TimelineSection>;
+      type: "UPDATE_SECTION"
+      sectionId: string
+      updates: Partial<TimelineSection>
     }
 
   // Треки
   | {
-      type: "ADD_TRACK";
-      trackType: TrackType;
-      sectionId?: string;
-      name?: string;
+      type: "ADD_TRACK"
+      trackType: TrackType
+      sectionId?: string
+      name?: string
     }
   | { type: "REMOVE_TRACK"; trackId: string }
   | { type: "UPDATE_TRACK"; trackId: string; updates: Partial<TimelineTrack> }
@@ -83,26 +83,26 @@ export type TimelineEvents =
 
   // Клипы
   | {
-      type: "ADD_CLIP";
-      trackId: string;
-      mediaFile: MediaFile;
-      startTime: number;
-      duration?: number;
+      type: "ADD_CLIP"
+      trackId: string
+      mediaFile: MediaFile
+      startTime: number
+      duration?: number
     }
   | { type: "REMOVE_CLIP"; clipId: string }
   | { type: "UPDATE_CLIP"; clipId: string; updates: Partial<TimelineClip> }
   | {
-      type: "MOVE_CLIP";
-      clipId: string;
-      newTrackId: string;
-      newStartTime: number;
+      type: "MOVE_CLIP"
+      clipId: string
+      newTrackId: string
+      newStartTime: number
     }
   | { type: "SPLIT_CLIP"; clipId: string; splitTime: number }
   | {
-      type: "TRIM_CLIP";
-      clipId: string;
-      newStartTime: number;
-      newDuration: number;
+      type: "TRIM_CLIP"
+      clipId: string
+      newStartTime: number
+      newDuration: number
     }
 
   // Выделение
@@ -135,7 +135,7 @@ export type TimelineEvents =
   | { type: "PASTE"; targetTrackId?: string; targetTime?: number }
 
   // Ошибки
-  | { type: "CLEAR_ERROR" };
+  | { type: "CLEAR_ERROR" }
 
 // ============================================================================
 // INITIAL STATE
@@ -151,22 +151,13 @@ const initialUIState: TimelineUIState = {
   selectedSectionIds: [],
   editMode: "select",
   snapMode: "grid",
-  visibleTrackTypes: [
-    "video",
-    "audio",
-    "music",
-    "title",
-    "subtitle",
-    "voiceover",
-    "sfx",
-    "ambient",
-  ],
+  visibleTrackTypes: ["video", "audio", "music", "title", "subtitle", "voiceover", "sfx", "ambient"],
   collapsedSectionIds: [],
   clipboard: { clips: [], tracks: [] },
   history: [],
   historyIndex: -1,
   maxHistorySize: 50,
-};
+}
 
 const initialContext: TimelineContext = {
   project: null,
@@ -178,26 +169,22 @@ const initialContext: TimelineContext = {
   draggedTrack: null,
   error: null,
   lastAction: null,
-};
+}
 
 // ============================================================================
 // GUARDS
 // ============================================================================
 
 const guards = {
-  hasProject: ({ context }: { context: TimelineContext }) =>
-    context.project !== null,
+  hasProject: ({ context }: { context: TimelineContext }) => context.project !== null,
   hasSelection: ({ context }: { context: TimelineContext }) =>
-    context.uiState.selectedClipIds.length > 0 ||
-    context.uiState.selectedTrackIds.length > 0,
-  canUndo: ({ context }: { context: TimelineContext }) =>
-    context.uiState.historyIndex > 0,
+    context.uiState.selectedClipIds.length > 0 || context.uiState.selectedTrackIds.length > 0,
+  canUndo: ({ context }: { context: TimelineContext }) => context.uiState.historyIndex > 0,
   canRedo: ({ context }: { context: TimelineContext }) =>
     context.uiState.historyIndex < context.uiState.history.length - 1,
   hasClipboard: ({ context }: { context: TimelineContext }) =>
-    context.uiState.clipboard.clips.length > 0 ||
-    context.uiState.clipboard.tracks.length > 0,
-};
+    context.uiState.clipboard.clips.length > 0 || context.uiState.clipboard.tracks.length > 0,
+}
 
 // ============================================================================
 // ACTIONS
@@ -206,8 +193,7 @@ const guards = {
 const actions = {
   // Проект
   createProject: assign({
-    project: ({ event }: { event: any }) =>
-      createTimelineProject(event.name, event.settings),
+    project: ({ event }: { event: any }) => createTimelineProject(event.name, event.settings),
     error: null,
     lastAction: "CREATE_PROJECT",
   }),
@@ -229,20 +215,15 @@ const actions = {
   // Секции
   addSection: assign({
     project: ({ context, event }: { context: TimelineContext; event: any }) => {
-      if (!context.project) return context.project;
+      if (!context.project) return context.project
 
-      const newSection = createTimelineSection(
-        event.name,
-        event.startTime,
-        event.duration,
-        event.realStartTime,
-      );
+      const newSection = createTimelineSection(event.name, event.startTime, event.duration, event.realStartTime)
 
       return {
         ...context.project,
         sections: [...context.project.sections, newSection],
         updatedAt: new Date(),
-      };
+      }
     },
     lastAction: "ADD_SECTION",
   }),
@@ -250,40 +231,35 @@ const actions = {
   // Треки
   addTrack: assign({
     project: ({ context, event }: { context: TimelineContext; event: any }) => {
-      if (!context.project) return context.project;
+      if (!context.project) return context.project
 
-      const newTrack = createTimelineTrack(
-        event.name || `${event.trackType} Track`,
-        event.trackType,
-        event.sectionId,
-      );
+      const newTrack = createTimelineTrack(event.name || `${event.trackType} Track`, event.trackType, event.sectionId)
 
       if (event.sectionId) {
         // Добавляем в секцию
         const sections = context.project.sections.map((section) => {
           if (section.id === event.sectionId) {
-            newTrack.order = section.tracks.length;
+            newTrack.order = section.tracks.length
             return {
               ...section,
               tracks: [...section.tracks, newTrack],
-            };
+            }
           }
-          return section;
-        });
+          return section
+        })
 
         return {
           ...context.project,
           sections,
           updatedAt: new Date(),
-        };
-      } else {
-        // Добавляем как глобальный трек
-        newTrack.order = context.project.globalTracks.length;
-        return {
-          ...context.project,
-          globalTracks: [...context.project.globalTracks, newTrack],
-          updatedAt: new Date(),
-        };
+        }
+      }
+      // Добавляем как глобальный трек
+      newTrack.order = context.project.globalTracks.length
+      return {
+        ...context.project,
+        globalTracks: [...context.project.globalTracks, newTrack],
+        updatedAt: new Date(),
       }
     },
     lastAction: "ADD_TRACK",
@@ -292,16 +268,16 @@ const actions = {
   // Клипы
   addClip: assign({
     project: ({ context, event }: { context: TimelineContext; event: any }) => {
-      if (!context.project) return context.project;
+      if (!context.project) return context.project
 
       const newClip = createTimelineClip(
         event.mediaFile.id,
         event.trackId,
         event.startTime,
         event.duration || event.mediaFile.duration || 10,
-      );
-      newClip.name = event.mediaFile.name;
-      newClip.mediaFile = event.mediaFile;
+      )
+      newClip.name = event.mediaFile.name
+      newClip.mediaFile = event.mediaFile
 
       // Находим трек и добавляем клип
       const updateTracks = (tracks: TimelineTrack[]) =>
@@ -310,24 +286,24 @@ const actions = {
             return {
               ...track,
               clips: [...track.clips, newClip],
-            };
+            }
           }
-          return track;
-        });
+          return track
+        })
 
       const sections = context.project.sections.map((section) => ({
         ...section,
         tracks: updateTracks(section.tracks),
-      }));
+      }))
 
-      const globalTracks = updateTracks(context.project.globalTracks);
+      const globalTracks = updateTracks(context.project.globalTracks)
 
       return {
         ...context.project,
         sections,
         globalTracks,
         updatedAt: new Date(),
-      };
+      }
     },
     lastAction: "ADD_CLIP",
   }),
@@ -338,8 +314,8 @@ const actions = {
       context,
       event,
     }: {
-      context: TimelineContext;
-      event: any;
+      context: TimelineContext
+      event: any
     }) => ({
       ...context.uiState,
       selectedClipIds: event.addToSelection
@@ -376,8 +352,8 @@ const actions = {
       context,
       event,
     }: {
-      context: TimelineContext;
-      event: any;
+      context: TimelineContext
+      event: any
     }) => ({
       ...context.uiState,
       currentTime: event.time,
@@ -392,8 +368,8 @@ const actions = {
       context,
       event,
     }: {
-      context: TimelineContext;
-      event: any;
+      context: TimelineContext
+      event: any
     }) => ({
       ...context.uiState,
       timeScale: event.scale,
@@ -410,7 +386,7 @@ const actions = {
   clearError: assign({
     error: null,
   }),
-};
+}
 
 // ============================================================================
 // MACHINE DEFINITION
@@ -531,4 +507,4 @@ export const timelineMachine = createMachine(
     // @ts-expect-error - XState типы конфликтуют, временно игнорируем
     actions,
   },
-);
+)

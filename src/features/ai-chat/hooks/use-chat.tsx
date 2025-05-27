@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useContext } from "react"
 
-import { ChatContext, ChatContextType } from "../services";
+import { ChatContext, ChatContextType } from "../services"
 
 /**
  * Хук для использования контекста чата
@@ -9,11 +9,11 @@ import { ChatContext, ChatContextType } from "../services";
  * @throws Ошибка, если хук используется вне ChatProvider
  */
 export function useChat(): ChatContextType {
-  const context = useContext(ChatContext);
+  const context = useContext(ChatContext)
 
   if (!context) {
-    throw new Error("useChat должен использоваться внутри ChatProvider");
+    throw new Error("useChat должен использоваться внутри ChatProvider")
   }
 
-  return context;
+  return context
 }

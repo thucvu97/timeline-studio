@@ -41,10 +41,7 @@ describe("useCameraPermissions", () => {
   it("should set status to granted when permissions are granted", async () => {
     // Мокируем успешное получение разрешений
     mockGetUserMedia.mockResolvedValueOnce({
-      getTracks: () => [
-        { stop: vi.fn() },
-        { stop: vi.fn() },
-      ],
+      getTracks: () => [{ stop: vi.fn() }, { stop: vi.fn() }],
     })
 
     const { result } = renderHook(() => useCameraPermissions(mockGetDevices))
@@ -112,9 +109,7 @@ describe("useDeviceCapabilities", () => {
   })
 
   it("should initialize with empty resolutions and loading false", () => {
-    const { result } = renderHook(() => 
-      useDeviceCapabilities(mockSetSelectedResolution, mockSetFrameRate)
-    )
+    const { result } = renderHook(() => useDeviceCapabilities(mockSetSelectedResolution, mockSetFrameRate))
 
     expect(result.current.availableResolutions).toEqual([])
     expect(result.current.supportedResolutions).toEqual([])
@@ -129,9 +124,7 @@ describe("useDeviceCapabilities", () => {
       getTracks: () => [{ stop: vi.fn() }],
     })
 
-    const { result } = renderHook(() => 
-      useDeviceCapabilities(mockSetSelectedResolution, mockSetFrameRate)
-    )
+    const { result } = renderHook(() => useDeviceCapabilities(mockSetSelectedResolution, mockSetFrameRate))
 
     // Запрашиваем возможности устройства
     await result.current.getDeviceCapabilities("test-device-id")
@@ -141,7 +134,7 @@ describe("useDeviceCapabilities", () => {
       expect(result.current.isLoadingCapabilities).toBe(false)
       expect(mockSetSelectedResolution).toHaveBeenCalled()
       expect(mockSetFrameRate).toHaveBeenCalled()
-      
+
       // Проверяем, что разрешения и частоты кадров установлены
       expect(result.current.supportedResolutions.length).toBeGreaterThan(0)
       expect(result.current.supportedFrameRates.length).toBeGreaterThan(0)
@@ -151,13 +144,15 @@ describe("useDeviceCapabilities", () => {
   it("should use common resolutions when getCapabilities is not supported", async () => {
     // Мокируем успешное получение потока без getCapabilities
     mockGetUserMedia.mockResolvedValueOnce({
-      getVideoTracks: () => [{ /* нет метода getCapabilities */ }],
+      getVideoTracks: () => [
+        {
+          /* нет метода getCapabilities */
+        },
+      ],
       getTracks: () => [{ stop: vi.fn() }],
     })
 
-    const { result } = renderHook(() => 
-      useDeviceCapabilities(mockSetSelectedResolution, mockSetFrameRate)
-    )
+    const { result } = renderHook(() => useDeviceCapabilities(mockSetSelectedResolution, mockSetFrameRate))
 
     // Запрашиваем возможности устройства
     await result.current.getDeviceCapabilities("test-device-id")
@@ -176,9 +171,7 @@ describe("useDeviceCapabilities", () => {
     // Мокируем ошибку при получении потока
     mockGetUserMedia.mockRejectedValueOnce(new Error("Test error"))
 
-    const { result } = renderHook(() => 
-      useDeviceCapabilities(mockSetSelectedResolution, mockSetFrameRate)
-    )
+    const { result } = renderHook(() => useDeviceCapabilities(mockSetSelectedResolution, mockSetFrameRate))
 
     // Запрашиваем возможности устройства
     await result.current.getDeviceCapabilities("test-device-id")

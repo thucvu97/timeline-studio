@@ -1,11 +1,11 @@
-import i18next from "i18next";
-import { assign, createMachine, fromPromise } from "xstate";
+import i18next from "i18next"
+import { assign, createMachine, fromPromise } from "xstate"
 
-import { FavoritesType } from "@/features/browser/media/media-machine";
-import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine";
-import { DEFAULT_CONTENT_SIZES } from "@/lib/constants/preview-sizes";
+import { FavoritesType } from "@/features/browser/media/media-machine"
+import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
+import { DEFAULT_CONTENT_SIZES } from "@/lib/constants/preview-sizes"
 
-import { AppSettings, storeService } from "./store-service";
+import { AppSettings, storeService } from "./store-service"
 
 /**
  * Функция для получения локализованного названия проекта по умолчанию
@@ -15,51 +15,51 @@ const getDefaultProjectName = (): string => {
   // Проверяем, доступен ли i18next
   if (typeof i18next !== "undefined" && i18next.isInitialized) {
     // eslint-disable-next-line import/no-named-as-default-member
-    return i18next.t("project.untitledProject", { number: 1 });
+    return i18next.t("project.untitledProject", { number: 1 })
   }
 
-  return "Новый проект";
-};
+  return "Новый проект"
+}
 
 /**
  * Интерфейс контекста машины состояний настроек приложения
  */
 export interface AppSettingsContextType {
   // Пользовательские настройки
-  userSettings: UserSettingsContextType;
+  userSettings: UserSettingsContextType
 
   // Последние открытые проекты
   recentProjects: {
-    path: string;
-    name: string;
-    lastOpened: number;
-  }[];
+    path: string
+    name: string
+    lastOpened: number
+  }[]
 
   // Информация о текущем открытом проекте
   currentProject: {
-    path: string | null;
-    name: string;
-    isDirty: boolean;
-    isNew: boolean;
+    path: string | null
+    name: string
+    isDirty: boolean
+    isNew: boolean
     // Настройки проекта не хранятся здесь, они хранятся в файле проекта
     // и управляются через ProjectSettingsProvider
-  };
+  }
 
   // Избранные элементы
-  favorites: FavoritesType;
+  favorites: FavoritesType
 
   // Медиа файлы
   mediaFiles: {
-    allMediaFiles: any[];
-    error: string | null;
-    isLoading: boolean;
-  };
+    allMediaFiles: any[]
+    error: string | null
+    isLoading: boolean
+  }
 
   // Состояние загрузки
-  isLoading: boolean;
+  isLoading: boolean
 
   // Ошибка
-  error: string | null;
+  error: string | null
 }
 
 /**
@@ -73,16 +73,16 @@ export type AppSettingsEvent =
   | { type: "UPDATE_FAVORITES"; favorites: Partial<FavoritesType> }
   | { type: "ADD_TO_FAVORITES"; itemType: keyof FavoritesType; item: any }
   | {
-      type: "REMOVE_FROM_FAVORITES";
-      itemType: keyof FavoritesType;
-      itemId: string;
+      type: "REMOVE_FROM_FAVORITES"
+      itemType: keyof FavoritesType
+      itemId: string
     }
   | { type: "RELOAD_SETTINGS" }
   | { type: "CREATE_NEW_PROJECT"; name?: string }
   | { type: "OPEN_PROJECT"; path: string; name: string }
   | { type: "SAVE_PROJECT"; path: string; name: string }
   | { type: "SET_PROJECT_DIRTY"; isDirty: boolean }
-  | { type: "UPDATE_MEDIA_FILES"; files: any[] };
+  | { type: "UPDATE_MEDIA_FILES"; files: any[] }
 
 /**
  * Загрузка настроек из хранилища
@@ -90,22 +90,22 @@ export type AppSettingsEvent =
 const loadSettings = fromPromise(async () => {
   try {
     // Инициализируем хранилище
-    await storeService.initialize();
+    await storeService.initialize()
 
     // Получаем настройки
-    const settings = await storeService.getSettings();
+    const settings = await storeService.getSettings()
 
     if (settings) {
-      return settings;
+      return settings
     }
 
     // Если настроек нет, возвращаем настройки по умолчанию
-    return getDefaultSettings();
+    return getDefaultSettings()
   } catch (error) {
-    console.error("[AppSettingsMachine] Error loading settings:", error);
-    throw error;
+    console.error("[AppSettingsMachine] Error loading settings:", error)
+    throw error
   }
-});
+})
 
 /**
  * Получение настроек по умолчанию
@@ -149,7 +149,7 @@ function getDefaultSettings(): AppSettings {
       lastUpdated: Date.now(),
       version: "1.0.0",
     },
-  };
+  }
 }
 
 /**
@@ -262,7 +262,7 @@ export const appSettingsMachine = createMachine({
             }),
             // Сохраняем настройки в хранилище
             ({ context }) => {
-              void storeService.saveUserSettings(context.userSettings);
+              void storeService.saveUserSettings(context.userSettings)
             },
           ],
         },
@@ -274,9 +274,7 @@ export const appSettingsMachine = createMachine({
             assign({
               recentProjects: ({ context, event }) => {
                 // Фильтруем список, чтобы удалить проект с таким же путем, если он уже есть
-                const filteredProjects = context.recentProjects.filter(
-                  (p) => p.path !== event.path,
-                );
+                const filteredProjects = context.recentProjects.filter((p) => p.path !== event.path)
 
                 // Добавляем проект в начало списка
                 return [
@@ -286,15 +284,12 @@ export const appSettingsMachine = createMachine({
                     lastOpened: Date.now(),
                   },
                   ...filteredProjects,
-                ].slice(0, 10); // Ограничиваем список 10 последними проектами
+                ].slice(0, 10) // Ограничиваем список 10 последними проектами
               },
             }),
             // Сохраняем список в хранилище
             ({ context }) => {
-              void storeService.addRecentProject(
-                context.recentProjects[0].path,
-                context.recentProjects[0].name,
-              );
+              void storeService.addRecentProject(context.recentProjects[0].path, context.recentProjects[0].name)
             },
           ],
         },
@@ -302,8 +297,7 @@ export const appSettingsMachine = createMachine({
         // Удаление проекта из списка последних открытых
         REMOVE_RECENT_PROJECT: {
           actions: assign({
-            recentProjects: ({ context, event }) =>
-              context.recentProjects.filter((p) => p.path !== event.path),
+            recentProjects: ({ context, event }) => context.recentProjects.filter((p) => p.path !== event.path),
           }),
         },
 
@@ -322,22 +316,22 @@ export const appSettingsMachine = createMachine({
               favorites: ({ context, event }) => {
                 const updatedFavorites = {
                   ...context.favorites,
-                };
+                }
 
                 // Обновляем каждый тип избранных элементов
                 Object.keys(event.favorites).forEach((key) => {
-                  const typedKey = key as keyof FavoritesType;
+                  const typedKey = key as keyof FavoritesType
                   if (event.favorites[typedKey] !== undefined) {
-                    updatedFavorites[typedKey] = event.favorites[typedKey];
+                    updatedFavorites[typedKey] = event.favorites[typedKey]
                   }
-                });
+                })
 
-                return updatedFavorites;
+                return updatedFavorites
               },
             }),
             // Сохраняем избранные в хранилище
             ({ context }) => {
-              void storeService.saveFavorites(context.favorites);
+              void storeService.saveFavorites(context.favorites)
             },
           ],
         },
@@ -348,17 +342,14 @@ export const appSettingsMachine = createMachine({
             // Обновляем избранные в контексте
             assign({
               favorites: ({ context, event }) => {
-                const updatedFavorites = { ...context.favorites };
-                updatedFavorites[event.itemType] = [
-                  ...updatedFavorites[event.itemType],
-                  event.item,
-                ];
-                return updatedFavorites;
+                const updatedFavorites = { ...context.favorites }
+                updatedFavorites[event.itemType] = [...updatedFavorites[event.itemType], event.item]
+                return updatedFavorites
               },
             }),
             // Сохраняем избранные в хранилище
             ({ context }) => {
-              void storeService.saveFavorites(context.favorites);
+              void storeService.saveFavorites(context.favorites)
             },
           ],
         },
@@ -369,16 +360,16 @@ export const appSettingsMachine = createMachine({
             // Обновляем избранные в контексте
             assign({
               favorites: ({ context, event }) => {
-                const updatedFavorites = { ...context.favorites };
-                updatedFavorites[event.itemType] = updatedFavorites[
-                  event.itemType
-                ].filter((item: any) => item.id !== event.itemId);
-                return updatedFavorites;
+                const updatedFavorites = { ...context.favorites }
+                updatedFavorites[event.itemType] = updatedFavorites[event.itemType].filter(
+                  (item: any) => item.id !== event.itemId,
+                )
+                return updatedFavorites
               },
             }),
             // Сохраняем избранные в хранилище
             ({ context }) => {
-              void storeService.saveFavorites(context.favorites);
+              void storeService.saveFavorites(context.favorites)
             },
           ],
         },
@@ -407,7 +398,7 @@ export const appSettingsMachine = createMachine({
                   isDirty: false,
                   isNew: true,
                 },
-              } as any);
+              } as any)
             },
           ],
         },
@@ -427,9 +418,7 @@ export const appSettingsMachine = createMachine({
             assign({
               recentProjects: ({ context, event }) => {
                 // Фильтруем список, чтобы удалить проект с таким же путем, если он уже есть
-                const filteredProjects = context.recentProjects.filter(
-                  (p) => p.path !== event.path,
-                );
+                const filteredProjects = context.recentProjects.filter((p) => p.path !== event.path)
 
                 // Добавляем проект в начало списка
                 return [
@@ -439,11 +428,11 @@ export const appSettingsMachine = createMachine({
                     lastOpened: Date.now(),
                   },
                   ...filteredProjects,
-                ].slice(0, 10); // Ограничиваем список 10 последними проектами
+                ].slice(0, 10) // Ограничиваем список 10 последними проектами
               },
             }),
             ({ context }) => {
-              void storeService.saveSettings(context as any);
+              void storeService.saveSettings(context as any)
             },
           ],
         },
@@ -461,7 +450,7 @@ export const appSettingsMachine = createMachine({
               }),
             }),
             ({ context }) => {
-              void storeService.saveSettings(context as any);
+              void storeService.saveSettings(context as any)
             },
           ],
         },
@@ -477,7 +466,7 @@ export const appSettingsMachine = createMachine({
             }),
             // Сохраняем состояние в хранилище
             ({ context }) => {
-              void storeService.saveSettings(context as any);
+              void storeService.saveSettings(context as any)
             },
           ],
         },
@@ -494,11 +483,11 @@ export const appSettingsMachine = createMachine({
               }),
             }),
             ({ context }) => {
-              void storeService.saveSettings(context as any);
+              void storeService.saveSettings(context as any)
             },
           ],
         },
       },
     },
   },
-});
+})

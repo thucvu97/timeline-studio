@@ -27,7 +27,7 @@ Element.prototype.requestFullscreen = vi.fn().mockImplementation(function () {
 beforeEach(() => {
   vi.clearAllMocks()
   vi.spyOn(console, "log").mockImplementation(() => {})
-  
+
   // Сбрасываем fullscreenElement перед каждым тестом
   Object.defineProperty(document, "fullscreenElement", {
     writable: true,

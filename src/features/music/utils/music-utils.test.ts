@@ -1,13 +1,13 @@
-import { act } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media";
+import { MediaFile } from "@/features/media/types/media"
 
-import { filterFiles, sortFiles } from "./music-utils";
+import { filterFiles, sortFiles } from "./music-utils"
 
 // Мокаем console.log и console.error
-vi.spyOn(console, "log").mockImplementation(() => {});
-vi.spyOn(console, "error").mockImplementation(() => {});
+vi.spyOn(console, "log").mockImplementation(() => {})
+vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Создаем моковые медиафайлы для тестов
 const mockMediaFiles: MediaFile[] = [
@@ -65,82 +65,82 @@ const mockMediaFiles: MediaFile[] = [
       },
     },
   },
-];
+]
 
 // Создаем мок для медиаконтекста
 const mockMediaContext = {
   isItemFavorite: vi.fn((file) => file.id === "1"),
-};
+}
 
 describe("music-utils", () => {
   beforeEach(() => {
     // Очищаем моки перед каждым тестом
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   describe("sortFiles", () => {
     it("should sort files by name in ascending order", () => {
-      const sorted = sortFiles(mockMediaFiles, "name", "asc");
-      expect(sorted[0].name).toBe("test1.mp3");
-      expect(sorted[1].name).toBe("test2.wav");
-      expect(sorted[2].name).toBe("test3.mp3");
-    });
+      const sorted = sortFiles(mockMediaFiles, "name", "asc")
+      expect(sorted[0].name).toBe("test1.mp3")
+      expect(sorted[1].name).toBe("test2.wav")
+      expect(sorted[2].name).toBe("test3.mp3")
+    })
 
     it("should sort files by name in descending order", () => {
-      const sorted = sortFiles(mockMediaFiles, "name", "desc");
-      expect(sorted[0].name).toBe("test3.mp3");
-      expect(sorted[1].name).toBe("test2.wav");
-      expect(sorted[2].name).toBe("test1.mp3");
-    });
+      const sorted = sortFiles(mockMediaFiles, "name", "desc")
+      expect(sorted[0].name).toBe("test3.mp3")
+      expect(sorted[1].name).toBe("test2.wav")
+      expect(sorted[2].name).toBe("test1.mp3")
+    })
 
     it("should sort files by title in ascending order", () => {
-      const sorted = sortFiles(mockMediaFiles, "title", "asc");
-      expect(sorted[0].probeData.format.tags.title).toBe("Another Test");
-      expect(sorted[1].probeData.format.tags.title).toBe("Test Song 1");
-      expect(sorted[2].probeData.format.tags.title).toBe("Test Song 2");
-    });
+      const sorted = sortFiles(mockMediaFiles, "title", "asc")
+      expect(sorted[0].probeData.format.tags.title).toBe("Another Test")
+      expect(sorted[1].probeData.format.tags.title).toBe("Test Song 1")
+      expect(sorted[2].probeData.format.tags.title).toBe("Test Song 2")
+    })
 
     it("should sort files by title in descending order", () => {
-      const sorted = sortFiles(mockMediaFiles, "title", "desc");
-      expect(sorted[0].probeData.format.tags.title).toBe("Test Song 2");
-      expect(sorted[1].probeData.format.tags.title).toBe("Test Song 1");
-      expect(sorted[2].probeData.format.tags.title).toBe("Another Test");
-    });
+      const sorted = sortFiles(mockMediaFiles, "title", "desc")
+      expect(sorted[0].probeData.format.tags.title).toBe("Test Song 2")
+      expect(sorted[1].probeData.format.tags.title).toBe("Test Song 1")
+      expect(sorted[2].probeData.format.tags.title).toBe("Another Test")
+    })
 
     it("should sort files by artist in ascending order", () => {
-      const sorted = sortFiles(mockMediaFiles, "artist", "asc");
-      expect(sorted[0].probeData.format.tags.artist).toBe("Test Artist 1");
-      expect(sorted[1].probeData.format.tags.artist).toBe("Test Artist 1");
-      expect(sorted[2].probeData.format.tags.artist).toBe("Test Artist 2");
-    });
+      const sorted = sortFiles(mockMediaFiles, "artist", "asc")
+      expect(sorted[0].probeData.format.tags.artist).toBe("Test Artist 1")
+      expect(sorted[1].probeData.format.tags.artist).toBe("Test Artist 1")
+      expect(sorted[2].probeData.format.tags.artist).toBe("Test Artist 2")
+    })
 
     it("should sort files by date in ascending order", () => {
-      const sorted = sortFiles(mockMediaFiles, "date", "asc");
-      expect(sorted[0].probeData.format.tags.date).toBe("2020-01-01");
-      expect(sorted[1].probeData.format.tags.date).toBe("2021-01-01");
-      expect(sorted[2].probeData.format.tags.date).toBe("2022-01-01");
-    });
+      const sorted = sortFiles(mockMediaFiles, "date", "asc")
+      expect(sorted[0].probeData.format.tags.date).toBe("2020-01-01")
+      expect(sorted[1].probeData.format.tags.date).toBe("2021-01-01")
+      expect(sorted[2].probeData.format.tags.date).toBe("2022-01-01")
+    })
 
     it("should sort files by duration in ascending order", () => {
-      const sorted = sortFiles(mockMediaFiles, "duration", "asc");
-      expect(sorted[0].probeData.format.duration).toBe(90);
-      expect(sorted[1].probeData.format.duration).toBe(120);
-      expect(sorted[2].probeData.format.duration).toBe(180);
-    });
+      const sorted = sortFiles(mockMediaFiles, "duration", "asc")
+      expect(sorted[0].probeData.format.duration).toBe(90)
+      expect(sorted[1].probeData.format.duration).toBe(120)
+      expect(sorted[2].probeData.format.duration).toBe(180)
+    })
 
     it("should sort files by size in ascending order", () => {
-      const sorted = sortFiles(mockMediaFiles, "size", "asc");
-      expect(sorted[0].probeData.format.size).toBe(500);
-      expect(sorted[1].probeData.format.size).toBe(1000);
-      expect(sorted[2].probeData.format.size).toBe(2000);
-    });
+      const sorted = sortFiles(mockMediaFiles, "size", "asc")
+      expect(sorted[0].probeData.format.size).toBe(500)
+      expect(sorted[1].probeData.format.size).toBe(1000)
+      expect(sorted[2].probeData.format.size).toBe(2000)
+    })
 
     it("should sort files by genre in ascending order", () => {
-      const sorted = sortFiles(mockMediaFiles, "genre", "asc");
-      expect(sorted[0].probeData.format.tags.genre).toBe("Jazz");
-      expect(sorted[1].probeData.format.tags.genre).toBe("Pop");
-      expect(sorted[2].probeData.format.tags.genre).toBe("Rock");
-    });
+      const sorted = sortFiles(mockMediaFiles, "genre", "asc")
+      expect(sorted[0].probeData.format.tags.genre).toBe("Jazz")
+      expect(sorted[1].probeData.format.tags.genre).toBe("Pop")
+      expect(sorted[2].probeData.format.tags.genre).toBe("Rock")
+    })
 
     it("should handle missing properties gracefully", () => {
       const filesWithMissingProps = [
@@ -156,102 +156,78 @@ describe("music-utils", () => {
             },
           },
         },
-      ];
+      ]
 
       // Не должно выбрасывать ошибку
-      expect(() =>
-        sortFiles(filesWithMissingProps, "title", "asc"),
-      ).not.toThrow();
-      expect(() =>
-        sortFiles(filesWithMissingProps, "artist", "asc"),
-      ).not.toThrow();
-      expect(() =>
-        sortFiles(filesWithMissingProps, "date", "asc"),
-      ).not.toThrow();
-      expect(() =>
-        sortFiles(filesWithMissingProps, "duration", "asc"),
-      ).not.toThrow();
-      expect(() =>
-        sortFiles(filesWithMissingProps, "size", "asc"),
-      ).not.toThrow();
-      expect(() =>
-        sortFiles(filesWithMissingProps, "genre", "asc"),
-      ).not.toThrow();
-    });
-  });
+      expect(() => sortFiles(filesWithMissingProps, "title", "asc")).not.toThrow()
+      expect(() => sortFiles(filesWithMissingProps, "artist", "asc")).not.toThrow()
+      expect(() => sortFiles(filesWithMissingProps, "date", "asc")).not.toThrow()
+      expect(() => sortFiles(filesWithMissingProps, "duration", "asc")).not.toThrow()
+      expect(() => sortFiles(filesWithMissingProps, "size", "asc")).not.toThrow()
+      expect(() => sortFiles(filesWithMissingProps, "genre", "asc")).not.toThrow()
+    })
+  })
 
   describe("filterFiles", () => {
     it("should filter files by extension", () => {
-      const filtered = filterFiles(mockMediaFiles, "", "mp3");
-      expect(filtered.length).toBe(2);
-      expect(filtered[0].name).toBe("test1.mp3");
-      expect(filtered[1].name).toBe("test3.mp3");
-    });
+      const filtered = filterFiles(mockMediaFiles, "", "mp3")
+      expect(filtered.length).toBe(2)
+      expect(filtered[0].name).toBe("test1.mp3")
+      expect(filtered[1].name).toBe("test3.mp3")
+    })
 
     it("should filter files by search query in name", () => {
-      const filtered = filterFiles(mockMediaFiles, "test1", "all");
-      expect(filtered.length).toBe(1);
-      expect(filtered[0].name).toBe("test1.mp3");
-    });
+      const filtered = filterFiles(mockMediaFiles, "test1", "all")
+      expect(filtered.length).toBe(1)
+      expect(filtered[0].name).toBe("test1.mp3")
+    })
 
     it("should filter files by search query in title", () => {
-      const filtered = filterFiles(mockMediaFiles, "Another", "all");
-      expect(filtered.length).toBe(1);
-      expect(filtered[0].probeData.format.tags.title).toBe("Another Test");
-    });
+      const filtered = filterFiles(mockMediaFiles, "Another", "all")
+      expect(filtered.length).toBe(1)
+      expect(filtered[0].probeData.format.tags.title).toBe("Another Test")
+    })
 
     it("should filter files by search query in artist", () => {
-      const filtered = filterFiles(mockMediaFiles, "Artist 2", "all");
-      expect(filtered.length).toBe(1);
-      expect(filtered[0].probeData.format.tags.artist).toBe("Test Artist 2");
-    });
+      const filtered = filterFiles(mockMediaFiles, "Artist 2", "all")
+      expect(filtered.length).toBe(1)
+      expect(filtered[0].probeData.format.tags.artist).toBe("Test Artist 2")
+    })
 
     it("should filter files by search query in genre", () => {
-      const filtered = filterFiles(mockMediaFiles, "Jazz", "all");
-      expect(filtered.length).toBe(1);
-      expect(filtered[0].probeData.format.tags.genre).toBe("Jazz");
-    });
+      const filtered = filterFiles(mockMediaFiles, "Jazz", "all")
+      expect(filtered.length).toBe(1)
+      expect(filtered[0].probeData.format.tags.genre).toBe("Jazz")
+    })
 
     it("should filter files by favorites", () => {
-      const filtered = filterFiles(
-        mockMediaFiles,
-        "",
-        "all",
-        true,
-        mockMediaContext,
-      );
-      expect(filtered.length).toBe(1);
-      expect(filtered[0].id).toBe("1");
-    });
+      const filtered = filterFiles(mockMediaFiles, "", "all", true, mockMediaContext)
+      expect(filtered.length).toBe(1)
+      expect(filtered[0].id).toBe("1")
+    })
 
     it("should combine multiple filters", () => {
       // Фильтрация по расширению и поисковому запросу
-      const filtered = filterFiles(mockMediaFiles, "Test", "mp3");
-      expect(filtered.length).toBe(2);
-      expect(filtered[0].name).toBe("test1.mp3");
-      expect(filtered[1].name).toBe("test3.mp3");
+      const filtered = filterFiles(mockMediaFiles, "Test", "mp3")
+      expect(filtered.length).toBe(2)
+      expect(filtered[0].name).toBe("test1.mp3")
+      expect(filtered[1].name).toBe("test3.mp3")
 
       // Фильтрация по расширению, поисковому запросу и избранному
-      const filteredWithFavorites = filterFiles(
-        mockMediaFiles,
-        "Test",
-        "mp3",
-        true,
-        mockMediaContext,
-      );
-      expect(filteredWithFavorites.length).toBe(1);
-      expect(filteredWithFavorites[0].id).toBe("1");
-    });
+      const filteredWithFavorites = filterFiles(mockMediaFiles, "Test", "mp3", true, mockMediaContext)
+      expect(filteredWithFavorites.length).toBe(1)
+      expect(filteredWithFavorites[0].id).toBe("1")
+    })
 
     it("should handle empty search query", () => {
-      const filtered = filterFiles(mockMediaFiles, "", "all");
-      expect(filtered.length).toBe(3);
-    });
+      const filtered = filterFiles(mockMediaFiles, "", "all")
+      expect(filtered.length).toBe(3)
+    })
 
     it("should handle empty files array", () => {
-      const filtered = filterFiles([], "test", "all");
-      expect(filtered.length).toBe(0);
-    });
+      const filtered = filterFiles([], "test", "all")
+      expect(filtered.length).toBe(0)
+    })
 
     it("should handle missing properties gracefully", () => {
       const filesWithMissingProps = [
@@ -267,27 +243,25 @@ describe("music-utils", () => {
             },
           },
         },
-      ];
+      ]
 
       // Не должно выбрасывать ошибку
-      expect(() =>
-        filterFiles(filesWithMissingProps, "test", "all"),
-      ).not.toThrow();
-    });
+      expect(() => filterFiles(filesWithMissingProps, "test", "all")).not.toThrow()
+    })
 
     it("should be case insensitive for search queries", () => {
-      const filtered = filterFiles(mockMediaFiles, "ARTIST", "all");
-      expect(filtered.length).toBe(3); // Все файлы содержат "Artist" в названии исполнителя
-    });
+      const filtered = filterFiles(mockMediaFiles, "ARTIST", "all")
+      expect(filtered.length).toBe(3) // Все файлы содержат "Artist" в названии исполнителя
+    })
 
     it("should filter by multiple file extensions", () => {
-      const filteredMp3 = filterFiles(mockMediaFiles, "", "mp3");
-      const filteredWav = filterFiles(mockMediaFiles, "", "wav");
+      const filteredMp3 = filterFiles(mockMediaFiles, "", "mp3")
+      const filteredWav = filterFiles(mockMediaFiles, "", "wav")
 
-      expect(filteredMp3.length).toBe(2);
-      expect(filteredWav.length).toBe(1);
-      expect(filteredWav[0].name).toBe("test2.wav");
-    });
+      expect(filteredMp3.length).toBe(2)
+      expect(filteredWav.length).toBe(1)
+      expect(filteredWav[0].name).toBe("test2.wav")
+    })
 
     it("should handle special characters in search", () => {
       const filesWithSpecialChars = [
@@ -306,13 +280,13 @@ describe("music-utils", () => {
             },
           },
         },
-      ];
+      ]
 
-      const filtered = filterFiles(filesWithSpecialChars, "special", "all");
-      expect(filtered.length).toBe(1);
-      expect(filtered[0].name).toBe("test-file_with@special#chars.mp3");
-    });
-  });
+      const filtered = filterFiles(filesWithSpecialChars, "special", "all")
+      expect(filtered.length).toBe(1)
+      expect(filtered[0].name).toBe("test-file_with@special#chars.mp3")
+    })
+  })
 
   describe("edge cases and performance", () => {
     it("should handle large arrays efficiently", () => {
@@ -333,17 +307,17 @@ describe("music-utils", () => {
             },
           },
         },
-      }));
+      }))
 
-      const start = performance.now();
-      const sorted = sortFiles(largeFileArray, "name", "asc");
-      const filtered = filterFiles(sorted, "Test", "all");
-      const end = performance.now();
+      const start = performance.now()
+      const sorted = sortFiles(largeFileArray, "name", "asc")
+      const filtered = filterFiles(sorted, "Test", "all")
+      const end = performance.now()
 
-      expect(sorted.length).toBe(1000);
-      expect(filtered.length).toBe(1000);
-      expect(end - start).toBeLessThan(100); // Должно выполняться быстро
-    });
+      expect(sorted.length).toBe(1000)
+      expect(filtered.length).toBe(1000)
+      expect(end - start).toBeLessThan(100) // Должно выполняться быстро
+    })
 
     it("should handle null and undefined values", () => {
       const filesWithNulls = [
@@ -364,22 +338,22 @@ describe("music-utils", () => {
             },
           },
         },
-      ];
+      ]
 
-      expect(() => sortFiles(filesWithNulls, "title", "asc")).not.toThrow();
-      expect(() => sortFiles(filesWithNulls, "duration", "asc")).not.toThrow();
-      expect(() => filterFiles(filesWithNulls, "test", "all")).not.toThrow();
-    });
+      expect(() => sortFiles(filesWithNulls, "title", "asc")).not.toThrow()
+      expect(() => sortFiles(filesWithNulls, "duration", "asc")).not.toThrow()
+      expect(() => filterFiles(filesWithNulls, "test", "all")).not.toThrow()
+    })
 
     it("should maintain original array immutability", () => {
-      const originalFiles = [...mockMediaFiles];
-      const sorted = sortFiles(mockMediaFiles, "name", "desc");
-      const filtered = filterFiles(mockMediaFiles, "test", "all");
+      const originalFiles = [...mockMediaFiles]
+      const sorted = sortFiles(mockMediaFiles, "name", "desc")
+      const filtered = filterFiles(mockMediaFiles, "test", "all")
 
       // Проверяем, что оригинальный массив не изменился
-      expect(mockMediaFiles).toEqual(originalFiles);
-      expect(sorted).not.toBe(mockMediaFiles);
-      expect(filtered).not.toBe(mockMediaFiles);
-    });
-  });
-});
+      expect(mockMediaFiles).toEqual(originalFiles)
+      expect(sorted).not.toBe(mockMediaFiles)
+      expect(filtered).not.toBe(mockMediaFiles)
+    })
+  })
+})

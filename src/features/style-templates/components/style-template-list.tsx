@@ -1,54 +1,47 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react"
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { useBrowserState } from "@/components/common/browser-state-provider";
-import { ContentGroup } from "@/components/common/content-group";
-import { useMedia } from "@/features/browser/media";
-import { StyleTemplatePreview } from "@/features/style-templates/components/style-template-preview";
-import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
+import { useBrowserState } from "@/components/common/browser-state-provider"
+import { ContentGroup } from "@/components/common/content-group"
+import { useMedia } from "@/features/browser/media"
+import { StyleTemplatePreview } from "@/features/style-templates/components/style-template-preview"
+import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
 
-import { useStyleTemplates } from "../hooks";
-import { StyleTemplate } from "../types";
+import { useStyleTemplates } from "../hooks"
+import { StyleTemplate } from "../types"
 
 /**
  * Компонент для отображения списка стилистических шаблонов
  * Использует общий тулбар браузера для фильтрации и сортировки
  */
 export function StyleTemplateList(): React.ReactElement {
-  const { t, i18n } = useTranslation();
-  const { templates, loading, error } = useStyleTemplates();
-  const media = useMedia(); // Для работы с избранным
+  const { t, i18n } = useTranslation()
+  const { templates, loading, error } = useStyleTemplates()
+  const media = useMedia() // Для работы с избранным
 
   // Мемоизируем функцию проверки избранного
   const isItemFavorite = useCallback(
     (item: any, type: string) => {
-      return media.isItemFavorite(item, type);
+      return media.isItemFavorite(item, type)
     },
     [media.isItemFavorite],
-  );
+  )
 
   // console.log("🎨 [StyleTemplateList] Render:", templates.length, "templates");
 
   // Получаем текущий язык
-  const currentLanguage = (i18n.language || "ru") as "ru" | "en";
+  const currentLanguage = (i18n.language || "ru") as "ru" | "en"
 
   // Используем общий провайдер состояния браузера
-  const { currentTabSettings } = useBrowserState();
+  const { currentTabSettings } = useBrowserState()
 
   // Извлекаем настройки из общего тулбара
-  const {
-    searchQuery,
-    showFavoritesOnly,
-    sortBy,
-    sortOrder,
-    groupBy,
-    filterType,
-    previewSizeIndex,
-  } = currentTabSettings;
+  const { searchQuery, showFavoritesOnly, sortBy, sortOrder, groupBy, filterType, previewSizeIndex } =
+    currentTabSettings
 
   // Получаем текущий размер превью из массива
-  const basePreviewSize = PREVIEW_SIZES[previewSizeIndex];
+  const basePreviewSize = PREVIEW_SIZES[previewSizeIndex]
 
   /**
    * Фильтрация, сортировка и группировка шаблонов
@@ -59,187 +52,141 @@ export function StyleTemplateList(): React.ReactElement {
       // Фильтрация по избранному
       const matchesFavorites =
         !showFavoritesOnly ||
-        isItemFavorite(
-          { id: template.id, path: "", name: template.name[currentLanguage] },
-          "template",
-        );
+        isItemFavorite({ id: template.id, path: "", name: template.name[currentLanguage] }, "template")
 
       // Фильтрация по поисковому запросу
       const matchesSearch =
         !searchQuery ||
-        template.name[currentLanguage]
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
+        template.name[currentLanguage].toLowerCase().includes(searchQuery.toLowerCase()) ||
         template.name.ru.toLowerCase().includes(searchQuery.toLowerCase()) ||
         template.name.en.toLowerCase().includes(searchQuery.toLowerCase()) ||
         template.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
         template.style.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (template.description?.ru || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (template.description?.en || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
+        (template.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (template.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (template.tags?.[currentLanguage] || []).some((tag: string) =>
           tag.toLowerCase().includes(searchQuery.toLowerCase()),
         ) ||
-        (template.tags?.ru || []).some((tag: string) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase()),
-        ) ||
-        (template.tags?.en || []).some((tag: string) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase()),
-        );
+        (template.tags?.ru || []).some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (template.tags?.en || []).some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
       // Фильтрация по типу (категория или стиль)
       const matchesFilter = (() => {
-        if (filterType === "all") return true;
+        if (filterType === "all") return true
 
         // Фильтрация по категории
-        if (
-          [
-            "intro",
-            "outro",
-            "lower-third",
-            "title",
-            "transition",
-            "overlay",
-          ].includes(filterType)
-        ) {
-          return template.category === filterType;
+        if (["intro", "outro", "lower-third", "title", "transition", "overlay"].includes(filterType)) {
+          return template.category === filterType
         }
 
         // Фильтрация по стилю
-        if (
-          [
-            "modern",
-            "vintage",
-            "minimal",
-            "corporate",
-            "creative",
-            "cinematic",
-          ].includes(filterType)
-        ) {
-          return template.style === filterType;
+        if (["modern", "vintage", "minimal", "corporate", "creative", "cinematic"].includes(filterType)) {
+          return template.style === filterType
         }
 
-        return true;
-      })();
+        return true
+      })()
 
-      return matchesFavorites && matchesSearch && matchesFilter;
-    });
+      return matchesFavorites && matchesSearch && matchesFilter
+    })
 
     // 2. Сортировка
     filtered.sort((a, b) => {
-      let result = 0;
+      let result = 0
 
       switch (sortBy) {
         case "name":
-          const nameA =
-            typeof a.name === "string"
-              ? a.name
-              : a.name?.[currentLanguage] || a.name?.en || "";
-          const nameB =
-            typeof b.name === "string"
-              ? b.name
-              : b.name?.[currentLanguage] || b.name?.en || "";
-          result = nameA.toLowerCase().localeCompare(nameB.toLowerCase());
-          break;
+          const nameA = typeof a.name === "string" ? a.name : a.name?.[currentLanguage] || a.name?.en || ""
+          const nameB = typeof b.name === "string" ? b.name : b.name?.[currentLanguage] || b.name?.en || ""
+          result = nameA.toLowerCase().localeCompare(nameB.toLowerCase())
+          break
         case "category":
-          result = a.category.localeCompare(b.category);
-          break;
+          result = a.category.localeCompare(b.category)
+          break
         case "style":
-          result = a.style.localeCompare(b.style);
-          break;
+          result = a.style.localeCompare(b.style)
+          break
         case "duration":
-          result = a.duration - b.duration;
-          break;
+          result = a.duration - b.duration
+          break
         default:
-          result = 0;
+          result = 0
       }
 
-      return sortOrder === "asc" ? result : -result;
-    });
+      return sortOrder === "asc" ? result : -result
+    })
 
-    return filtered;
-  }, [
-    templates,
-    searchQuery,
-    showFavoritesOnly,
-    filterType,
-    sortBy,
-    sortOrder,
-    currentLanguage,
-    isItemFavorite,
-  ]);
+    return filtered
+  }, [templates, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, currentLanguage, isItemFavorite])
 
   /**
    * Группировка шаблонов по выбранному критерию
    */
   const groupedTemplates = useMemo(() => {
     if (groupBy === "none") {
-      return [{ title: "", templates: processedTemplates }];
+      return [{ title: "", templates: processedTemplates }]
     }
 
-    const groups: Record<string, StyleTemplate[]> = {};
+    const groups: Record<string, StyleTemplate[]> = {}
 
     processedTemplates.forEach((template) => {
-      let groupKey = "";
+      let groupKey = ""
 
       switch (groupBy) {
         case "category":
-          groupKey = template.category;
-          break;
+          groupKey = template.category
+          break
         case "style":
-          groupKey = template.style;
-          break;
+          groupKey = template.style
+          break
         case "duration":
           // Группируем по длительности: короткие (<=3с), средние (3-6с), длинные (>6с)
           if (template.duration <= 3) {
-            groupKey = "short";
+            groupKey = "short"
           } else if (template.duration <= 6) {
-            groupKey = "medium";
+            groupKey = "medium"
           } else {
-            groupKey = "long";
+            groupKey = "long"
           }
-          break;
+          break
         default:
-          groupKey = "ungrouped";
+          groupKey = "ungrouped"
       }
 
       if (!groups[groupKey]) {
-        groups[groupKey] = [];
+        groups[groupKey] = []
       }
-      groups[groupKey].push(template);
-    });
+      groups[groupKey].push(template)
+    })
 
     // Преобразуем в массив групп с переводами заголовков
     return Object.entries(groups)
       .map(([key, templates]) => {
-        let title = "";
+        let title = ""
 
         switch (groupBy) {
           case "category":
-            title = t(`styleTemplates.categories.${key}`, key);
-            break;
+            title = t(`styleTemplates.categories.${key}`, key)
+            break
           case "style":
-            title = t(`styleTemplates.styles.${key}`, key);
-            break;
+            title = t(`styleTemplates.styles.${key}`, key)
+            break
           case "duration":
             const durationTitles = {
               short: t("styleTemplates.duration.short", "Короткие (≤3с)"),
               medium: t("styleTemplates.duration.medium", "Средние (3-6с)"),
               long: t("styleTemplates.duration.long", "Длинные (>6с)"),
-            };
-            title = durationTitles[key as keyof typeof durationTitles] || key;
-            break;
+            }
+            title = durationTitles[key as keyof typeof durationTitles] || key
+            break
           default:
-            title = key;
+            title = key
         }
 
-        return { title, templates };
+        return { title, templates }
       })
-      .sort((a, b) => a.title.localeCompare(b.title));
-  }, [processedTemplates, groupBy]);
+      .sort((a, b) => a.title.localeCompare(b.title))
+  }, [processedTemplates, groupBy])
 
   // Мемоизируем стиль контейнера
   const itemsContainerStyle = useMemo(
@@ -247,13 +194,13 @@ export function StyleTemplateList(): React.ReactElement {
       gridTemplateColumns: `repeat(auto-fill, minmax(${basePreviewSize}px, 1fr))`,
     }),
     [basePreviewSize],
-  );
+  )
 
   // Обработчик выбора шаблона
   const handleTemplateSelect = useCallback((templateId: string) => {
-    console.log("Выбран стилистический шаблон:", templateId);
+    console.log("Выбран стилистический шаблон:", templateId)
     // Здесь будет логика применения шаблона
-  }, []);
+  }, [])
 
   // Показываем индикатор загрузки
   if (loading) {
@@ -261,12 +208,12 @@ export function StyleTemplateList(): React.ReactElement {
       <div className="flex h-full flex-1 flex-col bg-background">
         <div className="flex h-32 items-center justify-center text-gray-500">
           <div className="flex items-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900" />
             {t("common.loading")}...
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   // Показываем ошибку загрузки
@@ -275,14 +222,12 @@ export function StyleTemplateList(): React.ReactElement {
       <div className="flex h-full flex-1 flex-col bg-background">
         <div className="flex h-32 items-center justify-center text-red-500">
           <div className="text-center">
-            <div className="text-sm font-medium">
-              {t("styleTemplates.error", "Ошибка загрузки шаблонов")}
-            </div>
+            <div className="text-sm font-medium">{t("styleTemplates.error", "Ошибка загрузки шаблонов")}</div>
             <div className="text-xs mt-1">{error}</div>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -291,9 +236,7 @@ export function StyleTemplateList(): React.ReactElement {
       <div className="scrollbar-hide hover:scrollbar-default min-h-0 flex-1 overflow-y-auto p-1 py-3">
         {processedTemplates.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-500">
-            {showFavoritesOnly
-              ? t("browser.media.noFavorites")
-              : t("common.noResults")}
+            {showFavoritesOnly ? t("browser.media.noFavorites") : t("common.noResults")}
           </div>
         ) : (
           /* Отображение сгруппированных шаблонов */
@@ -320,5 +263,5 @@ export function StyleTemplateList(): React.ReactElement {
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -1,25 +1,22 @@
-import { act, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, render, screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { StyleTemplateList } from "../../components/style-template-list";
-import { useStyleTemplates } from "../../hooks";
+import { StyleTemplateList } from "../../components/style-template-list"
+import { useStyleTemplates } from "../../hooks"
 
 // Мокаем хук useStyleTemplates
 vi.mock("../../hooks", () => ({
   useStyleTemplates: vi.fn(),
-}));
+}))
 
 // Мокаем компонент StyleTemplatePreview
 vi.mock("../../components/style-template-preview", () => ({
   StyleTemplatePreview: vi.fn(({ template, onSelect }) => (
-    <div
-      data-testid={`template-preview-${template.id}`}
-      onClick={() => onSelect(template.id)}
-    >
+    <div data-testid={`template-preview-${template.id}`} onClick={() => onSelect(template.id)}>
       {template.name.ru}
     </div>
   )),
-}));
+}))
 
 // Мокаем useBrowserState
 vi.mock("@/components/common/browser-state-provider", () => ({
@@ -34,14 +31,14 @@ vi.mock("@/components/common/browser-state-provider", () => ({
       previewSizeIndex: 2,
     },
   }),
-}));
+}))
 
 // Мокаем useMedia
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
     isItemFavorite: vi.fn(() => false),
   }),
-}));
+}))
 
 // Мокаем react-i18next
 vi.mock("react-i18next", () => ({
@@ -49,21 +46,19 @@ vi.mock("react-i18next", () => ({
     t: (key: string, fallback?: string) => fallback || key,
     i18n: { language: "ru" },
   }),
-}));
+}))
 
 // Мокаем ContentGroup
 vi.mock("@/components/common/content-group", () => ({
   ContentGroup: vi.fn(({ title, items, renderItem }) => (
     <div>
       {title && <h3>{title}</h3>}
-      <div className="grid gap-3">
-        {items.map((item: any) => renderItem(item))}
-      </div>
+      <div className="grid gap-3">{items.map((item: any) => renderItem(item))}</div>
     </div>
   )),
-}));
+}))
 
-const mockUseStyleTemplates = vi.mocked(useStyleTemplates);
+const mockUseStyleTemplates = vi.mocked(useStyleTemplates)
 
 const mockTemplates = [
   {
@@ -110,12 +105,12 @@ const mockTemplates = [
     },
     elements: [],
   },
-];
+]
 
 describe("StyleTemplateList", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   it("должен отображать индикатор загрузки", () => {
     mockUseStyleTemplates.mockReturnValue({
@@ -127,15 +122,15 @@ describe("StyleTemplateList", () => {
       setSorting: vi.fn(),
       getTemplateById: vi.fn(),
       getTemplatesByCategory: vi.fn(),
-    });
+    })
 
-    render(<StyleTemplateList />);
+    render(<StyleTemplateList />)
 
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
-  });
+    expect(screen.getByText(/loading/i)).toBeInTheDocument()
+  })
 
   it("должен отображать ошибку загрузки", () => {
-    const errorMessage = "Failed to load templates";
+    const errorMessage = "Failed to load templates"
     mockUseStyleTemplates.mockReturnValue({
       templates: [],
       loading: false,
@@ -145,12 +140,12 @@ describe("StyleTemplateList", () => {
       setSorting: vi.fn(),
       getTemplateById: vi.fn(),
       getTemplatesByCategory: vi.fn(),
-    });
+    })
 
-    render(<StyleTemplateList />);
+    render(<StyleTemplateList />)
 
-    expect(screen.getByText(errorMessage)).toBeInTheDocument();
-  });
+    expect(screen.getByText(errorMessage)).toBeInTheDocument()
+  })
 
   it("должен отображать список шаблонов", () => {
     mockUseStyleTemplates.mockReturnValue({
@@ -162,19 +157,15 @@ describe("StyleTemplateList", () => {
       setSorting: vi.fn(),
       getTemplateById: vi.fn(),
       getTemplatesByCategory: vi.fn(),
-    });
+    })
 
-    render(<StyleTemplateList />);
+    render(<StyleTemplateList />)
 
-    expect(
-      screen.getByTestId("template-preview-template-1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("template-preview-template-2"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Современное интро")).toBeInTheDocument();
-    expect(screen.getByText("Минималистичная концовка")).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("template-preview-template-1")).toBeInTheDocument()
+    expect(screen.getByTestId("template-preview-template-2")).toBeInTheDocument()
+    expect(screen.getByText("Современное интро")).toBeInTheDocument()
+    expect(screen.getByText("Минималистичная концовка")).toBeInTheDocument()
+  })
 
   it("должен отображать сообщение об отсутствии результатов", () => {
     mockUseStyleTemplates.mockReturnValue({
@@ -186,15 +177,15 @@ describe("StyleTemplateList", () => {
       setSorting: vi.fn(),
       getTemplateById: vi.fn(),
       getTemplatesByCategory: vi.fn(),
-    });
+    })
 
-    render(<StyleTemplateList />);
+    render(<StyleTemplateList />)
 
-    expect(screen.getByText("common.noResults")).toBeInTheDocument();
-  });
+    expect(screen.getByText("common.noResults")).toBeInTheDocument()
+  })
 
   it("должен обрабатывать выбор шаблона", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
 
     mockUseStyleTemplates.mockReturnValue({
       templates: mockTemplates,
@@ -205,28 +196,19 @@ describe("StyleTemplateList", () => {
       setSorting: vi.fn(),
       getTemplateById: vi.fn(),
       getTemplatesByCategory: vi.fn(),
-    });
+    })
 
-    render(<StyleTemplateList />);
+    render(<StyleTemplateList />)
 
-    const templatePreview = screen.getByTestId("template-preview-template-1");
+    const templatePreview = screen.getByTestId("template-preview-template-1")
     act(() => {
-
       act(() => {
+        templatePreview.click()
+      })
+    })
 
+    expect(consoleSpy).toHaveBeenCalledWith("Выбран стилистический шаблон:", "template-1")
 
-        templatePreview.click();
-
-
-      });
-
-    });
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      "Выбран стилистический шаблон:",
-      "template-1",
-    );
-
-    consoleSpy.mockRestore();
-  });
-});
+    consoleSpy.mockRestore()
+  })
+})

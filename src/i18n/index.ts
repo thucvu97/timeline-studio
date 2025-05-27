@@ -77,13 +77,13 @@ const initI18n = () => {
         caches: ["localStorage"],
       },
     }),
-  });
+  })
 
   // Безопасно обрабатываем результат инициализации
-  if (initResult && typeof initResult.catch === 'function') {
-    initResult.catch((error) => {
-      console.error("i18n: Failed to initialize:", error);
-    });
+  if (initResult && typeof initResult.catch === "function") {
+    initResult.catch((error: unknown) => {
+      console.error("i18n: Failed to initialize:", error)
+    })
   }
 
   // Обработчик изменения языка

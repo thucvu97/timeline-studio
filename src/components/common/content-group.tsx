@@ -1,35 +1,35 @@
-import React from "react";
+import React from "react"
 
-import { CopyPlus } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { CopyPlus } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 /**
  * Интерфейс свойств компонента ContentGroup
  */
 interface ContentGroupProps<T> {
   /** Заголовок группы */
-  title: string;
+  title: string
   /** Элементы в группе */
-  items: T[];
+  items: T[]
   /** Режим отображения */
-  viewMode?: "list" | "grid" | "thumbnails";
+  viewMode?: "list" | "grid" | "thumbnails"
   /** Функция рендеринга элемента */
-  renderItem: (item: T, index: number) => React.ReactNode;
+  renderItem: (item: T, index: number) => React.ReactNode
   /** Функция для добавления всех элементов группы */
-  onAddAll?: (items: T[]) => void;
+  onAddAll?: (items: T[]) => void
   /** Проверка, все ли элементы добавлены */
-  areAllItemsAdded?: (items: T[]) => boolean;
+  areAllItemsAdded?: (items: T[]) => boolean
   /** Текст кнопки добавления */
-  addButtonText?: string;
+  addButtonText?: string
   /** Текст кнопки когда все добавлены */
-  addedButtonText?: string;
+  addedButtonText?: string
   /** CSS классы для контейнера элементов */
-  itemsContainerClassName?: string;
+  itemsContainerClassName?: string
   /** CSS стили для контейнера элементов */
-  itemsContainerStyle?: React.CSSProperties;
+  itemsContainerStyle?: React.CSSProperties
 }
 
 /**
@@ -50,45 +50,41 @@ export function ContentGroup<T>({
   itemsContainerClassName,
   itemsContainerStyle,
 }: ContentGroupProps<T>) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   // Не показываем группу, если в ней нет элементов
   if (items.length === 0) {
-    return null;
+    return null
   }
 
   // Проверяем, все ли элементы в группе уже добавлены
-  const allItemsAdded = areAllItemsAdded ? areAllItemsAdded(items) : false;
+  const allItemsAdded = areAllItemsAdded ? areAllItemsAdded(items) : false
 
   // Определяем CSS классы для контейнера элементов
   const getItemsContainerClasses = () => {
     if (itemsContainerClassName) {
-      return itemsContainerClassName;
+      return itemsContainerClassName
     }
 
     switch (viewMode) {
       case "grid":
-        return "items-left flex flex-wrap gap-3";
+        return "items-left flex flex-wrap gap-3"
       case "thumbnails":
-        return "flex flex-wrap justify-between gap-3";
+        return "flex flex-wrap justify-between gap-3"
       case "list":
-        return "space-y-1";
+        return "space-y-1"
       default:
-        return "flex flex-wrap gap-3";
+        return "flex flex-wrap gap-3"
     }
-  };
+  }
 
   // Если группа не имеет заголовка, отображаем только элементы
   if (!title || title === "") {
     return (
-      <div
-        key="ungrouped"
-        className={getItemsContainerClasses()}
-        style={itemsContainerStyle}
-      >
+      <div key="ungrouped" className={getItemsContainerClasses()} style={itemsContainerStyle}>
         {items.map((item, index) => renderItem(item, index))}
       </div>
-    );
+    )
   }
 
   // Если группа имеет заголовок, отображаем заголовок и элементы
@@ -108,21 +104,15 @@ export function ContentGroup<T>({
             disabled={allItemsAdded}
           >
             <span className="px-1 text-xs">
-              {allItemsAdded
-                ? (addedButtonText || t("common.allFilesAdded"))
-                : (addButtonText || t("common.add"))
-              }
+              {allItemsAdded ? addedButtonText || t("common.allFilesAdded") : addButtonText || t("common.add")}
             </span>
             <CopyPlus className="mr-1 h-3 w-3" />
           </Button>
         )}
       </div>
-      <div
-        className={getItemsContainerClasses()}
-        style={itemsContainerStyle}
-      >
+      <div className={getItemsContainerClasses()} style={itemsContainerStyle}>
         {items.map((item, index) => renderItem(item, index))}
       </div>
     </div>
-  );
+  )
 }

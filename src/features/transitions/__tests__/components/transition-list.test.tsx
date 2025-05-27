@@ -1,7 +1,7 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { TransitionList } from "../../components/transition-list";
+import { TransitionList } from "../../components/transition-list"
 
 // Мокаем хук переводов
 vi.mock("react-i18next", () => ({
@@ -9,7 +9,7 @@ vi.mock("react-i18next", () => ({
     t: (key: string, fallback?: string) => fallback || key,
     i18n: { language: "ru" },
   }),
-}));
+}))
 
 // Простые моки для тестирования
 const mockTransitions = [
@@ -37,7 +37,7 @@ const mockTransitions = [
     parameters: { easing: "ease-out", intensity: 0.8, scale: 2.0 },
     ffmpegCommand: () => "zoompan=z='zoom+0.002':d=125",
   },
-];
+]
 
 // Простые моки
 vi.mock("../../hooks/use-transitions", () => ({
@@ -48,13 +48,13 @@ vi.mock("../../hooks/use-transitions", () => ({
     reload: vi.fn(),
     isReady: true,
   }),
-}));
+}))
 
 vi.mock("@/features/browser/media", () => ({
   useMedia: () => ({
     isItemFavorite: vi.fn().mockReturnValue(false),
   }),
-}));
+}))
 
 vi.mock("@/features/browser/state", () => ({
   useBrowserState: () => ({
@@ -68,13 +68,13 @@ vi.mock("@/features/browser/state", () => ({
       previewSizeIndex: 2,
     },
   }),
-}));
+}))
 
 vi.mock("@/features/project/settings", () => ({
   useProjectSettings: () => ({
     settings: { video: { aspectRatio: "16:9" } },
   }),
-}));
+}))
 
 vi.mock("@/features/browser/components/layout/content-group", () => ({
   ContentGroup: ({ items, renderItem }: any) => (
@@ -86,67 +86,49 @@ vi.mock("@/features/browser/components/layout/content-group", () => ({
       ))}
     </div>
   ),
-}));
+}))
 
 vi.mock("../../components/transition-preview", () => ({
   TransitionPreview: ({ transition }: any) => (
-    <div data-testid={`transition-preview-${transition.id}`}>
-      Transition Preview: {transition.labels.ru}
-    </div>
+    <div data-testid={`transition-preview-${transition.id}`}>Transition Preview: {transition.labels.ru}</div>
   ),
-}));
+}))
 
 describe("TransitionList", () => {
   it("should render transitions", () => {
-    render(<TransitionList />);
+    render(<TransitionList />)
 
     // Проверяем, что переходы отображаются
-    expect(
-      screen.getByTestId("transition-preview-test-transition-1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("transition-preview-test-transition-2"),
-    ).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("transition-preview-test-transition-1")).toBeInTheDocument()
+    expect(screen.getByTestId("transition-preview-test-transition-2")).toBeInTheDocument()
+  })
 
   it("should render transition previews with correct content", () => {
-    render(<TransitionList />);
+    render(<TransitionList />)
 
     // Проверяем содержимое превью переходов
-    expect(
-      screen.getByText("Transition Preview: Затухание"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Transition Preview: Увеличение"),
-    ).toBeInTheDocument();
-  });
+    expect(screen.getByText("Transition Preview: Затухание")).toBeInTheDocument()
+    expect(screen.getByText("Transition Preview: Увеличение")).toBeInTheDocument()
+  })
 
   it("should render transitions in grid layout", () => {
-    render(<TransitionList />);
+    render(<TransitionList />)
 
     // Проверяем, что переходы отрендерились
-    expect(
-      screen.getByTestId("transition-preview-test-transition-1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("transition-preview-test-transition-2"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("transition-preview-test-transition-1")).toBeInTheDocument()
+    expect(screen.getByTestId("transition-preview-test-transition-2")).toBeInTheDocument()
 
     // Проверяем, что есть контейнер с группами
-    expect(screen.getByTestId("content-group")).toBeInTheDocument();
-  });
-});
+    expect(screen.getByTestId("content-group")).toBeInTheDocument()
+  })
+})
 
 describe("TransitionList Loading States", () => {
   it("should render without errors", () => {
-    render(<TransitionList />);
+    render(<TransitionList />)
 
     // Проверяем, что компонент рендерится без ошибок
-    expect(
-      screen.getByTestId("transition-preview-test-transition-1"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("transition-preview-test-transition-2"),
-    ).toBeInTheDocument();
-  });
-});
+    expect(screen.getByTestId("transition-preview-test-transition-1")).toBeInTheDocument()
+    expect(screen.getByTestId("transition-preview-test-transition-2")).toBeInTheDocument()
+  })
+})

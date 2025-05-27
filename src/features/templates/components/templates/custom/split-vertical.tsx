@@ -1,36 +1,28 @@
-import React from "react";
+import React from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
-import { VideoPanelComponent } from "../../video-panel-component";
-import { TemplateProps } from "../types";
+import { VideoPanelComponent } from "../../video-panel-component"
+import { TemplateProps } from "../types"
 
 /**
  * Универсальный шаблон "2 экрана по вертикали"
  * Поддерживает все форматы: landscape, portrait, square
  */
-export function SplitVertical({
-  videos,
-  activeVideoId,
-  videoRefs,
-  isResizable = true,
-}: TemplateProps) {
+export function SplitVertical({ videos, activeVideoId, videoRefs, isResizable = true }: TemplateProps) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path);
-  const videoCount = Math.min(validVideos.length, 2);
+  const validVideos = videos.filter((v) => v?.path)
+  const videoCount = Math.min(validVideos.length, 2)
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 2) {
-    return <div className="h-full w-full bg-black" />;
+    return <div className="h-full w-full bg-black" />
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div
-        className="flex h-full w-full"
-        style={{ border: "1px solid #35d1c1" }}
-      >
+      <div className="flex h-full w-full" style={{ border: "1px solid #35d1c1" }}>
         {/* Левая секция */}
         <div className="h-full w-1/2">
           <VideoPanelComponent
@@ -54,15 +46,12 @@ export function SplitVertical({
           />
         </div>
       </div>
-    );
+    )
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div
-      className="h-full w-full"
-      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-    >
+    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
       <PanelGroup direction="horizontal">
         {/* Левая секция */}
         <Panel defaultSize={50} minSize={10}>
@@ -85,5 +74,5 @@ export function SplitVertical({
         </Panel>
       </PanelGroup>
     </div>
-  );
+  )
 }

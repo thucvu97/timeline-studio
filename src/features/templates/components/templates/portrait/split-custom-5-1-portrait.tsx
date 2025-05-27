@@ -1,36 +1,28 @@
-import React from "react";
+import React from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
-import { VideoPanelComponent } from "../../video-panel-component";
-import { TemplateProps } from "../types";
+import { VideoPanelComponent } from "../../video-panel-component"
+import { TemplateProps } from "../types"
 
 /**
  * Шаблон "5 экранов: вариант 1 (1 большой сверху, 4 маленьких снизу)" - портретный формат
  * ID: split-custom-5-1-portrait
  */
-export function SplitCustom51Portrait({
-  videos,
-  activeVideoId,
-  videoRefs,
-  isResizable = true,
-}: TemplateProps) {
+export function SplitCustom51Portrait({ videos, activeVideoId, videoRefs, isResizable = true }: TemplateProps) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path);
-  const videoCount = Math.min(validVideos.length, 5);
+  const validVideos = videos.filter((v) => v?.path)
+  const videoCount = Math.min(validVideos.length, 5)
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 5) {
-    return <div className="h-full w-full bg-black" />;
+    return <div className="h-full w-full bg-black" />
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div
-        className="flex h-full w-full flex-col"
-        style={{ border: "1px solid #35d1c1" }}
-      >
+      <div className="flex h-full w-full flex-col" style={{ border: "1px solid #35d1c1" }}>
         {/* Верхняя секция (1 большое видео) */}
         <div className="h-1/2 w-full">
           <VideoPanelComponent
@@ -102,15 +94,12 @@ export function SplitCustom51Portrait({
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div
-      className="h-full w-full"
-      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-    >
+    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
       <PanelGroup direction="vertical">
         {/* Верхняя секция (1 большое видео) */}
         <Panel defaultSize={50} minSize={20}>
@@ -178,5 +167,5 @@ export function SplitCustom51Portrait({
         </Panel>
       </PanelGroup>
     </div>
-  );
+  )
 }

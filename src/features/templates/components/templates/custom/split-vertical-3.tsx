@@ -1,9 +1,9 @@
-import React from "react";
+import React from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
-import { VideoPanelComponent } from "../../video-panel-component";
-import { TemplateProps } from "../types";
+import { VideoPanelComponent } from "../../video-panel-component"
+import { TemplateProps } from "../types"
 
 /**
  * Универсальный шаблон "3 экрана по вертикали"
@@ -17,39 +17,31 @@ export function SplitVertical3({
   templateId,
 }: TemplateProps & { templateId?: string }) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path);
-  const videoCount = Math.min(validVideos.length, 3);
+  const validVideos = videos.filter((v) => v?.path)
+  const videoCount = Math.min(validVideos.length, 3)
 
   // Определяем ориентацию на основе ID шаблона
-  const isPortrait = templateId ? templateId.includes("portrait") : false;
-  const isSquare = templateId ? templateId.includes("square") : false;
-  const isLandscape = templateId
-    ? templateId.includes("landscape") || (!isPortrait && !isSquare)
-    : true;
+  const isPortrait = templateId ? templateId.includes("portrait") : false
+  const isSquare = templateId ? templateId.includes("square") : false
+  const isLandscape = templateId ? templateId.includes("landscape") || (!isPortrait && !isSquare) : true
 
-  console.log(
-    `[SplitVertical3] Рендеринг шаблона ${templateId} с параметрами:`,
-    {
-      isPortrait,
-      isSquare,
-      isLandscape,
-      isResizable,
-    },
-  );
+  console.log(`[SplitVertical3] Рендеринг шаблона ${templateId} с параметрами:`, {
+    isPortrait,
+    isSquare,
+    isLandscape,
+    isResizable,
+  })
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 3) {
-    return <div className="h-full w-full bg-black" />;
+    return <div className="h-full w-full bg-black" />
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     // Ландшафтный или квадратный режим - вертикальные экраны (в ряд)
     return (
-      <div
-        className="flex h-full w-full"
-        style={{ border: "1px solid #35d1c1" }}
-      >
+      <div className="flex h-full w-full" style={{ border: "1px solid #35d1c1" }}>
         {/* Первое видео */}
         <div className="h-full w-1/3">
           <VideoPanelComponent
@@ -86,15 +78,12 @@ export function SplitVertical3({
           />
         </div>
       </div>
-    );
+    )
   }
 
   // Ландшафтный или квадратный режим - вертикальные экраны (в ряд)
   return (
-    <div
-      className="h-full w-full"
-      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-    >
+    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
       <PanelGroup direction="horizontal">
         {/* Первая секция */}
         <Panel defaultSize={33.33} minSize={10}>
@@ -127,5 +116,5 @@ export function SplitVertical3({
         </Panel>
       </PanelGroup>
     </div>
-  );
+  )
 }

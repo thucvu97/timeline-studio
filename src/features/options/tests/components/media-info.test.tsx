@@ -1,19 +1,17 @@
-import { act } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media";
-import { renderWithBase, screen } from "@/test/test-utils";
+import { MediaFile } from "@/features/media/types/media"
+import { renderWithBase, screen } from "@/test/test-utils"
 
-import { MediaInfo } from "../../components/media-info";
+import { MediaInfo } from "../../components/media-info"
 
 // Мокаем lucide-react иконки
 vi.mock("lucide-react", () => ({
   FileVideo: () => <div data-testid="file-video-icon">FileVideo</div>,
   Upload: () => <div data-testid="upload-icon">Upload</div>,
-  AlertTriangle: () => (
-    <div data-testid="alert-triangle-icon">AlertTriangle</div>
-  ),
-}));
+  AlertTriangle: () => <div data-testid="alert-triangle-icon">AlertTriangle</div>,
+}))
 
 // Моковый медиафайл для тестов
 const mockMediaFile: MediaFile = {
@@ -49,34 +47,34 @@ const mockMediaFile: MediaFile = {
       bit_rate: 5000000,
     },
   },
-};
+}
 
 describe("MediaInfo", () => {
   it("should render media info component", () => {
-    renderWithBase(<MediaInfo />);
+    renderWithBase(<MediaInfo />)
 
     // Проверяем, что компонент рендерится
-    expect(screen.getByTestId("media-info")).toBeInTheDocument();
+    expect(screen.getByTestId("media-info")).toBeInTheDocument()
 
     // Проверяем заголовок
-    expect(screen.getByText("options.info.title")).toBeInTheDocument();
-  });
+    expect(screen.getByText("options.info.title")).toBeInTheDocument()
+  })
 
   it("should render file selection when no file is selected", () => {
-    renderWithBase(<MediaInfo />);
+    renderWithBase(<MediaInfo />)
 
     // Проверяем элементы выбора файла
-    expect(screen.getByText("options.info.selectFile")).toBeInTheDocument();
-    expect(screen.getByText("common.browse")).toBeInTheDocument();
-  });
+    expect(screen.getByText("options.info.selectFile")).toBeInTheDocument()
+    expect(screen.getByText("common.browse")).toBeInTheDocument()
+  })
 
   it("should accept selectedMediaFile prop", () => {
     // Компонент должен рендериться без ошибок с переданным файлом
     expect(() => {
-      renderWithBase(<MediaInfo selectedMediaFile={mockMediaFile} />);
-    }).not.toThrow();
+      renderWithBase(<MediaInfo selectedMediaFile={mockMediaFile} />)
+    }).not.toThrow()
 
     // Проверяем, что компонент рендерится
-    expect(screen.getByTestId("media-info")).toBeInTheDocument();
-  });
-});
+    expect(screen.getByTestId("media-info")).toBeInTheDocument()
+  })
+})

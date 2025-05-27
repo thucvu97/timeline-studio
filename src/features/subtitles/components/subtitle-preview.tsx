@@ -1,24 +1,24 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react"
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { useResources } from "@/features/resources";
-import { SubtitleResource } from "@/types/resources";
+import { useResources } from "@/features/resources"
+import { SubtitleResource } from "@/types/resources"
 
-import { AddMediaButton } from "../../browser/components/layout/add-media-button";
-import { FavoriteButton } from "../../browser/components/layout/favorite-button";
-import { SubtitleStyle } from "../types/subtitles";
-import { subtitleStyleToCSS } from "../utils/css-styles";
+import { AddMediaButton } from "../../browser/components/layout/add-media-button"
+import { FavoriteButton } from "../../browser/components/layout/favorite-button"
+import { SubtitleStyle } from "../types/subtitles"
+import { subtitleStyleToCSS } from "../utils/css-styles"
 
 /**
  * Интерфейс пропсов для компонента SubtitlePreview
  */
 interface SubtitlePreviewProps {
-  style: SubtitleStyle;
-  onClick: () => void;
-  size: number;
-  previewWidth?: number;
-  previewHeight?: number;
+  style: SubtitleStyle
+  onClick: () => void
+  size: number
+  previewWidth?: number
+  previewHeight?: number
 }
 
 /**
@@ -35,57 +35,56 @@ export function SubtitlePreview({
   previewWidth = size,
   previewHeight = size,
 }: SubtitlePreviewProps) {
-  const { t } = useTranslation(); // Хук для интернационализации
-  const { addSubtitle, isSubtitleAdded, removeResource, subtitleResources } =
-    useResources(); // Получаем методы для работы с ресурсами
+  const { t } = useTranslation() // Хук для интернационализации
+  const { addSubtitle, isSubtitleAdded, removeResource, subtitleResources } = useResources() // Получаем методы для работы с ресурсами
 
   // Проверяем, добавлен ли стиль уже в хранилище ресурсов
   // Мемоизируем результат для оптимизации
   const isAdded = useMemo(() => {
-    return isSubtitleAdded(style);
-  }, [isSubtitleAdded, style]);
+    return isSubtitleAdded(style)
+  }, [isSubtitleAdded, style])
 
   // Мемоизируем CSS стили для превью
   const cssStyle = useMemo(() => {
-    return subtitleStyleToCSS(style);
-  }, [style]);
+    return subtitleStyleToCSS(style)
+  }, [style])
 
   // Мемоизируем функции для индикаторов
   const getComplexityColor = useMemo(() => {
     return (complexity: string) => {
       switch (complexity) {
         case "basic":
-          return "bg-green-500";
+          return "bg-green-500"
         case "intermediate":
-          return "bg-yellow-500";
+          return "bg-yellow-500"
         case "advanced":
-          return "bg-red-500";
+          return "bg-red-500"
         default:
-          return "bg-gray-500";
+          return "bg-gray-500"
       }
-    };
-  }, []);
+    }
+  }, [])
 
   const getCategoryAbbreviation = useMemo(() => {
     return (category: string) => {
       switch (category) {
         case "basic":
-          return "BAS";
+          return "BAS"
         case "cinematic":
-          return "CIN";
+          return "CIN"
         case "stylized":
-          return "STY";
+          return "STY"
         case "minimal":
-          return "MIN";
+          return "MIN"
         case "animated":
-          return "ANI";
+          return "ANI"
         case "modern":
-          return "MOD";
+          return "MOD"
         default:
-          return "SUB";
+          return "SUB"
       }
-    };
-  }, []);
+    }
+  }, [])
 
   // Мемоизируем стили для текста
   const textStyle = useMemo(() => {
@@ -93,10 +92,10 @@ export function SubtitlePreview({
       ...cssStyle,
       // Адаптируем размер шрифта под размер превью
       fontSize: cssStyle.fontSize
-        ? `${Math.min(parseInt(cssStyle.fontSize.toString()) * (previewWidth / 200), parseInt(cssStyle.fontSize.toString()))}px`
+        ? `${Math.min(Number.parseInt(cssStyle.fontSize.toString()) * (previewWidth / 200), Number.parseInt(cssStyle.fontSize.toString()))}px`
         : `${Math.max(12, previewWidth / 10)}px`,
-    };
-  }, [cssStyle, previewWidth]);
+    }
+  }, [cssStyle, previewWidth])
 
   // Мемоизируем объекты для кнопок
   const fileObject = useMemo(
@@ -106,33 +105,29 @@ export function SubtitlePreview({
       name: style.name,
     }),
     [style.id, style.name],
-  );
+  )
 
   // Мемоизируем обработчики событий
   const handleAddMedia = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation();
-      addSubtitle(style);
+      e.stopPropagation()
+      addSubtitle(style)
     },
     [addSubtitle, style],
-  );
+  )
 
   const handleRemoveMedia = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation();
-      const resource = subtitleResources.find(
-        (res: SubtitleResource) => res.resourceId === style.id,
-      );
+      e.stopPropagation()
+      const resource = subtitleResources.find((res: SubtitleResource) => res.resourceId === style.id)
       if (resource) {
-        removeResource(resource.id);
+        removeResource(resource.id)
       } else {
-        console.warn(
-          `Не удалось найти ресурс стиля субтитров с ID ${style.id} для удаления`,
-        );
+        console.warn(`Не удалось найти ресурс стиля субтитров с ID ${style.id} для удаления`)
       }
     },
     [removeResource, subtitleResources, style.id],
-  );
+  )
 
   return (
     <div className="flex flex-col items-center">
@@ -188,20 +183,15 @@ export function SubtitlePreview({
         {/* Индикатор анимации (если есть) */}
         {style.style.animation && (
           <div className="absolute bottom-1 right-1">
-            <div className="bg-black bg-opacity-60 text-white rounded px-1 py-0.5 text-[8px]">
-              ANI
-            </div>
+            <div className="bg-black bg-opacity-60 text-white rounded px-1 py-0.5 text-[8px]">ANI</div>
           </div>
         )}
       </div>
 
       {/* Название стиля */}
-      <div
-        className="mt-1 text-xs text-center truncate"
-        style={{ maxWidth: `${previewWidth}px` }}
-      >
+      <div className="mt-1 text-xs text-center truncate" style={{ maxWidth: `${previewWidth}px` }}>
         {style.labels?.ru || style.name}
       </div>
     </div>
-  );
+  )
 }

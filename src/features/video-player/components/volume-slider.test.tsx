@@ -33,9 +33,7 @@ describe("VolumeSlider", () => {
     const onValueCommit = vi.fn()
 
     // Рендерим компонент с начальным значением громкости 50
-    render(
-      <VolumeSlider volume={50} onValueChange={onValueChange} onValueCommit={onValueCommit} />
-    )
+    render(<VolumeSlider volume={50} onValueChange={onValueChange} onValueCommit={onValueCommit} />)
 
     // Проверяем, что слайдер отрендерился с правильным значением
     const slider = screen.getByTestId("volume-slider")
@@ -49,9 +47,7 @@ describe("VolumeSlider", () => {
     const onValueCommit = vi.fn()
 
     // Рендерим компонент
-    render(
-      <VolumeSlider volume={50} onValueChange={onValueChange} onValueCommit={onValueCommit} />
-    )
+    render(<VolumeSlider volume={50} onValueChange={onValueChange} onValueCommit={onValueCommit} />)
 
     // Находим слайдер
     const slider = screen.getByTestId("volume-slider")
@@ -73,12 +69,7 @@ describe("VolumeSlider", () => {
 
     // Рендерим компонент с volumeRef
     render(
-      <VolumeSlider
-        volume={50}
-        volumeRef={volumeRef}
-        onValueChange={onValueChange}
-        onValueCommit={onValueCommit}
-      />
+      <VolumeSlider volume={50} volumeRef={volumeRef} onValueChange={onValueChange} onValueCommit={onValueCommit} />,
     )
 
     // Находим слайдер
@@ -98,7 +89,7 @@ describe("VolumeSlider", () => {
 
     // Рендерим компонент с начальным значением громкости
     const { rerender } = render(
-      <VolumeSlider volume={50} onValueChange={onValueChange} onValueCommit={onValueCommit} />
+      <VolumeSlider volume={50} onValueChange={onValueChange} onValueCommit={onValueCommit} />,
     )
 
     // Проверяем начальное значение
@@ -106,9 +97,7 @@ describe("VolumeSlider", () => {
     expect(slider).toHaveValue("50")
 
     // Перерендериваем компонент с новым значением громкости
-    rerender(
-      <VolumeSlider volume={75} onValueChange={onValueChange} onValueCommit={onValueCommit} />
-    )
+    rerender(<VolumeSlider volume={75} onValueChange={onValueChange} onValueCommit={onValueCommit} />)
 
     // Проверяем, что значение слайдера обновилось
     slider = screen.getByTestId("volume-slider")

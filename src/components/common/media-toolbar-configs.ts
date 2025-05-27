@@ -1,6 +1,6 @@
-import { Grid, Grid2x2, LayoutDashboard, List } from "lucide-react";
+import { Grid, Grid2x2, LayoutDashboard, List } from "lucide-react"
 
-import type { ViewModeConfig } from "./media-toolbar";
+import type { ViewModeConfig } from "./media-toolbar"
 
 /**
  * Конфигурации режимов просмотра для разных типов контента
@@ -26,7 +26,7 @@ export const mediaViewModes: ViewModeConfig[] = [
     label: "browser.toolbar.list",
     testId: "list-view-button",
   },
-];
+]
 
 // Опции сортировки для медиа
 export const mediaSortOptions = [
@@ -34,7 +34,7 @@ export const mediaSortOptions = [
   { value: "date", label: "browser.toolbar.sortBy.date" },
   { value: "size", label: "browser.toolbar.sortBy.size" },
   { value: "duration", label: "browser.toolbar.sortBy.duration" },
-];
+]
 
 // Опции группировки для медиа
 export const mediaGroupOptions = [
@@ -42,14 +42,14 @@ export const mediaGroupOptions = [
   { value: "type", label: "browser.toolbar.groupBy.type" },
   { value: "date", label: "browser.toolbar.groupBy.date" },
   { value: "duration", label: "browser.toolbar.groupBy.duration" },
-];
+]
 
 // Опции фильтрации для медиа
 export const mediaFilterOptions = [
   { value: "video", label: "browser.toolbar.filterBy.video" },
   { value: "audio", label: "browser.toolbar.filterBy.audio" },
   { value: "image", label: "browser.toolbar.filterBy.image" },
-];
+]
 
 // Конфигурация для музыки (2 режима)
 export const musicViewModes: ViewModeConfig[] = [
@@ -65,7 +65,7 @@ export const musicViewModes: ViewModeConfig[] = [
     label: "browser.toolbar.thumbnails",
     testId: "thumbnails-view-button",
   },
-];
+]
 
 // Конфигурация для эффектов (1 режим - только превью)
 export const effectsViewModes: ViewModeConfig[] = [
@@ -75,14 +75,14 @@ export const effectsViewModes: ViewModeConfig[] = [
     label: "browser.toolbar.thumbnails",
     testId: "thumbnails-view-button",
   },
-];
+]
 
 // Опции сортировки для эффектов
 export const effectsSortOptions = [
   { value: "name", label: "browser.toolbar.sortBy.name" },
   { value: "complexity", label: "browser.toolbar.sortBy.complexity" },
   { value: "category", label: "browser.toolbar.sortBy.category" },
-];
+]
 
 // Опции группировки для эффектов
 export const effectsGroupOptions = [
@@ -91,7 +91,7 @@ export const effectsGroupOptions = [
   { value: "complexity", label: "browser.toolbar.groupBy.complexity" },
   { value: "type", label: "browser.toolbar.groupBy.type" },
   { value: "tags", label: "browser.toolbar.groupBy.tags" },
-];
+]
 
 // Опции фильтрации для эффектов
 export const effectsFilterOptions = [
@@ -107,7 +107,7 @@ export const effectsFilterOptions = [
   { value: "creative", label: "effects.categories.creative" },
   { value: "technical", label: "effects.categories.technical" },
   { value: "distortion", label: "effects.categories.distortion" },
-];
+]
 
 // Опции фильтрации для фильтров
 export const filtersFilterOptions = [
@@ -120,7 +120,7 @@ export const filtersFilterOptions = [
   { value: "vintage", label: "filters.categories.vintage" },
   { value: "technical", label: "filters.categories.technical" },
   { value: "artistic", label: "filters.categories.artistic" },
-];
+]
 
 // Опции фильтрации для переходов
 export const transitionsFilterOptions = [
@@ -133,7 +133,7 @@ export const transitionsFilterOptions = [
   { value: "3d", label: "transitions.categories.3d" },
   { value: "artistic", label: "transitions.categories.artistic" },
   { value: "cinematic", label: "transitions.categories.cinematic" },
-];
+]
 
 // Опции фильтрации для субтитров
 export const subtitlesFilterOptions = [
@@ -148,7 +148,7 @@ export const subtitlesFilterOptions = [
   { value: "minimal", label: "subtitles.categories.minimal" },
   { value: "animated", label: "subtitles.categories.animated" },
   { value: "modern", label: "subtitles.categories.modern" },
-];
+]
 
 // Опции фильтрации для шаблонов
 export const templatesFilterOptions = [
@@ -161,7 +161,7 @@ export const templatesFilterOptions = [
   { value: "12", label: "templates.screens.12" },
   { value: "16", label: "templates.screens.16" },
   { value: "25", label: "templates.screens.25" },
-];
+]
 
 // Опции фильтрации для стилистических шаблонов
 export const styleTemplatesFilterOptions = [
@@ -179,7 +179,7 @@ export const styleTemplatesFilterOptions = [
   { value: "corporate", label: "styleTemplates.styles.corporate" },
   { value: "creative", label: "styleTemplates.styles.creative" },
   { value: "cinematic", label: "styleTemplates.styles.cinematic" },
-];
+]
 
 /**
  * Функция для получения конфигурации режимов просмотра по типу контента
@@ -187,22 +187,32 @@ export const styleTemplatesFilterOptions = [
 export function getViewModesForContent(contentType: "media" | "music" | "effects" | "subtitles"): ViewModeConfig[] {
   switch (contentType) {
     case "media":
-      return mediaViewModes;
+      return mediaViewModes
     case "music":
-      return musicViewModes;
+      return musicViewModes
     case "effects":
-      return effectsViewModes;
+      return effectsViewModes
     case "subtitles":
-      return effectsViewModes; // Субтитры используют только превью как эффекты
+      return effectsViewModes // Субтитры используют только превью как эффекты
     default:
-      return musicViewModes; // Дефолт для музыки (2 режима)
+      return musicViewModes // Дефолт для музыки (2 режима)
   }
 }
 
 /**
  * Функция для получения полной конфигурации тулбара по типу контента
  */
-export function getToolbarConfigForContent(contentType: "media" | "music" | "effects" | "filters" | "transitions" | "subtitles" | "templates" | "style-templates") {
+export function getToolbarConfigForContent(
+  contentType:
+    | "media"
+    | "music"
+    | "effects"
+    | "filters"
+    | "transitions"
+    | "subtitles"
+    | "templates"
+    | "style-templates",
+) {
   switch (contentType) {
     case "media":
       return {
@@ -212,7 +222,7 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
         filterOptions: mediaFilterOptions,
         showZoom: true,
         showGroupBy: true,
-      };
+      }
     case "music":
       return {
         viewModes: musicViewModes,
@@ -233,7 +243,7 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
         filterOptions: undefined, // Использует availableExtensions
         showZoom: false,
         showGroupBy: true,
-      };
+      }
     case "effects":
       return {
         viewModes: effectsViewModes,
@@ -242,7 +252,7 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
         filterOptions: effectsFilterOptions, // Фильтрация по сложности и категориям
         showZoom: true, // Размеры превью нужны
         showGroupBy: true, // Группировка по категориям и тэгам
-      };
+      }
     case "filters":
       return {
         viewModes: effectsViewModes, // Фильтры используют только превью как эффекты
@@ -260,7 +270,7 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
         filterOptions: filtersFilterOptions, // Фильтрация по сложности и категориям
         showZoom: true, // Размеры превью нужны
         showGroupBy: true, // Группировка по категориям и тэгам
-      };
+      }
     case "transitions":
       return {
         viewModes: effectsViewModes, // Переходы используют только превью как эффекты
@@ -280,7 +290,7 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
         filterOptions: transitionsFilterOptions, // Фильтрация по сложности и категориям
         showZoom: true, // Размеры превью нужны
         showGroupBy: true, // Группировка по категориям и тэгам
-      };
+      }
     case "subtitles":
       return {
         viewModes: effectsViewModes, // Субтитры используют только превью как эффекты
@@ -298,7 +308,7 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
         filterOptions: subtitlesFilterOptions, // Фильтрация по сложности и категориям
         showZoom: true, // Размеры превью нужны
         showGroupBy: true, // Группировка по категориям и тэгам
-      };
+      }
     case "templates":
       return {
         viewModes: effectsViewModes, // Шаблоны используют только превью как эффекты
@@ -315,7 +325,7 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
         filterOptions: templatesFilterOptions, // Фильтрация по количеству экранов
         showZoom: true, // Размеры превью нужны
         showGroupBy: true, // Группировка по экранам
-      };
+      }
     case "style-templates":
       return {
         viewModes: effectsViewModes, // Стилистические шаблоны используют только превью
@@ -334,8 +344,8 @@ export function getToolbarConfigForContent(contentType: "media" | "music" | "eff
         filterOptions: styleTemplatesFilterOptions, // Фильтрация по категориям и стилям
         showZoom: true, // Размеры превью нужны
         showGroupBy: true, // Группировка по категориям и стилям
-      };
+      }
     default:
-      return getToolbarConfigForContent("music");
+      return getToolbarConfigForContent("music")
   }
 }

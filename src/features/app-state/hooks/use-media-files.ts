@@ -1,4 +1,4 @@
-import { useAppSettings } from "./use-app-settings";
+import { useAppSettings } from "./use-app-settings"
 
 /**
  * Хук для доступа к медиа-файлам
@@ -7,10 +7,10 @@ import { useAppSettings } from "./use-app-settings";
  * @returns Объект с данными и методами для работы с медиа-файлами
  */
 export function useMediaFiles() {
-  const { getMediaFiles, updateMediaFiles } = useAppSettings();
+  const { getMediaFiles, updateMediaFiles } = useAppSettings()
 
   return {
     mediaFiles: getMediaFiles(),
     updateMediaFiles,
-  };
+  }
 }

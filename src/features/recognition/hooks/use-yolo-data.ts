@@ -16,22 +16,22 @@ export function useYoloData() {
   // Загрузка данных YOLO для видео
   const loadYoloData = useCallback(
     async (videoId: string, videoPath?: string): Promise<YoloVideoData | null> => {
-      setLoadingStates(prev => ({ ...prev, [videoId]: true }))
-      setErrorStates(prev => ({ ...prev, [videoId]: null }))
+      setLoadingStates((prev) => ({ ...prev, [videoId]: true }))
+      setErrorStates((prev) => ({ ...prev, [videoId]: null }))
 
       try {
         const data = await yoloDataService.loadYoloData(videoId, videoPath)
         return data
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка"
-        setErrorStates(prev => ({ ...prev, [videoId]: errorMessage }))
+        setErrorStates((prev) => ({ ...prev, [videoId]: errorMessage }))
         console.error(`[useYoloData] Ошибка загрузки данных для видео ${videoId}:`, error)
         return null
       } finally {
-        setLoadingStates(prev => ({ ...prev, [videoId]: false }))
+        setLoadingStates((prev) => ({ ...prev, [videoId]: false }))
       }
     },
-    [yoloDataService]
+    [yoloDataService],
   )
 
   // Получение данных YOLO для конкретного времени
@@ -44,7 +44,7 @@ export function useYoloData() {
         return []
       }
     },
-    [yoloDataService]
+    [yoloDataService],
   )
 
   // Получение сводки по видео
@@ -57,7 +57,7 @@ export function useYoloData() {
         return null
       }
     },
-    [yoloDataService]
+    [yoloDataService],
   )
 
   // Получение всех данных YOLO для видео
@@ -70,7 +70,7 @@ export function useYoloData() {
         return null
       }
     },
-    [yoloDataService]
+    [yoloDataService],
   )
 
   // Проверка наличия данных YOLO для видео
@@ -78,27 +78,27 @@ export function useYoloData() {
     (videoId: string): boolean => {
       return yoloDataService.hasYoloData(videoId)
     },
-    [yoloDataService]
+    [yoloDataService],
   )
 
   // Очистка кэша для конкретного видео
   const clearVideoCache = useCallback(
     (videoId: string): void => {
       yoloDataService.clearVideoCache(videoId)
-      setLoadingStates(prev => {
+      setLoadingStates((prev) => {
         const newState = { ...prev }
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete newState[videoId]
         return newState
       })
-      setErrorStates(prev => {
+      setErrorStates((prev) => {
         const newState = { ...prev }
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete newState[videoId]
         return newState
       })
     },
-    [yoloDataService]
+    [yoloDataService],
   )
 
   // Очистка всего кэша
@@ -116,16 +116,16 @@ export function useYoloData() {
   // Предзагрузка данных для списка видео
   const preloadYoloData = useCallback(
     async (videoIds: string[]): Promise<void> => {
-      const promises = videoIds.map(videoId => 
+      const promises = videoIds.map((videoId) =>
         // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
-        loadYoloData(videoId).catch(error => {
+        loadYoloData(videoId).catch((error) => {
           console.warn(`[useYoloData] Не удалось предзагрузить данные для видео ${videoId}:`, error)
-        })
+        }),
       )
 
       await Promise.allSettled(promises)
     },
-    [loadYoloData]
+    [loadYoloData],
   )
 
   // Получение контекста сцены для ИИ
@@ -133,7 +133,7 @@ export function useYoloData() {
     async (videoId: string, timestamp: number): Promise<string> => {
       try {
         const detections = await getYoloDataAtTimestamp(videoId, timestamp)
-        
+
         if (detections.length === 0) {
           return "В кадре не обнаружено объектов."
         }
@@ -142,7 +142,7 @@ export function useYoloData() {
         const objectCounts: Record<string, number> = {}
         const objectPositions: Record<string, string[]> = {}
 
-        detections.forEach(detection => {
+        detections.forEach((detection) => {
           const className = detection.class
           objectCounts[className] = (objectCounts[className] || 0) + 1
 
@@ -167,30 +167,30 @@ export function useYoloData() {
 
         // Формируем описание сцены
         const descriptions: string[] = []
-        
+
         Object.entries(objectCounts).forEach(([className, count]) => {
           const positions = objectPositions[className]
           const uniquePositions = [...new Set(positions)]
-          
+
           let description = `${count} ${className}`
           if (count > 1) description += "(ов)"
-          
+
           if (uniquePositions.length <= 2) {
             description += ` в ${uniquePositions.join(" и ")}`
           } else {
             description += " в разных частях кадра"
           }
-          
+
           descriptions.push(description)
         })
 
         return `В кадре обнаружено: ${descriptions.join(", ")}.`
       } catch (error) {
-        console.error(`[useYoloData] Ошибка создания контекста сцены:`, error)
+        console.error("[useYoloData] Ошибка создания контекста сцены:", error)
         return "Ошибка при анализе сцены."
       }
     },
-    [getYoloDataAtTimestamp]
+    [getYoloDataAtTimestamp],
   )
 
   // Очистка кэша при размонтировании компонента
@@ -207,20 +207,20 @@ export function useYoloData() {
     getVideoSummary,
     getAllYoloData,
     hasYoloData,
-    
+
     // Управление кэшем
     clearVideoCache,
     clearAllCache,
     getCacheStats,
-    
+
     // Дополнительные возможности
     preloadYoloData,
     getSceneContext,
-    
+
     // Состояния
     loadingStates,
     errorStates,
-    
+
     // Утилиты
     isLoading: (videoId: string) => loadingStates[videoId] || false,
     getError: (videoId: string) => errorStates[videoId] || null,

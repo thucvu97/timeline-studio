@@ -14,22 +14,14 @@ interface YoloDataVisualizationProps {
  * Компонент для визуализации данных YOLO в виде графика
  * Показывает количество обнаруженных объектов по времени
  */
-export function YoloDataVisualization({
-  yoloData,
-  width = 800,
-  height = 400,
-}: YoloDataVisualizationProps) {
+export function YoloDataVisualization({ yoloData, width = 800, height = 400 }: YoloDataVisualizationProps) {
   const { t } = useTranslation()
   const svgRef = useRef<SVGSVGElement>(null)
   const [selectedClass, setSelectedClass] = useState<string | null>(null)
 
   // Получаем уникальные классы объектов
   const uniqueClasses = Array.from(
-    new Set(
-      yoloData.frames.flatMap((frame) =>
-        frame.detections.map((detection) => detection.class),
-      ),
-    ),
+    new Set(yoloData.frames.flatMap((frame) => frame.detections.map((detection) => detection.class))),
   )
 
   // Цвета для разных классов
@@ -67,10 +59,7 @@ export function YoloDataVisualization({
   })
 
   // Находим максимальное количество обнаружений для масштабирования
-  const maxDetections = Math.max(
-    ...chartData.map((data) => data.totalDetections),
-    1,
-  )
+  const maxDetections = Math.max(...chartData.map((data) => data.totalDetections), 1)
 
   // Размеры графика с отступами
   const margin = { top: 20, right: 20, bottom: 40, left: 60 }
@@ -78,11 +67,9 @@ export function YoloDataVisualization({
   const chartHeight = height - margin.top - margin.bottom
 
   // Масштабы
-  const xScale = (timestamp: number) =>
-    (timestamp / Math.max(...chartData.map((d) => d.timestamp))) * chartWidth
+  const xScale = (timestamp: number) => (timestamp / Math.max(...chartData.map((d) => d.timestamp))) * chartWidth
 
-  const yScale = (count: number) =>
-    chartHeight - (count / maxDetections) * chartHeight
+  const yScale = (count: number) => chartHeight - (count / maxDetections) * chartHeight
 
   useEffect(() => {
     // Здесь можно добавить дополнительную логику для D3.js, если потребуется
@@ -102,9 +89,7 @@ export function YoloDataVisualization({
       <div className="mb-4 flex flex-wrap gap-2">
         <button
           className={`rounded px-3 py-1 text-sm ${
-            selectedClass === null
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-700"
+            selectedClass === null ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
           }`}
           onClick={() => setSelectedClass(null)}
         >
@@ -114,15 +99,10 @@ export function YoloDataVisualization({
           <button
             key={className}
             className={`rounded px-3 py-1 text-sm ${
-              selectedClass === className
-                ? "text-white"
-                : "bg-gray-200 text-gray-700"
+              selectedClass === className ? "text-white" : "bg-gray-200 text-gray-700"
             }`}
             style={{
-              backgroundColor:
-                selectedClass === className
-                  ? getColorForClass(className)
-                  : undefined,
+              backgroundColor: selectedClass === className ? getColorForClass(className) : undefined,
             }}
             onClick={() => setSelectedClass(className)}
           >
@@ -149,13 +129,7 @@ export function YoloDataVisualization({
                 stroke="#e9ecef"
                 strokeWidth={1}
               />
-              <text
-                x={-10}
-                y={chartHeight * ratio + 5}
-                textAnchor="end"
-                fontSize="12"
-                fill="#6c757d"
-              >
+              <text x={-10} y={chartHeight * ratio + 5} textAnchor="end" fontSize="12" fill="#6c757d">
                 {Math.round(maxDetections * (1 - ratio))}
               </text>
             </g>
@@ -167,9 +141,7 @@ export function YoloDataVisualization({
               d={`M ${chartData
                 .map((data, index) => {
                   const x = xScale(data.timestamp)
-                  const y = selectedClass
-                    ? yScale(data.classCounts[selectedClass] || 0)
-                    : yScale(data.totalDetections)
+                  const y = selectedClass ? yScale(data.classCounts[selectedClass] || 0) : yScale(data.totalDetections)
                   return `${index === 0 ? "M" : "L"} ${x} ${y}`
                 })
                 .join(" ")}`}
@@ -182,9 +154,7 @@ export function YoloDataVisualization({
           {/* Точки данных */}
           {chartData.map((data, index) => {
             const x = xScale(data.timestamp)
-            const y = selectedClass
-              ? yScale(data.classCounts[selectedClass] || 0)
-              : yScale(data.totalDetections)
+            const y = selectedClass ? yScale(data.classCounts[selectedClass] || 0) : yScale(data.totalDetections)
 
             return (
               <circle
@@ -204,31 +174,11 @@ export function YoloDataVisualization({
           })}
 
           {/* Оси */}
-          <line
-            x1={0}
-            y1={chartHeight}
-            x2={chartWidth}
-            y2={chartHeight}
-            stroke="#6c757d"
-            strokeWidth={1}
-          />
-          <line
-            x1={0}
-            y1={0}
-            x2={0}
-            y2={chartHeight}
-            stroke="#6c757d"
-            strokeWidth={1}
-          />
+          <line x1={0} y1={chartHeight} x2={chartWidth} y2={chartHeight} stroke="#6c757d" strokeWidth={1} />
+          <line x1={0} y1={0} x2={0} y2={chartHeight} stroke="#6c757d" strokeWidth={1} />
 
           {/* Подписи осей */}
-          <text
-            x={chartWidth / 2}
-            y={chartHeight + 35}
-            textAnchor="middle"
-            fontSize="14"
-            fill="#6c757d"
-          >
+          <text x={chartWidth / 2} y={chartHeight + 35} textAnchor="middle" fontSize="14" fill="#6c757d">
             {t("Время (секунды)")}
           </text>
           <text
@@ -256,17 +206,12 @@ export function YoloDataVisualization({
         </div>
         <div className="rounded bg-gray-100 p-3">
           <div className="text-sm text-gray-600">{t("Всего обнаружений")}</div>
-          <div className="text-xl font-semibold">
-            {chartData.reduce((sum, data) => sum + data.totalDetections, 0)}
-          </div>
+          <div className="text-xl font-semibold">{chartData.reduce((sum, data) => sum + data.totalDetections, 0)}</div>
         </div>
         <div className="rounded bg-gray-100 p-3">
           <div className="text-sm text-gray-600">{t("Среднее за кадр")}</div>
           <div className="text-xl font-semibold">
-            {(
-              chartData.reduce((sum, data) => sum + data.totalDetections, 0) /
-              chartData.length
-            ).toFixed(1)}
+            {(chartData.reduce((sum, data) => sum + data.totalDetections, 0) / chartData.length).toFixed(1)}
           </div>
         </div>
       </div>

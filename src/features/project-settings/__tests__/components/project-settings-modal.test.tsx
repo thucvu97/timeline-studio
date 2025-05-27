@@ -1,7 +1,7 @@
-import { act, render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, render } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { ProjectSettingsModal } from "../../components/project-settings-modal";
+import { ProjectSettingsModal } from "../../components/project-settings-modal"
 
 // Мокируем все зависимости
 vi.mock("../../hooks/use-project-settings", () => ({
@@ -19,7 +19,7 @@ vi.mock("../../hooks/use-project-settings", () => ({
     updateSettings: vi.fn(),
     resetSettings: vi.fn(),
   })),
-}));
+}))
 
 vi.mock("@/features/modals/services/modal-provider", () => ({
   useModal: vi.fn(() => ({
@@ -27,22 +27,22 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
     openModal: vi.fn(),
     isModalOpen: vi.fn(),
   })),
-}));
+}))
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
-}));
+}))
 
 describe("ProjectSettingsModal", () => {
   it("должен рендериться без ошибок", () => {
     expect(() => {
-      render(<ProjectSettingsModal />);
-    }).not.toThrow();
-  });
+      render(<ProjectSettingsModal />)
+    }).not.toThrow()
+  })
 
   it("должен быть React компонентом", () => {
-    expect(typeof ProjectSettingsModal).toBe("function");
-  });
-});
+    expect(typeof ProjectSettingsModal).toBe("function")
+  })
+})

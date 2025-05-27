@@ -1,21 +1,18 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState } from "react"
 
-import { MediaFile } from "@/features/media/types/media";
-import {
-  MediaRestorationService,
-  ProjectRestorationResult,
-} from "@/lib/media-restoration-service";
-import { SavedMediaFile, SavedMusicFile } from "@/types/saved-media";
+import { MediaFile } from "@/features/media/types/media"
+import { MediaRestorationService, ProjectRestorationResult } from "@/lib/media-restoration-service"
+import { SavedMediaFile, SavedMusicFile } from "@/types/saved-media"
 
 /**
  * Состояние процесса восстановления
  */
 export interface RestorationState {
-  isRestoring: boolean;
-  progress: number;
-  currentFile?: string;
-  phase: "scanning" | "restoring" | "user_input" | "completed" | "error";
-  error?: string;
+  isRestoring: boolean
+  progress: number
+  currentFile?: string
+  phase: "scanning" | "restoring" | "user_input" | "completed" | "error"
+  error?: string
 }
 
 /**
@@ -26,18 +23,17 @@ export function useMediaRestoration() {
     isRestoring: false,
     progress: 0,
     phase: "completed",
-  });
+  })
 
-  const [restorationResult, setRestorationResult] =
-    useState<ProjectRestorationResult | null>(null);
-  const [showMissingFilesDialog, setShowMissingFilesDialog] = useState(false);
+  const [restorationResult, setRestorationResult] = useState<ProjectRestorationResult | null>(null)
+  const [showMissingFilesDialog, setShowMissingFilesDialog] = useState(false)
 
   /**
    * Обновляет состояние восстановления
    */
   const updateState = useCallback((updates: Partial<RestorationState>) => {
-    setState((prev) => ({ ...prev, ...updates }));
-  }, []);
+    setState((prev) => ({ ...prev, ...updates }))
+  }, [])
 
   /**
    * Восстанавливает медиафайлы проекта
@@ -48,14 +44,14 @@ export function useMediaRestoration() {
       musicFiles: SavedMusicFile[],
       projectPath: string,
       options?: {
-        autoResolve?: boolean; // Автоматически пытаться найти файлы без участия пользователя
-        showDialog?: boolean; // Показывать диалог для отсутствующих файлов
+        autoResolve?: boolean // Автоматически пытаться найти файлы без участия пользователя
+        showDialog?: boolean // Показывать диалог для отсутствующих файлов
       },
     ): Promise<{
-      restoredMedia: MediaFile[];
-      restoredMusic: MediaFile[];
-      needsUserInput: boolean;
-      result: ProjectRestorationResult;
+      restoredMedia: MediaFile[]
+      restoredMusic: MediaFile[]
+      needsUserInput: boolean
+      result: ProjectRestorationResult
     }> => {
       try {
         updateState({
@@ -63,41 +59,35 @@ export function useMediaRestoration() {
           progress: 0,
           phase: "scanning",
           error: undefined,
-        });
+        })
 
         // Фаза 1: Автоматическое восстановление
-        console.log("Начинаем автоматическое восстановление медиафайлов...");
+        console.log("Начинаем автоматическое восстановление медиафайлов...")
 
-        const result = await MediaRestorationService.restoreProjectMedia(
-          mediaFiles,
-          musicFiles,
-          projectPath,
-        );
+        const result = await MediaRestorationService.restoreProjectMedia(mediaFiles, musicFiles, projectPath)
 
-        setRestorationResult(result);
+        setRestorationResult(result)
 
         updateState({
           progress: 80,
           phase: "restoring",
-        });
+        })
 
         // Проверяем, есть ли отсутствующие файлы
-        let needsUserInput = false;
+        let needsUserInput = false
 
         if (result.missingFiles.length > 0) {
           if (options?.showDialog !== false) {
             // Показываем диалог для обработки отсутствующих файлов
-            needsUserInput = true;
-            setShowMissingFilesDialog(true);
+            needsUserInput = true
+            setShowMissingFilesDialog(true)
 
             updateState({
               progress: 90,
               phase: "user_input",
-            });
+            })
           } else if (options?.autoResolve) {
-            console.log(
-              `Пропускаем ${result.missingFiles.length} отсутствующих файлов (автоматический режим)`,
-            );
+            console.log(`Пропускаем ${result.missingFiles.length} отсутствующих файлов (автоматический режим)`)
           }
         }
 
@@ -106,34 +96,33 @@ export function useMediaRestoration() {
             progress: 100,
             phase: "completed",
             isRestoring: false,
-          });
+          })
         }
 
         // Генерируем отчет
-        const report =
-          MediaRestorationService.generateRestorationReport(result);
-        console.log("Отчет о восстановлении:", report);
+        const report = MediaRestorationService.generateRestorationReport(result)
+        console.log("Отчет о восстановлении:", report)
 
         return {
           restoredMedia: result.restoredMedia,
           restoredMusic: result.restoredMusic,
           needsUserInput,
           result,
-        };
+        }
       } catch (error) {
-        console.error("Ошибка при восстановлении медиафайлов:", error);
+        console.error("Ошибка при восстановлении медиафайлов:", error)
 
         updateState({
           isRestoring: false,
           phase: "error",
           error: String(error),
-        });
+        })
 
-        throw error;
+        throw error
       }
     },
     [updateState],
-  );
+  )
 
   /**
    * Обрабатывает результат диалога отсутствующих файлов
@@ -141,16 +130,16 @@ export function useMediaRestoration() {
   const handleMissingFilesResolution = useCallback(
     async (
       resolved: Array<{
-        file: SavedMediaFile;
-        newPath?: string;
-        action: "found" | "remove";
+        file: SavedMediaFile
+        newPath?: string
+        action: "found" | "remove"
       }>,
     ): Promise<{
-      foundFiles: MediaFile[];
-      removedFiles: SavedMediaFile[];
+      foundFiles: MediaFile[]
+      removedFiles: SavedMediaFile[]
     }> => {
-      const foundFiles: MediaFile[] = [];
-      const removedFiles: SavedMediaFile[] = [];
+      const foundFiles: MediaFile[] = []
+      const removedFiles: SavedMediaFile[] = []
 
       for (const resolution of resolved) {
         if (resolution.action === "found" && resolution.newPath) {
@@ -171,38 +160,38 @@ export function useMediaRestoration() {
               format: {},
             },
             isLoadingMetadata: false,
-          };
+          }
 
-          foundFiles.push(restoredFile);
+          foundFiles.push(restoredFile)
         } else if (resolution.action === "remove") {
-          removedFiles.push(resolution.file);
+          removedFiles.push(resolution.file)
         }
       }
 
       // Закрываем диалог и завершаем восстановление
-      setShowMissingFilesDialog(false);
+      setShowMissingFilesDialog(false)
       updateState({
         progress: 100,
         phase: "completed",
         isRestoring: false,
-      });
+      })
 
-      return { foundFiles, removedFiles };
+      return { foundFiles, removedFiles }
     },
     [updateState],
-  );
+  )
 
   /**
    * Отменяет диалог отсутствующих файлов
    */
   const cancelMissingFilesDialog = useCallback(() => {
-    setShowMissingFilesDialog(false);
+    setShowMissingFilesDialog(false)
     updateState({
       progress: 100,
       phase: "completed",
       isRestoring: false,
-    });
-  }, [updateState]);
+    })
+  }, [updateState])
 
   /**
    * Сбрасывает состояние восстановления
@@ -212,39 +201,39 @@ export function useMediaRestoration() {
       isRestoring: false,
       progress: 0,
       phase: "completed",
-    });
-    setRestorationResult(null);
-    setShowMissingFilesDialog(false);
-  }, []);
+    })
+    setRestorationResult(null)
+    setShowMissingFilesDialog(false)
+  }, [])
 
   /**
    * Получает статистику последнего восстановления
    */
   const getRestorationStats = useCallback(() => {
-    return restorationResult?.stats || null;
-  }, [restorationResult]);
+    return restorationResult?.stats || null
+  }, [restorationResult])
 
   /**
    * Получает список отсутствующих файлов
    */
   const getMissingFiles = useCallback(() => {
-    return restorationResult?.missingFiles || [];
-  }, [restorationResult]);
+    return restorationResult?.missingFiles || []
+  }, [restorationResult])
 
   /**
    * Получает список перемещенных файлов
    */
   const getRelocatedFiles = useCallback(() => {
-    return restorationResult?.relocatedFiles || [];
-  }, [restorationResult]);
+    return restorationResult?.relocatedFiles || []
+  }, [restorationResult])
 
   /**
    * Получает отчет о восстановлении
    */
   const getRestorationReport = useCallback(() => {
-    if (!restorationResult) return null;
-    return MediaRestorationService.generateRestorationReport(restorationResult);
-  }, [restorationResult]);
+    if (!restorationResult) return null
+    return MediaRestorationService.generateRestorationReport(restorationResult)
+  }, [restorationResult])
 
   return {
     // Состояние
@@ -269,5 +258,5 @@ export function useMediaRestoration() {
     progress: state.progress,
     currentPhase: state.phase,
     error: state.error,
-  };
+  }
 }

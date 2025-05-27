@@ -1,37 +1,26 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, render, screen, waitFor } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { SavedMediaFile } from "@/types/saved-media";
+import { SavedMediaFile } from "@/types/saved-media"
 
-import { MissingFilesDialog } from "./missing-files-dialog";
+import { MissingFilesDialog } from "./missing-files-dialog"
 
 // Мокаем MediaRestorationService
 vi.mock("@/lib/media-restoration-service", () => ({
   MediaRestorationService: {
     promptUserToFindFile: vi.fn(),
   },
-}));
+}))
 
 // Мокаем UI компоненты
 vi.mock("@/components/ui/alert-dialog", () => ({
-  AlertDialog: ({ children, open }: any) =>
-    open ? <div data-testid="alert-dialog">{children}</div> : null,
-  AlertDialogContent: ({ children }: any) => (
-    <div data-testid="dialog-content">{children}</div>
-  ),
-  AlertDialogHeader: ({ children }: any) => (
-    <div data-testid="dialog-header">{children}</div>
-  ),
-  AlertDialogTitle: ({ children }: any) => (
-    <h2 data-testid="dialog-title">{children}</h2>
-  ),
-  AlertDialogDescription: ({ children }: any) => (
-    <p data-testid="dialog-description">{children}</p>
-  ),
-  AlertDialogFooter: ({ children }: any) => (
-    <div data-testid="dialog-footer">{children}</div>
-  ),
+  AlertDialog: ({ children, open }: any) => (open ? <div data-testid="alert-dialog">{children}</div> : null),
+  AlertDialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+  AlertDialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
+  AlertDialogTitle: ({ children }: any) => <h2 data-testid="dialog-title">{children}</h2>,
+  AlertDialogDescription: ({ children }: any) => <p data-testid="dialog-description">{children}</p>,
+  AlertDialogFooter: ({ children }: any) => <div data-testid="dialog-footer">{children}</div>,
   AlertDialogAction: ({ children, onClick }: any) => (
     <button data-testid="dialog-action" onClick={onClick}>
       {children}
@@ -42,24 +31,19 @@ vi.mock("@/components/ui/alert-dialog", () => ({
       {children}
     </button>
   ),
-}));
+}))
 
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, variant, size, ...props }: any) => (
-    <button
-      onClick={onClick}
-      data-testid={`button-${variant || "default"}`}
-      data-size={size}
-      {...props}
-    >
+    <button onClick={onClick} data-testid={`button-${variant || "default"}`} data-size={size} {...props}>
       {children}
     </button>
   ),
-}));
+}))
 
 vi.mock("@/components/ui/separator", () => ({
   Separator: () => <hr data-testid="separator" />,
-}));
+}))
 
 // Мокаем иконки
 vi.mock("lucide-react", () => ({
@@ -68,14 +52,10 @@ vi.mock("lucide-react", () => ({
   FileX: () => <div data-testid="file-x-icon" />,
   Search: () => <div data-testid="search-icon" />,
   Trash2: () => <div data-testid="trash-icon" />,
-}));
+}))
 
-const { MediaRestorationService } = await import(
-  "@/lib/media-restoration-service"
-);
-const mockPromptUserToFindFile = vi.mocked(
-  MediaRestorationService.promptUserToFindFile,
-);
+const { MediaRestorationService } = await import("@/lib/media-restoration-service")
+const mockPromptUserToFindFile = vi.mocked(MediaRestorationService.promptUserToFindFile)
 
 describe("MissingFilesDialog", () => {
   const mockMissingFiles: SavedMediaFile[] = [
@@ -105,14 +85,14 @@ describe("MissingFilesDialog", () => {
       status: "missing",
       lastChecked: Date.now(),
     },
-  ];
+  ]
 
-  const mockOnResolve = vi.fn();
-  const mockOnOpenChange = vi.fn();
+  const mockOnResolve = vi.fn()
+  const mockOnOpenChange = vi.fn()
 
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   it("должен отображаться когда open=true", () => {
     render(
@@ -122,13 +102,11 @@ describe("MissingFilesDialog", () => {
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
-    expect(screen.getByTestId("alert-dialog")).toBeInTheDocument();
-    expect(screen.getByTestId("dialog-title")).toHaveTextContent(
-      "Отсутствующие медиафайлы",
-    );
-  });
+    expect(screen.getByTestId("alert-dialog")).toBeInTheDocument()
+    expect(screen.getByTestId("dialog-title")).toHaveTextContent("Отсутствующие медиафайлы")
+  })
 
   it("не должен отображаться когда open=false", () => {
     render(
@@ -138,10 +116,10 @@ describe("MissingFilesDialog", () => {
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
-    expect(screen.queryByTestId("alert-dialog")).not.toBeInTheDocument();
-  });
+    expect(screen.queryByTestId("alert-dialog")).not.toBeInTheDocument()
+  })
 
   it("должен отображать список отсутствующих файлов", () => {
     render(
@@ -151,13 +129,13 @@ describe("MissingFilesDialog", () => {
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
-    expect(screen.getByText("video1.mp4")).toBeInTheDocument();
-    expect(screen.getByText("audio.mp3")).toBeInTheDocument();
-    expect(screen.getByText("/path/to/video1.mp4")).toBeInTheDocument();
-    expect(screen.getByText("/path/to/audio.mp3")).toBeInTheDocument();
-  });
+    expect(screen.getByText("video1.mp4")).toBeInTheDocument()
+    expect(screen.getByText("audio.mp3")).toBeInTheDocument()
+    expect(screen.getByText("/path/to/video1.mp4")).toBeInTheDocument()
+    expect(screen.getByText("/path/to/audio.mp3")).toBeInTheDocument()
+  })
 
   it("должен показывать правильные иконки статуса", () => {
     render(
@@ -167,15 +145,15 @@ describe("MissingFilesDialog", () => {
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
     // Должны быть иконки предупреждения: 1 в заголовке + 2 для файлов = 3
-    expect(screen.getAllByTestId("alert-triangle-icon")).toHaveLength(3);
-  });
+    expect(screen.getAllByTestId("alert-triangle-icon")).toHaveLength(3)
+  })
 
   it("должен позволять найти файл", async () => {
-    const user = userEvent.setup();
-    mockPromptUserToFindFile.mockResolvedValue("/new/path/video1.mp4");
+    const user = userEvent.setup()
+    mockPromptUserToFindFile.mockResolvedValue("/new/path/video1.mp4")
 
     render(
       <MissingFilesDialog
@@ -184,25 +162,23 @@ describe("MissingFilesDialog", () => {
         missingFiles={[mockMissingFiles[0]]}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
-    const findButtons = screen.getAllByTestId("search-icon");
-    await user.click(findButtons[0].closest("button")!);
+    const findButtons = screen.getAllByTestId("search-icon")
+    await user.click(findButtons[0].closest("button")!)
 
     await waitFor(() => {
-      expect(mockPromptUserToFindFile).toHaveBeenCalledWith(
-        mockMissingFiles[0],
-      );
-    });
+      expect(mockPromptUserToFindFile).toHaveBeenCalledWith(mockMissingFiles[0])
+    })
 
     // Проверяем, что статус изменился на "найден"
     await waitFor(() => {
-      expect(screen.getByTestId("check-circle-icon")).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByTestId("check-circle-icon")).toBeInTheDocument()
+    })
+  })
 
   it("должен позволять удалить файл из проекта", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup()
 
     render(
       <MissingFilesDialog
@@ -211,20 +187,20 @@ describe("MissingFilesDialog", () => {
         missingFiles={[mockMissingFiles[0]]}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
-    const removeButtons = screen.getAllByTestId("trash-icon");
-    await user.click(removeButtons[0].closest("button")!);
+    const removeButtons = screen.getAllByTestId("trash-icon")
+    await user.click(removeButtons[0].closest("button")!)
 
     // Проверяем, что статус изменился на "удален" (иконка остается trash-icon, но меняется текст)
     await waitFor(() => {
-      expect(screen.getByText("Удалить")).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Удалить")).toBeInTheDocument()
+    })
+  })
 
   it('должен применять изменения при нажатии "Применить изменения"', async () => {
-    const user = userEvent.setup();
-    mockPromptUserToFindFile.mockResolvedValue("/new/path/video1.mp4");
+    const user = userEvent.setup()
+    mockPromptUserToFindFile.mockResolvedValue("/new/path/video1.mp4")
 
     render(
       <MissingFilesDialog
@@ -233,27 +209,27 @@ describe("MissingFilesDialog", () => {
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
     // Найдем первый файл
-    const findButtons = screen.getAllByTestId("search-icon");
-    await user.click(findButtons[0].closest("button")!);
+    const findButtons = screen.getAllByTestId("search-icon")
+    await user.click(findButtons[0].closest("button")!)
 
     await waitFor(() => {
-      expect(screen.getByTestId("check-circle-icon")).toBeInTheDocument();
-    });
+      expect(screen.getByTestId("check-circle-icon")).toBeInTheDocument()
+    })
 
     // Удалим второй файл
-    const removeButtons = screen.getAllByTestId("trash-icon");
-    await user.click(removeButtons[0].closest("button")!);
+    const removeButtons = screen.getAllByTestId("trash-icon")
+    await user.click(removeButtons[0].closest("button")!)
 
     await waitFor(() => {
-      expect(screen.getByText("Удалить")).toBeInTheDocument();
-    });
+      expect(screen.getByText("Удалить")).toBeInTheDocument()
+    })
 
     // Применим изменения
-    const applyButton = screen.getByTestId("dialog-action");
-    await user.click(applyButton);
+    const applyButton = screen.getByTestId("dialog-action")
+    await user.click(applyButton)
 
     expect(mockOnResolve).toHaveBeenCalledWith([
       {
@@ -265,11 +241,11 @@ describe("MissingFilesDialog", () => {
         file: mockMissingFiles[1],
         action: "remove",
       },
-    ]);
-  });
+    ])
+  })
 
   it('должен закрываться при нажатии "Пропустить все"', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup()
 
     render(
       <MissingFilesDialog
@@ -278,13 +254,13 @@ describe("MissingFilesDialog", () => {
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
-    const skipButton = screen.getByTestId("dialog-cancel");
-    await user.click(skipButton);
+    const skipButton = screen.getByTestId("dialog-cancel")
+    await user.click(skipButton)
 
-    expect(mockOnOpenChange).toHaveBeenCalledWith(false);
-  });
+    expect(mockOnOpenChange).toHaveBeenCalledWith(false)
+  })
 
   it("должен показывать правильное количество файлов в заголовке", () => {
     render(
@@ -294,15 +270,15 @@ describe("MissingFilesDialog", () => {
         missingFiles={mockMissingFiles}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
     // Количество файлов показывается в статистике, а не в описании
-    expect(screen.getByText("Файлов: 2")).toBeInTheDocument();
-  });
+    expect(screen.getByText("Файлов: 2")).toBeInTheDocument()
+  })
 
   it("должен обрабатывать отмену поиска файла", async () => {
-    const user = userEvent.setup();
-    mockPromptUserToFindFile.mockResolvedValue(null); // Пользователь отменил
+    const user = userEvent.setup()
+    mockPromptUserToFindFile.mockResolvedValue(null) // Пользователь отменил
 
     render(
       <MissingFilesDialog
@@ -311,18 +287,18 @@ describe("MissingFilesDialog", () => {
         missingFiles={[mockMissingFiles[0]]}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
-    const findButton = screen.getAllByTestId("search-icon")[0];
-    await user.click(findButton.closest("button")!);
+    const findButton = screen.getAllByTestId("search-icon")[0]
+    await user.click(findButton.closest("button")!)
 
     await waitFor(() => {
-      expect(mockPromptUserToFindFile).toHaveBeenCalled();
-    });
+      expect(mockPromptUserToFindFile).toHaveBeenCalled()
+    })
 
     // Статус должен остаться "отсутствует"
-    expect(screen.getByTestId("alert-triangle-icon")).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("alert-triangle-icon")).toBeInTheDocument()
+  })
 
   it("должен показывать размер файла в читаемом формате", () => {
     render(
@@ -332,13 +308,13 @@ describe("MissingFilesDialog", () => {
         missingFiles={[mockMissingFiles[0]]}
         onResolve={mockOnResolve}
       />,
-    );
+    )
 
     // Размер показывается в МБ, а не в KB (1024 байт = 0.0 МБ)
     expect(
       screen.getByText((content, element) => {
-        return content.includes("0.0") && content.includes("МБ");
+        return content.includes("0.0") && content.includes("МБ")
       }),
-    ).toBeInTheDocument();
-  });
-});
+    ).toBeInTheDocument()
+  })
+})

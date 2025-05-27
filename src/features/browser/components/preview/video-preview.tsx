@@ -1,31 +1,27 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { convertFileSrc } from "@tauri-apps/api/core";
-import { readFile } from "@tauri-apps/plugin-fs";
-import { Film } from "lucide-react";
+import { convertFileSrc } from "@tauri-apps/api/core"
+import { readFile } from "@tauri-apps/plugin-fs"
+import { Film } from "lucide-react"
 
-import { MediaFile } from "@/features/media/types/media";
-import { formatDuration } from "@/lib/date";
-import { cn, formatResolution } from "@/lib/utils";
-import {
-  calculateAdaptiveWidth,
-  calculateWidth,
-  parseRotation,
-} from "@/lib/video";
-import { FfprobeStream } from "@/types/ffprobe";
+import { MediaFile } from "@/features/media/types/media"
+import { formatDuration } from "@/lib/date"
+import { cn, formatResolution } from "@/lib/utils"
+import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/lib/video"
+import { FfprobeStream } from "@/types/ffprobe"
 
-import { AddMediaButton } from "../layout/add-media-button";
-import { FavoriteButton } from "../layout/favorite-button";
+import { AddMediaButton } from "../layout/add-media-button"
+import { FavoriteButton } from "../layout/favorite-button"
 
 interface VideoPreviewProps {
-  file: MediaFile;
-  onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void;
-  onDoubleClick?: (file: MediaFile) => void;
-  isAdded?: boolean;
-  size?: number;
-  showFileName?: boolean;
-  dimensions?: [number, number];
-  ignoreRatio?: boolean;
+  file: MediaFile
+  onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void
+  onDoubleClick?: (file: MediaFile) => void
+  isAdded?: boolean
+  size?: number
+  showFileName?: boolean
+  dimensions?: [number, number]
+  ignoreRatio?: boolean
 }
 
 /**
@@ -57,147 +53,135 @@ export const VideoPreview = memo(
     showFileName = false,
     ignoreRatio = false,
   }: VideoPreviewProps) {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [hoverTime, setHoverTime] = useState<number | null>(null);
-    const [isLoaded, setIsLoaded] = useState(false);
-    const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+    const [isPlaying, setIsPlaying] = useState(false)
+    const [hoverTime, setHoverTime] = useState<number | null>(null)
+    const [isLoaded, setIsLoaded] = useState(false)
+    const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
 
     // Используем useRef для хранения времени последнего обновления
-    const lastUpdateTimeRef = useRef(0);
+    const lastUpdateTimeRef = useRef(0)
 
     // Создаем стабильные ключи для рефов
     useEffect(() => {
-      const videoStreams =
-        file.probeData?.streams.filter((s) => s.codec_type === "video") ?? [];
+      const videoStreams = file.probeData?.streams.filter((s) => s.codec_type === "video") ?? []
       videoStreams.forEach((stream) => {
-        const key = stream.streamKey ?? `stream-${stream.index}`;
-        videoRefs.current[key] ??= null;
-      });
-    }, [file.probeData?.streams]);
+        const key = stream.streamKey ?? `stream-${stream.index}`
+        videoRefs.current[key] ??= null
+      })
+    }, [file.probeData?.streams])
 
     // Используем useRef для хранения hoverTime вместо useState
     // чтобы избежать ререндеров при движении мыши
-    const hoverTimeRef = useRef<number | null>(null);
+    const hoverTimeRef = useRef<number | null>(null)
 
     const handleMouseMove = useCallback(
       (e: React.MouseEvent<HTMLDivElement>, stream: FfprobeStream) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const percentage = x / rect.width;
-        const newTime = percentage * (file.duration ?? 0);
+        const rect = e.currentTarget.getBoundingClientRect()
+        const x = e.clientX - rect.left
+        const percentage = x / rect.width
+        const newTime = percentage * (file.duration ?? 0)
 
         // Обновляем ref и состояние при каждом движении мыши
-        hoverTimeRef.current = newTime;
+        hoverTimeRef.current = newTime
         // Обновляем состояние без задержки
-        setHoverTime(newTime);
+        setHoverTime(newTime)
 
-        const key = stream.streamKey ?? `stream-${stream.index}`;
-        const videoRef = videoRefs.current[key];
+        const key = stream.streamKey ?? `stream-${stream.index}`
+        const videoRef = videoRefs.current[key]
         if (videoRef) {
           // Устанавливаем время напрямую без лишних логов
-          videoRef.currentTime = newTime;
+          videoRef.currentTime = newTime
         }
       },
       [file.duration], // Удалили hoverTime из зависимостей, так как он не используется для условной проверки
-    );
+    )
 
     const handleMouseLeave = useCallback(() => {
-      setHoverTime(null);
+      setHoverTime(null)
       // При уходе мыши останавливаем воспроизведение всех видео, кроме видео в шаблоне
       if (isPlaying) {
-        setIsPlaying(false);
+        setIsPlaying(false)
       }
-    }, [isPlaying]);
+    }, [isPlaying])
 
     // Функция handlePlayPause, которая управляет воспроизведением только в превью
     const handlePlayPause = useCallback(
       (e: React.MouseEvent, stream: FfprobeStream) => {
-        e.preventDefault();
-        const key = stream.streamKey ?? `stream-${stream.index}`;
-        const videoRef = videoRefs.current[key];
-        if (!videoRef) return;
+        e.preventDefault()
+        const key = stream.streamKey ?? `stream-${stream.index}`
+        const videoRef = videoRefs.current[key]
+        if (!videoRef) return
 
         // Определяем новое состояние воспроизведения (противоположное текущему)
-        const newPlayingState = !isPlaying;
+        const newPlayingState = !isPlaying
 
         // Воспроизводим только в превью
         if (newPlayingState) {
           // Запускаем воспроизведение в превью
           if (hoverTime !== null) {
-            videoRef.currentTime = hoverTime;
+            videoRef.currentTime = hoverTime
           }
-          videoRef
-            .play()
-            .catch((err: unknown) =>
-              console.error(
-                "[VideoPreview] Ошибка воспроизведения в превью:",
-                err,
-              ),
-            );
+          videoRef.play().catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения в превью:", err))
         } else {
           // Останавливаем воспроизведение в превью
-          videoRef.pause();
+          videoRef.pause()
         }
 
         // Обновляем локальное состояние воспроизведения
-        setIsPlaying(newPlayingState);
+        setIsPlaying(newPlayingState)
 
-        console.log(
-          `[VideoPreview] Видео ${newPlayingState ? "запущено" : "остановлено"} в превью:`,
-          file.name,
-        );
+        console.log(`[VideoPreview] Видео ${newPlayingState ? "запущено" : "остановлено"} в превью:`, file.name)
       },
       [isPlaying, hoverTime, file],
-    );
+    )
 
     // Состояние для хранения объекта URL
-    const [videoUrl, setVideoUrl] = useState<string>("");
+    const [videoUrl, setVideoUrl] = useState<string>("")
 
     // Функция для чтения файла и создания объекта URL
     const loadVideoFile = useCallback(async (path: string) => {
       try {
-        const fileData = await readFile(path);
-        const blob = new Blob([fileData], { type: "video/mp4" });
-        const url = URL.createObjectURL(blob);
-        return url;
+        const fileData = await readFile(path)
+        const blob = new Blob([fileData], { type: "video/mp4" })
+        const url = URL.createObjectURL(blob)
+        return url
       } catch (error) {
-        console.error("[VideoPreview] Ошибка при загрузке видео:", error);
+        console.error("[VideoPreview] Ошибка при загрузке видео:", error)
         // В случае ошибки используем convertFileSrc
-        const assetUrl = convertFileSrc(path);
-        return assetUrl;
+        const assetUrl = convertFileSrc(path)
+        return assetUrl
       }
-    }, []);
+    }, [])
 
     // Мемоизируем путь к файлу для предотвращения лишних перезагрузок
-    const filePath = useMemo(() => file.path, [file.path]);
+    const filePath = useMemo(() => file.path, [file.path])
 
     // Эффект для загрузки видео при монтировании компонента
     useEffect(() => {
-      let isMounted = true;
+      let isMounted = true
 
       void loadVideoFile(filePath).then((url) => {
         if (isMounted) {
-          setVideoUrl(url);
+          setVideoUrl(url)
         }
-      });
+      })
 
       // Очистка объекта URL при размонтировании компонента
       return () => {
-        isMounted = false;
+        isMounted = false
         if (videoUrl?.startsWith("blob:")) {
-          URL.revokeObjectURL(videoUrl);
+          URL.revokeObjectURL(videoUrl)
         }
-      };
-    }, [filePath, loadVideoFile]); // Используем мемоизированный путь
+      }
+    }, [filePath, loadVideoFile]) // Используем мемоизированный путь
 
     // Оптимизируем вычисления с помощью useMemo
     const videoData = useMemo(() => {
-      const videoStreams =
-        file.probeData?.streams.filter((s) => s.codec_type === "video") ?? [];
-      const isMultipleStreams = videoStreams.length > 1;
+      const videoStreams = file.probeData?.streams.filter((s) => s.codec_type === "video") ?? []
+      const isMultipleStreams = videoStreams.length > 1
 
-      return { videoStreams, isMultipleStreams };
-    }, [file.probeData?.streams]);
+      return { videoStreams, isMultipleStreams }
+    }, [file.probeData?.streams])
 
     return (
       <div className={cn("flex h-full w-full items-center justify-center")}>
@@ -217,16 +201,13 @@ export const VideoPreview = memo(
                 tabIndex={0}
                 playsInline
                 muted={false}
-                className={cn(
-                  "absolute inset-0 h-full w-full focus:outline-none",
-                  isAdded ? "opacity-50" : "",
-                )}
+                className={cn("absolute inset-0 h-full w-full focus:outline-none", isAdded ? "opacity-50" : "")}
                 style={{
                   transition: "opacity 0.2s ease-in-out",
                 }}
                 onLoadedData={() => {
-                  console.log("Video loaded (placeholder)");
-                  setIsLoaded(true);
+                  console.log("Video loaded (placeholder)")
+                  setIsLoaded(true)
                 }}
               />
 
@@ -247,43 +228,29 @@ export const VideoPreview = memo(
               <FavoriteButton file={file} size={size} type="media" />
 
               {/* Кнопка добавления для плейсхолдера */}
-              {onAddMedia && (
-                <AddMediaButton
-                  file={file}
-                  onAddMedia={onAddMedia}
-                  isAdded={isAdded}
-                  size={size}
-                />
-              )}
+              {onAddMedia && <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />}
             </div>
           </div>
         ) : (
           videoData.videoStreams.map((stream: FfprobeStream) => {
-            const key = stream.streamKey ?? `stream-${stream.index}`;
-            const isMultipleStreams = videoData.isMultipleStreams;
+            const key = stream.streamKey ?? `stream-${stream.index}`
+            const isMultipleStreams = videoData.isMultipleStreams
 
             // Используем размеры из метаданных или значения по умолчанию для 16:9
-            const videoWidth = stream.width || 1920;
-            const videoHeight = stream.height || 1080;
+            const videoWidth = stream.width || 1920
+            const videoHeight = stream.height || 1080
 
-            const width = calculateWidth(
-              videoWidth,
-              videoHeight,
-              size,
-              parseRotation(stream.rotation),
-            );
+            const width = calculateWidth(videoWidth, videoHeight, size, parseRotation(stream.rotation))
 
             const adptivedWidth = calculateAdaptiveWidth(
               width,
               isMultipleStreams,
               stream.display_aspect_ratio || "16:9",
-            );
+            )
 
             // Используем соотношение сторон из метаданных или 16:9 по умолчанию
-            const aspectRatio = stream.display_aspect_ratio
-              ?.split(":")
-              .map(Number) ?? [16, 9];
-            const ratio = aspectRatio[0] / aspectRatio[1];
+            const aspectRatio = stream.display_aspect_ratio?.split(":").map(Number) ?? [16, 9]
+            const ratio = aspectRatio[0] / aspectRatio[1]
 
             return (
               <div
@@ -310,58 +277,51 @@ export const VideoPreview = memo(
                 >
                   <video
                     ref={(el) => {
-                      videoRefs.current[key] = el;
+                      videoRefs.current[key] = el
                     }}
                     src={videoUrl || convertFileSrc(file.path)}
                     preload="auto"
                     tabIndex={0}
                     playsInline
                     muted={false} // Включаем звук в превью по запросу пользователя
-                    className={cn(
-                      "absolute inset-0 h-full w-full focus:outline-none",
-                      isAdded ? "opacity-50" : "",
-                    )}
+                    className={cn("absolute inset-0 h-full w-full focus:outline-none", isAdded ? "opacity-50" : "")}
                     style={{
                       transition: "opacity 0.2s ease-in-out",
                     }}
                     onEnded={() => {
-                      console.log("Video ended for stream:", stream.index);
-                      setIsPlaying(false);
+                      console.log("Video ended for stream:", stream.index)
+                      setIsPlaying(false)
                     }}
                     onPlay={(e) => {
-                      console.log("Video playing for stream:", stream.index);
-                      const video = e.currentTarget;
-                      const currentTime = hoverTime;
+                      console.log("Video playing for stream:", stream.index)
+                      const video = e.currentTarget
+                      const currentTime = hoverTime
                       if (currentTime !== null) {
-                        video.currentTime = currentTime;
+                        video.currentTime = currentTime
                       }
                     }}
                     onTimeUpdate={(e) => {
                       // Обновляем только каждые 500 мс вместо случайного выбора
-                      const now = Date.now();
+                      const now = Date.now()
                       if (now - lastUpdateTimeRef.current > 500) {
-                        lastUpdateTimeRef.current = now;
+                        lastUpdateTimeRef.current = now
                         console.log(
                           "Time update for stream:",
-                          typeof stream.index !== "undefined"
-                            ? stream.index
-                            : key,
+                          typeof stream.index !== "undefined" ? stream.index : key,
                           "current time:",
                           e.currentTarget.currentTime.toFixed(2),
-                        );
+                        )
                       }
                     }}
                     onError={(e) => {
                       console.log(
                         "Video error for stream:",
-                        typeof stream.index !== "undefined"
-                          ? stream.index
-                          : key,
+                        typeof stream.index !== "undefined" ? stream.index : key,
                         e,
-                      );
+                      )
 
                       // Получаем элемент видео
-                      const video = e.currentTarget as HTMLVideoElement;
+                      const video = e.currentTarget as HTMLVideoElement
 
                       // Проверяем, какая ошибка произошла
                       if (video.error) {
@@ -373,52 +333,32 @@ export const VideoPreview = memo(
                           file.name,
                           "URL:",
                           video.src,
-                        );
+                        )
                       }
                     }}
                     onKeyDown={(e) => {
                       if (e.code === "Space") {
-                        e.preventDefault();
-                        handlePlayPause(
-                          e as unknown as React.MouseEvent,
-                          stream,
-                        );
+                        e.preventDefault()
+                        handlePlayPause(e as unknown as React.MouseEvent, stream)
                       }
                     }}
                     onLoadedData={() => {
-                      console.log(
-                        "Video loaded for stream:",
-                        typeof stream.index !== "undefined"
-                          ? stream.index
-                          : key,
-                      );
-                      setIsLoaded(true);
+                      console.log("Video loaded for stream:", typeof stream.index !== "undefined" ? stream.index : key)
+                      setIsLoaded(true)
 
                       // Проверяем, есть ли у файла probeData и streams
-                      if (
-                        !file.probeData?.streams ||
-                        file.probeData.streams.length === 0
-                      ) {
-                        console.log(
-                          "No streams found in probeData for file:",
-                          file.name,
-                        );
+                      if (!file.probeData?.streams || file.probeData.streams.length === 0) {
+                        console.log("No streams found in probeData for file:", file.name)
                       }
                     }}
                   />
 
                   {/* Продолжительность видео */}
-                  {!(
-                    isMultipleStreams &&
-                    typeof stream.index !== "undefined" &&
-                    stream.index === 0
-                  ) && (
+                  {!(isMultipleStreams && typeof stream.index !== "undefined" && stream.index === 0) && (
                     <div
                       className={cn(
                         "pointer-events-none absolute rounded-xs bg-black/60 text-xs leading-[16px]",
-                        size > 100
-                          ? "top-1 right-1 px-[4px] py-[2px]"
-                          : "top-0.5 right-0.5 px-0.5 py-0",
+                        size > 100 ? "top-1 right-1 px-[4px] py-[2px]" : "top-0.5 right-0.5 px-0.5 py-0",
                       )}
                       style={{
                         fontSize: size > 100 ? "13px" : "11px",
@@ -430,11 +370,7 @@ export const VideoPreview = memo(
                   )}
 
                   {/* Иконка видео */}
-                  {!(
-                    isMultipleStreams &&
-                    typeof stream.index !== "undefined" &&
-                    stream.index !== 0
-                  ) && (
+                  {!(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
                     <div
                       className={cn(
                         "pointer-events-none absolute rounded-xs bg-black/60 p-0.5",
@@ -449,44 +385,30 @@ export const VideoPreview = memo(
                   )}
 
                   {/* Кнопка избранного */}
-                  {!(
-                    isMultipleStreams &&
-                    typeof stream.index !== "undefined" &&
-                    stream.index !== 0
-                  ) && <FavoriteButton file={file} size={size} type="media" />}
+                  {!(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
+                    <FavoriteButton file={file} size={size} type="media" />
+                  )}
 
                   {/* Разрешение видео */}
-                  {isLoaded &&
-                    !(
-                      isMultipleStreams &&
-                      typeof stream.index !== "undefined" &&
-                      stream.index !== 0
-                    ) && (
-                      <div
-                        className={`pointer-events-none absolute ${
-                          size > 100 ? "left-[28px]" : "left-[22px]"
-                        } rounded-xs bg-black/60 text-xs leading-[16px] ${size > 100 ? "bottom-1" : "bottom-0.5"} ${
-                          size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"
-                        }`}
-                        style={{
-                          fontSize: size > 100 ? "13px" : "11px",
-                          color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
-                        }}
-                      >
-                        {formatResolution(
-                          stream.width ?? 0,
-                          stream.height ?? 0,
-                        )}
-                      </div>
-                    )}
+                  {isLoaded && !(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
+                    <div
+                      className={`pointer-events-none absolute ${
+                        size > 100 ? "left-[28px]" : "left-[22px]"
+                      } rounded-xs bg-black/60 text-xs leading-[16px] ${size > 100 ? "bottom-1" : "bottom-0.5"} ${
+                        size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"
+                      }`}
+                      style={{
+                        fontSize: size > 100 ? "13px" : "11px",
+                        color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+                      }}
+                    >
+                      {formatResolution(stream.width ?? 0, stream.height ?? 0)}
+                    </div>
+                  )}
 
                   {/* Имя файла */}
                   {showFileName &&
-                    !(
-                      isMultipleStreams &&
-                      typeof stream.index !== "undefined" &&
-                      stream.index !== 0
-                    ) && (
+                    !(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
                       <div
                         className={`absolute font-medium ${size > 100 ? "top-1" : "top-0.5"} ${
                           size > 100 ? "left-1" : "left-0.5"
@@ -507,55 +429,39 @@ export const VideoPreview = memo(
                     isLoaded &&
                     typeof stream.index !== "undefined" &&
                     stream.index ===
-                      (file.probeData?.streams.filter(
-                        (s) => s.codec_type === "video",
-                      ).length ?? 0) -
-                        1 && (
-                      <AddMediaButton
-                        file={file}
-                        onAddMedia={onAddMedia}
-                        isAdded={isAdded}
-                        size={size}
-                      />
+                      (file.probeData?.streams.filter((s) => s.codec_type === "video").length ?? 0) - 1 && (
+                      <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />
                     )}
                 </div>
               </div>
-            );
+            )
           })
         )}
       </div>
-    );
+    )
   },
   (prevProps, nextProps) => {
     // Сравниваем только важные свойства для предотвращения лишних перерендеров
-    const isSameFile = prevProps.file.path === nextProps.file.path;
-    const isSameMetadataState =
-      prevProps.file.isLoadingMetadata === nextProps.file.isLoadingMetadata;
+    const isSameFile = prevProps.file.path === nextProps.file.path
+    const isSameMetadataState = prevProps.file.isLoadingMetadata === nextProps.file.isLoadingMetadata
     const isSameProps =
       prevProps.isAdded === nextProps.isAdded &&
       prevProps.size === nextProps.size &&
       prevProps.showFileName === nextProps.showFileName &&
       prevProps.ignoreRatio === nextProps.ignoreRatio &&
-      prevProps.onAddMedia === nextProps.onAddMedia;
+      prevProps.onAddMedia === nextProps.onAddMedia
 
     // Сравниваем количество потоков (главный индикатор изменения метаданных)
-    const prevStreamsCount = prevProps.file.probeData?.streams?.length ?? 0;
-    const nextStreamsCount = nextProps.file.probeData?.streams?.length ?? 0;
-    const isSameStreamsCount = prevStreamsCount === nextStreamsCount;
+    const prevStreamsCount = prevProps.file.probeData?.streams?.length ?? 0
+    const nextStreamsCount = nextProps.file.probeData?.streams?.length ?? 0
+    const isSameStreamsCount = prevStreamsCount === nextStreamsCount
 
     // Если метаданные уже загружены и количество потоков не изменилось - не перерендериваем
-    if (
-      !nextProps.file.isLoadingMetadata &&
-      isSameStreamsCount &&
-      isSameFile &&
-      isSameProps
-    ) {
-      return true;
+    if (!nextProps.file.isLoadingMetadata && isSameStreamsCount && isSameFile && isSameProps) {
+      return true
     }
 
     // Перерендериваем только при изменении ключевых свойств
-    return (
-      isSameFile && isSameMetadataState && isSameProps && isSameStreamsCount
-    );
+    return isSameFile && isSameMetadataState && isSameProps && isSameStreamsCount
   },
-);
+)

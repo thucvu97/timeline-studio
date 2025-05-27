@@ -8,67 +8,59 @@ import {
   SquareMousePointer,
   Trash2,
   Undo2,
-} from "lucide-react";
-import { useTranslation } from "react-i18next";
+} from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
-import { useTimeline } from "../timeline-provider";
+import { useTimeline } from "../timeline-provider"
 
 const ICON_STYLE =
-  "flex rounded-sm items-center justify-center w-7 h-7 hover:bg-[#dddbdd] dark:hover:bg-[#45444b] cursor-pointer dark:bg-[#45444b] text-gray-200 hover:bg-[#45444b]";
+  "flex rounded-sm items-center justify-center w-7 h-7 hover:bg-[#dddbdd] dark:hover:bg-[#45444b] cursor-pointer dark:bg-[#45444b] text-gray-200 hover:bg-[#45444b]"
 
 export function TimelineTopPanel() {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   // Получаем данные и методы из Timeline
-  const {
-    project,
-    uiState,
-    undo,
-    redo,
-    setTimeScale,
-    setEditMode,
-    clearSelection,
-  } = useTimeline();
+  const { project, uiState, undo, redo, setTimeScale, setEditMode, clearSelection } = useTimeline()
 
   // Состояние для UI
-  const isTrashActive = project !== null;
-  const isCutActive = project !== null;
-  const isAbleToScale = project !== null;
-  const isAbleToScaleUp = project !== null && uiState.timeScale < 200;
-  const isAbleToScaleDown = project !== null && uiState.timeScale > 10;
-  const isAbleToFitToTracks = project !== null;
+  const isTrashActive = project !== null
+  const isCutActive = project !== null
+  const isAbleToScale = project !== null
+  const isAbleToScaleUp = project !== null && uiState.timeScale < 200
+  const isAbleToScaleDown = project !== null && uiState.timeScale > 10
+  const isAbleToFitToTracks = project !== null
 
   // Обработчики
   const deleteTrack = () => {
-    clearSelection();
-  };
+    clearSelection()
+  }
 
   const cutTrack = () => {
-    setEditMode("cut");
-  };
+    setEditMode("cut")
+  }
 
   const handleScaleDecrease = () => {
     if (isAbleToScaleDown) {
-      setTimeScale(Math.max(10, uiState.timeScale - 10));
+      setTimeScale(Math.max(10, uiState.timeScale - 10))
     }
-  };
+  }
 
   const handleScaleIncrease = () => {
     if (isAbleToScaleUp) {
-      setTimeScale(Math.min(200, uiState.timeScale + 10));
+      setTimeScale(Math.min(200, uiState.timeScale + 10))
     }
-  };
+  }
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    setTimeScale(value);
-  };
+    const value = Number.parseInt(e.target.value)
+    setTimeScale(value)
+  }
 
-  const sliderValue = uiState.timeScale;
-  const maxScale = 200;
+  const sliderValue = uiState.timeScale
+  const maxScale = 200
 
   return (
     <div className="sticky top-0 flex-shrink-0 dark:bg-[#2D2D2D]">
@@ -114,7 +106,7 @@ export function TimelineTopPanel() {
           <Button
             onClick={() => {
               // delete track
-              deleteTrack();
+              deleteTrack()
             }}
             className={cn(ICON_STYLE, !isTrashActive && "pointer-events-none")}
             title={t("timeline.toolbar.delete")}
@@ -125,7 +117,7 @@ export function TimelineTopPanel() {
           {/* Cut track */}
           <Button
             onClick={() => {
-              cutTrack();
+              cutTrack()
             }}
             className={cn(ICON_STYLE, !isCutActive && "pointer-events-none")}
             title={t("timeline.toolbar.cut")}
@@ -140,22 +132,18 @@ export function TimelineTopPanel() {
               // Вызываем функцию fitToScreen через родительский компонент
               if (isAbleToFitToTracks) {
                 // Получаем контейнер таймлайна
-                const timelineContainer = document.querySelector(
-                  ".timeline-container",
-                );
+                const timelineContainer = document.querySelector(".timeline-container")
                 if (timelineContainer) {
                   // Получаем ширину контейнера
-                  const width = timelineContainer.clientWidth;
-                  console.log(
-                    `MoveHorizontal Button clicked, container width: ${width}px`,
-                  );
+                  const width = timelineContainer.clientWidth
+                  console.log(`MoveHorizontal Button clicked, container width: ${width}px`)
 
                   // Отправляем событие FIT_TO_SCREEN с шириной контейнера
                   window.dispatchEvent(
                     new CustomEvent("fit-to-screen", {
                       detail: { width },
                     }),
-                  );
+                  )
                 }
               }
             }}
@@ -186,10 +174,7 @@ export function TimelineTopPanel() {
               !isAbleToScale && "pointer-events-none opacity-50",
             )}
           >
-            <div
-              className="absolute top-0 left-0 h-full rounded-full bg-white"
-              style={{ width: `${sliderValue}%` }}
-            />
+            <div className="absolute top-0 left-0 h-full rounded-full bg-white" style={{ width: `${sliderValue}%` }} />
             <input
               type="range"
               min={2}
@@ -214,5 +199,5 @@ export function TimelineTopPanel() {
         </div>
       </div>
     </div>
-  );
+  )
 }

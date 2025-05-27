@@ -1,1 +1,1 @@
-export * from "./use-project-settings";
+export * from "./use-project-settings"

@@ -1,10 +1,10 @@
-import { act } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media";
-import { renderWithBase, screen } from "@/test/test-utils";
+import { MediaFile } from "@/features/media/types/media"
+import { renderWithBase, screen } from "@/test/test-utils"
 
-import { Options } from "../../components/options";
+import { Options } from "../../components/options"
 
 // Моковый медиафайл для тестов
 const mockMediaFile: MediaFile = {
@@ -40,7 +40,7 @@ const mockMediaFile: MediaFile = {
       bit_rate: 5000000,
     },
   },
-};
+}
 
 // НЕ мокаем компоненты вкладок - используем реальные
 // Это позволит тесту работать с реальной структурой
@@ -58,12 +58,7 @@ vi.mock("@/components/ui/tabs", () => ({
     </div>
   ),
   TabsTrigger: ({ children, value, onClick, ...props }: any) => (
-    <button
-      data-testid={`options-tab-${value}`}
-      onClick={onClick}
-      value={value}
-      {...props}
-    >
+    <button data-testid={`options-tab-${value}`} onClick={onClick} value={value} {...props}>
       {children}
     </button>
   ),
@@ -72,7 +67,7 @@ vi.mock("@/components/ui/tabs", () => ({
       {children}
     </div>
   ),
-}));
+}))
 
 // Мокаем react-i18next
 vi.mock("react-i18next", () => ({
@@ -83,30 +78,30 @@ vi.mock("react-i18next", () => ({
         "options.tabs.audio": "Аудио",
         "options.tabs.speed": "Скорость",
         "options.tabs.info": "Информация",
-      };
-      return translations[key] || key;
+      }
+      return translations[key] || key
     },
   }),
-}));
+}))
 
 describe("Options", () => {
   it("should render options component", () => {
-    renderWithBase(<Options />);
+    renderWithBase(<Options />)
 
     // Проверяем, что компонент рендерится
-    expect(screen.getByTestId("options")).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("options")).toBeInTheDocument()
+  })
 
   it("should accept props without errors", () => {
-    const mockOnMediaFileSelect = vi.fn();
+    const mockOnMediaFileSelect = vi.fn()
 
     // Компонент должен рендериться без ошибок
     expect(() => {
-      renderWithBase(<Options onMediaFileSelect={mockOnMediaFileSelect} />);
-    }).not.toThrow();
+      renderWithBase(<Options onMediaFileSelect={mockOnMediaFileSelect} />)
+    }).not.toThrow()
 
     expect(() => {
-      renderWithBase(<Options selectedMediaFile={mockMediaFile} />);
-    }).not.toThrow();
-  });
-});
+      renderWithBase(<Options selectedMediaFile={mockMediaFile} />)
+    }).not.toThrow()
+  })
+})

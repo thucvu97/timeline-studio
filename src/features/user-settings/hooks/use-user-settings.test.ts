@@ -1,9 +1,9 @@
-import { useContext } from "react";
+import { useContext } from "react"
 
-import { renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { renderHook } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
-import { useUserSettings } from "./use-user-settings";
+import { useUserSettings } from "./use-user-settings"
 
 // Мокаем React Context
 const mockContextValue = {
@@ -23,36 +23,36 @@ const mockContextValue = {
   handleAiApiKeyChange: vi.fn(),
   handleClaudeApiKeyChange: vi.fn(),
   toggleBrowserVisibility: vi.fn(),
-};
+}
 
 // Мокаем useContext
 vi.mock("react", async () => {
-  const actual = await vi.importActual("react");
+  const actual = await vi.importActual("react")
   return {
     ...actual,
     useContext: vi.fn(),
-  };
-});
+  }
+})
 
 describe("useUserSettings", () => {
   it("should return context value when used within UserSettingsProvider", () => {
-    vi.mocked(useContext).mockReturnValue(mockContextValue);
+    vi.mocked(useContext).mockReturnValue(mockContextValue)
 
-    const { result } = renderHook(() => useUserSettings());
+    const { result } = renderHook(() => useUserSettings())
 
-    expect(result.current).toBe(mockContextValue);
-  });
+    expect(result.current).toBe(mockContextValue)
+  })
 
   it("should throw error when used outside UserSettingsProvider", () => {
-    vi.mocked(useContext).mockReturnValue(null);
+    vi.mocked(useContext).mockReturnValue(null)
 
-    const consoleError = console.error;
-    console.error = vi.fn(); // Подавляем ошибки в консоли во время теста
+    const consoleError = console.error
+    console.error = vi.fn() // Подавляем ошибки в консоли во время теста
 
     expect(() => renderHook(() => useUserSettings())).toThrow(
-      "useUserSettings must be used within a UserSettingsProvider"
-    );
+      "useUserSettings must be used within a UserSettingsProvider",
+    )
 
-    console.error = consoleError; // Восстанавливаем console.error
-  });
-});
+    console.error = consoleError // Восстанавливаем console.error
+  })
+})

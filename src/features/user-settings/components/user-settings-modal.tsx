@@ -1,25 +1,19 @@
-import { useState } from "react";
+import { useState } from "react"
 
-import { open } from "@tauri-apps/plugin-dialog";
-import { Folder, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { open } from "@tauri-apps/plugin-dialog"
+import { Folder, X } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useModal } from "@/features/modals/services/modal-provider";
-import { useLanguage } from "@/hooks/use-language";
-import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants";
+import { Button } from "@/components/ui/button"
+import { DialogFooter } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useModal } from "@/features/modals/services/modal-provider"
+import { useLanguage } from "@/hooks/use-language"
+import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
 
-import { useUserSettings } from "../hooks/use-user-settings";
+import { useUserSettings } from "../hooks/use-user-settings"
 
 /**
  * Модальное окно пользовательских настроек
@@ -41,16 +35,15 @@ export function UserSettingsModal() {
     handleScreenshotsPathChange, // Метод для изменения пути скриншотов
     handleAiApiKeyChange, // Метод для изменения API ключа OpenAI
     handleClaudeApiKeyChange, // Метод для изменения API ключа Claude
-  } = useUserSettings();
+  } = useUserSettings()
 
-  const { closeModal } = useModal(); // Хук для закрытия модального окна
-  const { t } = useTranslation(); // Хук для интернационализации
+  const { closeModal } = useModal() // Хук для закрытия модального окна
+  const { t } = useTranslation() // Хук для интернационализации
   // eslint-disable-next-line @typescript-eslint/no-deprecated
-  const { currentLanguage, changeLanguage } = useLanguage(); // Хук для управления языком
+  const { currentLanguage, changeLanguage } = useLanguage() // Хук для управления языком
 
   // Локальное состояние для выбранного языка
-  const [selectedLanguage, setSelectedLanguage] =
-    useState<LanguageCode>(currentLanguage);
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(currentLanguage)
 
   /**
    * Обработчик изменения языка интерфейса
@@ -60,29 +53,25 @@ export function UserSettingsModal() {
    */
   const handleLanguageSelect = (value: string) => {
     // Приводим значение к типу LanguageCode
-    const newLanguage = value as LanguageCode;
+    const newLanguage = value as LanguageCode
     // Обновляем локальное состояние
-    setSelectedLanguage(newLanguage);
+    setSelectedLanguage(newLanguage)
 
     // Сразу применяем изменения языка через новую систему
-    console.log("Applying language change via new system:", newLanguage);
+    console.log("Applying language change via new system:", newLanguage)
 
     // Используем метод changeLanguage из нового хука
-    void changeLanguage(newLanguage);
-  };
+    void changeLanguage(newLanguage)
+  }
 
   return (
     <div className="flex flex-col h-full space-y-6 py-1">
       {/* Выбор языка интерфейса */}
       <div className="flex items-center justify-end">
-        <Label className="mr-2 text-xs">
-          {t("dialogs.userSettings.interfaceLanguage")}
-        </Label>
+        <Label className="mr-2 text-xs">{t("dialogs.userSettings.interfaceLanguage")}</Label>
         <Select value={selectedLanguage} onValueChange={handleLanguageSelect}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue
-              placeholder={t("dialogs.userSettings.interfaceLanguage")}
-            />
+            <SelectValue placeholder={t("dialogs.userSettings.interfaceLanguage")} />
           </SelectTrigger>
           <SelectContent>
             {/* Отображение списка поддерживаемых языков */}
@@ -98,16 +87,14 @@ export function UserSettingsModal() {
 
       {/* Настройка пути для сохранения скриншотов */}
       <div className="flex flex-col space-y-2">
-        <Label className="text-xs font-medium">
-          {t("dialogs.userSettings.screenshotsPath")}
-        </Label>
+        <Label className="text-xs font-medium">{t("dialogs.userSettings.screenshotsPath")}</Label>
         <div className="flex gap-2">
           <div className="relative flex-1">
             {/* Поле ввода пути для скриншотов */}
             <Input
               value={screenshotsPath}
               onChange={(e) => {
-                handleScreenshotsPathChange(e.target.value);
+                handleScreenshotsPathChange(e.target.value)
               }}
               placeholder="public/screenshots"
               className="h-9 pr-8 font-mono text-sm"
@@ -117,7 +104,7 @@ export function UserSettingsModal() {
               <button
                 type="button"
                 onClick={() => {
-                  handleScreenshotsPathChange("public/screenshots");
+                  handleScreenshotsPathChange("public/screenshots")
                 }}
                 className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 title={t("dialogs.userSettings.clearPath")}
@@ -140,18 +127,15 @@ export function UserSettingsModal() {
                     directory: true,
                     multiple: false,
                     title: t("dialogs.userSettings.selectFolder"),
-                  });
+                  })
 
                   // Если пользователь выбрал директорию, обновляем путь
                   if (selectedFolder && !Array.isArray(selectedFolder)) {
-                    handleScreenshotsPathChange(selectedFolder);
-                    console.log(
-                      "Screenshots path updated from folder dialog:",
-                      selectedFolder,
-                    );
+                    handleScreenshotsPathChange(selectedFolder)
+                    console.log("Screenshots path updated from folder dialog:", selectedFolder)
                   }
                 } catch (error) {
-                  console.error("Ошибка при выборе директории:", error);
+                  console.error("Ошибка при выборе директории:", error)
 
                   // Если произошла ошибка, используем запасной вариант с prompt
                   const folders = [
@@ -159,23 +143,17 @@ export function UserSettingsModal() {
                     "public/images/screenshots",
                     "public/media/screenshots",
                     "public/assets/screenshots",
-                  ];
+                  ]
 
-                  const promptResult = window.prompt(
-                    t("dialogs.userSettings.selectFolderPrompt"),
-                    folders.join("\n"),
-                  );
+                  const promptResult = window.prompt(t("dialogs.userSettings.selectFolderPrompt"), folders.join("\n"))
 
                   if (promptResult) {
-                    const trimmedPath = promptResult.trim();
-                    handleScreenshotsPathChange(trimmedPath);
-                    console.log(
-                      "Screenshots path updated from prompt:",
-                      trimmedPath,
-                    );
+                    const trimmedPath = promptResult.trim()
+                    handleScreenshotsPathChange(trimmedPath)
+                    console.log("Screenshots path updated from prompt:", trimmedPath)
                   }
                 }
-              })();
+              })()
             }}
           >
             <Folder className="h-4 w-4" />
@@ -186,10 +164,7 @@ export function UserSettingsModal() {
       {/* Настройка пути для сохранения скриншотов плеера */}
       <div className="flex flex-col space-y-2">
         <Label className="text-xs font-medium">
-          {t(
-            "dialogs.userSettings.playerScreenshotsPath",
-            "Путь для сохранения скриншотов видеоплеера",
-          )}
+          {t("dialogs.userSettings.playerScreenshotsPath", "Путь для сохранения скриншотов видеоплеера")}
         </Label>
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -197,25 +172,24 @@ export function UserSettingsModal() {
             <Input
               value={playerScreenshotsPath}
               onChange={(e) => {
-                handlePlayerScreenshotsPathChange(e.target.value);
+                handlePlayerScreenshotsPathChange(e.target.value)
               }}
               placeholder="public/media"
               className="h-9 pr-8 font-mono text-sm"
             />
             {/* Кнопка сброса пути к значению по умолчанию */}
-            {playerScreenshotsPath &&
-              playerScreenshotsPath !== "public/media" && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    handlePlayerScreenshotsPathChange("public/media");
-                  }}
-                  className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                  title={t("dialogs.userSettings.clearPath")}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
+            {playerScreenshotsPath && playerScreenshotsPath !== "public/media" && (
+              <button
+                type="button"
+                onClick={() => {
+                  handlePlayerScreenshotsPathChange("public/media")
+                }}
+                className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                title={t("dialogs.userSettings.clearPath")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           {/* Кнопка выбора директории */}
@@ -232,37 +206,28 @@ export function UserSettingsModal() {
                     directory: true,
                     multiple: false,
                     title: t("dialogs.userSettings.selectFolder"),
-                  });
+                  })
 
                   // Если пользователь выбрал директорию, обновляем путь
                   if (selectedFolder && !Array.isArray(selectedFolder)) {
-                    handleScreenshotsPathChange(selectedFolder);
-                    console.log(
-                      "Screenshots path updated from folder dialog:",
-                      selectedFolder,
-                    );
+                    handleScreenshotsPathChange(selectedFolder)
+                    console.log("Screenshots path updated from folder dialog:", selectedFolder)
                   }
                 } catch (error) {
-                  console.error("Ошибка при выборе директории:", error);
+                  console.error("Ошибка при выборе директории:", error)
 
                   // Если произошла ошибка, используем запасной вариант с prompt
-                  const folders = ["public/"];
+                  const folders = ["public/"]
 
-                  const promptResult = window.prompt(
-                    t("dialogs.userSettings.selectFolderPrompt"),
-                    folders.join("\n"),
-                  );
+                  const promptResult = window.prompt(t("dialogs.userSettings.selectFolderPrompt"), folders.join("\n"))
 
                   if (promptResult) {
-                    const trimmedPath = promptResult.trim();
-                    handleScreenshotsPathChange(trimmedPath);
-                    console.log(
-                      "Screenshots path updated from prompt:",
-                      trimmedPath,
-                    );
+                    const trimmedPath = promptResult.trim()
+                    handleScreenshotsPathChange(trimmedPath)
+                    console.log("Screenshots path updated from prompt:", trimmedPath)
                   }
                 }
-              })();
+              })()
             }}
           >
             <Folder className="h-4 w-4" />
@@ -272,9 +237,7 @@ export function UserSettingsModal() {
 
       {/* Настройка API ключа OpenAI */}
       <div className="flex flex-col space-y-2">
-        <Label className="text-xs font-medium">
-          {t("dialogs.userSettings.openAiApiKey", "OpenAI API ключ")}
-        </Label>
+        <Label className="text-xs font-medium">{t("dialogs.userSettings.openAiApiKey", "OpenAI API ключ")}</Label>
         <div className="relative flex-1">
           {/* Поле ввода API ключа OpenAI (скрытое) */}
           <Input
@@ -282,12 +245,9 @@ export function UserSettingsModal() {
             value={openAiApiKey}
             onChange={(e) => {
               // Обновляем значение в машине состояний
-              handleAiApiKeyChange(e.target.value);
+              handleAiApiKeyChange(e.target.value)
             }}
-            placeholder={t(
-              "dialogs.userSettings.enterApiKey",
-              "Введите API ключ",
-            )}
+            placeholder={t("dialogs.userSettings.enterApiKey", "Введите API ключ")}
             className="h-9 pr-8 font-mono text-sm"
           />
           {/* Кнопка очистки API ключа */}
@@ -306,9 +266,7 @@ export function UserSettingsModal() {
 
       {/* Настройка API ключа Claude */}
       <div className="flex flex-col space-y-2">
-        <Label className="text-xs font-medium">
-          {t("dialogs.userSettings.claudeApiKey", "Claude API ключ")}
-        </Label>
+        <Label className="text-xs font-medium">{t("dialogs.userSettings.claudeApiKey", "Claude API ключ")}</Label>
         <div className="relative flex-1">
           {/* Поле ввода API ключа Claude (скрытое) */}
           <Input
@@ -316,12 +274,9 @@ export function UserSettingsModal() {
             value={claudeApiKey}
             onChange={(e) => {
               // Обновляем значение в машине состояний
-              handleClaudeApiKeyChange(e.target.value);
+              handleClaudeApiKeyChange(e.target.value)
             }}
-            placeholder={t(
-              "dialogs.userSettings.enterApiKey",
-              "Введите API ключ",
-            )}
+            placeholder={t("dialogs.userSettings.enterApiKey", "Введите API ключ")}
             className="h-9 pr-8 font-mono text-sm"
           />
           {/* Кнопка очистки API ключа */}
@@ -329,7 +284,7 @@ export function UserSettingsModal() {
             <button
               type="button"
               onClick={() => {
-                handleClaudeApiKeyChange("");
+                handleClaudeApiKeyChange("")
               }}
               className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
               title={t("dialogs.userSettings.clearApiKey", "Очистить API ключ")}
@@ -357,15 +312,13 @@ export function UserSettingsModal() {
           className="flex-1 cursor-pointer bg-[#00CCC0] text-black hover:bg-[#00AAA0]"
           onClick={() => {
             // Все изменения уже применены, просто закрываем модальное окно
-            console.log(
-              "Closing modal with save button, all changes already applied",
-            );
-            closeModal();
+            console.log("Closing modal with save button, all changes already applied")
+            closeModal()
           }}
         >
           {t("dialogs.userSettings.save")}
         </Button>
       </DialogFooter>
     </div>
-  );
+  )
 }

@@ -1,14 +1,14 @@
-import { nanoid } from "nanoid";
+import { nanoid } from "nanoid"
 
-import i18n from "@/i18n";
-import { formatDateByLanguage } from "@/i18n/constants";
-import { calculateTimeRanges } from "@/lib/video";
+import i18n from "@/i18n"
+import { formatDateByLanguage } from "@/i18n/constants"
+import { calculateTimeRanges } from "@/lib/video"
 
-import { updateSectorTimeRange } from "./tracks-utils";
-import { Sector } from "./types";
-import { doTimeRangesOverlap } from "./utils";
+import { updateSectorTimeRange } from "./tracks-utils"
+import { Sector } from "./types"
+import { doTimeRangesOverlap } from "./utils"
 
-import type { MediaFile, MediaTrack } from "../types/media";
+import type { MediaFile, MediaTrack } from "../types/media"
 
 /**
  * Обрабатывает аудиофайлы и добавляет их на соответствующие дорожки
@@ -24,40 +24,37 @@ export function processAudioFiles(
   currentLanguage: string,
 ): void {
   // Группируем аудио файлы по дням
-  const audioFilesByDay = sortedAudioFiles.reduce<Record<string, MediaFile[]>>(
-    (acc, file) => {
-      const startTime = file.startTime ?? Date.now() / 1000;
-      const date = new Date(startTime * 1000).toISOString().split("T")[0];
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(file);
-      return acc;
-    },
-    {},
-  );
+  const audioFilesByDay = sortedAudioFiles.reduce<Record<string, MediaFile[]>>((acc, file) => {
+    const startTime = file.startTime ?? Date.now() / 1000
+    const date = new Date(startTime * 1000).toISOString().split("T")[0]
+    if (!acc[date]) {
+      acc[date] = []
+    }
+    acc[date].push(file)
+    return acc
+  }, {})
 
   // Обрабатываем аудио файлы по дням
   for (const [date, dayFiles] of Object.entries(audioFilesByDay)) {
     // Получаем существующие треки для этого дня или создаем новый сектор
     // Ищем существующий сектор по дате или по имени, содержащему дату
-    let existingSector = existingSectorsByDay[date]?.sector;
+    let existingSector = existingSectorsByDay[date]?.sector
 
     // Если сектор не найден по дате, ищем по имени в существующих секторах
     if (!existingSector) {
       // Форматируем дату для поиска в имени сектора
-      const dateObj = new Date(date);
+      const dateObj = new Date(date)
       const formattedDate = formatDateByLanguage(dateObj, currentLanguage, {
         includeYear: true,
         longFormat: true,
-      });
+      })
 
       // Ищем сектор по имени в списке всех существующих секторов
       for (const sectorDate in existingSectorsByDay) {
-        const sectorInfo = existingSectorsByDay[sectorDate];
+        const sectorInfo = existingSectorsByDay[sectorDate]
         if (sectorInfo.sector?.name.includes(formattedDate)) {
-          existingSector = sectorInfo.sector;
-          break;
+          existingSector = sectorInfo.sector
+          break
         }
       }
     }
@@ -65,11 +62,11 @@ export function processAudioFiles(
     // existingDayTracks убраны для упрощения архитектуры
 
     // Форматируем дату для отображения с помощью универсального метода
-    const dateObj = new Date(date);
+    const dateObj = new Date(date)
     const formattedDate = formatDateByLanguage(dateObj, currentLanguage, {
       includeYear: true,
       longFormat: true,
-    });
+    })
 
     // Создаем или используем существующий сектор для всех файлов дня
     const sector: Sector = existingSector ?? {
@@ -85,42 +82,35 @@ export function processAudioFiles(
       endTime: 0,
       zoomLevel: 1,
       scrollPosition: 0,
-    };
+    }
 
     // Обрабатываем каждый файл и добавляем его на подходящую дорожку
     for (const file of dayFiles) {
-      const fileStartTime = file.startTime ?? 0;
-      const fileDuration = file.duration ?? 0;
-      const fileEndTime = fileStartTime + fileDuration;
+      const fileStartTime = file.startTime ?? 0
+      const fileDuration = file.duration ?? 0
+      const fileEndTime = fileStartTime + fileDuration
 
       // Ищем подходящую дорожку среди существующих
-      let trackFound = false;
+      let trackFound = false
 
       // Сначала проверяем существующие дорожки в порядке их индекса (сверху вниз)
       const sortedTracks = sector.tracks
         .filter((track) => track.type === "audio")
-        .sort((a, b) => (Number(a.index) || 0) - (Number(b.index) || 0));
+        .sort((a, b) => (Number(a.index) || 0) - (Number(b.index) || 0))
 
       for (const track of sortedTracks) {
         // Проверяем, пересекается ли новый файл с существующими аудио на этой дорожке
-        let hasOverlap = false;
+        let hasOverlap = false
 
         if (track.videos) {
           for (const audio of track.videos) {
-            const audioStartTime = audio.startTime ?? 0;
-            const audioDuration = audio.duration ?? 0;
-            const audioEndTime = audioStartTime + audioDuration;
+            const audioStartTime = audio.startTime ?? 0
+            const audioDuration = audio.duration ?? 0
+            const audioEndTime = audioStartTime + audioDuration
 
-            if (
-              doTimeRangesOverlap(
-                fileStartTime,
-                fileEndTime,
-                audioStartTime,
-                audioEndTime,
-              )
-            ) {
-              hasOverlap = true;
-              break;
+            if (doTimeRangesOverlap(fileStartTime, fileEndTime, audioStartTime, audioEndTime)) {
+              hasOverlap = true
+              break
             }
           }
         }
@@ -129,81 +119,58 @@ export function processAudioFiles(
         if (!hasOverlap) {
           // Если это дорожка из существующего сектора, добавляем ее в текущий сектор
           if (!sector.tracks.includes(track)) {
-            const updatedVideos = [...(track.videos ?? []), file];
+            const updatedVideos = [...(track.videos ?? []), file]
             sector.tracks.push({
               ...track,
               videos: updatedVideos,
-              startTime: Math.min(
-                track.startTime ?? Number.POSITIVE_INFINITY,
-                fileStartTime,
-              ),
+              startTime: Math.min(track.startTime ?? Number.POSITIVE_INFINITY, fileStartTime),
               endTime: Math.max(track.endTime ?? 0, fileEndTime),
               combinedDuration: (track.combinedDuration ?? 0) + fileDuration,
               timeRanges: calculateTimeRanges(updatedVideos),
-            });
+            })
           } else {
             // Обновляем существующую дорожку в текущем секторе
-            const trackIndex = sector.tracks.findIndex(
-              (t) => t.id === track.id,
-            );
+            const trackIndex = sector.tracks.findIndex((t) => t.id === track.id)
             if (trackIndex !== -1) {
-              const updatedVideos = [
-                ...(sector.tracks[trackIndex].videos ?? []),
-                file,
-              ];
+              const updatedVideos = [...(sector.tracks[trackIndex].videos ?? []), file]
               sector.tracks[trackIndex] = {
                 ...sector.tracks[trackIndex],
                 videos: updatedVideos,
-                startTime: Math.min(
-                  sector.tracks[trackIndex].startTime ??
-                    Number.POSITIVE_INFINITY,
-                  fileStartTime,
-                ),
-                endTime: Math.max(
-                  sector.tracks[trackIndex].endTime ?? 0,
-                  fileEndTime,
-                ),
-                combinedDuration:
-                  (sector.tracks[trackIndex].combinedDuration ?? 0) +
-                  fileDuration,
+                startTime: Math.min(sector.tracks[trackIndex].startTime ?? Number.POSITIVE_INFINITY, fileStartTime),
+                endTime: Math.max(sector.tracks[trackIndex].endTime ?? 0, fileEndTime),
+                combinedDuration: (sector.tracks[trackIndex].combinedDuration ?? 0) + fileDuration,
                 timeRanges: calculateTimeRanges(updatedVideos),
-              };
+              }
             }
           }
 
-          trackFound = true;
-          break;
+          trackFound = true
+          break
         }
       }
 
       // Если не нашли подходящую дорожку, создаем новую
       if (!trackFound) {
-        createNewAudioTrack(
-          file,
-          sector,
-          fileStartTime,
-          fileEndTime,
-          fileDuration,
-        );
+        createNewAudioTrack(file, sector, fileStartTime, fileEndTime, fileDuration)
       }
     }
 
     // Обновляем timeRanges сектора
-    sector.timeRanges = calculateTimeRanges(dayFiles);
+    sector.timeRanges = calculateTimeRanges(dayFiles)
 
     // Обновляем время начала и конца секции
-    updateSectorTimeRange(sector);
+    updateSectorTimeRange(sector)
 
     // Добавляем сектор в список, если он новый
     if (!existingSector) {
-      sectors.push(sector);
+      sectors.push(sector)
     } else {
       // Обновляем существующий сектор в списке
-      const sectorIndex = sectors.findIndex((s) => s.id === existingSector.id);
+      const sectorIndex = sectors.findIndex((s) => s.id === existingSector.id)
       if (sectorIndex !== -1) {
-        sectors[sectorIndex] = sector;
+        sectors[sectorIndex] = sector
       } else {
-        sectors.push(sector);
+        sectors.push(sector)
       }
     }
   }
@@ -227,17 +194,15 @@ function createNewAudioTrack(
   // Определяем максимальный номер аудиодорожки для этого дня
   const maxAudioIndex = Math.max(
     0,
-    ...sector.tracks
-      .filter((track) => track.type === "audio")
-      .map((track) => Number(track.index) || 0),
-  );
+    ...sector.tracks.filter((track) => track.type === "audio").map((track) => Number(track.index) || 0),
+  )
 
   // Создаем новую дорожку
-  const nextAudioNumber = maxAudioIndex + 1;
+  const nextAudioNumber = maxAudioIndex + 1
   const audioTrackName = i18n.t("timeline.tracks.audioWithNumber", {
     number: nextAudioNumber,
     defaultValue: `Audio ${nextAudioNumber}`,
-  });
+  })
 
   sector.tracks.push({
     id: nanoid(),
@@ -255,5 +220,5 @@ function createNewAudioTrack(
     isLocked: false,
     isVisible: true,
     cameraName: audioTrackName, // Устанавливаем cameraName для совместимости
-  });
+  })
 }

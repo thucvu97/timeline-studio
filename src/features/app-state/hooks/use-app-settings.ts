@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useContext } from "react"
 
-import { AppSettingsContext, AppSettingsProviderContext } from "../services/app-settings-provider";
+import { AppSettingsContext, AppSettingsProviderContext } from "../services/app-settings-provider"
 
 /**
  * Хук для доступа к контексту настроек приложения
@@ -10,13 +10,11 @@ import { AppSettingsContext, AppSettingsProviderContext } from "../services/app-
  * @throws {Error} Если хук используется вне AppSettingsProvider
  */
 export function useAppSettings(): AppSettingsProviderContext {
-  const context = useContext(AppSettingsContext);
+  const context = useContext(AppSettingsContext)
 
   if (!context) {
-    throw new Error(
-      "useAppSettings must be used within an AppSettingsProvider",
-    );
+    throw new Error("useAppSettings must be used within an AppSettingsProvider")
   }
 
-  return context;
+  return context
 }

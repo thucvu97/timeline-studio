@@ -1,127 +1,129 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react"
 
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next"
 
-import { VideoFilter } from '@/types/filters';
+import { VideoFilter } from "@/types/filters"
 
-import filtersData from '../../../data/filters.json';
-import { createFallbackFilter, processFilters, validateFiltersData } from '../utils/filter-processor';
+import filtersData from "../../../data/filters.json"
+import { createFallbackFilter, processFilters, validateFiltersData } from "../utils/filter-processor"
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
 
 interface UseFiltersReturn {
-  filters: VideoFilter[];
-  loading: boolean;
-  error: string | null;
-  reload: () => void;
-  isReady: boolean;
+  filters: VideoFilter[]
+  loading: boolean
+  error: string | null
+  reload: () => void
+  isReady: boolean
 }
 
 /**
  * Хук для загрузки и управления фильтрами из JSON файла
  */
 export function useFilters(): UseFiltersReturn {
-  const { t } = useTranslation();
-  const [filters, setFilters] = useState<VideoFilter[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation()
+  const [filters, setFilters] = useState<VideoFilter[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   /**
    * Загружает фильтры из импортированного JSON файла
    */
   const loadFilters = useCallback(() => {
     try {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
       // Используем импортированные данные - в Tauri это работает мгновенно
-      const data = filtersData;
+      const data = filtersData
 
       // Валидируем данные
       if (!validateFiltersData(data)) {
-        throw new Error(t('filters.errors.invalidFiltersData', 'Invalid filters data structure'));
+        throw new Error(t("filters.errors.invalidFiltersData", "Invalid filters data structure"))
       }
 
       // Обрабатываем фильтры (преобразуем в типизированные объекты)
-      const processedFilters = processFilters(data.filters);
+      const processedFilters = processFilters(data.filters)
 
-      setFilters(processedFilters);
+      setFilters(processedFilters)
 
-      console.log(`✅ ${t('filters.messages.filtersLoaded', 'Loaded {{count}} filters from JSON', { count: processedFilters.length })}`);
-
+      console.log(
+        `✅ ${t("filters.messages.filtersLoaded", "Loaded {{count}} filters from JSON", { count: processedFilters.length })}`,
+      )
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t('filters.errors.unknownError', 'Unknown error');
-      setError(t('filters.errors.failedToLoadFilters', 'Failed to load filters: {{error}}', { error: errorMessage }));
+      const errorMessage = err instanceof Error ? err.message : t("filters.errors.unknownError", "Unknown error")
+      setError(t("filters.errors.failedToLoadFilters", "Failed to load filters: {{error}}", { error: errorMessage }))
 
       // Создаем fallback фильтры в случае ошибки
       const fallbackFilters = [
-        createFallbackFilter('neutral'),
-        createFallbackFilter('brightness'),
-        createFallbackFilter('contrast')
-      ];
+        createFallbackFilter("neutral"),
+        createFallbackFilter("brightness"),
+        createFallbackFilter("contrast"),
+      ]
 
-      setFilters(fallbackFilters);
+      setFilters(fallbackFilters)
 
-      console.error(`❌ ${t('filters.errors.fallbackFilters', 'Failed to load filters, using fallback')}:`, err);
+      console.error(`❌ ${t("filters.errors.fallbackFilters", "Failed to load filters, using fallback")}:`, err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [t]);
+  }, [t])
 
   // Загружаем фильтры при монтировании компонента
   useEffect(() => {
-    loadFilters();
-  }, [loadFilters]);
+    loadFilters()
+  }, [loadFilters])
 
   return {
     filters,
     loading,
     error,
     reload: loadFilters,
-    isReady: !loading && filters.length > 0
-  };
+    isReady: !loading && filters.length > 0,
+  }
 }
 
 /**
  * Хук для получения конкретного фильтра по ID
  */
 export function useFilterById(filterId: string): VideoFilter | null {
-  const { filters, isReady } = useFilters();
+  const { filters, isReady } = useFilters()
 
   if (!isReady) {
-    return null;
+    return null
   }
 
-  return filters.find(filter => filter.id === filterId) || null;
+  return filters.find((filter) => filter.id === filterId) || null
 }
 
 /**
  * Хук для получения фильтров по категории
  */
 export function useFiltersByCategory(category: string): VideoFilter[] {
-  const { filters, isReady } = useFilters();
+  const { filters, isReady } = useFilters()
 
   if (!isReady) {
-    return [];
+    return []
   }
 
-  return filters.filter(filter => filter.category === category);
+  return filters.filter((filter) => filter.category === category)
 }
 
 /**
  * Хук для поиска фильтров
  */
-export function useFiltersSearch(query: string, lang: 'ru' | 'en' = 'ru'): VideoFilter[] {
-  const { filters, isReady } = useFilters();
+export function useFiltersSearch(query: string, lang: "ru" | "en" = "ru"): VideoFilter[] {
+  const { filters, isReady } = useFilters()
 
   if (!isReady || !query.trim()) {
-    return filters;
+    return filters
   }
 
-  const lowercaseQuery = query.toLowerCase();
+  const lowercaseQuery = query.toLowerCase()
 
-  return filters.filter(filter =>
-    (filter.labels?.[lang] || filter.name || "").toLowerCase().includes(lowercaseQuery) ||
-    (filter.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
-    (filter.tags || []).some(tag => tag.toLowerCase().includes(lowercaseQuery))
-  );
+  return filters.filter(
+    (filter) =>
+      (filter.labels?.[lang] || filter.name || "").toLowerCase().includes(lowercaseQuery) ||
+      (filter.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
+      (filter.tags || []).some((tag) => tag.toLowerCase().includes(lowercaseQuery)),
+  )
 }

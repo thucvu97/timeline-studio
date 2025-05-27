@@ -1,1 +1,1 @@
-export * from "./use-style-templates";
+export * from "./use-style-templates"

@@ -2,72 +2,51 @@
  * Clip - Основной компонент клипа на Timeline
  */
 
-import React from "react";
+import React from "react"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-import { AudioClip } from "./audio-clip";
-import { VideoClip } from "./video-clip";
-import { TimelineClip, TimelineTrack } from "../../types";
+import { TimelineClip, TimelineTrack } from "../../types"
+import { AudioClip } from "./audio-clip"
+import { VideoClip } from "./video-clip"
 
 interface ClipProps {
-  clip: TimelineClip;
-  track: TimelineTrack;
-  timeScale: number; // Пикселей на секунду
-  onUpdate?: (updates: Partial<TimelineClip>) => void;
-  onRemove?: () => void;
-  className?: string;
+  clip: TimelineClip
+  track: TimelineTrack
+  timeScale: number // Пикселей на секунду
+  onUpdate?: (updates: Partial<TimelineClip>) => void
+  onRemove?: () => void
+  className?: string
 }
 
-export function Clip({
-  clip,
-  track,
-  timeScale,
-  onUpdate,
-  onRemove,
-  className,
-}: ClipProps) {
+export function Clip({ clip, track, timeScale, onUpdate, onRemove, className }: ClipProps) {
   // Вычисляем позицию и размеры клипа
-  const left = clip.startTime * timeScale;
-  const width = clip.duration * timeScale;
-  const minWidth = 20; // Минимальная ширина клипа
+  const left = clip.startTime * timeScale
+  const width = clip.duration * timeScale
+  const minWidth = 20 // Минимальная ширина клипа
 
   // Выбираем специализированный компонент в зависимости от типа трека
   const renderClipContent = () => {
     switch (track.type) {
       case "video":
       case "image":
-        return (
-          <VideoClip
-            clip={clip}
-            track={track}
-            onUpdate={onUpdate}
-            onRemove={onRemove}
-          />
-        );
+        return <VideoClip clip={clip} track={track} onUpdate={onUpdate} onRemove={onRemove} />
 
       case "audio":
       case "music":
       case "voiceover":
       case "sfx":
       case "ambient":
-        return (
-          <AudioClip
-            clip={clip}
-            track={track}
-            onUpdate={onUpdate}
-            onRemove={onRemove}
-          />
-        );
+        return <AudioClip clip={clip} track={track} onUpdate={onUpdate} onRemove={onRemove} />
 
       default:
         return (
           <div className="h-full w-full bg-muted border border-border rounded flex items-center justify-center">
             <span className="text-xs text-muted-foreground">{track.type}</span>
           </div>
-        );
+        )
     }
-  };
+  }
 
   return (
     <div
@@ -85,5 +64,5 @@ export function Clip({
     >
       {renderClipContent()}
     </div>
-  );
+  )
 }

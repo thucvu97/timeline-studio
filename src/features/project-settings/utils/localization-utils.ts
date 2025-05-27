@@ -19,10 +19,10 @@ export function getAspectRatioLabel(textLabel: string, t: (key: string) => strin
     Стандарт: t("dialogs.projectSettings.aspectRatioLabels.standard"),
     Вертикальный: t("dialogs.projectSettings.aspectRatioLabels.vertical"),
     Кинотеатр: t("dialogs.projectSettings.aspectRatioLabels.cinema"),
-  };
+  }
 
   // Возвращаем локализованную строку или исходную метку, если перевод не найден
-  return labelMap[textLabel] || textLabel;
+  return labelMap[textLabel] || textLabel
 }
 
 /**
@@ -33,7 +33,7 @@ export function getAspectRatioLabel(textLabel: string, t: (key: string) => strin
  * @returns {string} Локализованный текст
  */
 export function getLockedAspectRatioText(ratio: string, t: (key: string, options?: any) => string): string {
-  return t("dialogs.projectSettings.aspectRatioLocked", { ratio });
+  return t("dialogs.projectSettings.aspectRatioLocked", { ratio })
 }
 
 /**
@@ -44,7 +44,7 @@ export function getLockedAspectRatioText(ratio: string, t: (key: string, options
  * @returns {string} Локализованный текст
  */
 export function getUnlockedAspectRatioText(ratio: string, t: (key: string, options?: any) => string): string {
-  return t("dialogs.projectSettings.aspectRatioUnlocked", { ratio });
+  return t("dialogs.projectSettings.aspectRatioUnlocked", { ratio })
 }
 
 /**
@@ -54,5 +54,5 @@ export function getUnlockedAspectRatioText(ratio: string, t: (key: string, optio
  * @returns {string} Локализованный текст
  */
 export function getCustomAspectRatioText(t: (key: string) => string): string {
-  return t("dialogs.projectSettings.aspectRatioLabels.custom");
+  return t("dialogs.projectSettings.aspectRatioLabels.custom")
 }

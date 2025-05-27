@@ -1,9 +1,9 @@
-import { act } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { renderWithBase, screen } from "@/test/test-utils";
+import { renderWithBase, screen } from "@/test/test-utils"
 
-import { CameraCaptureModal } from "../../components/camera-capture-modal";
+import { CameraCaptureModal } from "../../components/camera-capture-modal"
 
 // Мокируем хуки
 vi.mock("../../hooks/camera-capture-hooks", () => ({
@@ -42,7 +42,7 @@ vi.mock("../../hooks/camera-capture-hooks", () => ({
     setSelectedAudioDevice: vi.fn(),
     getDevices: vi.fn(),
   }),
-}));
+}))
 
 vi.mock("../../hooks/use-camera-stream", () => ({
   useCameraStream: () => ({
@@ -52,7 +52,7 @@ vi.mock("../../hooks/use-camera-stream", () => ({
     initCamera: vi.fn(),
     streamRef: { current: null },
   }),
-}));
+}))
 
 vi.mock("../../hooks/use-recording", () => ({
   useRecording: () => ({
@@ -65,35 +65,26 @@ vi.mock("../../hooks/use-recording", () => ({
     stopRecording: vi.fn(),
     formatRecordingTime: () => "00:00:00",
   }),
-}));
+}))
 
 // Мокируем компоненты
 vi.mock("../../components/camera-permission-request", () => ({
-  CameraPermissionRequest: ({
-    permissionStatus,
-    errorMessage,
-    onRequestPermissions,
-  }: any) => (
+  CameraPermissionRequest: ({ permissionStatus, errorMessage, onRequestPermissions }: any) => (
     <div data-testid="camera-permission-request">
       Status: {permissionStatus}
       {errorMessage && <div>Error: {errorMessage}</div>}
     </div>
   ),
-}));
+}))
 
 vi.mock("../../components/camera-preview", () => ({
-  CameraPreview: ({
-    videoRef,
-    isDeviceReady,
-    showCountdown,
-    countdown,
-  }: any) => (
+  CameraPreview: ({ videoRef, isDeviceReady, showCountdown, countdown }: any) => (
     <div data-testid="camera-preview">
       Device ready: {isDeviceReady ? "yes" : "no"}
       {showCountdown && <div>Countdown: {countdown}</div>}
     </div>
   ),
-}));
+}))
 
 vi.mock("../../components/camera-settings", () => ({
   CameraSettings: (props: any) => (
@@ -104,7 +95,7 @@ vi.mock("../../components/camera-settings", () => ({
       FPS: {props.frameRate}
     </div>
   ),
-}));
+}))
 
 vi.mock("../../components/recording-controls", () => ({
   RecordingControls: ({ isRecording, recordingTime, isDeviceReady }: any) => (
@@ -114,7 +105,7 @@ vi.mock("../../components/recording-controls", () => ({
       Device ready: {isDeviceReady ? "yes" : "no"}
     </div>
   ),
-}));
+}))
 
 // Мокируем хук useModal
 vi.mock("@/features/modals", () => ({
@@ -122,47 +113,43 @@ vi.mock("@/features/modals", () => ({
     isOpen: true,
     closeModal: vi.fn(),
   }),
-}));
+}))
 
 describe("CameraCaptureModal", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   it("renders all components correctly", async () => {
-    renderWithBase(<CameraCaptureModal />);
+    renderWithBase(<CameraCaptureModal />)
 
     // Проверяем, что компоненты отображаются
     // Заголовок не отображается в моке, поэтому пропускаем эту проверку
 
     // Проверяем, что все компоненты отображаются
-    expect(screen.getByTestId("camera-permission-request")).toBeInTheDocument();
-    expect(screen.getByTestId("camera-preview")).toBeInTheDocument();
-    expect(screen.getByTestId("camera-settings")).toBeInTheDocument();
-    expect(screen.getByTestId("recording-controls")).toBeInTheDocument();
+    expect(screen.getByTestId("camera-permission-request")).toBeInTheDocument()
+    expect(screen.getByTestId("camera-preview")).toBeInTheDocument()
+    expect(screen.getByTestId("camera-settings")).toBeInTheDocument()
+    expect(screen.getByTestId("recording-controls")).toBeInTheDocument()
 
     // Проверяем, что компоненты получают правильные пропсы
-    const deviceReadyElements = screen.getAllByText(/Device ready: yes/i);
-    expect(deviceReadyElements.length).toBeGreaterThan(0);
+    const deviceReadyElements = screen.getAllByText(/Device ready: yes/i)
+    expect(deviceReadyElements.length).toBeGreaterThan(0)
 
     // Проверяем содержимое компонента recording-controls
-    const recordingControls = screen.getByTestId("recording-controls");
-    expect(recordingControls).toHaveTextContent("Recording:");
-  });
+    const recordingControls = screen.getByTestId("recording-controls")
+    expect(recordingControls).toHaveTextContent("Recording:")
+  })
 
   it("renders with correct layout", async () => {
-    renderWithBase(<CameraCaptureModal />);
+    renderWithBase(<CameraCaptureModal />)
 
     // Проверяем, что есть flex контейнер для разделения на колонки
-    const flexContainer = screen
-      .getByText("Device ready: yes")
-      .closest(".flex.flex-row");
-    expect(flexContainer).toBeInTheDocument();
+    const flexContainer = screen.getByText("Device ready: yes").closest(".flex.flex-row")
+    expect(flexContainer).toBeInTheDocument()
 
     // Проверяем, что есть левая и правая колонки
-    const columns = document.querySelectorAll(
-      ".flex.flex-col.w-3\\/5, .flex.flex-col.w-2\\/5",
-    );
-    expect(columns.length).toBe(2);
-  });
-});
+    const columns = document.querySelectorAll(".flex.flex-col.w-3\\/5, .flex.flex-col.w-2\\/5")
+    expect(columns.length).toBe(2)
+  })
+})

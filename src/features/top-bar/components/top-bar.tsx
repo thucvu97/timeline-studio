@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import {
   FolderOpen,
@@ -14,103 +14,111 @@ import {
   Upload,
   UserCog,
   Webcam,
-} from "lucide-react";
-import { useTranslation } from "react-i18next";
+} from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { useCurrentProject } from "@/features/app-state/hooks/use-current-project";
-import { LayoutPreviews } from "@/features/media-studio";
-import { ModalType } from "@/features/modals";
-import { useModal } from "@/features/modals/services/modal-provider";
-import { useUserSettings } from "@/features/user-settings";
-import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme/theme-toggle"
+import { Button } from "@/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
+import { LayoutPreviews } from "@/features/media-studio"
+import { ModalType } from "@/features/modals"
+import { useModal } from "@/features/modals/services/modal-provider"
+import { useUserSettings } from "@/features/user-settings"
+import { cn } from "@/lib/utils"
 
 const TopBarComponent = function TopBar() {
-  const { t } = useTranslation();
-  const { openModal } = useModal();
-  const { isBrowserVisible, toggleBrowserVisibility } = useUserSettings();
-  const { currentProject, openProject, saveProject, setProjectDirty } =
-    useCurrentProject();
-  const [isEditing, setIsEditing] = useState(false);
-  const [projectName, setProjectName] = useState(currentProject.name);
+  const { t } = useTranslation()
+  const { openModal } = useModal()
+  const { isBrowserVisible, toggleBrowserVisibility } = useUserSettings()
+  const { currentProject, openProject, saveProject, setProjectDirty } = useCurrentProject()
+  const [isEditing, setIsEditing] = useState(false)
+  const [projectName, setProjectName] = useState(currentProject.name)
 
   // Синхронизируем projectName с currentProject.name
   useEffect(() => {
-    setProjectName(currentProject.name);
-  }, [currentProject.name]);
+    setProjectName(currentProject.name)
+  }, [currentProject.name])
 
-  const handleOpenModal = useCallback((modal: string) => {
-    console.log(`Opening modal: ${modal}`);
-    openModal(modal as ModalType);
-  }, [openModal]);
+  const handleOpenModal = useCallback(
+    (modal: string) => {
+      console.log(`Opening modal: ${modal}`)
+      openModal(modal as ModalType)
+    },
+    [openModal],
+  )
 
-  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setProjectName(e.target.value);
-    setProjectDirty(true);
-  }, [setProjectDirty]);
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setProjectName(e.target.value)
+      setProjectDirty(true)
+    },
+    [setProjectDirty],
+  )
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      setIsEditing(false);
+      setIsEditing(false)
     }
-  }, []);
+  }, [])
 
   const handleSave = useCallback(() => {
     try {
       // Сохраняем проект
-      void saveProject(projectName);
-      console.log("Project saved successfully");
+      void saveProject(projectName)
+      console.log("Project saved successfully")
     } catch (error) {
-      console.error("[handleSave] Error saving project:", error);
+      console.error("[handleSave] Error saving project:", error)
     }
-  }, [saveProject, projectName]);
+  }, [saveProject, projectName])
 
   const handleOpenProject = useCallback(() => {
     try {
       // Открываем проект
-      void openProject();
-      console.log("Project opened successfully");
+      void openProject()
+      console.log("Project opened successfully")
     } catch (error) {
-      console.error("[handleOpenProject] Error opening project:", error);
+      console.error("[handleOpenProject] Error opening project:", error)
     }
-  }, [openProject]);
+  }, [openProject])
 
   // Мемоизируем заголовки для кнопок
-  const buttonTitles = useMemo(() => ({
-    browser: isBrowserVisible ? t("browser.hide") : t("browser.show"),
-    layout: t("topBar.layout"),
-    keyboardShortcuts: t("topBar.keyboardShortcuts"),
-    userSettings: t("topBar.userSettings"),
-    projectSettings: t("topBar.projectSettings"),
-    openProject: t("topBar.openProject"),
-    save: currentProject.isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved"),
-    cameraCapture: t("topBar.cameraCapture"),
-    voiceRecording: t("topBar.voiceRecording"),
-    publish: t("topBar.publish"),
-    editingTasks: t("topBar.editingTasks"),
-    export: t("topBar.export"),
-  }), [t, isBrowserVisible, currentProject.isDirty]);
+  const buttonTitles = useMemo(
+    () => ({
+      browser: isBrowserVisible ? t("browser.hide") : t("browser.show"),
+      layout: t("topBar.layout"),
+      keyboardShortcuts: t("topBar.keyboardShortcuts"),
+      userSettings: t("topBar.userSettings"),
+      projectSettings: t("topBar.projectSettings"),
+      openProject: t("topBar.openProject"),
+      save: currentProject.isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved"),
+      cameraCapture: t("topBar.cameraCapture"),
+      voiceRecording: t("topBar.voiceRecording"),
+      publish: t("topBar.publish"),
+      editingTasks: t("topBar.editingTasks"),
+      export: t("topBar.export"),
+    }),
+    [t, isBrowserVisible, currentProject.isDirty],
+  )
 
   // Мемоизируем CSS классы
-  const saveButtonClassName = useMemo(() => cn(
-    "h-7 w-7 cursor-pointer p-0",
-    currentProject.isDirty
-      ? "hover:bg-accent opacity-100"
-      : "opacity-50 hover:opacity-50",
-  ), [currentProject.isDirty]);
+  const saveButtonClassName = useMemo(
+    () =>
+      cn(
+        "h-7 w-7 cursor-pointer p-0",
+        currentProject.isDirty ? "hover:bg-accent opacity-100" : "opacity-50 hover:opacity-50",
+      ),
+    [currentProject.isDirty],
+  )
 
-  const projectNameClassName = useMemo(() => cn(
-    "group relative ml-1 w-[100px] text-xs",
-    isEditing
-      ? "ring-1 ring-teal"
-      : "transition-colors group-hover:ring-1 group-hover:ring-teal",
-  ), [isEditing]);
+  const projectNameClassName = useMemo(
+    () =>
+      cn(
+        "group relative ml-1 w-[100px] text-xs",
+        isEditing ? "ring-1 ring-teal" : "transition-colors group-hover:ring-1 group-hover:ring-teal",
+      ),
+    [isEditing],
+  )
 
   return (
     <div className="relative flex w-full items-center bg-gray-200 px-1 py-0 dark:bg-[#343434]">
@@ -121,17 +129,11 @@ const TopBarComponent = function TopBar() {
           <Button
             variant="ghost"
             size="icon"
-            className={
-              "transition-all duration-300 hover:bg-secondary h-7 w-7 cursor-pointer p-0"
-            }
+            className={"transition-all duration-300 hover:bg-secondary h-7 w-7 cursor-pointer p-0"}
             onClick={toggleBrowserVisibility}
             title={buttonTitles.browser}
           >
-            {isBrowserVisible ? (
-              <PanelLeftClose size={16} />
-            ) : (
-              <PanelLeftOpen size={16} />
-            )}
+            {isBrowserVisible ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
           </Button>
 
           <Popover>
@@ -214,11 +216,7 @@ const TopBarComponent = function TopBar() {
             <Save className="h-5 w-5" />
           </Button>
 
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
-          <div
-            className={projectNameClassName}
-            onClick={() => setIsEditing(true)}
-          >
+          <div className={projectNameClassName} onClick={() => setIsEditing(true)}>
             {isEditing ? (
               <input
                 id="project-name-input"
@@ -278,9 +276,7 @@ const TopBarComponent = function TopBar() {
             </PopoverTrigger>
             <PopoverContent className="w-64" sideOffset={0}>
               <div className="">
-                <h4 className="text-sm font-semibold">
-                  {t("topBar.publicationTasks")}
-                </h4>
+                <h4 className="text-sm font-semibold">{t("topBar.publicationTasks")}</h4>
                 <div className="h-10" />
               </div>
             </PopoverContent>
@@ -300,9 +296,7 @@ const TopBarComponent = function TopBar() {
             </PopoverTrigger>
             <PopoverContent className="w-64" sideOffset={0}>
               <div className="">
-                <h4 className="text-sm font-semibold">
-                  {t("topBar.projectTasks")}
-                </h4>
+                <h4 className="text-sm font-semibold">{t("topBar.projectTasks")}</h4>
                 <div className="h-10" />
               </div>
             </PopoverContent>
@@ -320,8 +314,8 @@ const TopBarComponent = function TopBar() {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 // Мемоизируем компонент для предотвращения лишних перерисовок
-export const TopBar = (TopBarComponent);
+export const TopBar = TopBarComponent

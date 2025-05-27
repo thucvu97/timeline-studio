@@ -1,70 +1,63 @@
-import { useMemo } from "react";
+import { useMemo } from "react"
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next"
 
-import { useBrowserState } from "@/components/common/browser-state-provider";
-import { ContentGroup } from "@/components/common/content-group";
-import { NoFiles } from "@/components/common/no-files";
-import { useMedia } from "@/features/browser/media";
-import { MediaFile } from "@/features/media/types/media";
-import { useProjectSettings } from "@/features/project-settings";
-import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes";
-import { Transition } from "@/types/transitions";
+import { useBrowserState } from "@/components/common/browser-state-provider"
+import { ContentGroup } from "@/components/common/content-group"
+import { NoFiles } from "@/components/common/no-files"
+import { useMedia } from "@/features/browser/media"
+import { MediaFile } from "@/features/media/types/media"
+import { useProjectSettings } from "@/features/project-settings"
+import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
+import { Transition } from "@/types/transitions"
 
-import { TransitionPreview } from "./transition-preview";
-import { useTransitions } from "../hooks/use-transitions";
+import { useTransitions } from "../hooks/use-transitions"
+import { TransitionPreview } from "./transition-preview"
 
 /**
  * Компонент для отображения списка доступных переходов между видео
  * Позволяет просматривать, фильтровать и выбирать переходы для применения в проекте
  */
 export function TransitionList() {
-  const { t } = useTranslation(); // Хук для интернационализации
-  const media = useMedia(); // Доступ к контексту медиа
+  const { t } = useTranslation() // Хук для интернационализации
+  const media = useMedia() // Доступ к контексту медиа
 
   // Загружаем переходы из JSON
-  const { transitions, loading, error } = useTransitions();
+  const { transitions, loading, error } = useTransitions()
 
   // Используем общий провайдер состояния браузера
-  const { currentTabSettings } = useBrowserState();
+  const { currentTabSettings } = useBrowserState()
 
   // Получаем настройки проекта для соотношения сторон
-  const { settings } = useProjectSettings();
+  const { settings } = useProjectSettings()
 
   // Извлекаем настройки для переходов
-  const {
-    searchQuery,
-    showFavoritesOnly,
-    sortBy,
-    sortOrder,
-    groupBy,
-    filterType,
-    previewSizeIndex,
-  } = currentTabSettings;
+  const { searchQuery, showFavoritesOnly, sortBy, sortOrder, groupBy, filterType, previewSizeIndex } =
+    currentTabSettings
 
   // Получаем текущий размер превью из массива
-  const basePreviewSize = PREVIEW_SIZES[previewSizeIndex];
+  const basePreviewSize = PREVIEW_SIZES[previewSizeIndex]
 
   // Вычисляем размеры превью с учетом соотношения сторон проекта
   const previewDimensions = useMemo(() => {
-    const aspectRatio = settings.aspectRatio.value;
-    const ratio = aspectRatio.width / aspectRatio.height;
+    const aspectRatio = settings.aspectRatio.value
+    const ratio = aspectRatio.width / aspectRatio.height
 
-    let width: number;
-    let height: number;
+    let width: number
+    let height: number
 
     if (ratio >= 1) {
       // Горизонтальное или квадратное видео
-      width = basePreviewSize;
-      height = Math.round(basePreviewSize / ratio);
+      width = basePreviewSize
+      height = Math.round(basePreviewSize / ratio)
     } else {
       // Вертикальное видео
-      height = basePreviewSize;
-      width = Math.round(basePreviewSize * ratio);
+      height = basePreviewSize
+      width = Math.round(basePreviewSize * ratio)
     }
 
-    return { width, height };
-  }, [basePreviewSize, settings.aspectRatio]);
+    return { width, height }
+  }, [basePreviewSize, settings.aspectRatio])
 
   /**
    * Демонстрационные видео для превью переходов
@@ -73,15 +66,15 @@ export function TransitionList() {
   const demoVideos = {
     source: { path: "/t1.mp4" } as MediaFile, // Исходное видео
     target: { path: "/t2.mp4" } as MediaFile, // Целевое видео
-  };
+  }
 
   /**
    * Обработчик клика по переходу
    */
   const handleTransitionClick = (transition: Transition) => {
-    console.log("Applying transition:", transition.name); // Отладочный вывод
+    console.log("Applying transition:", transition.name) // Отладочный вывод
     // Здесь может быть логика применения перехода к видео
-  };
+  }
 
   /**
    * Фильтрация, сортировка и группировка переходов
@@ -92,178 +85,141 @@ export function TransitionList() {
       // Фильтрация по поисковому запросу
       const matchesSearch =
         !searchQuery ||
-        transition.labels?.ru
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        transition.labels?.en
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (transition.description?.ru || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (transition.description?.en || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        (transition.tags || []).some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase()),
-        );
+        transition.labels?.ru?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        transition.labels?.en?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (transition.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (transition.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (transition.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
       // Фильтрация по избранному
       const matchesFavorites =
-        !showFavoritesOnly ||
-        media.isItemFavorite(
-          { id: transition.id, path: "", name: transition.id },
-          "transition",
-        );
+        !showFavoritesOnly || media.isItemFavorite({ id: transition.id, path: "", name: transition.id }, "transition")
 
       // Фильтрация по типу (сложность или категория)
       const matchesFilter = (() => {
-        if (filterType === "all") return true;
+        if (filterType === "all") return true
 
         // Фильтрация по сложности
         if (["basic", "intermediate", "advanced"].includes(filterType)) {
-          return (transition.complexity || "basic") === filterType;
+          return (transition.complexity || "basic") === filterType
         }
 
         // Фильтрация по категории
-        if (
-          [
-            "basic",
-            "advanced",
-            "creative",
-            "3d",
-            "artistic",
-            "cinematic",
-          ].includes(filterType)
-        ) {
-          return transition.category === filterType;
+        if (["basic", "advanced", "creative", "3d", "artistic", "cinematic"].includes(filterType)) {
+          return transition.category === filterType
         }
 
-        return true;
-      })();
+        return true
+      })()
 
-      return matchesSearch && matchesFavorites && matchesFilter;
-    });
+      return matchesSearch && matchesFavorites && matchesFilter
+    })
 
     // 2. Сортировка
     filtered.sort((a, b) => {
-      let result = 0;
+      let result = 0
 
       switch (sortBy) {
         case "name":
-          const nameA = (a.labels?.ru || a.id).toLowerCase();
-          const nameB = (b.labels?.ru || b.id).toLowerCase();
-          result = nameA.localeCompare(nameB);
-          break;
+          const nameA = (a.labels?.ru || a.id).toLowerCase()
+          const nameB = (b.labels?.ru || b.id).toLowerCase()
+          result = nameA.localeCompare(nameB)
+          break
 
         case "complexity":
-          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 };
-          const complexityA = complexityOrder[a.complexity || "basic"];
-          const complexityB = complexityOrder[b.complexity || "basic"];
-          result = complexityA - complexityB;
-          break;
+          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
+          const complexityA = complexityOrder[a.complexity || "basic"]
+          const complexityB = complexityOrder[b.complexity || "basic"]
+          result = complexityA - complexityB
+          break
 
         case "category":
-          const categoryA = (a.category || "").toLowerCase();
-          const categoryB = (b.category || "").toLowerCase();
-          result = categoryA.localeCompare(categoryB);
-          break;
+          const categoryA = (a.category || "").toLowerCase()
+          const categoryB = (b.category || "").toLowerCase()
+          result = categoryA.localeCompare(categoryB)
+          break
 
         case "duration":
-          const durationA = a.duration?.default || 1.0;
-          const durationB = b.duration?.default || 1.0;
-          result = durationA - durationB;
-          break;
+          const durationA = a.duration?.default || 1.0
+          const durationB = b.duration?.default || 1.0
+          result = durationA - durationB
+          break
 
         default:
-          result = 0;
+          result = 0
       }
 
-      return sortOrder === "asc" ? result : -result;
-    });
+      return sortOrder === "asc" ? result : -result
+    })
 
-    return filtered;
-  }, [
-    transitions,
-    searchQuery,
-    showFavoritesOnly,
-    filterType,
-    sortBy,
-    sortOrder,
-    media,
-  ]);
+    return filtered
+  }, [transitions, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media])
 
   /**
    * Группировка переходов по выбранному критерию
    */
   const groupedTransitions = useMemo(() => {
     if (groupBy === "none") {
-      return [{ title: "", transitions: processedTransitions }];
+      return [{ title: "", transitions: processedTransitions }]
     }
 
-    const groups: Record<string, Transition[]> = {};
+    const groups: Record<string, Transition[]> = {}
 
     processedTransitions.forEach((transition) => {
-      let groupKey = "";
+      let groupKey = ""
 
       switch (groupBy) {
         case "category":
-          groupKey = transition.category || "other";
-          break;
+          groupKey = transition.category || "other"
+          break
         case "complexity":
-          groupKey = transition.complexity || "basic";
-          break;
+          groupKey = transition.complexity || "basic"
+          break
         case "tags":
-          groupKey =
-            transition.tags && transition.tags.length > 0
-              ? transition.tags[0]
-              : "untagged";
-          break;
+          groupKey = transition.tags && transition.tags.length > 0 ? transition.tags[0] : "untagged"
+          break
         case "duration":
-          const duration = transition.duration?.default || 1.0;
-          if (duration < 1.0) groupKey = "short";
-          else if (duration < 2.0) groupKey = "medium";
-          else groupKey = "long";
-          break;
+          const duration = transition.duration?.default || 1.0
+          if (duration < 1.0) groupKey = "short"
+          else if (duration < 2.0) groupKey = "medium"
+          else groupKey = "long"
+          break
         default:
-          groupKey = "ungrouped";
+          groupKey = "ungrouped"
       }
 
       if (!groups[groupKey]) {
-        groups[groupKey] = [];
+        groups[groupKey] = []
       }
-      groups[groupKey].push(transition);
-    });
+      groups[groupKey].push(transition)
+    })
 
     // Преобразуем в массив групп с переводами заголовков
     return Object.entries(groups)
       .map(([key, transitions]) => {
-        let title = "";
+        let title = ""
 
         switch (groupBy) {
           case "category":
-            title = t(`transitions.categories.${key}`, key);
-            break;
+            title = t(`transitions.categories.${key}`, key)
+            break
           case "complexity":
-            title = t(`transitions.complexity.${key}`, key);
-            break;
+            title = t(`transitions.complexity.${key}`, key)
+            break
           case "tags":
-            title =
-              key === "untagged"
-                ? t("transitions.filters.allTags", "Без тегов")
-                : key;
-            break;
+            title = key === "untagged" ? t("transitions.filters.allTags", "Без тегов") : key
+            break
           case "duration":
-            title = t(`transitions.duration.${key}`, key);
-            break;
+            title = t(`transitions.duration.${key}`, key)
+            break
           default:
-            title = key;
+            title = key
         }
 
-        return { title, transitions };
+        return { title, transitions }
       })
-      .sort((a, b) => a.title.localeCompare(b.title));
-  }, [processedTransitions, groupBy, t]);
+      .sort((a, b) => a.title.localeCompare(b.title))
+  }, [processedTransitions, groupBy, t])
 
   // Показываем состояние загрузки
   if (loading) {
@@ -273,18 +229,16 @@ export function TransitionList() {
           {t("common.loading", "Загрузка...")}
         </div>
       </div>
-    );
+    )
   }
 
   // Показываем ошибку загрузки
   if (error) {
     return (
       <div className="flex h-full flex-1 flex-col bg-background">
-        <div className="flex h-full items-center justify-center text-red-500">
-          {error}
-        </div>
+        <div className="flex h-full items-center justify-center text-red-500">{error}</div>
       </div>
-    );
+    )
   }
 
   return (
@@ -333,5 +287,5 @@ export function TransitionList() {
         )}
       </div>
     </div>
-  );
+  )
 }

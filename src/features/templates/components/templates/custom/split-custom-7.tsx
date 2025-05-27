@@ -1,10 +1,10 @@
-import React from "react";
+import React from "react"
 
-import { useTranslation } from "react-i18next";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { useTranslation } from "react-i18next"
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
-import { VideoPanelComponent } from "../../video-panel-component";
-import { TemplateProps } from "../types";
+import { VideoPanelComponent } from "../../video-panel-component"
+import { TemplateProps } from "../types"
 
 /**
  * Универсальный шаблон "7 экранов" (варианты 1-4)
@@ -24,34 +24,29 @@ export function SplitCustom7({
   templateId,
 }: TemplateProps & { templateId?: string }) {
   // Используем хук для локализации
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation()
 
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path);
-  const videoCount = Math.min(validVideos.length, 7);
+  const validVideos = videos.filter((v) => v?.path)
+  const videoCount = Math.min(validVideos.length, 7)
 
   // Определяем вариант шаблона на основе ID
   // Формат ID: split-custom-7-1-square, split-custom-7-2-square и т.д.
   // Извлекаем номер варианта (1, 2, 3, 4) из ID
-  const variant = templateId
-    ? Number.parseInt(templateId.split("-")[3] || "1")
-    : 1;
+  const variant = templateId ? Number.parseInt(templateId.split("-")[3] || "1") : 1
 
   // Получаем локализованное название шаблона
-  const templateName = t(`templates.custom7_${variant}`);
+  const templateName = t(`templates.custom7_${variant}`)
 
-  console.log(
-    `[SplitCustom7] Рендеринг шаблона ${templateId} (${templateName}) с параметрами:`,
-    {
-      variant,
-      isResizable,
-      language: i18n.language,
-    },
-  );
+  console.log(`[SplitCustom7] Рендеринг шаблона ${templateId} (${templateName}) с параметрами:`, {
+    variant,
+    isResizable,
+    language: i18n.language,
+  })
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 7) {
-    return <div className="h-full w-full bg-black" />;
+    return <div className="h-full w-full bg-black" />
   }
 
   // Рендеринг в режиме без возможности изменения размеров
@@ -59,10 +54,7 @@ export function SplitCustom7({
     // Вариант 1: Большой экран справа внизу
     if (variant === 1) {
       return (
-        <div
-          className="relative h-full w-full"
-          style={{ border: "1px solid #35d1c1" }}
-        >
+        <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
           {/* Верхний ряд (3 видео) */}
           <div className="absolute top-0 right-0 left-0 flex h-1/2">
             {/* Верхнее левое видео */}
@@ -145,15 +137,12 @@ export function SplitCustom7({
             />
           </div>
         </div>
-      );
+      )
     }
     // Вариант 2: Большой экран слева внизу
     if (variant === 2) {
       return (
-        <div
-          className="relative h-full w-full"
-          style={{ border: "1px solid #35d1c1" }}
-        >
+        <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
           {/* Верхний ряд (3 видео) */}
           <div className="absolute top-0 right-0 left-0 flex h-1/2">
             {/* Верхнее левое видео */}
@@ -236,15 +225,12 @@ export function SplitCustom7({
             </div>
           </div>
         </div>
-      );
+      )
     }
     // Вариант 3: Большой экран слева вверху
     if (variant === 3) {
       return (
-        <div
-          className="relative h-full w-full"
-          style={{ border: "1px solid #35d1c1" }}
-        >
+        <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
           {/* Большой экран (левый верхний) */}
           <div className="absolute top-0 left-0 h-1/2 w-1/2">
             <VideoPanelComponent
@@ -327,15 +313,12 @@ export function SplitCustom7({
             </div>
           </div>
         </div>
-      );
+      )
     }
     // Вариант 4: Большой экран справа вверху
 
     return (
-      <div
-        className="relative h-full w-full"
-        style={{ border: "1px solid #35d1c1" }}
-      >
+      <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
         {/* Верхняя левая секция (3 видео) */}
         <div className="absolute top-0 left-0 flex h-1/2 w-1/2 flex-col">
           {/* Верхнее левое видео */}
@@ -418,17 +401,14 @@ export function SplitCustom7({
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   // Реализация с возможностью изменения размеров
   // Вариант 1: Большой экран справа внизу
   if (variant === 1) {
     return (
-      <div
-        className="h-full w-full"
-        style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-      >
+      <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
         <PanelGroup direction="vertical">
           {/* Верхняя секция (3 видео) */}
           <Panel defaultSize={50} minSize={20}>
@@ -516,15 +496,12 @@ export function SplitCustom7({
           </Panel>
         </PanelGroup>
       </div>
-    );
+    )
   }
   // Вариант 2: Большой экран слева внизу
   if (variant === 2) {
     return (
-      <div
-        className="h-full w-full"
-        style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-      >
+      <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
         <PanelGroup direction="vertical">
           {/* Верхняя секция (3 видео) */}
           <Panel defaultSize={50} minSize={20}>
@@ -612,15 +589,12 @@ export function SplitCustom7({
           </Panel>
         </PanelGroup>
       </div>
-    );
+    )
   }
   // Вариант 3: Большой экран слева вверху
   if (variant === 3) {
     return (
-      <div
-        className="h-full w-full"
-        style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-      >
+      <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
         <PanelGroup direction="vertical">
           {/* Верхняя секция */}
           <Panel defaultSize={50} minSize={20}>
@@ -708,15 +682,12 @@ export function SplitCustom7({
           </Panel>
         </PanelGroup>
       </div>
-    );
+    )
   }
   // Вариант 4: Большой экран справа вверху
 
   return (
-    <div
-      className="h-full w-full"
-      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-    >
+    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
       <PanelGroup direction="vertical">
         {/* Верхняя секция */}
         <Panel defaultSize={50} minSize={20}>
@@ -804,5 +775,5 @@ export function SplitCustom7({
         </Panel>
       </PanelGroup>
     </div>
-  );
+  )
 }

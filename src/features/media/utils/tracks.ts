@@ -1,13 +1,13 @@
-import i18n from "@/i18n";
-import { formatDateByLanguage } from "@/i18n/constants";
-import { calculateTimeRanges } from "@/lib/video";
+import i18n from "@/i18n"
+import { formatDateByLanguage } from "@/i18n/constants"
+import { calculateTimeRanges } from "@/lib/video"
 
-import { processAudioFiles } from "./audio-tracks";
-import { updateSectorTimeRange } from "./tracks-utils";
-import { Sector } from "./types";
-import { processVideoFiles } from "./video-tracks";
+import { processAudioFiles } from "./audio-tracks"
+import { updateSectorTimeRange } from "./tracks-utils"
+import { Sector } from "./types"
+import { processVideoFiles } from "./video-tracks"
 
-import type { MediaFile, MediaTrack } from "../types/media";
+import type { MediaFile, MediaTrack } from "../types/media"
 
 /**
  * Создает треки из медиафайлов
@@ -15,67 +15,53 @@ import type { MediaFile, MediaTrack } from "../types/media";
  * @param existingTracks - Существующие треки (опционально)
  * @returns Массив созданных секторов
  */
-export const createTracksFromFiles = (
-  files: MediaFile[],
-  existingTracks: MediaTrack[] = [],
-): Sector[] => {
+export const createTracksFromFiles = (files: MediaFile[], existingTracks: MediaTrack[] = []): Sector[] => {
   console.log(
     "createTracksFromFiles called with files:",
     files.map((f) => f.name),
-  );
+  )
   console.log(
     "existingTracks:",
     existingTracks.map((t) => t.name),
-  );
+  )
 
   // Разделяем файлы на видео и аудио
-  const videoFiles = files.filter((file) =>
-    file.probeData?.streams.some((stream) => stream.codec_type === "video"),
-  );
+  const videoFiles = files.filter((file) => file.probeData?.streams.some((stream) => stream.codec_type === "video"))
   const audioFiles = files.filter(
     (file) =>
-      !file.probeData?.streams.some(
-        (stream) => stream.codec_type === "video",
-      ) &&
+      !file.probeData?.streams.some((stream) => stream.codec_type === "video") &&
       file.probeData?.streams.some((stream) => stream.codec_type === "audio"),
-  );
+  )
 
   console.log(
     "videoFiles:",
     videoFiles.map((f) => f.name),
-  );
+  )
   console.log(
     "audioFiles:",
     audioFiles.map((f) => f.name),
-  );
+  )
 
   // Сортируем файлы по времени начала
-  const sortedVideoFiles = [...videoFiles].sort(
-    (a, b) => (a.startTime ?? 0) - (b.startTime ?? 0),
-  );
-  const sortedAudioFiles = [...audioFiles].sort(
-    (a, b) => (a.startTime ?? 0) - (b.startTime ?? 0),
-  );
+  const sortedVideoFiles = [...videoFiles].sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0))
+  const sortedAudioFiles = [...audioFiles].sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0))
 
-  const sectors: Sector[] = [];
+  const sectors: Sector[] = []
 
   // Получаем текущий язык из i18n
-  const currentLanguage = i18n.language || "ru";
+  const currentLanguage = i18n.language || "ru"
 
   // Группируем видео по дням
-  const videoFilesByDay = sortedVideoFiles.reduce<Record<string, MediaFile[]>>(
-    (acc, file) => {
-      const startTime = file.startTime ?? Date.now() / 1000;
-      const date = new Date(startTime * 1000).toISOString().split("T")[0];
+  const videoFilesByDay = sortedVideoFiles.reduce<Record<string, MediaFile[]>>((acc, file) => {
+    const startTime = file.startTime ?? Date.now() / 1000
+    const date = new Date(startTime * 1000).toISOString().split("T")[0]
 
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(file);
-      return acc;
-    },
-    {},
-  );
+    if (!acc[date]) {
+      acc[date] = []
+    }
+    acc[date].push(file)
+    return acc
+  }, {})
 
   console.log(
     "videoFilesByDay:",
@@ -84,48 +70,46 @@ export const createTracksFromFiles = (
       filesCount: files.length,
       files: files.map((f) => f.name),
     })),
-  );
+  )
 
   // Получаем существующие секторы по дням (упрощено)
-  const existingSectorsByDay: Record<string, { sector: Sector | null }> = {};
+  const existingSectorsByDay: Record<string, { sector: Sector | null }> = {}
 
   // Обрабатываем видео файлы по дням
   for (const [date, dayFiles] of Object.entries(videoFilesByDay)) {
-    console.log(`Processing ${dayFiles.length} video files for date ${date}`);
+    console.log(`Processing ${dayFiles.length} video files for date ${date}`)
 
     // Получаем существующие треки для этого дня или создаем новый сектор
     // Ищем существующий сектор по дате или по имени, содержащему дату
-    let existingSector = existingSectorsByDay[date]?.sector;
+    let existingSector = existingSectorsByDay[date]?.sector
 
     // Если сектор не найден по дате, ищем по имени в существующих секторах
     if (!existingSector) {
       // Форматируем дату для поиска в имени сектора
-      const dateObj = new Date(date);
+      const dateObj = new Date(date)
       const formattedDate = formatDateByLanguage(dateObj, currentLanguage, {
         includeYear: true,
         longFormat: true,
-      });
+      })
 
       // Ищем сектор по имени в списке всех существующих секторов
       for (const sectorDate in existingSectorsByDay) {
-        const sectorInfo = existingSectorsByDay[sectorDate];
+        const sectorInfo = existingSectorsByDay[sectorDate]
         if (sectorInfo.sector?.name.includes(formattedDate)) {
-          existingSector = sectorInfo.sector;
-          break;
+          existingSector = sectorInfo.sector
+          break
         }
       }
     }
 
-    console.log(
-      `Existing sector for date ${date}: ${existingSector ? "yes" : "no"}`,
-    );
+    console.log(`Existing sector for date ${date}: ${existingSector ? "yes" : "no"}`)
 
     // Форматируем дату для отображения с помощью универсального метода
-    const dateObj = new Date(date);
+    const dateObj = new Date(date)
     const formattedDate = formatDateByLanguage(dateObj, currentLanguage, {
       includeYear: true,
       longFormat: true,
-    });
+    })
 
     // Создаем или используем существующий сектор для всех файлов дня
     const sector: Sector = existingSector ?? {
@@ -141,42 +125,35 @@ export const createTracksFromFiles = (
       endTime: 0,
       zoomLevel: 1,
       scrollPosition: 0,
-    };
+    }
 
-    console.log(
-      `Using sector ${sector.name} with ${sector.tracks.length} tracks`,
-    );
+    console.log(`Using sector ${sector.name} with ${sector.tracks.length} tracks`)
 
     // Обрабатываем каждый файл и добавляем его на подходящую дорожку
-    processVideoFiles(dayFiles, sector);
+    processVideoFiles(dayFiles, sector)
 
     // Обновляем timeRanges сектора
-    sector.timeRanges = calculateTimeRanges(dayFiles);
+    sector.timeRanges = calculateTimeRanges(dayFiles)
 
     // Обновляем время начала и конца секции
-    updateSectorTimeRange(sector);
+    updateSectorTimeRange(sector)
 
     // Добавляем сектор в список, если он новый
     if (!existingSector) {
-      sectors.push(sector);
+      sectors.push(sector)
     } else {
       // Обновляем существующий сектор в списке
-      const sectorIndex = sectors.findIndex((s) => s.id === existingSector.id);
+      const sectorIndex = sectors.findIndex((s) => s.id === existingSector.id)
       if (sectorIndex !== -1) {
-        sectors[sectorIndex] = sector;
+        sectors[sectorIndex] = sector
       } else {
-        sectors.push(sector);
+        sectors.push(sector)
       }
     }
   }
 
   // Обрабатываем аудио файлы по дням
-  processAudioFiles(
-    sortedAudioFiles,
-    sectors,
-    existingSectorsByDay,
-    currentLanguage,
-  );
+  processAudioFiles(sortedAudioFiles, sectors, existingSectorsByDay, currentLanguage)
 
   console.log(
     "Created sectors:",
@@ -190,7 +167,7 @@ export const createTracksFromFiles = (
         videos: t.videos?.map((v) => v.name),
       })),
     })),
-  );
+  )
 
-  return sectors;
-};
+  return sectors
+}

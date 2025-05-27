@@ -2,33 +2,21 @@
  * TrackHeader - Заголовок трека с элементами управления
  */
 
-import React from "react";
+import React from "react"
 
-import {
-  Eye,
-  EyeOff,
-  Image,
-  Lock,
-  Mic,
-  Music,
-  Type,
-  Unlock,
-  Video,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
+import { Eye, EyeOff, Image, Lock, Mic, Music, Type, Unlock, Video, Volume2, VolumeX } from "lucide-react"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Slider } from "@/components/ui/slider"
+import { cn } from "@/lib/utils"
 
-import { TimelineTrack, TrackType } from "../../types";
+import { TimelineTrack, TrackType } from "../../types"
 
 interface TrackHeaderProps {
-  track: TimelineTrack;
-  isSelected?: boolean;
-  onUpdate?: (updates: Partial<TimelineTrack>) => void;
+  track: TimelineTrack
+  isSelected?: boolean
+  onUpdate?: (updates: Partial<TimelineTrack>) => void
 }
 
 // Иконки для разных типов треков
@@ -42,7 +30,7 @@ const TRACK_TYPE_ICONS: Record<TrackType, React.ComponentType<any>> = {
   voiceover: Mic,
   sfx: Music,
   ambient: Music,
-};
+}
 
 // Цвета для разных типов треков
 const TRACK_TYPE_COLORS: Record<TrackType, string> = {
@@ -55,44 +43,44 @@ const TRACK_TYPE_COLORS: Record<TrackType, string> = {
   voiceover: "text-cyan-500",
   sfx: "text-red-500",
   ambient: "text-gray-500",
-};
+}
 
 export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [editName, setEditName] = React.useState(track.name);
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [editName, setEditName] = React.useState(track.name)
 
-  const IconComponent = TRACK_TYPE_ICONS[track.type];
-  const iconColor = TRACK_TYPE_COLORS[track.type];
+  const IconComponent = TRACK_TYPE_ICONS[track.type]
+  const iconColor = TRACK_TYPE_COLORS[track.type]
 
   const handleNameSubmit = () => {
-    onUpdate?.({ name: editName.trim() || track.name });
-    setIsEditing(false);
-  };
+    onUpdate?.({ name: editName.trim() || track.name })
+    setIsEditing(false)
+  }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleNameSubmit();
+      handleNameSubmit()
     } else if (e.key === "Escape") {
-      setEditName(track.name);
-      setIsEditing(false);
+      setEditName(track.name)
+      setIsEditing(false)
     }
-  };
+  }
 
   const toggleMute = () => {
-    onUpdate?.({ isMuted: !track.isMuted });
-  };
+    onUpdate?.({ isMuted: !track.isMuted })
+  }
 
   const toggleLock = () => {
-    onUpdate?.({ isLocked: !track.isLocked });
-  };
+    onUpdate?.({ isLocked: !track.isLocked })
+  }
 
   const toggleVisibility = () => {
-    onUpdate?.({ isHidden: !track.isHidden });
-  };
+    onUpdate?.({ isHidden: !track.isHidden })
+  }
 
   const handleVolumeChange = (value: number[]) => {
-    onUpdate?.({ volume: value[0] });
-  };
+    onUpdate?.({ volume: value[0] })
+  }
 
   return (
     <div
@@ -107,9 +95,7 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
         {/* Иконка типа трека */}
         <div className="flex items-center gap-2">
           <IconComponent className={cn("w-4 h-4", iconColor)} />
-          <span className="text-xs text-muted-foreground uppercase">
-            {track.type}
-          </span>
+          <span className="text-xs text-muted-foreground uppercase">{track.type}</span>
         </div>
 
         {/* Название трека */}
@@ -140,9 +126,7 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
         track.type === "sfx" ||
         track.type === "ambient") && (
         <div className="py-2">
-          <div className="text-xs text-muted-foreground mb-1">
-            Громкость: {Math.round(track.volume * 100)}%
-          </div>
+          <div className="text-xs text-muted-foreground mb-1">Громкость: {Math.round(track.volume * 100)}%</div>
           <Slider
             value={[track.volume]}
             onValueChange={handleVolumeChange}
@@ -164,11 +148,7 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
           onClick={toggleVisibility}
           title={track.isHidden ? "Показать трек" : "Скрыть трек"}
         >
-          {track.isHidden ? (
-            <EyeOff className="w-3 h-3" />
-          ) : (
-            <Eye className="w-3 h-3" />
-          )}
+          {track.isHidden ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
         </Button>
 
         {/* Кнопка блокировки */}
@@ -179,11 +159,7 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
           onClick={toggleLock}
           title={track.isLocked ? "Разблокировать трек" : "Заблокировать трек"}
         >
-          {track.isLocked ? (
-            <Lock className="w-3 h-3" />
-          ) : (
-            <Unlock className="w-3 h-3" />
-          )}
+          {track.isLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
         </Button>
 
         {/* Кнопка отключения звука (для аудио треков) */}
@@ -199,14 +175,10 @@ export function TrackHeader({ track, isSelected, onUpdate }: TrackHeaderProps) {
             onClick={toggleMute}
             title={track.isMuted ? "Включить звук" : "Отключить звук"}
           >
-            {track.isMuted ? (
-              <VolumeX className="w-3 h-3" />
-            ) : (
-              <Volume2 className="w-3 h-3" />
-            )}
+            {track.isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
           </Button>
         )}
       </div>
     </div>
-  );
+  )
 }

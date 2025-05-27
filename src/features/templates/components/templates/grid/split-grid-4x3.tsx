@@ -1,9 +1,9 @@
-import React from "react";
+import React from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
-import { VideoPanelComponent } from "../../video-panel-component";
-import { TemplateProps } from "../types";
+import { VideoPanelComponent } from "../../video-panel-component"
+import { TemplateProps } from "../types"
 
 /**
  * Шаблон "Сетка 4x3" (12 экранов)
@@ -16,15 +16,15 @@ export function SplitGrid4x3({
   templateId,
 }: TemplateProps & { templateId?: string }) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path);
+  const validVideos = videos.filter((v) => v?.path)
 
   // Определяем ориентацию и тип шаблона на основе ID шаблона
-  const isPortrait = templateId ? templateId.includes("portrait") : false;
+  const isPortrait = templateId ? templateId.includes("portrait") : false
 
   // Если видео меньше 12, заполняем оставшиеся ячейки пустыми видео
-  const filledVideos = [...validVideos];
+  const filledVideos = [...validVideos]
   while (filledVideos.length < 12) {
-    filledVideos.push({ id: `empty-${filledVideos.length}`, path: "" } as any);
+    filledVideos.push({ id: `empty-${filledVideos.length}`, path: "" } as any)
   }
 
   // Рендеринг в режиме без возможности изменения размеров
@@ -33,14 +33,11 @@ export function SplitGrid4x3({
     if (isPortrait) {
       // Портретный режим 4x3
       return (
-        <div
-          className="relative h-full w-full"
-          style={{ border: "1px solid #35d1c1" }}
-        >
+        <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
           {/* Рендерим видео */}
           {filledVideos.slice(0, 12).map((video, index) => {
-            const row = Math.floor(index / 4);
-            const col = index % 4;
+            const row = Math.floor(index / 4)
+            const col = index % 4
 
             return (
               <div
@@ -61,7 +58,7 @@ export function SplitGrid4x3({
                   index={index}
                 />
               </div>
-            );
+            )
           })}
 
           {/* Добавляем разделительные линии */}
@@ -93,19 +90,16 @@ export function SplitGrid4x3({
             />
           ))}
         </div>
-      );
+      )
     }
     // Ландшафтный или квадратный режим
     // Ландшафтный или квадратный режим 4x3
     return (
-      <div
-        className="relative h-full w-full"
-        style={{ border: "1px solid #35d1c1" }}
-      >
+      <div className="relative h-full w-full" style={{ border: "1px solid #35d1c1" }}>
         {/* Рендерим видео */}
         {filledVideos.slice(0, 12).map((video, index) => {
-          const row = Math.floor(index / 4);
-          const col = index % 4;
+          const row = Math.floor(index / 4)
+          const col = index % 4
 
           return (
             <div
@@ -126,7 +120,7 @@ export function SplitGrid4x3({
                 index={index}
               />
             </div>
-          );
+          )
         })}
 
         {/* Добавляем разделительные линии */}
@@ -158,7 +152,7 @@ export function SplitGrid4x3({
           />
         ))}
       </div>
-    );
+    )
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
@@ -167,85 +161,67 @@ export function SplitGrid4x3({
   if (isPortrait) {
     // Портретный режим resizable 4x3
     return (
-      <div
-        className="h-full w-full"
-        style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-      >
+      <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
         <PanelGroup direction="vertical">
           {[0, 1, 2].map((rowIndex) => (
             <React.Fragment key={`row-${rowIndex}`}>
               <Panel defaultSize={rowIndex === 2 ? 33.34 : 33.33} minSize={10}>
                 <PanelGroup direction="horizontal">
                   {[0, 1, 2, 3].map((colIndex) => {
-                    const videoIndex = rowIndex * 4 + colIndex;
+                    const videoIndex = rowIndex * 4 + colIndex
                     return (
                       <React.Fragment key={`col-${colIndex}`}>
                         <Panel defaultSize={25} minSize={10}>
                           <VideoPanelComponent
                             video={filledVideos[videoIndex]}
-                            isActive={
-                              filledVideos[videoIndex]?.id === activeVideoId
-                            }
+                            isActive={filledVideos[videoIndex]?.id === activeVideoId}
                             videoRefs={videoRefs}
                             index={videoIndex}
                           />
                         </Panel>
-                        {colIndex < 3 && (
-                          <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                        )}
+                        {colIndex < 3 && <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
                       </React.Fragment>
-                    );
+                    )
                   })}
                 </PanelGroup>
               </Panel>
-              {rowIndex < 2 && (
-                <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-              )}
+              {rowIndex < 2 && <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
             </React.Fragment>
           ))}
         </PanelGroup>
       </div>
-    );
+    )
   }
   // Ландшафтный или квадратный режим
   return (
-    <div
-      className="h-full w-full"
-      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-    >
+    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
       <PanelGroup direction="vertical">
         {[0, 1, 2].map((rowIndex) => (
           <React.Fragment key={`row-${rowIndex}`}>
             <Panel defaultSize={rowIndex === 2 ? 33.34 : 33.33} minSize={10}>
               <PanelGroup direction="horizontal">
                 {[0, 1, 2, 3].map((colIndex) => {
-                  const videoIndex = rowIndex * 4 + colIndex;
+                  const videoIndex = rowIndex * 4 + colIndex
                   return (
                     <React.Fragment key={`col-${colIndex}`}>
                       <Panel defaultSize={25} minSize={10}>
                         <VideoPanelComponent
                           video={filledVideos[videoIndex]}
-                          isActive={
-                            filledVideos[videoIndex]?.id === activeVideoId
-                          }
+                          isActive={filledVideos[videoIndex]?.id === activeVideoId}
                           videoRefs={videoRefs}
                           index={videoIndex}
                         />
                       </Panel>
-                      {colIndex < 3 && (
-                        <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-                      )}
+                      {colIndex < 3 && <PanelResizeHandle className="w-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
                     </React.Fragment>
-                  );
+                  )
                 })}
               </PanelGroup>
             </Panel>
-            {rowIndex < 2 && (
-              <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />
-            )}
+            {rowIndex < 2 && <PanelResizeHandle className="h-1 bg-[#35d1c1] hover:bg-[#35d1c1]" />}
           </React.Fragment>
         ))}
       </PanelGroup>
     </div>
-  );
+  )
 }

@@ -1,16 +1,12 @@
-import React from "react";
+import React from "react"
 
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { AiChat } from "@/features/ai-chat/components/ai-chat";
-import { ResourcesPanel } from "@/features/resources";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { AiChat } from "@/features/ai-chat/components/ai-chat"
+import { ResourcesPanel } from "@/features/resources"
 
-import { TimelineProvider } from "../timeline-provider";
-import { TimelineContent } from "./timeline-content";
-import { TimelineTopPanel } from "./timeline-top-panel";
+import { TimelineProvider } from "../timeline-provider"
+import { TimelineContent } from "./timeline-content"
+import { TimelineTopPanel } from "./timeline-top-panel"
 
 export function Timeline() {
   return (
@@ -40,15 +36,10 @@ export function Timeline() {
 
         <ResizableHandle />
 
-        <ResizablePanel
-          defaultSize={20}
-          minSize={10}
-          maxSize={50}
-          className="flex-shrink-0"
-        >
+        <ResizablePanel defaultSize={20} minSize={10} maxSize={50} className="flex-shrink-0">
           <AiChat />
         </ResizablePanel>
       </ResizablePanelGroup>
     </TimelineProvider>
-  );
+  )
 }

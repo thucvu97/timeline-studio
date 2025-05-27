@@ -41,11 +41,11 @@ export function YoloDataOverlay({ video, currentTime }: YoloDataOverlayProps) {
         const data = await getYoloDataAtTimestamp(video.id, timestamp)
         setDetections(data)
       } catch (error) {
-        console.error(`[YoloDataOverlay] Ошибка при получении данных YOLO:`, error)
+        console.error("[YoloDataOverlay] Ошибка при получении данных YOLO:", error)
       }
     }
 
-   void loadYoloData()
+    void loadYoloData()
   }, [video?.id, currentTime, getYoloDataAtTimestamp])
 
   // Если нет обнаружений, не отображаем ничего
@@ -140,10 +140,7 @@ function DetectionBox({ detection }: { detection: YoloDetection }) {
         borderColor: color,
       }}
     >
-      <div
-        className="max-w-full truncate px-1 text-xs text-white"
-        style={{ backgroundColor: color }}
-      >
+      <div className="max-w-full truncate px-1 text-xs text-white" style={{ backgroundColor: color }}>
         {detection.class} ({Math.round(detection.confidence * 100)}%)
       </div>
     </div>
@@ -196,9 +193,9 @@ function calculateSize(detection: YoloDetection): string {
   // Определяем размер
   if (area < 0.05) {
     return "small"
-  } else if (area < 0.15) {
-    return "medium"
-  } else {
-    return "large"
   }
+  if (area < 0.15) {
+    return "medium"
+  }
+  return "large"
 }

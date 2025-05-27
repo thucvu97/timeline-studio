@@ -1,36 +1,28 @@
-import React from "react";
+import React from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
-import { VideoPanelComponent } from "../../video-panel-component";
-import { TemplateProps } from "../types";
+import { VideoPanelComponent } from "../../video-panel-component"
+import { TemplateProps } from "../types"
 
 /**
  * Шаблон "5 экранов: вариант 3 (средний на всю ширину, верхний и нижний ряды по 2 экрана)" - ландшафтный формат
  * ID: split-custom-5-3-landscape
  */
-export function SplitCustom53Landscape({
-  videos,
-  activeVideoId,
-  videoRefs,
-  isResizable = true,
-}: TemplateProps) {
+export function SplitCustom53Landscape({ videos, activeVideoId, videoRefs, isResizable = true }: TemplateProps) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path);
-  const videoCount = Math.min(validVideos.length, 5);
+  const validVideos = videos.filter((v) => v?.path)
+  const videoCount = Math.min(validVideos.length, 5)
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 5) {
-    return <div className="h-full w-full bg-black" />;
+    return <div className="h-full w-full bg-black" />
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div
-        className="flex h-full w-full flex-col"
-        style={{ border: "1px solid #35d1c1" }}
-      >
+      <div className="flex h-full w-full flex-col" style={{ border: "1px solid #35d1c1" }}>
         {/* Верхний ряд */}
         <div className="flex h-1/3 w-full">
           {/* Верхнее левое видео */}
@@ -99,15 +91,12 @@ export function SplitCustom53Landscape({
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div
-      className="h-full w-full"
-      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-    >
+    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
       <PanelGroup direction="vertical">
         {/* Верхний ряд */}
         <Panel defaultSize={33.33} minSize={10}>
@@ -170,5 +159,5 @@ export function SplitCustom53Landscape({
         </Panel>
       </PanelGroup>
     </div>
-  );
+  )
 }

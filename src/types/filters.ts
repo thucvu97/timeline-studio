@@ -5,10 +5,10 @@ export type FilterCategory =
   | "cinematic" // Кинематографические
   | "artistic" // Художественные
   | "creative" // Креативные
-  | "vintage"; // Винтажные
+  | "vintage" // Винтажные
 
 // Сложность фильтра
-export type FilterComplexity = "basic" | "intermediate" | "advanced";
+export type FilterComplexity = "basic" | "intermediate" | "advanced"
 
 // Теги для фильтров
 export type FilterTag =
@@ -25,41 +25,41 @@ export type FilterTag =
   | "dramatic" // Драматический
   | "soft" // Мягкий
   | "vibrant" // Яркий
-  | "fallback"; // Резервный
+  | "fallback" // Резервный
 
 export interface VideoFilter {
-  id: string;
-  name: string;
-  category: FilterCategory;
-  complexity: FilterComplexity;
-  tags: FilterTag[];
+  id: string
+  name: string
+  category: FilterCategory
+  complexity: FilterComplexity
+  tags: FilterTag[]
   description: {
-    ru: string;
-    en: string;
-  };
+    ru: string
+    en: string
+  }
   labels: {
-    ru: string;
-    en: string;
-    es?: string;
-    fr?: string;
-    de?: string;
-  };
+    ru: string
+    en: string
+    es?: string
+    fr?: string
+    de?: string
+  }
   params: {
-    brightness?: number;
-    contrast?: number;
-    saturation?: number;
-    gamma?: number;
-    temperature?: number;
-    tint?: number;
-    hue?: number;
-    vibrance?: number;
-    shadows?: number;
-    highlights?: number;
-    blacks?: number;
-    whites?: number;
-    clarity?: number;
-    dehaze?: number;
-    vignette?: number;
-    grain?: number;
-  };
+    brightness?: number
+    contrast?: number
+    saturation?: number
+    gamma?: number
+    temperature?: number
+    tint?: number
+    hue?: number
+    vibrance?: number
+    shadows?: number
+    highlights?: number
+    blacks?: number
+    whites?: number
+    clarity?: number
+    dehaze?: number
+    vignette?: number
+    grain?: number
+  }
 }

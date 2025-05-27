@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi } from "vitest"
 
 // Мок данных YOLO
 export const mockYoloData = {
@@ -32,7 +32,7 @@ export const mockYoloData = {
       ],
     },
   ],
-};
+}
 
 export const mockDetections = [
   {
@@ -45,7 +45,7 @@ export const mockDetections = [
     confidence: 0.87,
     bbox: { x: 0.5, y: 0.4, width: 0.2, height: 0.3 },
   },
-];
+]
 
 export const mockVideoSummary = {
   videoId: "test-video",
@@ -57,24 +57,24 @@ export const mockVideoSummary = {
     person: [{ start: 0, end: 5 }],
     car: [{ start: 5, end: 5 }],
   },
-};
+}
 
 // Мок компонентов
 export const YoloDataOverlay = vi.fn(({ video, currentTime }) => {
-  return `<div data-testid="yolo-data-overlay">Video: ${video.name}, Time: ${currentTime}</div>`;
-});
+  return `<div data-testid="yolo-data-overlay">Video: ${video.name}, Time: ${currentTime}</div>`
+})
 
 export const YoloDataVisualization = vi.fn(({ yoloData, width, height }) => {
-  return `<div data-testid="yolo-data-visualization">Video: ${yoloData.videoName}, Size: ${width}x${height}</div>`;
-});
+  return `<div data-testid="yolo-data-visualization">Video: ${yoloData.videoName}, Size: ${width}x${height}</div>`
+})
 
 export const YoloGraphOverlay = vi.fn(({ yoloData, currentTime, onTimeChange }) => {
-  return `<div data-testid="yolo-graph-overlay" onClick={() => onTimeChange?.(10)}>Graph for ${yoloData.videoName}</div>`;
-});
+  return `<div data-testid="yolo-graph-overlay" onClick={() => onTimeChange?.(10)}>Graph for ${yoloData.videoName}</div>`
+})
 
 export const YoloTrackOverlay = vi.fn(({ yoloData, currentTime, showTrajectories }) => {
-  return `<div data-testid="yolo-track-overlay">Tracks: ${showTrajectories ? 'shown' : 'hidden'}</div>`;
-});
+  return `<div data-testid="yolo-track-overlay">Tracks: ${showTrajectories ? "shown" : "hidden"}</div>`
+})
 
 // Мок хука useYoloData
 export const useYoloData = vi.fn(() => ({
@@ -97,7 +97,7 @@ export const useYoloData = vi.fn(() => ({
   errorStates: {},
   isLoading: vi.fn().mockReturnValue(false),
   getError: vi.fn().mockReturnValue(null),
-}));
+}))
 
 // Мок сервисов
 export const YoloDataService = vi.fn().mockImplementation(() => ({
@@ -114,12 +114,12 @@ export const YoloDataService = vi.fn().mockImplementation(() => ({
     totalMemoryUsage: 1024,
     missingDataCount: 0,
   }),
-}));
+}))
 
 export const SceneContextService = vi.fn().mockImplementation(() => ({
   createSceneContext: vi.fn().mockReturnValue({
     currentVideo: { id: "test-video", name: "test.mp4", timestamp: 5 },
-    detectedObjects: mockDetections.map(d => ({
+    detectedObjects: mockDetections.map((d) => ({
       class: d.class,
       confidence: d.confidence,
       position: "в центре кадра",
@@ -140,7 +140,7 @@ export const SceneContextService = vi.fn().mockImplementation(() => ({
     objectCounts: { person: 1 },
     dominantObjects: ["person"],
   }),
-}));
+}))
 
 // Утилиты для тестов
 export const createMockVideo = (overrides = {}) => ({
@@ -148,19 +148,19 @@ export const createMockVideo = (overrides = {}) => ({
   name: "test.mp4",
   path: "/path/to/test.mp4",
   ...overrides,
-});
+})
 
 export const createMockDetection = (overrides = {}) => ({
   class: "person",
   confidence: 0.95,
   bbox: { x: 0.1, y: 0.2, width: 0.3, height: 0.6 },
   ...overrides,
-});
+})
 
 export const createMockYoloData = (overrides = {}) => ({
   ...mockYoloData,
   ...overrides,
-});
+})
 
 // Хелперы для Canvas API моков
 export const mockCanvasContext = {
@@ -182,26 +182,26 @@ export const mockCanvasContext = {
   lineCap: "",
   lineJoin: "",
   font: "",
-};
+}
 
 export const setupCanvasMock = () => {
-  const mockGetContext = vi.fn().mockReturnValue(mockCanvasContext);
+  const mockGetContext = vi.fn().mockReturnValue(mockCanvasContext)
 
   // Проверяем, что HTMLCanvasElement существует в тестовой среде
-  if (typeof HTMLCanvasElement !== 'undefined') {
-    HTMLCanvasElement.prototype.getContext = mockGetContext;
+  if (typeof HTMLCanvasElement !== "undefined") {
+    HTMLCanvasElement.prototype.getContext = mockGetContext
   }
 
   // Мокаем window.devicePixelRatio если window существует
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     Object.defineProperty(window, "devicePixelRatio", {
       value: 2,
       writable: true,
-    });
+    })
   }
 
-  return { mockGetContext, mockCanvasContext };
-};
+  return { mockGetContext, mockCanvasContext }
+}
 
 // Мок для navigator.clipboard
 export const setupClipboardMock = () => {
@@ -209,9 +209,9 @@ export const setupClipboardMock = () => {
     clipboard: {
       writeText: vi.fn(),
     },
-  });
-  return navigator.clipboard;
-};
+  })
+  return navigator.clipboard
+}
 
 // Экспорт всех моков
 export default {
@@ -230,4 +230,4 @@ export default {
   createMockYoloData,
   setupCanvasMock,
   setupClipboardMock,
-};
+}

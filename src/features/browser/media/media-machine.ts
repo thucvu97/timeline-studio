@@ -1,23 +1,23 @@
-import { assign, createMachine } from "xstate";
+import { assign, createMachine } from "xstate"
 
-import { MediaFile } from "@/features/media/types/media";
+import { MediaFile } from "@/features/media/types/media"
 
 export interface FavoritesType {
-  [key: string]: any[];
-  media: MediaFile[];
-  audio: MediaFile[];
-  transition: any[];
-  effect: any[];
-  template: any[];
-  filter: any[];
-  subtitle: any[];
+  [key: string]: any[]
+  media: MediaFile[]
+  audio: MediaFile[]
+  transition: any[]
+  effect: any[]
+  template: any[]
+  filter: any[]
+  subtitle: any[]
 }
 
 export interface MediaContextType {
-  allMediaFiles: MediaFile[];
-  error: string | null;
-  isLoading: boolean;
-  favorites: FavoritesType;
+  allMediaFiles: MediaFile[]
+  error: string | null
+  isLoading: boolean
+  favorites: FavoritesType
 }
 
 export type MediaEventType =
@@ -34,7 +34,7 @@ export type MediaEventType =
   | { type: "RELOAD" }
   | { type: "ADD_TO_FAVORITES"; item: any; itemType: string }
   | { type: "REMOVE_FROM_FAVORITES"; item: any; itemType: string }
-  | { type: "CLEAR_FAVORITES"; itemType?: string };
+  | { type: "CLEAR_FAVORITES"; itemType?: string }
 
 // Медиафайлы будут добавляться пользователем, начинаем с пустого массива
 
@@ -79,18 +79,16 @@ export const mediaMachine = createMachine({
             assign({
               allMediaFiles: ({ context, event }) => {
                 return context.allMediaFiles.map((file) => {
-                  const isInEventFiles = event.files.some(
-                    (f: MediaFile) => f.path === file.path,
-                  );
+                  const isInEventFiles = event.files.some((f: MediaFile) => f.path === file.path)
                   if (isInEventFiles) {
                     return {
                       ...file,
                       isIncluded: true,
                       lastCheckedAt: Date.now(), // Обновляем временную метку
-                    };
+                    }
                   }
-                  return file;
-                });
+                  return file
+                })
               },
             }),
           ],
@@ -105,10 +103,10 @@ export const mediaMachine = createMachine({
                       ...file,
                       isIncluded: false,
                       lastCheckedAt: Date.now(), // Обновляем временную метку
-                    };
+                    }
                   }
-                  return file;
-                });
+                  return file
+                })
               },
             }),
           ],
@@ -117,14 +115,14 @@ export const mediaMachine = createMachine({
           actions: [
             assign({
               allMediaFiles: ({ context }) => {
-                const now = Date.now();
+                const now = Date.now()
                 return context.allMediaFiles.map((file) => {
                   return {
                     ...file,
                     isIncluded: false,
                     lastCheckedAt: now, // Обновляем временную метку
-                  };
-                });
+                  }
+                })
               },
             }),
           ],
@@ -141,116 +139,99 @@ export const mediaMachine = createMachine({
             assign({
               allMediaFiles: ({ context, event }) => {
                 // Получаем новые файлы из события
-                const newFiles = event.files ?? [];
+                const newFiles = event.files ?? []
 
                 if (newFiles.length === 0) {
-                  return [...context.allMediaFiles];
+                  return [...context.allMediaFiles]
                 }
 
                 // Создаем карту существующих файлов для быстрого доступа
-                const existingFilesMap = new Map(
-                  context.allMediaFiles.map((file: MediaFile) => [
-                    file.path,
-                    file,
-                  ]),
-                );
+                const existingFilesMap = new Map(context.allMediaFiles.map((file: MediaFile) => [file.path, file]))
 
                 // Разделяем новые файлы на те, которые нужно обновить, и те, которые нужно добавить
-                const filesToUpdate: MediaFile[] = [];
-                const filesToAdd: MediaFile[] = [];
+                const filesToUpdate: MediaFile[] = []
+                const filesToAdd: MediaFile[] = []
 
                 newFiles.forEach((file: MediaFile) => {
                   if (existingFilesMap.has(file.path)) {
-                    filesToUpdate.push(file);
+                    filesToUpdate.push(file)
                   } else {
-                    filesToAdd.push(file);
+                    filesToAdd.push(file)
                   }
-                });
+                })
 
-                console.log(
-                  `Файлов для обновления: ${filesToUpdate.length}, для добавления: ${filesToAdd.length}`,
-                );
+                console.log(`Файлов для обновления: ${filesToUpdate.length}, для добавления: ${filesToAdd.length}`)
 
                 // Если нет новых файлов и нет файлов для обновления, возвращаем текущий массив
                 if (filesToAdd.length === 0 && filesToUpdate.length === 0) {
-                  console.log("Нет файлов для добавления или обновления");
-                  return [...context.allMediaFiles];
+                  console.log("Нет файлов для добавления или обновления")
+                  return [...context.allMediaFiles]
                 }
 
                 // Обновляем существующие файлы
-                const updatedFiles = context.allMediaFiles.map(
-                  (file: MediaFile) => {
-                    // Ищем файл для обновления с тем же путем
-                    const updateFile = filesToUpdate.find(
-                      (f) => f.path === file.path,
-                    );
+                const updatedFiles = context.allMediaFiles.map((file: MediaFile) => {
+                  // Ищем файл для обновления с тем же путем
+                  const updateFile = filesToUpdate.find((f) => f.path === file.path)
 
-                    if (updateFile) {
-                      // Проверяем, что probeData существует и содержит все необходимые поля
-                      const probeData = updateFile.probeData
-                        ? {
-                            streams: updateFile.probeData.streams,
-                            format: updateFile.probeData.format,
-                          }
-                        : file.probeData; // Сохраняем существующие probeData, если новых нет
+                  if (updateFile) {
+                    // Проверяем, что probeData существует и содержит все необходимые поля
+                    const probeData = updateFile.probeData
+                      ? {
+                          streams: updateFile.probeData.streams,
+                          format: updateFile.probeData.format,
+                        }
+                      : file.probeData // Сохраняем существующие probeData, если новых нет
 
-                      // Обновляем файл, сохраняя существующие свойства
-                      return {
-                        ...file,
-                        ...updateFile,
-                        lastCheckedAt: Date.now(),
-                        probeData,
-                        // Важно: сохраняем флаг isIncluded из существующего файла
-                        isIncluded: !!file.isIncluded,
-                        // Обновляем флаг загрузки метаданных
-                        // Если в обновленном файле флаг isLoadingMetadata равен false, то устанавливаем его в false
-                        // Это гарантирует, что если метаданные были загружены, то флаг будет сброшен
-                        isLoadingMetadata:
-                          updateFile.isLoadingMetadata === false
-                            ? false
-                            : file.isLoadingMetadata ?? true,
-                      };
+                    // Обновляем файл, сохраняя существующие свойства
+                    return {
+                      ...file,
+                      ...updateFile,
+                      lastCheckedAt: Date.now(),
+                      probeData,
+                      // Важно: сохраняем флаг isIncluded из существующего файла
+                      isIncluded: !!file.isIncluded,
+                      // Обновляем флаг загрузки метаданных
+                      // Если в обновленном файле флаг isLoadingMetadata равен false, то устанавливаем его в false
+                      // Это гарантирует, что если метаданные были загружены, то флаг будет сброшен
+                      isLoadingMetadata:
+                        updateFile.isLoadingMetadata === false ? false : (file.isLoadingMetadata ?? true),
                     }
+                  }
 
-                    return file;
-                  },
-                );
+                  return file
+                })
 
                 // Если нет новых файлов для добавления, возвращаем только обновленные
                 if (filesToAdd.length === 0) {
-                  console.log("Обновлены существующие файлы");
-                  return updatedFiles;
+                  console.log("Обновлены существующие файлы")
+                  return updatedFiles
                 }
 
                 // Добавляем метку времени и флаг isIncluded к новым файлам
-                const now = Date.now();
-                const newFilesWithMetadata = filesToAdd.map(
-                  (file: MediaFile) => {
-                    // Проверяем, что probeData существует и содержит все необходимые поля
-                    const probeData = file.probeData
-                      ? {
-                          streams: file.probeData.streams,
-                          format: file.probeData.format,
-                        }
-                      : undefined;
+                const now = Date.now()
+                const newFilesWithMetadata = filesToAdd.map((file: MediaFile) => {
+                  // Проверяем, что probeData существует и содержит все необходимые поля
+                  const probeData = file.probeData
+                    ? {
+                        streams: file.probeData.streams,
+                        format: file.probeData.format,
+                      }
+                    : undefined
 
-                    return {
-                      ...file,
-                      lastCheckedAt: now,
-                      isIncluded: false, // По умолчанию файлы не включены в таймлайн
-                      probeData, // Сохраняем probeData для отображения
-                      // Сохраняем флаг загрузки метаданных (если он есть)
-                      isLoadingMetadata: file.isLoadingMetadata ?? false,
-                    };
-                  },
-                );
+                  return {
+                    ...file,
+                    lastCheckedAt: now,
+                    isIncluded: false, // По умолчанию файлы не включены в таймлайн
+                    probeData, // Сохраняем probeData для отображения
+                    // Сохраняем флаг загрузки метаданных (если он есть)
+                    isLoadingMetadata: file.isLoadingMetadata ?? false,
+                  }
+                })
 
-                console.log(
-                  `Добавлено ${newFilesWithMetadata.length} новых файлов`,
-                );
+                console.log(`Добавлено ${newFilesWithMetadata.length} новых файлов`)
 
                 // Объединяем обновленные и новые файлы
-                return [...updatedFiles, ...newFilesWithMetadata];
+                return [...updatedFiles, ...newFilesWithMetadata]
               },
             }),
           ],
@@ -259,9 +240,7 @@ export const mediaMachine = createMachine({
           actions: [
             assign({
               allMediaFiles: ({ context, event }) =>
-                context.allMediaFiles.filter(
-                  (f) => !event.files.some((e: MediaFile) => e.path === f.path),
-                ),
+                context.allMediaFiles.filter((f) => !event.files.some((e: MediaFile) => e.path === f.path)),
             }),
           ],
         },
@@ -269,17 +248,15 @@ export const mediaMachine = createMachine({
           actions: [
             assign({
               allMediaFiles: ({ context, event }) => {
-                const now = Date.now();
+                const now = Date.now()
                 return context.allMediaFiles.map((file) => {
-                  const isInEventFiles = event.files.some(
-                    (f: MediaFile) => f.path === file.path,
-                  );
+                  const isInEventFiles = event.files.some((f: MediaFile) => f.path === file.path)
                   return {
                     ...file,
                     isIncluded: isInEventFiles,
                     lastCheckedAt: now, // Обновляем временную метку
-                  };
-                });
+                  }
+                })
               },
             }),
           ],
@@ -288,20 +265,18 @@ export const mediaMachine = createMachine({
           actions: [
             assign({
               allMediaFiles: ({ context, event }) => {
-                const now = Date.now();
+                const now = Date.now()
                 return context.allMediaFiles.map((file) => {
-                  const isInEventFiles = event.files.some(
-                    (f: MediaFile) => f.path === file.path,
-                  );
+                  const isInEventFiles = event.files.some((f: MediaFile) => f.path === file.path)
                   if (isInEventFiles) {
                     return {
                       ...file,
                       isUnavailable: true,
                       lastCheckedAt: now, // Обновляем временную метку
-                    };
+                    }
                   }
-                  return file;
-                });
+                  return file
+                })
               },
             }),
           ],
@@ -314,64 +289,57 @@ export const mediaMachine = createMachine({
         ADD_TO_FAVORITES: {
           actions: assign({
             favorites: ({ context, event }) => {
-              const { item, itemType } = event;
-              const currentFavorites = { ...context.favorites };
+              const { item, itemType } = event
+              const currentFavorites = { ...context.favorites }
 
               // Создаем массив, если его еще нет
               if (!currentFavorites[itemType]) {
-                currentFavorites[itemType] = [];
+                currentFavorites[itemType] = []
               }
 
               // Проверяем, есть ли уже такой элемент в избранном
-              const isAlreadyFavorite = currentFavorites[itemType].some(
-                (favItem: any) => favItem.id === item.id,
-              );
+              const isAlreadyFavorite = currentFavorites[itemType].some((favItem: any) => favItem.id === item.id)
 
               // Если элемента еще нет в избранном, добавляем его
               if (!isAlreadyFavorite) {
-                currentFavorites[itemType] = [
-                  ...currentFavorites[itemType],
-                  item,
-                ];
+                currentFavorites[itemType] = [...currentFavorites[itemType], item]
               }
 
-              return currentFavorites;
+              return currentFavorites
             },
           }),
         },
         REMOVE_FROM_FAVORITES: {
           actions: assign({
             favorites: ({ context, event }) => {
-              const { item, itemType } = event;
-              const currentFavorites = { ...context.favorites };
+              const { item, itemType } = event
+              const currentFavorites = { ...context.favorites }
 
               // Если массив существует, удаляем элемент
               if (currentFavorites[itemType]) {
-                currentFavorites[itemType] = currentFavorites[itemType].filter(
-                  (favItem: any) => favItem.id !== item.id,
-                );
+                currentFavorites[itemType] = currentFavorites[itemType].filter((favItem: any) => favItem.id !== item.id)
               }
 
-              return currentFavorites;
+              return currentFavorites
             },
           }),
         },
         CLEAR_FAVORITES: {
           actions: assign({
             favorites: ({ context, event }) => {
-              const currentFavorites = { ...context.favorites };
+              const currentFavorites = { ...context.favorites }
 
               // Если указан тип, очищаем только его
               if (event.itemType) {
-                currentFavorites[event.itemType] = [];
+                currentFavorites[event.itemType] = []
               } else {
                 // Иначе очищаем все типы
                 Object.keys(currentFavorites).forEach((key) => {
-                  currentFavorites[key] = [];
-                });
+                  currentFavorites[key] = []
+                })
               }
 
-              return currentFavorites;
+              return currentFavorites
             },
           }),
         },
@@ -387,28 +355,23 @@ export const mediaMachine = createMachine({
         ADD_TO_FAVORITES: {
           actions: assign({
             favorites: ({ context, event }) => {
-              const { item, itemType } = event;
-              const currentFavorites = { ...context.favorites };
+              const { item, itemType } = event
+              const currentFavorites = { ...context.favorites }
 
               // Создаем массив, если его еще нет
               if (!currentFavorites[itemType]) {
-                currentFavorites[itemType] = [];
+                currentFavorites[itemType] = []
               }
 
               // Проверяем, есть ли уже такой элемент в избранном
-              const isAlreadyFavorite = currentFavorites[itemType].some(
-                (favItem: any) => favItem.id === item.id,
-              );
+              const isAlreadyFavorite = currentFavorites[itemType].some((favItem: any) => favItem.id === item.id)
 
               // Если элемента еще нет в избранном, добавляем его
               if (!isAlreadyFavorite) {
-                currentFavorites[itemType] = [
-                  ...currentFavorites[itemType],
-                  item,
-                ];
+                currentFavorites[itemType] = [...currentFavorites[itemType], item]
               }
 
-              return currentFavorites;
+              return currentFavorites
             },
           }),
         },
@@ -416,17 +379,15 @@ export const mediaMachine = createMachine({
         REMOVE_FROM_FAVORITES: {
           actions: assign({
             favorites: ({ context, event }) => {
-              const { item, itemType } = event;
-              const currentFavorites = { ...context.favorites };
+              const { item, itemType } = event
+              const currentFavorites = { ...context.favorites }
 
               // Если массив существует, удаляем элемент
               if (currentFavorites[itemType]) {
-                currentFavorites[itemType] = currentFavorites[itemType].filter(
-                  (favItem: any) => favItem.id !== item.id,
-                );
+                currentFavorites[itemType] = currentFavorites[itemType].filter((favItem: any) => favItem.id !== item.id)
               }
 
-              return currentFavorites;
+              return currentFavorites
             },
           }),
         },
@@ -434,19 +395,19 @@ export const mediaMachine = createMachine({
         CLEAR_FAVORITES: {
           actions: assign({
             favorites: ({ context, event }) => {
-              const currentFavorites = { ...context.favorites };
+              const currentFavorites = { ...context.favorites }
 
               // Если указан тип, очищаем только его
               if (event.itemType) {
-                currentFavorites[event.itemType] = [];
+                currentFavorites[event.itemType] = []
               } else {
                 // Иначе очищаем все типы
                 Object.keys(currentFavorites).forEach((key) => {
-                  currentFavorites[key] = [];
-                });
+                  currentFavorites[key] = []
+                })
               }
 
-              return currentFavorites;
+              return currentFavorites
             },
           }),
         },
@@ -457,18 +418,16 @@ export const mediaMachine = createMachine({
             assign({
               allMediaFiles: ({ context, event }) => {
                 return context.allMediaFiles.map((file) => {
-                  const isInEventFiles = event.files.some(
-                    (f: MediaFile) => f.path === file.path,
-                  );
+                  const isInEventFiles = event.files.some((f: MediaFile) => f.path === file.path)
                   if (isInEventFiles) {
                     return {
                       ...file,
                       isIncluded: true,
                       lastCheckedAt: Date.now(),
-                    };
+                    }
                   }
-                  return file;
-                });
+                  return file
+                })
               },
             }),
           ],
@@ -484,10 +443,10 @@ export const mediaMachine = createMachine({
                       ...file,
                       isIncluded: false,
                       lastCheckedAt: Date.now(),
-                    };
+                    }
                   }
-                  return file;
-                });
+                  return file
+                })
               },
             }),
           ],
@@ -497,14 +456,14 @@ export const mediaMachine = createMachine({
           actions: [
             assign({
               allMediaFiles: ({ context }) => {
-                const now = Date.now();
+                const now = Date.now()
                 return context.allMediaFiles.map((file) => {
                   return {
                     ...file,
                     isIncluded: false,
                     lastCheckedAt: now,
-                  };
-                });
+                  }
+                })
               },
             }),
           ],
@@ -520,4 +479,4 @@ export const mediaMachine = createMachine({
       },
     },
   },
-});
+})

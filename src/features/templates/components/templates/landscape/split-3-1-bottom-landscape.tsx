@@ -1,36 +1,28 @@
-import React from "react";
+import React from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
-import { VideoPanelComponent } from "../../video-panel-component";
-import { TemplateProps } from "../types";
+import { VideoPanelComponent } from "../../video-panel-component"
+import { TemplateProps } from "../types"
 
 /**
  * Шаблон "3 сверху + 1 снизу" - ландшафтный формат
  * ID: split-3-1-bottom-landscape
  */
-export function Split31BottomLandscape({
-  videos,
-  activeVideoId,
-  videoRefs,
-  isResizable = true,
-}: TemplateProps) {
+export function Split31BottomLandscape({ videos, activeVideoId, videoRefs, isResizable = true }: TemplateProps) {
   // Проверяем, что у нас есть видео с путями
-  const validVideos = videos.filter((v) => v?.path);
-  const videoCount = Math.min(validVideos.length, 4);
+  const validVideos = videos.filter((v) => v?.path)
+  const videoCount = Math.min(validVideos.length, 4)
 
   // Если недостаточно видео, возвращаем пустой div
   if (videoCount < 4) {
-    return <div className="h-full w-full bg-black" />;
+    return <div className="h-full w-full bg-black" />
   }
 
   // Рендеринг в режиме без возможности изменения размеров
   if (!isResizable) {
     return (
-      <div
-        className="flex h-full w-full flex-col"
-        style={{ border: "1px solid #35d1c1" }}
-      >
+      <div className="flex h-full w-full flex-col" style={{ border: "1px solid #35d1c1" }}>
         {/* Верхняя секция (3 маленьких видео) */}
         <div className="flex h-1/2 w-full">
           {/* Левое видео */}
@@ -83,15 +75,12 @@ export function Split31BottomLandscape({
           />
         </div>
       </div>
-    );
+    )
   }
 
   // Рендеринг в режиме с возможностью изменения размеров
   return (
-    <div
-      className="h-full w-full"
-      style={{ overflow: "visible", border: "1px solid #35d1c1" }}
-    >
+    <div className="h-full w-full" style={{ overflow: "visible", border: "1px solid #35d1c1" }}>
       <PanelGroup direction="vertical">
         {/* Верхняя секция (3 маленьких видео) */}
         <Panel defaultSize={50} minSize={20}>
@@ -139,5 +128,5 @@ export function Split31BottomLandscape({
         </Panel>
       </PanelGroup>
     </div>
-  );
+  )
 }

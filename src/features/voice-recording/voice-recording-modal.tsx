@@ -198,10 +198,7 @@ export function VoiceRecordModal() {
                   {formatTime(recordingTime)}
                 </div>
                 <div className="mt-2 h-2 w-full bg-gray-700">
-                  <div
-                    className="h-2 bg-red-600"
-                    style={{ width: `${Math.min(100, (recordingTime / 300) * 100)}%` }}
-                  ></div>
+                  <div className="h-2 bg-red-600" style={{ width: `${Math.min(100, (recordingTime / 300) * 100)}%` }} />
                 </div>
               </div>
             )}

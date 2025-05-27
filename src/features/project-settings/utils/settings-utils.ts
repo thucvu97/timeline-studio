@@ -2,9 +2,9 @@
  * Утилиты для работы с настройками проекта
  */
 
-import type { ProjectSettings } from "@/types/project";
+import type { ProjectSettings } from "@/types/project"
 
-import { calculateHeightFromWidth, calculateWidthFromHeight } from "./aspect-ratio-utils";
+import { calculateHeightFromWidth, calculateWidthFromHeight } from "./aspect-ratio-utils"
 
 /**
  * Обновляет настройки проекта с новой шириной, сохраняя соотношение сторон при необходимости
@@ -19,15 +19,15 @@ export function updateSettingsWithNewWidth(
   settings: ProjectSettings,
   newWidth: number,
   currentHeight: number,
-  aspectRatioLocked: boolean
+  aspectRatioLocked: boolean,
 ): ProjectSettings {
   if (aspectRatioLocked) {
     // Вычисляем текущее соотношение сторон
-    const aspectRatio = settings.aspectRatio.value.width / settings.aspectRatio.value.height;
-    
+    const aspectRatio = settings.aspectRatio.value.width / settings.aspectRatio.value.height
+
     // Вычисляем новую высоту на основе соотношения сторон
-    const newHeight = calculateHeightFromWidth(newWidth, aspectRatio);
-    
+    const newHeight = calculateHeightFromWidth(newWidth, aspectRatio)
+
     return {
       ...settings,
       aspectRatio: {
@@ -39,20 +39,19 @@ export function updateSettingsWithNewWidth(
         },
       },
       resolution: `${newWidth}x${newHeight}`,
-    };
-  } else {
-    // Если соотношение сторон не заблокировано, просто обновляем ширину
-    return {
-      ...settings,
-      aspectRatio: {
-        ...settings.aspectRatio,
-        value: {
-          ...settings.aspectRatio.value,
-          width: newWidth,
-        },
+    }
+  }
+  // Если соотношение сторон не заблокировано, просто обновляем ширину
+  return {
+    ...settings,
+    aspectRatio: {
+      ...settings.aspectRatio,
+      value: {
+        ...settings.aspectRatio.value,
+        width: newWidth,
       },
-      resolution: `${newWidth}x${currentHeight}`,
-    };
+    },
+    resolution: `${newWidth}x${currentHeight}`,
   }
 }
 
@@ -69,15 +68,15 @@ export function updateSettingsWithNewHeight(
   settings: ProjectSettings,
   currentWidth: number,
   newHeight: number,
-  aspectRatioLocked: boolean
+  aspectRatioLocked: boolean,
 ): ProjectSettings {
   if (aspectRatioLocked) {
     // Вычисляем текущее соотношение сторон
-    const aspectRatio = settings.aspectRatio.value.width / settings.aspectRatio.value.height;
-    
+    const aspectRatio = settings.aspectRatio.value.width / settings.aspectRatio.value.height
+
     // Вычисляем новую ширину на основе соотношения сторон
-    const newWidth = calculateWidthFromHeight(newHeight, aspectRatio);
-    
+    const newWidth = calculateWidthFromHeight(newHeight, aspectRatio)
+
     return {
       ...settings,
       aspectRatio: {
@@ -89,20 +88,19 @@ export function updateSettingsWithNewHeight(
         },
       },
       resolution: `${newWidth}x${newHeight}`,
-    };
-  } else {
-    // Если соотношение сторон не заблокировано, просто обновляем высоту
-    return {
-      ...settings,
-      aspectRatio: {
-        ...settings.aspectRatio,
-        value: {
-          ...settings.aspectRatio.value,
-          height: newHeight,
-        },
+    }
+  }
+  // Если соотношение сторон не заблокировано, просто обновляем высоту
+  return {
+    ...settings,
+    aspectRatio: {
+      ...settings.aspectRatio,
+      value: {
+        ...settings.aspectRatio.value,
+        height: newHeight,
       },
-      resolution: `${currentWidth}x${newHeight}`,
-    };
+    },
+    resolution: `${currentWidth}x${newHeight}`,
   }
 }
 
@@ -123,13 +121,13 @@ export function createSettingsWithNewAspectRatio(
   resolutionValue: string,
   recommendedResolution: any,
   customWidth: number,
-  customHeight: number
+  customHeight: number,
 ): ProjectSettings {
   const newSettings = {
     ...settings,
     aspectRatio: newAspectRatio,
     resolution: resolutionValue === "custom" ? "custom" : recommendedResolution.value,
-  };
+  }
 
   if (resolutionValue === "custom") {
     // Для пользовательского соотношения используем текущие значения ширины и высоты
@@ -140,7 +138,7 @@ export function createSettingsWithNewAspectRatio(
         width: customWidth,
         height: customHeight,
       },
-    };
+    }
   } else {
     // Для стандартных соотношений используем рекомендуемое разрешение
     newSettings.aspectRatio = {
@@ -150,10 +148,10 @@ export function createSettingsWithNewAspectRatio(
         width: recommendedResolution.width,
         height: recommendedResolution.height,
       },
-    };
+    }
   }
 
-  return newSettings;
+  return newSettings
 }
 
 /**
@@ -162,7 +160,7 @@ export function createSettingsWithNewAspectRatio(
 export function triggerWindowResize(): void {
   setTimeout(() => {
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("resize"));
+      window.dispatchEvent(new Event("resize"))
     }
-  }, 50);
+  }, 50)
 }
