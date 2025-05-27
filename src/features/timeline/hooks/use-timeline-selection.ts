@@ -2,84 +2,88 @@
  * Hook for managing Timeline selection
  */
 
-import { useMemo } from "react"
+import { useMemo } from "react";
 
-import {
-  TimelineClip,
-  TimelineSection,
-  TimelineTrack
-} from "@/types/timeline"
+import { TimelineClip, TimelineSection, TimelineTrack } from "@/types/timeline";
 
-import { useTimeline } from "../timeline-provider"
-import { useClips } from "./use-clips"
-import { useTracks } from "./use-tracks"
+import { useTimeline } from "../timeline-provider";
+import { useClips } from "./use-clips";
+import { useTracks } from "./use-tracks";
 
 export interface UseTimelineSelectionReturn {
   // Текущее выделение
-  selectedClips: TimelineClip[]
-  selectedTracks: TimelineTrack[]
-  selectedSections: TimelineSection[]
+  selectedClips: TimelineClip[];
+  selectedTracks: TimelineTrack[];
+  selectedSections: TimelineSection[];
 
   // Состояние выделения
-  hasSelection: boolean
+  hasSelection: boolean;
   selectionCount: {
-    clips: number
-    tracks: number
-    sections: number
-    total: number
-  }
+    clips: number;
+    tracks: number;
+    sections: number;
+    total: number;
+  };
 
   // Информация о выделении
   selectionBounds: {
-    startTime: number
-    endTime: number
-    duration: number
-    trackIds: string[]
-  } | null
+    startTime: number;
+    endTime: number;
+    duration: number;
+    trackIds: string[];
+  } | null;
 
   // Действия с выделением
-  selectClip: (clipId: string, addToSelection?: boolean) => void
-  selectTrack: (trackId: string, addToSelection?: boolean) => void
-  selectSection: (sectionId: string, addToSelection?: boolean) => void
-  selectMultiple: (items: { clipIds?: string[]; trackIds?: string[]; sectionIds?: string[] }) => void
-  selectAll: () => void
-  selectNone: () => void
-  invertSelection: () => void
+  selectClip: (clipId: string, addToSelection?: boolean) => void;
+  selectTrack: (trackId: string, addToSelection?: boolean) => void;
+  selectSection: (sectionId: string, addToSelection?: boolean) => void;
+  selectMultiple: (items: {
+    clipIds?: string[];
+    trackIds?: string[];
+    sectionIds?: string[];
+  }) => void;
+  selectAll: () => void;
+  selectNone: () => void;
+  invertSelection: () => void;
 
   // Выделение по области
-  selectInTimeRange: (startTime: number, endTime: number, trackIds?: string[]) => void
-  selectByType: (trackType: string) => void
+  selectInTimeRange: (
+    startTime: number,
+    endTime: number,
+    trackIds?: string[],
+  ) => void;
+  selectByType: (trackType: string) => void;
 
   // Операции с выделенными элементами
-  deleteSelected: () => void
-  duplicateSelected: () => void
-  groupSelected: () => void
-  ungroupSelected: () => void
+  deleteSelected: () => void;
+  duplicateSelected: () => void;
+  groupSelected: () => void;
+  ungroupSelected: () => void;
 
   // Свойства выделенных элементов
-  setSelectedVolume: (volume: number) => void
-  setSelectedSpeed: (speed: number) => void
-  setSelectedOpacity: (opacity: number) => void
-  muteSelected: () => void
-  unmuteSelected: () => void
-  lockSelected: () => void
-  unlockSelected: () => void
+  setSelectedVolume: (volume: number) => void;
+  setSelectedSpeed: (speed: number) => void;
+  setSelectedOpacity: (opacity: number) => void;
+  muteSelected: () => void;
+  unmuteSelected: () => void;
+  lockSelected: () => void;
+  unlockSelected: () => void;
 
   // Буфер обмена
-  copySelected: () => void
-  cutSelected: () => void
-  pasteAtTime: (time: number, trackId?: string) => void
+  copySelected: () => void;
+  cutSelected: () => void;
+  pasteAtTime: (time: number, trackId?: string) => void;
 
   // Утилиты
-  isClipSelected: (clipId: string) => boolean
-  isTrackSelected: (trackId: string) => boolean
-  isSectionSelected: (sectionId: string) => boolean
+  isClipSelected: (clipId: string) => boolean;
+  isTrackSelected: (trackId: string) => boolean;
+  isSectionSelected: (sectionId: string) => boolean;
   getSelectionStats: () => {
-    totalDuration: number
-    averageVolume: number
-    trackTypes: string[]
-    mediaTypes: string[]
-  }
+    totalDuration: number;
+    averageVolume: number;
+    trackTypes: string[];
+    mediaTypes: string[];
+  };
 }
 
 export function useTimelineSelection(): UseTimelineSelectionReturn {
@@ -94,59 +98,69 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
     updateClip,
     copySelection,
     cutSelection,
-    paste
-  } = useTimeline()
+    paste,
+  } = useTimeline();
 
-  const { tracks, findTrack } = useTracks()
-  const { clips, findClip, duplicateClip } = useClips()
+  const { tracks, findTrack } = useTracks();
+  const { clips, findClip, duplicateClip } = useClips();
 
   // ============================================================================
   // COMPUTED VALUES
   // ============================================================================
 
   const selectedClips = useMemo(() => {
-    return clips.filter(clip => uiState.selectedClipIds.includes(clip.id))
-  }, [clips, uiState.selectedClipIds])
+    return clips.filter((clip) => uiState.selectedClipIds.includes(clip.id));
+  }, [clips, uiState.selectedClipIds]);
 
   const selectedTracks = useMemo(() => {
-    return tracks.filter(track => uiState.selectedTrackIds.includes(track.id))
-  }, [tracks, uiState.selectedTrackIds])
+    return tracks.filter((track) =>
+      uiState.selectedTrackIds.includes(track.id),
+    );
+  }, [tracks, uiState.selectedTrackIds]);
 
   const selectedSections = useMemo(() => {
-    if (!project) return []
-    return project.sections.filter(section => uiState.selectedSectionIds.includes(section.id))
-  }, [project, uiState.selectedSectionIds])
+    if (!project) return [];
+    return project.sections.filter((section) =>
+      uiState.selectedSectionIds.includes(section.id),
+    );
+  }, [project, uiState.selectedSectionIds]);
 
   const hasSelection = useMemo(() => {
-    return selectedClips.length > 0 || selectedTracks.length > 0 || selectedSections.length > 0
-  }, [selectedClips, selectedTracks, selectedSections])
+    return (
+      selectedClips.length > 0 ||
+      selectedTracks.length > 0 ||
+      selectedSections.length > 0
+    );
+  }, [selectedClips, selectedTracks, selectedSections]);
 
   const selectionCount = useMemo(() => {
-    const clips = selectedClips.length
-    const tracks = selectedTracks.length
-    const sections = selectedSections.length
+    const clips = selectedClips.length;
+    const tracks = selectedTracks.length;
+    const sections = selectedSections.length;
     return {
       clips,
       tracks,
       sections,
-      total: clips + tracks + sections
-    }
-  }, [selectedClips, selectedTracks, selectedSections])
+      total: clips + tracks + sections,
+    };
+  }, [selectedClips, selectedTracks, selectedSections]);
 
   const selectionBounds = useMemo(() => {
-    if (selectedClips.length === 0) return null
+    if (selectedClips.length === 0) return null;
 
-    const startTime = Math.min(...selectedClips.map(clip => clip.startTime))
-    const endTime = Math.max(...selectedClips.map(clip => clip.startTime + clip.duration))
-    const trackIds = [...new Set(selectedClips.map(clip => clip.trackId))]
+    const startTime = Math.min(...selectedClips.map((clip) => clip.startTime));
+    const endTime = Math.max(
+      ...selectedClips.map((clip) => clip.startTime + clip.duration),
+    );
+    const trackIds = [...new Set(selectedClips.map((clip) => clip.trackId))];
 
     return {
       startTime,
       endTime,
       duration: endTime - startTime,
-      trackIds
-    }
-  }, [selectedClips])
+      trackIds,
+    };
+  }, [selectedClips]);
 
   // ============================================================================
   // SELECTION ACTIONS
@@ -154,214 +168,237 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const selectClip = (clipId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = uiState.selectedClipIds
+      const currentIds = uiState.selectedClipIds;
       const newIds = currentIds.includes(clipId)
-        ? currentIds.filter(id => id !== clipId)
-        : [...currentIds, clipId]
-      selectClips(newIds)
+        ? currentIds.filter((id) => id !== clipId)
+        : [...currentIds, clipId];
+      selectClips(newIds);
     } else {
-      selectClips([clipId])
+      selectClips([clipId]);
     }
-  }
+  };
 
   const selectTrack = (trackId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = uiState.selectedTrackIds
+      const currentIds = uiState.selectedTrackIds;
       const newIds = currentIds.includes(trackId)
-        ? currentIds.filter(id => id !== trackId)
-        : [...currentIds, trackId]
-      selectTracks(newIds)
+        ? currentIds.filter((id) => id !== trackId)
+        : [...currentIds, trackId];
+      selectTracks(newIds);
     } else {
-      selectTracks([trackId])
+      selectTracks([trackId]);
     }
-  }
+  };
 
   const selectSection = (sectionId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = uiState.selectedSectionIds
+      const currentIds = uiState.selectedSectionIds;
       const newIds = currentIds.includes(sectionId)
-        ? currentIds.filter(id => id !== sectionId)
-        : [...currentIds, sectionId]
-      selectSections(newIds)
+        ? currentIds.filter((id) => id !== sectionId)
+        : [...currentIds, sectionId];
+      selectSections(newIds);
     } else {
-      selectSections([sectionId])
+      selectSections([sectionId]);
     }
-  }
+  };
 
-  const selectMultiple = (items: { clipIds?: string[]; trackIds?: string[]; sectionIds?: string[] }) => {
-    if (items.clipIds) selectClips(items.clipIds)
-    if (items.trackIds) selectTracks(items.trackIds)
-    if (items.sectionIds) selectSections(items.sectionIds)
-  }
+  const selectMultiple = (items: {
+    clipIds?: string[];
+    trackIds?: string[];
+    sectionIds?: string[];
+  }) => {
+    if (items.clipIds) selectClips(items.clipIds);
+    if (items.trackIds) selectTracks(items.trackIds);
+    if (items.sectionIds) selectSections(items.sectionIds);
+  };
 
   const selectAll = () => {
-    selectClips(clips.map(clip => clip.id))
-  }
+    selectClips(clips.map((clip) => clip.id));
+  };
 
   const selectNone = () => {
-    clearSelection()
-  }
+    clearSelection();
+  };
 
   const invertSelection = () => {
-    const allClipIds = clips.map(clip => clip.id)
-    const currentSelection = uiState.selectedClipIds
-    const newSelection = allClipIds.filter(id => !currentSelection.includes(id))
-    selectClips(newSelection)
-  }
+    const allClipIds = clips.map((clip) => clip.id);
+    const currentSelection = uiState.selectedClipIds;
+    const newSelection = allClipIds.filter(
+      (id) => !currentSelection.includes(id),
+    );
+    selectClips(newSelection);
+  };
 
   // ============================================================================
   // AREA SELECTION
   // ============================================================================
 
-  const selectInTimeRange = (startTime: number, endTime: number, trackIds?: string[]) => {
-    const targetTracks = trackIds || tracks.map(t => t.id)
-    const clipsInRange = clips.filter(clip => {
-      if (!targetTracks.includes(clip.trackId)) return false
+  const selectInTimeRange = (
+    startTime: number,
+    endTime: number,
+    trackIds?: string[],
+  ) => {
+    const targetTracks = trackIds || tracks.map((t) => t.id);
+    const clipsInRange = clips.filter((clip) => {
+      if (!targetTracks.includes(clip.trackId)) return false;
 
-      const clipEndTime = clip.startTime + clip.duration
-      return !(clipEndTime <= startTime || clip.startTime >= endTime)
-    })
+      const clipEndTime = clip.startTime + clip.duration;
+      return !(clipEndTime <= startTime || clip.startTime >= endTime);
+    });
 
-    selectClips(clipsInRange.map(clip => clip.id))
-  }
+    selectClips(clipsInRange.map((clip) => clip.id));
+  };
 
   const selectByType = (trackType: string) => {
-    const tracksOfType = tracks.filter(track => track.type === trackType)
-    const clipsOfType = clips.filter(clip =>
-      tracksOfType.some(track => track.id === clip.trackId)
-    )
-    selectClips(clipsOfType.map(clip => clip.id))
-  }
+    const tracksOfType = tracks.filter((track) => track.type === trackType);
+    const clipsOfType = clips.filter((clip) =>
+      tracksOfType.some((track) => track.id === clip.trackId),
+    );
+    selectClips(clipsOfType.map((clip) => clip.id));
+  };
 
   // ============================================================================
   // OPERATIONS ON SELECTED
   // ============================================================================
 
   const deleteSelected = () => {
-    selectedClips.forEach(clip => removeClip(clip.id))
-    clearSelection()
-  }
+    selectedClips.forEach((clip) => removeClip(clip.id));
+    clearSelection();
+  };
 
   const duplicateSelected = () => {
-    selectedClips.forEach(clip => {
-      duplicateClip(clip.id)
-    })
-  }
+    selectedClips.forEach((clip) => {
+      duplicateClip(clip.id);
+    });
+  };
 
   const groupSelected = () => {
     // TODO: Implement grouping functionality
-    console.log("Grouping selected items...")
-  }
+    console.log("Grouping selected items...");
+  };
 
   const ungroupSelected = () => {
     // TODO: Implement ungrouping functionality
-    console.log("Ungrouping selected items...")
-  }
+    console.log("Ungrouping selected items...");
+  };
 
   // ============================================================================
   // PROPERTIES OF SELECTED
   // ============================================================================
 
   const setSelectedVolume = (volume: number) => {
-    selectedClips.forEach(clip => {
-      updateClip(clip.id, { volume })
-    })
-  }
+    selectedClips.forEach((clip) => {
+      updateClip(clip.id, { volume });
+    });
+  };
 
   const setSelectedSpeed = (speed: number) => {
-    selectedClips.forEach(clip => {
-      updateClip(clip.id, { speed })
-    })
-  }
+    selectedClips.forEach((clip) => {
+      updateClip(clip.id, { speed });
+    });
+  };
 
   const setSelectedOpacity = (opacity: number) => {
-    selectedClips.forEach(clip => {
-      updateClip(clip.id, { opacity })
-    })
-  }
+    selectedClips.forEach((clip) => {
+      updateClip(clip.id, { opacity });
+    });
+  };
 
   const muteSelected = () => {
-    selectedClips.forEach(clip => {
-      updateClip(clip.id, { volume: 0 })
-    })
-  }
+    selectedClips.forEach((clip) => {
+      updateClip(clip.id, { volume: 0 });
+    });
+  };
 
   const unmuteSelected = () => {
-    selectedClips.forEach(clip => {
-      updateClip(clip.id, { volume: 1 })
-    })
-  }
+    selectedClips.forEach((clip) => {
+      updateClip(clip.id, { volume: 1 });
+    });
+  };
 
   const lockSelected = () => {
-    selectedClips.forEach(clip => {
-      updateClip(clip.id, { isLocked: true })
-    })
-  }
+    selectedClips.forEach((clip) => {
+      updateClip(clip.id, { isLocked: true });
+    });
+  };
 
   const unlockSelected = () => {
-    selectedClips.forEach(clip => {
-      updateClip(clip.id, { isLocked: false })
-    })
-  }
+    selectedClips.forEach((clip) => {
+      updateClip(clip.id, { isLocked: false });
+    });
+  };
 
   // ============================================================================
   // CLIPBOARD OPERATIONS
   // ============================================================================
 
   const copySelected = () => {
-    copySelection()
-  }
+    copySelection();
+  };
 
   const cutSelected = () => {
-    cutSelection()
-  }
+    cutSelection();
+  };
 
   const pasteAtTime = (time: number, trackId?: string) => {
-    paste(trackId, time)
-  }
+    paste(trackId, time);
+  };
 
   // ============================================================================
   // UTILITIES
   // ============================================================================
 
   const isClipSelected = (clipId: string): boolean => {
-    return uiState.selectedClipIds.includes(clipId)
-  }
+    return uiState.selectedClipIds.includes(clipId);
+  };
 
   const isTrackSelected = (trackId: string): boolean => {
-    return uiState.selectedTrackIds.includes(trackId)
-  }
+    return uiState.selectedTrackIds.includes(trackId);
+  };
 
   const isSectionSelected = (sectionId: string): boolean => {
-    return uiState.selectedSectionIds.includes(sectionId)
-  }
+    return uiState.selectedSectionIds.includes(sectionId);
+  };
 
   const getSelectionStats = () => {
-    const totalDuration = selectedClips.reduce((sum, clip) => sum + clip.duration, 0)
-    const averageVolume = selectedClips.length > 0
-      ? selectedClips.reduce((sum, clip) => sum + clip.volume, 0) / selectedClips.length
-      : 0
+    const totalDuration = selectedClips.reduce(
+      (sum, clip) => sum + clip.duration,
+      0,
+    );
+    const averageVolume =
+      selectedClips.length > 0
+        ? selectedClips.reduce((sum, clip) => sum + clip.volume, 0) /
+          selectedClips.length
+        : 0;
 
-    const trackTypes = [...new Set(selectedClips.map(clip => {
-      const track = findTrack(clip.trackId)
-      return track?.type || 'unknown'
-    }))]
+    const trackTypes = [
+      ...new Set(
+        selectedClips.map((clip) => {
+          const track = findTrack(clip.trackId);
+          return track?.type || "unknown";
+        }),
+      ),
+    ];
 
-    const mediaTypes = [...new Set(selectedClips.map(clip => {
-      const mediaFile = clip.mediaFile
-      if (mediaFile?.isVideo) return 'video'
-      if (mediaFile?.isAudio) return 'audio'
-      if (mediaFile?.isImage) return 'image'
-      return 'unknown'
-    }))]
+    const mediaTypes = [
+      ...new Set(
+        selectedClips.map((clip) => {
+          const mediaFile = clip.mediaFile;
+          if (mediaFile?.isVideo) return "video";
+          if (mediaFile?.isAudio) return "audio";
+          if (mediaFile?.isImage) return "image";
+          return "unknown";
+        }),
+      ),
+    ];
 
     return {
       totalDuration,
       averageVolume,
       trackTypes,
-      mediaTypes
-    }
-  }
+      mediaTypes,
+    };
+  };
 
   // ============================================================================
   // RETURN VALUE
@@ -415,6 +452,6 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
     isClipSelected,
     isTrackSelected,
     isSectionSelected,
-    getSelectionStats
-  }
+    getSelectionStats,
+  };
 }

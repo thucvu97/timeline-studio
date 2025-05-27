@@ -110,7 +110,9 @@ describe("MusicList", () => {
 
     // Проверяем сообщение об отсутствии файлов
     expect(screen.getByTestId("no-files")).toBeInTheDocument();
-    expect(screen.getByText("Музыкальные файлы не найдены")).toBeInTheDocument();
+    expect(
+      screen.getByText("Музыкальные файлы не найдены"),
+    ).toBeInTheDocument();
   });
 
   it("should render music list structure", () => {
@@ -152,7 +154,9 @@ describe("MusicList", () => {
     render(<MusicList />);
 
     // Проверяем правильное отображение пустого состояния
-    expect(screen.getByText("Музыкальные файлы не найдены")).toBeInTheDocument();
+    expect(
+      screen.getByText("Музыкальные файлы не найдены"),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("music-list-loading")).not.toBeInTheDocument();
   });
 });

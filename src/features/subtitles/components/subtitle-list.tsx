@@ -74,11 +74,21 @@ export function SubtitleList() {
       const matchesSearch =
         !searchQuery ||
         style.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (style.labels?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (style.labels?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (style.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (style.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (style.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        (style.labels?.ru || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (style.labels?.en || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (style.description?.ru || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (style.description?.en || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (style.tags || []).some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
 
       // Фильтрация по избранному
       const matchesFavorites =
@@ -98,7 +108,16 @@ export function SubtitleList() {
         }
 
         // Фильтрация по категории
-        if (["basic", "cinematic", "stylized", "minimal", "animated", "modern"].includes(filterType)) {
+        if (
+          [
+            "basic",
+            "cinematic",
+            "stylized",
+            "minimal",
+            "animated",
+            "modern",
+          ].includes(filterType)
+        ) {
           return style.category === filterType;
         }
 
@@ -140,7 +159,15 @@ export function SubtitleList() {
     });
 
     return filtered;
-  }, [subtitles, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media]);
+  }, [
+    subtitles,
+    searchQuery,
+    showFavoritesOnly,
+    filterType,
+    sortBy,
+    sortOrder,
+    media,
+  ]);
 
   /**
    * Группировка стилей субтитров по выбранному критерию
@@ -163,7 +190,8 @@ export function SubtitleList() {
           groupKey = style.complexity || "basic";
           break;
         case "tags":
-          groupKey = (style.tags && style.tags.length > 0) ? style.tags[0] : "untagged";
+          groupKey =
+            style.tags && style.tags.length > 0 ? style.tags[0] : "untagged";
           break;
         default:
           groupKey = "ungrouped";
@@ -176,25 +204,30 @@ export function SubtitleList() {
     });
 
     // Преобразуем в массив групп с переводами заголовков
-    return Object.entries(groups).map(([key, styles]) => {
-      let title = "";
+    return Object.entries(groups)
+      .map(([key, styles]) => {
+        let title = "";
 
-      switch (groupBy) {
-        case "category":
-          title = t(`subtitles.categories.${key}`, key);
-          break;
-        case "complexity":
-          title = t(`subtitles.complexity.${key}`, key);
-          break;
-        case "tags":
-          title = key === "untagged" ? t("subtitles.styles.allTags", "Без тегов") : key;
-          break;
-        default:
-          title = key;
-      }
+        switch (groupBy) {
+          case "category":
+            title = t(`subtitles.categories.${key}`, key);
+            break;
+          case "complexity":
+            title = t(`subtitles.complexity.${key}`, key);
+            break;
+          case "tags":
+            title =
+              key === "untagged"
+                ? t("subtitles.styles.allTags", "Без тегов")
+                : key;
+            break;
+          default:
+            title = key;
+        }
 
-      return { title, styles };
-    }).sort((a, b) => a.title.localeCompare(b.title));
+        return { title, styles };
+      })
+      .sort((a, b) => a.title.localeCompare(b.title));
   }, [processedStyles, groupBy, t]);
 
   /**

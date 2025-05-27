@@ -33,16 +33,16 @@ export const DEFAULT_PREVIEW_SIZE_INDEX = 0; // 100px
  * Предустановленные размеры для быстрого доступа
  */
 export const PREVIEW_SIZE_PRESETS = {
-  SMALL: 100,     // индекс 0 - базовый размер
-  MEDIUM: 150,    // индекс 2
-  LARGE: 250,     // индекс 4
-  XLARGE: 400,    // индекс 6
+  SMALL: 100, // индекс 0 - базовый размер
+  MEDIUM: 150, // индекс 2
+  LARGE: 250, // индекс 4
+  XLARGE: 400, // индекс 6
 } as const;
 
 /**
  * Тип для размеров превью
  */
-export type PreviewSize = typeof PREVIEW_SIZES[number];
+export type PreviewSize = (typeof PREVIEW_SIZES)[number];
 
 /**
  * Ключи для разных типов контента
@@ -61,14 +61,14 @@ export type PreviewSizeKey =
  * Настройки размеров по умолчанию для разных типов контента
  */
 export const DEFAULT_CONTENT_SIZES: Record<PreviewSizeKey, PreviewSize> = {
-  MEDIA: 100,           // Базовый размер для медиа
-  TEMPLATES: 150,       // Больше для шаблонов, чтобы лучше видеть детали
+  MEDIA: 100, // Базовый размер для медиа
+  TEMPLATES: 150, // Больше для шаблонов, чтобы лучше видеть детали
   STYLE_TEMPLATES: 125, // Средний размер для стилевых шаблонов
-  EFFECTS: 100,         // Базовый размер для эффектов
-  FILTERS: 100,         // Базовый размер для фильтров
-  TRANSITIONS: 100,     // Базовый размер для переходов
-  SUBTITLES: 125,       // Чуть больше для субтитров
-  MUSIC: 100,           // Базовый размер для музыки
+  EFFECTS: 100, // Базовый размер для эффектов
+  FILTERS: 100, // Базовый размер для фильтров
+  TRANSITIONS: 100, // Базовый размер для переходов
+  SUBTITLES: 125, // Чуть больше для субтитров
+  MUSIC: 100, // Базовый размер для музыки
 };
 
 /**
@@ -138,7 +138,7 @@ export function getClosestPreviewSize(targetSize: number): PreviewSize {
 export function calculateDimensionsWithAspectRatio(
   baseSize: number,
   aspectRatio: { width: number; height: number },
-  isTemplate = false
+  isTemplate = false,
 ): { width: number; height: number } {
   const ratio = aspectRatio.width / aspectRatio.height;
 
@@ -147,7 +147,9 @@ export function calculateDimensionsWithAspectRatio(
 
   // Для шаблонов устанавливаем минимум 150px по длинному краю
   const minTemplateSize = isTemplate ? 150 : 0;
-  const effectiveSize = isTemplate ? Math.max(baseSize, minTemplateSize) : baseSize;
+  const effectiveSize = isTemplate
+    ? Math.max(baseSize, minTemplateSize)
+    : baseSize;
 
   if (ratio >= 1) {
     // Горизонтальное или квадратное - длинный край это ширина
@@ -167,15 +169,18 @@ export function calculateDimensionsWithAspectRatio(
  */
 export function getOptimalTemplateSize(
   userPreferredSize: PreviewSize,
-  screenCount: number
+  screenCount: number,
 ): PreviewSize {
   // Для шаблонов с большим количеством экранов увеличиваем размер
   let multiplier = 1.0;
 
-  if (screenCount >= 25) multiplier = 1.5;      // 5x5 сетка
-  else if (screenCount >= 16) multiplier = 1.4; // 4x4 сетка
-  else if (screenCount >= 9) multiplier = 1.3;  // 3x3 сетка
-  else if (screenCount >= 4) multiplier = 1.2;  // 2x2 сетка
+  if (screenCount >= 25)
+    multiplier = 1.5; // 5x5 сетка
+  else if (screenCount >= 16)
+    multiplier = 1.4; // 4x4 сетка
+  else if (screenCount >= 9)
+    multiplier = 1.3; // 3x3 сетка
+  else if (screenCount >= 4) multiplier = 1.2; // 2x2 сетка
 
   const targetSize = Math.round(userPreferredSize * multiplier);
   return getClosestPreviewSize(targetSize);
@@ -187,7 +192,7 @@ export function getOptimalTemplateSize(
 export function calculateGridColumns(
   containerWidth: number,
   previewSize: PreviewSize,
-  gap = 16
+  gap = 16,
 ): number {
   const itemWidth = previewSize + gap;
   return Math.max(1, Math.floor(containerWidth / itemWidth));
@@ -199,10 +204,10 @@ export function calculateGridColumns(
 export function getResponsivePreviewSize(
   containerWidth: number,
   preferredSize: PreviewSize,
-  minColumns = 2
+  minColumns = 2,
 ): PreviewSize {
   const gap = 16;
-  const availableWidth = containerWidth - (gap * (minColumns - 1));
+  const availableWidth = containerWidth - gap * (minColumns - 1);
   const maxItemWidth = Math.floor(availableWidth / minColumns);
 
   if (preferredSize <= maxItemWidth) {

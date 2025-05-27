@@ -5,48 +5,48 @@
 /**
  * Размеры превью для разных типов контента
  */
-export type PreviewSize = 'small' | 'medium' | 'large' | 'xlarge';
+export type PreviewSize = "small" | "medium" | "large" | "xlarge";
 
 /**
  * Плотность отображения элементов
  */
-export type DisplayDensity = 'compact' | 'comfortable' | 'spacious';
+export type DisplayDensity = "compact" | "comfortable" | "spacious";
 
 /**
  * Тип макета для отображения
  */
-export type LayoutType = 'grid' | 'list' | 'masonry';
+export type LayoutType = "grid" | "list" | "masonry";
 
 /**
  * Тип контента для настроек
  */
-export type ContentType = 
-  | 'templates' 
-  | 'styleTemplates' 
-  | 'media' 
-  | 'effects' 
-  | 'filters' 
-  | 'transitions' 
-  | 'subtitles' 
-  | 'music';
+export type ContentType =
+  | "templates"
+  | "styleTemplates"
+  | "media"
+  | "effects"
+  | "filters"
+  | "transitions"
+  | "subtitles"
+  | "music";
 
 /**
  * Настройки размеров превью
  */
 export interface PreviewSizeSettings {
-  small: number;    // 80px
-  medium: number;   // 120px
-  large: number;    // 160px
-  xlarge: number;   // 240px
+  small: number; // 80px
+  medium: number; // 120px
+  large: number; // 160px
+  xlarge: number; // 240px
 }
 
 /**
  * Адаптивные точки останова
  */
 export interface ResponsiveBreakpoints {
-  mobile: number;   // 768px
-  tablet: number;   // 1024px
-  desktop: number;  // 1440px
+  mobile: number; // 768px
+  tablet: number; // 1024px
+  desktop: number; // 1440px
 }
 
 /**
@@ -57,7 +57,7 @@ export interface ContentSettings {
   layout: LayoutType;
   showLabels: boolean;
   showMetadata: boolean;
-  gridColumns: 'auto' | number;
+  gridColumns: "auto" | number;
   enableHover: boolean;
   enableSelection: boolean;
   enableDragDrop: boolean;
@@ -92,16 +92,16 @@ export interface PerformanceSettings {
 export interface DisplaySettings {
   // Базовые размеры превью
   previewSizes: PreviewSizeSettings;
-  
+
   // Настройки для разных типов контента
   contentSettings: Record<ContentType, ContentSettings>;
-  
+
   // Настройки экрана
   screenSettings: ScreenSettings;
-  
+
   // Настройки производительности
   performanceSettings: PerformanceSettings;
-  
+
   // Версия настроек для миграции
   version: string;
 }
@@ -111,24 +111,27 @@ export interface DisplaySettings {
  */
 export interface DisplaySettingsContext {
   settings: DisplaySettings;
-  
+
   // Методы для обновления настроек
   updatePreviewSize: (contentType: ContentType, size: PreviewSize) => void;
   updateLayout: (contentType: ContentType, layout: LayoutType) => void;
   updateDensity: (density: DisplayDensity) => void;
-  updateContentSettings: (contentType: ContentType, settings: Partial<ContentSettings>) => void;
+  updateContentSettings: (
+    contentType: ContentType,
+    settings: Partial<ContentSettings>,
+  ) => void;
   updateScreenSettings: (settings: Partial<ScreenSettings>) => void;
   updatePerformanceSettings: (settings: Partial<PerformanceSettings>) => void;
-  
+
   // Методы для получения настроек
   getContentSettings: (contentType: ContentType) => ContentSettings;
   getPreviewSize: (contentType: ContentType) => number;
   getGridColumns: (contentType: ContentType, containerWidth: number) => number;
-  
+
   // Методы для адаптивности
-  getCurrentBreakpoint: () => 'mobile' | 'tablet' | 'desktop';
+  getCurrentBreakpoint: () => "mobile" | "tablet" | "desktop";
   isResponsiveMode: () => boolean;
-  
+
   // Методы для сброса настроек
   resetContentSettings: (contentType: ContentType) => void;
   resetAllSettings: () => void;
@@ -137,23 +140,30 @@ export interface DisplaySettingsContext {
 /**
  * События для машины состояний
  */
-export type DisplaySettingsEvent = 
-  | { type: 'UPDATE_PREVIEW_SIZE'; contentType: ContentType; size: PreviewSize }
-  | { type: 'UPDATE_LAYOUT'; contentType: ContentType; layout: LayoutType }
-  | { type: 'UPDATE_DENSITY'; density: DisplayDensity }
-  | { type: 'UPDATE_CONTENT_SETTINGS'; contentType: ContentType; settings: Partial<ContentSettings> }
-  | { type: 'UPDATE_SCREEN_SETTINGS'; settings: Partial<ScreenSettings> }
-  | { type: 'UPDATE_PERFORMANCE_SETTINGS'; settings: Partial<PerformanceSettings> }
-  | { type: 'RESET_CONTENT_SETTINGS'; contentType: ContentType }
-  | { type: 'RESET_ALL_SETTINGS' }
-  | { type: 'LOAD_SETTINGS'; settings: DisplaySettings }
-  | { type: 'SAVE_SETTINGS' };
+export type DisplaySettingsEvent =
+  | { type: "UPDATE_PREVIEW_SIZE"; contentType: ContentType; size: PreviewSize }
+  | { type: "UPDATE_LAYOUT"; contentType: ContentType; layout: LayoutType }
+  | { type: "UPDATE_DENSITY"; density: DisplayDensity }
+  | {
+      type: "UPDATE_CONTENT_SETTINGS";
+      contentType: ContentType;
+      settings: Partial<ContentSettings>;
+    }
+  | { type: "UPDATE_SCREEN_SETTINGS"; settings: Partial<ScreenSettings> }
+  | {
+      type: "UPDATE_PERFORMANCE_SETTINGS";
+      settings: Partial<PerformanceSettings>;
+    }
+  | { type: "RESET_CONTENT_SETTINGS"; contentType: ContentType }
+  | { type: "RESET_ALL_SETTINGS" }
+  | { type: "LOAD_SETTINGS"; settings: DisplaySettings }
+  | { type: "SAVE_SETTINGS" };
 
 /**
  * Состояние машины настроек отображения
  */
 export interface DisplaySettingsState {
-  value: 'idle' | 'loading' | 'saving' | 'error';
+  value: "idle" | "loading" | "saving" | "error";
   context: DisplaySettings;
 }
 
@@ -174,18 +184,18 @@ export const DEFAULT_RESPONSIVE_BREAKPOINTS: ResponsiveBreakpoints = {
 };
 
 export const DEFAULT_CONTENT_SETTINGS: ContentSettings = {
-  defaultSize: 'medium',
-  layout: 'grid',
+  defaultSize: "medium",
+  layout: "grid",
   showLabels: true,
   showMetadata: false,
-  gridColumns: 'auto',
+  gridColumns: "auto",
   enableHover: true,
   enableSelection: true,
   enableDragDrop: false,
 };
 
 export const DEFAULT_SCREEN_SETTINGS: ScreenSettings = {
-  density: 'comfortable',
+  density: "comfortable",
   responsiveBreakpoints: DEFAULT_RESPONSIVE_BREAKPOINTS,
   enableAnimations: true,
   enableTransitions: true,
@@ -204,50 +214,52 @@ export const DEFAULT_PERFORMANCE_SETTINGS: PerformanceSettings = {
 /**
  * Специфичные настройки для разных типов контента
  */
-export const CONTENT_TYPE_OVERRIDES: Partial<Record<ContentType, Partial<ContentSettings>>> = {
+export const CONTENT_TYPE_OVERRIDES: Partial<
+  Record<ContentType, Partial<ContentSettings>>
+> = {
   templates: {
-    defaultSize: 'large',
+    defaultSize: "large",
     showLabels: true,
     showMetadata: true,
-    gridColumns: 'auto',
+    gridColumns: "auto",
   },
   styleTemplates: {
-    defaultSize: 'medium',
+    defaultSize: "medium",
     showLabels: true,
     showMetadata: false,
-    gridColumns: 'auto',
+    gridColumns: "auto",
   },
   media: {
-    defaultSize: 'medium',
-    layout: 'grid',
+    defaultSize: "medium",
+    layout: "grid",
     showLabels: false,
     showMetadata: true,
     enableDragDrop: true,
   },
   music: {
-    defaultSize: 'small',
-    layout: 'list',
+    defaultSize: "small",
+    layout: "list",
     showLabels: true,
     showMetadata: true,
     gridColumns: 1,
   },
   effects: {
-    defaultSize: 'medium',
+    defaultSize: "medium",
     showLabels: true,
     showMetadata: false,
   },
   filters: {
-    defaultSize: 'medium',
+    defaultSize: "medium",
     showLabels: true,
     showMetadata: false,
   },
   transitions: {
-    defaultSize: 'medium',
+    defaultSize: "medium",
     showLabels: true,
     showMetadata: false,
   },
   subtitles: {
-    defaultSize: 'large',
+    defaultSize: "large",
     showLabels: true,
     showMetadata: true,
   },

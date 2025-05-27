@@ -51,11 +51,8 @@ export function TemplateList() {
   const { currentTabSettings } = useBrowserState();
 
   // Извлекаем настройки для шаблонов
-  const {
-    searchQuery,
-    showFavoritesOnly,
-    previewSizeIndex,
-  } = currentTabSettings;
+  const { searchQuery, showFavoritesOnly, previewSizeIndex } =
+    currentTabSettings;
 
   // Получаем текущий размер превью из массива
   const previewSize = PREVIEW_SIZES[previewSizeIndex];

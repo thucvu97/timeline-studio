@@ -66,8 +66,6 @@ export function FilterList() {
     return { width, height };
   }, [basePreviewSize, settings.aspectRatio]);
 
-
-
   /**
    * Фильтрация, сортировка и группировка фильтров
    */
@@ -78,11 +76,21 @@ export function FilterList() {
       const matchesSearch =
         !searchQuery ||
         filter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (filter.labels?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (filter.labels?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (filter.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (filter.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (filter.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        (filter.labels?.ru || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (filter.labels?.en || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (filter.description?.ru || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (filter.description?.en || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (filter.tags || []).some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
 
       // Фильтрация по избранному
       const matchesFavorites =
@@ -102,7 +110,16 @@ export function FilterList() {
         }
 
         // Фильтрация по категории
-        if (["color-correction", "creative", "cinematic", "vintage", "technical", "artistic"].includes(filterType)) {
+        if (
+          [
+            "color-correction",
+            "creative",
+            "cinematic",
+            "vintage",
+            "technical",
+            "artistic",
+          ].includes(filterType)
+        ) {
           return filter.category === filterType;
         }
 
@@ -144,7 +161,15 @@ export function FilterList() {
     });
 
     return filtered;
-  }, [filters, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media]);
+  }, [
+    filters,
+    searchQuery,
+    showFavoritesOnly,
+    filterType,
+    sortBy,
+    sortOrder,
+    media,
+  ]);
 
   /**
    * Группировка фильтров по выбранному критерию
@@ -167,7 +192,8 @@ export function FilterList() {
           groupKey = filter.complexity || "basic";
           break;
         case "tags":
-          groupKey = (filter.tags && filter.tags.length > 0) ? filter.tags[0] : "untagged";
+          groupKey =
+            filter.tags && filter.tags.length > 0 ? filter.tags[0] : "untagged";
           break;
         default:
           groupKey = "ungrouped";
@@ -180,25 +206,30 @@ export function FilterList() {
     });
 
     // Преобразуем в массив групп с переводами заголовков
-    return Object.entries(groups).map(([key, filters]) => {
-      let title = "";
+    return Object.entries(groups)
+      .map(([key, filters]) => {
+        let title = "";
 
-      switch (groupBy) {
-        case "category":
-          title = t(`filters.categories.${key}`, key);
-          break;
-        case "complexity":
-          title = t(`filters.complexity.${key}`, key);
-          break;
-        case "tags":
-          title = key === "untagged" ? t("filters.filters.allTags", "Без тегов") : key;
-          break;
-        default:
-          title = key;
-      }
+        switch (groupBy) {
+          case "category":
+            title = t(`filters.categories.${key}`, key);
+            break;
+          case "complexity":
+            title = t(`filters.complexity.${key}`, key);
+            break;
+          case "tags":
+            title =
+              key === "untagged"
+                ? t("filters.filters.allTags", "Без тегов")
+                : key;
+            break;
+          default:
+            title = key;
+        }
 
-      return { title, filters };
-    }).sort((a, b) => a.title.localeCompare(b.title));
+        return { title, filters };
+      })
+      .sort((a, b) => a.title.localeCompare(b.title));
   }, [processedFilters, groupBy, t]);
 
   /**

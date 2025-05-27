@@ -44,42 +44,42 @@ export function BrowserContent() {
   const {
     importFile: importMediaFile,
     importFolder: importMediaFolder,
-    isImporting: isImportingMedia
+    isImporting: isImportingMedia,
   } = useMediaImport();
   const {
     importFile: importMusicFile,
     importDirectory: importMusicDirectory,
-    isImporting: isImportingMusic
+    isImporting: isImportingMusic,
   } = useMusicImport();
   const {
     importEffectsFile,
     importEffectFile,
-    isImporting: isImportingEffects
+    isImporting: isImportingEffects,
   } = useEffectsImport();
   const {
     importFiltersFile,
     importFilterFile,
-    isImporting: isImportingFilters
+    isImporting: isImportingFilters,
   } = useFiltersImport();
   const {
     importSubtitlesFile,
     importSubtitleFile,
-    isImporting: isImportingSubtitles
+    isImporting: isImportingSubtitles,
   } = useSubtitlesImport();
   const {
     importTransitionsFile,
     importTransitionFile,
-    isImporting: isImportingTransitions
+    isImporting: isImportingTransitions,
   } = useTransitionsImport();
   const {
     importTemplatesFile,
     importTemplateFile,
-    isImporting: isImportingTemplates
+    isImporting: isImportingTemplates,
   } = useTemplatesImport();
   const {
     importStyleTemplatesFile,
     importStyleTemplateFile,
-    isImporting: isImportingStyleTemplates
+    isImporting: isImportingStyleTemplates,
   } = useStyleTemplatesImport();
 
   // Извлекаем настройки для текущей вкладки
@@ -240,19 +240,16 @@ export function BrowserContent() {
         groupBy={groupBy}
         viewMode={viewMode}
         showFavoritesOnly={showFavoritesOnly}
-
         // Конфигурация из toolbarConfig
         availableExtensions={[]} // Для медиа не используется
         sortOptions={toolbarConfig.sortOptions}
         groupOptions={toolbarConfig.groupOptions}
         filterOptions={toolbarConfig.filterOptions}
         availableViewModes={toolbarConfig.viewModes}
-
         // Настройки отображения
         showImport={true} // Импорт доступен для всех вкладок
         showGroupBy={toolbarConfig.showGroupBy}
         showZoom={toolbarConfig.showZoom}
-
         // Колбэки
         onSearch={handleSearch}
         onSort={handleSort}
@@ -261,13 +258,11 @@ export function BrowserContent() {
         onChangeViewMode={handleViewModeChange}
         onChangeGroupBy={handleGroupBy}
         onToggleFavorites={handleToggleFavorites}
-
         // Импорт
         onImport={handleImportFile}
         onImportFile={handleImportFile}
         onImportFolder={handleImportFolder}
         isImporting={isImporting}
-
         // Зум
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}

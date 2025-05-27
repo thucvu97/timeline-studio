@@ -5,9 +5,7 @@ import { FavoritesType } from "@/features/browser/media/media-machine";
 import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine";
 import { DEFAULT_CONTENT_SIZES } from "@/lib/constants/preview-sizes";
 
-
 import { AppSettings, storeService } from "./store-service";
-
 
 /**
  * Функция для получения локализованного названия проекта по умолчанию

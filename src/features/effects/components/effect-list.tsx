@@ -21,7 +21,8 @@ export function EffectList() {
   const { t } = useTranslation(); // Хук для интернационализации
   const media = useMedia(); // Хук для работы с медиафайлами и избранным
   const { effects, loading, error } = useEffects(); // Хук для загрузки эффектов
-  const { importEffectsFile, importEffectFile, isImporting } = useEffectsImport(); // Хук для импорта эффектов
+  const { importEffectsFile, importEffectFile, isImporting } =
+    useEffectsImport(); // Хук для импорта эффектов
 
   // Используем общий провайдер состояния браузера
   const { currentTabSettings } = useBrowserState();
@@ -64,8 +65,6 @@ export function EffectList() {
     return { width, height };
   }, [basePreviewSize, settings.aspectRatio]);
 
-
-
   /**
    * Фильтрация, сортировка и группировка эффектов
    * @returns {VideoEffect[]} Обработанный массив эффектов
@@ -77,11 +76,21 @@ export function EffectList() {
       const matchesSearch =
         !searchQuery ||
         effect.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (effect.labels?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (effect.labels?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (effect.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (effect.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (effect.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        (effect.labels?.ru || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (effect.labels?.en || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (effect.description?.ru || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (effect.description?.en || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (effect.tags || []).some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
 
       // Фильтрация по избранному
       const matchesFavorites =
@@ -101,7 +110,17 @@ export function EffectList() {
         }
 
         // Фильтрация по категории
-        if (["color-correction", "artistic", "vintage", "cinematic", "creative", "technical", "distortion"].includes(filterType)) {
+        if (
+          [
+            "color-correction",
+            "artistic",
+            "vintage",
+            "cinematic",
+            "creative",
+            "technical",
+            "distortion",
+          ].includes(filterType)
+        ) {
           return effect.category === filterType;
         }
 
@@ -172,7 +191,8 @@ export function EffectList() {
           break;
         case "tags":
           // Группируем по первому тегу или "untagged"
-          groupKey = (effect.tags && effect.tags.length > 0) ? effect.tags[0] : "untagged";
+          groupKey =
+            effect.tags && effect.tags.length > 0 ? effect.tags[0] : "untagged";
           break;
         default:
           groupKey = "ungrouped";
@@ -185,28 +205,33 @@ export function EffectList() {
     });
 
     // Преобразуем в массив групп с переводами заголовков
-    return Object.entries(groups).map(([key, effects]) => {
-      let title = "";
+    return Object.entries(groups)
+      .map(([key, effects]) => {
+        let title = "";
 
-      switch (groupBy) {
-        case "category":
-          title = t(`effects.categories.${key}`, key);
-          break;
-        case "complexity":
-          title = t(`effects.complexity.${key}`, key);
-          break;
-        case "type":
-          title = t(`effects.names.${key}`, key);
-          break;
-        case "tags":
-          title = key === "untagged" ? t("effects.filters.allTags", "Без тегов") : key;
-          break;
-        default:
-          title = key;
-      }
+        switch (groupBy) {
+          case "category":
+            title = t(`effects.categories.${key}`, key);
+            break;
+          case "complexity":
+            title = t(`effects.complexity.${key}`, key);
+            break;
+          case "type":
+            title = t(`effects.names.${key}`, key);
+            break;
+          case "tags":
+            title =
+              key === "untagged"
+                ? t("effects.filters.allTags", "Без тегов")
+                : key;
+            break;
+          default:
+            title = key;
+        }
 
-      return { title, effects };
-    }).sort((a, b) => a.title.localeCompare(b.title));
+        return { title, effects };
+      })
+      .sort((a, b) => a.title.localeCompare(b.title));
   }, [processedEffects, groupBy, t]);
 
   /**
@@ -217,8 +242,6 @@ export function EffectList() {
     console.log("Applying effect:", effect.name); // Отладочный вывод
     // Здесь может быть логика применения эффекта к видео
   };
-
-
 
   // Показываем индикатор загрузки
   if (loading) {

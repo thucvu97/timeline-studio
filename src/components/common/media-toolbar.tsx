@@ -187,7 +187,12 @@ export function MediaToolbar({
   };
 
   return (
-    <div className={cn("flex items-center justify-between p-1 dark:bg-[#252526]", className)}>
+    <div
+      className={cn(
+        "flex items-center justify-between p-1 dark:bg-[#252526]",
+        className,
+      )}
+    >
       <div className="flex h-8 w-[calc(100%-100px)] items-center gap-2">
         {/* Кнопка импорта */}
         {showImport && onImport && (
@@ -248,7 +253,9 @@ export function MediaToolbar({
                       />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent>{t("browser.media.addFolder")}</TooltipContent>
+                  <TooltipContent>
+                    {t("browser.media.addFolder")}
+                  </TooltipContent>
                 </Tooltip>
               )}
             </div>
@@ -307,7 +314,8 @@ export function MediaToolbar({
                         className={cn(
                           "h-6 w-6 cursor-pointer",
                           index < viewModes.length - 1 ? "mr-1" : "mr-1",
-                          viewMode === mode.value && "bg-[#dddbdd] dark:bg-[#45444b]",
+                          viewMode === mode.value &&
+                            "bg-[#dddbdd] dark:bg-[#45444b]",
                         )}
                         onClick={() => onChangeViewMode(mode.value)}
                         data-testid={mode.testId}
@@ -365,7 +373,7 @@ export function MediaToolbar({
         {/* Dropdown фильтрации */}
         <TooltipProvider>
           <Tooltip>
-            <DropdownMenu >
+            <DropdownMenu>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -386,45 +394,41 @@ export function MediaToolbar({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onFilter("all")}>
                   <div className="flex items-center gap-2">
-                    {filterType === "all" && (
-                      <Check className="h-4 w-4" />
-                    )}
+                    {filterType === "all" && <Check className="h-4 w-4" />}
                     <span>{t("browser.toolbar.filterBy.all")}</span>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
 
                 {/* Кастомные опции фильтров (для медиа) */}
-                {filterOptions ? (
-                  filterOptions.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      onClick={() => onFilter(option.value)}
-                    >
-                      <div className="flex items-center gap-2">
-                        {filterType === option.value && (
-                          <Check className="h-4 w-4" />
-                        )}
-                        <span>{t(option.label)}</span>
-                      </div>
-                    </DropdownMenuItem>
-                  ))
-                ) : (
-                  /* Дефолтные фильтры по расширениям (для музыки) */
-                  availableExtensions.map((extension) => (
-                    <DropdownMenuItem
-                      key={extension}
-                      onClick={() => onFilter(extension)}
-                    >
-                      <div className="flex items-center gap-2">
-                        {filterType === extension && (
-                          <Check className="h-4 w-4" />
-                        )}
-                        <span>{extension.toUpperCase()}</span>
-                      </div>
-                    </DropdownMenuItem>
-                  ))
-                )}
+                {filterOptions
+                  ? filterOptions.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        onClick={() => onFilter(option.value)}
+                      >
+                        <div className="flex items-center gap-2">
+                          {filterType === option.value && (
+                            <Check className="h-4 w-4" />
+                          )}
+                          <span>{t(option.label)}</span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  : /* Дефолтные фильтры по расширениям (для музыки) */
+                    availableExtensions.map((extension) => (
+                      <DropdownMenuItem
+                        key={extension}
+                        onClick={() => onFilter(extension)}
+                      >
+                        <div className="flex items-center gap-2">
+                          {filterType === extension && (
+                            <Check className="h-4 w-4" />
+                          )}
+                          <span>{extension.toUpperCase()}</span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </Tooltip>
@@ -459,7 +463,9 @@ export function MediaToolbar({
                       onClick={() => onChangeGroupBy(option.value)}
                     >
                       <div className="flex items-center gap-2">
-                        {groupBy === option.value && <Check className="h-4 w-4" />}
+                        {groupBy === option.value && (
+                          <Check className="h-4 w-4" />
+                        )}
                         <span>{t(option.label)}</span>
                       </div>
                     </DropdownMenuItem>
