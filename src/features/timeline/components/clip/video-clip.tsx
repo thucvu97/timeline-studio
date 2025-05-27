@@ -43,7 +43,8 @@ export function VideoClip({ clip, track, onUpdate, onRemove }: VideoClipProps) {
 
   // Определяем цвет клипа в зависимости от типа
   const clipColor = track.type === "video" ? "bg-blue-500" : "bg-purple-500";
-  const clipColorHover = track.type === "video" ? "bg-blue-600" : "bg-purple-600";
+  const clipColorHover =
+    track.type === "video" ? "bg-blue-600" : "bg-purple-600";
 
   return (
     <div
@@ -53,7 +54,7 @@ export function VideoClip({ clip, track, onUpdate, onRemove }: VideoClipProps) {
         clipColor,
         isHovered && clipColorHover,
         clip.isSelected && "ring-2 ring-white ring-offset-1",
-        clip.isLocked && "opacity-60"
+        clip.isLocked && "opacity-60",
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -121,21 +122,30 @@ export function VideoClip({ clip, track, onUpdate, onRemove }: VideoClipProps) {
         {/* Индикаторы эффектов */}
         {clip.effects.length > 0 && (
           <div className="absolute top-1 left-1">
-            <div className="w-2 h-2 bg-yellow-400 rounded-full" title="Эффекты применены" />
+            <div
+              className="w-2 h-2 bg-yellow-400 rounded-full"
+              title="Эффекты применены"
+            />
           </div>
         )}
 
         {/* Индикаторы фильтров */}
         {clip.filters.length > 0 && (
           <div className="absolute top-1 left-4">
-            <div className="w-2 h-2 bg-green-400 rounded-full" title="Фильтры применены" />
+            <div
+              className="w-2 h-2 bg-green-400 rounded-full"
+              title="Фильтры применены"
+            />
           </div>
         )}
 
         {/* Индикаторы переходов */}
         {clip.transitions.length > 0 && (
           <div className="absolute top-1 left-7">
-            <div className="w-2 h-2 bg-pink-400 rounded-full" title="Переходы применены" />
+            <div
+              className="w-2 h-2 bg-pink-400 rounded-full"
+              title="Переходы применены"
+            />
           </div>
         )}
       </div>
@@ -146,7 +156,7 @@ export function VideoClip({ clip, track, onUpdate, onRemove }: VideoClipProps) {
           className="h-full bg-white/50"
           style={{
             marginLeft: `${(clip.mediaStartTime / (clip.mediaEndTime - clip.mediaStartTime + clip.duration)) * 100}%`,
-            width: `${(clip.duration / (clip.mediaEndTime - clip.mediaStartTime + clip.duration)) * 100}%`
+            width: `${(clip.duration / (clip.mediaEndTime - clip.mediaStartTime + clip.duration)) * 100}%`,
           }}
         />
       </div>

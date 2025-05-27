@@ -25,7 +25,7 @@ export function Clip({
   timeScale,
   onUpdate,
   onRemove,
-  className
+  className,
 }: ClipProps) {
   // Вычисляем позицию и размеры клипа
   const left = clip.startTime * timeScale;
@@ -45,7 +45,7 @@ export function Clip({
             onRemove={onRemove}
           />
         );
-      
+
       case "audio":
       case "music":
       case "voiceover":
@@ -59,7 +59,7 @@ export function Clip({
             onRemove={onRemove}
           />
         );
-      
+
       default:
         return (
           <div className="h-full w-full bg-muted border border-border rounded flex items-center justify-center">
@@ -76,7 +76,7 @@ export function Clip({
         "transition-all duration-150",
         clip.isSelected && "ring-2 ring-primary ring-offset-1",
         clip.isLocked && "opacity-60 cursor-not-allowed",
-        className
+        className,
       )}
       style={{
         left: `${left}px`,
