@@ -7,6 +7,13 @@ export default {
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
+  // Добавляем настройки для совместимости с CI/CD
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+  experimental: {
+    optimizeUniversalDefaults: true,
+  },
   prefix: "",
   theme: {
     container: {

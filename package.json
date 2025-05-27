@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --no-lint",
+    "build:ci": "TAILWIND_DISABLE_TOUCH=true NODE_ENV=production next build --no-lint",
     "start": "next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:windows": "eslint src/**/*.{ts,tsx}",
