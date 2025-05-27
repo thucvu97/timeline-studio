@@ -8,7 +8,10 @@ import { VideoEffect } from "@/types/effects";
 import { VideoFilter } from "@/types/filters";
 import { Transition } from "@/types/transitions";
 
-import { ResourcesProvider, useResources } from "../../services/resources-provider";
+import {
+  ResourcesProvider,
+  useResources,
+} from "../../services/resources-provider";
 
 const mockSend = vi.fn();
 

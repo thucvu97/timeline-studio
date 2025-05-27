@@ -8,7 +8,6 @@ import { updateSectorTimeRange } from "./tracks-utils";
 import { Sector } from "./types";
 import { doTimeRangesOverlap } from "./utils";
 
-
 import type { MediaFile, MediaTrack } from "../types/media";
 
 /**

@@ -14,10 +14,7 @@ import type { MediaFile, MediaTrack } from "../types/media";
  * @param sector - Сектор, в который добавляются дорожки
  * @param existingDayTracks - Существующие дорожки
  */
-export function processVideoFiles(
-  dayFiles: MediaFile[],
-  sector: Sector,
-): void {
+export function processVideoFiles(dayFiles: MediaFile[], sector: Sector): void {
   for (const file of dayFiles) {
     const fileStartTime = file.startTime ?? 0;
     const fileDuration = file.duration ?? 0;

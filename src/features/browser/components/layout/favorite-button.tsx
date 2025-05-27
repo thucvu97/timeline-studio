@@ -1,17 +1,24 @@
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, useEffect, useRef, useState } from "react";
 
-import { Star } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { MediaFile } from "@/features/media/types/media";
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-import { useMedia } from "../../media"
+import { useMedia } from "../../media";
 
 interface FavoriteButtonProps {
-  file: MediaFile
-  size?: number
-  type?: "media" | "audio" | "transition" | "effect" | "template" | "filter" | "subtitle"
+  file: MediaFile;
+  size?: number;
+  type?:
+    | "media"
+    | "audio"
+    | "transition"
+    | "effect"
+    | "template"
+    | "filter"
+    | "subtitle";
 }
 
 /**
@@ -27,93 +34,97 @@ interface FavoriteButtonProps {
  * @param size - Размер кнопки (по умолчанию 60)
  * @param type - Тип элемента (по умолчанию "media")
  */
-export const FavoriteButton = memo(function FavoriteButton({ file, size = 60, type = "media" }: FavoriteButtonProps) {
-  const { t } = useTranslation()
-  const media = useMedia()
-  const { isItemFavorite, addToFavorites, removeFromFavorites } = media
-  const isFavorite = isItemFavorite(file, type)
-  const [isHovering, setIsHovering] = useState(false)
-  const [isRecentlyAdded, setIsRecentlyAdded] = useState(false)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
-  const prevIsFavoriteRef = useRef(isFavorite)
+export const FavoriteButton = memo(function FavoriteButton({
+  file,
+  size = 60,
+  type = "media",
+}: FavoriteButtonProps) {
+  const { t } = useTranslation();
+  const media = useMedia();
+  const { isItemFavorite, addToFavorites, removeFromFavorites } = media;
+  const isFavorite = isItemFavorite(file, type);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isRecentlyAdded, setIsRecentlyAdded] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const prevIsFavoriteRef = useRef(isFavorite);
 
   useEffect(() => {
     // Обновляем состояние немедленно при изменении isFavorite
     if (isFavorite !== prevIsFavoriteRef.current) {
       // Если элемент добавлен в избранное, устанавливаем флаг isRecentlyAdded
       if (isFavorite) {
-        setIsRecentlyAdded(true)
+        setIsRecentlyAdded(true);
 
         // Очищаем предыдущий таймер, если он есть
         if (timerRef.current) {
-          clearTimeout(timerRef.current)
+          clearTimeout(timerRef.current);
         }
 
         // Через 1.5 секунды сбрасываем флаг
         timerRef.current = setTimeout(() => {
-          setIsRecentlyAdded(false)
-          timerRef.current = null
-        }, 1500)
+          setIsRecentlyAdded(false);
+          timerRef.current = null;
+        }, 1500);
       } else {
         // Если элемент удален из избранного, сбрасываем флаг isRecentlyAdded
-        setIsRecentlyAdded(false)
+        setIsRecentlyAdded(false);
 
         // Очищаем таймер
         if (timerRef.current) {
-          clearTimeout(timerRef.current)
-          timerRef.current = null
+          clearTimeout(timerRef.current);
+          timerRef.current = null;
         }
       }
 
       // Обновляем предыдущее значение isFavorite
-      prevIsFavoriteRef.current = isFavorite
+      prevIsFavoriteRef.current = isFavorite;
     }
 
     // Очищаем таймер при размонтировании компонента
     return () => {
       if (timerRef.current) {
-        clearTimeout(timerRef.current)
-        timerRef.current = null
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
-    }
-  }, [isFavorite])
+    };
+  }, [isFavorite]);
 
   // Принудительно обновляем состояние при монтировании компонента
   useEffect(() => {
     // Если элемент уже в избранном при монтировании компонента
     if (isFavorite) {
-      setIsRecentlyAdded(true)
-      prevIsFavoriteRef.current = true
+      setIsRecentlyAdded(true);
+      prevIsFavoriteRef.current = true;
 
       // Через 1.5 секунды сбрасываем флаг
       const timer = setTimeout(() => {
-        setIsRecentlyAdded(false)
-      }, 1500)
+        setIsRecentlyAdded(false);
+      }, 1500);
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [isFavorite])
+  }, [isFavorite]);
 
   // Определяем, можно ли показывать кнопку удаления
   // Не показываем кнопку удаления в течение 3 секунд после добавления
-  const canShowRemoveButton = !isRecentlyAdded
+  const canShowRemoveButton = !isRecentlyAdded;
 
   const handleToggleFavorite = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
+    e.stopPropagation();
+    e.preventDefault();
 
     if (isFavorite && isHovering && canShowRemoveButton) {
       // Удаляем из избранного
-      removeFromFavorites(file, type)
+      removeFromFavorites(file, type);
     } else if (!isFavorite) {
       // Добавляем в избранное
-      addToFavorites(file, type)
+      addToFavorites(file, type);
       // Немедленно обновляем визуальное состояние
-      setIsRecentlyAdded(true)
+      setIsRecentlyAdded(true);
     }
-  }
+  };
 
-  const iconSize = size > 100 ? "h-3.5 w-3.5" : "h-2.5 w-2.5"
+  const iconSize = size > 100 ? "h-3.5 w-3.5" : "h-2.5 w-2.5";
 
   return (
     <button
@@ -130,7 +141,7 @@ export const FavoriteButton = memo(function FavoriteButton({ file, size = 60, ty
       onClick={handleToggleFavorite}
       onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
         if (e.key === "Enter" || e.key === " ") {
-          handleToggleFavorite(e)
+          handleToggleFavorite(e);
         }
       }}
       onMouseEnter={() => setIsHovering(true)}
@@ -148,5 +159,5 @@ export const FavoriteButton = memo(function FavoriteButton({ file, size = 60, ty
         strokeWidth={2}
       />
     </button>
-  )
-})
+  );
+});
