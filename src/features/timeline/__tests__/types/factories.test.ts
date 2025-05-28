@@ -15,7 +15,7 @@ describe("Timeline Factories", () => {
   describe("createTimelineProject", () => {
     it("should create project with default settings", () => {
       const project = createTimelineProject("Test Project")
-      
+
       expect(project).toHaveProperty("id")
       expect(project.name).toBe("Test Project")
       expect(project.description).toBe("")
@@ -35,9 +35,9 @@ describe("Timeline Factories", () => {
         sampleRate: 44100,
         resolution: { width: 3840, height: 2160 },
       }
-      
+
       const project = createTimelineProject("4K Project", customSettings)
-      
+
       expect(project.name).toBe("4K Project")
       expect(project.fps).toBe(60)
       expect(project.sampleRate).toBe(44100)
@@ -50,14 +50,14 @@ describe("Timeline Factories", () => {
     it("should generate unique IDs", () => {
       const project1 = createTimelineProject("Project 1")
       const project2 = createTimelineProject("Project 2")
-      
+
       expect(project1.id).not.toBe(project2.id)
       expect(project1.id).toMatch(/^project-\d+-[a-z0-9]+$/)
     })
 
     it("should have valid default settings structure", () => {
       const project = createTimelineProject("Test")
-      
+
       expect(project.settings).toHaveProperty("resolution")
       expect(project.settings).toHaveProperty("fps")
       expect(project.settings).toHaveProperty("aspectRatio")
@@ -75,7 +75,7 @@ describe("Timeline Factories", () => {
   describe("createTimelineSection", () => {
     it("should create section with basic parameters", () => {
       const section = createTimelineSection("Main Section", 0, 60)
-      
+
       expect(section).toHaveProperty("id")
       expect(section.name).toBe("Main Section")
       expect(section.startTime).toBe(0)
@@ -89,7 +89,7 @@ describe("Timeline Factories", () => {
     it("should create section with real time", () => {
       const realTime = new Date("2023-01-01T10:00:00Z")
       const section = createTimelineSection("Timed Section", 10, 30, realTime, 1)
-      
+
       expect(section.name).toBe("Timed Section")
       expect(section.startTime).toBe(10)
       expect(section.duration).toBe(30)
@@ -102,14 +102,14 @@ describe("Timeline Factories", () => {
     it("should generate unique IDs", () => {
       const section1 = createTimelineSection("Section 1", 0, 10)
       const section2 = createTimelineSection("Section 2", 10, 10)
-      
+
       expect(section1.id).not.toBe(section2.id)
       expect(section1.id).toMatch(/^section-\d+-[a-z0-9]+$/)
     })
 
     it("should calculate end time correctly", () => {
       const section = createTimelineSection("Test", 15, 25)
-      
+
       expect(section.startTime).toBe(15)
       expect(section.duration).toBe(25)
       expect(section.endTime).toBe(40)
@@ -119,7 +119,7 @@ describe("Timeline Factories", () => {
   describe("createTimelineTrack", () => {
     it("should create track with basic parameters", () => {
       const track = createTimelineTrack("Video Track", "video")
-      
+
       expect(track).toHaveProperty("id")
       expect(track.name).toBe("Video Track")
       expect(track.type).toBe("video")
@@ -138,7 +138,7 @@ describe("Timeline Factories", () => {
 
     it("should create track with section ID", () => {
       const track = createTimelineTrack("Audio Track", "audio", "section-123")
-      
+
       expect(track.name).toBe("Audio Track")
       expect(track.type).toBe("audio")
       expect(track.sectionId).toBe("section-123")
@@ -148,7 +148,7 @@ describe("Timeline Factories", () => {
       const videoTrack = createTimelineTrack("Video", "video")
       const audioTrack = createTimelineTrack("Audio", "audio")
       const titleTrack = createTimelineTrack("Title", "title")
-      
+
       expect(videoTrack.height).toBe(120)
       expect(audioTrack.height).toBe(80)
       expect(titleTrack.height).toBe(60)
@@ -157,7 +157,7 @@ describe("Timeline Factories", () => {
     it("should generate unique IDs", () => {
       const track1 = createTimelineTrack("Track 1", "video")
       const track2 = createTimelineTrack("Track 2", "audio")
-      
+
       expect(track1.id).not.toBe(track2.id)
       expect(track1.id).toMatch(/^track-\d+-[a-z0-9]+$/)
     })
@@ -166,7 +166,7 @@ describe("Timeline Factories", () => {
   describe("createTimelineClip", () => {
     it("should create clip with basic parameters", () => {
       const clip = createTimelineClip("media-123", "track-456", 10, 5)
-      
+
       expect(clip).toHaveProperty("id")
       expect(clip.name).toMatch(/^Clip \d+$/)
       expect(clip.mediaId).toBe("media-123")
@@ -190,7 +190,7 @@ describe("Timeline Factories", () => {
 
     it("should create clip with custom media start time", () => {
       const clip = createTimelineClip("media-123", "track-456", 0, 10, 5)
-      
+
       expect(clip.mediaStartTime).toBe(5)
       expect(clip.mediaEndTime).toBe(15)
       expect(clip.duration).toBe(10)
@@ -199,14 +199,14 @@ describe("Timeline Factories", () => {
     it("should generate unique IDs", () => {
       const clip1 = createTimelineClip("media-1", "track-1", 0, 5)
       const clip2 = createTimelineClip("media-2", "track-2", 5, 5)
-      
+
       expect(clip1.id).not.toBe(clip2.id)
       expect(clip1.id).toMatch(/^clip-\d+-[a-z0-9]+$/)
     })
 
     it("should calculate media end time correctly", () => {
       const clip = createTimelineClip("media-123", "track-456", 0, 8, 2)
-      
+
       expect(clip.mediaStartTime).toBe(2)
       expect(clip.duration).toBe(8)
       expect(clip.mediaEndTime).toBe(10)
@@ -224,7 +224,7 @@ describe("Timeline Factories", () => {
       const section = createTimelineSection("Test", -5, 10)
       expect(section.startTime).toBe(-5)
       expect(section.endTime).toBe(5)
-      
+
       const clip = createTimelineClip("media", "track", -2, 5, -1)
       expect(clip.startTime).toBe(-2)
       expect(clip.mediaStartTime).toBe(-1)

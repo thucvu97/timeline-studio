@@ -878,7 +878,6 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
   ModalProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
-
 // Мок для TimelineProvider
 vi.mock("@/features/timeline/timeline-provider", () => ({
   useTimeline: () => ({

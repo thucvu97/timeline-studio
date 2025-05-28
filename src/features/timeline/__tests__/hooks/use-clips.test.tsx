@@ -16,12 +16,12 @@ describe("useClips", () => {
 
     it("should return object with all required properties and methods", () => {
       const { result } = renderHook(() => useClips())
-      
+
       // Проверяем наличие основных свойств
       expect(result.current).toHaveProperty("clips")
       expect(result.current).toHaveProperty("selectedClips")
       expect(result.current).toHaveProperty("clipsByTrack")
-      
+
       // Проверяем наличие методов
       expect(result.current).toHaveProperty("findClip")
       expect(result.current).toHaveProperty("getClipsByTrack")
@@ -36,7 +36,7 @@ describe("useClips", () => {
   describe("Default State", () => {
     it("should return empty arrays and objects by default", () => {
       const { result } = renderHook(() => useClips())
-      
+
       expect(result.current.clips).toEqual([])
       expect(result.current.selectedClips).toEqual([])
       expect(result.current.clipsByTrack).toEqual({})
@@ -44,7 +44,7 @@ describe("useClips", () => {
 
     it("should return default statistics", () => {
       const { result } = renderHook(() => useClips())
-      
+
       const stats = result.current.getClipStats()
       expect(stats).toEqual({
         totalClips: 0,
@@ -58,21 +58,21 @@ describe("useClips", () => {
   describe("Clip Search and Selection", () => {
     it("should return null for non-existent clip", () => {
       const { result } = renderHook(() => useClips())
-      
+
       const clip = result.current.findClip("non-existent-clip")
       expect(clip).toBeNull()
     })
 
     it("should return false for non-existent clip selection", () => {
       const { result } = renderHook(() => useClips())
-      
+
       const isSelected = result.current.isClipSelected("non-existent-clip")
       expect(isSelected).toBe(false)
     })
 
     it("should return empty array for non-existent track", () => {
       const { result } = renderHook(() => useClips())
-      
+
       const clips = result.current.getClipsByTrack("non-existent-track")
       expect(clips).toEqual([])
     })
@@ -81,21 +81,21 @@ describe("useClips", () => {
   describe("Time-based Operations", () => {
     it("should return null for clip search in non-existent track", () => {
       const { result } = renderHook(() => useClips())
-      
+
       const clip = result.current.getClipAtTime("non-existent-track", 10)
       expect(clip).toBeNull()
     })
 
     it("should return false for clip placement check", () => {
       const { result } = renderHook(() => useClips())
-      
+
       const canPlace = result.current.canPlaceClip("track-1", 0, 10)
       expect(canPlace).toBe(false)
     })
 
     it("should return empty conflicts array", () => {
       const { result } = renderHook(() => useClips())
-      
+
       const conflicts = result.current.getClipConflicts("track-1", 0, 10)
       expect(conflicts).toEqual([])
     })
@@ -104,7 +104,7 @@ describe("useClips", () => {
   describe("Error Handling", () => {
     it("should not throw errors when calling methods with invalid parameters", () => {
       const { result } = renderHook(() => useClips())
-      
+
       expect(() => {
         result.current.findClip("")
         result.current.getClipsByTrack("")

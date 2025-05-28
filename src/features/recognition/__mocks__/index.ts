@@ -212,22 +212,3 @@ export const setupClipboardMock = () => {
   })
   return navigator.clipboard
 }
-
-// Экспорт всех моков
-export default {
-  YoloDataOverlay,
-  YoloDataVisualization,
-  YoloGraphOverlay,
-  YoloTrackOverlay,
-  useYoloData,
-  YoloDataService,
-  SceneContextService,
-  mockYoloData,
-  mockDetections,
-  mockVideoSummary,
-  createMockVideo,
-  createMockDetection,
-  createMockYoloData,
-  setupCanvasMock,
-  setupClipboardMock,
-}

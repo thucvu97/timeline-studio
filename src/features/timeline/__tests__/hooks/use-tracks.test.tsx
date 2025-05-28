@@ -23,8 +23,8 @@ vi.mock("../timeline-provider", () => ({
 
 vi.mock("@/lib/timeline/utils", () => ({
   getAllTracks: vi.fn(() => mockTracks),
-  findTrackById: vi.fn((project, id) => mockTracks.find(track => track.id === id) || null),
-  getTracksByType: vi.fn((project, type) => mockTracks.filter(track => track.type === type)),
+  findTrackById: vi.fn((project, id) => mockTracks.find((track) => track.id === id) || null),
+  getTracksByType: vi.fn((project, type) => mockTracks.filter((track) => track.type === type)),
   sortTracksByOrder: vi.fn((tracks) => tracks),
 }))
 
@@ -203,7 +203,6 @@ describe("useTracks", () => {
       const sectionTracks = result.current.getTracksBySection("section-1")
       expect(sectionTracks).toEqual([])
     })
-
   })
 
   describe("Track Management", () => {

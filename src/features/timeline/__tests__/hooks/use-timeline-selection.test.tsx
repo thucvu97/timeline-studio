@@ -16,17 +16,17 @@ describe("useTimelineSelection", () => {
 
     it("should return object with all required properties and methods", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       // Current selection
       expect(result.current).toHaveProperty("selectedClips")
       expect(result.current).toHaveProperty("selectedTracks")
       expect(result.current).toHaveProperty("selectedSections")
-      
+
       // Selection state
       expect(result.current).toHaveProperty("hasSelection")
       expect(result.current).toHaveProperty("selectionCount")
       expect(result.current).toHaveProperty("selectionBounds")
-      
+
       // Selection actions
       expect(result.current).toHaveProperty("selectClip")
       expect(result.current).toHaveProperty("selectTrack")
@@ -35,17 +35,17 @@ describe("useTimelineSelection", () => {
       expect(result.current).toHaveProperty("selectAll")
       expect(result.current).toHaveProperty("selectNone")
       expect(result.current).toHaveProperty("invertSelection")
-      
+
       // Area selection
       expect(result.current).toHaveProperty("selectInTimeRange")
       expect(result.current).toHaveProperty("selectByType")
-      
+
       // Operations on selected
       expect(result.current).toHaveProperty("deleteSelected")
       expect(result.current).toHaveProperty("duplicateSelected")
       expect(result.current).toHaveProperty("groupSelected")
       expect(result.current).toHaveProperty("ungroupSelected")
-      
+
       // Properties of selected
       expect(result.current).toHaveProperty("setSelectedVolume")
       expect(result.current).toHaveProperty("setSelectedSpeed")
@@ -54,12 +54,12 @@ describe("useTimelineSelection", () => {
       expect(result.current).toHaveProperty("unmuteSelected")
       expect(result.current).toHaveProperty("lockSelected")
       expect(result.current).toHaveProperty("unlockSelected")
-      
+
       // Clipboard operations
       expect(result.current).toHaveProperty("copySelected")
       expect(result.current).toHaveProperty("cutSelected")
       expect(result.current).toHaveProperty("pasteAtTime")
-      
+
       // Utilities
       expect(result.current).toHaveProperty("isClipSelected")
       expect(result.current).toHaveProperty("isTrackSelected")
@@ -71,7 +71,7 @@ describe("useTimelineSelection", () => {
   describe("Default State", () => {
     it("should return empty arrays and false states by default", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(result.current.selectedClips).toEqual([])
       expect(result.current.selectedTracks).toEqual([])
       expect(result.current.selectedSections).toEqual([])
@@ -80,7 +80,7 @@ describe("useTimelineSelection", () => {
 
     it("should return default selection count", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(result.current.selectionCount).toEqual({
         clips: 0,
         tracks: 0,
@@ -91,7 +91,7 @@ describe("useTimelineSelection", () => {
 
     it("should return null selection bounds", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(result.current.selectionBounds).toBeNull()
     })
   })
@@ -99,7 +99,7 @@ describe("useTimelineSelection", () => {
   describe("Selection State Checks", () => {
     it("should return false for non-selected items", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(result.current.isClipSelected("non-existent-clip")).toBe(false)
       expect(result.current.isTrackSelected("non-existent-track")).toBe(false)
       expect(result.current.isSectionSelected("non-existent-section")).toBe(false)
@@ -107,7 +107,7 @@ describe("useTimelineSelection", () => {
 
     it("should return default selection statistics", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       const stats = result.current.getSelectionStats()
       expect(stats).toEqual({
         totalDuration: 0,
@@ -121,7 +121,7 @@ describe("useTimelineSelection", () => {
   describe("Selection Actions", () => {
     it("should call selection methods without errors", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(() => {
         result.current.selectClip("clip-1")
         result.current.selectTrack("track-1")
@@ -135,7 +135,7 @@ describe("useTimelineSelection", () => {
 
     it("should call area selection methods without errors", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(() => {
         result.current.selectInTimeRange(0, 10)
         result.current.selectByType("video")
@@ -146,7 +146,7 @@ describe("useTimelineSelection", () => {
   describe("Operations on Selected Items", () => {
     it("should call operation methods without errors", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(() => {
         result.current.deleteSelected()
         result.current.duplicateSelected()
@@ -157,7 +157,7 @@ describe("useTimelineSelection", () => {
 
     it("should call property modification methods without errors", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(() => {
         result.current.setSelectedVolume(0.5)
         result.current.setSelectedSpeed(1.5)
@@ -173,7 +173,7 @@ describe("useTimelineSelection", () => {
   describe("Clipboard Operations", () => {
     it("should call clipboard methods without errors", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(() => {
         result.current.copySelected()
         result.current.cutSelected()
@@ -185,7 +185,7 @@ describe("useTimelineSelection", () => {
   describe("Error Handling", () => {
     it("should not throw errors with invalid parameters", () => {
       const { result } = renderHook(() => useTimelineSelection())
-      
+
       expect(() => {
         result.current.selectClip("")
         result.current.selectTrack("")

@@ -26,7 +26,7 @@ describe("TimelineProvider", () => {
         render(
           <TimelineProvider>
             <TestComponent />
-          </TimelineProvider>
+          </TimelineProvider>,
         )
       }).not.toThrow()
     })
@@ -35,7 +35,7 @@ describe("TimelineProvider", () => {
       render(
         <TimelineProvider>
           <TestComponent />
-        </TimelineProvider>
+        </TimelineProvider>,
       )
 
       expect(screen.getByTestId("timeline-test-component")).toBeInTheDocument()
@@ -48,7 +48,7 @@ describe("TimelineProvider", () => {
       const { getByTestId } = render(
         <TimelineProvider>
           <div data-testid="child-component">Child Component</div>
-        </TimelineProvider>
+        </TimelineProvider>,
       )
 
       expect(getByTestId("child-component")).toBeInTheDocument()
@@ -60,7 +60,7 @@ describe("TimelineProvider", () => {
           <div data-testid="child-1">Child 1</div>
           <div data-testid="child-2">Child 2</div>
           <div data-testid="child-3">Child 3</div>
-        </TimelineProvider>
+        </TimelineProvider>,
       )
 
       expect(screen.getByTestId("child-1")).toBeInTheDocument()
@@ -75,7 +75,7 @@ describe("TimelineProvider", () => {
       const { container } = render(
         <TimelineProvider>
           <TestComponent />
-        </TimelineProvider>
+        </TimelineProvider>,
       )
 
       expect(container.firstChild).toBeInTheDocument()
@@ -88,7 +88,7 @@ describe("TimelineProvider", () => {
             <TimelineProvider>
               <TestComponent />
             </TimelineProvider>
-          </TimelineProvider>
+          </TimelineProvider>,
         )
       }).not.toThrow()
     })

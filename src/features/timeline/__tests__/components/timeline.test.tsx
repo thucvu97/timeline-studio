@@ -79,7 +79,7 @@ describe("Timeline Component", () => {
       const { rerender } = render(
         <div style={{ width: "800px", height: "400px" }}>
           <Timeline />
-        </div>
+        </div>,
       )
 
       expect(screen.getByTestId("timeline")).toBeInTheDocument()
@@ -88,7 +88,7 @@ describe("Timeline Component", () => {
       rerender(
         <div style={{ width: "1200px", height: "600px" }}>
           <Timeline />
-        </div>
+        </div>,
       )
 
       expect(screen.getByTestId("timeline")).toBeInTheDocument()
@@ -141,7 +141,7 @@ describe("Timeline Component", () => {
         render(
           <React.Suspense fallback={<div>Loading...</div>}>
             <Timeline />
-          </React.Suspense>
+          </React.Suspense>,
         )
       }).not.toThrow()
     })
@@ -151,7 +151,7 @@ describe("Timeline Component", () => {
         render(
           <React.StrictMode>
             <Timeline />
-          </React.StrictMode>
+          </React.StrictMode>,
         )
       }).not.toThrow()
     })
