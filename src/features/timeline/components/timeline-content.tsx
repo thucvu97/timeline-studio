@@ -15,8 +15,8 @@ import { useCurrentProject } from "@/features/app-state/hooks/use-current-projec
 import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
 
 import { useClips } from "../hooks/use-clips"
+import { useTimeline } from "../hooks/use-timeline"
 import { useTracks } from "../hooks/use-tracks"
-import { useTimeline } from "../timeline-provider"
 import { Track } from "./track/track"
 
 export function TimelineContent() {

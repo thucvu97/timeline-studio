@@ -6,7 +6,7 @@ import { useMemo } from "react"
 
 import { findTrackById, getAllTracks, getTracksByType, sortTracksByOrder } from "@/lib/timeline/utils"
 
-import { useTimeline } from "../timeline-provider"
+import { useTimeline } from "../hooks/use-timeline"
 import { TimelineTrack, TrackType } from "../types"
 
 export interface UseTracksReturn {

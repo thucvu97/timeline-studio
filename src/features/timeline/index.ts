@@ -5,17 +5,13 @@ export * from "./types"
 export * from "./components"
 
 // Provider and Machine
-export { TimelineProvider, useTimeline } from "./timeline-provider"
-export type { TimelineContextValue } from "./timeline-provider"
+export { TimelineProvider, type TimelineContextType, TimelineContext } from "./services/timeline-provider"
 
 export { timelineMachine } from "./services/timeline-machine"
-export type {
-  TimelineContext,
-  TimelineEvents,
-} from "./services/timeline-machine"
+export type { TimelineEvents } from "./services/timeline-machine"
 
 // Hooks
-export { useTracks, useClips, useTimelineSelection } from "./hooks"
+export { useTracks, useClips, useTimelineSelection, useTimeline } from "./hooks"
 export type {
   UseTracksReturn,
   UseClipsReturn,

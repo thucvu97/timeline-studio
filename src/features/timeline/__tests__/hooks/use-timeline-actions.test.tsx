@@ -5,7 +5,7 @@
 import { renderHook } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
+import { type MediaFile } from "@/features/media/types/media"
 
 import { useTimelineActions } from "../../hooks/use-timeline-actions"
 

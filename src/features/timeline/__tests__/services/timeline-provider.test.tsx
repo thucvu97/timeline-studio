@@ -7,7 +7,7 @@ import React from "react"
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import { TimelineProvider } from "../../timeline-provider"
+import { TimelineProvider } from "../../services/timeline-provider"
 
 // Тестовый компонент для проверки провайдера
 const TestComponent = () => {

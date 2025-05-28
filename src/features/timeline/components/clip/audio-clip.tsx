@@ -18,6 +18,15 @@ interface AudioClipProps {
   onRemove?: () => void
 }
 
+/**
+ * Renders an audio clip component with waveform visualization and control buttons.
+ *
+ * @param {AudioClipProps["clip"]} clip - The audio clip data, including id, name, duration, volume, and state.
+ * @param {AudioClipProps["track"]} track - The track data used for styling based on type.
+ * @param {(update: Partial<AudioClipProps["clip"]>) => void} [onUpdate] - Callback invoked when the clip is updated.
+ * @param {() => void} [onRemove] - Callback invoked when the clip is removed.
+ * @returns {JSX.Element} The AudioClip component.
+ */
 export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
   const [isHovered, setIsHovered] = React.useState(false)
 

@@ -16,6 +16,4 @@ export type { UseTimelineSelectionReturn } from "./use-timeline-selection"
 export { useTimelineActions } from "./use-timeline-actions"
 export type { UseTimelineActionsReturn } from "./use-timeline-actions"
 
-// Основной хук экспортируется из провайдера
-export { useTimeline } from "../timeline-provider"
-export type { TimelineContextValue } from "../timeline-provider"
+export { useTimeline } from "./use-timeline"

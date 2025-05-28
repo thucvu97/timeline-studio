@@ -13,7 +13,7 @@ import {
   getClipsInTimeRange,
 } from "@/lib/timeline/utils"
 
-import { useTimeline } from "../timeline-provider"
+import { useTimeline } from "../hooks/use-timeline"
 import { TimelineClip, TrackType } from "../types"
 
 export interface UseClipsReturn {

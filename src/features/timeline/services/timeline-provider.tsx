@@ -4,20 +4,16 @@
  * React контекст для управления состоянием Timeline
  */
 
-import React, { createContext, useCallback, useContext, useEffect } from "react"
+import React, { createContext, useCallback } from "react"
 
 import { useMachine } from "@xstate/react"
 
 import { MediaFile } from "@/features/media/types/media"
 
-import { TimelineContext as MachineContext, TimelineEvents, timelineMachine } from "./services/timeline-machine"
-import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TimelineUIState, TrackType } from "./types"
+import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TimelineUIState, TrackType } from "../types"
+import { timelineMachine } from "./timeline-machine"
 
-// ============================================================================
-// CONTEXT TYPES
-// ============================================================================
-
-export interface TimelineContextValue {
+export interface TimelineContextType {
   // Состояние
   project: TimelineProject | null
   uiState: TimelineUIState
@@ -89,25 +85,13 @@ export interface TimelineContextValue {
   clearError: () => void
 }
 
-// ============================================================================
-// CONTEXT CREATION
-// ============================================================================
-
-const TimelineContext = createContext<TimelineContextValue | null>(null)
-
-// ============================================================================
-// PROVIDER COMPONENT
-// ============================================================================
+export const TimelineContext = createContext<TimelineContextType | null>(null)
 
 interface TimelineProviderProps {
   children: React.ReactNode
-  // Опциональные сервисы для машины состояний
-  services?: {
-    saveProjectService?: (context: MachineContext) => Promise<void>
-  }
 }
 
-export function TimelineProvider({ children, services }: TimelineProviderProps) {
+export function TimelineProvider({ children }: TimelineProviderProps) {
   const [state, send] = useMachine(timelineMachine)
 
   // Извлекаем данные из состояния машины
@@ -116,10 +100,6 @@ export function TimelineProvider({ children, services }: TimelineProviderProps) 
   // Статус машины состояний
   const isReady = state.matches("ready")
   const isSaving = state.matches("saving")
-
-  // ============================================================================
-  // ACTION CREATORS
-  // ============================================================================
 
   // Проект
   const createProject = useCallback(
@@ -354,11 +334,7 @@ export function TimelineProvider({ children, services }: TimelineProviderProps) 
     send({ type: "CLEAR_ERROR" })
   }, [send])
 
-  // ============================================================================
-  // CONTEXT VALUE
-  // ============================================================================
-
-  const contextValue: TimelineContextValue = {
+  const contextValue: TimelineContextType = {
     // Состояние
     project,
     uiState,
@@ -369,7 +345,6 @@ export function TimelineProvider({ children, services }: TimelineProviderProps) 
     lastAction,
     isReady,
     isSaving,
-
     // Действия
     createProject,
     loadProject,
@@ -411,31 +386,4 @@ export function TimelineProvider({ children, services }: TimelineProviderProps) 
   }
 
   return <TimelineContext.Provider value={contextValue}>{children}</TimelineContext.Provider>
-}
-
-// ============================================================================
-// HOOK
-// ============================================================================
-
-export function useTimeline(): TimelineContextValue {
-  const context = useContext(TimelineContext)
-  if (!context) {
-    throw new Error("useTimeline must be used within a TimelineProvider")
-  }
-  return context
-}
-
-// ============================================================================
-// DEFAULT SERVICES
-// ============================================================================
-
-async function defaultSaveProjectService(context: MachineContext): Promise<void> {
-  // Заглушка для сохранения проекта
-  // В реальном приложении здесь будет вызов API или сохранение в файл
-  console.log("Saving project:", context.project?.name)
-
-  // Имитируем асинхронную операцию
-  await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  console.log("Project saved successfully")
 }

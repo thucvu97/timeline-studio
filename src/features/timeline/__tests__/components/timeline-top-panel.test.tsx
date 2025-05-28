@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { renderWithTimeline, screen } from "@/test/test-utils"
 
-import { TimelineTopPanel } from "./timeline-top-panel"
+import { TimelineTopPanel } from "../../components/timeline-top-panel"
 
 // Мокаем иконки Lucide
 vi.mock("lucide-react", () => ({

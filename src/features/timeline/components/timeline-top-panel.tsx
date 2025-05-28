@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-import { useTimeline } from "../timeline-provider"
+import { useTimeline } from "../hooks/use-timeline"
 
 const ICON_STYLE =
   "flex rounded-sm items-center justify-center w-7 h-7 hover:bg-[#dddbdd] dark:hover:bg-[#45444b] cursor-pointer dark:bg-[#45444b] text-gray-200 hover:bg-[#45444b]"

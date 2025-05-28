@@ -21,11 +21,7 @@ import {
   createTimelineTrack,
 } from "../types"
 
-// ============================================================================
-// CONTEXT TYPES
-// ============================================================================
-
-export interface TimelineContext {
+interface TimelineContext {
   // Основные данные
   project: TimelineProject | null
   uiState: TimelineUIState
@@ -43,10 +39,6 @@ export interface TimelineContext {
   error: string | null
   lastAction: string | null
 }
-
-// ============================================================================
-// EVENT TYPES
-// ============================================================================
 
 export type TimelineEvents =
   // Проект
@@ -137,10 +129,6 @@ export type TimelineEvents =
   // Ошибки
   | { type: "CLEAR_ERROR" }
 
-// ============================================================================
-// INITIAL STATE
-// ============================================================================
-
 const initialUIState: TimelineUIState = {
   currentTime: 0,
   playheadPosition: 0,
@@ -171,10 +159,6 @@ const initialContext: TimelineContext = {
   lastAction: null,
 }
 
-// ============================================================================
-// GUARDS
-// ============================================================================
-
 const guards = {
   hasProject: ({ context }: { context: TimelineContext }) => context.project !== null,
   hasSelection: ({ context }: { context: TimelineContext }) =>
@@ -185,10 +169,6 @@ const guards = {
   hasClipboard: ({ context }: { context: TimelineContext }) =>
     context.uiState.clipboard.clips.length > 0 || context.uiState.clipboard.tracks.length > 0,
 }
-
-// ============================================================================
-// ACTIONS
-// ============================================================================
 
 const actions = {
   // Проект
@@ -387,10 +367,6 @@ const actions = {
     error: null,
   }),
 }
-
-// ============================================================================
-// MACHINE DEFINITION
-// ============================================================================
 
 export const timelineMachine = createMachine(
   {
