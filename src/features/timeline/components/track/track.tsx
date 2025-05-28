@@ -8,9 +8,9 @@ import React from "react"
 
 import { cn } from "@/lib/utils"
 
-import { TimelineTrack } from "../../types"
 import { TrackContent } from "./track-content"
 import { TrackHeader } from "./track-header"
+import { TimelineTrack } from "../../types"
 
 interface TrackProps {
   track: TimelineTrack | null

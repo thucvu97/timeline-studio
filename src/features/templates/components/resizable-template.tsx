@@ -7,9 +7,9 @@ import { usePlayer } from "@/features/video-player/services/player-provider"
 
 import { AppliedTemplate, getVideoStyleForTemplate } from "../services/template-service"
 import {
-  SplitCustom7,
   SplitCustom53Square,
   SplitCustom54,
+  SplitCustom7,
   SplitHorizontal,
   SplitHorizontal4,
   SplitVertical,

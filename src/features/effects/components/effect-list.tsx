@@ -9,9 +9,9 @@ import { useProjectSettings } from "@/features/project-settings"
 import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
 import { VideoEffect } from "@/types/effects"
 
+import { EffectGroup } from "./effect-group"
 import { useEffects } from "../hooks/use-effects"
 import { useEffectsImport } from "../hooks/use-effects-import"
-import { EffectGroup } from "./effect-group"
 
 /**
  * Компонент для отображения списка эффектов

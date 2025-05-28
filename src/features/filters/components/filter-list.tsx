@@ -9,8 +9,8 @@ import { useMedia } from "@/features/browser/media"
 import { useProjectSettings } from "@/features/project-settings"
 import { VideoFilter } from "@/types/filters"
 
-import { useFilters } from "../hooks/use-filters"
 import { FilterPreview } from "./filter-preview"
+import { useFilters } from "../hooks/use-filters"
 
 const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400]
 

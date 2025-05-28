@@ -5,8 +5,8 @@ import { convertFileSrc } from "@tauri-apps/api/core"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useProjectSettings } from "@/features/project-settings"
 
-import { usePlayer } from "../services/player-provider"
 import { PlayerControls } from "./player-controls"
+import { usePlayer } from "../services/player-provider"
 
 /**
  * Компонент медиа-плеера для воспроизведения видео

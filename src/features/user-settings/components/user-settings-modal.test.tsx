@@ -4,8 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useModal } from "@/features/modals/services/modal-provider"
 import { useLanguage } from "@/hooks/use-language"
 
-import { useUserSettings } from "../hooks/use-user-settings"
 import { UserSettingsModal } from "./user-settings-modal"
+import { useUserSettings } from "../hooks/use-user-settings"
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({

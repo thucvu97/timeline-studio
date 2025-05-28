@@ -11,8 +11,8 @@ import { useProjectSettings } from "@/features/project-settings"
 import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
 import { Transition } from "@/types/transitions"
 
-import { useTransitions } from "../hooks/use-transitions"
 import { TransitionPreview } from "./transition-preview"
+import { useTransitions } from "../hooks/use-transitions"
 
 /**
  * Компонент для отображения списка доступных переходов между видео

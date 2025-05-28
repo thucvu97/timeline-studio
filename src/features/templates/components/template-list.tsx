@@ -8,9 +8,9 @@ import { useMedia } from "@/features/browser/media"
 import { useProjectSettings } from "@/features/project-settings"
 import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
 
+import { TemplatePreview } from "./template-preview"
 import { getTemplateLabels } from "../lib/template-labels"
 import { MediaTemplate, TEMPLATE_MAP } from "../lib/templates"
-import { TemplatePreview } from "./template-preview"
 
 /**
  * Преобразует метку соотношения сторон в группу шаблонов

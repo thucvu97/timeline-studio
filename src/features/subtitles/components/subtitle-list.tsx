@@ -8,9 +8,9 @@ import { useMedia } from "@/features/browser/media"
 import { useProjectSettings } from "@/features/project-settings"
 import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
 
+import { SubtitlePreview } from "./subtitle-preview"
 import { useSubtitles } from "../hooks/use-subtitle-styles"
 import { SubtitleStyle } from "../types/subtitles"
-import { SubtitlePreview } from "./subtitle-preview"
 
 /**
  * Компонент для отображения списка доступных стилей субтитров

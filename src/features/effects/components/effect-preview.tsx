@@ -8,9 +8,9 @@ import { useResources } from "@/features/resources"
 import { VideoEffect } from "@/types/effects"
 import { EffectResource } from "@/types/resources"
 
+import { EffectIndicators } from "./effect-indicators"
 import { useEffects } from "../hooks/use-effects"
 import { generateCSSFilterForEffect, getPlaybackRate } from "../utils/css-effects"
-import { EffectIndicators } from "./effect-indicators"
 
 // Всегда используем общее тестовое видео для демонстрации CSS-эффектов
 // CSS-фильтры применяются динамически в компоненте

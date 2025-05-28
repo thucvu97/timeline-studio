@@ -4,8 +4,8 @@ import { useMedia } from "@/features/browser"
 import { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
 
-import { MediaPreview } from "../../browser/components/preview"
 import { FileMetadata } from "./file-metadata"
+import { MediaPreview } from "../../browser/components/preview"
 
 /**
  * Интерфейс свойств компонента MediaItem

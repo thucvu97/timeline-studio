@@ -11,8 +11,8 @@ import { formatDateByLanguage } from "@/i18n/constants"
 import { getFileType, groupFilesByDate } from "@/lib/media-files"
 import { FfprobeStream } from "@/types/ffprobe"
 
-import { StatusBar } from "../../browser/components/layout/status-bar"
 import { MediaContent } from "./media-content"
+import { StatusBar } from "../../browser/components/layout/status-bar"
 
 interface GroupedMediaFiles {
   title: string

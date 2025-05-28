@@ -2,8 +2,8 @@
  * Тесты для хука useTimelineSelection
  */
 
-import { describe, expect, it } from "vitest"
 import { renderHook } from "@testing-library/react"
+import { describe, expect, it } from "vitest"
 
 import { useTimelineSelection } from "../../hooks/use-timeline-selection"
 

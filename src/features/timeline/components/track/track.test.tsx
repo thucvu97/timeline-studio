@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest"
 
 import { render, screen } from "@/test/test-utils"
 
-import { createTimelineClip, createTimelineTrack } from "../../types"
 import { Track } from "./track"
+import { createTimelineClip, createTimelineTrack } from "../../types"
 
 describe("Track", () => {
   const mockTrack = createTimelineTrack("Test Track", "video")
