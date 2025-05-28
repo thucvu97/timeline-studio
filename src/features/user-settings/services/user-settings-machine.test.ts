@@ -19,7 +19,7 @@ describe("UserSettingsMachine", () => {
 
   it("should have correct constants", () => {
     // Проверяем константы
-    expect(DEFAULT_SIZE).toBe(100)
+    expect(DEFAULT_SIZE).toBe(200)
     expect(DEFAULT_TAB).toBe("media")
     expect(DEFAULT_LAYOUT).toBe("default")
 

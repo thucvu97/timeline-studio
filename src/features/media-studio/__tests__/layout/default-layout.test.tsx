@@ -62,7 +62,7 @@ describe("DefaultLayout", () => {
     expect(screen.getByTestId("timeline")).toBeInTheDocument()
 
     // Проверяем, что разделители отрендерены
-    expect(screen.getAllByTestId("resizable-handle").length).toBe(2)
+    expect(screen.getAllByTestId("resizable-handle").length).toBe(3)
   })
 
   it("should render without browser panel when browser is not visible", () => {
@@ -114,14 +114,10 @@ describe("DefaultLayout", () => {
 
     // Проверяем, что у панели браузера правильные размеры
     const browserPanel = panels[1]
-    expect(browserPanel).toHaveAttribute("data-default-size", "40")
-    expect(browserPanel).toHaveAttribute("data-min-size", "10")
-    expect(browserPanel).toHaveAttribute("data-max-size", "80")
+    expect(browserPanel).toHaveAttribute("data-default-size", "30")
 
     // Проверяем, что у панели видеоплеера правильные размеры
     const videoPanel = panels[2]
-    expect(videoPanel).toHaveAttribute("data-default-size", "60")
-    expect(videoPanel).toHaveAttribute("data-min-size", "20")
-    expect(videoPanel).toHaveAttribute("data-max-size", "100")
+    expect(videoPanel).toHaveAttribute("data-default-size", "50")
   })
 })

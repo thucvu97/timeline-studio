@@ -1,5 +1,6 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Browser } from "@/features/browser/components/browser"
+import { Options } from "@/features/options"
 import { Timeline } from "@/features/timeline/components/timeline"
 import { useUserSettings } from "@/features/user-settings"
 import { VideoPlayer } from "@/features/video-player/components/video-player"
@@ -14,7 +15,7 @@ export function DefaultLayout() {
           // Если браузер видим, показываем обычный макет с двумя панелями
           <ResizablePanelGroup direction="horizontal" autoSaveId="top-layout">
             <ResizablePanel
-              defaultSize={40}
+              defaultSize={30}
               minSize={10}
               maxSize={80}
               style={{
@@ -28,7 +29,7 @@ export function DefaultLayout() {
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel
-              defaultSize={60}
+              defaultSize={50}
               minSize={20}
               maxSize={100}
               style={{
@@ -37,6 +38,19 @@ export function DefaultLayout() {
             >
               <div className="h-full flex-1">
                 <VideoPlayer />
+              </div>
+            </ResizablePanel>
+            <ResizableHandle />
+            <ResizablePanel
+              defaultSize={20}
+              minSize={20}
+              maxSize={100}
+              style={{
+                transition: "width 0.3s ease-in-out",
+              }}
+            >
+              <div className="h-full flex-1">
+                <Options />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

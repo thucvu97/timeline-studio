@@ -1,11 +1,6 @@
 import { assign, createMachine } from "xstate"
 
-import {
-  DEFAULT_PREVIEW_SIZE_INDEX,
-  PREVIEW_SIZES,
-  type PreviewSize,
-  getPreviewSizeIndex,
-} from "@/lib/constants/preview-sizes"
+import { DEFAULT_PREVIEW_SIZE_INDEX, getPreviewSizeIndex } from "@/lib/constants/preview-sizes"
 
 /**
  * Тип вкладки браузера

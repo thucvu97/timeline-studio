@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const TAB_TRIGGER_STYLES =
+export const TAB_TRIGGER_STYLES =
   "text-xs text-gray-600 dark:bg-[#2D2D2D] border-none " +
   "dark:data-[state=active]:bg-[#252526] dark:data-[state=active]:text-[#35d1c1] data-[state=active]:text-text-gray-900" +
   "hover:text-gray-900 dark:text-gray-400 dark:hover:bg-[#252526] dark:hover:text-gray-100 " +

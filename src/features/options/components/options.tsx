@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TAB_TRIGGER_STYLES } from "@/features/browser"
 import { MediaFile } from "@/features/media/types/media"
 
 import { AudioSettings } from "./audio-settings"
@@ -51,12 +52,25 @@ export function Options({ selectedMediaFile, onMediaFileSelect }: OptionsProps) 
   }
 
   return (
-    <div className="flex h-full flex-col bg-background" data-testid="options">
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as OptionsTab)} data-testid="options-tabs">
+    <div className="flex h-full flex-col bg-background p-0 m-0" data-testid="options">
+      <Tabs
+        className="flex-shrink-0 justify-start border-none rounded-none m-0 p-0"
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as OptionsTab)}
+        data-testid="options-tabs"
+      >
         {/* Вкладки */}
-        <TabsList className="grid w-full grid-cols-4" data-testid="options-tabs-list">
+        <TabsList
+          className="grid w-full grid-cols-4 flex-shrink-0 border-none rounded-none dark:bg-[#252526] m-0 p-0"
+          data-testid="options-tabs-list"
+        >
           {TABS.map((tab) => (
-            <TabsTrigger key={tab.id} value={tab.id} data-testid={`options-tab-${tab.id}`}>
+            <TabsTrigger
+              className={TAB_TRIGGER_STYLES}
+              key={tab.id}
+              value={tab.id}
+              data-testid={`options-tab-${tab.id}`}
+            >
               {t(tab.labelKey)}
             </TabsTrigger>
           ))}
