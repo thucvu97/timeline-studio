@@ -45,13 +45,6 @@ vi.mock("@/lib/saved-media-utils", () => ({
 const mockAddMusicFiles = vi.fn()
 const mockUpdateMusicFiles = vi.fn()
 
-vi.mock("../hooks/use-music", () => ({
-  useMusic: () => ({
-    addMusicFiles: mockAddMusicFiles,
-    updateMusicFiles: mockUpdateMusicFiles,
-  }),
-}))
-
 describe("useMusicImport", () => {
   beforeEach(() => {
     vi.clearAllMocks()
