@@ -361,7 +361,7 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
 
   return (
     <a
-      href={`https://github.com/chatman-media/timeline-studio/releases/latest/download/${getDownloadPath()}`}
+      href={`https://github.com/chatman-media/timeline-studio/releases/download/${getDownloadPath()}`}
       className={`group relative bg-gradient-to-r ${getGradient(platform)} text-white font-bold py-4 px-8 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-3`}
     >
       <span className="relative z-10 flex items-center gap-3">
