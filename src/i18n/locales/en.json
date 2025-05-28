@@ -638,7 +638,7 @@
       "effects": "Effects",
       "filters": "Filters",
       "templates": "Multicam",
-      "styleTemplates": "Styles",
+      "styleTemplates": "Templates",
       "subtitles": "Subtitles"
     },
     "templateScreens": {
@@ -884,7 +884,7 @@
     "position": "Position",
     "duration": "Duration",
     "animation": "Animation",
-    "styles": {
+    "Templates": {
       "bold": "Bold",
       "italic": "Italic",
       "underline": "Underline",
@@ -1240,7 +1240,7 @@
       "transition": "Transition",
       "overlay": "Overlay"
     },
-    "styles": {
+    "Templates": {
       "modern": "Modern",
       "vintage": "Vintage",
       "minimal": "Minimal",

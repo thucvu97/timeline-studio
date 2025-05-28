@@ -1,6 +1,6 @@
 import { useContext } from "react"
 
-import { ChatContext, ChatContextType } from "../services"
+import { ChatContext, ChatContextType } from "../services/chat-provider"
 
 /**
  * Хук для использования контекста чата

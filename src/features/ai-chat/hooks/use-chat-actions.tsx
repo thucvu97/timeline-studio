@@ -1,4 +1,4 @@
-import { ChatContextType } from "../services"
+import { ChatContextType } from "../services/chat-provider"
 import { useChat } from "./use-chat"
 
 /**
