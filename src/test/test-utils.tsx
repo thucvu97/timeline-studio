@@ -66,6 +66,17 @@ export const ModalProviders = ({ children }: { children: ReactNode }) => {
   )
 }
 
+// ✅ Провайдеры для чата
+export const ChatProviders = ({ children }: { children: ReactNode }) => {
+  return (
+    <BaseProviders>
+      <UserSettingsProvider>
+        <ModalProvider>{children}</ModalProvider>
+      </UserSettingsProvider>
+    </BaseProviders>
+  )
+}
+
 const TemplateProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
@@ -93,6 +104,9 @@ export const renderWithTimeline = (ui: ReactElement, options?: Omit<RenderOption
 
 export const renderWithModal = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
   render(ui, { wrapper: ModalProviders, ...options })
+
+export const renderWithChat = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
+  render(ui, { wrapper: ChatProviders, ...options })
 
 export const renderWithTemplates = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
   render(ui, { wrapper: TemplateProviders, ...options })

@@ -322,11 +322,12 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
   const getDownloadPath = () => {
     switch (platform.toLowerCase()) {
       case "windows":
-        return "timeline-studio-windows-x64.msi"
+        // timeline-studio_0.9.9_x64_en-US.msi
+        return "timeline-studio_0.9.9_x64_en-US.msi"
       case "macos":
-        return "timeline-studio-macos-x64.dmg"
+        return "timeline-studio_0.9.9_universal.dmg"
       case "linux":
-        return "timeline-studio-linux-x86_64.AppImage"
+        return "timeline-studio_0.9.9_x86_64.AppImage"
       default:
         return `timeline-studio-${platform.toLowerCase()}.zip`
     }

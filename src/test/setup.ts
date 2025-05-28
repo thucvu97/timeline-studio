@@ -878,23 +878,6 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
   ModalProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
-// Мок для ChatProvider (AI Chat)
-vi.mock("@/features/ai-chat/services/chat-provider", () => ({
-  useChat: () => ({
-    chatMessages: [],
-    selectedAgentId: null,
-    isProcessing: false,
-    error: null,
-    sendChatMessage: vi.fn(),
-    receiveChatMessage: vi.fn(),
-    selectAgent: vi.fn(),
-    setProcessing: vi.fn(),
-    setError: vi.fn(),
-    clearMessages: vi.fn(),
-    removeMessage: vi.fn(),
-  }),
-  ChatProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
 
 // Мок для TimelineProvider
 vi.mock("@/features/timeline/timeline-provider", () => ({
