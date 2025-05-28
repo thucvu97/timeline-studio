@@ -1,5 +1,6 @@
 export * from "./timeline"
 export * from "./timeline-top-panel"
 export * from "./timeline-content"
+export * from "./timeline-scale"
 export * from "./track"
 export * from "./clip"
