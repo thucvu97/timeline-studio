@@ -1,12 +1,8 @@
-import { useEffect, useState } from "react"
-
 import { Eye, EyeOff, Lock, LockOpen, Volume2, VolumeX } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Slider } from "@/components/ui/slider"
-import { MediaTrack } from "@/lib/media-files"
-
-import { useTimeline } from "../../hooks"
+import { MediaTrack } from "@/features/media/types"
 
 interface TrackControlsProps {
   track: MediaTrack

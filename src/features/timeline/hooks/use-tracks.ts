@@ -4,7 +4,7 @@
 
 import { useMemo } from "react"
 
-import { findTrackById, getAllTracks, getTracksByType, sortTracksByOrder } from "@/lib/timeline/utils"
+import { findTrackById, getAllTracks, getTracksByType, sortTracksByOrder } from "@/features/timeline/utils/utils"
 
 import { useTimeline } from "../hooks/use-timeline"
 import { TimelineTrack, TrackType } from "../types"

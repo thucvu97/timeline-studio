@@ -1,0 +1,31 @@
+86794 total lines of code in ./src
+
+ai-chat: 1589 строк
+app-state: 2092 строк
+browser: 5410 строк
+camera-capture: 2743 строк
+effects: 3471 строк
+export: 366 строк
+filters: 3031 строк
+keyboard-shortcuts: 1328 строк
+media-studio: 1610 строк
+media: 3930 строк
+modals: 566 строк
+montage-planner: 0 строк
+music: 1801 строк
+options: 970 строк
+person-identification: 0 строк
+project-settings: 1939 строк
+recognition: 2565 строк
+resources: 2558 строк
+scene-analyzer: 0 строк
+script-generator: 0 строк
+style-templates: 2774 строк
+subtitles: 2633 строк
+templates: 17414 строк
+timeline: 6578 строк
+top-bar: 429 строк
+transitions: 3180 строк
+user-settings: 2016 строк
+video-player: 2044 строк
+voice-recording: 1169 строк

@@ -23,7 +23,7 @@ import {
   snapToGrid,
   getSelectedClips,
   validateProject,
-} from "../src/lib/timeline/utils"
+} from "../src/features/timeline/utils/utils"
 
 // ============================================================================
 // ПРИМЕР 1: Создание простого проекта

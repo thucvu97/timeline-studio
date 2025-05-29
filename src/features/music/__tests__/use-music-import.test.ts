@@ -28,7 +28,7 @@ const mockSelectAudioFile = vi.fn()
 const mockSelectMediaDirectory = vi.fn()
 const mockGetMediaMetadata = vi.fn()
 
-vi.mock("@/lib/media", () => ({
+vi.mock("@/features/media", () => ({
   selectAudioFile: mockSelectAudioFile,
   selectMediaDirectory: mockSelectMediaDirectory,
   getMediaMetadata: mockGetMediaMetadata,

@@ -1,13 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import {
-  formatDuration,
-  formatFileSize,
-  getMediaFiles,
-  getMediaMetadata,
-  selectMediaDirectory,
-  selectMediaFile,
-} from "./media"
+import { formatDuration, formatFileSize, getMediaFiles, getMediaMetadata, selectMediaDirectory, selectMediaFile } from "../../services"
+
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({

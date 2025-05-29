@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next"
 
 import { useBrowserState } from "@/components/common/browser-state-provider"
 import { useMedia } from "@/features/browser"
+import { getFileType, groupFilesByDate } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
 import { useTimelineActions } from "@/features/timeline/hooks"
 import i18n from "@/i18n"
 import { formatDateByLanguage } from "@/i18n/constants"
-import { getFileType, groupFilesByDate } from "@/lib/media-files"
 import { FfprobeStream } from "@/types/ffprobe"
 
 import { MediaContent } from "./media-content"

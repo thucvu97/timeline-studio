@@ -9,7 +9,6 @@ import {
   Folder,
   Grid,
   Grid2x2,
-  LayoutDashboard,
   List,
   ListFilterPlus,
   SortDesc,

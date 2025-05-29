@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { MediaFile } from "@/features/media/types/media"
 import * as i18nConstants from "@/i18n/constants"
 
-import { getGroupedFiles, getTopDateWithRemainingFiles, groupFilesByDate } from "./grouping"
+import { getGroupedFiles, getTopDateWithRemainingFiles, groupFilesByDate,  } from "../../utils"
+
 
 // Мокируем i18n и formatDateByLanguage
 beforeEach(() => {

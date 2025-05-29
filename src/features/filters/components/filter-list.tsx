@@ -2,7 +2,7 @@ import { useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { useBrowserState } from "@/components/common/browser-state-provider"
+import { PREVIEW_SIZES, useBrowserState } from "@/components/common/browser-state-provider"
 import { ContentGroup } from "@/components/common/content-group"
 import { NoFiles } from "@/components/common/no-files"
 import { useMedia } from "@/features/browser/media"
@@ -11,8 +11,6 @@ import { VideoFilter } from "@/types/filters"
 
 import { FilterPreview } from "./filter-preview"
 import { useFilters } from "../hooks/use-filters"
-
-const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400]
 
 /**
  * Компонент для отображения списка доступных видеофильтров

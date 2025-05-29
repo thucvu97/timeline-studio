@@ -3,8 +3,8 @@ import { useCallback, useState } from "react"
 import { invoke } from "@tauri-apps/api/core"
 
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
+import { getMediaMetadata, selectMediaDirectory, selectMediaFile } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
-import { getMediaMetadata, selectMediaDirectory, selectMediaFile } from "@/lib/media"
 import { convertToSavedMediaFile } from "@/lib/saved-media-utils"
 
 import { useMedia } from "./use-media"

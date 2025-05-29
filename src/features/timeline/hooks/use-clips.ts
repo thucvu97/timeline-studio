@@ -11,7 +11,7 @@ import {
   findNearestClip,
   getAllClips,
   getClipsInTimeRange,
-} from "@/lib/timeline/utils"
+} from "@/features/timeline/utils/utils"
 
 import { useTimeline } from "../hooks/use-timeline"
 import { TimelineClip, TrackType } from "../types"

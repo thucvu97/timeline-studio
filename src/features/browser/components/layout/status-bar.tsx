@@ -2,8 +2,7 @@ import { CopyPlus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
-import { MediaFile } from "@/features/media/types/media"
-import { getRemainingMediaCounts, getTopDateWithRemainingFiles } from "@/lib/media-files"
+import { MediaFile , getRemainingMediaCounts, getTopDateWithRemainingFiles } from "@/features/media"
 
 interface StatusBarProps {
   media: MediaFile[]

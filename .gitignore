@@ -46,3 +46,13 @@ promo/dist/
 
 # DeepSource CLI
 bin/deepsource
+
+# Public assets
+/public/music/*
+/public/media/*
+/public/effects/*
+/public/filters/*
+/public/style-templates/*
+/public/subtitles/*
+/public/templates/*
+/public/transitions/*
