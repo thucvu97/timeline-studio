@@ -32,7 +32,16 @@ Tests:          17/17 ✅ (100%) 🎉
 Documentation:  17/17 ✅ (100%)
 ```
 
-### 🔥 Critical Tasks
+### 🔥 Critical Tasks - Video Compiler Architecture
+
+**NEW PRIORITY:** Video Compiler модуль (Rust/FFmpeg) - центральная система компиляции видео
+
+- **Video Compiler** - 🆕 центральный модуль компиляции (Rust/FFmpeg)
+- **Timeline Engine** - интеграция с Video Compiler для UI управления
+- **Preview Generator** - превью кадры и прогресс рендеринга
+- **Testing Coverage** - Templates (9.63%→80%+), Export (3.64%→80%+)
+
+### 📋 Legacy Tasks
 
 - **Timeline** - ✅ state machine ready, needs UI integration
 - **Resources** - requires UI components for management
