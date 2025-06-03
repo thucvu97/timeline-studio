@@ -4777,10 +4777,14 @@ dependencies = [
 [[package]]
 name = "timeline-studio"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "0.13.0"
 =======
 version = "0.10.1"
 >>>>>>> 54c8bb079 (unfinished engine)
+=======
+version = "0.10.0"
+>>>>>>> f23023b65 (saved)
 dependencies = [
  "async-trait",
  "chrono",
