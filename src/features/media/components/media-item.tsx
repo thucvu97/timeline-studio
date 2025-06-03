@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react"
 
-import { useMedia } from "@/features/browser"
+import { useMedia } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
 

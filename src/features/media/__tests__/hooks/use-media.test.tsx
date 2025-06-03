@@ -3,8 +3,8 @@ import * as React from "react"
 import { act, renderHook } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { MediaProvider } from "./media-provider"
-import { useMedia } from "./use-media"
+import { useMedia } from "../../hooks/use-media"
+import { MediaProvider } from "../../services/media-provider"
 
 // Мокаем useMachine из @xstate/react
 const mockSend = vi.fn()

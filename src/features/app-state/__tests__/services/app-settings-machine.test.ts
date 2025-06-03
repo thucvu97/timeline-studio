@@ -2,7 +2,7 @@ import { act } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
-import { FavoritesType } from "@/features/browser/media/media-machine"
+import { FavoritesType } from "@/features/media/services/media-machine"
 import { UserSettingsContextType } from "@/features/user-settings"
 
 import { AppSettingsContextType, appSettingsMachine } from "../../services/app-settings-machine"

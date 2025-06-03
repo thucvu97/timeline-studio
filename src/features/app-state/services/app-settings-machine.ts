@@ -1,9 +1,9 @@
 import i18next from "i18next"
 import { assign, createMachine, fromPromise } from "xstate"
 
-import { FavoritesType } from "@/features/browser/media/media-machine"
+import { FavoritesType } from "@/features/media/services/media-machine"
+import { DEFAULT_CONTENT_SIZES } from "@/features/media/utils/preview-sizes"
 import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
-import { DEFAULT_CONTENT_SIZES } from "@/lib/constants/preview-sizes"
 
 import { AppSettings, storeService } from "./store-service"
 

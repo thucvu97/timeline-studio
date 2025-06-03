@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
-import { DEFAULT_SIZE, PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
+import { DEFAULT_SIZE, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 
 import { BROWSER_TABS, DEFAULT_LAYOUT, DEFAULT_TAB, LAYOUTS, userSettingsMachine } from "./user-settings-machine"
 

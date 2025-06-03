@@ -573,7 +573,7 @@ import { useProjectSettings } from "@/features/project-settings"
 import { usePlayer } from "@/features/video-player/providers/player-provider"
 import { useResources } from "@/features/browser/resources/resources-provider"
 import { useMusic } from "@/features/browser/components/tabs/music/music-provider"
-import { useMedia } from "@/features/browser/media/media-provider"
+import { useMedia } from "@/features/media"
 ```
 
 ### Композиция провайдеров

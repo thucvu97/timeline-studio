@@ -830,7 +830,7 @@ vi.mock("@/features/resources", () => ({
 }))
 
 // Мок для MediaProvider
-vi.mock("@/features/browser/media", () => ({
+vi.mock("@/features/media", () => ({
   useMedia: () => ({
     mediaFiles: [],
     addMediaFiles: vi.fn(),

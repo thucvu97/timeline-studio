@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
-import { mediaMachine } from "./media-machine"
+import { mediaMachine } from "../../services/media-machine"
 
 // Мокаем fetch
 global.fetch = vi.fn()

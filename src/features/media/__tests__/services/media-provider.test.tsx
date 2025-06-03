@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
 
-import { MediaContext, MediaProvider } from "./media-provider"
+import { MediaContext, MediaProvider } from "../../services/media-provider"
 
 // Мокаем useMachine из @xstate/react
 const mockSend = vi.fn()

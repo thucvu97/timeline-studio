@@ -1,6 +1,6 @@
 import { Store, load } from "@tauri-apps/plugin-store"
 
-import { FavoritesType } from "@/features/browser/media/media-machine"
+import { FavoritesType } from "@/features/media/services/media-machine"
 import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
 
 /**

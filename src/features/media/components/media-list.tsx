@@ -2,9 +2,8 @@ import { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { useMedia } from "@/features/browser"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
-import { getFileType, groupFilesByDate } from "@/features/media"
+import { getFileType , groupFilesByDate, useMedia } from "@/features/media"
 import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
 import { useTimelineActions } from "@/features/timeline/hooks"

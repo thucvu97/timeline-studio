@@ -6,7 +6,7 @@ import { fireEvent, renderWithBase, screen } from "@/test/test-utils"
 import { MediaItem } from "../../components/media-item"
 
 // Мокаем useMedia
-vi.mock("@/features/browser", () => ({
+vi.mock("@/features/media", () => ({
   useMedia: () => ({
     isFileAdded: vi.fn((file) => file.id === "added-file"),
     areAllFilesAdded: vi.fn(() => false),

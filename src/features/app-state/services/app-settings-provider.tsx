@@ -6,8 +6,8 @@ import { useMachine } from "@xstate/react"
 
 import { MissingFilesDialog } from "@/components/dialogs/missing-files-dialog"
 import { ProjectFileService } from "@/features/app-state/services/project-file-service"
-import { FavoritesType } from "@/features/browser/media/media-machine"
 import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
+import { FavoritesType } from "@/features/media/services/media-machine"
 import { UserSettingsContextType } from "@/features/user-settings"
 
 import { AppSettingsContextType, appSettingsMachine } from "./app-settings-machine"

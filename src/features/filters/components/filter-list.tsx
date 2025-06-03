@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import { ContentGroup } from "@/components/common/content-group"
 import { NoFiles } from "@/components/common/no-files"
-import { useMedia } from "@/features/browser/media"
 import { PREVIEW_SIZES, useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { VideoFilter } from "@/features/filters/types/filters"
+import { useMedia } from "@/features/media"
 import { useProjectSettings } from "@/features/project-settings"
 
 import { FilterPreview } from "./filter-preview"

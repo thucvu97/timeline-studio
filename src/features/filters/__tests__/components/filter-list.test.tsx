@@ -81,7 +81,7 @@ vi.mock("../../hooks/use-filters", () => ({
   }),
 }))
 
-vi.mock("@/features/browser/media", () => ({
+vi.mock("@/features/media", () => ({
   useMedia: () => ({
     isItemFavorite: vi.fn().mockReturnValue(false),
   }),

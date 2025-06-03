@@ -1,4 +1,3 @@
-import { act } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 // Создаем моки для функций, которые используются в хуке
@@ -8,14 +7,14 @@ const mockAddMediaFiles = vi.fn()
 const mockUseMediaImport = vi.fn()
 
 // Мокаем хук useMedia
-vi.mock("./use-media", () => ({
+vi.mock("../hooks/use-media", () => ({
   useMedia: () => ({
     addMediaFiles: mockAddMediaFiles,
   }),
 }))
 
 // Мокаем сам хук useMediaImport
-vi.mock("./use-media-import", () => ({
+vi.mock("../hooks/use-media-import", () => ({
   useMediaImport: mockUseMediaImport,
 }))
 

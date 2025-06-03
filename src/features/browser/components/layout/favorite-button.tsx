@@ -3,10 +3,9 @@ import { memo, useEffect, useRef, useState } from "react"
 import { Star } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { useMedia } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
-
-import { useMedia } from "../../media"
 
 interface FavoriteButtonProps {
   file: MediaFile

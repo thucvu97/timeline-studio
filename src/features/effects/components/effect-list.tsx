@@ -3,11 +3,11 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { NoFiles } from "@/components/common/no-files"
-import { useMedia } from "@/features/browser/media"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { VideoEffect } from "@/features/effects/types/effects"
+import { useMedia } from "@/features/media"
+import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useProjectSettings } from "@/features/project-settings"
-import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
 
 import { EffectGroup } from "./effect-group"
 import { useEffects } from "../hooks/use-effects"

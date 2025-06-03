@@ -1,7 +1,7 @@
 import { assign, createMachine } from "xstate"
 
 import type { BrowserContext } from "@/features/browser/services/browser-state-machine"
-import { DEFAULT_CONTENT_SIZES, type PreviewSize, type PreviewSizeKey } from "@/lib/constants/preview-sizes"
+import { DEFAULT_CONTENT_SIZES, type PreviewSize, type PreviewSizeKey } from "@/features/media/utils/preview-sizes"
 
 /**
  * Допустимые значения для активного таба в браузере

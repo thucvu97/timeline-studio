@@ -3,10 +3,10 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ContentGroup } from "@/components/common/content-group"
-import { useMedia } from "@/features/browser/media"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
+import { useMedia } from "@/features/media"
+import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { StyleTemplatePreview } from "@/features/style-templates/components/style-template-preview"
-import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
 
 import { useStyleTemplates } from "../hooks"
 import { StyleTemplate } from "../types"

@@ -1,6 +1,6 @@
 import { useContext } from "react"
 
-import { MediaContext } from "./media-provider"
+import { MediaContext } from "../services/media-provider"
 
 /**
  * Хук для доступа к контексту медиафайлов
