@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import { YoloVideoData } from "@/types/yolo"
+import { YoloVideoData } from "@/features/recognition/types/yolo"
 
 interface YoloTrackOverlayProps {
   yoloData: YoloVideoData

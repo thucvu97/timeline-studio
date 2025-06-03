@@ -2,7 +2,7 @@ import { createContext, useMemo } from "react"
 
 import { useMachine } from "@xstate/react"
 
-import type { ProjectSettings } from "@/types/project"
+import type { ProjectSettings } from "@/features/project-settings/types/project"
 
 import { projectSettingsMachine } from "./project-settings-machine"
 

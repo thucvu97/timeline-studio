@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { VideoEffect } from "@/types/effects"
+import { VideoEffect } from "@/features/effects/types/effects"
 
 interface EffectPresetsProps {
   effect: VideoEffect

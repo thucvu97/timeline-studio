@@ -1,4 +1,4 @@
-import { VideoEffect } from "@/types/effects"
+import { VideoEffect } from "@/features/effects/types/effects"
 
 /**
  * Утилитарная функция для генерации CSS-фильтров на основе параметров эффекта

@@ -1,4 +1,4 @@
-import { YoloDetection } from "@/types/yolo"
+import { YoloDetection } from "@/features/recognition/types/yolo"
 
 /**
  * Интерфейс для контекста сцены, понятного для ИИ

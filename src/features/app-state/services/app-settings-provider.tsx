@@ -5,10 +5,10 @@ import { open, save } from "@tauri-apps/plugin-dialog"
 import { useMachine } from "@xstate/react"
 
 import { MissingFilesDialog } from "@/components/dialogs/missing-files-dialog"
+import { ProjectFileService } from "@/features/app-state/services/project-file-service"
 import { FavoritesType } from "@/features/browser/media/media-machine"
+import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
 import { UserSettingsContextType } from "@/features/user-settings"
-import { useMediaRestoration } from "@/hooks/use-media-restoration"
-import { ProjectFileService } from "@/lib/project-file-service"
 
 import { AppSettingsContextType, appSettingsMachine } from "./app-settings-machine"
 

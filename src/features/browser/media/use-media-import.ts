@@ -5,7 +5,7 @@ import { invoke } from "@tauri-apps/api/core"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { getMediaMetadata, selectMediaDirectory, selectMediaFile } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
-import { convertToSavedMediaFile } from "@/lib/saved-media-utils"
+import { convertToSavedMediaFile } from "@/features/media/utils/saved-media-utils"
 
 import { useMedia } from "./use-media"
 

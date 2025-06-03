@@ -1,4 +1,4 @@
-import { VideoFilter } from "@/types/filters"
+import { VideoFilter } from "@/features/filters/types/filters"
 
 /**
  * Интерфейс для сырых данных фильтра из JSON
@@ -101,7 +101,7 @@ export function createFallbackFilter(id: string): VideoFilter {
     complexity: "basic",
     tags: ["fallback"],
     description: {
-      ru: `Базовый фильтр ${id}`,
+      // ru: `Базовый фильтр ${id}`,
       en: `Basic filter ${id}`,
     },
     labels: {
@@ -133,7 +133,7 @@ export function searchFilters(filters: VideoFilter[], query: string, lang: "ru" 
   return filters.filter(
     (filter) =>
       (filter.labels?.[lang] || filter.name || "").toLowerCase().includes(lowercaseQuery) ||
-      (filter.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
+      // (filter.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
       (filter.tags || []).some((tag) => tag.toLowerCase().includes(lowercaseQuery)),
   )
 }

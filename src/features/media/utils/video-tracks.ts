@@ -1,12 +1,12 @@
 import { nanoid } from "nanoid"
 
+import { calculateTimeRanges } from "@/features/media/utils/video"
 import i18n from "@/i18n"
-import { calculateTimeRanges } from "@/lib/video"
 
-import { Sector } from "./types"
-import { doTimeRangesOverlap } from "./utils"
+import { doTimeRangesOverlap } from "./media-utils"
+import { Sector } from "../types/types"
 
-import type { MediaFile, MediaTrack } from "../types/media"
+import type { MediaFile } from "../types/media"
 
 /**
  * Обрабатывает видеофайлы и добавляет их на соответствующие дорожки

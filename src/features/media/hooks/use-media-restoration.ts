@@ -1,9 +1,8 @@
 import { useCallback, useState } from "react"
 
-import { MediaRestorationService, ProjectRestorationResult } from "@/lib/media-restoration-service"
-
-import { MediaFile } from "../types/media"
-import { SavedMediaFile, SavedMusicFile } from "../types/saved-media"
+import { MediaRestorationService, ProjectRestorationResult } from "@/features/media/services/media-restoration-service"
+import { MediaFile } from "@/features/media/types/media"
+import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 
 /**
  * Состояние процесса восстановления

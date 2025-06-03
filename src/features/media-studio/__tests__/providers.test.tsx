@@ -8,7 +8,7 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
   ModalProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="modal-provider">{children}</div>,
 }))
 
-vi.mock("@/i18n/i18n-provider", () => ({
+vi.mock("@/i18n/services/i18n-provider", () => ({
   I18nProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="i18n-provider">{children}</div>,
 }))
 

@@ -1,9 +1,9 @@
 "use client"
 
+import { useAutoLoadUserData } from "@/features/media-studio/services/use-auto-load-user-data"
 import { ModalContainer } from "@/features/modals/components"
 import { TopBar } from "@/features/top-bar/components/top-bar"
 import { useUserSettings } from "@/features/user-settings"
-import { useAutoLoadUserData } from "@/hooks/use-auto-load-user-data"
 
 import { DefaultLayout, DualLayout, OptionsLayout, VerticalLayout } from "./layout"
 

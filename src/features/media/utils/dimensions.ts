@@ -1,4 +1,4 @@
-import { Dimensions, VideoStream } from "./types"
+import { Dimensions, VideoStream } from "../types/types"
 
 /**
  * Вычисляет реальные размеры видео с учетом поворота

@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { MediaRestorationService } from "@/lib/media-restoration-service"
-import { SavedMediaFile } from "@/types/saved-media"
+import { MediaRestorationService } from "@/features/media/services/media-restoration-service"
+import { SavedMediaFile } from "@/features/media/types/saved-media"
 
 interface MissingFilesDialogProps {
   open: boolean

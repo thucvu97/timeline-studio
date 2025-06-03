@@ -2,7 +2,7 @@
  * Утилиты для работы с настройками проекта
  */
 
-import type { ProjectSettings } from "@/types/project"
+import type { ProjectSettings } from "@/features/project-settings/types/project"
 
 import { calculateHeightFromWidth, calculateWidthFromHeight } from "./aspect-ratio-utils"
 

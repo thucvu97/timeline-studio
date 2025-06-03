@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 
-import { YoloDetection, YoloVideoData, YoloVideoSummary } from "@/types/yolo"
+import { YoloDetection, YoloVideoData, YoloVideoSummary } from "@/features/recognition/types/yolo"
 
 import { YoloDataService } from "../services/yolo-data-service"
 

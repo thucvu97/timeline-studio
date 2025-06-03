@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from "react"
 
 import { MediaFile } from "@/features/media/types/media"
 import { useResources } from "@/features/resources"
+import { TemplateResource } from "@/features/resources/types/resources"
 import { calculateDimensionsWithAspectRatio } from "@/lib/constants/preview-sizes"
-import { TemplateResource } from "@/types/resources"
 
 import { AddMediaButton, FavoriteButton } from "../../browser/components/layout"
 import { MediaTemplate } from "../lib/templates"

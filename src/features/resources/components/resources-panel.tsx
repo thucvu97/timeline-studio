@@ -2,7 +2,7 @@ import { Music, Package, Palette, Scissors, Sticker, Subtitles, Video } from "lu
 import { useTranslation } from "react-i18next"
 
 import { useResources } from "@/features/resources"
-import { TimelineResource } from "@/types/resources"
+import { TimelineResource } from "@/features/resources/types/resources"
 
 /**
  * Компонент для отображения ресурсов таймлайна в левой панели

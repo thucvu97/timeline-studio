@@ -2,12 +2,9 @@ import React, { ReactNode, createContext, useContext } from "react"
 
 import { useMachine } from "@xstate/react"
 
+import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
-import { StyleTemplate } from "@/features/style-templates/types"
-import { SubtitleStyle } from "@/features/subtitles/types"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { VideoEffect } from "@/types/effects"
-import { VideoFilter } from "@/types/filters"
 import {
   EffectResource,
   FilterResource,
@@ -16,8 +13,11 @@ import {
   SubtitleResource,
   TemplateResource,
   TransitionResource,
-} from "@/types/resources"
-import { Transition } from "@/types/transitions"
+} from "@/features/resources/types/resources"
+import { StyleTemplate } from "@/features/style-templates/types"
+import { SubtitleStyle } from "@/features/subtitles/types"
+import { MediaTemplate } from "@/features/templates/lib/templates"
+import { Transition } from "@/features/transitions/types/transitions"
 
 import { ResourcesMachineContext, resourcesMachine } from "./resources-machine"
 

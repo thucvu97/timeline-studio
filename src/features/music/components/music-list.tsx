@@ -11,9 +11,9 @@ import { FavoriteButton } from "@/features/browser/components/layout/favorite-bu
 import { useMedia } from "@/features/browser/media"
 import { MediaFile } from "@/features/media/types/media"
 import { useResources } from "@/features/resources"
+import { MusicResource } from "@/features/resources/types/resources"
 import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
-import { MusicResource } from "@/types/resources"
 
 import { useMusicImport } from "../hooks/use-music-import"
 

@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { COMMON_FRAMERATES, COMMON_RESOLUTIONS, ResolutionOption } from "@/types/project"
+import { COMMON_FRAMERATES, COMMON_RESOLUTIONS, ResolutionOption } from "@/features/project-settings/types/project"
 
 // Интерфейс для устройств захвата (камеры, микрофоны)
 export interface CaptureDevice {

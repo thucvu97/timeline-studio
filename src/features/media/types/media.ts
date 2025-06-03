@@ -1,5 +1,5 @@
-import { FfprobeData, FfprobeStream } from "@/types/ffprobe"
-import { TimeRange } from "@/types/time-range"
+import { FfprobeData, FfprobeStream } from "@/features/media/types/ffprobe"
+import { TimeRange } from "@/features/media/types/time-range"
 
 export interface MediaFile {
   id: string

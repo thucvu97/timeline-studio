@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { Transition } from "@/types/transitions"
+import { Transition } from "@/features/transitions/types/transitions"
 
 import transitionsData from "../data/transitions.json"
 import { createFallbackTransition, processTransitions, validateTransitionsData } from "../utils/transition-processor"

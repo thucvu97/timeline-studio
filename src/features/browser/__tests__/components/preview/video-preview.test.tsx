@@ -1,8 +1,8 @@
 import { act, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
+import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
-import { FfprobeStream } from "@/types/ffprobe"
 
 import { VideoPreview } from "../../../components/preview/video-preview"
 

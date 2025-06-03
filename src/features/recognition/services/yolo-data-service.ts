@@ -1,4 +1,4 @@
-import { YoloDetection, YoloFrameData, YoloVideoData, YoloVideoSummary } from "@/types/yolo"
+import { YoloDetection, YoloFrameData, YoloVideoData, YoloVideoSummary } from "@/features/recognition/types/yolo"
 
 /**
  * Сервис для работы с данными YOLO

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ResolutionOption } from "@/types/project"
+import { ResolutionOption } from "@/features/project-settings/types/project"
 
 interface CaptureDevice {
   deviceId: string

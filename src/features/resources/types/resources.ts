@@ -1,10 +1,11 @@
+import { VideoEffect } from "@/features/effects/types/effects"
 import { MediaFile } from "@/features/media/types/media"
 import { StyleTemplate } from "@/features/style-templates/types"
 import { SubtitleStyle } from "@/features/subtitles/types"
 import { MediaTemplate } from "@/features/templates/lib/templates"
-import { VideoEffect } from "@/types/effects"
-import { VideoFilter } from "@/types/filters"
-import { Transition } from "@/types/transitions"
+import { Transition } from "@/features/transitions/types/transitions"
+
+import { VideoFilter } from "../../filters/types/filters"
 
 // Общий интерфейс для всех ресурсов
 export interface Resource {

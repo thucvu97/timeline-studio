@@ -11,7 +11,7 @@ import { ResourcesProvider } from "@/features/resources"
 import { TimelineProvider } from "@/features/timeline/services/timeline-provider"
 import { UserSettingsProvider } from "@/features/user-settings"
 import { PlayerProvider } from "@/features/video-player/services/player-provider"
-import { I18nProvider } from "@/i18n/i18n-provider"
+import { I18nProvider } from "@/i18n/services/i18n-provider"
 
 // ✅ Базовые провайдеры (минимум для большинства компонентов)
 export const BaseProviders = ({ children }: { children: ReactNode }) => {

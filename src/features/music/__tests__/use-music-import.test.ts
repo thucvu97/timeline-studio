@@ -37,7 +37,7 @@ vi.mock("@/features/media", () => ({
 // Мокаем утилиты сохранения медиа
 const mockConvertToSavedMusicFile = vi.fn()
 
-vi.mock("@/lib/saved-media-utils", () => ({
+vi.mock("@/features/media/utils/saved-media-utils", () => ({
   convertToSavedMusicFile: mockConvertToSavedMusicFile,
 }))
 

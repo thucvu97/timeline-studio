@@ -11,7 +11,7 @@ import { ResourcesProvider } from "@/features/resources/services/resources-provi
 import { TimelineProvider } from "@/features/timeline/services/timeline-provider"
 import { UserSettingsProvider } from "@/features/user-settings"
 import { PlayerProvider } from "@/features/video-player/services/player-provider"
-import { I18nProvider } from "@/i18n/i18n-provider"
+import { I18nProvider } from "@/i18n/services/i18n-provider"
 
 interface ProvidersProps {
   children: ReactNode

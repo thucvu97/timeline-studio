@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { VideoFilter } from "@/types/filters"
+import { VideoFilter } from "@/features/filters/types/filters"
 
 import filtersData from "../data/filters.json"
 import { createFallbackFilter, processFilters, validateFiltersData } from "../utils/filter-processor"
@@ -123,7 +123,7 @@ export function useFiltersSearch(query: string, lang: "ru" | "en" = "ru"): Video
   return filters.filter(
     (filter) =>
       (filter.labels?.[lang] || filter.name || "").toLowerCase().includes(lowercaseQuery) ||
-      (filter.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
+      // (filter.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
       (filter.tags || []).some((tag) => tag.toLowerCase().includes(lowercaseQuery)),
   )
 }

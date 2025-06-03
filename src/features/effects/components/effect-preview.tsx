@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
+import { VideoEffect } from "@/features/effects/types/effects"
 import { useResources } from "@/features/resources"
-import { VideoEffect } from "@/types/effects"
-import { EffectResource } from "@/types/resources"
+import { EffectResource } from "@/features/resources/types/resources"
 
 import { EffectIndicators } from "./effect-indicators"
 import { useEffects } from "../hooks/use-effects"

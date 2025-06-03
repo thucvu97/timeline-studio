@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useModal } from "@/features/modals/services/modal-provider"
-import { useLanguage } from "@/hooks/use-language"
 import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
+import { useLanguage } from "@/i18n/hooks/use-language"
 
 import { useUserSettings } from "../hooks/use-user-settings"
 

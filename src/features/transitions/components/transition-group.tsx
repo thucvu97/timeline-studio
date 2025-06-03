@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { MediaFile } from "@/features/media/types/media"
-import { Transition } from "@/types/transitions"
+import { Transition } from "@/features/transitions/types/transitions"
 
 import { TransitionPreview } from "./transition-preview"
 

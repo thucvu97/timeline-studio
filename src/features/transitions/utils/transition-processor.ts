@@ -1,4 +1,4 @@
-import { Transition } from "@/types/transitions"
+import { Transition } from "@/features/transitions/types/transitions"
 
 /**
  * Интерфейс для сырых данных перехода из JSON

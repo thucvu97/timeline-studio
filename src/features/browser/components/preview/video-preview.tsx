@@ -4,11 +4,11 @@ import { convertFileSrc } from "@tauri-apps/api/core"
 import { readFile } from "@tauri-apps/plugin-fs"
 import { Film } from "lucide-react"
 
+import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
+import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/features/media/utils/video"
 import { formatDuration } from "@/lib/date"
 import { cn, formatResolution } from "@/lib/utils"
-import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/lib/video"
-import { FfprobeStream } from "@/types/ffprobe"
 
 import { AddMediaButton } from "../layout/add-media-button"
 import { FavoriteButton } from "../layout/favorite-button"

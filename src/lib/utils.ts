@@ -1,8 +1,8 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+import { FfprobeData } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
-import { FfprobeData } from "@/types/ffprobe"
 
 /**
  * Объединяет классы CSS с помощью clsx и tailwind-merge

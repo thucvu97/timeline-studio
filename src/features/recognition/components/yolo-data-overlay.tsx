@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import { YoloDetection } from "@/types/yolo"
+import { YoloDetection } from "@/features/recognition/types/yolo"
 
 import { useYoloData } from "../hooks/use-yolo-data"
 

@@ -2,7 +2,7 @@ import { RefObject, useCallback, useEffect, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { ResolutionOption } from "@/types/project"
+import { ResolutionOption } from "@/features/project-settings/types/project"
 
 interface UseCameraStreamResult {
   isDeviceReady: boolean

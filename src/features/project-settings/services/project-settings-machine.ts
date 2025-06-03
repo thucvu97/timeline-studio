@@ -1,6 +1,6 @@
 import { assign, createMachine } from "xstate"
 
-import { DEFAULT_PROJECT_SETTINGS, ProjectSettings } from "@/types/project"
+import { DEFAULT_PROJECT_SETTINGS, ProjectSettings } from "@/features/project-settings/types/project"
 
 /**
  * Интерфейс контекста машины состояний настроек проекта

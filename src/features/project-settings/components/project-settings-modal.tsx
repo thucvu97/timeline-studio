@@ -18,7 +18,7 @@ import {
   ResolutionOption,
   getDefaultResolutionForAspectRatio,
   getResolutionsForAspectRatio,
-} from "@/types/project"
+} from "@/features/project-settings/types/project"
 
 import { useProjectSettings } from "../hooks/use-project-settings"
 import { getAspectRatioLabel, getAspectRatioString } from "../utils"

@@ -1,4 +1,4 @@
-import { Sector } from "./types"
+import { Sector } from "../types/types"
 
 /**
  * Обновляет временной диапазон сектора

@@ -5,7 +5,7 @@ import { invoke } from "@tauri-apps/api/core"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { getMediaMetadata, selectAudioFile, selectMediaDirectory } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
-import { convertToSavedMusicFile } from "@/lib/saved-media-utils"
+import { convertToSavedMusicFile } from "@/features/media/utils/saved-media-utils"
 
 /**
  * Максимальное количество одновременных запросов к Tauri

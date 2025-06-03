@@ -1,9 +1,9 @@
 import { FavoritesType } from "@/features/browser/media/media-machine"
 import { MediaFile } from "@/features/media/types/media"
+import { ProjectSettings } from "@/features/project-settings/types/project"
+import { TimelineResource } from "@/features/resources/types/resources"
 import { BrowserTab, LayoutMode } from "@/features/user-settings"
 import { PreviewSize } from "@/lib/constants/preview-sizes"
-import { ProjectSettings } from "@/types/project"
-import { TimelineResource } from "@/types/resources"
 
 /**
  * Интерфейс для централизованного хранилища состояния приложения

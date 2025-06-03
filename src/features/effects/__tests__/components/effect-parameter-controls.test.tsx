@@ -1,7 +1,7 @@
 import { act, render } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { VideoEffect } from "@/types/effects"
+import { VideoEffect } from "@/features/effects/types/effects"
 
 import { EffectParameterControls } from "../../components/effect-parameter-controls"
 

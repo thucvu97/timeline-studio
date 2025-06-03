@@ -1156,7 +1156,7 @@ vi.mock("react-i18next", () => ({
 }))
 
 // Мок для I18nProvider
-vi.mock("@/i18n/i18n-provider", () => ({
+vi.mock("@/i18n/services/i18n-provider", () => ({
   I18nProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 

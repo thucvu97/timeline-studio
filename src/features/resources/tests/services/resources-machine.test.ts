@@ -1,12 +1,11 @@
-import { act } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
+import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
 import { MediaTemplate } from "@/features/templates/lib/templates"
-import { VideoEffect } from "@/types/effects"
-import { VideoFilter } from "@/types/filters"
-import { Transition } from "@/types/transitions"
+import { Transition } from "@/features/transitions/types/transitions"
 
 import { resourcesMachine } from "../../services/resources-machine"
 

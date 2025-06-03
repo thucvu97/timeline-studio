@@ -6,8 +6,8 @@ import { AddMediaButton } from "@/features/browser/components/layout/add-media-b
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
 import { MediaFile } from "@/features/media/types/media"
 import { useResources } from "@/features/resources"
-import { TransitionResource } from "@/types/resources"
-import { Transition } from "@/types/transitions"
+import { TransitionResource } from "@/features/resources/types/resources"
+import { Transition } from "@/features/transitions/types/transitions"
 
 import { useTransitions } from "../hooks/use-transitions"
 

@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
+import { VideoFilter } from "@/features/filters/types/filters"
 import { useResources } from "@/features/resources"
-import { VideoFilter } from "@/types/filters"
-import { FilterResource } from "@/types/resources"
+import { FilterResource } from "@/features/resources/types/resources"
 
 import { AddMediaButton } from "../../browser/components/layout/add-media-button"
 import { FavoriteButton } from "../../browser/components/layout/favorite-button"

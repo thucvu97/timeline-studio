@@ -1,7 +1,7 @@
 import { act, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import type { EffectTag, VideoEffect } from "@/types/effects"
+import type { EffectTag, VideoEffect } from "@/features/effects/types/effects"
 
 import { EffectIndicators } from "../../components/effect-indicators"
 

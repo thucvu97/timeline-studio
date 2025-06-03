@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useModal } from "@/features/modals/services/modal-provider"
-import { useLanguage } from "@/hooks/use-language"
+import { useLanguage } from "@/i18n/hooks/use-language"
 
 import { UserSettingsModal } from "./user-settings-modal"
 import { useUserSettings } from "../hooks/use-user-settings"
@@ -28,7 +28,7 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 }))
 
 // Мокаем хуки
-vi.mock("@/hooks/use-language")
+vi.mock("@/i18n/hooks/use-language")
 vi.mock("../hooks/use-user-settings")
 vi.mock("@/features/modals/services/modal-provider")
 vi.mock("react-i18next", () => ({

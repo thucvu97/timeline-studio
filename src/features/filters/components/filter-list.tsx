@@ -6,8 +6,8 @@ import { PREVIEW_SIZES, useBrowserState } from "@/components/common/browser-stat
 import { ContentGroup } from "@/components/common/content-group"
 import { NoFiles } from "@/components/common/no-files"
 import { useMedia } from "@/features/browser/media"
+import { VideoFilter } from "@/features/filters/types/filters"
 import { useProjectSettings } from "@/features/project-settings"
-import { VideoFilter } from "@/types/filters"
 
 import { FilterPreview } from "./filter-preview"
 import { useFilters } from "../hooks/use-filters"
@@ -69,7 +69,6 @@ export function FilterList() {
         filter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (filter.labels?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (filter.labels?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (filter.description?.ru || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (filter.description?.en || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (filter.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 

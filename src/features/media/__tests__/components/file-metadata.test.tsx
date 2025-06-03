@@ -23,9 +23,9 @@ vi.mock("@/lib/utils", () => ({
   formatFileSize: (size: number) => `${size / (1024 * 1024)} MB`,
 }))
 
-vi.mock("@/lib/video", () => ({
-  getAspectRatio: () => "16:9",
+vi.mock("@/features/media/utils/video", () => ({
   getFps: () => "30",
+  getAspectRatio: () => "16:9",
 }))
 
 describe("FileMetadata", () => {

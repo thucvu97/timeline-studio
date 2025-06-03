@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 
 import { open } from "@tauri-apps/plugin-dialog"
 
-import { Transition } from "@/types/transitions"
+import { Transition } from "@/features/transitions/types/transitions"
 
 /**
  * Интерфейс для результата импорта переходов

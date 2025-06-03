@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 
-import { VideoFilter } from "@/types/filters"
+import { VideoFilter } from "@/features/filters/types/filters"
 
 import { FilterPreview } from "./filter-preview"
 
