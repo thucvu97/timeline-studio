@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MusicList } from "../components/music-list"
@@ -26,7 +26,7 @@ vi.mock("@/features/resources", () => ({
 }))
 
 // Мокаем состояние браузера
-vi.mock("@/components/common/browser-state-provider", () => ({
+vi.mock("@/features/browser/services/browser-state-provider", () => ({
   useBrowserState: () => ({
     currentTabSettings: {
       searchQuery: "",

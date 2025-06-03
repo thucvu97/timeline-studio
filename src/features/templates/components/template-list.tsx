@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { useBrowserState } from "@/components/common/browser-state-provider"
 import { ContentGroup } from "@/components/common/content-group"
 import { useMedia } from "@/features/browser/media"
+import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { useProjectSettings } from "@/features/project-settings"
 import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"
 

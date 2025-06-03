@@ -2,10 +2,10 @@ import { useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { useBrowserState } from "@/components/common/browser-state-provider"
 import { ContentGroup } from "@/components/common/content-group"
 import { NoFiles } from "@/components/common/no-files"
 import { useMedia } from "@/features/browser/media"
+import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { MediaFile } from "@/features/media/types/media"
 import { useProjectSettings } from "@/features/project-settings"
 import { Transition } from "@/features/transitions/types/transitions"

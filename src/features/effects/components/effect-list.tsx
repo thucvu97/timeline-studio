@@ -2,9 +2,9 @@ import React, { useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { useBrowserState } from "@/components/common/browser-state-provider"
 import { NoFiles } from "@/components/common/no-files"
 import { useMedia } from "@/features/browser/media"
+import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { VideoEffect } from "@/features/effects/types/effects"
 import { useProjectSettings } from "@/features/project-settings"
 import { PREVIEW_SIZES } from "@/lib/constants/preview-sizes"

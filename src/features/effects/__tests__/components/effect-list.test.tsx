@@ -97,7 +97,7 @@ const mockCurrentTabSettings = {
   previewSizeIndex: 2,
 }
 
-vi.mock("@/components/common/browser-state-provider", () => ({
+vi.mock("@/features/browser/services/browser-state-provider", () => ({
   useBrowserState: () => ({
     currentTabSettings: mockCurrentTabSettings,
   }),

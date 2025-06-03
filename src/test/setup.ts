@@ -271,7 +271,7 @@ vi.mock("lucide-react", () => {
 })
 
 // Мок для useAutoLoadUserData
-vi.mock("@/hooks/use-auto-load-user-data", () => ({
+vi.mock("@/features/media-studio/services/use-auto-load-user-data", () => ({
   useAutoLoadUserData: () => ({
     isLoading: false,
     loadedData: {
@@ -710,7 +710,7 @@ vi.mock("@/features/user-settings", () => ({
 // Мок для browser-state-provider
 const mockSetPreviewSize = vi.fn()
 
-vi.mock("@/components/common/browser-state-provider", () => ({
+vi.mock("@/features/browser/services/browser-state-provider", () => ({
   useBrowserState: () => ({
     state: {
       activeTab: "media",

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 
 import { renderWithBase, screen } from "@/test/test-utils"
 
-import { NoFiles } from "./no-files"
+import { NoFiles } from "../common/no-files"
 
 describe("NoFiles", () => {
   it("должен рендериться для типа media", () => {

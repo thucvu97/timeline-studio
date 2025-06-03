@@ -1,5 +1,5 @@
-import { BrowserStateProvider, useBrowserState } from "@/components/common/browser-state-provider"
 import { Tabs } from "@/components/ui/tabs"
+import { BrowserStateProvider, useBrowserState } from "@/features/browser/services/browser-state-provider"
 
 import { BrowserContent } from "./browser-content"
 import { BrowserTabs } from "./browser-tabs"

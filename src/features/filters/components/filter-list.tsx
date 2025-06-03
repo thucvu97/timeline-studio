@@ -2,10 +2,10 @@ import { useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { PREVIEW_SIZES, useBrowserState } from "@/components/common/browser-state-provider"
 import { ContentGroup } from "@/components/common/content-group"
 import { NoFiles } from "@/components/common/no-files"
 import { useMedia } from "@/features/browser/media"
+import { PREVIEW_SIZES, useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { useProjectSettings } from "@/features/project-settings"
 
