@@ -1,0 +1,85 @@
+name: Performance Issue
+description: Report a performance problem
+title: "[Performance]: "
+labels: ["performance"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve Timeline Studio's performance!
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of Timeline Studio are you running?
+      placeholder: "0.10.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      options:
+        - macOS
+        - Windows
+        - Linux
+    validations:
+      required: true
+
+  - type: textarea
+    id: computer-specs
+    attributes:
+      label: System Specifications
+      description: Please provide details about your computer
+      placeholder: |
+        CPU: 
+        RAM: 
+        GPU: 
+        Storage Type (SSD/HDD):
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Performance Issue Description
+      description: Describe the performance problem you're experiencing
+      placeholder: |
+        What specific performance issues are you seeing?
+        When does it occur?
+        How frequently does it happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this performance issue?
+      placeholder: |
+        1. Open project '...'
+        2. Perform action '...'
+        3. Notice lag/slowdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Performance Metrics
+      description: If available, provide any performance metrics or measurements
+      placeholder: |
+        - Time taken: X seconds
+        - CPU usage: X%
+        - Memory usage: X MB
+        - Frame rate: X FPS
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Add any other context about the performance issue here
+      placeholder: "E.g., Does the issue happen with specific file types or project sizes?"

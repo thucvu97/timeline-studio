@@ -2,8 +2,6 @@
 
 [English](README.md) | [Español](README.es.md) | [Français](README.fr.md) | [Deutsch](README.de.md) | [Русский](README.ru.md)
 
-Видеоредактор на базе Tauri, React и XState.
-
 [![Build Status](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml)
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue)](https://chatman-media.github.io/timeline-studio/api-docs/)
@@ -15,7 +13,7 @@
 
 ## Обзор проекта
 
-Timeline Studio - это настольное приложение для создания и редактирования видео.
+### Timeline Studio - это настольное приложение для создания и редактирования видео на базе Tauri, React, XState, ffmpeg.
 
 ![Интерфейс таймлайна](/public/screen3.png)
 
@@ -27,12 +25,12 @@ Timeline Studio - это настольное приложение для соз
 ### Ключевые особенности
 
 - 🎬 Создание и редактирование видеопроектов
-- 🖥️ Кроссплатформенность (Windows, macOS, Linux)
+- 🖥️ Кроссплатформенность (Windows, macOS, Linux, Telegram Mini App)
 - 🧠 Управление состоянием с помощью XState v5
 - 🌐 Поддержка интернационализации (i18n)
-- 🎨 Современный UI с использованием Tailwind CSS v4
+- 🎨 Современный UI с использованием Tailwind CSS v4,shadcn-ui
 - 🔍 Строгий контроль качества кода с помощью ESLint, Stylelint и Clippy
-- 📚 Полная документация всех компонентов
+- 📚 Полная документация всех модулей
 
 ## Начало работы
 
@@ -41,6 +39,7 @@ Timeline Studio - это настольное приложение для соз
 - [Node.js](https://nodejs.org/) (v18 или выше)
 - [Rust](https://www.rust-lang.org/tools/install) (последняя стабильная версия)
 - [bun](https://bun.sh/) (последняя стабильная версия)
+- [ffmpeg](https://ffmpeg.org/download.html) (последняя стабильная версия)
 
 ### Установка
 
@@ -145,7 +144,7 @@ timeline-studio/
 
 ### 📋 Ключевые документы
 
-- **`src/features/README.md`** - обзор всех 17 features с приоритетами
+- **`src/features/README.md`** - обзор всех фич с приоритетами
 - **`DEV.md`** - архитектура приложения, машины состояний, план разработки
 - **`README.md`** - общая информация о проекте (английский)
 - **`README.es.md`** - испанская версия документации
@@ -197,7 +196,6 @@ timeline-studio/
 - `userSettingsMachine` - пользовательские настройки
 - `projectSettingsMachine` - настройки проекта
 - `mediaMachine` - управление медиафайлами
-- `templateListMachine` - управление шаблонами
 - `timelineMachine` - Основная машина состояний таймлайна
 
 ### Тестирование
@@ -219,8 +217,11 @@ timeline-studio/
 ```
 
 ```bash
-# Запуск всех тестов
+# Запуск тестов клиента
 bun run test
+
+# Запуск тестов rust
+bun run test:rust
 
 # Запуск тестов с отчетом о покрытии
 bun run test:coverage
@@ -235,15 +236,17 @@ bun run test src/features/effects
 
 ### Проверка и сборка
 
-- `lint.yml` - Проверка JavaScript/TypeScript, CSS и Rust кода
-- `lint-css.yml` - Проверка только CSS кода (запускается при изменении CSS файлов)
-- `build.yml` - Сборка проекта
 - `check-all.yml` - Запуск всех проверок и тестов
+- `lint-css.yml` - Проверка только CSS кода (запускается при изменении CSS файлов)
+- `lint-rs.yml` - Проверка только Rust кода (запускается при изменении Rust файлов)
+- `lint-js.yml` - Проверка только JavaScript/TypeScript кода (запускается при изменении JavaScript/TypeScript файлов)
 
 ### Развертывание
 
-- `docs.yml` - Генерация и публикация API документации на GitHub Pages
+- `build.yml` - Сборка проекта
+- `build-release.yml` - Сборка проекта для релиза
 - `deploy-promo.yml` - Сборка и публикация промо-страницы на GitHub Pages
+- `docs.yml` - Генерация и публикация API документации на GitHub Pages
 
 ### Конфигурация линтеров
 
@@ -317,10 +320,12 @@ npm run build
 - [XState Documentation](https://xstate.js.org/docs/)
 - [Vitest Documentation](https://vitest.dev/guide/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Shadcn UI Documentation](https://ui.shadcn.com/)
 - [Stylelint Documentation](https://stylelint.io/)
 - [ESLint Documentation](https://eslint.org/docs/latest/)
 - [Playwright Documentation](https://playwright.dev/docs/intro)
 - [TypeDoc Documentation](https://typedoc.org/)
+- [ffmpeg Documentation](https://ffmpeg.org/documentation.html)
 
 ## Лицензия
 
