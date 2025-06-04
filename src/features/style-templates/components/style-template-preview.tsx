@@ -13,13 +13,21 @@ interface StyleTemplatePreviewProps {
   template: StyleTemplate
   size: number
   onSelect: (templateId: string) => void
+  previewWidth: number
+  previewHeight: number
 }
 
 /**
  * Компонент превью стилистического шаблона
  * Отображает миниатюру, название, длительность и индикаторы функций
  */
-export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplatePreviewProps): React.ReactElement {
+export function StyleTemplatePreview({
+  template,
+  size,
+  onSelect,
+  previewWidth,
+  previewHeight,
+}: StyleTemplatePreviewProps): React.ReactElement {
   const { t, i18n } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
   const { addStyleTemplate, isStyleTemplateAdded } = useResources()
@@ -31,8 +39,8 @@ export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplate
   const isAdded = useMemo(() => isStyleTemplateAdded(template), [isStyleTemplateAdded, template])
 
   // Делаем превью квадратными, как в Effects
-  const width = size
-  const height = size
+  const width = previewWidth ?? size
+  const height = previewHeight ?? (size * 9) / 16
 
   // Получаем локализованное название категории
   const getCategoryName = useCallback(
@@ -102,7 +110,6 @@ export function StyleTemplatePreview({ template, size, onSelect }: StyleTemplate
             style={{ width: `${width}px`, height: `${height}px` }}
           >
             <div className="text-center text-gray-400">
-              <div className="mb-2 text-2xl">🎨</div>
               <div className="text-xs">{getCategoryName(template.category)}</div>
             </div>
           </div>

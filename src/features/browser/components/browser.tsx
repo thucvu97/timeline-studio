@@ -18,7 +18,7 @@ function BrowserWithState() {
         value={activeTab}
         onValueChange={handleTabChange}
         defaultValue="media"
-        className="flex h-full w-full flex-col overflow-hidden gap-0 dark:bg-[#2D2D2D]"
+        className="flex h-full w-full flex-col gap-0 dark:bg-[#2D2D2D]"
       >
         <BrowserTabs activeTab={activeTab} onTabChange={handleTabChange} />
         <BrowserContent />

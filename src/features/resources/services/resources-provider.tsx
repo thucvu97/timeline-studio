@@ -8,6 +8,7 @@ import { MediaFile } from "@/features/media/types/media"
 import {
   EffectResource,
   FilterResource,
+  MediaResource,
   MusicResource,
   StyleTemplateResource,
   SubtitleResource,
@@ -29,6 +30,7 @@ interface ResourcesContextType extends ResourcesMachineContext {
   addTemplate: (template: MediaTemplate) => void
   addStyleTemplate: (template: StyleTemplate) => void
   addMusic: (file: MediaFile) => void
+  addMedia: (file: MediaFile) => void
   addSubtitle: (style: SubtitleStyle) => void
   removeResource: (resourceId: string) => void
   updateResource: (resourceId: string, params: Record<string, any>) => void
@@ -39,7 +41,8 @@ interface ResourcesContextType extends ResourcesMachineContext {
   isTransitionAdded: (transition: Transition) => boolean
   isTemplateAdded: (template: MediaTemplate) => boolean
   isStyleTemplateAdded: (template: StyleTemplate) => boolean
-  isMusicFileAdded: (file: MediaFile) => boolean
+  isMusicAdded: (file: MediaFile) => boolean
+  isMediaAdded: (file: MediaFile) => boolean
   isSubtitleAdded: (style: SubtitleStyle) => boolean
 }
 
@@ -63,13 +66,14 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   // Извлекаем свойства контекста из состояния машины
   const {
     resources,
+    mediaResources,
+    musicResources,
+    subtitleResources,
     effectResources,
     filterResources,
     transitionResources,
     templateResources,
     styleTemplateResources,
-    musicResources,
-    subtitleResources,
   } = state.context
 
   // Методы для работы с ресурсами
@@ -89,7 +93,6 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
 
   const handleAddTransition = React.useCallback(
     (transition: Transition) => {
-      console.log("Adding transition:", transition)
       send({ type: "ADD_TRANSITION", transition })
     },
     [send],
@@ -113,6 +116,14 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     (file: MediaFile) => {
       console.log("Adding music file to resources:", file.name)
       send({ type: "ADD_MUSIC", file })
+    },
+    [send],
+  )
+
+  const handleAddMedia = React.useCallback(
+    (file: MediaFile) => {
+      console.log("Adding media to resources:", file.name)
+      send({ type: "ADD_MEDIA", file })
     },
     [send],
   )
@@ -283,7 +294,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     musicFileAddedCache.current = {}
   }, [musicResources])
 
-  const isMusicFileAdded = React.useCallback(
+  const isMusicAdded = React.useCallback(
     (file: MediaFile) => {
       // Проверяем, есть ли результат в кэше
       if (file.id in musicFileAddedCache.current) {
@@ -299,6 +310,31 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
       return isAdded
     },
     [musicResources],
+  )
+
+  // Создаем кэш для результатов проверки медиа файлов
+  const mediaAddedCache = React.useRef<Record<string, boolean>>({})
+
+  React.useEffect(() => {
+    mediaAddedCache.current = {}
+  }, [mediaResources])
+
+  const isMediaAdded = React.useCallback(
+    (file: MediaFile) => {
+      // Проверяем, есть ли результат в кэше
+      if (file.id in mediaAddedCache.current) {
+        return mediaAddedCache.current[file.id]
+      }
+
+      // Если результата нет в кэше, вычисляем его
+      const isAdded = mediaResources.some((resource: MediaResource) => resource.resourceId === file.id)
+
+      // Сохраняем результат в кэше
+      mediaAddedCache.current[file.id] = isAdded
+
+      return isAdded
+    },
+    [mediaResources],
   )
 
   // Создаем кэш для результатов проверки стилей субтитров
@@ -331,6 +367,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const value: ResourcesContextType = {
     // Данные из контекста машины состояний
     resources,
+    mediaResources,
     effectResources,
     filterResources,
     transitionResources,
@@ -340,6 +377,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     subtitleResources,
 
     // Методы для работы с ресурсами
+    addMedia: handleAddMedia,
     addEffect: handleAddEffect,
     addFilter: handleAddFilter,
     addTransition: handleAddTransition,
@@ -356,7 +394,8 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     isTransitionAdded,
     isTemplateAdded,
     isStyleTemplateAdded,
-    isMusicFileAdded,
+    isMusicAdded,
+    isMediaAdded,
     isSubtitleAdded,
   }
 

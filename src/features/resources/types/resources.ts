@@ -17,7 +17,36 @@ export interface Resource {
 }
 
 // Типы ресурсов
-export type ResourceType = "effect" | "filter" | "transition" | "template" | "style-template" | "music" | "subtitle"
+export type ResourceType =
+  | "media"
+  | "music"
+  | "subtitle"
+  | "effect"
+  | "filter"
+  | "transition"
+  | "template"
+  | "style-template"
+
+// Интерфейс для медиафайлов
+export interface MediaResource extends Resource {
+  type: "media"
+  file: MediaFile
+  params?: Record<string, any> // Параметры медиафайла
+}
+
+// Интерфейс для музыкальных файлов
+export interface MusicResource extends Resource {
+  type: "music"
+  file: MediaFile
+  params?: Record<string, any> // Параметры музыкального файла
+}
+
+// Интерфейс для стилей субтитров
+export interface SubtitleResource extends Resource {
+  type: "subtitle"
+  style: SubtitleStyle
+  params?: Record<string, any> // Параметры стиля субтитров
+}
 
 // Интерфейс для эффектов
 export interface EffectResource extends Resource {
@@ -54,29 +83,55 @@ export interface StyleTemplateResource extends Resource {
   params?: Record<string, any> // Параметры стилистического шаблона
 }
 
-// Интерфейс для музыкальных файлов
-export interface MusicResource extends Resource {
-  type: "music"
-  file: MediaFile
-  params?: Record<string, any> // Параметры музыкального файла
-}
-
-// Интерфейс для стилей субтитров
-export interface SubtitleResource extends Resource {
-  type: "subtitle"
-  style: SubtitleStyle
-  params?: Record<string, any> // Параметры стиля субтитров
-}
-
 // Тип для всех ресурсов
 export type TimelineResource =
+  | MediaResource
+  | MusicResource
+  | SubtitleResource
   | EffectResource
   | FilterResource
   | TransitionResource
   | TemplateResource
   | StyleTemplateResource
-  | MusicResource
-  | SubtitleResource
+
+// Функция для создания ресурса медиафайла
+export function createMediaResource(file: MediaFile): MediaResource {
+  return {
+    id: `media-${file.id}-${Date.now()}`,
+    type: "media",
+    name: file.name,
+    resourceId: file.id,
+    addedAt: Date.now(),
+    file,
+    params: {},
+  }
+}
+
+// Функция для создания ресурса музыкального файла
+export function createMusicResource(file: MediaFile): MusicResource {
+  return {
+    id: `music-${file.id}-${Date.now()}`,
+    type: "music",
+    name: file.name,
+    resourceId: file.id,
+    addedAt: Date.now(),
+    file,
+    params: {},
+  }
+}
+
+// Функция для создания ресурса стиля субтитров
+export function createSubtitleResource(style: SubtitleStyle): SubtitleResource {
+  return {
+    id: `subtitle-${style.id}-${Date.now()}`,
+    type: "subtitle",
+    name: style.name,
+    resourceId: style.id,
+    addedAt: Date.now(),
+    style,
+    params: {},
+  }
+}
 
 // Функция для создания ресурса эффекта
 export function createEffectResource(effect: VideoEffect): EffectResource {
@@ -142,32 +197,6 @@ export function createStyleTemplateResource(template: StyleTemplate): StyleTempl
     resourceId: template.id,
     addedAt: Date.now(),
     template,
-    params: {},
-  }
-}
-
-// Функция для создания ресурса музыкального файла
-export function createMusicResource(file: MediaFile): MusicResource {
-  return {
-    id: `music-${file.id}-${Date.now()}`,
-    type: "music",
-    name: file.name,
-    resourceId: file.id,
-    addedAt: Date.now(),
-    file,
-    params: {},
-  }
-}
-
-// Функция для создания ресурса стиля субтитров
-export function createSubtitleResource(style: SubtitleStyle): SubtitleResource {
-  return {
-    id: `subtitle-${style.id}-${Date.now()}`,
-    type: "subtitle",
-    name: style.name,
-    resourceId: style.id,
-    addedAt: Date.now(),
-    style,
     params: {},
   }
 }

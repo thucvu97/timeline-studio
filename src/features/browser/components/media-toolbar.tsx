@@ -181,7 +181,7 @@ export function MediaToolbar({
   }
 
   return (
-    <div className={cn("flex items-center justify-between py-1 px-1 bg-background", className)}>
+    <div className={cn("flex items-center justify-between py-2 px-1 bg-background", className)}>
       <div className="flex h-7 w-[calc(100%-100px)] items-center gap-2">
         {/* Кнопка импорта */}
         {showImport && onImport && (
@@ -189,7 +189,7 @@ export function MediaToolbar({
             variant="ghost"
             size="sm"
             className={cn(
-              "flex cursor-pointer items-center gap-1 bg-[#DDDDDD] px-1 h-7 text-xs hover:bg-[#D1D1D1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25",
+              "flex cursor-pointer items-center gap-1 bg-[#DDDDDD] px-1 h-7 text-xs hover:bg-[#D1D1D1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25 dark:text-teal",
               isImporting && "opacity-70 cursor-wait",
             )}
             onClick={onImport}

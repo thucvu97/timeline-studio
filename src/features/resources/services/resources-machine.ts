@@ -6,7 +6,9 @@ import { MediaFile } from "@/features/media/types/media"
 import {
   EffectResource,
   FilterResource,
+  MediaResource,
   MusicResource,
+  Resource,
   StyleTemplateResource,
   SubtitleResource,
   TemplateResource,
@@ -14,6 +16,7 @@ import {
   TransitionResource,
   createEffectResource,
   createFilterResource,
+  createMediaResource,
   createMusicResource,
   createStyleTemplateResource,
   createSubtitleResource,
@@ -27,25 +30,27 @@ import { Transition } from "@/features/transitions/types/transitions"
 
 // Интерфейс контекста машины состояний
 export interface ResourcesMachineContext {
-  resources: TimelineResource[] // Все добавленные ресурсы
+  resources: TimelineResource[]
+  mediaResources: MediaResource[] // Все добавленные ресурсы
+  musicResources: MusicResource[] // Музыкальные файлы
+  subtitleResources: SubtitleResource[] // Стили субтитров
   effectResources: EffectResource[] // Эффекты
   filterResources: FilterResource[] // Фильтры
   transitionResources: TransitionResource[] // Переходы
   templateResources: TemplateResource[] // Шаблоны
   styleTemplateResources: StyleTemplateResource[] // Стилистические шаблоны
-  musicResources: MusicResource[] // Музыкальные файлы
-  subtitleResources: SubtitleResource[] // Стили субтитров
 }
 
 // Типы событий, которые может обрабатывать машина
 type ResourcesMachineEvent =
+  | { type: "ADD_MEDIA"; file: MediaFile }
+  | { type: "ADD_MUSIC"; file: MediaFile }
+  | { type: "ADD_SUBTITLE"; style: SubtitleStyle }
   | { type: "ADD_EFFECT"; effect: VideoEffect }
   | { type: "ADD_FILTER"; filter: VideoFilter }
   | { type: "ADD_TRANSITION"; transition: Transition }
   | { type: "ADD_TEMPLATE"; template: MediaTemplate }
   | { type: "ADD_STYLE_TEMPLATE"; template: StyleTemplate }
-  | { type: "ADD_MUSIC"; file: MediaFile }
-  | { type: "ADD_SUBTITLE"; style: SubtitleStyle }
   | { type: "REMOVE_RESOURCE"; resourceId: string }
   | { type: "UPDATE_RESOURCE"; resourceId: string; params: Record<string, any> }
   | { type: "LOAD_RESOURCES"; resources: TimelineResource[] }
@@ -255,6 +260,36 @@ export const resourcesMachine = setup({
       },
     }),
 
+    // Добавление музыкального файла
+    addMedia: assign({
+      resources: ({ context, event }) => {
+        if (event.type !== "ADD_MEDIA") return context.resources
+
+        // Проверяем, есть ли уже такой музыкальный файл
+        const existingResource = context.musicResources.find((resource) => resource.resourceId === event.file.id)
+
+        if (existingResource) {
+          return context.resources
+        }
+
+        const newResource = createMusicResource(event.file)
+        return [...context.resources, newResource]
+      },
+      mediaResources: ({ context, event }) => {
+        if (event.type !== "ADD_MEDIA") return context.mediaResources
+
+        // Проверяем, есть ли уже такой музыкальный файл
+        const existingResource = context.mediaResources.find((resource) => resource.resourceId === event.file.id)
+
+        if (existingResource) {
+          return context.mediaResources
+        }
+
+        const newResource = createMediaResource(event.file)
+        return [...context.mediaResources, newResource]
+      },
+    }),
+
     // Добавление стиля субтитров
     addSubtitle: assign({
       resources: ({ context, event }) => {
@@ -290,6 +325,10 @@ export const resourcesMachine = setup({
       resources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.resources
         return context.resources.filter((resource) => resource.id !== event.resourceId)
+      },
+      mediaResources: ({ context, event }) => {
+        if (event.type !== "REMOVE_RESOURCE") return context.mediaResources
+        return context.mediaResources.filter((resource) => resource.id !== event.resourceId)
       },
       effectResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.effectResources
@@ -458,6 +497,7 @@ export const resourcesMachine = setup({
   initial: "active",
   context: {
     resources: [],
+    mediaResources: [],
     effectResources: [],
     filterResources: [],
     transitionResources: [],
@@ -483,6 +523,9 @@ export const resourcesMachine = setup({
         },
         ADD_STYLE_TEMPLATE: {
           actions: "addStyleTemplate",
+        },
+        ADD_MEDIA: {
+          actions: "addMedia",
         },
         ADD_MUSIC: {
           actions: "addMusic",

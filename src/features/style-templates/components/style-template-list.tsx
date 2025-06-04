@@ -6,6 +6,7 @@ import { useFavorites } from "@/features/app-state"
 import { ContentGroup } from "@/features/browser/components/content-group"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
+import { useProjectSettings } from "@/features/project-settings"
 import { StyleTemplatePreview } from "@/features/style-templates/components/style-template-preview"
 
 import { useStyleTemplates } from "../hooks"
@@ -35,12 +36,36 @@ export function StyleTemplateList(): React.ReactElement {
   // Получаем текущий размер превью из массива
   const basePreviewSize = PREVIEW_SIZES[previewSizeIndex]
 
+  // Получаем настройки проекта для соотношения сторон
+  const { settings } = useProjectSettings()
+
   const isItemFavorite = useCallback(
     (item: any, type: string) => {
       return favorites[type]?.some((f) => f.id === item.id && f.path === item.path)
     },
     [favorites],
   )
+
+  // Вычисляем размеры превью с учетом соотношения сторон проекта
+  const previewDimensions = useMemo(() => {
+    const aspectRatio = settings.aspectRatio.value
+    const ratio = aspectRatio.width / aspectRatio.height
+
+    let width: number
+    let height: number
+
+    if (ratio >= 1) {
+      // Горизонтальное или квадратное видео
+      width = basePreviewSize
+      height = Math.round(basePreviewSize / ratio)
+    } else {
+      // Вертикальное видео
+      height = basePreviewSize
+      width = Math.round(basePreviewSize * ratio)
+    }
+
+    return { width, height }
+  }, [basePreviewSize, settings.aspectRatio])
 
   /**
    * Фильтрация, сортировка и группировка шаблонов
@@ -252,6 +277,8 @@ export function StyleTemplateList(): React.ReactElement {
                     template={template}
                     size={basePreviewSize}
                     onSelect={handleTemplateSelect}
+                    previewWidth={previewDimensions.width}
+                    previewHeight={previewDimensions.height}
                   />
                 )}
                 itemsContainerClassName="grid gap-3"

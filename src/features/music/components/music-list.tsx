@@ -65,7 +65,7 @@ export function MusicList() {
   const audioRef = useRef<HTMLAudioElement | null>(null) // Ссылка на аудио-элемент
 
   // Получаем методы для работы с ресурсами
-  const { addMusic, removeResource, musicResources, isMusicFileAdded } = useResources()
+  const { addMusic, removeResource, musicResources, isMusicAdded } = useResources()
 
   // Получаем состояние из общего провайдера браузера
   const { currentTabSettings } = useBrowserState()
@@ -238,7 +238,7 @@ export function MusicList() {
     e.stopPropagation() // Предотвращаем всплытие события
 
     // Проверяем, не добавлен ли файл уже
-    if (isMusicFileAdded(file)) {
+    if (isMusicAdded(file)) {
       console.log(`[handleAdd] Музыкальный файл ${file.name} уже добавлен`)
       return
     }
@@ -404,7 +404,7 @@ export function MusicList() {
                           file={file}
                           onAddMedia={handleAdd}
                           onRemoveMedia={handleRemove}
-                          isAdded={isMusicFileAdded(file)}
+                          isAdded={isMusicAdded(file)}
                         />
                       </div>
                     </div>
@@ -490,7 +490,7 @@ export function MusicList() {
                           size={120}
                           onAddMedia={handleAdd}
                           onRemoveMedia={handleRemove}
-                          isAdded={isMusicFileAdded(file)}
+                          isAdded={isMusicAdded(file)}
                         />
                       </div>
                     </div>

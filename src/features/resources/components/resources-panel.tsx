@@ -17,6 +17,7 @@ export function ResourcesPanel() {
     transitionResources,
     templateResources,
     styleTemplateResources,
+    mediaResources,
     musicResources,
     subtitleResources,
   } = useResources()
@@ -25,6 +26,12 @@ export function ResourcesPanel() {
 
   // Категории ресурсов с их данными
   const categories = [
+    {
+      id: "media",
+      name: t("browser.tabs.media"),
+      icon: <Video className="h-3.5 w-3.5 text-gray-400" />,
+      resources: mediaResources,
+    },
     {
       id: "music",
       name: t("browser.tabs.music"),
@@ -85,13 +92,14 @@ export function ResourcesPanel() {
             >
               {/* Иконка ресурса (слева) */}
               <div className="flex-shrink-0">
+                {resource.type === "media" && <Video className="h-4 w-4" />}
+                {resource.type === "music" && <Music className="h-4 w-4" />}
+                {resource.type === "subtitle" && <Subtitles className="h-4 w-4" />}
                 {resource.type === "effect" && <Package className="h-4 w-4" />}
                 {resource.type === "filter" && <Palette className="h-4 w-4" />}
                 {resource.type === "transition" && <Scissors className="h-4 w-4" />}
                 {resource.type === "template" && <Video className="h-4 w-4" />}
                 {resource.type === "style-template" && <Sticker className="h-4 w-4" />}
-                {resource.type === "music" && <Music className="h-4 w-4" />}
-                {resource.type === "subtitle" && <Subtitles className="h-4 w-4" />}
               </div>
 
               {/* Название ресурса (справа) */}
