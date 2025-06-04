@@ -1,11 +1,10 @@
 import { useCallback, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
-
-import { useAppSettings } from "@/features/app-state"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { convertToSavedMusicFile, getMediaMetadata, selectAudioFile, selectMediaDirectory } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
+import { useMusicFiles } from "@/features/app-state/hooks/use-music-files"
 
 /**
  * Максимальное количество одновременных запросов к Tauri
@@ -35,7 +34,7 @@ export function useMusicImport() {
   const [isImporting, setIsImporting] = useState(false)
   const [progress, setProgress] = useState(0)
 
-  const { updateMusicFiles } = useAppSettings()
+  const { updateMusicFiles } = useMusicFiles()
   const { currentProject, setProjectDirty } = useCurrentProject()
 
   /**
@@ -108,8 +107,7 @@ export function useMusicImport() {
       console.log(`Создание ${totalFiles} базовых музыкальных файлов...`)
       const basicMusicFiles = filePaths.map(createBasicMusicFile)
 
-      // TODO: Добавить файлы в хранилище
-      updateMusicFiles?.(basicMusicFiles) // Удален
+      updateMusicFiles(basicMusicFiles)
       console.log("Добавлено файлов:", basicMusicFiles.length)
 
       // ШАГ 2: Асинхронно загружаем метаданные для каждого файла по очереди
@@ -165,8 +163,7 @@ export function useMusicImport() {
             isLoadingMetadata: false,
           }
 
-          // TODO: Обновить файл в хранилище
-          updateMusicFiles?.([updatedMusicFile])
+          updateMusicFiles([updatedMusicFile])
           console.log("Метаданные загружены для:", updatedMusicFile.name)
 
           console.log(`[${fileIndex + 1}/${totalFiles}] ✅ Метаданные музыки загружены: ${filePath.split("/").pop()}`)
@@ -176,8 +173,8 @@ export function useMusicImport() {
             ...createBasicMusicFile(filePath),
             isLoadingMetadata: false,
           }
-          // TODO: Обновить файл в хранилище
-          updateMusicFiles?.([fallbackMusicFile])
+
+          updateMusicFiles([fallbackMusicFile])
           console.log("Fallback для:", fallbackMusicFile.name)
 
           console.log(`[${fileIndex + 1}/${totalFiles}] ⚠️ Метаданные музыки не получены: ${filePath.split("/").pop()}`)
@@ -193,8 +190,8 @@ export function useMusicImport() {
           ...createBasicMusicFile(filePath),
           isLoadingMetadata: false,
         }
-        // TODO: Обновить файл в хранилище
-        updateMusicFiles?.([errorMusicFile])
+
+        updateMusicFiles([errorMusicFile])
         console.log("Ошибка для:", errorMusicFile.name)
       } finally {
         activeRequests--

@@ -42,7 +42,7 @@ export interface AppSettingsProviderContext {
   setProjectDirty: (isDirty: boolean) => void
 
   updateMediaFiles: (files: any[]) => void
-  updateMusicFiles?: (files: any[]) => void // Опционально, если нужно обновлять музыкальные файлы
+  updateMusicFiles: (files: any[]) => void // Опционально, если нужно обновлять музыкальные файлы
 
   // Геттеры для удобного доступа к данным
   getUserSettings: () => UserSettingsContextType

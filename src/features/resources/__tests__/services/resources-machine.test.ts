@@ -414,17 +414,26 @@ describe("resourcesMachine", () => {
       isAudio: true,
       duration: 120,
       probeData: {
-        format: {
-          duration: 120,
-          size: 1000,
-          tags: {
-            title: "Test Song",
-            artist: "Test Artist",
-            genre: "Test Genre",
-            date: "2021-01-01",
+        streams: [
+          {
+            index: 0,
+            codec_name: "h264",
+            codec_type: "video",
+            width: 1920,
+            height: 1080,
+            r_frame_rate: "30/1",
+            duration: "60.0",
+            bit_rate: "5000000",
           },
+        ],
+        format: {
+          filename: "/test/sample.mp4",
+          nb_streams: 1,
+          format_name: "mov,mp4,m4a,3gp,3g2,mj2",
+          duration: 60,
+          size: 1000000,
+          bit_rate: 5000000,
         },
-        streams: [],
       },
     }
 

@@ -6,7 +6,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { fireEvent, renderWithBase, screen } from "@/test/test-utils"
 
 import { ResourcesPanel } from "../../components/resources-panel"
-import { useResources } from "../../services/resources-provider"
 
 // Создаем моки для функций
 const mockAddEffect = vi.fn()

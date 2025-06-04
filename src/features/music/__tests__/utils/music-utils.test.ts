@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
 
-import { filterFiles, sortFiles } from "./music-utils"
+import { filterFiles, sortFiles } from "../../utils/music-utils"
 
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {})

@@ -208,7 +208,7 @@ describe("ResourcesProvider", () => {
       name: "Test Filter",
       type: "color",
       ffmpegCommand: () => "colorchannelmixer=rr=0.5:gg=0.5:bb=0.5",
-      params: { intensity: 0.5 },
+      params: { brightness: 0.5 },
       previewPath: "/filters/test-preview.mp4",
       labels: {
         ru: "Тестовый фильтр",
