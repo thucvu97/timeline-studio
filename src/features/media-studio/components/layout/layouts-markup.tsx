@@ -10,10 +10,10 @@ export function DefaultLayout({ isActive, onClick }: LayoutProps) {
   const { t } = useTranslation()
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted" : "hover:bg-muted"} p-2 pb-1`}
+      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted/50" : "hover:bg-muted/50"} p-2 pb-1`}
       onClick={onClick}
     >
-      <div className="bg-muted mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
+      <div className=" mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
         <div className="flex h-full w-[100%] flex-col">
           <div className="flex h-[60%] w-full border-b-2 border-gray-700">
             <div className="w-[30%] border-r-2 border-gray-700 p-1">
@@ -56,10 +56,10 @@ export function OptionsLayout({ isActive, onClick }: LayoutProps) {
   const { t } = useTranslation()
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted" : "hover:bg-muted"} p-2 pb-1`}
+      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted/50" : "hover:bg-muted/50"} p-2 pb-1`}
       onClick={onClick}
     >
-      <div className="bg-muted mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
+      <div className=" mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
         <div className="flex h-full w-[75%] flex-col">
           <div className="flex h-[60%] w-full border-b-2 border-gray-700">
             <div className="w-[30%] border-r-2 border-gray-700 p-1">
@@ -109,10 +109,10 @@ export function VerticalLayout({ isActive, onClick }: LayoutProps) {
   const { t } = useTranslation()
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted" : "hover:bg-muted"} p-2 pb-1`}
+      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted/50" : "hover:bg-muted/50"} p-2 pb-1`}
       onClick={onClick}
     >
-      <div className="bg-muted mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
+      <div className=" mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
         <div className="flex h-full w-[70%] flex-col">
           <div className="flex h-[50%] w-full border-b-2 border-gray-700">
             <div className="w-[50%] p-1">

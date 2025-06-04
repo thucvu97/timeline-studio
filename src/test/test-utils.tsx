@@ -2,12 +2,12 @@ import { ReactElement, ReactNode } from "react"
 
 import { RenderOptions, render } from "@testing-library/react"
 
-import { ThemeProvider } from "@/components/theme/theme-context"
 import { AppSettingsProvider } from "@/features/app-state"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings"
 import { ResourcesProvider } from "@/features/resources"
 import { TimelineProvider } from "@/features/timeline/services/timeline-provider"
+import { ThemeProvider } from "@/features/top-bar/components/theme/theme-context"
 import { UserSettingsProvider } from "@/features/user-settings"
 import { PlayerProvider } from "@/features/video-player/services/player-provider"
 import { I18nProvider } from "@/i18n/services/i18n-provider"

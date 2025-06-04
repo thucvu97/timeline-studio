@@ -18,6 +18,18 @@ export function useAudioPermissions() {
         return true
       }
 
+      // Проверяем поддержку mediaDevices
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setPermissionStatus("error")
+        setErrorMessage(
+          t(
+            "dialogs.voiceRecord.unsupportedBrowser",
+            "Ваш браузер не поддерживает запись аудио. Используйте современный браузер.",
+          ),
+        )
+        return false
+      }
+
       // Проверяем, поддерживает ли браузер API разрешений
       if (navigator.permissions && navigator.permissions.query) {
         const result = await navigator.permissions.query({ name: "microphone" as PermissionName })
@@ -48,7 +60,6 @@ export function useAudioPermissions() {
       return false
     }
   }, [t])
-
   // Запрашиваем разрешения на доступ к микрофону
   const requestPermissions = useCallback(async () => {
     try {

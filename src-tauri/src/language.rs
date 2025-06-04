@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 // Поддерживаемые языки
-const SUPPORTED_LANGUAGES: [&str; 5] = ["ru", "en", "es", "fr", "de"];
-const DEFAULT_LANGUAGE: &str = "ru";
+const SUPPORTED_LANGUAGES: [&str; 6] = ["en", "ru", "es", "pt", "fr", "de"];
+const DEFAULT_LANGUAGE: &str = "en";
 
 // Глобальное состояние для хранения текущего языка
 static APP_LANGUAGE: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(DEFAULT_LANGUAGE.to_string()));

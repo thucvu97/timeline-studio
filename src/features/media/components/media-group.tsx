@@ -1,7 +1,7 @@
 import React from "react"
 
-import { ContentGroup } from "@/components/common/content-group"
 import { useAppSettings } from "@/features/app-state"
+import { ContentGroup } from "@/features/browser/components/content-group"
 import { MediaFile } from "@/features/media/types/media"
 
 import { MediaItem } from "./media-item"

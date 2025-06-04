@@ -2,9 +2,9 @@ import { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { ContentGroup } from "@/components/common/content-group"
-import { NoFiles } from "@/components/common/no-files"
 import { useFavorites } from "@/features/app-state"
+import { ContentGroup } from "@/features/browser/components/content-group"
+import { NoFiles } from "@/features/browser/components/no-files"
 import { PREVIEW_SIZES, useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { useProjectSettings } from "@/features/project-settings"

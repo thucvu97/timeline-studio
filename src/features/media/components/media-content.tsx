@@ -2,9 +2,9 @@ import React from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { NoFiles } from "@/components/common/no-files"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { NoFiles } from "@/features/browser/components/no-files"
 import { MediaFile } from "@/features/media/types/media"
 
 import { MediaGroup } from "./media-group"

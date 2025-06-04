@@ -2,8 +2,8 @@ import { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { ContentGroup } from "@/components/common/content-group"
 import { useFavorites } from "@/features/app-state"
+import { ContentGroup } from "@/features/browser/components/content-group"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useProjectSettings } from "@/features/project-settings"

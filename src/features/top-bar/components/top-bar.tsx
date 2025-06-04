@@ -6,26 +6,28 @@ import {
   LayoutTemplate,
   ListTodo,
   Mic,
+  MonitorCog,
   PanelLeftClose,
   PanelLeftOpen,
   Save,
   Send,
-  Settings,
   Upload,
   UserCog,
   Webcam,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { LayoutPreviews } from "@/features/media-studio"
 import { ModalType } from "@/features/modals"
 import { useModal } from "@/features/modals/services/modal-provider"
+import { ThemeToggle } from "@/features/top-bar/components/theme/theme-toggle"
 import { useUserSettings } from "@/features/user-settings"
 import { cn } from "@/lib/utils"
+
+export const TOP_BAR_BUTTON_CLASS = "hover:bg-[#D1D1D1] dark:hover:bg-[#464747] h-6 w-6 cursor-pointer m-0.5 p-0"
 
 const TopBarComponent = function TopBar() {
   const { t } = useTranslation()
@@ -121,7 +123,7 @@ const TopBarComponent = function TopBar() {
   )
 
   return (
-    <div className="relative flex w-full items-center bg-gray-200 px-1 py-0 dark:bg-[#343434]">
+    <div className="relative flex w-full items-center bg-[#DDDDDD] px-1 py-0 dark:bg-[#3D3D3D]">
       {/* Используем grid для равномерного распределения групп */}
       <div className="grid w-full grid-cols-5 items-center">
         {/* Группа 1: Переключатель браузера и макет */}
@@ -129,7 +131,7 @@ const TopBarComponent = function TopBar() {
           <Button
             variant="ghost"
             size="icon"
-            className={"transition-all duration-300 hover:bg-secondary h-7 w-7 cursor-pointer p-0"}
+            className={TOP_BAR_BUTTON_CLASS}
             onClick={toggleBrowserVisibility}
             title={buttonTitles.browser}
           >
@@ -139,7 +141,7 @@ const TopBarComponent = function TopBar() {
           <Popover>
             <PopoverTrigger asChild>
               <Button
-                className="h-7 w-7 cursor-pointer p-0"
+                className={TOP_BAR_BUTTON_CLASS}
                 variant="ghost"
                 size="icon"
                 title={buttonTitles.layout}
@@ -160,7 +162,7 @@ const TopBarComponent = function TopBar() {
             <ThemeToggle />
           </div>
           <Button
-            className="h-7 w-7 cursor-pointer p-0"
+            className={TOP_BAR_BUTTON_CLASS}
             variant="ghost"
             size="icon"
             title={buttonTitles.keyboardShortcuts}
@@ -170,7 +172,7 @@ const TopBarComponent = function TopBar() {
             <Keyboard className="h-5 w-5" />
           </Button>
           <Button
-            className="h-7 w-7 cursor-pointer p-0"
+            className={TOP_BAR_BUTTON_CLASS}
             variant="ghost"
             size="icon"
             title={buttonTitles.userSettings}
@@ -184,17 +186,17 @@ const TopBarComponent = function TopBar() {
         {/* Группа 3: Открытие, сохранение и редактирование названия */}
         <div className="flex items-center justify-center">
           <Button
-            className="h-7 w-7 cursor-pointer p-0"
+            className={TOP_BAR_BUTTON_CLASS}
             variant="ghost"
             size="icon"
             title={buttonTitles.projectSettings}
             onClick={() => handleOpenModal("project-settings")}
             data-testid="project-settings-button"
           >
-            <Settings className="h-5 w-5" />
+            <MonitorCog className="h-5 w-5" />
           </Button>
           <Button
-            className="h-7 w-7 cursor-pointer p-0"
+            className={TOP_BAR_BUTTON_CLASS}
             variant="ghost"
             size="icon"
             title={buttonTitles.openProject}
@@ -237,11 +239,11 @@ const TopBarComponent = function TopBar() {
         </div>
 
         {/* Группа 4: Запись видео и голоса */}
-        <div className="flex items-center justify-end pr-8">
+        <div className="flex items-center justify-end pr-[20%]">
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 cursor-pointer p-0"
+            className={TOP_BAR_BUTTON_CLASS}
             title={buttonTitles.cameraCapture}
             onClick={() => handleOpenModal("camera-capture")}
             data-testid="camera-capture-button"
@@ -251,7 +253,7 @@ const TopBarComponent = function TopBar() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 cursor-pointer p-0"
+            className={TOP_BAR_BUTTON_CLASS}
             title={buttonTitles.voiceRecording}
             onClick={() => handleOpenModal("voice-recording")}
             data-testid="voice-recording-button"
@@ -265,7 +267,7 @@ const TopBarComponent = function TopBar() {
           <Popover>
             <PopoverTrigger asChild>
               <Button
-                className="h-7 w-7 cursor-pointer p-0"
+                className={TOP_BAR_BUTTON_CLASS}
                 variant="ghost"
                 size="icon"
                 title={buttonTitles.publish}
@@ -285,7 +287,7 @@ const TopBarComponent = function TopBar() {
           <Popover>
             <PopoverTrigger asChild>
               <Button
-                className="h-7 w-7 cursor-pointer p-0"
+                className={TOP_BAR_BUTTON_CLASS}
                 variant="ghost"
                 size="icon"
                 title={buttonTitles.editingTasks}

@@ -2,8 +2,8 @@ import { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { ContentGroup } from "@/components/common/content-group"
 import { useFavorites } from "@/features/app-state"
+import { ContentGroup } from "@/features/browser/components/content-group"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { StyleTemplatePreview } from "@/features/style-templates/components/style-template-preview"
@@ -23,7 +23,7 @@ export function StyleTemplateList(): React.ReactElement {
   console.log("🎨 [StyleTemplateList] Render:", templates.length, "templates")
 
   // Получаем текущий язык
-  const currentLanguage = (i18n.language || "ru") as "ru" | "en"
+  const currentLanguage = (i18n.language || "en") as "ru" | "en"
 
   // Используем общий провайдер состояния браузера
   const { currentTabSettings } = useBrowserState()

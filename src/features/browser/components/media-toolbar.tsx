@@ -181,15 +181,15 @@ export function MediaToolbar({
   }
 
   return (
-    <div className={cn("flex items-center justify-between p-1 dark:bg-[#252526]", className)}>
-      <div className="flex h-8 w-[calc(100%-100px)] items-center gap-2">
+    <div className={cn("flex items-center justify-between py-1 px-1 bg-background", className)}>
+      <div className="flex h-7 w-[calc(100%-100px)] items-center gap-2">
         {/* Кнопка импорта */}
         {showImport && onImport && (
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              "flex cursor-pointer items-center gap-1 bg-[#dddbdd] px-1 text-xs hover:bg-[#d1d1d1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25",
+              "flex cursor-pointer items-center gap-1 bg-[#DDDDDD] px-1 h-7 text-xs hover:bg-[#D1D1D1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25",
               isImporting && "opacity-70 cursor-wait",
             )}
             onClick={onImport}
@@ -204,7 +204,7 @@ export function MediaToolbar({
                   <TooltipTrigger asChild>
                     <div
                       className={cn(
-                        "cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25",
+                        "cursor-pointer rounded-sm p-0.5 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25",
                         isImporting && "opacity-50 cursor-wait",
                       )}
                       onClick={(e) => {
@@ -223,7 +223,7 @@ export function MediaToolbar({
                   <TooltipTrigger asChild>
                     <div
                       className={cn(
-                        "cursor-pointer rounded-sm p-1 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25",
+                        "cursor-pointer rounded-sm p-0.5 hover:bg-[#efefef] dark:hover:bg-[#dddbdd]/25",
                         isImporting && "opacity-50 cursor-wait",
                       )}
                       onClick={(e) => {

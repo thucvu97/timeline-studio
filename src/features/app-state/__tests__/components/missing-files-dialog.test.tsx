@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { SavedMediaFile } from "@/features/media/types/saved-media"
 
-import { MissingFilesDialog } from "./missing-files-dialog"
+import { MissingFilesDialog } from "../../components/missing-files-dialog"
 
 // Мокаем MediaRestorationService
 vi.mock("@/features/media/services/media-restoration-service", () => ({

@@ -7,7 +7,7 @@
 
 import React from "react"
 
-import { FileText, Filter, FolderOpen, Image, Music, Palette, Sparkles, Upload, Video } from "lucide-react"
+import { FileText, Filter, FolderOpen, Music, Palette, Sparkles, Upload, Video } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

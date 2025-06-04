@@ -2,8 +2,8 @@ import React, { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { NoFiles } from "@/components/common/no-files"
 import { useFavorites } from "@/features/app-state"
+import { NoFiles } from "@/features/browser/components/no-files"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { VideoEffect } from "@/features/effects/types/effects"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"

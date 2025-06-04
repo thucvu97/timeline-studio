@@ -1,6 +1,6 @@
 import React from "react"
 
-import { ContentGroup } from "@/components/common/content-group"
+import { ContentGroup } from "@/features/browser/components/content-group"
 import { VideoEffect } from "@/features/effects/types/effects"
 
 import { EffectPreview } from "./effect-preview"

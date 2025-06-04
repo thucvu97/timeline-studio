@@ -2,9 +2,9 @@ import { useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { ContentGroup } from "@/components/common/content-group"
-import { NoFiles } from "@/components/common/no-files"
 import { useFavorites } from "@/features/app-state"
+import { ContentGroup } from "@/features/browser/components/content-group"
+import { NoFiles } from "@/features/browser/components/no-files"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { MediaFile } from "@/features/media/types/media"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"

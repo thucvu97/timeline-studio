@@ -4,7 +4,7 @@ import { appDataDir, basename, join } from "@tauri-apps/api/path"
 import { open, save } from "@tauri-apps/plugin-dialog"
 import { useMachine } from "@xstate/react"
 
-import { MissingFilesDialog } from "@/components/dialogs/missing-files-dialog"
+import { MissingFilesDialog } from "@/features/app-state/components/missing-files-dialog"
 import { ProjectFileService } from "@/features/app-state/services/project-file-service"
 import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
 import { UserSettingsContextType } from "@/features/user-settings"

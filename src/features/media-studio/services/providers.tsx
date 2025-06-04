@@ -9,6 +9,7 @@ import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings"
 import { ResourcesProvider } from "@/features/resources/services/resources-provider"
 import { TimelineProvider } from "@/features/timeline/services/timeline-provider"
+import { ThemeProvider } from "@/features/top-bar/components/theme/theme-context"
 import { UserSettingsProvider } from "@/features/user-settings"
 import { PlayerProvider } from "@/features/video-player/services/player-provider"
 import { I18nProvider } from "@/i18n/services/i18n-provider"
@@ -27,6 +28,7 @@ const composeProviders = (...providers: React.ComponentType<{ children: ReactNod
 // Создаем единый провайдер из всех контекстов
 const AppProvider = composeProviders(
   I18nProvider,
+  ThemeProvider,
   ModalProvider,
   AppSettingsProvider,
   BrowserStateProvider,
