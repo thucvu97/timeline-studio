@@ -35,7 +35,8 @@
     "timezone": {
       "select": "Zeitzone auswählen",
       "search": "Zeitzone suchen..."
-    }
+    },
+    "reset": "Zurücksetzen"
   },
   "dates": {
     "today": "Heute",
@@ -156,7 +157,9 @@
         "defaultPathHint": "Standardpfad zum Speichern von Screenshots",
         "customPathHint": "Screenshots werden gespeichert in: {{path}}",
         "cancel": "Abbrechen",
-        "save": "Speichern"
+        "save": "Speichern",
+        "playerScreenshotsPath": "Pfad zum Speichern von Player-Screenshots",
+        "claudeApiKey": "Claude API-Schlüssel"
       },
 
       "keyboardShortcuts": {
@@ -528,19 +531,14 @@
       "clearApiKey": "API-Schlüssel löschen",
       "enterApiKey": "API-Schlüssel eingeben",
       "cancel": "Abbrechen",
-      "save": "OK"
+      "save": "OK",
+      "playerScreenshotsPath": "Pfad zum Speichern von Player-Screenshots",
+      "claudeApiKey": "Claude API-Schlüssel"
     }
   },
   "timeline": {
     "resources": {
       "title": "Ressourcen",
-      "all": "Alle",
-      "effects": "Effekte",
-      "filters": "Filter",
-      "transitions": "Übergänge",
-      "templates": "Vorlagen",
-      "music": "Musik",
-      "subtitles": "Untertitel",
       "noResources": "Keine Ressourcen hinzugefügt"
     },
     "chat": {
@@ -1169,6 +1167,99 @@
       "split-grid-3x4-landscape": "Zwölf Bildschirme in einem 3×4-Raster",
       "split-grid-4x4-landscape": "Sechzehn Bildschirme in einem 4×4-Raster",
       "split-grid-5x5-landscape": "Fünfundzwanzig Bildschirme in einem 5×5-Raster"
+    }
+  },
+  "options": {
+    "tabs": {
+      "video": "Video",
+      "audio": "Audio",
+      "speed": "Geschwindigkeit",
+      "info": "Info"
+    },
+    "video": {
+      "title": "Videoeinstellungen",
+      "resolution": "Projektauflösung",
+      "width": "Breite",
+      "height": "Höhe",
+      "fps": "Bildrate",
+      "aspectRatio": "Seitenverhältnis",
+      "previewQuality": "Vorschauqualität",
+      "defaultCodec": "Standard-Codec"
+    },
+    "audio": {
+      "title": "Audioeinstellungen",
+      "sampleRate": "Abtastrate",
+      "bitrate": "Bitrate",
+      "channels": "Kanäle",
+      "defaultVolume": "Standardlautstärke",
+      "codec": "Audio-Codec",
+      "advanced": "Erweiterte Einstellungen",
+      "bufferSize": "Puffergröße (ms)",
+      "latency": "Latenz (ms)",
+      "sampleRates": {
+        "44100": "44,1 kHz (CD-Qualität)",
+        "48000": "48 kHz (Professionell)",
+        "96000": "96 kHz (Hi-Res)",
+        "192000": "192 kHz (Studio)"
+      },
+      "bitrates": {
+        "128": "128 kbps (Basis)",
+        "192": "192 kbps (Gut)",
+        "256": "256 kbps (Hoch)",
+        "320": "320 kbps (Maximal)"
+      },
+      "channelsOptions": {
+        "mono": "Mono (1 Kanal)",
+        "stereo": "Stereo (2 Kanäle)",
+        "5_1": "5.1 Surround",
+        "7_1": "7.1 Surround"
+      },
+      "codecs": {
+        "aac": "AAC (Empfohlen)",
+        "mp3": "MP3 (Kompatibilität)",
+        "flac": "FLAC (Verlustfrei)",
+        "opus": "Opus (Effizienz)"
+      }
+    },
+    "speed": {
+      "title": "Geschwindigkeitseinstellungen",
+      "defaultPlayback": "Standardwiedergabegeschwindigkeit",
+      "customSpeed": "Benutzerdefinierte Geschwindigkeit",
+      "speedChange": "Einstellungen für Geschwindigkeitsänderung",
+      "interpolation": "Frame-Interpolation",
+      "motionBlur": "Bewegungsunschärfe",
+      "smoothPlayback": "Flüssige Wiedergabe",
+      "enableSmooth": "Flüssige Wiedergabe aktivieren",
+      "smoothness": "Glättungsgrad",
+      "performance": "Leistung",
+      "quality": "Qualität",
+      "advanced": "Erweiterte Einstellungen",
+      "preservePitch": "Tonhöhe bei Geschwindigkeitsänderung beibehalten",
+      "autoKeyframes": "Automatische Keyframes",
+      "maxSpeed": "Maximale Geschwindigkeit"
+    },
+    "info": {
+      "title": "Mediendatei-Info",
+      "selectFile": "Datei zur Analyse auswählen",
+      "noFileSelected": "Keine Datei ausgewählt",
+      "basicInfo": "Basisinfo",
+      "fileName": "Dateiname",
+      "fileSize": "Dateigröße",
+      "duration": "Dauer",
+      "resolution": "Auflösung",
+      "fps": "Bildrate",
+      "bitrate": "Bitrate",
+      "videoStream": "Videostream",
+      "codec": "Codec",
+      "colorSpace": "Farbraum",
+      "profile": "Profil",
+      "audioStream": "Audiostream",
+      "sampleRate": "Abtastrate",
+      "channels": "Kanäle",
+      "audioBitrate": "Audio-Bitrate",
+      "metadata": "Metadaten",
+      "createdAt": "Erstellungsdatum",
+      "device": "Gerät"
     }
   }
 }

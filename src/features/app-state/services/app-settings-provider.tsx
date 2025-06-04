@@ -7,10 +7,10 @@ import { useMachine } from "@xstate/react"
 import { MissingFilesDialog } from "@/components/dialogs/missing-files-dialog"
 import { ProjectFileService } from "@/features/app-state/services/project-file-service"
 import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
-import { FavoritesType } from "@/features/media/services/media-machine"
 import { UserSettingsContextType } from "@/features/user-settings"
 
 import { AppSettingsContextType, appSettingsMachine } from "./app-settings-machine"
+import { FavoritesType } from "./store-service"
 
 /**
  * Интерфейс контекста провайдера настроек приложения
@@ -25,20 +25,24 @@ export interface AppSettingsProviderContext {
 
   // Методы для работы с настройками
   updateUserSettings: (settings: Partial<UserSettingsContextType>) => void
+  reloadSettings: () => void
+
   addRecentProject: (path: string, name: string) => void
   removeRecentProject: (path: string) => void
   clearRecentProjects: () => void
+
   updateFavorites: (favorites: Partial<FavoritesType>) => void
   addToFavorites: (itemType: keyof FavoritesType, item: any) => void
   removeFromFavorites: (itemType: keyof FavoritesType, itemId: string) => void
-  reloadSettings: () => void
 
   // Методы для работы с проектами
   createNewProject: (name?: string) => void
   openProject: () => Promise<{ path: string; name: string } | null>
   saveProject: (name: string) => Promise<{ path: string; name: string } | null>
   setProjectDirty: (isDirty: boolean) => void
+
   updateMediaFiles: (files: any[]) => void
+  updateMusicFiles?: (files: any[]) => void // Опционально, если нужно обновлять музыкальные файлы
 
   // Геттеры для удобного доступа к данным
   getUserSettings: () => UserSettingsContextType
@@ -46,6 +50,7 @@ export interface AppSettingsProviderContext {
   getFavorites: () => FavoritesType
   getCurrentProject: () => AppSettingsContextType["currentProject"]
   getMediaFiles: () => AppSettingsContextType["mediaFiles"]
+  getMusicFiles: () => AppSettingsContextType["musicFiles"]
   isLoading: () => boolean
   getError: () => string | null
 }
@@ -170,8 +175,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
             console.log("Медиафайлы восстановлены:", restorationResult.result.stats)
 
             // TODO: Добавить восстановленные файлы в провайдеры медиа и музыки
-            // updateMediaFiles(restorationResult.restoredMedia)
-            // updateMusicFiles(restorationResult.restoredMusic)
+            updateMediaFiles(restorationResult.restoredMedia)
+            updateMusicFiles(restorationResult.restoredMusic)
           } catch (restorationError) {
             console.error("Ошибка при восстановлении медиафайлов:", restorationError)
             // Не прерываем открытие проекта из-за ошибок восстановления
@@ -276,12 +281,17 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     send({ type: "UPDATE_MEDIA_FILES", files })
   }
 
+  const updateMusicFiles = (files: any[]) => {
+    send({ type: "UPDATE_MUSIC_FILES", files })
+  }
+
   // Геттеры для удобного доступа к данным
   const getUserSettings = () => state.context.userSettings
   const getRecentProjects = () => state.context.recentProjects
   const getFavorites = () => state.context.favorites
   const getCurrentProject = () => state.context.currentProject
   const getMediaFiles = () => state.context.mediaFiles
+  const getMusicFiles = () => state.context.musicFiles
   const isLoading = () => state.context.isLoading
   const getError = () => state.context.error
 
@@ -305,11 +315,13 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     saveProject,
     setProjectDirty,
     updateMediaFiles,
+    updateMusicFiles,
     getUserSettings,
     getRecentProjects,
     getFavorites,
     getCurrentProject,
     getMediaFiles,
+    getMusicFiles,
     isLoading,
     getError,
   }

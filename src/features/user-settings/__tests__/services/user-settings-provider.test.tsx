@@ -1,8 +1,8 @@
 import { act, render, renderHook, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { UserSettingsProvider } from "./user-settings-provider"
-import { useUserSettings } from "../hooks/use-user-settings"
+import { useUserSettings } from "../../hooks/use-user-settings"
+import { UserSettingsProvider } from "../../services/user-settings-provider"
 
 // Создаем моковый объект для send
 const mockSend = vi.fn()
@@ -34,7 +34,7 @@ vi.mock("@xstate/react", () => ({
 }))
 
 // Мокаем userSettingsMachine
-vi.mock("./user-settings-machine", () => ({
+vi.mock("../../services/user-settings-machine", () => ({
   userSettingsMachine: {
     createMachine: vi.fn(),
   },

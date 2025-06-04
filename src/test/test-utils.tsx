@@ -4,7 +4,6 @@ import { RenderOptions, render } from "@testing-library/react"
 
 import { ThemeProvider } from "@/components/theme/theme-context"
 import { AppSettingsProvider } from "@/features/app-state"
-import { MediaProvider } from "@/features/browser/media"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings"
 import { ResourcesProvider } from "@/features/resources"
@@ -28,9 +27,7 @@ export const BaseProviders = ({ children }: { children: ReactNode }) => {
 export const MediaProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
-      <ResourcesProvider>
-        <MediaProvider>{children}</MediaProvider>
-      </ResourcesProvider>
+      <ResourcesProvider>{children}</ResourcesProvider>
     </BaseProviders>
   )
 }
@@ -81,9 +78,7 @@ const TemplateProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
       <ResourcesProvider>
-        <MediaProvider>
-          <PlayerProvider>{children}</PlayerProvider>
-        </MediaProvider>
+        <PlayerProvider>{children}</PlayerProvider>
       </ResourcesProvider>
     </BaseProviders>
   )

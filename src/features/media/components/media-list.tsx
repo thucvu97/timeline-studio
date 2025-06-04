@@ -2,8 +2,10 @@ import { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
+import { useAppSettings, useFavorites } from "@/features/app-state"
+import { StatusBar } from "@/features/browser"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
-import { getFileType , groupFilesByDate, useMedia } from "@/features/media"
+import { getFileType, groupFilesByDate } from "@/features/media"
 import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
 import { useTimelineActions } from "@/features/timeline/hooks"
@@ -11,7 +13,6 @@ import i18n from "@/i18n"
 import { formatDateByLanguage } from "@/i18n/constants"
 
 import { MediaContent } from "./media-content"
-import { StatusBar } from "../../browser/components/layout/status-bar"
 
 interface GroupedMediaFiles {
   title: string
@@ -25,7 +26,10 @@ interface GroupedMediaFiles {
  */
 export function MediaList() {
   const { t } = useTranslation()
-  const { allMediaFiles, isLoading, error, isItemFavorite, includedFiles } = useMedia()
+  const { isLoading, getError, state } = useAppSettings()
+  const allMediaFiles = state.context.mediaFiles.allFiles || []
+  const { isItemFavorite } = useFavorites()
+  const error = getError()
 
   // Хук для добавления медиафайлов на таймлайн
   const { addMediaToTimeline } = useTimelineActions()
@@ -79,19 +83,7 @@ export function MediaList() {
     if (showFavoritesOnly) {
       filtered = filtered.filter((file: MediaFile) => {
         try {
-          // Определяем тип файла для проверки в избранном
-          let itemType = "media"
-
-          // Для аудиофайлов используем тип "audio"
-          if (
-            file.isAudio ||
-            (file.probeData?.streams[0]?.codec_type === "audio" &&
-              !file.probeData.streams.some((stream) => stream.codec_type === "video"))
-          ) {
-            itemType = "audio"
-          }
-
-          return isItemFavorite(file, itemType)
+          return isItemFavorite(file, "media")
         } catch (error) {
           console.error("Error filtering favorite file:", file, error)
           return false // Пропускаем файл при ошибке
@@ -377,7 +369,6 @@ export function MediaList() {
   // Обработчик повторной загрузки
   const handleRetry = useCallback(() => {
     console.log("Retry requested")
-    // TODO: Реализовать повторную загрузку через useMedia
   }, [])
 
   return (
@@ -387,7 +378,7 @@ export function MediaList() {
           groupedFiles={groupedFiles}
           viewMode={viewMode}
           previewSize={previewSize}
-          isLoading={isLoading}
+          isLoading={isLoading()}
           error={error}
           addFilesToTimeline={addMediaToTimeline}
           onRetry={handleRetry}
@@ -402,7 +393,12 @@ export function MediaList() {
             onAddDateFiles={addDateFiles}
             onAddAllFiles={handleAddAllFiles}
             sortedDates={sortedDates}
-            addedFiles={includedFiles}
+            addedFiles={allMediaFiles.reduce<MediaFile[]>((acc, file) => {
+              if (file.isIncluded) {
+                acc.push(file)
+              }
+              return acc
+            }, [])}
           />
         </div>
       )}

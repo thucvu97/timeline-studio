@@ -7,36 +7,36 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 
-const SAMPLE_RATE_OPTIONS = [
-  { value: "44100", label: "44.1 kHz (CD качество)" },
-  { value: "48000", label: "48 kHz (Профессиональное)" },
-  { value: "96000", label: "96 kHz (Hi-Res)" },
-  { value: "192000", label: "192 kHz (Студийное)" },
-]
-
-const BITRATE_OPTIONS = [
-  { value: "128", label: "128 kbps (Базовое)" },
-  { value: "192", label: "192 kbps (Хорошее)" },
-  { value: "256", label: "256 kbps (Высокое)" },
-  { value: "320", label: "320 kbps (Максимальное)" },
-]
-
-const CHANNELS_OPTIONS = [
-  { value: "mono", label: "Моно (1 канал)" },
-  { value: "stereo", label: "Стерео (2 канала)" },
-  { value: "5.1", label: "5.1 Surround" },
-  { value: "7.1", label: "7.1 Surround" },
-]
-
-const AUDIO_CODEC_OPTIONS = [
-  { value: "aac", label: "AAC (Рекомендуется)" },
-  { value: "mp3", label: "MP3 (Совместимость)" },
-  { value: "flac", label: "FLAC (Без потерь)" },
-  { value: "opus", label: "Opus (Эффективность)" },
-]
-
 export function AudioSettings() {
   const { t } = useTranslation()
+
+  const SAMPLE_RATE_OPTIONS = [
+    { value: "44100", label: t("options.audio.sampleRates.44100", "44.1 kHz (CD quality)") },
+    { value: "48000", label: t("options.audio.sampleRates.48000", "48 kHz (Professional)") },
+    { value: "96000", label: t("options.audio.sampleRates.96000", "96 kHz (Hi-Res)") },
+    { value: "192000", label: t("options.audio.sampleRates.192000", "192 kHz (Studio)") },
+  ]
+
+  const BITRATE_OPTIONS = [
+    { value: "128", label: t("options.audio.bitrates.128", "128 kbps (Basic)") },
+    { value: "192", label: t("options.audio.bitrates.192", "192 kbps (Good)") },
+    { value: "256", label: t("options.audio.bitrates.256", "256 kbps (High)") },
+    { value: "320", label: t("options.audio.bitrates.320", "320 kbps (Maximum)") },
+  ]
+
+  const CHANNELS_OPTIONS = [
+    { value: "mono", label: t("options.audio.channelsOptions.mono", "Mono (1 channel)") },
+    { value: "stereo", label: t("options.audio.channelsOptions.stereo", "Stereo (2 channels)") },
+    { value: "5.1", label: t("options.audio.channelsOptions.5_1", "5.1 Surround") },
+    { value: "7.1", label: t("options.audio.channelsOptions.7_1", "7.1 Surround") },
+  ]
+
+  const AUDIO_CODEC_OPTIONS = [
+    { value: "aac", label: t("options.audio.codecs.aac", "AAC (Recommended)") },
+    { value: "mp3", label: t("options.audio.codecs.mp3", "MP3 (Compatibility)") },
+    { value: "flac", label: t("options.audio.codecs.flac", "FLAC (Lossless)") },
+    { value: "opus", label: t("options.audio.codecs.opus", "Opus (Efficiency)") },
+  ]
 
   return (
     <div className="space-y-6" data-testid="audio-settings">

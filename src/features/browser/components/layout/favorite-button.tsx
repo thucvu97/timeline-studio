@@ -3,7 +3,7 @@ import { memo, useEffect, useRef, useState } from "react"
 import { Star } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { useMedia } from "@/features/media"
+import { useFavorites } from "@/features/app-state"
 import { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
 
@@ -28,9 +28,8 @@ interface FavoriteButtonProps {
  */
 export const FavoriteButton = memo(function FavoriteButton({ file, size = 60, type = "media" }: FavoriteButtonProps) {
   const { t } = useTranslation()
-  const media = useMedia()
-  const { isItemFavorite, addToFavorites, removeFromFavorites } = media
-  const isFavorite = isItemFavorite(file, type)
+  const { addToFavorites, removeFromFavorites, favorites } = useFavorites()
+  const isFavorite = favorites[type]?.some((f) => f.id === file.id)
   const [isHovering, setIsHovering] = useState(false)
   const [isRecentlyAdded, setIsRecentlyAdded] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -103,10 +102,10 @@ export const FavoriteButton = memo(function FavoriteButton({ file, size = 60, ty
 
     if (isFavorite && isHovering && canShowRemoveButton) {
       // Удаляем из избранного
-      removeFromFavorites(file, type)
+      removeFromFavorites(type, file.id)
     } else if (!isFavorite) {
       // Добавляем в избранное
-      addToFavorites(file, type)
+      addToFavorites(type, file)
       // Немедленно обновляем визуальное состояние
       setIsRecentlyAdded(true)
     }

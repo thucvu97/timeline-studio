@@ -10,11 +10,12 @@ import { DEFAULT_CONTENT_SIZES, type PreviewSize, type PreviewSizeKey } from "@/
 export const BROWSER_TABS = [
   "media", // Медиа-файлы (видео, изображения)
   "music", // Музыкальные файлы
+  "subtitles", // Субтитры
   "transitions", // Переходы между сценами
   "effects", // Эффекты для видео
   "filters", // Фильтры для видео
   "templates", // Шаблоны проектов
-  "subtitles", // Субтитры
+  "style-templates", // Стилевые шаблоны
 ] as const
 export const DEFAULT_TAB = "media" // Таб по умолчанию
 

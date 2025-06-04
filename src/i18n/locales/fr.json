@@ -35,7 +35,8 @@
     "timezone": {
       "select": "Sélectionner le fuseau horaire",
       "search": "Rechercher un fuseau horaire..."
-    }
+    },
+    "reset": "Réinitialiser"
   },
   "dates": {
     "today": "Aujourd'hui",
@@ -156,7 +157,9 @@
         "defaultPathHint": "Chemin par défaut pour enregistrer les captures d'écran",
         "customPathHint": "Les captures d'écran seront enregistrées dans : {{path}}",
         "cancel": "Annuler",
-        "save": "Enregistrer"
+        "save": "Enregistrer",
+        "playerScreenshotsPath": "Chemin d'enregistrement des captures du lecteur",
+        "claudeApiKey": "Clé API Claude"
       },
 
       "keyboardShortcuts": {
@@ -469,7 +472,9 @@
       "clearApiKey": "Effacer la clé API",
       "enterApiKey": "Entrez la clé API",
       "cancel": "Annuler",
-      "save": "OK"
+      "save": "OK",
+      "playerScreenshotsPath": "Chemin d'enregistrement des captures du lecteur",
+      "claudeApiKey": "Clé API Claude"
     }
   },
   "browser": {
@@ -604,20 +609,13 @@
   "timeline": {
     "resources": {
       "title": "Ressources",
-      "all": "Tous",
-      "effects": "Effets",
-      "filters": "Filtres",
-      "transitions": "Transitions",
-      "templates": "Modèles",
-      "music": "Musique",
-      "subtitles": "Sous-titres",
       "noResources": "Aucune ressource ajoutée"
     },
     "chat": {
       "title": "Chat",
       "selectAgent": "Modèle",
-      "messagePlaceholder": "Tapez votre message ici...",
-      "noMessages": "Pas de messages. Commencez une conversation.",
+      "messagePlaceholder": "Saisissez votre message ici...",
+      "noMessages": "Aucun message. Commencez une conversation.",
       "savingProgress": "Progression de l'enregistrement",
       "saveSuccess": "Vidéo enregistrée avec succès !",
       "send": "Envoyer",
@@ -1174,6 +1172,99 @@
       "objectDetectionDescription": "Activer la détection d'objets par IA dans les captures d'écran.",
       "confidenceThreshold": "Seuil de confiance",
       "confidenceThresholdDescription": "Niveau de confiance minimum pour les objets détectés. Des valeurs plus élevées réduisent les faux positifs."
+    }
+  },
+  "options": {
+    "tabs": {
+      "video": "Vidéo",
+      "audio": "Audio",
+      "speed": "Vitesse",
+      "info": "Infos"
+    },
+    "video": {
+      "title": "Paramètres vidéo",
+      "resolution": "Résolution du projet",
+      "width": "Largeur",
+      "height": "Hauteur",
+      "fps": "Fréquence d'images",
+      "aspectRatio": "Format d'image",
+      "previewQuality": "Qualité d'aperçu",
+      "defaultCodec": "Codec par défaut"
+    },
+    "audio": {
+      "title": "Paramètres audio",
+      "sampleRate": "Taux d'échantillonnage",
+      "bitrate": "Débit binaire",
+      "channels": "Canaux",
+      "defaultVolume": "Volume par défaut",
+      "codec": "Codec audio",
+      "advanced": "Paramètres avancés",
+      "bufferSize": "Taille du tampon (ms)",
+      "latency": "Latence (ms)",
+      "sampleRates": {
+        "44100": "44,1 kHz (Qualité CD)",
+        "48000": "48 kHz (Professionnel)",
+        "96000": "96 kHz (Hi-Res)",
+        "192000": "192 kHz (Studio)"
+      },
+      "bitrates": {
+        "128": "128 kbps (Basique)",
+        "192": "192 kbps (Bon)",
+        "256": "256 kbps (Élevé)",
+        "320": "320 kbps (Maximum)"
+      },
+      "channelsOptions": {
+        "mono": "Mono (1 canal)",
+        "stereo": "Stéréo (2 canaux)",
+        "5_1": "5.1 Surround",
+        "7_1": "7.1 Surround"
+      },
+      "codecs": {
+        "aac": "AAC (Recommandé)",
+        "mp3": "MP3 (Compatibilité)",
+        "flac": "FLAC (Sans perte)",
+        "opus": "Opus (Efficacité)"
+      }
+    },
+    "speed": {
+      "title": "Paramètres de vitesse",
+      "defaultPlayback": "Vitesse de lecture par défaut",
+      "customSpeed": "Vitesse personnalisée",
+      "speedChange": "Paramètres de changement de vitesse",
+      "interpolation": "Interpolation d'images",
+      "motionBlur": "Flou de mouvement",
+      "smoothPlayback": "Lecture fluide",
+      "enableSmooth": "Activer la lecture fluide",
+      "smoothness": "Niveau de fluidité",
+      "performance": "Performance",
+      "quality": "Qualité",
+      "advanced": "Paramètres avancés",
+      "preservePitch": "Préserver la tonalité lors du changement de vitesse",
+      "autoKeyframes": "Images clés automatiques",
+      "maxSpeed": "Vitesse maximale"
+    },
+    "info": {
+      "title": "Infos du fichier média",
+      "selectFile": "Sélectionnez un fichier à analyser",
+      "noFileSelected": "Aucun fichier sélectionné",
+      "basicInfo": "Infos de base",
+      "fileName": "Nom du fichier",
+      "fileSize": "Taille du fichier",
+      "duration": "Durée",
+      "resolution": "Résolution",
+      "fps": "Fréquence d'images",
+      "bitrate": "Débit binaire",
+      "videoStream": "Flux vidéo",
+      "codec": "Codec",
+      "colorSpace": "Espace colorimétrique",
+      "profile": "Profil",
+      "audioStream": "Flux audio",
+      "sampleRate": "Taux d'échantillonnage",
+      "channels": "Canaux",
+      "audioBitrate": "Débit audio",
+      "metadata": "Métadonnées",
+      "createdAt": "Date de création",
+      "device": "Appareil"
     }
   }
 }

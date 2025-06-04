@@ -8,33 +8,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 
-const PLAYBACK_SPEED_OPTIONS = [
-  { value: "0.25", label: "0.25x (Очень медленно)" },
-  { value: "0.5", label: "0.5x (Медленно)" },
-  { value: "0.75", label: "0.75x (Немного медленно)" },
-  { value: "1", label: "1x (Нормально)" },
-  { value: "1.25", label: "1.25x (Немного быстро)" },
-  { value: "1.5", label: "1.5x (Быстро)" },
-  { value: "2", label: "2x (Очень быстро)" },
-  { value: "custom", label: "Пользовательская" },
-]
-
-const INTERPOLATION_OPTIONS = [
-  { value: "none", label: "Без интерполяции" },
-  { value: "linear", label: "Линейная" },
-  { value: "cubic", label: "Кубическая" },
-  { value: "lanczos", label: "Lanczos" },
-]
-
-const MOTION_BLUR_OPTIONS = [
-  { value: "none", label: "Отключено" },
-  { value: "low", label: "Слабое" },
-  { value: "medium", label: "Среднее" },
-  { value: "high", label: "Сильное" },
-]
-
 export function SpeedSettings() {
   const { t } = useTranslation()
+
+  const PLAYBACK_SPEED_OPTIONS = [
+    { value: "0.25", label: t("options.speed.speeds.0_25", "0.25x (Very slow)") },
+    { value: "0.5", label: t("options.speed.speeds.0_5", "0.5x (Slow)") },
+    { value: "0.75", label: t("options.speed.speeds.0_75", "0.75x (Slightly slow)") },
+    { value: "1", label: t("options.speed.speeds.1", "1x (Normal)") },
+    { value: "1.25", label: t("options.speed.speeds.1_25", "1.25x (Slightly fast)") },
+    { value: "1.5", label: t("options.speed.speeds.1_5", "1.5x (Fast)") },
+    { value: "2", label: t("options.speed.speeds.2", "2x (Very fast)") },
+    { value: "custom", label: t("options.speed.speeds.custom", "Custom") },
+  ]
+
+  const INTERPOLATION_OPTIONS = [
+    { value: "none", label: t("options.speed.interpolation.none", "No interpolation") },
+    { value: "linear", label: t("options.speed.interpolation.linear", "Linear") },
+    { value: "cubic", label: t("options.speed.interpolation.cubic", "Cubic") },
+    { value: "lanczos", label: t("options.speed.interpolation.lanczos", "Lanczos") },
+  ]
+
+  const MOTION_BLUR_OPTIONS = [
+    { value: "none", label: t("options.speed.motionBlur.none", "Off") },
+    { value: "low", label: t("options.speed.motionBlur.low", "Low") },
+    { value: "medium", label: t("options.speed.motionBlur.medium", "Medium") },
+    { value: "high", label: t("options.speed.motionBlur.high", "High") },
+  ]
 
   return (
     <div className="space-y-6" data-testid="speed-settings">

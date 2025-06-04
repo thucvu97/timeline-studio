@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next"
 
 import { ContentGroup } from "@/components/common/content-group"
 import { NoFiles } from "@/components/common/no-files"
+import { useFavorites } from "@/features/app-state"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
-import { useMedia } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useProjectSettings } from "@/features/project-settings"
@@ -20,7 +20,7 @@ import { useTransitions } from "../hooks/use-transitions"
  */
 export function TransitionList() {
   const { t } = useTranslation() // Хук для интернационализации
-  const media = useMedia() // Доступ к контексту медиа
+  const { isItemFavorite } = useFavorites() // Доступ к избранному
 
   // Загружаем переходы из JSON
   const { transitions, loading, error } = useTransitions()
@@ -92,8 +92,7 @@ export function TransitionList() {
         (transition.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
       // Фильтрация по избранному
-      const matchesFavorites =
-        !showFavoritesOnly || media.isItemFavorite({ id: transition.id, path: "", name: transition.id }, "transition")
+      const matchesFavorites = !showFavoritesOnly || isItemFavorite(transition, "transition")
 
       // Фильтрация по типу (сложность или категория)
       const matchesFilter = (() => {
@@ -153,7 +152,7 @@ export function TransitionList() {
     })
 
     return filtered
-  }, [transitions, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media])
+  }, [transitions, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, isItemFavorite])
 
   /**
    * Группировка переходов по выбранному критерию

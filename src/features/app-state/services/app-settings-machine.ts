@@ -1,11 +1,11 @@
 import i18next from "i18next"
 import { assign, createMachine, fromPromise } from "xstate"
 
-import { FavoritesType } from "@/features/media/services/media-machine"
+import { MediaFile } from "@/features/media"
 import { DEFAULT_CONTENT_SIZES } from "@/features/media/utils/preview-sizes"
 import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
 
-import { AppSettings, storeService } from "./store-service"
+import { AppSettings, FavoritesType, storeService } from "./store-service"
 
 /**
  * Функция для получения локализованного названия проекта по умолчанию
@@ -50,7 +50,13 @@ export interface AppSettingsContextType {
 
   // Медиа файлы
   mediaFiles: {
-    allMediaFiles: any[]
+    allFiles: MediaFile[]
+    error: string | null
+    isLoading: boolean
+  }
+
+  musicFiles: {
+    allFiles: MediaFile[]
     error: string | null
     isLoading: boolean
   }
@@ -83,6 +89,7 @@ export type AppSettingsEvent =
   | { type: "SAVE_PROJECT"; path: string; name: string }
   | { type: "SET_PROJECT_DIRTY"; isDirty: boolean }
   | { type: "UPDATE_MEDIA_FILES"; files: any[] }
+  | { type: "UPDATE_MUSIC_FILES"; files: any[] }
 
 /**
  * Загрузка настроек из хранилища
@@ -132,13 +139,18 @@ function getDefaultSettings(): AppSettings {
       isNew: true,
     },
     mediaFiles: {
-      allMediaFiles: [],
+      allFiles: [],
+      error: null,
+      isLoading: false,
+    },
+    musicFiles: {
+      allFiles: [],
       error: null,
       isLoading: false,
     },
     favorites: {
       media: [],
-      audio: [],
+      music: [],
       transition: [],
       effect: [],
       template: [],
@@ -176,7 +188,7 @@ export const appSettingsMachine = createMachine({
       layoutMode: "default",
       screenshotsPath: "",
       playerScreenshotsPath: "",
-      playerVolume: 100, // Громкость плеера по умолчанию (100%)
+      playerVolume: 80,
       openAiApiKey: "",
       claudeApiKey: "",
       isBrowserVisible: true,
@@ -190,13 +202,18 @@ export const appSettingsMachine = createMachine({
       isNew: true,
     },
     mediaFiles: {
-      allMediaFiles: [],
+      allFiles: [],
+      error: null,
+      isLoading: false,
+    },
+    musicFiles: {
+      allFiles: [],
       error: null,
       isLoading: false,
     },
     favorites: {
       media: [],
-      audio: [],
+      music: [],
       transition: [],
       effect: [],
       template: [],
@@ -477,7 +494,23 @@ export const appSettingsMachine = createMachine({
             assign({
               mediaFiles: ({ context, event }) => ({
                 ...context.mediaFiles,
-                allMediaFiles: event.files,
+                allFiles: event.files,
+                isLoading: false,
+                error: null,
+              }),
+            }),
+            ({ context }) => {
+              void storeService.saveSettings(context as any)
+            },
+          ],
+        },
+        // Обновление музыкальных файлов
+        UPDATE_MUSIC_FILES: {
+          actions: [
+            assign({
+              musicFiles: ({ context, event }) => ({
+                ...context.musicFiles,
+                allFiles: event.files,
                 isLoading: false,
                 error: null,
               }),

@@ -1,10 +1,10 @@
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
 import { ContentGroup } from "@/components/common/content-group"
+import { useFavorites } from "@/features/app-state"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
-import { useMedia } from "@/features/media"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useProjectSettings } from "@/features/project-settings"
 
@@ -18,7 +18,6 @@ import { SubtitleStyle } from "../types/subtitles"
  */
 export function SubtitleList() {
   const { t } = useTranslation() // Хук для интернационализации
-  const media = useMedia() // Хук для работы с медиа-файлами и избранным
 
   // Загружаем субтитры из JSON
   const { subtitles, loading, error } = useSubtitles()
@@ -28,6 +27,8 @@ export function SubtitleList() {
 
   // Получаем настройки проекта для соотношения сторон
   const { settings } = useProjectSettings()
+
+  const { isItemFavorite } = useFavorites()
 
   // Извлекаем настройки для стилей субтитров
   const { searchQuery, showFavoritesOnly, sortBy, sortOrder, groupBy, filterType, previewSizeIndex } =
@@ -74,8 +75,7 @@ export function SubtitleList() {
         (style.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
       // Фильтрация по избранному
-      const matchesFavorites =
-        !showFavoritesOnly || media.isItemFavorite({ id: style.id, path: "", name: style.name }, "subtitle")
+      const matchesFavorites = !showFavoritesOnly || isItemFavorite(style, "subtitle")
 
       // Фильтрация по типу (сложность или категория)
       const matchesFilter = (() => {
@@ -129,7 +129,7 @@ export function SubtitleList() {
     })
 
     return filtered
-  }, [subtitles, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media])
+  }, [subtitles, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, isItemFavorite])
 
   /**
    * Группировка стилей субтитров по выбранному критерию

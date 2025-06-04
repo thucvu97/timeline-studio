@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   FolderOpen,
   Keyboard,
-  Layout,
+  LayoutTemplate,
   ListTodo,
   Mic,
   PanelLeftClose,
@@ -145,7 +145,7 @@ const TopBarComponent = function TopBar() {
                 title={buttonTitles.layout}
                 data-testid="layout-button"
               >
-                <Layout className="h-5 w-5" />
+                <LayoutTemplate className="h-5 w-5" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[400px] p-2" sideOffset={0}>

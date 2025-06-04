@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import { VideoStream } from "../../types/types";
-import { calculateRealDimensions } from "../../utils";
+import { VideoStream } from "../../types/types"
+import { calculateRealDimensions } from "../../utils"
 
 describe("calculateRealDimensions", () => {
   it("должен возвращать оригинальные размеры, если нет поворота", () => {

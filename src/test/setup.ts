@@ -829,22 +829,6 @@ vi.mock("@/features/resources", () => ({
   ResourcesProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
-// Мок для MediaProvider
-vi.mock("@/features/media", () => ({
-  useMedia: () => ({
-    mediaFiles: [],
-    addMediaFiles: vi.fn(),
-    updateMediaFile: vi.fn(),
-    removeMediaFile: vi.fn(),
-    getMediaFile: vi.fn(),
-    isItemFavorite: vi.fn().mockReturnValue(false),
-    addToFavorites: vi.fn(),
-    removeFromFavorites: vi.fn(),
-    isFileAdded: vi.fn().mockReturnValue(false),
-  }),
-  MediaProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
-
 // Мок для PlayerProvider
 vi.mock("@/features/video-player/services/player-provider", () => ({
   usePlayer: () => ({

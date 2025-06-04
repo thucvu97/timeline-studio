@@ -1,10 +1,10 @@
 import React from "react"
 
 import { ContentGroup } from "@/components/common/content-group"
+import { useAppSettings } from "@/features/app-state"
 import { MediaFile } from "@/features/media/types/media"
 
 import { MediaItem } from "./media-item"
-import { useMedia } from "../hooks"
 
 /**
  * Интерфейс свойств компонента MediaGroup
@@ -29,12 +29,12 @@ interface MediaGroupProps {
  * @returns {JSX.Element | null} Компонент группы медиа-файлов или null, если группа пуста
  */
 export const MediaGroup: React.FC<MediaGroupProps> = ({ title, files, viewMode, previewSize, addFilesToTimeline }) => {
-  const media = useMedia()
+  const { getMediaFiles } = useAppSettings()
 
   // Обработчик добавления медиа-файла
   const handleAddMedia = (file: MediaFile) => {
     // Проверяем, не добавлен ли файл уже
-    if (media.isFileAdded(file)) {
+    if (getMediaFiles().allFiles.some((item) => item.id === file.id)) {
       console.log(`[handleAddMedia] Файл ${file.name} уже добавлен в медиафайлы`)
       return
     }
@@ -64,6 +64,12 @@ export const MediaGroup: React.FC<MediaGroupProps> = ({ title, files, viewMode, 
     />
   )
 
+  // Проверяем, добавлены ли все файлы в медиафайлы
+  const areAllFilesAdded = (items: MediaFile[]) => {
+    const allFiles = getMediaFiles().allFiles
+    return items.every((file) => allFiles.some((item) => item.id === file.id))
+  }
+
   // Обработчик добавления всех файлов
   const handleAddAllFiles = (files: MediaFile[]) => {
     // Фильтруем файлы - изображения не добавляем на таймлайн
@@ -82,7 +88,7 @@ export const MediaGroup: React.FC<MediaGroupProps> = ({ title, files, viewMode, 
       viewMode={viewMode}
       renderItem={renderMediaItem}
       onAddAll={handleAddAllFiles}
-      areAllItemsAdded={media.areAllFilesAdded}
+      areAllItemsAdded={areAllFilesAdded}
       addButtonText="browser.media.add"
       addedButtonText="browser.media.added"
     />

@@ -1,9 +1,10 @@
-import { FavoritesType } from "@/features/media/services/media-machine"
 import { MediaFile } from "@/features/media/types/media"
 import { PreviewSize } from "@/features/media/utils/preview-sizes"
 import { ProjectSettings } from "@/features/project-settings/types/project"
 import { TimelineResource } from "@/features/resources/types/resources"
 import { BrowserTab, LayoutMode } from "@/features/user-settings"
+
+import { FavoritesType } from "./services"
 
 /**
  * Интерфейс для централизованного хранилища состояния приложения
@@ -12,7 +13,10 @@ import { BrowserTab, LayoutMode } from "@/features/user-settings"
 export interface AppState {
   // Пользовательские настройки
   userSettings: {
-    previewSizes: Record<"MEDIA" | "TRANSITIONS" | "SUBTITLES" | "EFFECTS" | "FILTERS" | "TEMPLATES", PreviewSize>
+    previewSizes: Record<
+      "MEDIA" | "TRANSITIONS" | "SUBTITLES" | "EFFECTS" | "FILTERS" | "TEMPLATES" | "STYLE_TEMPLATES",
+      PreviewSize
+    >
     activeTab: BrowserTab
     layoutMode: LayoutMode
     screenshotsPath: string

@@ -4,8 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useModal } from "@/features/modals/services/modal-provider"
 import { useLanguage } from "@/i18n/hooks/use-language"
 
-import { UserSettingsModal } from "./user-settings-modal"
-import { useUserSettings } from "../hooks/use-user-settings"
+import { UserSettingsModal } from "../../components/user-settings-modal"
+import { useUserSettings } from "../../hooks/use-user-settings"
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
@@ -29,7 +29,7 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 
 // Мокаем хуки
 vi.mock("@/i18n/hooks/use-language")
-vi.mock("../hooks/use-user-settings")
+vi.mock("../../hooks/use-user-settings")
 vi.mock("@/features/modals/services/modal-provider")
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({

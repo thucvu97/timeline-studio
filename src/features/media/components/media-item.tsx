@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from "react"
 
-import { useMedia } from "@/features/media"
-import { MediaFile } from "@/features/media/types/media"
+import { useFavorites } from "@/features/app-state"
+import { MediaPreview } from "@/features/browser"
+import { MediaFile } from "@/features/media"
 import { cn } from "@/lib/utils"
 
 import { FileMetadata } from "./file-metadata"
-import { MediaPreview } from "../../browser/components/preview"
 
 /**
  * Интерфейс свойств компонента MediaItem
@@ -30,13 +30,11 @@ interface MediaItemProps {
  * @returns {JSX.Element} Компонент медиа-элемента
  */
 export const MediaItem: React.FC<MediaItemProps> = ({ file, index, viewMode, previewSize, onAddMedia }) => {
-  // Получаем доступ к медиа-контексту
-  const media = useMedia()
-
+  const { favorites } = useFavorites() // Хук для работы с избранным
   // Мемоизируем уникальный ключ для предотвращения перерендеров
   const fileId = useMemo(() => `${file.id || file.path || file.name}-${index}`, [file.id, file.path, file.name, index])
 
-  const isAdded = media.isFileAdded(file)
+  const isAdded = favorites.media.some((item) => item.id === file.id) // Проверяем, добавлен ли файл в избранное
 
   // Мемоизируем обработчик добавления медиа
   const handleAddMedia = useCallback(() => {

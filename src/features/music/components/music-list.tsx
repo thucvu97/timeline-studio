@@ -5,10 +5,10 @@ import { CirclePause, CirclePlay, Pause, Play } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { NoFiles } from "@/components/common/no-files"
+import { useFavorites } from "@/features/app-state"
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
-import { useMedia } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
 import { useResources } from "@/features/resources"
 import { MusicResource } from "@/features/resources/types/resources"
@@ -76,7 +76,7 @@ export function MusicList() {
   const isLoading = false
   const isError = false
 
-  const media = useMedia() // Хук для работы с медиа-файлами и избранным
+  const { isItemFavorite } = useFavorites()
 
   // Хук для импорта музыкальных файлов
   const { importFile, importDirectory } = useMusicImport()
@@ -88,7 +88,7 @@ export function MusicList() {
   const groupedFiles = useMemo(() => {
     // Фильтруем файлы по избранному, если включена соответствующая опция
     const favoritesFilteredFiles = showFavoritesOnly
-      ? filteredFiles.filter((file) => media.isItemFavorite(file, "audio"))
+      ? filteredFiles.filter((file) => isItemFavorite(file, "music"))
       : filteredFiles
 
     // Если группировка отключена, возвращаем все файлы в одной группе
@@ -132,7 +132,7 @@ export function MusicList() {
         sortFiles(files, sortBy, sortOrder), // Сортируем файлы по выбранному критерию
       ]),
     )
-  }, [filteredFiles, groupBy, sortBy, sortOrder, media, showFavoritesOnly, t])
+  }, [filteredFiles, groupBy, sortBy, sortOrder, isItemFavorite, showFavoritesOnly, t])
 
   /**
    * Обработчик воспроизведения/паузы музыкального файла

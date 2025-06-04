@@ -3,7 +3,7 @@ import { useContext } from "react"
 import { renderHook } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { useUserSettings } from "./use-user-settings"
+import { useUserSettings } from "../../hooks/use-user-settings"
 
 // Мокаем React Context
 const mockContextValue = {

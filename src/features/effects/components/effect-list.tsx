@@ -1,17 +1,16 @@
-import React, { useMemo } from "react"
+import React, { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
 import { NoFiles } from "@/components/common/no-files"
+import { useFavorites } from "@/features/app-state"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { VideoEffect } from "@/features/effects/types/effects"
-import { useMedia } from "@/features/media"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useProjectSettings } from "@/features/project-settings"
 
 import { EffectGroup } from "./effect-group"
 import { useEffects } from "../hooks/use-effects"
-import { useEffectsImport } from "../hooks/use-effects-import"
 
 /**
  * Компонент для отображения списка эффектов
@@ -19,9 +18,9 @@ import { useEffectsImport } from "../hooks/use-effects-import"
  */
 export function EffectList() {
   const { t } = useTranslation() // Хук для интернационализации
-  const media = useMedia() // Хук для работы с медиафайлами и избранным
   const { effects, loading, error } = useEffects() // Хук для загрузки эффектов
-  const { importEffectsFile, importEffectFile, isImporting } = useEffectsImport() // Хук для импорта эффектов
+
+  const { isItemFavorite } = useFavorites() // Хук для доступа к избранным эффектам
 
   // Используем общий провайдер состояния браузера
   const { currentTabSettings } = useBrowserState()
@@ -75,9 +74,7 @@ export function EffectList() {
         (effect.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
       // Фильтрация по избранному
-      const matchesFavorites =
-        !showFavoritesOnly || // Если не включен режим "только избранное", показываем все
-        media.isItemFavorite({ id: effect.id, path: "", name: effect.name }, "effect")
+      const matchesFavorites = !showFavoritesOnly || isItemFavorite(effect, "effect")
 
       // Фильтрация по типу (сложность или категория)
       const matchesFilter = (() => {

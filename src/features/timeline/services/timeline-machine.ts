@@ -480,7 +480,6 @@ export const timelineMachine = createMachine(
   },
   {
     guards,
-    // @ts-expect-error - XState типы конфликтуют, временно игнорируем
     actions,
   },
 )

@@ -13,11 +13,10 @@
 
 ## Project Overview
 
-### Timeline Studio is a desktop application for creating and editing videos based on Tauri, React, XState, and ffmpeg.
+Timeline Studio is a desktop application for creating and editing videos based on Tauri, React, XState, and ffmpeg.
 
 ![Timeline Interface](/public/screen3.png)
 
-=======
 ## Key Features
 
 - 🎬 Creating and editing video projects
@@ -68,65 +67,65 @@ bun run tauri build
 
 ```
 timeline-studio/
-├── bin/                            # Shell scripts
-├── docs/                           # Automatically generated documentation
-├── docs-dev/                       # Development documentation, including for agents
-├── docs/                           # E2E tests
-├── examples/                       # API usage examples
-├── promo/                          # GitHub Pages website
-├── public/                         # Static files
-├── scripts/                        # JavaScript scripts
-├── src/                            # Frontend source code (React, XState, Next.js)
-│   ├── app/                        # Main application entry point
-│   ├── components/                 # Shared components
-│   ├── hooks/                      # Custom React hooks
-│   ├── services/                   # Services for API calls and business logic
-│   ├── features/                   # Features
-│   │   ├── ai-chat/                # AI chatbot (interactive assistant)
-│   │   ├── app-state/              # Global application state
-│   │   ├── browser/                # Media file browser (file panel)
-│   │   ├── camera-capture/         # Video/photo camera capture
-│   │   ├── effects/                # Video effects and their parameters
-│   │   ├── export/                 # Video and project export
-│   │   ├── filters/                # Video filters (color correction, styles)
-│   │   ├── keyboard-shortcuts/     # Keyboard shortcuts and presets
-│   │   ├── media/                  # Media file handling (audio/video)
-│   │   ├── media-studio/           # Media editing studio
-│   │   ├── modals/                 # Modal windows (dialogs)
-│   │   ├── music/                  # Music import and management
-│   │   ├── options/                # Export and project settings
-│   │   ├── project-settings/       # Project settings (size, fps, etc.)
-│   │   ├── recognition/            # Scene and object recognition
-│   │   ├── resources/              # Project resource management
-│   │   ├── style-templates/        # Styles and design templates
-│   │   ├── subtitles/              # Subtitle import and editing
-│   │   ├── templates/              # Video templates and presets
-│   │   ├── timeline/               # Main editing timeline
-│   │   ├── top-bar/                # Top control panel
-│   │   ├── transitions/            # Video transitions between clips
-│   │   ├── user-settings/          # User settings
-│   │   ├── video-player/           # Video player
-│   │   ├── voice-recording/        # Voice recording and voiceover
-│   │   ├── script-generator/       # New: script generation
-│   │   ├── montage-planner/        # New: montage planning
-│   │   ├── person-identification/  # New: person identification
-│   │   ├── scene-analyzer/         # New: scene analysis
-│   │   └── README.md            📚 # Overview of all features
-│   ├── i18n/                       # Internationalization
-│   ├── lib/                        # Utilities and libraries
-│   ├── styles/                     # Global styles
-|   ├── test/                       # Test config and utilities
-├── src-tauri/                      # Backend (Rust)
+├── bin/                              # Shell scripts
+├── docs/                             # Automatically generated documentation
+├── docs-dev/                         # Development documentation, including for agents
+├── docs/                             # E2E tests
+├── examples/                         # API usage examples
+├── promo/                            # GitHub Pages website
+├── public/                           # Static files
+├── scripts/                          # JavaScript scripts
+├── src/                              # Frontend source code (React, XState, Next.js)
+│   ├── app/                          # Main application entry point
+│   ├── components/                   # Shared components
+│   ├── hooks/                        # Custom React hooks
+│   ├── services/                     # Services for API calls and business logic
+│   ├── features/                     # Features
+│   │   ├── ai-chat/                  # AI chatbot (interactive assistant)
+│   │   ├── app-state/                # Global application state
+│   │   ├── browser/                  # Media file browser (file panel)
+│   │   ├── camera-capture/           # Video/photo camera capture
+│   │   ├── effects/                  # Video effects and their parameters
+│   │   ├── export/                   # Video and project export
+│   │   ├── filters/                  # Video filters (color correction, styles)
+│   │   ├── keyboard-shortcuts/       # Keyboard shortcuts and presets
+│   │   ├── media/                    # Media file handling (audio/video)
+│   │   ├── media-studio/             # Media editing studio
+│   │   ├── modals/                   # Modal windows (dialogs)
+│   │   ├── music/                    # Music import and management
+│   │   ├── options/                  # Export and project settings
+│   │   ├── project-settings/         # Project settings (size, fps, etc.)
+│   │   ├── recognition/              # Scene and object recognition
+│   │   ├── resources/                # Project resource management
+│   │   ├── style-templates/          # Styles and design templates
+│   │   ├── subtitles/                # Subtitle import and editing
+│   │   ├── templates/                # Video templates and presets
+│   │   ├── timeline/                 # Main editing timeline
+│   │   ├── top-bar/                  # Top control panel
+│   │   ├── transitions/              # Video transitions between clips
+│   │   ├── user-settings/            # User settings
+│   │   ├── video-player/             # Video player
+│   │   ├── voice-recording/          # Voice recording and voiceover
+│   │   ├── script-generator/         # New: script generation
+│   │   ├── montage-planner/          # New: montage planning
+│   │   ├── person-identification/    # New: person identification
+│   │   ├── scene-analyzer/           # New: scene analysis
+│   │   └── README.md                 # Overview of all features
+│   ├── i18n/                         # Internationalization
+│   ├── lib/                          # Utilities and libraries
+│   ├── styles/                       # Global styles
+|   ├── test/                         # Test config and utilities
+├── src-tauri/                        # Backend (Rust)
 │   ├── src/
-│   │   ├── main.rs                 # Tauri entry point
-│   │   ├── media.rs                # Media analysis (FFmpeg)
-│   │   ├── recognition.rs          # YOLO for objects/faces
-│   │   ├── script_generator.rs     # Script generation (Claude/OpenAI/Grok API)
-│   │   ├── montage_planner.rs      # Montage planning
-│   │   ├── person_identification.rs # Person identification
-│   │   ├── scene_analyzer.rs       # Scene analysis
-│   │   └── ai_chat.rs              # Chat processing
-└── package.json                    # Node.js dependencies configuration
+│   │   ├── main.rs                   # Tauri entry point
+│   │   ├── media.rs                  # Media analysis (FFmpeg)
+│   │   ├── recognition.rs            # YOLO for objects/faces
+│   │   ├── script_generator.rs       # Script generation (Claude/OpenAI/Grok API)
+│   │   ├── montage_planner.rs        # Montage planning
+│   │   ├── person_identification.rs  # Person identification
+│   │   ├── scene_analyzer.rs         # Scene analysis
+│   │   └── ai_chat.rs                # Chat processing
+└── package.json                      # Node.js dependencies configuration
 ```
 
 ## 📚 Documentation

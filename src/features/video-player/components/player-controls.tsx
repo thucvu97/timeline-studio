@@ -5,7 +5,6 @@ import {
   ChevronFirst,
   ChevronLast,
   CircleDot,
-  Grid2x2,
   Maximize2,
   Minimize2,
   Pause,

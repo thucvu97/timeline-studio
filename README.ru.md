@@ -13,15 +13,10 @@
 
 ## Обзор проекта
 
-### Timeline Studio - это настольное приложение для создания и редактирования видео на базе Tauri, React, XState, ffmpeg.
+Timeline Studio - это приложение для создания и редактирования видео на базе Tauri, React, XState, ffmpeg.
 
 ![Интерфейс таймлайна](/public/screen3.png)
 
-## 📊 Статус разработки
-
-### 🎯 Общий прогресс: 70% готово (29 фич)
-
-=======
 ### Ключевые особенности
 
 - 🎬 Создание и редактирование видеопроектов
@@ -72,65 +67,65 @@ bun run tauri build
 
 ```
 timeline-studio/
-├── bin/                            # shell Скрипты
-├── docs/                           # Автоматически генерируемая документация
-├── docs-dev/                       # Документация формируемая в ходе разрабоки, в т.ч. для агентов
-├── docs/                           # e2e тесты
-├── examples/                       # Примеры использования апи
-├── promo/                          # Cайт на github pages
-├── public/                         # Static files
-├── scripts/                        # Скрипты js
-├── src/                            # Frontend source code (React, XState, Next.js)
-│   ├── app/                        # Main application entry point
-│   ├── components/                 # Shared components
-│   ├── hooks/                      # Custom React hooks
-│   ├── services/                   # Services for API calls and business logic
-│   ├── features/                   # Фичи
-│   │   ├── ai-chat/                # AI-чат-бот (интерактивный помощник)
-│   │   ├── app-state/              # Глобальное состояние приложения
-│   │   ├── browser/                # Браузер медиафайлов (панель файлов)
-│   │   ├── camera-capture/         # Захват видео/фото с камеры
-│   │   ├── effects/                # Видеоеффекты и их параметры
-│   │   ├── export/                 # Экспорт видео и проектов
-│   │   ├── filters/                # Видеофильтры (цветокор, стили)
-│   │   ├── keyboard-shortcuts/     # Горячие клавиши и пресеты
-│   │   ├── media/                  # Работа с медиафайлами (аудио/видео)
-│   │   ├── media-studio/           # Студия для работы с медиа
-│   │   ├── modals/                 # Модальные окна (диалоги)
-│   │   ├── music/                  # Импорт и управление музыкой
-│   │   ├── options/                # Настройки экспорта и проекта
-│   │   ├── project-settings/       # Настройки проекта (размер, fps и др.)
-│   │   ├── recognition/            # Распознавание сцен и объектов
-│   │   ├── resources/              # Управление ресурсами проекта
-│   │   ├── style-templates/        # Стили и шаблоны оформления
-│   │   ├── subtitles/              # Импорт и редактирование субтитров
-│   │   ├── templates/              # Видео-шаблоны и пресеты
-│   │   ├── timeline/               # Основная монтажная лента (таймлайн)
-│   │   ├── top-bar/                # Верхняя панель управления
-│   │   ├── transitions/            # Видеопереходы между клипами
-│   │   ├── user-settings/          # Пользовательские настройки
-│   │   ├── video-player/           # Видеоплеер
-│   │   ├── voice-recording/        # Запись голоса и озвучка
-│   │   ├── script-generator/       # Новый: генерация сценариев
-│   │   ├── montage-planner/        # Новый: планирование монтажа
-│   │   ├── person-identification/  # Новый: именование людей
-│   │   ├── scene-analyzer/         # Новый: анализ сцен
-│   │   └── README.md            📚 # Overview of all features
-│   ├── i18n/                       # Internationalization
-│   ├── lib/                        # Utilities and libraries
-│   ├── styles/                     # Global styles
-|   ├── test/                       # Test config and utilities
-├── src-tauri/                      # Бэкенд (Rust)
+├── bin/                               # shell Скрипты
+├── docs/                              # Автоматически генерируемая документация
+├── docs-dev/                          # Документация формируемая в ходе разрабоки, в т.ч. для агентов
+├── docs/                              # e2e тесты
+├── examples/                          # Примеры использования апи
+├── promo/                             # Cайт на github pages
+├── public/                            # Static files
+├── scripts/                           # Скрипты js
+├── src/                               # Frontend source code (React, XState, Next.js)
+│   ├── app/                           # Main application entry point
+│   ├── components/                    # Shared components
+│   ├── hooks/                         # Custom React hooks
+│   ├── services/                      # Services for API calls and business logic
+│   ├── features/                      # Фичи
+│   │   ├── ai-chat/                   # AI-чат-бот (интерактивный помощник)
+│   │   ├── app-state/                 # Глобальное состояние приложения
+│   │   ├── browser/                   # Браузер медиафайлов (панель файлов)
+│   │   ├── camera-capture/            # Захват видео/фото с камеры
+│   │   ├── effects/                   # Видеоеффекты и их параметры
+│   │   ├── export/                    # Экспорт видео и проектов
+│   │   ├── filters/                   # Видеофильтры (цветокор, стили)
+│   │   ├── keyboard-shortcuts/        # Горячие клавиши и пресеты
+│   │   ├── media/                     # Работа с медиафайлами (аудио/видео)
+│   │   ├── media-studio/              # Студия для работы с медиа
+│   │   ├── modals/                    # Модальные окна (диалоги)
+│   │   ├── music/                     # Импорт и управление музыкой
+│   │   ├── options/                   # Настройки экспорта и проекта
+│   │   ├── project-settings/          # Настройки проекта (размер, fps и др.)
+│   │   ├── recognition/               # Распознавание сцен и объектов
+│   │   ├── resources/                 # Управление ресурсами проекта
+│   │   ├── style-templates/           # Стили и шаблоны оформления
+│   │   ├── subtitles/                 # Импорт и редактирование субтитров
+│   │   ├── templates/                 # Видео-шаблоны и пресеты
+│   │   ├── timeline/                  # Основная монтажная лента (таймлайн)
+│   │   ├── top-bar/                   # Верхняя панель управления
+│   │   ├── transitions/               # Видеопереходы между клипами
+│   │   ├── user-settings/             # Пользовательские настройки
+│   │   ├── video-player/              # Видеоплеер
+│   │   ├── voice-recording/           # Запись голоса и озвучка
+│   │   ├── script-generator/          # Новый: генерация сценариев
+│   │   ├── montage-planner/           # Новый: планирование монтажа
+│   │   ├── person-identification/     # Новый: именование людей
+│   │   ├── scene-analyzer/            # Новый: анализ сцен
+│   │   └── README.md                  # Overview of all features
+│   ├── i18n/                          # Internationalization
+│   ├── lib/                           # Utilities and libraries
+│   ├── styles/                        # Global styles
+|   ├── test/                          # Test config and utilities
+├── src-tauri/                         # Бэкенд (Rust)
 │   ├── src/
-│   │   ├── main.rs                 # Точка входа Tauri
-│   │   ├── media.rs                # Анализ медиа (FFmpeg)
-│   │   ├── recognition.rs          # YOLO для объектов/лиц
-│   │   ├── script_generator.rs     # Генерация сценариев (Claude/OpenAi/Grok API)
-│   │   ├── montage_planner.rs      # Планирование монтажа
-│   │   ├── person_identification.rs # Идентификация людей
-│   │   ├── scene_analyzer.rs       # Анализ сцен
-│   │   └── ai_chat.rs              # Обработка чата
-└── package.json                    # Node.js dependencies configuration
+│   │   ├── main.rs                    # Точка входа Tauri
+│   │   ├── media.rs                   # Анализ медиа (FFmpeg)
+│   │   ├── recognition.rs             # YOLO для объектов/лиц
+│   │   ├── script_generator.rs        # Генерация сценариев (Claude/OpenAi/Grok API)
+│   │   ├── montage_planner.rs         # Планирование монтажа
+│   │   ├── person_identification.rs   # Идентификация людей
+│   │   ├── scene_analyzer.rs          # Анализ сцен
+│   │   └── ai_chat.rs                 # Обработка чата
+└── package.json                       # Node.js dependencies configuration
 ```
 
 ## 📚 Документация

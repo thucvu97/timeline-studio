@@ -1,12 +1,10 @@
-import { act } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
-import { FavoritesType } from "@/features/media/services/media-machine"
 import { UserSettingsContextType } from "@/features/user-settings"
 
 import { AppSettingsContextType, appSettingsMachine } from "../../services/app-settings-machine"
-import { storeService } from "../../services/store-service"
+import { FavoritesType, storeService } from "../../services/store-service"
 
 // Мокаем storeService
 vi.mock("../../services/store-service", () => ({
@@ -51,6 +49,7 @@ describe("App Settings Machine", () => {
     expect(initialContext).toHaveProperty("currentProject")
     expect(initialContext).toHaveProperty("favorites")
     expect(initialContext).toHaveProperty("mediaFiles")
+    expect(initialContext).toHaveProperty("musicFiles")
     expect(initialContext).toHaveProperty("isLoading")
     expect(initialContext).toHaveProperty("error")
 
@@ -96,7 +95,7 @@ describe("App Settings Machine", () => {
       ],
       favorites: {
         media: [],
-        audio: [],
+        music: [],
         transition: [],
         effect: [],
         template: [],
@@ -111,7 +110,12 @@ describe("App Settings Machine", () => {
         isNew: false,
       },
       mediaFiles: {
-        allMediaFiles: [],
+        allFiles: [],
+        error: null,
+        isLoading: false,
+      },
+      musicFiles: {
+        allFiles: [],
         error: null,
         isLoading: false,
       },

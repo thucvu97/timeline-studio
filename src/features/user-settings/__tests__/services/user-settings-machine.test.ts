@@ -4,7 +4,13 @@ import { createActor } from "xstate"
 
 import { DEFAULT_SIZE, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 
-import { BROWSER_TABS, DEFAULT_LAYOUT, DEFAULT_TAB, LAYOUTS, userSettingsMachine } from "./user-settings-machine"
+import {
+  BROWSER_TABS,
+  DEFAULT_LAYOUT,
+  DEFAULT_TAB,
+  LAYOUTS,
+  userSettingsMachine,
+} from "../../services/user-settings-machine"
 
 vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
@@ -34,7 +40,16 @@ describe("UserSettingsMachine", () => {
   })
 
   it("should have correct browser tabs", () => {
-    expect(BROWSER_TABS).toEqual(["media", "music", "transitions", "effects", "filters", "templates", "subtitles"])
+    expect(BROWSER_TABS).toEqual([
+      "media",
+      "music",
+      "subtitles",
+      "transitions",
+      "effects",
+      "filters",
+      "templates",
+      "style-templates",
+    ])
   })
 
   it("should have correct layouts", () => {

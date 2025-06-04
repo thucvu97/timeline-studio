@@ -1,24 +1,9 @@
 import { assign, createMachine } from "xstate"
 
 import { DEFAULT_PREVIEW_SIZE_INDEX, getPreviewSizeIndex } from "@/features/media/utils/preview-sizes"
+import { BrowserTab } from "@/features/user-settings"
 
-/**
- * Тип вкладки браузера
- */
-export type BrowserTab =
-  | "media"
-  | "music"
-  | "effects"
-  | "filters"
-  | "transitions"
-  | "subtitles"
-  | "templates"
-  | "style-templates"
-
-/**
- * Режимы отображения для разных типов контента
- */
-export type ViewMode = "list" | "grid" | "thumbnails"
+import { ViewMode } from "../components/media-toolbar"
 
 /**
  * Контекст машины состояния браузера

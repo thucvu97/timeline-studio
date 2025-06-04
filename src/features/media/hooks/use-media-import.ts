@@ -2,12 +2,11 @@ import { useCallback, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 
+import { useAppSettings } from "@/features/app-state"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { getMediaMetadata, selectMediaDirectory, selectMediaFile } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
 import { convertToSavedMediaFile } from "@/features/media/utils/saved-media-utils"
-
-import { useMedia } from "./use-media"
 
 /**
  * Максимальное количество одновременных запросов к Tauri
@@ -33,7 +32,7 @@ interface ImportResult {
  * Позволяет быстро показать превью, а затем асинхронно загружать метаданные
  */
 export function useMediaImport() {
-  const media = useMedia()
+  const { getMediaFiles, updateMediaFiles } = useAppSettings()
   const { currentProject, setProjectDirty } = useCurrentProject()
   const [isImporting, setIsImporting] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -110,7 +109,7 @@ export function useMediaImport() {
       const basicMediaFiles = filePaths.map(createBasicMediaFile)
 
       // Сразу добавляем базовые объекты в медиа-контекст - пользователь сразу видит файлы
-      media.addMediaFiles(basicMediaFiles)
+      updateMediaFiles(basicMediaFiles)
 
       // ШАГ 2: Асинхронно загружаем метаданные для каждого файла по очереди
       console.log(`Начинаем загрузку метаданных для ${totalFiles} файлов...`)
@@ -122,7 +121,7 @@ export function useMediaImport() {
 
       return basicMediaFiles
     },
-    [media],
+    [updateMediaFiles],
   )
 
   /**
@@ -168,7 +167,7 @@ export function useMediaImport() {
           // Обновляем файл в медиа-контексте (заменяем базовый объект)
           // Используем requestAnimationFrame для оптимизации обновлений
           requestAnimationFrame(() => {
-            media.addMediaFiles([updatedMediaFile])
+            updateMediaFiles([updatedMediaFile])
           })
 
           console.log(`[${fileIndex + 1}/${totalFiles}] ✅ Метаданные загружены: ${filePath.split("/").pop()}`)
@@ -179,7 +178,7 @@ export function useMediaImport() {
             isLoadingMetadata: false,
           }
           requestAnimationFrame(() => {
-            media.addMediaFiles([fallbackMediaFile])
+            updateMediaFiles([fallbackMediaFile])
           })
 
           console.log(`[${fileIndex + 1}/${totalFiles}] ⚠️ Метаданные не получены: ${filePath.split("/").pop()}`)
@@ -196,7 +195,7 @@ export function useMediaImport() {
           isLoadingMetadata: false,
         }
         requestAnimationFrame(() => {
-          media.addMediaFiles([errorMediaFile])
+          updateMediaFiles([errorMediaFile])
         })
       } finally {
         activeRequests--

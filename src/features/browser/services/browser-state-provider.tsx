@@ -2,8 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from "react"
 
 import { useAppSettings } from "@/features/app-state"
 import { DEFAULT_PREVIEW_SIZE_INDEX, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
+import { BrowserTab } from "@/features/user-settings"
 
-import { BrowserContext, BrowserTab, ViewMode } from "./browser-state-machine"
+import { ViewMode } from "../components"
+import { BrowserContext } from "./browser-state-machine"
 
 // Реэкспортируем для удобства
 export { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"

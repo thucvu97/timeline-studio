@@ -1,3 +1,5 @@
+import { useCallback } from "react"
+
 import { useAppSettings } from "./use-app-settings"
 
 /**
@@ -9,10 +11,20 @@ import { useAppSettings } from "./use-app-settings"
 export function useFavorites() {
   const { getFavorites, updateFavorites, addToFavorites, removeFromFavorites } = useAppSettings()
 
+  const favorites = getFavorites()
+
+  const isItemFavorite = useCallback(
+    (item: any, type: string) => {
+      return favorites[type]?.some((f) => f.id === item.id)
+    },
+    [favorites],
+  )
+
   return {
-    favorites: getFavorites(),
+    favorites,
     updateFavorites,
     addToFavorites,
     removeFromFavorites,
+    isItemFavorite,
   }
 }

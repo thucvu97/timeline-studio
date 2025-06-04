@@ -29,7 +29,7 @@ export function TimelineMark({ timestamp, position, markType, showValue }: Timel
       <div className="absolute flex h-full flex-col items-center" style={{ left: `${position}%` }}>
         <div className={getMarkHeight()} />
         {showValue && (
-          <span className={`absolute top-2.5 translate-x-1/2 transform px-1 text-[11px] whitespace-nowrap opacity-60`}>
+          <span className="absolute top-2.5 translate-x-1/2 transform px-1 text-[11px] whitespace-nowrap opacity-60">
             {formatTimeWithMilliseconds(timestamp, false, true, false)}
           </span>
         )}

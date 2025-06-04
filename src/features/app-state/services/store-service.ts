@@ -1,7 +1,22 @@
 import { Store, load } from "@tauri-apps/plugin-store"
 
-import { FavoritesType } from "@/features/media/services/media-machine"
+import { MediaFile } from "@/features/media"
 import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
+
+/**
+ * Путь к файлу хранилища пользовательских настроек
+ * Используется для сохранения и загрузки настроек приложения
+ */
+export interface FavoritesType {
+  [key: string]: any[]
+  media: MediaFile[]
+  music: MediaFile[]
+  transition: any[]
+  effect: any[]
+  template: any[]
+  filter: any[]
+  subtitle: any[]
+}
 
 /**
  * Ключ для хранилища пользовательских настроек
@@ -35,7 +50,14 @@ export interface AppSettings {
 
   // Медиа файлы
   mediaFiles: {
-    allMediaFiles: any[]
+    allFiles: MediaFile[]
+    error: string | null
+    isLoading: boolean
+  }
+
+  // Медиа файлы для музыки
+  musicFiles: {
+    allFiles: MediaFile[]
     error: string | null
     isLoading: boolean
   }
@@ -174,13 +196,18 @@ export class StoreService {
           isNew: true,
         },
         mediaFiles: {
-          allMediaFiles: [],
+          allFiles: [],
+          error: null,
+          isLoading: false,
+        },
+        musicFiles: {
+          allFiles: [],
           error: null,
           isLoading: false,
         },
         favorites: {
           media: [],
-          audio: [],
+          music: [],
           transition: [],
           effect: [],
           template: [],
@@ -232,7 +259,7 @@ export class StoreService {
     return (
       settings?.favorites ?? {
         media: [],
-        audio: [],
+        music: [],
         transition: [],
         effect: [],
         template: [],

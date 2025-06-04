@@ -4,7 +4,7 @@ import { ReactNode } from "react"
 
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AppSettingsProvider } from "@/features/app-state"
-import { MediaProvider } from "@/features/browser/media"
+import { BrowserStateProvider } from "@/features/browser"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings"
 import { ResourcesProvider } from "@/features/resources/services/resources-provider"
@@ -28,12 +28,12 @@ const composeProviders = (...providers: React.ComponentType<{ children: ReactNod
 const AppProvider = composeProviders(
   I18nProvider,
   ModalProvider,
-  AppSettingsProvider, // Добавляем новый провайдер для централизованного хранилища
+  AppSettingsProvider,
+  BrowserStateProvider,
   ProjectSettingsProvider,
   UserSettingsProvider,
   ResourcesProvider,
-  TimelineProvider, // Добавляем провайдер таймлайна
-  MediaProvider,
+  TimelineProvider,
   PlayerProvider,
   ChatProvider,
 )

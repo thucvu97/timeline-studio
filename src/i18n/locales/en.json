@@ -36,7 +36,8 @@
     "timezone": {
       "select": "Select timezone",
       "search": "Search timezone..."
-    }
+    },
+    "reset": "Reset"
   },
   "dates": {
     "today": "Today",
@@ -135,7 +136,9 @@
         "defaultPathHint": "Default path for saving screenshots",
         "customPathHint": "Screenshots will be saved to: {{path}}",
         "cancel": "Cancel",
-        "save": "Save"
+        "save": "Save",
+        "playerScreenshotsPath": "Player screenshots save path",
+        "claudeApiKey": "Claude API key"
       },
       "export": {
         "title": "Export",
@@ -334,6 +337,9 @@
       "aiApiKey": "AI API Key",
       "clearApiKey": "Clear API Key",
       "enterApiKey": "Enter API Key",
+      "openAiApiKey": "OpenAI API Key",
+      "playerScreenshotsPath": "Player screenshots save path",
+      "claudeApiKey": "Claude API key",
       "cancel": "Cancel",
       "save": "OK"
     },
@@ -662,7 +668,13 @@
     },
     "subtitles": {
       "search": "Search...",
-      "dragHint": "Drag subtitle to timeline to add it to your project"
+      "dragHint": "Drag subtitle to timeline to add it to your project",
+      "categories": {
+        "minimal": "Minimal"
+      },
+      "complexity": {
+        "basic": "Basic"
+      }
     },
     "stickers": {
       "search": "Search...",
@@ -871,6 +883,15 @@
       "videoLonger": "Video (5 sec)",
       "audioOnly": "Audio only",
       "runDemo": "Run demo"
+    },
+    "resources": {
+      "title": "Resources",
+      "noResources": "No resources added"
+    },
+    "chat": {
+      "noMessages": "No messages. Start a conversation.",
+      "messagePlaceholder": "Type your message here...",
+      "send": "Send"
     }
   },
   "titles": {
@@ -1252,6 +1273,114 @@
       "short": "Short (≤3s)",
       "medium": "Medium (3-6s)",
       "long": "Long (>6s)"
+    }
+  },
+  "options": {
+    "tabs": {
+      "video": "Video",
+      "audio": "Audio",
+      "speed": "Speed",
+      "info": "Info"
+    },
+    "video": {
+      "title": "Video Settings",
+      "resolution": "Project Resolution",
+      "width": "Width",
+      "height": "Height",
+      "fps": "Frame Rate",
+      "aspectRatio": "Aspect Ratio",
+      "previewQuality": "Preview Quality",
+      "defaultCodec": "Default Codec"
+    },
+    "audio": {
+      "title": "Audio Settings",
+      "sampleRate": "Sample Rate",
+      "bitrate": "Bitrate",
+      "channels": "Channels",
+      "defaultVolume": "Default Volume",
+      "codec": "Audio Codec",
+      "advanced": "Advanced Settings",
+      "bufferSize": "Buffer Size (ms)",
+      "latency": "Latency (ms)",
+      "sampleRates": {
+        "44100": "44.1 kHz (CD quality)",
+        "48000": "48 kHz (Professional)",
+        "96000": "96 kHz (Hi-Res)",
+        "192000": "192 kHz (Studio)"
+      },
+      "bitrates": {
+        "128": "128 kbps (Basic)",
+        "192": "192 kbps (Good)",
+        "256": "256 kbps (High)",
+        "320": "320 kbps (Maximum)"
+      },
+      "channelsOptions": {
+        "mono": "Mono (1 channel)",
+        "stereo": "Stereo (2 channels)",
+        "5_1": "5.1 Surround",
+        "7_1": "7.1 Surround"
+      },
+      "codecs": {
+        "aac": "AAC (Recommended)",
+        "mp3": "MP3 (Compatibility)",
+        "flac": "FLAC (Lossless)",
+        "opus": "Opus (Efficiency)"
+      }
+    },
+    "speed": {
+      "title": "Speed Settings",
+      "defaultPlayback": "Default Playback Speed",
+      "customSpeed": "Custom Speed",
+      "speedChange": "Speed Change Settings",
+      "interpolation": {
+        "none": "No interpolation",
+        "linear": "Linear",
+        "cubic": "Cubic",
+        "lanczos": "Lanczos"
+      },
+      "motionBlur": {
+        "none": "Off",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "advanced": "Advanced Settings",
+      "preservePitch": "Preserve Pitch When Changing Speed",
+      "autoKeyframes": "Automatic Keyframes",
+      "maxSpeed": "Maximum Speed",
+      "speeds": {
+        "0_25": "0.25x (Very slow)",
+        "0_5": "0.5x (Slow)",
+        "0_75": "0.75x (Slightly slow)",
+        "1": "1x (Normal)",
+        "1_25": "1.25x (Slightly fast)",
+        "1_5": "1.5x (Fast)",
+        "2": "2x (Very fast)",
+        "custom": "Custom"
+      }
+    },
+    "info": {
+      "title": "Media File Info",
+      "selectFile": "Select a file for analysis",
+      "noFileSelected": "No file selected",
+      "basicInfo": "Basic Info",
+      "fileName": "File Name",
+      "fileSize": "File Size",
+      "duration": "Duration",
+      "resolution": "Resolution",
+      "fps": "Frame Rate",
+      "bitrate": "Bitrate",
+      "videoStream": "Video Stream",
+      "codec": "Codec",
+      "colorSpace": "Color Space",
+      "profile": "Profile",
+      "audioStream": "Audio Stream",
+      "sampleRate": "Sample Rate",
+      "channels": "Channels",
+      "audioBitrate": "Audio Bitrate",
+      "metadata": "Metadata",
+      "createdAt": "Created At",
+      "device": "Device"
     }
   }
 }

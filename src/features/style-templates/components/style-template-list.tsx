@@ -3,8 +3,8 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ContentGroup } from "@/components/common/content-group"
+import { useFavorites } from "@/features/app-state"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
-import { useMedia } from "@/features/media"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { StyleTemplatePreview } from "@/features/style-templates/components/style-template-preview"
 
@@ -18,17 +18,9 @@ import { StyleTemplate } from "../types"
 export function StyleTemplateList(): React.ReactElement {
   const { t, i18n } = useTranslation()
   const { templates, loading, error } = useStyleTemplates()
-  const media = useMedia() // Для работы с избранным
+  const { favorites } = useFavorites()
 
-  // Мемоизируем функцию проверки избранного
-  const isItemFavorite = useCallback(
-    (item: any, type: string) => {
-      return media.isItemFavorite(item, type)
-    },
-    [media.isItemFavorite],
-  )
-
-  // console.log("🎨 [StyleTemplateList] Render:", templates.length, "templates");
+  console.log("🎨 [StyleTemplateList] Render:", templates.length, "templates")
 
   // Получаем текущий язык
   const currentLanguage = (i18n.language || "ru") as "ru" | "en"
@@ -42,6 +34,13 @@ export function StyleTemplateList(): React.ReactElement {
 
   // Получаем текущий размер превью из массива
   const basePreviewSize = PREVIEW_SIZES[previewSizeIndex]
+
+  const isItemFavorite = useCallback(
+    (item: any, type: string) => {
+      return favorites[type]?.some((f) => f.id === item.id && f.path === item.path)
+    },
+    [favorites],
+  )
 
   /**
    * Фильтрация, сортировка и группировка шаблонов
@@ -117,7 +116,7 @@ export function StyleTemplateList(): React.ReactElement {
     })
 
     return filtered
-  }, [templates, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, currentLanguage, isItemFavorite])
+  }, [templates, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, currentLanguage, favorites])
 
   /**
    * Группировка шаблонов по выбранному критерию

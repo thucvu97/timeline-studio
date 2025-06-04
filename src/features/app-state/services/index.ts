@@ -1,3 +1,4 @@
 export * from "./app-settings-machine"
 export * from "./app-settings-provider"
+export * from "./project-file-service"
 export * from "./store-service"

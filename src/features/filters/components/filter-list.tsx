@@ -1,12 +1,12 @@
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
 import { ContentGroup } from "@/components/common/content-group"
 import { NoFiles } from "@/components/common/no-files"
+import { useFavorites } from "@/features/app-state"
 import { PREVIEW_SIZES, useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { VideoFilter } from "@/features/filters/types/filters"
-import { useMedia } from "@/features/media"
 import { useProjectSettings } from "@/features/project-settings"
 
 import { FilterPreview } from "./filter-preview"
@@ -18,10 +18,11 @@ import { useFilters } from "../hooks/use-filters"
  */
 export function FilterList() {
   const { t } = useTranslation() // Хук для интернационализации
-  const media = useMedia() // Хук для работы с медиа-файлами и избранным
 
   // Загружаем фильтры из JSON
   const { filters, loading, error } = useFilters()
+
+  const { isItemFavorite } = useFavorites() // Хук для доступа к избранным эффектам
 
   // Используем общий провайдер состояния браузера
   const { currentTabSettings } = useBrowserState()
@@ -73,8 +74,7 @@ export function FilterList() {
         (filter.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
       // Фильтрация по избранному
-      const matchesFavorites =
-        !showFavoritesOnly || media.isItemFavorite({ id: filter.id, path: "", name: filter.name }, "filter")
+      const matchesFavorites = !showFavoritesOnly || isItemFavorite(filter, "filter")
 
       // Фильтрация по типу (сложность или категория)
       const matchesFilter = (() => {
@@ -128,7 +128,7 @@ export function FilterList() {
     })
 
     return filtered
-  }, [filters, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, media])
+  }, [filters, searchQuery, showFavoritesOnly, filterType, sortBy, sortOrder, isItemFavorite])
 
   /**
    * Группировка фильтров по выбранному критерию
