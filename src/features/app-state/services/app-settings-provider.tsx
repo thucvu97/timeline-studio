@@ -174,7 +174,6 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
 
             console.log("Медиафайлы восстановлены:", restorationResult.result.stats)
 
-            // TODO: Добавить восстановленные файлы в провайдеры медиа и музыки
             updateMediaFiles(restorationResult.restoredMedia)
             updateMusicFiles(restorationResult.restoredMusic)
           } catch (restorationError) {

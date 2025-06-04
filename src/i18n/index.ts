@@ -9,6 +9,7 @@ import translationDE from "./locales/de.json"
 import translationEN from "./locales/en.json"
 import translationES from "./locales/es.json"
 import translationFR from "./locales/fr.json"
+import translationPT from "./locales/pt.json"
 import translationRU from "./locales/ru.json"
 
 // Проверка, что код выполняется в браузере
@@ -30,6 +31,9 @@ const resources = {
   },
   de: {
     translation: translationDE,
+  },
+  pt: {
+    translation: translationPT,
   },
 }
 

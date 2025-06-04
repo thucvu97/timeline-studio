@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
+
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
+import { useMusicFiles } from "@/features/app-state/hooks/use-music-files"
 import { convertToSavedMusicFile, getMediaMetadata, selectAudioFile, selectMediaDirectory } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
-import { useMusicFiles } from "@/features/app-state/hooks/use-music-files"
 
 /**
  * Максимальное количество одновременных запросов к Tauri

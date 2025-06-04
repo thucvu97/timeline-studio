@@ -1,0 +1,1232 @@
+{
+  "common": {
+    "add": "Adicionar",
+    "remove": "Remover",
+    "edit": "Editar",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "apply": "Aplicar",
+    "ok": "OK",
+    "yes": "Sim",
+    "no": "Não",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "settings": "Configurações",
+    "preview": "Pré-visualizar",
+    "loading": "Carregando...",
+    "noResults": "Sem resultados",
+    "notFound": "não encontrado",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso",
+    "info": "Informação",
+    "import": "Importar",
+    "record": "Gravar",
+    "upload": "Enviar",
+    "download": "Baixar",
+    "delete": "Excluir",
+    "create": "Criar",
+    "update": "Atualizar",
+    "allFilesAdded": "Todos os arquivos adicionados",
+    "language": "Selecionar idioma",
+    "timezone": {
+      "select": "Selecionar fuso horário",
+      "search": "Pesquisar fuso horário..."
+    },
+    "reset": "Redefinir"
+  },
+  "dates": {
+    "today": "Hoje",
+    "yesterday": "Ontem",
+    "thisWeek": "Esta semana",
+    "lastWeek": "Semana passada",
+    "thisMonth": "Este mês",
+    "lastMonth": "Mês passado",
+    "older": "Mais antigo",
+    "noDate": "Sem data",
+    "format": {
+      "short": "DD/MM/YYYY",
+      "long": "D 'de' MMMM 'de' YYYY",
+      "time": "HH:mm",
+      "dateTime": "DD/MM/YYYY HH:mm"
+    },
+    "months": {
+      "january": "Janeiro",
+      "february": "Fevereiro",
+      "march": "Março",
+      "april": "Abril",
+      "may": "Maio",
+      "june": "Junho",
+      "july": "Julho",
+      "august": "Agosto",
+      "september": "Setembro",
+      "october": "Outubro",
+      "november": "Novembro",
+      "december": "Dezembro"
+    },
+    "weekdays": {
+      "monday": "Segunda-feira",
+      "tuesday": "Terça-feira",
+      "wednesday": "Quarta-feira",
+      "thursday": "Quinta-feira",
+      "friday": "Sexta-feira",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
+    }
+  },
+  "topBar": {
+    "layout": "Layout",
+    "keyboardShortcuts": "Atalhos de Teclado",
+    "projectSettings": "Configurações do Projeto",
+    "openProject": "Abrir Projeto",
+    "saveChanges": "Salvar alterações",
+    "allChangesSaved": "Todas as alterações salvas",
+    "publish": "Publicar",
+    "publicationTasks": "Tarefas de Publicação",
+    "editingTasks": "Tarefas de Edição",
+    "projectTasks": "Tarefas do Projeto",
+    "userSettings": "Configurações do Usuário",
+    "export": "Exportar",
+    "toggleBrowser": "Alternar navegador (Cmd+B)",
+    "cameraCapture": "Gravação de Câmera",
+    "voiceRecording": "Gravação de Áudio",
+    "layouts": {
+      "default": "Padrão",
+      "options": "Opções",
+      "vertical": "Vídeo Vertical",
+      "dual": "Visualização Dupla",
+      "externalDisplayRequired": "Exige monitor externo"
+    }
+  },
+  "ui": {
+    "topBar": {
+      "layout": "Layout",
+      "keyboardShortcuts": "Atalhos de Teclado",
+      "projectSettings": "Configurações do Projeto",
+      "saveChanges": "Salvar alterações",
+      "allChangesSaved": "Todas as alterações salvas",
+      "publish": "Publicar",
+      "publicationTasks": "Tarefas de Publicação",
+      "editingTasks": "Tarefas de Edição",
+      "projectTasks": "Tarefas do Projeto",
+      "userSettings": "Configurações do Usuário",
+      "export": "Exportar"
+    }
+  },
+  "dialogs": {
+    "cameraCapture": {
+      "title": "Gravação de Câmera",
+      "description": "Grave vídeo da sua câmera com a resolução e taxa de quadros selecionadas.",
+      "selectCamera": "Selecionar câmera:",
+      "selectMicrophone": "Selecionar microfone:",
+      "selectResolution": "Selecionar resolução:",
+      "selectFrameRate": "Selecionar taxa de quadros:",
+      "startRecording": "Iniciar Gravação",
+      "stopRecording": "Parar Gravação",
+      "countdown": "Contagem regressiva:",
+      "seconds": "segundos",
+      "recordingTime": "Tempo de gravação:",
+      "noDevices": "Nenhum dispositivo encontrado",
+      "permissionDenied": "Acesso à câmera e microfone negado. Permita o acesso nas configurações do navegador.",
+      "deviceNotFound": "Câmera ou microfone não encontrado. Conecte os dispositivos e tente novamente.",
+      "errorAccess": "Erro ao acessar dispositivos:",
+      "unknownError": "Erro desconhecido ao solicitar acesso ao dispositivo",
+      "loadingCapabilities": "Carregando capacidades do dispositivo...",
+      "initializingCamera": "Inicializando câmera...",
+      "device": "Dispositivo",
+      "audioDevice": "Dispositivo de áudio",
+      "resolution": "Resolução",
+      "frameRate": "Taxa de quadros",
+      "determiningCapabilities": "Determinando capacidades...",
+      "supportedResolutions": "Suportado: {{count}} resoluções",
+      "supportedFrameRates": "Suportado: {{frameRates}} fps",
+      "retryRequest": "Tentar novamente",
+      "retry": "Repetir",
+      "currentResolution": "Resolução atual: {{width}}x{{height}}",
+      "requestedResolution": "Solicitado: {{resolution}}",
+      "errorGettingCapabilities": "Falha ao obter capacidades da câmera. Usando configurações padrão.",
+      "errorRequestingStream": "Falha ao obter stream com a resolução solicitada. Tentando obter stream com configurações padrão.",
+      "errorRequestingStreamFallback": "Falha ao obter stream da câmera. Verifique as configurações e permissões da câmera.",
+      "videoElementError": "Erro ao inicializar o elemento de vídeo. Tente outro dispositivo ou resolução.",
+      "cameraInitError": "Erro ao inicializar a câmera. Verifique as configurações e permissões da câmera.",
+      "errorGettingDevices": "Falha ao obter lista de dispositivos"
+    },
+    "keyboardShortcuts": {
+      "title": "Atalhos de Teclado",
+      "switchPreset": "Trocar para outro conjunto de atalhos:",
+      "searchShortcuts": "Pesquisar atalhos de teclado",
+      "clearSearch": "Limpar pesquisa",
+      "cancel": "Cancelar",
+      "ok": "OK",
+      "resetDefaults": "Restaurar padrões",
+      "editHint": "Clique em um atalho para editar. Pressione as teclas desejadas para definir um novo atalho.",
+      "searchHint": "Você pode pesquisar por nome ou pressionar uma combinação de teclas no campo de pesquisa.",
+      "pressKeys": "Pressione as teclas...",
+      "categories": {
+        "preferences": "Preferências",
+        "file": "Arquivo",
+        "edit": "Editar",
+        "view": "Visualizar",
+        "tools": "Ferramentas",
+        "marker": "Marcador",
+        "multicam": "Edição Multicam",
+        "other": "Outro"
+      },
+      "shortcuts": {
+        "preferences": "Preferências",
+        "project-settings": "Configurações do Projeto",
+        "shortcuts": "Atalhos de Teclado",
+        "new-project": "Novo Projeto",
+        "open-project": "Abrir Projeto",
+        "save-project": "Salvar Projeto",
+        "save-as": "Salvar Projeto Como",
+        "archive": "Arquivar Projeto",
+        "import": "Importar Mídia",
+        "undo": "Desfazer",
+        "redo": "Refazer",
+        "cut": "Cortar",
+        "copy": "Copiar",
+        "paste": "Colar",
+        "delete": "Excluir",
+        "select-all": "Selecionar Tudo",
+        "zoom-in": "Aumentar Zoom",
+        "zoom-out": "Diminuir Zoom",
+        "fit-to-screen": "Ajustar à Tela",
+        "toggle-browser": "Alternar Navegador",
+        "toggle-timeline": "Alternar Linha do Tempo",
+        "selection": "Ferramenta de Seleção",
+        "cut-tool": "Ferramenta de Corte",
+        "hand-tool": "Ferramenta de Mão",
+        "zoom-tool": "Ferramenta de Zoom",
+        "add-marker": "Adicionar Marcador",
+        "next-marker": "Próximo Marcador",
+        "prev-marker": "Marcador Anterior",
+        "switch-camera-1": "Alternar para Câmera 1",
+        "switch-camera-2": "Alternar para Câmera 2",
+        "switch-camera-3": "Alternar para Câmera 3",
+        "switch-camera-4": "Alternar para Câmera 4",
+        "play-pause": "Reproduzir/Pausar",
+        "next-frame": "Próximo Quadro",
+        "prev-frame": "Quadro Anterior",
+        "volume-up": "Aumentar Volume",
+        "volume-down": "Diminuir Volume",
+        "mute": "Silenciar"
+      },
+      "presets": {
+        "timeline": "Linha do Tempo",
+        "filmora": "Wondershare Filmora",
+        "premiere": "Adobe Premiere Pro"
+      }
+    },
+    "projectSettings": {
+      "title": "Configurações do Projeto",
+      "aspectRatio": "Proporção:",
+      "resolution": "Resolução:",
+      "frameRate": "Taxa de quadros:",
+      "colorSpace": "Espaço de cor:",
+      "customSize": "Tamanho personalizado:",
+      "lockAspectRatio": "Bloquear proporção",
+      "unlockAspectRatio": "Desbloquear proporção",
+      "aspectRatioLocked": "Proporção {{ratio}} bloqueada",
+      "aspectRatioUnlocked": "Proporção {{ratio}} desbloqueada",
+      "customResolution": "Resolução atual: {{width}}x{{height}}",
+      "aspectRatioValue": "Proporção: {{ratio}}",
+      "cancel": "Cancelar",
+      "save": "OK",
+      "aspectRatioLabels": {
+        "widescreen": "Widescreen",
+        "portrait": "Retrato",
+        "social": "Mídia Social",
+        "standard": "Padrão",
+        "vertical": "Vertical",
+        "cinema": "Cinema",
+        "custom": "Personalizado"
+      }
+    },
+    "cameraPreview": {
+      "title": "Pré-visualização da Gravação",
+      "description": "Revise seu vídeo gravado antes de salvar. Após clicar em 'Salvar Vídeo', o arquivo será baixado. Mova-o para a pasta public/media do projeto para adicioná-lo à linha do tempo.",
+      "loadingVideo": "Carregando vídeo...",
+      "fileName": "Nome do arquivo",
+      "duration": "Duração",
+      "resolution": "Resolução",
+      "fileSize": "Tamanho do arquivo",
+      "cancel": "Cancelar",
+      "saving": "Salvando...",
+      "saveVideo": "Salvar Vídeo",
+      "seconds": "seg."
+    },
+    "voiceRecord": {
+      "title": "Gravação de Áudio",
+      "description": "Grave áudio do seu microfone.",
+      "selectMicrophone": "Selecionar microfone:",
+      "startRecording": "Iniciar Gravação",
+      "stopRecording": "Parar Gravação",
+      "countdown": "Contagem regressiva:",
+      "seconds": "segundos",
+      "recordingTime": "Tempo de gravação:",
+      "noDevices": "Nenhum dispositivo encontrado",
+      "permissionDenied": "Acesso ao microfone negado. Permita o acesso nas configurações do navegador.",
+      "deviceNotFound": "Microfone não encontrado. Conecte um dispositivo e tente novamente.",
+      "errorAccess": "Erro ao acessar dispositivos:",
+      "unknownError": "Erro desconhecido ao solicitar acesso ao dispositivo",
+      "loadingCapabilities": "Carregando capacidades do dispositivo...",
+      "initializingMicrophone": "Inicializando microfone...",
+      "device": "Dispositivo",
+      "audioDevice": "Dispositivo de áudio",
+      "determiningCapabilities": "Determinando capacidades...",
+      "retryRequest": "Tentar novamente",
+      "retry": "Repetir",
+      "requestingPermissions": "Solicitando permissões...",
+      "permissionError": "Não foi possível obter acesso ao microfone. Verifique as permissões no navegador.",
+      "refreshDevices": "Atualizar dispositivos",
+      "savePath": "Salvar em",
+      "hint": "Clique no botão de gravar para começar. A gravação será adicionada automaticamente à biblioteca de mídia."
+    },
+    "userSettings": {
+      "title": "Configurações do Usuário",
+      "interfaceLanguage": "Idioma da Interface:",
+      "screenshotsPath": "Caminho para salvar capturas de tela:",
+      "selectFolder": "Selecionar Pasta",
+      "selectFolderPrompt": "Escolha uma pasta para salvar capturas de tela ou insira seu próprio caminho:",
+      "clearPath": "Limpar",
+      "defaultPathHint": "Caminho padrão para salvar capturas de tela",
+      "customPathHint": "Capturas de tela serão salvas em: {{path}}",
+      "previewClickBehavior": "Não duplicar vídeo de pré-visualização no player",
+      "aiApiKey": "Chave de API de IA",
+      "clearApiKey": "Limpar Chave de API",
+      "enterApiKey": "Inserir Chave de API",
+      "openAiApiKey": "Chave de API OpenAI",
+      "playerScreenshotsPath": "Caminho para capturas do player",
+      "claudeApiKey": "Chave API Claude",
+      "cancel": "Cancelar",
+      "save": "OK"
+    },
+    "export": {
+      "title": "Exportar",
+      "local": "Local",
+      "device": "Dispositivo",
+      "socialNetworks": "Redes Sociais",
+      "dvd": "DVD",
+      "youtube": "YouTube",
+      "tiktok": "TikTok",
+      "telegram": "Telegram",
+      "notLoggedIn": "Não conectado",
+      "loginPrompt": {
+        "youtube": "Faça login na sua conta do YouTube para informações adicionais.",
+        "tiktok": "Faça login na sua conta do TikTok para publicar vídeos.",
+        "telegram": "Faça login na sua conta do Telegram para enviar vídeos para canais e grupos."
+      },
+      "login": "Entrar",
+      "cover": "Capa",
+      "edit": "Editar",
+      "outputSettings": "Configurações de Saída",
+      "name": "Nome",
+      "saveTo": "Salvar em",
+      "preset": "Predefinição",
+      "defaultPreset": "Padrão",
+      "custom": "Personalizado",
+      "format": "Formato",
+      "quality": "Qualidade",
+      "normal": "Normal",
+      "good": "Bom",
+      "best": "Melhor",
+      "resolution": "Resolução",
+      "frameRate": "Taxa de quadros",
+      "advancedCompression": "Compressão Avançada",
+      "cloudBackup": "Backup na Nuvem",
+      "enableGPUEncoding": "Ativar codificação de vídeo acelerada por GPU",
+      "useLastSettings": "Usar as últimas configurações de exportação para arquivo local",
+      "length": "Duração",
+      "size": "Tamanho",
+      "approximate": "Aproximado",
+      "titles": "Títulos",
+      "device_types": {
+        "iphone": "iPhone",
+        "ipad": "iPad",
+        "android": "Android"
+      },
+      "codec": "Codec",
+      "additional": "Adicional",
+      "fps": "fps",
+      "kbps": "kbps",
+      "sdr": "SDR - Rec.709",
+      "otherNetworks": "Outras redes sociais"
+    },
+    "templates": {
+      "verticalSplit": "Divisão Vertical",
+      "horizontalSplit": "Divisão Horizontal",
+      "diagonalSplit": "Divisão Diagonal",
+      "grid2x2": "Grade 2×2",
+      "grid3x2": "Grade 3×2",
+      "grid2x3": "Grade 2×3",
+      "grid3x3": "Grade 3×3",
+      "grid3x4": "Grade 3×4",
+      "grid4x3": "Grade 4×3",
+      "grid4x4": "Grade 4×4",
+      "grid5x2": "Grade 5×2",
+      "grid2x5": "Grade 2×5",
+      "grid5x5": "Grade 5×5",
+      "custom7_1": "7 telas: grande inferior direita",
+      "custom7_2": "7 telas: grande inferior esquerda",
+      "custom7_3": "7 telas: grande superior esquerda",
+      "custom7_4": "7 telas: grande superior direita",
+      "split_3_1_right": "3 à esquerda + 1 à direita",
+      "templateLabels": {
+        "split-vertical-landscape": "2 telas vertical",
+        "split-horizontal-landscape": "2 telas horizontal",
+        "split-diagonal-landscape": "Divisão Diagonal",
+        "split-vertical-3-landscape": "3 telas vertical",
+        "split-horizontal-3-landscape": "3 telas horizontal",
+        "split-mixed-1-landscape": "1 em cima + 2 embaixo",
+        "split-mixed-2-landscape": "1 à esquerda + 2 à direita",
+        "split-grid-2x2-landscape": "Grade 2×2",
+        "split-vertical-4-landscape": "4 telas vertical",
+        "split-1-3-landscape": "1 à esquerda + 3 à direita",
+        "split-3-1-landscape": "3 em cima + 1 embaixo",
+        "split-3-1-right-landscape": "3 à esquerda + 1 à direita",
+        "split-1-3-bottom-landscape": "1 em cima + 3 embaixo",
+        "split-diagonal-cross-landscape": "Cruz Diagonal",
+        "split-custom-5-1-landscape": "1 à esquerda + 4 à direita",
+        "split-custom-5-2-landscape": "4 à esquerda + 1 à direita",
+        "split-custom-5-3-landscape": "2 em cima + 1 no meio + 2 embaixo",
+        "split-grid-3x2-landscape": "Grade 3×2",
+        "split-grid-4x2-landscape": "Grade 4×2",
+        "split-grid-3x3-landscape": "Grade 3×3",
+        "split-grid-5x2-landscape": "Grade 5×2",
+        "split-grid-4x3-landscape": "Grade 4×3",
+        "split-grid-3x4-landscape": "Grade 3×4",
+        "split-grid-4x4-landscape": "Grade 4×4",
+        "split-grid-5x5-landscape": "Grade 5×5"
+      },
+      "templateDescriptions": {
+        "split-vertical-landscape": "Duas telas divididas por uma linha vertical",
+        "split-horizontal-landscape": "Duas telas divididas por uma linha horizontal",
+        "split-diagonal-landscape": "Duas telas divididas por uma linha diagonal",
+        "split-vertical-3-landscape": "Três telas divididas por linhas verticais",
+        "split-horizontal-3-landscape": "Três telas divididas por linhas horizontais",
+        "split-mixed-1-landscape": "Uma tela em cima, duas telas embaixo",
+        "split-mixed-2-landscape": "Uma tela à esquerda, duas telas à direita",
+        "split-grid-2x2-landscape": "Quatro telas em uma grade 2×2",
+        "split-vertical-4-landscape": "Quatro telas divididas por linhas verticais",
+        "split-1-3-landscape": "Uma tela à esquerda, três telas à direita",
+        "split-3-1-landscape": "Três telas em cima, uma tela embaixo",
+        "split-3-1-right-landscape": "Três telas à esquerda, uma tela à direita",
+        "split-1-3-bottom-landscape": "Uma tela em cima, três telas embaixo",
+        "split-diagonal-cross-landscape": "Quatro telas divididas por linhas diagonais em forma de cruz",
+        "split-custom-5-1-landscape": "Uma tela grande à esquerda, quatro telas à direita (2 em cima, 2 embaixo)",
+        "split-custom-5-2-landscape": "Uma tela grande à direita, quatro telas à esquerda (2 em cima, 2 embaixo)",
+        "split-custom-5-3-landscape": "Duas telas em cima, uma no meio, duas telas embaixo",
+        "split-grid-3x2-landscape": "Seis telas em uma grade 3×2",
+        "split-grid-4x2-landscape": "Oito telas em uma grade 4×2",
+        "split-grid-3x3-landscape": "Nove telas em uma grade 3×3",
+        "split-grid-5x2-landscape": "Dez telas em uma grade 5×2",
+        "split-grid-4x3-landscape": "Doze telas em uma grade 4×3",
+        "split-grid-3x4-landscape": "Doze telas em uma grade 3×4",
+        "split-grid-4x4-landscape": "Dezesseis telas em uma grade 4×4",
+        "split-grid-5x5-landscape": "Vinte e cinco telas em uma grade 5×5"
+      }
+    },
+    "modals": {
+      "projectSettings": {
+        "title": "Configurações do Projeto"
+      },
+      "keyboardShortcuts": {
+        "title": "Atalhos de Teclado"
+      },
+      "userSettings": {
+        "title": "Configurações do Usuário"
+      },
+      "cameraCapture": {
+        "title": "Gravação de Câmera"
+      },
+      "voiceRecording": {
+        "title": "Gravação de Áudio"
+      },
+      "export": {
+        "title": "Exportar"
+      }
+    }
+  },
+  "language": {
+    "ru": "Russo",
+    "en": "Inglês",
+    "es": "Espanhol",
+    "zh": "Chinês",
+    "fr": "Francês",
+    "de": "Alemão",
+    "it": "Italiano",
+    "ja": "Japonês",
+    "ko": "Coreano",
+    "pt": "Português",
+    "ar": "Árabe",
+    "hi": "Hindi",
+    "tr": "Turco",
+    "native": {
+      "ru": "Русский",
+      "en": "English",
+      "es": "Español",
+      "zh": "中文",
+      "fr": "Français",
+      "de": "Deutsch",
+      "it": "Italiano",
+      "ja": "日本語",
+      "ko": "한국어",
+      "pt": "Português",
+      "ar": "العربية",
+      "hi": "हिन्दी",
+      "tr": "Türkçe"
+    }
+  },
+  "browser": {
+    "tabs": {
+      "media": "Mídia",
+      "music": "Música",
+      "transitions": "Transições",
+      "effects": "Efeitos",
+      "filters": "Filtros",
+      "templates": "Multicam",
+      "styleTemplates": "Modelos",
+      "subtitles": "Legendas"
+    },
+    "templateScreens": {
+      "one": "tela",
+      "few": "telas",
+      "many": "telas",
+      "other": "telas"
+    },
+    "hide": "Ocultar navegador",
+    "show": "Mostrar navegador",
+    "common": {
+      "unknown": "Desconhecido"
+    },
+    "noFiles": {
+      "title": "Nenhum arquivo encontrado",
+      "addFilesPrompt": "Adicione arquivos de mídia nas seguintes pastas:",
+      "mediaTypes": "Vídeo, áudio, fotos",
+      "musicType": "Música",
+      "supportedVideoFormats": "Formatos de vídeo suportados: MP4, MOV, AVI, MKV, WEBM, INSV (360°)",
+      "supportedAudioFormats": "Formatos de áudio suportados: MP3, WAV, AAC, ALAC, OGG, FLAC"
+    },
+    "subtitles": {
+      "search": "Pesquisar...",
+      "dragHint": "Arraste a legenda para a linha do tempo para adicioná-la ao seu projeto",
+      "categories": {
+        "minimal": "Minimalista"
+      },
+      "complexity": {
+        "basic": "Básico"
+      }
+    },
+    "stickers": {
+      "search": "Pesquisar...",
+      "dragHint": "Arraste o adesivo para a linha do tempo para adicioná-lo ao seu projeto"
+    },
+    "media": {
+      "noMedia": "Nenhum arquivo de mídia",
+      "addMedia": "Arquivo",
+      "uploadMedia": "Arquivo",
+      "recordVideo": "Gravar vídeo",
+      "recordScreen": "Gravar tela",
+      "recordVoice": "Gravar voz",
+      "addFolder": "Pasta",
+      "takePhoto": "Tirar foto",
+      "duration": "Duração",
+      "resolution": "Resolução",
+      "size": "Tamanho",
+      "created": "Criado",
+      "import": "Importar mídia",
+      "record": "Gravar",
+      "addAll": "Adicionar tudo",
+      "addSelected": "Adicionar selecionados",
+      "addDate": "Adicionar por data",
+      "addAllVideo": "Adicionar todos os vídeos",
+      "addAllAudio": "Adicionar todos os áudios",
+      "added": "Adicionado",
+      "add": "Adicionar",
+      "remove": "Remover",
+      "addToFavorites": "Adicionar aos favoritos",
+      "removeFromFavorites": "Remover dos favoritos",
+      "favorites": "Favoritos",
+      "sortBy": "Ordenar por",
+      "groupBy": "Agrupar por",
+      "filterBy": "Filtrar por",
+      "date": "Data",
+      "name": "Nome",
+      "type": "Tipo",
+      "fileType": "Tipo de arquivo",
+      "all": "Todos",
+      "video": "Vídeo",
+      "audio": "Áudio",
+      "image": "Imagens"
+    },
+    "toolbar": {
+      "search": "Pesquisar arquivos de mídia",
+      "searchByName": "Pesquisar por nome",
+      "viewMode": "Modo de visualização",
+      "grid": "Grade",
+      "list": "Lista",
+      "thumbnails": "Miniaturas",
+      "zoomIn": "Aumentar pré-visualização",
+      "zoomOut": "Diminuir pré-visualização",
+      "sort": "Ordenar",
+      "filter": "Filtros",
+      "group": "Agrupar",
+      "sortOrder": {
+        "asc": "Crescente",
+        "desc": "Decrescente"
+      },
+      "sortBy": {
+        "name": "Por nome",
+        "title": "Por título",
+        "artist": "Por artista",
+        "date": "Por data",
+        "size": "Por tamanho",
+        "duration": "Por duração",
+        "complexity": "Por complexidade",
+        "category": "Por categoria"
+      },
+      "filterBy": {
+        "all": "Todos os arquivos",
+        "video": "Vídeo",
+        "audio": "Áudio",
+        "image": "Imagens"
+      },
+      "groupBy": {
+        "none": "Sem agrupamento",
+        "type": "Tipo",
+        "date": "Por data de criação",
+        "duration": "Por duração",
+        "artist": "Por artista",
+        "genre": "Por gênero",
+        "album": "Por álbum",
+        "category": "Por categoria",
+        "complexity": "Por complexidade",
+        "tags": "Por tags"
+      },
+      "duration": {
+        "noDuration": "Arquivos sem duração",
+        "veryShort": "Muito curtos (menos de 1 minuto)",
+        "short": "Curtos (1-5 minutos)",
+        "medium": "Médios (5-30 minutos)",
+        "long": "Longos (30-60 minutos)",
+        "veryLong": "Muito longos (1-3 horas)",
+        "extraLong": "Extremamente longos (mais de 3 horas)"
+      }
+    }
+  },
+  "timeline": {
+    "tracks": {
+      "camera": "Câmera",
+      "audio": "Áudio",
+      "title": "Títulos",
+      "effects": "Efeitos",
+      "cameraWithNumber": "Câmera {{number}}",
+      "videoWithNumber": "Vídeo {{number}}",
+      "audioWithNumber": "Áudio {{number}}"
+    },
+    "controlsMain": {
+      "resizableMode": "Modo redimensionável",
+      "fixedSizeMode": "Modo de tamanho fixo",
+      "resetTemplate": "Redefinir modelo",
+      "applyTemplate": "Aplicar modelo",
+      "switchCamera": "Alternar câmera",
+      "takeSnapshot": "Capturar imagem",
+      "settings": "Configurações",
+      "entryPoint": "Ponto de entrada",
+      "exitPoint": "Ponto de saída",
+      "muteAudio": "Silenciar áudio",
+      "unmuteAudio": "Ativar áudio",
+      "fullscreen": "Tela cheia",
+      "exitFullscreen": "Sair da tela cheia",
+      "record": "Gravar",
+      "stopRecord": "Parar gravação",
+      "play": "Reproduzir",
+      "pause": "Pausar",
+      "previousFrame": "Quadro anterior",
+      "nextFrame": "Próximo quadro",
+      "firstFrame": "Primeiro quadro",
+      "lastFrame": "Último quadro"
+    },
+    "player": {
+      "camera": "Câmera",
+      "videoUnavailable": "Indisponível",
+      "noVideoSelected": "Selecione um vídeo para reproduzir",
+      "videoLoadError": "Erro ao carregar vídeo"
+    },
+    "source": {
+      "timeline": "Linha do tempo",
+      "browser": "Navegador"
+    },
+    "zoom": {
+      "zoomIn": "Aumentar zoom",
+      "zoomOut": "Diminuir zoom",
+      "fitToScreen": "Ajustar à tela"
+    },
+    "playback": {
+      "play": "Reproduzir",
+      "pause": "Pausar",
+      "stop": "Parar",
+      "previous": "Anterior",
+      "next": "Próximo"
+    },
+    "toolbar": {
+      "layout": "Layout",
+      "pointer": "Ponteiro",
+      "undo": "Desfazer",
+      "redo": "Refazer",
+      "delete": "Excluir",
+      "cut": "Cortar",
+      "fitToScreen": "Ajustar à largura da tela",
+      "zoomIn": "Aumentar zoom",
+      "zoomOut": "Diminuir zoom"
+    },
+    "section": {
+      "delete": "Excluir seção",
+      "editTrackName": "Clique para editar",
+      "sectorName": "Setor {{date}}",
+      "deleteConfirmation": "Tem certeza de que deseja excluir a seção {{section}}? Esta ação não pode ser desfeita."
+    },
+    "controls": {
+      "firstFrame": "Primeiro quadro",
+      "previousFrame": "Quadro anterior",
+      "play": "Reproduzir",
+      "pause": "Pausar",
+      "nextFrame": "Próximo quadro",
+      "lastFrame": "Último quadro",
+      "record": "Iniciar gravação",
+      "stopRecord": "Parar gravação",
+      "entryPoint": "Ponto de entrada",
+      "exitPoint": "Ponto de saída",
+      "settings": "Configurações",
+      "takeSnapshot": "Capturar imagem",
+      "switchCamera": "Alternar câmera",
+      "resetTemplate": "Redefinir modelo",
+      "muteAudio": "Silenciar áudio",
+      "unmuteAudio": "Ativar áudio",
+      "fullscreen": "Modo tela cheia",
+      "exitFullscreen": "Sair do modo tela cheia"
+    },
+    "track": {
+      "hideTrack": "Ocultar faixa",
+      "showTrack": "Mostrar faixa",
+      "lockTrack": "Bloquear faixa",
+      "unlockTrack": "Desbloquear faixa",
+      "mute": "Silenciar",
+      "unmute": "Ativar som",
+      "videoTrack": "Vídeo {{index}}",
+      "audioTrack": "Áudio {{index}}"
+    },
+    "compositeTrack": {
+      "noActiveSector": "Nenhum setor ativo encontrado. Por favor, selecione um vídeo na linha do tempo primeiro.",
+      "createCompositeTrack": "Criar faixa composta",
+      "options": "Opções de faixa composta",
+      "videoOnly": "Apenas vídeo (3 seg)",
+      "videoLonger": "Vídeo (5 seg)",
+      "audioOnly": "Apenas áudio",
+      "runDemo": "Executar demo"
+    },
+    "resources": {
+      "title": "Recursos",
+      "noResources": "Nenhum recurso adicionado"
+    },
+    "chat": {
+      "noMessages": "Sem mensagens. Inicie uma conversa.",
+      "messagePlaceholder": "Digite sua mensagem aqui...",
+      "send": "Enviar"
+    }
+  },
+  "filters": {
+    "add": "Adicionar filtro",
+    "edit": "Editar filtro",
+    "remove": "Remover filtro",
+    "intensity": "Intensidade",
+    "categories": {
+      "color": "Cor",
+      "blur": "Desfoque",
+      "sharpen": "Nitidez",
+      "artistic": "Artístico",
+      "distortion": "Distorção",
+      "noise": "Ruído",
+      "vintage": "Vintage",
+      "other": "Outro",
+      "color-correction": "Correção de cor",
+      "creative": "Criativo",
+      "cinematic": "Cinematográfico",
+      "technical": "Técnico"
+    },
+    "complexity": {
+      "basic": "Básico",
+      "intermediate": "Intermediário",
+      "advanced": "Avançado"
+    },
+    "filters": {
+      "allCategories": "Todas as categorias",
+      "allComplexity": "Qualquer complexidade",
+      "allTags": "Todas as tags"
+    },
+    "names": {
+      "grayscale": "Tons de cinza",
+      "sepia": "Sépia",
+      "invert": "Inverter",
+      "brightness": "Brilho",
+      "contrast": "Contraste",
+      "saturation": "Saturação",
+      "hue": "Matiz",
+      "blur": "Desfoque",
+      "gaussianBlur": "Desfoque Gaussiano",
+      "sharpen": "Nitidez",
+      "emboss": "Relevo",
+      "vintage": "Vintage",
+      "vignette": "Vinheta",
+      "noise": "Ruído",
+      "pixelate": "Pixelizar",
+      "filmGrain": "Granulação de filme",
+      "blackAndWhite": "Preto e Branco",
+      "negative": "Negativo",
+      "polaroid": "Polaroid",
+      "fadeColor": "Desvanecer cor"
+    },
+    "presets": {
+      "s-log": "S-Log",
+      "d-log": "D-Log",
+      "v-log": "V-Log",
+      "hlg": "HLG",
+      "rec709": "Rec.709",
+      "rec2020": "Rec.2020",
+      "cinestyle": "CineStyle",
+      "flat": "Flat",
+      "neutral": "Neutro",
+      "portrait": "Retrato",
+      "landscape": "Paisagem"
+    },
+    "errors": {
+      "invalidFiltersData": "Estrutura de dados de filtros inválida",
+      "unknownError": "Erro desconhecido",
+      "failedToLoadFilters": "Falha ao carregar filtros: {{error}}",
+      "fallbackFilters": "Falha ao carregar filtros, usando padrão alternativo"
+    },
+    "messages": {
+      "filtersLoaded": "{{count}} filtros carregados do JSON"
+    },
+    "detail": {
+      "description": "Descrição",
+      "category": "Categoria",
+      "complexity": "Complexidade",
+      "parameters": "Parâmetros",
+      "tags": "Tags",
+      "applyFilter": "Aplicar filtro"
+    }
+  },
+  "titles": {
+    "add": "Títulos",
+    "edit": "Editar título",
+    "remove": "Remover título",
+    "font": "Fonte",
+    "size": "Tamanho",
+    "color": "Cor",
+    "alignment": "Alinhamento",
+    "position": "Posição",
+    "duration": "Duração",
+    "animation": "Animação",
+    "Templates": {
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "underline": "Sublinhado",
+      "strikethrough": "Tachado"
+    },
+    "templates": {
+      "title": "Título",
+      "subtitle": "Subtítulo",
+      "credits": "Créditos",
+      "lowerThird": "Faixa inferior",
+      "custom": "Personalizado"
+    }
+  },
+  "transitions": {
+    "add": "Adicionar transição",
+    "edit": "Editar transição",
+    "remove": "Remover transição",
+    "durationLabel": "Duração",
+    "intensity": "Intensidade",
+    "categories": {
+      "basic": "Básico",
+      "advanced": "Avançado",
+      "creative": "Criativo",
+      "3d": "3D",
+      "artistic": "Artístico",
+      "cinematic": "Cinematográfico"
+    },
+    "complexity": {
+      "basic": "Básico",
+      "intermediate": "Intermediário",
+      "advanced": "Avançado"
+    },
+    "duration": {
+      "short": "Curta",
+      "medium": "Média",
+      "long": "Longa"
+    },
+    "filters": {
+      "allCategories": "Todas as categorias",
+      "allComplexity": "Qualquer complexidade",
+      "allTags": "Todas as tags"
+    },
+    "types": {
+      "zoom": "Zoom",
+      "fade": "Desvanecer",
+      "slide": "Deslizar",
+      "scale": "Escalar",
+      "rotate": "Girar",
+      "flip": "Virar",
+      "push": "Empurrar",
+      "squeeze": "Espremer",
+      "diagonal": "Diagonal",
+      "spiral": "Espiral",
+      "fold": "Dobrar",
+      "wave": "Onda",
+      "shutter": "Obturador",
+      "bounce": "Pular",
+      "swirl": "Redemoinho",
+      "dissolve": "Dissolver"
+    },
+    "errors": {
+      "invalidTransitionsData": "Estrutura de dados de transições inválida",
+      "unknownError": "Erro desconhecido",
+      "failedToLoadTransitions": "Falha ao carregar transições: {{error}}",
+      "fallbackTransitions": "Falha ao carregar transições, usando padrão alternativo"
+    },
+    "messages": {
+      "transitionsLoaded": "{{count}} transições carregadas do JSON"
+    },
+    "detail": {
+      "description": "Descrição",
+      "category": "Categoria",
+      "complexity": "Complexidade",
+      "duration": "Duração",
+      "parameters": "Parâmetros",
+      "tags": "Tags",
+      "applyTransition": "Aplicar transição"
+    }
+  },
+  "effects": {
+    "add": "Adicionar efeito",
+    "edit": "Editar efeito",
+    "remove": "Remover efeito",
+    "duration": "Duração",
+    "intensity": "Intensidade",
+    "viewMode": {
+      "grid": "Grade",
+      "categories": "Categorias"
+    },
+    "filters": {
+      "category": "Categoria",
+      "complexity": "Complexidade",
+      "tags": "Tags",
+      "allCategories": "Todas as categorias",
+      "allComplexity": "Todos os níveis",
+      "allTags": "Todas as tags",
+      "favoritesOnly": "Apenas favoritos"
+    },
+    "categories": {
+      "transition": "Transições",
+      "motion": "Movimento",
+      "light": "Luz",
+      "particle": "Partículas",
+      "text": "Texto",
+      "3d": "3D",
+      "other": "Outro",
+      "color-correction": "Correção de cor",
+      "artistic": "Artístico",
+      "vintage": "Vintage",
+      "cinematic": "Cinematográfico",
+      "creative": "Criativo",
+      "technical": "Técnico",
+      "distortion": "Distorção"
+    },
+    "complexity": {
+      "basic": "Básico",
+      "intermediate": "Intermediário",
+      "advanced": "Avançado"
+    },
+    "tags": {
+      "popular": "Popular",
+      "professional": "Profissional",
+      "beginner-friendly": "Para iniciantes",
+      "experimental": "Experimental",
+      "retro": "Retrô",
+      "modern": "Moderno",
+      "dramatic": "Dramático",
+      "subtle": "Sutil",
+      "intense": "Intenso"
+    },
+    "names": {
+      "fade": "Desvanecer",
+      "dissolve": "Dissolver",
+      "wipe": "Limpar",
+      "slide": "Deslizar",
+      "zoom": "Zoom",
+      "rotate": "Girar",
+      "flash": "Flash",
+      "glitch": "Glitch",
+      "blur": "Desfoque",
+      "particles": "Partículas",
+      "confetti": "Confete",
+      "snow": "Neve",
+      "rain": "Chuva",
+      "fire": "Fogo",
+      "smoke": "Fumaça",
+      "bokeh": "Bokeh",
+      "lens": "Lente",
+      "mirror": "Espelho",
+      "split": "Dividir",
+      "picture": "Picture in Picture"
+    },
+    "presets": {
+      "brightness": "Brilho",
+      "contrast": "Contraste",
+      "saturation": "Saturação",
+      "sepia": "Sépia",
+      "grayscale": "Tons de cinza",
+      "invert": "Inverter",
+      "hue-rotate": "Rotação de matiz",
+      "vintage": "Vintage",
+      "duotone": "Duotone",
+      "speed": "Velocidade",
+      "noir": "Noir",
+      "cyberpunk": "Cyberpunk",
+      "dreamy": "Sonhador",
+      "infrared": "Infravermelho",
+      "matrix": "Matrix",
+      "arctic": "Ártico",
+      "sunset": "Pôr do sol",
+      "lomo": "Lomo",
+      "twilight": "Crepúsculo",
+      "neon": "Neon"
+    },
+    "errors": {
+      "invalidEffectsData": "Estrutura de dados de efeitos inválida",
+      "invalidCategoriesData": "Estrutura de categorias inválida",
+      "unknownError": "Erro desconhecido",
+      "failedToLoadEffects": "Falha ao carregar efeitos: {{error}}",
+      "failedToLoadCategories": "Falha ao carregar categorias: {{error}}",
+      "fallbackEffects": "Falha ao carregar efeitos, usando padrão alternativo",
+      "fallbackCategories": "Falha ao carregar categorias, usando padrão alternativo"
+    },
+    "messages": {
+      "effectsLoaded": "{{count}} efeitos carregados do JSON",
+      "categoriesLoaded": "{{count}} categorias de efeitos carregadas do JSON"
+    },
+    "detail": {
+      "description": "Descrição",
+      "category": "Categoria",
+      "parameters": "Parâmetros",
+      "presets": "Predefinições",
+      "ffmpegCommand": "Comando FFmpeg",
+      "applyEffect": "Aplicar efeito"
+    }
+  },
+  "project": {
+    "untitledProject": "Sem título #{{number}}",
+    "untitledExport": "Sem título {{number}}",
+    "newProject": "Novo Projeto",
+    "saveProject": "Salvar Projeto",
+    "openProject": "Abrir Projeto",
+    "deleteProject": "Excluir Projeto",
+    "exportProject": "Exportar Projeto",
+    "importProject": "Importar Projeto"
+  },
+  "settings": {
+    "saved": "Configurações salvas",
+    "savedDescription": "Suas configurações foram salvas com sucesso",
+    "error": "Erro ao salvar configurações",
+    "errorDescription": "Ocorreu um erro ao salvar suas configurações. Por favor, tente novamente.",
+    "reset": "Restaurar padrões",
+    "screenshots": {
+      "title": "Configurações de Captura de Tela",
+      "description": "Configure as opções para gerar e processar capturas de tela de vídeo",
+      "interval": "Intervalo de captura",
+      "intervalDescription": "Tempo entre capturas em segundos. Valores menores criam mais capturas.",
+      "maxScreenshots": "Máximo de capturas",
+      "maxScreenshotsDescription": "Limite o número total de capturas que podem ser geradas. Desative para ilimitado.",
+      "initialCount": "Capturas iniciais",
+      "initialCountDescription": "Número de capturas a serem geradas ao processar um vídeo pela primeira vez.",
+      "path": "Caminho das capturas",
+      "pathDescription": "Diretório onde as capturas serão salvas.",
+      "objectDetection": "Detecção de objetos",
+      "objectDetectionDescription": "Ativar detecção de objetos por IA nas capturas.",
+      "confidenceThreshold": "Limite de confiança",
+      "confidenceThresholdDescription": "Nível mínimo de confiança para objetos detectados. Valores maiores reduzem falsos positivos."
+    }
+  },
+  "resources": {
+    "title": "Recursos",
+    "all": "Todos",
+    "effects": "Efeitos",
+    "filters": "Filtros",
+    "transitions": "Transições",
+    "templates": "Modelos",
+    "music": "Música",
+    "subtitles": "Legendas",
+    "noResources": "Nenhum recurso adicionado"
+  },
+  "chat": {
+    "title": "Chat",
+    "selectAgent": "Modelo",
+    "messagePlaceholder": "Digite sua mensagem aqui...",
+    "noMessages": "Sem mensagens. Inicie uma conversa.",
+    "savingProgress": "Salvando progresso",
+    "saveSuccess": "Vídeo salvo com sucesso!",
+    "send": "Enviar",
+    "stop": "Parar",
+    "processing": "Processando..."
+  },
+  "source": {
+    "timeline": "Linha do tempo",
+    "browser": "Navegador"
+  },
+  "styleTemplates": {
+    "loading": "Carregando modelos...",
+    "error": "Erro ao carregar modelos",
+    "noResults": "Nenhum modelo encontrado",
+    "search": "Pesquisar modelos...",
+    "addToResources": "Adicionar aos recursos",
+    "addedToResources": "Adicionado aos recursos",
+    "hasText": "Contém texto",
+    "hasAnimation": "Contém animação",
+    "categories": {
+      "intro": "Introdução",
+      "outro": "Encerramento",
+      "lower-third": "Faixa inferior",
+      "lowerThird": "Faixa inferior",
+      "title": "Título",
+      "transition": "Transição",
+      "overlay": "Sobreposição"
+    },
+    "Templates": {
+      "modern": "Moderno",
+      "vintage": "Vintage",
+      "minimal": "Minimalista",
+      "corporate": "Corporativo",
+      "creative": "Criativo",
+      "cinematic": "Cinematográfico"
+    },
+    "duration": {
+      "short": "Curto (≤3s)",
+      "medium": "Médio (3-6s)",
+      "long": "Longo (>6s)"
+    }
+  },
+  "options": {
+    "tabs": {
+      "video": "Vídeo",
+      "audio": "Áudio",
+      "speed": "Velocidade",
+      "info": "Informações"
+    },
+    "video": {
+      "title": "Configurações de Vídeo",
+      "resolution": "Resolução do Projeto",
+      "width": "Largura",
+      "height": "Altura",
+      "fps": "Taxa de quadros",
+      "aspectRatio": "Proporção",
+      "previewQuality": "Qualidade da pré-visualização",
+      "defaultCodec": "Codec padrão"
+    },
+    "audio": {
+      "title": "Configurações de Áudio",
+      "sampleRate": "Taxa de amostragem",
+      "bitrate": "Taxa de bits",
+      "channels": "Canais",
+      "defaultVolume": "Volume padrão",
+      "codec": "Codec de Áudio",
+      "advanced": "Configurações Avançadas",
+      "bufferSize": "Tamanho do Buffer (ms)",
+      "latency": "Latência (ms)",
+      "sampleRates": {
+        "44100": "44,1 kHz (Qualidade de CD)",
+        "48000": "48 kHz (Profissional)",
+        "96000": "96 kHz (Alta Resolução)",
+        "192000": "192 kHz (Estúdio)"
+      },
+      "bitrates": {
+        "128": "128 kbps (Básico)",
+        "192": "192 kbps (Bom)",
+        "256": "256 kbps (Alto)",
+        "320": "320 kbps (Máximo)"
+      },
+      "channelsOptions": {
+        "mono": "Mono (1 canal)",
+        "stereo": "Estéreo (2 canais)",
+        "5_1": "5.1 Surround",
+        "7_1": "7.1 Surround"
+      },
+      "codecs": {
+        "aac": "AAC (Recomendado)",
+        "mp3": "MP3 (Compatibilidade)",
+        "flac": "FLAC (Sem perdas)",
+        "opus": "Opus (Eficiência)"
+      }
+    },
+    "speed": {
+      "title": "Configurações de Velocidade",
+      "defaultPlayback": "Velocidade de Reprodução Padrão",
+      "customSpeed": "Velocidade Personalizada",
+      "speedChange": "Configurações de Alteração de Velocidade",
+      "interpolation": {
+        "none": "Sem interpolação",
+        "linear": "Linear",
+        "cubic": "Cúbica",
+        "lanczos": "Lanczos"
+      },
+      "motionBlur": {
+        "none": "Desligado",
+        "low": "Baixo",
+        "medium": "Médio",
+        "high": "Alto"
+      },
+      "advanced": "Configurações Avançadas",
+      "preservePitch": "Preservar Tom ao Alterar Velocidade",
+      "autoKeyframes": "Quadros-chave Automáticos",
+      "maxSpeed": "Velocidade Máxima",
+      "speeds": {
+        "0_25": "0,25x (Muito lento)",
+        "0_5": "0,5x (Lento)",
+        "0_75": "0,75x (Um pouco lento)",
+        "1": "1x (Normal)",
+        "1_25": "1,25x (Um pouco rápido)",
+        "1_5": "1,5x (Rápido)",
+        "2": "2x (Muito rápido)",
+        "custom": "Personalizado"
+      }
+    },
+    "info": {
+      "title": "Informações do Arquivo de Mídia",
+      "selectFile": "Selecione um arquivo para análise",
+      "noFileSelected": "Nenhum arquivo selecionado",
+      "basicInfo": "Informações Básicas",
+      "fileName": "Nome do Arquivo",
+      "fileSize": "Tamanho do Arquivo",
+      "duration": "Duração",
+      "resolution": "Resolução",
+      "fps": "Taxa de quadros",
+      "bitrate": "Taxa de bits",
+      "videoStream": "Fluxo de Vídeo",
+      "codec": "Codec",
+      "colorSpace": "Espaço de cor",
+      "profile": "Perfil",
+      "audioStream": "Fluxo de Áudio",
+      "sampleRate": "Taxa de amostragem",
+      "channels": "Canais",
+      "audioBitrate": "Taxa de bits de áudio",
+      "metadata": "Metadados",
+      "createdAt": "Criado em",
+      "device": "Dispositivo"
+    }
+  }
+}

@@ -1,11 +1,11 @@
 // Типы для языков
-export type LanguageCode = "ru" | "en" | "es" | "fr" | "de"
+export type LanguageCode = "ru" | "en" | "es" | "fr" | "de" | "pt"
 
 // Список поддерживаемых языков
-export const SUPPORTED_LANGUAGES: LanguageCode[] = ["ru", "en", "es", "fr", "de"]
+export const SUPPORTED_LANGUAGES: LanguageCode[] = ["ru", "en", "es", "fr", "de", "pt"]
 
 // Язык по умолчанию
-export const DEFAULT_LANGUAGE: LanguageCode = "ru"
+export const DEFAULT_LANGUAGE: LanguageCode = "en"
 
 // Соответствие языков и локалей
 export const LANGUAGE_LOCALES: Record<LanguageCode, string> = {
@@ -14,6 +14,7 @@ export const LANGUAGE_LOCALES: Record<LanguageCode, string> = {
   es: "es-ES",
   fr: "fr-FR",
   de: "de-DE",
+  pt: "pt-PT",
 }
 
 // Функция для получения локали по коду языка
@@ -48,7 +49,7 @@ export function formatDateByLanguage(
   const locale = getLocaleByLanguage(language)
 
   // Опции по умолчанию
-  const { includeYear = true, longFormat = true, addYearSuffix = language === "ru" } = options
+  const { includeYear = true, longFormat = true, addYearSuffix = language === "en" } = options
 
   // Базовые опции форматирования
   const formatOptions: Intl.DateTimeFormatOptions = {
