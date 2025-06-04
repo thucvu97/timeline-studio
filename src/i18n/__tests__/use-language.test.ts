@@ -17,7 +17,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     i18n: {
-      language: "ru",
+      language: "en",
       changeLanguage: vi.fn().mockResolvedValue(undefined),
     },
   }),
@@ -58,8 +58,8 @@ describe("useLanguage", () => {
 
     // Мокаем invoke по умолчанию
     vi.mocked(invoke).mockResolvedValue({
-      language: "ru",
-      system_language: "ru",
+      language: "en",
+      system_language: "en",
     })
   })
 
@@ -77,8 +77,8 @@ describe("useLanguage", () => {
     })
 
     // Проверяем, что язык установлен правильно
-    expect(result.current.currentLanguage).toBe("ru")
-    expect(result.current.systemLanguage).toBe("ru")
+    expect(result.current.currentLanguage).toBe("en")
+    expect(result.current.systemLanguage).toBe("en")
 
     // Проверяем, что invoke был вызван с правильными параметрами
     expect(invoke).toHaveBeenCalledWith("get_app_language")
@@ -88,12 +88,12 @@ describe("useLanguage", () => {
     // Мокаем invoke для изменения языка
     vi.mocked(invoke)
       .mockResolvedValueOnce({
-        language: "ru",
-        system_language: "ru",
+        language: "en",
+        system_language: "en",
       })
       .mockResolvedValueOnce({
-        language: "en",
-        system_language: "ru",
+        language: "ru",
+        system_language: "en",
       })
 
     // eslint-disable-next-line @typescript-eslint/no-deprecated

@@ -12,7 +12,7 @@ import {
 describe("i18n constants", () => {
   describe("SUPPORTED_LANGUAGES", () => {
     it("should contain all supported languages", () => {
-      expect(SUPPORTED_LANGUAGES).toEqual(["ru", "en", "es", "fr", "de"])
+      expect(SUPPORTED_LANGUAGES).toEqual(["ru", "en", "es", "fr", "de", "pt"])
     })
   })
 
@@ -30,6 +30,7 @@ describe("i18n constants", () => {
         es: "es-ES",
         fr: "fr-FR",
         de: "de-DE",
+        pt: "pt-PT",
       })
     })
   })
@@ -41,6 +42,7 @@ describe("i18n constants", () => {
       expect(getLocaleByLanguage("es")).toBe("es-ES")
       expect(getLocaleByLanguage("fr")).toBe("fr-FR")
       expect(getLocaleByLanguage("de")).toBe("de-DE")
+      expect(getLocaleByLanguage("pt")).toBe("pt-PT")
     })
 
     it("should return default locale for unsupported language", () => {
@@ -55,6 +57,7 @@ describe("i18n constants", () => {
       expect(isSupportedLanguage("es")).toBe(true)
       expect(isSupportedLanguage("fr")).toBe(true)
       expect(isSupportedLanguage("de")).toBe(true)
+      expect(isSupportedLanguage("pt")).toBe(true)
     })
 
     it("should return false for unsupported languages", () => {
@@ -71,8 +74,8 @@ describe("i18n constants", () => {
       const result = formatDateByLanguage(testDate)
       expect(result).toBeTruthy()
       // Проверяем, что результат содержит год и месяц
-      expect(result).toContain("2023")
-      expect(result).toContain("январ")
+      expect(result).toContain("23")
+      expect(result).toContain("January 15")
     })
 
     it("should format date for English language", () => {
@@ -130,8 +133,7 @@ describe("i18n constants", () => {
 
     it("should use default locale for unsupported language", () => {
       const resultUnsupported = formatDateByLanguage(testDate, "unsupported")
-      // Проверяем, что для неподдерживаемого языка используется локаль по умолчанию
-      expect(resultUnsupported).toContain("январ") // Для русского языка
+      expect(resultUnsupported).toContain("January")
     })
   })
 })

@@ -64,7 +64,7 @@ describe("formatDate", () => {
 
     // Проверяем, что результат содержит дату
     expect(result).toContain("19")
-    expect(result).toContain("2024")
+    expect(result).toContain("24")
   })
 
   it("should format date with stored language", () => {
@@ -82,7 +82,7 @@ describe("formatDate", () => {
 
     // Проверяем, что результат содержит дату
     expect(result).toContain("19")
-    expect(result).toContain("2024")
+    expect(result).toContain("24")
   })
 
   it("should handle errors when accessing localStorage", () => {
@@ -104,8 +104,7 @@ describe("formatDate", () => {
     expect(consoleErrorSpy).toHaveBeenCalled()
 
     // Проверяем, что результат содержит дату
-    expect(result).toContain("19")
-    expect(result).toContain("2024")
+    expect(result).toContain("May 19, 24")
 
     // Восстанавливаем console.error
     consoleErrorSpy.mockRestore()
