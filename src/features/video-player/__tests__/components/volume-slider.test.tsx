@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { VolumeSlider } from "./volume-slider"
+import { VolumeSlider } from "../../components/volume-slider"
 
 // Мокаем компонент Slider из @/components/ui/slider
 vi.mock("@/components/ui/slider", () => ({

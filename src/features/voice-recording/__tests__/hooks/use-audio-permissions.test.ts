@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useAudioPermissions } from "./use-audio-permissions"
+import { useAudioPermissions } from "../../hooks/use-audio-permissions"
 
 // Мокаем navigator.mediaDevices
 const mockGetUserMedia = vi.fn()

@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useAudioDevices } from "./use-audio-devices"
+import { useAudioDevices } from "../../hooks/use-audio-devices"
 
 // Мокаем navigator.mediaDevices
 const mockEnumerateDevices = vi.fn()

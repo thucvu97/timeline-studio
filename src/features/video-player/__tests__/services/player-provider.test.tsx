@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { PlayerProvider } from "./player-provider"
+import { PlayerProvider } from "../../services/player-provider"
 
 // Мокаем useUserSettings
 vi.mock("@/features/user-settings", () => ({
@@ -34,7 +34,7 @@ vi.mock("@xstate/react", () => ({
 }))
 
 // Мокаем playerMachine
-vi.mock("./player-machine", () => ({
+vi.mock("../../services/player-machine", () => ({
   playerMachine: {
     id: "player",
     initial: "idle",

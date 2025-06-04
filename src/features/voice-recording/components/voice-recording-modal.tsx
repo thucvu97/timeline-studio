@@ -8,10 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useModal } from "@/features/modals"
 
-import { AudioPermissionRequest } from "./components/audio-permission-request"
-import { useAudioDevices } from "./hooks/use-audio-devices"
-import { useAudioPermissions } from "./hooks/use-audio-permissions"
-import { useVoiceRecording } from "./hooks/use-voice-recording"
+import { AudioPermissionRequest } from "./audio-permission-request"
+import { useAudioDevices } from "../hooks/use-audio-devices"
+import { useAudioPermissions } from "../hooks/use-audio-permissions"
+import { useVoiceRecording } from "../hooks/use-voice-recording"
 
 export function VoiceRecordModal() {
   const { t } = useTranslation()

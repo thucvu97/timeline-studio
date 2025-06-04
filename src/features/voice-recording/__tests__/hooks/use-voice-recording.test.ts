@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useVoiceRecording } from "./use-voice-recording"
+import { useVoiceRecording } from "../../hooks/use-voice-recording"
 
 // Мокаем navigator.mediaDevices
 const mockGetUserMedia = vi.fn()

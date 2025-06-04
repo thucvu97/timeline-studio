@@ -3,7 +3,7 @@ import { createActor } from "xstate"
 
 import { MediaFile } from "@/features/media/types/media"
 
-import { playerMachine } from "./player-machine"
+import { playerMachine } from "../../services/player-machine"
 
 // Мокаем console.log для проверки вызова
 beforeEach(() => {

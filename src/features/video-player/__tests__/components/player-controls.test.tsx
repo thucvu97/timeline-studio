@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
 
-import { PlayerControls } from "./player-controls"
+import { PlayerControls } from "../../components/player-controls"
 
 // Мокаем usePlayer из player-provider
 const mockSetIsPlaying = vi.fn()
@@ -13,7 +13,7 @@ const mockSetIsRecording = vi.fn()
 const mockSetIsSeeking = vi.fn()
 const mockSetIsResizableMode = vi.fn()
 
-vi.mock("../services/player-provider", () => ({
+vi.mock("../../services/player-provider", () => ({
   usePlayer: () => ({
     isPlaying: false,
     setIsPlaying: mockSetIsPlaying,
@@ -31,7 +31,7 @@ vi.mock("../services/player-provider", () => ({
 
 // Мокаем useFullscreen из use-fullscreen
 const mockToggleFullscreen = vi.fn()
-vi.mock("../hooks/use-fullscreen", () => ({
+vi.mock("../../hooks/use-fullscreen", () => ({
   useFullscreen: () => ({
     isFullscreen: false,
     toggleFullscreen: mockToggleFullscreen,
@@ -39,7 +39,7 @@ vi.mock("../hooks/use-fullscreen", () => ({
 }))
 
 // Мокаем VolumeSlider из volume-slider
-vi.mock("./volume-slider", () => ({
+vi.mock("../../components/volume-slider", () => ({
   VolumeSlider: ({ volume, onValueChange, onValueCommit }: any) => (
     <div data-testid="volume-slider" data-volume={volume}>
       <button data-testid="volume-slider-change" onClick={() => onValueChange([75])}>

@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { AudioPermissionRequest } from "./audio-permission-request"
+import { AudioPermissionRequest } from "../../components/audio-permission-request"
 
 describe("AudioPermissionRequest", () => {
   it("renders nothing when permission is granted", () => {

@@ -1,10 +1,10 @@
 import { act, render } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { VoiceRecordModal } from "./voice-recording-modal"
+import { VoiceRecordModal } from "../../components/voice-recording-modal"
 
 // Мокаем хуки
-vi.mock("./hooks/use-audio-permissions", () => ({
+vi.mock("../../hooks/use-audio-permissions", () => ({
   useAudioPermissions: () => ({
     permissionStatus: "granted",
     errorMessage: "",
@@ -13,7 +13,7 @@ vi.mock("./hooks/use-audio-permissions", () => ({
   }),
 }))
 
-vi.mock("./hooks/use-audio-devices", () => ({
+vi.mock("../../hooks/use-audio-devices", () => ({
   useAudioDevices: () => ({
     audioDevices: [
       { deviceId: "device-1", label: "Microphone 1" },
@@ -25,7 +25,7 @@ vi.mock("./hooks/use-audio-devices", () => ({
   }),
 }))
 
-vi.mock("./hooks/use-voice-recording", () => ({
+vi.mock("../../hooks/use-voice-recording", () => ({
   useVoiceRecording: () => ({
     isRecording: false,
     showCountdown: false,
@@ -51,7 +51,7 @@ vi.mock("react-i18next", () => ({
 
 describe("VoiceRecordModal", () => {
   it("renders the component", () => {
-    const renderResult = render(<VoiceRecordModal isOpen onClose={() => {}} />)
+    const renderResult = render(<VoiceRecordModal />)
     expect(renderResult.container.firstChild).not.toBeNull()
   })
 })

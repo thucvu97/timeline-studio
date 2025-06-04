@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useFullscreen } from "./use-fullscreen"
+import { useFullscreen } from "../../hooks/use-fullscreen"
 
 // Мокаем document.fullscreenElement и методы для работы с полноэкранным режимом
 Object.defineProperty(document, "fullscreenElement", {
