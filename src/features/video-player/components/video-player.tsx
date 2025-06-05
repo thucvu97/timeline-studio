@@ -32,7 +32,49 @@ export function VideoPlayer() {
   }
 
   if (!video?.path) {
-    return null
+    const file = {
+      id: "no-video",
+      path: "",
+      name: "Нет видео",
+      size: 0,
+      type: "video/mp4",
+    }
+    return (
+      <div className="media-player-container relative flex h-full flex-col">
+        <div className="relative flex-1 bg-black" style={containerStyle}>
+          <div className="flex h-full w-full items-center justify-center">
+            <div className="max-h-[calc(100%-85px)] w-full max-w-[100%]">
+              <AspectRatio ratio={aspectRatioValue} className="bg-black">
+                <div className="relative h-full w-full">
+                  <video
+                    key={file.id || "no-file"}
+                    src={"#"}
+                    controls={false}
+                    autoPlay={false}
+                    loop={false}
+                    disablePictureInPicture
+                    preload="auto"
+                    tabIndex={0}
+                    playsInline
+                    muted={false}
+                    className="absolute inset-0 h-full w-full focus:outline-none"
+                    style={{
+                      position: "absolute" as const,
+                      top: "0",
+                      left: "0",
+                      width: "100%",
+                      height: "100%",
+                      display: "block",
+                    }}
+                  />
+                </div>
+              </AspectRatio>
+            </div>
+          </div>
+        </div>
+        <PlayerControls currentTime={0} file={file} />
+      </div>
+    )
   }
 
   return (

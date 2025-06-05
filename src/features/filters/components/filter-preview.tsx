@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
+import { ApplyButton } from "@/features/browser"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { useResources } from "@/features/resources"
 import { FilterResource } from "@/features/resources/types/resources"
@@ -27,13 +28,7 @@ interface FilterPreviewProps {
  * @param {FilterPreviewProps} props - Пропсы компонента
  * @returns {JSX.Element} Компонент превью фильтра
  */
-export function FilterPreview({
-  filter,
-  onClick,
-  size,
-  previewWidth = size,
-  previewHeight = size,
-}: FilterPreviewProps) {
+export function FilterPreview({ filter, onClick, size, previewWidth, previewHeight }: FilterPreviewProps) {
   const { t } = useTranslation() // Хук для интернационализации
   const { addFilter, isFilterAdded, removeResource, filterResources } = useResources() // Получаем методы для работы с ресурсами
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
@@ -198,7 +193,7 @@ export function FilterPreview({
     <div className="flex flex-col items-center">
       {/* Контейнер превью фильтра */}
       <div
-        className="group relative cursor-pointer rounded-xs bg-background"
+        className="group relative cursor-pointer rounded-xs bg-gray-800"
         style={{ width: `${previewWidth}px`, height: `${previewHeight}px` }}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
@@ -216,7 +211,7 @@ export function FilterPreview({
         />
 
         {/* Индикатор сложности слева */}
-        <div className="absolute top-1 left-1">
+        <div className="absolute bottom-1 left-1">
           <div
             className={`h-2 w-2 rounded-full ${getComplexityColor(filter.complexity || "basic")}`}
             title={t(`filters.complexity.${filter.complexity || "basic"}`)}
@@ -224,9 +219,9 @@ export function FilterPreview({
         </div>
 
         {/* Индикатор категории справа */}
-        <div className="absolute top-1 right-1">
+        <div className="absolute top-1 left-1">
           <div
-            className="bg-black/70 text-white font-medium text-[11px] px-1 py-0.5 rounded"
+            className="bg-black/70 text-white font-medium text-[10px] px-1.5 py-0.5 rounded-xs"
             title={t(`filters.categories.${filter.category}`)}
           >
             {getCategoryAbbreviation(filter.category)}
@@ -236,29 +231,32 @@ export function FilterPreview({
         {/* Кнопка добавления в избранное */}
         <FavoriteButton file={{ id: filter.id, path: "", name: filter.name }} size={size} type="filter" />
 
+        {/* Кнопка применения фильтра */}
+        {filter && (
+          <ApplyButton
+            resource={
+              {
+                id: filter.id,
+                type: "filter",
+                name: filter.name,
+              } as FilterResource
+            }
+            size={size}
+            type="filter"
+          />
+        )}
+
         {/* Кнопка добавления фильтра в проект */}
         <div
           className={`${isAdded ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-200`}
         >
-          <AddMediaButton
-            file={{ id: filter.id, path: "", name: filter.name }}
-            onAddMedia={(e) => {
-              e.stopPropagation() // Предотвращаем всплытие события клика
-              addFilter(filter) // Добавляем фильтр в ресурсы проекта
-            }}
-            onRemoveMedia={(e) => {
-              e.stopPropagation() // Предотвращаем всплытие события клика
-              // Находим ресурс с этим фильтром и удаляем его
-              const resource = filterResources.find((res: FilterResource) => res.resourceId === filter.id)
-              if (resource) {
-                removeResource(resource.id) // Удаляем ресурс из проекта
-              } else {
-                console.warn(`Не удалось найти ресурс фильтра с ID ${filter.id} для удаления`)
-              }
-            }}
-            isAdded={isAdded}
-            size={size}
-          />
+          {filter && (
+            <AddMediaButton
+              resource={{ id: filter.id, type: "filter", name: filter.name } as FilterResource}
+              size={size}
+              type="filter"
+            />
+          )}
         </div>
       </div>
 

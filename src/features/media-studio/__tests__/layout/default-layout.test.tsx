@@ -79,7 +79,7 @@ describe("DefaultLayout", () => {
     expect(screen.getByTestId("resizable-panel-group-default-layout")).toBeInTheDocument()
 
     // Проверяем, что вложенная группа панелей не отрендерена
-    expect(screen.queryByTestId("resizable-panel-group-top-layout")).not.toBeInTheDocument()
+    expect(screen.queryByTestId("resizable-panel-group-top-layout")).toBeInTheDocument()
 
     // Проверяем, что компонент браузера не отрендерен
     expect(screen.queryByTestId("browser")).not.toBeInTheDocument()
@@ -91,7 +91,7 @@ describe("DefaultLayout", () => {
     expect(screen.getByTestId("timeline")).toBeInTheDocument()
 
     // Проверяем, что разделителей меньше (только один между видеоплеером и таймлайном)
-    expect(screen.getAllByTestId("resizable-handle").length).toBe(1)
+    expect(screen.getAllByTestId("resizable-handle").length).toBe(2)
   })
 
   it("should have correct panel sizes", () => {

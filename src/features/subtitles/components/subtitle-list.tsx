@@ -171,13 +171,13 @@ export function SubtitleList() {
 
         switch (groupBy) {
           case "category":
-            title = t(`subtitles.categories.${key}`, key)
+            title = t(`browser.subtitles.categories.${key}`, key)
             break
           case "complexity":
-            title = t(`subtitles.complexity.${key}`, key)
+            title = t(`browser.subtitles.complexity.${key}`, key)
             break
           case "tags":
-            title = key === "untagged" ? t("subtitles.styles.allTags", "Без тегов") : key
+            title = key === "untagged" ? t("browser.subtitles.styles.allTags", "Без тегов") : key
             break
           default:
             title = key

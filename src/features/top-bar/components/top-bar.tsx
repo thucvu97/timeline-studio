@@ -150,7 +150,7 @@ const TopBarComponent = function TopBar() {
                 <LayoutTemplate className="h-5 w-5" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[400px] p-2" sideOffset={0}>
+            <PopoverContent className="w-[400px] p-3 rounded-none mt-0.5 ml-0" sideOffset={0}>
               <LayoutPreviews />
             </PopoverContent>
           </Popover>

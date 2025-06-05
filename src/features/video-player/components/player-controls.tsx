@@ -5,13 +5,14 @@ import {
   ChevronFirst,
   ChevronLast,
   CircleDot,
+  ImagePlay,
   Maximize2,
   Minimize2,
   Pause,
   Play,
-  SquarePlay,
   StepBack,
   StepForward,
+  TvMinimalPlay,
   UnfoldHorizontal,
   Volume2,
   VolumeX,
@@ -58,9 +59,12 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
 
   // Используем состояние для хранения текущего времени воспроизведения
   const [localDisplayTime, setLocalDisplayTime] = useState(0)
+  const [parallelVideos, setParallelVideos] = useState<MediaFile[]>([])
+  const [activeCameraIndex, setActiveCameraIndex] = useState(0)
+  const [source, setSource] = useState<"timeline" | "browser">("timeline")
 
   // Используем хук для отслеживания полноэкранного режима
-  const { isFullscreen } = useFullscreen()
+  const { isFullscreen, toggleFullscreen } = useFullscreen()
 
   // Создаем ref для хранения текущего значения громкости
   const volumeRef = useRef<number>(volume)
@@ -74,9 +78,6 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
       console.error("[handleFullscreen] Не найден контейнер медиаплеера")
       return
     }
-
-    // Используем функцию toggleFullscreen из хука useFullscreenChange
-    const { toggleFullscreen } = useFullscreen()
     toggleFullscreen(playerContainer as HTMLElement)
 
     console.log(`[handleFullscreen] ${isFullscreen ? "Выход из" : "Вход в"} полноэкранный режим`)
@@ -179,23 +180,28 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
     console.log("[handleVolumeChangeEnd] Volume change completed:", volume)
   }, [volume])
 
+  // Функция для переключения источника видео
+  const handleToggleSource = useCallback(() => {
+    setSource((prevSource) => (prevSource === "timeline" ? "browser" : "timeline"))
+  }, [])
+
   return (
     <div className="flex w-full flex-col">
       {/* Прогресс-бар и время */}
-      <div className="px-4 py-2">
-        <div className="flex items-center gap-2">
+      <div className="px-2 pl-4 py-1">
+        <div className="flex items-center gap-1">
           <div className="flex-1">
-            <div className="relative h-1 w-full rounded-full border border-white bg-gray-800">
+            <div className="relative h-1 w-full rounded-full border border-teal dark:border-teal bg-white dark:bg-black">
               <div
-                className="absolute top-0 left-0 h-full rounded-full bg-white transition-all duration-200 ease-out"
+                className="absolute top-0 left-0 h-full rounded-full bg-teal dark:bg-white transition-all duration-200 ease-out"
                 style={{
                   width: `${(Math.max(0, calculatedDisplayTime) / (file.duration ?? 100)) * 100}%`,
                 }}
               />
               <div
-                className="absolute top-1/2 h-[13px] w-[13px] -translate-y-1/2 rounded-full border border-white bg-white transition-all duration-200 ease-out"
+                className="absolute top-1/2 h-[14px] w-[14px] -translate-y-1/2 rounded-full border border-teal dark:border-teal bg-teal transition-all duration-200 ease-out"
                 style={{
-                  left: `calc(${(Math.max(0, calculatedDisplayTime) / (file.duration ?? 100)) * 100}% - 6px)`,
+                  left: `calc(${(Math.max(0, calculatedDisplayTime) / (file.duration ?? 100)) * 100}% - 7px)`,
                 }}
               />
               <Slider
@@ -209,12 +215,12 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
               />
             </div>
           </div>
-          <span className="rounded-md bg-white px-1 text-xs text-black transition-opacity duration-200 ease-out dark:bg-black dark:text-white">
-            {file.startTime ?? 0}
+          <span className="rounded-xs bg-white font-light px-1.5 py-0.5 text-[11px] text-black transition-opacity duration-200 ease-out dark:bg-black dark:text-white ml-1">
+            {file.startTime ?? "00:00:00:00"}
           </span>
           <span className="mb-[3px]">/</span>
-          <span className="rounded-md bg-white px-1 text-xs text-black transition-opacity duration-200 ease-out dark:bg-black dark:text-white">
-            {file.duration ?? 0}
+          <span className="rounded-xs bg-white font-light px-1.5 py-0.5 text-[11px] text-black transition-opacity duration-200 ease-out dark:bg-background dark:text-white">
+            {file.duration ?? "00:00:00:00"}
           </span>
 
           {/* Скрытый элемент для обновления компонента при воспроизведении */}
@@ -230,19 +236,20 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
         <div className="flex items-center justify-between px-1 py-0">
           {/* Левая часть: индикатор источника, кнопки для камер и шаблонов */}
           <div className="flex items-center gap-2">
-            {/* Кнопка шаблона - всегда активна, переключает режим шаблона */}
+            {/* Индикатор источника видео - всегда отображается и работает как переключатель */}
             <Button
-              className="h-8 w-8 cursor-pointer"
+              className={`h-8 w-8 cursor-pointer ${source === "browser" ? "bg-[#45444b] hover:bg-[#45444b]/80" : "hover:bg-[#45444b]/80"}`}
               variant="ghost"
               size="icon"
               title={
-                typeof window !== "undefined"
-                  ? t("timeline.controlsMain.resetTemplate") || "Сбросить шаблон"
-                  : "Reset Template"
+                source === "timeline"
+                  ? t("timeline.source.timeline", "Таймлайн")
+                  : t("timeline.source.browser", "Браузер")
               }
-              // onClick={handleResetTemplate}
+              onClick={handleToggleSource}
             >
-              <SquarePlay className="h-8 w-8" />
+              {/* Используем isHydrated для условного рендеринга иконки */}
+              {source === "timeline" ? <TvMinimalPlay className="h-8 w-8" /> : <ImagePlay className="h-8 w-8" />}
             </Button>
 
             {/* Кнопка переключения режима resizable - показываем только если применен шаблон */}
@@ -251,14 +258,10 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
               variant="ghost"
               size="icon"
               title={
-                typeof window !== "undefined"
-                  ? isResizableMode
-                    ? t("timeline.controlsMain.fixedSizeMode")
-                    : t("timeline.controlsMain.resizableMode")
-                  : ""
+                isResizableMode ? t("timeline.controlsMain.fixedSizeMode") : t("timeline.controlsMain.resizableMode")
               }
               onClick={() => setIsResizableMode(!isResizableMode)}
-              // disabled={!appliedTemplate}
+              disabled={!file.probeData}
             >
               {<UnfoldHorizontal className="h-8 w-8" />}
             </Button>
@@ -270,6 +273,7 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
               size="icon"
               title={typeof window !== "undefined" ? t("timeline.controls.takeSnapshot") : "Take snapshot"}
               // onClick={takeSnapshot}
+              disabled={isChangingCamera || isPlaying || !file.probeData} // Отключаем кнопку во время переключения камеры
             >
               <Camera className="h-8 w-8" />
             </Button>
@@ -306,15 +310,9 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
               className="h-8 w-8 cursor-pointer"
               variant="ghost"
               size="icon"
-              title={
-                typeof window !== "undefined"
-                  ? isPlaying
-                    ? t("timeline.controls.pause")
-                    : t("timeline.controls.play")
-                  : "Play"
-              }
+              title={isPlaying ? t("timeline.controls.pause") : t("timeline.controls.play")}
               onClick={handlePlayPause}
-              disabled={isChangingCamera}
+              disabled={isChangingCamera || !file.probeData}
             >
               {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
             </Button>
@@ -331,15 +329,33 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
                   : "Record"
               }
               onClick={handleRecordToggle}
-              disabled={isChangingCamera} // Отключаем кнопку во время переключения камеры
+              disabled={isChangingCamera || !file.probeData} // Отключаем кнопку во время переключения камеры
             >
               <CircleDot
                 className={cn(
                   "h-8 w-8",
-                  isRecording ? "animate-pulse text-red-500 hover:text-red-600" : "text-white hover:text-gray-300",
+                  isRecording ? "animate-pulse text-red-500 hover:text-red-600" : "text-gray-300 hover:text-gray-400",
                 )}
               />
             </Button>
+
+            {/* Кнопка переключения между камерами - показываем только если есть параллельные видео */}
+            {parallelVideos && parallelVideos.length > 1 && (
+              <Button
+                className={`h-8 w-8 cursor-pointer ${isChangingCamera ? "animate-pulse" : ""}`}
+                variant="ghost"
+                size="icon"
+                title={
+                  typeof window !== "undefined"
+                    ? `${t("timeline.controlsMain.switchCamera")} (${parallelVideos.findIndex((v) => v.id === file?.id) + 1}/${parallelVideos.length})`
+                    : "Switch Camera"
+                }
+                // onClick={handleSwitchCamera}
+                disabled={isChangingCamera}
+              >
+                {activeCameraIndex}
+              </Button>
+            )}
 
             <Button
               className="h-8 w-8 cursor-pointer"
@@ -382,14 +398,12 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
               >
                 {volume === 0 ? <VolumeX className="h-8 w-8" /> : <Volume2 className="h-8 w-8" />}
               </Button>
-              <div className="w-20">
-                <VolumeSlider
-                  volume={volume}
-                  volumeRef={volumeRef}
-                  onValueChange={handleVolumeChange}
-                  onValueCommit={handleVolumeChangeEnd}
-                />
-              </div>
+              <VolumeSlider
+                volume={volume}
+                volumeRef={volumeRef}
+                onValueChange={handleVolumeChange}
+                onValueCommit={handleVolumeChangeEnd}
+              />
             </div>
 
             <Button

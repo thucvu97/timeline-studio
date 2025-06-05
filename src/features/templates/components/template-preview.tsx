@@ -5,7 +5,7 @@ import { calculateDimensionsWithAspectRatio } from "@/features/media/utils/previ
 import { useResources } from "@/features/resources"
 import { TemplateResource } from "@/features/resources/types/resources"
 
-import { AddMediaButton, FavoriteButton } from "../../browser/components/layout"
+import { AddMediaButton, ApplyButton, FavoriteButton } from "../../browser/components/layout"
 import { MediaTemplate } from "../lib/templates"
 
 /**
@@ -132,7 +132,20 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
       })}
 
       {/* Кнопка добавления в избранное */}
-      <FavoriteButton file={{ id: template.id, path: "", name: template.id }} size={previewWidth} type="template" />
+      <FavoriteButton file={{ id: template.id, path: "", name: template.id }} size={size} type="template" />
+
+      {/* Кнопка применения шаблона */}
+      <ApplyButton
+        resource={
+          {
+            id: template.id,
+            type: "template",
+            name: template.id,
+          } as TemplateResource
+        }
+        size={size}
+        type="template"
+      />
 
       {/* Контейнер для кнопки добавления/удаления шаблона */}
       <div
@@ -145,11 +158,9 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
       >
         {/* Кнопка добавления/удаления шаблона */}
         <AddMediaButton
-          file={{ id: template.id, path: "", name: template.id }}
-          onAddMedia={handleAddTemplate} // Обработчик добавления
-          onRemoveMedia={handleRemoveTemplate} // Обработчик удаления
-          isAdded={isAdded} // Флаг добавления шаблона
-          size={previewWidth} // Размер кнопки
+          resource={{ id: template.id, type: "template", name: template.id } as TemplateResource}
+          size={size}
+          type="template"
         />
       </div>
     </div>

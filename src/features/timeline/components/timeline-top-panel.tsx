@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 import {
   LayoutTemplate,
   Minus,
@@ -12,6 +14,7 @@ import {
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
 import { useTimeline } from "../hooks/use-timeline"
@@ -24,6 +27,9 @@ export function TimelineTopPanel() {
 
   // Получаем данные и методы из Timeline
   const { project, uiState, undo, redo, setTimeScale, setEditMode, clearSelection } = useTimeline()
+
+  // Состояние для слайдера
+  const [sliderValue, setSliderValue] = useState([uiState.timeScale])
 
   // Состояние для UI
   const isTrashActive = project !== null
@@ -59,12 +65,11 @@ export function TimelineTopPanel() {
     setTimeScale(value)
   }
 
-  const sliderValue = uiState.timeScale
   const maxScale = 200
 
   return (
     <div className="sticky top-0 flex-shrink-0 dark:bg-[#2D2D2D]">
-      <div className="border-border flex items-center justify-between border-t px-2">
+      <div className="border-border flex items-center justify-between px-1">
         <div className="flex items-center gap-1">
           {/* Layout */}
           <Button
@@ -125,7 +130,48 @@ export function TimelineTopPanel() {
             <Scissors size={16} className="rotate-270" />
           </Button>
         </div>
-        <div className="flex items-center gap-2 px-2 py-1">
+        <div className="flex items-center gap-2 px-0 py-1">
+          {/* <Button
+            onClick={handleScaleDecrease}
+            className={cn(
+              "flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-1 border-white bg-gray-800 text-gray-200 hover:bg-[#45444b]",
+              !isAbleToScaleDown && "pointer-events-none",
+            )}
+            title={t("timeline.toolbar.zoomOut")}
+          >
+            <Minus size={12} />
+          </Button> */}
+
+          {/* Scale slider */}
+          <div
+            className={cn(
+              "relative h-1 w-24 rounded-full border border-white bg-gray-800",
+              !isAbleToScale && "pointer-events-none opacity-50",
+            )}
+          >
+            {/* <div className="absolute top-0 left-0 h-full rounded-full bg-black" style={{ width: `${sliderValue}%` }} /> */}
+            <Slider
+              value={sliderValue}
+              onValueChange={setSliderValue}
+              min={2}
+              max={maxScale}
+              step={1}
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-100 hover:ring-0 focus-visible:ring-0"
+              aria-label={t("timeline.zoom.fitToScreen")}
+            />
+          </div>
+
+          {/* <Button
+            onClick={handleScaleIncrease}
+            className={cn(
+              "flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-1 border-white bg-gray-800 text-gray-200 hover:bg-[#45444b]",
+              !isAbleToScaleUp && "pointer-events-none opacity-50",
+            )}
+            title={t("timeline.toolbar.zoomIn")}
+          >
+            <Plus size={16} />
+          </Button> */}
+
           {/* Двунаправленная стрелка */}
           <Button
             onClick={() => {
@@ -155,46 +201,6 @@ export function TimelineTopPanel() {
             title={t("timeline.toolbar.fitToScreen")}
           >
             <MoveHorizontal size={16} />
-          </Button>
-          <Button
-            onClick={handleScaleDecrease}
-            className={cn(
-              "flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-1 border-white bg-gray-800 text-gray-200 hover:bg-[#45444b]",
-              !isAbleToScaleDown && "pointer-events-none",
-            )}
-            title={t("timeline.toolbar.zoomOut")}
-          >
-            <Minus size={12} />
-          </Button>
-
-          {/* Scale slider */}
-          <div
-            className={cn(
-              "relative h-1 w-24 rounded-full border border-white bg-gray-800",
-              !isAbleToScale && "pointer-events-none opacity-50",
-            )}
-          >
-            <div className="absolute top-0 left-0 h-full rounded-full bg-white" style={{ width: `${sliderValue}%` }} />
-            <input
-              type="range"
-              min={2}
-              max={maxScale}
-              value={String(sliderValue)}
-              onChange={handleSliderChange}
-              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              aria-label={t("timeline.zoom.fitToScreen")}
-            />
-          </div>
-
-          <Button
-            onClick={handleScaleIncrease}
-            className={cn(
-              "flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-1 border-white bg-gray-800 text-gray-200 hover:bg-[#45444b]",
-              !isAbleToScaleUp && "pointer-events-none opacity-50",
-            )}
-            title={t("timeline.toolbar.zoomIn")}
-          >
-            <Plus size={12} />
           </Button>
         </div>
       </div>

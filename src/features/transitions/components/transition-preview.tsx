@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
+import { ApplyButton } from "@/features/browser"
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
 import { MediaFile } from "@/features/media/types/media"
-import { useResources } from "@/features/resources"
 import { TransitionResource } from "@/features/resources/types/resources"
 import { Transition } from "@/features/transitions/types/transitions"
 
@@ -40,7 +40,6 @@ export function TransitionPreview({
   previewHeight,
 }: TransitionPreviewProps) {
   const { t } = useTranslation() // Хук для интернационализации
-  const { addTransition, isTransitionAdded, removeResource, transitionResources } = useResources() // Получаем методы для работы с ресурсами
 
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
   const [isError, setIsError] = useState(false) // Состояние ошибки загрузки видео
@@ -77,44 +76,6 @@ export function TransitionPreview({
       name: currentTransition?.labels?.ru || transitionType,
     }),
     [currentTransition?.id, currentTransition?.labels?.ru, transitionType],
-  )
-
-  const addMediaFile = useMemo(
-    () => ({
-      id: transitionType,
-      path: "",
-      name: transitionType,
-    }),
-    [transitionType],
-  )
-
-  // Мемоизируем обработчики событий
-  const handleAddMedia = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation()
-      if (currentTransition) {
-        addTransition(currentTransition)
-      }
-    },
-    [addTransition, currentTransition],
-  )
-
-  const handleRemoveMedia = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation()
-      if (!currentTransition) return
-
-      const resource = transitionResources.find(
-        (res: TransitionResource) =>
-          res.resourceId === currentTransition.id || res.resourceId === currentTransition.type,
-      )
-      if (resource) {
-        removeResource(resource.id)
-      } else {
-        console.warn(`Не удалось найти ресурс перехода с ID ${currentTransition.id} для удаления`)
-      }
-    },
-    [removeResource, transitionResources, currentTransition],
   )
 
   // Функция для получения индикатора сложности
@@ -159,17 +120,6 @@ export function TransitionPreview({
     () => getCategoryIndicator(currentTransition?.category || "basic"),
     [currentTransition?.category],
   )
-
-  // Проверяем, добавлен ли переход уже в хранилище ресурсов
-  // Мемоизируем результат для оптимизации
-  const isAdded = useMemo(() => {
-    return currentTransition ? isTransitionAdded(currentTransition) : false
-  }, [isTransitionAdded, currentTransition])
-
-  // Отладочный вывод
-  // useEffect(() => {
-  //   console.log(`Transition ${transitionObj.id} (${transitionType}) isAdded:`, isAdded)
-  // }, [transitionObj, transitionType, isAdded])
 
   /**
    * Сбрасывает состояние видео элементов к начальному
@@ -417,7 +367,7 @@ export function TransitionPreview({
       <div className="group relative">
         {/* Контейнер превью перехода */}
         <div
-          className="flex cursor-pointer rounded-xs bg-[#1a1a1a] relative"
+          className="flex cursor-pointer rounded-xs bg-gray-800 relative"
           style={{ width: `${actualWidth}px`, height: `${actualHeight}px` }}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
@@ -427,19 +377,19 @@ export function TransitionPreview({
           {currentTransition && (
             <>
               {/* Индикатор сложности */}
-              <div className="absolute top-1 left-1 z-10">
+              {/* <div className="absolute bottom-1 left-1 z-10">
                 <div
                   className={`${complexityIndicator.color} rounded-full w-3 h-3 flex items-center justify-center`}
                   title={t(`transitions.complexity.${currentTransition.complexity}`, currentTransition.complexity)}
                 >
                   <span className="text-[8px] font-bold text-white">{complexityIndicator.label[0]}</span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Индикатор категории */}
-              <div className="absolute top-1 right-1 z-10">
+              <div className="absolute top-1 left-1 z-10">
                 <div
-                  className="bg-gray-700 text-white rounded px-1 py-0.5 text-[8px] font-medium"
+                  className="bg-black/80 bg-opacity-60 text-white rounded-xs px-1 py-0.5 text-[8px]"
                   title={t(`transitions.categories.${currentTransition.category}`, currentTransition.category)}
                 >
                   {categoryIndicator}
@@ -449,7 +399,7 @@ export function TransitionPreview({
               {/* Индикатор длительности */}
               {currentTransition.duration && (
                 <div className="absolute bottom-1 left-1 z-10">
-                  <div className="bg-black bg-opacity-60 text-white rounded px-1 py-0.5 text-[8px]">
+                  <div className="bg-black/80 bg-opacity-60 text-white rounded-xs px-1 py-0.5 text-[9px]">
                     {currentTransition.duration.default.toFixed(1)}s
                   </div>
                 </div>
@@ -491,18 +441,32 @@ export function TransitionPreview({
               {/* Кнопка добавления в избранное */}
               <FavoriteButton file={favoriteFile} size={size} type="transition" />
 
+              {/* Кнопка для запуска перехода */}
+              <ApplyButton
+                resource={
+                  {
+                    id: currentTransition?.id || transitionType,
+                    type: "transition",
+                    name: currentTransition?.name,
+                  } as TransitionResource
+                }
+                size={size}
+                type="transition"
+              />
               {/* Кнопка добавления перехода в проект */}
-              <div
-                className={`${isAdded ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-200`}
-              >
+              {transition && (
                 <AddMediaButton
-                  file={addMediaFile}
-                  onAddMedia={handleAddMedia}
-                  onRemoveMedia={handleRemoveMedia}
-                  isAdded={isAdded}
+                  resource={
+                    {
+                      id: currentTransition?.id || transitionType,
+                      type: "transition",
+                      name: currentTransition?.name,
+                    } as TransitionResource
+                  }
                   size={size}
+                  type="transition"
                 />
-              </div>
+              )}
             </div>
           )}
         </div>

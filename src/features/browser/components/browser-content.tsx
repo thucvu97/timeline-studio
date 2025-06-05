@@ -223,7 +223,6 @@ export function BrowserContent() {
         onChangeGroupBy={handleGroupBy}
         onToggleFavorites={handleToggleFavorites}
         // Импорт
-        onImport={handleImportFile}
         onImportFile={handleImportFile}
         onImportFolder={handleImportFolder}
         isImporting={isImporting}

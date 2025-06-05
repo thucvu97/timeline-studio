@@ -88,18 +88,18 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
     return userSettings.browserSettings || getInitialContext()
   })
 
-  // Сохраняем настройки в пользовательские настройки при изменении (с дебаунсом)
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const userSettings = getUserSettings()
-      updateUserSettings({
-        ...userSettings,
-        browserSettings: state,
-      })
-    }, 500) // Дебаунс 500мс
+  // // Сохраняем настройки в пользовательские настройки при изменении (с дебаунсом)
+  // useEffect(() => {
+  //   const timeoutId = setTimeout(() => {
+  //     const userSettings = getUserSettings()
+  //     updateUserSettings({
+  //       ...userSettings,
+  //       browserSettings: state,
+  //     })
+  //   }, 500) // Дебаунс 500мс
 
-    return () => clearTimeout(timeoutId)
-  }, [state, getUserSettings, updateUserSettings])
+  //   return () => clearTimeout(timeoutId)
+  // }, [state, getUserSettings, updateUserSettings])
 
   // Геттеры
   const activeTab = state.activeTab

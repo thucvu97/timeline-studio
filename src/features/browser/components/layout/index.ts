@@ -1,4 +1,5 @@
 export * from "./add-media-button"
+export * from "./apply-button"
 export * from "./browser-toggle"
 export * from "./favorite-button"
 export * from "./status-bar"

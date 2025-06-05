@@ -40,7 +40,7 @@ describe("Player Machine", () => {
       isRecording: false,
       isVideoLoading: false,
       isVideoReady: false,
-      isResizableMode: true,
+      isResizableMode: false,
       duration: 0,
       volume: 100,
     })

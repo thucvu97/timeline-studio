@@ -1,4 +1,4 @@
-import React from "react"
+import { memo, useCallback, useMemo } from "react"
 
 import { useAppSettings } from "@/features/app-state"
 import { ContentGroup } from "@/features/browser/components/content-group"
@@ -15,7 +15,7 @@ interface MediaGroupProps {
   /** Файлы в группе */
   files: MediaFile[]
   /** Режим отображения */
-  viewMode: "list" | "grid" | "thumbnails"
+  viewMode: string
   /** Размер превью */
   previewSize: number
   /** Функция для добавления файлов на таймлайн */
@@ -28,69 +28,70 @@ interface MediaGroupProps {
  * @param {MediaGroupProps} props - Свойства компонента
  * @returns {JSX.Element | null} Компонент группы медиа-файлов или null, если группа пуста
  */
-export const MediaGroup: React.FC<MediaGroupProps> = ({ title, files, viewMode, previewSize, addFilesToTimeline }) => {
-  const { getMediaFiles } = useAppSettings()
+export const MediaGroup = memo<MediaGroupProps>(
+  ({ title, files, viewMode, previewSize, addFilesToTimeline }) => {
+    const { getMediaFiles } = useAppSettings()
 
-  // Обработчик добавления медиа-файла
-  const handleAddMedia = (file: MediaFile) => {
-    // Проверяем, не добавлен ли файл уже
-    if (getMediaFiles().allFiles.some((item) => item.id === file.id)) {
-      console.log(`[handleAddMedia] Файл ${file.name} уже добавлен в медиафайлы`)
-      return
-    }
+    // Мемоизируем функцию рендеринга медиа-элемента
+    const renderMediaItem = useCallback(
+      (file: MediaFile, index: number) => (
+        <MediaItem
+          key={file.id || file.path || file.name}
+          file={file}
+          index={index}
+          viewMode={viewMode}
+          previewSize={previewSize}
+        />
+      ),
+      [viewMode, previewSize],
+    )
 
-    // Проверяем, является ли файл изображением
-    if (file.isImage) {
-      console.log("[handleAddMedia] Добавляем изображение только в медиафайлы:", file.name)
-      return
-    }
+    // Мемоизируем проверку добавленных файлов
+    const areAllFilesAdded = useCallback(
+      (items: MediaFile[]) => {
+        const allFiles = getMediaFiles().allFiles
+        return items.every((file) => allFiles.some((item) => item.id === file.id))
+      },
+      [getMediaFiles],
+    )
 
-    // Добавляем файл на таймлайн
-    if (file.path) {
-      console.log("[handleAddMedia] Вызываем addFilesToTimeline с файлом:", file)
-      addFilesToTimeline([file])
-    }
-  }
+    // Мемоизируем обработчик добавления всех файлов
+    const handleAddAllFiles = useCallback(
+      (files: MediaFile[]) => {
+        // Фильтруем файлы - изображения не добавляем на таймлайн
+        const nonImageFiles = files.filter((file) => !file.isImage)
 
-  // Функция рендеринга медиа-элемента
-  const renderMediaItem = (file: MediaFile, index: number) => (
-    <MediaItem
-      key={`${file.id || file.path || file.name}-${index}`}
-      file={file}
-      index={index}
-      viewMode={viewMode}
-      previewSize={previewSize}
-      onAddMedia={handleAddMedia}
-    />
-  )
+        // Добавляем видео и аудио файлы на таймлайн
+        if (nonImageFiles.length > 0) {
+          addFilesToTimeline(nonImageFiles)
+        }
+      },
+      [addFilesToTimeline],
+    )
 
-  // Проверяем, добавлены ли все файлы в медиафайлы
-  const areAllFilesAdded = (items: MediaFile[]) => {
-    const allFiles = getMediaFiles().allFiles
-    return items.every((file) => allFiles.some((item) => item.id === file.id))
-  }
+    return (
+      <ContentGroup
+        title={title}
+        items={files}
+        viewMode={viewMode as "list" | "grid" | "thumbnails"}
+        renderItem={renderMediaItem}
+        onAddAll={handleAddAllFiles}
+        areAllItemsAdded={areAllFilesAdded}
+        addButtonText="browser.media.add"
+        addedButtonText="browser.media.added"
+      />
+    )
+  },
+  (prevProps, nextProps) => {
+    // Кастомная функция сравнения
+    return (
+      prevProps.title === nextProps.title &&
+      prevProps.viewMode === nextProps.viewMode &&
+      prevProps.previewSize === nextProps.previewSize &&
+      prevProps.files.length === nextProps.files.length &&
+      prevProps.files.every((file, index) => file.id === nextProps.files[index]?.id)
+    )
+  },
+)
 
-  // Обработчик добавления всех файлов
-  const handleAddAllFiles = (files: MediaFile[]) => {
-    // Фильтруем файлы - изображения не добавляем на таймлайн
-    const nonImageFiles = files.filter((file) => !file.isImage)
-
-    // Добавляем видео и аудио файлы на таймлайн
-    if (nonImageFiles.length > 0) {
-      addFilesToTimeline(nonImageFiles)
-    }
-  }
-
-  return (
-    <ContentGroup
-      title={title}
-      items={files}
-      viewMode={viewMode}
-      renderItem={renderMediaItem}
-      onAddAll={handleAddAllFiles}
-      areAllItemsAdded={areAllFilesAdded}
-      addButtonText="browser.media.add"
-      addedButtonText="browser.media.added"
-    />
-  )
-}
+MediaGroup.displayName = "MediaGroup"

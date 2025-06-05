@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { Slider } from "@/components/ui/slider"
+import { useUserSettings } from "@/features/user-settings"
 
 // Интерфейс для компонента слайдера громкости
 export interface VolumeSliderProps {
@@ -12,8 +13,9 @@ export interface VolumeSliderProps {
 
 // Мемоизированный компонент слайдера громкости для предотвращения лишних рендеров
 const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCommit }: VolumeSliderProps) => {
+  const { playerVolume } = useUserSettings()
   // Используем локальное состояние для отображения слайдера
-  const [localVolume, setLocalVolume] = useState(volume)
+  const [localVolume, setLocalVolume] = useState(playerVolume)
 
   // Используем ref для отслеживания, находится ли слайдер в процессе перетаскивания
   const isDraggingRef = useRef(false)
@@ -77,13 +79,16 @@ const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCommit }: 
   // Вычисляем стили для слайдера
   const normalizedVolume = localVolume / 100 // Преобразуем из диапазона 0-100 в 0-1 для стилей
   const fillStyle = useMemo(() => ({ width: `${normalizedVolume * 100}%` }), [normalizedVolume])
-  const thumbStyle = useMemo(() => ({ left: `calc(${normalizedVolume * 100}% - 5px)` }), [normalizedVolume])
+  const thumbStyle = useMemo(() => ({ left: `calc(${normalizedVolume * 100}% - 6px)` }), [normalizedVolume])
 
   return (
-    <div className="relative h-1 w-full rounded-full border border-white bg-gray-800">
-      <div className="absolute top-0 left-0 h-full rounded-full bg-white" style={fillStyle} />
+    <div className="relative h-1 w-20 rounded-full border border-black dark:border-white bg-white dark:bg-black cursor-pointer">
       <div
-        className="absolute top-1/2 h-[11px] w-[11px] -translate-y-1/2 rounded-full border border-white bg-white"
+        className="absolute top-0 left-0 h-full rounded-full bg-black dark:bg-white transition-all duration-200 ease-out"
+        style={fillStyle}
+      />
+      <div
+        className="absolute top-1/2 h-[12px] w-[12px] -translate-y-1/2 rounded-full border border-black dark:border-white bg-gray-100 dark:bg-background transition-all duration-200 ease-out cursor-pointer"
         style={thumbStyle}
       />
       <Slider
@@ -93,7 +98,7 @@ const VolumeSlider = memo(({ volume, volumeRef, onValueChange, onValueCommit }: 
         step={1}
         onValueChange={handleLocalVolumeChange}
         onValueCommit={handleValueCommit}
-        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        className="absolute inset-0 h-full w-full opacity-0"
       />
     </div>
   )

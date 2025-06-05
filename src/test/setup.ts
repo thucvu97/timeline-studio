@@ -194,6 +194,7 @@ vi.mock("lucide-react", () => {
 
   return {
     AlertTriangle: createMockIcon("AlertTriangle"),
+    Clapperboard: createMockIcon("Clapperboard"),
     Blend: createMockIcon("Blend"),
     Bot: createMockIcon("Bot"),
     Check: createMockIcon("Check"),
@@ -461,17 +462,16 @@ vi.mock("@/features/browser/components/layout", () => ({
       },
       "Favorite Button",
     ),
-  AddMediaButton: ({ file, onAddMedia, onRemoveMedia, isAdded, size }: any) =>
+  AddMediaButton: ({ file, size, type }: any) =>
     React.createElement(
       "div",
       {
         "data-testid": "add-media-button",
         "data-file-id": file.id,
-        "data-is-added": isAdded ? "true" : "false",
+        "data-type": type,
         "data-size": size,
-        onClick: (e: any) => (isAdded ? onRemoveMedia(e, file) : onAddMedia(e, file)),
       },
-      isAdded ? "Remove Media" : "Add Media",
+      "Add Media",
     ),
 }))
 
@@ -802,19 +802,21 @@ vi.mock("@/features/project-settings/hooks/use-project-settings", () => ({
 vi.mock("@/features/resources", () => ({
   useResources: () => ({
     resources: [],
+    mediaResources: [],
+    musicResources: [],
+    subtitleResources: [],
     effectResources: [],
     filterResources: [],
     transitionResources: [],
     templateResources: [],
     styleTemplateResources: [],
-    musicResources: [],
-    subtitleResources: [],
     addEffect: vi.fn(),
     addFilter: vi.fn(),
     addTransition: vi.fn(),
     addTemplate: vi.fn(),
     addStyleTemplate: vi.fn(),
     addMusic: vi.fn(),
+    addMedia: vi.fn(),
     addSubtitle: vi.fn(),
     removeResource: vi.fn(),
     updateResource: vi.fn(),
@@ -823,7 +825,8 @@ vi.mock("@/features/resources", () => ({
     isTransitionAdded: vi.fn().mockReturnValue(false),
     isTemplateAdded: vi.fn().mockReturnValue(false),
     isStyleTemplateAdded: vi.fn().mockReturnValue(false),
-    isMusicFileAdded: vi.fn().mockReturnValue(false),
+    isMusicAdded: vi.fn().mockReturnValue(false),
+    isMediaAdded: vi.fn().mockReturnValue(false),
     isSubtitleAdded: vi.fn().mockReturnValue(false),
   }),
   ResourcesProvider: ({ children }: { children: React.ReactNode }) => children,

@@ -6,15 +6,13 @@ import { Music } from "lucide-react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 
 import { MediaFile } from "@/features/media/types/media"
+import { TimelineResource } from "@/features/resources/types/resources"
 
 import { AddMediaButton } from "../layout/add-media-button"
 import { FavoriteButton } from "../layout/favorite-button"
 
 interface AudioPreviewProps {
   file: MediaFile
-  onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void
-  onDoubleClick?: (file: MediaFile) => void
-  isAdded?: boolean
   size?: number
   showFileName?: boolean
   dimensions?: [number, number]
@@ -32,17 +30,12 @@ interface AudioPreviewProps {
  * - Темная тема для UI элементов
  *
  * @param file - Объект файла с путем и метаданными
- * @param onAddMedia - Callback для добавления файла
- * @param isAdded - Флаг, показывающий добавлен ли файл
  * @param size - Размер превью в пикселях (по умолчанию 60)
  * @param showFileName - Флаг для отображения имени файла
  * @param dimensions - Соотношение сторон контейнера [ширина, высота], по умолчанию [16, 9]
  */
 export const AudioPreview = memo(function AudioPreview({
   file,
-  onAddMedia,
-  onDoubleClick,
-  isAdded,
   size = 60,
   showFileName = false,
   dimensions = [16, 9],
@@ -184,7 +177,6 @@ export const AudioPreview = memo(function AudioPreview({
       }}
       onMouseMove={handleMouseMove}
       onClick={handlePlayPause}
-      onDoubleClick={() => onDoubleClick?.(file)}
       onMouseLeave={handleMouseLeave}
     >
       <audio
@@ -230,10 +222,21 @@ export const AudioPreview = memo(function AudioPreview({
       )}
 
       {/* Кнопка избранного */}
-      <FavoriteButton file={file} size={size} type="audio" />
+      <FavoriteButton file={file} size={size} type="media" />
 
       {/* кнопка добавления */}
-      {onAddMedia && isLoaded && <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />}
+      {isLoaded && (
+        <AddMediaButton
+          resource={
+            {
+              id: file.id,
+              type: "media",
+            } as TimelineResource
+          }
+          size={size}
+          type="media"
+        />
+      )}
 
       {/* Аудио визуализация */}
       <div

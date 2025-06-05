@@ -18,9 +18,6 @@ describe("SpeedSettings", () => {
 
     // Проверяем, что компонент рендерится
     expect(screen.getByTestId("speed-settings")).toBeInTheDocument()
-
-    // Проверяем заголовок
-    expect(screen.getByText("options.speed.title")).toBeInTheDocument()
   })
 
   it("should render all speed setting controls", () => {

@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react"
+import { JSX, useEffect, useState } from "react"
 
+import { AudioLines, Gauge, Info, Video } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TAB_TRIGGER_STYLES } from "@/features/browser"
 import { MediaFile } from "@/features/media/types/media"
+import { cn } from "@/lib/utils"
 
 import { AudioSettings } from "./audio-settings"
 import { MediaInfo } from "./media-info"
@@ -13,19 +15,18 @@ import { VideoSettings } from "./video-settings"
 
 type OptionsTab = "video" | "audio" | "speed" | "info"
 
-const TABS: Array<{ id: OptionsTab; labelKey: string }> = [
-  { id: "video", labelKey: "options.tabs.video" },
-  { id: "audio", labelKey: "options.tabs.audio" },
-  { id: "speed", labelKey: "options.tabs.speed" },
-  { id: "info", labelKey: "options.tabs.info" },
+const TABS: Array<{ id: OptionsTab; labelKey: string; icon: JSX.Element }> = [
+  { id: "video", labelKey: "options.tabs.video", icon: <Video /> },
+  { id: "audio", labelKey: "options.tabs.audio", icon: <AudioLines /> },
+  { id: "speed", labelKey: "options.tabs.speed", icon: <Gauge /> },
+  { id: "info", labelKey: "options.tabs.info", icon: <Info /> },
 ]
 
 export interface OptionsProps {
   selectedMediaFile?: MediaFile | null
-  onMediaFileSelect?: (file: MediaFile) => void
 }
 
-export function Options({ selectedMediaFile, onMediaFileSelect }: OptionsProps) {
+export function Options({ selectedMediaFile }: OptionsProps) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<OptionsTab>(selectedMediaFile ? "info" : "video")
 
@@ -45,7 +46,7 @@ export function Options({ selectedMediaFile, onMediaFileSelect }: OptionsProps) 
       case "speed":
         return <SpeedSettings />
       case "info":
-        return <MediaInfo selectedMediaFile={selectedMediaFile} />
+        return <MediaInfo />
       default:
         return <VideoSettings />
     }
@@ -61,17 +62,18 @@ export function Options({ selectedMediaFile, onMediaFileSelect }: OptionsProps) 
       >
         {/* Вкладки */}
         <TabsList
-          className="grid w-full grid-cols-4 flex-shrink-0 border-none rounded-none dark:bg-[#252526] m-0 p-0"
+          className="grid w-full grid-cols-4 flex-shrink-0 border-none bg-[#252526] rounded-none m-0 p-0"
           data-testid="options-tabs-list"
         >
           {TABS.map((tab) => (
             <TabsTrigger
-              className={TAB_TRIGGER_STYLES}
+              className={cn(TAB_TRIGGER_STYLES, "h-[35px] flex-row items-center justify-center gap-2")}
               key={tab.id}
               value={tab.id}
               data-testid={`options-tab-${tab.id}`}
             >
-              {t(tab.labelKey)}
+              {tab.icon}
+              <span className="">{t(tab.labelKey)}</span>
             </TabsTrigger>
           ))}
         </TabsList>
@@ -81,7 +83,7 @@ export function Options({ selectedMediaFile, onMediaFileSelect }: OptionsProps) 
           <TabsContent
             key={tab.id}
             value={tab.id}
-            className="flex-1 overflow-auto p-4"
+            className="flex-1 h-full overflow-x-hidden overflow-y-auto p-4"
             data-testid={`options-content-${tab.id}`}
           >
             {activeTab === tab.id && <div data-testid={`options-${tab.id}-settings`}>{renderTabContent()}</div>}

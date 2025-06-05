@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
+import { ApplyButton } from "@/features/browser"
 import { useResources } from "@/features/resources"
 import { SubtitleResource } from "@/features/resources/types/resources"
 
@@ -28,13 +29,7 @@ interface SubtitlePreviewProps {
  * @param {SubtitlePreviewProps} props - Пропсы компонента
  * @returns {JSX.Element} Компонент превью стиля субтитров
  */
-export function SubtitlePreview({
-  style,
-  onClick,
-  size,
-  previewWidth = size,
-  previewHeight = size,
-}: SubtitlePreviewProps) {
+export function SubtitlePreview({ style, onClick, size, previewWidth, previewHeight }: SubtitlePreviewProps) {
   const { t } = useTranslation() // Хук для интернационализации
   const { addSubtitle, isSubtitleAdded, removeResource, subtitleResources } = useResources() // Получаем методы для работы с ресурсами
 
@@ -92,8 +87,8 @@ export function SubtitlePreview({
       ...cssStyle,
       // Адаптируем размер шрифта под размер превью
       fontSize: cssStyle.fontSize
-        ? `${Math.min(Number.parseInt(cssStyle.fontSize.toString()) * (previewWidth / 200), Number.parseInt(cssStyle.fontSize.toString()))}px`
-        : `${Math.max(12, previewWidth / 10)}px`,
+        ? `${Math.min(Number.parseInt(cssStyle.fontSize.toString()) * ((previewWidth ?? size) / 200), Number.parseInt(cssStyle.fontSize.toString()))}px`
+        : `${Math.max(12, (previewWidth ?? size) / 10)}px`,
     }
   }, [cssStyle, previewWidth])
 
@@ -101,39 +96,17 @@ export function SubtitlePreview({
   const fileObject = useMemo(
     () => ({
       id: style.id,
-      path: "",
+      type: "subtitle",
       name: style.name,
     }),
     [style.id, style.name],
-  )
-
-  // Мемоизируем обработчики событий
-  const handleAddMedia = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation()
-      addSubtitle(style)
-    },
-    [addSubtitle, style],
-  )
-
-  const handleRemoveMedia = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation()
-      const resource = subtitleResources.find((res: SubtitleResource) => res.resourceId === style.id)
-      if (resource) {
-        removeResource(resource.id)
-      } else {
-        console.warn(`Не удалось найти ресурс стиля субтитров с ID ${style.id} для удаления`)
-      }
-    },
-    [removeResource, subtitleResources, style.id],
   )
 
   return (
     <div className="flex flex-col items-center">
       {/* Контейнер превью стиля субтитров */}
       <div
-        className="group relative cursor-pointer rounded-xs bg-gray-900 flex items-center justify-center"
+        className="group relative cursor-pointer rounded-xs bg-gray-800 flex items-center justify-center"
         style={{ width: `${previewWidth}px`, height: `${previewHeight}px` }}
         onClick={onClick}
       >
@@ -147,17 +120,17 @@ export function SubtitlePreview({
         </div>
 
         {/* Индикатор сложности слева */}
-        <div className="absolute top-1 left-1">
+        {/* <div className="absolute top-1 left-1">
           <div
             className={`h-2 w-2 rounded-full ${getComplexityColor(style.complexity || "basic")}`}
             title={t(`subtitles.complexity.${style.complexity || "basic"}`)}
           />
-        </div>
+        </div> */}
 
         {/* Индикатор категории справа */}
-        <div className="absolute top-1 right-1">
+        <div className="absolute top-1 left-1">
           <div
-            className="bg-black/70 text-white font-medium text-[11px] px-1 py-0.5 rounded"
+            className="bg-black/80 bg-opacity-60 text-white font-medium text-[8px] px-1 py-0.5 rounded"
             title={t(`subtitles.categories.${style.category}`)}
           >
             {getCategoryAbbreviation(style.category)}
@@ -165,25 +138,22 @@ export function SubtitlePreview({
         </div>
 
         {/* Кнопка добавления в избранное */}
-        <FavoriteButton file={fileObject} size={size} type="subtitle" />
+        <FavoriteButton file={{ id: style.id, path: "", name: style.name }} size={size} type="subtitle" />
+
+        {/* Кнопка удаления стиля из проекта */}
+        <ApplyButton resource={fileObject as SubtitleResource} size={size} type="subtitle" />
 
         {/* Кнопка добавления стиля в проект */}
         <div
           className={`${isAdded ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-200`}
         >
-          <AddMediaButton
-            file={fileObject}
-            onAddMedia={handleAddMedia}
-            onRemoveMedia={handleRemoveMedia}
-            isAdded={isAdded}
-            size={size}
-          />
+          <AddMediaButton resource={fileObject as SubtitleResource} size={size} type="subtitle" />
         </div>
 
         {/* Индикатор анимации (если есть) */}
         {style.style.animation && (
-          <div className="absolute bottom-1 right-1">
-            <div className="bg-black bg-opacity-60 text-white rounded px-1 py-0.5 text-[8px]">ANI</div>
+          <div className="absolute bottom-1 left-1">
+            <div className="bg-black/80 bg-opacity-60 text-white rounded-xs px-1 py-0.5 text-[8px]">ANI</div>
           </div>
         )}
       </div>

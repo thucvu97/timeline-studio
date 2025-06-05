@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react"
+import { memo, useMemo } from "react"
 
 import { useFavorites } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser"
@@ -16,11 +16,9 @@ interface MediaItemProps {
   /** Индекс файла в списке */
   index: number
   /** Режим отображения (list, grid, thumbnails) */
-  viewMode: "list" | "grid" | "thumbnails"
+  viewMode: string
   /** Размер превью */
   previewSize: number
-  /** Обработчик добавления медиа */
-  onAddMedia: (file: MediaFile) => void
 }
 
 /**
@@ -29,65 +27,68 @@ interface MediaItemProps {
  * @param {MediaItemProps} props - Свойства компонента
  * @returns {JSX.Element} Компонент медиа-элемента
  */
-export const MediaItem: React.FC<MediaItemProps> = ({ file, index, viewMode, previewSize, onAddMedia }) => {
-  const { favorites } = useFavorites() // Хук для работы с избранным
-  // Мемоизируем уникальный ключ для предотвращения перерендеров
-  const fileId = useMemo(() => `${file.id || file.path || file.name}-${index}`, [file.id, file.path, file.name, index])
+export const MediaItem = memo<MediaItemProps>(
+  ({ file, index, viewMode, previewSize }) => {
+    const { favorites } = useFavorites() // Хук для работы с избранным
 
-  const isAdded = favorites.media.some((item) => item.id === file.id) // Проверяем, добавлен ли файл в избранное
+    // Стабильный ключ файла
+    const fileId = useMemo(() => file.id || file.path || file.name, [file.id, file.path, file.name])
 
-  // Мемоизируем обработчик добавления медиа
-  const handleAddMedia = useCallback(() => {
-    onAddMedia(file)
-  }, [onAddMedia, file])
+    // Мемоизируем проверку избранного
+    const isAdded = useMemo(() => favorites.media.some((item) => item.id === file.id), [favorites.media, file.id])
 
-  // Рендерим компонент в зависимости от режима отображения
-  switch (viewMode) {
-    case "list":
+    // Мемоизируем стили для grid режима
+    const gridStyles = useMemo(
+      () => ({
+        width: `${((previewSize * 16) / 9).toFixed(0)}px`,
+      }),
+      [previewSize],
+    )
+
+    // Мемоизируем размер шрифта
+    const fontSize = useMemo(() => (previewSize > 150 ? "13px" : "12px"), [previewSize])
+
+    // Мемоизируем базовые классы
+    const baseClasses = useMemo(() => (isAdded ? "pointer-events-none" : ""), [isAdded])
+
+    if (viewMode === "list") {
       return (
         <div
-          key={fileId}
           className={cn(
             "group flex h-full items-center border border-transparent p-0",
             "bg-white hover:border-[#38daca71] hover:bg-gray-100 dark:bg-[#25242b] dark:hover:border-[#35d1c1] dark:hover:bg-[#2f2d38]",
-            isAdded && "pointer-events-none",
+            baseClasses,
           )}
         >
           <div className="relative mr-3 flex h-full flex-shrink-0 gap-1">
-            <MediaPreview file={file} onAddMedia={handleAddMedia} isAdded={isAdded} size={previewSize} ignoreRatio />
+            <MediaPreview file={file} size={previewSize} ignoreRatio />
           </div>
           <FileMetadata file={file} size={previewSize} />
         </div>
       )
+    }
 
-    case "grid":
+    if (viewMode === "grid") {
       return (
         <div
-          key={fileId}
           className={cn(
             "flex h-full w-full flex-col overflow-hidden rounded-xs",
             "border border-transparent bg-white hover:border-[#38dacac3] hover:bg-gray-100 dark:bg-[#25242b] dark:hover:border-[#35d1c1] dark:hover:bg-[#2f2d38]",
-            isAdded && "pointer-events-none",
+            baseClasses,
           )}
-          style={{
-            width: `${((previewSize * 16) / 9).toFixed(0)}px`,
-          }}
+          style={gridStyles}
         >
           <div className="group relative w-full flex-1 flex-grow flex-row">
-            <MediaPreview file={file} onAddMedia={handleAddMedia} isAdded={isAdded} size={previewSize} />
+            <MediaPreview file={file} size={previewSize} />
           </div>
-          <div
-            className="truncate p-1 text-xs"
-            style={{
-              fontSize: previewSize > 100 ? "13px" : "12px",
-            }}
-          >
+          <div className="truncate p-1 text-xs" style={{ fontSize }}>
             {file.name}
           </div>
         </div>
       )
+    }
 
-    case "thumbnails":
+    if (viewMode === "thumbnails") {
       return (
         <div
           key={fileId}
@@ -98,19 +99,23 @@ export const MediaItem: React.FC<MediaItemProps> = ({ file, index, viewMode, pre
           )}
         >
           <div className="group relative w-full flex-1 flex-grow flex-row">
-            <MediaPreview
-              file={file}
-              onAddMedia={handleAddMedia}
-              isAdded={isAdded}
-              size={previewSize}
-              showFileName
-              ignoreRatio
-            />
+            <MediaPreview file={file} size={previewSize} showFileName ignoreRatio />
           </div>
         </div>
       )
+    }
 
-    default:
-      return null
-  }
-}
+    return null
+  },
+  (prevProps, nextProps) => {
+    // Кастомная функция сравнения для более точного контроля
+    return (
+      prevProps.file.id === nextProps.file.id &&
+      prevProps.viewMode === nextProps.viewMode &&
+      prevProps.previewSize === nextProps.previewSize &&
+      prevProps.index === nextProps.index
+    )
+  },
+)
+
+MediaItem.displayName = "MediaItem"

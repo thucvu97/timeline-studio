@@ -98,7 +98,7 @@ describe("MediaPreview", () => {
     const videoPreview = screen.getByTestId("video-preview")
     expect(videoPreview).toBeInTheDocument()
     expect(videoPreview).toHaveAttribute("data-file", "video.mp4")
-    expect(videoPreview).toHaveAttribute("data-size", "60") // Default size
+    expect(videoPreview).toHaveAttribute("data-size", "200") // Default size
     expect(videoPreview).toHaveAttribute("data-show-filename", "false") // Default showFileName
     expect(videoPreview).toHaveAttribute("data-dimensions", "16,9") // Default dimensions
     expect(videoPreview).toHaveAttribute("data-ignore-ratio", "false") // Default ignoreRatio
@@ -121,21 +121,10 @@ describe("MediaPreview", () => {
   })
 
   it("should pass custom props to child components", () => {
-    const onAddMedia = vi.fn()
-    render(
-      <MediaPreview
-        file={videoFile}
-        onAddMedia={onAddMedia}
-        isAdded
-        size={120}
-        showFileName
-        dimensions={[4, 3]}
-        ignoreRatio
-      />,
-    )
+    render(<MediaPreview file={videoFile} size={150} showFileName dimensions={[4, 3]} ignoreRatio />)
 
     const videoPreview = screen.getByTestId("video-preview")
-    expect(videoPreview).toHaveAttribute("data-size", "120")
+    expect(videoPreview).toHaveAttribute("data-size", "150")
     expect(videoPreview).toHaveAttribute("data-show-filename", "true")
     expect(videoPreview).toHaveAttribute("data-dimensions", "4,3")
     expect(videoPreview).toHaveAttribute("data-ignore-ratio", "true")

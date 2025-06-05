@@ -93,11 +93,9 @@ describe("Options", () => {
   })
 
   it("should accept props without errors", () => {
-    const mockOnMediaFileSelect = vi.fn()
-
     // Компонент должен рендериться без ошибок
     expect(() => {
-      renderWithBase(<Options onMediaFileSelect={mockOnMediaFileSelect} />)
+      renderWithBase(<Options />)
     }).not.toThrow()
 
     expect(() => {

@@ -398,13 +398,12 @@ export function MusicList() {
                       {/* Кнопки действий (избранное и добавление в проект) */}
                       <div className="flex items-center">
                         {/* Кнопка добавления в избранное */}
-                        <FavoriteButton file={file} size={60} type="audio" />
+                        <FavoriteButton file={file} size={100} type="music" />
                         {/* Кнопка добавления/удаления из проекта */}
                         <AddMediaButton
-                          file={file}
-                          onAddMedia={handleAdd}
-                          onRemoveMedia={handleRemove}
-                          isAdded={isMusicAdded(file)}
+                          resource={{ id: file.id, type: "music", name: file.name } as MusicResource}
+                          type="music"
+                          size={100}
                         />
                       </div>
                     </div>
@@ -483,14 +482,12 @@ export function MusicList() {
                       {/* Кнопки действий (избранное и добавление в проект) */}
                       <div className="flex items-center">
                         {/* Кнопка добавления в избранное */}
-                        <FavoriteButton file={file} size={120} type="audio" />
+                        <FavoriteButton file={file} size={120} type="music" />
                         {/* Кнопка добавления/удаления из проекта */}
                         <AddMediaButton
-                          file={file}
+                          resource={{ id: file.id, type: "music", name: file.name } as MusicResource}
                           size={120}
-                          onAddMedia={handleAdd}
-                          onRemoveMedia={handleRemove}
-                          isAdded={isMusicAdded(file)}
+                          type="music"
                         />
                       </div>
                     </div>

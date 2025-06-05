@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
+import { ApplyButton } from "@/features"
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
 import { VideoEffect } from "@/features/effects/types/effects"
@@ -36,12 +37,12 @@ export function EffectPreview({
   effectType,
   onClick,
   size,
-  width = size, // По умолчанию ширина равна size (квадратное превью)
-  height = size, // По умолчанию высота равна size (квадратное превью)
+  width, // По умолчанию ширина равна size (квадратное превью)
+  height, // По умолчанию высота равна size (квадратное превью)
   customParams, // Пользовательские параметры для эффекта
 }: EffectPreviewProps) {
   const { i18n } = useTranslation() // Хук для интернационализации
-  const { addEffect, isEffectAdded, removeResource, effectResources } = useResources() // Получаем методы для работы с ресурсами
+  const { isEffectAdded } = useResources() // Получаем методы для работы с ресурсами
   const { effects } = useEffects() // Получаем эффекты из хука
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
   const videoRef = useRef<HTMLVideoElement>(null) // Ссылка на элемент видео
@@ -102,7 +103,7 @@ export function EffectPreview({
         // Создаем эффект виньетки через box-shadow
         const intensity = effect.params?.intensity || 0.3
         const radius = effect.params?.radius || 0.8
-        const shadowSize = Math.round(Math.min(width, height) * (1 - radius) * 0.5)
+        const shadowSize = Math.round(size * (1 - radius) * 0.5)
         const shadowBlur = Math.round(shadowSize * intensity * 2)
         videoElement.style.boxShadow = `inset 0 0 ${shadowBlur}px ${shadowSize}px rgba(0,0,0,${intensity})`
       } else {
@@ -147,7 +148,7 @@ export function EffectPreview({
     <div className="flex flex-col items-center">
       {/* Контейнер превью эффекта */}
       <div
-        className="group relative cursor-pointer rounded-xs bg-black"
+        className="group relative cursor-pointer rounded-xs bg-gray-800"
         style={{ width: `${width}px`, height: `${height}px` }}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
@@ -173,7 +174,7 @@ export function EffectPreview({
         {effect && (
           <>
             {/* Цветовой индикатор сложности слева */}
-            <div className="absolute top-1 left-1">
+            <div className="absolute bottom-1 left-1">
               <div
                 className={`h-2 w-2 rounded-full ${
                   effect.complexity === "basic"
@@ -189,48 +190,36 @@ export function EffectPreview({
             </div>
 
             {/* Индикаторы категории и тегов справа */}
-            <div className="absolute top-1 right-1">
-              <EffectIndicators effect={effect} size="sm" />
+            <div className="absolute top-1 left-1">
+              <EffectIndicators effect={effect} size={size > 150 ? "md" : "sm"} />
             </div>
           </>
         )}
 
         {/* Кнопка добавления в избранное */}
+        {effect && <FavoriteButton file={{ id: effect.id, path: "", name: effect.name }} size={size} type="effect" />}
         {effect && (
-          <FavoriteButton
-            file={{ id: effect.id, path: "", name: effect.name }}
-            size={Math.min(width, height)} // Используем минимальный размер для правильного масштабирования
+          <ApplyButton
+            resource={
+              {
+                id: effect.id,
+                type: "effect",
+                name: effect.name,
+              } as EffectResource
+            }
+            size={size}
             type="effect"
           />
         )}
-
         {/* Кнопка добавления эффекта в проект */}
-        <div
-          className={`${isAdded ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-200`}
-        >
-          <AddMediaButton
-            file={{ id: effectType, path: "", name: effectType }}
-            onAddMedia={(e) => {
-              e.stopPropagation() // Предотвращаем всплытие события клика
-              if (effect) {
-                addEffect(effect) // Добавляем эффект в ресурсы проекта
-              }
-            }}
-            onRemoveMedia={(e: React.MouseEvent) => {
-              e.stopPropagation() // Предотвращаем всплытие события клика
-              if (effect) {
-                // Находим ресурс с этим эффектом и удаляем его
-                const resource = effectResources.find((res: EffectResource) => res.resourceId === effect.id)
-                if (resource) {
-                  removeResource(resource.id) // Удаляем ресурс из проекта
-                } else {
-                  console.warn(`Не удалось найти ресурс эффекта с ID ${effect.id} для удаления`)
-                }
-              }
-            }}
-            isAdded={isAdded}
-            size={Math.min(width, height)} // Используем минимальный размер для правильного масштабирования
-          />
+        <div className={isAdded ? "opacity-100" : "opacity-0 group-hover:opacity-100"}>
+          {effect && (
+            <AddMediaButton
+              resource={{ id: effect.id, type: "effect", name: effect.name } as EffectResource}
+              size={size}
+              type="effect"
+            />
+          )}
         </div>
       </div>
       {/* Название эффекта */}

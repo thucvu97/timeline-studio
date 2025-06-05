@@ -68,6 +68,15 @@ vi.mock("@/features/browser/components/layout/favorite-button", () => ({
   FavoriteButton: ({ file }: any) => <div data-testid="favorite-button">Favorite {file.name}</div>,
 }))
 
+// Apply button mock
+vi.mock("@/features/browser/components/layout/apply-button", () => ({
+  ApplyButton: ({ file, size }: any) => (
+    <button data-testid="apply-button" data-file={file.name} data-size={size}>
+      Apply
+    </button>
+  ),
+}))
+
 const mockFile = {
   id: "test-image-1",
   name: "test-image.jpg",
@@ -102,7 +111,7 @@ describe("ImagePreview", () => {
 
   it("should render add media button when onAddMedia is provided", () => {
     const mockOnAddMedia = vi.fn()
-    render(<ImagePreview file={mockFile} size={100} onAddMedia={mockOnAddMedia} />)
+    render(<ImagePreview file={mockFile} size={100} />)
 
     expect(screen.getByTestId("add-button")).toBeInTheDocument()
   })

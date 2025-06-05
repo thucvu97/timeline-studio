@@ -5,14 +5,13 @@ import { readFile } from "@tauri-apps/plugin-fs"
 import { Image } from "lucide-react"
 
 import { MediaFile } from "@/features/media/types/media"
+import { TimelineResource } from "@/features/resources/types/resources"
 
 import { AddMediaButton } from "../layout/add-media-button"
 import { FavoriteButton } from "../layout/favorite-button"
 
 interface ImagePreviewProps {
   file: MediaFile
-  onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void
-  isAdded?: boolean
   size?: number
   showFileName?: boolean
   dimensions?: [number, number]
@@ -31,16 +30,12 @@ interface ImagePreviewProps {
  * - Темная тема для UI элементов
  *
  * @param file - Объект файла с путем и метаданными
- * @param onAddMedia - Callback для добавления файла
- * @param isAdded - Флаг, показывающий добавлен ли файл
  * @param size - Размер превью в пикселях (по умолчанию 60)
  * @param showFileName - Флаг для отображения имени файла
  * @param dimensions - Соотношение сторон контейнера [ширина, высота], по умолчанию [16, 9]
  */
 export const ImagePreview = memo(function ImagePreview({
   file,
-  onAddMedia,
-  isAdded,
   size = 60,
   showFileName = false,
   dimensions = [16, 9],
@@ -100,13 +95,12 @@ export const ImagePreview = memo(function ImagePreview({
           className={`absolute font-medium ${size > 100 ? "top-1 left-1" : "top-0.5 left-0.5"} ${size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"} line-clamp-1 max-w-[calc(60%)] rounded-xs bg-black/50 text-xs leading-[16px]`}
           style={{
             fontSize: size > 100 ? "13px" : "11px",
-            color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+            color: "#fff", // Явно задаем чисто белый цвет для Tauri
           }}
         >
           {file.name}
         </div>
       )}
-
       <div className="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-700">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -120,20 +114,17 @@ export const ImagePreview = memo(function ImagePreview({
           }}
         />
       </div>
-
       <div
         className={`absolute ${size > 100 ? "bottom-1 left-1" : "bottom-0.5 left-0.5"} cursor-pointer rounded-xs bg-black/50 p-0.5`}
         style={{
-          color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+          color: "#fff", // Явно задаем чисто белый цвет для Tauri
         }}
       >
         <Image size={size > 100 ? 16 : 12} />
       </div>
-
-      {/* Кнопка избранного */}
+      §
       <FavoriteButton file={file} size={size} type="media" />
-
-      {onAddMedia && <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />}
+      <AddMediaButton resource={{ id: file.id, type: "media" } as TimelineResource} size={size} type="media" />
     </div>
   )
 })

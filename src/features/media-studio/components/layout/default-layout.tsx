@@ -11,54 +11,51 @@ export function DefaultLayout() {
   return (
     <ResizablePanelGroup direction="vertical" className="min-h-0 flex-grow" autoSaveId="default-layout">
       <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>
-        {isBrowserVisible ? (
-          // Если браузер видим, показываем обычный макет с двумя панелями
-          <ResizablePanelGroup direction="horizontal" autoSaveId="top-layout">
-            <ResizablePanel
-              defaultSize={30}
-              minSize={10}
-              maxSize={80}
-              style={{
-                transition: "width 0.3s ease-in-out",
-                overflow: "hidden",
-              }}
-            >
-              <div className="relative h-full flex-1">
-                <Browser />
-              </div>
-            </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel
-              defaultSize={50}
-              minSize={20}
-              maxSize={100}
-              style={{
-                transition: "width 0.3s ease-in-out",
-              }}
-            >
-              <div className="h-full flex-1">
-                <VideoPlayer />
-              </div>
-            </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel
-              defaultSize={20}
-              minSize={20}
-              maxSize={100}
-              style={{
-                transition: "width 0.3s ease-in-out",
-              }}
-            >
-              <div className="h-full flex-1">
-                <Options />
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        ) : (
-          <div className="relative h-full w-full">
-            <VideoPlayer />
-          </div>
-        )}
+        <ResizablePanelGroup direction="horizontal" autoSaveId="top-layout">
+          {isBrowserVisible ? (
+            <>
+              <ResizablePanel
+                defaultSize={30}
+                minSize={10}
+                maxSize={80}
+                style={{
+                  transition: "width 0.3s ease-in-out",
+                  overflow: "hidden",
+                }}
+              >
+                <div className="relative h-full flex-1">
+                  <Browser />
+                </div>
+              </ResizablePanel>
+              <ResizableHandle />
+            </>
+          ) : null}
+          <ResizablePanel
+            defaultSize={50}
+            minSize={20}
+            maxSize={100}
+            style={{
+              transition: "width 0.3s ease-in-out",
+            }}
+          >
+            <div className="h-full w-full flex-1">
+              <VideoPlayer />
+            </div>
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel
+            defaultSize={20}
+            minSize={20}
+            maxSize={100}
+            style={{
+              transition: "width 0.3s ease-in-out",
+            }}
+          >
+            <div className="h-full flex-1">
+              <Options />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </ResizablePanel>
 
       <ResizableHandle />

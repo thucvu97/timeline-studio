@@ -39,8 +39,6 @@ export function SpeedSettings() {
   return (
     <div className="space-y-6" data-testid="speed-settings">
       <div>
-        <h2 className="text-lg font-semibold mb-4">{t("options.speed.title", "Настройки скорости")}</h2>
-
         {/* Скорость воспроизведения по умолчанию */}
         <div className="space-y-2">
           <Label>{t("options.speed.defaultPlayback", "Скорость воспроизведения по умолчанию")}</Label>

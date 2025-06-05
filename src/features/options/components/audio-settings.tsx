@@ -39,123 +39,119 @@ export function AudioSettings() {
   ]
 
   return (
-    <div className="space-y-6" data-testid="audio-settings">
-      <div>
-        <h2 className="text-lg font-semibold mb-4">{t("options.audio.title", "Настройки аудио")}</h2>
+    <div className="space-y-6 h-full overflow-auto" data-testid="audio-settings">
+      {/* Частота дискретизации */}
+      <div className="space-y-2">
+        <Label>{t("options.audio.sampleRate", "Частота дискретизации")}</Label>
+        <Select defaultValue="48000">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {SAMPLE_RATE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* Частота дискретизации */}
+      <Separator className="my-6" />
+
+      {/* Битрейт */}
+      <div className="space-y-2">
+        <Label>{t("options.audio.bitrate", "Битрейт")}</Label>
+        <Select defaultValue="256">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {BITRATE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Separator className="my-6" />
+
+      {/* Количество каналов */}
+      <div className="space-y-2">
+        <Label>{t("options.audio.channels", "Количество каналов")}</Label>
+        <Select defaultValue="stereo">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {CHANNELS_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Separator className="my-6" />
+
+      {/* Громкость по умолчанию */}
+      <div className="space-y-4">
+        <Label>{t("options.audio.defaultVolume", "Громкость по умолчанию")}</Label>
         <div className="space-y-2">
-          <Label>{t("options.audio.sampleRate", "Частота дискретизации")}</Label>
-          <Select defaultValue="48000">
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SAMPLE_RATE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Separator className="my-6" />
-
-        {/* Битрейт */}
-        <div className="space-y-2">
-          <Label>{t("options.audio.bitrate", "Битрейт")}</Label>
-          <Select defaultValue="256">
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {BITRATE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Separator className="my-6" />
-
-        {/* Количество каналов */}
-        <div className="space-y-2">
-          <Label>{t("options.audio.channels", "Количество каналов")}</Label>
-          <Select defaultValue="stereo">
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CHANNELS_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Separator className="my-6" />
-
-        {/* Громкость по умолчанию */}
-        <div className="space-y-4">
-          <Label>{t("options.audio.defaultVolume", "Громкость по умолчанию")}</Label>
-          <div className="space-y-2">
-            <Slider defaultValue={[75]} max={100} step={1} className="w-full" />
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>0%</span>
-              <span>75%</span>
-              <span>100%</span>
-            </div>
+          <Slider defaultValue={[75]} max={100} step={1} className="w-full" />
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>0%</span>
+            <span>75%</span>
+            <span>100%</span>
           </div>
         </div>
+      </div>
 
-        <Separator className="my-6" />
+      <Separator className="my-6" />
 
-        {/* Аудиокодек */}
+      {/* Аудиокодек */}
+      <div className="space-y-2">
+        <Label>{t("options.audio.codec", "Аудиокодек")}</Label>
+        <Select defaultValue="aac">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {AUDIO_CODEC_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Separator className="my-6" />
+
+      {/* Дополнительные настройки */}
+      <div className="space-y-4">
+        <h3 className="text-md font-medium">{t("options.audio.advanced", "Дополнительные настройки")}</h3>
+
         <div className="space-y-2">
-          <Label>{t("options.audio.codec", "Аудиокодек")}</Label>
-          <Select defaultValue="aac">
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {AUDIO_CODEC_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label>{t("options.audio.bufferSize", "Размер буфера (мс)")}</Label>
+          <Input type="number" defaultValue="512" min="128" max="2048" step="128" />
         </div>
 
-        <Separator className="my-6" />
-
-        {/* Дополнительные настройки */}
-        <div className="space-y-4">
-          <h3 className="text-md font-medium">{t("options.audio.advanced", "Дополнительные настройки")}</h3>
-
-          <div className="space-y-2">
-            <Label>{t("options.audio.bufferSize", "Размер буфера (мс)")}</Label>
-            <Input type="number" defaultValue="512" min="128" max="2048" step="128" />
-          </div>
-
-          <div className="space-y-2">
-            <Label>{t("options.audio.latency", "Задержка (мс)")}</Label>
-            <Input type="number" defaultValue="20" min="0" max="100" step="5" />
-          </div>
+        <div className="space-y-2">
+          <Label>{t("options.audio.latency", "Задержка (мс)")}</Label>
+          <Input type="number" defaultValue="20" min="0" max="100" step="5" />
         </div>
+      </div>
 
-        <Separator className="my-6" />
+      <Separator className="my-6" />
 
-        {/* Кнопки действий */}
-        <div className="flex gap-2">
-          <Button variant="outline">{t("common.reset", "Сбросить")}</Button>
-          <Button>{t("common.apply", "Применить")}</Button>
-        </div>
+      {/* Кнопки действий */}
+      <div className="flex gap-2">
+        <Button variant="outline">{t("common.reset", "Сбросить")}</Button>
+        <Button>{t("common.apply", "Применить")}</Button>
       </div>
     </div>
   )

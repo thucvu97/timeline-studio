@@ -15,6 +15,7 @@ const mockSend = vi.fn()
 const mockState = {
   context: {
     resources: [],
+    mediaResources: [],
     effectResources: [],
     filterResources: [],
     transitionResources: [],
@@ -34,6 +35,7 @@ vi.mock("../../services/resources-machine", () => ({
     withConfig: () => ({
       context: {
         resources: [],
+        mediaResources: [],
         effectResources: [],
         filterResources: [],
         transitionResources: [],
@@ -55,12 +57,20 @@ function ResourcesWrapper({ children }: { children: React.ReactNode }) {
 
 // Тестовый компонент, который использует хук useResources
 function TestComponent() {
-  const { resources, effectResources, filterResources, transitionResources, templateResources, musicResources } =
-    useResources()
+  const {
+    resources,
+    effectResources,
+    filterResources,
+    transitionResources,
+    templateResources,
+    musicResources,
+    mediaResources,
+  } = useResources()
 
   return (
     <div>
       <div data-testid="resources-count">{resources.length}</div>
+      <div data-testid="media-resources-count">{mediaResources.length}</div>
       <div data-testid="effect-resources-count">{effectResources.length}</div>
       <div data-testid="filter-resources-count">{filterResources.length}</div>
       <div data-testid="transition-resources-count">{transitionResources.length}</div>
@@ -86,6 +96,7 @@ describe("ResourcesProvider", () => {
 
     // Проверяем, что начальные значения корректны
     expect(screen.getByTestId("resources-count").textContent).toBe("0")
+    expect(screen.getByTestId("media-resources-count").textContent).toBe("0")
     expect(screen.getByTestId("effect-resources-count").textContent).toBe("0")
     expect(screen.getByTestId("filter-resources-count").textContent).toBe("0")
     expect(screen.getByTestId("transition-resources-count").textContent).toBe("0")
@@ -125,7 +136,8 @@ describe("ResourcesProvider", () => {
     expect(result.current.isFilterAdded).toBeDefined()
     expect(result.current.isTransitionAdded).toBeDefined()
     expect(result.current.isTemplateAdded).toBeDefined()
-    expect(result.current.isMusicFileAdded).toBeDefined()
+    expect(result.current.isMusicAdded).toBeDefined()
+    expect(result.current.isMediaAdded).toBeDefined()
   })
 
   it("should have addEffect method", () => {
@@ -464,6 +476,7 @@ describe("ResourcesProvider", () => {
     // Сбрасываем состояние мока перед тестом
     Object.assign(mockState.context, {
       resources: [],
+      mediaResources: [],
       effectResources: [],
       filterResources: [],
       transitionResources: [],
@@ -488,6 +501,7 @@ describe("ResourcesProvider", () => {
     expect(typeof result.current.isFilterAdded).toBe("function")
     expect(typeof result.current.isTransitionAdded).toBe("function")
     expect(typeof result.current.isTemplateAdded).toBe("function")
-    expect(typeof result.current.isMusicFileAdded).toBe("function")
+    expect(typeof result.current.isMusicAdded).toBe("function")
+    expect(typeof result.current.isMediaAdded).toBe("function")
   })
 })

@@ -41,7 +41,8 @@
     "browserNotSupported": "Your browser does not support media recording features",
     "permissionDenied": "Permission to use media devices was denied",
     "deviceNotFound": "No media devices found",
-    "mediaDeviceError": "Error accessing media devices"
+    "mediaDeviceError": "Error accessing media devices",
+    "importing": "Importing..."
   },
   "dates": {
     "today": "Today",
@@ -688,10 +689,30 @@
       "search": "Search...",
       "dragHint": "Drag subtitle to timeline to add it to your project",
       "categories": {
-        "minimal": "Minimal"
+        "minimal": "Minimal",
+        "color": "Color",
+        "blur": "Blur",
+        "sharpen": "Sharpen",
+        "artistic": "Artistic",
+        "distortion": "Distortion",
+        "noise": "Noise",
+        "vintage": "Vintage",
+        "other": "Other",
+        "color-correction": "Color Correction",
+        "creative": "Creative",
+        "cinematic": "Cinematic",
+        "technical": "Technical",
+        "transition": "Transitions",
+        "motion": "Motion",
+        "light": "Light",
+        "particle": "Particles",
+        "text": "Text",
+        "3d": "3D"
       },
       "complexity": {
-        "basic": "Basic"
+        "basic": "Basic",
+        "advanced": "Advanced",
+        "intermediate": "Intermediate"
       }
     },
     "stickers": {
@@ -700,6 +721,7 @@
     },
     "media": {
       "noMedia": "No media files",
+      "inFavorites": "In favorites",
       "addMedia": "File",
       "uploadMedia": "File",
       "recordVideo": "Record video",
@@ -1399,6 +1421,40 @@
       "metadata": "Metadata",
       "createdAt": "Created At",
       "device": "Device"
+    }
+  },
+  "subtitles": {
+    "search": "Search...",
+    "dragHint": "Drag subtitle to timeline to add it to your project",
+    "categories": {
+      "basic": "Basic",
+      "stylized": "Stylized",
+      "animated": "Animated",
+      "modern": "Modern",
+      "minimal": "Minimal",
+      "color": "Color",
+      "blur": "Blur",
+      "sharpen": "Sharpen",
+      "artistic": "Artistic",
+      "distortion": "Distortion",
+      "noise": "Noise",
+      "vintage": "Vintage",
+      "other": "Other",
+      "color-correction": "Color Correction",
+      "creative": "Creative",
+      "cinematic": "Cinematic",
+      "technical": "Technical",
+      "transition": "Transitions",
+      "motion": "Motion",
+      "light": "Light",
+      "particle": "Particles",
+      "text": "Text",
+      "3d": "3D"
+    },
+    "complexity": {
+      "basic": "Basic",
+      "advanced": "Advanced",
+      "intermediate": "Intermediate"
     }
   }
 }

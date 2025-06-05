@@ -4,20 +4,20 @@ import { convertFileSrc } from "@tauri-apps/api/core"
 import { readFile } from "@tauri-apps/plugin-fs"
 import { Film } from "lucide-react"
 
+import { useResources } from "@/features"
 import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
 import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/features/media/utils/video"
+import { TimelineResource } from "@/features/resources/types/resources"
 import { formatDuration } from "@/lib/date"
 import { cn, formatResolution } from "@/lib/utils"
 
+import { ApplyButton } from "../layout"
 import { AddMediaButton } from "../layout/add-media-button"
 import { FavoriteButton } from "../layout/favorite-button"
 
 interface VideoPreviewProps {
   file: MediaFile
-  onAddMedia?: (e: React.MouseEvent, file: MediaFile) => void
-  onDoubleClick?: (file: MediaFile) => void
-  isAdded?: boolean
   size?: number
   showFileName?: boolean
   dimensions?: [number, number]
@@ -36,27 +36,19 @@ interface VideoPreviewProps {
  * - Темная тема для UI элементов
  *
  * @param file - Объект файла с путем и метаданными
- * @param onAddMedia - Callback для добавления файла
- * @param isAdded - Флаг, показывающий добавлен ли файл
  * @param size - Размер превью в пикселях (по умолчанию 60)
  * @param showFileName - Флаг для отображения имени файла (по умолчанию false)
  * @param dimensions - Соотношение сторон контейнера [ширина, высота], по умолчанию [16, 9]
  * @param ignoreRatio - Флаг для игнорирования соотношения сторон (по умолчанию false)
  */
 export const VideoPreview = memo(
-  function VideoPreview({
-    file,
-    onAddMedia,
-    onDoubleClick,
-    isAdded,
-    size = 60,
-    showFileName = false,
-    ignoreRatio = false,
-  }: VideoPreviewProps) {
+  function VideoPreview({ file, size = 150, showFileName = false, ignoreRatio = false }: VideoPreviewProps) {
     const [isPlaying, setIsPlaying] = useState(false)
     const [hoverTime, setHoverTime] = useState<number | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
     const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
+    const { isAdded: isResourceAdded } = useResources()
+    const isAdded = isResourceAdded(file.id, "media")
 
     // Используем useRef для хранения времени последнего обновления
     const lastUpdateTimeRef = useRef(0)
@@ -228,7 +220,7 @@ export const VideoPreview = memo(
               <FavoriteButton file={file} size={size} type="media" />
 
               {/* Кнопка добавления для плейсхолдера */}
-              {onAddMedia && <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />}
+              <AddMediaButton resource={{ id: file.id, type: "media" } as TimelineResource} size={size} type="media" />
             </div>
           </div>
         ) : (
@@ -268,7 +260,6 @@ export const VideoPreview = memo(
                         : adptivedWidth,
                 }}
                 onClick={(e) => handlePlayPause(e, stream)}
-                onDoubleClick={() => onDoubleClick?.(file)}
               >
                 <div
                   className="group relative h-full w-full"
@@ -358,10 +349,11 @@ export const VideoPreview = memo(
                     <div
                       className={cn(
                         "pointer-events-none absolute rounded-xs bg-black/60 text-xs leading-[16px]",
-                        size > 100 ? "top-1 right-1 px-[4px] py-[2px]" : "top-0.5 right-0.5 px-0.5 py-0",
+                        "top-1 px-[4px] py-[2px]",
                       )}
                       style={{
                         fontSize: size > 100 ? "13px" : "11px",
+                        right: size / 30 + 25,
                         color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
                       }}
                     >
@@ -416,7 +408,7 @@ export const VideoPreview = memo(
                           size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"
                         } line-clamp-1 rounded-xs bg-black/60 text-xs leading-[16px] ${isMultipleStreams ? "max-w-[100%]" : "max-w-[60%]"}`}
                         style={{
-                          fontSize: size > 100 ? "13px" : "11px",
+                          fontSize: size > 100 ? "12px" : "11px",
                           color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
                         }}
                       >
@@ -424,13 +416,18 @@ export const VideoPreview = memo(
                       </div>
                     )}
 
+                  <ApplyButton resource={{ id: file.id, type: "media" } as TimelineResource} size={size} type="media" />
+
                   {/* Кнопка добавления */}
-                  {onAddMedia &&
-                    isLoaded &&
+                  {isLoaded &&
                     typeof stream.index !== "undefined" &&
                     stream.index ===
                       (file.probeData?.streams.filter((s) => s.codec_type === "video").length ?? 0) - 1 && (
-                      <AddMediaButton file={file} onAddMedia={onAddMedia} isAdded={isAdded} size={size} />
+                      <AddMediaButton
+                        resource={{ id: file.id, type: "media", name: file.name } as TimelineResource}
+                        size={size}
+                        type="media"
+                      />
                     )}
                 </div>
               </div>
@@ -445,11 +442,9 @@ export const VideoPreview = memo(
     const isSameFile = prevProps.file.path === nextProps.file.path
     const isSameMetadataState = prevProps.file.isLoadingMetadata === nextProps.file.isLoadingMetadata
     const isSameProps =
-      prevProps.isAdded === nextProps.isAdded &&
       prevProps.size === nextProps.size &&
       prevProps.showFileName === nextProps.showFileName &&
-      prevProps.ignoreRatio === nextProps.ignoreRatio &&
-      prevProps.onAddMedia === nextProps.onAddMedia
+      prevProps.ignoreRatio === nextProps.ignoreRatio
 
     // Сравниваем количество потоков (главный индикатор изменения метаданных)
     const prevStreamsCount = prevProps.file.probeData?.streams?.length ?? 0

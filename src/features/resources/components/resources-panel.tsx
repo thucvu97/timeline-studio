@@ -1,4 +1,17 @@
-import { Music, Package, Palette, Scissors, Sticker, Subtitles, Video } from "lucide-react"
+import {
+  Blend,
+  Clapperboard,
+  FlipHorizontal2,
+  Music,
+  Package,
+  Palette,
+  Scissors,
+  Sparkles,
+  Sticker,
+  Subtitles,
+  Type,
+  Video,
+} from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { useResources } from "@/features/resources"
@@ -29,7 +42,7 @@ export function ResourcesPanel() {
     {
       id: "media",
       name: t("browser.tabs.media"),
-      icon: <Video className="h-3.5 w-3.5 text-gray-400" />,
+      icon: <Clapperboard className="h-3.5 w-3.5 text-gray-400" />,
       resources: mediaResources,
     },
     {
@@ -41,25 +54,25 @@ export function ResourcesPanel() {
     {
       id: "subtitles",
       name: t("browser.tabs.subtitles"),
-      icon: <Subtitles className="h-3.5 w-3.5 text-gray-400" />,
+      icon: <Type className="h-3.5 w-3.5 text-gray-400" />,
       resources: subtitleResources,
     },
     {
       id: "effects",
       name: t("browser.tabs.effects"),
-      icon: <Package className="h-3.5 w-3.5 text-gray-400" />,
+      icon: <Sparkles className="h-3.5 w-3.5 text-gray-400" />,
       resources: effectResources,
     },
     {
       id: "filters",
       name: t("browser.tabs.filters"),
-      icon: <Palette className="h-3.5 w-3.5 text-gray-400" />,
+      icon: <Blend className="h-3.5 w-3.5 text-gray-400" />,
       resources: filterResources,
     },
     {
       id: "transitions",
       name: t("browser.tabs.transitions"),
-      icon: <Scissors className="h-3.5 w-3.5 text-gray-400" />,
+      icon: <FlipHorizontal2 className="h-3.5 w-3.5 text-gray-400" />,
       resources: transitionResources,
     },
     {
@@ -88,11 +101,11 @@ export function ResourcesPanel() {
           {resources.map((resource) => (
             <div
               key={resource.id}
-              className="relative mb-1 flex h-[26px] w-[110px] flex-shrink-0 cursor-pointer items-center gap-2 rounded-sm border border-[#333] bg-[#2a2a2a] px-2 hover:bg-[#333]"
+              className="relative mb-1 flex h-[26px] w-[110px] flex-shrink-0 cursor-pointer items-center gap-2 rounded-sm border border-[#333] px-2 hover:bg-[#444] hover:text-white transition-colors duration-150"
             >
               {/* Иконка ресурса (слева) */}
               <div className="flex-shrink-0">
-                {resource.type === "media" && <Video className="h-4 w-4" />}
+                {resource.type === "media" && <Clapperboard className="h-4 w-4" />}
                 {resource.type === "music" && <Music className="h-4 w-4" />}
                 {resource.type === "subtitle" && <Subtitles className="h-4 w-4" />}
                 {resource.type === "effect" && <Package className="h-4 w-4" />}
@@ -104,7 +117,7 @@ export function ResourcesPanel() {
 
               {/* Название ресурса (справа) */}
               <div className="flex-1 overflow-hidden">
-                <div className="truncate text-[10px] text-gray-300">
+                <div className="truncate text-[10px]">
                   {resource.type === "template"
                     ? t(`templates.templateLabels.${resource.name}`, resource.name)
                     : resource.type === "style-template"
@@ -120,10 +133,10 @@ export function ResourcesPanel() {
   }
 
   return (
-    <div className="flex h-full flex-col bg-background text-white">
-      <div className="border-b border-[#333] p-1.5">
+    <div className="flex h-full flex-col bg-background">
+      {/* <div className="border-b border-[#333] p-1.5">
         <h3 className="text-xs font-medium">{t("timeline.resources.title", "Ресурсы")}</h3>
-      </div>
+      </div> */}
 
       {/* Прокручиваемый контейнер для всех категорий */}
       <div className="scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent flex-1 overflow-y-auto">
@@ -131,11 +144,11 @@ export function ResourcesPanel() {
           {categories.map((category) => (
             <div key={category.id} className="space-y-1">
               {/* Заголовок категории */}
-              <div className="flex items-center gap-1.5 border-b border-[#333] pb-1 text-[11px] font-medium text-gray-300">
+              <div className="flex items-center gap-1.5 border-b border-[#333] pb-1 text-[11px] font-medium">
                 {category.icon}
                 {category.name}
                 {category.resources.length > 0 && (
-                  <span className="ml-1 text-[9px] text-gray-500">({category.resources.length})</span>
+                  <span className="ml-1 text-[9px]">({category.resources.length})</span>
                 )}
               </div>
 
@@ -144,7 +157,7 @@ export function ResourcesPanel() {
 
               {/* Сообщение, если нет ресурсов */}
               {category.resources.length === 0 && (
-                <div className="pl-1 text-[10px] text-gray-500">
+                <div className="pl-1 text-[10px] text-muted-foreground">
                   {t("timeline.resources.noResources", "Нет добавленных ресурсов")}
                 </div>
               )}

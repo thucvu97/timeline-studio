@@ -5,9 +5,9 @@
 
 /**
  * Допустимые размеры превью для всех типов контента
- * Начинаем со 100
+ * Начинаем со 125px и заканчиваем на 500px
  */
-export const PREVIEW_SIZES = [100, 125, 150, 200, 250, 300, 400, 500] as const
+export const PREVIEW_SIZES = [125, 150, 200, 250, 300, 400, 500] as const
 
 /**
  * Размер превью по умолчанию
@@ -17,7 +17,7 @@ export const DEFAULT_SIZE = 200
 /**
  * Минимальный размер превью
  */
-export const MIN_SIZE = 100
+export const MIN_SIZE = 125
 
 /**
  * Максимальный размер превью
@@ -27,7 +27,7 @@ export const MAX_SIZE = 500
 /**
  * Индекс размера по умолчанию в массиве PREVIEW_SIZES
  */
-export const DEFAULT_PREVIEW_SIZE_INDEX = 3 // 200px
+export const DEFAULT_PREVIEW_SIZE_INDEX = 3 // 250px
 
 /**
  * Тип для размеров превью
@@ -51,14 +51,14 @@ export type PreviewSizeKey =
  * Настройки размеров по умолчанию для разных типов контента
  */
 export const DEFAULT_CONTENT_SIZES: Record<PreviewSizeKey, PreviewSize> = {
-  MEDIA: 200, // Базовый размер для медиа
-  TEMPLATES: 200, // Больше для шаблонов, чтобы лучше видеть детали
-  STYLE_TEMPLATES: 200, // Средний размер для стилевых шаблонов
-  EFFECTS: 200, // Базовый размер для эффектов
-  FILTERS: 200, // Базовый размер для фильтров
-  TRANSITIONS: 200, // Базовый размер для переходов
-  SUBTITLES: 200, // Чуть больше для субтитров
-  MUSIC: 200, // Базовый размер для музыки
+  MEDIA: 250, // Базовый размер для медиа
+  TEMPLATES: 250, // Больше для шаблонов, чтобы лучше видеть детали
+  STYLE_TEMPLATES: 250, // Средний размер для стилевых шаблонов
+  EFFECTS: 250, // Базовый размер для эффектов
+  FILTERS: 250, // Базовый размер для фильтров
+  TRANSITIONS: 250, // Базовый размер для переходов
+  SUBTITLES: 250, // Чуть больше для субтитров
+  MUSIC: 250, // Базовый размер для музыки
 }
 
 /**

@@ -3,9 +3,11 @@ import { useCallback, useMemo, useState } from "react"
 import { Play } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ApplyButton } from "@/features"
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
 import { useResources } from "@/features/resources"
+import { StyleTemplateResource } from "@/features/resources/types/resources"
 
 import { StyleTemplate } from "../types"
 
@@ -118,7 +120,7 @@ export function StyleTemplatePreview({
         {/* Кнопка воспроизведения при наведении */}
         {isHovered && template.previewVideo && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="rounded-full bg-blue-600 p-3 transition-transform hover:scale-110">
+            <div className="rounded-full bg-teal p-3 transition-transform hover:scale-110">
               <Play className="h-6 w-6 text-white" fill="white" />
             </div>
           </div>
@@ -131,7 +133,7 @@ export function StyleTemplatePreview({
           </div>
         </div>
 
-        <div className="absolute top-1 right-1">
+        <div className="absolute bottom-1 left-1">
           <div className="bg-black bg-opacity-60 text-white rounded px-1 py-0.5 text-[8px]">
             {getCategoryName(template.category).slice(0, 3).toUpperCase()}
           </div>
@@ -144,31 +146,35 @@ export function StyleTemplatePreview({
             path: "",
             name: template.name[currentLanguage],
           }}
-          size={Math.min(width, height)}
-          type="template"
+          size={size}
+          type="style-template"
         />
+
+        {/* Кнопка применения шаблона */}
+        {template && (
+          <ApplyButton
+            resource={
+              {
+                id: template.id,
+                type: "style-template",
+                name: template.name[currentLanguage],
+              } as StyleTemplateResource
+            }
+            size={size}
+            type="style-template"
+          />
+        )}
 
         {/* Кнопка добавления в ресурсы */}
         <div
           className={`${isAdded ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity duration-200`}
         >
           <AddMediaButton
-            file={{
-              id: template.id,
-              path: "",
-              name: template.name[currentLanguage],
-            }}
-            onAddMedia={(e) => {
-              e.stopPropagation()
-              addStyleTemplate(template)
-            }}
-            onRemoveMedia={(e: React.MouseEvent) => {
-              e.stopPropagation()
-              // Логика удаления из ресурсов (если нужна)
-              console.log("Remove style template:", template.id)
-            }}
-            isAdded={isAdded}
-            size={Math.min(width, height)}
+            resource={
+              { id: template.id, type: "style-template", name: template.name[currentLanguage] } as StyleTemplateResource
+            }
+            size={size}
+            type="style-template"
           />
         </div>
       </div>

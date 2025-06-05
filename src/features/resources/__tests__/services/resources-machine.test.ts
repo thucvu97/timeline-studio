@@ -38,6 +38,7 @@ describe("resourcesMachine", () => {
     // Проверяем начальный контекст
     expect(snapshot.context).toEqual({
       resources: [],
+      mediaResources: [],
       effectResources: [],
       filterResources: [],
       transitionResources: [],

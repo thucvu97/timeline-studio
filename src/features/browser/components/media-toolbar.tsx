@@ -83,7 +83,6 @@ export interface MediaToolbarProps {
   onToggleFavorites: () => void
 
   // Импорт (опционально)
-  onImport?: () => void
   onImportFile?: () => void
   onImportFolder?: () => void
   isImporting?: boolean
@@ -135,7 +134,6 @@ export function MediaToolbar({
   onToggleFavorites,
 
   // Импорт
-  onImport,
   onImportFile,
   onImportFolder,
   isImporting = false,
@@ -184,15 +182,15 @@ export function MediaToolbar({
     <div className={cn("flex items-center justify-between py-2 px-1 bg-background", className)}>
       <div className="flex h-7 w-[calc(100%-100px)] items-center gap-2">
         {/* Кнопка импорта */}
-        {showImport && onImport && (
+        {showImport && onImportFile && (
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              "flex cursor-pointer items-center gap-1 bg-[#DDDDDD] px-1 h-7 text-xs hover:bg-[#D1D1D1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25 dark:text-teal",
+              "flex cursor-pointer items-center gap-1 bg-[#DDDDDD] px-1 h-7 ml-1 text-xs hover:bg-[#D1D1D1] dark:bg-[#45444b] dark:hover:bg-[#dddbdd]/25 dark:text-teal rounded-sm",
               isImporting && "opacity-70 cursor-wait",
             )}
-            onClick={onImport}
+            onClick={onImportFile}
             disabled={isImporting}
           >
             <span className="px-2 text-xs">

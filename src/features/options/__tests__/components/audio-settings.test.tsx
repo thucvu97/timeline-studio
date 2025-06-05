@@ -18,9 +18,6 @@ describe("AudioSettings", () => {
 
     // Проверяем, что компонент рендерится
     expect(screen.getByTestId("audio-settings")).toBeInTheDocument()
-
-    // Проверяем заголовок
-    expect(screen.getByText("options.audio.title")).toBeInTheDocument()
   })
 
   it("should render all audio setting controls", () => {

@@ -346,6 +346,6 @@ export function getToolbarConfigForContent(
         showGroupBy: true, // Группировка по категориям и стилям
       }
     default:
-      return getToolbarConfigForContent("music")
+      return getToolbarConfigForContent("media") // Дефолт для медиа
   }
 }

@@ -28,7 +28,7 @@ const initialContext: PlayerContextType = {
   isRecording: false,
   isVideoLoading: false,
   isVideoReady: false,
-  isResizableMode: true, // По умолчанию включен режим resizable
+  isResizableMode: false,
   duration: 0,
   volume: 100, // Значение по умолчанию, будет заменено из пользовательских настроек
 }

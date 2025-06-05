@@ -10,6 +10,7 @@ import {
   FilterResource,
   MediaResource,
   MusicResource,
+  ResourceType,
   StyleTemplateResource,
   SubtitleResource,
   TemplateResource,
@@ -24,26 +25,30 @@ import { ResourcesMachineContext, resourcesMachine } from "./resources-machine"
 
 interface ResourcesContextType extends ResourcesMachineContext {
   // Методы для работы с ресурсами
+  addResource: (resource: ResourceType, object: any) => void
+
+  addMedia: (file: MediaFile) => void
+  addMusic: (file: MediaFile) => void
+  addSubtitle: (style: SubtitleStyle) => void
   addEffect: (effect: VideoEffect) => void
   addFilter: (filter: VideoFilter) => void
   addTransition: (transition: Transition) => void
   addTemplate: (template: MediaTemplate) => void
   addStyleTemplate: (template: StyleTemplate) => void
-  addMusic: (file: MediaFile) => void
-  addMedia: (file: MediaFile) => void
-  addSubtitle: (style: SubtitleStyle) => void
   removeResource: (resourceId: string) => void
   updateResource: (resourceId: string, params: Record<string, any>) => void
 
   // Методы для проверки наличия ресурса в хранилище
+  isAdded: (resourceId: string, resource: ResourceType) => boolean
+
+  isMediaAdded: (file: MediaFile) => boolean
+  isMusicAdded: (file: MediaFile) => boolean
+  isSubtitleAdded: (style: SubtitleStyle) => boolean
   isEffectAdded: (effect: VideoEffect) => boolean
   isFilterAdded: (filter: VideoFilter) => boolean
   isTransitionAdded: (transition: Transition) => boolean
   isTemplateAdded: (template: MediaTemplate) => boolean
   isStyleTemplateAdded: (template: StyleTemplate) => boolean
-  isMusicAdded: (file: MediaFile) => boolean
-  isMediaAdded: (file: MediaFile) => boolean
-  isSubtitleAdded: (style: SubtitleStyle) => boolean
 }
 
 interface ResourcesProviderProps {
@@ -136,6 +141,49 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     [send],
   )
 
+  const handleAddResource = React.useCallback(
+    (resource: ResourceType, object: any) => {
+      switch (resource) {
+        case "media":
+          handleAddMedia(object as MediaFile)
+          break
+        case "music":
+          handleAddMusic(object as MediaFile)
+          break
+        case "subtitle":
+          handleAddSubtitle(object as SubtitleStyle)
+          break
+        case "effect":
+          handleAddEffect(object as VideoEffect)
+          break
+        case "filter":
+          handleAddFilter(object as VideoFilter)
+          break
+        case "transition":
+          handleAddTransition(object as Transition)
+          break
+        case "template":
+          handleAddTemplate(object as MediaTemplate)
+          break
+        case "style-template":
+          handleAddStyleTemplate(object as StyleTemplate)
+          break
+        default:
+          console.warn("Unknown resource type:", resource)
+      }
+    },
+    [
+      handleAddMedia,
+      handleAddMusic,
+      handleAddSubtitle,
+      handleAddEffect,
+      handleAddFilter,
+      handleAddTransition,
+      handleAddTemplate,
+      handleAddStyleTemplate,
+    ],
+  )
+
   const handleRemoveResource = React.useCallback(
     (resourceId: string) => {
       send({ type: "REMOVE_RESOURCE", resourceId })
@@ -148,6 +196,13 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
       send({ type: "UPDATE_RESOURCE", resourceId, params })
     },
     [send],
+  )
+
+  const isAdded = React.useCallback(
+    (resourceId: string, resource: ResourceType) => {
+      return resources.some((res) => res.type === resource && res.resourceId === resourceId)
+    },
+    [resources],
   )
 
   // Методы для проверки наличия ресурса в хранилище
@@ -385,10 +440,12 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     addStyleTemplate: handleAddStyleTemplate,
     addMusic: handleAddMusic,
     addSubtitle: handleAddSubtitle,
+    addResource: handleAddResource,
     removeResource: handleRemoveResource,
     updateResource: handleUpdateResource,
 
     // Методы для проверки наличия ресурса в хранилище
+    isAdded,
     isEffectAdded,
     isFilterAdded,
     isTransitionAdded,
