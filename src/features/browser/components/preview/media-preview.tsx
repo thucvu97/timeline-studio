@@ -47,7 +47,7 @@ export function MediaPreview({
           ignoreRatio ? "w-full h-full" : "aspect-video",
         )}
         style={{
-          width: ignoreRatio ? "h-full" : `${((size * dimensions[0]) / dimensions[1]).toFixed(0)}px`,
+          width: ignoreRatio ? "w-full" : `${((size * dimensions[0]) / dimensions[1]).toFixed(0)}px`,
           height: ignoreRatio ? "h-full" : `${size}px`,
         }}
       >
