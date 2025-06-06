@@ -18,6 +18,7 @@ import { useClips } from "../hooks/use-clips"
 import { useTimeline } from "../hooks/use-timeline"
 import { useTracks } from "../hooks/use-tracks"
 import { Track } from "./track/track"
+import { TimelineScale } from "./timeline-scale"
 
 export function TimelineContent() {
   const {
@@ -124,28 +125,15 @@ export function TimelineContent() {
         </div>
       </div>
 
-      {/* Временная шкала (упрощенная) */}
+      {/* Временная шкала */}
       <div className="p-4 border-b bg-muted/30">
-        <div className="relative h-8 bg-card border border-border rounded-md shadow-sm">
-          {/* Временные метки */}
-          {Array.from({ length: 11 }, (_, i) => i * 30).map((time) => (
-            <div
-              key={time}
-              className="absolute top-0 h-full flex items-center cursor-pointer hover:bg-accent/50 transition-colors rounded-sm"
-              style={{ left: `${(time / 300) * 100}%` }}
-              onClick={() => handleSeek(time)}
-            >
-              <div className="w-px h-4 bg-border ml-2" />
-              <span className="text-xs text-muted-foreground ml-1">{formatTime(time)}</span>
-            </div>
-          ))}
-
-          {/* Playhead */}
-          <div
-            className="absolute top-0 w-0.5 h-full bg-primary z-10 shadow-sm"
-            style={{ left: `${(currentTime / 300) * 100}%` }}
-          />
-        </div>
+        <TimelineScale
+          startTime={0}
+          // endTime={sector.endTime}
+          // duration={sector.endTime - sector.startTime}
+          // sectorDate={sector.date}
+          // sectorZoomLevel={sectionZoomLevels[sector.date]}
+        />
       </div>
 
       {/* Треки */}
