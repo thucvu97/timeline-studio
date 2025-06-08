@@ -33,7 +33,7 @@ export function LayoutPreviews() {
         />
         <DualLayout
           isActive={layoutMode === "dual"}
-          hasExternalDisplay={true}
+          hasExternalDisplay={false}
           onClick={() => {
             handleLayoutChange("dual")
           }}
