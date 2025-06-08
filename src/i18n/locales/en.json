@@ -102,7 +102,7 @@
     "layouts": {
       "default": "Default",
       "options": "Options",
-      "vertical": "Vertical Video",
+      "vertical": "Vertical",
       "dual": "Dual View",
       "externalDisplayRequired": "External display required"
     }

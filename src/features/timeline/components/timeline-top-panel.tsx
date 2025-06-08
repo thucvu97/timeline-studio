@@ -1,14 +1,6 @@
 import { useState } from "react"
 
-import {
-  LayoutTemplate,
-  MoveHorizontal,
-  Redo2,
-  Scissors,
-  SquareMousePointer,
-  Trash2,
-  Undo2,
-} from "lucide-react"
+import { LayoutTemplate, MoveHorizontal, Redo2, Scissors, SquareMousePointer, Trash2, Undo2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"

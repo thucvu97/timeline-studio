@@ -10,7 +10,7 @@ export function DefaultLayout({ isActive, onClick }: LayoutProps) {
   const { t } = useTranslation()
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted/50" : "hover:bg-muted/50"} p-2 pb-1`}
+      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted/40" : "hover:bg-muted/40"} p-2 pb-1`}
       onClick={onClick}
     >
       <div className=" mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
@@ -39,10 +39,18 @@ export function DefaultLayout({ isActive, onClick }: LayoutProps) {
             </div>
           </div>
           <div className="flex h-[40%] w-full">
-            <div className="w-[10%] border-r-2 border-gray-700 p-1" />
-            <div className="relative w-[70%] px-2 py-1">
+            <div className="w-[20%] border-r-2 border-gray-700 p-1">
+              <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
+              <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
+              <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
+            </div>
+            <div className="relative w-[60%] border-r-2 px-2 py-1">
               <div className="bg-primary/70 mb-1 h-2 w-full rounded-sm" />
               <div className="bg-primary/70 h-2 w-[75%] rounded-sm" />
+            </div>
+            <div className="w-[20%] border-gray-700 p-1">
+              <div className="bg-primary/70 h-0.5 w-full rounded-sm" />
+              <div className="bg-primary/70 mt-6 h-1 w-full rounded-sm" />
             </div>
           </div>
         </div>
@@ -56,7 +64,7 @@ export function OptionsLayout({ isActive, onClick }: LayoutProps) {
   const { t } = useTranslation()
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted/50" : "hover:bg-muted/50"} p-2 pb-1`}
+      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted/40" : "hover:bg-muted/40"} p-2 pb-1`}
       onClick={onClick}
     >
       <div className=" mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
@@ -85,10 +93,18 @@ export function OptionsLayout({ isActive, onClick }: LayoutProps) {
             </div>
           </div>
           <div className="flex h-[40%] w-full">
-            <div className="w-[15%] border-r-2 border-gray-700 p-1" />
-            <div className="relative w-[70%] px-2 py-1">
+            <div className="w-[20%] border-r-2 border-gray-700 p-1">
+              <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
+              <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
+              <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
+            </div>
+            <div className="relative w-[60%] border-r-2 px-2 py-1">
               <div className="bg-primary/70 mb-1 h-2 w-full rounded-sm" />
               <div className="bg-primary/70 h-2 w-[75%] rounded-sm" />
+            </div>
+            <div className="w-[20%] border-gray-700 p-1">
+              <div className="bg-primary/70 h-0.5 w-full rounded-sm" />
+              <div className="bg-primary/70 mt-6 h-1 w-full rounded-sm" />
             </div>
           </div>
         </div>
@@ -109,40 +125,53 @@ export function VerticalLayout({ isActive, onClick }: LayoutProps) {
   const { t } = useTranslation()
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted/50" : "hover:bg-muted/50"} p-2 pb-1`}
+      className={`flex cursor-pointer flex-col items-center ${isActive ? "bg-muted/40" : "hover:bg-muted/40"} p-2 pb-1`}
       onClick={onClick}
     >
       <div className=" mb-1 flex h-24 w-40 flex-row border-2 border-gray-700">
         <div className="flex h-full w-[70%] flex-col">
           <div className="flex h-[50%] w-full border-b-2 border-gray-700">
-            <div className="w-[50%] p-1">
+            <div className="w-[65%] p-1">
               <div className="w-full">
                 <div className="m-0 mb-1 flex flex-2 flex-row items-center gap-1 p-0">
-                  <div className="bg-primary/70 h-2 w-[35%] rounded-xs" />
-                  <div className="bg-primary/70 h-1 w-[65%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
                 </div>
                 <div className="m-0 mb-1 flex flex-2 flex-row items-center gap-1 p-0">
-                  <div className="bg-primary/70 h-2 w-[35%] rounded-xs" />
-                  <div className="bg-primary/70 h-1 w-[65%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
                 </div>
                 <div className="m-0 mb-1 flex flex-2 flex-row items-center gap-1 p-0">
-                  <div className="bg-primary/70 h-2 w-[35%] rounded-xs" />
-                  <div className="bg-primary/70 h-1 w-[65%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
+                  <div className="bg-primary/70 h-2 w-[25%] rounded-xs" />
                 </div>
               </div>
             </div>
-            <div className="w-[50%] border-l-2 border-gray-700 p-1">
+            <div className="w-[35%] border-l-2 border-gray-700 p-1">
               <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
               <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
               <div className="bg-primary/70 h-1 w-full rounded-sm" />
             </div>
           </div>
           <div className="flex h-[50%] w-full">
-            <div className="w-[14%] border-r-2 border-gray-700 p-1" />
-            <div className="relative w-[86%] px-2 py-1">
-              <div className="bg-primary/70 mb-1 ml-[13%] h-2 w-[85%] rounded-sm" />
-              <div className="bg-primary/70 mb-1 h-2 w-[75%] rounded-sm" />
-              <div className="bg-primary/70 ml-[10%] h-2 w-[75%] rounded-sm" />
+            <div className="w-[25%] border-r-2 border-gray-700 p-1">
+              <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
+              <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
+              <div className="bg-primary/70 mb-1 h-1 w-full rounded-sm" />
+            </div>
+            <div className="relative w-[50%] border-r-2 px-2 py-1">
+              <div className="bg-primary/70 mb-1 h-2 w-full rounded-sm" />
+              <div className="bg-primary/70 h-2 w-[75%] rounded-sm" />
+            </div>
+            <div className="w-[25%] border-gray-700 p-1">
+              <div className="bg-primary/70 h-0.5 w-full rounded-sm" />
+              <div className="bg-primary/70 mt-6 h-1 w-full rounded-sm" />
             </div>
           </div>
         </div>

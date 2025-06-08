@@ -75,6 +75,7 @@
     "@tauri-apps/plugin-opener": "^2.2.7",
     "@tauri-apps/plugin-store": "^2.2.0",
     "@tauri-apps/plugin-websocket": "~2.3.0",
+    "@tauri-apps/plugin-window": "^2.0.0-alpha.1",
     "@xstate/react": "^5.0.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -140,7 +141,7 @@
     "vitest": "^3.2.2"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.41.1",
+    "@rollup/rollup-linux-x64-gnu": "^4.42.0",
     "@tailwindcss/oxide-linux-x64-gnu": "^4.1.8",
     "@tailwindcss/oxide-linux-arm64-gnu": "^4.1.8",
     "@tailwindcss/oxide-darwin-x64": "^4.1.8",

@@ -1,6 +1,10 @@
 import React from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
+import {
+  ResizablePanel as Panel,
+  ResizablePanelGroup as PanelGroup,
+  ResizableHandle as PanelResizeHandle,
+} from "@/components/ui/resizable"
 
 import { VideoPanelComponent } from "../../video-panel-component"
 import { TemplateProps } from "../types"

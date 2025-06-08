@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Timeline Studio",
         "resizable": true,
         "fullscreen": false,
@@ -21,6 +22,16 @@
         "decorations": true,
         "maximized": true,
         "visible": true
+      },
+      {
+        "label": "second-window",
+        "title": "Timeline Studio - Video",
+        "width": 800,
+        "height": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true,
+        "visible": false
       }
     ],
     "security": {
@@ -28,21 +39,43 @@
       "assetProtocol": {
         "enable": true,
         "scope": {
-          "allow": ["**"]
+          "allow": [
+            "**"
+          ]
         }
       }
     }
   },
-  "plugins": {
+   "plugins": {
     "fs": {
       "requireLiteralLeadingDot": false
     },
-    "shell": {}
+    "shell": {},
+    "window": {
+      "label": {
+        "main": {
+          "permissions": [
+            "all"
+          ]
+        },
+        "second-window": {
+          "permissions": [
+            "all"
+          ]
+        }
+      }
+    }
   },
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
     "publisher": "Chatman Media",
     "copyright": "© 2025 Chatman Media",
     "category": "Video",

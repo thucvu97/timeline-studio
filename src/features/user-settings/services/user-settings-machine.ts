@@ -48,6 +48,8 @@ export interface UserSettingsContextType {
   openAiApiKey: string // API ключ для OpenAI
   claudeApiKey: string // API ключ для Claude
   isBrowserVisible: boolean // Флаг видимости браузера
+  isTimelineVisible: boolean // Флаг видимости временной шкалы
+  isOptionsVisible: boolean // Флаг видимости опций
   isLoaded: boolean // Флаг загрузки настроек
   browserSettings?: BrowserContext // Настройки состояния браузера (опционально)
 }
@@ -67,6 +69,8 @@ const initialContext: UserSettingsContextType = {
   openAiApiKey: "", // Пустой API ключ OpenAI
   claudeApiKey: "", // Пустой API ключ Claude
   isBrowserVisible: true, // Браузер виден по умолчанию
+  isTimelineVisible: true, // Временная шкала видна по умолчанию
+  isOptionsVisible: true, // Опции видны по умолчанию
   isLoaded: false, // Флаг загрузки настроек (изначально false)
 }
 
@@ -153,6 +157,23 @@ interface ToggleBrowserVisibilityEvent {
 }
 
 /**
+ * Интерфейс события переключения видимости временной шкалы
+ * @interface ToggleTimelineVisibilityEvent
+ */
+interface ToggleTimelineVisibilityEvent {
+  type: "TOGGLE_TIMELINE_VISIBILITY" // Тип события
+}
+
+// ToggleOptionsVisibilityEvent
+/**
+ * Интерфейс события переключения видимости опций
+ * @interface ToggleOptionsVisibilityEvent
+ */
+interface ToggleOptionsVisibilityEvent {
+  type: "TOGGLE_OPTIONS_VISIBILITY" // Тип события
+}
+
+/**
  * Интерфейс события обновления громкости плеера
  * @interface UpdatePlayerVolumeEvent
  */
@@ -186,6 +207,8 @@ export type UserSettingsEvent =
   | ToggleBrowserVisibilityEvent
   | UpdatePlayerVolumeEvent
   | UpdateAllSettingsEvent
+  | ToggleTimelineVisibilityEvent
+  | ToggleOptionsVisibilityEvent
 
 /**
  * Машина состояний для управления пользовательскими настройками
@@ -264,6 +287,16 @@ export const userSettingsMachine = createMachine(
           // Переключение видимости браузера
           TOGGLE_BROWSER_VISIBILITY: {
             actions: ["toggleBrowserVisibility"],
+          },
+
+          // Переключение видимости временной шкалы
+          TOGGLE_TIMELINE_VISIBILITY: {
+            actions: ["toggleTimelineVisibility"],
+          },
+
+          // Переключение видимости опций
+          TOGGLE_OPTIONS_VISIBILITY: {
+            actions: ["toggleOptionsVisibility"],
           },
 
           // Обновление громкости плеера
@@ -408,7 +441,6 @@ export const userSettingsMachine = createMachine(
 
       /**
        * Действие для переключения видимости браузера
-       * Инвертирует текущее значение флага видимости
        */
       toggleBrowserVisibility: assign(({ context }) => {
         console.log("Toggling browser visibility:", !context.isBrowserVisible)
@@ -417,6 +449,28 @@ export const userSettingsMachine = createMachine(
         return {
           ...context,
           isBrowserVisible: !context.isBrowserVisible, // Инвертируем текущее значение
+        }
+      }),
+
+      /**
+       * Действие для переключения видимости временной шкалы
+       */
+      toggleTimelineVisibility: assign(({ context }) => {
+        console.log("Toggling timeline visibility:", !context.isTimelineVisible)
+        return {
+          ...context,
+          isTimelineVisible: !context.isTimelineVisible,
+        }
+      }),
+
+      /**
+       * Действие для переключения видимости опций
+       */
+      toggleOptionsVisibility: assign(({ context }) => {
+        console.log("Toggling options visibility:", !context.isOptionsVisible)
+        return {
+          ...context,
+          isOptionsVisible: !context.isOptionsVisible,
         }
       }),
 

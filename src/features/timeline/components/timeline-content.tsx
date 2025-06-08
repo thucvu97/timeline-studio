@@ -14,11 +14,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
 
+import { TimelineScale } from "./timeline-scale"
 import { useClips } from "../hooks/use-clips"
 import { useTimeline } from "../hooks/use-timeline"
 import { useTracks } from "../hooks/use-tracks"
 import { Track } from "./track/track"
-import { TimelineScale } from "./timeline-scale"
 
 export function TimelineContent() {
   const {

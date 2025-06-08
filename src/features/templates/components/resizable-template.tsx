@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
-
+import { ResizableHandle as PanelResizeHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { MediaFile } from "@/features/media/types/media"
 import { usePlayer } from "@/features/video-player/services/player-provider"
 
@@ -881,11 +880,11 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
   // Для всех остальных шаблонов используем PanelGroup с оптимизированной загрузкой
   return (
     <div className="h-full w-full" style={{ overflow: "visible" }}>
-      <PanelGroup direction={direction} onLayout={(sizes) => setPanelSizes(sizes)}>
+      <ResizablePanelGroup direction={direction} onLayout={(sizes) => setPanelSizes(sizes)}>
         {validVideos.slice(0, videoCount).map((video, index) => {
           return (
             <React.Fragment key={`fragment-${video.id}-${index}`}>
-              <Panel key={`panel-${video.id}-${index}`} minSize={10}>
+              <ResizablePanel key={`panel-${video.id}-${index}`} minSize={10}>
                 {/* Для видео с низким приоритетом используем отложенную загрузку */}
                 <VideoPanelComponent
                   video={video}
@@ -893,7 +892,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
                   videoRefs={videoRefs}
                   index={index}
                 />
-              </Panel>
+              </ResizablePanel>
               {index < videoCount - 1 && (
                 <PanelResizeHandle
                   key={`handle-${+index}`}
@@ -907,7 +906,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
             </React.Fragment>
           )
         })}
-      </PanelGroup>
+      </ResizablePanelGroup>
     </div>
   )
 }

@@ -21,6 +21,8 @@ export interface UserSettingsContextValue {
   openAiApiKey: string // API ключ OpenAI
   claudeApiKey: string // API ключ Claude
   isBrowserVisible: boolean // Флаг видимости браузера
+  isTimelineVisible: boolean // Флаг видимости временной шкалы
+  isOptionsVisible: boolean // Флаг видимости опций
 
   // Методы для изменения настроек
   handleTabChange: (value: string) => void // Изменение активной вкладки
@@ -31,6 +33,8 @@ export interface UserSettingsContextValue {
   handleAiApiKeyChange: (value: string) => void // Изменение API ключа OpenAI
   handleClaudeApiKeyChange: (value: string) => void // Изменение API ключа Claude
   toggleBrowserVisibility: () => void // Переключение видимости браузера
+  toggleTimelineVisibility: () => void // Переключение видимости временной шкалы
+  toggleOptionsVisibility: () => void // Переключение видимости опций
 }
 
 /**
@@ -74,8 +78,35 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
     },
   )
 
-  // Примечание: Сохранение настроек в IndexedDB удалено, так как теперь используется Tauri Store
-  // для централизованного хранения данных через app-settings-provider
+  // Добавляем обработчик горячих клавиш Cmd+O/Ctrl+O для переключения видимости опций
+  useHotkeys(
+    "mod+o",
+    (event) => {
+      event.preventDefault()
+      send({
+        type: "TOGGLE_OPTIONS_VISIBILITY",
+      })
+    },
+    {
+      enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+      preventDefault: true,
+    },
+  )
+
+  // Добавляем обработчик горячих клавиш Cmd+T/Ctrl+T для переключения видимости опций
+  useHotkeys(
+    "mod+t",
+    (event) => {
+      event.preventDefault()
+      send({
+        type: "TOGGLE_TIMELINE_VISIBILITY",
+      })
+    },
+    {
+      enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+      preventDefault: true,
+    },
+  )
 
   // Создаем значение контекста, которое будет доступно через хук useUserSettings
   const value = {
@@ -88,6 +119,8 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
     openAiApiKey: state.context.openAiApiKey,
     claudeApiKey: state.context.claudeApiKey,
     isBrowserVisible: state.context.isBrowserVisible,
+    isTimelineVisible: state.context.isTimelineVisible,
+    isOptionsVisible: state.context.isOptionsVisible,
 
     /**
      * Обработчик изменения активной вкладки
@@ -212,6 +245,24 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
         type: "TOGGLE_BROWSER_VISIBILITY",
       })
       console.log("Browser visibility toggled")
+    },
+
+    toggleTimelineVisibility: () => {
+      console.log("Timeline visibility toggle requested")
+      // Отправляем событие в машину состояний
+      send({
+        type: "TOGGLE_TIMELINE_VISIBILITY",
+      })
+      console.log("Timeline visibility toggled")
+    },
+
+    toggleOptionsVisibility: () => {
+      console.log("Options visibility toggle requested")
+      // Отправляем событие в машину состояний
+      send({
+        type: "TOGGLE_OPTIONS_VISIBILITY",
+      })
+      console.log("Options visibility toggled")
     },
   }
 

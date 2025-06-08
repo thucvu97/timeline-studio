@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 
 import "@/styles/globals.css"
 
+import { AppErrorBoundary } from "@/components/error-boundary"
 import { Providers } from "@/features/media-studio/services/providers"
 
 const geistSans = Geist({
@@ -23,7 +24,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <AppErrorBoundary>{children}</AppErrorBoundary>
+        </Providers>
       </body>
     </html>
   )

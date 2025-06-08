@@ -8,21 +8,18 @@ export function LayoutPreviews() {
   const { layoutMode, handleLayoutChange } = useUserSettings()
   const { t } = useTranslation()
 
-  console.log("LayoutPreviews rendered with layoutMode:", layoutMode)
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-around gap-2">
         <DefaultLayout
           isActive={layoutMode === "default"}
           onClick={() => {
-            console.log("Clicking on DefaultLayout")
             handleLayoutChange("default")
           }}
         />
         <OptionsLayout
           isActive={layoutMode === "options"}
           onClick={() => {
-            console.log("Clicking on OptionsLayout")
             handleLayoutChange("options")
           }}
         />
@@ -31,15 +28,13 @@ export function LayoutPreviews() {
         <VerticalLayout
           isActive={layoutMode === "vertical"}
           onClick={() => {
-            console.log("Clicking on VerticalLayout")
             handleLayoutChange("vertical")
           }}
         />
         <DualLayout
           isActive={layoutMode === "dual"}
-          hasExternalDisplay={false}
+          hasExternalDisplay={true}
           onClick={() => {
-            console.log("Clicking on DualLayout")
             handleLayoutChange("dual")
           }}
         />

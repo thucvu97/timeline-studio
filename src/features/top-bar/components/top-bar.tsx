@@ -7,8 +7,12 @@ import {
   ListTodo,
   Mic,
   MonitorCog,
+  PanelBottomClose,
+  PanelBottomOpen,
   PanelLeftClose,
   PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
   Save,
   Send,
   Upload,
@@ -33,6 +37,8 @@ const TopBarComponent = function TopBar() {
   const { t } = useTranslation()
   const { openModal } = useModal()
   const { isBrowserVisible, toggleBrowserVisibility } = useUserSettings()
+  const { isTimelineVisible, toggleTimelineVisibility } = useUserSettings()
+  const { isOptionsVisible, toggleOptionsVisibility } = useUserSettings()
   const { currentProject, openProject, saveProject, setProjectDirty } = useCurrentProject()
   const [isEditing, setIsEditing] = useState(false)
   const [projectName, setProjectName] = useState(currentProject.name)
@@ -88,6 +94,7 @@ const TopBarComponent = function TopBar() {
   const buttonTitles = useMemo(
     () => ({
       browser: isBrowserVisible ? t("browser.hide") : t("browser.show"),
+      timeline: isTimelineVisible ? t("timeline.hide") : t("timeline.show"),
       layout: t("topBar.layout"),
       keyboardShortcuts: t("topBar.keyboardShortcuts"),
       userSettings: t("topBar.userSettings"),
@@ -136,6 +143,26 @@ const TopBarComponent = function TopBar() {
             title={buttonTitles.browser}
           >
             {isBrowserVisible ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className={TOP_BAR_BUTTON_CLASS}
+            onClick={toggleTimelineVisibility}
+            title={buttonTitles.timeline}
+          >
+            {isTimelineVisible ? <PanelBottomClose size={16} /> : <PanelBottomOpen size={16} />}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className={TOP_BAR_BUTTON_CLASS}
+            onClick={toggleOptionsVisibility}
+            title={buttonTitles.layout}
+          >
+            {isOptionsVisible ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
           </Button>
 
           <Popover>
