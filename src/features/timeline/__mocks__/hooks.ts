@@ -11,13 +11,18 @@ export const mockUseTimeline = vi.fn(() => ({
   error: null,
   
   // Project actions
-  createNewProject: vi.fn(() => mockTimelineService.createProject()),
+  createNewProject: vi.fn((name?: string) => mockTimelineService.createProject(name)),
   saveProject: vi.fn((project: TimelineProject) => mockTimelineService.saveProject(project)),
   loadProject: vi.fn((path: string) => mockTimelineService.loadProject(path)),
   
+  // Section actions
+  addSection: vi.fn((name: string, startTime: number, duration: number) => 
+    mockTimelineService.addSection(name, startTime, duration)
+  ),
+  
   // Track actions
-  addTrack: vi.fn((type: 'video' | 'audio', index?: number) => 
-    mockTimelineService.addTrack(type, index)
+  addTrack: vi.fn((type: 'video' | 'audio', sectionId?: string, index?: number) => 
+    mockTimelineService.addTrack(type, sectionId, index)
   ),
   removeTrack: vi.fn((trackId: string) => mockTimelineService.removeTrack(trackId)),
   
@@ -102,11 +107,11 @@ export const mockUseClips = vi.fn(() => ({
 
 // Mock useTracks hook
 export const mockUseTracks = vi.fn(() => ({
-  tracks: mockTimelineService.getProject().tracks,
+  tracks: mockTimelineService.getAllTracks(),
   
   getTrackById: vi.fn((trackId: string) => mockTimelineService.getTrack(trackId)),
   getTracksByType: vi.fn((type: 'video' | 'audio') => 
-    mockTimelineService.getProject().tracks.filter(t => t.type === type)
+    mockTimelineService.getAllTracks().filter(t => t.type === type)
   ),
   
   reorderTracks: vi.fn((fromIndex: number, toIndex: number) => {}),

@@ -1,27 +1,45 @@
 import { vi } from 'vitest';
 
-import { createTimelineClip, createTimelineProject, createTimelineTrack } from '../types/factories';
+import { createTimelineClip, createTimelineProject, createTimelineSection, createTimelineTrack } from '../types/factories';
 
-import type { TimelineClip, TimelineProject, TimelineTrack } from '../types';
+import type { TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from '../types';
+
+type EventListener = (...args: any[]) => void;
 
 export class MockTimelineService {
-  private project: TimelineProject = createTimelineProject();
-  private listeners = new Map<string, Set<Function>>();
+  private project: TimelineProject;
+  private listeners = new Map<string, Set<EventListener>>();
 
   constructor(initialProject?: TimelineProject) {
-    if (initialProject) {
-      this.project = initialProject;
-    }
+    this.project = initialProject || this.createDefaultProject();
+  }
+
+  private createDefaultProject(): TimelineProject {
+    const project = createTimelineProject('Test Project');
+    
+    // Add default section with tracks
+    const section = createTimelineSection('Main', 0, 0);
+    section.tracks = [
+      createTimelineTrack('Video 1', 'video', section.id),
+      createTimelineTrack('Audio 1', 'audio', section.id),
+    ];
+    project.sections = [section];
+    
+    return project;
   }
 
   // Project management
-  createProject = vi.fn(() => {
-    this.project = createTimelineProject({
-      tracks: [
-        createTimelineTrack({ type: 'video', order: 0, name: 'Video 1' }),
-        createTimelineTrack({ type: 'audio', order: 1, name: 'Audio 1' }),
-      ],
-    });
+  createProject = vi.fn((name = 'New Project') => {
+    this.project = createTimelineProject(name);
+    
+    // Add default section
+    const section = createTimelineSection('Main', 0, 0);
+    section.tracks = [
+      createTimelineTrack('Video 1', 'video', section.id),
+      createTimelineTrack('Audio 1', 'audio', section.id),
+    ];
+    this.project.sections = [section];
+    
     this.emit('projectCreated', this.project);
     return this.project;
   });
@@ -32,58 +50,105 @@ export class MockTimelineService {
     return Promise.resolve();
   });
 
-  loadProject = vi.fn((path: string) => {
+  loadProject = vi.fn((_path: string) => {
     this.emit('projectLoaded', this.project);
     return Promise.resolve(this.project);
   });
 
-  // Track management
-  addTrack = vi.fn((type: 'video' | 'audio', index?: number) => {
-    const track = createTimelineTrack({
-      type,
-      order: index ?? this.project.tracks.length,
-      name: `${type === 'video' ? 'Video' : 'Audio'} ${this.project.tracks.filter(t => t.type === type).length + 1}`,
-    });
+  // Section management
+  addSection = vi.fn((name: string, startTime: number, duration: number) => {
+    const section = createTimelineSection(
+      name,
+      startTime,
+      duration,
+      undefined,
+      this.project.sections.length
+    );
     
-    if (index !== undefined) {
-      this.project.tracks.splice(index, 0, track);
-      // Update order for tracks after insertion
-      this.project.tracks.forEach((t, i) => { t.order = i; });
+    // Add default tracks to section
+    section.tracks = [
+      createTimelineTrack('Video 1', 'video', section.id),
+      createTimelineTrack('Audio 1', 'audio', section.id),
+    ];
+    
+    this.project.sections.push(section);
+    this.updateProjectDuration();
+    this.emit('sectionAdded', section);
+    return section;
+  });
+
+  // Track management
+  addTrack = vi.fn((type: TrackType, sectionId?: string, index?: number) => {
+    let targetTracks: TimelineTrack[];
+    let section: TimelineSection | undefined;
+    
+    if (sectionId) {
+      section = this.project.sections.find(s => s.id === sectionId);
+      if (!section) {
+        throw new Error(`Section ${sectionId} not found`);
+      }
+      targetTracks = section.tracks;
     } else {
-      this.project.tracks.push(track);
+      targetTracks = this.project.globalTracks;
     }
     
-    this.emit('trackAdded', track);
+    const existingTracksOfType = targetTracks.filter(t => t.type === type);
+    const trackNumber = existingTracksOfType.length + 1;
+    const trackName = `${type === 'video' ? 'Video' : type === 'audio' ? 'Audio' : 'Text'} ${trackNumber}`;
+    
+    const track = createTimelineTrack(trackName, type, sectionId);
+    track.order = index ?? targetTracks.length;
+    
+    if (index !== undefined) {
+      targetTracks.splice(index, 0, track);
+      // Update order for tracks after insertion
+      targetTracks.forEach((t, i) => { t.order = i; });
+    } else {
+      targetTracks.push(track);
+    }
+    
+    this.emit('trackAdded', { track, sectionId });
     return track;
   });
 
   removeTrack = vi.fn((trackId: string) => {
-    const index = this.project.tracks.findIndex(t => t.id === trackId);
-    if (index >= 0) {
-      const [removed] = this.project.tracks.splice(index, 1);
-      // Update order for remaining tracks
-      this.project.tracks.forEach((t, i) => { t.order = i; });
+    // Check sections
+    for (const section of this.project.sections) {
+      const index = section.tracks.findIndex(t => t.id === trackId);
+      if (index >= 0) {
+        const [removed] = section.tracks.splice(index, 1);
+        section.tracks.forEach((t, i) => { t.order = i; });
+        this.emit('trackRemoved', removed);
+        return true;
+      }
+    }
+    
+    // Check global tracks
+    const globalIndex = this.project.globalTracks.findIndex(t => t.id === trackId);
+    if (globalIndex >= 0) {
+      const [removed] = this.project.globalTracks.splice(globalIndex, 1);
+      this.project.globalTracks.forEach((t, i) => { t.order = i; });
       this.emit('trackRemoved', removed);
       return true;
     }
+    
     return false;
   });
 
   // Clip management
   addClip = vi.fn((trackId: string, mediaFile: any, position?: number) => {
-    const track = this.project.tracks.find(t => t.id === trackId);
+    const track = this.findTrackById(trackId);
     if (!track) {
       throw new Error(`Track ${trackId} not found`);
     }
 
-    const clip = createTimelineClip({
+    const clip = createTimelineClip(
+      mediaFile.id,
       trackId,
-      mediaFileId: mediaFile.id,
-      startTime: position ?? 0,
-      endTime: (position ?? 0) + (mediaFile.duration ?? 10),
-      inPoint: 0,
-      outPoint: mediaFile.duration ?? 10,
-    });
+      position ?? 0,
+      mediaFile.duration ?? 10,
+      0
+    );
 
     track.clips.push(clip);
     track.clips.sort((a, b) => a.startTime - b.startTime);
@@ -94,7 +159,7 @@ export class MockTimelineService {
   });
 
   removeClip = vi.fn((trackId: string, clipId: string) => {
-    const track = this.project.tracks.find(t => t.id === trackId);
+    const track = this.findTrackById(trackId);
     if (!track) return false;
 
     const index = track.clips.findIndex(c => c.id === clipId);
@@ -108,15 +173,13 @@ export class MockTimelineService {
   });
 
   moveClip = vi.fn((trackId: string, clipId: string, newStartTime: number) => {
-    const track = this.project.tracks.find(t => t.id === trackId);
+    const track = this.findTrackById(trackId);
     if (!track) return false;
 
     const clip = track.clips.find(c => c.id === clipId);
     if (!clip) return false;
 
-    const duration = clip.endTime - clip.startTime;
     clip.startTime = newStartTime;
-    clip.endTime = newStartTime + duration;
     
     track.clips.sort((a, b) => a.startTime - b.startTime);
     this.updateProjectDuration();
@@ -127,34 +190,69 @@ export class MockTimelineService {
   // Utility methods
   getProject = vi.fn(() => this.project);
   
-  getTrack = vi.fn((trackId: string) => 
-    this.project.tracks.find(t => t.id === trackId)
+  getSection = vi.fn((sectionId: string) => 
+    this.project.sections.find(s => s.id === sectionId)
   );
+  
+  getTrack = vi.fn((trackId: string) => this.findTrackById(trackId));
 
   getClip = vi.fn((trackId: string, clipId: string) => {
-    const track = this.getTrack(trackId);
+    const track = this.findTrackById(trackId);
     return track?.clips.find(c => c.id === clipId);
   });
 
+  private findTrackById(trackId: string): TimelineTrack | undefined {
+    // Search in sections
+    for (const section of this.project.sections) {
+      const track = section.tracks.find(t => t.id === trackId);
+      if (track) return track;
+    }
+    
+    // Search in global tracks
+    return this.project.globalTracks.find(t => t.id === trackId);
+  }
+
   private updateProjectDuration() {
     let maxEndTime = 0;
-    for (const track of this.project.tracks) {
-      for (const clip of track.clips) {
-        maxEndTime = Math.max(maxEndTime, clip.endTime);
+    
+    // Check all sections
+    for (const section of this.project.sections) {
+      for (const track of section.tracks) {
+        for (const clip of track.clips) {
+          const clipEndTime = clip.startTime + clip.duration;
+          maxEndTime = Math.max(maxEndTime, clipEndTime);
+        }
+      }
+      // Update section duration
+      if (section.tracks.length > 0) {
+        const sectionEnd = Math.max(...section.tracks.flatMap(t => 
+          t.clips.map(c => c.startTime + c.duration)
+        ).filter(t => !isNaN(t)));
+        section.duration = Math.max(0, sectionEnd - section.startTime);
+        section.endTime = section.startTime + section.duration;
       }
     }
+    
+    // Check global tracks
+    for (const track of this.project.globalTracks) {
+      for (const clip of track.clips) {
+        const clipEndTime = clip.startTime + clip.duration;
+        maxEndTime = Math.max(maxEndTime, clipEndTime);
+      }
+    }
+    
     this.project.duration = maxEndTime;
   }
 
   // Event emitter for testing
-  on(event: string, listener: Function) {
+  on(event: string, listener: EventListener) {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
     this.listeners.get(event)!.add(listener);
   }
 
-  off(event: string, listener: Function) {
+  off(event: string, listener: EventListener) {
     this.listeners.get(event)?.delete(listener);
   }
 
@@ -164,13 +262,24 @@ export class MockTimelineService {
 
   // Test helpers
   reset() {
-    this.project = createTimelineProject();
+    this.project = this.createDefaultProject();
     this.listeners.clear();
     vi.clearAllMocks();
   }
 
   setProject(project: TimelineProject) {
     this.project = project;
+  }
+
+  // Helper to get all tracks across sections and global
+  getAllTracks(): TimelineTrack[] {
+    const sectionTracks = this.project.sections.flatMap(s => s.tracks);
+    return [...sectionTracks, ...this.project.globalTracks];
+  }
+
+  // Helper to get all clips across all tracks
+  getAllClips(): TimelineClip[] {
+    return this.getAllTracks().flatMap(t => t.clips);
   }
 }
 
