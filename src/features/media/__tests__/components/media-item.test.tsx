@@ -66,7 +66,7 @@ describe("MediaItem", () => {
     // Проверяем, что переданы правильные пропсы
     expect(screen.getByTestId("media-preview").dataset.fileId).toBe("test-file")
     expect(screen.getByTestId("media-preview").dataset.size).toBe("100")
-    expect(screen.getByTestId("media-preview").dataset.ignoreRatio).toBe("true")
+    expect(screen.getByTestId("media-preview").dataset.ignoreRatio).toBe("false")
     expect(screen.getByTestId("file-metadata").dataset.fileId).toBe("test-file")
     expect(screen.getByTestId("file-metadata").dataset.size).toBe("100")
   })

@@ -29,6 +29,7 @@ import { ModalType } from "@/features/modals"
 import { useModal } from "@/features/modals/services/modal-provider"
 import { ThemeToggle } from "@/features/top-bar/components/theme/theme-toggle"
 import { useUserSettings } from "@/features/user-settings"
+import { GpuStatusBadge, RenderJobsDropdown } from "@/features/video-compiler"
 import { cn } from "@/lib/utils"
 
 export const TOP_BAR_BUTTON_CLASS = "hover:bg-[#D1D1D1] dark:hover:bg-[#464747] h-6 w-6 cursor-pointer m-0.5 p-0"
@@ -311,25 +312,8 @@ const TopBarComponent = function TopBar() {
             </PopoverContent>
           </Popover>
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                className={TOP_BAR_BUTTON_CLASS}
-                variant="ghost"
-                size="icon"
-                title={buttonTitles.editingTasks}
-                data-testid="editing-tasks-button"
-              >
-                <ListTodo className="h-5 w-5" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64" sideOffset={0}>
-              <div className="">
-                <h4 className="text-sm font-semibold">{t("topBar.projectTasks")}</h4>
-                <div className="h-10" />
-              </div>
-            </PopoverContent>
-          </Popover>
+          <GpuStatusBadge className="mr-2" />
+          <RenderJobsDropdown />
           <Button
             variant="outline"
             size="sm"

@@ -8,53 +8,26 @@
 //! - Отслеживание прогресса (ProgressTracker)
 
 pub mod cache;
+pub mod commands;
 pub mod error;
 pub mod ffmpeg_builder;
+pub mod gpu;
 pub mod pipeline;
 pub mod preview;
 pub mod progress;
 pub mod renderer;
 pub mod schema;
 
+#[cfg(test)]
+mod test_integration;
+
 // Re-export основных типов для удобства использования
-pub use cache::RenderCache;
+pub use commands::VideoCompilerState;
 pub use error::{Result, VideoCompilerError};
 pub use preview::PreviewGenerator;
-pub use progress::{RenderJob, RenderProgress};
-pub use schema::ProjectSchema;
+pub use progress::RenderProgress;
 
-use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use tokio::sync::RwLock;
-
-/// Состояние Video Compiler для Tauri
-#[derive(Debug)]
-pub struct VideoCompilerState {
-  /// Активные задачи рендеринга
-  pub active_jobs: Arc<DashMap<String, RenderJob>>,
-  /// Кэш рендеринга и превью
-  pub cache: Arc<RwLock<RenderCache>>,
-  /// Настройки компилятора
-  pub settings: Arc<RwLock<CompilerSettings>>,
-}
-
-impl VideoCompilerState {
-  /// Создать новое состояние Video Compiler
-  pub fn new() -> Self {
-    Self {
-      active_jobs: Arc::new(DashMap::new()),
-      cache: Arc::new(RwLock::new(RenderCache::new())),
-      settings: Arc::new(RwLock::new(CompilerSettings::default())),
-    }
-  }
-}
-
-impl Default for VideoCompilerState {
-  fn default() -> Self {
-    Self::new()
-  }
-}
 
 /// Настройки компилятора видео
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -107,44 +80,91 @@ pub enum VideoCompilerEvent {
   CacheUpdated { cache_size_mb: f64 },
 }
 
-/// Проверка зависимостей Video Compiler
-pub async fn check_dependencies() -> Result<()> {
-  // Проверяем наличие FFmpeg
-  let output = tokio::process::Command::new("ffmpeg")
-    .arg("-version")
-    .output()
-    .await;
+/// Проверка зависимостей Video Compiler и возврат пути к FFmpeg
+pub async fn check_dependencies() -> Result<String> {
+  // Список возможных путей к FFmpeg в разных системах
+  let ffmpeg_paths = vec![
+    "ffmpeg",                                     // По умолчанию в PATH
+    "/usr/bin/ffmpeg",                            // Linux стандартный путь
+    "/usr/local/bin/ffmpeg",                      // macOS через brew (Intel)
+    "/opt/homebrew/bin/ffmpeg",                   // macOS через brew (Apple Silicon)
+    "/snap/bin/ffmpeg",                           // Linux через snap
+    "C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe", // Windows стандартный путь
+    "C:\\ffmpeg\\bin\\ffmpeg.exe",                // Windows альтернативный путь
+  ];
 
-  match output {
-    Ok(output) => {
+  // Пробуем найти FFmpeg
+  for path in &ffmpeg_paths {
+    log::debug!("Проверка FFmpeg по пути: {}", path);
+
+    let output = tokio::process::Command::new(path)
+      .arg("-version")
+      .output()
+      .await;
+
+    if let Ok(output) = output {
       if output.status.success() {
-        log::info!("FFmpeg найден и доступен");
-        Ok(())
-      } else {
-        Err(VideoCompilerError::DependencyMissing(
-          "FFmpeg не работает корректно".to_string(),
-        ))
+        log::info!("FFmpeg найден по пути: {}", path);
+
+        // Извлекаем версию FFmpeg
+        if let Ok(version_str) = String::from_utf8(output.stdout) {
+          if let Some(version_line) = version_str.lines().next() {
+            log::info!("Версия FFmpeg: {}", version_line);
+          }
+        }
+
+        return Ok(path.to_string());
       }
     }
-    Err(_) => Err(VideoCompilerError::DependencyMissing(
-      "FFmpeg не найден в системе. Установите FFmpeg для работы Video Compiler".to_string(),
-    )),
   }
+
+  // Если не нашли FFmpeg, пробуем which/where команду
+  let which_cmd = if cfg!(target_os = "windows") {
+    "where"
+  } else {
+    "which"
+  };
+
+  if let Ok(output) = tokio::process::Command::new(which_cmd)
+    .arg("ffmpeg")
+    .output()
+    .await
+  {
+    if output.status.success() {
+      if let Ok(path_str) = String::from_utf8(output.stdout) {
+        let path = path_str.trim().to_string();
+        log::info!("FFmpeg найден через {}: {}", which_cmd, path);
+        return Ok(path);
+      }
+    }
+  }
+
+  Err(VideoCompilerError::DependencyMissing(
+    "FFmpeg не найден в системе. Установите FFmpeg для работы Video Compiler.\n\
+     Инструкции по установке:\n\
+     - macOS: brew install ffmpeg\n\
+     - Ubuntu/Debian: sudo apt install ffmpeg\n\
+     - Windows: скачайте с https://ffmpeg.org/download.html"
+      .to_string(),
+  ))
 }
 
 /// Инициализация Video Compiler модуля
 pub async fn initialize() -> Result<VideoCompilerState> {
   log::info!("Инициализация Video Compiler модуля");
 
-  // Проверяем зависимости
-  check_dependencies().await?;
+  // Проверяем зависимости и получаем путь к FFmpeg
+  let ffmpeg_path = check_dependencies().await?;
 
-  // Создаем состояние
-  let state = VideoCompilerState::new();
+  // Создаем состояние с найденным путем FFmpeg
+  let mut state = VideoCompilerState::new();
+  state.ffmpeg_path = ffmpeg_path;
 
-  // Создаем временную директорию если не существует
+  // Обновляем настройки
   {
-    let settings = state.settings.read().await;
+    let settings = state.settings.write().await;
+
+    // Создаем временную директорию если не существует
     if !settings.temp_directory.exists() {
       tokio::fs::create_dir_all(&settings.temp_directory.clone())
         .await
@@ -152,7 +172,10 @@ pub async fn initialize() -> Result<VideoCompilerState> {
     }
   }
 
-  log::info!("Video Compiler модуль успешно инициализирован");
+  log::info!(
+    "Video Compiler модуль успешно инициализирован с FFmpeg: {}",
+    &state.ffmpeg_path
+  );
   Ok(state)
 }
 
@@ -163,7 +186,7 @@ mod tests {
   #[tokio::test]
   async fn test_video_compiler_state_creation() {
     let state = VideoCompilerState::new();
-    assert_eq!(state.active_jobs.len(), 0);
+    assert_eq!(state.active_jobs.read().await.len(), 0);
 
     let settings = state.settings.read().await;
     assert_eq!(settings.max_concurrent_jobs, 2);

@@ -498,12 +498,25 @@ export const appSettingsMachine = createMachine({
         UPDATE_MEDIA_FILES: {
           actions: [
             assign({
-              mediaFiles: ({ context, event }) => ({
-                ...context.mediaFiles,
-                allFiles: event.files,
-                isLoading: false,
-                error: null,
-              }),
+              mediaFiles: ({ context, event }) => {
+                // Создаем Map для быстрого поиска существующих файлов по id
+                const existingFilesMap = new Map(context.mediaFiles.allFiles.map((file: any) => [file.id, file]))
+
+                // Обновляем существующие файлы или добавляем новые
+                event.files.forEach((file: any) => {
+                  existingFilesMap.set(file.id, file)
+                })
+
+                // Преобразуем обратно в массив
+                const updatedFiles = Array.from(existingFilesMap.values())
+
+                return {
+                  ...context.mediaFiles,
+                  allFiles: updatedFiles,
+                  isLoading: false,
+                  error: null,
+                }
+              },
             }),
             ({ context }) => {
               void storeService.saveSettings(context as any)
@@ -514,12 +527,25 @@ export const appSettingsMachine = createMachine({
         UPDATE_MUSIC_FILES: {
           actions: [
             assign({
-              musicFiles: ({ context, event }) => ({
-                ...context.musicFiles,
-                allFiles: event.files,
-                isLoading: false,
-                error: null,
-              }),
+              musicFiles: ({ context, event }) => {
+                // Создаем Map для быстрого поиска существующих файлов по id
+                const existingFilesMap = new Map(context.musicFiles.allFiles.map((file: any) => [file.id, file]))
+
+                // Обновляем существующие файлы или добавляем новые
+                event.files.forEach((file: any) => {
+                  existingFilesMap.set(file.id, file)
+                })
+
+                // Преобразуем обратно в массив
+                const updatedFiles = Array.from(existingFilesMap.values())
+
+                return {
+                  ...context.musicFiles,
+                  allFiles: updatedFiles,
+                  isLoading: false,
+                  error: null,
+                }
+              },
             }),
             ({ context }) => {
               void storeService.saveSettings(context as any)

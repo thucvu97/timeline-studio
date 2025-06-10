@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo } from "react"
 
 import { useAppSettings } from "@/features/app-state"
-import { ContentGroup } from "@/features/browser/components/content-group"
+import { VirtualizedContentGroup } from "@/features/browser/components/virtualized-content-group"
 import { MediaFile } from "@/features/media/types/media"
 
 import { MediaItem } from "./media-item"
@@ -70,7 +70,7 @@ export const MediaGroup = memo<MediaGroupProps>(
     )
 
     return (
-      <ContentGroup
+      <VirtualizedContentGroup
         title={title}
         items={files}
         viewMode={viewMode as "list" | "grid" | "thumbnails"}
@@ -79,6 +79,7 @@ export const MediaGroup = memo<MediaGroupProps>(
         areAllItemsAdded={areAllFilesAdded}
         addButtonText="browser.media.add"
         addedButtonText="browser.media.added"
+        previewSize={previewSize}
       />
     )
   },

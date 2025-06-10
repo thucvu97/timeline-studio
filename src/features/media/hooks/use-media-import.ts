@@ -11,12 +11,12 @@ import { convertToSavedMediaFile } from "@/features/media/utils/saved-media-util
 /**
  * Максимальное количество одновременных запросов к Tauri
  */
-const MAX_CONCURRENT_REQUESTS = 3
+const MAX_CONCURRENT_REQUESTS = 5
 
 /**
  * Задержка между запуском новых запросов (в миллисекундах)
  */
-const REQUEST_DELAY = 50
+const REQUEST_DELAY = 20
 
 /**
  * Интерфейс для результата импорта
@@ -132,6 +132,35 @@ export function useMediaImport() {
     let activeRequests = 0
     let currentIndex = 0
 
+    // Батчинг обновлений для предотвращения лишних перерисовок
+    const pendingUpdates: MediaFile[] = []
+    let updateTimer: NodeJS.Timeout | null = null
+
+    // Функция для батчинга обновлений
+    const batchUpdate = () => {
+      if (pendingUpdates.length > 0) {
+        updateMediaFiles([...pendingUpdates])
+        pendingUpdates.length = 0
+      }
+    }
+
+    // Добавление файла в очередь обновления
+    const queueUpdate = (file: MediaFile) => {
+      pendingUpdates.push(file)
+
+      // Отменяем предыдущий таймер
+      if (updateTimer) {
+        clearTimeout(updateTimer)
+      }
+
+      // Устанавливаем новый таймер для батчинга
+      // Увеличиваем задержку для больших батчей
+      const delay = pendingUpdates.length > 10 ? 100 : 50
+      updateTimer = setTimeout(() => {
+        requestAnimationFrame(batchUpdate)
+      }, delay)
+    }
+
     // Функция для обработки одного файла
     const processFile = async (filePath: string, fileIndex: number): Promise<void> => {
       activeRequests++
@@ -164,11 +193,8 @@ export function useMediaImport() {
             isLoadingMetadata: false,
           }
 
-          // Обновляем файл в медиа-контексте (заменяем базовый объект)
-          // Используем requestAnimationFrame для оптимизации обновлений
-          requestAnimationFrame(() => {
-            updateMediaFiles([updatedMediaFile])
-          })
+          // Добавляем файл в очередь батч-обновления
+          queueUpdate(updatedMediaFile)
 
           console.log(`[${fileIndex + 1}/${totalFiles}] ✅ Метаданные загружены: ${filePath.split("/").pop()}`)
         } else {
@@ -177,9 +203,7 @@ export function useMediaImport() {
             ...createBasicMediaFile(filePath),
             isLoadingMetadata: false,
           }
-          requestAnimationFrame(() => {
-            updateMediaFiles([fallbackMediaFile])
-          })
+          queueUpdate(fallbackMediaFile)
 
           console.log(`[${fileIndex + 1}/${totalFiles}] ⚠️ Метаданные не получены: ${filePath.split("/").pop()}`)
         }
@@ -194,9 +218,7 @@ export function useMediaImport() {
           ...createBasicMediaFile(filePath),
           isLoadingMetadata: false,
         }
-        requestAnimationFrame(() => {
-          updateMediaFiles([errorMediaFile])
-        })
+        queueUpdate(errorMediaFile)
       } finally {
         activeRequests--
         completedCount++
@@ -233,6 +255,12 @@ export function useMediaImport() {
     while (completedCount < totalFiles) {
       await new Promise((resolve) => setTimeout(resolve, 100))
     }
+
+    // Финальное батч-обновление для оставшихся файлов
+    if (updateTimer) {
+      clearTimeout(updateTimer)
+    }
+    batchUpdate()
 
     console.log(`🎉 Загрузка метаданных завершена для всех ${totalFiles} файлов`)
   }
@@ -322,14 +350,32 @@ export function useMediaImport() {
         }
       }
 
-      // Быстро создаем файлы и запускаем асинхронную загрузку метаданных
-      const processedFiles = await processFiles(mediaFiles)
+      // Если очень много файлов, показываем их порциями
+      if (mediaFiles.length > 100) {
+        // Сначала показываем первые 50 файлов
+        const firstBatch = mediaFiles.slice(0, 50)
+        const remainingFiles = mediaFiles.slice(50)
 
-      // Сохраняем файлы в проект (если проект открыт)
+        // Обрабатываем первую порцию
+        const firstBatchProcessed = await processFiles(firstBatch)
+
+        // Затем добавляем остальные с небольшой задержкой
+        setTimeout(async () => {
+          const remainingProcessed = await processFiles(remainingFiles)
+          await saveFilesToProject([...firstBatchProcessed, ...remainingProcessed])
+        }, 100)
+
+        return {
+          success: true,
+          message: `Загрузка ${mediaFiles.length} файлов...`,
+          files: firstBatchProcessed,
+        }
+      }
+      // Для небольших папок обрабатываем все сразу
+      const processedFiles = await processFiles(mediaFiles)
       await saveFilesToProject(processedFiles)
 
       setIsImporting(false)
-      // Прогресс будет обновляться асинхронно в loadMetadataSequentially
 
       return {
         success: true,

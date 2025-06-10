@@ -1,6 +1,6 @@
 [package]
 name = "timeline-studio"
-version = "0.13.0"
+version = "0.14.0"
 description = "A Timeline Studio"
 authors = ["Alexander Kireyev <ak.chatman.media@gmail.com>"]
 license = "MIT WITH Commons-Clause"
@@ -43,6 +43,7 @@ chrono = { version = "0.4", features = ["serde"] }
 log = "0.4"
 regex = "1.0"
 async-trait = "0.1"
+base64 = "0.22.1"
 
 [features]
 # by default Tauri runs in production mode

@@ -47,8 +47,8 @@ export function MediaPreview({
           ignoreRatio ? "w-full h-full" : "aspect-video",
         )}
         style={{
-          width: ignoreRatio ? "w-full" : `${((size * dimensions[0]) / dimensions[1]).toFixed(0)}px`,
-          height: ignoreRatio ? "h-full" : `${size}px`,
+          width: ignoreRatio ? "100%" : `${((size * dimensions[0]) / dimensions[1]).toFixed(0)}px`,
+          height: ignoreRatio ? "100%" : `${size}px`,
         }}
       >
         <div className="flex flex-col items-center justify-center gap-2">

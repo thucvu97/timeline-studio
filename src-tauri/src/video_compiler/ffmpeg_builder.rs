@@ -294,8 +294,14 @@ impl FFmpegBuilder {
       return Ok(String::new());
     }
 
+    // Если есть пользовательская FFmpeg команда, используем её
+    if let Some(template) = &effect.ffmpeg_command {
+      return Ok(self.process_ffmpeg_template(template, effect));
+    }
+
     match effect.effect_type {
       EffectType::Blur => {
+        // Frontend использует "radius"
         let radius = match effect.parameters.get("radius") {
           Some(EffectParameter::Float(val)) => *val,
           _ => 2.0,
@@ -303,23 +309,35 @@ impl FFmpegBuilder {
         Ok(format!("boxblur={}:1", radius))
       }
       EffectType::Brightness => {
-        let value = match effect.parameters.get("value") {
+        // Frontend использует "intensity", также проверяем "value" для обратной совместимости
+        let value = match effect.parameters.get("intensity") {
           Some(EffectParameter::Float(val)) => *val,
-          _ => 0.0,
+          _ => match effect.parameters.get("value") {
+            Some(EffectParameter::Float(val)) => *val,
+            _ => 0.0,
+          },
         };
         Ok(format!("eq=brightness={}", value))
       }
       EffectType::Contrast => {
-        let value = match effect.parameters.get("value") {
+        // Frontend использует "intensity", также проверяем "value" для обратной совместимости
+        let value = match effect.parameters.get("intensity") {
           Some(EffectParameter::Float(val)) => *val,
-          _ => 1.0,
+          _ => match effect.parameters.get("value") {
+            Some(EffectParameter::Float(val)) => *val,
+            _ => 1.0,
+          },
         };
         Ok(format!("eq=contrast={}", value))
       }
       EffectType::Saturation => {
-        let value = match effect.parameters.get("value") {
+        // Frontend использует "intensity", также проверяем "value" для обратной совместимости
+        let value = match effect.parameters.get("intensity") {
           Some(EffectParameter::Float(val)) => *val,
-          _ => 1.0,
+          _ => match effect.parameters.get("value") {
+            Some(EffectParameter::Float(val)) => *val,
+            _ => 1.0,
+          },
         };
         Ok(format!("eq=saturation={}", value))
       }
@@ -357,10 +375,6 @@ impl FFmpegBuilder {
           shadows, highlights
         ))
       }
-      EffectType::Noir => Ok("eq=brightness=-0.1:contrast=1.2:saturation=0".to_string()),
-      EffectType::Cyberpunk => {
-        Ok("eq=brightness=0.1:contrast=1.3:saturation=1.5,hue=h=280".to_string())
-      }
       EffectType::Dreamy => Ok("gblur=sigma=1,eq=brightness=0.1:contrast=0.9".to_string()),
       EffectType::Infrared => Ok(
         "colorchannelmixer=rr=0:rg=0:rb=0:ra=1:gr=1:gg=0:gb=0:ga=0:br=0:bg=0:bb=0:ba=0".to_string(),
@@ -381,16 +395,29 @@ impl FFmpegBuilder {
       EffectType::Neon => Ok("eq=brightness=0.2:contrast=1.4:saturation=2.0,hue=h=30".to_string()),
       EffectType::Invert => Ok("negate".to_string()),
       EffectType::Vignette => {
-        let angle = match effect.parameters.get("angle") {
+        // Frontend использует "intensity" и "radius"
+        let intensity = match effect.parameters.get("intensity") {
           Some(EffectParameter::Float(val)) => *val,
-          _ => 1.57, // PI/2
+          _ => match effect.parameters.get("angle") {
+            Some(EffectParameter::Float(val)) => *val,
+            _ => 0.3,
+          },
         };
-        Ok(format!("vignette=angle={}", angle))
+        let _radius = match effect.parameters.get("radius") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.8,
+        };
+        // Простая виньетка, так как сложная формула из frontend не поддерживается напрямую
+        Ok(format!("vignette=angle={}:x0=w/2:y0=h/2", 1.57 + intensity))
       }
       EffectType::FilmGrain => {
-        let strength = match effect.parameters.get("strength") {
+        // Frontend использует "intensity"
+        let strength = match effect.parameters.get("intensity") {
           Some(EffectParameter::Float(val)) => *val,
-          _ => 0.5,
+          _ => match effect.parameters.get("strength") {
+            Some(EffectParameter::Float(val)) => *val,
+            _ => 0.5,
+          },
         };
         Ok(format!("noise=alls={}:allf=t", (strength * 20.0) as i32))
       }
@@ -417,13 +444,16 @@ impl FFmpegBuilder {
       }
       EffectType::Stabilization => Ok("deshake".to_string()),
       EffectType::NoiseReduction => Ok("hqdn3d".to_string()),
-      EffectType::Noir | EffectType::Cyberpunk => {
-        // These effects should have ffmpeg_command in their JSON
-        if let Some(ffmpeg_template) = &effect.ffmpeg_command {
-          Ok(self.process_ffmpeg_template(ffmpeg_template, effect))
-        } else {
-          Ok(String::new())
-        }
+      EffectType::Noir => {
+        // Noir эффект - черно-белый с высоким контрастом
+        Ok("hue=s=0,eq=contrast=1.5:brightness=-0.1".to_string())
+      }
+      EffectType::Cyberpunk => {
+        // Cyberpunk - неоновые цвета с искажениями
+        Ok(
+          "eq=brightness=0.1:contrast=1.8:saturation=1.5,colorbalance=rs=0.5:gs=-0.3:bs=0.8"
+            .to_string(),
+        )
       }
     }
   }
@@ -573,7 +603,7 @@ impl FFmpegBuilder {
 
     // Аппаратное ускорение
     if export_settings.hardware_acceleration {
-      self.add_hardware_acceleration(cmd);
+      self.add_hardware_acceleration(cmd).await;
     }
 
     // Дополнительные аргументы
@@ -588,12 +618,33 @@ impl FFmpegBuilder {
   }
 
   /// Добавить аппаратное ускорение
-  fn add_hardware_acceleration(&self, cmd: &mut Command) {
-    // Попытка использовать NVENC (NVIDIA)
-    if self.settings.prefer_nvenc {
-      cmd.args(["-c:v", "h264_nvenc"]);
+  async fn add_hardware_acceleration(&self, cmd: &mut Command) {
+    use crate::video_compiler::gpu::{GpuDetector, GpuHelper};
+
+    // Создаем детектор GPU
+    let detector = GpuDetector::new(self.settings.ffmpeg_path.clone());
+
+    // Пытаемся получить рекомендуемый кодировщик
+    if let Some(encoder) = detector.get_recommended_encoder().await.unwrap_or(None) {
+      // Получаем название кодека
+      let codec = encoder.h264_codec_name();
+      cmd.args(["-c:v", codec]);
+
+      // Добавляем специфичные параметры для GPU
+      let gpu_params = GpuHelper::get_ffmpeg_params(&encoder, 85); // Качество 85%
+      for param in gpu_params {
+        cmd.arg(param);
+      }
+
+      log::info!("Используется GPU кодировщик: {:?} ({})", encoder, codec);
+    } else {
+      // Fallback на CPU кодирование
+      cmd.args(["-c:v", "libx264"]);
+      cmd.args(["-preset", "medium"]);
+      cmd.args(["-crf", "23"]);
+
+      log::warn!("GPU ускорение недоступно, используется CPU кодирование");
     }
-    // Можно добавить другие варианты ускорения
   }
 
   /// Добавить глобальные опции
@@ -620,8 +671,9 @@ impl FFmpegBuilder {
   /// Конвертировать качество (0-100) в CRF (0-51)
   fn quality_to_crf(&self, quality: u8) -> u8 {
     // Инвертируем: высокое качество = низкий CRF
-    let quality = quality.min(100);
-    51 * (100 - quality) / 100
+    let quality = quality.min(100) as u32;
+    let crf = (51 * (100 - quality)) / 100;
+    crf.min(51) as u8
   }
 
   /// Получить видео треки
@@ -685,11 +737,12 @@ pub struct FFmpegBuilderSettings {
 }
 
 #[cfg(test)]
-#[cfg(test)]
 mod tests {
   use super::*;
-  use crate::video_compiler::schema::{Effect, EffectParameter, EffectType, Clip, ProjectSchema, Track, TrackType};
-  use std::{collections::HashMap, path::PathBuf};
+  use crate::video_compiler::schema::{
+    Clip, Effect, EffectParameter, EffectType, ProjectSchema, Track, TrackType,
+  };
+  use std::path::PathBuf;
 
   #[tokio::test]
   async fn test_blur_effect_ffmpeg_command() {
@@ -762,7 +815,7 @@ mod tests {
     let effect = create_vignette_effect(3.14);
 
     let result = builder.build_effect_filter(&effect).await.unwrap();
-    assert_eq!(result, "vignette=angle=3.14");
+    assert_eq!(result, "vignette=angle=4.71:x0=w/2:y0=h/2");
   }
 
   #[tokio::test]
@@ -805,12 +858,33 @@ mod tests {
   }
 
   #[test]
+  fn test_ffmpeg_builder_with_settings() {
+    let project = create_test_project();
+    let mut settings = FFmpegBuilderSettings::default();
+    settings.ffmpeg_path = "/custom/path/ffmpeg".to_string();
+    settings.threads = Some(8);
+    settings.prefer_nvenc = false;
+    settings.prefer_quicksync = true;
+    settings.global_args = vec!["-hide_banner".to_string()];
+
+    let builder = FFmpegBuilder::with_settings(project, settings.clone());
+    assert_eq!(builder.settings.ffmpeg_path, "/custom/path/ffmpeg");
+    assert_eq!(builder.settings.threads, Some(8));
+    assert!(!builder.settings.prefer_nvenc);
+    assert!(builder.settings.prefer_quicksync);
+    assert_eq!(
+      builder.settings.global_args,
+      vec!["-hide_banner".to_string()]
+    );
+  }
+
+  #[test]
   fn test_quality_to_crf() {
     let project = create_test_project();
     let builder = FFmpegBuilder::new(project);
 
     assert_eq!(builder.quality_to_crf(100), 0); // Best quality
-    assert_eq!(builder.quality_to_crf(0), 51);  // Worst quality
+    assert_eq!(builder.quality_to_crf(0), 51); // Worst quality
     assert_eq!(builder.quality_to_crf(50), 25); // Medium quality
   }
 
@@ -884,6 +958,264 @@ mod tests {
     assert!(filter_complex.is_empty());
   }
 
+  #[tokio::test]
+  async fn test_build_render_command() {
+    let mut project = create_test_project();
+    project.timeline.resolution = (1920, 1080);
+    project.timeline.fps = 30;
+    project.settings.export.quality = 80;
+    project.settings.export.video_bitrate = 5000;
+    project.settings.export.audio_bitrate = 192;
+
+    let builder = FFmpegBuilder::new(project);
+    let output_path = PathBuf::from("/test/output.mp4");
+
+    let cmd = builder.build_render_command(&output_path).await.unwrap();
+    let cmd_str = format!("{:?}", cmd);
+
+    assert!(cmd_str.contains("ffmpeg"));
+    assert!(cmd_str.contains("/test/output.mp4"));
+  }
+
+  #[tokio::test]
+  async fn test_add_input_sources() {
+    let mut project = create_test_project();
+    let mut audio_track = Track::new(TrackType::Audio, "Audio Track".to_string());
+    let audio_clip = Clip::new(PathBuf::from("/test/audio.mp3"), 0.0, 10.0);
+    audio_track.clips.push(audio_clip);
+    project.tracks.push(audio_track);
+
+    let builder = FFmpegBuilder::new(project);
+    let mut cmd = tokio::process::Command::new("ffmpeg");
+
+    builder.add_input_sources(&mut cmd).await.unwrap();
+    let cmd_str = format!("{:?}", cmd);
+
+    assert!(cmd_str.contains("/test/video.mp4"));
+    assert!(cmd_str.contains("/test/audio.mp3"));
+  }
+
+  #[tokio::test]
+  async fn test_add_filter_complex() {
+    let mut project = create_test_project();
+    // Add effect to test filter generation
+    let mut effect = Effect::new(EffectType::Blur, "Test Blur".to_string());
+    effect
+      .parameters
+      .insert("radius".to_string(), EffectParameter::Float(5.0));
+    effect.id = "test-effect-123".to_string();
+    project.tracks[0].clips[0].effects.push(effect.id.clone());
+    project.effects.push(effect);
+
+    let builder = FFmpegBuilder::new(project);
+    let mut cmd = tokio::process::Command::new("ffmpeg");
+
+    builder.add_filter_complex(&mut cmd).await.unwrap();
+    let cmd_str = format!("{:?}", cmd);
+
+    assert!(cmd_str.contains("-filter_complex"));
+  }
+
+  #[tokio::test]
+  async fn test_build_video_filter_chain() {
+    let project = create_test_project();
+    let builder = FFmpegBuilder::new(project);
+    let video_tracks = builder.get_video_tracks();
+
+    let mut input_index = 0;
+    let filter_chain = builder
+      .build_video_filter_chain(&video_tracks, &mut input_index)
+      .await
+      .unwrap();
+    // Should have output label
+    assert!(filter_chain.contains("[outv]") || filter_chain.contains("[v"));
+  }
+
+  #[tokio::test]
+  async fn test_build_audio_filter_chain() {
+    let mut project = create_test_project();
+    // Add audio track for testing
+    let mut audio_track = Track::new(TrackType::Audio, "Audio Track".to_string());
+    let audio_clip = Clip::new(PathBuf::from("/test/audio.mp3"), 0.0, 10.0);
+    audio_track.clips.push(audio_clip);
+    project.tracks.push(audio_track);
+
+    let builder = FFmpegBuilder::new(project);
+    let audio_tracks = builder.get_audio_tracks();
+
+    let mut input_index = 0;
+    let filter_chain = builder
+      .build_audio_filter_chain(&audio_tracks, &mut input_index)
+      .await
+      .unwrap();
+    // Should have volume control and output
+    assert!(filter_chain.contains("volume=") || filter_chain.contains("[outa]"));
+  }
+
+  #[tokio::test]
+  async fn test_build_clip_filters() {
+    let mut clip = Clip::new(PathBuf::from("/test/video.mp4"), 0.0, 10.0);
+    clip.source_start = 2.0;
+    clip.source_end = 8.0;
+    clip.speed = 2.0; // Double speed to ensure setpts is added
+
+    let project = create_test_project();
+    let builder = FFmpegBuilder::new(project);
+
+    let filters = builder.build_clip_filters(&clip, 0, 0).await.unwrap();
+    assert!(filters.contains("trim="));
+    assert!(filters.contains("setpts=")); // Will be added because speed != 1.0
+    assert!(filters.contains("[v0]")); // Output label
+  }
+
+  #[tokio::test]
+  async fn test_process_ffmpeg_template() {
+    let builder = create_test_builder();
+    let mut effect = Effect::new(EffectType::Blur, "Custom Blur".to_string());
+    effect
+      .parameters
+      .insert("blur".to_string(), EffectParameter::Float(10.0));
+    effect
+      .parameters
+      .insert("intensity".to_string(), EffectParameter::Float(0.8));
+    effect.ffmpeg_command = Some("boxblur={blur}:enable='between(t,0,{intensity})'".to_string());
+
+    let template = effect.ffmpeg_command.as_ref().unwrap();
+    let result = builder.process_ffmpeg_template(template, &effect);
+
+    assert_eq!(result, "boxblur=10:enable='between(t,0,0.8)'");
+  }
+
+  #[tokio::test]
+  async fn test_build_video_effect_filter() {
+    let builder = create_test_builder();
+    let mut effect = Effect::new(EffectType::HueRotate, "Hue Rotate".to_string());
+    effect
+      .parameters
+      .insert("angle".to_string(), EffectParameter::Float(45.0));
+
+    // build_video_effect_filter is a private method, use build_effect_filter instead
+    let result = builder.build_effect_filter(&effect).await.unwrap();
+    assert!(result.contains("hue=h=45"));
+  }
+
+  #[tokio::test]
+  async fn test_build_color_correction_filter() {
+    let builder = create_test_builder();
+    let mut effect = Effect::new(EffectType::Brightness, "Brightness".to_string());
+    effect
+      .parameters
+      .insert("value".to_string(), EffectParameter::Float(0.2));
+
+    let mut contrast_effect = Effect::new(EffectType::Contrast, "Contrast".to_string());
+    contrast_effect
+      .parameters
+      .insert("value".to_string(), EffectParameter::Float(1.2));
+
+    let mut saturation_effect = Effect::new(EffectType::Saturation, "Saturation".to_string());
+    saturation_effect
+      .parameters
+      .insert("value".to_string(), EffectParameter::Float(1.1));
+
+    // Test individual color correction effects through build_effect_filter
+    let brightness_result = builder.build_effect_filter(&effect).await.unwrap();
+    assert_eq!(brightness_result, "eq=brightness=0.2");
+
+    let contrast_result = builder.build_effect_filter(&contrast_effect).await.unwrap();
+    assert_eq!(contrast_result, "eq=contrast=1.2");
+
+    let saturation_result = builder
+      .build_effect_filter(&saturation_effect)
+      .await
+      .unwrap();
+    assert_eq!(saturation_result, "eq=saturation=1.1");
+  }
+
+  #[tokio::test]
+  async fn test_add_output_settings() {
+    let mut project = create_test_project();
+    project.settings.export.video_bitrate = 5000; // 5Mbps
+    project.settings.export.audio_bitrate = 192; // 192kbps
+    project.settings.export.quality = 80;
+
+    let builder = FFmpegBuilder::new(project);
+    let mut cmd = tokio::process::Command::new("ffmpeg");
+    let output_path = PathBuf::from("/test/output.mp4");
+
+    builder
+      .add_output_settings(&mut cmd, &output_path)
+      .await
+      .unwrap();
+    let cmd_str = format!("{:?}", cmd);
+
+    assert!(cmd_str.contains("-c:v"));
+    assert!(cmd_str.contains("-c:a"));
+    assert!(cmd_str.contains("-b:v"));
+    assert!(cmd_str.contains("-b:a"));
+    assert!(cmd_str.contains("-crf"));
+    assert!(cmd_str.contains("/test/output.mp4"));
+  }
+
+  #[tokio::test]
+  async fn test_add_hardware_acceleration() {
+    let mut settings = FFmpegBuilderSettings::default();
+    settings.prefer_nvenc = true;
+    let project = create_test_project();
+    let builder = FFmpegBuilder::with_settings(project, settings);
+
+    let mut cmd = tokio::process::Command::new("ffmpeg");
+    builder.add_hardware_acceleration(&mut cmd).await;
+
+    let cmd_str = format!("{:?}", cmd);
+    // Should contain video codec parameter
+    assert!(cmd_str.contains("-c:v"));
+  }
+
+  #[test]
+  fn test_add_global_options() {
+    let mut settings = FFmpegBuilderSettings::default();
+    settings.threads = Some(4);
+    settings.global_args = vec![
+      "-hide_banner".to_string(),
+      "-loglevel".to_string(),
+      "error".to_string(),
+    ];
+
+    let project = create_test_project();
+    let builder = FFmpegBuilder::with_settings(project, settings);
+
+    let mut cmd = tokio::process::Command::new("ffmpeg");
+    builder.add_global_options(&mut cmd);
+
+    let cmd_str = format!("{:?}", cmd);
+    assert!(cmd_str.contains("-threads"));
+    assert!(cmd_str.contains("4"));
+    assert!(cmd_str.contains("-hide_banner"));
+    assert!(cmd_str.contains("-loglevel"));
+    assert!(cmd_str.contains("info")); // По умолчанию используется "info", а не "error"
+    assert!(cmd_str.contains("-progress"));
+  }
+
+  #[test]
+  fn test_find_effect() {
+    let mut project = create_test_project();
+    let mut effect = Effect::new(EffectType::Blur, "Test Effect".to_string());
+    effect.id = "test-effect-123".to_string();
+    project.effects.push(effect);
+    project.tracks[0].clips[0]
+      .effects
+      .push("test-effect-123".to_string());
+
+    let builder = FFmpegBuilder::new(project);
+
+    let found = builder.find_effect("test-effect-123");
+    assert!(found.is_some());
+    assert_eq!(found.unwrap().name, "Test Effect");
+
+    let not_found = builder.find_effect("non-existent");
+    assert!(not_found.is_none());
+  }
+
   fn create_test_builder() -> FFmpegBuilder {
     let project = ProjectSchema::new("Test Project".to_string());
     FFmpegBuilder::new(project)
@@ -942,7 +1274,7 @@ mod tests {
   }
 
   fn create_custom_effect_with_template(template: &str, intensity: f32) -> Effect {
-    let mut effect = Effect::new(EffectType::Blur, "Custom Effect".to_string());
+    let mut effect = Effect::new(EffectType::Noir, "Custom Effect".to_string());
     effect.ffmpeg_command = Some(template.to_string());
     effect
       .parameters
@@ -962,5 +1294,3 @@ impl Default for FFmpegBuilderSettings {
     }
   }
 }
-
-

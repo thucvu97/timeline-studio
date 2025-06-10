@@ -6,6 +6,8 @@
 use crate::video_compiler::cache::{PreviewKey, RenderCache};
 use crate::video_compiler::error::{Result, VideoCompilerError};
 use crate::video_compiler::schema::PreviewFormat;
+use base64::engine::general_purpose::STANDARD as BASE64;
+use base64::Engine as _;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
@@ -96,8 +98,8 @@ impl PreviewGenerator {
     Ok(image_data)
   }
 
-  /// Генерировать несколько превью одновременно
-  pub async fn generate_preview_batch(
+  /// Генерировать несколько превью одновременно для одного файла
+  pub async fn generate_preview_batch_for_file(
     &self,
     video_path: &Path,
     timestamps: Vec<f64>,
@@ -128,6 +130,62 @@ impl PreviewGenerator {
           .generate_preview(&video_path, timestamp, Some(resolution), Some(quality))
           .await;
         PreviewResult { timestamp, result }
+      });
+
+      tasks.push(task);
+    }
+
+    // Ждем завершения всех задач
+    for task in tasks {
+      match task.await {
+        Ok(result) => results.push(result),
+        Err(e) => {
+          log::error!("Ошибка в задаче генерации превью: {:?}", e);
+        }
+      }
+    }
+
+    Ok(results)
+  }
+
+  /// Генерировать несколько превью для разных файлов
+  pub async fn generate_preview_batch(
+    &self,
+    requests: Vec<PreviewRequest>,
+  ) -> Result<Vec<SerializablePreviewResult>> {
+    let mut results = Vec::new();
+    let mut tasks = Vec::new();
+
+    // Создаем задачи для параллельной генерации
+    for request in requests {
+      let cache = self.cache.clone();
+      let settings = self.settings.clone();
+      let ffmpeg_path = self.ffmpeg_path.clone();
+
+      let task = tokio::spawn(async move {
+        let generator = PreviewGenerator {
+          cache,
+          settings,
+          ffmpeg_path,
+        };
+
+        let path = Path::new(&request.video_path);
+        let result = generator
+          .generate_preview(path, request.timestamp, request.resolution, request.quality)
+          .await;
+
+        match result {
+          Ok(image_data) => SerializablePreviewResult {
+            timestamp: request.timestamp,
+            image_data: Some(BASE64.encode(&image_data)),
+            error: None,
+          },
+          Err(e) => SerializablePreviewResult {
+            timestamp: request.timestamp,
+            image_data: None,
+            error: Some(e.to_string()),
+          },
+        }
       });
 
       tasks.push(task);
@@ -258,20 +316,42 @@ impl PreviewGenerator {
     log::debug!("Выполнение команды FFmpeg: {:?}", cmd);
 
     let output = cmd.output().await.map_err(|e| {
-      VideoCompilerError::ffmpeg(
+      let error = VideoCompilerError::ffmpeg(
         None,
         format!("Не удалось запустить FFmpeg: {}", e),
         "generate_preview".to_string(),
-      )
+      );
+      log::error!("Ошибка FFmpeg: {}", error);
+      log::error!("  Код ошибки: {}", error.error_code());
+      log::error!(
+        "  Критическая: {}",
+        if error.is_critical() {
+          "да"
+        } else {
+          "нет"
+        }
+      );
+      error
     })?;
 
     if !output.status.success() {
       let stderr = String::from_utf8_lossy(&output.stderr);
-      return Err(VideoCompilerError::ffmpeg(
+      let error = VideoCompilerError::ffmpeg(
         output.status.code(),
         stderr.to_string(),
         format!("ffmpeg generate preview at {}s", timestamp),
-      ));
+      );
+      log::error!("Ошибка выполнения FFmpeg: {}", error);
+      log::error!("  Код ошибки: {}", error.error_code());
+      log::error!(
+        "  Можно повторить: {}",
+        if error.is_retryable() {
+          "да"
+        } else {
+          "нет"
+        }
+      );
+      return Err(error);
     }
 
     // Читаем сгенерированный файл
@@ -351,8 +431,9 @@ impl PreviewGenerator {
   /// Конвертировать качество (0-100) в qscale для FFmpeg (2-31)
   fn quality_to_qscale(&self, quality: u8) -> u8 {
     // Инвертируем шкалу: высокое качество = низкий qscale
-    let quality = quality.min(100);
-    2 + ((100 - quality) * 29 / 100)
+    let quality = quality.min(100) as u32;
+    let qscale = 2 + ((100 - quality) * 29 / 100);
+    qscale.min(31) as u8
   }
 
   /// Парсинг информации о видео из вывода FFmpeg
@@ -451,6 +532,19 @@ impl Default for PreviewSettings {
   }
 }
 
+/// Запрос на генерацию превью
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PreviewRequest {
+  /// Путь к видео файлу
+  pub video_path: String,
+  /// Временная метка
+  pub timestamp: f64,
+  /// Разрешение (опционально)
+  pub resolution: Option<(u32, u32)>,
+  /// Качество (опционально)
+  pub quality: Option<u8>,
+}
+
 /// Результат генерации превью
 #[derive(Debug, Clone)]
 pub struct PreviewResult {
@@ -458,6 +552,17 @@ pub struct PreviewResult {
   pub timestamp: f64,
   /// Результат генерации
   pub result: Result<Vec<u8>>,
+}
+
+/// Результат генерации превью для сериализации
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SerializablePreviewResult {
+  /// Временная метка
+  pub timestamp: f64,
+  /// Данные изображения (base64)
+  pub image_data: Option<String>,
+  /// Ошибка если была
+  pub error: Option<String>,
 }
 
 /// Превью для timeline
@@ -522,11 +627,9 @@ fn extract_video_codec(line: &str) -> Option<String> {
   // Ищем кодек после "Video:"
   if let Some(start) = line.find("Video: ") {
     let codec_part = &line[start + 7..];
-    if let Some(end) = codec_part.find(' ') {
-      Some(codec_part[..end].to_string())
-    } else {
-      Some(codec_part.to_string())
-    }
+    // Находим конец кодека - либо пробел, либо запятая
+    let end = codec_part.find([' ', ',']).unwrap_or(codec_part.len());
+    Some(codec_part[..end].to_string())
   } else {
     None
   }
@@ -537,11 +640,9 @@ fn extract_audio_codec(line: &str) -> Option<String> {
   // Ищем кодек после "Audio:"
   if let Some(start) = line.find("Audio: ") {
     let codec_part = &line[start + 7..];
-    if let Some(end) = codec_part.find(' ') {
-      Some(codec_part[..end].to_string())
-    } else {
-      Some(codec_part.to_string())
-    }
+    // Находим конец кодека - либо пробел, либо запятая
+    let end = codec_part.find([' ', ',']).unwrap_or(codec_part.len());
+    Some(codec_part[..end].to_string())
   } else {
     None
   }

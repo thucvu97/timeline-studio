@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import { open } from "@tauri-apps/plugin-dialog"
-import { Folder, X } from "lucide-react"
+import { Database, Folder, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,9 @@ import { DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { useModal } from "@/features/modals/services/modal-provider"
+import { CacheStatsDialog } from "@/features/video-compiler"
 import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
 import { useLanguage } from "@/i18n/hooks/use-language"
 
@@ -44,6 +46,8 @@ export function UserSettingsModal() {
 
   // Локальное состояние для выбранного языка
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(currentLanguage)
+  // Состояние для диалога статистики кэша
+  const [showCacheStats, setShowCacheStats] = useState(false)
 
   /**
    * Обработчик изменения языка интерфейса
@@ -295,6 +299,25 @@ export function UserSettingsModal() {
         </div>
       </div>
 
+      {/* Разделитель */}
+      <Separator className="my-4" />
+
+      {/* Раздел производительности */}
+      <div className="flex flex-col space-y-2">
+        <Label className="text-xs font-medium">{t("dialogs.userSettings.performance", "Производительность")}</Label>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowCacheStats(true)}
+            className="flex items-center gap-2"
+          >
+            <Database className="h-4 w-4" />
+            {t("dialogs.userSettings.cacheStats", "Статистика кэша")}
+          </Button>
+        </div>
+      </div>
+
       {/* Кнопки действий в нижней части модального окна */}
       <DialogFooter className="flex justify-between space-x-4 mt-10">
         {/* Кнопка отмены */}
@@ -319,6 +342,9 @@ export function UserSettingsModal() {
           {t("dialogs.userSettings.save")}
         </Button>
       </DialogFooter>
+
+      {/* Диалог статистики кэша */}
+      <CacheStatsDialog open={showCacheStats} onOpenChange={setShowCacheStats} />
     </div>
   )
 }

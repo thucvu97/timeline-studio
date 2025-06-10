@@ -72,7 +72,15 @@ impl RenderPipeline {
 
   /// Выполнить весь конвейер
   pub async fn execute(&mut self, job_id: &str) -> Result<PathBuf> {
-    log::info!("Запуск конвейера обработки для задачи {}", job_id);
+    log::info!("=== Запуск конвейера обработки ===");
+    log::info!("ID задачи: {}", job_id);
+    log::info!("Проект: {}", self.project.metadata.name);
+    log::info!("Выходной файл: {:?}", self.context.output_path);
+    log::info!("Временная директория: {:?}", self.context.temp_dir);
+    log::info!("Количество этапов: {}", self.stages.len());
+
+    // Создаем временную директорию
+    self.context.ensure_temp_dir().await?;
 
     let total_stages = self.stages.len();
     let mut current_stage = 0;
@@ -82,17 +90,31 @@ impl RenderPipeline {
       let stage_name = stage.name();
 
       log::info!(
-        "Выполнение этапа {}/{}: {}",
+        "[{}/{}] Начало этапа: {}",
         current_stage,
         total_stages,
         stage_name
       );
 
+      // Проверяем отмену
+      if self.context.is_cancelled() {
+        log::warn!("Конвейер отменен пользователем");
+        return Err(VideoCompilerError::render(
+          job_id,
+          stage_name,
+          "Операция отменена пользователем".to_string(),
+        ));
+      }
+
       // Обновляем прогресс
       let progress_percentage = ((current_stage - 1) as f64 / total_stages as f64) * 100.0;
-      self
+      if let Err(e) = self
         .update_progress(job_id, progress_percentage as u64, stage_name)
-        .await?;
+        .await
+      {
+        log::warn!("Не удалось обновить прогресс: {}", e);
+        // Продолжаем выполнение
+      }
 
       // Выполняем этап
       let start_time = SystemTime::now();
@@ -100,10 +122,34 @@ impl RenderPipeline {
       match stage.process(&mut self.context).await {
         Ok(_) => {
           let duration = start_time.elapsed().unwrap_or(Duration::ZERO);
-          log::info!("Этап '{}' завершен за {:?}", stage_name, duration);
+          log::info!(
+            "✓ Этап '{}' завершен за {:.2}с",
+            stage_name,
+            duration.as_secs_f64()
+          );
+
+          // Обновляем статистику
+          // Для отслеживания прогресса используем frames_processed
+          self.context.statistics.frames_processed += 1;
         }
         Err(e) => {
-          log::error!("Ошибка на этапе '{}': {}", stage_name, e);
+          log::error!("✗ Ошибка на этапе '{}': {}", stage_name, e);
+          log::error!("  Код ошибки: {}", e.error_code());
+          log::error!(
+            "  Критическая: {}",
+            if e.is_critical() { "да" } else { "нет" }
+          );
+          log::error!(
+            "  Можно повторить: {}",
+            if e.is_retryable() { "да" } else { "нет" }
+          );
+          log::debug!("Детали ошибки: {:?}", e);
+
+          // Очищаем временные файлы при ошибке
+          if let Err(cleanup_err) = self.context.cleanup().await {
+            log::warn!("Не удалось очистить временные файлы: {}", cleanup_err);
+          }
+
           return Err(VideoCompilerError::render(
             job_id,
             stage_name,
@@ -116,7 +162,18 @@ impl RenderPipeline {
     // Финальное обновление прогресса
     self.update_progress(job_id, 100, "Completed").await?;
 
-    log::info!("Конвейер обработки завершен успешно");
+    // Очищаем временные файлы
+    if let Err(e) = self.context.cleanup().await {
+      log::warn!("Не удалось очистить временные файлы: {}", e);
+    }
+
+    log::info!("=== Конвейер обработки завершен успешно ===");
+    log::info!("Выходной файл: {:?}", self.context.output_path);
+    log::info!(
+      "Общее время: {:.2}с",
+      self.context.statistics.total_duration().as_secs_f64()
+    );
+
     Ok(self.context.output_path.clone())
   }
 
@@ -259,14 +316,60 @@ impl PipelineStage for ValidationStage {
       .validate()
       .map_err(VideoCompilerError::validation)?;
 
-    // Проверка существования медиа файлов
+    // Проверка существования медиа файлов и их форматов
     for track in &context.project.tracks {
       for clip in &track.clips {
+        // Проверка существования
         if !clip.source_path.exists() {
           return Err(VideoCompilerError::media_file(
             clip.source_path.to_string_lossy(),
             "Файл не найден",
           ));
+        }
+
+        // Проверка поддерживаемых форматов
+        let extension = clip
+          .source_path
+          .extension()
+          .and_then(|ext| ext.to_str())
+          .unwrap_or("");
+
+        let supported_formats = match track.track_type {
+          crate::video_compiler::schema::TrackType::Video => {
+            vec![
+              "mp4", "mov", "avi", "mkv", "webm", "flv", "m4v", "jpg", "jpeg", "png", "gif", "bmp",
+              "webp",
+            ]
+          }
+          crate::video_compiler::schema::TrackType::Audio => {
+            vec!["mp3", "wav", "aac", "m4a", "flac", "ogg", "wma"]
+          }
+          crate::video_compiler::schema::TrackType::Subtitle => {
+            vec!["srt", "vtt", "ass", "ssa"]
+          }
+        };
+
+        if !supported_formats.contains(&extension.to_lowercase().as_str()) {
+          return Err(VideoCompilerError::media_file(
+            clip.source_path.to_string_lossy(),
+            format!("Неподдерживаемый формат файла: .{}", extension),
+          ));
+        }
+
+        // Проверка временных интервалов
+        if clip.start_time < 0.0 {
+          return Err(VideoCompilerError::validation(format!(
+            "Некорректное время начала клипа: {}",
+            clip.start_time
+          )));
+        }
+
+        let duration = clip.end_time - clip.start_time;
+        if duration <= 0.0 {
+          return Err(VideoCompilerError::validation(format!(
+            "Некорректная длительность клипа: {}",
+            duration
+          )));
         }
       }
     }
@@ -328,14 +431,70 @@ impl PipelineStage for PreprocessingStage {
 }
 
 impl PreprocessingStage {
-  /// Анализ медиа файла
+  /// Анализ медиа файла через FFprobe
   async fn analyze_media_file(&self, path: &Path) -> Result<()> {
+    use tokio::process::Command;
+
     // Проверяем доступность файла
     if !path.exists() {
       return Err(VideoCompilerError::media_file(
         path.to_string_lossy().to_string(),
         "Файл не существует".to_string(),
       ));
+    }
+
+    // Запускаем FFprobe для анализа
+    let output = Command::new("ffprobe")
+      .args([
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=codec_name,width,height,r_frame_rate,duration",
+        "-of",
+        "json",
+        path.to_str().unwrap(),
+      ])
+      .output()
+      .await
+      .map_err(|e| {
+        VideoCompilerError::ffmpeg(
+          None,
+          format!("Не удалось запустить FFprobe: {}", e),
+          "ffprobe".to_string(),
+        )
+      })?;
+
+    if !output.status.success() {
+      let error = String::from_utf8_lossy(&output.stderr);
+      return Err(VideoCompilerError::media_file(
+        path.to_string_lossy(),
+        format!("FFprobe ошибка: {}", error),
+      ));
+    }
+
+    // Парсим JSON результат
+    let json_str = String::from_utf8_lossy(&output.stdout);
+    let probe_data: serde_json::Value = serde_json::from_str(&json_str).map_err(|e| {
+      VideoCompilerError::media_file(
+        path.to_string_lossy(),
+        format!("Ошибка парсинга FFprobe данных: {}", e),
+      )
+    })?;
+
+    // Логируем информацию о файле
+    if let Some(streams) = probe_data["streams"].as_array() {
+      if let Some(stream) = streams.first() {
+        log::info!(
+          "Медиа файл {}: {}x{}, codec: {}, fps: {}",
+          path.display(),
+          stream["width"].as_u64().unwrap_or(0),
+          stream["height"].as_u64().unwrap_or(0),
+          stream["codec_name"].as_str().unwrap_or("unknown"),
+          stream["r_frame_rate"].as_str().unwrap_or("unknown")
+        );
+      }
     }
 
     // Здесь можно добавить дополнительную логику анализа
@@ -345,14 +504,56 @@ impl PreprocessingStage {
 
   /// Подготовка промежуточных файлов
   async fn prepare_intermediate_files(&self, context: &mut PipelineContext) -> Result<()> {
-    // Создаем пути для промежуточных файлов
-    let video_temp = context.temp_dir.join("video_temp.mp4");
-    let audio_temp = context.temp_dir.join("audio_temp.wav");
+    log::debug!("Подготовка промежуточных файлов");
 
-    context.add_intermediate_file("video_temp".to_string(), video_temp);
-    context.add_intermediate_file("audio_temp".to_string(), audio_temp);
+    // Собираем информацию о необходимых преобразованиях
+    let mut conversions = Vec::new();
+
+    for (track_idx, track) in context.project.tracks.iter().enumerate() {
+      for (clip_idx, clip) in track.clips.iter().enumerate() {
+        // Проверяем нужно ли конвертировать файл
+        let needs_conversion = self.check_needs_conversion(&clip.source_path).await?;
+
+        if needs_conversion {
+          conversions.push((track_idx, clip_idx, clip.source_path.clone()));
+        }
+      }
+    }
+
+    // Теперь добавляем промежуточные файлы
+    for (track_idx, clip_idx, source_path) in conversions {
+      // Создаем путь для временного файла
+      let temp_file = context
+        .temp_dir
+        .join(format!("track_{}_clip_{}_temp.mp4", track_idx, clip_idx));
+
+      // Сохраняем информацию о временном файле
+      let key = format!("track_{}_clip_{}", track_idx, clip_idx);
+      context.add_intermediate_file(key, temp_file);
+
+      log::info!("Клип {} требует преобразования", source_path.display());
+    }
+
+    // Создаем основные промежуточные файлы для композиции
+    let video_composite = context.temp_dir.join("video_composite.mp4");
+    let audio_composite = context.temp_dir.join("audio_composite.wav");
+
+    context.add_intermediate_file("video_composite".to_string(), video_composite);
+    context.add_intermediate_file("audio_composite".to_string(), audio_composite);
 
     Ok(())
+  }
+
+  /// Проверка необходимости конвертации
+  async fn check_needs_conversion(&self, path: &Path) -> Result<bool> {
+    // Простая проверка по расширению
+    // В реальности здесь должна быть проверка кодеков через FFprobe
+    let extension = path.extension().and_then(|ext| ext.to_str()).unwrap_or("");
+
+    // Форматы, которые требуют конвертации
+    let needs_conversion_formats = ["avi", "flv", "wmv", "mkv"];
+
+    Ok(needs_conversion_formats.contains(&extension.to_lowercase().as_str()))
   }
 }
 
@@ -401,6 +602,8 @@ impl PipelineStage for CompositionStage {
 impl CompositionStage {
   /// Композиция видео дорожек
   async fn compose_video_tracks(&self, context: &mut PipelineContext) -> Result<()> {
+    use tokio::process::Command;
+
     let video_tracks: Vec<_> = context
       .project
       .tracks
@@ -415,12 +618,95 @@ impl CompositionStage {
     }
 
     log::debug!("Композиция {} видео дорожек", video_tracks.len());
-    // Здесь будет логика композиции видео
+
+    // Строим команду FFmpeg для композиции видео
+    let ffmpeg_command = self.build_video_composition_command(context, &video_tracks)?;
+
+    // Выполняем команду FFmpeg
+    log::info!("Запуск композиции видео");
+    let output = Command::new(&ffmpeg_command[0])
+      .args(&ffmpeg_command[1..])
+      .output()
+      .await
+      .map_err(|e| {
+        VideoCompilerError::ffmpeg(
+          None,
+          format!("Не удалось запустить FFmpeg для видео композиции: {}", e),
+          "video composition".to_string(),
+        )
+      })?;
+
+    if !output.status.success() {
+      let error = String::from_utf8_lossy(&output.stderr);
+      return Err(VideoCompilerError::ffmpeg(
+        output.status.code(),
+        format!("FFmpeg видео композиция не удалась: {}", error),
+        "video composition".to_string(),
+      ));
+    }
+
+    log::info!("Видео композиция завершена успешно");
     Ok(())
+  }
+
+  /// Построение команды FFmpeg для композиции видео
+  fn build_video_composition_command(
+    &self,
+    context: &PipelineContext,
+    video_tracks: &[&crate::video_compiler::schema::Track],
+  ) -> Result<Vec<String>> {
+    let mut command = vec!["ffmpeg".to_string()];
+
+    // Добавляем входные файлы
+    let mut input_count = 0;
+    for track in video_tracks {
+      for clip in &track.clips {
+        command.extend([
+          "-i".to_string(),
+          clip.source_path.to_string_lossy().to_string(),
+        ]);
+        input_count += 1;
+      }
+    }
+
+    // Если только один клип - простое копирование
+    if input_count == 1 {
+      command.extend([
+        "-c:v".to_string(),
+        "copy".to_string(),
+        "-an".to_string(), // Без аудио на этом этапе
+      ]);
+    } else {
+      // Сложная композиция с filter_complex
+      let mut filter_complex = String::new();
+
+      // Простой пример конкатенации
+      for i in 0..input_count {
+        filter_complex.push_str(&format!("[{}:v]", i));
+      }
+      filter_complex.push_str(&format!("concat=n={}:v=1:a=0[outv]", input_count));
+
+      command.extend([
+        "-filter_complex".to_string(),
+        filter_complex,
+        "-map".to_string(),
+        "[outv]".to_string(),
+      ]);
+    }
+
+    // Выходной файл
+    if let Some(video_composite) = context.intermediate_files.get("video_composite") {
+      command.push(video_composite.to_string_lossy().to_string());
+    }
+
+    log::debug!("FFmpeg команда для видео: {:?}", command);
+    Ok(command)
   }
 
   /// Композиция аудио дорожек
   async fn compose_audio_tracks(&self, context: &mut PipelineContext) -> Result<()> {
+    use tokio::process::Command;
+
     let audio_tracks: Vec<_> = context
       .project
       .tracks
@@ -428,9 +714,98 @@ impl CompositionStage {
       .filter(|t| t.track_type == crate::video_compiler::schema::TrackType::Audio)
       .collect();
 
+    if audio_tracks.is_empty() {
+      log::info!("Нет аудио дорожек для композиции");
+      return Ok(());
+    }
+
     log::debug!("Композиция {} аудио дорожек", audio_tracks.len());
-    // Здесь будет логика композиции аудио
+
+    // Строим команду FFmpeg для композиции аудио
+    let ffmpeg_command = self.build_audio_composition_command(context, &audio_tracks)?;
+
+    // Выполняем команду FFmpeg
+    log::info!("Запуск композиции аудио");
+    let output = Command::new(&ffmpeg_command[0])
+      .args(&ffmpeg_command[1..])
+      .output()
+      .await
+      .map_err(|e| {
+        VideoCompilerError::ffmpeg(
+          None,
+          format!("Не удалось запустить FFmpeg для аудио композиции: {}", e),
+          "audio composition".to_string(),
+        )
+      })?;
+
+    if !output.status.success() {
+      let error = String::from_utf8_lossy(&output.stderr);
+      return Err(VideoCompilerError::ffmpeg(
+        output.status.code(),
+        format!("FFmpeg аудио композиция не удалась: {}", error),
+        "audio composition".to_string(),
+      ));
+    }
+
+    log::info!("Аудио композиция завершена успешно");
     Ok(())
+  }
+
+  /// Построение команды FFmpeg для композиции аудио
+  fn build_audio_composition_command(
+    &self,
+    context: &PipelineContext,
+    audio_tracks: &[&crate::video_compiler::schema::Track],
+  ) -> Result<Vec<String>> {
+    let mut command = vec!["ffmpeg".to_string()];
+
+    // Добавляем входные файлы
+    let mut input_count = 0;
+    for track in audio_tracks {
+      for clip in &track.clips {
+        command.extend([
+          "-i".to_string(),
+          clip.source_path.to_string_lossy().to_string(),
+        ]);
+        input_count += 1;
+      }
+    }
+
+    // Если только один аудио клип - простое копирование
+    if input_count == 1 {
+      command.extend([
+        "-c:a".to_string(),
+        "copy".to_string(),
+        "-vn".to_string(), // Без видео на этом этапе
+      ]);
+    } else {
+      // Сложное микширование с amerge или amix
+      let mut filter_complex = String::new();
+
+      // Используем amix для микширования нескольких аудио потоков
+      for i in 0..input_count {
+        filter_complex.push_str(&format!("[{}:a]", i));
+      }
+      filter_complex.push_str(&format!(
+        "amix=inputs={}:duration=longest:dropout_transition=2[outa]",
+        input_count
+      ));
+
+      command.extend([
+        "-filter_complex".to_string(),
+        filter_complex,
+        "-map".to_string(),
+        "[outa]".to_string(),
+      ]);
+    }
+
+    // Выходной файл
+    if let Some(audio_composite) = context.intermediate_files.get("audio_composite") {
+      command.push(audio_composite.to_string_lossy().to_string());
+    }
+
+    log::debug!("FFmpeg команда для аудио: {:?}", command);
+    Ok(command)
   }
 }
 
@@ -476,7 +851,10 @@ impl PipelineStage for EncodingStage {
 impl EncodingStage {
   /// Кодирование финального видео
   async fn encode_final_video(&self, context: &mut PipelineContext) -> Result<()> {
-    log::debug!("Кодирование в файл: {:?}", context.output_path);
+    use tokio::io::{AsyncBufReadExt, BufReader};
+    use tokio::process::Command;
+
+    log::info!("Начало кодирования в файл: {:?}", context.output_path);
 
     // Создаем родительскую директорию если не существует
     if let Some(parent) = context.output_path.parent() {
@@ -485,8 +863,149 @@ impl EncodingStage {
         .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
     }
 
-    // Здесь будет логика кодирования через FFmpeg
+    // Получаем промежуточные файлы
+    let video_composite = context
+      .get_intermediate_file("video_composite")
+      .ok_or_else(|| {
+        VideoCompilerError::render(
+          "encoding",
+          "missing_video",
+          "Промежуточный видео файл не найден",
+        )
+      })?;
+
+    let audio_composite = context.get_intermediate_file("audio_composite");
+
+    // Строим финальную команду FFmpeg
+    let mut command = vec!["ffmpeg".to_string(), "-y".to_string()]; // -y для перезаписи
+
+    // Добавляем видео вход
+    command.extend([
+      "-i".to_string(),
+      video_composite.to_string_lossy().to_string(),
+    ]);
+
+    // Добавляем аудио вход если есть
+    if let Some(audio_path) = audio_composite {
+      command.extend(["-i".to_string(), audio_path.to_string_lossy().to_string()]);
+      // Маппинг видео и аудио
+      command.extend([
+        "-map".to_string(),
+        "0:v".to_string(),
+        "-map".to_string(),
+        "1:a".to_string(),
+      ]);
+    } else {
+      // Только видео
+      command.extend(["-map".to_string(), "0:v".to_string()]);
+    }
+
+    // Кодеки и настройки качества
+    command.extend([
+      "-c:v".to_string(),
+      "libx264".to_string(),
+      "-preset".to_string(),
+      "medium".to_string(),
+      "-crf".to_string(),
+      "23".to_string(),
+      "-c:a".to_string(),
+      "aac".to_string(),
+      "-b:a".to_string(),
+      "192k".to_string(),
+      "-movflags".to_string(),
+      "+faststart".to_string(), // Для веб-воспроизведения
+    ]);
+
+    // Разрешение и FPS из timeline
+    let resolution = context.project.timeline.resolution;
+    command.extend([
+      "-vf".to_string(),
+      format!("scale={}:{}", resolution.0, resolution.1),
+      "-r".to_string(),
+      context.project.timeline.fps.to_string(),
+    ]);
+
+    // Выходной файл
+    command.push(context.output_path.to_string_lossy().to_string());
+
+    log::debug!("Финальная FFmpeg команда: {:?}", command);
+
+    // Запускаем FFmpeg процесс
+    let mut child = Command::new(&command[0])
+      .args(&command[1..])
+      .stderr(std::process::Stdio::piped())
+      .spawn()
+      .map_err(|e| {
+        VideoCompilerError::ffmpeg(
+          None,
+          format!("Не удалось запустить FFmpeg: {}", e),
+          "ffmpeg spawn".to_string(),
+        )
+      })?;
+
+    // Читаем stderr для прогресса
+    if let Some(stderr) = child.stderr.take() {
+      let reader = BufReader::new(stderr);
+      let mut lines = reader.lines();
+
+      while let Some(line) = lines.next_line().await.ok().flatten() {
+        // Парсим прогресс из вывода FFmpeg
+        if line.contains("frame=") {
+          self.parse_ffmpeg_progress(&line, context);
+        }
+        log::trace!("FFmpeg: {}", line);
+
+        // Проверяем отмену
+        if context.is_cancelled() {
+          child.kill().await.ok();
+          return Err(VideoCompilerError::CancelledError(
+            "Кодирование отменено пользователем".to_string(),
+          ));
+        }
+      }
+    }
+
+    // Ждем завершения процесса
+    let status = child.wait().await.map_err(|e| {
+      VideoCompilerError::ffmpeg(
+        None,
+        format!("Ошибка ожидания FFmpeg: {}", e),
+        "ffmpeg wait".to_string(),
+      )
+    })?;
+
+    if !status.success() {
+      return Err(VideoCompilerError::ffmpeg(
+        status.code(),
+        "FFmpeg завершился с ошибкой".to_string(),
+        "ffmpeg encoding".to_string(),
+      ));
+    }
+
+    // Проверяем что файл создан
+    if !context.output_path.exists() {
+      return Err(VideoCompilerError::render(
+        "encoding",
+        "output_missing",
+        "Выходной файл не был создан",
+      ));
+    }
+
+    log::info!("Кодирование завершено успешно");
     Ok(())
+  }
+
+  /// Парсинг прогресса из вывода FFmpeg
+  fn parse_ffmpeg_progress(&self, line: &str, context: &mut PipelineContext) {
+    // Пример строки: frame= 2490 fps=100 q=29.0 size=    5376kB time=00:00:41.50 bitrate=1061.2kbits/s
+    if let Some(frame_match) = line.split("frame=").nth(1) {
+      if let Some(frame_str) = frame_match.split_whitespace().next() {
+        if let Ok(frame) = frame_str.trim().parse::<u64>() {
+          context.statistics.frames_processed = frame;
+          log::trace!("Обработано кадров: {}", frame);
+        }
+      }
+    }
   }
 }
 
@@ -514,11 +1033,34 @@ impl PipelineStage for FinalizationStage {
       ));
     }
 
+    // Получаем размер файла
+    let file_size = tokio::fs::metadata(&context.output_path)
+      .await
+      .map(|m| m.len())
+      .unwrap_or(0);
+
+    log::info!(
+      "Выходной файл создан: {:?}, размер: {} МБ",
+      context.output_path,
+      file_size / 1_048_576
+    );
+
+    // Добавляем метаданные к файлу
+    self.add_metadata(context).await?;
+
+    // Сохраняем статистику
+    self.save_statistics(context).await?;
+
     // Очистка временных файлов
-    context.cleanup().await?;
+    if !context.is_cancelled() {
+      log::info!("Очистка временных файлов");
+      context.cleanup().await?;
+    } else {
+      log::warn!("Пропуск очистки временных файлов из-за отмены");
+    }
 
     context.statistics.finalization_time = SystemTime::now();
-    log::info!("Финализация завершена");
+    log::info!("Финализация завершена успешно");
     Ok(())
   }
 
@@ -528,6 +1070,95 @@ impl PipelineStage for FinalizationStage {
 
   fn estimated_duration(&self) -> Duration {
     Duration::from_secs(5)
+  }
+}
+
+impl FinalizationStage {
+  /// Добавление метаданных к выходному файлу
+  async fn add_metadata(&self, context: &PipelineContext) -> Result<()> {
+    use tokio::process::Command;
+
+    // Создаем временные строки для метаданных
+    let title_meta = format!("title={}", context.project.metadata.name);
+    let artist_meta = "artist=Timeline Studio".to_string();
+    let date_meta = format!("date={}", chrono::Utc::now().format("%Y-%m-%d"));
+    let comment_meta = format!(
+      "comment=Created with Timeline Studio v{}",
+      context.project.version
+    );
+    let tmp_file = format!("{}.tmp", context.output_path.to_string_lossy());
+
+    let metadata_args = vec![
+      "-i",
+      context.output_path.to_str().unwrap(),
+      "-c",
+      "copy",
+      "-metadata",
+      &title_meta,
+      "-metadata",
+      &artist_meta,
+      "-metadata",
+      &date_meta,
+      "-metadata",
+      &comment_meta,
+      "-y", // Перезаписать
+      &tmp_file,
+    ];
+
+    let output = Command::new("ffmpeg")
+      .args(&metadata_args)
+      .output()
+      .await
+      .map_err(|e| {
+        VideoCompilerError::ffmpeg(
+          None,
+          format!("Не удалось добавить метаданные: {}", e),
+          "add metadata".to_string(),
+        )
+      })?;
+
+    if output.status.success() {
+      // Заменяем оригинальный файл
+      tokio::fs::rename(&tmp_file, &context.output_path)
+        .await
+        .map_err(|e| VideoCompilerError::IoError(format!("Не удалось заменить файл: {}", e)))?;
+
+      log::info!("Метаданные добавлены к выходному файлу");
+    } else {
+      log::warn!("Не удалось добавить метаданные, но файл создан");
+    }
+
+    Ok(())
+  }
+
+  /// Сохранение статистики рендеринга
+  async fn save_statistics(&self, context: &PipelineContext) -> Result<()> {
+    let stats_path = context.output_path.with_extension("stats.json");
+
+    let stats_json = serde_json::json!({
+      "project_name": context.project.metadata.name,
+      "output_file": context.output_path.to_string_lossy(),
+      "total_duration": context.statistics.total_duration().as_secs(),
+      "frames_processed": context.statistics.frames_processed,
+      "memory_used": context.statistics.memory_used,
+      "error_count": context.statistics.error_count,
+      "warning_count": context.statistics.warning_count,
+      "render_date": chrono::Utc::now().to_rfc3339(),
+      "timeline_studio_version": context.project.version,
+    });
+
+    let stats_string = serde_json::to_string_pretty(&stats_json).map_err(|e| {
+      VideoCompilerError::IoError(format!("Не удалось сериализовать статистику: {}", e))
+    })?;
+
+    tokio::fs::write(&stats_path, stats_string)
+      .await
+      .map_err(|e| {
+        VideoCompilerError::IoError(format!("Не удалось сохранить статистику: {}", e))
+      })?;
+
+    log::info!("Статистика рендеринга сохранена в {:?}", stats_path);
+    Ok(())
   }
 }
 

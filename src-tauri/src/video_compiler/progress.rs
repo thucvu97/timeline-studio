@@ -203,22 +203,75 @@ impl ProgressTracker {
 
     // Парсим различные поля из строки прогресса
     // Пример: frame= 1234 fps=30 q=28.0 size= 1024kB time=00:00:41.40 bitrate=8000.0kbits/s
-    for part in line.split_whitespace() {
-      if let Some(value) = part.strip_prefix("frame=") {
-        progress.frame = value.parse().unwrap_or(0);
-      } else if let Some(value) = part.strip_prefix("fps=") {
-        progress.fps = value.parse().unwrap_or(0.0);
-      } else if let Some(value) = part.strip_prefix("q=") {
-        progress.quality = value.parse().unwrap_or(0.0);
-      } else if let Some(value) = part.strip_prefix("size=") {
-        progress.size = parse_size(value);
-      } else if let Some(value) = part.strip_prefix("time=") {
-        progress.time = parse_time(value);
-      } else if let Some(value) = part.strip_prefix("bitrate=") {
-        progress.bitrate = parse_bitrate(value);
-      } else if let Some(value) = part.strip_prefix("speed=") {
-        progress.speed = value.trim_end_matches('x').parse().unwrap_or(0.0);
+    // Используем более гибкий парсинг для обработки пробелов после знака равенства
+
+    // Парсим frame
+    if let Some(pos) = line.find("frame=") {
+      let start = pos + 6;
+      let remaining = &line[start..].trim_start();
+      if let Some(end) = remaining.find(char::is_whitespace) {
+        progress.frame = remaining[..end].parse().unwrap_or(0);
       }
+    }
+
+    // Парсим fps
+    if let Some(pos) = line.find("fps=") {
+      let start = pos + 4;
+      let remaining = &line[start..].trim_start();
+      if let Some(end) = remaining.find(char::is_whitespace) {
+        progress.fps = remaining[..end].parse().unwrap_or(0.0);
+      }
+    }
+
+    // Парсим q
+    if let Some(pos) = line.find("q=") {
+      let start = pos + 2;
+      let remaining = &line[start..].trim_start();
+      if let Some(end) = remaining.find(char::is_whitespace) {
+        progress.quality = remaining[..end].parse().unwrap_or(0.0);
+      }
+    }
+
+    // Парсим size
+    if let Some(pos) = line.find("size=") {
+      let start = pos + 5;
+      let remaining = &line[start..].trim_start();
+      if let Some(end) = remaining.find(char::is_whitespace) {
+        progress.size = parse_size(&remaining[..end]);
+      }
+    }
+
+    // Парсим time
+    if let Some(pos) = line.find("time=") {
+      let start = pos + 5;
+      let remaining = &line[start..].trim_start();
+      if let Some(end) = remaining.find(char::is_whitespace) {
+        progress.time = parse_time(&remaining[..end]);
+      }
+    }
+
+    // Парсим bitrate
+    if let Some(pos) = line.find("bitrate=") {
+      let start = pos + 8;
+      let remaining = &line[start..].trim_start();
+      if let Some(end) = remaining.find(char::is_whitespace) {
+        progress.bitrate = parse_bitrate(&remaining[..end]);
+      } else {
+        // Если это последнее поле
+        progress.bitrate = parse_bitrate(remaining);
+      }
+    }
+
+    // Парсим speed
+    if let Some(pos) = line.find("speed=") {
+      let start = pos + 6;
+      let remaining = &line[start..].trim_start();
+      let speed_str = if let Some(end) = remaining.find(char::is_whitespace) {
+        &remaining[..end]
+      } else {
+        remaining
+      };
+      progress.speed = speed_str.trim_end_matches('x').parse().unwrap_or(0.0);
     }
 
     Some(progress)
@@ -580,6 +633,14 @@ mod tests {
     // Проверяем уведомление о создании
     let update = rx.recv().await.unwrap();
     assert!(matches!(update, ProgressUpdate::JobStarted { .. }));
+
+    // Запускаем задачу чтобы изменить статус на Processing
+    {
+      let mut jobs = tracker.active_jobs.write().await;
+      if let Some(job) = jobs.get_mut(&job_id) {
+        job.start().unwrap();
+      }
+    }
 
     // Обновляем прогресс
     tracker

@@ -130,19 +130,11 @@ export const VideoPreview = memo(
     // Состояние для хранения объекта URL
     const [videoUrl, setVideoUrl] = useState<string>("")
 
-    // Функция для чтения файла и создания объекта URL
+    // Функция для получения URL видео без загрузки в память
     const loadVideoFile = useCallback(async (path: string) => {
-      try {
-        const fileData = await readFile(path)
-        const blob = new Blob([fileData], { type: "video/mp4" })
-        const url = URL.createObjectURL(blob)
-        return url
-      } catch (error) {
-        console.error("[VideoPreview] Ошибка при загрузке видео:", error)
-        // В случае ошибки используем convertFileSrc
-        const assetUrl = convertFileSrc(path)
-        return assetUrl
-      }
+      // Используем только convertFileSrc для стриминга видео
+      const assetUrl = convertFileSrc(path)
+      return assetUrl
     }, [])
 
     // Мемоизируем путь к файлу для предотвращения лишних перезагрузок
@@ -158,12 +150,9 @@ export const VideoPreview = memo(
         }
       })
 
-      // Очистка объекта URL при размонтировании компонента
+      // Очистка при размонтировании компонента
       return () => {
         isMounted = false
-        if (videoUrl?.startsWith("blob:")) {
-          URL.revokeObjectURL(videoUrl)
-        }
       }
     }, [filePath, loadVideoFile]) // Используем мемоизированный путь
 
@@ -189,7 +178,7 @@ export const VideoPreview = memo(
             <div className="group relative h-full w-full">
               <video
                 src={videoUrl || convertFileSrc(file.path)}
-                preload="auto"
+                preload="metadata"
                 tabIndex={0}
                 playsInline
                 muted={false}
@@ -271,7 +260,7 @@ export const VideoPreview = memo(
                       videoRefs.current[key] = el
                     }}
                     src={videoUrl || convertFileSrc(file.path)}
-                    preload="auto"
+                    preload="metadata"
                     tabIndex={0}
                     playsInline
                     muted={false} // Включаем звук в превью по запросу пользователя

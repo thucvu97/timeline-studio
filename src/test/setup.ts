@@ -168,38 +168,166 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
   }),
 }))
 
+// Мок для Tauri Store API
+vi.mock("@tauri-apps/plugin-store", () => ({
+  Store: vi.fn().mockImplementation(() => ({
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockResolvedValue(undefined),
+    has: vi.fn().mockResolvedValue(false),
+    delete: vi.fn().mockResolvedValue(undefined),
+    clear: vi.fn().mockResolvedValue(undefined),
+    save: vi.fn().mockResolvedValue(undefined),
+    load: vi.fn().mockResolvedValue(undefined),
+    keys: vi.fn().mockResolvedValue([]),
+    values: vi.fn().mockResolvedValue([]),
+    entries: vi.fn().mockResolvedValue([]),
+    length: vi.fn().mockResolvedValue(0),
+  })),
+  load: vi.fn().mockResolvedValue({
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockResolvedValue(undefined),
+    has: vi.fn().mockResolvedValue(false),
+    delete: vi.fn().mockResolvedValue(undefined),
+    clear: vi.fn().mockResolvedValue(undefined),
+    save: vi.fn().mockResolvedValue(undefined),
+    load: vi.fn().mockResolvedValue(undefined),
+    keys: vi.fn().mockResolvedValue([]),
+    values: vi.fn().mockResolvedValue([]),
+    entries: vi.fn().mockResolvedValue([]),
+    length: vi.fn().mockResolvedValue(0),
+  }),
+}))
+
 // Мок для react-hotkeys-hook
 vi.mock("react-hotkeys-hook", () => ({
   useHotkeys: vi.fn(),
 }))
 
-// Мок для lucide-react
-vi.mock("lucide-react", () => {
-  const createMockIcon = (name: string) => {
-    const MockIcon = React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) =>
-      React.createElement(
-        "svg",
+// Мок для Radix UI Dropdown Menu
+vi.mock("@radix-ui/react-dropdown-menu", () => {
+  const DropdownMenuContext = React.createContext<{ open: boolean; setOpen: (open: boolean) => void }>({
+    open: false,
+    setOpen: () => {},
+  })
+
+  return {
+    Root: ({ children, open: controlledOpen }: { children: React.ReactNode; open?: boolean }) => {
+      const [open, setOpen] = React.useState(controlledOpen ?? false)
+      return React.createElement(
+        DropdownMenuContext.Provider,
+        { value: { open, setOpen } },
+        React.createElement("div", { "data-testid": "dropdown-menu-root", "data-open": open }, children),
+      )
+    },
+    Trigger: React.forwardRef<HTMLButtonElement, any>(function DropdownMenuTrigger(
+      { children, asChild, ...props },
+      ref,
+    ) {
+      const context = React.useContext(DropdownMenuContext)
+      if (asChild && React.isValidElement(children)) {
+        // Clone the child element and add click handler
+        return React.cloneElement(children as React.ReactElement<any>, {
+          ...props,
+          ref,
+          onClick: (e: React.MouseEvent) => {
+            context.setOpen(!context.open)
+            ;(children as React.ReactElement<any>).props.onClick?.(e)
+          },
+          "data-testid": "dropdown-menu-trigger",
+        })
+      }
+      return React.createElement(
+        "button",
         {
           ...props,
           ref,
-          "data-testid": `${name.toLowerCase()}-icon`,
-          "data-icon": name,
+          onClick: () => context.setOpen(!context.open),
+          "data-testid": "dropdown-menu-trigger",
         },
-        name,
-      ),
+        children,
+      )
+    }),
+    Portal: ({ children }: { children: React.ReactNode }) => {
+      const context = React.useContext(DropdownMenuContext)
+      return context.open ? children : null
+    },
+    Content: React.forwardRef<HTMLDivElement, any>(function DropdownMenuContent(
+      { children, sideOffset, ...props },
+      ref,
+    ) {
+      const context = React.useContext(DropdownMenuContext)
+      if (!context.open) return null
+      // Remove sideOffset from props to avoid React warning
+      const { align, className, ...restProps } = props
+      return React.createElement(
+        "div",
+        { ...restProps, ref, className, "data-testid": "dropdown-menu-content", "data-align": align },
+        children,
+      )
+    }),
+    Item: React.forwardRef<HTMLDivElement, any>(function DropdownMenuItem({ children, ...props }, ref) {
+      return React.createElement("div", { ...props, ref, "data-testid": "dropdown-menu-item" }, children)
+    }),
+    CheckboxItem: React.forwardRef<HTMLDivElement, any>(function DropdownMenuCheckboxItem({ children, ...props }, ref) {
+      return React.createElement("div", { ...props, ref, "data-testid": "dropdown-menu-checkbox-item" }, children)
+    }),
+    RadioGroup: ({ children }: { children: React.ReactNode }) =>
+      React.createElement("div", { "data-testid": "dropdown-menu-radio-group" }, children),
+    RadioItem: React.forwardRef<HTMLDivElement, any>(function DropdownMenuRadioItem({ children, ...props }, ref) {
+      return React.createElement("div", { ...props, ref, "data-testid": "dropdown-menu-radio-item" }, children)
+    }),
+    Label: ({ children }: { children: React.ReactNode }) =>
+      React.createElement("div", { "data-testid": "dropdown-menu-label" }, children),
+    Separator: () => React.createElement("hr", { "data-testid": "dropdown-menu-separator" }),
+    Sub: ({ children }: { children: React.ReactNode }) =>
+      React.createElement("div", { "data-testid": "dropdown-menu-sub" }, children),
+    SubTrigger: React.forwardRef<HTMLDivElement, any>(function DropdownMenuSubTrigger({ children, ...props }, ref) {
+      return React.createElement("div", { ...props, ref, "data-testid": "dropdown-menu-sub-trigger" }, children)
+    }),
+    SubContent: React.forwardRef<HTMLDivElement, any>(function DropdownMenuSubContent({ children, ...props }, ref) {
+      return React.createElement("div", { ...props, ref, "data-testid": "dropdown-menu-sub-content" }, children)
+    }),
+    Group: ({ children }: { children: React.ReactNode }) =>
+      React.createElement("div", { "data-testid": "dropdown-menu-group" }, children),
+    Shortcut: ({ children }: { children: React.ReactNode }) =>
+      React.createElement("span", { "data-testid": "dropdown-menu-shortcut" }, children),
+    ItemIndicator: ({ children }: { children: React.ReactNode }) =>
+      React.createElement("span", { "data-testid": "dropdown-menu-item-indicator" }, children),
+  }
+})
+
+// Мок для lucide-react
+vi.mock("lucide-react", () => {
+  const createMockIcon = (name: string) => {
+    const MockIcon = React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>(
+      function MockLucideIcon(props, ref) {
+        return React.createElement(
+          "svg",
+          {
+            ...props,
+            ref,
+            "data-testid": `${name.toLowerCase()}-icon`,
+            "data-icon": name,
+          },
+          name,
+        )
+      },
     )
     MockIcon.displayName = `Mock${name}Icon`
     return MockIcon
   }
 
   return {
+    AlertCircle: createMockIcon("AlertCircle"),
     AlertTriangle: createMockIcon("AlertTriangle"),
     Clapperboard: createMockIcon("Clapperboard"),
     Blend: createMockIcon("Blend"),
     Bot: createMockIcon("Bot"),
     Check: createMockIcon("Check"),
+    CheckCircle2: createMockIcon("CheckCircle2"),
     CheckIcon: createMockIcon("CheckIcon"),
     ChevronDown: createMockIcon("ChevronDown"),
+    Database: createMockIcon("Database"),
     ChevronDownIcon: createMockIcon("ChevronDownIcon"),
     ChevronRight: createMockIcon("ChevronRight"),
     ChevronRightIcon: createMockIcon("ChevronRightIcon"),
@@ -207,16 +335,20 @@ vi.mock("lucide-react", () => {
     CircleIcon: createMockIcon("CircleIcon"),
     CirclePause: createMockIcon("CirclePause"),
     CirclePlay: createMockIcon("CirclePlay"),
+    Clock: createMockIcon("Clock"),
     CopyPlus: createMockIcon("CopyPlus"),
     Eye: createMockIcon("Eye"),
     EyeOff: createMockIcon("EyeOff"),
     File: createMockIcon("File"),
     FileText: createMockIcon("FileText"),
+    FileVideo: createMockIcon("FileVideo"),
     Film: createMockIcon("Film"),
     Filter: createMockIcon("Filter"),
     FlipHorizontal2: createMockIcon("FlipHorizontal2"),
     Folder: createMockIcon("Folder"),
     FolderOpen: createMockIcon("FolderOpen"),
+    Activity: createMockIcon("Activity"),
+    HardDrive: createMockIcon("HardDrive"),
     Grid: createMockIcon("Grid"),
     Grid2x2: createMockIcon("Grid2x2"),
     Grid2X2: createMockIcon("Grid2X2"),
@@ -239,6 +371,7 @@ vi.mock("lucide-react", () => {
     PanelLeftOpen: createMockIcon("PanelLeftOpen"),
     Pause: createMockIcon("Pause"),
     Play: createMockIcon("Play"),
+    PlayCircle: createMockIcon("PlayCircle"),
     Plus: createMockIcon("Plus"),
     Redo2: createMockIcon("Redo2"),
     RefreshCw: createMockIcon("RefreshCw"),
@@ -267,6 +400,7 @@ vi.mock("lucide-react", () => {
     Volume2: createMockIcon("Volume2"),
     VolumeX: createMockIcon("VolumeX"),
     X: createMockIcon("X"),
+    XCircle: createMockIcon("XCircle"),
     XIcon: createMockIcon("XIcon"),
   }
 })

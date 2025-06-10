@@ -329,7 +329,7 @@ impl Default for CacheSettings {
 }
 
 /// Статистика использования кэша
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CacheStats {
   /// Запросы превью
   pub preview_requests: u64,

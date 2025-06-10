@@ -69,6 +69,15 @@ pub enum VideoCompilerError {
   /// Операция была отменена пользователем
   CancelledError(String),
 
+  /// Ошибка GPU ускорения
+  GpuError(String),
+
+  /// GPU недоступен или не поддерживается
+  GpuUnavailable(String),
+
+  /// Ошибка ввода/вывода (переименовано для ясности)
+  Io(String),
+
   /// Внутренняя ошибка
   InternalError(String),
 
@@ -156,6 +165,15 @@ impl fmt::Display for VideoCompilerError {
       VideoCompilerError::CancelledError(msg) => {
         write!(f, "Операция отменена: {}", msg)
       }
+      VideoCompilerError::GpuError(msg) => {
+        write!(f, "Ошибка GPU: {}", msg)
+      }
+      VideoCompilerError::GpuUnavailable(msg) => {
+        write!(f, "GPU недоступен: {}", msg)
+      }
+      VideoCompilerError::Io(msg) => {
+        write!(f, "Ошибка ввода/вывода: {}", msg)
+      }
       VideoCompilerError::InternalError(msg) => {
         write!(f, "Внутренняя ошибка: {}", msg)
       }
@@ -167,6 +185,44 @@ impl fmt::Display for VideoCompilerError {
 }
 
 impl std::error::Error for VideoCompilerError {}
+
+impl VideoCompilerError {
+  /// Создать ошибку GPU
+  pub fn gpu(message: impl Into<String>) -> Self {
+    VideoCompilerError::GpuError(message.into())
+  }
+
+  /// Создать ошибку недоступности GPU
+  pub fn gpu_unavailable(message: impl Into<String>) -> Self {
+    VideoCompilerError::GpuUnavailable(message.into())
+  }
+
+  /// Создать ошибку I/O
+  pub fn io(message: impl Into<String>) -> Self {
+    VideoCompilerError::Io(message.into())
+  }
+
+  /// Проверить, является ли ошибка связанной с GPU
+  pub fn is_gpu_related(&self) -> bool {
+    matches!(
+      self,
+      VideoCompilerError::GpuError(_) | VideoCompilerError::GpuUnavailable(_)
+    )
+  }
+
+  /// Получить сообщение об ошибке
+  pub fn message(&self) -> String {
+    self.to_string()
+  }
+
+  /// Проверить, можно ли использовать fallback на CPU
+  pub fn should_fallback_to_cpu(&self) -> bool {
+    matches!(
+      self,
+      VideoCompilerError::GpuError(_) | VideoCompilerError::GpuUnavailable(_)
+    )
+  }
+}
 
 // Конверсии из стандартных ошибок
 impl From<std::io::Error> for VideoCompilerError {
@@ -300,6 +356,9 @@ impl VideoCompilerError {
       VideoCompilerError::ResourceError { .. } => "RESOURCE_ERROR",
       VideoCompilerError::TimeoutError { .. } => "TIMEOUT_ERROR",
       VideoCompilerError::CancelledError(_) => "CANCELLED_ERROR",
+      VideoCompilerError::GpuError(_) => "GPU_ERROR",
+      VideoCompilerError::GpuUnavailable(_) => "GPU_UNAVAILABLE",
+      VideoCompilerError::Io(_) => "IO_ERROR",
       VideoCompilerError::InternalError(_) => "INTERNAL_ERROR",
       VideoCompilerError::Unknown(_) => "UNKNOWN_ERROR",
     }

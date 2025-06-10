@@ -5,14 +5,13 @@
 
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use std::process::Stdio;
 use std::sync::Arc;
-use tokio::process::Command;
 use tokio::sync::{mpsc, RwLock};
 
 use crate::video_compiler::cache::RenderCache;
 use crate::video_compiler::error::{Result, VideoCompilerError};
 use crate::video_compiler::ffmpeg_builder::FFmpegBuilder;
+use crate::video_compiler::pipeline::RenderPipeline;
 use crate::video_compiler::progress::ProgressTracker;
 use crate::video_compiler::schema::ProjectSchema;
 use crate::video_compiler::CompilerSettings;
@@ -75,6 +74,7 @@ impl VideoRenderer {
         progress_tracker,
         ffmpeg_builder,
         settings,
+        job_id_clone.clone(), // Передаем job_id
       )
       .await;
 
@@ -85,6 +85,17 @@ impl VideoRenderer {
             .await;
         }
         Err(e) => {
+          log::error!("Ошибка рендеринга: {}", e);
+          log::error!("  Код ошибки: {}", e.error_code());
+          log::error!(
+            "  Критическая: {}",
+            if e.is_critical() { "да" } else { "нет" }
+          );
+          log::error!(
+            "  Можно повторить: {}",
+            if e.is_retryable() { "да" } else { "нет" }
+          );
+
           let _ = progress_tracker_clone
             .fail_job(&job_id_clone, e.to_string())
             .await;
@@ -121,188 +132,34 @@ impl VideoRenderer {
     project: ProjectSchema,
     output_path: PathBuf,
     progress_tracker: Arc<ProgressTracker>,
-    ffmpeg_builder: FFmpegBuilder,
-    _settings: Arc<RwLock<CompilerSettings>>,
+    _ffmpeg_builder: FFmpegBuilder,
+    settings: Arc<RwLock<CompilerSettings>>,
+    job_id: String, // Добавляем job_id как параметр
   ) -> Result<String> {
-    log::info!("Начало рендеринга проекта: {}", project.metadata.name);
+    log::info!(
+      "Начало рендеринга проекта: {} (job_id: {})",
+      project.metadata.name,
+      job_id
+    );
 
-    // Этап 1: Валидация
-    Self::update_progress(&progress_tracker, &project, 0, "Validation").await?;
-    Self::validate_project_files(&project).await?;
-
-    // Этап 2: Подготовка
-    Self::update_progress(&progress_tracker, &project, 5, "Preparation").await?;
-    let temp_dir = Self::create_temp_directory(&project).await?;
-
-    // Этап 3: Построение команды FFmpeg
-    Self::update_progress(&progress_tracker, &project, 10, "Building FFmpeg command").await?;
-    let ffmpeg_command = ffmpeg_builder.build_render_command(&output_path).await?;
-
-    // Этап 4: Выполнение рендеринга
-    Self::update_progress(&progress_tracker, &project, 15, "Rendering").await?;
-    let final_output = Self::execute_ffmpeg_render(
-      ffmpeg_command,
+    // Создаем RenderPipeline
+    let mut pipeline = RenderPipeline::new(
+      project.clone(),
       progress_tracker.clone(),
-      &project,
-      &output_path,
+      settings,
+      output_path.clone(),
     )
     .await?;
 
-    // Этап 5: Финализация
-    Self::update_progress(&progress_tracker, &project, 95, "Finalizing").await?;
-    Self::cleanup_temp_files(&temp_dir).await?;
+    // Используем переданный job_id вместо поиска
+    // Это исправляет проблему с двойной системой отслеживания задач
 
-    Self::update_progress(&progress_tracker, &project, 100, "Completed").await?;
-    log::info!("Рендеринг завершен: {}", final_output);
+    // Запускаем pipeline
+    let final_output = pipeline.execute(&job_id).await?;
 
-    Ok(final_output)
-  }
+    log::info!("Рендеринг завершен: {:?}", final_output);
 
-  /// Обновить прогресс рендеринга
-  async fn update_progress(
-    progress_tracker: &ProgressTracker,
-    project: &ProjectSchema,
-    percentage: u64,
-    stage: &str,
-  ) -> Result<()> {
-    // Находим первую активную задачу для этого проекта
-    let jobs = progress_tracker.get_active_jobs().await;
-    if let Some(job) = jobs.first() {
-      let total_frames = (project.get_duration() * project.timeline.fps as f64) as u64;
-      let current_frame = (total_frames * percentage) / 100;
-
-      progress_tracker
-        .update_progress(&job.id, current_frame, stage.to_string(), None)
-        .await?;
-    }
-    Ok(())
-  }
-
-  /// Валидация файлов проекта
-  async fn validate_project_files(project: &ProjectSchema) -> Result<()> {
-    for track in &project.tracks {
-      for clip in &track.clips {
-        if !clip.source_path.exists() {
-          return Err(VideoCompilerError::media_file(
-            clip.source_path.to_string_lossy().to_string(),
-            "Файл не найден".to_string(),
-          ));
-        }
-      }
-    }
-    Ok(())
-  }
-
-  /// Создать временную директорию
-  async fn create_temp_directory(project: &ProjectSchema) -> Result<PathBuf> {
-    let temp_dir = std::env::temp_dir()
-      .join("timeline-studio")
-      .join(&project.metadata.name)
-      .join(uuid::Uuid::new_v4().to_string());
-
-    tokio::fs::create_dir_all(&temp_dir)
-      .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
-
-    Ok(temp_dir)
-  }
-
-  /// Выполнить рендеринг через FFmpeg
-  async fn execute_ffmpeg_render(
-    mut command: Command,
-    progress_tracker: Arc<ProgressTracker>,
-    project: &ProjectSchema,
-    output_path: &Path,
-  ) -> Result<String> {
-    log::debug!("Выполнение команды FFmpeg: {:?}", command);
-
-    command.stdout(Stdio::piped());
-    command.stderr(Stdio::piped());
-
-    let mut child = command.spawn().map_err(|e| {
-      VideoCompilerError::ffmpeg(
-        None,
-        format!("Не удалось запустить FFmpeg: {}", e),
-        "spawn".to_string(),
-      )
-    })?;
-
-    // Читаем stderr для отслеживания прогресса
-    if let Some(stderr) = child.stderr.take() {
-      let progress_tracker = Arc::clone(&progress_tracker);
-      let project = project.clone();
-
-      tokio::spawn(async move {
-        Self::monitor_ffmpeg_progress(stderr, progress_tracker, project).await;
-      });
-    }
-
-    // Ждем завершения процесса
-    let output = child.wait_with_output().await.map_err(|e| {
-      VideoCompilerError::ffmpeg(
-        None,
-        format!("Ошибка выполнения FFmpeg: {}", e),
-        "wait".to_string(),
-      )
-    })?;
-
-    if !output.status.success() {
-      let stderr = String::from_utf8_lossy(&output.stderr);
-      return Err(VideoCompilerError::ffmpeg(
-        output.status.code(),
-        stderr.to_string(),
-        "render execution".to_string(),
-      ));
-    }
-
-    Ok(output_path.to_string_lossy().to_string())
-  }
-
-  /// Мониторинг прогресса FFmpeg
-  async fn monitor_ffmpeg_progress(
-    stderr: tokio::process::ChildStderr,
-    progress_tracker: Arc<ProgressTracker>,
-    project: ProjectSchema,
-  ) {
-    use tokio::io::{AsyncBufReadExt, BufReader};
-
-    let reader = BufReader::new(stderr);
-    let mut lines = reader.lines();
-
-    while let Ok(Some(line)) = lines.next_line().await {
-      if let Some(ffmpeg_progress) = progress_tracker.parse_ffmpeg_progress(&line) {
-        // Конвертируем прогресс FFmpeg в прогресс задачи
-        let total_frames = (project.get_duration() * project.timeline.fps as f64) as u64;
-        let _percentage = if total_frames > 0 {
-          ((ffmpeg_progress.frame as f64 / total_frames as f64) * 80.0) + 15.0 // 15-95%
-        } else {
-          50.0
-        };
-
-        // Обновляем прогресс
-        let jobs = progress_tracker.get_active_jobs().await;
-        if let Some(job) = jobs.first() {
-          let _ = progress_tracker
-            .update_progress(
-              &job.id,
-              ffmpeg_progress.frame,
-              format!("Rendering ({}fps)", ffmpeg_progress.fps),
-              Some(format!("Frame {}/{}", ffmpeg_progress.frame, total_frames)),
-            )
-            .await;
-        }
-      }
-    }
-  }
-
-  /// Очистка временных файлов
-  async fn cleanup_temp_files(temp_dir: &Path) -> Result<()> {
-    if temp_dir.exists() {
-      tokio::fs::remove_dir_all(temp_dir).await.map_err(|e| {
-        VideoCompilerError::IoError(format!("Не удалось очистить временные файлы: {}", e))
-      })?;
-    }
-    Ok(())
+    Ok(final_output.to_string_lossy().to_string())
   }
 
   /// Отменить рендеринг
@@ -377,41 +234,6 @@ mod tests {
     let frames = renderer.estimate_total_frames();
     // Пустой проект должен иметь 0 кадров
     assert_eq!(frames, 0);
-  }
-
-  #[tokio::test]
-  async fn test_validate_project_files() {
-    let project = ProjectSchema::new("Test".to_string());
-
-    // Пустой проект должен проходить валидацию
-    let result = VideoRenderer::validate_project_files(&project).await;
-    assert!(result.is_ok());
-  }
-
-  #[tokio::test]
-  async fn test_create_temp_directory() {
-    let project = ProjectSchema::new("Test Project".to_string());
-    let temp_dir = VideoRenderer::create_temp_directory(&project)
-      .await
-      .unwrap();
-
-    assert!(temp_dir.exists());
-    assert!(temp_dir.to_string_lossy().contains("timeline-studio"));
-    assert!(temp_dir.to_string_lossy().contains("Test Project"));
-
-    // Очищаем
-    let _ = tokio::fs::remove_dir_all(&temp_dir).await;
-  }
-
-  #[tokio::test]
-  async fn test_cleanup_temp_files() {
-    let temp_dir = std::env::temp_dir().join("test_cleanup");
-    tokio::fs::create_dir_all(&temp_dir).await.unwrap();
-
-    assert!(temp_dir.exists());
-
-    VideoRenderer::cleanup_temp_files(&temp_dir).await.unwrap();
-    assert!(!temp_dir.exists());
   }
 
   #[tokio::test]

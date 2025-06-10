@@ -14,8 +14,14 @@ mod filesystem;
 
 // Модуль Video Compiler
 mod video_compiler;
-use video_compiler::{
-  initialize, PreviewGenerator, ProjectSchema, RenderJob, RenderProgress, VideoCompilerState,
+use video_compiler::{initialize, PreviewGenerator, VideoCompilerState};
+
+// Импортируем GPU команды
+use video_compiler::commands::{
+  cancel_render, check_ffmpeg_capabilities, check_hardware_acceleration, clear_preview_cache,
+  compile_video, generate_preview, get_active_jobs, get_cache_stats, get_compiler_settings,
+  get_current_gpu_info, get_gpu_capabilities, get_render_progress, get_system_info,
+  set_ffmpeg_path, update_compiler_settings,
 };
 
 #[tauri::command]
@@ -25,96 +31,7 @@ fn greet() -> String {
   format!("Hello world from Rust! Current epoch: {}", epoch_ms)
 }
 
-// Video Compiler Commands
-
-#[tauri::command]
-async fn compile_video(project_schema: ProjectSchema) -> Result<String, String> {
-  log::info!("Начало компиляции видео: {}", project_schema.metadata.name);
-
-  // Валидация схемы проекта
-  if let Err(e) = project_schema.validate() {
-    log::error!("Ошибка валидации проекта: {}", e);
-    return Err(format!("Ошибка валидации: {}", e));
-  }
-
-  // Пока возвращаем заглушку - в следующих шагах реализуем полную функциональность
-  let job_id = uuid::Uuid::new_v4().to_string();
-  log::info!("Создана задача компиляции: {}", job_id);
-
-  Ok(job_id)
-}
-
-#[tauri::command]
-async fn get_render_progress(
-  job_id: String,
-  state: tauri::State<'_, VideoCompilerState>,
-) -> Result<Option<RenderProgress>, String> {
-  if let Some(job) = state.active_jobs.get(&job_id) {
-    Ok(Some(job.get_progress()))
-  } else {
-    Ok(None)
-  }
-}
-
-#[tauri::command]
-async fn generate_preview(
-  file_path: String,
-  timestamp: f64,
-  resolution: Option<(u32, u32)>,
-  quality: Option<u8>,
-  state: tauri::State<'_, VideoCompilerState>,
-) -> Result<Vec<u8>, String> {
-  use std::path::Path;
-
-  let path = Path::new(&file_path);
-  if !path.exists() {
-    return Err("Файл не найден".to_string());
-  }
-
-  // Создаем генератор превью
-  let preview_generator = PreviewGenerator::new(state.cache.clone());
-
-  match preview_generator
-    .generate_preview(path, timestamp, resolution, quality)
-    .await
-  {
-    Ok(image_data) => {
-      log::debug!("Превью сгенерировано для {} at {}s", file_path, timestamp);
-      Ok(image_data)
-    }
-    Err(e) => {
-      log::error!("Ошибка генерации превью: {}", e);
-      Err(e.to_string())
-    }
-  }
-}
-
-#[tauri::command]
-async fn cancel_render(
-  job_id: String,
-  state: tauri::State<'_, VideoCompilerState>,
-) -> Result<bool, String> {
-  if state.active_jobs.remove(&job_id).is_some() {
-    log::info!("Задача {} отменена", job_id);
-    Ok(true)
-  } else {
-    log::warn!("Задача {} не найдена для отмены", job_id);
-    Ok(false)
-  }
-}
-
-#[tauri::command]
-async fn get_active_jobs(
-  state: tauri::State<'_, VideoCompilerState>,
-) -> Result<Vec<RenderJob>, String> {
-  Ok(
-    state
-      .active_jobs
-      .iter()
-      .map(|entry| entry.value().clone())
-      .collect(),
-  )
-}
+// Video Compiler Commands (non-duplicate ones only)
 
 #[tauri::command]
 async fn get_video_info(
@@ -124,7 +41,7 @@ async fn get_video_info(
   use std::path::Path;
 
   let path = Path::new(&file_path);
-  let preview_generator = PreviewGenerator::new(state.cache.clone());
+  let preview_generator = PreviewGenerator::new(state.cache_manager.clone());
 
   match preview_generator.get_video_info(path).await {
     Ok(info) => Ok(info),
@@ -136,10 +53,10 @@ async fn get_video_info(
 }
 
 #[tauri::command]
-async fn clear_preview_cache(state: tauri::State<'_, VideoCompilerState>) -> Result<(), String> {
-  let mut cache = state.cache.write().await;
-  cache.clear_previews().await;
-  log::info!("Кэш превью очищен");
+async fn clear_all_cache(state: tauri::State<'_, VideoCompilerState>) -> Result<(), String> {
+  let mut cache = state.cache_manager.write().await;
+  cache.clear_all().await;
+  log::info!("Весь кэш очищен");
   Ok(())
 }
 
@@ -189,7 +106,18 @@ pub fn run() {
       cancel_render,
       get_active_jobs,
       get_video_info,
-      clear_preview_cache
+      clear_preview_cache,
+      get_cache_stats,
+      clear_all_cache,
+      // GPU команды
+      get_gpu_capabilities,
+      get_current_gpu_info,
+      check_hardware_acceleration,
+      get_compiler_settings,
+      update_compiler_settings,
+      set_ffmpeg_path,
+      get_system_info,
+      check_ffmpeg_capabilities
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

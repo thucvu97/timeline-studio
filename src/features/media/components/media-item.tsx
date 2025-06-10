@@ -3,6 +3,7 @@ import { memo, useMemo } from "react"
 import { useFavorites } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser"
 import { MediaFile } from "@/features/media"
+import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
 import { cn } from "@/lib/utils"
 
 import { FileMetadata } from "./file-metadata"
@@ -30,6 +31,7 @@ interface MediaItemProps {
 export const MediaItem = memo<MediaItemProps>(
   ({ file, index, viewMode, previewSize }) => {
     const { favorites } = useFavorites() // Хук для работы с избранным
+    const { settings } = useProjectSettings() // Получаем настройки проекта
 
     // Стабильный ключ файла
     const fileId = useMemo(() => file.id || file.path || file.name, [file.id, file.path, file.name])
@@ -37,12 +39,24 @@ export const MediaItem = memo<MediaItemProps>(
     // Мемоизируем проверку избранного
     const isAdded = useMemo(() => favorites.media.some((item) => item.id === file.id), [favorites.media, file.id])
 
+    // Получаем соотношение сторон из настроек проекта
+    const projectAspectRatio = useMemo(() => {
+      const { width, height } = settings.aspectRatio.value
+      return width / height
+    }, [settings.aspectRatio])
+
+    // Размер превью для режима list - уменьшаем высоту
+    const listPreviewSize = useMemo(() => {
+      // Для режима list используем фиксированную небольшую высоту
+      return previewSize
+    }, [viewMode, previewSize])
+
     // Мемоизируем стили для grid режима
     const gridStyles = useMemo(
       () => ({
-        width: `${((previewSize * 16) / 9).toFixed(0)}px`,
+        width: `${(previewSize * projectAspectRatio).toFixed(0)}px`,
       }),
-      [previewSize],
+      [previewSize, projectAspectRatio],
     )
 
     // Мемоизируем размер шрифта
@@ -55,15 +69,21 @@ export const MediaItem = memo<MediaItemProps>(
       return (
         <div
           className={cn(
-            "group flex h-full items-center border border-transparent p-0",
+            "group flex items-center border border-transparent p-1",
             "bg-white hover:border-[#38daca71] hover:bg-gray-100 dark:bg-[#25242b] dark:hover:border-[#35d1c1] dark:hover:bg-[#2f2d38]",
             baseClasses,
           )}
+          style={{ height: `${listPreviewSize + 8}px` }} // Фиксированная высота для list режима
         >
-          <div className="relative mr-3 flex h-full flex-shrink-0 gap-1">
-            <MediaPreview file={file} size={previewSize} ignoreRatio />
+          <div className="relative mr-3 flex flex-shrink-0 gap-1">
+            <MediaPreview
+              file={file}
+              size={listPreviewSize}
+              ignoreRatio={false}
+              dimensions={[settings.aspectRatio.value.width, settings.aspectRatio.value.height]}
+            />
           </div>
-          <FileMetadata file={file} size={previewSize} />
+          <FileMetadata file={file} size={listPreviewSize} />
         </div>
       )
     }
@@ -79,7 +99,11 @@ export const MediaItem = memo<MediaItemProps>(
           style={gridStyles}
         >
           <div className="group relative w-full flex-1 flex-grow flex-row">
-            <MediaPreview file={file} size={previewSize} />
+            <MediaPreview
+              file={file}
+              size={previewSize}
+              dimensions={[settings.aspectRatio.value.width, settings.aspectRatio.value.height]}
+            />
           </div>
           <div className="truncate p-1 text-xs" style={{ fontSize }}>
             {file.name}
@@ -99,7 +123,12 @@ export const MediaItem = memo<MediaItemProps>(
           )}
         >
           <div className="group relative w-full flex-1 flex-grow flex-row">
-            <MediaPreview file={file} size={previewSize} showFileName ignoreRatio />
+            <MediaPreview
+              file={file}
+              size={previewSize}
+              showFileName
+              ignoreRatio // В режиме thumbnails показываем оригинальные пропорции
+            />
           </div>
         </div>
       )
