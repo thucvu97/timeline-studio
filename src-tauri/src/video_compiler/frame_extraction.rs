@@ -10,9 +10,10 @@ use crate::video_compiler::cache::RenderCache;
 use crate::video_compiler::error::Result;
 use crate::video_compiler::preview::{PreviewGenerator, VideoInfo};
 use crate::video_compiler::schema::{Clip, PreviewFormat, Subtitle};
+use crate::app_dirs::AppDirectories;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -120,6 +121,11 @@ pub struct FrameExtractionManager {
 impl FrameExtractionManager {
   /// Создать новый менеджер
   pub fn new(cache: Arc<RwLock<RenderCache>>) -> Self {
+    Self::with_ffmpeg_path(cache, "ffmpeg".to_string())
+  }
+
+  /// Создать новый менеджер с путем к FFmpeg
+  pub fn with_ffmpeg_path(cache: Arc<RwLock<RenderCache>>, ffmpeg_path: String) -> Self {
     let preview_generator = Arc::new(PreviewGenerator::new(cache.clone()));
     let mut purpose_settings = HashMap::new();
 
@@ -197,7 +203,7 @@ impl FrameExtractionManager {
       preview_generator,
       cache,
       purpose_settings,
-      ffmpeg_path: "ffmpeg".to_string(),
+      ffmpeg_path,
     }
   }
 
@@ -315,12 +321,57 @@ impl FrameExtractionManager {
   }
 
   /// Получить существующие скриншоты
-  pub async fn get_existing_screenshots(&self, _video_path: &Path) -> Result<Vec<ExtractedFrame>> {
+  pub async fn get_existing_screenshots(&self, video_path: &Path) -> Result<Vec<ExtractedFrame>> {
     let _cache = self.cache.read().await;
-
-    // Здесь нужно реализовать получение скриншотов из кэша
-    // Пока возвращаем пустой вектор
-    Ok(Vec::new())
+    
+    // Получаем все превью для данного файла из кэша
+    let _file_path_str = video_path.to_string_lossy().to_string();
+    let mut frames = Vec::new();
+    
+    // Здесь мы можем получить сохраненные скриншоты из директории Snapshot
+    if let Ok(app_dirs) = AppDirectories::get_or_create() {
+      let snapshot_dir = app_dirs.snapshot_dir;
+      let video_name = video_path.file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("unknown");
+      
+      let video_snapshot_dir = snapshot_dir.join(video_name);
+      if video_snapshot_dir.exists() {
+        // Читаем все изображения из директории
+        if let Ok(entries) = std::fs::read_dir(&video_snapshot_dir) {
+          for entry in entries.flatten() {
+            let path = entry.path();
+            if path.extension()
+              .and_then(|e| e.to_str())
+              .map(|e| matches!(e.to_lowercase().as_str(), "jpg" | "jpeg" | "png"))
+              .unwrap_or(false)
+            {
+              // Извлекаем timestamp из имени файла
+              if let Some(timestamp) = path.file_stem()
+                .and_then(|s| s.to_str())
+                .and_then(|s| s.replace("frame_", "").parse::<f64>().ok())
+              {
+                if let Ok(data) = std::fs::read(&path) {
+                  frames.push(ExtractedFrame {
+                    timestamp,
+                    data,
+                    resolution: (0, 0), // TODO: Получить реальное разрешение
+                    purpose: ExtractionPurpose::UserScreenshot,
+                    scene_change_score: None,
+                    is_keyframe: false,
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Сортируем по timestamp
+    frames.sort_by(|a, b| a.timestamp.partial_cmp(&b.timestamp).unwrap());
+    
+    Ok(frames)
   }
 
   /// Получить настройки по умолчанию для цели
@@ -422,6 +473,42 @@ impl FrameExtractionManager {
     } else {
       timestamps
     })
+  }
+
+  /// Сохранить скриншот пользователя
+  pub async fn save_user_screenshot(
+    &self,
+    video_path: &Path,
+    timestamp: f64,
+    resolution: Option<(u32, u32)>,
+  ) -> Result<PathBuf> {
+    // Генерируем превью
+    let preview_data = self
+      .preview_generator
+      .generate_preview(video_path, timestamp, resolution, Some(90))
+      .await?;
+
+    // Получаем директорию для скриншотов
+    let app_dirs = AppDirectories::get_or_create()
+      .map_err(|e| crate::video_compiler::error::VideoCompilerError::IoError(e.to_string()))?;
+    
+    let video_name = video_path.file_stem()
+      .and_then(|s| s.to_str())
+      .unwrap_or("unknown");
+    
+    let screenshot_dir = app_dirs.snapshot_dir.join(video_name);
+    std::fs::create_dir_all(&screenshot_dir)?;
+    
+    // Создаем имя файла с timestamp
+    let filename = format!("frame_{:.3}.jpg", timestamp);
+    let screenshot_path = screenshot_dir.join(filename);
+    
+    // Сохраняем файл
+    std::fs::write(&screenshot_path, preview_data)?;
+    
+    log::info!("Скриншот сохранен: {:?}", screenshot_path);
+    
+    Ok(screenshot_path)
   }
 
   /// Обнаружить изменения сцен

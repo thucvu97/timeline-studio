@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { appDirectoriesService } from "@/features/app-state/services"
 
 /**
  * Структура для автозагрузки пользовательских данных
@@ -106,14 +107,41 @@ export function useAutoLoadUserData() {
     try {
       console.log("Начинаем автозагрузку пользовательских данных...")
 
+      // Инициализируем директории приложения при первом запуске
+      if (isTauriEnvironment()) {
+        try {
+          const appDirs = await appDirectoriesService.createAppDirectories()
+          console.log("Директории приложения инициализированы:", appDirs)
+        } catch (error) {
+          console.error("Ошибка при создании директорий приложения:", error)
+        }
+      }
+
       // Определяем пути к директориям
-      const directories = {
+      let directories = {
         effects: "public/effects",
         transitions: "public/transitions",
         filters: "public/filters",
         subtitles: "public/subtitles",
         templates: "public/templates",
         styleTemplates: "public/style-templates",
+      }
+
+      // Если в Tauri, используем директории приложения
+      if (isTauriEnvironment()) {
+        try {
+          const appDirs = await appDirectoriesService.getAppDirectories()
+          directories = {
+            effects: appDirectoriesService.getMediaSubdirectory('effects'),
+            transitions: appDirectoriesService.getMediaSubdirectory('transitions'),
+            filters: appDirectoriesService.getMediaSubdirectory('filters'),
+            subtitles: appDirectoriesService.getMediaSubdirectory('subtitles'),
+            templates: appDirs.media_dir + '/Templates', // пока нет в типах
+            styleTemplates: appDirectoriesService.getMediaSubdirectory('style_templates'),
+          }
+        } catch (error) {
+          console.error("Ошибка при получении директорий приложения:", error)
+        }
       }
 
       // Сканируем все директории параллельно

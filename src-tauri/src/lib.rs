@@ -12,6 +12,10 @@ use media::{get_media_files, get_media_metadata};
 // Модуль для работы с файловой системой
 mod filesystem;
 
+// Модуль управления директориями приложения
+mod app_dirs;
+use app_dirs::{create_app_directories, get_app_directories, get_directory_sizes, clear_app_cache};
+
 // Модуль Video Compiler
 mod video_compiler;
 use video_compiler::{initialize, PreviewGenerator, VideoCompilerState};
@@ -91,6 +95,18 @@ pub fn run() {
   // Инициализация runtime для async операций
   let runtime = tokio::runtime::Runtime::new().unwrap();
 
+  // Инициализация директорий приложения
+  runtime.block_on(async {
+    match app_dirs::AppDirectories::get_or_create() {
+      Ok(dirs) => {
+        log::info!("Директории приложения инициализированы в: {:?}", dirs.base_dir);
+      }
+      Err(e) => {
+        log::error!("Ошибка создания директорий приложения: {}", e);
+      }
+    }
+  });
+
   // Инициализация Video Compiler state
   let video_compiler_state = runtime.block_on(async {
     match initialize().await {
@@ -137,6 +153,11 @@ pub fn run() {
       filesystem::get_platform,
       filesystem::search_files_by_name,
       filesystem::get_absolute_path,
+      // App directories commands
+      get_app_directories,
+      create_app_directories,
+      get_directory_sizes,
+      clear_app_cache,
       // Video Server command
       register_video,
       // Video Compiler commands
