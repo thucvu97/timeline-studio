@@ -16,11 +16,13 @@ mod filesystem;
 mod video_compiler;
 use video_compiler::{initialize, PreviewGenerator, VideoCompilerState};
 
-// Импортируем GPU команды
+// Импортируем GPU и Frame Extraction команды
 use video_compiler::commands::{
-  cancel_render, check_ffmpeg_capabilities, check_hardware_acceleration, clear_preview_cache,
-  compile_video, generate_preview, get_active_jobs, get_cache_stats, get_compiler_settings,
-  get_current_gpu_info, get_gpu_capabilities, get_render_progress, get_system_info,
+  cancel_render, check_ffmpeg_capabilities, check_hardware_acceleration, clear_frame_cache,
+  clear_prerender_cache, clear_preview_cache, compile_video, extract_recognition_frames,
+  extract_subtitle_frames, extract_timeline_frames, generate_preview, get_active_jobs,
+  get_cache_stats, get_compiler_settings, get_current_gpu_info, get_gpu_capabilities,
+  get_prerender_cache_info, get_render_progress, get_system_info, prerender_segment,
   set_ffmpeg_path, update_compiler_settings,
 };
 
@@ -103,6 +105,9 @@ pub fn run() {
       compile_video,
       get_render_progress,
       generate_preview,
+      prerender_segment,
+      get_prerender_cache_info,
+      clear_prerender_cache,
       cancel_render,
       get_active_jobs,
       get_video_info,
@@ -117,7 +122,12 @@ pub fn run() {
       update_compiler_settings,
       set_ffmpeg_path,
       get_system_info,
-      check_ffmpeg_capabilities
+      check_ffmpeg_capabilities,
+      // Frame extraction команды
+      extract_timeline_frames,
+      extract_recognition_frames,
+      extract_subtitle_frames,
+      clear_frame_cache
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

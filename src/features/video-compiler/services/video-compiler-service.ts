@@ -112,3 +112,103 @@ export async function getRenderJob(jobId: string) {
     return null
   }
 }
+
+/**
+ * Параметры для пререндера сегмента
+ */
+export interface PrerenderRequest {
+  projectSchema: ProjectSchema
+  startTime: number
+  endTime: number
+  applyEffects: boolean
+  quality?: number
+}
+
+/**
+ * Результат пререндера
+ */
+export interface PrerenderResult {
+  filePath: string
+  duration: number
+  fileSize: number
+  renderTimeMs: number
+}
+
+/**
+ * Пререндер сегмента видео для быстрого предпросмотра
+ */
+export async function prerenderSegment(request: PrerenderRequest): Promise<PrerenderResult> {
+  try {
+    const result = await invoke<PrerenderResult>("prerender_segment", {
+      request: {
+        project_schema: request.projectSchema,
+        start_time: request.startTime,
+        end_time: request.endTime,
+        apply_effects: request.applyEffects,
+        quality: request.quality,
+      },
+    })
+
+    return result
+  } catch (error) {
+    console.error("Failed to prerender segment:", error)
+    throw error
+  }
+}
+
+/**
+ * Информация о кеше пререндеров
+ */
+export interface PrerenderCacheInfo {
+  fileCount: number
+  totalSize: number
+  files: PrerenderCacheFile[]
+}
+
+/**
+ * Информация о файле в кеше
+ */
+export interface PrerenderCacheFile {
+  path: string
+  size: number
+  created: number
+  startTime: number
+  endTime: number
+}
+
+/**
+ * Получить информацию о кеше пререндеров
+ */
+export async function getPrerenderCacheInfo(): Promise<PrerenderCacheInfo> {
+  const result = await invoke<{
+    file_count: number
+    total_size: number
+    files: Array<{
+      path: string
+      size: number
+      created: number
+      start_time: number
+      end_time: number
+    }>
+  }>("get_prerender_cache_info")
+
+  return {
+    fileCount: result.file_count,
+    totalSize: result.total_size,
+    files: result.files.map((f) => ({
+      path: f.path,
+      size: f.size,
+      created: f.created,
+      startTime: f.start_time,
+      endTime: f.end_time,
+    })),
+  }
+}
+
+/**
+ * Очистить кеш пререндеров
+ * @returns Размер удаленных файлов в байтах
+ */
+export async function clearPrerenderCache(): Promise<number> {
+  return await invoke<number>("clear_prerender_cache")
+}

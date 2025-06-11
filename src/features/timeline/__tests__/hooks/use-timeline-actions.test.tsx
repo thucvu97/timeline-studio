@@ -6,6 +6,7 @@ import { renderHook } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
 import { type MediaFile } from "@/features/media/types/media"
+import { TimelineProviders } from "@/test/test-utils"
 
 import { useTimelineActions } from "../../hooks/use-timeline-actions"
 
@@ -62,7 +63,9 @@ describe("useTimelineActions", () => {
     })
 
     it("should return object with all required methods", () => {
-      const { result } = renderHook(() => useTimelineActions())
+      const { result } = renderHook(() => useTimelineActions(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(result.current).toHaveProperty("addMediaToTimeline")
       expect(result.current).toHaveProperty("addSingleMediaToTimeline")
@@ -74,23 +77,29 @@ describe("useTimelineActions", () => {
 
   describe("Media Type Detection", () => {
     it("should detect video file type correctly", () => {
-      const { result } = renderHook(() => useTimelineActions())
+      const { result } = renderHook(() => useTimelineActions(), {
+        wrapper: TimelineProviders,
+      })
 
       const trackType = result.current.getTrackTypeForMedia(mockVideoFile)
       expect(trackType).toBe("video")
     })
 
     it("should detect audio file type correctly", () => {
-      const { result } = renderHook(() => useTimelineActions())
+      const { result } = renderHook(() => useTimelineActions(), {
+        wrapper: TimelineProviders,
+      })
 
       const trackType = result.current.getTrackTypeForMedia(mockAudioFile)
-      expect(trackType).toBe("video") // Мок возвращает "video" по умолчанию
+      expect(trackType).toBe("audio")
     })
   })
 
   describe("Timeline Operations", () => {
     it("should add single media file without errors", () => {
-      const { result } = renderHook(() => useTimelineActions())
+      const { result } = renderHook(() => useTimelineActions(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.addSingleMediaToTimeline(mockVideoFile)
@@ -98,7 +107,9 @@ describe("useTimelineActions", () => {
     })
 
     it("should add multiple media files without errors", () => {
-      const { result } = renderHook(() => useTimelineActions())
+      const { result } = renderHook(() => useTimelineActions(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.addMediaToTimeline([mockVideoFile, mockAudioFile])
@@ -106,7 +117,9 @@ describe("useTimelineActions", () => {
     })
 
     it("should handle empty media array", () => {
-      const { result } = renderHook(() => useTimelineActions())
+      const { result } = renderHook(() => useTimelineActions(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.addMediaToTimeline([])
@@ -116,14 +129,18 @@ describe("useTimelineActions", () => {
 
   describe("Track Management", () => {
     it("should return null for best track when no tracks available", () => {
-      const { result } = renderHook(() => useTimelineActions())
+      const { result } = renderHook(() => useTimelineActions(), {
+        wrapper: TimelineProviders,
+      })
 
       const bestTrack = result.current.findBestTrackForMedia(mockVideoFile)
       expect(bestTrack).toBeNull()
     })
 
     it("should calculate clip start time as 0 for empty track", () => {
-      const { result } = renderHook(() => useTimelineActions())
+      const { result } = renderHook(() => useTimelineActions(), {
+        wrapper: TimelineProviders,
+      })
 
       const startTime = result.current.calculateClipStartTime("test-track-id")
       expect(startTime).toBe(0)

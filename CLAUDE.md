@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Testing
 - `bun run test` - Run all tests
 - `bun run test:watch` - Run tests in watch mode
-- `bun run test src/features/timeline/hooks/use-timeline.test.ts` - Run a single test file
+- `bun run test src/features/timeline/__tests__/use-timeline.test.ts` - Run a single test file
 - `bun run test:coverage` - Generate test coverage report
 - `bun run test:rust` - Run Rust backend tests
 - `bun run test:e2e` - Run Playwright end-to-end tests
@@ -44,15 +44,20 @@ Each feature in `/src/features/` is self-contained with:
 - `services/` - Business logic and state machines
 - `types/` - TypeScript type definitions
 - `utils/` - Helper functions
-- `*.test.ts` - Tests colocated with implementation
+- `__tests__/` - Test files for the feature
+- `__mocks__/` - Mock implementations for testing
 
 ### State Management Architecture
 The application uses XState state machines for complex state management:
 - **app-settings-machine** - Application preferences and configuration
-- **media-machine** - Media file management and favorites
+- **browser-state-machine** - Media browser state and file selection
 - **timeline-machine** - Timeline editing state
 - **player-machine** - Video playback control
 - **chat-machine** - AI assistant integration
+- **modal-machine** - Modal dialog state management
+- **project-settings-machine** - Project-specific settings
+- **resources-machine** - Resource management (effects, filters, etc.)
+- **user-settings-machine** - User preferences and settings
 
 State machines are created using XState's `setup` method for better type safety and should be provided through React context providers.
 
@@ -62,6 +67,8 @@ State machines are created using XState's `setup` method for better type safety 
 - **video-player** - Custom video playback with frame-accurate control
 - **browser** - Media file browser with tabbed interface
 - **effects/filters/transitions** - Video effect system with CSS-based processing
+- **templates** - Multi-camera layout templates for split-screen editing
+- **style-templates** - Animated intro/outro and title templates
 - **ai-chat** - Integrated AI assistant (Claude/OpenAI)
 - **recognition** - Scene/object recognition using YOLO models
 
@@ -73,7 +80,8 @@ State machines are created using XState's `setup` method for better type safety 
 
 ### Testing Strategy
 - Unit tests use Vitest with Testing Library
-- Tests are colocated with implementation files
+- Tests are organized in `__tests__/` directories within each feature
+- Mocks are organized in `__mocks__/` directories within each feature
 - Use custom render function from `@/test/test-utils.tsx` for component tests
 - XState machines are tested using actor model and snapshot testing
 - All external dependencies (Tauri API, localStorage) are mocked in tests
@@ -91,6 +99,7 @@ State machines are created using XState's `setup` method for better type safety 
 - Use shadcn/ui components from `/src/components/ui/`
 - Create feature-specific components in `/src/features/[feature]/components/`
 - Use CSS variables for theming (defined in globals.css)
+- Component names use PascalCase but files use kebab-case
 
 ### State Management
 - Simple state: useState/useReducer
@@ -99,7 +108,10 @@ State machines are created using XState's `setup` method for better type safety 
 - Async operations: Use XState services or React Query patterns
 
 ### File Naming
-- Components: PascalCase (e.g., `VideoPlayer.tsx`)
-- Hooks: camelCase with `use` prefix (e.g., `useTimeline.ts`)
-- Utilities: camelCase (e.g., `media-utils.ts`)
-- Tests: Same name with `.test.ts` suffix
+- Components: kebab-case (e.g., `video-player.tsx`)
+- Hooks: kebab-case with `use` prefix (e.g., `use-timeline.ts`)
+- Utilities: kebab-case (e.g., `media-utils.ts`)
+- Services: kebab-case (e.g., `timeline-machine.ts`)
+- Types: kebab-case (e.g., `timeline.ts`)
+- Test files: Located in `__tests__/` with `.test.ts` or `.test.tsx` suffix
+- Mock files: Located in `__mocks__/` with same name as mocked module

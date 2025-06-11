@@ -1,0 +1,615 @@
+//! Frame Extraction - Модуль извлечения кадров для различных целей
+//!
+//! Этот модуль обеспечивает извлечение кадров из видео для:
+//! - Превью на timeline
+//! - Распознавания объектов и сцен
+//! - Анализа субтитров
+//! - Кэширования для быстрого доступа
+
+use crate::video_compiler::cache::RenderCache;
+use crate::video_compiler::error::Result;
+use crate::video_compiler::preview::{PreviewGenerator, VideoInfo};
+use crate::video_compiler::schema::{Clip, PreviewFormat, Subtitle};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::path::Path;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+/// Тип извлечения кадра
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ExtractionPurpose {
+  /// Для превью на timeline
+  TimelinePreview,
+  /// Для распознавания объектов (YOLO)
+  ObjectDetection,
+  /// Для распознавания сцен
+  SceneRecognition,
+  /// Для распознавания текста (OCR)
+  TextRecognition,
+  /// Для анализа субтитров
+  SubtitleAnalysis,
+  /// Ключевой кадр (I-frame)
+  KeyFrame,
+  /// Пользовательский скриншот
+  UserScreenshot,
+}
+
+/// Стратегия извлечения кадров
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ExtractionStrategy {
+  /// Равномерное извлечение через интервалы
+  Interval {
+    /// Интервал в секундах
+    seconds: f64,
+  },
+  /// Извлечение по изменению сцены
+  SceneChange {
+    /// Чувствительность (0.0-1.0)
+    threshold: f32,
+  },
+  /// Извлечение по временным меткам субтитров
+  SubtitleSync {
+    /// Смещение от начала субтитра
+    offset_seconds: f64,
+  },
+  /// Извлечение ключевых кадров (I-frames)
+  KeyFrames,
+  /// Комбинированная стратегия
+  Combined {
+    /// Минимальный интервал между кадрами
+    min_interval: f64,
+    /// Включить изменения сцен
+    include_scene_changes: bool,
+    /// Включить ключевые кадры
+    include_keyframes: bool,
+  },
+}
+
+/// Настройки извлечения кадров
+#[derive(Debug, Clone)]
+pub struct ExtractionSettings {
+  /// Стратегия извлечения
+  pub strategy: ExtractionStrategy,
+  /// Цель извлечения
+  pub purpose: ExtractionPurpose,
+  /// Разрешение кадров
+  pub resolution: (u32, u32),
+  /// Качество (0-100)
+  pub quality: u8,
+  /// Формат изображения
+  pub format: PreviewFormat,
+  /// Максимальное количество кадров
+  pub max_frames: Option<usize>,
+  /// Использовать GPU для декодирования
+  pub gpu_decode: bool,
+  /// Параллельная обработка
+  pub parallel_extraction: bool,
+  /// Количество потоков
+  pub thread_count: Option<usize>,
+}
+
+impl Default for ExtractionSettings {
+  fn default() -> Self {
+    Self {
+      strategy: ExtractionStrategy::Interval { seconds: 1.0 },
+      purpose: ExtractionPurpose::TimelinePreview,
+      resolution: (640, 360),
+      quality: 75,
+      format: PreviewFormat::Jpeg,
+      max_frames: None,
+      gpu_decode: false,
+      parallel_extraction: true,
+      thread_count: None,
+    }
+  }
+}
+
+/// Менеджер извлечения кадров
+pub struct FrameExtractionManager {
+  /// Генератор превью
+  pub preview_generator: Arc<PreviewGenerator>,
+  /// Кэш
+  cache: Arc<RwLock<RenderCache>>,
+  /// Настройки по умолчанию для разных целей
+  purpose_settings: HashMap<ExtractionPurpose, ExtractionSettings>,
+  /// Путь к FFmpeg
+  ffmpeg_path: String,
+}
+
+impl FrameExtractionManager {
+  /// Создать новый менеджер
+  pub fn new(cache: Arc<RwLock<RenderCache>>) -> Self {
+    let preview_generator = Arc::new(PreviewGenerator::new(cache.clone()));
+    let mut purpose_settings = HashMap::new();
+
+    // Настройки для timeline превью
+    purpose_settings.insert(
+      ExtractionPurpose::TimelinePreview,
+      ExtractionSettings {
+        strategy: ExtractionStrategy::Combined {
+          min_interval: 0.5,
+          include_scene_changes: true,
+          include_keyframes: true,
+        },
+        purpose: ExtractionPurpose::TimelinePreview,
+        resolution: (160, 90),
+        quality: 60,
+        format: PreviewFormat::Jpeg,
+        max_frames: Some(200),
+        gpu_decode: true,
+        parallel_extraction: true,
+        thread_count: None,
+      },
+    );
+
+    // Настройки для распознавания объектов
+    purpose_settings.insert(
+      ExtractionPurpose::ObjectDetection,
+      ExtractionSettings {
+        strategy: ExtractionStrategy::Interval { seconds: 1.0 },
+        purpose: ExtractionPurpose::ObjectDetection,
+        resolution: (1280, 720), // Выше разрешение для лучшего распознавания
+        quality: 85,
+        format: PreviewFormat::Png, // PNG для лучшего качества
+        max_frames: None,
+        gpu_decode: true,
+        parallel_extraction: true,
+        thread_count: None,
+      },
+    );
+
+    // Настройки для распознавания сцен
+    purpose_settings.insert(
+      ExtractionPurpose::SceneRecognition,
+      ExtractionSettings {
+        strategy: ExtractionStrategy::SceneChange { threshold: 0.3 },
+        purpose: ExtractionPurpose::SceneRecognition,
+        resolution: (960, 540),
+        quality: 80,
+        format: PreviewFormat::Jpeg,
+        max_frames: Some(500),
+        gpu_decode: true,
+        parallel_extraction: true,
+        thread_count: None,
+      },
+    );
+
+    // Настройки для анализа субтитров
+    purpose_settings.insert(
+      ExtractionPurpose::SubtitleAnalysis,
+      ExtractionSettings {
+        strategy: ExtractionStrategy::SubtitleSync {
+          offset_seconds: 0.5,
+        },
+        purpose: ExtractionPurpose::SubtitleAnalysis,
+        resolution: (1920, 1080), // Полное разрешение для OCR
+        quality: 90,
+        format: PreviewFormat::Png,
+        max_frames: None,
+        gpu_decode: true,
+        parallel_extraction: false, // Последовательно для синхронизации
+        thread_count: Some(1),
+      },
+    );
+
+    Self {
+      preview_generator,
+      cache,
+      purpose_settings,
+      ffmpeg_path: "ffmpeg".to_string(),
+    }
+  }
+
+  /// Извлечь кадры для клипа
+  pub async fn extract_frames_for_clip(
+    &self,
+    clip: &Clip,
+    settings: Option<ExtractionSettings>,
+  ) -> Result<Vec<ExtractedFrame>> {
+    let settings =
+      settings.unwrap_or_else(|| self.get_default_settings(ExtractionPurpose::TimelinePreview));
+
+    let video_path = &clip.source_path;
+    let video_info = self.preview_generator.get_video_info(video_path).await?;
+
+    // Вычисляем временные метки для извлечения
+    let timestamps = self.calculate_timestamps(
+      &settings.strategy,
+      clip.source_start,
+      clip.source_end,
+      &video_info,
+      None,
+    )?;
+
+    // Извлекаем кадры
+    self
+      .extract_frames_batch(video_path, timestamps, &settings)
+      .await
+  }
+
+  /// Извлечь кадры для субтитров
+  pub async fn extract_frames_for_subtitles(
+    &self,
+    video_path: &Path,
+    subtitles: &[Subtitle],
+    settings: Option<ExtractionSettings>,
+  ) -> Result<Vec<SubtitleFrame>> {
+    let settings =
+      settings.unwrap_or_else(|| self.get_default_settings(ExtractionPurpose::SubtitleAnalysis));
+
+    let mut frames = Vec::new();
+
+    for subtitle in subtitles {
+      if !subtitle.enabled {
+        continue;
+      }
+
+      // Вычисляем время кадра для субтитра
+      let timestamp = match &settings.strategy {
+        ExtractionStrategy::SubtitleSync { offset_seconds } => subtitle.start_time + offset_seconds,
+        _ => subtitle.start_time + 0.5, // По умолчанию 0.5 сек от начала
+      };
+
+      // Извлекаем кадр
+      let frame_data = self
+        .preview_generator
+        .generate_preview(
+          video_path,
+          timestamp,
+          Some(settings.resolution),
+          Some(settings.quality),
+        )
+        .await?;
+
+      frames.push(SubtitleFrame {
+        subtitle_id: subtitle.id.clone(),
+        subtitle_text: subtitle.text.clone(),
+        timestamp,
+        frame_data,
+        start_time: subtitle.start_time,
+        end_time: subtitle.end_time,
+      });
+    }
+
+    Ok(frames)
+  }
+
+  /// Извлечь кадры для распознавания
+  pub async fn extract_frames_for_recognition(
+    &self,
+    video_path: &Path,
+    duration: f64,
+    purpose: ExtractionPurpose,
+  ) -> Result<Vec<RecognitionFrame>> {
+    let settings = self.get_default_settings(purpose);
+    let video_info = self.preview_generator.get_video_info(video_path).await?;
+
+    // Вычисляем временные метки
+    let timestamps = self.calculate_timestamps(
+      &settings.strategy,
+      0.0,
+      duration,
+      &video_info,
+      settings.max_frames,
+    )?;
+
+    // Извлекаем кадры
+    let extracted_frames = self
+      .extract_frames_batch(video_path, timestamps, &settings)
+      .await?;
+
+    // Преобразуем в формат для распознавания
+    Ok(
+      extracted_frames
+        .into_iter()
+        .map(|frame| RecognitionFrame {
+          timestamp: frame.timestamp,
+          frame_data: frame.data,
+          resolution: frame.resolution,
+          scene_change_score: frame.scene_change_score,
+          is_keyframe: frame.is_keyframe,
+        })
+        .collect(),
+    )
+  }
+
+  /// Получить существующие скриншоты
+  pub async fn get_existing_screenshots(&self, _video_path: &Path) -> Result<Vec<ExtractedFrame>> {
+    let _cache = self.cache.read().await;
+
+    // Здесь нужно реализовать получение скриншотов из кэша
+    // Пока возвращаем пустой вектор
+    Ok(Vec::new())
+  }
+
+  /// Получить настройки по умолчанию для цели
+  fn get_default_settings(&self, purpose: ExtractionPurpose) -> ExtractionSettings {
+    self
+      .purpose_settings
+      .get(&purpose)
+      .cloned()
+      .unwrap_or_default()
+  }
+
+  /// Вычислить временные метки для извлечения
+  fn calculate_timestamps(
+    &self,
+    strategy: &ExtractionStrategy,
+    start_time: f64,
+    end_time: f64,
+    _video_info: &VideoInfo,
+    max_frames: Option<usize>,
+  ) -> Result<Vec<f64>> {
+    let _duration = end_time - start_time;
+
+    let timestamps = match strategy {
+      ExtractionStrategy::Interval { seconds } => {
+        let mut timestamps = Vec::new();
+        let mut current = start_time;
+
+        while current <= end_time {
+          timestamps.push(current);
+          current += seconds;
+        }
+
+        timestamps
+      }
+
+      ExtractionStrategy::SceneChange { threshold: _ } => {
+        // Здесь нужно использовать FFmpeg scene detection
+        // Пока используем простые интервалы
+        vec![] // TODO: Implement scene detection
+      }
+
+      ExtractionStrategy::KeyFrames => {
+        // Извлечение I-frames через FFmpeg
+        vec![] // TODO: Implement keyframe extraction
+      }
+
+      ExtractionStrategy::Combined {
+        min_interval,
+        include_scene_changes,
+        include_keyframes,
+      } => {
+        let mut timestamps = Vec::new();
+
+        // Добавляем равномерные интервалы
+        let mut current = start_time;
+        while current <= end_time {
+          timestamps.push(current);
+          current += min_interval;
+        }
+
+        // Добавляем изменения сцен
+        if *include_scene_changes {
+          // TODO: Implement scene detection
+          // let scene_changes = self.detect_scene_changes(start_time, end_time, 0.3)?;
+          // timestamps.extend(scene_changes);
+        }
+
+        // Добавляем ключевые кадры
+        if *include_keyframes {
+          // TODO: Implement keyframe extraction
+          // let keyframes = self.extract_keyframe_timestamps(start_time, end_time)?;
+          // timestamps.extend(keyframes);
+        }
+
+        // Удаляем дубликаты и сортируем
+        timestamps.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        timestamps.dedup();
+
+        // Фильтруем по минимальному интервалу
+        let mut filtered = vec![timestamps[0]];
+        for &ts in &timestamps[1..] {
+          if ts - filtered.last().unwrap() >= *min_interval {
+            filtered.push(ts);
+          }
+        }
+
+        filtered
+      }
+
+      ExtractionStrategy::SubtitleSync { .. } => {
+        // Обрабатывается отдельно в extract_frames_for_subtitles
+        vec![]
+      }
+    };
+
+    // Ограничиваем количество кадров если необходимо
+    Ok(if let Some(max) = max_frames {
+      timestamps.into_iter().take(max).collect()
+    } else {
+      timestamps
+    })
+  }
+
+  /// Обнаружить изменения сцен
+  async fn detect_scene_changes(
+    &self,
+    _start_time: f64,
+    _end_time: f64,
+    _threshold: f32,
+  ) -> Result<Vec<f64>> {
+    // TODO: Реализовать через FFmpeg scene detection filter
+    // ffmpeg -i input.mp4 -filter:v "select='gt(scene,0.3)',showinfo" -f null -
+
+    // Пока возвращаем пустой вектор
+    Ok(vec![])
+  }
+
+  /// Извлечь временные метки ключевых кадров
+  async fn extract_keyframe_timestamps(
+    &self,
+    _start_time: f64,
+    _end_time: f64,
+  ) -> Result<Vec<f64>> {
+    // TODO: Реализовать через FFmpeg
+    // ffmpeg -i input.mp4 -vf select='eq(pict_type\,I)' -vsync vfr -f image2 keyframes-%04d.jpg
+
+    // Пока возвращаем пустой вектор
+    Ok(vec![])
+  }
+
+  /// Извлечь пакет кадров
+  async fn extract_frames_batch(
+    &self,
+    video_path: &Path,
+    timestamps: Vec<f64>,
+    settings: &ExtractionSettings,
+  ) -> Result<Vec<ExtractedFrame>> {
+    let mut frames = Vec::new();
+
+    if settings.parallel_extraction {
+      // Параллельное извлечение
+      let results = self
+        .preview_generator
+        .generate_preview_batch_for_file(
+          video_path,
+          timestamps.clone(),
+          Some(settings.resolution),
+          Some(settings.quality),
+        )
+        .await?;
+
+      for (i, result) in results.into_iter().enumerate() {
+        match result.result {
+          Ok(data) => {
+            frames.push(ExtractedFrame {
+              timestamp: timestamps[i],
+              data,
+              resolution: settings.resolution,
+              purpose: settings.purpose.clone(),
+              scene_change_score: None,
+              is_keyframe: false,
+            });
+          }
+          Err(e) => {
+            log::warn!("Не удалось извлечь кадр на {:.2}s: {}", timestamps[i], e);
+          }
+        }
+      }
+    } else {
+      // Последовательное извлечение
+      for timestamp in timestamps {
+        match self
+          .preview_generator
+          .generate_preview(
+            video_path,
+            timestamp,
+            Some(settings.resolution),
+            Some(settings.quality),
+          )
+          .await
+        {
+          Ok(data) => {
+            frames.push(ExtractedFrame {
+              timestamp,
+              data,
+              resolution: settings.resolution,
+              purpose: settings.purpose.clone(),
+              scene_change_score: None,
+              is_keyframe: false,
+            });
+          }
+          Err(e) => {
+            log::warn!("Не удалось извлечь кадр на {:.2}s: {}", timestamp, e);
+          }
+        }
+      }
+    }
+
+    Ok(frames)
+  }
+}
+
+/// Извлеченный кадр
+#[derive(Debug, Clone)]
+pub struct ExtractedFrame {
+  /// Временная метка
+  pub timestamp: f64,
+  /// Данные изображения
+  pub data: Vec<u8>,
+  /// Разрешение
+  pub resolution: (u32, u32),
+  /// Цель извлечения
+  pub purpose: ExtractionPurpose,
+  /// Оценка изменения сцены (если доступно)
+  pub scene_change_score: Option<f32>,
+  /// Является ли ключевым кадром
+  pub is_keyframe: bool,
+}
+
+/// Кадр для субтитра
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SubtitleFrame {
+  /// ID субтитра
+  pub subtitle_id: String,
+  /// Текст субтитра
+  pub subtitle_text: String,
+  /// Временная метка кадра
+  pub timestamp: f64,
+  /// Данные кадра
+  pub frame_data: Vec<u8>,
+  /// Время начала субтитра
+  pub start_time: f64,
+  /// Время окончания субтитра
+  pub end_time: f64,
+}
+
+/// Кадр для распознавания
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecognitionFrame {
+  /// Временная метка
+  pub timestamp: f64,
+  /// Данные кадра
+  pub frame_data: Vec<u8>,
+  /// Разрешение
+  pub resolution: (u32, u32),
+  /// Оценка изменения сцены
+  pub scene_change_score: Option<f32>,
+  /// Является ли ключевым кадром
+  pub is_keyframe: bool,
+}
+
+/// Метаданные извлечения кадров
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExtractionMetadata {
+  /// Путь к видео
+  pub video_path: String,
+  /// Общее количество извлеченных кадров
+  pub total_frames: usize,
+  /// Использованная стратегия
+  pub strategy: ExtractionStrategy,
+  /// Цель извлечения
+  pub purpose: ExtractionPurpose,
+  /// Время извлечения (мс)
+  pub extraction_time_ms: u64,
+  /// Использовалось ли GPU ускорение
+  pub gpu_used: bool,
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_extraction_settings_default() {
+    let settings = ExtractionSettings::default();
+    assert_eq!(settings.resolution, (640, 360));
+    assert_eq!(settings.quality, 75);
+    assert!(settings.parallel_extraction);
+  }
+
+  #[test]
+  fn test_extraction_purpose_equality() {
+    assert_eq!(
+      ExtractionPurpose::TimelinePreview,
+      ExtractionPurpose::TimelinePreview
+    );
+    assert_ne!(
+      ExtractionPurpose::TimelinePreview,
+      ExtractionPurpose::ObjectDetection
+    );
+  }
+}

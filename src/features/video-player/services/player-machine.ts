@@ -15,6 +15,13 @@ export interface PlayerContextType {
   isVideoLoading: boolean
   isVideoReady: boolean
   isResizableMode: boolean // Флаг, указывающий, что шаблоны должны быть resizable
+
+  // Настройки пререндера
+  prerenderEnabled: boolean
+  prerenderQuality: number
+  prerenderSegmentDuration: number
+  prerenderApplyEffects: boolean
+  prerenderAutoPrerender: boolean
 }
 
 // Начальный контекст для машины состояний плеера
@@ -31,6 +38,13 @@ const initialContext: PlayerContextType = {
   isResizableMode: false,
   duration: 0,
   volume: 100, // Значение по умолчанию, будет заменено из пользовательских настроек
+
+  // Настройки пререндера по умолчанию
+  prerenderEnabled: false,
+  prerenderQuality: 75,
+  prerenderSegmentDuration: 5,
+  prerenderApplyEffects: true,
+  prerenderAutoPrerender: true,
 }
 
 interface SetCurrentTimeEvent {
@@ -88,6 +102,15 @@ interface SetIsResizableModeEvent {
   isResizableMode: boolean
 }
 
+interface SetPrerenderSettingsEvent {
+  type: "setPrerenderSettings"
+  prerenderEnabled?: boolean
+  prerenderQuality?: number
+  prerenderSegmentDuration?: number
+  prerenderApplyEffects?: boolean
+  prerenderAutoPrerender?: boolean
+}
+
 export type PlayerEvent =
   | SetCurrentTimeEvent
   | SetIsPlayingEvent
@@ -100,6 +123,7 @@ export type PlayerEvent =
   | SetVideoLoadingEvent
   | SetVideoReadyEvent
   | SetIsResizableModeEvent
+  | SetPrerenderSettingsEvent
 
 export const playerMachine = createMachine({
   id: "player",
@@ -145,6 +169,17 @@ export const playerMachine = createMachine({
         setIsResizableMode: {
           actions: assign({
             isResizableMode: ({ event }) => event.isResizableMode,
+          }),
+        },
+        setPrerenderSettings: {
+          actions: assign({
+            prerenderEnabled: ({ event, context }) => event.prerenderEnabled ?? context.prerenderEnabled,
+            prerenderQuality: ({ event, context }) => event.prerenderQuality ?? context.prerenderQuality,
+            prerenderSegmentDuration: ({ event, context }) =>
+              event.prerenderSegmentDuration ?? context.prerenderSegmentDuration,
+            prerenderApplyEffects: ({ event, context }) => event.prerenderApplyEffects ?? context.prerenderApplyEffects,
+            prerenderAutoPrerender: ({ event, context }) =>
+              event.prerenderAutoPrerender ?? context.prerenderAutoPrerender,
           }),
         },
       },
@@ -194,6 +229,17 @@ export const playerMachine = createMachine({
             isResizableMode: ({ event }) => event.isResizableMode,
           }),
         },
+        setPrerenderSettings: {
+          actions: assign({
+            prerenderEnabled: ({ event, context }) => event.prerenderEnabled ?? context.prerenderEnabled,
+            prerenderQuality: ({ event, context }) => event.prerenderQuality ?? context.prerenderQuality,
+            prerenderSegmentDuration: ({ event, context }) =>
+              event.prerenderSegmentDuration ?? context.prerenderSegmentDuration,
+            prerenderApplyEffects: ({ event, context }) => event.prerenderApplyEffects ?? context.prerenderApplyEffects,
+            prerenderAutoPrerender: ({ event, context }) =>
+              event.prerenderAutoPrerender ?? context.prerenderAutoPrerender,
+          }),
+        },
       },
     },
     ready: {
@@ -237,6 +283,17 @@ export const playerMachine = createMachine({
         setIsResizableMode: {
           actions: assign({
             isResizableMode: ({ event }) => event.isResizableMode,
+          }),
+        },
+        setPrerenderSettings: {
+          actions: assign({
+            prerenderEnabled: ({ event, context }) => event.prerenderEnabled ?? context.prerenderEnabled,
+            prerenderQuality: ({ event, context }) => event.prerenderQuality ?? context.prerenderQuality,
+            prerenderSegmentDuration: ({ event, context }) =>
+              event.prerenderSegmentDuration ?? context.prerenderSegmentDuration,
+            prerenderApplyEffects: ({ event, context }) => event.prerenderApplyEffects ?? context.prerenderApplyEffects,
+            prerenderAutoPrerender: ({ event, context }) =>
+              event.prerenderAutoPrerender ?? context.prerenderAutoPrerender,
           }),
         },
       },

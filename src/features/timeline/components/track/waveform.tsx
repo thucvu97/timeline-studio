@@ -5,9 +5,10 @@ import WaveSurfer from "wavesurfer.js"
 
 interface WaveformProps {
   audioUrl: string
+  className?: string
 }
 
-function Waveform({ audioUrl }: WaveformProps) {
+function Waveform({ audioUrl, className }: WaveformProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wavesurferRef = useRef<WaveSurfer | null>(null)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
@@ -43,9 +44,18 @@ function Waveform({ audioUrl }: WaveformProps) {
         }
 
         // Проверяем поддерживаемые форматы
-        const supportedFormats = ["audio/mpeg", "audio/wav", "audio/ogg", "audio/webm", "audio/x-aiff"]
-        if (!supportedFormats.includes(blob.type)) {
-          throw new Error(`Unsupported audio format: ${blob.type}. Supported formats: ${supportedFormats.join(", ")}`)
+        const supportedFormats = [
+          "audio/mpeg",
+          "audio/wav",
+          "audio/ogg",
+          "audio/webm",
+          "audio/aiff",
+          "audio/x-aiff",
+          "audio/mp4",
+          "audio/aac",
+        ]
+        if (!supportedFormats.some((format) => blob.type.includes(format.split("/")[1]))) {
+          console.warn(`Potentially unsupported audio format: ${blob.type}`)
         }
 
         setAudioBlob(blob)
@@ -76,19 +86,19 @@ function Waveform({ audioUrl }: WaveformProps) {
     try {
       wavesurferRef.current = WaveSurfer.create({
         container: containerRef.current,
-        waveColor: "#4F4A85",
-        progressColor: "#383351",
+        waveColor: "rgba(255, 255, 255, 0.7)",
+        progressColor: "rgba(255, 255, 255, 0.9)",
         url: audioUrl,
         normalize: true,
-        height: 20,
-        barWidth: 1,
+        height: 64, // Высота волны в пикселях
+        barWidth: 2,
         barGap: 1,
+        barRadius: 2,
         cursorWidth: 0,
         hideScrollbar: true,
         backend: "WebAudio",
         audioRate: 1,
-        barRadius: 0,
-        blobMimeType: "audio/x-aiff",
+        interact: false,
         fetchParams: {
           cache: "default",
           mode: "cors",
@@ -121,7 +131,7 @@ function Waveform({ audioUrl }: WaveformProps) {
     }
   }, [audioBlob])
 
-  return <div ref={containerRef} className="absolute top-[24px] right-[68px] bottom-[0] left-[48px] z-11 h-full" />
+  return <div ref={containerRef} className={className || "w-full h-full"} />
 }
 
 Waveform.displayName = "Waveform"

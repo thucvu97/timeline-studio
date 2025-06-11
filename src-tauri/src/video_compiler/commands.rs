@@ -10,13 +10,17 @@ use std::path::Path;
 use std::sync::Arc;
 use tauri::State;
 use tokio::sync::{mpsc, RwLock};
+use uuid::Uuid;
 
 use crate::video_compiler::cache::{CacheStats, RenderCache};
 use crate::video_compiler::error::{Result, VideoCompilerError};
+use crate::video_compiler::frame_extraction::{
+  ExtractionPurpose, ExtractionSettings, ExtractionStrategy, FrameExtractionManager,
+};
 use crate::video_compiler::gpu::{GpuCapabilities, GpuDetector, GpuInfo};
 use crate::video_compiler::progress::{RenderProgress, RenderStatus};
 use crate::video_compiler::renderer::VideoRenderer;
-use crate::video_compiler::schema::ProjectSchema;
+use crate::video_compiler::schema::{Clip, ProjectSchema, Subtitle};
 use crate::video_compiler::CompilerSettings;
 
 /// Состояние Video Compiler для Tauri
@@ -209,6 +213,278 @@ pub async fn generate_preview(
     })
 }
 
+/// Параметры для пререндера сегмента
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PrerenderRequest {
+  /// Схема проекта
+  pub project_schema: ProjectSchema,
+  /// Время начала сегмента в секундах
+  pub start_time: f64,
+  /// Время окончания сегмента в секундах
+  pub end_time: f64,
+  /// Применять ли эффекты и фильтры
+  pub apply_effects: bool,
+  /// Качество пререндера (1-100)
+  pub quality: Option<u8>,
+}
+
+/// Результат пререндера
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PrerenderResult {
+  /// Путь к файлу пререндера
+  pub file_path: String,
+  /// Длительность сегмента
+  pub duration: f64,
+  /// Размер файла в байтах
+  pub file_size: u64,
+  /// Время рендеринга в миллисекундах
+  pub render_time_ms: u64,
+}
+
+/// Пререндер сегмента видео для быстрого предпросмотра
+#[tauri::command]
+pub async fn prerender_segment(
+  request: PrerenderRequest,
+  state: State<'_, VideoCompilerState>,
+) -> Result<PrerenderResult> {
+  use crate::video_compiler::ffmpeg_builder::{FFmpegBuilder, FFmpegBuilderSettings};
+  use std::time::Instant;
+  use tokio::fs;
+
+  let start_instant = Instant::now();
+
+  // Валидация параметров
+  if request.start_time >= request.end_time {
+    return Err(VideoCompilerError::validation(
+      "Start time must be before end time",
+    ));
+  }
+
+  let duration = request.end_time - request.start_time;
+  if duration > 60.0 {
+    return Err(VideoCompilerError::validation(
+      "Prerender segment cannot be longer than 60 seconds",
+    ));
+  }
+
+  // Создаем временный файл для пререндера с уникальным именем
+  let temp_dir = std::env::temp_dir();
+
+  // Создаем хеш из параметров проекта для уникальности
+  use std::collections::hash_map::DefaultHasher;
+  use std::hash::{Hash, Hasher};
+
+  let mut hasher = DefaultHasher::new();
+  request.project_schema.tracks.len().hash(&mut hasher);
+  request.project_schema.effects.len().hash(&mut hasher);
+  request.apply_effects.hash(&mut hasher);
+  request.quality.hash(&mut hasher);
+  let hash = hasher.finish();
+
+  let file_name = format!(
+    "prerender_{}_{}_{:x}.mp4",
+    request.start_time.round() as i64,
+    request.end_time.round() as i64,
+    hash & 0xFFFFFF // Используем только последние 6 цифр хеша
+  );
+  let output_path = temp_dir.join(file_name);
+
+  // Настройки FFmpeg
+  let ffmpeg_settings = FFmpegBuilderSettings {
+    ffmpeg_path: state.ffmpeg_path.clone(),
+    ..Default::default()
+  };
+
+  // Создаем билдер
+  let builder = FFmpegBuilder::with_settings(request.project_schema, ffmpeg_settings);
+
+  // Строим команду пререндера
+  let mut cmd = builder
+    .build_prerender_segment_command(
+      request.start_time,
+      request.end_time,
+      &output_path,
+      request.apply_effects,
+    )
+    .await?;
+
+  // Запускаем FFmpeg
+  let output = cmd
+    .output()
+    .await
+    .map_err(|e| VideoCompilerError::io(e.to_string()))?;
+
+  if !output.status.success() {
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let exit_code = output.status.code();
+    return Err(VideoCompilerError::ffmpeg(
+      exit_code,
+      stderr.to_string(),
+      "prerender_segment",
+    ));
+  }
+
+  // Получаем размер файла
+  let metadata = fs::metadata(&output_path)
+    .await
+    .map_err(|e| VideoCompilerError::io(e.to_string()))?;
+
+  let render_time_ms = start_instant.elapsed().as_millis() as u64;
+
+  Ok(PrerenderResult {
+    file_path: output_path.to_string_lossy().to_string(),
+    duration,
+    file_size: metadata.len(),
+    render_time_ms,
+  })
+}
+
+/// Информация о кеше пререндеров
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PrerenderCacheInfo {
+  /// Количество файлов в кеше
+  pub file_count: usize,
+  /// Общий размер кеша в байтах
+  pub total_size: u64,
+  /// Список файлов в кеше
+  pub files: Vec<PrerenderCacheFile>,
+}
+
+/// Информация о файле в кеше
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PrerenderCacheFile {
+  /// Путь к файлу
+  pub path: String,
+  /// Размер файла в байтах
+  pub size: u64,
+  /// Время создания
+  pub created: u64,
+  /// Параметры сегмента
+  pub start_time: f64,
+  pub end_time: f64,
+}
+
+/// Получить информацию о кеше пререндеров
+#[tauri::command]
+pub async fn get_prerender_cache_info() -> Result<PrerenderCacheInfo> {
+  use std::time::SystemTime;
+  use tokio::fs;
+
+  let temp_dir = std::env::temp_dir();
+  let mut files = Vec::new();
+  let mut total_size = 0u64;
+
+  // Читаем содержимое временной директории
+  let mut entries = fs::read_dir(&temp_dir)
+    .await
+    .map_err(|e| VideoCompilerError::io(e.to_string()))?;
+
+  while let Some(entry) = entries
+    .next_entry()
+    .await
+    .map_err(|e| VideoCompilerError::io(e.to_string()))?
+  {
+    let path = entry.path();
+    let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+
+    // Проверяем, является ли это файлом пререндера
+    if file_name.starts_with("prerender_") && file_name.ends_with(".mp4") {
+      let metadata = entry
+        .metadata()
+        .await
+        .map_err(|e| VideoCompilerError::io(e.to_string()))?;
+
+      if metadata.is_file() {
+        let size = metadata.len();
+        total_size += size;
+
+        // Парсим время из имени файла
+        let parts: Vec<&str> = file_name
+          .trim_start_matches("prerender_")
+          .trim_end_matches(".mp4")
+          .split('_')
+          .collect();
+
+        let (start_time, end_time) = if parts.len() >= 2 {
+          (
+            parts[0].parse::<f64>().unwrap_or(0.0),
+            parts[1].parse::<f64>().unwrap_or(0.0),
+          )
+        } else {
+          (0.0, 0.0)
+        };
+
+        let created = metadata
+          .created()
+          .ok()
+          .and_then(|t| t.duration_since(SystemTime::UNIX_EPOCH).ok())
+          .map(|d| d.as_secs())
+          .unwrap_or(0);
+
+        files.push(PrerenderCacheFile {
+          path: path.to_string_lossy().to_string(),
+          size,
+          created,
+          start_time,
+          end_time,
+        });
+      }
+    }
+  }
+
+  // Сортируем файлы по времени создания (новые первыми)
+  files.sort_by(|a, b| b.created.cmp(&a.created));
+
+  Ok(PrerenderCacheInfo {
+    file_count: files.len(),
+    total_size,
+    files,
+  })
+}
+
+/// Очистить кеш пререндеров
+#[tauri::command]
+pub async fn clear_prerender_cache() -> Result<u64> {
+  use tokio::fs;
+
+  let temp_dir = std::env::temp_dir();
+  let mut _deleted_count = 0u64;
+  let mut deleted_size = 0u64;
+
+  // Читаем содержимое временной директории
+  let mut entries = fs::read_dir(&temp_dir)
+    .await
+    .map_err(|e| VideoCompilerError::io(e.to_string()))?;
+
+  while let Some(entry) = entries
+    .next_entry()
+    .await
+    .map_err(|e| VideoCompilerError::io(e.to_string()))?
+  {
+    let path = entry.path();
+    let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+
+    // Проверяем, является ли это файлом пререндера
+    if file_name.starts_with("prerender_") && file_name.ends_with(".mp4") {
+      let metadata = entry
+        .metadata()
+        .await
+        .map_err(|e| VideoCompilerError::io(e.to_string()))?;
+
+      if metadata.is_file() {
+        deleted_size += metadata.len();
+
+        // Удаляем файл
+        if let Ok(_) = fs::remove_file(&path).await {
+          _deleted_count += 1;
+        }
+      }
+    }
+  }
+
+  Ok(deleted_size)
+}
+
 // ==================== GPU КОМАНДЫ ====================
 
 /// Получить возможности GPU
@@ -384,6 +660,214 @@ fn get_available_memory() -> Option<u64> {
   }
 
   None
+}
+
+// ==================== ИЗВЛЕЧЕНИЕ КАДРОВ ====================
+
+/// Параметры для извлечения кадров для timeline
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct TimelineFrameExtractionRequest {
+  /// Путь к видео файлу
+  pub video_path: String,
+  /// Длительность видео
+  pub duration: f64,
+  /// Интервал между кадрами (секунды)
+  pub interval: f64,
+  /// Максимальное количество кадров
+  pub max_frames: Option<usize>,
+}
+
+/// Результат извлечения кадра для timeline
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct TimelineFrame {
+  /// Временная метка
+  pub timestamp: f64,
+  /// Данные кадра (base64)
+  pub frame_data: String,
+  /// Является ли ключевым кадром
+  pub is_keyframe: bool,
+}
+
+/// Извлечь кадры для timeline
+#[tauri::command]
+pub async fn extract_timeline_frames(
+  request: TimelineFrameExtractionRequest,
+  state: State<'_, VideoCompilerState>,
+) -> Result<Vec<TimelineFrame>> {
+  use base64::engine::general_purpose::STANDARD as BASE64;
+  use base64::Engine as _;
+  use std::path::Path;
+
+  let manager = FrameExtractionManager::new(state.cache_manager.clone());
+
+  // Настройки для timeline превью
+  let settings = ExtractionSettings {
+    strategy: ExtractionStrategy::Combined {
+      min_interval: request.interval,
+      include_scene_changes: true,
+      include_keyframes: true,
+    },
+    purpose: ExtractionPurpose::TimelinePreview,
+    resolution: (160, 90), // Маленькое разрешение для timeline
+    quality: 60,
+    format: crate::video_compiler::schema::PreviewFormat::Jpeg,
+    max_frames: request.max_frames,
+    gpu_decode: true,
+    parallel_extraction: true,
+    thread_count: None,
+  };
+
+  let path = Path::new(&request.video_path);
+  let _video_info = manager.preview_generator.get_video_info(path).await?;
+
+  // Создаем фейковый клип для использования существующей функции
+  let clip = Clip {
+    id: Uuid::new_v4().to_string(),
+    source_path: path.to_path_buf(),
+    start_time: 0.0,
+    end_time: request.duration,
+    source_start: 0.0,
+    source_end: request.duration,
+    speed: 1.0,
+    volume: 1.0,
+    locked: false,
+    effects: Vec::new(),
+    filters: Vec::new(),
+    template_id: None,
+    template_cell: None,
+    style_template_id: None,
+    properties: HashMap::new(),
+  };
+
+  let frames = manager
+    .extract_frames_for_clip(&clip, Some(settings))
+    .await?;
+
+  // Преобразуем в формат для фронтенда
+  Ok(
+    frames
+      .into_iter()
+      .map(|frame| TimelineFrame {
+        timestamp: frame.timestamp,
+        frame_data: BASE64.encode(&frame.data),
+        is_keyframe: frame.is_keyframe,
+      })
+      .collect(),
+  )
+}
+
+/// Результат распознавания кадра
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct RecognitionFrameResult {
+  /// Временная метка
+  pub timestamp: f64,
+  /// Данные кадра
+  pub frame_data: Vec<u8>,
+  /// Разрешение
+  pub resolution: [u32; 2],
+  /// Оценка изменения сцены
+  pub scene_change_score: Option<f32>,
+  /// Является ли ключевым кадром
+  pub is_keyframe: bool,
+}
+
+/// Извлечь кадры для распознавания
+#[tauri::command]
+pub async fn extract_recognition_frames(
+  video_path: String,
+  purpose: String,
+  _interval: f64,
+  state: State<'_, VideoCompilerState>,
+) -> Result<Vec<RecognitionFrameResult>> {
+  use std::path::Path;
+
+  let manager = FrameExtractionManager::new(state.cache_manager.clone());
+
+  // Парсим цель извлечения
+  let extraction_purpose = match purpose.as_str() {
+    "object_detection" => ExtractionPurpose::ObjectDetection,
+    "scene_recognition" => ExtractionPurpose::SceneRecognition,
+    "text_recognition" => ExtractionPurpose::TextRecognition,
+    _ => ExtractionPurpose::ObjectDetection,
+  };
+
+  let path = Path::new(&video_path);
+  let video_info = manager.preview_generator.get_video_info(path).await?;
+
+  let frames = manager
+    .extract_frames_for_recognition(path, video_info.duration, extraction_purpose)
+    .await?;
+
+  // Преобразуем в формат для фронтенда
+  Ok(
+    frames
+      .into_iter()
+      .map(|frame| RecognitionFrameResult {
+        timestamp: frame.timestamp,
+        frame_data: frame.frame_data,
+        resolution: [frame.resolution.0, frame.resolution.1],
+        scene_change_score: frame.scene_change_score,
+        is_keyframe: frame.is_keyframe,
+      })
+      .collect(),
+  )
+}
+
+/// Параметры для извлечения кадров субтитров
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct SubtitleFrameResult {
+  /// ID субтитра
+  pub subtitle_id: String,
+  /// Текст субтитра
+  pub subtitle_text: String,
+  /// Временная метка кадра
+  pub timestamp: f64,
+  /// Данные кадра (base64)
+  pub frame_data: Vec<u8>,
+  /// Время начала субтитра
+  pub start_time: f64,
+  /// Время окончания субтитра
+  pub end_time: f64,
+}
+
+/// Извлечь кадры для субтитров
+#[tauri::command]
+pub async fn extract_subtitle_frames(
+  video_path: String,
+  subtitles: Vec<Subtitle>,
+  state: State<'_, VideoCompilerState>,
+) -> Result<Vec<SubtitleFrameResult>> {
+  use std::path::Path;
+
+  let manager = FrameExtractionManager::new(state.cache_manager.clone());
+  let path = Path::new(&video_path);
+
+  let frames = manager
+    .extract_frames_for_subtitles(path, &subtitles, None)
+    .await?;
+
+  // Преобразуем в формат для фронтенда
+  Ok(
+    frames
+      .into_iter()
+      .map(|frame| SubtitleFrameResult {
+        subtitle_id: frame.subtitle_id,
+        subtitle_text: frame.subtitle_text,
+        timestamp: frame.timestamp,
+        frame_data: frame.frame_data,
+        start_time: frame.start_time,
+        end_time: frame.end_time,
+      })
+      .collect(),
+  )
+}
+
+/// Очистить кэш кадров
+#[tauri::command]
+pub async fn clear_frame_cache(state: State<'_, VideoCompilerState>) -> Result<()> {
+  let mut cache = state.cache_manager.write().await;
+  cache.clear_previews().await;
+  Ok(())
 }
 
 /// Проверить доступность FFmpeg и его возможности

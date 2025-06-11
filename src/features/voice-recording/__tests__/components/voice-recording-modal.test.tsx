@@ -1,6 +1,8 @@
 import { act, render } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
+import { renderWithModal } from "@/test/test-utils"
+
 import { VoiceRecordModal } from "../../components/voice-recording-modal"
 
 // Мокаем хуки
@@ -42,16 +44,9 @@ vi.mock("../../hooks/use-voice-recording", () => ({
   }),
 }))
 
-// Мокаем i18next
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}))
-
 describe("VoiceRecordModal", () => {
   it("renders the component", () => {
-    const renderResult = render(<VoiceRecordModal />)
+    const renderResult = renderWithModal(<VoiceRecordModal />)
     expect(renderResult.container.firstChild).not.toBeNull()
   })
 })

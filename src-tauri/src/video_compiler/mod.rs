@@ -11,6 +11,7 @@ pub mod cache;
 pub mod commands;
 pub mod error;
 pub mod ffmpeg_builder;
+pub mod frame_extraction;
 pub mod gpu;
 pub mod pipeline;
 pub mod preview;

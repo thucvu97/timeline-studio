@@ -1,0 +1,223 @@
+/**
+ * Hook для использования системы пререндера
+ */
+
+import { useCallback, useEffect, useState } from "react"
+
+import { toast } from "sonner"
+
+import { useTimeline } from "@/features/timeline/hooks/use-timeline"
+import { timelineToProjectSchema } from "@/features/timeline/utils/timeline-to-project"
+
+import {
+  type PrerenderCacheFile,
+  type PrerenderResult,
+  clearPrerenderCache as clearCache,
+  getPrerenderCacheInfo,
+  prerenderSegment,
+} from "../services/video-compiler-service"
+
+export interface PrerenderState {
+  isRendering: boolean
+  progress: number
+  currentResult?: PrerenderResult
+  error?: string
+}
+
+export function usePrerender() {
+  const { project } = useTimeline()
+  const [state, setState] = useState<PrerenderState>({
+    isRendering: false,
+    progress: 0,
+  })
+
+  /**
+   * Выполнить пререндер сегмента
+   */
+  const prerender = useCallback(
+    async (startTime: number, endTime: number, applyEffects = true, quality = 75) => {
+      if (!project) {
+        toast.error("Проект не загружен")
+        return null
+      }
+
+      // Валидация временного диапазона
+      if (startTime >= endTime) {
+        toast.error("Неверный временной диапазон")
+        return null
+      }
+
+      const duration = endTime - startTime
+      if (duration > 60) {
+        toast.error("Пререндер ограничен 60 секундами")
+        return null
+      }
+
+      setState((prev) => ({
+        ...prev,
+        isRendering: true,
+        progress: 0,
+        error: undefined,
+      }))
+
+      try {
+        // Преобразуем timeline в схему проекта
+        const projectSchema = timelineToProjectSchema(project)
+
+        // Запускаем пререндер
+        const result = await prerenderSegment({
+          projectSchema,
+          startTime,
+          endTime,
+          applyEffects,
+          quality,
+        })
+
+        setState((prev) => ({
+          ...prev,
+          isRendering: false,
+          progress: 100,
+          currentResult: result,
+        }))
+
+        toast.success(`Пререндер завершен за ${result.renderTimeMs}мс`)
+        return result
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка"
+        setState((prev) => ({
+          ...prev,
+          isRendering: false,
+          progress: 0,
+          error: errorMessage,
+        }))
+
+        toast.error(`Ошибка пререндера: ${errorMessage}`)
+        return null
+      }
+    },
+    [project],
+  )
+
+  /**
+   * Очистить результат пререндера
+   */
+  const clearResult = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      currentResult: undefined,
+      error: undefined,
+    }))
+  }, [])
+
+  return {
+    ...state,
+    prerender,
+    clearResult,
+  }
+}
+
+/**
+ * Hook для кеширования пререндеров с использованием файловой системы
+ */
+export function usePrerenderCache() {
+  const [cacheFiles, setCacheFiles] = useState<PrerenderCacheFile[]>([])
+  const [totalSize, setTotalSize] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState(false)
+
+  /**
+   * Загрузить информацию о кеше
+   */
+  const loadCacheInfo = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const info = await getPrerenderCacheInfo()
+      setCacheFiles(info.files)
+      setTotalSize(info.totalSize)
+    } catch (error) {
+      console.error("Failed to load cache info:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  // Загружаем информацию о кеше при монтировании
+  useEffect(() => {
+    void loadCacheInfo()
+  }, [loadCacheInfo])
+
+  /**
+   * Проверить наличие в кеше
+   */
+  const hasInCache = useCallback(
+    (startTime: number, endTime: number, applyEffects: boolean) => {
+      // Ищем файл с подходящими параметрами
+      return cacheFiles.some(
+        (file) => Math.abs(file.startTime - startTime) < 0.1 && Math.abs(file.endTime - endTime) < 0.1,
+      )
+    },
+    [cacheFiles],
+  )
+
+  /**
+   * Получить из кеша
+   */
+  const getFromCache = useCallback(
+    (startTime: number, endTime: number, applyEffects: boolean): PrerenderResult | undefined => {
+      // Ищем файл с подходящими параметрами
+      const file = cacheFiles.find(
+        (f) => Math.abs(f.startTime - startTime) < 0.1 && Math.abs(f.endTime - endTime) < 0.1,
+      )
+
+      if (file) {
+        return {
+          filePath: file.path,
+          duration: file.endTime - file.startTime,
+          fileSize: file.size,
+          renderTimeMs: 0, // Из кеша, время рендеринга не важно
+        }
+      }
+
+      return undefined
+    },
+    [cacheFiles],
+  )
+
+  /**
+   * Добавить в кеш (обновить информацию после рендеринга)
+   */
+  const addToCache = useCallback(
+    async (startTime: number, endTime: number, applyEffects: boolean, result: PrerenderResult) => {
+      // Перезагружаем информацию о кеше
+      await loadCacheInfo()
+    },
+    [loadCacheInfo],
+  )
+
+  /**
+   * Очистить кеш
+   */
+  const clearPrerenderCache = useCallback(async () => {
+    try {
+      const deletedSize = await clearCache()
+      toast.success(`Кеш очищен: ${(deletedSize / 1024 / 1024).toFixed(2)} МБ`)
+
+      // Обновляем информацию
+      setCacheFiles([])
+      setTotalSize(0)
+    } catch (error) {
+      toast.error("Ошибка очистки кеша")
+      console.error("Failed to clear cache:", error)
+    }
+  }, [])
+
+  return {
+    hasInCache,
+    getFromCache,
+    addToCache,
+    clearCache: clearPrerenderCache,
+    cacheSize: cacheFiles.length,
+    totalCacheSize: totalSize,
+    isLoading,
+    cacheFiles,
+  }
+}

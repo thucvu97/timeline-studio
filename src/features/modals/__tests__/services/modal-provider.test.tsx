@@ -3,22 +3,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ModalProvider, useModal } from "../../services/modal-provider"
 
-// Мокаем XState
-vi.mock("xstate", async () => {
-  const actual = await vi.importActual("xstate")
-  return {
-    ...actual,
-    createActor: vi.fn().mockImplementation(() => ({
-      getSnapshot: vi.fn().mockReturnValue({
-        value: "closed",
-        context: { modalType: "none", modalData: null },
-      }),
-      send: vi.fn(),
-      subscribe: vi.fn(),
-      start: vi.fn(),
-    })),
-  }
-})
+// Мокаем @xstate/react
+vi.mock("@xstate/react", () => ({
+  useMachine: vi.fn().mockReturnValue([
+    {
+      // state
+      value: "closed",
+      context: { modalType: "none", modalData: null },
+      matches: vi.fn((state) => state === "closed"),
+    },
+    vi.fn(), // send function
+  ]),
+}))
 
 // Мокаем modalMachine
 vi.mock("../../services/modal-machine", () => ({

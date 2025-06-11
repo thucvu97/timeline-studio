@@ -6,9 +6,18 @@
 
 import { assign, createMachine } from "xstate"
 
+import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
+import { StyleTemplate } from "@/features/style-templates/types/style-template"
+import { MediaTemplate } from "@/features/templates/lib/templates"
+import { Transition } from "@/features/transitions/types/transitions"
 
 import {
+  AppliedEffect,
+  AppliedFilter,
+  AppliedStyleTemplate,
+  AppliedTransition,
   TimelineClip,
   TimelineProject,
   TimelineSection,
@@ -20,6 +29,7 @@ import {
   createTimelineSection,
   createTimelineTrack,
 } from "../types"
+import { ResourceManager } from "./resource-manager"
 
 interface TimelineContext {
   // Основные данные
@@ -125,6 +135,29 @@ export type TimelineEvents =
   | { type: "COPY_SELECTION" }
   | { type: "CUT_SELECTION" }
   | { type: "PASTE"; targetTrackId?: string; targetTime?: number }
+
+  // Применение ресурсов
+  | { type: "APPLY_EFFECT_TO_CLIP"; clipId: string; effect: VideoEffect; customParams?: Record<string, any> }
+  | { type: "APPLY_FILTER_TO_CLIP"; clipId: string; filter: VideoFilter; customParams?: Record<string, any> }
+  | {
+      type: "APPLY_TRANSITION_TO_CLIP"
+      clipId: string
+      transition: Transition
+      duration: number
+      transitionType: "in" | "out" | "cross"
+      customParams?: Record<string, any>
+    }
+  | {
+      type: "APPLY_STYLE_TEMPLATE_TO_CLIP"
+      clipId: string
+      styleTemplate: StyleTemplate
+      customizations?: AppliedStyleTemplate["customizations"]
+    }
+  | { type: "APPLY_TEMPLATE_TO_CLIP"; clipId: string; template: MediaTemplate; cellIndex?: number }
+
+  // Применение ресурсов к трекам
+  | { type: "APPLY_EFFECT_TO_TRACK"; trackId: string; effect: VideoEffect; customParams?: Record<string, any> }
+  | { type: "APPLY_FILTER_TO_TRACK"; trackId: string; filter: VideoFilter; customParams?: Record<string, any> }
 
   // Ошибки
   | { type: "CLEAR_ERROR" }
@@ -366,6 +399,326 @@ const actions = {
   clearError: assign({
     error: null,
   }),
+
+  // Применение ресурсов к клипам
+  applyEffectToClip: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      let project = context.project
+      const { project: updatedProject, appliedEffect } = ResourceManager.createAppliedEffect(
+        project,
+        event.effect,
+        event.customParams,
+      )
+      project = updatedProject
+
+      // Находим клип и добавляем эффект
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            appliedEffect.order = clip.effects.length
+            return {
+              ...clip,
+              effects: [...clip.effects, appliedEffect],
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(project.globalTracks)
+
+      return {
+        ...project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "APPLY_EFFECT_TO_CLIP",
+  }),
+
+  applyFilterToClip: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      let project = context.project
+      const { project: updatedProject, appliedFilter } = ResourceManager.createAppliedFilter(
+        project,
+        event.filter,
+        event.customParams,
+      )
+      project = updatedProject
+
+      // Находим клип и добавляем фильтр
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            appliedFilter.order = clip.filters.length
+            return {
+              ...clip,
+              filters: [...clip.filters, appliedFilter],
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(project.globalTracks)
+
+      return {
+        ...project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "APPLY_FILTER_TO_CLIP",
+  }),
+
+  applyTransitionToClip: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      let project = context.project
+      const { project: updatedProject, appliedTransition } = ResourceManager.createAppliedTransition(
+        project,
+        event.transition,
+        event.duration,
+        event.transitionType,
+        event.customParams,
+      )
+      project = updatedProject
+
+      // Находим клип и добавляем переход
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            return {
+              ...clip,
+              transitions: [...clip.transitions, appliedTransition],
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(project.globalTracks)
+
+      return {
+        ...project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "APPLY_TRANSITION_TO_CLIP",
+  }),
+
+  applyStyleTemplateToClip: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      let project = context.project
+      const { project: updatedProject, appliedStyleTemplate } = ResourceManager.createAppliedStyleTemplate(
+        project,
+        event.styleTemplate,
+        event.customizations,
+      )
+      project = updatedProject
+
+      // Находим клип и добавляем стильный шаблон
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            return {
+              ...clip,
+              styleTemplate: appliedStyleTemplate,
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(project.globalTracks)
+
+      return {
+        ...project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "APPLY_STYLE_TEMPLATE_TO_CLIP",
+  }),
+
+  applyTemplateToClip: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      const project = ResourceManager.addTemplateToResources(context.project, event.template)
+
+      // Находим клип и добавляем шаблон
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            return {
+              ...clip,
+              templateId: event.template.id,
+              templateCell: event.cellIndex,
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(project.globalTracks)
+
+      return {
+        ...project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "APPLY_TEMPLATE_TO_CLIP",
+  }),
+
+  // Применение ресурсов к трекам
+  applyEffectToTrack: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      let project = context.project
+      const { project: updatedProject, appliedEffect } = ResourceManager.createAppliedEffect(
+        project,
+        event.effect,
+        event.customParams,
+      )
+      project = updatedProject
+
+      // Находим трек и добавляем эффект
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => {
+          if (track.id === event.trackId) {
+            appliedEffect.order = track.trackEffects.length
+            return {
+              ...track,
+              trackEffects: [...track.trackEffects, appliedEffect],
+            }
+          }
+          return track
+        })
+
+      const sections = project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(project.globalTracks)
+
+      return {
+        ...project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "APPLY_EFFECT_TO_TRACK",
+  }),
+
+  applyFilterToTrack: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      let project = context.project
+      const { project: updatedProject, appliedFilter } = ResourceManager.createAppliedFilter(
+        project,
+        event.filter,
+        event.customParams,
+      )
+      project = updatedProject
+
+      // Находим трек и добавляем фильтр
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => {
+          if (track.id === event.trackId) {
+            appliedFilter.order = track.trackFilters.length
+            return {
+              ...track,
+              trackFilters: [...track.trackFilters, appliedFilter],
+            }
+          }
+          return track
+        })
+
+      const sections = project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(project.globalTracks)
+
+      return {
+        ...project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "APPLY_FILTER_TO_TRACK",
+  }),
 }
 
 export const timelineMachine = createMachine(
@@ -437,6 +790,36 @@ export const timelineMachine = createMachine(
           // UI
           SET_TIME_SCALE: {
             actions: ["setTimeScale"],
+          },
+
+          // Применение ресурсов
+          APPLY_EFFECT_TO_CLIP: {
+            actions: ["applyEffectToClip"],
+            guard: "hasProject",
+          },
+          APPLY_FILTER_TO_CLIP: {
+            actions: ["applyFilterToClip"],
+            guard: "hasProject",
+          },
+          APPLY_TRANSITION_TO_CLIP: {
+            actions: ["applyTransitionToClip"],
+            guard: "hasProject",
+          },
+          APPLY_STYLE_TEMPLATE_TO_CLIP: {
+            actions: ["applyStyleTemplateToClip"],
+            guard: "hasProject",
+          },
+          APPLY_TEMPLATE_TO_CLIP: {
+            actions: ["applyTemplateToClip"],
+            guard: "hasProject",
+          },
+          APPLY_EFFECT_TO_TRACK: {
+            actions: ["applyEffectToTrack"],
+            guard: "hasProject",
+          },
+          APPLY_FILTER_TO_TRACK: {
+            actions: ["applyFilterToTrack"],
+            guard: "hasProject",
           },
 
           // Ошибки

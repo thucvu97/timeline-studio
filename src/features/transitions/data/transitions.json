@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "lastUpdated": "2025-05-31",
-  "totalTransitions": 20,
+  "totalTransitions": 30,
   "categories": ["basic", "advanced", "creative", "3d", "artistic", "cinematic"],
   "transitions": [
     {
@@ -252,6 +252,513 @@
         "intensity": 0.6
       },
       "ffmpegTemplate": "rotate=angle='4*PI*t/{duration}':fillcolor=black,scale=w='iw*(1+0.5*t/{duration})':h='ih*(1+0.5*t/{duration})'"
+    },
+    {
+      "id": "wipe-horizontal",
+      "type": "wipe-horizontal",
+      "labels": {
+        "ru": "Горизонтальная шторка",
+        "en": "Horizontal Wipe",
+        "es": "Barrido Horizontal",
+        "fr": "Balayage Horizontal",
+        "de": "Horizontaler Wischeffekt"
+      },
+      "description": {
+        "ru": "Горизонтальное вытеснение одного изображения другим",
+        "en": "Horizontal wipe transition between images"
+      },
+      "category": "advanced",
+      "complexity": "intermediate",
+      "tags": ["wipe", "movement", "direction", "horizontal"],
+      "duration": { "min": 0.5, "max": 3.0, "default": 1.5 },
+      "parameters": {
+        "direction": "right",
+        "easing": "ease-in-out",
+        "intensity": 1.0
+      },
+      "ffmpegTemplate": "xfade=transition=wipeleft:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "wipe-vertical",
+      "type": "wipe-vertical",
+      "labels": {
+        "ru": "Вертикальная шторка",
+        "en": "Vertical Wipe",
+        "es": "Barrido Vertical",
+        "fr": "Balayage Vertical",
+        "de": "Vertikaler Wischeffekt"
+      },
+      "description": {
+        "ru": "Вертикальное вытеснение одного изображения другим",
+        "en": "Vertical wipe transition between images"
+      },
+      "category": "advanced",
+      "complexity": "intermediate",
+      "tags": ["wipe", "movement", "direction", "vertical"],
+      "duration": { "min": 0.5, "max": 3.0, "default": 1.5 },
+      "parameters": {
+        "direction": "down",
+        "easing": "ease-in-out",
+        "intensity": 1.0
+      },
+      "ffmpegTemplate": "xfade=transition=wipedown:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "wipe-diagonal",
+      "type": "wipe-diagonal",
+      "labels": {
+        "ru": "Диагональная шторка",
+        "en": "Diagonal Wipe",
+        "es": "Barrido Diagonal",
+        "fr": "Balayage Diagonal",
+        "de": "Diagonaler Wischeffekt"
+      },
+      "description": {
+        "ru": "Диагональное вытеснение изображения",
+        "en": "Diagonal wipe transition effect"
+      },
+      "category": "advanced",
+      "complexity": "intermediate",
+      "tags": ["wipe", "diagonal", "movement", "angle"],
+      "duration": { "min": 0.6, "max": 3.0, "default": 1.8 },
+      "parameters": {
+        "direction": "topleft",
+        "easing": "ease-in-out",
+        "intensity": 1.0
+      },
+      "ffmpegTemplate": "xfade=transition=wipetl:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "radial-wipe",
+      "type": "radial-wipe",
+      "labels": {
+        "ru": "Радиальная шторка",
+        "en": "Radial Wipe",
+        "es": "Barrido Radial",
+        "fr": "Balayage Radial",
+        "de": "Radialer Wischeffekt"
+      },
+      "description": {
+        "ru": "Круговое вытеснение от центра к краям",
+        "en": "Radial wipe from center outwards"
+      },
+      "category": "advanced",
+      "complexity": "advanced",
+      "tags": ["wipe", "radial", "circular", "center"],
+      "duration": { "min": 0.8, "max": 3.5, "default": 2.0 },
+      "parameters": {
+        "direction": "center",
+        "easing": "ease-in-out",
+        "intensity": 0.9
+      },
+      "ffmpegTemplate": "xfade=transition=radial:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "cube-3d",
+      "type": "cube-3d",
+      "labels": {
+        "ru": "3D Куб",
+        "en": "3D Cube",
+        "es": "Cubo 3D",
+        "fr": "Cube 3D",
+        "de": "3D-Würfel"
+      },
+      "description": {
+        "ru": "Вращение изображений на гранях 3D куба",
+        "en": "3D cube rotation transition"
+      },
+      "category": "3d",
+      "complexity": "advanced",
+      "tags": ["3d", "cube", "rotation", "complex"],
+      "duration": { "min": 1.0, "max": 4.0, "default": 2.5 },
+      "parameters": {
+        "direction": "horizontal",
+        "easing": "ease-in-out",
+        "intensity": 0.8,
+        "perspective": 800
+      },
+      "ffmpegTemplate": "gl=transition=cube:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "page-turn",
+      "type": "page-turn",
+      "labels": {
+        "ru": "Переворот страницы",
+        "en": "Page Turn",
+        "es": "Voltear Página",
+        "fr": "Tourner la Page",
+        "de": "Seite Umblättern"
+      },
+      "description": {
+        "ru": "Эффект переворачивания страницы книги",
+        "en": "Book page turning effect"
+      },
+      "category": "3d",
+      "complexity": "advanced",
+      "tags": ["3d", "page", "turn", "book", "creative"],
+      "duration": { "min": 1.0, "max": 3.5, "default": 2.0 },
+      "parameters": {
+        "direction": "right",
+        "easing": "ease-out",
+        "intensity": 0.85,
+        "angle": 45
+      },
+      "ffmpegTemplate": "gl=transition=pagecurl:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "ripple",
+      "type": "ripple",
+      "labels": {
+        "ru": "Рябь",
+        "en": "Ripple",
+        "es": "Ondulación",
+        "fr": "Ondulation",
+        "de": "Welligkeit"
+      },
+      "description": {
+        "ru": "Эффект ряби на воде при переходе",
+        "en": "Water ripple transition effect"
+      },
+      "category": "artistic",
+      "complexity": "advanced",
+      "tags": ["ripple", "water", "wave", "distortion"],
+      "duration": { "min": 1.2, "max": 4.0, "default": 2.5 },
+      "parameters": {
+        "intensity": 0.7,
+        "frequency": 5,
+        "amplitude": 20,
+        "easing": "ease-in-out"
+      },
+      "ffmpegTemplate": "xfade=transition=ripple:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "pixelize",
+      "type": "pixelize",
+      "labels": {
+        "ru": "Пикселизация",
+        "en": "Pixelize",
+        "es": "Pixelar",
+        "fr": "Pixeliser",
+        "de": "Pixelierung"
+      },
+      "description": {
+        "ru": "Переход через эффект пикселизации",
+        "en": "Transition through pixelization effect"
+      },
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["pixel", "digital", "retro", "8bit"],
+      "duration": { "min": 0.8, "max": 3.0, "default": 1.5 },
+      "parameters": {
+        "block_size": 16,
+        "easing": "ease-in-out",
+        "intensity": 1.0
+      },
+      "ffmpegTemplate": "xfade=transition=pixelize:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "dissolve",
+      "type": "dissolve",
+      "labels": {
+        "ru": "Растворение",
+        "en": "Dissolve",
+        "es": "Disolver",
+        "fr": "Dissolution",
+        "de": "Auflösung"
+      },
+      "description": {
+        "ru": "Плавное растворение с шумом",
+        "en": "Smooth dissolve with noise"
+      },
+      "category": "advanced",
+      "complexity": "intermediate",
+      "tags": ["dissolve", "fade", "noise", "smooth"],
+      "duration": { "min": 0.8, "max": 3.0, "default": 1.5 },
+      "parameters": {
+        "intensity": 0.8,
+        "smoothness": 0.5,
+        "easing": "ease-in-out"
+      },
+      "ffmpegTemplate": "xfade=transition=dissolve:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "morph",
+      "type": "morph",
+      "labels": {
+        "ru": "Морфинг",
+        "en": "Morph",
+        "es": "Transformación",
+        "fr": "Morphing",
+        "de": "Morphing"
+      },
+      "description": {
+        "ru": "Плавная трансформация одного изображения в другое",
+        "en": "Smooth morphing between images"
+      },
+      "category": "artistic",
+      "complexity": "advanced",
+      "tags": ["morph", "transform", "smooth", "fluid"],
+      "duration": { "min": 1.5, "max": 5.0, "default": 3.0 },
+      "parameters": {
+        "intensity": 0.9,
+        "smoothness": 0.8,
+        "points": 100
+      },
+      "ffmpegTemplate": "xfade=transition=morph:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "glitch",
+      "type": "glitch",
+      "labels": {
+        "ru": "Глитч",
+        "en": "Glitch",
+        "es": "Fallo Digital",
+        "fr": "Glitch",
+        "de": "Glitch"
+      },
+      "description": {
+        "ru": "Цифровые помехи и искажения",
+        "en": "Digital glitch and distortion effect"
+      },
+      "category": "creative",
+      "complexity": "advanced",
+      "tags": ["glitch", "digital", "distortion", "modern"],
+      "duration": { "min": 0.5, "max": 2.0, "default": 1.0 },
+      "parameters": {
+        "intensity": 0.7,
+        "frequency": 10,
+        "color_shift": true,
+        "blocks": 8
+      },
+      "ffmpegTemplate": "xfade=transition=glitch:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "kaleidoscope",
+      "type": "kaleidoscope",
+      "labels": {
+        "ru": "Калейдоскоп",
+        "en": "Kaleidoscope",
+        "es": "Caleidoscopio",
+        "fr": "Kaléidoscope",
+        "de": "Kaleidoskop"
+      },
+      "description": {
+        "ru": "Эффект калейдоскопа при переходе",
+        "en": "Kaleidoscope transition effect"
+      },
+      "category": "artistic",
+      "complexity": "advanced",
+      "tags": ["kaleidoscope", "mirror", "geometric", "artistic"],
+      "duration": { "min": 1.0, "max": 4.0, "default": 2.5 },
+      "parameters": {
+        "segments": 6,
+        "rotation_speed": 1.0,
+        "intensity": 0.8
+      },
+      "ffmpegTemplate": "gl=transition=kaleidoscope:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "shatter",
+      "type": "shatter",
+      "labels": {
+        "ru": "Разбитие",
+        "en": "Shatter",
+        "es": "Fragmentar",
+        "fr": "Éclater",
+        "de": "Zersplittern"
+      },
+      "description": {
+        "ru": "Разбитие изображения на осколки",
+        "en": "Shatter image into pieces"
+      },
+      "category": "3d",
+      "complexity": "advanced",
+      "tags": ["shatter", "break", "3d", "glass", "dramatic"],
+      "duration": { "min": 1.0, "max": 3.0, "default": 2.0 },
+      "parameters": {
+        "pieces": 20,
+        "gravity": 0.5,
+        "randomness": 0.7,
+        "rotation": true
+      },
+      "ffmpegTemplate": "gl=transition=shatter:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "burn",
+      "type": "burn",
+      "labels": {
+        "ru": "Горение",
+        "en": "Burn",
+        "es": "Quemar",
+        "fr": "Brûler",
+        "de": "Verbrennen"
+      },
+      "description": {
+        "ru": "Эффект горящей бумаги",
+        "en": "Burning paper effect"
+      },
+      "category": "cinematic",
+      "complexity": "advanced",
+      "tags": ["burn", "fire", "cinematic", "dramatic"],
+      "duration": { "min": 1.5, "max": 4.0, "default": 2.5 },
+      "parameters": {
+        "temperature": 1500,
+        "spread": 0.3,
+        "glow": 0.8
+      },
+      "ffmpegTemplate": "gl=transition=burn:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "blinds",
+      "type": "blinds",
+      "labels": {
+        "ru": "Жалюзи",
+        "en": "Blinds",
+        "es": "Persianas",
+        "fr": "Stores",
+        "de": "Jalousien"
+      },
+      "description": {
+        "ru": "Эффект открывающихся жалюзи",
+        "en": "Venetian blinds opening effect"
+      },
+      "category": "advanced",
+      "complexity": "intermediate",
+      "tags": ["blinds", "stripes", "geometric", "classic"],
+      "duration": { "min": 0.8, "max": 3.0, "default": 1.5 },
+      "parameters": {
+        "slats": 10,
+        "direction": "horizontal",
+        "easing": "ease-in-out"
+      },
+      "ffmpegTemplate": "xfade=transition=hblur:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "iris",
+      "type": "iris",
+      "labels": {
+        "ru": "Диафрагма",
+        "en": "Iris",
+        "es": "Iris",
+        "fr": "Iris",
+        "de": "Blende"
+      },
+      "description": {
+        "ru": "Круговая диафрагма камеры",
+        "en": "Camera iris circular transition"
+      },
+      "category": "cinematic",
+      "complexity": "intermediate",
+      "tags": ["iris", "circular", "camera", "cinematic"],
+      "duration": { "min": 0.8, "max": 3.0, "default": 1.5 },
+      "parameters": {
+        "shape": "circle",
+        "center_x": 0.5,
+        "center_y": 0.5,
+        "smoothness": 0.1
+      },
+      "ffmpegTemplate": "xfade=transition=circleclose:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "swirl",
+      "type": "swirl",
+      "labels": {
+        "ru": "Водоворот",
+        "en": "Swirl",
+        "es": "Remolino",
+        "fr": "Tourbillon",
+        "de": "Wirbel"
+      },
+      "description": {
+        "ru": "Закручивание изображения в спираль",
+        "en": "Swirling spiral effect"
+      },
+      "category": "artistic",
+      "complexity": "advanced",
+      "tags": ["swirl", "spiral", "twist", "artistic"],
+      "duration": { "min": 1.0, "max": 4.0, "default": 2.0 },
+      "parameters": {
+        "rotations": 2,
+        "center_x": 0.5,
+        "center_y": 0.5,
+        "radius": 1.0
+      },
+      "ffmpegTemplate": "gl=transition=swirl:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "zoom-blur",
+      "type": "zoom-blur",
+      "labels": {
+        "ru": "Размытие приближением",
+        "en": "Zoom Blur",
+        "es": "Desenfoque de Zoom",
+        "fr": "Flou de Zoom",
+        "de": "Zoom-Unschärfe"
+      },
+      "description": {
+        "ru": "Размытие движением при приближении",
+        "en": "Motion blur with zoom effect"
+      },
+      "category": "cinematic",
+      "complexity": "intermediate",
+      "tags": ["zoom", "blur", "motion", "speed"],
+      "duration": { "min": 0.5, "max": 2.0, "default": 1.0 },
+      "parameters": {
+        "intensity": 0.8,
+        "center_x": 0.5,
+        "center_y": 0.5
+      },
+      "ffmpegTemplate": "xfade=transition=zoomblur:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "wave",
+      "type": "wave",
+      "labels": {
+        "ru": "Волна",
+        "en": "Wave",
+        "es": "Onda",
+        "fr": "Vague",
+        "de": "Welle"
+      },
+      "description": {
+        "ru": "Волнообразное искажение при переходе",
+        "en": "Wave distortion transition"
+      },
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["wave", "distortion", "fluid", "smooth"],
+      "duration": { "min": 1.0, "max": 3.0, "default": 1.8 },
+      "parameters": {
+        "amplitude": 20,
+        "frequency": 3,
+        "direction": "horizontal"
+      },
+      "ffmpegTemplate": "xfade=transition=wave:duration={duration}:offset={offset}"
+    },
+    {
+      "id": "tv-static",
+      "type": "tv-static",
+      "labels": {
+        "ru": "ТВ помехи",
+        "en": "TV Static",
+        "es": "Estática de TV",
+        "fr": "Neige TV",
+        "de": "TV-Rauschen"
+      },
+      "description": {
+        "ru": "Эффект телевизионных помех",
+        "en": "Television static noise effect"
+      },
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["tv", "static", "noise", "retro", "analog"],
+      "duration": { "min": 0.3, "max": 1.5, "default": 0.8 },
+      "parameters": {
+        "noise_level": 0.8,
+        "scan_lines": true,
+        "color_shift": 0.2
+      },
+      "ffmpegTemplate": "xfade=transition=static:duration={duration}:offset={offset}"
     }
   ]
 }

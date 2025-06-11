@@ -1,7 +1,7 @@
-import { act } from "@testing-library/react"
+import { act , fireEvent, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { fireEvent, renderWithBase, screen } from "@/test/test-utils"
+import { renderWithProviders } from "@/test/test-utils"
 
 import { MediaContent } from "../../components/media-content"
 
@@ -11,7 +11,7 @@ vi.mock("@/features/browser/components/layout/no-files", () => ({
 }))
 
 // Мокаем MediaGroup
-vi.mock("../media-group", () => ({
+vi.mock("@/features/media/components/media-group", () => ({
   MediaGroup: ({
     title,
     files,
@@ -73,7 +73,7 @@ describe("MediaContent", () => {
   const mockOnRetry = vi.fn()
 
   it("should render loading skeleton when isLoading is true", () => {
-    renderWithBase(
+    renderWithProviders(
       <MediaContent
         groupedFiles={mockGroupedFiles}
         viewMode="list"
@@ -92,7 +92,7 @@ describe("MediaContent", () => {
   })
 
   it("should render error message when there is an error", () => {
-    renderWithBase(
+    renderWithProviders(
       <MediaContent
         groupedFiles={mockGroupedFiles}
         viewMode="list"
@@ -124,7 +124,7 @@ describe("MediaContent", () => {
   })
 
   it("should render NoFiles when there are no files", () => {
-    renderWithBase(
+    renderWithProviders(
       <MediaContent
         groupedFiles={[]}
         viewMode="list"
@@ -141,7 +141,7 @@ describe("MediaContent", () => {
   })
 
   it("should render NoFiles when groupedFiles has empty files array", () => {
-    renderWithBase(
+    renderWithProviders(
       <MediaContent
         groupedFiles={[{ title: "Empty Group", files: [] }]}
         viewMode="list"
@@ -158,7 +158,7 @@ describe("MediaContent", () => {
   })
 
   it("should render MediaGroup components for each group", () => {
-    renderWithBase(
+    renderWithProviders(
       <MediaContent
         groupedFiles={mockGroupedFiles}
         viewMode="list"
@@ -188,7 +188,7 @@ describe("MediaContent", () => {
   })
 
   it("should pass addFilesToTimeline to MediaGroup", () => {
-    renderWithBase(
+    renderWithProviders(
       <MediaContent
         groupedFiles={mockGroupedFiles}
         viewMode="list"

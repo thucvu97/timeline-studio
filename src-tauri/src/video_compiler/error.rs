@@ -260,7 +260,11 @@ impl VideoCompilerError {
   }
 
   /// Создать ошибку FFmpeg
-  pub fn ffmpeg<S: Into<String>>(exit_code: Option<i32>, stderr: S, command: S) -> Self {
+  pub fn ffmpeg<S1: Into<String>, S2: Into<String>>(
+    exit_code: Option<i32>,
+    stderr: S1,
+    command: S2,
+  ) -> Self {
     VideoCompilerError::FFmpegError {
       exit_code,
       stderr: stderr.into(),

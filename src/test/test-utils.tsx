@@ -2,6 +2,7 @@ import { ReactElement, ReactNode } from "react"
 
 import { RenderOptions, render } from "@testing-library/react"
 
+import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AppSettingsProvider } from "@/features/app-state"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings"
@@ -36,7 +37,9 @@ export const MediaProviders = ({ children }: { children: ReactNode }) => {
 export const PlayerProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
-      <PlayerProvider>{children}</PlayerProvider>
+      <UserSettingsProvider>
+        <PlayerProvider>{children}</PlayerProvider>
+      </UserSettingsProvider>
     </BaseProviders>
   )
 }
@@ -45,7 +48,17 @@ export const PlayerProviders = ({ children }: { children: ReactNode }) => {
 export const TimelineProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
-      <TimelineProvider>{children}</TimelineProvider>
+      <ModalProvider>
+        <ProjectSettingsProvider>
+          <UserSettingsProvider>
+            <ResourcesProvider>
+              <ChatProvider>
+                <TimelineProvider>{children}</TimelineProvider>
+              </ChatProvider>
+            </ResourcesProvider>
+          </UserSettingsProvider>
+        </ProjectSettingsProvider>
+      </ModalProvider>
     </BaseProviders>
   )
 }
@@ -77,9 +90,11 @@ export const ChatProviders = ({ children }: { children: ReactNode }) => {
 const TemplateProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
-      <ResourcesProvider>
-        <PlayerProvider>{children}</PlayerProvider>
-      </ResourcesProvider>
+      <UserSettingsProvider>
+        <ResourcesProvider>
+          <PlayerProvider>{children}</PlayerProvider>
+        </ResourcesProvider>
+      </UserSettingsProvider>
     </BaseProviders>
   )
 }

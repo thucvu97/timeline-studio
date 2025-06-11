@@ -4,12 +4,15 @@
 
 import React from "react"
 
-import { Copy, Music, Scissors, Trash2, Volume2 } from "lucide-react"
+import { Copy, Music, Scissors, Sparkles, Trash2, Volume2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-import { TimelineClip, TimelineTrack } from "../../types"
+import { useClips } from "../../hooks"
+import { AppliedEffect, TimelineClip, TimelineTrack } from "../../types"
+import { AudioEffectsEditor } from "../audio-effects-editor"
+import Waveform from "../track/waveform"
 
 interface AudioClipProps {
   clip: TimelineClip
@@ -29,6 +32,8 @@ interface AudioClipProps {
  */
 export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
   const [isHovered, setIsHovered] = React.useState(false)
+  const [showEffectsEditor, setShowEffectsEditor] = React.useState(false)
+  const { updateClip } = useClips()
 
   const handleSelect = () => {
     onUpdate?.({ isSelected: !clip.isSelected })
@@ -47,6 +52,17 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
     onRemove?.()
+  }
+
+  const handleEffects = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowEffectsEditor(true)
+  }
+
+  const handleApplyEffects = (effects: AppliedEffect[]) => {
+    updateClip(clip.id, {
+      effects: effects,
+    })
   }
 
   // Определяем цвет клипа в зависимости от типа аудио
@@ -83,16 +99,12 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
   const clipColor = getClipColor()
   const clipColorHover = getClipColorHover()
 
-  // Генерируем простую визуализацию аудио волны
-  const generateWaveform = () => {
-    const points = 20
-    return Array.from({ length: points }, (_, i) => {
-      const height = Math.random() * 60 + 20 // Высота от 20% до 80%
-      return height
-    })
-  }
-
-  const waveform = React.useMemo(() => generateWaveform(), [clip.id])
+  // Получаем URL аудио файла через Tauri API
+  const audioUrl = React.useMemo(() => {
+    if (!clip.mediaFile?.path) return null
+    // Конвертируем локальный путь в asset URL для Tauri
+    return `asset://localhost/${encodeURIComponent(clip.mediaFile.path)}`
+  }, [clip.mediaFile?.path])
 
   return (
     <div
@@ -118,6 +130,15 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
         {/* Кнопки управления */}
         {isHovered && !clip.isLocked && (
           <div className="flex items-center gap-0.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-4 h-4 p-0 hover:bg-white/20"
+              onClick={handleEffects}
+              title="Эффекты"
+            >
+              <Sparkles className="w-2.5 h-2.5 text-white" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -151,12 +172,21 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
 
       {/* Содержимое клипа - визуализация аудио */}
       <div className="flex-1 relative p-1">
-        {/* Аудио волна */}
-        <div className="h-full flex items-end justify-between gap-px">
-          {waveform.map((height, index) => (
-            <div key={index} className="bg-white/70 rounded-sm flex-1 min-w-px" style={{ height: `${height}%` }} />
-          ))}
-        </div>
+        {/* Waveform компонент */}
+        {audioUrl ? (
+          <Waveform audioUrl={audioUrl} className="w-full h-full" />
+        ) : (
+          // Fallback waveform visualization
+          <div className="h-full flex items-end justify-between gap-px">
+            {Array.from({ length: 20 }, (_, i) => (
+              <div
+                key={i}
+                className="bg-white/50 rounded-sm flex-1 min-w-px animate-pulse"
+                style={{ height: `${30 + Math.sin(i * 0.5) * 20}%` }}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Индикатор громкости */}
         <div className="absolute top-1 right-1 flex items-center gap-1">
@@ -191,6 +221,15 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
           <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 cursor-e-resize" />
         </>
       )}
+
+      {/* Audio Effects Editor Modal */}
+      <AudioEffectsEditor
+        open={showEffectsEditor}
+        onOpenChange={setShowEffectsEditor}
+        clip={clip}
+        track={track}
+        onApplyEffects={handleApplyEffects}
+      />
     </div>
   )
 }

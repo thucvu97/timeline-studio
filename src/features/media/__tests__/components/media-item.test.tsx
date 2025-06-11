@@ -1,12 +1,12 @@
 import { act } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { fireEvent, renderWithBase, screen } from "@/test/test-utils"
+import { fireEvent, renderWithProviders, screen } from "@/test/test-utils"
 
 import { MediaItem } from "../../components/media-item"
 
 // Мокаем MediaPreview
-vi.mock("@/features/browser/components/preview", () => ({
+vi.mock("@/features/browser", () => ({
   MediaPreview: ({ file, onAddMedia, isAdded, size, showFileName, ignoreRatio }: any) => (
     <div
       data-testid="media-preview"
@@ -29,6 +29,38 @@ vi.mock("../../components/file-metadata", () => ({
       File Metadata
     </div>
   ),
+}))
+
+// Мокаем useFavorites
+vi.mock("@/features/app-state", async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useFavorites: () => ({
+      favorites: {
+        media: [],
+        audio: [],
+        transition: [],
+        effect: [],
+        template: [],
+        filter: [],
+      },
+    }),
+  }
+})
+
+// Мокаем useProjectSettings
+vi.mock("@/features/project-settings/hooks/use-project-settings", () => ({
+  useProjectSettings: () => ({
+    settings: {
+      aspectRatio: {
+        value: {
+          width: 16,
+          height: 9,
+        },
+      },
+    },
+  }),
 }))
 
 describe("MediaItem", () => {
@@ -57,7 +89,7 @@ describe("MediaItem", () => {
   })
 
   it("should render in list mode", () => {
-    renderWithBase(<MediaItem file={mockFile} index={0} viewMode="list" previewSize={100} />)
+    renderWithProviders(<MediaItem file={mockFile} index={0} viewMode="list" previewSize={100} />)
 
     // Проверяем, что компоненты отрендерились
     expect(screen.getByTestId("media-preview")).toBeInTheDocument()
@@ -72,7 +104,7 @@ describe("MediaItem", () => {
   })
 
   it("should render in grid mode", () => {
-    renderWithBase(<MediaItem file={mockFile} index={0} viewMode="grid" previewSize={100} />)
+    renderWithProviders(<MediaItem file={mockFile} index={0} viewMode="grid" previewSize={100} />)
 
     // Проверяем, что компонент превью отрендерился
     expect(screen.getByTestId("media-preview")).toBeInTheDocument()
@@ -87,7 +119,7 @@ describe("MediaItem", () => {
   })
 
   it("should render in thumbnails mode", () => {
-    renderWithBase(<MediaItem file={mockFile} index={0} viewMode="thumbnails" previewSize={100} />)
+    renderWithProviders(<MediaItem file={mockFile} index={0} viewMode="thumbnails" previewSize={100} />)
 
     // Проверяем, что компонент превью отрендерился
     expect(screen.getByTestId("media-preview")).toBeInTheDocument()
@@ -100,7 +132,7 @@ describe("MediaItem", () => {
   })
 
   it.skip("should call onAddMedia when clicked", () => {
-    renderWithBase(<MediaItem file={mockFile} index={0} viewMode="list" previewSize={100} />)
+    renderWithProviders(<MediaItem file={mockFile} index={0} viewMode="list" previewSize={100} />)
 
     // Кликаем на превью
     act(() => {
@@ -114,7 +146,7 @@ describe("MediaItem", () => {
   })
 
   it.skip("should apply 'pointer-events-none' class for added files", () => {
-    renderWithBase(<MediaItem file={mockAddedFile} index={0} viewMode="list" previewSize={100} />)
+    renderWithProviders(<MediaItem file={mockAddedFile} index={0} viewMode="list" previewSize={100} />)
 
     // Проверяем, что компонент имеет класс pointer-events-none
     const container = screen.getByTestId("media-preview").parentElement?.parentElement

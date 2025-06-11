@@ -43,6 +43,12 @@ describe("Player Machine", () => {
       isResizableMode: false,
       duration: 0,
       volume: 100,
+      // Настройки пререндера
+      prerenderEnabled: false,
+      prerenderQuality: 75,
+      prerenderSegmentDuration: 5,
+      prerenderApplyEffects: true,
+      prerenderAutoPrerender: true,
     })
   })
 

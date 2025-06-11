@@ -131,7 +131,7 @@ function applyEffectsToClips(project: TimelineProject): void {
   firstClip.effects.push({
     id: `effect-${Date.now()}`,
     effectId: "brightness-effect",
-    params: {
+    customParams: {
       brightness: 1.2,
       contrast: 1.1,
     },
@@ -143,7 +143,7 @@ function applyEffectsToClips(project: TimelineProject): void {
   firstClip.filters.push({
     id: `filter-${Date.now()}`,
     filterId: "vintage-filter",
-    params: {
+    customParams: {
       intensity: 0.7,
       warmth: 0.3,
     },
@@ -157,7 +157,7 @@ function applyEffectsToClips(project: TimelineProject): void {
     transitionId: "fade-transition",
     type: "out",
     duration: 1, // 1 секунда
-    params: {
+    customParams: {
       type: "fade",
       curve: "ease-out",
     },

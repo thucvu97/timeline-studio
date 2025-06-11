@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useCallback, useState } from "react"
 
 import { save } from "@tauri-apps/plugin-dialog"
 import { Folder, Info } from "lucide-react"
@@ -13,18 +13,16 @@ import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useEffects } from "@/features/effects/hooks/use-effects"
 import { useModal } from "@/features/modals/services"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { timelineToProjectSchema } from "@/features/timeline/utils/timeline-to-project"
-import { useTransitions } from "@/features/transitions/hooks/use-transitions"
 import { useVideoCompiler } from "@/features/video-compiler/hooks/use-video-compiler"
 import { OutputFormat } from "@/types/video-compiler"
 
 export function ExportModal() {
   const { t } = useTranslation()
   const [selectedSocialNetwork, setSelectedSocialNetwork] = useState<string>("youtube")
-  
+
   // Export настройки
   const [exportSettings, setExportSettings] = useState({
     fileName: t("project.untitledExport", { number: 1 }),
@@ -35,57 +33,57 @@ export function ExportModal() {
     frameRate: "25",
     enableGPU: true,
   })
-  
+
   // Hooks для timeline и компилятора
   const { project } = useTimeline()
-  const { effects } = useEffects()
-  const { transitions } = useTransitions()
   const { startRender, isRendering, renderProgress, cancelRender } = useVideoCompiler()
   const { closeModal } = useModal()
-  
+
   // Выбор папки для сохранения
   const handleChooseFolder = useCallback(async () => {
     try {
       const selectedPath = await save({
-        filters: [{
-          name: 'Video',
-          extensions: ['mp4', 'mov', 'webm']
-        }],
-        defaultPath: `${exportSettings.fileName}.${exportSettings.format}`
+        filters: [
+          {
+            name: "Video",
+            extensions: ["mp4", "mov", "webm"],
+          },
+        ],
+        defaultPath: `${exportSettings.fileName}.${exportSettings.format}`,
       })
-      
+
       if (selectedPath) {
-        setExportSettings(prev => ({ ...prev, savePath: selectedPath }))
+        setExportSettings((prev) => ({ ...prev, savePath: selectedPath }))
       }
     } catch (error) {
       console.error("Failed to select folder:", error)
       toast.error(t("dialogs.export.errors.folderSelection"))
     }
   }, [exportSettings.fileName, exportSettings.format, t])
-  
+
   // Запуск экспорта
   const handleExport = useCallback(async () => {
     if (!project) {
       toast.error(t("dialogs.export.errors.noProject"))
       return
     }
-    
+
     if (!exportSettings.savePath) {
       toast.error(t("dialogs.export.errors.noPath"))
       return
     }
-    
+
     try {
       // Преобразуем timeline в схему проекта
-      const projectSchema = timelineToProjectSchema(project, effects, transitions)
-      
+      const projectSchema = timelineToProjectSchema(project)
+
       // Обновляем настройки экспорта в схеме
       const formatMap: Record<string, OutputFormat> = {
         mp4: OutputFormat.Mp4,
         mov: OutputFormat.Mov,
-        webm: OutputFormat.WebM
+        webm: OutputFormat.WebM,
       }
-      
+
       projectSchema.settings.export = {
         format: formatMap[exportSettings.format] || OutputFormat.Mp4,
         quality: exportSettings.quality === "best" ? 95 : exportSettings.quality === "good" ? 85 : 75,
@@ -94,7 +92,7 @@ export function ExportModal() {
         hardware_acceleration: exportSettings.enableGPU,
         ffmpeg_args: [],
       }
-      
+
       // Обновляем разрешение
       if (exportSettings.resolution === "4k") {
         projectSchema.timeline.resolution = [3840, 2160]
@@ -103,19 +101,18 @@ export function ExportModal() {
       } else if (exportSettings.resolution === "720") {
         projectSchema.timeline.resolution = [1280, 720]
       }
-      
+
       // Обновляем FPS
-      projectSchema.timeline.fps = parseInt(exportSettings.frameRate)
-      
+      projectSchema.timeline.fps = Number.parseInt(exportSettings.frameRate)
+
       // Запускаем рендеринг
       await startRender(projectSchema, exportSettings.savePath)
-      
     } catch (error) {
       console.error("Export failed:", error)
       toast.error(t("dialogs.export.errors.exportFailed"))
     }
-  }, [project, exportSettings, effects, transitions, startRender, t])
-  
+  }, [project, exportSettings, startRender, t])
+
   // Отмена рендеринга
   const handleCancelRender = useCallback(async () => {
     if (renderProgress?.job_id) {
@@ -167,7 +164,7 @@ export function ExportModal() {
                   <Input
                     placeholder={t("dialogs.export.name")}
                     value={exportSettings.fileName}
-                    onChange={(e) => setExportSettings(prev => ({ ...prev, fileName: e.target.value }))}
+                    onChange={(e) => setExportSettings((prev) => ({ ...prev, fileName: e.target.value }))}
                     disabled={isRendering}
                   />
                   <Button variant="ghost" size="icon">
@@ -179,18 +176,13 @@ export function ExportModal() {
               <div className="space-y-2">
                 <Label>{t("dialogs.export.saveTo")}</Label>
                 <div className="grid grid-cols-[1fr,auto] gap-2">
-                  <Input 
-                    value={exportSettings.savePath || ""} 
+                  <Input
+                    value={exportSettings.savePath || ""}
                     placeholder={t("dialogs.export.selectPath")}
                     readOnly
                     disabled={isRendering}
                   />
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    onClick={handleChooseFolder}
-                    disabled={isRendering}
-                  >
+                  <Button variant="outline" size="icon" onClick={handleChooseFolder} disabled={isRendering}>
                     <Folder className="h-4 w-4" />
                   </Button>
                 </div>
@@ -211,9 +203,9 @@ export function ExportModal() {
 
               <div className="space-y-2">
                 <Label>{t("dialogs.export.format")}</Label>
-                <Select 
+                <Select
                   value={exportSettings.format}
-                  onValueChange={(value) => setExportSettings(prev => ({ ...prev, format: value as any }))}
+                  onValueChange={(value) => setExportSettings((prev) => ({ ...prev, format: value as any }))}
                   disabled={isRendering}
                 >
                   <SelectTrigger>
@@ -232,28 +224,34 @@ export function ExportModal() {
                   <Label>{t("dialogs.export.quality")}</Label>
                   <div className="flex gap-4">
                     <div className="flex items-center gap-2">
-                      <Switch 
-                        id="normal" 
+                      <Switch
+                        id="normal"
                         checked={exportSettings.quality === "normal"}
-                        onCheckedChange={(checked) => checked && setExportSettings(prev => ({ ...prev, quality: "normal" }))}
+                        onCheckedChange={(checked) =>
+                          checked && setExportSettings((prev) => ({ ...prev, quality: "normal" }))
+                        }
                         disabled={isRendering}
                       />
                       <Label htmlFor="normal">{t("dialogs.export.normal")}</Label>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Switch 
-                        id="good" 
+                      <Switch
+                        id="good"
                         checked={exportSettings.quality === "good"}
-                        onCheckedChange={(checked) => checked && setExportSettings(prev => ({ ...prev, quality: "good" }))}
+                        onCheckedChange={(checked) =>
+                          checked && setExportSettings((prev) => ({ ...prev, quality: "good" }))
+                        }
                         disabled={isRendering}
                       />
                       <Label htmlFor="good">{t("dialogs.export.good")}</Label>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Switch 
+                      <Switch
                         id="best"
                         checked={exportSettings.quality === "best"}
-                        onCheckedChange={(checked) => checked && setExportSettings(prev => ({ ...prev, quality: "best" }))}
+                        onCheckedChange={(checked) =>
+                          checked && setExportSettings((prev) => ({ ...prev, quality: "best" }))
+                        }
                         disabled={isRendering}
                       />
                       <Label htmlFor="best">{t("dialogs.export.best")}</Label>
@@ -263,9 +261,9 @@ export function ExportModal() {
 
                 <div className="space-y-2">
                   <Label>{t("dialogs.export.resolution")}</Label>
-                  <Select 
+                  <Select
                     value={exportSettings.resolution}
-                    onValueChange={(value) => setExportSettings(prev => ({ ...prev, resolution: value }))}
+                    onValueChange={(value) => setExportSettings((prev) => ({ ...prev, resolution: value }))}
                     disabled={isRendering}
                   >
                     <SelectTrigger>
@@ -281,9 +279,9 @@ export function ExportModal() {
 
                 <div className="space-y-2">
                   <Label>{t("dialogs.export.frameRate")}</Label>
-                  <Select 
+                  <Select
                     value={exportSettings.frameRate}
-                    onValueChange={(value) => setExportSettings(prev => ({ ...prev, frameRate: value }))}
+                    onValueChange={(value) => setExportSettings((prev) => ({ ...prev, frameRate: value }))}
                     disabled={isRendering}
                   >
                     <SelectTrigger>
@@ -321,14 +319,14 @@ export function ExportModal() {
                     <Label>{t("dialogs.export.enableGPUEncoding")}</Label>
                     <Info className="text-muted-foreground h-4 w-4" />
                   </div>
-                  <Switch 
+                  <Switch
                     checked={exportSettings.enableGPU}
-                    onCheckedChange={(checked) => setExportSettings(prev => ({ ...prev, enableGPU: checked }))}
+                    onCheckedChange={(checked) => setExportSettings((prev) => ({ ...prev, enableGPU: checked }))}
                     disabled={isRendering}
                   />
                 </div>
               </div>
-              
+
               {/* Progress and Export Button */}
               <div className="space-y-4 pt-6 border-t">
                 {isRendering && renderProgress && (
@@ -343,15 +341,11 @@ export function ExportModal() {
                     </div>
                   </div>
                 )}
-                
+
                 <div className="flex gap-2">
                   {isRendering ? (
                     <>
-                      <Button 
-                        variant="outline" 
-                        onClick={handleCancelRender}
-                        className="flex-1"
-                      >
+                      <Button variant="outline" onClick={handleCancelRender} className="flex-1">
                         {t("dialogs.export.cancel")}
                       </Button>
                       <Button disabled className="flex-1">
@@ -360,14 +354,10 @@ export function ExportModal() {
                     </>
                   ) : (
                     <>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => closeModal()}
-                        className="flex-1"
-                      >
+                      <Button variant="outline" onClick={() => closeModal()} className="flex-1">
                         {t("dialogs.export.close")}
                       </Button>
-                      <Button 
+                      <Button
                         onClick={handleExport}
                         disabled={!exportSettings.savePath || !project}
                         className="flex-1 bg-[#00CCC0] hover:bg-[#00B8B0] text-black"
@@ -496,9 +486,9 @@ export function ExportModal() {
                     <Label>{t("dialogs.export.enableGPUEncoding")}</Label>
                     <Info className="text-muted-foreground h-4 w-4" />
                   </div>
-                  <Switch 
+                  <Switch
                     checked={exportSettings.enableGPU}
-                    onCheckedChange={(checked) => setExportSettings(prev => ({ ...prev, enableGPU: checked }))}
+                    onCheckedChange={(checked) => setExportSettings((prev) => ({ ...prev, enableGPU: checked }))}
                     disabled={isRendering}
                   />
                 </div>

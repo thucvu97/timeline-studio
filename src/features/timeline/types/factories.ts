@@ -2,7 +2,16 @@
  * Factory functions for creating Timeline objects
  */
 
-import { ProjectSettings, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "./timeline"
+import {
+  ProjectResources,
+  ProjectSettings,
+  SubtitleClip,
+  TimelineClip,
+  TimelineProject,
+  TimelineSection,
+  TimelineTrack,
+  TrackType,
+} from "./timeline"
 
 // ============================================================================
 // FACTORY FUNCTIONS
@@ -21,6 +30,7 @@ export function createTimelineProject(name: string, settings?: Partial<ProjectSe
     sampleRate: settings?.sampleRate || 48000,
     sections: [],
     globalTracks: [],
+    resources: createEmptyResources(),
     settings: {
       resolution: { width: 1920, height: 1080 },
       fps: 30,
@@ -38,6 +48,22 @@ export function createTimelineProject(name: string, settings?: Partial<ProjectSe
     createdAt: new Date(),
     updatedAt: new Date(),
     version: "2.0.0",
+  }
+}
+
+/**
+ * Создает пустой объект ресурсов
+ */
+function createEmptyResources(): ProjectResources {
+  return {
+    effects: [],
+    filters: [],
+    transitions: [],
+    templates: [],
+    styleTemplates: [],
+    subtitleStyles: [],
+    music: [],
+    media: [],
   }
 }
 
@@ -119,4 +145,44 @@ export function createTimelineClip(
     createdAt: new Date(),
     updatedAt: new Date(),
   }
+}
+
+/**
+ * Создает новый субтитровый клип
+ */
+export function createSubtitleClip(
+  text: string,
+  trackId: string,
+  startTime: number,
+  duration: number,
+  options?: {
+    subtitleStyleId?: string
+    position?: SubtitleClip["subtitlePosition"]
+    animationIn?: SubtitleClip["animationIn"]
+    animationOut?: SubtitleClip["animationOut"]
+    formatting?: SubtitleClip["formatting"]
+  },
+): SubtitleClip {
+  // Создаем базовый клип
+  const baseClip = createTimelineClip(
+    `subtitle-${Date.now()}`, // mediaId для субтитров генерируется
+    trackId,
+    startTime,
+    duration,
+  )
+
+  // Расширяем его свойствами субтитра
+  const subtitleClip: SubtitleClip = {
+    ...baseClip,
+    text,
+    subtitleStyleId: options?.subtitleStyleId,
+    subtitlePosition: options?.position,
+    animationIn: options?.animationIn,
+    animationOut: options?.animationOut,
+    formatting: options?.formatting,
+    wordWrap: true, // По умолчанию включен перенос слов
+    maxWidth: 80, // По умолчанию 80% ширины экрана
+  }
+
+  return subtitleClip
 }

@@ -41,6 +41,29 @@ vi.mock("@/features/user-settings", () => ({
   }),
 }))
 
+// Мокаем useCurrentProject и useAppSettings
+vi.mock("@/features/app-state/hooks/use-current-project", () => ({
+  useCurrentProject: () => ({
+    currentProject: {
+      projectName: "Test Project",
+      projectPath: "/test/project.json",
+    },
+    setCurrentProject: vi.fn(),
+    createNewProject: vi.fn(),
+    saveProject: vi.fn(),
+    saveProjectAs: vi.fn(),
+    loadProject: vi.fn(),
+  }),
+}))
+
+vi.mock("@/features/app-state/hooks/use-app-settings", () => ({
+  useAppSettings: () => ({
+    appVersion: "1.0.0",
+    updateAvailable: false,
+    checkForUpdates: vi.fn(),
+  }),
+}))
+
 // Мок уже определен в src/test/setup.ts
 // Мокаем console.log для проверки вызова
 vi.spyOn(console, "log").mockImplementation(() => {})
@@ -68,7 +91,7 @@ describe("TopBar", () => {
     expect(screen.getByTestId("camera-capture-button")).toBeInTheDocument()
     expect(screen.getByTestId("voice-recording-button")).toBeInTheDocument()
     expect(screen.getByTestId("publish-button")).toBeInTheDocument()
-    expect(screen.getByTestId("editing-tasks-button")).toBeInTheDocument()
+    expect(screen.getByTestId("open-project-button")).toBeInTheDocument()
     expect(screen.getByTestId("user-settings-button")).toBeInTheDocument()
     expect(screen.getByTestId("export-button")).toBeInTheDocument()
   })
@@ -81,7 +104,8 @@ describe("TopBar", () => {
 
     // Проверяем, что кнопка отображается
     expect(keyboardShortcutsButton).toBeInTheDocument()
-    expect(keyboardShortcutsButton).toHaveTextContent("Keyboard Shortcuts")
+    // Кнопка содержит только иконку, без текста
+    expect(keyboardShortcutsButton.querySelector('[data-icon="Keyboard"]')).toBeInTheDocument()
   })
 
   it("renders at least 10 buttons", () => {
@@ -96,7 +120,7 @@ describe("TopBar", () => {
       screen.getByTestId("camera-capture-button"),
       screen.getByTestId("voice-recording-button"),
       screen.getByTestId("publish-button"),
-      screen.getByTestId("editing-tasks-button"),
+      screen.getByTestId("open-project-button"),
       screen.getByTestId("user-settings-button"),
       screen.getByTestId("export-button"),
     ]

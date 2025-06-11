@@ -2,8 +2,11 @@ import { act, fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
+import { mockFileSystem } from "@/test/mocks/tauri/fs"
 
 import { AudioPreview } from "../../../components/preview/audio-preview"
+
+// Импортируем моки для Tauri FS
 
 // Мокаем компоненты, которые используются в AudioPreview
 vi.mock("../../../components/preview/preview-timeline", () => ({
@@ -118,6 +121,13 @@ describe("AudioPreview", () => {
     isImage: false,
     duration: 180, // 3 минуты
   }
+
+  beforeEach(() => {
+    // Сбрасываем моки файловой системы
+    mockFileSystem.reset()
+    // Добавляем аудио файл в мокированную файловую систему
+    mockFileSystem.addAudioFile(audioFile.path)
+  })
 
   it("should render correctly with default props", async () => {
     await act(async () => {

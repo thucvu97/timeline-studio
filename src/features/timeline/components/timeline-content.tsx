@@ -4,7 +4,7 @@
  * Отображает треки, клипы и временную шкалу
  */
 
-import React, { useEffect } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 // Убираем ненужные иконки
 
@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
 
+import { TimelinePreviewStrip } from "./timeline-preview-strip"
 import { TimelineScale } from "./timeline-scale"
 import { useClips } from "../hooks/use-clips"
 import { useTimeline } from "../hooks/use-timeline"
@@ -21,6 +22,10 @@ import { useTracks } from "../hooks/use-tracks"
 import { Track } from "./track/track"
 
 export function TimelineContent() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [scrollOffset, setScrollOffset] = useState(0)
+  const [containerWidth, setContainerWidth] = useState(0)
+
   const {
     project,
     uiState,
@@ -60,6 +65,36 @@ export function TimelineContent() {
       addSection("Main Section", 0, 300) // 5 минут
     }
   }, [project, addSection])
+
+  // Отслеживаем размер контейнера и прокрутку
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      setScrollOffset(container.scrollLeft)
+    }
+
+    const handleResize = () => {
+      setContainerWidth(container.clientWidth)
+    }
+
+    // Инициализация
+    handleResize()
+
+    // Слушатели событий
+    container.addEventListener("scroll", handleScroll)
+    window.addEventListener("resize", handleResize)
+
+    const resizeObserver = new ResizeObserver(handleResize)
+    resizeObserver.observe(container)
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("resize", handleResize)
+      resizeObserver.disconnect()
+    }
+  }, [])
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -137,7 +172,7 @@ export function TimelineContent() {
       </div>
 
       {/* Треки */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollContainerRef} className="flex-1 overflow-auto relative">
         {tracks.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <Card className="w-96">
@@ -152,18 +187,49 @@ export function TimelineContent() {
             </Card>
           </div>
         ) : (
-          <div className="space-y-0">
-            {tracks.map((track) => (
-              <Track
-                key={track.id}
-                track={track}
-                timeScale={uiState.timeScale}
-                currentTime={currentTime}
-                isSelected={uiState.selectedTrackIds.includes(track.id)}
-                onSelect={(trackId) => selectTracks([trackId])}
-                onUpdate={(updates) => updateTrack(track.id, updates)}
-              />
-            ))}
+          <div className="relative">
+            {/* Полоса превью для видео клипов */}
+            {clips.some((clip) => {
+              const track = tracks.find((t) => t.id === clip.trackId)
+              return track?.type === "video" && clip.mediaFile?.path
+            }) && (
+              <div className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
+                {clips
+                  .filter((clip) => {
+                    const track = tracks.find((t) => t.id === clip.trackId)
+                    return track?.type === "video" && clip.mediaFile?.path
+                  })
+                  .map((clip) => (
+                    <TimelinePreviewStrip
+                      key={clip.id}
+                      videoPath={clip.mediaFile?.path || null}
+                      duration={clip.duration}
+                      containerWidth={containerWidth}
+                      scale={uiState.timeScale}
+                      scrollOffset={scrollOffset}
+                      height={60}
+                      className="mb-1"
+                      onFrameClick={(timestamp) => seek(clip.startTime + timestamp)}
+                      showTimestamps={false}
+                    />
+                  ))}
+              </div>
+            )}
+
+            {/* Треки */}
+            <div className="space-y-0">
+              {tracks.map((track) => (
+                <Track
+                  key={track.id}
+                  track={track}
+                  timeScale={uiState.timeScale}
+                  currentTime={currentTime}
+                  isSelected={uiState.selectedTrackIds.includes(track.id)}
+                  onSelect={(trackId) => selectTracks([trackId])}
+                  onUpdate={(updates) => updateTrack(track.id, updates)}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>

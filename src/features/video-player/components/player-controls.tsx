@@ -25,6 +25,7 @@ import { MediaFile } from "@/features/media/types/media"
 import { getFrameTime } from "@/features/media/utils/video"
 import { cn } from "@/lib/utils"
 
+import { PrerenderControls } from "./prerender-controls"
 import { VolumeSlider } from "./volume-slider"
 import { useFullscreen } from "../hooks/use-fullscreen"
 import { usePlayer } from "../services/player-provider"
@@ -405,6 +406,8 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
                 onValueCommit={handleVolumeChangeEnd}
               />
             </div>
+
+            <PrerenderControls currentTime={currentTime} duration={file.duration ?? 0} />
 
             <Button
               className="ml-1 h-8 w-8 cursor-pointer"

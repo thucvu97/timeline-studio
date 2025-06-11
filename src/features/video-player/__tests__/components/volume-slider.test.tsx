@@ -3,6 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { VolumeSlider } from "../../components/volume-slider"
 
+// Мокаем useUserSettings hook
+vi.mock("@/features/user-settings/hooks/use-user-settings", () => ({
+  useUserSettings: () => ({
+    playerVolume: 50,
+  }),
+}))
+
 // Мокаем компонент Slider из @/components/ui/slider
 vi.mock("@/components/ui/slider", () => ({
   Slider: ({ value, min, max, step, onValueChange, onValueCommit, className }: any) => (

@@ -1,5 +1,5 @@
 import { act } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { VideoEffect } from "@/features/effects/types/effects"
 
@@ -11,11 +11,16 @@ import {
 } from "../../utils/css-effects"
 
 describe("css-effects", () => {
-  // Мокаем console.warn
-  const mockConsoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {})
+  let mockConsoleWarn: any
 
   beforeEach(() => {
-    mockConsoleWarn.mockClear()
+    // Мокаем console.warn перед каждым тестом
+    mockConsoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    // Восстанавливаем после каждого теста
+    mockConsoleWarn.mockRestore()
   })
 
   const mockEffect: VideoEffect = {

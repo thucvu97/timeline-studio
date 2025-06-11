@@ -28,12 +28,12 @@ interface GpuStatusProps {
 }
 
 export function GpuStatus({ className, showDetails = true, onSettingsClick }: GpuStatusProps) {
-  const { 
-    gpuCapabilities, 
-    currentGpu, 
-    systemInfo, 
+  const {
+    gpuCapabilities,
+    currentGpu,
+    systemInfo,
     compilerSettings,
-    isLoading, 
+    isLoading,
     error,
     updateSettings,
     refreshCapabilities,
@@ -42,7 +42,7 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
   // Обработчик переключения GPU ускорения
   const handleToggleGpuAcceleration = async (enabled: boolean) => {
     if (!compilerSettings) return
-    
+
     await updateSettings({
       ...compilerSettings,
       hardware_acceleration: enabled,
@@ -93,9 +93,7 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
             )}
           </div>
         </div>
-        <CardDescription>
-          {isGpuAvailable ? "GPU ускорение доступно" : "GPU ускорение недоступно"}
-        </CardDescription>
+        <CardDescription>{isGpuAvailable ? "GPU ускорение доступно" : "GPU ускорение недоступно"}</CardDescription>
       </CardHeader>
 
       {showDetails && (
@@ -111,9 +109,7 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
                 <div className="ml-6 space-y-1">
                   <p className="text-sm">{currentGpu.name}</p>
                   {currentGpu.driver_version && (
-                    <p className="text-xs text-muted-foreground">
-                      Драйвер: {currentGpu.driver_version}
-                    </p>
+                    <p className="text-xs text-muted-foreground">Драйвер: {currentGpu.driver_version}</p>
                   )}
                 </div>
               </div>
@@ -134,10 +130,7 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
                     </span>
                   </div>
                   {currentGpu.memory_used && currentGpu.memory_total && (
-                    <Progress 
-                      value={(currentGpu.memory_used / currentGpu.memory_total) * 100}
-                      className="h-2"
-                    />
+                    <Progress value={(currentGpu.memory_used / currentGpu.memory_total) * 100} className="h-2" />
                   )}
                 </div>
               </div>
@@ -178,9 +171,7 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
                       {getGpuEncoderDisplayName(encoder)}
                     </Badge>
                   ))}
-                  {gpuCapabilities.available_encoders.length === 0 && (
-                    <Badge variant="outline">Только CPU</Badge>
-                  )}
+                  {gpuCapabilities.available_encoders.length === 0 && <Badge variant="outline">Только CPU</Badge>}
                 </div>
               </div>
             )}
@@ -193,11 +184,11 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
                   Система
                 </div>
                 <div className="ml-6 space-y-1 text-sm text-muted-foreground">
-                  <p>ОС: {systemInfo.os} ({systemInfo.arch})</p>
+                  <p>
+                    ОС: {systemInfo.os} ({systemInfo.arch})
+                  </p>
                   <p>CPU: {systemInfo.cpu_cores} ядер</p>
-                  {systemInfo.available_memory && (
-                    <p>Память: {formatGpuMemory(systemInfo.available_memory)}</p>
-                  )}
+                  {systemInfo.available_memory && <p>Память: {formatGpuMemory(systemInfo.available_memory)}</p>}
                 </div>
               </div>
             )}
@@ -234,11 +225,9 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
+
             {compilerSettings && (
-              <div className="text-xs text-muted-foreground">
-                Макс. задач: {compilerSettings.max_concurrent_jobs}
-              </div>
+              <div className="text-xs text-muted-foreground">Макс. задач: {compilerSettings.max_concurrent_jobs}</div>
             )}
           </CardFooter>
         </>
@@ -290,21 +279,13 @@ export function GpuStatusBadge({ className }: { className?: string }) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Badge 
-            variant={isGpuAvailable ? "default" : "secondary"}
-            className={cn("gap-1", className)}
-          >
+          <Badge variant={isGpuAvailable ? "default" : "secondary"} className={cn("gap-1", className)}>
             <Zap className="h-3 w-3" />
             {encoder ? getGpuEncoderDisplayName(encoder) : "CPU"}
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
-          <p>
-            {isGpuAvailable 
-              ? `GPU ускорение: ${encoder}`
-              : "GPU ускорение недоступно"
-            }
-          </p>
+          <p>{isGpuAvailable ? `GPU ускорение: ${encoder}` : "GPU ускорение недоступно"}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

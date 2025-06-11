@@ -4,13 +4,7 @@ import { invoke } from "@tauri-apps/api/core"
 import { toast } from "sonner"
 
 import { GpuEncoder } from "@/types/video-compiler"
-import type { 
-  CompilerSettings,
-  FfmpegCapabilities,
-  GpuCapabilities, 
-  GpuInfo, 
-  SystemInfo
-} from "@/types/video-compiler"
+import type { CompilerSettings, FfmpegCapabilities, GpuCapabilities, GpuInfo, SystemInfo } from "@/types/video-compiler"
 
 interface UseGpuCapabilitiesReturn {
   // Состояние
@@ -21,7 +15,7 @@ interface UseGpuCapabilitiesReturn {
   compilerSettings: CompilerSettings | null
   isLoading: boolean
   error: string | null
-  
+
   // Методы
   refreshCapabilities: () => Promise<void>
   updateSettings: (settings: CompilerSettings) => Promise<void>
@@ -81,11 +75,9 @@ export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
     try {
       await invoke("update_compiler_settings", { newSettings })
       setCompilerSettings(newSettings)
-      
+
       toast.success("Настройки обновлены", {
-        description: newSettings.hardware_acceleration 
-          ? "GPU ускорение включено" 
-          : "GPU ускорение отключено",
+        description: newSettings.hardware_acceleration ? "GPU ускорение включено" : "GPU ускорение отключено",
       })
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Неизвестная ошибка"
@@ -144,9 +136,7 @@ export function getGpuEncoderDisplayName(encoder: string): string {
  * Получить цвет индикатора для GPU
  */
 export function getGpuStatusColor(supported: boolean): string {
-  return supported 
-    ? "text-green-600 dark:text-green-400" 
-    : "text-yellow-600 dark:text-yellow-400"
+  return supported ? "text-green-600 dark:text-green-400" : "text-yellow-600 dark:text-yellow-400"
 }
 
 /**
@@ -154,12 +144,12 @@ export function getGpuStatusColor(supported: boolean): string {
  */
 export function formatGpuMemory(bytes?: number): string {
   if (!bytes) return "Неизвестно"
-  
+
   const gb = bytes / (1024 * 1024 * 1024)
   if (gb >= 1) {
     return `${gb.toFixed(1)} ГБ`
   }
-  
+
   const mb = bytes / (1024 * 1024)
   return `${Math.round(mb)} МБ`
 }
@@ -177,17 +167,17 @@ export function formatGpuUtilization(utilization?: number): string {
  */
 export function getGpuRecommendations(capabilities: GpuCapabilities | null): string[] {
   const recommendations: string[] = []
-  
+
   if (!capabilities) {
     return ["Загрузка информации о GPU..."]
   }
-  
+
   if (!capabilities.hardware_acceleration_supported) {
     recommendations.push("GPU ускорение недоступно, рекомендуется использовать CPU кодирование")
     recommendations.push("Для лучшей производительности установите драйверы GPU")
     return recommendations
   }
-  
+
   if (capabilities.recommended_encoder === GpuEncoder.Nvenc) {
     recommendations.push("Используйте NVENC для максимальной производительности")
     recommendations.push("Рекомендуемое качество: 85-90%")
@@ -198,7 +188,7 @@ export function getGpuRecommendations(capabilities: GpuCapabilities | null): str
     recommendations.push("VideoToolbox оптимизирован для macOS")
     recommendations.push("Используйте H.265/HEVC для лучшего сжатия")
   }
-  
+
   if (capabilities.current_gpu?.memory_total) {
     const memoryGB = capabilities.current_gpu.memory_total / (1024 * 1024 * 1024)
     if (memoryGB < 2) {
@@ -207,6 +197,6 @@ export function getGpuRecommendations(capabilities: GpuCapabilities | null): str
       recommendations.push("Достаточно памяти для рендеринга в 4K")
     }
   }
-  
+
   return recommendations
 }

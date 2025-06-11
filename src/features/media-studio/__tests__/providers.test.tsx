@@ -12,7 +12,7 @@ vi.mock("@/i18n/services/i18n-provider", () => ({
   I18nProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="i18n-provider">{children}</div>,
 }))
 
-vi.mock("@/features/app-state/app-settings-provider", () => ({
+vi.mock("@/features/app-state", () => ({
   AppSettingsProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="app-settings-provider">{children}</div>
   ),
@@ -31,14 +31,16 @@ vi.mock("@/features/user-settings", () => ({
   ),
 }))
 
-vi.mock("@/features/resources/resources-provider", () => ({
+vi.mock("@/features/resources/services/resources-provider", () => ({
   ResourcesProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="resources-provider">{children}</div>
   ),
 }))
 
-vi.mock("@/features/browser/media", () => ({
-  MediaProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="media-provider">{children}</div>,
+vi.mock("@/features/browser", () => ({
+  BrowserStateProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="browser-state-provider">{children}</div>
+  ),
 }))
 
 vi.mock("@/features/video-player/services/player-provider", () => ({
@@ -47,6 +49,16 @@ vi.mock("@/features/video-player/services/player-provider", () => ({
 
 vi.mock("@/features/ai-chat/services/chat-provider", () => ({
   ChatProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="chat-provider">{children}</div>,
+}))
+
+vi.mock("@/features/timeline/services/timeline-provider", () => ({
+  TimelineProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="timeline-provider">{children}</div>
+  ),
+}))
+
+vi.mock("@/features/top-bar/components/theme/theme-context", () => ({
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="theme-provider">{children}</div>,
 }))
 
 describe("Providers", () => {

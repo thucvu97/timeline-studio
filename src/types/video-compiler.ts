@@ -11,6 +11,10 @@ export interface ProjectSchema {
   tracks: Track[]
   effects: Effect[]
   transitions: Transition[]
+  filters: Filter[]
+  templates: Template[]
+  style_templates: StyleTemplate[]
+  subtitles: Subtitle[]
   settings: ProjectSettings
 }
 
@@ -49,6 +53,7 @@ export interface Track {
   volume: number // 0.0 - 1.0
   clips: Clip[]
   effects: string[] // ID эффектов
+  filters: string[] // ID фильтров
 }
 
 export enum TrackType {
@@ -67,6 +72,10 @@ export interface Clip {
   speed: number // Скорость воспроизведения (1.0 = нормальная)
   volume: number // Громкость клипа (0.0 - 1.0)
   effects: string[] // ID эффектов клипа
+  filters: string[] // ID фильтров клипа
+  template_id?: string // ID шаблона для многокамерной раскладки
+  template_cell?: number // Индекс ячейки в шаблоне (0-based)
+  style_template_id?: string // ID стильного шаблона (интро, аутро, титры)
 }
 
 // ============ Эффекты ============
@@ -81,6 +90,7 @@ export interface Effect {
 }
 
 export type EffectType =
+  // Video Effects
   | "Blur"
   | "Brightness"
   | "Contrast"
@@ -111,6 +121,29 @@ export type EffectType =
   | "Sharpen"
   | "NoiseReduction"
   | "Stabilization"
+  // Audio Effects
+  | "AudioFadeIn"
+  | "AudioFadeOut"
+  | "AudioCrossfade"
+  | "AudioEqualizer"
+  | "AudioCompressor"
+  | "AudioReverb"
+  | "AudioDelay"
+  | "AudioChorus"
+  | "AudioDistortion"
+  | "AudioNormalize"
+  | "AudioDenoise"
+  | "AudioPitch"
+  | "AudioTempo"
+  | "AudioDucking"
+  | "AudioGate"
+  | "AudioLimiter"
+  | "AudioExpander"
+  | "AudioPan"
+  | "AudioStereoWidth"
+  | "AudioHighpass"
+  | "AudioLowpass"
+  | "AudioBandpass"
 
 export type EffectParameter =
   | { type: "Float"; value: number }
@@ -192,6 +225,333 @@ export type TransitionTag =
   | "Complex"
   | "Fallback"
 
+// ============ Фильтры ============
+
+export interface Filter {
+  id: string
+  filter_type: FilterType
+  name: string
+  enabled: boolean
+  parameters: Record<string, number>
+  ffmpeg_command?: string
+}
+
+export enum FilterType {
+  Brightness = "Brightness",
+  Contrast = "Contrast",
+  Saturation = "Saturation",
+  Gamma = "Gamma",
+  Temperature = "Temperature",
+  Tint = "Tint",
+  Hue = "Hue",
+  Vibrance = "Vibrance",
+  Shadows = "Shadows",
+  Highlights = "Highlights",
+  Blacks = "Blacks",
+  Whites = "Whites",
+  Clarity = "Clarity",
+  Dehaze = "Dehaze",
+  Vignette = "Vignette",
+  Grain = "Grain",
+  Blur = "Blur",
+  Sharpen = "Sharpen",
+  Custom = "Custom",
+}
+
+// ============ Шаблоны многокамерных раскладок ============
+
+export interface Template {
+  id: string
+  template_type: TemplateType
+  name: string
+  screens: number // Количество видео в шаблоне
+  cells: TemplateCell[]
+}
+
+export enum TemplateType {
+  Vertical = "Vertical",
+  Horizontal = "Horizontal",
+  Diagonal = "Diagonal",
+  Grid = "Grid",
+  Custom = "Custom",
+}
+
+export interface TemplateCell {
+  index: number // Индекс ячейки (0-based)
+  x: number // Позиция X в процентах (0-100)
+  y: number // Позиция Y в процентах (0-100)
+  width: number // Ширина в процентах (0-100)
+  height: number // Высота в процентах (0-100)
+  fit_mode: FitMode // Режим масштабирования видео
+  align_x: AlignX // Горизонтальное выравнивание
+  align_y: AlignY // Вертикальное выравнивание
+  scale?: number // Дополнительное масштабирование (1.0 = 100%)
+}
+
+export enum FitMode {
+  Contain = "Contain", // Вписать полностью с черными полосами
+  Cover = "Cover", // Заполнить с обрезкой
+  Fill = "Fill", // Растянуть на всю ячейку
+}
+
+export enum AlignX {
+  Left = "Left",
+  Center = "Center",
+  Right = "Right",
+}
+
+export enum AlignY {
+  Top = "Top",
+  Center = "Center",
+  Bottom = "Bottom",
+}
+
+// ============ Стильные шаблоны (интро, аутро, титры) ============
+
+export interface StyleTemplate {
+  id: string
+  name: string
+  category: StyleTemplateCategory
+  style: StyleTemplateStyle
+  duration: number // Длительность в секундах
+  elements: StyleTemplateElement[]
+}
+
+export enum StyleTemplateCategory {
+  Intro = "Intro",
+  Outro = "Outro",
+  LowerThird = "LowerThird",
+  Title = "Title",
+  Transition = "Transition",
+  Overlay = "Overlay",
+}
+
+export enum StyleTemplateStyle {
+  Modern = "Modern",
+  Vintage = "Vintage",
+  Minimal = "Minimal",
+  Corporate = "Corporate",
+  Creative = "Creative",
+  Cinematic = "Cinematic",
+}
+
+export interface StyleTemplateElement {
+  id: string
+  element_type: StyleElementType
+  name: string
+  position: Position2D
+  size: Size2D
+  timing: ElementTiming
+  properties: StyleElementProperties
+  animations: ElementAnimation[]
+}
+
+export enum StyleElementType {
+  Text = "Text",
+  Shape = "Shape",
+  Image = "Image",
+  Video = "Video",
+  Animation = "Animation",
+  Particle = "Particle",
+}
+
+export interface Position2D {
+  x: number // Позиция X в процентах (0-100)
+  y: number // Позиция Y в процентах (0-100)
+}
+
+export interface Size2D {
+  width: number // Ширина в процентах (0-100)
+  height: number // Высота в процентах (0-100)
+}
+
+export interface ElementTiming {
+  start: number // Время начала в секундах
+  end: number // Время окончания в секундах
+}
+
+export interface StyleElementProperties {
+  // Общие свойства
+  opacity?: number
+  rotation?: number
+  scale?: number
+
+  // Текстовые свойства
+  text?: string
+  font_size?: number
+  font_family?: string
+  color?: string
+  text_align?: TextAlign
+  font_weight?: FontWeight
+
+  // Свойства фигур
+  background_color?: string
+  border_color?: string
+  border_width?: number
+  border_radius?: number
+
+  // Свойства изображений/видео
+  src?: string
+  object_fit?: ObjectFit
+}
+
+export enum TextAlign {
+  Left = "Left",
+  Center = "Center",
+  Right = "Right",
+}
+
+export enum FontWeight {
+  Normal = "Normal",
+  Bold = "Bold",
+  Light = "Light",
+}
+
+export enum ObjectFit {
+  Contain = "Contain",
+  Cover = "Cover",
+  Fill = "Fill",
+}
+
+export interface ElementAnimation {
+  id: string
+  animation_type: AnimationType
+  duration: number // Длительность анимации в секундах
+  delay?: number // Задержка перед началом
+  easing?: AnimationEasing
+  direction?: AnimationDirection
+  properties?: Record<string, any>
+}
+
+export enum AnimationType {
+  FadeIn = "FadeIn",
+  FadeOut = "FadeOut",
+  SlideIn = "SlideIn",
+  SlideOut = "SlideOut",
+  ScaleIn = "ScaleIn",
+  ScaleOut = "ScaleOut",
+  Bounce = "Bounce",
+  Shake = "Shake",
+}
+
+export enum AnimationEasing {
+  Linear = "Linear",
+  Ease = "Ease",
+  EaseIn = "EaseIn",
+  EaseOut = "EaseOut",
+  EaseInOut = "EaseInOut",
+}
+
+export enum AnimationDirection {
+  Left = "Left",
+  Right = "Right",
+  Up = "Up",
+  Down = "Down",
+}
+
+// ============ Субтитры ============
+
+export interface Subtitle {
+  id: string
+  text: string
+  start_time: number // Время начала в секундах
+  end_time: number // Время окончания в секундах
+  position: SubtitlePosition
+  style: SubtitleStyle
+  enabled: boolean
+  animations?: SubtitleAnimation[]
+}
+
+export interface SubtitlePosition {
+  x: number // Позиция X в процентах (0-100)
+  y: number // Позиция Y в процентах (0-100)
+  align_x: SubtitleAlignX
+  align_y: SubtitleAlignY
+  margin?: {
+    top: number
+    right: number
+    bottom: number
+    left: number
+  }
+}
+
+export enum SubtitleAlignX {
+  Left = "Left",
+  Center = "Center",
+  Right = "Right",
+}
+
+export enum SubtitleAlignY {
+  Top = "Top",
+  Center = "Center",
+  Bottom = "Bottom",
+}
+
+export interface SubtitleStyle {
+  font_family: string
+  font_size: number
+  font_weight: SubtitleFontWeight
+  color: string
+  stroke_color?: string
+  stroke_width?: number
+  shadow_color?: string
+  shadow_x?: number
+  shadow_y?: number
+  shadow_blur?: number
+  background_color?: string
+  background_opacity?: number
+  padding?: {
+    top: number
+    right: number
+    bottom: number
+    left: number
+  }
+  border_radius?: number
+  line_height?: number
+  letter_spacing?: number
+  max_width?: number // Максимальная ширина в процентах
+}
+
+export enum SubtitleFontWeight {
+  Normal = "Normal",
+  Bold = "Bold",
+  Light = "Light",
+}
+
+export interface SubtitleAnimation {
+  id: string
+  animation_type: SubtitleAnimationType
+  duration: number
+  delay?: number
+  easing?: SubtitleEasing
+  direction?: SubtitleDirection
+  properties?: Record<string, any>
+}
+
+export enum SubtitleAnimationType {
+  FadeIn = "FadeIn",
+  FadeOut = "FadeOut",
+  SlideIn = "SlideIn",
+  SlideOut = "SlideOut",
+  TypeWriter = "TypeWriter",
+  Bounce = "Bounce",
+}
+
+export enum SubtitleEasing {
+  Linear = "Linear",
+  Ease = "Ease",
+  EaseIn = "EaseIn",
+  EaseOut = "EaseOut",
+  EaseInOut = "EaseInOut",
+}
+
+export enum SubtitleDirection {
+  Left = "Left",
+  Right = "Right",
+  Up = "Up",
+  Down = "Down",
+}
+
 // ============ Настройки проекта ============
 
 export interface ProjectSettings {
@@ -206,6 +566,7 @@ export interface ExportSettings {
   video_bitrate: number // kbps
   audio_bitrate: number // kbps
   hardware_acceleration: boolean
+  preferred_gpu_encoder?: string // "nvenc" | "quicksync" | "vaapi" | "videotoolbox" | "amf"
   ffmpeg_args: string[] // Дополнительные параметры FFmpeg
 }
 
@@ -260,7 +621,7 @@ export interface RenderJob {
 export enum GpuEncoder {
   None = "None",
   Nvenc = "Nvenc",
-  QuickSync = "QuickSync", 
+  QuickSync = "QuickSync",
   Vaapi = "Vaapi",
   VideoToolbox = "VideoToolbox",
   AMF = "AMF",
@@ -320,22 +681,22 @@ export interface TauriCommands {
 
   // Генерация превью
   generate_preview(project: ProjectSchema, timestamp: number, quality?: number): Promise<Uint8Array> // JPEG данные
-  
+
   // GPU команды
   get_gpu_capabilities(): Promise<GpuCapabilities>
   get_current_gpu_info(): Promise<GpuInfo | null>
   check_hardware_acceleration(): Promise<boolean>
-  
+
   // Кэширование
   get_cache_stats(): Promise<CacheStats>
   clear_cache(): Promise<void>
   clear_preview_cache(): Promise<void>
-  
+
   // Настройки
   get_compiler_settings(): Promise<CompilerSettings>
   update_compiler_settings(settings: CompilerSettings): Promise<void>
   set_ffmpeg_path(path: string): Promise<boolean>
-  
+
   // Диагностика
   get_system_info(): Promise<SystemInfo>
   check_ffmpeg_capabilities(): Promise<FfmpegCapabilities>
@@ -409,6 +770,10 @@ export function createEmptyProject(name = "Untitled Project"): ProjectSchema {
     tracks: [],
     effects: [],
     transitions: [],
+    filters: [],
+    templates: [],
+    style_templates: [],
+    subtitles: [],
     settings: {
       export: {
         format: OutputFormat.Mp4,

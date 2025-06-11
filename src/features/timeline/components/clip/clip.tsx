@@ -7,8 +7,9 @@ import React from "react"
 import { cn } from "@/lib/utils"
 
 import { AudioClip } from "./audio-clip"
+import { SubtitleClip } from "./subtitle-clip"
 import { VideoClip } from "./video-clip"
-import { TimelineClip, TimelineTrack } from "../../types"
+import { TimelineClip, TimelineTrack, isSubtitleClip } from "../../types"
 
 interface ClipProps {
   clip: TimelineClip
@@ -38,6 +39,17 @@ export function Clip({ clip, track, timeScale, onUpdate, onRemove, className }: 
       case "sfx":
       case "ambient":
         return <AudioClip clip={clip} track={track} onUpdate={onUpdate} onRemove={onRemove} />
+
+      case "subtitle":
+      case "title":
+        if (isSubtitleClip(clip)) {
+          return <SubtitleClip clip={clip} trackHeight={track.height} isSelected={clip.isSelected} />
+        }
+        return (
+          <div className="h-full w-full bg-muted border border-border rounded flex items-center justify-center">
+            <span className="text-xs text-muted-foreground">Invalid subtitle clip</span>
+          </div>
+        )
 
       default:
         return (

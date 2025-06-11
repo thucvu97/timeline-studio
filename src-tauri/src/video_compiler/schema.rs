@@ -23,6 +23,14 @@ pub struct ProjectSchema {
   pub effects: Vec<Effect>,
   /// Переходы между клипами
   pub transitions: Vec<Transition>,
+  /// Фильтры для визуальных эффектов
+  pub filters: Vec<Filter>,
+  /// Шаблоны многокамерных раскладок
+  pub templates: Vec<Template>,
+  /// Стильные шаблоны (интро, аутро, титры)
+  pub style_templates: Vec<StyleTemplate>,
+  /// Субтитры проекта
+  pub subtitles: Vec<Subtitle>,
   /// Настройки проекта и экспорта
   pub settings: ProjectSettings,
 }
@@ -43,6 +51,10 @@ impl ProjectSchema {
       tracks: Vec::new(),
       effects: Vec::new(),
       transitions: Vec::new(),
+      filters: Vec::new(),
+      templates: Vec::new(),
+      style_templates: Vec::new(),
+      subtitles: Vec::new(),
       settings: ProjectSettings::default(),
     }
   }
@@ -176,6 +188,8 @@ pub struct Track {
   pub clips: Vec<Clip>,
   /// ID эффектов, применяемых ко всему треку
   pub effects: Vec<String>,
+  /// ID фильтров, применяемых ко всему треку
+  pub filters: Vec<String>,
 }
 
 impl Track {
@@ -190,6 +204,7 @@ impl Track {
       locked: false,
       clips: Vec::new(),
       effects: Vec::new(),
+      filters: Vec::new(),
     }
   }
 
@@ -261,6 +276,14 @@ pub struct Clip {
   pub locked: bool,
   /// ID эффектов, применяемых к клипу
   pub effects: Vec<String>,
+  /// ID фильтров, применяемых к клипу
+  pub filters: Vec<String>,
+  /// ID шаблона для многокамерной раскладки
+  pub template_id: Option<String>,
+  /// Индекс ячейки в шаблоне (0-based)
+  pub template_cell: Option<usize>,
+  /// ID стильного шаблона (интро, аутро, титры)
+  pub style_template_id: Option<String>,
   /// Дополнительные свойства клипа
   pub properties: HashMap<String, serde_json::Value>,
 }
@@ -279,6 +302,10 @@ impl Clip {
       volume: 1.0,
       locked: false,
       effects: Vec::new(),
+      filters: Vec::new(),
+      template_id: None,
+      template_cell: None,
+      style_template_id: None,
       properties: HashMap::new(),
     }
   }
@@ -462,6 +489,51 @@ pub enum EffectType {
   NoiseReduction,
   /// Стабилизация
   Stabilization,
+  // Аудио эффекты
+  /// Плавное появление звука
+  AudioFadeIn,
+  /// Плавное затухание звука
+  AudioFadeOut,
+  /// Кроссфейд между аудио
+  AudioCrossfade,
+  /// Эквалайзер
+  AudioEqualizer,
+  /// Компрессор
+  AudioCompressor,
+  /// Реверберация
+  AudioReverb,
+  /// Задержка (эхо)
+  AudioDelay,
+  /// Хорус
+  AudioChorus,
+  /// Искажение
+  AudioDistortion,
+  /// Нормализация
+  AudioNormalize,
+  /// Шумоподавление
+  AudioDenoise,
+  /// Изменение высоты тона
+  AudioPitch,
+  /// Изменение темпа
+  AudioTempo,
+  /// Приглушение (дакинг)
+  AudioDucking,
+  /// Гейт
+  AudioGate,
+  /// Лимитер
+  AudioLimiter,
+  /// Экспандер
+  AudioExpander,
+  /// Панорамирование
+  AudioPan,
+  /// Ширина стерео
+  AudioStereoWidth,
+  /// Фильтр высоких частот
+  AudioHighpass,
+  /// Фильтр низких частот
+  AudioLowpass,
+  /// Полосовой фильтр
+  AudioBandpass,
 }
 
 /// Категория эффекта
@@ -536,6 +608,456 @@ pub enum EffectParameter {
   FloatArray(Vec<f32>),
   /// Путь к файлу
   FilePath(PathBuf),
+}
+
+/// Фильтр для визуальных эффектов
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Filter {
+  /// Уникальный идентификатор фильтра
+  pub id: String,
+  /// Тип фильтра
+  pub filter_type: FilterType,
+  /// Название фильтра
+  pub name: String,
+  /// Включен ли фильтр
+  pub enabled: bool,
+  /// Параметры фильтра (числовые значения)
+  pub parameters: HashMap<String, f64>,
+  /// FFmpeg команда для применения фильтра
+  pub ffmpeg_command: Option<String>,
+}
+
+impl Filter {
+  /// Создать новый фильтр
+  pub fn new(filter_type: FilterType, name: String) -> Self {
+    Self {
+      id: uuid::Uuid::new_v4().to_string(),
+      filter_type,
+      name,
+      enabled: true,
+      parameters: HashMap::new(),
+      ffmpeg_command: None,
+    }
+  }
+}
+
+/// Тип фильтра
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum FilterType {
+  /// Яркость
+  Brightness,
+  /// Контрастность
+  Contrast,
+  /// Насыщенность
+  Saturation,
+  /// Гамма
+  Gamma,
+  /// Температура цвета
+  Temperature,
+  /// Оттенок
+  Tint,
+  /// Поворот цвета
+  Hue,
+  /// Живость цветов
+  Vibrance,
+  /// Тени
+  Shadows,
+  /// Светлые тона
+  Highlights,
+  /// Черные тона
+  Blacks,
+  /// Белые тона
+  Whites,
+  /// Четкость
+  Clarity,
+  /// Удаление дымки
+  Dehaze,
+  /// Виньетка
+  Vignette,
+  /// Зернистость
+  Grain,
+  /// Размытие
+  Blur,
+  /// Резкость
+  Sharpen,
+  /// Пользовательский фильтр
+  Custom,
+}
+
+/// Шаблон многокамерной раскладки
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Template {
+  /// Уникальный идентификатор шаблона
+  pub id: String,
+  /// Тип шаблона
+  pub template_type: TemplateType,
+  /// Название шаблона
+  pub name: String,
+  /// Количество видео в шаблоне
+  pub screens: usize,
+  /// Ячейки шаблона с позициями
+  pub cells: Vec<TemplateCell>,
+}
+
+impl Template {
+  /// Создать новый шаблон
+  pub fn new(template_type: TemplateType, name: String, screens: usize) -> Self {
+    Self {
+      id: uuid::Uuid::new_v4().to_string(),
+      template_type,
+      name,
+      screens,
+      cells: Vec::new(),
+    }
+  }
+}
+
+/// Тип шаблона
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum TemplateType {
+  /// Вертикальное разделение
+  Vertical,
+  /// Горизонтальное разделение
+  Horizontal,
+  /// Диагональное разделение
+  Diagonal,
+  /// Сетка
+  Grid,
+  /// Пользовательский
+  Custom,
+}
+
+/// Ячейка шаблона
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TemplateCell {
+  /// Индекс ячейки (0-based)
+  pub index: usize,
+  /// Позиция X в процентах (0-100)
+  pub x: f32,
+  /// Позиция Y в процентах (0-100)
+  pub y: f32,
+  /// Ширина в процентах (0-100)
+  pub width: f32,
+  /// Высота в процентах (0-100)
+  pub height: f32,
+  /// Режим масштабирования видео
+  pub fit_mode: FitMode,
+  /// Горизонтальное выравнивание
+  pub align_x: AlignX,
+  /// Вертикальное выравнивание
+  pub align_y: AlignY,
+  /// Дополнительное масштабирование (1.0 = 100%)
+  pub scale: Option<f32>,
+}
+
+/// Режим масштабирования видео в ячейке
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum FitMode {
+  /// Вписать полностью с черными полосами
+  Contain,
+  /// Заполнить с обрезкой
+  Cover,
+  /// Растянуть на всю ячейку
+  Fill,
+}
+
+/// Горизонтальное выравнивание
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum AlignX {
+  /// По левому краю
+  Left,
+  /// По центру
+  Center,
+  /// По правому краю
+  Right,
+}
+
+/// Вертикальное выравнивание
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum AlignY {
+  /// По верхнему краю
+  Top,
+  /// По центру
+  Center,
+  /// По нижнему краю
+  Bottom,
+}
+
+/// Стильный шаблон (интро, аутро, титры)
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct StyleTemplate {
+  /// Уникальный идентификатор шаблона
+  pub id: String,
+  /// Название шаблона
+  pub name: String,
+  /// Категория шаблона
+  pub category: StyleTemplateCategory,
+  /// Стиль шаблона
+  pub style: StyleTemplateStyle,
+  /// Длительность в секундах
+  pub duration: f64,
+  /// Элементы шаблона
+  pub elements: Vec<StyleTemplateElement>,
+}
+
+impl StyleTemplate {
+  /// Создать новый стильный шаблон
+  pub fn new(
+    name: String,
+    category: StyleTemplateCategory,
+    style: StyleTemplateStyle,
+    duration: f64,
+  ) -> Self {
+    Self {
+      id: uuid::Uuid::new_v4().to_string(),
+      name,
+      category,
+      style,
+      duration,
+      elements: Vec::new(),
+    }
+  }
+}
+
+/// Категория стильного шаблона
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum StyleTemplateCategory {
+  /// Интро
+  Intro,
+  /// Аутро
+  Outro,
+  /// Нижняя треть
+  LowerThird,
+  /// Титры
+  Title,
+  /// Переход
+  Transition,
+  /// Наложение
+  Overlay,
+}
+
+/// Стиль шаблона
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum StyleTemplateStyle {
+  /// Современный
+  Modern,
+  /// Винтажный
+  Vintage,
+  /// Минимальный
+  Minimal,
+  /// Корпоративный
+  Corporate,
+  /// Креативный
+  Creative,
+  /// Кинематографический
+  Cinematic,
+}
+
+/// Элемент стильного шаблона
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct StyleTemplateElement {
+  /// Уникальный идентификатор элемента
+  pub id: String,
+  /// Тип элемента
+  pub element_type: StyleElementType,
+  /// Название элемента
+  pub name: String,
+  /// Позиция элемента
+  pub position: Position2D,
+  /// Размер элемента
+  pub size: Size2D,
+  /// Временные параметры
+  pub timing: ElementTiming,
+  /// Свойства элемента
+  pub properties: StyleElementProperties,
+  /// Анимации элемента
+  pub animations: Vec<ElementAnimation>,
+}
+
+/// Тип элемента стильного шаблона
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum StyleElementType {
+  /// Текст
+  Text,
+  /// Фигура
+  Shape,
+  /// Изображение
+  Image,
+  /// Видео
+  Video,
+  /// Анимация
+  Animation,
+  /// Частицы
+  Particle,
+}
+
+/// Позиция в 2D пространстве
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Position2D {
+  /// Позиция X в процентах (0-100)
+  pub x: f32,
+  /// Позиция Y в процентах (0-100)
+  pub y: f32,
+}
+
+/// Размер в 2D пространстве
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Size2D {
+  /// Ширина в процентах (0-100)
+  pub width: f32,
+  /// Высота в процентах (0-100)
+  pub height: f32,
+}
+
+/// Временные параметры элемента
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ElementTiming {
+  /// Время начала в секундах
+  pub start: f64,
+  /// Время окончания в секундах
+  pub end: f64,
+}
+
+/// Свойства элемента стильного шаблона
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct StyleElementProperties {
+  /// Прозрачность (0-1)
+  pub opacity: Option<f32>,
+  /// Поворот в градусах
+  pub rotation: Option<f32>,
+  /// Масштаб
+  pub scale: Option<f32>,
+
+  // Текстовые свойства
+  /// Текст
+  pub text: Option<String>,
+  /// Размер шрифта
+  pub font_size: Option<f32>,
+  /// Семейство шрифтов
+  pub font_family: Option<String>,
+  /// Цвет
+  pub color: Option<String>,
+  /// Выравнивание текста
+  pub text_align: Option<TextAlign>,
+  /// Толщина шрифта
+  pub font_weight: Option<FontWeight>,
+
+  // Свойства фигур
+  /// Цвет фона
+  pub background_color: Option<String>,
+  /// Цвет границы
+  pub border_color: Option<String>,
+  /// Толщина границы
+  pub border_width: Option<f32>,
+  /// Радиус скругления
+  pub border_radius: Option<f32>,
+
+  // Свойства изображений/видео
+  /// Источник
+  pub src: Option<String>,
+  /// Режим заполнения
+  pub object_fit: Option<ObjectFit>,
+}
+
+/// Выравнивание текста
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum TextAlign {
+  /// По левому краю
+  Left,
+  /// По центру
+  Center,
+  /// По правому краю
+  Right,
+}
+
+/// Толщина шрифта
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum FontWeight {
+  /// Обычный
+  Normal,
+  /// Жирный
+  Bold,
+  /// Тонкий
+  Light,
+}
+
+/// Режим заполнения объекта
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ObjectFit {
+  /// Вписать с сохранением пропорций
+  Contain,
+  /// Заполнить с обрезкой
+  Cover,
+  /// Растянуть
+  Fill,
+}
+
+/// Анимация элемента
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ElementAnimation {
+  /// Уникальный идентификатор анимации
+  pub id: String,
+  /// Тип анимации
+  pub animation_type: AnimationType,
+  /// Длительность анимации в секундах
+  pub duration: f64,
+  /// Задержка перед началом
+  pub delay: Option<f64>,
+  /// Функция сглаживания
+  pub easing: Option<AnimationEasing>,
+  /// Направление анимации
+  pub direction: Option<AnimationDirection>,
+  /// Дополнительные свойства
+  pub properties: HashMap<String, serde_json::Value>,
+}
+
+/// Тип анимации
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum AnimationType {
+  /// Появление
+  FadeIn,
+  /// Исчезновение
+  FadeOut,
+  /// Въезд
+  SlideIn,
+  /// Выезд
+  SlideOut,
+  /// Увеличение
+  ScaleIn,
+  /// Уменьшение
+  ScaleOut,
+  /// Прыжок
+  Bounce,
+  /// Тряска
+  Shake,
+}
+
+/// Функция сглаживания анимации
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum AnimationEasing {
+  /// Линейная
+  Linear,
+  /// Плавная
+  Ease,
+  /// Плавный вход
+  EaseIn,
+  /// Плавный выход
+  EaseOut,
+  /// Плавный вход и выход
+  EaseInOut,
+}
+
+/// Направление анимации
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum AnimationDirection {
+  /// Влево
+  Left,
+  /// Вправо
+  Right,
+  /// Вверх
+  Up,
+  /// Вниз
+  Down,
 }
 
 /// Переход между клипами
@@ -756,6 +1278,100 @@ pub enum TransitionTag {
   Complex,
   /// Резервный
   Fallback,
+  /// Шторка
+  Wipe,
+  /// Горизонтальный
+  Horizontal,
+  /// Вертикальный
+  Vertical,
+  /// Радиальный
+  Radial,
+  /// Круговой
+  Circular,
+  /// Центр
+  Center,
+  /// Куб
+  Cube,
+  /// Страница
+  Page,
+  /// Поворот
+  Turn,
+  /// Книга
+  Book,
+  /// Креативный
+  Creative,
+  /// Рябь
+  Ripple,
+  /// Вода
+  Water,
+  /// Волна
+  Wave,
+  /// Искажение
+  Distortion,
+  /// Пиксель
+  Pixel,
+  /// Цифровой
+  Digital,
+  /// Ретро
+  Retro,
+  /// 8-бит
+  EightBit,
+  /// Растворение
+  Dissolve,
+  /// Шум
+  Noise,
+  /// Морфинг
+  Morph,
+  /// Жидкий
+  Fluid,
+  /// Глитч
+  Glitch,
+  /// Современный
+  Modern,
+  /// Калейдоскоп
+  Kaleidoscope,
+  /// Геометрический
+  Geometric,
+  /// Артистический
+  Artistic,
+  /// Разбитие
+  Shatter,
+  /// Ломать
+  Break,
+  /// Стекло
+  Glass,
+  /// Драматический
+  Dramatic,
+  /// Горение
+  Burn,
+  /// Огонь
+  Fire,
+  /// Кинематографический
+  Cinematic,
+  /// Жалюзи
+  Blinds,
+  /// Полосы
+  Stripes,
+  /// Диафрагма
+  Iris,
+  /// Камера
+  Camera,
+  /// Водоворот
+  Swirl,
+  /// Закручивание
+  Twist,
+  /// Размытие
+  Blur,
+  /// Движение
+  Motion,
+  /// Скорость
+  Speed,
+  /// ТВ
+  Tv,
+  /// Помехи
+  Static,
+  /// Аналоговый
+  Analog,
 }
 
 /// Настройки проекта
@@ -782,6 +1398,8 @@ pub struct ExportSettings {
   pub audio_bitrate: u32,
   /// Использовать аппаратное ускорение
   pub hardware_acceleration: bool,
+  /// Предпочитаемый GPU кодировщик (опционально)
+  pub preferred_gpu_encoder: Option<String>,
   /// Дополнительные параметры FFmpeg
   pub ffmpeg_args: Vec<String>,
 }
@@ -794,6 +1412,7 @@ impl Default for ExportSettings {
       video_bitrate: 8000,
       audio_bitrate: 192,
       hardware_acceleration: true,
+      preferred_gpu_encoder: None,
       ffmpeg_args: Vec::new(),
     }
   }
@@ -841,6 +1460,339 @@ pub enum PreviewFormat {
   Jpeg,
   Png,
   WebP,
+}
+
+/// Субтитр
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Subtitle {
+  /// Уникальный идентификатор субтитра
+  pub id: String,
+  /// Текст субтитра
+  pub text: String,
+  /// Время начала в секундах
+  pub start_time: f64,
+  /// Время окончания в секундах
+  pub end_time: f64,
+  /// Позиция субтитра на экране
+  pub position: SubtitlePosition,
+  /// Стиль субтитра
+  pub style: SubtitleStyle,
+  /// Включен ли субтитр
+  pub enabled: bool,
+  /// Анимации субтитра
+  pub animations: Vec<SubtitleAnimation>,
+}
+
+impl Subtitle {
+  /// Создать новый субтитр
+  pub fn new(text: String, start_time: f64, end_time: f64) -> Self {
+    Self {
+      id: uuid::Uuid::new_v4().to_string(),
+      text,
+      start_time,
+      end_time,
+      position: SubtitlePosition::default(),
+      style: SubtitleStyle::default(),
+      enabled: true,
+      animations: Vec::new(),
+    }
+  }
+
+  /// Проверить валидность субтитра
+  pub fn validate(&self) -> Result<(), String> {
+    if self.text.is_empty() {
+      return Err("Текст субтитра не может быть пустым".to_string());
+    }
+
+    if self.start_time < 0.0 {
+      return Err("Время начала не может быть отрицательным".to_string());
+    }
+
+    if self.end_time <= self.start_time {
+      return Err("Время окончания должно быть больше времени начала".to_string());
+    }
+
+    Ok(())
+  }
+
+  /// Получить длительность субтитра
+  pub fn get_duration(&self) -> f64 {
+    self.end_time - self.start_time
+  }
+}
+
+/// Позиция субтитра на экране
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SubtitlePosition {
+  /// Позиция X в процентах (0-100)
+  pub x: f32,
+  /// Позиция Y в процентах (0-100)  
+  pub y: f32,
+  /// Выравнивание по горизонтали
+  pub align_x: SubtitleAlignX,
+  /// Выравнивание по вертикали
+  pub align_y: SubtitleAlignY,
+  /// Отступы в пикселях
+  pub margin: SubtitleMargin,
+}
+
+impl Default for SubtitlePosition {
+  fn default() -> Self {
+    Self {
+      x: 50.0, // По центру
+      y: 85.0, // Внизу экрана
+      align_x: SubtitleAlignX::Center,
+      align_y: SubtitleAlignY::Bottom,
+      margin: SubtitleMargin::default(),
+    }
+  }
+}
+
+/// Горизонтальное выравнивание субтитра
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum SubtitleAlignX {
+  /// По левому краю
+  Left,
+  /// По центру
+  Center,
+  /// По правому краю
+  Right,
+}
+
+/// Вертикальное выравнивание субтитра
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum SubtitleAlignY {
+  /// По верхнему краю
+  Top,
+  /// По центру
+  Center,
+  /// По нижнему краю
+  Bottom,
+}
+
+/// Отступы субтитра
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SubtitleMargin {
+  /// Отступ сверху в пикселях
+  pub top: f32,
+  /// Отступ справа в пикселях
+  pub right: f32,
+  /// Отступ снизу в пикселях
+  pub bottom: f32,
+  /// Отступ слева в пикселях
+  pub left: f32,
+}
+
+impl Default for SubtitleMargin {
+  fn default() -> Self {
+    Self {
+      top: 20.0,
+      right: 20.0,
+      bottom: 20.0,
+      left: 20.0,
+    }
+  }
+}
+
+/// Стиль субтитра
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SubtitleStyle {
+  /// Название шрифта
+  pub font_family: String,
+  /// Размер шрифта в пикселях
+  pub font_size: f32,
+  /// Толщина шрифта
+  pub font_weight: SubtitleFontWeight,
+  /// Цвет текста (в формате #RRGGBB или #RRGGBBAA)
+  pub color: String,
+  /// Цвет обводки (опционально)
+  pub stroke_color: Option<String>,
+  /// Толщина обводки в пикселях
+  pub stroke_width: f32,
+  /// Цвет тени (опционально)
+  pub shadow_color: Option<String>,
+  /// Смещение тени по X
+  pub shadow_x: f32,
+  /// Смещение тени по Y
+  pub shadow_y: f32,
+  /// Размытие тени
+  pub shadow_blur: f32,
+  /// Цвет фона (опционально)
+  pub background_color: Option<String>,
+  /// Прозрачность фона (0-1)
+  pub background_opacity: f32,
+  /// Отступы текста внутри фона
+  pub padding: SubtitlePadding,
+  /// Радиус скругления фона
+  pub border_radius: f32,
+  /// Межстрочный интервал
+  pub line_height: f32,
+  /// Межбуквенный интервал
+  pub letter_spacing: f32,
+  /// Максимальная ширина в процентах
+  pub max_width: f32,
+}
+
+impl Default for SubtitleStyle {
+  fn default() -> Self {
+    Self {
+      font_family: "Arial".to_string(),
+      font_size: 24.0,
+      font_weight: SubtitleFontWeight::Normal,
+      color: "#FFFFFF".to_string(),
+      stroke_color: Some("#000000".to_string()),
+      stroke_width: 2.0,
+      shadow_color: Some("#000000".to_string()),
+      shadow_x: 2.0,
+      shadow_y: 2.0,
+      shadow_blur: 4.0,
+      background_color: None,
+      background_opacity: 0.8,
+      padding: SubtitlePadding::default(),
+      border_radius: 4.0,
+      line_height: 1.2,
+      letter_spacing: 0.0,
+      max_width: 80.0,
+    }
+  }
+}
+
+/// Толщина шрифта субтитра
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum SubtitleFontWeight {
+  /// Тонкий
+  Thin,
+  /// Светлый
+  Light,
+  /// Обычный
+  Normal,
+  /// Средний
+  Medium,
+  /// Жирный
+  Bold,
+  /// Очень жирный
+  Black,
+}
+
+/// Отступы текста внутри фона субтитра
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SubtitlePadding {
+  /// Отступ сверху
+  pub top: f32,
+  /// Отступ справа
+  pub right: f32,
+  /// Отступ снизу
+  pub bottom: f32,
+  /// Отступ слева
+  pub left: f32,
+}
+
+impl Default for SubtitlePadding {
+  fn default() -> Self {
+    Self {
+      top: 8.0,
+      right: 12.0,
+      bottom: 8.0,
+      left: 12.0,
+    }
+  }
+}
+
+/// Анимация субтитра
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SubtitleAnimation {
+  /// Уникальный идентификатор анимации
+  pub id: String,
+  /// Тип анимации
+  pub animation_type: SubtitleAnimationType,
+  /// Длительность анимации в секундах
+  pub duration: f64,
+  /// Задержка перед началом анимации
+  pub delay: f64,
+  /// Функция сглаживания
+  pub easing: SubtitleEasing,
+  /// Направление анимации (для движения)
+  pub direction: Option<SubtitleDirection>,
+  /// Дополнительные параметры
+  pub properties: HashMap<String, serde_json::Value>,
+}
+
+impl SubtitleAnimation {
+  /// Создать новую анимацию субтитра
+  pub fn new(animation_type: SubtitleAnimationType, duration: f64) -> Self {
+    Self {
+      id: uuid::Uuid::new_v4().to_string(),
+      animation_type,
+      duration,
+      delay: 0.0,
+      easing: SubtitleEasing::EaseInOut,
+      direction: None,
+      properties: HashMap::new(),
+    }
+  }
+}
+
+/// Тип анимации субтитра
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum SubtitleAnimationType {
+  /// Появление с изменением прозрачности
+  FadeIn,
+  /// Исчезновение с изменением прозрачности
+  FadeOut,
+  /// Въезд с указанного направления
+  SlideIn,
+  /// Выезд в указанном направлении
+  SlideOut,
+  /// Увеличение от 0 до полного размера
+  ScaleIn,
+  /// Уменьшение до 0
+  ScaleOut,
+  /// Печатающаяся машинка (по буквам)
+  Typewriter,
+  /// Волна (буквы появляются по очереди)
+  Wave,
+  /// Подпрыгивание
+  Bounce,
+  /// Покачивание
+  Shake,
+  /// Мигание
+  Blink,
+  /// Растворение (буквы исчезают случайно)
+  Dissolve,
+}
+
+/// Функция сглаживания анимации субтитра
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum SubtitleEasing {
+  /// Линейная
+  Linear,
+  /// Плавная
+  Ease,
+  /// Плавный вход
+  EaseIn,
+  /// Плавный выход
+  EaseOut,
+  /// Плавный вход и выход
+  EaseInOut,
+  /// Эластичная
+  Elastic,
+  /// Прыжок
+  Bounce,
+}
+
+/// Направление анимации субтитра
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum SubtitleDirection {
+  /// Сверху
+  Top,
+  /// Снизу
+  Bottom,
+  /// Слева
+  Left,
+  /// Справа
+  Right,
+  /// Из центра
+  Center,
 }
 
 #[cfg(test)]
@@ -944,5 +1896,68 @@ mod tests {
     // Десериализация из JSON
     let deserialized: ProjectSchema = serde_json::from_str(&json).unwrap();
     assert_eq!(deserialized.metadata.name, "Serialization Test");
+  }
+
+  #[test]
+  fn test_subtitle_creation() {
+    let subtitle = Subtitle::new("Привет мир!".to_string(), 10.0, 15.0);
+    assert_eq!(subtitle.text, "Привет мир!");
+    assert_eq!(subtitle.start_time, 10.0);
+    assert_eq!(subtitle.end_time, 15.0);
+    assert_eq!(subtitle.get_duration(), 5.0);
+    assert!(subtitle.enabled);
+    assert!(!subtitle.id.is_empty());
+  }
+
+  #[test]
+  fn test_subtitle_validation() {
+    // Валидный субтитр
+    let subtitle = Subtitle::new("Текст".to_string(), 0.0, 5.0);
+    assert!(subtitle.validate().is_ok());
+
+    // Пустой текст
+    let mut invalid_subtitle = subtitle.clone();
+    invalid_subtitle.text = "".to_string();
+    assert!(invalid_subtitle.validate().is_err());
+
+    // Отрицательное время начала
+    let mut invalid_subtitle = subtitle.clone();
+    invalid_subtitle.start_time = -1.0;
+    assert!(invalid_subtitle.validate().is_err());
+
+    // Время окончания меньше времени начала
+    let mut invalid_subtitle = subtitle.clone();
+    invalid_subtitle.end_time = invalid_subtitle.start_time - 1.0;
+    assert!(invalid_subtitle.validate().is_err());
+  }
+
+  #[test]
+  fn test_subtitle_style_default() {
+    let style = SubtitleStyle::default();
+    assert_eq!(style.font_family, "Arial");
+    assert_eq!(style.font_size, 24.0);
+    assert_eq!(style.color, "#FFFFFF");
+    assert_eq!(style.stroke_width, 2.0);
+    assert!(style.stroke_color.is_some());
+    assert!(style.shadow_color.is_some());
+  }
+
+  #[test]
+  fn test_subtitle_position_default() {
+    let position = SubtitlePosition::default();
+    assert_eq!(position.x, 50.0); // По центру
+    assert_eq!(position.y, 85.0); // Внизу экрана
+    assert_eq!(position.align_x, SubtitleAlignX::Center);
+    assert_eq!(position.align_y, SubtitleAlignY::Bottom);
+  }
+
+  #[test]
+  fn test_subtitle_animation_creation() {
+    let animation = SubtitleAnimation::new(SubtitleAnimationType::FadeIn, 1.0);
+    assert_eq!(animation.animation_type, SubtitleAnimationType::FadeIn);
+    assert_eq!(animation.duration, 1.0);
+    assert_eq!(animation.delay, 0.0);
+    assert_eq!(animation.easing, SubtitleEasing::EaseInOut);
+    assert!(!animation.id.is_empty());
   }
 }

@@ -5,6 +5,8 @@
 import { renderHook } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
+import { TimelineProviders } from "@/test/test-utils"
+
 import { useClips } from "../../hooks/use-clips"
 
 describe("useClips", () => {
@@ -15,7 +17,9 @@ describe("useClips", () => {
     })
 
     it("should return object with all required properties and methods", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       // Проверяем наличие основных свойств
       expect(result.current).toHaveProperty("clips")
@@ -35,7 +39,9 @@ describe("useClips", () => {
 
   describe("Default State", () => {
     it("should return empty arrays and objects by default", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(result.current.clips).toEqual([])
       expect(result.current.selectedClips).toEqual([])
@@ -43,35 +49,53 @@ describe("useClips", () => {
     })
 
     it("should return default statistics", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       const stats = result.current.getClipStats()
       expect(stats).toEqual({
         totalClips: 0,
         totalDuration: 0,
         selectedCount: 0,
-        clipsByType: { video: 0, audio: 0, image: 0 },
+        clipsByType: {
+          video: 0,
+          audio: 0,
+          image: 0,
+          ambient: 0,
+          music: 0,
+          sfx: 0,
+          subtitle: 0,
+          title: 0,
+          voiceover: 0,
+        },
       })
     })
   })
 
   describe("Clip Search and Selection", () => {
     it("should return null for non-existent clip", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       const clip = result.current.findClip("non-existent-clip")
       expect(clip).toBeNull()
     })
 
     it("should return false for non-existent clip selection", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       const isSelected = result.current.isClipSelected("non-existent-clip")
       expect(isSelected).toBe(false)
     })
 
     it("should return empty array for non-existent track", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       const clips = result.current.getClipsByTrack("non-existent-track")
       expect(clips).toEqual([])
@@ -80,21 +104,27 @@ describe("useClips", () => {
 
   describe("Time-based Operations", () => {
     it("should return null for clip search in non-existent track", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       const clip = result.current.getClipAtTime("non-existent-track", 10)
       expect(clip).toBeNull()
     })
 
     it("should return false for clip placement check", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       const canPlace = result.current.canPlaceClip("track-1", 0, 10)
       expect(canPlace).toBe(false)
     })
 
     it("should return empty conflicts array", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       const conflicts = result.current.getClipConflicts("track-1", 0, 10)
       expect(conflicts).toEqual([])
@@ -103,7 +133,9 @@ describe("useClips", () => {
 
   describe("Error Handling", () => {
     it("should not throw errors when calling methods with invalid parameters", () => {
-      const { result } = renderHook(() => useClips())
+      const { result } = renderHook(() => useClips(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.findClip("")

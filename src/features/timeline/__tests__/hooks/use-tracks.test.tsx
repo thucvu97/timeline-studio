@@ -3,30 +3,12 @@
  */
 
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+
+import { TimelineProviders } from "@/test/test-utils"
 
 import { useTracks } from "../../hooks/use-tracks"
-
-// Мокаем зависимости
-vi.mock("../timeline-provider", () => ({
-  useTimeline: () => ({
-    project: mockProject,
-    uiState: mockUIState,
-    addTrack: vi.fn(),
-    removeTrack: vi.fn(),
-    updateTrack: vi.fn(),
-    reorderTracks: vi.fn(),
-    selectTracks: vi.fn(),
-    clearSelection: vi.fn(),
-  }),
-}))
-
-vi.mock("@/lib/timeline/utils", () => ({
-  getAllTracks: vi.fn(() => mockTracks),
-  findTrackById: vi.fn((project, id) => mockTracks.find((track) => track.id === id) || null),
-  getTracksByType: vi.fn((project, type) => mockTracks.filter((track) => track.type === type)),
-  sortTracksByOrder: vi.fn((tracks) => tracks),
-}))
+import { TimelineProject, TimelineTrack, TimelineUIState } from "../../types/timeline"
 
 // Мокаем треки
 const mockTracks: TimelineTrack[] = [
@@ -141,6 +123,31 @@ const mockUIState = {
   visibleTrackTypes: ["video", "audio"],
 }
 
+// Мокаем зависимости
+const mockUseTimeline = vi.fn()
+vi.mock("../../hooks/use-timeline", () => ({
+  useTimeline: () => mockUseTimeline(),
+}))
+
+// Default mock implementation
+mockUseTimeline.mockReturnValue({
+  project: mockProject,
+  uiState: mockUIState,
+  addTrack: vi.fn(),
+  removeTrack: vi.fn(),
+  updateTrack: vi.fn(),
+  reorderTracks: vi.fn(),
+  selectTracks: vi.fn(),
+  clearSelection: vi.fn(),
+})
+
+vi.mock("../../utils/utils", () => ({
+  getAllTracks: vi.fn((project) => project ? mockTracks : []),
+  findTrackById: vi.fn((project, id) => project ? mockTracks.find((track) => track.id === id) || null : null),
+  getTracksByType: vi.fn((project, type) => project ? mockTracks.filter((track) => track.type === type) : []),
+  sortTracksByOrder: vi.fn((tracks) => tracks || []),
+}))
+
 describe("useTracks", () => {
   describe("Hook Initialization", () => {
     it("should be defined and exportable", () => {
@@ -149,7 +156,9 @@ describe("useTracks", () => {
     })
 
     it("should return object with all required properties and methods", () => {
-      const { result } = renderHook(() => useTracks())
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
 
       // Проверяем наличие основных свойств
       expect(result.current).toHaveProperty("tracks")
@@ -168,8 +177,22 @@ describe("useTracks", () => {
   })
 
   describe("Default State", () => {
-    it("should return empty arrays by default", () => {
-      const { result } = renderHook(() => useTracks())
+    it("should return empty arrays when no project is loaded", () => {
+      // Mock useTimeline to return no project
+      mockUseTimeline.mockReturnValueOnce({
+        project: null,
+        uiState: mockUIState,
+        addTrack: vi.fn(),
+        removeTrack: vi.fn(),
+        updateTrack: vi.fn(),
+        reorderTracks: vi.fn(),
+        selectTracks: vi.fn(),
+        clearSelection: vi.fn(),
+      })
+
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(result.current.tracks).toEqual([])
       expect(result.current.selectedTracks).toEqual([])
@@ -177,46 +200,148 @@ describe("useTracks", () => {
       expect(result.current.sectionTracks).toEqual([])
       expect(result.current.globalTracks).toEqual([])
     })
+
+    it("should return tracks when project is loaded", () => {
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
+
+      expect(result.current.tracks).toEqual(mockTracks)
+      expect(result.current.globalTracks).toEqual([]) // No global tracks in mock project
+      expect(result.current.sectionTracks).toEqual(mockTracks) // All tracks are in sections
+      expect(result.current.selectedTracks).toEqual([mockTracks[0]]) // track-1 is selected
+      expect(result.current.visibleTracks).toEqual([mockTracks[0], mockTracks[1]]) // Only non-hidden tracks (track-3 is hidden)
+    })
   })
 
   describe("Track Search and Filtering", () => {
     it("should return null for non-existent track", () => {
-      const { result } = renderHook(() => useTracks())
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
 
       const track = result.current.findTrack("non-existent-track")
       expect(track).toBeNull()
     })
 
-    it("should return empty array for tracks by type", () => {
-      const { result } = renderHook(() => useTracks())
+    it("should find existing tracks by id", () => {
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
+
+      const track = result.current.findTrack("track-1")
+      expect(track).toEqual(mockTracks[0])
+    })
+
+    it("should return tracks filtered by type", () => {
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
+
+      const videoTracks = result.current.getTracksByType("video")
+      expect(videoTracks).toEqual([mockTracks[0], mockTracks[2]])
+
+      const audioTracks = result.current.getTracksByType("audio")
+      expect(audioTracks).toEqual([mockTracks[1]])
+    })
+
+    it("should return empty array for tracks by type when no project", () => {
+      mockUseTimeline.mockReturnValueOnce({
+        project: null,
+        uiState: mockUIState,
+        addTrack: vi.fn(),
+        removeTrack: vi.fn(),
+        updateTrack: vi.fn(),
+        reorderTracks: vi.fn(),
+        selectTracks: vi.fn(),
+        clearSelection: vi.fn(),
+      })
+
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
 
       const videoTracks = result.current.getTracksByType("video")
       expect(videoTracks).toEqual([])
-
-      const audioTracks = result.current.getTracksByType("audio")
-      expect(audioTracks).toEqual([])
     })
 
-    it("should return empty array for tracks by section", () => {
-      const { result } = renderHook(() => useTracks())
+    it("should return tracks for specific section", () => {
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
 
       const sectionTracks = result.current.getTracksBySection("section-1")
+      expect(sectionTracks).toEqual([mockTracks[0], mockTracks[1]])
+    })
+
+    it("should return empty array for non-existent section", () => {
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
+
+      const sectionTracks = result.current.getTracksBySection("non-existent-section")
       expect(sectionTracks).toEqual([])
     })
   })
 
   describe("Track Management", () => {
-    it("should return false for adding track to non-existent section", () => {
-      const { result } = renderHook(() => useTracks())
+    it("should return false when adding track without project", () => {
+      mockUseTimeline.mockReturnValueOnce({
+        project: null,
+        uiState: mockUIState,
+        addTrack: vi.fn(),
+        removeTrack: vi.fn(),
+        updateTrack: vi.fn(),
+        reorderTracks: vi.fn(),
+        selectTracks: vi.fn(),
+        clearSelection: vi.fn(),
+      })
+
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
 
       const canAdd = result.current.canAddTrackToSection("non-existent", "video")
       expect(canAdd).toBe(false)
     })
 
-    it("should return default track statistics", () => {
-      const { result } = renderHook(() => useTracks())
+    it("should return false for adding track to non-existent section", () => {
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
+
+      const canAdd = result.current.canAddTrackToSection("non-existent", "video")
+      expect(canAdd).toBe(false)
+    })
+
+    it("should return true for adding track to existing section", () => {
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
+
+      const canAdd = result.current.canAddTrackToSection("section-1", "video")
+      expect(canAdd).toBe(true)
+    })
+
+    it("should return default track statistics for non-existent track", () => {
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
 
       const stats = result.current.getTrackStats("non-existent-track")
+      expect(stats).toEqual({
+        clipCount: 0,
+        totalDuration: 0,
+        isEmpty: true,
+      })
+    })
+
+    it("should return track statistics for existing track", () => {
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
+
+      const stats = result.current.getTrackStats("track-1")
       expect(stats).toEqual({
         clipCount: 0,
         totalDuration: 0,
@@ -227,7 +352,9 @@ describe("useTracks", () => {
 
   describe("Error Handling", () => {
     it("should not throw errors when calling methods with invalid parameters", () => {
-      const { result } = renderHook(() => useTracks())
+      const { result } = renderHook(() => useTracks(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.findTrack("")

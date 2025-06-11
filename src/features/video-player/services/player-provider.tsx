@@ -19,6 +19,13 @@ interface PlayerContextType extends MachineContextType {
   setVideoLoading: (isLoading: boolean) => void
   setVideoReady: (isReady: boolean) => void
   setIsResizableMode: (isResizableMode: boolean) => void
+  setPrerenderSettings: (settings: {
+    prerenderEnabled?: boolean
+    prerenderQuality?: number
+    prerenderSegmentDuration?: number
+    prerenderApplyEffects?: boolean
+    prerenderAutoPrerender?: boolean
+  }) => void
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined)
@@ -74,6 +81,13 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     setVideoLoading: (isLoading: boolean) => send({ type: "setVideoLoading", isVideoLoading: isLoading }),
     setVideoReady: (isReady: boolean) => send({ type: "setVideoReady", isVideoReady: isReady }),
     setIsResizableMode: (isResizableMode: boolean) => send({ type: "setIsResizableMode", isResizableMode }),
+    setPrerenderSettings: (settings: {
+      prerenderEnabled?: boolean
+      prerenderQuality?: number
+      prerenderSegmentDuration?: number
+      prerenderApplyEffects?: boolean
+      prerenderAutoPrerender?: boolean
+    }) => send({ type: "setPrerenderSettings", ...settings }),
   }
 
   // Сохраняем контекст плеера в глобальном объекте window

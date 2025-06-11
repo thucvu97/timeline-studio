@@ -9,30 +9,45 @@
  * 5. Интеграция с системой ресурсов (эффекты, фильтры, переходы)
  */
 
+import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
-
-// Временные типы для ресурсов (будут заменены на реальные)
-interface Effect {
-  id: string
-  name: string
-  [key: string]: any
-}
-
-interface Filter {
-  id: string
-  name: string
-  [key: string]: any
-}
-
-interface Transition {
-  id: string
-  name: string
-  [key: string]: any
-}
+import { StyleTemplate } from "@/features/style-templates/types/style-template"
+import { MediaTemplate } from "@/features/templates/lib/templates"
+import { Transition } from "@/features/transitions/types/transitions"
 
 // ============================================================================
 // CORE TIMELINE TYPES
 // ============================================================================
+
+/**
+ * Централизованное хранилище ресурсов проекта
+ */
+export interface ProjectResources {
+  // Визуальные эффекты
+  effects: VideoEffect[]
+
+  // Фильтры цветокоррекции
+  filters: VideoFilter[]
+
+  // Переходы между клипами
+  transitions: Transition[]
+
+  // Шаблоны многокамерных раскладок
+  templates: MediaTemplate[]
+
+  // Стильные шаблоны (интро, титры)
+  styleTemplates: StyleTemplate[]
+
+  // Стили субтитров (TODO: implement when subtitles are added)
+  subtitleStyles: any[] // SubtitleStyle[]
+
+  // Музыкальные треки (TODO: implement when music is added)
+  music: any[] // MusicFile[]
+
+  // Медиафайлы проекта
+  media: MediaFile[]
+}
 
 /**
  * Проект Timeline - корневой объект
@@ -50,6 +65,9 @@ export interface TimelineProject {
   // Структура проекта
   sections: TimelineSection[]
   globalTracks: TimelineTrack[] // Глобальные треки (музыка, титры)
+
+  // Централизованное хранилище всех ресурсов проекта
+  resources: ProjectResources
 
   // Настройки
   settings: ProjectSettings
@@ -150,10 +168,15 @@ export interface TimelineClip {
   position?: ClipPosition
   opacity: number // 0-1
 
-  // Ресурсы клипа
+  // Шаблоны многокамерных раскладок
+  templateId?: string // ID шаблона для многокамерной раскладки
+  templateCell?: number // Индекс ячейки в шаблоне (0-based)
+
+  // Применяемые ресурсы
   effects: AppliedEffect[]
   filters: AppliedFilter[]
   transitions: AppliedTransition[]
+  styleTemplate?: AppliedStyleTemplate // Применяемый стильный шаблон
 
   // Состояние
   isSelected: boolean
@@ -217,40 +240,50 @@ export interface ProjectSettings {
 // APPLIED RESOURCES TYPES
 // ============================================================================
 
+/**
+ * Применение эффекта с кастомными параметрами
+ */
 export interface AppliedEffect {
   id: string
-  effectId: string // ID из системы эффектов
-  effect?: Effect // Опциональная ссылка
+  effectId: string // Ссылка на эффект в resources.effects
 
-  // Временные параметры
+  // Временные параметры (для анимированных эффектов)
   startTime?: number // Относительно клипа/трека
   duration?: number
 
-  // Параметры эффекта
-  params: Record<string, any>
+  // Кастомные параметры для этого применения
+  // Переопределяют дефолтные параметры эффекта
+  customParams?: Record<string, any>
 
   // Состояние
   isEnabled: boolean
-  order: number
+  order: number // Порядок применения в цепочке
 }
 
+/**
+ * Применение фильтра с кастомными параметрами
+ */
 export interface AppliedFilter {
   id: string
-  filterId: string
-  filter?: Filter
+  filterId: string // Ссылка на фильтр в resources.filters
 
+  // Временные параметры
   startTime?: number
   duration?: number
 
-  params: Record<string, any>
+  // Кастомные параметры для этого применения
+  customParams?: Record<string, any>
+
   isEnabled: boolean
   order: number
 }
 
+/**
+ * Применение перехода между клипами
+ */
 export interface AppliedTransition {
   id: string
-  transitionId: string
-  transition?: Transition
+  transitionId: string // Ссылка на переход в resources.transitions
 
   // Переходы всегда имеют длительность
   duration: number
@@ -258,7 +291,26 @@ export interface AppliedTransition {
   // Тип перехода
   type: "in" | "out" | "cross" // Вход, выход, кроссфейд
 
-  params: Record<string, any>
+  // Кастомные параметры
+  customParams?: Record<string, any>
+
+  isEnabled: boolean
+}
+
+/**
+ * Применение стильного шаблона
+ */
+export interface AppliedStyleTemplate {
+  id: string
+  styleTemplateId: string // Ссылка на шаблон в resources.styleTemplates
+
+  // Кастомизация текстов и других параметров
+  customizations?: {
+    texts?: Record<string, string> // id элемента -> новый текст
+    colors?: Record<string, string> // id элемента -> новый цвет
+    // и т.д.
+  }
+
   isEnabled: boolean
 }
 
@@ -329,4 +381,70 @@ export interface TimelineKeyframe {
   property: string
   value: any
   interpolation: "linear" | "ease" | "ease-in" | "ease-out" | "bezier"
+}
+
+// ============================================================================
+// SUBTITLE TYPES
+// ============================================================================
+
+/**
+ * Расширенный интерфейс для субтитровых клипов
+ */
+export interface SubtitleClip extends TimelineClip {
+  // Текст субтитра
+  text: string
+
+  // Стиль субтитра (ссылка на стиль из ресурсов)
+  subtitleStyleId?: string
+
+  // Переопределение позиции для конкретного субтитра
+  subtitlePosition?: {
+    alignment:
+      | "top-left"
+      | "top-center"
+      | "top-right"
+      | "middle-left"
+      | "middle-center"
+      | "middle-right"
+      | "bottom-left"
+      | "bottom-center"
+      | "bottom-right"
+    marginX: number // Отступ по горизонтали в пикселях
+    marginY: number // Отступ по вертикали в пикселях
+  }
+
+  // Анимации входа и выхода
+  animationIn?: {
+    type: "fade" | "slide" | "typewriter" | "scale" | "wave"
+    duration: number // В секундах
+    easing?: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out"
+  }
+
+  animationOut?: {
+    type: "fade" | "slide" | "scale"
+    duration: number // В секундах
+    easing?: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out"
+  }
+
+  // Дополнительные настройки для субтитров
+  wordWrap?: boolean // Перенос слов
+  maxWidth?: number // Максимальная ширина в процентах от экрана
+
+  // Форматирование текста (переопределяет стиль)
+  formatting?: {
+    bold?: boolean
+    italic?: boolean
+    underline?: boolean
+    fontSize?: number // Переопределение размера шрифта
+    color?: string // Переопределение цвета
+  }
+}
+
+/**
+ * Тип для проверки, является ли клип субтитром
+ */
+export function isSubtitleClip(clip: TimelineClip): clip is SubtitleClip {
+  const track = clip.trackId // В реальном коде нужно получить трек по ID
+  // Проверяем по типу трека или наличию текста
+  return "text" in clip
 }

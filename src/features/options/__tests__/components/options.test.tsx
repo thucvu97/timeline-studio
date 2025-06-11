@@ -2,9 +2,12 @@ import { act } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
+import { setTranslations } from "@/test/mocks/libraries/i18n"
 import { renderWithBase, screen } from "@/test/test-utils"
 
 import { Options } from "../../components/options"
+
+// Мокаем переводы для теста
 
 // Моковый медиафайл для тестов
 const mockMediaFile: MediaFile = {
@@ -69,20 +72,13 @@ vi.mock("@/components/ui/tabs", () => ({
   ),
 }))
 
-// Мокаем react-i18next
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        "options.tabs.video": "Видео",
-        "options.tabs.audio": "Аудио",
-        "options.tabs.speed": "Скорость",
-        "options.tabs.info": "Информация",
-      }
-      return translations[key] || key
-    },
-  }),
-}))
+// Устанавливаем переводы для компонента Options
+setTranslations({
+  "options.tabs.video": "Видео",
+  "options.tabs.audio": "Аудио",
+  "options.tabs.speed": "Скорость",
+  "options.tabs.info": "Информация",
+})
 
 describe("Options", () => {
   it("should render options component", () => {

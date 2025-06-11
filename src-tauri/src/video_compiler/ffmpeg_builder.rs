@@ -3,12 +3,16 @@
 //! Этот модуль отвечает за построение команд FFmpeg на основе схемы проекта,
 //! включая обработку треков, клипов, эффектов и настроек экспорта.
 
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use tokio::process::Command;
 
 use crate::video_compiler::error::Result;
 use crate::video_compiler::schema::{
-  Clip, Effect, EffectParameter, EffectType, OutputFormat, ProjectSchema, Track, TrackType,
+  Clip, Effect, EffectParameter, EffectType, Filter, FilterType, OutputFormat, ProjectSchema,
+  StyleElementType, StyleTemplate, Subtitle, SubtitleAlignX, SubtitleAlignY, SubtitleAnimation,
+  SubtitleAnimationType, SubtitleDirection, SubtitleFontWeight, SubtitlePosition, Template, Track,
+  TrackType, Transition,
 };
 
 /// Построитель команд FFmpeg
@@ -87,9 +91,101 @@ impl FFmpegBuilder {
     Ok(cmd)
   }
 
+  /// Построить команду для пререндера сегмента видео
+  pub async fn build_prerender_segment_command(
+    &self,
+    start_time: f64,
+    end_time: f64,
+    output_path: &Path,
+    apply_effects: bool,
+  ) -> Result<Command> {
+    let mut cmd = Command::new(&self.settings.ffmpeg_path);
+
+    // Глобальные опции
+    self.add_global_options(&mut cmd);
+
+    // Добавляем входные источники
+    self.add_input_sources(&mut cmd).await?;
+
+    // Временной диапазон
+    let duration = end_time - start_time;
+
+    // Построить граф фильтров только для указанного сегмента
+    if apply_effects {
+      let filter_complex = self
+        .build_segment_filter_complex(start_time, end_time)
+        .await?;
+      if !filter_complex.is_empty() {
+        cmd.args(["-filter_complex", &filter_complex]);
+      }
+    }
+
+    // Обрезаем по времени
+    cmd.args(["-ss", &start_time.to_string()]);
+    cmd.args(["-t", &duration.to_string()]);
+
+    // Настройки качества для быстрого пререндера
+    cmd.args(["-c:v", "libx264"]);
+    cmd.args(["-preset", "ultrafast"]); // Быстрое кодирование
+    cmd.args(["-crf", "23"]); // Хорошее качество
+
+    // Настройки аудио
+    cmd.args(["-c:a", "aac"]);
+    cmd.args(["-b:a", "192k"]);
+
+    // Разрешение и FPS как в проекте
+    let resolution = &self.project.timeline.resolution;
+    cmd.args(["-s", &format!("{}x{}", resolution.0, resolution.1)]);
+    cmd.args(["-r", &self.project.timeline.fps.to_string()]);
+
+    // Перезапись файла
+    cmd.arg("-y");
+
+    // Выходной файл
+    cmd.arg(output_path);
+
+    Ok(cmd)
+  }
+
   /// Добавить входные источники
   async fn add_input_sources(&self, cmd: &mut Command) -> Result<()> {
     let input_sources = self.collect_input_sources().await?;
+
+    // Проверяем, используется ли аппаратное ускорение
+    if self.project.settings.export.hardware_acceleration {
+      // Добавляем аппаратное декодирование для поддерживаемых кодировщиков
+      if let Some(preferred) = &self.project.settings.export.preferred_gpu_encoder {
+        match preferred.as_str() {
+          "nvenc" => {
+            // NVIDIA CUDA декодирование
+            cmd.args(["-hwaccel", "cuda"]);
+            cmd.args(["-hwaccel_output_format", "cuda"]);
+          }
+          "quicksync" => {
+            // Intel QuickSync декодирование
+            cmd.args(["-hwaccel", "qsv"]);
+            cmd.args(["-c:v", "h264_qsv"]);
+          }
+          "vaapi" => {
+            // VAAPI декодирование (Linux)
+            cmd.args(["-hwaccel", "vaapi"]);
+            cmd.args(["-hwaccel_device", "/dev/dri/renderD128"]);
+            cmd.args(["-hwaccel_output_format", "vaapi"]);
+          }
+          "videotoolbox" => {
+            // VideoToolbox декодирование (macOS)
+            cmd.args(["-hwaccel", "videotoolbox"]);
+          }
+          "amf" => {
+            // AMD AMF обычно использует D3D11VA
+            cmd.args(["-hwaccel", "d3d11va"]);
+          }
+          _ => {
+            // Без аппаратного декодирования
+          }
+        }
+      }
+    }
 
     for source in input_sources {
       // Добавляем входной файл
@@ -130,6 +226,23 @@ impl FFmpegBuilder {
 
     if !filter_complex.is_empty() {
       cmd.args(["-filter_complex", &filter_complex]);
+
+      // Маппинг выходов
+      let has_video = !self.get_video_tracks().is_empty();
+      let has_audio = !self.get_audio_tracks().is_empty();
+      let has_subtitles = !self.project.subtitles.is_empty();
+
+      if has_video {
+        if has_subtitles {
+          cmd.args(["-map", "[outv_with_subs]"]);
+        } else {
+          cmd.args(["-map", "[outv]"]);
+        }
+      }
+
+      if has_audio {
+        cmd.args(["-map", "[outa]"]);
+      }
     }
 
     Ok(())
@@ -162,6 +275,14 @@ impl FFmpegBuilder {
       }
     }
 
+    // Обрабатываем субтитры
+    if !self.project.subtitles.is_empty() {
+      let subtitle_filter = self.build_subtitle_filter().await?;
+      if !subtitle_filter.is_empty() {
+        filters.push(subtitle_filter);
+      }
+    }
+
     Ok(filters.join(";"))
   }
 
@@ -171,30 +292,74 @@ impl FFmpegBuilder {
     tracks: &[&Track],
     input_index: &mut usize,
   ) -> Result<String> {
-    let mut filter_parts = Vec::new();
+    // Проверяем, используются ли шаблоны
+    let mut template_clips: HashMap<String, Vec<(Clip, usize, String)>> = HashMap::new();
+    let mut regular_clips = Vec::new();
 
+    // Разделяем клипы на обычные и с шаблонами
     for track in tracks {
       for (clip_index, clip) in track.clips.iter().enumerate() {
-        let clip_filters = self
-          .build_clip_filters(clip, *input_index, clip_index)
-          .await?;
-        if !clip_filters.is_empty() {
-          filter_parts.push(clip_filters);
+        if let Some(template_id) = &clip.template_id {
+          let clip_filter_label = format!("v{}", *input_index);
+          template_clips
+            .entry(template_id.clone())
+            .or_default()
+            .push((clip.clone(), *input_index, clip_filter_label));
+        } else {
+          regular_clips.push((clip.clone(), *input_index, clip_index));
         }
         *input_index += 1;
       }
     }
 
-    // Если несколько видео клипов, объединяем их
-    if filter_parts.len() > 1 {
+    let mut all_filters = Vec::new();
+
+    // Обрабатываем клипы с шаблонами
+    for (template_id, clips) in template_clips {
+      if let Some(template) = self.find_template(&template_id) {
+        let template_filter = self.build_template_filter(template, &clips).await?;
+        all_filters.push(template_filter);
+      }
+    }
+
+    // Обрабатываем обычные клипы
+    for (clip, input_idx, clip_idx) in regular_clips {
+      let clip_filters = self.build_clip_filters(&clip, input_idx, clip_idx).await?;
+      if !clip_filters.is_empty() {
+        all_filters.push(clip_filters);
+      }
+    }
+
+    // Обрабатываем переходы между клипами
+    for transition in &self.project.transitions {
+      // Находим клипы для перехода
+      let from_clip = self.find_clip_by_id(&transition.from_clip_id);
+      let to_clip = self.find_clip_by_id(&transition.to_clip_id);
+
+      if let (Some(from_clip), Some(to_clip)) = (from_clip, to_clip) {
+        // Находим индексы входов для клипов
+        let from_input = self.get_clip_input_index(&transition.from_clip_id);
+        let to_input = self.get_clip_input_index(&transition.to_clip_id);
+
+        if let (Some(from_idx), Some(to_idx)) = (from_input, to_input) {
+          let transition_filter = self
+            .build_transition_filter(transition, from_clip, to_clip, from_idx, to_idx)
+            .await?;
+          all_filters.push(transition_filter);
+        }
+      }
+    }
+
+    // Если несколько видео элементов, объединяем их
+    if all_filters.len() > 1 {
       let concat_filter = format!(
         "{}concat=n={}:v=1:a=0[outv]",
-        filter_parts.join(""),
-        filter_parts.len()
+        all_filters.join(""),
+        all_filters.len()
       );
       Ok(concat_filter)
-    } else if filter_parts.len() == 1 {
-      Ok(format!("{}[outv]", filter_parts[0]))
+    } else if all_filters.len() == 1 {
+      Ok(format!("{}[outv]", all_filters[0]))
     } else {
       Ok(String::new())
     }
@@ -206,39 +371,240 @@ impl FFmpegBuilder {
     tracks: &[&Track],
     input_index: &mut usize,
   ) -> Result<String> {
-    let mut audio_inputs = Vec::new();
+    let mut audio_clips = Vec::new();
+    let mut clip_global_index = 0;
 
+    // Собираем все аудио клипы с их временными позициями
     for track in tracks {
       for clip in &track.clips {
-        // Добавляем аудио вход с настройками громкости
-        let volume = track.volume * clip.volume;
-        if volume > 0.0 {
-          audio_inputs.push(format!(
-            "[{}:a]volume={}[a{}]",
-            input_index, volume, input_index
+        let mut filters = Vec::new();
+
+        // Обрезка аудио по времени источника
+        if clip.source_start > 0.0 || clip.get_source_duration() > 0.0 {
+          filters.push(format!(
+            "atrim=start={}:duration={}",
+            clip.source_start,
+            clip.get_source_duration()
           ));
         }
+
+        // Изменение скорости аудио
+        if (clip.speed - 1.0).abs() > 0.001 {
+          if clip.speed > 0.5 && clip.speed < 2.0 {
+            filters.push(format!("atempo={}", clip.speed));
+          } else {
+            // Для больших изменений скорости используем цепочку atempo
+            let mut temp_speed = clip.speed;
+            while temp_speed > 2.0 {
+              filters.push("atempo=2.0".to_string());
+              temp_speed /= 2.0;
+            }
+            while temp_speed < 0.5 {
+              filters.push("atempo=0.5".to_string());
+              temp_speed *= 2.0;
+            }
+            if (temp_speed - 1.0).abs() > 0.001 {
+              filters.push(format!("atempo={}", temp_speed));
+            }
+          }
+        }
+
+        // Применяем эффекты трека
+        for effect_id in &track.effects {
+          if let Some(effect) = self.find_effect(effect_id) {
+            if self.is_audio_effect(&effect.effect_type) {
+              let effect_filter = self.build_effect_filter(effect).await?;
+              if !effect_filter.is_empty() {
+                filters.push(effect_filter);
+              }
+            }
+          }
+        }
+
+        // Применяем эффекты клипа
+        for effect_id in &clip.effects {
+          if let Some(effect) = self.find_effect(effect_id) {
+            if self.is_audio_effect(&effect.effect_type) {
+              let effect_filter = self.build_effect_filter(effect).await?;
+              if !effect_filter.is_empty() {
+                filters.push(effect_filter);
+              }
+            }
+          }
+        }
+
+        // Применяем громкость
+        let volume = track.volume * clip.volume;
+        if (volume - 1.0).abs() > 0.001 {
+          filters.push(format!("volume={}", volume));
+        }
+
+        // Добавляем задержку для правильного позиционирования на timeline
+        if clip.start_time > 0.0 {
+          filters.push(format!("adelay={}s", clip.start_time));
+        }
+
+        // Создаем цепочку фильтров для клипа
+        let filter_chain = if !filters.is_empty() {
+          format!("[{}:a]{}", *input_index, filters.join(","))
+        } else {
+          format!("[{}:a]anull", *input_index)
+        };
+
+        audio_clips.push((
+          clip.start_time,
+          clip.end_time - clip.start_time,
+          format!("{}[a{}]", filter_chain, clip_global_index),
+        ));
+
         *input_index += 1;
+        clip_global_index += 1;
       }
     }
 
-    if audio_inputs.len() > 1 {
-      // Микширование нескольких аудио потоков
-      let mix_inputs: Vec<String> = (0..audio_inputs.len())
-        .map(|i| format!("[a{}]", i))
-        .collect();
-
-      Ok(format!(
-        "{}{}amix=inputs={}[outa]",
-        audio_inputs.join(";"),
-        mix_inputs.join(""),
-        audio_inputs.len()
-      ))
-    } else if audio_inputs.len() == 1 {
-      Ok(format!("{}[outa]", audio_inputs[0]))
-    } else {
-      Ok(String::new())
+    // Если нет аудио клипов, возвращаем пустую строку
+    if audio_clips.is_empty() {
+      return Ok(String::new());
     }
+
+    // Сортируем клипы по времени начала для правильного микширования
+    audio_clips.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+
+    // Если только один клип, просто возвращаем его
+    if audio_clips.len() == 1 {
+      return Ok(format!("{}[outa]", audio_clips[0].2));
+    }
+
+    // Для нескольких клипов проверяем перекрытия и добавляем кроссфейды
+    let mut processed_clips = Vec::new();
+    let mut _current_output = 0;
+
+    // Обрабатываем клипы попарно для определения перекрытий
+    for i in 0..audio_clips.len() {
+      let (start_time, duration, chain) = &audio_clips[i];
+      let end_time = start_time + duration;
+
+      // Проверяем перекрытие со следующим клипом
+      if i < audio_clips.len() - 1 {
+        let (next_start, _, _) = &audio_clips[i + 1];
+
+        if next_start < &end_time {
+          // Есть перекрытие, добавляем кроссфейд
+          let overlap_duration = end_time - next_start;
+          let crossfade_duration = overlap_duration.min(1.0); // Максимум 1 секунда кроссфейда
+
+          // Применяем fade out к текущему клипу
+          let fade_out = format!(
+            "{}afade=t=out:st={}:d={}[fade_out_{}]",
+            chain,
+            duration - crossfade_duration,
+            crossfade_duration,
+            i
+          );
+
+          processed_clips.push(fade_out);
+        } else {
+          // Нет перекрытия, используем клип как есть
+          processed_clips.push(chain.clone());
+        }
+      } else {
+        // Последний клип
+        processed_clips.push(chain.clone());
+      }
+    }
+
+    // Создаем финальную цепочку микширования
+    let filter_chains = processed_clips.join(";");
+    let mix_inputs: Vec<String> = (0..audio_clips.len())
+      .map(|i| format!("[a{}]", i))
+      .collect();
+
+    Ok(format!(
+      "{}{}amix=inputs={}:duration=longest[outa]",
+      filter_chains,
+      mix_inputs.join(""),
+      audio_clips.len()
+    ))
+  }
+
+  /// Построить фильтр перехода между клипами
+  async fn build_transition_filter(
+    &self,
+    transition: &Transition,
+    from_clip: &Clip,
+    _to_clip: &Clip,
+    from_input: usize,
+    to_input: usize,
+  ) -> Result<String> {
+    // Базовый шаблон для xfade
+    let base_template = if let Some(template) = &transition.ffmpeg_command {
+      template.clone()
+    } else {
+      match transition.transition_type.as_str() {
+        "fade" => "xfade=transition=fade:duration={duration}:offset={offset}",
+        "wipe-horizontal" => "xfade=transition=wipeleft:duration={duration}:offset={offset}",
+        "wipe-vertical" => "xfade=transition=wipedown:duration={duration}:offset={offset}",
+        "wipe-diagonal" => "xfade=transition=wipetl:duration={duration}:offset={offset}",
+        "radial-wipe" => "xfade=transition=radial:duration={duration}:offset={offset}",
+        "dissolve" => "xfade=transition=dissolve:duration={duration}:offset={offset}",
+        "pixelize" => "xfade=transition=pixelize:duration={duration}:offset={offset}",
+        "slide" => "xfade=transition=slideleft:duration={duration}:offset={offset}",
+        "zoom-blur" => "xfade=transition=fade:duration={duration}:offset={offset}", // fallback
+        "blinds" => "xfade=transition=hblur:duration={duration}:offset={offset}",
+        "iris" => "xfade=transition=circleclose:duration={duration}:offset={offset}",
+        "tv-static" => "xfade=transition=fade:duration={duration}:offset={offset}", // fallback
+        // 3D и сложные переходы требуют gl фильтр
+        "cube-3d" => "gl=transition=cube:duration={duration}:offset={offset}",
+        "page-turn" => "gl=transition=pagecurl:duration={duration}:offset={offset}",
+        "ripple" => "gl=transition=ripple:duration={duration}:offset={offset}",
+        "morph" => "gl=transition=morph:duration={duration}:offset={offset}",
+        "glitch" => "gl=transition=glitch:duration={duration}:offset={offset}",
+        "kaleidoscope" => "gl=transition=kaleidoscope:duration={duration}:offset={offset}",
+        "shatter" => "gl=transition=shatter:duration={duration}:offset={offset}",
+        "burn" => "gl=transition=burn:duration={duration}:offset={offset}",
+        "swirl" => "gl=transition=swirl:duration={duration}:offset={offset}",
+        "wave" => "gl=transition=wave:duration={duration}:offset={offset}",
+        _ => "xfade=transition=fade:duration={duration}:offset={offset}", // Fallback к fade
+      }
+      .to_string()
+    };
+
+    // Подставляем параметры
+    let duration = transition.duration.current;
+    let offset = from_clip.end_time - duration; // Переход начинается за duration секунд до конца первого клипа
+
+    let filter_str = base_template
+      .replace("{duration}", &duration.to_string())
+      .replace("{offset}", &offset.to_string())
+      .replace("{fps}", &self.project.timeline.fps.to_string())
+      .replace("{width}", &self.project.timeline.resolution.0.to_string())
+      .replace("{height}", &self.project.timeline.resolution.1.to_string());
+
+    // Добавляем дополнительные параметры если они есть
+    let mut extra_params = Vec::new();
+
+    if let Some(crate::video_compiler::schema::EffectParameter::String(direction)) =
+      transition.parameters.get("direction")
+    {
+      extra_params.push(format!(":direction={}", direction));
+    }
+
+    if let Some(crate::video_compiler::schema::EffectParameter::Float(intensity)) =
+      transition.parameters.get("intensity")
+    {
+      extra_params.push(format!(":intensity={}", intensity));
+    }
+
+    let final_filter = if !extra_params.is_empty() {
+      format!("{}{}", filter_str, extra_params.join(""))
+    } else {
+      filter_str
+    };
+
+    Ok(format!(
+      "[{}:v][{}:v]{}",
+      from_input, to_input, final_filter
+    ))
   }
 
   /// Построить фильтры для клипа
@@ -277,13 +643,35 @@ impl FFmpegBuilder {
       }
     }
 
-    let filter_chain = if filters.len() > 1 {
+    // Применяем фильтры клипа
+    for filter_id in &clip.filters {
+      if let Some(filter) = self.find_filter(filter_id) {
+        let filter_str = self.build_filter_string(filter).await?;
+        if !filter_str.is_empty() {
+          filters.push(filter_str);
+        }
+      }
+    }
+
+    let mut filter_chain = if filters.len() > 1 {
       filters.join(",")
     } else if filters.len() == 1 {
       filters[0].clone()
     } else {
       format!("[{}:v]", input_index)
     };
+
+    // Применяем стильный шаблон если есть
+    if let Some(style_template_id) = &clip.style_template_id {
+      if let Some(style_template) = self.find_style_template(style_template_id) {
+        let style_filter = self
+          .build_style_template_filter(style_template, clip, input_index)
+          .await?;
+        if !style_filter.is_empty() {
+          filter_chain = style_filter;
+        }
+      }
+    }
 
     Ok(format!("{}[v{}];", filter_chain, clip_index))
   }
@@ -455,7 +843,262 @@ impl FFmpegBuilder {
             .to_string(),
         )
       }
+      // Аудио эффекты
+      EffectType::AudioFadeIn => {
+        let duration = match effect.parameters.get("duration") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 1.0,
+        };
+        Ok(format!("afade=t=in:d={}", duration))
+      }
+      EffectType::AudioFadeOut => {
+        let duration = match effect.parameters.get("duration") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 1.0,
+        };
+        Ok(format!("afade=t=out:d={}", duration))
+      }
+      EffectType::AudioCrossfade => {
+        let duration = match effect.parameters.get("duration") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 1.0,
+        };
+        Ok(format!("acrossfade=d={}", duration))
+      }
+      EffectType::AudioEqualizer => {
+        let gain_low = match effect.parameters.get("gain_low") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.0,
+        };
+        let gain_mid = match effect.parameters.get("gain_mid") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.0,
+        };
+        let gain_high = match effect.parameters.get("gain_high") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.0,
+        };
+        Ok(format!(
+          "equalizer=f=100:g={}:t=h,equalizer=f=1000:g={}:t=h,equalizer=f=10000:g={}:t=h",
+          gain_low, gain_mid, gain_high
+        ))
+      }
+      EffectType::AudioCompressor => {
+        let threshold = match effect.parameters.get("threshold") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => -20.0,
+        };
+        let ratio = match effect.parameters.get("ratio") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 4.0,
+        };
+        let attack = match effect.parameters.get("attack") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 5.0,
+        };
+        let release = match effect.parameters.get("release") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 50.0,
+        };
+        Ok(format!(
+          "acompressor=threshold={}:ratio={}:attack={}:release={}",
+          threshold, ratio, attack, release
+        ))
+      }
+      EffectType::AudioReverb => {
+        let room_size = match effect.parameters.get("room_size") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.5,
+        };
+        let _damping = match effect.parameters.get("damping") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.5,
+        };
+        let _wet = match effect.parameters.get("wet") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.3,
+        };
+        Ok(format!(
+          "aecho=0.8:0.9:{}:0.3,aecho=0.8:0.7:{}:0.25",
+          60.0 + room_size * 40.0,
+          40.0 + room_size * 30.0
+        ))
+      }
+      EffectType::AudioDelay => {
+        let delay = match effect.parameters.get("delay") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.5,
+        };
+        let decay = match effect.parameters.get("decay") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.3,
+        };
+        Ok(format!("aecho=0.8:{}:{}:0.5", decay, delay * 1000.0))
+      }
+      EffectType::AudioChorus => {
+        let rate = match effect.parameters.get("rate") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 1.0,
+        };
+        let depth = match effect.parameters.get("depth") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.5,
+        };
+        Ok(format!("chorus=0.5:0.9:50:0.4:{}:{}:t", depth, rate))
+      }
+      EffectType::AudioDistortion => {
+        let amount = match effect.parameters.get("amount") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.5,
+        };
+        Ok(format!("aoverload={}:{}", amount * 10.0, amount * 10.0))
+      }
+      EffectType::AudioNormalize => {
+        let target = match effect.parameters.get("target") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => -23.0,
+        };
+        Ok(format!("loudnorm=I={}:TP=-1.5:LRA=11", target))
+      }
+      EffectType::AudioDenoise => {
+        let amount = match effect.parameters.get("amount") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.5,
+        };
+        Ok(format!("afftdn=nr={}", amount * 20.0))
+      }
+      EffectType::AudioPitch => {
+        let pitch = match effect.parameters.get("pitch") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.0,
+        };
+        Ok(format!("asetrate=r=48000*2^({}/12),aresample=48000", pitch))
+      }
+      EffectType::AudioTempo => {
+        let tempo = match effect.parameters.get("tempo") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 1.0,
+        };
+        Ok(format!("atempo={}", tempo))
+      }
+      EffectType::AudioDucking => {
+        let threshold = match effect.parameters.get("threshold") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => -30.0,
+        };
+        let ratio = match effect.parameters.get("ratio") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 6.0,
+        };
+        Ok(format!(
+          "sidechaincompress=threshold={}:ratio={}",
+          threshold, ratio
+        ))
+      }
+      EffectType::AudioGate => {
+        let threshold = match effect.parameters.get("threshold") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => -35.0,
+        };
+        let attack = match effect.parameters.get("attack") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 5.0,
+        };
+        Ok(format!("agate=threshold={}:attack={}", threshold, attack))
+      }
+      EffectType::AudioLimiter => {
+        let limit = match effect.parameters.get("limit") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => -1.0,
+        };
+        Ok(format!("alimiter=limit={}", limit))
+      }
+      EffectType::AudioExpander => {
+        let threshold = match effect.parameters.get("threshold") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => -40.0,
+        };
+        let ratio = match effect.parameters.get("ratio") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 2.0,
+        };
+        Ok(format!(
+          "acompressor=threshold={}:ratio={}:knee=2.0:makeup=0",
+          threshold,
+          1.0 / ratio
+        ))
+      }
+      EffectType::AudioPan => {
+        let pan = match effect.parameters.get("pan") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 0.0,
+        };
+        let left = 1.0 - (pan + 1.0) / 2.0;
+        let right = (pan + 1.0) / 2.0;
+        Ok(format!("pan=stereo|c0={}*c0|c1={}*c1", left, right))
+      }
+      EffectType::AudioStereoWidth => {
+        let width = match effect.parameters.get("width") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 1.0,
+        };
+        Ok(format!("stereowidth=width={}", width))
+      }
+      EffectType::AudioHighpass => {
+        let frequency = match effect.parameters.get("frequency") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 100.0,
+        };
+        Ok(format!("highpass=f={}", frequency))
+      }
+      EffectType::AudioLowpass => {
+        let frequency = match effect.parameters.get("frequency") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 10000.0,
+        };
+        Ok(format!("lowpass=f={}", frequency))
+      }
+      EffectType::AudioBandpass => {
+        let frequency = match effect.parameters.get("frequency") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 1000.0,
+        };
+        let width = match effect.parameters.get("width") {
+          Some(EffectParameter::Float(val)) => *val,
+          _ => 100.0,
+        };
+        Ok(format!("bandpass=f={}:w={}", frequency, width))
+      }
     }
+  }
+
+  /// Проверить, является ли эффект аудио эффектом
+  fn is_audio_effect(&self, effect_type: &EffectType) -> bool {
+    matches!(
+      effect_type,
+      EffectType::AudioFadeIn
+        | EffectType::AudioFadeOut
+        | EffectType::AudioCrossfade
+        | EffectType::AudioEqualizer
+        | EffectType::AudioCompressor
+        | EffectType::AudioReverb
+        | EffectType::AudioDelay
+        | EffectType::AudioChorus
+        | EffectType::AudioDistortion
+        | EffectType::AudioNormalize
+        | EffectType::AudioDenoise
+        | EffectType::AudioPitch
+        | EffectType::AudioTempo
+        | EffectType::AudioDucking
+        | EffectType::AudioGate
+        | EffectType::AudioLimiter
+        | EffectType::AudioExpander
+        | EffectType::AudioPan
+        | EffectType::AudioStereoWidth
+        | EffectType::AudioHighpass
+        | EffectType::AudioLowpass
+        | EffectType::AudioBandpass
+    )
   }
 
   /// Обработать шаблон FFmpeg команды с параметрами эффекта
@@ -551,43 +1194,40 @@ impl FFmpegBuilder {
   async fn add_output_settings(&self, cmd: &mut Command, output_path: &Path) -> Result<()> {
     let export_settings = &self.project.settings.export;
 
-    // Кодек видео
+    // Аппаратное ускорение (устанавливает видео кодек)
+    if export_settings.hardware_acceleration {
+      self.add_hardware_acceleration(cmd).await;
+    } else {
+      // Программный кодек видео
+      self.add_cpu_encoding(cmd, export_settings.quality);
+    }
+
+    // Аудио кодек
     match export_settings.format {
-      OutputFormat::Mp4 => {
-        cmd.args(["-c:v", "libx264"]);
+      OutputFormat::Mp4 | OutputFormat::Mov => {
         cmd.args(["-c:a", "aac"]);
       }
       OutputFormat::Avi => {
-        cmd.args(["-c:v", "libxvid"]);
         cmd.args(["-c:a", "mp3"]);
       }
-      OutputFormat::Mov => {
-        cmd.args(["-c:v", "libx264"]);
-        cmd.args(["-c:a", "aac"]);
-      }
       OutputFormat::Mkv => {
-        cmd.args(["-c:v", "libx264"]);
         cmd.args(["-c:a", "aac"]);
       }
       OutputFormat::WebM => {
-        cmd.args(["-c:v", "libvpx-vp9"]);
         cmd.args(["-c:a", "libopus"]);
       }
       _ => {
-        cmd.args(["-c:v", "libx264"]);
         cmd.args(["-c:a", "aac"]);
       }
     }
 
-    // Битрейт видео
-    cmd.args(["-b:v", &format!("{}k", export_settings.video_bitrate)]);
+    // Битрейт видео (только если не используется CQ/CRF режим)
+    if !export_settings.hardware_acceleration {
+      cmd.args(["-b:v", &format!("{}k", export_settings.video_bitrate)]);
+    }
 
     // Битрейт аудио
     cmd.args(["-b:a", &format!("{}k", export_settings.audio_bitrate)]);
-
-    // Качество
-    let crf = self.quality_to_crf(export_settings.quality);
-    cmd.args(["-crf", &crf.to_string()]);
 
     // FPS
     cmd.args(["-r", &self.project.timeline.fps.to_string()]);
@@ -600,11 +1240,6 @@ impl FFmpegBuilder {
         self.project.timeline.resolution.0, self.project.timeline.resolution.1
       ),
     ]);
-
-    // Аппаратное ускорение
-    if export_settings.hardware_acceleration {
-      self.add_hardware_acceleration(cmd).await;
-    }
 
     // Дополнительные аргументы
     for arg in &export_settings.ffmpeg_args {
@@ -619,31 +1254,110 @@ impl FFmpegBuilder {
 
   /// Добавить аппаратное ускорение
   async fn add_hardware_acceleration(&self, cmd: &mut Command) {
-    use crate::video_compiler::gpu::{GpuDetector, GpuHelper};
+    use crate::video_compiler::gpu::{GpuDetector, GpuEncoder, GpuHelper};
 
     // Создаем детектор GPU
     let detector = GpuDetector::new(self.settings.ffmpeg_path.clone());
 
-    // Пытаемся получить рекомендуемый кодировщик
-    if let Some(encoder) = detector.get_recommended_encoder().await.unwrap_or(None) {
-      // Получаем название кодека
-      let codec = encoder.h264_codec_name();
-      cmd.args(["-c:v", codec]);
+    // Получаем качество из настроек экспорта
+    let quality = self.project.settings.export.quality;
 
-      // Добавляем специфичные параметры для GPU
-      let gpu_params = GpuHelper::get_ffmpeg_params(&encoder, 85); // Качество 85%
-      for param in gpu_params {
-        cmd.arg(param);
+    // Получаем кодировщик: либо предпочитаемый пользователем, либо рекомендуемый системой
+    let encoder = if let Some(preferred) = &self.project.settings.export.preferred_gpu_encoder {
+      // Пытаемся использовать предпочитаемый кодировщик
+      match preferred.as_str() {
+        "nvenc" => Some(GpuEncoder::Nvenc),
+        "quicksync" => Some(GpuEncoder::QuickSync),
+        "vaapi" => Some(GpuEncoder::Vaapi),
+        "videotoolbox" => Some(GpuEncoder::VideoToolbox),
+        "amf" => Some(GpuEncoder::AMF),
+        _ => detector.get_recommended_encoder().await.unwrap_or(None),
       }
+    } else {
+      detector.get_recommended_encoder().await.unwrap_or(None)
+    };
 
-      log::info!("Используется GPU кодировщик: {:?} ({})", encoder, codec);
+    // Пытаемся использовать выбранный кодировщик
+    if let Some(encoder) = encoder {
+      // Выбираем кодек в зависимости от формата
+      let codec = match self.project.settings.export.format {
+        OutputFormat::Mp4 | OutputFormat::Mov => encoder.h264_codec_name(),
+        OutputFormat::WebM => "libvpx-vp9", // WebM не поддерживает GPU кодирование
+        _ => encoder.h264_codec_name(),
+      };
+
+      // Если это GPU кодек
+      if encoder.is_hardware() && codec != "libvpx-vp9" {
+        cmd.args(["-c:v", codec]);
+
+        // Добавляем специфичные параметры для GPU
+        let gpu_params = GpuHelper::get_ffmpeg_params(&encoder, quality);
+        for param in gpu_params {
+          cmd.arg(param);
+        }
+
+        // Добавляем специфичные параметры для платформы
+        match encoder {
+          GpuEncoder::Nvenc => {
+            // Дополнительные оптимизации для NVENC
+            cmd.args(["-gpu", "0"]); // Использовать первый GPU
+            cmd.args(["-b:v", "0"]); // Автоматический битрейт
+          }
+          GpuEncoder::QuickSync => {
+            // Дополнительные оптимизации для QuickSync
+            cmd.args(["-init_hw_device", "qsv=hw"]);
+            cmd.args(["-filter_hw_device", "hw"]);
+          }
+          GpuEncoder::VideoToolbox => {
+            // macOS специфичные настройки
+            cmd.args(["-allow_sw", "1"]);
+          }
+          _ => {}
+        }
+
+        log::info!(
+          "Используется GPU кодировщик: {:?} ({}), качество: {}",
+          encoder,
+          codec,
+          quality
+        );
+      } else {
+        // Fallback на CPU для WebM или если GPU недоступен
+        self.add_cpu_encoding(cmd, quality);
+      }
     } else {
       // Fallback на CPU кодирование
-      cmd.args(["-c:v", "libx264"]);
-      cmd.args(["-preset", "medium"]);
-      cmd.args(["-crf", "23"]);
-
+      self.add_cpu_encoding(cmd, quality);
       log::warn!("GPU ускорение недоступно, используется CPU кодирование");
+    }
+  }
+
+  /// Добавить CPU кодирование
+  fn add_cpu_encoding(&self, cmd: &mut Command, quality: u8) {
+    match self.project.settings.export.format {
+      OutputFormat::Mp4 | OutputFormat::Mov | OutputFormat::Avi => {
+        cmd.args(["-c:v", "libx264"]);
+        let crf = self.quality_to_crf(quality);
+        cmd.args(["-crf", &crf.to_string()]);
+        cmd.args(["-preset", "medium"]);
+      }
+      OutputFormat::WebM => {
+        cmd.args(["-c:v", "libvpx-vp9"]);
+        cmd.args(["-b:v", "0"]); // VBR
+        let crf = self.quality_to_crf(quality);
+        cmd.args(["-crf", &crf.to_string()]);
+        cmd.args(["-deadline", "good"]);
+      }
+      OutputFormat::Mkv => {
+        cmd.args(["-c:v", "libx265"]);
+        let crf = self.quality_to_crf(quality);
+        cmd.args(["-crf", &crf.to_string()]);
+        cmd.args(["-preset", "medium"]);
+      }
+      _ => {
+        cmd.args(["-c:v", "libx264"]);
+        cmd.args(["-crf", "23"]);
+      }
     }
   }
 
@@ -704,6 +1418,850 @@ impl FFmpegBuilder {
       .iter()
       .find(|effect| effect.id == effect_id)
   }
+
+  /// Найти фильтр по ID
+  fn find_filter(&self, filter_id: &str) -> Option<&Filter> {
+    self
+      .project
+      .filters
+      .iter()
+      .find(|filter| filter.id == filter_id)
+  }
+
+  /// Найти клип по ID
+  fn find_clip_by_id(&self, id: &str) -> Option<&Clip> {
+    for track in &self.project.tracks {
+      if let Some(clip) = track.clips.iter().find(|c| c.id == id) {
+        return Some(clip);
+      }
+    }
+    None
+  }
+
+  /// Получить индекс входа для клипа
+  fn get_clip_input_index(&self, clip_id: &str) -> Option<usize> {
+    let mut index = 0;
+    for track in &self.project.tracks {
+      for clip in &track.clips {
+        if clip.id == clip_id {
+          return Some(index);
+        }
+        index += 1;
+      }
+    }
+    None
+  }
+
+  /// Найти шаблон по ID
+  fn find_template(&self, template_id: &str) -> Option<&Template> {
+    self
+      .project
+      .templates
+      .iter()
+      .find(|template| template.id == template_id)
+  }
+
+  /// Найти стильный шаблон по ID
+  fn find_style_template(&self, style_template_id: &str) -> Option<&StyleTemplate> {
+    self
+      .project
+      .style_templates
+      .iter()
+      .find(|template| template.id == style_template_id)
+  }
+
+  /// Построить строку фильтра для FFmpeg
+  async fn build_filter_string(&self, filter: &Filter) -> Result<String> {
+    if !filter.enabled {
+      return Ok(String::new());
+    }
+
+    // Если есть пользовательская FFmpeg команда, используем её
+    if let Some(ffmpeg_cmd) = &filter.ffmpeg_command {
+      return Ok(ffmpeg_cmd.clone());
+    }
+
+    // Генерируем фильтр на основе типа
+    match filter.filter_type {
+      FilterType::Brightness => {
+        let value = filter.parameters.get("brightness").unwrap_or(&0.0);
+        // FFmpeg использует brightness от -1 до 1, где 0 - нормальная яркость
+        Ok(format!("eq=brightness={}", value))
+      }
+      FilterType::Contrast => {
+        let value = filter.parameters.get("contrast").unwrap_or(&1.0);
+        // FFmpeg использует contrast от 0 до 2, где 1 - нормальный контраст
+        Ok(format!("eq=contrast={}", value))
+      }
+      FilterType::Saturation => {
+        let value = filter.parameters.get("saturation").unwrap_or(&1.0);
+        // FFmpeg использует saturation от 0 до 3, где 1 - нормальная насыщенность
+        Ok(format!("eq=saturation={}", value))
+      }
+      FilterType::Gamma => {
+        let value = filter.parameters.get("gamma").unwrap_or(&1.0);
+        // FFmpeg использует gamma от 0.1 до 10, где 1 - нормальная гамма
+        Ok(format!("eq=gamma={}", value))
+      }
+      FilterType::Hue => {
+        let value = filter.parameters.get("hue").unwrap_or(&0.0);
+        // FFmpeg использует hue в градусах
+        Ok(format!("hue=h={}", value))
+      }
+      FilterType::Temperature => {
+        // Температура цвета через colortemperature фильтр
+        let value = filter.parameters.get("temperature").unwrap_or(&6500.0);
+        Ok(format!("colortemperature=temperature={}", value))
+      }
+      FilterType::Blur => {
+        let radius = filter.parameters.get("radius").unwrap_or(&5.0);
+        Ok(format!("boxblur={}:{}", radius, radius))
+      }
+      FilterType::Sharpen => {
+        let amount = filter.parameters.get("amount").unwrap_or(&1.0);
+        Ok(format!("unsharp=5:5:{}:5:5:0", amount))
+      }
+      FilterType::Vignette => {
+        let angle = filter.parameters.get("angle").unwrap_or(&0.0);
+        let x0 = filter.parameters.get("x0").unwrap_or(&0.5);
+        let y0 = filter.parameters.get("y0").unwrap_or(&0.5);
+        Ok(format!("vignette=angle={}:x0={}:y0={}", angle, x0, y0))
+      }
+      FilterType::Grain => {
+        let amount = filter.parameters.get("amount").unwrap_or(&0.1);
+        Ok(format!("noise=alls={}:allf=t", amount * 100.0))
+      }
+      _ => {
+        // Для остальных типов используем colorchannelmixer
+        Ok(self.build_color_channel_mixer_filter(filter))
+      }
+    }
+  }
+
+  /// Построить фильтр colorchannelmixer для сложных цветовых коррекций
+  fn build_color_channel_mixer_filter(&self, filter: &Filter) -> String {
+    let mut params = Vec::new();
+
+    match filter.filter_type {
+      FilterType::Shadows => {
+        let value = filter.parameters.get("shadows").unwrap_or(&0.0);
+        // Поднимаем тени
+        params.push(format!("aa={}", 1.0 + value * 0.2));
+      }
+      FilterType::Highlights => {
+        let value = filter.parameters.get("highlights").unwrap_or(&0.0);
+        // Опускаем светлые тона
+        params.push(format!("aa={}", 1.0 - value * 0.2));
+      }
+      FilterType::Vibrance => {
+        let value = filter.parameters.get("vibrance").unwrap_or(&0.0);
+        // Увеличиваем насыщенность менее насыщенных цветов
+        let factor = 1.0 + value * 0.5;
+        params.push(format!("rr={}:gg={}:bb={}", factor, factor, factor));
+      }
+      _ => {}
+    }
+
+    if params.is_empty() {
+      String::new()
+    } else {
+      format!("colorchannelmixer={}", params.join(":"))
+    }
+  }
+
+  /// Построить фильтр для шаблона многокамерной раскладки
+  async fn build_template_filter(
+    &self,
+    template: &Template,
+    clips: &[(Clip, usize, String)],
+  ) -> Result<String> {
+    let mut overlay_chain = Vec::new();
+    let resolution = self.project.timeline.resolution;
+    let base_width = resolution.0 as f32;
+    let base_height = resolution.1 as f32;
+
+    // Создаем черный фон
+    let background = format!("color=c=black:s={}x{}:d=1[bg]", resolution.0, resolution.1);
+    overlay_chain.push(background);
+
+    // Обрабатываем каждый клип в шаблоне
+    for (clip, input_idx, _) in clips {
+      if let Some(cell_index) = clip.template_cell {
+        if let Some(cell) = template.cells.get(cell_index) {
+          // Применяем фильтры к клипу
+          let mut clip_filter = format!("[{}:v]", input_idx);
+
+          // Масштабируем видео под размер ячейки
+          let cell_width = (base_width * cell.width / 100.0) as i32;
+          let cell_height = (base_height * cell.height / 100.0) as i32;
+
+          // Применяем режим масштабирования
+          match &cell.fit_mode {
+            crate::video_compiler::schema::FitMode::Contain => {
+              // Вписываем с сохранением пропорций
+              clip_filter.push_str(&format!(
+                "scale={}:{}:force_original_aspect_ratio=decrease,pad={}:{}:(ow-iw)/2:(oh-ih)/2",
+                cell_width, cell_height, cell_width, cell_height
+              ));
+            }
+            crate::video_compiler::schema::FitMode::Cover => {
+              // Заполняем с обрезкой
+              clip_filter.push_str(&format!(
+                "scale={}:{}:force_original_aspect_ratio=increase,crop={}:{}",
+                cell_width, cell_height, cell_width, cell_height
+              ));
+            }
+            crate::video_compiler::schema::FitMode::Fill => {
+              // Растягиваем на весь размер
+              clip_filter.push_str(&format!("scale={}:{}", cell_width, cell_height));
+            }
+          }
+
+          // Применяем дополнительное масштабирование, если есть
+          if let Some(scale) = cell.scale {
+            if scale != 1.0 {
+              let scaled_width = (cell_width as f32 * scale) as i32;
+              let scaled_height = (cell_height as f32 * scale) as i32;
+              clip_filter.push_str(&format!(",scale={}:{}", scaled_width, scaled_height));
+            }
+          }
+
+          // Добавляем метку для этого клипа
+          let clip_label = format!("clip{}", cell_index);
+          clip_filter.push_str(&format!("[{}]", clip_label));
+          overlay_chain.push(clip_filter);
+
+          // Вычисляем позицию с учетом выравнивания
+          let x_pos = (base_width * cell.x / 100.0) as i32;
+          let y_pos = (base_height * cell.y / 100.0) as i32;
+
+          // Применяем overlay для размещения видео
+          let prev_label = if overlay_chain.len() == 2 {
+            "bg"
+          } else {
+            &format!("comp{}", overlay_chain.len() - 2)
+          };
+          let next_label = format!("comp{}", overlay_chain.len() - 1);
+
+          let overlay = format!(
+            "[{}][{}]overlay={}:{}[{}]",
+            prev_label, clip_label, x_pos, y_pos, next_label
+          );
+          overlay_chain.push(overlay);
+        }
+      }
+    }
+
+    // Финальный вывод
+    let final_label = if overlay_chain.len() > 1 {
+      format!("comp{}", overlay_chain.len() - 2)
+    } else {
+      "bg".to_string()
+    };
+
+    Ok(format!("{};[{}]", overlay_chain.join(";"), final_label))
+  }
+
+  /// Построить фильтр для стильного шаблона
+  async fn build_style_template_filter(
+    &self,
+    template: &StyleTemplate,
+    clip: &Clip,
+    input_idx: usize,
+  ) -> Result<String> {
+    let mut filter_chain = Vec::new();
+    let mut current_input = format!("[{}:v]", input_idx);
+
+    // Обрабатываем каждый элемент шаблона
+    for (elem_idx, element) in template.elements.iter().enumerate() {
+      // Проверяем временные рамки элемента
+      let element_start = clip.start_time + element.timing.start;
+      let element_end = clip.start_time + element.timing.end.min(clip.get_timeline_duration());
+
+      match &element.element_type {
+        StyleElementType::Text => {
+          // Генерируем текстовый оверлей
+          if let Some(text) = &element.properties.text {
+            let mut drawtext_params = vec![
+              format!("text='{}'", text.replace("'", "\\'")),
+              format!("x=(w-text_w)*{}/100", element.position.x / 100.0),
+              format!("y=(h-text_h)*{}/100", element.position.y / 100.0),
+            ];
+
+            if let Some(font_size) = element.properties.font_size {
+              drawtext_params.push(format!("fontsize={}", font_size));
+            }
+
+            if let Some(color) = &element.properties.color {
+              drawtext_params.push(format!("fontcolor={}", color));
+            }
+
+            if let Some(font_family) = &element.properties.font_family {
+              drawtext_params.push(format!("fontfile={}", font_family));
+            }
+
+            // Добавляем временные ограничения
+            drawtext_params.push(format!(
+              "enable='between(t,{},{})'",
+              element_start, element_end
+            ));
+
+            let drawtext_filter = format!(
+              "{}drawtext={}[text{}]",
+              current_input,
+              drawtext_params.join(":"),
+              elem_idx
+            );
+
+            filter_chain.push(drawtext_filter);
+            current_input = format!("[text{}]", elem_idx);
+          }
+        }
+
+        StyleElementType::Shape => {
+          // Генерируем оверлей для фигуры
+          if let Some(bg_color) = &element.properties.background_color {
+            let shape_label = format!("shape{}", elem_idx);
+
+            // Создаем цветной прямоугольник
+            let color_filter = format!(
+              "color=c={}:s={}x{}:d=1[{}]",
+              bg_color,
+              (element.size.width * self.project.timeline.resolution.0 as f32 / 100.0) as i32,
+              (element.size.height * self.project.timeline.resolution.1 as f32 / 100.0) as i32,
+              shape_label
+            );
+            filter_chain.push(color_filter);
+
+            // Применяем прозрачность если есть
+            let mut shape_with_alpha = shape_label.clone();
+            if let Some(opacity) = element.properties.opacity {
+              let alpha_label = format!("shapealpha{}", elem_idx);
+              let alpha_filter = format!(
+                "[{}]colorchannelmixer=aa={}[{}]",
+                shape_label, opacity, alpha_label
+              );
+              filter_chain.push(alpha_filter);
+              shape_with_alpha = alpha_label;
+            }
+
+            // Накладываем фигуру на видео
+            let overlay_filter = format!(
+              "{}[{}]overlay={}:{}:enable='between(t,{},{})'[comp{}]",
+              current_input,
+              shape_with_alpha,
+              (element.position.x * self.project.timeline.resolution.0 as f32 / 100.0) as i32,
+              (element.position.y * self.project.timeline.resolution.1 as f32 / 100.0) as i32,
+              element_start,
+              element_end,
+              elem_idx
+            );
+            filter_chain.push(overlay_filter);
+            current_input = format!("[comp{}]", elem_idx);
+          }
+        }
+
+        StyleElementType::Image => {
+          // Для изображений нужно будет загрузить файл
+          if let Some(src) = &element.properties.src {
+            let img_label = format!("img{}", elem_idx);
+
+            // Загружаем изображение и масштабируем
+            let img_filter = format!(
+              "movie={}:loop=1,scale={}:{}[{}]",
+              src,
+              (element.size.width * self.project.timeline.resolution.0 as f32 / 100.0) as i32,
+              (element.size.height * self.project.timeline.resolution.1 as f32 / 100.0) as i32,
+              img_label
+            );
+            filter_chain.push(img_filter);
+
+            // Накладываем изображение
+            let overlay_filter = format!(
+              "{}[{}]overlay={}:{}:enable='between(t,{},{})'[comp{}]",
+              current_input,
+              img_label,
+              (element.position.x * self.project.timeline.resolution.0 as f32 / 100.0) as i32,
+              (element.position.y * self.project.timeline.resolution.1 as f32 / 100.0) as i32,
+              element_start,
+              element_end,
+              elem_idx
+            );
+            filter_chain.push(overlay_filter);
+            current_input = format!("[comp{}]", elem_idx);
+          }
+        }
+
+        _ => {
+          // Другие типы элементов пока пропускаем
+          log::warn!(
+            "Тип элемента {:?} еще не поддерживается",
+            element.element_type
+          );
+        }
+      }
+
+      // Применяем анимации если есть
+      for animation in &element.animations {
+        current_input = self
+          .apply_element_animation(
+            &current_input,
+            animation,
+            element_start,
+            element_end,
+            elem_idx,
+          )
+          .await?;
+      }
+    }
+
+    Ok(format!("{}{}", filter_chain.join(";"), current_input))
+  }
+
+  /// Применить анимацию к элементу
+  async fn apply_element_animation(
+    &self,
+    input: &str,
+    animation: &crate::video_compiler::schema::ElementAnimation,
+    start_time: f64,
+    _end_time: f64,
+    elem_idx: usize,
+  ) -> Result<String> {
+    use crate::video_compiler::schema::AnimationType;
+
+    let anim_start = start_time + animation.delay.unwrap_or(0.0);
+    let anim_end = anim_start + animation.duration;
+
+    match &animation.animation_type {
+      AnimationType::FadeIn => {
+        // Анимация появления
+        Ok(format!(
+          "{}fade=in:st={}:d={}[anim{}]",
+          input, anim_start, animation.duration, elem_idx
+        ))
+      }
+      AnimationType::FadeOut => {
+        // Анимация исчезновения
+        Ok(format!(
+          "{}fade=out:st={}:d={}[anim{}]",
+          input,
+          anim_end - animation.duration,
+          animation.duration,
+          elem_idx
+        ))
+      }
+      AnimationType::SlideIn => {
+        // Анимация въезда
+        let direction = animation
+          .direction
+          .as_ref()
+          .unwrap_or(&crate::video_compiler::schema::AnimationDirection::Right);
+        let (x_expr, y_expr) = match direction {
+          crate::video_compiler::schema::AnimationDirection::Left => ("w*(1-t/{})", "0"),
+          crate::video_compiler::schema::AnimationDirection::Right => ("-w+w*t/{}", "0"),
+          crate::video_compiler::schema::AnimationDirection::Up => ("0", "h*(1-t/{})"),
+          crate::video_compiler::schema::AnimationDirection::Down => ("0", "-h+h*t/{}"),
+        };
+
+        Ok(format!(
+          "{}overlay=x='if(between(t,{},{}),{},0)':y='if(between(t,{},{}),{},0)'[anim{}]",
+          input,
+          anim_start,
+          anim_end,
+          x_expr.replace("{}", &animation.duration.to_string()),
+          anim_start,
+          anim_end,
+          y_expr.replace("{}", &animation.duration.to_string()),
+          elem_idx
+        ))
+      }
+      _ => {
+        // Другие анимации пока не реализованы
+        log::warn!(
+          "Анимация {:?} еще не поддерживается",
+          animation.animation_type
+        );
+        Ok(input.to_string())
+      }
+    }
+  }
+
+  /// Построить фильтр субтитров
+  async fn build_subtitle_filter(&self) -> Result<String> {
+    let mut subtitle_filters = Vec::new();
+
+    for subtitle in &self.project.subtitles {
+      if !subtitle.enabled {
+        continue;
+      }
+
+      let filter = self.build_single_subtitle_filter(subtitle).await?;
+      if !filter.is_empty() {
+        subtitle_filters.push(filter);
+      }
+    }
+
+    if subtitle_filters.is_empty() {
+      return Ok(String::new());
+    }
+
+    // Соединяем субтитры с видео
+    // Предполагаем, что видео уже доступно как [outv]
+    let mut final_filter = "[outv]".to_string();
+
+    for (index, filter) in subtitle_filters.iter().enumerate() {
+      let input_label = if index == 0 {
+        "[outv]"
+      } else {
+        &format!("[sub{}]", index - 1)
+      };
+      let output_label = if index == subtitle_filters.len() - 1 {
+        "[outv_with_subs]"
+      } else {
+        &format!("[sub{}]", index)
+      };
+
+      final_filter = format!("{}{},{}{}", final_filter, filter, input_label, output_label);
+    }
+
+    Ok(final_filter)
+  }
+
+  /// Построить фильтр для одного субтитра
+  async fn build_single_subtitle_filter(&self, subtitle: &Subtitle) -> Result<String> {
+    let style = &subtitle.style;
+    let pos = &subtitle.position;
+
+    // Экранируем текст для FFmpeg
+    let escaped_text = self.escape_subtitle_text(&subtitle.text);
+
+    // Построение основного drawtext фильтра
+    let mut drawtext_params = vec![
+      format!("text='{}'", escaped_text),
+      format!("fontfile='{}'", self.get_font_path(&style.font_family)?),
+      format!("fontsize={}", style.font_size),
+      format!("fontcolor={}", style.color),
+    ];
+
+    // Позиционирование
+    let (x_pos, y_pos) = self.calculate_subtitle_position(pos);
+    drawtext_params.push(format!("x={}", x_pos));
+    drawtext_params.push(format!("y={}", y_pos));
+
+    // Толщина шрифта
+    let weight = match style.font_weight {
+      SubtitleFontWeight::Thin => "thin",
+      SubtitleFontWeight::Light => "light",
+      SubtitleFontWeight::Normal => "normal",
+      SubtitleFontWeight::Medium => "medium",
+      SubtitleFontWeight::Bold => "bold",
+      SubtitleFontWeight::Black => "black",
+    };
+    drawtext_params.push(format!("fontweight={}", weight));
+
+    // Временные параметры
+    drawtext_params.push(format!(
+      "enable='between(t,{},{})' ",
+      subtitle.start_time, subtitle.end_time
+    ));
+
+    // Обводка
+    if let Some(stroke_color) = &style.stroke_color {
+      if style.stroke_width > 0.0 {
+        drawtext_params.push(format!("bordercolor={}", stroke_color));
+        drawtext_params.push(format!("borderw={}", style.stroke_width));
+      }
+    }
+
+    // Тень
+    if let Some(shadow_color) = &style.shadow_color {
+      if style.shadow_blur > 0.0 {
+        drawtext_params.push(format!("shadowcolor={}", shadow_color));
+        drawtext_params.push(format!("shadowx={}", style.shadow_x));
+        drawtext_params.push(format!("shadowy={}", style.shadow_y));
+      }
+    }
+
+    // Фон
+    if let Some(bg_color) = &style.background_color {
+      drawtext_params.push("box=1".to_string());
+      drawtext_params.push(format!("boxcolor={}", bg_color));
+      drawtext_params.push(format!(
+        "boxborderw={}",
+        style.padding.left.max(style.padding.right)
+      ));
+    }
+
+    // Максимальная ширина
+    if style.max_width > 0.0 && style.max_width < 100.0 {
+      let max_width_px =
+        (self.project.timeline.resolution.0 as f32 * style.max_width / 100.0) as u32;
+      drawtext_params.push(format!("text_w={}", max_width_px));
+    }
+
+    // Построение финального фильтра
+    let mut filter = format!("drawtext={}", drawtext_params.join(":"));
+
+    // Добавляем анимации если есть
+    if !subtitle.animations.is_empty() {
+      filter = self.apply_subtitle_animations(filter, subtitle).await?;
+    }
+
+    Ok(filter)
+  }
+
+  /// Применить анимации к субтитру
+  async fn apply_subtitle_animations(
+    &self,
+    base_filter: String,
+    subtitle: &Subtitle,
+  ) -> Result<String> {
+    let mut filter = base_filter;
+
+    for animation in &subtitle.animations {
+      filter = self
+        .apply_single_subtitle_animation(filter, animation, subtitle)
+        .await?;
+    }
+
+    Ok(filter)
+  }
+
+  /// Применить одну анимацию к субтитру
+  async fn apply_single_subtitle_animation(
+    &self,
+    base_filter: String,
+    animation: &SubtitleAnimation,
+    subtitle: &Subtitle,
+  ) -> Result<String> {
+    let start_time = subtitle.start_time + animation.delay;
+    let end_time = start_time + animation.duration;
+
+    match animation.animation_type {
+      SubtitleAnimationType::FadeIn => {
+        // Плавное появление через изменение alpha
+        Ok(format!(
+          "{}:alpha='if(between(t,{},{}), (t-{})/{}*1.0, 1.0)'",
+          base_filter, start_time, end_time, start_time, animation.duration
+        ))
+      }
+      SubtitleAnimationType::FadeOut => {
+        // Плавное исчезновение
+        Ok(format!(
+          "{}:alpha='if(between(t,{},{}), 1.0-(t-{})/{}*1.0, 1.0)'",
+          base_filter, start_time, end_time, start_time, animation.duration
+        ))
+      }
+      SubtitleAnimationType::SlideIn => {
+        // Въезд с указанного направления
+        if let Some(direction) = &animation.direction {
+          let (start_x, _start_y, end_x, _end_y) =
+            self.calculate_slide_positions(direction, subtitle);
+          Ok(format!(
+            "{}:x='if(between(t,{},{}), {}+({})*((t-{})/{}), {})'",
+            base_filter,
+            start_time,
+            end_time,
+            start_x,
+            end_x - start_x,
+            start_time,
+            animation.duration,
+            end_x
+          ))
+        } else {
+          Ok(base_filter)
+        }
+      }
+      SubtitleAnimationType::SlideOut => {
+        // Выезд в указанном направлении
+        if let Some(direction) = &animation.direction {
+          let (start_x, _start_y, end_x, _end_y) =
+            self.calculate_slide_positions(direction, subtitle);
+          Ok(format!(
+            "{}:x='if(between(t,{},{}), {}+({})*((t-{})/{}), {})'",
+            base_filter,
+            start_time,
+            end_time,
+            start_x,
+            end_x - start_x,
+            start_time,
+            animation.duration,
+            start_x
+          ))
+        } else {
+          Ok(base_filter)
+        }
+      }
+      SubtitleAnimationType::ScaleIn => {
+        // Увеличение от 0 до полного размера
+        Ok(format!(
+          "{}:fontsize='{}*if(between(t,{},{}), (t-{})/{}*1.0, 1.0)'",
+          base_filter,
+          subtitle.style.font_size,
+          start_time,
+          end_time,
+          start_time,
+          animation.duration
+        ))
+      }
+      _ => {
+        // Для остальных типов анимаций пока возвращаем базовый фильтр
+        // TODO: Реализовать Typewriter, Wave, Bounce, Shake, Blink, Dissolve
+        Ok(base_filter)
+      }
+    }
+  }
+
+  /// Экранировать текст субтитра для FFmpeg
+  fn escape_subtitle_text(&self, text: &str) -> String {
+    text
+      .replace("\\", "\\\\") // Экранируем обратные слеши
+      .replace("'", "\\'") // Экранируем одинарные кавычки
+      .replace(":", "\\:") // Экранируем двоеточия
+      .replace(",", "\\,") // Экранируем запятые
+      .replace("[", "\\[") // Экранируем квадратные скобки
+      .replace("]", "\\]")
+  }
+
+  /// Получить путь к шрифту
+  fn get_font_path(&self, font_family: &str) -> Result<String> {
+    // В реальной реализации нужно искать шрифт в системе
+    // Пока используем стандартные пути
+    match font_family.to_lowercase().as_str() {
+      "arial" => Ok("/System/Library/Fonts/Arial.ttf".to_string()),
+      "helvetica" => Ok("/System/Library/Fonts/Helvetica.ttc".to_string()),
+      "times" | "times new roman" => Ok("/System/Library/Fonts/Times.ttc".to_string()),
+      _ => {
+        // Пытаемся найти шрифт или используем fallback
+        Ok("/System/Library/Fonts/Arial.ttf".to_string())
+      }
+    }
+  }
+
+  /// Вычислить позицию субтитра
+  fn calculate_subtitle_position(&self, pos: &SubtitlePosition) -> (String, String) {
+    let resolution = &self.project.timeline.resolution;
+    let screen_width = resolution.0 as f32;
+    let screen_height = resolution.1 as f32;
+
+    // Базовые координаты в пикселях
+    let base_x = (pos.x / 100.0) * screen_width;
+    let base_y = (pos.y / 100.0) * screen_height;
+
+    // Корректировка на основе выравнивания
+    let x_offset = match pos.align_x {
+      SubtitleAlignX::Left => 0.0,
+      SubtitleAlignX::Center => -0.5,
+      SubtitleAlignX::Right => -1.0,
+    };
+
+    let y_offset = match pos.align_y {
+      SubtitleAlignY::Top => 0.0,
+      SubtitleAlignY::Center => -0.5,
+      SubtitleAlignY::Bottom => -1.0,
+    };
+
+    // Добавляем отступы
+    let final_x = base_x + pos.margin.left;
+    let final_y = base_y + pos.margin.top;
+
+    // FFmpeg поддерживает выражения для центрирования
+    let x_expr = if x_offset != 0.0 {
+      format!("(w-text_w)*{:.1}+{}", (x_offset as f32).abs(), final_x)
+    } else {
+      format!("{}", final_x)
+    };
+
+    let y_expr = if y_offset != 0.0 {
+      format!("(h-text_h)*{:.1}+{}", (y_offset as f32).abs(), final_y)
+    } else {
+      format!("{}", final_y)
+    };
+
+    (x_expr, y_expr)
+  }
+
+  /// Вычислить позиции для анимации слайда
+  fn calculate_slide_positions(
+    &self,
+    direction: &SubtitleDirection,
+    subtitle: &Subtitle,
+  ) -> (f32, f32, f32, f32) {
+    let resolution = &self.project.timeline.resolution;
+    let screen_width = resolution.0 as f32;
+    let screen_height = resolution.1 as f32;
+
+    let (normal_x, normal_y) = self.calculate_subtitle_position(&subtitle.position);
+
+    // Парсим нормальные позиции (упрощенно)
+    let normal_x_val = normal_x.parse::<f32>().unwrap_or(screen_width / 2.0);
+    let normal_y_val = normal_y.parse::<f32>().unwrap_or(screen_height * 0.85);
+
+    match direction {
+      SubtitleDirection::Left => (-screen_width, normal_y_val, normal_x_val, normal_y_val),
+      SubtitleDirection::Right => (screen_width, normal_y_val, normal_x_val, normal_y_val),
+      SubtitleDirection::Top => (normal_x_val, -screen_height, normal_x_val, normal_y_val),
+      SubtitleDirection::Bottom => (normal_x_val, screen_height, normal_x_val, normal_y_val),
+      SubtitleDirection::Center => (normal_x_val, normal_y_val, normal_x_val, normal_y_val),
+    }
+  }
+  /// Построить граф фильтров для конкретного сегмента
+  async fn build_segment_filter_complex(&self, start_time: f64, end_time: f64) -> Result<String> {
+    let mut filter_chain = String::new();
+    let mut input_index = 0;
+
+    // Получаем только те треки и клипы, которые попадают в заданный временной диапазон
+    let video_tracks: Vec<&Track> = self
+      .project
+      .tracks
+      .iter()
+      .filter(|t| t.enabled && t.track_type == TrackType::Video)
+      .filter(|t| {
+        // Проверяем, есть ли клипы в нужном диапазоне
+        t.clips.iter().any(|c| {
+          let clip_start = c.start_time;
+          let clip_end = c.end_time;
+          // Клип пересекается с диапазоном пререндера
+          clip_start < end_time && clip_end > start_time
+        })
+      })
+      .collect();
+
+    let audio_tracks: Vec<&Track> = self
+      .project
+      .tracks
+      .iter()
+      .filter(|t| t.enabled && t.track_type == TrackType::Audio)
+      .filter(|t| {
+        t.clips.iter().any(|c| {
+          let clip_start = c.start_time;
+          let clip_end = c.end_time;
+          clip_start < end_time && clip_end > start_time
+        })
+      })
+      .collect();
+
+    // Строим видео цепочку
+    if !video_tracks.is_empty() {
+      let video_filter = self
+        .build_video_filter_chain(&video_tracks, &mut input_index)
+        .await?;
+      filter_chain.push_str(&video_filter);
+    }
+
+    // Строим аудио цепочку
+    if !audio_tracks.is_empty() {
+      if !filter_chain.is_empty() {
+        filter_chain.push_str("; ");
+      }
+      let audio_filter = self
+        .build_audio_filter_chain(&audio_tracks, &mut input_index)
+        .await?;
+      filter_chain.push_str(&audio_filter);
+    }
+
+    Ok(filter_chain)
+  }
 }
 
 /// Входной источник для FFmpeg
@@ -734,6 +2292,18 @@ pub struct FFmpegBuilderSettings {
   pub prefer_quicksync: bool,
   /// Дополнительные глобальные параметры
   pub global_args: Vec<String>,
+}
+
+impl Default for FFmpegBuilderSettings {
+  fn default() -> Self {
+    Self {
+      ffmpeg_path: "ffmpeg".to_string(),
+      threads: None, // Автоматическое определение
+      prefer_nvenc: true,
+      prefer_quicksync: false,
+      global_args: Vec::new(),
+    }
+  }
 }
 
 #[cfg(test)]
@@ -1137,6 +2707,7 @@ mod tests {
     project.settings.export.video_bitrate = 5000; // 5Mbps
     project.settings.export.audio_bitrate = 192; // 192kbps
     project.settings.export.quality = 80;
+    project.settings.export.hardware_acceleration = false; // Отключаем для теста битрейта
 
     let builder = FFmpegBuilder::new(project);
     let mut cmd = tokio::process::Command::new("ffmpeg");
@@ -1280,17 +2851,5 @@ mod tests {
       .parameters
       .insert("intensity".to_string(), EffectParameter::Float(intensity));
     effect
-  }
-}
-
-impl Default for FFmpegBuilderSettings {
-  fn default() -> Self {
-    Self {
-      ffmpeg_path: "ffmpeg".to_string(),
-      threads: None, // Автоматическое определение
-      prefer_nvenc: true,
-      prefer_quicksync: false,
-      global_args: Vec::new(),
-    }
   }
 }

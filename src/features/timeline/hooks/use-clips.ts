@@ -86,7 +86,16 @@ export function useClips(): UseClipsReturn {
 
   const clips = useMemo(() => {
     if (!project) return []
-    return getAllClips(project)
+
+    // Получаем все клипы и обогащаем их ссылками на MediaFile
+    const allClips = getAllClips(project)
+    return allClips.map((clip) => {
+      const mediaFile = project.resources.media.find((file) => file.id === clip.mediaId)
+      return {
+        ...clip,
+        mediaFile,
+      }
+    })
   }, [project])
 
   const selectedClips = useMemo(() => {
@@ -110,7 +119,15 @@ export function useClips(): UseClipsReturn {
   const findClip = useMemo(
     () => (clipId: string) => {
       if (!project) return null
-      return findClipById(project, clipId)
+      const clip = findClipById(project, clipId)
+      if (!clip) return null
+
+      // Обогащаем ссылкой на MediaFile
+      const mediaFile = project.resources.media.find((file) => file.id === clip.mediaId)
+      return {
+        ...clip,
+        mediaFile,
+      }
     },
     [project],
   )
@@ -160,12 +177,16 @@ export function useClips(): UseClipsReturn {
 
   const duplicateClip = (clipId: string, targetTrackId?: string) => {
     const clip = findClip(clipId)
-    if (!clip || !clip.mediaFile) return
+    if (!clip) return
+
+    // Находим MediaFile для клипа
+    const mediaFile = project?.resources.media.find((file) => file.id === clip.mediaId)
+    if (!mediaFile) return
 
     const trackId = targetTrackId || clip.trackId
     const startTime = clip.startTime + clip.duration + 1 // Размещаем после оригинала
 
-    addClip(trackId, clip.mediaFile, startTime, clip.duration)
+    addClip(trackId, mediaFile, startTime, clip.duration)
   }
 
   // ============================================================================

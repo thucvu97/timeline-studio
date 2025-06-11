@@ -5,6 +5,8 @@
 import { renderHook } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
+import { TimelineProviders } from "@/test/test-utils"
+
 import { useTimelineSelection } from "../../hooks/use-timeline-selection"
 
 describe("useTimelineSelection", () => {
@@ -15,7 +17,9 @@ describe("useTimelineSelection", () => {
     })
 
     it("should return object with all required properties and methods", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       // Current selection
       expect(result.current).toHaveProperty("selectedClips")
@@ -70,7 +74,9 @@ describe("useTimelineSelection", () => {
 
   describe("Default State", () => {
     it("should return empty arrays and false states by default", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(result.current.selectedClips).toEqual([])
       expect(result.current.selectedTracks).toEqual([])
@@ -79,7 +85,9 @@ describe("useTimelineSelection", () => {
     })
 
     it("should return default selection count", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(result.current.selectionCount).toEqual({
         clips: 0,
@@ -90,7 +98,9 @@ describe("useTimelineSelection", () => {
     })
 
     it("should return null selection bounds", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(result.current.selectionBounds).toBeNull()
     })
@@ -98,7 +108,9 @@ describe("useTimelineSelection", () => {
 
   describe("Selection State Checks", () => {
     it("should return false for non-selected items", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(result.current.isClipSelected("non-existent-clip")).toBe(false)
       expect(result.current.isTrackSelected("non-existent-track")).toBe(false)
@@ -106,7 +118,9 @@ describe("useTimelineSelection", () => {
     })
 
     it("should return default selection statistics", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       const stats = result.current.getSelectionStats()
       expect(stats).toEqual({
@@ -120,7 +134,9 @@ describe("useTimelineSelection", () => {
 
   describe("Selection Actions", () => {
     it("should call selection methods without errors", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.selectClip("clip-1")
@@ -134,7 +150,9 @@ describe("useTimelineSelection", () => {
     })
 
     it("should call area selection methods without errors", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.selectInTimeRange(0, 10)
@@ -145,7 +163,9 @@ describe("useTimelineSelection", () => {
 
   describe("Operations on Selected Items", () => {
     it("should call operation methods without errors", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.deleteSelected()
@@ -156,7 +176,9 @@ describe("useTimelineSelection", () => {
     })
 
     it("should call property modification methods without errors", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.setSelectedVolume(0.5)
@@ -172,7 +194,9 @@ describe("useTimelineSelection", () => {
 
   describe("Clipboard Operations", () => {
     it("should call clipboard methods without errors", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.copySelected()
@@ -184,7 +208,9 @@ describe("useTimelineSelection", () => {
 
   describe("Error Handling", () => {
     it("should not throw errors with invalid parameters", () => {
-      const { result } = renderHook(() => useTimelineSelection())
+      const { result } = renderHook(() => useTimelineSelection(), {
+        wrapper: TimelineProviders,
+      })
 
       expect(() => {
         result.current.selectClip("")

@@ -11,12 +11,12 @@ import { ResizableTemplate } from "../components/resizable-template"
 vi.mock("../components/video-panel-component", () => ({
   VideoPanelComponent: ({ video, isActive, index, className }: any) => (
     <div
-      data-testid={`video-panel-${index || 1}`}
+      data-testid={`video-panel-${index ?? video?.id ?? "unknown"}`}
       className={className}
       data-video-id={video?.id}
       data-is-active={isActive}
     >
-      Video Panel {index || 1} - {video?.name || "No Video"}
+      Video Panel {index ?? video?.id ?? "unknown"} - {video?.name || "No Video"}
     </div>
   ),
 }))
@@ -59,6 +59,30 @@ describe("ResizableTemplate", () => {
     },
   ]
 
+  const mockVideosForGrid = [
+    ...mockVideos,
+    {
+      id: "video-3",
+      name: "Test Video 3",
+      path: "/test/video3.mp4",
+      type: "video",
+      size: 3072,
+      duration: 90,
+      startTime: 0,
+      endTime: 90,
+    },
+    {
+      id: "video-4",
+      name: "Test Video 4",
+      path: "/test/video4.mp4",
+      type: "video",
+      size: 4096,
+      duration: 150,
+      startTime: 0,
+      endTime: 150,
+    },
+  ]
+
   it("should be importable", () => {
     // Простой smoke test - проверяем, что компонент можно импортировать
     expect(ResizableTemplate).toBeDefined()
@@ -71,6 +95,7 @@ describe("ResizableTemplate", () => {
     )
 
     // Проверяем, что компонент отрендерился (используем SplitVertical для vertical template)
+    expect(screen.getByTestId("video-panel-0")).toBeInTheDocument()
     expect(screen.getByTestId("video-panel-1")).toBeInTheDocument()
   })
 
@@ -80,8 +105,8 @@ describe("ResizableTemplate", () => {
     )
 
     // Проверяем, что отрендерились панели для каждого экрана
+    expect(screen.getByTestId("video-panel-0")).toBeInTheDocument()
     expect(screen.getByTestId("video-panel-1")).toBeInTheDocument()
-    expect(screen.getByTestId("video-panel-2")).toBeInTheDocument()
   })
 
   it("should render empty div when no videos", () => {
@@ -109,6 +134,7 @@ describe("ResizableTemplate", () => {
     )
 
     // Проверяем, что компонент отрендерился (используем SplitHorizontal для horizontal template)
+    expect(screen.getByTestId("video-panel-0")).toBeInTheDocument()
     expect(screen.getByTestId("video-panel-1")).toBeInTheDocument()
   })
 
@@ -122,15 +148,19 @@ describe("ResizableTemplate", () => {
 
     const gridAppliedTemplate = {
       template: gridTemplate,
-      videos: [],
+      videos: mockVideosForGrid,
     }
 
     renderWithTemplates(
-      <ResizableTemplate appliedTemplate={gridAppliedTemplate} videos={mockVideos} activeVideoId={null} />,
+      <ResizableTemplate appliedTemplate={gridAppliedTemplate} videos={mockVideosForGrid} activeVideoId={null} />,
     )
 
     // Проверяем, что компонент отрендерился (используем SplitGrid2x2 для grid template)
+    // Для grid шаблона с 4 экранами и 4 видео, должны быть panel-0, panel-1, panel-2 и panel-3
+    expect(screen.getByTestId("video-panel-0")).toBeInTheDocument()
     expect(screen.getByTestId("video-panel-1")).toBeInTheDocument()
+    expect(screen.getByTestId("video-panel-2")).toBeInTheDocument()
+    expect(screen.getByTestId("video-panel-3")).toBeInTheDocument()
   })
 
   it("should validate template structure", () => {
