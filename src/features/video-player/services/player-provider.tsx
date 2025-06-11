@@ -26,6 +26,8 @@ interface PlayerContextType extends MachineContextType {
     prerenderApplyEffects?: boolean
     prerenderAutoPrerender?: boolean
   }) => void
+  setPreviewMedia: (media: MediaFile | null) => void
+  setVideoSource: (source: "browser" | "timeline") => void
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined)
@@ -88,6 +90,18 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
       prerenderApplyEffects?: boolean
       prerenderAutoPrerender?: boolean
     }) => send({ type: "setPrerenderSettings", ...settings }),
+    setPreviewMedia: (media: MediaFile | null) => {
+      console.log("[PlayerProvider] Setting preview media:", media?.name)
+      send({ type: "setPreviewMedia", media })
+      // Если передано видео, устанавливаем его как текущее
+      if (media) {
+        send({ type: "setVideo", video: media })
+      }
+    },
+    setVideoSource: (source: "browser" | "timeline") => {
+      console.log("[PlayerProvider] Setting video source:", source)
+      send({ type: "setVideoSource", source })
+    },
   }
 
   // Сохраняем контекст плеера в глобальном объекте window

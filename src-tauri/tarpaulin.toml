@@ -1,0 +1,22 @@
+[default]
+# Exclude test files and generated code
+exclude-files = ["*/tests/*", "*/build.rs", "target/*"]
+# Generate multiple output formats
+out = ["Html", "Xml", "Lcov"]
+# Output directory
+output-dir = "coverage"
+# Timeout for each test
+timeout = "300s"
+# Follow dependencies
+follow-exec = true
+# Count hits per line
+count = true
+# Verbose output
+verbose = true
+# Exclude patterns - removed due to tarpaulin limitation
+# Ignored functions
+ignore-panics = true
+# Run tests in parallel
+parallel = true
+# Force clean build
+force-clean = true

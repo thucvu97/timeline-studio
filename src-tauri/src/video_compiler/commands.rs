@@ -976,3 +976,6 @@ fn extract_hardware_encoders(output: &str) -> Vec<String> {
 
   encoders
 }
+
+#[cfg(test)]
+mod tests;

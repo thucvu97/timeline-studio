@@ -43,7 +43,7 @@ export function VideoPlayer() {
       <div className="media-player-container relative flex h-full flex-col">
         <div className="relative flex-1 bg-black" style={containerStyle}>
           <div className="flex h-full w-full items-center justify-center">
-            <div className="max-h-[calc(100%-85px)] w-full max-w-[100%]">
+            <div className="h-full w-full">
               <AspectRatio ratio={aspectRatioValue} className="bg-black">
                 <div className="relative h-full w-full">
                   <video
@@ -81,7 +81,7 @@ export function VideoPlayer() {
     <div className="media-player-container relative flex h-full flex-col">
       <div className="relative flex-1 bg-black" style={containerStyle}>
         <div className="flex h-full w-full items-center justify-center">
-          <div className="max-h-[calc(100%-85px)] w-full max-w-[100%]">
+          <div className="h-full w-full">
             <AspectRatio ratio={aspectRatioValue} className="bg-black">
               <div className="relative h-full w-full">
                 <video

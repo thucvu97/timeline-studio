@@ -92,7 +92,7 @@ export const MediaItem = memo<MediaItemProps>(
       return (
         <div
           className={cn(
-            "flex h-full w-full flex-col overflow-hidden rounded-xs",
+            "flex h-full w-full flex-col rounded-xs",
             "border border-transparent bg-white hover:border-[#38dacac3] hover:bg-gray-100 dark:bg-[#25242b] dark:hover:border-[#35d1c1] dark:hover:bg-[#2f2d38]",
             baseClasses,
           )}
@@ -140,6 +140,8 @@ export const MediaItem = memo<MediaItemProps>(
     // Кастомная функция сравнения для более точного контроля
     return (
       prevProps.file.id === nextProps.file.id &&
+      prevProps.file.isLoadingMetadata === nextProps.file.isLoadingMetadata &&
+      prevProps.file.probeData === nextProps.file.probeData &&
       prevProps.viewMode === nextProps.viewMode &&
       prevProps.previewSize === nextProps.previewSize &&
       prevProps.index === nextProps.index

@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react"
+import { memo, useCallback } from "react"
 
 import { useAppSettings } from "@/features/app-state"
 import { VirtualizedContentGroup } from "@/features/browser/components/virtualized-content-group"

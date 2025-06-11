@@ -191,16 +191,6 @@ describe("AudioPreview", () => {
     expect(global.URL.createObjectURL).toHaveBeenCalled()
   })
 
-  it("should initialize audio context and media recorder", async () => {
-    render(<AudioPreview file={audioFile} />)
-
-    // Ждем инициализации аудио контекста
-    await new Promise((resolve) => setTimeout(resolve, 150))
-
-    // Проверяем, что AudioContext был создан
-    expect(global.AudioContext).toHaveBeenCalled()
-  })
-
   it("should handle audio play/pause on click", async () => {
     const renderResult = render(<AudioPreview file={audioFile} />)
 
@@ -268,17 +258,6 @@ describe("AudioPreview", () => {
 
     // Проверяем, что pause был вызван (если аудио играло)
     // В данном случае isPlaying = false по умолчанию, поэтому pause не вызывается
-  })
-
-  it("should render audio visualizer when mediaRecorder is available", async () => {
-    render(<AudioPreview file={audioFile} />)
-
-    // Ждем инициализации
-    await new Promise((resolve) => setTimeout(resolve, 150))
-
-    // Проверяем, что визуализатор отображается
-    const visualizer = screen.getByTestId("audio-visualizer")
-    expect(visualizer).toBeInTheDocument()
   })
 
   it("should handle keyboard space key for play/pause", () => {

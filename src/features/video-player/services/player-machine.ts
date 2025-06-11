@@ -22,6 +22,10 @@ export interface PlayerContextType {
   prerenderSegmentDuration: number
   prerenderApplyEffects: boolean
   prerenderAutoPrerender: boolean
+
+  // Новые поля для функции "Применить"
+  previewMedia: MediaFile | null // Медиа для предпросмотра
+  videoSource: "browser" | "timeline" // Источник видео
 }
 
 // Начальный контекст для машины состояний плеера
@@ -45,6 +49,10 @@ const initialContext: PlayerContextType = {
   prerenderSegmentDuration: 5,
   prerenderApplyEffects: true,
   prerenderAutoPrerender: true,
+
+  // Новые поля
+  previewMedia: null,
+  videoSource: "browser",
 }
 
 interface SetCurrentTimeEvent {
@@ -111,6 +119,16 @@ interface SetPrerenderSettingsEvent {
   prerenderAutoPrerender?: boolean
 }
 
+interface SetPreviewMediaEvent {
+  type: "setPreviewMedia"
+  media: MediaFile | null
+}
+
+interface SetVideoSourceEvent {
+  type: "setVideoSource"
+  source: "browser" | "timeline"
+}
+
 export type PlayerEvent =
   | SetCurrentTimeEvent
   | SetIsPlayingEvent
@@ -124,6 +142,8 @@ export type PlayerEvent =
   | SetVideoReadyEvent
   | SetIsResizableModeEvent
   | SetPrerenderSettingsEvent
+  | SetPreviewMediaEvent
+  | SetVideoSourceEvent
 
 export const playerMachine = createMachine({
   id: "player",
@@ -181,6 +201,22 @@ export const playerMachine = createMachine({
             prerenderAutoPrerender: ({ event, context }) =>
               event.prerenderAutoPrerender ?? context.prerenderAutoPrerender,
           }),
+        },
+        setPreviewMedia: {
+          actions: [
+            assign({ previewMedia: ({ event }) => event.media }),
+            ({ event }) => {
+              console.log(`[PlayerMachine] Установлено preview media: ${event.media?.id}`)
+            },
+          ],
+        },
+        setVideoSource: {
+          actions: [
+            assign({ videoSource: ({ event }) => event.source }),
+            ({ event }) => {
+              console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
+            },
+          ],
         },
       },
     },
@@ -240,6 +276,22 @@ export const playerMachine = createMachine({
               event.prerenderAutoPrerender ?? context.prerenderAutoPrerender,
           }),
         },
+        setPreviewMedia: {
+          actions: [
+            assign({ previewMedia: ({ event }) => event.media }),
+            ({ event }) => {
+              console.log(`[PlayerMachine] Установлено preview media: ${event.media?.id}`)
+            },
+          ],
+        },
+        setVideoSource: {
+          actions: [
+            assign({ videoSource: ({ event }) => event.source }),
+            ({ event }) => {
+              console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
+            },
+          ],
+        },
       },
     },
     ready: {
@@ -295,6 +347,22 @@ export const playerMachine = createMachine({
             prerenderAutoPrerender: ({ event, context }) =>
               event.prerenderAutoPrerender ?? context.prerenderAutoPrerender,
           }),
+        },
+        setPreviewMedia: {
+          actions: [
+            assign({ previewMedia: ({ event }) => event.media }),
+            ({ event }) => {
+              console.log(`[PlayerMachine] Установлено preview media: ${event.media?.id}`)
+            },
+          ],
+        },
+        setVideoSource: {
+          actions: [
+            assign({ videoSource: ({ event }) => event.source }),
+            ({ event }) => {
+              console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
+            },
+          ],
         },
       },
     },

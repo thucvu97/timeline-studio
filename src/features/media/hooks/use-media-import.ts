@@ -139,6 +139,7 @@ export function useMediaImport() {
     // Функция для батчинга обновлений
     const batchUpdate = () => {
       if (pendingUpdates.length > 0) {
+        console.log(`[BatchUpdate] Обновление ${pendingUpdates.length} файлов`)
         updateMediaFiles([...pendingUpdates])
         pendingUpdates.length = 0
       }
@@ -154,8 +155,8 @@ export function useMediaImport() {
       }
 
       // Устанавливаем новый таймер для батчинга
-      // Увеличиваем задержку для больших батчей
-      const delay = pendingUpdates.length > 10 ? 100 : 50
+      // Используем минимальную задержку для быстрого обновления UI
+      const delay = pendingUpdates.length > 10 ? 50 : 10
       updateTimer = setTimeout(() => {
         requestAnimationFrame(batchUpdate)
       }, delay)

@@ -372,7 +372,7 @@ export function MediaList() {
   }, [])
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden" style={{ height: "100%" }}>
+    <div className="flex h-full w-full flex-col" style={{ height: "100%" }}>
       <div className="min-h-0 flex-1 overflow-y-auto p-0 bg-background">
         <MediaContent
           groupedFiles={groupedFiles}

@@ -9,3 +9,6 @@ pub mod types;
 // Реэкспортируем основные типы для удобства использования
 pub use files::get_media_files;
 pub use metadata::get_media_metadata;
+
+#[cfg(test)]
+mod tests;

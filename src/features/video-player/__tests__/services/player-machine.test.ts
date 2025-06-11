@@ -49,6 +49,9 @@ describe("Player Machine", () => {
       prerenderSegmentDuration: 5,
       prerenderApplyEffects: true,
       prerenderAutoPrerender: true,
+      // Новые поля
+      previewMedia: null,
+      videoSource: "browser",
     })
   })
 

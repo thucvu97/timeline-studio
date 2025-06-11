@@ -68,3 +68,88 @@ pub fn set_app_language(lang: String) -> Result<LanguageResponse, String> {
     system_language: get_system_language(),
   })
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_is_supported_language() {
+    // Test supported languages
+    assert!(is_supported_language("en"));
+    assert!(is_supported_language("ru"));
+    assert!(is_supported_language("es"));
+    assert!(is_supported_language("pt"));
+    assert!(is_supported_language("fr"));
+    assert!(is_supported_language("de"));
+
+    // Test unsupported languages
+    assert!(!is_supported_language("ja"));
+    assert!(!is_supported_language("ko"));
+    assert!(!is_supported_language("zh"));
+    assert!(!is_supported_language(""));
+  }
+
+  #[test]
+  fn test_get_system_language() {
+    let lang = get_system_language();
+    // Should return a valid language code
+    assert!(!lang.is_empty());
+    assert!(SUPPORTED_LANGUAGES.contains(&lang.as_str()));
+  }
+
+  #[test]
+  fn test_get_app_language() {
+    let response = get_app_language();
+    // Should return default language initially
+    assert!(!response.language.is_empty());
+    assert!(!response.system_language.is_empty());
+    assert!(is_supported_language(&response.language));
+    assert!(is_supported_language(&response.system_language));
+  }
+
+  #[test]
+  fn test_set_app_language_valid() {
+    // Test setting a valid language
+    let result = set_app_language("ru".to_string());
+    assert!(result.is_ok());
+
+    let response = result.unwrap();
+    assert_eq!(response.language, "ru");
+    assert!(!response.system_language.is_empty());
+
+    // Verify the language was actually set
+    let current = get_app_language();
+    assert_eq!(current.language, "ru");
+
+    // Reset to default
+    let _ = set_app_language(DEFAULT_LANGUAGE.to_string());
+  }
+
+  #[test]
+  fn test_set_app_language_invalid() {
+    // Test setting an invalid language
+    let result = set_app_language("xyz".to_string());
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("Unsupported language"));
+  }
+
+  #[test]
+  fn test_supported_languages_constant() {
+    // Verify the constant is properly defined
+    assert_eq!(SUPPORTED_LANGUAGES.len(), 6);
+    assert_eq!(DEFAULT_LANGUAGE, "en");
+  }
+
+  #[test]
+  fn test_language_response_serialization() {
+    let response = LanguageResponse {
+      language: "en".to_string(),
+      system_language: "en".to_string(),
+    };
+
+    let json = serde_json::to_string(&response).unwrap();
+    assert!(json.contains("\"language\":\"en\""));
+    assert!(json.contains("\"system_language\":\"en\""));
+  }
+}

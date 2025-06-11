@@ -441,6 +441,8 @@ macro_rules! render_error {
 #[cfg(test)]
 mod tests {
   use super::*;
+  #[allow(unused_imports)]
+  use tokio::time::{timeout, Duration as TokioDuration};
 
   #[test]
   fn test_error_creation() {
@@ -582,5 +584,419 @@ mod tests {
     } else {
       panic!("Ожидалась RenderError");
     }
+  }
+
+  #[test]
+  fn test_all_error_displays() {
+    // Тестируем Display для всех вариантов ошибок
+    let errors: Vec<(VideoCompilerError, &str)> = vec![
+      (
+        VideoCompilerError::DependencyMissing("FFmpeg".to_string()),
+        "Отсутствует зависимость: FFmpeg",
+      ),
+      (
+        VideoCompilerError::IoError("Disk full".to_string()),
+        "Ошибка ввода/вывода: Disk full",
+      ),
+      (
+        VideoCompilerError::SerializationError("Invalid JSON".to_string()),
+        "Ошибка сериализации: Invalid JSON",
+      ),
+      (
+        VideoCompilerError::MediaFileError {
+          path: "/test.mp4".to_string(),
+          reason: "Not found".to_string(),
+        },
+        "Ошибка медиа файла '/test.mp4': Not found",
+      ),
+      (
+        VideoCompilerError::UnsupportedFormat {
+          format: "AVI".to_string(),
+          file_path: "/test.avi".to_string(),
+        },
+        "Неподдерживаемый формат 'AVI' для файла '/test.avi'",
+      ),
+      (
+        VideoCompilerError::RenderError {
+          job_id: "123".to_string(),
+          stage: "encoding".to_string(),
+          message: "Failed".to_string(),
+        },
+        "Ошибка рендеринга [123] на этапе 'encoding': Failed",
+      ),
+      (
+        VideoCompilerError::PreviewError {
+          timestamp: 10.5,
+          reason: "Frame extraction failed".to_string(),
+        },
+        "Ошибка генерации превью на 10.5с: Frame extraction failed",
+      ),
+      (
+        VideoCompilerError::CacheError("Cache corrupted".to_string()),
+        "Ошибка кэша: Cache corrupted",
+      ),
+      (
+        VideoCompilerError::ConfigError("Invalid settings".to_string()),
+        "Ошибка конфигурации: Invalid settings",
+      ),
+      (
+        VideoCompilerError::ResourceError {
+          resource_type: "memory".to_string(),
+          available: "1GB".to_string(),
+          required: "2GB".to_string(),
+        },
+        "Нехватка ресурса 'memory': доступно 1GB, требуется 2GB",
+      ),
+      (
+        VideoCompilerError::TimeoutError {
+          operation: "rendering".to_string(),
+          timeout_seconds: 30,
+        },
+        "Тайм-аут операции 'rendering' (30с)",
+      ),
+      (
+        VideoCompilerError::CancelledError("User cancelled".to_string()),
+        "Операция отменена: User cancelled",
+      ),
+      (
+        VideoCompilerError::GpuError("CUDA out of memory".to_string()),
+        "Ошибка GPU: CUDA out of memory",
+      ),
+      (
+        VideoCompilerError::GpuUnavailable("No GPU found".to_string()),
+        "GPU недоступен: No GPU found",
+      ),
+      (
+        VideoCompilerError::Io("Permission denied".to_string()),
+        "Ошибка ввода/вывода: Permission denied",
+      ),
+      (
+        VideoCompilerError::InternalError("Unexpected state".to_string()),
+        "Внутренняя ошибка: Unexpected state",
+      ),
+      (
+        VideoCompilerError::Unknown("Something went wrong".to_string()),
+        "Неизвестная ошибка: Something went wrong",
+      ),
+    ];
+
+    for (error, expected_display) in errors {
+      let display_str = error.to_string();
+      assert_eq!(display_str, expected_display);
+    }
+  }
+
+  #[test]
+  fn test_all_error_codes() {
+    // Тестируем error_code для всех вариантов
+    let test_cases = vec![
+      (
+        VideoCompilerError::ValidationError("test".to_string()),
+        "VALIDATION_ERROR",
+      ),
+      (
+        VideoCompilerError::FFmpegError {
+          exit_code: None,
+          stderr: "test".to_string(),
+          command: "test".to_string(),
+        },
+        "FFMPEG_ERROR",
+      ),
+      (
+        VideoCompilerError::DependencyMissing("test".to_string()),
+        "DEPENDENCY_MISSING",
+      ),
+      (VideoCompilerError::IoError("test".to_string()), "IO_ERROR"),
+      (
+        VideoCompilerError::SerializationError("test".to_string()),
+        "SERIALIZATION_ERROR",
+      ),
+      (
+        VideoCompilerError::MediaFileError {
+          path: "test".to_string(),
+          reason: "test".to_string(),
+        },
+        "MEDIA_FILE_ERROR",
+      ),
+      (
+        VideoCompilerError::UnsupportedFormat {
+          format: "test".to_string(),
+          file_path: "test".to_string(),
+        },
+        "UNSUPPORTED_FORMAT",
+      ),
+      (
+        VideoCompilerError::RenderError {
+          job_id: "test".to_string(),
+          stage: "test".to_string(),
+          message: "test".to_string(),
+        },
+        "RENDER_ERROR",
+      ),
+      (
+        VideoCompilerError::PreviewError {
+          timestamp: 0.0,
+          reason: "test".to_string(),
+        },
+        "PREVIEW_ERROR",
+      ),
+      (
+        VideoCompilerError::CacheError("test".to_string()),
+        "CACHE_ERROR",
+      ),
+      (
+        VideoCompilerError::ConfigError("test".to_string()),
+        "CONFIG_ERROR",
+      ),
+      (
+        VideoCompilerError::ResourceError {
+          resource_type: "test".to_string(),
+          available: "test".to_string(),
+          required: "test".to_string(),
+        },
+        "RESOURCE_ERROR",
+      ),
+      (
+        VideoCompilerError::TimeoutError {
+          operation: "test".to_string(),
+          timeout_seconds: 0,
+        },
+        "TIMEOUT_ERROR",
+      ),
+      (
+        VideoCompilerError::CancelledError("test".to_string()),
+        "CANCELLED_ERROR",
+      ),
+      (
+        VideoCompilerError::GpuError("test".to_string()),
+        "GPU_ERROR",
+      ),
+      (
+        VideoCompilerError::GpuUnavailable("test".to_string()),
+        "GPU_UNAVAILABLE",
+      ),
+      (VideoCompilerError::Io("test".to_string()), "IO_ERROR"),
+      (
+        VideoCompilerError::InternalError("test".to_string()),
+        "INTERNAL_ERROR",
+      ),
+      (
+        VideoCompilerError::Unknown("test".to_string()),
+        "UNKNOWN_ERROR",
+      ),
+    ];
+
+    for (error, expected_code) in test_cases {
+      assert_eq!(error.error_code(), expected_code);
+    }
+  }
+
+  #[test]
+  fn test_gpu_related_errors() {
+    let gpu_error = VideoCompilerError::gpu("CUDA initialization failed");
+    assert!(gpu_error.is_gpu_related());
+    assert!(gpu_error.should_fallback_to_cpu());
+
+    let gpu_unavailable = VideoCompilerError::gpu_unavailable("No compatible GPU");
+    assert!(gpu_unavailable.is_gpu_related());
+    assert!(gpu_unavailable.should_fallback_to_cpu());
+
+    let non_gpu_error = VideoCompilerError::io("File not found");
+    assert!(!non_gpu_error.is_gpu_related());
+    assert!(!non_gpu_error.should_fallback_to_cpu());
+  }
+
+  #[test]
+  fn test_error_message_method() {
+    let error = VideoCompilerError::validation("Test error");
+    assert_eq!(error.message(), "Ошибка валидации: Test error");
+  }
+
+  #[test]
+  fn test_helper_constructors() {
+    // Тестируем все вспомогательные конструкторы
+    let unsupported = VideoCompilerError::unsupported_format("MOV", "/test.mov");
+    match unsupported {
+      VideoCompilerError::UnsupportedFormat { format, file_path } => {
+        assert_eq!(format, "MOV");
+        assert_eq!(file_path, "/test.mov");
+      }
+      _ => panic!("Неожиданный тип ошибки"),
+    }
+
+    let render = VideoCompilerError::render("job-456", "audio-mixing", "No audio tracks");
+    match render {
+      VideoCompilerError::RenderError {
+        job_id,
+        stage,
+        message,
+      } => {
+        assert_eq!(job_id, "job-456");
+        assert_eq!(stage, "audio-mixing");
+        assert_eq!(message, "No audio tracks");
+      }
+      _ => panic!("Неожиданный тип ошибки"),
+    }
+
+    let preview = VideoCompilerError::preview(15.5, "Invalid timestamp".to_string());
+    match preview {
+      VideoCompilerError::PreviewError { timestamp, reason } => {
+        assert_eq!(timestamp, 15.5);
+        assert_eq!(reason, "Invalid timestamp");
+      }
+      _ => panic!("Неожиданный тип ошибки"),
+    }
+
+    let resource = VideoCompilerError::resource("disk space", "100MB", "500MB");
+    match resource {
+      VideoCompilerError::ResourceError {
+        resource_type,
+        available,
+        required,
+      } => {
+        assert_eq!(resource_type, "disk space");
+        assert_eq!(available, "100MB");
+        assert_eq!(required, "500MB");
+      }
+      _ => panic!("Неожиданный тип ошибки"),
+    }
+
+    let timeout = VideoCompilerError::timeout("video encoding", 120);
+    match timeout {
+      VideoCompilerError::TimeoutError {
+        operation,
+        timeout_seconds,
+      } => {
+        assert_eq!(operation, "video encoding");
+        assert_eq!(timeout_seconds, 120);
+      }
+      _ => panic!("Неожиданный тип ошибки"),
+    }
+  }
+
+  #[test]
+  fn test_is_critical_comprehensive() {
+    // Критические ошибки
+    assert!(VideoCompilerError::DependencyMissing("test".to_string()).is_critical());
+    assert!(VideoCompilerError::ResourceError {
+      resource_type: "test".to_string(),
+      available: "test".to_string(),
+      required: "test".to_string()
+    }
+    .is_critical());
+    assert!(VideoCompilerError::InternalError("test".to_string()).is_critical());
+
+    // Некритические ошибки
+    assert!(!VideoCompilerError::ValidationError("test".to_string()).is_critical());
+    assert!(!VideoCompilerError::IoError("test".to_string()).is_critical());
+    assert!(!VideoCompilerError::TimeoutError {
+      operation: "test".to_string(),
+      timeout_seconds: 0
+    }
+    .is_critical());
+  }
+
+  #[test]
+  fn test_is_retryable_comprehensive() {
+    // Повторяемые ошибки
+    assert!(VideoCompilerError::IoError("test".to_string()).is_retryable());
+    assert!(VideoCompilerError::TimeoutError {
+      operation: "test".to_string(),
+      timeout_seconds: 0
+    }
+    .is_retryable());
+    assert!(VideoCompilerError::CacheError("test".to_string()).is_retryable());
+
+    // Неповторяемые ошибки
+    assert!(!VideoCompilerError::ValidationError("test".to_string()).is_retryable());
+    assert!(!VideoCompilerError::DependencyMissing("test".to_string()).is_retryable());
+    assert!(!VideoCompilerError::UnsupportedFormat {
+      format: "test".to_string(),
+      file_path: "test".to_string()
+    }
+    .is_retryable());
+  }
+
+  #[test]
+  fn test_uuid_error_conversion() {
+    // Создаём UUID ошибку вручную
+    let uuid_error_str = "invalid UUID";
+    let error = VideoCompilerError::InternalError(format!("UUID error: {}", uuid_error_str));
+    match error {
+      VideoCompilerError::InternalError(msg) => {
+        assert!(msg.contains("UUID error"));
+      }
+      _ => panic!("Неожиданный тип ошибки"),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_tokio_elapsed_error_conversion() {
+    // Тестируем конверсию из tokio::time::error::Elapsed
+    // Создаём Elapsed ошибку через тайм-аут
+    let result = timeout(TokioDuration::from_millis(1), async {
+      tokio::time::sleep(TokioDuration::from_millis(10)).await;
+    })
+    .await;
+
+    if let Err(elapsed) = result {
+      let video_error: VideoCompilerError = elapsed.into();
+      match video_error {
+        VideoCompilerError::TimeoutError {
+          operation,
+          timeout_seconds,
+        } => {
+          assert_eq!(operation, "Unknown");
+          assert_eq!(timeout_seconds, 0);
+        }
+        _ => panic!("Ожидалась TimeoutError"),
+      }
+    }
+  }
+
+  #[test]
+  fn test_operation_metadata_default() {
+    let metadata = OperationMetadata::default();
+    assert_eq!(metadata.duration_ms, 0);
+    assert!(metadata.warnings.is_empty());
+    assert_eq!(metadata.resources_used.memory_bytes, 0);
+    assert_eq!(metadata.resources_used.disk_bytes, 0);
+    assert_eq!(metadata.resources_used.cpu_time_ms, 0);
+    assert_eq!(metadata.resources_used.frames_processed, 0);
+    assert_eq!(metadata.extra, serde_json::Value::Null);
+  }
+
+  #[test]
+  fn test_resource_usage_default() {
+    let usage = ResourceUsage::default();
+    assert_eq!(usage.memory_bytes, 0);
+    assert_eq!(usage.disk_bytes, 0);
+    assert_eq!(usage.cpu_time_ms, 0);
+    assert_eq!(usage.frames_processed, 0);
+  }
+
+  #[test]
+  fn test_detailed_result_serialization() {
+    let metadata = OperationMetadata::default();
+    let detailed_result: DetailedResult<String> = DetailedResult {
+      result: Err(VideoCompilerError::validation("Test error")),
+      metadata,
+    };
+
+    // Сериализация
+    let json = serde_json::to_string(&detailed_result).unwrap();
+    assert!(json.contains("ValidationError"));
+    assert!(json.contains("Test error"));
+
+    // Десериализация
+    let deserialized: DetailedResult<String> = serde_json::from_str(&json).unwrap();
+    assert!(deserialized.result.is_err());
+  }
+
+  #[test]
+  fn test_error_implements_error_trait() {
+    let error = VideoCompilerError::validation("Test");
+    // Проверяем, что VideoCompilerError реализует std::error::Error
+    let _: &dyn std::error::Error = &error;
   }
 }

@@ -1,7 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { convertFileSrc } from "@tauri-apps/api/core"
-import { readFile } from "@tauri-apps/plugin-fs"
 import { Film } from "lucide-react"
 
 import { useResources } from "@/features"
@@ -181,14 +180,24 @@ export const VideoPreview = memo(
                 preload="metadata"
                 tabIndex={0}
                 playsInline
-                muted={false}
-                className={cn("absolute inset-0 h-full w-full focus:outline-none", isAdded ? "opacity-50" : "")}
+                muted
+                className={cn("h-full w-full object-cover focus:outline-none", isAdded ? "opacity-50" : "")}
                 style={{
                   transition: "opacity 0.2s ease-in-out",
                 }}
                 onLoadedData={() => {
                   console.log("Video loaded (placeholder)")
                   setIsLoaded(true)
+                }}
+                onLoadedMetadata={(e) => {
+                  const video = e.currentTarget as HTMLVideoElement
+                  console.log(`[VideoPreview] Metadata loaded: ${video.videoWidth}x${video.videoHeight}`)
+                }}
+                onLoadStart={() => {
+                  console.log("[VideoPreview] Load start for placeholder")
+                }}
+                onCanPlayThrough={() => {
+                  console.log("[VideoPreview] Can play through for placeholder")
                 }}
               />
 
@@ -256,6 +265,7 @@ export const VideoPreview = memo(
                   onMouseLeave={handleMouseLeave}
                 >
                   <video
+                    key={`${file.id}-${stream.index}`}
                     ref={(el) => {
                       videoRefs.current[key] = el
                     }}

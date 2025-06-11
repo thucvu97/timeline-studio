@@ -38,6 +38,11 @@ export function MediaPreview({
   dimensions = [16, 9],
   ignoreRatio = false,
 }: MediaPreviewProps) {
+  // Логируем состояние файла для отладки
+  console.log(
+    `[MediaPreview] File ${file.name}: isLoadingMetadata=${file.isLoadingMetadata}, hasProbeData=${!!file.probeData}`,
+  )
+
   // Если метаданные еще загружаются, показываем индикатор загрузки
   if (file.isLoadingMetadata) {
     return (

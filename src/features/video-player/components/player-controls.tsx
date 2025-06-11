@@ -56,13 +56,14 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
     isChangingCamera,
     isResizableMode,
     setIsResizableMode,
+    videoSource,
+    setVideoSource,
   } = usePlayer()
 
   // Используем состояние для хранения текущего времени воспроизведения
   const [localDisplayTime, setLocalDisplayTime] = useState(0)
   const [parallelVideos, setParallelVideos] = useState<MediaFile[]>([])
   const [activeCameraIndex, setActiveCameraIndex] = useState(0)
-  const [source, setSource] = useState<"timeline" | "browser">("timeline")
 
   // Используем хук для отслеживания полноэкранного режима
   const { isFullscreen, toggleFullscreen } = useFullscreen()
@@ -183,8 +184,8 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
 
   // Функция для переключения источника видео
   const handleToggleSource = useCallback(() => {
-    setSource((prevSource) => (prevSource === "timeline" ? "browser" : "timeline"))
-  }, [])
+    setVideoSource(videoSource === "timeline" ? "browser" : "timeline")
+  }, [videoSource, setVideoSource])
 
   return (
     <div className="flex w-full flex-col">
@@ -239,18 +240,18 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
           <div className="flex items-center gap-2">
             {/* Индикатор источника видео - всегда отображается и работает как переключатель */}
             <Button
-              className={`h-8 w-8 cursor-pointer ${source === "browser" ? "bg-[#45444b] hover:bg-[#45444b]/80" : "hover:bg-[#45444b]/80"}`}
+              className={`h-8 w-8 cursor-pointer ${videoSource === "browser" ? "bg-[#45444b] hover:bg-[#45444b]/80" : "hover:bg-[#45444b]/80"}`}
               variant="ghost"
               size="icon"
               title={
-                source === "timeline"
+                videoSource === "timeline"
                   ? t("timeline.source.timeline", "Таймлайн")
                   : t("timeline.source.browser", "Браузер")
               }
               onClick={handleToggleSource}
             >
               {/* Используем isHydrated для условного рендеринга иконки */}
-              {source === "timeline" ? <TvMinimalPlay className="h-8 w-8" /> : <ImagePlay className="h-8 w-8" />}
+              {videoSource === "timeline" ? <TvMinimalPlay className="h-8 w-8" /> : <ImagePlay className="h-8 w-8" />}
             </Button>
 
             {/* Кнопка переключения режима resizable - показываем только если применен шаблон */}

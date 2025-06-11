@@ -481,7 +481,10 @@ where
 }
 
 #[cfg(test)]
-mod tests {
+mod tests;
+
+#[cfg(test)]
+mod inline_tests {
   use super::*;
   use std::time::Duration;
 

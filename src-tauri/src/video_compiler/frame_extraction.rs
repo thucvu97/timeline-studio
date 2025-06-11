@@ -592,6 +592,11 @@ pub struct ExtractionMetadata {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::video_compiler::cache::{MediaMetadata, PreviewData, PreviewKey};
+  use crate::video_compiler::preview::VideoInfo;
+  use std::collections::HashMap;
+  use std::time::{Duration, SystemTime};
+  
 
   #[test]
   fn test_extraction_settings_default() {
@@ -599,6 +604,14 @@ mod tests {
     assert_eq!(settings.resolution, (640, 360));
     assert_eq!(settings.quality, 75);
     assert!(settings.parallel_extraction);
+    assert!(!settings.gpu_decode);
+    assert_eq!(settings.max_frames, None);
+    assert_eq!(settings.thread_count, None);
+    assert!(
+      matches!(settings.strategy, ExtractionStrategy::Interval { seconds } if seconds == 1.0)
+    );
+    assert_eq!(settings.purpose, ExtractionPurpose::TimelinePreview);
+    assert!(matches!(settings.format, PreviewFormat::Jpeg));
   }
 
   #[test]
@@ -610,6 +623,348 @@ mod tests {
     assert_ne!(
       ExtractionPurpose::TimelinePreview,
       ExtractionPurpose::ObjectDetection
+    );
+  }
+
+  #[test]
+  fn test_extraction_purpose_serialization() {
+    let purpose = ExtractionPurpose::ObjectDetection;
+    let json = serde_json::to_string(&purpose).unwrap();
+    assert!(json.contains("ObjectDetection"));
+
+    let deserialized: ExtractionPurpose = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized, purpose);
+  }
+
+  #[test]
+  fn test_extraction_strategy_serialization() {
+    let strategies = vec![
+      ExtractionStrategy::Interval { seconds: 2.5 },
+      ExtractionStrategy::SceneChange { threshold: 0.4 },
+      ExtractionStrategy::SubtitleSync {
+        offset_seconds: 0.3,
+      },
+      ExtractionStrategy::KeyFrames,
+      ExtractionStrategy::Combined {
+        min_interval: 1.0,
+        include_scene_changes: true,
+        include_keyframes: false,
+      },
+    ];
+
+    for strategy in strategies {
+      let json = serde_json::to_string(&strategy).unwrap();
+      let deserialized: ExtractionStrategy = serde_json::from_str(&json).unwrap();
+
+      match (&strategy, &deserialized) {
+        (
+          ExtractionStrategy::Interval { seconds: s1 },
+          ExtractionStrategy::Interval { seconds: s2 },
+        ) => {
+          assert_eq!(s1, s2);
+        }
+        (
+          ExtractionStrategy::SceneChange { threshold: t1 },
+          ExtractionStrategy::SceneChange { threshold: t2 },
+        ) => {
+          assert_eq!(t1, t2);
+        }
+        _ => {}
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_frame_extraction_manager_new() {
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    let manager = FrameExtractionManager::new(cache);
+
+    assert_eq!(manager.ffmpeg_path, "ffmpeg");
+    assert!(!manager.purpose_settings.is_empty());
+
+    // Check default settings for different purposes
+    let timeline_settings = manager.get_default_settings(ExtractionPurpose::TimelinePreview);
+    assert_eq!(timeline_settings.resolution, (160, 90));
+    assert_eq!(timeline_settings.quality, 60);
+
+    let object_detection_settings =
+      manager.get_default_settings(ExtractionPurpose::ObjectDetection);
+    assert_eq!(object_detection_settings.resolution, (1280, 720));
+    assert_eq!(object_detection_settings.quality, 85);
+  }
+
+  #[test]
+  fn test_preview_key_new() {
+    let key = PreviewKey::new("/test/video.mp4".to_string(), 10.5, (1920, 1080), 85);
+
+    assert_eq!(key.file_path, "/test/video.mp4");
+    assert_eq!(key.timestamp, 10500); // 10.5 * 1000
+    assert_eq!(key.resolution, (1920, 1080));
+    assert_eq!(key.quality, 85);
+  }
+
+  #[test]
+  fn test_preview_data_is_expired() {
+    let data = PreviewData {
+      image_data: vec![1, 2, 3],
+      timestamp: SystemTime::now() - Duration::from_secs(3600),
+      access_count: 5,
+    };
+
+    assert!(data.is_expired(Duration::from_secs(1800))); // Should be expired
+    assert!(!data.is_expired(Duration::from_secs(7200))); // Should not be expired
+  }
+
+  #[test]
+  fn test_media_metadata_serialization() {
+    let metadata = MediaMetadata {
+      file_path: "/test/video.mp4".to_string(),
+      file_size: 1024000,
+      modified_time: SystemTime::now(),
+      duration: 120.5,
+      resolution: Some((1920, 1080)),
+      fps: Some(30.0),
+      bitrate: Some(8000000),
+      video_codec: Some("h264".to_string()),
+      audio_codec: Some("aac".to_string()),
+      cached_at: SystemTime::now(),
+    };
+
+    let json = serde_json::to_string(&metadata).unwrap();
+    assert!(json.contains("1024000"));
+    assert!(json.contains("120.5"));
+
+    let deserialized: MediaMetadata = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.file_path, metadata.file_path);
+    assert_eq!(deserialized.duration, metadata.duration);
+  }
+
+  #[test]
+  fn test_subtitle_frame_serialization() {
+    let frame = SubtitleFrame {
+      subtitle_id: "sub-001".to_string(),
+      subtitle_text: "Hello World".to_string(),
+      timestamp: 15.5,
+      frame_data: vec![10, 20, 30],
+      start_time: 15.0,
+      end_time: 17.0,
+    };
+
+    let json = serde_json::to_string(&frame).unwrap();
+    assert!(json.contains("sub-001"));
+    assert!(json.contains("Hello World"));
+    assert!(json.contains("15.5"));
+
+    let deserialized: SubtitleFrame = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.subtitle_id, frame.subtitle_id);
+    assert_eq!(deserialized.timestamp, frame.timestamp);
+  }
+
+  #[test]
+  fn test_recognition_frame_serialization() {
+    let frame = RecognitionFrame {
+      timestamp: 20.0,
+      frame_data: vec![5, 10, 15],
+      resolution: (1280, 720),
+      scene_change_score: Some(0.75),
+      is_keyframe: true,
+    };
+
+    let json = serde_json::to_string(&frame).unwrap();
+    assert!(json.contains("20.0"));
+    assert!(json.contains("1280"));
+    assert!(json.contains("0.75"));
+    assert!(json.contains("true"));
+
+    let deserialized: RecognitionFrame = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.timestamp, frame.timestamp);
+    assert_eq!(deserialized.scene_change_score, frame.scene_change_score);
+  }
+
+  #[test]
+  fn test_extraction_metadata_serialization() {
+    let metadata = ExtractionMetadata {
+      video_path: "/test/video.mp4".to_string(),
+      total_frames: 100,
+      strategy: ExtractionStrategy::Interval { seconds: 1.0 },
+      purpose: ExtractionPurpose::TimelinePreview,
+      extraction_time_ms: 5000,
+      gpu_used: true,
+    };
+
+    let json = serde_json::to_string(&metadata).unwrap();
+    assert!(json.contains("/test/video.mp4"));
+    assert!(json.contains("100"));
+    assert!(json.contains("5000"));
+
+    let deserialized: ExtractionMetadata = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.total_frames, metadata.total_frames);
+    assert_eq!(deserialized.gpu_used, metadata.gpu_used);
+  }
+
+  #[test]
+  fn test_extracted_frame_creation() {
+    let frame = ExtractedFrame {
+      timestamp: 5.0,
+      data: vec![1, 2, 3, 4, 5],
+      resolution: (640, 360),
+      purpose: ExtractionPurpose::TimelinePreview,
+      scene_change_score: Some(0.45),
+      is_keyframe: false,
+    };
+
+    assert_eq!(frame.timestamp, 5.0);
+    assert_eq!(frame.data.len(), 5);
+    assert_eq!(frame.resolution, (640, 360));
+    assert_eq!(frame.scene_change_score, Some(0.45));
+  }
+
+  #[tokio::test]
+  async fn test_calculate_timestamps_interval_strategy() {
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    let manager = FrameExtractionManager::new(cache);
+
+    let strategy = ExtractionStrategy::Interval { seconds: 2.0 };
+    let video_info = VideoInfo {
+      duration: 10.0,
+      resolution: Some((1920, 1080)),
+      fps: Some(30.0),
+      bitrate: Some(8000000),
+      video_codec: Some("h264".to_string()),
+      audio_codec: Some("aac".to_string()),
+    };
+
+    let timestamps = manager
+      .calculate_timestamps(&strategy, 0.0, 10.0, &video_info, None)
+      .unwrap();
+
+    assert_eq!(timestamps.len(), 6); // 0, 2, 4, 6, 8, 10
+    assert_eq!(timestamps[0], 0.0);
+    assert_eq!(timestamps[1], 2.0);
+    assert_eq!(timestamps[5], 10.0);
+  }
+
+  #[tokio::test]
+  async fn test_calculate_timestamps_with_max_frames() {
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    let manager = FrameExtractionManager::new(cache);
+
+    let strategy = ExtractionStrategy::Interval { seconds: 1.0 };
+    let video_info = VideoInfo {
+      duration: 60.0,
+      resolution: Some((1920, 1080)),
+      fps: Some(30.0),
+      bitrate: Some(8000000),
+      video_codec: Some("h264".to_string()),
+      audio_codec: Some("aac".to_string()),
+    };
+
+    let timestamps = manager
+      .calculate_timestamps(&strategy, 0.0, 60.0, &video_info, Some(5))
+      .unwrap();
+
+    assert_eq!(timestamps.len(), 5); // Limited to 5 frames
+  }
+
+  #[tokio::test]
+  async fn test_calculate_timestamps_combined_strategy() {
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    let manager = FrameExtractionManager::new(cache);
+
+    let strategy = ExtractionStrategy::Combined {
+      min_interval: 2.0,
+      include_scene_changes: false,
+      include_keyframes: false,
+    };
+    let video_info = VideoInfo {
+      duration: 10.0,
+      resolution: Some((1920, 1080)),
+      fps: Some(30.0),
+      bitrate: Some(8000000),
+      video_codec: Some("h264".to_string()),
+      audio_codec: Some("aac".to_string()),
+    };
+
+    let timestamps = manager
+      .calculate_timestamps(&strategy, 0.0, 10.0, &video_info, None)
+      .unwrap();
+
+    assert!(!timestamps.is_empty());
+    assert_eq!(timestamps[0], 0.0);
+
+    // Check minimum interval between timestamps
+    for i in 1..timestamps.len() {
+      assert!(timestamps[i] - timestamps[i - 1] >= 2.0);
+    }
+  }
+
+  #[tokio::test]
+  async fn test_default_purpose_settings() {
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    let manager = FrameExtractionManager::new(cache);
+
+    // Test Timeline Preview settings
+    let timeline_settings = manager.get_default_settings(ExtractionPurpose::TimelinePreview);
+    assert_eq!(
+      timeline_settings.purpose,
+      ExtractionPurpose::TimelinePreview
+    );
+    assert_eq!(timeline_settings.resolution, (160, 90));
+    assert_eq!(timeline_settings.quality, 60);
+    assert_eq!(timeline_settings.max_frames, Some(200));
+
+    // Test Object Detection settings
+    let object_settings = manager.get_default_settings(ExtractionPurpose::ObjectDetection);
+    assert_eq!(object_settings.purpose, ExtractionPurpose::ObjectDetection);
+    assert_eq!(object_settings.resolution, (1280, 720));
+    assert_eq!(object_settings.quality, 85);
+    assert!(matches!(object_settings.format, PreviewFormat::Png));
+
+    // Test Scene Recognition settings
+    let scene_settings = manager.get_default_settings(ExtractionPurpose::SceneRecognition);
+    assert_eq!(scene_settings.resolution, (960, 540));
+    assert_eq!(scene_settings.quality, 80);
+    assert_eq!(scene_settings.max_frames, Some(500));
+
+    // Test Subtitle Analysis settings
+    let subtitle_settings = manager.get_default_settings(ExtractionPurpose::SubtitleAnalysis);
+    assert_eq!(subtitle_settings.resolution, (1920, 1080));
+    assert_eq!(subtitle_settings.quality, 90);
+    assert!(!subtitle_settings.parallel_extraction);
+  }
+
+  #[test]
+  fn test_all_extraction_purposes() {
+    let purposes = vec![
+      ExtractionPurpose::TimelinePreview,
+      ExtractionPurpose::ObjectDetection,
+      ExtractionPurpose::SceneRecognition,
+      ExtractionPurpose::TextRecognition,
+      ExtractionPurpose::SubtitleAnalysis,
+      ExtractionPurpose::KeyFrame,
+      ExtractionPurpose::UserScreenshot,
+    ];
+
+    for purpose in purposes {
+      let json = serde_json::to_string(&purpose).unwrap();
+      let deserialized: ExtractionPurpose = serde_json::from_str(&json).unwrap();
+      assert_eq!(purpose, deserialized);
+    }
+  }
+
+  #[test]
+  fn test_purpose_hash_map() {
+    let mut map = HashMap::new();
+    map.insert(ExtractionPurpose::TimelinePreview, "preview");
+    map.insert(ExtractionPurpose::ObjectDetection, "detection");
+
+    assert_eq!(
+      map.get(&ExtractionPurpose::TimelinePreview),
+      Some(&"preview")
+    );
+    assert_eq!(
+      map.get(&ExtractionPurpose::ObjectDetection),
+      Some(&"detection")
     );
   }
 }
