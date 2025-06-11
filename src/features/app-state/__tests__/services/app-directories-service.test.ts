@@ -143,12 +143,12 @@ describe('AppDirectoriesService', () => {
       expect(service.formatSize(1536)).toBe('1.50 KB');
       expect(service.formatSize(1048576)).toBe('1.00 MB');
       expect(service.formatSize(1073741824)).toBe('1.00 GB');
-      expect(service.formatSize(1099511627776)).toBe('1.00 TB');
     });
 
     it('should handle large sizes', () => {
-      expect(service.formatSize(1125899906842624)).toBe('1.00 TB');
-      expect(service.formatSize(2251799813685248)).toBe('2.00 TB');
+      expect(service.formatSize(1099511627776)).toBe('1.00 TB'); // 1 TB = 1024^4 bytes
+      expect(service.formatSize(2199023255552)).toBe('2.00 TB'); // 2 TB
+      expect(service.formatSize(1125899906842624)).toBe('1024.00 TB'); // 1 PB
     });
   });
 });
