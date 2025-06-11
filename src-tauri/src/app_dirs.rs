@@ -176,6 +176,12 @@ impl AppDirectories {
         // Создаем поддиректории в Media
         self.create_media_subdirectories()?;
 
+        // Создаем поддиректории в Caches
+        fs::create_dir_all(&self.get_preview_cache_dir())?;
+        fs::create_dir_all(&self.get_render_cache_dir())?;
+        fs::create_dir_all(&self.get_frame_cache_dir())?;
+        fs::create_dir_all(&self.get_temp_dir())?;
+
         log::info!("Создана структура директорий в: {:?}", self.base_dir);
 
         Ok(())
@@ -505,5 +511,164 @@ mod tests {
         let deserialized: DirectorySizes = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.media, sizes.media);
         assert_eq!(deserialized.total, sizes.total);
+    }
+
+    #[test]
+    fn test_all_directories_created() {
+        let temp_dir = TempDir::new().unwrap();
+        let base_path = temp_dir.path().join("Timeline Studio");
+        
+        let app_dirs = AppDirectories::from_base_dir(&base_path);
+        app_dirs.create_all_directories().unwrap();
+        
+        // Проверяем ВСЕ директории
+        assert!(app_dirs.base_dir.exists());
+        assert!(app_dirs.media_dir.exists());
+        assert!(app_dirs.projects_dir.exists());
+        assert!(app_dirs.snapshot_dir.exists());
+        assert!(app_dirs.cinematic_dir.exists());
+        assert!(app_dirs.output_dir.exists());
+        assert!(app_dirs.render_dir.exists());
+        assert!(app_dirs.recognition_dir.exists());
+        assert!(app_dirs.backup_dir.exists());
+        assert!(app_dirs.media_proxy_dir.exists());
+        assert!(app_dirs.caches_dir.exists());
+        assert!(app_dirs.recorded_dir.exists());
+        assert!(app_dirs.audio_dir.exists());
+        assert!(app_dirs.cloud_project_dir.exists());
+        assert!(app_dirs.upload_dir.exists());
+        
+        // Проверяем ВСЕ поддиректории Media
+        let media_subdirs = app_dirs.get_media_subdirectories();
+        assert!(media_subdirs.videos.exists());
+        assert!(media_subdirs.effects.exists());
+        assert!(media_subdirs.transitions.exists());
+        assert!(media_subdirs.images.exists());
+        assert!(media_subdirs.music.exists());
+        assert!(media_subdirs.style_templates.exists());
+        assert!(media_subdirs.subtitles.exists());
+        assert!(media_subdirs.filters.exists());
+        
+        // Проверяем поддиректории кэша
+        assert!(app_dirs.get_preview_cache_dir().exists());
+        assert!(app_dirs.get_render_cache_dir().exists());
+        assert!(app_dirs.get_frame_cache_dir().exists());
+        assert!(app_dirs.get_temp_dir().exists());
+    }
+
+    #[test]
+    fn test_clear_temp_directory() {
+        let temp_dir = TempDir::new().unwrap();
+        let base_path = temp_dir.path().join("Timeline Studio");
+        
+        let app_dirs = AppDirectories::from_base_dir(&base_path);
+        app_dirs.create_all_directories().unwrap();
+        
+        // Убедимся что temp директория создана
+        std::fs::create_dir_all(&app_dirs.get_temp_dir()).unwrap();
+        
+        // Создаем файлы в temp директории
+        let temp_file1 = app_dirs.get_temp_dir().join("temp1.txt");
+        let temp_file2 = app_dirs.get_temp_dir().join("temp2.txt");
+        std::fs::write(&temp_file1, "temp content 1").unwrap();
+        std::fs::write(&temp_file2, "temp content 2").unwrap();
+        
+        assert!(temp_file1.exists());
+        assert!(temp_file2.exists());
+        
+        // Очищаем temp директорию
+        app_dirs.clear_temp_directory().unwrap();
+        
+        // Файлы должны быть удалены
+        assert!(!temp_file1.exists());
+        assert!(!temp_file2.exists());
+        
+        // Сама директория должна существовать
+        assert!(app_dirs.get_temp_dir().exists());
+    }
+
+    #[test]
+    fn test_get_directory_sizes() {
+        let temp_dir = TempDir::new().unwrap();
+        let base_path = temp_dir.path().join("Timeline Studio");
+        
+        let app_dirs = AppDirectories::from_base_dir(&base_path);
+        app_dirs.create_all_directories().unwrap();
+        
+        // Создаем тестовые файлы с известными размерами
+        let media_file = app_dirs.media_dir.join("test_video.mp4");
+        let test_data = vec![0u8; 1024]; // 1KB
+        std::fs::write(&media_file, &test_data).unwrap();
+        
+        let cache_file = app_dirs.caches_dir.join("cache.bin");
+        std::fs::write(&cache_file, &test_data).unwrap();
+        
+        // Получаем размеры
+        let sizes = app_dirs.get_directory_sizes().unwrap();
+        
+        // Проверяем, что размеры не нулевые
+        assert!(sizes.media >= 1024);
+        assert!(sizes.caches >= 1024);
+        assert!(sizes.total >= 2048);
+    }
+
+    #[test]
+    fn test_app_directories_serialization() {
+        let temp_dir = TempDir::new().unwrap();
+        let base_path = temp_dir.path().join("Timeline Studio");
+        
+        let app_dirs = AppDirectories::from_base_dir(&base_path);
+        
+        // Сериализуем в JSON
+        let json = serde_json::to_string(&app_dirs).unwrap();
+        assert!(json.contains("Timeline Studio"));
+        assert!(json.contains("Media"));
+        assert!(json.contains("Projects"));
+        
+        // Десериализуем обратно
+        let deserialized: AppDirectories = serde_json::from_str(&json).unwrap();
+        assert_eq!(deserialized.base_dir, app_dirs.base_dir);
+        assert_eq!(deserialized.media_dir, app_dirs.media_dir);
+        assert_eq!(deserialized.projects_dir, app_dirs.projects_dir);
+    }
+
+    #[test]
+    fn test_determine_base_dir() {
+        // Тестируем, что функция возвращает валидный путь
+        let result = AppDirectories::determine_base_dir();
+        assert!(result.is_ok());
+        
+        let path = result.unwrap();
+        assert!(path.to_string_lossy().contains("Timeline Studio"));
+        
+        // На разных платформах разные пути
+        #[cfg(target_os = "macos")]
+        assert!(path.to_string_lossy().contains("Movies"));
+        
+        #[cfg(target_os = "windows")]
+        assert!(path.to_string_lossy().contains("Videos"));
+        
+        #[cfg(target_os = "linux")]
+        assert!(path.to_string_lossy().contains("Videos"));
+    }
+
+    #[tokio::test]
+    async fn test_tauri_commands() {
+        // Тестируем команды Tauri
+        let result = get_app_directories().await;
+        assert!(result.is_ok());
+        
+        let dirs = result.unwrap();
+        assert!(dirs.base_dir.to_string_lossy().contains("Timeline Studio"));
+    }
+
+    #[test]
+    fn test_error_handling() {
+        // Тестируем обработку ошибок при создании в недоступной директории
+        let app_dirs = AppDirectories::from_base_dir(&PathBuf::from("/root/no_access"));
+        let result = app_dirs.create_all_directories();
+        
+        // Должна быть ошибка из-за отсутствия прав
+        assert!(result.is_err());
     }
 }
