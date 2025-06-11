@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import type { Subtitle } from "@/types/video-compiler"
@@ -49,6 +50,7 @@ export interface UseFrameExtractionResult {
 }
 
 export function useFrameExtraction(options: UseFrameExtractionOptions = {}): UseFrameExtractionResult {
+  const { t } = useTranslation()
   const { cacheResults = true, interval = 1.0, maxFrames } = options
 
   const [timelineFrames, setTimelineFrames] = useState<TimelineFrame[]>([])
@@ -111,7 +113,7 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
         const error = err as Error
         console.error("Failed to extract timeline frames:", error)
         setError(error)
-        toast.error("Не удалось извлечь кадры для timeline")
+        toast.error(t("videoCompiler.frameExtraction.errorTimeline"))
       } finally {
         setIsLoading(false)
       }
@@ -137,7 +139,7 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
         const error = err as Error
         console.error("Failed to extract recognition frames:", error)
         setError(error)
-        toast.error("Не удалось извлечь кадры для распознавания")
+        toast.error(t("videoCompiler.frameExtraction.errorRecognition"))
       } finally {
         setIsLoading(false)
       }
@@ -162,7 +164,7 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
       const error = err as Error
       console.error("Failed to extract subtitle frames:", error)
       setError(error)
-      toast.error("Не удалось извлечь кадры для субтитров")
+      toast.error(t("videoCompiler.frameExtraction.errorSubtitles"))
     } finally {
       setIsLoading(false)
     }
@@ -174,10 +176,10 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
   const clearCache = useCallback(async () => {
     try {
       await frameExtractionService.clearFrameCache()
-      toast.success("Кэш кадров очищен")
+      toast.success(t("videoCompiler.frameExtraction.cacheCleared"))
     } catch (err) {
       console.error("Failed to clear cache:", err)
-      toast.error("Не удалось очистить кэш")
+      toast.error(t("videoCompiler.frameExtraction.errorClearCache"))
     }
   }, [])
 

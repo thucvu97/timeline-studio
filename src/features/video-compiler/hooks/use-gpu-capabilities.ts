@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { GpuEncoder } from "@/types/video-compiler"
@@ -23,6 +24,7 @@ interface UseGpuCapabilitiesReturn {
 }
 
 export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
+  const { t } = useTranslation()
   const [gpuCapabilities, setGpuCapabilities] = useState<GpuCapabilities | null>(null)
   const [currentGpu, setCurrentGpu] = useState<GpuInfo | null>(null)
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null)
@@ -53,18 +55,18 @@ export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
 
       // Показываем информацию о GPU
       if (gpu.hardware_acceleration_supported && gpu.recommended_encoder) {
-        toast.success("GPU ускорение доступно", {
-          description: `Рекомендуемый кодировщик: ${gpu.recommended_encoder}`,
+        toast.success(t("videoCompiler.gpu.accelerationAvailable"), {
+          description: t("videoCompiler.gpu.recommendedEncoder", { encoder: gpu.recommended_encoder }),
         })
       } else {
-        toast.info("GPU ускорение недоступно", {
-          description: "Будет использоваться CPU кодирование",
+        toast.info(t("videoCompiler.gpu.accelerationUnavailable"), {
+          description: t("videoCompiler.gpu.cpuEncodingWillBeUsed"),
         })
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Неизвестная ошибка"
+      const errorMsg = err instanceof Error ? err.message : t("common.unknownError")
       setError(errorMsg)
-      toast.error("Ошибка получения GPU информации", { description: errorMsg })
+      toast.error(t("videoCompiler.gpu.errorGettingInfo"), { description: errorMsg })
     } finally {
       setIsLoading(false)
     }
@@ -76,12 +78,14 @@ export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
       await invoke("update_compiler_settings", { newSettings })
       setCompilerSettings(newSettings)
 
-      toast.success("Настройки обновлены", {
-        description: newSettings.hardware_acceleration ? "GPU ускорение включено" : "GPU ускорение отключено",
+      toast.success(t("videoCompiler.gpu.settingsUpdated"), {
+        description: newSettings.hardware_acceleration
+          ? t("videoCompiler.gpu.accelerationEnabled")
+          : t("videoCompiler.gpu.accelerationDisabled"),
       })
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Неизвестная ошибка"
-      toast.error("Ошибка обновления настроек", { description: errorMsg })
+      const errorMsg = err instanceof Error ? err.message : t("common.unknownError")
+      toast.error(t("videoCompiler.gpu.errorUpdatingSettings"), { description: errorMsg })
       throw err
     }
   }, [])
@@ -120,14 +124,14 @@ export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
 /**
  * Получить человекочитаемое название GPU кодировщика
  */
-export function getGpuEncoderDisplayName(encoder: string): string {
+export function getGpuEncoderDisplayName(encoder: string, t: (key: string, params?: any) => string): string {
   const names: Record<string, string> = {
     Nvenc: "NVIDIA NVENC",
     QuickSync: "Intel QuickSync",
     Vaapi: "VA-API (Linux)",
     VideoToolbox: "Apple VideoToolbox",
     AMF: "AMD AMF",
-    None: "CPU (без ускорения)",
+    None: t("videoCompiler.gpu.cpuNoAcceleration"),
   }
   return names[encoder] || encoder
 }
@@ -142,59 +146,62 @@ export function getGpuStatusColor(supported: boolean): string {
 /**
  * Форматировать объем памяти GPU
  */
-export function formatGpuMemory(bytes?: number): string {
-  if (!bytes) return "Неизвестно"
+export function formatGpuMemory(bytes: number, t: (key: string, params?: any) => string): string {
+  if (!bytes) return t("common.unknown")
 
   const gb = bytes / (1024 * 1024 * 1024)
   if (gb >= 1) {
-    return `${gb.toFixed(1)} ГБ`
+    return t("common.gigabytes", { value: gb.toFixed(1) })
   }
 
   const mb = bytes / (1024 * 1024)
-  return `${Math.round(mb)} МБ`
+  return t("common.megabytes", { value: Math.round(mb) })
 }
 
 /**
  * Форматировать использование GPU
  */
-export function formatGpuUtilization(utilization?: number): string {
-  if (utilization === undefined) return "Неизвестно"
+export function formatGpuUtilization(utilization: number, t: (key: string, params?: any) => string): string {
+  if (utilization === undefined) return t("common.unknown")
   return `${Math.round(utilization)}%`
 }
 
 /**
  * Получить рекомендации по настройкам
  */
-export function getGpuRecommendations(capabilities: GpuCapabilities | null): string[] {
+export function getGpuRecommendations(
+  capabilities: GpuCapabilities | null,
+  t: (key: string, values?: any) => string,
+): string[] {
   const recommendations: string[] = []
 
   if (!capabilities) {
-    return ["Загрузка информации о GPU..."]
+    return [t("videoCompiler.gpu.loadingInfo")]
   }
 
   if (!capabilities.hardware_acceleration_supported) {
-    recommendations.push("GPU ускорение недоступно, рекомендуется использовать CPU кодирование")
-    recommendations.push("Для лучшей производительности установите драйверы GPU")
+    recommendations.push(t("videoCompiler.gpu.recommendations.noAcceleration"))
+    recommendations.push(t("videoCompiler.gpu.recommendations.installDrivers"))
     return recommendations
   }
 
   if (capabilities.recommended_encoder === GpuEncoder.Nvenc) {
-    recommendations.push("Используйте NVENC для максимальной производительности")
-    recommendations.push("Рекомендуемое качество: 85-90%")
+    recommendations.push(t("videoCompiler.gpu.recommendations.nvenc"))
+    recommendations.push(t("videoCompiler.gpu.recommendations.nvencQuality"))
   } else if (capabilities.recommended_encoder === GpuEncoder.QuickSync) {
-    recommendations.push("Intel QuickSync обеспечивает хороший баланс качества и скорости")
-    recommendations.push("Рекомендуемое качество: 80-85%")
+    recommendations.push(t("videoCompiler.gpu.recommendations.quicksync"))
+    recommendations.push(t("videoCompiler.gpu.recommendations.quicksyncQuality"))
   } else if (capabilities.recommended_encoder === GpuEncoder.VideoToolbox) {
-    recommendations.push("VideoToolbox оптимизирован для macOS")
-    recommendations.push("Используйте H.265/HEVC для лучшего сжатия")
+    recommendations.push(t("videoCompiler.gpu.recommendations.videotoolbox"))
+    recommendations.push(t("videoCompiler.gpu.recommendations.videotoolboxCodec"))
   }
 
   if (capabilities.current_gpu?.memory_total) {
     const memoryGB = capabilities.current_gpu.memory_total / (1024 * 1024 * 1024)
     if (memoryGB < 2) {
-      recommendations.push("Мало видеопамяти, избегайте рендеринга в 4K")
+      recommendations.push(t("videoCompiler.gpu.recommendations.lowMemory"))
     } else if (memoryGB >= 8) {
-      recommendations.push("Достаточно памяти для рендеринга в 4K")
+      recommendations.push(t("videoCompiler.gpu.recommendations.highMemory"))
     }
   }
 

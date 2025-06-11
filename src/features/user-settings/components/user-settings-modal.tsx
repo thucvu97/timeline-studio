@@ -319,7 +319,7 @@ export function UserSettingsModal() {
       </div>
 
       {/* Кнопки действий в нижней части модального окна */}
-      <DialogFooter className="flex justify-between space-x-4 mt-10">
+      <DialogFooter className="flex justify-between space-x-4 mt-2">
         {/* Кнопка отмены */}
         <Button
           variant="default"

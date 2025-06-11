@@ -50,7 +50,7 @@ export function ModalContainer() {
       case "project-settings":
         return "h-[450px] w-[500px]"
       case "user-settings":
-        return "h-[580px] w-[500px]"
+        return "h-[650px] w-[500px]"
       case "keyboard-shortcuts":
         return "h-[max(600px,min(70vh,1000px))] w-[1200px]"
       default:
@@ -86,7 +86,7 @@ export function ModalContainer() {
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
       <DialogContent
         aria-describedby="modal"
-        className={`${dialogClass} bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:hidden px-4 py-2 flex flex-col`}
+        className={`${dialogClass} bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:cursor-pointer px-4 py-2 flex flex-col`}
       >
         <DialogHeader className="flex-shrink-0 h-[50px] flex items-center justify-center">
           <DialogTitle className="text-center">{getModalTitle()}</DialogTitle>

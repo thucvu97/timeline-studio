@@ -1,0 +1,362 @@
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { BaseProviders } from "@/test/test-utils"
+import { GpuEncoder } from "@/types/video-compiler"
+
+import { GpuStatus, GpuStatusBadge } from "../../components/gpu-status"
+import * as useGpuCapabilitiesModule from "../../hooks/use-gpu-capabilities"
+
+// Мокаем хук useGpuCapabilities
+vi.mock("../../hooks/use-gpu-capabilities", () => ({
+  useGpuCapabilities: vi.fn(),
+  formatGpuMemory: (bytes: number) => `${(bytes / 1024 / 1024 / 1024).toFixed(1)} GB`,
+  formatGpuUtilization: (percent: number) => `${percent}%`,
+  getGpuEncoderDisplayName: (encoder: string) => encoder,
+  getGpuRecommendations: () => ["Recommendation 1", "Recommendation 2"],
+  getGpuStatusColor: () => "text-green-600",
+}))
+
+// Мокаем sonner
+vi.mock("sonner", () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+    info: vi.fn(),
+  },
+}))
+
+describe("GpuStatus", () => {
+  const mockGpuCapabilities = {
+    hardware_acceleration_supported: true,
+    available_encoders: [GpuEncoder.Nvenc, GpuEncoder.QuickSync],
+    recommended_encoder: GpuEncoder.Nvenc,
+    current_gpu: {
+      id: "0",
+      name: "NVIDIA GeForce RTX 3080",
+      vendor: "NVIDIA",
+      driver_version: "535.123.01",
+      memory_total: 10737418240, // 10GB
+      memory_used: 2147483648, // 2GB
+      memory_free: 8589934592, // 8GB
+      utilization: 45,
+      temperature: 65,
+    },
+    gpus: [],
+  }
+
+  const mockSystemInfo = {
+    os: "Linux",
+    arch: "x86_64",
+    cpu_cores: 16,
+    total_memory: 34359738368, // 32GB
+    available_memory: 25769803776, // 24GB
+    ffmpeg_version: "5.1.2",
+  }
+
+  const mockCompilerSettings = {
+    hardware_acceleration: true,
+    preferred_encoder: GpuEncoder.Auto,
+    quality: 85,
+    max_concurrent_jobs: 2,
+    cache_size_mb: 2048,
+    temp_directory: "/tmp/timeline-studio",
+    preview_quality: 85,
+  }
+
+  const mockUseGpuCapabilities = {
+    gpuCapabilities: mockGpuCapabilities,
+    currentGpu: mockGpuCapabilities.current_gpu,
+    systemInfo: mockSystemInfo,
+    ffmpegCapabilities: null,
+    compilerSettings: mockCompilerSettings,
+    isLoading: false,
+    error: null,
+    refreshCapabilities: vi.fn(),
+    updateSettings: vi.fn(),
+    checkHardwareAcceleration: vi.fn(),
+  }
+
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    const { useGpuCapabilities } = await import("../../hooks/use-gpu-capabilities")
+    vi.mocked(useGpuCapabilities).mockReturnValue(mockUseGpuCapabilities)
+  })
+
+  it("should render GPU status with acceleration available", () => {
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    expect(screen.getByText("videoCompiler.gpu.acceleration")).toBeInTheDocument()
+    expect(screen.getByText("videoCompiler.gpu.accelerationAvailable")).toBeInTheDocument()
+    expect(screen.getByText("NVIDIA GeForce RTX 3080")).toBeInTheDocument()
+  })
+
+  it("should show loading skeleton when loading", () => {
+    vi.mocked(useGpuCapabilitiesModule.useGpuCapabilities).mockReturnValue({
+      ...mockUseGpuCapabilities,
+      isLoading: true,
+    })
+
+    const { container } = render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument()
+  })
+
+  it("should show error state", () => {
+    const errorMessage = "Failed to get GPU info"
+    vi.mocked(useGpuCapabilitiesModule.useGpuCapabilities).mockReturnValue({
+      ...mockUseGpuCapabilities,
+      error: errorMessage,
+    })
+
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    expect(screen.getByText("videoCompiler.gpu.error")).toBeInTheDocument()
+    expect(screen.getByText(errorMessage)).toBeInTheDocument()
+    expect(screen.getByText("videoCompiler.gpu.retry")).toBeInTheDocument()
+  })
+
+  it("should handle retry on error", async () => {
+    const errorMessage = "Failed to get GPU info"
+    vi.mocked(useGpuCapabilitiesModule.useGpuCapabilities).mockReturnValue({
+      ...mockUseGpuCapabilities,
+      error: errorMessage,
+    })
+
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    const retryButton = screen.getByText("videoCompiler.gpu.retry")
+    fireEvent.click(retryButton)
+
+    expect(mockUseGpuCapabilities.refreshCapabilities).toHaveBeenCalled()
+  })
+
+  it("should toggle GPU acceleration", async () => {
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    const switchElement = screen.getByRole("switch")
+    expect(switchElement).toBeChecked()
+
+    fireEvent.click(switchElement)
+
+    await waitFor(() => {
+      expect(mockUseGpuCapabilities.updateSettings).toHaveBeenCalledWith({
+        ...mockCompilerSettings,
+        hardware_acceleration: false,
+      })
+    })
+  })
+
+  it("should disable switch when GPU not available", () => {
+    vi.mocked(useGpuCapabilitiesModule.useGpuCapabilities).mockReturnValue({
+      ...mockUseGpuCapabilities,
+      gpuCapabilities: {
+        ...mockGpuCapabilities,
+        hardware_acceleration_supported: false,
+      },
+    })
+
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    const switchElement = screen.getByRole("switch")
+    expect(switchElement).toBeDisabled()
+  })
+
+  it("should show GPU memory usage", () => {
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    expect(screen.getByText("videoCompiler.gpu.videoMemory")).toBeInTheDocument()
+    expect(screen.getByText("videoCompiler.gpu.memoryUsed")).toBeInTheDocument()
+    // Memory values are formatted by utility functions
+    expect(screen.getByText(/2\.0 GB.*\/.*10\.0 GB/)).toBeInTheDocument()
+  })
+
+  it("should show GPU utilization", () => {
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    expect(screen.getByText("videoCompiler.gpu.gpuLoad")).toBeInTheDocument()
+    expect(screen.getByText("videoCompiler.gpu.usage")).toBeInTheDocument()
+    expect(screen.getByText("45%")).toBeInTheDocument()
+  })
+
+  it("should show available encoders", () => {
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    expect(screen.getByText("videoCompiler.gpu.encoders")).toBeInTheDocument()
+    expect(screen.getByText("Nvenc")).toBeInTheDocument()
+    expect(screen.getByText("QuickSync")).toBeInTheDocument()
+  })
+
+  it("should show system info", () => {
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    expect(screen.getByText("videoCompiler.gpu.system")).toBeInTheDocument()
+    expect(screen.getByText(/Linux.*x86_64/)).toBeInTheDocument()
+    expect(screen.getByText(/16.*videoCompiler\.gpu\.cores/)).toBeInTheDocument()
+  })
+
+  it("should show recommendations", () => {
+    render(
+      <BaseProviders>
+        <GpuStatus />
+      </BaseProviders>,
+    )
+
+    expect(screen.getByText("videoCompiler.gpu.recommendations")).toBeInTheDocument()
+  })
+
+  it("should call settings callback when button clicked", () => {
+    const mockSettingsClick = vi.fn()
+
+    render(
+      <BaseProviders>
+        <GpuStatus onSettingsClick={mockSettingsClick} />
+      </BaseProviders>,
+    )
+
+    const settingsButton = screen.getByTestId("settings-icon").closest("button")
+    expect(settingsButton).toBeInTheDocument()
+    fireEvent.click(settingsButton!)
+
+    expect(mockSettingsClick).toHaveBeenCalled()
+  })
+
+  it("should hide details when showDetails is false", () => {
+    render(
+      <BaseProviders>
+        <GpuStatus showDetails={false} />
+      </BaseProviders>,
+    )
+
+    expect(screen.queryByText("videoCompiler.gpu.videoMemory")).not.toBeInTheDocument()
+    expect(screen.queryByText("videoCompiler.gpu.system")).not.toBeInTheDocument()
+  })
+})
+
+describe("GpuStatusBadge", () => {
+  const mockUseGpuCapabilities = {
+    gpuCapabilities: {
+      hardware_acceleration_supported: true,
+      available_encoders: [GpuEncoder.Nvenc],
+      recommended_encoder: GpuEncoder.Nvenc,
+      current_gpu: null,
+      gpus: [],
+    },
+    currentGpu: null,
+    systemInfo: null,
+    ffmpegCapabilities: null,
+    compilerSettings: null,
+    isLoading: false,
+    error: null,
+    refreshCapabilities: vi.fn(),
+    updateSettings: vi.fn(),
+    checkHardwareAcceleration: vi.fn(),
+  }
+
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    const { useGpuCapabilities } = await import("../../hooks/use-gpu-capabilities")
+    vi.mocked(useGpuCapabilities).mockReturnValue(mockUseGpuCapabilities)
+  })
+
+  it("should render badge with GPU encoder", () => {
+    render(
+      <BaseProviders>
+        <GpuStatusBadge />
+      </BaseProviders>,
+    )
+
+    expect(screen.getByText("Nvenc")).toBeInTheDocument()
+  })
+
+  it("should show loading skeleton", () => {
+    vi.mocked(useGpuCapabilitiesModule.useGpuCapabilities).mockReturnValue({
+      ...mockUseGpuCapabilities,
+      isLoading: true,
+    })
+
+    const { container } = render(
+      <BaseProviders>
+        <GpuStatusBadge />
+      </BaseProviders>,
+    )
+
+    expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument()
+  })
+
+  it("should show CPU only when no GPU available", () => {
+    vi.mocked(useGpuCapabilitiesModule.useGpuCapabilities).mockReturnValue({
+      ...mockUseGpuCapabilities,
+      gpuCapabilities: {
+        hardware_acceleration_supported: false,
+        available_encoders: [],
+        recommended_encoder: null,
+        current_gpu: null,
+        gpus: [],
+      },
+    })
+
+    render(
+      <BaseProviders>
+        <GpuStatusBadge />
+      </BaseProviders>,
+    )
+
+    expect(screen.getByText("videoCompiler.gpu.cpuOnly")).toBeInTheDocument()
+  })
+
+  it("should render as tooltip trigger", () => {
+    const { container } = render(
+      <BaseProviders>
+        <GpuStatusBadge />
+      </BaseProviders>,
+    )
+
+    const badge = screen.getByText("Nvenc")
+    expect(badge).toBeInTheDocument()
+
+    // Check that the badge is wrapped in tooltip trigger
+    const trigger = container.querySelector('[data-slot="tooltip-trigger"]')
+    expect(trigger).toBeInTheDocument()
+  })
+})

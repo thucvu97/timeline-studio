@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
@@ -25,6 +26,7 @@ export interface PrerenderState {
 }
 
 export function usePrerender() {
+  const { t } = useTranslation()
   const { project } = useTimeline()
   const [state, setState] = useState<PrerenderState>({
     isRendering: false,
@@ -37,19 +39,19 @@ export function usePrerender() {
   const prerender = useCallback(
     async (startTime: number, endTime: number, applyEffects = true, quality = 75) => {
       if (!project) {
-        toast.error("Проект не загружен")
+        toast.error(t("videoCompiler.prerender.projectNotLoaded"))
         return null
       }
 
       // Валидация временного диапазона
       if (startTime >= endTime) {
-        toast.error("Неверный временной диапазон")
+        toast.error(t("videoCompiler.prerender.invalidTimeRange"))
         return null
       }
 
       const duration = endTime - startTime
       if (duration > 60) {
-        toast.error("Пререндер ограничен 60 секундами")
+        toast.error(t("videoCompiler.prerender.limitExceeded"))
         return null
       }
 
@@ -80,10 +82,10 @@ export function usePrerender() {
           currentResult: result,
         }))
 
-        toast.success(`Пререндер завершен за ${result.renderTimeMs}мс`)
+        toast.success(t("videoCompiler.prerender.completed", { time: result.renderTimeMs }))
         return result
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка"
+        const errorMessage = error instanceof Error ? error.message : t("common.unknownError")
         setState((prev) => ({
           ...prev,
           isRendering: false,
@@ -91,7 +93,7 @@ export function usePrerender() {
           error: errorMessage,
         }))
 
-        toast.error(`Ошибка пререндера: ${errorMessage}`)
+        toast.error(t("videoCompiler.prerender.error", { error: errorMessage }))
         return null
       }
     },
@@ -120,6 +122,7 @@ export function usePrerender() {
  * Hook для кеширования пререндеров с использованием файловой системы
  */
 export function usePrerenderCache() {
+  const { t } = useTranslation()
   const [cacheFiles, setCacheFiles] = useState<PrerenderCacheFile[]>([])
   const [totalSize, setTotalSize] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -199,13 +202,13 @@ export function usePrerenderCache() {
   const clearPrerenderCache = useCallback(async () => {
     try {
       const deletedSize = await clearCache()
-      toast.success(`Кеш очищен: ${(deletedSize / 1024 / 1024).toFixed(2)} МБ`)
+      toast.success(t("videoCompiler.prerender.cacheCleared", { size: (deletedSize / 1024 / 1024).toFixed(2) }))
 
       // Обновляем информацию
       setCacheFiles([])
       setTotalSize(0)
     } catch (error) {
-      toast.error("Ошибка очистки кеша")
+      toast.error(t("videoCompiler.prerender.errorClearingCache"))
       console.error("Failed to clear cache:", error)
     }
   }, [])

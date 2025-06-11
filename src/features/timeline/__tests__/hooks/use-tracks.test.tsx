@@ -142,9 +142,9 @@ mockUseTimeline.mockReturnValue({
 })
 
 vi.mock("../../utils/utils", () => ({
-  getAllTracks: vi.fn((project) => project ? mockTracks : []),
-  findTrackById: vi.fn((project, id) => project ? mockTracks.find((track) => track.id === id) || null : null),
-  getTracksByType: vi.fn((project, type) => project ? mockTracks.filter((track) => track.type === type) : []),
+  getAllTracks: vi.fn((project) => (project ? mockTracks : [])),
+  findTrackById: vi.fn((project, id) => (project ? mockTracks.find((track) => track.id === id) || null : null)),
+  getTracksByType: vi.fn((project, type) => (project ? mockTracks.filter((track) => track.type === type) : [])),
   sortTracksByOrder: vi.fn((tracks) => tracks || []),
 }))
 

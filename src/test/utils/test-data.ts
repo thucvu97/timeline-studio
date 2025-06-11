@@ -220,7 +220,7 @@ export const testUtils = {
         id: `test-track-${i + 1}`,
         name: `Track ${i + 1}`,
         order: i,
-        type: (i % 2 === 0 ? "video" : "audio"),
+        type: i % 2 === 0 ? "video" : "audio",
         clips: [],
       }),
     ),

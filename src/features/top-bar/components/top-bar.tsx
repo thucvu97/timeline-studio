@@ -185,7 +185,7 @@ const TopBarComponent = function TopBar() {
         </div>
 
         {/* Группа 2: Переключатель темы, быстрые клавиши, настройки проекта */}
-        <div className="flex items-center justify-start">
+        <div className="flex items-center justify-start ml-[20%]">
           <div data-testid="theme-toggle">
             <ThemeToggle />
           </div>
@@ -267,7 +267,7 @@ const TopBarComponent = function TopBar() {
         </div>
 
         {/* Группа 4: Запись видео и голоса */}
-        <div className="flex items-center justify-end pr-[20%]">
+        <div className="flex items-center justify-end mr-[30%]">
           <Button
             variant="ghost"
             size="icon"
@@ -292,6 +292,7 @@ const TopBarComponent = function TopBar() {
 
         {/* Группа 5: Публикация, задачи, настройки пользователя и экспорт */}
         <div className="flex items-center justify-end">
+          <GpuStatusBadge className="mr-2" />
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -312,8 +313,8 @@ const TopBarComponent = function TopBar() {
             </PopoverContent>
           </Popover>
 
-          <GpuStatusBadge className="mr-2" />
           <RenderJobsDropdown />
+
           <Button
             variant="outline"
             size="sm"

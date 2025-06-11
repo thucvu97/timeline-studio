@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import type { ProjectSchema } from "@/types/video-compiler"
@@ -24,6 +25,7 @@ interface UseVideoCompilerReturn {
 }
 
 export function useVideoCompiler(): UseVideoCompilerReturn {
+  const { t } = useTranslation()
   const [isRendering, setIsRendering] = useState(false)
   const [renderProgress, setRenderProgress] = useState<RenderProgress | null>(null)
   const [activeJobs, setActiveJobs] = useState<RenderJob[]>([])
@@ -38,8 +40,8 @@ export function useVideoCompiler(): UseVideoCompilerReturn {
       const jobId = await renderProject(project, outputPath)
       setCurrentJobId(jobId)
 
-      toast.success("Рендеринг запущен", {
-        description: `Проект: ${project.metadata.name}`,
+      toast.success(t("videoCompiler.render.started"), {
+        description: t("videoCompiler.render.project", { name: project.metadata.name }),
       })
 
       // Отслеживаем прогресс
@@ -49,25 +51,25 @@ export function useVideoCompiler(): UseVideoCompilerReturn {
         // Обновляем состояние при завершении
         if (progress.status === RenderStatus.Completed) {
           setIsRendering(false)
-          toast.success("Рендеринг завершен!", {
-            description: `Видео сохранено: ${outputPath}`,
+          toast.success(t("videoCompiler.render.completed"), {
+            description: t("videoCompiler.render.saved", { path: outputPath }),
           })
         } else if (progress.status === RenderStatus.Failed) {
           setIsRendering(false)
-          toast.error("Ошибка рендеринга", {
-            description: progress.message || "Неизвестная ошибка",
+          toast.error(t("videoCompiler.render.error"), {
+            description: progress.message || t("common.unknownError"),
           })
         } else if (progress.status === RenderStatus.Cancelled) {
           setIsRendering(false)
-          toast.info("Рендеринг отменен")
+          toast.info(t("videoCompiler.render.cancelled"))
         }
       })
 
       return jobId
     } catch (error) {
       setIsRendering(false)
-      toast.error("Не удалось запустить рендеринг", {
-        description: error instanceof Error ? error.message : "Неизвестная ошибка",
+      toast.error(t("videoCompiler.render.failedToStart"), {
+        description: error instanceof Error ? error.message : t("common.unknownError"),
       })
       throw error
     }
@@ -83,11 +85,11 @@ export function useVideoCompiler(): UseVideoCompilerReturn {
         setIsRendering(false)
         setRenderProgress(null)
       } else {
-        toast.error("Не удалось отменить рендеринг")
+        toast.error(t("videoCompiler.render.failedToCancel"))
       }
     } catch (error) {
       console.error("Failed to cancel render:", error)
-      toast.error("Ошибка при отмене рендеринга")
+      toast.error(t("videoCompiler.render.errorCancelling"))
     }
   }, [])
 
@@ -104,7 +106,7 @@ export function useVideoCompiler(): UseVideoCompilerReturn {
       return new Blob([uint8Array], { type: "image/jpeg" })
     } catch (error) {
       console.error("Failed to generate preview:", error)
-      toast.error("Не удалось сгенерировать превью")
+      toast.error(t("videoCompiler.render.failedToGeneratePreview"))
       throw error
     }
   }, [])

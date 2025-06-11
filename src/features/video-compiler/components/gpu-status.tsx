@@ -1,6 +1,7 @@
 import React from "react"
 
 import { Activity, Cpu, HardDrive, Info, Settings, Zap } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,7 @@ interface GpuStatusProps {
 }
 
 export function GpuStatus({ className, showDetails = true, onSettingsClick }: GpuStatusProps) {
+  const { t } = useTranslation()
   const {
     gpuCapabilities,
     currentGpu,
@@ -57,12 +59,12 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
     return (
       <Card className={cn("border-destructive", className)}>
         <CardHeader>
-          <CardTitle className="text-destructive">Ошибка GPU</CardTitle>
+          <CardTitle className="text-destructive">{t("videoCompiler.gpu.error")}</CardTitle>
           <CardDescription>{error}</CardDescription>
         </CardHeader>
         <CardFooter>
           <Button variant="outline" size="sm" onClick={refreshCapabilities}>
-            Повторить
+            {t("videoCompiler.gpu.retry")}
           </Button>
         </CardFooter>
       </Card>
@@ -70,7 +72,7 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
   }
 
   const isGpuAvailable = gpuCapabilities?.hardware_acceleration_supported || false
-  const recommendations = getGpuRecommendations(gpuCapabilities)
+  const recommendations = getGpuRecommendations(gpuCapabilities, t)
 
   return (
     <Card className={className}>
@@ -78,7 +80,7 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Zap className={cn("h-5 w-5", getGpuStatusColor(isGpuAvailable))} />
-            <CardTitle>GPU Ускорение</CardTitle>
+            <CardTitle>{t("videoCompiler.gpu.acceleration")}</CardTitle>
           </div>
           <div className="flex items-center gap-2">
             <Switch
@@ -93,7 +95,11 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
             )}
           </div>
         </div>
-        <CardDescription>{isGpuAvailable ? "GPU ускорение доступно" : "GPU ускорение недоступно"}</CardDescription>
+        <CardDescription>
+          {isGpuAvailable
+            ? t("videoCompiler.gpu.accelerationAvailable")
+            : t("videoCompiler.gpu.accelerationUnavailable")}
+        </CardDescription>
       </CardHeader>
 
       {showDetails && (
@@ -104,12 +110,14 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <Cpu className="h-4 w-4" />
-                  Видеокарта
+                  {t("videoCompiler.gpu.videoCard")}
                 </div>
                 <div className="ml-6 space-y-1">
                   <p className="text-sm">{currentGpu.name}</p>
                   {currentGpu.driver_version && (
-                    <p className="text-xs text-muted-foreground">Драйвер: {currentGpu.driver_version}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("videoCompiler.gpu.driver")}: {currentGpu.driver_version}
+                    </p>
                   )}
                 </div>
               </div>
@@ -120,13 +128,13 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <HardDrive className="h-4 w-4" />
-                  Видеопамять
+                  {t("videoCompiler.gpu.videoMemory")}
                 </div>
                 <div className="ml-6 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Используется</span>
+                    <span>{t("videoCompiler.gpu.memoryUsed")}</span>
                     <span>
-                      {formatGpuMemory(currentGpu.memory_used)} / {formatGpuMemory(currentGpu.memory_total)}
+                      {formatGpuMemory(currentGpu.memory_used ?? 0, t)} / {formatGpuMemory(currentGpu.memory_total, t)}
                     </span>
                   </div>
                   {currentGpu.memory_used && currentGpu.memory_total && (
@@ -141,12 +149,12 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <Activity className="h-4 w-4" />
-                  Загрузка GPU
+                  {t("videoCompiler.gpu.gpuLoad")}
                 </div>
                 <div className="ml-6 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Использование</span>
-                    <span>{formatGpuUtilization(currentGpu.utilization)}</span>
+                    <span>{t("videoCompiler.gpu.usage")}</span>
+                    <span>{formatGpuUtilization(currentGpu.utilization, t)}</span>
                   </div>
                   <Progress value={currentGpu.utilization} className="h-2" />
                 </div>
@@ -160,7 +168,7 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <Cpu className="h-4 w-4" />
-                  Кодировщики
+                  {t("videoCompiler.gpu.encoders")}
                 </div>
                 <div className="ml-6 flex flex-wrap gap-2">
                   {gpuCapabilities.available_encoders.map((encoder) => (
@@ -168,10 +176,12 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
                       key={encoder}
                       variant={encoder === gpuCapabilities.recommended_encoder ? "default" : "secondary"}
                     >
-                      {getGpuEncoderDisplayName(encoder)}
+                      {getGpuEncoderDisplayName(encoder, t)}
                     </Badge>
                   ))}
-                  {gpuCapabilities.available_encoders.length === 0 && <Badge variant="outline">Только CPU</Badge>}
+                  {gpuCapabilities.available_encoders.length === 0 && (
+                    <Badge variant="outline">{t("videoCompiler.gpu.cpuOnly")}</Badge>
+                  )}
                 </div>
               </div>
             )}
@@ -181,14 +191,20 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <Info className="h-4 w-4" />
-                  Система
+                  {t("videoCompiler.gpu.system")}
                 </div>
                 <div className="ml-6 space-y-1 text-sm text-muted-foreground">
                   <p>
-                    ОС: {systemInfo.os} ({systemInfo.arch})
+                    {t("videoCompiler.gpu.os")}: {systemInfo.os} ({systemInfo.arch})
                   </p>
-                  <p>CPU: {systemInfo.cpu_cores} ядер</p>
-                  {systemInfo.available_memory && <p>Память: {formatGpuMemory(systemInfo.available_memory)}</p>}
+                  <p>
+                    {t("videoCompiler.gpu.cpu")}: {systemInfo.cpu_cores} {t("videoCompiler.gpu.cores")}
+                  </p>
+                  {systemInfo.available_memory && (
+                    <p>
+                      {t("videoCompiler.gpu.memory")}: {formatGpuMemory(systemInfo.available_memory, t)}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -198,7 +214,7 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
               <>
                 <Separator />
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Рекомендации</p>
+                  <p className="text-sm font-medium">{t("videoCompiler.gpu.recommendations")}</p>
                   <ul className="ml-2 space-y-1">
                     {recommendations.map((rec, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -217,17 +233,19 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="sm" onClick={refreshCapabilities}>
-                    Обновить
+                    {t("videoCompiler.gpu.refresh")}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Обновить информацию о GPU</p>
+                  <p>{t("videoCompiler.gpu.refreshTooltip")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
             {compilerSettings && (
-              <div className="text-xs text-muted-foreground">Макс. задач: {compilerSettings.max_concurrent_jobs}</div>
+              <div className="text-xs text-muted-foreground">
+                {t("videoCompiler.gpu.maxTasks")}: {compilerSettings.max_concurrent_jobs}
+              </div>
             )}
           </CardFooter>
         </>
@@ -266,6 +284,7 @@ function GpuStatusSkeleton({ className }: { className?: string }) {
 
 // Компактная версия для панели инструментов
 export function GpuStatusBadge({ className }: { className?: string }) {
+  const { t } = useTranslation()
   const { gpuCapabilities, isLoading } = useGpuCapabilities()
 
   if (isLoading) {
@@ -281,11 +300,15 @@ export function GpuStatusBadge({ className }: { className?: string }) {
         <TooltipTrigger asChild>
           <Badge variant={isGpuAvailable ? "default" : "secondary"} className={cn("gap-1", className)}>
             <Zap className="h-3 w-3" />
-            {encoder ? getGpuEncoderDisplayName(encoder) : "CPU"}
+            {encoder ? getGpuEncoderDisplayName(encoder, t) : t("videoCompiler.gpu.cpuOnly")}
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{isGpuAvailable ? `GPU ускорение: ${encoder}` : "GPU ускорение недоступно"}</p>
+          <p>
+            {isGpuAvailable
+              ? t("videoCompiler.gpu.gpuTooltip", { encoder })
+              : t("videoCompiler.gpu.gpuUnavailableTooltip")}
+          </p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

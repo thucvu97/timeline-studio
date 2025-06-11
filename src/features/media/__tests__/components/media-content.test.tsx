@@ -1,4 +1,4 @@
-import { act , fireEvent, screen } from "@testing-library/react"
+import { act, fireEvent, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { renderWithProviders } from "@/test/test-utils"

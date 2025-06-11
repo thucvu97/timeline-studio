@@ -1,6 +1,7 @@
 import React from "react"
 
 import { Activity, Database, HardDrive, Loader2, Trash2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -25,17 +26,18 @@ interface CacheStatsDialogProps {
 }
 
 export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) {
+  const { t } = useTranslation()
   const { stats, isLoading, error, refreshStats, clearPreviewCache, clearAllCache } = useCacheStats()
 
   const handleClearPreviewCache = async () => {
-    const confirmed = window.confirm("Очистить кэш превью? Это может замедлить работу с медиафайлами.")
+    const confirmed = window.confirm(t("videoCompiler.cache.confirmClearPreview"))
     if (confirmed) {
       await clearPreviewCache()
     }
   }
 
   const handleClearAllCache = async () => {
-    const confirmed = window.confirm("Очистить весь кэш? Это значительно замедлит работу приложения.")
+    const confirmed = window.confirm(t("videoCompiler.cache.confirmClearAll"))
     if (confirmed) {
       await clearAllCache()
     }
@@ -47,9 +49,9 @@ export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
-            Статистика кэша
+            {t("videoCompiler.cache.statistics")}
           </DialogTitle>
-          <DialogDescription>Управление кэшем для оптимизации производительности</DialogDescription>
+          <DialogDescription>{t("videoCompiler.cache.management")}</DialogDescription>
         </DialogHeader>
 
         {isLoading && !stats ? (
@@ -60,7 +62,7 @@ export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) 
           <div className="text-center p-8">
             <p className="text-sm text-destructive">{error}</p>
             <Button onClick={refreshStats} variant="outline" size="sm" className="mt-4">
-              Повторить
+              {t("videoCompiler.cache.retry")}
             </Button>
           </div>
         ) : stats ? (
@@ -70,13 +72,13 @@ export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) 
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Activity className="h-4 w-4" />
-                  Общая эффективность
+                  {t("videoCompiler.cache.overallEfficiency")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Процент попаданий:</span>
+                    <span className="text-sm text-muted-foreground">{t("videoCompiler.cache.hitRate")}:</span>
                     <Badge variant={stats.hit_ratio > 0.7 ? "default" : "secondary"}>
                       {formatCacheRatio(stats.hit_ratio)}
                     </Badge>
@@ -91,21 +93,21 @@ export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) 
               {/* Превью */}
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Превью</CardTitle>
-                  <CardDescription className="text-xs">Кэш изображений предпросмотра</CardDescription>
+                  <CardTitle className="text-sm">{t("videoCompiler.cache.preview")}</CardTitle>
+                  <CardDescription className="text-xs">{t("videoCompiler.cache.previewDescription")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Попаданий:</span>
+                    <span className="text-muted-foreground">{t("videoCompiler.cache.hits")}:</span>
                     <span className="text-green-600">{stats.preview_hits}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Промахов:</span>
+                    <span className="text-muted-foreground">{t("videoCompiler.cache.misses")}:</span>
                     <span className="text-orange-600">{stats.preview_misses}</span>
                   </div>
                   <Separator className="my-2" />
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">Эффективность:</span>
+                    <span className="text-xs font-medium">{t("videoCompiler.cache.efficiency")}:</span>
                     <Badge
                       variant="outline"
                       className={cn(
@@ -126,25 +128,29 @@ export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) 
               {/* Метаданные */}
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Метаданные</CardTitle>
-                  <CardDescription className="text-xs">Кэш информации о файлах</CardDescription>
+                  <CardTitle className="text-sm">{t("videoCompiler.cache.metadata")}</CardTitle>
+                  <CardDescription className="text-xs">{t("videoCompiler.cache.metadataDescription")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Попаданий:</span>
+                    <span className="text-muted-foreground">{t("videoCompiler.cache.hits")}:</span>
                     <span className="text-green-600">{stats.metadata_hits}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Промахов:</span>
+                    <span className="text-muted-foreground">{t("videoCompiler.cache.misses")}:</span>
                     <span className="text-orange-600">{stats.metadata_misses}</span>
                   </div>
                   <Separator className="my-2" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">Память:</span>
-                    <Badge variant="outline" className="text-xs">
-                      {(stats.memory_usage.total_bytes / (1024 * 1024)).toFixed(1)} MB
-                    </Badge>
-                  </div>
+                  {stats.memory_usage && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium">{t("videoCompiler.cache.memory")}:</span>
+                      <Badge variant="outline" className="text-xs">
+                        {stats.memory_usage.total_bytes
+                          ? `${(stats.memory_usage.total_bytes / (1024 * 1024)).toFixed(1)} MB`
+                          : "0 MB"}
+                      </Badge>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -154,9 +160,9 @@ export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) 
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <HardDrive className="h-4 w-4" />
-                  Управление кэшем
+                  {t("videoCompiler.cache.cacheManagement")}
                 </CardTitle>
-                <CardDescription>Очистка кэша может временно замедлить работу приложения</CardDescription>
+                <CardDescription>{t("videoCompiler.cache.cacheManagementDescription")}</CardDescription>
               </CardHeader>
               <CardContent className="flex gap-2">
                 <Button
@@ -166,7 +172,7 @@ export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) 
                   className="flex items-center gap-2"
                 >
                   <Trash2 className="h-4 w-4" />
-                  Очистить превью
+                  {t("videoCompiler.cache.clearPreview")}
                 </Button>
                 <Button
                   variant="outline"
@@ -175,7 +181,7 @@ export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) 
                   className="flex items-center gap-2 text-destructive hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
-                  Очистить всё
+                  {t("videoCompiler.cache.clearAll")}
                 </Button>
               </CardContent>
             </Card>
@@ -185,9 +191,9 @@ export function CacheStatsDialog({ open, onOpenChange }: CacheStatsDialogProps) 
         <DialogFooter>
           <Button variant="outline" onClick={refreshStats} disabled={isLoading} className="flex items-center gap-2">
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            Обновить
+            {t("videoCompiler.cache.refresh")}
           </Button>
-          <Button onClick={() => onOpenChange(false)}>Закрыть</Button>
+          <Button onClick={() => onOpenChange(false)}>{t("videoCompiler.cache.close")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

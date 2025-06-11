@@ -39,6 +39,7 @@ export const CirclePause = createMockIcon("CirclePause")
 export const CirclePlay = createMockIcon("CirclePlay")
 export const Clock = createMockIcon("Clock")
 export const CopyPlus = createMockIcon("CopyPlus")
+export const Cpu = createMockIcon("Cpu")
 export const Eye = createMockIcon("Eye")
 export const EyeOff = createMockIcon("EyeOff")
 export const File = createMockIcon("File")
@@ -115,6 +116,7 @@ export const Webcam = createMockIcon("Webcam")
 export const X = createMockIcon("X")
 export const XCircle = createMockIcon("XCircle")
 export const XIcon = createMockIcon("XIcon")
+export const Zap = createMockIcon("Zap")
 
 // Mock the entire lucide-react module
 vi.mock("lucide-react", () => ({
@@ -137,6 +139,7 @@ vi.mock("lucide-react", () => ({
   CirclePlay,
   Clock,
   CopyPlus,
+  Cpu,
   Eye,
   EyeOff,
   File,
@@ -213,6 +216,7 @@ vi.mock("lucide-react", () => ({
   X,
   XCircle,
   XIcon,
+  Zap,
 }))
 
 // Helper to create custom icons for tests

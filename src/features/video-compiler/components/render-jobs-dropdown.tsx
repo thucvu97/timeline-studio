@@ -1,6 +1,7 @@
 import React from "react"
 
-import { AlertCircle, CheckCircle2, Clock, FileVideo, Loader2, StopCircle, XCircle } from "lucide-react"
+import { AlertCircle, CheckCircle2, Clock, FileVideo, ListTodo, Loader2, StopCircle, XCircle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,10 +16,11 @@ import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
-import { formatJobDuration, getJobStatusColor, getJobStatusLabel, useRenderJobs } from "../hooks/use-render-jobs"
+import { formatJobDuration, getJobStatusColor, useRenderJobs } from "../hooks/use-render-jobs"
 import { RenderStatus } from "../types/render"
 
 export function RenderJobsDropdown() {
+  const { t } = useTranslation()
   const { jobs, isLoading, error, cancelJob } = useRenderJobs()
 
   // Количество активных задач
@@ -44,10 +46,28 @@ export function RenderJobsDropdown() {
     }
   }
 
+  // Функция для получения локализованного статуса
+  const getLocalizedStatus = (status: RenderStatus) => {
+    switch (status) {
+      case RenderStatus.Pending:
+        return t("videoCompiler.status.pending")
+      case RenderStatus.Processing:
+        return t("videoCompiler.status.processing")
+      case RenderStatus.Completed:
+        return t("videoCompiler.status.completed")
+      case RenderStatus.Failed:
+        return t("videoCompiler.status.failed")
+      case RenderStatus.Cancelled:
+        return t("videoCompiler.status.cancelled")
+      default:
+        return status
+    }
+  }
+
   // Обработчик отмены задачи
   const handleCancelJob = async (jobId: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    const confirmed = window.confirm("Отменить задачу рендеринга?")
+    const confirmed = window.confirm(t("videoCompiler.cancelTask"))
     if (confirmed) {
       await cancelJob(jobId)
     }
@@ -56,22 +76,22 @@ export function RenderJobsDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="relative">
-          <FileVideo className="h-4 w-4 mr-2" />
-          Задачи
+        <Button variant="ghost" size="sm" className="relative cursor-pointer">
+          <ListTodo className="h-5 w-5" />
+          {t("videoCompiler.tasks")}
           {activeJobsCount > 0 && (
             <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
               {activeJobsCount}
             </Badge>
           )}
           {jobs.some((job) => job.status === RenderStatus.Processing) && (
-            <Loader2 className="absolute -top-1 -right-1 h-3 w-3 animate-spin text-blue-500" />
+            <Loader2 className="absolute -top-1 -right-1 h-3 w-3 animate-spin text-teal" />
           )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-96">
         <DropdownMenuLabel className="flex items-center justify-between">
-          <span>Задачи рендеринга</span>
+          <span>{t("videoCompiler.renderTasks")}</span>
           {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -80,13 +100,13 @@ export function RenderJobsDropdown() {
           {error ? (
             <div className="p-4 text-center text-sm text-muted-foreground">
               <AlertCircle className="h-8 w-8 mx-auto mb-2 text-red-500" />
-              <p>Ошибка загрузки задач</p>
+              <p>{t("videoCompiler.errorLoadingTasks")}</p>
               <p className="text-xs mt-1">{error}</p>
             </div>
           ) : jobs.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted-foreground">
               <FileVideo className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>Нет активных задач</p>
+              <p>{t("videoCompiler.noActiveTasks")}</p>
             </div>
           ) : (
             <div className="space-y-2 p-2">
@@ -97,7 +117,7 @@ export function RenderJobsDropdown() {
                       <div className="flex items-center gap-2">
                         <span className={cn("flex items-center gap-1", getJobStatusColor(job.status))}>
                           {getStatusIcon(job.status)}
-                          <span className="text-xs font-medium">{getJobStatusLabel(job.status)}</span>
+                          <span className="text-xs font-medium">{getLocalizedStatus(job.status)}</span>
                         </span>
                         <span className="text-xs text-muted-foreground">{formatJobDuration(job.created_at)}</span>
                       </div>
@@ -122,7 +142,7 @@ export function RenderJobsDropdown() {
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>{job.progress.stage}</span>
                         <span>
-                          {job.progress.current_frame}/{job.progress.total_frames} кадров
+                          {job.progress.current_frame}/{job.progress.total_frames} {t("videoCompiler.frames")}
                         </span>
                       </div>
                       {job.progress.message && (
@@ -145,15 +165,15 @@ export function RenderJobsDropdown() {
             <DropdownMenuSeparator />
             <div className="p-2 text-xs text-muted-foreground">
               <div className="flex justify-between">
-                <span>Всего задач:</span>
+                <span>{t("videoCompiler.totalTasks")}:</span>
                 <span>{jobs.length}</span>
               </div>
               <div className="flex justify-between">
-                <span>Активных:</span>
+                <span>{t("videoCompiler.activeTasks")}:</span>
                 <span>{activeJobsCount}</span>
               </div>
               <div className="flex justify-between">
-                <span>Завершено:</span>
+                <span>{t("videoCompiler.completedTasks")}:</span>
                 <span>{jobs.filter((j) => j.status === RenderStatus.Completed).length}</span>
               </div>
             </div>

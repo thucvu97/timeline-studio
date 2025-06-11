@@ -3,6 +3,7 @@ import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import { vi } from "vitest"
 
 import { RenderJob, RenderJobsDropdown, RenderStatus } from "@/features/video-compiler"
+import { setTranslations } from "@/test/mocks/libraries/i18n"
 import { render } from "@/test/test-utils"
 
 // Mock the Tauri API
@@ -68,6 +69,24 @@ describe("RenderJobsDropdown", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(invoke).mockResolvedValue(mockJobs)
+
+    // Set up translations for our tests
+    setTranslations({
+      "videoCompiler.tasks": "Задачи",
+      "videoCompiler.renderTasks": "Задачи рендеринга",
+      "videoCompiler.noActiveTasks": "Нет активных задач",
+      "videoCompiler.errorLoadingTasks": "Ошибка загрузки задач",
+      "videoCompiler.cancelTask": "Отменить задачу рендеринга?",
+      "videoCompiler.frames": "кадров",
+      "videoCompiler.totalTasks": "Всего задач",
+      "videoCompiler.activeTasks": "Активных",
+      "videoCompiler.completedTasks": "Завершено",
+      "videoCompiler.status.pending": "В очереди",
+      "videoCompiler.status.processing": "Обработка",
+      "videoCompiler.status.completed": "Завершено",
+      "videoCompiler.status.failed": "Ошибка",
+      "videoCompiler.status.cancelled": "Отменено",
+    })
   })
 
   afterEach(() => {
