@@ -74,7 +74,7 @@ export function useAppHotkeys() {
         shortcut.keys.forEach((keys) => {
           useHotkeys(
             keys,
-            shortcut.action,
+            shortcut.action!,
             {
               enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
               preventDefault: true,

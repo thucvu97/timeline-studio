@@ -1,6 +1,7 @@
 import React from "react"
 
-import { act, render, renderHook, waitFor } from "@testing-library/react"
+import { render, renderHook, waitFor } from "@testing-library/react"
+import { act } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { renderWithChat } from "@/test/test-utils"
@@ -218,7 +219,12 @@ describe("ChatProvider", () => {
       const firstMessageId = result.current.chatMessages[0].id
 
       act(() => {
-        result.current.receiveChatMessage("Ответ 1")
+        result.current.receiveChatMessage({
+          id: "msg-2",
+          content: "Ответ 1",
+          role: "assistant" as const,
+          timestamp: new Date(),
+        })
         result.current.sendChatMessage("Сообщение 2")
       })
 
@@ -241,7 +247,12 @@ describe("ChatProvider", () => {
       // Добавляем сообщения
       act(() => {
         result.current.sendChatMessage("Сообщение 1")
-        result.current.receiveChatMessage("Ответ 1")
+        result.current.receiveChatMessage({
+          id: "msg-2",
+          content: "Ответ 1",
+          role: "assistant" as const,
+          timestamp: new Date(),
+        })
         result.current.sendChatMessage("Сообщение 2")
       })
 
@@ -262,7 +273,7 @@ describe("ChatProvider", () => {
       const errorService = {
         sendMessage: vi.fn().mockRejectedValue(new Error("API недоступен")),
       }
-      vi.mocked(ClaudeService).mockImplementation(() => errorService as any)
+      vi.mocked(ClaudeService.getInstance).mockReturnValue(errorService as any)
 
       const { result } = renderHook(() => useChat(), {
         wrapper: ChatProvider,
