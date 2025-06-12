@@ -6,11 +6,11 @@
 //! - Анализа субтитров
 //! - Кэширования для быстрого доступа
 
+use crate::app_dirs::AppDirectories;
 use crate::video_compiler::cache::RenderCache;
 use crate::video_compiler::error::Result;
 use crate::video_compiler::preview::{PreviewGenerator, VideoInfo};
 use crate::video_compiler::schema::{Clip, PreviewFormat, Subtitle};
-use crate::app_dirs::AppDirectories;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -323,31 +323,34 @@ impl FrameExtractionManager {
   /// Получить существующие скриншоты
   pub async fn get_existing_screenshots(&self, video_path: &Path) -> Result<Vec<ExtractedFrame>> {
     let _cache = self.cache.read().await;
-    
+
     // Получаем все превью для данного файла из кэша
     let _file_path_str = video_path.to_string_lossy().to_string();
     let mut frames = Vec::new();
-    
+
     // Здесь мы можем получить сохраненные скриншоты из директории Snapshot
     if let Ok(app_dirs) = AppDirectories::get_or_create() {
       let snapshot_dir = app_dirs.snapshot_dir;
-      let video_name = video_path.file_stem()
+      let video_name = video_path
+        .file_stem()
         .and_then(|s| s.to_str())
         .unwrap_or("unknown");
-      
+
       let video_snapshot_dir = snapshot_dir.join(video_name);
       if video_snapshot_dir.exists() {
         // Читаем все изображения из директории
         if let Ok(entries) = std::fs::read_dir(&video_snapshot_dir) {
           for entry in entries.flatten() {
             let path = entry.path();
-            if path.extension()
+            if path
+              .extension()
               .and_then(|e| e.to_str())
               .map(|e| matches!(e.to_lowercase().as_str(), "jpg" | "jpeg" | "png"))
               .unwrap_or(false)
             {
               // Извлекаем timestamp из имени файла
-              if let Some(timestamp) = path.file_stem()
+              if let Some(timestamp) = path
+                .file_stem()
                 .and_then(|s| s.to_str())
                 .and_then(|s| s.replace("frame_", "").parse::<f64>().ok())
               {
@@ -367,10 +370,10 @@ impl FrameExtractionManager {
         }
       }
     }
-    
+
     // Сортируем по timestamp
     frames.sort_by(|a, b| a.timestamp.partial_cmp(&b.timestamp).unwrap());
-    
+
     Ok(frames)
   }
 
@@ -491,23 +494,24 @@ impl FrameExtractionManager {
     // Получаем директорию для скриншотов
     let app_dirs = AppDirectories::get_or_create()
       .map_err(|e| crate::video_compiler::error::VideoCompilerError::IoError(e.to_string()))?;
-    
-    let video_name = video_path.file_stem()
+
+    let video_name = video_path
+      .file_stem()
       .and_then(|s| s.to_str())
       .unwrap_or("unknown");
-    
+
     let screenshot_dir = app_dirs.snapshot_dir.join(video_name);
     std::fs::create_dir_all(&screenshot_dir)?;
-    
+
     // Создаем имя файла с timestamp
     let filename = format!("frame_{:.3}.jpg", timestamp);
     let screenshot_path = screenshot_dir.join(filename);
-    
+
     // Сохраняем файл
     std::fs::write(&screenshot_path, preview_data)?;
-    
+
     log::info!("Скриншот сохранен: {:?}", screenshot_path);
-    
+
     Ok(screenshot_path)
   }
 
@@ -683,7 +687,6 @@ mod tests {
   use crate::video_compiler::preview::VideoInfo;
   use std::collections::HashMap;
   use std::time::{Duration, SystemTime};
-  
 
   #[test]
   fn test_extraction_settings_default() {

@@ -1,7 +1,5 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { BaseProviders } from "@/test/test-utils"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { CacheStatsDialog } from "../../components/cache-stats-dialog"
 import * as useCacheStatsModule from "../../hooks/use-cache-stats"
@@ -83,22 +81,14 @@ describe("CacheStatsDialog", () => {
   })
 
   it("should render dialog with cache statistics", () => {
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     expect(screen.getByText("videoCompiler.cache.statistics")).toBeInTheDocument()
     expect(screen.getByText("videoCompiler.cache.management")).toBeInTheDocument()
   })
 
   it("should not render when closed", () => {
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={false} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={false} onOpenChange={vi.fn()} />)
 
     expect(screen.queryByText("videoCompiler.cache.statsTitle")).not.toBeInTheDocument()
   })
@@ -110,11 +100,7 @@ describe("CacheStatsDialog", () => {
       stats: null,
     })
 
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     const loaders = screen.getAllByTestId("loader2-icon")
     expect(loaders.length).toBeGreaterThan(0)
@@ -128,22 +114,14 @@ describe("CacheStatsDialog", () => {
       stats: null,
     })
 
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     expect(screen.getByText(errorMessage)).toBeInTheDocument()
     expect(screen.getByText("videoCompiler.cache.retry")).toBeInTheDocument()
   })
 
   it("should display total cache size", () => {
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     // Total memory is shown in metadata section
     expect(screen.getByText(/videoCompiler.cache.memory/)).toBeInTheDocument()
@@ -151,33 +129,21 @@ describe("CacheStatsDialog", () => {
   })
 
   it("should display cache breakdown", () => {
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     expect(screen.getByText("videoCompiler.cache.preview")).toBeInTheDocument()
     expect(screen.getByText("videoCompiler.cache.metadata")).toBeInTheDocument()
   })
 
   it("should display cache efficiency metrics", () => {
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     expect(screen.getByText("videoCompiler.cache.overallEfficiency")).toBeInTheDocument()
     expect(screen.getByText(/videoCompiler.cache.hitRate/)).toBeInTheDocument()
   })
 
   it("should refresh stats when refresh button clicked", async () => {
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     const refreshButton = screen.getByText("videoCompiler.cache.refresh")
     fireEvent.click(refreshButton)
@@ -187,11 +153,7 @@ describe("CacheStatsDialog", () => {
 
   it("should clear all cache when clear all button clicked", async () => {
     const mockOnOpenChange = vi.fn()
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={mockOnOpenChange} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={mockOnOpenChange} />)
 
     const clearAllButton = screen.getByText("videoCompiler.cache.clearAll")
     fireEvent.click(clearAllButton)
@@ -203,11 +165,7 @@ describe("CacheStatsDialog", () => {
   })
 
   it("should clear preview cache", async () => {
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     const clearPreviewButton = screen.getByText("videoCompiler.cache.clearPreview")
     fireEvent.click(clearPreviewButton)
@@ -221,11 +179,7 @@ describe("CacheStatsDialog", () => {
   it("should handle cancel clear all operation", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(false)
 
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     const clearAllButton = screen.getByText("videoCompiler.cache.clearAll")
     fireEvent.click(clearAllButton)
@@ -237,11 +191,7 @@ describe("CacheStatsDialog", () => {
   })
 
   it("should show progress bars for cache breakdown", () => {
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     const progressBars = screen.getAllByRole("progressbar")
     expect(progressBars).toHaveLength(1) // Only overall efficiency progress bar
@@ -261,11 +211,7 @@ describe("CacheStatsDialog", () => {
       stats: emptyStats,
     })
 
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     // There are multiple 0.0% badges, check overall hit rate
     const hitRateBadges = screen.getAllByText("0.0%")
@@ -295,22 +241,14 @@ describe("CacheStatsDialog", () => {
       stats: emptyStats,
     })
 
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={vi.fn()} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={vi.fn()} />)
 
     expect(screen.getByText("0 MB")).toBeInTheDocument()
   })
 
   it("should close dialog when close button clicked", () => {
     const mockOnOpenChange = vi.fn()
-    render(
-      <BaseProviders>
-        <CacheStatsDialog open={true} onOpenChange={mockOnOpenChange} />
-      </BaseProviders>,
-    )
+    render(<CacheStatsDialog open={true} onOpenChange={mockOnOpenChange} />)
 
     const closeButton = screen.getByText("videoCompiler.cache.close")
     fireEvent.click(closeButton)

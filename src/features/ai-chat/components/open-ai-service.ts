@@ -34,8 +34,10 @@ interface OpenAiApiResponse {
 export const AI_MODELS = {
   CLAUDE_4_SONNET: "claude-4-sonnet",
   CLAUDE_4_OPUS: "claude-4-opus",
-  GPT_4: "gpt-4-turbo",
+  GPT_4: "gpt-4",
+  GPT_4O: "gpt-4o",
   GPT_3_5: "gpt-3.5-turbo",
+  O3: "o3",
 }
 
 // Базовые URL для API

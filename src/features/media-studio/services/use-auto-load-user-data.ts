@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+
 import { appDirectoriesService } from "@/features/app-state/services"
 
 /**
@@ -132,12 +133,12 @@ export function useAutoLoadUserData() {
         try {
           const appDirs = await appDirectoriesService.getAppDirectories()
           directories = {
-            effects: appDirectoriesService.getMediaSubdirectory('effects'),
-            transitions: appDirectoriesService.getMediaSubdirectory('transitions'),
-            filters: appDirectoriesService.getMediaSubdirectory('filters'),
-            subtitles: appDirectoriesService.getMediaSubdirectory('subtitles'),
-            templates: appDirs.media_dir + '/Templates', // пока нет в типах
-            styleTemplates: appDirectoriesService.getMediaSubdirectory('style_templates'),
+            effects: appDirectoriesService.getMediaSubdirectory("effects"),
+            transitions: appDirectoriesService.getMediaSubdirectory("transitions"),
+            filters: appDirectoriesService.getMediaSubdirectory("filters"),
+            subtitles: appDirectoriesService.getMediaSubdirectory("subtitles"),
+            templates: `${appDirs.media_dir}/Templates`, // пока нет в типах
+            styleTemplates: appDirectoriesService.getMediaSubdirectory("style_templates"),
           }
         } catch (error) {
           console.error("Ошибка при получении директорий приложения:", error)

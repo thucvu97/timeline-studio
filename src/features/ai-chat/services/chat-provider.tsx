@@ -29,6 +29,7 @@ export const ChatContext = createContext<ChatContextType | null>(null)
 // Интерфейс пропсов провайдера
 interface ChatProviderProps {
   children: React.ReactNode
+  value?: ChatContextType // Для тестирования
 }
 
 /**
@@ -40,7 +41,7 @@ interface ChatProviderProps {
  * - Состоянием обработки
  * - Ошибками
  */
-export function ChatProvider({ children }: ChatProviderProps) {
+export function ChatProvider({ children, value }: ChatProviderProps) {
   const [state, send] = useActor(chatMachine)
 
   // Извлекаем данные из состояния машины
@@ -93,5 +94,6 @@ export function ChatProvider({ children }: ChatProviderProps) {
     removeMessage,
   }
 
-  return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>
+  // Используем переданное значение для тестов или реальное значение
+  return <ChatContext.Provider value={value || contextValue}>{children}</ChatContext.Provider>
 }

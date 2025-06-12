@@ -23,7 +23,7 @@ export type ChatMachineEvent =
 // Начальный контекст
 const initialContext: ChatMachineContext = {
   chatMessages: [],
-  selectedAgentId: null,
+  selectedAgentId: "claude-4-sonnet",
   isProcessing: false,
   error: null,
 }
@@ -58,7 +58,7 @@ export const chatMachine = setup({
     logReceiveMessage: ({ context, event }) => {
       if (event.type === "RECEIVE_CHAT_MESSAGE") {
         console.log(
-          `[ChatMachine] Получение сообщения от ${event.message.sender}: ${event.message.text.substring(0, 50)}...`,
+          `[ChatMachine] Получение сообщения от ${event.message.role}: ${event.message.content?.substring(0, 50) || ""}...`,
         )
       }
     },

@@ -1,77 +1,72 @@
-/**
- * Тесты для хука useChat
- */
-
-import React from "react"
-
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { ChatProviders } from "@/test/test-utils"
 
 import { useChat } from "../../hooks/use-chat"
 
-// Мокаем модуль chat-provider
-vi.mock("../../services/chat-provider", () => {
-  const mockChatContext = {
-    chatMessages: [],
-    selectedAgentId: "openai",
-    isProcessing: false,
-    error: null,
-    sendChatMessage: vi.fn(),
-    receiveChatMessage: vi.fn(),
-    selectAgent: vi.fn(),
-    setProcessing: vi.fn(),
-    setError: vi.fn(),
-    clearMessages: vi.fn(),
-    removeMessage: vi.fn(),
-  }
-
-  return {
-    ChatContext: React.createContext(mockChatContext),
-    ChatContextType: {},
-    ChatProvider: ({ children }: { children: React.ReactNode }) => children,
-  }
-})
+// Создаем wrapper с контекстом
+const createWrapper = () => {
+  return ChatProviders
+}
 
 describe("useChat", () => {
-  describe("Hook Initialization", () => {
-    it("should be defined and exportable", () => {
-      expect(useChat).toBeDefined()
-      expect(typeof useChat).toBe("function")
-    })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-    it("should return chat context when used inside provider", () => {
-      const { result } = renderHook(() => useChat())
+  describe("Использование вне провайдера", () => {
+    it("должен выбрасывать ошибку при использовании вне ChatProvider", () => {
+      // Рендерим без wrapper
+      const { result } = renderHook(() => {
+        try {
+          return useChat()
+        } catch (error) {
+          return { error }
+        }
+      })
 
-      expect(result.current).toBeDefined()
-      expect(result.current).toHaveProperty("chatMessages")
-      expect(result.current).toHaveProperty("selectedAgentId")
-      expect(result.current).toHaveProperty("isProcessing")
-      expect(result.current).toHaveProperty("error")
-      expect(result.current).toHaveProperty("sendChatMessage")
-      expect(result.current).toHaveProperty("receiveChatMessage")
-      expect(result.current).toHaveProperty("selectAgent")
-      expect(result.current).toHaveProperty("setProcessing")
-      expect(result.current).toHaveProperty("setError")
-      expect(result.current).toHaveProperty("clearMessages")
-      expect(result.current).toHaveProperty("removeMessage")
+      expect(result.current.error).toBeDefined()
+      expect((result.current.error as Error).message).toBe("useChat должен использоваться внутри ChatProvider")
     })
   })
 
-  describe("Default State", () => {
-    it("should return default chat state", () => {
-      const { result } = renderHook(() => useChat())
+  describe("Успешное использование в контексте", () => {
+    it("должен возвращать полный контекст чата", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: createWrapper(),
+      })
 
-      expect(result.current.chatMessages).toEqual([])
-      expect(result.current.selectedAgentId).toBe("openai")
-      expect(result.current.isProcessing).toBe(false)
-      expect(result.current.error).toBeNull()
+      expect(result.current).toMatchObject({
+        chatMessages: [],
+        selectedAgentId: "claude-4-sonnet",
+        isProcessing: false,
+        error: null,
+        sendChatMessage: expect.any(Function),
+        receiveChatMessage: expect.any(Function),
+        selectAgent: expect.any(Function),
+        setProcessing: expect.any(Function),
+        setError: expect.any(Function),
+        clearMessages: expect.any(Function),
+        removeMessage: expect.any(Function),
+      })
     })
-  })
 
-  describe("Action Methods", () => {
-    it("should provide all required action methods", () => {
-      const { result } = renderHook(() => useChat())
+    it("должен возвращать актуальное состояние сообщений", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: createWrapper(),
+      })
 
+      expect(result.current.chatMessages).toHaveLength(0)
+      expect(Array.isArray(result.current.chatMessages)).toBe(true)
+    })
+
+    it("должен предоставлять рабочие методы действий", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: createWrapper(),
+      })
+
+      // Проверяем, что методы доступны и являются функциями
       expect(typeof result.current.sendChatMessage).toBe("function")
       expect(typeof result.current.receiveChatMessage).toBe("function")
       expect(typeof result.current.selectAgent).toBe("function")
@@ -80,32 +75,53 @@ describe("useChat", () => {
       expect(typeof result.current.clearMessages).toBe("function")
       expect(typeof result.current.removeMessage).toBe("function")
     })
+  })
 
-    it("should call action methods without errors", () => {
-      const { result } = renderHook(() => useChat())
+  describe("Обновление контекста", () => {
+    it("должен реагировать на изменения контекста", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: createWrapper(),
+      })
 
-      expect(() => {
-        result.current.sendChatMessage("Test message")
-        result.current.receiveChatMessage("Response message")
-        result.current.selectAgent("claude")
-        result.current.setProcessing(true)
-        result.current.setError("Test error")
-        result.current.clearMessages()
-        result.current.removeMessage("message-id")
-      }).not.toThrow()
+      // Проверяем начальное состояние из мока
+      expect(result.current.isProcessing).toBe(false)
+      expect(result.current.selectedAgentId).toBe("claude-4-sonnet")
+      expect(result.current.error).toBe(null)
     })
   })
 
-  describe("Error Handling", () => {
-    it("should handle invalid parameters gracefully", () => {
-      const { result } = renderHook(() => useChat())
+  describe("Типизация", () => {
+    it("должен правильно типизировать возвращаемые значения", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: createWrapper(),
+      })
 
-      expect(() => {
-        result.current.sendChatMessage("")
-        result.current.receiveChatMessage("")
-        result.current.selectAgent("")
-        result.current.removeMessage("")
-      }).not.toThrow()
+      // TypeScript проверит типы во время компиляции
+      // Здесь мы проверяем runtime типы
+      expect(Array.isArray(result.current.chatMessages)).toBe(true)
+      expect(typeof result.current.selectedAgentId).toBe("string")
+      expect(typeof result.current.isProcessing).toBe("boolean")
+      expect(result.current.error).toBe(null)
+    })
+  })
+
+  describe("Состояние обработки", () => {
+    it("должен правильно отражать состояние обработки", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: createWrapper(),
+      })
+
+      // Проверяем базовое состояние из мока
+      expect(result.current.isProcessing).toBe(false)
+    })
+
+    it("должен правильно отражать состояние ошибки", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: createWrapper(),
+      })
+
+      // Проверяем базовое состояние из мока
+      expect(result.current.error).toBe(null)
     })
   })
 })

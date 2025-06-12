@@ -23,7 +23,7 @@ describe("ChatMachine", () => {
     // Проверяем начальный контекст
     expect(snapshot.context).toEqual({
       chatMessages: [],
-      selectedAgentId: null,
+      selectedAgentId: "claude-4-sonnet",
       isProcessing: false,
       error: null,
     })

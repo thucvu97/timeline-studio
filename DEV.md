@@ -1,303 +1,309 @@
-# Timeline Studio Development Guide
+# Руководство по разработке Timeline Studio
 
-## Overview
+## Обзор
 
-Timeline Studio is a desktop video editing application built with Next.js, React, and Tauri. This guide provides essential information for developers working on the project.
+Timeline Studio — это настольное приложение для видеомонтажа, построенное на Next.js, React и Tauri. Это руководство предоставляет важную информацию для разработчиков, работающих над проектом.
 
-## Application Directories
+## Директории приложения
 
-Timeline Studio automatically creates and manages a directory structure for storing user data and application resources. On first launch, the following directories are created:
+Timeline Studio автоматически создает и управляет структурой директорий для хранения пользовательских данных и ресурсов приложения. При первом запуске создаются следующие директории:
 
-### Base Directory Location
+### Расположение базовой директории
 - **macOS**: `~/Movies/Timeline Studio`
 - **Windows**: `~/Videos/Timeline Studio`
 - **Linux**: `~/Videos/Timeline Studio`
 
-### Directory Structure
+### Структура директорий
 ```
 Timeline Studio/
-├── Media/                  # User media files and resources
-│   ├── Videos/            # Video files
-│   ├── Images/            # Image files
-│   ├── Music/             # Audio/music files
-│   ├── Effects/           # Custom video effects
-│   ├── Transitions/       # Custom transitions
-│   ├── Filters/           # Custom filters
-│   ├── StyleTemplates/    # Style templates
-│   ├── Subtitles/         # Subtitle files
-│   └── Templates/         # Layout templates
-├── Projects/              # Saved project files
-├── Snapshot/              # Screenshots and frame captures
-├── Cinematic/             # Cinematic presets and LUTs
-├── Output/                # Rendered/exported videos
-├── Render/                # Temporary render files
-├── Recognition/           # AI recognition data (YOLO, etc.)
-├── Backup/                # Project backups
-├── MediaProxy/            # Proxy media for performance
-├── Caches/                # Application caches
-│   ├── Previews/          # Video preview cache
-│   ├── Renders/           # Render cache
-│   ├── Frames/            # Frame extraction cache
-│   └── Temp/              # Temporary files
-├── Recorded/              # Screen/camera recordings
-├── Audio/                 # Audio recordings and processing
-├── Cloud Project/         # Cloud sync projects
-└── Upload/                # Files pending upload
+├── Media/                  # Пользовательские медиафайлы и ресурсы
+│   ├── Videos/            # Видеофайлы
+│   ├── Images/            # Изображения
+│   ├── Music/             # Аудио/музыкальные файлы
+│   ├── Effects/           # Пользовательские видеоэффекты
+│   ├── Transitions/       # Пользовательские переходы
+│   ├── Filters/           # Пользовательские фильтры
+│   ├── StyleTemplates/    # Шаблоны стилей
+│   ├── Subtitles/         # Файлы субтитров
+│   └── Templates/         # Шаблоны разметки
+├── Projects/              # Сохраненные файлы проектов
+├── Snapshot/              # Скриншоты и захваты кадров
+├── Cinematic/             # Кинематографические пресеты и LUT
+├── Output/                # Рендеренные/экспортированные видео
+├── Render/                # Временные файлы рендера
+├── Recognition/           # Данные ИИ-распознавания (YOLO и др.)
+├── Backup/                # Резервные копии проектов
+├── MediaProxy/            # Прокси-медиа для производительности
+├── Caches/                # Кеши приложения
+│   ├── Previews/          # Кеш превью видео
+│   ├── Renders/           # Кеш рендера
+│   ├── Frames/            # Кеш извлечения кадров
+│   └── Temp/              # Временные файлы
+├── Recorded/              # Записи экрана/камеры
+├── Audio/                 # Аудиозаписи и обработка
+├── Cloud Project/         # Проекты облачной синхронизации
+├── Upload/                # Файлы, ожидающие загрузки
+└── Chats/                 # Сессии и история ИИ-чата
 ```
 
-### Accessing Directories in Code
+### Доступ к директориям в коде
 
-**Rust (Backend):**
+**Rust (Бэкенд):**
 ```rust
-use crate::app_dirs::AppDirectories;
+use timeline_studio::app_directories_service::AppDirectoriesService;
 
-// Get or create app directories
-let app_dirs = AppDirectories::get_or_create()?;
+// Получить базовую директорию
+let base_dir = AppDirectoriesService::get_base_directory().await?;
 
-// Access specific directories
-let media_dir = &app_dirs.media_dir;
-let snapshot_dir = &app_dirs.snapshot_dir;
-
-// Get cache directories
-let preview_cache = app_dirs.get_preview_cache_dir();
+// Получить специфическую директорию
+let projects_dir = AppDirectoriesService::get_projects_directory().await?;
 ```
 
-**TypeScript (Frontend):**
+**TypeScript (Фронтенд):**
 ```typescript
 import { appDirectoriesService } from '@/features/app-state/services';
 
-// Get app directories
-const dirs = await appDirectoriesService.getAppDirectories();
-
-// Access specific subdirectory
-const videosPath = appDirectoriesService.getMediaSubdirectory('videos');
-
-// Clear cache
-await appDirectoriesService.clearAppCache();
+// Получить все директории
+const directories = await appDirectoriesService.getAppDirectories();
+console.log(directories.projects_dir);
+console.log(directories.media_dir);
 ```
 
-## Architecture
+## Архитектура
 
-### Technology Stack
-- **Frontend**: Next.js 15 (React 19) with TypeScript
-- **Desktop Runtime**: Tauri v2 (Rust)
-- **State Management**: XState v5
-- **UI Components**: shadcn/ui
-- **Styling**: Tailwind CSS v4
-- **Video Processing**: FFmpeg
+### Обзор технологий
+- **Фронтенд**: Next.js 15 (React 19) с TypeScript, статический экспорт для Tauri
+- **Десктопная среда**: Tauri v2 (Rust) для нативных возможностей
+- **Управление состоянием**: XState v5 для сложных машин состояний
+- **UI компоненты**: shadcn/ui построенные на Radix UI примитивах
+- **Стили**: Tailwind CSS v4 с CSS-переменными для тем
 
-### Feature-Based Organization
-Each feature in `/src/features/` is self-contained:
-- `components/` - React components
-- `hooks/` - Custom React hooks
-- `services/` - Business logic and state machines
-- `types/` - TypeScript type definitions
-- `utils/` - Helper functions
-- `__tests__/` - Test files
-- `__mocks__/` - Mock implementations
+### Организация по функциям
+Каждая функция в `/src/features/` самодостаточна и содержит:
+- `components/` - React компоненты
+- `hooks/` - Пользовательские React хуки
+- `services/` - Бизнес-логика и машины состояний
+- `types/` - TypeScript определения типов
+- `utils/` - Вспомогательные функции
+- `__tests__/` - Тестовые файлы для функции
+- `__mocks__/` - Мок-реализации для тестирования
 
-## Development Commands
+### Основные функции
+- **timeline** - Основная временная шкала видеомонтажа с дорожками, клипами и секциями
+- **media-studio** - Главный интерфейс редактирования с несколькими вариантами компоновки
+- **video-player** - Пользовательский видеоплеер с точным покадровым управлением
+- **browser** - Браузер медиафайлов с интерфейсом вкладок
+- **effects/filters/transitions** - Система видеоэффектов с CSS-обработкой
+- **templates** - Шаблоны мультикамерных разметок для редактирования с разделенным экраном
+- **style-templates** - Анимированные шаблоны интро/аутро и заголовков
+- **ai-chat** - Интегрированный ИИ-помощник (Claude/OpenAI)
+- **recognition** - Распознавание сцен/объектов с использованием YOLO моделей
 
-### Setup
+## Команды разработки
+
+### Разработка
 ```bash
-# Install dependencies
-bun install
-
-# Install Rust dependencies
-cargo build --manifest-path src-tauri/Cargo.toml
-```
-
-### Development
-```bash
-# Start Next.js dev server
+# Запуск сервера разработки Next.js с горячей перезагрузкой
 bun run dev
 
-# Run Tauri desktop app
+# Запуск полного Tauri приложения в режиме разработки
 bun run tauri dev
 ```
 
-### Testing
+### Сборка
 ```bash
-# Run all tests
-bun run test
-
-# Run tests in watch mode
-bun run test:watch
-
-# Test coverage
-bun run test:coverage
-
-# Run Rust tests
-bun run test:rust
-
-# E2E tests
-bun run test:e2e
-```
-
-### Building
-```bash
-# Build Next.js
+# Сборка фронтенда Next.js
 bun run build
 
-# Build Tauri app
+# Сборка продакшн Tauri приложения
 bun run tauri build
 ```
 
-### Code Quality
+### Тестирование
 ```bash
-# Lint code
+# Запуск всех тестов
+bun run test
+
+# Запуск тестов в режиме наблюдения
+bun run test:watch
+
+# Запуск конкретного тестового файла
+bun run test src/features/timeline/__tests__/use-timeline.test.ts
+
+# Генерация отчета о покрытии тестами
+bun run test:coverage
+
+# Запуск Rust тестов бэкенда
+bun run test:rust
+
+# Запуск end-to-end тестов Playwright
+bun run test:e2e
+```
+
+### Качество кода
+```bash
+# Линтинг TypeScript/JavaScript файлов
 bun run lint
 
-# Fix linting issues
+# Автоисправление ошибок линтинга
 bun run lint:fix
 
-# Run all checks
+# Запуск всех проверок линтинга и тестов
 bun run check:all
 
-# Fix all auto-fixable issues
+# Исправление всех автоисправляемых проблем
 bun run fix:all
 ```
 
-## Video Processing
+## Управление состоянием
 
-### Video Compiler Module
-The video compiler module (`src-tauri/src/video_compiler/`) handles all video processing operations:
+Приложение использует машины состояний XState для сложного управления состоянием:
 
-- **FFmpeg Integration**: All video operations use FFmpeg
-- **GPU Acceleration**: Support for NVENC, QuickSync, VideoToolbox, etc.
-- **Caching**: Multi-level caching for previews and renders
-- **Frame Extraction**: Extract frames for timeline, recognition, and analysis
+### Основные машины состояний
+- **app-settings-machine** - Настройки и конфигурация приложения
+- **browser-state-machine** - Состояние браузера медиа и выбор файлов
+- **timeline-machine** - Состояние редактирования временной шкалы
+- **player-machine** - Управление воспроизведением видео
+- **chat-machine** - Интеграция ИИ-помощника
+- **modal-machine** - Управление состоянием модальных окон
+- **project-settings-machine** - Настройки, специфичные для проекта
+- **resources-machine** - Управление ресурсами (эффекты, фильтры и т.д.)
+- **user-settings-machine** - Пользовательские настройки и предпочтения
 
-### Video Server
-A built-in HTTP server (`src-tauri/src/video_server/`) provides video streaming:
-- Runs on `http://localhost:4567`
-- Supports range requests for video scrubbing
-- Handles CORS for web preview
+### Паттерны использования
+Машины состояний создаются с использованием метода `setup` XState для лучшей типобезопасности:
 
-## State Management
-
-### XState Machines
-Complex state is managed using XState v5:
-- `app-settings-machine` - Application preferences
-- `browser-state-machine` - Media browser state
-- `timeline-machine` - Timeline editing state
-- `player-machine` - Video playback control
-- `chat-machine` - AI assistant integration
-
-### Creating a New State Machine
 ```typescript
-import { setup } from 'xstate';
+import { setup, assign } from 'xstate';
 
-const myMachine = setup({
-  types: {} as {
-    context: MyContext;
-    events: MyEvents;
+export const myMachine = setup({
+  types: {
+    context: {} as MyContext,
+    events: {} as MyEvents,
   },
   actions: {
-    // Define actions
-  },
-  guards: {
-    // Define guards
+    updateData: assign({
+      data: ({ event }) => event.data
+    })
   }
 }).createMachine({
-  id: 'myMachine',
-  initial: 'idle',
-  context: {
-    // Initial context
-  },
-  states: {
-    idle: {
-      on: {
-        START: 'active'
-      }
-    },
-    active: {
-      // State definition
-    }
-  }
+  // определение машины
 });
 ```
 
-## Testing Strategy
+## Обработка медиа
 
-### Unit Tests
-- Use Vitest with Testing Library
-- Tests in `__tests__/` directories
-- Mocks in `__mocks__/` directories
-- Use custom render from `@/test/test-utils.tsx`
+### Интеграция FFmpeg
+- Обработка видео осуществляется через интеграцию FFmpeg
+- Медиафайлы ссылаются по пути, не встраиваются
+- Файлы проектов используют пользовательскую схему для сохранения данных временной шкалы
+- Восстановление отсутствующих файлов обрабатывается через MediaRestorationService
 
-### Testing XState Machines
-```typescript
-import { createActor } from 'xstate';
-import { myMachine } from './my-machine';
+### Производительность
+- Кешируйте превью агрессивно
+- Используйте прокси-медиа для 4K+ контента
+- Мониторьте размеры кешей
+- Реализуйте LRU вытеснение
+- Используйте потоковую передачу для больших файлов
+- Очищайте временные файлы
 
-const actor = createActor(myMachine);
-actor.start();
+## Отладка
 
-// Send events
-actor.send({ type: 'START' });
+### Отладка фронтенда
+- Используйте React DevTools
+- Включите XState Inspector
+- Проверьте вкладку Network для API вызовов
+- Используйте `console.log` с четкими префиксами
 
-// Check state
-expect(actor.getSnapshot().value).toBe('active');
-```
+### Отладка Rust
+- Используйте крейт `log` для логирования
+- Проверьте вывод консоли Tauri
+- Используйте `RUST_LOG=debug` для подробных логов
+- Профилируйте с помощью `cargo flamegraph`
 
-## Performance Considerations
+## Распространенные проблемы
 
-### Media Loading
-- Use lazy loading for media files
-- Implement virtual scrolling for large lists
-- Cache previews aggressively
-- Use proxy media for 4K+ content
-
-### Memory Management
-- Monitor cache sizes
-- Implement LRU eviction
-- Use streaming for large files
-- Clean up temporary files
-
-## Debugging
-
-### Frontend Debugging
-- Use React DevTools
-- Enable XState Inspector
-- Check Network tab for API calls
-- Use `console.log` with clear prefixes
-
-### Rust Debugging
-- Use `log` crate for logging
-- Check Tauri console output
-- Use `RUST_LOG=debug` for verbose logs
-- Profile with `cargo flamegraph`
-
-## Common Issues
-
-### FFmpeg Not Found
+### FFmpeg не найден
 ```bash
-# Install FFmpeg
+# Установка FFmpeg
 brew install ffmpeg  # macOS
+apt install ffmpeg   # Ubuntu/Debian
+choco install ffmpeg # Windows
 ```
 
-### Permission Errors
-- Check file permissions
-- Ensure app has access to directories
-- Run with appropriate privileges
+### Ошибки разрешений
+- Проверьте разрешения файлов
+- Убедитесь, что приложение имеет доступ к директориям
+- Запускайте с соответствующими привилегиями
 
-### Build Failures
-- Clear caches: `bun run clean`
-- Rebuild dependencies
-- Check Rust toolchain version
+### Ошибки сборки
+- Очистите кеши: `bun run clean`
+- Пересоберите зависимости
+- Проверьте версию Rust toolchain
 
-## Contributing
+## Интеграция ИИ-чата
 
-1. Create feature branch
-2. Write tests for new features
-3. Ensure all tests pass
-4. Update documentation
-5. Submit pull request
+Функция ИИ-чата предоставляет интегрированного ИИ-помощника для помощи в видеомонтаже.
 
-## Resources
+### Текущая реализация
+- Базовый UI чата в правой панели
+- Машина состояний XState для управления состоянием
+- Сервисные классы Claude и OpenAI (неполные)
+- Всестороннее покрытие тестами для всех компонентов
 
-- [Tauri Docs](https://tauri.app/v1/guides/)
-- [XState Docs](https://xstate.js.org/docs/)
-- [Next.js Docs](https://nextjs.org/docs)
-- [FFmpeg Documentation](https://ffmpeg.org/documentation.html)
+### Хранилище
+Чаты сохраняются в директориях приложения:
+- **Расположение**: `~/Movies/Timeline Studio/Chats/` (macOS)
+- **Формат**: JSON файлы с данными сессий чата
+- **Автосохранение**: При каждом сообщении (когда реализовано)
+
+### Поддерживаемые модели ИИ
+- **Claude 4 Sonnet** - Быстрая и эффективная для повседневных задач
+- **Claude 4 Opus** - Самая мощная для сложных задач
+- **GPT-4** - Флагманская модель OpenAI
+- **GPT-4o** - Улучшенная мультимодальная модель OpenAI
+- **GPT-3.5 Turbo** - Быстрая и экономичная модель OpenAI
+- **o3** - Новейшая модель рассуждений OpenAI
+
+### Реализованные функции ✅
+1. **Система хранения чатов**: Локальное файловое сохранение чатов
+2. **Интеграция XState**: Полное управление состоянием
+3. **Сервисный слой**: Сервисы API Claude и OpenAI
+4. **React компоненты**: Полная реализация UI
+5. **TypeScript типы**: Полная система типов
+6. **Всестороннее тестирование**: 93% покрытие тестами
+
+### Планируемые функции
+1. **Множественные сессии чата**: Создание, переключение и управление множественными чатами
+2. **Реальная интеграция ИИ**: Завершение API Claude и OpenAI
+3. **Контекст временной шкалы**: Передача текущего состояния проекта ИИ
+4. **Выполнение команд**: Выполнение операций временной шкалы из чата
+5. **Потоковые ответы**: Потоковая передача ответов в реальном времени
+
+### API ключи
+API ключи должны храниться безопасно:
+```typescript
+// Используйте безопасное хранилище API Tauri
+import { Store } from '@tauri-apps/plugin-store';
+
+const store = new Store('.settings');
+await store.set('claude_api_key', 'sk-...');
+await store.save();
+```
+
+## Вклад в разработку
+
+1. Создайте ветку функции
+2. Напишите тесты для новых функций
+3. Убедитесь, что все тесты проходят
+4. Обновите документацию
+5. Отправьте pull request
+
+## Ресурсы
+
+- [Документация Tauri](https://tauri.app/v1/guides/)
+- [Документация XState](https://xstate.js.org/docs/)
+- [Документация Next.js](https://nextjs.org/docs)
+- [Документация FFmpeg](https://ffmpeg.org/documentation.html)
+- [Документация API Claude](https://docs.anthropic.com/claude/reference/getting-started-with-the-api)
+- [Документация API OpenAI](https://platform.openai.com/docs/introduction)

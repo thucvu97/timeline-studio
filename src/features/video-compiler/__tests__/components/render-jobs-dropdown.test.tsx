@@ -1,10 +1,9 @@
 import { invoke } from "@tauri-apps/api/core"
-import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import { vi } from "vitest"
 
 import { RenderJob, RenderJobsDropdown, RenderStatus } from "@/features/video-compiler"
 import { setTranslations } from "@/test/mocks/libraries/i18n"
-import { render } from "@/test/test-utils"
 
 // Mock the Tauri API
 vi.mock("@tauri-apps/api/core", () => ({

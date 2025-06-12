@@ -1,4 +1,6 @@
 import "@testing-library/jest-dom"
+import React from "react"
+
 import { cleanup } from "@testing-library/react"
 import { afterEach, beforeAll, vi } from "vitest"
 
@@ -6,6 +8,37 @@ import { afterEach, beforeAll, vi } from "vitest"
 import "@/test/mocks/tauri"
 import "@/test/mocks/browser"
 import "@/test/mocks/libraries"
+
+// Mock common providers that are used in tests
+vi.mock("@/features/user-settings", () => ({
+  useUserSettings: () => ({
+    openAiApiKey: "test-api-key",
+    claudeApiKey: "test-claude-key",
+    updateSettings: vi.fn(),
+  }),
+  UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+vi.mock("@/features/modals", () => ({
+  useModal: () => ({
+    openModal: vi.fn(),
+    closeModal: vi.fn(),
+    isOpen: false,
+  }),
+  ModalProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+vi.mock("@/features/app-state/services", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/app-state/services")>()
+  return {
+    ...actual,
+    appDirectoriesService: {
+      getAppDirectories: vi.fn().mockResolvedValue({
+        base_dir: "/Users/test/Movies/Timeline Studio",
+      }),
+    },
+  }
+})
 
 // Only absolutely essential global setup
 beforeAll(() => {

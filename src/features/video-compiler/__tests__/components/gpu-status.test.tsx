@@ -1,7 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { BaseProviders } from "@/test/test-utils"
 import { GpuEncoder } from "@/types/video-compiler"
 
 import { GpuStatus, GpuStatusBadge } from "../../components/gpu-status"
@@ -84,11 +83,7 @@ describe("GpuStatus", () => {
   })
 
   it("should render GPU status with acceleration available", () => {
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     expect(screen.getByText("videoCompiler.gpu.acceleration")).toBeInTheDocument()
     expect(screen.getByText("videoCompiler.gpu.accelerationAvailable")).toBeInTheDocument()
@@ -101,11 +96,7 @@ describe("GpuStatus", () => {
       isLoading: true,
     })
 
-    const { container } = render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    const { container } = render(<GpuStatus />)
 
     expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument()
   })
@@ -117,11 +108,7 @@ describe("GpuStatus", () => {
       error: errorMessage,
     })
 
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     expect(screen.getByText("videoCompiler.gpu.error")).toBeInTheDocument()
     expect(screen.getByText(errorMessage)).toBeInTheDocument()
@@ -135,11 +122,7 @@ describe("GpuStatus", () => {
       error: errorMessage,
     })
 
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     const retryButton = screen.getByText("videoCompiler.gpu.retry")
     fireEvent.click(retryButton)
@@ -148,11 +131,7 @@ describe("GpuStatus", () => {
   })
 
   it("should toggle GPU acceleration", async () => {
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     const switchElement = screen.getByRole("switch")
     expect(switchElement).toBeChecked()
@@ -176,22 +155,14 @@ describe("GpuStatus", () => {
       },
     })
 
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     const switchElement = screen.getByRole("switch")
     expect(switchElement).toBeDisabled()
   })
 
   it("should show GPU memory usage", () => {
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     expect(screen.getByText("videoCompiler.gpu.videoMemory")).toBeInTheDocument()
     expect(screen.getByText("videoCompiler.gpu.memoryUsed")).toBeInTheDocument()
@@ -200,11 +171,7 @@ describe("GpuStatus", () => {
   })
 
   it("should show GPU utilization", () => {
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     expect(screen.getByText("videoCompiler.gpu.gpuLoad")).toBeInTheDocument()
     expect(screen.getByText("videoCompiler.gpu.usage")).toBeInTheDocument()
@@ -212,11 +179,7 @@ describe("GpuStatus", () => {
   })
 
   it("should show available encoders", () => {
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     expect(screen.getByText("videoCompiler.gpu.encoders")).toBeInTheDocument()
     expect(screen.getByText("Nvenc")).toBeInTheDocument()
@@ -224,11 +187,7 @@ describe("GpuStatus", () => {
   })
 
   it("should show system info", () => {
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     expect(screen.getByText("videoCompiler.gpu.system")).toBeInTheDocument()
     expect(screen.getByText(/Linux.*x86_64/)).toBeInTheDocument()
@@ -236,11 +195,7 @@ describe("GpuStatus", () => {
   })
 
   it("should show recommendations", () => {
-    render(
-      <BaseProviders>
-        <GpuStatus />
-      </BaseProviders>,
-    )
+    render(<GpuStatus />)
 
     expect(screen.getByText("videoCompiler.gpu.recommendations")).toBeInTheDocument()
   })
@@ -248,11 +203,7 @@ describe("GpuStatus", () => {
   it("should call settings callback when button clicked", () => {
     const mockSettingsClick = vi.fn()
 
-    render(
-      <BaseProviders>
-        <GpuStatus onSettingsClick={mockSettingsClick} />
-      </BaseProviders>,
-    )
+    render(<GpuStatus onSettingsClick={mockSettingsClick} />)
 
     const settingsButton = screen.getByTestId("settings-icon").closest("button")
     expect(settingsButton).toBeInTheDocument()
@@ -262,11 +213,7 @@ describe("GpuStatus", () => {
   })
 
   it("should hide details when showDetails is false", () => {
-    render(
-      <BaseProviders>
-        <GpuStatus showDetails={false} />
-      </BaseProviders>,
-    )
+    render(<GpuStatus showDetails={false} />)
 
     expect(screen.queryByText("videoCompiler.gpu.videoMemory")).not.toBeInTheDocument()
     expect(screen.queryByText("videoCompiler.gpu.system")).not.toBeInTheDocument()
@@ -300,11 +247,7 @@ describe("GpuStatusBadge", () => {
   })
 
   it("should render badge with GPU encoder", () => {
-    render(
-      <BaseProviders>
-        <GpuStatusBadge />
-      </BaseProviders>,
-    )
+    render(<GpuStatusBadge />)
 
     expect(screen.getByText("Nvenc")).toBeInTheDocument()
   })
@@ -315,11 +258,7 @@ describe("GpuStatusBadge", () => {
       isLoading: true,
     })
 
-    const { container } = render(
-      <BaseProviders>
-        <GpuStatusBadge />
-      </BaseProviders>,
-    )
+    const { container } = render(<GpuStatusBadge />)
 
     expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument()
   })
@@ -336,21 +275,13 @@ describe("GpuStatusBadge", () => {
       },
     })
 
-    render(
-      <BaseProviders>
-        <GpuStatusBadge />
-      </BaseProviders>,
-    )
+    render(<GpuStatusBadge />)
 
     expect(screen.getByText("videoCompiler.gpu.cpuOnly")).toBeInTheDocument()
   })
 
   it("should render as tooltip trigger", () => {
-    const { container } = render(
-      <BaseProviders>
-        <GpuStatusBadge />
-      </BaseProviders>,
-    )
+    const { container } = render(<GpuStatusBadge />)
 
     const badge = screen.getByText("Nvenc")
     expect(badge).toBeInTheDocument()

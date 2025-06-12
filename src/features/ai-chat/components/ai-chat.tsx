@@ -35,7 +35,9 @@ const AVAILABLE_AGENTS = [
   },
   { id: CLAUDE_MODELS.CLAUDE_4_OPUS, name: "Claude 4 Opus", useTools: true },
   { id: AI_MODELS.GPT_4, name: "GPT-4", useTools: false },
+  { id: AI_MODELS.GPT_4O, name: "GPT-4o", useTools: false },
   { id: AI_MODELS.GPT_3_5, name: "GPT-3.5 Turbo", useTools: false },
+  { id: AI_MODELS.O3, name: "o3", useTools: false },
 ]
 
 export function AiChat() {

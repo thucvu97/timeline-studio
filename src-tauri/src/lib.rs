@@ -14,7 +14,7 @@ mod filesystem;
 
 // Модуль управления директориями приложения
 mod app_dirs;
-use app_dirs::{create_app_directories, get_app_directories, get_directory_sizes, clear_app_cache};
+use app_dirs::{clear_app_cache, create_app_directories, get_app_directories, get_directory_sizes};
 
 // Модуль Video Compiler
 mod video_compiler;
@@ -99,7 +99,10 @@ pub fn run() {
   runtime.block_on(async {
     match app_dirs::AppDirectories::get_or_create() {
       Ok(dirs) => {
-        log::info!("Директории приложения инициализированы в: {:?}", dirs.base_dir);
+        log::info!(
+          "Директории приложения инициализированы в: {:?}",
+          dirs.base_dir
+        );
       }
       Err(e) => {
         log::error!("Ошибка создания директорий приложения: {}", e);

@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from "react"
 
 import { vi } from "vitest"
 
@@ -10,9 +10,12 @@ export const mockUseTheme = vi.fn(() => ({
   systemTheme: "light",
 }))
 
-export const MockThemeProvider = ({ children }: { children: React.ReactNode }) =>
-  React.createElement("div", { "data-testid": "next-theme-provider" }, children)
+// Export the mock provider component
+export const MockThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  return React.createElement("div", { "data-testid": "next-theme-provider" }, children)
+}
 
+// Define the mock inline to avoid hoisting issues
 vi.mock("next-themes", () => ({
   ThemeProvider: MockThemeProvider,
   useTheme: mockUseTheme,

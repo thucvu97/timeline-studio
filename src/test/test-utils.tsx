@@ -81,7 +81,9 @@ export const ChatProviders = ({ children }: { children: ReactNode }) => {
   return (
     <BaseProviders>
       <UserSettingsProvider>
-        <ModalProvider>{children}</ModalProvider>
+        <ModalProvider>
+          <ChatProvider>{children}</ChatProvider>
+        </ModalProvider>
       </UserSettingsProvider>
     </BaseProviders>
   )
