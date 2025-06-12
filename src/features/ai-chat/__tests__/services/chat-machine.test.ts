@@ -131,9 +131,9 @@ describe("ChatMachine", () => {
     // Симулируем получение ответа, чтобы вернуться в idle
     const agentMessage: ChatMessage = {
       id: "agent-msg-1",
-      text: "Response 1",
-      sender: "agent",
-      timestamp: new Date().toISOString(),
+      content: "Response 1",
+      role: "assistant",
+      timestamp: new Date(),
     }
     actor.send({ type: "RECEIVE_CHAT_MESSAGE", message: agentMessage })
 
@@ -143,9 +143,9 @@ describe("ChatMachine", () => {
     // Симулируем получение второго ответа
     const agentMessage2: ChatMessage = {
       id: "agent-msg-2",
-      text: "Response 2",
-      sender: "agent",
-      timestamp: new Date().toISOString(),
+      content: "Response 2",
+      role: "assistant",
+      timestamp: new Date(),
     }
     actor.send({ type: "RECEIVE_CHAT_MESSAGE", message: agentMessage2 })
 
@@ -180,9 +180,9 @@ describe("ChatMachine", () => {
     // Симулируем получение ответа, чтобы вернуться в idle
     const agentMessage: ChatMessage = {
       id: "agent-msg-1",
-      text: "Response",
-      sender: "agent",
-      timestamp: new Date().toISOString(),
+      content: "Response",
+      role: "assistant",
+      timestamp: new Date(),
     }
     actor.send({ type: "RECEIVE_CHAT_MESSAGE", message: agentMessage })
 

@@ -9,7 +9,7 @@ export interface ShortcutDefinition {
   id: string
   name: string
   category: string
-  keys: string[]  // Массив возможных комбинаций
+  keys: string[] // Массив возможных комбинаций
   description?: string
   action?: HotkeyCallback
   options?: HotkeyOptions
@@ -24,8 +24,8 @@ export interface ShortcutCategory {
 
 class ShortcutsRegistry {
   private static instance: ShortcutsRegistry
-  private shortcuts: Map<string, ShortcutDefinition> = new Map()
-  private categories: Map<string, ShortcutCategory> = new Map()
+  private shortcuts = new Map<string, ShortcutDefinition>()
+  private categories = new Map<string, ShortcutCategory>()
   private listeners: ((shortcuts: ShortcutDefinition[]) => void)[] = []
 
   private constructor() {
@@ -53,7 +53,7 @@ class ShortcutsRegistry {
       { id: "other", name: "Прочее", order: 10 },
     ]
 
-    defaultCategories.forEach(category => {
+    defaultCategories.forEach((category) => {
       this.categories.set(category.id, category)
     })
   }
@@ -80,7 +80,7 @@ class ShortcutsRegistry {
    * Регистрирует несколько shortcuts сразу
    */
   registerMany(shortcuts: ShortcutDefinition[]): void {
-    shortcuts.forEach(shortcut => this.register(shortcut))
+    shortcuts.forEach((shortcut) => this.register(shortcut))
   }
 
   /**
@@ -101,7 +101,7 @@ class ShortcutsRegistry {
    * Получает shortcuts по категории
    */
   getByCategory(categoryId: string): ShortcutDefinition[] {
-    return this.getAll().filter(shortcut => shortcut.category === categoryId)
+    return this.getAll().filter((shortcut) => shortcut.category === categoryId)
   }
 
   /**
@@ -156,13 +156,13 @@ class ShortcutsRegistry {
   subscribe(listener: (shortcuts: ShortcutDefinition[]) => void): () => void {
     this.listeners.push(listener)
     return () => {
-      this.listeners = this.listeners.filter(l => l !== listener)
+      this.listeners = this.listeners.filter((l) => l !== listener)
     }
   }
 
   private notifyListeners(): void {
     const shortcuts = this.getAll()
-    this.listeners.forEach(listener => listener(shortcuts))
+    this.listeners.forEach((listener) => listener(shortcuts))
   }
 
   /**

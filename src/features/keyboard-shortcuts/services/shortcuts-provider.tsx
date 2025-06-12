@@ -2,10 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from "react"
 
 import { useModal } from "@/features/modals/services/modal-provider"
 
+import { ShortcutDefinition, shortcutsRegistry } from "./shortcuts-registry"
 import { ShortcutHandler } from "../components/shortcut-handler"
 import { DEFAULT_SHORTCUTS } from "../constants/default-shortcuts"
 import { usePanelShortcuts } from "../hooks/use-panel-shortcuts"
-import { shortcutsRegistry, ShortcutDefinition } from "./shortcuts-registry"
 
 interface ShortcutsContextType {
   shortcuts: ShortcutDefinition[]
@@ -35,7 +35,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
   useEffect(() => {
     if (shortcutsRegistry.getAll().length === 0) {
       // Добавляем обработчики для shortcuts
-      const enhancedShortcuts = DEFAULT_SHORTCUTS.map(shortcut => {
+      const enhancedShortcuts = DEFAULT_SHORTCUTS.map((shortcut) => {
         // Добавляем действия для модальных окон
         switch (shortcut.id) {
           case "open-user-settings":
@@ -122,11 +122,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     <ShortcutsContext.Provider value={contextValue}>
       {/* Рендерим обработчики для всех shortcuts */}
       {shortcuts.map((shortcut) => (
-        <ShortcutHandler
-          key={shortcut.id}
-          shortcut={shortcut}
-          enabled={isEnabled}
-        />
+        <ShortcutHandler key={shortcut.id} shortcut={shortcut} enabled={isEnabled} />
       ))}
       {children}
     </ShortcutsContext.Provider>

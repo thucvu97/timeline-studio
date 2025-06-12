@@ -124,8 +124,8 @@ describe("ChatProvider", () => {
 
       expect(result.current.chatMessages).toHaveLength(1)
       expect(result.current.chatMessages[0]).toMatchObject({
-        sender: "user",
-        text: "Привет, ИИ!",
+        role: "user",
+        content: "Привет, ИИ!",
       })
       expect(result.current.isProcessing).toBe(true)
     })

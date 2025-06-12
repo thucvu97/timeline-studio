@@ -106,7 +106,7 @@ export function AiChat() {
         content: "Это тестовый ответ от ИИ. API интеграция будет добавлена позже.",
         role: "assistant",
         timestamp: new Date(),
-        agent: selectedAgentId as any || undefined,
+        agent: (selectedAgentId as any) || undefined,
       }
 
       receiveChatMessage(agentMessage)

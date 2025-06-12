@@ -19,7 +19,7 @@ describe("useExportSettings", () => {
 
     expect(result.current.exportMode).toBe("local")
     expect(result.current.exportSettings.fileName).toBe("Untitled Export 1")
-    expect(result.current.exportSettings.format).toBe("mp4")
+    expect(result.current.exportSettings.format).toBe("Mp4")
     expect(result.current.exportSettings.quality).toBe("good")
     expect(result.current.exportSettings.resolution).toBe("1080")
     expect(result.current.exportSettings.frameRate).toBe("25")
@@ -125,7 +125,7 @@ describe("useExportSettings", () => {
     expect(config.resolution).toEqual([3840, 2160])
     expect(config.frameRate).toBe(60)
     expect(config.enableGPU).toBe(true)
-    // The hook actually returns the format as a string, not enum
+    // The hook actually returns the format as an enum
     expect(config.format).toBe("Mp4")
   })
 

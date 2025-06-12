@@ -20,7 +20,7 @@ export function useAppHotkeys() {
     // Регистрируем дефолтные shortcuts при первой загрузке
     if (shortcutsRegistry.getAll().length === 0) {
       // Добавляем обработчики для модальных окон
-      const modalShortcuts = DEFAULT_SHORTCUTS.map(shortcut => {
+      const modalShortcuts = DEFAULT_SHORTCUTS.map((shortcut) => {
         switch (shortcut.id) {
           case "open-user-settings":
             return {
@@ -57,9 +57,7 @@ export function useAppHotkeys() {
     // Подписываемся на изменения shortcuts
     const unsubscribe = shortcutsRegistry.subscribe((shortcuts) => {
       // Получаем список всех активных shortcuts для отображения
-      const activeShortcuts = shortcuts
-        .filter(s => s.enabled && s.action)
-        .map(s => s.id)
+      const activeShortcuts = shortcuts.filter((s) => s.enabled && s.action).map((s) => s.id)
       setRegisteredShortcuts(activeShortcuts)
     })
 
@@ -69,11 +67,11 @@ export function useAppHotkeys() {
   // Регистрируем все активные shortcuts
   useEffect(() => {
     const shortcuts = shortcutsRegistry.getAll()
-    
-    shortcuts.forEach(shortcut => {
+
+    shortcuts.forEach((shortcut) => {
       if (shortcut.enabled && shortcut.action) {
         // Регистрируем каждую комбинацию клавиш
-        shortcut.keys.forEach(keys => {
+        shortcut.keys.forEach((keys) => {
           useHotkeys(
             keys,
             shortcut.action,
@@ -83,7 +81,7 @@ export function useAppHotkeys() {
               enabled: isEnabled,
               ...shortcut.options,
             },
-            [isEnabled, shortcut.action]
+            [isEnabled, shortcut.action],
           )
         })
       }

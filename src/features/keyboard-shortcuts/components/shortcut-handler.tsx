@@ -26,7 +26,7 @@ export function ShortcutHandler({ shortcut, enabled }: ShortcutHandlerProps) {
         enabled: enabled && shortcut.enabled,
         ...shortcut.options,
       },
-      [enabled, shortcut.action, shortcut.enabled]
+      [enabled, shortcut.action, shortcut.enabled],
     )
   })
 

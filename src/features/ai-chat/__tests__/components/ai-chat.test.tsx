@@ -53,16 +53,16 @@ vi.mock("lucide-react", () => ({
 const mockChatMessages = [
   {
     id: "1",
-    text: "Привет! Как добавить эффект размытия?",
-    sender: "user" as const,
-    timestamp: "2024-01-01T10:00:00",
+    content: "Привет! Как добавить эффект размытия?",
+    role: "user" as const,
+    timestamp: new Date("2024-01-01T10:00:00"),
   },
   {
     id: "2",
-    text: "Для добавления эффекта размытия выберите клип и перейдите в раздел эффектов.",
-    sender: "agent" as const,
-    agentId: "claude-4-sonnet",
-    timestamp: "2024-01-01T10:00:30",
+    content: "Для добавления эффекта размытия выберите клип и перейдите в раздел эффектов.",
+    role: "assistant" as const,
+    agent: "claude-4-sonnet" as any,
+    timestamp: new Date("2024-01-01T10:00:30"),
   },
 ]
 
@@ -208,9 +208,9 @@ describe("AiChat Component", () => {
       mockUseChat.chatMessages = [
         {
           id: "1",
-          text: "Привет!",
-          sender: "user" as const,
-          timestamp: "2024-01-01T10:00:00",
+          content: "Привет!",
+          role: "user" as const,
+          timestamp: new Date("2024-01-01T10:00:00"),
         },
       ]
 

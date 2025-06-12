@@ -6,6 +6,11 @@ import { Providers } from "../services/providers"
 // Мокаем провайдеры
 vi.mock("@/features/modals/services/modal-provider", () => ({
   ModalProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="modal-provider">{children}</div>,
+  useModal: () => ({
+    openModal: vi.fn(),
+    closeModal: vi.fn(),
+    isOpen: false,
+  }),
 }))
 
 vi.mock("@/i18n/services/i18n-provider", () => ({
@@ -29,6 +34,16 @@ vi.mock("@/features/user-settings", () => ({
   UserSettingsProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="user-settings-provider">{children}</div>
   ),
+  useUserSettings: () => ({
+    openAiApiKey: "test-api-key",
+    claudeApiKey: "test-claude-key",
+    language: "en",
+    theme: "dark",
+    setLanguage: vi.fn(),
+    setTheme: vi.fn(),
+    setOpenAiApiKey: vi.fn(),
+    setClaudeApiKey: vi.fn(),
+  }),
 }))
 
 vi.mock("@/features/resources/services/resources-provider", () => ({
@@ -59,6 +74,12 @@ vi.mock("@/features/timeline/services/timeline-provider", () => ({
 
 vi.mock("@/features/top-bar/components/theme/theme-context", () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="theme-provider">{children}</div>,
+}))
+
+vi.mock("@/features/keyboard-shortcuts", () => ({
+  ShortcutsProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="shortcuts-provider">{children}</div>
+  ),
 }))
 
 describe("Providers", () => {
