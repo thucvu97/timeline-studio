@@ -7,7 +7,7 @@ import { AddMediaButton } from "@/features/browser/components/layout/add-media-b
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
 import { VideoEffect } from "@/features/effects/types"
 import { useResources } from "@/features/resources"
-import { EffectResource } from "@/features/resources/types/resources"
+import { EffectResource } from "@/features/resources/types"
 
 import { EffectIndicators } from "./effect-indicators"
 import { useEffects } from "../hooks/use-effects"

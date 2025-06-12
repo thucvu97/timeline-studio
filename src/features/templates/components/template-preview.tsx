@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react"
 import { MediaFile } from "@/features/media/types/media"
 import { calculateDimensionsWithAspectRatio } from "@/features/media/utils/preview-sizes"
 import { useResources } from "@/features/resources"
-import { TemplateResource } from "@/features/resources/types/resources"
+import { TemplateResource } from "@/features/resources/types"
 
 import { AddMediaButton, ApplyButton, FavoriteButton } from "../../browser/components/layout"
 import { MediaTemplate } from "../lib/templates"

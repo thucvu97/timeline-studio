@@ -4,7 +4,7 @@ import { Check, Plus, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { useResources } from "@/features/resources"
-import { ResourceType, TimelineResource } from "@/features/resources/types/resources"
+import { ResourceType, TimelineResource } from "@/features/resources/types"
 import { cn } from "@/lib/utils"
 
 interface AddMediaButtonProps {

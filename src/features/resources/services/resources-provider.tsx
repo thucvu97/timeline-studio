@@ -15,7 +15,7 @@ import {
   SubtitleResource,
   TemplateResource,
   TransitionResource,
-} from "@/features/resources/types/resources"
+} from "@/features/resources/types"
 import { StyleTemplate } from "@/features/style-templates/types"
 import { SubtitleStyle } from "@/features/subtitles/types"
 import { MediaTemplate } from "@/features/templates/lib/templates"

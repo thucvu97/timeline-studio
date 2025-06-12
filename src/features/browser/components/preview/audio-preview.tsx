@@ -6,7 +6,7 @@ import { Music } from "lucide-react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 
 import { MediaFile } from "@/features/media/types/media"
-import { TimelineResource } from "@/features/resources/types/resources"
+import { TimelineResource } from "@/features/resources/types"
 
 import { AddMediaButton } from "../layout/add-media-button"
 import { FavoriteButton } from "../layout/favorite-button"

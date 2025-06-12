@@ -31,7 +31,7 @@ vi.mock("../../services/modal-machine", () => ({
 beforeEach(() => {
   vi.clearAllMocks()
   vi.spyOn(console, "log").mockImplementation(() => {})
-  
+
   // Reset mock state
   mockState.value = "closed"
   mockState.context = { modalType: "none", modalData: null }
@@ -49,10 +49,7 @@ const TestComponent = () => {
       <div data-testid="modal-type">{modalType}</div>
       <div data-testid="modal-data">{modalData ? JSON.stringify(modalData) : "null"}</div>
       <div data-testid="is-open">{isOpen ? "true" : "false"}</div>
-      <button
-        data-testid="open-modal-button"
-        onClick={() => openModal("project-settings")}
-      >
+      <button data-testid="open-modal-button" onClick={() => openModal("project-settings")}>
         Open Modal
       </button>
       <button
@@ -64,10 +61,7 @@ const TestComponent = () => {
       <button data-testid="close-modal-button" onClick={closeModal}>
         Close Modal
       </button>
-      <button
-        data-testid="submit-modal-button"
-        onClick={() => submitModal({ testData: "test" })}
-      >
+      <button data-testid="submit-modal-button" onClick={() => submitModal({ testData: "test" })}>
         Submit Modal
       </button>
     </div>
@@ -114,7 +108,7 @@ describe("ModalProvider", () => {
 
     expect(screen.getByTestId("modal-type")).toHaveTextContent("user-settings")
     expect(screen.getByTestId("modal-data")).toHaveTextContent(
-      JSON.stringify({ dialogClass: "test-class", someKey: "someValue" })
+      JSON.stringify({ dialogClass: "test-class", someKey: "someValue" }),
     )
   })
 
@@ -200,8 +194,6 @@ describe("ModalProvider", () => {
   it("should throw error when useModal is used outside provider", () => {
     render(<TestComponentWithoutProvider />)
 
-    expect(screen.getByTestId("error-message")).toHaveTextContent(
-      "useModal must be used within a ModalProvider"
-    )
+    expect(screen.getByTestId("error-message")).toHaveTextContent("useModal must be used within a ModalProvider")
   })
 })

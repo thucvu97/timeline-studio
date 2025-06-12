@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
 import { useResources } from "@/features/resources"
-import { MediaResource } from "@/features/resources/types/resources"
 
 import { AddMediaButton } from "../../../components/layout/add-media-button"
 

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { ApplyButton } from "@/features/browser"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { useResources } from "@/features/resources"
-import { FilterResource } from "@/features/resources/types/resources"
+import { FilterResource } from "@/features/resources/types"
 
 import { AddMediaButton } from "../../browser/components/layout/add-media-button"
 import { FavoriteButton } from "../../browser/components/layout/favorite-button"

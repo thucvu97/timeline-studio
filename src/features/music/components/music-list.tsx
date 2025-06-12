@@ -11,7 +11,7 @@ import { NoFiles } from "@/features/browser/components/no-files"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { MediaFile } from "@/features/media/types/media"
 import { useResources } from "@/features/resources"
-import { MusicResource } from "@/features/resources/types/resources"
+import { MusicResource } from "@/features/resources/types"
 import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
 

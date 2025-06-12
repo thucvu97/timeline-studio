@@ -15,7 +15,7 @@ import {
 import { useTranslation } from "react-i18next"
 
 import { useResources } from "@/features/resources"
-import { TimelineResource } from "@/features/resources/types/resources"
+import { TimelineResource } from "@/features/resources/types"
 
 /**
  * Компонент для отображения ресурсов таймлайна в левой панели

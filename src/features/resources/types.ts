@@ -5,7 +5,7 @@ import { SubtitleStyle } from "@/features/subtitles/types"
 import { MediaTemplate } from "@/features/templates/lib/templates"
 import { Transition } from "@/features/transitions/types/transitions"
 
-import { VideoFilter } from "../../filters/types/filters"
+import { VideoFilter } from "../filters/types/filters"
 
 // Общий интерфейс для всех ресурсов
 export interface Resource {

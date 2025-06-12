@@ -112,13 +112,10 @@ export const DEFAULT_SHORTCUTS: ShortcutDefinition[] = [
 ]
 
 // Экспортируем shortcuts по категориям для удобства
-export const SHORTCUTS_BY_CATEGORY = DEFAULT_SHORTCUTS.reduce<Record<string, ShortcutDefinition[]>>(
-  (acc, shortcut) => {
-    if (!acc[shortcut.category]) {
-      acc[shortcut.category] = []
-    }
-    acc[shortcut.category].push(shortcut)
-    return acc
-  },
-  {},
-)
+export const SHORTCUTS_BY_CATEGORY = DEFAULT_SHORTCUTS.reduce<Record<string, ShortcutDefinition[]>>((acc, shortcut) => {
+  if (!acc[shortcut.category]) {
+    acc[shortcut.category] = []
+  }
+  acc[shortcut.category].push(shortcut)
+  return acc
+}, {})

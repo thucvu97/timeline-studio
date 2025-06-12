@@ -7,7 +7,7 @@ import { useResources } from "@/features"
 import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
 import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/features/media/utils/video"
-import { TimelineResource } from "@/features/resources/types/resources"
+import { TimelineResource } from "@/features/resources/types"
 import { formatDuration } from "@/lib/date"
 import { cn, formatResolution } from "@/lib/utils"
 
