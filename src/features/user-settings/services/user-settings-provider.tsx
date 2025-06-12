@@ -1,7 +1,6 @@
 import { createContext } from "react"
 
 import { useMachine } from "@xstate/react"
-import { useHotkeys } from "react-hotkeys-hook"
 
 import { BrowserTab, LayoutMode, userSettingsMachine } from "./user-settings-machine"
 
@@ -62,51 +61,6 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
   // Отладочные логи
   console.log("UserSettingsProvider state:", state.context)
   console.log("UserSettingsProvider state status:", state.status)
-
-  // Добавляем обработчик горячих клавиш Cmd+B/Ctrl+B для переключения видимости браузера
-  useHotkeys(
-    "mod+b",
-    (event) => {
-      event.preventDefault()
-      send({
-        type: "TOGGLE_BROWSER_VISIBILITY",
-      })
-    },
-    {
-      enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
-      preventDefault: true,
-    },
-  )
-
-  // Добавляем обработчик горячих клавиш Cmd+O/Ctrl+O для переключения видимости опций
-  useHotkeys(
-    "mod+o",
-    (event) => {
-      event.preventDefault()
-      send({
-        type: "TOGGLE_OPTIONS_VISIBILITY",
-      })
-    },
-    {
-      enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
-      preventDefault: true,
-    },
-  )
-
-  // Добавляем обработчик горячих клавиш Cmd+T/Ctrl+T для переключения видимости опций
-  useHotkeys(
-    "mod+t",
-    (event) => {
-      event.preventDefault()
-      send({
-        type: "TOGGLE_TIMELINE_VISIBILITY",
-      })
-    },
-    {
-      enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
-      preventDefault: true,
-    },
-  )
 
   // Создаем значение контекста, которое будет доступно через хук useUserSettings
   const value = {

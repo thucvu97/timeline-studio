@@ -5,6 +5,7 @@ import { ReactNode } from "react"
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AppSettingsProvider } from "@/features/app-state"
 import { BrowserStateProvider } from "@/features/browser"
+import { ShortcutsProvider } from "@/features/keyboard-shortcuts"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings"
 import { ResourcesProvider } from "@/features/resources/services/resources-provider"
@@ -30,6 +31,7 @@ const AppProvider = composeProviders(
   I18nProvider,
   ThemeProvider,
   ModalProvider,
+  ShortcutsProvider,
   AppSettingsProvider,
   BrowserStateProvider,
   ProjectSettingsProvider,
