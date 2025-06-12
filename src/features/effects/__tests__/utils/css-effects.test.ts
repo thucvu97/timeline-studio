@@ -1,7 +1,7 @@
 import { act } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 
 import {
   applySpecialEffectStyles,

@@ -9,7 +9,7 @@
  * 5. Интеграция с системой ресурсов (эффекты, фильтры, переходы)
  */
 
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
 import { StyleTemplate } from "@/features/style-templates/types/style-template"

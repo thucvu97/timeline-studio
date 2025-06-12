@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useRecording } from "./use-recording"
+import { useRecording } from "../../hooks/use-recording"
 
 // Мокируем MediaRecorder
 global.MediaRecorder = vi.fn().mockImplementation(() => ({

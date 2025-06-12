@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 
 import { open } from "@tauri-apps/plugin-dialog"
 
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 
 /**
  * Интерфейс для результата импорта эффектов

@@ -120,7 +120,7 @@ describe("useMusicFiles", () => {
   it("должен корректно обрабатывать файлы с метаданными и без", () => {
     // Восстанавливаем оригинальный мок с файлами
     mockAppSettings.getMusicFiles.mockReturnValue(mockMusicFiles)
-    
+
     const { result } = renderHook(() => useMusicFiles())
 
     const filesWithMetadata = result.current.musicFiles.filter((f) => f.artist && f.title)
@@ -159,9 +159,7 @@ describe("useMusicFiles", () => {
     const { result } = renderHook(() => useMusicFiles())
 
     const updatedFiles = mockMusicFiles.map((file) =>
-      file.id === "music3"
-        ? { ...file, artist: "Background Artist", title: "Background Music" }
-        : file
+      file.id === "music3" ? { ...file, artist: "Background Artist", title: "Background Music" } : file,
     )
 
     act(() => {

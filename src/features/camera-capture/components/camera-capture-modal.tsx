@@ -5,7 +5,14 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { useModal } from "@/features/modals"
 
-import { useCameraPermissions, useCameraStream, useDeviceCapabilities, useDevices, useRecording } from "../hooks"
+import {
+  useCameraPermissions,
+  useCameraStream,
+  useDeviceCapabilities,
+  useDevices,
+  useRecording,
+  useScreenCapture,
+} from "../hooks"
 
 import { CameraPermissionRequest, CameraPreview, CameraSettings, RecordingControls } from "."
 
@@ -19,6 +26,7 @@ export function CameraCaptureModal() {
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const [errorMessage, setErrorMessage] = useState<string>("")
+  const [captureMode, setCaptureMode] = useState<"camera" | "screen">("camera")
 
   // Получаем возможности устройства (разрешения, частоты кадров)
   const [selectedResolution, setSelectedResolution] = useState<string>("")
@@ -56,6 +64,15 @@ export function CameraCaptureModal() {
     setErrorMessage,
   )
 
+  // Управляем записью экрана
+  const {
+    screenStream,
+    isScreenSharing,
+    error: screenError,
+    startScreenCapture,
+    stopScreenCapture,
+  } = useScreenCapture()
+
   // Обработка записанного видео
   const handleVideoRecorded = async (blob: Blob, fileName: string) => {
     // try {
@@ -82,6 +99,22 @@ export function CameraCaptureModal() {
     // }
   }
 
+  // Определяем какой поток использовать для записи
+  const activeStreamRef = useRef<MediaStream | null>(null)
+
+  useEffect(() => {
+    if (captureMode === "screen" && screenStream) {
+      activeStreamRef.current = screenStream
+      // Устанавливаем поток экрана в video элемент
+      if (videoRef.current) {
+        videoRef.current.srcObject = screenStream
+      }
+    } else if (captureMode === "camera" && streamRef.current) {
+      activeStreamRef.current = streamRef.current
+      // Поток камеры уже устанавливается в useCameraStream
+    }
+  }, [captureMode, screenStream, streamRef])
+
   // Управляем записью
   const {
     isRecording,
@@ -92,7 +125,7 @@ export function CameraCaptureModal() {
     startCountdown,
     stopRecording,
     formatRecordingTime,
-  } = useRecording(streamRef, 3, handleVideoRecorded)
+  } = useRecording(activeStreamRef, 3, handleVideoRecorded)
 
   // Инициализируем камеру при изменении выбранного устройства или разрешения
   useEffect(() => {
@@ -108,14 +141,18 @@ export function CameraCaptureModal() {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       requestPermissions()
     } else {
-      // Останавливаем все треки камеры при закрытии модального окна
+      // Останавливаем все треки при закрытии модального окна
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop())
         streamRef.current = null
       }
+      if (isScreenSharing) {
+        stopScreenCapture()
+      }
       setIsDeviceReady(false)
+      setCaptureMode("camera") // Сбрасываем на камеру
     }
-  }, [isOpen, requestPermissions, streamRef])
+  }, [isOpen, requestPermissions, streamRef, isScreenSharing, stopScreenCapture])
 
   // Обработчик изменения устройства
   const handleDeviceChange = (deviceId: string) => {
@@ -144,6 +181,43 @@ export function CameraCaptureModal() {
     setCountdown(value)
   }
 
+  // Обработчик переключения режима захвата
+  const handleCaptureModeChange = async (mode: "camera" | "screen") => {
+    // Останавливаем текущую запись
+    if (isRecording) {
+      stopRecording()
+    }
+
+    // Останавливаем текущий поток
+    if (captureMode === "screen" && isScreenSharing) {
+      stopScreenCapture()
+    } else if (captureMode === "camera" && streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop())
+      streamRef.current = null
+      setIsDeviceReady(false)
+    }
+
+    // Меняем режим
+    setCaptureMode(mode)
+
+    // Запускаем новый поток
+    if (mode === "screen") {
+      try {
+        await startScreenCapture({
+          video: true,
+          audio: !!selectedAudioDevice,
+        })
+      } catch (error) {
+        console.error("Failed to start screen capture:", error)
+        setErrorMessage(screenError || "Failed to start screen capture")
+      }
+    } else if (mode === "camera") {
+      if (selectedDevice && permissionStatus === "granted") {
+        await initCamera()
+      }
+    }
+  }
+
   return (
     <>
       {/* Запрос разрешений */}
@@ -156,10 +230,30 @@ export function CameraCaptureModal() {
       <div className="flex flex-row gap-4">
         {/* Левая колонка - видео */}
         <div className="flex flex-col w-3/5">
+          {/* Кнопки переключения режима */}
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant={captureMode === "camera" ? "default" : "outline"}
+              onClick={() => handleCaptureModeChange("camera")}
+              disabled={isRecording}
+              className="flex-1"
+            >
+              {t("cameraCapture.cameraMode", "Camera")}
+            </Button>
+            <Button
+              variant={captureMode === "screen" ? "default" : "outline"}
+              onClick={() => handleCaptureModeChange("screen")}
+              disabled={isRecording}
+              className="flex-1"
+            >
+              {t("cameraCapture.screenMode", "Screen")}
+            </Button>
+          </div>
+
           {/* Предпросмотр видео */}
           <CameraPreview
             videoRef={videoRef}
-            isDeviceReady={isDeviceReady}
+            isDeviceReady={captureMode === "camera" ? isDeviceReady : isScreenSharing}
             showCountdown={showCountdown}
             countdown={countdown}
           />
@@ -168,7 +262,7 @@ export function CameraCaptureModal() {
           <RecordingControls
             isRecording={isRecording}
             recordingTime={recordingTime}
-            isDeviceReady={isDeviceReady}
+            isDeviceReady={captureMode === "camera" ? isDeviceReady : isScreenSharing}
             onStartRecording={startCountdown}
             onStopRecording={stopRecording}
             formatRecordingTime={formatRecordingTime}
@@ -177,26 +271,77 @@ export function CameraCaptureModal() {
 
         {/* Правая колонка - настройки */}
         <div className="flex flex-col w-2/5">
-          {/* Настройки камеры */}
-          <CameraSettings
-            devices={devices}
-            selectedDevice={selectedDevice}
-            onDeviceChange={handleDeviceChange}
-            audioDevices={audioDevices}
-            selectedAudioDevice={selectedAudioDevice}
-            onAudioDeviceChange={handleAudioDeviceChange}
-            availableResolutions={availableResolutions}
-            selectedResolution={selectedResolution}
-            onResolutionChange={handleResolutionChange}
-            supportedResolutions={supportedResolutions}
-            frameRate={frameRate}
-            onFrameRateChange={handleFrameRateChange}
-            supportedFrameRates={supportedFrameRates}
-            countdown={countdown}
-            onCountdownChange={handleCountdownChange}
-            isRecording={isRecording}
-            isLoadingCapabilities={isLoadingCapabilities}
-          />
+          {/* Настройки камеры - показываем только в режиме камеры */}
+          {captureMode === "camera" ? (
+            <CameraSettings
+              devices={devices}
+              selectedDevice={selectedDevice}
+              onDeviceChange={handleDeviceChange}
+              audioDevices={audioDevices}
+              selectedAudioDevice={selectedAudioDevice}
+              onAudioDeviceChange={handleAudioDeviceChange}
+              availableResolutions={availableResolutions}
+              selectedResolution={selectedResolution}
+              onResolutionChange={handleResolutionChange}
+              supportedResolutions={supportedResolutions}
+              frameRate={frameRate}
+              onFrameRateChange={handleFrameRateChange}
+              supportedFrameRates={supportedFrameRates}
+              countdown={countdown}
+              onCountdownChange={handleCountdownChange}
+              isRecording={isRecording}
+              isLoadingCapabilities={isLoadingCapabilities}
+            />
+          ) : (
+            // Настройки для записи экрана
+            <div className="space-y-4 p-4">
+              <h3 className="text-lg font-semibold">
+                {t("cameraCapture.screenSettings", "Screen Recording Settings")}
+              </h3>
+
+              <div className="text-sm text-muted-foreground">
+                {t("cameraCapture.screenInfo", "Select a window, tab, or entire screen to record")}
+              </div>
+
+              {/* Аудио устройство для записи экрана */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t("cameraCapture.microphone", "Microphone")}</label>
+                <select
+                  value={selectedAudioDevice || ""}
+                  onChange={(e) => setSelectedAudioDevice(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2"
+                  disabled={isRecording}
+                >
+                  <option value="">{t("cameraCapture.noAudio", "No Audio")}</option>
+                  {audioDevices.map((device) => (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Настройки обратного отсчета */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">{t("cameraCapture.countdown", "Countdown")}</label>
+                <select
+                  value={countdown}
+                  onChange={(e) => handleCountdownChange(Number(e.target.value))}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2"
+                  disabled={isRecording}
+                >
+                  <option value={0}>{t("cameraCapture.noCountdown", "No countdown")}</option>
+                  <option value={3}>3 {t("cameraCapture.seconds", "seconds")}</option>
+                  <option value={5}>5 {t("cameraCapture.seconds", "seconds")}</option>
+                  <option value={10}>10 {t("cameraCapture.seconds", "seconds")}</option>
+                </select>
+              </div>
+
+              {screenError && (
+                <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">{screenError}</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className="flex justify-end border-t border-[#333] p-4">

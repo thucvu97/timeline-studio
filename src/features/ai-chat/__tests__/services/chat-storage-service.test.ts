@@ -42,7 +42,7 @@ describe("LocalChatStorageService", () => {
       removeItem: vi.fn((key: string) => {
         if (key in storage) {
           const { [key]: removed, ...rest } = storage
-          Object.keys(storage).forEach(k => {
+          Object.keys(storage).forEach((k) => {
             storage[k] = undefined as any
           })
           Object.assign(storage, rest)

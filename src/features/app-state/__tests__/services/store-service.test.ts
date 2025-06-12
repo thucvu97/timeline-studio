@@ -1,7 +1,12 @@
 import { Store, load } from "@tauri-apps/plugin-store"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { StoreService, USER_SETTINGS_STORE_PATH, type AppSettings, type FavoritesType } from "../../services/store-service"
+import {
+  type AppSettings,
+  type FavoritesType,
+  StoreService,
+  USER_SETTINGS_STORE_PATH,
+} from "../../services/store-service"
 
 // Мокаем Tauri Store
 vi.mock("@tauri-apps/plugin-store", () => ({
@@ -76,7 +81,7 @@ describe("StoreService", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Сбрасываем singleton instance
     // @ts-expect-error - обращаемся к приватному свойству для тестов
     StoreService.instance = null
@@ -136,7 +141,7 @@ describe("StoreService", () => {
     it("должен обрабатывать ошибки при инициализации", async () => {
       const service = StoreService.getInstance()
       const loadMock = vi.mocked(load)
-      
+
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
       loadMock.mockRejectedValueOnce(new Error("Failed to load"))
 
@@ -144,9 +149,9 @@ describe("StoreService", () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         "[StoreService] Error initializing store:",
-        new Error("Failed to load")
+        new Error("Failed to load"),
       )
-      
+
       consoleErrorSpy.mockRestore()
     })
   })
@@ -174,17 +179,14 @@ describe("StoreService", () => {
     it("должен возвращать null при ошибке", async () => {
       const service = StoreService.getInstance()
       mockStore.get.mockRejectedValue(new Error("Failed to get"))
-      
+
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
       const settings = await service.getSettings()
 
       expect(settings).toBeNull()
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "[StoreService] Error getting settings:",
-        new Error("Failed to get")
-      )
-      
+      expect(consoleErrorSpy).toHaveBeenCalledWith("[StoreService] Error getting settings:", new Error("Failed to get"))
+
       consoleErrorSpy.mockRestore()
     })
 
@@ -192,13 +194,13 @@ describe("StoreService", () => {
       const service = StoreService.getInstance()
       const loadMock = vi.mocked(load)
       loadMock.mockRejectedValue(new Error("Failed to initialize"))
-      
+
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
       const settings = await service.getSettings()
 
       expect(settings).toBeNull()
-      
+
       consoleErrorSpy.mockRestore()
     })
   })
@@ -227,16 +229,13 @@ describe("StoreService", () => {
     it("должен обрабатывать ошибки при сохранении", async () => {
       const service = StoreService.getInstance()
       mockStore.set.mockRejectedValue(new Error("Failed to save"))
-      
+
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
       await service.saveSettings(mockSettings)
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "[StoreService] Error saving settings:",
-        new Error("Failed to save")
-      )
-      
+      expect(consoleErrorSpy).toHaveBeenCalledWith("[StoreService] Error saving settings:", new Error("Failed to save"))
+
       consoleErrorSpy.mockRestore()
     })
 
@@ -244,13 +243,13 @@ describe("StoreService", () => {
       const service = StoreService.getInstance()
       const loadMock = vi.mocked(load)
       loadMock.mockRejectedValue(new Error("Failed to initialize"))
-      
+
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
       await service.saveSettings(mockSettings)
 
       expect(mockStore.set).not.toHaveBeenCalled()
-      
+
       consoleErrorSpy.mockRestore()
     })
   })
@@ -287,14 +286,17 @@ describe("StoreService", () => {
 
       await service.saveUserSettings(newUserSettings)
 
-      expect(mockStore.set).toHaveBeenCalledWith("app-settings", expect.objectContaining({
-        ...mockSettings,
-        userSettings: newUserSettings,
-        meta: expect.objectContaining({
-          version: "1.0.0",
-          lastUpdated: expect.any(Number),
+      expect(mockStore.set).toHaveBeenCalledWith(
+        "app-settings",
+        expect.objectContaining({
+          ...mockSettings,
+          userSettings: newUserSettings,
+          meta: expect.objectContaining({
+            version: "1.0.0",
+            lastUpdated: expect.any(Number),
+          }),
         }),
-      }))
+      )
     })
 
     it("должен создавать новые настройки, если их нет", async () => {
@@ -303,16 +305,19 @@ describe("StoreService", () => {
 
       await service.saveUserSettings(mockSettings.userSettings)
 
-      expect(mockStore.set).toHaveBeenCalledWith("app-settings", expect.objectContaining({
-        userSettings: mockSettings.userSettings,
-        recentProjects: [],
-        currentProject: {
-          path: null,
-          name: "Новый проект",
-          isDirty: false,
-          isNew: true,
-        },
-      }))
+      expect(mockStore.set).toHaveBeenCalledWith(
+        "app-settings",
+        expect.objectContaining({
+          userSettings: mockSettings.userSettings,
+          recentProjects: [],
+          currentProject: {
+            path: null,
+            name: "Новый проект",
+            isDirty: false,
+            isNew: true,
+          },
+        }),
+      )
     })
   })
 
@@ -343,14 +348,17 @@ describe("StoreService", () => {
 
       await service.addRecentProject("/new-project.tlsp", "New Project")
 
-      expect(mockStore.set).toHaveBeenCalledWith("app-settings", expect.objectContaining({
-        recentProjects: expect.arrayContaining([
-          expect.objectContaining({
-            path: "/new-project.tlsp",
-            name: "New Project",
-          }),
-        ]),
-      }))
+      expect(mockStore.set).toHaveBeenCalledWith(
+        "app-settings",
+        expect.objectContaining({
+          recentProjects: expect.arrayContaining([
+            expect.objectContaining({
+              path: "/new-project.tlsp",
+              name: "New Project",
+            }),
+          ]),
+        }),
+      )
     })
 
     it("должен удалять дубликаты из списка", async () => {
@@ -360,7 +368,7 @@ describe("StoreService", () => {
       await service.addRecentProject("/project1.tlsp", "Updated Project 1")
 
       const savedSettings = mockStore.set.mock.calls[0][1] as AppSettings
-      const projectPaths = savedSettings.recentProjects.map(p => p.path)
+      const projectPaths = savedSettings.recentProjects.map((p) => p.path)
       const uniquePaths = new Set(projectPaths)
 
       expect(uniquePaths.size).toBe(projectPaths.length)
@@ -373,7 +381,7 @@ describe("StoreService", () => {
         name: `Project ${i}`,
         lastOpened: Date.now() - i * 1000,
       }))
-      
+
       mockStore.get.mockResolvedValue({
         ...mockSettings,
         recentProjects: manyProjects,
@@ -401,7 +409,7 @@ describe("StoreService", () => {
         effect: [{ id: "1", name: "Blur" }],
         filter: [{ id: "2", name: "Sepia" }],
       }
-      
+
       mockStore.get.mockResolvedValue({
         ...mockSettings,
         favorites: customFavorites,
@@ -442,9 +450,12 @@ describe("StoreService", () => {
 
       await service.saveFavorites(newFavorites)
 
-      expect(mockStore.set).toHaveBeenCalledWith("app-settings", expect.objectContaining({
-        favorites: newFavorites,
-      }))
+      expect(mockStore.set).toHaveBeenCalledWith(
+        "app-settings",
+        expect.objectContaining({
+          favorites: newFavorites,
+        }),
+      )
     })
 
     it("не должен падать, если настройки не найдены", async () => {

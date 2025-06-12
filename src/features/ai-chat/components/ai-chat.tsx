@@ -11,16 +11,8 @@ import { useUserSettings } from "@/features/user-settings"
 import { useChat } from ".."
 import { CLAUDE_MODELS } from "./claude-service"
 import { AI_MODELS } from "./open-ai-service"
+import { ChatMessage } from "../types/chat"
 
-// Интерфейс для сообщений чата
-export interface ChatMessage {
-  id: string
-  text: string
-  sender: "user" | "agent"
-  agentId?: string
-  timestamp: string
-  isProcessing?: boolean
-}
 // Типы сообщений
 export interface AiMessage {
   role: "user" | "assistant" | "system"
@@ -111,10 +103,10 @@ export function AiChat() {
     setTimeout(() => {
       const agentMessage: ChatMessage = {
         id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-        text: "Это тестовый ответ от ИИ. API интеграция будет добавлена позже.",
-        sender: "agent",
-        agentId: selectedAgentId || undefined,
-        timestamp: new Date().toISOString(),
+        content: "Это тестовый ответ от ИИ. API интеграция будет добавлена позже.",
+        role: "assistant",
+        timestamp: new Date(),
+        agent: selectedAgentId as any || undefined,
       }
 
       receiveChatMessage(agentMessage)
@@ -149,9 +141,8 @@ export function AiChat() {
   )
 
   // Форматирование времени
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  const formatTime = (timestamp: Date) => {
+    return timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   }
 
   return (
@@ -169,18 +160,18 @@ export function AiChat() {
                 <div
                   key={msg.id}
                   className={`group flex max-w-[90%] flex-col rounded-lg p-2.5 ${
-                    msg.sender === "user" ? "ml-auto bg-[#2563eb] text-white" : "bg-[#2a2a2a] text-white"
+                    msg.role === "user" ? "ml-auto bg-[#2563eb] text-white" : "bg-[#2a2a2a] text-white"
                   }`}
                 >
                   <div className="flex items-start gap-2">
                     <div className="mt-0.5 flex-shrink-0">
-                      {msg.sender === "user" ? (
+                      {msg.role === "user" ? (
                         <User className="h-3.5 w-3.5 text-white/80" />
                       ) : (
                         <Bot className="h-3.5 w-3.5 text-white/80" />
                       )}
                     </div>
-                    <div className="text-sm leading-relaxed">{msg.text}</div>
+                    <div className="text-sm leading-relaxed">{msg.content}</div>
                   </div>
                   <div className="mt-1.5 text-right text-[10px] text-gray-300 opacity-0 transition-opacity group-hover:opacity-100">
                     {formatTime(msg.timestamp)}

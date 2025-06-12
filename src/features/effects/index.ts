@@ -1,3 +1,6 @@
+// Типы
+export * from "./types"
+
 // Компоненты
 export * from "./components/effect-list"
 export * from "./components/effect-preview"

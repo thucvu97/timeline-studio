@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useFavorites } from "@/features/app-state"
 import { NoFiles } from "@/features/browser/components/no-files"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useProjectSettings } from "@/features/project-settings"
 

@@ -2,6 +2,13 @@ import { appDirectoriesService } from "@/features/app-state/services"
 
 import type { ChatListItem, ChatMessage, ChatSession, ChatStorageService } from "../types/chat"
 
+// Declare Tauri global for this file
+declare global {
+  interface Window {
+    __TAURI__?: any
+  }
+}
+
 /**
  * Сервис для сохранения и управления чатами
  * Сохраняет чаты в ~/Movies/Timeline Studio/Chats/

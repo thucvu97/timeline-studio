@@ -1,19 +1,22 @@
 import { act, render } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 
 import { EffectDetail } from "../../components/effect-detail"
 
 // Мокаем useResources хук
-vi.mock("@/features/resources", () => ({
-  useResources: () => ({
-    addEffect: vi.fn(),
-    removeResource: vi.fn(),
-    isEffectAdded: vi.fn().mockReturnValue(false),
-    effectResources: [],
-  }),
-}))
+vi.mock("@/features/resources", () => {
+  const fn = vi.fn
+  return {
+    useResources: () => ({
+      addEffect: fn(),
+      removeResource: fn(),
+      isEffectAdded: fn().mockReturnValue(false),
+      effectResources: [],
+    }),
+  }
+})
 
 // Мокаем useEffects хук
 vi.mock("../../hooks/use-effects", () => ({

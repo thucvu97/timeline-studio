@@ -1,7 +1,7 @@
 import React from "react"
 
 import { ContentGroup } from "@/features/browser/components/content-group"
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 
 import { EffectPreview } from "./effect-preview"
 

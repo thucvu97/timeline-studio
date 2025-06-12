@@ -2,7 +2,7 @@ import React, { ReactNode, createContext, useContext } from "react"
 
 import { useMachine } from "@xstate/react"
 
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
 import {

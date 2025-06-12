@@ -16,12 +16,18 @@
    - Интегрировать с `useMediaImport` для добавления в медиатеку
    - Добавить прогресс загрузки файла
 
-2. **Фильтры и эффекты**
+2. **Запись экрана** (новая функция!)
+   - Добавить кнопку переключения между камерой и экраном
+   - Использовать `navigator.mediaDevices.getDisplayMedia()`
+   - Поддержка записи с системным звуком
+   - Выбор конкретного окна/вкладки/экрана
+
+3. **Фильтры и эффекты**
    - Интеграция с модулем effects
    - Применение в реальном времени через Canvas API
    - UI для выбора эффектов
 
-3. **Расширенные настройки**
+4. **Расширенные настройки**
    - Выбор битрейта видео/аудио
    - Поддержка других форматов (MP4, MOV)
    - Выбор кодеков
@@ -161,7 +167,61 @@ export function useCameraEffects(stream: MediaStream) {
 }
 ```
 
-### 3. Расширить настройки
+### 3. Добавить запись экрана
+
+```tsx
+// Новый хук use-screen-capture.ts
+export function useScreenCapture() {
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null)
+  const [isScreenSharing, setIsScreenSharing] = useState(false)
+  
+  const startScreenCapture = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: { ideal: 30 }
+        },
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false
+        }
+      })
+      
+      // Обработка остановки записи пользователем
+      stream.getVideoTracks()[0].addEventListener('ended', () => {
+        stopScreenCapture()
+      })
+      
+      setScreenStream(stream)
+      setIsScreenSharing(true)
+      return stream
+    } catch (error) {
+      console.error('Screen capture failed:', error)
+      throw error
+    }
+  }
+  
+  const stopScreenCapture = () => {
+    if (screenStream) {
+      screenStream.getTracks().forEach(track => track.stop())
+      setScreenStream(null)
+    }
+    setIsScreenSharing(false)
+  }
+  
+  return {
+    screenStream,
+    isScreenSharing,
+    startScreenCapture,
+    stopScreenCapture
+  }
+}
+```
+
+### 4. Расширить настройки
 
 ```tsx
 // Добавить в CameraSettings
@@ -183,6 +243,11 @@ export function useCameraEffects(stream: MediaStream) {
 - [ ] Раскомментировать и доработать `handleVideoRecorded`
 - [ ] Добавить состояние `isSaving` и индикатор загрузки
 - [ ] Протестировать сохранение на разных размерах файлов
+- [ ] Добавить функционал записи экрана
+  - [ ] Кнопка переключения Camera/Screen
+  - [ ] Хук `useScreenCapture` 
+  - [ ] Обработка разрешений для записи экрана
+  - [ ] Выбор источника (окно/вкладка/экран)
 - [ ] Добавить поддержку MP4 (через Tauri FFmpeg)
 - [ ] Реализовать базовые эффекты (яркость, контраст)
 - [ ] Добавить настройки битрейта
@@ -191,10 +256,35 @@ export function useCameraEffects(stream: MediaStream) {
 
 ## 🧪 Тестирование
 
+### Покрытие тестами
+```
+File               | % Stmts | % Branch | % Funcs | % Lines 
+-------------------|---------|----------|---------|---------|
+components         |   95.39 |    93.93 |   53.84 |   95.39 |
+hooks              |    72.9 |    60.46 |      75 |    72.9 |
+```
+
+#### Детальное покрытие
+- **camera-capture-modal.tsx**: 86.76% statements, 75% branches
+- **camera-settings.tsx**: 100% statements, 92.85% branches
+- **camera-capture-hooks.ts**: 84.4% statements, 57.14% branches
+- **use-camera-stream.ts**: 66.29% statements, 52.38% branches
+- **use-devices.ts**: 97.43% statements, 80% branches
+- **use-recording.ts**: 43.56% statements, 62.5% branches
+
+### Статистика тестов
+- **Общее количество тестов**: 53 теста
+- **Файлов с тестами**: 9 файлов
+- **Время выполнения**: ~1.25 секунд
+- **Успешность**: 100% тестов проходят
+
 ### Unit тесты
 ```bash
 # Запустить существующие тесты
 bun test src/features/camera-capture
+
+# Запустить с покрытием
+bun test:coverage src/features/camera-capture
 
 # Тесты для новой функциональности
 bun test src/features/camera-capture/use-camera-effects.test.ts

@@ -2,7 +2,7 @@
  * Преобразование Timeline в ProjectSchema для Video Compiler
  */
 
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { StyleTemplate } from "@/features/style-templates/types/style-template"
 import { MediaTemplate } from "@/features/templates/lib/templates"

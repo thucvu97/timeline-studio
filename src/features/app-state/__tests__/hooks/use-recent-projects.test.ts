@@ -41,10 +41,7 @@ describe("useRecentProjects", () => {
       result.current.addRecentProject("/new-project.tlsp", "Новый проект")
     })
 
-    expect(mockAppSettings.addRecentProject).toHaveBeenCalledWith(
-      "/new-project.tlsp", 
-      "Новый проект"
-    )
+    expect(mockAppSettings.addRecentProject).toHaveBeenCalledWith("/new-project.tlsp", "Новый проект")
   })
 
   it("должен удалять проект из недавних", () => {
@@ -76,12 +73,10 @@ describe("useRecentProjects", () => {
   })
 
   it("должен обновляться при изменении списка", () => {
-    const projects1 = [
-      { path: "/project1.tlsp", name: "Проект 1", lastOpened: Date.now() }
-    ]
+    const projects1 = [{ path: "/project1.tlsp", name: "Проект 1", lastOpened: Date.now() }]
     const projects2 = [
       { path: "/project1.tlsp", name: "Проект 1", lastOpened: Date.now() },
-      { path: "/project2.tlsp", name: "Проект 2", lastOpened: Date.now() - 1000 }
+      { path: "/project2.tlsp", name: "Проект 2", lastOpened: Date.now() - 1000 },
     ]
 
     mockAppSettings.getRecentProjects.mockReturnValue(projects1)

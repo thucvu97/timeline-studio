@@ -116,7 +116,7 @@ describe("useMediaFiles", () => {
   it("должен корректно обрабатывать различные типы медиа-файлов", () => {
     // Восстанавливаем оригинальный мок с файлами разных типов
     mockAppSettings.getMediaFiles.mockReturnValue(mockMediaFiles)
-    
+
     const { result } = renderHook(() => useMediaFiles())
 
     const videoFiles = result.current.mediaFiles.filter((f) => f.isVideo)

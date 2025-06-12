@@ -2,8 +2,8 @@ import { act } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
-import { ChatMessage } from "../../components/ai-chat"
 import { chatMachine } from "../../services/chat-machine"
+import { ChatMessage } from "../../types/chat"
 
 describe("ChatMachine", () => {
   beforeEach(() => {
@@ -53,8 +53,8 @@ describe("ChatMachine", () => {
 
     // Проверяем, что сообщение добавилось в контекст
     expect(snapshot.context.chatMessages).toHaveLength(1)
-    expect(snapshot.context.chatMessages[0].text).toBe("Hello, AI!")
-    expect(snapshot.context.chatMessages[0].sender).toBe("user")
+    expect(snapshot.context.chatMessages[0].content).toBe("Hello, AI!")
+    expect(snapshot.context.chatMessages[0].role).toBe("user")
     expect(snapshot.context.isProcessing).toBe(true)
 
     // Останавливаем актора
@@ -74,10 +74,10 @@ describe("ChatMachine", () => {
     // Создаем сообщение от агента
     const agentMessage: ChatMessage = {
       id: "agent-msg-1",
-      text: "Hello! How can I help you?",
-      sender: "agent",
-      agentId: "claude-4-sonnet",
-      timestamp: new Date().toISOString(),
+      content: "Hello! How can I help you?",
+      role: "assistant",
+      agent: "claude-4-sonnet",
+      timestamp: new Date(),
     }
 
     // Отправляем событие RECEIVE_CHAT_MESSAGE
@@ -198,7 +198,7 @@ describe("ChatMachine", () => {
 
     // Проверяем, что сообщение пользователя удалилось, осталось только сообщение агента
     expect(snapshot.context.chatMessages).toHaveLength(1)
-    expect(snapshot.context.chatMessages[0].sender).toBe("agent")
+    expect(snapshot.context.chatMessages[0].role).toBe("assistant")
 
     // Останавливаем актора
     actor.stop()

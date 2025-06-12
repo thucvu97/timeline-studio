@@ -1,6 +1,6 @@
 import { assign, setup } from "xstate"
 
-import { ChatMessage } from "../components/ai-chat"
+import { ChatMessage } from "../types/chat"
 
 // Интерфейс контекста машины состояний чата
 export interface ChatMachineContext {
@@ -88,9 +88,9 @@ export const chatMachine = setup({
                 ...context.chatMessages,
                 {
                   id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                  text: event.message,
-                  sender: "user" as const,
-                  timestamp: new Date().toISOString(),
+                  content: event.message,
+                  role: "user" as const,
+                  timestamp: new Date(),
                 },
               ],
               isProcessing: true,

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 
 import effectsData from "../data/effects.json"
 import { createFallbackEffect, processEffects, validateEffectsData } from "../utils/effect-processor"

@@ -1,6 +1,6 @@
 import { vi } from "vitest"
 
-import { ChatMessage } from "../components/ai-chat"
+import { ChatMessage } from "../types/chat"
 
 export interface ChatMachineContext {
   chatMessages: ChatMessage[]

@@ -3,7 +3,7 @@ import React, { createContext, useContext } from "react"
 import { useActor } from "@xstate/react"
 
 import { chatMachine } from "./chat-machine"
-import { ChatMessage } from "../components/ai-chat"
+import { ChatMessage } from "../types/chat"
 
 // Интерфейс контекста провайдера чата
 export interface ChatContextType {

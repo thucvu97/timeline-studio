@@ -1,4 +1,4 @@
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 
 /**
  * Интерфейс для сырых данных эффекта из JSON

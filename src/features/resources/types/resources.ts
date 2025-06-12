@@ -1,4 +1,4 @@
-import { VideoEffect } from "@/features/effects/types/effects"
+import { VideoEffect } from "@/features/effects/types"
 import { MediaFile } from "@/features/media/types/media"
 import { StyleTemplate } from "@/features/style-templates/types"
 import { SubtitleStyle } from "@/features/subtitles/types"

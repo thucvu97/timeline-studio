@@ -1,10 +1,10 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useDevices } from "./use-devices"
+import { useDevices } from "../../hooks/use-devices"
 
 // Мокируем функцию getDeviceCapabilities
-vi.mock("./camera-capture-hooks", () => ({
+vi.mock("../../hooks/camera-capture-hooks", () => ({
   useDeviceCapabilities: () => ({
     getDeviceCapabilities: vi.fn(),
   }),

@@ -9,29 +9,56 @@ src/features/browser/
 │   ├── browser.tsx ✅
 │   ├── browser-tabs.tsx ✅
 │   ├── browser-content.tsx ✅
-│   ├── layout/ ✅
-│   ├── preview/ ✅
+│   ├── content-group.tsx ✅
+│   ├── no-files.tsx ✅
+│   ├── layout/
+│   │   ├── add-media-button.tsx ✅
+│   │   ├── browser-toggle.tsx ✅
+│   │   ├── favorite-button.tsx ✅
+│   │   ├── status-bar.tsx ✅
+│   │   └── index.ts ✅
+│   ├── preview/
+│   │   ├── audio-preview.tsx ✅
+│   │   ├── image-preview.tsx ✅
+│   │   ├── media-preview.tsx ✅
+│   │   ├── preview-timeline.tsx ✅
+│   │   ├── video-preview.tsx ✅
+│   │   └── index.ts ✅
 │   └── index.ts ✅
-├── media/
-│   ├── media-machine.ts ✅
-│   ├── media-provider.tsx ✅
-│   ├── use-media-import.ts ✅
-│   ├── use-media.ts ✅
+├── services/
+│   ├── browser-state-machine.ts ✅
+│   ├── browser-state-provider.tsx ✅
+│   ├── use-browser-state.ts ✅
+│   └── index.ts ✅
+├── types/
+│   ├── browser.ts ✅
 │   └── index.ts ✅
 └── index.ts ✅
 ```
 
 ### 🧪 Тестовое покрытие
 ```
+__tests__/
 ├── components/
 │   ├── browser.test.tsx ✅
 │   ├── browser-tabs.test.tsx ✅
-│   └── browser-content.test.tsx ✅
-└── media/
-    ├── media-machine.test.ts ✅
-    ├── media-provider.test.tsx ✅
-    ├── use-media-import.test.tsx ✅
-    └── use-media.test.tsx ✅
+│   ├── browser-content.test.tsx ✅
+│   ├── content-group.test.tsx ✅
+│   ├── no-files.test.tsx ✅
+│   ├── layout/
+│   │   ├── add-media-button.test.tsx ✅
+│   │   ├── browser-toggle.test.tsx ✅
+│   │   ├── favorite-button.test.tsx ✅
+│   │   └── status-bar.test.tsx ✅
+│   └── preview/
+│       ├── audio-preview.test.tsx ✅
+│       ├── image-preview.test.tsx ✅
+│       ├── media-preview.test.tsx ✅
+│       ├── preview-timeline.test.tsx ✅
+│       └── video-preview.test.tsx ✅
+└── services/
+    ├── browser-state-machine.test.ts ✅
+    └── browser-state-provider.test.tsx ✅
 ```
 
 ## 🏗️ Архитектура компонентов
@@ -71,6 +98,7 @@ const handleTabChange = (value: string) => {
 - Subtitles (субтитры)
 - Filters (фильтры)
 - Templates (шаблоны)
+- Style Templates (стильные шаблоны)
 
 ### BrowserContent
 **Файл**: `components/browser-content.tsx`
@@ -91,71 +119,68 @@ const handleTabChange = (value: string) => {
 <TabsContent value="music">
   <MusicList />
 </TabsContent>
+<TabsContent value="styleTemplates">
+  <StyleTemplatesList />
+</TabsContent>
 // ... другие категории
 ```
 
-## 🔧 Медиа модуль
+## 🔧 Сервисы и хуки
 
-### MediaMachine
-**Файл**: `media/media-machine.ts`
+### BrowserStateMachine
+**Файл**: `services/browser-state-machine.ts`
 **Статус**: ✅ Полностью реализован
 
 **Контекст**:
 ```typescript
-interface MediaContext {
-  files: MediaFile[]
-  selectedFiles: MediaFile[]
-  isLoading: boolean
-  error: string | null
-  importProgress: number
+interface BrowserContext {
+  activeTab: BrowserTab
+  selectedFiles: Map<BrowserTab, string[]>
   searchQuery: string
-  sortBy: 'name' | 'date' | 'size'
+  viewMode: 'grid' | 'list'
+  sortBy: 'name' | 'date' | 'size' | 'type'
   sortOrder: 'asc' | 'desc'
-  groupBy: 'none' | 'date' | 'type'
+  groupBy: 'none' | 'date' | 'type' | 'folder'
+  filters: {
+    fileTypes: string[]
+    dateRange: { from?: Date; to?: Date }
+    sizeRange: { min?: number; max?: number }
+  }
 }
 ```
 
 **События**:
 ```typescript
-type MediaEvents = 
-  | { type: 'IMPORT_FILES'; files: File[] }
-  | { type: 'SELECT_FILE'; fileId: string }
-  | { type: 'DESELECT_FILE'; fileId: string }
-  | { type: 'CLEAR_SELECTION' }
-  | { type: 'DELETE_FILE'; fileId: string }
-  | { type: 'SEARCH'; query: string }
-  | { type: 'SORT'; by: string; order: string }
-  | { type: 'GROUP'; by: string }
+type BrowserEvents = 
+  | { type: 'SWITCH_TAB'; tab: BrowserTab }
+  | { type: 'SELECT_FILES'; files: string[]; tab: BrowserTab }
+  | { type: 'CLEAR_SELECTION'; tab?: BrowserTab }
+  | { type: 'SET_SEARCH_QUERY'; query: string }
+  | { type: 'SET_VIEW_MODE'; mode: 'grid' | 'list' }
+  | { type: 'SET_SORT'; by: string; order: string }
+  | { type: 'SET_GROUP'; by: string }
+  | { type: 'SET_FILTERS'; filters: Partial<BrowserContext['filters']> }
 ```
 
-### MediaProvider
-**Файл**: `media/media-provider.tsx`
+### BrowserStateProvider
+**Файл**: `services/browser-state-provider.tsx`
 **Статус**: ✅ Полностью реализован
 
 **Функционал**:
-- React Context для медиа состояния
-- Интеграция с MediaMachine
+- React Context для состояния браузера
+- Интеграция с BrowserStateMachine
 - Предоставление хуков для компонентов
+- Синхронизация с localStorage
 
-### useMediaImport
-**Файл**: `media/use-media-import.ts`
+### useBrowserState
+**Файл**: `services/use-browser-state.ts`
 **Статус**: ✅ Полностью реализован
 
 **Функционал**:
-- Импорт медиафайлов
-- Обработка метаданных
-- Прогресс загрузки
-- Валидация файлов
-
-### useMedia
-**Файл**: `media/use-media.ts`
-**Статус**: ✅ Полностью реализован
-
-**Функционал**:
-- Доступ к медиа состоянию
-- Операции с файлами
+- Доступ к состоянию браузера
+- Управление табами
+- Управление выбором файлов
 - Поиск и фильтрация
-- Выбор файлов
 
 ## 🔗 Связи с другими компонентами
 
@@ -191,6 +216,7 @@ import {
   SubtitlesList,
   TemplateList,
   TransitionsList,
+  StyleTemplatesList,
 } from "@/features";
 ```
 
@@ -261,6 +287,12 @@ interface MediaState {
 - **Машина состояний**: Переходы, события, контекст
 - **Провайдер**: Интеграция с контекстом
 
+### Тестовая статистика
+- **Общее количество тестов**: 190 тестов (2 пропущено)
+- **Время выполнения**: ~4.65 секунд
+- **Файлов с тестами**: 16 файлов
+- **Успешность**: 100% тестов проходят
+
 ### Ключевые тесты
 ```typescript
 // Тест переключения табов
@@ -277,6 +309,12 @@ it('should import media files', async () => {
   })
   expect(mediaFiles).toHaveLength(1)
 })
+
+// Тест состояния машины браузера
+it('should handle tab switching', () => {
+  const { snapshot } = createActor(browserStateMachine).start()
+  expect(snapshot.context.activeTab).toBe('media')
+})
 ```
 
 ### Моки и утилиты
@@ -292,6 +330,14 @@ vi.mock('@/features', () => ({
   MediaList: () => <div data-testid="media-list" />,
   MusicList: () => <div data-testid="music-list" />,
 }))
+
+// Мок для состояния избранного
+const mockFavorites = {
+  media: [],
+  music: [],
+  transition: [],
+  // ... другие категории
+}
 ```
 
 ## 🚀 Производительность
@@ -334,16 +380,47 @@ const BROWSER_CATEGORIES = [
   { id: 'subtitles', label: 'Subtitles', component: SubtitlesList },
   { id: 'filters', label: 'Filters', component: FilterList },
   { id: 'templates', label: 'Templates', component: TemplateList },
+  { id: 'styleTemplates', label: 'Style Templates', component: StyleTemplatesList },
 ];
 ```
 
 ## 📈 Метрики качества
 
 ### Покрытие тестами
-- Компоненты: 100%
-- Хуки: 100%
-- Сервисы: 100%
-- Общее покрытие: 100%
+
+#### Общие показатели модуля browser
+```
+File               | % Stmts | % Branch | % Funcs | % Lines 
+-------------------|---------|----------|---------|---------|
+components         |   71.73 |    67.81 |   78.57 |   71.73 |
+components/layout  |    86.1 |    94.87 |      75 |    86.1 |
+components/preview |   74.54 |    55.81 |   46.66 |   74.54 |
+services           |     100 |    96.92 |     100 |     100 |
+```
+
+#### Детальное покрытие компонентов
+- **browser-content.tsx**: 79.2% statements, 35.29% branches
+- **browser-tabs.tsx**: 100% statements, 76.19% branches
+- **content-group.tsx**: 98.5% statements, 95.83% branches
+- **no-files.tsx**: 100% функциональность покрыта тестами
+
+#### Покрытие layout компонентов
+- **add-media-button.tsx**: 86.4% statements, 92.85% branches
+- **favorite-button.tsx**: 92.23% statements, 94.44% branches
+- **browser-toggle.tsx**: 100% покрытие
+- **status-bar.tsx**: 100% покрытие
+
+#### Покрытие preview компонентов
+- **audio-preview.tsx**: 87.43% statements, 61.11% branches
+- **image-preview.tsx**: 88.88% statements, 64.7% branches
+- **media-preview.tsx**: 63.26% statements, 75% branches
+- **video-preview.tsx**: 60.36% statements, 32.07% branches
+- **preview-timeline.tsx**: 100% покрытие основной функциональности
+
+#### Покрытие сервисов
+- **browser-state-machine.ts**: 100% покрытие
+- **browser-state-provider.tsx**: 100% statements, 95% branches
+- **use-browser-state.ts**: 100% покрытие
 
 ### Производительность
 - Время переключения табов: < 100ms
