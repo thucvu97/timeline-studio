@@ -1,290 +1,376 @@
-import { act } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
-// Простые тесты для проверки импортов и базовой функциональности
+import { SubtitleStyle } from "../types/subtitles"
+import {
+  applySubtitleStyle,
+  generateSubtitleCSS,
+  getSubtitleAnimation,
+  resetSubtitleStyle,
+  subtitleAnimations,
+  subtitleStyleToCSS,
+  validateSubtitleStyle,
+} from "../utils/css-styles"
+
 describe("CSS Styles Module", () => {
-  it("should import CSS styles utilities without errors", async () => {
-    // Проверяем, что модули импортируются без ошибок
-    try {
-      const { subtitleStyleToCSS, subtitleAnimations, getSubtitleAnimation } = await import("../utils/css-styles")
+  describe("subtitleStyleToCSS", () => {
+    it("should convert subtitle style to CSS object", () => {
+      const subtitleStyle: SubtitleStyle = {
+        id: "test",
+        name: "Test Style",
+        category: "basic",
+        complexity: "basic",
+        tags: ["simple"],
+        description: { ru: "Тест", en: "Test" },
+        labels: { ru: "Тест", en: "Test" },
+        style: {
+          color: "#FFFFFF",
+          fontSize: 24,
+          fontFamily: "Arial",
+          fontWeight: "bold",
+          textAlign: "center",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          padding: "10px",
+          borderRadius: "4px",
+          textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+          letterSpacing: 1,
+          lineHeight: 1.5,
+        }
+      }
 
-      expect(subtitleStyleToCSS).toBeDefined()
-      expect(typeof subtitleStyleToCSS).toBe("function")
+      const result = subtitleStyleToCSS(subtitleStyle)
 
+      expect(result).toMatchObject({
+        color: "#FFFFFF",
+        fontSize: "24px",
+        fontFamily: "Arial",
+        fontWeight: "bold",
+        textAlign: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        padding: "10px",
+        borderRadius: "4px",
+        textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+        letterSpacing: "1px",
+        lineHeight: 1.5,
+      })
+    })
+
+    it("should handle gradient text", () => {
+      const subtitleStyle: SubtitleStyle = {
+        id: "gradient",
+        name: "Gradient",
+        category: "modern",
+        complexity: "advanced",
+        tags: ["gradient"],
+        description: { ru: "Градиент", en: "Gradient" },
+        labels: { ru: "Градиент", en: "Gradient" },
+        style: {
+          fontSize: 24,
+          background: "linear-gradient(45deg, #FF0000, #00FF00)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+        }
+      }
+
+      const result = subtitleStyleToCSS(subtitleStyle)
+
+      expect(result.fontSize).toBe("24px")
+      expect(result.background).toBe("linear-gradient(45deg, #FF0000, #00FF00)")
+      expect(result.WebkitBackgroundClip).toBe("text")
+      expect(result.WebkitTextFillColor).toBe("transparent")
+    })
+
+    it("should handle animation", () => {
+      const subtitleStyle: SubtitleStyle = {
+        id: "animated",
+        name: "Animated",
+        category: "animated",
+        complexity: "intermediate",
+        tags: ["animated"],
+        description: { ru: "Анимированный", en: "Animated" },
+        labels: { ru: "Анимированный", en: "Animated" },
+        style: {
+          animation: "fadeIn 1s ease-in-out",
+          fontSize: 24,
+        }
+      }
+
+      const result = subtitleStyleToCSS(subtitleStyle)
+
+      expect(result.animation).toBe("fadeIn 1s ease-in-out")
+    })
+
+    it("should handle empty style object", () => {
+      const subtitleStyle: SubtitleStyle = {
+        id: "empty",
+        name: "Empty",
+        category: "basic",
+        complexity: "basic",
+        tags: [],
+        description: { ru: "Пустой", en: "Empty" },
+        labels: { ru: "Пустой", en: "Empty" },
+        style: {}
+      }
+
+      const result = subtitleStyleToCSS(subtitleStyle)
+
+      expect(result).toEqual({})
+    })
+
+    it("should handle string fontSize", () => {
+      const subtitleStyle: SubtitleStyle = {
+        id: "test",
+        name: "Test",
+        category: "basic",
+        complexity: "basic",
+        tags: [],
+        description: { ru: "Тест", en: "Test" },
+        labels: { ru: "Тест", en: "Test" },
+        style: {
+          fontSize: "2em" as any,
+        }
+      }
+
+      const result = subtitleStyleToCSS(subtitleStyle)
+
+      expect(result.fontSize).toBe("2em")
+    })
+  })
+
+  describe("applySubtitleStyle", () => {
+    let element: HTMLElement
+
+    beforeEach(() => {
+      element = document.createElement("div")
+      document.body.appendChild(element)
+    })
+
+    afterEach(() => {
+      document.body.removeChild(element)
+    })
+
+    it("should apply styles to element", () => {
+      const subtitleStyle: SubtitleStyle = {
+        id: "test",
+        name: "Test",
+        category: "basic",
+        complexity: "basic",
+        tags: [],
+        description: { ru: "Тест", en: "Test" },
+        labels: { ru: "Тест", en: "Test" },
+        style: {
+          color: "#FF0000",
+          fontSize: 32,
+          fontWeight: "bold",
+        }
+      }
+
+      applySubtitleStyle(element, subtitleStyle)
+
+      expect(element.style.color).toBe("rgb(255, 0, 0)")
+      expect(element.style.fontSize).toBe("32px")
+      expect(element.style.fontWeight).toBe("bold")
+    })
+
+    it("should handle null element gracefully", () => {
+      const subtitleStyle: SubtitleStyle = {
+        id: "test",
+        name: "Test",
+        category: "basic",
+        complexity: "basic",
+        tags: [],
+        description: { ru: "Тест", en: "Test" },
+        labels: { ru: "Тест", en: "Test" },
+        style: {}
+      }
+
+      expect(() => applySubtitleStyle(null as any, subtitleStyle)).not.toThrow()
+    })
+  })
+
+  describe("resetSubtitleStyle", () => {
+    it("should reset element styles", () => {
+      const element = document.createElement("div")
+      element.style.color = "red"
+      element.style.fontSize = "32px"
+      element.style.fontWeight = "bold"
+      element.style.background = "linear-gradient(45deg, red, blue)"
+      element.style.padding = "10px"
+
+      resetSubtitleStyle(element)
+
+      expect(element.style.color).toBe("")
+      expect(element.style.fontSize).toBe("")
+      expect(element.style.fontWeight).toBe("")
+      expect(element.style.background).toBe("")
+      expect(element.style.padding).toBe("")
+    })
+
+    it("should handle null element by throwing error", () => {
+      // Функция не обрабатывает null, поэтому должна выбросить ошибку
+      expect(() => resetSubtitleStyle(null as any)).toThrow()
+    })
+  })
+
+  describe("generateSubtitleCSS", () => {
+    it("should generate CSS class string", () => {
+      const subtitleStyle: SubtitleStyle = {
+        id: "test-style",
+        name: "Test Style",
+        category: "basic",
+        complexity: "basic",
+        tags: [],
+        description: { ru: "Тест", en: "Test" },
+        labels: { ru: "Тест", en: "Test" },
+        style: {
+          color: "#FFFFFF",
+          fontSize: 24,
+          fontFamily: "Arial",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+        }
+      }
+
+      const result = generateSubtitleCSS(subtitleStyle)
+
+      expect(result).toContain(".subtitle-style-test-style")
+      expect(result).toContain("color: #FFFFFF")
+      expect(result).toContain("font-size: 24px")
+      expect(result).toContain("font-family: Arial")
+      expect(result).toContain("background-color: rgba(0, 0, 0, 0.8)")
+    })
+
+    it("should include animation keyframes", () => {
+      const subtitleStyle: SubtitleStyle = {
+        id: "animated",
+        name: "Animated",
+        category: "animated",
+        complexity: "intermediate",
+        tags: ["animated"],
+        description: { ru: "Анимированный", en: "Animated" },
+        labels: { ru: "Анимированный", en: "Animated" },
+        style: {
+          animation: "fadeIn 1s",
+          fontSize: 24,
+        }
+      }
+
+      const result = generateSubtitleCSS(subtitleStyle)
+
+      // Проверяем, что CSS содержит анимацию
+      expect(result).toContain("animation: fadeIn 1s")
+    })
+  })
+
+  describe("validateSubtitleStyle", () => {
+    it("should validate correct style", () => {
+      const style = {
+        color: "#FFFFFF",
+        fontSize: 24,
+        fontFamily: "Arial",
+      }
+
+      const result = validateSubtitleStyle(style)
+
+      expect(result).toBe(true)
+    })
+
+    it("should detect invalid color", () => {
+      // Используем цвет который точно не пройдет валидацию
+      const style = {
+        color: "!!!invalid",
+        fontSize: 24,
+      }
+
+      const result = validateSubtitleStyle(style)
+
+      expect(result).toBe(false)
+    })
+
+    it("should detect invalid font size", () => {
+      const style = {
+        fontSize: -10,
+      }
+
+      const result = validateSubtitleStyle(style)
+
+      expect(result).toBe(false)
+    })
+
+    it("should validate opacity", () => {
+      const validOpacity = {
+        opacity: 0.5,
+      }
+
+      const invalidOpacity = {
+        opacity: 1.5,
+      }
+
+      expect(validateSubtitleStyle(validOpacity)).toBe(true)
+      expect(validateSubtitleStyle(invalidOpacity)).toBe(false)
+    })
+
+    it("should validate line height", () => {
+      const validLineHeight = {
+        lineHeight: 1.5,
+      }
+
+      const invalidLineHeight = {
+        lineHeight: -1,
+      }
+
+      expect(validateSubtitleStyle(validLineHeight)).toBe(true)
+      expect(validateSubtitleStyle(invalidLineHeight)).toBe(false)
+    })
+
+    it("should handle empty style", () => {
+      const result = validateSubtitleStyle({})
+
+      expect(result).toBe(true)
+    })
+  })
+
+  describe("subtitleAnimations", () => {
+    it("should have predefined animations", () => {
       expect(subtitleAnimations).toBeDefined()
       expect(typeof subtitleAnimations).toBe("object")
+      expect(Object.keys(subtitleAnimations).length).toBeGreaterThan(0)
+    })
 
-      expect(getSubtitleAnimation).toBeDefined()
-      expect(typeof getSubtitleAnimation).toBe("function")
-    } catch (error) {
-      // Если модуль не найден, это нормально для тестов
-      console.log("CSS styles module not found, which is expected in test environment")
-    }
-  })
+    it("should have typewriter animation", () => {
+      expect(subtitleAnimations.typewriter).toBeDefined()
+      expect(subtitleAnimations.typewriter).toContain("@keyframes typewriter")
+      expect(subtitleAnimations.typewriter).toContain("width")
+    })
 
-  it("should validate CSS style conversion", () => {
-    // Тестируем конвертацию стиля субтитров в CSS
-    const mockSubtitleStyle = {
-      id: "test-style",
-      name: "Test Style",
-      style: {
-        fontSize: "24px",
-        fontFamily: "Arial, sans-serif",
-        color: "#ffffff",
-        backgroundColor: "rgba(0,0,0,0.8)",
-        textAlign: "center",
-        fontWeight: "bold",
-        textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
-        padding: "8px 16px",
-        borderRadius: "4px",
-      },
-    }
+    it("should have fadeInOut animation", () => {
+      expect(subtitleAnimations.fadeInOut).toBeDefined()
+      expect(subtitleAnimations.fadeInOut).toContain("@keyframes fadeInOut")
+      expect(subtitleAnimations.fadeInOut).toContain("opacity")
+    })
 
-    // Проверяем структуру CSS объекта
-    const expectedCSS = {
-      fontSize: "24px",
-      fontFamily: "Arial, sans-serif",
-      color: "#ffffff",
-      backgroundColor: "rgba(0,0,0,0.8)",
-      textAlign: "center",
-      fontWeight: "bold",
-      textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
-      padding: "8px 16px",
-      borderRadius: "4px",
-    }
-
-    // Проверяем типы CSS свойств
-    Object.entries(expectedCSS).forEach(([key, value]) => {
-      expect(typeof value).toBe("string")
-      expect(value.length).toBeGreaterThan(0)
+    it("should have slideInFromBottom animation", () => {
+      expect(subtitleAnimations.slideInFromBottom).toBeDefined()
+      expect(subtitleAnimations.slideInFromBottom).toContain("@keyframes slideInFromBottom")
+      expect(subtitleAnimations.slideInFromBottom).toContain("transform")
     })
   })
 
-  it("should validate font properties", () => {
-    // Тестируем свойства шрифтов
-    const validFontProperties = {
-      fontSize: ["16px", "18px", "20px", "24px", "28px", "32px", "36px", "48px"],
-      fontFamily: [
-        "Arial, sans-serif",
-        "Georgia, serif",
-        "Impact, sans-serif",
-        "Times New Roman, serif",
-        "Helvetica, sans-serif",
-        "Courier New, monospace",
-      ],
-      fontWeight: ["normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900"],
-      textAlign: ["left", "center", "right", "justify"],
-    }
-
-    // Проверяем размеры шрифтов
-    validFontProperties.fontSize.forEach((size) => {
-      expect(size).toMatch(/^\d+px$/)
-      const numericValue = Number.parseInt(size)
-      expect(numericValue).toBeGreaterThan(0)
-      expect(numericValue).toBeLessThanOrEqual(100)
+  describe("getSubtitleAnimation", () => {
+    it("should return animation keyframes by name", () => {
+      const typewriter = getSubtitleAnimation("typewriter")
+      expect(typewriter).toBe(subtitleAnimations.typewriter)
+      
+      const fadeInOut = getSubtitleAnimation("fadeInOut")
+      expect(fadeInOut).toBe(subtitleAnimations.fadeInOut)
     })
 
-    // Проверяем семейства шрифтов
-    validFontProperties.fontFamily.forEach((family) => {
-      expect(typeof family).toBe("string")
-      expect(family.length).toBeGreaterThan(0)
-      expect(family).toMatch(/^[a-zA-Z\s,'-]+$/)
+    it("should return empty string for unknown animation", () => {
+      const unknown = getSubtitleAnimation("unknownAnimation" as any)
+      expect(unknown).toBe("")
     })
 
-    // Проверяем веса шрифтов
-    validFontProperties.fontWeight.forEach((weight) => {
-      expect(typeof weight).toBe("string")
-      expect(weight.length).toBeGreaterThan(0)
-    })
-
-    // Проверяем выравнивание текста
-    validFontProperties.textAlign.forEach((align) => {
-      expect(["left", "center", "right", "justify"]).toContain(align)
-    })
-  })
-
-  it("should validate color properties", () => {
-    // Тестируем цветовые свойства
-    const validColors = {
-      hex: ["#ffffff", "#000000", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"],
-      rgba: ["rgba(255,255,255,1)", "rgba(0,0,0,0.8)", "rgba(255,0,0,0.5)", "rgba(0,255,0,0.3)", "rgba(0,0,255,0.9)"],
-      named: ["white", "black", "red", "green", "blue", "yellow", "transparent"],
-    }
-
-    // Проверяем HEX цвета
-    validColors.hex.forEach((color) => {
-      expect(color).toMatch(/^#[0-9a-fA-F]{6}$/)
-    })
-
-    // Проверяем RGBA цвета
-    validColors.rgba.forEach((color) => {
-      expect(color).toMatch(/^rgba\(\d+,\d+,\d+,(0(\.\d+)?|1(\.0+)?)\)$/)
-    })
-
-    // Проверяем именованные цвета
-    validColors.named.forEach((color) => {
-      expect(typeof color).toBe("string")
-      expect(color.length).toBeGreaterThan(0)
-      expect(color).toMatch(/^[a-z]+$/)
-    })
-  })
-
-  it("should validate text shadow properties", () => {
-    // Тестируем свойства тени текста
-    const validTextShadows = [
-      "none",
-      "1px 1px 2px rgba(0,0,0,0.5)",
-      "2px 2px 4px rgba(0,0,0,0.8)",
-      "3px 3px 6px rgba(0,0,0,1)",
-      "0 0 10px rgba(255,255,255,0.8)",
-      "-1px -1px 2px rgba(0,0,0,0.6)",
-    ]
-
-    validTextShadows.forEach((shadow) => {
-      expect(typeof shadow).toBe("string")
-      expect(shadow.length).toBeGreaterThan(0)
-
-      if (shadow !== "none") {
-        // Проверяем формат тени (x y blur color) - может быть с px или без
-        expect(shadow).toMatch(/^-?\d+(px)?\s+-?\d+(px)?\s+\d+px\s+rgba?\([^)]+\)$/)
-      }
-    })
-  })
-
-  it("should validate animation properties", () => {
-    // Тестируем анимационные свойства
-    const validAnimations = {
-      typewriter: {
-        name: "typewriter",
-        duration: "3s",
-        timing: "steps(20, end)",
-        iteration: "1",
-        direction: "normal",
-      },
-      fadeInOut: {
-        name: "fadeInOut",
-        duration: "2s",
-        timing: "ease-in-out",
-        iteration: "infinite",
-        direction: "alternate",
-      },
-      slideInFromBottom: {
-        name: "slideInFromBottom",
-        duration: "1s",
-        timing: "ease-out",
-        iteration: "1",
-        direction: "normal",
-      },
-    }
-
-    Object.entries(validAnimations).forEach(([key, animation]) => {
-      expect(typeof animation.name).toBe("string")
-      expect(animation.name).toBe(key)
-
-      expect(typeof animation.duration).toBe("string")
-      expect(animation.duration).toMatch(/^\d+(\.\d+)?s$/)
-
-      expect(typeof animation.timing).toBe("string")
-      expect(animation.timing.length).toBeGreaterThan(0)
-
-      expect(typeof animation.iteration).toBe("string")
-      expect(["1", "infinite"]).toContain(animation.iteration)
-
-      expect(typeof animation.direction).toBe("string")
-      expect(["normal", "reverse", "alternate", "alternate-reverse"]).toContain(animation.direction)
-    })
-  })
-
-  it("should validate background properties", () => {
-    // Тестируем фоновые свойства
-    const validBackgrounds = {
-      transparent: "transparent",
-      solid: "rgba(0,0,0,0.8)",
-      gradient: "linear-gradient(45deg, rgba(0,0,0,0.8), rgba(0,0,0,0.4))",
-      blur: "rgba(0,0,0,0.6) backdrop-filter: blur(5px)",
-    }
-
-    Object.entries(validBackgrounds).forEach(([type, background]) => {
-      expect(typeof background).toBe("string")
-      expect(background.length).toBeGreaterThan(0)
-
-      switch (type) {
-        case "transparent":
-          expect(background).toBe("transparent")
-          break
-        case "solid":
-          expect(background).toMatch(/^rgba\(\d+,\d+,\d+,(0(\.\d+)?|1(\.0+)?)\)$/)
-          break
-        case "gradient":
-          expect(background).toMatch(/^linear-gradient\(/)
-          break
-        case "blur":
-          expect(background).toMatch(/backdrop-filter/)
-          break
-      }
-    })
-  })
-
-  it("should validate padding and margin properties", () => {
-    // Тестируем отступы
-    const validSpacing = [
-      "0",
-      "4px",
-      "8px",
-      "12px",
-      "16px",
-      "20px",
-      "24px",
-      "8px 16px",
-      "4px 8px 12px",
-      "4px 8px 12px 16px",
-    ]
-
-    validSpacing.forEach((spacing) => {
-      expect(typeof spacing).toBe("string")
-      expect(spacing.length).toBeGreaterThan(0)
-
-      if (spacing !== "0") {
-        // Проверяем формат отступов
-        expect(spacing).toMatch(/^(\d+px\s*){1,4}$/)
-      }
-    })
-  })
-
-  it("should validate border properties", () => {
-    // Тестируем свойства границ
-    const validBorders = {
-      borderRadius: ["0", "2px", "4px", "8px", "12px", "50%"],
-      borderWidth: ["0", "1px", "2px", "3px", "4px"],
-      borderStyle: ["none", "solid", "dashed", "dotted"],
-      borderColor: ["transparent", "#ffffff", "#000000", "rgba(255,255,255,0.5)"],
-    }
-
-    // Проверяем радиус границ
-    validBorders.borderRadius.forEach((radius) => {
-      expect(typeof radius).toBe("string")
-      if (radius !== "0") {
-        expect(radius).toMatch(/^(\d+px|50%)$/)
-      }
-    })
-
-    // Проверяем ширину границ
-    validBorders.borderWidth.forEach((width) => {
-      expect(typeof width).toBe("string")
-      if (width !== "0") {
-        expect(width).toMatch(/^\d+px$/)
-      }
-    })
-
-    // Проверяем стили границ
-    validBorders.borderStyle.forEach((style) => {
-      expect(["none", "solid", "dashed", "dotted"]).toContain(style)
-    })
-
-    // Проверяем цвета границ
-    validBorders.borderColor.forEach((color) => {
-      expect(typeof color).toBe("string")
-      expect(color.length).toBeGreaterThan(0)
+    it("should handle invalid animation names", () => {
+      expect(getSubtitleAnimation("" as any)).toBe("")
+      expect(getSubtitleAnimation("notExist" as any)).toBe("")
     })
   })
 })

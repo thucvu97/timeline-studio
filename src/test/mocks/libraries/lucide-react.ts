@@ -22,6 +22,7 @@ const createMockIcon = (name: string) => {
 // Export all commonly used icons
 export const AlertCircle = createMockIcon("AlertCircle")
 export const AlertTriangle = createMockIcon("AlertTriangle")
+export const ArrowRight = createMockIcon("ArrowRight")
 export const Clapperboard = createMockIcon("Clapperboard")
 export const Blend = createMockIcon("Blend")
 export const Bot = createMockIcon("Bot")
@@ -122,6 +123,7 @@ export const Zap = createMockIcon("Zap")
 vi.mock("lucide-react", () => ({
   AlertCircle,
   AlertTriangle,
+  ArrowRight,
   Clapperboard,
   Blend,
   Bot,

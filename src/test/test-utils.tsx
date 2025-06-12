@@ -4,6 +4,7 @@ import { RenderOptions, render } from "@testing-library/react"
 
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AppSettingsProvider } from "@/features/app-state"
+import { BrowserStateProvider } from "@/features/browser/services/browser-state-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings"
 import { ResourcesProvider } from "@/features/resources"
@@ -101,6 +102,21 @@ const TemplateProviders = ({ children }: { children: ReactNode }) => {
   )
 }
 
+// ✅ Провайдеры для браузера (субтитры, эффекты и т.д.)
+export const BrowserProviders = ({ children }: { children: ReactNode }) => {
+  return (
+    <BaseProviders>
+      <ProjectSettingsProvider>
+        <ResourcesProvider>
+          <BrowserStateProvider>
+            {children}
+          </BrowserStateProvider>
+        </ResourcesProvider>
+      </ProjectSettingsProvider>
+    </BaseProviders>
+  )
+}
+
 // ✅ Специализированные функции рендеринга
 export const renderWithBase = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
   render(ui, { wrapper: BaseProviders, ...options })
@@ -122,6 +138,9 @@ export const renderWithChat = (ui: ReactElement, options?: Omit<RenderOptions, "
 
 export const renderWithTemplates = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
   render(ui, { wrapper: TemplateProviders, ...options })
+
+export const renderWithBrowser = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
+  render(ui, { wrapper: BrowserProviders, ...options })
 
 // 🎯 Умная функция рендеринга (по умолчанию базовые провайдеры)
 const customRender = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
