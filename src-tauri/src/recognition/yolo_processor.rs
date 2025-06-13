@@ -6,16 +6,15 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::sync::Once;
 
-// Инициализация tract backend для ORT
+// Инициализация ORT
 static INIT: Once = Once::new();
 
 fn init_ort() -> Result<()> {
     INIT.call_once(|| {
-        // Инициализируем ORT с tract backend для bundled builds
+        // Инициализируем ORT без execution providers для bundled builds
         ort::init()
-            .with_execution_providers([ort_tract::tract_provider()])
             .commit()
-            .expect("Failed to initialize ORT with tract backend");
+            .expect("Failed to initialize ORT");
     });
     Ok(())
 }
@@ -90,18 +89,11 @@ pub struct YoloProcessor {
   iou_threshold: f32,
 }
 
-/// Инициализация tract backend для ORT
-fn init_ort_tract() {
-  INIT.call_once(|| {
-    ort::set_api(ort_tract::api());
-  });
-}
-
 impl YoloProcessor {
   /// Создать новый процессор
   pub fn new(model_type: YoloModel, confidence_threshold: f32) -> Result<Self> {
-    // Инициализируем tract backend
-    init_ort_tract();
+    // Инициализируем ORT при создании процессора
+    init_ort()?;
     let model_path = match &model_type {
       YoloModel::YoloV11Detection => PathBuf::from("models/yolo11n.onnx"),
       YoloModel::YoloV11Segmentation => PathBuf::from("models/yolo11n-seg.onnx"),

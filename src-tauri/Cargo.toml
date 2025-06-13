@@ -53,8 +53,8 @@ tower-http = { version = "0.5", features = ["cors", "fs"] }
 md5 = "0.7"
 dirs = "5.0"
 anyhow = "1.0.98"
-ort = { version = "2.0.0-rc.10" }
-ort-sys = { version = "=2.0.0-rc.10", default-features = false } # match whatever version of `ort` you use
+ort = { version = "2.0.0-rc.10", default-features = false }
+ort-sys = { version = "2.0.0-rc.10", default-features = false }
 ndarray = "0.15"
 
 [features]
