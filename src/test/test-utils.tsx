@@ -108,9 +108,7 @@ export const BrowserProviders = ({ children }: { children: ReactNode }) => {
     <BaseProviders>
       <ProjectSettingsProvider>
         <ResourcesProvider>
-          <BrowserStateProvider>
-            {children}
-          </BrowserStateProvider>
+          <BrowserStateProvider>{children}</BrowserStateProvider>
         </ResourcesProvider>
       </ProjectSettingsProvider>
     </BaseProviders>

@@ -18,7 +18,7 @@ vi.mock("../data/subtitle-styles.json", () => ({
         color: "#FFFFFF",
         fontSize: 24,
         fontFamily: "Arial",
-      }
+      },
     },
     {
       id: "cinematic-elegant",
@@ -33,9 +33,9 @@ vi.mock("../data/subtitle-styles.json", () => ({
         fontSize: 28,
         fontFamily: "Georgia",
         textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
-      }
+      },
     },
-  ]
+  ],
 }))
 
 vi.mock("../data/subtitle-categories.json", () => ({
@@ -43,14 +43,14 @@ vi.mock("../data/subtitle-categories.json", () => ({
     {
       id: "basic",
       name: { en: "Basic", ru: "Базовые" },
-      description: { en: "Simple subtitle styles", ru: "Простые стили субтитров" }
+      description: { en: "Simple subtitle styles", ru: "Простые стили субтитров" },
     },
     {
       id: "cinematic",
       name: { en: "Cinematic", ru: "Кинематографические" },
-      description: { en: "Movie-style subtitles", ru: "Субтитры в стиле кино" }
-    }
-  ]
+      description: { en: "Movie-style subtitles", ru: "Субтитры в стиле кино" },
+    },
+  ],
 }))
 
 describe.skip("useSubtitles", () => {
@@ -96,7 +96,7 @@ describe.skip("useSubtitles", () => {
 
   it("должен предоставлять функцию reload", () => {
     const { result } = renderHook(() => useSubtitles())
-    
+
     expect(typeof result.current.reload).toBe("function")
   })
 
@@ -108,8 +108,8 @@ describe.skip("useSubtitles", () => {
     })
 
     // Проверяем что стили правильно распределены по категориям
-    const basicStyles = result.current.subtitles.filter(s => s.category === "basic")
-    const cinematicStyles = result.current.subtitles.filter(s => s.category === "cinematic")
+    const basicStyles = result.current.subtitles.filter((s) => s.category === "basic")
+    const cinematicStyles = result.current.subtitles.filter((s) => s.category === "cinematic")
 
     expect(basicStyles).toHaveLength(1)
     expect(cinematicStyles).toHaveLength(1)
@@ -138,7 +138,7 @@ describe.skip("useSubtitleCategories", () => {
 
   it("должен предоставлять функцию reload", () => {
     const { result } = renderHook(() => useSubtitleCategories())
-    
+
     expect(typeof result.current.reload).toBe("function")
   })
 
@@ -149,7 +149,7 @@ describe.skip("useSubtitleCategories", () => {
       expect(result.current.isReady).toBe(true)
     })
 
-    const basicCategory = result.current.categories.find(c => c.id === "basic")
+    const basicCategory = result.current.categories.find((c) => c.id === "basic")
     expect(basicCategory).toBeDefined()
     expect(basicCategory?.name.en).toBe("Basic")
     expect(basicCategory?.name.ru).toBe("Базовые")

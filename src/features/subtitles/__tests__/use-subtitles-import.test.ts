@@ -5,7 +5,7 @@ import { useSubtitlesImport } from "../hooks/use-subtitles-import"
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/plugin-dialog", () => ({
-  open: vi.fn()
+  open: vi.fn(),
 }))
 
 const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
@@ -20,7 +20,7 @@ describe("useSubtitlesImport", () => {
 
   it("должен импортировать JSON файл со стилями", async () => {
     const { open } = await import("@tauri-apps/plugin-dialog")
-    
+
     vi.mocked(open).mockResolvedValue("/path/to/styles.json")
 
     const { result } = renderHook(() => useSubtitlesImport())
@@ -33,10 +33,12 @@ describe("useSubtitlesImport", () => {
 
     expect(open).toHaveBeenCalledWith({
       multiple: false,
-      filters: [{
-        name: "Subtitles JSON",
-        extensions: ["json"]
-      }]
+      filters: [
+        {
+          name: "Subtitles JSON",
+          extensions: ["json"],
+        },
+      ],
     })
 
     expect(consoleSpy).toHaveBeenCalledWith("Импорт JSON файла со стилями субтитров:", "/path/to/styles.json")
@@ -45,7 +47,7 @@ describe("useSubtitlesImport", () => {
 
   it("должен импортировать отдельные файлы стилей", async () => {
     const { open } = await import("@tauri-apps/plugin-dialog")
-    
+
     vi.mocked(open).mockResolvedValue(["/path/to/style1.css", "/path/to/style2.srt"])
 
     const { result } = renderHook(() => useSubtitlesImport())
@@ -56,18 +58,23 @@ describe("useSubtitlesImport", () => {
 
     expect(open).toHaveBeenCalledWith({
       multiple: true,
-      filters: [{
-        name: "Subtitle Style Files",
-        extensions: ["css", "json", "srt", "vtt", "ass"]
-      }]
+      filters: [
+        {
+          name: "Subtitle Style Files",
+          extensions: ["css", "json", "srt", "vtt", "ass"],
+        },
+      ],
     })
 
-    expect(consoleSpy).toHaveBeenCalledWith("Импорт файлов стилей субтитров:", ["/path/to/style1.css", "/path/to/style2.srt"])
+    expect(consoleSpy).toHaveBeenCalledWith("Импорт файлов стилей субтитров:", [
+      "/path/to/style1.css",
+      "/path/to/style2.srt",
+    ])
   })
 
   it("должен обрабатывать отмену выбора файла", async () => {
     const { open } = await import("@tauri-apps/plugin-dialog")
-    
+
     vi.mocked(open).mockResolvedValue(null)
 
     const { result } = renderHook(() => useSubtitlesImport())
@@ -82,7 +89,7 @@ describe("useSubtitlesImport", () => {
 
   it.skip("должен обрабатывать ошибки при импорте", async () => {
     const { open } = await import("@tauri-apps/plugin-dialog")
-    
+
     const testError = new Error("Dialog error")
     vi.mocked(open).mockRejectedValue(testError)
 
@@ -98,9 +105,11 @@ describe("useSubtitlesImport", () => {
 
   it("должен предотвращать двойной импорт", async () => {
     const { open } = await import("@tauri-apps/plugin-dialog")
-    
+
     // Мокаем долгую операцию
-    vi.mocked(open).mockImplementation(() => new Promise(resolve => setTimeout(() => resolve("/path/to/file.json"), 100)))
+    vi.mocked(open).mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve("/path/to/file.json"), 100)),
+    )
 
     const { result } = renderHook(() => useSubtitlesImport())
 
@@ -122,7 +131,7 @@ describe("useSubtitlesImport", () => {
 
   it("должен обрабатывать единичный файл как массив", async () => {
     const { open } = await import("@tauri-apps/plugin-dialog")
-    
+
     // Возвращаем единичный файл вместо массива
     vi.mocked(open).mockResolvedValue("/path/to/single.css")
 
@@ -142,7 +151,7 @@ describe("useSubtitlesImport", () => {
     expect(result.current).toHaveProperty("importSubtitlesFile")
     expect(result.current).toHaveProperty("importSubtitleFile")
     expect(result.current).toHaveProperty("isImporting")
-    
+
     expect(typeof result.current.importSubtitlesFile).toBe("function")
     expect(typeof result.current.importSubtitleFile).toBe("function")
     expect(typeof result.current.isImporting).toBe("boolean")

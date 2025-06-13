@@ -34,7 +34,7 @@ describe("CSS Styles Module", () => {
           textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
           letterSpacing: 1,
           lineHeight: 1.5,
-        }
+        },
       }
 
       const result = subtitleStyleToCSS(subtitleStyle)
@@ -68,7 +68,7 @@ describe("CSS Styles Module", () => {
           background: "linear-gradient(45deg, #FF0000, #00FF00)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
-        }
+        },
       }
 
       const result = subtitleStyleToCSS(subtitleStyle)
@@ -91,7 +91,7 @@ describe("CSS Styles Module", () => {
         style: {
           animation: "fadeIn 1s ease-in-out",
           fontSize: 24,
-        }
+        },
       }
 
       const result = subtitleStyleToCSS(subtitleStyle)
@@ -108,7 +108,7 @@ describe("CSS Styles Module", () => {
         tags: [],
         description: { ru: "Пустой", en: "Empty" },
         labels: { ru: "Пустой", en: "Empty" },
-        style: {}
+        style: {},
       }
 
       const result = subtitleStyleToCSS(subtitleStyle)
@@ -127,7 +127,7 @@ describe("CSS Styles Module", () => {
         labels: { ru: "Тест", en: "Test" },
         style: {
           fontSize: "2em" as any,
-        }
+        },
       }
 
       const result = subtitleStyleToCSS(subtitleStyle)
@@ -161,7 +161,7 @@ describe("CSS Styles Module", () => {
           color: "#FF0000",
           fontSize: 32,
           fontWeight: "bold",
-        }
+        },
       }
 
       applySubtitleStyle(element, subtitleStyle)
@@ -180,7 +180,7 @@ describe("CSS Styles Module", () => {
         tags: [],
         description: { ru: "Тест", en: "Test" },
         labels: { ru: "Тест", en: "Test" },
-        style: {}
+        style: {},
       }
 
       expect(() => applySubtitleStyle(null as any, subtitleStyle)).not.toThrow()
@@ -226,7 +226,7 @@ describe("CSS Styles Module", () => {
           fontSize: 24,
           fontFamily: "Arial",
           backgroundColor: "rgba(0, 0, 0, 0.8)",
-        }
+        },
       }
 
       const result = generateSubtitleCSS(subtitleStyle)
@@ -250,7 +250,7 @@ describe("CSS Styles Module", () => {
         style: {
           animation: "fadeIn 1s",
           fontSize: 24,
-        }
+        },
       }
 
       const result = generateSubtitleCSS(subtitleStyle)
@@ -358,7 +358,7 @@ describe("CSS Styles Module", () => {
     it("should return animation keyframes by name", () => {
       const typewriter = getSubtitleAnimation("typewriter")
       expect(typewriter).toBe(subtitleAnimations.typewriter)
-      
+
       const fadeInOut = getSubtitleAnimation("fadeInOut")
       expect(fadeInOut).toBe(subtitleAnimations.fadeInOut)
     })

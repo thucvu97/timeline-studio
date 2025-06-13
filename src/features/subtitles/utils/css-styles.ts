@@ -91,7 +91,7 @@ export function subtitleStyleToCSS(style: SubtitleStyle): React.CSSProperties {
  */
 export function applySubtitleStyle(element: HTMLElement, style: SubtitleStyle): void {
   if (!element) return
-  
+
   const cssStyle = subtitleStyleToCSS(style)
 
   Object.entries(cssStyle).forEach(([property, value]) => {

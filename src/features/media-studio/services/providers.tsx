@@ -27,15 +27,17 @@ const composeProviders = (...providers: React.ComponentType<{ children: ReactNod
 }
 
 // Создаем единый провайдер из всех контекстов
+// ВАЖНО: Порядок провайдеров имеет значение!
+// ShortcutsProvider зависит от UserSettingsProvider и должен идти после него
 const AppProvider = composeProviders(
   I18nProvider,
   ThemeProvider,
   ModalProvider,
-  ShortcutsProvider,
   AppSettingsProvider,
   BrowserStateProvider,
   ProjectSettingsProvider,
   UserSettingsProvider,
+  ShortcutsProvider, // Зависит от UserSettingsProvider
   ResourcesProvider,
   TimelineProvider,
   PlayerProvider,

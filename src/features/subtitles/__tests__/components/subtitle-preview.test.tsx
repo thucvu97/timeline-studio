@@ -7,21 +7,15 @@ import { SubtitleStyle } from "../../types/subtitles"
 
 // Мокаем дополнительные зависимости
 vi.mock("@/features/browser/components/layout/apply-button", () => ({
-  ApplyButton: () => (
-    <button>Применить</button>
-  )
+  ApplyButton: () => <button>Применить</button>,
 }))
 
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
-  AddMediaButton: () => (
-    <button>Добавить</button>
-  )
+  AddMediaButton: () => <button>Добавить</button>,
 }))
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
-  FavoriteButton: () => (
-    <button>Избранное</button>
-  )
+  FavoriteButton: () => <button>Избранное</button>,
 }))
 
 const mockSubtitle: SubtitleStyle = {
@@ -30,13 +24,13 @@ const mockSubtitle: SubtitleStyle = {
   category: "basic",
   complexity: "basic",
   tags: ["simple", "clean"],
-  description: { 
-    en: "Simple white subtitles", 
-    ru: "Простые белые субтитры" 
+  description: {
+    en: "Simple white subtitles",
+    ru: "Простые белые субтитры",
   },
-  labels: { 
-    en: "Basic White", 
-    ru: "Базовый белый" 
+  labels: {
+    en: "Basic White",
+    ru: "Базовый белый",
   },
   style: {
     color: "#FFFFFF",
@@ -46,7 +40,7 @@ const mockSubtitle: SubtitleStyle = {
     textAlign: "center",
     backgroundColor: "rgba(0, 0, 0, 0.8)",
     padding: "10px",
-  }
+  },
 }
 
 describe("SubtitlePreview", () => {
@@ -65,11 +59,11 @@ describe("SubtitlePreview", () => {
 
   it("должен отображать превью текста со стилями", () => {
     render(<SubtitlePreview {...defaultProps} />)
-    
+
     // Ищем элемент с примером текста
     const preview = screen.getByText("Timeline Studio")
     expect(preview).toBeInTheDocument()
-    
+
     // Проверяем что стили применены
     const styles = getComputedStyle(preview)
     expect(styles.color).toBe("rgb(255, 255, 255)")
@@ -92,9 +86,9 @@ describe("SubtitlePreview", () => {
       style: {
         ...mockSubtitle.style,
         animation: "fadeIn 1s ease-in-out",
-      }
+      },
     }
-    
+
     render(<SubtitlePreview {...defaultProps} style={animatedSubtitle} />)
     expect(screen.getByText("ANI")).toBeInTheDocument()
   })
@@ -102,7 +96,7 @@ describe("SubtitlePreview", () => {
   it("должен вызывать onClick при клике", () => {
     const onClick = vi.fn()
     render(<SubtitlePreview {...defaultProps} onClick={onClick} />)
-    
+
     // Кликаем на контейнер превью
     const previewElement = screen.getByText("Timeline Studio").closest(".cursor-pointer")
     if (previewElement) {
@@ -119,9 +113,9 @@ describe("SubtitlePreview", () => {
         background: "linear-gradient(45deg, #FF0000, #00FF00)",
         WebkitBackgroundClip: "text",
         WebkitTextFillColor: "transparent",
-      }
+      },
     }
-    
+
     render(<SubtitlePreview {...defaultProps} style={gradientSubtitle} />)
     const preview = screen.getByText("Timeline Studio")
     const styles = getComputedStyle(preview)
@@ -134,9 +128,9 @@ describe("SubtitlePreview", () => {
       style: {
         ...mockSubtitle.style,
         textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
-      }
+      },
     }
-    
+
     render(<SubtitlePreview {...defaultProps} style={shadowSubtitle} />)
     const preview = screen.getByText("Timeline Studio")
     const styles = getComputedStyle(preview)
@@ -149,9 +143,9 @@ describe("SubtitlePreview", () => {
       style: {
         ...mockSubtitle.style,
         animation: "fadeIn 1s ease-in-out",
-      }
+      },
     }
-    
+
     render(<SubtitlePreview {...defaultProps} style={animatedSubtitle} />)
     const preview = screen.getByText("Timeline Studio")
     const styles = getComputedStyle(preview)
@@ -159,15 +153,8 @@ describe("SubtitlePreview", () => {
   })
 
   it("должен корректно отображать размеры превью", () => {
-    render(
-      <SubtitlePreview 
-        {...defaultProps} 
-        size={120}
-        previewWidth={180}
-        previewHeight={100}
-      />
-    )
-    
+    render(<SubtitlePreview {...defaultProps} size={120} previewWidth={180} previewHeight={100} />)
+
     const container = screen.getByText("Timeline Studio").closest(".cursor-pointer")
     expect(container).toHaveStyle({ width: "180px", height: "100px" })
   })

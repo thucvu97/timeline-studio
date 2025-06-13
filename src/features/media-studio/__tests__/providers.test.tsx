@@ -103,21 +103,29 @@ describe("Providers", () => {
     const html = container.innerHTML
 
     // Проверяем, что провайдеры вложены в правильном порядке
-    // I18nProvider -> ModalProvider -> BrowserVisibilityProvider -> ProjectSettingsProvider -> TestComponent
+    // I18nProvider -> ModalProvider -> UserSettingsProvider -> ShortcutsProvider -> ProjectSettingsProvider -> TestComponent
     expect(html).toContain('data-testid="i18n-provider"')
     expect(html).toContain('data-testid="modal-provider"')
+    expect(html).toContain('data-testid="user-settings-provider"')
+    expect(html).toContain('data-testid="shortcuts-provider"')
     expect(html).toContain('data-testid="project-settings-provider"')
     expect(html).toContain('data-testid="test-component"')
 
     // Проверяем порядок вложенности
     const i18nIndex = html.indexOf('data-testid="i18n-provider"')
     const modalIndex = html.indexOf('data-testid="modal-provider"')
+    const userSettingsIndex = html.indexOf('data-testid="user-settings-provider"')
+    const shortcutsIndex = html.indexOf('data-testid="shortcuts-provider"')
     const projectSettingsIndex = html.indexOf('data-testid="project-settings-provider"')
     const componentIndex = html.indexOf('data-testid="test-component"')
 
     // I18nProvider должен быть самым внешним (первым в HTML)
     expect(i18nIndex).toBeLessThan(modalIndex)
-    // ProjectSettingsProvider должен быть внутри BrowserVisibilityProvider, но снаружи TestComponent
+    // UserSettingsProvider должен быть перед ShortcutsProvider
+    expect(userSettingsIndex).toBeLessThan(shortcutsIndex)
+    // ShortcutsProvider должен быть после UserSettingsProvider
+    expect(shortcutsIndex).toBeGreaterThan(userSettingsIndex)
+    // ProjectSettingsProvider должен быть внутри ShortcutsProvider, но снаружи TestComponent
     expect(projectSettingsIndex).toBeLessThan(componentIndex)
   })
 

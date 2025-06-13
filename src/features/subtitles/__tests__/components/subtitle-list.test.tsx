@@ -11,7 +11,7 @@ import type { SubtitleStyle } from "../../types/subtitles"
 
 // Мокаем зависимости
 vi.mock("../../hooks/use-subtitle-styles", () => ({
-  useSubtitles: vi.fn()
+  useSubtitles: vi.fn(),
 }))
 
 vi.mock("@/features/browser/components/content-group", () => ({
@@ -20,7 +20,7 @@ vi.mock("@/features/browser/components/content-group", () => ({
       <h3>{title}</h3>
       {children}
     </div>
-  )
+  ),
 }))
 
 // Мок для useBrowserState
@@ -34,11 +34,11 @@ vi.mock("@/features/browser/services/browser-state-provider", () => ({
       groupBy: "none",
       filterType: "all",
       viewMode: "thumbnails" as const,
-      previewSizeIndex: 1
+      previewSizeIndex: 1,
     },
-    setSearchQuery: vi.fn()
+    setSearchQuery: vi.fn(),
   })),
-  BrowserStateProvider: ({ children }: any) => children
+  BrowserStateProvider: ({ children }: any) => children,
 }))
 
 // Мок для useFavorites
@@ -56,14 +56,14 @@ vi.mock("@/features/app-state", () => ({
       filter: [],
       styleTemplate: [],
       template: [],
-      subtitle: []
-    }
+      subtitle: [],
+    },
   })),
   AppSettingsProvider: ({ children }: any) => children,
   useAppSettings: vi.fn(() => ({
     getUserSettings: vi.fn(),
-    updateUserSettings: vi.fn()
-  }))
+    updateUserSettings: vi.fn(),
+  })),
 }))
 
 // Мок данных субтитров
@@ -80,12 +80,12 @@ const mockSubtitles: SubtitleStyle[] = [
       color: "#FFFFFF",
       fontSize: 24,
       fontFamily: "Arial",
-    }
+    },
   },
   {
     id: "cinematic-elegant",
     name: "Elegant",
-    category: "cinematic" as const, 
+    category: "cinematic" as const,
     complexity: "intermediate" as const,
     tags: ["elegant" as const, "professional" as const],
     description: { en: "Elegant cinematic style", ru: "Элегантный кинематографический стиль" },
@@ -95,7 +95,7 @@ const mockSubtitles: SubtitleStyle[] = [
       fontSize: 28,
       fontFamily: "Georgia",
       textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
-    }
+    },
   },
 ]
 
@@ -158,7 +158,7 @@ describe("SubtitleList", () => {
     })
 
     render(<SubtitleList />)
-    
+
     // Просто проверяем что хотя бы одна группа есть
     const groups = screen.getAllByRole("region")
     expect(groups.length).toBeGreaterThan(0)
@@ -175,7 +175,7 @@ describe("SubtitleList", () => {
     })
 
     render(<SubtitleList />)
-    
+
     // Проверяем наличие групп (ContentGroup компоненты)
     const groups = screen.getAllByRole("region")
     expect(groups.length).toBeGreaterThan(0)
@@ -216,7 +216,7 @@ describe("SubtitleList", () => {
         groupBy: "none",
         filterType: "all",
         viewMode: "thumbnails" as const,
-        previewSizeIndex: 1
+        previewSizeIndex: 1,
       },
       activeTab: "subtitles",
       previewSize: 200,
@@ -229,11 +229,11 @@ describe("SubtitleList", () => {
       setFilter: vi.fn(),
       setViewMode: vi.fn(),
       setPreviewSize: vi.fn(),
-      resetTabSettings: vi.fn()
+      resetTabSettings: vi.fn(),
     })
 
     render(<SubtitleList />)
-    
+
     // Проверяем что отображается только субтитр, соответствующий поиску
     const groups = screen.getAllByRole("region")
     expect(groups.length).toBeGreaterThan(0)
@@ -260,7 +260,7 @@ describe("SubtitleList", () => {
         groupBy: "none",
         filterType: "all",
         viewMode: "thumbnails" as const,
-        previewSizeIndex: 1
+        previewSizeIndex: 1,
       },
       activeTab: "subtitles",
       previewSize: 200,
@@ -273,7 +273,7 @@ describe("SubtitleList", () => {
       setFilter: vi.fn(),
       setViewMode: vi.fn(),
       setPreviewSize: vi.fn(),
-      resetTabSettings: vi.fn()
+      resetTabSettings: vi.fn(),
     })
 
     // Мокаем useFavorites для возврата избранных
@@ -291,12 +291,12 @@ describe("SubtitleList", () => {
         filter: [],
         styleTemplate: [],
         template: [],
-        subtitle: []
-      }
+        subtitle: [],
+      },
     })
 
     render(<SubtitleList />)
-    
+
     // Проверяем что отображаются только избранные субтитры
     const groups = screen.getAllByRole("region")
     expect(groups.length).toBeGreaterThan(0)

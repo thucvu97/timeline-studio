@@ -17,10 +17,10 @@ const mockSubtitles = [
       color: "#FFFFFF",
       fontSize: 24,
       fontFamily: "Arial",
-    }
+    },
   },
   {
-    id: "basic-yellow", 
+    id: "basic-yellow",
     name: "Basic Yellow",
     category: "basic",
     complexity: "basic",
@@ -31,7 +31,7 @@ const mockSubtitles = [
       color: "#FFFF00",
       fontSize: 24,
       fontFamily: "Arial",
-    }
+    },
   },
 ]
 
@@ -47,13 +47,13 @@ describe("SubtitleGroup", () => {
 
   it("должен рендериться без ошибок", () => {
     render(<SubtitleGroup {...defaultProps} />)
-    
+
     expect(screen.getByText("Basic Subtitles")).toBeInTheDocument()
   })
 
   it("должен отображать все субтитры", () => {
     render(<SubtitleGroup {...defaultProps} />)
-    
+
     // Проверяем, что рендерятся все названия субтитров
     expect(screen.getByText("Базовый белый")).toBeInTheDocument()
     expect(screen.getByText("Базовый желтый")).toBeInTheDocument()
@@ -61,13 +61,8 @@ describe("SubtitleGroup", () => {
 
   it("должен вызывать onSubtitleClick при клике на субтитр", () => {
     const onSubtitleClick = vi.fn()
-    render(
-      <SubtitleGroup 
-        {...defaultProps}
-        onSubtitleClick={onSubtitleClick}
-      />
-    )
-    
+    render(<SubtitleGroup {...defaultProps} onSubtitleClick={onSubtitleClick} />)
+
     // Кликаем на первый превью по тексту Timeline Studio
     const firstPreview = screen.getAllByText("Timeline Studio")[0]
     const container = firstPreview.closest(".cursor-pointer")
@@ -78,44 +73,27 @@ describe("SubtitleGroup", () => {
   })
 
   it("не должен отображаться если нет субтитров", () => {
-    render(
-      <SubtitleGroup 
-        {...defaultProps}
-        subtitles={[]}
-      />
-    )
-    
+    render(<SubtitleGroup {...defaultProps} subtitles={[]} />)
+
     expect(screen.queryByText("Basic Subtitles")).not.toBeInTheDocument()
   })
 
   it("не должен отображать заголовок если title пустой", () => {
-    render(
-      <SubtitleGroup 
-        {...defaultProps}
-        title=""
-      />
-    )
-    
+    render(<SubtitleGroup {...defaultProps} title="" />)
+
     expect(screen.queryByRole("heading")).not.toBeInTheDocument()
   })
 
   it("должен применять правильные CSS переменные для размеров", () => {
     render(<SubtitleGroup {...defaultProps} />)
-    
+
     const grid = screen.getByText("Basic Subtitles").nextElementSibling
     expect(grid).toHaveStyle({ "--preview-size": "150px" })
   })
 
   it("должен передавать правильные размеры в SubtitlePreview", () => {
-    render(
-      <SubtitleGroup 
-        {...defaultProps}
-        previewSize={120}
-        previewWidth={180}
-        previewHeight={100}
-      />
-    )
-    
+    render(<SubtitleGroup {...defaultProps} previewSize={120} previewWidth={180} previewHeight={100} />)
+
     // Проверяем, что компоненты рендерятся
     expect(screen.getByText("Базовый белый")).toBeInTheDocument()
     expect(screen.getByText("Базовый желтый")).toBeInTheDocument()
@@ -129,13 +107,8 @@ describe("SubtitleGroup", () => {
       labels: { en: `Subtitle ${i}`, ru: `Субтитр ${i}` },
     }))
 
-    render(
-      <SubtitleGroup 
-        {...defaultProps}
-        subtitles={manySubtitles}
-      />
-    )
-    
+    render(<SubtitleGroup {...defaultProps} subtitles={manySubtitles} />)
+
     // Проверяем что рендерятся все 20 субтитров
     const previewElements = screen.getAllByText("Timeline Studio")
     expect(previewElements).toHaveLength(20)
@@ -149,29 +122,23 @@ describe("SubtitleGroup", () => {
     ]
 
     const onSubtitleClick = vi.fn()
-    render(
-      <SubtitleGroup 
-        {...defaultProps}
-        subtitles={orderedSubtitles}
-        onSubtitleClick={onSubtitleClick}
-      />
-    )
-    
+    render(<SubtitleGroup {...defaultProps} subtitles={orderedSubtitles} onSubtitleClick={onSubtitleClick} />)
+
     // Кликаем по каждому превью через Timeline Studio
     const previewElements = screen.getAllByText("Timeline Studio")
-    
+
     const container1 = previewElements[0].closest(".cursor-pointer")
     if (container1) {
       fireEvent.click(container1)
       expect(onSubtitleClick).toHaveBeenCalledWith(orderedSubtitles[0])
     }
-    
+
     const container2 = previewElements[1].closest(".cursor-pointer")
     if (container2) {
       fireEvent.click(container2)
       expect(onSubtitleClick).toHaveBeenCalledWith(orderedSubtitles[1])
     }
-    
+
     const container3 = previewElements[2].closest(".cursor-pointer")
     if (container3) {
       fireEvent.click(container3)

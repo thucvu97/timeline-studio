@@ -25,6 +25,9 @@ interface ShortcutsProviderProps {
 /**
  * Провайдер для управления клавиатурными сочетаниями
  * Централизованно регистрирует и управляет всеми shortcuts
+ *
+ * Важно: Этот провайдер зависит от UserSettingsProvider через хук usePanelShortcuts
+ * и должен быть размещен ПОСЛЕ UserSettingsProvider в иерархии провайдеров
  */
 export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
   const { openModal } = useModal()
