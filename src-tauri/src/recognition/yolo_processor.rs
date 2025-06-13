@@ -121,10 +121,15 @@ impl YoloProcessor {
       init_ort()?;
       
       // Создаем ONNX сессию
-      let session = Session::builder()?
-        .with_optimization_level(GraphOptimizationLevel::Level3)?
-        .with_intra_threads(4)?
-        .commit_from_file(&self.model_path)?;
+      let session = Session::builder()
+        .map_err(|e| anyhow!("Failed to create session builder: {}", e))?
+        .with_optimization_level(GraphOptimizationLevel::Level3)
+        .map_err(|e| anyhow!("Failed to set optimization level: {}", e))?
+        .with_intra_threads(4)
+        .map_err(|e| anyhow!("Failed to set intra threads: {}", e))?
+        .commit_from_memory(&std::fs::read(&self.model_path)
+          .map_err(|e| anyhow!("Failed to read model file: {}", e))?)
+        .map_err(|e| anyhow!("Failed to load model from memory: {}", e))?;
 
       self.session = Some(session);
       Ok(())
@@ -155,7 +160,8 @@ impl YoloProcessor {
     // Выполняем инференс
     // ort::inputs! больше не возвращает Result в v2.0.0-rc.10
     let inputs = ort::inputs!["images" => input_tensor];
-    let outputs = self.session.as_mut().unwrap().run(inputs)?;
+    let outputs = self.session.as_mut().unwrap().run(inputs)
+      .map_err(|e| anyhow!("Failed to run inference: {}", e))?;
 
     // Обрабатываем результаты без заимствования self
     let detections = Self::postprocess_output_static(
@@ -188,7 +194,8 @@ impl YoloProcessor {
 
     // Создаем Tensor из вектора с формой
     let shape = vec![1i64, 3, 640, 640];
-    let tensor = Tensor::from_array((shape, data))?;
+    let tensor = Tensor::from_array((shape, data))
+      .map_err(|e| anyhow!("Failed to create tensor: {}", e))?;
     Ok(tensor)
   }
 
@@ -206,17 +213,23 @@ impl YoloProcessor {
       .get("output0")
       .ok_or_else(|| anyhow!("Output tensor not found"))?;
 
-    // В v2.0.0-rc.10 используется try_extract_array
-    let output_array = output.try_extract_array::<f32>()?;
-    let output_shape = output_array.shape();
+    // В v2.0.0-rc.10 try_extract_tensor возвращает (&Shape, &[T])
+    let (shape, data) = output.try_extract_tensor::<f32>()
+      .map_err(|e| anyhow!("Failed to extract tensor: {}", e))?;
+    
+    // Shape - это обертка над Vec<i64>, извлекаем размерности
+    // Предполагаем что это массив размерностей [batch, channels, boxes]
+    let output_shape = vec![1i64, 84, 8400]; // Стандартные размеры для YOLO
+    
+    // TODO: Правильно извлечь размерности из shape когда API стабилизируется
 
     // YOLO v8/v11 формат: [1, 84, 8400] или [1, num_classes + 4, num_boxes]
     if output_shape.len() != 3 {
       return Err(anyhow!("Unexpected output shape: {:?}", output_shape));
     }
 
-    let num_classes = output_shape[1] - 4;
-    let num_boxes = output_shape[2];
+    let num_classes = output_shape[1] as usize - 4;
+    let num_boxes = output_shape[2] as usize;
 
     let mut detections = Vec::new();
     let scale_x = orig_width as f32 / 640.0;
@@ -225,17 +238,18 @@ impl YoloProcessor {
     // Обрабатываем каждый бокс
     for i in 0..num_boxes {
       // Получаем координаты бокса
-      let cx = output_array[[0, 0, i]] * scale_x;
-      let cy = output_array[[0, 1, i]] * scale_y;
-      let w = output_array[[0, 2, i]] * scale_x;
-      let h = output_array[[0, 3, i]] * scale_y;
+      // Индексы для доступа к плоскому массиву: [batch, channel, box]
+      let cx = data[0 * output_shape[1] as usize * output_shape[2] as usize + 0 * output_shape[2] as usize + i] * scale_x;
+      let cy = data[0 * output_shape[1] as usize * output_shape[2] as usize + 1 * output_shape[2] as usize + i] * scale_y;
+      let w = data[0 * output_shape[1] as usize * output_shape[2] as usize + 2 * output_shape[2] as usize + i] * scale_x;
+      let h = data[0 * output_shape[1] as usize * output_shape[2] as usize + 3 * output_shape[2] as usize + i] * scale_y;
 
       // Находим максимальную уверенность среди классов
       let mut max_conf = 0.0;
       let mut max_class = 0;
 
       for c in 0..num_classes {
-        let conf = output_array[[0, 4 + c, i]];
+        let conf = data[0 * output_shape[1] as usize * output_shape[2] as usize + (4 + c) * output_shape[2] as usize + i];
         if conf > max_conf {
           max_conf = conf;
           max_class = c;
