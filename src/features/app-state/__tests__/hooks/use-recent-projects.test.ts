@@ -22,9 +22,9 @@ describe("useRecentProjects", () => {
 
   it("должен возвращать список недавних проектов", () => {
     const mockProjects = [
-      { path: "/project1.tlsp", name: "Проект 1", lastOpened: Date.now() - 1000 },
-      { path: "/project2.tlsp", name: "Проект 2", lastOpened: Date.now() - 2000 },
-      { path: "/project3.tlsp", name: "Проект 3", lastOpened: Date.now() - 3000 },
+      { path: "/project1.tls", name: "Проект 1", lastOpened: Date.now() - 1000 },
+      { path: "/project2.tls", name: "Проект 2", lastOpened: Date.now() - 2000 },
+      { path: "/project3.tls", name: "Проект 3", lastOpened: Date.now() - 3000 },
     ]
     mockAppSettings.getRecentProjects.mockReturnValue(mockProjects)
 
@@ -38,20 +38,20 @@ describe("useRecentProjects", () => {
     const { result } = renderHook(() => useRecentProjects())
 
     act(() => {
-      result.current.addRecentProject("/new-project.tlsp", "Новый проект")
+      result.current.addRecentProject("/new-project.tls", "Новый проект")
     })
 
-    expect(mockAppSettings.addRecentProject).toHaveBeenCalledWith("/new-project.tlsp", "Новый проект")
+    expect(mockAppSettings.addRecentProject).toHaveBeenCalledWith("/new-project.tls", "Новый проект")
   })
 
   it("должен удалять проект из недавних", () => {
     const { result } = renderHook(() => useRecentProjects())
 
     act(() => {
-      result.current.removeRecentProject("/project-to-remove.tlsp")
+      result.current.removeRecentProject("/project-to-remove.tls")
     })
 
-    expect(mockAppSettings.removeRecentProject).toHaveBeenCalledWith("/project-to-remove.tlsp")
+    expect(mockAppSettings.removeRecentProject).toHaveBeenCalledWith("/project-to-remove.tls")
   })
 
   it("должен очищать список недавних проектов", () => {
@@ -73,10 +73,10 @@ describe("useRecentProjects", () => {
   })
 
   it("должен обновляться при изменении списка", () => {
-    const projects1 = [{ path: "/project1.tlsp", name: "Проект 1", lastOpened: Date.now() }]
+    const projects1 = [{ path: "/project1.tls", name: "Проект 1", lastOpened: Date.now() }]
     const projects2 = [
-      { path: "/project1.tlsp", name: "Проект 1", lastOpened: Date.now() },
-      { path: "/project2.tlsp", name: "Проект 2", lastOpened: Date.now() - 1000 },
+      { path: "/project1.tls", name: "Проект 1", lastOpened: Date.now() },
+      { path: "/project2.tls", name: "Проект 2", lastOpened: Date.now() - 1000 },
     ]
 
     mockAppSettings.getRecentProjects.mockReturnValue(projects1)
@@ -96,8 +96,8 @@ describe("useRecentProjects", () => {
 
   it("должен корректно обрабатывать недавние проекты с одинаковыми путями", () => {
     const mockProjects = [
-      { path: "/duplicate.tlsp", name: "Проект 1", lastOpened: Date.now() },
-      { path: "/duplicate.tlsp", name: "Проект 1 (копия)", lastOpened: Date.now() - 1000 },
+      { path: "/duplicate.tls", name: "Проект 1", lastOpened: Date.now() },
+      { path: "/duplicate.tls", name: "Проект 1 (копия)", lastOpened: Date.now() - 1000 },
     ]
     mockAppSettings.getRecentProjects.mockReturnValue(mockProjects)
 

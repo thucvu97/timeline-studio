@@ -91,7 +91,7 @@ describe("saved-media-utils", () => {
     it("должен вычислять относительный путь для файла в поддиректории проекта", async () => {
       mockDirname.mockResolvedValue("/project/dir")
 
-      const result = await calculateRelativePath("/project/dir/media/file.mp4", "/project/dir/project.tlsp")
+      const result = await calculateRelativePath("/project/dir/media/file.mp4", "/project/dir/project.tls")
 
       expect(result).toBe("media/file.mp4")
     })
@@ -99,7 +99,7 @@ describe("saved-media-utils", () => {
     it("должен возвращать undefined для файла вне директории проекта", async () => {
       mockDirname.mockResolvedValue("/project/dir")
 
-      const result = await calculateRelativePath("/other/dir/file.mp4", "/project/dir/project.tlsp")
+      const result = await calculateRelativePath("/other/dir/file.mp4", "/project/dir/project.tls")
 
       expect(result).toBeUndefined()
     })
@@ -107,7 +107,7 @@ describe("saved-media-utils", () => {
     it("должен обрабатывать ошибки", async () => {
       mockDirname.mockRejectedValue(new Error("dirname error"))
 
-      const result = await calculateRelativePath("/path/to/file.mp4", "/project/dir/project.tlsp")
+      const result = await calculateRelativePath("/path/to/file.mp4", "/project/dir/project.tls")
 
       expect(result).toBeUndefined()
     })

@@ -13,7 +13,7 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
 }))
 
 describe("ProjectFileService", () => {
-  const mockProjectPath = "/path/to/project.tlsp"
+  const mockProjectPath = "/path/to/project.tls"
 
   const mockProjectFile: ProjectFile = {
     settings: {
@@ -27,7 +27,7 @@ describe("ProjectFileService", () => {
       frameRate: "30",
       colorSpace: "sdr",
     },
-    mediaLibrary: {
+    mediaPool: {
       mediaFiles: [
         {
           id: "1",
@@ -60,7 +60,7 @@ describe("ProjectFileService", () => {
       lastUpdated: Date.now(),
       version: "1.0.0",
     },
-    browserState: {
+    workspaceSettings: {
       media: {
         viewMode: "grid",
         sortBy: "name",
@@ -79,7 +79,7 @@ describe("ProjectFileService", () => {
         showFavoritesOnly: false,
       },
     },
-    projectFavorites: {
+    favoriteFiles: {
       mediaFiles: [],
       musicFiles: [],
     },
@@ -139,8 +139,8 @@ describe("ProjectFileService", () => {
     it("должен валидировать медиабиблиотеку", async () => {
       const projectWithInvalidMedia = {
         ...mockProjectFile,
-        mediaLibrary: {
-          ...mockProjectFile.mediaLibrary,
+        mediaPool: {
+          ...mockProjectFile.mediaPool,
           mediaFiles: "not an array",
         },
       }
@@ -155,8 +155,8 @@ describe("ProjectFileService", () => {
     it("должен валидировать медиафайлы", async () => {
       const projectWithInvalidFile = {
         ...mockProjectFile,
-        mediaLibrary: {
-          ...mockProjectFile.mediaLibrary,
+        mediaPool: {
+          ...mockProjectFile.mediaPool,
           mediaFiles: [
             {
               id: "1",
@@ -213,9 +213,9 @@ describe("ProjectFileService", () => {
       const project = ProjectFileService.createNewProject("Новый проект")
 
       expect(project.settings).toBeDefined()
-      expect(project.mediaLibrary).toBeDefined()
-      expect(project.browserState).toBeDefined()
-      expect(project.projectFavorites).toBeDefined()
+      expect(project.mediaPool).toBeDefined()
+      expect(project.workspaceSettings).toBeDefined()
+      expect(project.favoriteFiles).toBeDefined()
       expect(project.meta).toBeDefined()
       expect(project.meta.version).toBe("1.0.0")
     })
@@ -225,8 +225,8 @@ describe("ProjectFileService", () => {
 
       expect(project.settings.aspectRatio.value).toEqual({ width: 1920, height: 1080, name: "16:9" })
       expect(project.settings.frameRate).toBe("30")
-      expect(project.mediaLibrary.mediaFiles).toEqual([])
-      expect(project.mediaLibrary.musicFiles).toEqual([])
+      expect(project.mediaPool.mediaFiles).toEqual([])
+      expect(project.mediaPool.musicFiles).toEqual([])
     })
   })
 
@@ -249,24 +249,24 @@ describe("ProjectFileService", () => {
 
       const updatedProject = ProjectFileService.updateMediaLibrary(mockProjectFile, newMediaFiles, newMusicFiles)
 
-      expect(updatedProject.mediaLibrary.mediaFiles).toEqual(newMediaFiles)
-      expect(updatedProject.mediaLibrary.musicFiles).toEqual(newMusicFiles)
-      expect(updatedProject.mediaLibrary.lastUpdated).toBeGreaterThan(0)
+      expect(updatedProject.mediaPool.mediaFiles).toEqual(newMediaFiles)
+      expect(updatedProject.mediaPool.musicFiles).toEqual(newMusicFiles)
+      expect(updatedProject.mediaPool.lastUpdated).toBeGreaterThan(0)
     })
 
     it("должен сохранять версию медиабиблиотеки", () => {
       const updatedProject = ProjectFileService.updateMediaLibrary(mockProjectFile, [], [])
 
-      expect(updatedProject.mediaLibrary.version).toBe("1.0.0")
+      expect(updatedProject.mediaPool.version).toBe("1.0.0")
     })
   })
 
   describe("updateBrowserState", () => {
     it("должен обновлять состояние браузера", () => {
       const newBrowserState = {
-        ...mockProjectFile.browserState,
+        ...mockProjectFile.workspaceSettings,
         media: {
-          ...mockProjectFile.browserState.media,
+          ...mockProjectFile.workspaceSettings.media,
           viewMode: "list" as const,
           sortBy: "size" as const,
         },
@@ -274,7 +274,7 @@ describe("ProjectFileService", () => {
 
       const updatedProject = ProjectFileService.updateBrowserState(mockProjectFile, newBrowserState)
 
-      expect(updatedProject.browserState).toEqual(newBrowserState)
+      expect(updatedProject.workspaceSettings).toEqual(newBrowserState)
     })
   })
 
@@ -287,7 +287,7 @@ describe("ProjectFileService", () => {
 
       const updatedProject = ProjectFileService.updateProjectFavorites(mockProjectFile, newFavorites)
 
-      expect(updatedProject.projectFavorites).toEqual(newFavorites)
+      expect(updatedProject.favoriteFiles).toEqual(newFavorites)
     })
   })
 
@@ -304,7 +304,7 @@ describe("ProjectFileService", () => {
     it("должен корректно обрабатывать проект без медиабиблиотеки", () => {
       const projectWithoutMedia = {
         ...mockProjectFile,
-        mediaLibrary: undefined,
+        mediaPool: undefined,
       }
 
       const stats = ProjectFileService.getProjectStats(projectWithoutMedia as any)
@@ -318,7 +318,7 @@ describe("ProjectFileService", () => {
   describe("hasUnsavedChanges", () => {
     it("должен определять наличие несохраненных изменений", () => {
       const currentMediaFiles = [
-        ...mockProjectFile.mediaLibrary.mediaFiles,
+        ...mockProjectFile.mediaPool.mediaFiles,
         {
           id: "3",
           originalPath: "/path/to/new.mp4",
@@ -333,7 +333,7 @@ describe("ProjectFileService", () => {
       const hasChanges = ProjectFileService.hasUnsavedChanges(
         mockProjectFile,
         currentMediaFiles,
-        mockProjectFile.mediaLibrary.musicFiles,
+        mockProjectFile.mediaPool.musicFiles,
       )
 
       expect(hasChanges).toBe(true)
@@ -342,8 +342,8 @@ describe("ProjectFileService", () => {
     it("должен возвращать false при отсутствии изменений", () => {
       const hasChanges = ProjectFileService.hasUnsavedChanges(
         mockProjectFile,
-        mockProjectFile.mediaLibrary.mediaFiles,
-        mockProjectFile.mediaLibrary.musicFiles,
+        mockProjectFile.mediaPool.mediaFiles,
+        mockProjectFile.mediaPool.musicFiles,
       )
 
       expect(hasChanges).toBe(false)
@@ -353,7 +353,7 @@ describe("ProjectFileService", () => {
       const hasChanges = ProjectFileService.hasUnsavedChanges(
         mockProjectFile,
         [],
-        mockProjectFile.mediaLibrary.musicFiles,
+        mockProjectFile.mediaPool.musicFiles,
       )
 
       expect(hasChanges).toBe(true)
@@ -362,7 +362,7 @@ describe("ProjectFileService", () => {
     it("должен корректно обрабатывать проект без медиабиблиотеки", () => {
       const projectWithoutMedia = {
         ...mockProjectFile,
-        mediaLibrary: undefined,
+        mediaPool: undefined,
       }
 
       const hasChanges = ProjectFileService.hasUnsavedChanges(projectWithoutMedia as any, [], [])
@@ -383,8 +383,8 @@ describe("ProjectFileService", () => {
     it("должен валидировать пустой ID медиафайла", async () => {
       const projectWithEmptyId = {
         ...mockProjectFile,
-        mediaLibrary: {
-          ...mockProjectFile.mediaLibrary,
+        mediaPool: {
+          ...mockProjectFile.mediaPool,
           mediaFiles: [
             {
               id: "",
@@ -409,8 +409,8 @@ describe("ProjectFileService", () => {
     it("должен валидировать пустой originalPath медиафайла", async () => {
       const projectWithEmptyPath = {
         ...mockProjectFile,
-        mediaLibrary: {
-          ...mockProjectFile.mediaLibrary,
+        mediaPool: {
+          ...mockProjectFile.mediaPool,
           mediaFiles: [
             {
               id: "1",
@@ -455,8 +455,8 @@ describe("ProjectFileService", () => {
     it("должен валидировать музыкальные файлы", async () => {
       const projectWithInvalidMusic = {
         ...mockProjectFile,
-        mediaLibrary: {
-          ...mockProjectFile.mediaLibrary,
+        mediaPool: {
+          ...mockProjectFile.mediaPool,
           musicFiles: [
             {
               id: "1",

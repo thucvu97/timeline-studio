@@ -45,11 +45,11 @@ describe("StoreService", () => {
       realtimePlayback: true,
     },
     recentProjects: [
-      { path: "/project1.tlsp", name: "Project 1", lastOpened: Date.now() - 1000 },
-      { path: "/project2.tlsp", name: "Project 2", lastOpened: Date.now() - 2000 },
+      { path: "/project1.tls", name: "Project 1", lastOpened: Date.now() - 1000 },
+      { path: "/project2.tls", name: "Project 2", lastOpened: Date.now() - 2000 },
     ],
     currentProject: {
-      path: "/current.tlsp",
+      path: "/current.tls",
       name: "Current Project",
       isDirty: false,
       isNew: false,
@@ -346,14 +346,14 @@ describe("StoreService", () => {
       const service = StoreService.getInstance()
       mockStore.get.mockResolvedValue(mockSettings)
 
-      await service.addRecentProject("/new-project.tlsp", "New Project")
+      await service.addRecentProject("/new-project.tls", "New Project")
 
       expect(mockStore.set).toHaveBeenCalledWith(
         "app-settings",
         expect.objectContaining({
           recentProjects: expect.arrayContaining([
             expect.objectContaining({
-              path: "/new-project.tlsp",
+              path: "/new-project.tls",
               name: "New Project",
             }),
           ]),
@@ -365,7 +365,7 @@ describe("StoreService", () => {
       const service = StoreService.getInstance()
       mockStore.get.mockResolvedValue(mockSettings)
 
-      await service.addRecentProject("/project1.tlsp", "Updated Project 1")
+      await service.addRecentProject("/project1.tls", "Updated Project 1")
 
       const savedSettings = mockStore.set.mock.calls[0][1] as AppSettings
       const projectPaths = savedSettings.recentProjects.map((p) => p.path)
@@ -377,7 +377,7 @@ describe("StoreService", () => {
     it("должен ограничивать список 10 проектами", async () => {
       const service = StoreService.getInstance()
       const manyProjects = Array.from({ length: 15 }, (_, i) => ({
-        path: `/project${i}.tlsp`,
+        path: `/project${i}.tls`,
         name: `Project ${i}`,
         lastOpened: Date.now() - i * 1000,
       }))
@@ -387,7 +387,7 @@ describe("StoreService", () => {
         recentProjects: manyProjects,
       })
 
-      await service.addRecentProject("/new-project.tlsp", "New Project")
+      await service.addRecentProject("/new-project.tls", "New Project")
 
       const savedSettings = mockStore.set.mock.calls[0][1] as AppSettings
       expect(savedSettings.recentProjects).toHaveLength(10)
@@ -397,7 +397,7 @@ describe("StoreService", () => {
       const service = StoreService.getInstance()
       mockStore.get.mockResolvedValue(undefined)
 
-      await expect(service.addRecentProject("/new-project.tlsp", "New Project")).resolves.not.toThrow()
+      await expect(service.addRecentProject("/new-project.tls", "New Project")).resolves.not.toThrow()
     })
   })
 

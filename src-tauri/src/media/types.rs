@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Структура для хранения метаданных видео
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoMetadata {
   pub duration: Option<f64>,
   pub width: Option<u32>,
@@ -16,7 +16,7 @@ pub struct VideoMetadata {
 }
 
 /// Структура для хранения метаданных аудио
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AudioMetadata {
   pub duration: Option<f64>,
   pub codec: Option<String>,
@@ -28,7 +28,7 @@ pub struct AudioMetadata {
 }
 
 /// Структура для хранения метаданных изображения
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ImageMetadata {
   pub width: Option<u32>,
   pub height: Option<u32>,
@@ -38,7 +38,7 @@ pub struct ImageMetadata {
 }
 
 /// Перечисление для типов медиафайлов
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum MediaMetadata {
   Video(VideoMetadata),
@@ -48,7 +48,7 @@ pub enum MediaMetadata {
 }
 
 /// Структура для потока в формате FFprobe
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FfprobeStream {
   pub index: u32,
   pub codec_type: String,
@@ -63,7 +63,7 @@ pub struct FfprobeStream {
 }
 
 /// Структура для формата в формате FFprobe
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FfprobeFormat {
   pub duration: Option<f64>,
   pub size: Option<u64>,
@@ -72,14 +72,14 @@ pub struct FfprobeFormat {
 }
 
 /// Структура для хранения данных FFprobe
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProbeData {
   pub streams: Vec<FfprobeStream>,
   pub format: FfprobeFormat,
 }
 
 /// Структура для медиафайла
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MediaFile {
   pub id: String,
   pub name: String,

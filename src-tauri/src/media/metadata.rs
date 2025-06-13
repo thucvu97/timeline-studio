@@ -7,7 +7,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::command;
 
 use super::ffmpeg::check_ffmpeg;
-use super::types::{FfprobeFormat, FfprobeStream, MediaFile, ProbeData};
+use super::types::{
+  AudioMetadata, FfprobeFormat, FfprobeStream, ImageMetadata, MediaFile, MediaMetadata, ProbeData,
+  VideoMetadata,
+};
 
 /// Получение метаданных медиафайла с помощью FFmpeg
 #[command]
@@ -243,6 +246,153 @@ fn generate_iso8601_timestamp() -> String {
   let nanos = now.subsec_nanos();
 
   format!("{}.{:09}Z", secs, nanos)
+}
+
+/// Асинхронная функция для извлечения метаданных
+#[allow(dead_code)] // Used in tests
+pub async fn extract_metadata(file_path: &Path) -> Result<MediaMetadata, String> {
+  use tokio::process::Command;
+
+  // Проверяем существование файла
+  if !file_path.exists() {
+    return Err(format!("File not found: {:?}", file_path));
+  }
+
+  // Выполняем ffprobe асинхронно
+  let output = Command::new("ffprobe")
+    .args([
+      "-v",
+      "quiet",
+      "-print_format",
+      "json",
+      "-show_format",
+      "-show_streams",
+      file_path.to_str().unwrap(),
+    ])
+    .output()
+    .await
+    .map_err(|e| format!("Failed to execute ffprobe: {}", e))?;
+
+  if !output.status.success() {
+    return Err(format!(
+      "ffprobe failed: {}",
+      String::from_utf8_lossy(&output.stderr)
+    ));
+  }
+
+  let output_str =
+    std::str::from_utf8(&output.stdout).map_err(|e| format!("Failed to decode output: {}", e))?;
+
+  let probe_data: serde_json::Value =
+    serde_json::from_str(output_str).map_err(|e| format!("Failed to parse JSON: {}", e))?;
+
+  // Извлекаем потоки
+  let streams = probe_data["streams"].as_array();
+  let format = probe_data["format"].as_object();
+
+  // Определяем тип медиа по потокам
+  let video_stream = streams.and_then(|s| {
+    s.iter()
+      .find(|stream| stream["codec_type"].as_str() == Some("video"))
+  });
+
+  let audio_stream = streams.and_then(|s| {
+    s.iter()
+      .find(|stream| stream["codec_type"].as_str() == Some("audio"))
+  });
+
+  // Если есть видеопоток
+  if let Some(video) = video_stream {
+    let duration = format
+      .and_then(|f| f.get("duration"))
+      .and_then(|d| d.as_str())
+      .and_then(|d| d.parse::<f64>().ok());
+
+    // Проверяем, это изображение или видео
+    if duration.unwrap_or(0.0) == 0.0 {
+      // Это изображение
+      Ok(MediaMetadata::Image(ImageMetadata {
+        width: video
+          .get("width")
+          .and_then(|v| v.as_u64())
+          .map(|v| v as u32),
+        height: video
+          .get("height")
+          .and_then(|v| v.as_u64())
+          .map(|v| v as u32),
+        format: video
+          .get("codec_name")
+          .and_then(|v| v.as_str())
+          .map(String::from),
+        size: format
+          .and_then(|f| f.get("size"))
+          .and_then(|v| v.as_str())
+          .and_then(|s| s.parse::<u64>().ok()),
+        creation_time: extract_creation_time(format),
+      }))
+    } else {
+      // Это видео
+      Ok(MediaMetadata::Video(VideoMetadata {
+        duration,
+        width: video
+          .get("width")
+          .and_then(|v| v.as_u64())
+          .map(|v| v as u32),
+        height: video
+          .get("height")
+          .and_then(|v| v.as_u64())
+          .map(|v| v as u32),
+        fps: video
+          .get("r_frame_rate")
+          .and_then(|v| v.as_str())
+          .and_then(|fps| fps.split('/').next())
+          .and_then(|n| n.parse::<f64>().ok()),
+        codec: video
+          .get("codec_name")
+          .and_then(|v| v.as_str())
+          .map(String::from),
+        bitrate: video
+          .get("bit_rate")
+          .and_then(|v| v.as_str())
+          .and_then(|b| b.parse::<u64>().ok()),
+        size: format
+          .and_then(|f| f.get("size"))
+          .and_then(|v| v.as_str())
+          .and_then(|s| s.parse::<u64>().ok()),
+        creation_time: extract_creation_time(format),
+      }))
+    }
+  } else if let Some(audio) = audio_stream {
+    // Только аудио
+    Ok(MediaMetadata::Audio(AudioMetadata {
+      duration: format
+        .and_then(|f| f.get("duration"))
+        .and_then(|v| v.as_str())
+        .and_then(|d| d.parse::<f64>().ok()),
+      sample_rate: audio
+        .get("sample_rate")
+        .and_then(|v| v.as_str())
+        .and_then(|s| s.parse::<u32>().ok()),
+      channels: audio
+        .get("channels")
+        .and_then(|v| v.as_u64())
+        .map(|c| c as u8),
+      codec: audio
+        .get("codec_name")
+        .and_then(|v| v.as_str())
+        .map(String::from),
+      bitrate: audio
+        .get("bit_rate")
+        .and_then(|v| v.as_str())
+        .and_then(|b| b.parse::<u64>().ok()),
+      size: format
+        .and_then(|f| f["size"].as_str())
+        .and_then(|s| s.parse::<u64>().ok()),
+      creation_time: extract_creation_time(format),
+    }))
+  } else {
+    Err("No supported media streams found".to_string())
+  }
 }
 
 #[cfg(test)]

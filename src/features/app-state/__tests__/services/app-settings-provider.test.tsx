@@ -6,8 +6,8 @@ import { AppSettingsProvider } from "../../services"
 
 // Мокаем диалоги Tauri
 vi.mock("@tauri-apps/plugin-dialog", () => ({
-  open: vi.fn().mockResolvedValue("/path/to/project.tlsp"),
-  save: vi.fn().mockResolvedValue("/path/to/saved/project.tlsp"),
+  open: vi.fn().mockResolvedValue("/path/to/project.tls"),
+  save: vi.fn().mockResolvedValue("/path/to/saved/project.tls"),
 }))
 
 // Мокаем path из Tauri
@@ -279,8 +279,12 @@ describe("AppSettingsProvider", () => {
         multiple: false,
         filters: [
           {
-            name: "Timeline Studio Project",
+            name: "Timeline Studio Project v2",
             extensions: ["tlsp"],
+          },
+          {
+            name: "Timeline Studio Project (Legacy)",
+            extensions: ["tls"],
           },
         ],
         defaultPath: "/app/data/dir",
@@ -289,24 +293,20 @@ describe("AppSettingsProvider", () => {
 
     // Проверяем, что basename был вызван для получения имени файла
     await waitFor(() => {
-      expect(basename).toHaveBeenCalledWith("/path/to/project.tlsp")
+      expect(basename).toHaveBeenCalledWith("/path/to/project.tls")
     })
 
     // Проверяем, что событие было отправлено в машину состояний
     await waitFor(() => {
       expect(mockSend).toHaveBeenCalledWith({
         type: "OPEN_PROJECT",
-        path: "/path/to/project.tlsp",
-        name: "project.tlsp",
+        path: "/path/to/project.tls",
+        name: "project.tls",
       })
     })
   })
 
   it("should handle saveProject function", async () => {
-    // Получаем моки из модулей
-    const { save } = await import("@tauri-apps/plugin-dialog")
-    const { appDataDir, join } = await import("@tauri-apps/api/path")
-
     render(
       <AppSettingsProvider>
         <TestComponent />
@@ -315,28 +315,34 @@ describe("AppSettingsProvider", () => {
 
     // Нажимаем на кнопку сохранения проекта
     act(() => {
-      act(() => {
-        fireEvent.click(screen.getByTestId("save-project"))
-      })
+      fireEvent.click(screen.getByTestId("save-project"))
     })
+
+    // Получаем моки из модулей после рендера
+    const { save } = await import("@tauri-apps/plugin-dialog")
+    const { appDataDir, join } = await import("@tauri-apps/api/path")
 
     // Проверяем, что appDataDir был вызван
     await waitFor(() => {
-      expect(appDataDir).toHaveBeenCalled()
+      expect(vi.mocked(appDataDir)).toHaveBeenCalled()
     })
 
     // Проверяем, что join был вызван для формирования пути к файлу
     await waitFor(() => {
-      expect(join).toHaveBeenCalledWith("/app/data/dir", "Test Project.tlsp")
+      expect(vi.mocked(join)).toHaveBeenCalledWith("/app/data/dir", "Test Project.tlsp")
     })
 
     // Проверяем, что диалог сохранения файла был вызван с правильными параметрами
     await waitFor(() => {
-      expect(save).toHaveBeenCalledWith({
+      expect(vi.mocked(save)).toHaveBeenCalledWith({
         filters: [
           {
-            name: "Timeline Studio Project",
+            name: "Timeline Studio Project v2",
             extensions: ["tlsp"],
+          },
+          {
+            name: "Timeline Studio Project (Legacy)",
+            extensions: ["tls"],
           },
         ],
         defaultPath: "/app/data/dir/Test Project.tlsp",
@@ -347,7 +353,7 @@ describe("AppSettingsProvider", () => {
     await waitFor(() => {
       expect(mockSend).toHaveBeenCalledWith({
         type: "SAVE_PROJECT",
-        path: "/path/to/saved/project.tlsp",
+        path: "/path/to/saved/project.tls",
         name: "Test Project",
       })
     })

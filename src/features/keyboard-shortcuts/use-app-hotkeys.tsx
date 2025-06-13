@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { useHotkeys } from "react-hotkeys-hook"
 
@@ -64,29 +64,46 @@ export function useAppHotkeys() {
     return unsubscribe
   }, [openModal])
 
-  // Регистрируем все активные shortcuts
-  useEffect(() => {
-    const shortcuts = shortcutsRegistry.getAll()
+  // Создаем единый обработчик для всех горячих клавиш
+  const handleHotkey = useCallback(
+    (event: KeyboardEvent) => {
+      if (!isEnabled) return
 
-    shortcuts.forEach((shortcut) => {
-      if (shortcut.enabled && shortcut.action) {
-        // Регистрируем каждую комбинацию клавиш
-        shortcut.keys.forEach((keys) => {
-          useHotkeys(
-            keys,
-            shortcut.action!,
-            {
-              enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
-              preventDefault: true,
-              enabled: isEnabled,
-              ...shortcut.options,
-            },
-            [isEnabled, shortcut.action],
-          )
-        })
-      }
-    })
-  }, [isEnabled, registeredShortcuts])
+      const shortcuts = shortcutsRegistry.getAll()
+      const keyCombo = [
+        event.ctrlKey && "ctrl",
+        event.metaKey && "meta",
+        event.altKey && "alt",
+        event.shiftKey && "shift",
+        event.key.toLowerCase(),
+      ]
+        .filter(Boolean)
+        .join("+")
+
+      shortcuts.forEach((shortcut) => {
+        if (shortcut.enabled && shortcut.action) {
+          shortcut.keys.forEach((keys) => {
+            if (keys === keyCombo) {
+              shortcut.action!(event, {})
+            }
+          })
+        }
+      })
+    },
+    [isEnabled],
+  )
+
+  // Регистрируем единый обработчик для всех возможных комбинаций
+  useHotkeys(
+    "*", // Слушаем все клавиши
+    handleHotkey,
+    {
+      enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+      preventDefault: false, // Не предотвращаем по умолчанию, пусть обработчик решает
+      enabled: isEnabled,
+    },
+    [isEnabled, handleHotkey],
+  )
 
   // Обработчик для временного отключения shortcuts (например, при редактировании)
   const toggleShortcuts = (enabled: boolean) => {

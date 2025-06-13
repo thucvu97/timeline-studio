@@ -7,13 +7,25 @@ import { useAppSettings } from "./use-app-settings"
  * @returns Объект с данными и методами для работы с текущим проектом
  */
 export function useCurrentProject() {
-  const { getCurrentProject, createNewProject, openProject, saveProject, setProjectDirty } = useAppSettings()
+  const { 
+    getCurrentProject, 
+    createNewProject, 
+    createTempProject,
+    loadOrCreateTempProject,
+    openProject, 
+    saveProject, 
+    setProjectDirty,
+    isTempProject 
+  } = useAppSettings()
 
   return {
     currentProject: getCurrentProject(),
     createNewProject,
+    createTempProject,
+    loadOrCreateTempProject,
     openProject,
     saveProject,
     setProjectDirty,
+    isTempProject: isTempProject,
   }
 }

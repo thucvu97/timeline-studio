@@ -235,9 +235,15 @@ describe("FavoriteButton", () => {
       const button = screen.getByRole("button")
 
       // Ждем, пока истечет период isRecentlyAdded (1 секунда)
-      await waitFor(() => {
-        expect(button).toHaveAttribute("title", "In favorites")
-      })
+      await waitFor(
+        () => {
+          expect(button).toHaveAttribute("title", "In favorites")
+        },
+        { timeout: 1100 },
+      )
+
+      // Ждем еще немного, чтобы isRecentlyAdded точно стал false
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Теперь наводим курсор
       fireEvent.mouseEnter(button)

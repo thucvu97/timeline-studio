@@ -123,16 +123,16 @@ export function useExportSettings() {
   }, [exportMode, exportSettings, deviceSettings, socialSettings])
 
   const updateSettings = useCallback(
-    (updates: Partial<ExportSettings>) => {
+    (updates: Partial<ExportSettings> | Partial<DeviceExportSettings> | Partial<SocialExportSettings>) => {
       switch (exportMode) {
         case "local":
           setExportSettings((prev) => ({ ...prev, ...updates }))
           break
         case "device":
-          setDeviceSettings((prev) => ({ ...prev, ...updates }))
+          setDeviceSettings((prev) => ({ ...prev, ...updates as Partial<DeviceExportSettings> }))
           break
         case "social":
-          setSocialSettings((prev) => ({ ...prev, ...updates }))
+          setSocialSettings((prev) => ({ ...prev, ...updates as Partial<SocialExportSettings> }))
           break
       }
     },

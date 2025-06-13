@@ -157,7 +157,6 @@ export function ExportModal() {
           <SocialExportTab
             settings={currentSettings as any}
             onSettingsChange={updateSettings}
-            onLogin={loginToSocialNetwork}
             onExport={handleExport}
             isRendering={isRendering}
           />

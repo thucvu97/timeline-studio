@@ -4,7 +4,7 @@ import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-med
 import { ProjectFile } from "@/features/project-settings/types/project"
 
 /**
- * Сервис для работы с файлами проектов (.tlsp)
+ * Сервис для работы с файлами проектов (.tls)
  * Обеспечивает сохранение и загрузку проектов с медиабиблиотекой
  */
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -71,13 +71,13 @@ export class ProjectFileService {
         frameRate: "30",
         colorSpace: "sdr",
       },
-      mediaLibrary: {
+      mediaPool: {
         mediaFiles: [],
         musicFiles: [],
         lastUpdated: Date.now(),
         version: "1.0.0",
       },
-      browserState: {
+      workspaceSettings: {
         media: {
           viewMode: "grid",
           sortBy: "name",
@@ -96,7 +96,7 @@ export class ProjectFileService {
           showFavoritesOnly: false,
         },
       },
-      projectFavorites: {
+      favoriteFiles: {
         mediaFiles: [],
         musicFiles: [],
       },
@@ -106,7 +106,7 @@ export class ProjectFileService {
         lastModified: Date.now(),
         originalPlatform: "unknown",
       },
-    }
+    } as ProjectFile
   }
 
   /**
@@ -119,33 +119,33 @@ export class ProjectFileService {
   ): ProjectFile {
     return {
       ...project,
-      mediaLibrary: {
+      mediaPool: {
         mediaFiles,
         musicFiles,
         lastUpdated: Date.now(),
-        version: project.mediaLibrary?.version || "1.0.0",
+        version: (project as any).mediaPool?.version || "1.0.0",
       },
-    }
+    } as ProjectFile
   }
 
   /**
    * Обновляет состояние браузера в проекте
    */
-  static updateBrowserState(project: ProjectFile, browserState: ProjectFile["browserState"]): ProjectFile {
+  static updateBrowserState(project: ProjectFile, workspaceSettings: any): ProjectFile {
     return {
       ...project,
-      browserState,
-    }
+      workspaceSettings,
+    } as ProjectFile
   }
 
   /**
    * Обновляет избранные файлы в проекте
    */
-  static updateProjectFavorites(project: ProjectFile, favorites: ProjectFile["projectFavorites"]): ProjectFile {
+  static updateProjectFavorites(project: ProjectFile, favorites: any): ProjectFile {
     return {
       ...project,
-      projectFavorites: favorites,
-    }
+      favoriteFiles: favorites,
+    } as ProjectFile
   }
 
   /**
@@ -171,8 +171,8 @@ export class ProjectFileService {
     }
 
     // Если есть медиабиблиотека, валидируем её
-    if (project.mediaLibrary) {
-      ProjectFileService.validateMediaLibrary(project.mediaLibrary)
+    if (project.mediaPool) {
+      ProjectFileService.validateMediaLibrary(project.mediaPool)
     }
   }
 
@@ -187,21 +187,21 @@ export class ProjectFileService {
   /**
    * Валидирует структуру медиабиблиотеки
    */
-  private static validateMediaLibrary(mediaLibrary: any): void {
-    if (!Array.isArray(mediaLibrary.mediaFiles)) {
+  private static validateMediaLibrary(mediaPool: any): void {
+    if (!Array.isArray(mediaPool.mediaFiles)) {
       throw new Error("Invalid media library: mediaFiles must be an array")
     }
 
-    if (!Array.isArray(mediaLibrary.musicFiles)) {
+    if (!Array.isArray(mediaPool.musicFiles)) {
       throw new Error("Invalid media library: musicFiles must be an array")
     }
 
     // Валидируем каждый медиафайл
-    for (const file of mediaLibrary.mediaFiles) {
+    for (const file of mediaPool.mediaFiles) {
       ProjectFileService.validateSavedMediaFile(file)
     }
 
-    for (const file of mediaLibrary.musicFiles) {
+    for (const file of mediaPool.musicFiles) {
       ProjectFileService.validateSavedMediaFile(file)
     }
   }
@@ -244,10 +244,13 @@ export class ProjectFileService {
     totalSize: number
     lastModified: number
   } {
-    const mediaFiles = project.mediaLibrary?.mediaFiles || []
-    const musicFiles = project.mediaLibrary?.musicFiles || []
+    const mediaFiles = (project as any).mediaPool?.mediaFiles || []
+    const musicFiles = (project as any).mediaPool?.musicFiles || []
 
-    const totalSize = [...mediaFiles, ...musicFiles].reduce((sum, file) => sum + file.size, 0)
+    const totalSize = [...mediaFiles, ...musicFiles].reduce((sum: number, file) => {
+      const fileSize = Number((file as any)?.size) || 0
+      return sum + fileSize
+    }, 0)
 
     return {
       totalMediaFiles: mediaFiles.length,
@@ -265,8 +268,8 @@ export class ProjectFileService {
     currentMediaFiles: SavedMediaFile[],
     currentMusicFiles: SavedMusicFile[],
   ): boolean {
-    const savedMediaFiles = project.mediaLibrary?.mediaFiles || []
-    const savedMusicFiles = project.mediaLibrary?.musicFiles || []
+    const savedMediaFiles = (project as any).mediaPool?.mediaFiles || []
+    const savedMusicFiles = (project as any).mediaPool?.musicFiles || []
 
     // Сравниваем количество файлов
     if (savedMediaFiles.length !== currentMediaFiles.length || savedMusicFiles.length !== currentMusicFiles.length) {
@@ -274,11 +277,11 @@ export class ProjectFileService {
     }
 
     // Сравниваем ID файлов
-    const savedMediaIds = new Set(savedMediaFiles.map((f) => f.id))
-    const currentMediaIds = new Set(currentMediaFiles.map((f) => f.id))
+    const savedMediaIds = new Set(savedMediaFiles.map((f: any) => f.id))
+    const currentMediaIds = new Set(currentMediaFiles.map((f: any) => f.id))
 
-    const savedMusicIds = new Set(savedMusicFiles.map((f) => f.id))
-    const currentMusicIds = new Set(currentMusicFiles.map((f) => f.id))
+    const savedMusicIds = new Set(savedMusicFiles.map((f: any) => f.id))
+    const currentMusicIds = new Set(currentMusicFiles.map((f: any) => f.id))
 
     // Проверяем, есть ли различия в наборах ID
     for (const id of currentMediaIds) {

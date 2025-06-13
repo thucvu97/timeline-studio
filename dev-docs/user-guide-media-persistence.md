@@ -49,7 +49,7 @@ C:\Users\Username\Documents\video.mp4
 Для файлов внутри директории проекта сохраняются относительные пути:
 
 ```
-Проект: /Users/username/Projects/MyProject.tlsp
+Проект: /Users/username/Projects/MyProject.tls
 Файл:   /Users/username/Projects/media/video.mp4
 Путь:   media/video.mp4
 ```
@@ -117,7 +117,7 @@ C:\Users\Username\Documents\video.mp4
 
 ```
 MyProject/
-├── MyProject.tlsp          # Файл проекта
+├── MyProject.tls          # Файл проекта
 ├── media/                  # Медиафайлы
 │   ├── videos/
 │   ├── audio/

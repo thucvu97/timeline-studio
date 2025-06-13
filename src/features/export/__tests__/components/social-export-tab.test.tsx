@@ -4,6 +4,25 @@ import { fireEvent, render, screen, waitFor } from "@/test/test-utils"
 
 import { SocialExportTab } from "../../components/social-export-tab"
 
+// Mock the useSocialExport hook
+vi.mock("../../hooks/use-social-export", () => ({
+  useSocialExport: () => ({
+    loginToSocialNetwork: vi.fn().mockResolvedValue(true),
+    logoutFromSocialNetwork: vi.fn(),
+    isLoggedIn: vi.fn().mockReturnValue(false),
+    getUserInfo: vi.fn().mockReturnValue(null),
+    getOptimalSettings: vi.fn().mockReturnValue({
+      format: "Mp4",
+      frameRate: "30",
+      quality: "good",
+      resolution: "1080",
+      useVerticalResolution: true,
+    }),
+    uploadProgress: 0,
+    isUploading: false,
+  }),
+}))
+
 describe("SocialExportTab", () => {
   const defaultProps = {
     settings: {
@@ -48,7 +67,14 @@ describe("SocialExportTab", () => {
     const tiktokButton = screen.getByText("dialogs.export.tiktok").parentElement!.parentElement!
     fireEvent.click(tiktokButton)
 
-    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ socialNetwork: "tiktok" })
+    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({
+      socialNetwork: "tiktok",
+      format: "Mp4",
+      frameRate: "30",
+      quality: "good",
+      resolution: "1080",
+      useVerticalResolution: true,
+    })
   })
 
   it("should show login prompt when not logged in", () => {
@@ -58,16 +84,18 @@ describe("SocialExportTab", () => {
     expect(screen.getByText("dialogs.export.login")).toBeInTheDocument()
   })
 
-  it("should call onLogin when login button is clicked", () => {
+  it("should call onLogin when login button is clicked", async () => {
     render(<SocialExportTab {...defaultProps} />)
 
     const loginButton = screen.getByText("dialogs.export.login")
     fireEvent.click(loginButton)
 
-    expect(defaultProps.onLogin).toHaveBeenCalledWith("youtube")
-    expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({
-      isLoggedIn: true,
-      accountName: "user@youtube.com",
+    // Ждем асинхронную операцию логина
+    await waitFor(() => {
+      expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({
+        isLoggedIn: true,
+        accountName: "user@youtube.com",
+      })
     })
   })
 

@@ -193,7 +193,7 @@ describe("MediaRestorationService", () => {
       const result = await MediaRestorationService.restoreProjectMedia(
         mockMediaFiles,
         mockMusicFiles,
-        "/project/path.tlsp",
+        "/project/path.tls",
       )
 
       expect(result.stats.total).toBe(2)
@@ -208,7 +208,7 @@ describe("MediaRestorationService", () => {
       const result = await MediaRestorationService.restoreProjectMedia(
         mockMediaFiles,
         mockMusicFiles,
-        "/project/path.tlsp",
+        "/project/path.tls",
       )
 
       expect(result.stats.missing).toBe(2)
@@ -227,7 +227,7 @@ describe("MediaRestorationService", () => {
       const result = await MediaRestorationService.restoreProjectMedia(
         mockMediaFiles,
         mockMusicFiles,
-        "/project/path.tlsp",
+        "/project/path.tls",
       )
 
       const report = MediaRestorationService.generateRestorationReport(result)

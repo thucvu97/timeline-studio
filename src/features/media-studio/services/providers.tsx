@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react"
 
+import { TauriMockProvider } from "@/components/tauri-mock-provider"
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AppSettingsProvider } from "@/features/app-state"
 import { BrowserStateProvider } from "@/features/browser"
@@ -30,6 +31,7 @@ const composeProviders = (...providers: React.ComponentType<{ children: ReactNod
 // ВАЖНО: Порядок провайдеров имеет значение!
 // ShortcutsProvider зависит от UserSettingsProvider и должен идти после него
 const AppProvider = composeProviders(
+  TauriMockProvider, // Должен быть первым для инициализации моков
   I18nProvider,
   ThemeProvider,
   ModalProvider,

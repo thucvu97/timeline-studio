@@ -26,6 +26,16 @@ export interface SocialExportSettings extends ExportSettings {
   description?: string
   tags?: string[]
   thumbnail?: string
+  // TikTok specific
+  useVerticalResolution?: boolean
+  uploadDirectlyToTikTok?: boolean
+  // YouTube specific
+  category?: string
+  language?: string
+  // Telegram specific
+  channelId?: string
+  // Common
+  useProxyMedia?: boolean
 }
 
 export type ExportMode = "local" | "device" | "social"

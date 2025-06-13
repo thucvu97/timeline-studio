@@ -41,7 +41,7 @@ export function Track({
   if (!track) {
     return (
       <div
-        data-testid="track"
+        data-testid="timeline-track"
         className={cn("flex border-b border-border bg-background track", className)}
         style={style}
       >
@@ -60,7 +60,7 @@ export function Track({
 
   return (
     <div
-      data-testid="track"
+      data-testid="timeline-track"
       className={cn(
         "flex border-b border-border bg-background track",
         "hover:bg-accent/5 transition-colors",

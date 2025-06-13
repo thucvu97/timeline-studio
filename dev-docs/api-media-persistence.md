@@ -1,8 +1,8 @@
-# API Reference: Media Persistence System
+# API Reference: Media Persistence System & Project Structure
 
 ## Overview
 
-The Media Persistence System provides APIs for saving and restoring media files in Timeline Studio projects. This document covers all public APIs, types, and integration patterns.
+This document covers the Timeline Studio project structure, media persistence system, and all related APIs. It includes both the legacy format (v1) and the new professional architecture (v2) inspired by DaVinci Resolve and Adobe Premiere Pro.
 
 ## Core Types
 
@@ -42,7 +42,7 @@ interface MusicMetadata {
 }
 ```
 
-### ProjectFile
+### ProjectFile (Legacy v1 - Deprecated)
 
 ```typescript
 interface ProjectFile {
@@ -58,6 +58,43 @@ interface ProjectMediaLibrary {
   musicFiles: SavedMusicFile[];
   lastUpdated: number;
   version: string;
+}
+```
+
+### TimelineStudioProject (New v2)
+
+```typescript
+interface TimelineStudioProject {
+  // Метаданные проекта
+  metadata: ProjectMetadata;
+  
+  // Настройки проекта (видео, аудио, цвет)
+  settings: ProjectSettings & {
+    audio: AudioSettings;
+    preview: PreviewSettings;
+    exportPresets: ExportPreset[];
+  };
+  
+  // Media Pool - централизованное хранилище медиа
+  mediaPool: MediaPool;
+  
+  // Секвенции (таймлайны)
+  sequences: Map<string, Sequence>;
+  
+  // ID активной секвенции
+  activeSequenceId: string;
+  
+  // Кэш проекта
+  cache: ProjectCache;
+  
+  // Настройки рабочего пространства
+  workspace: WorkspaceSettings;
+  
+  // Коллаборация (опционально)
+  collaboration?: CollaborationSettings;
+  
+  // Резервные копии
+  backup: ProjectBackup;
 }
 ```
 
@@ -108,7 +145,7 @@ class ProjectFileService {
 ```typescript
 // Load project
 const projectData = await ProjectFileService.loadProject(
-  "/path/to/project.tlsp",
+  "/path/to/project.tls",
 );
 
 // Create new project
@@ -122,7 +159,7 @@ const updatedProject = ProjectFileService.updateMediaLibrary(
 );
 
 // Save project
-await ProjectFileService.saveProject("/path/to/project.tlsp", updatedProject);
+await ProjectFileService.saveProject("/path/to/project.tls", updatedProject);
 ```
 
 ### MediaRestorationService
@@ -626,4 +663,204 @@ describe("Project Media Persistence", () => {
     expect(loadedProject.mediaLibrary.musicFiles).toHaveLength(1);
   });
 });
+```
+
+## New Architecture (v2)
+
+### Media Pool
+
+The Media Pool replaces the flat MediaLibrary structure with a professional media management system.
+
+```typescript
+interface MediaPool {
+  // Все элементы в пуле
+  items: Map<string, MediaPoolItem>;
+  
+  // Структура папок
+  bins: Map<string, MediaBin>;
+  
+  // Умные коллекции
+  smartCollections: SmartCollection[];
+  
+  // Настройки отображения
+  viewSettings: MediaPoolViewSettings;
+  
+  // Статистика
+  stats: MediaPoolStats;
+}
+
+interface MediaPoolItem {
+  id: string;
+  type: 'video' | 'audio' | 'image' | 'sequence' | 'compound';
+  name: string;
+  source: { path: string; relativePath?: string; hash?: string };
+  status: 'online' | 'offline' | 'missing' | 'proxy';
+  binId: string; // Папка, в которой находится элемент
+  metadata: MediaMetadata;
+  usage: { sequences: string[]; count: number };
+  proxy?: ProxyInfo;
+  thumbnail?: ThumbnailInfo;
+  waveform?: WaveformInfo;
+  tags: string[];
+  colorLabel?: ColorLabel;
+  rating?: 1 | 2 | 3 | 4 | 5;
+}
+```
+
+### Sequences (formerly Timeline)
+
+Sequences replace the single timeline concept with support for multiple timelines per project.
+
+```typescript
+interface Sequence {
+  id: string;
+  name: string;
+  type: 'main' | 'nested' | 'multicam' | 'vr360';
+  settings: SequenceSettings;
+  composition: SequenceComposition;
+  resources: SequenceResources;
+  markers: SequenceMarker[];
+  history: HistoryState[];
+  metadata: SequenceMetadata;
+}
+
+interface SequenceComposition {
+  tracks: TimelineTrack[];
+  masterClips: MasterClip[]; // Вложенные секвенции
+  automation?: AutomationRegion[];
+}
+
+interface SequenceResources {
+  effects: Map<string, VideoEffect>;
+  filters: Map<string, VideoFilter>;
+  transitions: Map<string, Transition>;
+  colorGrades: Map<string, ColorGrade>;
+  titles: Map<string, Title>;
+  generators: Map<string, Generator>;
+}
+```
+
+### Keyframes
+
+Keyframes are supported for animating properties over time.
+
+```typescript
+interface TimelineKeyframe {
+  id: string;
+  time: number; // Время в секундах
+  property: string; // Имя свойства
+  value: any; // Значение
+  interpolation: "linear" | "ease" | "ease-in" | "ease-out" | "bezier";
+}
+
+interface AutomationRegion {
+  id: string;
+  parameter: string;
+  startTime: number;
+  endTime: number;
+  keyframes: Array<{
+    time: number;
+    value: number;
+    curve: 'linear' | 'bezier' | 'step';
+  }>;
+}
+```
+
+### Resources Management
+
+The resource system has been redesigned to work at both project and sequence levels.
+
+#### Legacy: ProjectResources (v1)
+All resources were stored at the project level and shared across all timelines.
+
+```typescript
+interface ProjectResources {
+  effects: VideoEffect[];
+  filters: VideoFilter[];
+  transitions: Transition[];
+  templates: MediaTemplate[];
+  styleTemplates: StyleTemplate[];
+  subtitleStyles: any[];
+  music: any[];
+  media: MediaFile[];
+}
+```
+
+#### New: SequenceResources (v2)
+Resources are now managed per sequence, allowing different sequences to have different sets of resources.
+
+```typescript
+// Ресурсы на уровне секвенции
+interface SequenceResources {
+  effects: Map<string, VideoEffect>;
+  filters: Map<string, VideoFilter>;
+  transitions: Map<string, Transition>;
+  colorGrades: Map<string, ColorGrade>;
+  titles: Map<string, Title>;
+  generators: Map<string, Generator>;
+}
+
+// Применение ресурсов к клипам
+interface TimelineClip {
+  // ... другие поля
+  effects: AppliedEffect[];
+  filters: AppliedFilter[];
+  transitions: AppliedTransition[];
+  styleTemplate?: AppliedStyleTemplate;
+}
+```
+
+This separation allows:
+- Different sequences to use different versions of effects
+- Better organization of resources
+- Easier sharing of sequences between projects
+- More efficient resource management
+
+### New Project Service
+
+```typescript
+class TimelineStudioProjectService {
+  // Создать новый проект
+  createProject(name: string, settings?: Partial<ProjectSettings>): TimelineStudioProject;
+  
+  // Открыть проект
+  openProject(path: string): Promise<TimelineStudioProject>;
+  
+  // Сохранить проект
+  saveProject(project: TimelineStudioProject, path: string): Promise<void>;
+  
+  // Оптимизировать проект (удалить неиспользуемые ресурсы)
+  optimizeProject(project: TimelineStudioProject): OptimizationResult;
+  
+  // Проверить целостность проекта
+  validateProject(project: TimelineStudioProject): ValidationResult;
+  
+  // Экспорт/импорт для обмена
+  exportForExchange(project: TimelineStudioProject, format: 'xml' | 'aaf' | 'edl'): string;
+  importFromFormat(data: string, format: 'xml' | 'aaf' | 'edl'): TimelineStudioProject;
+}
+```
+
+### Migration from v1 to v2
+
+```typescript
+// Утилита для миграции старых проектов
+function migrateProjectV1ToV2(oldProject: ProjectFile): TimelineStudioProject {
+  const mediaPool = migrateMediaLibraryToPool(
+    oldProject.mediaLibrary?.mediaFiles || [],
+    oldProject.mediaLibrary?.musicFiles || []
+  );
+  
+  // Создаем главную секвенцию из старого timeline
+  const mainSequence = createSequenceFromTimeline(oldProject.timeline);
+  
+  return {
+    metadata: createMetadataFromOld(oldProject.meta),
+    settings: enhanceSettings(oldProject.settings),
+    mediaPool,
+    sequences: new Map([[mainSequence.id, mainSequence]]),
+    activeSequenceId: mainSequence.id,
+    // ... остальные поля
+  };
+}
 ```

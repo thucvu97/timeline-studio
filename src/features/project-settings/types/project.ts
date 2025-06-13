@@ -128,13 +128,16 @@ export const DEFAULT_PROJECT_SETTINGS: ProjectSettings = {
 }
 
 /**
- * Полная структура файла проекта Timeline Studio (.tlsp)
+ * DEPRECATED: Старая структура файла проекта (.tls)
+ * Используйте TimelineStudioProject из timeline-studio-project.ts
+ * 
+ * Оставлено для обратной совместимости при миграции старых проектов
  */
 export interface ProjectFile {
   /** Настройки проекта (разрешение, FPS, цветовое пространство) */
   settings: ProjectSettings
 
-  /** Медиабиблиотека проекта с импортированными файлами */
+  /** @deprecated Используйте mediaPool в новой структуре */
   mediaLibrary?: {
     mediaFiles: import("../../media/types/saved-media").SavedMediaFile[]
     musicFiles: import("../../media/types/saved-media").SavedMusicFile[]
@@ -142,7 +145,7 @@ export interface ProjectFile {
     version: string
   }
 
-  /** Состояние браузера медиафайлов */
+  /** @deprecated Перенесено в workspace настройки */
   browserState?: {
     media: {
       viewMode: "list" | "grid" | "thumbnails"
@@ -163,17 +166,16 @@ export interface ProjectFile {
     }
   }
 
-  /** Избранные файлы, специфичные для проекта */
+  /** @deprecated Интегрировано в mediaPool */
   projectFavorites?: {
     mediaFiles: string[]
     musicFiles: string[]
   }
 
-  /** Состояние таймлайна (будет добавлено позже) */
+  /** @deprecated Используйте sequences в новой структуре */
   timeline?: {
     tracks: any[]
     resources: any[]
-    // ... другие данные таймлайна
   }
 
   /** Метаданные проекта */

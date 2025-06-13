@@ -54,6 +54,7 @@ export interface MediaFile {
     }
     isStitched: boolean
   }
+  thumbnailPath?: string // Путь к сгенерированному превью
 }
 
 export interface FileGroup {

@@ -7,7 +7,6 @@ import {
   File,
   Filter,
   Folder,
-  Grid,
   Grid2x2,
   List,
   ListFilterPlus,
@@ -209,6 +208,7 @@ export function MediaToolbar({
                         e.stopPropagation()
                         if (!isImporting) onImportFile()
                       }}
+                      data-testid="add-media-button"
                     >
                       <File size={12} className={isImporting ? "animate-pulse" : ""} />
                     </div>
@@ -228,6 +228,7 @@ export function MediaToolbar({
                         e.stopPropagation()
                         if (!isImporting) onImportFolder()
                       }}
+                      data-testid="add-folder-button"
                     >
                       <Folder size={12} className={isImporting ? "animate-pulse" : ""} />
                     </div>

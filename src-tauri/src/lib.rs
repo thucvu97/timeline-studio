@@ -7,7 +7,7 @@ use language::{get_app_language, set_app_language};
 
 // Модуль для работы с медиафайлами
 mod media;
-use media::{get_media_files, get_media_metadata};
+use media::{get_media_files, get_media_metadata, MediaProcessor, ThumbnailOptions};
 
 // Модуль для работы с файловой системой
 mod filesystem;
@@ -24,6 +24,9 @@ use video_compiler::{initialize, PreviewGenerator, VideoCompilerState};
 mod video_server;
 use video_server::{VideoRegistrationResponse, VideoServerState};
 
+// Модуль распознавания (YOLO)
+mod recognition;
+
 // Импортируем GPU и Frame Extraction команды
 use video_compiler::commands::{
   cancel_render, check_ffmpeg_capabilities, check_hardware_acceleration, clear_frame_cache,
@@ -39,6 +42,55 @@ fn greet() -> String {
   let now = SystemTime::now();
   let epoch_ms = now.duration_since(UNIX_EPOCH).unwrap().as_millis();
   format!("Hello world from Rust! Current epoch: {}", epoch_ms)
+}
+
+// Media Processor Commands
+
+#[tauri::command]
+async fn scan_media_folder(
+  folder_path: String,
+  app_handle: tauri::AppHandle,
+) -> Result<Vec<media::types::MediaFile>, String> {
+  use std::path::Path;
+
+  // Получаем директорию для кеша превью
+  let app_dirs = app_dirs::get_app_directories().await?;
+  let thumbnail_dir = app_dirs.caches_dir.join("thumbnails");
+
+  // Создаем процессор
+  let processor = MediaProcessor::new(app_handle, thumbnail_dir);
+
+  // Запускаем сканирование и обработку
+  let folder = Path::new(&folder_path);
+  processor.scan_and_process(folder, None).await
+}
+
+#[tauri::command]
+async fn scan_media_folder_with_thumbnails(
+  folder_path: String,
+  width: u32,
+  height: u32,
+  app_handle: tauri::AppHandle,
+) -> Result<Vec<media::types::MediaFile>, String> {
+  use std::path::Path;
+
+  // Получаем директорию для кеша превью
+  let app_dirs = app_dirs::get_app_directories().await?;
+  let thumbnail_dir = app_dirs.caches_dir.join("thumbnails");
+
+  // Создаем процессор
+  let processor = MediaProcessor::new(app_handle, thumbnail_dir);
+
+  // Настройки для превью
+  let thumbnail_options = Some(ThumbnailOptions {
+    width,
+    height,
+    ..Default::default()
+  });
+
+  // Запускаем сканирование и обработку
+  let folder = Path::new(&folder_path);
+  processor.scan_and_process(folder, thumbnail_options).await
 }
 
 // Video Compiler Commands (non-duplicate ones only)
@@ -151,6 +203,8 @@ pub fn run() {
       set_app_language,
       get_media_metadata,
       get_media_files,
+      scan_media_folder,
+      scan_media_folder_with_thumbnails,
       filesystem::file_exists,
       filesystem::get_file_stats,
       filesystem::get_platform,

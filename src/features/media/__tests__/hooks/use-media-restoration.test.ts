@@ -91,7 +91,7 @@ describe("useMediaRestoration", () => {
     let restorationPromise: Promise<any>
 
     act(() => {
-      restorationPromise = result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tlsp")
+      restorationPromise = result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls")
     })
 
     // Проверяем состояние во время восстановления
@@ -108,7 +108,7 @@ describe("useMediaRestoration", () => {
     expect(restorationResponse.restoredMedia).toHaveLength(1)
     expect(restorationResponse.restoredMusic).toHaveLength(1)
     expect(restorationResponse.needsUserInput).toBe(false)
-    expect(mockRestoreProjectMedia).toHaveBeenCalledWith(mockMediaFiles, mockMusicFiles, "/project/path.tlsp")
+    expect(mockRestoreProjectMedia).toHaveBeenCalledWith(mockMediaFiles, mockMusicFiles, "/project/path.tls")
   })
 
   it("должен показывать диалог для отсутствующих файлов", async () => {
@@ -127,7 +127,7 @@ describe("useMediaRestoration", () => {
     const { result } = renderHook(() => useMediaRestoration())
 
     await act(async () => {
-      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tlsp", {
+      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls", {
         showDialog: true,
       })
     })
@@ -161,7 +161,7 @@ describe("useMediaRestoration", () => {
 
     // Сначала восстанавливаем с отсутствующими файлами
     await act(async () => {
-      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tlsp", {
+      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls", {
         showDialog: true,
       })
     })
@@ -193,7 +193,7 @@ describe("useMediaRestoration", () => {
     const { result } = renderHook(() => useMediaRestoration())
 
     await act(async () => {
-      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tlsp", {
+      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls", {
         showDialog: true,
       })
     })
@@ -211,7 +211,7 @@ describe("useMediaRestoration", () => {
     const { result } = renderHook(() => useMediaRestoration())
 
     await act(async () => {
-      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tlsp")
+      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls")
     })
 
     act(() => {
@@ -232,7 +232,7 @@ describe("useMediaRestoration", () => {
 
     await act(async () => {
       try {
-        await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tlsp")
+        await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls")
       } catch (e) {
         // Ожидаем ошибку
       }
@@ -251,7 +251,7 @@ describe("useMediaRestoration", () => {
     const { result } = renderHook(() => useMediaRestoration())
 
     await act(async () => {
-      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tlsp")
+      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls")
     })
 
     const report = result.current.getRestorationReport()
@@ -264,7 +264,7 @@ describe("useMediaRestoration", () => {
     const { result } = renderHook(() => useMediaRestoration())
 
     await act(async () => {
-      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tlsp")
+      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls")
     })
 
     const stats = result.current.getRestorationStats()
@@ -287,7 +287,7 @@ describe("useMediaRestoration", () => {
     const { result } = renderHook(() => useMediaRestoration())
 
     await act(async () => {
-      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tlsp")
+      await result.current.restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls")
     })
 
     const relocatedFiles = result.current.getRelocatedFiles()

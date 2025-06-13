@@ -126,7 +126,7 @@ export function NoFiles({ type, onImport, className }: NoFilesProps) {
     <div className={`flex h-full items-center justify-center p-8 ${className || ""}`} data-testid="no-files">
       <Card className="w-full max-w-md">
         <CardContent className="pt-6">
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-4" data-testid="no-files-message">
             {/* Иконка */}
             <div className="flex justify-center">
               <div className="p-3 rounded-full bg-muted">

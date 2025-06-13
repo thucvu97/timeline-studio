@@ -42,7 +42,7 @@ export function useAutoLoadUserData() {
    * Проверяет, работаем ли мы в Tauri окружении
    */
   const isTauriEnvironment = () => {
-    return typeof window !== "undefined" && "__TAURI__" in window
+    return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window && window.__TAURI_INTERNALS__ !== null
   }
 
   /**
@@ -57,18 +57,25 @@ export function useAutoLoadUserData() {
       }
 
       // Динамически импортируем Tauri API только если мы в Tauri окружении
-      const { exists, readDir } = await import("@tauri-apps/plugin-fs")
+      let jsonFiles: string[] = []
 
-      const dirExists = await exists(dirPath)
-      if (!dirExists) {
-        console.log(`Директория ${dirPath} не существует`)
+      try {
+        const { exists, readDir } = await import("@tauri-apps/plugin-fs")
+
+        const dirExists = await exists(dirPath)
+        if (!dirExists) {
+          console.log(`Директория ${dirPath} не существует`)
+          return []
+        }
+
+        const entries = await readDir(dirPath)
+        jsonFiles = entries
+          .filter((entry: any) => entry.isFile && entry.name.endsWith(".json"))
+          .map((entry: any) => `${dirPath}/${entry.name}`)
+      } catch (importError) {
+        console.log("Не удалось импортировать Tauri FS API:", importError)
         return []
       }
-
-      const entries = await readDir(dirPath)
-      const jsonFiles = entries
-        .filter((entry: any) => entry.isFile && entry.name.endsWith(".json"))
-        .map((entry: any) => `${dirPath}/${entry.name}`)
 
       console.log(`Найдено ${jsonFiles.length} JSON файлов в ${dirPath}:`, jsonFiles)
       return jsonFiles

@@ -122,7 +122,6 @@ export const ImagePreview = memo(function ImagePreview({
       >
         <Image size={size > 100 ? 16 : 12} />
       </div>
-      §
       <FavoriteButton file={file} size={size} type="media" />
       <AddMediaButton resource={{ id: file.id, type: "media" } as TimelineResource} size={size} type="media" />
     </div>

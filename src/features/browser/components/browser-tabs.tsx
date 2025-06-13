@@ -37,6 +37,7 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
         className={TAB_TRIGGER_STYLES}
         onClick={() => handleTabChange("media")}
         data-state={activeTab === "media" ? "active" : "inactive"}
+        data-testid="media-tab"
       >
         <Clapperboard className="h-4 w-4" />
         <span>{t("browser.tabs.media")}</span>

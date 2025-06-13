@@ -73,6 +73,7 @@ export function Clip({ clip, track, timeScale, onUpdate, onRemove, className }: 
         left: `${left}px`,
         width: `${Math.max(width, minWidth)}px`,
       }}
+      data-testid="timeline-clip"
     >
       {renderClipContent()}
     </div>

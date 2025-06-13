@@ -48,11 +48,12 @@ promo/dist/
 bin/deepsource
 
 # Public assets
-/public/music/*
 /public/media/*
+/public/music/*
+/public/subtitles/*
 /public/effects/*
 /public/filters/*
-/public/style-templates/*
-/public/subtitles/*
-/public/templates/*
 /public/transitions/*
+/public/style-templates/*
+/public/templates/*
+/public/test-data/*

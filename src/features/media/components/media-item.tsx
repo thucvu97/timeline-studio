@@ -29,7 +29,7 @@ interface MediaItemProps {
  * @returns {JSX.Element} Компонент медиа-элемента
  */
 export const MediaItem = memo<MediaItemProps>(
-  ({ file, index, viewMode, previewSize }) => {
+  ({ file, viewMode, previewSize }) => {
     const { favorites } = useFavorites() // Хук для работы с избранным
     const { settings } = useProjectSettings() // Получаем настройки проекта
 
@@ -54,7 +54,7 @@ export const MediaItem = memo<MediaItemProps>(
     // Мемоизируем стили для grid режима
     const gridStyles = useMemo(
       () => ({
-        width: `${(previewSize * projectAspectRatio).toFixed(0)}px`,
+        width: `${(previewSize * projectAspectRatio + 2).toFixed(0)}px`,
       }),
       [previewSize, projectAspectRatio],
     )
@@ -74,6 +74,7 @@ export const MediaItem = memo<MediaItemProps>(
             baseClasses,
           )}
           style={{ height: `${listPreviewSize + 8}px` }} // Фиксированная высота для list режима
+          data-testid="media-item"
         >
           <div className="relative mr-3 flex flex-shrink-0 gap-1">
             <MediaPreview
@@ -97,6 +98,7 @@ export const MediaItem = memo<MediaItemProps>(
             baseClasses,
           )}
           style={gridStyles}
+          data-testid="media-item"
         >
           <div className="group relative w-full flex-1 flex-grow flex-row">
             <MediaPreview
@@ -121,6 +123,7 @@ export const MediaItem = memo<MediaItemProps>(
             "border border-transparent bg-white hover:border-[#38dacac3] hover:bg-gray-100 dark:bg-[#25242b] dark:hover:border-[#35d1c1] dark:hover:bg-[#2f2d38]",
             isAdded && "pointer-events-none",
           )}
+          data-testid="media-item"
         >
           <div className="group relative w-full flex-1 flex-grow flex-row">
             <MediaPreview
@@ -142,9 +145,9 @@ export const MediaItem = memo<MediaItemProps>(
       prevProps.file.id === nextProps.file.id &&
       prevProps.file.isLoadingMetadata === nextProps.file.isLoadingMetadata &&
       prevProps.file.probeData === nextProps.file.probeData &&
+      prevProps.file.thumbnailPath === nextProps.file.thumbnailPath &&
       prevProps.viewMode === nextProps.viewMode &&
-      prevProps.previewSize === nextProps.previewSize &&
-      prevProps.index === nextProps.index
+      prevProps.previewSize === nextProps.previewSize
     )
   },
 )

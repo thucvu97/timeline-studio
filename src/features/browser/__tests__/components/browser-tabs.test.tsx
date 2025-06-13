@@ -51,7 +51,7 @@ describe("BrowserTabs", () => {
   it("должен рендерить все вкладки", () => {
     render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
-    expect(screen.getByTestId("tab-trigger-media")).toBeInTheDocument()
+    expect(screen.getByTestId("media-tab")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-music")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-subtitles")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-effects")).toBeInTheDocument()
@@ -64,7 +64,7 @@ describe("BrowserTabs", () => {
   it("должен отображать правильные иконки для каждой вкладки", () => {
     render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
-    expect(screen.getByTestId("tab-trigger-media")).toContainElement(screen.getByTestId("icon-clapperboard"))
+    expect(screen.getByTestId("media-tab")).toContainElement(screen.getByTestId("icon-clapperboard"))
     expect(screen.getByTestId("tab-trigger-music")).toContainElement(screen.getByTestId("icon-music"))
     expect(screen.getByTestId("tab-trigger-subtitles")).toContainElement(screen.getByTestId("icon-type"))
     expect(screen.getByTestId("tab-trigger-effects")).toContainElement(screen.getByTestId("icon-sparkles"))
@@ -77,7 +77,7 @@ describe("BrowserTabs", () => {
   it("должен отображать правильные метки для каждой вкладки", () => {
     render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
-    expect(screen.getByTestId("tab-trigger-media")).toHaveTextContent("browser.tabs.media")
+    expect(screen.getByTestId("media-tab")).toHaveTextContent("browser.tabs.media")
     expect(screen.getByTestId("tab-trigger-music")).toHaveTextContent("browser.tabs.music")
     expect(screen.getByTestId("tab-trigger-subtitles")).toHaveTextContent("browser.tabs.subtitles")
     expect(screen.getByTestId("tab-trigger-effects")).toHaveTextContent("browser.tabs.effects")
@@ -90,7 +90,7 @@ describe("BrowserTabs", () => {
   it("должен устанавливать правильное состояние для активной вкладки", () => {
     render(<BrowserTabs activeTab="music" onTabChange={mockOnTabChange} />)
 
-    expect(screen.getByTestId("tab-trigger-media")).toHaveAttribute("data-state", "inactive")
+    expect(screen.getByTestId("media-tab")).toHaveAttribute("data-state", "inactive")
     expect(screen.getByTestId("tab-trigger-music")).toHaveAttribute("data-state", "active")
     expect(screen.getByTestId("tab-trigger-effects")).toHaveAttribute("data-state", "inactive")
   })
@@ -127,7 +127,7 @@ describe("BrowserTabs", () => {
   it("должен не вызывать onTabChange при клике на уже активную вкладку", () => {
     render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
-    fireEvent.click(screen.getByTestId("tab-trigger-media"))
+    fireEvent.click(screen.getByTestId("media-tab"))
     expect(mockOnTabChange).toHaveBeenCalledWith("media")
     // Вызов все равно происходит, но это может быть обработано на уровне выше
   })
@@ -159,23 +159,32 @@ describe("BrowserTabs", () => {
   it("должен обновляться при изменении activeTab", () => {
     const { rerender } = render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
-    expect(screen.getByTestId("tab-trigger-media")).toHaveAttribute("data-state", "active")
+    expect(screen.getByTestId("media-tab")).toHaveAttribute("data-state", "active")
     expect(screen.getByTestId("tab-trigger-music")).toHaveAttribute("data-state", "inactive")
 
     rerender(<BrowserTabs activeTab="music" onTabChange={mockOnTabChange} />)
 
-    expect(screen.getByTestId("tab-trigger-media")).toHaveAttribute("data-state", "inactive")
+    expect(screen.getByTestId("media-tab")).toHaveAttribute("data-state", "inactive")
     expect(screen.getByTestId("tab-trigger-music")).toHaveAttribute("data-state", "active")
   })
 
   it("должен обрабатывать все возможные вкладки", () => {
-    const tabs = ["media", "music", "subtitles", "effects", "filters", "transitions", "templates", "style-templates"]
+    const tabs = [
+      { testId: "media-tab", value: "media" },
+      { testId: "tab-trigger-music", value: "music" },
+      { testId: "tab-trigger-subtitles", value: "subtitles" },
+      { testId: "tab-trigger-effects", value: "effects" },
+      { testId: "tab-trigger-filters", value: "filters" },
+      { testId: "tab-trigger-transitions", value: "transitions" },
+      { testId: "tab-trigger-templates", value: "templates" },
+      { testId: "tab-trigger-style-templates", value: "style-templates" },
+    ]
 
     render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
-    tabs.forEach((tab) => {
-      fireEvent.click(screen.getByTestId(`tab-trigger-${tab}`))
-      expect(mockOnTabChange).toHaveBeenCalledWith(tab)
+    tabs.forEach(({ testId, value }) => {
+      fireEvent.click(screen.getByTestId(testId))
+      expect(mockOnTabChange).toHaveBeenCalledWith(value)
     })
 
     expect(mockOnTabChange).toHaveBeenCalledTimes(tabs.length)

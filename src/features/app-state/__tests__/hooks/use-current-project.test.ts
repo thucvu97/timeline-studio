@@ -23,7 +23,7 @@ describe("useCurrentProject", () => {
 
   it("должен возвращать текущий проект", () => {
     const mockProject = {
-      path: "/path/to/project.tlsp",
+      path: "/path/to/project.tls",
       name: "Мой проект",
       isDirty: false,
       isNew: false,
@@ -48,7 +48,7 @@ describe("useCurrentProject", () => {
 
   it("должен предоставлять метод открытия проекта", async () => {
     mockAppSettings.openProject.mockResolvedValue({
-      path: "/path/to/opened.tlsp",
+      path: "/path/to/opened.tls",
       name: "Открытый проект",
     })
 
@@ -59,7 +59,7 @@ describe("useCurrentProject", () => {
     })
 
     expect(openedProject).toEqual({
-      path: "/path/to/opened.tlsp",
+      path: "/path/to/opened.tls",
       name: "Открытый проект",
     })
     expect(mockAppSettings.openProject).toHaveBeenCalled()
@@ -67,7 +67,7 @@ describe("useCurrentProject", () => {
 
   it("должен предоставлять метод сохранения проекта", async () => {
     mockAppSettings.saveProject.mockResolvedValue({
-      path: "/path/to/saved.tlsp",
+      path: "/path/to/saved.tls",
       name: "Сохраненный проект",
     })
 
@@ -78,7 +78,7 @@ describe("useCurrentProject", () => {
     })
 
     expect(savedProject).toEqual({
-      path: "/path/to/saved.tlsp",
+      path: "/path/to/saved.tls",
       name: "Сохраненный проект",
     })
     expect(mockAppSettings.saveProject).toHaveBeenCalledWith("Сохраненный проект")
@@ -109,8 +109,8 @@ describe("useCurrentProject", () => {
   })
 
   it("должен обновляться при изменении проекта", () => {
-    const project1 = { path: "/project1.tlsp", name: "Проект 1", isDirty: false, isNew: false }
-    const project2 = { path: "/project2.tlsp", name: "Проект 2", isDirty: true, isNew: false }
+    const project1 = { path: "/project1.tls", name: "Проект 1", isDirty: false, isNew: false }
+    const project2 = { path: "/project2.tls", name: "Проект 2", isDirty: true, isNew: false }
 
     mockAppSettings.getCurrentProject.mockReturnValue(project1)
 

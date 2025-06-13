@@ -177,21 +177,28 @@ export const VideoPreview = memo(
             <div className="group relative h-full w-full">
               <video
                 src={videoUrl || convertFileSrc(file.path)}
-                preload="metadata"
+                poster={file.thumbnailPath ? convertFileSrc(file.thumbnailPath) : undefined}
+                preload="auto"
                 tabIndex={0}
                 playsInline
                 muted
                 className={cn("h-full w-full object-cover focus:outline-none", isAdded ? "opacity-50" : "")}
                 style={{
                   transition: "opacity 0.2s ease-in-out",
+                  backgroundColor: "transparent",
                 }}
-                onLoadedData={() => {
+                onLoadedData={(e) => {
                   console.log("Video loaded (placeholder)")
                   setIsLoaded(true)
+                  // Устанавливаем на первый кадр
+                  const video = e.currentTarget as HTMLVideoElement
+                  video.currentTime = 0.01
                 }}
                 onLoadedMetadata={(e) => {
                   const video = e.currentTarget as HTMLVideoElement
                   console.log(`[VideoPreview] Metadata loaded: ${video.videoWidth}x${video.videoHeight}`)
+                  // Устанавливаем на первый кадр
+                  video.currentTime = 0.01
                 }}
                 onLoadStart={() => {
                   console.log("[VideoPreview] Load start for placeholder")
@@ -270,13 +277,15 @@ export const VideoPreview = memo(
                       videoRefs.current[key] = el
                     }}
                     src={videoUrl || convertFileSrc(file.path)}
-                    preload="metadata"
+                    poster={file.thumbnailPath ? convertFileSrc(file.thumbnailPath) : undefined}
+                    preload="auto"
                     tabIndex={0}
                     playsInline
                     muted={false} // Включаем звук в превью по запросу пользователя
                     className={cn("absolute inset-0 h-full w-full focus:outline-none", isAdded ? "opacity-50" : "")}
                     style={{
                       transition: "opacity 0.2s ease-in-out",
+                      backgroundColor: "transparent",
                     }}
                     onEnded={() => {
                       console.log("Video ended for stream:", stream.index)
@@ -332,14 +341,23 @@ export const VideoPreview = memo(
                         handlePlayPause(e as unknown as React.MouseEvent, stream)
                       }
                     }}
-                    onLoadedData={() => {
+                    onLoadedData={(e) => {
                       console.log("Video loaded for stream:", typeof stream.index !== "undefined" ? stream.index : key)
                       setIsLoaded(true)
+
+                      // Устанавливаем на первый кадр
+                      const video = e.currentTarget as HTMLVideoElement
+                      video.currentTime = 0.01
 
                       // Проверяем, есть ли у файла probeData и streams
                       if (!file.probeData?.streams || file.probeData.streams.length === 0) {
                         console.log("No streams found in probeData for file:", file.name)
                       }
+                    }}
+                    onLoadedMetadata={(e) => {
+                      // Устанавливаем на первый кадр при загрузке метаданных
+                      const video = e.currentTarget as HTMLVideoElement
+                      video.currentTime = 0.01
                     }}
                   />
 
@@ -440,6 +458,7 @@ export const VideoPreview = memo(
     // Сравниваем только важные свойства для предотвращения лишних перерендеров
     const isSameFile = prevProps.file.path === nextProps.file.path
     const isSameMetadataState = prevProps.file.isLoadingMetadata === nextProps.file.isLoadingMetadata
+    const isSameThumbnail = prevProps.file.thumbnailPath === nextProps.file.thumbnailPath
     const isSameProps =
       prevProps.size === nextProps.size &&
       prevProps.showFileName === nextProps.showFileName &&
@@ -451,11 +470,11 @@ export const VideoPreview = memo(
     const isSameStreamsCount = prevStreamsCount === nextStreamsCount
 
     // Если метаданные уже загружены и количество потоков не изменилось - не перерендериваем
-    if (!nextProps.file.isLoadingMetadata && isSameStreamsCount && isSameFile && isSameProps) {
+    if (!nextProps.file.isLoadingMetadata && isSameStreamsCount && isSameFile && isSameProps && isSameThumbnail) {
       return true
     }
 
     // Перерендериваем только при изменении ключевых свойств
-    return isSameFile && isSameMetadataState && isSameProps && isSameStreamsCount
+    return isSameFile && isSameMetadataState && isSameProps && isSameStreamsCount && isSameThumbnail
   },
 )

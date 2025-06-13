@@ -57,7 +57,7 @@ export function SubtitleEditor({ open, onOpenChange, subtitle, onSave, available
       text,
       startTime,
       duration,
-      subtitleStyleId: styleId || undefined,
+      subtitleStyleId: styleId === "default" ? undefined : styleId || undefined,
       animationIn:
         animationIn !== "none"
           ? {
@@ -142,7 +142,7 @@ export function SubtitleEditor({ open, onOpenChange, subtitle, onSave, available
                   <SelectValue placeholder="Выберите стиль" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">По умолчанию</SelectItem>
+                  <SelectItem value="default">По умолчанию</SelectItem>
                   {availableStyles.map((style) => (
                     <SelectItem key={style.id} value={style.id}>
                       {style.name}

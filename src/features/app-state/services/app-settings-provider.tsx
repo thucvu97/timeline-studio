@@ -5,7 +5,9 @@ import { open, save } from "@tauri-apps/plugin-dialog"
 import { useMachine } from "@xstate/react"
 
 import { MissingFilesDialog } from "@/features/app-state/components/missing-files-dialog"
+import { appDirectoriesService } from "@/features/app-state/services/app-directories-service"
 import { ProjectFileService } from "@/features/app-state/services/project-file-service"
+import { TimelineStudioProjectService } from "@/features/app-state/services/timeline-studio-project-service"
 import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
 import { UserSettingsContextType } from "@/features/user-settings"
 
@@ -37,6 +39,8 @@ export interface AppSettingsProviderContext {
 
   // Методы для работы с проектами
   createNewProject: (name?: string) => void
+  createTempProject: () => Promise<void>
+  loadOrCreateTempProject: () => Promise<void>
   openProject: () => Promise<{ path: string; name: string } | null>
   saveProject: (name: string) => Promise<{ path: string; name: string } | null>
   setProjectDirty: (isDirty: boolean) => void
@@ -53,6 +57,7 @@ export interface AppSettingsProviderContext {
   getMusicFiles: () => AppSettingsContextType["musicFiles"]
   isLoading: () => boolean
   getError: () => string | null
+  isTempProject: () => boolean
 }
 
 // Создаем контекст
@@ -74,11 +79,14 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     getMissingFiles,
   } = useMediaRestoration()
 
-  // Проверяем, есть ли открытый проект, и если нет, создаем новый
+  // Автоматически создаем или загружаем временный проект при старте
   useEffect(() => {
-    if (!state.context.isLoading && !state.context.currentProject.path && !state.context.currentProject.isNew) {
-      // Если нет открытого проекта и не создан новый, создаем новый проект
-      send({ type: "CREATE_NEW_PROJECT" })
+    if (!state.context.isLoading && !state.context.currentProject.path && state.context.currentProject.isNew) {
+      // Если нет открытого проекта и у нас стандартный новый проект, создаем временный проект
+      loadOrCreateTempProject().catch((error: unknown) => {
+        console.error("Failed to load or create temp project:", error)
+        // Fallback: оставляем как есть (новый проект) - не создаем временный проект
+      })
     }
   }, [state.context.isLoading, state.context.currentProject.path, state.context.currentProject.isNew, send])
 
@@ -115,9 +123,79 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     send({ type: "RELOAD_SETTINGS" })
   }
 
+  // Константы для временного проекта
+  const TEMP_PROJECT_NAME = "Untitled Project"
+  const TEMP_PROJECT_FILENAME = "temp_project.tlsp"
+
   // Методы для работы с проектами
   const createNewProject = (name?: string) => {
     send({ type: "CREATE_NEW_PROJECT", name })
+  }
+
+  const createTempProject = async () => {
+    try {
+      const projectService = TimelineStudioProjectService.getInstance()
+      const directories = await appDirectoriesService.getAppDirectories()
+      
+      // Создаем новый проект v2
+      const project = projectService.createProject(TEMP_PROJECT_NAME)
+      
+      // Формируем путь к временному файлу в папке бэкапов
+      const tempPath = await join(directories.backup_dir, TEMP_PROJECT_FILENAME)
+      
+      // Сохраняем проект
+      await projectService.saveProject(project, tempPath)
+      
+      console.log(`Temporary project created at: ${tempPath}`)
+      
+      // Обновляем состояние
+      send({ 
+        type: "OPEN_PROJECT", 
+        path: tempPath, 
+        name: TEMP_PROJECT_NAME 
+      })
+      
+      // Отмечаем как dirty чтобы пользователь знал что нужно сохранить
+      send({ type: "SET_PROJECT_DIRTY", isDirty: true })
+      
+    } catch (error) {
+      console.error("Failed to create temp project:", error)
+      throw error
+    }
+  }
+
+  const loadOrCreateTempProject = async () => {
+    try {
+      const projectService = TimelineStudioProjectService.getInstance()
+      const directories = await appDirectoriesService.getAppDirectories()
+      const tempPath = await join(directories.backup_dir, TEMP_PROJECT_FILENAME)
+      
+      try {
+        // Пытаемся загрузить существующий временный проект
+        const project = await projectService.openProject(tempPath)
+        
+        console.log(`Loaded existing temp project from: ${tempPath}`)
+        
+        // Обновляем состояние
+        send({ 
+          type: "OPEN_PROJECT", 
+          path: tempPath, 
+          name: project.metadata.name 
+        })
+        
+        // Отмечаем как dirty 
+        send({ type: "SET_PROJECT_DIRTY", isDirty: true })
+        
+      } catch (loadError) {
+        console.log("No existing temp project found, creating new one")
+        // Если не удалось загрузить, создаем новый
+        await createTempProject()
+      }
+      
+    } catch (error) {
+      console.error("Failed to load or create temp project:", error)
+      throw error
+    }
   }
 
   const openProject = async () => {
@@ -130,8 +208,12 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
         multiple: false,
         filters: [
           {
-            name: "Timeline Studio Project",
+            name: "Timeline Studio Project v2",
             extensions: ["tlsp"],
+          },
+          {
+            name: "Timeline Studio Project (Legacy)",
+            extensions: ["tls"],
           },
         ],
         // Если директория приложения доступна, используем её как начальную директорию
@@ -150,39 +232,56 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       const name = await basename(path)
 
       try {
-        // Загружаем содержимое проекта
-        const projectData = await ProjectFileService.loadProject(path)
+        // Определяем тип проекта по расширению
+        const isV2Project = path.endsWith('.tlsp')
+        
+        if (isV2Project) {
+          // Загружаем v2 проект
+          const projectService = TimelineStudioProjectService.getInstance()
+          const project = await projectService.openProject(path)
+          
+          // Отправляем событие в машину состояний
+          send({
+            type: "OPEN_PROJECT",
+            path,
+            name: project.metadata.name,
+          })
+          
+          console.log(`Opened v2 project: ${project.metadata.name}`)
+          return { path, name: project.metadata.name, project }
+          
+        } else {
+          // Загружаем legacy проект
+          const projectData = await ProjectFileService.loadProject(path)
 
-        // Отправляем событие в машину состояний с данными проекта
-        // TODO: Обновить тип события в машине состояний для поддержки projectData
-        send({
-          type: "OPEN_PROJECT",
-          path,
-          name,
-          // projectData // Временно закомментировано
-        })
+          // Отправляем событие в машину состояний
+          send({
+            type: "OPEN_PROJECT",
+            path,
+            name,
+          })
 
-        // Восстанавливаем медиафайлы проекта
-        if (projectData.mediaLibrary) {
-          try {
-            const restorationResult = await restoreProjectMedia(
-              projectData.mediaLibrary.mediaFiles || [],
-              projectData.mediaLibrary.musicFiles || [],
-              path,
-              { showDialog: true }, // Показываем диалог для отсутствующих файлов
-            )
+          // Восстанавливаем медиафайлы проекта (только для legacy)
+          if ((projectData as any).mediaPool) {
+            try {
+              const restorationResult = await restoreProjectMedia(
+                (projectData as any).mediaPool.mediaFiles || [],
+                (projectData as any).mediaPool.musicFiles || [],
+                path,
+                { showDialog: true },
+              )
 
-            console.log("Медиафайлы восстановлены:", restorationResult.result.stats)
+              console.log("Медиафайлы восстановлены:", restorationResult.result.stats)
 
-            updateMediaFiles(restorationResult.restoredMedia)
-            updateMusicFiles(restorationResult.restoredMusic)
-          } catch (restorationError) {
-            console.error("Ошибка при восстановлении медиафайлов:", restorationError)
-            // Не прерываем открытие проекта из-за ошибок восстановления
+              updateMediaFiles(restorationResult.restoredMedia)
+              updateMusicFiles(restorationResult.restoredMusic)
+            } catch (restorationError) {
+              console.error("Ошибка при восстановлении медиафайлов:", restorationError)
+            }
           }
-        }
 
-        return { path, name, projectData }
+          return { path, name, projectData }
+        }
       } catch (projectError) {
         console.error("Failed to load project data:", projectError)
 
@@ -204,21 +303,25 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     try {
       const currentProject = getCurrentProject()
 
-      // Если у проекта уже есть путь, сохраняем по этому пути
-      if (currentProject.path) {
+      // Если у проекта уже есть путь и это НЕ временный проект, сохраняем по этому пути
+      if (currentProject.path && !currentProject.path.includes(TEMP_PROJECT_FILENAME)) {
         try {
-          // Создаем базовые данные проекта для сохранения
-          const projectData = ProjectFileService.createNewProject(name)
+          // Для v2 проектов используем новый сервис
+          const projectService = TimelineStudioProjectService.getInstance()
+          
+          // Загружаем текущий проект
+          const project = await projectService.openProject(currentProject.path)
+          
+          // Обновляем имя если изменилось
+          if (project.metadata.name !== name) {
+            project.metadata.name = name
+            project.metadata.modified = new Date()
+          }
+          
+          // Сохраняем проект
+          await projectService.saveProject(project, currentProject.path)
 
-          // TODO: Здесь будем собирать данные из провайдеров медиа и музыки
-          // const mediaFiles = await collectMediaFiles()
-          // const musicFiles = await collectMusicFiles()
-          // projectData = ProjectFileService.updateMediaLibrary(projectData, mediaFiles, musicFiles)
-
-          // Сохраняем проект в файл
-          await ProjectFileService.saveProject(currentProject.path, projectData)
-
-          // Отправляем событие в машину состояний
+          // Отправляем событие в машину состояний (очищает dirty флаг)
           send({ type: "SAVE_PROJECT", path: currentProject.path, name })
           return { path: currentProject.path, name }
         } catch (saveError) {
@@ -230,15 +333,19 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       // Получаем директорию данных приложения
       const appDir = await appDataDir().catch(() => null)
 
-      // Формируем путь к файлу по умолчанию
+      // Формируем путь к файлу по умолчанию (новый формат .tlsp)
       const defaultFilePath = appDir ? await join(appDir, `${name}.tlsp`) : `${name}.tlsp`
 
-      // Иначе открываем диалог сохранения файла
+      // Открываем диалог сохранения файла
       const path = await save({
         filters: [
           {
-            name: "Timeline Studio Project",
+            name: "Timeline Studio Project v2",
             extensions: ["tlsp"],
+          },
+          {
+            name: "Timeline Studio Project (Legacy)",
+            extensions: ["tls"],
           },
         ],
         defaultPath: defaultFilePath,
@@ -250,15 +357,25 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        // Создаем данные нового проекта
-        const projectData = ProjectFileService.createNewProject(name)
+        const projectService = TimelineStudioProjectService.getInstance()
+        
+        // Если есть временный проект, берем его данные
+        let project
+        if (currentProject.path && currentProject.path.includes(TEMP_PROJECT_FILENAME)) {
+          // Загружаем существующий временный проект
+          project = await projectService.openProject(currentProject.path)
+          // Обновляем имя и метаданные
+          project.metadata.name = name
+          project.metadata.modified = new Date()
+        } else {
+          // Создаем новый проект
+          project = projectService.createProject(name)
+        }
 
-        // TODO: Здесь будем собирать данные из провайдеров медиа и музыки
+        // Сохраняем проект в новый файл
+        await projectService.saveProject(project, path)
 
-        // Сохраняем проект в файл
-        await ProjectFileService.saveProject(path, projectData)
-
-        // Отправляем событие в машину состояний
+        // Отправляем событие в машину состояний (очищает dirty флаг)
         send({ type: "SAVE_PROJECT", path, name })
 
         return { path, name }
@@ -274,6 +391,37 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
 
   const setProjectDirty = (isDirty: boolean) => {
     send({ type: "SET_PROJECT_DIRTY", isDirty })
+    
+    // Автоматически сохраняем временный проект при изменениях
+    if (isDirty) {
+      autoSaveTempProject().catch((error: unknown) => {
+        console.warn("Failed to auto-save temp project:", error)
+      })
+    }
+  }
+
+  const autoSaveTempProject = async () => {
+    try {
+      const currentProject = getCurrentProject()
+      
+      // Проверяем, что это временный проект
+      if (currentProject.path && currentProject.path.includes(TEMP_PROJECT_FILENAME)) {
+        const projectService = TimelineStudioProjectService.getInstance()
+        
+        // Загружаем текущий проект
+        const project = await projectService.openProject(currentProject.path)
+        
+        // Обновляем время модификации
+        project.metadata.modified = new Date()
+        
+        // Сохраняем обратно
+        await projectService.saveProject(project, currentProject.path)
+        
+        console.log("Auto-saved temp project")
+      }
+    } catch (error) {
+      console.error("Failed to auto-save temp project:", error)
+    }
   }
 
   const updateMediaFiles = (files: any[]) => {
@@ -293,6 +441,10 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   const getMusicFiles = () => state.context.musicFiles
   const isLoading = () => state.context.isLoading
   const getError = () => state.context.error
+  const isTempProject = () => {
+    const currentProject = getCurrentProject()
+    return currentProject.path ? currentProject.path.includes(TEMP_PROJECT_FILENAME) : false
+  }
 
   // Значение контекста
   const value: AppSettingsProviderContext = {
@@ -310,6 +462,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     removeFromFavorites,
     reloadSettings,
     createNewProject,
+    createTempProject,
+    loadOrCreateTempProject,
     openProject,
     saveProject,
     setProjectDirty,
@@ -323,6 +477,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     getMusicFiles,
     isLoading,
     getError,
+    isTempProject,
   }
 
   return (

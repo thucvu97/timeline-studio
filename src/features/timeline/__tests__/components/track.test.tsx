@@ -43,7 +43,7 @@ describe("Track Component", () => {
     it("should render with track test id", () => {
       render(<Track track={mockTrack} />)
 
-      const trackElement = screen.getByTestId("track")
+      const trackElement = screen.getByTestId("timeline-track")
       expect(trackElement).toBeInTheDocument()
     })
   })
@@ -60,7 +60,7 @@ describe("Track Component", () => {
       const audioTrack = { ...mockTrack, type: "audio" as const, name: "Audio Track" }
 
       const { rerender } = render(<Track track={videoTrack} />)
-      expect(screen.getByTestId("track")).toBeInTheDocument()
+      expect(screen.getByTestId("timeline-track")).toBeInTheDocument()
 
       rerender(<Track track={audioTrack} />)
       expect(screen.getByText("Audio Track")).toBeInTheDocument()
@@ -83,7 +83,7 @@ describe("Track Component", () => {
       const onSelect = vi.fn()
       render(<Track track={mockTrack} onSelect={onSelect} />)
 
-      const trackElement = screen.getByTestId("track")
+      const trackElement = screen.getByTestId("timeline-track")
       expect(trackElement).toBeInTheDocument()
 
       // Клик по треку должен вызвать onSelect
@@ -133,7 +133,7 @@ describe("Track Component", () => {
         render(<Track track={mockTrack} className="custom-track" style={customStyle} />)
       }).not.toThrow()
 
-      const trackElement = screen.getByTestId("track")
+      const trackElement = screen.getByTestId("timeline-track")
       expect(trackElement).toBeInTheDocument()
     })
   })
@@ -201,7 +201,7 @@ describe("Track Component", () => {
     it("should render track with null gracefully", () => {
       render(<Track track={null} />)
 
-      const trackElement = screen.getByTestId("track")
+      const trackElement = screen.getByTestId("timeline-track")
       expect(trackElement).toBeInTheDocument()
       expect(screen.getByText("Invalid track")).toBeInTheDocument()
     })
@@ -211,7 +211,7 @@ describe("Track Component", () => {
     it("should have proper ARIA attributes", () => {
       render(<Track track={mockTrack} />)
 
-      const trackElement = screen.getByTestId("track")
+      const trackElement = screen.getByTestId("timeline-track")
       expect(trackElement).toBeInTheDocument()
 
       // Проверяем базовые атрибуты доступности
@@ -221,7 +221,7 @@ describe("Track Component", () => {
     it("should be keyboard accessible", () => {
       render(<Track track={mockTrack} />)
 
-      const trackElement = screen.getByTestId("track")
+      const trackElement = screen.getByTestId("timeline-track")
       expect(trackElement.tabIndex).toBeGreaterThanOrEqual(-1)
     })
   })
