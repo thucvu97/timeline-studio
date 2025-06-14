@@ -94,18 +94,43 @@ impl RenderPipeline {
     // Создаем временную директорию
     self.context.ensure_temp_dir().await?;
 
+    // Вычисляем общую оценочную длительность всех этапов
+    let total_estimated_duration: Duration = self
+      .stages
+      .iter()
+      .map(|stage| stage.estimated_duration())
+      .sum();
+    log::info!(
+      "Оценочная общая длительность: {:.1}с",
+      total_estimated_duration.as_secs_f64()
+    );
+
     let total_stages = self.stages.len();
     let mut current_stage = 0;
+    let mut elapsed_duration = Duration::ZERO;
 
     for stage in &self.stages {
       current_stage += 1;
       let stage_name = stage.name();
 
+      // Проверяем, можно ли пропустить этап
+      if stage.can_skip(&self.context) {
+        log::info!(
+          "[{}/{}] Этап '{}' пропущен (can_skip = true)",
+          current_stage,
+          total_stages,
+          stage_name
+        );
+        continue;
+      }
+
+      let estimated_duration = stage.estimated_duration();
       log::info!(
-        "[{}/{}] Начало этапа: {}",
+        "[{}/{}] Начало этапа: {} (оценочное время: {:.1}с)",
         current_stage,
         total_stages,
-        stage_name
+        stage_name,
+        estimated_duration.as_secs_f64()
       );
 
       // Проверяем отмену
@@ -118,13 +143,20 @@ impl RenderPipeline {
         ));
       }
 
-      // Обновляем прогресс
-      let progress_percentage = ((current_stage - 1) as f64 / total_stages as f64) * 100.0;
+      // Обновляем прогресс на основе оценочной длительности
+      let progress_percentage = if total_estimated_duration.as_secs() > 0 {
+        (elapsed_duration.as_secs_f64() / total_estimated_duration.as_secs_f64()) * 100.0
+      } else {
+        ((current_stage - 1) as f64 / total_stages as f64) * 100.0
+      };
+
       if let Err(e) = self
         .update_progress(job_id, progress_percentage as u64, stage_name)
         .await
       {
         log::warn!("Не удалось обновить прогресс: {}", e);
+        // Увеличиваем счетчик предупреждений
+        self.context.statistics.add_warning();
         // Продолжаем выполнение
       }
 
@@ -134,10 +166,13 @@ impl RenderPipeline {
       match stage.process(&mut self.context).await {
         Ok(_) => {
           let duration = start_time.elapsed().unwrap_or(Duration::ZERO);
+          elapsed_duration += duration;
+
           log::info!(
-            "✓ Этап '{}' завершен за {:.2}с",
+            "✓ Этап '{}' завершен за {:.2}с (оценочное: {:.1}с)",
             stage_name,
-            duration.as_secs_f64()
+            duration.as_secs_f64(),
+            estimated_duration.as_secs_f64()
           );
 
           // Обновляем статистику
@@ -157,9 +192,14 @@ impl RenderPipeline {
           );
           log::debug!("Детали ошибки: {:?}", e);
 
+          // Увеличиваем счетчик ошибок в статистике
+          self.context.statistics.add_error();
+
           // Очищаем временные файлы при ошибке
           if let Err(cleanup_err) = self.context.cleanup().await {
             log::warn!("Не удалось очистить временные файлы: {}", cleanup_err);
+            // Увеличиваем счетчик предупреждений за проблемы с очисткой
+            self.context.statistics.add_warning();
           }
 
           return Err(VideoCompilerError::render(
@@ -177,6 +217,7 @@ impl RenderPipeline {
     // Очищаем временные файлы
     if let Err(e) = self.context.cleanup().await {
       log::warn!("Не удалось очистить временные файлы: {}", e);
+      self.context.statistics.add_warning();
     }
 
     log::info!("=== Конвейер обработки завершен успешно ===");
@@ -460,6 +501,23 @@ impl PipelineStage for ValidationStage {
 
   fn estimated_duration(&self) -> Duration {
     Duration::from_secs(5)
+  }
+
+  fn can_skip(&self, context: &PipelineContext) -> bool {
+    // Пропускаем валидацию, если проект уже был валидирован недавно
+    if let Some(validation_stats) = context.user_data.get("validation_stats") {
+      if let Some(validated_at) = validation_stats.get("validated_at") {
+        if let Some(timestamp) = validated_at.as_u64() {
+          let now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+          // Пропускаем если валидация была менее 5 минут назад
+          return now - timestamp < 300;
+        }
+      }
+    }
+    false
   }
 }
 

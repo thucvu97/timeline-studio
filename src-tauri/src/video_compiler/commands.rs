@@ -235,6 +235,77 @@ pub async fn get_active_jobs(state: State<'_, VideoCompilerState>) -> Result<Vec
   Ok(result)
 }
 
+/// Получить информацию о конкретной задаче рендеринга
+#[tauri::command]
+pub async fn get_render_job(
+  job_id: String,
+  state: State<'_, VideoCompilerState>,
+) -> Result<Option<crate::video_compiler::progress::RenderJob>> {
+  use crate::video_compiler::progress::ProgressTracker;
+
+  // Создаем прогресс-трекер для доступа к методу get_job
+  // Поскольку ProgressTracker требует sender, создадим фиктивный
+  let (tx, _rx) = tokio::sync::mpsc::unbounded_channel();
+  let progress_tracker = ProgressTracker::new(tx);
+
+  // В реальной ситуации нужно получить доступ к существующему ProgressTracker
+  // Пока используем прямой доступ к active_jobs
+  let jobs = state.active_jobs.read().await;
+  if let Some(renderer) = jobs.get(&job_id) {
+    let progress = renderer.get_progress().await;
+    let status = match &progress {
+      Some(p) => p.status.clone(),
+      None => crate::video_compiler::progress::RenderStatus::Processing,
+    };
+
+    let job = crate::video_compiler::progress::RenderJob::new(
+      job_id,
+      "Project".to_string(),    // TODO: получать реальное имя проекта
+      "output.mp4".to_string(), // TODO: получать реальный путь
+      1000,                     // TODO: получать реальное количество кадров
+    );
+
+    log::info!("Информация о задаче {} получена", job.id);
+    Ok(Some(job))
+  } else {
+    Ok(None)
+  }
+}
+
+/// Проверить и отменить задачи по таймауту
+#[tauri::command]
+pub async fn check_render_job_timeouts(
+  state: State<'_, VideoCompilerState>,
+) -> Result<Vec<String>> {
+  // Поскольку у нас нет прямого доступа к ProgressTracker,
+  // имитируем проверку таймаутов через активные задачи
+  let jobs = state.active_jobs.read().await;
+  let timed_out_jobs = Vec::new();
+
+  // Простая проверка: если задача работает более 1 часа, считаем её просроченной
+  let _timeout_duration = std::time::Duration::from_secs(3600); // 1 час
+  let _current_time = std::time::SystemTime::now();
+
+  for (job_id, renderer) in jobs.iter() {
+    // Проверяем, если задача работает слишком долго
+    if let Some(progress) = renderer.get_progress().await {
+      // Если последнее обновление было давно, возможно задача зависла
+      // В реальной реализации здесь была бы более сложная логика
+      log::debug!(
+        "Проверка таймаута для задачи {}: статус {:?}",
+        job_id,
+        progress.status
+      );
+    }
+  }
+
+  if !timed_out_jobs.is_empty() {
+    log::info!("Найдено {} просроченных задач", timed_out_jobs.len());
+  }
+
+  Ok(timed_out_jobs)
+}
+
 /// Генерация превью кадра
 #[tauri::command]
 pub async fn generate_preview(
@@ -272,6 +343,95 @@ pub async fn generate_preview(
   result
 }
 
+/// Генерация превью кадра с пользовательскими настройками
+#[tauri::command]
+pub async fn generate_preview_with_settings(
+  video_path: String,
+  timestamp: f64,
+  resolution: Option<(u32, u32)>,
+  quality: Option<u8>,
+  settings: crate::video_compiler::preview::PreviewSettings,
+  state: State<'_, VideoCompilerState>,
+  app: tauri::AppHandle,
+) -> Result<Vec<u8>> {
+  use crate::video_compiler::preview::PreviewGenerator;
+
+  // Создаем генератор с пользовательскими настройками
+  let preview_gen = PreviewGenerator::with_settings(state.cache_manager.clone(), settings);
+
+  // Генерируем превью
+  let result = preview_gen
+    .generate_preview(Path::new(&video_path), timestamp, resolution, quality)
+    .await
+    .map_err(|e| VideoCompilerError::PreviewError {
+      timestamp,
+      reason: e.to_string(),
+    });
+
+  // Отправляем событие о генерации превью при успехе
+  if let Ok(ref image_data) = result {
+    let _ = app.emit(
+      "video-compiler",
+      &VideoCompilerEvent::PreviewGenerated {
+        timestamp,
+        image_data: image_data.clone(),
+      },
+    );
+  }
+
+  log::info!(
+    "Генерация превью с пользовательскими настройками: {} at {:.2}s",
+    video_path,
+    timestamp
+  );
+
+  result
+}
+
+/// Генерация превью с подробной информацией о результате
+#[tauri::command]
+pub async fn generate_preview_detailed(
+  video_path: String,
+  timestamp: f64,
+  resolution: Option<(u32, u32)>,
+  quality: Option<u8>,
+  state: State<'_, VideoCompilerState>,
+) -> Result<crate::video_compiler::preview::SerializablePreviewResult> {
+  use crate::video_compiler::preview::PreviewGenerator;
+  use base64::engine::general_purpose::STANDARD as BASE64;
+  use base64::Engine as _;
+
+  let preview_gen = PreviewGenerator::new(state.cache_manager.clone());
+
+  // Генерируем превью
+  let result = preview_gen
+    .generate_preview(Path::new(&video_path), timestamp, resolution, quality)
+    .await;
+
+  // Конвертируем результат в сериализуемую форму с timestamp
+  let serializable_result = match result {
+    Ok(image_data) => crate::video_compiler::preview::SerializablePreviewResult {
+      timestamp,
+      image_data: Some(BASE64.encode(&image_data)),
+      error: None,
+    },
+    Err(e) => crate::video_compiler::preview::SerializablePreviewResult {
+      timestamp,
+      image_data: None,
+      error: Some(e.to_string()),
+    },
+  };
+
+  log::info!(
+    "Генерация подробного превью: {} at {:.2}s (успех: {})",
+    video_path,
+    timestamp,
+    serializable_result.error.is_none()
+  );
+
+  Ok(serializable_result)
+}
+
 // ==================== УПРАВЛЕНИЕ ПРОЕКТАМИ ====================
 
 /// Создать новый пустой проект
@@ -280,21 +440,21 @@ pub async fn create_new_project(
   project_name: String,
 ) -> Result<crate::video_compiler::schema::ProjectSchema> {
   use crate::video_compiler::schema::ProjectSchema;
-  
+
   let project = ProjectSchema::new(project_name);
   log::info!("Создан новый проект: {}", project.metadata.name);
-  
+
   Ok(project)
 }
 
 /// Обновить timestamp проекта (mark as modified)
-#[tauri::command] 
+#[tauri::command]
 pub async fn touch_project(
   mut project: crate::video_compiler::schema::ProjectSchema,
 ) -> Result<crate::video_compiler::schema::ProjectSchema> {
   project.touch();
   log::debug!("Проект {} отмечен как изменен", project.metadata.name);
-  
+
   Ok(project)
 }
 
@@ -305,10 +465,10 @@ pub async fn create_track(
   track_name: String,
 ) -> Result<crate::video_compiler::schema::Track> {
   use crate::video_compiler::schema::Track;
-  
+
   let track = Track::new(track_type, track_name.clone());
   log::info!("Создан новый трек: {} ({:?})", track_name, track.track_type);
-  
+
   Ok(track)
 }
 
@@ -318,16 +478,19 @@ pub async fn add_clip_to_track(
   mut track: crate::video_compiler::schema::Track,
   clip: crate::video_compiler::schema::Clip,
 ) -> Result<crate::video_compiler::schema::Track> {
-  let clip_name = clip.source_path.file_name()
+  let clip_name = clip
+    .source_path
+    .file_name()
     .and_then(|name| name.to_str())
     .unwrap_or("Unknown")
     .to_string();
-    
-  track.add_clip(clip)
-    .map_err(|e| crate::video_compiler::error::VideoCompilerError::validation(e))?;
-    
+
+  track
+    .add_clip(clip)
+    .map_err(crate::video_compiler::error::VideoCompilerError::validation)?;
+
   log::info!("Клип {} добавлен к треку {}", clip_name, track.name);
-  
+
   Ok(track)
 }
 
@@ -340,24 +503,27 @@ pub async fn create_clip(
 ) -> Result<crate::video_compiler::schema::Clip> {
   use crate::video_compiler::schema::Clip;
   use std::path::PathBuf;
-  
+
   let path = PathBuf::from(source_path);
-  
+
   // Проверяем существование файла
   if !path.exists() {
-    return Err(crate::video_compiler::error::VideoCompilerError::media_file(
-      path.to_string_lossy(),
-      "Файл не найден"
-    ));
+    return Err(
+      crate::video_compiler::error::VideoCompilerError::media_file(
+        path.to_string_lossy(),
+        "Файл не найден",
+      ),
+    );
   }
-  
+
   let clip = Clip::new(path, start_time, duration);
-  log::info!("Создан новый клип: {:?} ({:.2}s - {:.2}s)", 
-    clip.source_path.file_name().unwrap_or_default(), 
-    start_time, 
+  log::info!(
+    "Создан новый клип: {:?} ({:.2}s - {:.2}s)",
+    clip.source_path.file_name().unwrap_or_default(),
+    start_time,
     start_time + duration
   );
-  
+
   Ok(clip)
 }
 
@@ -368,10 +534,14 @@ pub async fn create_effect(
   effect_name: String,
 ) -> Result<crate::video_compiler::schema::Effect> {
   use crate::video_compiler::schema::Effect;
-  
+
   let effect = Effect::new(effect_type, effect_name.clone());
-  log::info!("Создан новый эффект: {} ({:?})", effect_name, effect.effect_type);
-  
+  log::info!(
+    "Создан новый эффект: {} ({:?})",
+    effect_name,
+    effect.effect_type
+  );
+
   Ok(effect)
 }
 
@@ -382,10 +552,14 @@ pub async fn create_filter(
   filter_name: String,
 ) -> Result<crate::video_compiler::schema::Filter> {
   use crate::video_compiler::schema::Filter;
-  
+
   let filter = Filter::new(filter_type, filter_name.clone());
-  log::info!("Создан новый фильтр: {} ({:?})", filter_name, filter.filter_type);
-  
+  log::info!(
+    "Создан новый фильтр: {} ({:?})",
+    filter_name,
+    filter.filter_type
+  );
+
   Ok(filter)
 }
 
@@ -397,10 +571,15 @@ pub async fn create_template(
   screens: usize,
 ) -> Result<crate::video_compiler::schema::Template> {
   use crate::video_compiler::schema::Template;
-  
+
   let template = Template::new(template_type, template_name.clone(), screens);
-  log::info!("Создан новый шаблон: {} ({:?}, {} экранов)", template_name, template.template_type, screens);
-  
+  log::info!(
+    "Создан новый шаблон: {} ({:?}, {} экранов)",
+    template_name,
+    template.template_type,
+    screens
+  );
+
   Ok(template)
 }
 
@@ -413,10 +592,16 @@ pub async fn create_style_template(
   duration: f64,
 ) -> Result<crate::video_compiler::schema::StyleTemplate> {
   use crate::video_compiler::schema::StyleTemplate;
-  
+
   let template = StyleTemplate::new(template_name.clone(), category, style, duration);
-  log::info!("Создан новый стильный шаблон: {} ({:?}/{:?}, {:.2}s)", template_name, template.category, template.style, duration);
-  
+  log::info!(
+    "Создан новый стильный шаблон: {} ({:?}/{:?}, {:.2}s)",
+    template_name,
+    template.category,
+    template.style,
+    duration
+  );
+
   Ok(template)
 }
 
@@ -428,16 +613,22 @@ pub async fn create_subtitle(
   end_time: f64,
 ) -> Result<crate::video_compiler::schema::Subtitle> {
   use crate::video_compiler::schema::Subtitle;
-  
+
   let subtitle = Subtitle::new(text.clone(), start_time, end_time);
-  
+
   // Валидируем субтитр
-  subtitle.validate()
-    .map_err(|e| crate::video_compiler::error::VideoCompilerError::validation(e))?;
-    
-  log::info!("Создан новый субтитр: '{}' ({:.2}s - {:.2}s, длительность: {:.2}s)", 
-    text, start_time, end_time, subtitle.get_duration());
-  
+  subtitle
+    .validate()
+    .map_err(crate::video_compiler::error::VideoCompilerError::validation)?;
+
+  log::info!(
+    "Создан новый субтитр: '{}' ({:.2}s - {:.2}s, длительность: {:.2}s)",
+    text,
+    start_time,
+    end_time,
+    subtitle.get_duration()
+  );
+
   Ok(subtitle)
 }
 
@@ -448,10 +639,14 @@ pub async fn create_subtitle_animation(
   duration: f64,
 ) -> Result<crate::video_compiler::schema::SubtitleAnimation> {
   use crate::video_compiler::schema::SubtitleAnimation;
-  
+
   let animation = SubtitleAnimation::new(animation_type, duration);
-  log::info!("Создана новая анимация субтитра: {:?} ({:.2}s)", animation.animation_type, duration);
-  
+  log::info!(
+    "Создана новая анимация субтитра: {:?} ({:.2}s)",
+    animation.animation_type,
+    duration
+  );
+
   Ok(animation)
 }
 

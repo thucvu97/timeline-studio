@@ -316,7 +316,10 @@ impl RecognitionService {
   }
 
   /// Пакетная обработка изображений детектором объектов
-  pub async fn process_objects_batch(&self, image_paths: Vec<PathBuf>) -> Result<Vec<Vec<Detection>>> {
+  pub async fn process_objects_batch(
+    &self,
+    image_paths: Vec<PathBuf>,
+  ) -> Result<Vec<Vec<Detection>>> {
     let mut detector = self.object_detector.write().await;
     detector.process_batch(image_paths).await
   }

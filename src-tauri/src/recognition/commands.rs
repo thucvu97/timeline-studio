@@ -109,12 +109,18 @@ pub async fn process_video_batch(
   state: State<'_, RecognitionState>,
 ) -> Result<Vec<(String, RecognitionResults)>, String> {
   let service = &state.service;
-  
-  log::info!("Начато пакетное распознавание для {} файлов", file_ids.len());
-  
+
+  log::info!(
+    "Начато пакетное распознавание для {} файлов",
+    file_ids.len()
+  );
+
   match service.process_batch(file_ids, frame_paths_map).await {
     Ok(results) => {
-      log::info!("Пакетное распознавание завершено. Обработано {} файлов", results.len());
+      log::info!(
+        "Пакетное распознавание завершено. Обработано {} файлов",
+        results.len()
+      );
       Ok(results)
     }
     Err(e) => {
@@ -154,12 +160,13 @@ pub async fn get_preview_data_with_recognition(
 
 /// Загрузить модель YOLO для объектов (для администрирования)
 #[tauri::command]
-pub async fn load_yolo_model(
-  state: State<'_, RecognitionState>,
-) -> Result<(), String> {
-  state.service.load_object_model().await
+pub async fn load_yolo_model(state: State<'_, RecognitionState>) -> Result<(), String> {
+  state
+    .service
+    .load_object_model()
+    .await
     .map_err(|e| format!("Ошибка загрузки модели YOLO: {}", e))?;
-    
+
   log::info!("Модель YOLO для объектов загружена успешно");
   Ok(())
 }
@@ -171,7 +178,7 @@ pub async fn set_yolo_target_classes(
   state: State<'_, RecognitionState>,
 ) -> Result<(), String> {
   state.service.set_object_classes(classes.clone()).await;
-  
+
   log::info!("Установлены целевые классы для объектов: {:?}", classes);
   Ok(())
 }
@@ -181,9 +188,8 @@ pub async fn set_yolo_target_classes(
 pub async fn get_yolo_class_names(
   state: State<'_, RecognitionState>,
 ) -> Result<Vec<String>, String> {
-  let processor = state.service.object_detector.read().await;
-  let class_names = processor.get_class_names();
-  
+  let class_names = state.service.get_object_classes().await;
+
   log::debug!("Возвращено {} классов YOLO для объектов", class_names.len());
   Ok(class_names)
 }
@@ -194,11 +200,12 @@ pub async fn process_yolo_batch(
   image_paths: Vec<String>,
   state: State<'_, RecognitionState>,
 ) -> Result<Vec<Vec<crate::recognition::yolo_processor::Detection>>, String> {
-  let mut processor = state.service.object_detector.write().await;
-  
   let paths: Vec<std::path::PathBuf> = image_paths.iter().map(std::path::PathBuf::from).collect();
-  
-  processor.process_batch(paths).await
+
+  state
+    .service
+    .process_objects_batch(paths)
+    .await
     .map_err(|e| format!("Ошибка пакетной обработки YOLO для объектов: {}", e))
 }
 

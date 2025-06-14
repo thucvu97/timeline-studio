@@ -488,7 +488,7 @@ impl PreviewGenerator {
 }
 
 /// Настройки генератора превью
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PreviewSettings {
   /// Разрешение по умолчанию
   pub default_resolution: (u32, u32),
