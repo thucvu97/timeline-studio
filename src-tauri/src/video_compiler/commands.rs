@@ -21,6 +21,7 @@ use crate::video_compiler::gpu::{GpuCapabilities, GpuDetector, GpuInfo};
 use crate::video_compiler::progress::{RenderProgress, RenderStatus};
 use crate::video_compiler::renderer::VideoRenderer;
 use crate::video_compiler::schema::{Clip, ProjectSchema, Subtitle};
+use crate::video_compiler::VideoCompilerEvent;
 use crate::video_compiler::CompilerSettings;
 
 /// Состояние Video Compiler для Tauri
@@ -76,11 +77,18 @@ pub struct RenderJob {
 /// Запуск компиляции видео
 #[tauri::command]
 pub async fn compile_video(
+  app: tauri::AppHandle,
   project_schema: ProjectSchema,
   output_path: String,
   state: State<'_, VideoCompilerState>,
 ) -> Result<String> {
+  use tauri::Emitter;
   let job_id = uuid::Uuid::new_v4().to_string();
+  
+  // Отправляем событие о начале рендеринга
+  let _ = app.emit("video-compiler", &VideoCompilerEvent::RenderStarted {
+    job_id: job_id.clone(),
+  });
 
   // Создаем канал для прогресса
   let (progress_sender, _progress_receiver) = mpsc::unbounded_channel();
@@ -209,6 +217,113 @@ pub async fn generate_preview(
     .await
     .map_err(|e| VideoCompilerError::PreviewError {
       timestamp,
+      reason: e.to_string(),
+    })
+}
+
+/// Генерация превью для timeline (полоса превью)
+#[tauri::command]
+pub async fn generate_timeline_previews(
+  video_path: String,
+  duration: f64,
+  interval: f64,
+  state: State<'_, VideoCompilerState>,
+) -> Result<Vec<TimelinePreviewResult>> {
+  use crate::video_compiler::preview::PreviewGenerator;
+  use base64::engine::general_purpose::STANDARD as BASE64;
+  use base64::Engine as _;
+
+  let preview_gen = PreviewGenerator::new(state.cache_manager.clone());
+
+  // Генерируем превью для timeline
+  let previews = preview_gen
+    .generate_timeline_previews(Path::new(&video_path), duration, interval)
+    .await
+    .map_err(|e| VideoCompilerError::PreviewError {
+      timestamp: 0.0,
+      reason: e.to_string(),
+    })?;
+
+  // Конвертируем в формат для фронтенда
+  Ok(
+    previews
+      .into_iter()
+      .map(|preview| TimelinePreviewResult {
+        timestamp: preview.timestamp,
+        image_data: preview.image_data.map(|data| BASE64.encode(&data)),
+        error: None,
+      })
+      .collect(),
+  )
+}
+
+/// Результат превью для timeline
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct TimelinePreviewResult {
+  /// Временная метка
+  pub timestamp: f64,
+  /// Данные изображения (base64)
+  pub image_data: Option<String>,
+  /// Ошибка если была
+  pub error: Option<String>,
+}
+
+/// Запрос на генерацию превью
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PreviewRequest {
+  /// Путь к видео файлу
+  pub video_path: String,
+  /// Временная метка
+  pub timestamp: f64,
+  /// Разрешение (опционально)
+  pub resolution: Option<(u32, u32)>,
+  /// Качество (опционально)
+  pub quality: Option<u8>,
+}
+
+/// Генерация нескольких превью одновременно
+#[tauri::command]
+pub async fn generate_preview_batch(
+  requests: Vec<PreviewRequest>,
+  state: State<'_, VideoCompilerState>,
+) -> Result<Vec<crate::video_compiler::preview::SerializablePreviewResult>> {
+  use crate::video_compiler::preview::PreviewGenerator;
+
+  let preview_gen = PreviewGenerator::new(state.cache_manager.clone());
+
+  // Генерируем превью пакетом
+  preview_gen
+    .generate_preview_batch(requests.into_iter().map(|req| {
+      crate::video_compiler::preview::PreviewRequest {
+        video_path: req.video_path,
+        timestamp: req.timestamp,
+        resolution: req.resolution,
+        quality: req.quality,
+      }
+    }).collect())
+    .await
+    .map_err(|e| VideoCompilerError::PreviewError {
+      timestamp: 0.0,
+      reason: e.to_string(),
+    })
+}
+
+/// Получить информацию о видео файле
+#[tauri::command]
+pub async fn get_video_info(
+  video_path: String,
+  state: State<'_, VideoCompilerState>,
+) -> Result<crate::video_compiler::preview::VideoInfo> {
+  use crate::video_compiler::preview::PreviewGenerator;
+
+  let preview_gen = PreviewGenerator::new(state.cache_manager.clone());
+
+  // Получаем информацию о видео
+  preview_gen
+    .get_video_info(Path::new(&video_path))
+    .await
+    .map_err(|e| VideoCompilerError::PreviewError {
+      timestamp: 0.0,
       reason: e.to_string(),
     })
 }

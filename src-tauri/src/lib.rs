@@ -18,7 +18,7 @@ use app_dirs::{clear_app_cache, create_app_directories, get_app_directories, get
 
 // Модуль Video Compiler
 mod video_compiler;
-use video_compiler::{initialize, PreviewGenerator, VideoCompilerState};
+use video_compiler::{initialize, VideoCompilerState};
 
 // Модуль Video Server
 mod video_server;
@@ -38,9 +38,10 @@ use video_compiler::commands::{
   check_hardware_acceleration, clear_all_cache, clear_cache, clear_frame_cache,
   clear_prerender_cache, clear_preview_cache, compile_video, configure_cache,
   extract_recognition_frames, extract_subtitle_frames, extract_timeline_frames, generate_preview,
-  get_active_jobs, get_cache_memory_usage, get_cache_size, get_cache_stats, get_cached_metadata,
-  get_compiler_settings, get_current_gpu_info, get_gpu_capabilities, get_gpu_info,
-  get_prerender_cache_info, get_recommended_gpu_encoder, get_render_progress, get_system_info,
+  generate_preview_batch, generate_timeline_previews, get_active_jobs, get_cache_memory_usage,
+  get_cache_size, get_cache_stats, get_cached_metadata, get_compiler_settings,
+  get_current_gpu_info, get_gpu_capabilities, get_gpu_info, get_prerender_cache_info,
+  get_recommended_gpu_encoder, get_render_progress, get_system_info, get_video_info,
   prerender_segment, set_ffmpeg_path, update_compiler_settings,
 };
 
@@ -101,26 +102,6 @@ async fn scan_media_folder_with_thumbnails(
 }
 
 // Video Compiler Commands (non-duplicate ones only)
-
-#[tauri::command]
-async fn get_video_info(
-  file_path: String,
-  state: tauri::State<'_, VideoCompilerState>,
-) -> Result<video_compiler::preview::VideoInfo, String> {
-  use std::path::Path;
-
-  let path = Path::new(&file_path);
-  let preview_generator = PreviewGenerator::new(state.cache_manager.clone());
-
-  match preview_generator.get_video_info(path).await {
-    Ok(info) => Ok(info),
-    Err(e) => {
-      log::error!("Ошибка получения информации о видео: {}", e);
-      Err(e.to_string())
-    }
-  }
-}
-
 // Команда clear_all_cache уже определена в video_compiler/commands.rs
 
 #[tauri::command]
@@ -255,6 +236,9 @@ pub fn run() {
       compile_video,
       get_render_progress,
       generate_preview,
+      generate_timeline_previews,
+      generate_preview_batch,
+      get_video_info,
       prerender_segment,
       get_prerender_cache_info,
       clear_prerender_cache,
