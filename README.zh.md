@@ -138,24 +138,9 @@ timeline-studio/
 └── package.json                      # Node.js 依赖配置
 ```
 
-## 📚 文档
-
-### 🗂️ 文档结构
-
-每个功能都包含详细文档：
-
-- **`README.md`** - 功能需求，就绪状态
-
-### 📋 关键文档
-
-- **`src/features/DEV-README.md`** - 所有功能的概述，包含优先级和状态
-- **`README.md`** - 一般项目信息（英文）
-- **`README.es.md`** - 西班牙文版本文档
-- **`README.fr.md`** - 法文版本文档
-- **`README.de.md`** - 德文版本文档
-- **`README.ru.md`** - 俄文版本文档
-
 ## 文档
+
+### 📚 主要文档
 
 - 📚 [文档地图](ai-gen-docs/MAP.md) - 完整文档概述
 - 🏗️ [架构指南](ai-gen-docs/ARCHITECTURE.md) - 系统架构
@@ -163,6 +148,11 @@ timeline-studio/
 - 📡 [API 参考](ai-gen-docs/API.md) - Tauri 命令参考
 - 🚀 [部署指南](ai-gen-docs/deployment/DEPLOYMENT.md) - 构建和部署
 - 🛣️ [路线图](ai-gen-docs/ROADMAP.md) - 开发路线图
+
+### 📋 项目文档
+
+- **`src/features/README.md`** - 所有功能的概述，包含优先级和状态
+- **语言版本**：通过上方的切换器提供13种语言版本
 
 ## 开发
 

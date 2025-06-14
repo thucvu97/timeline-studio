@@ -138,24 +138,9 @@ timeline-studio/
 └── package.json                      # Node.js 의존성 설정
 ```
 
-## 📚 문서
-
-### 🗂️ 문서 구조
-
-각 기능에는 상세한 문서가 포함되어 있습니다:
-
-- **`README.md`** - 기능 요구사항, 준비 상태
-
-### 📋 주요 문서
-
-- **`src/features/DEV-README.md`** - 우선순위와 상태를 포함한 모든 기능 개요
-- **`README.md`** - 일반 프로젝트 정보 (영어)
-- **`README.es.md`** - 스페인어 버전 문서
-- **`README.fr.md`** - 프랑스어 버전 문서
-- **`README.de.md`** - 독일어 버전 문서
-- **`README.ru.md`** - 러시아어 버전 문서
-
 ## 문서
+
+### 📚 주요 문서
 
 - 📚 [문서 맵](ai-gen-docs/MAP.md) - 완전한 문서 개요
 - 🏗️ [아키텍처 가이드](ai-gen-docs/ARCHITECTURE.md) - 시스템 아키텍처
@@ -163,6 +148,11 @@ timeline-studio/
 - 📡 [API 참조](ai-gen-docs/API.md) - Tauri 명령 참조
 - 🚀 [배포 가이드](ai-gen-docs/deployment/DEPLOYMENT.md) - 빌드 및 배포
 - 🛣️ [로드맵](ai-gen-docs/ROADMAP.md) - 개발 로드맵
+
+### 📋 프로젝트 문서
+
+- **`src/features/README.md`** - 우선순위와 상태를 포함한 모든 기능 개요
+- **언어 버전**: 위의 선택기를 통해 13개 언어로 제공
 
 ## 개발
 

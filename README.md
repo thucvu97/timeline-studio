@@ -149,16 +149,9 @@ Each feature contains detailed documentation:
 
 - **`README.md`** - functional requirements, readiness status
 
-### 📋 Key Documents
-
-- **`src/features/DEV-README.md`** - overview of all features with priorities and status
-- **`README.md`** - general project information (English)
-- **`README.es.md`** - Spanish version of documentation
-- **`README.fr.md`** - French version of documentation
-- **`README.de.md`** - German version of documentation
-- **`README.ru.md`** - Russian version of documentation
-
 ## Documentation
+
+### 📚 Main Documentation
 
 - 📚 [Documentation Map](ai-gen-docs/MAP.md) - Complete documentation overview
 - 🏗️ [Architecture Guide](ai-gen-docs/ARCHITECTURE.md) - System architecture
@@ -166,6 +159,11 @@ Each feature contains detailed documentation:
 - 📡 [API Reference](ai-gen-docs/API.md) - Tauri commands reference
 - 🚀 [Deployment Guide](ai-gen-docs/deployment/DEPLOYMENT.md) - Build and deployment
 - 🛣️ [Roadmap](ai-gen-docs/ROADMAP.md) - Development roadmap
+
+### 📋 Project Documentation
+
+- **`src/features/README.md`** - overview of all features with priorities and status
+- **Language versions**: Available in 13 languages via the switcher above
 
 ## Development
 

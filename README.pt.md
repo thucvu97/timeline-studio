@@ -133,22 +133,9 @@ timeline-studio/
 └── ...outros arquivos de configuração
 ```
 
-Cada recurso contém documentação detalhada:
-
-- **`README.md`** - requisitos funcionais, status de prontidão
-
-### 📋 Documentos Principais
-
-- **`src/features/DEV-README.md`** - visão geral de todos os recursos com prioridades e status
-- **`README.md`** - informações gerais do projeto (Inglês)
-- **`README.es.md`** - versão em espanhol da documentação
-- **`README.fr.md`** - versão em francês da documentação
-- **`README.de.md`** - versão em alemão da documentação
-- **`README.ru.md`** - versão em russo da documentação
-- **`README.zh.md`** - versão em chinês da documentação
-- **`README.pt.md`** - versão em português da documentação
-
 ## Documentação
+
+### 📚 Documentação Principal
 
 - 📚 [Mapa da Documentação](ai-gen-docs/MAP.md) - Visão geral completa da documentação
 - 🏗️ [Guia de Arquitetura](ai-gen-docs/ARCHITECTURE.md) - Arquitetura do sistema
@@ -156,6 +143,11 @@ Cada recurso contém documentação detalhada:
 - 📡 [Referência da API](ai-gen-docs/API.md) - Referência de comandos Tauri
 - 🚀 [Guia de Implantação](ai-gen-docs/deployment/DEPLOYMENT.md) - Build e implantação
 - 🛣️ [Roteiro](ai-gen-docs/ROADMAP.md) - Roteiro de desenvolvimento
+
+### 📋 Documentação do Projeto
+
+- **`src/features/README.md`** - visão geral de todos os recursos com prioridades e status
+- **Versões em idiomas**: Disponível em 13 idiomas através do seletor acima
 
 ## Desenvolvimento
 

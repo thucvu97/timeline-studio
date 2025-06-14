@@ -138,24 +138,9 @@ timeline-studio/
 └── package.json                      # Configuration dépendances Node.js
 ```
 
-## 📚 Documentation
-
-### 🗂️ Structure de Documentation
-
-Chaque fonctionnalité contient une documentation détaillée :
-
-- **`README.md`** - exigences fonctionnelles, statut de préparation
-
-### 📋 Documents Clés
-
-- **`src/features/DEV-README.md`** - aperçu de toutes les fonctionnalités avec priorités et statut
-- **`README.md`** - informations générales du projet (anglais)
-- **`README.es.md`** - version espagnole de la documentation
-- **`README.fr.md`** - version française de la documentation
-- **`README.de.md`** - version allemande de la documentation
-- **`README.ru.md`** - version russe de la documentation
-
 ## Documentation
+
+### 📚 Documentation Principale
 
 - 📚 [Carte de Documentation](ai-gen-docs/MAP.md) - Aperçu complet de la documentation
 - 🏗️ [Guide Architecture](ai-gen-docs/ARCHITECTURE.md) - Architecture système
@@ -163,6 +148,11 @@ Chaque fonctionnalité contient une documentation détaillée :
 - 📡 [Référence API](ai-gen-docs/API.md) - Référence commandes Tauri
 - 🚀 [Guide de Déploiement](ai-gen-docs/deployment/DEPLOYMENT.md) - Build et déploiement
 - 🛣️ [Feuille de Route](ai-gen-docs/ROADMAP.md) - Feuille de route développement
+
+### 📋 Documentation du Projet
+
+- **`src/features/README.md`** - aperçu de toutes les fonctionnalités avec priorités et statut
+- **Versions linguistiques** : Disponible en 13 langues via le sélecteur ci-dessus
 
 ## Développement
 

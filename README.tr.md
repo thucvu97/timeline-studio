@@ -138,24 +138,9 @@ timeline-studio/
 └── package.json                      # Node.js bağımlılık yapılandırması
 ```
 
-## 📚 Dokümantasyon
-
-### 🗂️ Dokümantasyon Yapısı
-
-Her özellik detaylı dokümantasyon içerir:
-
-- **`README.md`** - işlevsel gereksinimler, hazırlık durumu
-
-### 📋 Ana Dokümanlar
-
-- **`src/features/DEV-README.md`** - öncelikler ve durumla birlikte tüm özelliklerin genel bakışı
-- **`README.md`** - genel proje bilgileri (İngilizce)
-- **`README.es.md`** - İspanyolca dokümantasyon sürümü
-- **`README.fr.md`** - Fransızca dokümantasyon sürümü
-- **`README.de.md`** - Almanca dokümantasyon sürümü
-- **`README.ru.md`** - Rusça dokümantasyon sürümü
-
 ## Dokümantasyon
+
+### 📚 Ana Dokümantasyon
 
 - 📚 [Dokümantasyon Haritası](ai-gen-docs/MAP.md) - Tam dokümantasyon genel bakışı
 - 🏗️ [Mimari Kılavuzu](ai-gen-docs/ARCHITECTURE.md) - Sistem mimarisi
@@ -163,6 +148,11 @@ Her özellik detaylı dokümantasyon içerir:
 - 📡 [API Referansı](ai-gen-docs/API.md) - Tauri komutları referansı
 - 🚀 [Dağıtım Kılavuzu](ai-gen-docs/deployment/DEPLOYMENT.md) - Derleme ve dağıtım
 - 🛣️ [Yol Haritası](ai-gen-docs/ROADMAP.md) - Geliştirme yol haritası
+
+### 📋 Proje Dokümantasyonu
+
+- **`src/features/README.md`** - öncelikler ve durumla birlikte tüm özelliklerin genel bakışı
+- **Dil Sürümleri**: Yukarıdaki değiştirici aracılığıyla 13 dilde mevcut
 
 ## Geliştirme
 

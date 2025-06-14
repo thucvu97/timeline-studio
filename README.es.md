@@ -125,24 +125,21 @@ timeline-studio/
 └── package.json          # Configuración de dependencias Node.js
 ```
 
-## 📚 Documentación
+## Documentación
 
-### 🗂️ Estructura de Documentación
+### 📚 Documentación Principal
 
-Cada característica contiene documentación detallada:
+- 📚 [Mapa de Documentación](ai-gen-docs/MAP.md) - Resumen completo de la documentación
+- 🏗️ [Guía de Arquitectura](ai-gen-docs/ARCHITECTURE.md) - Arquitectura del sistema
+- 🧪 [Guía de Pruebas](ai-gen-docs/testing/TESTING.md) - Estrategias de pruebas
+- 📡 [Referencia API](ai-gen-docs/API.md) - Referencia de comandos Tauri
+- 🚀 [Guía de Despliegue](ai-gen-docs/deployment/DEPLOYMENT.md) - Construcción y despliegue
+- 🛣️ [Hoja de Ruta](ai-gen-docs/ROADMAP.md) - Hoja de ruta de desarrollo
 
-- **`README.md`** - requisitos funcionales, estado de preparación
-- **`DEV.md`** - arquitectura técnica, API, tipos de datos
+### 📋 Documentación del Proyecto
 
-### 📋 Documentos Clave
-
-- **`src/features/OVERVIEW.md`** - resumen de todas las 17 características con prioridades
-- **`DEV.md`** - arquitectura de la aplicación, máquinas de estado, plan de desarrollo
-- **`README.md`** - información general del proyecto (inglés)
-- **`README.es.md`** - versión en español de la documentación
-- **`README.fr.md`** - versión en francés de la documentación
-- **`README.de.md`** - versión en alemán de la documentación
-- **`README.ru.md`** - versión en ruso de la documentación
+- **`src/features/README.md`** - resumen de todas las características con prioridades y estado
+- **Versiones en idiomas**: Disponible en 13 idiomas a través del selector arriba
 
 ## Desarrollo
 
