@@ -156,7 +156,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       })
       
       // Отмечаем как dirty чтобы пользователь знал что нужно сохранить
-      send({ type: "SET_PROJECT_DIRTY", isDirty: true })
+      // Используем skipAutoSave=true чтобы избежать конфликта при создании
+      setProjectDirty(true, true)
       
     } catch (error) {
       console.error("Failed to create temp project:", error)
@@ -184,7 +185,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
         })
         
         // Отмечаем как dirty 
-        send({ type: "SET_PROJECT_DIRTY", isDirty: true })
+        // Используем skipAutoSave=true чтобы избежать конфликта при загрузке
+        setProjectDirty(true, true)
         
       } catch (loadError) {
         console.log("No existing temp project found, creating new one")
@@ -389,11 +391,12 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const setProjectDirty = (isDirty: boolean) => {
+  const setProjectDirty = (isDirty: boolean, skipAutoSave = false) => {
     send({ type: "SET_PROJECT_DIRTY", isDirty })
     
     // Автоматически сохраняем временный проект при изменениях
-    if (isDirty) {
+    // skipAutoSave используется при инициализации проекта чтобы избежать конфликтов
+    if (isDirty && !skipAutoSave) {
       autoSaveTempProject().catch((error: unknown) => {
         console.warn("Failed to auto-save temp project:", error)
       })
@@ -406,18 +409,15 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       
       // Проверяем, что это временный проект
       if (currentProject.path && currentProject.path.includes(TEMP_PROJECT_FILENAME)) {
-        const projectService = TimelineStudioProjectService.getInstance()
+        console.log("Auto-save temp project triggered - currently disabled to prevent file conflicts")
+        // TODO: Implement proper auto-save that uses in-memory project state
+        // instead of re-opening the file each time
         
-        // Загружаем текущий проект
-        const project = await projectService.openProject(currentProject.path)
-        
-        // Обновляем время модификации
-        project.metadata.modified = new Date()
-        
-        // Сохраняем обратно
-        await projectService.saveProject(project, currentProject.path)
-        
-        console.log("Auto-saved temp project")
+        // Временно отключено для предотвращения конфликтов доступа к файлу
+        // const projectService = TimelineStudioProjectService.getInstance()
+        // const project = await projectService.openProject(currentProject.path)
+        // project.metadata.modified = new Date()
+        // await projectService.saveProject(project, currentProject.path)
       }
     } catch (error) {
       console.error("Failed to auto-save temp project:", error)

@@ -11,7 +11,8 @@ static INIT: Once = Once::new();
 
 fn init_ort() -> Result<()> {
     INIT.call_once(|| {
-        // Инициализируем ORT без execution providers для bundled builds
+        // Для динамической загрузки ORT будет искать библиотеку в системе
+        // или использовать переменную окружения ORT_DYLIB_PATH
         ort::init()
             .commit()
             .expect("Failed to initialize ORT");

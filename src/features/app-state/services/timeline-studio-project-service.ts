@@ -2,7 +2,7 @@
  * Сервис для работы с новой структурой проекта Timeline Studio
  */
 
-import { invoke } from "@tauri-apps/api/core"
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { nanoid } from "nanoid"
 
 import { createEmptyMediaPool } from "@/features/media/utils/media-pool-utils"
@@ -110,7 +110,7 @@ export class TimelineStudioProjectService implements ProjectOperations {
    */
   async openProject(path: string): Promise<TimelineStudioProject> {
     try {
-      const projectData = await invoke<string>("read_file", { path })
+      const projectData = await readTextFile(path)
       const parsed = JSON.parse(projectData)
       
       // Проверяем версию формата
@@ -143,7 +143,7 @@ export class TimelineStudioProjectService implements ProjectOperations {
       const content = JSON.stringify(serialized, null, 2)
       
       // Сохраняем файл
-      await invoke("write_file", { path, content })
+      await writeTextFile(path, content)
       
       console.log(`Project saved to ${path}`)
     } catch (error) {

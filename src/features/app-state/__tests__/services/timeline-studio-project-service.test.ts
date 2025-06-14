@@ -2,7 +2,7 @@
  * Тесты для TimelineStudioProjectService
  */
 
-import { invoke } from "@tauri-apps/api/core"
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { DEFAULT_PROJECT_SETTINGS } from "@/features/project-settings/types/project"
@@ -12,8 +12,9 @@ import { TimelineStudioProjectService } from "../../services/timeline-studio-pro
 
 
 // Мокаем Tauri API
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
+vi.mock("@tauri-apps/plugin-fs", () => ({
+  readTextFile: vi.fn(),
+  writeTextFile: vi.fn(),
 }))
 
 // Мокаем nanoid
@@ -21,7 +22,8 @@ vi.mock("nanoid", () => ({
   nanoid: () => "test-id-" + Math.random().toString(36).substring(2, 11),
 }))
 
-const mockInvoke = vi.mocked(invoke)
+const mockReadTextFile = vi.mocked(readTextFile)
+const mockWriteTextFile = vi.mocked(writeTextFile)
 
 describe("TimelineStudioProjectService", () => {
   let service: TimelineStudioProjectService
@@ -147,11 +149,11 @@ describe("TimelineStudioProjectService", () => {
         },
       }
 
-      mockInvoke.mockResolvedValueOnce(JSON.stringify(mockProjectData))
+      mockReadTextFile.mockResolvedValueOnce(JSON.stringify(mockProjectData))
 
       const project = await service.openProject("/path/to/project.tlsp")
 
-      expect(mockInvoke).toHaveBeenCalledWith("read_file", { path: "/path/to/project.tlsp" })
+      expect(mockReadTextFile).toHaveBeenCalledWith("/path/to/project.tlsp")
       expect(project.metadata.name).toBe("Saved Project")
       expect(project.metadata.version).toBe("2.0.0")
       expect(project.sequences).toBeInstanceOf(Map)
@@ -164,7 +166,7 @@ describe("TimelineStudioProjectService", () => {
         settings: {},
       }
 
-      mockInvoke.mockResolvedValueOnce(JSON.stringify(oldFormatData))
+      mockReadTextFile.mockResolvedValueOnce(JSON.stringify(oldFormatData))
 
       await expect(service.openProject("/path/to/old.tls")).rejects.toThrow(
         "Old project format detected"
@@ -172,7 +174,7 @@ describe("TimelineStudioProjectService", () => {
     })
 
     it("должен выбрасывать ошибку для неизвестного формата", async () => {
-      mockInvoke.mockResolvedValueOnce(JSON.stringify({ unknown: "format" }))
+      mockReadTextFile.mockResolvedValueOnce(JSON.stringify({ unknown: "format" }))
 
       await expect(service.openProject("/path/to/unknown.file")).rejects.toThrow(
         "Unknown project format"
@@ -180,7 +182,7 @@ describe("TimelineStudioProjectService", () => {
     })
 
     it("должен обрабатывать ошибки чтения файла", async () => {
-      mockInvoke.mockRejectedValueOnce(new Error("File not found"))
+      mockReadTextFile.mockRejectedValueOnce(new Error("File not found"))
 
       await expect(service.openProject("/nonexistent.tlsp")).rejects.toThrow(
         "Failed to open project"
@@ -202,10 +204,7 @@ describe("TimelineStudioProjectService", () => {
       expect(project.metadata.modified.getTime()).toBeGreaterThan(originalModified.getTime())
       expect(project.backup.lastSaved.getTime()).toBeGreaterThan(originalLastSaved.getTime())
       
-      expect(mockInvoke).toHaveBeenCalledWith("write_file", {
-        path: "/path/to/save.tlsp",
-        content: expect.any(String),
-      })
+      expect(mockWriteTextFile).toHaveBeenCalledWith("/path/to/save.tlsp", expect.any(String))
     })
 
     it("должен сериализовать Map структуры в объекты", async () => {
@@ -214,7 +213,7 @@ describe("TimelineStudioProjectService", () => {
 
       await service.saveProject(project, "/test.tlsp")
 
-      const savedContent = JSON.parse(mockInvoke.mock.calls[0][1].content)
+      const savedContent = JSON.parse(mockWriteTextFile.mock.calls[0][1])
       
       expect(savedContent.mediaPool.items).toEqual({ "item-1": { id: "item-1" } })
       expect(typeof savedContent.sequences).toBe("object")
@@ -227,7 +226,7 @@ describe("TimelineStudioProjectService", () => {
 
     it("должен обрабатывать ошибки записи", async () => {
       const project = service.createProject("Test")
-      mockInvoke.mockRejectedValueOnce(new Error("Write failed"))
+      mockWriteTextFile.mockRejectedValueOnce(new Error("Write failed"))
 
       await expect(service.saveProject(project, "/readonly.tlsp")).rejects.toThrow(
         "Failed to save project"

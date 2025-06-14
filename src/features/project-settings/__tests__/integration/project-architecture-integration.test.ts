@@ -3,7 +3,7 @@
  * Tests how Media Pool, Sequences, and Project Service work together
  */
 
-import { invoke } from "@tauri-apps/api/core"
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { TimelineStudioProjectService } from "@/features/app-state/services/timeline-studio-project-service"
@@ -20,8 +20,9 @@ import { Sequence } from "@/features/timeline/types/sequence"
 import { TimelineClip } from "@/features/timeline/types/timeline"
 
 // Mock Tauri API
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
+vi.mock("@tauri-apps/plugin-fs", () => ({
+  readTextFile: vi.fn(),
+  writeTextFile: vi.fn(),
 }))
 
 // Mock nanoid
@@ -29,7 +30,8 @@ vi.mock("nanoid", () => ({
   nanoid: () => "test-id-" + Math.random().toString(36).substring(2, 11),
 }))
 
-const mockInvoke = vi.mocked(invoke)
+const mockReadTextFile = vi.mocked(readTextFile)
+const mockWriteTextFile = vi.mocked(writeTextFile)
 
 describe("Project Architecture Integration", () => {
   let service: TimelineStudioProjectService
@@ -592,19 +594,19 @@ describe("Project Architecture Integration", () => {
       await service.saveProject(project, "/test.tlsp")
       
       // Verify serialization
-      expect(mockInvoke).toHaveBeenCalledWith("write_file", {
-        path: "/test.tlsp",
-        content: expect.any(String),
-      })
+      expect(mockWriteTextFile).toHaveBeenCalledWith(
+        "/test.tlsp",
+        expect.any(String)
+      )
       
-      const savedContent = JSON.parse(mockInvoke.mock.calls[0][1].content)
+      const savedContent = JSON.parse(mockWriteTextFile.mock.calls[0][1])
       
       // Verify Maps were converted to objects
       expect(savedContent.mediaPool.items["media-1"]).toBeDefined()
       expect(savedContent.sequences[project.activeSequenceId]).toBeDefined()
       
       // Mock load
-      mockInvoke.mockResolvedValueOnce(JSON.stringify(savedContent))
+      mockReadTextFile.mockResolvedValueOnce(JSON.stringify(savedContent))
       const loadedProject = await service.openProject("/test.tlsp")
       
       // Verify deserialization
