@@ -689,21 +689,28 @@ mod tests {
 
   #[test]
   fn test_file_extension() {
-    let mut settings = PreviewSettings::default();
-
-    settings.format = PreviewFormat::Jpeg;
+    let settings_jpeg = PreviewSettings {
+      format: PreviewFormat::Jpeg,
+      ..Default::default()
+    };
     let generator =
-      PreviewGenerator::with_settings(Arc::new(RwLock::new(RenderCache::new())), settings.clone());
+      PreviewGenerator::with_settings(Arc::new(RwLock::new(RenderCache::new())), settings_jpeg);
     assert_eq!(generator.get_file_extension(), "jpg");
 
-    settings.format = PreviewFormat::Png;
+    let settings_png = PreviewSettings {
+      format: PreviewFormat::Png,
+      ..Default::default()
+    };
     let generator =
-      PreviewGenerator::with_settings(Arc::new(RwLock::new(RenderCache::new())), settings.clone());
+      PreviewGenerator::with_settings(Arc::new(RwLock::new(RenderCache::new())), settings_png);
     assert_eq!(generator.get_file_extension(), "png");
 
-    settings.format = PreviewFormat::WebP;
+    let settings_webp = PreviewSettings {
+      format: PreviewFormat::WebP,
+      ..Default::default()
+    };
     let generator =
-      PreviewGenerator::with_settings(Arc::new(RwLock::new(RenderCache::new())), settings);
+      PreviewGenerator::with_settings(Arc::new(RwLock::new(RenderCache::new())), settings_webp);
     assert_eq!(generator.get_file_extension(), "webp");
   }
 

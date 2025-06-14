@@ -35,14 +35,15 @@ use recognition::{RecognitionService, RecognitionState};
 // Импортируем GPU и Frame Extraction команды
 use video_compiler::commands::{
   cache_media_metadata, cancel_render, check_ffmpeg_capabilities, check_gpu_encoder_availability,
-  check_hardware_acceleration, clear_all_cache, clear_cache, clear_frame_cache,
-  clear_prerender_cache, clear_preview_cache, compile_video, configure_cache,
-  extract_recognition_frames, extract_subtitle_frames, extract_timeline_frames, generate_preview,
-  generate_preview_batch, generate_timeline_previews, get_active_jobs, get_cache_memory_usage,
-  get_cache_size, get_cache_stats, get_cached_metadata, get_compiler_settings,
-  get_current_gpu_info, get_gpu_capabilities, get_gpu_info, get_prerender_cache_info,
-  get_recommended_gpu_encoder, get_render_progress, get_system_info, get_video_info,
-  prerender_segment, set_ffmpeg_path, update_compiler_settings,
+  check_hardware_acceleration, cleanup_cache, clear_all_cache, clear_cache,
+  clear_file_preview_cache, clear_frame_cache, clear_prerender_cache, clear_preview_cache,
+  compile_video, configure_cache, extract_recognition_frames, extract_subtitle_frames,
+  extract_timeline_frames, generate_preview, generate_preview_batch, generate_timeline_previews,
+  get_active_jobs, get_cache_memory_usage, get_cache_size, get_cache_stats, get_cached_metadata,
+  get_compiler_settings, get_current_gpu_info, get_gpu_capabilities, get_gpu_info,
+  get_prerender_cache_info, get_recommended_gpu_encoder, get_render_progress,
+  get_render_statistics, get_system_info, get_video_info, prerender_segment, set_ffmpeg_path,
+  set_preview_ffmpeg_path, update_compiler_settings,
 };
 
 #[tauri::command]
@@ -249,11 +250,15 @@ pub fn run() {
       get_cache_stats,
       clear_all_cache,
       clear_cache,
+      cleanup_cache,
+      get_render_statistics,
       get_cache_size,
       configure_cache,
       get_cached_metadata,
       cache_media_metadata,
       get_cache_memory_usage,
+      set_preview_ffmpeg_path,
+      clear_file_preview_cache,
       // GPU команды
       get_gpu_capabilities,
       get_current_gpu_info,

@@ -45,8 +45,9 @@ impl RenderPipeline {
     let mut context = PipelineContext::new(project.clone(), output_path);
     let ffmpeg_builder = FFmpegBuilder::new(project.clone());
 
-    // Добавляем ffmpeg_builder в контекст
+    // Добавляем ffmpeg_builder и progress_tracker в контекст
     context.ffmpeg_builder = Some(ffmpeg_builder.clone());
+    context.progress_tracker = Some(progress_tracker.clone());
 
     let mut pipeline = Self {
       project,
@@ -86,6 +87,9 @@ impl RenderPipeline {
     log::info!("Выходной файл: {:?}", self.context.output_path);
     log::info!("Временная директория: {:?}", self.context.temp_dir);
     log::info!("Количество этапов: {}", self.stages.len());
+
+    // Устанавливаем ID текущей задачи в контекст
+    self.context.current_job_id = Some(job_id.to_string());
 
     // Создаем временную директорию
     self.context.ensure_temp_dir().await?;
@@ -228,6 +232,10 @@ pub struct PipelineContext {
   pub statistics: PipelineStatistics,
   /// FFmpeg builder для создания команд
   pub ffmpeg_builder: Option<FFmpegBuilder>,
+  /// Progress tracker для отслеживания прогресса
+  pub progress_tracker: Option<Arc<ProgressTracker>>,
+  /// ID текущей задачи рендеринга
+  pub current_job_id: Option<String>,
 }
 
 impl PipelineContext {
@@ -247,6 +255,8 @@ impl PipelineContext {
       user_data: HashMap::new(),
       statistics: PipelineStatistics::default(),
       ffmpeg_builder: None,
+      progress_tracker: None,
+      current_job_id: None,
     }
   }
 
@@ -258,6 +268,22 @@ impl PipelineContext {
   /// Получить промежуточный файл
   pub fn get_intermediate_file(&self, key: &str) -> Option<&PathBuf> {
     self.intermediate_files.get(key)
+  }
+
+  /// Добавить пользовательские данные
+  pub fn set_user_data<T: serde::Serialize>(&mut self, key: String, value: T) -> Result<()> {
+    let json_value = serde_json::to_value(value)
+      .map_err(|e| crate::video_compiler::error::VideoCompilerError::validation(e.to_string()))?;
+    self.user_data.insert(key, json_value);
+    Ok(())
+  }
+
+  /// Получить пользовательские данные
+  pub fn get_user_data<T: serde::de::DeserializeOwned>(&self, key: &str) -> Option<T> {
+    self
+      .user_data
+      .get(key)
+      .and_then(|value| serde_json::from_value(value.clone()).ok())
   }
 
   /// Проверить, отменено ли выполнение
@@ -327,11 +353,29 @@ impl PipelineStage for ValidationStage {
       .validate()
       .map_err(VideoCompilerError::validation)?;
 
+    // Сохраняем информацию о валидации в user_data
+    let mut validation_stats = serde_json::json!({
+      "project_name": context.project.metadata.name,
+      "tracks_count": context.project.tracks.len(),
+      "clips_count": 0,
+      "missing_files": Vec::<String>::new(),
+      "unsupported_formats": Vec::<String>::new()
+    });
+
+    let mut total_clips = 0;
+
     // Проверка существования медиа файлов и их форматов
     for track in &context.project.tracks {
       for clip in &track.clips {
+        total_clips += 1;
+
         // Проверка существования
         if !clip.source_path.exists() {
+          if let Some(missing_files) = validation_stats["missing_files"].as_array_mut() {
+            missing_files.push(serde_json::Value::String(
+              clip.source_path.to_string_lossy().to_string(),
+            ));
+          }
           return Err(VideoCompilerError::media_file(
             clip.source_path.to_string_lossy(),
             "Файл не найден",
@@ -361,6 +405,14 @@ impl PipelineStage for ValidationStage {
         };
 
         if !supported_formats.contains(&extension.to_lowercase().as_str()) {
+          if let Some(unsupported_formats) = validation_stats["unsupported_formats"].as_array_mut()
+          {
+            unsupported_formats.push(serde_json::Value::String(format!(
+              "{}: .{}",
+              clip.source_path.to_string_lossy(),
+              extension
+            )));
+          }
           return Err(VideoCompilerError::media_file(
             clip.source_path.to_string_lossy(),
             format!("Неподдерживаемый формат файла: .{}", extension),
@@ -388,8 +440,17 @@ impl PipelineStage for ValidationStage {
     // Создание временной директории
     context.ensure_temp_dir().await?;
 
+    // Сохраняем финальную статистику валидации
+    validation_stats["clips_count"] =
+      serde_json::Value::Number(serde_json::Number::from(total_clips));
+    let _ = context.set_user_data("validation_stats".to_string(), validation_stats);
+
     context.statistics.validation_time = SystemTime::now();
-    log::info!("Валидация проекта завершена успешно");
+    log::info!(
+      "Валидация проекта завершена успешно. Обработано {} клипов в {} треках",
+      total_clips,
+      context.project.tracks.len()
+    );
     Ok(())
   }
 
@@ -636,16 +697,17 @@ impl CompositionStage {
         VideoCompilerError::InternalError("Video composite path not found".to_string())
       })?;
 
-    // Получаем FFmpegBuilder из контекста
-    let ffmpeg_builder = context.ffmpeg_builder.as_ref().ok_or_else(|| {
-      VideoCompilerError::InternalError("FFmpegBuilder not found in context".to_string())
-    })?;
+    // Используем специализированный метод для построения команды композиции
+    log::info!("Создание команды композиции видео");
+    let command_args = self.build_video_composition_command(context, &video_tracks)?;
 
-    // Используем FFmpegBuilder для создания команды
-    log::info!("Запуск композиции видео с использованием FFmpegBuilder");
-    let mut cmd = ffmpeg_builder
-      .build_render_command(video_composite_path)
-      .await?;
+    // Добавляем выходной файл к команде
+    let mut full_command = command_args;
+    full_command.push(video_composite_path.to_string_lossy().to_string());
+
+    // Создаем процесс
+    let mut cmd = tokio::process::Command::new(&full_command[0]);
+    cmd.args(&full_command[1..]);
 
     // Выполняем команду FFmpeg
     let output = cmd.output().await.map_err(|e| {
@@ -915,7 +977,7 @@ impl EncodingStage {
       while let Some(line) = lines.next_line().await.ok().flatten() {
         // Парсим прогресс из вывода FFmpeg
         if line.contains("frame=") {
-          self.parse_ffmpeg_progress(&line, context);
+          self.parse_ffmpeg_progress(&line, context).await;
         }
         log::trace!("FFmpeg: {}", line);
 
@@ -979,14 +1041,57 @@ impl EncodingStage {
     Ok(())
   }
 
-  /// Парсинг прогресса из вывода FFmpeg
-  fn parse_ffmpeg_progress(&self, line: &str, context: &mut PipelineContext) {
-    // Пример строки: frame= 2490 fps=100 q=29.0 size=    5376kB time=00:00:41.50 bitrate=1061.2kbits/s
-    if let Some(frame_match) = line.split("frame=").nth(1) {
-      if let Some(frame_str) = frame_match.split_whitespace().next() {
-        if let Ok(frame) = frame_str.trim().parse::<u64>() {
-          context.statistics.frames_processed = frame;
-          log::trace!("Обработано кадров: {}", frame);
+  /// Парсинг прогресса из вывода FFmpeg с использованием ProgressTracker
+  async fn parse_ffmpeg_progress(&self, line: &str, context: &mut PipelineContext) {
+    // Используем парсер ProgressTracker для получения детальной информации
+    if let Some(progress_tracker) = context.progress_tracker.as_ref() {
+      if let Some(ffmpeg_progress) = progress_tracker.parse_ffmpeg_progress(line) {
+        // Обновляем статистику
+        context.statistics.frames_processed = ffmpeg_progress.frame;
+
+        // Логируем детальную информацию о прогрессе
+        log::debug!(
+          "FFmpeg прогресс: кадр={}, fps={:.1}, качество={:.1}, размер={:.1}MB, время={:?}, битрейт={:.1}kbits/s, скорость={:.1}x",
+          ffmpeg_progress.frame,
+          ffmpeg_progress.fps,
+          ffmpeg_progress.quality,
+          ffmpeg_progress.size as f64 / 1_048_576.0,
+          ffmpeg_progress.time,
+          ffmpeg_progress.bitrate,
+          ffmpeg_progress.speed
+        );
+
+        // Обновляем прогресс в трекере если есть job_id
+        if let Some(job_id) = context.current_job_id.as_ref() {
+          let message = format!(
+            "FPS: {:.1}, Размер: {:.1}MB, Битрейт: {:.1}kbits/s, Скорость: {:.1}x",
+            ffmpeg_progress.fps,
+            ffmpeg_progress.size as f64 / 1_048_576.0,
+            ffmpeg_progress.bitrate,
+            ffmpeg_progress.speed
+          );
+
+          if let Err(e) = progress_tracker
+            .update_progress(
+              job_id,
+              ffmpeg_progress.frame,
+              "Encoding".to_string(),
+              Some(message),
+            )
+            .await
+          {
+            log::warn!("Не удалось обновить прогресс: {}", e);
+          }
+        }
+      }
+    } else {
+      // Fallback на простой парсинг если ProgressTracker недоступен
+      if let Some(frame_match) = line.split("frame=").nth(1) {
+        if let Some(frame_str) = frame_match.split_whitespace().next() {
+          if let Ok(frame) = frame_str.trim().parse::<u64>() {
+            context.statistics.frames_processed = frame;
+            log::trace!("Обработано кадров: {}", frame);
+          }
         }
       }
     }

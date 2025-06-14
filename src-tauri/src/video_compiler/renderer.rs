@@ -31,6 +31,8 @@ pub struct VideoRenderer {
   progress_tracker: Arc<ProgressTracker>,
   /// Построитель команд FFmpeg
   ffmpeg_builder: FFmpegBuilder,
+  /// Текущий pipeline рендеринга
+  current_pipeline: Option<RenderPipeline>,
 }
 
 impl VideoRenderer {
@@ -53,6 +55,7 @@ impl VideoRenderer {
       cache,
       progress_tracker,
       ffmpeg_builder,
+      current_pipeline: None,
     })
   }
 
@@ -223,7 +226,12 @@ impl VideoRenderer {
 
   /// Отменить рендеринг
   pub async fn cancel(&mut self) -> Result<()> {
-    // Получаем активные задачи и отменяем их
+    // Отменяем текущий pipeline если он существует
+    if let Some(ref mut pipeline) = self.current_pipeline {
+      pipeline.cancel().await?;
+    }
+
+    // Получаем активные задачи и отменяем их в progress tracker
     let jobs = self.progress_tracker.get_active_jobs().await;
     for job in jobs {
       self.progress_tracker.cancel_job(&job.id).await?;
@@ -235,6 +243,16 @@ impl VideoRenderer {
   pub async fn get_progress(&self) -> Option<crate::video_compiler::progress::RenderProgress> {
     let jobs = self.progress_tracker.get_active_jobs().await;
     jobs.first().map(|job| job.get_progress())
+  }
+
+  /// Получить статистику рендеринга из pipeline
+  pub fn get_render_statistics(
+    &self,
+  ) -> Option<crate::video_compiler::pipeline::PipelineStatistics> {
+    self
+      .current_pipeline
+      .as_ref()
+      .map(|pipeline| pipeline.get_statistics())
   }
 
   /// Запустить рендеринг с детальным результатом

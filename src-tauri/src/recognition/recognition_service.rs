@@ -285,6 +285,7 @@ impl RecognitionService {
 /// События распознавания для отправки на фронтенд
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
+#[allow(clippy::enum_variant_names)]
 pub enum RecognitionEvent {
   /// Начало обработки
   ProcessingStarted { file_id: String },

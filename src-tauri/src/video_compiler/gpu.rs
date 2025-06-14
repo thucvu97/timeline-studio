@@ -25,7 +25,7 @@ pub enum GpuEncoder {
   /// Apple VideoToolbox (macOS)
   VideoToolbox,
   /// AMD Advanced Media Framework
-  AMF,
+  Amf,
 }
 
 impl GpuEncoder {
@@ -37,7 +37,7 @@ impl GpuEncoder {
       GpuEncoder::QuickSync => "h264_qsv",
       GpuEncoder::Vaapi => "h264_vaapi",
       GpuEncoder::VideoToolbox => "h264_videotoolbox",
-      GpuEncoder::AMF => "h264_amf",
+      GpuEncoder::Amf => "h264_amf",
     }
   }
 
@@ -49,7 +49,7 @@ impl GpuEncoder {
       GpuEncoder::QuickSync => "hevc_qsv",
       GpuEncoder::Vaapi => "hevc_vaapi",
       GpuEncoder::VideoToolbox => "hevc_videotoolbox",
-      GpuEncoder::AMF => "hevc_amf",
+      GpuEncoder::Amf => "hevc_amf",
     }
   }
 
@@ -100,7 +100,7 @@ impl GpuDetector {
       (GpuEncoder::QuickSync, "h264_qsv"),
       (GpuEncoder::Vaapi, "h264_vaapi"),
       (GpuEncoder::VideoToolbox, "h264_videotoolbox"),
-      (GpuEncoder::AMF, "h264_amf"),
+      (GpuEncoder::Amf, "h264_amf"),
     ];
 
     for (encoder_type, codec_name) in encoders_to_check {
@@ -138,7 +138,7 @@ impl GpuDetector {
 
     // Приоритет кодировщиков по платформам
     #[cfg(target_os = "windows")]
-    let priority = [GpuEncoder::Nvenc, GpuEncoder::QuickSync, GpuEncoder::AMF];
+    let priority = [GpuEncoder::Nvenc, GpuEncoder::QuickSync, GpuEncoder::Amf];
 
     #[cfg(target_os = "linux")]
     let priority = [GpuEncoder::Nvenc, GpuEncoder::Vaapi, GpuEncoder::QuickSync];
@@ -290,7 +290,7 @@ impl GpuDetector {
       memory_total: None,
       memory_used: None,
       utilization: None,
-      encoder_type: GpuEncoder::AMF,
+      encoder_type: GpuEncoder::Amf,
       supported_codecs: vec!["h264_amf".to_string(), "hevc_amf".to_string()],
     })
   }
@@ -361,7 +361,7 @@ impl GpuHelper {
       GpuEncoder::QuickSync => Self::get_quicksync_params(quality),
       GpuEncoder::Vaapi => Self::get_vaapi_params(quality),
       GpuEncoder::VideoToolbox => Self::get_videotoolbox_params(quality),
-      GpuEncoder::AMF => Self::get_amf_params(quality),
+      GpuEncoder::Amf => Self::get_amf_params(quality),
     }
   }
 

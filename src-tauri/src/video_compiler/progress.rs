@@ -39,6 +39,21 @@ impl ProgressTracker {
     output_path: String,
     total_frames: u64,
   ) -> Result<String> {
+    // Проверяем максимальное количество одновременных задач
+    {
+      let jobs = self.active_jobs.read().await;
+      if jobs.len() >= self.settings.max_concurrent_jobs {
+        return Err(VideoCompilerError::render(
+          "new_job",
+          "create_job",
+          format!(
+            "Превышено максимальное количество одновременных задач ({})",
+            self.settings.max_concurrent_jobs
+          ),
+        ));
+      }
+    }
+
     let job_id = Uuid::new_v4().to_string();
     let job = RenderJob::new(job_id.clone(), project_name, output_path, total_frames);
 
@@ -68,17 +83,34 @@ impl ProgressTracker {
     if let Some(job) = jobs.get_mut(job_id) {
       job.update_progress(current_frame, stage, message)?;
 
-      // Отправляем обновление прогресса
-      let update = ProgressUpdate::ProgressChanged {
-        job_id: job_id.to_string(),
-        progress: job.get_progress(),
-      };
-      let _ = self.progress_sender.send(update);
+      // Отправляем обновление прогресса с учетом интервала
+      let progress = job.get_progress();
+
+      // Проверяем, прошло ли достаточно времени с последнего обновления
+      let should_send_update = job
+        .started_at
+        .map(|start_time| {
+          SystemTime::now()
+            .duration_since(start_time)
+            .unwrap_or(Duration::ZERO)
+            .as_millis()
+            % self.settings.update_interval.as_millis()
+            == 0
+        })
+        .unwrap_or(true);
+
+      if should_send_update {
+        let update = ProgressUpdate::ProgressChanged {
+          job_id: job_id.to_string(),
+          progress: progress.clone(),
+        };
+        let _ = self.progress_sender.send(update);
+      }
 
       log::debug!(
         "Обновлен прогресс задачи {}: {:.1}%",
         job_id,
-        job.get_progress().percentage
+        progress.percentage
       );
     } else {
       return Err(VideoCompilerError::render(
@@ -184,6 +216,49 @@ impl ProgressTracker {
   pub async fn get_active_jobs(&self) -> Vec<RenderJob> {
     let jobs = self.active_jobs.read().await;
     jobs.values().cloned().collect()
+  }
+
+  /// Проверить и отменить задачи по таймауту
+  pub async fn check_job_timeouts(&self) -> Result<Vec<String>> {
+    let mut jobs = self.active_jobs.write().await;
+    let mut timed_out_jobs = Vec::new();
+    let current_time = SystemTime::now();
+
+    let timeout_duration = self.settings.job_timeout;
+
+    // Собираем ID задач, которые превысили таймаут
+    let mut expired_job_ids = Vec::new();
+    for (job_id, job) in jobs.iter() {
+      if let Some(started_at) = job.started_at {
+        if current_time
+          .duration_since(started_at)
+          .unwrap_or(Duration::ZERO)
+          > timeout_duration
+        {
+          expired_job_ids.push(job_id.clone());
+        }
+      }
+    }
+
+    // Удаляем просроченные задачи
+    for job_id in expired_job_ids {
+      if let Some(mut job) = jobs.remove(&job_id) {
+        let _ = job.fail(format!("Задача превысила таймаут ({:?})", timeout_duration));
+
+        // Отправляем уведомление о таймауте
+        let update = ProgressUpdate::JobFailed {
+          job_id: job_id.clone(),
+          error: "Timeout".to_string(),
+          duration: job.get_elapsed_time(),
+        };
+        let _ = self.progress_sender.send(update);
+
+        timed_out_jobs.push(job_id.clone());
+        log::warn!("Задача {} отменена по таймауту", job_id);
+      }
+    }
+
+    Ok(timed_out_jobs)
   }
 
   /// Парсинг вывода FFmpeg для получения прогресса

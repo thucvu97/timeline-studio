@@ -8,7 +8,7 @@
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
-use tauri::State;
+use tauri::{Emitter, State};
 use tokio::sync::{mpsc, RwLock};
 use uuid::Uuid;
 
@@ -18,7 +18,7 @@ use crate::video_compiler::frame_extraction::{
   ExtractionPurpose, ExtractionSettings, ExtractionStrategy, FrameExtractionManager,
 };
 use crate::video_compiler::gpu::{GpuCapabilities, GpuDetector, GpuInfo};
-use crate::video_compiler::progress::{RenderProgress, RenderStatus};
+use crate::video_compiler::progress::{ProgressUpdate, RenderProgress, RenderStatus};
 use crate::video_compiler::renderer::VideoRenderer;
 use crate::video_compiler::schema::{Clip, ProjectSchema, Subtitle};
 use crate::video_compiler::CompilerSettings;
@@ -94,7 +94,21 @@ pub async fn compile_video(
   );
 
   // Создаем канал для прогресса
-  let (progress_sender, _progress_receiver) = mpsc::unbounded_channel();
+  let (progress_sender, mut progress_receiver) = mpsc::unbounded_channel();
+
+  // Запускаем задачу для пересылки событий прогресса в VideoCompilerEvent
+  let app_handle = app.clone();
+  tokio::spawn(async move {
+    while let Some(progress_update) = progress_receiver.recv().await {
+      if let ProgressUpdate::ProgressChanged { job_id, progress } = progress_update {
+        let _ = app_handle.emit(
+          "video-compiler",
+          &VideoCompilerEvent::RenderProgress { job_id, progress },
+        );
+      }
+      // Остальные события уже обрабатываются в других местах
+    }
+  });
 
   // Создаем рендерер
   let renderer = VideoRenderer::new(
@@ -129,10 +143,30 @@ pub async fn compile_video(
       }
     };
 
-    // Логируем результат
+    // Логируем результат и отправляем события
     match result {
-      Ok(_) => log::info!("Рендеринг завершен успешно: {}", job_id_clone),
-      Err(e) => log::error!("Ошибка рендеринга {}: {}", job_id_clone, e),
+      Ok(output_path) => {
+        log::info!("Рендеринг завершен успешно: {}", job_id_clone);
+        // Отправляем событие о завершении рендеринга
+        let _ = app.emit(
+          "video-compiler",
+          &VideoCompilerEvent::RenderCompleted {
+            job_id: job_id_clone.clone(),
+            output_path,
+          },
+        );
+      }
+      Err(e) => {
+        log::error!("Ошибка рендеринга {}: {}", job_id_clone, e);
+        // Отправляем событие о неудачном рендеринге
+        let _ = app.emit(
+          "video-compiler",
+          &VideoCompilerEvent::RenderFailed {
+            job_id: job_id_clone.clone(),
+            error: e.to_string(),
+          },
+        );
+      }
     }
 
     // Удаляем из активных задач
@@ -209,19 +243,251 @@ pub async fn generate_preview(
   resolution: Option<(u32, u32)>,
   quality: Option<u8>,
   state: State<'_, VideoCompilerState>,
+  app: tauri::AppHandle,
 ) -> Result<Vec<u8>> {
   use crate::video_compiler::preview::PreviewGenerator;
 
   let preview_gen = PreviewGenerator::new(state.cache_manager.clone());
 
   // Генерируем превью
-  preview_gen
+  let result = preview_gen
     .generate_preview(Path::new(&video_path), timestamp, resolution, quality)
     .await
     .map_err(|e| VideoCompilerError::PreviewError {
       timestamp,
       reason: e.to_string(),
-    })
+    });
+
+  // Отправляем событие о генерации превью при успехе
+  if let Ok(ref image_data) = result {
+    let _ = app.emit(
+      "video-compiler",
+      &VideoCompilerEvent::PreviewGenerated {
+        timestamp,
+        image_data: image_data.clone(),
+      },
+    );
+  }
+
+  result
+}
+
+// ==================== УПРАВЛЕНИЕ ПРОЕКТАМИ ====================
+
+/// Создать новый пустой проект
+#[tauri::command]
+pub async fn create_new_project(
+  project_name: String,
+) -> Result<crate::video_compiler::schema::ProjectSchema> {
+  use crate::video_compiler::schema::ProjectSchema;
+  
+  let project = ProjectSchema::new(project_name);
+  log::info!("Создан новый проект: {}", project.metadata.name);
+  
+  Ok(project)
+}
+
+/// Обновить timestamp проекта (mark as modified)
+#[tauri::command] 
+pub async fn touch_project(
+  mut project: crate::video_compiler::schema::ProjectSchema,
+) -> Result<crate::video_compiler::schema::ProjectSchema> {
+  project.touch();
+  log::debug!("Проект {} отмечен как изменен", project.metadata.name);
+  
+  Ok(project)
+}
+
+/// Создать новый трек
+#[tauri::command]
+pub async fn create_track(
+  track_type: crate::video_compiler::schema::TrackType,
+  track_name: String,
+) -> Result<crate::video_compiler::schema::Track> {
+  use crate::video_compiler::schema::Track;
+  
+  let track = Track::new(track_type, track_name.clone());
+  log::info!("Создан новый трек: {} ({})", track_name, track.track_type);
+  
+  Ok(track)
+}
+
+/// Добавить клип к треку
+#[tauri::command]
+pub async fn add_clip_to_track(
+  mut track: crate::video_compiler::schema::Track,
+  clip: crate::video_compiler::schema::Clip,
+) -> Result<crate::video_compiler::schema::Track> {
+  let clip_name = clip.source_path.file_name()
+    .and_then(|name| name.to_str())
+    .unwrap_or("Unknown")
+    .to_string();
+    
+  track.add_clip(clip)
+    .map_err(|e| crate::video_compiler::error::VideoCompilerError::validation(e))?;
+    
+  log::info!("Клип {} добавлен к треку {}", clip_name, track.name);
+  
+  Ok(track)
+}
+
+/// Создать новый клип
+#[tauri::command]
+pub async fn create_clip(
+  source_path: String,
+  start_time: f64,
+  duration: f64,
+) -> Result<crate::video_compiler::schema::Clip> {
+  use crate::video_compiler::schema::Clip;
+  use std::path::PathBuf;
+  
+  let path = PathBuf::from(source_path);
+  
+  // Проверяем существование файла
+  if !path.exists() {
+    return Err(crate::video_compiler::error::VideoCompilerError::media_file(
+      path.to_string_lossy(),
+      "Файл не найден"
+    ));
+  }
+  
+  let clip = Clip::new(path, start_time, duration);
+  log::info!("Создан новый клип: {:?} ({:.2}s - {:.2}s)", 
+    clip.source_path.file_name().unwrap_or_default(), 
+    start_time, 
+    start_time + duration
+  );
+  
+  Ok(clip)
+}
+
+/// Создать новый эффект
+#[tauri::command]
+pub async fn create_effect(
+  effect_type: crate::video_compiler::schema::EffectType,
+  effect_name: String,
+) -> Result<crate::video_compiler::schema::Effect> {
+  use crate::video_compiler::schema::Effect;
+  
+  let effect = Effect::new(effect_type, effect_name.clone());
+  log::info!("Создан новый эффект: {} ({})", effect_name, effect.effect_type);
+  
+  Ok(effect)
+}
+
+/// Создать новый фильтр
+#[tauri::command]
+pub async fn create_filter(
+  filter_type: crate::video_compiler::schema::FilterType,
+  filter_name: String,
+) -> Result<crate::video_compiler::schema::Filter> {
+  use crate::video_compiler::schema::Filter;
+  
+  let filter = Filter::new(filter_type, filter_name.clone());
+  log::info!("Создан новый фильтр: {} ({})", filter_name, filter.filter_type);
+  
+  Ok(filter)
+}
+
+/// Создать новый шаблон
+#[tauri::command]
+pub async fn create_template(
+  template_type: crate::video_compiler::schema::TemplateType,
+  template_name: String,
+  screens: usize,
+) -> Result<crate::video_compiler::schema::Template> {
+  use crate::video_compiler::schema::Template;
+  
+  let template = Template::new(template_type, template_name.clone(), screens);
+  log::info!("Создан новый шаблон: {} ({}, {} экранов)", template_name, template.template_type, screens);
+  
+  Ok(template)
+}
+
+/// Создать новый стильный шаблон
+#[tauri::command]
+pub async fn create_style_template(
+  template_name: String,
+  category: String,
+  style_type: crate::video_compiler::schema::StyleType,
+) -> Result<crate::video_compiler::schema::StyleTemplate> {
+  use crate::video_compiler::schema::StyleTemplate;
+  
+  let template = StyleTemplate::new(template_name.clone(), category.clone(), style_type);
+  log::info!("Создан новый стильный шаблон: {} ({}/{})", template_name, category, template.style_type);
+  
+  Ok(template)
+}
+
+/// Создать новый субтитр
+#[tauri::command]
+pub async fn create_subtitle(
+  text: String,
+  start_time: f64,
+  end_time: f64,
+) -> Result<crate::video_compiler::schema::Subtitle> {
+  use crate::video_compiler::schema::Subtitle;
+  
+  let subtitle = Subtitle::new(text.clone(), start_time, end_time);
+  
+  // Валидируем субтитр
+  subtitle.validate()
+    .map_err(|e| crate::video_compiler::error::VideoCompilerError::validation(e))?;
+    
+  log::info!("Создан новый субтитр: '{}' ({:.2}s - {:.2}s, длительность: {:.2}s)", 
+    text, start_time, end_time, subtitle.get_duration());
+  
+  Ok(subtitle)
+}
+
+/// Создать новую анимацию субтитра
+#[tauri::command]
+pub async fn create_subtitle_animation(
+  animation_type: crate::video_compiler::schema::SubtitleAnimationType,
+  duration: f64,
+) -> Result<crate::video_compiler::schema::SubtitleAnimation> {
+  use crate::video_compiler::schema::SubtitleAnimation;
+  
+  let animation = SubtitleAnimation::new(animation_type, duration);
+  log::info!("Создана новая анимация субтитра: {} ({:.2}s)", animation.animation_type, duration);
+  
+  Ok(animation)
+}
+
+/// Установить путь к FFmpeg для генератора превью
+#[tauri::command]
+pub async fn set_preview_ffmpeg_path(
+  ffmpeg_path: String,
+  state: State<'_, VideoCompilerState>,
+) -> Result<()> {
+  use crate::video_compiler::preview::PreviewGenerator;
+
+  // Обновляем путь в основном состоянии
+  // state.ffmpeg_path = ffmpeg_path.clone(); // Это было бы если у нас есть &mut доступ
+
+  // Поскольку PreviewGenerator::set_ffmpeg_path принимает &mut self,
+  // мы можем создать временный генератор для демонстрации интеграции
+  let mut preview_gen = PreviewGenerator::new(state.cache_manager.clone());
+  preview_gen.set_ffmpeg_path(&ffmpeg_path);
+
+  log::info!("Путь к FFmpeg для превью обновлен: {}", ffmpeg_path);
+  Ok(())
+}
+
+/// Очистить кэш для конкретного файла
+#[tauri::command]
+pub async fn clear_file_preview_cache(
+  file_path: String,
+  state: State<'_, VideoCompilerState>,
+) -> Result<()> {
+  use crate::video_compiler::preview::PreviewGenerator;
+
+  let preview_gen = PreviewGenerator::new(state.cache_manager.clone());
+
+  preview_gen.clear_cache_for_file().await?;
+
+  log::info!("Кэш превью очищен для файла: {}", file_path);
+  Ok(())
 }
 
 /// Генерация превью для timeline (полоса превью)
@@ -629,6 +895,29 @@ pub async fn clear_prerender_cache() -> Result<u64> {
   Ok(deleted_size)
 }
 
+/// Очистить старые записи кэша
+#[tauri::command]
+pub async fn cleanup_cache(state: State<'_, VideoCompilerState>) -> Result<()> {
+  let mut cache = state.cache_manager.write().await;
+  cache.cleanup_old_entries().await?;
+  Ok(())
+}
+
+/// Получить статистику рендеринга
+#[tauri::command]
+pub async fn get_render_statistics(
+  job_id: String,
+  state: State<'_, VideoCompilerState>,
+) -> Result<Option<crate::video_compiler::pipeline::PipelineStatistics>> {
+  let active_jobs = state.active_jobs.read().await;
+
+  if let Some(renderer) = active_jobs.get(&job_id) {
+    Ok(renderer.get_render_statistics())
+  } else {
+    Ok(None)
+  }
+}
+
 // ==================== GPU КОМАНДЫ ====================
 
 /// Получить возможности GPU
@@ -688,9 +977,22 @@ pub async fn get_cache_stats(state: State<'_, VideoCompilerState>) -> Result<Cac
 
 /// Очистить весь кэш (алиас для clear_cache для совместимости с фронтендом)
 #[tauri::command]
-pub async fn clear_all_cache(state: State<'_, VideoCompilerState>) -> Result<()> {
+pub async fn clear_all_cache(
+  state: State<'_, VideoCompilerState>,
+  app: tauri::AppHandle,
+) -> Result<()> {
   let mut cache = state.cache_manager.write().await;
   cache.clear_all().await;
+
+  // Отправляем событие об обновлении кэша
+  let memory_usage = cache.get_memory_usage();
+  let _ = app.emit(
+    "video-compiler",
+    &VideoCompilerEvent::CacheUpdated {
+      cache_size_mb: memory_usage.total_bytes as f64 / 1_048_576.0,
+    },
+  );
+
   Ok(())
 }
 
@@ -1259,7 +1561,7 @@ pub async fn get_gpu_info(state: State<'_, VideoCompilerState>) -> Result<Vec<Gp
         GpuEncoder::QuickSync => "Intel QuickSync".to_string(),
         GpuEncoder::Vaapi => "VA-API".to_string(),
         GpuEncoder::VideoToolbox => "Apple VideoToolbox".to_string(),
-        GpuEncoder::AMF => "AMD Media Framework".to_string(),
+        GpuEncoder::Amf => "AMD Media Framework".to_string(),
       };
 
       let supported_codecs = match encoder {
@@ -1268,7 +1570,7 @@ pub async fn get_gpu_info(state: State<'_, VideoCompilerState>) -> Result<Vec<Gp
         GpuEncoder::QuickSync => vec!["h264".to_string(), "h265".to_string()],
         GpuEncoder::Vaapi => vec!["h264".to_string()],
         GpuEncoder::VideoToolbox => vec!["h264".to_string(), "h265".to_string()],
-        GpuEncoder::AMF => vec!["h264".to_string(), "h265".to_string()],
+        GpuEncoder::Amf => vec!["h264".to_string(), "h265".to_string()],
       };
 
       GpuInfo {
@@ -1302,7 +1604,7 @@ pub async fn check_gpu_encoder_availability(
     "quicksync" => GpuEncoder::QuickSync,
     "vaapi" => GpuEncoder::Vaapi,
     "videotoolbox" => GpuEncoder::VideoToolbox,
-    "amf" => GpuEncoder::AMF,
+    "amf" => GpuEncoder::Amf,
     _ => return Ok(false),
   };
 

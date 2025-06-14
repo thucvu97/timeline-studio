@@ -1288,7 +1288,7 @@ impl FFmpegBuilder {
         "quicksync" => Some(GpuEncoder::QuickSync),
         "vaapi" => Some(GpuEncoder::Vaapi),
         "videotoolbox" => Some(GpuEncoder::VideoToolbox),
-        "amf" => Some(GpuEncoder::AMF),
+        "amf" => Some(GpuEncoder::Amf),
         _ => detector.get_recommended_encoder().await.unwrap_or(None),
       }
     } else {
@@ -2472,12 +2472,14 @@ mod tests {
   #[test]
   fn test_ffmpeg_builder_with_settings() {
     let project = create_test_project();
-    let mut settings = FFmpegBuilderSettings::default();
-    settings.ffmpeg_path = "/custom/path/ffmpeg".to_string();
-    settings.threads = Some(8);
-    settings.prefer_nvenc = false;
-    settings.prefer_quicksync = true;
-    settings.global_args = vec!["-hide_banner".to_string()];
+    let settings = FFmpegBuilderSettings {
+      ffmpeg_path: "/custom/path/ffmpeg".to_string(),
+      threads: Some(8),
+      prefer_nvenc: false,
+      prefer_quicksync: true,
+      global_args: vec!["-hide_banner".to_string()],
+      ..Default::default()
+    };
 
     let builder = FFmpegBuilder::with_settings(project, settings.clone());
     assert_eq!(builder.settings.ffmpeg_path, "/custom/path/ffmpeg");
@@ -2771,8 +2773,10 @@ mod tests {
 
   #[tokio::test]
   async fn test_add_hardware_acceleration() {
-    let mut settings = FFmpegBuilderSettings::default();
-    settings.prefer_nvenc = true;
+    let settings = FFmpegBuilderSettings {
+      prefer_nvenc: true,
+      ..Default::default()
+    };
     let project = create_test_project();
     let builder = FFmpegBuilder::with_settings(project, settings);
 
@@ -2786,13 +2790,15 @@ mod tests {
 
   #[test]
   fn test_add_global_options() {
-    let mut settings = FFmpegBuilderSettings::default();
-    settings.threads = Some(4);
-    settings.global_args = vec![
-      "-hide_banner".to_string(),
-      "-loglevel".to_string(),
-      "error".to_string(),
-    ];
+    let settings = FFmpegBuilderSettings {
+      threads: Some(4),
+      global_args: vec![
+        "-hide_banner".to_string(),
+        "-loglevel".to_string(),
+        "error".to_string(),
+      ],
+      ..Default::default()
+    };
 
     let project = create_test_project();
     let builder = FFmpegBuilder::with_settings(project, settings);
