@@ -25,7 +25,6 @@ mod test_integration;
 // Re-export основных типов для удобства использования
 pub use commands::VideoCompilerState;
 pub use error::{Result, VideoCompilerError};
-pub use preview::PreviewGenerator;
 pub use progress::RenderProgress;
 
 use serde::{Deserialize, Serialize};

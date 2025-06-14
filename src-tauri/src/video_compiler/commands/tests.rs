@@ -138,7 +138,7 @@ mod tests {
 
     let info = result.unwrap();
     assert_eq!(info.file_count, info.files.len());
-    assert!(info.total_size >= 0);
+    // total_size is u64, always >= 0
   }
 
   #[tokio::test]
@@ -147,7 +147,7 @@ mod tests {
     assert!(result.is_ok());
 
     let deleted_size = result.unwrap();
-    assert!(deleted_size >= 0);
+    // deleted_size is u64, always >= 0
   }
 
   #[test]
@@ -686,7 +686,7 @@ mod tests {
 
     let info = result.unwrap();
     assert_eq!(info.file_count, info.files.len());
-    assert!(info.total_size >= 0);
+    // total_size is u64, always >= 0
   }
 
   #[tokio::test]
@@ -696,6 +696,6 @@ mod tests {
     assert!(result.is_ok());
 
     let deleted_size = result.unwrap();
-    assert!(deleted_size >= 0);
+    // deleted_size is u64, always >= 0
   }
 }

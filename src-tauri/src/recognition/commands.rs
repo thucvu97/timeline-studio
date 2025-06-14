@@ -67,9 +67,9 @@ pub async fn process_video_recognition(
   }
 }
 
-/// Обработать несколько видео пакетом
 // Временно отключено - требует frame_paths для каждого файла
 /*
+/// Обработать несколько видео пакетом
 #[tauri::command]
 pub async fn process_batch_recognition(
     app: AppHandle,

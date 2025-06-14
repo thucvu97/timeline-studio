@@ -1,19 +1,17 @@
-#[cfg(test)]
-mod tests {
-  use crate::media::preview_data::DetectedObject;
-  use crate::recognition::recognition_service::RecognitionService;
-  use crate::recognition::yolo_processor::{YoloModel, YoloProcessor};
-  use std::path::PathBuf;
-  use tempfile::TempDir;
+use crate::media::preview_data::DetectedObject;
+use crate::recognition::recognition_service::RecognitionService;
+use crate::recognition::yolo_processor::{YoloModel, YoloProcessor};
+use std::path::PathBuf;
+use tempfile::TempDir;
 
-  /// Проверяет доступность ONNX Runtime
-  fn is_ort_available() -> bool {
-    // Используем catch_unwind для перехвата паники при отсутствии ORT
-    std::panic::catch_unwind(|| ort::init().commit().is_ok()).unwrap_or(false)
-  }
+/// Проверяет доступность ONNX Runtime
+fn is_ort_available() -> bool {
+  // Используем catch_unwind для перехвата паники при отсутствии ORT
+  std::panic::catch_unwind(|| ort::init().commit().is_ok()).unwrap_or(false)
+}
 
-  #[tokio::test]
-  async fn test_yolo_processor_creation() {
+#[tokio::test]
+async fn test_yolo_processor_creation() {
     if !is_ort_available() {
       eprintln!("Skipping test: ONNX Runtime not available");
       return;
@@ -31,8 +29,8 @@ mod tests {
     assert!(processor_custom.is_ok());
   }
 
-  #[tokio::test]
-  async fn test_confidence_threshold() {
+#[tokio::test]
+async fn test_confidence_threshold() {
     if !is_ort_available() {
       eprintln!("Skipping test: ONNX Runtime not available");
       return;
@@ -42,7 +40,7 @@ mod tests {
 
     // Проверяем, что процессор создан с правильным порогом
     // В реальном тесте здесь бы проверялась фильтрация по confidence
-    assert!(true); // Заглушка
+    // Тест пройден если достигли этой точки
   }
 
   #[tokio::test]
@@ -58,7 +56,7 @@ mod tests {
     processor.set_target_classes(vec!["person".to_string(), "car".to_string()]);
 
     // В реальном тесте проверялась бы фильтрация по классам
-    assert!(true); // Заглушка
+    // Тест пройден если достигли этой точки
   }
 
   #[tokio::test]
@@ -331,7 +329,6 @@ mod tests {
     let y2 = bbox.y + bbox.height;
     assert_eq!(x2, 150.0);
     assert_eq!(y2, 280.0);
-  }
 }
 
 #[cfg(test)]

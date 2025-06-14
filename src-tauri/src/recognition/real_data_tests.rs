@@ -1,27 +1,25 @@
-#[cfg(test)]
-mod real_data_tests {
-  use crate::media::preview_data::{DetectedObject, RecognitionResults};
-  use crate::recognition::recognition_service::RecognitionService;
-  use crate::recognition::yolo_processor::{YoloModel, YoloProcessor};
-  // Временно отключаем пока не интегрируем frame_extraction
-  // use crate::video_compiler::frame_extraction::{FrameExtractionManager, ExtractionPurpose};
-  use std::path::PathBuf;
-  use std::time::Instant;
-  use tempfile::TempDir;
+use crate::media::preview_data::{DetectedObject, RecognitionResults};
+use crate::recognition::recognition_service::RecognitionService;
+use crate::recognition::yolo_processor::{YoloModel, YoloProcessor};
+// Временно отключаем пока не интегрируем frame_extraction
+// use crate::video_compiler::frame_extraction::{FrameExtractionManager, ExtractionPurpose};
+use std::path::{Path, PathBuf};
+use std::time::Instant;
+use tempfile::TempDir;
 
-  /// Проверяет доступность ONNX Runtime
-  fn is_ort_available() -> bool {
-    // Используем catch_unwind для перехвата паники при отсутствии ORT
-    std::panic::catch_unwind(|| ort::init().commit().is_ok()).unwrap_or(false)
-  }
+/// Проверяет доступность ONNX Runtime
+fn is_ort_available() -> bool {
+  // Используем catch_unwind для перехвата паники при отсутствии ORT
+  std::panic::catch_unwind(|| ort::init().commit().is_ok()).unwrap_or(false)
+}
 
-  /// Вспомогательная функция для извлечения кадров из видео
-  /// Временная заглушка - в реальности использовать video_compiler
-  async fn extract_frames_for_recognition(
-    video_path: &PathBuf,
-    output_dir: &PathBuf,
-    count: usize,
-  ) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+/// Вспомогательная функция для извлечения кадров из видео
+/// Временная заглушка - в реальности использовать video_compiler
+async fn extract_frames_for_recognition(
+  video_path: &Path,
+  output_dir: &Path,
+  count: usize,
+) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
     // Временная реализация - создаем пути к несуществующим кадрам
     // В реальной реализации здесь должен использоваться FrameExtractionManager
 
@@ -443,5 +441,4 @@ mod real_data_tests {
     assert!(json_content.contains("car"));
     assert!(json_content.contains("0.9"));
     assert!(json_content.contains("0.8"));
-  }
 }

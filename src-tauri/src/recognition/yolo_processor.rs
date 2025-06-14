@@ -245,30 +245,18 @@ impl YoloProcessor {
     for i in 0..num_boxes {
       // Получаем координаты бокса
       // Индексы для доступа к плоскому массиву: [batch, channel, box]
-      let cx = data[0 * output_shape[1] as usize * output_shape[2] as usize
-        + 0 * output_shape[2] as usize
-        + i]
-        * scale_x;
-      let cy = data
-        [0 * output_shape[1] as usize * output_shape[2] as usize + (output_shape[2] as usize) + i]
-        * scale_y;
-      let w = data[0 * output_shape[1] as usize * output_shape[2] as usize
-        + 2 * output_shape[2] as usize
-        + i]
-        * scale_x;
-      let h = data[0 * output_shape[1] as usize * output_shape[2] as usize
-        + 3 * output_shape[2] as usize
-        + i]
-        * scale_y;
+      // batch = 0 (первый батч), channel = индекс координаты, box = i
+      let cx = data[i] * scale_x; // channel 0: center x
+      let cy = data[output_shape[2] as usize + i] * scale_y; // channel 1: center y
+      let w = data[2 * output_shape[2] as usize + i] * scale_x; // channel 2: width
+      let h = data[3 * output_shape[2] as usize + i] * scale_y; // channel 3: height
 
       // Находим максимальную уверенность среди классов
       let mut max_conf = 0.0;
       let mut max_class = 0;
 
       for c in 0..num_classes {
-        let conf = data[0 * output_shape[1] as usize * output_shape[2] as usize
-          + (4 + c) * output_shape[2] as usize
-          + i];
+        let conf = data[(4 + c) * output_shape[2] as usize + i];
         if conf > max_conf {
           max_conf = conf;
           max_class = c;

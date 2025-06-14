@@ -2777,7 +2777,7 @@ mod tests {
     let builder = FFmpegBuilder::with_settings(project, settings);
 
     let mut cmd = tokio::process::Command::new("ffmpeg");
-    builder.add_hardware_acceleration(&mut cmd).await;
+    let _ = builder.add_hardware_acceleration(&mut cmd).await;
 
     let cmd_str = format!("{:?}", cmd);
     // Should contain video codec parameter

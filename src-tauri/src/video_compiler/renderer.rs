@@ -141,7 +141,7 @@ impl VideoRenderer {
                 log::info!("CPU fallback успешен!");
                 let _ = progress_tracker_clone
                   .complete_job(&job_id_clone, final_path)
-                  .await;// Выходим из замыкания успешно
+                  .await; // Выходим из замыкания успешно
               }
               Err(cpu_error) => {
                 log::error!("CPU fallback также завершился ошибкой: {}", cpu_error);

@@ -21,8 +21,8 @@ use crate::video_compiler::gpu::{GpuCapabilities, GpuDetector, GpuInfo};
 use crate::video_compiler::progress::{RenderProgress, RenderStatus};
 use crate::video_compiler::renderer::VideoRenderer;
 use crate::video_compiler::schema::{Clip, ProjectSchema, Subtitle};
-use crate::video_compiler::VideoCompilerEvent;
 use crate::video_compiler::CompilerSettings;
+use crate::video_compiler::VideoCompilerEvent;
 
 /// Состояние Video Compiler для Tauri
 #[derive(Debug)]
@@ -84,11 +84,14 @@ pub async fn compile_video(
 ) -> Result<String> {
   use tauri::Emitter;
   let job_id = uuid::Uuid::new_v4().to_string();
-  
+
   // Отправляем событие о начале рендеринга
-  let _ = app.emit("video-compiler", &VideoCompilerEvent::RenderStarted {
-    job_id: job_id.clone(),
-  });
+  let _ = app.emit(
+    "video-compiler",
+    &VideoCompilerEvent::RenderStarted {
+      job_id: job_id.clone(),
+    },
+  );
 
   // Создаем канал для прогресса
   let (progress_sender, _progress_receiver) = mpsc::unbounded_channel();
@@ -293,14 +296,17 @@ pub async fn generate_preview_batch(
 
   // Генерируем превью пакетом
   preview_gen
-    .generate_preview_batch(requests.into_iter().map(|req| {
-      crate::video_compiler::preview::PreviewRequest {
-        video_path: req.video_path,
-        timestamp: req.timestamp,
-        resolution: req.resolution,
-        quality: req.quality,
-      }
-    }).collect())
+    .generate_preview_batch(
+      requests
+        .into_iter()
+        .map(|req| crate::video_compiler::preview::PreviewRequest {
+          video_path: req.video_path,
+          timestamp: req.timestamp,
+          resolution: req.resolution,
+          quality: req.quality,
+        })
+        .collect(),
+    )
     .await
     .map_err(|e| VideoCompilerError::PreviewError {
       timestamp: 0.0,
@@ -613,7 +619,7 @@ pub async fn clear_prerender_cache() -> Result<u64> {
         deleted_size += metadata.len();
 
         // Удаляем файл
-        if let Ok(_) = fs::remove_file(&path).await {
+        if fs::remove_file(&path).await.is_ok() {
           _deleted_count += 1;
         }
       }
