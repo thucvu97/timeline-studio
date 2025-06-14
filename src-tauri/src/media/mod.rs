@@ -1,6 +1,7 @@
 // Модуль для работы с медиафайлами
 // Экспортируем публичные типы и функции
 
+pub mod commands;
 pub mod ffmpeg;
 pub mod files;
 pub mod metadata;
