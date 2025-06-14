@@ -2,7 +2,14 @@
 
 ## Обзор
 
-Модуль распознавания предоставляет интеграцию с YOLO v11 для обнаружения объектов и лиц в видео. Система построена на базе библиотеки `yolo-rs` и ONNX Runtime.
+Модуль распознавания предоставляет интеграцию с YOLO v11 для обнаружения объектов и лиц в видео. Система построена на базе ONNX Runtime с динамической загрузкой библиотек.
+
+## Текущий статус
+
+✅ **Модуль активен и готов к использованию**
+- ORT настроен с версией `2.0.0-rc.10` и `load-dynamic` feature
+- Все команды Tauri зарегистрированы и доступны
+- RecognitionState корректно инициализируется при запуске приложения
 
 ## Архитектура
 
@@ -107,6 +114,22 @@ let all_detections = processor.process_batch(image_paths).await?;
    - [yolo11n-seg.onnx](https://github.com/ultralytics/assets/releases) - сегментация
 
 2. Поместите файлы в директорию `models/` в корне проекта
+
+## Конфигурация ORT
+
+Модуль использует ONNX Runtime с динамической загрузкой:
+```toml
+ort = { version = "=2.0.0-rc.10", default-features = false, features = ["std", "load-dynamic"] }
+```
+
+Для корректной работы необходимо установить ONNX Runtime на системе:
+```bash
+# macOS
+brew install onnxruntime
+
+# Или установить переменную окружения
+export ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib
+```
 
 ## Структура данных
 

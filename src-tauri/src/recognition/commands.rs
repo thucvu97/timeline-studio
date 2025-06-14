@@ -6,66 +6,66 @@ use super::recognition_service::{RecognitionEvent, RecognitionService};
 use crate::media::preview_data::RecognitionResults;
 
 /// State для сервиса распознавания
-// pub struct RecognitionState {
-//   pub service: RecognitionService,
-// }
+pub struct RecognitionState {
+  pub service: RecognitionService,
+}
 
-// /// Обработать видео и распознать объекты/лица
-// #[tauri::command]
-// pub async fn process_video_recognition(
-//   app: AppHandle,
-//   state: State<'_, RecognitionState>,
-//   file_id: String,
-//   frame_paths: Vec<String>,
-// ) -> Result<RecognitionResults, String> {
-//   // Отправляем событие о начале
-//   app
-//     .emit(
-//       "recognition",
-//       RecognitionEvent::ProcessingStarted {
-//         file_id: file_id.clone(),
-//       },
-//     )
-//     .map_err(|e| e.to_string())?;
+/// Обработать видео и распознать объекты/лица
+#[tauri::command]
+pub async fn process_video_recognition(
+  app: AppHandle,
+  state: State<'_, RecognitionState>,
+  file_id: String,
+  frame_paths: Vec<String>,
+) -> Result<RecognitionResults, String> {
+  // Отправляем событие о начале
+  app
+    .emit(
+      "recognition",
+      RecognitionEvent::ProcessingStarted {
+        file_id: file_id.clone(),
+      },
+    )
+    .map_err(|e| e.to_string())?;
 
-//   // Преобразуем пути из String в PathBuf
-//   let paths: Vec<std::path::PathBuf> = frame_paths
-//     .into_iter()
-//     .map(std::path::PathBuf::from)
-//     .collect();
+  // Преобразуем пути из String в PathBuf
+  let paths: Vec<std::path::PathBuf> = frame_paths
+    .into_iter()
+    .map(std::path::PathBuf::from)
+    .collect();
 
-//   // Обрабатываем видео
-//   match state.service.process_video(&file_id, paths).await {
-//     Ok(results) => {
-//       // Отправляем событие о завершении
-//       app
-//         .emit(
-//           "recognition",
-//           RecognitionEvent::ProcessingCompleted {
-//             file_id: file_id.clone(),
-//             results: results.clone(),
-//           },
-//         )
-//         .map_err(|e| e.to_string())?;
+  // Обрабатываем видео
+  match state.service.process_video(&file_id, paths).await {
+    Ok(results) => {
+      // Отправляем событие о завершении
+      app
+        .emit(
+          "recognition",
+          RecognitionEvent::ProcessingCompleted {
+            file_id: file_id.clone(),
+            results: results.clone(),
+          },
+        )
+        .map_err(|e| e.to_string())?;
 
-//       Ok(results)
-//     }
-//     Err(e) => {
-//       // Отправляем событие об ошибке
-//       app
-//         .emit(
-//           "recognition",
-//           RecognitionEvent::ProcessingFailed {
-//             file_id,
-//             error: e.to_string(),
-//           },
-//         )
-//         .map_err(|e| e.to_string())?;
+      Ok(results)
+    }
+    Err(e) => {
+      // Отправляем событие об ошибке
+      app
+        .emit(
+          "recognition",
+          RecognitionEvent::ProcessingError {
+            file_id,
+            error: e.to_string(),
+          },
+        )
+        .map_err(|e| e.to_string())?;
 
-//       Err(e.to_string())
-//     }
-//   }
-// }
+      Err(e.to_string())
+    }
+  }
+}
 
 /// Обработать несколько видео пакетом
 // Временно отключено - требует frame_paths для каждого файла

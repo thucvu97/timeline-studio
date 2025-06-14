@@ -56,4 +56,5 @@ bin/deepsource
 /public/transitions/*
 /public/style-templates/*
 /public/templates/*
-/public/test-data/*
+
+/test-data/*

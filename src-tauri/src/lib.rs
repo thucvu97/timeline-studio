@@ -26,6 +26,11 @@ use video_server::{VideoRegistrationResponse, VideoServerState};
 
 // Модуль распознавания (YOLO)
 mod recognition;
+use recognition::commands::{
+  clear_recognition_results, export_recognition_results, get_preview_data_with_recognition,
+  get_recognition_results, process_video_recognition,
+};
+use recognition::{RecognitionService, RecognitionState};
 
 // Импортируем GPU и Frame Extraction команды
 use video_compiler::commands::{
@@ -186,6 +191,38 @@ pub fn run() {
     video_server::start_video_server(video_server_state_clone).await;
   });
 
+  // Инициализация Recognition Service
+  let recognition_state = runtime.block_on(async {
+    match app_dirs::AppDirectories::get_or_create() {
+      Ok(dirs) => match RecognitionService::new(dirs.base_dir.clone()) {
+        Ok(service) => {
+          log::info!("Recognition Service успешно инициализирован");
+          RecognitionState { service }
+        }
+        Err(e) => {
+          log::error!("Ошибка инициализации Recognition Service: {}", e);
+          // Создаем fallback service с временной директорией
+          let temp_dir = std::env::temp_dir();
+          RecognitionState {
+            service: RecognitionService::new(temp_dir)
+              .expect("Failed to create fallback recognition service"),
+          }
+        }
+      },
+      Err(e) => {
+        log::error!(
+          "Ошибка получения директорий приложения для Recognition: {}",
+          e
+        );
+        let temp_dir = std::env::temp_dir();
+        RecognitionState {
+          service: RecognitionService::new(temp_dir)
+            .expect("Failed to create fallback recognition service"),
+        }
+      }
+    }
+  });
+
   tauri::Builder::default()
     .plugin(tauri_plugin_log::Builder::new().build())
     .plugin(tauri_plugin_notification::init())
@@ -197,6 +234,7 @@ pub fn run() {
     .plugin(tauri_plugin_store::Builder::default().build())
     .manage(video_compiler_state)
     .manage(video_server_state)
+    .manage(recognition_state)
     .invoke_handler(tauri::generate_handler![
       greet,
       get_app_language,
@@ -243,7 +281,13 @@ pub fn run() {
       extract_timeline_frames,
       extract_recognition_frames,
       extract_subtitle_frames,
-      clear_frame_cache
+      clear_frame_cache,
+      // Recognition commands
+      process_video_recognition,
+      get_recognition_results,
+      get_preview_data_with_recognition,
+      clear_recognition_results,
+      export_recognition_results
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

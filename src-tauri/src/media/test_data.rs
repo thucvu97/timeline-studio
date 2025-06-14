@@ -39,7 +39,6 @@ pub mod test_data {
       PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .unwrap()
-        .join("public")
         .join("test-data")
         .join(self.filename)
     }

@@ -9,6 +9,12 @@ mod real_data_tests {
   use std::time::Instant;
   use tempfile::TempDir;
 
+  /// Проверяет доступность ONNX Runtime
+  fn is_ort_available() -> bool {
+    // Используем catch_unwind для перехвата паники при отсутствии ORT
+    std::panic::catch_unwind(|| ort::init().commit().is_ok()).unwrap_or(false)
+  }
+
   /// Вспомогательная функция для извлечения кадров из видео
   /// Временная заглушка - в реальности использовать video_compiler
   async fn extract_frames_for_recognition(
@@ -38,6 +44,11 @@ mod real_data_tests {
 
   #[tokio::test]
   async fn test_yolo_on_hevc_video() {
+    if !is_ort_available() {
+      eprintln!("Skipping test: ONNX Runtime not available");
+      return;
+    }
+
     // let video = get_test_video();
     // Тест временно отключен из-за отсутствия доступа к test_data
     println!("YOLO test on HEVC video skipped - test data not available");
@@ -97,6 +108,11 @@ mod real_data_tests {
 
     #[tokio::test]
     async fn test_face_detection_on_video() {
+      if !is_ort_available() {
+        eprintln!("Skipping test: ONNX Runtime not available");
+        return;
+      }
+
       // let video = VIDEO_FILES
       //   .iter()
       //   .find(|v| v.filename.contains("Kate"))
@@ -143,6 +159,11 @@ mod real_data_tests {
 
     #[tokio::test]
     async fn test_recognition_service_with_real_video() {
+      if !is_ort_available() {
+        eprintln!("Skipping test: ONNX Runtime not available");
+        return;
+      }
+
       // let video = get_test_video();
       // Тест временно отключен из-за отсутствия доступа к test_data
       println!("Recognition service test skipped - test data not available");
@@ -186,6 +207,11 @@ mod real_data_tests {
 
     #[tokio::test]
     async fn test_cyrillic_filename_recognition() {
+      if !is_ort_available() {
+        eprintln!("Skipping test: ONNX Runtime not available");
+        return;
+      }
+
       // let cyrillic_file = get_file_with_cyrillic()
       //     .expect("No file with cyrillic name found");
       // Тест временно отключен из-за отсутствия доступа к test_data
@@ -225,6 +251,11 @@ mod real_data_tests {
 
     #[tokio::test]
     async fn test_performance_on_4k_video() {
+      if !is_ort_available() {
+        eprintln!("Skipping test: ONNX Runtime not available");
+        return;
+      }
+
       // let video_4k = VIDEO_FILES.iter()
       //     .find(|v| v.width == Some(3840))
       //     .expect("No 4K video found");
@@ -273,6 +304,11 @@ mod real_data_tests {
 
     #[tokio::test]
     async fn test_batch_processing() {
+      if !is_ort_available() {
+        eprintln!("Skipping test: ONNX Runtime not available");
+        return;
+      }
+
       // let videos = VIDEO_FILES.iter().take(2).collect::<Vec<_>>();
       // Тест временно отключен из-за отсутствия доступа к test_data
       println!("Batch processing test skipped - test data not available");
@@ -319,6 +355,11 @@ mod real_data_tests {
 
     #[tokio::test]
     async fn test_scene_detection_accuracy() {
+      if !is_ort_available() {
+        eprintln!("Skipping test: ONNX Runtime not available");
+        return;
+      }
+
       // Используем разные видео для проверки определения сцен
       let temp_dir = TempDir::new().unwrap();
       let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
@@ -350,6 +391,11 @@ mod real_data_tests {
 
     #[tokio::test]
     async fn test_export_recognition_results() {
+      if !is_ort_available() {
+        eprintln!("Skipping test: ONNX Runtime not available");
+        return;
+      }
+
       // let video = get_test_video();
       // Этот тест работает без реальных данных
       let temp_dir = TempDir::new().unwrap();
