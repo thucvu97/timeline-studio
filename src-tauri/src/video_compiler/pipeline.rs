@@ -12,6 +12,7 @@ use std::time::{Duration, SystemTime};
 use tokio::sync::RwLock;
 
 use crate::video_compiler::error::{Result, VideoCompilerError};
+use crate::video_compiler::ffmpeg_builder::FFmpegBuilder;
 use crate::video_compiler::progress::ProgressTracker;
 use crate::video_compiler::schema::ProjectSchema;
 use crate::video_compiler::CompilerSettings;
@@ -29,6 +30,8 @@ pub struct RenderPipeline {
   settings: Arc<RwLock<CompilerSettings>>,
   /// Контекст выполнения
   context: PipelineContext,
+  /// FFmpeg builder для создания команд
+  ffmpeg_builder: FFmpegBuilder,
 }
 
 impl RenderPipeline {
@@ -39,7 +42,11 @@ impl RenderPipeline {
     settings: Arc<RwLock<CompilerSettings>>,
     output_path: PathBuf,
   ) -> Result<Self> {
-    let context = PipelineContext::new(project.clone(), output_path);
+    let mut context = PipelineContext::new(project.clone(), output_path);
+    let ffmpeg_builder = FFmpegBuilder::new(project.clone());
+
+    // Добавляем ffmpeg_builder в контекст
+    context.ffmpeg_builder = Some(ffmpeg_builder.clone());
 
     let mut pipeline = Self {
       project,
@@ -47,6 +54,7 @@ impl RenderPipeline {
       progress_tracker,
       settings,
       context,
+      ffmpeg_builder,
     };
 
     // Добавляем стандартные этапы
@@ -218,6 +226,8 @@ pub struct PipelineContext {
   pub user_data: HashMap<String, serde_json::Value>,
   /// Статистика выполнения
   pub statistics: PipelineStatistics,
+  /// FFmpeg builder для создания команд
+  pub ffmpeg_builder: Option<FFmpegBuilder>,
 }
 
 impl PipelineContext {
@@ -236,6 +246,7 @@ impl PipelineContext {
       cancelled: false,
       user_data: HashMap::new(),
       statistics: PipelineStatistics::default(),
+      ffmpeg_builder: None,
     }
   }
 
@@ -602,8 +613,6 @@ impl PipelineStage for CompositionStage {
 impl CompositionStage {
   /// Композиция видео дорожек
   async fn compose_video_tracks(&self, context: &mut PipelineContext) -> Result<()> {
-    use tokio::process::Command;
-
     let video_tracks: Vec<_> = context
       .project
       .tracks
@@ -619,22 +628,33 @@ impl CompositionStage {
 
     log::debug!("Композиция {} видео дорожек", video_tracks.len());
 
-    // Строим команду FFmpeg для композиции видео
-    let ffmpeg_command = self.build_video_composition_command(context, &video_tracks)?;
+    // Получаем путь для промежуточного файла
+    let video_composite_path = context
+      .intermediate_files
+      .get("video_composite")
+      .ok_or_else(|| {
+        VideoCompilerError::InternalError("Video composite path not found".to_string())
+      })?;
+
+    // Получаем FFmpegBuilder из контекста
+    let ffmpeg_builder = context.ffmpeg_builder.as_ref().ok_or_else(|| {
+      VideoCompilerError::InternalError("FFmpegBuilder not found in context".to_string())
+    })?;
+
+    // Используем FFmpegBuilder для создания команды
+    log::info!("Запуск композиции видео с использованием FFmpegBuilder");
+    let mut cmd = ffmpeg_builder
+      .build_render_command(video_composite_path)
+      .await?;
 
     // Выполняем команду FFmpeg
-    log::info!("Запуск композиции видео");
-    let output = Command::new(&ffmpeg_command[0])
-      .args(&ffmpeg_command[1..])
-      .output()
-      .await
-      .map_err(|e| {
-        VideoCompilerError::ffmpeg(
-          None,
-          format!("Не удалось запустить FFmpeg для видео композиции: {}", e),
-          "video composition".to_string(),
-        )
-      })?;
+    let output = cmd.output().await.map_err(|e| {
+      VideoCompilerError::ffmpeg(
+        None,
+        format!("Не удалось запустить FFmpeg для видео композиции: {}", e),
+        "video composition".to_string(),
+      )
+    })?;
 
     if !output.status.success() {
       let error = String::from_utf8_lossy(&output.stderr);
@@ -852,7 +872,6 @@ impl EncodingStage {
   /// Кодирование финального видео
   async fn encode_final_video(&self, context: &mut PipelineContext) -> Result<()> {
     use tokio::io::{AsyncBufReadExt, BufReader};
-    use tokio::process::Command;
 
     log::info!("Начало кодирования в файл: {:?}", context.output_path);
 
@@ -863,76 +882,21 @@ impl EncodingStage {
         .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
     }
 
-    // Получаем промежуточные файлы
-    let video_composite = context
-      .get_intermediate_file("video_composite")
-      .ok_or_else(|| {
-        VideoCompilerError::render(
-          "encoding",
-          "missing_video",
-          "Промежуточный видео файл не найден",
-        )
-      })?;
+    // Получаем FFmpegBuilder из контекста
+    let ffmpeg_builder = context.ffmpeg_builder.as_ref().ok_or_else(|| {
+      VideoCompilerError::InternalError("FFmpegBuilder not found in context".to_string())
+    })?;
 
-    let audio_composite = context.get_intermediate_file("audio_composite");
+    // Используем FFmpegBuilder для создания финальной команды
+    log::info!("Создание финальной команды кодирования с FFmpegBuilder");
+    let mut cmd = ffmpeg_builder
+      .build_render_command(&context.output_path)
+      .await?;
 
-    // Строим финальную команду FFmpeg
-    let mut command = vec!["ffmpeg".to_string(), "-y".to_string()]; // -y для перезаписи
+    log::debug!("Финальная FFmpeg команда создана с FFmpegBuilder");
 
-    // Добавляем видео вход
-    command.extend([
-      "-i".to_string(),
-      video_composite.to_string_lossy().to_string(),
-    ]);
-
-    // Добавляем аудио вход если есть
-    if let Some(audio_path) = audio_composite {
-      command.extend(["-i".to_string(), audio_path.to_string_lossy().to_string()]);
-      // Маппинг видео и аудио
-      command.extend([
-        "-map".to_string(),
-        "0:v".to_string(),
-        "-map".to_string(),
-        "1:a".to_string(),
-      ]);
-    } else {
-      // Только видео
-      command.extend(["-map".to_string(), "0:v".to_string()]);
-    }
-
-    // Кодеки и настройки качества
-    command.extend([
-      "-c:v".to_string(),
-      "libx264".to_string(),
-      "-preset".to_string(),
-      "medium".to_string(),
-      "-crf".to_string(),
-      "23".to_string(),
-      "-c:a".to_string(),
-      "aac".to_string(),
-      "-b:a".to_string(),
-      "192k".to_string(),
-      "-movflags".to_string(),
-      "+faststart".to_string(), // Для веб-воспроизведения
-    ]);
-
-    // Разрешение и FPS из timeline
-    let resolution = context.project.timeline.resolution;
-    command.extend([
-      "-vf".to_string(),
-      format!("scale={}:{}", resolution.0, resolution.1),
-      "-r".to_string(),
-      context.project.timeline.fps.to_string(),
-    ]);
-
-    // Выходной файл
-    command.push(context.output_path.to_string_lossy().to_string());
-
-    log::debug!("Финальная FFmpeg команда: {:?}", command);
-
-    // Запускаем FFmpeg процесс
-    let mut child = Command::new(&command[0])
-      .args(&command[1..])
+    // Запускаем FFmpeg процесс с перенаправлением stderr для чтения прогресса
+    let mut child = cmd
       .stderr(std::process::Stdio::piped())
       .spawn()
       .map_err(|e| {
@@ -975,11 +939,31 @@ impl EncodingStage {
     })?;
 
     if !status.success() {
-      return Err(VideoCompilerError::ffmpeg(
+      let error = VideoCompilerError::ffmpeg(
         status.code(),
         "FFmpeg завершился с ошибкой".to_string(),
         "ffmpeg encoding".to_string(),
-      ));
+      );
+
+      // Проверяем, была ли это ошибка GPU
+      // FFmpeg обычно возвращает код 1 для общих ошибок
+      // Анализируем stderr для определения типа ошибки
+      if context.project.settings.export.hardware_acceleration {
+        // Если использовалось GPU ускорение и произошла ошибка,
+        // возможно это ошибка GPU
+        log::error!(
+          "Возможная ошибка GPU при кодировании, код выхода: {:?}",
+          status.code()
+        );
+
+        // Создаем GPU ошибку для автоматического fallback
+        return Err(VideoCompilerError::gpu(format!(
+          "FFmpeg GPU encoding failed with exit code: {:?}",
+          status.code()
+        )));
+      }
+
+      return Err(error);
     }
 
     // Проверяем что файл создан

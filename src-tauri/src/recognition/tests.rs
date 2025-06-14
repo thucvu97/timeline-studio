@@ -38,7 +38,7 @@ mod tests {
       return;
     }
 
-    let processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.8).unwrap();
+    let _processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.8).unwrap();
 
     // Проверяем, что процессор создан с правильным порогом
     // В реальном тесте здесь бы проверялась фильтрация по confidence
@@ -88,10 +88,10 @@ mod tests {
     use crate::recognition::yolo_processor::{BoundingBox, Detection};
 
     let temp_dir = TempDir::new().unwrap();
-    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+    let _service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
 
     // Создаем тестовые детекции
-    let detections = vec![
+    let _detections = vec![
       (
         0.0,
         Detection {
@@ -181,10 +181,10 @@ mod tests {
     use crate::media::preview_data::DetectedObject;
 
     let temp_dir = TempDir::new().unwrap();
-    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+    let _service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
 
     // Создаем тестовые объекты
-    let objects = vec![
+    let _objects = vec![
       DetectedObject {
         class: "person".to_string(),
         confidence: 0.9,

@@ -1,7 +1,12 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { formatCacheRatio, formatCacheSize, useCacheStats } from "../../hooks/use-cache-stats"
+import { 
+  type CacheStatsWithRatios, 
+  formatCacheRatio, 
+  formatCacheSize,
+  useCacheStats 
+} from "../../hooks/use-cache-stats"
 import { CacheStats } from "../../types/cache"
 
 // Мокаем Tauri API
@@ -12,7 +17,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 describe("useCacheStats", () => {
   let mockInvoke: any
 
-  const mockCacheStats: CacheStats = {
+  const mockCacheStats: CacheStatsWithRatios = {
     total_entries: 235,
     preview_hits: 120,
     preview_misses: 30,
@@ -25,6 +30,8 @@ describe("useCacheStats", () => {
       total_bytes: 1024 * 1024 * 1024, // 1GB
     },
     cache_size_mb: 1024,
+    hit_ratio: 0.8, // (120+60)/(120+30+60+15) = 180/225
+    preview_hit_ratio: 0.8, // 120/(120+30) = 120/150
   }
 
   beforeEach(async () => {
@@ -83,11 +90,13 @@ describe("useCacheStats", () => {
     })
 
     // Обновляем с новыми данными
-    const updatedStats = {
+    const updatedStats: CacheStatsWithRatios = {
       ...mockCacheStats,
       total_entries: 285,
       preview_hits: 160,
       cache_size_mb: 1536,
+      hit_ratio: 0.83, // Пересчитанное значение
+      preview_hit_ratio: 0.84, // Пересчитанное значение
     }
 
     mockInvoke.mockResolvedValueOnce(updatedStats)
@@ -112,7 +121,7 @@ describe("useCacheStats", () => {
     mockInvoke.mockResolvedValueOnce(undefined) // clear_preview_cache
 
     // Обновленные статы после очистки превью
-    const updatedStats = {
+    const updatedStats: CacheStatsWithRatios = {
       ...mockCacheStats,
       preview_hits: 0,
       preview_misses: 0,
@@ -122,6 +131,8 @@ describe("useCacheStats", () => {
         total_bytes: mockCacheStats.memory_usage.metadata_bytes + mockCacheStats.memory_usage.render_bytes,
       },
       cache_size_mb: 512,
+      hit_ratio: 0.8, // metadata всё еще есть: 60/(60+15)
+      preview_hit_ratio: 0, // превью очищено
     }
 
     mockInvoke.mockResolvedValueOnce(updatedStats) // refreshStats
@@ -150,7 +161,7 @@ describe("useCacheStats", () => {
     mockInvoke.mockResolvedValueOnce(undefined) // clear_all_cache
 
     // Пустая статистика после полной очистки
-    const emptyStats = {
+    const emptyStats: CacheStatsWithRatios = {
       total_entries: 0,
       preview_hits: 0,
       preview_misses: 0,
@@ -163,6 +174,8 @@ describe("useCacheStats", () => {
         total_bytes: 0,
       },
       cache_size_mb: 0,
+      hit_ratio: 0,
+      preview_hit_ratio: 0,
     }
 
     mockInvoke.mockResolvedValueOnce(emptyStats) // refreshStats
@@ -220,7 +233,7 @@ describe("useCacheStats", () => {
   })
 
   it("should calculate hit ratios correctly", async () => {
-    const statsWithNoHits: CacheStats = {
+    const statsWithNoHits: CacheStatsWithRatios = {
       total_entries: 100,
       preview_hits: 0,
       preview_misses: 50,
@@ -233,6 +246,8 @@ describe("useCacheStats", () => {
         total_bytes: 150 * 1024 * 1024,
       },
       cache_size_mb: 150,
+      hit_ratio: 0,
+      preview_hit_ratio: 0,
     }
 
     mockInvoke.mockResolvedValueOnce(statsWithNoHits)
@@ -248,7 +263,7 @@ describe("useCacheStats", () => {
   })
 
   it("should handle empty cache stats", async () => {
-    const emptyStats: CacheStats = {
+    const emptyStats: CacheStatsWithRatios = {
       total_entries: 0,
       preview_hits: 0,
       preview_misses: 0,
@@ -261,6 +276,8 @@ describe("useCacheStats", () => {
         total_bytes: 0,
       },
       cache_size_mb: 0,
+      hit_ratio: 0,
+      preview_hit_ratio: 0,
     }
 
     mockInvoke.mockResolvedValueOnce(emptyStats)

@@ -12,7 +12,7 @@ use tauri::State;
 use tokio::sync::{mpsc, RwLock};
 use uuid::Uuid;
 
-use crate::video_compiler::cache::{CacheStats, RenderCache};
+use crate::video_compiler::cache::{CacheMemoryUsage, MediaMetadata, RenderCache};
 use crate::video_compiler::error::{Result, VideoCompilerError};
 use crate::video_compiler::frame_extraction::{
   ExtractionPurpose, ExtractionSettings, ExtractionStrategy, FrameExtractionManager,
@@ -339,6 +339,29 @@ pub async fn prerender_segment(
   })
 }
 
+/// Расширенная статистика кэша с вычисленными коэффициентами
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct CacheStatsWithRatios {
+  /// Общее количество записей
+  pub total_entries: u64,
+  /// Попадания превью
+  pub preview_hits: u64,
+  /// Промахи превью
+  pub preview_misses: u64,
+  /// Попадания метаданных
+  pub metadata_hits: u64,
+  /// Промахи метаданных
+  pub metadata_misses: u64,
+  /// Использование памяти
+  pub memory_usage: CacheMemoryUsage,
+  /// Размер кэша в МБ
+  pub cache_size_mb: f32,
+  /// Общий коэффициент попаданий
+  pub hit_ratio: f32,
+  /// Коэффициент попаданий превью
+  pub preview_hit_ratio: f32,
+}
+
 /// Информация о кеше пререндеров
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PrerenderCacheInfo {
@@ -524,12 +547,33 @@ pub async fn check_hardware_acceleration(state: State<'_, VideoCompilerState>) -
 
 /// Получить статистику кэша
 #[tauri::command]
-pub async fn get_cache_stats(state: State<'_, VideoCompilerState>) -> Result<CacheStats> {
+pub async fn get_cache_stats(state: State<'_, VideoCompilerState>) -> Result<CacheStatsWithRatios> {
   let cache = state.cache_manager.read().await;
-  Ok(cache.get_stats().clone())
+  let stats = cache.get_stats();
+
+  // Создаем расширенную версию статистики с вычисленными ratios
+  Ok(CacheStatsWithRatios {
+    total_entries: stats.preview_requests + stats.metadata_requests + stats.render_requests,
+    preview_hits: stats.preview_hits,
+    preview_misses: stats.preview_misses,
+    metadata_hits: stats.metadata_hits,
+    metadata_misses: stats.metadata_misses,
+    memory_usage: cache.get_memory_usage(),
+    cache_size_mb: cache.get_memory_usage().total_mb(),
+    hit_ratio: stats.hit_ratio(),
+    preview_hit_ratio: stats.preview_hit_ratio(),
+  })
 }
 
-/// Очистить кэш
+/// Очистить весь кэш (алиас для clear_cache для совместимости с фронтендом)
+#[tauri::command]
+pub async fn clear_all_cache(state: State<'_, VideoCompilerState>) -> Result<()> {
+  let mut cache = state.cache_manager.write().await;
+  cache.clear_all().await;
+  Ok(())
+}
+
+/// Очистить кэш (оставлено для обратной совместимости)
 #[tauri::command]
 pub async fn clear_cache(state: State<'_, VideoCompilerState>) -> Result<()> {
   let mut cache = state.cache_manager.write().await;
@@ -543,6 +587,101 @@ pub async fn clear_preview_cache(state: State<'_, VideoCompilerState>) -> Result
   let mut cache = state.cache_manager.write().await;
   cache.clear_previews().await;
   Ok(())
+}
+
+/// Получить размер кэша в мегабайтах
+#[tauri::command]
+pub async fn get_cache_size(state: State<'_, VideoCompilerState>) -> Result<f32> {
+  let cache = state.cache_manager.read().await;
+  let memory_usage = cache.get_memory_usage();
+  Ok(memory_usage.total_mb())
+}
+
+/// Настройка параметров кэша
+#[tauri::command]
+pub async fn configure_cache(
+  max_memory_mb: Option<usize>,
+  max_entries: Option<usize>,
+  auto_cleanup: Option<bool>,
+  state: State<'_, VideoCompilerState>,
+) -> Result<()> {
+  use crate::video_compiler::cache::CacheSettings;
+
+  let mut cache = state.cache_manager.write().await;
+
+  // Создаем новые настройки на основе текущих
+  let current_settings = CacheSettings::default();
+  let new_settings = CacheSettings {
+    max_memory_mb: max_memory_mb.unwrap_or(current_settings.max_memory_mb),
+    max_preview_entries: max_entries.unwrap_or(current_settings.max_preview_entries),
+    max_metadata_entries: max_entries.unwrap_or(current_settings.max_metadata_entries),
+    max_render_entries: max_entries
+      .map(|e| e / 10)
+      .unwrap_or(current_settings.max_render_entries),
+    preview_ttl: current_settings.preview_ttl,
+    metadata_ttl: current_settings.metadata_ttl,
+    render_ttl: current_settings.render_ttl,
+  };
+
+  // Пересоздаем кэш с новыми настройками
+  *cache = RenderCache::with_settings(new_settings);
+
+  // Если включена автоочистка, запускаем очистку старых записей
+  if auto_cleanup.unwrap_or(true) {
+    cache.cleanup_old_entries().await?;
+  }
+
+  Ok(())
+}
+
+/// Получить метаданные из кэша
+#[tauri::command]
+pub async fn get_cached_metadata(
+  file_path: String,
+  state: State<'_, VideoCompilerState>,
+) -> Result<Option<MediaMetadata>> {
+  let mut cache = state.cache_manager.write().await;
+  Ok(cache.get_metadata(&file_path).await)
+}
+
+/// Сохранить метаданные в кэш
+#[tauri::command]
+pub async fn cache_media_metadata(
+  file_path: String,
+  duration: f64,
+  resolution: Option<(u32, u32)>,
+  fps: Option<f32>,
+  bitrate: Option<u32>,
+  video_codec: Option<String>,
+  audio_codec: Option<String>,
+  state: State<'_, VideoCompilerState>,
+) -> Result<()> {
+  use std::time::SystemTime;
+
+  let metadata = MediaMetadata {
+    file_path: file_path.clone(),
+    file_size: 0, // Будет заполнено при реальном использовании
+    modified_time: SystemTime::now(),
+    duration,
+    resolution,
+    fps,
+    bitrate,
+    video_codec,
+    audio_codec,
+    cached_at: SystemTime::now(),
+  };
+
+  let mut cache = state.cache_manager.write().await;
+  cache.store_metadata(file_path, metadata).await
+}
+
+/// Получить использование памяти кэшем
+#[tauri::command]
+pub async fn get_cache_memory_usage(
+  state: State<'_, VideoCompilerState>,
+) -> Result<CacheMemoryUsage> {
+  let cache = state.cache_manager.read().await;
+  Ok(cache.get_memory_usage())
 }
 
 // ==================== НАСТРОЙКИ ====================
@@ -975,6 +1114,108 @@ fn extract_hardware_encoders(output: &str) -> Vec<String> {
   }
 
   encoders
+}
+
+// ==================== GPU ====================
+
+/// Получить информацию о доступных GPU
+#[tauri::command]
+pub async fn get_gpu_info(state: State<'_, VideoCompilerState>) -> Result<Vec<GpuInfo>> {
+  use crate::video_compiler::gpu::{GpuDetector, GpuEncoder};
+
+  let detector = GpuDetector::new(state.ffmpeg_path.clone());
+
+  // Получаем доступные кодировщики
+  let encoders = detector.detect_available_encoders().await?;
+
+  // Преобразуем в GpuInfo
+  let gpus: Vec<GpuInfo> = encoders
+    .into_iter()
+    .map(|encoder| {
+      let name = match encoder {
+        GpuEncoder::None => "CPU Encoder (libx264)".to_string(),
+        GpuEncoder::Nvenc => "NVIDIA GPU Encoder".to_string(),
+        GpuEncoder::QuickSync => "Intel QuickSync".to_string(),
+        GpuEncoder::Vaapi => "VA-API".to_string(),
+        GpuEncoder::VideoToolbox => "Apple VideoToolbox".to_string(),
+        GpuEncoder::AMF => "AMD Media Framework".to_string(),
+      };
+
+      let supported_codecs = match encoder {
+        GpuEncoder::None => vec!["h264".to_string(), "h265".to_string()],
+        GpuEncoder::Nvenc => vec!["h264".to_string(), "h265".to_string()],
+        GpuEncoder::QuickSync => vec!["h264".to_string(), "h265".to_string()],
+        GpuEncoder::Vaapi => vec!["h264".to_string()],
+        GpuEncoder::VideoToolbox => vec!["h264".to_string(), "h265".to_string()],
+        GpuEncoder::AMF => vec!["h264".to_string(), "h265".to_string()],
+      };
+
+      GpuInfo {
+        name,
+        driver_version: None,
+        memory_total: None,
+        memory_used: None,
+        utilization: None,
+        encoder_type: encoder,
+        supported_codecs,
+      }
+    })
+    .collect();
+
+  Ok(gpus)
+}
+
+/// Проверить доступность GPU кодировщика
+#[tauri::command]
+pub async fn check_gpu_encoder_availability(
+  encoder_name: String,
+  state: State<'_, VideoCompilerState>,
+) -> Result<bool> {
+  use crate::video_compiler::gpu::{GpuDetector, GpuEncoder};
+
+  let detector = GpuDetector::new(state.ffmpeg_path.clone());
+
+  // Парсим имя кодировщика
+  let encoder = match encoder_name.as_str() {
+    "nvenc" => GpuEncoder::Nvenc,
+    "quicksync" => GpuEncoder::QuickSync,
+    "vaapi" => GpuEncoder::Vaapi,
+    "videotoolbox" => GpuEncoder::VideoToolbox,
+    "amf" => GpuEncoder::AMF,
+    _ => return Ok(false),
+  };
+
+  // Проверяем доступность кодировщика через список доступных
+  match detector.detect_available_encoders().await {
+    Ok(available_encoders) => {
+      // Проверяем, есть ли наш кодировщик в списке доступных
+      Ok(available_encoders.contains(&encoder))
+    }
+    Err(e) => {
+      log::warn!("Ошибка проверки GPU кодировщика {}: {}", encoder_name, e);
+      // Если произошла ошибка при проверке, считаем что кодировщик недоступен
+      Ok(false)
+    }
+  }
+}
+
+/// Получить рекомендуемый GPU кодировщик
+#[tauri::command]
+pub async fn get_recommended_gpu_encoder(
+  state: State<'_, VideoCompilerState>,
+) -> Result<Option<String>> {
+  use crate::video_compiler::gpu::GpuDetector;
+
+  let detector = GpuDetector::new(state.ffmpeg_path.clone());
+
+  match detector.get_recommended_encoder().await {
+    Ok(Some(encoder)) => Ok(Some(format!("{:?}", encoder).to_lowercase())),
+    Ok(None) => Ok(None),
+    Err(e) => {
+      log::warn!("Ошибка получения рекомендуемого GPU кодировщика: {}", e);
+      Ok(None)
+    }
+  }
 }
 
 #[cfg(test)]

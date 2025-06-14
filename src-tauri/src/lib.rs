@@ -34,12 +34,14 @@ use recognition::{RecognitionService, RecognitionState};
 
 // Импортируем GPU и Frame Extraction команды
 use video_compiler::commands::{
-  cancel_render, check_ffmpeg_capabilities, check_hardware_acceleration, clear_frame_cache,
-  clear_prerender_cache, clear_preview_cache, compile_video, extract_recognition_frames,
-  extract_subtitle_frames, extract_timeline_frames, generate_preview, get_active_jobs,
-  get_cache_stats, get_compiler_settings, get_current_gpu_info, get_gpu_capabilities,
-  get_prerender_cache_info, get_render_progress, get_system_info, prerender_segment,
-  set_ffmpeg_path, update_compiler_settings,
+  cache_media_metadata, cancel_render, check_ffmpeg_capabilities, check_gpu_encoder_availability,
+  check_hardware_acceleration, clear_all_cache, clear_cache, clear_frame_cache,
+  clear_prerender_cache, clear_preview_cache, compile_video, configure_cache,
+  extract_recognition_frames, extract_subtitle_frames, extract_timeline_frames, generate_preview,
+  get_active_jobs, get_cache_memory_usage, get_cache_size, get_cache_stats, get_cached_metadata,
+  get_compiler_settings, get_current_gpu_info, get_gpu_capabilities, get_gpu_info,
+  get_prerender_cache_info, get_recommended_gpu_encoder, get_render_progress, get_system_info,
+  prerender_segment, set_ffmpeg_path, update_compiler_settings,
 };
 
 #[tauri::command]
@@ -119,13 +121,7 @@ async fn get_video_info(
   }
 }
 
-#[tauri::command]
-async fn clear_all_cache(state: tauri::State<'_, VideoCompilerState>) -> Result<(), String> {
-  let mut cache = state.cache_manager.write().await;
-  cache.clear_all().await;
-  log::info!("Весь кэш очищен");
-  Ok(())
-}
+// Команда clear_all_cache уже определена в video_compiler/commands.rs
 
 #[tauri::command]
 async fn register_video(
@@ -268,6 +264,12 @@ pub fn run() {
       clear_preview_cache,
       get_cache_stats,
       clear_all_cache,
+      clear_cache,
+      get_cache_size,
+      configure_cache,
+      get_cached_metadata,
+      cache_media_metadata,
+      get_cache_memory_usage,
       // GPU команды
       get_gpu_capabilities,
       get_current_gpu_info,
@@ -277,6 +279,9 @@ pub fn run() {
       set_ffmpeg_path,
       get_system_info,
       check_ffmpeg_capabilities,
+      check_gpu_encoder_availability,
+      get_gpu_info,
+      get_recommended_gpu_encoder,
       // Frame extraction команды
       extract_timeline_frames,
       extract_recognition_frames,

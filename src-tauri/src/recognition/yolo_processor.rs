@@ -219,7 +219,7 @@ impl YoloProcessor {
       .ok_or_else(|| anyhow!("Output tensor not found"))?;
 
     // В v2.0.0-rc.10 try_extract_tensor возвращает (&Shape, &[T])
-    let (shape, data) = output
+    let (_shape, data) = output
       .try_extract_tensor::<f32>()
       .map_err(|e| anyhow!("Failed to extract tensor: {}", e))?;
 
@@ -249,9 +249,8 @@ impl YoloProcessor {
         + 0 * output_shape[2] as usize
         + i]
         * scale_x;
-      let cy = data[0 * output_shape[1] as usize * output_shape[2] as usize
-        + (output_shape[2] as usize)
-        + i]
+      let cy = data
+        [0 * output_shape[1] as usize * output_shape[2] as usize + (output_shape[2] as usize) + i]
         * scale_y;
       let w = data[0 * output_shape[1] as usize * output_shape[2] as usize
         + 2 * output_shape[2] as usize

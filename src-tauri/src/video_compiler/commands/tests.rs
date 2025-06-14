@@ -548,7 +548,7 @@ mod tests {
 
     // Verify preview cache is empty
     let cache = state.cache_manager.read().await;
-    let stats = cache.get_stats();
+    let _stats = cache.get_stats();
     // Stats should be zero after clearing
   }
 

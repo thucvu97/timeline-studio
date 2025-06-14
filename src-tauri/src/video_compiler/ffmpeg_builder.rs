@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use tokio::process::Command;
 
-use crate::video_compiler::error::Result;
+use crate::video_compiler::error::{Result, VideoCompilerError};
 use crate::video_compiler::schema::{
   Clip, Effect, EffectParameter, EffectType, Filter, FilterType, OutputFormat, ProjectSchema,
   StyleElementType, StyleTemplate, Subtitle, SubtitleAlignX, SubtitleAlignY, SubtitleAnimation,
@@ -1196,7 +1196,25 @@ impl FFmpegBuilder {
 
     // Аппаратное ускорение (устанавливает видео кодек)
     if export_settings.hardware_acceleration {
-      self.add_hardware_acceleration(cmd).await;
+      match self.add_hardware_acceleration(cmd).await {
+        Ok(true) => {
+          // GPU ускорение успешно применено
+          log::info!("GPU ускорение активировано");
+        }
+        Ok(false) => {
+          // Использован CPU fallback для определенных форматов
+          log::info!("Использован CPU кодек для выбранного формата");
+        }
+        Err(e) => {
+          // Ошибка GPU, проверяем нужен ли fallback
+          if e.should_fallback_to_cpu() {
+            log::warn!("GPU ошибка: {}, переключение на CPU кодирование", e);
+            self.add_cpu_encoding(cmd, export_settings.quality);
+          } else {
+            return Err(e);
+          }
+        }
+      }
     } else {
       // Программный кодек видео
       self.add_cpu_encoding(cmd, export_settings.quality);
@@ -1253,7 +1271,7 @@ impl FFmpegBuilder {
   }
 
   /// Добавить аппаратное ускорение
-  async fn add_hardware_acceleration(&self, cmd: &mut Command) {
+  async fn add_hardware_acceleration(&self, cmd: &mut Command) -> Result<bool> {
     use crate::video_compiler::gpu::{GpuDetector, GpuEncoder, GpuHelper};
 
     // Создаем детектор GPU
@@ -1279,6 +1297,26 @@ impl FFmpegBuilder {
 
     // Пытаемся использовать выбранный кодировщик
     if let Some(encoder) = encoder {
+      // Проверяем доступность кодировщика
+      // Проверяем доступность через detect_available_encoders
+      let available_encoders = detector
+        .detect_available_encoders()
+        .await
+        .map_err(|e| VideoCompilerError::gpu(format!("Failed to detect GPU encoders: {}", e)))?;
+
+      let is_available = available_encoders.contains(&encoder);
+
+      if !is_available {
+        log::warn!(
+          "GPU кодировщик {:?} недоступен, переключение на CPU",
+          encoder
+        );
+        return Err(VideoCompilerError::gpu_unavailable(format!(
+          "GPU encoder {:?} is not available",
+          encoder
+        )));
+      }
+
       // Выбираем кодек в зависимости от формата
       let codec = match self.project.settings.export.format {
         OutputFormat::Mp4 | OutputFormat::Mov => encoder.h264_codec_name(),
@@ -1321,14 +1359,18 @@ impl FFmpegBuilder {
           codec,
           quality
         );
+
+        Ok(true)
       } else {
         // Fallback на CPU для WebM или если GPU недоступен
         self.add_cpu_encoding(cmd, quality);
+        Ok(false)
       }
     } else {
-      // Fallback на CPU кодирование
-      self.add_cpu_encoding(cmd, quality);
-      log::warn!("GPU ускорение недоступно, используется CPU кодирование");
+      // GPU не найден
+      Err(VideoCompilerError::gpu_unavailable(
+        "No GPU encoder detected",
+      ))
     }
   }
 

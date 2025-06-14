@@ -28,24 +28,9 @@ export function useCacheStats(): UseCacheStatsReturn {
     try {
       setIsLoading(true)
       setError(null)
-      const cacheStats = await invoke<CacheStats>("get_cache_stats")
-
-      // Вычисляем ratios
-      const total_requests =
-        cacheStats.preview_hits + cacheStats.preview_misses + cacheStats.metadata_hits + cacheStats.metadata_misses
-      const total_hits = cacheStats.preview_hits + cacheStats.metadata_hits
-
-      const hit_ratio = total_requests === 0 ? 0 : total_hits / total_requests
-      const preview_hit_ratio =
-        cacheStats.preview_hits + cacheStats.preview_misses === 0
-          ? 0
-          : cacheStats.preview_hits / (cacheStats.preview_hits + cacheStats.preview_misses)
-
-      setStats({
-        ...cacheStats,
-        hit_ratio,
-        preview_hit_ratio,
-      })
+      // Теперь бэкенд возвращает CacheStatsWithRatios с уже вычисленными значениями
+      const cacheStats = await invoke<CacheStatsWithRatios>("get_cache_stats")
+      setStats(cacheStats)
     } catch (err) {
       console.error("Failed to get cache stats:", err)
       setError(err instanceof Error ? err.message : "Не удалось получить статистику кэша")

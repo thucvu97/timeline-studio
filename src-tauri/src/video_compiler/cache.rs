@@ -171,7 +171,7 @@ impl RenderCache {
   }
 
   /// Очистка старых записей
-  async fn cleanup_old_entries(&mut self) -> Result<()> {
+  pub async fn cleanup_old_entries(&mut self) -> Result<()> {
     let _now = SystemTime::now();
 
     // Очищаем истекшие превью
@@ -375,7 +375,7 @@ impl CacheStats {
 }
 
 /// Использование памяти кэшем
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CacheMemoryUsage {
   /// Память, используемая превью (байты)
   pub preview_bytes: usize,

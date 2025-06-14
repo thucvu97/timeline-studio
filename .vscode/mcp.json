@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git"]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-github"
+      ]
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-memory"
+      ]
+    }
+  }
+}
