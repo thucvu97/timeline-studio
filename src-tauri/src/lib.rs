@@ -28,7 +28,8 @@ use video_server::{VideoRegistrationResponse, VideoServerState};
 mod recognition;
 use recognition::commands::{
   clear_recognition_results, export_recognition_results, get_preview_data_with_recognition,
-  get_recognition_results, process_video_recognition,
+  get_recognition_results, process_video_recognition, process_video_batch, load_yolo_model,
+  set_yolo_target_classes, get_yolo_class_names, process_yolo_batch,
 };
 use recognition::{RecognitionService, RecognitionState};
 
@@ -44,6 +45,10 @@ use video_compiler::commands::{
   get_prerender_cache_info, get_recommended_gpu_encoder, get_render_progress,
   get_render_statistics, get_system_info, get_video_info, prerender_segment, set_ffmpeg_path,
   set_preview_ffmpeg_path, update_compiler_settings,
+  // Команды управления проектами
+  create_new_project, touch_project, create_track, add_clip_to_track, create_clip,
+  create_effect, create_filter, create_template, create_style_template,
+  create_subtitle, create_subtitle_animation,
 };
 
 #[tauri::command]
@@ -278,10 +283,27 @@ pub fn run() {
       clear_frame_cache,
       // Recognition commands
       process_video_recognition,
+      process_video_batch,
       get_recognition_results,
       get_preview_data_with_recognition,
       clear_recognition_results,
-      export_recognition_results
+      export_recognition_results,
+      load_yolo_model,
+      set_yolo_target_classes,
+      get_yolo_class_names,
+      process_yolo_batch,
+      // Project management commands
+      create_new_project,
+      touch_project,
+      create_track,
+      add_clip_to_track,
+      create_clip,
+      create_effect,
+      create_filter,
+      create_template,
+      create_style_template,
+      create_subtitle,
+      create_subtitle_animation
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

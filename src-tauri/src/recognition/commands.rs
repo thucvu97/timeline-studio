@@ -101,6 +101,29 @@ pub async fn process_batch_recognition(
 }
 */
 
+/// Обработать пакет видео (множественная обработка)
+#[tauri::command]
+pub async fn process_video_batch(
+  file_ids: Vec<String>,
+  frame_paths_map: std::collections::HashMap<String, Vec<std::path::PathBuf>>,
+  state: State<'_, RecognitionState>,
+) -> Result<Vec<(String, RecognitionResults)>, String> {
+  let service = &state.service;
+  
+  log::info!("Начато пакетное распознавание для {} файлов", file_ids.len());
+  
+  match service.process_batch(file_ids, frame_paths_map).await {
+    Ok(results) => {
+      log::info!("Пакетное распознавание завершено. Обработано {} файлов", results.len());
+      Ok(results)
+    }
+    Err(e) => {
+      log::error!("Ошибка пакетного распознавания: {}", e);
+      Err(format!("Ошибка пакетного распознавания: {}", e))
+    }
+  }
+}
+
 /// Получить результаты распознавания для файла
 #[tauri::command]
 pub async fn get_recognition_results(
@@ -127,6 +150,56 @@ pub async fn get_preview_data_with_recognition(
       "file_id": file_id,
       "message": "This command needs PreviewDataManager integration"
   }))
+}
+
+/// Загрузить модель YOLO для объектов (для администрирования)
+#[tauri::command]
+pub async fn load_yolo_model(
+  state: State<'_, RecognitionState>,
+) -> Result<(), String> {
+  state.service.load_object_model().await
+    .map_err(|e| format!("Ошибка загрузки модели YOLO: {}", e))?;
+    
+  log::info!("Модель YOLO для объектов загружена успешно");
+  Ok(())
+}
+
+/// Установить целевые классы для распознавания объектов
+#[tauri::command]
+pub async fn set_yolo_target_classes(
+  classes: Vec<String>,
+  state: State<'_, RecognitionState>,
+) -> Result<(), String> {
+  state.service.set_object_classes(classes.clone()).await;
+  
+  log::info!("Установлены целевые классы для объектов: {:?}", classes);
+  Ok(())
+}
+
+/// Получить список доступных классов YOLO для объектов
+#[tauri::command]
+pub async fn get_yolo_class_names(
+  state: State<'_, RecognitionState>,
+) -> Result<Vec<String>, String> {
+  let processor = state.service.object_detector.read().await;
+  let class_names = processor.get_class_names();
+  
+  log::debug!("Возвращено {} классов YOLO для объектов", class_names.len());
+  Ok(class_names)
+}
+
+/// Пакетная обработка изображений YOLO для объектов
+#[tauri::command]
+pub async fn process_yolo_batch(
+  image_paths: Vec<String>,
+  state: State<'_, RecognitionState>,
+) -> Result<Vec<Vec<crate::recognition::yolo_processor::Detection>>, String> {
+  let mut processor = state.service.object_detector.write().await;
+  
+  let paths: Vec<std::path::PathBuf> = image_paths.iter().map(std::path::PathBuf::from).collect();
+  
+  processor.process_batch(paths).await
+    .map_err(|e| format!("Ошибка пакетной обработки YOLO для объектов: {}", e))
 }
 
 /// Очистить результаты распознавания

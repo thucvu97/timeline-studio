@@ -280,6 +280,46 @@ impl RecognitionService {
 
     Ok(results)
   }
+
+  /// Получить доступ к детектору объектов
+  pub fn get_object_detector(&self) -> Arc<RwLock<YoloProcessor>> {
+    self.object_detector.clone()
+  }
+
+  /// Получить доступ к детектору лиц
+  pub fn get_face_detector(&self) -> Arc<RwLock<YoloProcessor>> {
+    self.face_detector.clone()
+  }
+
+  /// Загрузить модель для детектора объектов
+  pub async fn load_object_model(&self) -> Result<()> {
+    let mut detector = self.object_detector.write().await;
+    detector.load_model().await
+  }
+
+  /// Загрузить модель для детектора лиц
+  pub async fn load_face_model(&self) -> Result<()> {
+    let mut detector = self.face_detector.write().await;
+    detector.load_model().await
+  }
+
+  /// Установить целевые классы для детектора объектов
+  pub async fn set_object_classes(&self, classes: Vec<String>) {
+    let mut detector = self.object_detector.write().await;
+    detector.set_target_classes(classes);
+  }
+
+  /// Получить классы объектов
+  pub async fn get_object_classes(&self) -> Vec<String> {
+    let detector = self.object_detector.read().await;
+    detector.get_class_names()
+  }
+
+  /// Пакетная обработка изображений детектором объектов
+  pub async fn process_objects_batch(&self, image_paths: Vec<PathBuf>) -> Result<Vec<Vec<Detection>>> {
+    let mut detector = self.object_detector.write().await;
+    detector.process_batch(image_paths).await
+  }
 }
 
 /// События распознавания для отправки на фронтенд

@@ -307,7 +307,7 @@ pub async fn create_track(
   use crate::video_compiler::schema::Track;
   
   let track = Track::new(track_type, track_name.clone());
-  log::info!("Создан новый трек: {} ({})", track_name, track.track_type);
+  log::info!("Создан новый трек: {} ({:?})", track_name, track.track_type);
   
   Ok(track)
 }
@@ -370,7 +370,7 @@ pub async fn create_effect(
   use crate::video_compiler::schema::Effect;
   
   let effect = Effect::new(effect_type, effect_name.clone());
-  log::info!("Создан новый эффект: {} ({})", effect_name, effect.effect_type);
+  log::info!("Создан новый эффект: {} ({:?})", effect_name, effect.effect_type);
   
   Ok(effect)
 }
@@ -384,7 +384,7 @@ pub async fn create_filter(
   use crate::video_compiler::schema::Filter;
   
   let filter = Filter::new(filter_type, filter_name.clone());
-  log::info!("Создан новый фильтр: {} ({})", filter_name, filter.filter_type);
+  log::info!("Создан новый фильтр: {} ({:?})", filter_name, filter.filter_type);
   
   Ok(filter)
 }
@@ -399,7 +399,7 @@ pub async fn create_template(
   use crate::video_compiler::schema::Template;
   
   let template = Template::new(template_type, template_name.clone(), screens);
-  log::info!("Создан новый шаблон: {} ({}, {} экранов)", template_name, template.template_type, screens);
+  log::info!("Создан новый шаблон: {} ({:?}, {} экранов)", template_name, template.template_type, screens);
   
   Ok(template)
 }
@@ -408,13 +408,14 @@ pub async fn create_template(
 #[tauri::command]
 pub async fn create_style_template(
   template_name: String,
-  category: String,
-  style_type: crate::video_compiler::schema::StyleType,
+  category: crate::video_compiler::schema::StyleTemplateCategory,
+  style: crate::video_compiler::schema::StyleTemplateStyle,
+  duration: f64,
 ) -> Result<crate::video_compiler::schema::StyleTemplate> {
   use crate::video_compiler::schema::StyleTemplate;
   
-  let template = StyleTemplate::new(template_name.clone(), category.clone(), style_type);
-  log::info!("Создан новый стильный шаблон: {} ({}/{})", template_name, category, template.style_type);
+  let template = StyleTemplate::new(template_name.clone(), category, style, duration);
+  log::info!("Создан новый стильный шаблон: {} ({:?}/{:?}, {:.2}s)", template_name, template.category, template.style, duration);
   
   Ok(template)
 }
@@ -449,7 +450,7 @@ pub async fn create_subtitle_animation(
   use crate::video_compiler::schema::SubtitleAnimation;
   
   let animation = SubtitleAnimation::new(animation_type, duration);
-  log::info!("Создана новая анимация субтитра: {} ({:.2}s)", animation.animation_type, duration);
+  log::info!("Создана новая анимация субтитра: {:?} ({:.2}s)", animation.animation_type, duration);
   
   Ok(animation)
 }
