@@ -30,7 +30,7 @@ export function CacheSettingsModal() {
       setCacheStats(stats)
     } catch (error) {
       console.error("Ошибка загрузки статистики кэша:", error)
-      toast.error(t("media.cache.errors.loadStats"))
+      toast.error(t("browser.media.cache.errors.loadStats"))
     } finally {
       setIsLoading(false)
     }
@@ -51,11 +51,11 @@ export function CacheSettingsModal() {
       clearInterval(progressInterval)
       setClearingProgress(100)
 
-      toast.success(t("media.cache.success.clearPreview"))
+      toast.success(t("browser.media.cache.success.clearPreview"))
       await loadCacheStats()
     } catch (error) {
       console.error("Ошибка очистки кэша превью:", error)
-      toast.error(t("media.cache.errors.clearPreview"))
+      toast.error(t("browser.media.cache.errors.clearPreview"))
     } finally {
       setTimeout(() => {
         setClearingProgress(0)
@@ -78,11 +78,11 @@ export function CacheSettingsModal() {
       clearInterval(progressInterval)
       setClearingProgress(100)
 
-      toast.success(t("media.cache.success.clearFrames"))
+      toast.success(t("browser.media.cache.success.clearFrames"))
       await loadCacheStats()
     } catch (error) {
       console.error("Ошибка очистки кэша кадров:", error)
-      toast.error(t("media.cache.errors.clearFrames"))
+      toast.error(t("browser.media.cache.errors.clearFrames"))
     } finally {
       setTimeout(() => {
         setClearingProgress(0)
@@ -105,11 +105,11 @@ export function CacheSettingsModal() {
       clearInterval(progressInterval)
       setClearingProgress(100)
 
-      toast.success(t("media.cache.success.clearRecognition"))
+      toast.success(t("browser.media.cache.success.clearRecognition"))
       await loadCacheStats()
     } catch (error) {
       console.error("Ошибка очистки кэша распознавания:", error)
-      toast.error(t("media.cache.errors.clearRecognition"))
+      toast.error(t("browser.media.cache.errors.clearRecognition"))
     } finally {
       setTimeout(() => {
         setClearingProgress(0)
@@ -132,11 +132,11 @@ export function CacheSettingsModal() {
       clearInterval(progressInterval)
       setClearingProgress(100)
 
-      toast.success(t("media.cache.success.clearAll"))
+      toast.success(t("browser.media.cache.success.clearAll"))
       await loadCacheStats()
     } catch (error) {
       console.error("Ошибка очистки всего кэша:", error)
-      toast.error(t("media.cache.errors.clearAll"))
+      toast.error(t("browser.media.cache.errors.clearAll"))
     } finally {
       setTimeout(() => {
         setClearingProgress(0)
@@ -149,11 +149,11 @@ export function CacheSettingsModal() {
   const cleanupExpiredCache = useCallback(async () => {
     try {
       await indexedDBCacheService.cleanupExpiredCache()
-      toast.success(t("media.cache.success.cleanupExpired"))
+      toast.success(t("browser.media.cache.success.cleanupExpired"))
       await loadCacheStats()
     } catch (error) {
       console.error("Ошибка очистки устаревшего кэша:", error)
-      toast.error(t("media.cache.errors.cleanupExpired"))
+      toast.error(t("browser.media.cache.errors.cleanupExpired"))
     }
   }, [loadCacheStats, t])
 
@@ -176,20 +176,20 @@ export function CacheSettingsModal() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
-            {t("media.cache.title")}
+            {t("browser.media.cache.title")}
           </CardTitle>
-          <CardDescription>{t("media.cache.description")}</CardDescription>
+          <CardDescription>{t("browser.media.cache.description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Общая статистика */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">{t("media.cache.totalSize")}</span>
+              <span className="font-medium">{t("browser.media.cache.totalSize")}</span>
               <span className="text-muted-foreground">{formatFileSize(cacheStats.totalSize)}</span>
             </div>
             <Progress value={(cacheStats.totalSize / (500 * 1024 * 1024)) * 100} className="h-2" />
             <p className="text-xs text-muted-foreground">
-              {t("media.cache.usage", {
+              {t("browser.media.cache.usage", {
                 used: formatFileSize(cacheStats.totalSize),
                 total: "500 MB",
               })}
@@ -202,9 +202,9 @@ export function CacheSettingsModal() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">{t("media.cache.previewCache.title")}</h4>
+                <h4 className="text-sm font-medium">{t("browser.media.cache.previewCache.title")}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {t("media.cache.previewCache.info", {
+                  {t("browser.media.cache.previewCache.info", {
                     count: cacheStats.previewCache.count,
                     size: formatFileSize(cacheStats.previewCache.size),
                   })}
@@ -212,7 +212,7 @@ export function CacheSettingsModal() {
               </div>
               <Button variant="outline" size="sm" onClick={clearPreviewCache} disabled={isClearing}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                {t("media.cache.actions.clear")}
+                {t("browser.media.cache.actions.clear")}
               </Button>
             </div>
           </div>
@@ -221,9 +221,9 @@ export function CacheSettingsModal() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">{t("media.cache.frameCache.title")}</h4>
+                <h4 className="text-sm font-medium">{t("browser.media.cache.frameCache.title")}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {t("media.cache.frameCache.info", {
+                  {t("browser.media.cache.frameCache.info", {
                     count: cacheStats.frameCache.count,
                     size: formatFileSize(cacheStats.frameCache.size),
                   })}
@@ -231,7 +231,7 @@ export function CacheSettingsModal() {
               </div>
               <Button variant="outline" size="sm" onClick={clearFrameCache} disabled={isClearing}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                {t("media.cache.actions.clear")}
+                {t("browser.media.cache.actions.clear")}
               </Button>
             </div>
           </div>
@@ -240,9 +240,9 @@ export function CacheSettingsModal() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">{t("media.cache.recognitionCache.title")}</h4>
+                <h4 className="text-sm font-medium">{t("browser.media.cache.recognitionCache.title")}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {t("media.cache.recognitionCache.info", {
+                  {t("browser.media.cache.recognitionCache.info", {
                     count: cacheStats.recognitionCache.count,
                     size: formatFileSize(cacheStats.recognitionCache.size),
                   })}
@@ -250,7 +250,7 @@ export function CacheSettingsModal() {
               </div>
               <Button variant="outline" size="sm" onClick={clearRecognitionCache} disabled={isClearing}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                {t("media.cache.actions.clear")}
+                {t("browser.media.cache.actions.clear")}
               </Button>
             </div>
           </div>
@@ -259,9 +259,9 @@ export function CacheSettingsModal() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">{t("media.cache.subtitleCache.title")}</h4>
+                <h4 className="text-sm font-medium">{t("browser.media.cache.subtitleCache.title")}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {t("media.cache.subtitleCache.info", {
+                  {t("browser.media.cache.subtitleCache.info", {
                     count: cacheStats.subtitleCache.count,
                     size: formatFileSize(cacheStats.subtitleCache.size),
                   })}
@@ -283,11 +283,11 @@ export function CacheSettingsModal() {
                     clearInterval(progressInterval)
                     setClearingProgress(100)
 
-                    toast.success(t("media.cache.success.clearSubtitles"))
+                    toast.success(t("browser.media.cache.success.clearSubtitles"))
                     await loadCacheStats()
                   } catch (error) {
                     console.error("Ошибка очистки кэша субтитров:", error)
-                    toast.error(t("media.cache.errors.clearSubtitles"))
+                    toast.error(t("browser.media.cache.errors.clearSubtitles"))
                   } finally {
                     setTimeout(() => {
                       setClearingProgress(0)
@@ -298,7 +298,7 @@ export function CacheSettingsModal() {
                 disabled={isClearing}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                {t("media.cache.actions.clear")}
+                {t("browser.media.cache.actions.clear")}
               </Button>
             </div>
           </div>
@@ -309,7 +309,7 @@ export function CacheSettingsModal() {
           {clearingProgress > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span>{t("media.cache.clearing")}</span>
+                <span>{t("browser.media.cache.clearing")}</span>
                 <span>{clearingProgress}%</span>
               </div>
               <Progress value={clearingProgress} className="h-2" />
@@ -320,16 +320,16 @@ export function CacheSettingsModal() {
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <AlertCircle className="h-4 w-4" />
-              <span>{t("media.cache.warning")}</span>
+              <span>{t("browser.media.cache.warning")}</span>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={cleanupExpiredCache} disabled={isClearing}>
                 <RefreshCw className="mr-2 h-4 w-4" />
-                {t("media.cache.actions.cleanupExpired")}
+                {t("browser.media.cache.actions.cleanupExpired")}
               </Button>
               <Button variant="destructive" onClick={clearAllCache} disabled={isClearing}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                {t("media.cache.actions.clearAll")}
+                {t("browser.media.cache.actions.clearAll")}
               </Button>
             </div>
           </div>
@@ -341,22 +341,22 @@ export function CacheSettingsModal() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="h-5 w-5" />
-            {t("media.cache.storage.title")}
+            {t("browser.media.cache.storage.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">{t("media.cache.storage.technology")}</span>
+              <span className="text-muted-foreground">{t("browser.media.cache.storage.technology")}</span>
               <span className="font-medium">IndexedDB</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">{t("media.cache.storage.maxSize")}</span>
+              <span className="text-muted-foreground">{t("browser.media.cache.storage.maxSize")}</span>
               <span className="font-medium">500 MB</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">{t("media.cache.storage.autoCleanup")}</span>
-              <span className="font-medium">{t("media.cache.storage.autoCleanupValue")}</span>
+              <span className="text-muted-foreground">{t("browser.media.cache.storage.autoCleanup")}</span>
+              <span className="font-medium">{t("browser.media.cache.storage.autoCleanupValue")}</span>
             </div>
           </div>
         </CardContent>
