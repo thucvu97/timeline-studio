@@ -24,6 +24,13 @@ Before working with this codebase, ensure you have the following dependencies in
   ```bash
   # macOS
   brew install onnxruntime
+  
+  # Add to your shell profile:
+  # For bash/zsh (~/.zshrc or ~/.bashrc):
+  export ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib
+  
+  # For fish (~/.config/fish/config.fish):
+  set -gx ORT_DYLIB_PATH /opt/homebrew/lib/libonnxruntime.dylib
   ```
 
 ### Platform-specific Tools

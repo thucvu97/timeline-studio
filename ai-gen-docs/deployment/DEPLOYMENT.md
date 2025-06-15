@@ -39,6 +39,13 @@ choco install ffmpeg
 # macOS
 brew install onnxruntime
 
+# Add to your shell profile:
+# For bash/zsh (~/.zshrc or ~/.bashrc):
+export ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib
+
+# For fish (~/.config/fish/config.fish):
+set -gx ORT_DYLIB_PATH /opt/homebrew/lib/libonnxruntime.dylib
+
 # Ubuntu/Debian
 ONNX_VERSION="1.19.2"
 wget https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_VERSION}/onnxruntime-linux-x64-${ONNX_VERSION}.tgz
