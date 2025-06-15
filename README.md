@@ -19,12 +19,15 @@ Timeline Studio is a professional video editing application built with modern we
 
 ### Project Status (June 2025)
 
-**Overall Completion: 75%**
+**Overall Completion: 73.5%**
 - ✅ Core editing functionality complete
 - ✅ Video Compiler with GPU acceleration
 - ✅ Recognition module (YOLO v11)
-- ✅ Effects, filters, and transitions
-- ⚠️ Export UI needs completion (25%)
+- ✅ Effects, filters, and transitions (75-80%)
+- ✅ Export - local export fully working! (75%)
+- ✅ Unified preview system with Preview Manager
+- ✅ Media persistence and temp projects
+- ⚠️ Timeline at 90% completion
 - ⚠️ Resources panel in development (40%)
 - 🎯 Target MVP release: End of June 2025
 
@@ -33,13 +36,14 @@ Timeline Studio is a professional video editing application built with modern we
 - 🎬 Professional video editing with multi-track timeline
 - 🖥️ Cross-platform (Windows, macOS, Linux)
 - 🚀 GPU-accelerated video processing (NVENC, QuickSync, VideoToolbox)
-- 🤖 AI-powered object/face recognition (YOLO v11)
+- 🤖 AI-powered object/face recognition (YOLO v11 - ORT fixed)
 - 🎨 30+ transitions, visual effects, and filters
 - 📝 Advanced subtitle system with 12 styles and animations
 - 🎵 Multi-track audio editing with effects
+- 📤 Export to MP4/MOV/WebM with presets for social media
 - 🧠 State management using XState v5
-- 🌐 Internationalization support (6 languages)
-- 💾 Smart caching and preview generation
+- 🌐 Internationalization support (13 languages)
+- 💾 Smart caching and unified preview system
 - 🎨 Modern UI using Tailwind CSS v4, shadcn-ui
 - 📚 Complete documentation with 80%+ test coverage
 
