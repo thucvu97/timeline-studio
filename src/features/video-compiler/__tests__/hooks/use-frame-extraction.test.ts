@@ -29,6 +29,61 @@ vi.mock("sonner", () => ({
   },
 }))
 
+// Мокаем useMediaPreview и useFramePreview
+vi.mock("@/features/media/hooks/use-media-preview", () => ({
+  useMediaPreview: () => ({
+    getPreviewData: vi.fn().mockResolvedValue(null),
+    generateThumbnail: vi.fn().mockResolvedValue("base64-thumbnail"),
+    clearPreviewData: vi.fn().mockResolvedValue(true),
+    getFilesWithPreviews: vi.fn().mockResolvedValue([]),
+    savePreviewData: vi.fn().mockResolvedValue(true),
+    loadPreviewData: vi.fn().mockResolvedValue(true),
+    isGenerating: false,
+    error: null,
+  }),
+}))
+
+vi.mock("@/features/media/hooks/use-frame-preview", () => ({
+  useFramePreview: () => ({
+    extractTimelineFrames: vi.fn().mockImplementation(async () => [
+      {
+        timestamp: 0,
+        frameData: "data:image/png;base64,frame1",
+        isKeyframe: true,
+      },
+      {
+        timestamp: 1,
+        frameData: "data:image/png;base64,frame2",
+        isKeyframe: false,
+      },
+      {
+        timestamp: 2,
+        frameData: "data:image/png;base64,frame3",
+        isKeyframe: true,
+      },
+    ]),
+    extractRecognitionFrames: vi.fn().mockImplementation(async () => [
+      {
+        timestamp: 0,
+        frameData: new Uint8Array([1, 2, 3, 4]),
+        resolution: [640, 480] as [number, number],
+        sceneChangeScore: 0.8,
+        isKeyframe: true,
+      },
+      {
+        timestamp: 2,
+        frameData: new Uint8Array([5, 6, 7, 8]),
+        resolution: [640, 480] as [number, number],
+        sceneChangeScore: 0.3,
+        isKeyframe: false,
+      },
+    ]),
+    getFrameAtTimestamp: vi.fn().mockResolvedValue("base64-frame"),
+    isExtracting: false,
+    error: null,
+  }),
+}))
+
 // Мокаем сервис извлечения кадров
 vi.mock("../../services/frame-extraction-service", () => ({
   ExtractionPurpose: {
@@ -37,6 +92,17 @@ vi.mock("../../services/frame-extraction-service", () => ({
     SceneRecognition: "scene_recognition",
     TextRecognition: "text_recognition",
     SubtitleAnalysis: "subtitle_analysis",
+  },
+  FrameExtractionService: {
+    getInstance: vi.fn(() => ({
+      extractTimelineFrames: vi.fn(),
+      extractRecognitionFrames: vi.fn(),
+      extractSubtitleFrames: vi.fn(),
+      getCachedFrames: vi.fn(),
+      cacheFrames: vi.fn(),
+      clearFrameCache: vi.fn(),
+      cacheFramesInIndexedDB: vi.fn(),
+    })),
   },
   frameExtractionService: {
     getCachedFrames: vi.fn(),
@@ -51,6 +117,8 @@ vi.mock("../../services/frame-extraction-service", () => ({
 
 describe("useFrameExtraction", () => {
   let mockFrameExtractionService: any
+  let mockExtractFramesWithCache: any
+  let mockExtractRecognitionWithCache: any
 
   const mockTimelineFrames = [
     {
@@ -149,8 +217,18 @@ describe("useFrameExtraction", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    const { frameExtractionService } = await import("../../services/frame-extraction-service")
+    const { frameExtractionService, FrameExtractionService } = await import("../../services/frame-extraction-service")
+    const { useFramePreview } = await import("@/features/media/hooks/use-frame-preview")
+
     mockFrameExtractionService = frameExtractionService
+
+    // Получаем ссылки на моки из useFramePreview
+    const framePreviewMock = vi.mocked(useFramePreview)()
+    mockExtractFramesWithCache = framePreviewMock.extractTimelineFrames
+    mockExtractRecognitionWithCache = framePreviewMock.extractRecognitionFrames
+
+    // Обновляем мок getInstance для возврата мока
+    vi.mocked(FrameExtractionService.getInstance).mockReturnValue(mockFrameExtractionService)
   })
 
   describe("initialization", () => {
@@ -182,8 +260,7 @@ describe("useFrameExtraction", () => {
 
   describe("extractTimelineFrames", () => {
     it("should extract timeline frames successfully", async () => {
-      mockFrameExtractionService.getCachedFrames.mockResolvedValueOnce(null)
-      mockFrameExtractionService.extractTimelineFrames.mockResolvedValueOnce(mockTimelineFrames)
+      mockExtractFramesWithCache.mockResolvedValueOnce(mockTimelineFrames)
 
       const { result } = renderHook(() => useFrameExtraction())
 
@@ -191,7 +268,13 @@ describe("useFrameExtraction", () => {
         await result.current.extractTimelineFrames("/video.mp4", 10)
       })
 
-      expect(mockFrameExtractionService.extractTimelineFrames).toHaveBeenCalledWith("/video.mp4", 10, 1.0, undefined)
+      expect(mockExtractFramesWithCache).toHaveBeenCalledWith(
+        "/video.mp4", // fileId
+        "/video.mp4", // videoPath
+        10, // duration
+        1.0, // interval
+        undefined, // maxFrames
+      )
 
       expect(result.current.timelineFrames).toEqual(mockTimelineFrames)
       expect(result.current.isLoading).toBe(false)

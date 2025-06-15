@@ -45,14 +45,17 @@ export function FilterPreview({ filter, onClick, size, previewWidth, previewHeig
   }, [isFilterAdded, filter])
 
   // Обработчик применения фильтра
-  const handleApplyFilter = useCallback((resource: TimelineResource, type: string) => {
-    console.log("[FilterPreview] Applying filter:", filter.name)
-    applyFilter({
-      id: filter.id,
-      name: filter.name,
-      params: filter.params,
-    })
-  }, [filter, applyFilter])
+  const handleApplyFilter = useCallback(
+    (resource: TimelineResource, type: string) => {
+      console.log("[FilterPreview] Applying filter:", filter.name)
+      applyFilter({
+        id: filter.id,
+        name: filter.name,
+        params: filter.params,
+      })
+    },
+    [filter, applyFilter],
+  )
 
   /**
    * Формирует CSS-строку для применения фильтров к видео

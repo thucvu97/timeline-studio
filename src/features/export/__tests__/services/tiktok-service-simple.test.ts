@@ -175,23 +175,21 @@ describe("TikTokService (simplified)", () => {
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({
-          data: { user: mockUserInfo },
-        }),
+        json: () =>
+          Promise.resolve({
+            data: { user: mockUserInfo },
+          }),
       } as any)
 
       const result = await TikTokService.getUserInfo("test_token")
 
       expect(result).toEqual(mockUserInfo)
-      expect(fetch).toHaveBeenCalledWith(
-        "https://open.tiktokapis.com/v2/user/info/",
-        {
-          method: "GET",
-          headers: {
-            Authorization: "Bearer test_token",
-          },
-        }
-      )
+      expect(fetch).toHaveBeenCalledWith("https://open.tiktokapis.com/v2/user/info/", {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer test_token",
+        },
+      })
     })
 
     it("should throw error if not authenticated", async () => {
@@ -203,7 +201,7 @@ describe("TikTokService (simplified)", () => {
     it("should throw error if API request fails", async () => {
       vi.mocked(fetch).mockResolvedValue({
         ok: false,
-        json: () => Promise.resolve({ error: "API Error" })
+        json: () => Promise.resolve({ error: "API Error" }),
       } as any)
 
       await expect(TikTokService.getUserInfo("test_token")).rejects.toThrow("Failed to get user info")
@@ -222,7 +220,7 @@ describe("TikTokService (simplified)", () => {
       }
 
       await expect(TikTokService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow(
-        "Not authenticated with TikTok"
+        "Not authenticated with TikTok",
       )
     })
   })

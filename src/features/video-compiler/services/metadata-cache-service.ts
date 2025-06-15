@@ -23,10 +23,7 @@ export async function getCachedMetadata(filePath: string): Promise<MediaMetadata
 /**
  * Сохранить метаданные файла в кэш
  */
-export async function cacheMediaMetadata(
-  filePath: string,
-  metadata: MediaMetadata
-): Promise<void> {
+export async function cacheMediaMetadata(filePath: string, metadata: MediaMetadata): Promise<void> {
   try {
     await invoke("cache_media_metadata", { filePath, metadata })
   } catch (error) {
@@ -50,16 +47,12 @@ export async function getCacheMemoryUsage(): Promise<CacheMemoryUsage> {
 /**
  * Пакетное кэширование метаданных
  */
-export async function cacheMultipleMetadata(
-  files: Array<{ path: string; metadata: MediaMetadata }>
-): Promise<void> {
+export async function cacheMultipleMetadata(files: Array<{ path: string; metadata: MediaMetadata }>): Promise<void> {
   // Кэшируем файлы параллельно небольшими батчами
   const batchSize = 10
   for (let i = 0; i < files.length; i += batchSize) {
     const batch = files.slice(i, i + batchSize)
-    await Promise.all(
-      batch.map(({ path, metadata }) => cacheMediaMetadata(path, metadata))
-    )
+    await Promise.all(batch.map(({ path, metadata }) => cacheMediaMetadata(path, metadata)))
   }
 }
 
@@ -78,7 +71,7 @@ export async function checkCachedFiles(filePaths: string[]): Promise<{
     filePaths.map(async (path) => {
       const metadata = await getCachedMetadata(path)
       return { path, isCached: metadata !== null }
-    })
+    }),
   )
 
   results.forEach(({ path, isCached }) => {

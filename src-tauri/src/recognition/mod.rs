@@ -1,5 +1,6 @@
 pub mod commands;
 pub mod recognition_service;
+pub mod types;
 pub mod yolo_processor;
 
 #[cfg(test)]

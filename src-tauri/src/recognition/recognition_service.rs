@@ -4,15 +4,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+use super::types::{BoundingBox, DetectedFace, DetectedObject, DetectedScene, RecognitionResults};
 use super::yolo_processor::{Detection, YoloModel, YoloProcessor};
-// Временно закомментируем пока не интегрируем полностью
-// use crate::media::preview_data::{RecognitionResults, DetectedObject, DetectedFace, DetectedScene, BoundingBox};
-// use crate::media::preview_manager::PreviewDataManager;
-
-// Временные структуры для компиляции
-use crate::media::preview_data::{
-  BoundingBox, DetectedFace, DetectedObject, DetectedScene, RecognitionResults,
-};
 
 /// Сервис для распознавания объектов и лиц
 pub struct RecognitionService {

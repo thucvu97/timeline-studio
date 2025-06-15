@@ -22,9 +22,7 @@ interface UseMetadataCacheReturn {
   // Сохранение метаданных
   saveMetadata: (filePath: string, metadata: MediaMetadata) => Promise<void>
   // Пакетное сохранение
-  saveMultipleMetadata: (
-    files: Array<{ path: string; metadata: MediaMetadata }>
-  ) => Promise<void>
+  saveMultipleMetadata: (files: Array<{ path: string; metadata: MediaMetadata }>) => Promise<void>
   // Проверка наличия в кэше
   checkCached: (filePaths: string[]) => Promise<{
     cached: string[]
@@ -53,36 +51,30 @@ export function useMetadataCache(): UseMetadataCacheReturn {
     }
   }, [])
 
-  const saveMetadata = useCallback(
-    async (filePath: string, metadata: MediaMetadata) => {
-      try {
-        setError(null)
-        await cacheMediaMetadata(filePath, metadata)
-      } catch (err) {
-        const error = err instanceof Error ? err : new Error("Failed to save metadata")
-        setError(error)
-        throw error
-      }
-    },
-    []
-  )
+  const saveMetadata = useCallback(async (filePath: string, metadata: MediaMetadata) => {
+    try {
+      setError(null)
+      await cacheMediaMetadata(filePath, metadata)
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error("Failed to save metadata")
+      setError(error)
+      throw error
+    }
+  }, [])
 
-  const saveMultipleMetadata = useCallback(
-    async (files: Array<{ path: string; metadata: MediaMetadata }>) => {
-      try {
-        setError(null)
-        setIsLoading(true)
-        await cacheMultipleMetadata(files)
-      } catch (err) {
-        const error = err instanceof Error ? err : new Error("Failed to save multiple metadata")
-        setError(error)
-        throw error
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    []
-  )
+  const saveMultipleMetadata = useCallback(async (files: Array<{ path: string; metadata: MediaMetadata }>) => {
+    try {
+      setError(null)
+      setIsLoading(true)
+      await cacheMultipleMetadata(files)
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error("Failed to save multiple metadata")
+      setError(error)
+      throw error
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   const checkCached = useCallback(async (filePaths: string[]) => {
     try {
@@ -123,9 +115,7 @@ export function useMetadataCache(): UseMetadataCacheReturn {
 /**
  * Хук для автоматического кэширования метаданных при загрузке
  */
-export function useAutoMetadataCache(
-  files: Array<{ path: string; needsMetadata?: boolean }> | undefined
-) {
+export function useAutoMetadataCache(files: Array<{ path: string; needsMetadata?: boolean }> | undefined) {
   const { checkCached, saveMetadata } = useMetadataCache()
   const [cachedStatus, setCachedStatus] = useState<Map<string, boolean>>(new Map())
 
@@ -136,7 +126,7 @@ export function useAutoMetadataCache(
     const checkCache = async () => {
       const paths = files.map((f) => f.path)
       const { cached } = await checkCached(paths)
-      
+
       const status = new Map<string, boolean>()
       paths.forEach((path) => {
         status.set(path, cached.includes(path))
@@ -157,7 +147,7 @@ export function useAutoMetadataCache(
         console.error(`Failed to cache metadata for ${filePath}:`, error)
       }
     },
-    [saveMetadata]
+    [saveMetadata],
   )
 
   return {

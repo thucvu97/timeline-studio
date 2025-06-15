@@ -36,7 +36,7 @@ export interface ProjectResources {
   // Шаблоны многокамерных раскладок
   templates: MediaTemplate[]
 
-  // Стильные шаблоны (интро, титры)
+  // Стилестические шаблоны (интро, титры)
   styleTemplates: StyleTemplate[]
 
   // Стили субтитров (TODO: implement when subtitles are added)

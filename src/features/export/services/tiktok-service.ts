@@ -36,13 +36,13 @@ export class TikTokService {
 
     try {
       // Шаг 1: Инициализация загрузки
-      const initResponse = await this.initializeUpload(metadata, videoFile, token.accessToken)
-      
+      const initResponse = await TikTokService.initializeUpload(metadata, videoFile, token.accessToken)
+
       // Шаг 2: Загрузка видео файла
-      await this.uploadVideoFile(videoFile, initResponse.upload_url, onProgress)
-      
+      await TikTokService.uploadVideoFile(videoFile, initResponse.upload_url, onProgress)
+
       // Шаг 3: Публикация видео
-      const publishResponse = await this.publishVideo(initResponse.publish_id, token.accessToken)
+      const publishResponse = await TikTokService.publishVideo(initResponse.publish_id, token.accessToken)
 
       return publishResponse
     } catch (error) {
@@ -56,10 +56,10 @@ export class TikTokService {
     videoFile: File | Blob,
     accessToken: string,
   ): Promise<any> {
-    const response = await fetch(`${this.API_BASE}/post/publish/video/init/`, {
+    const response = await fetch(`${TikTokService.API_BASE}/post/publish/video/init/`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -124,10 +124,10 @@ export class TikTokService {
   }
 
   private static async publishVideo(publishId: string, accessToken: string): Promise<TikTokUploadResponse> {
-    const response = await fetch(`${this.API_BASE}/post/publish/status/fetch/`, {
+    const response = await fetch(`${TikTokService.API_BASE}/post/publish/status/fetch/`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -155,7 +155,7 @@ export class TikTokService {
       throw new Error("Not authenticated")
     }
 
-    const response = await fetch(`${this.API_BASE}/user/info/`, {
+    const response = await fetch(`${TikTokService.API_BASE}/user/info/`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

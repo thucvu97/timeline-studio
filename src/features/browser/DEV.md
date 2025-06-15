@@ -98,7 +98,7 @@ const handleTabChange = (value: string) => {
 - Subtitles (субтитры)
 - Filters (фильтры)
 - Templates (шаблоны)
-- Style Templates (стильные шаблоны)
+- Style Templates (Стилестические шаблоны)
 
 ### BrowserContent
 **Файл**: `components/browser-content.tsx`

@@ -7,6 +7,11 @@ use language::{get_app_language, set_app_language};
 
 // Модуль для работы с медиафайлами
 mod media;
+use media::commands::{
+  clear_media_preview_data, generate_media_thumbnail, get_files_with_previews,
+  get_media_preview_data, load_preview_data, save_preview_data, PreviewManagerState,
+};
+use media::preview_manager::PreviewDataManager;
 use media::{get_media_files, get_media_metadata, MediaProcessor, ThumbnailOptions};
 
 // Модуль для работы с файловой системой
@@ -246,6 +251,24 @@ pub fn run() {
     video_server::start_video_server(video_server_state_clone).await;
   });
 
+  // Инициализация Preview Manager
+  let preview_manager_state = runtime.block_on(async {
+    match app_dirs::AppDirectories::get_or_create() {
+      Ok(dirs) => {
+        log::info!("Preview Manager инициализирован");
+        PreviewManagerState {
+          manager: PreviewDataManager::new(dirs.base_dir.clone()),
+        }
+      }
+      Err(e) => {
+        log::error!("Ошибка инициализации Preview Manager: {}", e);
+        PreviewManagerState {
+          manager: PreviewDataManager::new(std::env::temp_dir()),
+        }
+      }
+    }
+  });
+
   // Инициализация Recognition Service
   let recognition_state = runtime.block_on(async {
     match app_dirs::AppDirectories::get_or_create() {
@@ -290,6 +313,7 @@ pub fn run() {
     .manage(video_compiler_state)
     .manage(video_server_state)
     .manage(recognition_state)
+    .manage(preview_manager_state)
     .invoke_handler(tauri::generate_handler![
       greet,
       #[cfg(test)]
@@ -384,7 +408,14 @@ pub fn run() {
       create_template,
       create_style_template,
       create_subtitle,
-      create_subtitle_animation
+      create_subtitle_animation,
+      // Media preview manager commands
+      get_media_preview_data,
+      generate_media_thumbnail,
+      clear_media_preview_data,
+      get_files_with_previews,
+      save_preview_data,
+      load_preview_data
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

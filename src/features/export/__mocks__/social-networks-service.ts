@@ -33,7 +33,7 @@ export class SocialNetworksService {
   }
 
   static getStoredUserInfo(network: string): any {
-    return this.mockUserInfo[network] || null
+    return SocialNetworksService.mockUserInfo[network] || null
   }
 
   static async refreshTokenIfNeeded(network: string): Promise<void> {
@@ -80,7 +80,7 @@ export class SocialNetworksService {
     onProgress?: (progress: number) => void,
   ): Promise<UploadResult> {
     // Check if logged in
-    if (!this.isLoggedIn(network)) {
+    if (!SocialNetworksService.isLoggedIn(network)) {
       return {
         success: false,
         error: `Not logged in to ${network}`,
@@ -88,7 +88,7 @@ export class SocialNetworksService {
     }
 
     // Validate settings first
-    const validationErrors = this.validateSettings(network, settings)
+    const validationErrors = SocialNetworksService.validateSettings(network, settings)
     if (validationErrors.length > 0) {
       return {
         success: false,
@@ -100,7 +100,7 @@ export class SocialNetworksService {
     if (onProgress) {
       for (let i = 0; i <= 100; i += 10) {
         onProgress(i)
-        await new Promise(resolve => setTimeout(resolve, 10))
+        await new Promise((resolve) => setTimeout(resolve, 10))
       }
     }
 

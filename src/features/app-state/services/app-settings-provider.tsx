@@ -9,6 +9,7 @@ import { appDirectoriesService } from "@/features/app-state/services/app-directo
 import { ProjectFileService } from "@/features/app-state/services/project-file-service"
 import { TimelineStudioProjectService } from "@/features/app-state/services/timeline-studio-project-service"
 import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
+import { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
 import { UserSettingsContextType } from "@/features/user-settings"
 
 import { AppSettingsContextType, appSettingsMachine } from "./app-settings-machine"
@@ -136,29 +137,28 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     try {
       const projectService = TimelineStudioProjectService.getInstance()
       const directories = await appDirectoriesService.getAppDirectories()
-      
+
       // Создаем новый проект v2
       const project = projectService.createProject(TEMP_PROJECT_NAME)
-      
+
       // Формируем путь к временному файлу в папке бэкапов
       const tempPath = await join(directories.backup_dir, TEMP_PROJECT_FILENAME)
-      
+
       // Сохраняем проект
       await projectService.saveProject(project, tempPath)
-      
+
       console.log(`Temporary project created at: ${tempPath}`)
-      
+
       // Обновляем состояние
-      send({ 
-        type: "OPEN_PROJECT", 
-        path: tempPath, 
-        name: TEMP_PROJECT_NAME 
+      send({
+        type: "OPEN_PROJECT",
+        path: tempPath,
+        name: TEMP_PROJECT_NAME,
       })
-      
+
       // Отмечаем как dirty чтобы пользователь знал что нужно сохранить
       // Используем skipAutoSave=true чтобы избежать конфликта при создании
       setProjectDirty(true, true)
-      
     } catch (error) {
       console.error("Failed to create temp project:", error)
       throw error
@@ -170,30 +170,28 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       const projectService = TimelineStudioProjectService.getInstance()
       const directories = await appDirectoriesService.getAppDirectories()
       const tempPath = await join(directories.backup_dir, TEMP_PROJECT_FILENAME)
-      
+
       try {
         // Пытаемся загрузить существующий временный проект
         const project = await projectService.openProject(tempPath)
-        
+
         console.log(`Loaded existing temp project from: ${tempPath}`)
-        
+
         // Обновляем состояние
-        send({ 
-          type: "OPEN_PROJECT", 
-          path: tempPath, 
-          name: project.metadata.name 
+        send({
+          type: "OPEN_PROJECT",
+          path: tempPath,
+          name: project.metadata.name,
         })
-        
-        // Отмечаем как dirty 
+
+        // Отмечаем как dirty
         // Используем skipAutoSave=true чтобы избежать конфликта при загрузке
         setProjectDirty(true, true)
-        
       } catch (loadError) {
         console.log("No existing temp project found, creating new one")
         // Если не удалось загрузить, создаем новый
         await createTempProject()
       }
-      
     } catch (error) {
       console.error("Failed to load or create temp project:", error)
       throw error
@@ -235,55 +233,53 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
 
       try {
         // Определяем тип проекта по расширению
-        const isV2Project = path.endsWith('.tlsp')
-        
+        const isV2Project = path.endsWith(".tlsp")
+
         if (isV2Project) {
           // Загружаем v2 проект
           const projectService = TimelineStudioProjectService.getInstance()
           const project = await projectService.openProject(path)
-          
+
           // Отправляем событие в машину состояний
           send({
             type: "OPEN_PROJECT",
             path,
             name: project.metadata.name,
           })
-          
+
           console.log(`Opened v2 project: ${project.metadata.name}`)
           return { path, name: project.metadata.name, project }
-          
-        } else {
-          // Загружаем legacy проект
-          const projectData = await ProjectFileService.loadProject(path)
-
-          // Отправляем событие в машину состояний
-          send({
-            type: "OPEN_PROJECT",
-            path,
-            name,
-          })
-
-          // Восстанавливаем медиафайлы проекта (только для legacy)
-          if ((projectData as any).mediaPool) {
-            try {
-              const restorationResult = await restoreProjectMedia(
-                (projectData as any).mediaPool.mediaFiles || [],
-                (projectData as any).mediaPool.musicFiles || [],
-                path,
-                { showDialog: true },
-              )
-
-              console.log("Медиафайлы восстановлены:", restorationResult.result.stats)
-
-              updateMediaFiles(restorationResult.restoredMedia)
-              updateMusicFiles(restorationResult.restoredMusic)
-            } catch (restorationError) {
-              console.error("Ошибка при восстановлении медиафайлов:", restorationError)
-            }
-          }
-
-          return { path, name, projectData }
         }
+        // Загружаем legacy проект
+        const projectData = await ProjectFileService.loadProject(path)
+
+        // Отправляем событие в машину состояний
+        send({
+          type: "OPEN_PROJECT",
+          path,
+          name,
+        })
+
+        // Восстанавливаем медиафайлы проекта (только для legacy)
+        if ((projectData as any).mediaPool) {
+          try {
+            const restorationResult = await restoreProjectMedia(
+              (projectData as any).mediaPool.mediaFiles || [],
+              (projectData as any).mediaPool.musicFiles || [],
+              path,
+              { showDialog: true },
+            )
+
+            console.log("Медиафайлы восстановлены:", restorationResult.result.stats)
+
+            updateMediaFiles(restorationResult.restoredMedia)
+            updateMusicFiles(restorationResult.restoredMusic)
+          } catch (restorationError) {
+            console.error("Ошибка при восстановлении медиафайлов:", restorationError)
+          }
+        }
+
+        return { path, name, projectData }
       } catch (projectError) {
         console.error("Failed to load project data:", projectError)
 
@@ -310,16 +306,16 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
         try {
           // Для v2 проектов используем новый сервис
           const projectService = TimelineStudioProjectService.getInstance()
-          
+
           // Загружаем текущий проект
           const project = await projectService.openProject(currentProject.path)
-          
+
           // Обновляем имя если изменилось
           if (project.metadata.name !== name) {
             project.metadata.name = name
             project.metadata.modified = new Date()
           }
-          
+
           // Сохраняем проект
           await projectService.saveProject(project, currentProject.path)
 
@@ -360,9 +356,9 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
 
       try {
         const projectService = TimelineStudioProjectService.getInstance()
-        
+
         // Если есть временный проект, берем его данные
-        let project
+        let project: TimelineStudioProject
         if (currentProject.path && currentProject.path.includes(TEMP_PROJECT_FILENAME)) {
           // Загружаем существующий временный проект
           project = await projectService.openProject(currentProject.path)
@@ -393,7 +389,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
 
   const setProjectDirty = (isDirty: boolean, skipAutoSave = false) => {
     send({ type: "SET_PROJECT_DIRTY", isDirty })
-    
+
     // Автоматически сохраняем временный проект при изменениях
     // skipAutoSave используется при инициализации проекта чтобы избежать конфликтов
     if (isDirty && !skipAutoSave) {
@@ -406,13 +402,13 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   const autoSaveTempProject = async () => {
     try {
       const currentProject = getCurrentProject()
-      
+
       // Проверяем, что это временный проект
       if (currentProject.path && currentProject.path.includes(TEMP_PROJECT_FILENAME)) {
         console.log("Auto-save temp project triggered - currently disabled to prevent file conflicts")
         // TODO: Implement proper auto-save that uses in-memory project state
         // instead of re-opening the file each time
-        
+
         // Временно отключено для предотвращения конфликтов доступа к файлу
         // const projectService = TimelineStudioProjectService.getInstance()
         // const project = await projectService.openProject(currentProject.path)

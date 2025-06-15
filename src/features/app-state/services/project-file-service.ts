@@ -248,7 +248,7 @@ export class ProjectFileService {
     const musicFiles = (project as any).mediaPool?.musicFiles || []
 
     const totalSize = [...mediaFiles, ...musicFiles].reduce((sum: number, file) => {
-      const fileSize = Number((file)?.size) || 0
+      const fileSize = Number(file?.size) || 0
       return sum + fileSize
     }, 0)
 

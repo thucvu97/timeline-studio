@@ -12,13 +12,7 @@ describe("ApplyButton", () => {
   }
 
   it("should render apply button", () => {
-    render(
-      <ApplyButton 
-        resource={mockResource} 
-        size={150} 
-        type="media" 
-      />
-    )
+    render(<ApplyButton resource={mockResource} size={150} type="media" />)
 
     const button = screen.getByRole("button")
     expect(button).toBeInTheDocument()
@@ -27,14 +21,7 @@ describe("ApplyButton", () => {
   it("should call onApply callback when clicked", () => {
     const onApply = vi.fn()
 
-    render(
-      <ApplyButton 
-        resource={mockResource} 
-        size={150} 
-        type="media" 
-        onApply={onApply}
-      />
-    )
+    render(<ApplyButton resource={mockResource} size={150} type="media" onApply={onApply} />)
 
     const button = screen.getByRole("button")
     fireEvent.click(button)
@@ -46,19 +33,13 @@ describe("ApplyButton", () => {
   it("should log to console when onApply is not provided", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
 
-    render(
-      <ApplyButton 
-        resource={mockResource} 
-        size={150} 
-        type="media" 
-      />
-    )
+    render(<ApplyButton resource={mockResource} size={150} type="media" />)
 
     const button = screen.getByRole("button")
     fireEvent.click(button)
 
     expect(consoleSpy).toHaveBeenCalledWith("ApplyButton clicked", "test-resource", "media")
-    
+
     consoleSpy.mockRestore()
   })
 
@@ -68,13 +49,8 @@ describe("ApplyButton", () => {
 
     render(
       <div onClick={containerClick}>
-        <ApplyButton 
-          resource={mockResource} 
-          size={150} 
-          type="media" 
-          onApply={onApply}
-        />
-      </div>
+        <ApplyButton resource={mockResource} size={150} type="media" onApply={onApply} />
+      </div>,
     )
 
     const button = screen.getByRole("button")
@@ -90,19 +66,14 @@ describe("ApplyButton", () => {
 
     types.forEach((type) => {
       const { unmount } = render(
-        <ApplyButton 
-          resource={{ ...mockResource, type }} 
-          size={150} 
-          type={type} 
-          onApply={onApply}
-        />
+        <ApplyButton resource={{ ...mockResource, type }} size={150} type={type} onApply={onApply} />,
       )
 
       const button = screen.getByRole("button")
       fireEvent.click(button)
 
       expect(onApply).toHaveBeenLastCalledWith({ ...mockResource, type }, type)
-      
+
       unmount()
     })
 
@@ -113,23 +84,17 @@ describe("ApplyButton", () => {
     const sizes = [50, 100, 150, 200]
 
     sizes.forEach((size) => {
-      const { container, unmount } = render(
-        <ApplyButton 
-          resource={mockResource} 
-          size={size} 
-          type="media" 
-        />
-      )
+      const { container, unmount } = render(<ApplyButton resource={mockResource} size={size} type="media" />)
 
       const button = container.querySelector("button")
       expect(button).toHaveStyle({
-        bottom: `${20 + size / 25}px`
+        bottom: `${20 + size / 25}px`,
       })
 
       const icon = container.querySelector("svg")
       expect(icon).toHaveStyle({
         height: `${6 + size / 30}px`,
-        width: `${6 + size / 30}px`
+        width: `${6 + size / 30}px`,
       })
 
       unmount()
@@ -137,26 +102,14 @@ describe("ApplyButton", () => {
   })
 
   it("should have correct accessibility attributes", () => {
-    render(
-      <ApplyButton 
-        resource={mockResource} 
-        size={150} 
-        type="media" 
-      />
-    )
+    render(<ApplyButton resource={mockResource} size={150} type="media" />)
 
     const button = screen.getByRole("button")
     expect(button).toHaveAttribute("type", "button")
   })
 
   it("should have correct hover and focus classes", () => {
-    render(
-      <ApplyButton 
-        resource={mockResource} 
-        size={150} 
-        type="media" 
-      />
-    )
+    render(<ApplyButton resource={mockResource} size={150} type="media" />)
 
     const button = screen.getByRole("button")
     expect(button.className).toContain("group-hover:visible")
@@ -167,14 +120,7 @@ describe("ApplyButton", () => {
   it("should prevent default on onApply call", () => {
     const onApply = vi.fn()
 
-    render(
-      <ApplyButton 
-        resource={mockResource} 
-        size={150} 
-        type="media" 
-        onApply={onApply}
-      />
-    )
+    render(<ApplyButton resource={mockResource} size={150} type="media" onApply={onApply} />)
 
     const button = screen.getByRole("button")
     const event = new MouseEvent("click", { bubbles: true })
@@ -186,17 +132,11 @@ describe("ApplyButton", () => {
   })
 
   it("should render ArrowRight icon", () => {
-    const { container } = render(
-      <ApplyButton 
-        resource={mockResource} 
-        size={150} 
-        type="media" 
-      />
-    )
+    const { container } = render(<ApplyButton resource={mockResource} size={150} type="media" />)
 
     const icon = container.querySelector("svg")
     expect(icon).toBeInTheDocument()
-    
+
     // Проверяем класс через getAttribute для SVG элементов
     const iconClass = icon?.getAttribute("class") || ""
     expect(iconClass).toContain("transition-transform")

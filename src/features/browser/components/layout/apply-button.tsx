@@ -25,7 +25,12 @@ interface ApplyButtonProps {
  * @param type - Тип ресурса (media, music, subtitles и т.д.)
  * @param size - Размер кнопки (по умолчанию 150)
  */
-export const ApplyButton = memo(function ApplyButton({ resource, size = 150, type = "media", onApply }: ApplyButtonProps) {
+export const ApplyButton = memo(function ApplyButton({
+  resource,
+  size = 150,
+  type = "media",
+  onApply,
+}: ApplyButtonProps) {
   const { t } = useTranslation()
 
   const handleClick = useCallback(

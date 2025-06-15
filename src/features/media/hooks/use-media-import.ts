@@ -3,6 +3,7 @@ import { useCallback, useState } from "react"
 import { useAppSettings } from "@/features/app-state"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { selectMediaDirectory, selectMediaFile } from "@/features/media"
+import { useMediaPreview } from "@/features/media/hooks/use-media-preview"
 import { DiscoveredFile, useMediaProcessor } from "@/features/media/hooks/use-media-processor"
 import { MediaFile } from "@/features/media/types/media"
 import { convertToSavedMediaFile } from "@/features/media/utils/saved-media-utils"
@@ -28,6 +29,30 @@ export function useMediaImport() {
 
   // Хранилище для быстрого доступа к файлам по ID
   const [filesMap, setFilesMap] = useState<Map<string, MediaFile>>(new Map())
+
+  // Используем Preview Manager для унифицированной системы превью
+  const { generateThumbnail, getPreviewData } = useMediaPreview({
+    onThumbnailGenerated: (fileId, thumbnailData) => {
+      console.log(`Preview Manager: Thumbnail готов для ${fileId}`)
+      // Обновляем файл с base64 thumbnail
+      setFilesMap((prevMap) => {
+        const newMap = new Map(prevMap)
+        const file = newMap.get(fileId)
+        if (file && thumbnailData.base64_data) {
+          const updatedFile: MediaFile = {
+            ...file,
+            thumbnailData: thumbnailData.base64_data,
+          }
+          newMap.set(fileId, updatedFile)
+          updateMediaFiles([updatedFile])
+        }
+        return newMap
+      })
+    },
+    onError: (error) => {
+      console.error("Preview Manager error:", error)
+    },
+  })
 
   /**
    * Создает базовый объект медиафайла с минимальной информацией
@@ -114,7 +139,7 @@ export function useMediaImport() {
       [updateMediaFiles],
     ),
 
-    // Когда готово превью - обновляем путь к thumbnail
+    // Когда готово превью - обновляем путь и генерируем через Preview Manager
     onThumbnailReady: useCallback(
       (fileId: string, thumbnailPath: string) => {
         console.log(`Превью готово для: ${fileId}`)
@@ -133,12 +158,22 @@ export function useMediaImport() {
 
             // Обновляем в контексте
             updateMediaFiles([updatedFile])
+
+            // Дополнительно генерируем thumbnail через Preview Manager
+            // для сохранения в единой системе кэширования
+            void generateThumbnail(fileId, file.path, 320, 180, 0)
+              .then(() => {
+                console.log(`Preview Manager: сохранил превью для ${fileId}`)
+              })
+              .catch((error: unknown) => {
+                console.error(`Preview Manager: ошибка для ${fileId}:`, error)
+              })
           }
 
           return newMap
         })
       },
-      [updateMediaFiles],
+      [updateMediaFiles, generateThumbnail],
     ),
 
     // Обработка ошибок

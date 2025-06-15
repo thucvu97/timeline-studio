@@ -25,7 +25,7 @@ interface SocialExportTabProps {
 export function SocialExportTab({ settings, onSettingsChange, onExport, isRendering }: SocialExportTabProps) {
   const { t } = useTranslation()
   const [showExportForm, setShowExportForm] = useState(false)
-  
+
   const {
     loginToSocialNetwork,
     logoutFromSocialNetwork,
@@ -61,7 +61,7 @@ export function SocialExportTab({ settings, onSettingsChange, onExport, isRender
 
   const handleNetworkChange = (networkId: string) => {
     const optimalSettings = getOptimalSettings(networkId)
-    onSettingsChange({ 
+    onSettingsChange({
       socialNetwork: networkId,
       ...optimalSettings,
     })
@@ -71,7 +71,7 @@ export function SocialExportTab({ settings, onSettingsChange, onExport, isRender
   useEffect(() => {
     const loggedIn = isLoggedIn(settings.socialNetwork)
     const info = getUserInfo(settings.socialNetwork)
-    
+
     if (loggedIn !== settings.isLoggedIn) {
       onSettingsChange({
         isLoggedIn: loggedIn,
@@ -247,31 +247,23 @@ export function SocialExportTab({ settings, onSettingsChange, onExport, isRender
               {settings.socialNetwork === "tiktok" && (
                 <div className="space-y-4 border-t pt-4">
                   <h4 className="font-medium">{t("dialogs.export.tiktokSettings")}</h4>
-                  
+
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="useVerticalResolution"
                       checked={settings.useVerticalResolution || false}
-                      onCheckedChange={(checked) => 
-                        onSettingsChange({ useVerticalResolution: !!checked })
-                      }
+                      onCheckedChange={(checked) => onSettingsChange({ useVerticalResolution: !!checked })}
                     />
-                    <Label htmlFor="useVerticalResolution">
-                      {t("dialogs.export.useVerticalResolution")}
-                    </Label>
+                    <Label htmlFor="useVerticalResolution">{t("dialogs.export.useVerticalResolution")}</Label>
                   </div>
 
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="uploadDirectlyToTikTok"
                       checked={settings.uploadDirectlyToTikTok || false}
-                      onCheckedChange={(checked) => 
-                        onSettingsChange({ uploadDirectlyToTikTok: !!checked })
-                      }
+                      onCheckedChange={(checked) => onSettingsChange({ uploadDirectlyToTikTok: !!checked })}
                     />
-                    <Label htmlFor="uploadDirectlyToTikTok">
-                      {t("dialogs.export.uploadDirectlyToTikTok")}
-                    </Label>
+                    <Label htmlFor="uploadDirectlyToTikTok">{t("dialogs.export.uploadDirectlyToTikTok")}</Label>
                   </div>
                 </div>
               )}
@@ -280,7 +272,7 @@ export function SocialExportTab({ settings, onSettingsChange, onExport, isRender
               {settings.socialNetwork === "youtube" && (
                 <div className="space-y-4 border-t pt-4">
                   <h4 className="font-medium">{t("dialogs.export.youtubeSettings")}</h4>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>{t("dialogs.export.category")}</Label>
@@ -338,18 +330,14 @@ export function SocialExportTab({ settings, onSettingsChange, onExport, isRender
               {/* Общие настройки */}
               <div className="space-y-4 border-t pt-4">
                 <h4 className="font-medium">{t("dialogs.export.advancedSettings")}</h4>
-                
+
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="useProxyMedia"
                     checked={settings.useProxyMedia || false}
-                    onCheckedChange={(checked) => 
-                      onSettingsChange({ useProxyMedia: !!checked })
-                    }
+                    onCheckedChange={(checked) => onSettingsChange({ useProxyMedia: !!checked })}
                   />
-                  <Label htmlFor="useProxyMedia">
-                    {t("dialogs.export.useProxyMedia")}
-                  </Label>
+                  <Label htmlFor="useProxyMedia">{t("dialogs.export.useProxyMedia")}</Label>
                 </div>
               </div>
 
@@ -373,8 +361,8 @@ export function SocialExportTab({ settings, onSettingsChange, onExport, isRender
                   {isUploading
                     ? t("dialogs.export.uploading")
                     : isRendering
-                    ? t("dialogs.export.rendering")
-                    : t("dialogs.export.publishTo", { network: selectedNetwork?.name })}
+                      ? t("dialogs.export.rendering")
+                      : t("dialogs.export.publishTo", { network: selectedNetwork?.name })}
                 </Button>
               </div>
             </div>

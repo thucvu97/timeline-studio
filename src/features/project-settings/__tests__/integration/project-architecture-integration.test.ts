@@ -27,7 +27,7 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
 
 // Mock nanoid
 vi.mock("nanoid", () => ({
-  nanoid: () => "test-id-" + Math.random().toString(36).substring(2, 11),
+  nanoid: () => `test-id-${Math.random().toString(36).substring(2, 11)}`,
 }))
 
 const mockReadTextFile = vi.mocked(readTextFile)
@@ -45,7 +45,7 @@ describe("Project Architecture Integration", () => {
     it("should track media usage across sequences", () => {
       // Create project with media
       const project = service.createProject("Multi-Sequence Project")
-      
+
       // Add media to pool
       const mediaItem: MediaPoolItem = {
         id: "media-1",
@@ -65,7 +65,7 @@ describe("Project Architecture Integration", () => {
         usage: { sequences: [], count: 0 },
         tags: ["interview", "main"],
       }
-      
+
       project.mediaPool = addItemToPool(project.mediaPool, mediaItem)
 
       // Create additional sequence
@@ -136,11 +136,11 @@ describe("Project Architecture Integration", () => {
 
     it("should organize media in bins and find by search", () => {
       const project = service.createProject("Organized Project")
-      
+
       // Create bins
       const interviewBin = createMediaBin("Interviews", "root")
       const brollBin = createMediaBin("B-Roll", "root")
-      
+
       project.mediaPool.bins.set(interviewBin.id, interviewBin)
       project.mediaPool.bins.set(brollBin.id, brollBin)
 
@@ -192,10 +192,10 @@ describe("Project Architecture Integration", () => {
   describe("Sequence Resources and Effects", () => {
     it("should manage effects per sequence independently", () => {
       const project = service.createProject("Effects Test")
-      
+
       // Get main sequence
       const mainSeq = project.sequences.get(project.activeSequenceId)!
-      
+
       // Add effects to main sequence
       mainSeq.resources.effects.set("blur-1", {
         id: "blur-1",
@@ -220,20 +220,26 @@ describe("Project Architecture Integration", () => {
         composition: { tracks: [], masterClips: [] },
         resources: {
           effects: new Map([
-            ["glow-1", {
-              id: "glow-1",
-              name: "Soft Glow",
-              category: "stylize",
-              defaultParams: { intensity: 0.5 },
-            } as any],
+            [
+              "glow-1",
+              {
+                id: "glow-1",
+                name: "Soft Glow",
+                category: "stylize",
+                defaultParams: { intensity: 0.5 },
+              } as any,
+            ],
           ]),
           filters: new Map([
-            ["bw-1", {
-              id: "bw-1",
-              name: "Black & White",
-              category: "color",
-              defaultParams: { mix: 1 },
-            } as any],
+            [
+              "bw-1",
+              {
+                id: "bw-1",
+                name: "Black & White",
+                category: "color",
+                defaultParams: { mix: 1 },
+              } as any,
+            ],
           ]),
           transitions: new Map(),
           colorGrades: new Map(),
@@ -310,7 +316,7 @@ describe("Project Architecture Integration", () => {
       expect(sequence.resources.colorGrades.size).toBe(1)
       expect(sequence.resources.titles.size).toBe(1)
       expect(sequence.resources.generators.size).toBe(1)
-      
+
       const colorGrade = sequence.resources.colorGrades.get("film-look")!
       expect(colorGrade.type).toBe("lut")
       expect(colorGrade.lutPath).toBeTruthy()
@@ -320,7 +326,7 @@ describe("Project Architecture Integration", () => {
   describe("Project Optimization", () => {
     it("should optimize project by removing unused media and cleaning cache", () => {
       const project = service.createProject("Optimization Test")
-      
+
       // Add multiple media items
       const usedMedia: MediaPoolItem = {
         id: "used-1",
@@ -385,7 +391,7 @@ describe("Project Architecture Integration", () => {
   describe("Nested Sequences (Master Clips)", () => {
     it("should support nested sequences via master clips", () => {
       const project = service.createProject("Nested Sequences")
-      
+
       // Create intro sequence
       const introSequence: Sequence = {
         id: "intro-seq",
@@ -427,12 +433,15 @@ describe("Project Architecture Integration", () => {
           colorGrades: new Map(),
           titles: new Map(),
           generators: new Map([
-            ["title-gen", {
-              id: "title-gen",
-              type: "title",
-              name: "Company Title",
-              settings: {},
-            } as any],
+            [
+              "title-gen",
+              {
+                id: "title-gen",
+                type: "title",
+                name: "Company Title",
+                settings: {},
+              } as any,
+            ],
           ]),
         },
         markers: [],
@@ -483,7 +492,7 @@ describe("Project Architecture Integration", () => {
   describe("Project Validation", () => {
     it("should validate complex project structures", () => {
       const project = service.createProject("Complex Project")
-      
+
       // Add media with different statuses
       const onlineMedia: MediaPoolItem = {
         id: "online-1",
@@ -550,7 +559,7 @@ describe("Project Architecture Integration", () => {
 
       // Validate
       const validation = service.validateProject(project)
-      
+
       expect(validation.isValid).toBe(false)
       expect(validation.missingMedia).toContain("/videos/missing.mp4")
       // The validation might not find all issues yet, so just check if it's invalid
@@ -561,7 +570,7 @@ describe("Project Architecture Integration", () => {
   describe("Save and Load Integration", () => {
     it("should properly serialize and deserialize complex projects", async () => {
       const project = service.createProject("Serialization Test")
-      
+
       // Add complex data
       const mediaItem: MediaPoolItem = {
         id: "media-1",
@@ -576,9 +585,9 @@ describe("Project Architecture Integration", () => {
         rating: 5,
         colorLabel: "red",
       }
-      
+
       project.mediaPool.items.set("media-1", mediaItem)
-      
+
       // Add sequence with resources
       const sequence = project.sequences.get(project.activeSequenceId)!
       sequence.resources.effects.set("effect-1", { id: "effect-1" } as any)
@@ -592,23 +601,20 @@ describe("Project Architecture Integration", () => {
 
       // Mock save
       await service.saveProject(project, "/test.tlsp")
-      
+
       // Verify serialization
-      expect(mockWriteTextFile).toHaveBeenCalledWith(
-        "/test.tlsp",
-        expect.any(String)
-      )
-      
+      expect(mockWriteTextFile).toHaveBeenCalledWith("/test.tlsp", expect.any(String))
+
       const savedContent = JSON.parse(mockWriteTextFile.mock.calls[0][1])
-      
+
       // Verify Maps were converted to objects
       expect(savedContent.mediaPool.items["media-1"]).toBeDefined()
       expect(savedContent.sequences[project.activeSequenceId]).toBeDefined()
-      
+
       // Mock load
       mockReadTextFile.mockResolvedValueOnce(JSON.stringify(savedContent))
       const loadedProject = await service.openProject("/test.tlsp")
-      
+
       // Verify deserialization
       expect(loadedProject.mediaPool.items).toBeInstanceOf(Map)
       expect(loadedProject.sequences).toBeInstanceOf(Map)
@@ -619,7 +625,7 @@ describe("Project Architecture Integration", () => {
   describe("Collaboration and Backup", () => {
     it("should handle collaboration settings and backups", async () => {
       const project = service.createProject("Collab Project")
-      
+
       // Set collaboration
       project.collaboration = {
         enabled: true,
@@ -644,18 +650,18 @@ describe("Project Architecture Integration", () => {
 
       // Create backup
       const backupPath = await service.createBackup(project)
-      
+
       expect(backupPath).toMatch(/Collab Project_backup_.*\.tlsp/)
       expect(project.backup.versions).toHaveLength(1)
       expect(project.backup.versions[0].path).toBe(backupPath)
-      
+
       // Test backup limit
       project.backup.autoSave.keepVersions = 2
-      
+
       await service.createBackup(project)
       await service.createBackup(project)
       await service.createBackup(project)
-      
+
       expect(project.backup.versions).toHaveLength(2)
     })
   })
@@ -663,7 +669,7 @@ describe("Project Architecture Integration", () => {
   describe("Performance and Memory", () => {
     it("should handle large projects efficiently", () => {
       const project = service.createProject("Large Project")
-      
+
       // Add 1000 media items
       for (let i = 0; i < 1000; i++) {
         const item: MediaPoolItem = {
@@ -684,7 +690,7 @@ describe("Project Architecture Integration", () => {
       const startSearch = Date.now()
       const results = searchMediaPool(project.mediaPool, "file-500")
       const searchTime = Date.now() - startSearch
-      
+
       expect(results).toHaveLength(1)
       expect(searchTime).toBeLessThan(100) // Should be fast even with 1000 items
 

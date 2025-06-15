@@ -1,5 +1,5 @@
-use crate::media::preview_data::{DetectedObject, RecognitionResults};
 use crate::recognition::recognition_service::RecognitionService;
+use crate::recognition::types::{DetectedObject, RecognitionResults};
 use crate::recognition::yolo_processor::{YoloModel, YoloProcessor};
 // Временно отключаем пока не интегрируем frame_extraction
 // use crate::video_compiler::frame_extraction::{FrameExtractionManager, ExtractionPurpose};

@@ -70,8 +70,8 @@
 - [`src/features/effects/README.md`](../src/features/effects/README.md) - Визуальные эффекты
 - [`src/features/filters/README.md`](../src/features/filters/README.md) - Фильтры
 - [`src/features/transitions/README.md`](../src/features/transitions/README.md) - Переходы
-- [`src/features/templates/README.md`](../src/features/templates/README.md) - Шаблоны мультикамеры
-- [`src/features/style-templates/README.md`](../src/features/style-templates/README.md) - Стильные шаблоны
+- [`src/features/templates/README.md`](../src/features/templates/README.md) - Многокамерные шаблоны
+- [`src/features/style-templates/README.md`](../src/features/style-templates/README.md) - Стилестические шаблоны
 - [`src/features/subtitles/README.md`](../src/features/subtitles/README.md) - Субтитры
 
 #### Дополнительные модули

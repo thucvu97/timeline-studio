@@ -65,7 +65,7 @@ describe("useSocialExport", () => {
   describe("loginToSocialNetwork", () => {
     it("should show info toast for YouTube login", async () => {
       vi.mocked(SocialNetworksService.login).mockResolvedValue(true)
-      
+
       const { result } = renderHook(() => useSocialExport())
 
       await act(async () => {
@@ -78,7 +78,7 @@ describe("useSocialExport", () => {
 
     it("should show info toast for TikTok login", async () => {
       vi.mocked(SocialNetworksService.login).mockResolvedValue(true)
-      
+
       const { result } = renderHook(() => useSocialExport())
 
       await act(async () => {
@@ -91,7 +91,7 @@ describe("useSocialExport", () => {
 
     it("should show info toast for Telegram login", async () => {
       vi.mocked(SocialNetworksService.login).mockResolvedValue(true)
-      
+
       const { result } = renderHook(() => useSocialExport())
 
       await act(async () => {
@@ -106,7 +106,7 @@ describe("useSocialExport", () => {
   describe("validateSocialExport", () => {
     it("should return false if not logged in", () => {
       vi.mocked(SocialNetworksService.validateSettings).mockReturnValue(["Not logged in"])
-      
+
       const { result } = renderHook(() => useSocialExport())
 
       const isValid = result.current.validateSocialExport({
@@ -127,7 +127,7 @@ describe("useSocialExport", () => {
 
     it("should return false if title is missing", () => {
       vi.mocked(SocialNetworksService.validateSettings).mockReturnValue(["Title is required"])
-      
+
       const { result } = renderHook(() => useSocialExport())
 
       const isValid = result.current.validateSocialExport({
@@ -149,7 +149,7 @@ describe("useSocialExport", () => {
 
     it("should return true for valid settings", () => {
       vi.mocked(SocialNetworksService.validateSettings).mockReturnValue([])
-      
+
       const { result } = renderHook(() => useSocialExport())
 
       const isValid = result.current.validateSocialExport({

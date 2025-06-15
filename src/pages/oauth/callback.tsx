@@ -75,7 +75,7 @@ export default function OAuthCallback() {
     <div className="flex h-screen items-center justify-center">
       <div className="text-center">
         <div className="mb-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
         </div>
         <h2 className="text-xl font-semibold mb-2">Completing authorization...</h2>
         <p className="text-gray-600">Please wait while we complete the authorization process.</p>
@@ -150,7 +150,7 @@ async function exchangeTikTokCode(code: string): Promise<any> {
   }
 
   const data = await response.json()
-  
+
   if (data.error) {
     throw new Error(`TikTok token exchange failed: ${data.error_description || data.error}`)
   }

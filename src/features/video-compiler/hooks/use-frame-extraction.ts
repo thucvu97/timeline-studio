@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
+import { useFramePreview } from "@/features/media/hooks/use-frame-preview"
 import type { Subtitle } from "@/types/video-compiler"
 
 import {
@@ -62,6 +63,17 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
 
   const abortControllerRef = useRef<AbortController | null>(null)
 
+  // Используем интегрированный хук для работы с Preview Manager
+  const { extractTimelineFrames: extractFramesWithCache, extractRecognitionFrames: extractRecognitionWithCache } =
+    useFramePreview({
+      onFramesExtracted: (frames) => {
+        console.log(`Извлечено ${frames.length} кадров через Preview Manager`)
+      },
+      onError: (error) => {
+        console.error("Ошибка Preview Manager:", error)
+      },
+    })
+
   // Очистка при размонтировании
   useEffect(() => {
     return () => {
@@ -81,21 +93,14 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
         setError(null)
         setProgress(0)
 
-        // Проверяем кэш
-        if (cacheResults) {
-          const cached = await frameExtractionService.getCachedFrames(videoPath)
-          if (cached) {
-            setTimelineFrames(cached)
-            setProgress(100)
-            return
-          }
-        }
-
         // Создаем новый контроллер для отмены
         abortControllerRef.current = new AbortController()
 
-        // Извлекаем кадры
-        const frames = await frameExtractionService.extractTimelineFrames(videoPath, duration, interval, maxFrames)
+        // Используем fileId на основе пути для кэширования
+        const fileId = videoPath
+
+        // Извлекаем кадры через интегрированный сервис
+        const frames = await extractFramesWithCache(fileId, videoPath, duration, interval, maxFrames)
 
         // Проверяем, не была ли операция отменена
         if (abortControllerRef.current?.signal.aborted) {
@@ -104,11 +109,6 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
 
         setTimelineFrames(frames)
         setProgress(100)
-
-        // Кэшируем результаты
-        if (cacheResults && frames.length > 0) {
-          await frameExtractionService.cacheFramesInIndexedDB(videoPath, frames)
-        }
       } catch (err) {
         const error = err as Error
         console.error("Failed to extract timeline frames:", error)
@@ -118,7 +118,7 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
         setIsLoading(false)
       }
     },
-    [cacheResults, interval, maxFrames],
+    [extractFramesWithCache, interval, maxFrames, t],
   )
 
   /**
@@ -131,7 +131,13 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
         setError(null)
         setProgress(0)
 
-        const frames = await frameExtractionService.extractRecognitionFrames(videoPath, purpose, interval)
+        // Используем fileId на основе пути для кэширования
+        const fileId = videoPath
+
+        // Определяем параметры на основе цели
+        const detectSceneChanges = purpose === ExtractionPurpose.SceneRecognition
+
+        const frames = await extractRecognitionWithCache(fileId, videoPath, interval, detectSceneChanges, maxFrames)
 
         setRecognitionFrames(frames)
         setProgress(100)
@@ -144,7 +150,7 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
         setIsLoading(false)
       }
     },
-    [interval],
+    [extractRecognitionWithCache, interval, maxFrames, t],
   )
 
   /**

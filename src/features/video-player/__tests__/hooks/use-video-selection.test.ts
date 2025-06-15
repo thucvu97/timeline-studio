@@ -1,9 +1,9 @@
 import React from "react"
+
 import { renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
-
 // Импортируем после определения моков
 import { useVideoSelection } from "@/features/video-player/hooks/use-video-selection"
 import { PlayerProvider } from "@/features/video-player/services/player-provider"
@@ -198,18 +198,18 @@ describe("useVideoSelection", () => {
       // Set initial state
       mockMachineContext.videoSource = "browser"
       mockMachineContext.previewMedia = mockSelectedFiles[0]
-      
+
       const { result } = renderHook(() => useVideoSelection(), { wrapper })
-      
+
       expect(result.current.getCurrentVideo()).toEqual(mockSelectedFiles[0])
-      
+
       // Switch to timeline source
       mockMachineContext.videoSource = "timeline"
       mockMachineContext.previewMedia = mockSelectedFiles[1]
-      
+
       // Need to re-render to pick up context changes
       const { result: result2 } = renderHook(() => useVideoSelection(), { wrapper })
-      
+
       expect(result2.current.getCurrentVideo()).toEqual(mockSelectedFiles[1])
     })
   })

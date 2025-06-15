@@ -12,7 +12,7 @@ vi.mock("sonner", () => ({
 const mockEnv = {
   NEXT_PUBLIC_YOUTUBE_CLIENT_ID: "youtube_client_id",
   NEXT_PUBLIC_YOUTUBE_CLIENT_SECRET: "youtube_client_secret",
-  NEXT_PUBLIC_TIKTOK_CLIENT_ID: "tiktok_client_id", 
+  NEXT_PUBLIC_TIKTOK_CLIENT_ID: "tiktok_client_id",
   NEXT_PUBLIC_TIKTOK_CLIENT_SECRET: "tiktok_client_secret",
   NEXT_PUBLIC_OAUTH_REDIRECT_URI: "http://localhost:3000/oauth/callback",
 }
@@ -35,9 +35,7 @@ describe("OAuthService (simplified)", () => {
 
   describe("loginToNetwork", () => {
     it("should throw error for unsupported network", async () => {
-      await expect(OAuthService.loginToNetwork("unsupported")).rejects.toThrow(
-        "Unsupported network: unsupported"
-      )
+      await expect(OAuthService.loginToNetwork("unsupported")).rejects.toThrow("Unsupported network: unsupported")
     })
 
     it("should show error if clientId is not configured", async () => {
@@ -46,9 +44,7 @@ describe("OAuthService (simplified)", () => {
       const result = await OAuthService.loginToNetwork("youtube")
 
       expect(result).toBeNull()
-      expect(toast.error).toHaveBeenCalledWith(
-        "OAuth not configured for youtube. Please check environment variables."
-      )
+      expect(toast.error).toHaveBeenCalledWith("OAuth not configured for youtube. Please check environment variables.")
     })
   })
 
@@ -81,7 +77,6 @@ describe("OAuthService (simplified)", () => {
 
       expect(result).toBeNull()
     })
-
   })
 
   describe("logout", () => {
@@ -148,12 +143,12 @@ describe("OAuthService (simplified)", () => {
       const afterStore = Date.now()
 
       const stored = JSON.parse(localStorage.getItem("youtube_oauth_token")!)
-      
+
       expect(stored.accessToken).toBe("new_token")
       expect(stored.refreshToken).toBe("refresh_token")
       expect(stored.expiresIn).toBe(3600)
       expect(stored.tokenType).toBe("Bearer")
-      
+
       // Проверяем, что время истечения рассчитано правильно
       expect(stored.expiresAt).toBeGreaterThanOrEqual(beforeStore + 3600 * 1000)
       expect(stored.expiresAt).toBeLessThanOrEqual(afterStore + 3600 * 1000)

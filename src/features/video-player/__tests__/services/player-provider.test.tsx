@@ -95,9 +95,7 @@ const mockMediaFile: MediaFile = {
 }
 
 describe("PlayerProvider", () => {
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <PlayerProvider>{children}</PlayerProvider>
-  )
+  const wrapper = ({ children }: { children: React.ReactNode }) => <PlayerProvider>{children}</PlayerProvider>
 
   it("should render without errors", () => {
     // Рендерим провайдер с тестовым содержимым
@@ -158,7 +156,7 @@ describe("PlayerProvider", () => {
         id: "template-1",
         name: "Split Screen",
       }
-      
+
       const files = [mockMediaFile]
 
       act(() => {
@@ -166,10 +164,8 @@ describe("PlayerProvider", () => {
       })
 
       // Фильтруем вызовы setVolume
-      const applyTemplateCalls = mockSend.mock.calls.filter(
-        call => call[0].type === "applyTemplate"
-      )
-      
+      const applyTemplateCalls = mockSend.mock.calls.filter((call) => call[0].type === "applyTemplate")
+
       expect(applyTemplateCalls).toHaveLength(1)
       expect(applyTemplateCalls[0][0]).toEqual({
         type: "applyTemplate",

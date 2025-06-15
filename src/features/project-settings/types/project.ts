@@ -130,7 +130,7 @@ export const DEFAULT_PROJECT_SETTINGS: ProjectSettings = {
 /**
  * DEPRECATED: Старая структура файла проекта (.tls)
  * Используйте TimelineStudioProject из timeline-studio-project.ts
- * 
+ *
  * Оставлено для обратной совместимости при миграции старых проектов
  */
 export interface ProjectFile {

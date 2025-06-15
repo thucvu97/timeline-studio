@@ -4,6 +4,7 @@ import { convertFileSrc } from "@tauri-apps/api/core"
 import { Film } from "lucide-react"
 
 import { useResources } from "@/features"
+import { useMediaPreview } from "@/features/media/hooks/use-media-preview"
 import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
 import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/features/media/utils/video"
@@ -46,16 +47,32 @@ export const VideoPreview = memo(
     const [isPlaying, setIsPlaying] = useState(false)
     const [hoverTime, setHoverTime] = useState<number | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
+    const [previewData, setPreviewData] = useState<string | null>(null)
     const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
     const { isAdded: isResourceAdded } = useResources()
     const isAdded = isResourceAdded(file.id, "media")
     const { setPreviewMedia } = usePlayer()
 
+    // Используем Preview Manager для получения данных превью
+    const { getPreviewData } = useMediaPreview()
+
+    // Загружаем preview data при монтировании
+    useEffect(() => {
+      void getPreviewData(file.id).then((data) => {
+        if (data?.browser_thumbnail?.base64_data) {
+          setPreviewData(data.browser_thumbnail.base64_data)
+        }
+      })
+    }, [file.id, getPreviewData])
+
     // Обработчик применения видео
-    const handleApplyVideo = useCallback((resource: TimelineResource, type: string) => {
-      console.log("[VideoPreview] Applying video:", file.name)
-      setPreviewMedia(file)
-    }, [file, setPreviewMedia])
+    const handleApplyVideo = useCallback(
+      (resource: TimelineResource, type: string) => {
+        console.log("[VideoPreview] Applying video:", file.name)
+        setPreviewMedia(file)
+      },
+      [file, setPreviewMedia],
+    )
 
     // Используем useRef для хранения времени последнего обновления
     const lastUpdateTimeRef = useRef(0)
@@ -185,7 +202,13 @@ export const VideoPreview = memo(
             <div className="group relative h-full w-full">
               <video
                 src={videoUrl || convertFileSrc(file.path)}
-                poster={file.thumbnailPath ? convertFileSrc(file.thumbnailPath) : undefined}
+                poster={
+                  previewData
+                    ? `data:image/jpeg;base64,${previewData}`
+                    : file.thumbnailPath
+                      ? convertFileSrc(file.thumbnailPath)
+                      : undefined
+                }
                 preload="auto"
                 tabIndex={0}
                 playsInline
@@ -285,7 +308,13 @@ export const VideoPreview = memo(
                       videoRefs.current[key] = el
                     }}
                     src={videoUrl || convertFileSrc(file.path)}
-                    poster={file.thumbnailPath ? convertFileSrc(file.thumbnailPath) : undefined}
+                    poster={
+                      previewData
+                        ? `data:image/jpeg;base64,${previewData}`
+                        : file.thumbnailPath
+                          ? convertFileSrc(file.thumbnailPath)
+                          : undefined
+                    }
                     preload="auto"
                     tabIndex={0}
                     playsInline
@@ -441,7 +470,12 @@ export const VideoPreview = memo(
                       </div>
                     )}
 
-                  <ApplyButton resource={{ id: file.id, type: "media" } as TimelineResource} size={size} type="media" onApply={handleApplyVideo} />
+                  <ApplyButton
+                    resource={{ id: file.id, type: "media" } as TimelineResource}
+                    size={size}
+                    type="media"
+                    onApply={handleApplyVideo}
+                  />
 
                   {/* Кнопка добавления */}
                   {isLoaded &&

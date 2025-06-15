@@ -27,7 +27,7 @@ pub struct ProjectSchema {
   pub filters: Vec<Filter>,
   /// Шаблоны многокамерных раскладок
   pub templates: Vec<Template>,
-  /// Стильные шаблоны (интро, аутро, титры)
+  /// Стилестические шаблоны (интро, аутро, титры)
   pub style_templates: Vec<StyleTemplate>,
   /// Субтитры проекта
   pub subtitles: Vec<Subtitle>,

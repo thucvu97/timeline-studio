@@ -13,7 +13,7 @@ import { SavedMediaFile, SavedMusicFile } from "../types/saved-media"
  */
 export function convertMediaFileToPoolItem(file: MediaFile, binId = "root"): MediaPoolItem {
   const type = getMediaItemType(file)
-  
+
   return {
     id: file.id,
     type,
@@ -23,7 +23,7 @@ export function convertMediaFileToPoolItem(file: MediaFile, binId = "root"): Med
       relativePath: (file as any).relativePath,
       hash: (file as any).hash,
     },
-    status: (file as any).isOffline ? 'offline' : 'online',
+    status: (file as any).isOffline ? "offline" : "online",
     binId,
     metadata: {
       duration: (file as any).metadata?.duration,
@@ -81,20 +81,20 @@ export function convertSavedMediaFileToPoolItem(saved: SavedMediaFile | SavedMus
  * Определение типа медиа элемента
  */
 function getMediaItemType(file: MediaFile): MediaItemType {
-  if (file.isVideo) return 'video'
-  if (file.isAudio) return 'audio'
-  if (file.isImage) return 'image'
-  return 'video' // По умолчанию
+  if (file.isVideo) return "video"
+  if (file.isAudio) return "audio"
+  if (file.isImage) return "image"
+  return "video" // По умолчанию
 }
 
 /**
  * Определение типа из сохраненного файла
  */
 function getMediaItemTypeFromSaved(saved: SavedMediaFile): MediaItemType {
-  if (saved.isVideo) return 'video'
-  if (saved.isAudio) return 'audio'
-  if (saved.isImage) return 'image'
-  return 'video'
+  if (saved.isVideo) return "video"
+  if (saved.isAudio) return "audio"
+  if (saved.isImage) return "image"
+  return "video"
 }
 
 /**
@@ -102,14 +102,14 @@ function getMediaItemTypeFromSaved(saved: SavedMediaFile): MediaItemType {
  */
 function getMediaItemStatus(status: string): MediaItemStatus {
   switch (status) {
-    case 'available':
-      return 'online'
-    case 'missing':
-      return 'missing'
-    case 'moved':
-      return 'offline'
+    case "available":
+      return "online"
+    case "missing":
+      return "missing"
+    case "moved":
+      return "offline"
     default:
-      return 'offline'
+      return "offline"
   }
 }
 
@@ -118,10 +118,10 @@ function getMediaItemStatus(status: string): MediaItemStatus {
  */
 function extractFrameRate(file: MediaFile): number | undefined {
   if ((file as any).metadata?.probeData?.streams) {
-    const videoStream = (file as any).metadata.probeData.streams.find((s: any) => s.codec_type === 'video')
+    const videoStream = (file as any).metadata.probeData.streams.find((s: any) => s.codec_type === "video")
     if (videoStream?.r_frame_rate) {
-      const [num, den] = videoStream.r_frame_rate.split('/')
-      return parseInt(num) / parseInt(den)
+      const [num, den] = videoStream.r_frame_rate.split("/")
+      return Number.parseInt(num) / Number.parseInt(den)
     }
   }
   return undefined
@@ -129,10 +129,10 @@ function extractFrameRate(file: MediaFile): number | undefined {
 
 function extractFrameRateFromProbe(probeData: any): number | undefined {
   if (probeData?.streams) {
-    const videoStream = probeData.streams.find((s: any) => s.codec_type === 'video')
+    const videoStream = probeData.streams.find((s: any) => s.codec_type === "video")
     if (videoStream?.r_frame_rate) {
-      const [num, den] = videoStream.r_frame_rate.split('/')
-      return parseInt(num) / parseInt(den)
+      const [num, den] = videoStream.r_frame_rate.split("/")
+      return Number.parseInt(num) / Number.parseInt(den)
     }
   }
   return undefined
@@ -143,7 +143,7 @@ function extractFrameRateFromProbe(probeData: any): number | undefined {
  */
 function extractResolution(file: MediaFile): { width: number; height: number } | undefined {
   if ((file as any).metadata?.probeData?.streams) {
-    const videoStream = (file as any).metadata.probeData.streams.find((s: any) => s.codec_type === 'video')
+    const videoStream = (file as any).metadata.probeData.streams.find((s: any) => s.codec_type === "video")
     if (videoStream?.width && videoStream?.height) {
       return {
         width: videoStream.width,
@@ -156,7 +156,7 @@ function extractResolution(file: MediaFile): { width: number; height: number } |
 
 function extractResolutionFromProbe(probeData: any): { width: number; height: number } | undefined {
   if (probeData?.streams) {
-    const videoStream = probeData.streams.find((s: any) => s.codec_type === 'video')
+    const videoStream = probeData.streams.find((s: any) => s.codec_type === "video")
     if (videoStream?.width && videoStream?.height) {
       return {
         width: videoStream.width,
@@ -190,14 +190,14 @@ function extractCodecFromProbe(probeData: any): string | undefined {
  */
 function extractBitRate(file: MediaFile): number | undefined {
   if ((file as any).metadata?.probeData?.format?.bit_rate) {
-    return parseInt((file as any).metadata.probeData.format.bit_rate)
+    return Number.parseInt((file as any).metadata.probeData.format.bit_rate)
   }
   return undefined
 }
 
 function extractBitRateFromProbe(probeData: any): number | undefined {
   if (probeData?.format?.bit_rate) {
-    return parseInt(probeData.format.bit_rate)
+    return Number.parseInt(probeData.format.bit_rate)
   }
   return undefined
 }
@@ -220,10 +220,10 @@ export function createEmptyMediaPool(): MediaPool {
     bins: new Map([["root", rootBin]]),
     smartCollections: [],
     viewSettings: {
-      sortBy: 'name',
-      sortOrder: 'asc',
-      viewMode: 'thumbnails',
-      thumbnailSize: 'medium',
+      sortBy: "name",
+      sortOrder: "asc",
+      viewMode: "thumbnails",
+      thumbnailSize: "medium",
       showOfflineMedia: true,
       showProxyBadge: true,
     },
@@ -259,16 +259,18 @@ export function addItemToPool(pool: MediaPool, item: MediaPoolItem): MediaPool {
   const newPool = { ...pool }
   newPool.items = new Map(pool.items)
   newPool.items.set(item.id, item)
-  
+
   // Обновляем статистику
   newPool.stats = {
     ...newPool.stats,
     totalItems: newPool.items.size,
     totalSize: Array.from(newPool.items.values()).reduce((sum, item) => sum + item.metadata.fileSize, 0),
-    onlineItems: Array.from(newPool.items.values()).filter(item => item.status === 'online').length,
-    offlineItems: Array.from(newPool.items.values()).filter(item => item.status === 'offline' || item.status === 'missing').length,
+    onlineItems: Array.from(newPool.items.values()).filter((item) => item.status === "online").length,
+    offlineItems: Array.from(newPool.items.values()).filter(
+      (item) => item.status === "offline" || item.status === "missing",
+    ).length,
   }
-  
+
   return newPool
 }
 
@@ -277,10 +279,11 @@ export function addItemToPool(pool: MediaPool, item: MediaPoolItem): MediaPool {
  */
 export function searchMediaPool(pool: MediaPool, query: string): MediaPoolItem[] {
   const lowerQuery = query.toLowerCase()
-  return Array.from(pool.items.values()).filter(item => 
-    item.name.toLowerCase().includes(lowerQuery) ||
-    item.tags.some(tag => tag.toLowerCase().includes(lowerQuery)) ||
-    item.notes?.toLowerCase().includes(lowerQuery)
+  return Array.from(pool.items.values()).filter(
+    (item) =>
+      item.name.toLowerCase().includes(lowerQuery) ||
+      item.tags.some((tag) => tag.toLowerCase().includes(lowerQuery)) ||
+      item.notes?.toLowerCase().includes(lowerQuery),
   )
 }
 
@@ -288,7 +291,7 @@ export function searchMediaPool(pool: MediaPool, query: string): MediaPoolItem[]
  * Получение элементов из конкретной папки
  */
 export function getItemsInBin(pool: MediaPool, binId: string): MediaPoolItem[] {
-  return Array.from(pool.items.values()).filter(item => item.binId === binId)
+  return Array.from(pool.items.values()).filter((item) => item.binId === binId)
 }
 
 /**
@@ -297,77 +300,76 @@ export function getItemsInBin(pool: MediaPool, binId: string): MediaPoolItem[] {
 export function updateItemUsage(pool: MediaPool, itemId: string, sequenceId: string, increment = true): MediaPool {
   const newPool = { ...pool }
   const item = newPool.items.get(itemId)
-  
+
   if (item) {
     const updatedItem = { ...item }
-    
+
     if (increment) {
       if (!updatedItem.usage.sequences.includes(sequenceId)) {
         updatedItem.usage.sequences.push(sequenceId)
       }
       updatedItem.usage.count++
     } else {
-      updatedItem.usage.sequences = updatedItem.usage.sequences.filter(id => id !== sequenceId)
+      updatedItem.usage.sequences = updatedItem.usage.sequences.filter((id) => id !== sequenceId)
       updatedItem.usage.count = Math.max(0, updatedItem.usage.count - 1)
     }
-    
+
     updatedItem.usage.lastUsed = new Date()
-    
+
     newPool.items = new Map(pool.items)
     newPool.items.set(itemId, updatedItem)
-    
+
     // Обновляем статистику неиспользуемых элементов
     newPool.stats = {
       ...newPool.stats,
-      unusedItems: Array.from(newPool.items.values()).filter(item => item.usage.count === 0).length,
+      unusedItems: Array.from(newPool.items.values()).filter((item) => item.usage.count === 0).length,
     }
   }
-  
+
   return newPool
 }
 
 /**
  * Миграция старой MediaLibrary в новый Media Pool
  */
-export function migrateMediaLibraryToPool(
-  mediaFiles: SavedMediaFile[],
-  musicFiles: SavedMusicFile[]
-): MediaPool {
+export function migrateMediaLibraryToPool(mediaFiles: SavedMediaFile[], musicFiles: SavedMusicFile[]): MediaPool {
   const pool = createEmptyMediaPool()
-  
+
   // Создаем папки для организации
   const videoBin = createMediaBin("Videos", "root")
   const audioBin = createMediaBin("Audio", "root")
   const imageBin = createMediaBin("Images", "root")
   const musicBin = createMediaBin("Music", "root")
-  
+
   pool.bins.set(videoBin.id, videoBin)
   pool.bins.set(audioBin.id, audioBin)
   pool.bins.set(imageBin.id, imageBin)
   pool.bins.set(musicBin.id, musicBin)
-  
+
   // Конвертируем медиафайлы
   for (const saved of mediaFiles) {
     const binId = saved.isVideo ? videoBin.id : saved.isImage ? imageBin.id : audioBin.id
     const item = convertSavedMediaFileToPoolItem(saved, binId)
     pool.items.set(item.id, item)
   }
-  
+
   // Конвертируем музыкальные файлы
   for (const saved of musicFiles) {
     const item = convertSavedMediaFileToPoolItem(saved, musicBin.id)
     pool.items.set(item.id, item)
   }
-  
+
   // Обновляем статистику
   pool.stats = {
     totalItems: pool.items.size,
     totalSize: Array.from(pool.items.values()).reduce((sum, item) => sum + item.metadata.fileSize, 0),
-    onlineItems: Array.from(pool.items.values()).filter(item => item.status === 'online').length,
-    offlineItems: Array.from(pool.items.values()).filter(item => item.status === 'offline' || item.status === 'missing').length,
+    onlineItems: Array.from(pool.items.values()).filter((item) => item.status === "online").length,
+    offlineItems: Array.from(pool.items.values()).filter(
+      (item) => item.status === "offline" || item.status === "missing",
+    ).length,
     proxyItems: 0,
     unusedItems: pool.items.size, // Все элементы изначально неиспользуемые
   }
-  
+
   return pool
 }

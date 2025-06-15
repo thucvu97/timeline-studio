@@ -3,7 +3,7 @@ use serde_json::Value;
 use tauri::{AppHandle, Emitter, State};
 
 use super::recognition_service::{RecognitionEvent, RecognitionService};
-use crate::media::preview_data::RecognitionResults;
+use super::types::RecognitionResults;
 
 /// State для сервиса распознавания
 pub struct RecognitionState {

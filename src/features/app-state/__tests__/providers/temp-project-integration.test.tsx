@@ -10,7 +10,6 @@ import { createDir, exists, readTextFile, writeTextFile } from "@tauri-apps/plug
 import { renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-
 import { useCurrentProject } from "../../hooks/use-current-project"
 import { AppSettingsProvider } from "../../services/app-settings-provider"
 
@@ -39,7 +38,7 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 
 // Mock nanoid
 vi.mock("nanoid", () => ({
-  nanoid: () => "test-id-" + Math.random().toString(36).substring(2, 11),
+  nanoid: () => `test-id-${Math.random().toString(36).substring(2, 11)}`,
 }))
 
 // Mock media restoration
@@ -89,7 +88,7 @@ describe("Temporary Project Integration", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Mock app directories
     mockInvoke.mockImplementation((command) => {
       if (command === "get_app_directories" || command === "create_app_directories") {
@@ -97,7 +96,7 @@ describe("Temporary Project Integration", () => {
       }
       return Promise.resolve()
     })
-    
+
     // Mock file operations
     mockReadTextFile.mockRejectedValue(new Error("File not found"))
     mockWriteTextFile.mockResolvedValue()
@@ -115,9 +114,12 @@ describe("Temporary Project Integration", () => {
       })
 
       // Wait for the effect to run and temp project to be created
-      await waitFor(() => {
-        expect(result.current.currentProject.path).toBeTruthy()
-      }, { timeout: 2000 })
+      await waitFor(
+        () => {
+          expect(result.current.currentProject.path).toBeTruthy()
+        },
+        { timeout: 2000 },
+      )
 
       // Should have temp project path
       expect(result.current.currentProject.path).toContain("temp_project.tlsp")
@@ -126,10 +128,7 @@ describe("Temporary Project Integration", () => {
       expect(result.current.isTempProject()).toBe(true)
 
       // Should have called save
-      expect(mockWriteTextFile).toHaveBeenCalledWith(
-        "/app/backup/temp_project.tlsp",
-        expect.any(String)
-      )
+      expect(mockWriteTextFile).toHaveBeenCalledWith("/app/backup/temp_project.tlsp", expect.any(String))
     })
 
     it("should load existing temp project if it exists", async () => {
@@ -171,7 +170,7 @@ describe("Temporary Project Integration", () => {
         }
         return Promise.resolve()
       })
-      
+
       mockReadTextFile.mockResolvedValue(JSON.stringify(existingProject))
       mockWriteTextFile.mockResolvedValue()
 
@@ -179,9 +178,12 @@ describe("Temporary Project Integration", () => {
         wrapper: TestWrapper,
       })
 
-      await waitFor(() => {
-        expect(result.current.currentProject.name).toBe("Existing Temp Project")
-      }, { timeout: 2000 })
+      await waitFor(
+        () => {
+          expect(result.current.currentProject.name).toBe("Existing Temp Project")
+        },
+        { timeout: 2000 },
+      )
 
       expect(result.current.currentProject.path).toContain("temp_project.tlsp")
       expect(result.current.currentProject.isDirty).toBe(true)
@@ -207,7 +209,7 @@ describe("Temporary Project Integration", () => {
 
       // Should still be dirty
       expect(result.current.currentProject.isDirty).toBe(true)
-      
+
       // NOTE: Auto-save is currently disabled to prevent file conflicts
       // as noted in the autoSaveTempProject function
     })
@@ -228,28 +230,30 @@ describe("Temporary Project Integration", () => {
       vi.mocked(save).mockResolvedValue("/user/my-project.tlsp")
 
       // Mock reading temp project for save
-      mockReadTextFile.mockResolvedValue(JSON.stringify({
-        metadata: { 
-          name: "Untitled Project", 
-          version: "2.0.0",
-          modified: new Date().toISOString(),
-          created: new Date().toISOString(),
-          platform: "macos",
-          appVersion: "1.0.0",
-          id: "temp-id"
-        },
-        settings: {},
-        mediaPool: { items: {}, bins: {} },
-        sequences: {},
-        activeSequenceId: "seq-1",
-        cache: { thumbnails: {}, waveforms: {}, proxies: {}, sceneAnalysis: {} },
-        workspace: {},
-        backup: { 
-          autoSave: { enabled: true, interval: 5, keepVersions: 10 },
-          versions: [],
-          lastSaved: new Date().toISOString()
-        }
-      }))
+      mockReadTextFile.mockResolvedValue(
+        JSON.stringify({
+          metadata: {
+            name: "Untitled Project",
+            version: "2.0.0",
+            modified: new Date().toISOString(),
+            created: new Date().toISOString(),
+            platform: "macos",
+            appVersion: "1.0.0",
+            id: "temp-id",
+          },
+          settings: {},
+          mediaPool: { items: {}, bins: {} },
+          sequences: {},
+          activeSequenceId: "seq-1",
+          cache: { thumbnails: {}, waveforms: {}, proxies: {}, sceneAnalysis: {} },
+          workspace: {},
+          backup: {
+            autoSave: { enabled: true, interval: 5, keepVersions: 10 },
+            versions: [],
+            lastSaved: new Date().toISOString(),
+          },
+        }),
+      )
       mockWriteTextFile.mockResolvedValue()
 
       // Save the project with new name
@@ -304,10 +308,7 @@ describe("Temporary Project Integration", () => {
       await result.current.createTempProject()
 
       // Should have created and saved new temp project
-      expect(mockWriteTextFile).toHaveBeenCalledWith(
-        "/app/backup/temp_project.tlsp",
-        expect.any(String)
-      )
+      expect(mockWriteTextFile).toHaveBeenCalledWith("/app/backup/temp_project.tlsp", expect.any(String))
 
       expect(result.current.isTempProject()).toBe(true)
       expect(result.current.currentProject.isDirty).toBe(true)
@@ -323,7 +324,7 @@ describe("Temporary Project Integration", () => {
         }
         return Promise.resolve()
       })
-      
+
       mockReadTextFile.mockRejectedValue(new Error("File not found"))
       mockWriteTextFile.mockRejectedValue(new Error("Write failed"))
 

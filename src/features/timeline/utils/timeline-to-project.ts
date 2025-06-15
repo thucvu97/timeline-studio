@@ -354,7 +354,7 @@ function convertTemplates(templates: MediaTemplate[]): BackendTemplate[] {
 }
 
 /**
- * Преобразует стильные шаблоны в формат backend
+ * Преобразует стилестические шаблоны в формат backend
  */
 function convertStyleTemplates(styleTemplates: StyleTemplate[]): BackendStyleTemplate[] {
   return styleTemplates.map((styleTemplate) => {

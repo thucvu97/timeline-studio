@@ -19,7 +19,7 @@ export class SocialNetworksService {
   static async login(network: string): Promise<boolean> {
     try {
       toast.info(`Connecting to ${network}...`)
-      
+
       const token = await OAuthService.loginToNetwork(network)
       if (!token) {
         throw new Error("Authentication failed")
@@ -29,7 +29,7 @@ export class SocialNetworksService {
       OAuthService.storeToken(network, token)
 
       // Получаем информацию о пользователе
-      const userInfo = await this.getUserInfo(network, token.accessToken)
+      const userInfo = await SocialNetworksService.getUserInfo(network, token.accessToken)
       if (userInfo) {
         localStorage.setItem(`${network}_user_info`, JSON.stringify(userInfo))
       }
@@ -81,12 +81,12 @@ export class SocialNetworksService {
   ): Promise<SocialUploadResult> {
     try {
       // Проверяем авторизацию
-      if (!this.isLoggedIn(network)) {
+      if (!SocialNetworksService.isLoggedIn(network)) {
         throw new Error(`Not logged in to ${network}`)
       }
 
       // Валидируем настройки
-      const validationErrors = this.validateSettings(network, settings)
+      const validationErrors = SocialNetworksService.validateSettings(network, settings)
       if (validationErrors.length > 0) {
         throw new Error(`Validation failed: ${validationErrors.join(", ")}`)
       }
@@ -165,7 +165,7 @@ export class SocialNetworksService {
     // Проверяем, нужно ли обновить токен (за 5 минут до истечения)
     const refreshThreshold = 5 * 60 * 1000 // 5 минут
     const expiresAt = (token as any).expiresAt
-    
+
     if (!expiresAt || Date.now() < expiresAt - refreshThreshold) {
       return true // Токен еще действителен
     }
@@ -179,7 +179,7 @@ export class SocialNetworksService {
     } catch (error) {
       console.error("Token refresh failed:", error)
       // Логаут при неудачном обновлении токена
-      this.logout(network)
+      SocialNetworksService.logout(network)
     }
 
     return false

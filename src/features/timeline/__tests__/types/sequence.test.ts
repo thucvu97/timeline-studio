@@ -64,8 +64,8 @@ describe("Sequence Types", () => {
 
     it("должен поддерживать разные типы секвенций", () => {
       const types: SequenceType[] = ["main", "nested", "multicam", "vr360"]
-      
-      types.forEach(type => {
+
+      types.forEach((type) => {
         const sequence: Sequence = {
           id: `seq-${type}`,
           name: `${type} sequence`,
@@ -190,15 +190,9 @@ describe("Sequence Types", () => {
   describe("SequenceResources", () => {
     it("должен хранить ресурсы в Map структурах", () => {
       const resources: SequenceResources = {
-        effects: new Map([
-          ["effect-1", { id: "effect-1", name: "Blur" } as any],
-        ]),
-        filters: new Map([
-          ["filter-1", { id: "filter-1", name: "Color Correction" } as any],
-        ]),
-        transitions: new Map([
-          ["trans-1", { id: "trans-1", name: "Cross Dissolve" } as any],
-        ]),
+        effects: new Map([["effect-1", { id: "effect-1", name: "Blur" } as any]]),
+        filters: new Map([["filter-1", { id: "filter-1", name: "Color Correction" } as any]]),
+        transitions: new Map([["trans-1", { id: "trans-1", name: "Cross Dissolve" } as any]]),
         colorGrades: new Map(),
         titles: new Map(),
         generators: new Map(),
@@ -374,14 +368,18 @@ describe("Sequence Types", () => {
             id: "hist-1",
             timestamp: new Date("2024-01-01T10:00:00"),
             action: "ADD_CLIP",
-            snapshot: { /* состояние */ },
+            snapshot: {
+              /* состояние */
+            },
             size: 1024,
           },
           {
             id: "hist-2",
             timestamp: new Date("2024-01-01T10:01:00"),
             action: "DELETE_CLIP",
-            snapshot: { /* состояние */ },
+            snapshot: {
+              /* состояние */
+            },
             size: 1024,
           },
         ],

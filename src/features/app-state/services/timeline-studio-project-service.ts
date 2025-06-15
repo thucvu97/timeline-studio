@@ -7,32 +7,35 @@ import { nanoid } from "nanoid"
 
 import { createEmptyMediaPool } from "@/features/media/utils/media-pool-utils"
 import { DEFAULT_PROJECT_SETTINGS, ProjectSettings } from "@/features/project-settings/types/project"
-import { ProjectMetadata, ProjectOperations, TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
+import {
+  ProjectMetadata,
+  ProjectOperations,
+  TimelineStudioProject,
+} from "@/features/project-settings/types/timeline-studio-project"
 import { Sequence } from "@/features/timeline/types/sequence"
-
 
 /**
  * Класс сервиса для управления проектами Timeline Studio
  */
 export class TimelineStudioProjectService implements ProjectOperations {
   private static instance: TimelineStudioProjectService
-  
+
   private constructor() {}
-  
+
   static getInstance(): TimelineStudioProjectService {
     if (!TimelineStudioProjectService.instance) {
       TimelineStudioProjectService.instance = new TimelineStudioProjectService()
     }
     return TimelineStudioProjectService.instance
   }
-  
+
   /**
    * Создать новый проект
    */
   createProject(name: string, settings?: Partial<ProjectSettings>): TimelineStudioProject {
     const projectId = nanoid()
     const now = new Date()
-    
+
     // Создаем метаданные
     const metadata: ProjectMetadata = {
       id: projectId,
@@ -43,11 +46,11 @@ export class TimelineStudioProjectService implements ProjectOperations {
       platform: this.getPlatform(),
       appVersion: "1.0.0", // TODO: Получить из package.json
     }
-    
+
     // Создаем первую секвенцию
     const mainSequence = this.createDefaultSequence(name, settings)
     const sequences = new Map([[mainSequence.id, mainSequence]])
-    
+
     // Создаем проект
     const project: TimelineStudioProject = {
       metadata,
@@ -59,11 +62,11 @@ export class TimelineStudioProjectService implements ProjectOperations {
           bitDepth: 24,
           channels: 2,
           masterVolume: 1.0,
-          panLaw: '-3dB',
+          panLaw: "-3dB",
         },
         preview: {
-          resolution: '1/2',
-          quality: 'better',
+          resolution: "1/2",
+          quality: "better",
           renderDuringPlayback: true,
           useGPU: true,
         },
@@ -80,7 +83,7 @@ export class TimelineStudioProjectService implements ProjectOperations {
         totalSize: 0,
       },
       workspace: {
-        layout: 'edit',
+        layout: "edit",
         panels: {},
         recentTools: [],
         grid: {
@@ -101,10 +104,10 @@ export class TimelineStudioProjectService implements ProjectOperations {
         lastSaved: now,
       },
     }
-    
+
     return project
   }
-  
+
   /**
    * Открыть проект из файла
    */
@@ -112,23 +115,23 @@ export class TimelineStudioProjectService implements ProjectOperations {
     try {
       const projectData = await readTextFile(path)
       const parsed = JSON.parse(projectData)
-      
+
       // Проверяем версию формата
       if (parsed.metadata?.version?.startsWith("2.")) {
         // Новый формат
         return this.deserializeProject(parsed)
-      } else if (parsed.meta) {
+      }
+      if (parsed.meta) {
         // Старый формат - нужна миграция
         throw new Error("Old project format detected. Please migrate the project first.")
-      } else {
-        throw new Error("Unknown project format")
       }
+      throw new Error("Unknown project format")
     } catch (error) {
       console.error("Failed to open project:", error)
       throw new Error(`Failed to open project: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
-  
+
   /**
    * Сохранить проект
    */
@@ -137,53 +140,53 @@ export class TimelineStudioProjectService implements ProjectOperations {
       // Обновляем метаданные
       project.metadata.modified = new Date()
       project.backup.lastSaved = new Date()
-      
+
       // Сериализуем проект
       const serialized = this.serializeProject(project)
       const content = JSON.stringify(serialized, null, 2)
-      
+
       // Сохраняем файл
       await writeTextFile(path, content)
-      
+
       console.log(`Project saved to ${path}`)
     } catch (error) {
       console.error("Failed to save project:", error)
       throw new Error(`Failed to save project: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
-  
+
   /**
    * Экспортировать проект для обмена
    */
-  exportForExchange(project: TimelineStudioProject, format: 'xml' | 'aaf' | 'edl'): string {
+  exportForExchange(project: TimelineStudioProject, format: "xml" | "aaf" | "edl"): string {
     switch (format) {
-      case 'xml':
+      case "xml":
         return this.exportToFCPXML(project)
-      case 'aaf':
+      case "aaf":
         return this.exportToAAF(project)
-      case 'edl':
+      case "edl":
         return this.exportToEDL(project)
       default:
         throw new Error(`Unsupported export format: ${format}`)
     }
   }
-  
+
   /**
    * Импортировать из другого формата
    */
-  importFromFormat(data: string, format: 'xml' | 'aaf' | 'edl'): TimelineStudioProject {
+  importFromFormat(data: string, format: "xml" | "aaf" | "edl"): TimelineStudioProject {
     switch (format) {
-      case 'xml':
+      case "xml":
         return this.importFromFCPXML(data)
-      case 'aaf':
+      case "aaf":
         return this.importFromAAF(data)
-      case 'edl':
+      case "edl":
         return this.importFromEDL(data)
       default:
         throw new Error(`Unsupported import format: ${format}`)
     }
   }
-  
+
   /**
    * Оптимизировать проект
    */
@@ -194,21 +197,21 @@ export class TimelineStudioProjectService implements ProjectOperations {
   } {
     let removedItems = 0
     let freedSpace = 0
-    
+
     // Удаляем неиспользуемые медиа элементы
     const usedMediaIds = new Set<string>()
-    
+
     // Собираем все используемые медиа ID из всех секвенций
     for (const sequence of project.sequences.values()) {
       for (const track of sequence.composition.tracks) {
         for (const clip of track.clips) {
-          if ('mediaId' in clip && clip.mediaId) {
+          if ("mediaId" in clip && clip.mediaId) {
             usedMediaIds.add(clip.mediaId)
           }
         }
       }
     }
-    
+
     // Удаляем неиспользуемые элементы
     for (const [id, item] of project.mediaPool.items) {
       if (!usedMediaIds.has(id)) {
@@ -217,38 +220,38 @@ export class TimelineStudioProjectService implements ProjectOperations {
         freedSpace += item.metadata.fileSize
       }
     }
-    
+
     // Очищаем кэш для удаленных элементов
     for (const id of project.cache.thumbnails.keys()) {
       if (!project.mediaPool.items.has(id)) {
         project.cache.thumbnails.delete(id)
       }
     }
-    
+
     for (const id of project.cache.waveforms.keys()) {
       if (!project.mediaPool.items.has(id)) {
         project.cache.waveforms.delete(id)
       }
     }
-    
+
     for (const id of project.cache.proxies.keys()) {
       if (!project.mediaPool.items.has(id)) {
         project.cache.proxies.delete(id)
       }
     }
-    
+
     // Обновляем статистику
     project.mediaPool.stats.totalItems = project.mediaPool.items.size
     project.mediaPool.stats.totalSize -= freedSpace
     project.mediaPool.stats.unusedItems = 0
-    
+
     return {
       removedItems,
       freedSpace,
       optimizedCaches: true,
     }
   }
-  
+
   /**
    * Проверить целостность проекта
    */
@@ -261,38 +264,40 @@ export class TimelineStudioProjectService implements ProjectOperations {
     const issues: string[] = []
     const missingMedia: string[] = []
     const corruptedSequences: string[] = []
-    
+
     // Проверяем метаданные
     if (!project.metadata.id || !project.metadata.name) {
       issues.push("Project metadata is incomplete")
     }
-    
+
     // Проверяем медиа файлы
     for (const [id, item] of project.mediaPool.items) {
-      if (item.status === 'missing' || item.status === 'offline') {
+      if (item.status === "missing" || item.status === "offline") {
         missingMedia.push(item.source.path)
       }
     }
-    
+
     // Проверяем секвенции
     if (project.sequences.size === 0) {
       issues.push("Project has no sequences")
     }
-    
+
     for (const [id, sequence] of project.sequences) {
       try {
         this.validateSequence(sequence)
       } catch (error) {
         corruptedSequences.push(sequence.name)
-        issues.push(`Sequence "${sequence.name}" is corrupted: ${error instanceof Error ? error.message : String(error)}`)
+        issues.push(
+          `Sequence "${sequence.name}" is corrupted: ${error instanceof Error ? error.message : String(error)}`,
+        )
       }
     }
-    
+
     // Проверяем активную секвенцию
     if (!project.sequences.has(project.activeSequenceId)) {
       issues.push("Active sequence not found")
     }
-    
+
     return {
       isValid: issues.length === 0 && missingMedia.length === 0 && corruptedSequences.length === 0,
       issues,
@@ -300,17 +305,17 @@ export class TimelineStudioProjectService implements ProjectOperations {
       corruptedSequences,
     }
   }
-  
+
   /**
    * Создать резервную копию
    */
   async createBackup(project: TimelineStudioProject): Promise<string> {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
     const backupPath = `${project.metadata.name}_backup_${timestamp}.tlsp`
-    
+
     // Сохраняем копию проекта
     await this.saveProject(project, backupPath)
-    
+
     // Добавляем в историю версий
     project.backup.versions.push({
       id: nanoid(),
@@ -318,41 +323,41 @@ export class TimelineStudioProjectService implements ProjectOperations {
       size: JSON.stringify(project).length,
       path: backupPath,
     })
-    
+
     // Ограничиваем количество версий
     if (project.backup.versions.length > project.backup.autoSave.keepVersions) {
       project.backup.versions = project.backup.versions.slice(-project.backup.autoSave.keepVersions)
     }
-    
+
     return backupPath
   }
-  
+
   /**
    * Восстановить из резервной копии
    */
   async restoreFromBackup(backupPath: string): Promise<TimelineStudioProject> {
     return this.openProject(backupPath)
   }
-  
+
   // Вспомогательные методы
-  
-  private getPlatform(): 'windows' | 'macos' | 'linux' {
+
+  private getPlatform(): "windows" | "macos" | "linux" {
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     const platform = window.navigator.platform.toLowerCase()
-    if (platform.includes('win')) return 'windows'
-    if (platform.includes('mac')) return 'macos'
-    return 'linux'
+    if (platform.includes("win")) return "windows"
+    if (platform.includes("mac")) return "macos"
+    return "linux"
   }
-  
+
   private createDefaultSequence(name: string, settings?: Partial<ProjectSettings>): Sequence {
     const resolution = settings?.resolution || DEFAULT_PROJECT_SETTINGS.resolution
-    const [width, height] = resolution.split('x').map(Number)
+    const [width, height] = resolution.split("x").map(Number)
     const frameRate = Number(settings?.frameRate || DEFAULT_PROJECT_SETTINGS.frameRate)
-    
+
     return {
       id: nanoid(),
       name: `${name} - Sequence 1`,
-      type: 'main',
+      type: "main",
       settings: {
         resolution: { width, height },
         frameRate,
@@ -385,17 +390,17 @@ export class TimelineStudioProjectService implements ProjectOperations {
       },
     }
   }
-  
+
   private validateSequence(sequence: Sequence): void {
     if (!sequence.id || !sequence.name) {
       throw new Error("Sequence is missing required fields")
     }
-    
+
     if (!sequence.composition || !sequence.composition.tracks) {
       throw new Error("Sequence has invalid composition")
     }
   }
-  
+
   private serializeProject(project: TimelineStudioProject): any {
     // Конвертируем Map в объекты для JSON
     return {
@@ -415,7 +420,7 @@ export class TimelineStudioProjectService implements ProjectOperations {
       },
     }
   }
-  
+
   private deserializeProject(data: any): TimelineStudioProject {
     // Конвертируем объекты обратно в Map
     return {
@@ -448,34 +453,34 @@ export class TimelineStudioProjectService implements ProjectOperations {
       },
     }
   }
-  
+
   // Заглушки для экспорта/импорта (будут реализованы позже)
-  
+
   private exportToFCPXML(project: TimelineStudioProject): string {
     // TODO: Implement FCPXML export
     throw new Error("FCPXML export not implemented yet")
   }
-  
+
   private exportToAAF(project: TimelineStudioProject): string {
     // TODO: Implement AAF export
     throw new Error("AAF export not implemented yet")
   }
-  
+
   private exportToEDL(project: TimelineStudioProject): string {
     // TODO: Implement EDL export
     throw new Error("EDL export not implemented yet")
   }
-  
+
   private importFromFCPXML(data: string): TimelineStudioProject {
     // TODO: Implement FCPXML import
     throw new Error("FCPXML import not implemented yet")
   }
-  
+
   private importFromAAF(data: string): TimelineStudioProject {
     // TODO: Implement AAF import
     throw new Error("AAF import not implemented yet")
   }
-  
+
   private importFromEDL(data: string): TimelineStudioProject {
     // TODO: Implement EDL import
     throw new Error("EDL import not implemented yet")

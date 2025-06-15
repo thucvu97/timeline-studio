@@ -215,7 +215,7 @@ describe("Media Pool Utils", () => {
     it("должен добавлять элемент в пул и обновлять статистику", () => {
       const pool = createEmptyMediaPool()
       const item = convertMediaFileToPoolItem(mockMediaFile)
-      
+
       const updatedPool = addItemToPool(pool, item)
 
       expect(updatedPool.items.size).toBe(1)
@@ -229,7 +229,7 @@ describe("Media Pool Utils", () => {
     it("должен правильно считать оффлайн элементы", () => {
       const pool = createEmptyMediaPool()
       const offlineItem = { ...convertMediaFileToPoolItem(mockMediaFile), status: "offline" as const }
-      
+
       const updatedPool = addItemToPool(pool, offlineItem)
 
       expect(updatedPool.stats.onlineItems).toBe(0)
@@ -242,7 +242,7 @@ describe("Media Pool Utils", () => {
       const pool = createEmptyMediaPool()
       const item1 = { ...convertMediaFileToPoolItem(mockMediaFile), name: "vacation.mp4" }
       const item2 = { ...convertMediaFileToPoolItem(mockMediaFile), id: "2", name: "work.mp4" }
-      
+
       pool.items.set(item1.id, item1)
       pool.items.set(item2.id, item2)
 
@@ -253,9 +253,9 @@ describe("Media Pool Utils", () => {
 
     it("должен искать по тегам", () => {
       const pool = createEmptyMediaPool()
-      const item = { 
-        ...convertMediaFileToPoolItem(mockMediaFile), 
-        tags: ["summer", "beach", "2024"] 
+      const item = {
+        ...convertMediaFileToPoolItem(mockMediaFile),
+        tags: ["summer", "beach", "2024"],
       }
       pool.items.set(item.id, item)
 
@@ -265,9 +265,9 @@ describe("Media Pool Utils", () => {
 
     it("должен искать по заметкам", () => {
       const pool = createEmptyMediaPool()
-      const item = { 
-        ...convertMediaFileToPoolItem(mockMediaFile), 
-        notes: "This is the final cut of the project" 
+      const item = {
+        ...convertMediaFileToPoolItem(mockMediaFile),
+        notes: "This is the final cut of the project",
       }
       pool.items.set(item.id, item)
 
@@ -293,7 +293,7 @@ describe("Media Pool Utils", () => {
 
       const item1 = { ...convertMediaFileToPoolItem(mockMediaFile), binId: videoBin.id }
       const item2 = { ...convertMediaFileToPoolItem(mockMediaFile), id: "2", binId: "root" }
-      
+
       pool.items.set(item1.id, item1)
       pool.items.set(item2.id, item2)
 
@@ -359,17 +359,17 @@ describe("Media Pool Utils", () => {
 
       // Проверяем, что созданы папки
       expect(pool.bins.size).toBe(5) // root + 4 категории
-      expect(Array.from(pool.bins.values()).map(b => b.name)).toContain("Videos")
-      expect(Array.from(pool.bins.values()).map(b => b.name)).toContain("Images")
-      expect(Array.from(pool.bins.values()).map(b => b.name)).toContain("Music")
+      expect(Array.from(pool.bins.values()).map((b) => b.name)).toContain("Videos")
+      expect(Array.from(pool.bins.values()).map((b) => b.name)).toContain("Images")
+      expect(Array.from(pool.bins.values()).map((b) => b.name)).toContain("Music")
 
       // Проверяем, что файлы распределены по папкам
       expect(pool.items.size).toBe(3)
-      
+
       const items = Array.from(pool.items.values())
-      const videoItem = items.find(i => i.id === "saved-1")
-      const imageItem = items.find(i => i.id === "saved-2")
-      const musicItem = items.find(i => i.id === "music-1")
+      const videoItem = items.find((i) => i.id === "saved-1")
+      const imageItem = items.find((i) => i.id === "saved-2")
+      const musicItem = items.find((i) => i.id === "music-1")
 
       expect(videoItem).toBeTruthy()
       expect(imageItem).toBeTruthy()

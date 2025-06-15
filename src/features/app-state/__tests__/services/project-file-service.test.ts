@@ -350,11 +350,7 @@ describe("ProjectFileService", () => {
     })
 
     it("должен определять изменения в количестве файлов", () => {
-      const hasChanges = ProjectFileService.hasUnsavedChanges(
-        mockProjectFile,
-        [],
-        mockProjectFile.mediaPool.musicFiles,
-      )
+      const hasChanges = ProjectFileService.hasUnsavedChanges(mockProjectFile, [], mockProjectFile.mediaPool.musicFiles)
 
       expect(hasChanges).toBe(true)
     })

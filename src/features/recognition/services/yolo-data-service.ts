@@ -256,4 +256,22 @@ export class YoloDataService {
       missingDataCount: this.missingDataCount,
     }
   }
+
+  /**
+   * Сохранить данные YOLO в кэш
+   * @param videoId ID видео
+   * @param data Данные YOLO для сохранения
+   */
+  public async saveYoloData(videoId: string, data: YoloVideoData): Promise<void> {
+    // Сохраняем в локальный кэш
+    this.yoloDataCache[videoId] = data
+
+    // Убираем из списка несуществующих файлов
+    if (this.nonExistentFiles[videoId]) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete this.nonExistentFiles[videoId]
+    }
+
+    console.log(`[YoloDataService] Данные YOLO сохранены для видео ${videoId}`)
+  }
 }

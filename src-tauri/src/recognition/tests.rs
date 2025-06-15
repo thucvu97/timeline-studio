@@ -1,5 +1,5 @@
-use crate::media::preview_data::DetectedObject;
 use crate::recognition::recognition_service::RecognitionService;
+use crate::recognition::types::DetectedObject;
 use crate::recognition::yolo_processor::{YoloModel, YoloProcessor};
 use std::path::PathBuf;
 use tempfile::TempDir;

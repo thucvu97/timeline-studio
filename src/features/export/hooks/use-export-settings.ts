@@ -129,10 +129,10 @@ export function useExportSettings() {
           setExportSettings((prev) => ({ ...prev, ...updates }))
           break
         case "device":
-          setDeviceSettings((prev) => ({ ...prev, ...updates as Partial<DeviceExportSettings> }))
+          setDeviceSettings((prev) => ({ ...prev, ...(updates as Partial<DeviceExportSettings>) }))
           break
         case "social":
-          setSocialSettings((prev) => ({ ...prev, ...updates as Partial<SocialExportSettings> }))
+          setSocialSettings((prev) => ({ ...prev, ...(updates as Partial<SocialExportSettings>) }))
           break
       }
     },

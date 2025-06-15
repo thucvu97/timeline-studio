@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { YoloDetection, YoloVideoData, YoloVideoSummary } from "@/features/recognition/types/yolo"
 
+import { useRecognitionPreview } from "./use-recognition-preview"
 import { YoloDataService } from "../services/yolo-data-service"
 
 /**
@@ -13,6 +14,16 @@ export function useYoloData() {
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
   const [errorStates, setErrorStates] = useState<Record<string, string | null>>({})
 
+  // Используем интегрированный хук для работы с Preview Manager
+  const { processVideoRecognition, getRecognitionAtTimestamp: getRecognitionFromCache } = useRecognitionPreview({
+    onRecognitionComplete: (fileId, data) => {
+      console.log(`Распознавание завершено для ${fileId}, обнаружено объектов: ${data.frames.length}`)
+    },
+    onError: (error) => {
+      console.error("Ошибка распознавания:", error)
+    },
+  })
+
   // Загрузка данных YOLO для видео
   const loadYoloData = useCallback(
     async (videoId: string, videoPath?: string): Promise<YoloVideoData | null> => {
@@ -20,7 +31,20 @@ export function useYoloData() {
       setErrorStates((prev) => ({ ...prev, [videoId]: null }))
 
       try {
-        const data = await yoloDataService.loadYoloData(videoId, videoPath)
+        // Сначала пытаемся загрузить из локального сервиса
+        let data = await yoloDataService.loadYoloData(videoId, videoPath)
+
+        // Если нет данных и есть путь к видео, запускаем распознавание через Preview Manager
+        if (!data && videoPath) {
+          console.log(`Запуск распознавания через Preview Manager для ${videoId}`)
+          data = await processVideoRecognition(videoId, videoPath)
+
+          // Сохраняем результат в локальный кэш
+          if (data) {
+            await yoloDataService.saveYoloData(videoId, data)
+          }
+        }
+
         return data
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка"
@@ -31,20 +55,28 @@ export function useYoloData() {
         setLoadingStates((prev) => ({ ...prev, [videoId]: false }))
       }
     },
-    [yoloDataService],
+    [yoloDataService, processVideoRecognition],
   )
 
   // Получение данных YOLO для конкретного времени
   const getYoloDataAtTimestamp = useCallback(
     async (videoId: string, timestamp: number): Promise<YoloDetection[]> => {
       try {
-        return await yoloDataService.getYoloDataAtTimestamp(videoId, timestamp)
+        // Сначала проверяем локальный кэш
+        let data = await yoloDataService.getYoloDataAtTimestamp(videoId, timestamp)
+
+        // Если нет в локальном кэше, пробуем получить из Preview Manager
+        if (data.length === 0) {
+          data = await getRecognitionFromCache(videoId, timestamp)
+        }
+
+        return data
       } catch (error) {
         console.error(`[useYoloData] Ошибка получения данных для времени ${timestamp}:`, error)
         return []
       }
     },
-    [yoloDataService],
+    [yoloDataService, getRecognitionFromCache],
   )
 
   // Получение сводки по видео

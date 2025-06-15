@@ -63,19 +63,18 @@ async function cacheMetadataIfValid(metadata: MediaFile) {
   if (metadata.duration && metadata.duration > 0 && metadata.probeData) {
     try {
       // Извлекаем информацию из probeData
-      const videoStream = metadata.probeData.streams?.find(s => s.codec_type === 'video')
-      const audioStream = metadata.probeData.streams?.find(s => s.codec_type === 'audio')
-      
+      const videoStream = metadata.probeData.streams?.find((s) => s.codec_type === "video")
+      const audioStream = metadata.probeData.streams?.find((s) => s.codec_type === "audio")
+
       await cacheMediaMetadata(metadata.path, {
         file_path: metadata.path,
         file_size: metadata.size || 0,
         modified_time: new Date().toISOString(), // или из metadata если есть
         duration: metadata.duration,
-        resolution: videoStream && videoStream.width && videoStream.height 
-          ? [videoStream.width, videoStream.height] 
-          : undefined,
+        resolution:
+          videoStream && videoStream.width && videoStream.height ? [videoStream.width, videoStream.height] : undefined,
         fps: videoStream?.r_frame_rate ? parseFrameRate(videoStream.r_frame_rate) : undefined,
-        bitrate: metadata.probeData.format?.bit_rate ? parseInt(metadata.probeData.format.bit_rate) : undefined,
+        bitrate: metadata.probeData.format?.bit_rate ? Number.parseInt(metadata.probeData.format.bit_rate) : undefined,
         video_codec: videoStream?.codec_name,
         audio_codec: audioStream?.codec_name,
         cached_at: new Date().toISOString(),
@@ -89,11 +88,11 @@ async function cacheMetadataIfValid(metadata: MediaFile) {
 // Вспомогательная функция для парсинга frame rate
 function parseFrameRate(frameRate: string): number | undefined {
   if (!frameRate) return undefined
-  const [num, denom] = frameRate.split('/')
+  const [num, denom] = frameRate.split("/")
   if (num && denom) {
-    return parseFloat(num) / parseFloat(denom)
+    return Number.parseFloat(num) / Number.parseFloat(denom)
   }
-  return parseFloat(frameRate) || undefined
+  return Number.parseFloat(frameRate) || undefined
 }
 
 export function useMediaProcessor(options: UseMediaProcessorOptions = {}) {
@@ -197,11 +196,11 @@ export function useMediaProcessor(options: UseMediaProcessorOptions = {}) {
         filePaths.map(async (path) => {
           const cached = await getCachedMetadata(path)
           return cached ? { path, cached } : null
-        })
+        }),
       )
-      
+
       // Логируем статистику кэша
-      const cachedCount = cachedMetadata.filter(m => m !== null).length
+      const cachedCount = cachedMetadata.filter((m) => m !== null).length
       if (cachedCount > 0) {
         console.log(`Found ${cachedCount}/${filePaths.length} files in metadata cache`)
       }

@@ -99,12 +99,12 @@ const MEDIA_CONFIGS: Record<MediaType, MediaTypeConfig> = {
     folderText: "Или поместите шаблоны в папку",
   },
   "style-templates": {
-    title: "Стильные шаблоны не найдены",
+    title: "Стилестические шаблоны не найдены",
     description: "Добавьте стилизованные шаблоны с готовым дизайном",
     icon: Palette,
     folders: ["/public/style-templates/"],
     formats: ["JSON файлы со стилями и настройками"],
-    importText: "Импортировать стильные шаблоны",
+    importText: "Импортировать стилестические шаблоны",
     folderText: "Или поместите шаблоны в папку",
   },
   subtitles: {

@@ -37,7 +37,7 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
   // Локальное состояние для отслеживания добавления шаблона
   // Используется для мгновенного обновления UI без ожидания обновления из хранилища
   const [localIsAdded, setLocalIsAdded] = useState(false)
-  
+
   const { applyTemplate } = usePlayer() // Получаем метод для применения шаблона
   const { getVideosForPreview } = useVideoSelection() // Получаем видео для применения шаблона
 
@@ -73,17 +73,20 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
   const isAdded = isAddedFromStore || localIsAdded
 
   // Обработчик применения шаблона
-  const handleApplyTemplate = useCallback((resource: TimelineResource, type: string) => {
-    console.log("[TemplatePreview] Applying template:", template.id)
-    const videos = getVideosForPreview()
-    applyTemplate(
-      {
-        id: template.id,
-        name: template.id,
-      },
-      videos
-    )
-  }, [template, applyTemplate, getVideosForPreview])
+  const handleApplyTemplate = useCallback(
+    (resource: TimelineResource, type: string) => {
+      console.log("[TemplatePreview] Applying template:", template.id)
+      const videos = getVideosForPreview()
+      applyTemplate(
+        {
+          id: template.id,
+          name: template.id,
+        },
+        videos,
+      )
+    },
+    [template, applyTemplate, getVideosForPreview],
+  )
 
   /**
    * Обработчик добавления шаблона в проект

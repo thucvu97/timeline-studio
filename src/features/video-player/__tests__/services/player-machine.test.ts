@@ -228,7 +228,7 @@ describe("Preview Apply Workflow", () => {
     actor.start()
 
     const effect = { id: "effect-1", name: "Blur", params: { intensity: 0.5 } }
-    
+
     actor.send({ type: "applyEffect", effect })
 
     expect(actor.getSnapshot().context.appliedEffects).toEqual([effect])
@@ -239,7 +239,7 @@ describe("Preview Apply Workflow", () => {
     actor.start()
 
     const filter = { id: "filter-1", name: "Vintage", params: { saturation: 0.8 } }
-    
+
     actor.send({ type: "applyFilter", filter })
 
     expect(actor.getSnapshot().context.appliedFilters).toEqual([filter])
@@ -251,7 +251,7 @@ describe("Preview Apply Workflow", () => {
 
     const template = { id: "template-1", name: "Split Screen" }
     const files = [testVideo]
-    
+
     actor.send({ type: "applyTemplate", template, files })
 
     expect(actor.getSnapshot().context.appliedTemplate).toEqual({
@@ -328,7 +328,7 @@ describe("Preview Apply Workflow", () => {
 
     const effect1 = { id: "effect-1", name: "Blur", params: { intensity: 0.5 } }
     const effect2 = { id: "effect-2", name: "Glow", params: { strength: 0.3 } }
-    
+
     actor.send({ type: "applyEffect", effect: effect1 })
     actor.send({ type: "applyEffect", effect: effect2 })
 
@@ -341,7 +341,7 @@ describe("Preview Apply Workflow", () => {
 
     const filter1 = { id: "filter-1", name: "Vintage", params: { saturation: 0.8 } }
     const filter2 = { id: "filter-2", name: "Sepia", params: { amount: 0.6 } }
-    
+
     actor.send({ type: "applyFilter", filter: filter1 })
     actor.send({ type: "applyFilter", filter: filter2 })
 

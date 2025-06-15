@@ -78,16 +78,19 @@ export function EffectPreview({
   }, [effect, isEffectAdded])
 
   // Обработчик применения эффекта
-  const handleApplyEffect = useCallback((resource: TimelineResource, type: string) => {
-    if (!effect) return
-    
-    console.log("[EffectPreview] Applying effect:", effect.name)
-    applyEffect({
-      id: effect.id,
-      name: effect.name,
-      params: effect.params,
-    })
-  }, [effect, applyEffect])
+  const handleApplyEffect = useCallback(
+    (resource: TimelineResource, type: string) => {
+      if (!effect) return
+
+      console.log("[EffectPreview] Applying effect:", effect.name)
+      applyEffect({
+        id: effect.id,
+        name: effect.name,
+        params: effect.params,
+      })
+    },
+    [effect, applyEffect],
+  )
 
   /**
    * Эффект для управления воспроизведением видео и применением эффектов

@@ -34,7 +34,7 @@ export class OAuthService {
   }
 
   static async loginToNetwork(network: string): Promise<OAuthToken | null> {
-    const config = this.configs[network]
+    const config = OAuthService.configs[network]
     if (!config) {
       throw new Error(`Unsupported network: ${network}`)
     }
@@ -54,11 +54,7 @@ export class OAuthService {
       authUrl.searchParams.set("state", `${network}_${Date.now()}`)
 
       // Открываем окно авторизации
-      const authWindow = window.open(
-        authUrl.toString(),
-        "oauth",
-        "width=600,height=700,scrollbars=yes,resizable=yes",
-      )
+      const authWindow = window.open(authUrl.toString(), "oauth", "width=600,height=700,scrollbars=yes,resizable=yes")
 
       if (!authWindow) {
         throw new Error("Failed to open authentication window")
@@ -104,9 +100,9 @@ export class OAuthService {
     try {
       switch (network) {
         case "youtube":
-          return await this.refreshGoogleToken(refreshToken)
+          return await OAuthService.refreshGoogleToken(refreshToken)
         case "tiktok":
-          return await this.refreshTikTokToken(refreshToken)
+          return await OAuthService.refreshTikTokToken(refreshToken)
         default:
           throw new Error(`Token refresh not implemented for ${network}`)
       }
@@ -123,7 +119,7 @@ export class OAuthService {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        client_id: this.configs.youtube.clientId,
+        client_id: OAuthService.configs.youtube.clientId,
         client_secret: process.env.NEXT_PUBLIC_YOUTUBE_CLIENT_SECRET || "",
         refresh_token: refreshToken,
         grant_type: "refresh_token",
@@ -150,7 +146,7 @@ export class OAuthService {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        client_key: this.configs.tiktok.clientId,
+        client_key: OAuthService.configs.tiktok.clientId,
         client_secret: process.env.NEXT_PUBLIC_TIKTOK_CLIENT_SECRET || "",
         refresh_token: refreshToken,
         grant_type: "refresh_token",
@@ -182,10 +178,10 @@ export class OAuthService {
       if (!stored) return null
 
       const token = JSON.parse(stored)
-      
+
       // Проверяем, не истек ли токен
       if (token.expiresAt && Date.now() > token.expiresAt) {
-        this.logout(network)
+        OAuthService.logout(network)
         return null
       }
 
@@ -198,9 +194,9 @@ export class OAuthService {
   static storeToken(network: string, token: OAuthToken): void {
     const tokenWithExpiry = {
       ...token,
-      expiresAt: Date.now() + (token.expiresIn * 1000),
+      expiresAt: Date.now() + token.expiresIn * 1000,
     }
-    
+
     localStorage.setItem(`${network}_oauth_token`, JSON.stringify(tokenWithExpiry))
   }
 }

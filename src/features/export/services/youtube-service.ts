@@ -55,8 +55,8 @@ export class YouTubeService {
       formData.append("video", videoFile)
       formData.append("metadata", JSON.stringify(videoResource))
 
-      const uploadResponse = await this.uploadWithProgress(
-        `${this.API_BASE}/videos?part=snippet,status&uploadType=multipart`,
+      const uploadResponse = await YouTubeService.uploadWithProgress(
+        `${YouTubeService.API_BASE}/videos?part=snippet,status&uploadType=multipart`,
         formData,
         token.accessToken,
         onProgress,
@@ -71,7 +71,7 @@ export class YouTubeService {
 
       // Шаг 3: Загрузка thumbnail (если указан)
       if (metadata.thumbnail && result.id) {
-        await this.uploadThumbnail(result.id, metadata.thumbnail, token.accessToken)
+        await YouTubeService.uploadThumbnail(result.id, metadata.thumbnail, token.accessToken)
       }
 
       return {
@@ -129,7 +129,7 @@ export class YouTubeService {
       formData.append("thumbnail", thumbnailBlob)
 
       const uploadResponse = await fetch(
-        `${this.API_BASE}/thumbnails/set?videoId=${videoId}&uploadType=media`,
+        `${YouTubeService.API_BASE}/thumbnails/set?videoId=${videoId}&uploadType=media`,
         {
           method: "POST",
           headers: {
@@ -154,7 +154,7 @@ export class YouTubeService {
       throw new Error("Not authenticated")
     }
 
-    const response = await fetch(`${this.API_BASE}/channels?part=snippet&mine=true`, {
+    const response = await fetch(`${YouTubeService.API_BASE}/channels?part=snippet&mine=true`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -175,14 +175,11 @@ export class YouTubeService {
     }
 
     try {
-      const response = await fetch(
-        `${this.API_BASE}/videoCategories?part=snippet&regionCode=${regionCode}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await fetch(`${YouTubeService.API_BASE}/videoCategories?part=snippet&regionCode=${regionCode}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      )
+      })
 
       if (!response.ok) {
         return []

@@ -10,7 +10,6 @@ import { TimelineStudioProject } from "@/features/project-settings/types/timelin
 
 import { TimelineStudioProjectService } from "../../services/timeline-studio-project-service"
 
-
 // Мокаем Tauri API
 vi.mock("@tauri-apps/plugin-fs", () => ({
   readTextFile: vi.fn(),
@@ -19,7 +18,7 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
 
 // Мокаем nanoid
 vi.mock("nanoid", () => ({
-  nanoid: () => "test-id-" + Math.random().toString(36).substring(2, 11),
+  nanoid: () => `test-id-${Math.random().toString(36).substring(2, 11)}`,
 }))
 
 const mockReadTextFile = vi.mocked(readTextFile)
@@ -37,7 +36,7 @@ describe("TimelineStudioProjectService", () => {
     it("должен возвращать singleton экземпляр", () => {
       const instance1 = TimelineStudioProjectService.getInstance()
       const instance2 = TimelineStudioProjectService.getInstance()
-      
+
       expect(instance1).toBe(instance2)
     })
   })
@@ -51,7 +50,7 @@ describe("TimelineStudioProjectService", () => {
       expect(project.metadata.id).toBeTruthy()
       expect(project.metadata.created).toBeInstanceOf(Date)
       expect(project.metadata.modified).toBeInstanceOf(Date)
-      
+
       // Проверяем настройки
       expect(project.settings.resolution).toBe(DEFAULT_PROJECT_SETTINGS.resolution)
       expect(project.settings.frameRate).toBe(DEFAULT_PROJECT_SETTINGS.frameRate)
@@ -66,7 +65,7 @@ describe("TimelineStudioProjectService", () => {
         resolution: "3840x2160",
         frameRate: "60" as const,
       }
-      
+
       const project = service.createProject("4K Project", customSettings)
 
       expect(project.settings.resolution).toBe("3840x2160")
@@ -77,7 +76,7 @@ describe("TimelineStudioProjectService", () => {
       const project = service.createProject("Test Project")
 
       expect(project.sequences.size).toBe(1)
-      
+
       const mainSequence = project.sequences.get(project.activeSequenceId)
       expect(mainSequence).toBeTruthy()
       expect(mainSequence?.name).toBe("Test Project - Sequence 1")
@@ -97,7 +96,7 @@ describe("TimelineStudioProjectService", () => {
 
     it("должен устанавливать правильную платформу", () => {
       const project = service.createProject("Test")
-      
+
       // Платформа зависит от окружения тестов
       expect(["windows", "macos", "linux"]).toContain(project.metadata.platform)
     })
@@ -168,25 +167,19 @@ describe("TimelineStudioProjectService", () => {
 
       mockReadTextFile.mockResolvedValueOnce(JSON.stringify(oldFormatData))
 
-      await expect(service.openProject("/path/to/old.tls")).rejects.toThrow(
-        "Old project format detected"
-      )
+      await expect(service.openProject("/path/to/old.tls")).rejects.toThrow("Old project format detected")
     })
 
     it("должен выбрасывать ошибку для неизвестного формата", async () => {
       mockReadTextFile.mockResolvedValueOnce(JSON.stringify({ unknown: "format" }))
 
-      await expect(service.openProject("/path/to/unknown.file")).rejects.toThrow(
-        "Unknown project format"
-      )
+      await expect(service.openProject("/path/to/unknown.file")).rejects.toThrow("Unknown project format")
     })
 
     it("должен обрабатывать ошибки чтения файла", async () => {
       mockReadTextFile.mockRejectedValueOnce(new Error("File not found"))
 
-      await expect(service.openProject("/nonexistent.tlsp")).rejects.toThrow(
-        "Failed to open project"
-      )
+      await expect(service.openProject("/nonexistent.tlsp")).rejects.toThrow("Failed to open project")
     })
   })
 
@@ -197,13 +190,13 @@ describe("TimelineStudioProjectService", () => {
       const originalLastSaved = project.backup.lastSaved
 
       // Ждем немного, чтобы время изменилось
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise((resolve) => setTimeout(resolve, 10))
 
       await service.saveProject(project, "/path/to/save.tlsp")
 
       expect(project.metadata.modified.getTime()).toBeGreaterThan(originalModified.getTime())
       expect(project.backup.lastSaved.getTime()).toBeGreaterThan(originalLastSaved.getTime())
-      
+
       expect(mockWriteTextFile).toHaveBeenCalledWith("/path/to/save.tlsp", expect.any(String))
     })
 
@@ -214,11 +207,11 @@ describe("TimelineStudioProjectService", () => {
       await service.saveProject(project, "/test.tlsp")
 
       const savedContent = JSON.parse(mockWriteTextFile.mock.calls[0][1])
-      
+
       expect(savedContent.mediaPool.items).toEqual({ "item-1": { id: "item-1" } })
       expect(typeof savedContent.sequences).toBe("object")
       expect(savedContent.sequences).not.toBeInstanceOf(Map)
-      
+
       // Проверяем, что есть хотя бы одна секвенция (автоматически созданная)
       const sequenceIds = Object.keys(savedContent.sequences)
       expect(sequenceIds.length).toBeGreaterThan(0)
@@ -228,26 +221,24 @@ describe("TimelineStudioProjectService", () => {
       const project = service.createProject("Test")
       mockWriteTextFile.mockRejectedValueOnce(new Error("Write failed"))
 
-      await expect(service.saveProject(project, "/readonly.tlsp")).rejects.toThrow(
-        "Failed to save project"
-      )
+      await expect(service.saveProject(project, "/readonly.tlsp")).rejects.toThrow("Failed to save project")
     })
   })
 
   describe("optimizeProject", () => {
     it("должен удалять неиспользуемые медиа элементы", () => {
       const project = service.createProject("Test")
-      
+
       // Добавляем медиа элементы
-      project.mediaPool.items.set("used-1", { 
-        id: "used-1", 
-        metadata: { fileSize: 1000000 } 
+      project.mediaPool.items.set("used-1", {
+        id: "used-1",
+        metadata: { fileSize: 1000000 },
       } as any)
-      project.mediaPool.items.set("unused-1", { 
-        id: "unused-1", 
-        metadata: { fileSize: 2000000 } 
+      project.mediaPool.items.set("unused-1", {
+        id: "unused-1",
+        metadata: { fileSize: 2000000 },
       } as any)
-      
+
       // Добавляем клип, использующий медиа
       const sequence = project.sequences.values().next().value
       sequence.composition.tracks.push({
@@ -266,11 +257,11 @@ describe("TimelineStudioProjectService", () => {
 
     it("должен очищать кэш для удаленных элементов", () => {
       const project = service.createProject("Test")
-      
+
       // Добавляем элемент и его кэш
-      project.mediaPool.items.set("item-1", { 
-        id: "item-1", 
-        metadata: { fileSize: 1000000 } 
+      project.mediaPool.items.set("item-1", {
+        id: "item-1",
+        metadata: { fileSize: 1000000 },
       } as any)
       project.cache.thumbnails.set("item-1", {} as any)
       project.cache.waveforms.set("item-1", {} as any)
@@ -287,7 +278,7 @@ describe("TimelineStudioProjectService", () => {
   describe("validateProject", () => {
     it("должен валидировать корректный проект", () => {
       const project = service.createProject("Valid Project")
-      
+
       const result = service.validateProject(project)
 
       expect(result.isValid).toBe(true)
@@ -299,7 +290,7 @@ describe("TimelineStudioProjectService", () => {
     it("должен находить проблемы с метаданными", () => {
       const project = service.createProject("Test")
       project.metadata.id = ""
-      
+
       const result = service.validateProject(project)
 
       expect(result.isValid).toBe(false)
@@ -350,7 +341,7 @@ describe("TimelineStudioProjectService", () => {
 
       expect(backupPath).toMatch(/Test_backup_.*\.tlsp/)
       expect(project.backup.versions).toHaveLength(originalVersionsCount + 1)
-      
+
       const lastVersion = project.backup.versions[project.backup.versions.length - 1]
       expect(lastVersion.path).toBe(backupPath)
       expect(lastVersion.timestamp).toBeInstanceOf(Date)

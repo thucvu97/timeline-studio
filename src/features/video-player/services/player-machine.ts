@@ -26,10 +26,10 @@ export interface PlayerContextType {
   // Новые поля для функции "Применить"
   previewMedia: MediaFile | null // Медиа для предпросмотра
   videoSource: "browser" | "timeline" // Источник видео
-  
+
   // Примененные эффекты и фильтры
-  appliedEffects: Array<{id: string; name: string; params: any}>
-  appliedFilters: Array<{id: string; name: string; params: any}>
+  appliedEffects: Array<{ id: string; name: string; params: any }>
+  appliedFilters: Array<{ id: string; name: string; params: any }>
   appliedTemplate: {
     id: string
     name: string
@@ -62,7 +62,7 @@ const initialContext: PlayerContextType = {
   // Новые поля
   previewMedia: null,
   videoSource: "browser",
-  
+
   // Примененные эффекты и фильтры
   appliedEffects: [],
   appliedFilters: [],
@@ -145,17 +145,17 @@ interface SetVideoSourceEvent {
 
 interface ApplyEffectEvent {
   type: "applyEffect"
-  effect: {id: string; name: string; params: any}
+  effect: { id: string; name: string; params: any }
 }
 
 interface ApplyFilterEvent {
   type: "applyFilter"
-  filter: {id: string; name: string; params: any}
+  filter: { id: string; name: string; params: any }
 }
 
 interface ApplyTemplateEvent {
   type: "applyTemplate"
-  template: {id: string; name: string}
+  template: { id: string; name: string }
   files: MediaFile[]
 }
 
@@ -194,22 +194,26 @@ export type PlayerEvent =
   | ClearTemplateEvent
 
 // Переиспользуемые actions для применения эффектов/фильтров/шаблонов
-const applyEffectAction = assign({ 
-  appliedEffects: ({ context, event }: { context: PlayerContextType, event: ApplyEffectEvent }) => 
-    [...context.appliedEffects, event.effect]
+const applyEffectAction = assign({
+  appliedEffects: ({ context, event }: { context: PlayerContextType; event: ApplyEffectEvent }) => [
+    ...context.appliedEffects,
+    event.effect,
+  ],
 })
 
-const applyFilterAction = assign({ 
-  appliedFilters: ({ context, event }: { context: PlayerContextType, event: ApplyFilterEvent }) => 
-    [...context.appliedFilters, event.filter]
+const applyFilterAction = assign({
+  appliedFilters: ({ context, event }: { context: PlayerContextType; event: ApplyFilterEvent }) => [
+    ...context.appliedFilters,
+    event.filter,
+  ],
 })
 
-const applyTemplateAction = assign({ 
+const applyTemplateAction = assign({
   appliedTemplate: ({ event }: { event: ApplyTemplateEvent }) => ({
     id: event.template.id,
     name: event.template.name,
-    files: event.files
-  })
+    files: event.files,
+  }),
 })
 
 const clearEffectsAction = assign({ appliedEffects: [] })
@@ -317,7 +321,7 @@ export const playerMachine = createMachine({
           actions: [
             clearEffectsAction,
             () => {
-              console.log(`[PlayerMachine] Очищены эффекты`)
+              console.log("[PlayerMachine] Очищены эффекты")
             },
           ],
         },
@@ -325,7 +329,7 @@ export const playerMachine = createMachine({
           actions: [
             clearFiltersAction,
             () => {
-              console.log(`[PlayerMachine] Очищены фильтры`)
+              console.log("[PlayerMachine] Очищены фильтры")
             },
           ],
         },
@@ -333,7 +337,7 @@ export const playerMachine = createMachine({
           actions: [
             clearTemplateAction,
             () => {
-              console.log(`[PlayerMachine] Очищен шаблон`)
+              console.log("[PlayerMachine] Очищен шаблон")
             },
           ],
         },

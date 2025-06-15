@@ -91,7 +91,7 @@ export function useSocialExport() {
         }
 
         toast.success(t("dialogs.export.uploadSuccess", { network: network.name }))
-        
+
         // Возвращаем информацию о загруженном видео
         return {
           url: result.url,
@@ -105,19 +105,16 @@ export function useSocialExport() {
     [t],
   )
 
-  const validateSocialExport = useCallback(
-    (settings: SocialExportSettings): boolean => {
-      const errors = SocialNetworksService.validateSettings(settings.socialNetwork, settings)
-      
-      if (errors.length > 0) {
-        toast.error(errors[0]) // Показываем первую ошибку
-        return false
-      }
+  const validateSocialExport = useCallback((settings: SocialExportSettings): boolean => {
+    const errors = SocialNetworksService.validateSettings(settings.socialNetwork, settings)
 
-      return true
-    },
-    [],
-  )
+    if (errors.length > 0) {
+      toast.error(errors[0]) // Показываем первую ошибку
+      return false
+    }
+
+    return true
+  }, [])
 
   const getOptimalSettings = useCallback((network: string) => {
     return SocialNetworksService.getOptimalSettings(network)

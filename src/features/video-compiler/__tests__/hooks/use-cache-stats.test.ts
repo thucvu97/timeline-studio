@@ -1,11 +1,11 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { 
-  type CacheStatsWithRatios, 
-  formatCacheRatio, 
+import {
+  type CacheStatsWithRatios,
+  formatCacheRatio,
   formatCacheSize,
-  useCacheStats 
+  useCacheStats,
 } from "../../hooks/use-cache-stats"
 import { CacheStats } from "../../types/cache"
 
