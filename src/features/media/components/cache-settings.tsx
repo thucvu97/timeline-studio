@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 
 import { AlertCircle, Database, HardDrive, RefreshCw, Trash2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -9,148 +10,153 @@ import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { formatFileSize } from "@/lib/utils"
 
-/**
- * Интерфейс для статистики кэша
- */
-interface CacheStats {
-  previewCache: {
-    count: number
-    size: number
-  }
-  frameCache: {
-    count: number
-    size: number
-  }
-  recognitionCache: {
-    count: number
-    size: number
-  }
-  totalSize: number
-}
+import { type CacheStatistics, indexedDBCacheService } from "../services/indexeddb-cache-service"
 
 /**
  * Компонент управления настройками кэширования
  * Позволяет просматривать и управлять локальным кэшем IndexedDB
  */
 export function CacheSettings() {
+  const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
-  const [cacheStats, setCacheStats] = useState<CacheStats | null>(null)
+  const [cacheStats, setCacheStats] = useState<CacheStatistics | null>(null)
   const [clearingProgress, setClearingProgress] = useState(0)
+  const [isClearing, setIsClearing] = useState(false)
 
   // Загрузка статистики кэша
   const loadCacheStats = useCallback(async () => {
     setIsLoading(true)
     try {
-      // Здесь должна быть логика получения статистики из IndexedDB
-      // Пока используем заглушку
-      const stats: CacheStats = {
-        previewCache: {
-          count: 150,
-          size: 52428800, // 50MB
-        },
-        frameCache: {
-          count: 450,
-          size: 157286400, // 150MB
-        },
-        recognitionCache: {
-          count: 25,
-          size: 10485760, // 10MB
-        },
-        totalSize: 220200960, // 210MB
-      }
-
+      const stats = await indexedDBCacheService.getCacheStatistics()
       setCacheStats(stats)
     } catch (error) {
       console.error("Ошибка загрузки статистики кэша:", error)
-      toast.error("Не удалось загрузить статистику кэша")
+      toast.error(t("media.cache.errors.loadStats"))
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [t])
 
   // Очистка кэша превью
   const clearPreviewCache = useCallback(async () => {
+    setIsClearing(true)
     setClearingProgress(0)
     try {
-      // Имитация процесса очистки
-      for (let i = 0; i <= 100; i += 10) {
-        setClearingProgress(i)
-        await new Promise((resolve) => setTimeout(resolve, 100))
-      }
+      // Показываем прогресс
+      const progressInterval = setInterval(() => {
+        setClearingProgress((prev) => Math.min(prev + 20, 90))
+      }, 100)
 
-      toast.success("Кэш превью очищен")
-
+      await indexedDBCacheService.clearPreviewCache()
+      
+      clearInterval(progressInterval)
+      setClearingProgress(100)
+      
+      toast.success(t("media.cache.success.clearPreview"))
       await loadCacheStats()
     } catch (error) {
       console.error("Ошибка очистки кэша превью:", error)
-      toast.error("Не удалось очистить кэш превью")
+      toast.error(t("media.cache.errors.clearPreview"))
     } finally {
-      setClearingProgress(0)
+      setTimeout(() => {
+        setClearingProgress(0)
+        setIsClearing(false)
+      }, 500)
     }
-  }, [loadCacheStats])
+  }, [loadCacheStats, t])
 
   // Очистка кэша кадров
   const clearFrameCache = useCallback(async () => {
+    setIsClearing(true)
     setClearingProgress(0)
     try {
-      // Имитация процесса очистки
-      for (let i = 0; i <= 100; i += 10) {
-        setClearingProgress(i)
-        await new Promise((resolve) => setTimeout(resolve, 100))
-      }
+      const progressInterval = setInterval(() => {
+        setClearingProgress((prev) => Math.min(prev + 20, 90))
+      }, 100)
 
-      toast.success("Кэш кадров очищен")
-
+      await indexedDBCacheService.clearFrameCache()
+      
+      clearInterval(progressInterval)
+      setClearingProgress(100)
+      
+      toast.success(t("media.cache.success.clearFrames"))
       await loadCacheStats()
     } catch (error) {
       console.error("Ошибка очистки кэша кадров:", error)
-      toast.error("Не удалось очистить кэш кадров")
+      toast.error(t("media.cache.errors.clearFrames"))
     } finally {
-      setClearingProgress(0)
+      setTimeout(() => {
+        setClearingProgress(0)
+        setIsClearing(false)
+      }, 500)
     }
-  }, [loadCacheStats])
+  }, [loadCacheStats, t])
 
   // Очистка кэша распознавания
   const clearRecognitionCache = useCallback(async () => {
+    setIsClearing(true)
     setClearingProgress(0)
     try {
-      // Имитация процесса очистки
-      for (let i = 0; i <= 100; i += 10) {
-        setClearingProgress(i)
-        await new Promise((resolve) => setTimeout(resolve, 100))
-      }
+      const progressInterval = setInterval(() => {
+        setClearingProgress((prev) => Math.min(prev + 20, 90))
+      }, 100)
 
-      toast.success("Кэш распознавания очищен")
-
+      await indexedDBCacheService.clearRecognitionCache()
+      
+      clearInterval(progressInterval)
+      setClearingProgress(100)
+      
+      toast.success(t("media.cache.success.clearRecognition"))
       await loadCacheStats()
     } catch (error) {
       console.error("Ошибка очистки кэша распознавания:", error)
-      toast.error("Не удалось очистить кэш распознавания")
+      toast.error(t("media.cache.errors.clearRecognition"))
     } finally {
-      setClearingProgress(0)
+      setTimeout(() => {
+        setClearingProgress(0)
+        setIsClearing(false)
+      }, 500)
     }
-  }, [loadCacheStats])
+  }, [loadCacheStats, t])
 
   // Очистка всего кэша
   const clearAllCache = useCallback(async () => {
+    setIsClearing(true)
     setClearingProgress(0)
     try {
-      // Имитация процесса очистки
-      for (let i = 0; i <= 100; i += 5) {
-        setClearingProgress(i)
-        await new Promise((resolve) => setTimeout(resolve, 50))
-      }
+      const progressInterval = setInterval(() => {
+        setClearingProgress((prev) => Math.min(prev + 10, 90))
+      }, 50)
 
-      toast.success("Весь кэш очищен")
-
+      await indexedDBCacheService.clearAllCache()
+      
+      clearInterval(progressInterval)
+      setClearingProgress(100)
+      
+      toast.success(t("media.cache.success.clearAll"))
       await loadCacheStats()
     } catch (error) {
       console.error("Ошибка очистки всего кэша:", error)
-      toast.error("Не удалось очистить весь кэш")
+      toast.error(t("media.cache.errors.clearAll"))
     } finally {
-      setClearingProgress(0)
+      setTimeout(() => {
+        setClearingProgress(0)
+        setIsClearing(false)
+      }, 500)
     }
-  }, [loadCacheStats])
+  }, [loadCacheStats, t])
+
+  // Очистка устаревшего кэша
+  const cleanupExpiredCache = useCallback(async () => {
+    try {
+      await indexedDBCacheService.cleanupExpiredCache()
+      toast.success(t("media.cache.success.cleanupExpired"))
+      await loadCacheStats()
+    } catch (error) {
+      console.error("Ошибка очистки устаревшего кэша:", error)
+      toast.error(t("media.cache.errors.cleanupExpired"))
+    }
+  }, [loadCacheStats, t])
 
   // Загрузка статистики при монтировании
   useEffect(() => {
@@ -173,20 +179,23 @@ export function CacheSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
-            Управление кэшем
+            {t("media.cache.title")}
           </CardTitle>
-          <CardDescription>Настройки локального кэширования данных в браузере</CardDescription>
+          <CardDescription>{t("media.cache.description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Общая статистика */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">Общий размер кэша</span>
+              <span className="font-medium">{t("media.cache.totalSize")}</span>
               <span className="text-muted-foreground">{formatFileSize(cacheStats.totalSize)}</span>
             </div>
             <Progress value={(cacheStats.totalSize / (500 * 1024 * 1024)) * 100} className="h-2" />
             <p className="text-xs text-muted-foreground">
-              Используется {formatFileSize(cacheStats.totalSize)} из 500 MB
+              {t("media.cache.usage", { 
+                used: formatFileSize(cacheStats.totalSize), 
+                total: "500 MB" 
+              })}
             </p>
           </div>
 
@@ -196,14 +205,17 @@ export function CacheSettings() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">Кэш превью</h4>
+                <h4 className="text-sm font-medium">{t("media.cache.previewCache.title")}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {cacheStats.previewCache.count} элементов, {formatFileSize(cacheStats.previewCache.size)}
+                  {t("media.cache.previewCache.info", {
+                    count: cacheStats.previewCache.count,
+                    size: formatFileSize(cacheStats.previewCache.size)
+                  })}
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={clearPreviewCache} disabled={clearingProgress > 0}>
+              <Button variant="outline" size="sm" onClick={clearPreviewCache} disabled={isClearing}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Очистить
+                {t("media.cache.actions.clear")}
               </Button>
             </div>
           </div>
@@ -212,14 +224,17 @@ export function CacheSettings() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">Кэш кадров Timeline</h4>
+                <h4 className="text-sm font-medium">{t("media.cache.frameCache.title")}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {cacheStats.frameCache.count} кадров, {formatFileSize(cacheStats.frameCache.size)}
+                  {t("media.cache.frameCache.info", {
+                    count: cacheStats.frameCache.count,
+                    size: formatFileSize(cacheStats.frameCache.size)
+                  })}
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={clearFrameCache} disabled={clearingProgress > 0}>
+              <Button variant="outline" size="sm" onClick={clearFrameCache} disabled={isClearing}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Очистить
+                {t("media.cache.actions.clear")}
               </Button>
             </div>
           </div>
@@ -228,14 +243,65 @@ export function CacheSettings() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-sm font-medium">Кэш распознавания</h4>
+                <h4 className="text-sm font-medium">{t("media.cache.recognitionCache.title")}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {cacheStats.recognitionCache.count} результатов, {formatFileSize(cacheStats.recognitionCache.size)}
+                  {t("media.cache.recognitionCache.info", {
+                    count: cacheStats.recognitionCache.count,
+                    size: formatFileSize(cacheStats.recognitionCache.size)
+                  })}
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={clearRecognitionCache} disabled={clearingProgress > 0}>
+              <Button variant="outline" size="sm" onClick={clearRecognitionCache} disabled={isClearing}>
                 <Trash2 className="mr-2 h-4 w-4" />
-                Очистить
+                {t("media.cache.actions.clear")}
+              </Button>
+            </div>
+          </div>
+
+          {/* Кэш субтитров */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium">{t("media.cache.subtitleCache.title")}</h4>
+                <p className="text-xs text-muted-foreground">
+                  {t("media.cache.subtitleCache.info", {
+                    count: cacheStats.subtitleCache.count,
+                    size: formatFileSize(cacheStats.subtitleCache.size)
+                  })}
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  setIsClearing(true)
+                  setClearingProgress(0)
+                  try {
+                    const progressInterval = setInterval(() => {
+                      setClearingProgress((prev) => Math.min(prev + 20, 90))
+                    }, 100)
+
+                    await indexedDBCacheService.clearSubtitleCache()
+                    
+                    clearInterval(progressInterval)
+                    setClearingProgress(100)
+                    
+                    toast.success(t("media.cache.success.clearSubtitles"))
+                    await loadCacheStats()
+                  } catch (error) {
+                    console.error("Ошибка очистки кэша субтитров:", error)
+                    toast.error(t("media.cache.errors.clearSubtitles"))
+                  } finally {
+                    setTimeout(() => {
+                      setClearingProgress(0)
+                      setIsClearing(false)
+                    }, 500)
+                  }
+                }} 
+                disabled={isClearing}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t("media.cache.actions.clear")}
               </Button>
             </div>
           </div>
@@ -246,7 +312,7 @@ export function CacheSettings() {
           {clearingProgress > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span>Очистка кэша...</span>
+                <span>{t("media.cache.clearing")}</span>
                 <span>{clearingProgress}%</span>
               </div>
               <Progress value={clearingProgress} className="h-2" />
@@ -257,12 +323,27 @@ export function CacheSettings() {
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <AlertCircle className="h-4 w-4" />
-              <span>Очистка кэша может замедлить загрузку медиафайлов</span>
+              <span>{t("media.cache.warning")}</span>
             </div>
-            <Button variant="destructive" onClick={clearAllCache} disabled={clearingProgress > 0}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Очистить весь кэш
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={cleanupExpiredCache} 
+                disabled={isClearing}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {t("media.cache.actions.cleanupExpired")}
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={clearAllCache} 
+                disabled={isClearing}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t("media.cache.actions.clearAll")}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -272,22 +353,22 @@ export function CacheSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="h-5 w-5" />
-            Хранилище браузера
+            {t("media.cache.storage.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Технология хранения</span>
+              <span className="text-muted-foreground">{t("media.cache.storage.technology")}</span>
               <span className="font-medium">IndexedDB</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Максимальный размер</span>
+              <span className="text-muted-foreground">{t("media.cache.storage.maxSize")}</span>
               <span className="font-medium">500 MB</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Автоочистка</span>
-              <span className="font-medium">После 30 дней</span>
+              <span className="text-muted-foreground">{t("media.cache.storage.autoCleanup")}</span>
+              <span className="font-medium">{t("media.cache.storage.autoCleanupValue")}</span>
             </div>
           </div>
         </CardContent>

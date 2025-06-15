@@ -27,11 +27,11 @@ pub struct RenderPipeline {
   /// Трекер прогресса
   progress_tracker: Arc<ProgressTracker>,
   /// Настройки
-  settings: Arc<RwLock<CompilerSettings>>,
+  _settings: Arc<RwLock<CompilerSettings>>,
   /// Контекст выполнения
   context: PipelineContext,
   /// FFmpeg builder для создания команд
-  ffmpeg_builder: FFmpegBuilder,
+  _ffmpeg_builder: FFmpegBuilder,
 }
 
 impl RenderPipeline {
@@ -53,9 +53,9 @@ impl RenderPipeline {
       project,
       stages: Vec::new(),
       progress_tracker,
-      settings,
+      _settings: settings,
       context,
-      ffmpeg_builder,
+      _ffmpeg_builder: ffmpeg_builder,
     };
 
     // Добавляем стандартные этапы
@@ -307,6 +307,7 @@ impl PipelineContext {
   }
 
   /// Получить промежуточный файл
+  #[allow(dead_code)]
   pub fn get_intermediate_file(&self, key: &str) -> Option<&PathBuf> {
     self.intermediate_files.get(key)
   }

@@ -207,6 +207,7 @@ impl ProgressTracker {
   }
 
   /// Получить информацию о задаче
+  #[allow(dead_code)]
   pub async fn get_job(&self, job_id: &str) -> Option<RenderJob> {
     let jobs = self.active_jobs.read().await;
     jobs.get(job_id).cloned()
@@ -219,12 +220,13 @@ impl ProgressTracker {
   }
 
   /// Проверить и отменить задачи по таймауту
+  #[allow(dead_code)]
   pub async fn check_job_timeouts(&self) -> Result<Vec<String>> {
     let mut jobs = self.active_jobs.write().await;
     let mut timed_out_jobs = Vec::new();
     let current_time = SystemTime::now();
 
-    let timeout_duration = self.settings.job_timeout;
+    let timeout_duration = self.settings._job_timeout;
 
     // Собираем ID задач, которые превысили таймаут
     let mut expired_job_ids = Vec::new();
@@ -402,6 +404,7 @@ impl RenderJob {
   }
 
   /// Начать выполнение задачи
+  #[allow(dead_code)]
   pub fn start(&mut self) -> Result<()> {
     if self.status != RenderStatus::Queued {
       return Err(VideoCompilerError::render(
@@ -603,7 +606,7 @@ pub struct ProgressSettings {
   /// Максимальное количество активных задач
   pub max_concurrent_jobs: usize,
   /// Таймаут для задач
-  pub job_timeout: Duration,
+  pub _job_timeout: Duration,
 }
 
 impl Default for ProgressSettings {
@@ -611,7 +614,7 @@ impl Default for ProgressSettings {
     Self {
       update_interval: Duration::from_millis(500),
       max_concurrent_jobs: 3,
-      job_timeout: Duration::from_secs(3600), // 1 час
+      _job_timeout: Duration::from_secs(3600), // 1 час
     }
   }
 }

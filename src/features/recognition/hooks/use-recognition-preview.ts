@@ -3,8 +3,44 @@ import { useCallback, useState } from "react"
 import { invoke } from "@tauri-apps/api/core"
 
 import { useMediaPreview } from "@/features/media/hooks/use-media-preview"
+import type { RecognitionResults } from "@/features/media/types/preview"
 
 import type { YoloDetection, YoloVideoData } from "../types/yolo"
+
+/**
+ * Конвертирует RecognitionResults в YoloVideoData формат
+ */
+function convertRecognitionResultsToYoloData(
+  fileId: string,
+  filePath: string,
+  recognitionResults: RecognitionResults
+): YoloVideoData {
+  return {
+    videoId: fileId,
+    videoName: filePath.split('/').pop() || fileId,
+    videoPath: filePath,
+    frames: recognitionResults.objects.flatMap(obj => 
+      obj.timestamps.map((timestamp, index) => ({
+        timestamp,
+        detections: [{
+          class: obj.class,
+          confidence: obj.confidence,
+          bbox: obj.bounding_boxes[index] ? {
+            x: obj.bounding_boxes[index].x,
+            y: obj.bounding_boxes[index].y,
+            width: obj.bounding_boxes[index].width,
+            height: obj.bounding_boxes[index].height
+          } : { x: 0, y: 0, width: 0, height: 0 }
+        }]
+      }))
+    ),
+    metadata: {
+      model: "YOLO",
+      version: "v11",
+      processedAt: recognitionResults.processed_at
+    }
+  }
+}
 
 export interface UseRecognitionPreviewOptions {
   onRecognitionComplete?: (fileId: string, data: YoloVideoData) => void
@@ -39,7 +75,12 @@ export function useRecognitionPreview(options: UseRecognitionPreviewOptions = {}
         const cachedData = await getPreviewData(fileId)
         if (cachedData?.recognition_results) {
           console.log(`Использованы кэшированные результаты распознавания для ${fileId}`)
-          const yoloData = cachedData.recognition_results as YoloVideoData
+          // Конвертируем RecognitionResults в YoloVideoData формат
+          const yoloData = convertRecognitionResultsToYoloData(
+            fileId,
+            cachedData.file_path,
+            cachedData.recognition_results
+          )
           options.onRecognitionComplete?.(fileId, yoloData)
           return yoloData
         }
@@ -75,7 +116,11 @@ export function useRecognitionPreview(options: UseRecognitionPreviewOptions = {}
         const previewData = await getPreviewData(fileId)
 
         if (previewData?.recognition_results) {
-          const yoloData = previewData.recognition_results as YoloVideoData
+          const yoloData = convertRecognitionResultsToYoloData(
+            fileId,
+            previewData.file_path,
+            previewData.recognition_results
+          )
 
           // Находим ближайший кадр к запрошенному timestamp
           const closestFrame = yoloData.frames.reduce((prev, curr) => {

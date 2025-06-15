@@ -11,8 +11,24 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }))
 
+// Мокаем IndexedDB Cache Service
+vi.mock("@/features/media/services/indexeddb-cache-service", () => ({
+  indexedDBCacheService: {
+    cacheTimelineFrames: vi.fn(),
+    getCachedTimelineFrames: vi.fn(),
+    cacheRecognitionFrames: vi.fn(),
+    getCachedRecognitionFrames: vi.fn(),
+    cacheSubtitleFrames: vi.fn(),
+    getCachedSubtitleFrames: vi.fn(),
+    clearFrameCache: vi.fn(),
+    clearRecognitionCache: vi.fn(),
+    clearSubtitleCache: vi.fn(),
+  },
+}))
+
 describe("frameExtractionService", () => {
   let mockInvoke: any
+  let mockIndexedDBCacheService: any
 
   const mockTimelineFrames: TimelineFrame[] = [
     { timestamp: 0, frameData: "base64data1", isKeyframe: true },
@@ -63,6 +79,9 @@ describe("frameExtractionService", () => {
     vi.clearAllMocks()
     const { invoke } = await import("@tauri-apps/api/core")
     mockInvoke = vi.mocked(invoke)
+    
+    const { indexedDBCacheService } = await import("@/features/media/services/indexeddb-cache-service")
+    mockIndexedDBCacheService = vi.mocked(indexedDBCacheService)
   })
 
   describe("extractTimelineFrames", () => {
@@ -188,16 +207,20 @@ describe("frameExtractionService", () => {
 
   describe("clearFrameCache", () => {
     it("should clear frame cache", async () => {
-      mockInvoke.mockResolvedValueOnce(undefined)
+      mockIndexedDBCacheService.clearFrameCache.mockResolvedValueOnce(undefined)
+      mockIndexedDBCacheService.clearRecognitionCache.mockResolvedValueOnce(undefined)
+      mockIndexedDBCacheService.clearSubtitleCache.mockResolvedValueOnce(undefined)
 
       await frameExtractionService.clearFrameCache()
 
-      expect(mockInvoke).toHaveBeenCalledWith("clear_frame_cache")
+      expect(mockIndexedDBCacheService.clearFrameCache).toHaveBeenCalled()
+      expect(mockIndexedDBCacheService.clearRecognitionCache).toHaveBeenCalled()
+      expect(mockIndexedDBCacheService.clearSubtitleCache).toHaveBeenCalled()
     })
 
     it("should handle clear cache error", async () => {
       const errorMessage = "Failed to clear cache"
-      mockInvoke.mockRejectedValueOnce(new Error(errorMessage))
+      mockIndexedDBCacheService.clearFrameCache.mockRejectedValueOnce(new Error(errorMessage))
 
       await expect(frameExtractionService.clearFrameCache()).rejects.toThrow(errorMessage)
     })
@@ -298,13 +321,14 @@ describe("frameExtractionService", () => {
     it("should respect minimum interval", async () => {
       mockInvoke.mockResolvedValueOnce([])
 
-      await frameExtractionService.generateSmartTimelinePreviews(
+      const result = await frameExtractionService.generateSmartTimelinePreviews(
         "/video.mp4",
         2, // 2 second video
         800, // 800px container
         160, // 160px per frame
       )
 
+      expect(result).toEqual([])
       expect(mockInvoke).toHaveBeenCalledWith("extract_timeline_frames", {
         request: {
           video_path: "/video.mp4",
@@ -317,20 +341,46 @@ describe("frameExtractionService", () => {
   })
 
   describe("cacheFramesInIndexedDB", () => {
-    it("should log cache operation", async () => {
+    it("should cache frames in IndexedDB", async () => {
+      mockIndexedDBCacheService.cacheTimelineFrames.mockResolvedValueOnce(undefined)
       const consoleSpy = vi.spyOn(console, "log")
 
       await frameExtractionService.cacheFramesInIndexedDB("/video.mp4", mockTimelineFrames)
 
-      expect(consoleSpy).toHaveBeenCalledWith("Caching frames for", "/video.mp4", mockTimelineFrames.length)
+      expect(mockIndexedDBCacheService.cacheTimelineFrames).toHaveBeenCalledWith("/video.mp4", mockTimelineFrames)
+      expect(consoleSpy).toHaveBeenCalledWith(`Cached ${mockTimelineFrames.length} timeline frames for /video.mp4`)
     })
   })
 
   describe("getCachedFrames", () => {
-    it("should return null (not implemented)", async () => {
+    it("should return cached frames from IndexedDB", async () => {
+      mockIndexedDBCacheService.getCachedTimelineFrames.mockResolvedValueOnce(mockTimelineFrames)
+      const consoleSpy = vi.spyOn(console, "log")
+
+      const result = await frameExtractionService.getCachedFrames("/video.mp4")
+
+      expect(result).toEqual(mockTimelineFrames)
+      expect(mockIndexedDBCacheService.getCachedTimelineFrames).toHaveBeenCalledWith("/video.mp4")
+      expect(consoleSpy).toHaveBeenCalledWith(`Retrieved ${mockTimelineFrames.length} cached frames for /video.mp4`)
+    })
+
+    it("should return null when no cached frames", async () => {
+      mockIndexedDBCacheService.getCachedTimelineFrames.mockResolvedValueOnce(null)
+
       const result = await frameExtractionService.getCachedFrames("/video.mp4")
 
       expect(result).toBeNull()
+    })
+
+    it("should handle cache retrieval error", async () => {
+      const errorMessage = "IndexedDB error"
+      mockIndexedDBCacheService.getCachedTimelineFrames.mockRejectedValueOnce(new Error(errorMessage))
+      const consoleSpy = vi.spyOn(console, "error")
+
+      const result = await frameExtractionService.getCachedFrames("/video.mp4")
+
+      expect(result).toBeNull()
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to retrieve cached frames:", expect.any(Error))
     })
   })
 })

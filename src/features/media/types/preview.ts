@@ -56,11 +56,18 @@ export interface RecognitionResults {
   processed_at: string
 }
 
+export interface TimelineFrame {
+  timestamp: number
+  base64_data: string
+  is_keyframe: boolean
+}
+
 export interface MediaPreviewData {
   file_id: string
   file_path: string
   browser_thumbnail?: ThumbnailData
   timeline_previews: TimelinePreview[]
+  timeline_frames?: TimelineFrame[]
   recognition_frames: RecognitionFrame[]
   recognition_results?: RecognitionResults
   last_updated: string

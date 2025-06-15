@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core"
 
+import { indexedDBCacheService } from "@/features/media/services/indexeddb-cache-service"
 import type { Subtitle } from "@/types/video-compiler"
 
 /**
@@ -172,17 +173,6 @@ export class FrameExtractionService {
     }
   }
 
-  /**
-   * Очистить кэш кадров
-   */
-  async clearFrameCache(): Promise<void> {
-    try {
-      await invoke("clear_frame_cache")
-    } catch (error) {
-      console.error("Failed to clear frame cache:", error)
-      throw error
-    }
-  }
 
   /**
    * Создать превью элемент из base64 данных
@@ -253,17 +243,100 @@ export class FrameExtractionService {
    * Кэшировать кадры в IndexedDB для быстрого доступа
    */
   async cacheFramesInIndexedDB(videoPath: string, frames: TimelineFrame[]): Promise<void> {
-    // TODO: Реализовать кэширование в IndexedDB
-    console.log("Caching frames for", videoPath, frames.length)
+    try {
+      await indexedDBCacheService.cacheTimelineFrames(videoPath, frames)
+      console.log(`Cached ${frames.length} timeline frames for ${videoPath}`)
+    } catch (error) {
+      console.error("Failed to cache timeline frames:", error)
+      // Не прерываем работу при ошибке кэширования
+    }
   }
 
   /**
    * Получить кэшированные кадры из IndexedDB
    */
   async getCachedFrames(videoPath: string): Promise<TimelineFrame[] | null> {
-    // TODO: Реализовать получение из IndexedDB
-    console.log("Getting cached frames for", videoPath)
-    return null
+    try {
+      const cachedFrames = await indexedDBCacheService.getCachedTimelineFrames(videoPath)
+      if (cachedFrames) {
+        console.log(`Retrieved ${cachedFrames.length} cached frames for ${videoPath}`)
+      }
+      return cachedFrames
+    } catch (error) {
+      console.error("Failed to retrieve cached frames:", error)
+      return null
+    }
+  }
+
+  /**
+   * Кэшировать результаты распознавания
+   */
+  async cacheRecognitionFrames(videoPath: string, frames: RecognitionFrame[]): Promise<void> {
+    try {
+      await indexedDBCacheService.cacheRecognitionFrames(videoPath, frames)
+      console.log(`Cached ${frames.length} recognition frames for ${videoPath}`)
+    } catch (error) {
+      console.error("Failed to cache recognition frames:", error)
+    }
+  }
+
+  /**
+   * Получить кэшированные результаты распознавания
+   */
+  async getCachedRecognitionFrames(videoPath: string): Promise<RecognitionFrame[] | null> {
+    try {
+      const cachedFrames = await indexedDBCacheService.getCachedRecognitionFrames(videoPath)
+      if (cachedFrames) {
+        console.log(`Retrieved ${cachedFrames.length} cached recognition frames for ${videoPath}`)
+      }
+      return cachedFrames
+    } catch (error) {
+      console.error("Failed to retrieve cached recognition frames:", error)
+      return null
+    }
+  }
+
+  /**
+   * Кэшировать кадры субтитров
+   */
+  async cacheSubtitleFrames(videoPath: string, frames: SubtitleFrame[]): Promise<void> {
+    try {
+      await indexedDBCacheService.cacheSubtitleFrames(videoPath, frames)
+      console.log(`Cached ${frames.length} subtitle frames for ${videoPath}`)
+    } catch (error) {
+      console.error("Failed to cache subtitle frames:", error)
+    }
+  }
+
+  /**
+   * Получить кэшированные кадры субтитров
+   */
+  async getCachedSubtitleFrames(videoPath: string): Promise<SubtitleFrame[] | null> {
+    try {
+      const cachedFrames = await indexedDBCacheService.getCachedSubtitleFrames(videoPath)
+      if (cachedFrames) {
+        console.log(`Retrieved ${cachedFrames.length} cached subtitle frames for ${videoPath}`)
+      }
+      return cachedFrames
+    } catch (error) {
+      console.error("Failed to retrieve cached subtitle frames:", error)
+      return null
+    }
+  }
+
+  /**
+   * Очистить весь кэш кадров
+   */
+  async clearFrameCache(): Promise<void> {
+    try {
+      await indexedDBCacheService.clearFrameCache()
+      await indexedDBCacheService.clearRecognitionCache()
+      await indexedDBCacheService.clearSubtitleCache()
+      console.log("Frame cache cleared")
+    } catch (error) {
+      console.error("Failed to clear frame cache:", error)
+      throw error
+    }
   }
 }
 

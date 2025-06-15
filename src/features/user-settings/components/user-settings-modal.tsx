@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { CacheSettings } from "@/features/media/components/cache-settings"
 import { useModal } from "@/features/modals/services/modal-provider"
 import { CacheStatsDialog } from "@/features/video-compiler"
 import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
@@ -48,6 +49,8 @@ export function UserSettingsModal() {
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(currentLanguage)
   // Состояние для диалога статистики кэша
   const [showCacheStats, setShowCacheStats] = useState(false)
+  // Состояние для панели настроек кэша
+  const [showCacheSettings, setShowCacheSettings] = useState(false)
 
   /**
    * Обработчик изменения языка интерфейса
@@ -305,7 +308,7 @@ export function UserSettingsModal() {
       {/* Раздел производительности */}
       <div className="flex flex-col space-y-2">
         <Label className="text-xs font-medium">{t("dialogs.userSettings.performance", "Производительность")}</Label>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
@@ -314,6 +317,15 @@ export function UserSettingsModal() {
           >
             <Database className="h-4 w-4" />
             {t("dialogs.userSettings.cacheStats", "Статистика кэша")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowCacheSettings(true)}
+            className="flex items-center gap-2"
+          >
+            <Database className="h-4 w-4" />
+            {t("dialogs.userSettings.cacheSettings", "Настройки кэша")}
           </Button>
         </div>
       </div>
@@ -345,6 +357,27 @@ export function UserSettingsModal() {
 
       {/* Диалог статистики кэша */}
       <CacheStatsDialog open={showCacheStats} onOpenChange={setShowCacheStats} />
+      
+      {/* Диалог настроек кэша */}
+      {showCacheSettings && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
+          <div className="bg-background rounded-lg shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">{t("dialogs.userSettings.cacheSettings", "Настройки кэша")}</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowCacheSettings(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <CacheSettings />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

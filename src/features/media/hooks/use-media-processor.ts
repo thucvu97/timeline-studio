@@ -74,7 +74,7 @@ async function cacheMetadataIfValid(metadata: MediaFile) {
         resolution:
           videoStream && videoStream.width && videoStream.height ? [videoStream.width, videoStream.height] : undefined,
         fps: videoStream?.r_frame_rate ? parseFrameRate(videoStream.r_frame_rate) : undefined,
-        bitrate: metadata.probeData.format?.bit_rate ? Number.parseInt(metadata.probeData.format.bit_rate) : undefined,
+        bitrate: metadata.probeData.format?.bit_rate ? Number(metadata.probeData.format.bit_rate) : undefined,
         video_codec: videoStream?.codec_name,
         audio_codec: audioStream?.codec_name,
         cached_at: new Date().toISOString(),

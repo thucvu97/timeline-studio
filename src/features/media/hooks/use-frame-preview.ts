@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 
-import { FrameExtractionService, TimelineFrame } from "@/features/video-compiler/services/frame-extraction-service"
+import { ExtractionPurpose, FrameExtractionService, TimelineFrame } from "@/features/video-compiler/services/frame-extraction-service"
 
 import { useMediaPreview } from "./use-media-preview"
 
@@ -39,15 +39,29 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
         setIsExtracting(true)
         setError(null)
 
-        // Сначала проверяем кэш Preview Manager
+        // Сначала проверяем IndexedDB кэш
+        const indexedDBCached = await frameExtraction.getCachedFrames(videoPath)
+        if (indexedDBCached && indexedDBCached.length > 0) {
+          console.log(`Использованы кэшированные кадры из IndexedDB для ${videoPath}`)
+          options.onFramesExtracted?.(indexedDBCached)
+          return indexedDBCached
+        }
+
+        // Затем проверяем кэш Preview Manager
         const cachedData = await getPreviewData(fileId)
         if (cachedData?.timeline_frames && cachedData.timeline_frames.length > 0) {
-          console.log(`Использованы кэшированные кадры для ${fileId}`)
-          return cachedData.timeline_frames.map((frame) => ({
+          console.log(`Использованы кэшированные кадры из Preview Manager для ${fileId}`)
+          const frames = cachedData.timeline_frames.map((frame) => ({
             timestamp: frame.timestamp,
             frameData: frame.base64_data,
             isKeyframe: frame.is_keyframe || false,
           }))
+          
+          // Сохраняем в IndexedDB для быстрого доступа
+          await frameExtraction.cacheFramesInIndexedDB(videoPath, frames)
+          options.onFramesExtracted?.(frames)
+          
+          return frames
         }
 
         // Если нет в кэше, извлекаем кадры
@@ -58,8 +72,18 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
           // Сохраняем первый кадр как browser thumbnail
           await generateThumbnail(fileId, videoPath, 320, 180, frames[0].timestamp)
 
-          // TODO: Добавить команду для сохранения timeline frames в Preview Manager
-          // await invoke("save_timeline_frames", { fileId, frames })
+          // Кэшируем кадры в IndexedDB для быстрого доступа
+          await frameExtraction.cacheFramesInIndexedDB(videoPath, frames)
+
+          // Сохраняем timeline frames в Preview Manager
+          await invoke("save_timeline_frames", { 
+            file_id: fileId, 
+            frames: frames.map(frame => ({
+              timestamp: frame.timestamp,
+              base64_data: frame.frameData,
+              is_keyframe: frame.isKeyframe
+            }))
+          })
         }
 
         options.onFramesExtracted?.(frames)
@@ -80,7 +104,12 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
    * Извлечь кадры для распознавания с кэшированием
    */
   const extractRecognitionFrames = useCallback(
-    async (fileId: string, videoPath: string, interval = 1.0, detectSceneChanges = true, maxFrames?: number) => {
+    async (
+      fileId: string,
+      videoPath: string,
+      interval = 1.0,
+      purpose: ExtractionPurpose = ExtractionPurpose.ObjectDetection,
+    ) => {
       try {
         setIsExtracting(true)
         setError(null)
@@ -95,9 +124,8 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
         // Извлекаем кадры для распознавания
         const frames = await frameExtraction.extractRecognitionFrames(
           videoPath,
+          purpose,
           interval,
-          detectSceneChanges,
-          maxFrames,
         )
 
         return frames

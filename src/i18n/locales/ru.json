@@ -347,6 +347,9 @@
       "enterApiKey": "Введите API ключ",
       "openAiApiKey": "OpenAI API ключ",
       "claudeApiKey": "Claude API ключ",
+      "performance": "Производительность",
+      "cacheStats": "Статистика кэша",
+      "cacheSettings": "Настройки кэша",
       "cancel": "Отменить",
       "save": "OK"
     },
@@ -727,7 +730,60 @@
       "all": "Все",
       "video": "Видео",
       "audio": "Аудио",
-      "image": "Изображения"
+      "image": "Изображения",
+      "cache": {
+        "title": "Управление кэшем",
+        "description": "Настройки локального кэширования данных в браузере",
+        "totalSize": "Общий размер кэша",
+        "usage": "Используется {{used}} из {{total}}",
+        "clearing": "Очистка кэша...",
+        "warning": "Очистка кэша может замедлить загрузку медиафайлов",
+        "previewCache": {
+          "title": "Кэш превью",
+          "info": "{{count}} элементов, {{size}}"
+        },
+        "frameCache": {
+          "title": "Кэш кадров Timeline",
+          "info": "{{count}} кадров, {{size}}"
+        },
+        "recognitionCache": {
+          "title": "Кэш распознавания",
+          "info": "{{count}} результатов, {{size}}"
+        },
+        "subtitleCache": {
+          "title": "Кэш субтитров",
+          "info": "{{count}} элементов, {{size}}"
+        },
+        "actions": {
+          "clear": "Очистить",
+          "clearAll": "Очистить весь кэш",
+          "cleanupExpired": "Удалить устаревшие"
+        },
+        "storage": {
+          "title": "Хранилище браузера",
+          "technology": "Технология хранения",
+          "maxSize": "Максимальный размер",
+          "autoCleanup": "Автоочистка",
+          "autoCleanupValue": "После 30 дней"
+        },
+        "success": {
+          "clearPreview": "Кэш превью очищен",
+          "clearFrames": "Кэш кадров очищен",
+          "clearRecognition": "Кэш распознавания очищен",
+          "clearSubtitles": "Кэш субтитров очищен",
+          "clearAll": "Весь кэш очищен",
+          "cleanupExpired": "Устаревший кэш удален"
+        },
+        "errors": {
+          "loadStats": "Не удалось загрузить статистику кэша",
+          "clearPreview": "Не удалось очистить кэш превью",
+          "clearFrames": "Не удалось очистить кэш кадров",
+          "clearRecognition": "Не удалось очистить кэш распознавания",
+          "clearSubtitles": "Не удалось очистить кэш субтитров",
+          "clearAll": "Не удалось очистить весь кэш",
+          "cleanupExpired": "Не удалось удалить устаревший кэш"
+        }
+      }
     },
     "toolbar": {
       "search": "Поиск медиафайлов",

@@ -316,7 +316,60 @@
       "all": "Alle",
       "video": "Video",
       "audio": "Audio",
-      "image": "Bilder"
+      "image": "Bilder",
+      "cache": {
+        "title": "Cache-Verwaltung",
+        "description": "Lokale Browser-Datenspeicherung Einstellungen",
+        "totalSize": "Gesamte Cache-Größe",
+        "usage": "{{used}} von {{total}} verwendet",
+        "clearing": "Cache wird gelöscht...",
+        "warning": "Das Löschen des Caches kann das Laden von Mediendateien verlangsamen",
+        "previewCache": {
+          "title": "Vorschau-Cache",
+          "info": "{{count}} Elemente, {{size}}"
+        },
+        "frameCache": {
+          "title": "Timeline-Frame-Cache",
+          "info": "{{count}} Frames, {{size}}"
+        },
+        "recognitionCache": {
+          "title": "Erkennungs-Cache",
+          "info": "{{count}} Ergebnisse, {{size}}"
+        },
+        "subtitleCache": {
+          "title": "Untertitel-Cache",
+          "info": "{{count}} Elemente, {{size}}"
+        },
+        "actions": {
+          "clear": "Löschen",
+          "clearAll": "Gesamten Cache löschen",
+          "cleanupExpired": "Abgelaufene entfernen"
+        },
+        "storage": {
+          "title": "Browser-Speicher",
+          "technology": "Speichertechnologie",
+          "maxSize": "Maximale Größe",
+          "autoCleanup": "Automatische Bereinigung",
+          "autoCleanupValue": "Nach 30 Tagen"
+        },
+        "success": {
+          "clearPreview": "Vorschau-Cache gelöscht",
+          "clearFrames": "Frame-Cache gelöscht",
+          "clearRecognition": "Erkennungs-Cache gelöscht",
+          "clearSubtitles": "Untertitel-Cache gelöscht",
+          "clearAll": "Gesamter Cache gelöscht",
+          "cleanupExpired": "Abgelaufener Cache entfernt"
+        },
+        "errors": {
+          "loadStats": "Cache-Statistiken konnten nicht geladen werden",
+          "clearPreview": "Vorschau-Cache konnte nicht gelöscht werden",
+          "clearFrames": "Frame-Cache konnte nicht gelöscht werden",
+          "clearRecognition": "Erkennungs-Cache konnte nicht gelöscht werden",
+          "clearSubtitles": "Untertitel-Cache konnte nicht gelöscht werden",
+          "clearAll": "Gesamter Cache konnte nicht gelöscht werden",
+          "cleanupExpired": "Abgelaufener Cache konnte nicht entfernt werden"
+        }
+      }
     },
     "toolbar": {
       "search": "Mediendateien suchen",
@@ -534,6 +587,9 @@
       "aiApiKey": "API-Schlüssel für KI",
       "clearApiKey": "API-Schlüssel löschen",
       "enterApiKey": "API-Schlüssel eingeben",
+      "performance": "Leistung",
+      "cacheStats": "Cache-Statistiken",
+      "cacheSettings": "Cache-Einstellungen",
       "cancel": "Abbrechen",
       "save": "OK",
       "playerScreenshotsPath": "Pfad zum Speichern von Player-Screenshots",

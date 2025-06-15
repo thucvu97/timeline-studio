@@ -86,3 +86,38 @@ pub async fn load_preview_data(
     .await
     .map_err(|e| e.to_string())
 }
+
+/// Сохранить timeline frames для файла
+#[tauri::command]
+pub async fn save_timeline_frames(
+  state: State<'_, PreviewManagerState>,
+  file_id: String,
+  frames: Vec<TimelineFrame>,
+) -> Result<(), String> {
+  state
+    .manager
+    .save_timeline_frames(file_id, frames)
+    .await
+    .map_err(|e| e.to_string())
+}
+
+/// Получить timeline frames для файла
+#[tauri::command]
+pub async fn get_timeline_frames(
+  state: State<'_, PreviewManagerState>,
+  file_id: String,
+) -> Result<Vec<TimelineFrame>, String> {
+  state
+    .manager
+    .get_timeline_frames(&file_id)
+    .await
+    .map_err(|e| e.to_string())
+}
+
+/// Структура для timeline frame из frontend
+#[derive(serde::Deserialize, serde::Serialize)]
+pub struct TimelineFrame {
+  pub timestamp: f64,
+  pub base64_data: String,
+  pub is_keyframe: bool,
+}

@@ -42,6 +42,7 @@ impl GpuEncoder {
   }
 
   /// Получить название FFmpeg кодека для H.265/HEVC
+  #[allow(dead_code)]
   pub fn hevc_codec_name(&self) -> &'static str {
     match self {
       GpuEncoder::None => "libx265",

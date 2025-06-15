@@ -6,14 +6,13 @@
 //! - Анализа субтитров
 //! - Кэширования для быстрого доступа
 
-use crate::app_dirs::AppDirectories;
 use crate::video_compiler::cache::RenderCache;
 use crate::video_compiler::error::Result;
 use crate::video_compiler::preview::{PreviewGenerator, VideoInfo};
 use crate::video_compiler::schema::{Clip, PreviewFormat, Subtitle};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -73,35 +72,35 @@ pub struct ExtractionSettings {
   /// Стратегия извлечения
   pub strategy: ExtractionStrategy,
   /// Цель извлечения
-  pub purpose: ExtractionPurpose,
+  pub _purpose: ExtractionPurpose,
   /// Разрешение кадров
   pub resolution: (u32, u32),
   /// Качество (0-100)
   pub quality: u8,
   /// Формат изображения
-  pub format: PreviewFormat,
+  pub _format: PreviewFormat,
   /// Максимальное количество кадров
   pub max_frames: Option<usize>,
   /// Использовать GPU для декодирования
-  pub gpu_decode: bool,
+  pub _gpu_decode: bool,
   /// Параллельная обработка
   pub parallel_extraction: bool,
   /// Количество потоков
-  pub thread_count: Option<usize>,
+  pub _thread_count: Option<usize>,
 }
 
 impl Default for ExtractionSettings {
   fn default() -> Self {
     Self {
       strategy: ExtractionStrategy::Interval { seconds: 1.0 },
-      purpose: ExtractionPurpose::TimelinePreview,
+      _purpose: ExtractionPurpose::TimelinePreview,
       resolution: (640, 360),
       quality: 75,
-      format: PreviewFormat::Jpeg,
+      _format: PreviewFormat::Jpeg,
       max_frames: None,
-      gpu_decode: false,
+      _gpu_decode: false,
       parallel_extraction: true,
-      thread_count: None,
+      _thread_count: None,
     }
   }
 }
@@ -115,7 +114,7 @@ pub struct FrameExtractionManager {
   /// Настройки по умолчанию для разных целей
   purpose_settings: HashMap<ExtractionPurpose, ExtractionSettings>,
   /// Путь к FFmpeg
-  ffmpeg_path: String,
+  _ffmpeg_path: String,
 }
 
 impl FrameExtractionManager {
@@ -143,14 +142,14 @@ impl FrameExtractionManager {
           include_scene_changes: true,
           include_keyframes: true,
         },
-        purpose: ExtractionPurpose::TimelinePreview,
+        _purpose: ExtractionPurpose::TimelinePreview,
         resolution: (160, 90),
         quality: 60,
-        format: PreviewFormat::Jpeg,
+        _format: PreviewFormat::Jpeg,
         max_frames: Some(200),
-        gpu_decode: true,
+        _gpu_decode: true,
         parallel_extraction: true,
-        thread_count: None,
+        _thread_count: None,
       },
     );
 
@@ -159,14 +158,14 @@ impl FrameExtractionManager {
       ExtractionPurpose::ObjectDetection,
       ExtractionSettings {
         strategy: ExtractionStrategy::Interval { seconds: 1.0 },
-        purpose: ExtractionPurpose::ObjectDetection,
+        _purpose: ExtractionPurpose::ObjectDetection,
         resolution: (1280, 720), // Выше разрешение для лучшего распознавания
         quality: 85,
-        format: PreviewFormat::Png, // PNG для лучшего качества
+        _format: PreviewFormat::Png, // PNG для лучшего качества
         max_frames: None,
-        gpu_decode: true,
+        _gpu_decode: true,
         parallel_extraction: true,
-        thread_count: None,
+        _thread_count: None,
       },
     );
 
@@ -175,14 +174,14 @@ impl FrameExtractionManager {
       ExtractionPurpose::SceneRecognition,
       ExtractionSettings {
         strategy: ExtractionStrategy::SceneChange { threshold: 0.3 },
-        purpose: ExtractionPurpose::SceneRecognition,
+        _purpose: ExtractionPurpose::SceneRecognition,
         resolution: (960, 540),
         quality: 80,
-        format: PreviewFormat::Jpeg,
+        _format: PreviewFormat::Jpeg,
         max_frames: Some(500),
-        gpu_decode: true,
+        _gpu_decode: true,
         parallel_extraction: true,
-        thread_count: None,
+        _thread_count: None,
       },
     );
 
@@ -193,14 +192,14 @@ impl FrameExtractionManager {
         strategy: ExtractionStrategy::SubtitleSync {
           offset_seconds: 0.5,
         },
-        purpose: ExtractionPurpose::SubtitleAnalysis,
+        _purpose: ExtractionPurpose::SubtitleAnalysis,
         resolution: (1920, 1080), // Полное разрешение для OCR
         quality: 90,
-        format: PreviewFormat::Png,
+        _format: PreviewFormat::Png,
         max_frames: None,
-        gpu_decode: true,
+        _gpu_decode: true,
         parallel_extraction: false, // Последовательно для синхронизации
-        thread_count: Some(1),
+        _thread_count: Some(1),
       },
     );
 
@@ -208,7 +207,7 @@ impl FrameExtractionManager {
       preview_generator,
       cache,
       purpose_settings,
-      ffmpeg_path,
+      _ffmpeg_path: ffmpeg_path,
     }
   }
 
@@ -325,63 +324,6 @@ impl FrameExtractionManager {
     )
   }
 
-  /// Получить существующие скриншоты
-  pub async fn get_existing_screenshots(&self, video_path: &Path) -> Result<Vec<ExtractedFrame>> {
-    let _cache = self.cache.read().await;
-
-    // Получаем все превью для данного файла из кэша
-    let _file_path_str = video_path.to_string_lossy().to_string();
-    let mut frames = Vec::new();
-
-    // Здесь мы можем получить сохраненные скриншоты из директории Snapshot
-    if let Ok(app_dirs) = AppDirectories::get_or_create() {
-      let snapshot_dir = app_dirs.snapshot_dir;
-      let video_name = video_path
-        .file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or("unknown");
-
-      let video_snapshot_dir = snapshot_dir.join(video_name);
-      if video_snapshot_dir.exists() {
-        // Читаем все изображения из директории
-        if let Ok(entries) = std::fs::read_dir(&video_snapshot_dir) {
-          for entry in entries.flatten() {
-            let path = entry.path();
-            if path
-              .extension()
-              .and_then(|e| e.to_str())
-              .map(|e| matches!(e.to_lowercase().as_str(), "jpg" | "jpeg" | "png"))
-              .unwrap_or(false)
-            {
-              // Извлекаем timestamp из имени файла
-              if let Some(timestamp) = path
-                .file_stem()
-                .and_then(|s| s.to_str())
-                .and_then(|s| s.replace("frame_", "").parse::<f64>().ok())
-              {
-                if let Ok(data) = std::fs::read(&path) {
-                  frames.push(ExtractedFrame {
-                    timestamp,
-                    data,
-                    resolution: (0, 0), // TODO: Получить реальное разрешение
-                    purpose: ExtractionPurpose::UserScreenshot,
-                    scene_change_score: None,
-                    is_keyframe: false,
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Сортируем по timestamp
-    frames.sort_by(|a, b| a.timestamp.partial_cmp(&b.timestamp).unwrap());
-
-    Ok(frames)
-  }
-
   /// Получить настройки по умолчанию для цели
   fn get_default_settings(&self, purpose: ExtractionPurpose) -> ExtractionSettings {
     self
@@ -483,70 +425,6 @@ impl FrameExtractionManager {
     })
   }
 
-  /// Сохранить скриншот пользователя
-  pub async fn save_user_screenshot(
-    &self,
-    video_path: &Path,
-    timestamp: f64,
-    resolution: Option<(u32, u32)>,
-  ) -> Result<PathBuf> {
-    // Генерируем превью
-    let preview_data = self
-      .preview_generator
-      .generate_preview(video_path, timestamp, resolution, Some(90))
-      .await?;
-
-    // Получаем директорию для скриншотов
-    let app_dirs = AppDirectories::get_or_create()
-      .map_err(|e| crate::video_compiler::error::VideoCompilerError::IoError(e.to_string()))?;
-
-    let video_name = video_path
-      .file_stem()
-      .and_then(|s| s.to_str())
-      .unwrap_or("unknown");
-
-    let screenshot_dir = app_dirs.snapshot_dir.join(video_name);
-    std::fs::create_dir_all(&screenshot_dir)?;
-
-    // Создаем имя файла с timestamp
-    let filename = format!("frame_{:.3}.jpg", timestamp);
-    let screenshot_path = screenshot_dir.join(filename);
-
-    // Сохраняем файл
-    std::fs::write(&screenshot_path, preview_data)?;
-
-    log::info!("Скриншот сохранен: {:?}", screenshot_path);
-
-    Ok(screenshot_path)
-  }
-
-  /// Обнаружить изменения сцен
-  async fn detect_scene_changes(
-    &self,
-    _start_time: f64,
-    _end_time: f64,
-    _threshold: f32,
-  ) -> Result<Vec<f64>> {
-    // TODO: Реализовать через FFmpeg scene detection filter
-    // ffmpeg -i input.mp4 -filter:v "select='gt(scene,0.3)',showinfo" -f null -
-
-    // Пока возвращаем пустой вектор
-    Ok(vec![])
-  }
-
-  /// Извлечь временные метки ключевых кадров
-  async fn extract_keyframe_timestamps(
-    &self,
-    _start_time: f64,
-    _end_time: f64,
-  ) -> Result<Vec<f64>> {
-    // TODO: Реализовать через FFmpeg
-    // ffmpeg -i input.mp4 -vf select='eq(pict_type\,I)' -vsync vfr -f image2 keyframes-%04d.jpg
-
-    // Пока возвращаем пустой вектор
-    Ok(vec![])
-  }
-
   /// Извлечь пакет кадров
   async fn extract_frames_batch(
     &self,
@@ -578,7 +456,6 @@ impl FrameExtractionManager {
           timestamp: *timestamp,
           data: cached_data.image_data,
           resolution: settings.resolution,
-          purpose: settings.purpose.clone(),
           scene_change_score: None,
           is_keyframe: false,
         });
@@ -636,7 +513,6 @@ impl FrameExtractionManager {
                 timestamp,
                 data,
                 resolution: settings.resolution,
-                purpose: settings.purpose.clone(),
                 scene_change_score: None,
                 is_keyframe: false,
               });
@@ -678,7 +554,6 @@ impl FrameExtractionManager {
                 timestamp,
                 data,
                 resolution: settings.resolution,
-                purpose: settings.purpose.clone(),
                 scene_change_score: None,
                 is_keyframe: false,
               });
@@ -707,8 +582,6 @@ pub struct ExtractedFrame {
   pub data: Vec<u8>,
   /// Разрешение
   pub resolution: (u32, u32),
-  /// Цель извлечения
-  pub purpose: ExtractionPurpose,
   /// Оценка изменения сцены (если доступно)
   pub scene_change_score: Option<f32>,
   /// Является ли ключевым кадром
@@ -757,7 +630,7 @@ pub struct ExtractionMetadata {
   /// Использованная стратегия
   pub strategy: ExtractionStrategy,
   /// Цель извлечения
-  pub purpose: ExtractionPurpose,
+  pub _purpose: ExtractionPurpose,
   /// Время извлечения (мс)
   pub extraction_time_ms: u64,
   /// Использовалось ли GPU ускорение
@@ -778,14 +651,14 @@ mod tests {
     assert_eq!(settings.resolution, (640, 360));
     assert_eq!(settings.quality, 75);
     assert!(settings.parallel_extraction);
-    assert!(!settings.gpu_decode);
+    assert!(!settings._gpu_decode);
     assert_eq!(settings.max_frames, None);
-    assert_eq!(settings.thread_count, None);
+    assert_eq!(settings._thread_count, None);
     assert!(
       matches!(settings.strategy, ExtractionStrategy::Interval { seconds } if seconds == 1.0)
     );
-    assert_eq!(settings.purpose, ExtractionPurpose::TimelinePreview);
-    assert!(matches!(settings.format, PreviewFormat::Jpeg));
+    assert_eq!(settings._purpose, ExtractionPurpose::TimelinePreview);
+    assert!(matches!(settings._format, PreviewFormat::Jpeg));
   }
 
   #[test]
@@ -853,7 +726,7 @@ mod tests {
     let cache = Arc::new(RwLock::new(RenderCache::new()));
     let manager = FrameExtractionManager::new(cache);
 
-    assert_eq!(manager.ffmpeg_path, "ffmpeg");
+    assert_eq!(manager._ffmpeg_path, "ffmpeg");
     assert!(!manager.purpose_settings.is_empty());
 
     // Check default settings for different purposes
@@ -961,7 +834,7 @@ mod tests {
       video_path: "/test/video.mp4".to_string(),
       total_frames: 100,
       strategy: ExtractionStrategy::Interval { seconds: 1.0 },
-      purpose: ExtractionPurpose::TimelinePreview,
+      _purpose: ExtractionPurpose::TimelinePreview,
       extraction_time_ms: 5000,
       gpu_used: true,
     };
@@ -982,7 +855,6 @@ mod tests {
       timestamp: 5.0,
       data: vec![1, 2, 3, 4, 5],
       resolution: (640, 360),
-      purpose: ExtractionPurpose::TimelinePreview,
       scene_change_score: Some(0.45),
       is_keyframe: false,
     };
@@ -1080,7 +952,7 @@ mod tests {
     // Test Timeline Preview settings
     let timeline_settings = manager.get_default_settings(ExtractionPurpose::TimelinePreview);
     assert_eq!(
-      timeline_settings.purpose,
+      timeline_settings._purpose,
       ExtractionPurpose::TimelinePreview
     );
     assert_eq!(timeline_settings.resolution, (160, 90));
@@ -1089,10 +961,10 @@ mod tests {
 
     // Test Object Detection settings
     let object_settings = manager.get_default_settings(ExtractionPurpose::ObjectDetection);
-    assert_eq!(object_settings.purpose, ExtractionPurpose::ObjectDetection);
+    assert_eq!(object_settings._purpose, ExtractionPurpose::ObjectDetection);
     assert_eq!(object_settings.resolution, (1280, 720));
     assert_eq!(object_settings.quality, 85);
-    assert!(matches!(object_settings.format, PreviewFormat::Png));
+    assert!(matches!(object_settings._format, PreviewFormat::Png));
 
     // Test Scene Recognition settings
     let scene_settings = manager.get_default_settings(ExtractionPurpose::SceneRecognition);

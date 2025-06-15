@@ -789,7 +789,10 @@ impl FFmpegBuilder {
           _ => 0.8,
         };
         // Простая виньетка, так как сложная формула из frontend не поддерживается напрямую
-        Ok(format!("vignette=angle={}:x0=w/2:y0=h/2", 1.57 + intensity))
+        Ok(format!(
+          "vignette=angle={:.2}:x0=w/2:y0=h/2",
+          1.57 + intensity
+        ))
       }
       EffectType::FilmGrain => {
         // Frontend использует "intensity"
@@ -1122,33 +1125,46 @@ impl FFmpegBuilder {
 
   /// Построить видео эффект
   pub async fn build_video_effect_filter(&self, effect: &Effect) -> Result<String> {
-    match effect.name.as_str() {
+    let effect_name = effect.name.to_lowercase();
+    match effect_name.as_str() {
       "blur" => {
         if let Some(crate::video_compiler::schema::EffectParameter::Float(radius)) =
           effect.parameters.get("radius")
         {
-          Ok(format!("boxblur={}", radius))
+          Ok(format!("boxblur={}:1", radius))
         } else {
-          Ok("boxblur=2".to_string())
+          Ok("boxblur=2:1".to_string())
         }
       }
       "brightness" => {
-        if let Some(crate::video_compiler::schema::EffectParameter::Float(value)) =
+        // Поддерживаем оба имени параметра для совместимости
+        let value = if let Some(crate::video_compiler::schema::EffectParameter::Float(val)) =
           effect.parameters.get("brightness")
         {
-          Ok(format!("eq=brightness={}", value))
+          *val
+        } else if let Some(crate::video_compiler::schema::EffectParameter::Float(val)) =
+          effect.parameters.get("value")
+        {
+          *val
         } else {
-          Ok(String::new())
-        }
+          return Ok(String::new());
+        };
+        Ok(format!("eq=brightness={}", value))
       }
       "contrast" => {
-        if let Some(crate::video_compiler::schema::EffectParameter::Float(value)) =
+        // Поддерживаем оба имени параметра для совместимости
+        let value = if let Some(crate::video_compiler::schema::EffectParameter::Float(val)) =
           effect.parameters.get("contrast")
         {
-          Ok(format!("eq=contrast={}", value))
+          *val
+        } else if let Some(crate::video_compiler::schema::EffectParameter::Float(val)) =
+          effect.parameters.get("value")
+        {
+          *val
         } else {
-          Ok(String::new())
-        }
+          return Ok(String::new());
+        };
+        Ok(format!("eq=contrast={}", value))
       }
       _ => Ok(String::new()),
     }
@@ -2323,11 +2339,11 @@ pub struct FFmpegBuilderSettings {
   /// Количество потоков
   pub threads: Option<u32>,
   /// Предпочитать NVENC
-  pub prefer_nvenc: bool,
+  pub _prefer_nvenc: bool,
   /// Предпочитать QuickSync
-  pub prefer_quicksync: bool,
+  pub _prefer_quicksync: bool,
   /// Дополнительные глобальные параметры
-  pub global_args: Vec<String>,
+  pub _global_args: Vec<String>,
 }
 
 impl Default for FFmpegBuilderSettings {
@@ -2335,9 +2351,9 @@ impl Default for FFmpegBuilderSettings {
     Self {
       ffmpeg_path: "ffmpeg".to_string(),
       threads: None, // Автоматическое определение
-      prefer_nvenc: true,
-      prefer_quicksync: false,
-      global_args: Vec::new(),
+      _prefer_nvenc: true,
+      _prefer_quicksync: false,
+      _global_args: Vec::new(),
     }
   }
 }
@@ -2469,18 +2485,18 @@ mod tests {
     let settings = FFmpegBuilderSettings {
       ffmpeg_path: "/custom/path/ffmpeg".to_string(),
       threads: Some(8),
-      prefer_nvenc: false,
-      prefer_quicksync: true,
-      global_args: vec!["-hide_banner".to_string()],
+      _prefer_nvenc: false,
+      _prefer_quicksync: true,
+      _global_args: vec!["-hide_banner".to_string()],
     };
 
     let builder = FFmpegBuilder::with_settings(project, settings.clone());
     assert_eq!(builder.settings.ffmpeg_path, "/custom/path/ffmpeg");
     assert_eq!(builder.settings.threads, Some(8));
-    assert!(!builder.settings.prefer_nvenc);
-    assert!(builder.settings.prefer_quicksync);
+    assert!(!builder.settings._prefer_nvenc);
+    assert!(builder.settings._prefer_quicksync);
     assert_eq!(
-      builder.settings.global_args,
+      builder.settings._global_args,
       vec!["-hide_banner".to_string()]
     );
   }
@@ -2551,9 +2567,9 @@ mod tests {
   fn test_ffmpeg_builder_settings_default() {
     let settings = FFmpegBuilderSettings::default();
     assert_eq!(settings.ffmpeg_path, "ffmpeg");
-    assert!(settings.prefer_nvenc);
-    assert!(!settings.prefer_quicksync);
-    assert!(settings.global_args.is_empty());
+    assert!(settings._prefer_nvenc);
+    assert!(!settings._prefer_quicksync);
+    assert!(settings._global_args.is_empty());
   }
 
   #[tokio::test]
@@ -2767,7 +2783,7 @@ mod tests {
   #[tokio::test]
   async fn test_add_hardware_acceleration() {
     let settings = FFmpegBuilderSettings {
-      prefer_nvenc: true,
+      _prefer_nvenc: true,
       ..Default::default()
     };
     let project = create_test_project();
@@ -2785,7 +2801,7 @@ mod tests {
   fn test_add_global_options() {
     let settings = FFmpegBuilderSettings {
       threads: Some(4),
-      global_args: vec![
+      _global_args: vec![
         "-hide_banner".to_string(),
         "-loglevel".to_string(),
         "error".to_string(),

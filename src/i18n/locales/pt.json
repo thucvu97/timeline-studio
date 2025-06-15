@@ -307,6 +307,9 @@
       "openAiApiKey": "Chave de API OpenAI",
       "playerScreenshotsPath": "Caminho para capturas do player",
       "claudeApiKey": "Chave API Claude",
+      "performance": "Desempenho",
+      "cacheStats": "Estatísticas do cache",
+      "cacheSettings": "Configurações do cache",
       "cancel": "Cancelar",
       "save": "OK"
     },
@@ -1346,6 +1349,35 @@
       "failedToCancel": "Falha ao cancelar a renderização",
       "errorCancelling": "Erro ao cancelar a renderização",
       "failedToGeneratePreview": "Falha ao gerar a visualização"
+    }
+  },
+  "cache": {
+    "title": "Gerenciamento de cache",
+    "description": "Gerencie o cache da aplicação para visualizações, quadros e dados de reconhecimento.",
+    "usage": "Uso do cache",
+    "total": "Total",
+    "types": {
+      "preview": "Visualizações",
+      "frame": "Quadros",
+      "recognition": "Reconhecimento",
+      "subtitle": "Legendas"
+    },
+    "actions": {
+      "clearAll": "Limpar todo o cache",
+      "clearType": "Limpar {{type}}",
+      "refresh": "Atualizar estatísticas"
+    },
+    "messages": {
+      "cacheCleared": "Cache limpo com sucesso",
+      "typeCacheCleared": "Cache {{type}} limpo com sucesso",
+      "errorClearing": "Erro ao limpar o cache",
+      "refreshed": "Estatísticas do cache atualizadas",
+      "errorRefreshing": "Erro ao atualizar as estatísticas"
+    },
+    "storage": {
+      "used": "{{used}} de {{total}} usado",
+      "available": "{{available}} disponível",
+      "percentage": "{{percentage}}% usado"
     }
   }
 }

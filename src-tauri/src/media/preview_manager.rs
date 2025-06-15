@@ -175,4 +175,76 @@ impl PreviewDataManager {
 
     Ok(())
   }
+
+  /// Сохранить timeline frames для файла
+  pub async fn save_timeline_frames(
+    &self,
+    file_id: String,
+    frames: Vec<crate::media::commands::TimelineFrame>,
+  ) -> Result<()> {
+    use super::preview_data::TimelinePreview;
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+
+    let mut data = self.data.write().await;
+    let preview_data = data
+      .entry(file_id.clone())
+      .or_insert_with(|| MediaPreviewData::new(file_id.clone(), PathBuf::new()));
+
+    // Очищаем старые timeline frames
+    preview_data.timeline_previews.clear();
+
+    // Добавляем новые frames
+    for (index, frame) in frames.iter().enumerate() {
+      // Создаем путь для сохранения
+      let frame_path = self
+        .base_dir
+        .join("Caches/timeline")
+        .join(format!("{}_{}.jpg", file_id, index));
+
+      // Создаем директорию если не существует
+      if let Some(parent) = frame_path.parent() {
+        tokio::fs::create_dir_all(parent).await?;
+      }
+
+      // Декодируем base64 и сохраняем файл
+      let image_data = STANDARD.decode(&frame.base64_data)?;
+      tokio::fs::write(&frame_path, &image_data).await?;
+
+      // Добавляем в структуру данных
+      let timeline_preview = TimelinePreview {
+        timestamp: frame.timestamp,
+        path: frame_path,
+        base64_data: Some(frame.base64_data.clone()),
+      };
+
+      preview_data.add_timeline_preview(timeline_preview);
+    }
+
+    Ok(())
+  }
+
+  /// Получить timeline frames для файла
+  pub async fn get_timeline_frames(
+    &self,
+    file_id: &str,
+  ) -> Result<Vec<crate::media::commands::TimelineFrame>> {
+    let data = self.data.read().await;
+
+    if let Some(preview_data) = data.get(file_id) {
+      let mut frames = Vec::new();
+
+      for preview in &preview_data.timeline_previews {
+        let frame = crate::media::commands::TimelineFrame {
+          timestamp: preview.timestamp,
+          base64_data: preview.base64_data.clone().unwrap_or_default(),
+          is_keyframe: false, // TODO: определить keyframes
+        };
+        frames.push(frame);
+      }
+
+      Ok(frames)
+    } else {
+      Ok(Vec::new())
+    }
+  }
 }

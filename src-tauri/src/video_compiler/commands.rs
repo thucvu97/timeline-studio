@@ -1544,14 +1544,14 @@ pub async fn extract_timeline_frames(
       include_scene_changes: true,
       include_keyframes: true,
     },
-    purpose: ExtractionPurpose::TimelinePreview,
+    _purpose: ExtractionPurpose::TimelinePreview,
     resolution: (160, 90), // Маленькое разрешение для timeline
     quality: 60,
-    format: crate::video_compiler::schema::PreviewFormat::Jpeg,
+    _format: crate::video_compiler::schema::PreviewFormat::Jpeg,
     max_frames: request.max_frames,
-    gpu_decode: true,
+    _gpu_decode: true,
     parallel_extraction: true,
-    thread_count: None,
+    _thread_count: None,
   };
 
   let path = Path::new(&request.video_path);

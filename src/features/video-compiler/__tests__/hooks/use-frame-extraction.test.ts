@@ -72,6 +72,7 @@ vi.mock("../../services/frame-extraction-service", () => ({
     cacheFrames: vi.fn(),
     clearFrameCache: vi.fn(),
     cacheFramesInIndexedDB: vi.fn(),
+    cacheRecognitionFrames: vi.fn(),
   },
 }))
 
@@ -280,7 +281,8 @@ describe("useFrameExtraction", () => {
   describe("extractRecognitionFrames", () => {
     it("should extract recognition frames for object detection", async () => {
       const { ExtractionPurpose } = await import("../../services/frame-extraction-service")
-      mockExtractRecognitionFrames.mockResolvedValueOnce(mockRecognitionFrames)
+      mockFrameExtractionService.extractRecognitionFrames.mockResolvedValueOnce(mockRecognitionFrames)
+      mockFrameExtractionService.cacheRecognitionFrames.mockResolvedValueOnce(undefined)
 
       const { result } = renderHook(() => useFrameExtraction())
 
@@ -288,12 +290,15 @@ describe("useFrameExtraction", () => {
         await result.current.extractRecognitionFrames("/video.mp4", ExtractionPurpose.ObjectDetection)
       })
 
-      expect(mockExtractRecognitionFrames).toHaveBeenCalledWith(
-        "/video.mp4", // fileId
+      expect(mockFrameExtractionService.extractRecognitionFrames).toHaveBeenCalledWith(
         "/video.mp4", // videoPath
+        ExtractionPurpose.ObjectDetection, // purpose
         1.0, // interval
-        false, // detectSceneChanges (false for ObjectDetection)
-        undefined, // maxFrames
+      )
+
+      expect(mockFrameExtractionService.cacheRecognitionFrames).toHaveBeenCalledWith(
+        "/video.mp4",
+        mockRecognitionFrames
       )
 
       expect(result.current.recognitionFrames).toEqual(mockRecognitionFrames)
@@ -301,7 +306,8 @@ describe("useFrameExtraction", () => {
 
     it("should extract recognition frames for scene recognition", async () => {
       const { ExtractionPurpose } = await import("../../services/frame-extraction-service")
-      mockExtractRecognitionFrames.mockResolvedValueOnce(mockRecognitionFrames)
+      mockFrameExtractionService.extractRecognitionFrames.mockResolvedValueOnce(mockRecognitionFrames)
+      mockFrameExtractionService.cacheRecognitionFrames.mockResolvedValueOnce(undefined)
 
       const { result } = renderHook(() => useFrameExtraction())
 
@@ -309,13 +315,18 @@ describe("useFrameExtraction", () => {
         await result.current.extractRecognitionFrames("/video.mp4", ExtractionPurpose.SceneRecognition)
       })
 
-      expect(mockExtractRecognitionFrames).toHaveBeenCalledWith(
-        "/video.mp4", // fileId
+      expect(mockFrameExtractionService.extractRecognitionFrames).toHaveBeenCalledWith(
         "/video.mp4", // videoPath
+        ExtractionPurpose.SceneRecognition, // purpose
         1.0, // interval
-        true, // detectSceneChanges (true for SceneRecognition)
-        undefined, // maxFrames
       )
+
+      expect(mockFrameExtractionService.cacheRecognitionFrames).toHaveBeenCalledWith(
+        "/video.mp4",
+        mockRecognitionFrames
+      )
+
+      expect(result.current.recognitionFrames).toEqual(mockRecognitionFrames)
     })
   })
 
@@ -407,9 +418,10 @@ describe("useFrameExtraction", () => {
       mockExtractTimelineFrames.mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve(mockTimelineFrames), 100)),
       )
-      mockExtractRecognitionFrames.mockImplementation(
+      mockFrameExtractionService.extractRecognitionFrames.mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve(mockRecognitionFrames), 100)),
       )
+      mockFrameExtractionService.cacheRecognitionFrames.mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useFrameExtraction())
 
@@ -425,7 +437,7 @@ describe("useFrameExtraction", () => {
       await Promise.all([promise1, promise2])
 
       expect(mockExtractTimelineFrames).toHaveBeenCalledTimes(1)
-      expect(mockExtractRecognitionFrames).toHaveBeenCalledTimes(1)
+      expect(mockFrameExtractionService.extractRecognitionFrames).toHaveBeenCalledTimes(1)
       expect(result.current.timelineFrames).toEqual(mockTimelineFrames)
       expect(result.current.recognitionFrames).toEqual(mockRecognitionFrames)
     })

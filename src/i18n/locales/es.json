@@ -311,6 +311,9 @@
       "aiApiKey": "Clave API para IA",
       "clearApiKey": "Borrar clave API",
       "enterApiKey": "Introducir clave API",
+      "performance": "Rendimiento",
+      "cacheStats": "Estadísticas de caché",
+      "cacheSettings": "Configuración de caché",
       "cancel": "Cancelar",
       "save": "Guardar",
       "playerScreenshotsPath": "Ruta de guardado de capturas del reproductor",
@@ -563,7 +566,60 @@
       "all": "Todo",
       "video": "Video",
       "audio": "Audio",
-      "image": "Imágenes"
+      "image": "Imágenes",
+      "cache": {
+        "title": "Gestión de caché",
+        "description": "Configuración de almacenamiento local de datos del navegador",
+        "totalSize": "Tamaño total del caché",
+        "usage": "Usando {{used}} de {{total}}",
+        "clearing": "Limpiando caché...",
+        "warning": "Limpiar el caché puede ralentizar la carga de archivos multimedia",
+        "previewCache": {
+          "title": "Caché de vista previa",
+          "info": "{{count}} elementos, {{size}}"
+        },
+        "frameCache": {
+          "title": "Caché de fotogramas de línea de tiempo",
+          "info": "{{count}} fotogramas, {{size}}"
+        },
+        "recognitionCache": {
+          "title": "Caché de reconocimiento",
+          "info": "{{count}} resultados, {{size}}"
+        },
+        "subtitleCache": {
+          "title": "Caché de subtítulos",
+          "info": "{{count}} elementos, {{size}}"
+        },
+        "actions": {
+          "clear": "Limpiar",
+          "clearAll": "Limpiar todo el caché",
+          "cleanupExpired": "Limpiar caducados"
+        },
+        "storage": {
+          "title": "Almacenamiento del navegador",
+          "technology": "Tecnología de almacenamiento",
+          "maxSize": "Tamaño máximo",
+          "autoCleanup": "Limpieza automática",
+          "autoCleanupValue": "Después de 30 días"
+        },
+        "success": {
+          "clearPreview": "Caché de vista previa limpiado",
+          "clearFrames": "Caché de fotogramas limpiado",
+          "clearRecognition": "Caché de reconocimiento limpiado",
+          "clearSubtitles": "Caché de subtítulos limpiado",
+          "clearAll": "Todo el caché limpiado",
+          "cleanupExpired": "Caché caducado eliminado"
+        },
+        "errors": {
+          "loadStats": "No se pudieron cargar las estadísticas del caché",
+          "clearPreview": "No se pudo limpiar el caché de vista previa",
+          "clearFrames": "No se pudo limpiar el caché de fotogramas",
+          "clearRecognition": "No se pudo limpiar el caché de reconocimiento",
+          "clearSubtitles": "No se pudo limpiar el caché de subtítulos",
+          "clearAll": "No se pudo limpiar todo el caché",
+          "cleanupExpired": "No se pudo eliminar el caché caducado"
+        }
+      }
     },
     "toolbar": {
       "search": "Buscar archivos multimedia",

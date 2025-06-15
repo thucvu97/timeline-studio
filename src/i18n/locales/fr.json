@@ -475,6 +475,9 @@
       "aiApiKey": "Clé API pour l'IA",
       "clearApiKey": "Effacer la clé API",
       "enterApiKey": "Entrez la clé API",
+      "performance": "Performance",
+      "cacheStats": "Statistiques du cache",
+      "cacheSettings": "Paramètres du cache",
       "cancel": "Annuler",
       "save": "OK",
       "playerScreenshotsPath": "Chemin d'enregistrement des captures du lecteur",
@@ -1384,6 +1387,35 @@
       "failedToCancel": "Échec de l'annulation du rendu",
       "errorCancelling": "Erreur lors de l'annulation du rendu",
       "failedToGeneratePreview": "Échec de la génération de l'aperçu"
+    }
+  },
+  "cache": {
+    "title": "Gestion du cache",
+    "description": "Gérez le cache de l'application pour les aperçus, cadres et données de reconnaissance.",
+    "usage": "Utilisation du cache",
+    "total": "Total",
+    "types": {
+      "preview": "Aperçus",
+      "frame": "Cadres",
+      "recognition": "Reconnaissance",
+      "subtitle": "Sous-titres"
+    },
+    "actions": {
+      "clearAll": "Vider tout le cache",
+      "clearType": "Vider {{type}}",
+      "refresh": "Actualiser les statistiques"
+    },
+    "messages": {
+      "cacheCleared": "Cache vidé avec succès",
+      "typeCacheCleared": "Cache {{type}} vidé avec succès",
+      "errorClearing": "Erreur lors du vidage du cache",
+      "refreshed": "Statistiques du cache actualisées",
+      "errorRefreshing": "Erreur lors de l'actualisation des statistiques"
+    },
+    "storage": {
+      "used": "{{used}} sur {{total}} utilisés",
+      "available": "{{available}} disponibles",
+      "percentage": "{{percentage}}% utilisés"
     }
   }
 }

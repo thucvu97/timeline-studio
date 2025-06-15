@@ -363,6 +363,9 @@
       "openAiApiKey": "OpenAI API Key",
       "playerScreenshotsPath": "Player screenshots save path",
       "claudeApiKey": "Claude API key",
+      "performance": "Performance",
+      "cacheStats": "Cache Statistics",
+      "cacheSettings": "Cache Settings",
       "cancel": "Cancel",
       "save": "OK"
     },
@@ -760,7 +763,60 @@
       "all": "All",
       "video": "Video",
       "audio": "Audio",
-      "image": "Images"
+      "image": "Images",
+      "cache": {
+        "title": "Cache Management",
+        "description": "Browser local data caching settings",
+        "totalSize": "Total cache size",
+        "usage": "Using {{used}} of {{total}}",
+        "clearing": "Clearing cache...",
+        "warning": "Clearing cache may slow down media file loading",
+        "previewCache": {
+          "title": "Preview Cache",
+          "info": "{{count}} items, {{size}}"
+        },
+        "frameCache": {
+          "title": "Timeline Frame Cache",
+          "info": "{{count}} frames, {{size}}"
+        },
+        "recognitionCache": {
+          "title": "Recognition Cache",
+          "info": "{{count}} results, {{size}}"
+        },
+        "subtitleCache": {
+          "title": "Subtitle Cache",
+          "info": "{{count}} items, {{size}}"
+        },
+        "actions": {
+          "clear": "Clear",
+          "clearAll": "Clear all cache",
+          "cleanupExpired": "Clean up expired"
+        },
+        "storage": {
+          "title": "Browser Storage",
+          "technology": "Storage technology",
+          "maxSize": "Maximum size",
+          "autoCleanup": "Auto cleanup",
+          "autoCleanupValue": "After 30 days"
+        },
+        "success": {
+          "clearPreview": "Preview cache cleared",
+          "clearFrames": "Frame cache cleared",
+          "clearRecognition": "Recognition cache cleared",
+          "clearSubtitles": "Subtitle cache cleared",
+          "clearAll": "All cache cleared",
+          "cleanupExpired": "Expired cache cleaned up"
+        },
+        "errors": {
+          "loadStats": "Failed to load cache statistics",
+          "clearPreview": "Failed to clear preview cache",
+          "clearFrames": "Failed to clear frame cache",
+          "clearRecognition": "Failed to clear recognition cache",
+          "clearSubtitles": "Failed to clear subtitle cache",
+          "clearAll": "Failed to clear all cache",
+          "cleanupExpired": "Failed to clean up expired cache"
+        }
+      }
     },
     "toolbar": {
       "search": "Search media files",

@@ -63,16 +63,15 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
 
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  // Используем интегрированный хук для работы с Preview Manager
-  const { extractTimelineFrames: extractFramesWithCache, extractRecognitionFrames: extractRecognitionWithCache } =
-    useFramePreview({
-      onFramesExtracted: (frames) => {
-        console.log(`Извлечено ${frames.length} кадров через Preview Manager`)
-      },
-      onError: (error) => {
-        console.error("Ошибка Preview Manager:", error)
-      },
-    })
+  // Используем интегрированный хук для работы с Preview Manager только для timeline frames
+  const { extractTimelineFrames: extractFramesWithCache } = useFramePreview({
+    onFramesExtracted: (frames) => {
+      console.log(`Извлечено ${frames.length} кадров через Preview Manager`)
+    },
+    onError: (error) => {
+      console.error("Ошибка Preview Manager:", error)
+    },
+  })
 
   // Очистка при размонтировании
   useEffect(() => {
@@ -131,13 +130,13 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
         setError(null)
         setProgress(0)
 
-        // Используем fileId на основе пути для кэширования
-        const fileId = videoPath
+        // Используем прямой вызов frameExtractionService для recognition frames
+        const frames = await frameExtractionService.extractRecognitionFrames(videoPath, purpose, interval)
 
-        // Определяем параметры на основе цели
-        const detectSceneChanges = purpose === ExtractionPurpose.SceneRecognition
-
-        const frames = await extractRecognitionWithCache(fileId, videoPath, interval, detectSceneChanges, maxFrames)
+        // Кэшируем результаты если нужно
+        if (cacheResults) {
+          await frameExtractionService.cacheRecognitionFrames(videoPath, frames)
+        }
 
         setRecognitionFrames(frames)
         setProgress(100)
@@ -150,7 +149,7 @@ export function useFrameExtraction(options: UseFrameExtractionOptions = {}): Use
         setIsLoading(false)
       }
     },
-    [extractRecognitionWithCache, interval, maxFrames, t],
+    [cacheResults, interval, t],
   )
 
   /**

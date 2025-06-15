@@ -129,7 +129,10 @@ impl PreviewGenerator {
         let result = generator
           .generate_preview(&video_path, timestamp, Some(resolution), Some(quality))
           .await;
-        PreviewResult { timestamp, result }
+        PreviewResult {
+          _timestamp: timestamp,
+          result,
+        }
       });
 
       tasks.push(task);
@@ -549,7 +552,7 @@ pub struct PreviewRequest {
 #[derive(Debug, Clone)]
 pub struct PreviewResult {
   /// Временная метка
-  pub timestamp: f64,
+  pub _timestamp: f64,
   /// Результат генерации
   pub result: Result<Vec<u8>>,
 }
