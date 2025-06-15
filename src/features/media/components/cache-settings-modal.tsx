@@ -317,12 +317,12 @@ export function CacheSettingsModal() {
           )}
 
           {/* Кнопка очистки всего */}
-          <div className="flex items-center justify-between pt-2">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex-1 items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
               <AlertCircle className="h-4 w-4" />
               <span>{t("browser.media.cache.warning")}</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 justify-between">
               <Button variant="outline" size="sm" onClick={cleanupExpiredCache} disabled={isClearing}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 {t("browser.media.cache.actions.cleanupExpired")}

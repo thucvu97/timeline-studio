@@ -179,13 +179,13 @@ export function CacheStatisticsModal() {
               {t("videoCompiler.cache.clearAll")}
             </Button>
           </div>
-
-          <div className="flex justify-center">
-            <Button variant="outline" onClick={refreshStats} disabled={isLoading} className="flex items-center gap-2">
+          <div className="flex-1 w-full items-center justify-between">
+            <Button variant="outline" onClick={refreshStats} disabled={isLoading} className="flex-1">
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
               <RefreshCw className="h-4 w-4" />
               {t("videoCompiler.cache.refresh")}
             </Button>
+
           </div>
         </CardContent>
       </Card>

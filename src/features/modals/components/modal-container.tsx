@@ -60,9 +60,9 @@ export function ModalContainer() {
       case "keyboard-shortcuts":
         return "h-[max(600px,min(70vh,1000px))] w-[1200px]"
       case "cache-settings":
-        return "h-[max(700px,min(80vh,900px))] w-[max(600px,min(80vw,800px))]"
+        return "h-[max(700px,min(80vh,900px))] w-[666px]"
       case "cache-statistics":
-        return "h-[max(600px,min(70vh,800px))] w-[max(800px,min(80vw,1200px))]"
+        return "h-[max(600px,min(70vh,800px))] w-[666px]"
       default:
         return "h-[max(600px,min(50vh,800px))]"
     }
