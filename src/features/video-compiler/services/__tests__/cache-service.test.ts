@@ -1,12 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import {
-  clearAllCache,
-  clearPreviewCache,
-  configureCacheSettings,
-  getCacheSize,
-  getCacheStats,
-} from "../cache-service"
+import { clearAllCache, clearPreviewCache, configureCacheSettings, getCacheSize, getCacheStats } from "../cache-service"
 
 // Mock Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
@@ -243,7 +237,7 @@ describe("Cache Service", () => {
       await expect(clearPreviewCache()).rejects.toThrow("Connection to backend failed")
       await expect(clearAllCache()).rejects.toThrow("Connection to backend failed")
       await expect(configureCacheSettings({})).rejects.toThrow("Connection to backend failed")
-      
+
       // getCacheSize should return 0 instead of throwing
       const size = await getCacheSize()
       expect(size).toBe(0)
@@ -299,7 +293,7 @@ describe("Cache Service", () => {
       const results = await Promise.all(promises)
 
       expect(results).toHaveLength(10)
-      expect(results.every(size => size === 42.5)).toBe(true)
+      expect(results.every((size) => size === 42.5)).toBe(true)
       expect(mockInvoke).toHaveBeenCalledTimes(10)
     })
   })
@@ -360,7 +354,7 @@ describe("Cache Service", () => {
         cache_efficiency: 0.85,
       }
       mockInvoke.mockResolvedValueOnce(initialStats)
-      
+
       let stats = await getCacheStats()
       expect(stats.total_size_mb).toBe(200.0)
 
@@ -376,7 +370,7 @@ describe("Cache Service", () => {
       const updatedStats = { ...initialStats, preview_cache: { count: 0, size_mb: 0.0, hit_rate: 0.0 } }
       updatedStats.total_size_mb = 150.0
       mockInvoke.mockResolvedValueOnce(updatedStats)
-      
+
       stats = await getCacheStats()
       expect(stats.preview_cache.count).toBe(0)
       expect(stats.total_size_mb).toBe(150.0)

@@ -1,6 +1,10 @@
 import { UseStore, clear as clearStore, createStore, del, entries, get, set } from "idb-keyval"
 
-import type { RecognitionFrame, SubtitleFrame, TimelineFrame } from "@/features/video-compiler/services/frame-extraction-service"
+import type {
+  RecognitionFrame,
+  SubtitleFrame,
+  TimelineFrame,
+} from "@/features/video-compiler/services/frame-extraction-service"
 
 /**
  * Типы для различных кэшей
@@ -61,16 +65,16 @@ export interface CacheStatistics {
  */
 export class IndexedDBCacheService {
   private static instance: IndexedDBCacheService | null = null
-  
+
   // Отдельные хранилища для разных типов данных
   private previewStore: UseStore
   private frameStore: UseStore
   private recognitionStore: UseStore
   private subtitleStore: UseStore
-  
+
   // Максимальный размер кэша в байтах (500MB)
   private readonly MAX_CACHE_SIZE = 500 * 1024 * 1024
-  
+
   // Время жизни кэша в миллисекундах (30 дней)
   private readonly CACHE_TTL = 30 * 24 * 60 * 60 * 1000
 
@@ -103,7 +107,7 @@ export class IndexedDBCacheService {
       timestamp: Date.now(),
       size,
     }
-    
+
     await set(fileId, cached, this.previewStore)
     await this.cleanupIfNeeded()
   }
@@ -113,15 +117,15 @@ export class IndexedDBCacheService {
    */
   public async getCachedPreview(fileId: string): Promise<string | null> {
     const cached = await get<CachedPreview>(fileId, this.previewStore)
-    
+
     if (!cached) return null
-    
+
     // Проверяем TTL
     if (Date.now() - cached.timestamp > this.CACHE_TTL) {
       await del(fileId, this.previewStore)
       return null
     }
-    
+
     return cached.thumbnail
   }
 
@@ -136,7 +140,7 @@ export class IndexedDBCacheService {
       timestamp: Date.now(),
       size,
     }
-    
+
     await set(fileId, cached, this.frameStore)
     await this.cleanupIfNeeded()
   }
@@ -146,15 +150,15 @@ export class IndexedDBCacheService {
    */
   public async getCachedTimelineFrames(fileId: string): Promise<TimelineFrame[] | null> {
     const cached = await get<CachedFrames>(fileId, this.frameStore)
-    
+
     if (!cached) return null
-    
+
     // Проверяем TTL
     if (Date.now() - cached.timestamp > this.CACHE_TTL) {
       await del(fileId, this.frameStore)
       return null
     }
-    
+
     return cached.frames
   }
 
@@ -169,7 +173,7 @@ export class IndexedDBCacheService {
       timestamp: Date.now(),
       size,
     }
-    
+
     await set(fileId, cached, this.recognitionStore)
     await this.cleanupIfNeeded()
   }
@@ -179,15 +183,15 @@ export class IndexedDBCacheService {
    */
   public async getCachedRecognitionFrames(fileId: string): Promise<RecognitionFrame[] | null> {
     const cached = await get<CachedRecognition>(fileId, this.recognitionStore)
-    
+
     if (!cached) return null
-    
+
     // Проверяем TTL
     if (Date.now() - cached.timestamp > this.CACHE_TTL) {
       await del(fileId, this.recognitionStore)
       return null
     }
-    
+
     return cached.frames
   }
 
@@ -202,7 +206,7 @@ export class IndexedDBCacheService {
       timestamp: Date.now(),
       size,
     }
-    
+
     await set(fileId, cached, this.subtitleStore)
     await this.cleanupIfNeeded()
   }
@@ -212,15 +216,15 @@ export class IndexedDBCacheService {
    */
   public async getCachedSubtitleFrames(fileId: string): Promise<SubtitleFrame[] | null> {
     const cached = await get<CachedSubtitles>(fileId, this.subtitleStore)
-    
+
     if (!cached) return null
-    
+
     // Проверяем TTL
     if (Date.now() - cached.timestamp > this.CACHE_TTL) {
       await del(fileId, this.subtitleStore)
       return null
     }
-    
+
     return cached.frames
   }
 
@@ -265,11 +269,8 @@ export class IndexedDBCacheService {
     }
 
     // Общий размер
-    stats.totalSize = 
-      stats.previewCache.size + 
-      stats.frameCache.size + 
-      stats.recognitionCache.size + 
-      stats.subtitleCache.size
+    stats.totalSize =
+      stats.previewCache.size + stats.frameCache.size + stats.recognitionCache.size + stats.subtitleCache.size
 
     return stats
   }
@@ -358,7 +359,7 @@ export class IndexedDBCacheService {
    */
   private async cleanupIfNeeded(): Promise<void> {
     const stats = await this.getCacheStatistics()
-    
+
     if (stats.totalSize > this.MAX_CACHE_SIZE) {
       // Удаляем самые старые записи, пока не освободим достаточно места
       await this.removeOldestEntries(stats.totalSize - this.MAX_CACHE_SIZE * 0.8)
@@ -370,41 +371,41 @@ export class IndexedDBCacheService {
    */
   private async removeOldestEntries(bytesToFree: number): Promise<void> {
     let freedBytes = 0
-    
+
     // Собираем все записи со всех хранилищ
     const allEntries: Array<{ key: string; timestamp: number; size: number; store: UseStore }> = []
-    
+
     // Превью
     const previewEntries = await entries<string, CachedPreview>(this.previewStore)
     for (const [key, cached] of previewEntries) {
       allEntries.push({ key, timestamp: cached.timestamp, size: cached.size, store: this.previewStore })
     }
-    
+
     // Кадры
     const frameEntries = await entries<string, CachedFrames>(this.frameStore)
     for (const [key, cached] of frameEntries) {
       allEntries.push({ key, timestamp: cached.timestamp, size: cached.size, store: this.frameStore })
     }
-    
+
     // Распознавание
     const recognitionEntries = await entries<string, CachedRecognition>(this.recognitionStore)
     for (const [key, cached] of recognitionEntries) {
       allEntries.push({ key, timestamp: cached.timestamp, size: cached.size, store: this.recognitionStore })
     }
-    
+
     // Субтитры
     const subtitleEntries = await entries<string, CachedSubtitles>(this.subtitleStore)
     for (const [key, cached] of subtitleEntries) {
       allEntries.push({ key, timestamp: cached.timestamp, size: cached.size, store: this.subtitleStore })
     }
-    
+
     // Сортируем по времени (старые первые)
     allEntries.sort((a, b) => a.timestamp - b.timestamp)
-    
+
     // Удаляем пока не освободим нужное количество
     for (const entry of allEntries) {
       if (freedBytes >= bytesToFree) break
-      
+
       await del(entry.key, entry.store)
       freedBytes += entry.size
     }

@@ -1,27 +1,27 @@
 /**
  * Тестовые данные для E2E тестов
- * Использует реальные файлы из public/test-data
+ * Использует реальные файлы из test-data
  */
 
-import { join } from "path"
+import path from "path"
 
 // Базовый путь к тестовым данным
-export const TEST_DATA_PATH = join(process.cwd(), "public", "test-data")
+export const TEST_DATA_PATH = path.join(process.cwd(), "test-data")
 
 // Тестовые файлы
 export const TEST_FILES = {
   videos: [
-    { name: "C0666.MP4", path: join(TEST_DATA_PATH, "C0666.MP4") },
-    { name: "C0783.MP4", path: join(TEST_DATA_PATH, "C0783.MP4") },
-    { name: "Kate.mp4", path: join(TEST_DATA_PATH, "Kate.mp4") },
-    { name: "water play3.mp4", path: join(TEST_DATA_PATH, "water play3.mp4") },
-    { name: "проводка после лобби.mp4", path: join(TEST_DATA_PATH, "проводка после лобби.mp4") },
+    { name: "C0666.MP4", path: `${TEST_DATA_PATH}/C0666.MP4` },
+    { name: "C0783.MP4", path: `${TEST_DATA_PATH}/C0783.MP4` },
+    { name: "Kate.mp4", path: `${TEST_DATA_PATH}/Kate.mp4` },
+    { name: "water play3.mp4", path: `${TEST_DATA_PATH}/water play3.mp4` },
+    { name: "проводка после лобби.mp4", path: `${TEST_DATA_PATH}/проводка после лобби.mp4` },
   ],
   images: [
-    { name: "DSC07845.png", path: join(TEST_DATA_PATH, "DSC07845.png") },
+    { name: "DSC07845.png", path: `${TEST_DATA_PATH}/DSC07845.png` },
   ],
   audio: [
-    { name: "DJI_02_20250402_104352.WAV", path: join(TEST_DATA_PATH, "DJI_02_20250402_104352.WAV") },
+    { name: "DJI_02_20250402_104352.WAV", path: `${TEST_DATA_PATH}/DJI_02_20250402_104352.WAV` },
   ],
 }
 

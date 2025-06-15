@@ -6,8 +6,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { CameraCaptureModal } from "@/features/camera-capture"
 import { ExportModal } from "@/features/export"
 import { KeyboardShortcutsModal } from "@/features/keyboard-shortcuts"
+import { CacheSettingsModal } from "@/features/media/components/cache-settings-modal"
 import { ProjectSettingsModal } from "@/features/project-settings"
 import { UserSettingsModal } from "@/features/user-settings"
+import { CacheStatisticsModal } from "@/features/video-compiler/components/cache-statistics-modal"
 import { VoiceRecordModal } from "@/features/voice-recording"
 
 import { ModalType, useModal } from "../services"
@@ -34,6 +36,10 @@ export function ModalContainer() {
         return <VoiceRecordModal />
       case "export":
         return <ExportModal />
+      case "cache-settings":
+        return <CacheSettingsModal />
+      case "cache-statistics":
+        return <CacheStatisticsModal />
       default:
         return null
     }
@@ -53,6 +59,10 @@ export function ModalContainer() {
         return "h-[650px] w-[500px]"
       case "keyboard-shortcuts":
         return "h-[max(600px,min(70vh,1000px))] w-[1200px]"
+      case "cache-settings":
+        return "h-[max(700px,min(80vh,900px))] w-[max(600px,min(80vw,800px))]"
+      case "cache-statistics":
+        return "h-[max(600px,min(70vh,800px))] w-[max(800px,min(80vw,1200px))]"
       default:
         return "h-[max(600px,min(50vh,800px))]"
     }
@@ -73,6 +83,10 @@ export function ModalContainer() {
         return t("modals.voiceRecording.title", "Запись голоса")
       case "export":
         return t("modals.export.title", "Экспорт")
+      case "cache-settings":
+        return t("modals.cacheSettings.title", "Настройки кэша")
+      case "cache-statistics":
+        return t("modals.cacheStatistics.title", "Статистика кэша")
       case "none":
         return ""
       default:

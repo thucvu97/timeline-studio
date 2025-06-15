@@ -1,10 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import {
-  CacheStatistics,
-  IndexedDBCacheService,
-  indexedDBCacheService,
-} from "../indexeddb-cache-service"
+import { CacheStatistics, IndexedDBCacheService, indexedDBCacheService } from "../indexeddb-cache-service"
 
 // Mock idb-keyval
 vi.mock("idb-keyval", () => {
@@ -37,13 +33,13 @@ describe("IndexedDBCacheService", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Reset singleton instance
     ;(IndexedDBCacheService as any).instance = null
-    
+
     // Mock store creation
     mockCreateStore.mockReturnValue({})
-    
+
     service = IndexedDBCacheService.getInstance()
   })
 
@@ -356,15 +352,9 @@ describe("IndexedDBCacheService", () => {
         ["file1", { fileId: "file1", thumbnail: "data1", timestamp: Date.now(), size: 1000 }],
         ["file2", { fileId: "file2", thumbnail: "data2", timestamp: Date.now(), size: 1500 }],
       ]
-      const mockFrameEntries = [
-        ["video1", { fileId: "video1", frames: [], timestamp: Date.now(), size: 2000 }],
-      ]
-      const mockRecognitionEntries = [
-        ["recog1", { fileId: "recog1", frames: [], timestamp: Date.now(), size: 3000 }],
-      ]
-      const mockSubtitleEntries = [
-        ["sub1", { fileId: "sub1", frames: [], timestamp: Date.now(), size: 500 }],
-      ]
+      const mockFrameEntries = [["video1", { fileId: "video1", frames: [], timestamp: Date.now(), size: 2000 }]]
+      const mockRecognitionEntries = [["recog1", { fileId: "recog1", frames: [], timestamp: Date.now(), size: 3000 }]]
+      const mockSubtitleEntries = [["sub1", { fileId: "sub1", frames: [], timestamp: Date.now(), size: 500 }]]
 
       mockEntries
         .mockResolvedValueOnce(mockPreviewEntries)
@@ -448,7 +438,7 @@ describe("IndexedDBCacheService", () => {
     it("should estimate string size correctly", () => {
       // Access private method through type assertion
       const estimateStringSize = (service as any).estimateStringSize.bind(service)
-      
+
       // Mock Blob constructor
       global.Blob = vi.fn().mockImplementation((content) => ({
         size: content[0].length,
@@ -460,14 +450,14 @@ describe("IndexedDBCacheService", () => {
 
     it("should estimate object size correctly", () => {
       const estimateObjectSize = (service as any).estimateObjectSize.bind(service)
-      
+
       global.Blob = vi.fn().mockImplementation((content) => ({
         size: content[0].length,
       })) as any
 
       const obj = { name: "test", value: 123 }
       const size = estimateObjectSize(obj)
-      
+
       expect(size).toBeGreaterThan(0)
       expect(typeof size).toBe("number")
     })
@@ -507,21 +497,17 @@ describe("IndexedDBCacheService", () => {
       const newTime = Date.now() - 10000
 
       // Mock entries for preview store (first call)
-      const previewEntries = [
-        ["old", { fileId: "old", timestamp: oldTime, size: 1000 }],
-      ]
-      
-      // Mock entries for frame store (second call)  
-      const frameEntries = [
-        ["new", { fileId: "new", timestamp: newTime, size: 1000 }],
-      ]
+      const previewEntries = [["old", { fileId: "old", timestamp: oldTime, size: 1000 }]]
+
+      // Mock entries for frame store (second call)
+      const frameEntries = [["new", { fileId: "new", timestamp: newTime, size: 1000 }]]
 
       // Mock the entries call for each store in order
       mockEntries
-        .mockResolvedValueOnce(previewEntries)  // preview store
-        .mockResolvedValueOnce(frameEntries)    // frame store  
-        .mockResolvedValueOnce([])              // recognition store
-        .mockResolvedValueOnce([])              // subtitle store
+        .mockResolvedValueOnce(previewEntries) // preview store
+        .mockResolvedValueOnce(frameEntries) // frame store
+        .mockResolvedValueOnce([]) // recognition store
+        .mockResolvedValueOnce([]) // subtitle store
 
       await removeOldestEntries(1500) // Need to free 1500 bytes
 

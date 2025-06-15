@@ -10,6 +10,8 @@ export type ModalType =
   | "project-settings"
   | "user-settings"
   | "keyboard-shortcuts"
+  | "cache-settings"
+  | "cache-statistics"
   | "none"
 
 /**
@@ -18,6 +20,8 @@ export type ModalType =
 export interface ModalData {
   /** Класс для размера модального окна */
   dialogClass?: string
+  /** Модальное окно, к которому нужно вернуться при закрытии */
+  returnTo?: ModalType
   /** Дополнительные данные */
   [key: string]: unknown
 }
@@ -30,6 +34,7 @@ export const modalMachine = setup({
     context: {} as {
       modalType: ModalType
       modalData: ModalData | null
+      previousModal: ModalType | null
     },
     events: {} as
       | { type: "OPEN_MODAL"; modalType: ModalType; modalData?: ModalData }
@@ -52,6 +57,7 @@ export const modalMachine = setup({
   context: {
     modalType: "none",
     modalData: null,
+    previousModal: null,
   },
   states: {
     closed: {
@@ -61,19 +67,32 @@ export const modalMachine = setup({
           actions: assign({
             modalType: ({ event }) => event.modalType,
             modalData: ({ event }) => event.modalData ?? null,
+            previousModal: null,
           }),
         },
       },
     },
     opened: {
       on: {
-        CLOSE_MODAL: {
-          target: "closed",
-          actions: assign({
-            modalType: "none",
-            modalData: null,
-          }),
-        },
+        CLOSE_MODAL: [
+          {
+            target: "opened",
+            actions: assign({
+              modalType: ({ context }) => context.previousModal!,
+              modalData: null,
+              previousModal: null,
+            }),
+            guard: ({ context }) => context.previousModal !== null,
+          },
+          {
+            target: "closed",
+            actions: assign({
+              modalType: "none",
+              modalData: null,
+              previousModal: null,
+            }),
+          },
+        ],
         SUBMIT_MODAL: {
           target: "closed",
           actions: [
@@ -87,6 +106,7 @@ export const modalMachine = setup({
         OPEN_MODAL: {
           // Позволяет открыть другое модальное окно без закрытия текущего
           actions: assign({
+            previousModal: ({ context, event }) => event.modalData?.returnTo ?? context.modalType,
             modalType: ({ event }) => event.modalType,
             modalData: ({ event }) => event.modalData ?? null,
           }),

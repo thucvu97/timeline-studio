@@ -189,8 +189,7 @@ export function useMediaImport() {
   }
 
   // Используем хук MediaProcessor
-  const { scanFolder, scanFolderWithThumbnails, processFiles } =
-    useMediaProcessor(mediaProcessorOptions)
+  const { scanFolder, scanFolderWithThumbnails, processFiles } = useMediaProcessor(mediaProcessorOptions)
 
   /**
    * Сохраняет импортированные медиафайлы в проект (если проект открыт)

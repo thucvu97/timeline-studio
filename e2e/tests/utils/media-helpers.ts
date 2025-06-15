@@ -1,5 +1,5 @@
 import { Page, expect } from "@playwright/test"
-import { join } from "path"
+import path from "path"
 
 /**
  * Утилиты для тестирования медиа-импорта
@@ -62,8 +62,10 @@ export async function selectFiles(page: Page, filePaths: string[]) {
  */
 export function getTestFilePaths(count: number, type: "video" | "image" | "audio" = "video") {
   const extension = type === "video" ? "mp4" : type === "audio" ? "mp3" : "jpg"
+  // Путь от e2e/tests к корню проекта и затем к test-data
+  const testDataPath = path.join(process.cwd(), "test-data")
   return Array(count).fill(null).map((_, i) => 
-    join(__dirname, "..", "..", "fixtures", `test-${type}-${i}.${extension}`)
+    path.join(testDataPath, `test-${type}-${i}.${extension}`)
   )
 }
 

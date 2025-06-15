@@ -25,6 +25,7 @@ describe("Modal Machine", () => {
     expect(actor.getSnapshot().context).toEqual({
       modalType: "none",
       modalData: null,
+      previousModal: null,
     })
   })
 
@@ -45,6 +46,7 @@ describe("Modal Machine", () => {
     expect(actor.getSnapshot().context).toEqual({
       modalType: "project-settings",
       modalData: null,
+      previousModal: null,
     })
   })
 
@@ -72,6 +74,7 @@ describe("Modal Machine", () => {
     expect(actor.getSnapshot().context).toEqual({
       modalType: "project-settings",
       modalData: testData,
+      previousModal: null,
     })
   })
 
@@ -98,6 +101,7 @@ describe("Modal Machine", () => {
     expect(actor.getSnapshot().context).toEqual({
       modalType: "none",
       modalData: null,
+      previousModal: null,
     })
   })
 
@@ -129,6 +133,7 @@ describe("Modal Machine", () => {
     expect(actor.getSnapshot().context).toEqual({
       modalType: "none",
       modalData: null,
+      previousModal: null,
     })
 
     // Проверяем, что был вызван console.log с правильными аргументами
@@ -155,5 +160,70 @@ describe("Modal Machine", () => {
     // Проверяем, что состояние осталось opened, но тип модального окна изменился
     expect(actor.getSnapshot().value).toBe("opened")
     expect(actor.getSnapshot().context.modalType).toBe("user-settings")
+  })
+
+  it("should return to previous modal when returnTo is specified", () => {
+    // Создаем актора машины состояний
+    const actor = createActor(modalMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Отправляем событие OPEN_MODAL для первого модального окна
+    actor.send({ type: "OPEN_MODAL", modalType: "user-settings" })
+
+    // Проверяем, что состояние изменилось на opened
+    expect(actor.getSnapshot().value).toBe("opened")
+    expect(actor.getSnapshot().context.modalType).toBe("user-settings")
+
+    // Отправляем событие OPEN_MODAL для второго модального окна с returnTo
+    actor.send({
+      type: "OPEN_MODAL",
+      modalType: "cache-settings",
+      modalData: { returnTo: "user-settings" },
+    })
+
+    // Проверяем, что previousModal установлен
+    expect(actor.getSnapshot().context).toEqual({
+      modalType: "cache-settings",
+      modalData: { returnTo: "user-settings" },
+      previousModal: "user-settings",
+    })
+
+    // Отправляем событие CLOSE_MODAL
+    actor.send({ type: "CLOSE_MODAL" })
+
+    // Проверяем, что вернулись к предыдущему модальному окну
+    expect(actor.getSnapshot().value).toBe("opened")
+    expect(actor.getSnapshot().context).toEqual({
+      modalType: "user-settings",
+      modalData: null,
+      previousModal: null,
+    })
+  })
+
+  it("should close completely when no previous modal is set", () => {
+    // Создаем актора машины состояний
+    const actor = createActor(modalMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Отправляем событие OPEN_MODAL без предыдущего модального окна
+    actor.send({ type: "OPEN_MODAL", modalType: "cache-settings" })
+
+    // Проверяем, что previousModal равен null
+    expect(actor.getSnapshot().context.previousModal).toBe(null)
+
+    // Отправляем событие CLOSE_MODAL
+    actor.send({ type: "CLOSE_MODAL" })
+
+    // Проверяем, что состояние полностью закрылось
+    expect(actor.getSnapshot().value).toBe("closed")
+    expect(actor.getSnapshot().context).toEqual({
+      modalType: "none",
+      modalData: null,
+      previousModal: null,
+    })
   })
 })

@@ -225,7 +225,10 @@ describe("Template Service", () => {
           name: "Diagonal Custom",
           screens: 2,
           split: "diagonal",
-          splitPoints: [{ x: 75, y: 0 }, { x: 25, y: 100 }],
+          splitPoints: [
+            { x: 75, y: 0 },
+            { x: 25, y: 100 },
+          ],
         }
 
         const result1 = getVideoStyleForTemplate(template, 0, 2)

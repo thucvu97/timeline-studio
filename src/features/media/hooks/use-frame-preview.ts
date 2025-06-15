@@ -2,7 +2,11 @@ import { useCallback, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 
-import { ExtractionPurpose, FrameExtractionService, TimelineFrame } from "@/features/video-compiler/services/frame-extraction-service"
+import {
+  ExtractionPurpose,
+  FrameExtractionService,
+  TimelineFrame,
+} from "@/features/video-compiler/services/frame-extraction-service"
 
 import { useMediaPreview } from "./use-media-preview"
 
@@ -56,11 +60,11 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
             frameData: frame.base64_data,
             isKeyframe: frame.is_keyframe || false,
           }))
-          
+
           // Сохраняем в IndexedDB для быстрого доступа
           await frameExtraction.cacheFramesInIndexedDB(videoPath, frames)
           options.onFramesExtracted?.(frames)
-          
+
           return frames
         }
 
@@ -76,13 +80,13 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
           await frameExtraction.cacheFramesInIndexedDB(videoPath, frames)
 
           // Сохраняем timeline frames в Preview Manager
-          await invoke("save_timeline_frames", { 
-            file_id: fileId, 
-            frames: frames.map(frame => ({
+          await invoke("save_timeline_frames", {
+            file_id: fileId,
+            frames: frames.map((frame) => ({
               timestamp: frame.timestamp,
               base64_data: frame.frameData,
-              is_keyframe: frame.isKeyframe
-            }))
+              is_keyframe: frame.isKeyframe,
+            })),
           })
         }
 
@@ -122,11 +126,7 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
         }
 
         // Извлекаем кадры для распознавания
-        const frames = await frameExtraction.extractRecognitionFrames(
-          videoPath,
-          purpose,
-          interval,
-        )
+        const frames = await frameExtraction.extractRecognitionFrames(videoPath, purpose, interval)
 
         return frames
       } catch (err) {

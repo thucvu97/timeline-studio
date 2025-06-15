@@ -123,6 +123,12 @@
     },
     "export": {
       "title": "Exporter"
+    },
+    "cacheSettings": {
+      "title": "Paramètres du cache"
+    },
+    "cacheStatistics": {
+      "title": "Statistiques du cache"
     }
   },
   "ui": {
@@ -610,6 +616,59 @@
         "long": "Long (30-60 minutes)",
         "veryLong": "Très long (1-3 heures)",
         "extraLong": "Extra long (plus de 3 heures)"
+      },
+      "cache": {
+        "title": "Gestion du cache",
+        "description": "Paramètres de mise en cache des données locales du navigateur",
+        "totalSize": "Taille totale du cache",
+        "usage": "Utilisation {{used}} sur {{total}}",
+        "clearing": "Nettoyage du cache...",
+        "warning": "Vider le cache peut ralentir le chargement des fichiers multimédias",
+        "previewCache": {
+          "title": "Cache d'aperçu",
+          "info": "{{count}} éléments, {{size}}"
+        },
+        "frameCache": {
+          "title": "Cache des images de timeline",
+          "info": "{{count}} images, {{size}}"
+        },
+        "recognitionCache": {
+          "title": "Cache de reconnaissance",
+          "info": "{{count}} résultats, {{size}}"
+        },
+        "subtitleCache": {
+          "title": "Cache des sous-titres",
+          "info": "{{count}} éléments, {{size}}"
+        },
+        "actions": {
+          "clear": "Vider",
+          "clearAll": "Vider tout le cache",
+          "cleanupExpired": "Nettoyer les éléments expirés"
+        },
+        "storage": {
+          "title": "Stockage du navigateur",
+          "technology": "Technologie de stockage",
+          "maxSize": "Taille maximale",
+          "autoCleanup": "Nettoyage automatique",
+          "autoCleanupValue": "Après 30 jours"
+        },
+        "success": {
+          "clearPreview": "Cache d'aperçu vidé",
+          "clearFrames": "Cache des images vidé",
+          "clearRecognition": "Cache de reconnaissance vidé",
+          "clearSubtitles": "Cache des sous-titres vidé",
+          "clearAll": "Tout le cache vidé",
+          "cleanupExpired": "Éléments expirés supprimés"
+        },
+        "errors": {
+          "loadStats": "Impossible de charger les statistiques du cache",
+          "clearPreview": "Impossible de vider le cache d'aperçu",
+          "clearFrames": "Impossible de vider le cache des images",
+          "clearRecognition": "Impossible de vider le cache de reconnaissance",
+          "clearSubtitles": "Impossible de vider le cache des sous-titres",
+          "clearAll": "Impossible de vider tout le cache",
+          "cleanupExpired": "Impossible de nettoyer les éléments expirés"
+        }
       }
     }
   },
@@ -1358,7 +1417,9 @@
       "refresh": "Actualiser",
       "close": "Fermer",
       "confirmClearPreview": "Vider le cache d'aperçu ? Cela peut ralentir les opérations sur les fichiers multimédias.",
-      "confirmClearAll": "Vider tout le cache ? Cela ralentira considérablement l'application."
+      "confirmClearAll": "Vider tout le cache ? Cela ralentira considérablement l'application.",
+      "noData": "Aucune donnée de cache disponible",
+      "loadData": "Charger les données du cache"
     },
     "frameExtraction": {
       "errorTimeline": "Échec de l'extraction des images pour la timeline",

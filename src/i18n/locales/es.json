@@ -123,6 +123,12 @@
     },
     "export": {
       "title": "Exportar"
+    },
+    "cacheSettings": {
+      "title": "Configuración de caché"
+    },
+    "cacheStatistics": {
+      "title": "Estadísticas de caché"
     }
   },
   "ui": {
@@ -1445,7 +1451,9 @@
       "refresh": "Actualizar",
       "close": "Cerrar",
       "confirmClearPreview": "¿Limpiar caché de vista previa? Esto puede ralentizar las operaciones con archivos multimedia.",
-      "confirmClearAll": "¿Limpiar toda la caché? Esto ralentizará significativamente la aplicación."
+      "confirmClearAll": "¿Limpiar toda la caché? Esto ralentizará significativamente la aplicación.",
+      "noData": "No hay datos de caché disponibles",
+      "loadData": "Cargar datos de caché"
     },
     "frameExtraction": {
       "errorTimeline": "Error al extraer fotogramas para la línea de tiempo",

@@ -262,7 +262,6 @@ describe("useFrameExtraction", () => {
       expect(result.current.timelineFrames).toEqual(mockTimelineFrames)
     })
 
-
     it("should handle extraction error", async () => {
       const errorMessage = "Failed to extract frames"
       mockExtractTimelineFrames.mockRejectedValueOnce(new Error(errorMessage))
@@ -298,7 +297,7 @@ describe("useFrameExtraction", () => {
 
       expect(mockFrameExtractionService.cacheRecognitionFrames).toHaveBeenCalledWith(
         "/video.mp4",
-        mockRecognitionFrames
+        mockRecognitionFrames,
       )
 
       expect(result.current.recognitionFrames).toEqual(mockRecognitionFrames)
@@ -323,7 +322,7 @@ describe("useFrameExtraction", () => {
 
       expect(mockFrameExtractionService.cacheRecognitionFrames).toHaveBeenCalledWith(
         "/video.mp4",
-        mockRecognitionFrames
+        mockRecognitionFrames,
       )
 
       expect(result.current.recognitionFrames).toEqual(mockRecognitionFrames)
@@ -388,7 +387,7 @@ describe("useFrameExtraction", () => {
   describe("reset", () => {
     it("should reset state without clearing cache", async () => {
       mockExtractTimelineFrames.mockResolvedValueOnce(mockTimelineFrames)
-      
+
       const { result } = renderHook(() => useFrameExtraction())
 
       // Устанавливаем некоторые данные
@@ -449,7 +448,7 @@ describe("useFrameExtraction", () => {
       mockExtractTimelineFrames.mockClear()
       mockExtractRecognitionFrames.mockClear()
       mockGetFrameAtTimestamp.mockClear()
-      
+
       mockExtractTimelineFrames.mockResolvedValueOnce(mockTimelineFrames)
 
       const { result, rerender } = renderHook(() =>
@@ -490,7 +489,7 @@ describe("useFrameExtraction", () => {
       mockExtractTimelineFrames.mockClear()
       mockExtractRecognitionFrames.mockClear()
       mockGetFrameAtTimestamp.mockClear()
-      
+
       mockExtractTimelineFrames.mockResolvedValueOnce(mockTimelineFrames)
 
       const { result, rerender } = renderHook(() => useFrameExtraction())

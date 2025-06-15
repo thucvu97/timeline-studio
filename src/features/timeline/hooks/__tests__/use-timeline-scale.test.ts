@@ -185,7 +185,7 @@ describe("useTimelineScale", () => {
 
       // Both should have similar start times (with padding adjustment)
       const normalPadding = (endTime - startTime) * 0.03
-      const zoomedPadding = (endTime - startTime) * 0.03 / 2
+      const zoomedPadding = ((endTime - startTime) * 0.03) / 2
 
       expect(normalScale.current.adjustedRange.startTime).toBe(startTime - normalPadding)
       expect(zoomedScale.current.adjustedRange.startTime).toBe(startTime - zoomedPadding)
@@ -278,10 +278,9 @@ describe("useTimelineScale", () => {
 
   describe("Hook Memoization", () => {
     it("should recalculate when duration changes", () => {
-      const { result, rerender } = renderHook(
-        ({ duration }) => useTimelineScale(duration, 0, duration, 1),
-        { initialProps: { duration: 30 } },
-      )
+      const { result, rerender } = renderHook(({ duration }) => useTimelineScale(duration, 0, duration, 1), {
+        initialProps: { duration: 30 },
+      })
 
       const initialTimeStep = result.current.timeStep
       expect(initialTimeStep).toBe(5) // 30s duration
@@ -294,10 +293,9 @@ describe("useTimelineScale", () => {
     })
 
     it("should recalculate when scale changes", () => {
-      const { result, rerender } = renderHook(
-        ({ scale }) => useTimelineScale(60, 0, 60, scale),
-        { initialProps: { scale: 1 } },
-      )
+      const { result, rerender } = renderHook(({ scale }) => useTimelineScale(60, 0, 60, scale), {
+        initialProps: { scale: 1 },
+      })
 
       const initialTimeStep = result.current.timeStep
       expect(initialTimeStep).toBe(10) // 60s duration

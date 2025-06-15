@@ -10,9 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { CacheSettings } from "@/features/media/components/cache-settings"
 import { useModal } from "@/features/modals/services/modal-provider"
-import { CacheStatsDialog } from "@/features/video-compiler"
 import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
 import { useLanguage } from "@/i18n/hooks/use-language"
 
@@ -40,17 +38,13 @@ export function UserSettingsModal() {
     handleClaudeApiKeyChange, // Метод для изменения API ключа Claude
   } = useUserSettings()
 
-  const { closeModal } = useModal() // Хук для закрытия модального окна
+  const { closeModal, openModal } = useModal() // Хук для управления модальными окнами
   const { t } = useTranslation() // Хук для интернационализации
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   const { currentLanguage, changeLanguage } = useLanguage() // Хук для управления языком
 
   // Локальное состояние для выбранного языка
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(currentLanguage)
-  // Состояние для диалога статистики кэша
-  const [showCacheStats, setShowCacheStats] = useState(false)
-  // Состояние для панели настроек кэша
-  const [showCacheSettings, setShowCacheSettings] = useState(false)
 
   /**
    * Обработчик изменения языка интерфейса
@@ -312,7 +306,7 @@ export function UserSettingsModal() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowCacheStats(true)}
+            onClick={() => openModal("cache-statistics", { returnTo: "user-settings" })}
             className="flex items-center gap-2"
           >
             <Database className="h-4 w-4" />
@@ -321,7 +315,7 @@ export function UserSettingsModal() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowCacheSettings(true)}
+            onClick={() => openModal("cache-settings", { returnTo: "user-settings" })}
             className="flex items-center gap-2"
           >
             <Database className="h-4 w-4" />
@@ -354,30 +348,6 @@ export function UserSettingsModal() {
           {t("dialogs.userSettings.save")}
         </Button>
       </DialogFooter>
-
-      {/* Диалог статистики кэша */}
-      <CacheStatsDialog open={showCacheStats} onOpenChange={setShowCacheStats} />
-      
-      {/* Диалог настроек кэша */}
-      {showCacheSettings && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
-          <div className="bg-background rounded-lg shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">{t("dialogs.userSettings.cacheSettings", "Настройки кэша")}</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowCacheSettings(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <CacheSettings />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

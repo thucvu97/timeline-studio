@@ -13,32 +13,36 @@ import type { YoloDetection, YoloVideoData } from "../types/yolo"
 function convertRecognitionResultsToYoloData(
   fileId: string,
   filePath: string,
-  recognitionResults: RecognitionResults
+  recognitionResults: RecognitionResults,
 ): YoloVideoData {
   return {
     videoId: fileId,
-    videoName: filePath.split('/').pop() || fileId,
+    videoName: filePath.split("/").pop() || fileId,
     videoPath: filePath,
-    frames: recognitionResults.objects.flatMap(obj => 
+    frames: recognitionResults.objects.flatMap((obj) =>
       obj.timestamps.map((timestamp, index) => ({
         timestamp,
-        detections: [{
-          class: obj.class,
-          confidence: obj.confidence,
-          bbox: obj.bounding_boxes[index] ? {
-            x: obj.bounding_boxes[index].x,
-            y: obj.bounding_boxes[index].y,
-            width: obj.bounding_boxes[index].width,
-            height: obj.bounding_boxes[index].height
-          } : { x: 0, y: 0, width: 0, height: 0 }
-        }]
-      }))
+        detections: [
+          {
+            class: obj.class,
+            confidence: obj.confidence,
+            bbox: obj.bounding_boxes[index]
+              ? {
+                  x: obj.bounding_boxes[index].x,
+                  y: obj.bounding_boxes[index].y,
+                  width: obj.bounding_boxes[index].width,
+                  height: obj.bounding_boxes[index].height,
+                }
+              : { x: 0, y: 0, width: 0, height: 0 },
+          },
+        ],
+      })),
     ),
     metadata: {
       model: "YOLO",
       version: "v11",
-      processedAt: recognitionResults.processed_at
-    }
+      processedAt: recognitionResults.processed_at,
+    },
   }
 }
 
@@ -79,7 +83,7 @@ export function useRecognitionPreview(options: UseRecognitionPreviewOptions = {}
           const yoloData = convertRecognitionResultsToYoloData(
             fileId,
             cachedData.file_path,
-            cachedData.recognition_results
+            cachedData.recognition_results,
           )
           options.onRecognitionComplete?.(fileId, yoloData)
           return yoloData
@@ -119,7 +123,7 @@ export function useRecognitionPreview(options: UseRecognitionPreviewOptions = {}
           const yoloData = convertRecognitionResultsToYoloData(
             fileId,
             previewData.file_path,
-            previewData.recognition_results
+            previewData.recognition_results,
           )
 
           // Находим ближайший кадр к запрошенному timestamp

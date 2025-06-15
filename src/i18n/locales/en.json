@@ -236,6 +236,12 @@
     },
     "export": {
       "title": "Export"
+    },
+    "cacheSettings": {
+      "title": "Cache Settings"
+    },
+    "cacheStatistics": {
+      "title": "Cache Statistics"
     }
   },
   "dialogs": {
@@ -1567,7 +1573,9 @@
       "refresh": "Refresh",
       "close": "Close",
       "confirmClearPreview": "Clear preview cache? This may slow down media file operations.",
-      "confirmClearAll": "Clear all cache? This will significantly slow down the application."
+      "confirmClearAll": "Clear all cache? This will significantly slow down the application.",
+      "noData": "No cache data available",
+      "loadData": "Load cache data"
     },
     "frameExtraction": {
       "errorTimeline": "Failed to extract frames for timeline",

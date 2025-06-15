@@ -1,9 +1,12 @@
-import { test, expect } from "@playwright/test"
+import { test } from "@playwright/test"
 import { selectors } from "./selectors"
 import path from "path"
 
 test.describe("Загрузка проекта с медиафайлами", () => {
   test("создаем и загружаем тестовый проект", async ({ page }) => {
+    // Базовый путь к тестовым данным
+    const testDataPath = path.join(process.cwd(), "test-data")
+    
     // Подготавливаем проект с медиафайлами
     const testProject = {
       settings: {
@@ -22,7 +25,7 @@ test.describe("Загрузка проекта с медиафайлами", () 
         mediaFiles: [
           {
             id: "media-001",
-            originalPath: path.join(process.cwd(), "public/test-data/C0666.MP4"),
+            originalPath: path.join(testDataPath, "C0666.MP4"),
             name: "C0666.MP4",
             size: 268715286,
             lastModified: Date.now() - 86400000, // 1 день назад
@@ -61,7 +64,7 @@ test.describe("Загрузка проекта с медиафайлами", () 
           },
           {
             id: "media-002",
-            originalPath: path.join(process.cwd(), "public/test-data/Kate.mp4"),
+            originalPath: path.join(testDataPath, "Kate.mp4"),
             name: "Kate.mp4",
             size: 74604623,
             lastModified: Date.now() - 86400000,
@@ -77,7 +80,7 @@ test.describe("Загрузка проекта с медиафайлами", () 
           },
           {
             id: "media-003",
-            originalPath: path.join(process.cwd(), "public/test-data/DSC07845.png"),
+            originalPath: path.join(testDataPath, "DSC07845.png"),
             name: "DSC07845.png",
             size: 6020511,
             lastModified: Date.now() - 86400000,
@@ -92,7 +95,7 @@ test.describe("Загрузка проекта с медиафайлами", () 
         musicFiles: [
           {
             id: "audio-001",
-            originalPath: path.join(process.cwd(), "public/test-data/DJI_02_20250402_104352.WAV"),
+            originalPath: path.join(testDataPath, "DJI_02_20250402_104352.WAV"),
             name: "DJI_02_20250402_104352.WAV",
             size: 268448300,
             lastModified: Date.now() - 86400000,

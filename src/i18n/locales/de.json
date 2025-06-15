@@ -123,6 +123,12 @@
     },
     "export": {
       "title": "Exportieren"
+    },
+    "cacheSettings": {
+      "title": "Cache-Einstellungen"
+    },
+    "cacheStatistics": {
+      "title": "Cache-Statistiken"
     }
   },
   "ui": {
@@ -367,7 +373,7 @@
           "clearRecognition": "Erkennungs-Cache konnte nicht gelöscht werden",
           "clearSubtitles": "Untertitel-Cache konnte nicht gelöscht werden",
           "clearAll": "Gesamter Cache konnte nicht gelöscht werden",
-          "cleanupExpired": "Abgelaufener Cache konnte nicht entfernt werden"
+          "cleanupExpired": "Abgelaufener Cache konnte nicht gelöscht werden"
         }
       }
     },
@@ -1406,7 +1412,9 @@
       "refresh": "Aktualisieren",
       "close": "Schließen",
       "confirmClearPreview": "Vorschau-Cache löschen? Dies kann Medienoperationen verlangsamen.",
-      "confirmClearAll": "Gesamten Cache löschen? Dies wird die Anwendung erheblich verlangsamen."
+      "confirmClearAll": "Gesamten Cache löschen? Dies wird die Anwendung erheblich verlangsamen.",
+      "noData": "Keine Cache-Daten verfügbar",
+      "loadData": "Cache-Daten laden"
     },
     "frameExtraction": {
       "errorTimeline": "Fehler beim Extrahieren von Frames für die Timeline",

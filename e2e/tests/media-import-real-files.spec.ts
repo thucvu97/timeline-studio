@@ -1,5 +1,5 @@
 import { test, expect, Page } from "@playwright/test"
-import { TEST_FILES, TEST_DATA_PATH, getAllMediaFiles } from "./test-data"
+import { TEST_FILES, TEST_DATA_PATH, getAllMediaFiles, getMixedFiles } from "./test-data"
 import { selectors } from "./selectors"
 
 // Утилитная функция для ожидания элемента

@@ -79,7 +79,7 @@ describe("frameExtractionService", () => {
     vi.clearAllMocks()
     const { invoke } = await import("@tauri-apps/api/core")
     mockInvoke = vi.mocked(invoke)
-    
+
     const { indexedDBCacheService } = await import("@/features/media/services/indexeddb-cache-service")
     mockIndexedDBCacheService = vi.mocked(indexedDBCacheService)
   })

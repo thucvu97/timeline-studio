@@ -456,6 +456,12 @@
       },
       "export": {
         "title": "Exportar"
+      },
+      "cacheSettings": {
+        "title": "Configurações de Cache"
+      },
+      "cacheStatistics": {
+        "title": "Estatísticas de Cache"
       }
     }
   },
@@ -569,7 +575,60 @@
       "all": "Todos",
       "video": "Vídeo",
       "audio": "Áudio",
-      "image": "Imagens"
+      "image": "Imagens",
+      "cache": {
+        "title": "Gerenciamento de Cache",
+        "description": "Configurações de armazenamento de dados local do navegador",
+        "totalSize": "Tamanho total do cache",
+        "usage": "{{used}} de {{total}} usado",
+        "clearing": "Limpando cache...",
+        "warning": "Limpar o cache pode tornar o carregamento de arquivos de mídia mais lento",
+        "previewCache": {
+          "title": "Cache de Visualização",
+          "info": "{{count}} itens, {{size}}"
+        },
+        "frameCache": {
+          "title": "Cache de Frames da Timeline",
+          "info": "{{count}} frames, {{size}}"
+        },
+        "recognitionCache": {
+          "title": "Cache de Reconhecimento",
+          "info": "{{count}} resultados, {{size}}"
+        },
+        "subtitleCache": {
+          "title": "Cache de Legendas",
+          "info": "{{count}} itens, {{size}}"
+        },
+        "actions": {
+          "clear": "Limpar",
+          "clearAll": "Limpar todo o cache",
+          "cleanupExpired": "Remover expirados"
+        },
+        "storage": {
+          "title": "Armazenamento do Navegador",
+          "technology": "Tecnologia de armazenamento",
+          "maxSize": "Tamanho máximo",
+          "autoCleanup": "Limpeza automática",
+          "autoCleanupValue": "Após 30 dias"
+        },
+        "success": {
+          "clearPreview": "Cache de visualização limpo",
+          "clearFrames": "Cache de frames limpo",
+          "clearRecognition": "Cache de reconhecimento limpo",
+          "clearSubtitles": "Cache de legendas limpo",
+          "clearAll": "Todo o cache limpo",
+          "cleanupExpired": "Cache expirado removido"
+        },
+        "errors": {
+          "loadStats": "Falha ao carregar estatísticas do cache",
+          "clearPreview": "Falha ao limpar cache de visualização",
+          "clearFrames": "Falha ao limpar cache de frames",
+          "clearRecognition": "Falha ao limpar cache de reconhecimento",
+          "clearSubtitles": "Falha ao limpar cache de legendas",
+          "clearAll": "Falha ao limpar todo o cache",
+          "cleanupExpired": "Falha ao remover cache expirado"
+        }
+      }
     },
     "toolbar": {
       "search": "Pesquisar arquivos de mídia",
@@ -1320,7 +1379,9 @@
       "refresh": "Atualizar",
       "close": "Fechar",
       "confirmClearPreview": "Limpar cache de visualização? Isso pode deixar as operações de mídia mais lentas.",
-      "confirmClearAll": "Limpar todo o cache? Isso deixará o aplicativo significativamente mais lento."
+      "confirmClearAll": "Limpar todo o cache? Isso deixará o aplicativo significativamente mais lento.",
+      "noData": "Nenhum dado de cache disponível",
+      "loadData": "Carregar dados do cache"
     },
     "frameExtraction": {
       "errorTimeline": "Falha ao extrair quadros para a linha do tempo",

@@ -13,10 +13,9 @@ import { formatFileSize } from "@/lib/utils"
 import { type CacheStatistics, indexedDBCacheService } from "../services/indexeddb-cache-service"
 
 /**
- * Компонент управления настройками кэширования
- * Позволяет просматривать и управлять локальным кэшем IndexedDB
+ * Модальное окно настроек кэширования
  */
-export function CacheSettings() {
+export function CacheSettingsModal() {
   const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
   const [cacheStats, setCacheStats] = useState<CacheStatistics | null>(null)
@@ -48,10 +47,10 @@ export function CacheSettings() {
       }, 100)
 
       await indexedDBCacheService.clearPreviewCache()
-      
+
       clearInterval(progressInterval)
       setClearingProgress(100)
-      
+
       toast.success(t("media.cache.success.clearPreview"))
       await loadCacheStats()
     } catch (error) {
@@ -75,10 +74,10 @@ export function CacheSettings() {
       }, 100)
 
       await indexedDBCacheService.clearFrameCache()
-      
+
       clearInterval(progressInterval)
       setClearingProgress(100)
-      
+
       toast.success(t("media.cache.success.clearFrames"))
       await loadCacheStats()
     } catch (error) {
@@ -102,10 +101,10 @@ export function CacheSettings() {
       }, 100)
 
       await indexedDBCacheService.clearRecognitionCache()
-      
+
       clearInterval(progressInterval)
       setClearingProgress(100)
-      
+
       toast.success(t("media.cache.success.clearRecognition"))
       await loadCacheStats()
     } catch (error) {
@@ -129,10 +128,10 @@ export function CacheSettings() {
       }, 50)
 
       await indexedDBCacheService.clearAllCache()
-      
+
       clearInterval(progressInterval)
       setClearingProgress(100)
-      
+
       toast.success(t("media.cache.success.clearAll"))
       await loadCacheStats()
     } catch (error) {
@@ -165,16 +164,14 @@ export function CacheSettings() {
 
   if (isLoading || !cacheStats) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-8">
-          <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-8">
+        <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -192,9 +189,9 @@ export function CacheSettings() {
             </div>
             <Progress value={(cacheStats.totalSize / (500 * 1024 * 1024)) * 100} className="h-2" />
             <p className="text-xs text-muted-foreground">
-              {t("media.cache.usage", { 
-                used: formatFileSize(cacheStats.totalSize), 
-                total: "500 MB" 
+              {t("media.cache.usage", {
+                used: formatFileSize(cacheStats.totalSize),
+                total: "500 MB",
               })}
             </p>
           </div>
@@ -209,7 +206,7 @@ export function CacheSettings() {
                 <p className="text-xs text-muted-foreground">
                   {t("media.cache.previewCache.info", {
                     count: cacheStats.previewCache.count,
-                    size: formatFileSize(cacheStats.previewCache.size)
+                    size: formatFileSize(cacheStats.previewCache.size),
                   })}
                 </p>
               </div>
@@ -228,7 +225,7 @@ export function CacheSettings() {
                 <p className="text-xs text-muted-foreground">
                   {t("media.cache.frameCache.info", {
                     count: cacheStats.frameCache.count,
-                    size: formatFileSize(cacheStats.frameCache.size)
+                    size: formatFileSize(cacheStats.frameCache.size),
                   })}
                 </p>
               </div>
@@ -247,7 +244,7 @@ export function CacheSettings() {
                 <p className="text-xs text-muted-foreground">
                   {t("media.cache.recognitionCache.info", {
                     count: cacheStats.recognitionCache.count,
-                    size: formatFileSize(cacheStats.recognitionCache.size)
+                    size: formatFileSize(cacheStats.recognitionCache.size),
                   })}
                 </p>
               </div>
@@ -266,13 +263,13 @@ export function CacheSettings() {
                 <p className="text-xs text-muted-foreground">
                   {t("media.cache.subtitleCache.info", {
                     count: cacheStats.subtitleCache.count,
-                    size: formatFileSize(cacheStats.subtitleCache.size)
+                    size: formatFileSize(cacheStats.subtitleCache.size),
                   })}
                 </p>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={async () => {
                   setIsClearing(true)
                   setClearingProgress(0)
@@ -282,10 +279,10 @@ export function CacheSettings() {
                     }, 100)
 
                     await indexedDBCacheService.clearSubtitleCache()
-                    
+
                     clearInterval(progressInterval)
                     setClearingProgress(100)
-                    
+
                     toast.success(t("media.cache.success.clearSubtitles"))
                     await loadCacheStats()
                   } catch (error) {
@@ -297,7 +294,7 @@ export function CacheSettings() {
                       setIsClearing(false)
                     }, 500)
                   }
-                }} 
+                }}
                 disabled={isClearing}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -326,20 +323,11 @@ export function CacheSettings() {
               <span>{t("media.cache.warning")}</span>
             </div>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={cleanupExpiredCache} 
-                disabled={isClearing}
-              >
+              <Button variant="outline" size="sm" onClick={cleanupExpiredCache} disabled={isClearing}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 {t("media.cache.actions.cleanupExpired")}
               </Button>
-              <Button 
-                variant="destructive" 
-                onClick={clearAllCache} 
-                disabled={isClearing}
-              >
+              <Button variant="destructive" onClick={clearAllCache} disabled={isClearing}>
                 <Trash2 className="mr-2 h-4 w-4" />
                 {t("media.cache.actions.clearAll")}
               </Button>

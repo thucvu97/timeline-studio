@@ -173,7 +173,6 @@ export class FrameExtractionService {
     }
   }
 
-
   /**
    * Создать превью элемент из base64 данных
    */

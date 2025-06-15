@@ -110,12 +110,9 @@ describe("useVideoStreaming", () => {
 
       mockVideoStreamingService.getVideoUrl.mockResolvedValue(mockUrl)
 
-      const { result, rerender } = renderHook(
-        ({ filePath }) => useVideoStreaming(filePath),
-        {
-          initialProps: { filePath },
-        },
-      )
+      const { result, rerender } = renderHook(({ filePath }) => useVideoStreaming(filePath), {
+        initialProps: { filePath },
+      })
 
       // Wait for initial load
       await waitFor(() => {
@@ -138,16 +135,11 @@ describe("useVideoStreaming", () => {
       const filePath1 = "/path/to/video1.mp4"
       const filePath2 = "/path/to/video2.mp4"
 
-      mockVideoStreamingService.getVideoUrl
-        .mockResolvedValueOnce(mockUrl1)
-        .mockResolvedValueOnce(mockUrl2)
+      mockVideoStreamingService.getVideoUrl.mockResolvedValueOnce(mockUrl1).mockResolvedValueOnce(mockUrl2)
 
-      const { result, rerender } = renderHook(
-        ({ filePath }) => useVideoStreaming(filePath),
-        {
-          initialProps: { filePath: filePath1 },
-        },
-      )
+      const { result, rerender } = renderHook(({ filePath }) => useVideoStreaming(filePath), {
+        initialProps: { filePath: filePath1 },
+      })
 
       // Wait for initial load
       await waitFor(() => {
