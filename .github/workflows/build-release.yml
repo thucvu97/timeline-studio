@@ -104,6 +104,25 @@ jobs:
       - name: Install Rust (stable)
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Install dependencies (macOS only)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          brew install ffmpeg pkg-config onnxruntime
+
+      - name: Install dependencies (Windows only)
+        if: matrix.platform == 'windows-latest'
+        run: |
+          # Install FFmpeg via chocolatey
+          choco install ffmpeg
+          # Add FFmpeg to PATH
+          echo "C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin" >> $GITHUB_PATH
+          
+          # Install ONNX Runtime
+          $ONNX_VERSION = "1.19.2"
+          Invoke-WebRequest -Uri "https://github.com/microsoft/onnxruntime/releases/download/v$ONNX_VERSION/onnxruntime-win-x64-$ONNX_VERSION.zip" -OutFile "onnxruntime.zip"
+          Expand-Archive -Path "onnxruntime.zip" -DestinationPath "C:\onnxruntime"
+          echo "C:\onnxruntime\onnxruntime-win-x64-$ONNX_VERSION\lib" >> $GITHUB_PATH
+
       - name: Install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-latest'
         run: |
@@ -114,11 +133,18 @@ jobs:
 
           if [[ "$UBUNTU_VERSION" == "24.04" ]]; then
             # Ubuntu 24.04 (Noble)
-            sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+            sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
           else
-            # Ubuntu 22.04 (Jammy) и более старые версии
-            sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+            # Ubuntu 22.04 (Jammy) и более старые versii
+            sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
           fi
+          
+          # Install ONNX Runtime for Ubuntu
+          ONNX_VERSION="1.19.2"
+          wget https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_VERSION}/onnxruntime-linux-x64-${ONNX_VERSION}.tgz
+          sudo tar -xzf onnxruntime-linux-x64-${ONNX_VERSION}.tgz -C /opt/
+          sudo ln -sf /opt/onnxruntime-linux-x64-${ONNX_VERSION}/lib/libonnxruntime.so.${ONNX_VERSION} /usr/local/lib/libonnxruntime.so
+          sudo ldconfig
 
       - name: Install frontend dependencies
         run: |

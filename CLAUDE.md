@@ -2,6 +2,35 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## System Requirements
+
+Before working with this codebase, ensure you have the following dependencies installed:
+
+### Required Dependencies
+- **Node.js 18+** and **Bun** - JavaScript runtime and package manager
+- **Rust 1.81.0+** - Backend runtime for Tauri
+- **FFmpeg** - Video processing library (required for compilation)
+  ```bash
+  # macOS
+  brew install ffmpeg
+  
+  # Ubuntu/Debian
+  sudo apt-get install ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+  
+  # Windows
+  choco install ffmpeg
+  ```
+- **ONNX Runtime** - Machine learning inference (for recognition features)
+  ```bash
+  # macOS
+  brew install onnxruntime
+  ```
+
+### Platform-specific Tools
+- **macOS**: Xcode Command Line Tools
+- **Windows**: Visual Studio 2022 with C++ tools
+- **Linux**: `build-essential`, `libgtk-3-dev`, `libwebkit2gtk-4.1-dev`
+
 ## Common Development Commands
 
 ### Development
@@ -85,6 +114,38 @@ State machines are created using XState's `setup` method for better type safety 
 - Use custom render function from `@/test/test-utils.tsx` for component tests
 - XState machines are tested using actor model and snapshot testing
 - All external dependencies (Tauri API, localStorage) are mocked in tests
+
+### Test Environment Setup
+The project includes a comprehensive test environment setup:
+
+#### Test Configuration (`src/test/`)
+- **`setup.ts`** - Global test setup and essential mocks
+  - Configures Jest DOM matchers
+  - Sets up cleanup between tests
+  - Mocks common providers (UserSettings, Modals, AppState)
+  - Configures console methods for test environment
+  - Provides TypeScript declarations for custom matchers
+
+- **`mocks/index.ts`** - Centralized mock management
+  - Exports commonly used mocks (Tauri, Browser, Libraries)
+  - Provides `resetAllMocks()` function for cleanup
+  - Offers `setupEssentialMocks()` for initial configuration
+
+- **`utils/README.md`** - Specialized audio testing utilities
+  - Complete documentation for Tauri audio component testing
+  - Audio mocking utilities (AudioContext, MediaRecorder, HTMLAudioElement)
+  - Test data generators for audio files and streams
+  - Event simulation helpers for audio lifecycle
+  - Integration patterns with Context7 MCP
+  - Best practices and troubleshooting guide
+
+#### Testing Utilities Available
+- **Audio Testing**: Mock AudioContext, MediaRecorder, audio file operations
+- **Tauri API Mocking**: File system, commands, dialogs, notifications
+- **Browser API Mocking**: URL, Blob, fetch, localStorage
+- **Library Mocking**: External dependencies and services
+- **Test Data Creation**: Realistic mock data generators
+- **Event Simulation**: User interactions and system events
 
 ## Code Style Guidelines
 
