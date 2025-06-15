@@ -31,28 +31,7 @@ export function useMediaImport() {
   const [filesMap, setFilesMap] = useState<Map<string, MediaFile>>(new Map())
 
   // Используем Preview Manager для унифицированной системы превью
-  const { generateThumbnail, getPreviewData } = useMediaPreview({
-    onThumbnailGenerated: (fileId, thumbnailData) => {
-      console.log(`Preview Manager: Thumbnail готов для ${fileId}`)
-      // Обновляем файл с base64 thumbnail
-      setFilesMap((prevMap) => {
-        const newMap = new Map(prevMap)
-        const file = newMap.get(fileId)
-        if (file && thumbnailData.base64_data) {
-          const updatedFile: MediaFile = {
-            ...file,
-            thumbnailData: thumbnailData.base64_data,
-          }
-          newMap.set(fileId, updatedFile)
-          updateMediaFiles([updatedFile])
-        }
-        return newMap
-      })
-    },
-    onError: (error) => {
-      console.error("Preview Manager error:", error)
-    },
-  })
+  const { generateThumbnail } = useMediaPreview()
 
   /**
    * Создает базовый объект медиафайла с минимальной информацией
@@ -210,7 +189,7 @@ export function useMediaImport() {
   }
 
   // Используем хук MediaProcessor
-  const { scanFolder, scanFolderWithThumbnails, processFiles, processFilesWithThumbnails } =
+  const { scanFolder, scanFolderWithThumbnails, processFiles } =
     useMediaProcessor(mediaProcessorOptions)
 
   /**
@@ -273,7 +252,7 @@ export function useMediaImport() {
 
       // Обрабатываем выбранные файлы
       // Backend сам отправит события по мере готовности метаданных
-      void processFilesWithThumbnails(selectedFiles)
+      void processFiles(selectedFiles)
         .then((finalFiles) => {
           console.log(`Обработка завершена. Импортировано ${finalFiles.length} файлов`)
           setIsImporting(false)

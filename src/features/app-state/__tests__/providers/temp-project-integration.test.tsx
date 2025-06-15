@@ -6,7 +6,7 @@ import { ReactNode } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 import { join } from "@tauri-apps/api/path"
-import { createDir, exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
+import { exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -18,7 +18,6 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
   readTextFile: vi.fn(),
   writeTextFile: vi.fn(),
   exists: vi.fn(),
-  createDir: vi.fn(),
 }))
 
 vi.mock("@tauri-apps/api/core", () => ({
@@ -57,7 +56,6 @@ const mockJoin = vi.mocked(join)
 const mockReadTextFile = vi.mocked(readTextFile)
 const mockWriteTextFile = vi.mocked(writeTextFile)
 const mockExists = vi.mocked(exists)
-const mockCreateDir = vi.mocked(createDir)
 
 // Import and mock path functions
 const mockAppDataDir = vi.mocked((await import("@tauri-apps/api/path")).appDataDir)
@@ -101,7 +99,6 @@ describe("Temporary Project Integration", () => {
     mockReadTextFile.mockRejectedValue(new Error("File not found"))
     mockWriteTextFile.mockResolvedValue()
     mockExists.mockResolvedValue(false)
-    mockCreateDir.mockResolvedValue()
 
     mockJoin.mockImplementation((...parts) => Promise.resolve(parts.join("/")))
     mockAppDataDir.mockResolvedValue("/app/data")
