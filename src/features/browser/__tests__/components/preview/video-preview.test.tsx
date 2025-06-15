@@ -16,6 +16,12 @@ vi.mock("@/features", () => ({
   })),
 }))
 
+vi.mock("@/features/video-player", () => ({
+  usePlayer: vi.fn(() => ({
+    setPreviewMedia: vi.fn(),
+  })),
+}))
+
 vi.mock("@/features/media/utils/video", () => ({
   calculateAdaptiveWidth: vi.fn((width: number) => width),
   calculateWidth: vi.fn(() => 200),

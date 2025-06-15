@@ -1,4 +1,5 @@
 #[cfg(test)]
+#[allow(clippy::module_inception)]
 mod tests {
   use crate::media::types::{MediaFile, ProbeData};
   use crate::{get_media_files, get_media_metadata};

@@ -2,7 +2,7 @@
 
 ## Обзор
 
-Этот документ описывает структуру проекта Timeline Studio, систему персистентности медиа и все связанные API. Он включает как устаревший формат (v1), так и новую профессиональную архитектуру (v2), вдохновленную DaVinci Resolve и Adobe Premiere Pro.
+Этот документ описывает систему персистентности медиа и структуру проекта Timeline Studio. Включает все API для работы с сохранением и восстановлением медиафайлов в проектах.
 
 ## Основные типы
 
@@ -42,59 +42,22 @@ interface MusicMetadata {
 }
 ```
 
-### ProjectFile (Устаревший v1 - Не рекомендуется)
+### ProjectFile
 
 ```typescript
 interface ProjectFile {
   settings: ProjectSettings;
-  mediaLibrary: ProjectMediaLibrary;
-  browserState: SavedBrowserState;
-  projectFavorites: ProjectFavorites;
+  mediaPool: ProjectMediaPool;
+  workspaceSettings: WorkspaceSettings;
+  favoriteFiles: ProjectFavorites;
   meta: ProjectMeta;
 }
 
-interface ProjectMediaLibrary {
+interface ProjectMediaPool {
   mediaFiles: SavedMediaFile[];
   musicFiles: SavedMusicFile[];
   lastUpdated: number;
   version: string;
-}
-```
-
-### TimelineStudioProject (Новый v2)
-
-```typescript
-interface TimelineStudioProject {
-  // Метаданные проекта
-  metadata: ProjectMetadata;
-  
-  // Настройки проекта (видео, аудио, цвет)
-  settings: ProjectSettings & {
-    audio: AudioSettings;
-    preview: PreviewSettings;
-    exportPresets: ExportPreset[];
-  };
-  
-  // Media Pool - централизованное хранилище медиа
-  mediaPool: MediaPool;
-  
-  // Секвенции (таймлайны)
-  sequences: Map<string, Sequence>;
-  
-  // ID активной секвенции
-  activeSequenceId: string;
-  
-  // Кэш проекта
-  cache: ProjectCache;
-  
-  // Настройки рабочего пространства
-  workspace: WorkspaceSettings;
-  
-  // Коллаборация (опционально)
-  collaboration?: CollaborationSettings;
-  
-  // Резервные копии
-  backup: ProjectBackup;
 }
 ```
 
@@ -127,8 +90,17 @@ class ProjectFileService {
     musicFiles: SavedMusicFile[],
   ): ProjectFile;
 
-  // Валидировать структуру проекта
-  private static validateProjectStructure(project: any): void;
+  // Обновить состояние браузера в проекте
+  static updateBrowserState(
+    project: ProjectFile, 
+    workspaceSettings: WorkspaceSettings
+  ): ProjectFile;
+
+  // Обновить избранные файлы в проекте
+  static updateProjectFavorites(
+    project: ProjectFile, 
+    favorites: ProjectFavorites
+  ): ProjectFile;
 
   // Получить статистику проекта
   static getProjectStats(project: ProjectFile): {
@@ -137,6 +109,16 @@ class ProjectFileService {
     totalSize: number;
     lastModified: number;
   };
+
+  // Проверить наличие несохраненных изменений
+  static hasUnsavedChanges(
+    project: ProjectFile,
+    currentMediaFiles: SavedMediaFile[],
+    currentMusicFiles: SavedMusicFile[],
+  ): boolean;
+
+  // Мигрировать проект к новой версии
+  static migrateProject(project: ProjectFile): ProjectFile;
 }
 ```
 
@@ -158,8 +140,25 @@ const updatedProject = ProjectFileService.updateMediaLibrary(
   musicFiles,
 );
 
+// Обновить настройки рабочего пространства
+const projectWithWorkspace = ProjectFileService.updateBrowserState(
+  updatedProject,
+  workspaceSettings,
+);
+
+// Проверить наличие несохраненных изменений
+const hasChanges = ProjectFileService.hasUnsavedChanges(
+  project,
+  currentMediaFiles,
+  currentMusicFiles,
+);
+
 // Сохранить проект
-await ProjectFileService.saveProject("/path/to/project.tls", updatedProject);
+await ProjectFileService.saveProject("/path/to/project.tls", projectWithWorkspace);
+
+// Получить статистику проекта
+const stats = ProjectFileService.getProjectStats(project);
+console.log(`Всего файлов: ${stats.totalMediaFiles + stats.totalMusicFiles}`);
 ```
 
 ### MediaRestorationService
@@ -244,32 +243,6 @@ function generateFileId(filePath: string, metadata: any): string;
 
 Генерирует уникальный ID файла на основе пути, размера и времени изменения.
 
-#### Утилиты для работы с путями
-
-```typescript
-// Вычислить относительный путь от проекта к файлу
-async function calculateRelativePath(
-  filePath: string,
-  projectPath: string | null,
-): Promise<string | undefined>;
-
-// Сгенерировать альтернативные пути поиска
-async function generateAlternativePaths(
-  originalPath: string,
-  projectDir: string,
-): Promise<string[]>;
-
-// Поиск файлов по имени в директории (системный поиск)
-async function searchFilesByName(
-  directory: string,
-  filename: string,
-  maxDepth?: number,
-): Promise<string[]>;
-
-// Получить абсолютный путь для файла
-async function getAbsolutePath(path: string): Promise<string | null>;
-```
-
 #### Операции с файловой системой
 
 ```typescript
@@ -291,6 +264,35 @@ async function validateFileIntegrity(
   confidence: number;
   issues: string[];
 }>;
+
+// Получить абсолютный путь для файла
+async function getAbsolutePath(path: string): Promise<string | null>;
+```
+
+#### Утилиты для работы с путями
+
+```typescript
+// Вычислить относительный путь от проекта к файлу
+async function calculateRelativePath(
+  filePath: string,
+  projectPath: string | null,
+): Promise<string | undefined>;
+
+// Сгенерировать альтернативные пути поиска
+async function generateAlternativePaths(
+  originalPath: string,
+  projectDir: string,
+): Promise<string[]>;
+
+// Поиск файлов по имени в директории
+async function searchFilesByName(
+  directory: string,
+  filename: string,
+  maxDepth?: number,
+): Promise<string[]>;
+
+// Получить расширения файлов для диалога поиска
+function getExtensionsForFile(savedFile: SavedMediaFile): string[];
 ```
 
 #### Преобразование типов
@@ -335,7 +337,7 @@ function useMediaRestoration(): {
   restorationResult: ProjectRestorationResult | null;
   showMissingFilesDialog: boolean;
 
-  // Функции
+  // Основные функции
   restoreProjectMedia: (
     mediaFiles: SavedMediaFile[],
     musicFiles: SavedMusicFile[],
@@ -444,6 +446,14 @@ interface MissingFilesDialogProps {
 }
 ```
 
+#### Возможности
+
+- Отображает список отсутствующих файлов
+- Позволяет найти файл в новом расположении
+- Возможность удалить файл из проекта
+- Пропуск файла без изменений
+- Массовые операции (пропустить все, применить все)
+
 #### Использование
 
 ```typescript
@@ -494,14 +504,14 @@ await saveFilesToProject(processedFiles);
 
 ```typescript
 // В AppSettingsProvider
-const openProject = async () => {
+const openProject = async (path: string) => {
   const projectData = await ProjectFileService.loadProject(path);
 
   // Восстановить медиафайлы
-  if (projectData.mediaLibrary) {
+  if (projectData.mediaPool) {
     const restorationResult = await restoreProjectMedia(
-      projectData.mediaLibrary.mediaFiles || [],
-      projectData.mediaLibrary.musicFiles || [],
+      projectData.mediaPool.mediaFiles || [],
+      projectData.mediaPool.musicFiles || [],
       path,
       { showDialog: true },
     );
@@ -515,95 +525,152 @@ const openProject = async () => {
 };
 ```
 
-## Обработка ошибок
-
-### Общие типы ошибок
+### Полный пример использования с хуком
 
 ```typescript
-// Ошибки загрузки проекта
-class ProjectLoadError extends Error {
-  constructor(
-    message: string,
-    public readonly path: string,
-  ) {
-    super(message);
-  }
-}
+function ProjectManager() {
+  const {
+    restoreProjectMedia,
+    handleMissingFilesResolution,
+    showMissingFilesDialog,
+    getMissingFiles,
+    isRestoring,
+    progress,
+    error
+  } = useMediaRestoration()
 
-// Ошибки восстановления файлов
-class FileRestorationError extends Error {
-  constructor(
-    message: string,
-    public readonly fileId: string,
-  ) {
-    super(message);
-  }
-}
+  const handleOpenProject = async (projectPath: string) => {
+    try {
+      const projectData = await ProjectFileService.loadProject(projectPath)
 
-// Ошибки валидации
-class ValidationError extends Error {
-  constructor(
-    message: string,
-    public readonly issues: string[],
-  ) {
-    super(message);
+      if (projectData.mediaPool) {
+        const result = await restoreProjectMedia(
+          projectData.mediaPool.mediaFiles,
+          projectData.mediaPool.musicFiles,
+          projectPath,
+          { showDialog: true }
+        )
+
+        // Обработать восстановленные файлы
+        console.log(`Восстановлено: ${result.restoredMedia.length + result.restoredMusic.length} файлов`)
+      }
+    } catch (error) {
+      console.error('Ошибка при открытии проекта:', error)
+    }
   }
+
+  return (
+    <div>
+      {isRestoring && (
+        <div>
+          <p>Восстановление файлов... {Math.round(progress)}%</p>
+          {error && <p className="error">Ошибка: {error}</p>}
+        </div>
+      )}
+
+      <MissingFilesDialog
+        open={showMissingFilesDialog}
+        onOpenChange={() => {}}
+        missingFiles={getMissingFiles()}
+        onResolve={handleMissingFilesResolution}
+      />
+    </div>
+  )
 }
 ```
+
+## Обработка ошибок
 
 ### Паттерны обработки ошибок
 
 ```typescript
+// Обработка ошибок загрузки проекта
 try {
   const projectData = await ProjectFileService.loadProject(path);
 } catch (error) {
-  if (error instanceof ProjectLoadError) {
-    // Обработать ошибку загрузки проекта
-    showErrorDialog(`Не удалось загрузить проект: ${error.message}`);
+  console.error("Ошибка загрузки проекта:", error);
+  // Показать пользователю сообщение об ошибке
+  showErrorNotification(`Не удалось загрузить проект: ${String(error)}`);
+}
+
+// Обработка ошибок восстановления медиа
+try {
+  const result = await restoreProjectMedia(mediaFiles, musicFiles, projectPath);
+} catch (error) {
+  console.error("Ошибка восстановления медиа:", error);
+  // Обновить состояние хука с ошибкой
+  setState(prev => ({ ...prev, phase: "error", error: String(error) }));
+}
+
+// Обработка ошибок валидации проекта
+try {
+  await ProjectFileService.saveProject(path, projectData);
+} catch (error) {
+  if (String(error).includes("Invalid project structure")) {
+    console.error("Структура проекта повреждена:", error);
+  } else if (String(error).includes("Unsupported project version")) {
+    console.error("Неподдерживаемая версия проекта:", error);
   } else {
-    // Обработать неожиданную ошибку
-    console.error("Неожиданная ошибка:", error);
+    console.error("Неожиданная ошибка сохранения:", error);
   }
 }
 ```
 
 ## Соображения производительности
 
-### Пакетные операции
+### Последовательная обработка файлов
 
 ```typescript
-// Обрабатывать файлы пакетами, чтобы не блокировать UI
-const BATCH_SIZE = 10;
-
-const processBatch = async (files: SavedMediaFile[], startIndex: number) => {
-  const batch = files.slice(startIndex, startIndex + BATCH_SIZE);
-  const results = await Promise.all(
-    batch.map((file) => MediaRestorationService.restoreFile(file, projectDir)),
-  );
-  return results;
-};
+// MediaRestorationService обрабатывает файлы последовательно
+// для избежания блокировки UI и лучшего контроля ошибок
+for (const savedFile of allFiles) {
+  try {
+    const result = await MediaRestorationService.restoreFile(savedFile, projectDir)
+    // Обработка результата...
+  } catch (error) {
+    console.error(`Ошибка при восстановлении файла ${savedFile.name}:`, error)
+    missingFiles.push(savedFile)
+  }
+}
 ```
 
-### Кэширование
+### Оптимизация проверок файлов
 
 ```typescript
-// Кэшировать проверки существования файлов
-const fileExistsCache = new Map<string, boolean>();
+// Утилиты сначала проверяют существование файла перед валидацией
+const originalExists = await fileExists(savedFile.originalPath)
 
-const cachedFileExists = async (path: string): Promise<boolean> => {
-  if (fileExistsCache.has(path)) {
-    return fileExistsCache.get(path)!;
-  }
+if (originalExists) {
+  const validation = await validateFileIntegrity(savedFile.originalPath, savedFile)
+  // Только если файл существует, проверяем его целостность
+}
+```
 
-  const exists = await fileExists(path);
-  fileExistsCache.set(path, exists);
-  return exists;
-};
+### Кэширование метаданных
+
+```typescript
+// Проект кэширует метаданные файлов для быстрого доступа
+interface ProjectMediaPool {
+  mediaFiles: SavedMediaFile[]; // Содержат кэшированные метаданные
+  musicFiles: SavedMusicFile[];
+  lastUpdated: number; // Отслеживаем время последнего обновления
+  version: string;
+}
 ```
 
 ## Тестирование
 
-### Примеры юнит-тестов
+### Тестируемые компоненты
+
+Система медиа персистентности полностью покрыта тестами:
+
+- **ProjectFileService** - загрузка, сохранение, валидация проектов
+- **MediaRestorationService** - восстановление медиафайлов
+- **useMediaRestoration** - хук для управления восстановлением
+- **MissingFilesDialog** - UI компонент для обработки отсутствующих файлов
+- **saved-media-utils** - утилиты для работы с медиафайлами
+
+### Примеры тестов восстановления файлов
 
 ```typescript
 describe("MediaRestorationService", () => {
@@ -624,243 +691,91 @@ describe("MediaRestorationService", () => {
     expect(result.restoredFile).toBeDefined();
   });
 
-  it("должен найти файл в альтернативном расположении", async () => {
+  it("должен найти файл по относительному пути", async () => {
     mockFileExists.mockResolvedValueOnce(false); // Оригинальный путь
-    mockFileExists.mockResolvedValueOnce(true); // Альтернативный путь
+    mockFileExists.mockResolvedValueOnce(true); // Относительный путь
 
     const result = await MediaRestorationService.restoreFile(
-      savedFile,
+      savedFileWithRelative,
       projectDir,
     );
 
     expect(result.status).toBe("relocated");
-    expect(result.newPath).toBeDefined();
+    expect(result.newPath).toBe("/project/dir/media/video.mp4");
+  });
+
+  it("должен обрабатывать поврежденные файлы", async () => {
+    mockFileExists.mockResolvedValue(true);
+    mockValidateFileIntegrity.mockResolvedValue({
+      isValid: false,
+      confidence: 0.3,
+      issues: ["File size mismatch"],
+    });
+
+    const result = await MediaRestorationService.restoreFile(savedFile, projectDir);
+
+    expect(result.status).toBe("corrupted");
   });
 });
 ```
 
-### Примеры интеграционных тестов
+### Примеры тестов сервиса проектов
 
 ```typescript
-describe("Персистентность медиа проекта", () => {
-  it("должен сохранить и восстановить медиафайлы", async () => {
-    // Создать проект с медиафайлами
-    const project = ProjectFileService.createNewProject("Тест");
-    const updatedProject = ProjectFileService.updateMediaLibrary(
-      project,
-      [savedMediaFile],
-      [savedMusicFile],
+describe("ProjectFileService", () => {
+  it("должен загружать проект из файла", async () => {
+    vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(mockProjectFile));
+
+    const project = await ProjectFileService.loadProject(mockProjectPath);
+
+    expect(project).toEqual(mockProjectFile);
+    expect(readTextFile).toHaveBeenCalledWith(mockProjectPath);
+  });
+
+  it("должен валидировать структуру проекта", async () => {
+    const invalidProject = { ...mockProjectFile };
+    delete invalidProject.settings;
+
+    vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(invalidProject));
+
+    await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      "Invalid project structure: missing settings",
+    );
+  });
+
+  it("должен определять несохраненные изменения", () => {
+    const hasChanges = ProjectFileService.hasUnsavedChanges(
+      mockProjectFile,
+      [...mockProjectFile.mediaPool.mediaFiles, newMediaFile],
+      mockProjectFile.mediaPool.musicFiles,
     );
 
-    // Сохранить проект
-    await ProjectFileService.saveProject(projectPath, updatedProject);
-
-    // Загрузить проект
-    const loadedProject = await ProjectFileService.loadProject(projectPath);
-
-    // Проверить медиатеку
-    expect(loadedProject.mediaLibrary.mediaFiles).toHaveLength(1);
-    expect(loadedProject.mediaLibrary.musicFiles).toHaveLength(1);
+    expect(hasChanges).toBe(true);
   });
 });
 ```
 
-## Новая архитектура (v2)
-
-### Media Pool
-
-Media Pool заменяет плоскую структуру MediaLibrary профессиональной системой управления медиа.
+### Тестирование хука восстановления
 
 ```typescript
-interface MediaPool {
-  // Все элементы в пуле
-  items: Map<string, MediaPoolItem>;
-  
-  // Структура папок
-  bins: Map<string, MediaBin>;
-  
-  // Умные коллекции
-  smartCollections: SmartCollection[];
-  
-  // Настройки отображения
-  viewSettings: MediaPoolViewSettings;
-  
-  // Статистика
-  stats: MediaPoolStats;
-}
+describe("useMediaRestoration", () => {
+  it("должен восстанавливать медиафайлы проекта", async () => {
+    mockRestoreProjectMedia.mockResolvedValue(mockRestorationResult);
 
-interface MediaPoolItem {
-  id: string;
-  type: 'video' | 'audio' | 'image' | 'sequence' | 'compound';
-  name: string;
-  source: { path: string; relativePath?: string; hash?: string };
-  status: 'online' | 'offline' | 'missing' | 'proxy';
-  binId: string; // Папка, в которой находится элемент
-  metadata: MediaMetadata;
-  usage: { sequences: string[]; count: number };
-  proxy?: ProxyInfo;
-  thumbnail?: ThumbnailInfo;
-  waveform?: WaveformInfo;
-  tags: string[];
-  colorLabel?: ColorLabel;
-  rating?: 1 | 2 | 3 | 4 | 5;
-}
+    const { result } = renderHook(() => useMediaRestoration());
+
+    await act(async () => {
+      await result.current.restoreProjectMedia(
+        mockMediaFiles,
+        mockMusicFiles,
+        "/project/path.tls"
+      );
+    });
+
+    expect(result.current.state.isRestoring).toBe(false);
+    expect(result.current.state.phase).toBe("completed");
+    expect(mockRestoreProjectMedia).toHaveBeenCalled();
+  });
+});
 ```
 
-### Секвенции (ранее Timeline)
-
-Секвенции заменяют концепцию единственного таймлайна поддержкой множественных таймлайнов в проекте.
-
-```typescript
-interface Sequence {
-  id: string;
-  name: string;
-  type: 'main' | 'nested' | 'multicam' | 'vr360';
-  settings: SequenceSettings;
-  composition: SequenceComposition;
-  resources: SequenceResources;
-  markers: SequenceMarker[];
-  history: HistoryState[];
-  metadata: SequenceMetadata;
-}
-
-interface SequenceComposition {
-  tracks: TimelineTrack[];
-  masterClips: MasterClip[]; // Вложенные секвенции
-  automation?: AutomationRegion[];
-}
-
-interface SequenceResources {
-  effects: Map<string, VideoEffect>;
-  filters: Map<string, VideoFilter>;
-  transitions: Map<string, Transition>;
-  colorGrades: Map<string, ColorGrade>;
-  titles: Map<string, Title>;
-  generators: Map<string, Generator>;
-}
-```
-
-### Ключевые кадры
-
-Ключевые кадры поддерживаются для анимации свойств во времени.
-
-```typescript
-interface TimelineKeyframe {
-  id: string;
-  time: number; // Время в секундах
-  property: string; // Имя свойства
-  value: any; // Значение
-  interpolation: "linear" | "ease" | "ease-in" | "ease-out" | "bezier";
-}
-
-interface AutomationRegion {
-  id: string;
-  parameter: string;
-  startTime: number;
-  endTime: number;
-  keyframes: Array<{
-    time: number;
-    value: number;
-    curve: 'linear' | 'bezier' | 'step';
-  }>;
-}
-```
-
-### Управление ресурсами
-
-Система ресурсов была переработана для работы как на уровне проекта, так и на уровне секвенций.
-
-#### Устаревшее: ProjectResources (v1)
-Все ресурсы хранились на уровне проекта и разделялись между всеми таймлайнами.
-
-```typescript
-interface ProjectResources {
-  effects: VideoEffect[];
-  filters: VideoFilter[];
-  transitions: Transition[];
-  templates: MediaTemplate[];
-  styleTemplates: StyleTemplate[];
-  subtitleStyles: any[];
-  music: any[];
-  media: MediaFile[];
-}
-```
-
-#### Новое: SequenceResources (v2)
-Ресурсы теперь управляются для каждой секвенции, позволяя разным секвенциям иметь разные наборы ресурсов.
-
-```typescript
-// Ресурсы на уровне секвенции
-interface SequenceResources {
-  effects: Map<string, VideoEffect>;
-  filters: Map<string, VideoFilter>;
-  transitions: Map<string, Transition>;
-  colorGrades: Map<string, ColorGrade>;
-  titles: Map<string, Title>;
-  generators: Map<string, Generator>;
-}
-
-// Применение ресурсов к клипам
-interface TimelineClip {
-  // ... другие поля
-  effects: AppliedEffect[];
-  filters: AppliedFilter[];
-  transitions: AppliedTransition[];
-  styleTemplate?: AppliedStyleTemplate;
-}
-```
-
-Это разделение позволяет:
-- Разным секвенциям использовать разные версии эффектов
-- Лучшую организацию ресурсов
-- Более простое разделение секвенций между проектами
-- Более эффективное управление ресурсами
-
-### Новый сервис проекта
-
-```typescript
-class TimelineStudioProjectService {
-  // Создать новый проект
-  createProject(name: string, settings?: Partial<ProjectSettings>): TimelineStudioProject;
-  
-  // Открыть проект
-  openProject(path: string): Promise<TimelineStudioProject>;
-  
-  // Сохранить проект
-  saveProject(project: TimelineStudioProject, path: string): Promise<void>;
-  
-  // Оптимизировать проект (удалить неиспользуемые ресурсы)
-  optimizeProject(project: TimelineStudioProject): OptimizationResult;
-  
-  // Проверить целостность проекта
-  validateProject(project: TimelineStudioProject): ValidationResult;
-  
-  // Экспорт/импорт для обмена
-  exportForExchange(project: TimelineStudioProject, format: 'xml' | 'aaf' | 'edl'): string;
-  importFromFormat(data: string, format: 'xml' | 'aaf' | 'edl'): TimelineStudioProject;
-}
-```
-
-### Миграция с v1 на v2
-
-```typescript
-// Утилита для миграции старых проектов
-function migrateProjectV1ToV2(oldProject: ProjectFile): TimelineStudioProject {
-  const mediaPool = migrateMediaLibraryToPool(
-    oldProject.mediaLibrary?.mediaFiles || [],
-    oldProject.mediaLibrary?.musicFiles || []
-  );
-  
-  // Создаем главную секвенцию из старого timeline
-  const mainSequence = createSequenceFromTimeline(oldProject.timeline);
-  
-  return {
-    metadata: createMetadataFromOld(oldProject.meta),
-    settings: enhanceSettings(oldProject.settings),
-    mediaPool,
-    sequences: new Map([[mainSequence.id, mainSequence]]),
-    activeSequenceId: mainSequence.id,
-    // ... остальные поля
-  };
-}
-```

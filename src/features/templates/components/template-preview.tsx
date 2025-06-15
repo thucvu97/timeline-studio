@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 
 import { MediaFile } from "@/features/media/types/media"
 import { calculateDimensionsWithAspectRatio } from "@/features/media/utils/preview-sizes"
 import { useResources } from "@/features/resources"
-import { TemplateResource } from "@/features/resources/types"
+import { TemplateResource, TimelineResource } from "@/features/resources/types"
+import { usePlayer, useVideoSelection } from "@/features/video-player"
 
 import { AddMediaButton, ApplyButton, FavoriteButton } from "../../browser/components/layout"
 import { MediaTemplate } from "../lib/templates"
@@ -36,6 +37,9 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
   // Локальное состояние для отслеживания добавления шаблона
   // Используется для мгновенного обновления UI без ожидания обновления из хранилища
   const [localIsAdded, setLocalIsAdded] = useState(false)
+  
+  const { applyTemplate } = usePlayer() // Получаем метод для применения шаблона
+  const { getVideosForPreview } = useVideoSelection() // Получаем видео для применения шаблона
 
   // Получаем вычисленные размеры превью с минимумом 150px для шаблонов
   const { height: previewHeight, width: previewWidth } = calculateDimensionsWithAspectRatio(
@@ -67,6 +71,19 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
   // Используем комбинированное состояние - либо из хранилища, либо локальное
   // Это позволяет мгновенно обновлять UI при добавлении/удалении шаблона
   const isAdded = isAddedFromStore || localIsAdded
+
+  // Обработчик применения шаблона
+  const handleApplyTemplate = useCallback((resource: TimelineResource, type: string) => {
+    console.log("[TemplatePreview] Applying template:", template.id)
+    const videos = getVideosForPreview()
+    applyTemplate(
+      {
+        id: template.id,
+        name: template.id,
+      },
+      videos
+    )
+  }, [template, applyTemplate, getVideosForPreview])
 
   /**
    * Обработчик добавления шаблона в проект
@@ -145,6 +162,7 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
         }
         size={size}
         type="template"
+        onApply={handleApplyTemplate}
       />
 
       {/* Контейнер для кнопки добавления/удаления шаблона */}

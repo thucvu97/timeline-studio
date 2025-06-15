@@ -15,6 +15,7 @@ fn is_ort_available() -> bool {
 
 /// Вспомогательная функция для извлечения кадров из видео
 /// Временная заглушка - в реальности использовать video_compiler
+#[allow(dead_code)]
 async fn extract_frames_for_recognition(
   video_path: &Path,
   output_dir: &Path,

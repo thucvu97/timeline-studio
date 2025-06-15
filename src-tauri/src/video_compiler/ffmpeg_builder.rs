@@ -58,6 +58,7 @@ impl FFmpegBuilder {
   }
 
   /// Построить команду для генерации превью
+  #[allow(dead_code)]
   pub async fn build_preview_command(
     &self,
     input_path: &Path,
@@ -188,15 +189,25 @@ impl FFmpegBuilder {
     }
 
     for source in input_sources {
+      // Используем start_time для оптимизации входного поиска
+      if source.start_time > 0.0 {
+        cmd.args(["-ss", &source.start_time.to_string()]);
+      }
+
       // Добавляем входной файл
       cmd.args(["-i", &source.path.to_string_lossy()]);
+
+      // Используем duration для ограничения длительности чтения
+      if source.duration > 0.0 {
+        cmd.args(["-t", &source.duration.to_string()]);
+      }
     }
 
     Ok(())
   }
 
   /// Собрать список входных источников
-  async fn collect_input_sources(&self) -> Result<Vec<InputSource>> {
+  pub async fn collect_input_sources(&self) -> Result<Vec<InputSource>> {
     let mut sources = Vec::new();
     let mut input_index = 0;
 
@@ -689,34 +700,16 @@ impl FFmpegBuilder {
 
     match effect.effect_type {
       EffectType::Blur => {
-        // Frontend использует "radius"
-        let radius = match effect.parameters.get("radius") {
-          Some(EffectParameter::Float(val)) => *val,
-          _ => 2.0,
-        };
-        Ok(format!("boxblur={}:1", radius))
+        // Используем специализированный метод для видео эффектов
+        self.build_video_effect_filter(effect).await
       }
       EffectType::Brightness => {
-        // Frontend использует "intensity", также проверяем "value" для обратной совместимости
-        let value = match effect.parameters.get("intensity") {
-          Some(EffectParameter::Float(val)) => *val,
-          _ => match effect.parameters.get("value") {
-            Some(EffectParameter::Float(val)) => *val,
-            _ => 0.0,
-          },
-        };
-        Ok(format!("eq=brightness={}", value))
+        // Используем специализированный метод для видео эффектов
+        self.build_video_effect_filter(effect).await
       }
       EffectType::Contrast => {
-        // Frontend использует "intensity", также проверяем "value" для обратной совместимости
-        let value = match effect.parameters.get("intensity") {
-          Some(EffectParameter::Float(val)) => *val,
-          _ => match effect.parameters.get("value") {
-            Some(EffectParameter::Float(val)) => *val,
-            _ => 1.0,
-          },
-        };
-        Ok(format!("eq=contrast={}", value))
+        // Используем специализированный метод для видео эффектов
+        self.build_video_effect_filter(effect).await
       }
       EffectType::Saturation => {
         // Frontend использует "intensity", также проверяем "value" для обратной совместимости
@@ -1128,7 +1121,7 @@ impl FFmpegBuilder {
   }
 
   /// Построить видео эффект
-  async fn build_video_effect_filter(&self, effect: &Effect) -> Result<String> {
+  pub async fn build_video_effect_filter(&self, effect: &Effect) -> Result<String> {
     match effect.name.as_str() {
       "blur" => {
         if let Some(crate::video_compiler::schema::EffectParameter::Float(radius)) =
@@ -1162,7 +1155,8 @@ impl FFmpegBuilder {
   }
 
   /// Построить фильтр цветокоррекции
-  async fn build_color_correction_filter(&self, effect: &Effect) -> Result<String> {
+  #[allow(dead_code)]
+  pub async fn build_color_correction_filter(&self, effect: &Effect) -> Result<String> {
     let mut eq_params = Vec::new();
 
     if let Some(crate::video_compiler::schema::EffectParameter::Float(brightness)) =
@@ -2424,7 +2418,7 @@ mod tests {
   #[tokio::test]
   async fn test_vignette_effect_ffmpeg_command() {
     let builder = create_test_builder();
-    let effect = create_vignette_effect(3.14);
+    let effect = create_vignette_effect(std::f32::consts::PI);
 
     let result = builder.build_effect_filter(&effect).await.unwrap();
     assert_eq!(result, "vignette=angle=4.71:x0=w/2:y0=h/2");
@@ -2478,7 +2472,6 @@ mod tests {
       prefer_nvenc: false,
       prefer_quicksync: true,
       global_args: vec!["-hide_banner".to_string()],
-      ..Default::default()
     };
 
     let builder = FFmpegBuilder::with_settings(project, settings.clone());

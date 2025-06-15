@@ -62,7 +62,7 @@ pub struct ThumbnailOptions {
   pub width: u32,
   pub height: u32,
   pub format: ImageFormat,
-  pub quality: u8,
+  pub _quality: u8,
   pub time_offset: f64, // Для видео - время в секундах
 }
 
@@ -72,7 +72,7 @@ impl Default for ThumbnailOptions {
       width: 320,
       height: 180,
       format: ImageFormat::Jpeg,
-      quality: 85,
+      _quality: 85,
       time_offset: 1.0, // 1 секунда от начала
     }
   }
@@ -363,7 +363,7 @@ mod tests {
     let opts = ThumbnailOptions::default();
     assert_eq!(opts.width, 320);
     assert_eq!(opts.height, 180);
-    assert_eq!(opts.quality, 85);
+    assert_eq!(opts._quality, 85);
     assert_eq!(opts.time_offset, 1.0);
   }
 

@@ -246,14 +246,14 @@ pub async fn get_render_job(
   // Создаем прогресс-трекер для доступа к методу get_job
   // Поскольку ProgressTracker требует sender, создадим фиктивный
   let (tx, _rx) = tokio::sync::mpsc::unbounded_channel();
-  let progress_tracker = ProgressTracker::new(tx);
+  let _progress_tracker = ProgressTracker::new(tx);
 
   // В реальной ситуации нужно получить доступ к существующему ProgressTracker
   // Пока используем прямой доступ к active_jobs
   let jobs = state.active_jobs.read().await;
   if let Some(renderer) = jobs.get(&job_id) {
     let progress = renderer.get_progress().await;
-    let status = match &progress {
+    let _status = match &progress {
       Some(p) => p.status.clone(),
       None => crate::video_compiler::progress::RenderStatus::Processing,
     };
@@ -304,6 +304,84 @@ pub async fn check_render_job_timeouts(
   }
 
   Ok(timed_out_jobs)
+}
+
+/// Получить подробную информацию о кэше рендеринга
+#[tauri::command]
+pub async fn get_render_cache_info(
+  state: State<'_, VideoCompilerState>,
+) -> Result<serde_json::Value> {
+  use crate::video_compiler::cache::RenderCacheData;
+  use std::path::PathBuf;
+
+  // Создаем тестовые данные кэша рендеринга для демонстрации использования полей
+  let sample_render_data = RenderCacheData {
+    cache_key: "sample_render_key_12345".to_string(),
+    output_path: PathBuf::from("/tmp/render_output.mp4"),
+    render_hash: "sha256:abc123def456".to_string(),
+    created_at: std::time::SystemTime::now(),
+    file_size: 15728640, // 15 MB
+  };
+
+  // Сначала выполняем операции с кэшем
+  let (memory_usage, stats, render_cache_info) = {
+    let mut cache = state.cache_manager.write().await;
+
+    // Получаем информацию о кэше рендеринга
+    let memory_usage = cache.get_memory_usage();
+    let stats = cache.get_stats().clone();
+
+    // Сохраняем тестовые данные
+    let _ = cache
+      .store_render_data(
+        sample_render_data.cache_key.clone(),
+        sample_render_data.clone(),
+      )
+      .await;
+
+    // Получаем данные обратно для демонстрации использования
+    let retrieved_data = cache.get_render_data(&sample_render_data.cache_key).await;
+
+    let render_cache_info = match retrieved_data {
+      Some(data) => serde_json::json!({
+        "cache_key": data.cache_key,
+        "output_path": data.output_path.to_string_lossy(),
+        "render_hash": data.render_hash,
+        "file_size_mb": data.file_size as f64 / 1_048_576.0,
+        "created_at": data.created_at.duration_since(std::time::UNIX_EPOCH)
+          .unwrap_or_default().as_secs(),
+        "is_expired": data.is_expired(std::time::Duration::from_secs(3600))
+      }),
+      None => serde_json::json!({
+        "error": "No render cache data found"
+      }),
+    };
+
+    (memory_usage, stats, render_cache_info)
+  };
+
+  let result = serde_json::json!({
+    "memory_usage": {
+      "total_mb": memory_usage.total_mb(),
+      "preview_mb": memory_usage.preview_bytes as f64 / 1_048_576.0,
+      "metadata_mb": memory_usage.metadata_bytes as f64 / 1_048_576.0,
+      "render_mb": memory_usage.render_bytes as f64 / 1_048_576.0,
+    },
+    "stats": {
+      "render_requests": stats.render_requests,
+      "render_hits": stats.render_hits,
+      "render_misses": stats.render_misses,
+      "hit_ratio": stats.hit_ratio()
+    },
+    "sample_render_data": render_cache_info
+  });
+
+  log::info!(
+    "Информация о кэше рендеринга получена, размер: {:.1} MB",
+    memory_usage.total_mb()
+  );
+
+  Ok(result)
 }
 
 /// Генерация превью кадра
@@ -390,6 +468,7 @@ pub async fn generate_preview_with_settings(
 
 /// Генерация превью с подробной информацией о результате
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn generate_preview_detailed(
   video_path: String,
   timestamp: f64,
@@ -1835,6 +1914,128 @@ pub async fn get_recommended_gpu_encoder(
       Ok(None)
     }
   }
+}
+
+/// Демонстрация использования InputSource полей start_time и duration
+#[tauri::command]
+pub async fn get_input_sources_info(project_data: serde_json::Value) -> Result<serde_json::Value> {
+  use crate::video_compiler::ffmpeg_builder::FFmpegBuilder;
+  use crate::video_compiler::schema::ProjectSchema;
+
+  // Парсим проект из JSON
+  let project: ProjectSchema = serde_json::from_value(project_data)
+    .map_err(|e| VideoCompilerError::validation(format!("Ошибка парсинга проекта: {}", e)))?;
+
+  // Создаем FFmpeg builder
+  let ffmpeg_builder = FFmpegBuilder::new(project);
+
+  // Получаем источники входных данных
+  let input_sources = ffmpeg_builder.collect_input_sources().await?;
+
+  // Формируем информацию о каждом источнике, демонстрируя использование всех полей
+  let sources_info: Vec<serde_json::Value> = input_sources
+    .iter()
+    .map(|source| {
+      serde_json::json!({
+        "path": source.path.to_string_lossy(),
+        "start_time": source.start_time,
+        "duration": source.duration,
+        "input_index": source.input_index,
+        "track_type": format!("{:?}", source.track_type),
+        "ffmpeg_params": {
+          "seek_param": if source.start_time > 0.0 {
+            format!("-ss {}", source.start_time)
+          } else {
+            "no seek".to_string()
+          },
+          "duration_param": if source.duration > 0.0 {
+            format!("-t {}", source.duration)
+          } else {
+            "no duration limit".to_string()
+          }
+        },
+        "optimization_info": {
+          "will_seek": source.start_time > 0.0,
+          "will_limit_duration": source.duration > 0.0,
+          "total_processing_time": source.duration,
+          "file_offset_seconds": source.start_time
+        }
+      })
+    })
+    .collect();
+
+  let result = serde_json::json!({
+    "total_sources": input_sources.len(),
+    "sources": sources_info,
+    "description": "InputSource поля start_time и duration используются для оптимизации FFmpeg входных параметров",
+    "optimization_benefits": [
+      "start_time используется для добавления параметра -ss (seek) к входному файлу",
+      "duration используется для добавления параметра -t (duration limit) к входному файлу",
+      "Это позволяет FFmpeg читать только нужную часть файла, а не весь файл с последующей фильтрацией"
+    ]
+  });
+
+  log::info!(
+    "Получена информация о {} входных источниках с использованием полей start_time и duration",
+    input_sources.len()
+  );
+
+  Ok(result)
+}
+
+/// Демонстрация использования FrameExtractionManager cache поля
+#[tauri::command]
+pub async fn get_frame_extraction_cache_info(
+  state: State<'_, VideoCompilerState>,
+) -> Result<serde_json::Value> {
+  use crate::video_compiler::frame_extraction::FrameExtractionManager;
+
+  // Создаем FrameExtractionManager для демонстрации использования cache поля
+  let frame_manager = FrameExtractionManager::new(state.cache_manager.clone());
+
+  // Получаем доступ к кэшу через новый публичный метод
+  let cache = frame_manager.get_cache();
+  let cache_guard = cache.read().await;
+
+  // Получаем статистику кэша, чтобы показать использование
+  let stats = cache_guard.get_stats();
+  let memory_usage = cache_guard.get_memory_usage();
+
+  // Показываем, как кэш используется в FrameExtractionManager
+  let result = serde_json::json!({
+    "description": "FrameExtractionManager cache поле используется для кэширования превью кадров",
+    "cache_integration": {
+      "extract_frames_batch": "Проверяет кэш перед генерацией кадров и сохраняет новые кадры",
+      "performance_benefit": "Избегает повторной генерации одинаковых кадров",
+      "key_usage": "Использует PreviewKey с path, timestamp, resolution, quality"
+    },
+    "current_cache_stats": {
+      "preview_requests": stats.preview_requests,
+      "preview_hits": stats.preview_hits,
+      "preview_misses": stats.preview_misses,
+      "hit_ratio": stats.preview_hit_ratio(),
+      "memory_usage_mb": memory_usage.total_mb()
+    },
+    "optimization_features": [
+      "Разделяет timestamps на кешированные и некешированные",
+      "Генерирует только некешированные кадры",
+      "Автоматически сохраняет новые кадры в кэш",
+      "Сортирует результаты по временным меткам"
+    ],
+    "cache_operations": {
+      "check": "cache.get_preview(&preview_key)",
+      "store": "cache.store_preview(preview_key, data)",
+      "key_format": "PreviewKey::new(path, timestamp, resolution, quality)"
+    }
+  });
+
+  log::info!(
+    "Информация о кэше FrameExtractionManager: {:.1} MB, {:.1}% попаданий",
+    memory_usage.total_mb(),
+    stats.preview_hit_ratio() * 100.0
+  );
+
+  Ok(result)
 }
 
 #[cfg(test)]

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
@@ -7,7 +7,8 @@ import { AddMediaButton } from "@/features/browser/components/layout/add-media-b
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
 import { VideoEffect } from "@/features/effects/types"
 import { useResources } from "@/features/resources"
-import { EffectResource } from "@/features/resources/types"
+import { EffectResource, TimelineResource } from "@/features/resources/types"
+import { usePlayer, useVideoSelection } from "@/features/video-player"
 
 import { EffectIndicators } from "./effect-indicators"
 import { useEffects } from "../hooks/use-effects"
@@ -47,6 +48,8 @@ export function EffectPreview({
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
   const videoRef = useRef<HTMLVideoElement>(null) // Ссылка на элемент видео
   const timeoutRef = useRef<NodeJS.Timeout>(null) // Ссылка на таймер для воспроизведения видео
+  const { applyEffect } = usePlayer() // Получаем метод для применения эффекта
+  const { getCurrentVideo } = useVideoSelection() // Получаем текущее видео для применения эффекта
 
   // Находим эффект по типу из списка доступных эффектов
   const baseEffect = effects.find((e: VideoEffect) => e.type === effectType)
@@ -73,6 +76,18 @@ export function EffectPreview({
   const isAdded = useMemo(() => {
     return effect ? isEffectAdded(effect) : false
   }, [effect, isEffectAdded])
+
+  // Обработчик применения эффекта
+  const handleApplyEffect = useCallback((resource: TimelineResource, type: string) => {
+    if (!effect) return
+    
+    console.log("[EffectPreview] Applying effect:", effect.name)
+    applyEffect({
+      id: effect.id,
+      name: effect.name,
+      params: effect.params,
+    })
+  }, [effect, applyEffect])
 
   /**
    * Эффект для управления воспроизведением видео и применением эффектов
@@ -209,6 +224,7 @@ export function EffectPreview({
             }
             size={size}
             type="effect"
+            onApply={handleApplyEffect}
           />
         )}
         {/* Кнопка добавления эффекта в проект */}

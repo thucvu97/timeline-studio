@@ -282,11 +282,13 @@ impl RecognitionService {
   }
 
   /// Получить доступ к детектору объектов
+  #[allow(dead_code)]
   pub fn get_object_detector(&self) -> Arc<RwLock<YoloProcessor>> {
     self.object_detector.clone()
   }
 
   /// Получить доступ к детектору лиц
+  #[allow(dead_code)]
   pub fn get_face_detector(&self) -> Arc<RwLock<YoloProcessor>> {
     self.face_detector.clone()
   }
@@ -298,6 +300,7 @@ impl RecognitionService {
   }
 
   /// Загрузить модель для детектора лиц
+  #[allow(dead_code)]
   pub async fn load_face_model(&self) -> Result<()> {
     let mut detector = self.face_detector.write().await;
     detector.load_model().await

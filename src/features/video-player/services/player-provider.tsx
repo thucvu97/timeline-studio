@@ -28,6 +28,13 @@ interface PlayerContextType extends MachineContextType {
   }) => void
   setPreviewMedia: (media: MediaFile | null) => void
   setVideoSource: (source: "browser" | "timeline") => void
+  // Новые методы для применения эффектов/фильтров/шаблонов
+  applyEffect: (effect: {id: string; name: string; params: any}) => void
+  applyFilter: (filter: {id: string; name: string; params: any}) => void
+  applyTemplate: (template: {id: string; name: string}, files: MediaFile[]) => void
+  clearEffects: () => void
+  clearFilters: () => void
+  clearTemplate: () => void
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined)
@@ -101,6 +108,31 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     setVideoSource: (source: "browser" | "timeline") => {
       console.log("[PlayerProvider] Setting video source:", source)
       send({ type: "setVideoSource", source })
+    },
+    // Новые методы для применения эффектов/фильтров/шаблонов
+    applyEffect: (effect: {id: string; name: string; params: any}) => {
+      console.log("[PlayerProvider] Applying effect:", effect.name)
+      send({ type: "applyEffect", effect })
+    },
+    applyFilter: (filter: {id: string; name: string; params: any}) => {
+      console.log("[PlayerProvider] Applying filter:", filter.name)
+      send({ type: "applyFilter", filter })
+    },
+    applyTemplate: (template: {id: string; name: string}, files: MediaFile[]) => {
+      console.log("[PlayerProvider] Applying template:", template.name, "with", files.length, "files")
+      send({ type: "applyTemplate", template, files })
+    },
+    clearEffects: () => {
+      console.log("[PlayerProvider] Clearing effects")
+      send({ type: "clearEffects" })
+    },
+    clearFilters: () => {
+      console.log("[PlayerProvider] Clearing filters")
+      send({ type: "clearFilters" })
+    },
+    clearTemplate: () => {
+      console.log("[PlayerProvider] Clearing template")
+      send({ type: "clearTemplate" })
     },
   }
 

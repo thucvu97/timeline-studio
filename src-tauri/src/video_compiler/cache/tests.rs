@@ -451,7 +451,7 @@ fn test_preview_data_is_expired() {
   let data = PreviewData {
     image_data: vec![1, 2, 3],
     timestamp: SystemTime::now() - Duration::from_secs(3600),
-    access_count: 5,
+    _access_count: 5,
   };
 
   assert!(data.is_expired(Duration::from_secs(1800))); // 30 минут - истек

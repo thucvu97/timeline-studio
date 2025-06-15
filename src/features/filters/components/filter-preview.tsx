@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
 import { ApplyButton } from "@/features/browser"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { useResources } from "@/features/resources"
-import { FilterResource } from "@/features/resources/types"
+import { FilterResource, TimelineResource } from "@/features/resources/types"
+import { usePlayer, useVideoSelection } from "@/features/video-player"
 
 import { AddMediaButton } from "../../browser/components/layout/add-media-button"
 import { FavoriteButton } from "../../browser/components/layout/favorite-button"
@@ -34,12 +35,24 @@ export function FilterPreview({ filter, onClick, size, previewWidth, previewHeig
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
   const videoRef = useRef<HTMLVideoElement>(null) // Ссылка на элемент видео
   const timeoutRef = useRef<NodeJS.Timeout>(null) // Ссылка на таймер для воспроизведения видео
+  const { applyFilter } = usePlayer() // Получаем метод для применения фильтра
+  const { getCurrentVideo } = useVideoSelection() // Получаем текущее видео для применения фильтра
 
   // Проверяем, добавлен ли фильтр уже в хранилище ресурсов
   // Мемоизируем результат для оптимизации
   const isAdded = useMemo(() => {
     return isFilterAdded(filter)
   }, [isFilterAdded, filter])
+
+  // Обработчик применения фильтра
+  const handleApplyFilter = useCallback((resource: TimelineResource, type: string) => {
+    console.log("[FilterPreview] Applying filter:", filter.name)
+    applyFilter({
+      id: filter.id,
+      name: filter.name,
+      params: filter.params,
+    })
+  }, [filter, applyFilter])
 
   /**
    * Формирует CSS-строку для применения фильтров к видео
@@ -243,6 +256,7 @@ export function FilterPreview({ filter, onClick, size, previewWidth, previewHeig
             }
             size={size}
             type="filter"
+            onApply={handleApplyFilter}
           />
         )}
 

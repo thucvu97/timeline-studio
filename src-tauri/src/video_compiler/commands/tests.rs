@@ -1,4 +1,5 @@
 #[cfg(test)]
+#[allow(clippy::module_inception)]
 mod tests {
   use crate::video_compiler::{
     commands::*,
@@ -146,8 +147,8 @@ mod tests {
     let result = clear_prerender_cache().await;
     assert!(result.is_ok());
 
-    let deleted_size = result.unwrap();
-    // deleted_size is u64, always >= 0
+    let _deleted_size = result.unwrap();
+    // _deleted_size is u64, always >= 0
   }
 
   #[test]
@@ -504,7 +505,8 @@ mod tests {
     // Test settings have hardware acceleration flag
     let settings = state.settings.read().await;
     let hw_enabled = settings.hardware_acceleration;
-    assert!(hw_enabled || !hw_enabled); // Either value is valid
+    // Just verify we can read the hardware acceleration setting
+    let _ = hw_enabled; // Either true or false is valid
   }
 
   #[tokio::test]
@@ -695,7 +697,7 @@ mod tests {
     let result = clear_prerender_cache().await;
     assert!(result.is_ok());
 
-    let deleted_size = result.unwrap();
-    // deleted_size is u64, always >= 0
+    let _deleted_size = result.unwrap();
+    // _deleted_size is u64, always >= 0
   }
 }

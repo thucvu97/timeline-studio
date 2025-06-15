@@ -1,6 +1,7 @@
 // Тесты с использованием реальных медиафайлов
 
 #[cfg(test)]
+#[allow(clippy::module_inception)]
 mod real_data_tests {
   use super::super::metadata::extract_metadata;
   use super::super::test_data::test_data::*;

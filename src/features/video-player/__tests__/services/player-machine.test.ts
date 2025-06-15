@@ -52,6 +52,10 @@ describe("Player Machine", () => {
       // Новые поля
       previewMedia: null,
       videoSource: "browser",
+      // Preview apply workflow fields
+      appliedEffects: [],
+      appliedFilters: [],
+      appliedTemplate: null,
     })
   })
 
@@ -215,5 +219,132 @@ describe("Player Machine", () => {
 
     // Проверяем, что контекст обновился
     expect(actor.getSnapshot().context.isResizableMode).toBe(false)
+  })
+})
+
+describe("Preview Apply Workflow", () => {
+  it("should apply effect to context", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    const effect = { id: "effect-1", name: "Blur", params: { intensity: 0.5 } }
+    
+    actor.send({ type: "applyEffect", effect })
+
+    expect(actor.getSnapshot().context.appliedEffects).toEqual([effect])
+  })
+
+  it("should apply filter to context", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    const filter = { id: "filter-1", name: "Vintage", params: { saturation: 0.8 } }
+    
+    actor.send({ type: "applyFilter", filter })
+
+    expect(actor.getSnapshot().context.appliedFilters).toEqual([filter])
+  })
+
+  it("should apply template to context", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    const template = { id: "template-1", name: "Split Screen" }
+    const files = [testVideo]
+    
+    actor.send({ type: "applyTemplate", template, files })
+
+    expect(actor.getSnapshot().context.appliedTemplate).toEqual({
+      id: template.id,
+      name: template.name,
+      files: files,
+    })
+  })
+
+  it("should clear effects from context", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    // First apply an effect
+    const effect = { id: "effect-1", name: "Blur", params: { intensity: 0.5 } }
+    actor.send({ type: "applyEffect", effect })
+    expect(actor.getSnapshot().context.appliedEffects).toEqual([effect])
+
+    // Then clear effects
+    actor.send({ type: "clearEffects" })
+    expect(actor.getSnapshot().context.appliedEffects).toEqual([])
+  })
+
+  it("should clear filters from context", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    // First apply a filter
+    const filter = { id: "filter-1", name: "Vintage", params: { saturation: 0.8 } }
+    actor.send({ type: "applyFilter", filter })
+    expect(actor.getSnapshot().context.appliedFilters).toEqual([filter])
+
+    // Then clear filters
+    actor.send({ type: "clearFilters" })
+    expect(actor.getSnapshot().context.appliedFilters).toEqual([])
+  })
+
+  it("should clear template from context", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    // First apply a template
+    const template = { id: "template-1", name: "Split Screen" }
+    const files = [testVideo]
+    actor.send({ type: "applyTemplate", template, files })
+    expect(actor.getSnapshot().context.appliedTemplate).not.toBeNull()
+
+    // Then clear template
+    actor.send({ type: "clearTemplate" })
+    expect(actor.getSnapshot().context.appliedTemplate).toBeNull()
+  })
+
+  it("should set preview media", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    actor.send({ type: "setPreviewMedia", media: testVideo })
+
+    expect(actor.getSnapshot().context.previewMedia).toEqual(testVideo)
+  })
+
+  it("should set video source", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    actor.send({ type: "setVideoSource", source: "timeline" })
+
+    expect(actor.getSnapshot().context.videoSource).toBe("timeline")
+  })
+
+  it("should apply multiple effects", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    const effect1 = { id: "effect-1", name: "Blur", params: { intensity: 0.5 } }
+    const effect2 = { id: "effect-2", name: "Glow", params: { strength: 0.3 } }
+    
+    actor.send({ type: "applyEffect", effect: effect1 })
+    actor.send({ type: "applyEffect", effect: effect2 })
+
+    expect(actor.getSnapshot().context.appliedEffects).toEqual([effect1, effect2])
+  })
+
+  it("should apply multiple filters", () => {
+    const actor = createActor(playerMachine)
+    actor.start()
+
+    const filter1 = { id: "filter-1", name: "Vintage", params: { saturation: 0.8 } }
+    const filter2 = { id: "filter-2", name: "Sepia", params: { amount: 0.6 } }
+    
+    actor.send({ type: "applyFilter", filter: filter1 })
+    actor.send({ type: "applyFilter", filter: filter2 })
+
+    expect(actor.getSnapshot().context.appliedFilters).toEqual([filter1, filter2])
   })
 })

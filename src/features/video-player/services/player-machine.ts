@@ -26,6 +26,15 @@ export interface PlayerContextType {
   // Новые поля для функции "Применить"
   previewMedia: MediaFile | null // Медиа для предпросмотра
   videoSource: "browser" | "timeline" // Источник видео
+  
+  // Примененные эффекты и фильтры
+  appliedEffects: Array<{id: string; name: string; params: any}>
+  appliedFilters: Array<{id: string; name: string; params: any}>
+  appliedTemplate: {
+    id: string
+    name: string
+    files: MediaFile[]
+  } | null
 }
 
 // Начальный контекст для машины состояний плеера
@@ -53,6 +62,11 @@ const initialContext: PlayerContextType = {
   // Новые поля
   previewMedia: null,
   videoSource: "browser",
+  
+  // Примененные эффекты и фильтры
+  appliedEffects: [],
+  appliedFilters: [],
+  appliedTemplate: null,
 }
 
 interface SetCurrentTimeEvent {
@@ -129,6 +143,34 @@ interface SetVideoSourceEvent {
   source: "browser" | "timeline"
 }
 
+interface ApplyEffectEvent {
+  type: "applyEffect"
+  effect: {id: string; name: string; params: any}
+}
+
+interface ApplyFilterEvent {
+  type: "applyFilter"
+  filter: {id: string; name: string; params: any}
+}
+
+interface ApplyTemplateEvent {
+  type: "applyTemplate"
+  template: {id: string; name: string}
+  files: MediaFile[]
+}
+
+interface ClearEffectsEvent {
+  type: "clearEffects"
+}
+
+interface ClearFiltersEvent {
+  type: "clearFilters"
+}
+
+interface ClearTemplateEvent {
+  type: "clearTemplate"
+}
+
 export type PlayerEvent =
   | SetCurrentTimeEvent
   | SetIsPlayingEvent
@@ -144,6 +186,35 @@ export type PlayerEvent =
   | SetPrerenderSettingsEvent
   | SetPreviewMediaEvent
   | SetVideoSourceEvent
+  | ApplyEffectEvent
+  | ApplyFilterEvent
+  | ApplyTemplateEvent
+  | ClearEffectsEvent
+  | ClearFiltersEvent
+  | ClearTemplateEvent
+
+// Переиспользуемые actions для применения эффектов/фильтров/шаблонов
+const applyEffectAction = assign({ 
+  appliedEffects: ({ context, event }: { context: PlayerContextType, event: ApplyEffectEvent }) => 
+    [...context.appliedEffects, event.effect]
+})
+
+const applyFilterAction = assign({ 
+  appliedFilters: ({ context, event }: { context: PlayerContextType, event: ApplyFilterEvent }) => 
+    [...context.appliedFilters, event.filter]
+})
+
+const applyTemplateAction = assign({ 
+  appliedTemplate: ({ event }: { event: ApplyTemplateEvent }) => ({
+    id: event.template.id,
+    name: event.template.name,
+    files: event.files
+  })
+})
+
+const clearEffectsAction = assign({ appliedEffects: [] })
+const clearFiltersAction = assign({ appliedFilters: [] })
+const clearTemplateAction = assign({ appliedTemplate: null })
 
 export const playerMachine = createMachine({
   id: "player",
@@ -215,6 +286,54 @@ export const playerMachine = createMachine({
             assign({ videoSource: ({ event }) => event.source }),
             ({ event }) => {
               console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
+            },
+          ],
+        },
+        applyEffect: {
+          actions: [
+            applyEffectAction,
+            ({ event }) => {
+              console.log(`[PlayerMachine] Применен эффект: ${event.effect.name}`)
+            },
+          ],
+        },
+        applyFilter: {
+          actions: [
+            applyFilterAction,
+            ({ event }) => {
+              console.log(`[PlayerMachine] Применен фильтр: ${event.filter.name}`)
+            },
+          ],
+        },
+        applyTemplate: {
+          actions: [
+            applyTemplateAction,
+            ({ event }) => {
+              console.log(`[PlayerMachine] Применен шаблон: ${event.template.name} с ${event.files.length} файлами`)
+            },
+          ],
+        },
+        clearEffects: {
+          actions: [
+            clearEffectsAction,
+            () => {
+              console.log(`[PlayerMachine] Очищены эффекты`)
+            },
+          ],
+        },
+        clearFilters: {
+          actions: [
+            clearFiltersAction,
+            () => {
+              console.log(`[PlayerMachine] Очищены фильтры`)
+            },
+          ],
+        },
+        clearTemplate: {
+          actions: [
+            clearTemplateAction,
+            () => {
+              console.log(`[PlayerMachine] Очищен шаблон`)
             },
           ],
         },
@@ -292,6 +411,24 @@ export const playerMachine = createMachine({
             },
           ],
         },
+        applyEffect: {
+          actions: [applyEffectAction],
+        },
+        applyFilter: {
+          actions: [applyFilterAction],
+        },
+        applyTemplate: {
+          actions: [applyTemplateAction],
+        },
+        clearEffects: {
+          actions: [clearEffectsAction],
+        },
+        clearFilters: {
+          actions: [clearFiltersAction],
+        },
+        clearTemplate: {
+          actions: [clearTemplateAction],
+        },
       },
     },
     ready: {
@@ -363,6 +500,24 @@ export const playerMachine = createMachine({
               console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
             },
           ],
+        },
+        applyEffect: {
+          actions: [applyEffectAction],
+        },
+        applyFilter: {
+          actions: [applyFilterAction],
+        },
+        applyTemplate: {
+          actions: [applyTemplateAction],
+        },
+        clearEffects: {
+          actions: [clearEffectsAction],
+        },
+        clearFilters: {
+          actions: [clearFiltersAction],
+        },
+        clearTemplate: {
+          actions: [clearTemplateAction],
         },
       },
     },

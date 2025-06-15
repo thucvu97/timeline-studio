@@ -10,6 +10,7 @@ interface ApplyButtonProps {
   resource: TimelineResource
   size: number
   type: ResourceType
+  onApply?: (resource: TimelineResource, type: ResourceType) => void
 }
 
 /**
@@ -24,15 +25,19 @@ interface ApplyButtonProps {
  * @param type - Тип ресурса (media, music, subtitles и т.д.)
  * @param size - Размер кнопки (по умолчанию 150)
  */
-export const ApplyButton = memo(function ApplyButton({ resource, size = 150, type = "media" }: ApplyButtonProps) {
+export const ApplyButton = memo(function ApplyButton({ resource, size = 150, type = "media", onApply }: ApplyButtonProps) {
   const { t } = useTranslation()
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation() // Останавливаем всплытие события
-      console.log("ApplyButton clicked", resource.id, type)
+      if (onApply) {
+        onApply(resource, type)
+      } else {
+        console.log("ApplyButton clicked", resource.id, type)
+      }
     },
-    [resource, type],
+    [resource, type, onApply],
   )
 
   return (

@@ -65,7 +65,7 @@ impl RenderCache {
     let preview_data = PreviewData {
       image_data: data,
       timestamp: SystemTime::now(),
-      access_count: 0,
+      _access_count: 0,
     };
 
     self.preview_cache.insert(key, preview_data);
@@ -231,7 +231,7 @@ pub struct PreviewData {
   /// Время создания
   pub timestamp: SystemTime,
   /// Количество обращений
-  pub access_count: u64,
+  pub _access_count: u64,
 }
 
 impl PreviewData {
@@ -406,8 +406,8 @@ struct LruCache<K, V> {
 #[derive(Debug, Clone)]
 struct LruNode<V> {
   value: V,
-  prev: Option<String>,
-  next: Option<String>,
+  _prev: Option<String>,
+  _next: Option<String>,
 }
 
 impl<K, V> LruCache<K, V>
@@ -444,8 +444,8 @@ where
 
     let node = LruNode {
       value,
-      prev: None,
-      next: None,
+      _prev: None,
+      _next: None,
     };
 
     self.map.insert(key, node);

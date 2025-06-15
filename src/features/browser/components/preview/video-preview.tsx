@@ -8,6 +8,7 @@ import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
 import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/features/media/utils/video"
 import { TimelineResource } from "@/features/resources/types"
+import { usePlayer } from "@/features/video-player"
 import { formatDuration } from "@/lib/date"
 import { cn, formatResolution } from "@/lib/utils"
 
@@ -48,6 +49,13 @@ export const VideoPreview = memo(
     const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
     const { isAdded: isResourceAdded } = useResources()
     const isAdded = isResourceAdded(file.id, "media")
+    const { setPreviewMedia } = usePlayer()
+
+    // Обработчик применения видео
+    const handleApplyVideo = useCallback((resource: TimelineResource, type: string) => {
+      console.log("[VideoPreview] Applying video:", file.name)
+      setPreviewMedia(file)
+    }, [file, setPreviewMedia])
 
     // Используем useRef для хранения времени последнего обновления
     const lastUpdateTimeRef = useRef(0)
@@ -433,7 +441,7 @@ export const VideoPreview = memo(
                       </div>
                     )}
 
-                  <ApplyButton resource={{ id: file.id, type: "media" } as TimelineResource} size={size} type="media" />
+                  <ApplyButton resource={{ id: file.id, type: "media" } as TimelineResource} size={size} type="media" onApply={handleApplyVideo} />
 
                   {/* Кнопка добавления */}
                   {isLoaded &&

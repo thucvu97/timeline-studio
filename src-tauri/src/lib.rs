@@ -75,10 +75,13 @@ use video_compiler::commands::{
   get_cached_metadata,
   get_compiler_settings,
   get_current_gpu_info,
+  get_frame_extraction_cache_info,
   get_gpu_capabilities,
   get_gpu_info,
+  get_input_sources_info,
   get_prerender_cache_info,
   get_recommended_gpu_encoder,
+  get_render_cache_info,
   get_render_job,
   get_render_progress,
   get_render_statistics,
@@ -90,6 +93,35 @@ use video_compiler::commands::{
   touch_project,
   update_compiler_settings,
 };
+
+// Test data commands (only available in test builds)
+#[cfg(test)]
+#[tauri::command]
+async fn get_test_longest_video() -> Result<serde_json::Value, String> {
+  use crate::media::test_data::test_data;
+  let longest_video = test_data::get_longest_video();
+
+  let video_info = serde_json::json!({
+    "filename": longest_video.filename,
+    "duration": longest_video.duration,
+    "size": longest_video.size,
+    "format": longest_video.format_name,
+    "width": longest_video.width,
+    "height": longest_video.height,
+    "fps": longest_video.fps,
+    "video_codec": longest_video.video_codec,
+    "audio_codec": longest_video.audio_codec,
+    "path": longest_video.get_path().to_string_lossy()
+  });
+
+  log::info!(
+    "Возвращен самый длинный тестовый видеофайл: {} ({:.1}с)",
+    longest_video.filename,
+    longest_video.duration
+  );
+
+  Ok(video_info)
+}
 
 #[tauri::command]
 fn greet() -> String {
@@ -260,6 +292,8 @@ pub fn run() {
     .manage(recognition_state)
     .invoke_handler(tauri::generate_handler![
       greet,
+      #[cfg(test)]
+      get_test_longest_video,
       get_app_language,
       set_app_language,
       get_media_metadata,
@@ -293,6 +327,7 @@ pub fn run() {
       get_active_jobs,
       get_render_job,
       check_render_job_timeouts,
+      get_render_cache_info,
       get_video_info,
       clear_preview_cache,
       get_cache_stats,
@@ -319,11 +354,14 @@ pub fn run() {
       check_gpu_encoder_availability,
       get_gpu_info,
       get_recommended_gpu_encoder,
+      // InputSource команды
+      get_input_sources_info,
       // Frame extraction команды
       extract_timeline_frames,
       extract_recognition_frames,
       extract_subtitle_frames,
       clear_frame_cache,
+      get_frame_extraction_cache_info,
       // Recognition commands
       process_video_recognition,
       process_video_batch,

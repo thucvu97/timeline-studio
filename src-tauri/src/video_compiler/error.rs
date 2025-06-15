@@ -211,6 +211,7 @@ impl VideoCompilerError {
   }
 
   /// Получить сообщение об ошибке
+  #[allow(dead_code)]
   pub fn message(&self) -> String {
     self.to_string()
   }
@@ -307,6 +308,7 @@ impl VideoCompilerError {
   }
 
   /// Создать ошибку ресурсов
+  #[allow(dead_code)]
   pub fn resource<S: Into<String>>(resource_type: S, available: S, required: S) -> Self {
     VideoCompilerError::ResourceError {
       resource_type: resource_type.into(),
@@ -316,6 +318,7 @@ impl VideoCompilerError {
   }
 
   /// Создать ошибку тайм-аута
+  #[allow(dead_code)]
   pub fn timeout<S: Into<String>>(operation: S, timeout_seconds: u64) -> Self {
     VideoCompilerError::TimeoutError {
       operation: operation.into(),

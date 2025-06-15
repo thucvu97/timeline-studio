@@ -149,12 +149,14 @@ impl MediaPreviewData {
   }
 
   /// Добавить превью для браузера
+  #[allow(dead_code)]
   pub fn set_browser_thumbnail(&mut self, thumbnail: ThumbnailData) {
     self.browser_thumbnail = Some(thumbnail);
     self.last_updated = chrono::Utc::now();
   }
 
   /// Добавить превью для таймлайна
+  #[allow(dead_code)]
   pub fn add_timeline_preview(&mut self, preview: TimelinePreview) {
     self.timeline_previews.push(preview);
     self
@@ -164,6 +166,7 @@ impl MediaPreviewData {
   }
 
   /// Добавить кадр для распознавания
+  #[allow(dead_code)]
   pub fn add_recognition_frame(&mut self, frame: RecognitionFrame) {
     self.recognition_frames.push(frame);
     self
@@ -173,12 +176,14 @@ impl MediaPreviewData {
   }
 
   /// Установить результаты распознавания
+  #[allow(dead_code)]
   pub fn set_recognition_results(&mut self, results: RecognitionResults) {
     self.recognition_results = Some(results);
     self.last_updated = chrono::Utc::now();
   }
 
   /// Получить все временные метки где есть превью
+  #[allow(dead_code)]
   pub fn get_all_preview_timestamps(&self) -> Vec<f64> {
     let mut timestamps = Vec::new();
 

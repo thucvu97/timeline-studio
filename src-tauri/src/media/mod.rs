@@ -23,7 +23,7 @@ mod tests;
 mod processor_test;
 
 #[cfg(test)]
-mod test_data;
+pub mod test_data;
 
 #[cfg(test)]
 mod real_data_tests;

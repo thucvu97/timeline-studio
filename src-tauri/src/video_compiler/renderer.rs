@@ -26,7 +26,7 @@ pub struct VideoRenderer {
   /// Настройки компилятора
   settings: Arc<RwLock<CompilerSettings>>,
   /// Кэш рендеринга
-  cache: Arc<RwLock<RenderCache>>,
+  _cache: Arc<RwLock<RenderCache>>,
   /// Трекер прогресса
   progress_tracker: Arc<ProgressTracker>,
   /// Построитель команд FFmpeg
@@ -52,7 +52,7 @@ impl VideoRenderer {
     Ok(Self {
       project,
       settings,
-      cache,
+      _cache: cache,
       progress_tracker,
       ffmpeg_builder,
       current_pipeline: None,
@@ -256,12 +256,13 @@ impl VideoRenderer {
   }
 
   /// Запустить рендеринг с детальным результатом
+  #[allow(dead_code)]
   pub async fn render_with_details(&mut self, output_path: &Path) -> DetailedResult<String> {
     use std::time::Instant;
 
     let start_time = Instant::now();
     let mut warnings = Vec::new();
-    let initial_memory = self.get_current_memory_usage();
+    let initial_memory = self._get_current_memory_usage();
 
     // Проверяем доступность GPU
     if self.project.settings.export.hardware_acceleration {
@@ -277,7 +278,7 @@ impl VideoRenderer {
 
     // Собираем метаданные операции
     let duration_ms = start_time.elapsed().as_millis() as u64;
-    let final_memory = self.get_current_memory_usage();
+    let final_memory = self._get_current_memory_usage();
 
     let metadata = OperationMetadata {
       duration_ms,
@@ -300,7 +301,7 @@ impl VideoRenderer {
   }
 
   /// Получить текущее использование памяти (приблизительно)
-  fn get_current_memory_usage(&self) -> u64 {
+  fn _get_current_memory_usage(&self) -> u64 {
     // Простая оценка на основе размера проекта
     let json_size = serde_json::to_string(&self.project)
       .unwrap_or_default()

@@ -320,6 +320,7 @@ impl PipelineContext {
   }
 
   /// Получить пользовательские данные
+  #[allow(dead_code)]
   pub fn get_user_data<T: serde::de::DeserializeOwned>(&self, key: &str) -> Option<T> {
     self
       .user_data

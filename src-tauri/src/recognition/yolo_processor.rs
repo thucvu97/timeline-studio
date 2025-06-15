@@ -368,7 +368,7 @@ impl YoloProcessor {
   }
 
   /// Мок-функция для демонстрации (заменить на реальную YOLO)
-  fn mock_process_image(&self, image: &DynamicImage) -> Vec<Detection> {
+  fn _mock_process_image(&self, image: &DynamicImage) -> Vec<Detection> {
     let (width, height) = image.dimensions();
 
     match self.model_type {

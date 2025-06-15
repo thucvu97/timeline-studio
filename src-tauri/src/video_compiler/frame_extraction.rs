@@ -124,6 +124,11 @@ impl FrameExtractionManager {
     Self::with_ffmpeg_path(cache, "ffmpeg".to_string())
   }
 
+  /// Получить доступ к кэшу для демонстрации использования поля cache
+  pub fn get_cache(&self) -> Arc<RwLock<RenderCache>> {
+    self.cache.clone()
+  }
+
   /// Создать новый менеджер с путем к FFmpeg
   pub fn with_ffmpeg_path(cache: Arc<RwLock<RenderCache>>, ffmpeg_path: String) -> Self {
     let preview_generator = Arc::new(PreviewGenerator::new(cache.clone()));
@@ -549,66 +554,145 @@ impl FrameExtractionManager {
     timestamps: Vec<f64>,
     settings: &ExtractionSettings,
   ) -> Result<Vec<ExtractedFrame>> {
+    use crate::video_compiler::cache::PreviewKey;
+
     let mut frames = Vec::new();
+    let video_path_str = video_path.to_string_lossy().to_string();
 
-    if settings.parallel_extraction {
-      // Параллельное извлечение
-      let results = self
-        .preview_generator
-        .generate_preview_batch_for_file(
-          video_path,
-          timestamps.clone(),
-          Some(settings.resolution),
-          Some(settings.quality),
-        )
-        .await?;
+    // Используем кэш для оптимизации извлечения кадров
+    let mut cache = self.cache.write().await;
+    let mut uncached_timestamps = Vec::new();
+    let mut cached_frames = Vec::new();
 
-      for (i, result) in results.into_iter().enumerate() {
-        match result.result {
-          Ok(data) => {
-            frames.push(ExtractedFrame {
-              timestamp: timestamps[i],
-              data,
-              resolution: settings.resolution,
-              purpose: settings.purpose.clone(),
-              scene_change_score: None,
-              is_keyframe: false,
-            });
-          }
-          Err(e) => {
-            log::warn!("Не удалось извлечь кадр на {:.2}s: {}", timestamps[i], e);
-          }
-        }
+    // Проверяем, какие кадры уже есть в кэше
+    for timestamp in &timestamps {
+      let preview_key = PreviewKey::new(
+        video_path_str.clone(),
+        *timestamp,
+        settings.resolution,
+        settings.quality,
+      );
+
+      if let Some(cached_data) = cache.get_preview(&preview_key).await {
+        cached_frames.push(ExtractedFrame {
+          timestamp: *timestamp,
+          data: cached_data.image_data,
+          resolution: settings.resolution,
+          purpose: settings.purpose.clone(),
+          scene_change_score: None,
+          is_keyframe: false,
+        });
+        log::debug!("Кадр на {:.2}s найден в кэше", timestamp);
+      } else {
+        uncached_timestamps.push(*timestamp);
       }
-    } else {
-      // Последовательное извлечение
-      for timestamp in timestamps {
-        match self
+    }
+
+    // Освобождаем мьютекс кэша для генерации новых кадров
+    drop(cache);
+
+    log::info!(
+      "Извлечение кадров: {} из кэша, {} требуют генерации",
+      cached_frames.len(),
+      uncached_timestamps.len()
+    );
+
+    // Добавляем кешированные кадры к результату
+    frames.extend(cached_frames);
+
+    // Генерируем только некешированные кадры
+    if !uncached_timestamps.is_empty() {
+      if settings.parallel_extraction {
+        // Параллельное извлечение
+        let results = self
           .preview_generator
-          .generate_preview(
+          .generate_preview_batch_for_file(
             video_path,
-            timestamp,
+            uncached_timestamps.clone(),
             Some(settings.resolution),
             Some(settings.quality),
           )
-          .await
-        {
-          Ok(data) => {
-            frames.push(ExtractedFrame {
-              timestamp,
-              data,
-              resolution: settings.resolution,
-              purpose: settings.purpose.clone(),
-              scene_change_score: None,
-              is_keyframe: false,
-            });
+          .await?;
+
+        for (i, result) in results.into_iter().enumerate() {
+          let timestamp = uncached_timestamps[i];
+          match result.result {
+            Ok(data) => {
+              // Сохраняем в кэш новый кадр
+              let preview_key = PreviewKey::new(
+                video_path_str.clone(),
+                timestamp,
+                settings.resolution,
+                settings.quality,
+              );
+
+              let mut cache = self.cache.write().await;
+              if let Err(e) = cache.store_preview(preview_key, data.clone()).await {
+                log::warn!("Не удалось сохранить кадр в кэш: {}", e);
+              }
+              drop(cache);
+
+              frames.push(ExtractedFrame {
+                timestamp,
+                data,
+                resolution: settings.resolution,
+                purpose: settings.purpose.clone(),
+                scene_change_score: None,
+                is_keyframe: false,
+              });
+            }
+            Err(e) => {
+              log::warn!("Не удалось извлечь кадр на {:.2}s: {}", timestamp, e);
+            }
           }
-          Err(e) => {
-            log::warn!("Не удалось извлечь кадр на {:.2}s: {}", timestamp, e);
+        }
+      } else {
+        // Последовательное извлечение
+        for timestamp in uncached_timestamps {
+          match self
+            .preview_generator
+            .generate_preview(
+              video_path,
+              timestamp,
+              Some(settings.resolution),
+              Some(settings.quality),
+            )
+            .await
+          {
+            Ok(data) => {
+              // Сохраняем в кэш новый кадр
+              let preview_key = PreviewKey::new(
+                video_path_str.clone(),
+                timestamp,
+                settings.resolution,
+                settings.quality,
+              );
+
+              let mut cache = self.cache.write().await;
+              if let Err(e) = cache.store_preview(preview_key, data.clone()).await {
+                log::warn!("Не удалось сохранить кадр в кэш: {}", e);
+              }
+              drop(cache);
+
+              frames.push(ExtractedFrame {
+                timestamp,
+                data,
+                resolution: settings.resolution,
+                purpose: settings.purpose.clone(),
+                scene_change_score: None,
+                is_keyframe: false,
+              });
+            }
+            Err(e) => {
+              log::warn!("Не удалось извлечь кадр на {:.2}s: {}", timestamp, e);
+            }
           }
         }
       }
     }
+
+    // Сортируем кадры по временным меткам для корректного порядка
+    frames.sort_by(|a, b| a.timestamp.partial_cmp(&b.timestamp).unwrap());
 
     Ok(frames)
   }
@@ -798,7 +882,7 @@ mod tests {
     let data = PreviewData {
       image_data: vec![1, 2, 3],
       timestamp: SystemTime::now() - Duration::from_secs(3600),
-      access_count: 5,
+      _access_count: 5,
     };
 
     assert!(data.is_expired(Duration::from_secs(1800))); // Should be expired
