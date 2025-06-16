@@ -185,7 +185,7 @@ describe("useMediaPreview", () => {
 
       // Start generating
       act(() => {
-        result.current.generateThumbnail("test-file", "/path/to/video.mp4", 320, 180)
+        void result.current.generateThumbnail("test-file", "/path/to/video.mp4", 320, 180)
       })
 
       // Check isGenerating is true

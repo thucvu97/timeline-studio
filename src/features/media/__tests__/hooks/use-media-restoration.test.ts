@@ -1,10 +1,10 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
 import { MediaFile } from "@/features/media/types/media"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 
-import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
 
 // Мокаем MediaRestorationService
 vi.mock("@/features/media/services/media-restoration-service", () => ({

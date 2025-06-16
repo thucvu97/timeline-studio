@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react"
 
+import { useMediaFiles, useMusicFiles } from "@/features/app-state/hooks"
 import { appDirectoriesService } from "@/features/app-state/services"
+import type { MediaFile } from "@/features/media/types/media"
+import { useResources } from "@/features/resources"
 
 /**
  * Структура для автозагрузки пользовательских данных
  */
 interface UserDataDirectories {
+  media: string[]
+  music: string[]
   effects: string[]
   transitions: string[]
   filters: string[]
@@ -29,6 +34,8 @@ interface UserDataDirectories {
 export function useAutoLoadUserData() {
   const [isLoading, setIsLoading] = useState(false)
   const [loadedData, setLoadedData] = useState<UserDataDirectories>({
+    media: [],
+    music: [],
     effects: [],
     transitions: [],
     filters: [],
@@ -37,6 +44,11 @@ export function useAutoLoadUserData() {
     styleTemplates: [],
   })
   const [error, setError] = useState<string | null>(null)
+  
+  // Получаем хуки для управления состоянием
+  const { updateMediaFiles } = useMediaFiles()
+  const { updateMusicFiles } = useMusicFiles()
+  const { addEffect, addFilter, addTransition, addSubtitle, addTemplate, addStyleTemplate } = useResources()
 
   /**
    * Проверяет, работаем ли мы в Tauri окружении
@@ -46,9 +58,9 @@ export function useAutoLoadUserData() {
   }
 
   /**
-   * Проверяет существование директории и возвращает список JSON файлов
+   * Проверяет существование директории и возвращает список файлов с указанными расширениями
    */
-  const scanDirectory = async (dirPath: string): Promise<string[]> => {
+  const scanDirectory = async (dirPath: string, extensions?: string[]): Promise<string[]> => {
     try {
       // В веб-браузере не можем сканировать файловую систему
       if (!isTauriEnvironment()) {
@@ -69,21 +81,44 @@ export function useAutoLoadUserData() {
         }
 
         const entries = await readDir(dirPath)
+        // Если расширения не указаны, ищем JSON файлы
+        const targetExtensions = extensions || [".json"]
         jsonFiles = entries
-          .filter((entry: any) => entry.isFile && entry.name.endsWith(".json"))
+          .filter((entry: any) => {
+            if (!entry.isFile) return false
+            const name = entry.name.toLowerCase()
+            return targetExtensions.some(ext => name.endsWith(ext.toLowerCase()))
+          })
           .map((entry: any) => `${dirPath}/${entry.name}`)
       } catch (importError) {
         console.log("Не удалось импортировать Tauri FS API:", importError)
         return []
       }
 
-      console.log(`Найдено ${jsonFiles.length} JSON файлов в ${dirPath}:`, jsonFiles)
+      console.log(`Найдено ${jsonFiles.length} файлов в ${dirPath}:`, jsonFiles)
       return jsonFiles
     } catch (error) {
       console.error(`Ошибка при сканировании ${dirPath}:`, error)
       return []
     }
   }
+
+  /**
+   * Определяет расширения для медиа файлов
+   */
+  const getMediaExtensions = (): string[] => [
+    // Видео форматы
+    ".mp4", ".avi", ".mov", ".wmv", ".flv", ".mkv", ".webm", ".m4v", ".mpg", ".mpeg", ".3gp",
+    // Изображения
+    ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".webp", ".ico", ".tiff"
+  ]
+
+  /**
+   * Определяет расширения для музыкальных файлов
+   */
+  const getMusicExtensions = (): string[] => [
+    ".mp3", ".wav", ".ogg", ".m4a", ".aac", ".flac", ".wma", ".opus"
+  ]
 
   /**
    * Загружает и валидирует JSON файл
@@ -127,6 +162,8 @@ export function useAutoLoadUserData() {
 
       // Определяем пути к директориям
       let directories = {
+        media: "public/media",
+        music: "public/music",
         effects: "public/effects",
         transitions: "public/transitions",
         filters: "public/filters",
@@ -140,6 +177,8 @@ export function useAutoLoadUserData() {
         try {
           const appDirs = await appDirectoriesService.getAppDirectories()
           directories = {
+            media: appDirectoriesService.getMediaSubdirectory("videos"), // Директория для видео
+            music: appDirectoriesService.getMediaSubdirectory("music"), // Директория для музыки
             effects: appDirectoriesService.getMediaSubdirectory("effects"),
             transitions: appDirectoriesService.getMediaSubdirectory("transitions"),
             filters: appDirectoriesService.getMediaSubdirectory("filters"),
@@ -153,18 +192,28 @@ export function useAutoLoadUserData() {
       }
 
       // Сканируем все директории параллельно
-      const [effectsFiles, transitionsFiles, filtersFiles, subtitlesFiles, templatesFiles, styleTemplatesFiles] =
-        await Promise.all([
-          scanDirectory(directories.effects),
-          scanDirectory(directories.transitions),
-          scanDirectory(directories.filters),
-          scanDirectory(directories.subtitles),
-          scanDirectory(directories.templates),
-          scanDirectory(directories.styleTemplates),
-        ])
+      const [
+        mediaFiles,
+        musicFiles,
+        effectsFiles,
+        transitionsFiles,
+        filtersFiles,
+        subtitlesFiles,
+        templatesFiles,
+        styleTemplatesFiles
+      ] = await Promise.all([
+        scanDirectory(directories.media, getMediaExtensions()),
+        scanDirectory(directories.music, getMusicExtensions()),
+        scanDirectory(directories.effects),
+        scanDirectory(directories.transitions),
+        scanDirectory(directories.filters),
+        scanDirectory(directories.subtitles),
+        scanDirectory(directories.templates),
+        scanDirectory(directories.styleTemplates),
+      ])
 
-      // Загружаем содержимое всех найденных файлов
-      const allFiles = [
+      // Загружаем содержимое JSON файлов (эффекты, фильтры и т.д.)
+      const jsonFiles = [
         ...effectsFiles,
         ...transitionsFiles,
         ...filtersFiles,
@@ -173,22 +222,80 @@ export function useAutoLoadUserData() {
         ...styleTemplatesFiles,
       ]
 
-      if (allFiles.length > 0) {
-        console.log(`Загружаем ${allFiles.length} пользовательских файлов...`)
+      if (jsonFiles.length > 0) {
+        console.log(`Загружаем ${jsonFiles.length} JSON файлов...`)
 
-        // Загружаем все файлы параллельно
-        const loadedFiles = await Promise.all(allFiles.map((filePath) => loadJsonFile(filePath)))
+        // Загружаем все JSON файлы параллельно
+        const loadedFiles = await Promise.all(jsonFiles.map((filePath) => loadJsonFile(filePath)))
 
         // Фильтруем успешно загруженные файлы
         const validFiles = loadedFiles.filter((data) => data !== null)
-        console.log(`Успешно загружено ${validFiles.length} из ${allFiles.length} файлов`)
-
-        // TODO: Здесь можно добавить валидацию и интеграцию с соответствующими хуками
-        // Например, добавить загруженные эффекты в useEffects, переходы в useTransitions и т.д.
+        console.log(`Успешно загружено ${validFiles.length} из ${jsonFiles.length} файлов`)
       }
+
+      // Интеграция с хуками для медиа и музыки
+      if (mediaFiles.length > 0 || musicFiles.length > 0) {
+        console.log(`Найдено ${mediaFiles.length} медиа файлов и ${musicFiles.length} музыкальных файлов`)
+        
+        // Создаем объекты MediaFile для медиа файлов
+        const mediaFileObjects: MediaFile[] = mediaFiles.map((filePath, index) => {
+          const fileName = filePath.split('/').pop() || ''
+          return {
+            id: `media-${Date.now()}-${index}`,
+            name: fileName,
+            path: filePath,
+            size: 0, // Размер будет определен позже
+            duration: 0, // Продолжительность будет определена позже для видео
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            isVideo: (/\.(mp4|avi|mov|mkv|webm|flv|wmv|mpg|mpeg|3gp|m4v)$/i.exec(fileName)) !== null,
+            isImage: (/\.(jpg|jpeg|png|gif|bmp|svg|webp|ico|tiff)$/i.exec(fileName)) !== null,
+            source: 'browser'
+          }
+        })
+        
+        // Создаем объекты MediaFile для музыкальных файлов
+        const musicFileObjects: MediaFile[] = musicFiles.map((filePath, index) => {
+          const fileName = filePath.split('/').pop() || ''
+          return {
+            id: `music-${Date.now()}-${index}`,
+            name: fileName,
+            path: filePath,
+            size: 0, // Размер будет определен позже
+            duration: 0, // Продолжительность будет определена позже
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            isAudio: true,
+            source: 'browser'
+          }
+        })
+        
+        // Обновляем состояние через хуки
+        if (mediaFileObjects.length > 0) {
+          updateMediaFiles(mediaFileObjects)
+          console.log(`Добавлено ${mediaFileObjects.length} медиа файлов в состояние приложения`)
+        }
+        
+        if (musicFileObjects.length > 0) {
+          updateMusicFiles(musicFileObjects)
+          console.log(`Добавлено ${musicFileObjects.length} музыкальных файлов в состояние приложения`)
+        }
+      }
+
+      // Интеграция загруженных JSON файлов с useResources
+      // TODO: Добавить обработку и валидацию загруженных JSON файлов
+      // Пример интеграции через useResources:
+      // validEffects.forEach(effect => addEffect(effect))
+      // validFilters.forEach(filter => addFilter(filter))
+      // validTransitions.forEach(transition => addTransition(transition))
+      // validSubtitles.forEach(subtitle => addSubtitle(subtitle))
+      // validTemplates.forEach(template => addTemplate(template))
+      // validStyleTemplates.forEach(template => addStyleTemplate(template))
 
       // Обновляем состояние
       setLoadedData({
+        media: mediaFiles,
+        music: musicFiles,
         effects: effectsFiles,
         transitions: transitionsFiles,
         filters: filtersFiles,

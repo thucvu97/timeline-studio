@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useFramePreview } from "@/features/media/hooks/use-frame-preview"
-import { TimelineFrame, ExtractionPurpose } from "@/features/video-compiler/services/frame-extraction-service"
+import { ExtractionPurpose, TimelineFrame } from "@/features/video-compiler/services/frame-extraction-service"
 
 // Мокаем зависимости
 vi.mock("@tauri-apps/api/core", () => ({
@@ -189,7 +189,7 @@ describe("useFramePreview", () => {
 
       // Начинаем извлечение
       act(() => {
-        result.current.extractTimelineFrames("file-123", "/path/to/video.mp4", 120)
+        void result.current.extractTimelineFrames("file-123", "/path/to/video.mp4", 120)
       })
 
       // Ждем обновления состояния

@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  hasAudioStream,
+  doTimeRangesOverlap,
   getFileType,
   getRemainingMediaCounts,
+  hasAudioStream,
   isHorizontalVideo,
-  doTimeRangesOverlap,
 } from "../../utils/media-utils"
+
 import type { MediaFile } from "../../types/media"
 
 describe("media-utils", () => {

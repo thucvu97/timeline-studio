@@ -2,9 +2,9 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
-  useMediaProcessor,
   type DiscoveredFile,
   type ProcessorEvent,
+  useMediaProcessor,
 } from "@/features/media/hooks/use-media-processor"
 import type { MediaFile } from "@/features/media/types/media"
 
@@ -317,7 +317,7 @@ describe("useMediaProcessor", () => {
 
       // Start scanning
       act(() => {
-        result.current.scanFolder("/path/to/folder")
+        void result.current.scanFolder("/path/to/folder")
       })
 
       // Check isProcessing is true
@@ -532,7 +532,7 @@ describe("useMediaProcessor", () => {
 
       // Set some state
       act(() => {
-        result.current.scanFolder("/path/to/folder")
+        void result.current.scanFolder("/path/to/folder")
       })
 
       await waitFor(() => {
