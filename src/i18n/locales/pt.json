@@ -37,7 +37,13 @@
       "select": "Selecionar fuso horário",
       "search": "Pesquisar fuso horário..."
     },
-    "reset": "Redefinir"
+    "reset": "Redefinir",
+    "browse": "Navegar",
+    "browserNotSupported": "Seu navegador não suporta recursos de gravação de mídia",
+    "permissionDenied": "A permissão para usar dispositivos de mídia foi negada",
+    "deviceNotFound": "Nenhum dispositivo de mídia encontrado",
+    "mediaDeviceError": "Erro ao acessar dispositivos de mídia",
+    "importing": "Importando..."
   },
   "dates": {
     "today": "Hoje",
@@ -102,8 +108,42 @@
       "default": "Padrão",
       "options": "Opções",
       "vertical": "Vídeo Vertical",
-      "dual": "Visualização Dupla",
+      "chat": "Visualização de Chat",
       "externalDisplayRequired": "Exige monitor externo"
+    }
+  },
+  "modals": {
+    "projectSettings": {
+      "title": "Configurações do Projeto"
+    },
+    "keyboardShortcuts": {
+      "title": "Atalhos de Teclado"
+    },
+    "userSettings": {
+      "title": "Configurações do Usuário"
+    },
+    "cameraCapture": {
+      "title": "Gravação de Câmera",
+      "browserNotSupported": "Seu navegador não suporta gravação de câmera",
+      "permissionDenied": "O acesso à câmera foi negado",
+      "deviceNotFound": "Nenhuma câmera encontrada",
+      "mediaError": "Erro ao acessar a câmera"
+    },
+    "voiceRecording": {
+      "title": "Gravação de Áudio",
+      "browserNotSupported": "Seu navegador não suporta gravação de áudio",
+      "permissionDenied": "O acesso ao microfone foi negado",
+      "deviceNotFound": "Nenhum microfone encontrado",
+      "mediaError": "Erro ao acessar o microfone"
+    },
+    "export": {
+      "title": "Exportar"
+    },
+    "cacheSettings": {
+      "title": "Configurações de Cache"
+    },
+    "cacheStatistics": {
+      "title": "Estatísticas de Cache"
     }
   },
   "ui": {
@@ -119,6 +159,90 @@
       "projectTasks": "Tarefas do Projeto",
       "userSettings": "Configurações do Usuário",
       "export": "Exportar"
+    },
+    "dialogs": {
+      "projectSettings": {
+        "title": "Configurações do Projeto",
+        "aspectRatio": "Proporção:",
+        "resolution": "Resolução:",
+        "frameRate": "Taxa de quadros:",
+        "colorSpace": "Espaço de cor:",
+        "cancel": "Cancelar",
+        "save": "OK"
+      },
+      "userSettings": {
+        "title": "Configurações do Usuário",
+        "interfaceLanguage": "Idioma da interface:",
+        "screenshotsPath": "Caminho para salvar capturas de tela:",
+        "selectFolder": "Selecionar pasta",
+        "selectFolderPrompt": "Escolha uma pasta para salvar capturas de tela ou digite seu próprio caminho:",
+        "clearPath": "Limpar",
+        "defaultPathHint": "Caminho padrão para salvar capturas de tela",
+        "customPathHint": "Capturas de tela serão salvas em: {{path}}",
+        "cancel": "Cancelar",
+        "save": "Salvar",
+        "playerScreenshotsPath": "Caminho para salvar capturas do player",
+        "claudeApiKey": "Chave API Claude"
+      },
+      "export": {
+        "title": "Exportar",
+        "local": "Local",
+        "device": "Dispositivo",
+        "socialNetworks": "Redes Sociais",
+        "dvd": "DVD",
+        "youtube": "YouTube",
+        "tiktok": "TikTok",
+        "telegram": "Telegram",
+        "notLoggedIn": "Não logado",
+        "loginPrompt": {
+          "youtube": "Faça login na sua conta do YouTube para informações adicionais.",
+          "tiktok": "Faça login na sua conta do TikTok para publicar vídeos.",
+          "telegram": "Faça login na sua conta do Telegram para enviar vídeos para canais e grupos."
+        },
+        "login": "Entrar",
+        "cover": "Capa",
+        "edit": "Editar",
+        "outputSettings": "Configurações de Saída",
+        "name": "Nome",
+        "saveTo": "Salvar em",
+        "preset": "Predefinição",
+        "defaultPreset": "Padrão",
+        "custom": "Personalizado",
+        "format": "Formato",
+        "quality": "Qualidade",
+        "normal": "Normal",
+        "good": "Boa",
+        "best": "Melhor",
+        "resolution": "Resolução",
+        "frameRate": "Taxa de Quadros",
+        "advancedCompression": "Compressão Avançada",
+        "cloudBackup": "Backup na Nuvem",
+        "enableGPUEncoding": "Ativar codificação de vídeo acelerada por GPU",
+        "useLastSettings": "Usar últimas configurações de exportação para arquivo local",
+        "length": "Duração",
+        "size": "Tamanho",
+        "approximate": "Aproximado",
+        "titles": "Títulos",
+        "device_types": {
+          "iphone": "iPhone",
+          "ipad": "iPad",
+          "android": "Android"
+        },
+        "codec": "Codec",
+        "additional": "Adicional",
+        "fps": "fps",
+        "kbps": "kbps",
+        "sdr": "SDR - Rec.709",
+        "otherNetworks": "Outras redes sociais"
+      }
+    },
+    "templates": {
+      "verticalSplit": "Divisão Vertical",
+      "horizontalSplit": "Divisão Horizontal",
+      "diagonalSplit": "Divisão Diagonal",
+      "grid2x2": "Grade 2×2",
+      "grid3x3": "Grade 3×3",
+      "grid4x4": "Grade 4×4"
     }
   },
   "dialogs": {
@@ -157,7 +281,10 @@
       "errorRequestingStreamFallback": "Falha ao obter stream da câmera. Verifique as configurações e permissões da câmera.",
       "videoElementError": "Erro ao inicializar o elemento de vídeo. Tente outro dispositivo ou resolução.",
       "cameraInitError": "Erro ao inicializar a câmera. Verifique as configurações e permissões da câmera.",
-      "errorGettingDevices": "Falha ao obter lista de dispositivos"
+      "errorGettingDevices": "Falha ao obter lista de dispositivos",
+      "browserNotSupported": "Seu navegador não suporta gravação de câmera",
+      "mediaDevicesNotSupported": "Dispositivos de mídia não são suportados neste navegador",
+      "mediaDevicesError": "Erro ao acessar dispositivos de mídia"
     },
     "keyboardShortcuts": {
       "title": "Atalhos de Teclado",
@@ -174,29 +301,69 @@
         "preferences": "Preferências",
         "file": "Arquivo",
         "edit": "Editar",
-        "view": "Visualizar",
+        "selection": "Seleção e navegação",
+        "keyframe-animation": "Animação de quadros-chave",
         "tools": "Ferramentas",
-        "marker": "Marcador",
-        "multicam": "Edição Multicam",
+        "grouping-markers": "Agrupamento e marcadores",
+        "timeline-navigation": "Navegação da linha do tempo",
+        "subtitles": "Legendas",
+        "playback": "Reprodução",
+        "view": "Visualizar",
+        "markers": "Marcador",
+        "multicam-editing": "Edição Multicam",
         "other": "Outro"
       },
       "shortcuts": {
         "preferences": "Preferências",
         "project-settings": "Configurações do Projeto",
         "shortcuts": "Atalhos de Teclado",
+        "exit": "Sair",
         "new-project": "Novo Projeto",
         "open-project": "Abrir Projeto",
         "save-project": "Salvar Projeto",
         "save-as": "Salvar Projeto Como",
-        "archive": "Arquivar Projeto",
+        "archive-project": "Arquivar Projeto",
         "import": "Importar Mídia",
+        "record-voiceover": "Gravar narração",
+        "add-to-new-track": "Adicionar à nova faixa",
         "undo": "Desfazer",
         "redo": "Refazer",
         "cut": "Cortar",
         "copy": "Copiar",
         "paste": "Colar",
+        "duplicate": "Duplicar",
+        "enable-disable-clip": "Ativar/desativar clipe",
         "delete": "Excluir",
+        "ripple-delete": "Exclusão em cascata",
+        "close-gap": "Fechar espaço",
         "select-all": "Selecionar Tudo",
+        "copy-effects": "Copiar efeitos",
+        "paste-effects": "Colar efeitos",
+        "split": "Dividir",
+        "group": "Agrupar",
+        "ungroup": "Desagrupar",
+        "keyframe-animation": "Animação de quadros-chave",
+        "add-freeze-frame": "Adicionar quadro congelado",
+        "red-marker": "Marcador vermelho",
+        "orange-marker": "Marcador laranja",
+        "yellow-marker": "Marcador amarelo",
+        "green-marker": "Marcador verde",
+        "blue-marker": "Marcador azul",
+        "purple-marker": "Marcador roxo",
+        "gray-marker": "Marcador cinza",
+        "mark-in": "Marcar entrada",
+        "mark-out": "Marcar saída",
+        "clear-in-out": "Limpar entrada e saída",
+        "edit-marker": "Editar marcador",
+        "switch-camera-1": "Alternar ângulo de câmera 1",
+        "switch-camera-2": "Alternar ângulo de câmera 2",
+        "switch-camera-3": "Alternar ângulo de câmera 3",
+        "switch-camera-4": "Alternar ângulo de câmera 4",
+        "switch-camera-5": "Alternar ângulo de câmera 5",
+        "switch-camera-6": "Alternar ângulo de câmera 6",
+        "switch-camera-7": "Alternar ângulo de câmera 7",
+        "switch-camera-8": "Alternar ângulo de câmera 8",
+        "switch-camera-9": "Alternar ângulo de câmera 9",
         "zoom-in": "Aumentar Zoom",
         "zoom-out": "Diminuir Zoom",
         "fit-to-screen": "Ajustar à Tela",
@@ -209,10 +376,6 @@
         "add-marker": "Adicionar Marcador",
         "next-marker": "Próximo Marcador",
         "prev-marker": "Marcador Anterior",
-        "switch-camera-1": "Alternar para Câmera 1",
-        "switch-camera-2": "Alternar para Câmera 2",
-        "switch-camera-3": "Alternar para Câmera 3",
-        "switch-camera-4": "Alternar para Câmera 4",
         "play-pause": "Reproduzir/Pausar",
         "next-frame": "Próximo Quadro",
         "prev-frame": "Quadro Anterior",
@@ -289,7 +452,10 @@
       "permissionError": "Não foi possível obter acesso ao microfone. Verifique as permissões no navegador.",
       "refreshDevices": "Atualizar dispositivos",
       "savePath": "Salvar em",
-      "hint": "Clique no botão de gravar para começar. A gravação será adicionada automaticamente à biblioteca de mídia."
+      "hint": "Clique no botão de gravar para começar. A gravação será adicionada automaticamente à biblioteca de mídia.",
+      "browserNotSupported": "Seu navegador não suporta gravação de áudio",
+      "mediaDevicesNotSupported": "Dispositivos de mídia não são suportados neste navegador",
+      "mediaDevicesError": "Erro ao acessar dispositivos de mídia"
     },
     "userSettings": {
       "title": "Configurações do Usuário",
@@ -462,6 +628,27 @@
       },
       "cacheStatistics": {
         "title": "Estatísticas de Cache"
+      },
+      "mediaImport": {
+        "title": "Importar Mídia"
+      },
+      "missingFiles": {
+        "title": "Arquivos Ausentes"
+      },
+      "soundEffects": {
+        "title": "Efeitos Sonoros"
+      },
+      "welcome": {
+        "title": "Bem-vindo"
+      },
+      "openAnotherProject": {
+        "title": "Abrir Outro Projeto"
+      },
+      "templateCreator": {
+        "title": "Criador de Modelos"
+      },
+      "mediaGroup": {
+        "title": "Grupo de Mídia"
       }
     }
   },
@@ -529,10 +716,30 @@
       "search": "Pesquisar...",
       "dragHint": "Arraste a legenda para a linha do tempo para adicioná-la ao seu projeto",
       "categories": {
-        "minimal": "Minimalista"
+        "minimal": "Minimalista",
+        "color": "Cor",
+        "blur": "Desfoque",
+        "sharpen": "Nitidez",
+        "artistic": "Artístico",
+        "distortion": "Distorção",
+        "noise": "Ruído",
+        "vintage": "Vintage",
+        "other": "Outros",
+        "color-correction": "Correção de Cor",
+        "creative": "Criativo",
+        "cinematic": "Cinematográfico",
+        "technical": "Técnico",
+        "transition": "Transições",
+        "motion": "Movimento",
+        "light": "Luz",
+        "particle": "Partículas",
+        "text": "Texto",
+        "3d": "3D"
       },
       "complexity": {
-        "basic": "Básico"
+        "basic": "Básico",
+        "advanced": "Avançado",
+        "intermediate": "Intermediário"
       }
     },
     "stickers": {
@@ -576,6 +783,7 @@
       "video": "Vídeo",
       "audio": "Áudio",
       "image": "Imagens",
+      "inFavorites": "Nos favoritos",
       "cache": {
         "title": "Gerenciamento de Cache",
         "description": "Configurações de armazenamento de dados local do navegador",
@@ -654,7 +862,9 @@
         "size": "Por tamanho",
         "duration": "Por duração",
         "complexity": "Por complexidade",
-        "category": "Por categoria"
+        "category": "Por categoria",
+        "screens": "Por número de telas",
+        "style": "Por estilo"
       },
       "filterBy": {
         "all": "Todos os arquivos",
@@ -672,7 +882,9 @@
         "album": "Por álbum",
         "category": "Por categoria",
         "complexity": "Por complexidade",
-        "tags": "Por tags"
+        "tags": "Por tags",
+        "screens": "Por número de telas",
+        "style": "Por estilo"
       },
       "duration": {
         "noDuration": "Arquivos sem duração",
@@ -798,12 +1010,26 @@
     },
     "resources": {
       "title": "Recursos",
-      "noResources": "Nenhum recurso adicionado"
+      "noResources": "Nenhum recurso adicionado",
+      "all": "Todos",
+      "effects": "Efeitos",
+      "filters": "Filtros",
+      "transitions": "Transições",
+      "templates": "Câmeras",
+      "styleTemplates": "Modelos",
+      "subtitles": "Legendas",
+      "music": "Música"
     },
     "chat": {
       "noMessages": "Sem mensagens. Inicie uma conversa.",
       "messagePlaceholder": "Digite sua mensagem aqui...",
-      "send": "Enviar"
+      "send": "Enviar",
+      "title": "Chat",
+      "selectAgent": "Modelo",
+      "savingProgress": "Salvando progresso",
+      "saveSuccess": "Vídeo salvo com sucesso!",
+      "stop": "Parar",
+      "processing": "Processando..."
     }
   },
   "filters": {
@@ -1187,6 +1413,195 @@
       "long": "Longo (>6s)"
     }
   },
+  "templates": {
+    "verticalSplit": "Divisão Vertical",
+    "horizontalSplit": "Divisão Horizontal",
+    "diagonalSplit": "Divisão Diagonal",
+    "grid2x2": "Grade 2×2",
+    "grid3x2": "Grade 3×2",
+    "grid2x3": "Grade 2×3",
+    "grid3x3": "Grade 3×3",
+    "grid3x4": "Grade 3×4",
+    "grid4x3": "Grade 4×3",
+    "grid4x4": "Grade 4×4",
+    "grid5x2": "Grade 5×2",
+    "grid2x5": "Grade 2×5",
+    "grid5x5": "Grade 5×5",
+    "custom7_1": "7 telas: grande inferior direita",
+    "custom7_2": "7 telas: grande inferior esquerda",
+    "custom7_3": "7 telas: grande superior esquerda",
+    "custom7_4": "7 telas: grande superior direita",
+    "split_3_1_right": "3 à esquerda + 1 à direita",
+    "screens": {
+      "2": "2 telas",
+      "3": "3 telas",
+      "4": "4 telas",
+      "6": "6 telas",
+      "8": "8 telas",
+      "9": "9 telas",
+      "12": "12 telas",
+      "16": "16 telas",
+      "25": "25 telas",
+      "single": "{{count}} tela",
+      "multiple": "{{count}} telas"
+    },
+    "templateLabels": {
+      "split-vertical-landscape": "2 telas vertical",
+      "split-horizontal-landscape": "2 telas horizontal",
+      "split-diagonal-landscape": "Divisão Diagonal",
+      "split-vertical-3-landscape": "3 telas vertical",
+      "split-horizontal-3-landscape": "3 telas horizontal",
+      "split-mixed-1-landscape": "1 em cima + 2 embaixo",
+      "split-mixed-2-landscape": "1 à esquerda + 2 à direita",
+      "split-grid-2x2-landscape": "Grade 2×2",
+      "split-vertical-4-landscape": "4 telas vertical",
+      "split-1-3-landscape": "1 à esquerda + 3 à direita",
+      "split-3-1-landscape": "3 em cima + 1 embaixo",
+      "split-3-1-right-landscape": "3 à esquerda + 1 à direita",
+      "split-1-3-bottom-landscape": "1 em cima + 3 embaixo",
+      "split-diagonal-cross-landscape": "Cruz Diagonal",
+      "split-custom-5-1-landscape": "1 à esquerda + 4 à direita",
+      "split-custom-5-2-landscape": "4 à esquerda + 1 à direita",
+      "split-custom-5-3-landscape": "2 + 1 amplo + 2",
+      "split-grid-3x2-landscape": "Grade 3×2",
+      "split-grid-4x2-landscape": "Grade 4×2",
+      "split-grid-3x3-landscape": "Grade 3×3",
+      "split-grid-5x2-landscape": "Grade 5×2",
+      "split-grid-4x3-landscape": "Grade 4×3",
+      "split-grid-3x4-landscape": "Grade 3×4",
+      "split-grid-4x4-landscape": "Grade 4×4",
+      "split-grid-5x5-landscape": "Grade 5×5",
+      "split-vertical-portrait": "Divisão Vertical",
+      "split-horizontal-portrait": "Divisão Horizontal",
+      "split-diagonal-portrait": "Divisão Diagonal",
+      "split-vertical-3-portrait": "3 telas vertical",
+      "split-horizontal-3-portrait": "3 telas horizontal",
+      "split-mixed-1-portrait": "1 em cima + 2 embaixo",
+      "split-mixed-2-portrait": "1 à esquerda + 2 à direita",
+      "split-grid-2x2-portrait": "Grade 2×2",
+      "split-vertical-4-portrait": "4 telas vertical",
+      "split-1-3-portrait": "1 à esquerda + 3 à direita",
+      "split-3-1-portrait": "3 em cima + 1 embaixo",
+      "split-3-1-right-portrait": "3 à esquerda + 1 à direita",
+      "split-1-3-bottom-portrait": "1 em cima + 3 embaixo",
+      "split-diagonal-cross-portrait": "Cruz Diagonal",
+      "split-custom-5-1-portrait": "1 à esquerda + 4 à direita",
+      "split-custom-5-2-portrait": "4 à esquerda + 1 à direita",
+      "split-custom-5-3-portrait": "2 + 1 amplo + 2",
+      "split-grid-3x2-portrait": "Grade 3×2",
+      "split-grid-4x2-portrait": "Grade 4×2",
+      "split-grid-3x3-portrait": "Grade 3×3",
+      "split-grid-5x2-portrait": "Grade 5×2",
+      "split-grid-4x3-portrait": "Grade 4×3",
+      "split-grid-3x4-portrait": "Grade 3×4",
+      "split-grid-4x4-portrait": "Grade 4×4",
+      "split-grid-5x5-portrait": "Grade 5×5",
+      "split-vertical-square": "Divisão Vertical",
+      "split-horizontal-square": "Divisão Horizontal",
+      "split-diagonal-square": "Divisão Diagonal",
+      "split-vertical-3-square": "3 telas vertical",
+      "split-horizontal-3-square": "3 telas horizontal",
+      "split-mixed-1-square": "1 em cima + 2 embaixo",
+      "split-mixed-2-square": "1 à esquerda + 2 à direita",
+      "split-grid-2x2-square": "Grade 2×2",
+      "split-vertical-4-square": "4 telas vertical",
+      "split-1-3-square": "1 à esquerda + 3 à direita",
+      "split-3-1-square": "3 em cima + 1 embaixo",
+      "split-3-1-right-square": "3 à esquerda + 1 à direita",
+      "split-1-3-bottom-square": "1 em cima + 3 embaixo",
+      "split-diagonal-cross-square": "Cruz Diagonal",
+      "split-custom-5-1-square": "1 à esquerda + 4 à direita",
+      "split-custom-5-2-square": "4 à esquerda + 1 à direita",
+      "split-custom-5-3-square": "2 + 1 amplo + 2",
+      "split-grid-3x2-square": "Grade 3×2",
+      "split-grid-4x2-square": "Grade 4×2",
+      "split-grid-3x3-square": "Grade 3×3",
+      "split-grid-5x2-square": "Grade 5×2",
+      "split-grid-4x3-square": "Grade 4×3",
+      "split-grid-3x4-square": "Grade 3×4",
+      "split-grid-4x4-square": "Grade 4×4",
+      "split-grid-5x5-square": "Grade 5×5",
+      "split-vertical-vertical": "Divisão Vertical",
+      "split-horizontal-vertical": "Divisão Horizontal",
+      "split-diagonal-vertical": "Divisão Diagonal",
+      "split-vertical-3-vertical": "3 telas vertical",
+      "split-horizontal-3-vertical": "3 telas horizontal",
+      "split-mixed-1-vertical": "1 em cima + 2 embaixo",
+      "split-mixed-2-vertical": "1 à esquerda + 2 à direita",
+      "split-grid-2x2-vertical": "Grade 2×2",
+      "split-vertical-4-vertical": "4 telas vertical",
+      "split-1-3-vertical": "1 à esquerda + 3 à direita",
+      "split-3-1-vertical": "3 em cima + 1 embaixo",
+      "split-3-1-right-vertical": "3 à esquerda + 1 à direita",
+      "split-1-3-bottom-vertical": "1 em cima + 3 embaixo",
+      "split-diagonal-cross-vertical": "Cruz Diagonal",
+      "split-custom-5-1-vertical": "1 à esquerda + 4 à direita",
+      "split-custom-5-2-vertical": "4 à esquerda + 1 à direita",
+      "split-custom-5-3-vertical": "2 + 1 amplo + 2",
+      "split-grid-3x2-vertical": "Grade 3×2",
+      "split-grid-4x2-vertical": "Grade 4×2",
+      "split-grid-3x3-vertical": "Grade 3×3",
+      "split-grid-5x2-vertical": "Grade 5×2",
+      "split-grid-4x3-vertical": "Grade 4×3",
+      "split-grid-3x4-vertical": "Grade 3×4",
+      "split-grid-4x4-vertical": "Grade 4×4",
+      "split-grid-5x5-vertical": "Grade 5×5",
+      "split-horizontal-4-portrait": "4 telas horizontal",
+      "split-grid-2x3-portrait": "Grade 2×3",
+      "split-grid-2x3-alt-portrait": "Grade 3×2",
+      "split-grid-2x4-portrait": "Grade 2×4",
+      "split-grid-2x5-portrait": "Grade 2×5",
+      "split-diagonal-4-square": "Quatro Telas Diagonais",
+      "split-horizontal-4-square": "4 telas horizontal",
+      "split-grid-2x4-square": "Grade 2×4",
+      "split-diagonal-vertical-square": "Divisão Diagonal Vertical",
+      "split-quad-square": "Quatro Setores Iguais",
+      "split-custom-5-4-square": "5 telas: 2 + 1 + 2 (laterais)",
+      "split-custom-7-1-square": "7 telas (variante 1)",
+      "split-custom-7-2-square": "7 telas (variante 2)",
+      "split-custom-7-3-square": "7 telas (variante 3)",
+      "split-custom-7-4-square": "7 telas (variante 4)",
+      "split-grid-2x3-square": "Grade 2×3",
+      "split-grid-2x5-square": "Grade 2×5",
+      "split-custom-7-1-landscape": "7 telas: grande inferior direita",
+      "split-custom-7-2-landscape": "7 telas: grande inferior esquerda",
+      "split-custom-7-3-landscape": "7 telas: grande superior esquerda",
+      "split-custom-7-4-landscape": "7 telas: grande superior direita",
+      "split-custom-7-1-portrait": "7 telas: grande inferior direita",
+      "split-custom-7-2-portrait": "7 telas: grande inferior esquerda",
+      "split-custom-7-3-portrait": "7 telas: grande superior esquerda",
+      "split-custom-7-4-portrait": "7 telas: grande superior direita",
+      "custom-layout": "Layout Personalizado"
+    },
+    "templateDescriptions": {
+      "split-vertical-landscape": "Divide a tela verticalmente em duas seções iguais em modo paisagem",
+      "split-horizontal-landscape": "Divide a tela horizontalmente em duas seções iguais em modo paisagem",
+      "split-diagonal-landscape": "Divide a tela diagonalmente em duas seções iguais em modo paisagem",
+      "split-vertical-3-landscape": "Divide a tela verticalmente em três seções iguais em modo paisagem",
+      "split-horizontal-3-landscape": "Divide a tela horizontalmente em três seções iguais em modo paisagem",
+      "split-mixed-1-landscape": "Uma tela em cima, duas telas embaixo",
+      "split-mixed-2-landscape": "Uma tela à esquerda, duas telas à direita",
+      "split-grid-2x2-landscape": "Quatro telas em uma grade 2×2",
+      "split-vertical-4-landscape": "Quatro telas divididas por linhas verticais",
+      "split-1-3-landscape": "Uma tela à esquerda, três telas à direita",
+      "split-3-1-landscape": "Três telas em cima, uma tela embaixo",
+      "split-3-1-right-landscape": "Três telas à esquerda, uma tela à direita",
+      "split-1-3-bottom-landscape": "Uma tela em cima, três telas embaixo",
+      "split-diagonal-cross-landscape": "Quatro telas divididas por linhas diagonais em formato de cruz",
+      "split-custom-5-1-landscape": "Uma tela grande à esquerda, quatro telas à direita (2 em cima, 2 embaixo)",
+      "split-custom-5-2-landscape": "Uma tela grande à direita, quatro telas à esquerda (2 em cima, 2 embaixo)",
+      "split-custom-5-3-landscape": "Duas telas em cima, uma no meio, duas telas embaixo",
+      "split-grid-3x2-landscape": "Seis telas em uma grade 3×2",
+      "split-grid-4x2-landscape": "Oito telas em uma grade 4×2",
+      "split-grid-3x3-landscape": "Nove telas em uma grade 3×3",
+      "split-grid-5x2-landscape": "Dez telas em uma grade 5×2",
+      "split-grid-4x3-landscape": "Doze telas em uma grade 4×3",
+      "split-grid-3x4-landscape": "Doze telas em uma grade 3×4",
+      "split-grid-4x4-landscape": "Dezesseis telas em uma grade 4×4",
+      "split-grid-5x5-landscape": "Vinte e cinco telas em uma grade 5×5",
+      "custom-layout": "Crie seu próprio layout personalizado"
+    }
+  },
   "options": {
     "tabs": {
       "video": "Vídeo",
@@ -1439,6 +1854,81 @@
       "used": "{{used}} de {{total}} usado",
       "available": "{{available}} disponível",
       "percentage": "{{percentage}}% usado"
+    }
+  },
+  "subtitles": {
+    "search": "Pesquisar...",
+    "dragHint": "Arraste a legenda para a timeline para adicioná-la ao seu projeto",
+    "categories": {
+      "basic": "Básico",
+      "stylized": "Estilizado",
+      "animated": "Animado",
+      "modern": "Moderno",
+      "minimal": "Minimalista",
+      "color": "Cor",
+      "blur": "Desfoque",
+      "sharpen": "Nitidez",
+      "artistic": "Artístico",
+      "distortion": "Distorção",
+      "noise": "Ruído",
+      "vintage": "Vintage",
+      "other": "Outros",
+      "color-correction": "Correção de cor",
+      "creative": "Criativo",
+      "cinematic": "Cinematográfico",
+      "technical": "Técnico",
+      "transition": "Transições",
+      "motion": "Movimento",
+      "light": "Luz",
+      "particle": "Partículas",
+      "text": "Texto",
+      "3d": "3D"
+    },
+    "complexity": {
+      "basic": "Básico",
+      "advanced": "Avançado",
+      "intermediate": "Intermediário"
+    },
+    "filters": {
+      "all": "Todos",
+      "favorites": "Favoritos",
+      "allCategories": "Todas as categorias",
+      "allComplexity": "Qualquer complexidade",
+      "allTags": "Todas as tags"
+    },
+    "addToFavorites": "Adicionar aos favoritos",
+    "removeFromFavorites": "Remover dos favoritos",
+    "filterByCategory": "Filtrar por categoria",
+    "filterByComplexity": "Filtrar por complexidade",
+    "messages": {
+      "addedToFavorites": "Adicionado aos favoritos",
+      "removedFromFavorites": "Removido dos favoritos",
+      "errorAddingToFavorites": "Erro ao adicionar aos favoritos",
+      "errorRemovingFromFavorites": "Erro ao remover dos favoritos",
+      "stylesLoaded": "{{count}} estilos de legendas carregados do JSON"
+    },
+    "errors": {
+      "failedToLoad": "Falha ao carregar legendas",
+      "notFound": "Legendas não encontradas",
+      "invalidStylesData": "Estrutura de dados de estilos de legenda inválida",
+      "unknownError": "Erro desconhecido",
+      "failedToLoadStyles": "Falha ao carregar estilos de legenda: {{error}}",
+      "fallbackStyles": "Falha ao carregar estilos de legenda, usando estilos de fallback"
+    },
+    "placeholder": {
+      "title": "Nenhuma legenda encontrada",
+      "description": "Tente alterar seus filtros de pesquisa"
+    },
+    "detail": {
+      "description": "Descrição",
+      "parameters": "Parâmetros",
+      "preview": "Visualização",
+      "apply": "Aplicar",
+      "close": "Fechar",
+      "category": "Categoria",
+      "complexity": "Complexidade",
+      "tags": "Tags",
+      "applySubtitle": "Aplicar legenda"
     }
   }
 }

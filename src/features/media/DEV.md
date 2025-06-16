@@ -1,378 +1,419 @@
-# Media - Техническая документация
+# Модуль Media - Руководство разработчика
 
-## 📁 Структура файлов
+## Обзор архитектуры
 
-### ✅ Полная структура реализована
+Модуль media отвечает за все операции с медиафайлами в Timeline Studio. Построен на основе React хуков, XState машин состояний и Tauri для взаимодействия с нативными API.
+
+## Структура каталогов
+
 ```
-src/features/media/
-├── components/
-│   ├── file-metadata.tsx ✅
-│   ├── media-content.tsx ✅
-│   ├── media-group.tsx ✅
-│   ├── media-item.tsx ✅
-│   ├── media-list.tsx ✅
-│   ├── media-toolbar.tsx ✅
-│   └── index.ts ✅
-├── services/
-│   ├── media-list-machine.ts ✅
-│   ├── media-list-provider.tsx ✅
-│   └── index.ts ✅
-└── index.ts ✅
+media/
+├── components/        # React компоненты
+├── hooks/             # Кастомные React хуки
+├── services/          # Бизнес-логика и сервисы
+├── types/             # TypeScript типы
+├── utils/             # Вспомогательные функции
+└── __tests__/         # Тесты
 ```
 
-### 🧪 Тестовое покрытие
-```
-├── components/
-│   ├── file-metadata.test.tsx ✅
-│   ├── media-content.test.tsx ✅
-│   ├── media-group.test.tsx ✅
-│   ├── media-item.test.tsx ✅
-│   ├── media-list.test.tsx ✅
-│   └── media-toolbar.test.tsx ✅
-└── services/
-    ├── media-list-machine.test.ts ✅
-    └── media-list-provider.test.tsx ✅
-```
+## Основные компоненты
 
-## 🏗️ Архитектура компонентов
+### Хуки (Hooks)
 
-### MediaList (корневой компонент)
-**Файл**: `components/media-list.tsx`
-**Статус**: ✅ Полностью реализован
+#### `useMediaProcessor`
+Основной хук для обработки медиафайлов. Интегрируется с Tauri backend для извлечения метаданных через FFmpeg.
 
-**Функционал**:
-- Отображение списка медиафайлов
-- Группировка по датам
-- Интеграция с MediaListProvider
-- Обработка пустых состояний
-
-### MediaItem
-**Файл**: `components/media-item.tsx`
-**Статус**: ✅ Полностью реализован
-
-**Функционал**:
-- Отображение отдельного медиафайла
-- Превью изображения/видео
-- Метаданные файла
-- Состояния выбора
-
-### MediaGroup
-**Файл**: `components/media-group.tsx`
-**Статус**: ✅ Полностью реализован
-
-**Функционал**:
-- Группировка файлов по датам
-- Заголовки групп
-- Сворачивание/разворачивание групп
-- Счетчики файлов в группах
-
-### MediaContent
-**Файл**: `components/media-content.tsx`
-**Статус**: ✅ Полностью реализован
-
-**Функционал**:
-- Контент элемента медиафайла
-- Адаптивное отображение
-- Обработка различных типов файлов
-
-### MediaToolbar
-**Файл**: `components/media-toolbar.tsx`
-**Статус**: ✅ Полностью реализован
-
-**Функционал**:
-- Панель инструментов для списка
-- Поиск по файлам
-- Сортировка и фильтрация
-- Действия с выбранными файлами
-
-### FileMetadata
-**Файл**: `components/file-metadata.tsx`
-**Статус**: ✅ Полностью реализован
-
-**Функционал**:
-- Отображение метаданных файла
-- Техническая информация
-- Форматирование размеров и времени
-
-## 🔧 Машина состояний
-
-### MediaListMachine
-**Файл**: `services/media-list-machine.ts`
-**Статус**: ✅ Полностью реализован
-
-**Контекст**:
 ```typescript
-interface MediaListContext {
-  files: MediaFile[]
-  selectedFiles: MediaFile[]
-  searchQuery: string
-  sortBy: 'name' | 'date' | 'size' | 'type'
-  sortOrder: 'asc' | 'desc'
-  groupBy: 'none' | 'date' | 'type'
-  viewMode: 'grid' | 'list'
-  isLoading: boolean
-  error: string | null
-}
-```
-
-**События**:
-```typescript
-type MediaListEvents = 
-  | { type: 'LOAD_FILES' }
-  | { type: 'SELECT_FILE'; fileId: string }
-  | { type: 'DESELECT_FILE'; fileId: string }
-  | { type: 'TOGGLE_FILE_SELECTION'; fileId: string }
-  | { type: 'SELECT_ALL' }
-  | { type: 'CLEAR_SELECTION' }
-  | { type: 'DELETE_SELECTED' }
-  | { type: 'SEARCH'; query: string }
-  | { type: 'SORT'; by: string; order: string }
-  | { type: 'GROUP'; by: string }
-  | { type: 'SET_VIEW_MODE'; mode: string }
-```
-
-**Состояния**:
-- `idle` - начальное состояние
-- `loading` - загрузка файлов
-- `ready` - файлы загружены
-- `searching` - выполняется поиск
-- `error` - ошибка загрузки
-
-### MediaListProvider
-**Файл**: `services/media-list-provider.tsx`
-**Статус**: ✅ Полностью реализован
-
-**Функционал**:
-- React Context для состояния медиа списка
-- Интеграция с MediaListMachine
-- Предоставление хуков для компонентов
-
-## 🎣 Хуки
-
-### useMediaList
-**Статус**: ✅ Реализован в провайдере
-
-**Возвращает**:
-```typescript
-interface UseMediaListReturn {
-  // Состояние
-  files: MediaFile[]
-  selectedFiles: MediaFile[]
-  searchQuery: string
-  sortBy: string
-  sortOrder: string
-  groupBy: string
-  viewMode: string
-  isLoading: boolean
-  error: string | null
-  
-  // Действия
-  loadFiles: () => void
-  selectFile: (fileId: string) => void
-  deselectFile: (fileId: string) => void
-  toggleFileSelection: (fileId: string) => void
-  selectAll: () => void
-  clearSelection: () => void
-  deleteSelected: () => void
-  search: (query: string) => void
-  sort: (by: string, order: string) => void
-  group: (by: string) => void
-  setViewMode: (mode: string) => void
-}
-```
-
-## 🔗 Связи с другими компонентами
-
-### ✅ Реализованные интеграции
-
-#### Browser интеграция
-```typescript
-// В BrowserContent
-<TabsContent value="media" className={contentClassName}>
-  <MediaListProvider>
-    <MediaList />
-  </MediaListProvider>
-</TabsContent>
-```
-
-#### MediaStudio layouts
-- Отображение в Browser панели
-- Интеграция с ResizablePanel
-- Управление видимостью
-
-### ❌ Требуют реализации
-
-#### Timeline интеграция
-- Drag & drop медиафайлов на треки
-- Синхронизация выбранных файлов
-- Автоматическое добавление в проект
-
-#### VideoPlayer синхронизация
-- Автоматическая загрузка выбранного видео
-- Предпросмотр в плеере
-- Синхронизация времени
-
-## 📦 Типы данных
-
-### MediaFile (основной тип)
-```typescript
-interface MediaFile {
-  id: string
-  name: string
-  path: string
-  size: number
-  type: 'video' | 'image' | 'audio'
-  duration?: number
-  width?: number
-  height?: number
-  frameRate?: number
-  bitrate?: number
-  format: string
-  createdAt: Date
-  modifiedAt: Date
-  thumbnail?: string
-  metadata?: Record<string, any>
-}
-```
-
-### MediaListState
-```typescript
-interface MediaListState {
-  files: MediaFile[]
-  selectedFiles: MediaFile[]
-  searchQuery: string
-  sortBy: 'name' | 'date' | 'size' | 'type'
-  sortOrder: 'asc' | 'desc'
-  groupBy: 'none' | 'date' | 'type'
-  viewMode: 'grid' | 'list'
-  isLoading: boolean
-  error: string | null
-}
-```
-
-### MediaGroup
-```typescript
-interface MediaGroup {
-  id: string
-  name: string
-  date: Date
-  files: MediaFile[]
-  isExpanded: boolean
-}
-```
-
-## 🧪 Тестирование
-
-### Стратегия тестирования
-- **Компоненты**: Рендеринг, взаимодействия, состояния
-- **Машина состояний**: Переходы, события, контекст
-- **Провайдер**: Интеграция с контекстом
-- **Хуки**: Логика, побочные эффекты
-
-### Ключевые тесты
-```typescript
-// Тест выбора файла
-it('should select file when clicked', () => {
-  fireEvent.click(screen.getByTestId('media-item-1'))
-  expect(selectedFiles).toContain(mockFile)
-})
-
-// Тест поиска
-it('should filter files by search query', () => {
-  search('video')
-  expect(filteredFiles).toHaveLength(2)
-})
-
-// Тест группировки
-it('should group files by date', () => {
-  group('date')
-  expect(groups).toHaveLength(3)
+const { 
+  scanFolder,
+  scanFolderWithThumbnails,
+  processFiles,
+  isProcessing,
+  progress,
+  errors 
+} = useMediaProcessor({
+  onFilesDiscovered: (files) => {},
+  onMetadataReady: (fileId, metadata) => {},
+  onThumbnailReady: (fileId, thumbnailPath) => {},
+  onError: (fileId, error) => {},
+  onProgress: (current, total) => {}
 })
 ```
 
-### Моки и утилиты
+**События процессора:**
+- `FilesDiscovered` - обнаружены файлы
+- `MetadataReady` - метаданные извлечены
+- `ThumbnailReady` - миниатюра готова
+- `ProcessingError` - ошибка обработки
+- `ScanProgress` - прогресс сканирования
+
+#### `useMediaPreview`
+Управляет генерацией превью и кэшированием данных предпросмотра.
+
 ```typescript
-// Мок для файлового API
-vi.mock('@tauri-apps/api/fs', () => ({
-  readDir: vi.fn(),
-  readBinaryFile: vi.fn(),
+const {
+  getPreviewData,
+  generateThumbnail,
+  clearPreviewData,
+  getFilesWithPreviews,
+  savePreviewData,
+  loadPreviewData,
+  isGenerating,
+  error
+} = useMediaPreview({
+  onThumbnailGenerated: (fileId, thumbnail) => {},
+  onError: (error) => {}
+})
+```
+
+#### `useFramePreview`
+Извлекает кадры из видео для скраббинга по таймлайну.
+
+```typescript
+const {
+  extractTimelineFrames,
+  extractRecognitionFrames,
+  getFrameAtTimestamp,
+  isExtracting,
+  error
+} = useFramePreview({
+  onFramesExtracted: (frames) => {},
+  onError: (error) => {}
+})
+```
+
+**Особенности:**
+- Кэширование в IndexedDB
+- Поддержка извлечения для распознавания
+- Оптимизация интервалов кадров
+
+#### `useMediaImport`
+Управляет импортом файлов и папок.
+
+```typescript
+const {
+  importFiles,
+  importFolder,
+  clearImport,
+  progress,
+  isImporting,
+  error,
+  importedFiles
+} = useMediaImport()
+```
+
+#### `useVideoStreaming`
+Интеграция с локальным видео-сервером для стриминга.
+
+```typescript
+const {
+  videoUrl,
+  isLoading,
+  error,
+  retry
+} = useVideoStreaming(filePath)
+
+const { 
+  isServerRunning, 
+  checkServerStatus 
+} = useVideoServerStatus()
+```
+
+#### `useCacheStatistics`
+Мониторинг использования кэша IndexedDB.
+
+```typescript
+const {
+  statistics,
+  isLoading,
+  error,
+  refreshStatistics,
+  clearAllCaches,
+  clearFrameCache,
+  clearMetadataCache
+} = useCacheStatistics()
+```
+
+#### `useMediaRestoration`
+Восстановление отсутствующих медиафайлов.
+
+```typescript
+const {
+  restoreProjectMedia,
+  resolveMissingFiles,
+  cancelResolution,
+  isRestoring,
+  missingFiles,
+  restorationProgress,
+  error
+} = useMediaRestoration()
+```
+
+### Сервисы (Services)
+
+#### `MediaApi`
+Низкоуровневое API для операций с медиа.
+
+```typescript
+class MediaApi {
+  static async extractMetadata(filePath: string): Promise<MediaMetadata>
+  static async generateThumbnail(params: ThumbnailParams): Promise<string>
+  static async generateThumbnails(files: MediaFile[]): Promise<void>
+  static async validateMediaFile(filePath: string): Promise<boolean>
+  static async getMediaDuration(filePath: string): Promise<number>
+}
+```
+
+#### `VideoStreamingService`
+Управление локальным видео-сервером.
+
+```typescript
+class VideoStreamingService {
+  async startServer(): Promise<void>
+  async stopServer(): Promise<void>
+  async getVideoUrl(filePath: string): Promise<string>
+  async isServerRunning(): Promise<boolean>
+}
+```
+
+#### `IndexedDBCacheService`
+Кэширование данных в браузере.
+
+```typescript
+class IndexedDBCacheService {
+  async cacheFrames(key: string, frames: Frame[]): Promise<void>
+  async getCachedFrames(key: string): Promise<Frame[] | null>
+  async cacheMetadata(key: string, metadata: Metadata): Promise<void>
+  async getCachedMetadata(key: string): Promise<Metadata | null>
+  async getCacheStatistics(): Promise<CacheStatistics>
+  async clearAllCaches(): Promise<void>
+}
+```
+
+#### `MediaRestorationService`
+Восстановление отсутствующих файлов.
+
+```typescript
+class MediaRestorationService {
+  async restoreProjectMedia(projectId: string): Promise<RestorationResult>
+  async findMissingFiles(mediaFiles: MediaFile[]): Promise<MissingFile[]>
+  async resolveFilePath(oldPath: string, newPath: string): Promise<void>
+  async generateRestorationReport(result: RestorationResult): string
+}
+```
+
+## Поток данных
+
+### Импорт медиафайлов
+
+```mermaid
+graph TD
+    A[Пользователь выбирает файлы] --> B[useMediaImport]
+    B --> C[useMediaProcessor]
+    C --> D[MediaApi.extractMetadata]
+    D --> E[Tauri invoke]
+    E --> F[FFmpeg обработка]
+    F --> G[Метаданные + превью]
+    G --> H[IndexedDBCacheService]
+    H --> I[UI обновление]
+```
+
+### Генерация превью
+
+```mermaid
+graph TD
+    A[Запрос превью] --> B[useMediaPreview]
+    B --> C{Есть в кэше?}
+    C -->|Да| D[Вернуть из кэша]
+    C -->|Нет| E[MediaApi.generateThumbnail]
+    E --> F[FFmpeg извлечение кадра]
+    F --> G[Base64 данные]
+    G --> H[Сохранить в кэш]
+    H --> I[Вернуть данные]
+```
+
+## Интеграция с Tauri
+
+### Команды (Commands)
+
+```rust
+// Backend команды, вызываемые через invoke
+#[tauri::command]
+async fn extract_media_metadata(file_path: String) -> Result<MediaMetadata>
+
+#[tauri::command]
+async fn generate_media_thumbnail(params: ThumbnailParams) -> Result<String>
+
+#[tauri::command]
+async fn scan_media_folder(folder_path: String) -> Result<Vec<MediaFile>>
+
+#[tauri::command]
+async fn process_media_files(file_paths: Vec<String>) -> Result<Vec<MediaFile>>
+```
+
+### События (Events)
+
+```typescript
+// События, отправляемые из backend
+listen<ProcessorEvent>('media-processor', (event) => {
+  switch (event.payload.type) {
+    case 'FilesDiscovered':
+    case 'MetadataReady':
+    case 'ThumbnailReady':
+    case 'ProcessingError':
+    case 'ScanProgress':
+  }
+})
+```
+
+## Оптимизация производительности
+
+### Кэширование
+
+1. **IndexedDB кэширование**
+   - Кадры видео для скраббинга
+   - Метаданные файлов
+   - Данные превью
+
+2. **In-memory кэширование**
+   - URL стриминга
+   - Статистика кэша
+
+### Батч-обработка
+
+```typescript
+// Обработка файлов пакетами
+const BATCH_SIZE = 10
+for (let i = 0; i < files.length; i += BATCH_SIZE) {
+  const batch = files.slice(i, i + BATCH_SIZE)
+  await processFiles(batch)
+}
+```
+
+### Дебаунсинг и троттлинг
+
+```typescript
+// Дебаунс для поиска
+const debouncedSearch = useMemo(
+  () => debounce(handleSearch, 300),
+  []
+)
+
+// Троттлинг для обновления прогресса
+const throttledProgress = useMemo(
+  () => throttle(updateProgress, 100),
+  []
+)
+```
+
+## Обработка ошибок
+
+### Паттерны обработки ошибок
+
+```typescript
+// В хуках
+try {
+  const result = await someOperation()
+  return result
+} catch (err) {
+  const errorMsg = err instanceof Error ? err.message : 'Unknown error'
+  setError(errorMsg)
+  options.onError?.(errorMsg)
+  return null
+}
+
+// В сервисах
+async function operation() {
+  try {
+    return await riskyOperation()
+  } catch (error) {
+    console.error('Operation failed:', error)
+    // Восстановление или fallback
+    return fallbackValue
+  }
+}
+```
+
+### Типы ошибок
+
+- `FileNotFoundError` - файл не найден
+- `MetadataExtractionError` - ошибка извлечения метаданных
+- `ThumbnailGenerationError` - ошибка генерации превью
+- `CacheError` - ошибка кэширования
+- `StreamingError` - ошибка стриминга
+
+## Тестирование
+
+### Моки для тестов
+
+```typescript
+// Мок Tauri API
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: vi.fn()
 }))
 
-// Мок медиафайлов
-const mockMediaFiles = [
-  {
-    id: '1',
-    name: 'video1.mp4',
-    type: 'video',
-    size: 1024000,
-    createdAt: new Date(),
-  }
-]
+// Мок IndexedDB
+vi.mock('idb-keyval', () => ({
+  get: vi.fn(),
+  set: vi.fn(),
+  del: vi.fn(),
+  entries: vi.fn()
+}))
 ```
 
-## 🚀 Производительность
+### Паттерны тестирования хуков
 
-### Оптимизации
-- **Виртуализация**: Для больших списков файлов
-- **Мемоизация**: React.memo для предотвращения ререндеров
-- **Дебаунсинг**: Для поиска и фильтрации
-- **Ленивая загрузка**: Превью изображений
-
-### Метрики
 ```typescript
-// Время загрузки списка
-const LIST_LOAD_TIME = 1000; // ms
+import { renderHook, act, waitFor } from '@testing-library/react'
 
-// Время отклика поиска
-const SEARCH_RESPONSE_TIME = 200; // ms
-
-// Размер виртуального списка
-const VIRTUAL_LIST_SIZE = 100; // элементов
+it('should handle async operations', async () => {
+  const { result } = renderHook(() => useMediaProcessor())
+  
+  await act(async () => {
+    await result.current.scanFolder('/path/to/folder')
+  })
+  
+  await waitFor(() => {
+    expect(result.current.isProcessing).toBe(false)
+  })
+})
 ```
 
-## 🔧 Конфигурация
+## Расширение функциональности
 
-### Настройки по умолчанию
-```typescript
-const DEFAULT_SORT = { by: 'date', order: 'desc' };
-const DEFAULT_GROUP = 'date';
-const DEFAULT_VIEW_MODE = 'grid';
-const SUPPORTED_FORMATS = ['mp4', 'avi', 'mov', 'jpg', 'png', 'gif'];
-const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
-```
+### Добавление нового хука
 
-### Настройки отображения
-```typescript
-const GRID_SETTINGS = {
-  itemWidth: 200,
-  itemHeight: 150,
-  gap: 16,
-  columns: 'auto-fill',
-};
+1. Создать файл в `hooks/use-[name].ts`
+2. Экспортировать из `hooks/index.ts`
+3. Создать тесты в `__tests__/hooks/use-[name].test.ts`
+4. Документировать в DEV.md
 
-const LIST_SETTINGS = {
-  itemHeight: 60,
-  showThumbnail: true,
-  showMetadata: true,
-};
-```
+### Добавление нового сервиса
 
-## 📈 Метрики качества
+1. Создать класс в `services/[name]-service.ts`
+2. Добавить singleton паттерн
+3. Интегрировать с Tauri если нужно
+4. Создать тесты
+5. Документировать API
 
-### Покрытие тестами
-- Компоненты: 100%
-- Сервисы: 100%
-- Хуки: 100%
-- Общее покрытие: 100%
+### Интеграция с backend
 
-### Производительность
-- Время загрузки списка: < 1s
-- Время отклика поиска: < 200ms
-- Плавность прокрутки: 60 FPS
-- Использование памяти: оптимизировано
+1. Добавить Rust команду в Tauri
+2. Создать TypeScript типы
+3. Вызвать через `invoke`
+4. Обработать ошибки
+5. Добавить тесты
 
-### Качество кода
-- TypeScript строгий режим
-- ESLint без ошибок
-- Полная типизация
-- Документированные интерфейсы
+## Известные проблемы и ограничения
+
+1. **Размер кэша IndexedDB** - браузеры имеют лимиты на хранилище
+2. **Производительность при большом количестве файлов** - нужна пагинация
+3. **Поддержка форматов** - зависит от FFmpeg
+4. **Стриминг больших файлов** - может потребовать оптимизации
+
+## Полезные ссылки
+
+- [Tauri API](https://tauri.app/v1/api/js/)
+- [FFmpeg документация](https://ffmpeg.org/documentation.html)
+- [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
+- [XState документация](https://xstate.js.org/docs/)

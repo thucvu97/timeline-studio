@@ -23,7 +23,7 @@ export const DEFAULT_TAB = "media" // Таб по умолчанию
  * Допустимые значения для макета интерфейса
  * Определяют, как организованы элементы интерфейса
  */
-export const LAYOUTS = ["default", "options", "vertical", "dual"] as const
+export const LAYOUTS = ["default", "options", "vertical", "chat"] as const
 export const DEFAULT_LAYOUT = "default" // Макет по умолчанию
 
 /**

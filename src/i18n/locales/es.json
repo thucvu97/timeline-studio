@@ -36,7 +36,14 @@
       "select": "Seleccionar zona horaria",
       "search": "Buscar zona horaria..."
     },
-    "reset": "Restablecer"
+    "reset": "Restablecer",
+    "language": "Seleccionar idioma",
+    "browse": "Examinar",
+    "browserNotSupported": "Su navegador no admite funciones de grabación multimedia",
+    "permissionDenied": "Se denegó el permiso para usar dispositivos multimedia",
+    "deviceNotFound": "No se encontraron dispositivos multimedia",
+    "mediaDeviceError": "Error al acceder a los dispositivos multimedia",
+    "importing": "Importando..."
   },
   "dates": {
     "today": "Hoy",
@@ -101,7 +108,7 @@
       "default": "Predeterminado",
       "options": "Opciones",
       "vertical": "Video vertical",
-      "dual": "Vista dual",
+      "chat": "Vista de Chat",
       "externalDisplayRequired": "Se requiere pantalla externa"
     }
   },
@@ -116,10 +123,18 @@
       "title": "Configuración de usuario"
     },
     "cameraCapture": {
-      "title": "Grabación de cámara"
+      "title": "Grabación de cámara",
+      "browserNotSupported": "Su navegador no admite la grabación de cámara",
+      "permissionDenied": "Se denegó el acceso a la cámara",
+      "deviceNotFound": "No se encontró ninguna cámara",
+      "mediaError": "Error al acceder a la cámara"
     },
     "voiceRecording": {
-      "title": "Grabación de audio"
+      "title": "Grabación de audio",
+      "browserNotSupported": "Su navegador no admite la grabación de audio",
+      "permissionDenied": "Se denegó el acceso al micrófono",
+      "deviceNotFound": "No se encontró ningún micrófono",
+      "mediaError": "Error al acceder al micrófono"
     },
     "export": {
       "title": "Exportar"
@@ -262,7 +277,16 @@
       "retryRequest": "Reintentar solicitud",
       "retry": "Reintentar",
       "currentResolution": "Resolución actual: {{width}}x{{height}}",
-      "requestedResolution": "Solicitada: {{resolution}}"
+      "requestedResolution": "Solicitada: {{resolution}}",
+      "errorGettingCapabilities": "Error al obtener las capacidades de la cámara. Usando configuración predeterminada.",
+      "errorRequestingStream": "Error al obtener el flujo con la resolución solicitada. Intentando obtener flujo con configuración predeterminada.",
+      "errorRequestingStreamFallback": "Error al obtener el flujo de la cámara. Por favor, verifique la configuración de su cámara y los permisos.",
+      "videoElementError": "Error al inicializar el elemento de video. Por favor, pruebe con otro dispositivo o resolución.",
+      "cameraInitError": "Error al inicializar la cámara. Por favor, verifique la configuración de su cámara y los permisos.",
+      "errorGettingDevices": "Error al obtener la lista de dispositivos",
+      "browserNotSupported": "Su navegador no admite la grabación de cámara",
+      "mediaDevicesNotSupported": "Los dispositivos multimedia no son compatibles con este navegador",
+      "mediaDevicesError": "Error al acceder a los dispositivos multimedia"
     },
     "cameraPreview": {
       "title": "Vista previa de grabación",
@@ -302,7 +326,10 @@
       "permissionError": "No se pudo obtener acceso al micrófono. Por favor, verifique la configuración de permisos en su navegador.",
       "refreshDevices": "Actualizar dispositivos",
       "savePath": "Guardar en",
-      "hint": "Haga clic en el botón de grabación para comenzar. La grabación se agregará automáticamente a la biblioteca de medios."
+      "hint": "Haga clic en el botón de grabación para comenzar. La grabación se agregará automáticamente a la biblioteca de medios.",
+      "browserNotSupported": "Su navegador no admite la grabación de audio",
+      "mediaDevicesNotSupported": "Los dispositivos multimedia no son compatibles con este navegador",
+      "mediaDevicesError": "Error al acceder a los dispositivos multimedia"
     },
     "userSettings": {
       "title": "Configuración de usuario",
@@ -317,6 +344,7 @@
       "aiApiKey": "Clave API para IA",
       "clearApiKey": "Borrar clave API",
       "enterApiKey": "Introducir clave API",
+      "openAiApiKey": "Clave API de OpenAI",
       "performance": "Rendimiento",
       "cacheStats": "Estadísticas de caché",
       "cacheSettings": "Configuración de caché",
@@ -416,31 +444,154 @@
         "preferences": "Preferencias",
         "file": "Archivo",
         "edit": "Editar",
-        "view": "Ver",
+        "selection": "Selección y navegación",
+        "keyframe-animation": "Animación de fotogramas clave",
         "tools": "Herramientas",
-        "marker": "Marcador",
-        "multicam": "Edición multicámara",
+        "grouping-markers": "Agrupación y marcadores",
+        "timeline-navigation": "Navegación de línea de tiempo",
+        "subtitles": "Subtítulos",
+        "playback": "Reproducción",
+        "view": "Ver",
+        "markers": "Marcador",
+        "multicam-editing": "Edición multicámara",
         "other": "Otros"
       },
       "shortcuts": {
         "preferences": "Preferencias",
+        "exit": "Salir",
         "project-settings": "Configuración del proyecto",
         "shortcuts": "Atajos de teclado",
         "new-project": "Nuevo proyecto",
         "open-project": "Abrir proyecto",
         "save-project": "Guardar proyecto",
         "save-as": "Guardar proyecto como",
-        "archive": "Archivar proyecto",
+        "archive-project": "Archivar proyecto",
         "import": "Importar medios",
+        "record-voiceover": "Grabar voz en off",
+        "add-to-new-track": "Añadir a nueva pista",
         "undo": "Deshacer",
         "redo": "Rehacer",
         "cut": "Cortar",
         "copy": "Copiar",
         "paste": "Pegar",
+        "duplicate": "Duplicar",
+        "enable-disable-clip": "Activar/desactivar clip",
         "delete": "Eliminar",
+        "ripple-delete": "Eliminación con ondulación",
+        "close-gap": "Cerrar espacio",
         "select-all": "Seleccionar todo",
+        "copy-effects": "Copiar efectos",
+        "paste-effects": "Pegar efectos",
+        "select-clip-range": "Seleccionar rango de clip",
+        "cancel-selection": "Cancelar selección",
+        "nudge-left": "Empujar izquierda",
+        "nudge-right": "Empujar derecha",
+        "nudge-up": "Empujar arriba",
+        "nudge-down": "Empujar abajo",
+        "magnetic-timeline": "Línea de tiempo magnética",
+        "linking": "Vinculación",
+        "keyframe-animation": "Animación de fotogramas clave",
+        "show-properties": "Mostrar propiedades",
+        "split": "Dividir",
+        "trim-start-to-playhead": "Recortar inicio al cabezal",
+        "trim-end-to-playhead": "Recortar final al cabezal",
+        "multi-trim": "Recorte múltiple",
+        "crop-and-zoom": "Recortar y hacer zoom",
+        "rotate-90-cw": "Girar 90° horario",
+        "rotate-90-ccw": "Girar 90° antihorario",
+        "group": "Agrupar",
+        "ungroup": "Desagrupar",
+        "uniform-speed": "Velocidad uniforme",
+        "add-freeze-frame": "Añadir fotograma congelado",
+        "detach-audio": "Separar audio",
+        "mute": "Silenciar",
+        "stabilization": "Estabilización",
+        "chroma-key": "Croma",
+        "red-marker": "Marcador rojo",
+        "orange-marker": "Marcador naranja",
+        "yellow-marker": "Marcador amarillo",
+        "green-marker": "Marcador verde",
+        "blue-marker": "Marcador azul",
+        "indigo-marker": "Marcador índigo",
+        "purple-marker": "Marcador morado",
+        "gray-marker": "Marcador gris",
+        "select-same-color-clips": "Seleccionar clips del mismo color",
+        "render-preview": "Vista previa de renderizado",
+        "add-keyframes": "Añadir fotogramas clave audio/video",
+        "previous-keyframe": "Fotograma clave anterior",
+        "next-keyframe": "Siguiente fotograma clave",
+        "track-motion": "Seguimiento de movimiento",
+        "insert": "Insertar",
+        "overwrite": "Sobrescribir",
+        "replace": "Reemplazar",
+        "rename": "Renombrar",
+        "reveal-in-finder": "Mostrar en Finder",
+        "apply": "Aplicar",
+        "blade-tool": "Herramienta de cuchilla",
+        "select-tool": "Herramienta de selección",
+        "audio-stretch": "Estiramiento de audio",
+        "close-audio-stretch": "Cerrar estiramiento de audio",
+        "add-to-favorites": "Añadir a favoritos",
+        "adjust-bezier-curve": "Ajustar curva Bézier",
+        "create-compound-clip": "Crear clip compuesto",
+        "bring-to-front": "Traer al frente",
+        "push-forward": "Empujar adelante",
+        "send-backward": "Enviar atrás",
+        "send-to-back": "Enviar al fondo",
+        "snap-to-timeline": "Ajustar a línea de tiempo",
+        "fast-preview": "Vista previa rápida",
+        "select-all-forward": "Seleccionar todo adelante",
+        "select-all-backward": "Seleccionar todo atrás",
+        "silence-detection": "Detección de silencio",
+        "scene-detection": "Detección de escenas",
+        "detach-compound-clip": "Separar clip compuesto",
+        "apply-transition-by-default": "Aplicar transición por defecto",
+        "split-subtitle-edit-mode": "Dividir (modo edición)",
+        "merge-subtitles-up": "Combinar subtítulos arriba",
+        "merge-subtitles-down-single": "Combinar subtítulos abajo (selección única)",
+        "merge-subtitles-down-multi": "Combinar subtítulos seleccionados (selección múltiple)",
+        "play-pause": "Reproducir/Pausar",
+        "stop": "Detener",
+        "fullscreen-restore": "Pantalla completa/Restaurar",
+        "screenshot": "Captura de pantalla",
+        "previous-frame": "Fotograma anterior / Mover izquierda",
+        "next-frame": "Siguiente fotograma / Mover derecha",
+        "previous-edit-point-up": "Punto de edición anterior / Mover arriba",
+        "next-edit-point-down": "Siguiente punto de edición / Mover abajo",
+        "go-to-previous-second": "Ir al segundo anterior",
+        "go-to-next-second": "Ir al siguiente segundo",
+        "go-to-previous-marker": "Ir al marcador anterior",
+        "go-to-next-marker": "Ir al siguiente marcador",
+        "go-to-project-start": "Ir al inicio del proyecto",
+        "go-to-project-end": "Ir al final del proyecto",
+        "go-to-clip-start": "Ir al inicio del clip seleccionado",
+        "go-to-clip-end": "Ir al final del clip seleccionado",
         "zoom-in": "Acercar",
         "zoom-out": "Alejar",
+        "zoom-to-fit-timeline": "Ajustar zoom a línea de tiempo",
+        "select-previous": "Seleccionar anterior",
+        "select-next": "Seleccionar siguiente",
+        "scroll-horizontal": "Desplazamiento horizontal (línea de tiempo)",
+        "scroll-vertical": "Desplazamiento vertical (línea de tiempo)",
+        "pause": "Pausa",
+        "play-forward": "Reproducir adelante/Velocidad",
+        "play-backward": "Reproducir atrás/Velocidad",
+        "ruler": "Regla",
+        "show-hide-guides": "Mostrar/Ocultar guías",
+        "lock-unlock-guides": "Bloquear/Desbloquear guías",
+        "mark-in": "Marcar entrada",
+        "mark-out": "Marcar salida",
+        "clear-in-out": "Limpiar entrada y salida",
+        "edit-marker": "Editar marcador",
+        "switch-camera-1": "Cambiar ángulo de cámara 1",
+        "switch-camera-2": "Cambiar ángulo de cámara 2",
+        "switch-camera-3": "Cambiar ángulo de cámara 3",
+        "switch-camera-4": "Cambiar ángulo de cámara 4",
+        "switch-camera-5": "Cambiar ángulo de cámara 5",
+        "switch-camera-6": "Cambiar ángulo de cámara 6",
+        "switch-camera-7": "Cambiar ángulo de cámara 7",
+        "switch-camera-8": "Cambiar ángulo de cámara 8",
+        "switch-camera-9": "Cambiar ángulo de cámara 9",
         "fit-to-screen": "Ajustar a pantalla",
         "toggle-browser": "Alternar navegador",
         "toggle-timeline": "Alternar línea de tiempo",
@@ -451,16 +602,9 @@
         "add-marker": "Añadir marcador",
         "next-marker": "Siguiente marcador",
         "prev-marker": "Marcador anterior",
-        "switch-camera-1": "Cambiar a cámara 1",
-        "switch-camera-2": "Cambiar a cámara 2",
-        "switch-camera-3": "Cambiar a cámara 3",
-        "switch-camera-4": "Cambiar a cámara 4",
-        "play-pause": "Reproducir/Pausar",
-        "next-frame": "Siguiente fotograma",
         "prev-frame": "Fotograma anterior",
         "volume-up": "Subir volumen",
-        "volume-down": "Bajar volumen",
-        "mute": "Silenciar"
+        "volume-down": "Bajar volumen"
       },
       "presets": {
         "timeline": "Timeline",
@@ -507,7 +651,8 @@
       "effects": "Efectos",
       "filters": "Filtros",
       "templates": "Multicámara",
-      "subtitles": "Subtítulos"
+      "subtitles": "Subtítulos",
+      "styleTemplates": "Plantillas"
     },
     "templateScreens": {
       "one": "pantalla",
@@ -530,7 +675,33 @@
     },
     "subtitles": {
       "search": "Buscar...",
-      "dragHint": "Arrastre el subtítulo a la línea de tiempo para añadirlo a su proyecto"
+      "dragHint": "Arrastre el subtítulo a la línea de tiempo para añadirlo a su proyecto",
+      "categories": {
+        "minimal": "Mínimal",
+        "color": "Color",
+        "blur": "Desenfoque",
+        "sharpen": "Nitidez",
+        "artistic": "Artístico",
+        "distortion": "Distorsión",
+        "noise": "Ruido",
+        "vintage": "Vintage",
+        "other": "Otros",
+        "color-correction": "Corrección de Color",
+        "creative": "Creativos",
+        "cinematic": "Cinematográficos",
+        "technical": "Técnicos",
+        "transition": "Transiciones",
+        "motion": "Movimiento",
+        "light": "Luz",
+        "particle": "Partículas",
+        "text": "Texto",
+        "3d": "3D"
+      },
+      "complexity": {
+        "basic": "Básico",
+        "advanced": "Avanzado",
+        "intermediate": "Intermedio"
+      }
     },
     "stickers": {
       "search": "Buscar...",
@@ -562,6 +733,7 @@
       "addToFavorites": "Añadir a favoritos",
       "removeFromFavorites": "Eliminar de favoritos",
       "favorites": "Favoritos",
+      "inFavorites": "En favoritos",
       "sortBy": "Ordenar por",
       "groupBy": "Agrupar por",
       "filterBy": "Filtrar por",
@@ -651,7 +823,9 @@
         "size": "Por tamaño",
         "duration": "Por duración",
         "complexity": "Por complejidad",
-        "category": "Por categoría"
+        "category": "Por categoría",
+        "screens": "Por número de pantallas",
+        "style": "Por estilo"
       },
       "filterBy": {
         "all": "Todos los archivos",
@@ -668,7 +842,10 @@
         "genre": "Por género",
         "album": "Por álbum",
         "category": "Por categoría",
-        "tags": "Por etiquetas"
+        "complexity": "Por complejidad",
+        "tags": "Por etiquetas",
+        "screens": "Por número de pantallas",
+        "style": "Por estilo"
       },
       "duration": {
         "noDuration": "Archivos sin duración",
@@ -697,25 +874,6 @@
       "noVideoSelected": "Seleccione un video para reproducir",
       "videoLoadError": "Error al cargar el video"
     },
-    "resources": {
-      "title": "Recursos",
-      "noResources": "No se han añadido recursos"
-    },
-    "chat": {
-      "title": "Chat",
-      "selectAgent": "Modelo",
-      "messagePlaceholder": "Escriba tu mensaje aquí...",
-      "noMessages": "No hay mensajes. Comience una conversación.",
-      "savingProgress": "Progreso de guardado",
-      "saveSuccess": "¡Video guardado con éxito!",
-      "send": "Enviar",
-      "stop": "Detener",
-      "processing": "Procesando..."
-    },
-    "source": {
-      "timeline": "Línea de tiempo",
-      "browser": "Navegador"
-    },
     "tracks": {
       "camera": "Cámara",
       "audio": "Audio",
@@ -733,6 +891,10 @@
       "videoLonger": "Video (5 seg)",
       "audioOnly": "Solo audio",
       "runDemo": "Ejecutar demo"
+    },
+    "source": {
+      "timeline": "Línea de tiempo",
+      "browser": "Navegador"
     },
     "zoom": {
       "zoomIn": "Acercar",
@@ -783,6 +945,16 @@
       "fullscreen": "Modo pantalla completa",
       "exitFullscreen": "Salir de pantalla completa"
     },
+    "track": {
+      "hideTrack": "Ocultar pista",
+      "showTrack": "Mostrar pista",
+      "lockTrack": "Bloquear pista",
+      "unlockTrack": "Desbloquear pista",
+      "mute": "Silenciar",
+      "unmute": "Activar sonido",
+      "videoTrack": "Video {{index}}",
+      "audioTrack": "Audio {{index}}"
+    },
     "controlsMain": {
       "resizableMode": "Modo redimensionable",
       "fixedSizeMode": "Modo de tamaño fijo",
@@ -805,6 +977,29 @@
       "nextFrame": "Siguiente fotograma",
       "firstFrame": "Primer fotograma",
       "lastFrame": "Último fotograma"
+    },
+    "resources": {
+      "title": "Recursos",
+      "noResources": "No hay recursos añadidos",
+      "all": "Todo",
+      "effects": "Efectos",
+      "filters": "Filtros",
+      "transitions": "Transiciones",
+      "templates": "Cámaras",
+      "styleTemplates": "Plantillas",
+      "subtitles": "Subtítulos",
+      "music": "Música"
+    },
+    "chat": {
+      "title": "Chat",
+      "selectAgent": "Modelo",
+      "messagePlaceholder": "Escriba su mensaje aquí...",
+      "noMessages": "Sin mensajes. Inicie una conversación.",
+      "savingProgress": "Guardando progreso",
+      "saveSuccess": "¡Video guardado exitosamente!",
+      "send": "Enviar",
+      "stop": "Detener",
+      "processing": "Procesando..."
     }
   },
   "templates": {
@@ -949,6 +1144,17 @@
       "split-grid-3x4-landscape": "Doce pantallas en una cuadrícula 3×4",
       "split-grid-4x4-landscape": "Dieciséis pantallas en una cuadrícula 4×4",
       "split-grid-5x5-landscape": "Veinticinco pantallas en una cuadrícula 5×5"
+    },
+    "screens": {
+      "2": "2 pantallas",
+      "3": "3 pantallas",
+      "4": "4 pantallas",
+      "6": "6 pantallas",
+      "8": "8 pantallas",
+      "9": "9 pantallas",
+      "12": "12 pantallas",
+      "16": "16 pantallas",
+      "25": "25 pantallas"
     }
   },
   "titles": {
@@ -962,6 +1168,12 @@
     "position": "Posición",
     "duration": "Duración",
     "animation": "Animación",
+    "Templates": {
+      "bold": "Negrita",
+      "italic": "Cursiva",
+      "underline": "Subrayado",
+      "strikethrough": "Tachado"
+    },
     "styles": {
       "bold": "Negrita",
       "italic": "Cursiva",
@@ -1341,7 +1553,29 @@
       "advanced": "Configuración avanzada",
       "preservePitch": "Conservar tono al cambiar velocidad",
       "autoKeyframes": "Fotogramas clave automáticos",
-      "maxSpeed": "Velocidad máxima"
+      "maxSpeed": "Velocidad máxima",
+      "interpolation": {
+        "none": "Sin interpolación",
+        "linear": "Lineal",
+        "cubic": "Cúbica",
+        "lanczos": "Lanczos"
+      },
+      "motionBlur": {
+        "none": "Desactivado",
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto"
+      },
+      "speeds": {
+        "0_25": "0.25x (Muy lento)",
+        "0_5": "0.5x (Lento)",
+        "0_75": "0.75x (Ligeramente lento)",
+        "1": "1x (Normal)",
+        "1_25": "1.25x (Ligeramente rápido)",
+        "1_5": "1.5x (Rápido)",
+        "2": "2x (Muy rápido)",
+        "custom": "Personalizado"
+      }
     },
     "info": {
       "title": "Información del archivo multimedia",
@@ -1482,6 +1716,128 @@
       "failedToCancel": "Error al cancelar el renderizado",
       "errorCancelling": "Error al cancelar el renderizado",
       "failedToGeneratePreview": "Error al generar la vista previa"
+    }
+  },
+  "styleTemplates": {
+    "loading": "Cargando plantillas...",
+    "error": "Error al cargar plantillas",
+    "noResults": "No se encontraron plantillas",
+    "search": "Buscar plantillas...",
+    "addToResources": "Añadir a recursos",
+    "addedToResources": "Añadido a recursos",
+    "hasText": "Contiene texto",
+    "hasAnimation": "Contiene animación",
+    "categories": {
+      "intro": "Introducción",
+      "outro": "Cierre",
+      "lower-third": "Tercio inferior",
+      "lowerThird": "Tercio inferior",
+      "title": "Título",
+      "transition": "Transición",
+      "overlay": "Superposición"
+    },
+    "Templates": {
+      "modern": "Moderno",
+      "vintage": "Vintage",
+      "minimal": "Minimalista",
+      "corporate": "Corporativo",
+      "creative": "Creativo",
+      "cinematic": "Cinematográfico"
+    },
+    "duration": {
+      "short": "Corta (≤3s)",
+      "medium": "Media (3-6s)",
+      "long": "Larga (>6s)"
+    },
+    "styles": {
+      "modern": "Moderno",
+      "vintage": "Vintage",
+      "minimal": "Minimalista",
+      "corporate": "Corporativo",
+      "creative": "Creativo",
+      "cinematic": "Cinematográfico"
+    },
+    "filters": {
+      "category": "Categoría",
+      "style": "Estilo",
+      "aspectRatio": "Relación de aspecto",
+      "features": "Características",
+      "hasText": "Con texto",
+      "hasAnimation": "Con animación"
+    }
+  },
+  "source": {
+    "timeline": "Línea de tiempo",
+    "browser": "Navegador"
+  },
+  "resources": {
+    "title": "Recursos",
+    "all": "Todo",
+    "effects": "Efectos",
+    "filters": "Filtros",
+    "transitions": "Transiciones",
+    "templates": "Plantillas",
+    "music": "Música",
+    "subtitles": "Subtítulos",
+    "noResources": "No hay recursos añadidos"
+  },
+  "chat": {
+    "title": "Chat",
+    "selectAgent": "Modelo",
+    "messagePlaceholder": "Escribe tu mensaje aquí...",
+    "noMessages": "Sin mensajes. Inicia una conversación.",
+    "savingProgress": "Guardando progreso",
+    "saveSuccess": "¡Video guardado exitosamente!",
+    "send": "Enviar",
+    "stop": "Detener",
+    "processing": "Procesando..."
+  },
+  "subtitles": {
+    "search": "Buscar...",
+    "dragHint": "Arrastre el subtítulo a la línea de tiempo para agregarlo a su proyecto",
+    "categories": {
+      "basic": "Básicos",
+      "stylized": "Estilizados",
+      "animated": "Animados",
+      "modern": "Modernos",
+      "minimal": "Minimalistas",
+      "color": "Color",
+      "blur": "Desenfoque",
+      "sharpen": "Nitidez",
+      "artistic": "Artístico",
+      "distortion": "Distorsión",
+      "noise": "Ruido",
+      "vintage": "Vintage",
+      "other": "Otros",
+      "color-correction": "Corrección de color",
+      "creative": "Creativo"
+    },
+    "complexity": {
+      "basic": "Básico",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado"
+    },
+    "filters": {
+      "allCategories": "Todas las categorías",
+      "allComplexity": "Cualquier complejidad",
+      "allTags": "Todas las etiquetas"
+    },
+    "errors": {
+      "invalidStylesData": "Estructura de datos de estilos de subtítulos inválida",
+      "unknownError": "Error desconocido",
+      "failedToLoadStyles": "Error al cargar estilos de subtítulos: {{error}}",
+      "fallbackStyles": "Error al cargar estilos de subtítulos, usando respaldo"
+    },
+    "messages": {
+      "stylesLoaded": "Cargados {{count}} estilos de subtítulos desde JSON"
+    },
+    "detail": {
+      "description": "Descripción",
+      "category": "Categoría",
+      "complexity": "Complejidad",
+      "parameters": "Parámetros",
+      "tags": "Etiquetas",
+      "applySubtitle": "Aplicar subtítulo"
     }
   }
 }

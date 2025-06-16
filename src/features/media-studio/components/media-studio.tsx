@@ -5,7 +5,7 @@ import { ModalContainer } from "@/features/modals/components"
 import { TopBar } from "@/features/top-bar/components/top-bar"
 import { useUserSettings } from "@/features/user-settings"
 
-import { DefaultLayout, DualLayout, OptionsLayout, VerticalLayout } from "./layout"
+import { ChatLayout, DefaultLayout, OptionsLayout, VerticalLayout } from "./layout"
 
 export function MediaStudio() {
   const { layoutMode } = useUserSettings()
@@ -31,7 +31,7 @@ export function MediaStudio() {
         {layoutMode === "default" && <DefaultLayout />}
         {layoutMode === "options" && <OptionsLayout />}
         {layoutMode === "vertical" && <VerticalLayout />}
-        {layoutMode === "dual" && <DualLayout />}
+        {layoutMode === "chat" && <ChatLayout />}
       </div>
 
       {/* Контейнер для модальных окон */}

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 
 import { useUserSettings } from "@/features/user-settings"
 
-import { DefaultLayout, DualLayout, OptionsLayout, VerticalLayout } from "./layouts-markup"
+import { ChatLayout, DefaultLayout, OptionsLayout, VerticalLayout } from "./layouts-markup"
 
 export function LayoutPreviews() {
   const { layoutMode, handleLayoutChange } = useUserSettings()
@@ -31,11 +31,10 @@ export function LayoutPreviews() {
             handleLayoutChange("vertical")
           }}
         />
-        <DualLayout
-          isActive={layoutMode === "dual"}
-          hasExternalDisplay={false}
+        <ChatLayout
+          isActive={layoutMode === "chat"}
           onClick={() => {
-            handleLayoutChange("dual")
+            handleLayoutChange("chat")
           }}
         />
       </div>

@@ -11,6 +11,7 @@ import { TimelineTopPanel } from "./timeline-top-panel"
 interface TimelineProps {
   className?: string
   style?: React.CSSProperties
+  noChat?: boolean
 }
 
 /**
@@ -19,7 +20,7 @@ interface TimelineProps {
  * @param className Optional additional class names for the root element.
  * @param style Optional inline styles for the root element.
  */
-export function Timeline({ className, style }: TimelineProps = {}) {
+export function Timeline({ className, style, noChat = false }: TimelineProps = {}) {
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -51,9 +52,11 @@ export function Timeline({ className, style }: TimelineProps = {}) {
 
       <ResizableHandle />
 
-      <ResizablePanel defaultSize={20} minSize={10} maxSize={50} className="flex-shrink-0">
-        <AiChat />
-      </ResizablePanel>
+      {!noChat && (
+        <ResizablePanel defaultSize={20} minSize={10} maxSize={50} className="flex-shrink-0">
+          <AiChat />
+        </ResizablePanel>
+      )}
     </ResizablePanelGroup>
   )
 }

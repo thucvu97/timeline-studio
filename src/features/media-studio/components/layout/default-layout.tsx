@@ -8,6 +8,7 @@ import { VideoPlayer } from "@/features/video-player/components/video-player"
 function TopDefaultLayout() {
   const { isBrowserVisible, isOptionsVisible } = useUserSettings()
 
+  // Случай: только VideoPlayer (Browser и Options скрыты)
   if (!isBrowserVisible && !isOptionsVisible) {
     return (
       <div className="h-full flex-1">
@@ -16,6 +17,7 @@ function TopDefaultLayout() {
     )
   }
 
+  // Случай: Browser + VideoPlayer (Options скрыт)
   if (!isOptionsVisible) {
     return (
       <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-1">
@@ -34,6 +36,7 @@ function TopDefaultLayout() {
     )
   }
 
+  // Случай: VideoPlayer + Options (Browser скрыт)
   if (!isBrowserVisible) {
     return (
       <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-2">
@@ -52,6 +55,7 @@ function TopDefaultLayout() {
     )
   }
 
+  // Случай: Browser + VideoPlayer + Options (все видимы)
   return (
     <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-3">
       <ResizablePanel defaultSize={30} minSize={20} maxSize={80}>

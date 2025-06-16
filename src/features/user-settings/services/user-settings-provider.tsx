@@ -104,7 +104,7 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
       console.log("Current layoutMode before update:", state.context.layoutMode)
 
       // Проверяем, что значение является допустимым LayoutMode
-      if (["default", "options", "vertical", "dual"].includes(value)) {
+      if (["default", "options", "vertical", "chat"].includes(value)) {
         console.log("Updating layoutMode:", value)
         // Отправляем событие в машину состояний
         send({

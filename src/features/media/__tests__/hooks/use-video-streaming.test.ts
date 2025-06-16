@@ -1,11 +1,11 @@
 import { renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { videoStreamingService } from "../../services/video-streaming-service"
-import { useVideoServerStatus, useVideoStreaming } from "../use-video-streaming"
+import { videoStreamingService } from "@/features/media/services/video-streaming-service"
+import { useVideoServerStatus, useVideoStreaming } from "@/features/media/hooks/use-video-streaming"
 
 // Mock the video streaming service
-vi.mock("../../services/video-streaming-service", () => ({
+vi.mock("@/features/media/services/video-streaming-service", () => ({
   videoStreamingService: {
     getVideoUrl: vi.fn(),
     isServerRunning: vi.fn(),

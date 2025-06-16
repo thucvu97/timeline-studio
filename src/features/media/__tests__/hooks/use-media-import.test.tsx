@@ -39,7 +39,9 @@ vi.mock("../../hooks/use-media-processor", () => ({
       return Promise.resolve([])
     }),
     processFiles: vi.fn().mockImplementation(async (files) => {
-      // Симулируем обработку файлов синхронно
+      // Симулируем обработку файлов с задержкой
+      await new Promise(resolve => setTimeout(resolve, 50)) // Небольшая задержка
+      
       files.forEach((file) => {
         options.onFilesDiscovered?.([{ path: file, size: 1024 }])
         options.onMetadataReady?.(file, {
@@ -182,19 +184,28 @@ describe("useMediaImport", () => {
     expect(importResult.message).toContain("Директория не выбрана")
   })
 
-  it.skip("should update progress during import", async () => {
+  it("should update progress during import", async () => {
     const mockFiles = Array.from({ length: 10 }, (_, i) => `/path/to/file${i}.mp4`)
 
-    mockSelectMediaFile.mockResolvedValue(mockFiles)
+    // Создаем мок с задержкой для selectMediaFile
+    mockSelectMediaFile.mockImplementation(() => {
+      return new Promise(resolve => {
+        setTimeout(() => resolve(mockFiles), 10)
+      })
+    })
 
     const { result } = renderHook(() => useMediaImport(), {
       wrapper: ProvidersWrapper,
     })
 
+    // Проверяем начальное состояние
+    expect(result.current.isImporting).toBe(false)
+    expect(result.current.progress).toBe(0)
+
     // Запускаем импорт
     const importPromise = result.current.importFile()
 
-    // Проверяем, что isImporting установлен в true
+    // Ждем, пока состояние isImporting станет true
     await waitFor(() => {
       expect(result.current.isImporting).toBe(true)
     })
@@ -203,7 +214,9 @@ describe("useMediaImport", () => {
     const importResult = await importPromise
 
     // Проверяем, что импорт завершен
-    expect(result.current.isImporting).toBe(false)
+    await waitFor(() => {
+      expect(result.current.isImporting).toBe(false)
+    })
     expect(result.current.progress).toBe(0)
     expect(importResult.files).toHaveLength(10)
   })

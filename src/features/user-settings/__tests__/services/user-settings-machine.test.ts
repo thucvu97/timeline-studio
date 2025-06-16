@@ -53,7 +53,7 @@ describe("UserSettingsMachine", () => {
   })
 
   it("should have correct layouts", () => {
-    expect(LAYOUTS).toEqual(["default", "options", "vertical", "dual"])
+    expect(LAYOUTS).toEqual(["default", "options", "vertical", "chat"])
   })
 
   it("should have a valid machine definition", () => {
@@ -251,6 +251,97 @@ describe("UserSettingsMachine", () => {
 
       // Останавливаем актора
       actor.stop()
+    })
+  })
+
+  describe("Layout switching functionality", () => {
+    it("should update layout when UPDATE_LAYOUT event is sent", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Проверяем начальное значение layout
+      expect(actor.getSnapshot().context.layoutMode).toBe(DEFAULT_LAYOUT)
+
+      // Переключаем на options layout
+      actor.send({ type: "UPDATE_LAYOUT", layoutMode: "options" })
+      expect(actor.getSnapshot().context.layoutMode).toBe("options")
+
+      // Переключаем на vertical layout
+      actor.send({ type: "UPDATE_LAYOUT", layoutMode: "vertical" })
+      expect(actor.getSnapshot().context.layoutMode).toBe("vertical")
+
+      // Переключаем на chat layout
+      actor.send({ type: "UPDATE_LAYOUT", layoutMode: "chat" })
+      expect(actor.getSnapshot().context.layoutMode).toBe("chat")
+
+      // Возвращаемся к default layout
+      actor.send({ type: "UPDATE_LAYOUT", layoutMode: "default" })
+      expect(actor.getSnapshot().context.layoutMode).toBe("default")
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should handle all valid layout modes", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Проверяем, что все валидные layout режимы работают корректно
+      const validLayouts = ["default", "options", "vertical", "chat"] as const
+
+      for (const layout of validLayouts) {
+        actor.send({ type: "UPDATE_LAYOUT", layoutMode: layout })
+        expect(actor.getSnapshot().context.layoutMode).toBe(layout)
+        expect(LAYOUTS).toContain(layout)
+      }
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should persist layout change between state updates", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Переключаем на chat layout
+      actor.send({ type: "UPDATE_LAYOUT", layoutMode: "chat" })
+      expect(actor.getSnapshot().context.layoutMode).toBe("chat")
+
+      // Выполняем другие операции (например, переключение видимости браузера)
+      actor.send({ type: "TOGGLE_BROWSER_VISIBILITY" })
+      
+      // Проверяем, что layout остался без изменений
+      expect(actor.getSnapshot().context.layoutMode).toBe("chat")
+
+      // Изменяем громкость
+      actor.send({ type: "UPDATE_PLAYER_VOLUME", volume: 75 })
+      
+      // Проверяем, что layout все еще chat
+      expect(actor.getSnapshot().context.layoutMode).toBe("chat")
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should have chat layout in available layouts list", () => {
+      // Проверяем, что chat layout присутствует в списке доступных layouts
+      expect(LAYOUTS).toContain("chat")
+      expect(LAYOUTS).not.toContain("dual")
+      
+      // Проверяем, что у нас правильное количество layouts
+      expect(LAYOUTS).toHaveLength(4)
+      
+      // Проверяем весь список
+      expect(LAYOUTS).toEqual(["default", "options", "vertical", "chat"])
     })
   })
 })

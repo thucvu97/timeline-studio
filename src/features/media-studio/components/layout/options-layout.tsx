@@ -8,6 +8,7 @@ import { VideoPlayer } from "@/features/video-player/components/video-player"
 function LeftLayout() {
   const { isTimelineVisible, isBrowserVisible } = useUserSettings()
 
+  // Случай: только VideoPlayer (Timeline и Browser скрыты)
   if (!isTimelineVisible && !isBrowserVisible) {
     return (
       <div className="h-full flex-1">
@@ -16,6 +17,7 @@ function LeftLayout() {
     )
   }
 
+  // Случай: Browser + VideoPlayer (Timeline скрыт)
   if (!isTimelineVisible) {
     return (
       <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="opts-layout-1">
@@ -34,6 +36,7 @@ function LeftLayout() {
     )
   }
 
+  // Случай: VideoPlayer + Timeline (Browser скрыт)
   if (!isBrowserVisible) {
     return (
       <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="opts-layout-2">
@@ -52,6 +55,7 @@ function LeftLayout() {
     )
   }
 
+  // Случай: Browser + VideoPlayer + Timeline (все видимы)
   return (
     <ResizablePanelGroup direction="vertical" className="min-h-0 flex-grow" autoSaveId="opts-layout-3">
       <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>

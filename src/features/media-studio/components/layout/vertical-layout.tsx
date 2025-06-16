@@ -8,6 +8,7 @@ import { VideoPlayer } from "@/features/video-player/components/video-player"
 function LeftLayout() {
   const { isTimelineVisible, isBrowserVisible, isOptionsVisible } = useUserSettings()
 
+  // Случай: только Options (Timeline и Browser скрыты)
   if (!isTimelineVisible && !isBrowserVisible) {
     return (
       <div className="h-full flex-1">
@@ -16,6 +17,7 @@ function LeftLayout() {
     )
   }
 
+  // Случай: только Timeline (Browser и Options скрыты)
   if (!isBrowserVisible && !isOptionsVisible) {
     return (
       <div className="h-full flex-1">
@@ -24,6 +26,7 @@ function LeftLayout() {
     )
   }
 
+  // Случай: только Browser (Options и Timeline скрыты)
   if (!isOptionsVisible && !isTimelineVisible) {
     return (
       <div className="h-full flex-1">
@@ -32,6 +35,7 @@ function LeftLayout() {
     )
   }
 
+  // Случай: Browser + Options (Timeline скрыт)
   if (!isTimelineVisible) {
     return (
       <ResizablePanelGroup direction="vertical" className="min-h-0 flex-grow" autoSaveId="vertical-layout-1">
@@ -50,6 +54,7 @@ function LeftLayout() {
     )
   }
 
+  // Случай: Options + Timeline (Browser скрыт)
   if (!isBrowserVisible) {
     return (
       <ResizablePanelGroup direction="vertical" className="min-h-0 flex-grow" autoSaveId="vertical-layout-2">
@@ -68,6 +73,7 @@ function LeftLayout() {
     )
   }
 
+  // Случай: Browser + Timeline (Options скрыт)
   if (!isOptionsVisible) {
     return (
       <ResizablePanelGroup direction="vertical" className="min-h-0 flex-grow" autoSaveId="vertical-layout-3">
@@ -86,6 +92,7 @@ function LeftLayout() {
     )
   }
 
+  // Случай: Browser + Options + Timeline (все видимы)
   return (
     <ResizablePanelGroup direction="vertical" className="min-h-0 flex-grow" autoSaveId="vertical-layout-4">
       <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>

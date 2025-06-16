@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { MediaFile } from "@/features/media/types/media"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 
-import { useMediaRestoration } from "../../hooks/use-media-restoration"
+import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
 
 // Мокаем MediaRestorationService
 vi.mock("@/features/media/services/media-restoration-service", () => ({
