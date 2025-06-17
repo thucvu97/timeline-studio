@@ -1,5 +1,5 @@
-import { act, renderHook } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { act, renderHook, waitFor } from "@testing-library/react"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useSubtitlesImport } from "../hooks/use-subtitles-import"
 
@@ -16,6 +16,14 @@ describe("useSubtitlesImport", () => {
     vi.clearAllMocks()
     consoleSpy.mockClear()
     consoleErrorSpy.mockClear()
+  })
+
+  afterEach(async () => {
+    // Ждем завершения всех промисов
+    await vi.waitFor(() => {
+      // Даем время для завершения всех асинхронных операций
+      return true
+    }, { timeout: 100 })
   })
 
   it("должен импортировать JSON файл со стилями", async () => {
@@ -107,18 +115,23 @@ describe("useSubtitlesImport", () => {
     const { open } = await import("@tauri-apps/plugin-dialog")
 
     // Мокаем долгую операцию
-    vi.mocked(open).mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve("/path/to/file.json"), 100)),
-    )
+    let resolveOpen: (value: string) => void
+    const openPromise = new Promise<string>((resolve) => {
+      resolveOpen = resolve
+    })
+    vi.mocked(open).mockReturnValue(openPromise)
 
     const { result } = renderHook(() => useSubtitlesImport())
 
     // Запускаем первый импорт
-    act(() => {
-      void result.current.importSubtitlesFile()
+    const firstImportPromise = act(async () => {
+      await result.current.importSubtitlesFile()
     })
 
-    expect(result.current.isImporting).toBe(true)
+    // Даем время установиться isImporting в true
+    await vi.waitFor(() => {
+      expect(result.current.isImporting).toBe(true)
+    })
 
     // Пытаемся запустить второй импорт
     await act(async () => {
@@ -127,6 +140,13 @@ describe("useSubtitlesImport", () => {
 
     // Проверяем что open вызван только один раз
     expect(open).toHaveBeenCalledTimes(1)
+
+    // Завершаем первый импорт
+    resolveOpen!("/path/to/file.json")
+    await firstImportPromise
+
+    // Убеждаемся что isImporting сбросился
+    expect(result.current.isImporting).toBe(false)
   })
 
   it("должен обрабатывать единичный файл как массив", async () => {
