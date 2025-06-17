@@ -267,7 +267,7 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
             >
               {<UnfoldHorizontal className="h-8 w-8" />}
             </Button>
-
+            <PrerenderControls currentTime={currentTime} duration={file.duration ?? 0} />
             {/* Кнопка снимка экрана */}
             <Button
               className="h-8 w-8 cursor-pointer"
@@ -407,9 +407,6 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
                 onValueCommit={handleVolumeChangeEnd}
               />
             </div>
-
-            <PrerenderControls currentTime={currentTime} duration={file.duration ?? 0} />
-
             <Button
               className="ml-1 h-8 w-8 cursor-pointer"
               variant="ghost"
