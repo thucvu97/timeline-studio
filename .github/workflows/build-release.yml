@@ -103,14 +103,39 @@ jobs:
       - name: Install dependencies (macOS only)
         if: matrix.platform == 'macos-latest'
         run: |
+          # Install dependencies
           brew install ffmpeg pkg-config onnxruntime
           
+          # Install x86_64 version of FFmpeg if on ARM Mac
+          if [[ "$(uname -m)" == "arm64" ]]; then
+            arch -x86_64 /usr/local/bin/brew install ffmpeg || echo "x86_64 FFmpeg might already be installed"
+          fi
+          
+          # Determine architecture
+          ARCH=$(uname -m)
+          if [[ "$ARCH" == "arm64" ]]; then
+            HOMEBREW_PREFIX="/opt/homebrew"
+          else
+            HOMEBREW_PREFIX="/usr/local"
+          fi
+          
           # Set PKG_CONFIG_PATH for FFmpeg libraries
-          echo "PKG_CONFIG_PATH=/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_PATH
+          echo "PKG_CONFIG_PATH=${HOMEBREW_PREFIX}/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/homebrew/lib/pkgconfig" >> $GITHUB_ENV
           
           # Set ONNX Runtime library path
-          echo "ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          echo "ORT_DYLIB_PATH=${HOMEBREW_PREFIX}/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          
+          # Set pkg-config for cross compilation
+          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR=/" >> $GITHUB_ENV
+          
+          # For x86_64 target
+          echo "PKG_CONFIG_PATH_x86_64_apple_darwin=/usr/local/lib/pkgconfig" >> $GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR_x86_64_apple_darwin=/" >> $GITHUB_ENV
+          
+          # For aarch64 target
+          echo "PKG_CONFIG_PATH_aarch64_apple_darwin=/opt/homebrew/lib/pkgconfig" >> $GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR_aarch64_apple_darwin=/" >> $GITHUB_ENV
           
           # Verify FFmpeg installation
           pkg-config --modversion libavutil || echo "libavutil not found"
@@ -206,6 +231,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PKG_CONFIG_PATH: /opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig
           ORT_DYLIB_PATH: /opt/homebrew/lib/libonnxruntime.dylib
+          PKG_CONFIG_ALLOW_CROSS: 1
+          PKG_CONFIG_SYSROOT_DIR: /
+          PKG_CONFIG_PATH_x86_64_apple_darwin: /usr/local/lib/pkgconfig
+          PKG_CONFIG_SYSROOT_DIR_x86_64_apple_darwin: /
+          PKG_CONFIG_PATH_aarch64_apple_darwin: /opt/homebrew/lib/pkgconfig
+          PKG_CONFIG_SYSROOT_DIR_aarch64_apple_darwin: /
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}

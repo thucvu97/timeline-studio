@@ -147,11 +147,11 @@ export function AiChat() {
 
   return (
     <TooltipProvider>
-      <div className="relative z-50 flex h-full min-h-[200px] flex-col bg-[#1a1a1a] text-white">
+      <div className="relative z-50 flex h-full min-h-[200px] flex-col bg-background text-foreground">
         {/* Сообщения */}
-        <div className="scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent max-h-[calc(100%-80px)] flex-1 overflow-y-auto p-2">
+        <div className="scrollbar-thin scrollbar-thumb-gray-600 dark:scrollbar-thumb-gray-400 scrollbar-track-transparent max-h-[calc(100%-80px)] flex-1 overflow-y-auto p-2">
           {chatMessages.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-xs text-gray-400">
+            <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
               {t("timeline.chat.noMessages", "Нет сообщений. Начните диалог.")}
             </div>
           ) : (
@@ -160,26 +160,26 @@ export function AiChat() {
                 <div
                   key={msg.id}
                   className={`group flex max-w-[90%] flex-col rounded-lg p-2.5 ${
-                    msg.role === "user" ? "ml-auto bg-[#2563eb] text-white" : "bg-[#2a2a2a] text-white"
+                    msg.role === "user" ? "ml-auto bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                   }`}
                 >
                   <div className="flex items-start gap-2">
                     <div className="mt-0.5 flex-shrink-0">
                       {msg.role === "user" ? (
-                        <User className="h-3.5 w-3.5 text-white/80" />
+                        <User className="h-3.5 w-3.5 opacity-80" />
                       ) : (
-                        <Bot className="h-3.5 w-3.5 text-white/80" />
+                        <Bot className="h-3.5 w-3.5 opacity-80" />
                       )}
                     </div>
                     <div className="text-sm leading-relaxed">{msg.content}</div>
                   </div>
-                  <div className="mt-1.5 text-right text-[10px] text-gray-300 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="mt-1.5 text-right text-[10px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
                     {formatTime(msg.timestamp)}
                   </div>
                 </div>
               ))}
               {isProcessing && (
-                <div className="flex max-w-[90%] flex-col rounded-lg bg-[#2a2a2a] p-2.5 text-white">
+                <div className="flex max-w-[90%] flex-col rounded-lg bg-muted p-2.5 text-muted-foreground">
                   <div className="flex items-start gap-2">
                     <div className="mt-0.5 flex-shrink-0">
                       <Bot className="h-3.5 w-3.5 text-white/80" />
@@ -198,7 +198,7 @@ export function AiChat() {
         </div>
 
         {/* Ввод сообщения и выбор агента */}
-        <div className="sticky bottom-0 border-t border-[#333] bg-[#1a1a1a] p-1.5">
+        <div className="sticky bottom-0 border-t border-border bg-background p-1.5">
           <div className="relative">
             {/* Интегрированное поле ввода с селектором модели */}
             <div className="flex items-center gap-1">
@@ -213,7 +213,7 @@ export function AiChat() {
                   }}
                   onKeyDown={handleKeyDown}
                   placeholder={t("timeline.chat.messagePlaceholder", "Type your message here...")}
-                  className="min-h-[40px] w-full resize-none rounded-md border border-[#444] bg-[#2a2a2a] py-2 pr-10 pl-3 text-sm text-white focus:outline-none"
+                  className="min-h-[40px] w-full resize-none rounded-md border border-input bg-background py-2 pr-10 pl-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                   disabled={isProcessing}
                   rows={1}
                 />
@@ -226,7 +226,7 @@ export function AiChat() {
                         onClick={handleStopProcessing}
                         size="icon"
                         variant="ghost"
-                        className="h-6 w-6 rounded-full p-0 text-gray-400 hover:bg-[#444] hover:text-white"
+                        className="h-6 w-6 rounded-full p-0 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                         data-tooltip-trigger=""
                         aria-describedby="stop-tooltip"
                       >
@@ -243,7 +243,7 @@ export function AiChat() {
                         disabled={!message.trim()}
                         size="icon"
                         variant="ghost"
-                        className="h-6 w-6 rounded-full p-0 text-gray-400 hover:bg-[#444] hover:text-white"
+                        className="h-6 w-6 rounded-full p-0 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                         data-tooltip-trigger=""
                         aria-describedby="send-tooltip"
                       >
@@ -275,7 +275,7 @@ export function AiChat() {
                     const nextAgent = AVAILABLE_AGENTS[nextAgentIndex >= AVAILABLE_AGENTS.length ? 0 : nextAgentIndex]
                     selectAgent(nextAgent.id)
                   }}
-                  className="h-10 w-full resize-none rounded-md border border-[#444] bg-[#2a2a2a] px-3 py-2 text-sm text-white hover:bg-[#333] focus:outline-none"
+                  className="h-10 w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground hover:bg-accent focus:outline-none focus:ring-1 focus:ring-ring"
                   value={
                     selectedAgentId
                       ? `${AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.name}${
