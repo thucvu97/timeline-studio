@@ -10,7 +10,7 @@ mod media;
 use media::commands::{
   clear_media_preview_data, generate_media_thumbnail, get_files_with_previews,
   get_media_preview_data, get_timeline_frames, load_preview_data, save_preview_data,
-  save_timeline_frames, PreviewManagerState,
+  save_timeline_frames, process_media_file_simple, PreviewManagerState,
 };
 use media::preview_manager::PreviewDataManager;
 use media::{get_media_files, get_media_metadata, MediaProcessor, ThumbnailOptions};
@@ -418,7 +418,8 @@ pub fn run() {
       save_preview_data,
       save_timeline_frames,
       get_timeline_frames,
-      load_preview_data
+      load_preview_data,
+      process_media_file_simple
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

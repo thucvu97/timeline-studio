@@ -10,6 +10,7 @@ import translationEN from "./locales/en.json"
 import translationES from "./locales/es.json"
 import translationFR from "./locales/fr.json"
 import translationJA from "./locales/ja.json"
+import translationKO from "./locales/ko.json"
 import translationPT from "./locales/pt.json"
 import translationRU from "./locales/ru.json"
 import translationZH from "./locales/zh.json"
@@ -42,6 +43,9 @@ const resources = {
   },
   ja: {
     translation: translationJA,
+  },
+  ko: {
+    translation: translationKO,
   },
 }
 

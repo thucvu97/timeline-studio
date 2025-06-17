@@ -126,7 +126,7 @@ export function formatJobDuration(startTime: string, endTime?: string, t?: (key:
   const duration = Math.floor((end - start) / 1000)
 
   if (duration < 60) {
-    return t ? t("videoCompiler.duration.seconds", { count: duration }) : `${duration} sec`
+    return t ? t("videoCompiler.duration.seconds").replace("{{count}}", duration.toString()) : `${duration} sec`
   }
   if (duration < 3600) {
     const minutes = Math.floor(duration / 60)

@@ -455,48 +455,137 @@ export function useAutoLoadUserData() {
       if (mediaFiles.length > 0 || musicFiles.length > 0) {
         console.log(`Найдено ${mediaFiles.length} медиа файлов и ${musicFiles.length} музыкальных файлов`)
 
-        // Создаем объекты MediaFile для медиа файлов
-        const mediaFileObjects: MediaFile[] = mediaFiles.map((filePath, index) => {
-          const fileName = filePath.split("/").pop() || ""
-          return {
-            id: `media-${Date.now()}-${index}`,
-            name: fileName,
-            path: filePath,
-            size: 0, // Размер будет определен позже
-            duration: 0, // Продолжительность будет определена позже для видео
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            isVideo: /\.(mp4|avi|mov|mkv|webm|flv|wmv|mpg|mpeg|3gp|m4v)$/i.exec(fileName) !== null,
-            isImage: /\.(jpg|jpeg|png|gif|bmp|svg|webp|ico|tiff)$/i.exec(fileName) !== null,
-            source: "browser",
+        // Используем упрощенный процессор через прямой вызов Tauri команды
+        try {
+          const { invoke } = await import("@tauri-apps/api/core")
+          
+          // Обрабатываем файлы с помощью упрощенного процессора
+          const processFilesSimple = async (filePaths: string[]): Promise<MediaFile[]> => {
+            const processedFiles: MediaFile[] = []
+            
+            for (const filePath of filePaths) {
+              try {
+                const processed = await invoke<{
+                  id: string
+                  path: string
+                  name: string
+                  size: number
+                  metadata?: {
+                    duration?: number
+                    width?: number
+                    height?: number
+                    fps?: number
+                    bitrate?: number
+                    video_codec?: string
+                    audio_codec?: string
+                    has_audio?: boolean
+                    has_video?: boolean
+                  }
+                  thumbnail_path?: string
+                  error?: string
+                }>("process_media_file_simple", {
+                  filePath,
+                  generateThumbnail: false,
+                })
+
+                const fileName = processed.name
+                const isVideo = processed.metadata?.has_video || /\.(mp4|avi|mov|mkv|webm)$/i.test(fileName)
+                const isAudio = processed.metadata?.has_audio || /\.(mp3|wav|ogg|m4a|aac)$/i.test(fileName)
+                const isImage = !isVideo && !isAudio && /\.(jpg|jpeg|png|gif|bmp)$/i.test(fileName)
+
+                const mediaFile: MediaFile = {
+                  id: processed.id,
+                  name: processed.name,
+                  path: processed.path,
+                  size: processed.size,
+                  duration: processed.metadata?.duration,
+                  isVideo,
+                  isAudio: isAudio && !isVideo,
+                  isImage,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                  source: "browser",
+                  thumbnailPath: processed.thumbnail_path,
+                }
+
+                processedFiles.push(mediaFile)
+              } catch (error) {
+                console.error(`Failed to process file ${filePath}:`, error)
+                
+                // Fallback: создаем базовый объект
+                const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || ""
+                processedFiles.push({
+                  id: `file-${Date.now()}-${processedFiles.length}`,
+                  name: fileName,
+                  path: filePath,
+                  size: 0,
+                  isVideo: /\.(mp4|avi|mov|mkv|webm)$/i.test(fileName),
+                  isAudio: /\.(mp3|wav|ogg|m4a|aac)$/i.test(fileName),
+                  isImage: /\.(jpg|jpeg|png|gif|bmp)$/i.test(fileName),
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                  source: "browser",
+                })
+              }
+            }
+            
+            return processedFiles
           }
-        })
 
-        // Создаем объекты MediaFile для музыкальных файлов
-        const musicFileObjects: MediaFile[] = musicFiles.map((filePath, index) => {
-          const fileName = filePath.split("/").pop() || ""
-          return {
-            id: `music-${Date.now()}-${index}`,
-            name: fileName,
-            path: filePath,
-            size: 0, // Размер будет определен позже
-            duration: 0, // Продолжительность будет определена позже
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            isAudio: true,
-            source: "browser",
+          if (mediaFiles.length > 0) {
+            console.log(`Обрабатываем ${mediaFiles.length} медиа файлов...`)
+            const processedMedia = await processFilesSimple(mediaFiles)
+            
+            updateMediaFiles(processedMedia.filter(Boolean))
+            console.log(`Добавлено ${processedMedia.length} медиа файлов в состояние приложения`)
           }
-        })
 
-        // Обновляем состояние через хуки
-        if (mediaFileObjects.length > 0) {
-          updateMediaFiles(mediaFileObjects)
-          console.log(`Добавлено ${mediaFileObjects.length} медиа файлов в состояние приложения`)
-        }
+          if (musicFiles.length > 0) {
+            console.log(`Обрабатываем ${musicFiles.length} музыкальных файлов...`)
+            const processedMusic = await processFilesSimple(musicFiles)
+            
+            updateMusicFiles(processedMusic.filter(Boolean))
+            console.log(`Добавлено ${processedMusic.length} музыкальных файлов в состояние приложения`)
+          }
+        } catch (error) {
+          console.error("Ошибка при обработке медиа файлов:", error)
+          
+          // Fallback: создаем базовые объекты без обработки
+          const mediaFileObjects: MediaFile[] = mediaFiles.map((filePath, index) => {
+            const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || ""
+            return {
+              id: `media-${Date.now()}-${index}`,
+              name: fileName,
+              path: filePath,
+              size: 0,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              isVideo: /\.(mp4|avi|mov|mkv|webm)$/i.test(fileName),
+              isImage: /\.(jpg|jpeg|png|gif|bmp)$/i.test(fileName),
+              source: "browser",
+            }
+          })
 
-        if (musicFileObjects.length > 0) {
-          updateMusicFiles(musicFileObjects)
-          console.log(`Добавлено ${musicFileObjects.length} музыкальных файлов в состояние приложения`)
+          const musicFileObjects: MediaFile[] = musicFiles.map((filePath, index) => {
+            const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || ""
+            return {
+              id: `music-${Date.now()}-${index}`,
+              name: fileName,
+              path: filePath,
+              size: 0,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              isAudio: true,
+              source: "browser",
+            }
+          })
+
+          if (mediaFileObjects.length > 0) {
+            updateMediaFiles(mediaFileObjects)
+          }
+          if (musicFileObjects.length > 0) {
+            updateMusicFiles(musicFileObjects)
+          }
         }
       }
 

@@ -47,6 +47,28 @@ const {
 - `ProcessingError` - ошибка обработки
 - `ScanProgress` - прогресс сканирования
 
+#### `useSimpleMediaProcessor`
+Упрощенный хук для быстрой обработки медиафайлов без сложной системы событий. Идеально подходит для простого импорта файлов.
+
+```typescript
+const {
+  processFiles,
+  getFileUrl,
+  isProcessing,
+  progress
+} = useSimpleMediaProcessor({
+  onProgress?: (current, total) => {},
+  generateThumbnails?: boolean
+})
+```
+
+**Особенности:**
+- Быстрая базовая проверка файлов
+- Опциональная генерация превью
+- Без streaming сервера
+- Минимальная обработка метаданных
+- Использует `convertFileSrc` для прямого доступа к файлам
+
 #### `useMediaPreview`
 Управляет генерацией превью и кэшированием данных предпросмотра.
 

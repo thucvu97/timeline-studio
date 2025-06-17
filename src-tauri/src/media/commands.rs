@@ -4,6 +4,8 @@ use tauri::State;
 
 use super::preview_data::MediaPreviewData;
 use super::preview_manager::PreviewDataManager;
+use super::metadata::get_media_metadata;
+use serde::Serialize;
 
 /// State для менеджера превью
 pub struct PreviewManagerState {
@@ -120,4 +122,135 @@ pub struct TimelineFrame {
   pub timestamp: f64,
   pub base64_data: String,
   pub is_keyframe: bool,
+}
+
+/// Simplified media metadata structure
+#[derive(Serialize)]
+pub struct SimpleMediaMetadata {
+  pub duration: Option<f64>,
+  pub width: Option<u32>,
+  pub height: Option<u32>,
+  pub fps: Option<f64>,
+  pub bitrate: Option<u64>,
+  pub video_codec: Option<String>,
+  pub audio_codec: Option<String>,
+  pub has_audio: Option<bool>,
+  pub has_video: Option<bool>,
+}
+
+/// Processed media file result
+#[derive(Serialize)]
+pub struct ProcessedMediaFile {
+  pub id: String,
+  pub path: String,
+  pub name: String,
+  pub size: u64,
+  pub metadata: Option<SimpleMediaMetadata>,
+  pub thumbnail_path: Option<String>,
+  pub error: Option<String>,
+}
+
+/// Process a media file with simplified approach
+#[tauri::command]
+pub async fn process_media_file_simple(
+  file_path: String,
+  generate_thumbnail: bool,
+) -> Result<ProcessedMediaFile, String> {
+  use std::time::{SystemTime, UNIX_EPOCH};
+  
+  let path = PathBuf::from(&file_path);
+  
+  // Check if file exists
+  if !path.exists() {
+    return Err("File does not exist".to_string());
+  }
+  
+  // Get file metadata
+  let file_name = path.file_name()
+    .and_then(|n| n.to_str())
+    .unwrap_or("Unknown")
+    .to_string();
+    
+  let file_size = std::fs::metadata(&path)
+    .map(|m| m.len())
+    .unwrap_or(0);
+  
+  // Generate unique ID based on file path and timestamp
+  let timestamp = SystemTime::now()
+    .duration_since(UNIX_EPOCH)
+    .unwrap()
+    .as_millis();
+  let id = format!("file-{}-{}", timestamp, file_name.replace(" ", "-"));
+  
+  // Try to get basic media info using existing metadata function
+  let metadata = match get_media_metadata(file_path.clone()) {
+    Ok(media_file) => {
+      // Extract metadata from MediaFile
+      let probe_data = &media_file.probe_data;
+      let duration = media_file.duration;
+      
+      let (width, height, fps, video_codec) = probe_data.streams.iter()
+        .find(|s| s.codec_type == "video")
+        .map(|s| (
+          s.width,
+          s.height,
+          s.r_frame_rate.as_ref().and_then(|r| {
+            let parts: Vec<&str> = r.split('/').collect();
+            if parts.len() == 2 {
+              let num = parts[0].parse::<f64>().ok()?;
+              let den = parts[1].parse::<f64>().ok()?;
+              if den > 0.0 { Some(num / den) } else { None }
+            } else {
+              None
+            }
+          }),
+          s.codec_name.clone(),
+        ))
+        .unwrap_or((None, None, None, None));
+        
+      let audio_codec = probe_data.streams.iter()
+        .find(|s| s.codec_type == "audio")
+        .and_then(|s| s.codec_name.clone());
+        
+      let bitrate = probe_data.format.duration
+        .map(|_| probe_data.format.bit_rate.as_ref()
+          .and_then(|b| b.parse::<u64>().ok()))
+        .flatten();
+      
+      Some(SimpleMediaMetadata {
+        duration,
+        width,
+        height,
+        fps,
+        bitrate,
+        video_codec,
+        audio_codec,
+        has_audio: Some(media_file.is_audio),
+        has_video: Some(media_file.is_video),
+      })
+    }
+    Err(e) => {
+      log::warn!("Failed to get media info for {}: {}", file_path, e);
+      None
+    }
+  };
+  
+  // Generate thumbnail if requested
+  let thumbnail_path = if generate_thumbnail && metadata.as_ref().map_or(false, |m| m.has_video.unwrap_or(false)) {
+    // For simplicity, we'll skip actual thumbnail generation in this basic version
+    // In a real implementation, you would generate a thumbnail here
+    None
+  } else {
+    None
+  };
+  
+  Ok(ProcessedMediaFile {
+    id,
+    path: file_path,
+    name: file_name,
+    size: file_size,
+    metadata,
+    thumbnail_path,
+    error: None,
+  })
 }
