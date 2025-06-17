@@ -82,6 +82,7 @@ export const MonitorCog = createMockIcon("MonitorCog")
 export const Moon = createMockIcon("Moon")
 export const MoveHorizontal = createMockIcon("MoveHorizontal")
 export const Music = createMockIcon("Music")
+export const Music2 = createMockIcon("Music2")
 export const Package = createMockIcon("Package")
 export const Palette = createMockIcon("Palette")
 export const PanelBottomClose = createMockIcon("PanelBottomClose")
@@ -103,6 +104,8 @@ export const Search = createMockIcon("Search")
 export const Send = createMockIcon("Send")
 export const SendHorizonal = createMockIcon("SendHorizonal")
 export const Settings = createMockIcon("Settings")
+export const Settings2 = createMockIcon("Settings2")
+export const Circle = createMockIcon("Circle")
 export const Sparkles = createMockIcon("Sparkles")
 export const Square = createMockIcon("Square")
 export const SquareMousePointer = createMockIcon("SquareMousePointer")
@@ -129,6 +132,7 @@ export const X = createMockIcon("X")
 export const XCircle = createMockIcon("XCircle")
 export const XIcon = createMockIcon("XIcon")
 export const Zap = createMockIcon("Zap")
+export const Youtube = createMockIcon("Youtube")
 
 // Mock the entire lucide-react module
 vi.mock("lucide-react", () => ({
@@ -194,6 +198,7 @@ vi.mock("lucide-react", () => ({
   Moon,
   MoveHorizontal,
   Music,
+  Music2,
   Package,
   Palette,
   PanelBottomClose,
@@ -215,6 +220,8 @@ vi.mock("lucide-react", () => ({
   Send,
   SendHorizonal,
   Settings,
+  Settings2,
+  Circle,
   Sparkles,
   Square,
   SquareMousePointer,
@@ -241,6 +248,7 @@ vi.mock("lucide-react", () => ({
   XCircle,
   XIcon,
   Zap,
+  Youtube,
 }))
 
 // Helper to create custom icons for tests

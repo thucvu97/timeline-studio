@@ -1249,13 +1249,11 @@ impl FFmpegBuilder {
       }
     }
 
-    // Битрейт видео (только если не используется CQ/CRF режим)
-    if !export_settings.hardware_acceleration {
-      cmd.args(["-b:v", &format!("{}k", export_settings.video_bitrate)]);
-    }
+    // Контроль битрейта
+    self.add_bitrate_control(cmd);
 
-    // Битрейт аудио
-    cmd.args(["-b:a", &format!("{}k", export_settings.audio_bitrate)]);
+    // Контроль аудио
+    self.add_audio_settings(cmd);
 
     // FPS
     cmd.args(["-r", &self.project.timeline.fps.to_string()]);
@@ -1268,6 +1266,9 @@ impl FFmpegBuilder {
         self.project.timeline.resolution.0, self.project.timeline.resolution.1
       ),
     ]);
+
+    // Расширенные настройки кодирования
+    self.add_advanced_encoding_settings(cmd);
 
     // Дополнительные аргументы
     for arg in &export_settings.ffmpeg_args {
@@ -1440,6 +1441,114 @@ impl FFmpegBuilder {
     let quality = quality.min(100) as u32;
     let crf = (51 * (100 - quality)) / 100;
     crf.min(51) as u8
+  }
+
+  /// Добавить настройки битрейта
+  fn add_bitrate_control(&self, cmd: &mut Command) {
+    let export_settings = &self.project.settings.export;
+    // Режим контроля битрейта
+    if let Some(mode) = &export_settings.rate_control_mode {
+      match mode.as_str() {
+        "cbr" => {
+          // Constant Bitrate
+          cmd.args(["-b:v", &format!("{}k", export_settings.video_bitrate)]);
+          if let Some(min_bitrate) = export_settings.min_bitrate {
+            cmd.args(["-minrate", &format!("{}k", min_bitrate)]);
+          }
+          if let Some(max_bitrate) = export_settings.max_bitrate {
+            cmd.args(["-maxrate", &format!("{}k", max_bitrate)]);
+          }
+          cmd.args([
+            "-bufsize",
+            &format!("{}k", export_settings.video_bitrate * 2),
+          ]);
+        }
+        "vbr" => {
+          // Variable Bitrate
+          cmd.args(["-b:v", &format!("{}k", export_settings.video_bitrate)]);
+          if let Some(max_bitrate) = export_settings.max_bitrate {
+            cmd.args(["-maxrate", &format!("{}k", max_bitrate)]);
+            cmd.args(["-bufsize", &format!("{}k", max_bitrate * 2)]);
+          }
+        }
+        "crf" => {
+          // Constant Rate Factor
+          let crf = export_settings.crf.unwrap_or(23);
+          cmd.args(["-crf", &crf.to_string()]);
+        }
+        _ => {
+          // Auto/default - используем CRF на основе качества
+          let crf = self.quality_to_crf(export_settings.quality);
+          cmd.args(["-crf", &crf.to_string()]);
+        }
+      }
+    }
+
+    // Ограничение битрейта
+    if let Some(max_bitrate) = export_settings.max_bitrate {
+      cmd.args(["-maxrate", &format!("{}k", max_bitrate)]);
+      cmd.args(["-bufsize", &format!("{}k", max_bitrate * 2)]);
+    }
+  }
+
+  /// Добавить настройки аудио
+  fn add_audio_settings(&self, cmd: &mut Command) {
+    let export_settings = &self.project.settings.export;
+    // Нормализация аудио
+    if export_settings.normalize_audio.unwrap_or(false) {
+      let target_lufs = export_settings.audio_target.unwrap_or(-23.0);
+      let peak_dbtp = export_settings.audio_peak.unwrap_or(-1.5);
+      cmd.args([
+        "-af",
+        &format!(
+          "loudnorm=I={}:TP={}:LRA=11:print_format=summary",
+          target_lufs, peak_dbtp
+        ),
+      ]);
+    }
+
+    // Битрейт аудио
+    cmd.args(["-b:a", &format!("{}k", export_settings.audio_bitrate)]);
+  }
+
+  /// Добавить расширенные настройки кодирования
+  fn add_advanced_encoding_settings(&self, cmd: &mut Command) {
+    let export_settings = &self.project.settings.export;
+    // Профиль кодирования
+    if let Some(profile) = &export_settings.encoding_profile {
+      cmd.args(["-profile:v", profile]);
+    }
+
+    // Интервал ключевых кадров
+    if let Some(keyframe_interval) = export_settings.keyframe_interval {
+      cmd.args(["-g", &keyframe_interval.to_string()]);
+    }
+
+    // Многократное кодирование
+    if let Some(passes) = export_settings.multi_pass {
+      if passes > 1 {
+        cmd.args(["-pass", "1"]);
+        // Вторая проходка будет выполнена отдельно
+      }
+    }
+
+    // B-кадры
+    if let Some(b_frames) = export_settings.b_frames {
+      cmd.args(["-bf", &b_frames.to_string()]);
+    }
+
+    // Оптимизация для скорости
+    if export_settings.optimize_for_speed.unwrap_or(false) {
+      if let Some(preset) = &export_settings.preset {
+        cmd.args(["-preset", preset]);
+      } else {
+        cmd.args(["-preset", "ultrafast"]);
+      }
+    } else if export_settings.optimize_for_network.unwrap_or(false) {
+      cmd.args(["-tune", "zerolatency"]);
+    } else if let Some(preset) = &export_settings.preset {
+      cmd.args(["-preset", preset]);
+    }
   }
 
   /// Получить видео треки

@@ -1,18 +1,37 @@
-import { Folder, Info } from "lucide-react"
+import { useState } from "react"
+
+import { ChevronRight, Folder, Info } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
 
+import { EXPORT_PRESETS, ExportPresets } from "./export-presets"
 import { FORMAT_OPTIONS, FRAME_RATE_OPTIONS, QUALITY_PRESETS, RESOLUTION_PRESETS } from "../constants/export-constants"
 import { ExportProgress, ExportSettings } from "../types/export-types"
 
 interface LocalExportTabProps {
-  settings: ExportSettings
+  settings: ExportSettings & {
+    exportVideo?: boolean
+    bitrateMode?: "auto" | "limit"
+    bitrate?: number
+    encodingProfile?: string
+    keyframeMode?: string
+    keyframeInterval?: number
+    optimizeForSpeed?: boolean
+    optimizeForNetwork?: boolean
+    multipassEncoding?: boolean
+    frameReordering?: boolean
+  }
   onSettingsChange: (updates: Partial<ExportSettings>) => void
   onChooseFolder: () => void
   onExport: () => void
@@ -35,9 +54,45 @@ export function LocalExportTab({
   hasProject,
 }: LocalExportTabProps) {
   const { t } = useTranslation()
+  const [selectedPresetId, setSelectedPresetId] = useState("custom")
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false)
+  const [renderMode, setRenderMode] = useState<"single" | "individual">("single")
+  const [activeTab, setActiveTab] = useState<"video" | "audio" | "file">("video")
+
+  // Обработчик выбора пресета
+  const handlePresetSelect = (preset: any) => {
+    setSelectedPresetId(preset.id)
+    if (preset.id !== "custom") {
+      // Применяем настройки пресета
+      const updates: Partial<ExportSettings> = {}
+      
+      if (preset.settings.format) {
+        updates.format = preset.settings.format
+      }
+      if (preset.settings.resolution && preset.settings.resolution !== "timeline") {
+        updates.resolution = preset.settings.resolution
+      }
+      if (preset.settings.fps && preset.settings.fps !== "timeline") {
+        updates.frameRate = preset.settings.fps
+      }
+      if (preset.settings.useHardwareAcceleration !== undefined) {
+        updates.enableGPU = preset.settings.useHardwareAcceleration
+      }
+      
+      onSettingsChange(updates)
+    }
+  }
 
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="space-y-4">
+      {/* Пресеты */}
+      <ExportPresets
+        selectedPresetId={selectedPresetId}
+        onSelectPreset={handlePresetSelect}
+        className="-mx-6 px-6"
+      />
+
+      <div className="grid grid-cols-2 gap-6">
       <div className="space-y-4">
         <div className="bg-muted flex aspect-video w-full items-center justify-center rounded-lg">
           <div className="text-muted-foreground">{t("dialogs.export.cover")}</div>
@@ -78,18 +133,54 @@ export function LocalExportTab({
           </div>
         </div>
 
+        {/* Режим рендеринга */}
         <div className="space-y-2">
-          <Label>{t("dialogs.export.preset")}</Label>
-          <Select defaultValue="match">
-            <SelectTrigger>
-              <SelectValue placeholder={t("dialogs.export.defaultPreset")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="match">{t("dialogs.export.defaultPreset")}</SelectItem>
-              <SelectItem value="custom">{t("dialogs.export.custom")}</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label>{t("dialogs.export.renderMode")}</Label>
+          <RadioGroup value={renderMode} onValueChange={(v) => setRenderMode(v as any)}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="single" id="single" />
+              <Label htmlFor="single" className="font-normal cursor-pointer">
+                {t("dialogs.export.singleClip")}
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="individual" id="individual" />
+              <Label htmlFor="individual" className="font-normal cursor-pointer">
+                {t("dialogs.export.individualClips")}
+              </Label>
+            </div>
+          </RadioGroup>
         </div>
+
+        {/* Вкладки Видео/Аудио/Файл */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="video">{t("dialogs.export.video")}</TabsTrigger>
+            <TabsTrigger value="audio">{t("dialogs.export.audio")}</TabsTrigger>
+            <TabsTrigger value="file">{t("dialogs.export.file")}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="video" className="space-y-4">
+            {/* Checkbox Экспорт видео */}
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="export-video"
+                checked={settings.exportVideo ?? true}
+                onCheckedChange={(checked) => onSettingsChange({ exportVideo: checked })}
+              />
+              <Label htmlFor="export-video">{t("dialogs.export.exportVideo")}</Label>
+            </div>
+          </TabsContent>
+          <TabsContent value="audio" className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              {t("dialogs.export.audioSettings")}
+            </div>
+          </TabsContent>
+          <TabsContent value="file" className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              {t("dialogs.export.fileSettings")}
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <div className="space-y-2">
           <Label>{t("dialogs.export.format")}</Label>
@@ -170,43 +261,145 @@ export function LocalExportTab({
           </div>
         </div>
 
-        <div className="space-y-4 pt-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Label>{t("dialogs.export.advancedCompression")}</Label>
-              <Info className="text-muted-foreground h-4 w-4" />
+        {/* Расширенные настройки */}
+        <Collapsible
+          open={showAdvancedSettings}
+          onOpenChange={setShowAdvancedSettings}
+          className="space-y-2"
+        >
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="w-full justify-between p-2">
+              <span>{t("dialogs.export.advancedSettings")}</span>
+              <ChevronRight className={cn(
+                "h-4 w-4 transition-transform",
+                showAdvancedSettings && "rotate-90"
+              )} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 pt-4">
+            {/* Качество */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>{t("dialogs.export.quality")}</Label>
+                <span className="text-sm text-muted-foreground">
+                  {settings.bitrateMode === "auto" ? t("dialogs.export.auto") : `${settings.bitrate || 8000} Kbps`}
+                </span>
+              </div>
+              <RadioGroup 
+                value={settings.bitrateMode || "auto"} 
+                onValueChange={(v) => onSettingsChange({ bitrateMode: v as any })}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="auto" id="auto" />
+                  <Label htmlFor="auto" className="font-normal">{t("dialogs.export.auto")}</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="limit" id="limit" />
+                  <Label htmlFor="limit" className="font-normal">{t("dialogs.export.limitTo")}</Label>
+                  <Input
+                    type="number"
+                    value={settings.bitrate || 8000}
+                    onChange={(e) => onSettingsChange({ bitrate: parseInt(e.target.value) })}
+                    className="w-24"
+                    disabled={settings.bitrateMode === "auto"}
+                  />
+                  <span className="text-sm">Kbps</span>
+                </div>
+              </RadioGroup>
             </div>
-            <Switch
-              checked={settings.advancedCompression}
-              onCheckedChange={(checked) => onSettingsChange({ advancedCompression: checked })}
-              disabled={isRendering}
-            />
-          </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Label>{t("dialogs.export.cloudBackup")}</Label>
-              <Info className="text-muted-foreground h-4 w-4" />
+            {/* Профиль кодирования */}
+            <div className="space-y-2">
+              <Label>{t("dialogs.export.encodingProfile")}</Label>
+              <Select
+                value={settings.encodingProfile || "main"}
+                onValueChange={(v) => onSettingsChange({ encodingProfile: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="main">Main</SelectItem>
+                  <SelectItem value="main10">Main10</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Switch
-              checked={settings.cloudBackup}
-              onCheckedChange={(checked) => onSettingsChange({ cloudBackup: checked })}
-              disabled={isRendering}
-            />
-          </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Label>{t("dialogs.export.enableGPUEncoding")}</Label>
-              <Info className="text-muted-foreground h-4 w-4" />
+            {/* Ключевые кадры */}
+            <div className="space-y-2">
+              <Label>{t("dialogs.export.keyframes")}</Label>
+              <RadioGroup
+                value={settings.keyframeMode || "auto"}
+                onValueChange={(v) => onSettingsChange({ keyframeMode: v as "auto" | "every" })}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="auto" id="kf-auto" />
+                  <Label htmlFor="kf-auto" className="font-normal">{t("dialogs.export.auto")}</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="every" id="kf-every" />
+                  <Label htmlFor="kf-every" className="font-normal">{t("dialogs.export.every")}</Label>
+                  <Input
+                    type="number"
+                    value={settings.keyframeInterval || 30}
+                    onChange={(e) => onSettingsChange({ keyframeInterval: parseInt(e.target.value) })}
+                    className="w-16"
+                    disabled={settings.keyframeMode === "auto"}
+                  />
+                  <span className="text-sm">{t("dialogs.export.frames")}</span>
+                </div>
+              </RadioGroup>
             </div>
-            <Switch
-              checked={settings.enableGPU}
-              onCheckedChange={(checked) => onSettingsChange({ enableGPU: checked })}
-              disabled={isRendering}
-            />
-          </div>
-        </div>
+
+            {/* Чекбоксы */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Label>{t("dialogs.export.enableGPUEncoding")}</Label>
+                  <Info className="text-muted-foreground h-4 w-4" />
+                </div>
+                <Switch
+                  checked={settings.enableGPU}
+                  onCheckedChange={(checked) => onSettingsChange({ enableGPU: checked })}
+                  disabled={isRendering}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label>{t("dialogs.export.optimizeForSpeed")}</Label>
+                <Switch
+                  checked={settings.optimizeForSpeed}
+                  onCheckedChange={(checked) => onSettingsChange({ optimizeForSpeed: checked })}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label>{t("dialogs.export.optimizeForNetwork")}</Label>
+                <Switch
+                  checked={settings.optimizeForNetwork}
+                  onCheckedChange={(checked) => onSettingsChange({ optimizeForNetwork: checked })}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label>{t("dialogs.export.multipassEncoding")}</Label>
+                <Switch
+                  checked={settings.multipassEncoding}
+                  onCheckedChange={(checked) => onSettingsChange({ multipassEncoding: checked })}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label>{t("dialogs.export.frameReordering")}</Label>
+                <Switch
+                  checked={settings.frameReordering ?? true}
+                  onCheckedChange={(checked) => onSettingsChange({ frameReordering: checked })}
+                />
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Progress and Export Button */}
         <div className="space-y-4 pt-6 border-t">
@@ -250,6 +443,7 @@ export function LocalExportTab({
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }

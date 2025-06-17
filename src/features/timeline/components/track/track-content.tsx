@@ -54,6 +54,7 @@ export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackC
     <div
       ref={setNodeRef}
       data-track-id={track.id}
+      data-testid={`track-container-${track.id}`}
       className={cn(
         "relative h-full w-full",
         "bg-background border-l border-border",

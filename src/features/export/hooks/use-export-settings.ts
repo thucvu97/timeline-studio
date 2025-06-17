@@ -77,7 +77,9 @@ export function useExportSettings() {
     const settings = exportMode === "local" ? exportSettings : exportMode === "device" ? deviceSettings : socialSettings
 
     const qualityPreset = QUALITY_PRESETS[settings.quality]
-    const resolutionPreset = RESOLUTION_PRESETS[settings.resolution]
+    const resolutionPreset = settings.resolution === "timeline" 
+      ? { width: 1920, height: 1080, label: "Timeline Resolution" } 
+      : RESOLUTION_PRESETS[settings.resolution as keyof typeof RESOLUTION_PRESETS]
 
     const formatMap: Record<string, OutputFormat> = {
       mp4: OutputFormat.Mp4,

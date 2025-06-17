@@ -24,6 +24,9 @@ describe("useSubtitlesImport", () => {
       // Даем время для завершения всех асинхронных операций
       return true
     }, { timeout: 100 })
+    
+    // Очищаем все таймеры
+    vi.clearAllTimers()
   })
 
   it("должен импортировать JSON файл со стилями", async () => {
@@ -123,15 +126,13 @@ describe("useSubtitlesImport", () => {
 
     const { result } = renderHook(() => useSubtitlesImport())
 
-    // Запускаем первый импорт
-    const firstImportPromise = act(async () => {
-      await result.current.importSubtitlesFile()
+    // Запускаем первый импорт без ожидания завершения
+    act(() => {
+      void result.current.importSubtitlesFile()
     })
 
-    // Даем время установиться isImporting в true
-    await vi.waitFor(() => {
-      expect(result.current.isImporting).toBe(true)
-    })
+    // Проверяем что isImporting установился в true
+    expect(result.current.isImporting).toBe(true)
 
     // Пытаемся запустить второй импорт
     await act(async () => {
@@ -142,8 +143,11 @@ describe("useSubtitlesImport", () => {
     expect(open).toHaveBeenCalledTimes(1)
 
     // Завершаем первый импорт
-    resolveOpen!("/path/to/file.json")
-    await firstImportPromise
+    await act(async () => {
+      resolveOpen!("/path/to/file.json")
+      // Ждем пока промис разрешится
+      await openPromise
+    })
 
     // Убеждаемся что isImporting сбросился
     expect(result.current.isImporting).toBe(false)
@@ -157,6 +161,11 @@ describe("useSubtitlesImport", () => {
 
     const { result } = renderHook(() => useSubtitlesImport())
 
+    // Ждем пока хук инициализируется
+    await vi.waitFor(() => {
+      expect(result.current).not.toBeNull()
+    })
+
     await act(async () => {
       await result.current.importSubtitleFile()
     })
@@ -165,8 +174,14 @@ describe("useSubtitlesImport", () => {
     expect(consoleSpy).toHaveBeenCalledWith("Импорт файлов стилей субтитров:", ["/path/to/single.css"])
   })
 
-  it("должен экспортировать правильные функции", () => {
+  it("должен экспортировать правильные функции", async () => {
     const { result } = renderHook(() => useSubtitlesImport())
+
+    // Ждем пока хук инициализируется
+    await vi.waitFor(() => {
+      expect(result.current).not.toBeNull()
+      expect(result.current).not.toBeUndefined()
+    })
 
     expect(result.current).toHaveProperty("importSubtitlesFile")
     expect(result.current).toHaveProperty("importSubtitleFile")

@@ -68,7 +68,7 @@ src/features/ - 30 модулей
 ```
 src-tauri/src/
 ├── media/             ✅  Расширенные операции с медиа
-│   ├── ffmpeg.rs      ⚠️  Только проверка наличия FFmpeg
+│   ├── ffmpeg.rs      ✅  Проверка наличия FFmpeg (полная интеграция в video_compiler)
 │   ├── metadata.rs    ✅  Извлечение метаданных
 │   ├── files.rs       ✅  Работа с файлами
 │   ├── preview_data.rs ✅  Унифицированная структура превью
@@ -79,16 +79,16 @@ src-tauri/src/
 │   ├── yolo_processor.rs ✅  YOLO v11 обработчик (✅ ORT v2.0.0-rc.10 с load-dynamic)
 │   ├── recognition_service.rs ✅  Сервис распознавания
 │   └── commands.rs    ✅  Tauri команды
-├── video_compiler/    ✅  ЗАВЕРШЕН! Полная функциональность
+├── video_compiler/    ✅  ЗАВЕРШЕН! Полная функциональность с FFmpeg
 │   ├── mod.rs         ✅  Главный модуль, инициализация
 │   ├── commands.rs    ✅  Tauri команды API
-│   ├── ffmpeg_builder.rs ✅  Построитель FFmpeg команд
-│   ├── renderer.rs    ✅  Основной рендерер видео
-│   ├── pipeline.rs    ✅  Конвейер рендеринга
-│   ├── preview.rs     ✅  Генерация превью
-│   ├── progress.rs    ✅  Отслеживание прогресса
+│   ├── ffmpeg_builder.rs ✅  Построитель FFmpeg команд (полная интеграция)
+│   ├── renderer.rs    ✅  Основной рендерер видео через FFmpeg
+│   ├── pipeline.rs    ✅  Конвейер рендеринга с FFmpeg процессами
+│   ├── preview.rs     ✅  Генерация превью через FFmpeg
+│   ├── progress.rs    ✅  Отслеживание прогресса FFmpeg
 │   ├── cache.rs       ✅  Кэширование превью
-│   ├── gpu.rs         ✅  GPU ускорение
+│   ├── gpu.rs         ✅  GPU ускорение (NVENC, VideoToolbox)
 │   ├── schema.rs      ✅  Структуры данных проекта
 │   └── error.rs       ✅  Обработка ошибок
 └── lib.rs            ✅  Основная интеграция Tauri

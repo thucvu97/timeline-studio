@@ -5,11 +5,39 @@ export interface ExportSettings {
   savePath: string
   format: keyof typeof OutputFormat
   quality: "normal" | "good" | "best"
-  resolution: "720" | "1080" | "4k"
+  resolution: "720" | "1080" | "4k" | "timeline"
   frameRate: string
   enableGPU: boolean
   advancedCompression?: boolean
   cloudBackup?: boolean
+  
+  // Новые поля для расширенных настроек
+  exportVideo?: boolean
+  exportAudio?: boolean
+  renderMode?: "single" | "individual"
+  bitrateMode?: "auto" | "limit" | "cbr" | "vbr" | "crf"
+  bitrate?: number
+  maxBitrate?: number
+  minBitrate?: number
+  crf?: number
+  encodingProfile?: string
+  encodingPreset?: "ultrafast" | "superfast" | "veryfast" | "faster" | "fast" | "medium" | "slow" | "slower" | "veryslow"
+  entropy?: "cabac" | "cavlc"
+  keyframeMode?: "auto" | "every"
+  keyframeInterval?: number
+  bFrames?: number
+  refFrames?: number
+  optimizeForSpeed?: boolean
+  optimizeForNetwork?: boolean
+  multipassEncoding?: boolean
+  frameReordering?: boolean
+  useProxyMedia?: boolean
+  renderWithoutTimecode?: boolean
+  normalizeAudio?: boolean
+  audioTarget?: number // LKFS
+  audioPeak?: number // dBTP
+  chapters?: boolean
+  watermark?: boolean
 }
 
 export interface DeviceExportSettings extends ExportSettings {
