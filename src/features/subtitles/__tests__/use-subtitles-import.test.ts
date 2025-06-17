@@ -20,11 +20,14 @@ describe("useSubtitlesImport", () => {
 
   afterEach(async () => {
     // Ждем завершения всех промисов
-    await vi.waitFor(() => {
-      // Даем время для завершения всех асинхронных операций
-      return true
-    }, { timeout: 100 })
-    
+    await vi.waitFor(
+      () => {
+        // Даем время для завершения всех асинхронных операций
+        return true
+      },
+      { timeout: 100 },
+    )
+
     // Очищаем все таймеры
     vi.clearAllTimers()
   })

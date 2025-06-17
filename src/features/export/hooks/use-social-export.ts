@@ -26,12 +26,12 @@ export function useSocialExport() {
     [t],
   )
 
-  const logoutFromSocialNetwork = useCallback((network: string) => {
-    SocialNetworksService.logout(network)
+  const logoutFromSocialNetwork = useCallback(async (network: string) => {
+    await SocialNetworksService.logout(network)
   }, [])
 
-  const isLoggedIn = useCallback((network: string) => {
-    return SocialNetworksService.isLoggedIn(network)
+  const isLoggedIn = useCallback(async (network: string) => {
+    return await SocialNetworksService.isLoggedIn(network)
   }, [])
 
   const getUserInfo = useCallback((network: string) => {

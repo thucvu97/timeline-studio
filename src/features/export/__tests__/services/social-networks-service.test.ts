@@ -89,8 +89,8 @@ describe("SocialNetworksService", () => {
   })
 
   describe("logout", () => {
-    it("should logout from network", () => {
-      SocialNetworksService.logout("youtube")
+    it("should logout from network", async () => {
+      await SocialNetworksService.logout("youtube")
 
       expect(OAuthService.logout).toHaveBeenCalledWith("youtube")
       expect(toast.info).toHaveBeenCalledWith("Disconnected from youtube")
@@ -98,18 +98,18 @@ describe("SocialNetworksService", () => {
   })
 
   describe("isLoggedIn", () => {
-    it("should return true if token exists", () => {
-      vi.mocked(OAuthService.getStoredToken).mockReturnValue({ accessToken: "token" })
+    it("should return true if token exists", async () => {
+      vi.mocked(OAuthService.getStoredToken).mockResolvedValue({ accessToken: "token" })
 
-      const result = SocialNetworksService.isLoggedIn("youtube")
+      const result = await SocialNetworksService.isLoggedIn("youtube")
 
       expect(result).toBe(true)
     })
 
-    it("should return false if no token", () => {
-      vi.mocked(OAuthService.getStoredToken).mockReturnValue(null)
+    it("should return false if no token", async () => {
+      vi.mocked(OAuthService.getStoredToken).mockResolvedValue(null)
 
-      const result = SocialNetworksService.isLoggedIn("youtube")
+      const result = await SocialNetworksService.isLoggedIn("youtube")
 
       expect(result).toBe(false)
     })
@@ -187,7 +187,7 @@ describe("SocialNetworksService", () => {
     }
 
     beforeEach(() => {
-      vi.mocked(OAuthService.getStoredToken).mockReturnValue({ accessToken: "token" })
+      vi.mocked(OAuthService.getStoredToken).mockResolvedValue({ accessToken: "token" })
     })
 
     it("should successfully upload to YouTube", async () => {
@@ -226,7 +226,7 @@ describe("SocialNetworksService", () => {
     })
 
     it("should handle not logged in error", async () => {
-      vi.mocked(OAuthService.getStoredToken).mockReturnValue(null)
+      vi.mocked(OAuthService.getStoredToken).mockResolvedValue(null)
 
       const result = await SocialNetworksService.uploadVideo("youtube", mockVideoFile, mockSettings)
 
@@ -350,7 +350,7 @@ describe("SocialNetworksService", () => {
 
   describe("refreshTokenIfNeeded", () => {
     it("should return false if no token", async () => {
-      vi.mocked(OAuthService.getStoredToken).mockReturnValue(null)
+      vi.mocked(OAuthService.getStoredToken).mockResolvedValue(null)
 
       const result = await SocialNetworksService.refreshTokenIfNeeded("youtube")
 
@@ -358,7 +358,7 @@ describe("SocialNetworksService", () => {
     })
 
     it("should return false if no refresh token", async () => {
-      vi.mocked(OAuthService.getStoredToken).mockReturnValue({ accessToken: "token" })
+      vi.mocked(OAuthService.getStoredToken).mockResolvedValue({ accessToken: "token" } as any)
 
       const result = await SocialNetworksService.refreshTokenIfNeeded("youtube")
 
@@ -367,11 +367,11 @@ describe("SocialNetworksService", () => {
 
     it("should return true if token is still valid", async () => {
       const futureTime = Date.now() + 10 * 60 * 1000 // 10 минут в будущем
-      vi.mocked(OAuthService.getStoredToken).mockReturnValue({
+      vi.mocked(OAuthService.getStoredToken).mockResolvedValue({
         accessToken: "token",
         refreshToken: "refresh",
         expiresAt: futureTime,
-      })
+      } as any)
 
       const result = await SocialNetworksService.refreshTokenIfNeeded("youtube")
 
@@ -382,11 +382,11 @@ describe("SocialNetworksService", () => {
       const nearExpiration = Date.now() + 2 * 60 * 1000 // 2 минуты в будущем
       const newToken = { accessToken: "newToken", refreshToken: "newRefresh" }
 
-      vi.mocked(OAuthService.getStoredToken).mockReturnValue({
+      vi.mocked(OAuthService.getStoredToken).mockResolvedValue({
         accessToken: "oldToken",
         refreshToken: "refresh",
         expiresAt: nearExpiration,
-      })
+      } as any)
       vi.mocked(OAuthService.refreshToken).mockResolvedValue(newToken)
 
       const result = await SocialNetworksService.refreshTokenIfNeeded("youtube")
@@ -398,11 +398,11 @@ describe("SocialNetworksService", () => {
 
     it("should logout on refresh failure", async () => {
       const nearExpiration = Date.now() + 2 * 60 * 1000
-      vi.mocked(OAuthService.getStoredToken).mockReturnValue({
+      vi.mocked(OAuthService.getStoredToken).mockResolvedValue({
         accessToken: "oldToken",
         refreshToken: "refresh",
         expiresAt: nearExpiration,
-      })
+      } as any)
       vi.mocked(OAuthService.refreshToken).mockRejectedValue(new Error("Refresh failed"))
 
       const logoutSpy = vi.spyOn(SocialNetworksService, "logout")

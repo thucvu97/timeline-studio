@@ -12,7 +12,9 @@ vi.mock("@/components/ui/badge", () => ({
 
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, ...props }: any) => (
-    <button onClick={onClick} {...props}>{children}</button>
+    <button onClick={onClick} {...props}>
+      {children}
+    </button>
   ),
 }))
 
@@ -25,8 +27,16 @@ vi.mock("@/components/ui/card", () => ({
 
 vi.mock("@/components/ui/resizable", () => ({
   ResizableHandle: () => <div data-testid="resizable-handle" />,
-  ResizablePanel: ({ children, ...props }: any) => <div data-testid="resizable-panel" {...props}>{children}</div>,
-  ResizablePanelGroup: ({ children, ...props }: any) => <div data-testid="resizable-group" {...props}>{children}</div>,
+  ResizablePanel: ({ children, ...props }: any) => (
+    <div data-testid="resizable-panel" {...props}>
+      {children}
+    </div>
+  ),
+  ResizablePanelGroup: ({ children, ...props }: any) => (
+    <div data-testid="resizable-group" {...props}>
+      {children}
+    </div>
+  ),
 }))
 
 // Мокаем хуки
@@ -169,7 +179,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -191,7 +201,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -213,7 +223,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -242,7 +252,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -264,7 +274,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -341,7 +351,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -362,7 +372,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -387,7 +397,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -395,7 +405,7 @@ describe("TimelineContent", () => {
 
       render(<TimelineContent />)
 
-      const scrollContainer = document.querySelector('.overflow-auto')
+      const scrollContainer = document.querySelector(".overflow-auto")
       expect(scrollContainer).toBeInTheDocument()
     })
 
@@ -408,7 +418,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -431,7 +441,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -451,7 +461,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -471,7 +481,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -494,7 +504,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -531,7 +541,7 @@ describe("TimelineContent", () => {
         clips: [],
         settings: {
           resolution: { width: 1920, height: 1080 },
-          fps: 30
+          fps: 30,
         },
         createdAt: new Date(),
         updatedAt: new Date(),

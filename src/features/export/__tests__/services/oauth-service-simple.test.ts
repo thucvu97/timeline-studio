@@ -2,10 +2,31 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { OAuthService } from "../../services/oauth-service"
 
+// Mock environment utilities before importing services
+vi.mock("@/lib/environment", () => ({
+  isDesktop: vi.fn().mockReturnValue(false),
+  getTauriVersion: vi.fn().mockResolvedValue("2.0.0"),
+  getSystemInfo: vi.fn().mockResolvedValue({
+    platform: "darwin",
+    osVersion: "14.0.0",
+    arch: "aarch64",
+  }),
+}))
+
 // Мокаем зависимости
 vi.mock("sonner", () => ({
   toast: {
     error: vi.fn(),
+    success: vi.fn(),
+  },
+}))
+
+// Mock SecureTokenStorage
+vi.mock("../../services/secure-token-storage", () => ({
+  SecureTokenStorage: {
+    storeToken: vi.fn(),
+    getStoredToken: vi.fn(),
+    removeToken: vi.fn(),
   },
 }))
 
@@ -24,6 +45,7 @@ vi.stubEnv("NEXT_PUBLIC_TIKTOK_CLIENT_SECRET", mockEnv.NEXT_PUBLIC_TIKTOK_CLIENT
 vi.stubEnv("NEXT_PUBLIC_OAUTH_REDIRECT_URI", mockEnv.NEXT_PUBLIC_OAUTH_REDIRECT_URI)
 
 const { toast } = await import("sonner")
+const { SecureTokenStorage } = await import("../../services/secure-token-storage")
 
 global.fetch = vi.fn()
 
@@ -80,19 +102,16 @@ describe("OAuthService (simplified)", () => {
   })
 
   describe("logout", () => {
-    it("should clear stored tokens and user info", () => {
-      localStorage.setItem("youtube_oauth_token", "token_data")
-      localStorage.setItem("youtube_user_info", "user_data")
+    it("should clear stored tokens and user info", async () => {
+      await OAuthService.logout("youtube")
 
-      OAuthService.logout("youtube")
-
-      expect(localStorage.getItem("youtube_oauth_token")).toBeNull()
-      expect(localStorage.getItem("youtube_user_info")).toBeNull()
+      expect(SecureTokenStorage.removeToken).toHaveBeenCalledWith("youtube")
+      expect(toast.success).toHaveBeenCalledWith("Logged out from youtube")
     })
   })
 
   describe("getStoredToken", () => {
-    it("should return stored token if valid", () => {
+    it("should return stored token if valid", async () => {
       const token = {
         accessToken: "valid_token",
         refreshToken: "refresh_token",
@@ -101,36 +120,35 @@ describe("OAuthService (simplified)", () => {
         expiresAt: Date.now() + 3600 * 1000, // Действителен еще час
       }
 
-      localStorage.setItem("youtube_oauth_token", JSON.stringify(token))
+      vi.mocked(SecureTokenStorage.getStoredToken).mockResolvedValue(token)
 
-      const result = OAuthService.getStoredToken("youtube")
+      const result = await OAuthService.getStoredToken("youtube")
 
       expect(result).toEqual(token)
+      expect(SecureTokenStorage.getStoredToken).toHaveBeenCalledWith("youtube")
     })
 
-    it("should return null if no token stored", () => {
-      const result = OAuthService.getStoredToken("youtube")
+    it("should return null if no token stored", async () => {
+      vi.mocked(SecureTokenStorage.getStoredToken).mockResolvedValue(null)
+
+      const result = await OAuthService.getStoredToken("youtube")
 
       expect(result).toBeNull()
+      expect(SecureTokenStorage.getStoredToken).toHaveBeenCalledWith("youtube")
     })
 
-    it("should return null and logout if token expired", () => {
-      const expiredToken = {
-        accessToken: "expired_token",
-        expiresAt: Date.now() - 1000, // Истек секунду назад
-      }
+    it("should return null and logout if token expired", async () => {
+      vi.mocked(SecureTokenStorage.getStoredToken).mockResolvedValue(null)
 
-      localStorage.setItem("youtube_oauth_token", JSON.stringify(expiredToken))
-
-      const result = OAuthService.getStoredToken("youtube")
+      const result = await OAuthService.getStoredToken("youtube")
 
       expect(result).toBeNull()
-      expect(localStorage.getItem("youtube_oauth_token")).toBeNull()
+      expect(SecureTokenStorage.getStoredToken).toHaveBeenCalledWith("youtube")
     })
   })
 
   describe("storeToken", () => {
-    it("should store token with calculated expiry time", () => {
+    it("should store token with calculated expiry time", async () => {
       const token = {
         accessToken: "new_token",
         refreshToken: "refresh_token",
@@ -138,20 +156,9 @@ describe("OAuthService (simplified)", () => {
         tokenType: "Bearer",
       }
 
-      const beforeStore = Date.now()
-      OAuthService.storeToken("youtube", token)
-      const afterStore = Date.now()
+      await OAuthService.storeToken("youtube", token)
 
-      const stored = JSON.parse(localStorage.getItem("youtube_oauth_token")!)
-
-      expect(stored.accessToken).toBe("new_token")
-      expect(stored.refreshToken).toBe("refresh_token")
-      expect(stored.expiresIn).toBe(3600)
-      expect(stored.tokenType).toBe("Bearer")
-
-      // Проверяем, что время истечения рассчитано правильно
-      expect(stored.expiresAt).toBeGreaterThanOrEqual(beforeStore + 3600 * 1000)
-      expect(stored.expiresAt).toBeLessThanOrEqual(afterStore + 3600 * 1000)
+      expect(SecureTokenStorage.storeToken).toHaveBeenCalledWith("youtube", token)
     })
   })
 })

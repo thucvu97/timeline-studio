@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { EffectComparison } from "../../components/effect-comparison"
 import { VideoEffect } from "../../types"
+import { generateCSSFilterForEffect, getPlaybackRate } from "../../utils/css-effects"
 
 // Мокаем внешние зависимости
 vi.mock("react-i18next", () => ({
@@ -27,7 +28,7 @@ vi.mock("@/components/ui/slider", () => ({
       type="range"
       data-testid="slider"
       value={value[0]}
-      onChange={(e) => onValueChange([parseInt(e.target.value)])}
+      onChange={(e) => onValueChange([Number.parseInt(e.target.value)])}
       min={min}
       max={max}
       step={step}
@@ -46,9 +47,6 @@ vi.mock("../../utils/css-effects", () => ({
   generateCSSFilterForEffect: vi.fn(),
   getPlaybackRate: vi.fn(),
 }))
-
-// Импортируем мокированные функции
-import { generateCSSFilterForEffect, getPlaybackRate } from "../../utils/css-effects"
 
 describe("EffectComparison", () => {
   const mockEffect: VideoEffect = {
@@ -90,7 +88,7 @@ describe("EffectComparison", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Сброс моков утилит
     vi.mocked(generateCSSFilterForEffect).mockReturnValue("brightness(1.2) contrast(1.1)")
     vi.mocked(getPlaybackRate).mockReturnValue(1)
@@ -144,7 +142,7 @@ describe("EffectComparison", () => {
     it("должен устанавливать правильные размеры контейнера", () => {
       render(<EffectComparison effect={mockEffect} width={800} height={600} />)
 
-      const container = document.querySelector('.relative.overflow-hidden')
+      const container = document.querySelector(".relative.overflow-hidden")
       expect(container).toHaveStyle({
         width: "800px",
         height: "600px",
@@ -162,7 +160,7 @@ describe("EffectComparison", () => {
       render(<EffectComparison effect={mockEffect} videoPath="/custom-video.mp4" />)
 
       const videos = document.querySelectorAll("video")
-      videos.forEach(video => {
+      videos.forEach((video) => {
         expect(video).toHaveAttribute("src", "/custom-video.mp4")
       })
     })
@@ -171,7 +169,7 @@ describe("EffectComparison", () => {
       render(<EffectComparison effect={mockEffect} />)
 
       const videos = document.querySelectorAll("video")
-      videos.forEach(video => {
+      videos.forEach((video) => {
         expect(video).toHaveAttribute("src", "/t1.mp4")
       })
     })
@@ -182,14 +180,14 @@ describe("EffectComparison", () => {
       render(<EffectComparison effect={mockEffect} />)
 
       expect(vi.mocked(generateCSSFilterForEffect)).toHaveBeenCalledWith(mockEffect)
-      
+
       const effectVideo = document.querySelectorAll("video")[1]
       expect(effectVideo.style.filter).toBe("brightness(1.2) contrast(1.1)")
     })
 
     it("должен применять кастомные параметры к эффекту", () => {
       const customParams = { intensity: 75, saturation: 120 }
-      
+
       render(<EffectComparison effect={mockEffect} customParams={customParams} />)
 
       const expectedEffect = {
@@ -205,11 +203,11 @@ describe("EffectComparison", () => {
 
     it("должен применять скорость воспроизведения", () => {
       vi.mocked(getPlaybackRate).mockReturnValue(0.8)
-      
+
       render(<EffectComparison effect={mockEffect} />)
 
       expect(vi.mocked(getPlaybackRate)).toHaveBeenCalledWith(mockEffect)
-      
+
       const effectVideo = document.querySelectorAll("video")[1]
       expect(effectVideo.playbackRate).toBe(0.8)
     })
@@ -243,14 +241,14 @@ describe("EffectComparison", () => {
       render(<EffectComparison effect={mockEffect} />)
 
       const playButton = screen.getByRole("button", { name: /play|воспроизвести/i })
-      
+
       // Сначала запускаем воспроизведение
       fireEvent.click(playButton)
-      
+
       await waitFor(() => {
         expect(screen.getByTestId("pause-icon")).toBeInTheDocument()
       })
-      
+
       // Затем ставим на паузу
       const pauseButton = screen.getByRole("button", { name: /pause|пауза/i })
       fireEvent.click(pauseButton)
@@ -302,7 +300,7 @@ describe("EffectComparison", () => {
       fireEvent.change(slider, { target: { value: "75" } })
 
       expect(slider).toHaveValue("75")
-      
+
       const separator = document.querySelector('[style*="left: 75%"]')
       expect(separator).toBeInTheDocument()
 
@@ -313,9 +311,9 @@ describe("EffectComparison", () => {
     it("должен начинать перетаскивание при mousedown на контейнере", () => {
       render(<EffectComparison effect={mockEffect} />)
 
-      const container = document.querySelector('.relative.overflow-hidden')
+      const container = document.querySelector(".relative.overflow-hidden")
       expect(container).toBeInTheDocument()
-      
+
       fireEvent.mouseDown(container!)
 
       // После mousedown компонент должен войти в режим перетаскивания
@@ -325,10 +323,10 @@ describe("EffectComparison", () => {
 
     it("должен обновлять позицию при перетаскивании мышью", () => {
       const addEventListenerSpy = vi.spyOn(window, "addEventListener")
-      
+
       render(<EffectComparison effect={mockEffect} />)
 
-      const container = document.querySelector('.relative.overflow-hidden')
+      const container = document.querySelector(".relative.overflow-hidden")
       fireEvent.mouseDown(container!)
 
       // Проверяем что добавлены слушатели для mousemove и mouseup
@@ -362,7 +360,7 @@ describe("EffectComparison", () => {
   describe("Обработка событий", () => {
     it("должен очищать слушатели событий при размонтировании", () => {
       const removeEventListenerSpy = vi.spyOn(window, "removeEventListener")
-      
+
       const { unmount } = render(<EffectComparison effect={mockEffect} />)
       unmount()
 
@@ -381,7 +379,7 @@ describe("EffectComparison", () => {
       render(<EffectComparison effect={mockEffect} />)
 
       const slider = screen.getByTestId("slider")
-      
+
       // Тестируем максимальное значение
       fireEvent.change(slider, { target: { value: "150" } })
       expect(slider).toHaveValue("100")
@@ -442,7 +440,7 @@ describe("EffectComparison", () => {
       // Проверяем наличие кнопок с правильными ролями
       expect(screen.getByRole("button", { name: /play|воспроизвести/i })).toBeInTheDocument()
       expect(screen.getByRole("button", { name: /reset|сброс/i })).toBeInTheDocument()
-      
+
       // Проверяем наличие слайдера
       expect(screen.getByTestId("slider")).toBeInTheDocument()
     })
@@ -452,6 +450,155 @@ describe("EffectComparison", () => {
 
       expect(screen.getByText("50%")).toBeInTheDocument()
       expect(screen.getByText(/позиция/i)).toBeInTheDocument()
+    })
+  })
+
+  describe("Синхронизация видео", () => {
+    it("должен синхронизировать видео когда разница времени > 0.1", () => {
+      render(<EffectComparison effect={mockEffect} />)
+
+      const videos = document.querySelectorAll("video")
+      const originalVideo = videos[0]
+      const effectVideo = videos[1]
+
+      // Устанавливаем разное время
+      Object.defineProperty(originalVideo, "currentTime", { value: 5.0, writable: true })
+      Object.defineProperty(effectVideo, "currentTime", { value: 4.8, writable: true })
+
+      // Симулируем событие timeupdate
+      fireEvent(originalVideo, new Event("timeupdate"))
+
+      // Время должно синхронизироваться
+      expect(effectVideo.currentTime).toBe(5.0)
+    })
+
+    it("не должен синхронизировать видео когда разница времени < 0.1", () => {
+      render(<EffectComparison effect={mockEffect} />)
+
+      const videos = document.querySelectorAll("video")
+      const originalVideo = videos[0]
+      const effectVideo = videos[1]
+
+      // Устанавливаем близкое время
+      Object.defineProperty(originalVideo, "currentTime", { value: 5.0, writable: true })
+      Object.defineProperty(effectVideo, "currentTime", { value: 4.95, writable: true })
+
+      // Симулируем событие timeupdate
+      fireEvent(originalVideo, new Event("timeupdate"))
+
+      // Время не должно измениться
+      expect(effectVideo.currentTime).toBe(4.95)
+    })
+
+    it("должен корректно обрабатывать отсутствие видео элементов при синхронизации", () => {
+      // Мокаем refs чтобы они возвращали null
+      const { container } = render(<EffectComparison effect={mockEffect} />)
+
+      // Удаляем video элементы из DOM
+      const videos = container.querySelectorAll("video")
+      videos.forEach((video) => video.remove())
+
+      // Проверяем что компонент не падает при отсутствии видео
+      expect(() => {
+        const mockEvent = new Event("timeupdate")
+        fireEvent(window, mockEvent)
+      }).not.toThrow()
+    })
+  })
+
+  describe("Обработка перетаскивания мыши", () => {
+    it("должен игнорировать mousemove когда не в режиме перетаскивания", () => {
+      render(<EffectComparison effect={mockEffect} />)
+
+      const slider = screen.getByTestId("slider")
+      const initialValue = slider.getAttribute("value")
+
+      // Симулируем mousemove без предварительного mousedown
+      fireEvent(
+        window,
+        new MouseEvent("mousemove", {
+          clientX: 300,
+          clientY: 200,
+        }),
+      )
+
+      // Значение слайдера не должно измениться
+      expect(slider).toHaveValue(initialValue)
+    })
+
+    it("должен игнорировать mousemove когда containerRef недоступен", () => {
+      render(<EffectComparison effect={mockEffect} />)
+
+      const container = document.querySelector(".relative.overflow-hidden")
+      const slider = screen.getByTestId("slider")
+
+      // Начинаем перетаскивание
+      fireEvent.mouseDown(container!)
+
+      // Удаляем container из DOM для имитации отсутствия ref
+      container?.remove()
+
+      const initialValue = slider.getAttribute("value")
+
+      // Симулируем mousemove
+      fireEvent(
+        window,
+        new MouseEvent("mousemove", {
+          clientX: 300,
+          clientY: 200,
+        }),
+      )
+
+      // Значение не должно измениться
+      expect(slider).toHaveValue(initialValue)
+    })
+
+    it("должен правильно рассчитывать позицию при mousemove на краях", () => {
+      render(<EffectComparison effect={mockEffect} />)
+
+      const container = document.querySelector(".relative.overflow-hidden")
+      const slider = screen.getByTestId("slider")
+
+      // Начинаем перетаскивание
+      fireEvent.mouseDown(container!)
+
+      // Тест левого края (x = 0)
+      fireEvent(
+        window,
+        new MouseEvent("mousemove", {
+          clientX: 0,
+          clientY: 200,
+        }),
+      )
+      expect(slider).toHaveValue("0")
+
+      // Тест правого края (x больше ширины)
+      fireEvent(
+        window,
+        new MouseEvent("mousemove", {
+          clientX: 700, // больше чем ширина 600px
+          clientY: 200,
+        }),
+      )
+      expect(slider).toHaveValue("100")
+    })
+
+    it("должен корректно завершать перетаскивание при mouseup", () => {
+      const removeEventListenerSpy = vi.spyOn(window, "removeEventListener")
+
+      render(<EffectComparison effect={mockEffect} />)
+
+      const container = document.querySelector(".relative.overflow-hidden")
+
+      // Начинаем перетаскивание
+      fireEvent.mouseDown(container!)
+
+      // Завершаем перетаскивание
+      fireEvent(window, new MouseEvent("mouseup"))
+
+      // Проверяем что слушатели удалены
+      expect(removeEventListenerSpy).toHaveBeenCalledWith("mousemove", expect.any(Function))
+      expect(removeEventListenerSpy).toHaveBeenCalledWith("mouseup", expect.any(Function))
     })
   })
 
@@ -468,7 +615,7 @@ describe("EffectComparison", () => {
 
       // Повторный рендер с теми же пропсами
       rerender(<TestComponent />)
-      
+
       // Рендер должен произойти, но это нормально для React
       expect(renderCount).toBe(2)
     })

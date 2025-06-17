@@ -168,21 +168,21 @@ describe("LocalExportTab", () => {
 
     // Now find the GPU switch in the expanded section
     const switches = screen.getAllByRole("switch")
-    
+
     // Test each switch to find the GPU one
     let foundGpuSwitch = false
     for (const switchElement of switches) {
       vi.clearAllMocks()
       fireEvent.click(switchElement)
       const calls = defaultProps.onSettingsChange.mock.calls
-      
-      if (calls.length > 0 && Object.prototype.hasOwnProperty.call(calls[0][0], 'enableGPU')) {
+
+      if (calls.length > 0 && Object.prototype.hasOwnProperty.call(calls[0][0], "enableGPU")) {
         foundGpuSwitch = true
         expect(defaultProps.onSettingsChange).toHaveBeenCalledWith({ enableGPU: false })
         break
       }
     }
-    
+
     if (!foundGpuSwitch) {
       // Fallback assertion - at least we should have more switches after expanding
       expect(switches.length).toBeGreaterThan(4)

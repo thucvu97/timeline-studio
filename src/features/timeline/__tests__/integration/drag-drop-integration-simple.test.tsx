@@ -129,9 +129,7 @@ describe("Drag-Drop Integration Tests", () => {
 
   describe("TrackInsertionZone", () => {
     it("renders a single insertion zone", () => {
-      const { container } = render(
-        <TrackInsertionZone position="above" insertIndex={0} />
-      )
+      const { container } = render(<TrackInsertionZone position="above" insertIndex={0} />)
 
       // The zone should render with data-testid
       expect(container.firstChild).toBeInTheDocument()
@@ -139,18 +137,14 @@ describe("Drag-Drop Integration Tests", () => {
     })
 
     it("displays hover effect text", () => {
-      render(
-        <TrackInsertionZone position="between" trackId="track-1" insertIndex={1} />
-      )
+      render(<TrackInsertionZone position="between" trackId="track-1" insertIndex={1} />)
 
       // Should show the correct insertion text based on position
       expect(screen.getByText("Создать трек между")).toBeInTheDocument()
     })
 
     it("applies correct classes based on position", () => {
-      const { container } = render(
-        <TrackInsertionZone position="below" insertIndex={2} className="custom-class" />
-      )
+      const { container } = render(<TrackInsertionZone position="below" insertIndex={2} className="custom-class" />)
 
       const zone = container.firstChild
       expect(zone).toHaveClass("custom-class")

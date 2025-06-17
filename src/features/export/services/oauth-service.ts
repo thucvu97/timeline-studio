@@ -2,6 +2,8 @@
 
 import { toast } from "sonner"
 
+import { SecureTokenStorage } from "./secure-token-storage"
+
 interface OAuthConfig {
   clientId: string
   redirectUri: string
@@ -166,37 +168,17 @@ export class OAuthService {
     }
   }
 
-  static logout(network: string): void {
-    // Очищаем сохраненные токены
-    localStorage.removeItem(`${network}_oauth_token`)
-    localStorage.removeItem(`${network}_user_info`)
+  static async logout(network: string): Promise<void> {
+    // Очищаем сохраненные токены через безопасное хранилище
+    await SecureTokenStorage.removeToken(network)
+    toast.success(`Logged out from ${network}`)
   }
 
-  static getStoredToken(network: string): OAuthToken | null {
-    try {
-      const stored = localStorage.getItem(`${network}_oauth_token`)
-      if (!stored) return null
-
-      const token = JSON.parse(stored)
-
-      // Проверяем, не истек ли токен
-      if (token.expiresAt && Date.now() > token.expiresAt) {
-        OAuthService.logout(network)
-        return null
-      }
-
-      return token
-    } catch {
-      return null
-    }
+  static async getStoredToken(network: string): Promise<OAuthToken | null> {
+    return await SecureTokenStorage.getStoredToken(network)
   }
 
-  static storeToken(network: string, token: OAuthToken): void {
-    const tokenWithExpiry = {
-      ...token,
-      expiresAt: Date.now() + token.expiresIn * 1000,
-    }
-
-    localStorage.setItem(`${network}_oauth_token`, JSON.stringify(tokenWithExpiry))
+  static async storeToken(network: string, token: OAuthToken): Promise<void> {
+    await SecureTokenStorage.storeToken(network, token)
   }
 }

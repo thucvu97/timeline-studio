@@ -130,7 +130,6 @@ describe("VideoPlayer", () => {
       expect(video).not.toHaveAttribute("muted") // muted={false}
     })
 
-
     it("должен передавать видео файл в контролы", () => {
       render(<VideoPlayer />)
 
@@ -196,7 +195,7 @@ describe("VideoPlayer", () => {
 
       const video = document.querySelector("video")!
       const style = video.getAttribute("style")
-      
+
       expect(style).toContain("position: absolute")
       expect(style).toContain("top: 0")
       expect(style).toContain("left: 0")
@@ -225,7 +224,7 @@ describe("VideoPlayer", () => {
   describe("Переключение видео", () => {
     it("должен обновлять видео при изменении", () => {
       const { rerender } = render(<VideoPlayer />)
-      
+
       const videoInitial = document.querySelector("video")!
       expect(videoInitial).toHaveAttribute("src", "#")
 
@@ -257,7 +256,7 @@ describe("VideoPlayer", () => {
       }
 
       const { rerender } = render(<VideoPlayer />)
-      
+
       const videoWithFile = document.querySelector("video")!
       expect(videoWithFile).toHaveAttribute("src", "file:///temp/video.mp4")
 
@@ -290,7 +289,7 @@ describe("VideoPlayer", () => {
 
     it("должен обрабатывать нулевое соотношение сторон", () => {
       mockProjectSettings.settings.aspectRatio.value = { width: 0, height: 0 }
-      
+
       // Не должно вызвать ошибку деления на ноль
       expect(() => render(<VideoPlayer />)).not.toThrow()
     })

@@ -26,7 +26,7 @@ export class SocialNetworksService {
       }
 
       // Сохраняем токен
-      OAuthService.storeToken(network, token)
+      void OAuthService.storeToken(network, token)
 
       // Получаем информацию о пользователе
       const userInfo = await SocialNetworksService.getUserInfo(network, token.accessToken)
@@ -43,13 +43,13 @@ export class SocialNetworksService {
     }
   }
 
-  static logout(network: string): void {
-    OAuthService.logout(network)
+  static async logout(network: string): Promise<void> {
+    await OAuthService.logout(network)
     toast.info(`Disconnected from ${network}`)
   }
 
-  static isLoggedIn(network: string): boolean {
-    const token = OAuthService.getStoredToken(network)
+  static async isLoggedIn(network: string): Promise<boolean> {
+    const token = await OAuthService.getStoredToken(network)
     return !!token
   }
 
@@ -81,7 +81,7 @@ export class SocialNetworksService {
   ): Promise<SocialUploadResult> {
     try {
       // Проверяем авторизацию
-      if (!SocialNetworksService.isLoggedIn(network)) {
+      if (!(await SocialNetworksService.isLoggedIn(network))) {
         throw new Error(`Not logged in to ${network}`)
       }
 
@@ -157,7 +157,7 @@ export class SocialNetworksService {
   }
 
   static async refreshTokenIfNeeded(network: string): Promise<boolean> {
-    const token = OAuthService.getStoredToken(network)
+    const token = await OAuthService.getStoredToken(network)
     if (!token || !token.refreshToken) {
       return false
     }
@@ -173,13 +173,13 @@ export class SocialNetworksService {
     try {
       const newToken = await OAuthService.refreshToken(network, token.refreshToken)
       if (newToken) {
-        OAuthService.storeToken(network, newToken)
+        await OAuthService.storeToken(network, newToken)
         return true
       }
     } catch (error) {
       console.error("Token refresh failed:", error)
       // Логаут при неудачном обновлении токена
-      SocialNetworksService.logout(network)
+      await SocialNetworksService.logout(network)
     }
 
     return false

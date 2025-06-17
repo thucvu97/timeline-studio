@@ -1,0 +1,99 @@
+/**
+ * Environment Detection Utilities
+ *
+ * Функции для определения среды выполнения приложения
+ */
+
+/**
+ * Проверяет, выполняется ли код в desktop приложении (Tauri)
+ */
+export function isDesktop(): boolean {
+  return typeof window !== "undefined" && window.__TAURI__ !== undefined
+}
+
+/**
+ * Проверяет, выполняется ли код в браузере
+ */
+export function isBrowser(): boolean {
+  return typeof window !== "undefined" && window.__TAURI__ === undefined
+}
+
+/**
+ * Проверяет, выполняется ли код на сервере (SSR)
+ */
+export function isServer(): boolean {
+  return typeof window === "undefined"
+}
+
+/**
+ * Проверяет, в режиме разработки ли приложение
+ */
+export function isDevelopment(): boolean {
+  return process.env.NODE_ENV === "development"
+}
+
+/**
+ * Проверяет, в продакшен режиме ли приложение
+ */
+export function isProduction(): boolean {
+  return process.env.NODE_ENV === "production"
+}
+
+/**
+ * Получает версию Tauri (если доступна)
+ */
+export async function getTauriVersion(): Promise<string | null> {
+  if (!isDesktop()) {
+    return null
+  }
+
+  try {
+    const { getVersion } = await import("@tauri-apps/api/app")
+    return await getVersion()
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Проверяет доступность Web Crypto API
+ */
+export function hasWebCrypto(): boolean {
+  return (
+    typeof window !== "undefined" && typeof window.crypto !== "undefined" && typeof window.crypto.subtle !== "undefined"
+  )
+}
+
+/**
+ * Проверяет поддержку Service Workers
+ */
+export function hasServiceWorkers(): boolean {
+  return typeof window !== "undefined" && "serviceWorker" in navigator
+}
+
+/**
+ * Получает информацию о платформе
+ */
+export async function getPlatformInfo(): Promise<{
+  type: "desktop" | "browser"
+  platform?: string
+  version?: string
+}> {
+  if (isDesktop()) {
+    try {
+      // eslint-disable-next-line import/no-unresolved
+      const { platform } = await import("@tauri-apps/plugin-os")
+      const version = await getTauriVersion()
+
+      return {
+        type: "desktop",
+        platform: await platform(),
+        version: version || undefined,
+      }
+    } catch {
+      return { type: "desktop" }
+    }
+  }
+
+  return { type: "browser" }
+}

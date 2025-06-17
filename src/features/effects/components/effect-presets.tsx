@@ -28,14 +28,18 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
 
   // Загружаем пользовательские пресеты из localStorage
   useEffect(() => {
-    const storageKey = `effect_presets_${effect.id}`
-    const savedPresets = localStorage.getItem(storageKey)
-    if (savedPresets) {
-      try {
-        setCustomPresets(JSON.parse(savedPresets))
-      } catch (error) {
-        console.error("Error loading custom presets:", error)
+    try {
+      const storageKey = `effect_presets_${effect.id}`
+      const savedPresets = localStorage.getItem(storageKey)
+      if (savedPresets) {
+        try {
+          setCustomPresets(JSON.parse(savedPresets))
+        } catch (parseError) {
+          console.error("Error parsing custom presets:", parseError)
+        }
       }
+    } catch (storageError) {
+      console.error("Error accessing localStorage:", storageError)
     }
   }, [effect.id])
 

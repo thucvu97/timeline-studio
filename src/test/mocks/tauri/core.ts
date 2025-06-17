@@ -10,6 +10,23 @@ vi.mock("@tauri-apps/api/core", () => ({
   convertFileSrc: mockConvertFileSrc,
 }))
 
+// Mock Tauri OS plugin
+vi.mock("@tauri-apps/plugin-os", () => ({
+  platform: vi.fn().mockResolvedValue("darwin"),
+  version: vi.fn().mockResolvedValue("14.0.0"),
+  family: vi.fn().mockResolvedValue("unix"),
+  type: vi.fn().mockResolvedValue("macos"),
+  arch: vi.fn().mockResolvedValue("x86_64"),
+  locale: vi.fn().mockResolvedValue("en-US"),
+}))
+
+// Mock Tauri app API
+vi.mock("@tauri-apps/api/app", () => ({
+  getName: vi.fn().mockResolvedValue("Timeline Studio"),
+  getVersion: vi.fn().mockResolvedValue("0.18.0"),
+  getTauriVersion: vi.fn().mockResolvedValue("2.0.0"),
+}))
+
 // Helper for setting up command responses
 export function setupTauriCommand(command: string, response: unknown) {
   mockInvoke.mockImplementation((cmd: string, args?: InvokeArgs) => {

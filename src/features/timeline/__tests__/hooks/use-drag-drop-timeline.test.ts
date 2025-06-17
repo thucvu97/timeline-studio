@@ -523,11 +523,7 @@ describe("useDragDropTimeline", () => {
         result.current.handleDragEnd(event)
       })
 
-      expect(mockAddSingleMediaToTimeline).toHaveBeenCalledWith(
-        mediaFile,
-        "track-1",
-        expect.any(Number),
-      )
+      expect(mockAddSingleMediaToTimeline).toHaveBeenCalledWith(mediaFile, "track-1", expect.any(Number))
     })
   })
 

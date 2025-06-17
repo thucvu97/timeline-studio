@@ -398,7 +398,7 @@ describe("Интеграция Drag-Drop функциональности", () =
           error: null,
           addSingleMediaToTimeline: mockAddSingleMediaToTimeline,
         }))
-        
+
         return <TimelineContent />
       }
 
@@ -426,7 +426,7 @@ describe("Интеграция Drag-Drop функциональности", () =
           error: "Тестовая ошибка загрузки проекта",
           addSingleMediaToTimeline: mockAddSingleMediaToTimeline,
         }))
-        
+
         return <TimelineContent />
       }
 
@@ -547,7 +547,7 @@ describe("Интеграция Drag-Drop функциональности", () =
       // Проверяем отображение нулевого количества треков
       const zeroText = screen.getByText("0 треков")
       expect(zeroText).toBeInTheDocument()
-      
+
       // Кнопка добавления видео трека должна быть доступна
       expect(screen.getByText("Видео")).toBeInTheDocument()
     })
@@ -585,7 +585,7 @@ describe("Интеграция Drag-Drop функциональности", () =
     it("должен корректно обрабатывать быстрые повторные операции", () => {
       // Очищаем предыдущие вызовы mockAddTrack
       mockAddTrack.mockClear()
-      
+
       render(<TrackControlsPanel />)
 
       const videoButton = screen.getByText("Видео")

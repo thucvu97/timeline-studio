@@ -20,13 +20,11 @@ export class OAuthService {
       tokenType: "Bearer",
     }
 
-    OAuthService.mockTokens[network] = mockToken
-    localStorage.setItem(`oauth_token_${network}`, JSON.stringify(mockToken))
-
+    await OAuthService.storeToken(network, mockToken)
     return mockToken
   }
 
-  static getStoredToken(network: string): OAuthToken | null {
+  static async getStoredToken(network: string): Promise<OAuthToken | null> {
     // Check in-memory mock first
     if (OAuthService.mockTokens[network]) {
       return OAuthService.mockTokens[network]
@@ -41,13 +39,13 @@ export class OAuthService {
     return null
   }
 
-  static logout(network: string): void {
+  static async logout(network: string): Promise<void> {
     OAuthService.mockTokens[network] = null
     localStorage.removeItem(`oauth_token_${network}`)
   }
 
   static async refreshToken(network: string): Promise<OAuthToken | null> {
-    const currentToken = OAuthService.getStoredToken(network)
+    const currentToken = await OAuthService.getStoredToken(network)
     if (!currentToken) return null
 
     // Simulate token refresh
@@ -61,6 +59,11 @@ export class OAuthService {
     localStorage.setItem(`oauth_token_${network}`, JSON.stringify(refreshedToken))
 
     return refreshedToken
+  }
+
+  static async storeToken(network: string, token: OAuthToken): Promise<void> {
+    OAuthService.mockTokens[network] = token
+    localStorage.setItem(`oauth_token_${network}`, JSON.stringify(token))
   }
 
   static isTokenExpired(token: OAuthToken): boolean {

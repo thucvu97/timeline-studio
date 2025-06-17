@@ -51,7 +51,7 @@ export function SocialExportTab({ settings, onSettingsChange, onExport, isRender
   }
 
   const handleLogout = () => {
-    logoutFromSocialNetwork(settings.socialNetwork)
+    void logoutFromSocialNetwork(settings.socialNetwork)
     onSettingsChange({
       isLoggedIn: false,
       accountName: undefined,

@@ -1,35 +1,27 @@
 /**
  * ExportPresets Component
- * 
+ *
  * Компонент для выбора пресетов экспорта видео.
  * Предоставляет готовые настройки для популярных платформ и форматов.
  */
 
 import React from "react"
 
-import { 
-  Cpu, 
-  FileVideo, 
-  Film, 
-  HardDrive, 
-  Music2,
-  Play,
-  Settings2
-} from "lucide-react"
+import { Cpu, FileVideo, Film, HardDrive, Music2, Play, Settings2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
 // Иконка TikTok
 const TikTokIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.37 6.37 0 0 0-1-.09A6.35 6.35 0 0 0 3 15.64 6.35 6.35 0 0 0 9.37 22a6.35 6.35 0 0 0 6.35-6.35V8.44a8.28 8.28 0 0 0 4.83 1.52V6.69h-.96z"/>
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.37 6.37 0 0 0-1-.09A6.35 6.35 0 0 0 3 15.64 6.35 6.35 0 0 0 9.37 22a6.35 6.35 0 0 0 6.35-6.35V8.44a8.28 8.28 0 0 0 4.83 1.52V6.69h-.96z" />
   </svg>
 )
 
 // Иконка Vimeo
 const VimeoIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M22.875 10.063c-.102 2.236-1.666 5.299-4.693 9.188C15.078 23.25 12.484 24 10.451 24c-1.254 0-2.313-.665-3.174-1.996l-1.738-6.373c-.644-2.343-1.336-3.514-2.074-3.514-.161 0-.725.339-1.693 1.016L0 11.004c1.065-.937 2.115-1.873 3.15-2.81C4.589 6.86 5.653 6.162 6.34 6.1c1.76-.17 2.844.704 3.252 2.622.44 2.071.745 3.36.915 3.867.509 2.31 1.067 3.464 1.675 3.464.473 0 1.184-.748 2.133-2.244.947-1.495 1.455-2.633 1.522-3.414.135-1.291-.372-1.937-1.522-1.937-.542 0-1.101.124-1.676.371 1.113-3.645 3.239-5.415 6.378-5.309 2.327.07 3.425 1.576 3.294 4.518z"/>
+    <path d="M22.875 10.063c-.102 2.236-1.666 5.299-4.693 9.188C15.078 23.25 12.484 24 10.451 24c-1.254 0-2.313-.665-3.174-1.996l-1.738-6.373c-.644-2.343-1.336-3.514-2.074-3.514-.161 0-.725.339-1.693 1.016L0 11.004c1.065-.937 2.115-1.873 3.15-2.81C4.589 6.86 5.653 6.162 6.34 6.1c1.76-.17 2.844.704 3.252 2.622.44 2.071.745 3.36.915 3.867.509 2.31 1.067 3.464 1.675 3.464.473 0 1.184-.748 2.133-2.244.947-1.495 1.455-2.633 1.522-3.414.135-1.291-.372-1.937-1.522-1.937-.542 0-1.101.124-1.676.371 1.113-3.645 3.239-5.415 6.378-5.309 2.327.07 3.425 1.576 3.294 4.518z" />
   </svg>
 )
 
@@ -66,7 +58,7 @@ const EXPORT_PRESETS: ExportPreset[] = [
       codec: "h264",
       resolution: "timeline",
       fps: "timeline",
-    }
+    },
   },
   {
     id: "h264-master",
@@ -82,7 +74,7 @@ const EXPORT_PRESETS: ExportPreset[] = [
       bitrateMode: "cbr",
       bitrate: 80000,
       useHardwareAcceleration: true,
-    }
+    },
   },
   {
     id: "hyperdeck",
@@ -97,7 +89,7 @@ const EXPORT_PRESETS: ExportPreset[] = [
       fps: "timeline",
       bitrateMode: "cbr",
       bitrate: 50000,
-    }
+    },
   },
   {
     id: "h265-master",
@@ -114,7 +106,7 @@ const EXPORT_PRESETS: ExportPreset[] = [
       bitrate: 60000,
       optimizeForSpeed: true,
       useHardwareAcceleration: true,
-    }
+    },
   },
   {
     id: "prores",
@@ -126,7 +118,7 @@ const EXPORT_PRESETS: ExportPreset[] = [
       codec: "prores",
       resolution: "timeline",
       fps: "timeline",
-    }
+    },
   },
   {
     id: "youtube",
@@ -144,7 +136,7 @@ const EXPORT_PRESETS: ExportPreset[] = [
       normalizeAudio: true,
       audioTarget: -14, // YouTube рекомендует -14 LKFS
       uploadDirectly: true,
-    }
+    },
   },
   {
     id: "vimeo",
@@ -160,7 +152,7 @@ const EXPORT_PRESETS: ExportPreset[] = [
       bitrateMode: "vbr",
       bitrate: 20000,
       useHardwareAcceleration: true,
-    }
+    },
   },
   {
     id: "tiktok",
@@ -176,8 +168,8 @@ const EXPORT_PRESETS: ExportPreset[] = [
       bitrateMode: "auto",
       useVerticalResolution: true,
       uploadDirectly: true,
-    }
-  }
+    },
+  },
 ]
 
 interface ExportPresetsProps {
@@ -186,11 +178,7 @@ interface ExportPresetsProps {
   className?: string
 }
 
-export function ExportPresets({
-  selectedPresetId,
-  onSelectPreset,
-  className
-}: ExportPresetsProps) {
+export function ExportPresets({ selectedPresetId, onSelectPreset, className }: ExportPresetsProps) {
   return (
     <div className={cn("flex gap-2 p-4 border-b overflow-x-auto", className)}>
       {EXPORT_PRESETS.map((preset) => (
@@ -205,20 +193,18 @@ export function ExportPresets({
             "min-w-[100px]",
             selectedPresetId === preset.id
               ? "bg-primary text-primary-foreground border-primary"
-              : "bg-background border-border"
+              : "bg-background border-border",
           )}
         >
-          <div className={cn(
-            "flex items-center justify-center w-8 h-8 rounded-full",
-            selectedPresetId === preset.id
-              ? "bg-primary-foreground/20"
-              : "bg-muted"
-          )}>
+          <div
+            className={cn(
+              "flex items-center justify-center w-8 h-8 rounded-full",
+              selectedPresetId === preset.id ? "bg-primary-foreground/20" : "bg-muted",
+            )}
+          >
             {preset.icon}
           </div>
-          <span className="text-xs font-medium whitespace-nowrap">
-            {preset.name}
-          </span>
+          <span className="text-xs font-medium whitespace-nowrap">{preset.name}</span>
         </button>
       ))}
     </div>

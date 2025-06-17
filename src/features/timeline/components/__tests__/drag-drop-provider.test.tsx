@@ -162,12 +162,7 @@ describe("DragDropProvider", () => {
 
   it("поддерживает touch события", () => {
     const TestTouchable = () => (
-      <div
-        onTouchStart={() => {}}
-        onTouchMove={() => {}}
-        onTouchEnd={() => {}}
-        data-testid="touchable-item"
-      >
+      <div onTouchStart={() => {}} onTouchMove={() => {}} onTouchEnd={() => {}} data-testid="touchable-item">
         Touchable Item
       </div>
     )

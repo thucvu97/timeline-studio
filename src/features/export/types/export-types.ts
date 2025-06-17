@@ -10,7 +10,7 @@ export interface ExportSettings {
   enableGPU: boolean
   advancedCompression?: boolean
   cloudBackup?: boolean
-  
+
   // Новые поля для расширенных настроек
   exportVideo?: boolean
   exportAudio?: boolean
@@ -21,7 +21,16 @@ export interface ExportSettings {
   minBitrate?: number
   crf?: number
   encodingProfile?: string
-  encodingPreset?: "ultrafast" | "superfast" | "veryfast" | "faster" | "fast" | "medium" | "slow" | "slower" | "veryslow"
+  encodingPreset?:
+    | "ultrafast"
+    | "superfast"
+    | "veryfast"
+    | "faster"
+    | "fast"
+    | "medium"
+    | "slow"
+    | "slower"
+    | "veryslow"
   entropy?: "cabac" | "cavlc"
   keyframeMode?: "auto" | "every"
   keyframeInterval?: number

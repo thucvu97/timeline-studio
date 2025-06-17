@@ -22,11 +22,11 @@ export class SocialNetworksService {
     return true
   }
 
-  static logout(network: string): void {
+  static async logout(network: string): Promise<void> {
     // Simulate logout
   }
 
-  static isLoggedIn(network: string): boolean {
+  static async isLoggedIn(network: string): Promise<boolean> {
     // For testing, check if we have a mock token
     const token = localStorage.getItem(`oauth_token_${network}`)
     return !!token
@@ -36,8 +36,9 @@ export class SocialNetworksService {
     return SocialNetworksService.mockUserInfo[network] || null
   }
 
-  static async refreshTokenIfNeeded(network: string): Promise<void> {
-    // Mock implementation - do nothing
+  static async refreshTokenIfNeeded(network: string): Promise<boolean> {
+    // Mock implementation - always return true
+    return true
   }
 
   static validateSettings(network: string, settings: SocialExportSettings): string[] {
@@ -80,7 +81,7 @@ export class SocialNetworksService {
     onProgress?: (progress: number) => void,
   ): Promise<UploadResult> {
     // Check if logged in
-    if (!SocialNetworksService.isLoggedIn(network)) {
+    if (!(await SocialNetworksService.isLoggedIn(network))) {
       return {
         success: false,
         error: `Not logged in to ${network}`,

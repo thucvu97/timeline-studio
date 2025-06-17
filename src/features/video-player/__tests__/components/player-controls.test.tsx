@@ -29,13 +29,7 @@ vi.mock("lucide-react", () => ({
 // Мокаем компоненты UI
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
-    <button
-      onClick={onClick}
-      className={className}
-      data-variant={variant}
-      data-size={size}
-      {...props}
-    >
+    <button onClick={onClick} className={className} data-variant={variant} data-size={size} {...props}>
       {children}
     </button>
   ),
@@ -47,7 +41,7 @@ vi.mock("@/components/ui/slider", () => ({
       type="range"
       data-testid="slider"
       value={value?.[0] || 0}
-      onChange={(e) => onValueChange?.([parseFloat(e.target.value)])}
+      onChange={(e) => onValueChange?.([Number.parseFloat(e.target.value)])}
       max={max}
       step={step}
       className={className}
@@ -63,8 +57,8 @@ vi.mock("../../components/prerender-controls", () => ({
 
 vi.mock("../../components/volume-slider", () => ({
   VolumeSlider: ({ volume, volumeRef, onValueChange, onValueCommit }: any) => (
-    <div 
-      data-testid="volume-slider" 
+    <div
+      data-testid="volume-slider"
       data-volume={volume}
       onClick={() => {
         if (onValueChange) onValueChange([0.5])
@@ -303,7 +297,7 @@ describe("PlayerControls", () => {
 
     it("должен показывать ошибку если контейнер не найден", () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       render(<PlayerControls currentTime={0} file={mockFile} />)
 
       const fullscreenButton = screen.getByTitle("timeline.controls.fullscreen")
@@ -385,10 +379,9 @@ describe("PlayerControls", () => {
       expect(slider).toHaveValue("0") // localDisplayTime по умолчанию 0
     })
 
-
     it("должен правильно рассчитывать frameTime", () => {
-      const fileWith60fps = { 
-        ...mockFile, 
+      const fileWith60fps = {
+        ...mockFile,
         probeData: {
           format: {},
           streams: [{ r_frame_rate: "60/1" }],
