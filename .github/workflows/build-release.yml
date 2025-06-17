@@ -288,16 +288,10 @@ jobs:
           cd promo
           npm install
 
-      - name: Update download links
+      - name: Show version for debugging
         run: |
           VERSION="${{ needs.create-release.outputs.version }}"
-
-          # Заменяем VERSION_PLACEHOLDER на актуальную версию
-          sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" promo/src/App.tsx
-          
-          # Показываем изменения для отладки
-          echo "Updated App.tsx with version ${VERSION}"
-          grep -n "timeline-studio_${VERSION}" promo/src/App.tsx || echo "Pattern not found"
+          echo "Building promo page for version ${VERSION}"
 
       - name: Build promo page
         run: |

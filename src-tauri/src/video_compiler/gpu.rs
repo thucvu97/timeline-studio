@@ -262,8 +262,40 @@ impl GpuDetector {
   /// Получить информацию о NVIDIA GPU (Linux)
   #[cfg(target_os = "linux")]
   async fn get_nvidia_info_linux(&self) -> Result<GpuInfo> {
-    // Аналогично Windows версии
-    self.get_nvidia_info_windows().await
+    // Используем nvidia-smi так же как на Windows
+    let output = tokio::process::Command::new("nvidia-smi")
+      .args([
+        "--query-gpu=name,driver_version,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader,nounits",
+      ])
+      .output()
+      .await
+      .map_err(|e| VideoCompilerError::Io(format!("Failed to run nvidia-smi: {}", e)))?;
+
+    if !output.status.success() {
+      return Err(VideoCompilerError::gpu("nvidia-smi failed"));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let line = stdout
+      .lines()
+      .next()
+      .ok_or_else(|| VideoCompilerError::gpu("No GPU data from nvidia-smi"))?;
+
+    let parts: Vec<&str> = line.split(", ").collect();
+    if parts.len() >= 5 {
+      Ok(GpuInfo {
+        name: parts[0].trim().to_string(),
+        driver_version: Some(parts[1].trim().to_string()),
+        memory_total: parts[2].trim().parse::<u64>().ok().map(|m| m * 1024 * 1024),
+        memory_used: parts[3].trim().parse::<u64>().ok().map(|m| m * 1024 * 1024),
+        utilization: parts[4].trim().parse().ok(),
+        encoder_type: GpuEncoder::Nvenc,
+        supported_codecs: vec!["h264_nvenc".to_string(), "hevc_nvenc".to_string()],
+      })
+    } else {
+      Err(VideoCompilerError::gpu("Invalid nvidia-smi output format"))
+    }
   }
 
   /// Получить информацию о Intel GPU (Windows)
@@ -302,7 +334,7 @@ impl GpuDetector {
     // Читаем информацию из /sys/class/drm
     use tokio::fs;
 
-    let drm_cards = fs::read_dir("/sys/class/drm")
+    let _drm_cards = fs::read_dir("/sys/class/drm")
       .await
       .map_err(|e| VideoCompilerError::Io(format!("Failed to read /sys/class/drm: {}", e)))?;
 
