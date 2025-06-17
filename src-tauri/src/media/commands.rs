@@ -116,8 +116,43 @@ pub async fn get_timeline_frames(
     .map_err(|e| e.to_string())
 }
 
+/// Генерировать превью для таймлайна с использованием PreviewGenerator
+#[tauri::command]
+pub async fn generate_timeline_previews(
+  state: State<'_, PreviewManagerState>,
+  file_id: String,
+  file_path: String,
+  duration: f64,
+  interval: f64,
+) -> Result<(), String> {
+  let path = PathBuf::from(file_path);
+  state
+    .manager
+    .generate_timeline_previews(file_id, path, duration, interval)
+    .await
+    .map(|_| ()) // Convert Vec<TimelinePreview> to () for simplicity
+    .map_err(|e| e.to_string())
+}
+
+/// Извлечь кадры для распознавания с использованием FrameExtractionManager
+#[tauri::command]
+pub async fn extract_recognition_frames(
+  state: State<'_, PreviewManagerState>,
+  file_id: String,
+  file_path: String,
+  count: usize,
+) -> Result<(), String> {
+  let path = PathBuf::from(file_path);
+  state
+    .manager
+    .extract_recognition_frames(file_id, path, count)
+    .await
+    .map(|_| ()) // Convert Vec<RecognitionFrame> to () for simplicity
+    .map_err(|e| e.to_string())
+}
+
 /// Структура для timeline frame из frontend
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(Clone, serde::Deserialize, serde::Serialize)]
 pub struct TimelineFrame {
   pub timestamp: f64,
   pub base64_data: String,
@@ -125,7 +160,7 @@ pub struct TimelineFrame {
 }
 
 /// Simplified media metadata structure
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct SimpleMediaMetadata {
   pub duration: Option<f64>,
   pub width: Option<u32>,
@@ -139,7 +174,7 @@ pub struct SimpleMediaMetadata {
 }
 
 /// Processed media file result
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct ProcessedMediaFile {
   pub id: String,
   pub path: String,

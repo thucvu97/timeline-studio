@@ -8,9 +8,10 @@ import React from "react"
 
 import { cn } from "@/lib/utils"
 
+import { TimelineTrack } from "../../types"
+import { TrackHeightAdjuster } from "../track-height-adjuster"
 import { TrackContent } from "./track-content"
 import { TrackHeader } from "./track-header"
-import { TimelineTrack } from "../../types"
 
 interface TrackProps {
   track: TimelineTrack | null
@@ -21,6 +22,7 @@ interface TrackProps {
   onUpdate?: (track: TimelineTrack) => void
   onMuteToggle?: (trackId: string) => void
   onLockToggle?: (trackId: string) => void
+  onHeightChange?: (trackId: string, height: number) => void
   className?: string
   style?: React.CSSProperties
 }
@@ -34,6 +36,7 @@ export function Track({
   onUpdate,
   onMuteToggle,
   onLockToggle,
+  onHeightChange,
   className,
   style,
 }: TrackProps) {
@@ -62,7 +65,7 @@ export function Track({
     <div
       data-testid="timeline-track"
       className={cn(
-        "flex border-b border-border bg-background track",
+        "flex border-b border-border bg-background track relative",
         "hover:bg-accent/5 transition-colors",
         isSelected && "bg-accent/10 border-accent",
         track.isHidden && "opacity-50",
@@ -88,6 +91,15 @@ export function Track({
       <div className="flex-1 relative overflow-hidden">
         <TrackContent track={track} timeScale={timeScale} currentTime={currentTime} onUpdate={handleUpdate} />
       </div>
+
+      {/* Регулятор высоты трека */}
+      {onHeightChange && (
+        <TrackHeightAdjuster
+          trackId={track.id}
+          currentHeight={track.height}
+          onHeightChange={onHeightChange}
+        />
+      )}
     </div>
   )
 }

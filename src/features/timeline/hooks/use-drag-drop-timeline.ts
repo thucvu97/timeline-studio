@@ -8,11 +8,14 @@ import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core"
 
 import { useTimeline } from "./use-timeline"
 import { useTimelineActions } from "./use-timeline-actions"
-import { DragData, DragState } from "../types/drag-drop"
+import { useTracks } from "./use-tracks"
+import { TrackType } from "../types"
+import { DragData, DragState, DropPosition } from "../types/drag-drop"
 import {
   calculateTimelinePosition,
   canDropOnTrack,
   findInsertionPoint,
+  getTrackTypeForMediaFile,
   snapToGrid,
 } from "../utils/drag-calculations"
 
@@ -22,11 +25,13 @@ export interface UseDragDropTimelineReturn {
   handleDragOver: (event: DragOverEvent) => void
   handleDragEnd: (event: DragEndEvent) => void
   isValidDropTarget: (trackId: string, trackType: string) => boolean
+  isValidDropTargetForNewTrack: (expectedTrackType?: TrackType) => boolean
 }
 
 export function useDragDropTimeline(): UseDragDropTimelineReturn {
   const { uiState } = useTimeline()
   const { addSingleMediaToTimeline } = useTimelineActions()
+  const { addTrack } = useTimeline()
 
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
@@ -67,56 +72,75 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
       }
 
       const dragData = active.data.current as DragData
-      const dropData = over.data.current as { trackId: string; trackType: string } | undefined
+      const dropData = over.data.current as any
 
       if (!dropData || !dragData) {
         return
       }
 
-      // Check if this is a valid drop target
-      const isValid = canDropOnTrack(dragData.mediaFile, dropData.trackType as any)
-
-      if (isValid) {
-        // Calculate drop position based on mouse position
-        const mouseX = (event.activatorEvent as MouseEvent).clientX
-        const trackElement = document.querySelector(`[data-track-id="${dropData.trackId}"]`)
-        
-        if (trackElement) {
-          const rect = trackElement.getBoundingClientRect()
-          const scrollLeft = trackElement.scrollLeft || 0
-          
-          let timePosition = calculateTimelinePosition(
-            mouseX,
-            rect,
-            scrollLeft,
-            uiState.timeScale
-          )
-
-          // Apply snapping if enabled
-          timePosition = snapToGrid(timePosition, uiState.snapMode)
-
-          // Find insertion point (avoiding overlaps)
-          const insertionTime = findInsertionPoint(
-            timePosition,
-            dropData.trackId,
-            dragData.mediaFile.duration || 10
-          )
-
-          setDragState((prev) => ({
-            ...prev,
-            dragOverTrack: dropData.trackId,
-            dropPosition: {
-              trackId: dropData.trackId,
-              startTime: insertionTime,
-            },
-          }))
-        }
-      } else {
+      // Handle track insertion zones
+      if (dropData.type === "track-insertion") {
+        const expectedTrackType = getTrackTypeForMediaFile(dragData.mediaFile)
         setDragState((prev) => ({
           ...prev,
           dragOverTrack: null,
-          dropPosition: null,
+          dropPosition: {
+            type: "track-insertion",
+            insertIndex: dropData.insertIndex,
+            trackType: expectedTrackType,
+            startTime: 0,
+          } as any,
         }))
+        return
+      }
+
+      // Handle existing track drops
+      if (dropData.trackId && dropData.trackType) {
+        // Check if this is a valid drop target
+        const isValid = canDropOnTrack(dragData.mediaFile, dropData.trackType)
+
+        if (isValid) {
+          // Calculate drop position based on mouse position
+          const mouseX = (event.activatorEvent as MouseEvent).clientX
+          const trackElement = document.querySelector(`[data-track-id="${dropData.trackId}"]`)
+          
+          if (trackElement) {
+            const rect = trackElement.getBoundingClientRect()
+            const scrollLeft = trackElement.scrollLeft || 0
+            
+            let timePosition = calculateTimelinePosition(
+              mouseX,
+              rect,
+              scrollLeft,
+              uiState.timeScale
+            )
+
+            // Apply snapping if enabled
+            timePosition = snapToGrid(timePosition, uiState.snapMode)
+
+            // Find insertion point (avoiding overlaps)
+            const insertionTime = findInsertionPoint(
+              timePosition,
+              dropData.trackId,
+              dragData.mediaFile.duration || 10
+            )
+
+            setDragState((prev) => ({
+              ...prev,
+              dragOverTrack: dropData.trackId,
+              dropPosition: {
+                trackId: dropData.trackId,
+                startTime: insertionTime,
+              },
+            }))
+          }
+        } else {
+          setDragState((prev) => ({
+            ...prev,
+            dragOverTrack: null,
+            dropPosition: null,
+          }))
+        }
       }
     },
     [dragState.draggedItem, uiState.timeScale, uiState.snapMode]
@@ -129,27 +153,52 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
 
       if (over && dragState.draggedItem && dragState.dropPosition) {
         const dragData = active.data.current as DragData
-        const dropData = over.data.current as { trackId: string; trackType: string } | undefined
+        const dropData = over.data.current as any
 
         if (dropData && dragData) {
-          const isValid = canDropOnTrack(dragData.mediaFile, dropData.trackType as any)
-
-          if (isValid) {
+          // Handle track insertion (create new track)
+          if (dropData.type === "track-insertion") {
+            const trackType = getTrackTypeForMediaFile(dragData.mediaFile)
+            const trackName = `${trackType.charAt(0).toUpperCase() + trackType.slice(1)} Track`
+            
             console.log(
-              "[DragDrop] Dropping media:",
-              dragData.mediaFile.name,
-              "on track:",
-              dropData.trackId,
-              "at time:",
-              dragState.dropPosition.startTime
+              "[DragDrop] Creating new track:",
+              trackName,
+              "for media:",
+              dragData.mediaFile.name
             )
 
-            // Use enhanced timeline action with custom positioning
-            addSingleMediaToTimeline(
-              dragData.mediaFile,
-              dragState.dropPosition.trackId,
-              dragState.dropPosition.startTime
-            )
+            // Create new track and add media to it
+            addTrack(trackType as any, undefined, trackName)
+            
+            // TODO: We need to get the newly created track ID to add the media
+            // For now, we'll add it to the first compatible track
+            // This needs to be improved with proper track creation callback
+            setTimeout(() => {
+              addSingleMediaToTimeline(dragData.mediaFile, undefined, 0)
+            }, 100)
+            
+          } else if (dropData.trackId && dropData.trackType) {
+            // Handle existing track drop
+            const isValid = canDropOnTrack(dragData.mediaFile, dropData.trackType)
+
+            if (isValid) {
+              console.log(
+                "[DragDrop] Dropping media:",
+                dragData.mediaFile.name,
+                "on track:",
+                dropData.trackId,
+                "at time:",
+                dragState.dropPosition.startTime
+              )
+
+              // Use enhanced timeline action with custom positioning
+              addSingleMediaToTimeline(
+                dragData.mediaFile,
+                dragState.dropPosition.trackId,
+                dragState.dropPosition.startTime
+              )
+            }
           }
         }
       }
@@ -164,7 +213,7 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
 
       console.log("[DragDrop] Drag ended")
     },
-    [dragState.draggedItem, dragState.dropPosition, addSingleMediaToTimeline]
+    [dragState.draggedItem, dragState.dropPosition, addSingleMediaToTimeline, addTrack]
   )
 
   // Check if a track is a valid drop target for the current drag
@@ -179,11 +228,32 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
     [dragState.isDragging, dragState.draggedItem]
   )
 
+  // Check if a track insertion zone is valid for the current drag
+  const isValidDropTargetForNewTrack = useCallback(
+    (expectedTrackType?: TrackType) => {
+      if (!dragState.isDragging || !dragState.draggedItem) {
+        return false
+      }
+
+      const requiredTrackType = getTrackTypeForMediaFile(dragState.draggedItem.mediaFile)
+      
+      // If no expected track type is specified, any media can create a new track
+      if (!expectedTrackType) {
+        return true
+      }
+
+      // Check if the expected track type matches what the media file requires
+      return requiredTrackType === expectedTrackType
+    },
+    [dragState.isDragging, dragState.draggedItem]
+  )
+
   return {
     dragState,
     handleDragStart,
     handleDragOver,
     handleDragEnd,
     isValidDropTarget,
+    isValidDropTargetForNewTrack,
   }
 }

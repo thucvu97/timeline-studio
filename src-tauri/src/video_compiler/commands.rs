@@ -790,52 +790,6 @@ pub async fn clear_file_preview_cache(
   Ok(())
 }
 
-/// Генерация превью для timeline (полоса превью)
-#[tauri::command]
-pub async fn generate_timeline_previews(
-  video_path: String,
-  duration: f64,
-  interval: f64,
-  state: State<'_, VideoCompilerState>,
-) -> Result<Vec<TimelinePreviewResult>> {
-  use crate::video_compiler::preview::PreviewGenerator;
-  use base64::engine::general_purpose::STANDARD as BASE64;
-  use base64::Engine as _;
-
-  let preview_gen = PreviewGenerator::new(state.cache_manager.clone());
-
-  // Генерируем превью для timeline
-  let previews = preview_gen
-    .generate_timeline_previews(Path::new(&video_path), duration, interval)
-    .await
-    .map_err(|e| VideoCompilerError::PreviewError {
-      timestamp: 0.0,
-      reason: e.to_string(),
-    })?;
-
-  // Конвертируем в формат для фронтенда
-  Ok(
-    previews
-      .into_iter()
-      .map(|preview| TimelinePreviewResult {
-        timestamp: preview.timestamp,
-        image_data: preview.image_data.map(|data| BASE64.encode(&data)),
-        error: None,
-      })
-      .collect(),
-  )
-}
-
-/// Результат превью для timeline
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct TimelinePreviewResult {
-  /// Временная метка
-  pub timestamp: f64,
-  /// Данные изображения (base64)
-  pub image_data: Option<String>,
-  /// Ошибка если была
-  pub error: Option<String>,
-}
 
 /// Запрос на генерацию превью
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -1633,47 +1587,6 @@ pub struct RecognitionFrameResult {
   pub is_keyframe: bool,
 }
 
-/// Извлечь кадры для распознавания
-#[tauri::command]
-pub async fn extract_recognition_frames(
-  video_path: String,
-  purpose: String,
-  _interval: f64,
-  state: State<'_, VideoCompilerState>,
-) -> Result<Vec<RecognitionFrameResult>> {
-  use std::path::Path;
-
-  let manager = FrameExtractionManager::new(state.cache_manager.clone());
-
-  // Парсим цель извлечения
-  let extraction_purpose = match purpose.as_str() {
-    "object_detection" => ExtractionPurpose::ObjectDetection,
-    "scene_recognition" => ExtractionPurpose::SceneRecognition,
-    "text_recognition" => ExtractionPurpose::TextRecognition,
-    _ => ExtractionPurpose::ObjectDetection,
-  };
-
-  let path = Path::new(&video_path);
-  let video_info = manager.preview_generator.get_video_info(path).await?;
-
-  let frames = manager
-    .extract_frames_for_recognition(path, video_info.duration, extraction_purpose)
-    .await?;
-
-  // Преобразуем в формат для фронтенда
-  Ok(
-    frames
-      .into_iter()
-      .map(|frame| RecognitionFrameResult {
-        timestamp: frame.timestamp,
-        frame_data: frame.frame_data,
-        resolution: [frame.resolution.0, frame.resolution.1],
-        scene_change_score: frame.scene_change_score,
-        is_keyframe: frame.is_keyframe,
-      })
-      .collect(),
-  )
-}
 
 /// Параметры для извлечения кадров субтитров
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
