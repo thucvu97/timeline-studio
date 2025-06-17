@@ -34,7 +34,7 @@ export function EffectList() {
 
   // Получаем текущий размер превью из массива
   const basePreviewSize = PREVIEW_SIZES[previewSizeIndex]
-  
+
   // Refs для навигации клавиатурой
   const effectRefs = useRef<Map<string, HTMLDivElement>>(new Map())
   const focusedIndexRef = useRef<number>(-1)
@@ -213,77 +213,80 @@ export function EffectList() {
     focusedIndexRef.current = index
     // Здесь может быть логика применения эффекта к видео
   }, [])
-  
+
   /**
    * Обработчик навигации клавиатурой
    */
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    const allEffects = processedEffects
-    const currentIndex = focusedIndexRef.current
-    
-    let newIndex = currentIndex
-    
-    switch (event.key) {
-      case 'ArrowRight':
-        event.preventDefault()
-        newIndex = Math.min(currentIndex + 1, allEffects.length - 1)
-        break
-        
-      case 'ArrowLeft':
-        event.preventDefault()
-        newIndex = Math.max(currentIndex - 1, 0)
-        break
-        
-      case 'ArrowDown':
-        event.preventDefault()
-        // Переход на следующую строку (зависит от количества колонок)
-        const itemsPerRow = Math.floor(window.innerWidth / (basePreviewSize + 16)) // 16px - отступы
-        newIndex = Math.min(currentIndex + itemsPerRow, allEffects.length - 1)
-        break
-        
-      case 'ArrowUp':
-        event.preventDefault()
-        const itemsPerRowUp = Math.floor(window.innerWidth / (basePreviewSize + 16))
-        newIndex = Math.max(currentIndex - itemsPerRowUp, 0)
-        break
-        
-      case 'Enter':
-      case ' ':
-        event.preventDefault()
-        if (currentIndex >= 0 && currentIndex < allEffects.length) {
-          handleEffectClick(allEffects[currentIndex], currentIndex)
-        }
-        break
-        
-      case 'Tab':
-        // Позволяем Tab работать по умолчанию для навигации между элементами
-        if (event.shiftKey) {
-          newIndex = Math.max(currentIndex - 1, 0)
-        } else {
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      const allEffects = processedEffects
+      const currentIndex = focusedIndexRef.current
+
+      let newIndex = currentIndex
+
+      switch (event.key) {
+        case "ArrowRight":
+          event.preventDefault()
           newIndex = Math.min(currentIndex + 1, allEffects.length - 1)
-        }
-        break
-        
-      default:
-        return
-    }
-    
-    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < allEffects.length) {
-      focusedIndexRef.current = newIndex
-      const effectId = allEffects[newIndex].id
-      const element = effectRefs.current.get(effectId)
-      
-      if (element) {
-        element.focus()
-        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+          break
+
+        case "ArrowLeft":
+          event.preventDefault()
+          newIndex = Math.max(currentIndex - 1, 0)
+          break
+
+        case "ArrowDown":
+          event.preventDefault()
+          // Переход на следующую строку (зависит от количества колонок)
+          const itemsPerRow = Math.floor(window.innerWidth / (basePreviewSize + 16)) // 16px - отступы
+          newIndex = Math.min(currentIndex + itemsPerRow, allEffects.length - 1)
+          break
+
+        case "ArrowUp":
+          event.preventDefault()
+          const itemsPerRowUp = Math.floor(window.innerWidth / (basePreviewSize + 16))
+          newIndex = Math.max(currentIndex - itemsPerRowUp, 0)
+          break
+
+        case "Enter":
+        case " ":
+          event.preventDefault()
+          if (currentIndex >= 0 && currentIndex < allEffects.length) {
+            handleEffectClick(allEffects[currentIndex], currentIndex)
+          }
+          break
+
+        case "Tab":
+          // Позволяем Tab работать по умолчанию для навигации между элементами
+          if (event.shiftKey) {
+            newIndex = Math.max(currentIndex - 1, 0)
+          } else {
+            newIndex = Math.min(currentIndex + 1, allEffects.length - 1)
+          }
+          break
+
+        default:
+          return
       }
-    }
-  }, [processedEffects, handleEffectClick, basePreviewSize])
-  
+
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < allEffects.length) {
+        focusedIndexRef.current = newIndex
+        const effectId = allEffects[newIndex].id
+        const element = effectRefs.current.get(effectId)
+
+        if (element) {
+          element.focus()
+          element.scrollIntoView({ behavior: "smooth", block: "nearest" })
+        }
+      }
+    },
+    [processedEffects, handleEffectClick, basePreviewSize],
+  )
+
   // Добавляем слушатель клавиатуры
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [handleKeyDown])
 
   // Показываем индикатор загрузки
@@ -326,7 +329,7 @@ export function EffectList() {
             for (let i = 0; i < groupIndex; i++) {
               startIndex += groupedEffects[i].effects.length
             }
-            
+
             return (
               <EffectGroup
                 key={group.title || "ungrouped"}

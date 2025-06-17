@@ -146,7 +146,7 @@ export function EffectPreview({
 
       // Запускаем воспроизведение видео
       videoElement.play().catch((err: unknown) => {
-        console.log('Autoplay prevented:', err)
+        console.log("Autoplay prevented:", err)
       })
 
       // Устанавливаем таймер для повторного воспроизведения через 2 секунды
@@ -203,17 +203,19 @@ export function EffectPreview({
             data-testid="effect-video"
           />
         )}
-        
+
         {/* Плейсхолдер пока видео не загружено */}
         {!videoSrc && (
-          <div 
+          <div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xs bg-gray-800 flex items-center justify-center"
             style={{
               width: `${width}px`,
               height: `${height}px`,
             }}
           >
-            <div className="text-gray-500 text-xs">{effect?.labels?.[i18n.language as keyof typeof effect.labels] || effect?.name || effectType}</div>
+            <div className="text-gray-500 text-xs">
+              {effect?.labels?.[i18n.language as keyof typeof effect.labels] || effect?.name || effectType}
+            </div>
           </div>
         )}
 

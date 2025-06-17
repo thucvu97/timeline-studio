@@ -32,62 +32,64 @@ export function EffectComparison({
   const [splitPosition, setSplitPosition] = useState(50)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
-  
+
   const originalVideoRef = useRef<HTMLVideoElement>(null)
   const effectVideoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  
+
   // Синхронизация воспроизведения видео
   useEffect(() => {
     const originalVideo = originalVideoRef.current
     const effectVideo = effectVideoRef.current
-    
+
     if (!originalVideo || !effectVideo) return
-    
+
     // Синхронизируем currentTime при изменении
     const syncTime = () => {
       if (Math.abs(originalVideo.currentTime - effectVideo.currentTime) > 0.1) {
         effectVideo.currentTime = originalVideo.currentTime
       }
     }
-    
-    originalVideo.addEventListener('timeupdate', syncTime)
-    
+
+    originalVideo.addEventListener("timeupdate", syncTime)
+
     return () => {
-      originalVideo.removeEventListener('timeupdate', syncTime)
+      originalVideo.removeEventListener("timeupdate", syncTime)
     }
   }, [])
-  
+
   // Применение эффекта к видео
   useEffect(() => {
     const effectVideo = effectVideoRef.current
     if (!effectVideo || !effect) return
-    
+
     // Создаем эффект с объединенными параметрами
-    const mergedEffect = customParams ? {
-      ...effect,
-      params: {
-        ...effect.params,
-        ...customParams,
-      },
-    } : effect
-    
+    const mergedEffect = customParams
+      ? {
+          ...effect,
+          params: {
+            ...effect.params,
+            ...customParams,
+          },
+        }
+      : effect
+
     // Применяем CSS фильтры
     const cssFilter = generateCSSFilterForEffect(mergedEffect)
     effectVideo.style.filter = cssFilter
-    
+
     // Применяем скорость воспроизведения для эффектов движения
     const playbackRate = getPlaybackRate(mergedEffect)
     effectVideo.playbackRate = playbackRate
   }, [effect, customParams])
-  
+
   // Обработчик воспроизведения/паузы
   const handlePlayPause = () => {
     const originalVideo = originalVideoRef.current
     const effectVideo = effectVideoRef.current
-    
+
     if (!originalVideo || !effectVideo) return
-    
+
     if (isPlaying) {
       originalVideo.pause()
       effectVideo.pause()
@@ -95,17 +97,17 @@ export function EffectComparison({
       void originalVideo.play()
       void effectVideo.play()
     }
-    
+
     setIsPlaying(!isPlaying)
   }
-  
+
   // Обработчик сброса
   const handleReset = () => {
     const originalVideo = originalVideoRef.current
     const effectVideo = effectVideoRef.current
-    
+
     if (!originalVideo || !effectVideo) return
-    
+
     originalVideo.currentTime = 0
     effectVideo.currentTime = 0
     originalVideo.pause()
@@ -113,36 +115,36 @@ export function EffectComparison({
     setIsPlaying(false)
     setSplitPosition(50)
   }
-  
+
   // Обработчик перемещения разделителя
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || !containerRef.current) return
-    
+
     const rect = containerRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const percentage = (x / rect.width) * 100
     setSplitPosition(Math.max(0, Math.min(100, percentage)))
   }
-  
+
   // Обработчики мыши для перетаскивания
   useEffect(() => {
     const handleMouseUp = () => setIsDragging(false)
-    
+
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('mouseup', handleMouseUp)
+      window.addEventListener("mousemove", handleMouseMove)
+      window.addEventListener("mouseup", handleMouseUp)
     }
-    
+
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("mouseup", handleMouseUp)
     }
   }, [isDragging])
-  
+
   return (
     <div className="space-y-4">
       {/* Контейнер для видео */}
-      <div 
+      <div
         ref={containerRef}
         className="relative overflow-hidden rounded-lg bg-black cursor-ew-resize"
         style={{ width: `${width}px`, height: `${height}px` }}
@@ -162,9 +164,9 @@ export function EffectComparison({
             {t("effects.comparison.original", "Оригинал")}
           </div>
         </div>
-        
+
         {/* Видео с эффектом (правая часть) */}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             clipPath: `polygon(${splitPosition}% 0, 100% 0, 100% 100%, ${splitPosition}% 100%)`,
@@ -182,9 +184,9 @@ export function EffectComparison({
             {t("effects.comparison.withEffect", "С эффектом")}
           </div>
         </div>
-        
+
         {/* Разделитель */}
-        <div 
+        <div
           className="absolute top-0 bottom-0 w-1 bg-white shadow-lg pointer-events-none"
           style={{ left: `${splitPosition}%` }}
         >
@@ -196,31 +198,21 @@ export function EffectComparison({
           </div>
         </div>
       </div>
-      
+
       {/* Контролы */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={handlePlayPause}
-        >
+        <Button variant="secondary" size="sm" onClick={handlePlayPause}>
           {isPlaying ? <Pause size={16} /> : <Play size={16} />}
           {isPlaying ? t("common.pause", "Пауза") : t("common.play", "Воспроизвести")}
         </Button>
-        
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={handleReset}
-        >
+
+        <Button variant="secondary" size="sm" onClick={handleReset}>
           <RotateCcw size={16} />
           {t("common.reset", "Сброс")}
         </Button>
-        
+
         <div className="flex-1 flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
-            {t("effects.comparison.position", "Позиция")}:
-          </span>
+          <span className="text-sm text-muted-foreground">{t("effects.comparison.position", "Позиция")}:</span>
           <Slider
             value={[splitPosition]}
             onValueChange={([value]) => setSplitPosition(value)}
@@ -229,9 +221,7 @@ export function EffectComparison({
             step={1}
             className="flex-1"
           />
-          <span className="text-sm font-mono text-muted-foreground w-12">
-            {Math.round(splitPosition)}%
-          </span>
+          <span className="text-sm font-mono text-muted-foreground w-12">{Math.round(splitPosition)}%</span>
         </div>
       </div>
     </div>

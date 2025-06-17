@@ -1,6 +1,6 @@
 /**
  * TrackControlsPanel - Левая панель управления треками
- * 
+ *
  * Компонент для профессионального управления треками:
  * - Отображение списка треков
  * - Добавление новых треков
@@ -9,63 +9,55 @@
  */
 
 import React from "react"
+
+import { Eye, EyeOff, Image, Lock, Music, Plus, Type, Unlock, Video, Volume2 } from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
-import { 
-  Video, 
-  Volume2, 
-  Image, 
-  Music, 
-  Type, 
-  Plus,
-  Eye,
-  EyeOff,
-  Lock,
-  Unlock
-} from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useTracks } from "../hooks/use-tracks"
+
 import { useTimeline } from "../hooks/use-timeline"
+import { useTracks } from "../hooks/use-tracks"
 
 // Типы треков с иконками и цветами
 const TRACK_TYPES = [
-  { 
-    type: "video" as const, 
-    label: "Видео", 
-    icon: Video, 
+  {
+    type: "video" as const,
+    label: "Видео",
+    icon: Video,
     color: "bg-blue-500",
-    description: "Видео треки"
+    description: "Видео треки",
   },
-  { 
-    type: "audio" as const, 
-    label: "Аудио", 
-    icon: Volume2, 
+  {
+    type: "audio" as const,
+    label: "Аудио",
+    icon: Volume2,
     color: "bg-green-500",
-    description: "Аудио треки"
+    description: "Аудио треки",
   },
-  { 
-    type: "image" as const, 
-    label: "Изображения", 
-    icon: Image, 
+  {
+    type: "image" as const,
+    label: "Изображения",
+    icon: Image,
     color: "bg-purple-500",
-    description: "Изображения и фото"
+    description: "Изображения и фото",
   },
-  { 
-    type: "music" as const, 
-    label: "Музыка", 
-    icon: Music, 
+  {
+    type: "music" as const,
+    label: "Музыка",
+    icon: Music,
     color: "bg-orange-500",
-    description: "Музыкальные треки"
+    description: "Музыкальные треки",
   },
-  { 
-    type: "subtitle" as const, 
-    label: "Субтитры", 
-    icon: Type, 
+  {
+    type: "subtitle" as const,
+    label: "Субтитры",
+    icon: Type,
     color: "bg-yellow-500",
-    description: "Текст и субтитры"
-  }
+    description: "Текст и субтитры",
+  },
 ]
 
 interface TrackControlsPanelProps {
@@ -77,8 +69,8 @@ export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
   const { addTrack, updateTrack } = useTimeline()
 
   const handleAddTrack = (type: string) => {
-    const trackInfo = TRACK_TYPES.find(t => t.type === type)
-    const trackName = `${trackInfo?.label || 'Трек'} ${tracks.filter(t => t.type === type).length + 1}`
+    const trackInfo = TRACK_TYPES.find((t) => t.type === type)
+    const trackName = `${trackInfo?.label || "Трек"} ${tracks.filter((t) => t.type === type).length + 1}`
     addTrack(type as any, trackName)
   }
 
@@ -100,15 +92,13 @@ export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
       <div className="p-4 border-b">
         <h3 className="font-semibold text-sm">Управление треками</h3>
         <p className="text-xs text-muted-foreground mt-1">
-          {tracks.length} {tracks.length === 1 ? 'трек' : 'треков'}
+          {tracks.length} {tracks.length === 1 ? "трек" : "треков"}
         </p>
       </div>
 
       {/* Быстрые кнопки добавления треков */}
       <div className="p-4 space-y-3">
-        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Добавить трек
-        </h4>
+        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Добавить трек</h4>
         <div className="grid grid-cols-1 gap-2">
           {TRACK_TYPES.slice(0, 3).map((trackType) => {
             const Icon = trackType.icon
@@ -127,7 +117,7 @@ export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
             )
           })}
         </div>
-        
+
         {/* Дополнительные типы треков (свернуты) */}
         <details className="group">
           <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground flex items-center">
@@ -161,33 +151,26 @@ export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
       <div className="flex-1 overflow-auto">
         {tracks.length === 0 ? (
           <div className="p-4 text-center">
-            <p className="text-xs text-muted-foreground">
-              Треки не найдены
-            </p>
+            <p className="text-xs text-muted-foreground">Треки не найдены</p>
           </div>
         ) : (
           <div className="p-2 space-y-2">
-            <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-2">
-              Треки проекта
-            </h4>
+            <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-2">Треки проекта</h4>
             {tracks.map((track) => {
-              const trackTypeInfo = TRACK_TYPES.find(t => t.type === track.type)
+              const trackTypeInfo = TRACK_TYPES.find((t) => t.type === track.type)
               const Icon = trackTypeInfo?.icon || Video
               const trackHeight = track.height || 80
 
               return (
-                <div
-                  key={track.id}
-                  className="p-3 bg-background rounded-md border shadow-sm space-y-3"
-                >
+                <div key={track.id} className="p-3 bg-background rounded-md border shadow-sm space-y-3">
                   {/* Заголовок трека */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center min-w-0 flex-1">
-                      <div className={cn("w-2 h-2 rounded-full mr-2 flex-shrink-0", trackTypeInfo?.color || "bg-gray-500")} />
+                      <div
+                        className={cn("w-2 h-2 rounded-full mr-2 flex-shrink-0", trackTypeInfo?.color || "bg-gray-500")}
+                      />
                       <Icon className="w-3 h-3 mr-2 flex-shrink-0" />
-                      <span className="text-xs font-medium truncate">
-                        {track.name}
-                      </span>
+                      <span className="text-xs font-medium truncate">{track.name}</span>
                     </div>
                     <Badge variant="secondary" className="text-xs ml-2">
                       {track.type}
@@ -210,7 +193,7 @@ export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
                         <EyeOff className="w-3 h-3 text-muted-foreground" />
                       )}
                     </Button>
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -230,12 +213,8 @@ export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
                   {/* Настройка высоты */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs text-muted-foreground">
-                        Высота
-                      </label>
-                      <span className="text-xs font-mono">
-                        {trackHeight}px
-                      </span>
+                      <label className="text-xs text-muted-foreground">Высота</label>
+                      <span className="text-xs font-mono">{trackHeight}px</span>
                     </div>
                     <Slider
                       value={[trackHeight]}

@@ -15,12 +15,7 @@ interface TrackHeightAdjusterProps {
   className?: string
 }
 
-export function TrackHeightAdjuster({
-  trackId,
-  currentHeight,
-  onHeightChange,
-  className,
-}: TrackHeightAdjusterProps) {
+export function TrackHeightAdjuster({ trackId, currentHeight, onHeightChange, className }: TrackHeightAdjusterProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [startY, setStartY] = useState(0)
   const [startHeight, setStartHeight] = useState(0)
@@ -29,7 +24,7 @@ export function TrackHeightAdjuster({
     (e: React.MouseEvent) => {
       e.preventDefault()
       e.stopPropagation()
-      
+
       setIsDragging(true)
       setStartY(e.clientY)
       setStartHeight(currentHeight)
@@ -39,7 +34,7 @@ export function TrackHeightAdjuster({
 
         const deltaY = e.clientY - startY
         const newHeight = Math.max(40, Math.min(300, startHeight + deltaY))
-        
+
         onHeightChange(trackId, newHeight)
       }
 
@@ -52,7 +47,7 @@ export function TrackHeightAdjuster({
       document.addEventListener("mousemove", handleMouseMove)
       document.addEventListener("mouseup", handleMouseUp)
     },
-    [trackId, currentHeight, onHeightChange, isDragging, startY, startHeight]
+    [trackId, currentHeight, onHeightChange, isDragging, startY, startHeight],
   )
 
   return (
@@ -64,7 +59,7 @@ export function TrackHeightAdjuster({
         "transition-colors duration-150",
         "group",
         isDragging && "bg-primary/30",
-        className
+        className,
       )}
       onMouseDown={handleMouseDown}
       data-testid={`track-height-adjuster-${trackId}`}
@@ -75,15 +70,12 @@ export function TrackHeightAdjuster({
           "absolute bottom-0 left-0 right-0 h-0.5",
           "bg-primary opacity-0",
           "group-hover:opacity-100 transition-opacity duration-150",
-          isDragging && "opacity-100"
+          isDragging && "opacity-100",
         )}
       />
-      
+
       {/* Расширенная область для захвата */}
-      <div
-        className="absolute -top-1 -bottom-1 left-0 right-0"
-        title="Перетащите для изменения высоты трека"
-      />
+      <div className="absolute -top-1 -bottom-1 left-0 right-0" title="Перетащите для изменения высоты трека" />
     </div>
   )
 }

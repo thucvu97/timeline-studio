@@ -4,11 +4,11 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use super::preview_data::{MediaPreviewData, ThumbnailData, TimelinePreview, RecognitionFrame};
+use super::preview_data::{MediaPreviewData, RecognitionFrame, ThumbnailData, TimelinePreview};
 use super::thumbnail::generate_thumbnail;
-use crate::video_compiler::preview::PreviewGenerator;
-use crate::video_compiler::frame_extraction::{FrameExtractionManager, ExtractionPurpose};
 use crate::video_compiler::cache::RenderCache;
+use crate::video_compiler::frame_extraction::{ExtractionPurpose, FrameExtractionManager};
+use crate::video_compiler::preview::PreviewGenerator;
 
 /// Единый менеджер для всех данных превью
 pub struct PreviewDataManager {
@@ -29,7 +29,7 @@ impl PreviewDataManager {
   pub fn new(base_dir: PathBuf) -> Self {
     // Создаем общий кэш для PreviewGenerator и FrameExtractionManager
     let cache = Arc::new(RwLock::new(RenderCache::new()));
-    
+
     let preview_generator = PreviewGenerator::new(cache.clone());
     let frame_extractor = FrameExtractionManager::new(cache.clone());
 
@@ -97,135 +97,131 @@ impl PreviewDataManager {
 
   /// Генерировать превью для таймлайна
   pub async fn generate_timeline_previews(
-      &self,
-      file_id: String,
-      file_path: PathBuf,
-      duration: f64,
-      interval: f64,
+    &self,
+    file_id: String,
+    file_path: PathBuf,
+    duration: f64,
+    interval: f64,
   ) -> Result<Vec<TimelinePreview>> {
-      use base64::{engine::general_purpose::STANDARD, Engine as _};
-      
-      // Используем PreviewGenerator для генерации превью
-      let generator = self.timeline_generator.read().await;
-      let preview_results = generator
-          .generate_timeline_previews(&file_path, duration, interval)
-          .await?;
-      
-      // Преобразуем результаты в наш формат TimelinePreview
-      let mut timeline_previews = Vec::new();
-      let output_dir = self.base_dir.join("Caches/timeline").join(&file_id);
-      
-      // Создаем директорию если не существует
-      tokio::fs::create_dir_all(&output_dir).await?;
-      
-      for (i, preview_result) in preview_results.iter().enumerate() {
-          let base64_data = if let Some(ref image_data) = preview_result.image_data {
-              // image_data уже в формате Vec<u8>
-              let base64 = STANDARD.encode(image_data);
-              
-              // Сохраняем файл на диск для совместимости
-              let file_path = output_dir.join(format!("frame_{:04}.jpg", i));
-              tokio::fs::write(&file_path, image_data).await?;
-              
-              let timeline_preview = TimelinePreview {
-                  timestamp: preview_result.timestamp,
-                  path: file_path,
-                  base64_data: Some(base64.clone()),
-              };
-              
-              timeline_previews.push(timeline_preview);
-              Some(base64)
-          } else {
-              None
-          };
-          
-          if base64_data.is_none() {
-              // Если нет данных, создаем пустой превью
-              let file_path = output_dir.join(format!("frame_{:04}_empty.jpg", i));
-              let timeline_preview = TimelinePreview {
-                  timestamp: preview_result.timestamp,
-                  path: file_path,
-                  base64_data: None,
-              };
-              timeline_previews.push(timeline_preview);
-          }
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+
+    // Используем PreviewGenerator для генерации превью
+    let generator = self.timeline_generator.read().await;
+    let preview_results = generator
+      .generate_timeline_previews(&file_path, duration, interval)
+      .await?;
+
+    // Преобразуем результаты в наш формат TimelinePreview
+    let mut timeline_previews = Vec::new();
+    let output_dir = self.base_dir.join("Caches/timeline").join(&file_id);
+
+    // Создаем директорию если не существует
+    tokio::fs::create_dir_all(&output_dir).await?;
+
+    for (i, preview_result) in preview_results.iter().enumerate() {
+      let base64_data = if let Some(ref image_data) = preview_result.image_data {
+        // image_data уже в формате Vec<u8>
+        let base64 = STANDARD.encode(image_data);
+
+        // Сохраняем файл на диск для совместимости
+        let file_path = output_dir.join(format!("frame_{:04}.jpg", i));
+        tokio::fs::write(&file_path, image_data).await?;
+
+        let timeline_preview = TimelinePreview {
+          timestamp: preview_result.timestamp,
+          path: file_path,
+          base64_data: Some(base64.clone()),
+        };
+
+        timeline_previews.push(timeline_preview);
+        Some(base64)
+      } else {
+        None
+      };
+
+      if base64_data.is_none() {
+        // Если нет данных, создаем пустой превью
+        let file_path = output_dir.join(format!("frame_{:04}_empty.jpg", i));
+        let timeline_preview = TimelinePreview {
+          timestamp: preview_result.timestamp,
+          path: file_path,
+          base64_data: None,
+        };
+        timeline_previews.push(timeline_preview);
       }
-      
-      // Сохраняем в кэш
-      let mut data = self.data.write().await;
-      let preview_data = data
-          .entry(file_id.clone())
-          .or_insert_with(|| MediaPreviewData::new(file_id, file_path));
-      
-      // Очищаем старые превью и добавляем новые
-      preview_data.timeline_previews.clear();
-      for preview in &timeline_previews {
-          preview_data.add_timeline_preview(preview.clone());
-      }
-      
-      Ok(timeline_previews)
+    }
+
+    // Сохраняем в кэш
+    let mut data = self.data.write().await;
+    let preview_data = data
+      .entry(file_id.clone())
+      .or_insert_with(|| MediaPreviewData::new(file_id, file_path));
+
+    // Очищаем старые превью и добавляем новые
+    preview_data.timeline_previews.clear();
+    for preview in &timeline_previews {
+      preview_data.add_timeline_preview(preview.clone());
+    }
+
+    Ok(timeline_previews)
   }
 
   /// Извлечь кадры для распознавания
   pub async fn extract_recognition_frames(
-      &self,
-      file_id: String,
-      file_path: PathBuf,
-      count: usize,
+    &self,
+    file_id: String,
+    file_path: PathBuf,
+    count: usize,
   ) -> Result<Vec<RecognitionFrame>> {
-      // Получаем информацию о видео
-      let generator = self.timeline_generator.read().await;
-      let video_info = generator.get_video_info(&file_path).await?;
-      let duration = video_info.duration;
-      drop(generator); // Освобождаем блокировку
-      
-      // Используем FrameExtractionManager для извлечения кадров
-      let extractor = self.frame_extractor.read().await;
-      let extracted_frames = extractor
-          .extract_frames_for_recognition(
-              &file_path,
-              duration,
-              ExtractionPurpose::ObjectDetection,
-          )
-          .await?;
-      
-      // Берем только запрошенное количество кадров
-      let frames_to_use: Vec<_> = extracted_frames.into_iter().take(count).collect();
-      
-      // Преобразуем результаты в наш формат RecognitionFrame
-      let mut recognition_frames = Vec::new();
-      let output_dir = self.base_dir.join("Recognition").join(&file_id);
-      
-      // Создаем директорию если не существует
-      tokio::fs::create_dir_all(&output_dir).await?;
-      
-      for (i, frame) in frames_to_use.iter().enumerate() {
-          // Сохраняем данные кадра на диск
-          let file_path = output_dir.join(format!("recognition_frame_{:04}.jpg", i));
-          tokio::fs::write(&file_path, &frame.frame_data).await?;
-          
-          let recognition_frame = RecognitionFrame {
-              timestamp: frame.timestamp,
-              path: file_path,
-              processed: false,
-          };
-          
-          recognition_frames.push(recognition_frame.clone());
-      }
-      
-      // Сохраняем в кэш
-      let mut data = self.data.write().await;
-      let preview_data = data
-          .entry(file_id.clone())
-          .or_insert_with(|| MediaPreviewData::new(file_id, file_path));
-      
-      // Очищаем старые кадры и добавляем новые
-      preview_data.recognition_frames.clear();
-      for frame in &recognition_frames {
-          preview_data.add_recognition_frame(frame.clone());
-      }
-      
-      Ok(recognition_frames)
+    // Получаем информацию о видео
+    let generator = self.timeline_generator.read().await;
+    let video_info = generator.get_video_info(&file_path).await?;
+    let duration = video_info.duration;
+    drop(generator); // Освобождаем блокировку
+
+    // Используем FrameExtractionManager для извлечения кадров
+    let extractor = self.frame_extractor.read().await;
+    let extracted_frames = extractor
+      .extract_frames_for_recognition(&file_path, duration, ExtractionPurpose::ObjectDetection)
+      .await?;
+
+    // Берем только запрошенное количество кадров
+    let frames_to_use: Vec<_> = extracted_frames.into_iter().take(count).collect();
+
+    // Преобразуем результаты в наш формат RecognitionFrame
+    let mut recognition_frames = Vec::new();
+    let output_dir = self.base_dir.join("Recognition").join(&file_id);
+
+    // Создаем директорию если не существует
+    tokio::fs::create_dir_all(&output_dir).await?;
+
+    for (i, frame) in frames_to_use.iter().enumerate() {
+      // Сохраняем данные кадра на диск
+      let file_path = output_dir.join(format!("recognition_frame_{:04}.jpg", i));
+      tokio::fs::write(&file_path, &frame.frame_data).await?;
+
+      let recognition_frame = RecognitionFrame {
+        timestamp: frame.timestamp,
+        path: file_path,
+        processed: false,
+      };
+
+      recognition_frames.push(recognition_frame.clone());
+    }
+
+    // Сохраняем в кэш
+    let mut data = self.data.write().await;
+    let preview_data = data
+      .entry(file_id.clone())
+      .or_insert_with(|| MediaPreviewData::new(file_id, file_path));
+
+    // Очищаем старые кадры и добавляем новые
+    preview_data.recognition_frames.clear();
+    for frame in &recognition_frames {
+      preview_data.add_recognition_frame(frame.clone());
+    }
+
+    Ok(recognition_frames)
   }
 
   /// Получить все файлы с данными превью

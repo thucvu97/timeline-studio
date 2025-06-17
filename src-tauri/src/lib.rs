@@ -8,10 +8,10 @@ use language::{get_app_language, set_app_language};
 // Модуль для работы с медиафайлами
 mod media;
 use media::commands::{
-  clear_media_preview_data, extract_recognition_frames, generate_media_thumbnail, 
-  generate_timeline_previews, get_files_with_previews, get_media_preview_data, 
-  get_timeline_frames, load_preview_data, process_media_file_simple, save_preview_data, 
-  save_timeline_frames, PreviewManagerState,
+  clear_media_preview_data, extract_recognition_frames, generate_media_thumbnail,
+  generate_timeline_previews, get_files_with_previews, get_media_preview_data, get_timeline_frames,
+  load_preview_data, process_media_file_simple, save_preview_data, save_timeline_frames,
+  PreviewManagerState,
 };
 use media::preview_manager::PreviewDataManager;
 use media::{get_media_files, get_media_metadata, MediaProcessor, ThumbnailOptions};
@@ -429,8 +429,8 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use std::sync::Arc;
   use std::path::PathBuf;
+  use std::sync::Arc;
   use tempfile::TempDir;
 
   #[test]
@@ -625,12 +625,12 @@ mod tests {
   async fn test_preview_manager_state_creation() {
     // Создаем временную директорию для тестирования
     let temp_dir = TempDir::new().unwrap();
-    
+
     // Создаем PreviewManagerState
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     // Проверяем, что менеджер создан корректно
     let files = state.manager.get_all_files_with_previews().await;
     assert!(files.is_empty()); // Изначально нет превью
@@ -640,19 +640,19 @@ mod tests {
   async fn test_media_preview_data_operations() {
     use media::preview_data::MediaPreviewData;
     use std::path::PathBuf;
-    
+
     // Создаем временную директорию
     let temp_dir = TempDir::new().unwrap();
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     let file_id = "test_file_123".to_string();
-    
+
     // Изначально превью нет
     let preview_data = state.manager.get_preview_data(&file_id).await;
     assert!(preview_data.is_none());
-    
+
     // Добавляем тестовые данные (структура для демонстрации)
     let _test_preview = MediaPreviewData {
       file_id: file_id.clone(),
@@ -663,7 +663,7 @@ mod tests {
       recognition_results: None,
       last_updated: chrono::Utc::now(),
     };
-    
+
     // Сохраняем данные (методы private, тестируем через файловые операции)
     let files_with_previews = state.manager.get_all_files_with_previews().await;
     assert!(files_with_previews.is_empty());
@@ -672,15 +672,15 @@ mod tests {
   #[tokio::test]
   async fn test_timeline_frames_operations() {
     use media::commands::TimelineFrame;
-    
+
     // Создаем временную директорию
     let temp_dir = TempDir::new().unwrap();
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     let file_id = "timeline_test_file".to_string();
-    
+
     // Создаем тестовые кадры
     let test_frames = vec![
       TimelineFrame {
@@ -694,10 +694,13 @@ mod tests {
         is_keyframe: false,
       },
     ];
-    
+
     // Тестируем сохранение кадров таймлайна (может вернуть ошибку, но не должно паниковать)
-    let _result = state.manager.save_timeline_frames(file_id.clone(), test_frames.clone()).await;
-    
+    let _result = state
+      .manager
+      .save_timeline_frames(file_id.clone(), test_frames.clone())
+      .await;
+
     // Тестируем получение кадров таймлайна (может вернуть ошибку, но не должно паниковать)
     let retrieved_frames = state.manager.get_timeline_frames(&file_id).await;
     // Проверяем что операция завершилась без panic
@@ -718,18 +721,18 @@ mod tests {
     // Создаем временную директорию
     let temp_dir = TempDir::new().unwrap();
     let save_path = temp_dir.path().join("preview_data.json");
-    
+
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     // Тестируем сохранение в файл
     let save_result = state.manager.save_to_file(&save_path).await;
     assert!(save_result.is_ok());
-    
+
     // Проверяем, что файл создан
     assert!(save_path.exists());
-    
+
     // Тестируем загрузку из файла
     let load_result = state.manager.load_from_file(&save_path).await;
     assert!(load_result.is_ok());
@@ -743,19 +746,22 @@ mod tests {
     let temp_dir = TempDir::new().unwrap();
     let test_video_path = temp_dir.path().join("test_video.mp4");
     std::fs::write(&test_video_path, b"fake video content for testing").unwrap();
-    
+
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     // Тестируем прямое обращение к менеджеру
-    let result = state.manager.generate_timeline_previews(
-      "test_file_id".to_string(),
-      test_video_path,
-      10.0, // duration
-      1.0,  // interval
-    ).await;
-    
+    let result = state
+      .manager
+      .generate_timeline_previews(
+        "test_file_id".to_string(),
+        test_video_path,
+        10.0, // duration
+        1.0,  // interval
+      )
+      .await;
+
     // Команда может вернуть ошибку из-за отсутствия FFmpeg, но не должна паниковать
     match result {
       Ok(_) => {
@@ -765,12 +771,12 @@ mod tests {
         // Ожидаемые ошибки связанные с FFmpeg или форматом файла
         let error_msg = e.to_string();
         assert!(
-          error_msg.contains("FFmpeg") || 
-          error_msg.contains("format") ||
-          error_msg.contains("video") ||
-          error_msg.contains("file") ||
-          error_msg.contains("ffprobe") ||
-          error_msg.contains("command")
+          error_msg.contains("FFmpeg")
+            || error_msg.contains("format")
+            || error_msg.contains("video")
+            || error_msg.contains("file")
+            || error_msg.contains("ffprobe")
+            || error_msg.contains("command")
         );
       }
     }
@@ -782,18 +788,21 @@ mod tests {
     let temp_dir = TempDir::new().unwrap();
     let test_video_path = temp_dir.path().join("test_video.mp4");
     std::fs::write(&test_video_path, b"fake video content for recognition").unwrap();
-    
+
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     // Тестируем прямое обращение к менеджеру
-    let result = state.manager.extract_recognition_frames(
-      "recognition_test_file".to_string(),
-      test_video_path,
-      5, // count
-    ).await;
-    
+    let result = state
+      .manager
+      .extract_recognition_frames(
+        "recognition_test_file".to_string(),
+        test_video_path,
+        5, // count
+      )
+      .await;
+
     // Команда может вернуть ошибку из-за отсутствия FFmpeg, но не должна паниковать
     match result {
       Ok(_) => {
@@ -803,13 +812,13 @@ mod tests {
         // Ожидаемые ошибки связанные с FFmpeg или форматом файла
         let error_msg = e.to_string();
         assert!(
-          error_msg.contains("FFmpeg") || 
-          error_msg.contains("format") ||
-          error_msg.contains("video") ||
-          error_msg.contains("file") ||
-          error_msg.contains("recognition") ||
-          error_msg.contains("ffprobe") ||
-          error_msg.contains("command")
+          error_msg.contains("FFmpeg")
+            || error_msg.contains("format")
+            || error_msg.contains("video")
+            || error_msg.contains("file")
+            || error_msg.contains("recognition")
+            || error_msg.contains("ffprobe")
+            || error_msg.contains("command")
         );
       }
     }
@@ -819,21 +828,21 @@ mod tests {
   async fn test_media_commands_integration() {
     // Создаем временную директорию
     let temp_dir = TempDir::new().unwrap();
-    
+
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     let test_file_id = "integration_test_file".to_string();
-    
+
     // Тестируем получение превью данных (изначально пусто)
     let preview_result = state.manager.get_preview_data(&test_file_id).await;
     assert!(preview_result.is_none());
-    
+
     // Тестируем получение списка файлов с превью
     let files_result = state.manager.get_all_files_with_previews().await;
     assert!(files_result.is_empty());
-    
+
     // Тестируем очистку данных превью для несуществующего файла
     let clear_result = state.manager.clear_file_data(&test_file_id).await;
     assert!(clear_result.is_ok()); // Должно быть успешно даже для несуществующего файла
@@ -845,19 +854,23 @@ mod tests {
     let temp_dir = TempDir::new().unwrap();
     let test_file_path = temp_dir.path().join("simple_test.mp4");
     std::fs::write(&test_file_path, b"simple fake video content").unwrap();
-    
+
     // Тестируем команду process_media_file_simple
     let result = process_media_file_simple(
       test_file_path.to_string_lossy().to_string(),
       false, // не генерируем thumbnail
-    ).await;
-    
+    )
+    .await;
+
     assert!(result.is_ok());
     let processed_file = result.unwrap();
-    
+
     // Проверяем основные поля
     assert!(!processed_file.id.is_empty());
-    assert_eq!(processed_file.path, test_file_path.to_string_lossy().to_string());
+    assert_eq!(
+      processed_file.path,
+      test_file_path.to_string_lossy().to_string()
+    );
     assert_eq!(processed_file.name, "simple_test.mp4");
     assert!(processed_file.size > 0);
     assert!(processed_file.error.is_none());
@@ -866,11 +879,9 @@ mod tests {
   #[tokio::test]
   async fn test_process_media_file_nonexistent() {
     // Тестируем обработку несуществующего файла
-    let result = process_media_file_simple(
-      "/nonexistent/path/to/file.mp4".to_string(),
-      false,
-    ).await;
-    
+    let result =
+      process_media_file_simple("/nonexistent/path/to/file.mp4".to_string(), false).await;
+
     assert!(result.is_err());
     assert_eq!(result.unwrap_err(), "File does not exist");
   }
@@ -881,34 +892,34 @@ mod tests {
   async fn test_concurrent_preview_operations() {
     use std::sync::Arc;
     use tokio::sync::Semaphore;
-    
+
     // Создаем временную директорию
     let temp_dir = TempDir::new().unwrap();
     let state = Arc::new(PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     });
-    
+
     // Семафор для ограничения количества одновременных операций
     let semaphore = Arc::new(Semaphore::new(5));
     let mut handles = vec![];
-    
+
     // Запускаем несколько операций одновременно
     for i in 0..10 {
       let state_clone = state.clone();
       let semaphore_clone = semaphore.clone();
       let file_id = format!("concurrent_test_{}", i);
-      
+
       let handle = tokio::spawn(async move {
         let _permit = semaphore_clone.acquire().await.unwrap();
-        
+
         // Тестируем получение превью данных
         let result = state_clone.manager.get_preview_data(&file_id).await;
         assert!(result.is_none()); // Изначально должно быть пусто
       });
-      
+
       handles.push(handle);
     }
-    
+
     // Ждем завершения всех операций
     for handle in handles {
       handle.await.unwrap();
@@ -922,21 +933,21 @@ mod tests {
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     // Выполняем несколько операций
     for i in 0..50 {
       let file_id = format!("memory_test_{}", i);
-      
+
       // Получаем превью данные
       let _ = state.manager.get_preview_data(&file_id).await;
-      
+
       // Получаем список файлов
       let _ = state.manager.get_all_files_with_previews().await;
-      
+
       // Очищаем данные
       let _ = state.manager.clear_file_data(&file_id).await;
     }
-    
+
     // После операций память должна быть освобождена
     // Это базовая проверка, что операции не вызывают утечек памяти
     let files = state.manager.get_all_files_with_previews().await;
@@ -951,20 +962,23 @@ mod tests {
     let temp_dir = TempDir::new().unwrap();
     let test_video_path = temp_dir.path().join("thumbnail_test.mp4");
     std::fs::write(&test_video_path, b"fake video for thumbnail generation").unwrap();
-    
+
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     // Тестируем прямое обращение к менеджеру
-    let result = state.manager.generate_browser_thumbnail(
-      "thumbnail_file_id".to_string(),
-      test_video_path,
-      320, // width
-      240, // height
-      5.0, // timestamp
-    ).await;
-    
+    let result = state
+      .manager
+      .generate_browser_thumbnail(
+        "thumbnail_file_id".to_string(),
+        test_video_path,
+        320, // width
+        240, // height
+        5.0, // timestamp
+      )
+      .await;
+
     // Команда может вернуть ошибку из-за отсутствия FFmpeg или неподдерживаемого формата
     match result {
       Ok(thumbnail_data) => {
@@ -975,12 +989,12 @@ mod tests {
         // Ожидаемые ошибки
         let error_msg = e.to_string();
         assert!(
-          error_msg.contains("FFmpeg") || 
-          error_msg.contains("format") ||
-          error_msg.contains("video") ||
-          error_msg.contains("thumbnail") ||
-          error_msg.contains("ffprobe") ||
-          error_msg.contains("command")
+          error_msg.contains("FFmpeg")
+            || error_msg.contains("format")
+            || error_msg.contains("video")
+            || error_msg.contains("thumbnail")
+            || error_msg.contains("ffprobe")
+            || error_msg.contains("command")
         );
       }
     }
@@ -991,20 +1005,23 @@ mod tests {
     let temp_dir = TempDir::new().unwrap();
     let test_video_path = temp_dir.path().join("invalid_test.mp4");
     std::fs::write(&test_video_path, b"fake content").unwrap();
-    
+
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     // Тестируем с недопустимыми размерами
-    let result = state.manager.generate_browser_thumbnail(
-      "invalid_file".to_string(),
-      test_video_path,
-      0,   // недопустимая ширина
-      240,
-      5.0,
-    ).await;
-    
+    let result = state
+      .manager
+      .generate_browser_thumbnail(
+        "invalid_file".to_string(),
+        test_video_path,
+        0, // недопустимая ширина
+        240,
+        5.0,
+      )
+      .await;
+
     // Должна вернуться ошибка
     assert!(result.is_err());
   }
@@ -1016,23 +1033,29 @@ mod tests {
     // Тестируем установку языка
     let result = set_app_language("ru".to_string());
     assert!(result.is_ok());
-    
+
     // Тестируем получение языка
     let current_lang = get_app_language();
-    
+
     // Проверяем, что язык корректно установлен
     assert_eq!(current_lang.language, "ru");
   }
 
   #[test]
   fn test_all_supported_languages() {
-    let test_languages = ["en", "ru", "es", "fr", "de", "pt", "zh", "ja", "ko", "tr", "th"];
-    
+    let test_languages = [
+      "en", "ru", "es", "fr", "de", "pt", "zh", "ja", "ko", "tr", "th",
+    ];
+
     for code_str in test_languages.iter() {
       // Устанавливаем язык
       let set_result = set_app_language(code_str.to_string());
-      assert!(set_result.is_ok(), "Не удалось установить язык: {}", code_str);
-      
+      assert!(
+        set_result.is_ok(),
+        "Не удалось установить язык: {}",
+        code_str
+      );
+
       // Получаем язык
       let language = get_app_language();
       assert_eq!(language.language, *code_str);
@@ -1044,7 +1067,7 @@ mod tests {
     // Тестируем установку недопустимого языка
     let result = set_app_language("invalid_lang".to_string());
     assert!(result.is_err());
-    
+
     // Проверяем, что можем получить текущий язык
     let current = get_app_language();
     assert!(!current.language.is_empty());
@@ -1055,29 +1078,29 @@ mod tests {
   #[test]
   fn test_filesystem_operations() {
     use filesystem::{file_exists, get_file_stats, get_platform};
-    
+
     // Создаем временный файл
     let temp_dir = TempDir::new().unwrap();
     let test_file = temp_dir.path().join("filesystem_test.txt");
     std::fs::write(&test_file, b"test content for filesystem").unwrap();
-    
+
     // Тестируем file_exists
     let exists_result = file_exists(test_file.to_string_lossy().to_string());
     assert!(exists_result.is_ok());
     assert!(exists_result.unwrap());
-    
+
     // Тестируем с несуществующим файлом
     let not_exists = file_exists("/nonexistent/file.txt".to_string());
     assert!(not_exists.is_ok());
     assert!(!not_exists.unwrap());
-    
+
     // Тестируем get_file_stats
     let stats_result = get_file_stats(test_file.to_string_lossy().to_string());
     assert!(stats_result.is_ok());
     let stats = stats_result.unwrap();
     assert!(stats.size > 0);
     assert!(stats.last_modified > 0);
-    
+
     // Тестируем get_platform
     let platform = get_platform();
     assert!(platform.is_ok());
@@ -1089,7 +1112,7 @@ mod tests {
   #[test]
   fn test_search_files_by_name() {
     use filesystem::search_files_by_name;
-    
+
     // Создаем временную директорию с тестовыми файлами
     let temp_dir = TempDir::new().unwrap();
     let test_files = [
@@ -1098,32 +1121,32 @@ mod tests {
       "other_file.txt",
       "search_video.avi",
     ];
-    
+
     for file_name in test_files.iter() {
       let file_path = temp_dir.path().join(file_name);
       std::fs::write(&file_path, b"test content").unwrap();
     }
-    
+
     // Тестируем поиск функции - базовая проверка что она работает без panic
     let search_result = search_files_by_name(
       temp_dir.path().to_string_lossy().to_string(),
       "search".to_string(),
       Some(2), // увеличенная глубина поиска
     );
-    
+
     // Основная проверка - функция должна работать без ошибок
     assert!(search_result.is_ok());
-    
+
     // Дополнительная проверка - тестируем поиск конкретного файла который точно есть
     let specific_search = search_files_by_name(
       temp_dir.path().to_string_lossy().to_string(),
       "search_test_1".to_string(), // более специфичный поиск
       Some(2),
     );
-    
+
     assert!(specific_search.is_ok());
     let found_files = specific_search.unwrap();
-    
+
     // Если найдены файлы, проверяем что они правильные
     if !found_files.is_empty() {
       let found_names: Vec<String> = found_files
@@ -1136,9 +1159,11 @@ mod tests {
             .to_string()
         })
         .collect();
-      
+
       // Проверяем что найден файл содержащий искомую строку
-      assert!(found_names.iter().any(|name| name.contains("search_test_1")));
+      assert!(found_names
+        .iter()
+        .any(|name| name.contains("search_test_1")));
     }
   }
 
@@ -1146,26 +1171,26 @@ mod tests {
 
   #[tokio::test]
   async fn test_app_directories_operations() {
-    use app_dirs::{get_app_directories, create_app_directories, get_directory_sizes};
-    
+    use app_dirs::{create_app_directories, get_app_directories, get_directory_sizes};
+
     // Тестируем получение директорий приложения
     let dirs_result = get_app_directories().await;
     assert!(dirs_result.is_ok());
-    
+
     let dirs = dirs_result.unwrap();
     assert!(!dirs.base_dir.to_string_lossy().is_empty());
     assert!(!dirs.projects_dir.to_string_lossy().is_empty());
     assert!(!dirs.caches_dir.to_string_lossy().is_empty());
     assert!(!dirs.media_dir.to_string_lossy().is_empty());
-    
+
     // Тестируем создание директорий
     let create_result = create_app_directories().await;
     assert!(create_result.is_ok());
-    
+
     // Тестируем получение размеров директорий
     let sizes_result = get_directory_sizes().await;
     assert!(sizes_result.is_ok());
-    
+
     let sizes = sizes_result.unwrap();
     // Проверяем что значения получены (u64 всегда >= 0)
     let _ = sizes.projects;
@@ -1177,7 +1202,7 @@ mod tests {
   #[tokio::test]
   async fn test_clear_app_cache() {
     use app_dirs::clear_app_cache;
-    
+
     // Тестируем очистку кэша приложения
     let clear_result = clear_app_cache().await;
     assert!(clear_result.is_ok());
@@ -1192,26 +1217,24 @@ mod tests {
     let temp_dir = TempDir::new().unwrap();
     let test_video = temp_dir.path().join("pipeline_test.mp4");
     std::fs::write(&test_video, b"fake video content for pipeline test").unwrap();
-    
+
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     let file_id = "pipeline_test_file".to_string();
     let file_path = test_video.to_string_lossy().to_string();
-    
+
     // 1. Обрабатываем медиафайл
     let process_result = process_media_file_simple(file_path.clone(), false).await;
     assert!(process_result.is_ok());
-    
+
     // 2. Пытаемся сгенерировать превью для таймлайна
-    let preview_result = state.manager.generate_timeline_previews(
-      file_id.clone(),
-      PathBuf::from(file_path.clone()),
-      10.0,
-      2.0,
-    ).await;
-    
+    let preview_result = state
+      .manager
+      .generate_timeline_previews(file_id.clone(), PathBuf::from(file_path.clone()), 10.0, 2.0)
+      .await;
+
     // Может завершиться ошибкой из-за FFmpeg, но не должно паниковать
     match preview_result {
       Ok(_) => {
@@ -1223,32 +1246,28 @@ mod tests {
         // Ошибка ожидается в тестовом окружении
       }
     }
-    
+
     // 3. Пытаемся извлечь кадры для распознавания
-    let recognition_result = state.manager.extract_recognition_frames(
-      file_id.clone(),
-      PathBuf::from(file_path),
-      3,
-    ).await;
-    
+    let recognition_result = state
+      .manager
+      .extract_recognition_frames(file_id.clone(), PathBuf::from(file_path), 3)
+      .await;
+
     // Также может завершиться ошибкой
-    match recognition_result {
-      Ok(_) => {}
-      Err(_) => {}
-    }
-    
+    let _ = recognition_result.is_ok();
+
     // 4. Очищаем данные
     let clear_result = state.manager.clear_file_data(&file_id).await;
     assert!(clear_result.is_ok());
   }
 
-  #[tokio::test] 
+  #[tokio::test]
   async fn test_error_handling_resilience() {
     let temp_dir = TempDir::new().unwrap();
     let state = PreviewManagerState {
       manager: PreviewDataManager::new(temp_dir.path().to_path_buf()),
     };
-    
+
     // Тестируем обработку различных ошибочных ситуаций
     let error_scenarios = [
       ("", "пустой путь"),
@@ -1256,33 +1275,27 @@ mod tests {
       ("invalid://path", "недопустимый путь"),
       ("file.txt", "неподдерживаемый формат"),
     ];
-    
+
     for (path, _description) in error_scenarios.iter() {
       // Все команды должны корректно обрабатывать ошибки, не вызывая panic
-      
+
       let _ = process_media_file_simple(path.to_string(), false).await;
-      
-      let _ = state.manager.generate_timeline_previews(
-        "error_test".to_string(),
-        PathBuf::from(path),
-        10.0,
-        1.0,
-      ).await;
-      
-      let _ = state.manager.extract_recognition_frames(
-        "error_test".to_string(),
-        PathBuf::from(path),
-        5,
-      ).await;
-      
-      let _ = state.manager.generate_browser_thumbnail(
-        "error_test".to_string(),
-        PathBuf::from(path),
-        320,
-        240,
-        1.0,
-      ).await;
-      
+
+      let _ = state
+        .manager
+        .generate_timeline_previews("error_test".to_string(), PathBuf::from(path), 10.0, 1.0)
+        .await;
+
+      let _ = state
+        .manager
+        .extract_recognition_frames("error_test".to_string(), PathBuf::from(path), 5)
+        .await;
+
+      let _ = state
+        .manager
+        .generate_browser_thumbnail("error_test".to_string(), PathBuf::from(path), 320, 240, 1.0)
+        .await;
+
       // Все операции завершились без panic - тест прошел
     }
   }

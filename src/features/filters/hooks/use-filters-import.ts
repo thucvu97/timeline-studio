@@ -37,7 +37,7 @@ export function useFiltersImport() {
         // Читаем содержимое JSON файла
         const content = await readTextFile(selected)
         const filtersData = JSON.parse(content)
-        
+
         // Проверяем формат данных
         if (Array.isArray(filtersData)) {
           // Импортируем каждый фильтр
@@ -84,37 +84,37 @@ export function useFiltersImport() {
 
       if (selected) {
         const files = Array.isArray(selected) ? selected : [selected]
-        
+
         // Обрабатываем каждый файл
         for (const filePath of files) {
-          const fileName = filePath.split('/').pop() || ''
-          const fileExtension = fileName.split('.').pop()?.toLowerCase()
-          
+          const fileName = filePath.split("/").pop() || ""
+          const fileExtension = fileName.split(".").pop()?.toLowerCase()
+
           // Создаем объект фильтра на основе файла
           const filter: VideoFilter = {
             id: `custom-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
-            name: fileName.replace(/\.[^/.]+$/, ''), // Убираем расширение
-            category: 'creative', // По умолчанию для импортированных
-            complexity: 'intermediate',
-            tags: ['standard'],
+            name: fileName.replace(/\.[^/.]+$/, ""), // Убираем расширение
+            category: "creative", // По умолчанию для импортированных
+            complexity: "intermediate",
+            tags: ["standard"],
             description: {
-              en: `Custom ${fileExtension?.toUpperCase()} filter imported from ${fileName}`
+              en: `Custom ${fileExtension?.toUpperCase()} filter imported from ${fileName}`,
             },
             labels: {
-              en: fileName.replace(/\.[^/.]+$/, ''),
+              en: fileName.replace(/\.[^/.]+$/, ""),
             },
             params: {
               // Базовые параметры для LUT файлов
               brightness: 1,
               contrast: 1,
               saturation: 1,
-            }
+            },
           }
-          
+
           // Добавляем фильтр в ресурсы
           addFilter(filter)
         }
-        
+
         console.log(`Импортировано ${files.length} файлов фильтров`)
       }
     } catch (error) {

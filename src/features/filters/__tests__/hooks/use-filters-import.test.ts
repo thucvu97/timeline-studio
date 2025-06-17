@@ -98,8 +98,8 @@ describe("useFiltersImport", () => {
         {
           id: "filter1",
           name: "Filter 1",
-          category: "creative"
-        }
+          category: "creative",
+        },
       ]
       mockReadTextFile.mockResolvedValue(JSON.stringify(mockFilters))
       const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })

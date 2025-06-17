@@ -1,19 +1,12 @@
 /**
  * Drag and Drop Provider for Timeline
- * 
+ *
  * Wraps the timeline with DndContext and provides drag overlay
  */
 
 import React from "react"
 
-import {
-  DndContext,
-  DragOverlay,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core"
+import { DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { createSnapModifier } from "@dnd-kit/modifiers"
 
 import { MediaFile } from "@/features/media/types/media"
@@ -48,12 +41,7 @@ function DraggedVideoOverlay({ mediaFile }: { mediaFile: MediaFile }) {
 }
 
 export function DragDropProvider({ children }: DragDropProviderProps) {
-  const {
-    dragState,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-  } = useDragDropTimeline()
+  const { dragState, handleDragStart, handleDragOver, handleDragEnd } = useDragDropTimeline()
 
   // Configure sensors for mouse and touch
   const mouseSensor = useSensor(MouseSensor, {
@@ -83,7 +71,7 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
       modifiers={[snapToGridModifier]}
     >
       {children}
-      
+
       <DragOverlay>
         {dragState.isDragging && dragState.draggedItem ? (
           <DraggedVideoOverlay mediaFile={dragState.draggedItem.mediaFile} />

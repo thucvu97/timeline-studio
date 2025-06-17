@@ -131,6 +131,7 @@ export const mockUseDragDropTimeline = vi.fn(() => ({
   handleDragOver: vi.fn(),
   handleDragEnd: vi.fn(),
   isValidDropTarget: vi.fn(() => false),
+  isValidDropTargetForNewTrack: vi.fn(() => false),
 }))
 
 // Export all mocks for easy importing

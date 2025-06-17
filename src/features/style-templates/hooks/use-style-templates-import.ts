@@ -43,7 +43,7 @@ export function useStyleTemplatesImport() {
         // Читаем содержимое JSON файла
         const content = await readTextFile(selected)
         const templatesData = JSON.parse(content)
-        
+
         // Проверяем формат данных
         if (Array.isArray(templatesData)) {
           // Импортируем каждый шаблон
@@ -91,17 +91,17 @@ export function useStyleTemplatesImport() {
 
       if (selected) {
         const files = Array.isArray(selected) ? selected : [selected]
-        
+
         // Обрабатываем каждый файл
         for (const filePath of files) {
-          const fileName = filePath.split('/').pop() || ''
-          const fileExtension = fileName.split('.').pop()?.toLowerCase()
-          
-          if (fileExtension === 'json') {
+          const fileName = filePath.split("/").pop() || ""
+          const fileExtension = fileName.split(".").pop()?.toLowerCase()
+
+          if (fileExtension === "json") {
             // Читаем JSON файл
             const content = await readTextFile(filePath)
             const templateData = JSON.parse(content)
-            
+
             if (validateStyleTemplate(templateData)) {
               addStyleTemplate(templateData as StyleTemplate)
               console.log(`Импортирован шаблон из файла: ${fileName}`)
@@ -110,7 +110,7 @@ export function useStyleTemplatesImport() {
             console.warn(`Формат файла ${fileExtension} пока не поддерживается`)
           }
         }
-        
+
         console.log(`Обработано ${files.length} файлов`)
       }
     } catch (error) {
@@ -133,14 +133,14 @@ export function useStyleTemplatesImport() {
 function validateStyleTemplate(template: any): boolean {
   return (
     template &&
-    typeof template.id === 'string' &&
+    typeof template.id === "string" &&
     template.name &&
-    typeof template.name.ru === 'string' &&
-    typeof template.name.en === 'string' &&
+    typeof template.name.ru === "string" &&
+    typeof template.name.en === "string" &&
     template.category &&
     template.style &&
     template.aspectRatio &&
-    typeof template.duration === 'number' &&
+    typeof template.duration === "number" &&
     Array.isArray(template.elements)
   )
 }

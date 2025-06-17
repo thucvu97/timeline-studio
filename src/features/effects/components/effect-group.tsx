@@ -49,7 +49,7 @@ export const EffectGroup: React.FC<EffectGroupProps> = ({
   // Функция рендеринга эффекта
   const renderEffect = (effect: VideoEffect, index: number) => {
     const actualIndex = startIndex + index
-    
+
     return (
       <div
         key={effect.id}

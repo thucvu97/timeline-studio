@@ -18,7 +18,7 @@ export interface CellConfiguration {
   alignY?: "top" | "center" | "bottom" // Вертикальное выравнивание
   initialScale?: number // Начальный масштаб (1.0 = 100%)
   initialPosition?: { x: number; y: number } // Начальная позиция (в процентах от размера ячейки)
-  
+
   // Новые настройки для заголовка/номера ячейки
   title?: {
     show: boolean
@@ -35,7 +35,7 @@ export interface CellConfiguration {
       padding?: string // Для внутренних отступов
     }
   }
-  
+
   // Настройки фона
   background?: {
     color?: string
@@ -43,7 +43,7 @@ export interface CellConfiguration {
     image?: string
     opacity?: number
   }
-  
+
   // Настройки границ
   border?: {
     width?: string
@@ -51,7 +51,7 @@ export interface CellConfiguration {
     style?: "solid" | "dashed" | "dotted"
     radius?: string
   }
-  
+
   // Отступы
   padding?: string
   margin?: string
@@ -102,19 +102,19 @@ export interface MediaTemplateConfig {
   screens: number // Количество экранов в шаблоне
   splitPoints?: SplitPoint[] // Координаты точек разделения (для нестандартных разделений)
   splitPosition?: number // Позиция разделения в процентах (от 0 до 100)
-  
+
   // Конфигурация ячеек
   cells?: CellConfiguration[] // Массив конфигураций для каждой ячейки
-  
+
   // Расположение ячеек (для custom шаблонов)
   cellLayouts?: CellLayout[] // Массив расположений для каждой ячейки
-  
+
   // Стили разделительных линий
   dividers?: DividerConfig
-  
+
   // Глобальные настройки шаблона
   layout?: LayoutConfig
-  
+
   // Настройки сетки (для grid шаблонов)
   gridConfig?: {
     columns: number
@@ -196,13 +196,10 @@ export const PRESET_STYLES = {
 }
 
 // Утилиты для работы с конфигурациями
-export function createCellConfig(
-  index: number,
-  customConfig?: Partial<CellConfiguration>,
-): CellConfiguration {
+export function createCellConfig(index: number, customConfig?: Partial<CellConfiguration>): CellConfiguration {
   const isAlternate = index % 2 === 1
   const preset = isAlternate ? PRESET_STYLES.cell.alternate : PRESET_STYLES.cell.default
-  
+
   return {
     ...preset,
     ...customConfig,

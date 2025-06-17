@@ -58,40 +58,43 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
   )
 
   // Обработчик сохранения пользовательского пресета
-  const handleSavePreset = useCallback((name: string, params: Record<string, number>) => {
-    try {
-      // Получаем существующие пресеты для этого эффекта
-      const storageKey = `effect_presets_${effect.id}`
-      const existingPresets = localStorage.getItem(storageKey)
-      const presets = existingPresets ? JSON.parse(existingPresets) : {}
-      
-      // Добавляем новый пресет
-      const presetId = `custom_${Date.now()}`
-      presets[presetId] = {
-        name: { 
-          [currentLang]: name,
-          en: name // fallback
-        },
-        params,
-        description: {
-          [currentLang]: t("effects.customPreset", "Пользовательский пресет"),
-          en: "Custom preset"
-        },
-        createdAt: new Date().toISOString()
+  const handleSavePreset = useCallback(
+    (name: string, params: Record<string, number>) => {
+      try {
+        // Получаем существующие пресеты для этого эффекта
+        const storageKey = `effect_presets_${effect.id}`
+        const existingPresets = localStorage.getItem(storageKey)
+        const presets = existingPresets ? JSON.parse(existingPresets) : {}
+
+        // Добавляем новый пресет
+        const presetId = `custom_${Date.now()}`
+        presets[presetId] = {
+          name: {
+            [currentLang]: name,
+            en: name, // fallback
+          },
+          params,
+          description: {
+            [currentLang]: t("effects.customPreset", "Пользовательский пресет"),
+            en: "Custom preset",
+          },
+          createdAt: new Date().toISOString(),
+        }
+
+        // Сохраняем обратно в localStorage
+        localStorage.setItem(storageKey, JSON.stringify(presets))
+
+        // Уведомляем пользователя об успешном сохранении
+        console.log("Custom preset saved:", name, params)
+
+        // Обновляем состояние компонента, если нужно показать новый пресет
+        // Можно добавить toast уведомление здесь
+      } catch (error) {
+        console.error("Error saving custom preset:", error)
       }
-      
-      // Сохраняем обратно в localStorage
-      localStorage.setItem(storageKey, JSON.stringify(presets))
-      
-      // Уведомляем пользователя об успешном сохранении
-      console.log("Custom preset saved:", name, params)
-      
-      // Обновляем состояние компонента, если нужно показать новый пресет
-      // Можно добавить toast уведомление здесь
-    } catch (error) {
-      console.error("Error saving custom preset:", error)
-    }
-  }, [effect.id, currentLang, t])
+    },
+    [effect.id, currentLang, t],
+  )
 
   // Обработчик применения эффекта
   const handleApplyEffect = useCallback(() => {
@@ -105,22 +108,22 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
     setCurrentParameters({})
     setPreviewKey((prev) => prev + 1)
   }, [])
-  
+
   // Обработчик экспорта эффекта
   const handleExportEffect = useCallback(async () => {
     try {
       const exportName = prompt(t("effects.enterExportName", "Введите название файла для экспорта:"))
       if (!exportName) return
-      
+
       const effectToExport = prepareEffectForExport(
         effect,
         Object.keys(currentParameters).length > 0 ? currentParameters : undefined,
-        selectedPreset
+        selectedPreset,
       )
-      
+
       const filePath = await saveUserEffect(effectToExport, exportName)
       console.log("Effect exported to:", filePath)
-      
+
       // Можем добавить toast уведомление об успешном экспорте
     } catch (error) {
       console.error("Error exporting effect:", error)
@@ -153,7 +156,7 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
                   {t("effects.comparison", "Сравнение")}
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="preview" className="mt-4">
                 <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
                   <EffectPreview
@@ -180,14 +183,9 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
                   </div>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="comparison" className="mt-4">
-                <EffectComparison
-                  effect={effect}
-                  customParams={currentParameters}
-                  width={400}
-                  height={300}
-                />
+                <EffectComparison effect={effect} customParams={currentParameters} width={400} height={300} />
               </TabsContent>
             </Tabs>
 
@@ -249,7 +247,12 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
               <Button onClick={handleApplyEffect} className="flex-1">
                 {t("effects.detail.applyEffect", "Применить эффект")}
               </Button>
-              <Button variant="outline" size="icon" onClick={handleExportEffect} title={t("effects.detail.exportEffect", "Экспортировать эффект")}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleExportEffect}
+                title={t("effects.detail.exportEffect", "Экспортировать эффект")}
+              >
                 <Download size={16} />
               </Button>
               <Button variant="outline" onClick={onClose}>

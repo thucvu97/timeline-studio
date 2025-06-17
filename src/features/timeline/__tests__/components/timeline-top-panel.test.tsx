@@ -51,7 +51,7 @@ describe("TimelineTopPanel", () => {
 
   it("должен отображать все кнопки панели инструментов", () => {
     renderWithTimeline(<TimelineTopPanel />)
-    
+
     expect(screen.getByTestId("layout-template-icon")).toBeInTheDocument()
     expect(screen.getByTestId("square-mouse-pointer-icon")).toBeInTheDocument()
     expect(screen.getByTestId("undo2-icon")).toBeInTheDocument()
@@ -63,16 +63,16 @@ describe("TimelineTopPanel", () => {
 
   it("должен иметь правильные title атрибуты для кнопок", () => {
     renderWithTimeline(<TimelineTopPanel />)
-    
+
     const buttons = screen.getAllByRole("button")
-    const layoutButton = buttons.find(btn => btn.querySelector('[data-testid="layout-template-icon"]'))
-    const pointerButton = buttons.find(btn => btn.querySelector('[data-testid="square-mouse-pointer-icon"]'))
-    const undoButton = buttons.find(btn => btn.querySelector('[data-testid="undo2-icon"]'))
-    const redoButton = buttons.find(btn => btn.querySelector('[data-testid="redo2-icon"]'))
-    const deleteButton = buttons.find(btn => btn.querySelector('[data-testid="trash2-icon"]'))
-    const cutButton = buttons.find(btn => btn.querySelector('[data-testid="scissors-icon"]'))
-    const fitButton = buttons.find(btn => btn.querySelector('[data-testid="move-horizontal-icon"]'))
-    
+    const layoutButton = buttons.find((btn) => btn.querySelector('[data-testid="layout-template-icon"]'))
+    const pointerButton = buttons.find((btn) => btn.querySelector('[data-testid="square-mouse-pointer-icon"]'))
+    const undoButton = buttons.find((btn) => btn.querySelector('[data-testid="undo2-icon"]'))
+    const redoButton = buttons.find((btn) => btn.querySelector('[data-testid="redo2-icon"]'))
+    const deleteButton = buttons.find((btn) => btn.querySelector('[data-testid="trash2-icon"]'))
+    const cutButton = buttons.find((btn) => btn.querySelector('[data-testid="scissors-icon"]'))
+    const fitButton = buttons.find((btn) => btn.querySelector('[data-testid="move-horizontal-icon"]'))
+
     expect(layoutButton).toHaveAttribute("title", "timeline.toolbar.layout")
     expect(pointerButton).toHaveAttribute("title", "timeline.toolbar.pointer")
     expect(undoButton).toHaveAttribute("title", "timeline.toolbar.undo")
@@ -84,11 +84,11 @@ describe("TimelineTopPanel", () => {
 
   it("должен иметь правильный диапазон значений для слайдера", () => {
     renderWithTimeline(<TimelineTopPanel />)
-    
+
     // Slider компонент является составным, проверяем что он отображается с правильными значениями
     const slider = screen.getByTestId("timeline-slider")
     expect(slider).toBeInTheDocument()
-    
+
     // Проверяем внутренние элементы слайдера
     const sliderThumb = slider.querySelector('[data-slot="slider-thumb"]')
     expect(sliderThumb).toBeInTheDocument()
@@ -96,13 +96,13 @@ describe("TimelineTopPanel", () => {
 
   it("должен иметь отключенные кнопки по умолчанию", () => {
     renderWithTimeline(<TimelineTopPanel />)
-    
+
     const buttons = screen.getAllByRole("button")
-    const layoutButton = buttons.find(btn => btn.querySelector('[data-testid="layout-template-icon"]'))
-    const pointerButton = buttons.find(btn => btn.querySelector('[data-testid="square-mouse-pointer-icon"]'))
-    const deleteButton = buttons.find(btn => btn.querySelector('[data-testid="trash2-icon"]'))
-    const cutButton = buttons.find(btn => btn.querySelector('[data-testid="scissors-icon"]'))
-    
+    const layoutButton = buttons.find((btn) => btn.querySelector('[data-testid="layout-template-icon"]'))
+    const pointerButton = buttons.find((btn) => btn.querySelector('[data-testid="square-mouse-pointer-icon"]'))
+    const deleteButton = buttons.find((btn) => btn.querySelector('[data-testid="trash2-icon"]'))
+    const cutButton = buttons.find((btn) => btn.querySelector('[data-testid="scissors-icon"]'))
+
     expect(layoutButton).toBeDisabled()
     expect(pointerButton).toBeDisabled()
     expect(deleteButton).toBeDisabled()

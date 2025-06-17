@@ -2,11 +2,7 @@ import React from "react"
 
 import { cn } from "@/lib/utils"
 
-import {
-  CellConfiguration,
-  DividerConfig,
-  MediaTemplateConfig,
-} from "../lib/template-config"
+import { CellConfiguration, DividerConfig, MediaTemplateConfig } from "../lib/template-config"
 
 interface TemplateRendererProps {
   config: MediaTemplateConfig
@@ -22,9 +18,7 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
   const { split, screens, cells = [], dividers, layout, gridConfig } = config
 
   // Генерируем конфигурации ячеек, если они не заданы
-  const cellConfigs: CellConfiguration[] = cells.length > 0 
-    ? cells 
-    : Array.from({ length: screens }, (_, i) => ({}))
+  const cellConfigs: CellConfiguration[] = cells.length > 0 ? cells : Array.from({ length: screens }, (_, i) => ({}))
 
   // Стили контейнера
   const containerStyle: React.CSSProperties = {
@@ -35,29 +29,28 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
   }
 
   // Рендеринг разделителя
-  const renderDivider = (
-    orientation: "horizontal" | "vertical",
-    key?: string,
-  ) => {
+  const renderDivider = (orientation: "horizontal" | "vertical", key?: string) => {
     if (!dividers?.show) return null
 
     const dividerStyle: React.CSSProperties = {
       backgroundColor: dividers.color || "#4b5563",
       opacity: dividers.opacity,
-      ...(orientation === "horizontal" ? {
-        height: dividers.width || "1px",
-        width: "100%",
-      } : {
-        width: dividers.width || "1px", 
-        height: "100%",
-      }),
+      ...(orientation === "horizontal"
+        ? {
+            height: dividers.width || "1px",
+            width: "100%",
+          }
+        : {
+            width: dividers.width || "1px",
+            height: "100%",
+          }),
       ...(dividers.style === "dashed" && {
         backgroundImage: `repeating-linear-gradient(
           ${orientation === "horizontal" ? "to right" : "to bottom"},
           ${dividers.color || "#4b5563"} 0,
           ${dividers.color || "#4b5563"} ${dividers.dashArray?.split(",")[0] || "5"}px,
           transparent ${dividers.dashArray?.split(",")[0] || "5"}px,
-          transparent ${(dividers.dashArray?.split(",")[1] || "5")}px
+          transparent ${dividers.dashArray?.split(",")[1] || "5"}px
         )`,
         backgroundColor: "transparent",
       }),
@@ -76,15 +69,15 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
     const { text = String(index + 1), position = "center", style = {} } = cellConfig.title
 
     const positionClasses = {
-      "center": "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+      center: "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
       "top-left": "top-4 left-4",
       "top-right": "top-4 right-4",
-      "bottom-left": "bottom-4 left-4", 
+      "bottom-left": "bottom-4 left-4",
       "bottom-right": "bottom-4 right-4",
     }
 
     return (
-      <div 
+      <div
         className={cn("absolute", positionClasses[position])}
         style={{
           fontSize: style.fontSize || "18px",
@@ -118,11 +111,7 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
     }
 
     return (
-      <div
-        key={`cell-${index}`}
-        className="relative flex items-center justify-center"
-        style={cellStyle}
-      >
+      <div key={`cell-${index}`} className="relative flex items-center justify-center" style={cellStyle}>
         {renderCell(index, cellConfig)}
         {renderCellTitle(cellConfig, index)}
       </div>
@@ -172,9 +161,7 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
 
       return (
         <div className={cn("h-full w-full", className)} style={gridStyle}>
-          {cellConfigs.map((cellConfig, index) => 
-            renderCellWithConfig(index, cellConfig)
-          )}
+          {cellConfigs.map((cellConfig, index) => renderCellWithConfig(index, cellConfig))}
         </div>
       )
 
@@ -212,10 +199,7 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
 
           {/* Диагональная линия */}
           {dividers?.show && (
-            <svg 
-              className="absolute inset-0 pointer-events-none" 
-              style={{ width: "100%", height: "100%" }}
-            >
+            <svg className="absolute inset-0 pointer-events-none" style={{ width: "100%", height: "100%" }}>
               <line
                 x1={`${startPoint.x}%`}
                 y1={`${startPoint.y}%`}
@@ -259,7 +243,7 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
                 gridRow: cellLayout.gridRow,
                 zIndex: cellLayout.zIndex,
               }
-              
+
               return renderCellWithConfig(index, cellConfig, cellStyle)
             })}
           </div>
@@ -315,9 +299,7 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
 
       return (
         <div className={cn("relative", className)} style={customStyle}>
-          {cellConfigs.map((cellConfig, index) => 
-            renderCellWithConfig(index, cellConfig, getCellStyle(index))
-          )}
+          {cellConfigs.map((cellConfig, index) => renderCellWithConfig(index, cellConfig, getCellStyle(index)))}
         </div>
       )
 

@@ -6,9 +6,7 @@ import { MediaTemplateConfig, createCellConfig, createDividerConfig } from "../l
 
 describe("TemplateRenderer", () => {
   // Mock функция для рендеринга ячеек
-  const mockRenderCell = vi.fn((index: number) => (
-    <div data-testid={`cell-${index}`}>Cell {index + 1}</div>
-  ))
+  const mockRenderCell = vi.fn((index: number) => <div data-testid={`cell-${index}`}>Cell {index + 1}</div>)
 
   afterEach(() => {
     vi.clearAllMocks()
@@ -63,9 +61,7 @@ describe("TemplateRenderer", () => {
       },
     }
 
-    const { container } = render(
-      <TemplateRenderer config={config} renderCell={mockRenderCell} />
-    )
+    const { container } = render(<TemplateRenderer config={config} renderCell={mockRenderCell} />)
 
     expect(screen.getByTestId("cell-0")).toBeInTheDocument()
     expect(screen.getByTestId("cell-1")).toBeInTheDocument()
@@ -93,9 +89,7 @@ describe("TemplateRenderer", () => {
       dividers: createDividerConfig("default"),
     }
 
-    const { container } = render(
-      <TemplateRenderer config={config} renderCell={mockRenderCell} />
-    )
+    const { container } = render(<TemplateRenderer config={config} renderCell={mockRenderCell} />)
 
     expect(screen.getByTestId("cell-0")).toBeInTheDocument()
     expect(screen.getByTestId("cell-1")).toBeInTheDocument()
@@ -132,9 +126,7 @@ describe("TemplateRenderer", () => {
       dividers: createDividerConfig("default"),
     }
 
-    const { container } = render(
-      <TemplateRenderer config={config} renderCell={mockRenderCell} />
-    )
+    const { container } = render(<TemplateRenderer config={config} renderCell={mockRenderCell} />)
 
     const cells = container.querySelectorAll(".relative")
     expect(cells[0]).toHaveStyle({
@@ -158,19 +150,13 @@ describe("TemplateRenderer", () => {
       id: "split-mixed-1-landscape",
       split: "custom",
       screens: 3,
-      cells: [
-        createCellConfig(0),
-        createCellConfig(1),
-        createCellConfig(2),
-      ],
+      cells: [createCellConfig(0), createCellConfig(1), createCellConfig(2)],
       layout: {
         gap: "8px",
       },
     }
 
-    const { container } = render(
-      <TemplateRenderer config={config} renderCell={mockRenderCell} />
-    )
+    const { container } = render(<TemplateRenderer config={config} renderCell={mockRenderCell} />)
 
     expect(screen.getByTestId("cell-0")).toBeInTheDocument()
     expect(screen.getByTestId("cell-1")).toBeInTheDocument()
@@ -193,16 +179,14 @@ describe("TemplateRenderer", () => {
       dividers: { show: false }, // Явно отключаем разделители
     }
 
-    const { container } = render(
-      <TemplateRenderer config={config} renderCell={mockRenderCell} />
-    )
+    const { container } = render(<TemplateRenderer config={config} renderCell={mockRenderCell} />)
 
     // Ищем элементы, которые могут быть разделителями
     // В вертикальном шаблоне разделители имеют height: 100%
     const potentialDividers = Array.from(container.querySelectorAll("div")).filter(
-      (el) => el.style.height === "100%" && el.style.width && !el.textContent
+      (el) => el.style.height === "100%" && el.style.width && !el.textContent,
     )
-    
+
     // Не должно быть разделителей
     expect(potentialDividers).toHaveLength(0)
   })
@@ -236,11 +220,11 @@ describe("TemplateRenderer", () => {
 
     expect(screen.getByText("Camera 1")).toBeInTheDocument()
     expect(screen.getByText("Camera 2")).toBeInTheDocument()
-    
+
     const title1 = screen.getByText("Camera 1")
     expect(title1).toHaveStyle({ color: "#fff", fontSize: "14px" })
     expect(title1).toHaveClass("top-4", "left-4")
-    
+
     const title2 = screen.getByText("Camera 2")
     expect(title2).toHaveStyle({ color: "#ccc", fontSize: "12px" })
     expect(title2).toHaveClass("bottom-4", "right-4")

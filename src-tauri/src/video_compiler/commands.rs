@@ -790,7 +790,6 @@ pub async fn clear_file_preview_cache(
   Ok(())
 }
 
-
 /// Запрос на генерацию превью
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PreviewRequest {
@@ -1586,7 +1585,6 @@ pub struct RecognitionFrameResult {
   /// Является ли ключевым кадром
   pub is_keyframe: bool,
 }
-
 
 /// Параметры для извлечения кадров субтитров
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

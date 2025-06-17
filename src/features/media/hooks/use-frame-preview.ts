@@ -57,7 +57,7 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
           console.log(`Использованы кэшированные кадры из Preview Manager для ${fileId}`)
           const frames = cachedData.timeline_previews.map((frame) => ({
             timestamp: frame.timestamp,
-            frameData: frame.base64_data || '',
+            frameData: frame.base64_data || "",
             isKeyframe: (frame as any).is_keyframe || false,
           }))
 
@@ -67,7 +67,7 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
 
         // Если нет в кэше, извлекаем кадры через FrameExtractionService
         const extractedFrames = await frameExtraction.extractTimelineFrames(videoPath, duration, interval, maxFrames)
-        
+
         if (!extractedFrames || extractedFrames.length === 0) {
           return []
         }
@@ -82,7 +82,7 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
         // Сохраняем кадры в Preview Manager
         await invoke("save_timeline_frames", {
           file_id: fileId,
-          frames: frames.map(frame => ({
+          frames: frames.map((frame) => ({
             timestamp: frame.timestamp,
             base64_data: frame.frameData,
             is_keyframe: frame.isKeyframe,
@@ -144,7 +144,10 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
    * Получить превью для конкретного таймстампа
    */
   const getFrameAtTimestamp = useCallback(
-    async (fileId: string, timestamp: number): Promise<{ timestamp: number; base64_data: string; is_keyframe: boolean } | null> => {
+    async (
+      fileId: string,
+      timestamp: number,
+    ): Promise<{ timestamp: number; base64_data: string; is_keyframe: boolean } | null> => {
       try {
         // Проверяем, есть ли сохраненные кадры для этого файла
         const previewData = await getPreviewData(fileId)
@@ -167,7 +170,7 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
 
         return {
           timestamp: closestFrame.timestamp,
-          base64_data: closestFrame.base64_data || '',
+          base64_data: closestFrame.base64_data || "",
           is_keyframe: false,
         }
       } catch (err) {

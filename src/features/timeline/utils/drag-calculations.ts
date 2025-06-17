@@ -17,10 +17,10 @@ export function calculateTimelinePosition(
 ): number {
   // Get relative position within the container
   const relativeX = mouseX - containerRect.left + scrollLeft
-  
+
   // Convert pixels to time using the time scale
   const timePosition = Math.max(0, relativeX / timeScale)
-  
+
   return timePosition
 }
 
@@ -35,11 +35,11 @@ export function snapToGrid(
   if (snapMode === "none") {
     return position
   }
-  
+
   if (snapMode === "grid") {
     return Math.round(position / gridInterval) * gridInterval
   }
-  
+
   // For now, only implement grid snapping
   // TODO: Implement clip and marker snapping
   return position
@@ -53,17 +53,17 @@ export function canDropOnTrack(mediaFile: MediaFile, trackType: TrackType): bool
   if (mediaFile.isVideo && trackType === "video") {
     return true
   }
-  
+
   // Audio files can go on audio tracks
   if (mediaFile.isAudio && (trackType === "audio" || trackType === "music")) {
     return true
   }
-  
+
   // Image files can go on video tracks (as static images)
   if (mediaFile.isImage && trackType === "video") {
     return true
   }
-  
+
   return false
 }
 
@@ -74,24 +74,24 @@ export function getTrackTypeForMediaFile(mediaFile: MediaFile): TrackType {
   if (mediaFile.isVideo) {
     return "video"
   }
-  
+
   if (mediaFile.isAudio) {
     return "audio"
   }
-  
+
   if (mediaFile.isImage) {
     return "video" // Images are displayed on video tracks
   }
-  
+
   // Check metadata if available
   if (mediaFile.probeData?.streams) {
     const hasVideo = mediaFile.probeData.streams.some((stream) => stream.codec_type === "video")
     const hasAudio = mediaFile.probeData.streams.some((stream) => stream.codec_type === "audio")
-    
+
     if (hasVideo) return "video"
     if (hasAudio) return "audio"
   }
-  
+
   // Default to video track
   return "video"
 }

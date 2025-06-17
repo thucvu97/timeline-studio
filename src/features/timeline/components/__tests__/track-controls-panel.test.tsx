@@ -2,12 +2,12 @@
  * @vitest-environment jsdom
  */
 
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { TrackControlsPanel } from "../track-controls-panel"
-import { useTracks } from "../../hooks/use-tracks"
 import { useTimeline } from "../../hooks/use-timeline"
+import { useTracks } from "../../hooks/use-tracks"
+import { TrackControlsPanel } from "../track-controls-panel"
 
 // Mock hooks
 vi.mock("../../hooks/use-tracks")
@@ -22,7 +22,7 @@ describe("TrackControlsPanel", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     mockUseTimeline.mockReturnValue({
       addTrack: mockAddTrack,
       updateTrack: mockUpdateTrack,
@@ -35,7 +35,7 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     expect(screen.getByText("Управление треками")).toBeInTheDocument()
     expect(screen.getByText("0 треков")).toBeInTheDocument()
     expect(screen.getByText("Треки не найдены")).toBeInTheDocument()
@@ -47,7 +47,7 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     expect(screen.getByText("Видео")).toBeInTheDocument()
     expect(screen.getByText("Аудио")).toBeInTheDocument()
     expect(screen.getByText("Изображения")).toBeInTheDocument()
@@ -59,9 +59,9 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     fireEvent.click(screen.getByText("Видео"))
-    
+
     expect(mockAddTrack).toHaveBeenCalledWith("video", "Видео 1")
   })
 
@@ -71,9 +71,9 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     fireEvent.click(screen.getByText("Аудио"))
-    
+
     expect(mockAddTrack).toHaveBeenCalledWith("audio", "Аудио 1")
   })
 
@@ -88,7 +88,7 @@ describe("TrackControlsPanel", () => {
         isLocked: false,
       },
       {
-        id: "track-2", 
+        id: "track-2",
         name: "Test Audio Track",
         type: "audio",
         height: 60,
@@ -102,7 +102,7 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     expect(screen.getByText("2 треков")).toBeInTheDocument()
     expect(screen.getByText("Test Video Track")).toBeInTheDocument()
     expect(screen.getByText("Test Audio Track")).toBeInTheDocument()
@@ -125,10 +125,10 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     const eyeButton = screen.getByRole("button", { name: /toggle visibility/i })
     fireEvent.click(eyeButton)
-    
+
     expect(mockUpdateTrack).toHaveBeenCalledWith("track-1", { isHidden: true })
   })
 
@@ -149,10 +149,10 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     const lockButton = screen.getByRole("button", { name: /toggle lock/i })
     fireEvent.click(lockButton)
-    
+
     expect(mockUpdateTrack).toHaveBeenCalledWith("track-1", { isLocked: true })
   })
 
@@ -173,7 +173,7 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     // Check that height is displayed
     expect(screen.getByText("120px")).toBeInTheDocument()
     expect(screen.getByText("Высота")).toBeInTheDocument()
@@ -191,7 +191,7 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     expect(screen.getByText("3 треков")).toBeInTheDocument()
   })
 
@@ -201,10 +201,10 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     const expandButton = screen.getByText("Дополнительные типы")
     fireEvent.click(expandButton)
-    
+
     expect(screen.getByText("Музыка")).toBeInTheDocument()
     expect(screen.getByText("Субтитры")).toBeInTheDocument()
   })
@@ -215,12 +215,12 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     const expandButton = screen.getByText("Дополнительные типы")
     fireEvent.click(expandButton)
-    
+
     fireEvent.click(screen.getByText("Музыка"))
-    
+
     expect(mockAddTrack).toHaveBeenCalledWith("music", "Музыка 1")
   })
 
@@ -236,7 +236,7 @@ describe("TrackControlsPanel", () => {
     } as any)
 
     render(<TrackControlsPanel />)
-    
+
     expect(screen.getByText("video")).toBeInTheDocument()
     expect(screen.getByText("audio")).toBeInTheDocument()
     expect(screen.getByText("image")).toBeInTheDocument()

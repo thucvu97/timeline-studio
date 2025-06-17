@@ -49,13 +49,13 @@ describe("EffectIndicators", () => {
   it("should handle different categories", () => {
     const categories = [
       "artistic",
-      "vintage", 
+      "vintage",
       "color-correction",
       "motion",
       "distortion",
       "cinematic",
       "creative",
-      "technical"
+      "technical",
     ]
 
     categories.forEach((category) => {
@@ -83,16 +83,16 @@ describe("EffectIndicators", () => {
   it("should validate tag types", () => {
     const validTags: EffectTag[] = [
       "popular",
-      "professional", 
+      "professional",
       "beginner-friendly",
       "experimental",
       "retro",
       "modern",
       "dramatic",
       "subtle",
-      "intense"
+      "intense",
     ]
-    
+
     validTags.forEach((tag) => {
       const effect = { ...baseEffect, tags: [tag] }
       expect(effect.tags).toContain(tag)

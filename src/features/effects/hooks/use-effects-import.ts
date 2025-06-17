@@ -78,29 +78,27 @@ export function useEffectsImport() {
       }
 
       setProgress(25)
-      
+
       // Определяем тип файла
-      const fileExtension = selected.split('.').pop()?.toLowerCase()
+      const fileExtension = selected.split(".").pop()?.toLowerCase()
       let effects: VideoEffect[] = []
-      
+
       try {
-        if (fileExtension === 'effect') {
+        if (fileExtension === "effect") {
           // Пользовательский эффект
           const userEffect = await loadUserEffect(selected)
           if (validateEffect(userEffect.effect)) {
             effects = [userEffect.effect]
           }
-        } else if (fileExtension === 'effects') {
+        } else if (fileExtension === "effects") {
           // Коллекция эффектов
           const collection = await loadEffectsCollection(selected)
-          effects = collection.effects
-            .map(ue => ue.effect)
-            .filter(validateEffect)
+          effects = collection.effects.map((ue) => ue.effect).filter(validateEffect)
         } else {
           // Обычный JSON
           const response = await fetch(`file://${selected}`)
           const data = await response.json()
-          
+
           if (Array.isArray(data)) {
             effects = data.filter(validateEffect)
           } else if (data.effects && Array.isArray(data.effects)) {
@@ -118,7 +116,7 @@ export function useEffectsImport() {
           effects: [],
         }
       }
-      
+
       setProgress(50)
 
       setProgress(75)

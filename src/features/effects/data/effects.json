@@ -881,7 +881,7 @@
       "previewPath": "/t1.mp4",
       "labels": {
         "ru": "Тинт",
-        "en": "Tint", 
+        "en": "Tint",
         "es": "Matiz",
         "fr": "Teinte",
         "de": "Farbstich"
@@ -908,7 +908,7 @@
       "labels": {
         "ru": "Экспозиция",
         "en": "Exposure",
-        "es": "Exposición", 
+        "es": "Exposición",
         "fr": "Exposition",
         "de": "Belichtung"
       },
@@ -948,7 +948,7 @@
         "ru": "Размытие движения",
         "en": "Motion Blur",
         "es": "Desenfoque de Movimiento",
-        "fr": "Flou de Mouvement", 
+        "fr": "Flou de Mouvement",
         "de": "Bewegungsunschärfe"
       }
     },

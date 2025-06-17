@@ -38,14 +38,14 @@ export async function saveUserEffect(effect: VideoEffect, fileName: string): Pro
       effect,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      isCustom: true
+      isCustom: true,
     }
-    
+
     const filePath = await invoke<string>("save_user_effect", {
       fileName,
-      effect: JSON.stringify(userEffect)
+      effect: JSON.stringify(userEffect),
     })
-    
+
     return filePath
   } catch (error) {
     console.error("Error saving user effect:", error)
@@ -74,16 +74,13 @@ export async function loadUserEffect(filePath: string): Promise<UserEffect> {
  * @param fileName Имя файла (без расширения)
  * @returns Путь к сохраненному файлу
  */
-export async function saveEffectsCollection(
-  collection: UserEffectsCollection,
-  fileName: string
-): Promise<string> {
+export async function saveEffectsCollection(collection: UserEffectsCollection, fileName: string): Promise<string> {
   try {
     const filePath = await invoke<string>("save_effects_collection", {
       fileName,
-      collection: JSON.stringify(collection)
+      collection: JSON.stringify(collection),
     })
-    
+
     return filePath
   } catch (error) {
     console.error("Error saving effects collection:", error)
@@ -116,30 +113,30 @@ export async function loadEffectsCollection(filePath: string): Promise<UserEffec
 export function prepareEffectForExport(
   effect: VideoEffect,
   customParams?: Record<string, number>,
-  presetName?: string
+  presetName?: string,
 ): VideoEffect {
   const exportEffect = { ...effect }
-  
+
   // Если есть пользовательские параметры, создаем новый пресет
   if (customParams && presetName) {
     const customPresetId = `custom_${Date.now()}`
-    
+
     exportEffect.presets = {
       ...exportEffect.presets,
       [customPresetId]: {
         name: {
           ru: presetName,
-          en: presetName
+          en: presetName,
         },
         params: customParams,
         description: {
           ru: "Пользовательская настройка",
-          en: "Custom configuration"
-        }
-      }
+          en: "Custom configuration",
+        },
+      },
     }
   }
-  
+
   return exportEffect
 }
 

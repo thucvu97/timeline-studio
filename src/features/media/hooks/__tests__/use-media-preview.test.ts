@@ -103,13 +103,7 @@ describe("useMediaPreview", () => {
 
       let thumbnail
       await act(async () => {
-        thumbnail = await result.current.generateThumbnail(
-          "test-file-123",
-          "/path/to/video.mp4",
-          640,
-          360,
-          2.5
-        )
+        thumbnail = await result.current.generateThumbnail("test-file-123", "/path/to/video.mp4", 640, 360, 2.5)
       })
 
       expect(mockInvoke).toHaveBeenCalledWith("generate_media_thumbnail", {
@@ -130,12 +124,7 @@ describe("useMediaPreview", () => {
       })
 
       await act(async () => {
-        await result.current.generateThumbnail(
-          "test-file-123",
-          "/path/to/video.mp4",
-          640,
-          360
-        )
+        await result.current.generateThumbnail("test-file-123", "/path/to/video.mp4", 640, 360)
       })
 
       expect(mockInvoke).toHaveBeenCalledWith("generate_media_thumbnail", {

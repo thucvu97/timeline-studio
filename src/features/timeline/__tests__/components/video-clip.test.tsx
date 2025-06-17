@@ -21,8 +21,7 @@ vi.mock("lucide-react", async (importOriginal) => {
 
 // Мокаем VideoEffectsEditor
 vi.mock("../../components/video-effects-editor", () => ({
-  VideoEffectsEditor: ({ isOpen }: { isOpen: boolean }) => 
-    isOpen ? <div data-testid="video-effects-editor" /> : null
+  VideoEffectsEditor: ({ isOpen }: { isOpen: boolean }) => (isOpen ? <div data-testid="video-effects-editor" /> : null),
 }))
 
 describe("VideoClip", () => {
@@ -34,7 +33,7 @@ describe("VideoClip", () => {
     filePath: "/path/to/test-video.mp4",
     duration: 60000,
     volume: 1.0,
-    isSelected: false
+    isSelected: false,
   })
 
   const mockOnUpdate = vi.fn()
@@ -46,70 +45,45 @@ describe("VideoClip", () => {
 
   it("должен корректно рендериться", () => {
     const { container } = renderWithTimeline(
-      <VideoClip 
-        clip={mockClip} 
-        track={mockTrack}
-        onUpdate={mockOnUpdate}
-        onRemove={mockOnRemove}
-      />
+      <VideoClip clip={mockClip} track={mockTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
     )
-    
+
     expect(container.firstChild).toBeInTheDocument()
   })
 
   it("должен рендериться без ошибок с выбранным состоянием", () => {
     const selectedClip = { ...mockClip, isSelected: true }
-    
+
     const { container } = renderWithTimeline(
-      <VideoClip 
-        clip={selectedClip} 
-        track={mockTrack}
-        onUpdate={mockOnUpdate}
-        onRemove={mockOnRemove}
-      />
+      <VideoClip clip={selectedClip} track={mockTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
     )
-    
+
     expect(container.firstChild).toBeInTheDocument()
   })
 
   it("должен рендериться с различными типами треков", () => {
     const audioTrack = createTimelineTrack({ id: "track-2", type: "audio" })
-    
+
     const { container } = renderWithTimeline(
-      <VideoClip 
-        clip={mockClip} 
-        track={audioTrack}
-        onUpdate={mockOnUpdate}
-        onRemove={mockOnRemove}
-      />
+      <VideoClip clip={mockClip} track={audioTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
     )
-    
+
     expect(container.firstChild).toBeInTheDocument()
   })
 
   it("должен обрабатывать различные значения громкости", () => {
     const clipWithDifferentVolume = { ...mockClip, volume: 0.7 }
-    
+
     const { container } = renderWithTimeline(
-      <VideoClip 
-        clip={clipWithDifferentVolume} 
-        track={mockTrack}
-        onUpdate={mockOnUpdate}
-        onRemove={mockOnRemove}
-      />
+      <VideoClip clip={clipWithDifferentVolume} track={mockTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
     )
-    
+
     expect(container.firstChild).toBeInTheDocument()
   })
 
   it("должен работать без обработчиков", () => {
-    const { container } = renderWithTimeline(
-      <VideoClip 
-        clip={mockClip} 
-        track={mockTrack}
-      />
-    )
-    
+    const { container } = renderWithTimeline(<VideoClip clip={mockClip} track={mockTrack} />)
+
     expect(container.firstChild).toBeInTheDocument()
   })
 })

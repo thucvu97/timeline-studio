@@ -18,13 +18,13 @@ import { useProjectSettings } from "@/features/project-settings/hooks/use-projec
 import { DragDropProvider } from "./drag-drop-provider"
 import { TimelinePreviewStrip } from "./timeline-preview-strip"
 import { TimelineScale } from "./timeline-scale"
+import { Track } from "./track/track"
 import { TrackControlsPanel } from "./track-controls-panel"
 import { TrackInsertionZones } from "./track-insertion-zone"
 import { useClips } from "../hooks/use-clips"
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
 import { useTimeline } from "../hooks/use-timeline"
 import { useTracks } from "../hooks/use-tracks"
-import { Track } from "./track/track"
 
 export function TimelineContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -33,7 +33,6 @@ export function TimelineContent() {
 
   // Drag and drop hook
   const { dragState } = useDragDropTimeline()
-
 
   const {
     project,
@@ -104,7 +103,6 @@ export function TimelineContent() {
       resizeObserver.disconnect()
     }
   }, [])
-
 
   if (error) {
     return (
@@ -209,10 +207,7 @@ export function TimelineContent() {
                 ) : (
                   <div className="relative">
                     {/* Track Insertion Zones - показываем только во время drag */}
-                    <TrackInsertionZones 
-                      trackIds={tracks.map(t => t.id)} 
-                      isVisible={dragState.isDragging}
-                    />
+                    <TrackInsertionZones trackIds={tracks.map((t) => t.id)} isVisible={dragState.isDragging} />
 
                     {/* Полоса превью для видео клипов */}
                     {clips.some((clip) => {

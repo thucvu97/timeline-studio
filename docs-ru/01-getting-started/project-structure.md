@@ -14,21 +14,21 @@
 
 ```
 timeline-studio/
-├── src/                    # Frontend код (React/Next.js)
-│   ├── app/               # Next.js App Router
-│   ├── components/        # Общие UI компоненты
-│   ├── features/          # Функциональные модули
+├── src/                  # Frontend код (React/Next.js)
+│   ├── app/              # Next.js App Router
+│   ├── components/       # Общие UI компоненты
+│   ├── features/         # Функциональные модули
 │   ├── i18n/             # Интернационализация
 │   ├── lib/              # Утилиты и хелперы
 │   ├── styles/           # Глобальные стили
 │   └── test/             # Тестовые утилиты
 │
-├── src-tauri/             # Backend код (Rust)
+├── src-tauri/            # Backend код (Rust)
 │   ├── src/              # Исходный код Rust
 │   ├── Cargo.toml        # Конфигурация Rust
 │   └── tauri.conf.json   # Конфигурация Tauri
 │
-├── public/                # Статические файлы
+├── public/               # Статические файлы
 ├── docs-ru/              # Документация на русском
 ├── e2e/                  # End-to-end тесты
 └── ...конфигурационные файлы
@@ -41,7 +41,7 @@ Next.js 15 App Router - точка входа в приложение.
 
 ```
 app/
-├── layout.tsx            # Корневой layout
+├── layout.tsx           # Корневой layout
 ├── page.tsx             # Главная страница
 ├── globals.css          # Глобальные стили
 └── providers.tsx        # React провайдеры
@@ -52,8 +52,8 @@ app/
 
 ```
 features/
-├── timeline/            # Редактор таймлайна
-│   ├── components/     # React компоненты
+├── timeline/          # Редактор таймлайна
+│   ├── components/    # React компоненты
 │   ├── hooks/         # Custom hooks
 │   ├── services/      # Бизнес-логика
 │   ├── types/         # TypeScript типы
@@ -61,7 +61,7 @@ features/
 │   ├── __tests__/     # Тесты
 │   └── README.md      # Документация модуля
 │
-├── video-player/       # Видео плеер
+├── video-player/      # Видео плеер
 ├── browser/           # Браузер медиафайлов
 ├── effects/           # Визуальные эффекты
 ├── export/            # Экспорт видео
@@ -81,7 +81,7 @@ features/
 
 ```
 components/
-├── ui/                 # Базовые UI компоненты
+├── ui/                # Базовые UI компоненты
 │   ├── button.tsx
 │   ├── dialog.tsx
 │   ├── input.tsx
@@ -97,7 +97,7 @@ components/
 
 ```
 lib/
-├── utils.ts           # Общие утилиты
+├── utils.ts          # Общие утилиты
 ├── cn.ts             # Утилита для классов
 ├── date.ts           # Работа с датами
 └── validation.ts     # Валидация данных
@@ -108,12 +108,12 @@ lib/
 
 ```
 i18n/
-├── index.ts          # Конфигурация i18next
-├── constants.ts      # Языковые константы
-├── locales/          # Файлы переводов
+├── index.ts         # Конфигурация i18next
+├── constants.ts     # Языковые константы
+├── locales/         # Файлы переводов
 │   ├── en.json      # Английский
 │   ├── ru.json      # Русский
-│   └── ...8 других языков
+│   └── ...9 других языков
 └── services/         # i18n провайдер
 ```
 
@@ -124,23 +124,23 @@ Backend логика на Rust.
 
 ```
 src-tauri/src/
-├── main.rs              # Точка входа Tauri
+├── main.rs             # Точка входа Tauri
 ├── lib.rs              # Корневой модуль библиотеки
 ├── commands.rs         # Tauri команды
 │
-├── media/              # Модуль работы с медиа
+├── media/             # Модуль работы с медиа
 │   ├── mod.rs         # Главный файл модуля
 │   ├── scanner.rs     # Сканирование файлов
 │   ├── metadata.rs    # Извлечение метаданных
 │   └── cache.rs       # Кэширование
 │
-├── video_compiler/     # Компиляция видео
+├── video_compiler/    # Компиляция видео
 │   ├── mod.rs
 │   ├── ffmpeg.rs      # FFmpeg интеграция
 │   ├── encoder.rs     # Кодирование видео
 │   └── progress.rs    # Отслеживание прогресса
 │
-├── recognition/        # ML распознавание
+├── recognition/       # ML распознавание
 │   ├── mod.rs
 │   ├── yolo.rs        # YOLO интеграция
 │   └── tracker.rs     # Трекинг объектов
@@ -177,7 +177,7 @@ async fn export_video(settings: ExportSettings) -> Result<String> {
 ### Корневые конфиги
 
 ```
-├── package.json         # NPM зависимости и скрипты
+├── package.json        # NPM зависимости и скрипты
 ├── bun.lockb           # Bun lock файл
 ├── tsconfig.json       # TypeScript конфигурация
 ├── next.config.ts      # Next.js конфигурация

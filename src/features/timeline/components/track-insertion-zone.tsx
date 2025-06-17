@@ -1,6 +1,6 @@
 /**
  * TrackInsertionZone - Зоны для создания новых треков
- * 
+ *
  * Компонент создает drop-зоны между треками для автоматического
  * создания новых треков при перетаскивании медиа файлов:
  * - Зоны вставки выше, между и ниже треков
@@ -9,9 +9,11 @@
  */
 
 import React from "react"
+
 import { useDroppable } from "@dnd-kit/core"
-import { cn } from "@/lib/utils"
 import { Plus } from "lucide-react"
+
+import { cn } from "@/lib/utils"
 
 interface TrackInsertionZoneProps {
   position: "above" | "between" | "below"
@@ -20,18 +22,13 @@ interface TrackInsertionZoneProps {
   className?: string
 }
 
-export function TrackInsertionZone({ 
-  position, 
-  trackId, 
-  insertIndex, 
-  className 
-}: TrackInsertionZoneProps) {
-  const dropId = `track-insertion-${position}-${trackId || 'none'}-${insertIndex}`
-  
+export function TrackInsertionZone({ position, trackId, insertIndex, className }: TrackInsertionZoneProps) {
+  const dropId = `track-insertion-${position}-${trackId || "none"}-${insertIndex}`
+
   const { isOver, setNodeRef } = useDroppable({
     id: dropId,
     data: {
-      type: 'track-insertion',
+      type: "track-insertion",
       position,
       trackId,
       insertIndex,
@@ -49,7 +46,7 @@ export function TrackInsertionZone({
         "hover:h-6",
         // Эффекты при drag over
         isOver && "h-8 bg-primary/20 border-2 border-primary border-dashed",
-        className
+        className,
       )}
       data-testid={dropId}
     >
@@ -60,16 +57,18 @@ export function TrackInsertionZone({
           "opacity-0 transition-opacity duration-200",
           // Показываем при hover группы или при drag over
           "group-hover:opacity-60",
-          isOver && "opacity-100"
+          isOver && "opacity-100",
         )}
       >
-        <div className={cn(
-          "flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium",
-          "bg-primary/10 border border-primary/30 text-primary",
-          // Анимация появления
-          "transform scale-95 group-hover:scale-100 transition-transform duration-200",
-          isOver && "scale-100 bg-primary/20 border-primary"
-        )}>
+        <div
+          className={cn(
+            "flex items-center gap-2 px-3 py-1 rounded-md text-xs font-medium",
+            "bg-primary/10 border border-primary/30 text-primary",
+            // Анимация появления
+            "transform scale-95 group-hover:scale-100 transition-transform duration-200",
+            isOver && "scale-100 bg-primary/20 border-primary",
+          )}
+        >
           <Plus className="w-3 h-3" />
           <span>
             {position === "above" && "Создать трек выше"}
@@ -84,7 +83,7 @@ export function TrackInsertionZone({
         className={cn(
           "absolute top-1/2 left-4 right-4 h-px",
           "bg-primary/20 opacity-0 transition-opacity duration-200",
-          isOver && "opacity-80"
+          isOver && "opacity-80",
         )}
       />
     </div>
@@ -93,7 +92,7 @@ export function TrackInsertionZone({
 
 /**
  * TrackInsertionZones - Контейнер для управления всеми зонами вставки
- * 
+ *
  * Размещает зоны вставки в правильных позициях относительно существующих треков
  */
 interface TrackInsertionZonesProps {
@@ -102,11 +101,7 @@ interface TrackInsertionZonesProps {
   isVisible?: boolean // Показывать зоны только во время drag операции
 }
 
-export function TrackInsertionZones({ 
-  trackIds, 
-  className, 
-  isVisible = true 
-}: TrackInsertionZonesProps) {
+export function TrackInsertionZones({ trackIds, className, isVisible = true }: TrackInsertionZonesProps) {
   // Не показываем зоны если они не видимы или нет треков
   if (!isVisible) {
     return null
@@ -116,10 +111,7 @@ export function TrackInsertionZones({
     <div className={cn("absolute inset-0 pointer-events-none", className)}>
       {/* Зона выше первого трека */}
       <div className="absolute top-0 left-0 right-0 pointer-events-auto">
-        <TrackInsertionZone
-          position="above"
-          insertIndex={0}
-        />
+        <TrackInsertionZone position="above" insertIndex={0} />
       </div>
 
       {/* Зоны между треками */}
@@ -130,28 +122,21 @@ export function TrackInsertionZones({
           style={{
             // Позиционируем между треками (примерно 80px высота трека + отступы)
             top: `${(index + 1) * 90}px`,
-            transform: 'translateY(-50%)'
+            transform: "translateY(-50%)",
           }}
         >
-          <TrackInsertionZone
-            position="between"
-            trackId={trackId}
-            insertIndex={index + 1}
-          />
+          <TrackInsertionZone position="between" trackId={trackId} insertIndex={index + 1} />
         </div>
       ))}
 
       {/* Зона ниже последнего трека */}
-      <div 
+      <div
         className="absolute left-0 right-0 pointer-events-auto"
         style={{
-          top: `${trackIds.length * 90 + 20}px`
+          top: `${trackIds.length * 90 + 20}px`,
         }}
       >
-        <TrackInsertionZone
-          position="below"
-          insertIndex={trackIds.length}
-        />
+        <TrackInsertionZone position="below" insertIndex={trackIds.length} />
       </div>
     </div>
   )

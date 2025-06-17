@@ -73,23 +73,29 @@ export function MusicList() {
 
   // Получаем реальные данные о музыкальных файлах
   const { musicFiles } = useMusicFiles()
-  
+
   // Фильтруем файлы по поисковому запросу
   const filteredFiles = useMemo(() => {
     const allMusicFiles = musicFiles.allFiles || []
     if (!searchQuery) return allMusicFiles
-    
+
     const query = searchQuery.toLowerCase()
     return allMusicFiles.filter((file) => {
       const nameMatch = file.name.toLowerCase().includes(query)
-      const artistMatch = String(file.probeData?.format.tags?.artist || '').toLowerCase().includes(query)
-      const albumMatch = String(file.probeData?.format.tags?.album || '').toLowerCase().includes(query)
-      const genreMatch = String(file.probeData?.format.tags?.genre || '').toLowerCase().includes(query)
-      
+      const artistMatch = String(file.probeData?.format.tags?.artist || "")
+        .toLowerCase()
+        .includes(query)
+      const albumMatch = String(file.probeData?.format.tags?.album || "")
+        .toLowerCase()
+        .includes(query)
+      const genreMatch = String(file.probeData?.format.tags?.genre || "")
+        .toLowerCase()
+        .includes(query)
+
       return nameMatch || artistMatch || albumMatch || genreMatch
     })
   }, [musicFiles.allFiles, searchQuery])
-  
+
   const isLoading = false
   const isError = false
 

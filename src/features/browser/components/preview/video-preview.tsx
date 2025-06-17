@@ -94,18 +94,20 @@ export const VideoPreview = memo(
     const hoverTimeRef = useRef<number | null>(null)
 
     // Setup draggable functionality
-    const dragData: DragData = useMemo(() => ({
-      type: getTrackTypeForMediaFile(file) === "video" ? "video" : getTrackTypeForMediaFile(file) === "audio" ? "audio" : "image",
-      mediaFile: file,
-    }), [file])
+    const dragData: DragData = useMemo(
+      () => ({
+        type:
+          getTrackTypeForMediaFile(file) === "video"
+            ? "video"
+            : getTrackTypeForMediaFile(file) === "audio"
+              ? "audio"
+              : "image",
+        mediaFile: file,
+      }),
+      [file],
+    )
 
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      isDragging,
-    } = useDraggable({
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
       id: `video-${file.id}`,
       data: dragData,
     })
@@ -209,13 +211,15 @@ export const VideoPreview = memo(
     }, [file.probeData?.streams])
 
     // Transform style for drag feedback
-    const style = transform ? {
-      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      opacity: isDragging ? 0.5 : 1,
-    } : undefined
+    const style = transform
+      ? {
+          transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+          opacity: isDragging ? 0.5 : 1,
+        }
+      : undefined
 
     return (
-      <div 
+      <div
         ref={setNodeRef}
         className={cn("flex h-full w-full items-center justify-center", isDragging && "cursor-grabbing")}
         style={style}

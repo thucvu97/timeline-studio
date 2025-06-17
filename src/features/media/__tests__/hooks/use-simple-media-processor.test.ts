@@ -2,7 +2,6 @@ import { convertFileSrc, invoke } from "@tauri-apps/api/core"
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-
 import { useSimpleMediaProcessor } from "../../hooks/use-simple-media-processor"
 
 import type { MediaFile } from "../../types/media"

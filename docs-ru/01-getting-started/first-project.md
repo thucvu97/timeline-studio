@@ -25,7 +25,7 @@ ls -la
 Вы должны увидеть следующую структуру:
 ```
 timeline-studio/
-├── src/                 # Frontend код (React)
+├── src/                # Frontend код (React)
 ├── src-tauri/          # Backend код (Rust)
 ├── public/             # Статические файлы
 ├── docs-ru/            # Документация

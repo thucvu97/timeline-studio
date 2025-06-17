@@ -111,8 +111,8 @@ describe("useStyleTemplatesImport", () => {
           style: "modern",
           aspectRatio: "16:9",
           duration: 5000,
-          elements: []
-        }
+          elements: [],
+        },
       ]
       mockReadTextFile.mockResolvedValue(JSON.stringify(mockTemplates))
       const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
@@ -200,7 +200,7 @@ describe("useStyleTemplatesImport", () => {
         style: "modern",
         aspectRatio: "16:9",
         duration: 5000,
-        elements: []
+        elements: [],
       }
       mockReadTextFile.mockResolvedValue(JSON.stringify(mockTemplate))
       const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
@@ -223,7 +223,7 @@ describe("useStyleTemplatesImport", () => {
         style: "modern",
         aspectRatio: "16:9",
         duration: 5000,
-        elements: []
+        elements: [],
       }
       mockReadTextFile.mockResolvedValue(JSON.stringify(mockTemplate))
       const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })

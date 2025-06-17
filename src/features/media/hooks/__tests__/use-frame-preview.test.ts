@@ -49,7 +49,7 @@ describe("useFramePreview", () => {
     it("должен извлекать кадры для таймлайна", async () => {
       const { useMediaPreview } = await import("../use-media-preview")
       const { FrameExtractionService } = await import("@/features/video-compiler/services/frame-extraction-service")
-      
+
       vi.mocked(useMediaPreview).mockReturnValue({
         getPreviewData: vi.fn().mockResolvedValue(null), // No cache data
         generateThumbnail: vi.fn(),
@@ -89,17 +89,12 @@ describe("useFramePreview", () => {
           "test-file-123",
           "/path/to/video.mp4",
           10, // duration
-          1   // interval
+          1, // interval
         )
       })
 
       // Проверяем, что извлечение кадров было вызвано
-      expect(mockExtractTimelineFrames).toHaveBeenCalledWith(
-        "/path/to/video.mp4",
-        10,
-        1,
-        undefined
-      )
+      expect(mockExtractTimelineFrames).toHaveBeenCalledWith("/path/to/video.mp4", 10, 1, undefined)
 
       // Проверяем результат
       expect(frames).toHaveLength(3)
@@ -113,7 +108,7 @@ describe("useFramePreview", () => {
     it("должен использовать кэшированные кадры если они существуют", async () => {
       const { useMediaPreview } = await import("../use-media-preview")
       const { FrameExtractionService } = await import("@/features/video-compiler/services/frame-extraction-service")
-      
+
       const cachedFrames = [
         { timestamp: 0, frameData: "cached1", isKeyframe: false },
         { timestamp: 1, frameData: "cached2", isKeyframe: true },
@@ -121,7 +116,7 @@ describe("useFramePreview", () => {
 
       vi.mocked(useMediaPreview).mockReturnValue({
         getPreviewData: vi.fn().mockResolvedValue({
-          timeline_previews: cachedFrames.map(f => ({
+          timeline_previews: cachedFrames.map((f) => ({
             timestamp: f.timestamp,
             path: `/cache/frame_${f.timestamp}.jpg`,
             base64_data: f.frameData,
@@ -155,12 +150,7 @@ describe("useFramePreview", () => {
 
       let frames
       await act(async () => {
-        frames = await result.current.extractTimelineFrames(
-          "test-file-123",
-          "/path/to/video.mp4",
-          10,
-          1
-        )
+        frames = await result.current.extractTimelineFrames("test-file-123", "/path/to/video.mp4", 10, 1)
       })
 
       // Проверяем, что извлечение НЕ было вызвано
@@ -174,7 +164,7 @@ describe("useFramePreview", () => {
   describe("getFrameAtTimestamp", () => {
     it("должен получать кадр по временной метке", async () => {
       const { useMediaPreview } = await import("../use-media-preview")
-      
+
       const mockPreviewData = {
         timeline_previews: [
           { timestamp: 0, path: "/cache/frame_0.jpg", base64_data: "frame0" },
@@ -229,7 +219,7 @@ describe("useFramePreview", () => {
 
     it("должен возвращать null если нет кадров", async () => {
       const { useMediaPreview } = await import("../use-media-preview")
-      
+
       vi.mocked(useMediaPreview).mockReturnValue({
         getPreviewData: vi.fn().mockResolvedValue({
           timeline_previews: [],
@@ -256,7 +246,7 @@ describe("useFramePreview", () => {
 
     it("должен возвращать null если нет данных превью", async () => {
       const { useMediaPreview } = await import("../use-media-preview")
-      
+
       vi.mocked(useMediaPreview).mockReturnValue({
         getPreviewData: vi.fn().mockResolvedValue(null),
         generateThumbnail: vi.fn(),
@@ -283,7 +273,7 @@ describe("useFramePreview", () => {
   describe("clearTimelineFrames", () => {
     it("должен очищать кадры таймлайна", async () => {
       const { useMediaPreview } = await import("../use-media-preview")
-      
+
       const mockClearPreviewData = vi.fn().mockResolvedValue(true)
       vi.mocked(useMediaPreview).mockReturnValue({
         getPreviewData: vi.fn(),

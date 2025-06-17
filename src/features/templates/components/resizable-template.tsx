@@ -21,18 +21,13 @@ interface ResizableTemplateProps {
  * Компонент для отображения настраиваемого шаблона с возможностью изменения размеров панелей
  * Использует новую систему конфигурации шаблонов
  */
-export function ResizableTemplate({ 
-  appliedTemplate, 
-  videos, 
-  activeVideoId, 
-  videoRefs 
-}: ResizableTemplateProps) {
+export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, videoRefs }: ResizableTemplateProps) {
   const { isResizableMode } = usePlayer()
   const template = appliedTemplate.template
-  
+
   // Получаем конфигурацию шаблона
   const templateConfig = template ? getAllTemplateConfig(template.id) : undefined
-  
+
   // Проверяем, что у нас есть видео с путями
   const validVideos = videos.filter((v) => v?.path)
   const videoCount = Math.min(validVideos.length, template?.screens || 1)
@@ -42,10 +37,11 @@ export function ResizableTemplate({
 
   // Состояние для диагональных шаблонов
   const [splitPoints, setSplitPoints] = useState<{ x: number; y: number }[]>(
-    template?.splitPoints || templateConfig?.splitPoints || [
-      { x: 66.67, y: 0 },
-      { x: 33.33, y: 100 },
-    ]
+    template?.splitPoints ||
+      templateConfig?.splitPoints || [
+        { x: 66.67, y: 0 },
+        { x: 33.33, y: 100 },
+      ],
   )
 
   // Состояние для отслеживания перетаскивания диагонали
@@ -59,7 +55,7 @@ export function ResizableTemplate({
     if (!template?.resizable) return
 
     const defaultSizes = Array(videoCount).fill(100 / videoCount)
-    
+
     // Для шаблонов с позицией разделения используем её
     if (template.splitPosition !== undefined) {
       if (template.split === "vertical" || template.split === "horizontal") {
@@ -90,7 +86,7 @@ export function ResizableTemplate({
 
       setIsDragging(true)
     },
-    [splitPoints]
+    [splitPoints],
   )
 
   const handleMouseMove = useCallback(
@@ -145,7 +141,7 @@ export function ResizableTemplate({
         { x: newX2, y: 100 },
       ])
     },
-    [isDragging, splitPoints, dragOffset, dragPoint]
+    [isDragging, splitPoints, dragOffset, dragPoint],
   )
 
   const handleMouseUp = useCallback(() => {
@@ -175,17 +171,10 @@ export function ResizableTemplate({
 
       const video = validVideos[index]
       const isActive = video.id === activeVideoId
-      
-      return (
-        <VideoPanelComponent
-          video={video}
-          isActive={isActive}
-          videoRefs={videoRefs}
-          index={index}
-        />
-      )
+
+      return <VideoPanelComponent video={video} isActive={isActive} videoRefs={videoRefs} index={index} />
     },
-    [validVideos, activeVideoId, videoRefs]
+    [validVideos, activeVideoId, videoRefs],
   )
 
   // Если нет шаблона или конфигурации, показываем заглушку
@@ -195,23 +184,17 @@ export function ResizableTemplate({
   }
 
   // Обновляем конфигурацию с актуальными splitPoints для диагональных шаблонов
-  const configWithUpdatedPoints = template.split === "diagonal" 
-    ? { ...templateConfig, splitPoints } 
-    : templateConfig
+  const configWithUpdatedPoints = template.split === "diagonal" ? { ...templateConfig, splitPoints } : templateConfig
 
   // Специальная обработка для resizable шаблонов
   if (template.resizable && isResizableMode && (template.split === "vertical" || template.split === "horizontal")) {
     const isVertical = template.split === "vertical"
-    
+
     return (
       <ResizablePanelGroup direction={isVertical ? "horizontal" : "vertical"}>
         {panelSizes.map((size, index) => (
           <React.Fragment key={index}>
-            {index > 0 && (
-              <PanelResizeHandle 
-                className={isVertical ? "w-px bg-gray-600" : "h-px bg-gray-600"} 
-              />
-            )}
+            {index > 0 && <PanelResizeHandle className={isVertical ? "w-px bg-gray-600" : "h-px bg-gray-600"} />}
             <ResizablePanel defaultSize={size} minSize={10}>
               {index < validVideos.length && renderCell(index, templateConfig.cells?.[index] || {})}
             </ResizablePanel>
@@ -225,16 +208,10 @@ export function ResizableTemplate({
   if (template.split === "diagonal" && isResizableMode) {
     return (
       <div ref={diagonalContainerRef} className="relative h-full w-full">
-        <TemplateRenderer
-          config={configWithUpdatedPoints}
-          renderCell={renderCell}
-        />
-        
+        <TemplateRenderer config={configWithUpdatedPoints} renderCell={renderCell} />
+
         {/* Интерактивные элементы для перетаскивания диагонали */}
-        <svg 
-          className="absolute inset-0" 
-          style={{ width: "100%", height: "100%", pointerEvents: "none" }}
-        >
+        <svg className="absolute inset-0" style={{ width: "100%", height: "100%", pointerEvents: "none" }}>
           {/* Точки для перетаскивания */}
           <circle
             cx={`${splitPoints[0].x}%`}
@@ -256,7 +233,7 @@ export function ResizableTemplate({
             style={{ cursor: "move", pointerEvents: "all" }}
             onMouseDown={(e) => handleMouseDown(e, 1)}
           />
-          
+
           {/* Невидимая линия для перетаскивания всей диагонали */}
           <line
             x1={`${splitPoints[0].x}%`}
@@ -274,10 +251,5 @@ export function ResizableTemplate({
   }
 
   // Для всех остальных шаблонов используем TemplateRenderer
-  return (
-    <TemplateRenderer
-      config={configWithUpdatedPoints}
-      renderCell={renderCell}
-    />
-  )
+  return <TemplateRenderer config={configWithUpdatedPoints} renderCell={renderCell} />
 }

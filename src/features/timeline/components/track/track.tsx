@@ -94,11 +94,7 @@ export function Track({
 
       {/* Регулятор высоты трека */}
       {onHeightChange && (
-        <TrackHeightAdjuster
-          trackId={track.id}
-          currentHeight={track.height}
-          onHeightChange={onHeightChange}
-        />
+        <TrackHeightAdjuster trackId={track.id} currentHeight={track.height} onHeightChange={onHeightChange} />
       )}
     </div>
   )

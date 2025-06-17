@@ -150,7 +150,13 @@ describe("useMediaPreview", () => {
 
       let generatedThumbnail: ThumbnailData | null = null
       await act(async () => {
-        generatedThumbnail = await result.current.generateThumbnail("test-file-123", "/path/to/video.mp4", 320, 180, 5.5)
+        generatedThumbnail = await result.current.generateThumbnail(
+          "test-file-123",
+          "/path/to/video.mp4",
+          320,
+          180,
+          5.5,
+        )
       })
 
       expect(mockInvoke).toHaveBeenCalledWith("generate_media_thumbnail", {
@@ -441,7 +447,7 @@ describe("useMediaPreview", () => {
         width: 320,
         height: 180,
       }
-      
+
       mockInvoke
         .mockResolvedValueOnce(mockPreviewData)
         .mockResolvedValueOnce(thumbnailData)

@@ -42,19 +42,19 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
   // Объединяем встроенные и пользовательские пресеты
   const allPresets = useMemo(() => {
     const combined: Record<string, CustomPreset> = {}
-    
+
     // Сначала добавляем встроенные пресеты
     if (effect.presets) {
       Object.entries(effect.presets).forEach(([key, preset]) => {
         combined[key] = preset
       })
     }
-    
+
     // Затем добавляем пользовательские пресеты
     Object.entries(customPresets).forEach(([key, preset]) => {
       combined[key] = preset
     })
-    
+
     return combined
   }, [effect.presets, customPresets])
 
@@ -62,7 +62,7 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
   const handleDeleteCustomPreset = (presetKey: string) => {
     const { [presetKey]: _, ...updatedPresets } = customPresets
     setCustomPresets(updatedPresets)
-    
+
     // Сохраняем обновленные пресеты в localStorage
     const storageKey = `effect_presets_${effect.id}`
     if (Object.keys(updatedPresets).length > 0) {
@@ -98,7 +98,7 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
         <div className="border-t p-2 space-y-2">
           {presetEntries.map(([presetKey, preset]) => {
             const isCustom = presetKey.startsWith("custom_")
-            
+
             return (
               <div key={presetKey} className="space-y-1">
                 <TooltipProvider>
@@ -148,9 +148,9 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
                             .map(([key, value]) => `${key}: ${String(value)}`)
                             .join(", ")}
                         </div>
-                        {isCustom && (preset).createdAt && (
+                        {isCustom && preset.createdAt && (
                           <div className="text-xs text-gray-400">
-                            {t("effects.createdAt", "Создано")}: {new Date((preset).createdAt).toLocaleDateString()}
+                            {t("effects.createdAt", "Создано")}: {new Date(preset.createdAt).toLocaleDateString()}
                           </div>
                         )}
                       </div>

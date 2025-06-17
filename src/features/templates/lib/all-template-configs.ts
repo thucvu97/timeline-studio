@@ -789,11 +789,7 @@ const mixedTemplates: MediaTemplateConfig[] = [
     id: "split-mixed-1-landscape",
     split: "custom",
     screens: 3,
-    cells: [
-      createCellConfig(0, { background: { color: "#23262b" } }),
-      createCellConfig(1),
-      createCellConfig(2),
-    ],
+    cells: [createCellConfig(0, { background: { color: "#23262b" } }), createCellConfig(1), createCellConfig(2)],
     cellLayouts: [
       { position: "absolute", top: "0", left: "0", width: "50%", height: "100%" },
       { position: "absolute", top: "0", right: "0", width: "50%", height: "50%" },
@@ -805,11 +801,7 @@ const mixedTemplates: MediaTemplateConfig[] = [
     id: "split-mixed-1-portrait",
     split: "custom",
     screens: 3,
-    cells: [
-      createCellConfig(0, { background: { color: "#23262b" } }),
-      createCellConfig(1),
-      createCellConfig(2),
-    ],
+    cells: [createCellConfig(0, { background: { color: "#23262b" } }), createCellConfig(1), createCellConfig(2)],
     cellLayouts: [
       { position: "absolute", top: "0", left: "0", width: "100%", height: "50%" },
       { position: "absolute", bottom: "0", left: "0", width: "50%", height: "50%" },
@@ -821,11 +813,7 @@ const mixedTemplates: MediaTemplateConfig[] = [
     id: "split-mixed-1-square",
     split: "custom",
     screens: 3,
-    cells: [
-      createCellConfig(0, { background: { color: "#23262b" } }),
-      createCellConfig(1),
-      createCellConfig(2),
-    ],
+    cells: [createCellConfig(0, { background: { color: "#23262b" } }), createCellConfig(1), createCellConfig(2)],
     cellLayouts: [
       { position: "absolute", top: "0", left: "0", width: "50%", height: "100%" },
       { position: "absolute", top: "0", right: "0", width: "50%", height: "50%" },
@@ -837,11 +825,7 @@ const mixedTemplates: MediaTemplateConfig[] = [
     id: "split-mixed-2-landscape",
     split: "custom",
     screens: 3,
-    cells: [
-      createCellConfig(0),
-      createCellConfig(1),
-      createCellConfig(2, { background: { color: "#23262b" } }),
-    ],
+    cells: [createCellConfig(0), createCellConfig(1), createCellConfig(2, { background: { color: "#23262b" } })],
     cellLayouts: [
       { position: "absolute", top: "0", left: "0", width: "50%", height: "50%" },
       { position: "absolute", bottom: "0", left: "0", width: "50%", height: "50%" },
@@ -853,11 +837,7 @@ const mixedTemplates: MediaTemplateConfig[] = [
     id: "split-mixed-2-portrait",
     split: "custom",
     screens: 3,
-    cells: [
-      createCellConfig(0),
-      createCellConfig(1),
-      createCellConfig(2, { background: { color: "#23262b" } }),
-    ],
+    cells: [createCellConfig(0), createCellConfig(1), createCellConfig(2, { background: { color: "#23262b" } })],
     cellLayouts: [
       { position: "absolute", top: "0", left: "0", width: "50%", height: "50%" },
       { position: "absolute", top: "0", right: "0", width: "50%", height: "50%" },
@@ -869,11 +849,7 @@ const mixedTemplates: MediaTemplateConfig[] = [
     id: "split-mixed-2-square",
     split: "custom",
     screens: 3,
-    cells: [
-      createCellConfig(0),
-      createCellConfig(1),
-      createCellConfig(2, { background: { color: "#23262b" } }),
-    ],
+    cells: [createCellConfig(0), createCellConfig(1), createCellConfig(2, { background: { color: "#23262b" } })],
     cellLayouts: [
       { position: "absolute", top: "0", left: "0", width: "50%", height: "50%" },
       { position: "absolute", bottom: "0", left: "0", width: "50%", height: "50%" },
@@ -1085,8 +1061,10 @@ export const ALL_TEMPLATE_CONFIGS: MediaTemplateConfig[] = [
 ]
 
 // Создаем карту для быстрого доступа
-export const ALL_TEMPLATE_CONFIG_MAP: Record<string, MediaTemplateConfig> = 
-  ALL_TEMPLATE_CONFIGS.reduce((acc, config) => ({ ...acc, [config.id]: config }), {})
+export const ALL_TEMPLATE_CONFIG_MAP: Record<string, MediaTemplateConfig> = ALL_TEMPLATE_CONFIGS.reduce(
+  (acc, config) => ({ ...acc, [config.id]: config }),
+  {},
+)
 
 // Функция для получения конфигурации по ID
 export function getAllTemplateConfig(templateId: string): MediaTemplateConfig | undefined {

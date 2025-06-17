@@ -21,12 +21,9 @@ interface TrackContentProps {
 
 export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
   const { dragState, isValidDropTarget } = useDragDropTimeline()
-  
+
   // Setup droppable functionality
-  const {
-    isOver,
-    setNodeRef,
-  } = useDroppable({
+  const { isOver, setNodeRef } = useDroppable({
     id: `track-${track.id}`,
     data: {
       trackId: track.id,
@@ -54,15 +51,15 @@ export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackC
   }
 
   return (
-    <div 
+    <div
       ref={setNodeRef}
       data-track-id={track.id}
       className={cn(
-        "relative h-full w-full", 
+        "relative h-full w-full",
         "bg-background border-l border-border",
         showDropFeedback && "bg-primary/10 border-primary",
         dragState.isDragging && isValidTarget && "border-dashed border-2",
-        dragState.isDragging && !isValidTarget && "opacity-50"
+        dragState.isDragging && !isValidTarget && "opacity-50",
       )}
     >
       {/* Drop zone visual feedback */}
