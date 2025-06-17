@@ -108,6 +108,18 @@ jobs:
         if: matrix.platform == 'macos-latest'
         run: |
           brew install ffmpeg pkg-config onnxruntime
+          
+          # Set PKG_CONFIG_PATH for FFmpeg libraries
+          echo "PKG_CONFIG_PATH=/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_PATH
+          
+          # Set ONNX Runtime library path
+          echo "ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          
+          # Verify FFmpeg installation
+          pkg-config --modversion libavutil || echo "libavutil not found"
+          pkg-config --modversion libavcodec || echo "libavcodec not found"
+          pkg-config --modversion libavformat || echo "libavformat not found"
 
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
@@ -196,6 +208,8 @@ jobs:
         uses: tauri-apps/tauri-action@v0.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_CONFIG_PATH: /opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig
+          ORT_DYLIB_PATH: /opt/homebrew/lib/libonnxruntime.dylib
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}

@@ -258,73 +258,6 @@
         "kbps": "kbps",
         "sdr": "SDR - Rec.709",
         "otherNetworks": "Andere soziale Netzwerke"
-      },
-      "keyboardShortcuts": {
-        "title": "Tastaturkürzel",
-        "switchPreset": "Zu anderem Shortcut-Preset wechseln:",
-        "searchShortcuts": "Tastaturkürzel suchen",
-        "clearSearch": "Suche löschen",
-        "cancel": "Abbrechen",
-        "ok": "OK",
-        "resetDefaults": "Standardwerte wiederherstellen",
-        "editHint": "Klicken Sie auf ein Kürzel, um es zu bearbeiten. Drücken Sie die gewünschten Tasten, um ein neues Kürzel festzulegen.",
-        "searchHint": "Sie können nach Namen suchen oder eine Tastenkombination im Suchfeld eingeben.",
-        "pressKeys": "Tasten drücken...",
-        "categories": {
-          "preferences": "Einstellungen",
-          "file": "Datei",
-          "edit": "Bearbeiten",
-          "view": "Ansicht",
-          "tools": "Werkzeuge",
-          "marker": "Marker",
-          "multicam": "Multicam-Bearbeitung",
-          "other": "Andere"
-        },
-        "shortcuts": {
-          "preferences": "Einstellungen",
-          "project-settings": "Projekteinstellungen",
-          "shortcuts": "Tastaturkürzel",
-          "new-project": "Neues Projekt",
-          "open-project": "Projekt öffnen",
-          "save-project": "Projekt speichern",
-          "save-as": "Projekt speichern unter",
-          "archive": "Projekt archivieren",
-          "import": "Medien importieren",
-          "undo": "Rückgängig",
-          "redo": "Wiederholen",
-          "cut": "Ausschneiden",
-          "copy": "Kopieren",
-          "paste": "Einfügen",
-          "delete": "Löschen",
-          "select-all": "Alles auswählen",
-          "zoom-in": "Vergrößern",
-          "zoom-out": "Verkleinern",
-          "fit-to-screen": "An Bildschirm anpassen",
-          "toggle-browser": "Browser umschalten",
-          "toggle-timeline": "Timeline umschalten",
-          "selection": "Auswahlwerkzeug",
-          "cut-tool": "Schneidewerkzeug",
-          "hand-tool": "Hand-Werkzeug",
-          "zoom-tool": "Zoom-Werkzeug",
-          "add-marker": "Marker hinzufügen",
-          "next-marker": "Nächster Marker",
-          "prev-marker": "Vorheriger Marker",
-          "switch-camera-1": "Zu Kamera 1 wechseln",
-          "switch-camera-2": "Zu Kamera 2 wechseln",
-          "switch-camera-3": "Zu Kamera 3 wechseln",
-          "switch-camera-4": "Zu Kamera 4 wechseln",
-          "play-pause": "Wiedergabe/Pause",
-          "next-frame": "Nächstes Bild",
-          "prev-frame": "Vorheriges Bild",
-          "volume-up": "Lautstärke erhöhen",
-          "volume-down": "Lautstärke verringern",
-          "mute": "Stumm"
-        },
-        "presets": {
-          "timeline": "Timeline",
-          "filmora": "Wondershare Filmora",
-          "premiere": "Adobe Premier Pro"
-        }
       }
     },
     "templates": {
@@ -551,7 +484,6 @@
       }
     }
   },
-
   "dialogs": {
     "export": {
       "title": "Exportieren",
