@@ -12,7 +12,7 @@ import {
 describe("i18n constants", () => {
   describe("SUPPORTED_LANGUAGES", () => {
     it("should contain all supported languages", () => {
-      expect(SUPPORTED_LANGUAGES).toEqual(["ru", "en", "es", "fr", "de", "pt", "zh", "ja", "ko"])
+      expect(SUPPORTED_LANGUAGES).toEqual(["ru", "en", "es", "fr", "de", "pt", "zh", "ja", "ko", "tr", "th"])
     })
   })
 
@@ -34,6 +34,8 @@ describe("i18n constants", () => {
         zh: "zh-CN",
         ja: "ja-JP",
         ko: "ko-KR",
+        tr: "tr-TR",
+        th: "th-TH",
       })
     })
   })
@@ -49,6 +51,8 @@ describe("i18n constants", () => {
       expect(getLocaleByLanguage("zh")).toBe("zh-CN")
       expect(getLocaleByLanguage("ja")).toBe("ja-JP")
       expect(getLocaleByLanguage("ko")).toBe("ko-KR")
+      expect(getLocaleByLanguage("tr")).toBe("tr-TR")
+      expect(getLocaleByLanguage("th")).toBe("th-TH")
     })
 
     it("should return default locale for unsupported language", () => {
@@ -67,6 +71,8 @@ describe("i18n constants", () => {
       expect(isSupportedLanguage("zh")).toBe(true)
       expect(isSupportedLanguage("ja")).toBe(true)
       expect(isSupportedLanguage("ko")).toBe(true)
+      expect(isSupportedLanguage("tr")).toBe(true)
+      expect(isSupportedLanguage("th")).toBe(true)
     })
 
     it("should return false for unsupported languages", () => {

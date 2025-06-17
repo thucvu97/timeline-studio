@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 // Поддерживаемые языки
-const SUPPORTED_LANGUAGES: [&str; 6] = ["en", "ru", "es", "pt", "fr", "de"];
+const SUPPORTED_LANGUAGES: [&str; 11] =
+  ["en", "ru", "es", "pt", "fr", "de", "zh", "ja", "ko", "tr", "th"];
 const DEFAULT_LANGUAGE: &str = "en";
 
 // Глобальное состояние для хранения текущего языка
@@ -83,10 +84,16 @@ mod tests {
     assert!(is_supported_language("fr"));
     assert!(is_supported_language("de"));
 
+    // Test supported languages (extended)
+    assert!(is_supported_language("zh"));
+    assert!(is_supported_language("ja"));
+    assert!(is_supported_language("ko"));
+    assert!(is_supported_language("tr"));
+    assert!(is_supported_language("th"));
+
     // Test unsupported languages
-    assert!(!is_supported_language("ja"));
-    assert!(!is_supported_language("ko"));
-    assert!(!is_supported_language("zh"));
+    assert!(!is_supported_language("it"));
+    assert!(!is_supported_language("pl"));
     assert!(!is_supported_language(""));
   }
 
@@ -137,7 +144,7 @@ mod tests {
   #[test]
   fn test_supported_languages_constant() {
     // Verify the constant is properly defined
-    assert_eq!(SUPPORTED_LANGUAGES.len(), 6);
+    assert_eq!(SUPPORTED_LANGUAGES.len(), 11);
     assert_eq!(DEFAULT_LANGUAGE, "en");
   }
 

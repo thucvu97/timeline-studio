@@ -458,11 +458,11 @@ export function useAutoLoadUserData() {
         // Используем упрощенный процессор через прямой вызов Tauri команды
         try {
           const { invoke } = await import("@tauri-apps/api/core")
-          
+
           // Обрабатываем файлы с помощью упрощенного процессора
           const processFilesSimple = async (filePaths: string[]): Promise<MediaFile[]> => {
             const processedFiles: MediaFile[] = []
-            
+
             for (const filePath of filePaths) {
               try {
                 const processed = await invoke<{
@@ -511,7 +511,7 @@ export function useAutoLoadUserData() {
                 processedFiles.push(mediaFile)
               } catch (error) {
                 console.error(`Failed to process file ${filePath}:`, error)
-                
+
                 // Fallback: создаем базовый объект
                 const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || ""
                 processedFiles.push({
@@ -528,14 +528,14 @@ export function useAutoLoadUserData() {
                 })
               }
             }
-            
+
             return processedFiles
           }
 
           if (mediaFiles.length > 0) {
             console.log(`Обрабатываем ${mediaFiles.length} медиа файлов...`)
             const processedMedia = await processFilesSimple(mediaFiles)
-            
+
             updateMediaFiles(processedMedia.filter(Boolean))
             console.log(`Добавлено ${processedMedia.length} медиа файлов в состояние приложения`)
           }
@@ -543,13 +543,13 @@ export function useAutoLoadUserData() {
           if (musicFiles.length > 0) {
             console.log(`Обрабатываем ${musicFiles.length} музыкальных файлов...`)
             const processedMusic = await processFilesSimple(musicFiles)
-            
+
             updateMusicFiles(processedMusic.filter(Boolean))
             console.log(`Добавлено ${processedMusic.length} музыкальных файлов в состояние приложения`)
           }
         } catch (error) {
           console.error("Ошибка при обработке медиа файлов:", error)
-          
+
           // Fallback: создаем базовые объекты без обработки
           const mediaFileObjects: MediaFile[] = mediaFiles.map((filePath, index) => {
             const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || ""

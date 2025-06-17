@@ -114,6 +114,23 @@ State machines are created using XState's `setup` method for better type safety 
 - Project files use a custom schema for timeline data persistence
 - Missing file restoration is handled through the MediaRestorationService
 
+### Internationalization (i18n)
+Timeline Studio supports 10 languages with complete localization:
+- **Supported Languages**: English, Russian, Spanish, French, German, Portuguese, Chinese, Japanese, Korean, Turkish
+- **Frontend Configuration**: Located in `/src/i18n/` with language constants, translation files, and React provider
+- **Backend Support**: Rust backend in `/src-tauri/src/language.rs` supports all 10 languages
+- **Translation Files**: Each language has a complete JSON file in `/src/i18n/locales/[lang].json`
+- **Language Selection**: Users can switch languages via User Settings modal
+- **Native Names**: Languages are displayed using their native names (e.g., "中文" for Chinese, "Türkçe" for Turkish)
+
+When adding new languages:
+1. Add language code to `LanguageCode` type and `SUPPORTED_LANGUAGES` array in `/src/i18n/constants.ts`
+2. Add locale mapping to `LANGUAGE_LOCALES` in same file
+3. Create complete translation file `/src/i18n/locales/[lang].json`
+4. Import and add to resources object in `/src/i18n/index.ts`
+5. Update backend language support in `/src-tauri/src/language.rs`
+6. Add native language name to all translation files under `language.native.[lang]`
+
 ### Testing Strategy
 - Unit tests use Vitest with Testing Library
 - Tests are organized in `__tests__/` directories within each feature

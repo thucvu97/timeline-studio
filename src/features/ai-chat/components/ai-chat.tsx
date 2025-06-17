@@ -160,7 +160,9 @@ export function AiChat() {
                 <div
                   key={msg.id}
                   className={`group flex max-w-[90%] flex-col rounded-lg p-2.5 ${
-                    msg.role === "user" ? "ml-auto bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    msg.role === "user"
+                      ? "ml-auto bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
                   }`}
                 >
                   <div className="flex items-start gap-2">

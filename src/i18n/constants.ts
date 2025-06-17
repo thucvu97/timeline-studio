@@ -1,8 +1,8 @@
 // Типы для языков
-export type LanguageCode = "ru" | "en" | "es" | "fr" | "de" | "pt" | "zh" | "ja" | "ko"
+export type LanguageCode = "ru" | "en" | "es" | "fr" | "de" | "pt" | "zh" | "ja" | "ko" | "tr" | "th"
 
 // Список поддерживаемых языков
-export const SUPPORTED_LANGUAGES: LanguageCode[] = ["ru", "en", "es", "fr", "de", "pt", "zh", "ja", "ko"]
+export const SUPPORTED_LANGUAGES: LanguageCode[] = ["ru", "en", "es", "fr", "de", "pt", "zh", "ja", "ko", "tr", "th"]
 
 // Язык по умолчанию
 export const DEFAULT_LANGUAGE: LanguageCode = "en"
@@ -18,6 +18,8 @@ export const LANGUAGE_LOCALES: Record<LanguageCode, string> = {
   zh: "zh-CN",
   ja: "ja-JP",
   ko: "ko-KR",
+  tr: "tr-TR",
+  th: "th-TH",
 }
 
 // Функция для получения локали по коду языка

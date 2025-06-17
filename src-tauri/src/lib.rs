@@ -9,8 +9,8 @@ use language::{get_app_language, set_app_language};
 mod media;
 use media::commands::{
   clear_media_preview_data, generate_media_thumbnail, get_files_with_previews,
-  get_media_preview_data, get_timeline_frames, load_preview_data, save_preview_data,
-  save_timeline_frames, process_media_file_simple, PreviewManagerState,
+  get_media_preview_data, get_timeline_frames, load_preview_data, process_media_file_simple,
+  save_preview_data, save_timeline_frames, PreviewManagerState,
 };
 use media::preview_manager::PreviewDataManager;
 use media::{get_media_files, get_media_metadata, MediaProcessor, ThumbnailOptions};

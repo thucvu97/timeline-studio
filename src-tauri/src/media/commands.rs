@@ -2,9 +2,9 @@ use anyhow::Result;
 use std::path::PathBuf;
 use tauri::State;
 
+use super::metadata::get_media_metadata;
 use super::preview_data::MediaPreviewData;
 use super::preview_manager::PreviewDataManager;
-use super::metadata::get_media_metadata;
 use serde::Serialize;
 
 /// State для менеджера превью
@@ -157,66 +157,81 @@ pub async fn process_media_file_simple(
   generate_thumbnail: bool,
 ) -> Result<ProcessedMediaFile, String> {
   use std::time::{SystemTime, UNIX_EPOCH};
-  
+
   let path = PathBuf::from(&file_path);
-  
+
   // Check if file exists
   if !path.exists() {
     return Err("File does not exist".to_string());
   }
-  
+
   // Get file metadata
-  let file_name = path.file_name()
+  let file_name = path
+    .file_name()
     .and_then(|n| n.to_str())
     .unwrap_or("Unknown")
     .to_string();
-    
-  let file_size = std::fs::metadata(&path)
-    .map(|m| m.len())
-    .unwrap_or(0);
-  
+
+  let file_size = std::fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
+
   // Generate unique ID based on file path and timestamp
   let timestamp = SystemTime::now()
     .duration_since(UNIX_EPOCH)
     .unwrap()
     .as_millis();
   let id = format!("file-{}-{}", timestamp, file_name.replace(" ", "-"));
-  
+
   // Try to get basic media info using existing metadata function
   let metadata = match get_media_metadata(file_path.clone()) {
     Ok(media_file) => {
       // Extract metadata from MediaFile
       let probe_data = &media_file.probe_data;
       let duration = media_file.duration;
-      
-      let (width, height, fps, video_codec) = probe_data.streams.iter()
+
+      let (width, height, fps, video_codec) = probe_data
+        .streams
+        .iter()
         .find(|s| s.codec_type == "video")
-        .map(|s| (
-          s.width,
-          s.height,
-          s.r_frame_rate.as_ref().and_then(|r| {
-            let parts: Vec<&str> = r.split('/').collect();
-            if parts.len() == 2 {
-              let num = parts[0].parse::<f64>().ok()?;
-              let den = parts[1].parse::<f64>().ok()?;
-              if den > 0.0 { Some(num / den) } else { None }
-            } else {
-              None
-            }
-          }),
-          s.codec_name.clone(),
-        ))
+        .map(|s| {
+          (
+            s.width,
+            s.height,
+            s.r_frame_rate.as_ref().and_then(|r| {
+              let parts: Vec<&str> = r.split('/').collect();
+              if parts.len() == 2 {
+                let num = parts[0].parse::<f64>().ok()?;
+                let den = parts[1].parse::<f64>().ok()?;
+                if den > 0.0 {
+                  Some(num / den)
+                } else {
+                  None
+                }
+              } else {
+                None
+              }
+            }),
+            s.codec_name.clone(),
+          )
+        })
         .unwrap_or((None, None, None, None));
-        
-      let audio_codec = probe_data.streams.iter()
+
+      let audio_codec = probe_data
+        .streams
+        .iter()
         .find(|s| s.codec_type == "audio")
         .and_then(|s| s.codec_name.clone());
-        
-      let bitrate = probe_data.format.duration
-        .map(|_| probe_data.format.bit_rate.as_ref()
-          .and_then(|b| b.parse::<u64>().ok()))
-        .flatten();
-      
+
+      let bitrate = probe_data
+        .format
+        .duration
+        .and_then(|_| {
+          probe_data
+            .format
+            .bit_rate
+            .as_ref()
+            .and_then(|b| b.parse::<u64>().ok())
+        });
+
       Some(SimpleMediaMetadata {
         duration,
         width,
@@ -234,16 +249,20 @@ pub async fn process_media_file_simple(
       None
     }
   };
-  
+
   // Generate thumbnail if requested
-  let thumbnail_path = if generate_thumbnail && metadata.as_ref().map_or(false, |m| m.has_video.unwrap_or(false)) {
+  let thumbnail_path = if generate_thumbnail
+    && metadata
+      .as_ref()
+      .is_some_and(|m| m.has_video.unwrap_or(false))
+  {
     // For simplicity, we'll skip actual thumbnail generation in this basic version
     // In a real implementation, you would generate a thumbnail here
     None
   } else {
     None
   };
-  
+
   Ok(ProcessedMediaFile {
     id,
     path: file_path,

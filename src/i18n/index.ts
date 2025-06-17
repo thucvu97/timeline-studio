@@ -13,6 +13,8 @@ import translationJA from "./locales/ja.json"
 import translationKO from "./locales/ko.json"
 import translationPT from "./locales/pt.json"
 import translationRU from "./locales/ru.json"
+import translationTH from "./locales/th.json"
+import translationTR from "./locales/tr.json"
 import translationZH from "./locales/zh.json"
 
 // Проверка, что код выполняется в браузере
@@ -46,6 +48,12 @@ const resources = {
   },
   ko: {
     translation: translationKO,
+  },
+  tr: {
+    translation: translationTR,
+  },
+  th: {
+    translation: translationTH,
   },
 }
 

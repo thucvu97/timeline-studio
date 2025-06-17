@@ -52,7 +52,7 @@ export function useSimpleMediaProcessor(options: UseSimpleMediaProcessorOptions 
 
         for (let i = 0; i < filePaths.length; i++) {
           const filePath = filePaths[i]
-          
+
           // Обновляем прогресс
           setProgress({ current: i, total: filePaths.length })
           options.onProgress?.(i, filePaths.length)
@@ -95,7 +95,7 @@ export function useSimpleMediaProcessor(options: UseSimpleMediaProcessorOptions 
                   size: processed.size ? Number(processed.size) : undefined,
                   filename: processed.path,
                 },
-                streams: []
+                streams: [],
               }
 
               // Добавляем видео поток
@@ -123,7 +123,7 @@ export function useSimpleMediaProcessor(options: UseSimpleMediaProcessorOptions 
             processedFiles.push(mediaFile)
           } catch (error) {
             console.error(`Failed to process file ${filePath}:`, error)
-            
+
             // Даже при ошибке добавляем файл с базовой информацией
             const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || "Unknown"
             processedFiles.push({
@@ -150,7 +150,7 @@ export function useSimpleMediaProcessor(options: UseSimpleMediaProcessorOptions 
         setIsProcessing(false)
       }
     },
-    [options]
+    [options],
   )
 
   /**

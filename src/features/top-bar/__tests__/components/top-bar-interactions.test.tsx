@@ -77,7 +77,7 @@ describe("TopBar Interactions", () => {
     fireEvent.click(browserToggle)
     expect(mockToggleBrowserVisibility).toHaveBeenCalled()
 
-    // Timeline toggle  
+    // Timeline toggle
     const timelineToggle = screen.getByRole("button", { name: "PanelBottomClose" })
     fireEvent.click(timelineToggle)
     expect(mockToggleTimelineVisibility).toHaveBeenCalled()
@@ -150,7 +150,7 @@ describe("TopBar Interactions", () => {
 
   it("should show project name in display mode initially", () => {
     render(<TopBar />)
-    
+
     expect(screen.getByText("Test Project")).toBeInTheDocument()
     expect(screen.queryByDisplayValue("Test Project")).not.toBeInTheDocument()
   })
@@ -168,7 +168,7 @@ describe("TopBar Interactions", () => {
     render(<TopBar />)
 
     const saveButton = screen.getByTestId("save-button")
-    
+
     // Multiple clicks
     fireEvent.click(saveButton)
     fireEvent.click(saveButton)
@@ -199,7 +199,7 @@ describe("TopBar Interactions", () => {
     fireEvent.click(projectNameContainer!)
 
     const input = screen.getByDisplayValue("Test Project")
-    
+
     // Test blur to finish editing
     fireEvent.blur(input)
     expect(screen.queryByDisplayValue("Test Project")).not.toBeInTheDocument()

@@ -157,7 +157,10 @@ pub async fn compile_video(
     let result = {
       let mut jobs = active_jobs.write().await;
       if let Some(active_job) = jobs.get_mut(&job_id_clone) {
-        active_job.renderer.render(Path::new(&output_path_clone)).await
+        active_job
+          .renderer
+          .render(Path::new(&output_path_clone))
+          .await
       } else {
         Err(VideoCompilerError::InternalError(
           "Job not found".to_string(),

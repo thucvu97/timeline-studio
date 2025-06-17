@@ -1,9 +1,10 @@
-import { act, renderHook } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
-
 import { convertFileSrc, invoke } from "@tauri-apps/api/core"
+import { act, renderHook } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
 
 import { useSimpleMediaProcessor } from "../../hooks/use-simple-media-processor"
+
 import type { MediaFile } from "../../types/media"
 
 vi.mock("@tauri-apps/api/core", () => ({
@@ -18,7 +19,7 @@ describe("useSimpleMediaProcessor", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
-  
+
   it("should initialize with default state", () => {
     const { result } = renderHook(() => useSimpleMediaProcessor())
 
@@ -89,9 +90,7 @@ describe("useSimpleMediaProcessor", () => {
 
   it("should update progress during processing", async () => {
     const onProgress = vi.fn()
-    const { result } = renderHook(() =>
-      useSimpleMediaProcessor({ onProgress })
-    )
+    const { result } = renderHook(() => useSimpleMediaProcessor({ onProgress }))
 
     mockInvoke
       .mockResolvedValueOnce({
@@ -108,10 +107,7 @@ describe("useSimpleMediaProcessor", () => {
       })
 
     await act(async () => {
-      await result.current.processFiles([
-        "/path/to/video1.mp4",
-        "/path/to/video2.mp4",
-      ])
+      await result.current.processFiles(["/path/to/video1.mp4", "/path/to/video2.mp4"])
     })
 
     expect(onProgress).toHaveBeenCalledWith(0, 2)
@@ -165,9 +161,7 @@ describe("useSimpleMediaProcessor", () => {
 
     mockInvoke.mockResolvedValueOnce(mockProcessedFile)
 
-    const { result } = renderHook(() =>
-      useSimpleMediaProcessor({ generateThumbnails: true })
-    )
+    const { result } = renderHook(() => useSimpleMediaProcessor({ generateThumbnails: true }))
 
     let processedFiles: MediaFile[] = []
     await act(async () => {
@@ -179,7 +173,7 @@ describe("useSimpleMediaProcessor", () => {
 
   it("should process multiple files in sequence", async () => {
     const files = ["/video1.mp4", "/video2.mp4", "/video3.mp4"]
-    
+
     files.forEach((file, index) => {
       mockInvoke.mockResolvedValueOnce({
         id: `file-${index}`,
@@ -206,7 +200,7 @@ describe("useSimpleMediaProcessor", () => {
     const { result } = renderHook(() => useSimpleMediaProcessor())
 
     const url = result.current.getFileUrl("/path/to/video.mp4")
-    
+
     // The mock returns the path as-is since we mocked it to return the path directly
     expect(url).toBe("/path/to/video.mp4")
   })

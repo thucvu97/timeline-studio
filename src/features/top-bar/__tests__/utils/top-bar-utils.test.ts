@@ -43,7 +43,7 @@ describe("TopBar Utils", () => {
         return validModalTypes.includes(type)
       }
 
-      validModalTypes.forEach(type => {
+      validModalTypes.forEach((type) => {
         expect(isValidModalType(type)).toBe(true)
       })
 
@@ -61,7 +61,7 @@ describe("TopBar Utils", () => {
 
       expect(formatProjectName("Short Name")).toBe("Short Name")
       expect(formatProjectName("This is a very long project name that should be truncated")).toBe(
-        "This is a very long project..."
+        "This is a very long project...",
       )
       expect(formatProjectName(null)).toBe("Untitled Project")
       expect(formatProjectName(undefined)).toBe("Untitled Project")
@@ -74,13 +74,13 @@ describe("TopBar Utils", () => {
       const isValidShortcut = (keys: string[]) => {
         const validModifiers = ["Ctrl", "Cmd", "Alt", "Shift"]
         const validKeys = ["s", "o", "n", "e", "b", "k", "p"]
-        
+
         if (keys.length < 2) return false
-        
+
         const modifiers = keys.slice(0, -1)
         const key = keys[keys.length - 1]
-        
-        return modifiers.every(mod => validModifiers.includes(mod)) && validKeys.includes(key)
+
+        return modifiers.every((mod) => validModifiers.includes(mod)) && validKeys.includes(key)
       }
 
       expect(isValidShortcut(["Ctrl", "s"])).toBe(true)
@@ -138,20 +138,19 @@ describe("TopBar Utils", () => {
   describe("Version Comparison", () => {
     it("should compare version numbers correctly", () => {
       const isNewerVersion = (current: string, available: string) => {
-        const parseVersion = (version: string) => 
-          version.split('.').map(Number)
-        
+        const parseVersion = (version: string) => version.split(".").map(Number)
+
         const currentParts = parseVersion(current)
         const availableParts = parseVersion(available)
-        
+
         for (let i = 0; i < Math.max(currentParts.length, availableParts.length); i++) {
           const currentPart = currentParts[i] || 0
           const availablePart = availableParts[i] || 0
-          
+
           if (availablePart > currentPart) return true
           if (availablePart < currentPart) return false
         }
-        
+
         return false
       }
 
@@ -166,7 +165,7 @@ describe("TopBar Utils", () => {
   describe("File Path Utilities", () => {
     it("should extract file name from path", () => {
       const getFileName = (path: string) => {
-        return path.split('/').pop()?.split('.')[0] || 'untitled'
+        return path.split("/").pop()?.split(".")[0] || "untitled"
       }
 
       expect(getFileName("/path/to/project.json")).toBe("project")
@@ -177,7 +176,7 @@ describe("TopBar Utils", () => {
 
     it("should validate file extensions", () => {
       const isValidProjectFile = (path: string) => {
-        return path.endsWith('.json') || path.endsWith('.timeline')
+        return path.endsWith(".json") || path.endsWith(".timeline")
       }
 
       expect(isValidProjectFile("project.json")).toBe(true)
@@ -193,7 +192,7 @@ describe("TopBar Utils", () => {
         if (error instanceof Error) {
           return error.message
         }
-        if (typeof error === 'string') {
+        if (typeof error === "string") {
           return error
         }
         return "An unknown error occurred"
