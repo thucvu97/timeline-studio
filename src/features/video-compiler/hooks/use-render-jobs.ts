@@ -86,20 +86,20 @@ export function useRenderJobs(): UseRenderJobsReturn {
 
 // Вспомогательные функции для работы с задачами
 
-export function getJobStatusLabel(status: RenderStatus): string {
+export function getJobStatusLabel(status: RenderStatus, t: (key: string) => string): string {
   switch (status) {
     case RenderStatus.Pending:
-      return "В очереди"
+      return t("videoCompiler.status.pending")
     case RenderStatus.Processing:
-      return "Обработка"
+      return t("videoCompiler.status.processing")
     case RenderStatus.Completed:
-      return "Завершено"
+      return t("videoCompiler.status.completed")
     case RenderStatus.Failed:
-      return "Ошибка"
+      return t("videoCompiler.status.failed")
     case RenderStatus.Cancelled:
-      return "Отменено"
+      return t("videoCompiler.status.cancelled")
     default:
-      return "Неизвестно"
+      return t("videoCompiler.status.unknown")
   }
 }
 
@@ -120,13 +120,13 @@ export function getJobStatusColor(status: RenderStatus): string {
   }
 }
 
-export function formatJobDuration(startTime: string, endTime?: string): string {
+export function formatJobDuration(startTime: string, endTime?: string, t?: (key: string) => string): string {
   const start = new Date(startTime).getTime()
   const end = endTime ? new Date(endTime).getTime() : Date.now()
   const duration = Math.floor((end - start) / 1000)
 
   if (duration < 60) {
-    return `${duration} сек`
+    return t ? t("videoCompiler.duration.seconds", { count: duration }) : `${duration} sec`
   }
   if (duration < 3600) {
     const minutes = Math.floor(duration / 60)

@@ -11,6 +11,7 @@ import translationES from "./locales/es.json"
 import translationFR from "./locales/fr.json"
 import translationPT from "./locales/pt.json"
 import translationRU from "./locales/ru.json"
+import translationZH from "./locales/zh.json"
 
 // Проверка, что код выполняется в браузере
 const isBrowser = typeof window !== "undefined"
@@ -34,6 +35,9 @@ const resources = {
   },
   pt: {
     translation: translationPT,
+  },
+  zh: {
+    translation: translationZH,
   },
 }
 

@@ -24,11 +24,26 @@ use crate::video_compiler::schema::{Clip, ProjectSchema, Subtitle};
 use crate::video_compiler::CompilerSettings;
 use crate::video_compiler::VideoCompilerEvent;
 
+/// Метаданные активной задачи рендеринга
+#[derive(Debug, Clone)]
+pub struct RenderJobMetadata {
+  pub project_name: String,
+  pub output_path: String,
+  pub created_at: String,
+}
+
+/// Активная задача рендеринга с метаданными
+#[derive(Debug)]
+pub struct ActiveRenderJob {
+  pub renderer: VideoRenderer,
+  pub metadata: RenderJobMetadata,
+}
+
 /// Состояние Video Compiler для Tauri
 #[derive(Debug)]
 pub struct VideoCompilerState {
   /// Активные задачи рендеринга
-  pub active_jobs: Arc<RwLock<HashMap<String, VideoRenderer>>>,
+  pub active_jobs: Arc<RwLock<HashMap<String, ActiveRenderJob>>>,
 
   /// Менеджер кэша
   pub cache_manager: Arc<RwLock<RenderCache>>,
@@ -110,6 +125,13 @@ pub async fn compile_video(
     }
   });
 
+  // Создаем метаданные задачи перед передачей project_schema в renderer
+  let metadata = RenderJobMetadata {
+    project_name: project_schema.metadata.name.clone(),
+    output_path: output_path.clone(),
+    created_at: chrono::Utc::now().to_rfc3339(),
+  };
+
   // Создаем рендерер
   let renderer = VideoRenderer::new(
     project_schema,
@@ -120,10 +142,10 @@ pub async fn compile_video(
   .await
   .map_err(|e| VideoCompilerError::InternalError(format!("Failed to create renderer: {}", e)))?;
 
-  // Сохраняем в активных задачах
+  // Сохраняем в активных задачах с метаданными
   {
     let mut jobs = state.active_jobs.write().await;
-    jobs.insert(job_id.clone(), renderer);
+    jobs.insert(job_id.clone(), ActiveRenderJob { renderer, metadata });
   }
 
   // Запускаем рендеринг в фоне
@@ -134,8 +156,8 @@ pub async fn compile_video(
   tokio::spawn(async move {
     let result = {
       let mut jobs = active_jobs.write().await;
-      if let Some(renderer) = jobs.get_mut(&job_id_clone) {
-        renderer.render(Path::new(&output_path_clone)).await
+      if let Some(active_job) = jobs.get_mut(&job_id_clone) {
+        active_job.renderer.render(Path::new(&output_path_clone)).await
       } else {
         Err(VideoCompilerError::InternalError(
           "Job not found".to_string(),
@@ -187,8 +209,8 @@ pub async fn get_render_progress(
 ) -> Result<Option<RenderProgress>> {
   let jobs = state.active_jobs.read().await;
 
-  if let Some(renderer) = jobs.get(&job_id) {
-    Ok(renderer.get_progress().await)
+  if let Some(active_job) = jobs.get(&job_id) {
+    Ok(active_job.renderer.get_progress().await)
   } else {
     Ok(None)
   }
@@ -199,8 +221,8 @@ pub async fn get_render_progress(
 pub async fn cancel_render(job_id: String, state: State<'_, VideoCompilerState>) -> Result<bool> {
   let mut jobs = state.active_jobs.write().await;
 
-  if let Some(renderer) = jobs.get_mut(&job_id) {
-    renderer.cancel().await?;
+  if let Some(active_job) = jobs.get_mut(&job_id) {
+    active_job.renderer.cancel().await?;
     jobs.remove(&job_id);
     Ok(true)
   } else {
@@ -214,8 +236,8 @@ pub async fn get_active_jobs(state: State<'_, VideoCompilerState>) -> Result<Vec
   let jobs = state.active_jobs.read().await;
   let mut result = Vec::new();
 
-  for (job_id, renderer) in jobs.iter() {
-    let progress = renderer.get_progress().await;
+  for (job_id, active_job) in jobs.iter() {
+    let progress = active_job.renderer.get_progress().await;
     let status = match &progress {
       Some(p) => p.status.clone(),
       None => RenderStatus::Processing,
@@ -223,10 +245,10 @@ pub async fn get_active_jobs(state: State<'_, VideoCompilerState>) -> Result<Vec
 
     result.push(RenderJob {
       id: job_id.clone(),
-      project_name: "Unknown Project".to_string(), // TODO: получать из ProjectSchema
-      output_path: "Unknown Path".to_string(),     // TODO: сохранять путь
+      project_name: active_job.metadata.project_name.clone(),
+      output_path: active_job.metadata.output_path.clone(),
       status,
-      created_at: chrono::Utc::now().to_rfc3339(),
+      created_at: active_job.metadata.created_at.clone(),
       progress,
       error_message: None,
     });
@@ -251,8 +273,8 @@ pub async fn get_render_job(
   // В реальной ситуации нужно получить доступ к существующему ProgressTracker
   // Пока используем прямой доступ к active_jobs
   let jobs = state.active_jobs.read().await;
-  if let Some(renderer) = jobs.get(&job_id) {
-    let progress = renderer.get_progress().await;
+  if let Some(active_job) = jobs.get(&job_id) {
+    let progress = active_job.renderer.get_progress().await;
     let _status = match &progress {
       Some(p) => p.status.clone(),
       None => crate::video_compiler::progress::RenderStatus::Processing,
@@ -260,9 +282,9 @@ pub async fn get_render_job(
 
     let job = crate::video_compiler::progress::RenderJob::new(
       job_id,
-      "Project".to_string(),    // TODO: получать реальное имя проекта
-      "output.mp4".to_string(), // TODO: получать реальный путь
-      1000,                     // TODO: получать реальное количество кадров
+      active_job.metadata.project_name.clone(),
+      active_job.metadata.output_path.clone(),
+      1000, // TODO: получать реальное количество кадров из проекта
     );
 
     log::info!("Информация о задаче {} получена", job.id);
@@ -286,9 +308,9 @@ pub async fn check_render_job_timeouts(
   let _timeout_duration = std::time::Duration::from_secs(3600); // 1 час
   let _current_time = std::time::SystemTime::now();
 
-  for (job_id, renderer) in jobs.iter() {
+  for (job_id, active_job) in jobs.iter() {
     // Проверяем, если задача работает слишком долго
-    if let Some(progress) = renderer.get_progress().await {
+    if let Some(progress) = active_job.renderer.get_progress().await {
       // Если последнее обновление было давно, возможно задача зависла
       // В реальной реализации здесь была бы более сложная логика
       log::debug!(
@@ -1186,8 +1208,8 @@ pub async fn get_render_statistics(
 ) -> Result<Option<crate::video_compiler::pipeline::PipelineStatistics>> {
   let active_jobs = state.active_jobs.read().await;
 
-  if let Some(renderer) = active_jobs.get(&job_id) {
-    Ok(renderer.get_render_statistics())
+  if let Some(active_job) = active_jobs.get(&job_id) {
+    Ok(active_job.renderer.get_render_statistics())
   } else {
     Ok(None)
   }

@@ -1737,7 +1737,11 @@
       "processing": "Обработка",
       "completed": "Завершено",
       "failed": "Ошибка",
-      "cancelled": "Отменено"
+      "cancelled": "Отменено",
+      "unknown": "Неизвестно"
+    },
+    "duration": {
+      "seconds": "{{count}} сек"
     },
     "gpu": {
       "acceleration": "GPU Ускорение",
