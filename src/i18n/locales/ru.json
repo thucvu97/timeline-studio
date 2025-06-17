@@ -1289,7 +1289,16 @@
       "blackAndWhite": "Черно-белый",
       "negative": "Негатив",
       "polaroid": "Полароид",
-      "fadeColor": "Выцветание"
+      "fadeColor": "Выцветание",
+      "temperature": "Температура",
+      "tint": "Оттенок",
+      "exposure": "Экспозиция",
+      "motionBlur": "Размытие движения",
+      "glitch": "Глитч",
+      "zoomBlur": "Радиальное размытие",
+      "hologram": "Голограмма",
+      "edgeEnhance": "Усиление краев",
+      "solarize": "Соляризация"
     },
     "presets": {
       "s-log": "S-Log",

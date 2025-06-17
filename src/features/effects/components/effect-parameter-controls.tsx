@@ -156,10 +156,13 @@ export function EffectParameterControls({
   // Сохранение пользовательского пресета
   const handleSavePreset = useCallback(() => {
     if (onSavePreset) {
-      const presetName = `custom_${Date.now()}`
-      onSavePreset(presetName, parameters)
+      // Запрашиваем имя пресета у пользователя
+      const presetName = prompt(t("effects.enterPresetName", "Введите название пресета:"))
+      if (presetName && presetName.trim()) {
+        onSavePreset(presetName.trim(), parameters)
+      }
     }
-  }, [onSavePreset, parameters])
+  }, [onSavePreset, parameters, t])
 
   // Если у эффекта нет параметров, не показываем контролы
   if (!effect.params || Object.keys(effect.params).length === 0) {

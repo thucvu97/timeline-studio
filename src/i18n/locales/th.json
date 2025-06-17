@@ -1289,7 +1289,16 @@
       "blackAndWhite": "ขาวดำ",
       "negative": "เนกาทีฟ",
       "polaroid": "โพลาลอยด์",
-      "fadeColor": "สีซีดจาง"
+      "fadeColor": "สีซีดจาง",
+      "temperature": "อุณหภูมิสี",
+      "tint": "โทนสี",
+      "exposure": "ความสว่าง",
+      "motionBlur": "เบลอเคลื่อนไหว",
+      "glitch": "กลิตช์",
+      "zoomBlur": "เบลอซูม",
+      "hologram": "โฮโลแกรม",
+      "edgeEnhance": "เน้นขอบ",
+      "solarize": "โซลาไรซ์"
     },
     "presets": {
       "s-log": "S-Log",

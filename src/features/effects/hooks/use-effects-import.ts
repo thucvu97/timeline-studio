@@ -4,6 +4,8 @@ import { open } from "@tauri-apps/plugin-dialog"
 
 import { VideoEffect } from "@/features/effects/types"
 
+import { loadEffectsCollection, loadUserEffect } from "../utils/user-effects"
+
 /**
  * Интерфейс для результата импорта эффектов
  */
@@ -55,13 +57,13 @@ export function useEffectsImport() {
     setProgress(0)
 
     try {
-      // Открываем диалог выбора JSON файла
+      // Открываем диалог выбора файла эффектов
       const selected = await open({
         multiple: false,
         filters: [
           {
-            name: "Effects JSON",
-            extensions: ["json"],
+            name: "Effect Files",
+            extensions: ["json", "effect", "effects"],
           },
         ],
       })
@@ -76,33 +78,48 @@ export function useEffectsImport() {
       }
 
       setProgress(25)
-
-      // Читаем файл
-      const response = await fetch(`file://${selected}`)
-      const data = await response.json()
-
-      setProgress(50)
-
-      // Валидируем структуру
+      
+      // Определяем тип файла
+      const fileExtension = selected.split('.').pop()?.toLowerCase()
       let effects: VideoEffect[] = []
-
-      if (Array.isArray(data)) {
-        // Массив эффектов
-        effects = data.filter(validateEffect)
-      } else if (data.effects && Array.isArray(data.effects)) {
-        // Объект с полем effects
-        effects = data.effects.filter(validateEffect)
-      } else if (validateEffect(data)) {
-        // Один эффект
-        effects = [data]
-      } else {
+      
+      try {
+        if (fileExtension === 'effect') {
+          // Пользовательский эффект
+          const userEffect = await loadUserEffect(selected)
+          if (validateEffect(userEffect.effect)) {
+            effects = [userEffect.effect]
+          }
+        } else if (fileExtension === 'effects') {
+          // Коллекция эффектов
+          const collection = await loadEffectsCollection(selected)
+          effects = collection.effects
+            .map(ue => ue.effect)
+            .filter(validateEffect)
+        } else {
+          // Обычный JSON
+          const response = await fetch(`file://${selected}`)
+          const data = await response.json()
+          
+          if (Array.isArray(data)) {
+            effects = data.filter(validateEffect)
+          } else if (data.effects && Array.isArray(data.effects)) {
+            effects = data.effects.filter(validateEffect)
+          } else if (validateEffect(data)) {
+            effects = [data]
+          }
+        }
+      } catch (error) {
+        console.error("Ошибка чтения файла:", error)
         setIsImporting(false)
         return {
           success: false,
-          message: "Неверная структура файла эффектов",
+          message: "Ошибка чтения файла эффектов",
           effects: [],
         }
       }
+      
+      setProgress(50)
 
       setProgress(75)
 

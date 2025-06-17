@@ -1,6 +1,9 @@
 import { open } from "@tauri-apps/plugin-dialog"
+import { readTextFile } from "@tauri-apps/plugin-fs"
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
+
+import { MediaProviders } from "@/test/test-utils"
 
 import { useFiltersImport } from "../../hooks/use-filters-import"
 
@@ -9,8 +12,14 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: vi.fn(),
 }))
 
-// Получаем мок функцию
+// Мокаем Tauri fs API
+vi.mock("@tauri-apps/plugin-fs", () => ({
+  readTextFile: vi.fn(),
+}))
+
+// Получаем мок функции
 const mockOpen = vi.mocked(open)
+const mockReadTextFile = vi.mocked(readTextFile)
 
 describe("useFiltersImport", () => {
   beforeEach(() => {
@@ -25,7 +34,7 @@ describe("useFiltersImport", () => {
   })
 
   it("должен инициализироваться с правильными значениями по умолчанию", () => {
-    const { result } = renderHook(() => useFiltersImport())
+    const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
     expect(result.current.isImporting).toBe(false)
     expect(typeof result.current.importFiltersFile).toBe("function")
@@ -35,7 +44,7 @@ describe("useFiltersImport", () => {
   describe("importFiltersFile", () => {
     it("должен открывать диалог выбора JSON файла", async () => {
       mockOpen.mockResolvedValue("/path/to/filters.json")
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importFiltersFile()
@@ -59,7 +68,7 @@ describe("useFiltersImport", () => {
       })
       mockOpen.mockReturnValue(openPromise)
 
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       // Начинаем импорт
       act(() => {
@@ -84,30 +93,39 @@ describe("useFiltersImport", () => {
     it("должен логировать выбранный файл", async () => {
       const filePath = "/path/to/filters.json"
       mockOpen.mockResolvedValue(filePath)
-      const { result } = renderHook(() => useFiltersImport())
+      // Мокаем JSON файл с корректными фильтрами
+      const mockFilters = [
+        {
+          id: "filter1",
+          name: "Filter 1",
+          category: "creative"
+        }
+      ]
+      mockReadTextFile.mockResolvedValue(JSON.stringify(mockFilters))
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importFiltersFile()
       })
 
-      expect(console.log).toHaveBeenCalledWith("Импорт JSON файла с фильтрами:", filePath)
+      expect(console.log).toHaveBeenCalledWith("Импортировано 1 фильтров")
     })
 
     it("не должен делать ничего если файл не выбран", async () => {
       mockOpen.mockResolvedValue(null)
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importFiltersFile()
       })
 
-      expect(console.log).not.toHaveBeenCalled()
+      expect(console.log).not.toHaveBeenCalledWith(expect.stringContaining("Импортировано"))
     })
 
     it("должен обрабатывать ошибки", async () => {
       const error = new Error("Dialog error")
       mockOpen.mockRejectedValue(error)
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importFiltersFile()
@@ -124,7 +142,7 @@ describe("useFiltersImport", () => {
       })
       mockOpen.mockReturnValue(openPromise)
 
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       // Начинаем первый импорт
       act(() => {
@@ -152,7 +170,7 @@ describe("useFiltersImport", () => {
   describe("importFilterFile", () => {
     it("должен открывать диалог выбора файлов фильтров", async () => {
       mockOpen.mockResolvedValue(["/path/to/filter.cube"])
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importFilterFile()
@@ -172,25 +190,25 @@ describe("useFiltersImport", () => {
     it("должен обрабатывать множественный выбор файлов", async () => {
       const files = ["/path/to/filter1.cube", "/path/to/filter2.3dl"]
       mockOpen.mockResolvedValue(files)
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importFilterFile()
       })
 
-      expect(console.log).toHaveBeenCalledWith("Импорт файлов фильтров:", files)
+      expect(console.log).toHaveBeenCalledWith("Импортировано 2 файлов фильтров")
     })
 
     it("должен обрабатывать одиночный файл как массив", async () => {
       const file = "/path/to/filter.cube"
       mockOpen.mockResolvedValue(file)
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importFilterFile()
       })
 
-      expect(console.log).toHaveBeenCalledWith("Импорт файлов фильтров:", [file])
+      expect(console.log).toHaveBeenCalledWith("Импортировано 1 файлов фильтров")
     })
 
     it("должен устанавливать isImporting в true во время импорта", async () => {
@@ -200,7 +218,7 @@ describe("useFiltersImport", () => {
       })
       mockOpen.mockReturnValue(openPromise)
 
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       // Начинаем импорт
       act(() => {
@@ -224,19 +242,19 @@ describe("useFiltersImport", () => {
 
     it("не должен делать ничего если файлы не выбраны", async () => {
       mockOpen.mockResolvedValue(null)
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importFilterFile()
       })
 
-      expect(console.log).not.toHaveBeenCalled()
+      expect(console.log).not.toHaveBeenCalledWith(expect.stringContaining("Импортировано"))
     })
 
     it("должен обрабатывать ошибки", async () => {
       const error = new Error("Dialog error")
       mockOpen.mockRejectedValue(error)
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importFilterFile()
@@ -253,7 +271,7 @@ describe("useFiltersImport", () => {
       })
       mockOpen.mockReturnValue(openPromise)
 
-      const { result } = renderHook(() => useFiltersImport())
+      const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
       // Начинаем первый импорт
       act(() => {
@@ -291,7 +309,7 @@ describe("useFiltersImport", () => {
 
     mockOpen.mockReturnValueOnce(filtersOpenPromise).mockReturnValueOnce(filterOpenPromise)
 
-    const { result } = renderHook(() => useFiltersImport())
+    const { result } = renderHook(() => useFiltersImport(), { wrapper: MediaProviders })
 
     // Начинаем импорт JSON файла
     act(() => {

@@ -1289,7 +1289,16 @@
       "blackAndWhite": "Black & White",
       "negative": "Negative",
       "polaroid": "Polaroid",
-      "fadeColor": "Fade Color"
+      "fadeColor": "Fade Color",
+      "temperature": "Temperature",
+      "tint": "Tint",
+      "exposure": "Exposure",
+      "motionBlur": "Motion Blur",
+      "glitch": "Glitch",
+      "zoomBlur": "Zoom Blur",
+      "hologram": "Hologram",
+      "edgeEnhance": "Edge Enhance",
+      "solarize": "Solarize"
     },
     "presets": {
       "s-log": "S-Log",

@@ -20,9 +20,13 @@ interface EffectGroupProps {
   /** Высота превью */
   previewHeight: number
   /** Функция для клика по эффекту */
-  onEffectClick: (effect: VideoEffect) => void
+  onEffectClick: (effect: VideoEffect, index: number) => void
   /** Функция для добавления всех эффектов группы */
   onAddAllEffects?: (effects: VideoEffect[]) => void
+  /** Map для refs элементов */
+  effectRefs?: React.MutableRefObject<Map<string, HTMLDivElement>>
+  /** Начальный индекс эффектов в общем списке */
+  startIndex?: number
 }
 
 /**
@@ -39,18 +43,36 @@ export const EffectGroup: React.FC<EffectGroupProps> = ({
   previewHeight,
   onEffectClick,
   onAddAllEffects,
+  effectRefs,
+  startIndex = 0,
 }) => {
   // Функция рендеринга эффекта
-  const renderEffect = (effect: VideoEffect, index: number) => (
-    <EffectPreview
-      key={effect.id}
-      effectType={effect.type}
-      onClick={() => onEffectClick(effect)}
-      size={previewSize}
-      width={previewWidth}
-      height={previewHeight}
-    />
-  )
+  const renderEffect = (effect: VideoEffect, index: number) => {
+    const actualIndex = startIndex + index
+    
+    return (
+      <div
+        key={effect.id}
+        ref={(el) => {
+          if (el && effectRefs) {
+            effectRefs.current.set(effect.id, el)
+          }
+        }}
+        tabIndex={0}
+        role="button"
+        aria-label={`${effect.name} effect`}
+        className="focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
+      >
+        <EffectPreview
+          effectType={effect.type}
+          onClick={() => onEffectClick(effect, actualIndex)}
+          size={previewSize}
+          width={previewWidth}
+          height={previewHeight}
+        />
+      </div>
+    )
+  }
 
   return (
     <ContentGroup

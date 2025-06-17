@@ -1237,7 +1237,16 @@
       "blackAndWhite": "흑백",
       "negative": "네거티브",
       "polaroid": "폴라로이드",
-      "fadeColor": "페이드 색상"
+      "fadeColor": "페이드 색상",
+      "temperature": "색온도",
+      "tint": "색조",
+      "exposure": "노출",
+      "motionBlur": "모션 블러",
+      "glitch": "글리치",
+      "zoomBlur": "줌 블러",
+      "hologram": "홀로그램",
+      "edgeEnhance": "가장자리 강조",
+      "solarize": "솔라라이즈"
     },
     "presets": {
       "s-log": "S-Log",

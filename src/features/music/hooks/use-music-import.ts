@@ -36,7 +36,7 @@ export function useMusicImport() {
   const [progress, setProgress] = useState(0)
 
   const { updateMusicFiles } = useMusicFiles()
-  const { currentProject, setProjectDirty } = useCurrentProject()
+  const { currentProject, setProjectDirty, saveProject } = useCurrentProject()
 
   /**
    * Сохраняет импортированные музыкальные файлы в проект (если проект открыт)
@@ -54,10 +54,11 @@ export function useMusicImport() {
           files.map((file) => convertToSavedMusicFile(file, currentProject.path || undefined)),
         )
 
-        // TODO: Здесь нужно будет добавить логику сохранения в проект
-        // saveProject(savedFiles)
-        // Пока просто логируем для отладки
-        console.log(`Сохранено ${savedFiles.length} музыкальных файлов в проект:`, savedFiles)
+        // Сохраняем проект с обновленными музыкальными файлами
+        // Используем существующее имя проекта или создаем новое
+        const projectName = currentProject.name || "Untitled Project"
+        await saveProject(projectName)
+        console.log(`Сохранено ${savedFiles.length} музыкальных файлов в проект`)
 
         // Отмечаем проект как измененный
         setProjectDirty(true)

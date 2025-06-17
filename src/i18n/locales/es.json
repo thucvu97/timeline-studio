@@ -1278,7 +1278,16 @@
       "blackAndWhite": "Blanco y negro",
       "negative": "Negativo",
       "polaroid": "Polaroid",
-      "fadeColor": "Desvanecer color"
+      "fadeColor": "Desvanecer color",
+      "temperature": "Temperatura",
+      "tint": "Matiz",
+      "exposure": "Exposición",
+      "motionBlur": "Desenfoque de movimiento",
+      "glitch": "Glitch",
+      "zoomBlur": "Desenfoque radial",
+      "hologram": "Holograma",
+      "edgeEnhance": "Realce de bordes",
+      "solarize": "Solarizar"
     },
     "presets": {
       "s-log": "S-Log",

@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react"
 import { CirclePause, CirclePlay, Pause, Play } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { useFavorites } from "@/features/app-state"
+import { useFavorites, useMusicFiles } from "@/features/app-state"
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
 import { NoFiles } from "@/features/browser/components/no-files"
@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
 import { useMusicImport } from "../hooks/use-music-import"
 
 // Простая функция сортировки файлов
-const sortFiles = (files: MediaFile[], sortBy: string, sortOrder: string) => {
+const sortFiles = (files: MediaFile[], sortBy: string, sortOrder: string): MediaFile[] => {
   return [...files].sort((a, b) => {
     let aValue: string | number = ""
     let bValue: string | number = ""
@@ -71,8 +71,25 @@ export function MusicList() {
   const { currentTabSettings } = useBrowserState()
   const { searchQuery, showFavoritesOnly, sortBy, sortOrder, groupBy, filterType, viewMode } = currentTabSettings
 
-  // Заглушки для совместимости (пока нет реальных данных)
-  const filteredFiles: MediaFile[] = [] // TODO: подключить реальные данные
+  // Получаем реальные данные о музыкальных файлах
+  const { musicFiles } = useMusicFiles()
+  
+  // Фильтруем файлы по поисковому запросу
+  const filteredFiles = useMemo(() => {
+    const allMusicFiles = musicFiles.allFiles || []
+    if (!searchQuery) return allMusicFiles
+    
+    const query = searchQuery.toLowerCase()
+    return allMusicFiles.filter((file) => {
+      const nameMatch = file.name.toLowerCase().includes(query)
+      const artistMatch = String(file.probeData?.format.tags?.artist || '').toLowerCase().includes(query)
+      const albumMatch = String(file.probeData?.format.tags?.album || '').toLowerCase().includes(query)
+      const genreMatch = String(file.probeData?.format.tags?.genre || '').toLowerCase().includes(query)
+      
+      return nameMatch || artistMatch || albumMatch || genreMatch
+    })
+  }, [musicFiles.allFiles, searchQuery])
+  
   const isLoading = false
   const isError = false
 

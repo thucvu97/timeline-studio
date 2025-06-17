@@ -1,6 +1,9 @@
 import { open } from "@tauri-apps/plugin-dialog"
+import { readTextFile } from "@tauri-apps/plugin-fs"
 import { act, renderHook } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
+
+import { MediaProviders } from "@/test/test-utils"
 
 import { useStyleTemplatesImport } from "../../hooks/use-style-templates-import"
 
@@ -9,8 +12,14 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: vi.fn(),
 }))
 
-// Получаем мок функцию
+// Мокаем Tauri fs API
+vi.mock("@tauri-apps/plugin-fs", () => ({
+  readTextFile: vi.fn(),
+}))
+
+// Получаем мок функции
 const mockOpen = vi.mocked(open)
+const mockReadTextFile = vi.mocked(readTextFile)
 
 describe("useStyleTemplatesImport", () => {
   beforeEach(() => {
@@ -25,7 +34,7 @@ describe("useStyleTemplatesImport", () => {
   })
 
   it("должен инициализироваться с правильными значениями по умолчанию", () => {
-    const { result } = renderHook(() => useStyleTemplatesImport())
+    const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
     expect(result.current.isImporting).toBe(false)
     expect(typeof result.current.importStyleTemplatesFile).toBe("function")
@@ -35,7 +44,7 @@ describe("useStyleTemplatesImport", () => {
   describe("importStyleTemplatesFile", () => {
     it("должен открывать диалог выбора JSON файла", async () => {
       mockOpen.mockResolvedValue("/path/to/templates.json")
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importStyleTemplatesFile()
@@ -59,7 +68,7 @@ describe("useStyleTemplatesImport", () => {
       })
       mockOpen.mockReturnValue(openPromise)
 
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       // Начинаем импорт
       act(() => {
@@ -81,31 +90,44 @@ describe("useStyleTemplatesImport", () => {
 
     it("не должен делать ничего если файл не выбран", async () => {
       mockOpen.mockResolvedValue(null)
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importStyleTemplatesFile()
       })
 
-      expect(console.log).not.toHaveBeenCalledWith(expect.stringContaining("Импорт JSON файла"))
+      expect(console.log).not.toHaveBeenCalledWith(expect.stringContaining("Импортировано"))
     })
 
     it("должен логировать выбранный файл", async () => {
       const filePath = "/path/to/templates.json"
       mockOpen.mockResolvedValue(filePath)
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      // Мокаем JSON файл с корректными шаблонами
+      const mockTemplates = [
+        {
+          id: "template1",
+          name: { ru: "Шаблон 1", en: "Template 1" },
+          category: "intro",
+          style: "modern",
+          aspectRatio: "16:9",
+          duration: 5000,
+          elements: []
+        }
+      ]
+      mockReadTextFile.mockResolvedValue(JSON.stringify(mockTemplates))
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importStyleTemplatesFile()
       })
 
-      expect(console.log).toHaveBeenCalledWith("Импорт JSON файла со стилистическими шаблонами:", filePath)
+      expect(console.log).toHaveBeenCalledWith("Импортировано 1 стилистических шаблонов")
     })
 
     it("должен обрабатывать ошибки", async () => {
       const error = new Error("Dialog error")
       mockOpen.mockRejectedValue(error)
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importStyleTemplatesFile()
@@ -122,7 +144,7 @@ describe("useStyleTemplatesImport", () => {
       })
       mockOpen.mockReturnValue(openPromise)
 
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       // Начинаем первый импорт
       act(() => {
@@ -150,7 +172,7 @@ describe("useStyleTemplatesImport", () => {
   describe("importStyleTemplateFile", () => {
     it("должен открывать диалог выбора файлов шаблонов", async () => {
       mockOpen.mockResolvedValue(["/path/to/template.json"])
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importStyleTemplateFile()
@@ -170,42 +192,64 @@ describe("useStyleTemplatesImport", () => {
     it("должен обрабатывать множественный выбор файлов", async () => {
       const files = ["/path/to/template1.json", "/path/to/template2.json"]
       mockOpen.mockResolvedValue(files)
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      // Мокаем содержимое файлов
+      const mockTemplate = {
+        id: "template1",
+        name: { ru: "Шаблон 1", en: "Template 1" },
+        category: "intro",
+        style: "modern",
+        aspectRatio: "16:9",
+        duration: 5000,
+        elements: []
+      }
+      mockReadTextFile.mockResolvedValue(JSON.stringify(mockTemplate))
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importStyleTemplateFile()
       })
 
-      expect(console.log).toHaveBeenCalledWith("Импорт файлов стилистических шаблонов:", files)
+      expect(console.log).toHaveBeenCalledWith("Обработано 2 файлов")
     })
 
     it("должен обрабатывать одиночный файл как массив", async () => {
       const file = "/path/to/template.json"
       mockOpen.mockResolvedValue(file)
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      // Мокаем содержимое файла
+      const mockTemplate = {
+        id: "template1",
+        name: { ru: "Шаблон 1", en: "Template 1" },
+        category: "intro",
+        style: "modern",
+        aspectRatio: "16:9",
+        duration: 5000,
+        elements: []
+      }
+      mockReadTextFile.mockResolvedValue(JSON.stringify(mockTemplate))
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importStyleTemplateFile()
       })
 
-      expect(console.log).toHaveBeenCalledWith("Импорт файлов стилистических шаблонов:", [file])
+      expect(console.log).toHaveBeenCalledWith("Обработано 1 файлов")
     })
 
     it("не должен делать ничего если файлы не выбраны", async () => {
       mockOpen.mockResolvedValue(null)
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importStyleTemplateFile()
       })
 
-      expect(console.log).not.toHaveBeenCalledWith(expect.stringContaining("Импорт файлов"))
+      expect(console.log).not.toHaveBeenCalledWith(expect.stringContaining("Обработано"))
     })
 
     it("должен обрабатывать ошибки", async () => {
       const error = new Error("Dialog error")
       mockOpen.mockRejectedValue(error)
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       await act(async () => {
         await result.current.importStyleTemplateFile()
@@ -222,7 +266,7 @@ describe("useStyleTemplatesImport", () => {
       })
       mockOpen.mockReturnValue(openPromise)
 
-      const { result } = renderHook(() => useStyleTemplatesImport())
+      const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
       // Начинаем первый импорт
       act(() => {
@@ -260,7 +304,7 @@ describe("useStyleTemplatesImport", () => {
 
     mockOpen.mockReturnValueOnce(templatesOpenPromise).mockReturnValueOnce(templateOpenPromise)
 
-    const { result } = renderHook(() => useStyleTemplatesImport())
+    const { result } = renderHook(() => useStyleTemplatesImport(), { wrapper: MediaProviders })
 
     // Начинаем импорт JSON файла
     act(() => {

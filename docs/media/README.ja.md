@@ -81,7 +81,7 @@ bun run tauri build
 timeline-studio/
 ├── bin/                              # シェルスクリプト
 ├── docs/                             # 自動生成されたドキュメント
-├── ai-gen-docs/                      # 開発者向けAI生成ドキュメント
+├── docs-ru/                      # 開発者向けAI生成ドキュメント
 ├── examples/                         # API使用例
 ├── promo/                            # GitHub Pagesサイト
 ├── public/                           # 静的ファイル
@@ -151,11 +151,11 @@ timeline-studio/
 
 ## ドキュメント
 
-- 📚 [ドキュメントマップ](ai-gen-docs/MAP.md) - 完全なドキュメント概要
-- 🏗️ [アーキテクチャガイド](ai-gen-docs/ARCHITECTURE.md) - システムアーキテクチャ
-- 🧪 [テストガイド](ai-gen-docs/testing/TESTING.md) - テスト戦略
-- 📡 [APIリファレンス](ai-gen-docs/API.md) - Tauriコマンドリファレンス
-- 🚀 [デプロイメントガイド](ai-gen-docs/deployment/DEPLOYMENT.md) - ビルドとデプロイメント
+- 📚 [ドキュメントマップ](docs-ru/MAP.md) - 完全なドキュメント概要
+- 🏗️ [アーキテクチャガイド](docs-ru/ARCHITECTURE.md) - システムアーキテクチャ
+- 🧪 [テストガイド](docs-ru/testing/TESTING.md) - テスト戦略
+- 📡 [APIリファレンス](docs-ru/API.md) - Tauriコマンドリファレンス
+- 🚀 [デプロイメントガイド](docs-ru/deployment/DEPLOYMENT.md) - ビルドとデプロイメント
 - 🛣️ [ロードマップ](ROADMAP.md) - 開発ロードマップ
 
 ## 開発

@@ -1237,7 +1237,16 @@
       "blackAndWhite": "黑白",
       "negative": "负片",
       "polaroid": "宝丽来",
-      "fadeColor": "色彩淡化"
+      "fadeColor": "色彩淡化",
+      "temperature": "色温",
+      "tint": "色调",
+      "exposure": "曝光",
+      "motionBlur": "运动模糊",
+      "glitch": "故障效果",
+      "zoomBlur": "缩放模糊",
+      "hologram": "全息图",
+      "edgeEnhance": "边缘增强",
+      "solarize": "曝光过度"
     },
     "presets": {
       "s-log": "S-Log",

@@ -199,7 +199,7 @@
         "ru": "Создает винтажный эффект с теплыми тонами",
         "en": "Creates a vintage effect with warm tones"
       },
-      "ffmpegCommand": "curves=vintage",
+      "ffmpegCommand": "curves=r='0/0 0.25/0.15 0.5/0.5 0.75/0.85 1/1':g='0/0 0.25/0.2 0.5/0.5 0.75/0.8 1/1':b='0/0 0.25/0.25 0.5/0.5 0.75/0.75 1/1'",
       "cssFilter": "sepia(0.5) contrast(1.2) brightness(0.9) saturate(0.8)",
       "params": {},
       "previewPath": "/t1.mp4",
@@ -785,7 +785,7 @@
         "ru": "Уменьшает шум в изображении",
         "en": "Reduces image noise"
       },
-      "ffmpegCommand": "bm3d=sigma={intensity}:block=4:bstep=2:group=1:range=9",
+      "ffmpegCommand": "nlmeans=s={intensity}:p=7:pc=0:r=15:rc=0",
       "cssFilter": "blur(0.5px) contrast(0.95) brightness(1.02)",
       "params": {
         "intensity": 3.0
@@ -811,7 +811,7 @@
         "ru": "Стабилизирует дрожание камеры",
         "en": "Stabilizes camera shake"
       },
-      "ffmpegCommand": "vidstabdetect=stepsize=6:shakiness=8:accuracy=9:result=transforms.trf,vidstabtransform=input=transforms.trf:zoom=5:smoothing=30",
+      "ffmpegCommand": "deshake=x=5:y=5:w=0:h=0:rx=16:ry=16:edge=original",
       "cssFilter": "brightness(1)",
       "params": {},
       "previewPath": "/t1.mp4",
@@ -835,7 +835,7 @@
         "ru": "Регулирует цветовую температуру от холодных до теплых тонов",
         "en": "Adjusts color temperature from cool to warm tones"
       },
-      "ffmpegCommand": "colortemperature={temperature}",
+      "ffmpegCommand": "colorchannelmixer=rr=1:rb={temperature * 0.1}:bg=1:bb={1 - temperature * 0.1}",
       "cssFilter": "hue-rotate({(temperature || 0) * 0.3}deg) saturate({1 + Math.abs(temperature || 0) * 0.01})",
       "params": {
         "temperature": 0
@@ -899,7 +899,7 @@
         "ru": "Регулирует экспозицию изображения, имитируя изменение диафрагмы",
         "en": "Adjusts image exposure, simulating aperture changes"
       },
-      "ffmpegCommand": "exposure=exposure={exposure}",
+      "ffmpegCommand": "eq=brightness={exposure * 0.2}:gamma={1 + exposure * 0.1}",
       "cssFilter": "brightness({1 + (exposure || 0) * 0.2}) contrast({1 + Math.abs(exposure || 0) * 0.1})",
       "params": {
         "exposure": 0

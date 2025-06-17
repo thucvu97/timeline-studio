@@ -13,10 +13,13 @@ import { usePlayer, useVideoSelection } from "@/features/video-player"
 import { EffectIndicators } from "./effect-indicators"
 import { useEffects } from "../hooks/use-effects"
 import { generateCSSFilterForEffect, getPlaybackRate } from "../utils/css-effects"
+import { getEffectPreview } from "../utils/effect-previews"
 
-// Всегда используем общее тестовое видео для демонстрации CSS-эффектов
-// CSS-фильтры применяются динамически в компоненте
-const PREVIEW_VIDEO_PATH = "/t1.mp4"
+// Получаем путь к превью видео для конкретного эффекта
+const getPreviewPath = (effectType: string) => {
+  const preview = getEffectPreview(effectType)
+  return preview.videoPath
+}
 
 /**
  * Интерфейс пропсов для компонента EffectPreview
@@ -38,14 +41,15 @@ export function EffectPreview({
   effectType,
   onClick,
   size,
-  width, // По умолчанию ширина равна size (квадратное превью)
-  height, // По умолчанию высота равна size (квадратное превью)
+  width = size, // По умолчанию ширина равна size (квадратное превью)
+  height = size, // По умолчанию высота равна size (квадратное превью)
   customParams, // Пользовательские параметры для эффекта
 }: EffectPreviewProps) {
   const { i18n } = useTranslation() // Хук для интернационализации
   const { isEffectAdded } = useResources() // Получаем методы для работы с ресурсами
   const { effects } = useEffects() // Получаем эффекты из хука
   const [isHovering, setIsHovering] = useState(false) // Состояние наведения мыши
+  const [videoSrc, setVideoSrc] = useState<string | null>(null) // Путь к видео (для ленивой загрузки)
   const videoRef = useRef<HTMLVideoElement>(null) // Ссылка на элемент видео
   const timeoutRef = useRef<NodeJS.Timeout>(null) // Ссылка на таймер для воспроизведения видео
   const { applyEffect } = usePlayer() // Получаем метод для применения эффекта
@@ -92,12 +96,20 @@ export function EffectPreview({
     [effect, applyEffect],
   )
 
+  // Ленивая загрузка видео при наведении
+  useEffect(() => {
+    if (isHovering && !videoSrc) {
+      setVideoSrc(getPreviewPath(effectType))
+    }
+  }, [isHovering, effectType, videoSrc])
+
   /**
    * Эффект для управления воспроизведением видео и применением эффектов
    * Запускает видео при наведении и применяет соответствующий эффект
    */
   useEffect(() => {
-    if (!videoRef.current || !effect) return
+    if (!effect) return
+    if (!videoSrc || !videoRef.current) return
     const videoElement = videoRef.current
 
     /**
@@ -111,7 +123,7 @@ export function EffectPreview({
       videoElement.playbackRate = 1 // Сбрасываем скорость воспроизведения
 
       // Применяем CSS-фильтр на основе параметров эффекта
-      const cssFilter = generateCSSFilterForEffect(effect)
+      const cssFilter = generateCSSFilterForEffect(effect, customParams)
       if (cssFilter) {
         videoElement.style.filter = cssFilter
       }
@@ -119,9 +131,9 @@ export function EffectPreview({
       // Специальные эффекты, требующие дополнительных CSS-стилей
       if (effect.type === "vignette") {
         // Создаем эффект виньетки через box-shadow
-        const intensity = effect.params?.intensity || 0.3
-        const radius = effect.params?.radius || 0.8
-        const shadowSize = Math.round(size * (1 - radius) * 0.5)
+        const intensity = customParams?.intensity ?? effect.params?.intensity ?? 0.3
+        const radius = customParams?.radius ?? effect.params?.radius ?? 0.8
+        const shadowSize = Math.round(Math.min(width, height) * (1 - radius) * 0.5)
         const shadowBlur = Math.round(shadowSize * intensity * 2)
         videoElement.style.boxShadow = `inset 0 0 ${shadowBlur}px ${shadowSize}px rgba(0,0,0,${intensity})`
       } else {
@@ -129,11 +141,13 @@ export function EffectPreview({
       }
 
       // Устанавливаем скорость воспроизведения
-      const playbackRate = getPlaybackRate(effect)
+      const playbackRate = getPlaybackRate(effect, customParams)
       videoElement.playbackRate = playbackRate
 
       // Запускаем воспроизведение видео
-      void videoElement.play()
+      videoElement.play().catch(err => {
+        console.log('Autoplay prevented:', err)
+      })
 
       // Устанавливаем таймер для повторного воспроизведения через 2 секунды
       timeoutRef.current = setTimeout(() => {
@@ -160,7 +174,7 @@ export function EffectPreview({
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-  }, [isHovering, effect, width, height, customParams])
+  }, [isHovering, effect, width, height, customParams, videoSrc])
 
   return (
     <div className="flex flex-col items-center">
@@ -173,20 +187,35 @@ export function EffectPreview({
         onClick={onClick}
       >
         {/* Видео для демонстрации эффекта */}
-        <video
-          ref={videoRef}
-          src={PREVIEW_VIDEO_PATH}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xs"
-          style={{
-            width: `${width}px`,
-            height: `${height}px`,
-            objectFit: "cover", // Обрезаем видео по размерам контейнера
-          }}
-          muted
-          playsInline
-          preload="auto"
-          data-testid="effect-video"
-        />
+        {videoSrc && (
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xs"
+            style={{
+              width: `${width}px`,
+              height: `${height}px`,
+              objectFit: "cover", // Обрезаем видео по размерам контейнера
+            }}
+            muted
+            playsInline
+            preload="metadata"
+            data-testid="effect-video"
+          />
+        )}
+        
+        {/* Плейсхолдер пока видео не загружено */}
+        {!videoSrc && (
+          <div 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xs bg-gray-800 flex items-center justify-center"
+            style={{
+              width: `${width}px`,
+              height: `${height}px`,
+            }}
+          >
+            <div className="text-gray-500 text-xs">{effect?.labels?.[i18n.language as keyof typeof effect.labels] || effect?.name || effectType}</div>
+          </div>
+        )}
 
         {/* Индикаторы эффекта */}
         {effect && (

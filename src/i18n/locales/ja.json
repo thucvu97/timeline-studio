@@ -1237,7 +1237,16 @@
       "blackAndWhite": "Black & White",
       "negative": "ネガティブ",
       "polaroid": "ポラロイド",
-      "fadeColor": "Fade Color"
+      "fadeColor": "Fade Color",
+      "temperature": "色温度",
+      "tint": "ティント",
+      "exposure": "露出",
+      "motionBlur": "モーションブラー",
+      "glitch": "グリッチ",
+      "zoomBlur": "ズームブラー",
+      "hologram": "ホログラム",
+      "edgeEnhance": "エッジ強調",
+      "solarize": "ソラリゼーション"
     },
     "presets": {
       "s-log": "S-Log",

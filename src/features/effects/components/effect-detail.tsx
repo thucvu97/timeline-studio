@@ -1,17 +1,20 @@
 import { useCallback, useState } from "react"
 
-import { Pause, Play, RotateCcw, X } from "lucide-react"
+import { Download, Pause, Play, RotateCcw, SplitSquareHorizontal, Upload, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { VideoEffect } from "@/features/effects/types"
 
+import { EffectComparison } from "./effect-comparison"
 import { EffectIndicators } from "./effect-indicators"
 import { EffectParameterControls } from "./effect-parameter-controls"
 import { EffectPresets } from "./effect-presets"
 import { EffectPreview } from "./effect-preview"
+import { prepareEffectForExport, saveUserEffect } from "../utils/user-effects"
 
 interface EffectDetailProps {
   effect: VideoEffect
@@ -56,10 +59,39 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
 
   // Обработчик сохранения пользовательского пресета
   const handleSavePreset = useCallback((name: string, params: Record<string, number>) => {
-    // Здесь можно добавить логику сохранения пресета в localStorage или на сервер
-    console.log("Saving custom preset:", name, params)
-    // TODO: Реализовать сохранение пользовательских пресетов
-  }, [])
+    try {
+      // Получаем существующие пресеты для этого эффекта
+      const storageKey = `effect_presets_${effect.id}`
+      const existingPresets = localStorage.getItem(storageKey)
+      const presets = existingPresets ? JSON.parse(existingPresets) : {}
+      
+      // Добавляем новый пресет
+      const presetId = `custom_${Date.now()}`
+      presets[presetId] = {
+        name: { 
+          [currentLang]: name,
+          en: name // fallback
+        },
+        params,
+        description: {
+          [currentLang]: t("effects.customPreset", "Пользовательский пресет"),
+          en: "Custom preset"
+        },
+        createdAt: new Date().toISOString()
+      }
+      
+      // Сохраняем обратно в localStorage
+      localStorage.setItem(storageKey, JSON.stringify(presets))
+      
+      // Уведомляем пользователя об успешном сохранении
+      console.log("Custom preset saved:", name, params)
+      
+      // Обновляем состояние компонента, если нужно показать новый пресет
+      // Можно добавить toast уведомление здесь
+    } catch (error) {
+      console.error("Error saving custom preset:", error)
+    }
+  }, [effect.id, currentLang, t])
 
   // Обработчик применения эффекта
   const handleApplyEffect = useCallback(() => {
@@ -73,6 +105,27 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
     setCurrentParameters({})
     setPreviewKey((prev) => prev + 1)
   }, [])
+  
+  // Обработчик экспорта эффекта
+  const handleExportEffect = useCallback(async () => {
+    try {
+      const exportName = prompt(t("effects.enterExportName", "Введите название файла для экспорта:"))
+      if (!exportName) return
+      
+      const effectToExport = prepareEffectForExport(
+        effect,
+        Object.keys(currentParameters).length > 0 ? currentParameters : undefined,
+        selectedPreset
+      )
+      
+      const filePath = await saveUserEffect(effectToExport, exportName)
+      console.log("Effect exported to:", filePath)
+      
+      // Можем добавить toast уведомление об успешном экспорте
+    } catch (error) {
+      console.error("Error exporting effect:", error)
+    }
+  }, [effect, currentParameters, selectedPreset, t])
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -92,30 +145,51 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Левая колонка - Превью */}
           <div className="space-y-4">
-            <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
-              <EffectPreview
-                key={previewKey} // Обновляем превью при изменении параметров
-                effectType={effect?.type}
-                onClick={() => setIsPlaying(!isPlaying)}
-                size={400}
-                customParams={currentParameters} // Передаем текущие параметры
-              />
+            <Tabs defaultValue="preview" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="preview">{t("effects.preview", "Превью")}</TabsTrigger>
+                <TabsTrigger value="comparison">
+                  <SplitSquareHorizontal size={16} className="mr-2" />
+                  {t("effects.comparison", "Сравнение")}
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="preview" className="mt-4">
+                <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
+                  <EffectPreview
+                    key={previewKey} // Обновляем превью при изменении параметров
+                    effectType={effect?.type}
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    size={400}
+                    customParams={currentParameters} // Передаем текущие параметры
+                  />
 
-              {/* Контролы воспроизведения */}
-              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                <Button variant="secondary" size="sm" onClick={() => setIsPlaying(!isPlaying)}>
-                  {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleReset}
-                  title={t("effects.detail.resetToDefault", "Сбросить к значениям по умолчанию")}
-                >
-                  <RotateCcw size={16} />
-                </Button>
-              </div>
-            </div>
+                  {/* Контролы воспроизведения */}
+                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                    <Button variant="secondary" size="sm" onClick={() => setIsPlaying(!isPlaying)}>
+                      {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleReset}
+                      title={t("effects.detail.resetToDefault", "Сбросить к значениям по умолчанию")}
+                    >
+                      <RotateCcw size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="comparison" className="mt-4">
+                <EffectComparison
+                  effect={effect}
+                  customParams={currentParameters}
+                  width={400}
+                  height={300}
+                />
+              </TabsContent>
+            </Tabs>
 
             {/* Информация об эффекте */}
             <div className="space-y-2">
@@ -174,6 +248,9 @@ export function EffectDetail({ effect, isOpen, onClose, onApplyEffect }: EffectD
             <div className="flex gap-2">
               <Button onClick={handleApplyEffect} className="flex-1">
                 {t("effects.detail.applyEffect", "Применить эффект")}
+              </Button>
+              <Button variant="outline" size="icon" onClick={handleExportEffect} title={t("effects.detail.exportEffect", "Экспортировать эффект")}>
+                <Download size={16} />
               </Button>
               <Button variant="outline" onClick={onClose}>
                 {t("common.cancel", "Отмена")}

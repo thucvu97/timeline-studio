@@ -1237,7 +1237,16 @@
       "blackAndWhite": "Siyah ve Beyaz",
       "negative": "Negatif",
       "polaroid": "Polaroid",
-      "fadeColor": "Renk Soldur"
+      "fadeColor": "Renk Soldur",
+      "temperature": "Sıcaklık",
+      "tint": "Renk Tonu",
+      "exposure": "Pozlama",
+      "motionBlur": "Hareket Bulanıklığı",
+      "glitch": "Glitch",
+      "zoomBlur": "Yakınlaştırma Bulanıklığı",
+      "hologram": "Hologram",
+      "edgeEnhance": "Kenar Vurgulama",
+      "solarize": "Solarize"
     },
     "presets": {
       "s-log": "S-Log",
