@@ -1,7 +1,7 @@
 {
-  "version": "2.0.0",
-  "lastUpdated": "2024-01-15",
-  "totalEffects": 28,
+  "version": "2.1.0",
+  "lastUpdated": "2025-06-17",
+  "totalEffects": 39,
   "categories": [
     "color-correction",
     "vintage",
@@ -821,6 +821,329 @@
         "es": "Estabilización",
         "fr": "Stabilisation",
         "de": "Stabilisierung"
+      }
+    },
+    {
+      "id": "temperature",
+      "name": "Цветовая температура",
+      "type": "temperature",
+      "duration": 0,
+      "category": "color-correction",
+      "complexity": "basic",
+      "tags": ["professional", "beginner-friendly"],
+      "description": {
+        "ru": "Регулирует цветовую температуру от холодных до теплых тонов",
+        "en": "Adjusts color temperature from cool to warm tones"
+      },
+      "ffmpegCommand": "colortemperature={temperature}",
+      "cssFilter": "hue-rotate({(temperature || 0) * 0.3}deg) saturate({1 + Math.abs(temperature || 0) * 0.01})",
+      "params": {
+        "temperature": 0
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Температура",
+        "en": "Temperature",
+        "es": "Temperatura",
+        "fr": "Température",
+        "de": "Temperatur"
+      },
+      "presets": {
+        "cool": {
+          "name": { "ru": "Холодный", "en": "Cool" },
+          "params": { "temperature": -50 },
+          "description": { "ru": "Холодные голубые тона", "en": "Cool blue tones" }
+        },
+        "warm": {
+          "name": { "ru": "Теплый", "en": "Warm" },
+          "params": { "temperature": 50 },
+          "description": { "ru": "Теплые оранжевые тона", "en": "Warm orange tones" }
+        }
+      }
+    },
+    {
+      "id": "tint",
+      "name": "Тинт",
+      "type": "tint",
+      "duration": 0,
+      "category": "color-correction",
+      "complexity": "basic",
+      "tags": ["professional"],
+      "description": {
+        "ru": "Регулирует баланс между зеленым и пурпурным оттенками",
+        "en": "Adjusts balance between green and magenta tints"
+      },
+      "ffmpegCommand": "colorbalance=rm={tint * 0.01}:gm={-tint * 0.01}:bm=0",
+      "cssFilter": "hue-rotate({(tint || 0) * 0.5}deg)",
+      "params": {
+        "tint": 0
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Тинт",
+        "en": "Tint", 
+        "es": "Matiz",
+        "fr": "Teinte",
+        "de": "Farbstich"
+      }
+    },
+    {
+      "id": "exposure",
+      "name": "Экспозиция",
+      "type": "exposure",
+      "duration": 0,
+      "category": "color-correction",
+      "complexity": "intermediate",
+      "tags": ["professional"],
+      "description": {
+        "ru": "Регулирует экспозицию изображения, имитируя изменение диафрагмы",
+        "en": "Adjusts image exposure, simulating aperture changes"
+      },
+      "ffmpegCommand": "exposure=exposure={exposure}",
+      "cssFilter": "brightness({1 + (exposure || 0) * 0.2}) contrast({1 + Math.abs(exposure || 0) * 0.1})",
+      "params": {
+        "exposure": 0
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Экспозиция",
+        "en": "Exposure",
+        "es": "Exposición", 
+        "fr": "Exposition",
+        "de": "Belichtung"
+      },
+      "presets": {
+        "underexposed": {
+          "name": { "ru": "Недоэкспонировано", "en": "Underexposed" },
+          "params": { "exposure": -1.0 },
+          "description": { "ru": "Уменьшенная экспозиция", "en": "Reduced exposure" }
+        },
+        "overexposed": {
+          "name": { "ru": "Переэкспонировано", "en": "Overexposed" },
+          "params": { "exposure": 1.0 },
+          "description": { "ru": "Увеличенная экспозиция", "en": "Increased exposure" }
+        }
+      }
+    },
+    {
+      "id": "motion-blur",
+      "name": "Размытие в движении",
+      "type": "motion-blur",
+      "duration": 0,
+      "category": "motion",
+      "complexity": "advanced",
+      "tags": ["dramatic", "modern"],
+      "description": {
+        "ru": "Создает эффект размытия движущихся объектов",
+        "en": "Creates motion blur effect for moving objects"
+      },
+      "ffmpegCommand": "mblur=radius={radius}:shutter_angle={angle * 10}",
+      "cssFilter": "blur({(radius || 2) * 0.5}px)",
+      "params": {
+        "radius": 2,
+        "angle": 180
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Размытие движения",
+        "en": "Motion Blur",
+        "es": "Desenfoque de Movimiento",
+        "fr": "Flou de Mouvement", 
+        "de": "Bewegungsunschärfe"
+      }
+    },
+    {
+      "id": "glitch",
+      "name": "Глитч",
+      "type": "glitch",
+      "duration": 0,
+      "category": "creative",
+      "complexity": "advanced",
+      "tags": ["modern", "experimental", "intense"],
+      "description": {
+        "ru": "Создает эффект цифровых помех и искажений",
+        "en": "Creates digital glitch and distortion effects"
+      },
+      "ffmpegCommand": "noise=alls={intensity * 0.1}:allf=t,hue=h={intensity * 5}",
+      "cssFilter": "hue-rotate({(intensity || 50) * 2}deg) saturate({1 + (intensity || 50) * 0.02}) contrast({1 + (intensity || 50) * 0.01})",
+      "params": {
+        "intensity": 50
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Глитч",
+        "en": "Glitch",
+        "es": "Glitch",
+        "fr": "Glitch",
+        "de": "Glitch"
+      },
+      "presets": {
+        "subtle": {
+          "name": { "ru": "Тонкий", "en": "Subtle" },
+          "params": { "intensity": 25 },
+          "description": { "ru": "Легкие цифровые помехи", "en": "Light digital noise" }
+        },
+        "heavy": {
+          "name": { "ru": "Сильный", "en": "Heavy" },
+          "params": { "intensity": 100 },
+          "description": { "ru": "Сильные искажения", "en": "Heavy distortions" }
+        }
+      }
+    },
+    {
+      "id": "pixelate",
+      "name": "Пикселизация",
+      "type": "pixelate",
+      "duration": 0,
+      "category": "artistic",
+      "complexity": "basic",
+      "tags": ["retro", "experimental"],
+      "description": {
+        "ru": "Создает эффект пикселизации изображения",
+        "en": "Creates pixelation effect on the image"
+      },
+      "ffmpegCommand": "scale=iw/{pixelSize}:ih/{pixelSize}:flags=neighbor,scale=iw*{pixelSize}:ih*{pixelSize}:flags=neighbor",
+      "cssFilter": "contrast({1 + (pixelSize || 4) * 0.05}) brightness(1.1)",
+      "params": {
+        "pixelSize": 4
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Пикселизация",
+        "en": "Pixelate",
+        "es": "Pixelar",
+        "fr": "Pixelliser",
+        "de": "Verpixeln"
+      }
+    },
+    {
+      "id": "edge-enhance",
+      "name": "Усиление краев",
+      "type": "edge-enhance",
+      "duration": 0,
+      "category": "technical",
+      "complexity": "intermediate",
+      "tags": ["professional"],
+      "description": {
+        "ru": "Усиливает контуры и края объектов на изображении",
+        "en": "Enhances edges and contours of objects in the image"
+      },
+      "ffmpegCommand": "edgedetect=mode=wires:high={intensity}:low={intensity * 0.5}",
+      "cssFilter": "contrast({1 + (intensity || 0.5) * 0.5}) brightness(1.1) saturate(0.8)",
+      "params": {
+        "intensity": 0.5
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Усиление краев",
+        "en": "Edge Enhance",
+        "es": "Realzar Bordes",
+        "fr": "Amélioration des Contours",
+        "de": "Kantenverstärkung"
+      }
+    },
+    {
+      "id": "emboss",
+      "name": "Рельеф",
+      "type": "emboss",
+      "duration": 0,
+      "category": "artistic",
+      "complexity": "intermediate",
+      "tags": ["artistic", "dramatic"],
+      "description": {
+        "ru": "Создает эффект рельефного изображения",
+        "en": "Creates embossed relief effect"
+      },
+      "ffmpegCommand": "convolution='0 -1 0:-1 5 -1:0 -1 0:0 -1 0:-1 5 -1:0 -1 0'",
+      "cssFilter": "grayscale(0.3) contrast({1 + (intensity || 0.8) * 0.5}) brightness({1 + (intensity || 0.8) * 0.2})",
+      "params": {
+        "intensity": 0.8
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Рельеф",
+        "en": "Emboss",
+        "es": "Relieve",
+        "fr": "Relief",
+        "de": "Prägung"
+      }
+    },
+    {
+      "id": "solarize",
+      "name": "Соляризация",
+      "type": "solarize",
+      "duration": 0,
+      "category": "artistic",
+      "complexity": "intermediate",
+      "tags": ["experimental", "artistic"],
+      "description": {
+        "ru": "Создает эффект соляризации с инверсией цветов",
+        "en": "Creates solarization effect with color inversion"
+      },
+      "ffmpegCommand": "curves=all='{threshold}/255|{1-threshold}/255 1|1-{threshold}/255'",
+      "cssFilter": "invert({(threshold || 0.5) * 0.6}) brightness({1 + (threshold || 0.5) * 0.3}) contrast({1 + (threshold || 0.5) * 0.4})",
+      "params": {
+        "threshold": 0.5
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Соляризация",
+        "en": "Solarize",
+        "es": "Solarizar",
+        "fr": "Solarisation",
+        "de": "Solarisation"
+      }
+    },
+    {
+      "id": "zoom-blur",
+      "name": "Радиальное размытие",
+      "type": "zoom-blur",
+      "duration": 0,
+      "category": "creative",
+      "complexity": "advanced",
+      "tags": ["dramatic", "modern"],
+      "description": {
+        "ru": "Создает радиальное размытие от центра изображения",
+        "en": "Creates radial blur from the center of the image"
+      },
+      "ffmpegCommand": "zoompan=z='zoom+{intensity*0.01}':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'",
+      "cssFilter": "blur({(intensity || 2) * 0.5}px) brightness({1 + (intensity || 2) * 0.1})",
+      "params": {
+        "intensity": 2
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Радиальное размытие",
+        "en": "Zoom Blur",
+        "es": "Desenfoque Radial",
+        "fr": "Flou Radial",
+        "de": "Radiale Unschärfe"
+      }
+    },
+    {
+      "id": "hologram",
+      "name": "Голограмма",
+      "type": "hologram",
+      "duration": 0,
+      "category": "creative",
+      "complexity": "advanced",
+      "tags": ["modern", "experimental", "intense"],
+      "description": {
+        "ru": "Создает футуристический голографический эффект",
+        "en": "Creates futuristic holographic effect"
+      },
+      "ffmpegCommand": "split[main][hologram];[hologram]hue=h=180,colorbalance=rs=0.2:bs=0.3[holo];[main][holo]blend=all_mode=screen:all_opacity={intensity}",
+      "cssFilter": "hue-rotate(180deg) saturate({1 + (intensity || 0.5) * 2}) brightness({1 + (intensity || 0.5) * 0.3}) contrast({1 + (intensity || 0.5) * 0.2})",
+      "params": {
+        "intensity": 0.5
+      },
+      "previewPath": "/t1.mp4",
+      "labels": {
+        "ru": "Голограмма",
+        "en": "Hologram",
+        "es": "Holograma",
+        "fr": "Hologramme",
+        "de": "Hologramm"
       }
     }
   ]

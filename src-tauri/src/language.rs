@@ -3,8 +3,9 @@ use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 // Поддерживаемые языки
-const SUPPORTED_LANGUAGES: [&str; 11] =
-  ["en", "ru", "es", "pt", "fr", "de", "zh", "ja", "ko", "tr", "th"];
+const SUPPORTED_LANGUAGES: [&str; 11] = [
+  "en", "ru", "es", "pt", "fr", "de", "zh", "ja", "ko", "tr", "th",
+];
 const DEFAULT_LANGUAGE: &str = "en";
 
 // Глобальное состояние для хранения текущего языка

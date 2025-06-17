@@ -143,6 +143,7 @@ export function TimelineTopPanel() {
               step={1}
               className="absolute inset-0 h-full w-full cursor-pointer opacity-100 hover:ring-0 focus-visible:ring-0"
               aria-label={t("timeline.zoom.fitToScreen")}
+              data-testid="timeline-slider"
             />
           </div>
 

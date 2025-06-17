@@ -221,16 +221,13 @@ pub async fn process_media_file_simple(
         .find(|s| s.codec_type == "audio")
         .and_then(|s| s.codec_name.clone());
 
-      let bitrate = probe_data
-        .format
-        .duration
-        .and_then(|_| {
-          probe_data
-            .format
-            .bit_rate
-            .as_ref()
-            .and_then(|b| b.parse::<u64>().ok())
-        });
+      let bitrate = probe_data.format.duration.and_then(|_| {
+        probe_data
+          .format
+          .bit_rate
+          .as_ref()
+          .and_then(|b| b.parse::<u64>().ok())
+      });
 
       Some(SimpleMediaMetadata {
         duration,

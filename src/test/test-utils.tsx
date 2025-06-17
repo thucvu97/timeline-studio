@@ -116,33 +116,42 @@ export const BrowserProviders = ({ children }: { children: ReactNode }) => {
 }
 
 // ✅ Специализированные функции рендеринга
-export const renderWithBase = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
-  render(ui, { wrapper: BaseProviders, ...options })
+export const renderWithBase = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) => {
+  return render(ui, { wrapper: BaseProviders, ...options })
+}
 
-export const renderWithMedia = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
-  render(ui, { wrapper: MediaProviders, ...options })
+export const renderWithMedia = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) => {
+  return render(ui, { wrapper: MediaProviders, ...options })
+}
 
-export const renderWithPlayer = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
-  render(ui, { wrapper: PlayerProviders, ...options })
+export const renderWithPlayer = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) => {
+  return render(ui, { wrapper: PlayerProviders, ...options })
+}
 
-export const renderWithTimeline = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
-  render(ui, { wrapper: TimelineProviders, ...options })
+export const renderWithTimeline = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) => {
+  return render(ui, { wrapper: TimelineProviders, ...options })
+}
 
-export const renderWithModal = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
-  render(ui, { wrapper: ModalProviders, ...options })
+export const renderWithModal = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) => {
+  return render(ui, { wrapper: ModalProviders, ...options })
+}
 
-export const renderWithChat = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
-  render(ui, { wrapper: ChatProviders, ...options })
+export const renderWithChat = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) => {
+  return render(ui, { wrapper: ChatProviders, ...options })
+}
 
-export const renderWithTemplates = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
-  render(ui, { wrapper: TemplateProviders, ...options })
+export const renderWithTemplates = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) => {
+  return render(ui, { wrapper: TemplateProviders, ...options })
+}
 
-export const renderWithBrowser = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
-  render(ui, { wrapper: BrowserProviders, ...options })
+export const renderWithBrowser = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) => {
+  return render(ui, { wrapper: BrowserProviders, ...options })
+}
 
 // 🎯 Умная функция рендеринга (по умолчанию базовые провайдеры)
-const customRender = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) =>
-  render(ui, { wrapper: BaseProviders, ...options })
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) => {
+  return render(ui, { wrapper: BaseProviders, ...options })
+}
 
 // Реэкспортируем только то, что нам нужно
 export { screen, fireEvent, waitFor, within } from "@testing-library/react"
