@@ -123,7 +123,7 @@ export function EffectPreview({
       videoElement.playbackRate = 1 // Сбрасываем скорость воспроизведения
 
       // Применяем CSS-фильтр на основе параметров эффекта
-      const cssFilter = generateCSSFilterForEffect(effect, customParams)
+      const cssFilter = generateCSSFilterForEffect(effect)
       if (cssFilter) {
         videoElement.style.filter = cssFilter
       }
@@ -141,7 +141,7 @@ export function EffectPreview({
       }
 
       // Устанавливаем скорость воспроизведения
-      const playbackRate = getPlaybackRate(effect, customParams)
+      const playbackRate = getPlaybackRate(effect)
       videoElement.playbackRate = playbackRate
 
       // Запускаем воспроизведение видео

@@ -24,6 +24,24 @@ export type EffectTag =
   | "subtle" // Тонкий
   | "intense" // Интенсивный
 
+export interface EffectPreset {
+  name: {
+    en: string
+    ru?: string
+    es?: string
+    fr?: string
+    de?: string
+  }
+  params: Record<string, number>
+  description: {
+    en: string
+    ru?: string
+    es?: string
+    fr?: string
+    de?: string
+  }
+}
+
 export interface VideoEffect {
   id: string
   name: string
@@ -108,24 +126,5 @@ export interface VideoEffect {
     de?: string
   }
   // Рекомендуемые настройки для разных сценариев
-  presets?: Record<
-    string,
-    {
-      name: {
-        en: string
-        ru?: string
-        es?: string
-        fr?: string
-        de?: string
-      }
-      params: Record<string, number>
-      description: {
-        en: string
-        ru?: string
-        es?: string
-        fr?: string
-        de?: string
-      }
-    }
-  >
+  presets?: Record<string, EffectPreset>
 }

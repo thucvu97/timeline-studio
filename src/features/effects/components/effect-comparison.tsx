@@ -63,12 +63,21 @@ export function EffectComparison({
     const effectVideo = effectVideoRef.current
     if (!effectVideo || !effect) return
     
+    // Создаем эффект с объединенными параметрами
+    const mergedEffect = customParams ? {
+      ...effect,
+      params: {
+        ...effect.params,
+        ...customParams,
+      },
+    } : effect
+    
     // Применяем CSS фильтры
-    const cssFilter = generateCSSFilterForEffect(effect, customParams)
+    const cssFilter = generateCSSFilterForEffect(mergedEffect)
     effectVideo.style.filter = cssFilter
     
     // Применяем скорость воспроизведения для эффектов движения
-    const playbackRate = getPlaybackRate(effect.type, customParams)
+    const playbackRate = getPlaybackRate(mergedEffect)
     effectVideo.playbackRate = playbackRate
   }, [effect, customParams])
   
