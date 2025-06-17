@@ -128,121 +128,121 @@
     },
     "dialogs": {
       "projectSettings": {
-        "title": "Project Settings",
-        "aspectRatio": "Aspect Ratio:",
-        "resolution": "Resolution:",
-        "frameRate": "Frame Rate:",
-        "colorSpace": "Color Space:",
-        "cancel": "Cancel",
-        "save": "OK"
+        "title": "项目设置",
+        "aspectRatio": "宽高比：",
+        "resolution": "分辨率：",
+        "frameRate": "帧率：",
+        "colorSpace": "色彩空间：",
+        "cancel": "取消",
+        "save": "确定"
       },
       "userSettings": {
-        "title": "User Settings",
-        "interfaceLanguage": "Interface Language:",
-        "screenshotsPath": "Screenshots Save Path:",
-        "selectFolder": "Select Folder",
-        "selectFolderPrompt": "Choose a folder to save screenshots or enter your own path:",
-        "clearPath": "Clear",
-        "defaultPathHint": "Default path for saving screenshots",
-        "customPathHint": "Screenshots will be saved to: {{path}}",
-        "cancel": "Cancel",
-        "save": "Save",
-        "playerScreenshotsPath": "Player screenshots save path",
-        "claudeApiKey": "Claude API key"
+        "title": "用户设置",
+        "interfaceLanguage": "界面语言：",
+        "screenshotsPath": "截图保存路径：",
+        "selectFolder": "选择文件夹",
+        "selectFolderPrompt": "选择一个文件夹来保存截图或输入您自己的路径：",
+        "clearPath": "清除",
+        "defaultPathHint": "保存截图的默认路径",
+        "customPathHint": "截图将保存到：{{path}}",
+        "cancel": "取消",
+        "save": "保存",
+        "playerScreenshotsPath": "播放器截图保存路径",
+        "claudeApiKey": "Claude API 密钥"
       },
       "export": {
-        "title": "Export",
-        "local": "Local",
-        "device": "Device",
-        "socialNetworks": "Social Networks",
+        "title": "导出",
+        "local": "本地",
+        "device": "设备",
+        "socialNetworks": "社交网络",
         "dvd": "DVD",
         "youtube": "YouTube",
         "tiktok": "TikTok",
         "telegram": "Telegram",
-        "notLoggedIn": "Not logged in",
+        "notLoggedIn": "未登录",
         "loginPrompt": {
-          "youtube": "Sign in to your YouTube account for additional information.",
-          "tiktok": "Sign in to your TikTok account to publish videos.",
-          "telegram": "Sign in to your Telegram account to send videos to channels and groups."
+          "youtube": "登录到您的YouTube账户以获取更多信息。",
+          "tiktok": "登录到您的TikTok账户以发布视频。",
+          "telegram": "登录到您的Telegram账户以发送视频到频道和群组。"
         },
-        "login": "Sign In",
-        "cover": "Cover",
-        "edit": "Edit",
-        "outputSettings": "Output Settings",
-        "name": "Name",
-        "saveTo": "Save to",
-        "preset": "Preset",
-        "defaultPreset": "Default",
-        "custom": "Custom",
-        "format": "Format",
-        "quality": "Quality",
-        "normal": "Normal",
-        "good": "Good",
-        "best": "Best",
-        "resolution": "Resolution",
-        "frameRate": "Frame Rate",
-        "advancedCompression": "Advanced Compression",
-        "cloudBackup": "Cloud Backup",
-        "enableGPUEncoding": "Enable GPU-accelerated video encoding",
-        "useLastSettings": "Use last export settings for local file",
-        "length": "Length",
-        "size": "Size",
-        "approximate": "Approximate",
-        "titles": "Titles",
+        "login": "登录",
+        "cover": "封面",
+        "edit": "编辑",
+        "outputSettings": "输出设置",
+        "name": "名称",
+        "saveTo": "保存到",
+        "preset": "预设",
+        "defaultPreset": "默认",
+        "custom": "自定义",
+        "format": "格式",
+        "quality": "质量",
+        "normal": "普通",
+        "good": "良好",
+        "best": "最佳",
+        "resolution": "分辨率",
+        "frameRate": "帧率",
+        "advancedCompression": "高级压缩",
+        "cloudBackup": "云备份",
+        "enableGPUEncoding": "启用GPU加速视频编码",
+        "useLastSettings": "使用上次导出设置（本地文件）",
+        "length": "长度",
+        "size": "大小",
+        "approximate": "大约",
+        "titles": "标题",
         "device_types": {
           "iphone": "iPhone",
           "ipad": "iPad",
           "android": "Android"
         },
-        "codec": "Codec",
-        "additional": "Additional",
+        "codec": "编解码器",
+        "additional": "附加",
         "fps": "fps",
         "kbps": "kbps",
         "sdr": "SDR - Rec.709",
-        "otherNetworks": "Other social networks"
+        "otherNetworks": "其他社交网络"
       }
     },
     "templates": {
-      "verticalSplit": "Vertical Split",
-      "horizontalSplit": "Horizontal Split",
-      "diagonalSplit": "Diagonal Split",
-      "grid2x2": "Grid 2×2",
-      "grid3x3": "Grid 3×3",
-      "grid4x4": "Grid 4×4"
+      "verticalSplit": "垂直分割",
+      "horizontalSplit": "水平分割",
+      "diagonalSplit": "对角分割",
+      "grid2x2": "网格 2×2",
+      "grid3x3": "网格 3×3",
+      "grid4x4": "网格 4×4"
     }
   },
   "modals": {
     "projectSettings": {
-      "title": "Project Settings"
+      "title": "项目设置"
     },
     "keyboardShortcuts": {
-      "title": "Keyboard Shortcuts"
+      "title": "键盘快捷键"
     },
     "userSettings": {
-      "title": "User Settings"
+      "title": "用户设置"
     },
     "cameraCapture": {
-      "title": "Camera Recording",
-      "browserNotSupported": "Your browser does not support camera recording",
-      "permissionDenied": "Camera access was denied",
-      "deviceNotFound": "No camera found",
-      "mediaError": "Error accessing camera"
+      "title": "摄像头录制",
+      "browserNotSupported": "您的浏览器不支持摄像头录制",
+      "permissionDenied": "摄像头访问被拒绝",
+      "deviceNotFound": "未找到摄像头",
+      "mediaError": "访问摄像头时出错"
     },
     "voiceRecording": {
-      "title": "Audio Recording",
-      "browserNotSupported": "Your browser does not support audio recording",
-      "permissionDenied": "Microphone access was denied",
-      "deviceNotFound": "No microphone found",
-      "mediaError": "Error accessing microphone"
+      "title": "音频录制",
+      "browserNotSupported": "您的浏览器不支持音频录制",
+      "permissionDenied": "麦克风访问被拒绝",
+      "deviceNotFound": "未找到麦克风",
+      "mediaError": "访问麦克风时出错"
     },
     "export": {
-      "title": "Export"
+      "title": "导出"
     },
     "cacheSettings": {
-      "title": "Cache Settings"
+      "title": "缓存设置"
     },
     "cacheStatistics": {
-      "title": "Cache Statistics"
+      "title": "缓存统计"
     }
   },
   "dialogs": {
@@ -272,25 +272,25 @@
       }
     },
     "cameraCapture": {
-      "title": "Camera Recording",
-      "description": "Record video from your camera with selected resolution and frame rate.",
-      "selectCamera": "Select camera:",
-      "selectMicrophone": "Select microphone:",
-      "selectResolution": "Select resolution:",
-      "selectFrameRate": "Select frame rate:",
-      "startRecording": "Start Recording",
-      "stopRecording": "Stop Recording",
-      "countdown": "Countdown:",
-      "seconds": "seconds",
-      "recordingTime": "Recording time:",
-      "noDevices": "No devices found",
-      "permissionDenied": "Camera and microphone access denied. Please allow access in browser settings.",
-      "deviceNotFound": "Camera or microphone not found. Please connect devices and try again.",
-      "errorAccess": "Error accessing devices:",
-      "unknownError": "Unknown error requesting device access",
-      "loadingCapabilities": "Loading device capabilities...",
-      "initializingCamera": "Initializing camera...",
-      "device": "Device",
+      "title": "摄像头录制",
+      "description": "使用所选分辨率和帧率从摄像头录制视频。",
+      "selectCamera": "选择摄像头：",
+      "selectMicrophone": "选择麦克风：",
+      "selectResolution": "选择分辨率：",
+      "selectFrameRate": "选择帧率：",
+      "startRecording": "开始录制",
+      "stopRecording": "停止录制",
+      "countdown": "倒计时：",
+      "seconds": "秒",
+      "recordingTime": "录制时间：",
+      "noDevices": "未找到设备",
+      "permissionDenied": "摄像头和麦克风访问被拒绝。请在浏览器设置中允许访问。",
+      "deviceNotFound": "未找到摄像头或麦克风。请连接设备后重试。",
+      "errorAccess": "访问设备时出错：",
+      "unknownError": "请求设备访问时出现未知错误",
+      "loadingCapabilities": "加载设备功能中...",
+      "initializingCamera": "初始化摄像头中...",
+      "device": "设备",
       "audioDevice": "Audio device",
       "resolution": "Resolution",
       "frameRate": "Frame rate",

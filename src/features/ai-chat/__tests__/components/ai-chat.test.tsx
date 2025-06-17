@@ -188,7 +188,7 @@ describe("AiChat Component", () => {
       const userMessage = screen.getByText("Привет! Как добавить эффект размытия?")
       const messageContainer = userMessage.closest('div[class*="flex-col"]')
 
-      expect(messageContainer).toHaveClass("ml-auto", "bg-[#2563eb]")
+      expect(messageContainer).toHaveClass("ml-auto", "bg-primary", "text-primary-foreground")
     })
 
     it("должен применять правильные классы для сообщений ассистента", () => {
@@ -197,7 +197,7 @@ describe("AiChat Component", () => {
       const assistantMessage = screen.getByText(/Для добавления эффекта размытия/)
       const messageContainer = assistantMessage.closest('div[class*="flex-col"]')
 
-      expect(messageContainer).toHaveClass("bg-[#2a2a2a]")
+      expect(messageContainer).toHaveClass("bg-muted", "text-muted-foreground")
     })
   })
 
