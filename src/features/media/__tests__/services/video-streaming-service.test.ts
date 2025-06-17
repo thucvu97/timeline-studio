@@ -99,8 +99,8 @@ describe("VideoStreamingService", () => {
       }
 
       const { invoke } = await import("@tauri-apps/api/core")
-      vi.mocked(invoke).mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve(mockRegistration), 100))
+      vi.mocked(invoke).mockImplementation(
+        () => new Promise((resolve) => setTimeout(() => resolve(mockRegistration), 100)),
       )
 
       // Запускаем несколько запросов одновременно
@@ -140,9 +140,7 @@ describe("VideoStreamingService", () => {
       expect(invoke).toHaveBeenCalledWith("register_video", {
         path: "/path/to/video.mp4",
       })
-      expect(global.fetch).toHaveBeenCalledWith(
-        "http://localhost:4567/register?path=%2Fpath%2Fto%2Fvideo.mp4"
-      )
+      expect(global.fetch).toHaveBeenCalledWith("http://localhost:4567/register?path=%2Fpath%2Fto%2Fvideo.mp4")
       expect(url).toBe("http://localhost:4567/video/video-456")
     })
 
@@ -156,7 +154,7 @@ describe("VideoStreamingService", () => {
       } as Response)
 
       await expect(service.getVideoUrl("/path/to/video.mp4")).rejects.toThrow(
-        "Failed to register video: Internal Server Error"
+        "Failed to register video: Internal Server Error",
       )
     })
   })
@@ -198,7 +196,7 @@ describe("VideoStreamingService", () => {
       const preloadPromise = service.preloadVideo("/path/to/video.mp4")
 
       // Ждем небольшое время для установки src
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise((resolve) => setTimeout(resolve, 10))
 
       // Вызываем onerror синхронно
       if (mockVideo.onerror) {
@@ -232,7 +230,7 @@ describe("VideoStreamingService", () => {
       const preloadPromise = service.preloadVideo("/path/to/video.mp4")
 
       // Ждем установки таймера
-      await new Promise(resolve => setImmediate(resolve))
+      await new Promise((resolve) => setImmediate(resolve))
 
       // Вызываем колбэк таймера напрямую
       if (timeoutCallback) {
@@ -260,7 +258,7 @@ describe("VideoStreamingService", () => {
 
       // Кэшируем видео
       await service.getVideoUrl("/path/to/video.mp4")
-      
+
       // Очищаем кэш для конкретного видео
       service.clearCache("/path/to/video.mp4")
 
@@ -278,7 +276,7 @@ describe("VideoStreamingService", () => {
 
     it("should clear all videos from cache when no path provided", async () => {
       const { invoke } = await import("@tauri-apps/api/core")
-      
+
       // Кэшируем несколько видео
       vi.mocked(invoke).mockResolvedValueOnce({
         id: "video-1",
@@ -351,7 +349,7 @@ describe("VideoStreamingService", () => {
         aborted: false,
         reason: new Error("AbortError"),
       }
-      
+
       const originalTimeout = AbortSignal.timeout
       AbortSignal.timeout = vi.fn(() => mockAbortSignal as any)
 

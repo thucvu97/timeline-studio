@@ -1543,8 +1543,6 @@
       "defaultPlayback": "Velocidad de reproducción predeterminada",
       "customSpeed": "Velocidad personalizada",
       "speedChange": "Configuración de cambio de velocidad",
-      "interpolation": "Interpolación de fotogramas",
-      "motionBlur": "Desenfoque de movimiento",
       "smoothPlayback": "Reproducción fluida",
       "enableSmooth": "Habilitar reproducción fluida",
       "smoothness": "Nivel de fluidez",
@@ -1810,7 +1808,15 @@
       "vintage": "Vintage",
       "other": "Otros",
       "color-correction": "Corrección de color",
-      "creative": "Creativo"
+      "creative": "Creativo",
+      "cinematic": "Cinematográfico",
+      "technical": "Técnico",
+      "transition": "Transiciones",
+      "motion": "Movimiento",
+      "light": "Luz",
+      "particle": "Partículas",
+      "text": "Texto",
+      "3d": "3D"
     },
     "complexity": {
       "basic": "Básico",

@@ -213,7 +213,10 @@ export const createFilmoraPreset: CreatePresetsFunction = (t: any): ShortcutCate
       },
       {
         id: "trim-start-to-playhead",
-        name: t("dialogs.keyboardShortcuts.shortcuts.trim-start-to-playhead", "Обрезать страт до точки воспроизведения"),
+        name: t(
+          "dialogs.keyboardShortcuts.shortcuts.trim-start-to-playhead",
+          "Обрезать страт до точки воспроизведения",
+        ),
         keys: "Q",
       },
       {
@@ -411,7 +414,10 @@ export const createFilmoraPreset: CreatePresetsFunction = (t: any): ShortcutCate
       },
       {
         id: "select-same-color-clips",
-        name: t("dialogs.keyboardShortcuts.shortcuts.select-same-color-clips", "Выбрать все клипы с одинаковой цветовой меткой"),
+        name: t(
+          "dialogs.keyboardShortcuts.shortcuts.select-same-color-clips",
+          "Выбрать все клипы с одинаковой цветовой меткой",
+        ),
         keys: "⌘'",
       },
       {
@@ -583,17 +589,26 @@ export const createFilmoraPreset: CreatePresetsFunction = (t: any): ShortcutCate
       },
       {
         id: "merge-subtitles-up",
-        name: t("dialogs.keyboardShortcuts.shortcuts.merge-subtitles-up", "Объединить субтитры сверху (курсор в начале предложения)"),
+        name: t(
+          "dialogs.keyboardShortcuts.shortcuts.merge-subtitles-up",
+          "Объединить субтитры сверху (курсор в начале предложения)",
+        ),
         keys: "Delete",
       },
       {
         id: "merge-subtitles-down-single",
-        name: t("dialogs.keyboardShortcuts.shortcuts.merge-subtitles-down-single", "Объединить субтитры снизу (режим одиночного выбора или режим редактирования)"),
+        name: t(
+          "dialogs.keyboardShortcuts.shortcuts.merge-subtitles-down-single",
+          "Объединить субтитры снизу (режим одиночного выбора или режим редактирования)",
+        ),
         keys: "⌥Q",
       },
       {
         id: "merge-subtitles-down-multi",
-        name: t("dialogs.keyboardShortcuts.shortcuts.merge-subtitles-down-multi", "Объединить выбранные субтитры (режим множественного выбора)"),
+        name: t(
+          "dialogs.keyboardShortcuts.shortcuts.merge-subtitles-down-multi",
+          "Объединить выбранные субтитры (режим множественного выбора)",
+        ),
         keys: "⌥Q",
       },
     ],
@@ -634,12 +649,18 @@ export const createFilmoraPreset: CreatePresetsFunction = (t: any): ShortcutCate
       },
       {
         id: "previous-edit-point-up",
-        name: t("dialogs.keyboardShortcuts.shortcuts.previous-edit-point-up", "Предыдущая Точка Редактирования / Перемещение Вверх"),
+        name: t(
+          "dialogs.keyboardShortcuts.shortcuts.previous-edit-point-up",
+          "Предыдущая Точка Редактирования / Перемещение Вверх",
+        ),
         keys: "↑",
       },
       {
         id: "next-edit-point-down",
-        name: t("dialogs.keyboardShortcuts.shortcuts.next-edit-point-down", "Следующая Точка Редактирования / Перемещение Вниз"),
+        name: t(
+          "dialogs.keyboardShortcuts.shortcuts.next-edit-point-down",
+          "Следующая Точка Редактирования / Перемещение Вниз",
+        ),
         keys: "↓",
       },
       {

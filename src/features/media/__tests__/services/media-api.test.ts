@@ -67,12 +67,7 @@ describe("media-api", () => {
 
   describe("getMediaFiles", () => {
     it("should get media files from directory successfully", async () => {
-      const mockFiles = [
-        "/dir/video1.mp4",
-        "/dir/video2.avi",
-        "/dir/audio1.mp3",
-        "/dir/image1.jpg",
-      ]
+      const mockFiles = ["/dir/video1.mp4", "/dir/video2.avi", "/dir/audio1.mp3", "/dir/image1.jpg"]
 
       const { invoke } = await import("@tauri-apps/api/core")
       vi.mocked(invoke).mockResolvedValue(mockFiles)
@@ -104,14 +99,27 @@ describe("media-api", () => {
 
       expect(open).toHaveBeenCalledWith({
         multiple: true,
-        filters: [{
-          name: "Media",
-          extensions: [
-            "mp4", "avi", "mkv", "mov", "webm",
-            "mp3", "wav", "ogg", "flac",
-            "jpg", "jpeg", "png", "gif", "webp",
-          ],
-        }],
+        filters: [
+          {
+            name: "Media",
+            extensions: [
+              "mp4",
+              "avi",
+              "mkv",
+              "mov",
+              "webm",
+              "mp3",
+              "wav",
+              "ogg",
+              "flac",
+              "jpg",
+              "jpeg",
+              "png",
+              "gif",
+              "webp",
+            ],
+          },
+        ],
       })
       expect(result).toEqual(["/path/to/video.mp4"])
     })
@@ -154,10 +162,12 @@ describe("media-api", () => {
 
       expect(open).toHaveBeenCalledWith({
         multiple: true,
-        filters: [{
-          name: "Audio",
-          extensions: ["mp3", "wav", "ogg", "flac", "aac", "m4a", "wma"],
-        }],
+        filters: [
+          {
+            name: "Audio",
+            extensions: ["mp3", "wav", "ogg", "flac", "aac", "m4a", "wma"],
+          },
+        ],
       })
       expect(result).toEqual(["/path/to/audio.mp3"])
     })

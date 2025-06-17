@@ -11,23 +11,20 @@ import { MediaList } from "../../components/media-list"
 
 // Мокаем StatusBar
 vi.mock("@/features/browser", () => ({
-  StatusBar: ({ media }: { media: any[] }) => (
-    <div data-testid="status-bar">
-      Status: {media.length} files
-    </div>
-  ),
+  StatusBar: ({ media }: { media: any[] }) => <div data-testid="status-bar">Status: {media.length} files</div>,
 }))
 
 // Мокаем MediaContent
 vi.mock("../../components/media-content", () => ({
   MediaContent: ({ groups, viewMode, previewSize, addFilesToTimeline }: any) => (
     <div data-testid="media-content" data-view-mode={viewMode} data-preview-size={previewSize}>
-      {groups && groups.map((group: any, index: number) => (
-        <div key={index} data-testid="media-group">
-          <h3>{group.title}</h3>
-          <div>Files: {group.files.length}</div>
-        </div>
-      ))}
+      {groups &&
+        groups.map((group: any, index: number) => (
+          <div key={index} data-testid="media-group">
+            <h3>{group.title}</h3>
+            <div>Files: {group.files.length}</div>
+          </div>
+        ))}
     </div>
   ),
 }))
@@ -60,7 +57,7 @@ vi.mock("@/features/media", async (importOriginal) => {
     ...actual,
     getFileType: vi.fn((file) => {
       if (file.isVideo) return "video"
-      if (file.isAudio) return "audio" 
+      if (file.isAudio) return "audio"
       if (file.isImage) return "image"
       return "unknown"
     }),
@@ -83,14 +80,14 @@ vi.mock("react-i18next", async (importOriginal) => {
   }
 })
 
-// Мокаем i18n/constants  
+// Мокаем i18n/constants
 vi.mock("@/i18n/constants", () => ({
-  formatDateByLanguage: vi.fn((date, lang) => new Date(date).toISOString().split('T')[0]),
+  formatDateByLanguage: vi.fn((date, lang) => new Date(date).toISOString().split("T")[0]),
 }))
 
 describe("MediaList", () => {
   const mockGetError = vi.fn()
-  
+
   const mockState = {
     context: {
       mediaFiles: {
@@ -107,7 +104,7 @@ describe("MediaList", () => {
             startTime: 1640995200000, // 2022-01-01
           },
           {
-            id: "file-2", 
+            id: "file-2",
             name: "audio1.mp3",
             path: "/path/to/audio1.mp3",
             isVideo: false,
@@ -119,7 +116,7 @@ describe("MediaList", () => {
           },
           {
             id: "file-3",
-            name: "image1.jpg", 
+            name: "image1.jpg",
             path: "/path/to/image1.jpg",
             isVideo: false,
             isAudio: false,
@@ -145,18 +142,18 @@ describe("MediaList", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetError.mockReturnValue(null)
-    
+
     // Устанавливаем моки по умолчанию
     vi.mocked(useAppSettings).mockReturnValue({
       isLoading: vi.fn(() => false),
       getError: mockGetError,
       state: mockState,
     } as any)
-    
+
     vi.mocked(useFavorites).mockReturnValue({
       isItemFavorite: vi.fn(() => false),
     } as any)
-    
+
     vi.mocked(useBrowserState).mockReturnValue({
       currentTabSettings: mockCurrentTabSettings,
       previewSize: 150,

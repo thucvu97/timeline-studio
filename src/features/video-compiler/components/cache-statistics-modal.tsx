@@ -185,7 +185,6 @@ export function CacheStatisticsModal() {
               <RefreshCw className="h-4 w-4" />
               {t("videoCompiler.cache.refresh")}
             </Button>
-
           </div>
         </CardContent>
       </Card>

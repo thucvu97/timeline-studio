@@ -314,11 +314,11 @@ describe("media-utils", () => {
     it("should return true for overlapping ranges", () => {
       // Complete overlap
       expect(doTimeRangesOverlap(0, 10, 0, 10)).toBe(true)
-      
+
       // Partial overlap
       expect(doTimeRangesOverlap(0, 10, 5, 15)).toBe(true)
       expect(doTimeRangesOverlap(5, 15, 0, 10)).toBe(true)
-      
+
       // One range contains another
       expect(doTimeRangesOverlap(0, 20, 5, 15)).toBe(true)
       expect(doTimeRangesOverlap(5, 15, 0, 20)).toBe(true)
@@ -334,15 +334,15 @@ describe("media-utils", () => {
       // Adjacent ranges with exactly 1 second gap - should not overlap
       expect(doTimeRangesOverlap(0, 10, 11, 20)).toBe(false)
       expect(doTimeRangesOverlap(11, 20, 0, 10)).toBe(false)
-      
+
       // Adjacent ranges without gap - should not overlap due to 1-second rule
       expect(doTimeRangesOverlap(0, 10, 10, 20)).toBe(false)
       expect(doTimeRangesOverlap(10, 20, 0, 10)).toBe(false)
-      
+
       // Ranges with 0.5 second gap - should still not overlap due to 1-second rule
       expect(doTimeRangesOverlap(0, 10, 9.5, 20)).toBe(false)
       expect(doTimeRangesOverlap(9.5, 20, 0, 10)).toBe(false)
-      
+
       // Ranges with actual overlap (more than 1 second) - should overlap
       expect(doTimeRangesOverlap(0, 10, 8.5, 20)).toBe(true)
       expect(doTimeRangesOverlap(8.5, 20, 0, 10)).toBe(true)
@@ -352,14 +352,14 @@ describe("media-utils", () => {
       // Zero-length ranges
       expect(doTimeRangesOverlap(5, 5, 5, 5)).toBe(false)
       expect(doTimeRangesOverlap(5, 5, 4, 6)).toBe(false)
-      
+
       // Negative values
       expect(doTimeRangesOverlap(-10, -5, -8, -3)).toBe(true)
       expect(doTimeRangesOverlap(-10, -5, -20, -15)).toBe(false)
-      
+
       // Very small overlaps
       expect(doTimeRangesOverlap(0, 10, 9.2, 20)).toBe(false) // Due to 1-second gap rule
-      expect(doTimeRangesOverlap(0, 10, 8, 20)).toBe(true)    // More than 1 second overlap
+      expect(doTimeRangesOverlap(0, 10, 8, 20)).toBe(true) // More than 1 second overlap
     })
 
     it("should be symmetric", () => {
@@ -372,9 +372,7 @@ describe("media-utils", () => {
       ]
 
       for (const [s1, e1, s2, e2] of testCases) {
-        expect(doTimeRangesOverlap(s1, e1, s2, e2)).toBe(
-          doTimeRangesOverlap(s2, e2, s1, e1)
-        )
+        expect(doTimeRangesOverlap(s1, e1, s2, e2)).toBe(doTimeRangesOverlap(s2, e2, s1, e1))
       }
     })
   })

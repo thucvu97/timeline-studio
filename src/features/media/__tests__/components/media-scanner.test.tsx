@@ -143,9 +143,9 @@ describe("MediaScanner", () => {
 
     const { open } = await import("@tauri-apps/plugin-dialog")
     const { useMediaProcessor } = await import("../../hooks/use-media-processor")
-    
+
     vi.mocked(open).mockResolvedValue("/path/to/test/folder")
-    
+
     const mockScanFolderWithThumbnails = vi.fn().mockResolvedValue(mockFiles)
     vi.mocked(useMediaProcessor).mockReturnValue({
       scanFolderWithThumbnails: mockScanFolderWithThumbnails,
@@ -264,7 +264,7 @@ describe("MediaScanner", () => {
     const { useMediaProcessor } = await import("../../hooks/use-media-processor")
 
     vi.mocked(open).mockResolvedValue("/path/to/test/folder")
-    
+
     const mockScanFolderWithThumbnails = vi.fn().mockResolvedValue(mockFiles)
     vi.mocked(useMediaProcessor).mockReturnValue({
       scanFolderWithThumbnails: mockScanFolderWithThumbnails,
@@ -299,7 +299,7 @@ describe("MediaScanner", () => {
   it("should clear errors when selecting new folder", async () => {
     const { open } = await import("@tauri-apps/plugin-dialog")
     const { useMediaProcessor } = await import("../../hooks/use-media-processor")
-    
+
     const mockErrors = new Map([["file1", "Some error"]])
     const mockClearErrors = vi.fn()
 
@@ -330,7 +330,7 @@ describe("MediaScanner", () => {
     const { useMediaProcessor } = await import("../../hooks/use-media-processor")
 
     vi.mocked(open).mockResolvedValue("/path/to/test/folder")
-    
+
     const mockScanFolderWithThumbnails = vi.fn().mockRejectedValue(new Error("Scan failed"))
     vi.mocked(useMediaProcessor).mockReturnValue({
       scanFolderWithThumbnails: mockScanFolderWithThumbnails,

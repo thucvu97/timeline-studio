@@ -29,14 +29,14 @@ vi.mock("sonner", () => ({
 
 // Мокаем react-i18next
 vi.mock("react-i18next", async (importOriginal) => {
-  const actual = await importOriginal() as any
+  const actual = (await importOriginal()) as any
   return {
     ...actual,
     useTranslation: () => ({
       t: (key: string, options?: any) => {
         if (options) {
           let result = key
-          Object.keys(options).forEach(param => {
+          Object.keys(options).forEach((param) => {
             result = result.replace(`{{${param}}}`, options[param])
           })
           return result
@@ -46,7 +46,6 @@ vi.mock("react-i18next", async (importOriginal) => {
     }),
   }
 })
-
 
 describe("CacheSettingsModal", () => {
   const mockStatistics = {
@@ -77,7 +76,7 @@ describe("CacheSettingsModal", () => {
     await waitFor(() => {
       expect(screen.getByText("browser.media.cache.title")).toBeInTheDocument()
     })
-    
+
     // Проверяем описание
     expect(screen.getByText("browser.media.cache.description")).toBeInTheDocument()
   })
@@ -156,7 +155,7 @@ describe("CacheSettingsModal", () => {
 
     const clearButtons = screen.getAllByText("browser.media.cache.actions.clear")
 
-    // Очищаем кеш распознавания  
+    // Очищаем кеш распознавания
     fireEvent.click(clearButtons[2])
     await waitFor(() => {
       expect(indexedDBCacheService.clearRecognitionCache).toHaveBeenCalledTimes(1)

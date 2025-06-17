@@ -28,7 +28,7 @@ function LeftChatLayout() {
         </div>
       )
     }
-    
+
     // Если только Options скрыт
     if (!isOptionsVisible) {
       return (

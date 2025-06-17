@@ -8,12 +8,12 @@ import { MediaFile } from "../../types"
 
 // Мокаем MediaItem
 vi.mock("../../components/media-item", () => ({
-  MediaItem: ({ 
-    file, 
-    viewMode, 
+  MediaItem: ({
+    file,
+    viewMode,
     previewSize,
-    index 
-  }: { 
+    index,
+  }: {
     file: MediaFile
     viewMode: string
     previewSize: number
@@ -33,14 +33,14 @@ vi.mock("../../components/media-item", () => ({
 
 // Мокаем VirtualizedContentGroup
 vi.mock("@/features/browser/components/virtualized-content-group", () => ({
-  VirtualizedContentGroup: ({ 
-    title, 
-    items, 
-    viewMode, 
-    renderItem, 
-    onAddAll, 
-    areAllItemsAdded, 
-    previewSize 
+  VirtualizedContentGroup: ({
+    title,
+    items,
+    viewMode,
+    renderItem,
+    onAddAll,
+    areAllItemsAdded,
+    previewSize,
   }: {
     title: string
     items: any[]
@@ -61,17 +61,13 @@ vi.mock("@/features/browser/components/virtualized-content-group", () => ({
               {title} ({items.length})
             </h3>
             {onAddAll && (
-              <button
-                onClick={() => onAddAll(items)}
-                disabled={allAdded}
-                data-testid="add-all-button"
-              >
+              <button onClick={() => onAddAll(items)} disabled={allAdded} data-testid="add-all-button">
                 {allAdded ? "browser.media.added" : "browser.media.add"}
               </button>
             )}
           </div>
         )}
-        <div 
+        <div
           data-testid="virtual-list"
           data-item-height={itemHeight}
           data-view-mode={viewMode}
@@ -98,7 +94,7 @@ vi.mock("@/features/app-state", () => ({
 
 // Мокаем react-i18next
 vi.mock("react-i18next", async (importOriginal) => {
-  const actual = await importOriginal() as any
+  const actual = (await importOriginal()) as any
   return {
     ...actual,
     useTranslation: () => ({
@@ -160,7 +156,7 @@ describe("MediaGroup", () => {
         viewMode="grid"
         previewSize={150}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     // Проверяем заголовок с количеством файлов
@@ -175,7 +171,7 @@ describe("MediaGroup", () => {
         viewMode="grid"
         previewSize={150}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     // Проверяем, что все файлы отображаются
@@ -196,11 +192,11 @@ describe("MediaGroup", () => {
         viewMode="list"
         previewSize={100}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     const mediaItems = screen.getAllByTestId("media-item")
-    
+
     // Проверяем, что правильные пропсы переданы
     mediaItems.forEach((item, index) => {
       expect(item).toHaveAttribute("data-view-mode", "list")
@@ -217,7 +213,7 @@ describe("MediaGroup", () => {
         viewMode="grid"
         previewSize={150}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     // Проверяем заголовок с количеством файлов
@@ -235,12 +231,12 @@ describe("MediaGroup", () => {
         viewMode="grid"
         previewSize={150}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     // Проверяем, что конкретный заголовок не отображается
     expect(screen.queryByText("Test Group (3)")).not.toBeInTheDocument()
-    
+
     // Но файлы все равно отображаются
     expect(screen.getAllByTestId("media-item")).toHaveLength(3)
   })
@@ -256,7 +252,7 @@ describe("MediaGroup", () => {
           viewMode={viewMode}
           previewSize={150}
           addFilesToTimeline={mockAddFilesToTimeline}
-        />
+        />,
       )
 
       const mediaItems = screen.getAllByTestId("media-item")
@@ -277,7 +273,7 @@ describe("MediaGroup", () => {
         viewMode="grid"
         previewSize={200}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     let mediaItems = screen.getAllByTestId("media-item")
@@ -293,7 +289,7 @@ describe("MediaGroup", () => {
         viewMode="grid"
         previewSize={100}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     mediaItems = screen.getAllByTestId("media-item")
@@ -323,7 +319,7 @@ describe("MediaGroup", () => {
         viewMode="list"
         previewSize={40}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     // Проверяем, что используется виртуальный список
@@ -352,7 +348,7 @@ describe("MediaGroup", () => {
           viewMode={viewMode}
           previewSize={previewSize}
           addFilesToTimeline={mockAddFilesToTimeline}
-        />
+        />,
       )
 
       const virtualList = screen.getByTestId("virtual-list")
@@ -376,7 +372,7 @@ describe("MediaGroup", () => {
         viewMode="grid"
         previewSize={150}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     // Все файлы должны отображаться, независимо от состояния загрузки
@@ -392,7 +388,7 @@ describe("MediaGroup", () => {
         viewMode="grid"
         previewSize={150}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     // Проверяем, что отображаются файлы разных типов
@@ -409,7 +405,7 @@ describe("MediaGroup", () => {
         viewMode="grid"
         previewSize={150}
         addFilesToTimeline={mockAddFilesToTimeline}
-      />
+      />,
     )
 
     // Проверяем, что контейнер имеет правильный класс

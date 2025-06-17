@@ -1,6 +1,6 @@
 "use client"
 
-import { useAutoLoadUserData } from "@/features/media-studio/services/use-auto-load-user-data"
+import { useAutoLoadUserData } from "@/features/media-studio/hooks"
 import { ModalContainer } from "@/features/modals/components"
 import { TopBar } from "@/features/top-bar/components/top-bar"
 import { useUserSettings } from "@/features/user-settings"

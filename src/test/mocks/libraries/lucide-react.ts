@@ -20,27 +20,33 @@ const createMockIcon = (name: string) => {
 }
 
 // Export all commonly used icons
+export const Activity = createMockIcon("Activity")
 export const AlertCircle = createMockIcon("AlertCircle")
 export const AlertTriangle = createMockIcon("AlertTriangle")
 export const ArrowRight = createMockIcon("ArrowRight")
-export const Clapperboard = createMockIcon("Clapperboard")
+export const AudioLines = createMockIcon("AudioLines")
 export const Blend = createMockIcon("Blend")
 export const Bot = createMockIcon("Bot")
+export const Camera = createMockIcon("Camera")
 export const Check = createMockIcon("Check")
 export const CheckCircle2 = createMockIcon("CheckCircle2")
 export const CheckIcon = createMockIcon("CheckIcon")
 export const ChevronDown = createMockIcon("ChevronDown")
-export const Database = createMockIcon("Database")
 export const ChevronDownIcon = createMockIcon("ChevronDownIcon")
+export const ChevronFirst = createMockIcon("ChevronFirst")
+export const ChevronLast = createMockIcon("ChevronLast")
 export const ChevronRight = createMockIcon("ChevronRight")
 export const ChevronRightIcon = createMockIcon("ChevronRightIcon")
 export const ChevronUpIcon = createMockIcon("ChevronUpIcon")
+export const CircleDot = createMockIcon("CircleDot")
 export const CircleIcon = createMockIcon("CircleIcon")
 export const CirclePause = createMockIcon("CirclePause")
 export const CirclePlay = createMockIcon("CirclePlay")
+export const Clapperboard = createMockIcon("Clapperboard")
 export const Clock = createMockIcon("Clock")
 export const CopyPlus = createMockIcon("CopyPlus")
 export const Cpu = createMockIcon("Cpu")
+export const Database = createMockIcon("Database")
 export const Eye = createMockIcon("Eye")
 export const EyeOff = createMockIcon("EyeOff")
 export const File = createMockIcon("File")
@@ -54,14 +60,13 @@ export const FlipHorizontal2 = createMockIcon("FlipHorizontal2")
 export const Folder = createMockIcon("Folder")
 export const FolderOpen = createMockIcon("FolderOpen")
 export const Gauge = createMockIcon("Gauge")
-export const Activity = createMockIcon("Activity")
-export const AudioLines = createMockIcon("AudioLines")
-export const HardDrive = createMockIcon("HardDrive")
 export const Grid = createMockIcon("Grid")
 export const Grid2x2 = createMockIcon("Grid2x2")
 export const Grid2X2 = createMockIcon("Grid2X2")
 export const GripVerticalIcon = createMockIcon("GripVerticalIcon")
+export const HardDrive = createMockIcon("HardDrive")
 export const Image = createMockIcon("Image")
+export const ImagePlay = createMockIcon("ImagePlay")
 export const Info = createMockIcon("Info")
 export const Keyboard = createMockIcon("Keyboard")
 export const LayoutDashboard = createMockIcon("LayoutDashboard")
@@ -70,6 +75,7 @@ export const List = createMockIcon("List")
 export const ListTodo = createMockIcon("ListTodo")
 export const Loader2 = createMockIcon("Loader2")
 export const Lock = createMockIcon("Lock")
+export const Maximize2 = createMockIcon("Maximize2")
 export const Mic = createMockIcon("Mic")
 export const Minus = createMockIcon("Minus")
 export const MonitorCog = createMockIcon("MonitorCog")
@@ -93,14 +99,16 @@ export const RefreshCw = createMockIcon("RefreshCw")
 export const RotateCcw = createMockIcon("RotateCcw")
 export const Save = createMockIcon("Save")
 export const Scissors = createMockIcon("Scissors")
-export const SquareMousePointer = createMockIcon("SquareMousePointer")
 export const Search = createMockIcon("Search")
 export const Send = createMockIcon("Send")
 export const SendHorizonal = createMockIcon("SendHorizonal")
 export const Settings = createMockIcon("Settings")
 export const Sparkles = createMockIcon("Sparkles")
 export const Square = createMockIcon("Square")
+export const SquareMousePointer = createMockIcon("SquareMousePointer")
 export const Star = createMockIcon("Star")
+export const StepBack = createMockIcon("StepBack")
+export const StepForward = createMockIcon("StepForward")
 export const Sticker = createMockIcon("Sticker")
 export const StopCircle = createMockIcon("StopCircle")
 export const Subtitles = createMockIcon("Subtitles")
@@ -108,6 +116,7 @@ export const Sun = createMockIcon("Sun")
 export const Trash2 = createMockIcon("Trash2")
 export const Type = createMockIcon("Type")
 export const Undo2 = createMockIcon("Undo2")
+export const UnfoldHorizontal = createMockIcon("UnfoldHorizontal")
 export const Unlock = createMockIcon("Unlock")
 export const Upload = createMockIcon("Upload")
 export const User = createMockIcon("User")
@@ -123,27 +132,33 @@ export const Zap = createMockIcon("Zap")
 
 // Mock the entire lucide-react module
 vi.mock("lucide-react", () => ({
+  Activity,
   AlertCircle,
   AlertTriangle,
   ArrowRight,
-  Clapperboard,
+  AudioLines,
   Blend,
   Bot,
+  Camera,
   Check,
   CheckCircle2,
   CheckIcon,
   ChevronDown,
-  Database,
   ChevronDownIcon,
+  ChevronFirst,
+  ChevronLast,
   ChevronRight,
   ChevronRightIcon,
   ChevronUpIcon,
+  CircleDot,
   CircleIcon,
   CirclePause,
   CirclePlay,
+  Clapperboard,
   Clock,
   CopyPlus,
   Cpu,
+  Database,
   Eye,
   EyeOff,
   File,
@@ -157,14 +172,13 @@ vi.mock("lucide-react", () => ({
   Folder,
   FolderOpen,
   Gauge,
-  Activity,
-  AudioLines,
-  HardDrive,
   Grid,
   Grid2x2,
   Grid2X2,
   GripVerticalIcon,
+  HardDrive,
   Image,
+  ImagePlay,
   Info,
   Keyboard,
   LayoutDashboard,
@@ -173,6 +187,7 @@ vi.mock("lucide-react", () => ({
   ListTodo,
   Loader2,
   Lock,
+  Maximize2,
   Mic,
   Minus,
   MonitorCog,
@@ -196,14 +211,16 @@ vi.mock("lucide-react", () => ({
   RotateCcw,
   Save,
   Scissors,
-  SquareMousePointer,
   Search,
   Send,
   SendHorizonal,
   Settings,
   Sparkles,
   Square,
+  SquareMousePointer,
   Star,
+  StepBack,
+  StepForward,
   Sticker,
   StopCircle,
   Subtitles,
@@ -211,6 +228,7 @@ vi.mock("lucide-react", () => ({
   Trash2,
   Type,
   Undo2,
+  UnfoldHorizontal,
   Unlock,
   Upload,
   User,

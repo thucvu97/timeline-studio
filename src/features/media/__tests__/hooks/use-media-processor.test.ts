@@ -1,11 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import {
-  type DiscoveredFile,
-  type ProcessorEvent,
-  useMediaProcessor,
-} from "@/features/media/hooks/use-media-processor"
+import { type DiscoveredFile, type ProcessorEvent, useMediaProcessor } from "@/features/media/hooks/use-media-processor"
 import type { MediaFile } from "@/features/media/types/media"
 
 // Mock Tauri API
@@ -80,11 +76,11 @@ describe("useMediaProcessor", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    
+
     const tauriCore = await import("@tauri-apps/api/core")
     const tauriEvent = await import("@tauri-apps/api/event")
     const metadataCache = await import("@/features/video-compiler/services/metadata-cache-service")
-    
+
     mockInvoke = vi.mocked(tauriCore.invoke)
     mockListen = vi.mocked(tauriEvent.listen)
     mockCacheMediaMetadata = vi.mocked(metadataCache.cacheMediaMetadata)
@@ -156,7 +152,7 @@ describe("useMediaProcessor", () => {
       })
 
       expect(onMetadataReady).toHaveBeenCalledWith("test-file-123", mockMediaFile)
-      
+
       // Wait for async caching
       await waitFor(() => {
         expect(mockCacheMediaMetadata).toHaveBeenCalledWith(
@@ -168,7 +164,7 @@ describe("useMediaProcessor", () => {
             fps: 30,
             video_codec: "h264",
             audio_codec: "aac",
-          })
+          }),
         )
       })
     })
@@ -204,7 +200,7 @@ describe("useMediaProcessor", () => {
       expect(onThumbnailReady).toHaveBeenCalledWith(
         "test-file-123",
         "/thumbnails/test-file-123.jpg",
-        "base64_thumbnail_data"
+        "base64_thumbnail_data",
       )
     })
 
@@ -345,7 +341,7 @@ describe("useMediaProcessor", () => {
       await expect(
         act(async () => {
           await result.current.scanFolder("/path/to/folder")
-        })
+        }),
       ).rejects.toThrow("Scan failed")
 
       expect(result.current.isProcessing).toBe(false)
@@ -393,7 +389,7 @@ describe("useMediaProcessor", () => {
     it("should process files successfully", async () => {
       const mockFiles: MediaFile[] = [mockMediaFile]
       const filePaths = ["/path/to/file1.mp4", "/path/to/file2.mp4"]
-      
+
       mockGetCachedMetadata.mockResolvedValue(null)
       mockInvoke.mockResolvedValue(mockFiles)
 
@@ -418,11 +414,9 @@ describe("useMediaProcessor", () => {
         duration: 60,
         cached_at: new Date().toISOString(),
       }
-      
-      mockGetCachedMetadata
-        .mockResolvedValueOnce(cachedMetadata)
-        .mockResolvedValueOnce(null)
-        
+
+      mockGetCachedMetadata.mockResolvedValueOnce(cachedMetadata).mockResolvedValueOnce(null)
+
       mockInvoke.mockResolvedValue([])
 
       const { result } = renderHook(() => useMediaProcessor())
@@ -446,7 +440,7 @@ describe("useMediaProcessor", () => {
       await expect(
         act(async () => {
           await result.current.processFiles(["/path/to/file.mp4"])
-        })
+        }),
       ).rejects.toThrow("Process failed")
 
       expect(result.current.isProcessing).toBe(false)
@@ -457,7 +451,7 @@ describe("useMediaProcessor", () => {
     it("should process files with thumbnails successfully", async () => {
       const mockFiles: MediaFile[] = [mockMediaFile]
       const filePaths = ["/path/to/file1.mp4"]
-      
+
       mockInvoke.mockResolvedValue(mockFiles)
 
       const { result } = renderHook(() => useMediaProcessor())
@@ -562,7 +556,7 @@ describe("useMediaProcessor", () => {
       })
 
       expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to cancel processing:", error)
-      
+
       consoleErrorSpy.mockRestore()
     })
   })
@@ -623,14 +617,12 @@ describe("useMediaProcessor", () => {
             expect(mockCacheMediaMetadata).toHaveBeenCalledWith(
               expect.any(String),
               expect.objectContaining({
-                fps: testCase.expected === 23.976 
-                  ? expect.closeTo(23.976, 3)
-                  : testCase.expected,
-              })
+                fps: testCase.expected === 23.976 ? expect.closeTo(23.976, 3) : testCase.expected,
+              }),
             )
           }
         })
-        
+
         mockCacheMediaMetadata.mockClear()
       }
     })

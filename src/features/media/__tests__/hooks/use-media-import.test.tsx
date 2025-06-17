@@ -40,8 +40,8 @@ vi.mock("../../hooks/use-media-processor", () => ({
     }),
     processFiles: vi.fn().mockImplementation(async (files) => {
       // Симулируем обработку файлов с задержкой
-      await new Promise(resolve => setTimeout(resolve, 50)) // Небольшая задержка
-      
+      await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая задержка
+
       files.forEach((file) => {
         options.onFilesDiscovered?.([{ path: file, size: 1024 }])
         options.onMetadataReady?.(file, {
@@ -56,7 +56,7 @@ vi.mock("../../hooks/use-media-processor", () => ({
           isLoadingMetadata: false,
         })
       })
-      return files.map(f => ({ id: f, path: f }))
+      return files.map((f) => ({ id: f, path: f }))
     }),
   })),
 }))
@@ -115,7 +115,7 @@ describe("useMediaImport", () => {
     expect(importResult).toBeDefined()
     expect(importResult.success).toBe(true)
     expect(importResult.files).toHaveLength(2)
-    
+
     // Проверяем первый файл - будет базовая информация
     expect(importResult.files[0]).toMatchObject({
       path: mockFiles[0],
@@ -189,7 +189,7 @@ describe("useMediaImport", () => {
 
     // Создаем мок с задержкой для selectMediaFile
     mockSelectMediaFile.mockImplementation(() => {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => resolve(mockFiles), 10)
       })
     })

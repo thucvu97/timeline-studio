@@ -57,7 +57,7 @@ vi.mock("@/features/app-state/hooks/use-media-files", () => ({
 function MediaImportTestComponent() {
   const { importFile, importFolder, isImporting, progress } = useMediaImport()
   const { mediaFiles } = useMediaFiles()
-  
+
   // Группируем файлы для отображения
   const groupedFiles = groupFilesByDate(mediaFiles.allFiles || [])
 
@@ -82,12 +82,8 @@ function MediaImportTestComponent() {
       <button onClick={handleImportFolder} disabled={isImporting}>
         Import Folder
       </button>
-      
-      {isImporting && (
-        <div data-testid="import-progress">
-          Importing... {Math.round(progress * 100)}%
-        </div>
-      )}
+
+      {isImporting && <div data-testid="import-progress">Importing... {Math.round(progress * 100)}%</div>}
 
       <MediaContent
         groupedFiles={groupedFiles}
@@ -111,29 +107,25 @@ describe("Media Import Workflow Integration", () => {
   })
 
   it("should complete full file import workflow", async () => {
-    const mockFiles = [
-      "/path/to/video1.mp4",
-      "/path/to/video2.mp4",
-      "/path/to/audio1.mp3",
-    ]
+    const mockFiles = ["/path/to/video1.mp4", "/path/to/video2.mp4", "/path/to/audio1.mp3"]
 
     // Настраиваем моки для импорта файлов
     vi.mocked(selectMediaFile).mockResolvedValue(mockFiles)
     mockImportFile.mockImplementation(async () => {
       // Симулируем добавление файлов
-      mockMediaFiles.allFiles = mockFiles.map(path => ({
+      mockMediaFiles.allFiles = mockFiles.map((path) => ({
         id: path,
         path,
-        name: path.split('/').pop(),
-        isVideo: path.endsWith('.mp4'),
-        isAudio: path.endsWith('.mp3'),
+        name: path.split("/").pop(),
+        isVideo: path.endsWith(".mp4"),
+        isAudio: path.endsWith(".mp3"),
         isImage: false,
         creationTime: "2023-01-01T00:00:00.000Z",
       }))
       return {
         success: true,
         message: "Files imported",
-        files: mockFiles
+        files: mockFiles,
       }
     })
 
@@ -161,8 +153,20 @@ describe("Media Import Workflow Integration", () => {
     mockImportFolder.mockImplementation(async () => {
       // Симулируем добавление файлов из папки
       mockMediaFiles.allFiles = [
-        { id: "1", path: `${mockDirectory}/file1.mp4`, name: "file1.mp4", isVideo: true, creationTime: "2023-01-01T00:00:00.000Z" },
-        { id: "2", path: `${mockDirectory}/file2.mp4`, name: "file2.mp4", isVideo: true, creationTime: "2023-01-01T00:00:00.000Z" },
+        {
+          id: "1",
+          path: `${mockDirectory}/file1.mp4`,
+          name: "file1.mp4",
+          isVideo: true,
+          creationTime: "2023-01-01T00:00:00.000Z",
+        },
+        {
+          id: "2",
+          path: `${mockDirectory}/file2.mp4`,
+          name: "file2.mp4",
+          isVideo: true,
+          creationTime: "2023-01-01T00:00:00.000Z",
+        },
       ]
       return {
         success: true,
@@ -189,7 +193,7 @@ describe("Media Import Workflow Integration", () => {
     mockImportFile.mockResolvedValue({
       success: false,
       message: "No files selected",
-      files: []
+      files: [],
     })
 
     renderWithProviders(<MediaImportTestComponent />)
@@ -212,14 +216,14 @@ describe("Media Import Workflow Integration", () => {
 
     // Настраиваем медленную загрузку метаданных
     vi.mocked(selectMediaFile).mockResolvedValue(mockFiles)
-    
+
     // Создаем мок с контролируемым isImporting
     let isImporting = false
     vi.mocked(useMediaImport).mockReturnValue({
       importFile: vi.fn(async () => {
         isImporting = true
         // Симулируем задержку
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
         isImporting = false
         return { success: true, message: "Imported", files: mockFiles }
       }),

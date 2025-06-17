@@ -318,13 +318,13 @@ describe("UserSettingsMachine", () => {
 
       // Выполняем другие операции (например, переключение видимости браузера)
       actor.send({ type: "TOGGLE_BROWSER_VISIBILITY" })
-      
+
       // Проверяем, что layout остался без изменений
       expect(actor.getSnapshot().context.layoutMode).toBe("chat")
 
       // Изменяем громкость
       actor.send({ type: "UPDATE_PLAYER_VOLUME", volume: 75 })
-      
+
       // Проверяем, что layout все еще chat
       expect(actor.getSnapshot().context.layoutMode).toBe("chat")
 
@@ -336,10 +336,10 @@ describe("UserSettingsMachine", () => {
       // Проверяем, что chat layout присутствует в списке доступных layouts
       expect(LAYOUTS).toContain("chat")
       expect(LAYOUTS).not.toContain("dual")
-      
+
       // Проверяем, что у нас правильное количество layouts
       expect(LAYOUTS).toHaveLength(4)
-      
+
       // Проверяем весь список
       expect(LAYOUTS).toEqual(["default", "options", "vertical", "chat"])
     })

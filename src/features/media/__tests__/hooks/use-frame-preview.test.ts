@@ -30,7 +30,7 @@ vi.mock("@/features/video-compiler/services/frame-extraction-service", () => {
     SceneDetection = "SceneDetection",
     FaceDetection = "FaceDetection",
   }
-  
+
   return {
     FrameExtractionService: {
       getInstance: () => ({
@@ -80,7 +80,7 @@ describe("useFramePreview", () => {
           "/path/to/video.mp4",
           120, // duration
           1.0, // interval
-          10   // maxFrames
+          10, // maxFrames
         )
       })
 
@@ -89,7 +89,7 @@ describe("useFramePreview", () => {
       expect(extractedFrames).toEqual(mockFrames)
       expect(result.current.isExtracting).toBe(false)
       expect(result.current.error).toBeNull()
-      
+
       // Не должны вызываться другие методы
       expect(mockExtractTimelineFrames).not.toHaveBeenCalled()
       expect(mockGetPreviewData).not.toHaveBeenCalled()
@@ -114,14 +114,14 @@ describe("useFramePreview", () => {
       expect(mockGetPreviewData).toHaveBeenCalledWith("file-123")
       expect(mockCacheFramesInIndexedDB).toHaveBeenCalled()
       expect(onFramesExtracted).toHaveBeenCalled()
-      
+
       // Не должен вызываться extractTimelineFrames
       expect(mockExtractTimelineFrames).not.toHaveBeenCalled()
     })
 
     it("should extract new frames when not cached", async () => {
       const { invoke } = await import("@tauri-apps/api/core")
-      
+
       mockGetCachedFrames.mockResolvedValue(null)
       mockGetPreviewData.mockResolvedValue(null)
       mockExtractTimelineFrames.mockResolvedValue(mockFrames)
@@ -132,18 +132,13 @@ describe("useFramePreview", () => {
         await result.current.extractTimelineFrames("file-123", "/path/to/video.mp4", 120, 1.0, 10)
       })
 
-      expect(mockExtractTimelineFrames).toHaveBeenCalledWith(
-        "/path/to/video.mp4",
-        120,
-        1.0,
-        10
-      )
+      expect(mockExtractTimelineFrames).toHaveBeenCalledWith("/path/to/video.mp4", 120, 1.0, 10)
       expect(mockGenerateThumbnail).toHaveBeenCalledWith(
         "file-123",
         "/path/to/video.mp4",
         320,
         180,
-        0 // первый кадр
+        0, // первый кадр
       )
       expect(mockCacheFramesInIndexedDB).toHaveBeenCalledWith("/path/to/video.mp4", mockFrames)
       expect(invoke).toHaveBeenCalledWith("save_timeline_frames", {
@@ -164,7 +159,7 @@ describe("useFramePreview", () => {
       await expect(
         act(async () => {
           await result.current.extractTimelineFrames("file-123", "/path/to/video.mp4", 120)
-        })
+        }),
       ).rejects.toThrow("Extraction failed")
 
       expect(onError).toHaveBeenCalledWith("Extraction failed")
@@ -178,7 +173,7 @@ describe("useFramePreview", () => {
       const extractionPromise = new Promise<TimelineFrame[]>((resolve) => {
         resolveExtraction = resolve
       })
-      
+
       mockGetCachedFrames.mockResolvedValue(null)
       mockGetPreviewData.mockResolvedValue(null)
       mockExtractTimelineFrames.mockReturnValue(extractionPromise)
@@ -228,20 +223,20 @@ describe("useFramePreview", () => {
           "file-123",
           "/path/to/video.mp4",
           1.0,
-          ExtractionPurpose.ObjectDetection
+          ExtractionPurpose.ObjectDetection,
         )
       })
 
       expect(mockGetPreviewData).toHaveBeenCalledWith("file-123")
       expect(recognitionFrames).toEqual(mockRecognitionFrames)
-      
+
       // Не должен вызываться extractRecognitionFrames
       expect(mockExtractRecognitionFrames).not.toHaveBeenCalled()
     })
 
     it("should extract new recognition frames when not cached", async () => {
       const mockRecognitionFrames = [{ timestamp: 0, data: "new_recognition_data" }]
-      
+
       mockGetPreviewData.mockResolvedValue(null)
       mockExtractRecognitionFrames.mockResolvedValue(mockRecognitionFrames)
 
@@ -253,21 +248,17 @@ describe("useFramePreview", () => {
           "file-123",
           "/path/to/video.mp4",
           2.0,
-          ExtractionPurpose.SceneDetection
+          ExtractionPurpose.SceneDetection,
         )
       })
 
-      expect(mockExtractRecognitionFrames).toHaveBeenCalledWith(
-        "/path/to/video.mp4",
-        "SceneDetection",
-        2.0
-      )
+      expect(mockExtractRecognitionFrames).toHaveBeenCalledWith("/path/to/video.mp4", "SceneDetection", 2.0)
       expect(recognitionFrames).toEqual(mockRecognitionFrames)
     })
 
     it("should handle recognition extraction errors", async () => {
       const error = new Error("Recognition extraction failed")
-      
+
       mockGetPreviewData.mockResolvedValue(null)
       mockExtractRecognitionFrames.mockRejectedValue(error)
 
@@ -308,16 +299,14 @@ describe("useFramePreview", () => {
 
       expect(mockGetPreviewData).toHaveBeenCalledWith("file-123")
       expect(frameData).toBe("cached_frame_at_1")
-      
+
       // Не должен вызываться generateThumbnail
       expect(mockGenerateThumbnail).not.toHaveBeenCalled()
     })
 
     it("should generate new thumbnail when frame not cached", async () => {
       mockGetPreviewData.mockResolvedValue({
-        timeline_frames: [
-          { timestamp: 1.0, base64_data: "cached_frame_at_1" },
-        ],
+        timeline_frames: [{ timestamp: 1.0, base64_data: "cached_frame_at_1" }],
       })
 
       mockGenerateThumbnail.mockResolvedValue("new_thumbnail_at_5")
@@ -329,19 +318,13 @@ describe("useFramePreview", () => {
         frameData = await result.current.getFrameAtTimestamp("file-123", "/path/to/video.mp4", 5.0)
       })
 
-      expect(mockGenerateThumbnail).toHaveBeenCalledWith(
-        "file-123",
-        "/path/to/video.mp4",
-        320,
-        180,
-        5.0
-      )
+      expect(mockGenerateThumbnail).toHaveBeenCalledWith("file-123", "/path/to/video.mp4", 320, 180, 5.0)
       expect(frameData).toBe("new_thumbnail_at_5")
     })
 
     it("should handle errors when getting frame at timestamp", async () => {
       const error = new Error("Failed to generate thumbnail")
-      
+
       mockGetPreviewData.mockResolvedValue(null)
       mockGenerateThumbnail.mockRejectedValue(error)
 

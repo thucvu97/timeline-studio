@@ -381,7 +381,87 @@
         "prev-frame": "Quadro Anterior",
         "volume-up": "Aumentar Volume",
         "volume-down": "Diminuir Volume",
-        "mute": "Silenciar"
+        "mute": "Silenciar",
+        "add-keyframes": "Adicionar Quadros-chave de Áudio/Vídeo",
+        "add-to-favorites": "Adicionar aos Favoritos",
+        "adjust-bezier-curve": "Ajustar Curva de Bezier",
+        "apply": "Aplicar",
+        "apply-transition-by-default": "Aplicar Transição Padrão",
+        "audio-stretch": "Acesso ao Estiramento de Áudio",
+        "blade-tool": "Modo Ferramenta de Corte",
+        "bring-to-front": "Trazer para Frente",
+        "cancel-selection": "Cancelar Seleção",
+        "chroma-key": "Chroma Key",
+        "close-audio-stretch": "Fechar Janela de Estiramento de Áudio",
+        "create-compound-clip": "Criar Clipe Composto",
+        "crop-and-zoom": "Cortar e Ampliar",
+        "detach-audio": "Separar Áudio",
+        "detach-compound-clip": "Separar Clipe Composto",
+        "fast-preview": "Modo de Visualização Rápida",
+        "fullscreen-restore": "Tela Cheia/Restaurar",
+        "go-to-clip-end": "Ir para o Final do Clipe Selecionado",
+        "go-to-clip-start": "Ir para o Início do Clipe Selecionado",
+        "go-to-next-marker": "Ir para o Próximo Marcador",
+        "go-to-next-second": "Ir para o Próximo Segundo",
+        "go-to-previous-marker": "Ir para o Marcador Anterior",
+        "go-to-previous-second": "Ir para o Segundo Anterior",
+        "go-to-project-end": "Ir para o Final do Projeto",
+        "go-to-project-start": "Ir para o Início do Projeto",
+        "indigo-marker": "Marcador Índigo",
+        "insert": "Inserir",
+        "linking": "Vinculação",
+        "lock-unlock-guides": "Bloquear/Desbloquear Guias",
+        "magnetic-timeline": "Linha do Tempo Magnética",
+        "merge-subtitles-down-multi": "Mesclar Legendas Selecionadas (Seleção Múltipla)",
+        "merge-subtitles-down-single": "Mesclar Legendas Abaixo (Seleção Única)",
+        "merge-subtitles-up": "Mesclar Legendas Acima",
+        "multi-trim": "Aparagem Múltipla",
+        "next-edit-point-down": "Próximo Ponto de Edição / Mover para Baixo",
+        "next-keyframe": "Próximo Quadro-chave",
+        "nudge-down": "Deslocar para Baixo",
+        "nudge-left": "Deslocar para a Esquerda",
+        "nudge-right": "Deslocar para a Direita",
+        "nudge-up": "Deslocar para Cima",
+        "overwrite": "Sobrescrever",
+        "pause": "Pausar",
+        "play-backward": "Reproduzir Reverso/Velocidade",
+        "play-forward": "Reproduzir Avanço/Velocidade",
+        "previous-edit-point-up": "Ponto de Edição Anterior / Mover para Cima",
+        "previous-frame": "Quadro Anterior / Mover para a Esquerda",
+        "previous-keyframe": "Quadro-chave Anterior",
+        "push-forward": "Empurrar para Frente",
+        "rename": "Renomear",
+        "select-all-backward": "Selecionar Tudo para Trás",
+        "select-all-forward": "Selecionar Tudo para Frente",
+        "select-clip-range": "Selecionar Intervalo de Clipes",
+        "select-tool": "Modo Ferramenta de Seleção",
+        "send-to-back": "Enviar para Trás",
+        "show-properties": "Propriedades",
+        "snap-to-timeline": "Ajustar à Linha do Tempo",
+        "stabilization": "Estabilização",
+        "stop": "Parar",
+        "trim-end-to-playhead": "Aparar Final até o Cursor",
+        "trim-start-to-playhead": "Aparar Início até o Cursor",
+        "uniform-speed": "Velocidade Uniforme",
+        "zoom-to-fit-timeline": "Ajustar Zoom à Linha do Tempo",
+        "render-preview": "Renderizar Prévia",
+        "replace": "Substituir",
+        "reveal-in-finder": "Revelar no Finder",
+        "rotate-90-ccw": "Girar 90° Anti-horário",
+        "rotate-90-cw": "Girar 90° Horário",
+        "ruler": "Régua",
+        "scene-detection": "Detecção de Cena",
+        "screenshot": "Captura de Tela",
+        "scroll-horizontal": "Rolagem Horizontal (Linha do Tempo)",
+        "scroll-vertical": "Rolagem Vertical (Linha do Tempo)",
+        "select-next": "Selecionar Próximo",
+        "select-previous": "Selecionar Anterior",
+        "select-same-color-clips": "Selecionar Todos os Clipes com a Mesma Cor",
+        "send-backward": "Enviar para Trás",
+        "show-hide-guides": "Mostrar/Ocultar Guias",
+        "silence-detection": "Detecção de Silêncio",
+        "split-subtitle-edit-mode": "Dividir (Modo de Edição)",
+        "track-motion": "Rastrear Movimento"
       },
       "presets": {
         "timeline": "Linha do Tempo",
@@ -529,127 +609,6 @@
       "kbps": "kbps",
       "sdr": "SDR - Rec.709",
       "otherNetworks": "Outras redes sociais"
-    },
-    "templates": {
-      "verticalSplit": "Divisão Vertical",
-      "horizontalSplit": "Divisão Horizontal",
-      "diagonalSplit": "Divisão Diagonal",
-      "grid2x2": "Grade 2×2",
-      "grid3x2": "Grade 3×2",
-      "grid2x3": "Grade 2×3",
-      "grid3x3": "Grade 3×3",
-      "grid3x4": "Grade 3×4",
-      "grid4x3": "Grade 4×3",
-      "grid4x4": "Grade 4×4",
-      "grid5x2": "Grade 5×2",
-      "grid2x5": "Grade 2×5",
-      "grid5x5": "Grade 5×5",
-      "custom7_1": "7 telas: grande inferior direita",
-      "custom7_2": "7 telas: grande inferior esquerda",
-      "custom7_3": "7 telas: grande superior esquerda",
-      "custom7_4": "7 telas: grande superior direita",
-      "split_3_1_right": "3 à esquerda + 1 à direita",
-      "templateLabels": {
-        "split-vertical-landscape": "2 telas vertical",
-        "split-horizontal-landscape": "2 telas horizontal",
-        "split-diagonal-landscape": "Divisão Diagonal",
-        "split-vertical-3-landscape": "3 telas vertical",
-        "split-horizontal-3-landscape": "3 telas horizontal",
-        "split-mixed-1-landscape": "1 em cima + 2 embaixo",
-        "split-mixed-2-landscape": "1 à esquerda + 2 à direita",
-        "split-grid-2x2-landscape": "Grade 2×2",
-        "split-vertical-4-landscape": "4 telas vertical",
-        "split-1-3-landscape": "1 à esquerda + 3 à direita",
-        "split-3-1-landscape": "3 em cima + 1 embaixo",
-        "split-3-1-right-landscape": "3 à esquerda + 1 à direita",
-        "split-1-3-bottom-landscape": "1 em cima + 3 embaixo",
-        "split-diagonal-cross-landscape": "Cruz Diagonal",
-        "split-custom-5-1-landscape": "1 à esquerda + 4 à direita",
-        "split-custom-5-2-landscape": "4 à esquerda + 1 à direita",
-        "split-custom-5-3-landscape": "2 em cima + 1 no meio + 2 embaixo",
-        "split-grid-3x2-landscape": "Grade 3×2",
-        "split-grid-4x2-landscape": "Grade 4×2",
-        "split-grid-3x3-landscape": "Grade 3×3",
-        "split-grid-5x2-landscape": "Grade 5×2",
-        "split-grid-4x3-landscape": "Grade 4×3",
-        "split-grid-3x4-landscape": "Grade 3×4",
-        "split-grid-4x4-landscape": "Grade 4×4",
-        "split-grid-5x5-landscape": "Grade 5×5"
-      },
-      "templateDescriptions": {
-        "split-vertical-landscape": "Duas telas divididas por uma linha vertical",
-        "split-horizontal-landscape": "Duas telas divididas por uma linha horizontal",
-        "split-diagonal-landscape": "Duas telas divididas por uma linha diagonal",
-        "split-vertical-3-landscape": "Três telas divididas por linhas verticais",
-        "split-horizontal-3-landscape": "Três telas divididas por linhas horizontais",
-        "split-mixed-1-landscape": "Uma tela em cima, duas telas embaixo",
-        "split-mixed-2-landscape": "Uma tela à esquerda, duas telas à direita",
-        "split-grid-2x2-landscape": "Quatro telas em uma grade 2×2",
-        "split-vertical-4-landscape": "Quatro telas divididas por linhas verticais",
-        "split-1-3-landscape": "Uma tela à esquerda, três telas à direita",
-        "split-3-1-landscape": "Três telas em cima, uma tela embaixo",
-        "split-3-1-right-landscape": "Três telas à esquerda, uma tela à direita",
-        "split-1-3-bottom-landscape": "Uma tela em cima, três telas embaixo",
-        "split-diagonal-cross-landscape": "Quatro telas divididas por linhas diagonais em forma de cruz",
-        "split-custom-5-1-landscape": "Uma tela grande à esquerda, quatro telas à direita (2 em cima, 2 embaixo)",
-        "split-custom-5-2-landscape": "Uma tela grande à direita, quatro telas à esquerda (2 em cima, 2 embaixo)",
-        "split-custom-5-3-landscape": "Duas telas em cima, uma no meio, duas telas embaixo",
-        "split-grid-3x2-landscape": "Seis telas em uma grade 3×2",
-        "split-grid-4x2-landscape": "Oito telas em uma grade 4×2",
-        "split-grid-3x3-landscape": "Nove telas em uma grade 3×3",
-        "split-grid-5x2-landscape": "Dez telas em uma grade 5×2",
-        "split-grid-4x3-landscape": "Doze telas em uma grade 4×3",
-        "split-grid-3x4-landscape": "Doze telas em uma grade 3×4",
-        "split-grid-4x4-landscape": "Dezesseis telas em uma grade 4×4",
-        "split-grid-5x5-landscape": "Vinte e cinco telas em uma grade 5×5"
-      }
-    },
-    "modals": {
-      "projectSettings": {
-        "title": "Configurações do Projeto"
-      },
-      "keyboardShortcuts": {
-        "title": "Atalhos de Teclado"
-      },
-      "userSettings": {
-        "title": "Configurações do Usuário"
-      },
-      "cameraCapture": {
-        "title": "Gravação de Câmera"
-      },
-      "voiceRecording": {
-        "title": "Gravação de Áudio"
-      },
-      "export": {
-        "title": "Exportar"
-      },
-      "cacheSettings": {
-        "title": "Configurações de Cache"
-      },
-      "cacheStatistics": {
-        "title": "Estatísticas de Cache"
-      },
-      "mediaImport": {
-        "title": "Importar Mídia"
-      },
-      "missingFiles": {
-        "title": "Arquivos Ausentes"
-      },
-      "soundEffects": {
-        "title": "Efeitos Sonoros"
-      },
-      "welcome": {
-        "title": "Bem-vindo"
-      },
-      "openAnotherProject": {
-        "title": "Abrir Outro Projeto"
-      },
-      "templateCreator": {
-        "title": "Criador de Modelos"
-      },
-      "mediaGroup": {
-        "title": "Grupo de Mídia"
-      }
     }
   },
   "language": {
@@ -898,6 +857,15 @@
     }
   },
   "timeline": {
+    "title": "Linha do Tempo",
+    "noTracks": "Sem faixas",
+    "addTrack": "Adicionar faixa",
+    "deleteTrack": "Excluir faixa",
+    "cutTrack": "Cortar faixa",
+    "fitToScreen": "Ajustar à tela",
+    "zoomIn": "Aumentar zoom",
+    "zoomOut": "Diminuir zoom",
+    "scale": "Escala",
     "tracks": {
       "camera": "Câmera",
       "audio": "Áudio",
@@ -1126,6 +1094,12 @@
     "duration": "Duração",
     "animation": "Animação",
     "Templates": {
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "underline": "Sublinhado",
+      "strikethrough": "Tachado"
+    },
+    "styles": {
       "bold": "Negrito",
       "italic": "Itálico",
       "underline": "Sublinhado",
@@ -1411,6 +1385,22 @@
       "short": "Curto (≤3s)",
       "medium": "Médio (3-6s)",
       "long": "Longo (>6s)"
+    },
+    "filters": {
+      "category": "Categoria",
+      "style": "Estilo",
+      "aspectRatio": "Proporção",
+      "features": "Características",
+      "hasText": "Com texto",
+      "hasAnimation": "Com animação"
+    },
+    "styles": {
+      "modern": "Moderno",
+      "vintage": "Vintage",
+      "minimal": "Minimalista",
+      "corporate": "Corporativo",
+      "creative": "Criativo",
+      "cinematic": "Cinematográfico"
     }
   },
   "templates": {
@@ -1441,9 +1431,7 @@
       "9": "9 telas",
       "12": "12 telas",
       "16": "16 telas",
-      "25": "25 telas",
-      "single": "{{count}} tela",
-      "multiple": "{{count}} telas"
+      "25": "25 telas"
     },
     "templateLabels": {
       "split-vertical-landscape": "2 telas vertical",
@@ -1488,10 +1476,7 @@
       "split-custom-5-1-portrait": "1 à esquerda + 4 à direita",
       "split-custom-5-2-portrait": "4 à esquerda + 1 à direita",
       "split-custom-5-3-portrait": "2 + 1 amplo + 2",
-      "split-grid-3x2-portrait": "Grade 3×2",
-      "split-grid-4x2-portrait": "Grade 4×2",
       "split-grid-3x3-portrait": "Grade 3×3",
-      "split-grid-5x2-portrait": "Grade 5×2",
       "split-grid-4x3-portrait": "Grade 4×3",
       "split-grid-3x4-portrait": "Grade 3×4",
       "split-grid-4x4-portrait": "Grade 4×4",
@@ -1510,8 +1495,6 @@
       "split-3-1-right-square": "3 à esquerda + 1 à direita",
       "split-1-3-bottom-square": "1 em cima + 3 embaixo",
       "split-diagonal-cross-square": "Cruz Diagonal",
-      "split-custom-5-1-square": "1 à esquerda + 4 à direita",
-      "split-custom-5-2-square": "4 à esquerda + 1 à direita",
       "split-custom-5-3-square": "2 + 1 amplo + 2",
       "split-grid-3x2-square": "Grade 3×2",
       "split-grid-4x2-square": "Grade 4×2",
@@ -1521,31 +1504,6 @@
       "split-grid-3x4-square": "Grade 3×4",
       "split-grid-4x4-square": "Grade 4×4",
       "split-grid-5x5-square": "Grade 5×5",
-      "split-vertical-vertical": "Divisão Vertical",
-      "split-horizontal-vertical": "Divisão Horizontal",
-      "split-diagonal-vertical": "Divisão Diagonal",
-      "split-vertical-3-vertical": "3 telas vertical",
-      "split-horizontal-3-vertical": "3 telas horizontal",
-      "split-mixed-1-vertical": "1 em cima + 2 embaixo",
-      "split-mixed-2-vertical": "1 à esquerda + 2 à direita",
-      "split-grid-2x2-vertical": "Grade 2×2",
-      "split-vertical-4-vertical": "4 telas vertical",
-      "split-1-3-vertical": "1 à esquerda + 3 à direita",
-      "split-3-1-vertical": "3 em cima + 1 embaixo",
-      "split-3-1-right-vertical": "3 à esquerda + 1 à direita",
-      "split-1-3-bottom-vertical": "1 em cima + 3 embaixo",
-      "split-diagonal-cross-vertical": "Cruz Diagonal",
-      "split-custom-5-1-vertical": "1 à esquerda + 4 à direita",
-      "split-custom-5-2-vertical": "4 à esquerda + 1 à direita",
-      "split-custom-5-3-vertical": "2 + 1 amplo + 2",
-      "split-grid-3x2-vertical": "Grade 3×2",
-      "split-grid-4x2-vertical": "Grade 4×2",
-      "split-grid-3x3-vertical": "Grade 3×3",
-      "split-grid-5x2-vertical": "Grade 5×2",
-      "split-grid-4x3-vertical": "Grade 4×3",
-      "split-grid-3x4-vertical": "Grade 3×4",
-      "split-grid-4x4-vertical": "Grade 4×4",
-      "split-grid-5x5-vertical": "Grade 5×5",
       "split-horizontal-4-portrait": "4 telas horizontal",
       "split-grid-2x3-portrait": "Grade 2×3",
       "split-grid-2x3-alt-portrait": "Grade 3×2",
@@ -1570,8 +1528,7 @@
       "split-custom-7-1-portrait": "7 telas: grande inferior direita",
       "split-custom-7-2-portrait": "7 telas: grande inferior esquerda",
       "split-custom-7-3-portrait": "7 telas: grande superior esquerda",
-      "split-custom-7-4-portrait": "7 telas: grande superior direita",
-      "custom-layout": "Layout Personalizado"
+      "split-custom-7-4-portrait": "7 telas: grande superior direita"
     },
     "templateDescriptions": {
       "split-vertical-landscape": "Divide a tela verticalmente em duas seções iguais em modo paisagem",
@@ -1598,8 +1555,7 @@
       "split-grid-4x3-landscape": "Doze telas em uma grade 4×3",
       "split-grid-3x4-landscape": "Doze telas em uma grade 3×4",
       "split-grid-4x4-landscape": "Dezesseis telas em uma grade 4×4",
-      "split-grid-5x5-landscape": "Vinte e cinco telas em uma grade 5×5",
-      "custom-layout": "Crie seu próprio layout personalizado"
+      "split-grid-5x5-landscape": "Vinte e cinco telas em uma grade 5×5"
     }
   },
   "options": {
@@ -1676,13 +1632,13 @@
       "autoKeyframes": "Quadros-chave Automáticos",
       "maxSpeed": "Velocidade Máxima",
       "speeds": {
+        "1": "1x (Normal)",
+        "2": "2x (Muito rápido)",
         "0_25": "0,25x (Muito lento)",
         "0_5": "0,5x (Lento)",
         "0_75": "0,75x (Um pouco lento)",
-        "1": "1x (Normal)",
         "1_25": "1,25x (Um pouco rápido)",
         "1_5": "1,5x (Rápido)",
-        "2": "2x (Muito rápido)",
         "custom": "Personalizado"
       }
     },
@@ -1827,35 +1783,6 @@
       "failedToGeneratePreview": "Falha ao gerar a visualização"
     }
   },
-  "cache": {
-    "title": "Gerenciamento de cache",
-    "description": "Gerencie o cache da aplicação para visualizações, quadros e dados de reconhecimento.",
-    "usage": "Uso do cache",
-    "total": "Total",
-    "types": {
-      "preview": "Visualizações",
-      "frame": "Quadros",
-      "recognition": "Reconhecimento",
-      "subtitle": "Legendas"
-    },
-    "actions": {
-      "clearAll": "Limpar todo o cache",
-      "clearType": "Limpar {{type}}",
-      "refresh": "Atualizar estatísticas"
-    },
-    "messages": {
-      "cacheCleared": "Cache limpo com sucesso",
-      "typeCacheCleared": "Cache {{type}} limpo com sucesso",
-      "errorClearing": "Erro ao limpar o cache",
-      "refreshed": "Estatísticas do cache atualizadas",
-      "errorRefreshing": "Erro ao atualizar as estatísticas"
-    },
-    "storage": {
-      "used": "{{used}} de {{total}} usado",
-      "available": "{{available}} disponível",
-      "percentage": "{{percentage}}% usado"
-    }
-  },
   "subtitles": {
     "search": "Pesquisar...",
     "dragHint": "Arraste a legenda para a timeline para adicioná-la ao seu projeto",
@@ -1890,41 +1817,22 @@
       "intermediate": "Intermediário"
     },
     "filters": {
-      "all": "Todos",
-      "favorites": "Favoritos",
       "allCategories": "Todas as categorias",
       "allComplexity": "Qualquer complexidade",
       "allTags": "Todas as tags"
     },
-    "addToFavorites": "Adicionar aos favoritos",
-    "removeFromFavorites": "Remover dos favoritos",
-    "filterByCategory": "Filtrar por categoria",
-    "filterByComplexity": "Filtrar por complexidade",
     "messages": {
-      "addedToFavorites": "Adicionado aos favoritos",
-      "removedFromFavorites": "Removido dos favoritos",
-      "errorAddingToFavorites": "Erro ao adicionar aos favoritos",
-      "errorRemovingFromFavorites": "Erro ao remover dos favoritos",
       "stylesLoaded": "{{count}} estilos de legendas carregados do JSON"
     },
     "errors": {
-      "failedToLoad": "Falha ao carregar legendas",
-      "notFound": "Legendas não encontradas",
       "invalidStylesData": "Estrutura de dados de estilos de legenda inválida",
       "unknownError": "Erro desconhecido",
       "failedToLoadStyles": "Falha ao carregar estilos de legenda: {{error}}",
       "fallbackStyles": "Falha ao carregar estilos de legenda, usando estilos de fallback"
     },
-    "placeholder": {
-      "title": "Nenhuma legenda encontrada",
-      "description": "Tente alterar seus filtros de pesquisa"
-    },
     "detail": {
       "description": "Descrição",
       "parameters": "Parâmetros",
-      "preview": "Visualização",
-      "apply": "Aplicar",
-      "close": "Fechar",
       "category": "Categoria",
       "complexity": "Complexidade",
       "tags": "Tags",

@@ -55,7 +55,7 @@ describe("useCacheStatistics", () => {
 
   it("should handle errors during loading", async () => {
     const mockError = new Error("Database error")
-    
+
     const { indexedDBCacheService } = await import("../../services/indexeddb-cache-service")
     vi.mocked(indexedDBCacheService.getCacheStatistics).mockRejectedValue(mockError)
 
@@ -227,10 +227,10 @@ describe("useCacheStatistics", () => {
     }
 
     const { indexedDBCacheService } = await import("../../services/indexeddb-cache-service")
-    
+
     // Создаем задержку для симуляции медленной загрузки
     vi.mocked(indexedDBCacheService.getCacheStatistics).mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve(mockStatistics), 100))
+      () => new Promise((resolve) => setTimeout(() => resolve(mockStatistics), 100)),
     )
 
     const { result, unmount } = renderHook(() => useCacheStatistics())
@@ -239,7 +239,7 @@ describe("useCacheStatistics", () => {
     unmount()
 
     // Ждем некоторое время
-    await new Promise(resolve => setTimeout(resolve, 150))
+    await new Promise((resolve) => setTimeout(resolve, 150))
 
     // Проверяем, что состояние не изменилось после размонтирования
     expect(result.current.isLoading).toBe(true)

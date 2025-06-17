@@ -5,7 +5,6 @@ import { useMediaRestoration } from "@/features/media/hooks/use-media-restoratio
 import { MediaFile } from "@/features/media/types/media"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 
-
 // Мокаем MediaRestorationService
 vi.mock("@/features/media/services/media-restoration-service", () => ({
   MediaRestorationService: {
