@@ -4,8 +4,8 @@ import { useHotkeys } from "react-hotkeys-hook"
 
 import { useModal } from "@/features/modals/services/modal-provider"
 
-import { DEFAULT_SHORTCUTS } from "./constants/default-shortcuts"
-import { shortcutsRegistry } from "./services/shortcuts-registry"
+import { DEFAULT_SHORTCUTS } from "../constants/default-shortcuts"
+import { shortcutsRegistry } from "../services/shortcuts-registry"
 
 /**
  * Хук для регистрации и управления горячими клавишами приложения

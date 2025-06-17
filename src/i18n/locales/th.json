@@ -85,164 +85,164 @@
     }
   },
   "topBar": {
-    "layout": "Layout",
-    "keyboardShortcuts": "Keyboard Shortcuts",
-    "projectSettings": "Project Settings",
-    "openProject": "Open Project",
-    "saveChanges": "Save changes",
-    "allChangesSaved": "All changes saved",
-    "publish": "Publish",
-    "publicationTasks": "Publication Tasks",
-    "editingTasks": "Editing Tasks",
-    "projectTasks": "Project Tasks",
-    "userSettings": "User Settings",
-    "export": "Export",
-    "toggleBrowser": "Toggle browser (Cmd+B)",
-    "unknownError": "Unknown error",
-    "unknown": "Unknown",
+    "layout": "เลย์เอาต์",
+    "keyboardShortcuts": "แป้นพิมพ์ลัด",
+    "projectSettings": "การตั้งค่าโปรเจกต์",
+    "openProject": "เปิดโปรเจกต์",
+    "saveChanges": "บันทึกการเปลี่ยนแปลง",
+    "allChangesSaved": "บันทึกการเปลี่ยนแปลงทั้งหมดแล้ว",
+    "publish": "เผยแพร่",
+    "publicationTasks": "งานเผยแพร่",
+    "editingTasks": "งานแก้ไข",
+    "projectTasks": "งานโปรเจกต์",
+    "userSettings": "การตั้งค่าผู้ใช้",
+    "export": "ส่งออก",
+    "toggleBrowser": "เปิด/ปิดเบราว์เซอร์ (Cmd+B)",
+    "unknownError": "ข้อผิดพลาดไม่ทราบสาเหตุ",
+    "unknown": "ไม่ทราบ",
     "gigabytes": "{{value}} GB",
     "megabytes": "{{value}} MB",
-    "cameraCapture": "Camera Recording",
-    "voiceRecording": "Audio Recording",
+    "cameraCapture": "บันทึกกล้อง",
+    "voiceRecording": "บันทึกเสียง",
     "layouts": {
-      "default": "Default",
-      "options": "Options",
-      "vertical": "Vertical",
-      "chat": "Chat View",
-      "externalDisplayRequired": "External display required"
+      "default": "เริ่มต้น",
+      "options": "ตัวเลือก",
+      "vertical": "แนวตั้ง",
+      "chat": "มุมมองแชท",
+      "externalDisplayRequired": "ต้องการจอแสดงผลภายนอก"
     }
   },
   "ui": {
     "topBar": {
-      "layout": "Layout",
-      "keyboardShortcuts": "Keyboard Shortcuts",
-      "projectSettings": "Project Settings",
-      "saveChanges": "Save changes",
-      "allChangesSaved": "All changes saved",
-      "publish": "Publish",
-      "publicationTasks": "Publication Tasks",
-      "editingTasks": "Editing Tasks",
-      "projectTasks": "Project Tasks",
-      "userSettings": "User Settings",
-      "export": "Export"
+      "layout": "เลย์เอาต์",
+      "keyboardShortcuts": "แป้นพิมพ์ลัด",
+      "projectSettings": "การตั้งค่าโปรเจกต์",
+      "saveChanges": "บันทึกการเปลี่ยนแปลง",
+      "allChangesSaved": "บันทึกการเปลี่ยนแปลงทั้งหมดแล้ว",
+      "publish": "เผยแพร่",
+      "publicationTasks": "งานเผยแพร่",
+      "editingTasks": "งานแก้ไข",
+      "projectTasks": "งานโปรเจกต์",
+      "userSettings": "การตั้งค่าผู้ใช้",
+      "export": "ส่งออก"
     },
     "dialogs": {
       "projectSettings": {
-        "title": "Project Settings",
-        "aspectRatio": "Aspect Ratio:",
-        "resolution": "Resolution:",
-        "frameRate": "Frame Rate:",
-        "colorSpace": "Color Space:",
-        "cancel": "Cancel",
-        "save": "OK"
+        "title": "การตั้งค่าโปรเจกต์",
+        "aspectRatio": "อัตราส่วนภาพ:",
+        "resolution": "ความละเอียด:",
+        "frameRate": "อัตราเฟรม:",
+        "colorSpace": "พื้นที่สี:",
+        "cancel": "ยกเลิก",
+        "save": "ตกลง"
       },
       "userSettings": {
-        "title": "User Settings",
-        "interfaceLanguage": "Interface Language:",
-        "screenshotsPath": "Screenshots Save Path:",
-        "selectFolder": "Select Folder",
-        "selectFolderPrompt": "Choose a folder to save screenshots or enter your own path:",
-        "clearPath": "Clear",
-        "defaultPathHint": "Default path for saving screenshots",
-        "customPathHint": "Screenshots will be saved to: {{path}}",
-        "cancel": "Cancel",
-        "save": "Save",
-        "playerScreenshotsPath": "Player screenshots save path",
+        "title": "การตั้งค่าผู้ใช้",
+        "interfaceLanguage": "ภาษาอินเทอร์เฟซ:",
+        "screenshotsPath": "เส้นทางบันทึกภาพหน้าจอ:",
+        "selectFolder": "เลือกโฟลเดอร์",
+        "selectFolderPrompt": "เลือกโฟลเดอร์สำหรับบันทึกภาพหน้าจอ หรือป้อนเส้นทางของคุณเอง:",
+        "clearPath": "ล้าง",
+        "defaultPathHint": "เส้นทางเริ่มต้นสำหรับบันทึกภาพหน้าจอ",
+        "customPathHint": "ภาพหน้าจอจะถูกบันทึกที่: {{path}}",
+        "cancel": "ยกเลิก",
+        "save": "บันทึก",
+        "playerScreenshotsPath": "เส้นทางบันทึกภาพหน้าจอของเครื่องเล่น",
         "claudeApiKey": "Claude API key"
       },
       "export": {
-        "title": "Export",
-        "local": "Local",
-        "device": "Device",
-        "socialNetworks": "Social Networks",
+        "title": "ส่งออก",
+        "local": "โลคอล",
+        "device": "อุปกรณ์",
+        "socialNetworks": "โซเชียลเน็ตเวิร์ก",
         "dvd": "DVD",
         "youtube": "YouTube",
         "tiktok": "TikTok",
         "telegram": "Telegram",
-        "notLoggedIn": "Not logged in",
+        "notLoggedIn": "ไม่ได้เข้าสู่ระบบ",
         "loginPrompt": {
-          "youtube": "Sign in to your YouTube account for additional information.",
-          "tiktok": "Sign in to your TikTok account to publish videos.",
-          "telegram": "Sign in to your Telegram account to send videos to channels and groups."
+          "youtube": "เข้าสู่ระบบบัญชี YouTube ของคุณเพื่อข้อมูลเพิ่มเติม",
+          "tiktok": "เข้าสู่ระบบ TikTok ของคุณเพื่อเผยแพร่วิดีโอ",
+          "telegram": "เข้าสู่ระบบ Telegram ของคุณเพื่อส่งวิดีโอไปยังช่องทางและกลุ่ม"
         },
-        "login": "Sign In",
-        "cover": "Cover",
-        "edit": "Edit",
-        "outputSettings": "Output Settings",
-        "name": "Name",
-        "saveTo": "Save to",
-        "preset": "Preset",
-        "defaultPreset": "Default",
-        "custom": "Custom",
-        "format": "Format",
-        "quality": "Quality",
-        "normal": "Normal",
-        "good": "Good",
-        "best": "Best",
-        "resolution": "Resolution",
-        "frameRate": "Frame Rate",
-        "advancedCompression": "Advanced Compression",
-        "cloudBackup": "Cloud Backup",
-        "enableGPUEncoding": "Enable GPU-accelerated video encoding",
-        "useLastSettings": "Use last export settings for local file",
-        "length": "Length",
-        "size": "Size",
-        "approximate": "Approximate",
-        "titles": "Titles",
+        "login": "เข้าสู่ระบบ",
+        "cover": "ปก",
+        "edit": "แก้ไข",
+        "outputSettings": "การตั้งค่าเอาต์พุต",
+        "name": "ชื่อ",
+        "saveTo": "บันทึกที่",
+        "preset": "พรีเซ็ต",
+        "defaultPreset": "เริ่มต้น",
+        "custom": "กำหนดเอง",
+        "format": "รูปแบบ",
+        "quality": "คุณภาพ",
+        "normal": "ปกติ",
+        "good": "ดี",
+        "best": "ดีที่สุด",
+        "resolution": "ความละเอียด",
+        "frameRate": "อัตราเฟรม",
+        "advancedCompression": "การบีบอัดขั้นสูง",
+        "cloudBackup": "การสำรองข้อมูลบนคลาวด์",
+        "enableGPUEncoding": "เปิดใช้การเอ็นโคดวิดีโอด้วย GPU",
+        "useLastSettings": "ใช้การตั้งค่าการส่งออกครั้งล่าสุดสำหรับไฟล์โลคอล",
+        "length": "ความยาว",
+        "size": "ขนาด",
+        "approximate": "ประมาณ",
+        "titles": "ชื่เรื่อง",
         "device_types": {
           "iphone": "iPhone",
           "ipad": "iPad",
           "android": "Android"
         },
-        "codec": "Codec",
-        "additional": "Additional",
+        "codec": "โคเด็ค",
+        "additional": "เพิ่มเติม",
         "fps": "fps",
         "kbps": "kbps",
         "sdr": "SDR - Rec.709",
-        "otherNetworks": "Other social networks"
+        "otherNetworks": "โซเชียลเน็ตเวิร์กอื่น ๆ"
       }
     },
     "templates": {
-      "verticalSplit": "Vertical Split",
-      "horizontalSplit": "Horizontal Split",
-      "diagonalSplit": "Diagonal Split",
-      "grid2x2": "Grid 2×2",
-      "grid3x3": "Grid 3×3",
-      "grid4x4": "Grid 4×4"
+      "verticalSplit": "แบ่งตามแนวตั้ง",
+      "horizontalSplit": "แบ่งตามแนวนอน",
+      "diagonalSplit": "แบ่งตามแนวทะแยง",
+      "grid2x2": "กริด 2×2",
+      "grid3x3": "กริด 3×3",
+      "grid4x4": "กริด 4×4"
     }
   },
   "modals": {
     "projectSettings": {
-      "title": "Project Settings"
+      "title": "การตั้งค่าโปรเจกต์"
     },
     "keyboardShortcuts": {
-      "title": "Keyboard Shortcuts"
+      "title": "แป้นพิมพ์ลัด"
     },
     "userSettings": {
-      "title": "User Settings"
+      "title": "การตั้งค่าผู้ใช้"
     },
     "cameraCapture": {
-      "title": "Camera Recording",
-      "browserNotSupported": "Your browser does not support camera recording",
-      "permissionDenied": "Camera access was denied",
-      "deviceNotFound": "No camera found",
-      "mediaError": "Error accessing camera"
+      "title": "บันทึกกล้อง",
+      "browserNotSupported": "เบราว์เซอร์ของคุณไม่รองรับการบันทึกกล้อง",
+      "permissionDenied": "การเข้าถึงกล้องถูกปฏิเสธ",
+      "deviceNotFound": "ไม่พบกล้อง",
+      "mediaError": "ข้อผิดพลาดในการเข้าถึงกล้อง"
     },
     "voiceRecording": {
-      "title": "Audio Recording",
-      "browserNotSupported": "Your browser does not support audio recording",
-      "permissionDenied": "Microphone access was denied",
-      "deviceNotFound": "No microphone found",
-      "mediaError": "Error accessing microphone"
+      "title": "บันทึกเสียง",
+      "browserNotSupported": "เบราว์เซอร์ของคุณไม่รองรับการบันทึกเสียง",
+      "permissionDenied": "การเข้าถึงไมโครโฟนถูกปฏิเสธ",
+      "deviceNotFound": "ไม่พบไมโครโฟน",
+      "mediaError": "ข้อผิดพลาดในการเข้าถึงไมโครโฟน"
     },
     "export": {
-      "title": "Export"
+      "title": "ส่งออก"
     },
     "cacheSettings": {
-      "title": "Cache Settings"
+      "title": "การตั้งค่าแคช"
     },
     "cacheStatistics": {
-      "title": "Cache Statistics"
+      "title": "สถิติแคช"
     }
   },
   "dialogs": {
@@ -852,25 +852,25 @@
   },
   "browser": {
     "tabs": {
-      "media": "Media",
-      "music": "Music",
-      "transitions": "Transitions",
-      "effects": "Effects",
-      "filters": "Filters",
-      "templates": "Multicam",
-      "styleTemplates": "Templates",
-      "subtitles": "Subtitles"
+      "media": "สื่อ",
+      "music": "ดนตรี",
+      "transitions": "ทรานซิชั่น",
+      "effects": "เอฟเฟกต์",
+      "filters": "ฟิลเตอร์",
+      "templates": "มัลติแคม",
+      "styleTemplates": "เทมเพลต",
+      "subtitles": "คำบรรยาย"
     },
     "templateScreens": {
-      "one": "screen",
-      "few": "screens",
-      "many": "screens",
-      "other": "screens"
+      "one": "หน้าจอ",
+      "few": "หน้าจอ",
+      "many": "หน้าจอ",
+      "other": "หน้าจอ"
     },
-    "hide": "Hide browser",
-    "show": "Show browser",
+    "hide": "ซ่อนเบราว์เซอร์",
+    "show": "แสดงเบราว์เซอร์",
     "common": {
-      "unknown": "Unknown"
+      "unknown": "ไม่ทราบ"
     },
     "noFiles": {
       "title": "No files found",
@@ -1067,36 +1067,36 @@
   },
   "timeline": {
     "tracks": {
-      "camera": "Camera",
-      "audio": "Audio",
-      "title": "Titles",
-      "effects": "Effects",
-      "cameraWithNumber": "Camera {{number}}",
-      "videoWithNumber": "Video {{number}}",
-      "audioWithNumber": "Audio {{number}}"
+      "camera": "กล้อง",
+      "audio": "เสียง",
+      "title": "ชื่เรื่อง",
+      "effects": "เอฟเฟกต์",
+      "cameraWithNumber": "กล้อง {{number}}",
+      "videoWithNumber": "วิดีโอ {{number}}",
+      "audioWithNumber": "เสียง {{number}}"
     },
     "controlsMain": {
-      "resizableMode": "Resizable Mode",
-      "fixedSizeMode": "Fixed Size Mode",
-      "resetTemplate": "Reset Template",
-      "applyTemplate": "Apply Template",
-      "switchCamera": "Switch Camera",
-      "takeSnapshot": "Take Snapshot",
-      "settings": "Settings",
-      "entryPoint": "Entry Point",
-      "exitPoint": "Exit Point",
-      "muteAudio": "Mute Audio",
-      "unmuteAudio": "Unmute Audio",
-      "fullscreen": "Fullscreen",
-      "exitFullscreen": "Exit Fullscreen",
-      "record": "Record",
-      "stopRecord": "Stop Recording",
-      "play": "Play",
-      "pause": "Pause",
-      "previousFrame": "Previous Frame",
-      "nextFrame": "Next Frame",
-      "firstFrame": "First Frame",
-      "lastFrame": "Last Frame"
+      "resizableMode": "โหมดปรับขนาดได้",
+      "fixedSizeMode": "โหมดขนาดคงที่",
+      "resetTemplate": "รีเซ็ตเทมเพลต",
+      "applyTemplate": "ใช้เทมเพลต",
+      "switchCamera": "สลับกล้อง",
+      "takeSnapshot": "ถ่ายภาพ",
+      "settings": "การตั้งค่า",
+      "entryPoint": "จุดเริ่มต้น",
+      "exitPoint": "จุดสิ้นสุด",
+      "muteAudio": "ปิดเสียง",
+      "unmuteAudio": "เปิดเสียง",
+      "fullscreen": "เต็มหน้าจอ",
+      "exitFullscreen": "ออกจากเต็มหน้าจอ",
+      "record": "บันทึก",
+      "stopRecord": "หยุดบันทึก",
+      "play": "เล่น",
+      "pause": "หยุดชั่วคราว",
+      "previousFrame": "เฟรมก่อนหน้า",
+      "nextFrame": "เฟรมถัดไป",
+      "firstFrame": "เฟรมแรก",
+      "lastFrame": "เฟรมสุดท้าย"
     },
     "player": {
       "camera": "Camera",
@@ -1210,59 +1210,59 @@
     "scale": "Scale"
   },
   "titles": {
-    "add": "Titles",
-    "edit": "Edit title",
-    "remove": "Remove title",
-    "font": "Font",
-    "size": "Size",
-    "color": "Color",
-    "alignment": "Alignment",
-    "position": "Position",
-    "duration": "Duration",
-    "animation": "Animation",
+    "add": "ชื่เรื่อง",
+    "edit": "แก้ไขชื่เรื่อง",
+    "remove": "ลบชื่เรื่อง",
+    "font": "แฟ้นต์",
+    "size": "ขนาด",
+    "color": "สี",
+    "alignment": "การจัดแนว",
+    "position": "ตำแหน่ง",
+    "duration": "ระยะเวลา",
+    "animation": "ภาพเคลื่อนไหว",
     "Templates": {
-      "bold": "Bold",
-      "italic": "Italic",
-      "underline": "Underline",
-      "strikethrough": "Strikethrough"
+      "bold": "ตัวหนา",
+      "italic": "ตัวเอียง",
+      "underline": "ขีดเส้นใต้",
+      "strikethrough": "ขีดทับ"
     },
     "styles": {
-      "bold": "Bold",
-      "italic": "Italic",
-      "underline": "Underline",
-      "strikethrough": "Strikethrough"
+      "bold": "ตัวหนา",
+      "italic": "ตัวเอียง",
+      "underline": "ขีดเส้นใต้",
+      "strikethrough": "ขีดทับ"
     },
     "templates": {
-      "title": "Title",
-      "subtitle": "Subtitle",
-      "credits": "Credits",
-      "lowerThird": "Lower Third",
-      "custom": "Custom"
+      "title": "ชื่เรื่อง",
+      "subtitle": "ชื่เรื่องย่อย",
+      "credits": "เครดิต",
+      "lowerThird": "ส่วนล่างที่สาม",
+      "custom": "กำหนดเอง"
     }
   },
   "filters": {
-    "add": "Add filter",
-    "edit": "Edit filter",
-    "remove": "Remove filter",
-    "intensity": "Intensity",
+    "add": "เพิ่มฟิลเตอร์",
+    "edit": "แก้ไขฟิลเตอร์",
+    "remove": "ลบฟิลเตอร์",
+    "intensity": "ความเข้ม",
     "categories": {
-      "color": "Color",
-      "blur": "Blur",
-      "sharpen": "Sharpen",
-      "artistic": "Artistic",
-      "distortion": "Distortion",
-      "noise": "Noise",
-      "vintage": "Vintage",
-      "other": "Other",
-      "color-correction": "Color Correction",
-      "creative": "Creative",
-      "cinematic": "Cinematic",
-      "technical": "Technical"
+      "color": "สี",
+      "blur": "เบลอ",
+      "sharpen": "ความคมชัด",
+      "artistic": "ศิลปะ",
+      "distortion": "การบิดเบือน",
+      "noise": "สัญญาณรบกวน",
+      "vintage": "วินเทจ",
+      "other": "อื่น ๆ",
+      "color-correction": "การแก้ไขสี",
+      "creative": "สร้างสรรค์",
+      "cinematic": "ภาพยนตร์",
+      "technical": "เทคนิค"
     },
     "complexity": {
-      "basic": "Basic",
-      "intermediate": "Intermediate",
-      "advanced": "Advanced"
+      "basic": "พื้นฐาน",
+      "intermediate": "ระดับกลาง",
+      "advanced": "ขั้นสูง"
     },
     "filters": {
       "allCategories": "All Categories",
@@ -1323,23 +1323,23 @@
     }
   },
   "transitions": {
-    "add": "Add transition",
-    "edit": "Edit transition",
-    "remove": "Remove transition",
-    "durationLabel": "Duration",
-    "intensity": "Intensity",
+    "add": "เพิ่มทรานซิชั่น",
+    "edit": "แก้ไขทรานซิชั่น",
+    "remove": "ลบทรานซิชั่น",
+    "durationLabel": "ระยะเวลา",
+    "intensity": "ความเข้ม",
     "categories": {
-      "basic": "Basic",
-      "advanced": "Advanced",
-      "creative": "Creative",
+      "basic": "พื้นฐาน",
+      "advanced": "ขั้นสูง",
+      "creative": "สร้างสรรค์",
       "3d": "3D",
-      "artistic": "Artistic",
-      "cinematic": "Cinematic"
+      "artistic": "ศิลปะ",
+      "cinematic": "ภาพยนตร์"
     },
     "complexity": {
-      "basic": "Basic",
-      "intermediate": "Intermediate",
-      "advanced": "Advanced"
+      "basic": "พื้นฐาน",
+      "intermediate": "ระดับกลาง",
+      "advanced": "ขั้นสูง"
     },
     "duration": {
       "short": "Short",
@@ -1389,44 +1389,44 @@
     }
   },
   "effects": {
-    "add": "Add effect",
-    "edit": "Edit effect",
-    "remove": "Remove effect",
-    "duration": "Duration",
-    "intensity": "Intensity",
+    "add": "เพิ่มเอฟเฟกต์",
+    "edit": "แก้ไขเอฟเฟกต์",
+    "remove": "ลบเอฟเฟกต์",
+    "duration": "ระยะเวลา",
+    "intensity": "ความเข้ม",
     "viewMode": {
-      "grid": "Grid",
-      "categories": "Categories"
+      "grid": "กริด",
+      "categories": "หมวดหมู่"
     },
     "filters": {
-      "category": "Category",
-      "complexity": "Complexity",
-      "tags": "Tags",
-      "allCategories": "All categories",
-      "allComplexity": "All levels",
-      "allTags": "All tags",
-      "favoritesOnly": "Favorites only"
+      "category": "หมวดหมู่",
+      "complexity": "ความซับซ้อน",
+      "tags": "แท็ก",
+      "allCategories": "ทุกหมวดหมู่",
+      "allComplexity": "ทุกระดับ",
+      "allTags": "ทุกแท็ก",
+      "favoritesOnly": "รายการโปรดเท่านั้น"
     },
     "categories": {
-      "transition": "Transitions",
-      "motion": "Motion",
-      "light": "Light",
-      "particle": "Particles",
-      "text": "Text",
+      "transition": "ทรานซิชั่น",
+      "motion": "การเคลื่อนไหว",
+      "light": "แสง",
+      "particle": "อนุภาค",
+      "text": "ข้อความ",
       "3d": "3D",
-      "other": "Other",
-      "color-correction": "Color Correction",
-      "artistic": "Artistic",
-      "vintage": "Vintage",
-      "cinematic": "Cinematic",
-      "creative": "Creative",
-      "technical": "Technical",
-      "distortion": "Distortion"
+      "other": "อื่น ๆ",
+      "color-correction": "การแก้ไขสี",
+      "artistic": "ศิลปะ",
+      "vintage": "วินเทจ",
+      "cinematic": "ภาพยนตร์",
+      "creative": "สร้างสรรค์",
+      "technical": "เทคนิค",
+      "distortion": "การบิดเบือน"
     },
     "complexity": {
-      "basic": "Basic",
-      "intermediate": "Intermediate",
-      "advanced": "Advanced"
+      "basic": "พื้นฐาน",
+      "intermediate": "ระดับกลาง",
+      "advanced": "ขั้นสูง"
     },
     "tags": {
       "popular": "Popular",
@@ -1506,81 +1506,81 @@
     }
   },
   "project": {
-    "untitledProject": "Untitled #{{number}}",
-    "untitledExport": "Untitled {{number}}",
-    "newProject": "New Project",
-    "saveProject": "Save Project",
-    "openProject": "Open Project",
-    "deleteProject": "Delete Project",
-    "exportProject": "Export Project",
-    "importProject": "Import Project"
+    "untitledProject": "ไม่มีชื่อ #{{number}}",
+    "untitledExport": "ไม่มีชื่อ {{number}}",
+    "newProject": "โปรเจกต์ใหม่",
+    "saveProject": "บันทึกโปรเจกต์",
+    "openProject": "เปิดโปรเจกต์",
+    "deleteProject": "ลบโปรเจกต์",
+    "exportProject": "ส่งออกโปรเจกต์",
+    "importProject": "นำเข้าโปรเจกต์"
   },
   "settings": {
-    "saved": "Settings saved",
-    "savedDescription": "Your settings have been saved successfully",
-    "error": "Error saving settings",
-    "errorDescription": "There was an error saving your settings. Please try again.",
-    "reset": "Reset to defaults",
+    "saved": "บันทึกการตั้งค่าแล้ว",
+    "savedDescription": "การตั้งค่าของคุณถูกบันทึกเรียบร้อยแล้ว",
+    "error": "ข้อผิดพลาดในการบันทึกการตั้งค่า",
+    "errorDescription": "เกิดข้อผิดพลาดในการบันทึกการตั้งค่าของคุณ โปรดลองอีกครั้ง",
+    "reset": "รีเซ็ตเป็นค่าเริ่มต้น",
     "screenshots": {
-      "title": "Screenshot Settings",
-      "description": "Configure settings for generating and processing video screenshots",
-      "interval": "Screenshot Interval",
-      "intervalDescription": "Time between screenshots in seconds. Lower values create more screenshots.",
-      "maxScreenshots": "Maximum Screenshots",
-      "maxScreenshotsDescription": "Limit the total number of screenshots that can be generated. Disable for unlimited screenshots.",
-      "initialCount": "Initial Screenshots",
-      "initialCountDescription": "Number of screenshots to generate when first processing a video.",
-      "path": "Screenshots Path",
-      "pathDescription": "Directory where screenshots will be saved.",
-      "objectDetection": "Object Detection",
-      "objectDetectionDescription": "Enable AI-powered object detection in screenshots.",
-      "confidenceThreshold": "Confidence Threshold",
-      "confidenceThresholdDescription": "Minimum confidence level for detected objects. Higher values reduce false positives."
+      "title": "การตั้งค่าภาพหน้าจอ",
+      "description": "กำหนดค่าการตั้งค่าสำหรับการสร้างและประมวลผลภาพหน้าจอวิดีโอ",
+      "interval": "ช่วงเวลาภาพหน้าจอ",
+      "intervalDescription": "เวลาระหว่างภาพหน้าจอเป็นวินาที ค่าที่ต่ำกว่าจะสร้างภาพหน้าจอมากขึ้น",
+      "maxScreenshots": "ภาพหน้าจอสูงสุด",
+      "maxScreenshotsDescription": "จำกัดจำนวนภาพหน้าจอทั้งหมดที่สามารถสร้างได้ ปิดการใช้งานสำหรับภาพหน้าจอไม่จำกัด",
+      "initialCount": "ภาพหน้าจอเริ่มต้น",
+      "initialCountDescription": "จำนวนภาพหน้าจอที่จะสร้างเมื่อประมวลผลวิดีโอครั้งแรก",
+      "path": "เส้นทางภาพหน้าจอ",
+      "pathDescription": "ไดเรกทอรีที่จะบันทึกภาพหน้าจอ",
+      "objectDetection": "การตรวจจับวัตถุ",
+      "objectDetectionDescription": "เปิดใช้การตรวจจับวัตถุด้วย AI ในภาพหน้าจอ",
+      "confidenceThreshold": "เกณฑ์ความเชื่อมั่น",
+      "confidenceThresholdDescription": "ระดับความเชื่อมั่นขั้นต่ำสำหรับวัตถุที่ตรวจพบ ค่าที่สูงขึ้นจะลดการตรวจพบผิด"
     }
   },
   "resources": {
-    "title": "Resources",
-    "all": "All",
-    "effects": "Effects",
-    "filters": "Filters",
-    "transitions": "Transitions",
-    "templates": "Templates",
-    "music": "Music",
-    "subtitles": "Subtitles",
-    "noResources": "No resources added"
+    "title": "ทรัพยากร",
+    "all": "ทั้งหมด",
+    "effects": "เอฟเฟกต์",
+    "filters": "ฟิลเตอร์",
+    "transitions": "ทรานซิชั่น",
+    "templates": "เทมเพลต",
+    "music": "ดนตรี",
+    "subtitles": "คำบรรยาย",
+    "noResources": "ไม่มีทรัพยากรที่เพิ่ม"
   },
   "chat": {
-    "title": "Chat",
-    "selectAgent": "Model",
-    "messagePlaceholder": "Type your message here...",
-    "noMessages": "No messages. Start a conversation.",
-    "savingProgress": "Saving progress",
-    "saveSuccess": "Video saved successfully!",
-    "send": "Send",
-    "stop": "Stop",
-    "processing": "Processing..."
+    "title": "แชท",
+    "selectAgent": "โมเดล",
+    "messagePlaceholder": "พิมพ์ข้อความของคุณที่นี่...",
+    "noMessages": "ไม่มีข้อความ เริ่มการสนทนา",
+    "savingProgress": "กำลังบันทึกความคืบหน้า",
+    "saveSuccess": "บันทึกวิดีโอสำเร็จแล้ว!",
+    "send": "ส่ง",
+    "stop": "หยุด",
+    "processing": "กำลังดำเนินการ..."
   },
   "source": {
-    "timeline": "Timeline",
-    "browser": "Browser"
+    "timeline": "ไทม์ไลน์",
+    "browser": "เบราว์เซอร์"
   },
   "styleTemplates": {
-    "loading": "Loading templates...",
-    "error": "Error loading templates",
-    "noResults": "No templates found",
-    "search": "Search templates...",
-    "addToResources": "Add to resources",
-    "addedToResources": "Added to resources",
-    "hasText": "Contains text",
-    "hasAnimation": "Contains animation",
+    "loading": "กำลังโหลดเทมเพลต...",
+    "error": "ข้อผิดพลาดในการโหลดเทมเพลต",
+    "noResults": "ไม่พบเทมเพลต",
+    "search": "ค้นหาเทมเพลต...",
+    "addToResources": "เพิ่มไปยังทรัพยากร",
+    "addedToResources": "เพิ่มไปยังทรัพยากรแล้ว",
+    "hasText": "มีข้อความ",
+    "hasAnimation": "มีภาพเคลื่อนไหว",
     "categories": {
-      "intro": "Intro",
-      "outro": "Outro",
-      "lower-third": "Lower Third",
-      "lowerThird": "Lower Third",
-      "title": "Title",
-      "transition": "Transition",
-      "overlay": "Overlay"
+      "intro": "แนะนำ",
+      "outro": "ส่วนท้าย",
+      "lower-third": "ส่วนล่างที่สาม",
+      "lowerThird": "ส่วนล่างที่สาม",
+      "title": "ชื่เรื่อง",
+      "transition": "ทรานซิชั่น",
+      "overlay": "โอเวอร์เลย์"
     },
     "Templates": {
       "modern": "Modern",
@@ -1842,59 +1842,59 @@
     }
   },
   "subtitles": {
-    "search": "Search...",
-    "dragHint": "Drag subtitle to timeline to add it to your project",
+    "search": "ค้นหา...",
+    "dragHint": "ลากคำบรรยายไปยังไทม์ไลน์เพื่อเพิ่มไปยังโปรเจกต์ของคุณ",
     "categories": {
-      "basic": "Basic",
-      "stylized": "Stylized",
-      "animated": "Animated",
-      "modern": "Modern",
-      "minimal": "Minimal",
-      "color": "Color",
-      "blur": "Blur",
-      "sharpen": "Sharpen",
-      "artistic": "Artistic",
-      "distortion": "Distortion",
-      "noise": "Noise",
-      "vintage": "Vintage",
-      "other": "Other",
-      "color-correction": "Color Correction",
-      "creative": "Creative",
-      "cinematic": "Cinematic",
-      "technical": "Technical",
-      "transition": "Transitions",
-      "motion": "Motion",
-      "light": "Light",
-      "particle": "Particles",
-      "text": "Text",
+      "basic": "พื้นฐาน",
+      "stylized": "แบบสไตล์",
+      "animated": "ภาพเคลื่อนไหว",
+      "modern": "ทันสมัย",
+      "minimal": "มินิมอล",
+      "color": "สี",
+      "blur": "เบลอ",
+      "sharpen": "ความคมชัด",
+      "artistic": "ศิลปะ",
+      "distortion": "การบิดเบือน",
+      "noise": "สัญญาณรบกวน",
+      "vintage": "วินเทจ",
+      "other": "อื่น ๆ",
+      "color-correction": "การแก้ไขสี",
+      "creative": "สร้างสรรค์",
+      "cinematic": "ภาพยนตร์",
+      "technical": "เทคนิค",
+      "transition": "ทรานซิชั่น",
+      "motion": "การเคลื่อนไหว",
+      "light": "แสง",
+      "particle": "อนุภาค",
+      "text": "ข้อความ",
       "3d": "3D"
     },
     "complexity": {
-      "basic": "Basic",
-      "advanced": "Advanced",
-      "intermediate": "Intermediate"
+      "basic": "พื้นฐาน",
+      "advanced": "ขั้นสูง",
+      "intermediate": "ระดับกลาง"
     },
     "filters": {
-      "allCategories": "All Categories",
-      "allComplexity": "Any Complexity",
-      "allTags": "All Tags"
+      "allCategories": "ทุกหมวดหมู่",
+      "allComplexity": "ทุกระดับความซับซ้อน",
+      "allTags": "ทุกแท็ก"
     },
     "errors": {
-      "invalidStylesData": "Invalid subtitle styles data structure",
-      "unknownError": "Unknown error",
-      "failedToLoadStyles": "Failed to load subtitle styles: {{error}}",
-      "fallbackStyles": "Failed to load subtitle styles, using fallback"
+      "invalidStylesData": "โครงสร้างข้อมูลสไตล์คำบรรยายไม่ถูกต้อง",
+      "unknownError": "ข้อผิดพลาดไม่ทราบสาเหตุ",
+      "failedToLoadStyles": "ไม่สามารถโหลดสไตล์คำบรรยาย: {{error}}",
+      "fallbackStyles": "ไม่สามารถโหลดสไตล์คำบรรยาย กำลังใช้สไตล์สำรอง"
     },
     "messages": {
-      "stylesLoaded": "Loaded {{count}} subtitle styles from JSON"
+      "stylesLoaded": "โหลดสไตล์คำบรรยาย {{count}} รายการจาก JSON"
     },
     "detail": {
-      "description": "Description",
-      "category": "Category",
-      "complexity": "Complexity",
-      "parameters": "Parameters",
-      "tags": "Tags",
-      "applySubtitle": "Apply Subtitle"
+      "description": "คำอธิบาย",
+      "category": "หมวดหมู่",
+      "complexity": "ความซับซ้อน",
+      "parameters": "พารามิเตอร์",
+      "tags": "แท็ก",
+      "applySubtitle": "ใช้คำบรรยาย"
     }
   }
 }

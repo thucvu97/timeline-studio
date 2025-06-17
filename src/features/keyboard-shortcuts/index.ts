@@ -1,9 +1,9 @@
 // Компоненты
-export * from "./keyboard-shortcuts-modal"
+export * from "./components/keyboard-shortcuts-modal"
 export * from "./components/shortcut-handler"
 
 // Хуки
-export * from "./use-app-hotkeys"
+export * from "./hooks/use-app-hotkeys"
 export * from "./hooks/use-panel-shortcuts"
 
 // Сервисы
