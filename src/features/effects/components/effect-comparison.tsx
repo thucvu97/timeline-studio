@@ -83,8 +83,8 @@ export function EffectComparison({
       originalVideo.pause()
       effectVideo.pause()
     } else {
-      originalVideo.play()
-      effectVideo.play()
+      void originalVideo.play()
+      void effectVideo.play()
     }
     
     setIsPlaying(!isPlaying)

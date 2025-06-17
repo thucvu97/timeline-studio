@@ -60,8 +60,7 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
 
   // Обработчик удаления пользовательского пресета
   const handleDeleteCustomPreset = (presetKey: string) => {
-    const updatedPresets = { ...customPresets }
-    delete updatedPresets[presetKey]
+    const { [presetKey]: _, ...updatedPresets } = customPresets
     setCustomPresets(updatedPresets)
     
     // Сохраняем обновленные пресеты в localStorage
@@ -146,7 +145,7 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
                         <div className="text-xs text-gray-400">
                           {t("effects.detail.parameters", "Параметры")}:{" "}
                           {Object.entries(preset.params)
-                            .map(([key, value]) => `${key}: ${value}`)
+                            .map(([key, value]) => `${key}: ${String(value)}`)
                             .join(", ")}
                         </div>
                         {isCustom && (preset).createdAt && (

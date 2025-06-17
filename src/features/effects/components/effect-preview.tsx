@@ -145,7 +145,7 @@ export function EffectPreview({
       videoElement.playbackRate = playbackRate
 
       // Запускаем воспроизведение видео
-      videoElement.play().catch(err => {
+      videoElement.play().catch((err: unknown) => {
         console.log('Autoplay prevented:', err)
       })
 

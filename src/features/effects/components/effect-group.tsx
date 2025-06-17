@@ -24,7 +24,7 @@ interface EffectGroupProps {
   /** Функция для добавления всех эффектов группы */
   onAddAllEffects?: (effects: VideoEffect[]) => void
   /** Map для refs элементов */
-  effectRefs?: React.MutableRefObject<Map<string, HTMLDivElement>>
+  effectRefs?: React.RefObject<Map<string, HTMLDivElement>>
   /** Начальный индекс эффектов в общем списке */
   startIndex?: number
 }
