@@ -169,7 +169,8 @@ const App: React.FC = () => {
             <DownloadButton platform="Linux" icon="linux" />
           </div>
           <p className="mt-8 text-gray-400">
-            <span className="font-semibold">Последняя версия: </span>
+            <span className="font-semibold">Последняя версия: VERSION_PLACEHOLDER</span>
+            <span className="mx-2">•</span>
             <a
               href="https://github.com/chatman-media/timeline-studio/releases/latest"
               className="text-blue-400 hover:text-blue-300 transition-colors"
@@ -320,14 +321,15 @@ const FeatureCard: React.FC<{ title: string; description: string; icon: string }
 const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform, icon }) => {
   // Определяем правильный путь к файлу в зависимости от платформы
   const getDownloadPath = () => {
+    // VERSION_PLACEHOLDER будет заменен в CI/CD
+    const version = "VERSION_PLACEHOLDER"
     switch (platform.toLowerCase()) {
       case "windows":
-        // timeline-studio_0.9.9_x64_en-US.msi
-        return "timeline-studio_0.9.9_x64_en-US.msi"
+        return `timeline-studio_${version}_x64_en-US.msi`
       case "macos":
-        return "timeline-studio_0.9.9_universal.dmg"
+        return `timeline-studio_${version}_universal.dmg`
       case "linux":
-        return "timeline-studio_0.9.9_x86_64.AppImage"
+        return `timeline-studio_${version}_x86_64.AppImage`
       default:
         return `timeline-studio-${platform.toLowerCase()}.zip`
     }
@@ -361,7 +363,7 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
 
   return (
     <a
-      href={`https://github.com/chatman-media/timeline-studio/releases/download/${getDownloadPath()}`}
+      href={`https://github.com/chatman-media/timeline-studio/releases/download/VERSION_PLACEHOLDER/${getDownloadPath()}`}
       className={`group relative bg-gradient-to-r ${getGradient(platform)} text-white font-bold py-4 px-8 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-3`}
     >
       <span className="relative z-10 flex items-center gap-3">

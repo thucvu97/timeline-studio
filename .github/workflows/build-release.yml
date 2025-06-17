@@ -17,8 +17,8 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     outputs:
-      release_id: ${{ steps.create_release.outputs.id }}
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_id: ${{ fromJSON(steps.create_release.outputs.result).id }}
+      upload_url: ${{ fromJSON(steps.create_release.outputs.result).upload_url }}
       version: ${{ github.event.inputs.version }}
 
     steps:
@@ -51,8 +51,6 @@ jobs:
               });
 
               console.log(`Release ${tag} already exists, using existing release`);
-              core.setOutput('id', existingRelease.data.id);
-              core.setOutput('upload_url', existingRelease.data.upload_url);
               return existingRelease.data;
             } catch (error) {
               if (error.status === 404) {
@@ -68,8 +66,6 @@ jobs:
                   prerelease: ${{ github.event.inputs.prerelease }}
                 });
 
-                core.setOutput('id', newRelease.data.id);
-                core.setOutput('upload_url', newRelease.data.upload_url);
                 return newRelease.data;
               } else {
                 throw error;
@@ -296,16 +292,12 @@ jobs:
         run: |
           VERSION="${{ needs.create-release.outputs.version }}"
 
-          # Обновляем компонент DownloadButton в App.tsx для использования конкретной версии вместо latest
-          sed -i "s|https://github.com/chatman-media/timeline-studio/releases/latest/download/|https://github.com/chatman-media/timeline-studio/releases/download/v${VERSION}/|g" promo/src/App.tsx
-
-          # Обновляем имена файлов, чтобы включить версию
-          sed -i "s|timeline-studio-windows-x64.msi|timeline-studio-${VERSION}-windows-x64.msi|g" promo/src/App.tsx
-          sed -i "s|timeline-studio-macos-x64.dmg|timeline-studio-${VERSION}-macos-x64.dmg|g" promo/src/App.tsx
-          sed -i "s|timeline-studio-linux-x86_64.AppImage|timeline-studio-${VERSION}-linux-x86_64.AppImage|g" promo/src/App.tsx
-
-          # Обновляем информацию о последней версии
-          sed -i "s|<span className=\"font-semibold\">Последняя версия: </span>|<span className=\"font-semibold\">Последняя версия: v${VERSION} </span>|g" promo/src/App.tsx
+          # Заменяем VERSION_PLACEHOLDER на актуальную версию
+          sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" promo/src/App.tsx
+          
+          # Показываем изменения для отладки
+          echo "Updated App.tsx with version ${VERSION}"
+          grep -n "timeline-studio_${VERSION}" promo/src/App.tsx || echo "Pattern not found"
 
       - name: Build promo page
         run: |
