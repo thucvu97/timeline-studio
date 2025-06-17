@@ -1,6 +1,7 @@
 import { resetAllBrowserMocks, setupAllBrowserMocks } from "./browser"
 import { resetAllLibraryMocks } from "./libraries"
 import { resetAllTauriMocks } from "./tauri"
+import "./dnd-kit" // Import dnd-kit mocks
 
 // Main mocks exports
 // export * from './tauri';

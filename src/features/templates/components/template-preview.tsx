@@ -52,7 +52,7 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
   const { addTemplate, isTemplateAdded, removeResource, templateResources } = useResources()
 
   // Создаем клон элемента с добавлением ключа для предотвращения предупреждения React
-  const renderedTemplate = template.render()
+  const renderedTemplate = template.render?.() || <div className="w-full h-full bg-gray-800" />
 
   // Проверяем, добавлен ли шаблон уже в хранилище ресурсов
   // Мемоизируем результат для оптимизации

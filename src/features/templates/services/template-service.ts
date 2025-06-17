@@ -27,15 +27,18 @@ export interface VideoTemplateStyle {
 /**
  * Получает стили для видео в зависимости от шаблона и индекса видео
  * @param template Шаблон
- * @param videoIndex Индекс видео в массиве
- * @param totalVideos Общее количество видео
+ * @param videoIndexOrCellConfig Индекс видео в массиве или конфигурация ячейки
+ * @param totalVideos Общее количество видео (необязательно)
  * @returns Объект со стилями для видео
  */
 export function getVideoStyleForTemplate(
   template: MediaTemplate,
-  videoIndex: number,
-  _totalVideos: number, // Параметр не используется, но оставлен для совместимости
+  videoIndexOrCellConfig: number | CellConfig,
+  _totalVideos?: number, // Параметр не используется, но оставлен для совместимости
 ): VideoTemplateStyle {
+  // Определяем, что передано - индекс или конфигурация
+  const videoIndex = typeof videoIndexOrCellConfig === "number" ? videoIndexOrCellConfig : 0
+  const cellConfigParam = typeof videoIndexOrCellConfig === "object" ? videoIndexOrCellConfig : undefined
   // Базовый стиль для всех видео
   const baseStyle: VideoTemplateStyle = {
     position: "absolute",
@@ -65,10 +68,10 @@ export function getVideoStyleForTemplate(
     }
   }
 
-  // Получаем настройки ячейки из шаблона
-  let cellConfig: CellConfig | undefined
+  // Получаем настройки ячейки из шаблона или используем переданную конфигурацию
+  let cellConfig: CellConfig | undefined = cellConfigParam
 
-  if (template.cellConfig) {
+  if (!cellConfig && template.cellConfig) {
     if (Array.isArray(template.cellConfig)) {
       // Если настройки заданы для каждой ячейки отдельно
       cellConfig = template.cellConfig[videoIndex]

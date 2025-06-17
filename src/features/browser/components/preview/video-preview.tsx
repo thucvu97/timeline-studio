@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
+import { useDraggable } from "@dnd-kit/core"
 import { convertFileSrc } from "@tauri-apps/api/core"
 import { Film } from "lucide-react"
 
@@ -9,6 +10,8 @@ import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
 import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/features/media/utils/video"
 import { TimelineResource } from "@/features/resources/types"
+import { DragData } from "@/features/timeline/types/drag-drop"
+import { getTrackTypeForMediaFile } from "@/features/timeline/utils/drag-calculations"
 import { usePlayer } from "@/features/video-player"
 import { formatDuration } from "@/lib/date"
 import { cn, formatResolution } from "@/lib/utils"
@@ -89,6 +92,23 @@ export const VideoPreview = memo(
     // Используем useRef для хранения hoverTime вместо useState
     // чтобы избежать ререндеров при движении мыши
     const hoverTimeRef = useRef<number | null>(null)
+
+    // Setup draggable functionality
+    const dragData: DragData = useMemo(() => ({
+      type: getTrackTypeForMediaFile(file) === "video" ? "video" : getTrackTypeForMediaFile(file) === "audio" ? "audio" : "image",
+      mediaFile: file,
+    }), [file])
+
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      isDragging,
+    } = useDraggable({
+      id: `video-${file.id}`,
+      data: dragData,
+    })
 
     const handleMouseMove = useCallback(
       (e: React.MouseEvent<HTMLDivElement>, stream: FfprobeStream) => {
@@ -188,8 +208,20 @@ export const VideoPreview = memo(
       return { videoStreams, isMultipleStreams }
     }, [file.probeData?.streams])
 
+    // Transform style for drag feedback
+    const style = transform ? {
+      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      opacity: isDragging ? 0.5 : 1,
+    } : undefined
+
     return (
-      <div className={cn("flex h-full w-full items-center justify-center")}>
+      <div 
+        ref={setNodeRef}
+        className={cn("flex h-full w-full items-center justify-center", isDragging && "cursor-grabbing")}
+        style={style}
+        {...listeners}
+        {...attributes}
+      >
         {videoData.videoStreams.length === 0 ? (
           // Плейсхолдер с соотношением 16:9 пока метаданные не загрузились
           <div

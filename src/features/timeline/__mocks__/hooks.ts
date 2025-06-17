@@ -119,6 +119,20 @@ export const mockUseTracks = vi.fn(() => ({
   setTrackHeight: vi.fn((trackId: string, height: number) => {}),
 }))
 
+// Mock useDragDropTimeline hook
+export const mockUseDragDropTimeline = vi.fn(() => ({
+  dragState: {
+    isDragging: false,
+    draggedItem: null,
+    dragOverTrack: null,
+    dropPosition: null,
+  },
+  handleDragStart: vi.fn(),
+  handleDragOver: vi.fn(),
+  handleDragEnd: vi.fn(),
+  isValidDropTarget: vi.fn(() => false),
+}))
+
 // Export all mocks for easy importing
 export const timelineHookMocks = {
   useTimeline: mockUseTimeline,
@@ -128,6 +142,7 @@ export const timelineHookMocks = {
   useTimelineUndo: mockUseTimelineUndo,
   useClips: mockUseClips,
   useTracks: mockUseTracks,
+  useDragDropTimeline: mockUseDragDropTimeline,
 }
 
 // Set up vi.mock calls
@@ -157,4 +172,8 @@ vi.mock("../hooks/use-clips", () => ({
 
 vi.mock("../hooks/use-tracks", () => ({
   useTracks: mockUseTracks,
+}))
+
+vi.mock("../hooks/use-drag-drop-timeline", () => ({
+  useDragDropTimeline: mockUseDragDropTimeline,
 }))

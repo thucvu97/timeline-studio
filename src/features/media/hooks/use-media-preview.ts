@@ -29,12 +29,12 @@ export function useMediaPreview(options: UseMediaPreviewOptions = {}) {
   )
 
   const generateThumbnail = useCallback(
-    async (fileId: string, filePath: string, width: number, height: number, timestamp = 0): Promise<string | null> => {
+    async (fileId: string, filePath: string, width: number, height: number, timestamp = 0): Promise<ThumbnailData | null> => {
       try {
         setIsGenerating(true)
         setError(null)
 
-        const base64Data = await invoke<string>("generate_media_thumbnail", {
+        const thumbnail = await invoke<ThumbnailData>("generate_media_thumbnail", {
           fileId,
           filePath,
           width,
@@ -44,17 +44,10 @@ export function useMediaPreview(options: UseMediaPreviewOptions = {}) {
 
         // Notify callback if provided
         if (options.onThumbnailGenerated) {
-          const thumbnail: ThumbnailData = {
-            path: "", // Path is managed by backend
-            base64_data: base64Data,
-            timestamp,
-            width,
-            height,
-          }
           options.onThumbnailGenerated(fileId, thumbnail)
         }
 
-        return base64Data
+        return thumbnail
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Failed to generate thumbnail"
         setError(errorMsg)
@@ -124,14 +117,51 @@ export function useMediaPreview(options: UseMediaPreviewOptions = {}) {
     [options],
   )
 
+  const getAllFilesWithPreviews = useCallback(async (): Promise<string[]> => {
+    return getFilesWithPreviews()
+  }, [getFilesWithPreviews])
+
+  const saveTimelineFrames = useCallback(
+    async (fileId: string, frames: Array<{ timestamp: number; base64_data: string; is_keyframe: boolean }>): Promise<boolean> => {
+      try {
+        await invoke("save_timeline_frames", { fileId, frames })
+        return true
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to save timeline frames"
+        setError(errorMsg)
+        options.onError?.(errorMsg)
+        return false
+      }
+    },
+    [options],
+  )
+
+  const getTimelineFrames = useCallback(
+    async (fileId: string): Promise<Array<{ timestamp: number; base64_data: string; is_keyframe: boolean }>> => {
+      try {
+        const frames = await invoke<Array<{ timestamp: number; base64_data: string; is_keyframe: boolean }>>("get_timeline_frames", { fileId })
+        return frames
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to get timeline frames"
+        setError(errorMsg)
+        options.onError?.(errorMsg)
+        return []
+      }
+    },
+    [options],
+  )
+
   return {
     // Data operations
     getPreviewData,
     generateThumbnail,
     clearPreviewData,
+    getAllFilesWithPreviews,
     getFilesWithPreviews,
     savePreviewData,
     loadPreviewData,
+    saveTimelineFrames,
+    getTimelineFrames,
 
     // State
     isGenerating,

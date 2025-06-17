@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
 
+import { DragDropProvider } from "./drag-drop-provider"
 import { TimelinePreviewStrip } from "./timeline-preview-strip"
 import { TimelineScale } from "./timeline-scale"
 import { useClips } from "../hooks/use-clips"
@@ -140,25 +141,26 @@ export function TimelineContent() {
   }
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Информация о проекте */}
-      <div className="p-4 border-b bg-background">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-foreground">{currentProject?.name || project.name}</h3>
-            <p className="text-sm text-muted-foreground">
-              {projectSettings
-                ? `${projectSettings.aspectRatio.value.width}x${projectSettings.aspectRatio.value.height} @ ${projectSettings.frameRate}fps`
-                : `${project.settings.resolution.width}x${project.settings.resolution.height} @ ${project.settings.fps}fps`}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Badge variant="outline">{project.sections.length} секций</Badge>
-            <Badge variant="outline">{tracks.length} треков</Badge>
-            <Badge variant="outline">{clips.length} клипов</Badge>
+    <DragDropProvider>
+      <div className="flex h-full flex-col">
+        {/* Информация о проекте */}
+        <div className="p-4 border-b bg-background">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-foreground">{currentProject?.name || project.name}</h3>
+              <p className="text-sm text-muted-foreground">
+                {projectSettings
+                  ? `${projectSettings.aspectRatio.value.width}x${projectSettings.aspectRatio.value.height} @ ${projectSettings.frameRate}fps`
+                  : `${project.settings.resolution.width}x${project.settings.resolution.height} @ ${project.settings.fps}fps`}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Badge variant="outline">{project.sections.length} секций</Badge>
+              <Badge variant="outline">{tracks.length} треков</Badge>
+              <Badge variant="outline">{clips.length} клипов</Badge>
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Временная шкала */}
       <div className="p-4 border-b bg-muted/30">
@@ -233,6 +235,7 @@ export function TimelineContent() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </DragDropProvider>
   )
 }

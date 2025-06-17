@@ -4,42 +4,39 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use super::preview_data::{MediaPreviewData, ThumbnailData};
+use super::preview_data::{MediaPreviewData, ThumbnailData, TimelinePreview, RecognitionFrame};
 use super::thumbnail::generate_thumbnail;
-// Временно закомментируем пока не интегрируем
-// use crate::video_compiler::preview::PreviewGenerator;
-// use crate::video_compiler::frame_extraction::{FrameExtractionManager, ExtractionPurpose};
+use crate::video_compiler::preview::PreviewGenerator;
+use crate::video_compiler::frame_extraction::{FrameExtractionManager, ExtractionPurpose};
+use crate::video_compiler::cache::RenderCache;
 
 /// Единый менеджер для всех данных превью
 pub struct PreviewDataManager {
   /// Кэш всех данных превью по file_id
   data: Arc<RwLock<HashMap<String, MediaPreviewData>>>,
 
-  // /// Генератор превью для браузера
-  // thumbnail_generator: Arc<RwLock<()>>, // Использует функцию generate_thumbnail
+  /// Генератор превью для таймлайна
+  timeline_generator: Arc<RwLock<PreviewGenerator>>,
 
-  // /// Генератор превью для таймлайна
-  // timeline_generator: Arc<RwLock<PreviewGenerator>>,
+  /// Менеджер извлечения кадров
+  frame_extractor: Arc<RwLock<FrameExtractionManager>>,
 
-  // /// Менеджер извлечения кадров
-  // frame_extractor: Arc<RwLock<FrameExtractionManager>>,
   /// Базовая директория для хранения
   base_dir: PathBuf,
 }
 
 impl PreviewDataManager {
   pub fn new(base_dir: PathBuf) -> Self {
-    // let preview_generator = PreviewGenerator::new(base_dir.join("Caches/preview"));
-    // let frame_extractor = FrameExtractionManager::new(
-    //     base_dir.join("Caches/frame"),
-    //     base_dir.join("Recognition"),
-    // );
+    // Создаем общий кэш для PreviewGenerator и FrameExtractionManager
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    
+    let preview_generator = PreviewGenerator::new(cache.clone());
+    let frame_extractor = FrameExtractionManager::new(cache.clone());
 
     Self {
       data: Arc::new(RwLock::new(HashMap::new())),
-      // thumbnail_generator: Arc::new(RwLock::new(())),
-      // timeline_generator: Arc::new(RwLock::new(preview_generator)),
-      // frame_extractor: Arc::new(RwLock::new(frame_extractor)),
+      timeline_generator: Arc::new(RwLock::new(preview_generator)),
+      frame_extractor: Arc::new(RwLock::new(frame_extractor)),
       base_dir,
     }
   }
@@ -98,8 +95,6 @@ impl PreviewDataManager {
     Ok(thumbnail)
   }
 
-  // Временно отключено - требует интеграции с video_compiler
-  /*
   /// Генерировать превью для таймлайна
   pub async fn generate_timeline_previews(
       &self,
@@ -108,13 +103,69 @@ impl PreviewDataManager {
       duration: f64,
       interval: f64,
   ) -> Result<Vec<TimelinePreview>> {
-      // TODO: интегрировать с video_compiler::preview::PreviewGenerator
-      unimplemented!("Timeline preview generation not yet integrated")
+      use base64::{engine::general_purpose::STANDARD, Engine as _};
+      
+      // Используем PreviewGenerator для генерации превью
+      let generator = self.timeline_generator.read().await;
+      let preview_results = generator
+          .generate_timeline_previews(&file_path, duration, interval)
+          .await?;
+      
+      // Преобразуем результаты в наш формат TimelinePreview
+      let mut timeline_previews = Vec::new();
+      let output_dir = self.base_dir.join("Caches/timeline").join(&file_id);
+      
+      // Создаем директорию если не существует
+      tokio::fs::create_dir_all(&output_dir).await?;
+      
+      for (i, preview_result) in preview_results.iter().enumerate() {
+          let base64_data = if let Some(ref image_data) = preview_result.image_data {
+              // image_data уже в формате Vec<u8>
+              let base64 = STANDARD.encode(image_data);
+              
+              // Сохраняем файл на диск для совместимости
+              let file_path = output_dir.join(format!("frame_{:04}.jpg", i));
+              tokio::fs::write(&file_path, image_data).await?;
+              
+              let timeline_preview = TimelinePreview {
+                  timestamp: preview_result.timestamp,
+                  path: file_path,
+                  base64_data: Some(base64.clone()),
+              };
+              
+              timeline_previews.push(timeline_preview);
+              Some(base64)
+          } else {
+              None
+          };
+          
+          if base64_data.is_none() {
+              // Если нет данных, создаем пустой превью
+              let file_path = output_dir.join(format!("frame_{:04}_empty.jpg", i));
+              let timeline_preview = TimelinePreview {
+                  timestamp: preview_result.timestamp,
+                  path: file_path,
+                  base64_data: None,
+              };
+              timeline_previews.push(timeline_preview);
+          }
+      }
+      
+      // Сохраняем в кэш
+      let mut data = self.data.write().await;
+      let preview_data = data
+          .entry(file_id.clone())
+          .or_insert_with(|| MediaPreviewData::new(file_id, file_path));
+      
+      // Очищаем старые превью и добавляем новые
+      preview_data.timeline_previews.clear();
+      for preview in &timeline_previews {
+          preview_data.add_timeline_preview(preview.clone());
+      }
+      
+      Ok(timeline_previews)
   }
-  */
 
-  // Временно отключено - требует интеграции с frame_extraction
-  /*
   /// Извлечь кадры для распознавания
   pub async fn extract_recognition_frames(
       &self,
@@ -122,10 +173,60 @@ impl PreviewDataManager {
       file_path: PathBuf,
       count: usize,
   ) -> Result<Vec<RecognitionFrame>> {
-      // TODO: интегрировать с video_compiler::frame_extraction::FrameExtractionManager
-      unimplemented!("Frame extraction not yet integrated")
+      // Получаем информацию о видео
+      let generator = self.timeline_generator.read().await;
+      let video_info = generator.get_video_info(&file_path).await?;
+      let duration = video_info.duration;
+      drop(generator); // Освобождаем блокировку
+      
+      // Используем FrameExtractionManager для извлечения кадров
+      let extractor = self.frame_extractor.read().await;
+      let extracted_frames = extractor
+          .extract_frames_for_recognition(
+              &file_path,
+              duration,
+              ExtractionPurpose::ObjectDetection,
+          )
+          .await?;
+      
+      // Берем только запрошенное количество кадров
+      let frames_to_use: Vec<_> = extracted_frames.into_iter().take(count).collect();
+      
+      // Преобразуем результаты в наш формат RecognitionFrame
+      let mut recognition_frames = Vec::new();
+      let output_dir = self.base_dir.join("Recognition").join(&file_id);
+      
+      // Создаем директорию если не существует
+      tokio::fs::create_dir_all(&output_dir).await?;
+      
+      for (i, frame) in frames_to_use.iter().enumerate() {
+          // Сохраняем данные кадра на диск
+          let file_path = output_dir.join(format!("recognition_frame_{:04}.jpg", i));
+          tokio::fs::write(&file_path, &frame.frame_data).await?;
+          
+          let recognition_frame = RecognitionFrame {
+              timestamp: frame.timestamp,
+              path: file_path,
+              processed: false,
+          };
+          
+          recognition_frames.push(recognition_frame.clone());
+      }
+      
+      // Сохраняем в кэш
+      let mut data = self.data.write().await;
+      let preview_data = data
+          .entry(file_id.clone())
+          .or_insert_with(|| MediaPreviewData::new(file_id, file_path));
+      
+      // Очищаем старые кадры и добавляем новые
+      preview_data.recognition_frames.clear();
+      for frame in &recognition_frames {
+          preview_data.add_recognition_frame(frame.clone());
+      }
+      
+      Ok(recognition_frames)
   }
-  */
 
   /// Получить все файлы с данными превью
   pub async fn get_all_files_with_previews(&self) -> Vec<String> {

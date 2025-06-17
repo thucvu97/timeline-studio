@@ -7,6 +7,10 @@ import React from "react"
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
+// Import mocks before components
+import "@/test/mocks/dnd-kit"
+import "../../__mocks__/hooks"
+
 import { Track } from "../../components/track/track"
 
 // Мокаем данные трека

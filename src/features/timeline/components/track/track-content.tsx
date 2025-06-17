@@ -4,8 +4,11 @@
 
 import React from "react"
 
+import { useDroppable } from "@dnd-kit/core"
+
 import { cn } from "@/lib/utils"
 
+import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
 import { TimelineTrack } from "../../types"
 import { Clip } from "../clip/clip"
 
@@ -17,6 +20,24 @@ interface TrackContentProps {
 }
 
 export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
+  const { dragState, isValidDropTarget } = useDragDropTimeline()
+  
+  // Setup droppable functionality
+  const {
+    isOver,
+    setNodeRef,
+  } = useDroppable({
+    id: `track-${track.id}`,
+    data: {
+      trackId: track.id,
+      trackType: track.type,
+    },
+  })
+
+  // Check if this track is a valid drop target
+  const isValidTarget = isValidDropTarget(track.id, track.type)
+  const showDropFeedback = dragState.isDragging && isOver && isValidTarget
+
   // Сортируем клипы по времени начала
   const sortedClips = [...track.clips].sort((a, b) => a.startTime - b.startTime)
 
@@ -33,7 +54,34 @@ export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackC
   }
 
   return (
-    <div className={cn("relative h-full w-full", "bg-background border-l border-border")}>
+    <div 
+      ref={setNodeRef}
+      data-track-id={track.id}
+      className={cn(
+        "relative h-full w-full", 
+        "bg-background border-l border-border",
+        showDropFeedback && "bg-primary/10 border-primary",
+        dragState.isDragging && isValidTarget && "border-dashed border-2",
+        dragState.isDragging && !isValidTarget && "opacity-50"
+      )}
+    >
+      {/* Drop zone visual feedback */}
+      {showDropFeedback && (
+        <div className="absolute inset-0 bg-primary/5 border-2 border-primary border-dashed rounded-md pointer-events-none z-30">
+          <div className="flex items-center justify-center h-full">
+            <span className="text-primary font-medium">Drop here</span>
+          </div>
+        </div>
+      )}
+
+      {/* Insertion indicator */}
+      {dragState.dropPosition?.trackId === track.id && (
+        <div
+          className="absolute top-0 bottom-0 w-0.5 bg-primary z-25 pointer-events-none"
+          style={{ left: dragState.dropPosition.startTime * timeScale }}
+        />
+      )}
+
       {/* Сетка временной шкалы */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Вертикальные линии сетки каждые 10 секунд */}

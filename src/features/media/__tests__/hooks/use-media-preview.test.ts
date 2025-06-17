@@ -134,16 +134,23 @@ describe("useMediaPreview", () => {
   describe("generateThumbnail", () => {
     it("should generate thumbnail successfully", async () => {
       const base64Data = "generated_thumbnail_base64"
-      mockInvoke.mockResolvedValue(base64Data)
+      const thumbnailData: ThumbnailData = {
+        path: "",
+        base64_data: base64Data,
+        timestamp: 5.5,
+        width: 320,
+        height: 180,
+      }
+      mockInvoke.mockResolvedValue(thumbnailData)
 
       const onThumbnailGenerated = vi.fn()
       const { result } = renderHook(() => useMediaPreview({ onThumbnailGenerated }))
 
       expect(result.current.isGenerating).toBe(false)
 
-      let thumbnailData: string | null = null
+      let generatedThumbnail: ThumbnailData | null = null
       await act(async () => {
-        thumbnailData = await result.current.generateThumbnail("test-file-123", "/path/to/video.mp4", 320, 180, 5.5)
+        generatedThumbnail = await result.current.generateThumbnail("test-file-123", "/path/to/video.mp4", 320, 180, 5.5)
       })
 
       expect(mockInvoke).toHaveBeenCalledWith("generate_media_thumbnail", {
@@ -154,21 +161,15 @@ describe("useMediaPreview", () => {
         timestamp: 5.5,
       })
 
-      expect(thumbnailData).toBe(base64Data)
-      expect(onThumbnailGenerated).toHaveBeenCalledWith("test-file-123", {
-        path: "",
-        base64_data: base64Data,
-        timestamp: 5.5,
-        width: 320,
-        height: 180,
-      })
+      expect(generatedThumbnail).toEqual(thumbnailData)
+      expect(onThumbnailGenerated).toHaveBeenCalledWith("test-file-123", thumbnailData)
       expect(result.current.error).toBeNull()
       expect(result.current.isGenerating).toBe(false)
     })
 
     it("should set isGenerating state correctly", async () => {
-      let resolveThumbnail: (value: string) => void
-      const thumbnailPromise = new Promise<string>((resolve) => {
+      let resolveThumbnail: (value: ThumbnailData) => void
+      const thumbnailPromise = new Promise<ThumbnailData>((resolve) => {
         resolveThumbnail = resolve
       })
       mockInvoke.mockReturnValue(thumbnailPromise)
@@ -189,7 +190,13 @@ describe("useMediaPreview", () => {
 
       // Resolve the promise
       await act(async () => {
-        resolveThumbnail!("thumbnail_data")
+        resolveThumbnail!({
+          path: "",
+          base64_data: "thumbnail_data",
+          timestamp: 0,
+          width: 320,
+          height: 180,
+        })
       })
 
       // Check isGenerating is back to false
@@ -199,7 +206,14 @@ describe("useMediaPreview", () => {
     })
 
     it("should use default timestamp of 0", async () => {
-      mockInvoke.mockResolvedValue("thumbnail_base64")
+      const thumbnailData: ThumbnailData = {
+        path: "",
+        base64_data: "thumbnail_base64",
+        timestamp: 0,
+        width: 320,
+        height: 180,
+      }
+      mockInvoke.mockResolvedValue(thumbnailData)
 
       const { result } = renderHook(() => useMediaPreview())
 
@@ -223,7 +237,7 @@ describe("useMediaPreview", () => {
       const onError = vi.fn()
       const { result } = renderHook(() => useMediaPreview({ onError }))
 
-      let thumbnailData: string | null = null
+      let thumbnailData: ThumbnailData | null = null
       await act(async () => {
         thumbnailData = await result.current.generateThumbnail("test-file", "/path/to/video.mp4", 320, 180)
       })
@@ -240,7 +254,7 @@ describe("useMediaPreview", () => {
       const onError = vi.fn()
       const { result } = renderHook(() => useMediaPreview({ onError }))
 
-      let thumbnailData: string | null = null
+      let thumbnailData: ThumbnailData | null = null
       await act(async () => {
         thumbnailData = await result.current.generateThumbnail("test-file", "/path/to/video.mp4", 320, 180)
       })
@@ -403,7 +417,14 @@ describe("useMediaPreview", () => {
       expect(result.current.error).toBe("Previous error")
 
       // Second operation succeeds - generateThumbnail resets error state
-      mockInvoke.mockResolvedValueOnce("thumbnail_data")
+      const thumbnailData: ThumbnailData = {
+        path: "",
+        base64_data: "thumbnail_data",
+        timestamp: 0,
+        width: 320,
+        height: 180,
+      }
+      mockInvoke.mockResolvedValueOnce(thumbnailData)
 
       await act(async () => {
         await result.current.generateThumbnail("test-file", "/path/to/video.mp4", 320, 180)
@@ -413,9 +434,17 @@ describe("useMediaPreview", () => {
     })
 
     it("should handle multiple concurrent operations", async () => {
+      const thumbnailData: ThumbnailData = {
+        path: "",
+        base64_data: "thumbnail_data",
+        timestamp: 0,
+        width: 320,
+        height: 180,
+      }
+      
       mockInvoke
         .mockResolvedValueOnce(mockPreviewData)
-        .mockResolvedValueOnce("thumbnail_data")
+        .mockResolvedValueOnce(thumbnailData)
         .mockResolvedValueOnce(undefined)
 
       const { result } = renderHook(() => useMediaPreview())
@@ -428,7 +457,7 @@ describe("useMediaPreview", () => {
         ])
 
         expect(preview).toEqual(mockPreviewData)
-        expect(thumbnail).toBe("thumbnail_data")
+        expect(thumbnail).toEqual(thumbnailData)
         expect(cleared).toBe(true)
       })
 

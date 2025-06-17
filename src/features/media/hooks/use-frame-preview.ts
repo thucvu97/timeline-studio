@@ -25,7 +25,7 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
   const [isExtracting, setIsExtracting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const { getPreviewData, generateThumbnail } = useMediaPreview()
+  const { getPreviewData, generateThumbnail, clearPreviewData } = useMediaPreview()
   const frameExtraction = FrameExtractionService.getInstance()
 
   /**
@@ -53,42 +53,41 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
 
         // Затем проверяем кэш Preview Manager
         const cachedData = await getPreviewData(fileId)
-        if (cachedData?.timeline_frames && cachedData.timeline_frames.length > 0) {
+        if (cachedData?.timeline_previews && cachedData.timeline_previews.length > 0) {
           console.log(`Использованы кэшированные кадры из Preview Manager для ${fileId}`)
-          const frames = cachedData.timeline_frames.map((frame) => ({
+          const frames = cachedData.timeline_previews.map((frame) => ({
             timestamp: frame.timestamp,
-            frameData: frame.base64_data,
-            isKeyframe: frame.is_keyframe || false,
+            frameData: frame.base64_data || '',
+            isKeyframe: (frame as any).is_keyframe || false,
           }))
 
-          // Сохраняем в IndexedDB для быстрого доступа
-          await frameExtraction.cacheFramesInIndexedDB(videoPath, frames)
           options.onFramesExtracted?.(frames)
-
           return frames
         }
 
-        // Если нет в кэше, извлекаем кадры
-        const frames = await frameExtraction.extractTimelineFrames(videoPath, duration, interval, maxFrames)
-
-        // Сохраняем кадры в Preview Manager для будущего использования
-        if (frames.length > 0) {
-          // Сохраняем первый кадр как browser thumbnail
-          await generateThumbnail(fileId, videoPath, 320, 180, frames[0].timestamp)
-
-          // Кэшируем кадры в IndexedDB для быстрого доступа
-          await frameExtraction.cacheFramesInIndexedDB(videoPath, frames)
-
-          // Сохраняем timeline frames в Preview Manager
-          await invoke("save_timeline_frames", {
-            file_id: fileId,
-            frames: frames.map((frame) => ({
-              timestamp: frame.timestamp,
-              base64_data: frame.frameData,
-              is_keyframe: frame.isKeyframe,
-            })),
-          })
+        // Если нет в кэше, извлекаем кадры через FrameExtractionService
+        const extractedFrames = await frameExtraction.extractTimelineFrames(videoPath, duration, interval, maxFrames)
+        
+        if (!extractedFrames || extractedFrames.length === 0) {
+          return []
         }
+
+        // Преобразуем в нужный формат
+        const frames = extractedFrames.map((frame) => ({
+          timestamp: frame.timestamp,
+          frameData: frame.frameData,
+          isKeyframe: frame.isKeyframe,
+        }))
+
+        // Сохраняем кадры в Preview Manager
+        await invoke("save_timeline_frames", {
+          file_id: fileId,
+          frames: frames.map(frame => ({
+            timestamp: frame.timestamp,
+            base64_data: frame.frameData,
+            is_keyframe: frame.isKeyframe,
+          })),
+        })
 
         options.onFramesExtracted?.(frames)
         return frames
@@ -145,21 +144,32 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
    * Получить превью для конкретного таймстампа
    */
   const getFrameAtTimestamp = useCallback(
-    async (fileId: string, videoPath: string, timestamp: number): Promise<string | null> => {
+    async (fileId: string, timestamp: number): Promise<{ timestamp: number; base64_data: string; is_keyframe: boolean } | null> => {
       try {
-        // Сначала проверяем, есть ли уже сохраненный кадр для этого timestamp
+        // Проверяем, есть ли сохраненные кадры для этого файла
         const previewData = await getPreviewData(fileId)
 
-        if (previewData?.timeline_frames) {
-          const frame = previewData.timeline_frames.find((f) => Math.abs(f.timestamp - timestamp) < 0.1)
-          if (frame) {
-            return frame.base64_data
+        if (!previewData?.timeline_previews || previewData.timeline_previews.length === 0) {
+          return null
+        }
+
+        // Находим ближайший кадр по временной метке
+        let closestFrame = previewData.timeline_previews[0]
+        let closestDiff = Math.abs(closestFrame.timestamp - timestamp)
+
+        for (const frame of previewData.timeline_previews) {
+          const diff = Math.abs(frame.timestamp - timestamp)
+          if (diff < closestDiff) {
+            closestDiff = diff
+            closestFrame = frame
           }
         }
 
-        // Если нет, генерируем новый thumbnail
-        const base64Data = await generateThumbnail(fileId, videoPath, 320, 180, timestamp)
-        return base64Data
+        return {
+          timestamp: closestFrame.timestamp,
+          base64_data: closestFrame.base64_data || '',
+          is_keyframe: false,
+        }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Failed to get frame at timestamp"
         setError(errorMsg)
@@ -167,13 +177,28 @@ export function useFramePreview(options: UseFramePreviewOptions = {}) {
         return null
       }
     },
-    [getPreviewData, generateThumbnail, options],
+    [getPreviewData, options],
+  )
+
+  const clearTimelineFrames = useCallback(
+    async (fileId: string): Promise<boolean> => {
+      try {
+        return await clearPreviewData(fileId)
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to clear timeline frames"
+        setError(errorMsg)
+        options.onError?.(errorMsg)
+        return false
+      }
+    },
+    [clearPreviewData, options],
   )
 
   return {
     extractTimelineFrames,
     extractRecognitionFrames,
     getFrameAtTimestamp,
+    clearTimelineFrames,
     isExtracting,
     error,
   }

@@ -14,7 +14,7 @@ import { useTracks } from "./use-tracks"
 export interface UseTimelineActionsReturn {
   // Добавление медиафайлов
   addMediaToTimeline: (files: MediaFile[]) => void
-  addSingleMediaToTimeline: (file: MediaFile) => void
+  addSingleMediaToTimeline: (file: MediaFile, targetTrackId?: string, startTime?: number) => void
 
   // Утилиты
   getTrackTypeForMedia: (file: MediaFile) => TrackType
@@ -110,14 +110,14 @@ export function useTimelineActions(): UseTimelineActionsReturn {
   // ============================================================================
 
   const addSingleMediaToTimeline = useCallback(
-    (file: MediaFile) => {
+    (file: MediaFile, customTrackId?: string, customStartTime?: number) => {
       if (!project) {
         console.warn("No project available for adding media")
         return
       }
 
       const trackType = getTrackTypeForMedia(file)
-      let targetTrackId = findBestTrackForMedia(file)
+      let targetTrackId = customTrackId || findBestTrackForMedia(file)
 
       // Если нет подходящего трека, создаем новый
       if (!targetTrackId) {
@@ -136,8 +136,8 @@ export function useTimelineActions(): UseTimelineActionsReturn {
         return
       }
 
-      // Вычисляем время начала клипа
-      const startTime = calculateClipStartTime(targetTrackId)
+      // Вычисляем время начала клипа (используем переданное время или вычисляем автоматически)
+      const startTime = customStartTime !== undefined ? customStartTime : calculateClipStartTime(targetTrackId)
 
       // Добавляем клип на трек
       addClip(targetTrackId, file, startTime, file.duration)
