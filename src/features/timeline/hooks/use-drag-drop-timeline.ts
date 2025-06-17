@@ -6,16 +6,13 @@ import { useCallback, useState } from "react"
 
 import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core"
 
-import { MediaFile } from "@/features/media/types/media"
-
 import { useTimeline } from "./use-timeline"
 import { useTimelineActions } from "./use-timeline-actions"
-import { DragData, DragState, DropPosition } from "../types/drag-drop"
+import { DragData, DragState } from "../types/drag-drop"
 import {
   calculateTimelinePosition,
   canDropOnTrack,
   findInsertionPoint,
-  getTrackTypeForMediaFile,
   snapToGrid,
 } from "../utils/drag-calculations"
 
@@ -81,7 +78,7 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
 
       if (isValid) {
         // Calculate drop position based on mouse position
-        const mouseX = event.activatorEvent.clientX
+        const mouseX = (event.activatorEvent as MouseEvent).clientX
         const trackElement = document.querySelector(`[data-track-id="${dropData.trackId}"]`)
         
         if (trackElement) {

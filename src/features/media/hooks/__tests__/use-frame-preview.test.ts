@@ -57,6 +57,11 @@ describe("useFramePreview", () => {
         getAllFilesWithPreviews: vi.fn(),
         saveTimelineFrames: vi.fn(),
         getTimelineFrames: vi.fn(),
+        getFilesWithPreviews: vi.fn(),
+        savePreviewData: vi.fn(),
+        loadPreviewData: vi.fn(),
+        isGenerating: false,
+        error: null,
       })
 
       const mockExtractTimelineFrames = vi.fn().mockResolvedValue([
@@ -78,7 +83,7 @@ describe("useFramePreview", () => {
         wrapper: MediaProviders,
       })
 
-      let frames
+      let frames: any
       await act(async () => {
         frames = await result.current.extractTimelineFrames(
           "test-file-123",
@@ -128,6 +133,11 @@ describe("useFramePreview", () => {
         getAllFilesWithPreviews: vi.fn(),
         saveTimelineFrames: vi.fn(),
         getTimelineFrames: vi.fn(),
+        getFilesWithPreviews: vi.fn(),
+        savePreviewData: vi.fn(),
+        loadPreviewData: vi.fn(),
+        isGenerating: false,
+        error: null,
       })
 
       const mockExtractTimelineFrames = vi.fn()
@@ -181,6 +191,11 @@ describe("useFramePreview", () => {
         getAllFilesWithPreviews: vi.fn(),
         saveTimelineFrames: vi.fn(),
         getTimelineFrames: vi.fn(),
+        getFilesWithPreviews: vi.fn(),
+        savePreviewData: vi.fn(),
+        loadPreviewData: vi.fn(),
+        isGenerating: false,
+        error: null,
       })
 
       const { result } = renderHook(() => useFramePreview(), {
@@ -224,6 +239,11 @@ describe("useFramePreview", () => {
         getAllFilesWithPreviews: vi.fn(),
         saveTimelineFrames: vi.fn(),
         getTimelineFrames: vi.fn(),
+        getFilesWithPreviews: vi.fn(),
+        savePreviewData: vi.fn(),
+        loadPreviewData: vi.fn(),
+        isGenerating: false,
+        error: null,
       })
 
       const { result } = renderHook(() => useFramePreview(), {
@@ -244,6 +264,11 @@ describe("useFramePreview", () => {
         getAllFilesWithPreviews: vi.fn(),
         saveTimelineFrames: vi.fn(),
         getTimelineFrames: vi.fn(),
+        getFilesWithPreviews: vi.fn(),
+        savePreviewData: vi.fn(),
+        loadPreviewData: vi.fn(),
+        isGenerating: false,
+        error: null,
       })
 
       const { result } = renderHook(() => useFramePreview(), {
@@ -267,6 +292,11 @@ describe("useFramePreview", () => {
         getAllFilesWithPreviews: vi.fn(),
         saveTimelineFrames: vi.fn(),
         getTimelineFrames: vi.fn(),
+        getFilesWithPreviews: vi.fn(),
+        savePreviewData: vi.fn(),
+        loadPreviewData: vi.fn(),
+        isGenerating: false,
+        error: null,
       })
 
       const { result } = renderHook(() => useFramePreview(), {

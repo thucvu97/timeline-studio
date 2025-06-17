@@ -9,18 +9,20 @@ import { CacheStatisticsModal } from "../cache-statistics-modal"
 vi.mock("../../hooks/use-cache-stats", () => ({
   useCacheStats: vi.fn(() => ({
     stats: {
+      total_entries: 350,
       hit_ratio: 0.75,
       preview_hits: 150,
       preview_misses: 50,
       preview_hit_ratio: 0.75,
       metadata_hits: 200,
       metadata_misses: 100,
-      metadata_hit_ratio: 0.67,
       memory_usage: {
         total_bytes: 52428800, // 50 MB
         preview_bytes: 31457280, // 30 MB
         metadata_bytes: 20971520, // 20 MB
+        render_bytes: 0,
       },
+      cache_size_mb: 50,
     },
     isLoading: false,
     error: null,
@@ -82,18 +84,20 @@ describe("CacheStatisticsModal", () => {
     
     mockUseCacheStats.mockReturnValue({
       stats: {
+        total_entries: 350,
         hit_ratio: 0.75,
         preview_hits: 150,
         preview_misses: 50,
         preview_hit_ratio: 0.75,
         metadata_hits: 200,
         metadata_misses: 100,
-        metadata_hit_ratio: 0.67,
         memory_usage: {
           total_bytes: 52428800,
           preview_bytes: 31457280,
           metadata_bytes: 20971520,
+          render_bytes: 0,
         },
+        cache_size_mb: 50,
       },
       isLoading: false,
       error: null,
@@ -124,14 +128,20 @@ describe("CacheStatisticsModal", () => {
     
     mockUseCacheStats.mockReturnValue({
       stats: {
+        total_entries: 0,
         hit_ratio: 0.75,
         preview_hits: 150,
         preview_misses: 50,
         preview_hit_ratio: 0.75,
         metadata_hits: 200,
         metadata_misses: 100,
-        metadata_hit_ratio: 0.67,
-        memory_usage: null,
+        memory_usage: {
+          total_bytes: 0,
+          preview_bytes: 0,
+          metadata_bytes: 0,
+          render_bytes: 0,
+        },
+        cache_size_mb: 0,
       },
       isLoading: false,
       error: null,
@@ -162,14 +172,20 @@ describe("CacheStatisticsModal", () => {
     
     mockUseCacheStats.mockReturnValue({
       stats: {
+        total_entries: 0,
         hit_ratio: 0.75,
         preview_hits: 150,
         preview_misses: 50,
         preview_hit_ratio: 0.75,
         metadata_hits: 200,
         metadata_misses: 100,
-        metadata_hit_ratio: 0.67,
-        memory_usage: null,
+        memory_usage: {
+          total_bytes: 0,
+          preview_bytes: 0,
+          metadata_bytes: 0,
+          render_bytes: 0,
+        },
+        cache_size_mb: 0,
       },
       isLoading: false,
       error: null,
@@ -252,18 +268,20 @@ describe("CacheStatisticsModal", () => {
     
     mockUseCacheStats.mockReturnValue({
       stats: {
+        total_entries: 350,
         hit_ratio: 0.75,
         preview_hits: 150,
         preview_misses: 50,
         preview_hit_ratio: 0.75,
         metadata_hits: 200,
         metadata_misses: 100,
-        metadata_hit_ratio: 0.67,
         memory_usage: {
           total_bytes: 52428800,
           preview_bytes: 31457280,
           metadata_bytes: 20971520,
+          render_bytes: 0,
         },
+        cache_size_mb: 50,
       },
       isLoading: false,
       error: null,
@@ -288,14 +306,20 @@ describe("CacheStatisticsModal", () => {
     
     mockUseCacheStats.mockReturnValue({
       stats: {
+        total_entries: 0,
         hit_ratio: 0.75,
         preview_hits: 150,
         preview_misses: 50,
         preview_hit_ratio: 0.75,
         metadata_hits: 200,
         metadata_misses: 100,
-        metadata_hit_ratio: 0.67,
-        memory_usage: null,
+        memory_usage: {
+          total_bytes: 0,
+          preview_bytes: 0,
+          metadata_bytes: 0,
+          render_bytes: 0,
+        },
+        cache_size_mb: 0,
       },
       isLoading: true, // Загрузка в процессе
       error: null,

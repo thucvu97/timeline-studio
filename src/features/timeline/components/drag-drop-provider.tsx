@@ -17,7 +17,6 @@ import {
 import { createSnapModifier } from "@dnd-kit/modifiers"
 
 import { MediaFile } from "@/features/media/types/media"
-import { cn } from "@/lib/utils"
 
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
 
@@ -73,12 +72,7 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
   const sensors = useSensors(mouseSensor, touchSensor)
 
   // Create snap modifier for grid snapping
-  const snapToGridModifier = createSnapModifier({
-    snapToGrid: {
-      x: 20, // Snap every 20px horizontally (approximate time grid)
-      y: 60, // Snap to track height
-    },
-  })
+  const snapToGridModifier = createSnapModifier(20) // Grid size in pixels
 
   return (
     <DndContext
