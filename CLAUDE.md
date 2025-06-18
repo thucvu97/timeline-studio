@@ -17,8 +17,23 @@ Before working with this codebase, ensure you have the following dependencies in
   # Ubuntu/Debian
   sudo apt-get install ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
   
-  # Windows
-  choco install ffmpeg
+  # Windows (требуется более сложная настройка)
+  # Вариант 1: Использовать vcpkg
+  git clone https://github.com/Microsoft/vcpkg.git
+  cd vcpkg
+  ./bootstrap-vcpkg.bat
+  ./vcpkg integrate install
+  ./vcpkg install ffmpeg:x64-windows
+  
+  # Вариант 2: Скачать предсобранные библиотеки
+  # 1. Скачайте FFmpeg shared библиотеки с https://www.gyan.dev/ffmpeg/builds/
+  # 2. Распакуйте в C:\ffmpeg
+  # 3. Добавьте в системные переменные:
+  set FFMPEG_DIR=C:\ffmpeg
+  set PKG_CONFIG_PATH=C:\ffmpeg\lib\pkgconfig
+  
+  # Также установите pkg-config для Windows:
+  choco install pkgconfiglite
   ```
 - **ONNX Runtime** - Machine learning inference (for recognition features)
   ```bash
@@ -35,7 +50,11 @@ Before working with this codebase, ensure you have the following dependencies in
 
 ### Platform-specific Tools
 - **macOS**: Xcode Command Line Tools
-- **Windows**: Visual Studio 2022 with C++ tools
+- **Windows**: 
+  - Visual Studio 2022 with C++ tools
+  - Windows SDK
+  - pkg-config (через `choco install pkgconfiglite`)
+  - vcpkg или предсобранные FFmpeg библиотеки
 - **Linux**: `build-essential`, `libgtk-3-dev`, `libwebkit2gtk-4.1-dev`
 
 ## Common Development Commands
