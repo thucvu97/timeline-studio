@@ -32,8 +32,8 @@ export function useLanguage() {
       setIsLoading(true)
       setError(null)
 
-      // Получаем язык из бэкенда Tauri
-      const response = await invoke<LanguageResponse>("get_app_language")
+      // Получаем язык из бэкенда Tauri (используем новую безопасную команду)
+      const response = await invoke<LanguageResponse>("get_app_language_tauri")
 
       // Проверяем, поддерживается ли язык
       const appLang = isSupportedLanguage(response.language) ? (response.language as LanguageCode) : DEFAULT_LANGUAGE
@@ -83,8 +83,8 @@ export function useLanguage() {
         // Сохраняем в localStorage
         localStorage.setItem("app-language", lang)
 
-        // Синхронизируем с бэкендом Tauri
-        await invoke<LanguageResponse>("set_app_language", { lang })
+        // Синхронизируем с бэкендом Tauri (используем новую безопасную команду)
+        await invoke<LanguageResponse>("set_app_language_tauri", { lang })
       } catch (err) {
         console.error("Error changing language:", err)
         setError(err instanceof Error ? err.message : String(err))

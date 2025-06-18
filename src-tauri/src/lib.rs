@@ -2,8 +2,8 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 // Модуль для работы с языком
-mod language;
-use language::{get_app_language, set_app_language};
+mod language_tauri; // Tauri v2 proper state management
+use language_tauri::{get_app_language_tauri, set_app_language_tauri, LanguageState};
 
 // Модуль для работы с медиафайлами
 mod media;
@@ -133,18 +133,6 @@ fn greet() -> String {
   let now = SystemTime::now();
   let epoch_ms = now.duration_since(UNIX_EPOCH).unwrap().as_millis();
   format!("Hello world from Rust! Current epoch: {}", epoch_ms)
-}
-
-/// Graceful shutdown for all global state to prevent mutex errors during app termination
-#[tauri::command]
-fn initiate_graceful_shutdown() -> Result<String, String> {
-  // Initiate shutdown for language module
-  language::initiate_shutdown();
-
-  // Log the shutdown initiation
-  log::info!("Graceful shutdown initiated for all global state");
-
-  Ok("Shutdown initiated successfully".to_string())
 }
 
 // Media Processor Commands
@@ -313,6 +301,9 @@ pub fn run() {
     }
   });
 
+  // Инициализация Language State (Tauri v2 way)
+  let language_state = LanguageState::new();
+
   tauri::Builder::default()
     .plugin(tauri_plugin_log::Builder::new().build())
     .plugin(tauri_plugin_notification::init())
@@ -326,13 +317,13 @@ pub fn run() {
     .manage(video_server_state)
     .manage(recognition_state)
     .manage(preview_manager_state)
+    .manage(language_state)
     .invoke_handler(tauri::generate_handler![
       greet,
-      initiate_graceful_shutdown,
       #[cfg(test)]
       get_test_longest_video,
-      get_app_language,
-      set_app_language,
+      get_app_language_tauri,
+      set_app_language_tauri,
       get_media_metadata,
       get_media_files,
       scan_media_folder,
@@ -1037,53 +1028,6 @@ mod tests {
 
     // Должна вернуться ошибка
     assert!(result.is_err());
-  }
-
-  // ==================== ТЕСТЫ ДЛЯ ЯЗЫКОВЫХ ФУНКЦИЙ ====================
-
-  #[test]
-  fn test_language_operations() {
-    // Тестируем установку языка
-    let result = set_app_language("ru".to_string());
-    assert!(result.is_ok());
-
-    // Тестируем получение языка
-    let current_lang = get_app_language();
-
-    // Проверяем, что язык корректно установлен
-    assert_eq!(current_lang.language, "ru");
-  }
-
-  #[test]
-  fn test_all_supported_languages() {
-    let test_languages = [
-      "en", "ru", "es", "fr", "de", "pt", "zh", "ja", "ko", "tr", "th",
-    ];
-
-    for code_str in test_languages.iter() {
-      // Устанавливаем язык
-      let set_result = set_app_language(code_str.to_string());
-      assert!(
-        set_result.is_ok(),
-        "Не удалось установить язык: {}",
-        code_str
-      );
-
-      // Получаем язык
-      let language = get_app_language();
-      assert_eq!(language.language, *code_str);
-    }
-  }
-
-  #[test]
-  fn test_invalid_language_code() {
-    // Тестируем установку недопустимого языка
-    let result = set_app_language("invalid_lang".to_string());
-    assert!(result.is_err());
-
-    // Проверяем, что можем получить текущий язык
-    let current = get_app_language();
-    assert!(!current.language.is_empty());
   }
 
   // ==================== ТЕСТЫ ДЛЯ FILESYSTEM КОМАНД ====================

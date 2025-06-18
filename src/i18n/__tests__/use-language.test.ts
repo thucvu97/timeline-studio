@@ -81,7 +81,7 @@ describe("useLanguage", () => {
     expect(result.current.systemLanguage).toBe("en")
 
     // Проверяем, что invoke был вызван с правильными параметрами
-    expect(invoke).toHaveBeenCalledWith("get_app_language")
+    expect(invoke).toHaveBeenCalledWith("get_app_language_tauri")
   })
 
   it("should change language", async () => {
@@ -110,7 +110,7 @@ describe("useLanguage", () => {
     })
 
     // Проверяем, что invoke был вызван с правильными параметрами
-    expect(invoke).toHaveBeenCalledWith("set_app_language", { lang: "en" })
+    expect(invoke).toHaveBeenCalledWith("set_app_language_tauri", { lang: "en" })
 
     // Проверяем, что язык сохранен в localStorage
     expect(localStorageMock.setItem).toHaveBeenCalledWith("app-language", "en")
@@ -222,7 +222,7 @@ describe("useLanguage", () => {
     })
 
     // Проверяем, что invoke был вызван с правильными параметрами
-    expect(invoke).toHaveBeenCalledWith("get_app_language")
+    expect(invoke).toHaveBeenCalledWith("get_app_language_tauri")
 
     // Проверяем, что язык сохранен в localStorage
     expect(localStorageMock.setItem).toHaveBeenCalledWith("app-language", "en")

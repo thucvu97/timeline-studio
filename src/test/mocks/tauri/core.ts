@@ -39,9 +39,9 @@ export function setupTauriCommand(command: string, response: unknown) {
 
 // Type-safe command handlers
 export interface TauriCommands {
-  // Language commands
-  get_app_language: () => Promise<{ language: string; system_language: string }>
-  set_app_language: (args: { lang: string }) => Promise<{ language: string; system_language: string }>
+  // Language commands (Tauri v2 proper state management)
+  get_app_language_tauri: () => Promise<{ language: string; system_language: string }>
+  set_app_language_tauri: (args: { lang: string }) => Promise<{ language: string; system_language: string }>
 
   // File system commands
   file_exists: (args: { path: string }) => Promise<boolean>
@@ -90,11 +90,12 @@ export function createTauriMock() {
     usePreset(preset: "default" | "empty" | "with-media" | "with-project") {
       switch (preset) {
         case "default":
-          this.on("get_app_language", async () => ({
+          // Команды языка Tauri v2
+          this.on("get_app_language_tauri", async () => ({
             language: "ru",
             system_language: "ru",
           }))
-          this.on("set_app_language", async (args) => ({
+          this.on("set_app_language_tauri", async (args) => ({
             language: args?.lang || "ru",
             system_language: "ru",
           }))

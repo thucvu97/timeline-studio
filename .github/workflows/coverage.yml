@@ -95,6 +95,8 @@ jobs:
             fi
           else
             echo "❌ Tests failed with exit code $EXIT_CODE"
+            # Показываем последние строки для диагностики
+            tail -20 test_output.log
             exit $EXIT_CODE
           fi
           

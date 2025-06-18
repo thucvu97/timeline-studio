@@ -47,11 +47,12 @@ pub mod test_data {
     }
   }
 
-  static TEST_FILES: OnceLock<Vec<TestMediaFile>> = OnceLock::new();
+  // Using Box::leak to prevent static destructor issues
+  static TEST_FILES: OnceLock<&'static Vec<TestMediaFile>> = OnceLock::new();
 
   pub fn get_test_files() -> &'static Vec<TestMediaFile> {
     TEST_FILES.get_or_init(|| {
-      vec![
+      Box::leak(Box::new(vec![
         TestMediaFile {
           filename: "C0666.MP4",
           path: PathBuf::new(),
@@ -220,33 +221,41 @@ pub mod test_data {
           is_360: false,
           has_cyrillic: true,
         },
-      ]
+      ]))
     })
   }
 
-  static VIDEO_FILES: OnceLock<Vec<&'static TestMediaFile>> = OnceLock::new();
-  static AUDIO_FILES: OnceLock<Vec<&'static TestMediaFile>> = OnceLock::new();
-  static IMAGE_FILES: OnceLock<Vec<&'static TestMediaFile>> = OnceLock::new();
+  static VIDEO_FILES: OnceLock<&'static Vec<&'static TestMediaFile>> = OnceLock::new();
+  static AUDIO_FILES: OnceLock<&'static Vec<&'static TestMediaFile>> = OnceLock::new();
+  static IMAGE_FILES: OnceLock<&'static Vec<&'static TestMediaFile>> = OnceLock::new();
 
   pub fn get_video_files() -> &'static Vec<&'static TestMediaFile> {
-    VIDEO_FILES.get_or_init(|| get_test_files().iter().filter(|f| f.has_video).collect())
+    VIDEO_FILES.get_or_init(|| {
+      Box::leak(Box::new(
+        get_test_files().iter().filter(|f| f.has_video).collect(),
+      ))
+    })
   }
 
   pub fn get_audio_files() -> &'static Vec<&'static TestMediaFile> {
     AUDIO_FILES.get_or_init(|| {
-      get_test_files()
-        .iter()
-        .filter(|f| f.has_audio && !f.has_video)
-        .collect()
+      Box::leak(Box::new({
+        get_test_files()
+          .iter()
+          .filter(|f| f.has_audio && !f.has_video)
+          .collect()
+      }))
     })
   }
 
   pub fn get_image_files() -> &'static Vec<&'static TestMediaFile> {
     IMAGE_FILES.get_or_init(|| {
-      get_test_files()
-        .iter()
-        .filter(|f| f.has_video && f.duration == 0.0)
-        .collect()
+      Box::leak(Box::new({
+        get_test_files()
+          .iter()
+          .filter(|f| f.has_video && f.duration == 0.0)
+          .collect()
+      }))
     })
   }
 

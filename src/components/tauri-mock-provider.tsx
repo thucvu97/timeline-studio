@@ -22,7 +22,7 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
 
           // Mock responses for common commands
           switch (cmd) {
-            case "get_app_language":
+            case "get_app_language_tauri":
               return { language: "ru", system_language: "ru" }
             case "get_media_files":
               return []
