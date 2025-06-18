@@ -3,7 +3,6 @@ import { resetThemeMocks } from "./next-themes"
 import { resetHotkeysMocks } from "./react-hotkeys-hook"
 
 // Third-party library mocks
-import "./i18n"
 import "./lucide-react"
 import "./radix-ui"
 
