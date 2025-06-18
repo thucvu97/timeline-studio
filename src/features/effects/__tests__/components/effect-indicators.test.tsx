@@ -228,8 +228,8 @@ describe("EffectIndicators", () => {
 
   describe("Обратная совместимость", () => {
     it("должен работать с эффектом без тегов", () => {
-      const effect = { ...baseEffect };
-      (effect as any).tags = undefined
+      const effect = { ...baseEffect }
+      ;(effect as any).tags = undefined
 
       expect(() => {
         render(<EffectIndicators effect={effect} />)

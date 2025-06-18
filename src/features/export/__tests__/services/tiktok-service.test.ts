@@ -23,18 +23,18 @@ class MockXMLHttpRequest {
   send = vi.fn()
   status = 200
   statusText = "OK"
-  
+
   // Mock methods to trigger events
   triggerLoad() {
     const loadHandler = this.addEventListener.mock.calls.find(([event]) => event === "load")?.[1]
     if (loadHandler) loadHandler()
   }
-  
+
   triggerError() {
     const errorHandler = this.addEventListener.mock.calls.find(([event]) => event === "error")?.[1]
     if (errorHandler) errorHandler()
   }
-  
+
   triggerProgress(loaded: number, total: number) {
     const progressHandler = this.upload.addEventListener.mock.calls.find(([event]) => event === "progress")?.[1]
     if (progressHandler) progressHandler({ lengthComputable: true, loaded, total })
@@ -132,7 +132,7 @@ describe("TikTokService - Comprehensive", () => {
       vi.mocked(OAuthService.getStoredToken).mockResolvedValue(null)
 
       await expect(TikTokService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow(
-        "Not authenticated with TikTok"
+        "Not authenticated with TikTok",
       )
     })
 
@@ -143,7 +143,7 @@ describe("TikTokService - Comprehensive", () => {
       } as any)
 
       await expect(TikTokService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow(
-        "TikTok init failed: Invalid metadata"
+        "TikTok init failed: Invalid metadata",
       )
     })
 
@@ -154,7 +154,7 @@ describe("TikTokService - Comprehensive", () => {
       } as any)
 
       await expect(TikTokService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow(
-        "TikTok init failed: Unknown error"
+        "TikTok init failed: Unknown error",
       )
     })
 
@@ -221,12 +221,12 @@ describe("TikTokService - Comprehensive", () => {
 
     it("should log and re-throw upload errors", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Mock initialization to fail inside the try-catch block
       vi.mocked(fetch).mockRejectedValue(new Error("Network initialization failed"))
 
       await expect(TikTokService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow(
-        "Network initialization failed"
+        "Network initialization failed",
       )
 
       expect(consoleSpy).toHaveBeenCalledWith("TikTok upload error:", expect.any(Error))
@@ -250,33 +250,30 @@ describe("TikTokService - Comprehensive", () => {
       const initMethod = (TikTokService as any).initializeUpload
       const result = await initMethod(mockMetadata, mockVideoFile, mockToken.accessToken)
 
-      expect(fetch).toHaveBeenCalledWith(
-        "https://open.tiktokapis.com/v2/post/publish/video/init/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: "Bearer test_tiktok_access_token",
-            "Content-Type": "application/json",
+      expect(fetch).toHaveBeenCalledWith("https://open.tiktokapis.com/v2/post/publish/video/init/", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer test_tiktok_access_token",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          post_info: {
+            title: mockMetadata.title,
+            description: mockMetadata.description,
+            privacy_level: mockMetadata.privacy_level,
+            disable_duet: false,
+            disable_comment: false,
+            disable_stitch: false,
+            video_cover_timestamp_ms: 1000,
           },
-          body: JSON.stringify({
-            post_info: {
-              title: mockMetadata.title,
-              description: mockMetadata.description,
-              privacy_level: mockMetadata.privacy_level,
-              disable_duet: false,
-              disable_comment: false,
-              disable_stitch: false,
-              video_cover_timestamp_ms: 1000,
-            },
-            source_info: {
-              source: "FILE_UPLOAD",
-              video_size: mockVideoFile.size,
-              chunk_size: 10485760,
-              total_chunk_count: Math.ceil(mockVideoFile.size / 10485760),
-            },
-          }),
-        }
-      )
+          source_info: {
+            source: "FILE_UPLOAD",
+            video_size: mockVideoFile.size,
+            chunk_size: 10485760,
+            total_chunk_count: Math.ceil(mockVideoFile.size / 10485760),
+          },
+        }),
+      })
 
       expect(result).toEqual(mockResponse)
     })
@@ -334,11 +331,7 @@ describe("TikTokService - Comprehensive", () => {
       const uploadUrl = "https://upload.example.com/video"
       const progressCallback = vi.fn()
 
-      const uploadPromise = (TikTokService as any).uploadVideoFile(
-        mockVideoFile,
-        uploadUrl,
-        progressCallback
-      )
+      const uploadPromise = (TikTokService as any).uploadVideoFile(mockVideoFile, uploadUrl, progressCallback)
 
       setTimeout(() => {
         xhrInstance.triggerLoad()
@@ -359,7 +352,7 @@ describe("TikTokService - Comprehensive", () => {
       const uploadPromise = (TikTokService as any).uploadVideoFile(
         mockVideoFile,
         "https://upload.example.com",
-        progressCallback
+        progressCallback,
       )
 
       setTimeout(() => {
@@ -382,13 +375,13 @@ describe("TikTokService - Comprehensive", () => {
       const uploadPromise = (TikTokService as any).uploadVideoFile(
         mockVideoFile,
         "https://upload.example.com",
-        progressCallback
+        progressCallback,
       )
 
       setTimeout(() => {
         // Trigger progress with lengthComputable: false
         const progressHandler = xhrInstance.upload.addEventListener.mock.calls.find(
-          ([event]) => event === "progress"
+          ([event]) => event === "progress",
         )?.[1]
         if (progressHandler) {
           progressHandler({ lengthComputable: false, loaded: 1024, total: 2048 })
@@ -405,10 +398,7 @@ describe("TikTokService - Comprehensive", () => {
       const xhrInstance = new MockXMLHttpRequest()
       vi.mocked(XMLHttpRequest).mockReturnValue(xhrInstance as any)
 
-      const uploadPromise = (TikTokService as any).uploadVideoFile(
-        mockVideoFile,
-        "https://upload.example.com"
-      )
+      const uploadPromise = (TikTokService as any).uploadVideoFile(mockVideoFile, "https://upload.example.com")
 
       setTimeout(() => {
         xhrInstance.triggerLoad()
@@ -434,19 +424,16 @@ describe("TikTokService - Comprehensive", () => {
       const publishMethod = (TikTokService as any).publishVideo
       const result = await publishMethod("test_publish_id", mockToken.accessToken)
 
-      expect(fetch).toHaveBeenCalledWith(
-        "https://open.tiktokapis.com/v2/post/publish/status/fetch/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: "Bearer test_tiktok_access_token",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            publish_id: "test_publish_id",
-          }),
-        }
-      )
+      expect(fetch).toHaveBeenCalledWith("https://open.tiktokapis.com/v2/post/publish/status/fetch/", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer test_tiktok_access_token",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          publish_id: "test_publish_id",
+        }),
+      })
 
       expect(result).toEqual({
         publish_id: "test_publish_id",
@@ -530,9 +517,7 @@ describe("TikTokService - Comprehensive", () => {
         status: 401,
       } as any)
 
-      await expect(TikTokService.getUserInfo("invalid_token")).rejects.toThrow(
-        "Failed to get user info"
-      )
+      await expect(TikTokService.getUserInfo("invalid_token")).rejects.toThrow("Failed to get user info")
     })
 
     it("should handle missing user data in response", async () => {
@@ -557,10 +542,7 @@ describe("TikTokService - Comprehensive", () => {
 
       const result = TikTokService.validateSettings(invalidSettings)
 
-      expect(result).toEqual([
-        "Title is required",
-        "Description must be 2200 characters or less",
-      ])
+      expect(result).toEqual(["Title is required", "Description must be 2200 characters or less"])
     })
 
     it("should handle whitespace-only title", () => {
@@ -603,7 +585,7 @@ describe("TikTokService - Comprehensive", () => {
   describe("exportSettings - Extended", () => {
     it("should handle default title when title is missing", async () => {
       const settingsWithoutTitle = { ...baseSettings }
-      delete (settingsWithoutTitle as any).title
+      ;(settingsWithoutTitle as any).title = undefined
 
       const result = await TikTokService.exportSettings(settingsWithoutTitle)
 
@@ -704,9 +686,7 @@ describe("TikTokService - Comprehensive", () => {
     it("should handle fetch network errors during initialization", async () => {
       vi.mocked(fetch).mockRejectedValue(new Error("Network error"))
 
-      await expect(TikTokService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow(
-        "Network error"
-      )
+      await expect(TikTokService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow("Network error")
     })
 
     it("should handle JSON parsing errors", async () => {
@@ -715,9 +695,7 @@ describe("TikTokService - Comprehensive", () => {
         json: () => Promise.reject(new Error("Invalid JSON")),
       } as any)
 
-      await expect(TikTokService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow(
-        "Invalid JSON"
-      )
+      await expect(TikTokService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow("Invalid JSON")
     })
 
     it("should handle getUserInfo JSON parsing errors", async () => {

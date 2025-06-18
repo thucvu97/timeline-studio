@@ -158,7 +158,7 @@ describe("useEffectsImport - Simple Coverage", () => {
     }
 
     expect(getFileName("/path/to/effect.cube")).toBe("effect.cube")
-    expect(getFileName("C:\\\\effects\\\\my-effect.cube")).toBe("my-effect.cube") 
+    expect(getFileName("C:\\\\effects\\\\my-effect.cube")).toBe("my-effect.cube")
     expect(getFileName("effect.cube")).toBe("effect.cube")
     expect(getFileName("/path/to/")).toBe("unknown") // Changed expectation
     expect(getFileName("")).toBe("unknown")
@@ -221,13 +221,9 @@ describe("useEffectsImport - Simple Coverage", () => {
       return `custom=${filePath}:intensity=${intensity}`
     }
 
-    expect(generateLutCommand("/path/to/lut.cube", 75)).toBe(
-      "lut3d=/path/to/lut.cube:interp=trilinear:amount=0.75",
-    )
+    expect(generateLutCommand("/path/to/lut.cube", 75)).toBe("lut3d=/path/to/lut.cube:interp=trilinear:amount=0.75")
 
-    expect(generateCustomCommand("/path/to/preset.json", 60)).toBe(
-      "custom=/path/to/preset.json:intensity=60",
-    )
+    expect(generateCustomCommand("/path/to/preset.json", 60)).toBe("custom=/path/to/preset.json:intensity=60")
   })
 
   it("should handle progress calculation", () => {

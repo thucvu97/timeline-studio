@@ -80,13 +80,13 @@ describe("SecureTokenStorage - Comprehensive", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(isDesktop).mockReturnValue(false)
-    
+
     // Reset crypto mocks
     mockCrypto.subtle.importKey.mockResolvedValue({} as CryptoKey)
     mockCrypto.subtle.deriveKey.mockResolvedValue({} as CryptoKey)
     mockCrypto.subtle.encrypt.mockResolvedValue(new ArrayBuffer(16))
     mockCrypto.subtle.decrypt.mockResolvedValue(new TextEncoder().encode(JSON.stringify(mockToken)))
-    
+
     // Reset Tauri store mocks
     mockStore.set.mockResolvedValue(undefined)
     mockStore.get.mockResolvedValue(null)
@@ -97,13 +97,10 @@ describe("SecureTokenStorage - Comprehensive", () => {
   describe("storeToken", () => {
     it("should store token with calculated expiry time", async () => {
       const dateSpy = vi.spyOn(Date, "now").mockReturnValue(1000000)
-      
+
       await SecureTokenStorage.storeToken("youtube", mockToken)
 
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        "youtube_oauth_token",
-        expect.stringContaining("data")
-      )
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith("youtube_oauth_token", expect.stringContaining("data"))
 
       dateSpy.mockRestore()
     })
@@ -125,10 +122,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
 
       await SecureTokenStorage.storeToken("youtube", mockToken)
 
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        "youtube_oauth_token",
-        expect.any(String)
-      )
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith("youtube_oauth_token", expect.any(String))
     })
 
     it("should fallback to plain localStorage when encryption fails", async () => {
@@ -138,7 +132,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
 
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         "youtube_oauth_token",
-        expect.stringMatching(/^{.*"accessToken":"test_access_token".*}$/)
+        expect.stringMatching(/^{.*"accessToken":"test_access_token".*}$/),
       )
     })
 
@@ -151,17 +145,14 @@ describe("SecureTokenStorage - Comprehensive", () => {
       // Should fallback to encrypted localStorage, not plain text
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         "youtube_oauth_token",
-        expect.stringContaining("data") // Contains encrypted data
+        expect.stringContaining("data"), // Contains encrypted data
       )
     })
 
     it("should handle different networks correctly", async () => {
       await SecureTokenStorage.storeToken("tiktok", mockToken)
 
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        "tiktok_oauth_token",
-        expect.any(String)
-      )
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith("tiktok_oauth_token", expect.any(String))
     })
   })
 
@@ -295,7 +286,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
       expect(mockStore.delete).toHaveBeenCalledWith("youtube_oauth_token")
       expect(mockStore.delete).toHaveBeenCalledWith("youtube_user_info")
       expect(consoleSpy).toHaveBeenCalledWith("Tauri store not available:", expect.any(Error))
-      
+
       consoleSpy.mockRestore()
     })
 
@@ -336,7 +327,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
   describe("Tauri Storage Methods", () => {
     it("should handle Tauri store import failure gracefully", async () => {
       vi.mocked(isDesktop).mockReturnValue(true)
-      
+
       // Mock dynamic import failure
       vi.doMock("@tauri-apps/plugin-store", () => {
         throw new Error("Tauri not available")
@@ -389,7 +380,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
         }),
         { name: "PBKDF2" },
         false,
-        ["deriveKey"]
+        ["deriveKey"],
       )
 
       expect(mockCrypto.subtle.deriveKey).toHaveBeenCalledWith(
@@ -404,7 +395,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
         {}, // key material
         { name: "AES-GCM", length: 256 },
         false,
-        ["encrypt", "decrypt"]
+        ["encrypt", "decrypt"],
       )
     })
 
@@ -421,7 +412,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
       expect(mockCrypto.subtle.decrypt).toHaveBeenCalledWith(
         { name: "AES-GCM", iv: expect.any(Uint8Array) },
         {}, // derived key
-        expect.any(Uint8Array) // encrypted data
+        expect.any(Uint8Array), // encrypted data
       )
     })
 
@@ -432,7 +423,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
         timestamp: Date.now(),
       }
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(encryptedToken))
-      
+
       // Mock decrypt to throw an error for invalid hex
       mockCrypto.subtle.decrypt.mockRejectedValue(new Error("Invalid hex data"))
 
@@ -445,7 +436,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
   describe("Error Handling", () => {
     it("should log errors when storage operations fail", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Make both encryption and localStorage fail
       mockCrypto.subtle.encrypt.mockRejectedValue(new Error("Encryption failed"))
       mockLocalStorage.setItem.mockImplementation(() => {
@@ -458,39 +449,33 @@ describe("SecureTokenStorage - Comprehensive", () => {
         // Expected to throw since all storage methods fail
       }
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to store token for youtube:",
-        expect.any(Error)
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to store token for youtube:", expect.any(Error))
 
       consoleSpy.mockRestore()
     })
 
     it("should log errors when token retrieval fails", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Make localStorage.getItem throw during the fallback
       mockLocalStorage.getItem.mockImplementation(() => {
         throw new Error("Storage access denied")
       })
-      
+
       // Simulate being on web so it tries encrypted localStorage directly
       vi.mocked(isDesktop).mockReturnValue(false)
 
       const result = await SecureTokenStorage.getStoredToken("youtube")
 
       expect(result).toBeNull()
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to decrypt token:",
-        expect.any(Error)
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to decrypt token:", expect.any(Error))
 
       consoleSpy.mockRestore()
     })
 
     it("should log errors when token removal fails", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Simulate being on web (not desktop) where localStorage is used directly
       vi.mocked(isDesktop).mockReturnValue(false)
       mockLocalStorage.removeItem.mockImplementation(() => {
@@ -503,10 +488,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
         // Expected to throw since localStorage.removeItem fails
       }
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to remove token for youtube:",
-        expect.any(Error)
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("Failed to remove token for youtube:", expect.any(Error))
 
       consoleSpy.mockRestore()
     })
@@ -516,7 +498,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
     it("should calculate correct expiry time", async () => {
       const mockNow = 1000000
       const dateSpy = vi.spyOn(Date, "now").mockReturnValue(mockNow)
-      
+
       // Reset mocks to ensure clean state
       vi.clearAllMocks()
       mockCrypto.subtle.encrypt.mockResolvedValue(new ArrayBuffer(16))
@@ -525,10 +507,10 @@ describe("SecureTokenStorage - Comprehensive", () => {
       await SecureTokenStorage.storeToken("youtube", mockToken)
 
       const expectedExpiry = mockNow + mockToken.expiresIn * 1000
-      
+
       // Verify the token was stored with correct expiry
       expect(mockLocalStorage.setItem).toHaveBeenCalled()
-      
+
       // The expiry calculation is done internally before encryption
       // Just verify that the process completed successfully
       expect(mockCrypto.subtle.encrypt).toHaveBeenCalled()
@@ -538,8 +520,8 @@ describe("SecureTokenStorage - Comprehensive", () => {
 
     it("should handle tokens without expiresAt gracefully", async () => {
       const tokenWithoutExpiry = { ...mockToken }
-      delete (tokenWithoutExpiry as any).expiresAt
-      
+      ;(tokenWithoutExpiry as any).expiresAt = undefined
+
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(tokenWithoutExpiry))
 
       const result = await SecureTokenStorage.getStoredToken("youtube")
@@ -552,8 +534,8 @@ describe("SecureTokenStorage - Comprehensive", () => {
     it("should handle missing crypto API gracefully", async () => {
       // Temporarily remove crypto
       const originalCrypto = global.crypto
-      delete (global as any).crypto
-      
+      ;(global as any).crypto = undefined
+
       // Reset mocks to ensure clean state
       vi.clearAllMocks()
       mockLocalStorage.setItem.mockImplementation(() => {}) // Don't throw
@@ -563,7 +545,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
       // Should fallback to plain localStorage
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         "youtube_oauth_token",
-        expect.stringMatching(/^{.*"accessToken":"test_access_token".*}$/)
+        expect.stringMatching(/^{.*"accessToken":"test_access_token".*}$/),
       )
 
       // Restore crypto
@@ -574,7 +556,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
       // Reset mocks to ensure clean state
       vi.clearAllMocks()
       mockLocalStorage.setItem.mockImplementation(() => {}) // Don't throw
-      
+
       mockCrypto.getRandomValues.mockImplementation(() => {
         throw new Error("Crypto not available")
       })
@@ -584,7 +566,7 @@ describe("SecureTokenStorage - Comprehensive", () => {
       // Should fallback to plain localStorage
       expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
         "youtube_oauth_token",
-        expect.stringMatching(/^{.*"accessToken":"test_access_token".*}$/)
+        expect.stringMatching(/^{.*"accessToken":"test_access_token".*}$/),
       )
     })
   })

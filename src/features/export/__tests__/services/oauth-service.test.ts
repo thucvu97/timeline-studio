@@ -53,13 +53,12 @@ const mockAddEventListener = vi.fn()
 const mockRemoveEventListener = vi.fn()
 
 global.fetch = vi.fn()
-global.window = {
-  ...global.window,
+Object.assign(global.window, {
   open: mockWindowOpen,
   addEventListener: mockAddEventListener,
   removeEventListener: mockRemoveEventListener,
   location: { origin: "http://localhost:3000" },
-} as any
+})
 
 describe("OAuthService - Comprehensive", () => {
   beforeEach(() => {
@@ -93,7 +92,7 @@ describe("OAuthService - Comprehensive", () => {
       vi.resetModules()
       vi.unstubAllEnvs()
       vi.stubEnv("NEXT_PUBLIC_YOUTUBE_CLIENT_ID", "")
-      
+
       // Re-import the service to pick up new env vars
       const { OAuthService: FreshOAuthService } = await import("../../services/oauth-service")
 
@@ -108,7 +107,7 @@ describe("OAuthService - Comprehensive", () => {
       vi.resetModules()
       vi.unstubAllEnvs()
       vi.stubEnv("NEXT_PUBLIC_TIKTOK_CLIENT_ID", "")
-      
+
       // Re-import the service to pick up new env vars
       const { OAuthService: FreshOAuthService } = await import("../../services/oauth-service")
 
@@ -120,7 +119,7 @@ describe("OAuthService - Comprehensive", () => {
 
     it("should create correct auth URL for YouTube", async () => {
       vi.stubEnv("NEXT_PUBLIC_YOUTUBE_CLIENT_ID", "test_youtube_client")
-      
+
       // Mock window.open to fail after a short delay to avoid infinite wait
       mockWindowOpen.mockReturnValue(null)
 
@@ -133,13 +132,13 @@ describe("OAuthService - Comprehensive", () => {
       expect(mockWindowOpen).toHaveBeenCalledWith(
         expect.stringContaining("https://accounts.google.com/o/oauth2/v2/auth"),
         "oauth",
-        "width=600,height=700,scrollbars=yes,resizable=yes"
+        "width=600,height=700,scrollbars=yes,resizable=yes",
       )
     })
 
     it("should create correct auth URL for TikTok", async () => {
       vi.stubEnv("NEXT_PUBLIC_TIKTOK_CLIENT_ID", "test_tiktok_client")
-      
+
       mockWindowOpen.mockReturnValue(null)
 
       try {
@@ -151,7 +150,7 @@ describe("OAuthService - Comprehensive", () => {
       expect(mockWindowOpen).toHaveBeenCalledWith(
         expect.stringContaining("https://www.tiktok.com/v2/auth/authorize/"),
         "oauth",
-        "width=600,height=700,scrollbars=yes,resizable=yes"
+        "width=600,height=700,scrollbars=yes,resizable=yes",
       )
     })
 
@@ -235,7 +234,7 @@ describe("OAuthService - Comprehensive", () => {
               },
             })
           }, 50)
-          
+
           // Then close window to trigger cancellation
           setTimeout(() => {
             mockWindow.closed = true
@@ -494,7 +493,9 @@ describe("OAuthService - Comprehensive", () => {
 
       expect(authUrl.searchParams.get("client_id")).toBe("youtube_client_id")
       expect(authUrl.searchParams.get("redirect_uri")).toBe("http://localhost:3000/oauth/callback")
-      expect(authUrl.searchParams.get("scope")).toBe("https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube")
+      expect(authUrl.searchParams.get("scope")).toBe(
+        "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube",
+      )
       expect(authUrl.searchParams.get("response_type")).toBe("code")
       expect(authUrl.searchParams.get("state")).toMatch(/^youtube_\d+$/)
     })
@@ -531,33 +532,27 @@ describe("OAuthService - Comprehensive", () => {
 
     it("should log errors on token refresh failure", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       vi.mocked(fetch).mockRejectedValue(new Error("Network timeout"))
 
       const result = await OAuthService.refreshToken("youtube", "token")
 
       expect(result).toBeNull()
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Token refresh failed for youtube:",
-        expect.any(Error)
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("Token refresh failed for youtube:", expect.any(Error))
 
       consoleSpy.mockRestore()
     })
 
     it("should log errors on OAuth login failure", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       mockWindowOpen.mockImplementation(() => {
         throw new Error("Popup blocked")
       })
 
       await expect(OAuthService.loginToNetwork("youtube")).rejects.toThrow("Popup blocked")
-      
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "OAuth login failed for youtube:",
-        expect.any(Error)
-      )
+
+      expect(consoleSpy).toHaveBeenCalledWith("OAuth login failed for youtube:", expect.any(Error))
 
       consoleSpy.mockRestore()
     })

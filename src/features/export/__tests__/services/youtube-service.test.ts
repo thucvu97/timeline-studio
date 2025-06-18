@@ -24,18 +24,18 @@ class MockXMLHttpRequest {
   status = 200
   statusText = "OK"
   responseText = JSON.stringify({ id: "test_video_id", status: { uploadStatus: "uploaded" } })
-  
+
   // Mock methods to trigger events
   triggerLoad() {
     const loadHandler = this.addEventListener.mock.calls.find(([event]) => event === "load")?.[1]
     if (loadHandler) loadHandler()
   }
-  
+
   triggerError() {
     const errorHandler = this.addEventListener.mock.calls.find(([event]) => event === "error")?.[1]
     if (errorHandler) errorHandler()
   }
-  
+
   triggerProgress(loaded: number, total: number) {
     const progressHandler = this.upload.addEventListener.mock.calls.find(([event]) => event === "progress")?.[1]
     if (progressHandler) progressHandler({ lengthComputable: true, loaded, total })
@@ -110,7 +110,7 @@ describe("YouTubeService - Comprehensive", () => {
       vi.mocked(OAuthService.getStoredToken).mockResolvedValue(null)
 
       await expect(YouTubeService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow(
-        "Not authenticated with YouTube"
+        "Not authenticated with YouTube",
       )
     })
 
@@ -119,7 +119,7 @@ describe("YouTubeService - Comprehensive", () => {
       xhrInstance.status = 400
       xhrInstance.statusText = "Bad Request"
       xhrInstance.responseText = JSON.stringify({
-        error: { message: "Invalid video format" }
+        error: { message: "Invalid video format" },
       })
       vi.mocked(XMLHttpRequest).mockReturnValue(xhrInstance as any)
 
@@ -186,7 +186,7 @@ describe("YouTubeService - Comprehensive", () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         blob: () => Promise.resolve(new Blob(["thumbnail"], { type: "image/jpeg" })),
       } as any)
-      
+
       // Mock thumbnail upload second
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
@@ -206,7 +206,8 @@ describe("YouTubeService - Comprehensive", () => {
 
       expect(result.id).toBe("test_video_id")
       expect(fetch).toHaveBeenNthCalledWith(1, "https://example.com/thumbnail.jpg")
-      expect(fetch).toHaveBeenNthCalledWith(2,
+      expect(fetch).toHaveBeenNthCalledWith(
+        2,
         "https://www.googleapis.com/youtube/v3/thumbnails/set?videoId=test_video_id&uploadType=media",
         expect.objectContaining({
           method: "POST",
@@ -214,13 +215,13 @@ describe("YouTubeService - Comprehensive", () => {
             Authorization: "Bearer test_youtube_access_token",
           },
           body: expect.any(FormData),
-        })
+        }),
       )
     })
 
     it("should handle thumbnail upload failure gracefully", async () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
-      
+
       const metadataWithThumbnail = {
         ...mockMetadata,
         thumbnail: "https://example.com/thumbnail.jpg",
@@ -230,7 +231,7 @@ describe("YouTubeService - Comprehensive", () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         blob: () => Promise.resolve(new Blob(["thumbnail"], { type: "image/jpeg" })),
       } as any)
-      
+
       // Mock thumbnail upload failure
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
@@ -250,13 +251,13 @@ describe("YouTubeService - Comprehensive", () => {
 
       expect(result.id).toBe("test_video_id")
       expect(consoleSpy).toHaveBeenCalledWith("Failed to upload thumbnail:", "thumbnail upload failed")
-      
+
       consoleSpy.mockRestore()
     })
 
     it("should handle thumbnail fetch failure gracefully", async () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
-      
+
       const metadataWithThumbnail = {
         ...mockMetadata,
         thumbnail: "https://example.com/thumbnail.jpg",
@@ -278,13 +279,13 @@ describe("YouTubeService - Comprehensive", () => {
 
       expect(result.id).toBe("test_video_id")
       expect(consoleSpy).toHaveBeenCalledWith("Thumbnail upload failed:", expect.any(Error))
-      
+
       consoleSpy.mockRestore()
     })
 
     it("should log and re-throw upload errors", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Create an XMLHttpRequest that will throw an error
       const xhrInstance = new MockXMLHttpRequest()
       vi.mocked(XMLHttpRequest).mockImplementation(() => {
@@ -292,7 +293,7 @@ describe("YouTubeService - Comprehensive", () => {
       })
 
       await expect(YouTubeService.uploadVideo(mockVideoFile, mockMetadata)).rejects.toThrow(
-        "XMLHttpRequest creation failed"
+        "XMLHttpRequest creation failed",
       )
 
       expect(consoleSpy).toHaveBeenCalledWith("YouTube upload error:", expect.any(Error))
@@ -313,7 +314,7 @@ describe("YouTubeService - Comprehensive", () => {
         "https://api.example.com/upload",
         formData,
         "test_token",
-        progressCallback
+        progressCallback,
       )
 
       setTimeout(() => {
@@ -338,7 +339,7 @@ describe("YouTubeService - Comprehensive", () => {
         "https://api.example.com/upload",
         formData,
         "test_token",
-        progressCallback
+        progressCallback,
       )
 
       setTimeout(() => {
@@ -364,13 +365,13 @@ describe("YouTubeService - Comprehensive", () => {
         "https://api.example.com/upload",
         formData,
         "test_token",
-        progressCallback
+        progressCallback,
       )
 
       setTimeout(() => {
         // Trigger progress with lengthComputable: false
         const progressHandler = xhrInstance.upload.addEventListener.mock.calls.find(
-          ([event]) => event === "progress"
+          ([event]) => event === "progress",
         )?.[1]
         if (progressHandler) {
           progressHandler({ lengthComputable: false, loaded: 1024, total: 2048 })
@@ -391,7 +392,7 @@ describe("YouTubeService - Comprehensive", () => {
       const uploadPromise = (YouTubeService as any).uploadWithProgress(
         "https://api.example.com/upload",
         formData,
-        "test_token"
+        "test_token",
       )
 
       setTimeout(() => {
@@ -412,7 +413,7 @@ describe("YouTubeService - Comprehensive", () => {
       const uploadPromise = (YouTubeService as any).uploadWithProgress(
         "https://api.example.com/upload",
         formData,
-        "test_token"
+        "test_token",
       )
 
       setTimeout(() => {
@@ -513,14 +514,11 @@ describe("YouTubeService - Comprehensive", () => {
 
       const result = await YouTubeService.getUserInfo("custom_token")
 
-      expect(fetch).toHaveBeenCalledWith(
-        "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true",
-        {
-          headers: {
-            Authorization: "Bearer custom_token",
-          },
-        }
-      )
+      expect(fetch).toHaveBeenCalledWith("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true", {
+        headers: {
+          Authorization: "Bearer custom_token",
+        },
+      })
 
       expect(result).toEqual(mockUserInfo)
     })
@@ -534,14 +532,11 @@ describe("YouTubeService - Comprehensive", () => {
       const result = await YouTubeService.getUserInfo()
 
       expect(OAuthService.getStoredToken).toHaveBeenCalledWith("youtube")
-      expect(fetch).toHaveBeenCalledWith(
-        "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true",
-        {
-          headers: {
-            Authorization: "Bearer test_youtube_access_token",
-          },
-        }
-      )
+      expect(fetch).toHaveBeenCalledWith("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true", {
+        headers: {
+          Authorization: "Bearer test_youtube_access_token",
+        },
+      })
 
       expect(result).toEqual(mockUserInfo)
     })
@@ -558,9 +553,7 @@ describe("YouTubeService - Comprehensive", () => {
         status: 401,
       } as any)
 
-      await expect(YouTubeService.getUserInfo("invalid_token")).rejects.toThrow(
-        "Failed to get user info"
-      )
+      await expect(YouTubeService.getUserInfo("invalid_token")).rejects.toThrow("Failed to get user info")
     })
 
     it("should handle missing items in response", async () => {
@@ -606,7 +599,7 @@ describe("YouTubeService - Comprehensive", () => {
           headers: {
             Authorization: "Bearer test_youtube_access_token",
           },
-        }
+        },
       )
 
       expect(result).toEqual(mockCategories)
@@ -622,7 +615,7 @@ describe("YouTubeService - Comprehensive", () => {
 
       expect(fetch).toHaveBeenCalledWith(
         "https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=RU",
-        expect.any(Object)
+        expect.any(Object),
       )
 
       expect(result).toEqual(mockCategories)
@@ -806,7 +799,7 @@ describe("YouTubeService - Comprehensive", () => {
 
     it("should handle default title when title is missing", async () => {
       const settingsWithoutTitle = { ...baseSettings }
-      delete (settingsWithoutTitle as any).title
+      ;(settingsWithoutTitle as any).title = undefined
 
       const result = await YouTubeService.exportSettings(settingsWithoutTitle)
 

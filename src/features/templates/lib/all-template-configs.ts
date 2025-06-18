@@ -1061,10 +1061,14 @@ export const ALL_TEMPLATE_CONFIGS: MediaTemplateConfig[] = [
 ]
 
 // Создаем карту для быстрого доступа
-export const ALL_TEMPLATE_CONFIG_MAP: Record<string, MediaTemplateConfig> = ALL_TEMPLATE_CONFIGS.reduce(
-  (acc, config) => ({ ...acc, [config.id]: config }),
-  {},
-)
+export const ALL_TEMPLATE_CONFIG_MAP: Record<string, MediaTemplateConfig> =
+  ALL_TEMPLATE_CONFIGS.reduce<Record<string, MediaTemplateConfig>>(
+    (acc, config) => {
+      acc[config.id] = config
+      return acc
+    },
+    {},
+  )
 
 // Функция для получения конфигурации по ID
 export function getAllTemplateConfig(templateId: string): MediaTemplateConfig | undefined {
