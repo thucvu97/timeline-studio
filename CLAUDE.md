@@ -55,6 +55,46 @@ Before working with this codebase, ensure you have the following dependencies in
   - Windows SDK
   - pkg-config (через `choco install pkgconfiglite`)
   - vcpkg или предсобранные FFmpeg библиотеки
+  
+### Windows-specific FFmpeg Setup
+
+Для сборки на Windows требуется один из следующих вариантов:
+
+#### Вариант 1: Использование vcpkg (рекомендуется для CI/CD)
+```powershell
+# Установка vcpkg
+git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
+cd C:\vcpkg
+.\bootstrap-vcpkg.bat
+.\vcpkg integrate install
+
+# Установка FFmpeg
+.\vcpkg install ffmpeg:x64-windows
+
+# Установка переменных окружения
+[System.Environment]::SetEnvironmentVariable('VCPKG_ROOT', 'C:\vcpkg', 'User')
+[System.Environment]::SetEnvironmentVariable('PKG_CONFIG_PATH', 'C:\vcpkg\installed\x64-windows\lib\pkgconfig', 'User')
+```
+
+#### Вариант 2: Предсобранные библиотеки
+```powershell
+# Скачать FFmpeg shared libraries
+# с https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full-shared.7z
+
+# Распаковать в C:\ffmpeg
+
+# Установить переменные окружения
+[System.Environment]::SetEnvironmentVariable('FFMPEG_DIR', 'C:\ffmpeg', 'User')
+[System.Environment]::SetEnvironmentVariable('PKG_CONFIG_PATH', 'C:\ffmpeg\lib\pkgconfig', 'User')
+[System.Environment]::SetEnvironmentVariable('PATH', $env:PATH + ';C:\ffmpeg\bin', 'User')
+```
+
+#### Вариант 3: Использование MSYS2
+```bash
+# Установить MSYS2 с https://www.msys2.org/
+# В терминале MSYS2:
+pacman -S mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-pkg-config
+```
 - **Linux**: `build-essential`, `libgtk-3-dev`, `libwebkit2gtk-4.1-dev`
 
 ## Common Development Commands
