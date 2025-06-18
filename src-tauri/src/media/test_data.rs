@@ -48,178 +48,180 @@ pub mod test_data {
   }
 
   static TEST_FILES: OnceLock<Vec<TestMediaFile>> = OnceLock::new();
-  
+
   pub fn get_test_files() -> &'static Vec<TestMediaFile> {
-    TEST_FILES.get_or_init(|| vec![
-          TestMediaFile {
-              filename: "C0666.MP4",
-              path: PathBuf::new(),
-              format_name: "mov,mp4,m4a,3gp,3g2,mj2",
-              duration: 8.2,
-              size: 268715286,
-              bit_rate: 263446358,
+    TEST_FILES.get_or_init(|| {
+      vec![
+        TestMediaFile {
+          filename: "C0666.MP4",
+          path: PathBuf::new(),
+          format_name: "mov,mp4,m4a,3gp,3g2,mj2",
+          duration: 8.2,
+          size: 268715286,
+          bit_rate: 263446358,
 
-              has_video: true,
-              video_codec: Some("hevc"),
-              width: Some(3840),
-              height: Some(2160),
-              fps: Some("50/1"),
-              video_bit_rate: 202226438,
+          has_video: true,
+          video_codec: Some("hevc"),
+          width: Some(3840),
+          height: Some(2160),
+          fps: Some("50/1"),
+          video_bit_rate: 202226438,
 
-              has_audio: true,
-              audio_codec: Some("pcm_s16be"),
-              sample_rate: 48000,
-              channels: Some(2),
-              audio_bit_rate: 1536000,
+          has_audio: true,
+          audio_codec: Some("pcm_s16be"),
+          sample_rate: 48000,
+          channels: Some(2),
+          audio_bit_rate: 1536000,
 
-              is_360: false,
-              has_cyrillic: false,
-          },
-          TestMediaFile {
-              filename: "C0783.MP4",
-              path: PathBuf::new(),
-              format_name: "mov,mp4,m4a,3gp,3g2,mj2",
-              duration: 5.8,
-              size: 201604898,
-              bit_rate: 280006802,
+          is_360: false,
+          has_cyrillic: false,
+        },
+        TestMediaFile {
+          filename: "C0783.MP4",
+          path: PathBuf::new(),
+          format_name: "mov,mp4,m4a,3gp,3g2,mj2",
+          duration: 5.8,
+          size: 201604898,
+          bit_rate: 280006802,
 
-              has_video: true,
-              video_codec: Some("hevc"),
-              width: Some(3840),
-              height: Some(2160),
-              fps: Some("50/1"),
-              video_bit_rate: 201424745,
+          has_video: true,
+          video_codec: Some("hevc"),
+          width: Some(3840),
+          height: Some(2160),
+          fps: Some("50/1"),
+          video_bit_rate: 201424745,
 
-              has_audio: true,
-              audio_codec: Some("pcm_s16be"),
-              sample_rate: 48000,
-              channels: Some(2),
-              audio_bit_rate: 1536000,
+          has_audio: true,
+          audio_codec: Some("pcm_s16be"),
+          sample_rate: 48000,
+          channels: Some(2),
+          audio_bit_rate: 1536000,
 
-              is_360: false,
-              has_cyrillic: false,
-          },
-          TestMediaFile {
-              filename: "DJI_02_20250402_104352.WAV",
-              path: PathBuf::new(),
-              format_name: "wav",
-              duration: 1864.2,
-              size: 268448300,
-              bit_rate: 1152000,
+          is_360: false,
+          has_cyrillic: false,
+        },
+        TestMediaFile {
+          filename: "DJI_02_20250402_104352.WAV",
+          path: PathBuf::new(),
+          format_name: "wav",
+          duration: 1864.2,
+          size: 268448300,
+          bit_rate: 1152000,
 
-              has_video: false,
-              video_codec: None,
-              width: None,
-              height: None,
-              fps: None,
-              video_bit_rate: 0,
+          has_video: false,
+          video_codec: None,
+          width: None,
+          height: None,
+          fps: None,
+          video_bit_rate: 0,
 
-              has_audio: true,
-              audio_codec: Some("pcm_s24le"),
-              sample_rate: 48000,
-              channels: Some(1),
-              audio_bit_rate: 1152000,
+          has_audio: true,
+          audio_codec: Some("pcm_s24le"),
+          sample_rate: 48000,
+          channels: Some(1),
+          audio_bit_rate: 1152000,
 
-              is_360: false,
-              has_cyrillic: false,
-          },
-          TestMediaFile {
-              filename: "DSC07845.png",
-              path: PathBuf::new(),
-              format_name: "png_pipe",
-              duration: 0.0,
-              size: 6020511,
-              bit_rate: 0,
+          is_360: false,
+          has_cyrillic: false,
+        },
+        TestMediaFile {
+          filename: "DSC07845.png",
+          path: PathBuf::new(),
+          format_name: "png_pipe",
+          duration: 0.0,
+          size: 6020511,
+          bit_rate: 0,
 
-              has_video: true,
-              video_codec: Some("png"),
-              width: Some(4240),
-              height: Some(2832),
-              fps: Some("25/1"),
-              video_bit_rate: 0,
+          has_video: true,
+          video_codec: Some("png"),
+          width: Some(4240),
+          height: Some(2832),
+          fps: Some("25/1"),
+          video_bit_rate: 0,
 
-              has_audio: false,
-              audio_codec: None,
-              sample_rate: 0,
-              channels: None,
-              audio_bit_rate: 0,
+          has_audio: false,
+          audio_codec: None,
+          sample_rate: 0,
+          channels: None,
+          audio_bit_rate: 0,
 
-              is_360: false,
-              has_cyrillic: false,
-          },
-          TestMediaFile {
-              filename: "Kate.mp4",
-              path: PathBuf::new(),
-              format_name: "mov,mp4,m4a,3gp,3g2,mj2",
-              duration: 7.7,
-              size: 74604623,
-              bit_rate: 77723269,
+          is_360: false,
+          has_cyrillic: false,
+        },
+        TestMediaFile {
+          filename: "Kate.mp4",
+          path: PathBuf::new(),
+          format_name: "mov,mp4,m4a,3gp,3g2,mj2",
+          duration: 7.7,
+          size: 74604623,
+          bit_rate: 77723269,
 
-              has_video: true,
-              video_codec: Some("h264"),
-              width: Some(3840),
-              height: Some(2160),
-              fps: Some("50/1"),
-              video_bit_rate: 75547964,
+          has_video: true,
+          video_codec: Some("h264"),
+          width: Some(3840),
+          height: Some(2160),
+          fps: Some("50/1"),
+          video_bit_rate: 75547964,
 
-              has_audio: true,
-              audio_codec: Some("aac"),
-              sample_rate: 44100,
-              channels: Some(2),
-              audio_bit_rate: 191999,
+          has_audio: true,
+          audio_codec: Some("aac"),
+          sample_rate: 44100,
+          channels: Some(2),
+          audio_bit_rate: 191999,
 
-              is_360: false,
-              has_cyrillic: false,
-          },
-          TestMediaFile {
-              filename: "water play3.mp4",
-              path: PathBuf::new(),
-              format_name: "mov,mp4,m4a,3gp,3g2,mj2",
-              duration: 3.4,
-              size: 48104293,
-              bit_rate: 112549014,
+          is_360: false,
+          has_cyrillic: false,
+        },
+        TestMediaFile {
+          filename: "water play3.mp4",
+          path: PathBuf::new(),
+          format_name: "mov,mp4,m4a,3gp,3g2,mj2",
+          duration: 3.4,
+          size: 48104293,
+          bit_rate: 112549014,
 
-              has_video: true,
-              video_codec: Some("hevc"),
-              width: Some(3840),
-              height: Some(2160),
-              fps: Some("50/1"),
-              video_bit_rate: 100985640,
+          has_video: true,
+          video_codec: Some("hevc"),
+          width: Some(3840),
+          height: Some(2160),
+          fps: Some("50/1"),
+          video_bit_rate: 100985640,
 
-              has_audio: false,
-              audio_codec: None,
-              sample_rate: 0,
-              channels: None,
-              audio_bit_rate: 0,
+          has_audio: false,
+          audio_codec: None,
+          sample_rate: 0,
+          channels: None,
+          audio_bit_rate: 0,
 
-              is_360: false,
-              has_cyrillic: false,
-          },
-          TestMediaFile {
-              filename: "проводка после лобби.mp4",
-              path: PathBuf::new(),
-              format_name: "mov,mp4,m4a,3gp,3g2,mj2",
-              duration: 19.9,
-              size: 255990182,
-              bit_rate: 102984008,
+          is_360: false,
+          has_cyrillic: false,
+        },
+        TestMediaFile {
+          filename: "проводка после лобби.mp4",
+          path: PathBuf::new(),
+          format_name: "mov,mp4,m4a,3gp,3g2,mj2",
+          duration: 19.9,
+          size: 255990182,
+          bit_rate: 102984008,
 
-              has_video: true,
-              video_codec: Some("hevc"),
-              width: Some(3840),
-              height: Some(2160),
-              fps: Some("50/1"),
-              video_bit_rate: 100000226,
+          has_video: true,
+          video_codec: Some("hevc"),
+          width: Some(3840),
+          height: Some(2160),
+          fps: Some("50/1"),
+          video_bit_rate: 100000226,
 
-              has_audio: false,
-              audio_codec: None,
-              sample_rate: 0,
-              channels: None,
-              audio_bit_rate: 0,
+          has_audio: false,
+          audio_codec: None,
+          sample_rate: 0,
+          channels: None,
+          audio_bit_rate: 0,
 
-              is_360: false,
-              has_cyrillic: true,
-          },
-      ])
+          is_360: false,
+          has_cyrillic: true,
+        },
+      ]
+    })
   }
 
   static VIDEO_FILES: OnceLock<Vec<&'static TestMediaFile>> = OnceLock::new();
@@ -227,12 +229,7 @@ pub mod test_data {
   static IMAGE_FILES: OnceLock<Vec<&'static TestMediaFile>> = OnceLock::new();
 
   pub fn get_video_files() -> &'static Vec<&'static TestMediaFile> {
-    VIDEO_FILES.get_or_init(|| {
-      get_test_files()
-        .iter()
-        .filter(|f| f.has_video)
-        .collect()
-    })
+    VIDEO_FILES.get_or_init(|| get_test_files().iter().filter(|f| f.has_video).collect())
   }
 
   pub fn get_audio_files() -> &'static Vec<&'static TestMediaFile> {
@@ -255,16 +252,22 @@ pub mod test_data {
 
   // Helper functions for tests
   pub fn get_test_video() -> &'static TestMediaFile {
-    get_video_files().first().expect("No test video files available")
+    get_video_files()
+      .first()
+      .expect("No test video files available")
   }
 
   pub fn get_test_audio() -> &'static TestMediaFile {
-    get_audio_files().first().expect("No test audio files available")
+    get_audio_files()
+      .first()
+      .expect("No test audio files available")
   }
 
   #[allow(dead_code)]
   pub fn get_test_image() -> &'static TestMediaFile {
-    get_image_files().first().expect("No test image files available")
+    get_image_files()
+      .first()
+      .expect("No test image files available")
   }
 
   pub fn get_file_with_cyrillic() -> Option<&'static TestMediaFile> {

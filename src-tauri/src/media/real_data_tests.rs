@@ -345,9 +345,15 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_different_sample_rates() {
     // Тест обработки различных частот дискретизации
-    let files_44khz = get_test_files().iter().filter(|f| f.sample_rate == 44100).count();
+    let files_44khz = get_test_files()
+      .iter()
+      .filter(|f| f.sample_rate == 44100)
+      .count();
 
-    let files_48khz = get_test_files().iter().filter(|f| f.sample_rate == 48000).count();
+    let files_48khz = get_test_files()
+      .iter()
+      .filter(|f| f.sample_rate == 48000)
+      .count();
 
     println!(
       "Sample rates: 44.1kHz: {}, 48kHz: {}",
@@ -419,7 +425,10 @@ mod real_data_tests {
       assert!(result.is_ok(), "Failed to process video with audio");
     }
 
-    if let Some(video_without_audio) = get_test_files().iter().find(|f| f.has_video && !f.has_audio) {
+    if let Some(video_without_audio) = get_test_files()
+      .iter()
+      .find(|f| f.has_video && !f.has_audio)
+    {
       let result = extract_metadata(&video_without_audio.get_path()).await;
       assert!(result.is_ok(), "Failed to process video without audio");
     }
@@ -462,7 +471,11 @@ mod real_data_tests {
       processed, errors
     );
     assert_eq!(errors, 0, "Some files failed to process");
-    assert_eq!(processed, get_test_files().len(), "Not all files were processed");
+    assert_eq!(
+      processed,
+      get_test_files().len(),
+      "Not all files were processed"
+    );
   }
 
   #[tokio::test]

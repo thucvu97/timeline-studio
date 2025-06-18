@@ -81,8 +81,9 @@ export function useTransitions(): UseTransitionsReturn {
    */
   const loadTransitions = useCallback(() => {
     // Создаем обертку для функции t, чтобы она соответствовала ожидаемой сигнатуре
-    const translateWrapper = (key: string, fallback?: string, options?: any) => {
-      return String(t(key, fallback || key, options))
+    const translateWrapper = (key: string, fallback?: string, options?: Record<string, any>) => {
+      const result = t(key, fallback || key, options)
+      return typeof result === 'string' ? result : JSON.stringify(result)
     }
     
     initializeTransitions(translateWrapper)
@@ -113,8 +114,9 @@ export function useTransitionById(transitionId: string): Transition | null {
   
   // Инициализируем переходы если еще не инициализированы
   useMemo(() => {
-    const translateWrapper = (key: string, fallback?: string, options?: any) => {
-      return String(t(key, fallback || key, options))
+    const translateWrapper = (key: string, fallback?: string, options?: Record<string, any>) => {
+      const result = t(key, fallback || key, options)
+      return typeof result === 'string' ? result : JSON.stringify(result)
     }
     initializeTransitions(translateWrapper)
   }, [t])
@@ -137,8 +139,9 @@ export function useTransitionsByCategory(category: string): Transition[] {
   
   // Инициализируем переходы если еще не инициализированы
   useMemo(() => {
-    const translateWrapper = (key: string, fallback?: string, options?: any) => {
-      return String(t(key, fallback || key, options))
+    const translateWrapper = (key: string, fallback?: string, options?: Record<string, any>) => {
+      const result = t(key, fallback || key, options)
+      return typeof result === 'string' ? result : JSON.stringify(result)
     }
     initializeTransitions(translateWrapper)
   }, [t])
@@ -161,8 +164,9 @@ export function useTransitionsSearch(query: string, lang: "ru" | "en" = "ru"): T
   
   // Инициализируем переходы если еще не инициализированы
   useMemo(() => {
-    const translateWrapper = (key: string, fallback?: string, options?: any) => {
-      return String(t(key, fallback || key, options))
+    const translateWrapper = (key: string, fallback?: string, options?: Record<string, any>) => {
+      const result = t(key, fallback || key, options)
+      return typeof result === 'string' ? result : JSON.stringify(result)
     }
     initializeTransitions(translateWrapper)
   }, [t])
