@@ -7,7 +7,7 @@ import { join } from 'path'
 
 const execAsync = promisify(exec)
 
-const TEST_DATA_PATH = 'public/test-data'
+const TEST_DATA_PATH = 'test-data'
 const OUTPUT_FILE = 'src-tauri/src/media/test_data.rs'
 
 async function getMediaInfo(filePath) {
@@ -92,14 +92,18 @@ async function analyzeTestMedia() {
   await generateRustTestData(results)
   
   // Save JSON for reference
-  await writeFile(
-    'e2e/tests/media-metadata.json',
-    JSON.stringify(results, null, 2)
-  )
+  try {
+    await writeFile(
+      'test-data/media-metadata.json',
+      JSON.stringify(results, null, 2)
+    )
+  } catch (error) {
+    console.warn('Warning: Could not save JSON metadata:', error.message)
+  }
   
   console.log('✅ Analysis complete!')
   console.log(`📄 Rust test data generated: ${OUTPUT_FILE}`)
-  console.log(`📄 JSON metadata saved: e2e/tests/media-metadata.json`)
+  console.log(`📄 JSON metadata saved: test-data/media-metadata.json`)
 }
 
 async function generateRustTestData(metadata) {
@@ -144,7 +148,6 @@ pub mod test_data {
             PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                 .parent()
                 .unwrap()
-                .join("public")
                 .join("test-data")
                 .join(self.filename)
         }

@@ -471,12 +471,12 @@ export function KeyboardShortcutsModal() {
               "Нажмите на сочетание клавиш, чтобы изменить его. Нажмите нужные клавиши для установки нового сочетания.",
             )}
           </p>
-          <p className="mt-1">
+          {/* <p className="mt-1">
             {t(
               "dialogs.keyboardShortcuts.searchHint",
               "Вы можете искать по названию или нажать комбинацию клавиш в поле поиска.",
             )}
-          </p>
+          </p> */}
         </div>
       </div>
 
