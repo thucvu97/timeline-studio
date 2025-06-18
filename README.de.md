@@ -95,43 +95,6 @@ bun tauri dev
 bun tauri build
 ```
 
-## Projektstruktur
-
-```
-timeline-studio/
-├── src/                  # Frontend-Quellcode (React, Next.js)
-│   ├── features/         # Anwendungsfeature-Module (17 Features)
-│   │   ├── browser/      ✅ # Mediendatei-Browser mit Tabs
-│   │   ├── media/        ✅ # Mediendatei-Verwaltung
-│   │   ├── video-player/ ✅ # Video-Player mit Steuerelementen
-│   │   ├── timeline/     ⚠️ # Timeline (benötigt Arbeit)
-│   │   ├── resources/    ⚠️ # Ressourcen (benötigt UI-Komponenten)
-│   │   ├── ai-chat/      ❓ # KI-Chat (benötigt Überprüfung)
-│   │   ├── options/      ⚠️ # Optionen-Panel (benötigt Erweiterung)
-│   │   ├── music/        ✅ # Musikdateien
-│   │   ├── effects/      ✅ # Video-Effekte
-│   │   ├── filters/      ✅ # Bildfilter
-│   │   ├── transitions/  ✅ # Clip-Übergänge
-│   │   ├── subtitles/    ✅ # Untertitel
-│   │   ├── templates/    ✅ # Projektvorlagen
-│   │   ├── modals/       ✅ # Modale Fenster
-│   │   ├── app-state/    ✅ # Globaler Zustand
-│   │   ├── top-bar/      ✅ # Obere Navigationsleiste
-│   │   ├── media-studio/ ✅ # Root-Komponente
-│   │   └── OVERVIEW.md   📚 # Übersicht aller Features
-│   ├── i18n/             # Internationalisierung
-│   ├── types/            # TypeScript-Typen
-│   ├── lib/              # Hilfsprogramme und Bibliotheken
-│   └── components/       # Wiederverwendbare UI-Komponenten
-├── src-tauri/            # Backend-Quellcode (Rust)
-│   ├── src/              # Rust-Code
-│   └── Cargo.toml        # Rust-Abhängigkeitskonfiguration
-├── public/               # Statische Dateien
-├── DEV.md                📚 # Entwicklerdokumentation
-├── README.ru.md          📚 # Russische Dokumentation
-└── package.json          # Node.js-Abhängigkeitskonfiguration
-```
-
 ## Dokumentation
 
 ### 📚 Hauptdokumentation
@@ -176,30 +139,6 @@ timeline-studio/
 - `bun test:coverage` - Tests mit Coverage-Bericht ausführen
 - `bun test:ui` - Tests mit UI-Oberfläche ausführen
 - `bun test:e2e` - End-to-End-Tests mit Playwright ausführen
-
-### Zustandsautomaten (XState v5)
-
-Das Projekt verwendet XState v5 zur Verwaltung komplexer Zustandslogik.
-
-#### ✅ Implementierte Zustandsautomaten (11):
-
-- `appSettingsMachine` - zentralisierte Einstellungsverwaltung
-- `chatMachine` - KI-Chat-Verwaltung
-- `modalMachine` - modale Fensterverwaltung
-- `playerMachine` - Video-Player-Verwaltung
-- `resourcesMachine` - Timeline-Ressourcenverwaltung
-- `musicMachine` - Musikdatei-Verwaltung
-- `userSettingsMachine` - Benutzereinstellungen
-- `projectSettingsMachine` - Projekteinstellungen
-- `mediaListMachine` - Mediendateilisten-Verwaltung
-- `templateListMachine` - Vorlagenverwaltung
-- `timelineMachine` - ✅ **ABGESCHLOSSEN!** Haupt-Timeline-Zustandsautomat (20 Tests bestanden)
-
-#### ❌ Benötigen Implementierung (1):
-
-- `optionsMachine` - Optionen-Panel-Verwaltung
-
-Siehe `DEV.md` für Details.
 
 ### Tests
 

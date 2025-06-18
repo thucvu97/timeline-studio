@@ -92,63 +92,6 @@ bun run tauri dev
 bun run tauri build
 ```
 
-## Estrutura do Projeto
-
-```
-timeline-studio/
-├── bin/                              # Scripts shell
-├── docs/                             # Documentação gerada automaticamente
-├── docs-ru/                      # Documentação gerada por IA para desenvolvedores
-├── examples/                         # Exemplos de uso da API
-├── promo/                            # Site GitHub Pages
-├── public/                           # Arquivos estáticos
-├── scripts/                          # Scripts JavaScript
-├── src/                              # Código-fonte frontend (React, XState, Next.js)
-│   ├── app/                          # Ponto de entrada principal da aplicação
-│   ├── components/                   # Componentes compartilhados
-│   ├── features/                     # Recursos
-│   │   ├── ai-chat/                  # Chatbot IA (assistente interativo)
-│   │   ├── app-state/                # Estado global da aplicação
-│   │   ├── browser/                  # Navegador de arquivos de mídia (painel de arquivos)
-│   │   ├── camera-capture/           # Captura de vídeo/foto da câmera
-│   │   ├── effects/                  # Efeitos de vídeo e seus parâmetros
-│   │   ├── export/                   # Exportação de vídeo e projeto
-│   │   ├── filters/                  # Filtros de vídeo (correção de cor, estilos)
-│   │   ├── keyboard-shortcuts/       # Atalhos de teclado e predefinições
-│   │   ├── media/                    # Manipulação de arquivos de mídia (áudio/vídeo)
-│   │   ├── media-studio/             # Estúdio de edição de mídia
-│   │   ├── modals/                   # Janelas modais (diálogos)
-│   │   ├── music/                    # Importação e gerenciamento de música
-│   │   ├── options/                  # Configurações de exportação e projeto
-│   │   ├── project-settings/         # Configurações do projeto (tamanho, fps, etc.)
-│   │   ├── recognition/              # Reconhecimento de cena e objeto
-│   │   ├── resources/                # Gerenciamento de recursos do projeto
-│   │   ├── style-templates/          # Estilos e modelos de design
-│   │   ├── subtitles/                # Importação e edição de legendas
-│   │   ├── templates/                # Modelos e predefinições de vídeo
-│   │   ├── timeline/                 # Timeline de edição principal
-│   │   ├── top-bar/                  # Interface da barra superior
-│   │   ├── transitions/              # Transições de vídeo
-│   │   ├── user-settings/            # Preferências do usuário
-│   │   ├── video-compiler/           # Integração do compilador de vídeo frontend
-│   │   └── video-player/             # Player de vídeo personalizado
-│   ├── lib/                          # Bibliotecas e utilitários compartilhados
-│   ├── test/                         # Utilitários de teste
-│   └── types/                        # Definições de tipo TypeScript
-├── src-tauri/                        # Código-fonte backend (Rust)
-│   ├── src/                          # Arquivos fonte Rust
-│   │   ├── app_dirs.rs               # Gerenciamento de diretórios da aplicação
-│   │   ├── filesystem.rs             # Operações do sistema de arquivos
-│   │   ├── language.rs               # Suporte de idioma/i18n
-│   │   ├── lib.rs                    # Entrada principal da biblioteca
-│   │   ├── media/                    # Módulo de processamento de mídia
-│   │   ├── recognition/              # Módulo de reconhecimento YOLO
-│   │   ├── video_compiler/           # Compilação de vídeo FFmpeg
-│   │   └── video_server/             # Servidor de streaming de vídeo
-│   └── tauri.conf.json               # Configuração Tauri
-└── ...outros arquivos de configuração
-```
-
 ## Documentação
 
 ### 📚 Documentação Principal

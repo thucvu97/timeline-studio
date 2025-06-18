@@ -92,68 +92,6 @@ bun run tauri dev
 bun run tauri build
 ```
 
-## Structure du Projet
-
-```
-timeline-studio/
-├── bin/                              # Scripts shell
-├── docs/                             # Documentation générée automatiquement
-├── docs-ru/                      # Docs générées par IA pour développeurs et agents
-├── examples/                         # Exemples d'utilisation API
-├── promo/                            # Site web GitHub Pages
-├── public/                           # Fichiers statiques
-├── scripts/                          # Scripts JavaScript
-├── src/                              # Code source frontend (React, XState, Next.js)
-│   ├── app/                          # Point d'entrée principal de l'application
-│   ├── components/                   # Composants partagés
-│   ├── features/                     # Fonctionnalités
-│   │   ├── ai-chat/                  # Chatbot IA (assistant interactif)
-│   │   ├── app-state/                # État global de l'application
-│   │   ├── browser/                  # Navigateur de fichiers média (panneau de fichiers)
-│   │   ├── camera-capture/           # Capture vidéo/photo caméra
-│   │   ├── effects/                  # Effets vidéo et leurs paramètres
-│   │   ├── export/                   # Export vidéo et projet
-│   │   ├── filters/                  # Filtres vidéo (correction couleur, styles)
-│   │   ├── keyboard-shortcuts/       # Raccourcis clavier et préréglages
-│   │   ├── media/                    # Gestion fichiers média (audio/vidéo)
-│   │   ├── media-studio/             # Studio de montage média
-│   │   ├── modals/                   # Fenêtres modales (dialogues)
-│   │   ├── music/                    # Import et gestion musique
-│   │   ├── options/                  # Export et paramètres projet
-│   │   ├── project-settings/         # Paramètres projet (taille, fps, etc.)
-│   │   ├── recognition/              # Reconnaissance scène et objets
-│   │   ├── resources/                # Gestion ressources projet
-│   │   ├── style-templates/          # Modèles de styles et design
-│   │   ├── subtitles/                # Import et édition sous-titres
-│   │   ├── templates/                # Modèles vidéo et préréglages
-│   │   ├── timeline/                 # Timeline de montage principale
-│   │   ├── top-bar/                  # Panneau de contrôle supérieur
-│   │   ├── transitions/              # Transitions vidéo entre clips
-│   │   ├── user-settings/            # Paramètres utilisateur
-│   │   ├── video-player/             # Lecteur vidéo
-│   │   ├── voice-recording/          # Enregistrement vocal et voix off
-│   │   ├── script-generator/         # Nouveau : génération de scripts
-│   │   ├── montage-planner/          # Nouveau : planification montage
-│   │   ├── person-identification/    # Nouveau : identification personnes
-│   │   ├── scene-analyzer/           # Nouveau : analyse de scènes
-│   │   └── README.md                 # Aperçu de toutes les fonctionnalités
-│   ├── i18n/                         # Internationalisation
-│   ├── lib/                          # Utilitaires et bibliothèques
-│   ├── styles/                       # Styles globaux
-|   ├── test/                         # Configuration tests et utilitaires
-├── src-tauri/                        # Backend (Rust)
-│   ├── src/
-│   │   ├── main.rs                   # Point d'entrée Tauri
-│   │   ├── media.rs                  # Analyse média (FFmpeg)
-│   │   ├── recognition.rs            # YOLO pour objets/visages
-│   │   ├── script_generator.rs       # Génération scripts (Claude/OpenAI/Grok API)
-│   │   ├── montage_planner.rs        # Planification montage
-│   │   ├── person_identification.rs  # Identification personnes
-│   │   ├── scene_analyzer.rs         # Analyse scènes
-│   │   └── ai_chat.rs                # Traitement chat
-└── package.json                      # Configuration dépendances Node.js
-```
-
 ## Documentation
 
 ### 📚 Documentation Principale
@@ -199,23 +137,6 @@ timeline-studio/
 - `bun run test:ui` - Lancer tests avec interface UI
 - `bun run test:e2e` - Lancer tests end-to-end avec Playwright
 
-### Machines d'État (XState v5)
-
-Le projet utilise XState v5 pour gérer la logique d'état complexe.
-
-#### ✅ Machines d'État Implémentées (11) :
-
-- `appSettingsMachine` - gestion des paramètres centralisés
-- `browserStateMachine` - gestion état navigateur
-- `chatMachine` - gestion chat IA
-- `modalMachine` - gestion fenêtres modales
-- `playerMachine` - gestion lecteur vidéo
-- `resourcesMachine` - gestion ressources timeline
-- `userSettingsMachine` - paramètres utilisateur
-- `projectSettingsMachine` - paramètres projet
-- `mediaMachine` - gestion fichiers média
-- `timelineMachine` - Machine d'état timeline principale
-
 ### Tests
 
 Le projet utilise Vitest pour les tests unitaires. Les tests sont situés dans le répertoire __tests__ de la fonctionnalité, avec les mocks dans __mocks__.
@@ -224,10 +145,10 @@ Le projet utilise Vitest pour les tests unitaires. Les tests sont situés dans l
 ```bash
 ⨯ bun run test
 
- Test Files  141 passed (141)
-      Tests  1295 passed | 9 skipped (1304)
-   Start at  23:20:43
-   Duration  13.14s (transform 3.71s, setup 25.13s, collect 13.88s, tests 8.69s, environment 38.26s, prepare 8.96s)
+ Test Files  229 passed (229)
+      Tests  3022 passed | 20 skipped (3042)
+   Start at  13:35:14
+   Duration  29.47s (transform 5.44s, setup 47.14s, collect 24.93s, tests 31.95s, environment 72.34s, prepare 23.00s)
 
 ⨯ bun run test:rust
    test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s

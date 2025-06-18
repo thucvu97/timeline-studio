@@ -92,63 +92,6 @@ bun run tauri dev
 bun run tauri build
 ```
 
-## プロジェクト構造
-
-```
-timeline-studio/
-├── bin/                              # シェルスクリプト
-├── docs/                             # 自動生成されたドキュメント
-├── docs-ru/                      # 開発者向けAI生成ドキュメント
-├── examples/                         # API使用例
-├── promo/                            # GitHub Pagesサイト
-├── public/                           # 静的ファイル
-├── scripts/                          # JavaScriptスクリプト
-├── src/                              # フロントエンドソースコード（React、XState、Next.js）
-│   ├── app/                          # メインアプリケーションエントリーポイント
-│   ├── components/                   # 共有コンポーネント
-│   ├── features/                     # 機能
-│   │   ├── ai-chat/                  # AIチャットボット（インタラクティブアシスタント）
-│   │   ├── app-state/                # グローバルアプリケーション状態
-│   │   ├── browser/                  # メディアファイルブラウザー（ファイルパネル）
-│   │   ├── camera-capture/           # ビデオ/写真カメラキャプチャ
-│   │   ├── effects/                  # ビデオエフェクトとそのパラメータ
-│   │   ├── export/                   # ビデオとプロジェクトのエクスポート
-│   │   ├── filters/                  # ビデオフィルター（カラー補正、スタイル）
-│   │   ├── keyboard-shortcuts/       # キーボードショートカットとプリセット
-│   │   ├── media/                    # メディアファイル処理（オーディオ/ビデオ）
-│   │   ├── media-studio/             # メディア編集スタジオ
-│   │   ├── modals/                   # モーダルウィンドウ（ダイアログ）
-│   │   ├── music/                    # 音楽のインポートと管理
-│   │   ├── options/                  # エクスポートとプロジェクト設定
-│   │   ├── project-settings/         # プロジェクト設定（サイズ、FPSなど）
-│   │   ├── recognition/              # シーンとオブジェクト認識
-│   │   ├── resources/                # プロジェクトリソース管理
-│   │   ├── style-templates/          # スタイルとデザインテンプレート
-│   │   ├── subtitles/                # 字幕のインポートと編集
-│   │   ├── templates/                # ビデオテンプレートとプリセット
-│   │   ├── timeline/                 # メイン編集タイムライン
-│   │   ├── top-bar/                  # トップバーインターフェース
-│   │   ├── transitions/              # ビデオトランジション
-│   │   ├── user-settings/            # ユーザー設定
-│   │   ├── video-compiler/           # フロントエンドビデオコンパイラー統合
-│   │   └── video-player/             # カスタムビデオプレーヤー
-│   ├── lib/                          # 共有ライブラリとユーティリティ
-│   ├── test/                         # テストユーティリティ
-│   └── types/                        # TypeScript型定義
-├── src-tauri/                        # バックエンドソースコード（Rust）
-│   ├── src/                          # Rustソースファイル
-│   │   ├── app_dirs.rs               # アプリケーションディレクトリ管理
-│   │   ├── filesystem.rs             # ファイルシステム操作
-│   │   ├── language.rs               # 言語/i18nサポート
-│   │   ├── lib.rs                    # メインライブラリエントリー
-│   │   ├── media/                    # メディア処理モジュール
-│   │   ├── recognition/              # YOLO認識モジュール
-│   │   ├── video_compiler/           # FFmpegビデオコンパイル
-│   │   └── video_server/             # ビデオストリーミングサーバー
-│   └── tauri.conf.json               # Tauri設定
-└── ...その他の設定ファイル
-```
-
 ## ドキュメント
 
 ### 📚 メインドキュメント
