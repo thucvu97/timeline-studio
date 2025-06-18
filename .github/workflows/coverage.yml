@@ -68,9 +68,6 @@ jobs:
       - name: Install cargo-llvm-cov
         run: cargo install cargo-llvm-cov
         
-      - name: Setup FFmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v3
-        
       - name: Create dist directory for Tauri
         run: mkdir -p dist
         
