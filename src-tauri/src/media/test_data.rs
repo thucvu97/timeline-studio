@@ -315,7 +315,6 @@ pub mod test_data {
 #[cfg(test)]
 mod tests {
   use super::test_data::*;
-  use std::env;
 
   #[test]
   fn test_files_exist() {
