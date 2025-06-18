@@ -80,7 +80,12 @@ export function useTransitions(): UseTransitionsReturn {
    * Загружает переходы из импортированного JSON файла
    */
   const loadTransitions = useCallback(() => {
-    initializeTransitions(t)
+    // Создаем обертку для функции t, чтобы она соответствовала ожидаемой сигнатуре
+    const translateWrapper = (key: string, fallback?: string, options?: any) => {
+      return String(t(key, fallback || key, options))
+    }
+    
+    initializeTransitions(translateWrapper)
     setTransitions(globalTransitions)
     setLoading(globalLoading)
     setError(globalError)
@@ -108,7 +113,10 @@ export function useTransitionById(transitionId: string): Transition | null {
   
   // Инициализируем переходы если еще не инициализированы
   useMemo(() => {
-    initializeTransitions(t)
+    const translateWrapper = (key: string, fallback?: string, options?: any) => {
+      return String(t(key, fallback || key, options))
+    }
+    initializeTransitions(translateWrapper)
   }, [t])
 
   const transition = useMemo(() => {
@@ -129,7 +137,10 @@ export function useTransitionsByCategory(category: string): Transition[] {
   
   // Инициализируем переходы если еще не инициализированы
   useMemo(() => {
-    initializeTransitions(t)
+    const translateWrapper = (key: string, fallback?: string, options?: any) => {
+      return String(t(key, fallback || key, options))
+    }
+    initializeTransitions(translateWrapper)
   }, [t])
 
   const filteredTransitions = useMemo(() => {
@@ -150,7 +161,10 @@ export function useTransitionsSearch(query: string, lang: "ru" | "en" = "ru"): T
   
   // Инициализируем переходы если еще не инициализированы
   useMemo(() => {
-    initializeTransitions(t)
+    const translateWrapper = (key: string, fallback?: string, options?: any) => {
+      return String(t(key, fallback || key, options))
+    }
+    initializeTransitions(translateWrapper)
   }, [t])
 
   const searchResults = useMemo(() => {

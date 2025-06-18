@@ -1,6 +1,5 @@
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use std::sync::Mutex;
+use std::sync::{Mutex, OnceLock};
 
 // Поддерживаемые языки
 const SUPPORTED_LANGUAGES: [&str; 11] = [
@@ -9,7 +8,7 @@ const SUPPORTED_LANGUAGES: [&str; 11] = [
 const DEFAULT_LANGUAGE: &str = "en";
 
 // Глобальное состояние для хранения текущего языка
-static APP_LANGUAGE: Lazy<Mutex<String>> = Lazy::new(|| Mutex::new(DEFAULT_LANGUAGE.to_string()));
+static APP_LANGUAGE: OnceLock<Mutex<String>> = OnceLock::new();
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LanguageResponse {
@@ -45,7 +44,11 @@ fn is_supported_language(lang: &str) -> bool {
 #[tauri::command]
 pub fn get_app_language() -> LanguageResponse {
   let system_language = get_system_language();
-  let app_language = APP_LANGUAGE.lock().unwrap().clone();
+  let app_language = APP_LANGUAGE
+    .get_or_init(|| Mutex::new(DEFAULT_LANGUAGE.to_string()))
+    .lock()
+    .unwrap()
+    .clone();
 
   LanguageResponse {
     language: app_language,
@@ -62,7 +65,10 @@ pub fn set_app_language(lang: String) -> Result<LanguageResponse, String> {
   }
 
   // Устанавливаем новый язык
-  let mut app_language = APP_LANGUAGE.lock().unwrap();
+  let mut app_language = APP_LANGUAGE
+    .get_or_init(|| Mutex::new(DEFAULT_LANGUAGE.to_string()))
+    .lock()
+    .unwrap();
   *app_language = lang;
 
   Ok(LanguageResponse {

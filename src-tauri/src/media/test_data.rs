@@ -5,6 +5,7 @@
 #[allow(clippy::module_inception)]
 pub mod test_data {
   use std::path::PathBuf;
+  use std::sync::OnceLock;
 
   #[derive(Debug, Clone)]
   #[allow(dead_code)]
@@ -46,8 +47,10 @@ pub mod test_data {
     }
   }
 
-  lazy_static::lazy_static! {
-      pub static ref TEST_FILES: Vec<TestMediaFile> = vec![
+  static TEST_FILES: OnceLock<Vec<TestMediaFile>> = OnceLock::new();
+  
+  pub fn get_test_files() -> &'static Vec<TestMediaFile> {
+    TEST_FILES.get_or_init(|| vec![
           TestMediaFile {
               filename: "C0666.MP4",
               path: PathBuf::new(),
@@ -216,48 +219,64 @@ pub mod test_data {
               is_360: false,
               has_cyrillic: true,
           },
-      ];
+      ])
+  }
 
-      pub static ref VIDEO_FILES: Vec<&'static TestMediaFile> = TEST_FILES
-          .iter()
-          .filter(|f| f.has_video)
-          .collect();
+  static VIDEO_FILES: OnceLock<Vec<&'static TestMediaFile>> = OnceLock::new();
+  static AUDIO_FILES: OnceLock<Vec<&'static TestMediaFile>> = OnceLock::new();
+  static IMAGE_FILES: OnceLock<Vec<&'static TestMediaFile>> = OnceLock::new();
 
-      pub static ref AUDIO_FILES: Vec<&'static TestMediaFile> = TEST_FILES
-          .iter()
-          .filter(|f| f.has_audio && !f.has_video)
-          .collect();
+  pub fn get_video_files() -> &'static Vec<&'static TestMediaFile> {
+    VIDEO_FILES.get_or_init(|| {
+      get_test_files()
+        .iter()
+        .filter(|f| f.has_video)
+        .collect()
+    })
+  }
 
-      pub static ref IMAGE_FILES: Vec<&'static TestMediaFile> = TEST_FILES
-          .iter()
-          .filter(|f| f.has_video && f.duration == 0.0)
-          .collect();
+  pub fn get_audio_files() -> &'static Vec<&'static TestMediaFile> {
+    AUDIO_FILES.get_or_init(|| {
+      get_test_files()
+        .iter()
+        .filter(|f| f.has_audio && !f.has_video)
+        .collect()
+    })
+  }
+
+  pub fn get_image_files() -> &'static Vec<&'static TestMediaFile> {
+    IMAGE_FILES.get_or_init(|| {
+      get_test_files()
+        .iter()
+        .filter(|f| f.has_video && f.duration == 0.0)
+        .collect()
+    })
   }
 
   // Helper functions for tests
   pub fn get_test_video() -> &'static TestMediaFile {
-    VIDEO_FILES.first().expect("No test video files available")
+    get_video_files().first().expect("No test video files available")
   }
 
   pub fn get_test_audio() -> &'static TestMediaFile {
-    AUDIO_FILES.first().expect("No test audio files available")
+    get_audio_files().first().expect("No test audio files available")
   }
 
   #[allow(dead_code)]
   pub fn get_test_image() -> &'static TestMediaFile {
-    IMAGE_FILES.first().expect("No test image files available")
+    get_image_files().first().expect("No test image files available")
   }
 
   pub fn get_file_with_cyrillic() -> Option<&'static TestMediaFile> {
-    TEST_FILES.iter().find(|f| f.has_cyrillic)
+    get_test_files().iter().find(|f| f.has_cyrillic)
   }
 
   pub fn get_largest_file() -> &'static TestMediaFile {
-    TEST_FILES.iter().max_by_key(|f| f.size).unwrap()
+    get_test_files().iter().max_by_key(|f| f.size).unwrap()
   }
 
   pub fn get_longest_video() -> &'static TestMediaFile {
-    VIDEO_FILES
+    get_video_files()
       .iter()
       .max_by(|a, b| a.duration.partial_cmp(&b.duration).unwrap())
       .unwrap()
@@ -270,7 +289,7 @@ mod tests {
 
   #[test]
   fn test_files_exist() {
-    for file in TEST_FILES.iter() {
+    for file in get_test_files().iter() {
       let path = file.get_path();
       assert!(path.exists(), "Test file not found: {:?}", path);
     }

@@ -92,7 +92,7 @@ mod real_data_tests {
 
   #[tokio::test]
   async fn test_thumbnail_generation_4k_video() {
-    let video = VIDEO_FILES
+    let video = get_video_files()
       .iter()
       .find(|v| v.width == Some(3840))
       .expect("No 4K video found");
@@ -167,7 +167,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_video_without_audio() {
     // Находим видео без аудио (не изображение)
-    let video_no_audio = TEST_FILES
+    let video_no_audio = get_test_files()
       .iter()
       .find(|f| f.has_video && !f.has_audio && f.duration > 0.0)
       .expect("No video without audio found");
@@ -193,7 +193,7 @@ mod real_data_tests {
 
   #[tokio::test]
   async fn test_high_bitrate_handling() {
-    let high_bitrate = TEST_FILES
+    let high_bitrate = get_test_files()
       .iter()
       .max_by_key(|f| f.bit_rate)
       .expect("No files found");
@@ -224,7 +224,7 @@ mod real_data_tests {
 
     println!("Testing parallel processing of multiple files");
 
-    let files: Vec<_> = TEST_FILES.iter().take(3).collect();
+    let files: Vec<_> = get_test_files().iter().take(3).collect();
     let start = Instant::now();
 
     let tasks: Vec<_> = files
@@ -294,12 +294,12 @@ mod real_data_tests {
 
   #[test]
   fn test_codec_variety() {
-    let h264_count = VIDEO_FILES
+    let h264_count = get_video_files()
       .iter()
       .filter(|v| v.video_codec == Some("h264"))
       .count();
 
-    let hevc_count = VIDEO_FILES
+    let hevc_count = get_video_files()
       .iter()
       .filter(|v| v.video_codec == Some("hevc"))
       .count();
@@ -317,7 +317,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_pcm_audio_in_mp4() {
     // Тест обработки PCM аудио в MP4 контейнере
-    let pcm_video = TEST_FILES
+    let pcm_video = get_test_files()
       .iter()
       .find(|f| f.has_video && f.has_audio && f.audio_codec == Some("pcm_s16be"))
       .expect("No video with PCM audio found");
@@ -345,9 +345,9 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_different_sample_rates() {
     // Тест обработки различных частот дискретизации
-    let files_44khz = TEST_FILES.iter().filter(|f| f.sample_rate == 44100).count();
+    let files_44khz = get_test_files().iter().filter(|f| f.sample_rate == 44100).count();
 
-    let files_48khz = TEST_FILES.iter().filter(|f| f.sample_rate == 48000).count();
+    let files_48khz = get_test_files().iter().filter(|f| f.sample_rate == 48000).count();
 
     println!(
       "Sample rates: 44.1kHz: {}, 48kHz: {}",
@@ -394,12 +394,12 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_mixed_content_project() {
     // Тест работы со смешанным контентом (видео с аудио и без)
-    let with_audio = TEST_FILES
+    let with_audio = get_test_files()
       .iter()
       .filter(|f| f.has_video && f.has_audio)
       .count();
 
-    let without_audio = TEST_FILES
+    let without_audio = get_test_files()
       .iter()
       .filter(|f| f.has_video && !f.has_audio)
       .count();
@@ -414,12 +414,12 @@ mod real_data_tests {
     assert!(without_audio > 0, "No videos without audio for testing");
 
     // Обрабатываем по одному файлу каждого типа
-    if let Some(video_with_audio) = TEST_FILES.iter().find(|f| f.has_video && f.has_audio) {
+    if let Some(video_with_audio) = get_test_files().iter().find(|f| f.has_video && f.has_audio) {
       let result = extract_metadata(&video_with_audio.get_path()).await;
       assert!(result.is_ok(), "Failed to process video with audio");
     }
 
-    if let Some(video_without_audio) = TEST_FILES.iter().find(|f| f.has_video && !f.has_audio) {
+    if let Some(video_without_audio) = get_test_files().iter().find(|f| f.has_video && !f.has_audio) {
       let result = extract_metadata(&video_without_audio.get_path()).await;
       assert!(result.is_ok(), "Failed to process video without audio");
     }
@@ -444,7 +444,7 @@ mod real_data_tests {
     let mut processed = 0;
     let mut errors = 0;
 
-    for file in TEST_FILES.iter() {
+    for file in get_test_files().iter() {
       let path = file.get_path();
       let result = extract_metadata(&path).await;
 
@@ -462,13 +462,13 @@ mod real_data_tests {
       processed, errors
     );
     assert_eq!(errors, 0, "Some files failed to process");
-    assert_eq!(processed, TEST_FILES.len(), "Not all files were processed");
+    assert_eq!(processed, get_test_files().len(), "Not all files were processed");
   }
 
   #[tokio::test]
   async fn test_hevc_codec_handling() {
     // Специальный тест для HEVC кодека
-    let hevc_files: Vec<_> = TEST_FILES
+    let hevc_files: Vec<_> = get_test_files()
       .iter()
       .filter(|f| f.video_codec == Some("hevc"))
       .collect();
@@ -524,7 +524,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_extract_frame_from_video_without_audio() {
     // Тест извлечения кадра из видео без аудио
-    let video_no_audio = TEST_FILES
+    let video_no_audio = get_test_files()
       .iter()
       .find(|f| f.has_video && !f.has_audio && f.duration > 0.0)
       .expect("No video without audio found");
@@ -555,7 +555,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_large_file_performance() {
     // Тест производительности для больших файлов (256MB)
-    let large_audio = AUDIO_FILES
+    let large_audio = get_audio_files()
       .iter()
       .max_by_key(|f| f.size)
       .expect("No audio files found");
@@ -605,7 +605,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_4k_video_compilation() {
     // Тест компиляции 4K видео
-    let video_4k = VIDEO_FILES
+    let video_4k = get_video_files()
       .iter()
       .find(|v| v.width == Some(3840) && v.height == Some(2160))
       .expect("No 4K video found");
@@ -635,12 +635,12 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_mixed_audio_formats() {
     // Тест микширования видео с разными аудио форматами
-    let pcm_video = TEST_FILES
+    let pcm_video = get_test_files()
       .iter()
       .find(|f| f.audio_codec == Some("pcm_s16be"))
       .expect("No video with PCM audio found");
 
-    let aac_video = TEST_FILES
+    let aac_video = get_test_files()
       .iter()
       .find(|f| f.audio_codec == Some("aac"))
       .expect("No video with AAC audio found");
