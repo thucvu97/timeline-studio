@@ -183,6 +183,10 @@ describe("useFrameExtraction", () => {
     // Обновляем мок getInstance для возврата мока
     vi.mocked(FrameExtractionService.getInstance).mockReturnValue(mockFrameExtractionService)
 
+    // Настраиваем моки по умолчанию
+    mockFrameExtractionService.extractRecognitionFrames.mockResolvedValue([])
+    mockFrameExtractionService.cacheRecognitionFrames.mockResolvedValue(undefined)
+
     // Reset mock functions
     mockExtractTimelineFrames.mockReset()
     mockExtractRecognitionFrames.mockReset()
@@ -414,11 +418,14 @@ describe("useFrameExtraction", () => {
     it("should handle concurrent extraction requests", async () => {
       const { ExtractionPurpose } = await import("../../services/frame-extraction-service")
 
+      // Настраиваем моки для этого теста
       mockExtractTimelineFrames.mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve(mockTimelineFrames), 100)),
+        () => new Promise((resolve) => setTimeout(() => resolve(mockTimelineFrames), 50)),
       )
+      
+      // Важно: переопределяем мок ПОСЛЕ импорта
       mockFrameExtractionService.extractRecognitionFrames.mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve(mockRecognitionFrames), 100)),
+        () => new Promise((resolve) => setTimeout(() => resolve(mockRecognitionFrames), 50)),
       )
       mockFrameExtractionService.cacheRecognitionFrames.mockResolvedValue(undefined)
 
