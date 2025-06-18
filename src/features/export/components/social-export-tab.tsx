@@ -69,15 +69,20 @@ export function SocialExportTab({ settings, onSettingsChange, onExport, isRender
 
   // Синхронизируем состояние авторизации при изменении сети
   useEffect(() => {
-    const loggedIn = isLoggedIn(settings.socialNetwork)
-    const info = getUserInfo(settings.socialNetwork)
+    const checkAuthStatus = async () => {
+      const loggedIn = await isLoggedIn(settings.socialNetwork)
+      const info = getUserInfo(settings.socialNetwork)
 
-    if (loggedIn !== settings.isLoggedIn) {
-      onSettingsChange({
-        isLoggedIn: loggedIn,
-        accountName: info?.name || info?.display_name || (loggedIn ? `user@${settings.socialNetwork}.com` : undefined),
-      })
+      if (loggedIn !== settings.isLoggedIn) {
+        onSettingsChange({
+          isLoggedIn: loggedIn,
+          accountName:
+            info?.name || info?.display_name || (loggedIn ? `user@${settings.socialNetwork}.com` : undefined),
+        })
+      }
     }
+
+    void checkAuthStatus()
   }, [settings.socialNetwork, isLoggedIn, getUserInfo, onSettingsChange, settings.isLoggedIn])
 
   return (

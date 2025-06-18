@@ -28,7 +28,7 @@ export class YouTubeService {
     metadata: YouTubeVideoMetadata,
     onProgress?: (progress: number) => void,
   ): Promise<YouTubeUploadResponse> {
-    const token = OAuthService.getStoredToken("youtube")
+    const token = await OAuthService.getStoredToken("youtube")
     if (!token) {
       throw new Error("Not authenticated with YouTube")
     }
@@ -149,7 +149,11 @@ export class YouTubeService {
   }
 
   static async getUserInfo(accessToken?: string): Promise<any> {
-    const token = accessToken || OAuthService.getStoredToken("youtube")?.accessToken
+    let token = accessToken
+    if (!token) {
+      const storedToken = await OAuthService.getStoredToken("youtube")
+      token = storedToken?.accessToken
+    }
     if (!token) {
       throw new Error("Not authenticated")
     }
@@ -169,7 +173,8 @@ export class YouTubeService {
   }
 
   static async getVideoCategories(regionCode = "US"): Promise<any[]> {
-    const token = OAuthService.getStoredToken("youtube")?.accessToken
+    const storedToken = await OAuthService.getStoredToken("youtube")
+    const token = storedToken?.accessToken
     if (!token) {
       return []
     }

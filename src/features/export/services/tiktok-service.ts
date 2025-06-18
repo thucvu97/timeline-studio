@@ -29,7 +29,7 @@ export class TikTokService {
     metadata: TikTokVideoMetadata,
     onProgress?: (progress: number) => void,
   ): Promise<TikTokUploadResponse> {
-    const token = OAuthService.getStoredToken("tiktok")
+    const token = await OAuthService.getStoredToken("tiktok")
     if (!token) {
       throw new Error("Not authenticated with TikTok")
     }
@@ -150,7 +150,11 @@ export class TikTokService {
   }
 
   static async getUserInfo(accessToken?: string): Promise<any> {
-    const token = accessToken || OAuthService.getStoredToken("tiktok")?.accessToken
+    let token = accessToken
+    if (!token) {
+      const storedToken = await OAuthService.getStoredToken("tiktok")
+      token = storedToken?.accessToken
+    }
     if (!token) {
       throw new Error("Not authenticated")
     }

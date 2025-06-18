@@ -333,12 +333,31 @@ NEXT_PUBLIC_API_ENV=development
 
 ## ✅ Checklist
 
+### YouTube
 - [ ] Создано Google Cloud Project и включен YouTube Data API v3
 - [ ] Настроены OAuth 2.0 Credentials для YouTube
-- [ ] Зарегистрировано приложение в TikTok for Developers  
-- [ ] Получены и настроены Client ID/Secret для обеих платформ
-- [ ] Настроены Redirect URIs в обеих платформах
-- [ ] Обновлен файл `.env.local` с реальными значениями
 - [ ] Протестирована авторизация для YouTube
+
+### TikTok
+- [ ] Зарегистрировано приложение в TikTok for Developers  
+- [ ] Получены Client ID/Secret для TikTok
 - [ ] Протестирована авторизация для TikTok
-- [ ] Протестирована загрузка тестового видео
+
+### Vimeo
+- [ ] Создано приложение в Vimeo Developer Console
+- [ ] Получен Upload Access для загрузки видео
+- [ ] Сгенерирован Personal Access Token с необходимыми scopes
+- [ ] Протестирована авторизация для Vimeo
+
+### Telegram
+- [ ] Создан Telegram Bot через @BotFather
+- [ ] Получен Bot Token
+- [ ] Настроены команды бота
+- [ ] Получен Chat ID для каналов (если нужен)
+- [ ] Протестирована отправка видео через бота
+
+### Общие настройки
+- [ ] Настроены Redirect URIs для всех OAuth платформ
+- [ ] Обновлен файл `.env.local` с реальными значениями
+- [ ] Протестирована загрузка тестового видео на все платформы
+- [ ] Проверены лимиты API для всех сервисов

@@ -134,7 +134,7 @@ export class SecureTokenStorage {
       // Динамический импорт Tauri API
       const { Store } = await import("@tauri-apps/plugin-store")
 
-      const store = new Store("oauth-tokens.dat")
+      const store = await Store.load("oauth-tokens.dat")
       await store.set(key, token)
       await store.save()
     } catch (error) {
@@ -150,7 +150,7 @@ export class SecureTokenStorage {
     try {
       const { Store } = await import("@tauri-apps/plugin-store")
 
-      const store = new Store("oauth-tokens.dat")
+      const store = await Store.load("oauth-tokens.dat")
       const token = await store.get<OAuthToken>(key)
       return token || null
     } catch (error) {
@@ -166,7 +166,7 @@ export class SecureTokenStorage {
     try {
       const { Store } = await import("@tauri-apps/plugin-store")
 
-      const store = new Store("oauth-tokens.dat")
+      const store = await Store.load("oauth-tokens.dat")
       await store.delete(key)
       await store.save()
     } catch (error) {

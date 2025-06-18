@@ -48,6 +48,27 @@ beforeAll(() => {
     error: vi.fn(),
     warn: vi.fn(),
   }
+
+  // Mock pointer capture methods for Radix UI components
+  if (typeof Element !== "undefined") {
+    Element.prototype.hasPointerCapture = vi.fn(() => false)
+    Element.prototype.setPointerCapture = vi.fn()
+    Element.prototype.releasePointerCapture = vi.fn()
+  }
+
+  // Mock ResizeObserver for components that use it
+  global.ResizeObserver = vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  }))
+
+  // Mock IntersectionObserver
+  global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  }))
 })
 
 afterEach(() => {

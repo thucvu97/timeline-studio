@@ -389,7 +389,7 @@ describe("useDragDropTimeline", () => {
       expect(result.current.dragState.dropPosition).toBeNull()
     })
 
-    it("должен создавать новый трек при drop в track-insertion зону", (done) => {
+    it("должен создавать новый трек при drop в track-insertion зону", async () => {
       const { result } = renderHook(() => useDragDropTimeline())
 
       // Сначала начинаем drag
@@ -450,11 +450,11 @@ describe("useDragDropTimeline", () => {
       // Проверяем вызов addTrack
       expect(mockAddTrack).toHaveBeenCalledWith("video", undefined, "Video Track")
 
-      // Проверяем вызов addSingleMediaToTimeline с задержкой
-      setTimeout(() => {
-        expect(mockAddSingleMediaToTimeline).toHaveBeenCalled()
-        done()
-      }, 150)
+      // Ждем асинхронную операцию с таймаутом
+      await new Promise((resolve) => setTimeout(resolve, 200))
+
+      // Проверяем вызов addSingleMediaToTimeline
+      expect(mockAddSingleMediaToTimeline).toHaveBeenCalled()
     })
 
     it("должен добавлять медиа на существующий трек", () => {

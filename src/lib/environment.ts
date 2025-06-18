@@ -81,13 +81,12 @@ export async function getPlatformInfo(): Promise<{
 }> {
   if (isDesktop()) {
     try {
-      // eslint-disable-next-line import/no-unresolved
-      const { platform } = await import("@tauri-apps/plugin-os")
+      // В Tauri v2 используется plugin-os, но для веб-сборки возвращаем fallback
       const version = await getTauriVersion()
 
       return {
         type: "desktop",
-        platform: await platform(),
+        platform: "unknown", // Будет определено в рантайме в desktop версии
         version: version || undefined,
       }
     } catch {
