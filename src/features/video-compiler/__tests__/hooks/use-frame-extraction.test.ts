@@ -4,6 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { Subtitle, SubtitleAlignX, SubtitleAlignY, SubtitleFontWeight } from "@/types/video-compiler"
 
 import { useFrameExtraction } from "../../hooks/use-frame-extraction"
+import * as frameExtractionServiceModule from "../../services/frame-extraction-service"
 
 // Ensure console.error is mocked to see errors
 const originalConsoleError = console.error
@@ -45,36 +46,47 @@ vi.mock("@/features/media/hooks/use-frame-preview", () => ({
 }))
 
 // Мокаем сервис извлечения кадров
-vi.mock("../../services/frame-extraction-service", () => ({
-  ExtractionPurpose: {
-    TimelinePreview: "timeline_preview",
-    ObjectDetection: "object_detection",
-    SceneRecognition: "scene_recognition",
-    TextRecognition: "text_recognition",
-    SubtitleAnalysis: "subtitle_analysis",
-  },
-  FrameExtractionService: {
-    getInstance: vi.fn(() => ({
-      extractTimelineFrames: vi.fn(),
-      extractRecognitionFrames: vi.fn(),
-      extractSubtitleFrames: vi.fn(),
+vi.mock("../../services/frame-extraction-service", () => {
+  const mockExtractRecognitionFramesService = vi.fn()
+  const mockCacheRecognitionFramesService = vi.fn()
+  
+  return {
+    ExtractionPurpose: {
+      TimelinePreview: "timeline_preview",
+      ObjectDetection: "object_detection",
+      SceneRecognition: "scene_recognition",
+      TextRecognition: "text_recognition",
+      SubtitleAnalysis: "subtitle_analysis",
+    },
+    FrameExtractionService: {
+      getInstance: vi.fn(() => ({
+        extractTimelineFrames: vi.fn(),
+        extractRecognitionFrames: mockExtractRecognitionFramesService,
+        extractSubtitleFrames: vi.fn(),
+        getCachedFrames: vi.fn(),
+        cacheFrames: vi.fn(),
+        clearFrameCache: vi.fn(),
+        cacheFramesInIndexedDB: vi.fn(),
+        cacheRecognitionFrames: mockCacheRecognitionFramesService,
+      })),
+    },
+    frameExtractionService: {
       getCachedFrames: vi.fn(),
+      extractTimelineFrames: vi.fn(),
+      extractRecognitionFrames: mockExtractRecognitionFramesService,
+      extractSubtitleFrames: vi.fn(),
       cacheFrames: vi.fn(),
       clearFrameCache: vi.fn(),
       cacheFramesInIndexedDB: vi.fn(),
-    })),
-  },
-  frameExtractionService: {
-    getCachedFrames: vi.fn(),
-    extractTimelineFrames: vi.fn(),
-    extractRecognitionFrames: vi.fn(),
-    extractSubtitleFrames: vi.fn(),
-    cacheFrames: vi.fn(),
-    clearFrameCache: vi.fn(),
-    cacheFramesInIndexedDB: vi.fn(),
-    cacheRecognitionFrames: vi.fn(),
-  },
-}))
+      cacheRecognitionFrames: mockCacheRecognitionFramesService,
+    },
+    // Export mock functions so they can be accessed in tests
+    __mocks: {
+      extractRecognitionFrames: mockExtractRecognitionFramesService,
+      cacheRecognitionFrames: mockCacheRecognitionFramesService,
+    }
+  }
+})
 
 describe("useFrameExtraction", () => {
   let mockFrameExtractionService: any
@@ -176,7 +188,7 @@ describe("useFrameExtraction", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    const { frameExtractionService, FrameExtractionService } = await import("../../services/frame-extraction-service")
+    const { frameExtractionService, FrameExtractionService, __mocks } = await import("../../services/frame-extraction-service") as any
 
     mockFrameExtractionService = frameExtractionService
 
@@ -184,8 +196,10 @@ describe("useFrameExtraction", () => {
     vi.mocked(FrameExtractionService.getInstance).mockReturnValue(mockFrameExtractionService)
 
     // Настраиваем моки по умолчанию
-    mockFrameExtractionService.extractRecognitionFrames.mockResolvedValue(mockRecognitionFrames)
-    mockFrameExtractionService.cacheRecognitionFrames.mockResolvedValue(undefined)
+    if (__mocks) {
+      __mocks.extractRecognitionFrames.mockResolvedValue(mockRecognitionFrames)
+      __mocks.cacheRecognitionFrames.mockResolvedValue(undefined)
+    }
 
     // Reset mock functions
     mockExtractTimelineFrames.mockReset()
@@ -423,11 +437,12 @@ describe("useFrameExtraction", () => {
         () => new Promise((resolve) => setTimeout(() => resolve(mockTimelineFrames), 50)),
       )
 
-      // Важно: настраиваем мок для frameExtractionService (не instance)
-      mockFrameExtractionService.extractRecognitionFrames.mockImplementation(
+      // Настраиваем моки для сервиса распознавания
+      const mocks = (frameExtractionServiceModule as any).__mocks
+      mocks.extractRecognitionFrames.mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve(mockRecognitionFrames), 50)),
       )
-      mockFrameExtractionService.cacheRecognitionFrames.mockResolvedValue(undefined)
+      mocks.cacheRecognitionFrames.mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useFrameExtraction())
 
@@ -443,7 +458,7 @@ describe("useFrameExtraction", () => {
       await Promise.all([promise1, promise2])
 
       expect(mockExtractTimelineFrames).toHaveBeenCalledTimes(1)
-      expect(mockFrameExtractionService.extractRecognitionFrames).toHaveBeenCalledTimes(1)
+      expect(mocks.extractRecognitionFrames).toHaveBeenCalledTimes(1)
       expect(result.current.timelineFrames).toEqual(mockTimelineFrames)
       expect(result.current.recognitionFrames).toEqual(mockRecognitionFrames)
     })
