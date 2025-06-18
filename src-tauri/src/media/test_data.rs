@@ -44,10 +44,10 @@ pub mod test_data {
         .unwrap()
         .join("test-data")
         .join(self.filename);
-      
+
       // In CI, return a dummy path if test-data doesn't exist
-      if (std::env::var("CI").is_ok() || std::env::var("GITHUB_ACTIONS").is_ok()) 
-        && !path.exists() {
+      if (std::env::var("CI").is_ok() || std::env::var("GITHUB_ACTIONS").is_ok()) && !path.exists()
+      {
         PathBuf::from("/tmp/dummy_test_file")
       } else {
         path
@@ -63,7 +63,7 @@ pub mod test_data {
       .parent()
       .unwrap()
       .join("test-data");
-    
+
     test_data_dir.exists() && test_data_dir.is_dir()
   }
 
@@ -322,7 +322,7 @@ mod tests {
       eprintln!("Skipping test: test-data directory not found");
       return;
     }
-    
+
     for file in get_test_files().iter() {
       let path = file.get_path();
       assert!(path.exists(), "Test file not found: {:?}", path);

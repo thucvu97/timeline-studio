@@ -7,9 +7,9 @@ mod real_data_tests {
   use super::super::metadata::extract_metadata;
   use super::super::test_data::test_data::*;
   use super::super::thumbnail::generate_thumbnail;
+  use std::env;
   use std::path::PathBuf;
   use std::time::Instant;
-  use std::env;
 
   // Macro to skip tests in CI environment or when test data is not available
   macro_rules! skip_in_ci {
@@ -24,9 +24,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_extract_metadata_from_hevc_video() {
     skip_in_ci!();
-    
-    skip_in_ci!();
-    
+
     let video = get_test_video();
     let path = video.get_path();
 
@@ -71,7 +69,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_extract_metadata_from_long_audio() {
     skip_in_ci!();
-    
+
     let audio = get_test_audio();
     let path = audio.get_path();
 
@@ -111,7 +109,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_thumbnail_generation_4k_video() {
     skip_in_ci!();
-    
+
     let video = get_video_files()
       .iter()
       .find(|v| v.width == Some(3840))
@@ -150,7 +148,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_handle_cyrillic_filename() {
     skip_in_ci!();
-    
+
     let cyrillic_file = get_file_with_cyrillic().expect("No file with cyrillic name found");
 
     let path = cyrillic_file.get_path();
@@ -189,7 +187,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_video_without_audio() {
     skip_in_ci!();
-    
+
     // Находим видео без аудио (не изображение)
     let video_no_audio = get_test_files()
       .iter()
@@ -218,7 +216,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_high_bitrate_handling() {
     skip_in_ci!();
-    
+
     let high_bitrate = get_test_files()
       .iter()
       .max_by_key(|f| f.bit_rate)
@@ -247,7 +245,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_parallel_processing() {
     skip_in_ci!();
-    
+
     use futures::future::join_all;
 
     println!("Testing parallel processing of multiple files");
@@ -345,7 +343,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_pcm_audio_in_mp4() {
     skip_in_ci!();
-    
+
     // Тест обработки PCM аудио в MP4 контейнере
     let pcm_video = get_test_files()
       .iter()
@@ -375,7 +373,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_different_sample_rates() {
     skip_in_ci!();
-    
+
     // Тест обработки различных частот дискретизации
     let files_44khz = get_test_files()
       .iter()
@@ -402,7 +400,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_memory_usage_large_files() {
     skip_in_ci!();
-    
+
     // Тест использования памяти при обработке больших файлов
     let large_file = get_largest_file();
     let path = large_file.get_path();
@@ -434,7 +432,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_mixed_content_project() {
     skip_in_ci!();
-    
+
     // Тест работы со смешанным контентом (видео с аудио и без)
     let with_audio = get_test_files()
       .iter()
@@ -473,7 +471,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_full_import_cycle() {
     skip_in_ci!();
-    
+
     // Интеграционный тест: полный цикл импорта
     use tempfile::TempDir;
 
@@ -519,7 +517,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_hevc_codec_handling() {
     skip_in_ci!();
-    
+
     // Специальный тест для HEVC кодека
     let hevc_files: Vec<_> = get_test_files()
       .iter()
@@ -556,7 +554,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_error_recovery() {
     skip_in_ci!();
-    
+
     // Тест восстановления после ошибок
     use std::path::Path;
 
@@ -579,7 +577,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_extract_frame_from_video_without_audio() {
     skip_in_ci!();
-    
+
     // Тест извлечения кадра из видео без аудио
     let video_no_audio = get_test_files()
       .iter()
@@ -612,7 +610,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_large_file_performance() {
     skip_in_ci!();
-    
+
     // Тест производительности для больших файлов (256MB)
     let large_audio = get_audio_files()
       .iter()
@@ -664,7 +662,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_4k_video_compilation() {
     skip_in_ci!();
-    
+
     // Тест компиляции 4K видео
     let video_4k = get_video_files()
       .iter()
@@ -696,7 +694,7 @@ mod real_data_tests {
   #[tokio::test]
   async fn test_mixed_audio_formats() {
     skip_in_ci!();
-    
+
     // Тест микширования видео с разными аудио форматами
     let pcm_video = get_test_files()
       .iter()
