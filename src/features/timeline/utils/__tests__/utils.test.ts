@@ -124,10 +124,7 @@ describe("Timeline утилиты", () => {
 
         const project = createMockProject({
           globalTracks: [globalTrack],
-          sections: [
-            createMockSection({ tracks: [sectionTrack1] }),
-            createMockSection({ tracks: [sectionTrack2] }),
-          ],
+          sections: [createMockSection({ tracks: [sectionTrack1] }), createMockSection({ tracks: [sectionTrack2] })],
         })
 
         const tracks = getAllTracks(project)
@@ -221,10 +218,7 @@ describe("Timeline утилиты", () => {
       })
 
       it("не изменяет исходный массив", () => {
-        const tracks = [
-          createMockTrack({ id: "2", order: 1 }),
-          createMockTrack({ id: "1", order: 0 }),
-        ]
+        const tracks = [createMockTrack({ id: "2", order: 1 }), createMockTrack({ id: "1", order: 0 })]
         const original = [...tracks]
 
         sortTracksByOrder(tracks)
@@ -259,10 +253,7 @@ describe("Timeline утилиты", () => {
 
       it("разрешает размещение если нет пересечений", () => {
         const track = createMockTrack({
-          clips: [
-            createMockClip({ startTime: 0, duration: 5 }),
-            createMockClip({ startTime: 10, duration: 5 }),
-          ],
+          clips: [createMockClip({ startTime: 0, duration: 5 }), createMockClip({ startTime: 10, duration: 5 })],
         })
 
         expect(canPlaceClipOnTrack(track, 5, 5)).toBe(true) // между клипами
@@ -626,9 +617,7 @@ describe("Timeline утилиты", () => {
     describe("validateProject", () => {
       it("возвращает пустой массив для валидного проекта", () => {
         const project = createMockProject({
-          sections: [
-            createMockSection({ startTime: 0, duration: 10, endTime: 10 }),
-          ],
+          sections: [createMockSection({ startTime: 0, duration: 10, endTime: 10 })],
           globalTracks: [
             createMockTrack({
               clips: [createMockClip({ startTime: 0, duration: 5 })],
@@ -641,9 +630,7 @@ describe("Timeline утилиты", () => {
 
       it("проверяет отрицательное время начала секции", () => {
         const project = createMockProject({
-          sections: [
-            createMockSection({ name: "Bad Section", startTime: -1, duration: 10 }),
-          ],
+          sections: [createMockSection({ name: "Bad Section", startTime: -1, duration: 10 })],
         })
 
         const errors = validateProject(project)

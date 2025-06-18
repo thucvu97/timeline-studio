@@ -22,15 +22,11 @@ vi.mock("@/features/browser", () => ({
 }))
 
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
-  AddMediaButton: ({ resource }: any) => (
-    <button data-testid="add-media-button">Add {resource.id}</button>
-  ),
+  AddMediaButton: ({ resource }: any) => <button data-testid="add-media-button">Add {resource.id}</button>,
 }))
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
-  FavoriteButton: ({ file }: any) => (
-    <button data-testid="favorite-button">Favorite {file.id}</button>
-  ),
+  FavoriteButton: ({ file }: any) => <button data-testid="favorite-button">Favorite {file.id}</button>,
 }))
 
 vi.mock("../../hooks/use-transitions", () => ({
@@ -154,7 +150,7 @@ describe("TransitionPreview", () => {
 
       const categoryIndicator = screen.getByText("BSC")
       expect(categoryIndicator).toBeInTheDocument()
-      
+
       // The indicator should be within a div that has styling
       const styledParent = categoryIndicator.closest('div[class*="bg-"]')
       expect(styledParent).toBeTruthy()
@@ -215,7 +211,7 @@ describe("TransitionPreview", () => {
       const { container } = render(<TransitionPreview {...defaultProps} onClick={onClick} />)
 
       // Click on the actual preview container div that has onClick
-      const previewDiv = container.querySelector('.cursor-pointer.rounded-xs')
+      const previewDiv = container.querySelector(".cursor-pointer.rounded-xs")
       expect(previewDiv).toBeTruthy()
       fireEvent.click(previewDiv!)
 
@@ -239,11 +235,22 @@ describe("TransitionPreview", () => {
 
   describe("Transition Types", () => {
     const transitionTypes = [
-      "scale", "rotate", "flip", "push", "squeeze", "diagonal",
-      "spiral", "fold", "wave", "shutter", "bounce", "swirl", "dissolve"
+      "scale",
+      "rotate",
+      "flip",
+      "push",
+      "squeeze",
+      "diagonal",
+      "spiral",
+      "fold",
+      "wave",
+      "shutter",
+      "bounce",
+      "swirl",
+      "dissolve",
     ]
 
-    transitionTypes.forEach(type => {
+    transitionTypes.forEach((type) => {
       it.skip(`should handle ${type} transition`, async () => {
         // Skip: Timing issues with fake timers
       })
@@ -296,7 +303,7 @@ describe("TransitionPreview", () => {
   describe("Transition Lookup", () => {
     it("should find transition by type when transition prop is not provided", () => {
       render(<TransitionPreview {...defaultProps} transitionType="zoom" />)
-      
+
       // Should display the zoom transition name from the mocked transitions
       expect(screen.getByText("Увеличение")).toBeInTheDocument()
     })
@@ -308,7 +315,7 @@ describe("TransitionPreview", () => {
         labels: { ru: "Пользовательский", en: "Custom" },
       }
       render(<TransitionPreview {...defaultProps} transition={customTransition} transitionType="zoom" />)
-      
+
       // Should display the custom transition name, not zoom
       expect(screen.getByText("Пользовательский")).toBeInTheDocument()
       expect(screen.queryByText("Увеличение")).not.toBeInTheDocument()

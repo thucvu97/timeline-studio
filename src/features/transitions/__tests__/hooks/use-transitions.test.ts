@@ -105,7 +105,7 @@ describe("Transitions Module", () => {
     it("should return transitions with localized labels", () => {
       const { result } = renderHook(() => useTransitions())
 
-      const fadeTransition = result.current.transitions.find(t => t.id === "fade")
+      const fadeTransition = result.current.transitions.find((t) => t.id === "fade")
       expect(fadeTransition?.labels?.ru).toBe("Затухание")
       expect(fadeTransition?.labels?.en).toBe("Fade")
     })
@@ -144,10 +144,7 @@ describe("Transitions Module", () => {
     })
 
     it("should update when id changes", () => {
-      const { result, rerender } = renderHook(
-        ({ id }) => useTransitionById(id),
-        { initialProps: { id: "fade" } }
-      )
+      const { result, rerender } = renderHook(({ id }) => useTransitionById(id), { initialProps: { id: "fade" } })
 
       expect(result.current?.id).toBe("fade")
 
@@ -164,8 +161,8 @@ describe("Transitions Module", () => {
       const { result } = renderHook(() => useTransitionsByCategory("basic"))
 
       expect(result.current).toHaveLength(2)
-      expect(result.current.every(t => t.category === "basic")).toBe(true)
-      expect(result.current.map(t => t.id).sort()).toEqual(["fade", "slide"])
+      expect(result.current.every((t) => t.category === "basic")).toBe(true)
+      expect(result.current.map((t) => t.id).sort()).toEqual(["fade", "slide"])
     })
 
     it("should return empty array for non-existent category", () => {
@@ -197,10 +194,9 @@ describe("Transitions Module", () => {
     })
 
     it("should update when category changes", () => {
-      const { result, rerender } = renderHook(
-        ({ category }) => useTransitionsByCategory(category),
-        { initialProps: { category: "basic" } }
-      )
+      const { result, rerender } = renderHook(({ category }) => useTransitionsByCategory(category), {
+        initialProps: { category: "basic" },
+      })
 
       expect(result.current).toHaveLength(2)
 

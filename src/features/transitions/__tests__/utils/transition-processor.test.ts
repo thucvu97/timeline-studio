@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest"
 
 import { Transition } from "../../types/transitions"
-import { 
-  createFallbackTransition, 
-  groupTransitions, 
+import {
+  createFallbackTransition,
+  groupTransitions,
   processTransitions,
   searchTransitions,
   sortTransitions,
-  validateTransitionsData
+  validateTransitionsData,
 } from "../../utils/transition-processor"
 
 // Mock console.error to avoid test output noise
@@ -88,11 +88,11 @@ describe("Transition Processor Module", () => {
       ]
 
       const processed = processTransitions(rawTransitions)
-      const command = processed[0].ffmpegCommand({ 
-        fps: 60, 
-        width: 1280, 
-        height: 720, 
-        duration: 2.5 
+      const command = processed[0].ffmpegCommand({
+        fps: 60,
+        width: 1280,
+        height: 720,
+        duration: 2.5,
       })
       expect(command).toBe("scale=1280:720,fps=60,fade=t=in:st=0:d=2.5")
     })
@@ -322,7 +322,7 @@ describe("Transition Processor Module", () => {
     it("should create working ffmpeg command", () => {
       const fallback = createFallbackTransition("test")
       const command = fallback.ffmpegCommand({ fps: 30, duration: 1.5 })
-      
+
       expect(command).toBe("fade=t=in:st=0:d=1.5")
     })
   })

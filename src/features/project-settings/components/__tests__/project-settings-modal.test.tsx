@@ -163,7 +163,7 @@ describe("ProjectSettingsModal", () => {
     // Find frame rate select (it's the 4th combobox)
     const comboboxes = screen.getAllByRole("combobox")
     expect(comboboxes.length).toBeGreaterThanOrEqual(4)
-    
+
     // Check that frame rate select exists and has correct value
     const frameRateCombobox = comboboxes[3]
     expect(frameRateCombobox).toBeInTheDocument()
@@ -175,7 +175,7 @@ describe("ProjectSettingsModal", () => {
     // Find color space select (it's the 5th combobox)
     const comboboxes = screen.getAllByRole("combobox")
     expect(comboboxes.length).toBeGreaterThanOrEqual(4)
-    
+
     // Check that color space select exists (it might be the 4th or 5th depending on state)
     const colorSpaceCombobox = comboboxes[comboboxes.length - 1] // Get the last one
     expect(colorSpaceCombobox).toBeInTheDocument()
@@ -206,13 +206,16 @@ describe("ProjectSettingsModal", () => {
         resolution: expect.any(String),
         frameRate: expect.any(String),
         colorSpace: expect.any(String),
-      })
+      }),
     )
 
     // Wait for timeout and check modal was closed
-    await waitFor(() => {
-      expect(mockCloseModal).toHaveBeenCalled()
-    }, { timeout: 200 })
+    await waitFor(
+      () => {
+        expect(mockCloseModal).toHaveBeenCalled()
+      },
+      { timeout: 200 },
+    )
   })
 
   it("should dispatch resize event on save", async () => {
@@ -225,13 +228,16 @@ describe("ProjectSettingsModal", () => {
     await user.click(saveButton)
 
     // Wait for the resize event to be dispatched
-    await waitFor(() => {
-      expect(dispatchEventSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "resize",
-        })
-      )
-    }, { timeout: 200 })
+    await waitFor(
+      () => {
+        expect(dispatchEventSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "resize",
+          }),
+        )
+      },
+      { timeout: 200 },
+    )
 
     dispatchEventSpy.mockRestore()
   })
@@ -239,7 +245,7 @@ describe("ProjectSettingsModal", () => {
   it("should handle custom aspect ratio", () => {
     // Update mock settings to have custom aspect ratio
     mockSettings.aspectRatio.label = "custom"
-    
+
     render(<ProjectSettingsModal />)
 
     // Check that resolution select shows custom
@@ -288,7 +294,7 @@ describe("ProjectSettingsModal", () => {
             width: -100,
           }),
         }),
-      })
+      }),
     )
   })
 })

@@ -14,7 +14,6 @@ import {
 
 import type { CacheMemoryUsage } from "../../types/cache"
 
-
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }))

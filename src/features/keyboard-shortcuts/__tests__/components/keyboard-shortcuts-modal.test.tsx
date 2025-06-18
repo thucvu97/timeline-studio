@@ -68,7 +68,7 @@ describe("KeyboardShortcutsModal", () => {
     vi.clearAllMocks()
     mockCloseModal.mockClear()
     mockCreatePresets.mockClear()
-    
+
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
@@ -107,10 +107,10 @@ describe("KeyboardShortcutsModal", () => {
       // Check for category buttons - use getAllByText since there might be multiple elements
       const fileElements = screen.getAllByText("File")
       const editElements = screen.getAllByText("Edit")
-      
+
       // At least one should be a button (in the sidebar)
-      expect(fileElements.some(el => el.closest('button'))).toBe(true)
-      expect(editElements.some(el => el.closest('button'))).toBe(true)
+      expect(fileElements.some((el) => el.closest("button"))).toBe(true)
+      expect(editElements.some((el) => el.closest("button"))).toBe(true)
     })
 
     it("should render shortcuts for selected category", () => {
@@ -136,7 +136,7 @@ describe("KeyboardShortcutsModal", () => {
         const filmoraOption = within(baseElement).getByText("Wondershare Filmora")
         expect(filmoraOption).toBeInTheDocument()
       })
-      
+
       // Select Filmora preset
       const filmoraOption = within(baseElement).getByText("Wondershare Filmora")
       await user.click(filmoraOption)
@@ -156,13 +156,13 @@ describe("KeyboardShortcutsModal", () => {
       expect(trigger).toHaveTextContent("Timeline")
 
       await user.click(trigger)
-      
+
       // Wait for dropdown to open
       await waitFor(() => {
         const adobeOption = within(baseElement).getByText("Adobe Premier Pro")
         expect(adobeOption).toBeInTheDocument()
       })
-      
+
       const adobeOption = within(baseElement).getByText("Adobe Premier Pro")
       await user.click(adobeOption)
 
@@ -226,7 +226,7 @@ describe("KeyboardShortcutsModal", () => {
         // Only Edit category should be visible since it contains "Undo"
         const editElements = screen.getAllByText("Edit")
         expect(editElements.length).toBeGreaterThan(0)
-        
+
         // File category should not be visible
         expect(screen.queryByText("File")).not.toBeInTheDocument()
       })
@@ -270,7 +270,7 @@ describe("KeyboardShortcutsModal", () => {
 
       // File shortcuts are still visible too since all categories are shown
       expect(screen.getByText("New Project")).toBeInTheDocument()
-      
+
       // Note: Active button class check removed due to Button component styling complexities
     })
 
@@ -299,7 +299,7 @@ describe("KeyboardShortcutsModal", () => {
       // Skip for now - component state management seems to have issues in test environment
       render(<KeyboardShortcutsModal />)
 
-      // Find the shortcut row for "New Project" 
+      // Find the shortcut row for "New Project"
       const newProjectText = screen.getByText("New Project")
       // The parent div has role="button" and contains both the name and key binding
       const shortcutRow = newProjectText.closest('div[role="button"]')
@@ -311,7 +311,7 @@ describe("KeyboardShortcutsModal", () => {
       // Should show editing state - look for the specific key binding that changes
       await waitFor(() => {
         // Find the key binding span next to "New Project"
-        const keyBinding = newProjectText.parentElement?.querySelector('div')
+        const keyBinding = newProjectText.parentElement?.querySelector("div")
         // In edit mode, it should show "Нажмите клавиши..."
         expect(keyBinding?.textContent).toBe("Нажмите клавиши...")
       })

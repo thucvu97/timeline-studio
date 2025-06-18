@@ -27,7 +27,7 @@ interface UseTransitionsReturn {
  */
 function initializeTransitions(t: (key: string, fallback?: string, options?: any) => string) {
   if (globalInitialized) return
-  
+
   try {
     // Используем импортированные данные - в Tauri это работает мгновенно
     const data = transitionsData
@@ -83,9 +83,9 @@ export function useTransitions(): UseTransitionsReturn {
     // Создаем обертку для функции t, чтобы она соответствовала ожидаемой сигнатуре
     const translateWrapper = (key: string, fallback?: string, options?: Record<string, any>) => {
       const result = t(key, fallback || key, options)
-      return typeof result === 'string' ? result : JSON.stringify(result)
+      return typeof result === "string" ? result : JSON.stringify(result)
     }
-    
+
     initializeTransitions(translateWrapper)
     setTransitions(globalTransitions)
     setLoading(globalLoading)
@@ -111,12 +111,12 @@ export function useTransitions(): UseTransitionsReturn {
  */
 export function useTransitionById(transitionId: string): Transition | null {
   const { t } = useTranslation()
-  
+
   // Инициализируем переходы если еще не инициализированы
   useMemo(() => {
     const translateWrapper = (key: string, fallback?: string, options?: Record<string, any>) => {
       const result = t(key, fallback || key, options)
-      return typeof result === 'string' ? result : JSON.stringify(result)
+      return typeof result === "string" ? result : JSON.stringify(result)
     }
     initializeTransitions(translateWrapper)
   }, [t])
@@ -136,12 +136,12 @@ export function useTransitionById(transitionId: string): Transition | null {
  */
 export function useTransitionsByCategory(category: string): Transition[] {
   const { t } = useTranslation()
-  
+
   // Инициализируем переходы если еще не инициализированы
   useMemo(() => {
     const translateWrapper = (key: string, fallback?: string, options?: Record<string, any>) => {
       const result = t(key, fallback || key, options)
-      return typeof result === 'string' ? result : JSON.stringify(result)
+      return typeof result === "string" ? result : JSON.stringify(result)
     }
     initializeTransitions(translateWrapper)
   }, [t])
@@ -161,12 +161,12 @@ export function useTransitionsByCategory(category: string): Transition[] {
  */
 export function useTransitionsSearch(query: string, lang: "ru" | "en" = "ru"): Transition[] {
   const { t } = useTranslation()
-  
+
   // Инициализируем переходы если еще не инициализированы
   useMemo(() => {
     const translateWrapper = (key: string, fallback?: string, options?: Record<string, any>) => {
       const result = t(key, fallback || key, options)
-      return typeof result === 'string' ? result : JSON.stringify(result)
+      return typeof result === "string" ? result : JSON.stringify(result)
     }
     initializeTransitions(translateWrapper)
   }, [t])

@@ -46,7 +46,7 @@ describe("useAppHotkeys", () => {
         category: "test",
         keys: ["cmd+e"],
       })
-      
+
       const registerManySpy = vi.spyOn(shortcutsRegistry, "registerMany")
 
       renderHook(() => useAppHotkeys())
@@ -71,7 +71,7 @@ describe("useAppHotkeys", () => {
     it("should call openModal with correct modal id for user settings", () => {
       // Ensure registry is empty so shortcuts get registered
       shortcutsRegistry.clear()
-      
+
       renderHook(() => useAppHotkeys())
 
       const shortcut = shortcutsRegistry.get("open-user-settings")
@@ -87,7 +87,7 @@ describe("useAppHotkeys", () => {
     it("should call openModal with correct modal id for project settings", () => {
       // Ensure registry is empty so shortcuts get registered
       shortcutsRegistry.clear()
-      
+
       renderHook(() => useAppHotkeys())
 
       const shortcut = shortcutsRegistry.get("open-project-settings")
@@ -103,7 +103,7 @@ describe("useAppHotkeys", () => {
     it("should call openModal with correct modal id for keyboard shortcuts", () => {
       // Ensure registry is empty so shortcuts get registered
       shortcutsRegistry.clear()
-      
+
       renderHook(() => useAppHotkeys())
 
       const shortcut = shortcutsRegistry.get("open-keyboard-shortcuts")
@@ -148,14 +148,14 @@ describe("useAppHotkeys", () => {
     it("should update registered shortcuts list", () => {
       // Clear registry to ensure clean state
       shortcutsRegistry.clear()
-      
+
       const { result } = renderHook(() => useAppHotkeys())
 
       // Wait for useEffect to run and register shortcuts
       act(() => {
         // Force a re-render to ensure effect has run
       })
-      
+
       // Now trigger an update by adding a shortcut to force subscription callback
       act(() => {
         shortcutsRegistry.register({
@@ -167,7 +167,7 @@ describe("useAppHotkeys", () => {
           enabled: true,
         })
       })
-      
+
       // After the update, we should have the modal shortcuts registered
       expect(result.current.registeredShortcuts.length).toBeGreaterThan(0)
       expect(result.current.registeredShortcuts).toContain("open-user-settings")

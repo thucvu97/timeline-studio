@@ -40,7 +40,7 @@ describe("useMediaPreview", () => {
         wrapper: MediaProviders,
       })
 
-      let previewData
+      let previewData: any
       await act(async () => {
         previewData = await result.current.getPreviewData("test-file-123")
       })
@@ -58,7 +58,7 @@ describe("useMediaPreview", () => {
         wrapper: MediaProviders,
       })
 
-      let previewData
+      let previewData: any
       await act(async () => {
         previewData = await result.current.getPreviewData("non-existent")
       })
@@ -74,7 +74,7 @@ describe("useMediaPreview", () => {
         wrapper: MediaProviders,
       })
 
-      let previewData
+      let previewData: any
       await act(async () => {
         previewData = await result.current.getPreviewData("test-file-123")
       })
@@ -101,7 +101,7 @@ describe("useMediaPreview", () => {
         wrapper: MediaProviders,
       })
 
-      let thumbnail
+      let thumbnail: any
       await act(async () => {
         thumbnail = await result.current.generateThumbnail("test-file-123", "/path/to/video.mp4", 640, 360, 2.5)
       })
@@ -161,7 +161,7 @@ describe("useMediaPreview", () => {
         wrapper: MediaProviders,
       })
 
-      let success
+      let success: boolean
       await act(async () => {
         success = await result.current.clearPreviewData("test-file-123")
       })
@@ -180,7 +180,7 @@ describe("useMediaPreview", () => {
         wrapper: MediaProviders,
       })
 
-      let fileIds
+      let fileIds: string[]
       await act(async () => {
         fileIds = await result.current.getFilesWithPreviews()
       })
@@ -198,7 +198,7 @@ describe("useMediaPreview", () => {
         wrapper: MediaProviders,
       })
 
-      let success
+      let success: boolean
       await act(async () => {
         success = await result.current.savePreviewData("/path/to/save")
       })
@@ -218,7 +218,7 @@ describe("useMediaPreview", () => {
         wrapper: MediaProviders,
       })
 
-      let success
+      let success: boolean
       await act(async () => {
         success = await result.current.loadPreviewData("/path/to/load")
       })

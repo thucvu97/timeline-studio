@@ -148,7 +148,7 @@ describe("useFramePreview", () => {
         wrapper: MediaProviders,
       })
 
-      let frames
+      let frames: any
       await act(async () => {
         frames = await result.current.extractTimelineFrames("test-file-123", "/path/to/video.mp4", 10, 1)
       })
@@ -293,7 +293,7 @@ describe("useFramePreview", () => {
         wrapper: MediaProviders,
       })
 
-      let success
+      let success: boolean
       await act(async () => {
         success = await result.current.clearTimelineFrames("test-file-123")
       })

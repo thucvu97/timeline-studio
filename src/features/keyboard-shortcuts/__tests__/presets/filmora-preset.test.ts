@@ -344,7 +344,7 @@ describe("Wondershare Filmora Preset", () => {
             keys !== "End" &&
             keys !== "," &&
             keys !== "." &&
-            !(/^F\d+$/.exec(keys)) // F keys
+            !/^F\d+$/.exec(keys) // F keys
           ) {
             // Should contain proper symbols or single uppercase letters/numbers
             expect(keys).toMatch(/^[⌘⇧⌥⌃↑↓←→↵=\-+[\]\\/.,'";:A-Za-z0-9\s]+$/)
