@@ -184,7 +184,7 @@ describe("useFrameExtraction", () => {
     vi.mocked(FrameExtractionService.getInstance).mockReturnValue(mockFrameExtractionService)
 
     // Настраиваем моки по умолчанию
-    mockFrameExtractionService.extractRecognitionFrames.mockResolvedValue([])
+    mockFrameExtractionService.extractRecognitionFrames.mockResolvedValue(mockRecognitionFrames)
     mockFrameExtractionService.cacheRecognitionFrames.mockResolvedValue(undefined)
 
     // Reset mock functions
@@ -423,7 +423,7 @@ describe("useFrameExtraction", () => {
         () => new Promise((resolve) => setTimeout(() => resolve(mockTimelineFrames), 50)),
       )
 
-      // Важно: переопределяем мок ПОСЛЕ импорта
+      // Важно: настраиваем мок для frameExtractionService (не instance)
       mockFrameExtractionService.extractRecognitionFrames.mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve(mockRecognitionFrames), 50)),
       )
