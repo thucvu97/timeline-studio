@@ -5,6 +5,12 @@
 [![Build Status](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml)
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue)](https://chatman-media.github.io/timeline-studio/api-docs/)
+[![Lint CSS](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml)
+[![Lint TypeScript](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
+[![Lint Rust](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml)
+[![Frontend Coverage](https://codecov.io/gh/chatman-media/timeline-studio/branch/main/graph/badge.svg?token=ee5ebdfd-4bff-4c8c-8cca-36a0448df9de&flag=frontend)](https://codecov.io/gh/chatman-media/timeline-studio)
+[![Backend Coverage](https://codecov.io/gh/chatman-media/timeline-studio/branch/main/graph/badge.svg?token=ee5ebdfd-4bff-4c8c-8cca-36a0448df9de&flag=backend)](https://codecov.io/gh/chatman-media/timeline-studio)
+
 [![Telegram](https://img.shields.io/badge/Telegram-Join%20Group-blue?logo=telegram)](https://t.me/timelinestudio)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
 
@@ -12,17 +18,24 @@
 
 Timeline Studio 是一款基于现代 Web 技术构建的专业视频编辑应用程序，具有原生性能。我们的目标是创建一个达到 DaVinci Resolve 水平的编辑器，让每个人都能使用。
 
-![时间轴界面](/public/screen3.png)
+![时间轴界面 #1](/public/screen2.png)
+
+![时间轴界面 #2](/public/screen4.png)
 
 ### 项目状态（2025年6月）
 
-**总体完成度：75%**
+**总体完成度：86.2%** ⬆️（OAuth 集成和 Export 完成后更新）
 - ✅ 核心编辑功能完成
 - ✅ 带 GPU 加速的视频编译器
-- ✅ 识别模块（YOLO v11）
-- ✅ 效果、滤镜和转场
-- ⚠️ 导出 UI 需要完成（25%）
-- ⚠️ 资源面板开发中（40%）
+- ✅ 识别模块（YOLO v11）- ORT 已修复
+- ✅ 效果、滤镜和转场（75-80%）
+- ✅ Export - 完整的社交媒体集成！（98%）🎉
+- ✅ OAuth 集成 - 支持 YouTube/TikTok/Vimeo/Telegram
+- ✅ 统一的预览系统与 Preview Manager
+- ✅ 媒体持久化和临时项目
+- ✅ 模板系统 - 基于配置（95% 完成）
+- ✅ Timeline 90% 完成
+- ⚠️ 资源面板开发中（85%）
 - 🎯 目标 MVP 发布：2025年6月底
 
 ## 主要功能
@@ -30,15 +43,18 @@ Timeline Studio 是一款基于现代 Web 技术构建的专业视频编辑应�
 - 🎬 专业视频编辑，支持多轨道时间轴
 - 🖥️ 跨平台（Windows、macOS、Linux）
 - 🚀 GPU 加速视频处理（NVENC、QuickSync、VideoToolbox）
-- 🤖 AI 驱动的对象/人脸识别（YOLO v11）
+- 🤖 AI 驱动的对象/人脸识别（YOLO v11 - ORT 已修复）
 - 🎨 30+ 种转场、视觉效果和滤镜
 - 📝 高级字幕系统，支持 12 种样式和动画
 - 🎵 多轨音频编辑，带效果
+- 📤 导出到 MP4/MOV/WebM，支持社交媒体 OAuth 集成
+- 🔐 支持 YouTube/TikTok/Vimeo/Telegram OAuth，安全令牌存储
+- 📱 设备预设（iPhone、iPad、Android）用于优化导出
 - 🧠 使用 XState v5 进行状态管理
-- 🌐 国际化支持（6 种语言）
-- 💾 智能缓存和预览生成
+- 🌐 国际化支持（11 种语言）
+- 💾 智能缓存和统一预览系统
 - 🎨 使用 Tailwind CSS v4、shadcn-ui 的现代 UI
-- 📚 完整文档，测试覆盖率超过 80%
+- 📚 完整文档，2400+ 测试（98.8% 成功率）
 
 ## 开始使用
 

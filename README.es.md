@@ -1,57 +1,60 @@
-# Timeline Studio
+# [Timeline Studio](https://chatman-media.github.io/timeline-studio/)
 
 [English](README.md) | [Español](README.es.md) | [Français](README.fr.md) | [Deutsch](README.de.md) | [Русский](README.ru.md) | [中文](README.zh.md) | [Português](README.pt.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Türkçe](README.tr.md) | [ไทย](README.th.md) | [العربية](README.ar.md) | [فارسی](README.fa.md)
 
 [![Build Status](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml)
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue)](https://chatman-media.github.io/timeline-studio/api-docs/)
+[![Lint CSS](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml)
+[![Lint TypeScript](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
+[![Lint Rust](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml)
+[![Frontend Coverage](https://codecov.io/gh/chatman-media/timeline-studio/branch/main/graph/badge.svg?token=ee5ebdfd-4bff-4c8c-8cca-36a0448df9de&flag=frontend)](https://codecov.io/gh/chatman-media/timeline-studio)
+[![Backend Coverage](https://codecov.io/gh/chatman-media/timeline-studio/branch/main/graph/badge.svg?token=ee5ebdfd-4bff-4c8c-8cca-36a0448df9de&flag=backend)](https://codecov.io/gh/chatman-media/timeline-studio)
+
 [![Telegram](https://img.shields.io/badge/Telegram-Join%20Group-blue?logo=telegram)](https://t.me/timelinestudio)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
-<!-- [![Lint CSS](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml)
-[![Lint TypeScript](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
-[![Lint Rust](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml) -->
 
 ## Descripción del Proyecto
 
-Timeline Studio es una aplicación de escritorio para crear y editar videos. La aplicación utiliza una arquitectura basada en máquinas de estado finito (XState) para gestionar la lógica de estado compleja.
+Timeline Studio es una aplicación profesional de edición de video construida con tecnologías web modernas y rendimiento nativo. Nuestro objetivo es crear un editor de nivel DaVinci Resolve que sea accesible para todos.
 
-![Interfaz de Timeline](/public/screen3.png)
+![Interfaz de Timeline #1](/public/screen2.png)
 
-## 📊 Estado de Desarrollo
+![Interfaz de Timeline #2](/public/screen4.png)
 
-### 🎯 Progreso General: 76% Completo (13/17 características)
+### Estado del Proyecto (Junio 2025)
 
-```
-Componentes:     16/17 ✅ (94%)
-Hooks:           14/17 ✅ (82%)
-Servicios:       15/17 ✅ (88%)
-Pruebas:         13/17 ✅ (76%)
-Documentación:   17/17 ✅ (100%)
-```
+**Completado General: 86.2%** ⬆️ (actualizado después de la integración OAuth y finalización de Export)
+- ✅ Funcionalidad principal de edición completa
+- ✅ Video Compiler con aceleración GPU
+- ✅ Módulo de reconocimiento (YOLO v11) - ORT arreglado
+- ✅ Efectos, filtros y transiciones (75-80%)
+- ✅ Export - ¡integración completa con redes sociales! (98%) 🎉
+- ✅ Integración OAuth - soporte para YouTube/TikTok/Vimeo/Telegram
+- ✅ Sistema de vista previa unificado con Preview Manager
+- ✅ Persistencia de medios y proyectos temporales
+- ✅ Sistema de plantillas - basado en configuración (95% completado)
+- ✅ Timeline al 90% de finalización
+- ⚠️ Panel de recursos en desarrollo (85%)
+- 🎯 Fecha objetivo de lanzamiento MVP: Final de junio 2025
 
-### 🔥 Tareas Críticas
+## Características Principales
 
-- **Timeline** - requiere máquina de estado, hooks, lógica principal
-- **Resources** - requiere componentes UI para gestión
-- **AI Chat** - requiere verificación de completitud funcional
-- **Options** - requiere expansión de funcionalidad
-
-### ✅ Componentes Listos
-
-- **VideoPlayer** - reproductor de video completamente funcional
-- **Browser** - navegador de archivos multimedia con pestañas
-- **Media, Music, Effects, Filters, Transitions, Templates** - todo listo
-- **AppState, Modals, TopBar, MediaStudio** - infraestructura básica
-
-### Características Principales
-
-- 🎬 Creación y edición de proyectos de video
+- 🎬 Edición de video profesional con timeline multipista
 - 🖥️ Multiplataforma (Windows, macOS, Linux)
-- 🧠 Gestión de estado con XState v5
-- 🌐 Soporte de internacionalización (i18n)
-- 🎨 UI moderna con Tailwind CSS v4
-- 🔍 Control estricto de calidad de código con ESLint, Stylelint y Clippy
-- 📚 Documentación completa para todos los componentes
+- 🚀 Procesamiento de video acelerado por GPU (NVENC, QuickSync, VideoToolbox)
+- 🤖 Reconocimiento de objetos/rostros potenciado por IA (YOLO v11 - ORT arreglado)
+- 🎨 30+ transiciones, efectos visuales y filtros
+- 📝 Sistema avanzado de subtítulos con 12 estilos y animaciones
+- 🎵 Edición de audio multipista con efectos
+- 📤 Exportación a MP4/MOV/WebM con integración OAuth de redes sociales
+- 🔐 Soporte OAuth para YouTube/TikTok/Vimeo/Telegram con almacenamiento seguro de tokens
+- 📱 Presets de dispositivos (iPhone, iPad, Android) para exportaciones optimizadas
+- 🧠 Gestión de estado usando XState v5
+- 🌐 Soporte de internacionalización (11 idiomas)
+- 💾 Caché inteligente y sistema de vista previa unificado
+- 🎨 UI moderna usando Tailwind CSS v4, shadcn-ui
+- 📚 Documentación completa con 2400+ pruebas (98.8% de éxito)
 
 ## Comenzando
 
@@ -60,6 +63,7 @@ Documentación:   17/17 ✅ (100%)
 - [Node.js](https://nodejs.org/) (v18 o superior)
 - [Rust](https://www.rust-lang.org/tools/install) (última versión estable)
 - [bun](https://bun.sh/) (última versión estable)
+- [ffmpeg](https://ffmpeg.org/download.html) (última versión estable)
 
 ### Instalación
 
@@ -79,67 +83,34 @@ bun install
 ### Modo de Desarrollo
 
 ```bash
-bun tauri dev
+bun run tauri dev
 ```
 
 ### Compilación de Producción
 
 ```bash
-bun tauri build
-```
-
-## Estructura del Proyecto
-
-```
-timeline-studio/
-├── src/                  # Código fuente del frontend (React, Next.js)
-│   ├── features/         # Módulos de características de la aplicación (17 características)
-│   │   ├── browser/      ✅ # Navegador de archivos multimedia con pestañas
-│   │   ├── media/        ✅ # Gestión de archivos multimedia
-│   │   ├── video-player/ ✅ # Reproductor de video con controles
-│   │   ├── timeline/     ⚠️ # Timeline (requiere trabajo)
-│   │   ├── resources/    ⚠️ # Recursos (requiere componentes UI)
-│   │   ├── ai-chat/      ❓ # Chat AI (requiere verificación)
-│   │   ├── options/      ⚠️ # Panel de opciones (requiere expansión)
-│   │   ├── music/        ✅ # Archivos de música
-│   │   ├── effects/      ✅ # Efectos de video
-│   │   ├── filters/      ✅ # Filtros de imagen
-│   │   ├── transitions/  ✅ # Transiciones de clips
-│   │   ├── subtitles/    ✅ # Subtítulos
-│   │   ├── templates/    ✅ # Plantillas de proyecto
-│   │   ├── modals/       ✅ # Ventanas modales
-│   │   ├── app-state/    ✅ # Estado global
-│   │   ├── top-bar/      ✅ # Barra de navegación superior
-│   │   ├── media-studio/ ✅ # Componente raíz
-│   │   └── OVERVIEW.md   📚 # Resumen de todas las características
-│   ├── i18n/             # Internacionalización
-│   ├── types/            # Tipos TypeScript
-│   ├── lib/              # Utilidades y bibliotecas
-│   └── components/       # Componentes UI reutilizables
-├── src-tauri/            # Código fuente del backend (Rust)
-│   ├── src/              # Código Rust
-│   └── Cargo.toml        # Configuración de dependencias Rust
-├── public/               # Archivos estáticos
-├── DEV.md                📚 # Documentación para desarrolladores
-├── README.ru.md          📚 # Documentación en ruso
-└── package.json          # Configuración de dependencias Node.js
+bun run tauri build
 ```
 
 ## Documentación
 
 ### 📚 Documentación Principal
 
-- 📚 [Mapa de Documentación](docs-ru/MAP.md) - Resumen completo de la documentación
-- 🏗️ [Guía de Arquitectura](docs-ru/ARCHITECTURE.md) - Arquitectura del sistema
-- 🧪 [Guía de Pruebas](docs-ru/testing/TESTING.md) - Estrategias de pruebas
-- 📡 [Referencia API](docs-ru/API.md) - Referencia de comandos Tauri
-- 🚀 [Guía de Despliegue](docs-ru/deployment/DEPLOYMENT.md) - Construcción y despliegue
-- 🛣️ [Hoja de Ruta](docs-ru/ROADMAP.md) - Hoja de ruta de desarrollo
+- 📚 [Resumen de Documentación](docs-ru/README.md) - Mapa completo de documentación
+- 🚀 [Comenzando](docs-ru/01-getting-started/README.md) - Instalación y primeros pasos
+- 🏗️ [Guía de Arquitectura](docs-ru/02-architecture/README.md) - Arquitectura del sistema
+- 🎯 [Guía de Características](docs-ru/03-features/README.md) - Resumen de características y estado
+- 📡 [Referencia API](docs-ru/04-api-reference/README.md) - Referencia de comandos Tauri
+- 🧪 [Guía de Desarrollo](docs-ru/05-development/README.md) - Pruebas y desarrollo
+- 🚀 [Guía de Despliegue](docs-ru/06-deployment/README.md) - Construcción y despliegue
+- 📋 [Guías de Usuario](docs-ru/07-guides/README.md) - Rendimiento y mejores prácticas
+- 🛣️ [Hoja de Ruta](docs-ru/08-roadmap/README.md) - Hoja de ruta de desarrollo
+- 🔐 [Configuración OAuth](docs-ru/09-oauth-setup/oauth-setup-guide.md) - Integración con redes sociales
 
 ### 📋 Documentación del Proyecto
 
 - **`src/features/README.md`** - resumen de todas las características con prioridades y estado
-- **Versiones en idiomas**: Disponible en 13 idiomas a través del selector arriba
+- **Versiones en idiomas**: Disponible en 11 idiomas a través del selector arriba
 
 ## Desarrollo
 
@@ -170,40 +141,36 @@ timeline-studio/
 - `bun test:ui` - Ejecutar pruebas con interfaz UI
 - `bun test:e2e` - Ejecutar pruebas end-to-end con Playwright
 
-### Máquinas de Estado (XState v5)
-
-El proyecto utiliza XState v5 para gestionar la lógica de estado compleja.
-
-#### ✅ Máquinas de Estado Implementadas (11):
-
-- `appSettingsMachine` - gestión centralizada de configuraciones
-- `chatMachine` - gestión de chat AI
-- `modalMachine` - gestión de ventanas modales
-- `playerMachine` - gestión del reproductor de video
-- `resourcesMachine` - gestión de recursos del timeline
-- `musicMachine` - gestión de archivos de música
-- `userSettingsMachine` - configuraciones de usuario
-- `projectSettingsMachine` - configuraciones de proyecto
-- `mediaListMachine` - gestión de listas de archivos multimedia
-- `templateListMachine` - gestión de plantillas
-- `timelineMachine` - ✅ **¡COMPLETADO!** Máquina de estado principal del timeline (20 tests pasaron)
-
-#### ❌ Requieren Implementación (1):
-
-- `optionsMachine` - gestión del panel de opciones
-
-Ver `DEV.md` para detalles.
-
 ### Pruebas
 
-El proyecto utiliza Vitest para pruebas unitarias. Las pruebas se ubican junto a los archivos probados con extensiones `.test.ts` o `.test.tsx`.
+El proyecto utiliza Vitest para pruebas unitarias. Las pruebas se encuentran en el directorio __tests__ de cada característica, junto con los mocks en __mocks__.
+
+#### 🧪 Estado de Cobertura de Pruebas:
+```bash
+⨯ bun run test
+
+ Test Files  221 passed (221)
+      Tests  2658 passed | 20 skipped (2678)
+   Start at  05:07:53
+   Duration  29.45s (transform 5.22s, setup 66.59s, collect 28.44s, tests 28.04s, environment 79.86s, prepare 18.33s)
+
+⨯ bun run test:rust
+   test result: ok. 366 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 12.38s
+
+```
 
 ```bash
-# Ejecutar todas las pruebas
-bun test
+# Ejecutar pruebas del cliente
+bun run test
+
+# Ejecutar pruebas de rust
+bun run test:rust
 
 # Ejecutar pruebas con reporte de cobertura
-bun test:coverage
+bun run test:coverage
+
+# Ejecutar pruebas para función específica
+bun run test src/features/effects
 ```
 
 ## Licencia

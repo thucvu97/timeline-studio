@@ -5,6 +5,12 @@
 [![Build Status](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml)
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue)](https://chatman-media.github.io/timeline-studio/api-docs/)
+[![Lint CSS](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-css.yml)
+[![Lint TypeScript](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
+[![Lint Rust](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml/badge.svg)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml)
+[![Frontend Coverage](https://codecov.io/gh/chatman-media/timeline-studio/branch/main/graph/badge.svg?token=ee5ebdfd-4bff-4c8c-8cca-36a0448df9de&flag=frontend)](https://codecov.io/gh/chatman-media/timeline-studio)
+[![Backend Coverage](https://codecov.io/gh/chatman-media/timeline-studio/branch/main/graph/badge.svg?token=ee5ebdfd-4bff-4c8c-8cca-36a0448df9de&flag=backend)](https://codecov.io/gh/chatman-media/timeline-studio)
+
 [![Telegram](https://img.shields.io/badge/Telegram-Join%20Group-blue?logo=telegram)](https://t.me/timelinestudio)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
 
@@ -12,33 +18,43 @@
 
 Timeline Studio est une application de montage vidéo professionnelle construite avec des technologies web modernes et des performances natives. Notre objectif est de créer un éditeur de niveau DaVinci Resolve accessible à tous.
 
-![Timeline Interface](/public/screen3.png)
+![Interface Timeline #1](/public/screen2.png)
+
+![Interface Timeline #2](/public/screen4.png)
 
 ### Statut du Projet (Juin 2025)
 
-**Achèvement Global : 75%**
-- ✅ Fonctionnalité d'édition de base terminée
+**Achèvement Global : 86.2%** ⬆️ (mis à jour après l'intégration OAuth et l'achèvement Export)
+- ✅ Fonctionnalité d'édition principale terminée
 - ✅ Compilateur vidéo avec accélération GPU
-- ✅ Module de reconnaissance (YOLO v11)
-- ✅ Effets, filtres et transitions
-- ⚠️ Interface d'exportation à terminer (25%)
-- ⚠️ Panneau de ressources en développement (40%)
-- 🎯 Objectif de sortie MVP : Fin juin 2025
+- ✅ Module de reconnaissance (YOLO v11) - ORT corrigé
+- ✅ Effets, filtres et transitions (75-80%)
+- ✅ Export - intégration complète des réseaux sociaux ! (98%) 🎉
+- ✅ Intégration OAuth - support YouTube/TikTok/Vimeo/Telegram
+- ✅ Système d'aperçu unifié avec Preview Manager
+- ✅ Persistance des médias et projets temporaires
+- ✅ Système de modèles - basé sur la configuration (95% terminé)
+- ✅ Timeline à 90% d'achèvement
+- ⚠️ Panneau de ressources en développement (85%)
+- 🎯 Date cible de sortie MVP : Fin juin 2025
 
 ## Fonctionnalités Principales
 
 - 🎬 Montage vidéo professionnel avec timeline multi-pistes
 - 🖥️ Multi-plateforme (Windows, macOS, Linux)
 - 🚀 Traitement vidéo accéléré par GPU (NVENC, QuickSync, VideoToolbox)
-- 🤖 Reconnaissance d'objets/visages alimentée par l'IA (YOLO v11)
+- 🤖 Reconnaissance d'objets/visages alimentée par l'IA (YOLO v11 - ORT corrigé)
 - 🎨 Plus de 30 transitions, effets visuels et filtres
 - 📝 Système de sous-titres avancé avec 12 styles et animations
 - 🎵 Montage audio multi-pistes avec effets
+- 📤 Export vers MP4/MOV/WebM avec intégration OAuth des réseaux sociaux
+- 🔐 Support OAuth pour YouTube/TikTok/Vimeo/Telegram avec stockage sécurisé des tokens
+- 📱 Préréglages d'appareils (iPhone, iPad, Android) pour des exports optimisés
 - 🧠 Gestion d'état utilisant XState v5
-- 🌐 Support d'internationalisation (6 langues)
-- 💾 Cache intelligent et génération d'aperçus
+- 🌐 Support d'internationalisation (11 langues)
+- 💾 Cache intelligent et système d'aperçu unifié
 - 🎨 Interface moderne utilisant Tailwind CSS v4, shadcn-ui
-- 📚 Documentation complète avec plus de 80% de couverture de tests
+- 📚 Documentation complète avec 2400+ tests (98.8% de réussite)
 
 ## Commencer
 
