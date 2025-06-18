@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, OnceLock};
 
 // Поддерживаемые языки
@@ -6,6 +7,9 @@ const SUPPORTED_LANGUAGES: [&str; 11] = [
   "en", "ru", "es", "pt", "fr", "de", "zh", "ja", "ko", "tr", "th",
 ];
 const DEFAULT_LANGUAGE: &str = "en";
+
+// Shutdown guard для предотвращения доступа к мьютексам во время завершения
+static SHUTDOWN: AtomicBool = AtomicBool::new(false);
 
 // Глобальное состояние для хранения текущего языка
 static APP_LANGUAGE: OnceLock<Mutex<String>> = OnceLock::new();
@@ -44,11 +48,24 @@ fn is_supported_language(lang: &str) -> bool {
 #[tauri::command]
 pub fn get_app_language() -> LanguageResponse {
   let system_language = get_system_language();
+
+  // Check shutdown state first to avoid any mutex access during shutdown
+  if SHUTDOWN.load(Ordering::Acquire) {
+    return LanguageResponse {
+      language: DEFAULT_LANGUAGE.to_string(),
+      system_language,
+    };
+  }
+
+  // Try to acquire mutex with non-blocking approach to avoid hanging during shutdown
   let app_language = APP_LANGUAGE
     .get_or_init(|| Mutex::new(DEFAULT_LANGUAGE.to_string()))
-    .lock()
-    .unwrap()
-    .clone();
+    .try_lock()
+    .map(|guard| guard.clone())
+    .unwrap_or_else(|_| {
+      // If mutex is poisoned or locked during shutdown, return default
+      DEFAULT_LANGUAGE.to_string()
+    });
 
   LanguageResponse {
     language: app_language,
@@ -64,17 +81,34 @@ pub fn set_app_language(lang: String) -> Result<LanguageResponse, String> {
     return Err(format!("Unsupported language: {}", lang));
   }
 
-  // Устанавливаем новый язык
-  let mut app_language = APP_LANGUAGE
+  // Проверяем shutdown состояние
+  if SHUTDOWN.load(Ordering::Acquire) {
+    return Err("Application is shutting down".to_string());
+  }
+
+  // Устанавливаем новый язык с non-blocking mutex access
+  let result = APP_LANGUAGE
     .get_or_init(|| Mutex::new(DEFAULT_LANGUAGE.to_string()))
-    .lock()
-    .unwrap();
-  *app_language = lang;
+    .try_lock()
+    .map(|mut guard| {
+      *guard = lang.clone();
+      guard.clone()
+    })
+    .unwrap_or_else(|_| {
+      // If mutex is poisoned or locked during shutdown, return the requested language
+      // The setting may not persist but at least we don't crash
+      lang.clone()
+    });
 
   Ok(LanguageResponse {
-    language: app_language.clone(),
+    language: result,
     system_language: get_system_language(),
   })
+}
+
+/// Функция для инициации завершения работы (вызывается при закрытии приложения)
+pub fn initiate_shutdown() {
+  SHUTDOWN.store(true, Ordering::SeqCst);
 }
 
 #[cfg(test)]

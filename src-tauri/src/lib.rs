@@ -135,6 +135,18 @@ fn greet() -> String {
   format!("Hello world from Rust! Current epoch: {}", epoch_ms)
 }
 
+/// Graceful shutdown for all global state to prevent mutex errors during app termination
+#[tauri::command]
+fn initiate_graceful_shutdown() -> Result<String, String> {
+  // Initiate shutdown for language module
+  language::initiate_shutdown();
+
+  // Log the shutdown initiation
+  log::info!("Graceful shutdown initiated for all global state");
+
+  Ok("Shutdown initiated successfully".to_string())
+}
+
 // Media Processor Commands
 
 #[tauri::command]
@@ -316,6 +328,7 @@ pub fn run() {
     .manage(preview_manager_state)
     .invoke_handler(tauri::generate_handler![
       greet,
+      initiate_graceful_shutdown,
       #[cfg(test)]
       get_test_longest_video,
       get_app_language,

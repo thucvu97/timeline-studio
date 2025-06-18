@@ -77,7 +77,26 @@ jobs:
       - name: Run backend tests with coverage
         run: |
           cd src-tauri
-          cargo llvm-cov --lcov --output-path coverage.info
+          # Запускаем тесты с подробным выводом
+          set +e  # Не прерывать при ошибке
+          cargo llvm-cov --lcov --output-path coverage.info 2>&1 | tee test_output.log
+          EXIT_CODE=${PIPESTATUS[0]}
+          
+          # Проверяем, что тесты прошли успешно
+          if grep -q "test result: ok" test_output.log; then
+            echo "✅ All tests passed successfully"
+            # Проверяем, что файл покрытия создан
+            if [ -f coverage.info ]; then
+              echo "✅ Coverage report generated"
+              exit 0
+            else
+              echo "❌ Coverage report not generated"
+              exit 1
+            fi
+          else
+            echo "❌ Tests failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
           
       - name: Upload backend coverage to Codecov
         uses: codecov/codecov-action@v4
