@@ -71,6 +71,9 @@ jobs:
       - name: Setup FFmpeg
         uses: FedericoCarboni/setup-ffmpeg@v3
         
+      - name: Create dist directory for Tauri
+        run: mkdir -p dist
+        
       - name: Run backend tests with coverage
         run: |
           cd src-tauri
