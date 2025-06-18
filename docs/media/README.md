@@ -226,7 +226,7 @@ The project uses Vitest for unit testing. Tests are located in the feature's __t
    Duration  13.14s (transform 3.71s, setup 25.13s, collect 13.88s, tests 8.69s, environment 38.26s, prepare 8.96s)
 
 ⨯ bun run test:rust
-   test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+   test result: ok. 366 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 12.26s
 
 ```
 

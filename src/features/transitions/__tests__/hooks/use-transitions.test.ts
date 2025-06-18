@@ -1,65 +1,216 @@
-import { describe, expect, it } from "vitest"
+import { renderHook } from "@testing-library/react"
+import { beforeAll, describe, expect, it, vi } from "vitest"
+
+import { useTransitionById, useTransitions, useTransitionsByCategory } from "../../hooks/use-transitions"
+import { Transition } from "../../types/transitions"
+
+// Now import the hooks after mocks are set up
+
+// Mock i18n
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string, fallback?: string) => fallback || key,
+    i18n: {
+      language: "ru",
+    },
+  }),
+}))
+
+// Mock the JSON import before importing the hooks
+vi.mock("../../data/transitions.json", () => ({
+  default: {
+    version: "1.0.0",
+    lastUpdated: "2025-05-31",
+    totalTransitions: 4,
+    categories: ["basic", "advanced", "creative"],
+    transitions: [
+      {
+        id: "fade",
+        type: "fade",
+        labels: { ru: "Затухание", en: "Fade" },
+        description: { ru: "Плавное затухание", en: "Smooth fade" },
+        category: "basic",
+        complexity: "basic",
+        tags: ["smooth", "classic"],
+        duration: { min: 0.5, max: 3.0, default: 1.0 },
+        parameters: {
+          direction: "center",
+          smoothness: 0.8,
+        },
+        ffmpegTemplate: "fade=t=in:st=0:d={duration}",
+      },
+      {
+        id: "zoom",
+        type: "zoom",
+        labels: { ru: "Увеличение", en: "Zoom" },
+        description: { ru: "Эффект увеличения", en: "Zoom effect" },
+        category: "advanced",
+        complexity: "intermediate",
+        tags: ["dynamic"],
+        duration: { min: 0.5, max: 3.0, default: 1.5 },
+        parameters: {
+          scale: 2.0,
+          easing: "ease-in-out",
+        },
+        ffmpegTemplate: "scale={scale}*iw:{scale}*ih,fade=t=in:st=0:d={duration}",
+      },
+      {
+        id: "slide",
+        type: "slide",
+        labels: { ru: "Слайд", en: "Slide" },
+        description: { ru: "Скольжение", en: "Sliding" },
+        category: "basic",
+        complexity: "basic",
+        tags: ["smooth"],
+        duration: { min: 0.3, max: 2.0, default: 0.8 },
+        parameters: {
+          direction: "left",
+        },
+        ffmpegTemplate: "xfade=transition=slideright:duration={duration}:offset=0",
+      },
+      {
+        id: "spiral",
+        type: "spiral",
+        labels: { ru: "Спираль", en: "Spiral" },
+        description: { ru: "Спиральный эффект", en: "Spiral effect" },
+        category: "creative",
+        complexity: "advanced",
+        tags: ["creative", "complex"],
+        duration: { min: 1.0, max: 5.0, default: 2.5 },
+        parameters: {
+          intensity: 0.9,
+          rotations: 3,
+        },
+        ffmpegTemplate: "rotate=a={rotations}*PI*t/{duration}:c=none:ow=rotw(a):oh=roth(a),fade=t=in:st=0:d={duration}",
+      },
+    ],
+  },
+}))
 
 // Простые тесты для проверки импортов и базовой функциональности
 describe("Transitions Module", () => {
-  it("should import transitions hooks without errors", async () => {
-    // Проверяем, что модули импортируются без ошибок
-    const { useTransitions, useTransitionById, useTransitionsByCategory } = await import("../../hooks/use-transitions")
+  describe("useTransitions", () => {
+    it("should load transitions successfully", () => {
+      const { result } = renderHook(() => useTransitions())
 
-    expect(useTransitions).toBeDefined()
-    expect(typeof useTransitions).toBe("function")
+      expect(result.current.loading).toBe(false)
+      expect(result.current.error).toBeNull()
+      expect(result.current.transitions).toHaveLength(4)
+      expect(result.current.transitions[0].id).toBe("fade")
+      expect(result.current.transitions[1].id).toBe("zoom")
+      expect(result.current.transitions[2].id).toBe("slide")
+      expect(result.current.transitions[3].id).toBe("spiral")
+    })
 
-    expect(useTransitionById).toBeDefined()
-    expect(typeof useTransitionById).toBe("function")
+    it("should return transitions with localized labels", () => {
+      const { result } = renderHook(() => useTransitions())
 
-    expect(useTransitionsByCategory).toBeDefined()
-    expect(typeof useTransitionsByCategory).toBe("function")
+      const fadeTransition = result.current.transitions.find(t => t.id === "fade")
+      expect(fadeTransition?.labels?.ru).toBe("Затухание")
+      expect(fadeTransition?.labels?.en).toBe("Fade")
+    })
+
+    it.skip("should handle loading state", () => {
+      // Skip: Mock already loaded by the time hook runs
+    })
+
+    it.skip("should handle error state", () => {
+      // Skip: Mock already loaded by the time hook runs
+    })
   })
 
-  it("should import transitions data without errors", async () => {
-    // Проверяем, что JSON данные импортируются
-    try {
-      const transitionsData = await import("../../data/transitions.json")
-      expect(transitionsData).toBeDefined()
-      expect(transitionsData.default).toBeDefined()
+  describe("useTransitionById", () => {
+    it("should find transition by id", () => {
+      const { result } = renderHook(() => useTransitionById("fade"))
 
-      if (transitionsData.default.transitions) {
-        expect(Array.isArray(transitionsData.default.transitions)).toBe(true)
-        expect(transitionsData.default.transitions.length).toBeGreaterThan(0)
+      expect(result.current).toBeDefined()
+      expect(result.current?.id).toBe("fade")
+      expect(result.current?.labels?.ru).toBe("Затухание")
+      expect(result.current?.category).toBe("basic")
+    })
 
-        // Проверяем структуру первого перехода
-        const firstTransition = transitionsData.default.transitions[0]
-        expect(firstTransition).toHaveProperty("id")
-        expect(firstTransition).toHaveProperty("type")
-        expect(firstTransition).toHaveProperty("category")
-        expect(firstTransition).toHaveProperty("complexity")
-        expect(firstTransition).toHaveProperty("duration")
-      }
-    } catch (error) {
-      // Если JSON файл не найден, это нормально для тестов
-      console.log("Transitions JSON file not found, which is expected in test environment")
-    }
-  })
+    it("should return undefined for non-existent id", () => {
+      const { result } = renderHook(() => useTransitionById("non-existent"))
 
-  it("should import transitions utilities without errors", async () => {
-    // Проверяем, что утилиты импортируются
-    try {
-      const { processTransitions, validateTransitionsData, createFallbackTransition } = await import(
-        "../../utils/transition-processor"
+      expect(result.current).toBeNull()
+    })
+
+    it("should handle null/undefined id", () => {
+      const { result: resultNull } = renderHook(() => useTransitionById(null as any))
+      const { result: resultUndefined } = renderHook(() => useTransitionById(undefined as any))
+
+      expect(resultNull.current).toBeNull()
+      expect(resultUndefined.current).toBeNull()
+    })
+
+    it("should update when id changes", () => {
+      const { result, rerender } = renderHook(
+        ({ id }) => useTransitionById(id),
+        { initialProps: { id: "fade" } }
       )
 
-      expect(processTransitions).toBeDefined()
-      expect(typeof processTransitions).toBe("function")
+      expect(result.current?.id).toBe("fade")
 
-      expect(validateTransitionsData).toBeDefined()
-      expect(typeof validateTransitionsData).toBe("function")
+      rerender({ id: "zoom" })
+      expect(result.current?.id).toBe("zoom")
 
-      expect(createFallbackTransition).toBeDefined()
-      expect(typeof createFallbackTransition).toBe("function")
-    } catch (error) {
-      // Если утилиты не найдены, это нормально для тестов
-      console.log("Transition utilities not found, which is expected in test environment")
-    }
+      rerender({ id: "non-existent" })
+      expect(result.current).toBeNull()
+    })
+  })
+
+  describe("useTransitionsByCategory", () => {
+    it("should filter transitions by category", () => {
+      const { result } = renderHook(() => useTransitionsByCategory("basic"))
+
+      expect(result.current).toHaveLength(2)
+      expect(result.current.every(t => t.category === "basic")).toBe(true)
+      expect(result.current.map(t => t.id).sort()).toEqual(["fade", "slide"])
+    })
+
+    it("should return empty array for non-existent category", () => {
+      const { result } = renderHook(() => useTransitionsByCategory("non-existent"))
+
+      expect(result.current).toHaveLength(0)
+    })
+
+    it("should handle null/undefined category", () => {
+      const { result: resultNull } = renderHook(() => useTransitionsByCategory(null as any))
+      const { result: resultUndefined } = renderHook(() => useTransitionsByCategory(undefined as any))
+
+      expect(resultNull.current).toHaveLength(0)
+      expect(resultUndefined.current).toHaveLength(0)
+    })
+
+    it("should return transitions for advanced category", () => {
+      const { result } = renderHook(() => useTransitionsByCategory("advanced"))
+
+      expect(result.current).toHaveLength(1)
+      expect(result.current[0].id).toBe("zoom")
+    })
+
+    it("should return transitions for creative category", () => {
+      const { result } = renderHook(() => useTransitionsByCategory("creative"))
+
+      expect(result.current).toHaveLength(1)
+      expect(result.current[0].id).toBe("spiral")
+    })
+
+    it("should update when category changes", () => {
+      const { result, rerender } = renderHook(
+        ({ category }) => useTransitionsByCategory(category),
+        { initialProps: { category: "basic" } }
+      )
+
+      expect(result.current).toHaveLength(2)
+
+      rerender({ category: "creative" })
+      expect(result.current).toHaveLength(1)
+      expect(result.current[0].id).toBe("spiral")
+
+      rerender({ category: "non-existent" })
+      expect(result.current).toHaveLength(0)
+    })
   })
 
   it("should have valid transition types", () => {

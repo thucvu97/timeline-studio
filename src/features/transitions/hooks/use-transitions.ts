@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +7,12 @@ import { Transition } from "@/features/transitions/types/transitions"
 import transitionsData from "../data/transitions.json"
 import { createFallbackTransition, processTransitions, validateTransitionsData } from "../utils/transition-processor"
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
+
+// Глобальное состояние для переходов чтобы избежать рекурсивных вызовов
+let globalTransitions: Transition[] = []
+let globalLoading = true
+let globalError: string | null = null
+let globalInitialized = false
 
 interface UseTransitionsReturn {
   transitions: Transition[]
@@ -17,62 +23,67 @@ interface UseTransitionsReturn {
 }
 
 /**
+ * Инициализация переходов при первом использовании
+ */
+function initializeTransitions(t: (key: string, fallback?: string, options?: any) => string) {
+  if (globalInitialized) return
+  
+  try {
+    // Используем импортированные данные - в Tauri это работает мгновенно
+    const data = transitionsData
+
+    // Валидируем данные
+    if (!validateTransitionsData(data)) {
+      throw new Error(t("transitions.errors.invalidTransitionsData", "Invalid transitions data structure"))
+    }
+
+    // Обрабатываем переходы (преобразуем в типизированные объекты)
+    globalTransitions = processTransitions(data.transitions)
+    globalError = null
+
+    console.log(
+      `✅ ${t("transitions.messages.transitionsLoaded", "Loaded {{count}} transitions from JSON", { count: globalTransitions.length })}`,
+    )
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : t("transitions.errors.unknownError", "Unknown error")
+    globalError = t("transitions.errors.failedToLoadTransitions", "Failed to load transitions: {{error}}", {
+      error: errorMessage,
+    })
+
+    // Создаем fallback переходы в случае ошибки
+    globalTransitions = [
+      createFallbackTransition("fade"),
+      createFallbackTransition("zoom"),
+      createFallbackTransition("slide"),
+    ]
+
+    console.error(
+      `❌ ${t("transitions.errors.fallbackTransitions", "Failed to load transitions, using fallback")}:`,
+      err,
+    )
+  } finally {
+    globalLoading = false
+    globalInitialized = true
+  }
+}
+
+/**
  * Хук для загрузки и управления переходами из JSON файла
  */
 export function useTransitions(): UseTransitionsReturn {
   const { t } = useTranslation()
-  const [transitions, setTransitions] = useState<Transition[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [transitions, setTransitions] = useState<Transition[]>(globalTransitions)
+  const [loading, setLoading] = useState(globalLoading)
+  const [error, setError] = useState<string | null>(globalError)
 
   /**
    * Загружает переходы из импортированного JSON файла
    */
   const loadTransitions = useCallback(() => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      // Используем импортированные данные - в Tauri это работает мгновенно
-      const data = transitionsData
-
-      // Валидируем данные
-      if (!validateTransitionsData(data)) {
-        throw new Error(t("transitions.errors.invalidTransitionsData", "Invalid transitions data structure"))
-      }
-
-      // Обрабатываем переходы (преобразуем в типизированные объекты)
-      const processedTransitions = processTransitions(data.transitions)
-
-      setTransitions(processedTransitions)
-
-      console.log(
-        `✅ ${t("transitions.messages.transitionsLoaded", "Loaded {{count}} transitions from JSON", { count: processedTransitions.length })}`,
-      )
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("transitions.errors.unknownError", "Unknown error")
-      setError(
-        t("transitions.errors.failedToLoadTransitions", "Failed to load transitions: {{error}}", {
-          error: errorMessage,
-        }),
-      )
-
-      // Создаем fallback переходы в случае ошибки
-      const fallbackTransitions = [
-        createFallbackTransition("fade"),
-        createFallbackTransition("zoom"),
-        createFallbackTransition("slide"),
-      ]
-
-      setTransitions(fallbackTransitions)
-
-      console.error(
-        `❌ ${t("transitions.errors.fallbackTransitions", "Failed to load transitions, using fallback")}:`,
-        err,
-      )
-    } finally {
-      setLoading(false)
-    }
+    initializeTransitions(t)
+    setTransitions(globalTransitions)
+    setLoading(globalLoading)
+    setError(globalError)
   }, [t])
 
   // Загружаем переходы при монтировании компонента
@@ -93,44 +104,69 @@ export function useTransitions(): UseTransitionsReturn {
  * Хук для получения конкретного перехода по ID
  */
 export function useTransitionById(transitionId: string): Transition | null {
-  const { transitions, isReady } = useTransitions()
+  const { t } = useTranslation()
+  
+  // Инициализируем переходы если еще не инициализированы
+  useMemo(() => {
+    initializeTransitions(t)
+  }, [t])
 
-  if (!isReady) {
-    return null
-  }
+  const transition = useMemo(() => {
+    if (globalLoading || !globalTransitions.length) {
+      return null
+    }
+    return globalTransitions.find((transition: Transition) => transition.id === transitionId) || null
+  }, [transitionId])
 
-  return transitions.find((transition: Transition) => transition.id === transitionId) || null
+  return transition
 }
 
 /**
  * Хук для получения переходов по категории
  */
 export function useTransitionsByCategory(category: string): Transition[] {
-  const { transitions, isReady } = useTransitions()
+  const { t } = useTranslation()
+  
+  // Инициализируем переходы если еще не инициализированы
+  useMemo(() => {
+    initializeTransitions(t)
+  }, [t])
 
-  if (!isReady) {
-    return []
-  }
+  const filteredTransitions = useMemo(() => {
+    if (globalLoading || !globalTransitions.length) {
+      return []
+    }
+    return globalTransitions.filter((transition: Transition) => transition.category === category)
+  }, [category])
 
-  return transitions.filter((transition: Transition) => transition.category === category)
+  return filteredTransitions
 }
 
 /**
  * Хук для поиска переходов
  */
 export function useTransitionsSearch(query: string, lang: "ru" | "en" = "ru"): Transition[] {
-  const { transitions, isReady } = useTransitions()
+  const { t } = useTranslation()
+  
+  // Инициализируем переходы если еще не инициализированы
+  useMemo(() => {
+    initializeTransitions(t)
+  }, [t])
 
-  if (!isReady || !query.trim()) {
-    return transitions
-  }
+  const searchResults = useMemo(() => {
+    if (globalLoading || !globalTransitions.length || !query.trim()) {
+      return globalTransitions
+    }
 
-  const lowercaseQuery = query.toLowerCase()
+    const lowercaseQuery = query.toLowerCase()
 
-  return transitions.filter(
-    (transition: Transition) =>
-      (transition.labels?.[lang] || transition.id || "").toLowerCase().includes(lowercaseQuery) ||
-      (transition.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
-      (transition.tags || []).some((tag: string) => tag.toLowerCase().includes(lowercaseQuery)),
-  )
+    return globalTransitions.filter(
+      (transition: Transition) =>
+        (transition.labels?.[lang] || transition.id || "").toLowerCase().includes(lowercaseQuery) ||
+        (transition.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
+        (transition.tags || []).some((tag: string) => tag.toLowerCase().includes(lowercaseQuery)),
+    )
+  }, [query, lang])
+
+  return searchResults
 }
