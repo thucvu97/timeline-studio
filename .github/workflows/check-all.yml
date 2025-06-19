@@ -34,7 +34,10 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies from lockfile
-        run: npm ci
+        run: |
+          npm config set fetch-timeout 300000
+          npm config set fetch-retries 5
+          npm ci --prefer-offline --no-audit --no-fund
 
       - name: Run lint step on Unix
         if: runner.os != 'Windows'
@@ -90,7 +93,10 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies from lockfile
-        run: npm ci
+        run: |
+          npm config set fetch-timeout 300000
+          npm config set fetch-retries 5
+          npm ci --prefer-offline --no-audit --no-fund
 
       - name: Run rustfmt check
         run: npm run format:rust:check
