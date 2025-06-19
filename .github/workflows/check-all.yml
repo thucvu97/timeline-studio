@@ -51,9 +51,10 @@ jobs:
         if: runner.os != 'Windows'
         run: npm run format:imports
 
-      - name: Check import order on Windows
-        if: runner.os == 'Windows'
-        run: npm run format:imports:windows
+      # Temporarily disabled due to Windows performance issues
+      # - name: Check import order on Windows
+      #   if: runner.os == 'Windows'
+      #   run: npm run format:imports:windows
 
   check-rust:
     name: Check Rust
