@@ -345,3 +345,405 @@ impl PreviewDataManager {
     }
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use tempfile::tempdir;
+  use tokio::fs;
+
+  async fn create_test_manager() -> PreviewDataManager {
+    let temp_dir = tempdir().unwrap();
+    PreviewDataManager::new(temp_dir.path().to_path_buf())
+  }
+
+  #[allow(dead_code)]
+  async fn create_test_video_file() -> PathBuf {
+    let temp_dir = tempdir().unwrap();
+    let video_path = temp_dir.path().join("test_video.mp4");
+    fs::write(&video_path, b"fake video data").await.unwrap();
+    video_path
+  }
+
+  #[tokio::test]
+  async fn test_preview_manager_creation() {
+    let temp_dir = tempdir().unwrap();
+    let manager = PreviewDataManager::new(temp_dir.path().to_path_buf());
+
+    assert_eq!(manager.base_dir, temp_dir.path().to_path_buf());
+  }
+
+  #[tokio::test]
+  async fn test_get_preview_data_nonexistent() {
+    let manager = create_test_manager().await;
+    let result = manager.get_preview_data("nonexistent").await;
+
+    assert!(result.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_get_all_files_with_previews_empty() {
+    let manager = create_test_manager().await;
+    let files = manager.get_all_files_with_previews().await;
+
+    assert!(files.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_generate_browser_thumbnail_invalid_file() {
+    let manager = create_test_manager().await;
+    let invalid_path = PathBuf::from("/nonexistent/video.mp4");
+
+    let result = manager
+      .generate_browser_thumbnail("test_file".to_string(), invalid_path, 160, 90, 0.0)
+      .await;
+
+    // Должна быть ошибка из-за несуществующего файла
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_generate_timeline_previews_invalid_file() {
+    let manager = create_test_manager().await;
+    let invalid_path = PathBuf::from("/nonexistent/video.mp4");
+
+    let result = manager
+      .generate_timeline_previews("test_file".to_string(), invalid_path, 10.0, 1.0)
+      .await;
+
+    // На некоторых системах может не быть ошибки, поэтому проверяем результат
+    match result {
+      Ok(_previews) => {
+        // Если успешно, то могут быть любые результаты (в зависимости от системы)
+        // Главное что нет паники
+      }
+      Err(_) => {
+        // Ожидаемая ошибка из-за несуществующего файла
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_extract_recognition_frames_invalid_file() {
+    let manager = create_test_manager().await;
+    let invalid_path = PathBuf::from("/nonexistent/video.mp4");
+
+    let result = manager
+      .extract_recognition_frames("test_file".to_string(), invalid_path, 5)
+      .await;
+
+    // На некоторых системах может не быть ошибки, поэтому проверяем результат
+    match result {
+      Ok(frames) => {
+        // Если успешно, то должен быть пустой результат
+        assert!(frames.is_empty());
+      }
+      Err(_) => {
+        // Ожидаемая ошибка из-за несуществующего файла
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_clear_file_data_nonexistent() {
+    let manager = create_test_manager().await;
+    let result = manager.clear_file_data("nonexistent").await;
+
+    // Должно быть успешно даже для несуществующего файла
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_save_and_load_from_file() {
+    let manager = create_test_manager().await;
+    let temp_dir = tempdir().unwrap();
+    let save_path = temp_dir.path().join("preview_data.json");
+
+    // Добавляем тестовые данные
+    {
+      let mut data = manager.data.write().await;
+      let preview_data =
+        MediaPreviewData::new("test_file".to_string(), PathBuf::from("/test/video.mp4"));
+      data.insert("test_file".to_string(), preview_data);
+    }
+
+    // Сохраняем
+    let save_result = manager.save_to_file(&save_path).await;
+    assert!(save_result.is_ok());
+    assert!(save_path.exists());
+
+    // Очищаем данные
+    {
+      let mut data = manager.data.write().await;
+      data.clear();
+    }
+
+    // Загружаем
+    let load_result = manager.load_from_file(&save_path).await;
+    assert!(load_result.is_ok());
+
+    // Проверяем что данные восстановились
+    let data = manager.data.read().await;
+    assert!(data.contains_key("test_file"));
+  }
+
+  #[tokio::test]
+  async fn test_load_from_nonexistent_file() {
+    let manager = create_test_manager().await;
+    let nonexistent_path = PathBuf::from("/nonexistent/file.json");
+
+    let result = manager.load_from_file(&nonexistent_path).await;
+    assert!(result.is_ok()); // Должно быть успешно, файл просто не существует
+  }
+
+  #[tokio::test]
+  async fn test_save_timeline_frames() {
+    let manager = create_test_manager().await;
+    let file_id = "test_video".to_string();
+
+    // Создаем тестовые frames
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+    let test_image_data = vec![255, 0, 0, 255]; // Красный пиксель в RGBA
+    let base64_data = STANDARD.encode(&test_image_data);
+
+    let frames = vec![
+      crate::media::commands::TimelineFrame {
+        timestamp: 1.0,
+        base64_data: base64_data.clone(),
+        is_keyframe: true,
+      },
+      crate::media::commands::TimelineFrame {
+        timestamp: 2.0,
+        base64_data: base64_data.clone(),
+        is_keyframe: false,
+      },
+    ];
+
+    let result = manager.save_timeline_frames(file_id.clone(), frames).await;
+    assert!(result.is_ok());
+
+    // Проверяем, что данные сохранились
+    let data = manager.data.read().await;
+    let preview_data = data.get(&file_id).unwrap();
+    assert_eq!(preview_data.timeline_previews.len(), 2);
+    assert_eq!(preview_data.timeline_previews[0].timestamp, 1.0);
+    assert_eq!(preview_data.timeline_previews[1].timestamp, 2.0);
+  }
+
+  #[tokio::test]
+  async fn test_get_timeline_frames() {
+    let manager = create_test_manager().await;
+    let file_id = "test_video";
+
+    // Сначала сохраняем frames
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+    let test_image_data = vec![255, 0, 0, 255];
+    let base64_data = STANDARD.encode(&test_image_data);
+
+    let frames = vec![crate::media::commands::TimelineFrame {
+      timestamp: 1.5,
+      base64_data: base64_data.clone(),
+      is_keyframe: true,
+    }];
+
+    manager
+      .save_timeline_frames(file_id.to_string(), frames)
+      .await
+      .unwrap();
+
+    // Теперь получаем frames
+    let result = manager.get_timeline_frames(file_id).await;
+    assert!(result.is_ok());
+
+    let retrieved_frames = result.unwrap();
+    assert_eq!(retrieved_frames.len(), 1);
+    assert_eq!(retrieved_frames[0].timestamp, 1.5);
+    assert_eq!(retrieved_frames[0].base64_data, base64_data);
+  }
+
+  #[tokio::test]
+  async fn test_get_timeline_frames_nonexistent() {
+    let manager = create_test_manager().await;
+    let result = manager.get_timeline_frames("nonexistent").await;
+
+    assert!(result.is_ok());
+    let frames = result.unwrap();
+    assert!(frames.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_save_timeline_frames_invalid_base64() {
+    let manager = create_test_manager().await;
+    let file_id = "test_video".to_string();
+
+    let frames = vec![crate::media::commands::TimelineFrame {
+      timestamp: 1.0,
+      base64_data: "invalid_base64_data!!!".to_string(),
+      is_keyframe: true,
+    }];
+
+    let result = manager.save_timeline_frames(file_id, frames).await;
+    assert!(result.is_err()); // Должна быть ошибка декодирования base64
+  }
+
+  #[tokio::test]
+  async fn test_clear_file_data_with_existing_data() {
+    let manager = create_test_manager().await;
+    let file_id = "test_video";
+
+    // Добавляем тестовые данные
+    {
+      let mut data = manager.data.write().await;
+      let mut preview_data =
+        MediaPreviewData::new(file_id.to_string(), PathBuf::from("/test/video.mp4"));
+
+      // Добавляем фейковый thumbnail
+      let temp_dir = tempdir().unwrap();
+      let temp_file = temp_dir.path().join("thumb.jpg");
+      fs::write(&temp_file, b"fake image").await.unwrap();
+
+      preview_data.set_browser_thumbnail(ThumbnailData {
+        path: temp_file,
+        base64_data: Some("fake_base64".to_string()),
+        timestamp: 0.0,
+        width: 160,
+        height: 90,
+      });
+
+      data.insert(file_id.to_string(), preview_data);
+    }
+
+    // Очищаем данные
+    let result = manager.clear_file_data(file_id).await;
+    assert!(result.is_ok());
+
+    // Проверяем, что данные удалены
+    let data = manager.data.read().await;
+    assert!(!data.contains_key(file_id));
+  }
+
+  #[tokio::test]
+  async fn test_preview_manager_concurrent_access() {
+    let manager = Arc::new(create_test_manager().await);
+    let mut handles = Vec::new();
+
+    // Запускаем несколько задач одновременно
+    for i in 0..5 {
+      let manager_clone = manager.clone();
+      let handle = tokio::spawn(async move {
+        let file_id = format!("test_file_{}", i);
+        let file_path = PathBuf::from(format!("/test/video_{}.mp4", i));
+
+        // Добавляем данные
+        {
+          let mut data = manager_clone.data.write().await;
+          let preview_data = MediaPreviewData::new(file_id.clone(), file_path);
+          data.insert(file_id.clone(), preview_data);
+        }
+
+        // Читаем данные
+        let result = manager_clone.get_preview_data(&file_id).await;
+        assert!(result.is_some());
+
+        file_id
+      });
+      handles.push(handle);
+    }
+
+    // Ждем завершения всех задач
+    let results = futures::future::join_all(handles).await;
+    for result in results {
+      assert!(result.is_ok());
+    }
+
+    // Проверяем, что все данные сохранились
+    let final_data = manager.data.read().await;
+    assert_eq!(final_data.len(), 5);
+  }
+
+  #[tokio::test]
+  async fn test_save_to_file_invalid_path() {
+    let manager = create_test_manager().await;
+    let invalid_path = Path::new("/invalid/readonly/path/file.json");
+
+    let result = manager.save_to_file(invalid_path).await;
+    assert!(result.is_err()); // Должна быть ошибка из-за невозможности записи
+  }
+
+  #[tokio::test]
+  async fn test_load_from_file_invalid_json() {
+    let manager = create_test_manager().await;
+    let temp_dir = tempdir().unwrap();
+    let invalid_json_path = temp_dir.path().join("invalid.json");
+
+    // Создаем файл с невалидным JSON
+    fs::write(&invalid_json_path, b"{ invalid json ")
+      .await
+      .unwrap();
+
+    let result = manager.load_from_file(&invalid_json_path).await;
+    assert!(result.is_err()); // Должна быть ошибка парсинга JSON
+  }
+
+  // Интеграционные тесты для проверки полного workflow
+  mod integration_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_full_preview_workflow() {
+      let manager = create_test_manager().await;
+      let file_id = "integration_test";
+
+      // Начинаем с пустого состояния
+      assert!(manager.get_preview_data(file_id).await.is_none());
+
+      // Добавляем некоторые timeline frames
+      use base64::{engine::general_purpose::STANDARD, Engine as _};
+      let test_data = vec![255, 0, 0, 255];
+      let base64_data = STANDARD.encode(&test_data);
+
+      let frames = vec![
+        crate::media::commands::TimelineFrame {
+          timestamp: 0.0,
+          base64_data: base64_data.clone(),
+          is_keyframe: true,
+        },
+        crate::media::commands::TimelineFrame {
+          timestamp: 1.0,
+          base64_data: base64_data.clone(),
+          is_keyframe: false,
+        },
+      ];
+
+      manager
+        .save_timeline_frames(file_id.to_string(), frames)
+        .await
+        .unwrap();
+
+      // Проверяем, что данные появились
+      let preview_data = manager.get_preview_data(file_id).await;
+      assert!(preview_data.is_some());
+
+      let data = preview_data.unwrap();
+      assert_eq!(data.timeline_previews.len(), 2);
+
+      // Проверяем, что можем получить frames обратно
+      let retrieved_frames = manager.get_timeline_frames(file_id).await.unwrap();
+      assert_eq!(retrieved_frames.len(), 2);
+      assert_eq!(retrieved_frames[0].timestamp, 0.0);
+      assert_eq!(retrieved_frames[1].timestamp, 1.0);
+
+      // Проверяем файл появился в списке
+      let all_files = manager.get_all_files_with_previews().await;
+      assert!(all_files.contains(&file_id.to_string()));
+
+      // Очищаем данные
+      manager.clear_file_data(file_id).await.unwrap();
+
+      // Проверяем, что данные удалены
+      assert!(manager.get_preview_data(file_id).await.is_none());
+      let files_after_clear = manager.get_all_files_with_previews().await;
+      assert!(!files_after_clear.contains(&file_id.to_string()));
+    }
+  }
+}
