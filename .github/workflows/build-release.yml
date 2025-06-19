@@ -145,16 +145,29 @@ jobs:
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
         run: |
-          # Install FFmpeg via chocolatey
-          choco install ffmpeg
-          # Add FFmpeg to PATH
-          echo "C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin" >> $GITHUB_PATH
+          # Install pkg-config for Windows
+          choco install pkgconfiglite
+          
+          # Install vcpkg for FFmpeg development libraries
+          git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
+          cd C:\vcpkg
+          .\bootstrap-vcpkg.bat
+          .\vcpkg integrate install
+          
+          # Install FFmpeg with development libraries
+          .\vcpkg install ffmpeg:x64-windows
+          
+          # Set environment variables for FFmpeg
+          echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
+          echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
+          echo "C:\vcpkg\installed\x64-windows\bin" >> $env:GITHUB_PATH
           
           # Install ONNX Runtime
           $ONNX_VERSION = "1.19.2"
           Invoke-WebRequest -Uri "https://github.com/microsoft/onnxruntime/releases/download/v$ONNX_VERSION/onnxruntime-win-x64-$ONNX_VERSION.zip" -OutFile "onnxruntime.zip"
           Expand-Archive -Path "onnxruntime.zip" -DestinationPath "C:\onnxruntime"
-          echo "C:\onnxruntime\onnxruntime-win-x64-$ONNX_VERSION\lib" >> $GITHUB_PATH
+          echo "C:\onnxruntime\onnxruntime-win-x64-$ONNX_VERSION\lib" >> $env:GITHUB_PATH
+          echo "ORT_DYLIB_PATH=C:\onnxruntime\onnxruntime-win-x64-$ONNX_VERSION\lib\onnxruntime.dll" >> $env:GITHUB_ENV
 
       - name: Install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-latest'
@@ -255,6 +268,9 @@ jobs:
         uses: tauri-apps/tauri-action@v0.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VCPKG_ROOT: C:\vcpkg
+          PKG_CONFIG_PATH: C:\vcpkg\installed\x64-windows\lib\pkgconfig
+          ORT_DYLIB_PATH: C:\onnxruntime\onnxruntime-win-x64-1.19.2\lib\onnxruntime.dll
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
