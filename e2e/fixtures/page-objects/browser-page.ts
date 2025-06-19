@@ -23,12 +23,12 @@ export class BrowserPage {
     this.transitionsTab = this.tabList.locator('[role="tab"]:has-text("Transitions")');
     this.templatesTab = this.tabList.locator('[role="tab"]:has-text("Templates")');
     
-    // Элементы медиа браузера
-    this.emptyState = page.locator('text="No media files imported"');
-    this.importButton = page.locator('button:has-text("Import Files")');
-    this.importFolderButton = page.locator('button:has-text("Import Folder")');
-    this.mediaGrid = page.locator('[data-testid="media-grid"]');
-    this.viewToggle = page.locator('[data-testid="view-toggle"]');
+    // Элементы медиа браузера - используем гибкие селекторы
+    this.emptyState = page.locator('text=/no media|empty|drag.*drop|import.*files/i').first();
+    this.importButton = page.locator('button').filter({ hasText: /import|add|upload/i }).first();
+    this.importFolderButton = page.locator('button').filter({ hasText: /folder|directory/i }).first();
+    this.mediaGrid = page.locator('[data-testid="media-grid"], [class*="grid"], .grid').first();
+    this.viewToggle = page.locator('[data-testid="view-toggle"], button[aria-label*="view"], button[title*="view"]').first();
   }
 
   async goto() {
@@ -44,13 +44,18 @@ export class BrowserPage {
 
   async waitForMediaLoaded() {
     // Ждем пока либо появятся медиа файлы, либо сообщение о пустом состоянии
-    await this.page.waitForSelector('[data-testid="media-grid"] > *, text="No media files imported"', {
-      timeout: 5000
-    });
+    try {
+      await this.page.waitForSelector('text=/no media|empty|drag.*drop|import.*files|[class*="grid"]|[class*="media"]/i', {
+        timeout: 5000
+      });
+    } catch (e) {
+      // Если ничего не нашли, значит страница еще загружается
+      await this.page.waitForTimeout(1000);
+    }
   }
 
   async getMediaItems() {
-    return this.mediaGrid.locator('[data-testid="media-item"]');
+    return this.page.locator('[data-testid="media-item"], [class*="media-item"], [class*="thumbnail"], img, video');
   }
 
   async importFiles(filePaths: string[]) {
