@@ -3,7 +3,11 @@
 
 codecov:
   max_report_age: off  # Disable report age limit
-
+  
+# Bundle analysis configuration
+bundle_analysis:
+  bundle_name: timeline-studio
+  
 coverage:
   status:
     project:

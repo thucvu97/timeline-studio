@@ -1,0 +1,47 @@
+name: Bundle Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  bundle-analysis:
+    name: Analyze Bundle Size
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.10.0'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          npm config set fetch-timeout 300000
+          npm config set fetch-retries 5
+          npm ci --prefer-offline --no-audit --no-fund
+          
+      - name: Build with bundle analysis
+        run: npm run build
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CI: true
+          ANALYZE: true
+          NODE_ENV: production
+          
+      - name: Upload bundle stats to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          plugin: bundler
+          bundler_name: timeline-studio
+          fail_ci_if_error: false
+          verbose: true

@@ -95,14 +95,68 @@ The `.github/workflows/test-coverage.yml` workflow automatically:
   - Available in CI environment
   - Used by both Vite plugin and upload scripts
 
-## Bundle Analysis
+## Bundle Analysis (Анализ бандлов)
 
-When `CODECOV_TOKEN` is available, the Vite plugin also provides:
-- Bundle size analysis
-- Dependency tracking
-- Performance metrics
+### Возможности
+При наличии `CODECOV_TOKEN`, плагин Vite предоставляет расширенный анализ бандлов:
+- **Отслеживание размера бандлов**: Мониторинг изменений размера во времени
+- **Анализ зависимостей**: Какие зависимости влияют на размер бандла
+- **Code Splitting**: Анализ размеров чанков и оптимизации
+- **Метрики производительности**: Прогноз времени загрузки на основе размера
+- **Tree Shaking**: Выявление неиспользуемого кода
+- **Анализ сжатия**: Размеры после gzip сжатия
 
-These are visible in the Codecov dashboard under the "Bundle Analysis" tab.
+### Запуск анализа
+
+#### Локальный анализ
+```bash
+# Сборка с анализом бандлов
+npm run build:analyze
+
+# С указанием токена
+CODECOV_TOKEN=your_token_here npm run build:analyze
+```
+
+#### Автоматический анализ
+Анализ бандлов запускается автоматически через GitHub Actions:
+- При каждом push в main ветку
+- На всех pull request'ах
+- Через workflow `bundle-analysis.yml`
+
+### Просмотр результатов
+
+1. Перейдите в [Codecov Dashboard](https://app.codecov.io/gh/chatman-media/timeline-studio)
+2. Откройте вкладку "Bundle Analysis"
+3. Изучите метрики:
+   - Тренды размера бандлов
+   - Состав модулей
+   - Дублирующиеся зависимости
+   - Инсайты производительности
+
+### Конфигурация
+
+Анализ бандлов настроен в:
+- `vitest.config.ts` - Codecov Vite плагин с `enableBundleAnalysis`
+- `vite.config.ts` - Конфигурация production сборки
+- `next.config.ts` - Генерация webpack статистики
+
+### Разделение на чанки
+
+Наш бандл разделен на оптимизированные чанки:
+- `react`: React и ReactDOM
+- `state`: XState и управление состоянием
+- `ui`: Компоненты Radix UI
+- `tauri`: Модули Tauri API
+- `utils`: Утилитарные библиотеки
+- `media`: Библиотеки обработки медиа
+
+### Оптимизация на основе анализа
+
+Рекомендации по оптимизации:
+1. **Lazy Loading**: Разделяйте большие фичи на отдельные чанки
+2. **Tree Shaking**: Используйте правильные ES модули
+3. **Аудит зависимостей**: Заменяйте тяжелые зависимости
+4. **Code Splitting**: Используйте динамические импорты
 
 ## Badges
 

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --no-lint",
+    "build:analyze": "ANALYZE=true CODECOV_TOKEN=$CODECOV_TOKEN next build --no-lint",
     "start": "next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:windows": "eslint src --ext .ts,.tsx --cache --cache-location .eslintcache",

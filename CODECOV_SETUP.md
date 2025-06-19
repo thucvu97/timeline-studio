@@ -92,9 +92,66 @@ If automatic badges don't work, use these direct URLs:
 [![Backend Coverage](https://codecov.io/gh/chatman-media/timeline-studio/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/chatman-media/timeline-studio)
 ```
 
+## 📊 Bundle Analysis
+
+### Features
+Codecov Bundle Analysis provides:
+- **Bundle Size Tracking**: Monitor size changes over time
+- **Dependency Analysis**: Track which dependencies contribute to bundle size
+- **Code Splitting**: Analyze chunk sizes and optimization
+- **Performance Metrics**: Load time predictions based on bundle size
+- **Tree Shaking**: Identify unused code
+- **Compression Analysis**: See gzipped sizes
+
+### Running Bundle Analysis
+
+#### Local Analysis
+```bash
+# Run build with bundle analysis
+npm run build:analyze
+
+# With custom token
+CODECOV_TOKEN=your_token_here npm run build:analyze
+```
+
+#### Automatic Analysis
+Bundle analysis runs automatically via GitHub Actions:
+- On every push to main branch
+- On all pull requests
+- Via the `bundle-analysis.yml` workflow
+
+### Viewing Bundle Analysis
+
+1. Go to [Codecov Dashboard](https://app.codecov.io/gh/chatman-media/timeline-studio)
+2. Navigate to the "Bundle Analysis" tab
+3. View metrics:
+   - Bundle size trends
+   - Module composition
+   - Duplicate dependencies
+   - Performance insights
+
+### Configuration
+
+Bundle analysis is configured in:
+- `vitest.config.ts` - Codecov Vite plugin with `enableBundleAnalysis`
+- `vite.config.ts` - Production build configuration
+- `next.config.ts` - Webpack stats generation
+
+### Manual Chunks Configuration
+
+Our bundle is split into optimized chunks:
+- `react`: React and ReactDOM
+- `state`: XState and state management
+- `ui`: Radix UI components  
+- `tauri`: Tauri API modules
+- `utils`: Utility libraries
+- `media`: Media processing libraries
+
 ## 📝 Notes
 
 - Coverage is uploaded automatically on push to `main` branch
 - Pull requests will show coverage diff
 - The `codecov.yml` configures separate flags for frontend/backend
 - Coverage files are gitignored and should not be committed
+- Bundle analysis requires `CODECOV_TOKEN` to be set
+- Report age limit is disabled in `codecov.yml` with `max_report_age: off`
