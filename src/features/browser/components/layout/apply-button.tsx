@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react"
 
-import { ArrowRight, Plus } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ResourceType, TimelineResource } from "@/features/resources/types"

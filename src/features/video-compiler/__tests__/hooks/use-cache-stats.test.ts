@@ -7,7 +7,6 @@ import {
   formatCacheSize,
   useCacheStats,
 } from "../../hooks/use-cache-stats"
-import { CacheStats } from "../../types/cache"
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({

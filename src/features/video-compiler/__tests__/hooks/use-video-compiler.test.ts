@@ -92,7 +92,7 @@ describe("useVideoCompiler", () => {
   it("should start render successfully", async () => {
     const mockJobId = "job-123"
     mockRenderProject.mockResolvedValueOnce(mockJobId)
-    mockTrackRenderProgress.mockImplementation((jobId, callback) => {
+    mockTrackRenderProgress.mockImplementation((_jobId, callback) => {
       // Simulate progress update
       setTimeout(() => {
         callback({

@@ -105,7 +105,7 @@ describe("Drag-Drop Integration Tests", () => {
 
       expect(screen.getByText("Управление треками")).toBeInTheDocument()
       // The track count is displayed in a paragraph like "1 трек"
-      const trackCountElement = screen.getByText((content, element) => {
+      const trackCountElement = screen.getByText((_content, element) => {
         return element?.textContent === "1 трек"
       })
       expect(trackCountElement).toBeInTheDocument()

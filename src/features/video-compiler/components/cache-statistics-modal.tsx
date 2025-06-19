@@ -1,5 +1,3 @@
-import React from "react"
-
 import { Activity, HardDrive, Loader2, RefreshCw, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 

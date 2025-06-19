@@ -103,7 +103,7 @@ export function DeviceExportTab({ settings, onSettingsChange, onChooseFolder, is
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(DEVICE_PRESETS).map(([key, preset]) => (
+                {Object.entries(DEVICE_PRESETS).map(([key, _preset]) => (
                   <SelectItem key={key} value={key}>
                     {t(`dialogs.export.device_types.${key}`)}
                   </SelectItem>

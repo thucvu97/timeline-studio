@@ -2,8 +2,6 @@
  * Clip - Основной компонент клипа на Timeline
  */
 
-import React from "react"
-
 import { cn } from "@/lib/utils"
 
 import { AudioClip } from "./audio-clip"

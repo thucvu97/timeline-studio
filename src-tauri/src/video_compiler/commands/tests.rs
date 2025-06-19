@@ -11,7 +11,7 @@ mod tests {
   };
   use serde::{Deserialize, Serialize};
   use tempfile::TempDir;
-  
+
   #[derive(Debug, Clone, Serialize, Deserialize)]
   struct TestRenderJob {
     pub id: String,
@@ -105,14 +105,14 @@ mod tests {
     // get_gpu_capabilities is not a method on VideoCompilerState
     // Test GPU capabilities structure instead
     use crate::video_compiler::gpu::GpuCapabilities;
-    
+
     let capabilities = GpuCapabilities {
       available_encoders: vec![],
       recommended_encoder: None,
       current_gpu: None,
       hardware_acceleration_supported: false,
     };
-    
+
     // Basic test that capabilities can be created
     assert!(capabilities.available_encoders.is_empty());
   }
@@ -133,13 +133,13 @@ mod tests {
 
     assert_eq!(progress.percentage, 0.0);
     assert!(matches!(progress.status, RenderStatus::Processing));
-    
+
     // Test progress update
     let mut updated_progress = progress;
     updated_progress.percentage = 25.0;
     updated_progress.status = RenderStatus::Processing;
     updated_progress.current_frame = 250;
-    
+
     assert_eq!(updated_progress.percentage, 25.0);
     assert_eq!(updated_progress.current_frame, 250);
   }
@@ -197,7 +197,10 @@ mod tests {
     assert_eq!(settings.quality, 85);
     assert_eq!(settings.resolution, (1280, 720));
     assert_eq!(settings.max_frames, Some(100));
-    assert!(matches!(settings.strategy, ExtractionStrategy::Interval { .. }));
+    assert!(matches!(
+      settings.strategy,
+      ExtractionStrategy::Interval { .. }
+    ));
   }
 
   #[test]
@@ -205,14 +208,14 @@ mod tests {
     // Test RenderStatus transitions
     let status = RenderStatus::Processing;
     assert!(matches!(status, RenderStatus::Processing));
-    
+
     let status = RenderStatus::Completed;
     assert!(matches!(status, RenderStatus::Completed));
-    
+
     // Failed is a unit variant
     let status = RenderStatus::Failed;
     assert!(matches!(status, RenderStatus::Failed));
-    
+
     let status = RenderStatus::Cancelled;
     assert!(matches!(status, RenderStatus::Cancelled));
   }
@@ -221,7 +224,7 @@ mod tests {
   async fn test_active_render_job() {
     let temp_dir = TempDir::new().unwrap();
     let output_path = temp_dir.path().join("output.mp4");
-    
+
     // VideoRenderer::new has different parameters now
     // Just test the metadata structure
     let metadata = RenderJobMetadata {
@@ -229,7 +232,7 @@ mod tests {
       output_path: output_path.to_str().unwrap().to_string(),
       created_at: chrono::Utc::now().to_rfc3339(),
     };
-    
+
     assert_eq!(metadata.project_name, "Test Render");
     assert!(metadata.output_path.contains("output.mp4"));
   }

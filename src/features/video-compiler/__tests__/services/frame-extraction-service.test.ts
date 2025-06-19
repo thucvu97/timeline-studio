@@ -4,7 +4,7 @@ import type { Subtitle } from "@/types/video-compiler"
 
 import { ExtractionPurpose, frameExtractionService } from "../../services/frame-extraction-service"
 
-import type { RecognitionFrame, SubtitleFrame, TimelineFrame } from "../../services/frame-extraction-service"
+import type { RecognitionFrame, TimelineFrame } from "../../services/frame-extraction-service"
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
@@ -259,7 +259,7 @@ describe("frameExtractionService", () => {
         onerror: null as any,
         width: 100,
         height: 100,
-        set src(value: string) {
+        set src(_value: string) {
           // Simulate successful image load
           setTimeout(() => this.onload?.(), 0)
         },

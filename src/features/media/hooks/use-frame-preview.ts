@@ -10,8 +10,6 @@ import {
 
 import { useMediaPreview } from "./use-media-preview"
 
-import type { MediaPreviewData } from "../types/preview"
-
 export interface UseFramePreviewOptions {
   onFramesExtracted?: (frames: TimelineFrame[]) => void
   onError?: (error: string) => void

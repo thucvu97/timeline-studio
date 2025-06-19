@@ -1,6 +1,5 @@
 import React from "react"
 
-import { act } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { renderWithTemplates, screen } from "@/test/test-utils"

@@ -1,5 +1,3 @@
-import React from "react"
-
 import { convertFileSrc } from "@tauri-apps/api/core"
 
 import { AspectRatio } from "@/components/ui/aspect-ratio"

@@ -46,7 +46,7 @@ export function FilterPreview({ filter, onClick, size, previewWidth, previewHeig
 
   // Обработчик применения фильтра
   const handleApplyFilter = useCallback(
-    (resource: TimelineResource, type: string) => {
+    (_resource: TimelineResource, _type: string) => {
       console.log("[FilterPreview] Applying filter:", filter.name)
       applyFilter({
         id: filter.id,

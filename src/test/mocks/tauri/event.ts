@@ -53,7 +53,7 @@ export function simulateEvent(event: string, payload: any) {
 }
 
 // Helper for setting up event listeners
-export function setupEventListener(event: string, handler: (payload: any) => void) {
+export function setupEventListener(_event: string, _handler: (payload: any) => void) {
   mockListen.mockImplementation(() => {
     return Promise.resolve(() => {})
   })

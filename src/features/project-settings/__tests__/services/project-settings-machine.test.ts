@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
-import { DEFAULT_PROJECT_SETTINGS, ProjectSettings } from "@/features/project-settings/types/project"
+import { DEFAULT_PROJECT_SETTINGS } from "@/features/project-settings/types/project"
 
 // Импортируем модуль напрямую, чтобы избежать проблем с мокированием
 import * as projectSettingsModule from "../../services/project-settings-machine"

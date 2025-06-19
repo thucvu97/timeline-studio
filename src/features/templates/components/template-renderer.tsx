@@ -2,7 +2,7 @@ import React from "react"
 
 import { cn } from "@/lib/utils"
 
-import { CellConfiguration, DividerConfig, MediaTemplateConfig } from "../lib/template-config"
+import { CellConfiguration, MediaTemplateConfig } from "../lib/template-config"
 
 interface TemplateRendererProps {
   config: MediaTemplateConfig
@@ -18,7 +18,7 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
   const { split, screens, cells = [], dividers, layout, gridConfig } = config
 
   // Генерируем конфигурации ячеек, если они не заданы
-  const cellConfigs: CellConfiguration[] = cells.length > 0 ? cells : Array.from({ length: screens }, (_, i) => ({}))
+  const cellConfigs: CellConfiguration[] = cells.length > 0 ? cells : Array.from({ length: screens }, (_, _i) => ({}))
 
   // Стили контейнера
   const containerStyle: React.CSSProperties = {
@@ -37,13 +37,13 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
       opacity: dividers.opacity,
       ...(orientation === "horizontal"
         ? {
-            height: dividers.width || "1px",
-            width: "100%",
-          }
+          height: dividers.width || "1px",
+          width: "100%",
+        }
         : {
-            width: dividers.width || "1px",
-            height: "100%",
-          }),
+          width: dividers.width || "1px",
+          height: "100%",
+        }),
       ...(dividers.style === "dashed" && {
         backgroundImage: `repeating-linear-gradient(
           ${orientation === "horizontal" ? "to right" : "to bottom"},

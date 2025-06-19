@@ -29,7 +29,7 @@ vi.mock("@tauri-apps/api/app", () => ({
 
 // Helper for setting up command responses
 export function setupTauriCommand(command: string, response: unknown) {
-  mockInvoke.mockImplementation((cmd: string, args?: InvokeArgs) => {
+  mockInvoke.mockImplementation((cmd: string, _args?: InvokeArgs) => {
     if (cmd === command) {
       return response instanceof Error ? Promise.reject(response) : Promise.resolve(response)
     }
@@ -131,6 +131,9 @@ export function createTauriMock() {
             tracks: [],
             settings: {},
           }))
+          break
+        default:
+          // Неизвестная предустановка, не делаем ничего
           break
       }
       return this

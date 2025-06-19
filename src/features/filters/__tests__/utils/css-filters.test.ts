@@ -1,4 +1,3 @@
-import { act } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
 // Простые тесты для проверки импортов и базовой функциональности

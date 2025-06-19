@@ -2084,7 +2084,7 @@ export const portraitTemplates: MediaTemplate[] = [
     render: () => (
       <div className="relative h-full w-full">
         {/* Создаем сетку 5x5 */}
-        {Array.from({ length: 5 }).map((i, rowIndex) => (
+        {Array.from({ length: 5 }).map((_i, rowIndex) => (
           <div key={`row-${rowIndex}`}>
             {Array.from({ length: 5 }).map((_, colIndex) => {
               const cellIndex = rowIndex * 5 + colIndex + 1

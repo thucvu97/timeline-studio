@@ -15,7 +15,6 @@ import {
   searchMediaPool,
   updateItemUsage,
 } from "@/features/media/utils/media-pool-utils"
-import { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
 import { Sequence } from "@/features/timeline/types/sequence"
 import { TimelineClip } from "@/features/timeline/types/timeline"
 

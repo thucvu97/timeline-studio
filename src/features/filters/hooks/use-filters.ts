@@ -6,6 +6,7 @@ import { VideoFilter } from "@/features/filters/types/filters"
 
 import filtersData from "../data/filters.json"
 import { createFallbackFilter, processFilters, validateFiltersData } from "../utils/filter-processor"
+
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
 
 interface UseFiltersReturn {

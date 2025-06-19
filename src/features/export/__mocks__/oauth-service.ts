@@ -66,7 +66,7 @@ export class OAuthService {
     localStorage.setItem(`oauth_token_${network}`, JSON.stringify(token))
   }
 
-  static isTokenExpired(token: OAuthToken): boolean {
+  static isTokenExpired(_token: OAuthToken): boolean {
     // For testing, assume tokens never expire
     return false
   }

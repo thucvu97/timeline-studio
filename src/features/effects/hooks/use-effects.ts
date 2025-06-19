@@ -6,6 +6,7 @@ import { VideoEffect } from "@/features/effects/types"
 
 import effectsData from "../data/effects.json"
 import { createFallbackEffect, processEffects, validateEffectsData } from "../utils/effect-processor"
+
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
 
 interface UseEffectsReturn {

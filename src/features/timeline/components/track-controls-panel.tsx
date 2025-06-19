@@ -8,8 +8,6 @@
  * - Управление видимостью и блокировкой
  */
 
-import React from "react"
-
 import { Eye, EyeOff, Image, Lock, Music, Plus, Type, Unlock, Video, Volume2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"

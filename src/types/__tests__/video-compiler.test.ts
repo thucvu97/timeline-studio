@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import {
   AspectRatio,
   OutputFormat,
-  type ProjectSchema,
   type RenderProgress,
   RenderStatus,
   TemplateType,

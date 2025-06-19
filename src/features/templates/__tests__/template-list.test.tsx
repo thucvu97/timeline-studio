@@ -1,7 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { renderWithTemplates, screen } from "@/test/test-utils"
-
 import { TemplateList } from "../components/template-list"
 
 // Локальные моки только для этого теста

@@ -9,6 +9,7 @@ import {
   processSubtitleStyles,
   validateSubtitleStylesData,
 } from "../utils/subtitle-processor"
+
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
 
 interface UseSubtitlesReturn {

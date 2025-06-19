@@ -15,12 +15,12 @@ import "./core"
 // export * from './store';
 
 // Re-export commonly used mocks for convenience
-export { mockInvoke, mockConvertFileSrc, setupTauriCommand, createTauriMock } from "./core"
-export { mockOpen, mockSave, dialogPresets, resetDialogMocks } from "./dialog"
-export { mockListen, mockEmit, mockOnce, simulateEvent, setupEventListener, resetEventMocks } from "./event"
-export { mockFs, MockFileSystem, mockFileSystem } from "./fs"
+export { createTauriMock, mockConvertFileSrc, mockInvoke, setupTauriCommand } from "./core"
+export { dialogPresets, mockOpen, mockSave, resetDialogMocks } from "./dialog"
+export { mockEmit, mockListen, mockOnce, resetEventMocks, setupEventListener, simulateEvent } from "./event"
+export { MockFileSystem, mockFileSystem, mockFs } from "./fs"
 export { mockPath, pathPresets, resetPathMocks } from "./path"
-export { mockStore, MockStore, storePresets, resetStoreMocks } from "./store"
+export { MockStore, mockStore, resetStoreMocks, storePresets } from "./store"
 
 // Helper to reset all Tauri mocks
 export function resetAllTauriMocks() {

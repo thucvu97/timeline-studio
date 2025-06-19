@@ -83,7 +83,7 @@ export function EffectPreview({
 
   // Обработчик применения эффекта
   const handleApplyEffect = useCallback(
-    (resource: TimelineResource, type: string) => {
+    (_resource: TimelineResource, _type: string) => {
       if (!effect) return
 
       console.log("[EffectPreview] Applying effect:", effect.name)

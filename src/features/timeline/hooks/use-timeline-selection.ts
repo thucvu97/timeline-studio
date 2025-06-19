@@ -36,11 +36,7 @@ export interface UseTimelineSelectionReturn {
   selectClip: (clipId: string, addToSelection?: boolean) => void
   selectTrack: (trackId: string, addToSelection?: boolean) => void
   selectSection: (sectionId: string, addToSelection?: boolean) => void
-  selectMultiple: (items: {
-    clipIds?: string[]
-    trackIds?: string[]
-    sectionIds?: string[]
-  }) => void
+  selectMultiple: (items: { clipIds?: string[]; trackIds?: string[]; sectionIds?: string[] }) => void
   selectAll: () => void
   selectNone: () => void
   invertSelection: () => void
@@ -183,11 +179,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
     }
   }
 
-  const selectMultiple = (items: {
-    clipIds?: string[]
-    trackIds?: string[]
-    sectionIds?: string[]
-  }) => {
+  const selectMultiple = (items: { clipIds?: string[]; trackIds?: string[]; sectionIds?: string[] }) => {
     if (items.clipIds) selectClips(items.clipIds)
     if (items.trackIds) selectTracks(items.trackIds)
     if (items.sectionIds) selectSections(items.sectionIds)

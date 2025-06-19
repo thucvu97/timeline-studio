@@ -5,7 +5,7 @@ mod tests {
   use super::super::processor::*;
   use crate::media::types::{FfprobeFormat, FfprobeStream, MediaFile, ProbeData};
   use tempfile::TempDir;
-  
+
   #[derive(Debug, Clone)]
   struct ProcessOptions {
     pub max_concurrent: usize,
@@ -14,7 +14,7 @@ mod tests {
     pub thumbnail_quality: u8,
     pub skip_metadata: bool,
   }
-  
+
   impl Default for ProcessOptions {
     fn default() -> Self {
       Self {
@@ -56,7 +56,6 @@ mod tests {
 
   #[test]
   fn test_processor_event_metadata_ready() {
-
     let media_file = MediaFile {
       id: "test-id".to_string(),
       name: "test.mp4".to_string(),
@@ -306,12 +305,13 @@ mod tests {
     let temp_dir = TempDir::new().unwrap();
     let thumbnail_path = temp_dir.path().join(format!("thumb_{}.jpg", file_id));
 
-    assert!(thumbnail_path.to_string_lossy().contains("thumb_abc123.jpg"));
+    assert!(thumbnail_path
+      .to_string_lossy()
+      .contains("thumb_abc123.jpg"));
   }
 
   #[test]
   fn test_media_file_type_detection() {
-
     // Video file
     let video_file = MediaFile {
       id: "1".to_string(),

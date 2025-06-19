@@ -2,7 +2,6 @@
  * Tests for Timeline Machine v2
  */
 
-import { act } from "@testing-library/react"
 import { beforeEach, describe, expect, it } from "vitest"
 import { createActor } from "xstate"
 

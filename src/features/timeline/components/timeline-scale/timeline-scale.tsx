@@ -1,5 +1,3 @@
-import React from "react"
-
 import { TimelineMarks } from "./timeline-marks"
 import { useTimelineScale } from "../../hooks/use-timeline-scale"
 

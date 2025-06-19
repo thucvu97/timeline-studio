@@ -4,7 +4,7 @@
 
 import React from "react"
 
-import { render, screen } from "@testing-library/react"
+import { screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"

@@ -1,7 +1,6 @@
-export * from "./lib"
-export * from "./services"
-
+export { ResizableTemplate } from "./components/resizable-template"
 // Явно экспортируем компоненты, чтобы избежать конфликтов имен
 export { TemplateList } from "./components/template-list"
 export { TemplatePreview } from "./components/template-preview"
-export { ResizableTemplate } from "./components/resizable-template"
+export * from "./lib"
+export * from "./services"

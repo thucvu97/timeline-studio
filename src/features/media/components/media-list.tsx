@@ -47,37 +47,37 @@ export function MediaList() {
       filterType === "all"
         ? allMediaFiles
         : allMediaFiles.filter((file: MediaFile) => {
-            try {
-              // Проверяем, загружены ли метаданные
-              if (file.isLoadingMetadata === true) {
-                // Если метаданные еще загружаются, используем базовые свойства файла
-                if (filterType === "video" && file.isVideo) return true
-                if (filterType === "audio" && file.isAudio) return true
-                if (filterType === "image" && file.isImage) return true
-                return false
-              }
-
-              // Если метаданные загружены, используем их для более точной фильтрации
-              if (
-                filterType === "video" &&
-                (file.isVideo || file.probeData?.streams.some((s) => s.codec_type === "video"))
-              )
-                return true
-
-              if (
-                filterType === "audio" &&
-                (file.isAudio || file.probeData?.streams.some((s) => s.codec_type === "audio"))
-              )
-                return true
-
-              if (filterType === "image" && (file.isImage || /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name))) return true
-
+          try {
+            // Проверяем, загружены ли метаданные
+            if (file.isLoadingMetadata === true) {
+              // Если метаданные еще загружаются, используем базовые свойства файла
+              if (filterType === "video" && file.isVideo) return true
+              if (filterType === "audio" && file.isAudio) return true
+              if (filterType === "image" && file.isImage) return true
               return false
-            } catch (error) {
-              console.error("Error filtering file:", file, error)
-              return false // Пропускаем файл при ошибке
             }
-          })
+
+            // Если метаданные загружены, используем их для более точной фильтрации
+            if (
+              filterType === "video" &&
+                (file.isVideo || file.probeData?.streams.some((s) => s.codec_type === "video"))
+            )
+              return true
+
+            if (
+              filterType === "audio" &&
+                (file.isAudio || file.probeData?.streams.some((s) => s.codec_type === "audio"))
+            )
+              return true
+
+            if (filterType === "image" && (file.isImage || /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name))) return true
+
+            return false
+          } catch (error) {
+            console.error("Error filtering file:", file, error)
+            return false // Пропускаем файл при ошибке
+          }
+        })
 
     // Фильтрация по избранному
     if (showFavoritesOnly) {
@@ -246,9 +246,9 @@ export function MediaList() {
 
         const date = timestamp
           ? formatDateByLanguage(new Date(timestamp * 1000), currentLanguage, {
-              includeYear: true,
-              longFormat: true,
-            })
+            includeYear: true,
+            longFormat: true,
+          })
           : noDateText
 
         if (!groups[date]) {

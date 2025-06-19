@@ -7,14 +7,7 @@ import { vi } from "vitest"
 /**
  * Создает мок для аудио файла с реалистичными данными
  */
-export function createMockAudioFile(
-  options: {
-    name?: string
-    path?: string
-    duration?: number
-    size?: number
-  } = {},
-) {
+export function createMockAudioFile(options: { name?: string; path?: string; duration?: number; size?: number } = {}) {
   const {
     name = "test-audio.mp3",
     path = "/path/to/test-audio.mp3",
@@ -130,6 +123,7 @@ export function createWebAudioMocks() {
   }))
 
   // Добавляем статический метод
+
   ;(mockMediaRecorder as any).isTypeSupported = vi.fn().mockReturnValue(true)
 
   return {

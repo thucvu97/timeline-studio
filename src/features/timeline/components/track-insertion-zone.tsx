@@ -8,8 +8,6 @@
  * - Визуальная обратная связь при hovering
  */
 
-import React from "react"
-
 import { useDroppable } from "@dnd-kit/core"
 import { Plus } from "lucide-react"
 

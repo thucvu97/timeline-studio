@@ -1,8 +1,8 @@
-import { act, fireEvent, screen, waitFor } from "@testing-library/react"
+import { fireEvent, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
-import { render, renderWithBrowser } from "@/test/test-utils"
+import { renderWithBrowser } from "@/test/test-utils"
 
 import { MusicList } from "../../components/music-list"
 

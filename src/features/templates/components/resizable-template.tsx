@@ -39,9 +39,9 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
   const [splitPoints, setSplitPoints] = useState<{ x: number; y: number }[]>(
     template?.splitPoints ||
       templateConfig?.splitPoints || [
-        { x: 66.67, y: 0 },
-        { x: 33.33, y: 100 },
-      ],
+      { x: 66.67, y: 0 },
+      { x: 33.33, y: 100 },
+    ],
   )
 
   // Состояние для отслеживания перетаскивания диагонали
@@ -164,7 +164,7 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
 
   // Функция рендеринга ячейки с видео
   const renderCell = useCallback(
-    (index: number, cellConfig: CellConfiguration) => {
+    (index: number, _cellConfig: CellConfiguration) => {
       if (index >= validVideos.length) {
         return null
       }

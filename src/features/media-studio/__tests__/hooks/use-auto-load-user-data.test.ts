@@ -1,12 +1,5 @@
-import { act, renderHook, waitFor } from "@testing-library/react"
+import { renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import type { VideoEffect } from "@/features/effects/types"
-import type { VideoFilter } from "@/features/filters/types/filters"
-import type { MediaFile } from "@/features/media/types/media"
-import type { StyleTemplate } from "@/features/style-templates/types"
-import type { SubtitleStyle } from "@/features/subtitles/types"
-import type { Transition } from "@/features/transitions/types/transitions"
 
 import {
   getMediaExtensions,

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import { useMemo } from "react"
 
 import { AudioWaveform, Headphones, Mic, Music, Volume2, VolumeX, Wind } from "lucide-react"
 

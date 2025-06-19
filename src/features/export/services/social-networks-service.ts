@@ -218,6 +218,9 @@ export class SocialNetworksService {
           errors.push("Video file size must be less than 2GB")
         }
         break
+      default:
+        // Для других платформ дополнительные проверки не требуются
+        break
     }
 
     return errors

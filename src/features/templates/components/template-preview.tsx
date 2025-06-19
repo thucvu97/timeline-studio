@@ -74,7 +74,7 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
 
   // Обработчик применения шаблона
   const handleApplyTemplate = useCallback(
-    (resource: TimelineResource, type: string) => {
+    (_resource: TimelineResource, _type: string) => {
       console.log("[TemplatePreview] Applying template:", template.id)
       const videos = getVideosForPreview()
       applyTemplate(

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 
 import { open } from "@tauri-apps/plugin-dialog"
 import { AlertCircle, FolderOpen, Loader2 } from "lucide-react"

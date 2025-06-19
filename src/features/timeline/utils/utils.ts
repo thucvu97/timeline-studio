@@ -3,14 +3,7 @@
  */
 
 import { MediaFile } from "@/features/media/types/media"
-import {
-  TimelineClip,
-  TimelineProject,
-  TimelineSection,
-  TimelineTrack,
-  TimelineUIState,
-  TrackType,
-} from "@/features/timeline/types"
+import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "@/features/timeline/types"
 
 // ============================================================================
 // PROJECT UTILITIES

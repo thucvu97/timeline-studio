@@ -275,6 +275,10 @@ export function TransitionPreview({
           targetVideo.style.mixBlendMode = "screen"
           sourceVideo.style.opacity = "0"
           break
+        default:
+          // Неизвестный тип перехода, используем fade по умолчанию
+          sourceVideo.style.opacity = "0"
+          break
       }
 
       // Запускаем воспроизведение целевого видео

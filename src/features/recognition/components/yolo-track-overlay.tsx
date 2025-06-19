@@ -70,7 +70,7 @@ export function YoloTrackOverlay({
 
     // Группируем обнаружения по трекам (используем простую эвристику)
     yoloData.frames.forEach((frame) => {
-      frame.detections.forEach((detection, index) => {
+      frame.detections.forEach((detection, _index) => {
         // Простая эвристика для создания треков - используем комбинацию класса и позиции
         const trackId = `${detection.class}_${Math.floor(detection.bbox.x * 10)}_${Math.floor(detection.bbox.y * 10)}`
 

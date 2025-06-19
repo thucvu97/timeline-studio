@@ -1,5 +1,3 @@
-import React from "react"
-
 import { formatTimeWithMilliseconds } from "@/lib/date"
 
 interface TimelineMarkProps {
@@ -21,6 +19,8 @@ export function TimelineMark({ timestamp, position, markType, showValue }: Timel
         return "h-2 bg-[#4a4a4a]/50 dark:bg-[#aeaeae]/50 opacity-70 w-[1px]"
       case "smallest":
         return "h-1.5 bg-[#4a4a4a]/50 dark:bg-[#aeaeae]/50 opacity-50 w-[1px]"
+      default:
+        return "h-2 bg-[#4a4a4a]/50 dark:bg-[#aeaeae]/50 opacity-70 w-[1px]"
     }
   }
 

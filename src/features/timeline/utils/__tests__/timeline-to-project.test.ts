@@ -15,7 +15,6 @@ import {
   AspectRatio,
   FitMode,
   FontWeight,
-  ObjectFit,
   OutputFormat,
   StyleElementType,
   StyleTemplateCategory,

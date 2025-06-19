@@ -209,7 +209,7 @@ describe("OAuthService - Comprehensive", () => {
     })
 
     it("should handle window closed by user", async () => {
-      mockAddEventListener.mockImplementation((event, handler) => {
+      mockAddEventListener.mockImplementation((event, _handler) => {
         if (event === "message") {
           // Don't send any message, just close the window
           setTimeout(() => {

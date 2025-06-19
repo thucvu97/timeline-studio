@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 
 import { Star, StarOff } from "lucide-react"
 import { useTranslation } from "react-i18next"

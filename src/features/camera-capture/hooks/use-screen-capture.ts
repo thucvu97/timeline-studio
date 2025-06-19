@@ -32,20 +32,20 @@ export function useScreenCapture() {
         video:
           options.video !== false
             ? {
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-                frameRate: { ideal: 30 },
-                ...(typeof options.video === "object" ? options.video : {}),
-              }
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              frameRate: { ideal: 30 },
+              ...(typeof options.video === "object" ? options.video : {}),
+            }
             : false,
         audio:
           options.audio !== false
             ? {
-                echoCancellation: false,
-                noiseSuppression: false,
-                autoGainControl: false,
-                ...(typeof options.audio === "object" ? options.audio : {}),
-              }
+              echoCancellation: false,
+              noiseSuppression: false,
+              autoGainControl: false,
+              ...(typeof options.audio === "object" ? options.audio : {}),
+            }
             : false,
         preferCurrentTab: options.preferCurrentTab,
       }

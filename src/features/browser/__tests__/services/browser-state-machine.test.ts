@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { createActor } from "xstate"
 
 import { ViewMode } from "../../components/media-toolbar"
-import { BrowserContext, BrowserEvent, browserMachine } from "../../services/browser-state-machine"
+import { BrowserContext, browserMachine } from "../../services/browser-state-machine"
 
 describe("browserMachine", () => {
   let actor: ReturnType<typeof createActor<typeof browserMachine>>

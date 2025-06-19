@@ -1,8 +1,7 @@
 import { renderHook } from "@testing-library/react"
-import { beforeAll, describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { useTransitionById, useTransitions, useTransitionsByCategory } from "../../hooks/use-transitions"
-import { Transition } from "../../types/transitions"
 
 // Now import the hooks after mocks are set up
 

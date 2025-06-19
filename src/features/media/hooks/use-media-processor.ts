@@ -5,7 +5,6 @@ import { listen } from "@tauri-apps/api/event"
 
 import type { MediaFile } from "@/features/media/types/media"
 import { cacheMediaMetadata, getCachedMetadata } from "@/features/video-compiler/services/metadata-cache-service"
-import { metadataToMediaFileFields } from "@/types/media"
 
 // Типы событий процессора
 export interface DiscoveredFile {
@@ -135,6 +134,9 @@ export function useMediaProcessor(options: UseMediaProcessorOptions = {}) {
           const progressData = data as ScanProgressData
           setProgress({ current: progressData.current, total: progressData.total })
           onProgress?.(progressData.current, progressData.total)
+          break
+        default:
+          // Неизвестный тип события, игнорируем
           break
       }
     })

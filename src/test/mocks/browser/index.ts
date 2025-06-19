@@ -7,22 +7,22 @@ import { resetMediaMocks, setupAudioMocks, setupVideoMocks } from "./media"
 
 // Re-export commonly used functions
 export {
-  setupDOMMocks,
-  setMediaQuery,
-  simulateResize,
-  triggerResizeObserver,
-  triggerIntersectionObserver,
   resetDOMMocks,
+  setMediaQuery,
+  setupDOMMocks,
+  simulateResize,
+  triggerIntersectionObserver,
+  triggerResizeObserver,
 } from "./dom"
 
 export {
-  MockHTMLVideoElement,
-  MockHTMLAudioElement,
-  setupVideoMocks,
-  setupAudioMocks,
-  createMockVideo,
   createMockAudio,
+  createMockVideo,
+  MockHTMLAudioElement,
+  MockHTMLVideoElement,
   resetMediaMocks,
+  setupAudioMocks,
+  setupVideoMocks,
 } from "./media"
 
 // Helper to setup all browser mocks

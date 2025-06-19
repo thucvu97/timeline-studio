@@ -10,12 +10,11 @@ import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
-import { EXPORT_PRESETS, ExportPresets } from "./export-presets"
+import { ExportPresets } from "./export-presets"
 import { FORMAT_OPTIONS, FRAME_RATE_OPTIONS, QUALITY_PRESETS, RESOLUTION_PRESETS } from "../constants/export-constants"
 import { ExportProgress, ExportSettings } from "../types/export-types"
 
@@ -198,7 +197,7 @@ export function LocalExportTab({
             <div className="flex items-center justify-between">
               <Label>{t("dialogs.export.quality")}</Label>
               <div className="flex gap-4">
-                {Object.entries(QUALITY_PRESETS).map(([key, preset]) => (
+                {Object.entries(QUALITY_PRESETS).map(([key, _preset]) => (
                   <div key={key} className="flex items-center gap-2">
                     <Switch
                       id={key}

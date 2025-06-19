@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   // Получаем значение из localStorage или используем initialValue

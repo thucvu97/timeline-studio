@@ -28,11 +28,11 @@ function convertRecognitionResultsToYoloData(
             confidence: obj.confidence,
             bbox: obj.bounding_boxes[index]
               ? {
-                  x: obj.bounding_boxes[index].x,
-                  y: obj.bounding_boxes[index].y,
-                  width: obj.bounding_boxes[index].width,
-                  height: obj.bounding_boxes[index].height,
-                }
+                x: obj.bounding_boxes[index].x,
+                y: obj.bounding_boxes[index].y,
+                width: obj.bounding_boxes[index].width,
+                height: obj.bounding_boxes[index].height,
+              }
               : { x: 0, y: 0, width: 0, height: 0 },
           },
         ],

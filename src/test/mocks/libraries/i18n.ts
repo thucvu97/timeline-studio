@@ -64,7 +64,7 @@ vi.mock("react-i18next", () => ({
 }))
 
 // Mock dayjs
-export const mockDayjs = (date?: any) => ({
+export const mockDayjs = (_date?: any) => ({
   utc: () => ({
     tz: () => ({
       format: (format?: string) => {

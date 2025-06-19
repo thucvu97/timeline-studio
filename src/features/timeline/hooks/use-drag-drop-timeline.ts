@@ -9,8 +9,7 @@ import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core"
 import { TrackType } from "../types"
 import { useTimeline } from "./use-timeline"
 import { useTimelineActions } from "./use-timeline-actions"
-import { useTracks } from "./use-tracks"
-import { DragData, DragState, DropPosition } from "../types/drag-drop"
+import { DragData, DragState } from "../types/drag-drop"
 import {
   calculateTimelinePosition,
   canDropOnTrack,
@@ -203,7 +202,7 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
 
   // Check if a track is a valid drop target for the current drag
   const isValidDropTarget = useCallback(
-    (trackId: string, trackType: string) => {
+    (_trackId: string, trackType: string) => {
       if (!dragState.isDragging || !dragState.draggedItem) {
         return false
       }

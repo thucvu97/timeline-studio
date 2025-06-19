@@ -154,7 +154,7 @@ const customRender = (ui: ReactElement, options?: Omit<RenderOptions, "wrapper">
 }
 
 // Реэкспортируем только то, что нам нужно
-export { screen, fireEvent, waitFor, within } from "@testing-library/react"
+export { fireEvent, screen, waitFor, within } from "@testing-library/react"
 
 // Переопределение функции render (теперь с базовыми провайдерами)
 export { customRender as render }

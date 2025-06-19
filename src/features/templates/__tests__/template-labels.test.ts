@@ -1,4 +1,3 @@
-import { act } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
 import { getTemplateDescription, getTemplateLabels } from "../lib/template-labels"

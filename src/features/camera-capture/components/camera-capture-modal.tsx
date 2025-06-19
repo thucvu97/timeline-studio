@@ -74,7 +74,7 @@ export function CameraCaptureModal() {
   } = useScreenCapture()
 
   // Обработка записанного видео
-  const handleVideoRecorded = async (blob: Blob, fileName: string) => {
+  const handleVideoRecorded = async (_blob: Blob, _fileName: string) => {
     // try {
     // Импортируем записанное видео
     //   await importMedia([

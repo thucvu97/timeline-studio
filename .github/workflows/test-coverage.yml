@@ -81,6 +81,18 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+          
+      - name: Install ONNX Runtime
+        run: |
+          # Download ONNX Runtime for Linux x64
+          wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz
+          tar -xzf onnxruntime-linux-x64-1.18.1.tgz
+          # Copy libraries to system path
+          sudo cp onnxruntime-linux-x64-1.18.1/lib/* /usr/local/lib/
+          # Update library cache
+          sudo ldconfig
+          # Set environment variable for dynamic loading
+          echo "ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.so" >> $GITHUB_ENV
 
       - name: Create empty dist directory
         run: mkdir dist

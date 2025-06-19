@@ -51,7 +51,7 @@ export class YoloDataService {
    * @param videoPath Путь к видеофайлу (опционально)
    * @returns Данные YOLO или null, если не найдены
    */
-  public async loadYoloData(videoId: string, videoPath?: string): Promise<YoloVideoData | null> {
+  public async loadYoloData(videoId: string, _videoPath?: string): Promise<YoloVideoData | null> {
     // Проверяем кэш
     if (this.yoloDataCache[videoId]) {
       return this.yoloDataCache[videoId]

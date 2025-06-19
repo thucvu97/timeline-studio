@@ -1,6 +1,4 @@
-import React from "react"
-
-import { act, render } from "@testing-library/react"
+import { render } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { ProjectSettingsProvider } from "../../services/project-settings-provider"

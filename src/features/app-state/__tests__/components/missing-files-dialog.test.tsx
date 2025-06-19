@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -312,7 +312,7 @@ describe("MissingFilesDialog", () => {
 
     // Размер показывается в МБ, а не в KB (1024 байт = 0.0 МБ)
     expect(
-      screen.getByText((content, element) => {
+      screen.getByText((content, _element) => {
         return content.includes("0.0") && content.includes("МБ")
       }),
     ).toBeInTheDocument()

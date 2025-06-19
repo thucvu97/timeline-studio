@@ -6,6 +6,7 @@ import { Transition } from "@/features/transitions/types/transitions"
 
 import transitionsData from "../data/transitions.json"
 import { createFallbackTransition, processTransitions, validateTransitionsData } from "../utils/transition-processor"
+
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
 
 // Глобальное состояние для переходов чтобы избежать рекурсивных вызовов

@@ -136,7 +136,7 @@ class ShortcutsRegistry {
   /**
    * Сбрасывает shortcut к значениям по умолчанию
    */
-  reset(id: string): void {
+  reset(_id: string): void {
     // Здесь должна быть логика сброса к дефолтным значениям
     // Пока просто уведомляем слушателей
     this.notifyListeners()

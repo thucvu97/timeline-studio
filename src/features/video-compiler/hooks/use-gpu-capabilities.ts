@@ -4,8 +4,8 @@ import { invoke } from "@tauri-apps/api/core"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import { GpuEncoder } from "@/types/video-compiler"
 import type { CompilerSettings, FfmpegCapabilities, GpuCapabilities, GpuInfo, SystemInfo } from "@/types/video-compiler"
+import { GpuEncoder } from "@/types/video-compiler"
 
 interface UseGpuCapabilitiesReturn {
   // Состояние

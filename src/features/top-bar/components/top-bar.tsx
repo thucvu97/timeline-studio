@@ -4,7 +4,6 @@ import {
   FolderOpen,
   Keyboard,
   LayoutTemplate,
-  ListTodo,
   Mic,
   MonitorCog,
   PanelBottomClose,

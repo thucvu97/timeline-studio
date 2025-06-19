@@ -456,32 +456,32 @@ export class TimelineStudioProjectService implements ProjectOperations {
 
   // Заглушки для экспорта/импорта (будут реализованы позже)
 
-  private exportToFCPXML(project: TimelineStudioProject): string {
+  private exportToFCPXML(_project: TimelineStudioProject): string {
     // TODO: Implement FCPXML export
     throw new Error("FCPXML export not implemented yet")
   }
 
-  private exportToAAF(project: TimelineStudioProject): string {
+  private exportToAAF(_project: TimelineStudioProject): string {
     // TODO: Implement AAF export
     throw new Error("AAF export not implemented yet")
   }
 
-  private exportToEDL(project: TimelineStudioProject): string {
+  private exportToEDL(_project: TimelineStudioProject): string {
     // TODO: Implement EDL export
     throw new Error("EDL export not implemented yet")
   }
 
-  private importFromFCPXML(data: string): TimelineStudioProject {
+  private importFromFCPXML(_data: string): TimelineStudioProject {
     // TODO: Implement FCPXML import
     throw new Error("FCPXML import not implemented yet")
   }
 
-  private importFromAAF(data: string): TimelineStudioProject {
+  private importFromAAF(_data: string): TimelineStudioProject {
     // TODO: Implement AAF import
     throw new Error("AAF import not implemented yet")
   }
 
-  private importFromEDL(data: string): TimelineStudioProject {
+  private importFromEDL(_data: string): TimelineStudioProject {
     // TODO: Implement EDL import
     throw new Error("EDL import not implemented yet")
   }

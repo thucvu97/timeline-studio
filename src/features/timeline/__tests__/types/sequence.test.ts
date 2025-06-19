@@ -15,7 +15,6 @@ import {
   SequenceType,
   Title,
 } from "../../types/sequence"
-import { TimelineClip, TimelineTrack } from "../../types/timeline"
 
 describe("Sequence Types", () => {
   describe("Sequence Structure", () => {

@@ -7,7 +7,7 @@
 
 import React from "react"
 
-import { Cpu, FileVideo, Film, HardDrive, Music2, Play, Settings2 } from "lucide-react"
+import { Cpu, FileVideo, Film, HardDrive, Play, Settings2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 

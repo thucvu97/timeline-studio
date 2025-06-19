@@ -34,7 +34,7 @@ vi.mock("../../hooks/use-media-preview", () => ({
 vi.mock("../../hooks/use-media-processor", () => ({
   useMediaProcessor: vi.fn((options) => ({
     scanFolder: vi.fn().mockResolvedValue([]),
-    scanFolderWithThumbnails: vi.fn().mockImplementation((dir) => {
+    scanFolderWithThumbnails: vi.fn().mockImplementation((_dir) => {
       // Возвращаем пустой массив файлов для простоты теста
       return Promise.resolve([])
     }),

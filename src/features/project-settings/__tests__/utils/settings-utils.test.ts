@@ -1,4 +1,3 @@
-import { act } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { ProjectSettings } from "@/features/project-settings/types/project"

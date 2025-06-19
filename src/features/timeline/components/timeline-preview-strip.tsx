@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSmartTimelinePreviews } from "@/features/video-compiler/hooks/use-frame-extraction"
@@ -217,7 +217,7 @@ function formatTimestamp(seconds: number): string {
 /**
  * Hook для использования превью strip в timeline
  */
-export function useTimelinePreviewStrip(videoPath: string | null, duration: number) {
+export function useTimelinePreviewStrip(_videoPath: string | null, _duration: number) {
   const [containerWidth, setContainerWidth] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
 

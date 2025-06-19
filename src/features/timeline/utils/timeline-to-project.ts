@@ -45,7 +45,6 @@ import {
   TemplateType,
   TextAlign,
   TrackType,
-  toBackendParameter,
   toRustEnumCase,
 } from "@/types/video-compiler"
 
@@ -138,7 +137,7 @@ export function timelineToProjectSchema(timeline: TimelineProject): ProjectSchem
 /**
  * Преобразует трек Timeline в трек Backend
  */
-function convertTrack(track: TimelineTrack, resources: ProjectResources): BackendTrack {
+function convertTrack(track: TimelineTrack, _resources: ProjectResources): BackendTrack {
   const trackType = getTrackType(track.type)
 
   return {
@@ -267,7 +266,7 @@ function convertFilters(filters: VideoFilter[]): BackendFilter[] {
 /**
  * Преобразует переходы в формат backend
  */
-function convertTransitions(transitions: Transition[]): BackendTransition[] {
+function convertTransitions(_transitions: Transition[]): BackendTransition[] {
   // TODO: Реализовать преобразование переходов
   return []
 }
@@ -584,8 +583,8 @@ function collectAllSubtitles(timeline: TimelineProject): BackendSubtitle[] {
             : createDefaultSubtitlePosition(),
           style: subtitleClip?.subtitleStyleId
             ? convertSubtitleStyle(
-                timeline.resources.subtitleStyles?.find((s) => s.id === subtitleClip.subtitleStyleId),
-              )
+              timeline.resources.subtitleStyles?.find((s) => s.id === subtitleClip.subtitleStyleId),
+            )
             : createDefaultSubtitleStyle(subtitleClip?.formatting),
           enabled: true,
           animations: subtitleClip

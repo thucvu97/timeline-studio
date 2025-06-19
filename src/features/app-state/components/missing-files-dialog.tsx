@@ -57,11 +57,11 @@ export function MissingFilesDialog({ open, onOpenChange, missingFiles, onResolve
         prev.map((r, i) =>
           i === index
             ? {
-                ...r,
-                action: newPath ? "found" : "skip",
-                newPath: newPath || undefined,
-                isProcessing: false,
-              }
+              ...r,
+              action: newPath ? "found" : "skip",
+              newPath: newPath || undefined,
+              isProcessing: false,
+            }
             : r,
         ),
       )

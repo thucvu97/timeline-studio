@@ -1,5 +1,3 @@
-import React from "react"
-
 import { Activity, Cpu, HardDrive, Info, Settings, Zap } from "lucide-react"
 import { useTranslation } from "react-i18next"
 

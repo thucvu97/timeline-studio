@@ -8,19 +8,17 @@ import "./dnd-kit" // Import dnd-kit mocks
 // export * from './browser';
 // export * from './libraries';
 
+export {
+  resetAllBrowserMocks,
+  setupAllBrowserMocks,
+} from "./browser"
+export { resetAllLibraryMocks } from "./libraries"
 // Re-export commonly used mocks for convenience
 export {
-  setupTauriCommand,
   createTauriMock,
   resetAllTauriMocks,
+  setupTauriCommand,
 } from "./tauri"
-
-export {
-  setupAllBrowserMocks,
-  resetAllBrowserMocks,
-} from "./browser"
-
-export { resetAllLibraryMocks } from "./libraries"
 
 // Master reset function for all mocks
 export function resetAllMocks() {

@@ -6,36 +6,34 @@ import { resetHotkeysMocks } from "./react-hotkeys-hook"
 import "./lucide-react"
 import "./radix-ui"
 
-// Re-export commonly used mocks
 export {
-  mockUseTheme,
-  MockThemeProvider,
-  setThemeState,
-  resetThemeMocks,
-} from "./next-themes"
-
-export { createMockIcon } from "./lucide-react"
-
-export {
-  mockUseHotkeys,
-  simulateHotkey,
-  isHotkeyRegistered,
-  resetHotkeysMocks,
-} from "./react-hotkeys-hook"
-
-export {
-  MockDropdownMenu,
-  MockDialog,
-} from "./radix-ui"
-
-export {
-  mockUseTranslation,
   MockI18nextProvider,
   mockDayjs,
+  mockUseTranslation,
+  resetI18nMocks,
   setLanguage,
   setTranslations,
-  resetI18nMocks,
 } from "./i18n"
+
+export { createMockIcon } from "./lucide-react"
+// Re-export commonly used mocks
+export {
+  MockThemeProvider,
+  mockUseTheme,
+  resetThemeMocks,
+  setThemeState,
+} from "./next-themes"
+
+export {
+  MockDialog,
+  MockDropdownMenu,
+} from "./radix-ui"
+export {
+  isHotkeyRegistered,
+  mockUseHotkeys,
+  resetHotkeysMocks,
+  simulateHotkey,
+} from "./react-hotkeys-hook"
 
 // Helper to reset all library mocks
 export function resetAllLibraryMocks() {

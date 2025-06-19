@@ -152,7 +152,7 @@ export function usePrerenderCache() {
    * Проверить наличие в кеше
    */
   const hasInCache = useCallback(
-    (startTime: number, endTime: number, applyEffects: boolean) => {
+    (startTime: number, endTime: number, _applyEffects: boolean) => {
       // Ищем файл с подходящими параметрами
       return cacheFiles.some(
         (file) => Math.abs(file.startTime - startTime) < 0.1 && Math.abs(file.endTime - endTime) < 0.1,
@@ -165,7 +165,7 @@ export function usePrerenderCache() {
    * Получить из кеша
    */
   const getFromCache = useCallback(
-    (startTime: number, endTime: number, applyEffects: boolean): PrerenderResult | undefined => {
+    (startTime: number, endTime: number, _applyEffects: boolean): PrerenderResult | undefined => {
       // Ищем файл с подходящими параметрами
       const file = cacheFiles.find(
         (f) => Math.abs(f.startTime - startTime) < 0.1 && Math.abs(f.endTime - endTime) < 0.1,
@@ -189,7 +189,7 @@ export function usePrerenderCache() {
    * Добавить в кеш (обновить информацию после рендеринга)
    */
   const addToCache = useCallback(
-    async (startTime: number, endTime: number, applyEffects: boolean, result: PrerenderResult) => {
+    async (_startTime: number, _endTime: number, _applyEffects: boolean, _result: PrerenderResult) => {
       // Перезагружаем информацию о кеше
       await loadCacheInfo()
     },

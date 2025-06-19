@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from "@testing-library/react"
+import { renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { COMMON_FRAMERATES, COMMON_RESOLUTIONS } from "@/features/project-settings/types/project"

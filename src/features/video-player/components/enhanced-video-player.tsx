@@ -2,7 +2,7 @@
  * Улучшенный видеоплеер с поддержкой пререндера
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { convertFileSrc } from "@tauri-apps/api/core"
 import { toast } from "sonner"
@@ -55,7 +55,7 @@ export function EnhancedVideoPlayer() {
    * Проверить, нужен ли пререндер для текущего момента
    */
   const needsPrerender = useCallback(
-    (time: number): boolean => {
+    (_time: number): boolean => {
       if (!prerenderOptions.enabled || !video || !project) return false
 
       // Проверяем, есть ли эффекты или фильтры в проекте

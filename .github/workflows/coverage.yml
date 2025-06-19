@@ -63,7 +63,20 @@ jobs:
             libavdevice-dev \
             libswscale-dev \
             libswresample-dev \
-            pkg-config
+            pkg-config \
+            wget
+            
+      - name: Install ONNX Runtime
+        run: |
+          # Download ONNX Runtime for Linux x64
+          wget https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz
+          tar -xzf onnxruntime-linux-x64-1.18.1.tgz
+          # Copy libraries to system path
+          sudo cp onnxruntime-linux-x64-1.18.1/lib/* /usr/local/lib/
+          # Update library cache
+          sudo ldconfig
+          # Set environment variable for dynamic loading
+          echo "ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.so" >> $GITHUB_ENV
             
       - name: Install cargo-llvm-cov
         run: cargo install cargo-llvm-cov

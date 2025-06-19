@@ -1,5 +1,3 @@
-import React from "react"
-
 import { TabsContent } from "@/components/ui/tabs"
 import { EffectList, FilterList, MediaList, MusicList, SubtitleList, TemplateList, TransitionList } from "@/features"
 import { MediaToolbar } from "@/features/browser/components/media-toolbar"

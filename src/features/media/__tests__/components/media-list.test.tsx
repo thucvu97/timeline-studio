@@ -82,7 +82,7 @@ vi.mock("react-i18next", async (importOriginal) => {
 
 // Мокаем i18n/constants
 vi.mock("@/i18n/constants", () => ({
-  formatDateByLanguage: vi.fn((date, lang) => new Date(date).toISOString().split("T")[0]),
+  formatDateByLanguage: vi.fn((date, _lang) => new Date(date).toISOString().split("T")[0]),
 }))
 
 describe("MediaList", () => {

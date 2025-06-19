@@ -1,5 +1,5 @@
+export * from "./app-directories-service"
 export * from "./app-settings-machine"
 export * from "./app-settings-provider"
 export * from "./project-file-service"
 export * from "./store-service"
-export * from "./app-directories-service"

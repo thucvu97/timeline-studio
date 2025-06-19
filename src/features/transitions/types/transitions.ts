@@ -121,12 +121,6 @@ export interface Transition {
     smoothness?: number // плавность перехода
   }
   // FFmpeg команда для применения перехода
-  ffmpegCommand: (params: {
-    fps: number
-    width?: number
-    height?: number
-    scale?: number
-    duration?: number
-  }) => string
+  ffmpegCommand: (params: { fps: number; width?: number; height?: number; scale?: number; duration?: number }) => string
   previewPath?: string // Путь к превью (для обратной совместимости)
 }

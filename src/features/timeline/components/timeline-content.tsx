@@ -4,7 +4,7 @@
  * Отображает треки, клипы и временную шкалу
  */
 
-import React, { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 // Убираем ненужные иконки
 
@@ -18,13 +18,13 @@ import { useProjectSettings } from "@/features/project-settings/hooks/use-projec
 import { DragDropProvider } from "./drag-drop-provider"
 import { TimelinePreviewStrip } from "./timeline-preview-strip"
 import { TimelineScale } from "./timeline-scale"
-import { Track } from "./track/track"
-import { TrackControlsPanel } from "./track-controls-panel"
-import { TrackInsertionZones } from "./track-insertion-zone"
 import { useClips } from "../hooks/use-clips"
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
 import { useTimeline } from "../hooks/use-timeline"
 import { useTracks } from "../hooks/use-tracks"
+import { Track } from "./track/track"
+import { TrackControlsPanel } from "./track-controls-panel"
+import { TrackInsertionZones } from "./track-insertion-zone"
 
 export function TimelineContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)

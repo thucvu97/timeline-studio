@@ -2,7 +2,7 @@
  * Компонент управления пререндером
  */
 
-import React, { useCallback, useState } from "react"
+import { useCallback } from "react"
 
 import { Settings2, Sparkles } from "lucide-react"
 import { toast } from "sonner"

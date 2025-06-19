@@ -113,6 +113,10 @@ export class MediaRestorationService {
           case "corrupted":
             corruptedFiles.push(savedFile)
             break
+          default:
+            // Неожиданный статус, добавляем в список отсутствующих
+            missingFiles.push(savedFile)
+            break
         }
       } catch (error) {
         console.error(`Ошибка при восстановлении файла ${savedFile.name}:`, error)

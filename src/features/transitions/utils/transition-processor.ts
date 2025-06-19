@@ -84,13 +84,7 @@ export function processTransitions(rawTransitions: RawTransitionData[]): Transit
  * @returns Функция, которая генерирует FFmpeg команду
  */
 function createFFmpegCommand(template: string) {
-  return (params: {
-    fps: number
-    width?: number
-    height?: number
-    scale?: number
-    duration?: number
-  }) => {
+  return (params: { fps: number; width?: number; height?: number; scale?: number; duration?: number }) => {
     let command = template
 
     // Заменяем плейсхолдеры на реальные значения

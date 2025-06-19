@@ -1,5 +1,3 @@
-import React from "react"
-
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -107,7 +105,7 @@ vi.mock("react-i18next", () => ({
 }))
 
 vi.mock("@/features/media/utils/video", () => ({
-  getFrameTime: (file: MediaFile) => 1 / 30, // 30 fps
+  getFrameTime: (_file: MediaFile) => 1 / 30, // 30 fps
 }))
 
 describe("PlayerControls", () => {

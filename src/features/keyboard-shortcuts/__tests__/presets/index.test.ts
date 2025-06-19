@@ -22,7 +22,7 @@ describe("createPresets", () => {
     const presets = createPresets(mockT)
 
     // Verify each preset has categories and shortcuts
-    Object.entries(presets).forEach(([presetName, categories]) => {
+    Object.entries(presets).forEach(([_presetName, categories]) => {
       expect(Array.isArray(categories)).toBe(true)
       expect(categories.length).toBeGreaterThan(0)
 

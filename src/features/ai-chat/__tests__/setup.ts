@@ -25,7 +25,7 @@ vi.mock("@xstate/react", () => ({
     },
     vi.fn(),
   ]),
-  createActor: vi.fn().mockImplementation((machine) => ({
+  createActor: vi.fn().mockImplementation((_machine) => ({
     start: vi.fn(),
     stop: vi.fn(),
     send: vi.fn(),

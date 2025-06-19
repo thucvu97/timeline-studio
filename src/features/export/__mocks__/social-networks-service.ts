@@ -17,12 +17,12 @@ export class SocialNetworksService {
     telegram: { name: "Test Telegram User", id: "telegram123" },
   }
 
-  static async login(network: string): Promise<boolean> {
+  static async login(_network: string): Promise<boolean> {
     // Simulate successful login
     return true
   }
 
-  static async logout(network: string): Promise<void> {
+  static async logout(_network: string): Promise<void> {
     // Simulate logout
   }
 
@@ -36,7 +36,7 @@ export class SocialNetworksService {
     return SocialNetworksService.mockUserInfo[network] || null
   }
 
-  static async refreshTokenIfNeeded(network: string): Promise<boolean> {
+  static async refreshTokenIfNeeded(_network: string): Promise<boolean> {
     // Mock implementation - always return true
     return true
   }
@@ -69,14 +69,14 @@ export class SocialNetworksService {
     return errors
   }
 
-  static async validateVideoFile(network: string, file: File): Promise<string[]> {
+  static async validateVideoFile(_network: string, _file: File): Promise<string[]> {
     // Mock validation - return no errors
     return []
   }
 
   static async uploadVideo(
     network: string,
-    videoFile: File,
+    _videoFile: File,
     settings: SocialExportSettings,
     onProgress?: (progress: number) => void,
   ): Promise<UploadResult> {

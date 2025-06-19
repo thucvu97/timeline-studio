@@ -1,5 +1,3 @@
-import { JSX } from "react"
-
 import { landscapeTemplates } from "../components/template-previews/landscape-templates"
 import { portraitTemplates } from "../components/template-previews/portrait-templates"
 import { squareTemplates } from "../components/template-previews/square-templates"
@@ -27,9 +25,9 @@ export type {
 
 // Импортируем утилиты для работы с конфигурациями
 export {
-  PRESET_STYLES,
   createCellConfig,
   createDividerConfig,
+  PRESET_STYLES,
 } from "./template-config"
 
 export const TEMPLATE_MAP: Record<"landscape" | "portrait" | "square", MediaTemplate[]> = {

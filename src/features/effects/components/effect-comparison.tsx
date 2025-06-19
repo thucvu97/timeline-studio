@@ -66,12 +66,12 @@ export function EffectComparison({
     // Создаем эффект с объединенными параметрами
     const mergedEffect = customParams
       ? {
-          ...effect,
-          params: {
-            ...effect.params,
-            ...customParams,
-          },
-        }
+        ...effect,
+        params: {
+          ...effect.params,
+          ...customParams,
+        },
+      }
       : effect
 
     // Применяем CSS фильтры

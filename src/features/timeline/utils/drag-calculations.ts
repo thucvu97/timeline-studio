@@ -101,8 +101,8 @@ export function getTrackTypeForMediaFile(mediaFile: MediaFile): TrackType {
  */
 export function findInsertionPoint(
   targetTime: number,
-  trackId: string,
-  clipDuration: number,
+  _trackId: string,
+  _clipDuration: number,
   // TODO: Add clips parameter when we have access to track clips
 ): number {
   // For now, just return the target time

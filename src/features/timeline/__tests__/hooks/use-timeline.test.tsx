@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { MediaFile } from "@/features/media/types/media"
 
 import { useTimeline } from "../../hooks/use-timeline"
-import { TimelineContextType, TimelineProvider } from "../../services/timeline-provider"
+import { TimelineProvider } from "../../services/timeline-provider"
 import { TrackType } from "../../types"
 
 // Мокаем timeline machine

@@ -38,11 +38,7 @@ export function StyleTemplateLoading({
 /**
  * Скелетон для превью шаблона
  */
-export function StyleTemplatePreviewSkeleton({
-  size,
-}: {
-  size: number
-}): React.ReactElement {
+export function StyleTemplatePreviewSkeleton({ size }: { size: number }): React.ReactElement {
   const height = size * 0.75 // Примерное соотношение сторон
 
   return (

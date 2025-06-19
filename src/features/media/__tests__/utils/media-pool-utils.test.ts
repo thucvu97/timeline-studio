@@ -2,10 +2,9 @@
  * Тесты для утилит Media Pool
  */
 
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import { MediaFile } from "../../types/media"
-import { MediaBin, MediaPoolItem } from "../../types/media-pool"
 import { SavedMediaFile, SavedMusicFile } from "../../types/saved-media"
 import {
   addItemToPool,

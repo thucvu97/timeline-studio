@@ -281,8 +281,8 @@ export function AiChat() {
                   value={
                     selectedAgentId
                       ? `${AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.name}${
-                          AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.useTools ? " (с инструментами)" : ""
-                        }`
+                        AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.useTools ? " (с инструментами)" : ""
+                      }`
                       : `${AVAILABLE_AGENTS[0].name}${AVAILABLE_AGENTS[0].useTools ? " (с инструментами)" : ""}`
                   }
                 />

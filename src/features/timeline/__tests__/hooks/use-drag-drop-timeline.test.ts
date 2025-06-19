@@ -38,7 +38,7 @@ vi.mock("../../hooks/use-timeline-actions", () => ({
 }))
 
 vi.mock("../../utils/drag-calculations", () => ({
-  calculateTimelinePosition: vi.fn((mouseX, rect, scrollLeft, timeScale) => {
+  calculateTimelinePosition: vi.fn((mouseX, rect, _scrollLeft, timeScale) => {
     return (mouseX - rect.left) / timeScale
   }),
   canDropOnTrack: vi.fn((mediaFile, trackType) => {
@@ -47,7 +47,7 @@ vi.mock("../../utils/drag-calculations", () => ({
     if (mediaFile.isImage) return trackType === "video"
     return false
   }),
-  findInsertionPoint: vi.fn((timePosition, trackId, duration) => timePosition),
+  findInsertionPoint: vi.fn((timePosition, _trackId, _duration) => timePosition),
   getTrackTypeForMediaFile: vi.fn((mediaFile) => {
     if (mediaFile.isVideo) return "video"
     if (mediaFile.isAudio) return "audio"
@@ -232,10 +232,10 @@ describe("useDragDropTimeline", () => {
       },
       over: overData
         ? {
-            id: "drop-zone-1",
-            data: { current: overData },
-            rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
-          }
+          id: "drop-zone-1",
+          data: { current: overData },
+          rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
+        }
         : null,
       delta: { x: 0, y: 0 },
       activatorEvent: new MouseEvent("mousemove", { clientX: 200 }),
@@ -364,10 +364,10 @@ describe("useDragDropTimeline", () => {
       },
       over: overData
         ? {
-            id: "drop-zone-1",
-            data: { current: overData },
-            rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
-          }
+          id: "drop-zone-1",
+          data: { current: overData },
+          rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
+        }
         : null,
       delta: { x: 100, y: 0 },
       activatorEvent: new MouseEvent("mouseup"),

@@ -71,6 +71,7 @@ describe("LocalChatStorageService", () => {
     })
 
     // Очищаем singleton экземпляр
+
     ;(LocalChatStorageService as any).instance = undefined
 
     // Получаем новый экземпляр сервиса

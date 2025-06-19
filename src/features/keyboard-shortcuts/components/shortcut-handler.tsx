@@ -1,5 +1,3 @@
-import { useEffect } from "react"
-
 import { useHotkeys } from "react-hotkeys-hook"
 
 import { ShortcutDefinition } from "../services/shortcuts-registry"

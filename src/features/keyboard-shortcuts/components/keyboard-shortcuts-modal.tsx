@@ -39,15 +39,15 @@ export function KeyboardShortcutsModal() {
   const filteredCategories = useMemo(() => {
     return searchQuery
       ? categories
-          .map((category) => ({
-            ...category,
-            shortcuts: category.shortcuts.filter(
-              (shortcut) =>
-                shortcut.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        .map((category) => ({
+          ...category,
+          shortcuts: category.shortcuts.filter(
+            (shortcut) =>
+              shortcut.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 shortcut.keys.toLowerCase().includes(searchQuery.toLowerCase()),
-            ),
-          }))
-          .filter((category) => category.shortcuts.length > 0)
+          ),
+        }))
+        .filter((category) => category.shortcuts.length > 0)
       : categories
   }, [categories, searchQuery])
 

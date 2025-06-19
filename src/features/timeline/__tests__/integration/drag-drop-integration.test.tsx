@@ -6,8 +6,8 @@
  */
 
 import { DndContext } from "@dnd-kit/core"
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { Mock, afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { DragDropProvider } from "../../components/drag-drop-provider"
 import { TimelineContent } from "../../components/timeline-content"

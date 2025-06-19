@@ -1,5 +1,7 @@
 use crate::recognition::recognition_service::{RecognitionEvent, RecognitionService};
-use crate::recognition::types::{BoundingBox, DetectedObject, DetectedFace, DetectedScene, RecognitionResults};
+use crate::recognition::types::{
+  BoundingBox, DetectedFace, DetectedObject, DetectedScene, RecognitionResults,
+};
 use crate::recognition::yolo_processor::{YoloModel, YoloProcessor};
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -52,10 +54,10 @@ async fn test_target_classes() {
 
   // Тест создания процессора с определенными классами
   let mut processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.5).unwrap();
-  
+
   let target_classes = vec!["person".to_string(), "car".to_string(), "dog".to_string()];
   processor.set_target_classes(target_classes.clone());
-  
+
   // Verify that processor was created and configured successfully
   // The actual filtering would be tested with real image processing
 }
@@ -145,7 +147,7 @@ fn test_scene_info() {
 #[test]
 fn test_recognition_results() {
   let mut results = RecognitionResults::default();
-  
+
   // Add some objects
   results.objects.push(DetectedObject {
     class: "car".to_string(),
@@ -158,7 +160,7 @@ fn test_recognition_results() {
       height: 100.0,
     }],
   });
-  
+
   results.objects.push(DetectedObject {
     class: "person".to_string(),
     confidence: 0.95,
@@ -170,7 +172,7 @@ fn test_recognition_results() {
       height: 180.0,
     }],
   });
-  
+
   // Add face info
   results.faces.push(DetectedFace {
     face_id: Some("face_1".to_string()),
@@ -184,7 +186,7 @@ fn test_recognition_results() {
       height: 70.0,
     }],
   });
-  
+
   // Add scene info
   results.scenes.push(DetectedScene {
     scene_type: "street".to_string(),
@@ -192,7 +194,7 @@ fn test_recognition_results() {
     end_time: 2.0,
     key_objects: vec![],
   });
-  
+
   assert_eq!(results.objects.len(), 2);
   assert_eq!(results.faces.len(), 1);
   assert_eq!(results.scenes.len(), 1);
@@ -205,7 +207,7 @@ fn test_recognition_results() {
 #[test]
 fn test_recognition_results_serialization() {
   let mut results = RecognitionResults::default();
-  
+
   results.objects.push(DetectedObject {
     class: "dog".to_string(),
     confidence: 0.87,
@@ -217,11 +219,11 @@ fn test_recognition_results_serialization() {
       height: 100.0,
     }],
   });
-  
+
   let json = serde_json::to_string(&results).unwrap();
   assert!(json.contains("dog"));
   assert!(json.contains("0.87"));
-  
+
   let deserialized: RecognitionResults = serde_json::from_str(&json).unwrap();
   assert_eq!(deserialized.objects.len(), 1);
   assert_eq!(deserialized.objects[0].class, "dog");
@@ -233,27 +235,27 @@ fn test_recognition_event() {
   let event = RecognitionEvent::ProcessingStarted {
     file_id: "video_123".to_string(),
   };
-  
+
   let json = serde_json::to_string(&event).unwrap();
   assert!(json.contains("ProcessingStarted"));
   assert!(json.contains("video_123"));
-  
+
   // Test ProcessingCompleted event
   let results = RecognitionResults::default();
   let event = RecognitionEvent::ProcessingCompleted {
     file_id: "video_123".to_string(),
     results,
   };
-  
+
   let json = serde_json::to_string(&event).unwrap();
   assert!(json.contains("ProcessingCompleted"));
-  
+
   // Test ProcessingError event
   let event = RecognitionEvent::ProcessingError {
     file_id: "video_123".to_string(),
     error: "Failed to process frame".to_string(),
   };
-  
+
   let json = serde_json::to_string(&event).unwrap();
   assert!(json.contains("ProcessingError"));
   assert!(json.contains("Failed to process frame"));
@@ -271,7 +273,7 @@ async fn test_recognition_service_creation() {
 #[test]
 fn test_frame_info_with_objects() {
   let mut frame_results = RecognitionResults::default();
-  
+
   // Add multiple objects
   for i in 0..5 {
     frame_results.objects.push(DetectedObject {
@@ -286,7 +288,7 @@ fn test_frame_info_with_objects() {
       }],
     });
   }
-  
+
   assert_eq!(frame_results.objects.len(), 5);
   assert_eq!(frame_results.objects[0].class, "object_0");
   assert_eq!(frame_results.objects[4].class, "object_4");
@@ -296,7 +298,7 @@ fn test_frame_info_with_objects() {
 #[test]
 fn test_empty_recognition_results() {
   let results = RecognitionResults::default();
-  
+
   assert!(results.objects.is_empty());
   assert!(results.faces.is_empty());
   assert!(results.scenes.is_empty());

@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { type DiscoveredFile, type ProcessorEvent, useMediaProcessor } from "@/features/media/hooks/use-media-processor"
+import { type DiscoveredFile, useMediaProcessor } from "@/features/media/hooks/use-media-processor"
 import type { MediaFile } from "@/features/media/types/media"
 
 // Mock Tauri API

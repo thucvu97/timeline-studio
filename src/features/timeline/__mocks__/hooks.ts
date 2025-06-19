@@ -2,7 +2,7 @@ import { vi } from "vitest"
 
 import { mockTimelineService } from "./services"
 
-import type { TimelineClip, TimelineProject, TimelineTrack } from "../types"
+import type { TimelineClip, TimelineProject } from "../types"
 
 // Mock useTimeline hook
 export const mockUseTimeline = vi.fn(() => ({
@@ -41,12 +41,12 @@ export const mockUseTimelineSelection = vi.fn(() => ({
   selectedClips: [] as string[],
   selectedTracks: [] as string[],
 
-  selectClip: vi.fn((clipId: string, multi?: boolean) => {}),
-  selectTrack: vi.fn((trackId: string, multi?: boolean) => {}),
+  selectClip: vi.fn((_clipId: string, _multi?: boolean) => {}),
+  selectTrack: vi.fn((_trackId: string, _multi?: boolean) => {}),
   clearSelection: vi.fn(),
 
-  isClipSelected: vi.fn((clipId: string) => false),
-  isTrackSelected: vi.fn((trackId: string) => false),
+  isClipSelected: vi.fn((_clipId: string) => false),
+  isTrackSelected: vi.fn((_trackId: string) => false),
 }))
 
 // Mock useTimelinePlayback hook
@@ -57,7 +57,7 @@ export const mockUseTimelinePlayback = vi.fn(() => ({
 
   play: vi.fn(),
   pause: vi.fn(),
-  seek: vi.fn((time: number) => {}),
+  seek: vi.fn((_time: number) => {}),
 
   frameRate: 30,
   nextFrame: vi.fn(),
@@ -73,7 +73,7 @@ export const mockUseTimelineZoom = vi.fn(() => ({
   zoomIn: vi.fn(),
   zoomOut: vi.fn(),
   zoomToFit: vi.fn(),
-  setScale: vi.fn((scale: number) => {}),
+  setScale: vi.fn((_scale: number) => {}),
 }))
 
 // Mock useTimelineUndo hook
@@ -92,15 +92,15 @@ export const mockUseTimelineUndo = vi.fn(() => ({
 export const mockUseClips = vi.fn(() => ({
   clips: [] as TimelineClip[],
 
-  getClipById: vi.fn((clipId: string) => undefined),
-  getClipsInRange: vi.fn((startTime: number, endTime: number) => []),
-  getClipsOnTrack: vi.fn((trackId: string) => []),
+  getClipById: vi.fn((_clipId: string) => undefined),
+  getClipsInRange: vi.fn((_startTime: number, _endTime: number) => []),
+  getClipsOnTrack: vi.fn((_trackId: string) => []),
 
-  splitClip: vi.fn((clipId: string, time: number) => {}),
-  trimClip: vi.fn((clipId: string, start: number, end: number) => {}),
+  splitClip: vi.fn((_clipId: string, _time: number) => {}),
+  trimClip: vi.fn((_clipId: string, _start: number, _end: number) => {}),
 
-  applyEffect: vi.fn((clipId: string, effect: any) => {}),
-  removeEffect: vi.fn((clipId: string, effectId: string) => {}),
+  applyEffect: vi.fn((_clipId: string, _effect: any) => {}),
+  removeEffect: vi.fn((_clipId: string, _effectId: string) => {}),
 }))
 
 // Mock useTracks hook
@@ -112,11 +112,11 @@ export const mockUseTracks = vi.fn(() => ({
     mockTimelineService.getAllTracks().filter((t) => t.type === type),
   ),
 
-  reorderTracks: vi.fn((fromIndex: number, toIndex: number) => {}),
-  toggleTrackMute: vi.fn((trackId: string) => {}),
-  toggleTrackLock: vi.fn((trackId: string) => {}),
+  reorderTracks: vi.fn((_fromIndex: number, _toIndex: number) => {}),
+  toggleTrackMute: vi.fn((_trackId: string) => {}),
+  toggleTrackLock: vi.fn((_trackId: string) => {}),
 
-  setTrackHeight: vi.fn((trackId: string, height: number) => {}),
+  setTrackHeight: vi.fn((_trackId: string, _height: number) => {}),
 }))
 
 // Mock useDragDropTimeline hook

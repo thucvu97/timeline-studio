@@ -1,7 +1,7 @@
 import React from "react"
 
 import { act, renderHook } from "@testing-library/react"
-import { MockedFunction, afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { MockedFunction, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useAppSettings } from "@/features/app-state"
 import { BrowserTab } from "@/features/user-settings"

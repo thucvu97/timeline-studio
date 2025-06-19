@@ -3,8 +3,6 @@
  * Вдохновлено DaVinci Resolve и Adobe Premiere Pro
  */
 
-import { MediaFile } from "./media"
-
 /**
  * Тип элемента в Media Pool
  */

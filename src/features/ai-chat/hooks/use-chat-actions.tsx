@@ -16,7 +16,7 @@ export function useChatActions(): Pick<
   | "setError"
   | "clearMessages"
   | "removeMessage"
-> {
+  > {
   const { sendChatMessage, receiveChatMessage, selectAgent, setProcessing, setError, clearMessages, removeMessage } =
     useChat()
 
