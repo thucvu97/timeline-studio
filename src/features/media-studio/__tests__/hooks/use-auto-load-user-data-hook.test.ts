@@ -139,10 +139,9 @@ describe("useAutoLoadUserData Hook", () => {
   describe("Window Environment Handling", () => {
     it("should handle when Tauri is not available", async () => {
       // Save original __TAURI_INTERNALS__
-      const originalTauri = ((window as any).__TAURI_INTERNALS__(
-        // Remove Tauri
-        window as any,
-      ).__TAURI_INTERNALS__ = undefined)
+      const originalTauri = (window as any).__TAURI_INTERNALS__
+      // Remove Tauri
+      ;(window as any).__TAURI_INTERNALS__ = undefined
 
       const { result } = renderHook(() => useAutoLoadUserData())
 
@@ -170,7 +169,8 @@ describe("useAutoLoadUserData Hook", () => {
       expect(typeof window).toBe("object")
 
       // Remove Tauri to simulate non-Tauri environment (like SSR)
-      const originalTauri = ((window as any).__TAURI_INTERNALS__(window as any).__TAURI_INTERNALS__ = undefined)
+      const originalTauri = (window as any).__TAURI_INTERNALS__
+      ;(window as any).__TAURI_INTERNALS__ = undefined
 
       // The hook should work without Tauri
       const { result } = renderHook(() => useAutoLoadUserData())
