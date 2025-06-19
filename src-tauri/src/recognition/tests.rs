@@ -1,5 +1,5 @@
-use crate::recognition::recognition_service::RecognitionService;
-use crate::recognition::types::DetectedObject;
+use crate::recognition::recognition_service::{RecognitionEvent, RecognitionService};
+use crate::recognition::types::{BoundingBox, DetectedObject, DetectedFace, DetectedScene, RecognitionResults};
 use crate::recognition::yolo_processor::{YoloModel, YoloProcessor};
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -50,6 +50,265 @@ async fn test_target_classes() {
     return;
   }
 
+  // Тест создания процессора с определенными классами
+  let mut processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.5).unwrap();
+  
+  let target_classes = vec!["person".to_string(), "car".to_string(), "dog".to_string()];
+  processor.set_target_classes(target_classes.clone());
+  
+  // Verify that processor was created and configured successfully
+  // The actual filtering would be tested with real image processing
+}
+
+#[test]
+fn test_detected_object_creation() {
+  let obj = DetectedObject {
+    class: "person".to_string(),
+    confidence: 0.95,
+    timestamps: vec![1.0],
+    bounding_boxes: vec![BoundingBox {
+      x: 100.0,
+      y: 100.0,
+      width: 200.0,
+      height: 300.0,
+    }],
+  };
+
+  assert_eq!(obj.class, "person");
+  assert_eq!(obj.confidence, 0.95);
+  assert_eq!(obj.timestamps.len(), 1);
+  assert_eq!(obj.bounding_boxes.len(), 1);
+  assert_eq!(obj.bounding_boxes[0].x, 100.0);
+  assert_eq!(obj.bounding_boxes[0].y, 100.0);
+  assert_eq!(obj.bounding_boxes[0].width, 200.0);
+  assert_eq!(obj.bounding_boxes[0].height, 300.0);
+}
+
+#[test]
+fn test_bounding_box_serialization() {
+  let bbox = BoundingBox {
+    x: 10.0,
+    y: 20.0,
+    width: 100.0,
+    height: 150.0,
+  };
+
+  let json = serde_json::to_string(&bbox).unwrap();
+  assert!(json.contains("10.0"));
+  assert!(json.contains("20.0"));
+  assert!(json.contains("100.0"));
+  assert!(json.contains("150.0"));
+
+  let deserialized: BoundingBox = serde_json::from_str(&json).unwrap();
+  assert_eq!(deserialized.x, bbox.x);
+  assert_eq!(deserialized.y, bbox.y);
+  assert_eq!(deserialized.width, bbox.width);
+  assert_eq!(deserialized.height, bbox.height);
+}
+
+#[test]
+fn test_face_info() {
+  let face = DetectedFace {
+    face_id: Some("face_001".to_string()),
+    person_name: None,
+    confidence: 0.88,
+    timestamps: vec![1.0],
+    bounding_boxes: vec![BoundingBox {
+      x: 150.0,
+      y: 150.0,
+      width: 80.0,
+      height: 100.0,
+    }],
+  };
+
+  assert_eq!(face.face_id, Some("face_001".to_string()));
+  assert_eq!(face.confidence, 0.88);
+  assert_eq!(face.timestamps.len(), 1);
+  assert_eq!(face.bounding_boxes.len(), 1);
+}
+
+#[test]
+fn test_scene_info() {
+  let scene = DetectedScene {
+    scene_type: "outdoor".to_string(),
+    start_time: 0.0,
+    end_time: 10.0,
+    key_objects: vec!["tree".to_string(), "sky".to_string()],
+  };
+
+  assert_eq!(scene.scene_type, "outdoor");
+  assert_eq!(scene.start_time, 0.0);
+  assert_eq!(scene.end_time, 10.0);
+  assert_eq!(scene.key_objects.len(), 2);
+}
+
+#[test]
+fn test_recognition_results() {
+  let mut results = RecognitionResults::default();
+  
+  // Add some objects
+  results.objects.push(DetectedObject {
+    class: "car".to_string(),
+    confidence: 0.89,
+    timestamps: vec![1.0],
+    bounding_boxes: vec![BoundingBox {
+      x: 50.0,
+      y: 50.0,
+      width: 150.0,
+      height: 100.0,
+    }],
+  });
+  
+  results.objects.push(DetectedObject {
+    class: "person".to_string(),
+    confidence: 0.95,
+    timestamps: vec![1.0],
+    bounding_boxes: vec![BoundingBox {
+      x: 200.0,
+      y: 100.0,
+      width: 80.0,
+      height: 180.0,
+    }],
+  });
+  
+  // Add face info
+  results.faces.push(DetectedFace {
+    face_id: Some("face_1".to_string()),
+    person_name: None,
+    confidence: 0.91,
+    timestamps: vec![1.0],
+    bounding_boxes: vec![BoundingBox {
+      x: 210.0,
+      y: 110.0,
+      width: 60.0,
+      height: 70.0,
+    }],
+  });
+  
+  // Add scene info
+  results.scenes.push(DetectedScene {
+    scene_type: "street".to_string(),
+    start_time: 0.0,
+    end_time: 2.0,
+    key_objects: vec![],
+  });
+  
+  assert_eq!(results.objects.len(), 2);
+  assert_eq!(results.faces.len(), 1);
+  assert_eq!(results.scenes.len(), 1);
+  assert_eq!(results.objects[0].class, "car");
+  assert_eq!(results.objects[1].class, "person");
+  assert_eq!(results.faces[0].face_id, Some("face_1".to_string()));
+  assert_eq!(results.scenes[0].scene_type, "street");
+}
+
+#[test]
+fn test_recognition_results_serialization() {
+  let mut results = RecognitionResults::default();
+  
+  results.objects.push(DetectedObject {
+    class: "dog".to_string(),
+    confidence: 0.87,
+    timestamps: vec![1.0],
+    bounding_boxes: vec![BoundingBox {
+      x: 100.0,
+      y: 200.0,
+      width: 120.0,
+      height: 100.0,
+    }],
+  });
+  
+  let json = serde_json::to_string(&results).unwrap();
+  assert!(json.contains("dog"));
+  assert!(json.contains("0.87"));
+  
+  let deserialized: RecognitionResults = serde_json::from_str(&json).unwrap();
+  assert_eq!(deserialized.objects.len(), 1);
+  assert_eq!(deserialized.objects[0].class, "dog");
+}
+
+#[test]
+fn test_recognition_event() {
+  // Test ProcessingStarted event
+  let event = RecognitionEvent::ProcessingStarted {
+    file_id: "video_123".to_string(),
+  };
+  
+  let json = serde_json::to_string(&event).unwrap();
+  assert!(json.contains("ProcessingStarted"));
+  assert!(json.contains("video_123"));
+  
+  // Test ProcessingCompleted event
+  let results = RecognitionResults::default();
+  let event = RecognitionEvent::ProcessingCompleted {
+    file_id: "video_123".to_string(),
+    results,
+  };
+  
+  let json = serde_json::to_string(&event).unwrap();
+  assert!(json.contains("ProcessingCompleted"));
+  
+  // Test ProcessingError event
+  let event = RecognitionEvent::ProcessingError {
+    file_id: "video_123".to_string(),
+    error: "Failed to process frame".to_string(),
+  };
+  
+  let json = serde_json::to_string(&event).unwrap();
+  assert!(json.contains("ProcessingError"));
+  assert!(json.contains("Failed to process frame"));
+}
+
+// test_yolo_model_paths removed - duplicate of test_yolo_model_processors
+
+#[tokio::test]
+async fn test_recognition_service_creation() {
+  let temp_dir = TempDir::new().unwrap();
+  let service = RecognitionService::new(temp_dir.path().to_path_buf());
+  assert!(service.is_ok());
+}
+
+#[test]
+fn test_frame_info_with_objects() {
+  let mut frame_results = RecognitionResults::default();
+  
+  // Add multiple objects
+  for i in 0..5 {
+    frame_results.objects.push(DetectedObject {
+      class: format!("object_{}", i),
+      confidence: 0.8 + (i as f32) * 0.02,
+      timestamps: vec![1.0],
+      bounding_boxes: vec![BoundingBox {
+        x: (i * 100) as f32,
+        y: (i * 50) as f32,
+        width: 80.0,
+        height: 100.0,
+      }],
+    });
+  }
+  
+  assert_eq!(frame_results.objects.len(), 5);
+  assert_eq!(frame_results.objects[0].class, "object_0");
+  assert_eq!(frame_results.objects[4].class, "object_4");
+  assert!(frame_results.objects[4].confidence > frame_results.objects[0].confidence);
+}
+
+#[test]
+fn test_empty_recognition_results() {
+  let results = RecognitionResults::default();
+  
+  assert!(results.objects.is_empty());
+  assert!(results.faces.is_empty());
+  assert!(results.scenes.is_empty());
+}
+
+#[tokio::test]
+async fn test_yolo_processor_cleanup() {
+  if !is_ort_available() {
+    eprintln!("Skipping test: ONNX Runtime not available");
+    return;
+  }
+
   let mut processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.5).unwrap();
 
   // Устанавливаем целевые классы
@@ -60,7 +319,7 @@ async fn test_target_classes() {
 }
 
 #[tokio::test]
-async fn test_recognition_service_creation() {
+async fn test_recognition_service_creation_with_dir() {
   if !is_ort_available() {
     eprintln!("Skipping test: ONNX Runtime not available");
     return;
@@ -286,7 +545,7 @@ async fn test_save_and_load_results() {
 }
 
 #[test]
-fn test_yolo_model_paths() {
+fn test_yolo_model_processors() {
   if !is_ort_available() {
     eprintln!("Skipping test: ONNX Runtime not available");
     return;

@@ -69,3 +69,14 @@ pub struct BoundingBox {
   pub width: f32,
   pub height: f32,
 }
+
+impl Default for RecognitionResults {
+  fn default() -> Self {
+    Self {
+      objects: Vec::new(),
+      faces: Vec::new(),
+      scenes: Vec::new(),
+      processed_at: chrono::Utc::now(),
+    }
+  }
+}

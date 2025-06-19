@@ -9,5 +9,8 @@ mod tests;
 #[cfg(test)]
 mod real_data_tests;
 
+#[cfg(test)]
+mod commands_test;
+
 pub use commands::RecognitionState;
 pub use recognition_service::RecognitionService;
