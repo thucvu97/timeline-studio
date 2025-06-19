@@ -23,7 +23,7 @@ Timeline Studio, Tauri mimarisi (Rust + React) üzerine inşa edilmiş modern bi
 - **Kapsamlı yaratıcı kütüphane** - Filmora gibi popüler editörlere kıyaslanabilir efektler, filtreler, geçişler, çoklu kamera şablonları, animasyonlu başlıklar, stil şablonları ve altyazı ön ayarları
 - **AI komut dosyası ve otomasyon** - farklı diller ve farklı platformlar için otomatik içerik üretimi
 
-**Temel yenilik**: Kullanıcıların videoları, müzikleri ve diğer kaynakları yüklemesi yeterlidir ve AI, farklı dillerde ve farklı platformlar (YouTube, TikTok, Instagram, Telegram) için optimize edilmiş bir dizi video otomatik olarak oluşturacaktır.
+**Temel yenilik**: Kullanıcıların videoları, müzikleri ve diğer kaynakları yüklemesi yeterlidir ve AI, farklı dillerde ve farklı platformlar (YouTube, TikTok, Vimeo, Telegram) için optimize edilmiş bir dizi video otomatik olarak oluşturacaktır.
 
 ![Timeline Interface](/public/screen3.png)
 

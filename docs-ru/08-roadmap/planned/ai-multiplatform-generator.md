@@ -2,7 +2,7 @@
 
 ## 📋 Обзор
 
-AI Multi-Platform Generator - это революционный модуль для Timeline Studio, который автоматически создает набор видео на разных языках и оптимизированных под различные платформы из загруженных ресурсов. Пользователь просто добавляет видео, музыку и другие материалы, а AI генерирует готовый контент для YouTube, TikTok, Instagram, Telegram и других платформ.
+AI Multi-Platform Generator - это революционный модуль для Timeline Studio, который автоматически создает набор видео на разных языках и оптимизированных под различные платформы из загруженных ресурсов. Пользователь просто добавляет видео, музыку и другие материалы, а AI генерирует готовый контент для YouTube, TikTok, Vimeo, Telegram и других платформ.
 
 ## 🎯 Цели и задачи
 
@@ -202,19 +202,19 @@ src-tauri/src/ai_generator/
 ┌─────────────────────────────────────────────────────┐
 │  Step 1: Upload Resources                           │
 ├─────────────────────────────────────────────────────┤
-│  [+] Drag & Drop Videos, Images, Music             │
+│  [+] Drag & Drop Videos, Images, Music              │
 │                                                     │
-│  📹 video1.mp4  🎵 music.mp3  🖼️ logo.png         │
+│  📹 video1.mp4  🎵 music.mp3  🖼️ logo.png            │
 ├─────────────────────────────────────────────────────┤
-│  Step 2: Select Platforms & Languages              │
+│  Step 2: Select Platforms & Languages               │
 ├─────────────────────────────────────────────────────┤
-│  Platforms:  ☑ YouTube  ☑ TikTok  ☑ Instagram     │
-│  Languages:  ☑ EN  ☑ RU  ☑ ES  ☑ FR  ☑ DE       │
+│  Platforms:  ☑ YouTube  ☑ TikTok  ☑ Vimeo           │
+│  Languages:  ☑ EN  ☑ RU  ☑ ES  ☑ FR  ☑ DE           │
 ├─────────────────────────────────────────────────────┤
 │  Step 3: Generation Settings                        │
 ├─────────────────────────────────────────────────────┤
-│  Style: [Energetic ▼]  Music: [Auto-select ▼]     │
-│  Branding: [Enabled ✓]  Quality: [High ▼]         │
+│  Style: [Energetic ▼]  Music: [Auto-select ▼]       │
+│  Branding: [Enabled ✓]  Quality: [High ▼]           │
 ├─────────────────────────────────────────────────────┤
 │              [Generate 45 Videos]                   │
 └─────────────────────────────────────────────────────┘

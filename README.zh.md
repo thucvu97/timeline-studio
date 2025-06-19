@@ -23,7 +23,7 @@ Timeline Studio 是一款基于 Tauri 架构（Rust + React）构建的现代视
 - **丰富的创意库** - 效果、滤镜、转场、多机位模板、动画标题、样式模板和字幕预设，可与 Filmora 等流行编辑器媲美
 - **AI 脚本和自动化** - 自动生成不同语言和不同平台的内容
 
-**关键创新**：用户只需上传视频、音乐和其他资源，AI 将自动创建一组针对不同语言和不同平台（YouTube、TikTok、Instagram、Telegram）优化的视频。
+**关键创新**：用户只需上传视频、音乐和其他资源，AI 将自动创建一组针对不同语言和不同平台（YouTube、TikTok、Vimeo、Telegram）优化的视频。
 
 ![时间轴界面 #1](/public/screen2.png)
 

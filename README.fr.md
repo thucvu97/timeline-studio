@@ -23,7 +23,7 @@ Timeline Studio est un éditeur vidéo moderne construit sur l'architecture Taur
 - **Une vaste bibliothèque créative** - effets, filtres, transitions, modèles multi-caméras, titres animés, modèles de style et préréglages de sous-titres comparables aux éditeurs populaires comme Filmora
 - **Script et automatisation IA** - génération automatique de contenu dans différentes langues et pour différentes plateformes
 
-**Innovation clé** : Il suffit aux utilisateurs de télécharger des vidéos, de la musique et d'autres ressources, et l'IA créera automatiquement un ensemble de vidéos dans différentes langues et optimisées pour différentes plateformes (YouTube, TikTok, Instagram, Telegram).
+**Innovation clé** : Il suffit aux utilisateurs de télécharger des vidéos, de la musique et d'autres ressources, et l'IA créera automatiquement un ensemble de vidéos dans différentes langues et optimisées pour différentes plateformes (YouTube, TikTok, Vimeo, Telegram).
 
 ![Interface Timeline #1](/public/screen2.png)
 

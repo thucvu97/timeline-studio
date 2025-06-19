@@ -17,7 +17,7 @@ Timeline Studio는 Tauri 아키텍처(Rust + React)로 구축된 최신 비디�
 - **광범위한 창의적 라이브러리** - Filmora와 같은 인기 편집기에 필적하는 효과, 필터, 전환, 멀티 카메라 템플릿, 애니메이션 제목, 스타일 템플릿 및 자막 프리셋
 - **AI 스크립팅 및 자동화** - 다양한 언어와 다양한 플랫폼을 위한 자동 콘텐츠 생성
 
-**핵심 혁신**: 사용자가 비디오, 음악 및 기타 리소스를 업로드하기만 하면 AI가 다양한 언어로 자동으로 비디오 세트를 만들고 다양한 플랫폼(YouTube, TikTok, Instagram, Telegram)에 최적화합니다.
+**핵심 혁신**: 사용자가 비디오, 음악 및 기타 리소스를 업로드하기만 하면 AI가 다양한 언어로 자동으로 비디오 세트를 만들고 다양한 플랫폼(YouTube, TikTok, Vimeo, Telegram)에 최적화합니다.
 
 ![Timeline Interface](/public/screen3.png)
 
