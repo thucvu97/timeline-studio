@@ -71,8 +71,8 @@ jobs:
           # Download ONNX Runtime 1.22.0 for Linux x64 (compatible with ort 2.0.0-rc.10)
           wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz
           tar -xzf onnxruntime-linux-x64-1.22.0.tgz
-          # Copy libraries to system path
-          sudo cp onnxruntime-linux-x64-1.22.0/lib/* /usr/local/lib/
+          # Copy only library files to system path
+          sudo cp onnxruntime-linux-x64-1.22.0/lib/*.so* /usr/local/lib/
           # Update library cache
           sudo ldconfig
           # Set environment variable for dynamic loading
