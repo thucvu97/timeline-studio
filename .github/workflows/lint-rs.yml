@@ -77,11 +77,17 @@ jobs:
           node-version-file: .node-version
           cache: "npm"
 
-      - name: Install dependencies from lockfile
+      - name: Install dependencies on Unix
+        if: runner.os != 'Windows'
         run: |
           npm config set fetch-timeout 300000
           npm config set fetch-retries 5
           npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Install dependencies on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/windows-npm-install.ps1
 
       - name: Run rustfmt check
         run: npm run format:rust:check

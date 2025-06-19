@@ -13,6 +13,9 @@ Error: The operation was canceled.
 ### 2. ESLint commands hanging
 ESLint commands like `format:imports:windows` also timeout on Windows due to processing too many files at once.
 
+### 3. npm config commands hanging
+Even `npm config set` commands can hang on Windows CI, preventing any npm operations.
+
 ## Solutions Applied
 
 ### 1. Improved npm Configuration
@@ -43,7 +46,32 @@ Created `lint-js-bun.yml` as an alternative that uses Bun instead of npm:
 - Temporarily disabled import order checks on Windows CI (non-critical)
 - Created PowerShell script for batch processing: `scripts/check-imports-windows.ps1`
 
-### 4. Additional Recommendations
+### 4. PowerShell Script for Windows
+Created `scripts/windows-npm-install.ps1` that:
+- Runs npm install with timeout protection
+- Implements retry logic (3 attempts)
+- Falls back to Bun if npm fails
+- Provides detailed logging
+
+### 5. Separate Unix/Windows Steps
+Updated workflows to use different install steps:
+```yaml
+- name: Install dependencies on Unix
+  if: runner.os != 'Windows'
+  run: npm ci --prefer-offline --no-audit --no-fund
+
+- name: Install dependencies on Windows
+  if: runner.os == 'Windows'
+  shell: pwsh
+  run: ./scripts/windows-npm-install.ps1
+```
+
+### 6. Alternative Workflows
+Created additional workflow options:
+- `lint-js-windows-bun.yml` - Windows-only workflow using Bun
+- `lint-js-unix-only.yml` - Unix-only workflow for faster CI
+
+### 7. Additional Recommendations
 
 If issues persist, try these solutions:
 

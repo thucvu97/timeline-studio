@@ -1,0 +1,49 @@
+# Alternative Windows CI using Bun instead of npm
+# This workflow is specifically for Windows to avoid npm hanging issues
+
+name: Lint Node.js (Windows Bun)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - "src-tauri/**"
+      - "README.md"
+
+jobs:
+  lint-windows-bun:
+    name: Lint on Windows with Bun
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Disable git core.autocrlf
+        run: git config --global core.autocrlf false
+
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies with Bun
+        run: |
+          bun install --frozen-lockfile
+          
+      - name: Run lint with Bun
+        run: bun run lint:windows
+
+      # Skip import order check on Windows CI as it's non-critical
+      # and causes performance issues
