@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 
@@ -37,6 +37,21 @@ export function useMusicImport() {
 
   const { updateMusicFiles } = useMusicFiles()
   const { currentProject, setProjectDirty, saveProject } = useCurrentProject()
+
+  // Track if component is mounted to prevent state updates after unmount
+  const isMountedRef = useRef(true)
+  // Track active timeouts to clean them up
+  const activeTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set())
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+      // Clear all active timeouts
+      activeTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout))
+      activeTimeoutsRef.current.clear()
+    }
+  }, [])
 
   /**
    * Сохраняет импортированные музыкальные файлы в проект (если проект открыт)
@@ -116,9 +131,13 @@ export function useMusicImport() {
       console.log(`Начинаем загрузку метаданных для ${totalFiles} музыкальных файлов...`)
 
       // Запускаем асинхронную загрузку метаданных (не блокируем UI)
-      setTimeout(() => {
-        void loadMusicMetadataWithPool(filePaths, totalFiles)
+      const timeoutId = setTimeout(() => {
+        if (isMountedRef.current) {
+          void loadMusicMetadataWithPool(filePaths, totalFiles)
+        }
       }, 100) // Небольшая задержка, чтобы UI успел отрендериться
+
+      activeTimeoutsRef.current.add(timeoutId)
 
       return basicMusicFiles
     },
@@ -165,8 +184,10 @@ export function useMusicImport() {
             isLoadingMetadata: false,
           }
 
-          updateMusicFiles([updatedMusicFile])
-          console.log("Метаданные загружены для:", updatedMusicFile.name)
+          if (isMountedRef.current) {
+            updateMusicFiles([updatedMusicFile])
+            console.log("Метаданные загружены для:", updatedMusicFile.name)
+          }
 
           console.log(`[${fileIndex + 1}/${totalFiles}] ✅ Метаданные музыки загружены: ${filePath.split("/").pop()}`)
         } else {
@@ -176,8 +197,10 @@ export function useMusicImport() {
             isLoadingMetadata: false,
           }
 
-          updateMusicFiles([fallbackMusicFile])
-          console.log("Fallback для:", fallbackMusicFile.name)
+          if (isMountedRef.current) {
+            updateMusicFiles([fallbackMusicFile])
+            console.log("Fallback для:", fallbackMusicFile.name)
+          }
 
           console.log(`[${fileIndex + 1}/${totalFiles}] ⚠️ Метаданные музыки не получены: ${filePath.split("/").pop()}`)
         }
@@ -193,14 +216,18 @@ export function useMusicImport() {
           isLoadingMetadata: false,
         }
 
-        updateMusicFiles([errorMusicFile])
-        console.log("Ошибка для:", errorMusicFile.name)
+        if (isMountedRef.current) {
+          updateMusicFiles([errorMusicFile])
+          console.log("Ошибка для:", errorMusicFile.name)
+        }
       } finally {
         activeRequests--
         completedCount++
 
-        // Обновляем прогресс
-        setProgress(Math.floor((completedCount / totalFiles) * 100))
+        // Обновляем прогресс только если компонент все еще примонтирован
+        if (isMountedRef.current) {
+          setProgress(Math.floor((completedCount / totalFiles) * 100))
+        }
       }
     }
 
@@ -216,7 +243,10 @@ export function useMusicImport() {
       // Запускаем обработку файла (не ждем завершения)
       void processFile(filePath, fileIndex).then(() => {
         // После завершения запускаем следующий файл
-        setTimeout(startNextFile, REQUEST_DELAY)
+        if (isMountedRef.current) {
+          const timeoutId = setTimeout(startNextFile, REQUEST_DELAY)
+          activeTimeoutsRef.current.add(timeoutId)
+        }
       })
     }
 
@@ -226,11 +256,16 @@ export function useMusicImport() {
     )
 
     for (let i = 0; i < Math.min(MAX_CONCURRENT_REQUESTS, filePaths.length); i++) {
-      setTimeout(() => startNextFile(), i * REQUEST_DELAY)
+      const timeoutId = setTimeout(() => {
+        if (isMountedRef.current) {
+          void startNextFile()
+        }
+      }, i * REQUEST_DELAY)
+      activeTimeoutsRef.current.add(timeoutId)
     }
 
     // Ждем завершения всех запросов
-    while (completedCount < totalFiles) {
+    while (completedCount < totalFiles && isMountedRef.current) {
       await new Promise((resolve) => setTimeout(resolve, 100))
     }
 
@@ -249,7 +284,9 @@ export function useMusicImport() {
       const selectedFiles = await selectAudioFile()
 
       if (!selectedFiles || selectedFiles.length === 0) {
-        setIsImporting(false)
+        if (isMountedRef.current) {
+          setIsImporting(false)
+        }
         return {
           success: false,
           message: "Файлы не выбраны",
@@ -265,7 +302,9 @@ export function useMusicImport() {
       // Сохраняем файлы в проект (если проект открыт)
       await saveFilesToProject(processedFiles)
 
-      setIsImporting(false)
+      if (isMountedRef.current) {
+        setIsImporting(false)
+      }
       // Прогресс будет обновляться асинхронно в loadMusicMetadataSequentially
 
       return {
@@ -275,7 +314,9 @@ export function useMusicImport() {
       }
     } catch (error: unknown) {
       console.error("Ошибка при импорте музыкальных файлов:", error)
-      setIsImporting(false)
+      if (isMountedRef.current) {
+        setIsImporting(false)
+      }
       return {
         success: false,
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -335,7 +376,9 @@ export function useMusicImport() {
       // Сохраняем файлы в проект (если проект открыт)
       await saveFilesToProject(processedFiles)
 
-      setIsImporting(false)
+      if (isMountedRef.current) {
+        setIsImporting(false)
+      }
       // Прогресс будет обновляться асинхронно в loadMusicMetadataSequentially
 
       return {
@@ -345,7 +388,9 @@ export function useMusicImport() {
       }
     } catch (error: unknown) {
       console.error("Ошибка при импорте папки с музыкой:", error)
-      setIsImporting(false)
+      if (isMountedRef.current) {
+        setIsImporting(false)
+      }
       return {
         success: false,
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

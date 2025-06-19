@@ -24,7 +24,7 @@ describe("media-toolbar-configs", () => {
     it("should have correct media view modes", () => {
       expect(mediaViewModes).toHaveLength(3)
       expect(mediaViewModes.map((mode) => mode.value)).toEqual(["grid", "thumbnails", "list"])
-      
+
       mediaViewModes.forEach((mode) => {
         expect(mode).toHaveProperty("value")
         expect(mode).toHaveProperty("icon")
@@ -36,7 +36,7 @@ describe("media-toolbar-configs", () => {
     it("should have correct music view modes", () => {
       expect(musicViewModes).toHaveLength(2)
       expect(musicViewModes.map((mode) => mode.value)).toEqual(["list", "thumbnails"])
-      
+
       musicViewModes.forEach((mode) => {
         expect(mode).toHaveProperty("value")
         expect(mode).toHaveProperty("icon")
@@ -59,7 +59,7 @@ describe("media-toolbar-configs", () => {
       expect(mediaSortOptions).toHaveLength(4)
       const expectedValues = ["name", "date", "size", "duration"]
       expect(mediaSortOptions.map((option) => option.value)).toEqual(expectedValues)
-      
+
       mediaSortOptions.forEach((option) => {
         expect(option).toHaveProperty("value")
         expect(option).toHaveProperty("label")
@@ -79,7 +79,7 @@ describe("media-toolbar-configs", () => {
       expect(mediaGroupOptions).toHaveLength(4)
       const expectedValues = ["none", "type", "date", "duration"]
       expect(mediaGroupOptions.map((option) => option.value)).toEqual(expectedValues)
-      
+
       mediaGroupOptions.forEach((option) => {
         expect(option).toHaveProperty("value")
         expect(option).toHaveProperty("label")
@@ -99,7 +99,7 @@ describe("media-toolbar-configs", () => {
       expect(mediaFilterOptions).toHaveLength(3)
       const expectedValues = ["video", "audio", "image"]
       expect(mediaFilterOptions.map((option) => option.value)).toEqual(expectedValues)
-      
+
       mediaFilterOptions.forEach((option) => {
         expect(option).toHaveProperty("value")
         expect(option).toHaveProperty("label")
@@ -181,7 +181,7 @@ describe("media-toolbar-configs", () => {
   describe("getToolbarConfigForContent", () => {
     it("should return correct config for media", () => {
       const config = getToolbarConfigForContent("media")
-      
+
       expect(config.viewModes).toBe(mediaViewModes)
       expect(config.sortOptions).toBe(mediaSortOptions)
       expect(config.groupOptions).toBe(mediaGroupOptions)
@@ -192,7 +192,7 @@ describe("media-toolbar-configs", () => {
 
     it("should return correct config for music", () => {
       const config = getToolbarConfigForContent("music")
-      
+
       expect(config.viewModes).toBe(musicViewModes)
       expect(config.sortOptions).toHaveLength(6)
       expect(config.groupOptions).toHaveLength(4)
@@ -203,7 +203,7 @@ describe("media-toolbar-configs", () => {
 
     it("should return correct config for effects", () => {
       const config = getToolbarConfigForContent("effects")
-      
+
       expect(config.viewModes).toBe(effectsViewModes)
       expect(config.sortOptions).toBe(effectsSortOptions)
       expect(config.groupOptions).toBe(effectsGroupOptions)
@@ -214,7 +214,7 @@ describe("media-toolbar-configs", () => {
 
     it("should return correct config for filters", () => {
       const config = getToolbarConfigForContent("filters")
-      
+
       expect(config.viewModes).toBe(effectsViewModes)
       expect(config.sortOptions).toHaveLength(3)
       expect(config.groupOptions).toHaveLength(4)
@@ -225,7 +225,7 @@ describe("media-toolbar-configs", () => {
 
     it("should return correct config for transitions", () => {
       const config = getToolbarConfigForContent("transitions")
-      
+
       expect(config.viewModes).toBe(effectsViewModes)
       expect(config.sortOptions).toHaveLength(4)
       expect(config.groupOptions).toHaveLength(5)
@@ -236,7 +236,7 @@ describe("media-toolbar-configs", () => {
 
     it("should return correct config for subtitles", () => {
       const config = getToolbarConfigForContent("subtitles")
-      
+
       expect(config.viewModes).toBe(effectsViewModes)
       expect(config.sortOptions).toHaveLength(3)
       expect(config.groupOptions).toHaveLength(4)
@@ -247,7 +247,7 @@ describe("media-toolbar-configs", () => {
 
     it("should return correct config for templates", () => {
       const config = getToolbarConfigForContent("templates")
-      
+
       expect(config.viewModes).toBe(effectsViewModes)
       expect(config.sortOptions).toHaveLength(3)
       expect(config.groupOptions).toHaveLength(3)
@@ -258,7 +258,7 @@ describe("media-toolbar-configs", () => {
 
     it("should return correct config for style-templates", () => {
       const config = getToolbarConfigForContent("style-templates")
-      
+
       expect(config.viewModes).toBe(effectsViewModes)
       expect(config.sortOptions).toHaveLength(4)
       expect(config.groupOptions).toHaveLength(4)
@@ -271,17 +271,14 @@ describe("media-toolbar-configs", () => {
       // @ts-expect-error - testing invalid content type
       const config = getToolbarConfigForContent("unknown")
       const mediaConfig = getToolbarConfigForContent("media")
-      
+
       expect(config).toEqual(mediaConfig)
     })
   })
 
   describe("Configuration Structure Validation", () => {
     it("should have consistent structure for all sort options", () => {
-      const allSortOptions = [
-        mediaSortOptions,
-        effectsSortOptions,
-      ]
+      const allSortOptions = [mediaSortOptions, effectsSortOptions]
 
       allSortOptions.forEach((options) => {
         options.forEach((option) => {
@@ -294,10 +291,7 @@ describe("media-toolbar-configs", () => {
     })
 
     it("should have consistent structure for all group options", () => {
-      const allGroupOptions = [
-        mediaGroupOptions,
-        effectsGroupOptions,
-      ]
+      const allGroupOptions = [mediaGroupOptions, effectsGroupOptions]
 
       allGroupOptions.forEach((options) => {
         options.forEach((option) => {

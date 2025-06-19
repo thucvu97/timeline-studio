@@ -49,7 +49,7 @@ vi.mock("@/features/media/hooks/use-frame-preview", () => ({
 vi.mock("../../services/frame-extraction-service", () => {
   const mockExtractRecognitionFramesService = vi.fn()
   const mockCacheRecognitionFramesService = vi.fn()
-  
+
   return {
     ExtractionPurpose: {
       TimelinePreview: "timeline_preview",
@@ -84,7 +84,7 @@ vi.mock("../../services/frame-extraction-service", () => {
     __mocks: {
       extractRecognitionFrames: mockExtractRecognitionFramesService,
       cacheRecognitionFrames: mockCacheRecognitionFramesService,
-    }
+    },
   }
 })
 
@@ -188,7 +188,9 @@ describe("useFrameExtraction", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    const { frameExtractionService, FrameExtractionService, __mocks } = await import("../../services/frame-extraction-service") as any
+    const { frameExtractionService, FrameExtractionService, __mocks } = (await import(
+      "../../services/frame-extraction-service"
+    )) as any
 
     mockFrameExtractionService = frameExtractionService
 

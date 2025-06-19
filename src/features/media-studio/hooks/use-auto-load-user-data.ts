@@ -148,8 +148,8 @@ export const validateSubtitleStyle = (data: any): SubtitleStyle | null => {
   const requiredFields = ["id", "name", "category", "complexity", "style"]
   if (!requiredFields.every((field) => field in data)) return null
 
-  // Проверяем style объект
-  if (!data.style || typeof data.style !== "object") return null
+  // Проверяем style объект (исключаем массивы)
+  if (!data.style || typeof data.style !== "object" || Array.isArray(data.style)) return null
 
   return data as SubtitleStyle
 }

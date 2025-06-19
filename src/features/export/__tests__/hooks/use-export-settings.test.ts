@@ -105,7 +105,7 @@ describe("useExportSettings", () => {
     })
 
     const config = result.current.getExportConfig()
-    
+
     // When resolution is "timeline", it should use 1920x1080
     expect(config.resolution).toEqual([1920, 1080])
   })
@@ -114,12 +114,12 @@ describe("useExportSettings", () => {
     const { result } = renderHook(() => useExportSettings())
 
     const formats = ["mp4", "mov", "webm"]
-    
+
     formats.forEach((format) => {
       act(() => {
         result.current.updateSettings({ format })
       })
-      
+
       const config = result.current.getExportConfig()
       expect(config.format).toBeDefined()
     })

@@ -34,12 +34,7 @@ vi.mock("@/features/browser", () => ({
 
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ resource, size, type }: any) => (
-    <button
-      data-testid="add-media-button"
-      data-resource-id={resource.id}
-      data-size={size}
-      data-type={type}
-    >
+    <button data-testid="add-media-button" data-resource-id={resource.id} data-size={size} data-type={type}>
       Add Media
     </button>
   ),
@@ -47,12 +42,7 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
   FavoriteButton: ({ file, size, type }: any) => (
-    <button
-      data-testid="favorite-button"
-      data-file-id={file.id}
-      data-size={size}
-      data-type={type}
-    >
+    <button data-testid="favorite-button" data-file-id={file.id} data-size={size} data-type={type}>
       Favorite
     </button>
   ),
@@ -96,7 +86,7 @@ describe("FilterPreview", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Mock HTMLVideoElement methods
     Object.defineProperty(HTMLVideoElement.prototype, "play", {
       writable: true,
@@ -110,7 +100,7 @@ describe("FilterPreview", () => {
       writable: true,
       value: 0,
     })
-    
+
     // Setup default mocks
     vi.mocked(useResources).mockReturnValue({
       addFilter: vi.fn(),
@@ -140,21 +130,21 @@ describe("FilterPreview", () => {
 
   it("should display filter name in Russian if available", () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     expect(screen.getByText("Яркость")).toBeInTheDocument()
   })
 
   it("should fallback to filter name if Russian not available", () => {
     const filterWithoutRussian: VideoFilter = {
       ...mockFilter,
-      labels: { 
+      labels: {
         en: "Brightness",
         // No 'ru' property here to test the fallback
       },
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={filterWithoutRussian} />)
-    
+
     // Component shows filter.name when ru is not available
     expect(screen.getByText("Brightness Filter")).toBeInTheDocument()
   })
@@ -165,43 +155,43 @@ describe("FilterPreview", () => {
       labels: { en: "" } as any, // Use empty labels instead of undefined to satisfy type
     }
     // @ts-expect-error - We want to test this edge case
-    delete filterWithoutLabels.labels
-    
+    filterWithoutLabels.labels = undefined
+
     renderWithBase(<FilterPreview {...defaultProps} filter={filterWithoutLabels} />)
-    
+
     expect(screen.getByText("Brightness Filter")).toBeInTheDocument()
   })
 
   it("should have correct dimensions", () => {
     const { container } = renderWithBase(<FilterPreview {...defaultProps} />)
-    
-    const previewContainer = container.querySelector('.group')
+
+    const previewContainer = container.querySelector(".group")
     expect(previewContainer).toHaveStyle({
-      width: '150px',
-      height: '84px',
+      width: "150px",
+      height: "84px",
     })
   })
 
   it("should call onClick when clicked", () => {
     const mockOnClick = vi.fn()
     renderWithBase(<FilterPreview {...defaultProps} onClick={mockOnClick} />)
-    
+
     const previewContainer = screen.getByTestId("filter-video").parentElement
     fireEvent.click(previewContainer!)
-    
+
     expect(mockOnClick).toHaveBeenCalledTimes(1)
   })
 
   it("should start video playback on mouse enter", async () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const video = screen.getByTestId("filter-video")
     const mockPlay = vi.fn().mockResolvedValue(undefined)
     video.play = mockPlay
-    
+
     const previewContainer = video.parentElement
     fireEvent.mouseEnter(previewContainer!)
-    
+
     await waitFor(() => {
       expect(mockPlay).toHaveBeenCalled()
     })
@@ -209,19 +199,19 @@ describe("FilterPreview", () => {
 
   it("should pause video on mouse leave", async () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const video = screen.getByTestId("filter-video")
     const mockPause = vi.fn()
     video.pause = mockPause
-    
+
     const previewContainer = video.parentElement
-    
+
     // First hover to start
     fireEvent.mouseEnter(previewContainer!)
-    
+
     // Then leave
     fireEvent.mouseLeave(previewContainer!)
-    
+
     await waitFor(() => {
       expect(mockPause).toHaveBeenCalled()
     })
@@ -229,12 +219,12 @@ describe("FilterPreview", () => {
 
   it("should apply CSS filters on hover", async () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const video = screen.getByTestId("filter-video")
     const previewContainer = video.parentElement
-    
+
     fireEvent.mouseEnter(previewContainer!)
-    
+
     await waitFor(() => {
       const filterStyle = video.style.filter
       expect(filterStyle).toContain("brightness(1.2)")
@@ -245,13 +235,13 @@ describe("FilterPreview", () => {
 
   it("should clear CSS filters on mouse leave", async () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const video = screen.getByTestId("filter-video")
     const previewContainer = video.parentElement
-    
+
     fireEvent.mouseEnter(previewContainer!)
     fireEvent.mouseLeave(previewContainer!)
-    
+
     await waitFor(() => {
       expect(video).toHaveStyle({ filter: "" })
     })
@@ -259,7 +249,7 @@ describe("FilterPreview", () => {
 
   it("should show correct complexity indicator", () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const complexityIndicator = document.querySelector(".bg-green-500")
     expect(complexityIndicator).toBeInTheDocument()
   })
@@ -269,9 +259,9 @@ describe("FilterPreview", () => {
       ...mockFilter,
       complexity: "intermediate" as const,
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={intermediateFilter} />)
-    
+
     const complexityIndicator = document.querySelector(".bg-yellow-500")
     expect(complexityIndicator).toBeInTheDocument()
   })
@@ -281,16 +271,16 @@ describe("FilterPreview", () => {
       ...mockFilter,
       complexity: "advanced" as const,
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={advancedFilter} />)
-    
+
     const complexityIndicator = document.querySelector(".bg-red-500")
     expect(complexityIndicator).toBeInTheDocument()
   })
 
   it("should show correct category abbreviation", () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     expect(screen.getByText("CC")).toBeInTheDocument() // color-correction
   })
 
@@ -299,9 +289,9 @@ describe("FilterPreview", () => {
       ...mockFilter,
       category: "creative" as FilterCategory,
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={creativeFilter} />)
-    
+
     expect(screen.getByText("CRE")).toBeInTheDocument()
   })
 
@@ -310,9 +300,9 @@ describe("FilterPreview", () => {
       ...mockFilter,
       category: "cinematic" as FilterCategory,
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={cinematicFilter} />)
-    
+
     expect(screen.getByText("CIN")).toBeInTheDocument()
   })
 
@@ -321,9 +311,9 @@ describe("FilterPreview", () => {
       ...mockFilter,
       category: "vintage" as FilterCategory,
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={vintageFilter} />)
-    
+
     expect(screen.getByText("VIN")).toBeInTheDocument()
   })
 
@@ -332,9 +322,9 @@ describe("FilterPreview", () => {
       ...mockFilter,
       category: "technical" as FilterCategory,
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={technicalFilter} />)
-    
+
     expect(screen.getByText("TEC")).toBeInTheDocument()
   })
 
@@ -343,9 +333,9 @@ describe("FilterPreview", () => {
       ...mockFilter,
       category: "artistic" as FilterCategory,
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={artisticFilter} />)
-    
+
     expect(screen.getByText("ART")).toBeInTheDocument()
   })
 
@@ -354,9 +344,9 @@ describe("FilterPreview", () => {
       ...mockFilter,
       category: "unknown" as any, // Force unknown category
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={unknownFilter} />)
-    
+
     expect(screen.getByText("FIL")).toBeInTheDocument()
   })
 
@@ -376,14 +366,14 @@ describe("FilterPreview", () => {
         highlights: -0.1,
       },
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={filterWithAllParams} />)
-    
+
     const video = screen.getByTestId("filter-video")
     const previewContainer = video.parentElement
-    
+
     fireEvent.mouseEnter(previewContainer!)
-    
+
     // Check that the filter contains expected values
     expect(video.style.filter).toContain("brightness(1.2)")
     expect(video.style.filter).toContain("contrast(1.1)")
@@ -393,16 +383,16 @@ describe("FilterPreview", () => {
 
   it("should handle apply button click", () => {
     const mockApplyFilter = vi.fn()
-    
+
     vi.mocked(usePlayer).mockReturnValue({
       applyFilter: mockApplyFilter,
     } as any)
-    
+
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const applyButton = screen.getByTestId("apply-button")
     fireEvent.click(applyButton)
-    
+
     expect(mockApplyFilter).toHaveBeenCalledWith({
       id: mockFilter.id,
       name: mockFilter.name,
@@ -412,7 +402,7 @@ describe("FilterPreview", () => {
 
   it("should show add media button", () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const addButton = screen.getByTestId("add-media-button")
     expect(addButton).toBeInTheDocument()
     expect(addButton).toHaveAttribute("data-resource-id", mockFilter.id)
@@ -421,7 +411,7 @@ describe("FilterPreview", () => {
 
   it("should show favorite button", () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const favoriteButton = screen.getByTestId("favorite-button")
     expect(favoriteButton).toBeInTheDocument()
     expect(favoriteButton).toHaveAttribute("data-file-id", mockFilter.id)
@@ -435,9 +425,9 @@ describe("FilterPreview", () => {
       removeResource: vi.fn(),
       filterResources: [],
     } as any)
-    
+
     const { container } = renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const addButtonContainer = container.querySelector('[class*="opacity-100"]')
     expect(addButtonContainer).toBeInTheDocument()
   })
@@ -449,9 +439,9 @@ describe("FilterPreview", () => {
       removeResource: vi.fn(),
       filterResources: [],
     } as any)
-    
+
     const { container } = renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const addButtonContainer = container.querySelector('[class*="opacity-0"]')
     expect(addButtonContainer).toBeInTheDocument()
   })
@@ -461,12 +451,12 @@ describe("FilterPreview", () => {
       ...mockFilter,
       params: {},
     }
-    
+
     renderWithBase(<FilterPreview {...defaultProps} filter={filterWithoutParams} />)
-    
+
     const video = screen.getByTestId("filter-video")
     const previewContainer = video.parentElement
-    
+
     // Should not throw when applying empty params
     expect(() => {
       fireEvent.mouseEnter(previewContainer!)
@@ -475,22 +465,22 @@ describe("FilterPreview", () => {
 
   it("should reset video time to 0 on hover", async () => {
     renderWithBase(<FilterPreview {...defaultProps} />)
-    
+
     const video = screen.getByTestId("filter-video")
-    
+
     // Mock currentTime setter on the video element
     let currentTimeValue = 0
-    Object.defineProperty(video, 'currentTime', {
+    Object.defineProperty(video, "currentTime", {
       get: () => currentTimeValue,
       set: (value: number) => {
         currentTimeValue = value
       },
       configurable: true,
     })
-    
+
     const previewContainer = video.parentElement
     fireEvent.mouseEnter(previewContainer!)
-    
+
     await waitFor(() => {
       expect(currentTimeValue).toBe(0)
     })

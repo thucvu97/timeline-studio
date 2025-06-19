@@ -686,7 +686,7 @@ describe("Edge Cases and Error Handling", () => {
 
     actor.send({ type: "setDuration", duration: 100 })
     actor.send({ type: "setCurrentTime", currentTime: 150 })
-    
+
     // Machine doesn't validate, it accepts the value
     expect(actor.getSnapshot().context.currentTime).toBe(150)
   })
@@ -705,7 +705,7 @@ describe("Edge Cases and Error Handling", () => {
 
     // Transition to loading
     actor.send({ type: "setVideo", video: testVideo })
-    
+
     // Check context preserved
     let context = actor.getSnapshot().context
     expect(context.volume).toBe(75)
@@ -715,7 +715,7 @@ describe("Edge Cases and Error Handling", () => {
 
     // Transition to ready
     actor.send({ type: "setVideoReady", isVideoReady: true })
-    
+
     // Check context still preserved
     context = actor.getSnapshot().context
     expect(context.volume).toBe(75)
@@ -734,20 +734,16 @@ describe("Edge Cases and Error Handling", () => {
     // Check that console.log is called for setVideo
     actor.send({ type: "setVideo", video: testVideo })
     expect(console.log).toHaveBeenCalledWith(
-      `[PlayerMachine] Установлено видео: ${testVideo.id}, path=${testVideo.path}`
+      `[PlayerMachine] Установлено видео: ${testVideo.id}, path=${testVideo.path}`,
     )
 
     // Check setPreviewMedia
     actor.send({ type: "setPreviewMedia", media: testVideo })
-    expect(console.log).toHaveBeenCalledWith(
-      `[PlayerMachine] Установлено preview media: ${testVideo.id}`
-    )
+    expect(console.log).toHaveBeenCalledWith(`[PlayerMachine] Установлено preview media: ${testVideo.id}`)
 
     // Check setVideoSource
     actor.send({ type: "setVideoSource", source: "timeline" })
-    expect(console.log).toHaveBeenCalledWith(
-      `[PlayerMachine] Установлен источник видео: timeline`
-    )
+    expect(console.log).toHaveBeenCalledWith("[PlayerMachine] Установлен источник видео: timeline")
 
     // Test that applyEffect updates context correctly
     const effect = { id: "effect-1", name: "TestEffect", params: {} }
@@ -761,9 +757,7 @@ describe("Edge Cases and Error Handling", () => {
     // Move to ready state to test logging there
     actor.send({ type: "setVideoReady", isVideoReady: true })
     expect(actor.getSnapshot().value).toBe("ready")
-    expect(console.log).toHaveBeenCalledWith(
-      `[PlayerMachine] Видео ${testVideo.id} готово к воспроизведению`
-    )
+    expect(console.log).toHaveBeenCalledWith(`[PlayerMachine] Видео ${testVideo.id} готово к воспроизведению`)
   })
 })
 

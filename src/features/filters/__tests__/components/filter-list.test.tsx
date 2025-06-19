@@ -130,7 +130,7 @@ describe("FilterList", () => {
   // Setup default mocks
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     vi.mocked(useFilters).mockReturnValue({
       filters: [],
       loading: false,
@@ -170,7 +170,7 @@ describe("FilterList", () => {
     })
 
     renderWithBase(<FilterList />)
-    
+
     expect(screen.getByText("common.loading")).toBeInTheDocument()
   })
 
@@ -182,7 +182,7 @@ describe("FilterList", () => {
     })
 
     renderWithBase(<FilterList />)
-    
+
     expect(screen.getByText("Failed to load filters")).toBeInTheDocument()
   })
 
@@ -194,7 +194,7 @@ describe("FilterList", () => {
     })
 
     renderWithBase(<FilterList />)
-    
+
     expect(screen.getByTestId("no-files")).toBeInTheDocument()
     expect(screen.getByTestId("no-files")).toHaveAttribute("data-type", "filters")
   })
@@ -207,7 +207,7 @@ describe("FilterList", () => {
     })
 
     renderWithBase(<FilterList />)
-    
+
     expect(screen.getByTestId("content-group")).toBeInTheDocument()
     expect(screen.getByTestId("filter-preview-brightness-1")).toBeInTheDocument()
     expect(screen.getByTestId("filter-preview-contrast-1")).toBeInTheDocument()
@@ -234,7 +234,7 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     expect(screen.getByTestId("filter-preview-brightness-1")).toBeInTheDocument()
     expect(screen.queryByTestId("filter-preview-contrast-1")).not.toBeInTheDocument()
     expect(screen.queryByTestId("filter-preview-vintage-1")).not.toBeInTheDocument()
@@ -260,7 +260,7 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     expect(screen.getByTestId("filter-preview-brightness-1")).toBeInTheDocument()
     expect(screen.queryByTestId("filter-preview-contrast-1")).not.toBeInTheDocument()
     expect(screen.queryByTestId("filter-preview-vintage-1")).not.toBeInTheDocument()
@@ -286,7 +286,7 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     expect(screen.queryByTestId("filter-preview-brightness-1")).not.toBeInTheDocument()
     expect(screen.queryByTestId("filter-preview-contrast-1")).not.toBeInTheDocument()
     expect(screen.getByTestId("filter-preview-vintage-1")).toBeInTheDocument()
@@ -316,7 +316,7 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     expect(screen.getByTestId("filter-preview-brightness-1")).toBeInTheDocument()
     expect(screen.queryByTestId("filter-preview-contrast-1")).not.toBeInTheDocument()
     expect(screen.queryByTestId("filter-preview-vintage-1")).not.toBeInTheDocument()
@@ -342,10 +342,10 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     const items = screen.getAllByTestId(/^content-item-/)
     expect(items[0]).toHaveTextContent("Vintage Filter")
-    expect(items[1]).toHaveTextContent("Contrast Filter") 
+    expect(items[1]).toHaveTextContent("Contrast Filter")
     expect(items[2]).toHaveTextContent("Brightness Filter")
   })
 
@@ -369,11 +369,11 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     const items = screen.getAllByTestId(/^content-item-/)
     expect(items[0]).toHaveTextContent("Brightness Filter") // basic
-    expect(items[1]).toHaveTextContent("Contrast Filter")   // intermediate
-    expect(items[2]).toHaveTextContent("Vintage Filter")    // advanced
+    expect(items[1]).toHaveTextContent("Contrast Filter") // intermediate
+    expect(items[2]).toHaveTextContent("Vintage Filter") // advanced
   })
 
   it("should group filters by category", () => {
@@ -396,7 +396,7 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     const groups = screen.getAllByTestId("content-group")
     expect(groups.length).toBeGreaterThan(1)
   })
@@ -421,7 +421,7 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     const groups = screen.getAllByTestId("content-group")
     expect(groups.length).toBeGreaterThan(1)
   })
@@ -434,7 +434,7 @@ describe("FilterList", () => {
     })
 
     renderWithBase(<FilterList />)
-    
+
     const preview = screen.getByTestId("filter-preview-brightness-1")
     expect(preview).toHaveAttribute("data-width", "150")
     expect(preview).toHaveAttribute("data-height", "84") // 150 / (16/9) = 84.375 → 84
@@ -456,7 +456,7 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     const preview = screen.getByTestId("filter-preview-brightness-1")
     expect(preview).toHaveAttribute("data-width", "84") // 150 * (9/16) = 84.375 → 84
     expect(preview).toHaveAttribute("data-height", "150")
@@ -482,7 +482,7 @@ describe("FilterList", () => {
     } as any)
 
     renderWithBase(<FilterList />)
-    
+
     expect(screen.getByText("browser.media.noFavorites")).toBeInTheDocument()
   })
 
@@ -496,10 +496,10 @@ describe("FilterList", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
 
     renderWithBase(<FilterList />)
-    
+
     const preview = screen.getByTestId("filter-preview-brightness-1")
     preview.click()
-    
+
     expect(consoleSpy).toHaveBeenCalledWith("Applying filter:", "Brightness Filter", mockFilters[0].params)
     consoleSpy.mockRestore()
   })
