@@ -550,12 +550,36 @@ impl GpuHelper {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use tempfile::TempDir;
 
   #[tokio::test]
   async fn test_gpu_encoder_codec_names() {
     assert_eq!(GpuEncoder::Nvenc.h264_codec_name(), "h264_nvenc");
     assert_eq!(GpuEncoder::QuickSync.h264_codec_name(), "h264_qsv");
     assert_eq!(GpuEncoder::None.h264_codec_name(), "libx264");
+    assert_eq!(GpuEncoder::Vaapi.h264_codec_name(), "h264_vaapi");
+    assert_eq!(GpuEncoder::VideoToolbox.h264_codec_name(), "h264_videotoolbox");
+    assert_eq!(GpuEncoder::Amf.h264_codec_name(), "h264_amf");
+  }
+
+  #[tokio::test]
+  async fn test_gpu_encoder_hevc_codec_names() {
+    assert_eq!(GpuEncoder::Nvenc.hevc_codec_name(), "hevc_nvenc");
+    assert_eq!(GpuEncoder::QuickSync.hevc_codec_name(), "hevc_qsv");
+    assert_eq!(GpuEncoder::None.hevc_codec_name(), "libx265");
+    assert_eq!(GpuEncoder::Vaapi.hevc_codec_name(), "hevc_vaapi");
+    assert_eq!(GpuEncoder::VideoToolbox.hevc_codec_name(), "hevc_videotoolbox");
+    assert_eq!(GpuEncoder::Amf.hevc_codec_name(), "hevc_amf");
+  }
+
+  #[tokio::test]
+  async fn test_is_hardware() {
+    assert!(!GpuEncoder::None.is_hardware());
+    assert!(GpuEncoder::Nvenc.is_hardware());
+    assert!(GpuEncoder::QuickSync.is_hardware());
+    assert!(GpuEncoder::Vaapi.is_hardware());
+    assert!(GpuEncoder::VideoToolbox.is_hardware());
+    assert!(GpuEncoder::Amf.is_hardware());
   }
 
   #[tokio::test]
@@ -564,12 +588,316 @@ mod tests {
     assert_eq!(GpuHelper::quality_to_crf(100), 0); // Лучшее качество
     assert_eq!(GpuHelper::quality_to_crf(0), 51); // Худшее качество
     assert_eq!(GpuHelper::quality_to_crf(50), 26); // Среднее качество
+    assert_eq!(GpuHelper::quality_to_crf(75), 13); // Высокое качество
+    assert_eq!(GpuHelper::quality_to_crf(25), 38); // Низкое качество
+  }
+
+  #[tokio::test]
+  async fn test_quality_to_nvenc_cq() {
+    assert_eq!(GpuHelper::quality_to_nvenc_cq(100), 0);
+    assert_eq!(GpuHelper::quality_to_nvenc_cq(0), 51);
+    assert_eq!(GpuHelper::quality_to_nvenc_cq(50), 26);
+  }
+
+  #[tokio::test]
+  async fn test_quality_to_qsv_quality() {
+    assert_eq!(GpuHelper::quality_to_qsv_quality(100), 1);
+    assert_eq!(GpuHelper::quality_to_qsv_quality(0), 51);
+    assert_eq!(GpuHelper::quality_to_qsv_quality(50), 26);
+  }
+
+  #[tokio::test]
+  async fn test_quality_to_vaapi_quality() {
+    assert_eq!(GpuHelper::quality_to_vaapi_quality(100), 1);
+    assert_eq!(GpuHelper::quality_to_vaapi_quality(0), 8);
+    assert_eq!(GpuHelper::quality_to_vaapi_quality(50), 4);
+  }
+
+  #[tokio::test]
+  async fn test_quality_to_videotoolbox_quality() {
+    assert_eq!(GpuHelper::quality_to_videotoolbox_quality(100), 100);
+    assert_eq!(GpuHelper::quality_to_videotoolbox_quality(0), 1);
+    assert_eq!(GpuHelper::quality_to_videotoolbox_quality(50), 50);
+  }
+
+  #[tokio::test]
+  async fn test_quality_to_amf_qp() {
+    assert_eq!(GpuHelper::quality_to_amf_qp(100), 0);
+    assert_eq!(GpuHelper::quality_to_amf_qp(0), 51);
+    assert_eq!(GpuHelper::quality_to_amf_qp(50), 26);
   }
 
   #[tokio::test]
   async fn test_gpu_params_generation() {
+    // Test NVENC params
     let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, 85);
     assert!(params.contains(&"-preset".to_string()));
     assert!(params.contains(&"p4".to_string()));
+    assert!(params.contains(&"-tune".to_string()));
+    assert!(params.contains(&"hq".to_string()));
+    assert!(params.contains(&"-rc".to_string()));
+    assert!(params.contains(&"vbr".to_string()));
+
+    // Test QuickSync params
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::QuickSync, 70);
+    assert!(params.contains(&"-preset".to_string()));
+    assert!(params.contains(&"fast".to_string()));
+    assert!(params.contains(&"-global_quality".to_string()));
+    assert!(params.contains(&"-look_ahead".to_string()));
+
+    // Test VAAPI params
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Vaapi, 80);
+    assert!(params.contains(&"-vaapi_device".to_string()));
+    assert!(params.contains(&"/dev/dri/renderD128".to_string()));
+    assert!(params.contains(&"-vf".to_string()));
+    assert!(params.contains(&"format=nv12,hwupload".to_string()));
+
+    // Test VideoToolbox params
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::VideoToolbox, 90);
+    assert!(params.contains(&"-profile:v".to_string()));
+    assert!(params.contains(&"high".to_string()));
+    assert!(params.contains(&"-level".to_string()));
+    assert!(params.contains(&"4.1".to_string()));
+
+    // Test AMF params
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Amf, 75);
+    assert!(params.contains(&"-usage".to_string()));
+    assert!(params.contains(&"transcoding".to_string()));
+    assert!(params.contains(&"-quality".to_string()));
+    assert!(params.contains(&"balanced".to_string()));
+
+    // Test CPU params
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::None, 50);
+    assert!(params.contains(&"-preset".to_string()));
+    assert!(params.contains(&"fast".to_string()));
+    assert!(params.contains(&"-crf".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_cpu_params_quality_levels() {
+    // Test different quality presets
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::None, 10);
+    assert!(params.contains(&"ultrafast".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::None, 40);
+    assert!(params.contains(&"superfast".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::None, 60);
+    assert!(params.contains(&"fast".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::None, 80);
+    assert!(params.contains(&"medium".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::None, 90);
+    assert!(params.contains(&"slow".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::None, 100);
+    assert!(params.contains(&"slower".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_nvenc_params_quality_levels() {
+    // Test different NVENC presets
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, 20);
+    assert!(params.contains(&"p1".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, 50);
+    assert!(params.contains(&"p2".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, 70);
+    assert!(params.contains(&"p3".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, 85);
+    assert!(params.contains(&"p4".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, 88);
+    assert!(params.contains(&"p5".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, 93);
+    assert!(params.contains(&"p6".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, 100);
+    assert!(params.contains(&"p7".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_quicksync_params_quality_levels() {
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::QuickSync, 25);
+    assert!(params.contains(&"veryfast".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::QuickSync, 60);
+    assert!(params.contains(&"fast".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::QuickSync, 80);
+    assert!(params.contains(&"medium".to_string()));
+
+    let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::QuickSync, 95);
+    assert!(params.contains(&"slow".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_gpu_detector_new() {
+    let detector = GpuDetector::new("/usr/bin/ffmpeg".to_string());
+    assert_eq!(detector.ffmpeg_path, "/usr/bin/ffmpeg");
+  }
+
+  #[tokio::test]
+  async fn test_gpu_info_serialization() {
+    let gpu_info = GpuInfo {
+      name: "NVIDIA GeForce RTX 3080".to_string(),
+      driver_version: Some("525.125.06".to_string()),
+      memory_total: Some(10737418240),
+      memory_used: Some(2147483648),
+      utilization: Some(45.5),
+      encoder_type: GpuEncoder::Nvenc,
+      supported_codecs: vec!["h264_nvenc".to_string(), "hevc_nvenc".to_string()],
+    };
+
+    let json = serde_json::to_string(&gpu_info).unwrap();
+    assert!(json.contains("NVIDIA GeForce RTX 3080"));
+    assert!(json.contains("525.125.06"));
+    assert!(json.contains("Nvenc"));
+
+    let deserialized: GpuInfo = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.name, gpu_info.name);
+    assert_eq!(deserialized.encoder_type, gpu_info.encoder_type);
+  }
+
+  #[tokio::test]
+  async fn test_gpu_capabilities_serialization() {
+    let capabilities = GpuCapabilities {
+      available_encoders: vec![GpuEncoder::Nvenc, GpuEncoder::QuickSync],
+      recommended_encoder: Some(GpuEncoder::Nvenc),
+      current_gpu: None,
+      hardware_acceleration_supported: true,
+    };
+
+    let json = serde_json::to_string(&capabilities).unwrap();
+    assert!(json.contains("Nvenc"));
+    assert!(json.contains("QuickSync"));
+    assert!(json.contains("hardware_acceleration_supported"));
+
+    let deserialized: GpuCapabilities = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.available_encoders.len(), 2);
+    assert_eq!(deserialized.recommended_encoder, Some(GpuEncoder::Nvenc));
+    assert!(deserialized.hardware_acceleration_supported);
+  }
+
+  #[tokio::test]
+  async fn test_gpu_encoder_equality() {
+    assert_eq!(GpuEncoder::Nvenc, GpuEncoder::Nvenc);
+    assert_ne!(GpuEncoder::Nvenc, GpuEncoder::QuickSync);
+    assert_ne!(GpuEncoder::None, GpuEncoder::Nvenc);
+  }
+
+  #[tokio::test]
+  async fn test_gpu_encoder_clone() {
+    let encoder = GpuEncoder::Nvenc;
+    let cloned = encoder.clone();
+    assert_eq!(encoder, cloned);
+  }
+
+  // Mock tests for platform-specific methods
+  #[tokio::test]
+  #[cfg(target_os = "windows")]
+  async fn test_get_nvidia_info_windows_error() {
+    let detector = GpuDetector::new("ffmpeg".to_string());
+    // This should fail as nvidia-smi is not available in test environment
+    let result = detector.get_nvidia_info_windows().await;
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  #[cfg(target_os = "linux")]
+  async fn test_get_nvidia_info_linux_error() {
+    let detector = GpuDetector::new("ffmpeg".to_string());
+    // This should fail as nvidia-smi is not available in test environment
+    let result = detector.get_nvidia_info_linux().await;
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  #[cfg(target_os = "linux")]
+  async fn test_get_gpu_info_linux() {
+    let detector = GpuDetector::new("ffmpeg".to_string());
+    let result = detector.get_gpu_info_linux().await;
+    // Should return Ok with default Linux GPU info
+    assert!(result.is_ok());
+    let info = result.unwrap();
+    assert_eq!(info.name, "Linux GPU");
+    assert_eq!(info.encoder_type, GpuEncoder::Vaapi);
+  }
+
+  #[tokio::test]
+  #[cfg(target_os = "windows")]
+  async fn test_get_intel_info_windows() {
+    let detector = GpuDetector::new("ffmpeg".to_string());
+    let result = detector.get_intel_info_windows().await;
+    assert!(result.is_ok());
+    let info = result.unwrap();
+    assert_eq!(info.name, "Intel Graphics");
+    assert_eq!(info.encoder_type, GpuEncoder::QuickSync);
+  }
+
+  #[tokio::test]
+  #[cfg(target_os = "windows")]
+  async fn test_get_amd_info_windows() {
+    let detector = GpuDetector::new("ffmpeg".to_string());
+    let result = detector.get_amd_info_windows().await;
+    assert!(result.is_ok());
+    let info = result.unwrap();
+    assert_eq!(info.name, "AMD Graphics");
+    assert_eq!(info.encoder_type, GpuEncoder::Amf);
+  }
+
+  #[tokio::test]
+  #[cfg(target_os = "macos")]
+  async fn test_get_gpu_info_macos() {
+    let detector = GpuDetector::new("ffmpeg".to_string());
+    let result = detector.get_gpu_info_macos().await;
+    // This might fail in test environment, but check the error path
+    if let Ok(info) = result {
+      assert_eq!(info.name, "macOS GPU");
+      assert_eq!(info.encoder_type, GpuEncoder::VideoToolbox);
+    }
+  }
+
+  #[tokio::test]
+  async fn test_get_current_gpu_info_fallback() {
+    let detector = GpuDetector::new("ffmpeg".to_string());
+    let result = detector.get_current_gpu_info().await;
+    // Should always succeed with fallback
+    assert!(result.is_ok());
+    let info = result.unwrap();
+    // If no GPU detected, should return fallback info
+    if info.name == "Unknown GPU" {
+      assert_eq!(info.encoder_type, GpuEncoder::None);
+      assert!(info.supported_codecs.contains(&"libx264".to_string()));
+    }
+  }
+
+  #[tokio::test]
+  async fn test_check_encoder_available_mock() {
+    // Create a temporary ffmpeg mock script
+    let temp_dir = TempDir::new().unwrap();
+    let mock_ffmpeg = temp_dir.path().join("ffmpeg");
+    
+    #[cfg(unix)]
+    {
+      use std::os::unix::fs::PermissionsExt;
+      std::fs::write(&mock_ffmpeg, "#!/bin/sh\necho ' h264_nvenc'\nexit 0").unwrap();
+      std::fs::set_permissions(&mock_ffmpeg, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+    
+    #[cfg(windows)]
+    {
+      let mock_ffmpeg = temp_dir.path().join("ffmpeg.bat");
+      std::fs::write(&mock_ffmpeg, "@echo off\necho  h264_nvenc\nexit /b 0").unwrap();
+    }
+    
+    let detector = GpuDetector::new(mock_ffmpeg.to_string_lossy().to_string());
+    let result = detector.check_encoder_available("h264_nvenc").await;
+    assert!(result.is_ok());
+    assert!(result.unwrap());
   }
 }
