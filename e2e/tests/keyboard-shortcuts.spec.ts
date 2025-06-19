@@ -37,8 +37,9 @@ test.describe('Keyboard Shortcuts', () => {
     
     // Проверяем что есть элементы управления временем
     const hasTimeControls = 
-      await page.locator('[class*="time"], [class*="timer"], text=/\\d{1,2}:\\d{2}/').count() > 0 ||
-      await page.locator('[class*="timeline"]').count() > 0;
+      await page.locator('[class*="time"], [class*="timer"]').count() > 0 ||
+      await page.locator('[class*="timeline"]').count() > 0 ||
+      await page.locator('text=/\\d{1,2}:\\d{2}/').count() > 0;
     
     expect(hasTimeControls).toBeTruthy();
   });

@@ -1,85 +1,85 @@
-# CI/CD Setup for Timeline Studio
+# Настройка CI/CD для Timeline Studio
 
-This document provides instructions for setting up Continuous Integration and Deployment for Timeline Studio.
+Данный документ предоставляет инструкции по настройке непрерывной интеграции и развертывания для Timeline Studio.
 
-## Windows CI/CD Setup
+## Настройка CI/CD для Windows
 
-### GitHub Actions Configuration
+### Конфигурация GitHub Actions
 
-For Windows builds in GitHub Actions, add the following setup steps before building:
+Для сборки под Windows в GitHub Actions добавьте следующие шаги настройки перед сборкой:
 
 ```yaml
-- name: Install FFmpeg and dependencies (Windows)
+- name: Установка FFmpeg и зависимостей (Windows)
   if: runner.os == 'Windows'
   run: |
-    # Install vcpkg
+    # Установка vcpkg
     git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
     C:\vcpkg\bootstrap-vcpkg.bat
     C:\vcpkg\vcpkg.exe integrate install
     
-    # Install FFmpeg
+    # Установка FFmpeg
     C:\vcpkg\vcpkg.exe install ffmpeg:x64-windows
     
-    # Install pkg-config
+    # Установка pkg-config
     choco install pkgconfiglite
     
-    # Set environment variables
+    # Установка переменных окружения
     echo "VCPKG_ROOT=C:\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-- name: Build Tauri Application
+- name: Сборка Tauri приложения
   env:
     VCPKG_ROOT: C:\vcpkg
   run: |
     bun run tauri build
 ```
 
-### Alternative: Pre-built Dependencies
+### Альтернатива: Предсобранные зависимости
 
-If vcpkg installation is too slow, you can use pre-built FFmpeg:
+Если установка vcpkg слишком медленная, можно использовать предсобранный FFmpeg:
 
 ```yaml
-- name: Setup FFmpeg (Windows - Fast)
+- name: Настройка FFmpeg (Windows - быстро)
   if: runner.os == 'Windows'
   run: |
-    # Download pre-built FFmpeg
+    # Загрузка предсобранного FFmpeg
     Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip" -OutFile "ffmpeg.zip"
     Expand-Archive -Path "ffmpeg.zip" -DestinationPath "C:\"
     Rename-Item "C:\ffmpeg-master-latest-win64-gpl-shared" "C:\ffmpeg"
     
-    # Download pkg-config
+    # Загрузка pkg-config
     Invoke-WebRequest -Uri "https://download.gnome.org/binaries/win64/dependencies/pkg-config_0.26-1_win64.zip" -OutFile "pkg-config.zip"
     Expand-Archive -Path "pkg-config.zip" -DestinationPath "C:\pkg-config"
     
-    # Set environment variables
+    # Установка переменных окружения
     echo "FFMPEG_DIR=C:\ffmpeg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
     echo "PKG_CONFIG_PATH=C:\ffmpeg\lib\pkgconfig" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
     echo "C:\ffmpeg\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     echo "C:\pkg-config\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 ```
 
-## macOS CI/CD Setup
+## Настройка CI/CD для macOS
 
 ```yaml
-- name: Install FFmpeg (macOS)
+- name: Установка FFmpeg (macOS)
   if: runner.os == 'macOS'
   run: |
     brew install ffmpeg pkg-config
 ```
 
-## Linux CI/CD Setup
+## Настройка CI/CD для Linux
 
 ```yaml
-- name: Install FFmpeg (Linux)
+- name: Установка FFmpeg (Linux)
   if: runner.os == 'Linux'
   run: |
     sudo apt-get update
     sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
 ```
 
-## Complete GitHub Actions Workflow Example
+## Полный пример GitHub Actions Workflow
 
 ```yaml
-name: Build and Test
+name: Сборка и тестирование
 
 on:
   push:
@@ -97,32 +97,32 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    - name: Настройка Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
 
-    - name: Setup Bun
+    - name: Настройка Bun
       uses: oven-sh/setup-bun@v1
 
-    - name: Setup Rust
+    - name: Настройка Rust
       uses: dtolnay/rust-toolchain@stable
 
-    - name: Install FFmpeg (Linux)
+    - name: Установка FFmpeg (Linux)
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
 
-    - name: Install FFmpeg (macOS)
+    - name: Установка FFmpeg (macOS)
       if: runner.os == 'macOS'
       run: |
         brew install ffmpeg pkg-config
 
-    - name: Install FFmpeg (Windows)
+    - name: Установка FFmpeg (Windows)
       if: runner.os == 'Windows'
       run: |
-        # Use vcpkg for reliable builds
+        # Использование vcpkg для надежной сборки
         git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
         C:\vcpkg\bootstrap-vcpkg.bat
         C:\vcpkg\vcpkg.exe integrate install
@@ -130,27 +130,27 @@ jobs:
         choco install pkgconfiglite
         echo "VCPKG_ROOT=C:\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-    - name: Install dependencies
+    - name: Установка зависимостей
       run: bun install
 
-    - name: Run tests
+    - name: Запуск тестов
       run: bun run test
 
-    - name: Build application
+    - name: Сборка приложения
       env:
         VCPKG_ROOT: ${{ runner.os == 'Windows' && 'C:\vcpkg' || '' }}
       run: bun run tauri build
 ```
 
-## Docker Alternative
+## Альтернатива с Docker
 
-For more consistent builds, consider using Docker:
+Для более консистентных сборок рассмотрите использование Docker:
 
 ```dockerfile
-# Windows Server Core with FFmpeg
+# Windows Server Core с FFmpeg
 FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
-# Install dependencies
+# Установка зависимостей
 RUN powershell -Command \
     Set-ExecutionPolicy Bypass -Scope Process -Force; \
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
@@ -158,34 +158,34 @@ RUN powershell -Command \
 
 RUN choco install -y nodejs rust ffmpeg pkgconfiglite
 
-# Set working directory
+# Установка рабочей директории
 WORKDIR C:\timeline-studio
 
-# Copy source
+# Копирование исходного кода
 COPY . .
 
-# Build
+# Сборка
 RUN bun install && bun run tauri build
 ```
 
-## Troubleshooting CI Issues
+## Устранение проблем CI
 
 ### 1. "ffmpeg-sys-next build failed"
-- Ensure vcpkg is properly integrated
-- Check that environment variables are set correctly
-- Verify pkg-config is in PATH
+- Убедитесь, что vcpkg правильно интегрирован
+- Проверьте, что переменные окружения установлены корректно
+- Убедитесь, что pkg-config в PATH
 
 ### 2. "Could not find Vcpkg tree"
-- Set VCPKG_ROOT environment variable
-- Run vcpkg integrate install
-- Restart the build
+- Установите переменную окружения VCPKG_ROOT
+- Выполните vcpkg integrate install
+- Перезапустите сборку
 
 ### 3. "pkg-config command could not be found"
-- Install pkgconfiglite on Windows
-- Add pkg-config to PATH
-- Set PKG_CONFIG_PATH for FFmpeg libraries
+- Установите pkgconfiglite на Windows
+- Добавьте pkg-config в PATH
+- Установите PKG_CONFIG_PATH для библиотек FFmpeg
 
-### 4. Build timeout
-- Consider using pre-built FFmpeg instead of vcpkg
-- Cache vcpkg installation between builds
-- Use matrix strategy to parallelize builds
+### 4. Таймаут сборки
+- Рассмотрите использование предсобранного FFmpeg вместо vcpkg
+- Кешируйте установку vcpkg между сборками
+- Используйте matrix стратегию для параллельных сборок
