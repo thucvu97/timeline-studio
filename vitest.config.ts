@@ -1,10 +1,19 @@
 import path from "node:path"
 
 import react from "@vitejs/plugin-react"
+import { codecovVitePlugin } from "@codecov/vite-plugin"
 import { defineConfig } from "vitest/config"
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Put the Codecov vite plugin after all other plugins
+    codecovVitePlugin({
+      enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
+      bundleName: "timeline-studio",
+      uploadToken: process.env.CODECOV_TOKEN,
+    }),
+  ],
   test: {
     environment: "jsdom",
     globals: true,

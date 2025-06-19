@@ -34,6 +34,7 @@
     "test:app": "vitest run src/features",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:coverage:codecov": "CODECOV_TOKEN=$CODECOV_TOKEN vitest run --coverage",
     "test:coverage:report": "npm run test:coverage && npm run test:coverage:upload",
     "test:coverage:upload": "./scripts/upload-coverage.sh",
     "test:rust": "cd src-tauri && cargo test",
@@ -111,6 +112,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.0",
+    "@codecov/vite-plugin": "^1.9.1",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.29.0",
     "@next/eslint-plugin-next": "^15.3.4",
