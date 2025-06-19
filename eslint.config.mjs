@@ -40,6 +40,9 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/array-type": "off",
       // no-case-declarations
       "no-case-declarations": "off",
+      // Правила для форматирования switch/case
+      "indent": ["error", 2, { "SwitchCase": 1 }],
+      "@typescript-eslint/indent": "off", // Отключаем TypeScript версию, чтобы использовать обычную
       // Настройка правил для сортировки импортов
       "import/order": [
         "warn",
@@ -96,6 +99,9 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/prefer-nullish-coalescing": "off",
       "@typescript-eslint/no-unnecessary-condition": "off",
       "@typescript-eslint/no-misused-promises": "off",
+      // Стиль для switch statements
+      "default-case": "warn",
+      "default-case-last": "error",
       "max-len": [
         "warn",
         {
