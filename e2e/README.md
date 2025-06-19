@@ -1,158 +1,190 @@
-# E2E Tests for Timeline Studio
+# E2E Tests для Timeline Studio
 
-This directory contains end-to-end tests for Timeline Studio using Playwright.
+## Обзор
 
-## Structure
+End-to-end (E2E) тесты для Timeline Studio используют Playwright для автоматизации тестирования пользовательского интерфейса.
+
+## Структура тестов
 
 ```
 e2e/
-├── tests/                    # Test files
-│   ├── media-import.spec.ts      # Basic media import tests
-│   ├── media-import-advanced.spec.ts # Advanced import scenarios
-│   ├── media-import-basic.spec.ts # Basic tests with real files
-│   ├── media-import-real-files.spec.ts # Tests with real media files
-│   ├── media-import-integration.spec.ts # Integration tests with Tauri
-│   ├── selectors.ts             # Centralized selectors
-│   ├── test-data.ts             # Real test file references
-│   └── utils/                   # Test utilities
-│       └── media-helpers.ts     # Media-specific helpers
-├── fixtures/                 # Test media files (deprecated)
-└── home.spec.ts             # Basic app loading test
+├── fixtures/              # Фикстуры и вспомогательные функции
+│   ├── test-base.ts      # Базовая конфигурация тестов
+│   └── page-objects/     # Page Object модели
+│       ├── browser-page.ts
+│       └── timeline-page.ts
+├── tests/                # Тестовые файлы
+│   ├── app-launch.spec.ts       # Тесты запуска приложения
+│   ├── browser-functionality.spec.ts # Тесты браузера медиа
+│   ├── timeline-basic.spec.ts   # Базовые тесты таймлайна
+│   ├── video-player.spec.ts     # Тесты видео плеера
+│   └── keyboard-shortcuts.spec.ts # Тесты горячих клавиш
+├── global-setup.ts       # Глобальная настройка перед тестами
+└── global-teardown.ts    # Глобальная очистка после тестов
 ```
 
-## Test Data
+## Запуск тестов
 
-Real test files are located in `public/test-data/`:
-- **Videos**: C0666.MP4, C0783.MP4, Kate.mp4, water play3.mp4, проводка после лобби.mp4
-- **Images**: DSC07845.png
-- **Audio**: DJI_02_20250402_104352.WAV
-
-## Running Tests
-
-### Prerequisites
-
-1. Install Playwright:
-```bash
-bun run playwright:install
-```
-
-2. Generate test fixtures:
-```bash
-cd e2e/fixtures
-./generate-test-files.sh
-```
-
-### Running Tests
+### Основные команды
 
 ```bash
-# Run all E2E tests
+# Запустить все e2e тесты
 bun run test:e2e
 
-# Run tests with UI mode
+# Запустить тесты с UI (для отладки)
 bun run test:e2e:ui
 
-# Run basic import tests
-bun run test:e2e:basic
+# Запустить конкретный тестовый файл
+bun run playwright test e2e/tests/app-launch.spec.ts
 
-# Run tests with real media files
-bun run test:e2e:real
+# Запустить тесты в конкретном браузере
+bun run playwright test --project=chromium
+```
 
-# Run integration tests (requires Tauri app running)
-bun run test:e2e:integration
+### Режимы запуска
 
-# Run specific test file
-bun run test:e2e e2e/tests/media-import.spec.ts
+1. **Headless режим** (по умолчанию) - тесты запускаются без открытия браузера
+2. **Headed режим** - браузер открывается для визуальной отладки:
+   ```bash
+   bun run playwright test --headed
+   ```
+3. **Debug режим** - пошаговая отладка:
+   ```bash
+   bun run playwright test --debug
+   ```
 
-# Run tests in debug mode
+## Написание тестов
+
+### Базовая структура теста
+
+```typescript
+import { test, expect } from '../fixtures/test-base';
+
+test.describe('Feature Name', () => {
+  test('should do something', async ({ page }) => {
+    // Arrange - подготовка
+    await page.goto('/');
+    
+    // Act - действие
+    await page.click('button');
+    
+    // Assert - проверка
+    await expect(page.locator('.result')).toBeVisible();
+  });
+});
+```
+
+### Использование Page Objects
+
+```typescript
+import { BrowserPage } from '../fixtures/page-objects/browser-page';
+
+test('should import media', async ({ page }) => {
+  const browserPage = new BrowserPage(page);
+  
+  await browserPage.selectTab('Media');
+  await browserPage.importFiles(['./test-file.mp4']);
+  
+  const mediaItems = await browserPage.getMediaItems();
+  await expect(mediaItems).toHaveCount(1);
+});
+```
+
+### Лучшие практики
+
+1. **Используйте data-testid атрибуты** для надежных селекторов:
+   ```html
+   <button data-testid="play-button">Play</button>
+   ```
+
+2. **Избегайте хрупких селекторов** (классы, текст может измениться):
+   ```typescript
+   // ❌ Плохо
+   await page.click('.btn-primary');
+   
+   // ✅ Хорошо
+   await page.click('[data-testid="submit-button"]');
+   ```
+
+3. **Используйте явные ожидания**:
+   ```typescript
+   // ❌ Плохо
+   await page.waitForTimeout(1000);
+   
+   // ✅ Хорошо
+   await page.waitForSelector('[data-testid="loaded"]');
+   ```
+
+4. **Группируйте связанные тесты**:
+   ```typescript
+   test.describe('Media Import', () => {
+     test.beforeEach(async ({ page }) => {
+       // Общая подготовка
+     });
+     
+     test('should import single file', async ({ page }) => {
+       // ...
+     });
+     
+     test('should import multiple files', async ({ page }) => {
+       // ...
+     });
+   });
+   ```
+
+## Отладка тестов
+
+### Просмотр трейсов
+
+При падении теста автоматически создается трейс:
+
+```bash
+# Открыть трейс
+bun run playwright show-trace test-results/[test-name]/trace.zip
+```
+
+### Скриншоты и видео
+
+- Скриншоты сохраняются при падении теста в `test-results/`
+- Видео сохраняется при `video: 'retain-on-failure'` в конфигурации
+
+### Использование Inspector
+
+```bash
+# Запустить с инспектором
 PWDEBUG=1 bun run test:e2e
-
-# Run tests with specific browser
-bun run test:e2e --project=chromium
 ```
 
-## Writing Tests
+## CI/CD интеграция
 
-### Using Selectors
+Тесты автоматически запускаются в GitHub Actions. Конфигурация:
 
-Import centralized selectors for consistency:
-
-```typescript
-import { selectors } from './selectors'
-
-// Use selectors
-await page.click(selectors.browser.toolbar.addMediaButton)
-await expect(page.locator(selectors.media.placeholder)).toBeVisible()
+```yaml
+- name: Install Playwright Browsers
+  run: bun run playwright:install
+  
+- name: Run E2E tests
+  run: bun run test:e2e
+  
+- name: Upload test results
+  if: failure()
+  uses: actions/upload-artifact@v3
+  with:
+    name: playwright-report
+    path: playwright-report/
 ```
 
-### Using Helpers
+## Известные проблемы
 
-Import test helpers for common operations:
+1. **Tauri API в браузере** - тесты запускаются в обычном браузере без Tauri runtime. Используйте моки для Tauri API.
 
-```typescript
-import { selectFiles, waitForImportComplete, addToTimeline } from './utils/media-helpers'
+2. **Файловые диалоги** - нативные диалоги не работают в Playwright. Используйте `page.setInputFiles()` для эмуляции.
 
-// Use helpers
-await selectFiles(page, ['test-video.mp4'])
-await waitForImportComplete(page)
-await addToTimeline(page, [0, 1, 2])
-```
+3. **Медленная загрузка** - первый запуск может быть медленным из-за компиляции Next.js.
 
-## Test Coverage
+## Полезные ссылки
 
-### Media Import Tests
-- ✅ Display placeholders when adding files
-- ✅ Maintain 16:9 aspect ratio for video/images
-- ✅ Show progress bar during import
-- ✅ Update placeholders with real thumbnails
-- ✅ Cancel import operation
-- ✅ Add files to timeline
-- ✅ Handle multiple file types
-- ✅ Update file metadata after processing
-- ✅ Show error state for corrupted files
-- ✅ Support batch operations
-- ✅ Switch between view modes
-
-### Advanced Import Tests
-- ✅ Folder import with progress tracking
-- ✅ Progressive placeholder updates
-- ✅ Mixed content with different aspect ratios
-- ✅ Error handling for corrupted files
-- ✅ Drag and drop import
-- ✅ Remember import settings
-- ✅ Keyboard navigation
-- ✅ Import statistics
-
-## Adding New Tests
-
-1. Create a new test file in `e2e/tests/`
-2. Import necessary selectors and helpers
-3. Add data-testid attributes to components if needed
-4. Update selectors.ts with new selectors
-5. Run tests to ensure they pass
-
-## Best Practices
-
-1. **Use data-testid attributes** instead of CSS selectors
-2. **Keep selectors centralized** in selectors.ts
-3. **Use helpers** for common operations
-4. **Mock external dependencies** (file dialogs, API calls)
-5. **Test user flows** not implementation details
-6. **Use descriptive test names**
-7. **Clean up after tests** (reset state, remove test data)
-
-## Debugging Failed Tests
-
-1. Use `--ui` mode to see test execution visually
-2. Add `await page.pause()` to pause execution
-3. Use `PWDEBUG=1` environment variable
-4. Check screenshots in test results
-5. Review trace files for detailed execution info
-
-## CI/CD Integration
-
-Tests run automatically on:
-- Pull requests
-- Commits to main branch
-- Release builds
-
-Failed tests block merges and deployments.
+- [Playwright документация](https://playwright.dev/docs/intro)
+- [Playwright селекторы](https://playwright.dev/docs/selectors)
+- [Playwright assertions](https://playwright.dev/docs/test-assertions)
+- [Page Object Pattern](https://playwright.dev/docs/pom)
