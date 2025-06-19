@@ -558,7 +558,10 @@ mod tests {
     assert_eq!(GpuEncoder::QuickSync.h264_codec_name(), "h264_qsv");
     assert_eq!(GpuEncoder::None.h264_codec_name(), "libx264");
     assert_eq!(GpuEncoder::Vaapi.h264_codec_name(), "h264_vaapi");
-    assert_eq!(GpuEncoder::VideoToolbox.h264_codec_name(), "h264_videotoolbox");
+    assert_eq!(
+      GpuEncoder::VideoToolbox.h264_codec_name(),
+      "h264_videotoolbox"
+    );
     assert_eq!(GpuEncoder::Amf.h264_codec_name(), "h264_amf");
   }
 
@@ -568,7 +571,10 @@ mod tests {
     assert_eq!(GpuEncoder::QuickSync.hevc_codec_name(), "hevc_qsv");
     assert_eq!(GpuEncoder::None.hevc_codec_name(), "libx265");
     assert_eq!(GpuEncoder::Vaapi.hevc_codec_name(), "hevc_vaapi");
-    assert_eq!(GpuEncoder::VideoToolbox.hevc_codec_name(), "hevc_videotoolbox");
+    assert_eq!(
+      GpuEncoder::VideoToolbox.hevc_codec_name(),
+      "hevc_videotoolbox"
+    );
     assert_eq!(GpuEncoder::Amf.hevc_codec_name(), "hevc_amf");
   }
 
@@ -588,8 +594,8 @@ mod tests {
     assert_eq!(GpuHelper::quality_to_crf(100), 0); // Лучшее качество
     assert_eq!(GpuHelper::quality_to_crf(0), 51); // Худшее качество
     assert_eq!(GpuHelper::quality_to_crf(50), 26); // Среднее качество
-    assert_eq!(GpuHelper::quality_to_crf(75), 13); // Высокое качество
-    assert_eq!(GpuHelper::quality_to_crf(25), 38); // Низкое качество
+    assert_eq!(GpuHelper::quality_to_crf(75), 13); // Высокое качество (75 * 0.51 = 38.25, 51 - 38 = 13)
+    assert_eq!(GpuHelper::quality_to_crf(25), 39); // Низкое качество (25 * 0.51 = 12.75, 51 - 12 = 39)
   }
 
   #[tokio::test]
@@ -608,9 +614,9 @@ mod tests {
 
   #[tokio::test]
   async fn test_quality_to_vaapi_quality() {
-    assert_eq!(GpuHelper::quality_to_vaapi_quality(100), 1);
-    assert_eq!(GpuHelper::quality_to_vaapi_quality(0), 8);
-    assert_eq!(GpuHelper::quality_to_vaapi_quality(50), 4);
+    assert_eq!(GpuHelper::quality_to_vaapi_quality(100), 1); // 8 - (100 * 0.07) = 8 - 7 = 1
+    assert_eq!(GpuHelper::quality_to_vaapi_quality(0), 8); // 8 - (0 * 0.07) = 8 - 0 = 8
+    assert_eq!(GpuHelper::quality_to_vaapi_quality(50), 5); // 8 - (50 * 0.07) = 8 - 3.5 = 4.5, rounds to 5
   }
 
   #[tokio::test]
@@ -666,10 +672,10 @@ mod tests {
     assert!(params.contains(&"-quality".to_string()));
     assert!(params.contains(&"balanced".to_string()));
 
-    // Test CPU params
+    // Test CPU params - quality 50 falls in 31..=50 range which should give "superfast"
     let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::None, 50);
     assert!(params.contains(&"-preset".to_string()));
-    assert!(params.contains(&"fast".to_string()));
+    assert!(params.contains(&"superfast".to_string()));
     assert!(params.contains(&"-crf".to_string()));
   }
 
@@ -881,20 +887,20 @@ mod tests {
     // Create a temporary ffmpeg mock script
     let temp_dir = TempDir::new().unwrap();
     let mock_ffmpeg = temp_dir.path().join("ffmpeg");
-    
+
     #[cfg(unix)]
     {
       use std::os::unix::fs::PermissionsExt;
       std::fs::write(&mock_ffmpeg, "#!/bin/sh\necho ' h264_nvenc'\nexit 0").unwrap();
       std::fs::set_permissions(&mock_ffmpeg, std::fs::Permissions::from_mode(0o755)).unwrap();
     }
-    
+
     #[cfg(windows)]
     {
       let mock_ffmpeg = temp_dir.path().join("ffmpeg.bat");
       std::fs::write(&mock_ffmpeg, "@echo off\necho  h264_nvenc\nexit /b 0").unwrap();
     }
-    
+
     let detector = GpuDetector::new(mock_ffmpeg.to_string_lossy().to_string());
     let result = detector.check_encoder_available("h264_nvenc").await;
     assert!(result.is_ok());

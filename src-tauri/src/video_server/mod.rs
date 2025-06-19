@@ -1,4 +1,6 @@
 pub mod server;
-pub mod tests;
+
+#[cfg(test)]
+mod tests;
 
 pub use server::{start_video_server, VideoRegistrationResponse, VideoServerState};

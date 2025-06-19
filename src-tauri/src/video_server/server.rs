@@ -5,7 +5,7 @@ use axum::{
   routing::get,
   Router,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -21,7 +21,7 @@ pub struct VideoServerState {
   pub(crate) video_registry: Arc<Mutex<HashMap<String, PathBuf>>>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct VideoRegistrationResponse {
   pub id: String,
   pub url: String,

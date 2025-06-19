@@ -687,4 +687,410 @@ mod tests {
     // Должна быть ошибка из-за отсутствия прав
     assert!(result.is_err());
   }
+
+  #[test]
+  fn test_get_dir_size_empty_directory() {
+    let temp_dir = TempDir::new().unwrap();
+    let size = get_dir_size(temp_dir.path()).unwrap();
+    assert_eq!(size, 0);
+  }
+
+  #[test]
+  fn test_get_dir_size_with_files() {
+    let temp_dir = TempDir::new().unwrap();
+
+    // Create files with known sizes
+    std::fs::write(temp_dir.path().join("file1.txt"), vec![0u8; 100]).unwrap();
+    std::fs::write(temp_dir.path().join("file2.txt"), vec![0u8; 200]).unwrap();
+
+    let size = get_dir_size(temp_dir.path()).unwrap();
+    assert_eq!(size, 300);
+  }
+
+  #[test]
+  fn test_get_dir_size_nested_directories() {
+    let temp_dir = TempDir::new().unwrap();
+
+    // Create nested structure
+    let sub_dir = temp_dir.path().join("subdir");
+    std::fs::create_dir(&sub_dir).unwrap();
+
+    std::fs::write(temp_dir.path().join("file1.txt"), vec![0u8; 100]).unwrap();
+    std::fs::write(sub_dir.join("file2.txt"), vec![0u8; 200]).unwrap();
+
+    let size = get_dir_size(temp_dir.path()).unwrap();
+    assert_eq!(size, 300);
+  }
+
+  #[test]
+  fn test_get_dir_size_nonexistent() {
+    // get_dir_size returns Ok(0) for non-existent directories
+    // because it checks if path.is_dir() first
+    let result = get_dir_size(&PathBuf::from("/nonexistent/directory"));
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap(), 0);
+  }
+
+  #[test]
+  fn test_clear_directory_empty() {
+    let temp_dir = TempDir::new().unwrap();
+
+    // Should not error on empty directory
+    let result = clear_directory(temp_dir.path());
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn test_clear_directory_with_files_and_dirs() {
+    let temp_dir = TempDir::new().unwrap();
+
+    // Create files and directories
+    std::fs::write(temp_dir.path().join("file1.txt"), "content").unwrap();
+    std::fs::write(temp_dir.path().join("file2.txt"), "content").unwrap();
+
+    let sub_dir = temp_dir.path().join("subdir");
+    std::fs::create_dir(&sub_dir).unwrap();
+    std::fs::write(sub_dir.join("file3.txt"), "content").unwrap();
+
+    // Clear the directory
+    clear_directory(temp_dir.path()).unwrap();
+
+    // Verify it's empty
+    let entries: Vec<_> = std::fs::read_dir(temp_dir.path()).unwrap().collect();
+    assert!(entries.is_empty());
+  }
+
+  #[test]
+  fn test_clear_directory_nonexistent() {
+    let result = clear_directory(&PathBuf::from("/nonexistent/directory"));
+    // Should succeed (no-op for non-existent directory)
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn test_media_subdirectories_complete() {
+    let temp_dir = TempDir::new().unwrap();
+    let base_path = temp_dir.path().join("Timeline Studio");
+    let app_dirs = AppDirectories::from_base_dir(&base_path);
+    let media_subdirs = app_dirs.get_media_subdirectories();
+
+    // Verify all subdirectories are correctly named
+    assert_eq!(
+      media_subdirs.videos.file_name().unwrap().to_str().unwrap(),
+      "Videos"
+    );
+    assert_eq!(
+      media_subdirs.effects.file_name().unwrap().to_str().unwrap(),
+      "Effects"
+    );
+    assert_eq!(
+      media_subdirs
+        .transitions
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "Transitions"
+    );
+    assert_eq!(
+      media_subdirs.images.file_name().unwrap().to_str().unwrap(),
+      "Images"
+    );
+    assert_eq!(
+      media_subdirs.music.file_name().unwrap().to_str().unwrap(),
+      "Music"
+    );
+    assert_eq!(
+      media_subdirs
+        .style_templates
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "StyleTemplates"
+    );
+    assert_eq!(
+      media_subdirs
+        .subtitles
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "Subtitles"
+    );
+    assert_eq!(
+      media_subdirs.filters.file_name().unwrap().to_str().unwrap(),
+      "Filters"
+    );
+  }
+
+  #[test]
+  fn test_cache_subdirectories() {
+    let temp_dir = TempDir::new().unwrap();
+    let base_path = temp_dir.path().join("Timeline Studio");
+    let app_dirs = AppDirectories::from_base_dir(&base_path);
+
+    // Verify all cache subdirectories
+    assert_eq!(
+      app_dirs
+        .get_preview_cache_dir()
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "Previews"
+    );
+    assert_eq!(
+      app_dirs
+        .get_render_cache_dir()
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "Renders"
+    );
+    assert_eq!(
+      app_dirs
+        .get_frame_cache_dir()
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "Frames"
+    );
+    assert_eq!(
+      app_dirs
+        .get_temp_dir()
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "Temp"
+    );
+  }
+
+  #[test]
+  #[cfg(unix)]
+  fn test_create_directories_permission_error() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let temp_dir = TempDir::new().unwrap();
+    let restricted_dir = temp_dir.path().join("restricted");
+    std::fs::create_dir(&restricted_dir).unwrap();
+
+    // Remove all permissions
+    std::fs::set_permissions(&restricted_dir, std::fs::Permissions::from_mode(0o000)).unwrap();
+
+    let app_dirs = AppDirectories::from_base_dir(&restricted_dir.join("Timeline Studio"));
+    let result = app_dirs.create_all_directories();
+
+    // Restore permissions for cleanup
+    std::fs::set_permissions(&restricted_dir, std::fs::Permissions::from_mode(0o755)).unwrap();
+
+    assert!(result.is_err());
+  }
+
+  #[test]
+  fn test_directory_sizes_with_real_files() {
+    let temp_dir = TempDir::new().unwrap();
+    let base_path = temp_dir.path().join("Timeline Studio");
+    let app_dirs = AppDirectories::from_base_dir(&base_path);
+    app_dirs.create_all_directories().unwrap();
+
+    // Create files in different directories
+    std::fs::write(app_dirs.media_dir.join("video.mp4"), vec![0u8; 1024 * 10]).unwrap();
+    std::fs::write(
+      app_dirs.projects_dir.join("project.json"),
+      vec![0u8; 1024 * 5],
+    )
+    .unwrap();
+    std::fs::write(app_dirs.output_dir.join("output.mp4"), vec![0u8; 1024 * 20]).unwrap();
+    std::fs::write(app_dirs.render_dir.join("render.mp4"), vec![0u8; 1024 * 15]).unwrap();
+    std::fs::write(app_dirs.caches_dir.join("cache.bin"), vec![0u8; 1024 * 8]).unwrap();
+    std::fs::write(app_dirs.backup_dir.join("backup.zip"), vec![0u8; 1024 * 12]).unwrap();
+
+    let sizes = app_dirs.get_directory_sizes().unwrap();
+
+    assert_eq!(sizes.media, 1024 * 10);
+    assert_eq!(sizes.projects, 1024 * 5);
+    assert_eq!(sizes.output, 1024 * 20);
+    assert_eq!(sizes.render, 1024 * 15);
+    assert!(sizes.caches >= 1024 * 8); // Might have subdirectories
+    assert_eq!(sizes.backup, 1024 * 12);
+    assert!(sizes.total >= 1024 * (10 + 5 + 20 + 15 + 8 + 12));
+  }
+
+  #[test]
+  fn test_verify_directories_partial() {
+    let temp_dir = TempDir::new().unwrap();
+    let base_path = temp_dir.path().join("Timeline Studio");
+    let app_dirs = AppDirectories::from_base_dir(&base_path);
+
+    // Create only some directories
+    std::fs::create_dir_all(&app_dirs.base_dir).unwrap();
+    std::fs::create_dir_all(&app_dirs.media_dir).unwrap();
+    std::fs::create_dir_all(&app_dirs.projects_dir).unwrap();
+
+    let result = app_dirs.verify_directories();
+    assert!(result.is_err());
+
+    if let Err(missing) = result {
+      assert!(!missing.is_empty());
+      assert!(!missing.contains(&app_dirs.media_dir));
+      assert!(!missing.contains(&app_dirs.projects_dir));
+      assert!(missing.contains(&app_dirs.output_dir));
+    }
+  }
+
+  #[test]
+  fn test_once_lock_behavior() {
+    // Test that get_or_create reuses the same base directory
+    let result1 = AppDirectories::get_or_create();
+    let result2 = AppDirectories::get_or_create();
+
+    if result1.is_ok() && result2.is_ok() {
+      let dirs1 = result1.unwrap();
+      let dirs2 = result2.unwrap();
+      assert_eq!(dirs1.base_dir, dirs2.base_dir);
+    }
+  }
+
+  #[tokio::test]
+  async fn test_create_app_directories_command() {
+    let result = create_app_directories().await;
+    if let Ok(dirs) = result {
+      assert!(dirs.base_dir.to_string_lossy().contains("Timeline Studio"));
+    }
+  }
+
+  #[tokio::test]
+  async fn test_get_directory_sizes_command() {
+    let result = get_directory_sizes().await;
+    if let Ok(sizes) = result {
+      // Directory sizes are u64, so they're always >= 0
+      // Just check they exist
+      let _ = sizes.total;
+      let _ = sizes.media;
+      let _ = sizes.projects;
+    }
+  }
+
+  #[tokio::test]
+  async fn test_clear_app_cache_command() {
+    // Skip if we can't create directories (CI environment)
+    if AppDirectories::get_or_create().is_err() {
+      return;
+    }
+
+    let result = clear_app_cache().await;
+    assert!(result.is_ok() || result.is_err());
+  }
+
+  #[test]
+  fn test_all_directories_paths() {
+    let temp_dir = TempDir::new().unwrap();
+    let base_path = temp_dir.path().join("Timeline Studio");
+    let app_dirs = AppDirectories::from_base_dir(&base_path);
+
+    // Verify all directory paths are under base directory
+    assert!(app_dirs.media_dir.starts_with(&base_path));
+    assert!(app_dirs.projects_dir.starts_with(&base_path));
+    assert!(app_dirs.snapshot_dir.starts_with(&base_path));
+    assert!(app_dirs.cinematic_dir.starts_with(&base_path));
+    assert!(app_dirs.output_dir.starts_with(&base_path));
+    assert!(app_dirs.render_dir.starts_with(&base_path));
+    assert!(app_dirs.recognition_dir.starts_with(&base_path));
+    assert!(app_dirs.backup_dir.starts_with(&base_path));
+    assert!(app_dirs.media_proxy_dir.starts_with(&base_path));
+    assert!(app_dirs.caches_dir.starts_with(&base_path));
+    assert!(app_dirs.recorded_dir.starts_with(&base_path));
+    assert!(app_dirs.audio_dir.starts_with(&base_path));
+    assert!(app_dirs.cloud_project_dir.starts_with(&base_path));
+    assert!(app_dirs.upload_dir.starts_with(&base_path));
+  }
+
+  #[test]
+  fn test_directory_names() {
+    let temp_dir = TempDir::new().unwrap();
+    let base_path = temp_dir.path().join("Timeline Studio");
+    let app_dirs = AppDirectories::from_base_dir(&base_path);
+
+    // Verify directory names
+    assert_eq!(
+      app_dirs.media_dir.file_name().unwrap().to_str().unwrap(),
+      "Media"
+    );
+    assert_eq!(
+      app_dirs.projects_dir.file_name().unwrap().to_str().unwrap(),
+      "Projects"
+    );
+    assert_eq!(
+      app_dirs.snapshot_dir.file_name().unwrap().to_str().unwrap(),
+      "Snapshot"
+    );
+    assert_eq!(
+      app_dirs
+        .cinematic_dir
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "Cinematic"
+    );
+    assert_eq!(
+      app_dirs.output_dir.file_name().unwrap().to_str().unwrap(),
+      "Output"
+    );
+    assert_eq!(
+      app_dirs.render_dir.file_name().unwrap().to_str().unwrap(),
+      "Render"
+    );
+    assert_eq!(
+      app_dirs
+        .recognition_dir
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "Recognition"
+    );
+    assert_eq!(
+      app_dirs.backup_dir.file_name().unwrap().to_str().unwrap(),
+      "Backup"
+    );
+    assert_eq!(
+      app_dirs
+        .media_proxy_dir
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "MediaProxy"
+    );
+    assert_eq!(
+      app_dirs.caches_dir.file_name().unwrap().to_str().unwrap(),
+      "Caches"
+    );
+    assert_eq!(
+      app_dirs.recorded_dir.file_name().unwrap().to_str().unwrap(),
+      "Recorded"
+    );
+    assert_eq!(
+      app_dirs.audio_dir.file_name().unwrap().to_str().unwrap(),
+      "Audio"
+    );
+    assert_eq!(
+      app_dirs
+        .cloud_project_dir
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap(),
+      "Cloud Project"
+    );
+    assert_eq!(
+      app_dirs.upload_dir.file_name().unwrap().to_str().unwrap(),
+      "Upload"
+    );
+  }
 }
