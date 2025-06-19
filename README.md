@@ -19,11 +19,11 @@
 Timeline Studio is a modern video editor built on Tauri architecture (Rust + React).
 
 **Our goal**: create an editor combining:
-- **Professional power of DaVinci Resolve** - full control over editing and color grading
-- **Rich library of Filmora** - thousands of effects, transitions, templates and styles
+- **Professional power of DaVinci Resolve** - complete control over editing, color grading, audio mixing, visual effects, motion graphics, and advanced compositing
+- **Extensive creative library** - effects, filters, transitions, multi-camera templates, animated titles, style templates, and subtitle presets comparable to popular editors like Filmora
 - **AI scripting and automation** - automatic content generation in different languages and for different platforms
 
-**Key innovation**: Users can simply upload videos, music and other resources, and AI will automatically create a set of videos in different languages and optimized for different platforms (YouTube, TikTok, Instagram, Telegram).
+**Key innovation**: It's enough for users to upload videos, music and other resources, and AI will automatically create a set of videos in different languages and optimized for different platforms (YouTube, TikTok, Instagram, Telegram).
 
 ![Timeline Interface #1](/public/screen2.png)
 

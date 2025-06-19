@@ -16,7 +16,14 @@
 
 ## Projektübersicht
 
-Timeline Studio ist eine professionelle Videobearbeitungsanwendung, die mit modernen Webtechnologien und nativer Leistung entwickelt wurde. Unser Ziel ist es, einen Editor auf DaVinci Resolve-Niveau zu schaffen, der für jeden zugänglich ist.
+Timeline Studio ist ein moderner Video-Editor, der auf der Tauri-Architektur (Rust + React) basiert.
+
+**Unser Ziel**: einen Editor zu schaffen, der Folgendes vereint:
+- **Professionelle Leistung von DaVinci Resolve** - vollständige Kontrolle über Schnitt, Farbkorrektur, Audio-Mixing, visuelle Effekte, Motion Graphics und erweiterte Komposition
+- **Umfangreiche Kreativ-Bibliothek** - Effekte, Filter, Übergänge, Mehrkamera-Vorlagen, animierte Titel, Stilvorlagen und Untertitel-Presets vergleichbar mit beliebten Editoren wie Filmora
+- **KI-Scripting und Automatisierung** - automatische Inhaltsgenerierung in verschiedenen Sprachen und für verschiedene Plattformen
+
+**Schlüsselinnovation**: Es genügt, wenn Nutzer Videos, Musik und andere Ressourcen hochladen, und die KI erstellt automatisch eine Reihe von Videos in verschiedenen Sprachen und optimiert für verschiedene Plattformen (YouTube, TikTok, Instagram, Telegram).
 
 ![Timeline-Oberfläche #1](/public/screen2.png)
 
