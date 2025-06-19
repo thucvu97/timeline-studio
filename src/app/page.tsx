@@ -6,7 +6,7 @@ import "@/lib/dayjs"
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen bg-[#f7f8f9] font-[family-name:var(--font-geist-sans)] dark:bg-[#252526]">
+    <div className="relative min-h-screen bg-[#f7f8f9] dark:bg-[#252526]">
       <MediaStudio />
     </div>
   )

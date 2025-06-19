@@ -1,8 +1,5 @@
 import React from "react"
 
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-
 import "@/styles/globals.css"
 
 import { AppErrorBoundary } from "@/components/error-boundary"
@@ -15,7 +12,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
+      <body className="antialiased">
         <Providers>
           <AppErrorBoundary>{children}</AppErrorBoundary>
         </Providers>

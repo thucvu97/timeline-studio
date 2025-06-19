@@ -17,6 +17,9 @@ export const test = base.extend<TestFixtures>({
   // Моки для Tauri API если приложение запущено в браузере
   mockTauriAPI: async ({ page }, use) => {
     await page.addInitScript(() => {
+      // Store for event listeners
+      const eventListeners = new Map<string, Set<Function>>();
+      
       if (!window.__TAURI__) {
         window.__TAURI__ = {
           core: {
@@ -34,9 +37,39 @@ export const test = base.extend<TestFixtures>({
                     resolution: { width: 1920, height: 1080 },
                     aspectRatio: '16:9'
                   };
+                case 'import_media_files':
+                  return {
+                    success: true,
+                    files: args?.paths?.map((path: string) => ({
+                      path,
+                      name: path.split('/').pop(),
+                      type: path.endsWith('.mp4') ? 'video' : 'image'
+                    }))
+                  };
                 default:
                   return null;
               }
+            }
+          },
+          event: {
+            emit: (event: string, payload?: any) => {
+              console.log('Mock Tauri emit:', event, payload);
+              const listeners = eventListeners.get(event);
+              if (listeners) {
+                listeners.forEach(listener => listener({ event, payload }));
+              }
+            },
+            listen: (event: string, handler: Function) => {
+              console.log('Mock Tauri listen:', event);
+              if (!eventListeners.has(event)) {
+                eventListeners.set(event, new Set());
+              }
+              eventListeners.get(event)!.add(handler);
+              return { 
+                unlisten: () => {
+                  eventListeners.get(event)?.delete(handler);
+                }
+              };
             }
           },
           path: {
@@ -49,8 +82,13 @@ export const test = base.extend<TestFixtures>({
             exists: async () => true
           },
           dialog: {
-            open: async () => null,
-            save: async () => null
+            open: async (options?: any) => {
+              if (options?.multiple) {
+                return ['/test/video1.mp4', '/test/video2.mp4'];
+              }
+              return '/test/video.mp4';
+            },
+            save: async () => '/test/project.json'
           },
           notification: {
             sendNotification: async () => {}
