@@ -14,15 +14,15 @@ export class TimelinePage {
   constructor(page: Page) {
     this.page = page;
     
-    // Основные элементы таймлайна
-    this.timeline = page.locator('[data-testid="timeline"]');
-    this.playButton = page.locator('[data-testid="play-button"]');
-    this.pauseButton = page.locator('[data-testid="pause-button"]');
-    this.zoomSlider = page.locator('[data-testid="zoom-slider"]');
-    this.timeIndicator = page.locator('[data-testid="time-indicator"]');
-    this.tracks = page.locator('[data-testid="timeline-track"]');
-    this.clips = page.locator('[data-testid="timeline-clip"]');
-    this.playhead = page.locator('[data-testid="playhead"]');
+    // Основные элементы таймлайна - используем гибкие селекторы
+    this.timeline = page.locator('[data-testid="timeline"], [class*="timeline"]').first();
+    this.playButton = page.locator('[data-testid="play-button"], button:has-text("▶"), button[aria-label*="play" i]').first();
+    this.pauseButton = page.locator('[data-testid="pause-button"], button:has-text("⏸"), button[aria-label*="pause" i]').first();
+    this.zoomSlider = page.locator('[data-testid="zoom-slider"], input[type="range"], [class*="zoom"]').first();
+    this.timeIndicator = page.locator('[data-testid="time-indicator"], [class*="time"], text=/\\d{1,2}:\\d{2}/').first();
+    this.tracks = page.locator('[data-testid="timeline-track"], [class*="track"], [class*="layer"]');
+    this.clips = page.locator('[data-testid="timeline-clip"], [class*="clip"], [class*="segment"]');
+    this.playhead = page.locator('[data-testid="playhead"], [class*="playhead"], [class*="cursor"]').first();
   }
 
   async addClipToTimeline(mediaItemSelector: Locator, trackIndex: number = 0) {

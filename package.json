@@ -39,7 +39,7 @@
     "test:coverage:upload": "./scripts/upload-coverage.sh",
     "test:rust": "cd src-tauri && cargo test",
     "test:rust:watch": "cd src-tauri && cargo watch -x test",
-    "test:coverage:rust": "cd src-tauri && source \"$HOME/.cargo/env\" && cargo llvm-cov --lcov --output-path coverage.info",
+    "test:coverage:rust": "cd src-tauri && cargo llvm-cov --lcov --output-path coverage.info",
     "test:coverage:rust:report": "npm run test:coverage:rust && npm run test:coverage:upload",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
