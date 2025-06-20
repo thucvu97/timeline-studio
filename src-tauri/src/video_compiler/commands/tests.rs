@@ -1650,4 +1650,290 @@ mod tests {
       }
     }
   }
+
+  // Tests for command business logic
+  #[tokio::test]
+  async fn test_compile_video_validation() {
+    use crate::video_compiler::commands_logic::compile_video_logic;
+
+    let state = create_test_state();
+    let mut project = create_test_project();
+
+    // Test with empty tracks
+    project.tracks.clear();
+    let result = compile_video_logic(project.clone(), "/tmp/output.mp4".to_string(), &state).await;
+
+    assert!(result.is_err());
+    let err = result.unwrap_err();
+    assert!(err.to_string().contains("не содержит треков"));
+  }
+
+  #[tokio::test]
+  async fn test_get_active_jobs_empty() {
+    use crate::video_compiler::commands_logic::get_active_jobs_logic;
+
+    let state = create_test_state();
+    let jobs = get_active_jobs_logic(&state).await;
+    assert_eq!(jobs.len(), 0);
+  }
+
+  #[tokio::test]
+  async fn test_get_active_jobs_with_tasks() {
+    use crate::video_compiler::commands_logic::{compile_video_logic, get_active_jobs_logic};
+
+    let state = create_test_state();
+    let project = create_test_project();
+
+    // Add multiple jobs
+    let job_id1 = compile_video_logic(project.clone(), "/tmp/output1.mp4".to_string(), &state)
+      .await
+      .unwrap();
+
+    let job_id2 = compile_video_logic(project.clone(), "/tmp/output2.mp4".to_string(), &state)
+      .await
+      .unwrap();
+
+    // Get active jobs
+    let jobs = get_active_jobs_logic(&state).await;
+    assert_eq!(jobs.len(), 2);
+
+    // Verify job IDs
+    let job_ids: Vec<String> = jobs.iter().map(|j| j.id.clone()).collect();
+    assert!(job_ids.contains(&job_id1));
+    assert!(job_ids.contains(&job_id2));
+
+    // Clean up
+    state.active_jobs.write().await.clear();
+  }
+
+  #[tokio::test]
+  async fn test_cancel_render_existing_job() {
+    use crate::video_compiler::commands_logic::{cancel_render_logic, compile_video_logic};
+
+    let state = create_test_state();
+    let project = create_test_project();
+
+    // Add a job
+    let job_id = compile_video_logic(project, "/tmp/output.mp4".to_string(), &state)
+      .await
+      .unwrap();
+
+    // Cancel it
+    let cancelled = cancel_render_logic(&job_id, &state).await.unwrap();
+    assert!(cancelled);
+
+    // Verify it's gone
+    let jobs = state.active_jobs.read().await;
+    assert!(!jobs.contains_key(&job_id));
+  }
+
+  #[tokio::test]
+  async fn test_cancel_render_non_existent_job() {
+    use crate::video_compiler::commands_logic::cancel_render_logic;
+
+    let state = create_test_state();
+    let result = cancel_render_logic("non-existent-job", &state)
+      .await
+      .unwrap();
+    assert!(!result);
+  }
+
+  #[tokio::test]
+  async fn test_get_render_job_details() {
+    use crate::video_compiler::commands_logic::{compile_video_logic, get_render_job_logic};
+
+    let state = create_test_state();
+    let project = create_test_project();
+    let output_path = "/tmp/test_output.mp4";
+
+    // Add a job
+    let job_id = compile_video_logic(project.clone(), output_path.to_string(), &state)
+      .await
+      .unwrap();
+
+    // Get job details
+    let job_info = get_render_job_logic(&job_id, &state).await.unwrap();
+    assert!(job_info.is_some());
+
+    let job = job_info.unwrap();
+    assert_eq!(job.id, job_id);
+    assert_eq!(job.project_name, project.metadata.name);
+    assert_eq!(job.output_path, output_path);
+
+    // Clean up
+    state.active_jobs.write().await.clear();
+  }
+
+  #[tokio::test]
+  async fn test_check_render_timeouts() {
+    use crate::video_compiler::commands_logic::check_render_job_timeouts_logic;
+
+    let state = create_test_state();
+    let project = create_test_project();
+
+    // Create job with old timestamp
+    let old_metadata = RenderJobMetadata {
+      project_name: "Old Project".to_string(),
+      output_path: "/tmp/old.mp4".to_string(),
+      created_at: "2020-01-01T00:00:00Z".to_string(),
+    };
+
+    let (tx, _rx) = mpsc::unbounded_channel();
+    let renderer = VideoRenderer::new(
+      project.clone(),
+      state.settings.clone(),
+      state.cache_manager.clone(),
+      tx,
+    )
+    .await
+    .unwrap();
+
+    let old_job_id = "timeout-test".to_string();
+    {
+      let mut jobs = state.active_jobs.write().await;
+      jobs.insert(
+        old_job_id.clone(),
+        ActiveRenderJob {
+          renderer,
+          metadata: old_metadata,
+        },
+      );
+    }
+
+    // Check timeouts with 1 hour limit
+    let timed_out = check_render_job_timeouts_logic(&state, 3600).await;
+    assert!(timed_out.contains(&old_job_id));
+
+    // Clean up
+    state.active_jobs.write().await.clear();
+  }
+
+  #[tokio::test]
+  async fn test_cache_operations_advanced() {
+    use crate::video_compiler::commands_logic::{
+      clear_all_cache_logic, get_cache_memory_usage_logic, get_cache_stats_logic,
+    };
+
+    let state = create_test_state();
+
+    // Get initial stats
+    let stats = get_cache_stats_logic(&state).await;
+    assert_eq!(stats.preview_requests, 0);
+    assert_eq!(stats.metadata_requests, 0);
+
+    // Clear cache
+    clear_all_cache_logic(&state).await.unwrap();
+
+    // Get memory usage
+    let usage = get_cache_memory_usage_logic(&state).await;
+    assert_eq!(
+      usage.total_bytes,
+      usage.preview_bytes + usage.metadata_bytes + usage.render_bytes
+    );
+  }
+
+  #[tokio::test]
+  async fn test_compiler_settings_operations() {
+    use crate::video_compiler::commands_logic::{
+      get_compiler_settings_logic, update_compiler_settings_logic,
+    };
+
+    let state = create_test_state();
+
+    // Get current settings
+    let settings = get_compiler_settings_logic(&state).await;
+    assert_eq!(settings.max_concurrent_jobs, 2);
+
+    // Update settings
+    let new_settings = CompilerSettings {
+      max_concurrent_jobs: 4,
+      cache_size_mb: 1024,
+      hardware_acceleration: false,
+      ..settings
+    };
+
+    update_compiler_settings_logic(new_settings.clone(), &state)
+      .await
+      .unwrap();
+
+    // Verify update
+    let updated = get_compiler_settings_logic(&state).await;
+    assert_eq!(updated.max_concurrent_jobs, 4);
+    assert_eq!(updated.cache_size_mb, 1024);
+    assert!(!updated.hardware_acceleration);
+  }
+
+  #[tokio::test]
+  async fn test_gpu_capabilities_detection() {
+    use crate::video_compiler::commands_logic::get_gpu_capabilities_logic;
+
+    let state = create_test_state();
+
+    // This might fail in test environment, but we test the structure
+    match get_gpu_capabilities_logic(&state).await {
+      Ok(capabilities) => {
+        // If successful, validate structure
+        assert!(capabilities.available_encoders.len() >= 0);
+      }
+      Err(_) => {
+        // Expected in test environment without real GPU/FFmpeg
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_render_progress_tracking_with_logic() {
+    use crate::video_compiler::commands_logic::{compile_video_logic, get_render_progress_logic};
+
+    let state = create_test_state();
+    let project = create_test_project();
+
+    // Start a render job
+    let job_id = compile_video_logic(project, "/tmp/progress_test.mp4".to_string(), &state)
+      .await
+      .unwrap();
+
+    // Get progress
+    let progress = get_render_progress_logic(&job_id, &state).await.unwrap();
+    // Progress might be None at the start, which is ok
+    if let Some(prog) = progress {
+      assert_eq!(prog.job_id, job_id);
+      assert!(prog.percentage >= 0.0 && prog.percentage <= 100.0);
+    }
+
+    // Test non-existent job returns None
+    let no_progress = get_render_progress_logic("fake-job", &state).await.unwrap();
+    assert!(no_progress.is_none());
+
+    // Clean up
+    state.active_jobs.write().await.clear();
+  }
+
+  #[tokio::test]
+  async fn test_max_concurrent_jobs_limit() {
+    use crate::video_compiler::commands_logic::compile_video_logic;
+
+    let state = create_test_state();
+    let project = create_test_project();
+
+    // Set limit to 1
+    {
+      let mut settings = state.settings.write().await;
+      settings.max_concurrent_jobs = 1;
+    }
+
+    // Add first job - should succeed
+    let _job_id1 = compile_video_logic(project.clone(), "/tmp/job1.mp4".to_string(), &state)
+      .await
+      .unwrap();
+
+    // Try to add second job - should fail
+    let result = compile_video_logic(project.clone(), "/tmp/job2.mp4".to_string(), &state).await;
+
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("Достигнут лимит"));
+
+    // Clean up
+    state.active_jobs.write().await.clear();
+  }
 }

@@ -9,6 +9,7 @@
 
 pub mod cache;
 pub mod commands;
+pub mod commands_logic;
 pub mod error;
 pub mod ffmpeg_builder;
 pub mod frame_extraction;
