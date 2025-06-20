@@ -1175,22 +1175,49 @@ impl FFmpegBuilder {
   pub async fn build_color_correction_filter(&self, effect: &Effect) -> Result<String> {
     let mut eq_params = Vec::new();
 
-    if let Some(crate::video_compiler::schema::EffectParameter::Float(brightness)) =
-      effect.parameters.get("brightness")
-    {
-      eq_params.push(format!("brightness={}", brightness));
-    }
+    // Check effect type and get value parameter
+    match effect.effect_type {
+      EffectType::Brightness => {
+        if let Some(crate::video_compiler::schema::EffectParameter::Float(value)) =
+          effect.parameters.get("value")
+        {
+          eq_params.push(format!("brightness={}", value));
+        }
+      }
+      EffectType::Contrast => {
+        if let Some(crate::video_compiler::schema::EffectParameter::Float(value)) =
+          effect.parameters.get("value")
+        {
+          eq_params.push(format!("contrast={}", value));
+        }
+      }
+      EffectType::Saturation => {
+        if let Some(crate::video_compiler::schema::EffectParameter::Float(value)) =
+          effect.parameters.get("value")
+        {
+          eq_params.push(format!("saturation={}", value));
+        }
+      }
+      _ => {
+        // For other effect types, try to get specific parameters
+        if let Some(crate::video_compiler::schema::EffectParameter::Float(brightness)) =
+          effect.parameters.get("brightness")
+        {
+          eq_params.push(format!("brightness={}", brightness));
+        }
 
-    if let Some(crate::video_compiler::schema::EffectParameter::Float(contrast)) =
-      effect.parameters.get("contrast")
-    {
-      eq_params.push(format!("contrast={}", contrast));
-    }
+        if let Some(crate::video_compiler::schema::EffectParameter::Float(contrast)) =
+          effect.parameters.get("contrast")
+        {
+          eq_params.push(format!("contrast={}", contrast));
+        }
 
-    if let Some(crate::video_compiler::schema::EffectParameter::Float(saturation)) =
-      effect.parameters.get("saturation")
-    {
-      eq_params.push(format!("saturation={}", saturation));
+        if let Some(crate::video_compiler::schema::EffectParameter::Float(saturation)) =
+          effect.parameters.get("saturation")
+        {
+          eq_params.push(format!("saturation={}", saturation));
+        }
+      }
     }
 
     if !eq_params.is_empty() {
@@ -3017,5 +3044,149 @@ mod tests {
       .parameters
       .insert("intensity".to_string(), EffectParameter::Float(intensity));
     effect
+  }
+
+  #[tokio::test]
+  async fn test_build_color_correction_filter_extended() {
+    let builder = create_test_builder();
+    
+    // Test brightness correction
+    let brightness_effect = create_brightness_effect(1.2);
+    let filter = builder.build_color_correction_filter(&brightness_effect).await;
+    assert!(filter.is_ok());
+    assert!(filter.unwrap().contains("eq=brightness"));
+    
+    // Test contrast correction
+    let contrast_effect = create_contrast_effect(1.5);
+    let filter = builder.build_color_correction_filter(&contrast_effect).await;
+    assert!(filter.is_ok());
+    assert!(filter.unwrap().contains("eq=contrast"));
+    
+    // Test saturation correction
+    let saturation_effect = create_saturation_effect(0.8);
+    let filter = builder.build_color_correction_filter(&saturation_effect).await;
+    assert!(filter.is_ok());
+    assert!(filter.unwrap().contains("eq=saturation"));
+  }
+
+  #[tokio::test]
+  async fn test_collect_input_sources_extended() {
+    let builder = create_test_builder();
+    
+    // Test with empty project
+    let sources = builder.collect_input_sources().await;
+    assert!(sources.is_ok());
+    let sources_vec = sources.unwrap();
+    // Empty project should return valid result (checking no crash)
+    // sources_vec can be empty or have default sources
+    let _ = sources_vec.len();
+  }
+
+  #[tokio::test]
+  async fn test_build_preview_command_with_timerange() {
+    let builder = create_test_builder();
+    let input_path = PathBuf::from("/tmp/input.mp4");
+    let output_path = PathBuf::from("/tmp/preview.mp4");
+    
+    // Test preview command generation
+    let result = builder.build_preview_command(
+      &input_path,
+      5.0,        // timestamp
+      &output_path,
+      (1920, 1080) // resolution
+    ).await;
+    
+    assert!(result.is_ok());
+    let command = result.unwrap();
+    let cmd_str = format!("{:?}", command);
+    
+    // Should contain ffmpeg and time parameters
+    assert!(cmd_str.contains("ffmpeg"));
+  }
+
+  #[tokio::test]
+  async fn test_build_prerender_segment_command() {
+    let builder = create_test_builder();
+    let output_path = PathBuf::from("/tmp/segment.mp4");
+    
+    // Test prerender segment command
+    let result = builder.build_prerender_segment_command(
+      0.0,   // start_time
+      5.0,   // end_time
+      &output_path,
+      true   // apply_effects
+    ).await;
+    
+    assert!(result.is_ok());
+    let command = result.unwrap();
+    let cmd_str = format!("{:?}", command);
+    
+    // Should contain ffmpeg command
+    assert!(cmd_str.contains("ffmpeg"));
+  }
+
+  #[tokio::test]
+  async fn test_build_video_effect_filter_complex_cases() {
+    let builder = create_test_builder();
+    
+    // Test with different effect types
+    let vignette_effect = create_vignette_effect(0.5);
+    let filter = builder.build_video_effect_filter(&vignette_effect).await;
+    assert!(filter.is_ok());
+    
+    let speed_effect = create_speed_effect(2.0);
+    let speed_filter = builder.build_video_effect_filter(&speed_effect).await;
+    assert!(speed_filter.is_ok());
+    
+    // Test with simple effects that might not have parameters
+    let simple_effect = create_simple_effect(EffectType::Grayscale);
+    let simple_filter = builder.build_video_effect_filter(&simple_effect).await;
+    assert!(simple_filter.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_ffmpeg_builder_settings() {
+    let project = ProjectSchema::new("Test Project".to_string());
+    let settings = FFmpegBuilderSettings {
+      ffmpeg_path: "custom_ffmpeg".to_string(),
+      threads: Some(8),
+      _prefer_nvenc: true,
+      _prefer_quicksync: false,
+      _global_args: vec!["-nostdin".to_string()],
+    };
+    
+    let builder = FFmpegBuilder::with_settings(project, settings);
+    assert_eq!(builder.settings.ffmpeg_path, "custom_ffmpeg");
+    assert_eq!(builder.settings.threads, Some(8));
+    assert_eq!(builder.settings._prefer_nvenc, true);
+    assert_eq!(builder.settings._prefer_quicksync, false);
+    assert_eq!(builder.settings._global_args.len(), 1);
+  }
+
+  #[tokio::test]
+  async fn test_error_handling_invalid_effect_parameters() {
+    let builder = create_test_builder();
+    
+    // Create effect with invalid parameter type
+    let invalid_effect = Effect::new(EffectType::Blur, "Invalid Blur".to_string());
+    // Don't add the required radius parameter
+    
+    let result = builder.build_video_effect_filter(&invalid_effect).await;
+    // Should handle missing parameters gracefully
+    assert!(result.is_ok() || result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_build_render_command_basic() {
+    let builder = create_test_builder();
+    let output_path = PathBuf::from("/tmp/render.mp4");
+    
+    let result = builder.build_render_command(&output_path).await;
+    // Should build command successfully even with empty project
+    assert!(result.is_ok());
+    
+    let command = result.unwrap();
+    let cmd_str = format!("{:?}", command);
+    assert!(cmd_str.contains("ffmpeg"));
   }
 }

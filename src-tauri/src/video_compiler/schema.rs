@@ -2006,4 +2006,169 @@ mod tests {
     assert_eq!(animation.easing, SubtitleEasing::EaseInOut);
     assert!(!animation.id.is_empty());
   }
+
+  #[test]
+  fn test_project_schema_duration_calculation() {
+    let mut project = ProjectSchema::new("Duration Test".to_string());
+    
+    // Add a track with clips
+    let mut track = Track::new(TrackType::Video, "Video Track".to_string());
+    let clip1 = Clip::new(std::path::PathBuf::from("video1.mp4"), 0.0, 10.0);
+    let clip2 = Clip::new(std::path::PathBuf::from("video2.mp4"), 10.0, 5.0);
+    
+    track.add_clip(clip1).unwrap();
+    track.add_clip(clip2).unwrap();
+    project.tracks.push(track);
+    
+    // Project duration should be based on the longest track
+    let duration = project.get_duration();
+    assert_eq!(duration, 15.0); // 0+10 + 10+5 = 15
+  }
+
+  #[test]
+  fn test_clip_validation_edge_cases() {
+    // For testing, we need to use an existing file or skip file existence check
+    // Let's test the logic without file existence check
+    
+    // Test invalid duration - creates clip with negative duration
+    let invalid_duration_clip = Clip::new(std::path::PathBuf::from("/tmp/test.mp4"), 0.0, -1.0);
+    // The clip is created with end_time = start_time + duration = 0.0 + (-1.0) = -1.0
+    // This should fail validation because end_time <= start_time
+    assert!(invalid_duration_clip.validate().is_err());
+    
+    // Test invalid start time
+    let invalid_start_clip = Clip::new(std::path::PathBuf::from("/tmp/test.mp4"), -5.0, 10.0);
+    assert!(invalid_start_clip.validate().is_err());
+    
+    // Test valid clip parameters (without file check)
+    let mut valid_clip = Clip::new(std::path::PathBuf::from("/tmp/test.mp4"), 0.0, 10.0);
+    // Temporarily change source_path to avoid file existence check
+    valid_clip.source_path = std::path::PathBuf::from("/dev/null"); // Always exists on Unix
+    #[cfg(target_os = "windows")]
+    {
+      valid_clip.source_path = std::path::PathBuf::from("NUL"); // Windows equivalent
+    }
+    assert!(valid_clip.validate().is_ok());
+  }
+
+  #[test]
+  fn test_track_clip_overlap_detection() {
+    let mut track = Track::new(TrackType::Video, "Test Track".to_string());
+    
+    // Add first clip
+    let clip1 = Clip::new(std::path::PathBuf::from("video1.mp4"), 0.0, 10.0);
+    assert!(track.add_clip(clip1).is_ok());
+    
+    // Try to add overlapping clip - should fail
+    let overlapping_clip = Clip::new(std::path::PathBuf::from("video2.mp4"), 5.0, 10.0);
+    assert!(track.add_clip(overlapping_clip).is_err());
+    
+    // Add non-overlapping clip - should succeed
+    let non_overlapping_clip = Clip::new(std::path::PathBuf::from("video3.mp4"), 15.0, 5.0);
+    assert!(track.add_clip(non_overlapping_clip).is_ok());
+  }
+
+  #[test]
+  fn test_effect_parameter_types_extended() {
+    let mut effect = Effect::new(EffectType::Blur, "Complex Effect".to_string());
+    
+    // Test different parameter types
+    effect.parameters.insert("float_param".to_string(), EffectParameter::Float(1.5));
+    effect.parameters.insert("int_param".to_string(), EffectParameter::Int(42));
+    effect.parameters.insert("string_param".to_string(), EffectParameter::String("test".to_string()));
+    effect.parameters.insert("bool_param".to_string(), EffectParameter::Bool(true));
+    
+    // Verify parameters are stored correctly
+    assert_eq!(effect.parameters.len(), 4);
+    
+    if let Some(EffectParameter::Float(val)) = effect.parameters.get("float_param") {
+      assert_eq!(*val, 1.5);
+    } else {
+      panic!("Float parameter not found or wrong type");
+    }
+    
+    if let Some(EffectParameter::Bool(val)) = effect.parameters.get("bool_param") {
+      assert_eq!(*val, true);
+    } else {
+      panic!("Bool parameter not found or wrong type");
+    }
+  }
+
+  #[test]
+  fn test_template_screens_validation() {
+    // Valid template with multiple screens
+    let valid_template = Template::new(TemplateType::Grid, "4-split".to_string(), 4);
+    assert_eq!(valid_template.screens, 4);
+    
+    // Test maximum screens limit
+    let large_template = Template::new(TemplateType::Grid, "16-split".to_string(), 16);
+    // Should not crash and should handle reasonable screen counts
+    assert_eq!(large_template.screens, 16);
+  }
+
+  #[test]
+  fn test_filter_type_coverage() {
+    // Test creation of different filter types
+    let blur_filter = Filter::new(FilterType::Blur, "Blur Filter".to_string());
+    assert_eq!(blur_filter.filter_type, FilterType::Blur);
+    assert_eq!(blur_filter.name, "Blur Filter");
+    
+    let brightness_filter = Filter::new(FilterType::Brightness, "Brightness Filter".to_string());
+    assert_eq!(brightness_filter.filter_type, FilterType::Brightness);
+    
+    let contrast_filter = Filter::new(FilterType::Contrast, "Contrast Filter".to_string());
+    assert_eq!(contrast_filter.filter_type, FilterType::Contrast);
+  }
+
+  #[test]
+  fn test_clip_timeline_calculations() {
+    let clip = Clip::new(std::path::PathBuf::from("test.mp4"), 10.0, 30.0);
+    
+    // Timeline duration should equal duration
+    assert_eq!(clip.get_timeline_duration(), 30.0);
+    
+    // Source duration should equal duration (no trimming)
+    assert_eq!(clip.get_source_duration(), 30.0);
+    
+    // Test with trim settings
+    let mut trimmed_clip = clip.clone();
+    trimmed_clip.source_start = 5.0;
+    trimmed_clip.source_end = 25.0;
+    
+    // Timeline duration unchanged
+    assert_eq!(trimmed_clip.get_timeline_duration(), 30.0);
+    
+    // Source duration should reflect trimming
+    assert_eq!(trimmed_clip.get_source_duration(), 20.0); // 25 - 5
+  }
+
+  #[test]
+  fn test_style_template_defaults() {
+    let style_template = StyleTemplate::new(
+      "Test Style".to_string(),
+      StyleTemplateCategory::Intro,
+      StyleTemplateStyle::Modern,
+      5.0
+    );
+    
+    assert_eq!(style_template.name, "Test Style");
+    assert_eq!(style_template.category, StyleTemplateCategory::Intro);
+    assert_eq!(style_template.style, StyleTemplateStyle::Modern);
+    assert_eq!(style_template.duration, 5.0);
+    assert!(!style_template.id.is_empty());
+  }
+
+  #[test]
+  fn test_project_touch_functionality() {
+    let mut project = ProjectSchema::new("Touch Test".to_string());
+    let original_modified = project.metadata.modified_at;
+    
+    // Wait a bit to ensure timestamp difference
+    std::thread::sleep(std::time::Duration::from_millis(10));
+    
+    project.touch();
+    
+    // Modified timestamp should be more recent
+    assert!(project.metadata.modified_at > original_modified);
+  }
 }
