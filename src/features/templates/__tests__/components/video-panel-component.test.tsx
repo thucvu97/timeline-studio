@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { renderWithTemplates, screen } from "@/test/test-utils"
 
-import { VideoPanelComponent } from "../components/video-panel-component"
+import { VideoPanelComponent } from "../../components/video-panel-component"
 
 describe("VideoPanelComponent", () => {
   const mockVideo = {

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import { squareTemplates } from "../square-templates"
+import { squareTemplates } from "../../../components/template-previews/square-templates"
 
 describe("squareTemplates", () => {
   it("should export an array of square templates", () => {
@@ -198,6 +198,7 @@ describe("squareTemplates", () => {
 
     // Check that the container maintains aspect ratio
     const rootElement = container.firstChild as HTMLElement
-    expect(rootElement).toHaveClass("h-full", "w-full")
+    expect(rootElement).toHaveClass("h-full")
+    expect(rootElement).toHaveClass("w-full")
   })
 })

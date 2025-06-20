@@ -4,10 +4,10 @@ import { describe, expect, it, vi } from "vitest"
 
 import { renderWithTemplates, screen } from "@/test/test-utils"
 
-import { ResizableTemplate } from "../components/resizable-template"
+import { ResizableTemplate } from "../../components/resizable-template"
 
 // Мокаем VideoPanelComponent
-vi.mock("../components/video-panel-component", () => ({
+vi.mock("../../components/video-panel-component", () => ({
   VideoPanelComponent: ({ video, isActive, index, className }: any) => (
     <div
       data-testid={`video-panel-${index ?? video?.id ?? "unknown"}`}

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import { landscapeTemplates } from "../landscape-templates"
+import { landscapeTemplates } from "../../../components/template-previews/landscape-templates"
 
 describe("landscapeTemplates", () => {
   it("should export an array of landscape templates", () => {

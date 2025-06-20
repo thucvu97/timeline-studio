@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import { portraitTemplates } from "../portrait-templates"
+import { portraitTemplates } from "../../../components/template-previews/portrait-templates"
 
 describe("portraitTemplates", () => {
   it("should export an array of portrait templates", () => {

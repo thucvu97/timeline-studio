@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { TemplateRenderer } from "../components/template-renderer"
-import { MediaTemplateConfig, createCellConfig, createDividerConfig } from "../lib/template-config"
+import { TemplateRenderer } from "../../components/template-renderer"
+import { MediaTemplateConfig, createCellConfig, createDividerConfig } from "../../lib/template-config"
 
 describe("TemplateRenderer", () => {
   // Mock функция для рендеринга ячеек

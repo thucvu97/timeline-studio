@@ -127,7 +127,7 @@ export interface MediaTemplateConfig {
 // Интерфейс для обратной совместимости (временный)
 export interface MediaTemplate extends MediaTemplateConfig {
   cellConfig?: CellConfiguration | CellConfiguration[] // Старое поле для совместимости
-  render?: () => JSX.Element // Временно оставляем для постепенной миграции
+  render: () => JSX.Element // Временно оставляем для постепенной миграции
 }
 
 // Вспомогательные типы

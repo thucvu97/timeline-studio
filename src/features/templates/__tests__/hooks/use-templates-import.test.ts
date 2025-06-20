@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useTemplatesImport } from "../hooks/use-templates-import"
+import { useTemplatesImport } from "../../hooks/use-templates-import"
 
 // Мокаем Tauri dialog
 vi.mock("@tauri-apps/plugin-dialog", () => ({

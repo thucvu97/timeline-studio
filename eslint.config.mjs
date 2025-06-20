@@ -43,6 +43,7 @@ const eslintConfig = tseslint.config(
       // Правила для форматирования switch/case
       "indent": ["error", 2, { "SwitchCase": 1 }],
       "@typescript-eslint/indent": "off", // Отключаем TypeScript версию, чтобы использовать обычную
+      "@next/next/no-assign-module-variable": "off",
       // Настройка правил для сортировки импортов
       "import/order": [
         "warn",

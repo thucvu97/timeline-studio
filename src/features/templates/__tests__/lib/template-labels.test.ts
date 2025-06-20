@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { getTemplateDescription, getTemplateLabels } from "../lib/template-labels"
+import { getTemplateDescription, getTemplateLabels } from "../../lib/template-labels"
 
 describe("Template Labels", () => {
   describe("getTemplateLabels", () => {
