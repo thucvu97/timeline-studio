@@ -1376,8 +1376,10 @@ impl PipelineStatistics {
 mod tests {
   use super::*;
   use crate::video_compiler::progress::ProgressUpdate;
-  use crate::video_compiler::schema::ProjectSchema;
-  use tokio::sync::mpsc;
+  use crate::video_compiler::schema::{Clip, ProjectSchema, Track, TrackType};
+  use std::path::Path;
+  use tempfile::TempDir;
+  use tokio::sync::{mpsc, Mutex};
 
   async fn create_test_pipeline() -> RenderPipeline {
     let project = ProjectSchema::new("Test Project".to_string());
@@ -1389,6 +1391,73 @@ mod tests {
     RenderPipeline::new(project, progress_tracker, settings, output_path)
       .await
       .unwrap()
+  }
+
+  #[allow(dead_code)]
+  async fn create_test_pipeline_with_clips() -> (RenderPipeline, TempDir) {
+    let temp_dir = TempDir::new().unwrap();
+    let mut project = ProjectSchema::new("Test Project with Clips".to_string());
+
+    // Create test video file
+    let video_file = temp_dir.path().join("test_video.mp4");
+    std::fs::write(&video_file, b"fake video content").unwrap();
+
+    // Create test audio file
+    let audio_file = temp_dir.path().join("test_audio.mp3");
+    std::fs::write(&audio_file, b"fake audio content").unwrap();
+
+    // Add video track with clip
+    let mut video_track = Track::new(TrackType::Video, "Video Track".to_string());
+    video_track.clips.push(Clip {
+      id: "clip1".to_string(),
+      source_path: video_file,
+      start_time: 0.0,
+      end_time: 10.0,
+      source_start: 0.0,
+      source_end: 10.0,
+      speed: 1.0,
+      volume: 1.0,
+      locked: false,
+      effects: vec![],
+      filters: vec![],
+      template_id: None,
+      template_cell: None,
+      style_template_id: None,
+      properties: HashMap::new(),
+    });
+    project.tracks.push(video_track);
+
+    // Add audio track with clip
+    let mut audio_track = Track::new(TrackType::Audio, "Audio Track".to_string());
+    audio_track.clips.push(Clip {
+      id: "clip2".to_string(),
+      source_path: audio_file,
+      start_time: 0.0,
+      end_time: 10.0,
+      source_start: 0.0,
+      source_end: 10.0,
+      speed: 1.0,
+      volume: 1.0,
+      locked: false,
+      effects: vec![],
+      filters: vec![],
+      template_id: None,
+      template_cell: None,
+      style_template_id: None,
+      properties: HashMap::new(),
+    });
+    project.tracks.push(audio_track);
+
+    let (tx, _rx) = mpsc::unbounded_channel::<ProgressUpdate>();
+    let progress_tracker = Arc::new(ProgressTracker::new(tx));
+    let settings = Arc::new(RwLock::new(CompilerSettings::default()));
+    let output_path = temp_dir.path().join("output.mp4");
+
+    let pipeline = RenderPipeline::new(project, progress_tracker, settings, output_path)
+      .await
+      .unwrap();
+
+    (pipeline, temp_dir)
   }
 
   #[tokio::test]
@@ -1412,6 +1481,51 @@ mod tests {
   }
 
   #[tokio::test]
+  async fn test_context_user_data() {
+    let project = ProjectSchema::new("Test".to_string());
+    let output_path = PathBuf::from("/tmp/test.mp4");
+    let mut context = PipelineContext::new(project, output_path);
+
+    // Test setting and getting user data
+    #[derive(Serialize, Deserialize, Debug, PartialEq)]
+    struct TestData {
+      value: String,
+      count: u32,
+    }
+
+    let test_data = TestData {
+      value: "test".to_string(),
+      count: 42,
+    };
+
+    context
+      .set_user_data("test_key".to_string(), &test_data)
+      .unwrap();
+
+    let retrieved: Option<TestData> = context.get_user_data("test_key");
+    assert_eq!(retrieved, Some(test_data));
+
+    // Test missing key
+    let missing: Option<TestData> = context.get_user_data("missing_key");
+    assert_eq!(missing, None);
+  }
+
+  #[tokio::test]
+  async fn test_context_cleanup() {
+    let project = ProjectSchema::new("Test".to_string());
+    let output_path = PathBuf::from("/tmp/test.mp4");
+    let context = PipelineContext::new(project, output_path);
+
+    // Create temp dir
+    context.ensure_temp_dir().await.unwrap();
+    assert!(context.temp_dir.exists());
+
+    // Clean up
+    context.cleanup().await.unwrap();
+    assert!(!context.temp_dir.exists());
+  }
+
+  #[tokio::test]
   async fn test_validation_stage() {
     let stage = ValidationStage::new();
     assert_eq!(stage.name(), "Validation");
@@ -1419,6 +1533,138 @@ mod tests {
       ProjectSchema::new("Test".to_string()),
       PathBuf::from("/tmp/test.mp4")
     )));
+  }
+
+  #[tokio::test]
+  async fn test_validation_stage_with_invalid_clip() {
+    let mut project = ProjectSchema::new("Test".to_string());
+    let mut track = Track::new(TrackType::Video, "Test Track".to_string());
+
+    // Add clip with non-existent file
+    track.clips.push(Clip {
+      id: "clip1".to_string(),
+      source_path: PathBuf::from("/nonexistent/file.mp4"),
+      start_time: 0.0,
+      end_time: 10.0,
+      source_start: 0.0,
+      source_end: 10.0,
+      speed: 1.0,
+      volume: 1.0,
+      locked: false,
+      effects: vec![],
+      filters: vec![],
+      template_id: None,
+      template_cell: None,
+      style_template_id: None,
+      properties: HashMap::new(),
+    });
+    project.tracks.push(track);
+
+    let output_path = PathBuf::from("/tmp/test.mp4");
+    let mut context = PipelineContext::new(project, output_path);
+
+    let stage = ValidationStage::new();
+    let result = stage.process(&mut context).await;
+
+    assert!(result.is_err());
+    if let Err(e) = result {
+      // The validation stage checks for missing files
+      let error_msg = e.to_string();
+      println!("Error message: {}", error_msg);
+      assert!(
+        error_msg.contains("Файл не найден")
+          || error_msg.contains("File not found")
+          || error_msg.contains("media")
+          || error_msg.contains("не найден")
+      );
+    }
+  }
+
+  #[tokio::test]
+  async fn test_validation_stage_with_invalid_time_range() {
+    let temp_dir = TempDir::new().unwrap();
+    let mut project = ProjectSchema::new("Test".to_string());
+    let mut track = Track::new(TrackType::Video, "Test Track".to_string());
+
+    // Create test file
+    let video_file = temp_dir.path().join("test.mp4");
+    std::fs::write(&video_file, b"fake content").unwrap();
+
+    // Add clip with invalid time range
+    track.clips.push(Clip {
+      id: "clip1".to_string(),
+      source_path: video_file,
+      start_time: 10.0,
+      end_time: 5.0, // Invalid: end < start
+      source_start: 0.0,
+      source_end: 5.0,
+      speed: 1.0,
+      volume: 1.0,
+      locked: false,
+      effects: vec![],
+      filters: vec![],
+      template_id: None,
+      template_cell: None,
+      style_template_id: None,
+      properties: HashMap::new(),
+    });
+    project.tracks.push(track);
+
+    let output_path = PathBuf::from("/tmp/test.mp4");
+    let mut context = PipelineContext::new(project, output_path);
+
+    let stage = ValidationStage::new();
+    let result = stage.process(&mut context).await;
+
+    assert!(result.is_err());
+    if let Err(e) = result {
+      let error_msg = e.to_string();
+      println!("Error message: {}", error_msg);
+      assert!(
+        error_msg.contains("Некорректная длительность")
+          || error_msg.contains("duration")
+          || error_msg.contains("invalid")
+          || error_msg.contains("длительность")
+          || error_msg.contains("Время окончания должно быть больше времени начала")
+      );
+    }
+  }
+
+  #[tokio::test]
+  async fn test_validation_stage_skip_logic() {
+    let project = ProjectSchema::new("Test".to_string());
+    let output_path = PathBuf::from("/tmp/test.mp4");
+    let mut context = PipelineContext::new(project, output_path);
+
+    // Add validation stats with recent timestamp
+    let now = SystemTime::now()
+      .duration_since(SystemTime::UNIX_EPOCH)
+      .unwrap()
+      .as_secs();
+
+    let validation_stats = serde_json::json!({
+      "validated_at": now - 100, // 100 seconds ago
+    });
+
+    context
+      .user_data
+      .insert("validation_stats".to_string(), validation_stats);
+
+    let stage = ValidationStage::new();
+
+    // Should skip since validation was recent (< 5 minutes)
+    assert!(stage.can_skip(&context));
+
+    // Test with old timestamp
+    let old_stats = serde_json::json!({
+      "validated_at": now - 400, // 400 seconds ago (> 5 minutes)
+    });
+    context
+      .user_data
+      .insert("validation_stats".to_string(), old_stats);
+
+    // Should not skip since validation is old
+    assert!(!stage.can_skip(&context));
   }
 
   #[tokio::test]
@@ -1433,6 +1679,23 @@ mod tests {
 
     assert_eq!(stats.error_count, 1);
     assert_eq!(stats.warning_count, 1);
+  }
+
+  #[tokio::test]
+  async fn test_pipeline_statistics_duration() {
+    let start_time = SystemTime::now();
+    tokio::time::sleep(Duration::from_millis(10)).await;
+    let end_time = SystemTime::now();
+
+    let stats = PipelineStatistics {
+      validation_time: start_time,
+      finalization_time: end_time,
+      ..Default::default()
+    };
+
+    let duration = stats.total_duration();
+    assert!(duration.as_millis() >= 10);
+    assert!(duration.as_millis() < 1000); // Should be less than 1 second
   }
 
   #[tokio::test]
@@ -1484,5 +1747,249 @@ mod tests {
     let temp_dir_str = context.temp_dir.to_string_lossy();
     assert!(temp_dir_str.contains("timeline-studio"));
     assert!(temp_dir_str.contains("pipeline"));
+  }
+
+  #[tokio::test]
+  async fn test_pipeline_progress_update() {
+    let pipeline = create_test_pipeline().await;
+    let _job_id = "test_job_123";
+
+    // Test progress update - note that update_progress is a private method
+    // We can test the public interface instead
+    let stats = pipeline.get_statistics();
+    assert_eq!(stats.frames_processed, 0);
+    assert_eq!(stats.error_count, 0);
+  }
+
+  #[tokio::test]
+  async fn test_preprocessing_stage_file_conversion_check() {
+    let stage = PreprocessingStage::new();
+
+    // Test files that need conversion
+    let avi_file = Path::new("test.avi");
+    assert!(stage.check_needs_conversion(avi_file).await.unwrap());
+
+    let flv_file = Path::new("test.flv");
+    assert!(stage.check_needs_conversion(flv_file).await.unwrap());
+
+    // Test files that don't need conversion
+    let mp4_file = Path::new("test.mp4");
+    assert!(!stage.check_needs_conversion(mp4_file).await.unwrap());
+
+    let jpg_file = Path::new("test.jpg");
+    assert!(!stage.check_needs_conversion(jpg_file).await.unwrap());
+  }
+
+  #[tokio::test]
+  async fn test_composition_stage_command_building() {
+    let temp_dir = TempDir::new().unwrap();
+    let mut project = ProjectSchema::new("Test".to_string());
+
+    // Create test file
+    let video_file = temp_dir.path().join("test.mp4");
+    std::fs::write(&video_file, b"fake content").unwrap();
+
+    // Add video track
+    let mut track = Track::new(TrackType::Video, "Test Track".to_string());
+    track.clips.push(Clip {
+      id: "clip1".to_string(),
+      source_path: video_file.clone(),
+      start_time: 0.0,
+      end_time: 10.0,
+      source_start: 0.0,
+      source_end: 10.0,
+      speed: 1.0,
+      volume: 1.0,
+      locked: false,
+      effects: vec![],
+      filters: vec![],
+      template_id: None,
+      template_cell: None,
+      style_template_id: None,
+      properties: HashMap::new(),
+    });
+
+    project.tracks.push(track);
+
+    let output_path = temp_dir.path().join("output.mp4");
+    let mut context = PipelineContext::new(project, output_path);
+    context.add_intermediate_file(
+      "video_composite".to_string(),
+      temp_dir.path().join("composite.mp4"),
+    );
+
+    let stage = CompositionStage::new();
+    let video_tracks: Vec<_> = context
+      .project
+      .tracks
+      .iter()
+      .filter(|t| t.track_type == TrackType::Video)
+      .collect();
+
+    let command = stage
+      .build_video_composition_command(&context, &video_tracks)
+      .unwrap();
+
+    // Check command structure
+    assert_eq!(command[0], "ffmpeg");
+    assert!(command.contains(&"-i".to_string()));
+    assert!(command.contains(&video_file.to_string_lossy().to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_encoding_stage_ffmpeg_progress_parsing() {
+    let stage = EncodingStage::new();
+    let project = ProjectSchema::new("Test".to_string());
+    let output_path = PathBuf::from("/tmp/test.mp4");
+    let mut context = PipelineContext::new(project, output_path);
+
+    // Test FFmpeg progress line parsing
+    let progress_line = "frame=  120 fps=30.0 q=28.0 size=    1024kB time=00:00:04.00 bitrate=2097.2kbits/s speed=1.0x";
+
+    stage
+      .parse_ffmpeg_progress(progress_line, &mut context)
+      .await;
+
+    // Without ProgressTracker, it should still update statistics
+    assert_eq!(context.statistics.frames_processed, 120);
+  }
+
+  #[tokio::test]
+  async fn test_finalization_stage_metadata() {
+    let stage = FinalizationStage::new();
+    assert_eq!(stage.name(), "Finalization");
+    assert_eq!(stage.estimated_duration(), Duration::from_secs(5));
+  }
+
+  #[tokio::test]
+  async fn test_pipeline_custom_stage() {
+    // Define a custom stage
+    #[derive(Debug)]
+    struct CustomStage {
+      name: String,
+      processed: Arc<Mutex<bool>>,
+    }
+
+    #[async_trait]
+    impl PipelineStage for CustomStage {
+      async fn process(&self, _context: &mut PipelineContext) -> Result<()> {
+        let mut processed = self.processed.lock().await;
+        *processed = true;
+        Ok(())
+      }
+
+      fn name(&self) -> &str {
+        &self.name
+      }
+
+      fn estimated_duration(&self) -> Duration {
+        Duration::from_secs(1)
+      }
+    }
+
+    let mut pipeline = create_test_pipeline().await;
+    let processed = Arc::new(Mutex::new(false));
+
+    let custom_stage = Box::new(CustomStage {
+      name: "Custom".to_string(),
+      processed: processed.clone(),
+    });
+
+    pipeline.add_stage(custom_stage);
+    assert_eq!(pipeline.stages.len(), 6); // 5 default + 1 custom
+  }
+
+  #[tokio::test]
+  async fn test_pipeline_error_handling() {
+    // Create a stage that always fails
+    #[derive(Debug)]
+    struct FailingStage;
+
+    #[async_trait]
+    impl PipelineStage for FailingStage {
+      async fn process(&self, _context: &mut PipelineContext) -> Result<()> {
+        Err(VideoCompilerError::validation("Test error"))
+      }
+
+      fn name(&self) -> &str {
+        "Failing"
+      }
+    }
+
+    let mut pipeline = create_test_pipeline().await;
+    pipeline.stages.clear(); // Remove default stages
+    pipeline.add_stage(Box::new(FailingStage));
+
+    let result = pipeline.execute("test_job").await;
+    assert!(result.is_err());
+
+    // Check that error count was incremented
+    let stats = pipeline.get_statistics();
+    assert_eq!(stats.error_count, 1);
+  }
+
+  #[tokio::test]
+  async fn test_pipeline_skip_stage() {
+    // Create a stage that can be skipped
+    #[derive(Debug)]
+    struct SkippableStage;
+
+    #[async_trait]
+    impl PipelineStage for SkippableStage {
+      async fn process(&self, _context: &mut PipelineContext) -> Result<()> {
+        panic!("This stage should be skipped!");
+      }
+
+      fn name(&self) -> &str {
+        "Skippable"
+      }
+
+      fn can_skip(&self, _context: &PipelineContext) -> bool {
+        true
+      }
+    }
+
+    let mut pipeline = create_test_pipeline().await;
+    pipeline.stages.clear();
+    pipeline.add_stage(Box::new(SkippableStage));
+
+    // Should not panic because stage is skipped
+    let result = pipeline.execute("test_job").await;
+    // Will fail because no stages produce output, but won't panic
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_multiple_intermediate_files() {
+    let project = ProjectSchema::new("Test".to_string());
+    let output_path = PathBuf::from("/tmp/test.mp4");
+    let mut context = PipelineContext::new(project, output_path);
+
+    // Add multiple intermediate files
+    for i in 0..10 {
+      let key = format!("temp_{}", i);
+      let path = PathBuf::from(format!("/tmp/temp_{}.mp4", i));
+      context.add_intermediate_file(key.clone(), path.clone());
+
+      assert_eq!(context.get_intermediate_file(&key), Some(&path));
+    }
+
+    // Check that all files are stored
+    assert_eq!(context.intermediate_files.len(), 10);
+  }
+
+  #[tokio::test]
+  async fn test_context_serialization() {
+    let stats = PipelineStatistics::default();
+
+    // Test serialization
+    let json = serde_json::to_string(&stats).unwrap();
+    assert!(json.contains("frames_processed"));
+    assert!(json.contains("error_count"));
+
+    // Test deserialization
+    let deserialized: PipelineStatistics = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.frames_processed, stats.frames_processed);
+    assert_eq!(deserialized.error_count, stats.error_count);
   }
 }
