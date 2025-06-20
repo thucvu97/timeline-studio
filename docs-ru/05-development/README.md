@@ -47,7 +47,7 @@ bun run tauri build      # Build Tauri app
 
 # Тестирование (4,158 тестов)
 bun run test            # Frontend tests (3,604)
-bun run test:rust       # Backend tests (504)
+bun run test:rust       # Backend tests (554)
 bun run test:e2e        # E2E tests (Playwright)
 bun run test:coverage   # Coverage report
 
