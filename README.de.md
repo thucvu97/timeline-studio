@@ -158,8 +158,8 @@ bun run check:all
 ### Test-Abdeckungsstatus
 
 ✅ **Frontend-Tests**: 3,604 bestanden  
-✅ **Backend-Tests**: 504 bestanden (+18 neue!)  
-📊 **Gesamt**: 4,108 Tests bestanden
+✅ **Backend-Tests**: 554 bestanden (+18 neue!)  
+📊 **Gesamt**: 4,158 Tests bestanden
 - `bun run test:coverage:report` - Test-Coverage-Bericht generieren und übermitteln
 - `bun run test:rust` - Rust-Backend-Tests ausführen
 - `bun run test:rust:watch` - Rust-Tests im Watch-Modus ausführen

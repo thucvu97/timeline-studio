@@ -160,8 +160,8 @@ bun run check:all
 ### Test Coverage Status
 
 ✅ **Frontend Tests**: 3,604 passed  
-✅ **Backend Tests**: 504 passed (+18 новых!)  
-📊 **Total**: 4,108 tests passing
+✅ **Backend Tests**: 554 passed (+18 новых!)  
+📊 **Total**: 4,158 tests passing
 
 ## CI/CD & Code Quality
 

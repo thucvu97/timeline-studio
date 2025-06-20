@@ -154,8 +154,8 @@ bun run check:all
 ### Statut de Couverture des Tests
 
 ✅ **Tests Frontend** : 3,604 réussis  
-✅ **Tests Backend** : 504 réussis (+18 nouveaux !)  
-📊 **Total** : 4,108 tests réussis
+✅ **Tests Backend** : 554 réussis (+18 nouveaux !)  
+📊 **Total** : 4,158 tests réussis
 
 ## CI/CD et Qualité du Code
 

@@ -149,8 +149,8 @@ bun run check:all
 ### Test Kapsamı Durumu
 
 ✅ **Frontend Testleri**: 3,604 geçti  
-✅ **Backend Testleri**: 504 geçti (+18 yeni!)  
-📊 **Toplam**: 4,108 test geçti
+✅ **Backend Testleri**: 554 geçti (+18 yeni!)  
+📊 **Toplam**: 4,158 test geçti
 
 ### Test Etme
 

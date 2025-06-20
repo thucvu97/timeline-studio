@@ -158,8 +158,8 @@ bun run check:all
 ### Estado de Cobertura de Pruebas
 
 ✅ **Pruebas Frontend**: 3,604 pasaron  
-✅ **Pruebas Backend**: 504 pasaron (+18 nuevas!)  
-📊 **Total**: 4,108 pruebas pasando
+✅ **Pruebas Backend**: 554 pasaron (+18 nuevas!)  
+📊 **Total**: 4,158 pruebas pasando
 
 ## Licencia
 

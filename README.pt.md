@@ -158,8 +158,8 @@ bun run check:all
 ### Status de Cobertura dos Testes
 
 ✅ **Testes Frontend**: 3,604 passaram  
-✅ **Testes Backend**: 504 passaram (+18 novos!)  
-📊 **Total**: 4,108 testes passando
+✅ **Testes Backend**: 554 passaram (+18 novos!)  
+📊 **Total**: 4,158 testes passando
 - `bun run test:coverage:report` - Gerar e enviar relatório de cobertura de testes
 - `bun run test:rust` - Executar testes do backend Rust
 - `bun run test:rust:watch` - Executar testes Rust em modo watch
