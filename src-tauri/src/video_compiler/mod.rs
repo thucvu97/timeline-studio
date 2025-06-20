@@ -31,6 +31,9 @@ mod progress_tests;
 #[cfg(test)]
 mod frame_extraction_tests;
 
+#[cfg(test)]
+mod commands_tests;
+
 // Re-export основных типов для удобства использования
 pub use commands::VideoCompilerState;
 pub use error::{Result, VideoCompilerError};
