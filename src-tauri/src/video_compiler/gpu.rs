@@ -513,7 +513,8 @@ impl GpuHelper {
   /// Конвертация качества (0-100) в CRF (0-51)
   fn quality_to_crf(quality: u8) -> u8 {
     // Инвертируем: высокое качество = низкий CRF
-    51 - (quality as f32 * 0.51) as u8
+    let clamped_quality = quality.min(100);
+    51 - (clamped_quality as f32 * 0.51) as u8
   }
 
   /// Конвертация качества в NVENC CQ параметр
@@ -540,13 +541,14 @@ impl GpuHelper {
   /// Конвертация качества в VideoToolbox quality
   fn quality_to_videotoolbox_quality(quality: u8) -> u8 {
     // VideoToolbox q:v 1-100
-    quality.max(1)
+    quality.clamp(1, 100)
   }
 
   /// Конвертация качества в AMF QP
   fn quality_to_amf_qp(quality: u8) -> u8 {
     // AMF QP 0-51
-    51 - (quality as f32 * 0.51) as u8
+    let clamped_quality = quality.min(100);
+    51 - (clamped_quality as f32 * 0.51) as u8
   }
 }
 
