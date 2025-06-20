@@ -57,7 +57,7 @@ mod tests {
         Some("Processing frame 50".to_string()),
       )
       .await;
-    
+
     // Если ошибка, значит задача в состоянии Queued (ожидаемое поведение)
     if result.is_err() {
       // Проверяем что ошибка связана с неправильным статусом
@@ -71,17 +71,15 @@ mod tests {
     while let Ok(update) = rx.try_recv() {
       received_updates.push(update);
     }
-    
+
     // Должно быть как минимум одно обновление
     assert!(!received_updates.is_empty());
-    
+
     // Проверяем что есть обновление с нашим job_id
-    let has_our_job = received_updates.iter().any(|update| {
-      match update {
-        ProgressUpdate::JobStarted { job_id: id } => id == &job_id,
-        ProgressUpdate::ProgressChanged { job_id: id, .. } => id == &job_id,
-        _ => false,
-      }
+    let has_our_job = received_updates.iter().any(|update| match update {
+      ProgressUpdate::JobStarted { job_id: id } => id == &job_id,
+      ProgressUpdate::ProgressChanged { job_id: id, .. } => id == &job_id,
+      _ => false,
     });
     assert!(has_our_job, "Should have received update for our job");
   }
@@ -105,14 +103,14 @@ mod tests {
     let result = tracker
       .complete_job(&job_id, "/tmp/final_output.mp4".to_string())
       .await;
-    
+
     // Ожидаем ошибку, так как нельзя завершить незапущенную задачу
     if result.is_err() {
       let err_msg = result.unwrap_err().to_string();
       assert!(err_msg.contains("не выполняется") || err_msg.contains("ожидания"));
       return; // Это ожидаемое поведение - тест прошел
     }
-    
+
     // Если мы досюда дошли, значит complete_job неожиданно сработал
     panic!("complete_job не должен срабатывать для незапущенных задач");
   }
@@ -141,13 +139,16 @@ mod tests {
     while let Ok(update) = rx.try_recv() {
       received_updates.push(update);
     }
-    
+
     // Ищем уведомление об ошибке
     let found_failure = received_updates.iter().any(|update| {
       matches!(update, ProgressUpdate::JobFailed { job_id: id, error, .. } 
         if id == &job_id && error == "Test error")
     });
-    assert!(found_failure, "Should have received JobFailed update with correct error");
+    assert!(
+      found_failure,
+      "Should have received JobFailed update with correct error"
+    );
   }
 
   #[tokio::test]
@@ -178,12 +179,15 @@ mod tests {
     while let Ok(update) = rx.try_recv() {
       received_updates.push(update);
     }
-    
+
     // Ищем уведомление об отмене
-    let found_cancellation = received_updates.iter().any(|update| {
-      matches!(update, ProgressUpdate::JobCancelled { job_id: id } if id == &job_id)
-    });
-    assert!(found_cancellation, "Should have received JobCancelled update");
+    let found_cancellation = received_updates
+      .iter()
+      .any(|update| matches!(update, ProgressUpdate::JobCancelled { job_id: id } if id == &job_id));
+    assert!(
+      found_cancellation,
+      "Should have received JobCancelled update"
+    );
   }
 
   #[test]
