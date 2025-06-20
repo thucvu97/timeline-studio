@@ -11,6 +11,7 @@ import { useVideoCompiler } from "@/features/video-compiler/hooks/use-video-comp
 
 import { BatchExportTab } from "./batch-export-tab"
 import { DetailedExportInterface } from "./detailed-export-interface"
+import { SectionExportTab } from "./section-export-tab"
 import { SocialExportTab } from "./social-export-tab"
 import { AUDIO_BITRATE } from "../constants/export-constants"
 import { useExportSettings } from "../hooks/use-export-settings"
@@ -26,7 +27,7 @@ export function ExportModal() {
 
   const { getCurrentSettings, updateSettings, handleChooseFolder, getExportConfig } = useExportSettings()
   
-  const [activeTab, setActiveTab] = useState<"local" | "social" | "batch">("local")
+  const [activeTab, setActiveTab] = useState<"local" | "social" | "batch" | "sections">("local")
   const [socialSettings, setSocialSettings] = useState<SocialExportSettings>({
     ...getCurrentSettings(),
     socialNetwork: "youtube",
@@ -125,11 +126,12 @@ export function ExportModal() {
   const currentSettings = getCurrentSettings()
 
   return (
-    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "local" | "social" | "batch")}>
-      <TabsList className="grid w-full grid-cols-3 mb-6">
+    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "local" | "social" | "batch" | "sections")}>
+      <TabsList className="grid w-full grid-cols-4 mb-6">
         <TabsTrigger value="local">{t("dialogs.export.local")}</TabsTrigger>
         <TabsTrigger value="social">{t("dialogs.export.socialNetworks")}</TabsTrigger>
-        <TabsTrigger value="batch">{t("dialogs.export.batch")}</TabsTrigger>
+        <TabsTrigger value="batch">{t("dialogs.export.batchTab")}</TabsTrigger>
+        <TabsTrigger value="sections">{t("dialogs.export.sectionsTab")}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="local">
@@ -163,6 +165,51 @@ export function ExportModal() {
         <BatchExportTab
           onClose={() => closeModal()}
           defaultSettings={currentSettings}
+        />
+      </TabsContent>
+
+      <TabsContent value="sections">
+        <SectionExportTab
+          defaultSettings={currentSettings}
+          onExport={async (settings) => {
+            if (!project) {
+              toast.error(t("dialogs.export.errors.noProject"))
+              return
+            }
+
+            try {
+              // Handle section export
+              for (const section of settings.sections) {
+                const projectSchema = timelineToProjectSchema(project)
+                
+                // Set export settings
+                projectSchema.settings.export = {
+                  format: settings.format,
+                  quality: settings.quality,
+                  video_bitrate: settings.videoBitrate,
+                  audio_bitrate: AUDIO_BITRATE,
+                  hardware_acceleration: settings.enableGPU,
+                  ffmpeg_args: [],
+                }
+
+                // Set time range for section
+                projectSchema.timeline.start_time = section.startTime
+                projectSchema.timeline.end_time = section.endTime
+                
+                // Generate output path
+                const fileName = section.customFileName || section.name
+                const outputPath = `${settings.savePath}/${fileName}.${settings.format}`
+                
+                await startRender(projectSchema, outputPath)
+              }
+              
+              toast.success(t("dialogs.export.sectionsExportSuccess"))
+              closeModal()
+            } catch (error) {
+              console.error("Section export failed:", error)
+              toast.error(t("dialogs.export.errors.exportFailed"))
+            }
+          }}
         />
       </TabsContent>
     </Tabs>

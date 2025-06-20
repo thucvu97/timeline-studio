@@ -437,7 +437,7 @@ describe("ExportModal", () => {
       
       expect(screen.getByText("dialogs.export.local")).toBeInTheDocument()
       expect(screen.getByText("dialogs.export.socialNetworks")).toBeInTheDocument()
-      expect(screen.getByText("dialogs.export.batch")).toBeInTheDocument()
+      expect(screen.getByText("dialogs.export.batchTab")).toBeInTheDocument()
     })
 
     it.skip("should switch to social tab", async () => {
@@ -463,7 +463,7 @@ describe("ExportModal", () => {
     it.skip("should switch to batch tab", async () => {
       render(<ExportModal />)
       
-      const batchTab = screen.getByRole('tab', { name: 'dialogs.export.batch' })
+      const batchTab = screen.getByRole('tab', { name: 'dialogs.export.batchTab' })
       
       await act(async () => {
         fireEvent.click(batchTab)
@@ -475,7 +475,7 @@ describe("ExportModal", () => {
       })
       
       // Check that the batch tab panel is visible
-      const batchPanel = screen.getByRole('tabpanel', { name: 'dialogs.export.batch' })
+      const batchPanel = screen.getByRole('tabpanel', { name: 'dialogs.export.batchTab' })
       expect(batchPanel).toBeVisible()
     })
 
@@ -483,7 +483,7 @@ describe("ExportModal", () => {
       render(<ExportModal />)
       
       // First switch to batch
-      const batchTab = screen.getByText("dialogs.export.batch")
+      const batchTab = screen.getByText("dialogs.export.batchTab")
       fireEvent.click(batchTab)
       
       await waitFor(() => {
