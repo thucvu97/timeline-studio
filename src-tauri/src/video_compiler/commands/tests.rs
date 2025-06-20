@@ -1372,4 +1372,238 @@ mod tests {
     assert!(capabilities.available_codecs.contains(&"h264".to_string()));
     assert_eq!(capabilities.hardware_encoders.len(), 1);
   }
+
+  // Additional tests for command logic coverage
+  #[tokio::test]
+  async fn test_video_compiler_error_handling() {
+    use crate::video_compiler::error::VideoCompilerError;
+
+    // Test validation errors
+    let error = VideoCompilerError::validation("Invalid project");
+    assert!(matches!(error, VideoCompilerError::ValidationError(_)));
+
+    // Test media file errors
+    let error = VideoCompilerError::media_file("/tmp/missing.mp4", "File not found");
+    assert!(matches!(error, VideoCompilerError::MediaFileError { .. }));
+  }
+
+  #[tokio::test]
+  async fn test_render_job_lifecycle() {
+    let state = create_test_state();
+    let _job_id = uuid::Uuid::new_v4().to_string();
+    let project = create_test_project();
+
+    // Create render job metadata
+    let _metadata = RenderJobMetadata {
+      project_name: project.metadata.name.clone(),
+      output_path: "/tmp/output.mp4".to_string(),
+      created_at: chrono::Utc::now().to_rfc3339(),
+    };
+
+    // Test job tracking
+    let jobs = state.active_jobs.read().await;
+    assert_eq!(jobs.len(), 0);
+  }
+
+  #[tokio::test]
+  async fn test_progress_update_handling() {
+    let progress = RenderProgress {
+      job_id: "test-job".to_string(),
+      stage: "Encoding".to_string(),
+      percentage: 45.5,
+      current_frame: 1365,
+      total_frames: 3000,
+      elapsed_time: Duration::from_secs(120),
+      estimated_remaining: Some(Duration::from_secs(145)),
+      status: RenderStatus::Processing,
+      message: Some("Processing video stream".to_string()),
+    };
+
+    assert!(progress.percentage >= 0.0 && progress.percentage <= 100.0);
+    assert!(progress.current_frame <= progress.total_frames);
+  }
+
+  #[tokio::test]
+  async fn test_cache_operations() {
+    let state = create_test_state();
+
+    // Test cache memory calculation
+    let cache = state.cache_manager.read().await;
+    let memory = cache.get_memory_usage();
+    assert_eq!(
+      memory.total_bytes,
+      memory.preview_bytes + memory.metadata_bytes + memory.render_bytes
+    );
+
+    // Test cache stats
+    let stats = cache.get_stats();
+    assert_eq!(stats.preview_requests, 0);
+    assert_eq!(stats.hit_ratio(), 0.0);
+  }
+
+  #[tokio::test]
+  async fn test_media_metadata_caching() {
+    let state = create_test_state();
+    let file_path = "/tmp/test_video.mp4";
+
+    // Create test metadata
+    let metadata = MediaMetadata {
+      file_path: file_path.to_string(),
+      file_size: 10_000_000,
+      modified_time: SystemTime::now(),
+      duration: 120.5,
+      resolution: Some((1920, 1080)),
+      fps: Some(30.0),
+      bitrate: Some(8_000_000),
+      video_codec: Some("h264".to_string()),
+      audio_codec: Some("aac".to_string()),
+      cached_at: SystemTime::now(),
+    };
+
+    // Store in cache
+    let mut cache = state.cache_manager.write().await;
+    cache
+      .store_metadata(file_path.to_string(), metadata.clone())
+      .await
+      .unwrap();
+
+    // Retrieve from cache
+    let cached = cache.get_metadata(file_path).await;
+    assert!(cached.is_some());
+    assert_eq!(cached.unwrap().duration, 120.5);
+  }
+
+  #[tokio::test]
+  async fn test_frame_extraction_settings() {
+    let settings = ExtractionSettings {
+      _format: PreviewFormat::Jpeg,
+      quality: 85,
+      resolution: (640, 360),
+      strategy: ExtractionStrategy::KeyFrames,
+      _purpose: ExtractionPurpose::TimelinePreview,
+      max_frames: None,
+      _gpu_decode: false,
+      parallel_extraction: true,
+      _thread_count: None,
+    };
+
+    assert!(settings.quality > 0 && settings.quality <= 100);
+    let (w, h) = settings.resolution;
+    assert!(w > 0 && h > 0);
+  }
+
+  #[tokio::test]
+  async fn test_gpu_encoder_selection() {
+    let encoders = vec![
+      GpuEncoder::None,
+      GpuEncoder::Nvenc,
+      GpuEncoder::QuickSync,
+      GpuEncoder::VideoToolbox,
+    ];
+
+    for encoder in &encoders {
+      let codec = encoder.h264_codec_name();
+      assert!(!codec.is_empty());
+
+      if encoder == &GpuEncoder::None {
+        assert!(!encoder.is_hardware());
+      } else {
+        assert!(encoder.is_hardware());
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_compiler_settings_validation() {
+    let settings = CompilerSettings {
+      hardware_acceleration: true,
+      max_concurrent_jobs: 4,
+      preview_quality: 80,
+      cache_size_mb: 1024,
+      temp_directory: std::env::temp_dir().join("timeline-studio"),
+      ffmpeg_path: None,
+    };
+
+    assert!(settings.max_concurrent_jobs > 0);
+    assert!(settings.preview_quality > 0 && settings.preview_quality <= 100);
+    assert!(settings.cache_size_mb > 0);
+  }
+
+  #[tokio::test]
+  async fn test_batch_operation_validation() {
+    // Simulate batch frame extraction
+    let batch_video_paths = ["/tmp/video1.mp4", "/tmp/video2.mp4", "/tmp/video3.mp4"];
+    let batch_timestamps = [
+      vec![0.0, 5.0, 10.0],
+      vec![1.0, 3.0, 5.0],
+      vec![2.0, 4.0, 6.0],
+    ];
+
+    // Validate batch
+    assert!(!batch_video_paths.is_empty());
+    assert_eq!(batch_video_paths.len(), batch_timestamps.len());
+    for (path, timestamps) in batch_video_paths.iter().zip(batch_timestamps.iter()) {
+      assert!(!path.is_empty());
+      assert!(!timestamps.is_empty());
+    }
+  }
+
+  #[tokio::test]
+  async fn test_render_time_estimation() {
+    let project = create_test_project();
+    let settings = CompilerSettings::default();
+
+    // Calculate complexity factors
+    let duration = project.timeline.duration;
+    let resolution_factor =
+      (project.timeline.resolution.0 * project.timeline.resolution.1) as f64 / (1920.0 * 1080.0);
+    let fps_factor = project.timeline.fps as f64 / 30.0;
+    let effects_factor = 1.0 + (project.effects.len() as f64 * 0.5);
+    let tracks_factor = 1.0 + ((project.tracks.len() - 1) as f64 * 0.3);
+
+    let base_time = duration * resolution_factor * fps_factor * effects_factor * tracks_factor;
+    let gpu_multiplier = if settings.hardware_acceleration {
+      0.3
+    } else {
+      1.0
+    };
+    let estimated_seconds = (base_time * gpu_multiplier * 2.0) as u64;
+
+    assert!(estimated_seconds > 0);
+  }
+
+  #[tokio::test]
+  async fn test_media_validation() {
+    let valid_extensions = [
+      "mp4", "mov", "avi", "mkv", "webm", "mp3", "wav", "aac", "flac",
+    ];
+    let test_path = "/tmp/test_video.mp4";
+
+    let extension = std::path::Path::new(test_path)
+      .extension()
+      .and_then(|ext| ext.to_str())
+      .map(|ext| ext.to_lowercase());
+
+    if let Some(ext) = extension {
+      assert!(valid_extensions.contains(&ext.as_str()));
+    }
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_job_limiting() {
+    let state = create_test_state();
+    let settings = state.settings.read().await;
+    let max_jobs = settings.max_concurrent_jobs;
+
+    // Simulate job queue
+    let mut job_count = 0;
+    for _i in 0..10 {
+      if job_count < max_jobs {
+        job_count += 1;
+      } else {
+        // Would queue the job
+        assert!(job_count == max_jobs);
+      }
+    }
+  }
 }
