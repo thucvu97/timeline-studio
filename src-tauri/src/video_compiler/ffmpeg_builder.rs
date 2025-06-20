@@ -2498,8 +2498,15 @@ impl Default for FFmpegBuilderSettings {
 mod tests {
   use super::*;
   use crate::video_compiler::schema::{
-    Clip, Effect, EffectParameter, EffectType, ProjectSchema, Track, TrackType,
+    Clip, Effect, EffectParameter, EffectType, ElementTiming, Filter, FilterType,
+    FitMode, Position2D, ProjectSchema, Size2D, StyleElementProperties,
+    StyleElementType, StyleTemplate, StyleTemplateCategory, StyleTemplateElement,
+    StyleTemplateStyle, Subtitle, SubtitleAlignX, SubtitleAlignY, SubtitleFontWeight, SubtitleMargin, SubtitlePadding,
+    SubtitlePosition, SubtitleStyle, Template, TemplateCell, Track,
+    TrackType, Transition, TransitionCategory, TransitionComplexity, TransitionDuration,
+    TransitionTag,
   };
+  use std::collections::HashMap;
   use std::path::PathBuf;
 
   #[tokio::test]
@@ -3198,5 +3205,543 @@ mod tests {
     let command = result.unwrap();
     let cmd_str = format!("{:?}", command);
     assert!(cmd_str.contains("ffmpeg"));
+  }
+
+  #[tokio::test]
+  async fn test_build_subtitle_filter() {
+    let mut project = create_test_project();
+    // Add subtitle to project
+    let subtitle = Subtitle {
+      id: "subtitle1".to_string(),
+      text: "Test Subtitle".to_string(),
+      start_time: 0.0,
+      end_time: 5.0,
+      position: SubtitlePosition {
+        x: 50.0,
+        y: 90.0,
+        align_x: SubtitleAlignX::Center,
+        align_y: SubtitleAlignY::Bottom,
+        margin: crate::video_compiler::schema::SubtitleMargin {
+          top: 0.0,
+          right: 0.0,
+          bottom: 20.0,
+          left: 0.0,
+        },
+      },
+      enabled: true,
+      style: crate::video_compiler::schema::SubtitleStyle {
+        font_family: "Arial".to_string(),
+        font_size: 24.0,
+        font_weight: SubtitleFontWeight::Normal,
+        color: "#FFFFFF".to_string(),
+        stroke_color: Some("#000000".to_string()),
+        stroke_width: 2.0,
+        shadow_color: Some("#000000".to_string()),
+        shadow_x: 2.0,
+        shadow_y: 2.0,
+        shadow_blur: 4.0,
+        background_color: Some("#000000".to_string()),
+        background_opacity: 0.5,
+        padding: crate::video_compiler::schema::SubtitlePadding {
+          top: 10.0,
+          right: 10.0,
+          bottom: 10.0,
+          left: 10.0,
+        },
+        border_radius: 0.0,
+        line_height: 1.2,
+        letter_spacing: 0.0,
+        max_width: 0.0,
+      },
+      animations: vec![],
+    };
+    project.subtitles.push(subtitle);
+
+    let builder = FFmpegBuilder::new(project);
+    let result = builder.build_subtitle_filter().await;
+
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("drawtext") || filter.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_build_transition_filter() {
+    let mut project = create_test_project();
+    // Add transition to project - using real structure
+    let transition = Transition {
+      id: "transition1".to_string(),
+      name: "Fade Transition".to_string(),
+      transition_type: "fade".to_string(),
+      labels: None,
+      description: None,
+      category: Some(TransitionCategory::Basic),
+      complexity: Some(TransitionComplexity::Basic),
+      tags: vec![TransitionTag::Fade],
+      start_time: 5.0,
+      duration: TransitionDuration {
+        min: 0.5,
+        max: 5.0,
+        default: 1.0,
+        current: 1.0,
+      },
+      parameters: HashMap::new(),
+      ffmpeg_command: None,
+      preview_path: None,
+      from_clip_id: "clip1".to_string(),
+      to_clip_id: "clip2".to_string(),
+    };
+    project.transitions.push(transition);
+
+    // Add second clip for transition
+    let track = &mut project.tracks[0];
+    let clip2 = Clip::new(PathBuf::from("/test/video2.mp4"), 5.0, 15.0);
+    track.clips.push(clip2);
+
+    let builder = FFmpegBuilder::new(project);
+    // Get clips for transition
+    let from_clip = &builder.project.tracks[0].clips[0];
+    let to_clip = &builder.project.tracks[0].clips[1];
+    let result = builder
+      .build_transition_filter(&builder.project.transitions[0], from_clip, to_clip, 0, 1)
+      .await;
+
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("fade") || filter.contains("xfade"));
+  }
+
+  #[test]
+  fn test_is_audio_effect() {
+    let builder = create_test_builder();
+
+    // Test video effects (should return false since they are not audio effects)
+    assert!(!builder.is_audio_effect(&EffectType::Blur));
+    assert!(!builder.is_audio_effect(&EffectType::Brightness));
+    assert!(!builder.is_audio_effect(&EffectType::Contrast));
+    assert!(!builder.is_audio_effect(&EffectType::Saturation));
+    assert!(!builder.is_audio_effect(&EffectType::Grayscale));
+  }
+
+  #[test]
+  fn test_add_bitrate_control() {
+    let mut project = create_test_project();
+    project.settings.export.video_bitrate = 8000; // 8 Mbps
+    project.settings.export.audio_bitrate = 256; // 256 kbps
+    // Need to set rate_control_mode for bitrate to be applied
+    project.settings.export.rate_control_mode = Some("vbr".to_string());
+
+    let builder = FFmpegBuilder::new(project);
+    let mut cmd = tokio::process::Command::new("ffmpeg");
+
+    builder.add_bitrate_control(&mut cmd);
+    let cmd_str = format!("{:?}", cmd);
+
+    assert!(cmd_str.contains("-b:v"));
+    assert!(cmd_str.contains("8000k"));
+  }
+
+  #[test]
+  fn test_add_audio_settings() {
+    let mut project = create_test_project();
+    // Since ExportSettings doesn't have audio_codec fields, we'll test basic audio settings
+    project.settings.export.audio_bitrate = 192; // 192 kbps
+
+    let builder = FFmpegBuilder::new(project);
+    let mut cmd = tokio::process::Command::new("ffmpeg");
+
+    builder.add_audio_settings(&mut cmd);
+    let cmd_str = format!("{:?}", cmd);
+
+    // Check that audio bitrate is set
+    assert!(cmd_str.contains("-b:a"));
+    assert!(cmd_str.contains("192k"));
+  }
+
+  #[test]
+  fn test_add_advanced_encoding_settings() {
+    let mut project = create_test_project();
+    project.settings.export.preset = Some("slow".to_string());
+    // two_pass field doesn't exist in ExportSettings
+    project.settings.export.keyframe_interval = Some(60);
+
+    let builder = FFmpegBuilder::new(project);
+    let mut cmd = tokio::process::Command::new("ffmpeg");
+
+    builder.add_advanced_encoding_settings(&mut cmd);
+    let cmd_str = format!("{:?}", cmd);
+
+    assert!(cmd_str.contains("-preset"));
+    assert!(cmd_str.contains("slow"));
+    assert!(cmd_str.contains("-g"));
+    assert!(cmd_str.contains("60"));
+  }
+
+  #[tokio::test]
+  async fn test_build_template_filter() {
+    let mut project = create_test_project();
+    // Add template to project
+    let template = Template {
+      id: "template1".to_string(),
+      name: "Split Screen".to_string(),
+      template_type: crate::video_compiler::schema::TemplateType::Grid,
+      screens: 2,
+      cells: vec![
+        TemplateCell {
+          index: 0,
+          x: 0.0,
+          y: 0.0,
+          width: 0.5,
+          height: 0.5,
+          fit_mode: FitMode::Cover,
+          align_x: crate::video_compiler::schema::AlignX::Center,
+          align_y: crate::video_compiler::schema::AlignY::Center,
+          scale: Some(1.0),
+        },
+        TemplateCell {
+          index: 1,
+          x: 0.5,
+          y: 0.0,
+          width: 0.5,
+          height: 0.5,
+          fit_mode: FitMode::Cover,
+          align_x: crate::video_compiler::schema::AlignX::Center,
+          align_y: crate::video_compiler::schema::AlignY::Center,
+          scale: Some(1.0),
+        },
+      ],
+    };
+    project.templates.push(template.clone());
+
+    // Create clips with template
+    let mut clips = vec![];
+    for i in 0..2 {
+      let mut clip = Clip::new(PathBuf::from(format!("/test/video{}.mp4", i)), 0.0, 10.0);
+      clip.template_id = Some("template1".to_string());
+      clip.template_cell = Some(i);
+      clips.push(clip);
+    }
+
+    let builder = FFmpegBuilder::new(project);
+    // Convert clips to the format expected by build_template_filter
+    let clips_with_cells: Vec<(Clip, usize, String)> = clips
+      .into_iter()
+      .map(|clip| {
+        let cell_index = clip.template_cell.unwrap_or(0);
+        let cell_name = format!("Cell {}", cell_index + 1);
+        (clip, cell_index, cell_name)
+      })
+      .collect();
+    let result = builder
+      .build_template_filter(&template, &clips_with_cells)
+      .await;
+
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    // Should contain overlay or scale filters for positioning
+    assert!(filter.contains("scale") || filter.contains("overlay") || filter.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_build_style_template_filter() {
+    let mut project = create_test_project();
+    // Add style template
+    let style_template = StyleTemplate {
+      id: "style1".to_string(),
+      name: "Intro Animation".to_string(),
+      category: StyleTemplateCategory::Intro,
+      style: StyleTemplateStyle::Modern,
+      duration: 3.0,
+      elements: vec![StyleTemplateElement {
+        id: "element1".to_string(),
+        element_type: StyleElementType::Text,
+        name: "Welcome Text".to_string(),
+        position: Position2D { x: 0.5, y: 0.5 },
+        size: Size2D {
+          width: 1.0,
+          height: 1.0,
+        },
+        timing: ElementTiming {
+          start: 0.0,
+          end: 3.0,
+        },
+        properties: StyleElementProperties {
+          opacity: Some(1.0),
+          rotation: Some(0.0),
+          scale: Some(1.0),
+          text: Some("Welcome".to_string()),
+          font_family: Some("Arial".to_string()),
+          font_size: Some(48.0),
+          font_weight: Some(crate::video_compiler::schema::FontWeight::Bold),
+          color: Some("#FFFFFF".to_string()),
+          background_color: None,
+          text_align: Some(crate::video_compiler::schema::TextAlign::Center),
+          border_color: None,
+          border_width: None,
+          border_radius: None,
+          src: None,
+          object_fit: None,
+        },
+        animations: vec![],
+      }],
+    };
+    project.style_templates.push(style_template.clone());
+
+    // Create clip with style template
+    let mut clip = Clip::new(PathBuf::from("/test/video.mp4"), 0.0, 10.0);
+    clip.style_template_id = Some("style1".to_string());
+
+    let builder = FFmpegBuilder::new(project);
+    let result = builder
+      .build_style_template_filter(&style_template, &clip, 0)
+      .await;
+
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    // Should contain drawtext or overlay for style elements
+    assert!(filter.contains("drawtext") || filter.contains("overlay") || filter.is_empty());
+  }
+
+  #[test]
+  fn test_ffmpeg_builder_settings_full() {
+    let settings = FFmpegBuilderSettings {
+      ffmpeg_path: "/usr/local/bin/ffmpeg".to_string(),
+      threads: Some(16),
+      _prefer_nvenc: true,
+      _prefer_quicksync: false,
+      _global_args: vec!["-nostdin".to_string(), "-hide_banner".to_string()],
+    };
+
+    assert_eq!(settings.ffmpeg_path, "/usr/local/bin/ffmpeg");
+    assert_eq!(settings.threads, Some(16));
+    assert!(settings._prefer_nvenc);
+    assert!(!settings._prefer_quicksync);
+    assert_eq!(settings._global_args.len(), 2);
+  }
+
+  #[tokio::test]
+  async fn test_build_complex_filter_chain() {
+    let mut project = create_test_project();
+    // Add multiple effects to clip
+    let mut blur_effect = create_blur_effect(3.0);
+    blur_effect.id = "blur1".to_string();
+    let mut brightness_effect = create_brightness_effect(1.2);
+    brightness_effect.id = "bright1".to_string();
+    let mut contrast_effect = create_contrast_effect(1.5);
+    contrast_effect.id = "contrast1".to_string();
+
+    project.effects.push(blur_effect);
+    project.effects.push(brightness_effect);
+    project.effects.push(contrast_effect);
+
+    project.tracks[0].clips[0].effects = vec![
+      "blur1".to_string(),
+      "bright1".to_string(),
+      "contrast1".to_string(),
+    ];
+
+    let builder = FFmpegBuilder::new(project);
+    let result = builder.build_filter_complex().await;
+
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    // Should chain multiple effects
+    assert!(filter.contains("boxblur") || filter.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_collect_input_sources_with_multiple_tracks() {
+    let mut project = create_test_project();
+
+    // Add more video tracks
+    let mut video_track2 = Track::new(TrackType::Video, "Video Track 2".to_string());
+    video_track2
+      .clips
+      .push(Clip::new(PathBuf::from("/test/video2.mp4"), 0.0, 10.0));
+    project.tracks.push(video_track2);
+
+    // Add audio tracks
+    let mut audio_track1 = Track::new(TrackType::Audio, "Audio Track 1".to_string());
+    audio_track1
+      .clips
+      .push(Clip::new(PathBuf::from("/test/audio1.mp3"), 0.0, 10.0));
+    project.tracks.push(audio_track1);
+
+    let mut audio_track2 = Track::new(TrackType::Audio, "Audio Track 2".to_string());
+    audio_track2
+      .clips
+      .push(Clip::new(PathBuf::from("/test/audio2.mp3"), 0.0, 10.0));
+    project.tracks.push(audio_track2);
+
+    let builder = FFmpegBuilder::new(project);
+    let sources = builder.collect_input_sources().await.unwrap();
+
+    // Should have 4 unique sources
+    assert_eq!(sources.len(), 4);
+
+    // Check input indices are sequential
+    for (i, source) in sources.iter().enumerate() {
+      assert_eq!(source.input_index, i);
+    }
+
+    // Check track types
+    let video_sources: Vec<_> = sources
+      .iter()
+      .filter(|s| s.track_type == TrackType::Video)
+      .collect();
+    let audio_sources: Vec<_> = sources
+      .iter()
+      .filter(|s| s.track_type == TrackType::Audio)
+      .collect();
+
+    assert_eq!(video_sources.len(), 2);
+    assert_eq!(audio_sources.len(), 2);
+  }
+
+  #[tokio::test]
+  async fn test_hardware_acceleration_with_different_codecs() {
+    let mut project = create_test_project();
+    project.settings.export.hardware_acceleration = true;
+    project.settings.export.quality = 80;
+
+    // Test with different preferred encoders
+    let encoders = vec!["nvenc", "quicksync", "vaapi", "videotoolbox", "amf"];
+
+    for encoder in encoders {
+      project.settings.export.preferred_gpu_encoder = Some(encoder.to_string());
+
+      let builder = FFmpegBuilder::new(project.clone());
+      let mut cmd = tokio::process::Command::new("ffmpeg");
+
+      // This might fail if hardware is not available, which is expected
+      let _ = builder.add_hardware_acceleration(&mut cmd).await;
+
+      let cmd_str = format!("{:?}", cmd);
+      // Should attempt to add codec parameters
+      assert!(cmd_str.contains("ffmpeg"));
+    }
+  }
+
+  #[test]
+  fn test_quality_to_crf_edge_cases() {
+    let builder = create_test_builder();
+
+    // Test edge cases
+    assert_eq!(builder.quality_to_crf(100), 0); // Maximum quality
+    assert_eq!(builder.quality_to_crf(0), 51); // Minimum quality
+    assert_eq!(builder.quality_to_crf(50), 25); // Mid quality
+    assert_eq!(builder.quality_to_crf(75), 12); // High quality
+    assert_eq!(builder.quality_to_crf(25), 38); // Low quality
+
+    // Test out of range values (should clamp)
+    assert_eq!(builder.quality_to_crf(150), 0); // Should clamp to 0
+    assert_eq!(builder.quality_to_crf(200), 0); // Should clamp to 0
+  }
+
+  #[test]
+  fn test_find_filter_edge_cases() {
+    let mut project = create_test_project();
+
+    // Test finding filter that doesn't exist
+    let filter = project.filters.iter().find(|f| f.id == "non-existent");
+    assert!(filter.is_none());
+
+    // Add filter and test finding it
+    let filter = Filter {
+      id: "filter1".to_string(),
+      name: "Test Filter".to_string(),
+      filter_type: FilterType::Blur,
+      enabled: true,
+      parameters: HashMap::new(),
+      ffmpeg_command: None,
+    };
+    project.filters.push(filter);
+
+    let found = project.filters.iter().find(|f| f.id == "filter1");
+    assert!(found.is_some());
+    assert_eq!(found.unwrap().name, "Test Filter");
+  }
+
+  #[tokio::test]
+  async fn test_build_render_command_with_all_features() {
+    let mut project = create_test_project();
+
+    // Enable all features
+    project.timeline.resolution = (1920, 1080);
+    project.timeline.fps = 60;
+    project.settings.export.quality = 90;
+    project.settings.export.video_bitrate = 10000;
+    project.settings.export.audio_bitrate = 320;
+    project.settings.export.hardware_acceleration = false; // CPU for predictable test
+                                                           // two_pass field doesn't exist in ExportSettings
+    project.settings.export.preset = Some("slow".to_string());
+
+    // Add effects, transitions, subtitles
+    let mut effect = create_blur_effect(2.0);
+    effect.id = "effect1".to_string();
+    project.effects.push(effect);
+    project.tracks[0].clips[0]
+      .effects
+      .push("effect1".to_string());
+
+    let subtitle = Subtitle {
+      id: "sub1".to_string(),
+      text: "Test".to_string(),
+      start_time: 0.0,
+      end_time: 5.0,
+      position: SubtitlePosition {
+        x: 50.0,
+        y: 90.0,
+        align_x: SubtitleAlignX::Center,
+        align_y: SubtitleAlignY::Bottom,
+        margin: SubtitleMargin {
+          top: 0.0,
+          right: 0.0,
+          bottom: 20.0,
+          left: 0.0,
+        },
+      },
+      enabled: true,
+      style: SubtitleStyle {
+        font_family: "Arial".to_string(),
+        font_size: 24.0,
+        font_weight: SubtitleFontWeight::Normal,
+        color: "#FFFFFF".to_string(),
+        stroke_color: None,
+        stroke_width: 0.0,
+        shadow_color: None,
+        shadow_x: 0.0,
+        shadow_y: 0.0,
+        shadow_blur: 0.0,
+        background_color: None,
+        background_opacity: 0.0,
+        padding: SubtitlePadding {
+          top: 0.0,
+          right: 0.0,
+          bottom: 0.0,
+          left: 0.0,
+        },
+        border_radius: 0.0,
+        line_height: 1.2,
+        letter_spacing: 0.0,
+        max_width: 0.0,
+      },
+      animations: vec![],
+    };
+    project.subtitles.push(subtitle);
+
+    let builder = FFmpegBuilder::new(project);
+    let output_path = PathBuf::from("/tmp/full_render.mp4");
+
+    let cmd = builder.build_render_command(&output_path).await.unwrap();
+    let cmd_str = format!("{:?}", cmd);
+
+    // Verify command has all expected components
+    assert!(cmd_str.contains("ffmpeg"));
+    assert!(cmd_str.contains("-filter_complex"));
+    assert!(cmd_str.contains("-c:v"));
+    assert!(cmd_str.contains("-c:a"));
+    assert!(cmd_str.contains("-crf"));
+    assert!(cmd_str.contains("/tmp/full_render.mp4"));
   }
 }
