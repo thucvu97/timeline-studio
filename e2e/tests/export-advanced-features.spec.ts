@@ -316,8 +316,9 @@ test.describe('Advanced Export Features', () => {
           const authControls = await isAnyVisible(page, [
             'button:has-text("Connect")',
             'button:has-text("Login")',
+            'button:has-text("Sign In")', // Added correct translation
             'button:has-text("Authorize")',
-            'text=/connect.*to|login.*to/i'
+            'text=/connect.*to|login.*to|sign.*in/i'
           ]);
           expect(authControls).toBe(true);
         }
@@ -392,35 +393,72 @@ test.describe('Advanced Export Features', () => {
         await exportButton.click();
         await page.waitForTimeout(500);
         
-        // Try to export without proper setup on each tab
-        const tabs = ['social', 'batch', 'section'];
+        // Wait for the modal to be fully loaded
+        await page.waitForSelector('[role="dialog"]', { state: 'visible' });
         
-        for (const tabName of tabs) {
-          const tab = page.locator('[role="tab"]').filter({ hasText: new RegExp(tabName, 'i') }).first();
+        // Check validation on each tab
+        const validationChecks = [
+          {
+            tabName: 'social',
+            buttonText: /upload.*to|Sign In/i, // Include Sign In button
+            expectedValidation: 'button-disabled' // Not logged in
+          },
+          {
+            tabName: 'batch', 
+            buttonText: /start.*export|startBatchExport/i, // Include translation key
+            expectedValidation: 'button-disabled' // No folder selected
+          },
+          {
+            tabName: 'section',
+            buttonText: /export.*sections|exportSections/i, // Include translation key
+            expectedValidation: 'button-disabled' // No sections selected
+          }
+        ];
+        
+        for (const check of validationChecks) {
+          const tab = page.locator('[role="tab"]').filter({ hasText: new RegExp(check.tabName, 'i') }).first();
           if (await tab.isVisible()) {
             await tab.click();
             await page.waitForTimeout(300);
             
-            const exportButton = page.locator('button').filter({ 
-              hasText: /export|start.*export|upload/i 
-            }).first();
+            // Look for any button that might be an export/action button
+            const allButtons = await page.locator('button').all();
+            let hasValidation = false;
             
-            if (await exportButton.isVisible()) {
-              await exportButton.click();
-              await page.waitForTimeout(500);
-              
-              // Look for validation messages
-              const validationMessage = await isAnyVisible(page, [
-                'text=/required|missing|empty|select/i',
-                '[class*="error"]',
-                '[class*="warning"]',
-                'text=/please.*select|no.*project/i'
-              ]);
-              
-              // Validation might not be implemented for all tabs yet
-              // This test ensures we don't get runtime errors
-              expect(true).toBe(true);
+            // Check all visible buttons for validation state
+            for (const button of allButtons) {
+              if (await button.isVisible()) {
+                const buttonText = await button.textContent();
+                const isActionButton = buttonText && (
+                  check.buttonText.test(buttonText) ||
+                  buttonText.includes('export') ||
+                  buttonText.includes('Export') ||
+                  buttonText.includes('Upload') ||
+                  buttonText.includes('Sign')
+                );
+                
+                if (isActionButton) {
+                  const isDisabled = await button.isDisabled();
+                  if (isDisabled) {
+                    hasValidation = true;
+                    break;
+                  }
+                }
+              }
             }
+            
+            // Also check for validation messages
+            if (!hasValidation) {
+              hasValidation = await isAnyVisible(page, [
+                'text=/required|missing|empty|select.*folder|not.*logged/i',
+                '[class*="error"]',
+                '.sonner-toast',
+                'text=0' // For sections with 0 count
+              ]);
+            }
+            
+            // We expect some form of validation on each tab
+            expect(hasValidation).toBe(true);
           }
         }
       }

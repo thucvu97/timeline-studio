@@ -11,6 +11,7 @@ import {
   Subtitles,
   Type,
   Video,
+  X,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -33,6 +34,7 @@ export function ResourcesPanel() {
     mediaResources,
     musicResources,
     subtitleResources,
+    removeResource,
   } = useResources()
 
   // Полностью отключаем логирование
@@ -101,7 +103,7 @@ export function ResourcesPanel() {
           {resources.map((resource) => (
             <div
               key={resource.id}
-              className="relative mb-1 flex h-[26px] w-[110px] flex-shrink-0 cursor-pointer items-center gap-2 rounded-sm border border-[#333] px-2 hover:bg-[#444] hover:text-white transition-colors duration-150"
+              className="group relative mb-1 flex h-[26px] w-[110px] flex-shrink-0 cursor-pointer items-center gap-2 rounded-sm border border-[#333] px-2 hover:bg-[#444] hover:text-white transition-colors duration-150"
             >
               {/* Иконка ресурса (слева) */}
               <div className="flex-shrink-0">
@@ -125,6 +127,17 @@ export function ResourcesPanel() {
                       : resource.name}
                 </div>
               </div>
+
+              {/* Кнопка удаления - показывается при наведении */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  removeResource(resource.id)
+                }}
+                className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 p-0.5 hover:bg-red-500/20 rounded"
+              >
+                <X className="h-3 w-3 text-red-500" />
+              </button>
             </div>
           ))}
         </div>

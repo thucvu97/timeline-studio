@@ -40,6 +40,7 @@ vi.mock("lucide-react", () => ({
   Subtitles: ({ className }: any) => <div data-testid="subtitles-icon" className={className} />,
   Type: ({ className }: any) => <div data-testid="type-icon" className={className} />,
   Video: ({ className }: any) => <div data-testid="video-icon" className={className} />,
+  X: ({ className }: any) => <div data-testid="x-icon" className={className} />,
 }))
 
 // Mock useResources hook
@@ -48,6 +49,8 @@ vi.mock("@/features/resources", () => ({
 }))
 
 describe("ResourcesPanel", () => {
+  const mockRemoveResource = vi.fn()
+  
   const mockResources = {
     effectResources: [
       {
@@ -96,6 +99,7 @@ describe("ResourcesPanel", () => {
     mediaResources: [],
     musicResources: [],
     subtitleResources: [],
+    removeResource: mockRemoveResource,
   }
 
   beforeEach(async () => {
@@ -192,6 +196,7 @@ describe("ResourcesPanel", () => {
         mediaResources: [],
         musicResources: [],
         subtitleResources: [],
+        removeResource: mockRemoveResource,
       }
 
       const { useResources } = vi.mocked(await import("@/features/resources"))
@@ -214,6 +219,7 @@ describe("ResourcesPanel", () => {
         mediaResources: [],
         musicResources: [],
         subtitleResources: [],
+        removeResource: mockRemoveResource,
       }
 
       const { useResources } = vi.mocked(await import("@/features/resources"))
@@ -271,6 +277,7 @@ describe("ResourcesPanel", () => {
         mediaResources: [],
         musicResources: [],
         subtitleResources: [],
+        removeResource: mockRemoveResource,
       }
 
       const { useResources } = vi.mocked(await import("@/features/resources"))
@@ -329,6 +336,61 @@ describe("ResourcesPanel", () => {
       // Resource names should be visible
       expect(screen.getByText("Blur Effect")).toBeInTheDocument()
       expect(screen.getByText("Glow Effect")).toBeInTheDocument()
+    })
+  })
+
+  describe("Resource deletion", () => {
+    it("should show delete button on hover", () => {
+      render(<ResourcesPanel />)
+
+      // Delete buttons should exist but be hidden initially (opacity-0)
+      const deleteButtons = screen.getAllByTestId("x-icon")
+      expect(deleteButtons.length).toBeGreaterThan(0)
+      
+      // Check that delete buttons have the parent button element
+      deleteButtons.forEach(icon => {
+        const button = icon.closest('button')
+        expect(button).toBeInTheDocument()
+        expect(button).toHaveClass('opacity-0')
+      })
+    })
+
+    it("should call removeResource when delete button is clicked", () => {
+      const { container } = render(<ResourcesPanel />)
+
+      // Find first resource delete button
+      const firstDeleteButton = container.querySelector('button.opacity-0')
+      expect(firstDeleteButton).toBeInTheDocument()
+
+      // Click the delete button
+      if (firstDeleteButton) {
+        firstDeleteButton.click()
+        
+        // Should have called removeResource with the correct ID
+        expect(mockRemoveResource).toHaveBeenCalledTimes(1)
+        expect(mockRemoveResource).toHaveBeenCalledWith("effect-1")
+      }
+    })
+
+    it("should handle delete button clicks properly", () => {
+      render(<ResourcesPanel />)
+
+      // Find all delete buttons
+      const deleteButtons = screen.getAllByTestId("x-icon")
+      expect(deleteButtons.length).toBeGreaterThan(0)
+      
+      // Get the parent button of the first X icon
+      const firstDeleteButton = deleteButtons[0].closest('button')
+      expect(firstDeleteButton).toBeInTheDocument()
+      
+      // Reset mock
+      mockRemoveResource.mockClear()
+      
+      // Click should work
+      if (firstDeleteButton) {
+        firstDeleteButton.click()
+        expect(mockRemoveResource).toHaveBeenCalledTimes(1)
+      }
     })
   })
 })

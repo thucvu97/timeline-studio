@@ -62,7 +62,6 @@ export function SocialExportTab({
 
   const [selectedNetwork, setSelectedNetwork] = useState<string>(settings.socialNetwork || "youtube")
   const [loginStates, setLoginStates] = useState<Record<string, boolean>>({})
-  const [uploadProgress, setUploadProgress] = useState<number>(0)
 
   // Обработчик входа в социальную сеть
   const handleLogin = async (networkId: string) => {
@@ -167,6 +166,7 @@ export function SocialExportTab({
                         }}
                         className="w-full"
                         size="sm"
+                        data-testid="social-login-button"
                       >
                         <LogIn className="h-4 w-4 mr-2" />
                         {t("dialogs.export.login")}
