@@ -610,12 +610,12 @@ mod integration_tests {
   /// Создает тестовое изображение
   fn create_test_image(dir: &std::path::Path) -> PathBuf {
     let image_path = dir.join("test_image.jpg");
-    
+
     // Создаем простое тестовое изображение 100x100 пикселей
     let img = image::RgbImage::new(100, 100);
     let dynamic_img = image::DynamicImage::ImageRgb8(img);
     dynamic_img.save(&image_path).unwrap();
-    
+
     image_path
   }
 
@@ -627,10 +627,11 @@ mod integration_tests {
     }
 
     let temp_dir = TempDir::new().unwrap();
-    
+
     // Используем mock модель вместо реальной
     let mock_model_path = create_mock_model_file(temp_dir.path());
-    let mut processor = YoloProcessor::new(YoloModel::Custom(mock_model_path.clone()), 0.5).unwrap();
+    let mut processor =
+      YoloProcessor::new(YoloModel::Custom(mock_model_path.clone()), 0.5).unwrap();
 
     // Пытаемся загрузить модель
     let result = processor.load_model().await;
@@ -643,7 +644,7 @@ mod integration_tests {
     } else {
       println!("Mock model loaded (unexpected but not a failure)");
     }
-    
+
     // Проверяем что файл модели был создан
     assert!(mock_model_path.exists());
   }
@@ -656,11 +657,11 @@ mod integration_tests {
     }
 
     let temp_dir = TempDir::new().unwrap();
-    
+
     // Создаем тестовое изображение
     let test_image = create_test_image(temp_dir.path());
     assert!(test_image.exists());
-    
+
     // Используем mock модель
     let mock_model_path = create_mock_model_file(temp_dir.path());
     let mut processor = YoloProcessor::new(YoloModel::Custom(mock_model_path), 0.5).unwrap();
@@ -669,16 +670,19 @@ mod integration_tests {
     if processor.load_model().await.is_err() {
       // Это ожидаемо для mock модели
       println!("Mock model failed to load as expected");
-      
+
       // Тестируем обработку изображения без загруженной модели
       let result = processor.process_image(&test_image).await;
-      assert!(result.is_err(), "Processing should fail without loaded model");
-      
+      assert!(
+        result.is_err(),
+        "Processing should fail without loaded model"
+      );
+
       println!("Image processing correctly failed without valid model");
     } else {
       // Если загрузка прошла успешно, тестируем обработку
       let result = processor.process_image(&test_image).await;
-      
+
       match result {
         Ok(detections) => {
           println!("Found {} detections from mock model", detections.len());
@@ -690,7 +694,7 @@ mod integration_tests {
         }
       }
     }
-    
+
     // Проверяем что тестовое изображение было создано корректно
     assert!(test_image.exists());
     let metadata = std::fs::metadata(&test_image).unwrap();
@@ -707,14 +711,17 @@ mod integration_tests {
     // Тест с несуществующей моделью
     let nonexistent_path = PathBuf::from("/nonexistent/path/model.onnx");
     let mut processor = YoloProcessor::new(YoloModel::Custom(nonexistent_path), 0.5).unwrap();
-    
+
     let result = processor.load_model().await;
     assert!(result.is_err(), "Loading nonexistent model should fail");
-    
+
     if let Err(e) = result {
       let error_msg = e.to_string();
-      assert!(error_msg.contains("not found") || error_msg.contains("Model file"), 
-              "Error should mention file not found: {}", error_msg);
+      assert!(
+        error_msg.contains("not found") || error_msg.contains("Model file"),
+        "Error should mention file not found: {}",
+        error_msg
+      );
     }
   }
 
@@ -728,22 +735,25 @@ mod integration_tests {
     let temp_dir = TempDir::new().unwrap();
     let mock_model_path = create_mock_model_file(temp_dir.path());
     let mut processor = YoloProcessor::new(YoloModel::Custom(mock_model_path), 0.5).unwrap();
-    
+
     // Тестируем с несуществующим изображением
     let nonexistent_image = PathBuf::from("/nonexistent/image.jpg");
     let result = processor.process_image(&nonexistent_image).await;
-    
+
     assert!(result.is_err(), "Processing nonexistent image should fail");
-    
+
     if let Err(e) = result {
       let error_msg = e.to_string();
       // Проверяем что ошибка связана с отсутствием файла, модели или незагруженной модели
-      assert!(error_msg.contains("not found") || 
-              error_msg.contains("No such file") || 
-              error_msg.contains("session") ||
-              error_msg.contains("not loaded") ||
-              error_msg.contains("load_model"),
-              "Error should mention file or model issue: {}", error_msg);
+      assert!(
+        error_msg.contains("not found")
+          || error_msg.contains("No such file")
+          || error_msg.contains("session")
+          || error_msg.contains("not loaded")
+          || error_msg.contains("load_model"),
+        "Error should mention file or model issue: {}",
+        error_msg
+      );
     }
   }
 }
