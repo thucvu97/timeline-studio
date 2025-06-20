@@ -10,11 +10,8 @@
 
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/graphs/commit-activity)
 [![Github Last Commit](https://img.shields.io/github/last-commit/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/commits/main)
-[![GitHub closed issues](https://img.shields.io/github/issues-closed/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/issues?q=is%3Aissue+is%3Aclosed)
-
 [![Frontend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?flag=frontend&style=for-the-badge&label=frontend%20coverage)](https://codecov.io/gh/chatman-media/timeline-studio)
 [![Backend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?flag=backend&style=for-the-badge&label=backend%20coverage)](https://codecov.io/gh/chatman-media/timeline-studio)
-[![E2E Tests](https://img.shields.io/badge/E2E%20Tests-Playwright-45ba4b?style=for-the-badge&logo=playwright)](https://github.com/chatman-media/timeline-studio/tree/main/e2e)
 
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg?style=for-the-badge)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue?style=for-the-badge)](https://chatman-media.github.io/timeline-studio/api-docs/)
