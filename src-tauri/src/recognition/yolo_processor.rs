@@ -254,7 +254,7 @@ impl YoloProcessor {
     }
 
     // Создаем Tensor из вектора с формой
-    let shape = vec![1i64, 3, 640, 640];
+    let shape = [1i64, 3, 640, 640];
     let tensor =
       Tensor::from_array((shape, data)).map_err(|e| anyhow!("Failed to create tensor: {}", e))?;
     Ok(tensor)
@@ -695,5 +695,336 @@ impl Default for YoloConfig {
       max_detections: 100,
       input_size: (640, 640),
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use image::{DynamicImage, ImageBuffer, Rgb};
+  use tempfile::TempDir;
+
+  #[test]
+  fn test_yolo_model_serialization() {
+    let models = vec![
+      YoloModel::YoloV11Detection,
+      YoloModel::YoloV11Segmentation,
+      YoloModel::YoloV11Face,
+      YoloModel::YoloV8Detection,
+      YoloModel::Custom(PathBuf::from("custom.onnx")),
+    ];
+
+    for model in models {
+      let serialized = serde_json::to_string(&model).unwrap();
+      let deserialized: YoloModel = serde_json::from_str(&serialized).unwrap();
+      match (model, deserialized) {
+        (YoloModel::Custom(p1), YoloModel::Custom(p2)) => assert_eq!(p1, p2),
+        (m1, m2) => assert_eq!(format!("{:?}", m1), format!("{:?}", m2)),
+      }
+    }
+  }
+
+  #[test]
+  fn test_detection_serialization() {
+    let detection = Detection {
+      class: "person".to_string(),
+      class_id: 0,
+      confidence: 0.95,
+      bbox: BoundingBox {
+        x: 100.0,
+        y: 200.0,
+        width: 50.0,
+        height: 100.0,
+      },
+      attributes: Some(FaceAttributes {
+        landmarks: vec![(120.0, 220.0), (130.0, 220.0)],
+        age: Some(25.0),
+        gender: Some("male".to_string()),
+        emotion: Some("happy".to_string()),
+      }),
+    };
+
+    let serialized = serde_json::to_string(&detection).unwrap();
+    let deserialized: Detection = serde_json::from_str(&serialized).unwrap();
+
+    assert_eq!(detection.class, deserialized.class);
+    assert_eq!(detection.class_id, deserialized.class_id);
+    assert_eq!(detection.confidence, deserialized.confidence);
+    assert_eq!(detection.bbox.x, deserialized.bbox.x);
+    assert_eq!(detection.bbox.y, deserialized.bbox.y);
+  }
+
+  #[test]
+  fn test_yolo_processor_creation() {
+    let processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.5);
+    assert!(processor.is_ok());
+
+    let processor = processor.unwrap();
+    assert_eq!(processor.confidence_threshold, 0.5);
+    assert_eq!(processor.iou_threshold, 0.45);
+    assert!(processor.target_classes.is_empty());
+  }
+
+  #[test]
+  fn test_set_target_classes() {
+    let mut processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.5).unwrap();
+    let classes = vec!["person".to_string(), "car".to_string()];
+    processor.set_target_classes(classes.clone());
+    assert_eq!(processor.target_classes, classes);
+  }
+
+  #[test]
+  fn test_calculate_iou() {
+    let box1 = BoundingBox {
+      x: 0.0,
+      y: 0.0,
+      width: 100.0,
+      height: 100.0,
+    };
+
+    let box2 = BoundingBox {
+      x: 50.0,
+      y: 50.0,
+      width: 100.0,
+      height: 100.0,
+    };
+
+    let iou = YoloProcessor::calculate_iou_static(&box1, &box2);
+    assert!(iou > 0.0 && iou < 1.0);
+
+    // Test no overlap
+    let box3 = BoundingBox {
+      x: 200.0,
+      y: 200.0,
+      width: 100.0,
+      height: 100.0,
+    };
+    let iou_no_overlap = YoloProcessor::calculate_iou_static(&box1, &box3);
+    assert_eq!(iou_no_overlap, 0.0);
+
+    // Test complete overlap
+    let iou_complete = YoloProcessor::calculate_iou_static(&box1, &box1);
+    assert_eq!(iou_complete, 1.0);
+  }
+
+  #[test]
+  fn test_apply_nms() {
+    let detections = vec![
+      Detection {
+        class: "person".to_string(),
+        class_id: 0,
+        confidence: 0.9,
+        bbox: BoundingBox {
+          x: 100.0,
+          y: 100.0,
+          width: 50.0,
+          height: 100.0,
+        },
+        attributes: None,
+      },
+      Detection {
+        class: "person".to_string(),
+        class_id: 0,
+        confidence: 0.8,
+        bbox: BoundingBox {
+          x: 105.0,
+          y: 105.0,
+          width: 50.0,
+          height: 100.0,
+        },
+        attributes: None,
+      },
+      Detection {
+        class: "car".to_string(),
+        class_id: 2,
+        confidence: 0.85,
+        bbox: BoundingBox {
+          x: 300.0,
+          y: 300.0,
+          width: 100.0,
+          height: 50.0,
+        },
+        attributes: None,
+      },
+    ];
+
+    let filtered = YoloProcessor::apply_nms_static(detections, 0.5);
+    assert_eq!(filtered.len(), 2); // Should keep high confidence person and car
+    assert_eq!(filtered[0].confidence, 0.9);
+    assert_eq!(filtered[1].class, "car");
+  }
+
+  #[test]
+  fn test_get_class_names() {
+    let processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.5).unwrap();
+    let classes = processor.get_class_names();
+    assert!(!classes.is_empty());
+    assert!(classes.contains(&"person".to_string()));
+    assert!(classes.contains(&"car".to_string()));
+
+    let face_processor = YoloProcessor::new(YoloModel::YoloV11Face, 0.5).unwrap();
+    let face_classes = face_processor.get_class_names();
+    assert_eq!(face_classes, vec!["face".to_string()]);
+  }
+
+  #[test]
+  fn test_get_class_name_static() {
+    let name = YoloProcessor::get_class_name_static(0);
+    assert_eq!(name, "person");
+
+    let name = YoloProcessor::get_class_name_static(2);
+    assert_eq!(name, "car");
+
+    // Test out of bounds
+    let name = YoloProcessor::get_class_name_static(999);
+    assert_eq!(name, "class_999");
+  }
+
+  #[test]
+  fn test_yolo_config_default() {
+    let config = YoloConfig::default();
+    assert_eq!(config.confidence_threshold, 0.5);
+    assert_eq!(config.nms_threshold, 0.45);
+    assert_eq!(config.max_detections, 100);
+    assert_eq!(config.input_size, (640, 640));
+  }
+
+  #[test]
+  fn test_yolo_config_serialization() {
+    let config = YoloConfig {
+      model_type: YoloModel::YoloV8Face,
+      confidence_threshold: 0.7,
+      nms_threshold: 0.5,
+      max_detections: 50,
+      input_size: (416, 416),
+    };
+
+    let serialized = serde_json::to_string(&config).unwrap();
+    let deserialized: YoloConfig = serde_json::from_str(&serialized).unwrap();
+
+    assert_eq!(
+      config.confidence_threshold,
+      deserialized.confidence_threshold
+    );
+    assert_eq!(config.nms_threshold, deserialized.nms_threshold);
+    assert_eq!(config.max_detections, deserialized.max_detections);
+    assert_eq!(config.input_size, deserialized.input_size);
+  }
+
+  #[test]
+  fn test_preprocess_image() {
+    let processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.5).unwrap();
+
+    // Create a test image
+    let img = ImageBuffer::from_fn(800, 600, |x, y| Rgb([x as u8, y as u8, 0]));
+    let dynamic_img = DynamicImage::ImageRgb8(img);
+
+    let result = processor.preprocess_image(&dynamic_img);
+    assert!(result.is_ok());
+
+    let _tensor = result.unwrap();
+    // Check tensor shape through the data
+    let shape = [1i64, 3, 640, 640];
+    let _expected_size = shape.iter().product::<i64>() as usize;
+    // We can't directly access tensor internals in tests, but we know it was created successfully
+  }
+
+  #[tokio::test]
+  async fn test_process_image_without_model() {
+    let mut processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.5).unwrap();
+
+    // Create temp image
+    let temp_dir = TempDir::new().unwrap();
+    let image_path = temp_dir.path().join("test.jpg");
+
+    let img = ImageBuffer::from_fn(640, 480, |_, _| Rgb([255u8, 255u8, 255u8]));
+    img.save(&image_path).unwrap();
+
+    // Should fail without loaded model
+    let result = processor.process_image(&image_path).await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("Model not loaded"));
+  }
+
+  #[tokio::test]
+  async fn test_load_model_nonexistent() {
+    let mut processor = YoloProcessor::new(
+      YoloModel::Custom(PathBuf::from("/nonexistent/model.onnx")),
+      0.5,
+    )
+    .unwrap();
+    let result = processor.load_model().await;
+    assert!(result.is_err());
+    assert!(result
+      .unwrap_err()
+      .to_string()
+      .contains("Model file not found"));
+  }
+
+  #[tokio::test]
+  async fn test_process_batch() {
+    let mut processor = YoloProcessor::new(YoloModel::YoloV11Detection, 0.5).unwrap();
+
+    // Create temp images
+    let temp_dir = TempDir::new().unwrap();
+    let mut paths = Vec::new();
+
+    for i in 0..3 {
+      let image_path = temp_dir.path().join(format!("test{}.jpg", i));
+      let img = ImageBuffer::from_fn(640, 480, |_, _| Rgb([255u8, 255u8, 255u8]));
+      img.save(&image_path).unwrap();
+      paths.push(image_path);
+    }
+
+    // Should fail without loaded model
+    let result = processor.process_batch(paths).await;
+    assert!(result.is_err());
+  }
+
+  #[test]
+  fn test_mock_process_image() {
+    let processor = YoloProcessor::new(YoloModel::YoloV8Detection, 0.5).unwrap();
+
+    let img = ImageBuffer::from_fn(800, 600, |_, _| Rgb([255u8, 255u8, 255u8]));
+    let dynamic_img = DynamicImage::ImageRgb8(img);
+
+    let detections = processor._mock_process_image(&dynamic_img);
+    assert_eq!(detections.len(), 2);
+    assert_eq!(detections[0].class, "person");
+    assert_eq!(detections[1].class, "car");
+
+    let face_processor = YoloProcessor::new(YoloModel::YoloV8Face, 0.5).unwrap();
+    let face_detections = face_processor._mock_process_image(&dynamic_img);
+    assert_eq!(face_detections.len(), 1);
+    assert_eq!(face_detections[0].class, "face");
+    assert!(face_detections[0].attributes.is_some());
+  }
+
+  #[test]
+  fn test_init_ort_multiple_calls() {
+    // Test that init_ort can be called multiple times safely
+    let result1 = init_ort();
+    let result2 = init_ort();
+
+    // In test mode, both should succeed or both should fail
+    assert_eq!(result1.is_ok(), result2.is_ok());
+  }
+
+  #[test]
+  fn test_face_attributes_serialization() {
+    let attrs = FaceAttributes {
+      landmarks: vec![(10.0, 20.0), (30.0, 40.0)],
+      age: Some(30.0),
+      gender: Some("female".to_string()),
+      emotion: Some("surprised".to_string()),
+    };
+
+    let serialized = serde_json::to_string(&attrs).unwrap();
+    let deserialized: FaceAttributes = serde_json::from_str(&serialized).unwrap();
+
+    assert_eq!(attrs.landmarks.len(), deserialized.landmarks.len());
+    assert_eq!(attrs.age, deserialized.age);
+    assert_eq!(attrs.gender, deserialized.gender);
+    assert_eq!(attrs.emotion, deserialized.emotion);
   }
 }

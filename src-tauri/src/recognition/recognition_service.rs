@@ -345,3 +345,353 @@ pub enum RecognitionEvent {
   /// Ошибка обработки
   ProcessingError { file_id: String, error: String },
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::recognition::yolo_processor::{BoundingBox as YoloBBox, Detection};
+  use std::collections::HashMap;
+  use tempfile::TempDir;
+
+  fn create_test_detection(class: &str, confidence: f32, x: f32, y: f32) -> Detection {
+    Detection {
+      class: class.to_string(),
+      class_id: 0,
+      confidence,
+      bbox: YoloBBox {
+        x,
+        y,
+        width: 50.0,
+        height: 100.0,
+      },
+      attributes: None,
+    }
+  }
+
+  #[tokio::test]
+  async fn test_recognition_service_creation() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf());
+    assert!(service.is_ok());
+
+    let service = service.unwrap();
+    assert!(service.results_dir.exists());
+  }
+
+  #[test]
+  fn test_group_objects() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let detections = vec![
+      (0.0, create_test_detection("person", 0.9, 100.0, 100.0)),
+      (1.0, create_test_detection("person", 0.85, 110.0, 105.0)),
+      (0.5, create_test_detection("car", 0.8, 200.0, 200.0)),
+      (2.0, create_test_detection("person", 0.95, 120.0, 110.0)),
+    ];
+
+    let grouped = service.group_objects(detections);
+    assert_eq!(grouped.len(), 2);
+
+    let person_obj = grouped.iter().find(|o| o.class == "person").unwrap();
+    assert_eq!(person_obj.timestamps.len(), 3);
+    assert_eq!(person_obj.bounding_boxes.len(), 3);
+    assert!(person_obj.confidence > 0.8);
+
+    let car_obj = grouped.iter().find(|o| o.class == "car").unwrap();
+    assert_eq!(car_obj.timestamps.len(), 1);
+  }
+
+  #[test]
+  fn test_group_faces() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let detections = vec![
+      (0.0, create_test_detection("face", 0.95, 100.0, 100.0)),
+      (1.0, create_test_detection("face", 0.9, 110.0, 105.0)),
+      (2.0, create_test_detection("face", 0.85, 200.0, 200.0)),
+    ];
+
+    let grouped = service.group_faces(detections);
+    assert_eq!(grouped.len(), 3);
+
+    for (idx, face) in grouped.iter().enumerate() {
+      assert_eq!(face.face_id, Some(format!("face_{}", idx)));
+      assert_eq!(face.timestamps.len(), 1);
+      assert_eq!(face.bounding_boxes.len(), 1);
+      assert!(face.confidence >= 0.85);
+    }
+  }
+
+  #[test]
+  fn test_detect_scenes_people() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let objects = vec![
+      DetectedObject {
+        class: "person".to_string(),
+        confidence: 0.9,
+        timestamps: vec![0.0, 1.0, 2.0, 3.0],
+        bounding_boxes: vec![],
+      },
+      DetectedObject {
+        class: "chair".to_string(),
+        confidence: 0.8,
+        timestamps: vec![1.0, 2.0],
+        bounding_boxes: vec![],
+      },
+    ];
+
+    let scenes = service.detect_scenes(&objects);
+    assert_eq!(scenes.len(), 1);
+
+    let people_scene = &scenes[0];
+    assert_eq!(people_scene.scene_type, "people");
+    assert_eq!(people_scene.start_time, 0.0);
+    assert_eq!(people_scene.end_time, 3.0);
+    assert!(people_scene.key_objects.contains(&"person".to_string()));
+  }
+
+  #[test]
+  fn test_detect_scenes_traffic() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let objects = vec![
+      DetectedObject {
+        class: "car".to_string(),
+        confidence: 0.9,
+        timestamps: vec![0.0, 1.0, 2.0],
+        bounding_boxes: vec![],
+      },
+      DetectedObject {
+        class: "truck".to_string(),
+        confidence: 0.85,
+        timestamps: vec![1.0, 3.0],
+        bounding_boxes: vec![],
+      },
+      DetectedObject {
+        class: "bicycle".to_string(),
+        confidence: 0.7,
+        timestamps: vec![2.0],
+        bounding_boxes: vec![],
+      },
+    ];
+
+    let scenes = service.detect_scenes(&objects);
+    assert_eq!(scenes.len(), 1);
+
+    let traffic_scene = &scenes[0];
+    assert_eq!(traffic_scene.scene_type, "traffic");
+    assert_eq!(traffic_scene.start_time, 0.0);
+    assert_eq!(traffic_scene.end_time, 3.0);
+    assert_eq!(traffic_scene.key_objects.len(), 3);
+    assert!(traffic_scene.key_objects.contains(&"car".to_string()));
+    assert!(traffic_scene.key_objects.contains(&"truck".to_string()));
+    assert!(traffic_scene.key_objects.contains(&"bicycle".to_string()));
+  }
+
+  #[test]
+  fn test_detect_scenes_mixed() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let objects = vec![
+      DetectedObject {
+        class: "person".to_string(),
+        confidence: 0.9,
+        timestamps: vec![0.0, 1.0],
+        bounding_boxes: vec![],
+      },
+      DetectedObject {
+        class: "car".to_string(),
+        confidence: 0.85,
+        timestamps: vec![2.0, 3.0],
+        bounding_boxes: vec![],
+      },
+    ];
+
+    let scenes = service.detect_scenes(&objects);
+    assert_eq!(scenes.len(), 2);
+
+    let people_scene = scenes.iter().find(|s| s.scene_type == "people").unwrap();
+    assert_eq!(people_scene.start_time, 0.0);
+    assert_eq!(people_scene.end_time, 1.0);
+
+    let traffic_scene = scenes.iter().find(|s| s.scene_type == "traffic").unwrap();
+    assert_eq!(traffic_scene.start_time, 2.0);
+    assert_eq!(traffic_scene.end_time, 3.0);
+  }
+
+  #[tokio::test]
+  async fn test_save_and_load_results() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let results = RecognitionResults {
+      objects: vec![DetectedObject {
+        class: "test".to_string(),
+        confidence: 0.9,
+        timestamps: vec![0.0],
+        bounding_boxes: vec![],
+      }],
+      faces: vec![],
+      scenes: vec![],
+      processed_at: chrono::Utc::now(),
+    };
+
+    let file_id = "test_file";
+
+    // Save
+    let save_result = service.save_results(file_id, &results).await;
+    assert!(save_result.is_ok());
+
+    // Load
+    let loaded = service.load_results(file_id).await.unwrap();
+    assert!(loaded.is_some());
+
+    let loaded_results = loaded.unwrap();
+    assert_eq!(loaded_results.objects.len(), 1);
+    assert_eq!(loaded_results.objects[0].class, "test");
+  }
+
+  #[tokio::test]
+  async fn test_load_nonexistent_results() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let result = service.load_results("nonexistent").await.unwrap();
+    assert!(result.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_process_batch() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let mut frame_paths_map = HashMap::new();
+    frame_paths_map.insert("file1".to_string(), vec![]);
+    frame_paths_map.insert("file2".to_string(), vec![]);
+
+    let file_ids = vec!["file1".to_string(), "file2".to_string()];
+
+    let results = service.process_batch(file_ids, frame_paths_map).await;
+    assert!(results.is_ok());
+    // Note: This will fail in actual processing due to empty frame paths,
+    // but we're testing the batch processing logic
+  }
+
+  #[tokio::test]
+  async fn test_get_object_classes() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let classes = service.get_object_classes().await;
+    assert!(!classes.is_empty());
+    assert!(classes.contains(&"person".to_string()));
+    assert!(classes.contains(&"car".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_set_object_classes() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let target_classes = vec!["person".to_string(), "dog".to_string()];
+    service.set_object_classes(target_classes.clone()).await;
+
+    // We can't directly verify the internal state, but the operation should complete
+  }
+
+  #[test]
+  fn test_recognition_event_serialization() {
+    let events = vec![
+      RecognitionEvent::ProcessingStarted {
+        file_id: "test".to_string(),
+      },
+      RecognitionEvent::ProcessingProgress {
+        file_id: "test".to_string(),
+        current: 5,
+        total: 10,
+      },
+      RecognitionEvent::ProcessingCompleted {
+        file_id: "test".to_string(),
+        results: RecognitionResults {
+          objects: vec![],
+          faces: vec![],
+          scenes: vec![],
+          processed_at: chrono::Utc::now(),
+        },
+      },
+      RecognitionEvent::ProcessingError {
+        file_id: "test".to_string(),
+        error: "Test error".to_string(),
+      },
+    ];
+
+    for event in events {
+      let serialized = serde_json::to_string(&event).unwrap();
+      let deserialized: RecognitionEvent = serde_json::from_str(&serialized).unwrap();
+
+      match (event, deserialized) {
+        (
+          RecognitionEvent::ProcessingStarted { file_id: f1 },
+          RecognitionEvent::ProcessingStarted { file_id: f2 },
+        ) => assert_eq!(f1, f2),
+        (
+          RecognitionEvent::ProcessingProgress {
+            file_id: f1,
+            current: c1,
+            total: t1,
+          },
+          RecognitionEvent::ProcessingProgress {
+            file_id: f2,
+            current: c2,
+            total: t2,
+          },
+        ) => {
+          assert_eq!(f1, f2);
+          assert_eq!(c1, c2);
+          assert_eq!(t1, t2);
+        }
+        _ => {}
+      }
+    }
+  }
+
+  #[test]
+  fn test_detect_scenes_empty() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let objects = vec![];
+    let scenes = service.detect_scenes(&objects);
+    assert!(scenes.is_empty());
+  }
+
+  #[test]
+  fn test_detect_scenes_no_relevant_objects() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = RecognitionService::new(temp_dir.path().to_path_buf()).unwrap();
+
+    let objects = vec![
+      DetectedObject {
+        class: "chair".to_string(),
+        confidence: 0.9,
+        timestamps: vec![0.0, 1.0],
+        bounding_boxes: vec![],
+      },
+      DetectedObject {
+        class: "table".to_string(),
+        confidence: 0.85,
+        timestamps: vec![1.0, 2.0],
+        bounding_boxes: vec![],
+      },
+    ];
+
+    let scenes = service.detect_scenes(&objects);
+    assert!(scenes.is_empty());
+  }
+}
