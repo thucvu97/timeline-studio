@@ -1872,8 +1872,9 @@ mod tests {
     // This might fail in test environment, but we test the structure
     match get_gpu_capabilities_logic(&state).await {
       Ok(capabilities) => {
-        // If successful, validate structure
-        assert!(capabilities.available_encoders.len() >= 0);
+        // If successful, validate structure exists
+        // The length is always >= 0 by definition, so just check it's accessible
+        let _ = capabilities.available_encoders.len();
       }
       Err(_) => {
         // Expected in test environment without real GPU/FFmpeg
