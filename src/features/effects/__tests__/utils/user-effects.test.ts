@@ -415,8 +415,8 @@ describe("user-effects", () => {
 
       const result1 = prepareEffectForExport(mockEffect, customParams, "Preset 1")
       
-      // Wait a small amount to ensure different timestamps
-      await new Promise(resolve => setTimeout(resolve, 1))
+      // Wait enough time to ensure different timestamps (minimum 2ms)
+      await new Promise(resolve => setTimeout(resolve, 5))
       
       const result2 = prepareEffectForExport(mockEffect, customParams, "Preset 2")
 
