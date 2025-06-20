@@ -2498,13 +2498,12 @@ impl Default for FFmpegBuilderSettings {
 mod tests {
   use super::*;
   use crate::video_compiler::schema::{
-    Clip, Effect, EffectParameter, EffectType, ElementTiming, Filter, FilterType,
-    FitMode, Position2D, ProjectSchema, Size2D, StyleElementProperties,
-    StyleElementType, StyleTemplate, StyleTemplateCategory, StyleTemplateElement,
-    StyleTemplateStyle, Subtitle, SubtitleAlignX, SubtitleAlignY, SubtitleFontWeight, SubtitleMargin, SubtitlePadding,
-    SubtitlePosition, SubtitleStyle, Template, TemplateCell, Track,
-    TrackType, Transition, TransitionCategory, TransitionComplexity, TransitionDuration,
-    TransitionTag,
+    Clip, Effect, EffectParameter, EffectType, ElementTiming, Filter, FilterType, FitMode,
+    Position2D, ProjectSchema, Size2D, StyleElementProperties, StyleElementType, StyleTemplate,
+    StyleTemplateCategory, StyleTemplateElement, StyleTemplateStyle, Subtitle, SubtitleAlignX,
+    SubtitleAlignY, SubtitleFontWeight, SubtitleMargin, SubtitlePadding, SubtitlePosition,
+    SubtitleStyle, Template, TemplateCell, Track, TrackType, Transition, TransitionCategory,
+    TransitionComplexity, TransitionDuration, TransitionTag,
   };
   use std::collections::HashMap;
   use std::path::PathBuf;
@@ -3328,7 +3327,7 @@ mod tests {
     let mut project = create_test_project();
     project.settings.export.video_bitrate = 8000; // 8 Mbps
     project.settings.export.audio_bitrate = 256; // 256 kbps
-    // Need to set rate_control_mode for bitrate to be applied
+                                                 // Need to set rate_control_mode for bitrate to be applied
     project.settings.export.rate_control_mode = Some("vbr".to_string());
 
     let builder = FFmpegBuilder::new(project);
