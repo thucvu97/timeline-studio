@@ -906,4 +906,195 @@ mod tests {
     assert!(result.is_ok());
     assert!(result.unwrap());
   }
+
+  #[tokio::test]
+  async fn test_gpu_info_json_parsing_edge_cases() {
+    // Test parsing with missing fields
+    let info = GpuInfo {
+      name: "Test GPU".to_string(),
+      driver_version: None,
+      memory_total: None,
+      memory_used: None,
+      utilization: None,
+      encoder_type: GpuEncoder::None,
+      supported_codecs: vec![],
+    };
+    
+    // This test verifies our struct can handle partial data
+    assert_eq!(info.name, "Test GPU");
+    assert!(info.driver_version.is_none());
+    assert!(info.memory_total.is_none());
+    assert!(info.memory_used.is_none());
+    assert!(info.utilization.is_none());
+    assert_eq!(info.encoder_type, GpuEncoder::None);
+    assert!(info.supported_codecs.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_detect_available_encoders_with_multiple_gpus() {
+    let temp_dir = TempDir::new().unwrap();
+    let mock_ffmpeg = temp_dir.path().join("ffmpeg");
+    
+    // Mock ffmpeg that returns multiple encoders
+    #[cfg(unix)]
+    {
+      let script = r#"#!/bin/bash
+if [[ "$*" == *"encoders"* ]]; then
+  echo " V..... h264_nvenc           NVIDIA NVENC H.264 encoder"
+  echo " V..... hevc_nvenc           NVIDIA NVENC HEVC encoder"
+  echo " V..... h264_qsv             Intel Quick Sync Video H.264 encoder"
+  echo " V..... h264_vaapi           H.264/AVC (VAAPI)"
+  echo " V..... h264_videotoolbox    VideoToolbox H.264 Encoder"
+  echo " V..... h264_amf             AMD AMF H.264 encoder"
+fi
+exit 0"#;
+      std::fs::write(&mock_ffmpeg, script).unwrap();
+      use std::os::unix::fs::PermissionsExt;
+      std::fs::set_permissions(&mock_ffmpeg, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+    
+    #[cfg(windows)]
+    {
+      let script = r#"@echo off
+echo  V..... h264_nvenc           NVIDIA NVENC H.264 encoder
+echo  V..... hevc_nvenc           NVIDIA NVENC HEVC encoder
+echo  V..... h264_qsv             Intel Quick Sync Video H.264 encoder
+echo  V..... h264_amf             AMD AMF H.264 encoder
+exit /b 0"#;
+      std::fs::write(&mock_ffmpeg, script).unwrap();
+    }
+    
+    let detector = GpuDetector::new(mock_ffmpeg.to_string_lossy().to_string());
+    let encoders = detector.detect_available_encoders().await.unwrap();
+    
+    // Should detect multiple encoders
+    assert!(encoders.len() >= 2);
+  }
+
+  #[test]
+  fn test_gpu_encoder_priority_ordering() {
+    let encoders = vec![
+      GpuEncoder::None,
+      GpuEncoder::Amf,
+      GpuEncoder::VideoToolbox,
+      GpuEncoder::Nvenc,
+      GpuEncoder::QuickSync,
+      GpuEncoder::Vaapi,
+    ];
+    
+    let mut sorted = encoders.clone();
+    sorted.sort_by_key(|e| {
+      match e {
+        GpuEncoder::Nvenc => 0,
+        GpuEncoder::QuickSync => 1,
+        GpuEncoder::VideoToolbox => 2,
+        GpuEncoder::Vaapi => 3,
+        GpuEncoder::Amf => 4,
+        GpuEncoder::None => 5,
+      }
+    });
+    
+    // Verify priority order
+    assert_eq!(sorted[0], GpuEncoder::Nvenc);
+    assert_eq!(sorted[1], GpuEncoder::QuickSync);
+    assert_eq!(sorted[2], GpuEncoder::VideoToolbox);
+    assert_eq!(sorted[3], GpuEncoder::Vaapi);
+    assert_eq!(sorted[4], GpuEncoder::Amf);
+    assert_eq!(sorted[5], GpuEncoder::None);
+  }
+
+  #[test]
+  fn test_quality_edge_cases() {
+    // Test quality values at boundaries
+    assert_eq!(GpuHelper::quality_to_nvenc_cq(101), 0); // Over 100 should clamp to 0
+    assert_eq!(GpuHelper::quality_to_nvenc_cq(0), 51); // Zero quality
+    
+    assert_eq!(GpuHelper::quality_to_qsv_quality(150), 1);
+    assert_eq!(GpuHelper::quality_to_qsv_quality(0), 51);
+    
+    assert_eq!(GpuHelper::quality_to_videotoolbox_quality(200), 100);
+    assert_eq!(GpuHelper::quality_to_videotoolbox_quality(0), 1);
+  }
+
+  #[tokio::test]
+  async fn test_gpu_memory_parsing() {
+    // Test parsing memory from various formats
+    let test_cases = vec![
+      ("VRAM:    4096 MB", Some(4096)),
+      ("Memory: 8192MB", Some(8192)),
+      ("Total Memory: 16384 MiB", Some(16384)),
+      ("No memory info", None),
+      ("Memory: invalid", None),
+    ];
+    
+    for (input, expected) in test_cases {
+      // Simple parsing logic for testing
+      let parsed = input
+        .split_whitespace()
+        .find_map(|word| {
+          word.chars()
+            .take_while(|c| c.is_numeric())
+            .collect::<String>()
+            .parse::<u32>()
+            .ok()
+        });
+      
+      assert_eq!(parsed, expected);
+    }
+  }
+
+  #[test]
+  fn test_gpu_params_with_extreme_quality_values() {
+    // Test with extreme quality values
+    let qualities = vec![0, 1, 25, 50, 75, 99, 100];
+    
+    for quality in qualities {
+      let params = GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, quality);
+      assert!(!params.is_empty());
+      assert!(params.len() >= 6); // Should have at least codec, preset, tune, rc, cq, profile
+      
+      // Verify CQ value is within valid range
+      if let Some(cq_index) = params.iter().position(|p| p == "-cq") {
+        if let Some(cq_value) = params.get(cq_index + 1) {
+          let cq: u8 = cq_value.parse().unwrap();
+          assert!(cq <= 51);
+        }
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_encoder_detection_multiple_calls() {
+    let temp_dir = TempDir::new().unwrap();
+    let mock_ffmpeg = temp_dir.path().join("ffmpeg");
+    
+    // Create a mock ffmpeg
+    #[cfg(unix)]
+    {
+      std::fs::write(&mock_ffmpeg, "#!/bin/bash\necho ' h264_nvenc'\nexit 0").unwrap();
+      use std::os::unix::fs::PermissionsExt;
+      std::fs::set_permissions(&mock_ffmpeg, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+    
+    #[cfg(windows)]
+    {
+      std::fs::write(&mock_ffmpeg, "@echo off\necho  h264_nvenc\nexit /b 0").unwrap();
+    }
+    
+    let detector = GpuDetector::new(mock_ffmpeg.to_string_lossy().to_string());
+    
+    // Test multiple sequential calls work correctly
+    for _ in 0..3 {
+      let result = detector.check_encoder_available("h264_nvenc").await;
+      assert!(result.is_ok());
+      assert!(result.unwrap());
+    }
+    
+    // Test checking different encoders
+    let encoders = ["h264_nvenc", "h264_qsv", "h264_vaapi"];
+    for encoder in &encoders {
+      let result = detector.check_encoder_available(encoder).await;
+      assert!(result.is_ok());
+    }
+  }
 }

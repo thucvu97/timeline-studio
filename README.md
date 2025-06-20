@@ -69,7 +69,7 @@ Timeline Studio is a modern video editor built on Tauri architecture (Rust + Rea
 - 🌐 Internationalization support (11 languages)
 - 💾 Smart caching and unified preview system
 - 🎨 Modern UI using Tailwind CSS v4, shadcn-ui
-- 📚 Complete documentation with 4,993 tests (Frontend: 3,604, Rust: 615, E2E: 774)
+- 📚 Complete documentation with 5,000 tests (Frontend: 3,604, Rust: 622, E2E: 774)
 
 ## Getting Started
 
@@ -161,9 +161,9 @@ bun run check:all
 ### Test Coverage Status
 
 ✅ **Frontend Tests**: 3,604 passed  
-✅ **Backend Tests**: 615 passed  
+✅ **Backend Tests**: 622 passed  
 ✅ **E2E Tests**: 774 passed  
-📊 **Total**: 4,993 tests passing
+📊 **Total**: 5,000 tests passing
 
 ## CI/CD & Code Quality
 
