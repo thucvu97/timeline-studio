@@ -8,8 +8,9 @@
 [![Линтинг TypeScript](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/lint-js.yml?style=flat-square&label=линтинг%20ts)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-js.yml)
 [![Линтинг Rust](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/lint-rs.yml?style=flat-square&label=линтинг%20rust)](https://github.com/chatman-media/timeline-studio/actions/workflows/lint-rs.yml)
 
-[![Покрытие фронтенда](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?flag=frontend&style=flat-square&label=покрытие%20фронтенда)](https://codecov.io/gh/chatman-media/timeline-studio)
-[![Покрытие бэкенда](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?flag=backend&style=flat-square&label=покрытие%20бэкенда)](https://codecov.io/gh/chatman-media/timeline-studio)
+[![Покрытие фронтенда](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?flag=frontend&style=for-the-badge&label=покрытие%20фронтенда)](https://codecov.io/gh/chatman-media/timeline-studio)
+[![Покрытие бэкенда](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?flag=backend&style=for-the-badge&label=покрытие%20бэкенда)](https://codecov.io/gh/chatman-media/timeline-studio)
+[![E2E Тесты](https://img.shields.io/badge/E2E%20Тесты-Playwright-45ba4b?style=for-the-badge&logo=playwright)](https://github.com/chatman-media/timeline-studio/tree/main/e2e)
 
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg?style=for-the-badge)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue?style=for-the-badge)](https://chatman-media.github.io/timeline-studio/api-docs/)
