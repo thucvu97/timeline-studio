@@ -357,39 +357,12 @@ fn resize_image(img: DynamicImage, max_width: u32, max_height: u32) -> DynamicIm
 #[cfg(test)]
 mod tests {
   use super::*;
+  use image::{ImageBuffer, Rgb};
 
-  #[test]
-  fn test_thumbnail_options_default() {
-    let opts = ThumbnailOptions::default();
-    assert_eq!(opts.width, 320);
-    assert_eq!(opts.height, 180);
-    assert_eq!(opts._quality, 85);
-    assert_eq!(opts.time_offset, 1.0);
-  }
+  fn create_test_media_file() -> MediaFile {
+    use crate::media::types::{FfprobeFormat, ProbeData};
 
-  #[test]
-  fn test_processor_event_serialization() {
-    let event = ProcessorEvent::FilesDiscovered {
-      files: vec![DiscoveredFile {
-        id: "test-id".to_string(),
-        path: "/path/to/file.mp4".to_string(),
-        name: "file.mp4".to_string(),
-        extension: "mp4".to_string(),
-        size: 1024,
-      }],
-      total: 1,
-    };
-
-    let json = serde_json::to_string(&event).unwrap();
-    assert!(json.contains("FilesDiscovered"));
-    assert!(json.contains("test-id"));
-  }
-
-  #[test]
-  fn test_metadata_ready_event() {
-    use crate::media::types::{FfprobeFormat, MediaFile, ProbeData};
-
-    let media_file = MediaFile {
+    MediaFile {
       id: "test-id".to_string(),
       name: "test.mp4".to_string(),
       path: "/path/to/test.mp4".to_string(),
@@ -409,16 +382,528 @@ mod tests {
           format_name: None,
         },
       },
+    }
+  }
+
+  fn create_test_discovered_file() -> DiscoveredFile {
+    DiscoveredFile {
+      id: "test-file-id".to_string(),
+      path: "/test/path/video.mp4".to_string(),
+      name: "video.mp4".to_string(),
+      extension: "mp4".to_string(),
+      size: 2048576,
+    }
+  }
+
+  // ====== ThumbnailOptions Tests ======
+
+  #[test]
+  fn test_thumbnail_options_default() {
+    let opts = ThumbnailOptions::default();
+    assert_eq!(opts.width, 320);
+    assert_eq!(opts.height, 180);
+    assert_eq!(opts._quality, 85);
+    assert_eq!(opts.time_offset, 1.0);
+    assert_eq!(opts.format, ImageFormat::Jpeg);
+  }
+
+  #[test]
+  fn test_thumbnail_options_custom() {
+    let opts = ThumbnailOptions {
+      width: 640,
+      height: 360,
+      format: ImageFormat::Png,
+      _quality: 95,
+      time_offset: 5.0,
     };
 
+    assert_eq!(opts.width, 640);
+    assert_eq!(opts.height, 360);
+    assert_eq!(opts.format, ImageFormat::Png);
+    assert_eq!(opts._quality, 95);
+    assert_eq!(opts.time_offset, 5.0);
+  }
+
+  #[test]
+  fn test_thumbnail_options_clone() {
+    let opts1 = ThumbnailOptions::default();
+    let opts2 = opts1.clone();
+    
+    assert_eq!(opts1.width, opts2.width);
+    assert_eq!(opts1.height, opts2.height);
+    assert_eq!(opts1.time_offset, opts2.time_offset);
+  }
+
+  // ====== DiscoveredFile Tests ======
+
+  #[test]
+  fn test_discovered_file_creation() {
+    let file = create_test_discovered_file();
+    
+    assert_eq!(file.id, "test-file-id");
+    assert_eq!(file.path, "/test/path/video.mp4");
+    assert_eq!(file.name, "video.mp4");
+    assert_eq!(file.extension, "mp4");
+    assert_eq!(file.size, 2048576);
+  }
+
+  #[test]
+  fn test_discovered_file_serialization() {
+    let file = create_test_discovered_file();
+    let json = serde_json::to_string(&file).unwrap();
+    
+    assert!(json.contains("test-file-id"));
+    assert!(json.contains("video.mp4"));
+    assert!(json.contains("mp4"));
+    assert!(json.contains("2048576"));
+  }
+
+  #[test]
+  fn test_discovered_file_deserialization() {
+    let json = r#"
+    {
+      "id": "file-123",
+      "path": "/home/test.mp4",
+      "name": "test.mp4",
+      "extension": "mp4",
+      "size": 1048576
+    }
+    "#;
+
+    let file: DiscoveredFile = serde_json::from_str(json).unwrap();
+    assert_eq!(file.id, "file-123");
+    assert_eq!(file.name, "test.mp4");
+    assert_eq!(file.size, 1048576);
+  }
+
+  // ====== ProcessorEvent Tests ======
+
+  #[test]
+  fn test_processor_event_files_discovered() {
+    let event = ProcessorEvent::FilesDiscovered {
+      files: vec![create_test_discovered_file()],
+      total: 1,
+    };
+
+    let json = serde_json::to_string(&event).unwrap();
+    assert!(json.contains("FilesDiscovered"));
+    assert!(json.contains("test-file-id"));
+    assert!(json.contains("\"total\":1"));
+  }
+
+  #[test]
+  fn test_processor_event_metadata_ready() {
     let event = ProcessorEvent::MetadataReady {
       file_id: "test-id".to_string(),
       file_path: "/path/to/test.mp4".to_string(),
-      metadata: media_file,
+      metadata: create_test_media_file(),
     };
 
     let json = serde_json::to_string(&event).unwrap();
     assert!(json.contains("MetadataReady"));
     assert!(json.contains("test.mp4"));
+    assert!(json.contains("test-id"));
+  }
+
+  #[test]
+  fn test_processor_event_thumbnail_ready() {
+    let event = ProcessorEvent::ThumbnailReady {
+      file_id: "thumb-id".to_string(),
+      file_path: "/media/video.mp4".to_string(),
+      thumbnail_path: "/thumbs/thumb.jpg".to_string(),
+      thumbnail_data: Some("base64data".to_string()),
+    };
+
+    let json = serde_json::to_string(&event).unwrap();
+    assert!(json.contains("ThumbnailReady"));
+    assert!(json.contains("thumb-id"));
+    assert!(json.contains("base64data"));
+  }
+
+  #[test]
+  fn test_processor_event_thumbnail_ready_without_data() {
+    let event = ProcessorEvent::ThumbnailReady {
+      file_id: "thumb-id".to_string(),
+      file_path: "/media/video.mp4".to_string(),
+      thumbnail_path: "/thumbs/thumb.jpg".to_string(),
+      thumbnail_data: None,
+    };
+
+    let json = serde_json::to_string(&event).unwrap();
+    assert!(json.contains("ThumbnailReady"));
+    assert!(json.contains("thumb-id"));
+    assert!(json.contains("null"));
+  }
+
+  #[test]
+  fn test_processor_event_processing_error() {
+    let event = ProcessorEvent::ProcessingError {
+      file_id: "error-id".to_string(),
+      file_path: "/broken/file.mp4".to_string(),
+      error: "File corrupted".to_string(),
+    };
+
+    let json = serde_json::to_string(&event).unwrap();
+    assert!(json.contains("ProcessingError"));
+    assert!(json.contains("error-id"));
+    assert!(json.contains("File corrupted"));
+  }
+
+  #[test]
+  fn test_processor_event_scan_progress() {
+    let event = ProcessorEvent::ScanProgress {
+      current: 5,
+      total: 10,
+    };
+
+    let json = serde_json::to_string(&event).unwrap();
+    assert!(json.contains("ScanProgress"));
+    assert!(json.contains("\"current\":5"));
+    assert!(json.contains("\"total\":10"));
+  }
+
+  #[test]
+  fn test_processor_event_deserialization() {
+    let json = r#"
+    {
+      "type": "ScanProgress",
+      "data": {
+        "current": 3,
+        "total": 7
+      }
+    }
+    "#;
+
+    let event: ProcessorEvent = serde_json::from_str(json).unwrap();
+    match event {
+      ProcessorEvent::ScanProgress { current, total } => {
+        assert_eq!(current, 3);
+        assert_eq!(total, 7);
+      }
+      _ => panic!("Expected ScanProgress event"),
+    }
+  }
+
+  // ====== Image Processing Tests ======
+
+  #[test]
+  fn test_resize_image_no_resize_needed() {
+    // Создаем изображение 100x100
+    let img = DynamicImage::ImageRgb8(
+      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(100, 100)
+    );
+
+    // Пытаемся изменить размер до 200x200 (больше оригинала)
+    let resized = resize_image(img, 200, 200);
+    let (width, height) = resized.dimensions();
+
+    // Размер не должен измениться
+    assert_eq!(width, 100);
+    assert_eq!(height, 100);
+  }
+
+  #[test]
+  fn test_resize_image_proportional_width() {
+    // Создаем изображение 200x100
+    let img = DynamicImage::ImageRgb8(
+      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(200, 100)
+    );
+
+    // Изменяем размер до максимум 100x100
+    let resized = resize_image(img, 100, 100);
+    let (width, height) = resized.dimensions();
+
+    // Пропорции должны сохраниться: 200:100 = 2:1
+    // При максимуме 100x100, результат должен быть 100x50
+    assert_eq!(width, 100);
+    assert_eq!(height, 50);
+  }
+
+  #[test]
+  fn test_resize_image_proportional_height() {
+    // Создаем изображение 100x200
+    let img = DynamicImage::ImageRgb8(
+      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(100, 200)
+    );
+
+    // Изменяем размер до максимум 100x100
+    let resized = resize_image(img, 100, 100);
+    let (width, height) = resized.dimensions();
+
+    // Пропорции должны сохраниться: 100:200 = 1:2
+    // При максимуме 100x100, результат должен быть 50x100
+    assert_eq!(width, 50);
+    assert_eq!(height, 100);
+  }
+
+  #[test]
+  fn test_resize_image_exact_fit() {
+    // Создаем изображение 400x300
+    let img = DynamicImage::ImageRgb8(
+      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(400, 300)
+    );
+
+    // Изменяем размер до 200x150 (точно половина)
+    let resized = resize_image(img, 200, 150);
+    let (width, height) = resized.dimensions();
+
+    assert_eq!(width, 200);
+    assert_eq!(height, 150);
+  }
+
+  #[test]
+  fn test_resize_image_square_to_landscape() {
+    // Создаем квадратное изображение 300x300
+    let img = DynamicImage::ImageRgb8(
+      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(300, 300)
+    );
+
+    // Изменяем размер до 160x90 (соотношение 16:9)
+    let resized = resize_image(img, 160, 90);
+    let (width, height) = resized.dimensions();
+
+    // Квадрат должен уместиться в высоту
+    assert_eq!(width, 90);
+    assert_eq!(height, 90);
+  }
+
+  #[test]
+  fn test_resize_image_very_small() {
+    // Создаем изображение 10x10
+    let img = DynamicImage::ImageRgb8(
+      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(10, 10)
+    );
+
+    // Пытаемся изменить размер до 320x180
+    let resized = resize_image(img, 320, 180);
+    let (width, height) = resized.dimensions();
+
+    // Размер не должен увеличиться
+    assert_eq!(width, 10);
+    assert_eq!(height, 10);
+  }
+
+  // ====== MediaProcessor Tests ======
+  // Note: MediaProcessor tests with Tauri AppHandle are not included here
+  // as they require special test feature flags. The processor logic is
+  // tested through other means in integration tests.
+
+  // ====== Utility Tests ======
+
+  #[test]
+  fn test_discovered_file_with_different_extensions() {
+    let extensions = ["mp4", "avi", "mov", "jpg", "png", "wav", "mp3"];
+    
+    for ext in &extensions {
+      let file = DiscoveredFile {
+        id: format!("test-{}", ext),
+        path: format!("/test/file.{}", ext),
+        name: format!("file.{}", ext),
+        extension: ext.to_string(),
+        size: 1024,
+      };
+      
+      assert_eq!(file.extension, *ext);
+      assert!(file.name.ends_with(ext));
+    }
+  }
+
+  #[test]
+  fn test_discovered_file_large_size() {
+    let file = DiscoveredFile {
+      id: "large-file".to_string(),
+      path: "/test/large.mp4".to_string(),
+      name: "large.mp4".to_string(),
+      extension: "mp4".to_string(),
+      size: u64::MAX,
+    };
+    
+    assert_eq!(file.size, u64::MAX);
+  }
+
+  #[test]
+  fn test_discovered_file_zero_size() {
+    let file = DiscoveredFile {
+      id: "empty-file".to_string(),
+      path: "/test/empty.mp4".to_string(),
+      name: "empty.mp4".to_string(),
+      extension: "mp4".to_string(),
+      size: 0,
+    };
+    
+    assert_eq!(file.size, 0);
+  }
+
+  #[test]
+  fn test_thumbnail_options_edge_cases() {
+    let opts = ThumbnailOptions {
+      width: 1,
+      height: 1,
+      format: ImageFormat::Png,
+      _quality: 0,
+      time_offset: 0.0,
+    };
+
+    assert_eq!(opts.width, 1);
+    assert_eq!(opts.height, 1);
+    assert_eq!(opts._quality, 0);
+    assert_eq!(opts.time_offset, 0.0);
+  }
+
+  #[test]
+  fn test_thumbnail_options_max_values() {
+    let opts = ThumbnailOptions {
+      width: u32::MAX,
+      height: u32::MAX,
+      format: ImageFormat::Jpeg,
+      _quality: 100,
+      time_offset: f64::MAX,
+    };
+
+    assert_eq!(opts.width, u32::MAX);
+    assert_eq!(opts.height, u32::MAX);
+    assert_eq!(opts._quality, 100);
+    assert_eq!(opts.time_offset, f64::MAX);
+  }
+
+  // ====== Error Handling Tests ======
+
+  #[test]
+  fn test_processor_event_with_special_characters() {
+    let event = ProcessorEvent::ProcessingError {
+      file_id: "файл-тест".to_string(),
+      file_path: "/путь/к/файлу.mp4".to_string(),
+      error: "Ошибка: файл не найден".to_string(),
+    };
+
+    let json = serde_json::to_string(&event).unwrap();
+    assert!(json.contains("ProcessingError"));
+    
+    // Проверяем, что можем десериализовать обратно
+    let parsed: ProcessorEvent = serde_json::from_str(&json).unwrap();
+    match parsed {
+      ProcessorEvent::ProcessingError { file_id, error, .. } => {
+        assert_eq!(file_id, "файл-тест");
+        assert_eq!(error, "Ошибка: файл не найден");
+      }
+      _ => panic!("Expected ProcessingError"),
+    }
+  }
+
+  #[test]
+  fn test_processor_event_with_empty_strings() {
+    let event = ProcessorEvent::ProcessingError {
+      file_id: "".to_string(),
+      file_path: "".to_string(),
+      error: "".to_string(),
+    };
+
+    let json = serde_json::to_string(&event).unwrap();
+    let parsed: ProcessorEvent = serde_json::from_str(&json).unwrap();
+    
+    match parsed {
+      ProcessorEvent::ProcessingError { file_id, file_path, error } => {
+        assert_eq!(file_id, "");
+        assert_eq!(file_path, "");
+        assert_eq!(error, "");
+      }
+      _ => panic!("Expected ProcessingError"),
+    }
+  }
+
+  #[test]
+  fn test_resize_image_zero_dimensions() {
+    let img = DynamicImage::ImageRgb8(
+      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(100, 100)
+    );
+
+    // Изменение размера до 0x0 не должно паниковать
+    let resized = resize_image(img, 0, 0);
+    let (width, height) = resized.dimensions();
+
+    // При width_ratio = 0/100 = 0 и height_ratio = 0/100 = 0
+    // ratio = min(0, 0) = 0, что < 1.0
+    // new_width = 100 * 0 = 0, но минимум 1 пиксель
+    // Поэтому результат будет 1x1
+    assert_eq!(width, 1);
+    assert_eq!(height, 1);
+  }
+
+  // ====== Integration-like Tests ======
+
+  #[test]
+  fn test_multiple_events_serialization() {
+    let events = vec![
+      ProcessorEvent::ScanProgress { current: 1, total: 3 },
+      ProcessorEvent::FilesDiscovered { 
+        files: vec![create_test_discovered_file()], 
+        total: 1 
+      },
+      ProcessorEvent::MetadataReady {
+        file_id: "meta-id".to_string(),
+        file_path: "/test.mp4".to_string(),
+        metadata: create_test_media_file(),
+      },
+    ];
+
+    for event in events {
+      let json = serde_json::to_string(&event).unwrap();
+      let parsed: ProcessorEvent = serde_json::from_str(&json).unwrap();
+      
+      // Проверяем, что тип события остался тот же
+      match (&event, &parsed) {
+        (ProcessorEvent::ScanProgress { .. }, ProcessorEvent::ScanProgress { .. }) => {},
+        (ProcessorEvent::FilesDiscovered { .. }, ProcessorEvent::FilesDiscovered { .. }) => {},
+        (ProcessorEvent::MetadataReady { .. }, ProcessorEvent::MetadataReady { .. }) => {},
+        _ => panic!("Event type mismatch after serialization"),
+      }
+    }
+  }
+
+  #[test]
+  fn test_discovered_file_with_unicode_path() {
+    let file = DiscoveredFile {
+      id: "unicode-test".to_string(),
+      path: "/тест/файл/видео.mp4".to_string(),
+      name: "видео.mp4".to_string(),
+      extension: "mp4".to_string(),
+      size: 1024,
+    };
+
+    let json = serde_json::to_string(&file).unwrap();
+    let parsed: DiscoveredFile = serde_json::from_str(&json).unwrap();
+    
+    assert_eq!(parsed.path, "/тест/файл/видео.mp4");
+    assert_eq!(parsed.name, "видео.mp4");
+  }
+
+  #[test] 
+  fn test_thumbnail_options_debug_trait() {
+    let opts = ThumbnailOptions::default();
+    let debug_string = format!("{:?}", opts);
+    
+    assert!(debug_string.contains("ThumbnailOptions"));
+    assert!(debug_string.contains("320"));
+    assert!(debug_string.contains("180"));
+  }
+
+  #[test]
+  fn test_processor_event_debug_trait() {
+    let event = ProcessorEvent::ScanProgress { current: 5, total: 10 };
+    let debug_string = format!("{:?}", event);
+    
+    assert!(debug_string.contains("ScanProgress"));
+    assert!(debug_string.contains("5"));
+    assert!(debug_string.contains("10"));
+  }
+
+  #[test]
+  fn test_discovered_file_debug_trait() {
+    let file = create_test_discovered_file();
+    let debug_string = format!("{:?}", file);
+    
+    assert!(debug_string.contains("DiscoveredFile"));
+    assert!(debug_string.contains("test-file-id"));
+    assert!(debug_string.contains("video.mp4"));
   }
 }
