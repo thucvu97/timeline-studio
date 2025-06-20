@@ -7,6 +7,7 @@ mod tests {
     frame_extraction::{ExtractionPurpose, ExtractionSettings, ExtractionStrategy},
     gpu::{GpuCapabilities, GpuEncoder, GpuInfo},
     progress::{RenderProgress, RenderStatus},
+    renderer::VideoRenderer,
     schema::{AspectRatio, PreviewFormat, ProjectSchema, Subtitle, Timeline, Track, TrackType},
     CompilerSettings,
   };
@@ -14,6 +15,7 @@ mod tests {
   use std::path::PathBuf;
   use std::time::{Duration, SystemTime};
   use tempfile::TempDir;
+  use tokio::sync::mpsc;
 
   #[derive(Debug, Clone, Serialize, Deserialize)]
   struct TestRenderJob {
@@ -1390,19 +1392,61 @@ mod tests {
   #[tokio::test]
   async fn test_render_job_lifecycle() {
     let state = create_test_state();
-    let _job_id = uuid::Uuid::new_v4().to_string();
+    let job_id = uuid::Uuid::new_v4().to_string();
     let project = create_test_project();
 
     // Create render job metadata
-    let _metadata = RenderJobMetadata {
+    let metadata = RenderJobMetadata {
       project_name: project.metadata.name.clone(),
       output_path: "/tmp/output.mp4".to_string(),
       created_at: chrono::Utc::now().to_rfc3339(),
     };
 
-    // Test job tracking
-    let jobs = state.active_jobs.read().await;
-    assert_eq!(jobs.len(), 0);
+    // Create a mock renderer
+    let (tx, _rx) = mpsc::unbounded_channel();
+    let renderer = VideoRenderer::new(
+      project.clone(),
+      state.settings.clone(),
+      state.cache_manager.clone(),
+      tx,
+    )
+    .await
+    .unwrap();
+
+    // Test adding job
+    {
+      let mut jobs = state.active_jobs.write().await;
+      assert_eq!(jobs.len(), 0);
+
+      // Add the job
+      jobs.insert(
+        job_id.clone(),
+        ActiveRenderJob {
+          renderer,
+          metadata: metadata.clone(),
+        },
+      );
+
+      // Verify job was added
+      assert_eq!(jobs.len(), 1);
+      assert!(jobs.contains_key(&job_id));
+    }
+
+    // Test retrieving job
+    {
+      let jobs = state.active_jobs.read().await;
+      let job = jobs.get(&job_id);
+      assert!(job.is_some());
+      assert_eq!(job.unwrap().metadata.project_name, metadata.project_name);
+    }
+
+    // Test removing job
+    {
+      let mut jobs = state.active_jobs.write().await;
+      let removed = jobs.remove(&job_id);
+      assert!(removed.is_some());
+      assert_eq!(jobs.len(), 0);
+    }
   }
 
   #[tokio::test]
