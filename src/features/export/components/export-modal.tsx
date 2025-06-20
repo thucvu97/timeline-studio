@@ -8,9 +8,9 @@ import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { timelineToProjectSchema } from "@/features/timeline/utils/timeline-to-project"
 import { useVideoCompiler } from "@/features/video-compiler/hooks/use-video-compiler"
 
-import { LocalExportTab } from "./components/local-export-tab"
-import { AUDIO_BITRATE } from "./constants/export-constants"
-import { useExportSettings } from "./hooks/use-export-settings"
+import { LocalExportTab } from "./local-export-tab"
+import { AUDIO_BITRATE } from "../constants/export-constants"
+import { useExportSettings } from "../hooks/use-export-settings"
 
 export function ExportModal() {
   const { t } = useTranslation()
