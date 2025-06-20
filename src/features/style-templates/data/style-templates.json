@@ -12,8 +12,8 @@
       "duration": 3,
       "hasText": true,
       "hasAnimation": true,
-      "thumbnail": null,
-      "previewVideo": null,
+      "thumbnail": "/images/style-templates/modern-intro-1.jpg",
+      "previewVideo": "/videos/style-templates/modern-intro-1.mp4",
       "tags": {
         "ru": ["интро", "современный", "текст", "анимация"],
         "en": ["intro", "modern", "text", "animation"]
@@ -91,8 +91,8 @@
       "duration": 4,
       "hasText": true,
       "hasAnimation": true,
-      "thumbnail": null,
-      "previewVideo": null,
+      "thumbnail": "/images/style-templates/minimal-outro-1.jpg",
+      "previewVideo": "/videos/style-templates/minimal-outro-1.mp4",
       "tags": {
         "ru": ["концовка", "минимализм", "чистый", "простой"],
         "en": ["outro", "minimal", "clean", "simple"]
@@ -167,7 +167,8 @@
       "duration": 5,
       "hasText": true,
       "hasAnimation": true,
-      "thumbnail": null,
+      "thumbnail": "/images/style-templates/corporate-lower-third-1.jpg",
+      "previewVideo": "/videos/style-templates/corporate-lower-third-1.mp4",
       "tags": {
         "ru": ["нижняя треть", "корпоративный", "профессиональный"],
         "en": ["lower-third", "corporate", "professional"]
@@ -246,6 +247,102 @@
               "duration": 0.4,
               "delay": 0.6,
               "easing": "ease-out"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bold-title-1",
+      "name": {
+        "ru": "Яркий заголовок",
+        "en": "Bold Title"
+      },
+      "category": "title",
+      "style": "creative",
+      "aspectRatio": "16:9",
+      "duration": 2.5,
+      "hasText": true,
+      "hasAnimation": true,
+      "thumbnail": "/images/style-templates/bold-title-1.jpg",
+      "previewVideo": "/videos/style-templates/bold-title-1.mp4",
+      "tags": {
+        "ru": ["заголовок", "яркий", "креативный"],
+        "en": ["title", "bold", "creative"]
+      },
+      "description": {
+        "ru": "Яркий анимированный заголовок",
+        "en": "Bold animated title"
+      },
+      "elements": [
+        {
+          "id": "main-title",
+          "type": "text",
+          "name": "Основной заголовок",
+          "position": { "x": 50, "y": 50 },
+          "size": { "width": 80, "height": 20 },
+          "timing": { "start": 0, "end": 2.5 },
+          "properties": {
+            "text": "Ваш заголовок",
+            "fontSize": 64,
+            "fontFamily": "Arial Black",
+            "color": "#ff6b35",
+            "textAlign": "center",
+            "fontWeight": "900"
+          },
+          "animations": [
+            {
+              "id": "title-bounce",
+              "type": "bounce",
+              "duration": 1,
+              "delay": 0.2,
+              "easing": "ease-out"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic-overlay-1",
+      "name": {
+        "ru": "Классическое наложение",
+        "en": "Classic Overlay"
+      },
+      "category": "overlay",
+      "style": "vintage",
+      "aspectRatio": "16:9",
+      "duration": 6,
+      "hasText": false,
+      "hasAnimation": true,
+      "thumbnail": "/images/style-templates/classic-overlay-1.jpg",
+      "previewVideo": "/videos/style-templates/classic-overlay-1.mp4",
+      "tags": {
+        "ru": ["наложение", "классический", "винтаж"],
+        "en": ["overlay", "classic", "vintage"]
+      },
+      "description": {
+        "ru": "Классическое винтажное наложение",
+        "en": "Classic vintage overlay"
+      },
+      "elements": [
+        {
+          "id": "film-grain",
+          "type": "overlay",
+          "name": "Кинопленка",
+          "position": { "x": 0, "y": 0 },
+          "size": { "width": 100, "height": 100 },
+          "timing": { "start": 0, "end": 6 },
+          "properties": {
+            "opacity": 0.3,
+            "blendMode": "multiply"
+          },
+          "animations": [
+            {
+              "id": "grain-flicker",
+              "type": "flicker",
+              "duration": 6,
+              "delay": 0,
+              "easing": "linear"
             }
           ]
         }
