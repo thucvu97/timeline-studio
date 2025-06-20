@@ -5,7 +5,7 @@ export interface ExportSettings {
   savePath: string
   format: keyof typeof OutputFormat
   quality: "normal" | "good" | "best"
-  resolution: "720" | "1080" | "4k" | "timeline"
+  resolution: "720" | "1080" | "1440" | "4k" | "timeline"
   frameRate: string
   enableGPU: boolean
   advancedCompression?: boolean
@@ -20,7 +20,7 @@ export interface ExportSettings {
   maxBitrate?: number
   minBitrate?: number
   crf?: number
-  encodingProfile?: string
+  encodingProfile?: "main" | "main10" | "high"
   encodingPreset?:
     | "ultrafast"
     | "superfast"
@@ -31,7 +31,7 @@ export interface ExportSettings {
     | "slow"
     | "slower"
     | "veryslow"
-  entropy?: "cabac" | "cavlc"
+  entropyMode?: "cabac" | "cavlc"
   keyframeMode?: "auto" | "every"
   keyframeInterval?: number
   bFrames?: number
@@ -42,9 +42,16 @@ export interface ExportSettings {
   frameReordering?: boolean
   useProxyMedia?: boolean
   renderWithoutTimecode?: boolean
+  interlacedRendering?: boolean
+  useVerticalResolution?: boolean
   normalizeAudio?: boolean
   audioTarget?: number // LKFS
   audioPeak?: number // dBTP
+  audioCodec?: string
+  audioChannels?: string
+  embedInfoAsProject?: boolean
+  chaptersByMarkers?: boolean
+  constantBitrate?: boolean
   chapters?: boolean
   watermark?: boolean
 }
@@ -63,6 +70,8 @@ export interface SocialExportSettings extends ExportSettings {
   description?: string
   tags?: string[]
   thumbnail?: string
+  fileSizeBytes?: number
+  durationSeconds?: number
   // TikTok specific
   useVerticalResolution?: boolean
   uploadDirectlyToTikTok?: boolean

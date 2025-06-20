@@ -1,10 +1,20 @@
 // Константы для экспорта видео
 
 export const RESOLUTION_PRESETS = {
+  "timeline": {
+    label: "Timeline Resolution",
+    width: 1920, // Default fallback
+    height: 1080,
+  },
   "4k": {
     label: "3840x2160 (4K)",
     width: 3840,
     height: 2160,
+  },
+  "1440": {
+    label: "2560x1440 (QHD)",
+    width: 2560,
+    height: 1440,
   },
   "1080": {
     label: "1920x1080 (Full HD)",
@@ -37,6 +47,7 @@ export const QUALITY_PRESETS = {
 } as const
 
 export const FRAME_RATE_OPTIONS = [
+  { value: "timeline", label: "Timeline Frame Rate" },
   { value: "24", label: "24 fps" },
   { value: "25", label: "25 fps" },
   { value: "30", label: "30 fps" },
@@ -46,6 +57,7 @@ export const FRAME_RATE_OPTIONS = [
 export const FORMAT_OPTIONS = [
   { value: "mp4", label: "MP4" },
   { value: "mov", label: "MOV" },
+  { value: "quicktime", label: "QuickTime" },
   { value: "webm", label: "WebM" },
 ] as const
 

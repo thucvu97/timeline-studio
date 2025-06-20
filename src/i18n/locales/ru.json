@@ -1813,8 +1813,8 @@
   },
   "videoCompiler": {
     "tasks": "Задачи",
-    "renderTasks": "Задачи рендеринга",
-    "noActiveTasks": "Нет активных задач",
+    "renderTasks": "Задачи рендеринга и экспорта",
+    "noActiveTasks": "Нет активных задач рендеринга или экспорта",
     "errorLoadingTasks": "Ошибка загрузки задач",
     "cancelTask": "Отменить задачу рендеринга?",
     "frames": "кадров",

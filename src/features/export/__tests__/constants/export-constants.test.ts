@@ -75,8 +75,12 @@ describe("Export Constants", () => {
 
     it("should have proper labels", () => {
       FRAME_RATE_OPTIONS.forEach((option) => {
-        expect(option.label).toContain(option.value)
-        expect(option.label).toContain("fps")
+        if (option.value === "timeline") {
+          expect(option.label).toContain("Timeline")
+        } else {
+          expect(option.label).toContain(option.value)
+          expect(option.label).toContain("fps")
+        }
       })
     })
   })
@@ -86,13 +90,15 @@ describe("Export Constants", () => {
       const formats = FORMAT_OPTIONS.map((opt) => opt.value)
       expect(formats).toContain("mp4")
       expect(formats).toContain("mov")
+      expect(formats).toContain("quicktime")
       expect(formats).toContain("webm")
     })
 
     it("should have uppercase labels", () => {
       expect(FORMAT_OPTIONS[0].label).toBe("MP4")
       expect(FORMAT_OPTIONS[1].label).toBe("MOV")
-      expect(FORMAT_OPTIONS[2].label).toBe("WebM")
+      expect(FORMAT_OPTIONS[2].label).toBe("QuickTime")
+      expect(FORMAT_OPTIONS[3].label).toBe("WebM")
     })
   })
 
