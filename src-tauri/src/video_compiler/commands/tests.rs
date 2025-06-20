@@ -1937,4 +1937,230 @@ mod tests {
     // Clean up
     state.active_jobs.write().await.clear();
   }
+
+  #[tokio::test]
+  async fn test_preview_operations() {
+    use crate::video_compiler::commands_logic::{
+      clear_frame_cache_logic, generate_preview_logic, get_video_info_logic,
+    };
+
+    let state = create_test_state();
+
+    // Test preview generation with invalid file
+    let preview_result =
+      generate_preview_logic("/invalid/video.mp4", 5.0, None, None, &state).await;
+    assert!(preview_result.is_err());
+
+    // Test video info with invalid file
+    let info_result = get_video_info_logic("/invalid/video.mp4", &state).await;
+    // Result depends on preview module implementation
+    let _ = info_result;
+
+    // Test clearing frame cache
+    let clear_result = clear_frame_cache_logic(&state).await;
+    assert!(clear_result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_project_creation_operations() {
+    use crate::video_compiler::commands_logic::{
+      add_clip_to_track_logic, create_clip_logic, create_effect_logic, create_filter_logic,
+      create_subtitle_logic, create_track_logic,
+    };
+    use std::path::PathBuf;
+
+    // Test track creation
+    let video_track = create_track_logic(
+      crate::video_compiler::schema::TrackType::Video,
+      "Main Video".to_string(),
+    );
+    assert_eq!(video_track.name, "Main Video");
+
+    let audio_track = create_track_logic(
+      crate::video_compiler::schema::TrackType::Audio,
+      "Background Music".to_string(),
+    );
+    assert_eq!(
+      audio_track.track_type,
+      crate::video_compiler::schema::TrackType::Audio
+    );
+
+    // Test clip creation with existing file
+    let temp_file = std::env::temp_dir().join("test_video.mp4");
+    std::fs::write(&temp_file, b"fake video data").unwrap();
+
+    let clip_result = create_clip_logic(temp_file.to_string_lossy().to_string(), 0.0, 30.0);
+    assert!(clip_result.is_ok());
+
+    let clip = clip_result.unwrap();
+    assert_eq!(clip.end_time - clip.start_time, 30.0);
+
+    // Clean up
+    std::fs::remove_file(&temp_file).ok();
+
+    // Test adding clip to track
+    let clip = crate::video_compiler::schema::Clip::new(PathBuf::from("/tmp/test.mp4"), 0.0, 15.0);
+
+    let track_with_clip = add_clip_to_track_logic(video_track, clip).unwrap();
+    assert_eq!(track_with_clip.clips.len(), 1);
+
+    // Test effect creation
+    let blur_effect = create_effect_logic(
+      crate::video_compiler::schema::EffectType::Blur,
+      "Blur Effect".to_string(),
+    );
+    assert_eq!(blur_effect.name, "Blur Effect");
+
+    // Test filter creation
+    let blur_filter = create_filter_logic(
+      crate::video_compiler::schema::FilterType::Blur,
+      "Motion Blur".to_string(),
+    );
+    assert_eq!(blur_filter.name, "Motion Blur");
+
+    // Test subtitle creation
+    let subtitle = create_subtitle_logic("Hello World".to_string(), 1.0, 3.0).unwrap();
+    assert_eq!(subtitle.text, "Hello World");
+    assert_eq!(subtitle.get_duration(), 2.0);
+  }
+
+  #[tokio::test]
+  async fn test_cache_configuration_operations() {
+    use crate::video_compiler::commands_logic::{
+      configure_cache_logic, get_cache_memory_usage_logic, get_cache_size_logic,
+    };
+
+    let state = create_test_state();
+
+    // Configure cache with specific values
+    configure_cache_logic(Some(2048), Some(1000), &state)
+      .await
+      .unwrap();
+
+    // Get cache size
+    let size = get_cache_size_logic(&state).await;
+    assert!(size >= 0.0);
+
+    // Get memory usage
+    let usage = get_cache_memory_usage_logic(&state).await;
+    assert_eq!(
+      usage.total_bytes,
+      usage.preview_bytes + usage.metadata_bytes + usage.render_bytes
+    );
+  }
+
+  #[tokio::test]
+  async fn test_ffmpeg_path_operations() {
+    use crate::video_compiler::commands_logic::set_ffmpeg_path_logic;
+
+    // Test with echo command (should succeed on Unix)
+    #[cfg(unix)]
+    {
+      let result = set_ffmpeg_path_logic("echo").await.unwrap();
+      assert!(result);
+    }
+
+    // Test with non-existent path
+    let result = set_ffmpeg_path_logic("/this/does/not/exist/ffmpeg")
+      .await
+      .unwrap();
+    assert!(!result);
+  }
+
+  #[test]
+  fn test_touch_project_operations() {
+    use crate::video_compiler::commands_logic::touch_project_logic;
+
+    let mut project = create_test_project();
+    project.metadata.name = "Original Name".to_string();
+    let original_time = project.metadata.modified_at;
+
+    // Wait a bit to ensure timestamp changes
+    std::thread::sleep(std::time::Duration::from_millis(50));
+
+    let touched = touch_project_logic(project.clone());
+    assert_eq!(touched.metadata.name, "Original Name");
+    assert_ne!(touched.metadata.modified_at, original_time);
+  }
+
+  #[test]
+  fn test_subtitle_validation() {
+    use crate::video_compiler::commands_logic::create_subtitle_logic;
+
+    // Test empty text
+    let result = create_subtitle_logic("".to_string(), 0.0, 1.0);
+    assert!(result.is_err());
+
+    // Test zero duration
+    let result = create_subtitle_logic("Text".to_string(), 1.0, 1.0);
+    assert!(result.is_err());
+
+    // Test negative duration
+    let result = create_subtitle_logic("Text".to_string(), 2.0, 1.0);
+    assert!(result.is_err());
+
+    // Test valid subtitle
+    let result = create_subtitle_logic("Valid subtitle".to_string(), 0.0, 2.0);
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_render_job_edge_cases() {
+    use crate::video_compiler::commands_logic::{
+      compile_video_logic, get_render_job_logic, get_render_progress_logic,
+    };
+
+    let state = create_test_state();
+    let project = create_test_project();
+
+    // Start a job
+    let job_id = compile_video_logic(project, "/tmp/test.mp4".to_string(), &state)
+      .await
+      .unwrap();
+
+    // Get job details multiple times
+    for _ in 0..3 {
+      let details = get_render_job_logic(&job_id, &state).await.unwrap();
+      assert!(details.is_some());
+    }
+
+    // Get progress multiple times
+    for _ in 0..3 {
+      let _progress = get_render_progress_logic(&job_id, &state).await.unwrap();
+    }
+
+    // Clean up
+    state.active_jobs.write().await.clear();
+  }
+
+  #[tokio::test]
+  async fn test_get_system_info_comprehensive() {
+    use crate::video_compiler::commands_logic::get_system_info_logic;
+
+    let info = get_system_info_logic();
+
+    // Verify all fields are populated
+    assert!(!info.os.is_empty());
+    assert!(!info.arch.is_empty());
+    assert!(!info.ffmpeg_path.is_empty());
+    assert!(!info.temp_directory.is_empty());
+    assert!(info.cpu_cores > 0);
+    assert!(info.available_memory.is_some());
+  }
+
+  #[tokio::test]
+  async fn test_render_statistics_operations() {
+    use crate::video_compiler::commands_logic::get_render_statistics_logic;
+
+    let state = create_test_state();
+
+    // Get stats with no active jobs
+    let stats = get_render_statistics_logic(&state).await;
+    assert_eq!(stats.active_renders, 0);
+    assert_eq!(stats.total_renders, 0);
+    assert_eq!(stats.successful_renders, 0);
+    assert_eq!(stats.failed_renders, 0);
+    assert_eq!(stats.average_render_time, 0.0);
+    assert_eq!(stats.total_output_size, 0);
+  }
 }

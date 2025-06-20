@@ -305,6 +305,161 @@ pub async fn validate_media_file_logic(file_path: &str) -> Result<bool> {
   Ok(false)
 }
 
+/// Генерация превью
+pub async fn generate_preview_logic(
+  video_path: &str,
+  timestamp: f64,
+  resolution: Option<(u32, u32)>,
+  quality: Option<u8>,
+  state: &VideoCompilerState,
+) -> Result<Vec<u8>> {
+  use crate::video_compiler::preview::PreviewGenerator;
+  use std::path::Path;
+
+  let preview_gen = PreviewGenerator::new(state.cache_manager.clone());
+
+  preview_gen
+    .generate_preview(Path::new(video_path), timestamp, resolution, quality)
+    .await
+}
+
+/// Получить информацию о видео
+pub async fn get_video_info_logic(
+  video_path: &str,
+  state: &VideoCompilerState,
+) -> Result<crate::video_compiler::preview::VideoInfo> {
+  use crate::video_compiler::preview::PreviewGenerator;
+  use std::path::Path;
+
+  let preview_gen = PreviewGenerator::new(state.cache_manager.clone());
+  preview_gen.get_video_info(Path::new(video_path)).await
+}
+
+/// Установить путь к FFmpeg
+pub async fn set_ffmpeg_path_logic(path: &str) -> Result<bool> {
+  use tokio::process::Command;
+
+  match Command::new(path).arg("-version").output().await {
+    Ok(output) => Ok(output.status.success()),
+    Err(_) => Ok(false),
+  }
+}
+
+/// Обновить timestamp проекта
+pub fn touch_project_logic(mut project: ProjectSchema) -> ProjectSchema {
+  project.touch();
+  project
+}
+
+/// Создать трек
+pub fn create_track_logic(
+  track_type: crate::video_compiler::schema::TrackType,
+  name: String,
+) -> crate::video_compiler::schema::Track {
+  crate::video_compiler::schema::Track::new(track_type, name)
+}
+
+/// Создать клип
+pub fn create_clip_logic(
+  source_path: String,
+  start_time: f64,
+  duration: f64,
+) -> Result<crate::video_compiler::schema::Clip> {
+  use std::path::PathBuf;
+
+  let path = PathBuf::from(&source_path);
+
+  if !path.exists() {
+    return Err(VideoCompilerError::media_file(
+      source_path,
+      "Файл не найден",
+    ));
+  }
+
+  Ok(crate::video_compiler::schema::Clip::new(
+    path, start_time, duration,
+  ))
+}
+
+/// Создать эффект
+pub fn create_effect_logic(
+  effect_type: crate::video_compiler::schema::EffectType,
+  name: String,
+) -> crate::video_compiler::schema::Effect {
+  crate::video_compiler::schema::Effect::new(effect_type, name)
+}
+
+/// Создать фильтр
+pub fn create_filter_logic(
+  filter_type: crate::video_compiler::schema::FilterType,
+  name: String,
+) -> crate::video_compiler::schema::Filter {
+  crate::video_compiler::schema::Filter::new(filter_type, name)
+}
+
+/// Создать субтитр
+pub fn create_subtitle_logic(
+  text: String,
+  start_time: f64,
+  end_time: f64,
+) -> Result<crate::video_compiler::schema::Subtitle> {
+  let subtitle = crate::video_compiler::schema::Subtitle::new(text, start_time, end_time);
+  subtitle
+    .validate()
+    .map_err(VideoCompilerError::validation)?;
+  Ok(subtitle)
+}
+
+/// Очистить кэш кадров
+pub async fn clear_frame_cache_logic(state: &VideoCompilerState) -> Result<()> {
+  let mut cache = state.cache_manager.write().await;
+  cache.clear_previews().await;
+  Ok(())
+}
+
+/// Настроить кэш
+pub async fn configure_cache_logic(
+  max_memory_mb: Option<usize>,
+  max_entries: Option<usize>,
+  state: &VideoCompilerState,
+) -> Result<()> {
+  use crate::video_compiler::cache::{CacheSettings, RenderCache};
+
+  let current_settings = CacheSettings::default();
+  let new_settings = CacheSettings {
+    max_memory_mb: max_memory_mb.unwrap_or(current_settings.max_memory_mb),
+    max_preview_entries: max_entries.unwrap_or(current_settings.max_preview_entries),
+    max_metadata_entries: max_entries.unwrap_or(current_settings.max_metadata_entries),
+    max_render_entries: max_entries
+      .map(|e| e / 10)
+      .unwrap_or(current_settings.max_render_entries),
+    preview_ttl: current_settings.preview_ttl,
+    metadata_ttl: current_settings.metadata_ttl,
+    render_ttl: current_settings.render_ttl,
+  };
+
+  let mut cache = state.cache_manager.write().await;
+  *cache = RenderCache::with_settings(new_settings);
+  Ok(())
+}
+
+/// Получить размер кэша
+pub async fn get_cache_size_logic(state: &VideoCompilerState) -> f32 {
+  let cache = state.cache_manager.read().await;
+  cache.get_memory_usage().total_mb()
+}
+
+/// Добавить клип к треку
+pub fn add_clip_to_track_logic(
+  mut track: crate::video_compiler::schema::Track,
+  clip: crate::video_compiler::schema::Clip,
+) -> Result<crate::video_compiler::schema::Track> {
+  track
+    .add_clip(clip)
+    .map_err(VideoCompilerError::validation)?;
+  Ok(track)
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -568,5 +723,231 @@ mod tests {
       .await
       .unwrap();
     assert!(job.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_generate_preview_logic() {
+    let state = create_test_state();
+
+    // Test with non-existent file
+    let result = generate_preview_logic(
+      "/non/existent/video.mp4",
+      10.0,
+      Some((320, 240)),
+      Some(75),
+      &state,
+    )
+    .await;
+
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  #[ignore = "Preview module behavior may vary"]
+  async fn test_get_video_info_logic() {
+    let state = create_test_state();
+
+    // Test with non-existent file
+    let result = get_video_info_logic("/non/existent/video.mp4", &state).await;
+    // Result depends on preview module implementation
+    let _ = result;
+  }
+
+  #[tokio::test]
+  async fn test_set_ffmpeg_path_logic() {
+    // Test with invalid path
+    let result = set_ffmpeg_path_logic("/invalid/ffmpeg/path").await.unwrap();
+    assert!(!result);
+
+    // Test with false command (always returns non-zero)
+    #[cfg(unix)]
+    {
+      let result = set_ffmpeg_path_logic("false").await.unwrap();
+      assert!(!result);
+    }
+  }
+
+  #[test]
+  fn test_touch_project_logic() {
+    let project = create_test_project();
+    let original_timestamp = project.metadata.modified_at;
+
+    // Small delay to ensure timestamp changes
+    std::thread::sleep(std::time::Duration::from_millis(10));
+
+    let updated = touch_project_logic(project);
+    assert_ne!(updated.metadata.modified_at, original_timestamp);
+  }
+
+  #[test]
+  fn test_create_track_logic() {
+    let track = create_track_logic(
+      crate::video_compiler::schema::TrackType::Video,
+      "Test Track".to_string(),
+    );
+
+    assert_eq!(track.name, "Test Track");
+    assert_eq!(
+      track.track_type,
+      crate::video_compiler::schema::TrackType::Video
+    );
+    assert!(track.clips.is_empty());
+  }
+
+  #[test]
+  fn test_create_clip_logic() {
+    // Test with non-existent file
+    let result = create_clip_logic("/non/existent/video.mp4".to_string(), 0.0, 10.0);
+
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("Файл не найден"));
+  }
+
+  #[test]
+  fn test_create_effect_logic() {
+    let effect = create_effect_logic(
+      crate::video_compiler::schema::EffectType::Blur,
+      "Blur Effect".to_string(),
+    );
+
+    assert_eq!(effect.name, "Blur Effect");
+    assert_eq!(
+      effect.effect_type,
+      crate::video_compiler::schema::EffectType::Blur
+    );
+  }
+
+  #[test]
+  fn test_create_filter_logic() {
+    let filter = create_filter_logic(
+      crate::video_compiler::schema::FilterType::Blur,
+      "Soft Blur".to_string(),
+    );
+
+    assert_eq!(filter.name, "Soft Blur");
+    assert_eq!(
+      filter.filter_type,
+      crate::video_compiler::schema::FilterType::Blur
+    );
+  }
+
+  #[test]
+  fn test_create_subtitle_logic() {
+    // Test valid subtitle
+    let subtitle = create_subtitle_logic("Test subtitle".to_string(), 0.0, 5.0).unwrap();
+
+    assert_eq!(subtitle.text, "Test subtitle");
+    assert_eq!(subtitle.get_duration(), 5.0);
+
+    // Test invalid subtitle (end before start)
+    let result = create_subtitle_logic("Invalid".to_string(), 5.0, 2.0);
+
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_clear_frame_cache_logic() {
+    let state = create_test_state();
+    let result = clear_frame_cache_logic(&state).await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_configure_cache_logic() {
+    let state = create_test_state();
+
+    // Test with some values
+    let result = configure_cache_logic(Some(1024), Some(500), &state).await;
+
+    assert!(result.is_ok());
+
+    // Test with None values (should use defaults)
+    let result = configure_cache_logic(None, None, &state).await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_get_cache_size_logic() {
+    let state = create_test_state();
+    let size = get_cache_size_logic(&state).await;
+    assert!(size >= 0.0);
+  }
+
+  #[test]
+  fn test_add_clip_to_track_logic() {
+    use std::path::PathBuf;
+
+    let track = create_track_logic(
+      crate::video_compiler::schema::TrackType::Video,
+      "Test Track".to_string(),
+    );
+
+    let clip = crate::video_compiler::schema::Clip::new(PathBuf::from("/tmp/test.mp4"), 0.0, 10.0);
+
+    let updated_track = add_clip_to_track_logic(track, clip).unwrap();
+    assert_eq!(updated_track.clips.len(), 1);
+    assert_eq!(
+      updated_track.clips[0].end_time - updated_track.clips[0].start_time,
+      10.0
+    );
+  }
+
+  #[tokio::test]
+  async fn test_error_paths() {
+    let state = create_test_state();
+
+    // Test compile with invalid project
+    let mut invalid_project = create_test_project();
+    invalid_project.timeline.fps = 0; // Invalid FPS
+
+    let result = compile_video_logic(invalid_project, "/tmp/output.mp4".to_string(), &state).await;
+
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_get_cache_stats_with_operations() {
+    let state = create_test_state();
+
+    // Clear cache first
+    clear_all_cache_logic(&state).await.unwrap();
+
+    // Get initial stats
+    let stats1 = get_cache_stats_logic(&state).await;
+
+    // Perform some cache operation
+    clear_preview_cache_logic(&state).await.unwrap();
+
+    // Get stats again
+    let stats2 = get_cache_stats_logic(&state).await;
+
+    // Stats should be consistent
+    assert_eq!(stats1.preview_requests, stats2.preview_requests);
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_job_operations() {
+    let state = create_test_state();
+    let project = create_test_project();
+
+    // Add first job
+    let job_id1 = compile_video_logic(project.clone(), "/tmp/job1.mp4".to_string(), &state)
+      .await
+      .unwrap();
+
+    // Get job details while active
+    let job_details = get_render_job_logic(&job_id1, &state).await.unwrap();
+    assert!(job_details.is_some());
+
+    // Check active jobs count
+    let active_jobs = get_active_jobs_logic(&state).await;
+    assert_eq!(active_jobs.len(), 1);
+
+    // Cancel job
+    cancel_render_logic(&job_id1, &state).await.unwrap();
+
+    // Verify job is gone
+    let active_jobs = get_active_jobs_logic(&state).await;
+    assert_eq!(active_jobs.len(), 0);
   }
 }
