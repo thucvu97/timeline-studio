@@ -108,7 +108,7 @@ export async function mockTauriAPI(page: Page) {
           
           switch (cmd) {
             case 'get_app_info':
-              return { version: '0.20.0', name: 'Timeline Studio' };
+              return { version: '0.21.0', name: 'Timeline Studio' };
               
             case 'get_media_files':
               return [];

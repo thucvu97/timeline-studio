@@ -1,6 +1,6 @@
 {
   "name": "timeline-studio",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "license": "SEE LICENSE IN LICENSE",
   "author": "Alexander Kireyev <ak.chatman.media@gmail.com>",
   "type": "module",
@@ -92,7 +92,7 @@
     "@tauri-apps/plugin-store": "^2.2.1",
     "@tauri-apps/plugin-websocket": "~2.3.1",
     "@tauri-apps/plugin-window": "^2.0.0-alpha.1",
-    "@xstate/react": "^5.0.5",
+    "@xstate/react": "6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
@@ -113,10 +113,10 @@
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.1",
     "wavesurfer.js": "^7.9.5",
-    "xstate": "^5.19.4"
+    "xstate": "^5.20.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.0.0",
+    "@biomejs/biome": "2.0.1",
     "@codecov/vite-plugin": "^1.9.1",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.29.0",
