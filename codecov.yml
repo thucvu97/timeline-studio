@@ -46,14 +46,14 @@ github_checks:
   annotations: true
 
 ignore:
-- (?s:src\-tauri/target/.*/[^\/]*)\Z
-- (?s:dist/.*/[^\/]*)\Z
-- (?s:coverage/.*/[^\/]*)\Z
-- (?s:.*/[^\/]*\.test\.ts)\Z
-- (?s:.*/[^\/]*\.test\.tsx)\Z
-- (?s:.*/test\-utils\.tsx)\Z
-- (?s:.*/mocks/.*/[^\/]*)\Z
-- (?s:.*/__tests__/.*/[^\/]*)\Z
-- (?s:.*/__mocks__/.*/[^\/]*)\Z
+  - "src-tauri/target/**/*"
+  - "dist/**/*"
+  - "coverage/**/*"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/test-utils.tsx"
+  - "**/mocks/**/*"
+  - "**/__tests__/**/*"
+  - "**/__mocks__/**/*"
 
 slack_app: true
