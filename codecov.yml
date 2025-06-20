@@ -1,56 +1,295 @@
-codecov:
-  max_report_age: false
-  notify:
-    wait_for_ci: true
-  require_ci_to_pass: true
-
-comment:
-  behavior: default
-  layout: reach,diff,flags,tree
-  require_changes: false
-  show_carryforward_flags: false
+# Codecov configuration for Timeline Studio
+# https://docs.codecov.com/docs/codecov-yaml
 
 coverage:
-  precision: 2
-  range: "80...90"
-  round: down
   status:
-    changes: false
-    default_rules:
-      flag_coverage_not_uploaded_behavior: include
-    patch:
-      default:
-        base: auto
-        target: auto
-        threshold: 1.0
     project:
       default:
+        target: 80%
+        threshold: 2%
         base: auto
-        target: auto
-        threshold: 1.0
+    patch:
+      default:
+        target: 70%
+        threshold: 5%
 
-flags:
-  backend:
-    carryforward: true
-    paths:
-    - ^src-tauri/src/.*
-  frontend:
-    carryforward: true
-    paths:
-    - ^src/.*
+  # Component-based coverage tracking - each feature is a separate component
+  component_management:
+    default_rules:
+      flag_coverage_not_uploaded_behavior: pass
+      
+    individual_components:
+      # Frontend Features - каждая фича отдельный компонент
+      - component_id: frontend-timeline
+        name: "Timeline"
+        paths:
+          - "src/features/timeline/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-video-player
+        name: "Video Player"
+        paths:
+          - "src/features/video-player/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-media-studio
+        name: "Media Studio"
+        paths:
+          - "src/features/media-studio/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-export
+        name: "Export"
+        paths:
+          - "src/features/export/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-video-compiler
+        name: "Video Compiler"
+        paths:
+          - "src/features/video-compiler/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-ai-chat
+        name: "AI Chat"
+        paths:
+          - "src/features/ai-chat/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-recognition
+        name: "Recognition"
+        paths:
+          - "src/features/recognition/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-browser
+        name: "Browser"
+        paths:
+          - "src/features/browser/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-media
+        name: "Media"
+        paths:
+          - "src/features/media/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-effects
+        name: "Effects"
+        paths:
+          - "src/features/effects/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-filters
+        name: "Filters"
+        paths:
+          - "src/features/filters/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-transitions
+        name: "Transitions"
+        paths:
+          - "src/features/transitions/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-style-templates
+        name: "Style Templates"
+        paths:
+          - "src/features/style-templates/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-templates
+        name: "Templates"
+        paths:
+          - "src/features/templates/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-subtitles
+        name: "Subtitles"
+        paths:
+          - "src/features/subtitles/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-resources
+        name: "Resources"
+        paths:
+          - "src/features/resources/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-app-state
+        name: "App State"
+        paths:
+          - "src/features/app-state/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-project-settings
+        name: "Project Settings"
+        paths:
+          - "src/features/project-settings/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-user-settings
+        name: "User Settings"
+        paths:
+          - "src/features/user-settings/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-modals
+        name: "Modals"
+        paths:
+          - "src/features/modals/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-keyboard-shortcuts
+        name: "Keyboard Shortcuts"
+        paths:
+          - "src/features/keyboard-shortcuts/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-camera-capture
+        name: "Camera Capture"
+        paths:
+          - "src/features/camera-capture/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-voice-recording
+        name: "Voice Recording"
+        paths:
+          - "src/features/voice-recording/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-music
+        name: "Music"
+        paths:
+          - "src/features/music/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-options
+        name: "Options"
+        paths:
+          - "src/features/options/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-top-bar
+        name: "Top Bar"
+        paths:
+          - "src/features/top-bar/**"
+        flag_regexes:
+          - "frontend"
+          
+      - component_id: frontend-i18n
+        name: "i18n"
+        paths:
+          - "src/i18n/**"
+        flag_regexes:
+          - "frontend"
+          
+      # Backend Features - 4 основные фичи
+      - component_id: backend-video-compiler
+        name: "Video Compiler (Rust)"
+        paths:
+          - "src-tauri/src/video_compiler/**"
+        flag_regexes:
+          - "rust"
+          
+      - component_id: backend-media
+        name: "Media Processing (Rust)"
+        paths:
+          - "src-tauri/src/media/**"
+        flag_regexes:
+          - "rust"
+          
+      - component_id: backend-recognition
+        name: "Recognition System (Rust)"
+        paths:
+          - "src-tauri/src/recognition/**"
+        flag_regexes:
+          - "rust"
+          
+      - component_id: backend-core
+        name: "Core Backend (Rust)"
+        paths:
+          - "src-tauri/src/*.rs"
+          - "src-tauri/src/commands/**"
+          - "src-tauri/src/state/**"
+          - "src-tauri/src/language.rs"
+        flag_regexes:
+          - "rust"
 
+# Ignore patterns
+ignore:
+  - "node_modules"
+  - "dist"
+  - "build"
+  - "coverage"
+  - "*.config.js"
+  - "*.config.ts"
+  - "**/*.d.ts"
+  - "src/test/**"
+  - "src/**/__mocks__/**"
+  - "src/components/ui/**"  # shadcn/ui components
+  - "src/components/tauri-mock-provider.tsx"
+  - "target/**"  # Rust build artifacts
+  - "src-tauri/target/**"
+
+# Flag management for different test runs
+flag_management:
+  default_rules:
+    carryforward: true
+    statuses:
+      - type: "project"
+        target: 80%
+      - type: "patch"
+        target: 70%
+        
+  individual_flags:
+    - name: frontend
+      carryforward: true
+      statuses:
+        - type: "project" 
+          target: 75%
+    - name: rust
+      carryforward: true
+      statuses:
+        - type: "project"
+          target: 85%
+
+# Comment configuration
+comment:
+  layout: "reach,diff,flags,tree,reach"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+  branches:
+    - "main"
+    - "develop"
+
+# GitHub checks
 github_checks:
   annotations: true
-
-ignore:
-  - "src-tauri/target/**/*"
-  - "dist/**/*"
-  - "coverage/**/*"
-  - "**/*.test.ts"
-  - "**/*.test.tsx"
-  - "**/test-utils.tsx"
-  - "**/mocks/**/*"
-  - "**/__tests__/**/*"
-  - "**/__mocks__/**/*"
-
-slack_app: true

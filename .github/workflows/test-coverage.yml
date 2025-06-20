@@ -108,7 +108,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./src-tauri/coverage.info
-          flags: backend
-          name: backend-coverage
+          flags: rust
+          name: rust-coverage
           fail_ci_if_error: false
           verbose: true

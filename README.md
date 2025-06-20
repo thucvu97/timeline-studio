@@ -10,7 +10,7 @@
 
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/graphs/commit-activity)
 [![Frontend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?flag=frontend&style=for-the-badge&label=frontend%20coverage)](https://codecov.io/gh/chatman-media/timeline-studio)
-[![Backend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?flag=backend&style=for-the-badge&label=backend%20coverage)](https://codecov.io/gh/chatman-media/timeline-studio)
+[![Rust Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?flag=rust&style=for-the-badge&label=rust%20coverage)](https://codecov.io/gh/chatman-media/timeline-studio)
 
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg?style=for-the-badge)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue?style=for-the-badge)](https://chatman-media.github.io/timeline-studio/api-docs/)
@@ -34,10 +34,10 @@ Timeline Studio is a modern video editor built on Tauri architecture (Rust + Rea
 
 ### Project Status (June 2025)
 
-**Overall Completion: 53.8%** ⬆️ (recalculated with real module status and 14 new planned modules)
-- **Completed**: 11 modules (100% readiness) 
+**Overall Completion: 54.2%** ⬆️ (recalculated with export completion and 14 new planned modules)
+- **Completed**: 12 modules (100% readiness) 
 - **In development**: 8 modules (45-85% readiness)
-- **Planned**: 5 modules (30-85% readiness)
+- **Planned**: 4 modules (30-80% readiness)
 - **New planned**: 14 modules (0% readiness) - [details in planned/](docs-ru/08-roadmap/planned/)
 
 ### Key Achievements:
@@ -47,7 +47,7 @@ Timeline Studio is a modern video editor built on Tauri architecture (Rust + Rea
 - ✅ **Core Architecture** - app-state, browser, modals, user/project settings (100%)
 - ✅ **Recognition** - YOLO v11 object and face recognition (100%)
 - 🔄 **Effects/Filters/Transitions** - rich effects library in Filmora style (75-80%)
-- 🔄 **Export** - almost ready, details of parameters remain (85%)
+- ✅ **Export** - fully ready with 4 tabs support (100%)
 - 🔄 **Resources Panel** - main UI ready, drag & drop missing (80%)
 - ❗ **AI Chat** - requires real API integration (30%)
 - 📋 **14 new planned modules** - [see planned/](docs-ru/08-roadmap/planned/) to achieve DaVinci + Filmora level
