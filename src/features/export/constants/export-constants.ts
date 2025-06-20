@@ -1,7 +1,7 @@
 // Константы для экспорта видео
 
 export const RESOLUTION_PRESETS = {
-  "timeline": {
+  timeline: {
     label: "Timeline Resolution",
     width: 1920, // Default fallback
     height: 1080,

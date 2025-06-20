@@ -54,7 +54,7 @@ export function useSocialExport() {
         // TODO: Implement file reading from path in Tauri
         // For now, we'll throw an error as this needs backend implementation
         throw new Error("Social media upload requires file reading implementation in Tauri")
-        
+
         // Когда будет реализовано чтение файла:
         // const fileData = await readBinaryFile(videoPath)
         // const videoBlob = new Blob([fileData], { type: 'video/mp4' })
@@ -67,10 +67,10 @@ export function useSocialExport() {
         //     setUploadProgress(progress)
         //   },
         // })
-        // 
+        //
         // setIsUploading(false)
         // setUploadProgress(100)
-        // 
+        //
         // toast.success(t("dialogs.export.uploadSuccess", { network: network.name }))
         // return result
       } catch (error) {
@@ -99,7 +99,7 @@ export function useSocialExport() {
     }
 
     const networkLimits = limits[network.id]
-    
+
     // Validate file size
     if (settings.fileSizeBytes && networkLimits?.maxFileSize && settings.fileSizeBytes > networkLimits.maxFileSize) {
       return {
@@ -109,9 +109,11 @@ export function useSocialExport() {
     }
 
     // Validate duration
-    if (settings.durationSeconds && 
-      networkLimits?.maxDuration && 
-      settings.durationSeconds > networkLimits.maxDuration) {
+    if (
+      settings.durationSeconds &&
+      networkLimits?.maxDuration &&
+      settings.durationSeconds > networkLimits.maxDuration
+    ) {
       return {
         valid: false,
         error: `Video duration exceeds ${network.name} limit of ${networkLimits.maxDuration} seconds`,

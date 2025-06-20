@@ -72,7 +72,7 @@ describe("SocialExportTab", () => {
   describe("Basic rendering", () => {
     it("should render social networks", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       expect(screen.getByText("YouTube")).toBeInTheDocument()
       expect(screen.getByText("TikTok")).toBeInTheDocument()
       expect(screen.getByText("Telegram")).toBeInTheDocument()
@@ -80,30 +80,30 @@ describe("SocialExportTab", () => {
 
     it("should show network specifications", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       // Should show max resolution and fps for each network
       // Check YouTube specifications
-      const youtubeCard = screen.getByText('YouTube').closest('[data-slot="card"]')
+      const youtubeCard = screen.getByText("YouTube").closest('[data-slot="card"]')
       if (youtubeCard) {
-        expect(youtubeCard.textContent).toContain('Max: 4k • 60fps')
+        expect(youtubeCard.textContent).toContain("Max: 4k • 60fps")
       }
-      
+
       // Check TikTok specifications
-      const tiktokCard = screen.getAllByText('TikTok')[0].closest('[data-slot="card"]')
+      const tiktokCard = screen.getAllByText("TikTok")[0].closest('[data-slot="card"]')
       if (tiktokCard) {
-        expect(tiktokCard.textContent).toContain('Max: 1080 • 60fps')
+        expect(tiktokCard.textContent).toContain("Max: 1080 • 60fps")
       }
-      
-      // Check Telegram specifications  
-      const telegramCard = screen.getAllByText('Telegram')[0].closest('[data-slot="card"]')
+
+      // Check Telegram specifications
+      const telegramCard = screen.getAllByText("Telegram")[0].closest('[data-slot="card"]')
       if (telegramCard) {
-        expect(telegramCard.textContent).toContain('Max: 720 • 30fps')
+        expect(telegramCard.textContent).toContain("Max: 720 • 30fps")
       }
     })
 
     it("should highlight selected network", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       // YouTube should be selected by default and show additional UI
       expect(screen.getByText("dialogs.export.login")).toBeInTheDocument()
     })
@@ -112,20 +112,20 @@ describe("SocialExportTab", () => {
   describe("Authentication", () => {
     it("should show login button when not logged in", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       expect(screen.getByText("dialogs.export.login")).toBeInTheDocument()
     })
 
     it("should show logout button when logged in", async () => {
       const loggedInSettings = { ...mockSettings, isLoggedIn: true }
       const loggedInProps = { ...mockProps, settings: loggedInSettings }
-      
+
       render(<SocialExportTab {...loggedInProps} />)
-      
+
       // Simulate login state
       const loginButton = screen.getByText("dialogs.export.login")
       fireEvent.click(loginButton)
-      
+
       await waitFor(() => {
         expect(mockUseSocialExport.loginToSocialNetwork).toHaveBeenCalledWith("youtube")
       })
@@ -133,10 +133,10 @@ describe("SocialExportTab", () => {
 
     it("should handle login button click", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       const loginButton = screen.getByText("dialogs.export.login")
       fireEvent.click(loginButton)
-      
+
       // Test passes if no error is thrown
       expect(loginButton).toBeInTheDocument()
     })
@@ -145,7 +145,7 @@ describe("SocialExportTab", () => {
   describe("Upload settings", () => {
     it("should render video title input", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       // Form fields are shown after network is selected
       expect(screen.getByText("dialogs.export.videoTitle")).toBeInTheDocument()
       expect(screen.getByPlaceholderText("dialogs.export.enterTitle")).toBeInTheDocument()
@@ -153,20 +153,20 @@ describe("SocialExportTab", () => {
 
     it("should render description textarea", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       expect(screen.getByText("dialogs.export.description")).toBeInTheDocument()
       expect(screen.getByPlaceholderText("dialogs.export.enterDescription")).toBeInTheDocument()
     })
 
     it("should render privacy selector", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       expect(screen.getByText("dialogs.export.privacy")).toBeInTheDocument()
     })
 
     it("should show YouTube-specific fields", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       // YouTube is selected by default, so these fields should be visible
       expect(screen.getByText("dialogs.export.tags")).toBeInTheDocument()
       expect(screen.getByText("dialogs.export.category")).toBeInTheDocument()
@@ -175,10 +175,10 @@ describe("SocialExportTab", () => {
     it("should handle settings changes", () => {
       const onSettingsChange = vi.fn()
       render(<SocialExportTab {...mockProps} onSettingsChange={onSettingsChange} />)
-      
+
       const titleInput = screen.getByPlaceholderText("dialogs.export.enterTitle")
       fireEvent.change(titleInput, { target: { value: "New Title" } })
-      
+
       expect(onSettingsChange).toHaveBeenCalledWith({ title: "New Title" })
     })
   })
@@ -186,22 +186,22 @@ describe("SocialExportTab", () => {
   describe("Network selection", () => {
     it("should allow selecting different networks", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       // Click on TikTok card
-      const tiktokCard = screen.getByText("TikTok").closest('.cursor-pointer')
+      const tiktokCard = screen.getByText("TikTok").closest(".cursor-pointer")
       fireEvent.click(tiktokCard!)
-      
+
       // Should update selection
-      expect(tiktokCard).toHaveClass('ring-2')
+      expect(tiktokCard).toHaveClass("ring-2")
     })
 
     it("should show different fields for different networks", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       // YouTube is selected by default and should show tags and category
       expect(screen.getByText("dialogs.export.tags")).toBeInTheDocument()
       expect(screen.getByText("dialogs.export.category")).toBeInTheDocument()
-      
+
       // Tags and category are YouTube-specific
       const tagsInput = screen.getByPlaceholderText("dialogs.export.enterTags")
       expect(tagsInput).toBeInTheDocument()
@@ -212,14 +212,14 @@ describe("SocialExportTab", () => {
     it("should render upload button", () => {
       const loggedInSettings = { ...mockSettings, isLoggedIn: true }
       render(<SocialExportTab {...mockProps} settings={loggedInSettings} />)
-      
+
       expect(screen.getByText(/dialogs.export.uploadTo/)).toBeInTheDocument()
     })
 
     it("should disable upload button when not logged in", () => {
       render(<SocialExportTab {...mockProps} />)
-      
-      const uploadButton = screen.getByRole('button', { name: /dialogs.export.uploadTo/ })
+
+      const uploadButton = screen.getByRole("button", { name: /dialogs.export.uploadTo/ })
       expect(uploadButton).toBeDisabled()
     })
 
@@ -227,25 +227,25 @@ describe("SocialExportTab", () => {
       const onExport = vi.fn()
       const loggedInSettings = { ...mockSettings, isLoggedIn: true }
       render(<SocialExportTab {...mockProps} settings={loggedInSettings} onExport={onExport} />)
-      
+
       // First, simulate login to enable the button
       const loginButton = screen.getByText("dialogs.export.login")
       await act(async () => {
         fireEvent.click(loginButton)
       })
-      
+
       // Wait for login to complete
       await waitFor(() => {
         expect(mockUseSocialExport.loginToSocialNetwork).toHaveBeenCalledWith("youtube")
       })
-      
+
       // Now find and click the upload button
-      const uploadButton = screen.getByRole('button', { name: /dialogs.export.uploadTo/ })
-      
+      const uploadButton = screen.getByRole("button", { name: /dialogs.export.uploadTo/ })
+
       await act(async () => {
         fireEvent.click(uploadButton)
       })
-      
+
       // Wait for the validation and export to complete
       await waitFor(() => {
         expect(mockUseSocialExport.validateSocialExport).toHaveBeenCalledWith(loggedInSettings)
@@ -261,9 +261,9 @@ describe("SocialExportTab", () => {
         isRendering: true,
         renderProgress: { percentage: 50, message: "Uploading..." },
       }
-      
+
       render(<SocialExportTab {...renderingProps} />)
-      
+
       expect(screen.getByText("dialogs.export.uploadProgress")).toBeInTheDocument()
       expect(screen.getByText("50%")).toBeInTheDocument()
     })
@@ -274,9 +274,9 @@ describe("SocialExportTab", () => {
         isRendering: true,
         renderProgress: { percentage: 25 },
       }
-      
+
       render(<SocialExportTab {...renderingProps} />)
-      
+
       expect(screen.getByText("dialogs.export.cancel")).toBeInTheDocument()
       expect(screen.getByText("dialogs.export.uploading...")).toBeInTheDocument()
     })
@@ -286,9 +286,9 @@ describe("SocialExportTab", () => {
         ...mockProps,
         isRendering: true,
       }
-      
+
       render(<SocialExportTab {...renderingProps} />)
-      
+
       const titleInput = screen.getByPlaceholderText("dialogs.export.enterTitle")
       expect(titleInput).toBeDisabled()
     })
@@ -301,16 +301,16 @@ describe("SocialExportTab", () => {
 
     it("should handle missing project", () => {
       const noProjectProps = { ...mockProps, hasProject: false }
-      
+
       render(<SocialExportTab {...noProjectProps} />)
-      
-      const uploadButton = screen.getByRole('button', { name: /dialogs.export.uploadTo/ })
+
+      const uploadButton = screen.getByRole("button", { name: /dialogs.export.uploadTo/ })
       expect(uploadButton).toBeDisabled()
     })
 
     it("should handle network switching", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       // Component should render different networks without errors
       expect(screen.getByText("TikTok")).toBeInTheDocument()
       expect(screen.getByText("YouTube")).toBeInTheDocument()
@@ -321,7 +321,7 @@ describe("SocialExportTab", () => {
   describe("Integration", () => {
     it("should integrate with social export hook", () => {
       render(<SocialExportTab {...mockProps} />)
-      
+
       // Component should use the mocked hook without errors
       expect(screen.getByText("YouTube")).toBeInTheDocument()
     })
@@ -333,10 +333,10 @@ describe("SocialExportTab", () => {
     it("should handle close button click", () => {
       const onClose = vi.fn()
       render(<SocialExportTab {...mockProps} onClose={onClose} />)
-      
+
       const closeButton = screen.getByText("dialogs.export.close")
       fireEvent.click(closeButton)
-      
+
       expect(onClose).toHaveBeenCalled()
     })
   })

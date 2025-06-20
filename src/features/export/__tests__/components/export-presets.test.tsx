@@ -12,12 +12,7 @@ describe("ExportPresets", () => {
 
   describe("Basic rendering", () => {
     it("should render all export presets", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       // Check that all presets are rendered
       expect(screen.getByText("Custom Export")).toBeInTheDocument()
@@ -31,12 +26,7 @@ describe("ExportPresets", () => {
     })
 
     it("should render correct number of preset buttons", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       const buttons = screen.getAllByRole("button")
       expect(buttons).toHaveLength(EXPORT_PRESETS.length)
@@ -44,24 +34,14 @@ describe("ExportPresets", () => {
 
     it("should render without crashing", () => {
       expect(() =>
-        render(
-          <ExportPresets
-            selectedPresetId="custom"
-            onSelectPreset={mockOnSelectPreset}
-          />
-        )
+        render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />),
       ).not.toThrow()
     })
   })
 
   describe("Preset selection", () => {
     it("should highlight selected preset", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="h264-master"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="h264-master" onSelectPreset={mockOnSelectPreset} />)
 
       const h264Button = screen.getByText("H.264 Master").closest("button")
       const customButton = screen.getByText("Custom Export").closest("button")
@@ -72,12 +52,7 @@ describe("ExportPresets", () => {
     })
 
     it("should call onSelectPreset when clicking a preset", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       const h264Button = screen.getByText("H.264 Master")
       fireEvent.click(h264Button)
@@ -89,12 +64,7 @@ describe("ExportPresets", () => {
     })
 
     it("should handle multiple preset selections", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       // Click multiple presets
       fireEvent.click(screen.getByText("YouTube 1080p"))
@@ -110,7 +80,7 @@ describe("ExportPresets", () => {
 
   describe("Preset configurations", () => {
     it("should have correct settings for Custom Export", () => {
-      const customPreset = EXPORT_PRESETS.find(p => p.id === "custom")
+      const customPreset = EXPORT_PRESETS.find((p) => p.id === "custom")
       expect(customPreset).toBeDefined()
       expect(customPreset?.settings.format).toBe("mp4")
       expect(customPreset?.settings.codec).toBe("h264")
@@ -119,7 +89,7 @@ describe("ExportPresets", () => {
     })
 
     it("should have correct settings for H.264 Master", () => {
-      const h264Preset = EXPORT_PRESETS.find(p => p.id === "h264-master")
+      const h264Preset = EXPORT_PRESETS.find((p) => p.id === "h264-master")
       expect(h264Preset).toBeDefined()
       expect(h264Preset?.settings.format).toBe("mp4")
       expect(h264Preset?.settings.codec).toBe("h264")
@@ -130,7 +100,7 @@ describe("ExportPresets", () => {
     })
 
     it("should have correct settings for H.265 Master", () => {
-      const h265Preset = EXPORT_PRESETS.find(p => p.id === "h265-master")
+      const h265Preset = EXPORT_PRESETS.find((p) => p.id === "h265-master")
       expect(h265Preset).toBeDefined()
       expect(h265Preset?.settings.format).toBe("mp4")
       expect(h265Preset?.settings.codec).toBe("h265")
@@ -141,7 +111,7 @@ describe("ExportPresets", () => {
     })
 
     it("should have correct settings for ProRes", () => {
-      const proresPreset = EXPORT_PRESETS.find(p => p.id === "prores")
+      const proresPreset = EXPORT_PRESETS.find((p) => p.id === "prores")
       expect(proresPreset).toBeDefined()
       expect(proresPreset?.settings.format).toBe("quicktime")
       expect(proresPreset?.settings.codec).toBe("prores")
@@ -150,7 +120,7 @@ describe("ExportPresets", () => {
     })
 
     it("should have correct settings for YouTube preset", () => {
-      const youtubePreset = EXPORT_PRESETS.find(p => p.id === "youtube")
+      const youtubePreset = EXPORT_PRESETS.find((p) => p.id === "youtube")
       expect(youtubePreset).toBeDefined()
       expect(youtubePreset?.settings.format).toBe("mp4")
       expect(youtubePreset?.settings.codec).toBe("h264")
@@ -162,7 +132,7 @@ describe("ExportPresets", () => {
     })
 
     it("should have correct settings for TikTok preset", () => {
-      const tiktokPreset = EXPORT_PRESETS.find(p => p.id === "tiktok")
+      const tiktokPreset = EXPORT_PRESETS.find((p) => p.id === "tiktok")
       expect(tiktokPreset).toBeDefined()
       expect(tiktokPreset?.settings.format).toBe("mp4")
       expect(tiktokPreset?.settings.codec).toBe("h264")
@@ -173,7 +143,7 @@ describe("ExportPresets", () => {
     })
 
     it("should have correct settings for HyperDeck preset", () => {
-      const hyperdeckPreset = EXPORT_PRESETS.find(p => p.id === "hyperdeck")
+      const hyperdeckPreset = EXPORT_PRESETS.find((p) => p.id === "hyperdeck")
       expect(hyperdeckPreset).toBeDefined()
       expect(hyperdeckPreset?.settings.format).toBe("mov")
       expect(hyperdeckPreset?.settings.codec).toBe("h264")
@@ -185,40 +155,25 @@ describe("ExportPresets", () => {
 
   describe("Visual presentation", () => {
     it("should render preset icons", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       // Check that buttons contain icon containers
       const buttons = screen.getAllByRole("button")
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         const iconContainer = button.querySelector(".flex.items-center.justify-center")
         expect(iconContainer).toBeInTheDocument()
       })
     })
 
     it("should show hover styles on buttons", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       const button = screen.getByText("H.264 Master").closest("button")
       expect(button).toHaveClass("hover:bg-accent")
     })
 
     it("should have proper accessible focus styles", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       const button = screen.getByText("Custom Export").closest("button")
       expect(button).toHaveClass("focus:outline-none")
@@ -228,11 +183,7 @@ describe("ExportPresets", () => {
 
     it("should render with custom className", () => {
       const { container } = render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-          className="custom-class"
-        />
+        <ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} className="custom-class" />,
       )
 
       const mainContainer = container.firstChild
@@ -242,24 +193,14 @@ describe("ExportPresets", () => {
 
   describe("Accessibility", () => {
     it("should have proper button roles", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       const buttons = screen.getAllByRole("button")
       expect(buttons).toHaveLength(EXPORT_PRESETS.length)
     })
 
     it("should be keyboard navigable", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       const firstButton = screen.getByText("Custom Export").closest("button")
       firstButton?.focus()
@@ -267,15 +208,10 @@ describe("ExportPresets", () => {
     })
 
     it("should have readable text content", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       // All preset names should be visible
-      EXPORT_PRESETS.forEach(preset => {
+      EXPORT_PRESETS.forEach((preset) => {
         expect(screen.getByText(preset.name)).toBeInTheDocument()
       })
     })
@@ -283,39 +219,24 @@ describe("ExportPresets", () => {
 
   describe("Component structure", () => {
     it("should have scrollable container", () => {
-      const { container } = render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      const { container } = render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       const scrollContainer = container.querySelector(".overflow-x-auto")
       expect(scrollContainer).toBeInTheDocument()
     })
 
     it("should have proper spacing and layout classes", () => {
-      const { container } = render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      const { container } = render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       const mainContainer = container.firstChild
       expect(mainContainer).toHaveClass("flex", "gap-2", "p-4", "border-b")
     })
 
     it("should render buttons with minimum width", () => {
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={mockOnSelectPreset}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={mockOnSelectPreset} />)
 
       const buttons = screen.getAllByRole("button")
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         expect(button).toHaveClass("min-w-[100px]")
       })
     })
@@ -324,23 +245,13 @@ describe("ExportPresets", () => {
   describe("Edge cases", () => {
     it("should handle invalid selectedPresetId gracefully", () => {
       expect(() =>
-        render(
-          <ExportPresets
-            selectedPresetId="non-existent-preset"
-            onSelectPreset={mockOnSelectPreset}
-          />
-        )
+        render(<ExportPresets selectedPresetId="non-existent-preset" onSelectPreset={mockOnSelectPreset} />),
       ).not.toThrow()
     })
 
     it("should handle empty onSelectPreset function", () => {
       const emptyFunction = vi.fn()
-      render(
-        <ExportPresets
-          selectedPresetId="custom"
-          onSelectPreset={emptyFunction}
-        />
-      )
+      render(<ExportPresets selectedPresetId="custom" onSelectPreset={emptyFunction} />)
 
       const button = screen.getByText("Custom Export")
       fireEvent.click(button)
@@ -349,7 +260,7 @@ describe("ExportPresets", () => {
     })
 
     it("should verify all presets have required properties", () => {
-      EXPORT_PRESETS.forEach(preset => {
+      EXPORT_PRESETS.forEach((preset) => {
         expect(preset).toHaveProperty("id")
         expect(preset).toHaveProperty("name")
         expect(preset).toHaveProperty("icon")

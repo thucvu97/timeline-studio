@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react"
-
 import { Bot, Send, SendHorizonal, StopCircle, User } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -9,9 +8,9 @@ import { useModal } from "@/features/modals"
 import { useUserSettings } from "@/features/user-settings"
 
 import { useChat } from ".."
+import { ChatMessage } from "../types/chat"
 import { CLAUDE_MODELS } from "./claude-service"
 import { AI_MODELS } from "./open-ai-service"
-import { ChatMessage } from "../types/chat"
 
 // Типы сообщений
 export interface AiMessage {
@@ -281,8 +280,8 @@ export function AiChat() {
                   value={
                     selectedAgentId
                       ? `${AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.name}${
-                        AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.useTools ? " (с инструментами)" : ""
-                      }`
+                          AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.useTools ? " (с инструментами)" : ""
+                        }`
                       : `${AVAILABLE_AGENTS[0].name}${AVAILABLE_AGENTS[0].useTools ? " (с инструментами)" : ""}`
                   }
                 />

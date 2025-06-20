@@ -17,9 +17,7 @@ vi.mock("@/features/video-compiler/services/frame-extraction-service", () => ({
 
 // Mock Skeleton component
 vi.mock("@/components/ui/skeleton", () => ({
-  Skeleton: ({ className, style }: any) => (
-    <div className={className} style={style} data-testid="skeleton" />
-  ),
+  Skeleton: ({ className, style }: any) => <div className={className} style={style} data-testid="skeleton" />,
 }))
 
 // Mock cn utility
@@ -32,7 +30,7 @@ describe("TimelinePreviewStrip", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    
+
     // Setup default mock return values
     const { useSmartTimelinePreviews } = await import("@/features/video-compiler/hooks/use-frame-extraction")
     vi.mocked(useSmartTimelinePreviews).mockImplementation(mockUseSmartTimelinePreviews)
@@ -68,26 +66,15 @@ describe("TimelinePreviewStrip", () => {
   describe("initial rendering", () => {
     it("should render without error", () => {
       render(<TimelinePreviewStrip {...defaultProps} />)
-      
-      expect(mockUseSmartTimelinePreviews).toHaveBeenCalledWith(
-        "/test/video.mp4",
-        10,
-        800,
-        {
-          cacheResults: true,
-          interval: 1.0,
-        }
-      )
+
+      expect(mockUseSmartTimelinePreviews).toHaveBeenCalledWith("/test/video.mp4", 10, 800, {
+        cacheResults: true,
+        interval: 1.0,
+      })
     })
 
     it("should apply custom height and className", () => {
-      const { container } = render(
-        <TimelinePreviewStrip 
-          {...defaultProps} 
-          height={120} 
-          className="custom-class" 
-        />
-      )
+      const { container } = render(<TimelinePreviewStrip {...defaultProps} height={120} className="custom-class" />)
 
       const element = container.firstChild as HTMLElement
       expect(element).toHaveStyle({ height: "120px" })
@@ -96,16 +83,11 @@ describe("TimelinePreviewStrip", () => {
 
     it("should handle null video path", () => {
       render(<TimelinePreviewStrip {...defaultProps} videoPath={null} />)
-      
-      expect(mockUseSmartTimelinePreviews).toHaveBeenCalledWith(
-        null,
-        10,
-        800,
-        {
-          cacheResults: true,
-          interval: 1.0,
-        }
-      )
+
+      expect(mockUseSmartTimelinePreviews).toHaveBeenCalledWith(null, 10, 800, {
+        cacheResults: true,
+        interval: 1.0,
+      })
     })
   })
 
@@ -123,8 +105,8 @@ describe("TimelinePreviewStrip", () => {
 
       const skeletons = screen.getAllByTestId("skeleton")
       expect(skeletons).toHaveLength(10) // Math.min(10, Math.floor(800 / 80))
-      
-      skeletons.forEach(skeleton => {
+
+      skeletons.forEach((skeleton) => {
         expect(skeleton).toHaveStyle({ width: "76px", height: "52px" }) // frameWidth - 4, height - 8
       })
     })
@@ -184,9 +166,7 @@ describe("TimelinePreviewStrip", () => {
         frameWidth: 80,
       })
 
-      const { container } = render(
-        <TimelinePreviewStrip {...defaultProps} className="error-class" />
-      )
+      const { container } = render(<TimelinePreviewStrip {...defaultProps} className="error-class" />)
 
       const errorElement = container.firstChild as HTMLElement
       expect(errorElement).toHaveClass("error-class")
@@ -213,7 +193,7 @@ describe("TimelinePreviewStrip", () => {
     it("should render all frames", () => {
       render(<TimelinePreviewStrip {...defaultProps} />)
 
-      mockFrames.forEach(frame => {
+      mockFrames.forEach((frame) => {
         expect(screen.getByAltText(`Frame at ${frame.timestamp}s`)).toBeInTheDocument()
       })
     })
@@ -259,18 +239,12 @@ describe("TimelinePreviewStrip", () => {
 
   describe("scroll handling", () => {
     it("should update visible range based on scroll offset", () => {
-      const { rerender } = render(
-        <TimelinePreviewStrip {...defaultProps} scrollOffset={0} />
-      )
+      const { rerender } = render(<TimelinePreviewStrip {...defaultProps} scrollOffset={0} />)
 
       // Change scroll offset
-      rerender(
-        <TimelinePreviewStrip {...defaultProps} scrollOffset={160} />
-      )
+      rerender(<TimelinePreviewStrip {...defaultProps} scrollOffset={160} />)
 
-      const { container } = render(
-        <TimelinePreviewStrip {...defaultProps} scrollOffset={160} />
-      )
+      const { container } = render(<TimelinePreviewStrip {...defaultProps} scrollOffset={160} />)
 
       const frameContainer = container.querySelector('[style*="translateX(-160px)"]')
       expect(frameContainer).toBeInTheDocument()
@@ -303,7 +277,7 @@ describe("TimelinePreviewStrip", () => {
   describe("PreviewFrame component", () => {
     it("should create preview element on mount", async () => {
       const { frameExtractionService } = await import("@/features/video-compiler/services/frame-extraction-service")
-      
+
       mockUseSmartTimelinePreviews.mockReturnValue({
         frames: [{ timestamp: 1, frameData: "test-data", isKeyframe: false }],
         isLoading: false,
@@ -393,10 +367,12 @@ describe("useTimelinePreviewStrip hook", () => {
   it("should return container ref and width", () => {
     const TestComponent = () => {
       const { containerRef, containerWidth } = useTimelinePreviewStrip("/test.mp4", 10)
-      
+
       return (
         <div>
-          <div ref={containerRef} data-testid="container">Container</div>
+          <div ref={containerRef} data-testid="container">
+            Container
+          </div>
           <span data-testid="width">{containerWidth}</span>
         </div>
       )
@@ -414,10 +390,12 @@ describe("useTimelinePreviewStrip hook", () => {
   it("should update container width on resize", async () => {
     const TestComponent = () => {
       const { containerRef, containerWidth } = useTimelinePreviewStrip("/test.mp4", 10)
-      
+
       return (
         <div>
-          <div ref={containerRef} data-testid="container">Container</div>
+          <div ref={containerRef} data-testid="container">
+            Container
+          </div>
           <span data-testid="width">{containerWidth}</span>
         </div>
       )
@@ -441,11 +419,15 @@ describe("useTimelinePreviewStrip hook", () => {
 
     const TestComponent = () => {
       const { containerRef } = useTimelinePreviewStrip("/test.mp4", 10)
-      return <div ref={containerRef} data-testid="container">Container</div>
+      return (
+        <div ref={containerRef} data-testid="container">
+          Container
+        </div>
+      )
     }
 
     const { unmount } = render(<TestComponent />)
-    
+
     unmount()
 
     expect(mockDisconnect).toHaveBeenCalled()

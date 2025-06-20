@@ -18,8 +18,12 @@ vi.mock("lucide-react", async (importOriginal) => {
   return {
     ...actual,
     Folder: ({ className }: { className?: string }) => <div data-testid="folder-icon" className={className} />,
-    ChevronDown: ({ className }: { className?: string }) => <div data-testid="chevron-down-icon" className={className} />,
-    ChevronRight: ({ className }: { className?: string }) => <div data-testid="chevron-right-icon" className={className} />,
+    ChevronDown: ({ className }: { className?: string }) => (
+      <div data-testid="chevron-down-icon" className={className} />
+    ),
+    ChevronRight: ({ className }: { className?: string }) => (
+      <div data-testid="chevron-right-icon" className={className} />
+    ),
     Info: ({ className }: { className?: string }) => <div data-testid="info-icon" className={className} />,
   }
 })
@@ -69,7 +73,7 @@ describe("DetailedExportInterface", () => {
     expect(screen.getByText("dialogs.export.video")).toBeInTheDocument()
     expect(screen.getByText("dialogs.export.audio")).toBeInTheDocument()
     expect(screen.getByText("dialogs.export.file")).toBeInTheDocument()
-    
+
     // By default, video tab content should be visible
     expect(screen.getByText("dialogs.export.exportVideo")).toBeInTheDocument()
   })
@@ -224,7 +228,7 @@ describe("DetailedExportInterface", () => {
     const fileNameInput = screen.getByPlaceholderText("dialogs.export.name")
     expect(fileNameInput).toBeDisabled()
 
-    // Check that selects are disabled  
+    // Check that selects are disabled
     const formatSelect = screen.getByText("dialogs.export.format").parentElement?.querySelector("button")
     expect(formatSelect).toHaveAttribute("disabled")
 

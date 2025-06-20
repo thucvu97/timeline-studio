@@ -197,7 +197,7 @@ describe("TransitionList", () => {
       // Note: Dynamic aspect ratio changes would need to be tested
       // with a test wrapper that provides different project settings
       render(<TransitionList />)
-      
+
       // Verify component renders correctly with default settings
       const contentGroup = screen.getByTestId("content-group")
       expect(contentGroup).toBeInTheDocument()

@@ -18,7 +18,7 @@ import { ExportProgress, SocialExportSettings } from "../types/export-types"
 // Иконка YouTube
 const YouTubeIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-red-600">
-    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
   </svg>
 )
 
@@ -59,7 +59,7 @@ export function SocialExportTab({
 }: SocialExportTabProps) {
   const { t } = useTranslation()
   const { loginToSocialNetwork, logoutFromSocialNetwork, validateSocialExport } = useSocialExport()
-  
+
   const [selectedNetwork, setSelectedNetwork] = useState<string>(settings.socialNetwork || "youtube")
   const [loginStates, setLoginStates] = useState<Record<string, boolean>>({})
   const [uploadProgress, setUploadProgress] = useState<number>(0)
@@ -68,11 +68,11 @@ export function SocialExportTab({
   const handleLogin = async (networkId: string) => {
     try {
       const success = await loginToSocialNetwork(networkId)
-      setLoginStates(prev => ({ ...prev, [networkId]: success }))
+      setLoginStates((prev) => ({ ...prev, [networkId]: success }))
       if (success) {
-        onSettingsChange({ 
+        onSettingsChange({
           socialNetwork: networkId,
-          isLoggedIn: true 
+          isLoggedIn: true,
         })
       }
     } catch (error) {
@@ -84,7 +84,7 @@ export function SocialExportTab({
   const handleLogout = async (networkId: string) => {
     try {
       await logoutFromSocialNetwork(networkId)
-      setLoginStates(prev => ({ ...prev, [networkId]: false }))
+      setLoginStates((prev) => ({ ...prev, [networkId]: false }))
       onSettingsChange({ isLoggedIn: false })
     } catch (error) {
       console.error(`Logout from ${networkId} failed:`, error)
@@ -94,7 +94,7 @@ export function SocialExportTab({
   // Обработчик экспорта в социальную сеть
   const handleSocialExport = async () => {
     if (!selectedNetwork) return
-    
+
     try {
       // Сначала проверяем видео
       const validation = validateSocialExport(settings)
@@ -126,7 +126,7 @@ export function SocialExportTab({
   }
 
   // Получение сети по ID
-  const getNetworkById = (id: string) => SOCIAL_NETWORKS.find(n => n.id === id)
+  const getNetworkById = (id: string) => SOCIAL_NETWORKS.find((n) => n.id === id)
   const selectedNetworkData = getNetworkById(selectedNetwork)
 
   return (
@@ -138,11 +138,9 @@ export function SocialExportTab({
           const isSelected = selectedNetwork === network.id
 
           return (
-            <Card 
-              key={network.id} 
-              className={`cursor-pointer transition-all ${
-                isSelected ? "ring-2 ring-primary border-primary" : ""
-              }`}
+            <Card
+              key={network.id}
+              className={`cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary border-primary" : ""}`}
               onClick={() => setSelectedNetwork(network.id)}
             >
               <CardHeader className="pb-3">
@@ -151,20 +149,18 @@ export function SocialExportTab({
                     {getSocialIcon(network.id)}
                     <CardTitle className="text-lg">{network.name}</CardTitle>
                   </div>
-                  {isLoggedIn && (
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  )}
+                  {isLoggedIn && <div className="w-2 h-2 bg-green-500 rounded-full" />}
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <CardDescription>
                   Max: {network.maxResolution} • {network.maxFps}fps
                 </CardDescription>
-                
+
                 {isSelected && (
                   <div className="space-y-3">
                     {!isLoggedIn ? (
-                      <Button 
+                      <Button
                         onClick={(e) => {
                           e.stopPropagation()
                           void handleLogin(network.id)
@@ -177,10 +173,8 @@ export function SocialExportTab({
                       </Button>
                     ) : (
                       <div className="space-y-2">
-                        <div className="text-sm text-green-600 font-medium">
-                          {t("dialogs.export.loggedIn")}
-                        </div>
-                        <Button 
+                        <div className="text-sm text-green-600 font-medium">{t("dialogs.export.loggedIn")}</div>
+                        <Button
                           onClick={(e) => {
                             e.stopPropagation()
                             void handleLogout(network.id)
@@ -260,9 +254,14 @@ export function SocialExportTab({
                 <Input
                   placeholder={t("dialogs.export.enterTags")}
                   value={settings.tags?.join(", ") || ""}
-                  onChange={(e) => onSettingsChange({ 
-                    tags: e.target.value.split(",").map(tag => tag.trim()).filter(Boolean)
-                  })}
+                  onChange={(e) =>
+                    onSettingsChange({
+                      tags: e.target.value
+                        .split(",")
+                        .map((tag) => tag.trim())
+                        .filter(Boolean),
+                    })
+                  }
                   disabled={isRendering}
                 />
               </div>
@@ -318,11 +317,7 @@ export function SocialExportTab({
                 <span>{Math.round(renderProgress.percentage)}%</span>
               </div>
               <Progress value={renderProgress.percentage} className="h-2" />
-              {renderProgress.message && (
-                <div className="text-xs text-muted-foreground">
-                  {renderProgress.message}
-                </div>
-              )}
+              {renderProgress.message && <div className="text-xs text-muted-foreground">{renderProgress.message}</div>}
             </div>
           </CardContent>
         </Card>

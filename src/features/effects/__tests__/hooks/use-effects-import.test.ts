@@ -179,7 +179,7 @@ describe("useEffectsImport", () => {
     it("should import .effect file", async () => {
       const { open } = await import("@tauri-apps/plugin-dialog")
       const { loadUserEffect } = await import("@/features/effects/utils/user-effects")
-      
+
       const mockFilePath = "/path/to/custom.effect"
       vi.mocked(open).mockResolvedValue(mockFilePath)
 
@@ -208,7 +208,7 @@ describe("useEffectsImport", () => {
     it("should import .effects collection file", async () => {
       const { open } = await import("@tauri-apps/plugin-dialog")
       const { loadEffectsCollection } = await import("@/features/effects/utils/user-effects")
-      
+
       const mockFilePath = "/path/to/collection.effects"
       vi.mocked(open).mockResolvedValue(mockFilePath)
 
@@ -216,7 +216,7 @@ describe("useEffectsImport", () => {
       vi.mocked(loadEffectsCollection).mockResolvedValue({
         version: "1.0",
         name: "Test Collection",
-        effects: mockEffects.map(effect => ({
+        effects: mockEffects.map((effect) => ({
           effect,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -252,7 +252,7 @@ describe("useEffectsImport", () => {
         null,
         undefined,
       ]
-      
+
       vi.mocked(global.fetch).mockResolvedValue({
         json: vi.fn().mockResolvedValue(invalidEffects),
       } as any)
@@ -371,13 +371,13 @@ describe("useEffectsImport", () => {
       expect(importResult.success).toBe(true)
       expect(importResult.message).toBe("Успешно импортировано 1 файлов эффектов")
       expect(importResult.effects).toHaveLength(1)
-      
+
       const effect = importResult.effects[0]
       expect(effect.name).toBe("lut")
       expect(effect.type).toBe("vintage")
       expect(effect.category).toBe("creative")
       expect(effect.id).toMatch(/^user-\d+-0$/)
-      
+
       // Test FFmpeg command generation
       const ffmpegCmd = effect.ffmpegCommand({ intensity: 75 })
       expect(ffmpegCmd).toBe("lut3d=/path/to/lut.cube:interp=trilinear:amount=0.75")
@@ -385,11 +385,7 @@ describe("useEffectsImport", () => {
 
     it("should import multiple effect files", async () => {
       const { open } = await import("@tauri-apps/plugin-dialog")
-      const mockFilePaths = [
-        "/path/to/effect1.cube",
-        "/path/to/effect2.3dl",
-        "/path/to/effect3.preset"
-      ]
+      const mockFilePaths = ["/path/to/effect1.cube", "/path/to/effect2.3dl", "/path/to/effect3.preset"]
       vi.mocked(open).mockResolvedValue(mockFilePaths)
 
       const { result } = renderHook(() => useEffectsImport())
@@ -402,15 +398,15 @@ describe("useEffectsImport", () => {
       expect(importResult.success).toBe(true)
       expect(importResult.message).toBe("Успешно импортировано 3 файлов эффектов")
       expect(importResult.effects).toHaveLength(3)
-      
+
       // Check first effect (cube)
       expect(importResult.effects[0].name).toBe("effect1")
       expect(importResult.effects[0].type).toBe("vintage")
-      
+
       // Check second effect (3dl)
       expect(importResult.effects[1].name).toBe("effect2")
       expect(importResult.effects[1].type).toBe("vintage")
-      
+
       // Check third effect (preset)
       expect(importResult.effects[2].name).toBe("effect3")
       expect(importResult.effects[2].type).toBe("glow")
@@ -432,14 +428,10 @@ describe("useEffectsImport", () => {
       const presetEffect = importResult.effects[1]
 
       // Test LUT command
-      expect(lutEffect.ffmpegCommand({ intensity: 50 })).toBe(
-        "lut3d=/path/to/lut.cube:interp=trilinear:amount=0.5"
-      )
+      expect(lutEffect.ffmpegCommand({ intensity: 50 })).toBe("lut3d=/path/to/lut.cube:interp=trilinear:amount=0.5")
 
       // Test custom command
-      expect(presetEffect.ffmpegCommand({ intensity: 80 })).toBe(
-        "custom=/path/to/preset.json:intensity=80"
-      )
+      expect(presetEffect.ffmpegCommand({ intensity: 80 })).toBe("custom=/path/to/preset.json:intensity=80")
     })
 
     it("should handle Windows file paths correctly", async () => {
@@ -509,7 +501,7 @@ describe("useEffectsImport", () => {
         "/path/to/effect1.cube",
         "/path/to/effect2.cube",
         "/path/to/effect3.cube",
-        "/path/to/effect4.cube"
+        "/path/to/effect4.cube",
       ]
       vi.mocked(open).mockResolvedValue(mockFilePaths)
 
@@ -546,10 +538,10 @@ describe("useEffectsImport", () => {
   describe("validation", () => {
     it("should validate effect structure correctly", async () => {
       const { result } = renderHook(() => useEffectsImport())
-      
+
       // Valid effect
       const validEffect = createValidEffect("test")
-      
+
       // Test valid effect
       const { open } = await import("@tauri-apps/plugin-dialog")
       vi.mocked(open).mockResolvedValue("/test.json")
@@ -561,14 +553,14 @@ describe("useEffectsImport", () => {
       await act(async () => {
         validResult = await result.current.importEffectsFile()
       })
-      
+
       expect(validResult.effects).toHaveLength(1)
       expect(validResult.effects[0].id).toBe("test")
     })
 
     it("should filter out invalid effects", async () => {
       const { result } = renderHook(() => useEffectsImport())
-      
+
       const validEffect = createValidEffect("valid")
       const invalidEffects = [
         validEffect,
@@ -576,13 +568,53 @@ describe("useEffectsImport", () => {
         undefined,
         {},
         { id: "test" }, // Missing required fields
-        { id: 123, name: "Test", type: "blur", category: "artistic", complexity: "basic", tags: [], description: { ru: "Test", en: "Test" } }, // Wrong id type
-        { id: "test", name: "Test", type: "blur", category: "artistic", complexity: "basic", tags: "not-array", description: { ru: "Test", en: "Test" } }, // Wrong tags type
-        { id: "test", name: "Test", type: "blur", category: "artistic", complexity: "basic", tags: [], description: "not-object" }, // Wrong description type
-        { id: "test", name: "Test", type: "blur", category: "artistic", complexity: "basic", tags: [], description: { ru: "Test" } }, // Missing en
-        { id: "test", name: "Test", type: "blur", category: "artistic", complexity: "basic", tags: [], description: { en: "Test" } }, // Missing ru
+        {
+          id: 123,
+          name: "Test",
+          type: "blur",
+          category: "artistic",
+          complexity: "basic",
+          tags: [],
+          description: { ru: "Test", en: "Test" },
+        }, // Wrong id type
+        {
+          id: "test",
+          name: "Test",
+          type: "blur",
+          category: "artistic",
+          complexity: "basic",
+          tags: "not-array",
+          description: { ru: "Test", en: "Test" },
+        }, // Wrong tags type
+        {
+          id: "test",
+          name: "Test",
+          type: "blur",
+          category: "artistic",
+          complexity: "basic",
+          tags: [],
+          description: "not-object",
+        }, // Wrong description type
+        {
+          id: "test",
+          name: "Test",
+          type: "blur",
+          category: "artistic",
+          complexity: "basic",
+          tags: [],
+          description: { ru: "Test" },
+        }, // Missing en
+        {
+          id: "test",
+          name: "Test",
+          type: "blur",
+          category: "artistic",
+          complexity: "basic",
+          tags: [],
+          description: { en: "Test" },
+        }, // Missing ru
       ]
-      
+
       const { open } = await import("@tauri-apps/plugin-dialog")
       vi.mocked(open).mockResolvedValue("/test.json")
       vi.mocked(global.fetch).mockResolvedValue({
@@ -593,7 +625,7 @@ describe("useEffectsImport", () => {
       await act(async () => {
         result2 = await result.current.importEffectsFile()
       })
-      
+
       // Should only have the one valid effect
       expect(result2.effects).toHaveLength(1)
       expect(result2.effects[0].id).toBe("valid")

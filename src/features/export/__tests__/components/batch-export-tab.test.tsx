@@ -76,22 +76,19 @@ describe("BatchExportTab", () => {
   })
 
   it("should add projects to queue", async () => {
-    mockRenderQueue.addProjectsToQueue.mockResolvedValue([
-      "/path/to/project1.tls",
-      "/path/to/project2.tls",
-    ])
+    mockRenderQueue.addProjectsToQueue.mockResolvedValue(["/path/to/project1.tls", "/path/to/project2.tls"])
 
     render(<BatchExportTab {...defaultProps} />)
 
     const addButtons = screen.getAllByText("dialogs.export.addProjects")
     const addButton = addButtons[0].closest("button")!
-    
+
     await act(async () => {
       fireEvent.click(addButton)
     })
 
     expect(mockRenderQueue.addProjectsToQueue).toHaveBeenCalled()
-    
+
     // Projects are added to pending projects list
     await waitFor(() => {
       expect(screen.getByText("project1")).toBeInTheDocument()
@@ -133,21 +130,18 @@ describe("BatchExportTab", () => {
     // Set output folder first
     mockOpen.mockResolvedValue("/output")
     render(<BatchExportTab {...defaultProps} />)
-    
+
     const chooseFolderButton = screen.getByTestId("folder-icon").closest("button")!
     await act(async () => {
       fireEvent.click(chooseFolderButton)
     })
-    
+
     await waitFor(() => {
       expect(screen.getByText("/output")).toBeInTheDocument()
     })
-    
+
     // Add projects first
-    mockRenderQueue.addProjectsToQueue.mockResolvedValue([
-      "/path/to/project1.tls",
-      "/path/to/project2.tls",
-    ])
+    mockRenderQueue.addProjectsToQueue.mockResolvedValue(["/path/to/project1.tls", "/path/to/project2.tls"])
 
     render(<BatchExportTab {...defaultProps} />)
 
@@ -160,24 +154,24 @@ describe("BatchExportTab", () => {
 
     // Start export - get the enabled button
     const startButtons = screen.getAllByText("dialogs.export.startBatchExport")
-    const enabledButton = startButtons.find(btn => !btn.closest("button")?.hasAttribute("disabled"))
+    const enabledButton = startButtons.find((btn) => !btn.closest("button")?.hasAttribute("disabled"))
     const startButton = enabledButton?.closest("button")
-    
+
     expect(startButton).toBeTruthy()
     if (!startButton) return
-    
+
     await act(async () => {
       fireEvent.click(startButton)
     })
 
     // Should have called startRenderQueue
     expect(mockRenderQueue.startRenderQueue).toHaveBeenCalled()
-    
+
     // Wait for the function to be called
     await waitFor(() => {
       expect(mockRenderQueue.startRenderQueue.mock.calls.length).toBeGreaterThan(0)
     })
-    
+
     // Check the general structure of the call
     const callArgs = mockRenderQueue.startRenderQueue.mock.calls[0][0]
     expect(callArgs).toHaveLength(2)

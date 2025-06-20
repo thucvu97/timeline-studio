@@ -47,11 +47,7 @@ describe("useVideoElement", () => {
     videoRefs = {}
   })
 
-  const createMockMediaFile = (
-    id: string,
-    path: string,
-    startTime?: number
-  ): MediaFile => ({
+  const createMockMediaFile = (id: string, path: string, startTime?: number): MediaFile => ({
     id,
     name: `Video ${id}`,
     path,
@@ -71,12 +67,7 @@ describe("useVideoElement", () => {
       const mockVideo = createMockMediaFile("video-1", "/path/to/video1.mp4")
 
       act(() => {
-        const videoElement = result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        const videoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
 
         expect(videoElement.tagName.toLowerCase()).toBe("video")
         expect(videoElement.id).toBe("video-video-1")
@@ -97,12 +88,7 @@ describe("useVideoElement", () => {
       const mockVideo = createMockMediaFile("video-1", "/path/to/video1.mp4")
 
       act(() => {
-        const videoElement = result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        const videoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
 
         expect(videoElement.style.position).toBe("absolute")
         expect(videoElement.style.width).toBe("1px")
@@ -117,12 +103,7 @@ describe("useVideoElement", () => {
       const mockVideo = createMockMediaFile("video-1", "/path/to/video1.mp4")
 
       act(() => {
-        result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
 
         expect(document.body.appendChild).toHaveBeenCalled()
       })
@@ -133,12 +114,7 @@ describe("useVideoElement", () => {
       const mockVideo = createMockMediaFile("video-1", "/path/to/video1.mp4")
 
       act(() => {
-        const videoElement = result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        const videoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
 
         expect(videoRefs["video-1"]).toBe(videoElement)
       })
@@ -149,12 +125,7 @@ describe("useVideoElement", () => {
       const mockVideo = createMockMediaFile("video-1", "/path/to/video1.mp4")
 
       act(() => {
-        const videoElement = result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        const videoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
 
         expect(result.current.allVideoElementsRef.current.has(videoElement)).toBe(true)
         expect(result.current.allVideoElementsRef.current.size).toBe(1)
@@ -166,12 +137,7 @@ describe("useVideoElement", () => {
       const mockVideo = createMockMediaFile("video-1", "/path/to/video1.mp4")
 
       act(() => {
-        result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
 
         expect(mockSetVideoSource).toHaveBeenCalledWith("video-1", "media")
       })
@@ -182,12 +148,7 @@ describe("useVideoElement", () => {
       const mockVideo = createMockMediaFile("video-1", "/path/to/video1.mp4", 10)
 
       act(() => {
-        result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
 
         expect(mockSetVideoSource).toHaveBeenCalledWith("video-1", "timeline")
       })
@@ -201,24 +162,14 @@ describe("useVideoElement", () => {
       let secondVideoElement: HTMLVideoElement
 
       act(() => {
-        firstVideoElement = result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        firstVideoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
       })
 
       // Clear mock calls to check subsequent calls
       vi.mocked(document.body.appendChild).mockClear()
 
       act(() => {
-        secondVideoElement = result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        secondVideoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
       })
 
       expect(firstVideoElement).toBe(secondVideoElement)
@@ -231,28 +182,18 @@ describe("useVideoElement", () => {
 
       // Create first element
       act(() => {
-        result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
       })
 
       // Mock that element is no longer in DOM
       vi.mocked(document.body.contains).mockReturnValue(false)
-      
+
       // Clear previous appendChild calls
       vi.mocked(document.body.appendChild).mockClear()
 
       // Create second element
       act(() => {
-        const secondVideoElement = result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        const secondVideoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
 
         expect(secondVideoElement.tagName.toLowerCase()).toBe("video")
         expect(document.body.appendChild).toHaveBeenCalledTimes(1)
@@ -268,21 +209,11 @@ describe("useVideoElement", () => {
       let videoElement2: HTMLVideoElement
 
       act(() => {
-        videoElement1 = result.current.getOrCreateVideoElement(
-          mockVideo1,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        videoElement1 = result.current.getOrCreateVideoElement(mockVideo1, videoRefs, 0.5, mockSetVideoSource)
       })
 
       act(() => {
-        videoElement2 = result.current.getOrCreateVideoElement(
-          mockVideo2,
-          videoRefs,
-          0.7,
-          mockSetVideoSource
-        )
+        videoElement2 = result.current.getOrCreateVideoElement(mockVideo2, videoRefs, 0.7, mockSetVideoSource)
       })
 
       expect(videoElement1).not.toBe(videoElement2)
@@ -578,12 +509,7 @@ describe("useVideoElement", () => {
       // Create video element
       let videoElement: HTMLVideoElement
       act(() => {
-        videoElement = result.current.getOrCreateVideoElement(
-          mockVideo,
-          videoRefs,
-          0.5,
-          mockSetVideoSource
-        )
+        videoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
       })
 
       expect(videoElement.src).toContain("/initial/path.mp4")
@@ -622,12 +548,7 @@ describe("useVideoElement", () => {
       const elements: HTMLVideoElement[] = []
       act(() => {
         videos.forEach((video) => {
-          const element = result.current.getOrCreateVideoElement(
-            video,
-            videoRefs,
-            0.5,
-            mockSetVideoSource
-          )
+          const element = result.current.getOrCreateVideoElement(video, videoRefs, 0.5, mockSetVideoSource)
           elements.push(element)
         })
       })
@@ -657,12 +578,7 @@ describe("useVideoElement", () => {
 
       expect(() => {
         act(() => {
-          result.current.getOrCreateVideoElement(
-            invalidVideo,
-            videoRefs,
-            0.5,
-            mockSetVideoSource
-          )
+          result.current.getOrCreateVideoElement(invalidVideo, videoRefs, 0.5, mockSetVideoSource)
         })
       }).not.toThrow()
     })
@@ -677,7 +593,7 @@ describe("useVideoElement", () => {
             mockVideo,
             {} as any, // Use empty object instead of null
             0.5,
-            mockSetVideoSource
+            mockSetVideoSource,
           )
         })
       }).not.toThrow()

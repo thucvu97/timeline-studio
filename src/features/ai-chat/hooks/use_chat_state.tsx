@@ -1,5 +1,5 @@
-import { useChat } from "./use-chat"
 import { ChatContextType } from "../services/chat-provider"
+import { useChat } from "./use-chat"
 
 /**
  * Хук для получения только состояния чата (без действий)

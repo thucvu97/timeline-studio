@@ -2,12 +2,11 @@
  * Интеграционные тесты для автоматического создания и управления временным проектом
  */
 
-import { ReactNode } from "react"
-
 import { invoke } from "@tauri-apps/api/core"
 import { join } from "@tauri-apps/api/path"
 import { exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { renderHook, waitFor } from "@testing-library/react"
+import { ReactNode } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useCurrentProject } from "../../hooks/use-current-project"

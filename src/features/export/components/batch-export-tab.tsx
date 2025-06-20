@@ -63,13 +63,13 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
 
       if (selected) {
         setOutputFolder(selected)
-        
+
         // Обновляем пути для всех ожидающих проектов
         setPendingProjects((prev) =>
           prev.map((project) => ({
             ...project,
             outputPath: `${selected}/${project.projectName}_export.${project.settings.format}`,
-          }))
+          })),
         )
       }
     } catch (error) {
@@ -81,13 +81,13 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
   const handleAddProjects = useCallback(async () => {
     try {
       const projectPaths = await addProjectsToQueue()
-      
+
       if (projectPaths.length === 0) return
 
       const newProjects: ProjectExportConfig[] = projectPaths.map((path) => {
         const projectName = path.split("/").pop()?.replace(".tls", "") || "Untitled"
         const fileName = globalSettings.fileName.replace("{project_name}", projectName)
-        
+
         return {
           projectPath: path,
           projectName,
@@ -95,7 +95,7 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
           settings: { ...globalSettings, fileName },
         }
       })
-      
+
       setPendingProjects((prev) => [...prev, ...newProjects])
     } catch (error) {
       console.error("Failed to add projects:", error)
@@ -105,10 +105,10 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
   // Применение пресета
   const handlePresetSelect = useCallback((preset: any) => {
     setSelectedPresetId(preset.id)
-    
+
     if (preset.id !== "custom" && preset.settings) {
       const updates: Partial<ExportSettings> = {}
-      
+
       if (preset.settings.format) updates.format = preset.settings.format
       if (preset.settings.resolution) updates.resolution = preset.settings.resolution
       if (preset.settings.fps) updates.frameRate = preset.settings.fps
@@ -117,16 +117,16 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
       if (preset.settings.useHardwareAcceleration !== undefined) {
         updates.enableGPU = preset.settings.useHardwareAcceleration
       }
-      
+
       setGlobalSettings((prev) => ({ ...prev, ...updates }))
-      
+
       // Применяем к ожидающим проектам
       setPendingProjects((prev) =>
         prev.map((project) => ({
           ...project,
           settings: { ...project.settings, ...updates },
           outputPath: project.outputPath.replace(/\.[^.]+$/, `.${updates.format || project.settings.format}`),
-        }))
+        })),
       )
     }
   }, [])
@@ -147,7 +147,7 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
     }))
 
     await startRenderQueue(projectsToRender)
-    
+
     // Очищаем список ожидающих проектов
     setPendingProjects([])
   }, [pendingProjects, outputFolder, startRenderQueue])
@@ -158,7 +158,7 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
     const failed = renderJobs.filter((job) => job.status === RenderStatus.Failed).length
     const queued = renderJobs.filter((job) => job.status === RenderStatus.Queued).length
     const processing = renderJobs.filter((job) => job.status === RenderStatus.Processing).length
-    
+
     return { total: renderJobs.length, completed, failed, queued, processing }
   }
 
@@ -188,9 +188,7 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
       <Card>
         <CardHeader>
           <CardTitle>{t("dialogs.export.batchSettings")}</CardTitle>
-          <CardDescription>
-            {t("dialogs.export.batchSettingsDescription")}
-          </CardDescription>
+          <CardDescription>{t("dialogs.export.batchSettingsDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Пресеты */}
@@ -239,11 +237,7 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
                         {project.outputPath || t("dialogs.export.noOutputPath")}
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removePendingProject(index)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => removePendingProject(index)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -267,28 +261,15 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
               </CardDescription>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAddProjects}
-                disabled={isProcessing}
-              >
+              <Button variant="outline" size="sm" onClick={handleAddProjects} disabled={isProcessing}>
                 <FileVideo className="h-4 w-4 mr-2" />
                 {t("dialogs.export.addProjects")}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => void refreshQueue()}
-              >
+              <Button variant="outline" size="sm" onClick={() => void refreshQueue()}>
                 <RefreshCw className="h-4 w-4" />
               </Button>
               {stats.completed > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={clearCompleted}
-                >
+                <Button variant="outline" size="sm" onClick={clearCompleted}>
                   {t("dialogs.export.clearCompleted")}
                 </Button>
               )}
@@ -299,9 +280,7 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
           <ScrollArea className="h-[300px] pr-4">
             <div className="space-y-2">
               {renderJobs.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {t("dialogs.export.emptyQueue")}
-                </div>
+                <div className="text-center py-8 text-muted-foreground">{t("dialogs.export.emptyQueue")}</div>
               ) : (
                 renderJobs.map((job) => (
                   <div
@@ -310,17 +289,15 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
                       "flex items-center gap-3 p-3 rounded-lg border transition-colors",
                       job.status === RenderStatus.Processing && "border-blue-500/50",
                       job.status === RenderStatus.Completed && "border-green-500/50",
-                      job.status === RenderStatus.Failed && "border-red-500/50"
+                      job.status === RenderStatus.Failed && "border-red-500/50",
                     )}
                   >
                     {getStatusIcon(job.status)}
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{job.project_name}</div>
-                      <div className="text-sm text-muted-foreground truncate">
-                        {job.output_path}
-                      </div>
-                      
+                      <div className="text-sm text-muted-foreground truncate">{job.output_path}</div>
+
                       {job.status === RenderStatus.Processing && job.progress && (
                         <div className="mt-2 space-y-1">
                           <Progress value={job.progress.percentage} className="h-1" />
@@ -329,18 +306,14 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
                           </div>
                         </div>
                       )}
-                      
+
                       {job.status === RenderStatus.Failed && job.progress?.message && (
                         <div className="mt-1 text-xs text-red-500">{job.progress.message}</div>
                       )}
                     </div>
-                    
+
                     {job.status === RenderStatus.Processing && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => void cancelJob(job.id)}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => void cancelJob(job.id)}>
                         <Pause className="h-4 w-4" />
                       </Button>
                     )}

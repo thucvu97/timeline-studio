@@ -107,13 +107,13 @@ describe("ResourcesPanel", () => {
   describe("Basic rendering", () => {
     it("should render without crashing", () => {
       render(<ResourcesPanel />)
-      
+
       expect(screen.getByText("Media")).toBeInTheDocument()
     })
 
     it("should render all resource categories", () => {
       render(<ResourcesPanel />)
-      
+
       expect(screen.getByText("Media")).toBeInTheDocument()
       expect(screen.getByText("Music")).toBeInTheDocument()
       expect(screen.getByText("Subtitles")).toBeInTheDocument()
@@ -126,7 +126,7 @@ describe("ResourcesPanel", () => {
 
     it("should render category icons", () => {
       render(<ResourcesPanel />)
-      
+
       expect(screen.getByTestId("clapperboard-icon")).toBeInTheDocument() // Media category
       expect(screen.getByTestId("music-icon")).toBeInTheDocument()
       expect(screen.getByTestId("type-icon")).toBeInTheDocument()
@@ -141,7 +141,7 @@ describe("ResourcesPanel", () => {
   describe("Resource display", () => {
     it("should display resources with their names", () => {
       render(<ResourcesPanel />)
-      
+
       expect(screen.getByText("Blur Effect")).toBeInTheDocument()
       expect(screen.getByText("Glow Effect")).toBeInTheDocument()
       expect(screen.getByText("Vintage Filter")).toBeInTheDocument()
@@ -151,30 +151,30 @@ describe("ResourcesPanel", () => {
 
     it("should show resource count for categories with resources", () => {
       render(<ResourcesPanel />)
-      
+
       expect(screen.getByText("(2)")).toBeInTheDocument() // Effects count
       expect(screen.getAllByText("(1)")).toHaveLength(3) // Filters, Templates, Style Templates count
     })
 
     it("should display appropriate icons for each resource type", () => {
       render(<ResourcesPanel />)
-      
+
       // Effect resources should have package icons
       expect(screen.getAllByTestId("package-icon")).toHaveLength(2)
-      
+
       // Filter resources should have palette icons
       expect(screen.getByTestId("palette-icon")).toBeInTheDocument()
-      
+
       // Template resources should have video icons (1 for category + 1 for resource)
       expect(screen.getAllByTestId("video-icon")).toHaveLength(2)
-      
+
       // Style template resources should have sticker icons
       expect(screen.getAllByTestId("sticker-icon")).toHaveLength(2)
     })
 
     it("should show 'no resources' message for empty categories", () => {
       render(<ResourcesPanel />)
-      
+
       // Should show "No resources added" for categories with no resources
       const noResourcesMessages = screen.getAllByText("No resources added")
       expect(noResourcesMessages.length).toBeGreaterThan(0)
@@ -193,12 +193,12 @@ describe("ResourcesPanel", () => {
         musicResources: [],
         subtitleResources: [],
       }
-      
+
       const { useResources } = vi.mocked(await import("@/features/resources"))
       useResources.mockReturnValue(emptyResources)
-      
+
       render(<ResourcesPanel />)
-      
+
       // All categories should show "No resources added"
       const noResourcesMessages = screen.getAllByText("No resources added")
       expect(noResourcesMessages).toHaveLength(8) // One for each category
@@ -215,12 +215,12 @@ describe("ResourcesPanel", () => {
         musicResources: [],
         subtitleResources: [],
       }
-      
+
       const { useResources } = vi.mocked(await import("@/features/resources"))
       useResources.mockReturnValue(emptyResources)
-      
+
       render(<ResourcesPanel />)
-      
+
       // Should not show any count indicators like (0), (1), etc.
       expect(screen.queryByText("(0)")).not.toBeInTheDocument()
       expect(screen.queryByText("(1)")).not.toBeInTheDocument()
@@ -231,21 +231,21 @@ describe("ResourcesPanel", () => {
   describe("Resource name translation", () => {
     it("should translate template names correctly", () => {
       render(<ResourcesPanel />)
-      
+
       // Should translate template name using templates.templateLabels key
       expect(screen.getByText("Split Screen")).toBeInTheDocument()
     })
 
     it("should translate style template names correctly", () => {
       render(<ResourcesPanel />)
-      
+
       // Should translate style template name using styleTemplates key
       expect(screen.getByText("Modern Intro")).toBeInTheDocument()
     })
 
     it("should show raw names for non-template resources", () => {
       render(<ResourcesPanel />)
-      
+
       // Effect and filter names should not be translated
       expect(screen.getByText("Blur Effect")).toBeInTheDocument()
       expect(screen.getByText("Vintage Filter")).toBeInTheDocument()
@@ -272,16 +272,16 @@ describe("ResourcesPanel", () => {
         musicResources: [],
         subtitleResources: [],
       }
-      
+
       const { useResources } = vi.mocked(await import("@/features/resources"))
       useResources.mockReturnValue(mixedResources)
-      
+
       render(<ResourcesPanel />)
-      
+
       // Should show resource for effects
       expect(screen.getByText("Test Effect")).toBeInTheDocument()
       expect(screen.getByText("(1)")).toBeInTheDocument()
-      
+
       // Should show "No resources added" for other categories
       const noResourcesMessages = screen.getAllByText("No resources added")
       expect(noResourcesMessages).toHaveLength(7) // 7 empty categories
@@ -291,7 +291,7 @@ describe("ResourcesPanel", () => {
   describe("Component structure", () => {
     it("should have correct CSS classes for styling", () => {
       render(<ResourcesPanel />)
-      
+
       // Check main container structure exists
       const container = document.querySelector(".flex.h-full.flex-col.bg-background")
       expect(container).toBeInTheDocument()
@@ -299,7 +299,7 @@ describe("ResourcesPanel", () => {
 
     it("should render scrollable container", () => {
       render(<ResourcesPanel />)
-      
+
       // Should have scrollable container for resources
       const scrollContainer = document.querySelector(".overflow-y-auto")
       expect(scrollContainer).toBeInTheDocument()
@@ -307,7 +307,7 @@ describe("ResourcesPanel", () => {
 
     it("should render resource items with proper styling", () => {
       render(<ResourcesPanel />)
-      
+
       // Resource items should have specific styling classes
       const resourceItems = document.querySelectorAll(".cursor-pointer")
       expect(resourceItems.length).toBeGreaterThan(0)
@@ -317,7 +317,7 @@ describe("ResourcesPanel", () => {
   describe("Accessibility", () => {
     it("should have proper semantic structure", () => {
       render(<ResourcesPanel />)
-      
+
       // Component should render categories
       expect(screen.getByText("Media")).toBeInTheDocument()
       expect(screen.getByText("Effects")).toBeInTheDocument()
@@ -325,7 +325,7 @@ describe("ResourcesPanel", () => {
 
     it("should have readable text sizes", () => {
       render(<ResourcesPanel />)
-      
+
       // Resource names should be visible
       expect(screen.getByText("Blur Effect")).toBeInTheDocument()
       expect(screen.getByText("Glow Effect")).toBeInTheDocument()

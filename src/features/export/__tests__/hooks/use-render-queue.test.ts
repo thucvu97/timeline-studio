@@ -134,10 +134,7 @@ describe("useRenderQueue", () => {
   })
 
   it("should add projects to queue", async () => {
-    const mockFiles = [
-      "/path/to/project1.tls",
-      "/path/to/project2.tls",
-    ]
+    const mockFiles = ["/path/to/project1.tls", "/path/to/project2.tls"]
     mockOpen.mockResolvedValue(mockFiles)
 
     const { result } = renderHook(() => useRenderQueue())

@@ -4,21 +4,28 @@ import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
 
 import { ProjectFileService } from "@/features/app-state/services/project-file-service"
-import { AspectRatio, OutputFormat, ProjectSchema, RenderJob, RenderProgress, RenderStatus } from "@/types/video-compiler"
+import {
+  AspectRatio,
+  OutputFormat,
+  ProjectSchema,
+  RenderJob,
+  RenderProgress,
+  RenderStatus,
+} from "@/types/video-compiler"
 
 interface UseRenderQueueReturn {
   // Состояние очереди
   renderJobs: RenderJob[]
   isProcessing: boolean
   activeJobsCount: number
-  
+
   // Методы управления
   addProjectsToQueue: () => Promise<string[]>
   startRenderQueue: (projects: Array<{ path: string; outputPath: string }>) => Promise<void>
   cancelJob: (jobId: string) => Promise<void>
   cancelAllJobs: () => Promise<void>
   clearCompleted: () => void
-  
+
   // Обновление очереди
   refreshQueue: () => Promise<void>
 }
@@ -30,14 +37,14 @@ export function useRenderQueue(): UseRenderQueueReturn {
   // Загрузка активных задач при монтировании
   useEffect(() => {
     void refreshQueue()
-    
+
     // Обновляем каждые 500ms пока идет рендеринг
     const interval = setInterval(() => {
       if (isProcessing) {
         void refreshQueue()
       }
     }, 500)
-    
+
     return () => clearInterval(interval)
   }, [isProcessing])
 
@@ -46,10 +53,10 @@ export function useRenderQueue(): UseRenderQueueReturn {
     try {
       const jobs = await invoke<RenderJob[]>("get_active_jobs")
       setRenderJobs(jobs)
-      
+
       // Проверяем, есть ли активные задачи
       const hasActiveJobs = jobs.some(
-        job => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued
+        (job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued,
       )
       setIsProcessing(hasActiveJobs)
     } catch (error) {
@@ -62,21 +69,22 @@ export function useRenderQueue(): UseRenderQueueReturn {
     try {
       const selected = await open({
         multiple: true,
-        filters: [{
-          name: "Timeline Studio Projects",
-          extensions: ["tls", "json"]
-        }],
-        title: "Select Projects to Export"
+        filters: [
+          {
+            name: "Timeline Studio Projects",
+            extensions: ["tls", "json"],
+          },
+        ],
+        title: "Select Projects to Export",
       })
-      
+
       if (!selected) return []
-      
+
       // Возвращаем массив путей
       if (Array.isArray(selected)) {
         return selected
-      } else {
-        return [selected]
       }
+      return [selected]
     } catch (error) {
       console.error("Failed to select projects:", error)
       return []
@@ -84,94 +92,98 @@ export function useRenderQueue(): UseRenderQueueReturn {
   }, [])
 
   // Запуск рендеринга для списка проектов
-  const startRenderQueue = useCallback(async (
-    projects: Array<{ path: string; outputPath: string }>
-  ) => {
-    try {
-      // Загружаем и запускаем рендеринг для каждого проекта
-      for (const project of projects) {
-        try {
-          // Загружаем проект из файла
-          const projectFile = await ProjectFileService.loadProject(project.path)
-          
-          // Создаем минимальную схему проекта для экспорта
-          // В реальном проекте здесь должна быть полная загрузка timeline данных
-          const projectSchema: ProjectSchema = {
-            version: "1.0.0",
-            metadata: {
-              name: project.path.split("/").pop()?.replace(".tls", "") || "Untitled",
-              created_at: new Date().toISOString(),
-              modified_at: new Date().toISOString(),
-            },
-            timeline: {
-              duration: 60, // TODO: Получить из реального проекта
-              fps: parseInt(projectFile.settings.frameRate) || 30,
-              resolution: projectFile.settings.resolution.split("x").map(Number) as [number, number],
-              sample_rate: 48000,
-              aspect_ratio: AspectRatio.Ratio16x9, // TODO: Вычислить из resolution
-            },
-            tracks: [],
-            effects: [],
-            transitions: [],
-            filters: [],
-            templates: [],
-            style_templates: [],
-            subtitles: [],
-            settings: {
-              export: {
-                format: OutputFormat.Mp4,
-                quality: 85,
-                video_bitrate: 8000,
-                audio_bitrate: 192,
-                hardware_acceleration: true,
-                ffmpeg_args: [],
+  const startRenderQueue = useCallback(
+    async (projects: Array<{ path: string; outputPath: string }>) => {
+      try {
+        // Загружаем и запускаем рендеринг для каждого проекта
+        for (const project of projects) {
+          try {
+            // Загружаем проект из файла
+            const projectFile = await ProjectFileService.loadProject(project.path)
+
+            // Создаем минимальную схему проекта для экспорта
+            // В реальном проекте здесь должна быть полная загрузка timeline данных
+            const projectSchema: ProjectSchema = {
+              version: "1.0.0",
+              metadata: {
+                name: project.path.split("/").pop()?.replace(".tls", "") || "Untitled",
+                created_at: new Date().toISOString(),
+                modified_at: new Date().toISOString(),
               },
-              preview: {
-                resolution: [1280, 720],
-                fps: 30,
-                quality: 75,
+              timeline: {
+                duration: 60, // TODO: Получить из реального проекта
+                fps: Number.parseInt(projectFile.settings.frameRate) || 30,
+                resolution: projectFile.settings.resolution.split("x").map(Number) as [number, number],
+                sample_rate: 48000,
+                aspect_ratio: AspectRatio.Ratio16x9, // TODO: Вычислить из resolution
               },
-              custom: {},
-            },
+              tracks: [],
+              effects: [],
+              transitions: [],
+              filters: [],
+              templates: [],
+              style_templates: [],
+              subtitles: [],
+              settings: {
+                export: {
+                  format: OutputFormat.Mp4,
+                  quality: 85,
+                  video_bitrate: 8000,
+                  audio_bitrate: 192,
+                  hardware_acceleration: true,
+                  ffmpeg_args: [],
+                },
+                preview: {
+                  resolution: [1280, 720],
+                  fps: 30,
+                  quality: 75,
+                },
+                custom: {},
+              },
+            }
+
+            // Запускаем рендеринг
+            const jobId = await invoke<string>("compile_video", {
+              projectSchema: projectSchema,
+              outputPath: project.outputPath,
+            })
+
+            console.log(`Started render job: ${jobId} for ${project.path}`)
+          } catch (error) {
+            console.error(`Failed to start render for ${project.path}:`, error)
           }
-          
-          // Запускаем рендеринг
-          const jobId = await invoke<string>("compile_video", {
-            projectSchema: projectSchema,
-            outputPath: project.outputPath
-          })
-          
-          console.log(`Started render job: ${jobId} for ${project.path}`)
-        } catch (error) {
-          console.error(`Failed to start render for ${project.path}:`, error)
         }
+
+        // Обновляем список задач
+        await refreshQueue()
+      } catch (error) {
+        console.error("Failed to start render queue:", error)
       }
-      
-      // Обновляем список задач
-      await refreshQueue()
-    } catch (error) {
-      console.error("Failed to start render queue:", error)
-    }
-  }, [refreshQueue])
+    },
+    [refreshQueue],
+  )
 
   // Отмена конкретной задачи
-  const cancelJob = useCallback(async (jobId: string) => {
-    try {
-      const success = await invoke<boolean>("cancel_render", { jobId })
-      if (success) {
-        await refreshQueue()
+  const cancelJob = useCallback(
+    async (jobId: string) => {
+      try {
+        const success = await invoke<boolean>("cancel_render", { jobId })
+        if (success) {
+          await refreshQueue()
+        }
+      } catch (error) {
+        console.error(`Failed to cancel job ${jobId}:`, error)
       }
-    } catch (error) {
-      console.error(`Failed to cancel job ${jobId}:`, error)
-    }
-  }, [refreshQueue])
+    },
+    [refreshQueue],
+  )
 
   // Отмена всех активных задач
   const cancelAllJobs = useCallback(async () => {
     const activeJobs = renderJobs.filter(
-      job => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued
+      (job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued,
     )
-    
+
     for (const job of activeJobs) {
       await cancelJob(job.id)
     }
@@ -179,13 +191,13 @@ export function useRenderQueue(): UseRenderQueueReturn {
 
   // Очистка завершенных задач
   const clearCompleted = useCallback(() => {
-    setRenderJobs(prev => prev.filter(
-      job => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued
-    ))
+    setRenderJobs((prev) =>
+      prev.filter((job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued),
+    )
   }, [])
 
   const activeJobsCount = renderJobs.filter(
-    job => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued
+    (job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued,
   ).length
 
   return {

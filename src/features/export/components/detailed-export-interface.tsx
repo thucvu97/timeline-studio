@@ -27,7 +27,7 @@ interface DetailedExportInterfaceProps {
     bitrateMode?: "auto" | "limit"
     bitrate?: number
     encodingProfile?: "main" | "main10" | "high"
-    entropyMode?: "cabac" | "cavlc" 
+    entropyMode?: "cabac" | "cavlc"
     keyframeMode?: "auto" | "every"
     keyframeInterval?: number
     optimizeForSpeed?: boolean
@@ -408,15 +408,8 @@ export function DetailedExportInterface({
                     <span className="text-sm">Kbps</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-muted-foreground ml-6">
-                      {t("dialogs.export.limitSpeed")}
-                    </span>
-                    <Input
-                      type="number"
-                      placeholder="6"
-                      className="w-16"
-                      disabled={settings.bitrateMode === "auto"}
-                    />
+                    <span className="text-sm text-muted-foreground ml-6">{t("dialogs.export.limitSpeed")}</span>
+                    <Input type="number" placeholder="6" className="w-16" disabled={settings.bitrateMode === "auto"} />
                     <span className="text-sm">{t("dialogs.export.seconds")}</span>
                   </div>
                 </RadioGroup>
@@ -542,10 +535,7 @@ export function DetailedExportInterface({
               {/* Аудио настройки */}
               <div className="space-y-2">
                 <Label>{t("dialogs.export.audioCodec")}</Label>
-                <Select
-                  value={settings.audioCodec || "aac"}
-                  onValueChange={(v) => onSettingsChange({ audioCodec: v })}
-                >
+                <Select value={settings.audioCodec || "aac"} onValueChange={(v) => onSettingsChange({ audioCodec: v })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -621,8 +611,8 @@ export function DetailedExportInterface({
                     <div className="space-y-2">
                       <Label>{t("dialogs.export.targetLevel")}</Label>
                       <div className="flex items-center gap-2">
-                        <Input 
-                          value={settings.audioTarget || -14} 
+                        <Input
+                          value={settings.audioTarget || -14}
                           onChange={(e) => onSettingsChange({ audioTarget: Number(e.target.value) })}
                           className="w-20"
                         />
@@ -632,8 +622,8 @@ export function DetailedExportInterface({
                     <div className="space-y-2">
                       <Label>{t("dialogs.export.targetLoudness")}</Label>
                       <div className="flex items-center gap-2">
-                        <Input 
-                          value={settings.audioTarget || -14} 
+                        <Input
+                          value={settings.audioTarget || -14}
                           onChange={(e) => onSettingsChange({ audioTarget: Number(e.target.value) })}
                           className="w-20"
                         />
@@ -711,9 +701,7 @@ export function DetailedExportInterface({
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="space-y-4 pt-4">
-              <div className="text-sm text-muted-foreground">
-                {t("dialogs.export.advancedDescription")}
-              </div>
+              <div className="text-sm text-muted-foreground">{t("dialogs.export.advancedDescription")}</div>
             </CollapsibleContent>
           </Collapsible>
 
@@ -726,9 +714,7 @@ export function DetailedExportInterface({
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="space-y-4 pt-4">
-              <div className="text-sm text-muted-foreground">
-                {t("dialogs.export.subtitlesDescription")}
-              </div>
+              <div className="text-sm text-muted-foreground">{t("dialogs.export.subtitlesDescription")}</div>
             </CollapsibleContent>
           </Collapsible>
 

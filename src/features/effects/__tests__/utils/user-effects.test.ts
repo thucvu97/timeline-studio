@@ -24,7 +24,7 @@ describe("user-effects", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    
+
     // Setup Tauri mock
     const { invoke } = await import("@tauri-apps/api/core")
     vi.mocked(invoke).mockImplementation(mockInvoke)
@@ -65,7 +65,7 @@ describe("user-effects", () => {
     it("should save user effect successfully", async () => {
       const mockEffect = createMockEffect("test-1")
       const mockFilePath = "/effects/test-effect.effect"
-      
+
       mockInvoke.mockResolvedValue(mockFilePath)
 
       const result = await saveUserEffect(mockEffect, "test-effect")
@@ -94,11 +94,11 @@ describe("user-effects", () => {
     it("should handle save errors", async () => {
       const mockEffect = createMockEffect("test-1")
       const saveError = new Error("File save failed")
-      
+
       mockInvoke.mockRejectedValue(saveError)
 
       await expect(saveUserEffect(mockEffect, "test-effect")).rejects.toThrow("File save failed")
-      
+
       expect(mockInvoke).toHaveBeenCalledWith("save_user_effect", {
         fileName: "test-effect",
         effect: expect.any(String),
@@ -108,7 +108,7 @@ describe("user-effects", () => {
     it("should create proper UserEffect structure", async () => {
       const mockEffect = createMockEffect("test-1")
       const mockFilePath = "/effects/test-effect.effect"
-      
+
       mockInvoke.mockResolvedValue(mockFilePath)
 
       await saveUserEffect(mockEffect, "test-effect")
@@ -151,18 +151,20 @@ describe("user-effects", () => {
       expect(mockInvoke).toHaveBeenCalledWith("load_user_effect", {
         filePath: "/effects/test-effect.effect",
       })
-      expect(result).toEqual(expect.objectContaining({
-        createdAt: mockUserEffect.createdAt,
-        updatedAt: mockUserEffect.updatedAt,
-        isCustom: mockUserEffect.isCustom,
-        author: mockUserEffect.author,
-        tags: mockUserEffect.tags,
-        effect: expect.objectContaining({
-          id: mockUserEffect.effect.id,
-          name: mockUserEffect.effect.name,
-          type: mockUserEffect.effect.type,
+      expect(result).toEqual(
+        expect.objectContaining({
+          createdAt: mockUserEffect.createdAt,
+          updatedAt: mockUserEffect.updatedAt,
+          isCustom: mockUserEffect.isCustom,
+          author: mockUserEffect.author,
+          tags: mockUserEffect.tags,
+          effect: expect.objectContaining({
+            id: mockUserEffect.effect.id,
+            name: mockUserEffect.effect.name,
+            type: mockUserEffect.effect.type,
+          }),
         }),
-      }))
+      )
     })
 
     it("should handle load errors", async () => {
@@ -170,7 +172,7 @@ describe("user-effects", () => {
       mockInvoke.mockRejectedValue(loadError)
 
       await expect(loadUserEffect("/effects/missing.effect")).rejects.toThrow("File not found")
-      
+
       expect(mockInvoke).toHaveBeenCalledWith("load_user_effect", {
         filePath: "/effects/missing.effect",
       })
@@ -185,11 +187,11 @@ describe("user-effects", () => {
     it("should parse complex effect data correctly", async () => {
       const complexEffect = createMockEffect("complex-1")
       complexEffect.presets = {
-        "preset1": {
+        preset1: {
           name: { ru: "Пресет 1", en: "Preset 1" },
           params: { intensity: 75 },
           description: { ru: "Описание", en: "Description" },
-        }
+        },
       }
 
       const mockUserEffect: UserEffect = {
@@ -273,7 +275,7 @@ describe("user-effects", () => {
             createdAt: "2023-01-01T00:00:00.000Z",
             updatedAt: "2023-01-01T00:00:00.000Z",
             isCustom: true,
-          }
+          },
         ],
         createdAt: "2023-01-01T00:00:00.000Z",
         updatedAt: "2023-01-01T00:00:00.000Z",
@@ -286,24 +288,26 @@ describe("user-effects", () => {
       expect(mockInvoke).toHaveBeenCalledWith("load_effects_collection", {
         filePath: "/collections/test.effects",
       })
-      expect(result).toEqual(expect.objectContaining({
-        version: mockCollection.version,
-        name: mockCollection.name,
-        description: mockCollection.description,
-        createdAt: mockCollection.createdAt,
-        updatedAt: mockCollection.updatedAt,
-        effects: expect.arrayContaining([
-          expect.objectContaining({
-            createdAt: mockCollection.effects[0].createdAt,
-            updatedAt: mockCollection.effects[0].updatedAt,
-            isCustom: mockCollection.effects[0].isCustom,
-            effect: expect.objectContaining({
-              id: mockCollection.effects[0].effect.id,
-              name: mockCollection.effects[0].effect.name,
+      expect(result).toEqual(
+        expect.objectContaining({
+          version: mockCollection.version,
+          name: mockCollection.name,
+          description: mockCollection.description,
+          createdAt: mockCollection.createdAt,
+          updatedAt: mockCollection.updatedAt,
+          effects: expect.arrayContaining([
+            expect.objectContaining({
+              createdAt: mockCollection.effects[0].createdAt,
+              updatedAt: mockCollection.effects[0].updatedAt,
+              isCustom: mockCollection.effects[0].isCustom,
+              effect: expect.objectContaining({
+                id: mockCollection.effects[0].effect.id,
+                name: mockCollection.effects[0].effect.name,
+              }),
             }),
-          }),
-        ]),
-      }))
+          ]),
+        }),
+      )
     })
 
     it("should handle collection load errors", async () => {
@@ -334,7 +338,7 @@ describe("user-effects", () => {
   describe("prepareEffectForExport", () => {
     it("should return effect unchanged when no custom params", () => {
       const mockEffect = createMockEffect("test-1")
-      
+
       const result = prepareEffectForExport(mockEffect)
 
       expect(result).toEqual(mockEffect)
@@ -351,10 +355,10 @@ describe("user-effects", () => {
       expect(result.presets).toBeDefined()
       const presetKeys = Object.keys(result.presets!)
       expect(presetKeys).toHaveLength(1)
-      
+
       const customPresetKey = presetKeys[0]
       expect(customPresetKey).toMatch(/^custom_\d+$/)
-      
+
       const customPreset = result.presets![customPresetKey]
       expect(customPreset).toEqual({
         name: {
@@ -376,7 +380,7 @@ describe("user-effects", () => {
           name: { ru: "Существующий", en: "Existing" },
           params: { intensity: 50 },
           description: { ru: "Существующий пресет", en: "Existing preset" },
-        }
+        },
       }
 
       const customParams = { intensity: 90 }
@@ -386,8 +390,8 @@ describe("user-effects", () => {
 
       expect(Object.keys(result.presets!)).toHaveLength(2)
       expect(result.presets!["existing-preset"]).toBeDefined()
-      
-      const customPresetKey = Object.keys(result.presets!).find(key => key.startsWith("custom_"))!
+
+      const customPresetKey = Object.keys(result.presets!).find((key) => key.startsWith("custom_"))!
       expect(result.presets![customPresetKey].params).toEqual(customParams)
     })
 
@@ -414,10 +418,10 @@ describe("user-effects", () => {
       const customParams = { intensity: 75 }
 
       const result1 = prepareEffectForExport(mockEffect, customParams, "Preset 1")
-      
+
       // Wait enough time to ensure different timestamps (minimum 2ms)
-      await new Promise(resolve => setTimeout(resolve, 5))
-      
+      await new Promise((resolve) => setTimeout(resolve, 5))
+
       const result2 = prepareEffectForExport(mockEffect, customParams, "Preset 2")
 
       const keys1 = Object.keys(result1.presets!)
@@ -431,11 +435,7 @@ describe("user-effects", () => {
 
   describe("getUserEffectsList", () => {
     it("should return list of user effects files", async () => {
-      const mockFiles = [
-        "/effects/effect1.effect",
-        "/effects/effect2.effect",
-        "/effects/collection1.effects",
-      ]
+      const mockFiles = ["/effects/effect1.effect", "/effects/effect2.effect", "/effects/collection1.effects"]
 
       mockInvoke.mockResolvedValue(mockFiles)
 
@@ -487,7 +487,7 @@ describe("user-effects", () => {
       mockInvoke.mockRejectedValue(deleteError)
 
       await expect(deleteUserEffect("/effects/test-effect.effect")).rejects.toThrow("File deletion failed")
-      
+
       expect(mockInvoke).toHaveBeenCalledWith("delete_user_effect", {
         filePath: "/effects/test-effect.effect",
       })
@@ -525,13 +525,15 @@ describe("user-effects", () => {
       mockInvoke.mockResolvedValueOnce(JSON.stringify(savedData))
 
       const loadedEffect = await loadUserEffect(savedPath)
-      
-      expect(loadedEffect.effect).toEqual(expect.objectContaining({
-        id: mockEffect.id,
-        name: mockEffect.name,
-        type: mockEffect.type,
-        // Functions are not preserved in JSON serialization
-      }))
+
+      expect(loadedEffect.effect).toEqual(
+        expect.objectContaining({
+          id: mockEffect.id,
+          name: mockEffect.name,
+          type: mockEffect.type,
+          // Functions are not preserved in JSON serialization
+        }),
+      )
       expect(loadedEffect.isCustom).toBe(true)
     })
 
@@ -545,7 +547,7 @@ describe("user-effects", () => {
             createdAt: "2023-01-01T00:00:00.000Z",
             updatedAt: "2023-01-01T00:00:00.000Z",
             isCustom: true,
-          }
+          },
         ],
         createdAt: "2023-01-01T00:00:00.000Z",
         updatedAt: "2023-01-01T00:00:00.000Z",
@@ -565,24 +567,26 @@ describe("user-effects", () => {
       mockInvoke.mockResolvedValueOnce(JSON.stringify(savedData))
 
       const loadedCollection = await loadEffectsCollection(savedPath)
-      
-      expect(loadedCollection).toEqual(expect.objectContaining({
-        version: mockCollection.version,
-        name: mockCollection.name,
-        createdAt: mockCollection.createdAt,
-        updatedAt: mockCollection.updatedAt,
-        effects: expect.arrayContaining([
-          expect.objectContaining({
-            createdAt: mockCollection.effects[0].createdAt,
-            updatedAt: mockCollection.effects[0].updatedAt,
-            isCustom: mockCollection.effects[0].isCustom,
-            effect: expect.objectContaining({
-              id: mockCollection.effects[0].effect.id,
-              name: mockCollection.effects[0].effect.name,
+
+      expect(loadedCollection).toEqual(
+        expect.objectContaining({
+          version: mockCollection.version,
+          name: mockCollection.name,
+          createdAt: mockCollection.createdAt,
+          updatedAt: mockCollection.updatedAt,
+          effects: expect.arrayContaining([
+            expect.objectContaining({
+              createdAt: mockCollection.effects[0].createdAt,
+              updatedAt: mockCollection.effects[0].updatedAt,
+              isCustom: mockCollection.effects[0].isCustom,
+              effect: expect.objectContaining({
+                id: mockCollection.effects[0].effect.id,
+                name: mockCollection.effects[0].effect.name,
+              }),
             }),
-          }),
-        ]),
-      }))
+          ]),
+        }),
+      )
     })
   })
 })

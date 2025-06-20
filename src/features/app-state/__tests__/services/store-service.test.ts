@@ -1,4 +1,4 @@
-import { Store, load } from "@tauri-apps/plugin-store"
+import { load, Store } from "@tauri-apps/plugin-store"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
