@@ -1,51 +1,59 @@
-# Codecov configuration
-# Documentation: https://docs.codecov.com/docs/codecov-yaml
-
 codecov:
-  max_report_age: off  # Disable report age limit
-  
-# Bundle analysis configuration
-bundle_analysis:
-  bundle_name: timeline-studio
-  
-coverage:
-  status:
-    project:
-      default:
-        target: auto
-        threshold: 1%
-        base: auto
-    patch:
-      default:
-        target: auto
-        threshold: 1%
-        base: auto
-
-  ignore:
-    - "src-tauri/target/**/*"
-    - "dist/**/*"
-    - "coverage/**/*"
-    - "**/*.test.ts"
-    - "**/*.test.tsx"
-    - "**/test-utils.tsx"
-    - "**/mocks/**/*"
-    - "**/__tests__/**/*"
-    - "**/__mocks__/**/*"
+  max_report_age: false
+  notify:
+    wait_for_ci: true
+  require_ci_to_pass: true
 
 comment:
-  layout: "reach,diff,flags,tree"
   behavior: default
-  require_changes: false
+  layout: reach,diff,flags,tree
+  require_changes:
+  - 0
+  show_carryforward_flags: false
+
+coverage:
+  precision: 2
+  range:
+  - 60.0
+  - 80.0
+  round: down
+  status:
+    changes: false
+    default_rules:
+      flag_coverage_not_uploaded_behavior: include
+    patch:
+      default:
+        base: auto
+        target: auto
+        threshold: 1.0
+    project:
+      default:
+        base: auto
+        target: auto
+        threshold: 1.0
 
 flags:
-  frontend:
-    paths:
-      - src/
-    carryforward: true
   backend:
-    paths:
-      - src-tauri/src/
     carryforward: true
+    paths:
+    - ^src-tauri/src/.*
+  frontend:
+    carryforward: true
+    paths:
+    - ^src/.*
 
 github_checks:
   annotations: true
+
+ignore:
+- (?s:src\-tauri/target/.*/[^\/]*)\Z
+- (?s:dist/.*/[^\/]*)\Z
+- (?s:coverage/.*/[^\/]*)\Z
+- (?s:.*/[^\/]*\.test\.ts)\Z
+- (?s:.*/[^\/]*\.test\.tsx)\Z
+- (?s:.*/test\-utils\.tsx)\Z
+- (?s:.*/mocks/.*/[^\/]*)\Z
+- (?s:.*/__tests__/.*/[^\/]*)\Z
+- (?s:.*/__mocks__/.*/[^\/]*)\Z
+
+slack_app: true
