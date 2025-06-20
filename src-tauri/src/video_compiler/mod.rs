@@ -22,6 +22,15 @@ pub mod schema;
 #[cfg(test)]
 mod test_integration;
 
+#[cfg(test)]
+mod error_tests;
+
+#[cfg(test)]
+mod progress_tests;
+
+#[cfg(test)]
+mod frame_extraction_tests;
+
 // Re-export основных типов для удобства использования
 pub use commands::VideoCompilerState;
 pub use error::{Result, VideoCompilerError};

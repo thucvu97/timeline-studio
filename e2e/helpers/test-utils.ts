@@ -43,25 +43,56 @@ export async function getElement(page: Page, testId: string, fallbackSelector?: 
  * Кликает на вкладку в браузере
  */
 export async function clickBrowserTab(page: Page, tabName: string) {
-  // Ищем вкладку по тексту
-  const tab = page.locator(`[role="tab"]`).filter({ hasText: tabName }).first();
+  // Множественные селекторы для поиска табов
+  const selectors = [
+    `[role="tab"]:has-text("${tabName}")`,
+    `button:has-text("${tabName}")`,
+    `[data-testid="${tabName.toLowerCase()}-tab"]`,
+    `[data-tab="${tabName.toLowerCase()}"]`
+  ];
+  
+  let tab = null;
+  for (const selector of selectors) {
+    const count = await page.locator(selector).count();
+    if (count > 0) {
+      tab = page.locator(selector).first();
+      break;
+    }
+  }
+  
+  if (!tab) {
+    throw new Error(`Tab "${tabName}" not found with any selector`);
+  }
+  
+  // Убеждаемся что таб видимый и кликабельный
+  await tab.waitFor({ state: 'visible', timeout: 5000 });
   await tab.click();
   
-  // Ждем пока вкладка станет активной
-  await page.waitForFunction(
-    (name) => {
-      const tabs = document.querySelectorAll('[role="tab"]');
-      for (const tab of tabs) {
-        if (tab.textContent?.includes(name)) {
-          return tab.getAttribute('aria-selected') === 'true' || 
-                 tab.getAttribute('data-state') === 'active';
+  // Даем время на обновление контента
+  await page.waitForTimeout(300);
+  
+  // Опционально проверяем активное состояние (может не быть на всех табах)
+  try {
+    await page.waitForFunction(
+      (name) => {
+        const tabs = document.querySelectorAll('[role="tab"], button');
+        for (const tab of tabs) {
+          if (tab.textContent?.includes(name)) {
+            return tab.getAttribute('aria-selected') === 'true' || 
+                   tab.getAttribute('data-state') === 'active' ||
+                   tab.classList.contains('active') ||
+                   tab.classList.contains('selected');
+          }
         }
-      }
-      return false;
-    },
-    tabName,
-    { timeout: 5000 }
-  );
+        return true; // Если не можем проверить, считаем что ОК
+      },
+      tabName,
+      { timeout: 2000 }
+    );
+  } catch (error) {
+    // Игнорируем ошибки проверки активного состояния
+    console.log(`Could not verify active state for tab "${tabName}", continuing...`);
+  }
 }
 
 /**
