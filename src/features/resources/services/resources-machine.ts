@@ -259,25 +259,25 @@ export const resourcesMachine = setup({
       },
     }),
 
-    // Добавление музыкального файла
+    // Добавление медиа файла
     addMedia: assign({
       resources: ({ context, event }) => {
         if (event.type !== "ADD_MEDIA") return context.resources
 
-        // Проверяем, есть ли уже такой музыкальный файл
-        const existingResource = context.musicResources.find((resource) => resource.resourceId === event.file.id)
+        // Проверяем, есть ли уже такой медиа файл
+        const existingResource = context.mediaResources.find((resource) => resource.resourceId === event.file.id)
 
         if (existingResource) {
           return context.resources
         }
 
-        const newResource = createMusicResource(event.file)
+        const newResource = createMediaResource(event.file)
         return [...context.resources, newResource]
       },
       mediaResources: ({ context, event }) => {
         if (event.type !== "ADD_MEDIA") return context.mediaResources
 
-        // Проверяем, есть ли уже такой музыкальный файл
+        // Проверяем, есть ли уже такой медиа файл
         const existingResource = context.mediaResources.find((resource) => resource.resourceId === event.file.id)
 
         if (existingResource) {
@@ -357,6 +357,76 @@ export const resourcesMachine = setup({
         if (event.type !== "REMOVE_RESOURCE") return context.subtitleResources
         return context.subtitleResources.filter((resource) => resource.id !== event.resourceId)
       },
+    }),
+
+    // Загрузка ресурсов
+    loadResources: assign({
+      resources: ({ event }) => {
+        if (event.type !== "LOAD_RESOURCES") return []
+        return event.resources
+      },
+      // Разделяем ресурсы по типам
+      effectResources: ({ event }) => {
+        if (event.type !== "LOAD_RESOURCES") return []
+        return event.resources
+          .filter((r) => r.type === "effect")
+          .map((r) => ({ ...r, effect: {} as VideoEffect }))
+      },
+      filterResources: ({ event }) => {
+        if (event.type !== "LOAD_RESOURCES") return []
+        return event.resources
+          .filter((r) => r.type === "filter")
+          .map((r) => ({ ...r, filter: {} as VideoFilter }))
+      },
+      transitionResources: ({ event }) => {
+        if (event.type !== "LOAD_RESOURCES") return []
+        return event.resources
+          .filter((r) => r.type === "transition")
+          .map((r) => ({ ...r, transition: {} as Transition }))
+      },
+      templateResources: ({ event }) => {
+        if (event.type !== "LOAD_RESOURCES") return []
+        return event.resources
+          .filter((r) => r.type === "template")
+          .map((r) => ({ ...r, template: {} as MediaTemplate }))
+      },
+      styleTemplateResources: ({ event }) => {
+        if (event.type !== "LOAD_RESOURCES") return []
+        return event.resources
+          .filter((r) => r.type === "style-template")
+          .map((r) => ({ ...r, template: {} as StyleTemplate }))
+      },
+      mediaResources: ({ event }) => {
+        if (event.type !== "LOAD_RESOURCES") return []
+        return event.resources
+          .filter((r) => r.type === "media")
+          .map((r) => ({ ...r, file: {} as MediaFile }))
+      },
+      musicResources: ({ event }) => {
+        if (event.type !== "LOAD_RESOURCES") return []
+        return event.resources
+          .filter((r) => r.type === "music")
+          .map((r) => ({ ...r, file: {} as MediaFile }))
+      },
+      subtitleResources: ({ event }) => {
+        if (event.type !== "LOAD_RESOURCES") return []
+        return event.resources
+          .filter((r) => r.type === "subtitle")
+          .map((r) => ({ ...r, style: {} as SubtitleStyle }))
+      },
+    }),
+
+    // Очистка всех ресурсов
+    clearResources: assign({
+      resources: () => [],
+      mediaResources: () => [],
+      effectResources: () => [],
+      filterResources: () => [],
+      transitionResources: () => [],
+      templateResources: () => [],
+      styleTemplateResources: () => [],
+      musicResources: () => [],
+      subtitleResources: () => [],
     }),
 
     // Обновление ресурса
@@ -537,6 +607,12 @@ export const resourcesMachine = setup({
         },
         UPDATE_RESOURCE: {
           actions: "updateResource",
+        },
+        LOAD_RESOURCES: {
+          actions: "loadResources",
+        },
+        CLEAR_RESOURCES: {
+          actions: "clearResources",
         },
       },
     },
