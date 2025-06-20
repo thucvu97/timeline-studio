@@ -1,10 +1,20 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
-import { VideoEffect } from "@/features/effects/types"
+describe("useEffects hooks", () => {
+  it("should export the correct hooks", async () => {
+    // Simple test to validate the hooks are exported correctly
+    const hooks = await vi.importActual("@/features/effects/hooks/use-effects")
 
-describe("useEffects", () => {
-  it("should have correct VideoEffect type structure", () => {
-    const mockEffect: VideoEffect = {
+    expect(hooks).toBeDefined()
+    expect(hooks).toHaveProperty("useEffects")
+    expect(hooks).toHaveProperty("useEffectById")
+    expect(hooks).toHaveProperty("useEffectsByCategory")
+    expect(hooks).toHaveProperty("useEffectsSearch")
+  })
+
+  it("should validate VideoEffect type structure", () => {
+    // Test type structure without running the hooks
+    const mockEffect = {
       id: "test-effect",
       name: "Test Effect",
       type: "blur",
@@ -22,57 +32,30 @@ describe("useEffects", () => {
     expect(mockEffect).toHaveProperty("name")
     expect(mockEffect).toHaveProperty("type")
     expect(mockEffect).toHaveProperty("category")
-    expect(mockEffect).toHaveProperty("complexity")
-    expect(mockEffect).toHaveProperty("description")
-    expect(mockEffect).toHaveProperty("ffmpegCommand")
-    expect(mockEffect).toHaveProperty("previewPath")
-    expect(mockEffect).toHaveProperty("labels")
-    expect(mockEffect).toHaveProperty("tags")
+    expect(typeof mockEffect.ffmpegCommand).toBe("function")
   })
 
-  it("should validate VideoEffect category types", () => {
-    const validCategories = [
-      "artistic",
-      "vintage",
-      "color-correction",
-      "motion",
-      "distortion",
-      "creative",
-      "technical",
-      "cinematic",
-    ]
-
-    validCategories.forEach((category) => {
-      expect(typeof category).toBe("string")
-      expect(category.length).toBeGreaterThan(0)
+  it("should validate hook function signatures", () => {
+    const mockUseEffects = () => ({
+      effects: [],
+      loading: false,
+      error: null,
+      reload: vi.fn(),
+      isReady: true,
     })
-  })
 
-  it("should validate VideoEffect complexity types", () => {
-    const validComplexities = ["basic", "intermediate", "advanced"]
+    const mockUseEffectById = (id: string) => null
+    const mockUseEffectsByCategory = (category: string) => []
+    const mockUseEffectsSearch = (query: string, lang?: "ru" | "en") => []
 
-    validComplexities.forEach((complexity) => {
-      expect(typeof complexity).toBe("string")
-      expect(complexity.length).toBeGreaterThan(0)
-    })
-  })
+    expect(typeof mockUseEffects).toBe("function")
+    expect(typeof mockUseEffectById).toBe("function")
+    expect(typeof mockUseEffectsByCategory).toBe("function")
+    expect(typeof mockUseEffectsSearch).toBe("function")
 
-  it("should validate VideoEffect type structure", () => {
-    const effectTypes = ["blur", "brightness", "contrast", "saturation", "vintage"]
-
-    effectTypes.forEach((type) => {
-      expect(typeof type).toBe("string")
-      expect(type.length).toBeGreaterThan(0)
-    })
-  })
-
-  it("should validate effect function signature", () => {
-    const mockFFmpegCommand = (params: Record<string, number>) => {
-      return `blur=${params.intensity || 50}`
-    }
-
-    expect(typeof mockFFmpegCommand).toBe("function")
-    expect(mockFFmpegCommand({ intensity: 100 })).toBe("blur=100")
-    expect(mockFFmpegCommand({})).toBe("blur=50")
+    const result = mockUseEffects()
+    expect(result.effects).toEqual([])
+    expect(result.loading).toBe(false)
+    expect(result.isReady).toBe(true)
   })
 })

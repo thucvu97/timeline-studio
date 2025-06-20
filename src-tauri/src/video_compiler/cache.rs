@@ -98,6 +98,7 @@ impl RenderCache {
   }
 
   /// Получить данные рендеринга из кэша
+  #[allow(dead_code)] // Used in logic functions and tests
   pub async fn get_render_data(&mut self, cache_key: &str) -> Option<RenderCacheData> {
     self.stats.render_requests += 1;
 
@@ -115,6 +116,7 @@ impl RenderCache {
   }
 
   /// Сохранить данные рендеринга в кэш
+  #[allow(dead_code)] // Used in logic functions and tests
   pub async fn store_render_data(
     &mut self,
     cache_key: String,
@@ -275,6 +277,7 @@ impl MediaMetadata {
 
 /// Данные кэша рендеринга
 #[derive(Debug, Clone)]
+#[allow(dead_code)] // Fields are used in tests and logic functions
 pub struct RenderCacheData {
   /// Ключ кэша
   pub cache_key: String,

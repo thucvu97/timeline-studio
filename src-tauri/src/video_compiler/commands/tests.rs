@@ -3,12 +3,15 @@
 mod tests {
   use crate::video_compiler::{
     cache::{CacheMemoryUsage, MediaMetadata},
-    commands::*,
+    commands::{get_available_memory, *},
+    commands_logic::{extract_available_codecs, extract_ffmpeg_version, extract_hardware_encoders},
     frame_extraction::{ExtractionPurpose, ExtractionSettings, ExtractionStrategy},
     gpu::{GpuCapabilities, GpuEncoder, GpuInfo},
     progress::{RenderProgress, RenderStatus},
     renderer::VideoRenderer,
-    schema::{AspectRatio, PreviewFormat, ProjectSchema, Subtitle, Timeline, Track, TrackType},
+    schema::{
+      AspectRatio, Clip, PreviewFormat, ProjectSchema, Subtitle, Timeline, Track, TrackType,
+    },
     CompilerSettings,
   };
   use serde::{Deserialize, Serialize};
