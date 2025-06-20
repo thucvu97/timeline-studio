@@ -519,19 +519,22 @@ impl GpuHelper {
   /// Конвертация качества в NVENC CQ параметр
   fn quality_to_nvenc_cq(quality: u8) -> u8 {
     // NVENC CQ: 0-51, где 0 = лучшее качество
-    51 - (quality as f32 * 0.51) as u8
+    let clamped_quality = quality.min(100);
+    51 - (clamped_quality as f32 * 0.51) as u8
   }
 
   /// Конвертация качества в QuickSync quality
   fn quality_to_qsv_quality(quality: u8) -> u8 {
     // QSV качество обычно 1-51
-    51 - (quality as f32 * 0.5) as u8
+    let clamped_quality = quality.min(100);
+    51 - (clamped_quality as f32 * 0.5) as u8
   }
 
   /// Конвертация качества в VAAPI quality
   fn quality_to_vaapi_quality(quality: u8) -> u8 {
     // VAAPI качество 1-8, где 1 = лучшее
-    8 - (quality as f32 * 0.07) as u8
+    let clamped_quality = quality.min(100);
+    8 - (clamped_quality as f32 * 0.07) as u8
   }
 
   /// Конвертация качества в VideoToolbox quality
