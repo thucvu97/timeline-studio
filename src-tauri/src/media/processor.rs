@@ -428,7 +428,7 @@ mod tests {
   fn test_thumbnail_options_clone() {
     let opts1 = ThumbnailOptions::default();
     let opts2 = opts1.clone();
-    
+
     assert_eq!(opts1.width, opts2.width);
     assert_eq!(opts1.height, opts2.height);
     assert_eq!(opts1.time_offset, opts2.time_offset);
@@ -439,7 +439,7 @@ mod tests {
   #[test]
   fn test_discovered_file_creation() {
     let file = create_test_discovered_file();
-    
+
     assert_eq!(file.id, "test-file-id");
     assert_eq!(file.path, "/test/path/video.mp4");
     assert_eq!(file.name, "video.mp4");
@@ -451,7 +451,7 @@ mod tests {
   fn test_discovered_file_serialization() {
     let file = create_test_discovered_file();
     let json = serde_json::to_string(&file).unwrap();
-    
+
     assert!(json.contains("test-file-id"));
     assert!(json.contains("video.mp4"));
     assert!(json.contains("mp4"));
@@ -589,9 +589,7 @@ mod tests {
   #[test]
   fn test_resize_image_no_resize_needed() {
     // Создаем изображение 100x100
-    let img = DynamicImage::ImageRgb8(
-      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(100, 100)
-    );
+    let img = DynamicImage::ImageRgb8(ImageBuffer::<Rgb<u8>, Vec<u8>>::new(100, 100));
 
     // Пытаемся изменить размер до 200x200 (больше оригинала)
     let resized = resize_image(img, 200, 200);
@@ -605,9 +603,7 @@ mod tests {
   #[test]
   fn test_resize_image_proportional_width() {
     // Создаем изображение 200x100
-    let img = DynamicImage::ImageRgb8(
-      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(200, 100)
-    );
+    let img = DynamicImage::ImageRgb8(ImageBuffer::<Rgb<u8>, Vec<u8>>::new(200, 100));
 
     // Изменяем размер до максимум 100x100
     let resized = resize_image(img, 100, 100);
@@ -622,9 +618,7 @@ mod tests {
   #[test]
   fn test_resize_image_proportional_height() {
     // Создаем изображение 100x200
-    let img = DynamicImage::ImageRgb8(
-      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(100, 200)
-    );
+    let img = DynamicImage::ImageRgb8(ImageBuffer::<Rgb<u8>, Vec<u8>>::new(100, 200));
 
     // Изменяем размер до максимум 100x100
     let resized = resize_image(img, 100, 100);
@@ -639,9 +633,7 @@ mod tests {
   #[test]
   fn test_resize_image_exact_fit() {
     // Создаем изображение 400x300
-    let img = DynamicImage::ImageRgb8(
-      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(400, 300)
-    );
+    let img = DynamicImage::ImageRgb8(ImageBuffer::<Rgb<u8>, Vec<u8>>::new(400, 300));
 
     // Изменяем размер до 200x150 (точно половина)
     let resized = resize_image(img, 200, 150);
@@ -654,9 +646,7 @@ mod tests {
   #[test]
   fn test_resize_image_square_to_landscape() {
     // Создаем квадратное изображение 300x300
-    let img = DynamicImage::ImageRgb8(
-      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(300, 300)
-    );
+    let img = DynamicImage::ImageRgb8(ImageBuffer::<Rgb<u8>, Vec<u8>>::new(300, 300));
 
     // Изменяем размер до 160x90 (соотношение 16:9)
     let resized = resize_image(img, 160, 90);
@@ -670,9 +660,7 @@ mod tests {
   #[test]
   fn test_resize_image_very_small() {
     // Создаем изображение 10x10
-    let img = DynamicImage::ImageRgb8(
-      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(10, 10)
-    );
+    let img = DynamicImage::ImageRgb8(ImageBuffer::<Rgb<u8>, Vec<u8>>::new(10, 10));
 
     // Пытаемся изменить размер до 320x180
     let resized = resize_image(img, 320, 180);
@@ -693,7 +681,7 @@ mod tests {
   #[test]
   fn test_discovered_file_with_different_extensions() {
     let extensions = ["mp4", "avi", "mov", "jpg", "png", "wav", "mp3"];
-    
+
     for ext in &extensions {
       let file = DiscoveredFile {
         id: format!("test-{}", ext),
@@ -702,7 +690,7 @@ mod tests {
         extension: ext.to_string(),
         size: 1024,
       };
-      
+
       assert_eq!(file.extension, *ext);
       assert!(file.name.ends_with(ext));
     }
@@ -717,7 +705,7 @@ mod tests {
       extension: "mp4".to_string(),
       size: u64::MAX,
     };
-    
+
     assert_eq!(file.size, u64::MAX);
   }
 
@@ -730,7 +718,7 @@ mod tests {
       extension: "mp4".to_string(),
       size: 0,
     };
-    
+
     assert_eq!(file.size, 0);
   }
 
@@ -778,7 +766,7 @@ mod tests {
 
     let json = serde_json::to_string(&event).unwrap();
     assert!(json.contains("ProcessingError"));
-    
+
     // Проверяем, что можем десериализовать обратно
     let parsed: ProcessorEvent = serde_json::from_str(&json).unwrap();
     match parsed {
@@ -800,9 +788,13 @@ mod tests {
 
     let json = serde_json::to_string(&event).unwrap();
     let parsed: ProcessorEvent = serde_json::from_str(&json).unwrap();
-    
+
     match parsed {
-      ProcessorEvent::ProcessingError { file_id, file_path, error } => {
+      ProcessorEvent::ProcessingError {
+        file_id,
+        file_path,
+        error,
+      } => {
         assert_eq!(file_id, "");
         assert_eq!(file_path, "");
         assert_eq!(error, "");
@@ -813,9 +805,7 @@ mod tests {
 
   #[test]
   fn test_resize_image_zero_dimensions() {
-    let img = DynamicImage::ImageRgb8(
-      ImageBuffer::<Rgb<u8>, Vec<u8>>::new(100, 100)
-    );
+    let img = DynamicImage::ImageRgb8(ImageBuffer::<Rgb<u8>, Vec<u8>>::new(100, 100));
 
     // Изменение размера до 0x0 не должно паниковать
     let resized = resize_image(img, 0, 0);
@@ -834,10 +824,13 @@ mod tests {
   #[test]
   fn test_multiple_events_serialization() {
     let events = vec![
-      ProcessorEvent::ScanProgress { current: 1, total: 3 },
-      ProcessorEvent::FilesDiscovered { 
-        files: vec![create_test_discovered_file()], 
-        total: 1 
+      ProcessorEvent::ScanProgress {
+        current: 1,
+        total: 3,
+      },
+      ProcessorEvent::FilesDiscovered {
+        files: vec![create_test_discovered_file()],
+        total: 1,
       },
       ProcessorEvent::MetadataReady {
         file_id: "meta-id".to_string(),
@@ -849,12 +842,12 @@ mod tests {
     for event in events {
       let json = serde_json::to_string(&event).unwrap();
       let parsed: ProcessorEvent = serde_json::from_str(&json).unwrap();
-      
+
       // Проверяем, что тип события остался тот же
       match (&event, &parsed) {
-        (ProcessorEvent::ScanProgress { .. }, ProcessorEvent::ScanProgress { .. }) => {},
-        (ProcessorEvent::FilesDiscovered { .. }, ProcessorEvent::FilesDiscovered { .. }) => {},
-        (ProcessorEvent::MetadataReady { .. }, ProcessorEvent::MetadataReady { .. }) => {},
+        (ProcessorEvent::ScanProgress { .. }, ProcessorEvent::ScanProgress { .. }) => {}
+        (ProcessorEvent::FilesDiscovered { .. }, ProcessorEvent::FilesDiscovered { .. }) => {}
+        (ProcessorEvent::MetadataReady { .. }, ProcessorEvent::MetadataReady { .. }) => {}
         _ => panic!("Event type mismatch after serialization"),
       }
     }
@@ -872,16 +865,16 @@ mod tests {
 
     let json = serde_json::to_string(&file).unwrap();
     let parsed: DiscoveredFile = serde_json::from_str(&json).unwrap();
-    
+
     assert_eq!(parsed.path, "/тест/файл/видео.mp4");
     assert_eq!(parsed.name, "видео.mp4");
   }
 
-  #[test] 
+  #[test]
   fn test_thumbnail_options_debug_trait() {
     let opts = ThumbnailOptions::default();
     let debug_string = format!("{:?}", opts);
-    
+
     assert!(debug_string.contains("ThumbnailOptions"));
     assert!(debug_string.contains("320"));
     assert!(debug_string.contains("180"));
@@ -889,9 +882,12 @@ mod tests {
 
   #[test]
   fn test_processor_event_debug_trait() {
-    let event = ProcessorEvent::ScanProgress { current: 5, total: 10 };
+    let event = ProcessorEvent::ScanProgress {
+      current: 5,
+      total: 10,
+    };
     let debug_string = format!("{:?}", event);
-    
+
     assert!(debug_string.contains("ScanProgress"));
     assert!(debug_string.contains("5"));
     assert!(debug_string.contains("10"));
@@ -901,7 +897,7 @@ mod tests {
   fn test_discovered_file_debug_trait() {
     let file = create_test_discovered_file();
     let debug_string = format!("{:?}", file);
-    
+
     assert!(debug_string.contains("DiscoveredFile"));
     assert!(debug_string.contains("test-file-id"));
     assert!(debug_string.contains("video.mp4"));
