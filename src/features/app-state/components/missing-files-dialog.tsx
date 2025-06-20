@@ -1,7 +1,8 @@
 "use client"
 
-import { AlertTriangle, CheckCircle, FileX, Search, Trash2 } from "lucide-react"
 import { useState } from "react"
+
+import { AlertTriangle, CheckCircle, FileX, Search, Trash2 } from "lucide-react"
 
 import {
   AlertDialog,
@@ -56,11 +57,11 @@ export function MissingFilesDialog({ open, onOpenChange, missingFiles, onResolve
         prev.map((r, i) =>
           i === index
             ? {
-                ...r,
-                action: newPath ? "found" : "skip",
-                newPath: newPath || undefined,
-                isProcessing: false,
-              }
+              ...r,
+              action: newPath ? "found" : "skip",
+              newPath: newPath || undefined,
+              isProcessing: false,
+            }
             : r,
         ),
       )

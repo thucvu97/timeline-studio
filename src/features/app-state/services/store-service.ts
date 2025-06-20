@@ -1,4 +1,4 @@
-import { load, Store } from "@tauri-apps/plugin-store"
+import { Store, load } from "@tauri-apps/plugin-store"
 
 import { MediaFile } from "@/features/media"
 import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"

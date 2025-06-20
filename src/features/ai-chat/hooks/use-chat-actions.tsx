@@ -1,5 +1,5 @@
-import { ChatContextType } from "../services/chat-provider"
 import { useChat } from "./use-chat"
+import { ChatContextType } from "../services/chat-provider"
 
 /**
  * Хук для получения только действий чата (без состояния)
@@ -16,7 +16,7 @@ export function useChatActions(): Pick<
   | "setError"
   | "clearMessages"
   | "removeMessage"
-> {
+  > {
   const { sendChatMessage, receiveChatMessage, selectAgent, setProcessing, setError, clearMessages, removeMessage } =
     useChat()
 

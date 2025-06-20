@@ -1,7 +1,9 @@
-import { useActor } from "@xstate/react"
 import React, { createContext } from "react"
-import { ChatMessage } from "../types/chat"
+
+import { useActor } from "@xstate/react"
+
 import { chatMachine } from "./chat-machine"
+import { ChatMessage } from "../types/chat"
 
 // Интерфейс контекста провайдера чата
 export interface ChatContextType {
