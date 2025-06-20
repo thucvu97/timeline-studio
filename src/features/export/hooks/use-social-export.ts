@@ -50,94 +50,68 @@ export function useSocialExport() {
         setIsUploading(true)
         setUploadProgress(0)
 
-        // Обновляем токен если нужно
-        await SocialNetworksService.refreshTokenIfNeeded(settings.socialNetwork)
-
-        // Получаем файл видео
-        let videoFile: File
-        try {
-          const response = await fetch(videoPath)
-          const videoBlob = await response.blob()
-          videoFile = new File([videoBlob], `${settings.fileName}.${settings.format}`, {
-            type: `video/${settings.format}`,
-          })
-        } catch (error) {
-          // Для тестов или случаев когда videoPath не является валидным URL
-          // создаем mock файл
-          const mockBlob = new Blob(["mock video content"], { type: `video/${settings.format}` })
-          videoFile = new File([mockBlob], `${settings.fileName}.${settings.format}`, {
-            type: `video/${settings.format}`,
-          })
-        }
-
-        // Валидируем файл
-        const fileErrors = await SocialNetworksService.validateVideoFile(settings.socialNetwork, videoFile)
-        if (fileErrors.length > 0) {
-          throw new Error(fileErrors.join(", "))
-        }
-
-        // Загружаем видео
-        const result = await SocialNetworksService.uploadVideo(
-          settings.socialNetwork,
-          videoFile,
-          settings,
-          (progress) => {
+        const result = await SocialNetworksService.uploadVideo(network.id, videoPath, {
+          title: settings.title || "Untitled Video",
+          description: settings.description || "",
+          tags: settings.tags || [],
+          privacy: settings.privacy || "public",
+          onProgress: (progress) => {
             setUploadProgress(progress)
           },
-        )
+        })
 
-        if (!result.success) {
-          throw new Error(result.error || "Upload failed")
-        }
+        setIsUploading(false)
+        setUploadProgress(100)
 
         toast.success(t("dialogs.export.uploadSuccess", { network: network.name }))
-
-        // Возвращаем информацию о загруженном видео
-        return {
-          url: result.url,
-          id: result.id,
-        }
-      } finally {
+        return result
+      } catch (error) {
         setIsUploading(false)
-        setUploadProgress(0)
+        console.error(`Upload to ${network.name} failed:`, error)
+        toast.error(t("dialogs.export.errors.uploadFailed", { network: network.name }))
+        throw error
       }
     },
     [t],
   )
 
-  const validateSocialExport = useCallback((settings: SocialExportSettings): boolean => {
-    const errors = SocialNetworksService.validateSettings(settings.socialNetwork, settings)
-
-    if (errors.length > 0) {
-      toast.error(errors[0]) // Показываем первую ошибку
-      return false
+  const validateSocialExport = useCallback((settings: SocialExportSettings) => {
+    const network = SOCIAL_NETWORKS.find((n) => n.id === settings.socialNetwork)
+    if (!network) {
+      return { valid: false, error: "Unknown social network" }
     }
 
-    return true
-  }, [])
+    // Validate file size
+    if (settings.fileSizeBytes && network.maxFileSize && settings.fileSizeBytes > network.maxFileSize) {
+      return {
+        valid: false,
+        error: `File size exceeds ${network.name} limit of ${network.maxFileSize / (1024 * 1024)}MB`,
+      }
+    }
 
-  const getOptimalSettings = useCallback((network: string) => {
-    return SocialNetworksService.getOptimalSettings(network)
-  }, [])
+    // Validate duration
+    if (settings.durationSeconds && network.maxDuration && settings.durationSeconds > network.maxDuration) {
+      return {
+        valid: false,
+        error: `Video duration exceeds ${network.name} limit of ${network.maxDuration} seconds`,
+      }
+    }
 
-  // Проверяем авторизацию при загрузке
-  useEffect(() => {
-    // Обновляем токены для всех сетей при загрузке компонента
-    SOCIAL_NETWORKS.forEach((network) => {
-      SocialNetworksService.refreshTokenIfNeeded(network.id).catch((error: unknown) => {
-        console.warn(`Failed to refresh token for ${network.id}:`, error)
-      })
-    })
+    // Validate title
+    if (!settings.title || settings.title.trim().length === 0) {
+      return { valid: false, error: "Title is required" }
+    }
+
+    return { valid: true }
   }, [])
 
   return {
     loginToSocialNetwork,
     logoutFromSocialNetwork,
-    uploadToSocialNetwork,
-    validateSocialExport,
     isLoggedIn,
     getUserInfo,
-    getOptimalSettings,
+    uploadToSocialNetwork,
+    validateSocialExport,
     uploadProgress,
     isUploading,
   }

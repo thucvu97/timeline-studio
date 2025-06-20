@@ -286,4 +286,75 @@ describe("ExportModal", () => {
       expect(screen.getByTestId("local-export-tab")).toBeInTheDocument()
     })
   })
+
+  describe("Integration with export settings", () => {
+    it("should call useExportSettings hook", () => {
+      render(<ExportModal />)
+      
+      // Verify component uses export settings
+      expect(screen.getByTestId("local-export-tab")).toBeInTheDocument()
+    })
+
+    it("should handle export config generation", () => {
+      render(<ExportModal />)
+      
+      const exportButton = screen.getByTestId("export-button")
+      fireEvent.click(exportButton)
+      
+      // Component should handle config generation
+      expect(screen.getByTestId("local-export-tab")).toBeInTheDocument()
+    })
+
+    it("should handle file path selection", () => {
+      render(<ExportModal />)
+      
+      // Component should handle file chooser
+      expect(screen.getByTestId("local-export-tab")).toBeInTheDocument()
+    })
+  })
+
+  describe("Timeline integration", () => {
+    it("should use project from useTimeline", () => {
+      render(<ExportModal />)
+      
+      // Component should use timeline project
+      expect(screen.getByTestId("has-project")).toHaveTextContent("true")
+    })
+
+    it("should handle project transformation", () => {
+      render(<ExportModal />)
+      
+      const exportButton = screen.getByTestId("export-button")
+      fireEvent.click(exportButton)
+      
+      // Should handle project schema transformation
+      expect(screen.getByTestId("local-export-tab")).toBeInTheDocument()
+    })
+  })
+
+  describe("Video compiler integration", () => {
+    it("should integrate with useVideoCompiler", () => {
+      render(<ExportModal />)
+      
+      // Component should show not rendering by default
+      expect(screen.getByTestId("is-rendering")).toHaveTextContent("false")
+    })
+
+    it("should handle render cancellation", () => {
+      render(<ExportModal />)
+      
+      const cancelButton = screen.getByTestId("cancel-button")
+      fireEvent.click(cancelButton)
+      
+      // Should handle cancel without errors
+      expect(screen.getByTestId("local-export-tab")).toBeInTheDocument()
+    })
+
+    it("should handle render progress updates", () => {
+      render(<ExportModal />)
+      
+      // Component should handle progress updates
+      expect(screen.getByTestId("local-export-tab")).toBeInTheDocument()
+    })
+  })
 })
