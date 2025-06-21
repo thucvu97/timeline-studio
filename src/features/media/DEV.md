@@ -70,7 +70,7 @@ const {
 - Использует `convertFileSrc` для прямого доступа к файлам
 
 #### `useMediaPreview`
-Управляет генерацией превью и кэшированием данных предпросмотра.
+Управляет генерацией превью и кэшированием данных предпросмотра. Интегрирован с IndexedDB для локального кэширования.
 
 ```typescript
 const {
@@ -87,6 +87,12 @@ const {
   onError: (error) => {}
 })
 ```
+
+**Особенности:**
+- Автоматическая проверка IndexedDB кэша перед запросом к backend
+- Сохранение сгенерированных превью в локальный кэш
+- Удаление превью из кэша при очистке данных
+- Поддержка параллельных операций
 
 #### `useFramePreview`
 Извлекает кадры из видео для скраббинга по таймлайну.
@@ -171,6 +177,40 @@ const {
 } = useMediaRestoration()
 ```
 
+#### `usePreviewPreloader`
+Предзагрузка превью для виртуализированных списков. Оптимизирует производительность при скролле.
+
+```typescript
+const {
+  preloadPreviews,
+  isPreloading,
+  preloadingFileIds
+} = usePreviewPreloader({
+  preloadAhead: 5,          // Количество элементов для предзагрузки впереди
+  preloadBehind: 2,         // Количество элементов для предзагрузки позади
+  debounceDelay: 100,       // Задержка дебаунса в мс
+  maxConcurrent: 3          // Максимум параллельных загрузок
+})
+
+// Использование с виртуализированным списком
+const virtualizer = useVirtualizer({
+  count: files.length,
+  getScrollElement: () => parentRef.current,
+  estimateSize: () => 100,
+  overscan: 5
+})
+
+// Вызов при изменении видимых элементов
+useEffect(() => {
+  const visibleStart = virtualizer.range?.startIndex ?? 0
+  const visibleEnd = virtualizer.range?.endIndex ?? 0
+  const visibleIds = files
+    .slice(visibleStart, visibleEnd + 1)
+    .map(f => f.id)
+  
+  preloadPreviews(visibleIds, files.map(f => f.id))
+}, [virtualizer.range, files, preloadPreviews])
+
 ### Сервисы (Services)
 
 #### `MediaApi`
@@ -199,14 +239,25 @@ class VideoStreamingService {
 ```
 
 #### `IndexedDBCacheService`
-Кэширование данных в браузере.
+Кэширование данных в браузере. Поддерживает кэширование превью, кадров и метаданных.
 
 ```typescript
 class IndexedDBCacheService {
+  // Кэширование кадров
   async cacheFrames(key: string, frames: Frame[]): Promise<void>
   async getCachedFrames(key: string): Promise<Frame[] | null>
+  
+  // Кэширование метаданных
   async cacheMetadata(key: string, metadata: Metadata): Promise<void>
   async getCachedMetadata(key: string): Promise<Metadata | null>
+  
+  // Кэширование превью
+  async cachePreview(fileId: string, base64Data: string): Promise<void>
+  async getCachedPreview(fileId: string): Promise<string | null>
+  async deletePreview(fileId: string): Promise<void>
+  async clearPreviewCache(): Promise<void>
+  
+  // Управление кэшем
   async getCacheStatistics(): Promise<CacheStatistics>
   async clearAllCaches(): Promise<void>
 }
@@ -245,13 +296,25 @@ graph TD
 ```mermaid
 graph TD
     A[Запрос превью] --> B[useMediaPreview]
-    B --> C{Есть в кэше?}
-    C -->|Да| D[Вернуть из кэша]
-    C -->|Нет| E[MediaApi.generateThumbnail]
+    B --> C{Есть в IndexedDB?}
+    C -->|Да| D[Вернуть из IndexedDB]
+    C -->|Нет| E[Запрос к backend]
     E --> F[FFmpeg извлечение кадра]
     F --> G[Base64 данные]
-    G --> H[Сохранить в кэш]
+    G --> H[Сохранить в IndexedDB]
     H --> I[Вернуть данные]
+```
+
+### Предзагрузка превью
+
+```mermaid
+graph TD
+    A[Изменение видимых элементов] --> B[usePreviewPreloader]
+    B --> C[Определить диапазон для предзагрузки]
+    C --> D[Отфильтровать уже загруженные]
+    D --> E[Ограничить количество параллельных загрузок]
+    E --> F[Запустить предзагрузку через useMediaPreview]
+    F --> G[Превью готовы для отображения]
 ```
 
 ## Интеграция с Tauri
@@ -295,11 +358,18 @@ listen<ProcessorEvent>('media-processor', (event) => {
 1. **IndexedDB кэширование**
    - Кадры видео для скраббинга
    - Метаданные файлов
-   - Данные превью
+   - Base64 данные превью (новое!)
+   - Автоматическая очистка при удалении файлов
 
 2. **In-memory кэширование**
    - URL стриминга
    - Статистика кэша
+   - Состояние предзагрузки превью
+
+3. **Стратегия кэш-первый**
+   - Всегда проверяем IndexedDB перед запросом к backend
+   - Автоматическое сохранение новых данных в кэш
+   - Поддержка предзагрузки для улучшения UX
 
 ### Батч-обработка
 
@@ -326,6 +396,29 @@ const throttledProgress = useMemo(
   () => throttle(updateProgress, 100),
   []
 )
+
+// Дебаунс для предзагрузки превью
+const { preloadPreviews } = usePreviewPreloader({
+  debounceDelay: 100  // Избегаем частых запросов при быстром скролле
+})
+```
+
+### Предзагрузка и виртуализация
+
+```typescript
+// Интеграция с react-virtual для оптимальной производительности
+const virtualizer = useVirtualizer({
+  count: files.length,
+  getScrollElement: () => parentRef.current,
+  estimateSize: () => 100,
+  overscan: 5  // Рендерим дополнительные элементы для плавности
+})
+
+// Предзагрузка превью для видимых элементов
+useEffect(() => {
+  const visibleIds = getVisibleFileIds(virtualizer.range)
+  preloadPreviews(visibleIds, allFileIds)
+}, [virtualizer.range])
 ```
 
 ## Обработка ошибок

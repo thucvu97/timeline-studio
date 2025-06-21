@@ -2,6 +2,8 @@ import { useCallback, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 
+import { indexedDBCacheService } from "../services/indexeddb-cache-service"
+
 import type { MediaPreviewData, ThumbnailData } from "../types/preview"
 
 export interface UseMediaPreviewOptions {
@@ -16,7 +18,36 @@ export function useMediaPreview(options: UseMediaPreviewOptions = {}) {
   const getPreviewData = useCallback(
     async (fileId: string): Promise<MediaPreviewData | null> => {
       try {
+        // Сначала проверяем IndexedDB кэш
+        const cachedThumbnail = await indexedDBCacheService.getCachedPreview(fileId)
+        if (cachedThumbnail) {
+          console.log(`[useMediaPreview] Preview found in IndexedDB cache for file: ${fileId}`)
+          // Возвращаем в формате MediaPreviewData
+          return {
+            file_id: fileId,
+            file_path: "", // Путь не сохраняется в кэше
+            browser_thumbnail: {
+              path: "", // Путь не сохраняется в кэше
+              base64_data: cachedThumbnail,
+              timestamp: 0,
+              width: 0,
+              height: 0,
+            },
+            last_updated: new Date().toISOString(),
+            timeline_previews: [],
+            recognition_frames: [],
+          } as unknown as MediaPreviewData
+        }
+
+        // Если нет в кэше, запрашиваем с бэкенда
         const data = await invoke<MediaPreviewData | null>("get_media_preview_data", { fileId })
+        
+        // Сохраняем в кэш, если есть данные превью
+        if (data?.browser_thumbnail?.base64_data) {
+          await indexedDBCacheService.cachePreview(fileId, data.browser_thumbnail.base64_data)
+          console.log(`[useMediaPreview] Preview cached in IndexedDB for file: ${fileId}`)
+        }
+        
         return data
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Failed to get preview data"
@@ -48,6 +79,12 @@ export function useMediaPreview(options: UseMediaPreviewOptions = {}) {
           timestamp,
         })
 
+        // Сохраняем в кэш, если есть base64 данные
+        if (thumbnail?.base64_data) {
+          await indexedDBCacheService.cachePreview(fileId, thumbnail.base64_data)
+          console.log(`[useMediaPreview] Generated thumbnail cached in IndexedDB for file: ${fileId}`)
+        }
+
         // Notify callback if provided
         if (options.onThumbnailGenerated) {
           options.onThumbnailGenerated(fileId, thumbnail)
@@ -69,7 +106,13 @@ export function useMediaPreview(options: UseMediaPreviewOptions = {}) {
   const clearPreviewData = useCallback(
     async (fileId: string): Promise<boolean> => {
       try {
+        // Очищаем данные на бэкенде
         await invoke("clear_media_preview_data", { fileId })
+        
+        // Очищаем конкретное превью из IndexedDB кэша
+        await indexedDBCacheService.deletePreview(fileId)
+        
+        console.log(`[useMediaPreview] Preview data cleared for file: ${fileId}`)
         return true
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Failed to clear preview data"

@@ -276,6 +276,13 @@ export class IndexedDBCacheService {
   }
 
   /**
+   * Удалить конкретное превью из кэша
+   */
+  public async deletePreview(fileId: string): Promise<void> {
+    await del(fileId, this.previewStore)
+  }
+
+  /**
    * Очистить кэш превью
    */
   public async clearPreviewCache(): Promise<void> {
