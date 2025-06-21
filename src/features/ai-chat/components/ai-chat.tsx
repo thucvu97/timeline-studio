@@ -17,6 +17,7 @@ import { useUserSettings } from "@/features/user-settings"
 import { cn } from "@/lib/utils"
 
 import { useChat } from ".."
+import { ChatList } from "./chat-list"
 import { CLAUDE_MODELS } from "./claude-service"
 import { AI_MODELS } from "./open-ai-service"
 import { chatStorageService } from "../services/chat-storage-service"
@@ -80,14 +81,19 @@ export function AiChat() {
     selectAgent,
     isProcessing,
     setProcessing,
+    currentSessionId,
+    sessions,
+    isCreatingNewChat,
+    createNewChat,
+    switchSession,
+    deleteSession,
+    updateSessions,
   } = useChat()
   const { openAiApiKey } = useUserSettings()
   const { openModal } = useModal()
 
   const [message, setMessage] = useState("")
   const [chatMode, setChatMode] = useState<ChatMode>("agent")
-  const [chatHistory, setChatHistory] = useState<ChatListItem[]>([])
-  const [hoveredChatId, setHoveredChatId] = useState<string | null>(null)
   const [showHistory, setShowHistory] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -96,7 +102,7 @@ export function AiChat() {
   useEffect(() => {
     const loadHistory = async () => {
       const sessions = await chatStorageService.getAllSessions()
-      setChatHistory(sessions)
+      updateSessions(sessions)
     }
     void loadHistory()
   }, [])
@@ -207,9 +213,7 @@ export function AiChat() {
               size="icon"
               variant="ghost"
               className="h-8 w-8 text-muted-foreground hover:text-white"
-              onClick={() => {
-                // Create new chat
-              }}
+              onClick={() => createNewChat()}
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -490,54 +494,23 @@ export function AiChat() {
 
           {/* Previous threads section */}
           {chatMessages.length === 0 && (
-            <div className="flex-1 p-4">
-              <h3 className="mb-3 text-sm font-medium text-muted-foreground">Previous Threads</h3>
-              <div className="space-y-1">
-                {chatHistory.map((chat) => (
-                  <div
-                    key={chat.id}
-                    className="group relative flex items-center justify-between rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
-                    onMouseEnter={() => setHoveredChatId(chat.id)}
-                    onMouseLeave={() => setHoveredChatId(null)}
-                  >
-                    <div className="flex-1 truncate">
-                      <div className="truncate text-foreground">{chat.title}</div>
-                      <div className="text-xs text-muted-foreground/70">
-                        {chat.lastMessageAt && formatTime(chat.lastMessageAt)}
-                      </div>
-                    </div>
-                    {hoveredChatId === chat.id && (
-                      <div className="absolute right-2 flex items-center gap-1 bg-muted">
-                        <span className="mr-2 text-xs text-muted-foreground/70">{chat.messageCount} messages</span>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-6 w-6 text-muted-foreground/70 hover:text-white"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            // Copy chat
-                          }}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-6 w-6 text-muted-foreground/70 hover:text-red-400"
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            await chatStorageService.deleteSession(chat.id)
-                            const sessions = await chatStorageService.getAllSessions()
-                            setChatHistory(sessions)
-                          }}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+            <div className="flex-1">
+              <ChatList
+                sessions={sessions}
+                currentSessionId={currentSessionId}
+                isCreatingNew={isCreatingNewChat}
+                onSelectSession={switchSession}
+                onDeleteSession={async (id) => {
+                  await chatStorageService.deleteSession(id)
+                  deleteSession(id)
+                  const updatedSessions = await chatStorageService.getAllSessions()
+                  updateSessions(updatedSessions)
+                }}
+                onCopySession={(id) => {
+                  // TODO: Implement copy functionality
+                  console.log("Copy session:", id)
+                }}
+              />
             </div>
           )}
         </div>

@@ -86,6 +86,13 @@ const mockUseChat = {
   selectAgent: vi.fn(),
   isProcessing: false,
   setProcessing: vi.fn(),
+  currentSessionId: null,
+  sessions: [],
+  isCreatingNewChat: false,
+  createNewChat: vi.fn(),
+  switchSession: vi.fn(),
+  deleteSession: vi.fn(),
+  updateSessions: vi.fn(),
 }
 
 vi.mock("../../hooks/use-chat", () => ({

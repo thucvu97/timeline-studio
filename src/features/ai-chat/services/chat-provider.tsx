@@ -3,7 +3,8 @@ import React, { createContext } from "react"
 import { useActor } from "@xstate/react"
 
 import { chatMachine } from "./chat-machine"
-import { ChatMessage } from "../types/chat"
+import { chatStorageService } from "./chat-storage-service"
+import { ChatListItem, ChatMessage } from "../types/chat"
 
 // Интерфейс контекста провайдера чата
 export interface ChatContextType {
@@ -12,6 +13,9 @@ export interface ChatContextType {
   selectedAgentId: string | null
   isProcessing: boolean
   error: string | null
+  currentSessionId: string | null
+  sessions: ChatListItem[]
+  isCreatingNewChat: boolean
 
   // Действия
   sendChatMessage: (message: string) => void
@@ -21,6 +25,10 @@ export interface ChatContextType {
   setError: (error: string | null) => void
   clearMessages: () => void
   removeMessage: (messageId: string) => void
+  createNewChat: () => void
+  switchSession: (sessionId: string) => void
+  deleteSession: (sessionId: string) => void
+  updateSessions: (sessions: ChatListItem[]) => void
 }
 
 // Создаем контекст
@@ -45,7 +53,10 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
   const [state, send] = useActor(chatMachine)
 
   // Извлекаем данные из состояния машины
-  const { chatMessages, selectedAgentId, isProcessing, error } = state.context
+  const { 
+    chatMessages, selectedAgentId, isProcessing, error, currentSessionId, sessions, isCreatingNewChat
+
+  } = state.context
 
   // Создаем функции для отправки событий
   const sendChatMessage = (message: string) => {
@@ -76,6 +87,35 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
     send({ type: "REMOVE_MESSAGE", messageId })
   }
 
+  const createNewChat = async () => {
+    send({ type: "CREATE_NEW_CHAT" })
+
+    // Симуляция создания чата
+    setTimeout(async () => {
+      const newSession: ChatListItem = {
+        id: `session-${Date.now()}`,
+        title: "составь план рефакторинга",
+        lastMessageAt: new Date(),
+        messageCount: 0,
+      }
+
+      await chatStorageService.createSession(newSession)
+      send({ type: "NEW_CHAT_CREATED", session: newSession })
+    }, 1500)
+  }
+
+  const switchSession = (sessionId: string) => {
+    send({ type: "SWITCH_SESSION", sessionId })
+  }
+
+  const deleteSession = (sessionId: string) => {
+    send({ type: "DELETE_SESSION", sessionId })
+  }
+
+  const updateSessions = (sessions: ChatListItem[]) => {
+    send({ type: "UPDATE_SESSIONS", sessions })
+  }
+
   // Создаем значение контекста
   const contextValue: ChatContextType = {
     // Состояние
@@ -83,6 +123,9 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
     selectedAgentId,
     isProcessing,
     error,
+    currentSessionId,
+    sessions,
+    isCreatingNewChat,
 
     // Действия
     sendChatMessage,
@@ -92,6 +135,10 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
     setError,
     clearMessages,
     removeMessage,
+    createNewChat,
+    switchSession,
+    deleteSession,
+    updateSessions,
   }
 
   // Используем переданное значение для тестов или реальное значение

@@ -25,6 +25,9 @@ describe("ChatMachine", () => {
       selectedAgentId: "claude-4-sonnet",
       isProcessing: false,
       error: null,
+      currentSessionId: null,
+      sessions: [],
+      isCreatingNewChat: false,
     })
 
     // Проверяем начальное состояние

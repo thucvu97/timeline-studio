@@ -1,6 +1,6 @@
 import { assign, setup } from "xstate"
 
-import { ChatMessage } from "../types/chat"
+import { ChatListItem, ChatMessage } from "../types/chat"
 
 // Интерфейс контекста машины состояний чата
 export interface ChatMachineContext {
@@ -8,6 +8,9 @@ export interface ChatMachineContext {
   selectedAgentId: string | null
   isProcessing: boolean
   error: string | null
+  currentSessionId: string | null
+  sessions: ChatListItem[]
+  isCreatingNewChat: boolean
 }
 
 // Типы событий для машины состояний чата
@@ -19,6 +22,12 @@ export type ChatMachineEvent =
   | { type: "SET_ERROR"; error: string | null }
   | { type: "CLEAR_MESSAGES" }
   | { type: "REMOVE_MESSAGE"; messageId: string }
+  | { type: "CREATE_NEW_CHAT" }
+  | { type: "NEW_CHAT_CREATED"; session: ChatListItem }
+  | { type: "LOAD_SESSION"; sessionId: string }
+  | { type: "DELETE_SESSION"; sessionId: string }
+  | { type: "SWITCH_SESSION"; sessionId: string }
+  | { type: "UPDATE_SESSIONS"; sessions: ChatListItem[] }
 
 // Начальный контекст
 const initialContext: ChatMachineContext = {
@@ -26,6 +35,9 @@ const initialContext: ChatMachineContext = {
   selectedAgentId: "claude-4-sonnet",
   isProcessing: false,
   error: null,
+  currentSessionId: null,
+  sessions: [],
+  isCreatingNewChat: false,
 }
 
 /**
@@ -115,6 +127,40 @@ export const chatMachine = setup({
         REMOVE_MESSAGE: {
           actions: assign({
             chatMessages: ({ context, event }) => context.chatMessages.filter((msg) => msg.id !== event.messageId),
+          }),
+        },
+        CREATE_NEW_CHAT: {
+          actions: assign({
+            isCreatingNewChat: true,
+            error: null,
+          }),
+        },
+        NEW_CHAT_CREATED: {
+          actions: assign({
+            isCreatingNewChat: false,
+            currentSessionId: ({ event }) => event.session.id,
+            sessions: ({ context, event }) => [event.session, ...context.sessions],
+            chatMessages: [],
+            error: null,
+          }),
+        },
+        UPDATE_SESSIONS: {
+          actions: assign({
+            sessions: ({ event }) => event.sessions,
+          }),
+        },
+        SWITCH_SESSION: {
+          actions: assign({
+            currentSessionId: ({ event }) => event.sessionId,
+            chatMessages: [], // Сообщения должны загружаться отдельно
+            error: null,
+          }),
+        },
+        DELETE_SESSION: {
+          actions: assign({
+            sessions: ({ context, event }) => context.sessions.filter(s => s.id !== event.sessionId),
+            currentSessionId: ({ context, event }) => 
+              context.currentSessionId === event.sessionId ? null : context.currentSessionId,
           }),
         },
       },
