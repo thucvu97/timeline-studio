@@ -130,7 +130,7 @@ bun run tauri build
 ### 📋 Project Documentation
 
 - **`src/features/README.md`** - overview of all features with priorities and status
-- **Language versions**: Available in 11 languages via the switcher above
+- **Language versions**: Available in 12 languages via the switcher above
 
 ## Development
 
