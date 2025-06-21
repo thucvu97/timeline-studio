@@ -50,6 +50,7 @@ jobs:
           name: frontend-coverage
           fail_ci_if_error: false
           verbose: true
+          slug: chatman-media/timeline-studio
 
   test-rust-coverage:
     name: Rust Test Coverage
@@ -112,3 +113,4 @@ jobs:
           name: rust-coverage
           fail_ci_if_error: false
           verbose: true
+          slug: chatman-media/timeline-studio
