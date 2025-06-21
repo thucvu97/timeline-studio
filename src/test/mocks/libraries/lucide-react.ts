@@ -44,6 +44,7 @@ export const CirclePause = createMockIcon("CirclePause")
 export const CirclePlay = createMockIcon("CirclePlay")
 export const Clapperboard = createMockIcon("Clapperboard")
 export const Clock = createMockIcon("Clock")
+export const Copy = createMockIcon("Copy")
 export const CopyPlus = createMockIcon("CopyPlus")
 export const Cpu = createMockIcon("Cpu")
 export const Database = createMockIcon("Database")
@@ -65,6 +66,7 @@ export const Grid2x2 = createMockIcon("Grid2x2")
 export const Grid2X2 = createMockIcon("Grid2X2")
 export const GripVerticalIcon = createMockIcon("GripVerticalIcon")
 export const HardDrive = createMockIcon("HardDrive")
+export const History = createMockIcon("History")
 export const Image = createMockIcon("Image")
 export const ImagePlay = createMockIcon("ImagePlay")
 export const Info = createMockIcon("Info")
@@ -160,6 +162,7 @@ vi.mock("lucide-react", () => ({
   CirclePlay,
   Clapperboard,
   Clock,
+  Copy,
   CopyPlus,
   Cpu,
   Database,
@@ -181,6 +184,7 @@ vi.mock("lucide-react", () => ({
   Grid2X2,
   GripVerticalIcon,
   HardDrive,
+  History,
   Image,
   ImagePlay,
   Info,

@@ -37,14 +37,29 @@ vi.mock("@/components/ui/tooltip", () => ({
   TooltipProvider: ({ children }: any) => <>{children}</>,
 }))
 
-// Mock Lucide icons
-vi.mock("lucide-react", () => ({
-  Bot: () => <span data-testid="bot-icon">Bot</span>,
-  Send: () => <span data-testid="send-icon">Send</span>,
-  SendHorizonal: () => <span data-testid="send-horizontal-icon">SendHorizonal</span>,
-  StopCircle: () => <span data-testid="stop-icon">StopCircle</span>,
-  User: () => <span data-testid="user-icon">User</span>,
+vi.mock("@/components/ui/dropdown-menu", () => ({
+  DropdownMenu: ({ children }: any) => <>{children}</>,
+  DropdownMenuContent: ({ children }: any) => <div>{children}</div>,
+  DropdownMenuItem: ({ children, onClick }: any) => <div onClick={onClick}>{children}</div>,
+  DropdownMenuTrigger: ({ children }: any) => <>{children}</>,
 }))
+
+vi.mock("@/components/ui/scroll-area", () => ({
+  ScrollArea: ({ children }: any) => <div>{children}</div>,
+}))
+
+vi.mock("@/lib/utils", () => ({
+  cn: (...args: any[]) => args.filter(Boolean).join(" "),
+}))
+
+vi.mock("../../services/chat-storage-service", () => ({
+  chatStorageService: {
+    getAllSessions: vi.fn().mockResolvedValue([]),
+    deleteSession: vi.fn().mockResolvedValue(undefined),
+  },
+}))
+
+// Lucide icons are now mocked globally in src/test/mocks/libraries/lucide-react.ts
 
 // Mock для useChat с правильной структурой
 const mockChatMessages = [
@@ -92,7 +107,7 @@ describe("AiChat Component (Simple)", () => {
   it("должен отображать поле ввода", () => {
     render(<AiChat />)
 
-    const input = screen.getByPlaceholderText("Type your message here...")
+    const input = screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions...")
     expect(input).toBeInTheDocument()
   })
 
@@ -106,7 +121,7 @@ describe("AiChat Component (Simple)", () => {
   it("должен отправлять сообщение при клике на кнопку", async () => {
     render(<AiChat />)
 
-    const input = screen.getByPlaceholderText("Type your message here...")
+    const input = screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions...")
     const sendButton = screen.getByTestId("send-icon").closest("button")!
 
     await user.type(input, "Тестовое сообщение")
@@ -120,7 +135,7 @@ describe("AiChat Component (Simple)", () => {
 
     render(<AiChat />)
 
-    const input = screen.getByPlaceholderText("Type your message here...")
+    const input = screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions...")
     expect(input).toBeDisabled()
   })
 

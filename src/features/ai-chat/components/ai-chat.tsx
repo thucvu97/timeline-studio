@@ -1,17 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { Bot, Send, SendHorizonal, StopCircle, User } from "lucide-react"
+import { Bot, ChevronDown, Copy, History, Plus, Send, Settings, StopCircle, Trash2, User, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
 import { useModal } from "@/features/modals"
 import { useUserSettings } from "@/features/user-settings"
+import { cn } from "@/lib/utils"
 
 import { useChat } from ".."
 import { CLAUDE_MODELS } from "./claude-service"
 import { AI_MODELS } from "./open-ai-service"
-import { ChatMessage } from "../types/chat"
+import { chatStorageService } from "../services/chat-storage-service"
+import { ChatListItem, ChatMessage } from "../types/chat"
 
 // Типы сообщений
 export interface AiMessage {
@@ -32,6 +41,35 @@ const AVAILABLE_AGENTS = [
   { id: AI_MODELS.O3, name: "o3", useTools: false },
 ]
 
+// Chat modes
+type ChatMode = "chat" | "gather" | "agent"
+
+const CHAT_MODES: Array<{
+  id: ChatMode
+  name: string
+  description: string
+  canEdit: boolean
+}> = [
+  {
+    id: "chat",
+    name: "Chat",
+    description: "Normal chat",
+    canEdit: false,
+  },
+  {
+    id: "gather",
+    name: "Gather",
+    description: "Reads files, but can't edit",
+    canEdit: false,
+  },
+  {
+    id: "agent",
+    name: "Agent",
+    description: "Edits files and uses tools",
+    canEdit: true,
+  },
+]
+
 export function AiChat() {
   const { t } = useTranslation()
   const {
@@ -47,8 +85,21 @@ export function AiChat() {
   const { openModal } = useModal()
 
   const [message, setMessage] = useState("")
+  const [chatMode, setChatMode] = useState<ChatMode>("agent")
+  const [chatHistory, setChatHistory] = useState<ChatListItem[]>([])
+  const [hoveredChatId, setHoveredChatId] = useState<string | null>(null)
+  const [showHistory, setShowHistory] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // Load chat history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      const sessions = await chatStorageService.getAllSessions()
+      setChatHistory(sessions)
+    }
+    void loadHistory()
+  }, [])
 
   // Прокрутка к последнему сообщению
   const scrollToBottom = useCallback(() => {
@@ -147,151 +198,348 @@ export function AiChat() {
 
   return (
     <TooltipProvider>
-      <div className="relative z-50 flex h-full min-h-[200px] flex-col bg-background text-foreground">
-        {/* Сообщения */}
-        <div className="scrollbar-thin scrollbar-thumb-gray-600 dark:scrollbar-thumb-gray-400 scrollbar-track-transparent max-h-[calc(100%-80px)] flex-1 overflow-y-auto p-2">
-          {chatMessages.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-              {t("timeline.chat.noMessages", "Нет сообщений. Начните диалог.")}
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {chatMessages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`group flex max-w-[90%] flex-col rounded-lg p-2.5 ${
-                    msg.role === "user"
-                      ? "ml-auto bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  <div className="flex items-start gap-2">
-                    <div className="mt-0.5 flex-shrink-0">
-                      {msg.role === "user" ? (
-                        <User className="h-3.5 w-3.5 opacity-80" />
-                      ) : (
-                        <Bot className="h-3.5 w-3.5 opacity-80" />
-                      )}
-                    </div>
-                    <div className="text-sm leading-relaxed">{msg.content}</div>
-                  </div>
-                  <div className="mt-1.5 text-right text-[10px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
-                    {formatTime(msg.timestamp)}
-                  </div>
-                </div>
-              ))}
-              {isProcessing && (
-                <div className="flex max-w-[90%] flex-col rounded-lg bg-muted p-2.5 text-muted-foreground">
-                  <div className="flex items-start gap-2">
-                    <div className="mt-0.5 flex-shrink-0">
-                      <Bot className="h-3.5 w-3.5 text-white/80" />
-                    </div>
-                    <div className="text-sm">
-                      <span className="inline-block animate-pulse">
-                        {t("timeline.chat.processing", "Обработка...")}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
+      <div className="relative z-50 flex h-full flex-col bg-background text-foreground">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-sm font-medium text-white">CHAT</h2>
+          <div className="flex items-center gap-1">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-muted-foreground hover:text-white"
+              onClick={() => {
+                // Create new chat
+              }}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-muted-foreground hover:text-white"
+              onClick={() => setShowHistory(!showHistory)}
+            >
+              <History className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-muted-foreground hover:text-white"
+              onClick={() => openModal("user-settings")}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-muted-foreground hover:text-white"
+              onClick={() => {
+                // Close chat panel
+              }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
-        {/* Ввод сообщения и выбор агента */}
-        <div className="sticky bottom-0 border-t border-border bg-background p-1.5">
-          <div className="relative">
-            {/* Интегрированное поле ввода с селектором модели */}
-            <div className="flex items-center gap-1">
-              <div className="relative flex-1">
+        {/* Main content area */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Input area - positioned at top when no messages */}
+          {chatMessages.length === 0 && (
+            <div className="border-b border-border p-4">
+              <div className="relative">
                 <textarea
                   ref={inputRef}
                   value={message}
                   onChange={(e) => {
                     setMessage(e.target.value)
-                    // Вызываем функцию изменения высоты при изменении текста
                     setTimeout(autoResizeTextarea, 0)
                   }}
                   onKeyDown={handleKeyDown}
-                  placeholder={t("timeline.chat.messagePlaceholder", "Type your message here...")}
-                  className="min-h-[40px] w-full resize-none rounded-md border border-input bg-background py-2 pr-10 pl-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  placeholder="@ to mention, ⌘L to add a selection. Enter instructions..."
+                  className="min-h-[100px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
+                  disabled={isProcessing}
+                  rows={4}
+                />
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!message.trim() || isProcessing}
+                  size="icon"
+                  className={cn(
+                    "absolute bottom-3 right-3 h-8 w-8 rounded-md transition-colors",
+                    message.trim()
+                      ? "bg-teal text-white hover:bg-teal/80"
+                      : "bg-muted text-muted-foreground hover:bg-muted/50"
+                  )}
+                >
+                  {isProcessing ? (
+                    <StopCircle className="h-4 w-4" />
+                  ) : (
+                    <Send className="h-4 w-4 rotate-45" />
+                  )}
+                </Button>
+              </div>
+
+              {/* Mode and model selectors */}
+              <div className="mt-3 flex gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 justify-between border-border bg-muted text-sm text-white hover:bg-accent"
+                    >
+                      {CHAT_MODES.find((m) => m.id === chatMode)?.name}
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[200px] border-border bg-muted">
+                    {CHAT_MODES.map((mode) => (
+                      <DropdownMenuItem
+                        key={mode.id}
+                        onClick={() => setChatMode(mode.id)}
+                        className="flex items-center justify-between text-foreground hover:bg-accent hover:text-white"
+                      >
+                        <div>
+                          <div className="font-medium">{mode.name}</div>
+                          <div className="text-xs text-muted-foreground/70">{mode.description}</div>
+                        </div>
+                        {chatMode === mode.id && (
+                          <div className="ml-2 h-2 w-2 rounded-full bg-teal" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 flex-1 justify-between border-border bg-muted text-sm text-white hover:bg-accent"
+                    >
+                      <span className="truncate">
+                        {selectedAgentId
+                          ? AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.name
+                          : "deepseek/deepseek-r1-zero:free"}
+                      </span>
+                      <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[250px] border-border bg-muted">
+                    {AVAILABLE_AGENTS.map((agent) => (
+                      <DropdownMenuItem
+                        key={agent.id}
+                        onClick={() => selectAgent(agent.id)}
+                        className="text-foreground hover:bg-accent hover:text-white"
+                      >
+                        {agent.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          )}
+
+          {/* Messages area */}
+          {chatMessages.length > 0 && (
+            <ScrollArea className="flex-1">
+              <div className="p-4">
+                <div className="flex flex-col gap-3">
+                  {chatMessages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={cn(
+                        "group flex max-w-[90%] flex-col rounded-lg p-3",
+                        msg.role === "user"
+                          ? "ml-auto bg-teal text-white"
+                          : "bg-muted text-foreground"
+                      )}
+                    >
+                      <div className="flex items-start gap-2">
+                        <div className="mt-0.5 flex-shrink-0">
+                          {msg.role === "user" ? (
+                            <User className="h-3.5 w-3.5" />
+                          ) : (
+                            <Bot className="h-3.5 w-3.5" />
+                          )}
+                        </div>
+                        <div className="text-sm leading-relaxed">{msg.content}</div>
+                      </div>
+                      <div className="mt-1.5 text-right text-[10px] opacity-0 transition-opacity group-hover:opacity-100">
+                        {formatTime(msg.timestamp)}
+                      </div>
+                    </div>
+                  ))}
+                  {isProcessing && (
+                    <div className="flex max-w-[90%] flex-col rounded-lg bg-muted p-3 text-gray-100">
+                      <div className="flex items-start gap-2">
+                        <div className="mt-0.5 flex-shrink-0">
+                          <Bot className="h-3.5 w-3.5" />
+                        </div>
+                        <div className="text-sm">
+                          <span className="inline-block animate-pulse">
+                            {t("timeline.chat.processing", "Обработка...")}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </div>
+            </ScrollArea>
+          )}
+
+          {/* Input area when messages exist */}
+          {chatMessages.length > 0 && (
+            <div className="border-t border-border p-4">
+              <div className="relative">
+                <textarea
+                  ref={inputRef}
+                  value={message}
+                  onChange={(e) => {
+                    setMessage(e.target.value)
+                    setTimeout(autoResizeTextarea, 0)
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder="@ to mention, ⌘L to add a selection. Enter instructions..."
+                  className="min-h-[40px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
                   disabled={isProcessing}
                   rows={1}
                 />
-
-                {/* Кнопка отправки/остановки (внутри поля ввода) */}
-                <div className="absolute top-1/2 right-2 -translate-y-1/2">
-                  {isProcessing ? (
-                    <Tooltip>
-                      <Button
-                        onClick={handleStopProcessing}
-                        size="icon"
-                        variant="ghost"
-                        className="h-6 w-6 rounded-full p-0 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                        data-tooltip-trigger=""
-                        aria-describedby="stop-tooltip"
-                      >
-                        <StopCircle className="h-4 w-4" />
-                      </Button>
-                      <TooltipContent id="stop-tooltip" side="top">
-                        <p className="text-xs">{t("timeline.chat.stop", "Остановить")}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip>
-                      <Button
-                        onClick={handleSendMessage}
-                        disabled={!message.trim()}
-                        size="icon"
-                        variant="ghost"
-                        className="h-6 w-6 rounded-full p-0 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                        data-tooltip-trigger=""
-                        aria-describedby="send-tooltip"
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
-                      <TooltipContent id="send-tooltip" side="top">
-                        <p className="text-xs">{t("timeline.chat.send", "Отправить")}</p>
-                      </TooltipContent>
-                    </Tooltip>
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!message.trim() || isProcessing}
+                  size="icon"
+                  className={cn(
+                    "absolute bottom-2 right-2 h-8 w-8 rounded-md transition-colors",
+                    message.trim()
+                      ? "bg-teal text-white hover:bg-teal/80"
+                      : "bg-muted text-muted-foreground hover:bg-muted/50"
                   )}
-                </div>
+                >
+                  {isProcessing ? (
+                    <StopCircle className="h-4 w-4" />
+                  ) : (
+                    <Send className="h-4 w-4 rotate-45" />
+                  )}
+                </Button>
+              </div>
+
+              {/* Mode and model selectors */}
+              <div className="mt-3 flex gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 justify-between border-border bg-muted text-sm text-white hover:bg-accent"
+                    >
+                      {CHAT_MODES.find((m) => m.id === chatMode)?.name}
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[200px] border-border bg-muted">
+                    {CHAT_MODES.map((mode) => (
+                      <DropdownMenuItem
+                        key={mode.id}
+                        onClick={() => setChatMode(mode.id)}
+                        className="flex items-center justify-between text-foreground hover:bg-accent hover:text-white"
+                      >
+                        <div>
+                          <div className="font-medium">{mode.name}</div>
+                          <div className="text-xs text-muted-foreground/70">{mode.description}</div>
+                        </div>
+                        {chatMode === mode.id && (
+                          <div className="ml-2 h-2 w-2 rounded-full bg-teal" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 flex-1 justify-between border-border bg-muted text-sm text-white hover:bg-accent"
+                    >
+                      <span className="truncate">
+                        {selectedAgentId
+                          ? AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.name
+                          : "deepseek/deepseek-r1-zero:free"}
+                      </span>
+                      <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[250px] border-border bg-muted">
+                    {AVAILABLE_AGENTS.map((agent) => (
+                      <DropdownMenuItem
+                        key={agent.id}
+                        onClick={() => selectAgent(agent.id)}
+                        className="text-foreground hover:bg-accent hover:text-white"
+                      >
+                        {agent.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
+          )}
 
-            {/* Селектор модели (под полем ввода) - в виде textarea */}
-            <div className="mt-1.5 flex items-center">
-              <div className="relative w-full">
-                <textarea
-                  readOnly
-                  onClick={() => {
-                    // Если API ключ не установлен, показываем диалог настроек
-                    if (!openAiApiKey) {
-                      openModal("user-settings")
-                      return
-                    }
-
-                    // Открываем выпадающий список при клике
-                    const nextAgentIndex = AVAILABLE_AGENTS.findIndex((a) => a.id === selectedAgentId) + 1
-                    const nextAgent = AVAILABLE_AGENTS[nextAgentIndex >= AVAILABLE_AGENTS.length ? 0 : nextAgentIndex]
-                    selectAgent(nextAgent.id)
-                  }}
-                  className="h-10 w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground hover:bg-accent focus:outline-none focus:ring-1 focus:ring-ring"
-                  value={
-                    selectedAgentId
-                      ? `${AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.name}${
-                        AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.useTools ? " (с инструментами)" : ""
-                      }`
-                      : `${AVAILABLE_AGENTS[0].name}${AVAILABLE_AGENTS[0].useTools ? " (с инструментами)" : ""}`
-                  }
-                />
-                <div className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
-                  <SendHorizonal />
-                </div>
+          {/* Previous threads section */}
+          {chatMessages.length === 0 && (
+            <div className="flex-1 p-4">
+              <h3 className="mb-3 text-sm font-medium text-muted-foreground">Previous Threads</h3>
+              <div className="space-y-1">
+                {chatHistory.map((chat) => (
+                  <div
+                    key={chat.id}
+                    className="group relative flex items-center justify-between rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
+                    onMouseEnter={() => setHoveredChatId(chat.id)}
+                    onMouseLeave={() => setHoveredChatId(null)}
+                  >
+                    <div className="flex-1 truncate">
+                      <div className="truncate text-foreground">{chat.title}</div>
+                      <div className="text-xs text-muted-foreground/70">
+                        {chat.lastMessageAt && formatTime(chat.lastMessageAt)}
+                      </div>
+                    </div>
+                    {hoveredChatId === chat.id && (
+                      <div className="absolute right-2 flex items-center gap-1 bg-muted">
+                        <span className="mr-2 text-xs text-muted-foreground/70">{chat.messageCount} messages</span>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6 text-muted-foreground/70 hover:text-white"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            // Copy chat
+                          }}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6 text-muted-foreground/70 hover:text-red-400"
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            await chatStorageService.deleteSession(chat.id)
+                            const sessions = await chatStorageService.getAllSessions()
+                            setChatHistory(sessions)
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </TooltipProvider>
