@@ -166,7 +166,7 @@ bun run check:all
 - ✅ **Frontend Tests**: 4318 passed
 - ✅ **Backend Tests**: 828 passed
 - ✅ **E2E Tests**: 927 passed
-- 📊 **Total**: >5,000 tests passing
+- 📊 **Total**: >6,000 tests passing
 
 ## CI/CD & Code Quality
 
