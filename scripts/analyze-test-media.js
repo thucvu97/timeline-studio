@@ -1,20 +1,18 @@
 #!/usr/bin/env node
 
-import { exec } from 'child_process'
-import { promisify } from 'util'
-import { readdir, writeFile } from 'fs/promises'
-import { join } from 'path'
+import { exec } from "child_process"
+import { readdir, writeFile } from "fs/promises"
+import { join } from "path"
+import { promisify } from "util"
 
 const execAsync = promisify(exec)
 
-const TEST_DATA_PATH = 'test-data'
-const OUTPUT_FILE = 'src-tauri/src/media/test_data.rs'
+const TEST_DATA_PATH = "test-data"
+const OUTPUT_FILE = "src-tauri/src/media/test_data.rs"
 
 async function getMediaInfo(filePath) {
   try {
-    const { stdout } = await execAsync(
-      `ffprobe -v quiet -print_format json -show_format -show_streams "${filePath}"`
-    )
+    const { stdout } = await execAsync(`ffprobe -v quiet -print_format json -show_format -show_streams "${filePath}"`)
     return JSON.parse(stdout)
   } catch (error) {
     console.error(`Error analyzing ${filePath}:`, error.message)
@@ -23,87 +21,82 @@ async function getMediaInfo(filePath) {
 }
 
 async function analyzeTestMedia() {
-  console.log('🔍 Analyzing test media files...\n')
-  
+  console.log("🔍 Analyzing test media files...\n")
+
   const files = await readdir(TEST_DATA_PATH)
-  const mediaFiles = files.filter(f => 
-    /\.(mp4|MP4|png|jpg|jpeg|wav|WAV|mp3)$/i.test(f)
-  )
-  
+  const mediaFiles = files.filter((f) => /\.(mp4|MP4|png|jpg|jpeg|wav|WAV|mp3)$/i.test(f))
+
   const results = []
-  
+
   for (const file of mediaFiles) {
     const filePath = join(TEST_DATA_PATH, file)
     console.log(`📊 Analyzing: ${file}`)
-    
+
     const info = await getMediaInfo(filePath)
     if (!info) continue
-    
+
     const format = info.format
-    const videoStream = info.streams?.find(s => s.codec_type === 'video')
-    const audioStream = info.streams?.find(s => s.codec_type === 'audio')
-    
+    const videoStream = info.streams?.find((s) => s.codec_type === "video")
+    const audioStream = info.streams?.find((s) => s.codec_type === "audio")
+
     const metadata = {
       filename: file,
       format_name: format.format_name,
-      duration: parseFloat(format.duration || '0'),
-      size: parseInt(format.size || '0'),
-      bit_rate: parseInt(format.bit_rate || '0'),
-      
+      duration: Number.parseFloat(format.duration || "0"),
+      size: Number.parseInt(format.size || "0"),
+      bit_rate: Number.parseInt(format.bit_rate || "0"),
+
       // Video properties
       has_video: !!videoStream,
       video_codec: videoStream?.codec_name,
       width: videoStream?.width,
       height: videoStream?.height,
       fps: videoStream?.r_frame_rate,
-      video_bit_rate: parseInt(videoStream?.bit_rate || '0'),
-      
+      video_bit_rate: Number.parseInt(videoStream?.bit_rate || "0"),
+
       // Audio properties
       has_audio: !!audioStream,
       audio_codec: audioStream?.codec_name,
-      sample_rate: parseInt(audioStream?.sample_rate || '0'),
+      sample_rate: Number.parseInt(audioStream?.sample_rate || "0"),
       channels: audioStream?.channels,
-      audio_bit_rate: parseInt(audioStream?.bit_rate || '0'),
-      
+      audio_bit_rate: Number.parseInt(audioStream?.bit_rate || "0"),
+
       // Special properties
-      is_360: file.includes('INSV') || (format.tags?.['spherical'] === 'true'),
+      is_360: file.includes("INSV") || format.tags?.spherical === "true",
       has_cyrillic: /[а-яА-Я]/.test(file),
     }
-    
+
     results.push(metadata)
-    
+
     // Print summary
     console.log(`  Format: ${metadata.format_name}`)
     console.log(`  Duration: ${metadata.duration.toFixed(2)}s`)
     console.log(`  Size: ${(metadata.size / 1024 / 1024).toFixed(2)} MB`)
-    
+
     if (metadata.has_video) {
       console.log(`  Video: ${metadata.width}x${metadata.height} @ ${metadata.fps} fps (${metadata.video_codec})`)
     }
-    
+
     if (metadata.has_audio) {
       console.log(`  Audio: ${metadata.sample_rate}Hz ${metadata.channels}ch (${metadata.audio_codec})`)
     }
-    
-    console.log('')
+
+    console.log("")
   }
-  
+
   // Generate Rust test data module
   await generateRustTestData(results)
-  
+
   // Save JSON for reference
   try {
-    await writeFile(
-      'test-data/media-metadata.json',
-      JSON.stringify(results, null, 2)
-    )
+    await writeFile("test-data/media-metadata.json", JSON.stringify(results, null, 2))
   } catch (error) {
-    console.warn('Warning: Could not save JSON metadata:', error.message)
+    console.warn("Warning: Could not save JSON metadata:", error.message)
   }
-  
-  console.log('✅ Analysis complete!')
+
+  console.log("✅ Analysis complete!")
   console.log(`📄 Rust test data generated: ${OUTPUT_FILE}`)
-  console.log(`📄 JSON metadata saved: test-data/media-metadata.json`)
+  console.log("📄 JSON metadata saved: test-data/media-metadata.json")
 }
 
 async function generateRustTestData(metadata) {
@@ -155,7 +148,9 @@ pub mod test_data {
     
     lazy_static::lazy_static! {
         pub static ref TEST_FILES: Vec<TestMediaFile> = vec![
-${metadata.map(m => `            TestMediaFile {
+${metadata
+  .map(
+    (m) => `            TestMediaFile {
                 filename: "${m.filename}",
                 path: PathBuf::new(),
                 format_name: "${m.format_name}",
@@ -164,21 +159,23 @@ ${metadata.map(m => `            TestMediaFile {
                 bit_rate: ${m.bit_rate},
                 
                 has_video: ${m.has_video},
-                video_codec: ${m.video_codec ? `Some("${m.video_codec}")` : 'None'},
-                width: ${m.width ? `Some(${m.width})` : 'None'},
-                height: ${m.height ? `Some(${m.height})` : 'None'},
-                fps: ${m.fps ? `Some("${m.fps}")` : 'None'},
+                video_codec: ${m.video_codec ? `Some("${m.video_codec}")` : "None"},
+                width: ${m.width ? `Some(${m.width})` : "None"},
+                height: ${m.height ? `Some(${m.height})` : "None"},
+                fps: ${m.fps ? `Some("${m.fps}")` : "None"},
                 video_bit_rate: ${m.video_bit_rate},
                 
                 has_audio: ${m.has_audio},
-                audio_codec: ${m.audio_codec ? `Some("${m.audio_codec}")` : 'None'},
+                audio_codec: ${m.audio_codec ? `Some("${m.audio_codec}")` : "None"},
                 sample_rate: ${m.sample_rate},
-                channels: ${m.channels ? `Some(${m.channels})` : 'None'},
+                channels: ${m.channels ? `Some(${m.channels})` : "None"},
                 audio_bit_rate: ${m.audio_bit_rate},
                 
                 is_360: ${m.is_360},
                 has_cyrillic: ${m.has_cyrillic},
-            },`).join('\n')}
+            },`,
+  )
+  .join("\n")}
         ];
         
         pub static ref VIDEO_FILES: Vec<&'static TestMediaFile> = TEST_FILES
@@ -265,7 +262,7 @@ mod tests {
     }
 }
 `
-  
+
   await writeFile(OUTPUT_FILE, rustCode)
 }
 

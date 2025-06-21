@@ -29,9 +29,7 @@
       "assetProtocol": {
         "enable": true,
         "scope": {
-          "allow": [
-            "**"
-          ]
+          "allow": ["**"]
         }
       }
     }
@@ -44,9 +42,7 @@
     "window": {
       "label": {
         "main": {
-          "permissions": [
-            "all"
-          ]
+          "permissions": ["all"]
         }
       }
     }
@@ -54,13 +50,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
     "publisher": "Chatman Media",
     "copyright": "© 2025 Chatman Media",
     "category": "Video",

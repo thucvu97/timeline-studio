@@ -123,7 +123,6 @@ export function createWebAudioMocks() {
   }))
 
   // Добавляем статический метод
-
   ;(mockMediaRecorder as any).isTypeSupported = vi.fn().mockReturnValue(true)
 
   return {

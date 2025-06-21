@@ -44,9 +44,9 @@ describe("useEffects hooks", () => {
       isReady: true,
     })
 
-    const mockUseEffectById = (id: string) => null
-    const mockUseEffectsByCategory = (category: string) => []
-    const mockUseEffectsSearch = (query: string, lang?: "ru" | "en") => []
+    const mockUseEffectById = (_id: string) => null
+    const mockUseEffectsByCategory = (_category: string) => []
+    const mockUseEffectsSearch = (_query: string, _lang?: "ru" | "en") => []
 
     expect(typeof mockUseEffects).toBe("function")
     expect(typeof mockUseEffectById).toBe("function")

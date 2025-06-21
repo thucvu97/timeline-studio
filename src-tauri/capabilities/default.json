@@ -2,10 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "enables the default permissions",
-  "windows": [
-    "main",
-    "second-window"
-  ],
+  "windows": ["main", "second-window"],
   "permissions": [
     "core:default",
     "core:window:default",

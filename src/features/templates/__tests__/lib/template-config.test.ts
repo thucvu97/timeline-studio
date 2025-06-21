@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest"
 import {
   CellConfiguration,
   DividerConfig,
-  LayoutConfig,
   MediaTemplate,
   MediaTemplateConfig,
   PRESET_STYLES,
@@ -71,10 +70,7 @@ describe("Template Configuration Types", () => {
         screens: 2,
         resizable: true,
         splitPosition: 50,
-        cells: [
-          { background: { color: "#ff0000" } },
-          { background: { color: "#00ff00" } },
-        ],
+        cells: [{ background: { color: "#ff0000" } }, { background: { color: "#00ff00" } }],
         gridConfig: {
           columns: 2,
           rows: 1,
@@ -233,7 +229,7 @@ describe("createCellConfig", () => {
   })
 
   it("should generate correct cell numbers", () => {
-    const configs = [0, 1, 2, 3, 4].map(i => createCellConfig(i))
+    const configs = [0, 1, 2, 3, 4].map((i) => createCellConfig(i))
 
     expect(configs[0].title?.text).toBe("1")
     expect(configs[1].title?.text).toBe("2")
@@ -310,15 +306,9 @@ describe("Type compatibility", () => {
   })
 
   it("should support all split types", () => {
-    const splitTypes: Array<MediaTemplateConfig["split"]> = [
-      "vertical",
-      "horizontal",
-      "diagonal",
-      "custom",
-      "grid",
-    ]
+    const splitTypes: Array<MediaTemplateConfig["split"]> = ["vertical", "horizontal", "diagonal", "custom", "grid"]
 
-    splitTypes.forEach(splitType => {
+    splitTypes.forEach((splitType) => {
       const config: MediaTemplateConfig = {
         id: `test-${splitType}`,
         split: splitType,
@@ -332,7 +322,7 @@ describe("Type compatibility", () => {
   it("should support all cell fit modes", () => {
     const fitModes: Array<CellConfiguration["fitMode"]> = ["contain", "cover", "fill"]
 
-    fitModes.forEach(fitMode => {
+    fitModes.forEach((fitMode) => {
       const config: CellConfiguration = {
         fitMode,
       }

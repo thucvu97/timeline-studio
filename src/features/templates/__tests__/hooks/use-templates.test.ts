@@ -10,9 +10,7 @@ vi.mock("../../lib/templates", () => ({
       { id: "template-1", screens: 2, split: "vertical" },
       { id: "template-2", screens: 4, split: "grid" },
     ],
-    portrait: [
-      { id: "template-3", screens: 2, split: "horizontal" },
-    ],
+    portrait: [{ id: "template-3", screens: 2, split: "horizontal" }],
     square: [
       { id: "template-4", screens: 4, split: "grid" },
       { id: "template-5", screens: 9, split: "grid" },
@@ -42,9 +40,7 @@ describe("useTemplates", () => {
         { id: "template-1", screens: 2, split: "vertical" },
         { id: "template-2", screens: 4, split: "grid" },
       ],
-      portrait: [
-        { id: "template-3", screens: 2, split: "horizontal" },
-      ],
+      portrait: [{ id: "template-3", screens: 2, split: "horizontal" }],
       square: [
         { id: "template-4", screens: 4, split: "grid" },
         { id: "template-5", screens: 9, split: "grid" },
@@ -67,7 +63,7 @@ describe("useTemplates", () => {
   })
 
   it("should handle empty template categories", () => {
-    // Note: vi.doMock doesn't work the same way as vi.mock, 
+    // Note: vi.doMock doesn't work the same way as vi.mock,
     // so this test verifies the mock is working correctly
     const { result } = renderHook(() => useTemplates())
 
@@ -90,7 +86,7 @@ describe("useTemplates", () => {
     const { result } = renderHook(() => useTemplates())
 
     // Test that all templates are included regardless of their properties
-    const allIds = result.current.templates.map(t => t.id)
+    const allIds = result.current.templates.map((t) => t.id)
     expect(allIds).toContain("template-1")
     expect(allIds).toContain("template-2")
     expect(allIds).toContain("template-3")
@@ -101,7 +97,7 @@ describe("useTemplates", () => {
   it("should maintain template object references", () => {
     const { result } = renderHook(() => useTemplates())
 
-    const templateFromAll = result.current.templates.find(t => t.id === "template-1")
+    const templateFromAll = result.current.templates.find((t) => t.id === "template-1")
     const templateFromCategory = result.current.templatesByCategory.landscape[0]
     const templateFromGetter = result.current.getTemplateById("template-1")
 

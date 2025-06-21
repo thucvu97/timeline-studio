@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { ChevronDown, ChevronRight, Folder, Info } from "lucide-react"
+import { ChevronDown, ChevronRight, Folder } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -11,13 +11,12 @@ import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { OutputFormat } from "@/types/video-compiler"
 
 import { ExportPresets } from "./export-presets"
-import { FORMAT_OPTIONS, FRAME_RATE_OPTIONS, QUALITY_PRESETS, RESOLUTION_PRESETS } from "../constants/export-constants"
+import { FORMAT_OPTIONS, FRAME_RATE_OPTIONS, RESOLUTION_PRESETS } from "../constants/export-constants"
 import { ExportProgress, ExportSettings } from "../types/export-types"
 
 interface DetailedExportInterfaceProps {
@@ -224,7 +223,7 @@ export function DetailedExportInterface({
                 <Label>{t("dialogs.export.codec")}</Label>
                 <Select
                   value={settings.format === OutputFormat.Mov ? "prores" : "h264"}
-                  onValueChange={(value) => {
+                  onValueChange={(_value) => {
                     // Кодек определяется форматом в наших пресетах
                   }}
                   disabled={isRendering}
@@ -234,9 +233,7 @@ export function DetailedExportInterface({
                   </SelectTrigger>
                   <SelectContent>
                     {settings.format === OutputFormat.Mov ? (
-                      <>
-                        <SelectItem value="prores">Apple ProRes</SelectItem>
-                      </>
+                      <SelectItem value="prores">Apple ProRes</SelectItem>
                     ) : (
                       <>
                         <SelectItem value="h264">H.264</SelectItem>

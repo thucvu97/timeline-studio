@@ -17,12 +17,8 @@ export const TEST_FILES = {
     { name: "water play3.mp4", path: `${TEST_DATA_PATH}/water play3.mp4` },
     { name: "проводка после лобби.mp4", path: `${TEST_DATA_PATH}/проводка после лобби.mp4` },
   ],
-  images: [
-    { name: "DSC07845.png", path: `${TEST_DATA_PATH}/DSC07845.png` },
-  ],
-  audio: [
-    { name: "DJI_02_20250402_104352.WAV", path: `${TEST_DATA_PATH}/DJI_02_20250402_104352.WAV` },
-  ],
+  images: [{ name: "DSC07845.png", path: `${TEST_DATA_PATH}/DSC07845.png` }],
+  audio: [{ name: "DJI_02_20250402_104352.WAV", path: `${TEST_DATA_PATH}/DJI_02_20250402_104352.WAV` }],
 }
 
 // Получить все медиафайлы

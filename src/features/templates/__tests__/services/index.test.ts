@@ -14,21 +14,21 @@ describe("Services Index Exports", () => {
   it("should have all expected service exports", async () => {
     const module = await import("../../services/index")
     const exports = Object.keys(module)
-    
+
     expect(exports).toContain("getVideoStyleForTemplate")
   })
 
   it("should export only functions from services", async () => {
     const module = await import("../../services/index")
-    
-    Object.entries(module).forEach(([key, value]) => {
+
+    Object.entries(module).forEach(([_key, value]) => {
       expect(typeof value).toBe("function")
     })
   })
 
   it("should maintain proper service export structure", async () => {
     const module = await import("../../services/index")
-    
+
     // All exports should be defined
     Object.entries(module).forEach(([key, value]) => {
       expect(value).toBeDefined()
@@ -38,7 +38,7 @@ describe("Services Index Exports", () => {
 
   it("should export video style calculation function", async () => {
     const module = await import("../../services/index")
-    
+
     expect(module.getVideoStyleForTemplate).toBeDefined()
     expect(typeof module.getVideoStyleForTemplate).toBe("function")
   })
@@ -46,7 +46,7 @@ describe("Services Index Exports", () => {
   it("should have minimal service exports (current implementation)", async () => {
     const module = await import("../../services/index")
     const exports = Object.keys(module)
-    
+
     // Currently only one service function
     expect(exports).toHaveLength(1)
     expect(exports[0]).toBe("getVideoStyleForTemplate")

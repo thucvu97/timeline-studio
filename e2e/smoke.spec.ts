@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test.describe("Smoke Tests", () => {
   test("application loads without errors", async ({ page }) => {
@@ -15,7 +15,7 @@ test.describe("Smoke Tests", () => {
     const criticalErrors = errors.filter(
       (error) =>
         !error.includes("Cannot read properties of null") && // Временно игнорируем эти ошибки
-        !error.includes("Cannot read properties of undefined")
+        !error.includes("Cannot read properties of undefined"),
     )
     expect(criticalErrors).toHaveLength(0)
 
@@ -34,7 +34,7 @@ test.describe("Smoke Tests", () => {
     // По умолчанию в браузере есть вкладки: Media, Effects, Transitions и т.д.
     const tabs = page.locator('[role="tablist"]').first()
     await expect(tabs).toBeVisible()
-    
+
     // Проверяем наличие вкладок
     const mediaTab = tabs.locator('[role="tab"]').filter({ hasText: /media/i })
     await expect(mediaTab).toBeVisible()

@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
     if (!isServer) {
       config.devtool = "source-map"
     }
-    
+
     // Generate webpack stats for bundle analysis
     if (process.env.ANALYZE === "true") {
       config.stats = {
@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
         chunkGroups: true,
       }
     }
-    
+
     return config
   },
   experimental: {

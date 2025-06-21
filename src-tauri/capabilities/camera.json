@@ -2,8 +2,6 @@
   "identifier": "camera-permissions",
   "description": "Permissions for camera and microphone access",
   "windows": ["main"],
-  "permissions": [
-    "core:default"
-  ],
+  "permissions": ["core:default"],
   "platforms": ["macOS", "windows", "linux"]
 }

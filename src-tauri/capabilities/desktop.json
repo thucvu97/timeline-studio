@@ -1,14 +1,7 @@
 {
   "identifier": "desktop-capability",
-  "platforms": [
-    "macOS",
-    "windows",
-    "linux"
-  ],
-  "windows": [
-    "main",
-    "second-window"
-  ],
+  "platforms": ["macOS", "windows", "linux"],
+  "windows": ["main", "second-window"],
   "permissions": [
     "store:default",
     "core:default",

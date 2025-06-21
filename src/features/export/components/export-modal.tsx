@@ -22,18 +22,18 @@ import { SocialExportSettings } from "../types/export-types"
 // Helper function to convert format string to OutputFormat enum
 const formatToOutputFormat = (format: string): OutputFormat => {
   const formatMap: Record<string, OutputFormat> = {
-    "mp4": OutputFormat.Mp4,
-    "avi": OutputFormat.Avi,
-    "mov": OutputFormat.Mov,
-    "mkv": OutputFormat.Mkv,
-    "webm": OutputFormat.WebM,
-    "gif": OutputFormat.Gif,
-    "Mp4": OutputFormat.Mp4,
-    "Avi": OutputFormat.Avi,
-    "Mov": OutputFormat.Mov,
-    "Mkv": OutputFormat.Mkv,
-    "WebM": OutputFormat.WebM,
-    "Gif": OutputFormat.Gif,
+    mp4: OutputFormat.Mp4,
+    avi: OutputFormat.Avi,
+    mov: OutputFormat.Mov,
+    mkv: OutputFormat.Mkv,
+    webm: OutputFormat.WebM,
+    gif: OutputFormat.Gif,
+    Mp4: OutputFormat.Mp4,
+    Avi: OutputFormat.Avi,
+    Mov: OutputFormat.Mov,
+    Mkv: OutputFormat.Mkv,
+    WebM: OutputFormat.WebM,
+    Gif: OutputFormat.Gif,
   }
   return formatMap[format] || OutputFormat.Mp4
 }
@@ -44,9 +44,9 @@ const qualityToNumber = (quality: string | number): number => {
     return quality
   }
   const qualityMap: Record<string, number> = {
-    "normal": 70,
-    "good": 85,
-    "best": 95,
+    normal: 70,
+    good: 85,
+    best: 95,
   }
   return qualityMap[quality] || 70
 }

@@ -2,11 +2,11 @@
 
 import { ReactNode } from "react"
 
-import { TauriMockProvider } from "@/features/media-studio/services/tauri-mock-provider"
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AppSettingsProvider } from "@/features/app-state"
 import { BrowserStateProvider } from "@/features/browser"
 import { ShortcutsProvider } from "@/features/keyboard-shortcuts"
+import { TauriMockProvider } from "@/features/media-studio/services/tauri-mock-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings"
 import { ResourcesProvider } from "@/features/resources/services/resources-provider"

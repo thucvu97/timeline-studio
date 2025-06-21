@@ -1,11 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import {
-  PRESET_STYLES,
-  TEMPLATE_MAP,
-  createCellConfig,
-  createDividerConfig,
-} from "../../lib/templates"
+import { PRESET_STYLES, TEMPLATE_MAP, createCellConfig, createDividerConfig } from "../../lib/templates"
 
 // Mock the template preview components
 vi.mock("../../components/template-previews/landscape-templates", () => ({
@@ -59,8 +54,8 @@ describe("Templates Module", () => {
     })
 
     it("should have templates with required properties", () => {
-      Object.values(TEMPLATE_MAP).forEach(templates => {
-        templates.forEach(template => {
+      Object.values(TEMPLATE_MAP).forEach((templates) => {
+        templates.forEach((template) => {
           expect(template).toHaveProperty("id")
           expect(template).toHaveProperty("split")
           expect(template).toHaveProperty("screens")
@@ -73,17 +68,17 @@ describe("Templates Module", () => {
 
     it("should have valid split types", () => {
       const validSplitTypes = ["vertical", "horizontal", "diagonal", "custom", "grid"]
-      
-      Object.values(TEMPLATE_MAP).forEach(templates => {
-        templates.forEach(template => {
+
+      Object.values(TEMPLATE_MAP).forEach((templates) => {
+        templates.forEach((template) => {
           expect(validSplitTypes).toContain(template.split)
         })
       })
     })
 
     it("should have valid screen counts", () => {
-      Object.values(TEMPLATE_MAP).forEach(templates => {
-        templates.forEach(template => {
+      Object.values(TEMPLATE_MAP).forEach((templates) => {
+        templates.forEach((template) => {
           expect(template.screens).toBeGreaterThan(0)
           expect(Number.isInteger(template.screens)).toBe(true)
         })
@@ -92,12 +87,12 @@ describe("Templates Module", () => {
 
     it("should have unique IDs across all categories", () => {
       const allIds: string[] = []
-      Object.values(TEMPLATE_MAP).forEach(templates => {
-        templates.forEach(template => {
+      Object.values(TEMPLATE_MAP).forEach((templates) => {
+        templates.forEach((template) => {
           allIds.push(template.id)
         })
       })
-      
+
       const uniqueIds = new Set(allIds)
       expect(uniqueIds.size).toBe(allIds.length)
     })
@@ -108,7 +103,7 @@ describe("Templates Module", () => {
       it("should be re-exported and functional", () => {
         expect(createCellConfig).toBeDefined()
         expect(typeof createCellConfig).toBe("function")
-        
+
         const config = createCellConfig(0)
         expect(config).toBeDefined()
         expect(config.title?.text).toBe("1")
@@ -117,7 +112,7 @@ describe("Templates Module", () => {
       it("should create different configs for different indices", () => {
         const config0 = createCellConfig(0)
         const config1 = createCellConfig(1)
-        
+
         expect(config0.background?.color).toBe("#23262b")
         expect(config1.background?.color).toBe("#2a2e36")
       })
@@ -127,7 +122,7 @@ describe("Templates Module", () => {
       it("should be re-exported and functional", () => {
         expect(createDividerConfig).toBeDefined()
         expect(typeof createDividerConfig).toBe("function")
-        
+
         const config = createDividerConfig()
         expect(config).toBeDefined()
         expect(config.show).toBe(true)
@@ -136,7 +131,7 @@ describe("Templates Module", () => {
       it("should support different presets", () => {
         const defaultConfig = createDividerConfig("default")
         const dashedConfig = createDividerConfig("dashed")
-        
+
         expect(defaultConfig.style).toBe("solid")
         expect(dashedConfig.style).toBe("dashed")
       })
@@ -153,7 +148,7 @@ describe("Templates Module", () => {
       it("should contain expected cell presets", () => {
         expect(PRESET_STYLES.cell.default).toBeDefined()
         expect(PRESET_STYLES.cell.alternate).toBeDefined()
-        
+
         expect(PRESET_STYLES.cell.default.background?.color).toBe("#23262b")
         expect(PRESET_STYLES.cell.alternate.background?.color).toBe("#2a2e36")
       })
@@ -179,13 +174,10 @@ describe("Templates Module", () => {
     })
 
     it("should have reasonable distribution across categories", () => {
-      const totalTemplates = 
-        TEMPLATE_MAP.landscape.length + 
-        TEMPLATE_MAP.portrait.length + 
-        TEMPLATE_MAP.square.length
-      
+      const totalTemplates = TEMPLATE_MAP.landscape.length + TEMPLATE_MAP.portrait.length + TEMPLATE_MAP.square.length
+
       expect(totalTemplates).toBeGreaterThan(5)
-      
+
       // Each category should have at least 1 template
       expect(TEMPLATE_MAP.landscape.length).toBeGreaterThanOrEqual(1)
       expect(TEMPLATE_MAP.portrait.length).toBeGreaterThanOrEqual(1)
@@ -194,27 +186,27 @@ describe("Templates Module", () => {
 
     it("should have variety in split types per category", () => {
       // Landscape should have multiple split types
-      const landscapeSplits = new Set(TEMPLATE_MAP.landscape.map(t => t.split))
+      const landscapeSplits = new Set(TEMPLATE_MAP.landscape.map((t) => t.split))
       expect(landscapeSplits.size).toBeGreaterThan(1)
-      
+
       // Portrait should have multiple split types
-      const portraitSplits = new Set(TEMPLATE_MAP.portrait.map(t => t.split))
+      const portraitSplits = new Set(TEMPLATE_MAP.portrait.map((t) => t.split))
       expect(portraitSplits.size).toBeGreaterThan(0)
-      
+
       // Square should have multiple split types
-      const squareSplits = new Set(TEMPLATE_MAP.square.map(t => t.split))
+      const squareSplits = new Set(TEMPLATE_MAP.square.map((t) => t.split))
       expect(squareSplits.size).toBeGreaterThan(0)
     })
 
     it("should have variety in screen counts per category", () => {
       // Check that we have different screen counts
       const allScreenCounts = new Set()
-      Object.values(TEMPLATE_MAP).forEach(templates => {
-        templates.forEach(template => {
+      Object.values(TEMPLATE_MAP).forEach((templates) => {
+        templates.forEach((template) => {
           allScreenCounts.add(template.screens)
         })
       })
-      
+
       expect(allScreenCounts.size).toBeGreaterThan(1)
       expect(allScreenCounts).toContain(2) // Basic splits
       expect(allScreenCounts).toContain(4) // Grid templates
@@ -224,24 +216,24 @@ describe("Templates Module", () => {
   describe("Template Consistency", () => {
     it("should have consistent ID patterns within categories", () => {
       // Landscape templates should start with category prefix
-      TEMPLATE_MAP.landscape.forEach(template => {
+      TEMPLATE_MAP.landscape.forEach((template) => {
         expect(template.id).toMatch(/^landscape-/)
       })
-      
-      // Portrait templates should start with category prefix  
-      TEMPLATE_MAP.portrait.forEach(template => {
+
+      // Portrait templates should start with category prefix
+      TEMPLATE_MAP.portrait.forEach((template) => {
         expect(template.id).toMatch(/^portrait-/)
       })
-      
+
       // Square templates should start with category prefix
-      TEMPLATE_MAP.square.forEach(template => {
+      TEMPLATE_MAP.square.forEach((template) => {
         expect(template.id).toMatch(/^square-/)
       })
     })
 
     it("should have render functions for all templates", () => {
-      Object.values(TEMPLATE_MAP).forEach(templates => {
-        templates.forEach(template => {
+      Object.values(TEMPLATE_MAP).forEach((templates) => {
+        templates.forEach((template) => {
           if (template.render) {
             expect(typeof template.render).toBe("function")
           }
@@ -250,8 +242,8 @@ describe("Templates Module", () => {
     })
 
     it("should have consistent screen count ranges", () => {
-      Object.values(TEMPLATE_MAP).forEach(templates => {
-        templates.forEach(template => {
+      Object.values(TEMPLATE_MAP).forEach((templates) => {
+        templates.forEach((template) => {
           expect(template.screens).toBeGreaterThanOrEqual(1)
           expect(template.screens).toBeLessThanOrEqual(25) // Reasonable upper limit
         })
@@ -272,27 +264,27 @@ describe("Templates Module", () => {
       const landscapeKey: keyof typeof TEMPLATE_MAP = "landscape"
       const portraitKey: keyof typeof TEMPLATE_MAP = "portrait"
       const squareKey: keyof typeof TEMPLATE_MAP = "square"
-      
+
       expect(TEMPLATE_MAP[landscapeKey]).toBeDefined()
       expect(TEMPLATE_MAP[portraitKey]).toBeDefined()
       expect(TEMPLATE_MAP[squareKey]).toBeDefined()
     })
 
     it("should have properly typed template properties", () => {
-      Object.values(TEMPLATE_MAP).forEach(templates => {
-        templates.forEach(template => {
+      Object.values(TEMPLATE_MAP).forEach((templates) => {
+        templates.forEach((template) => {
           // Check string properties
           expect(typeof template.id).toBe("string")
           expect(typeof template.split).toBe("string")
-          
+
           // Check number properties
           expect(typeof template.screens).toBe("number")
-          
+
           // Check optional properties
           if (template.resizable !== undefined) {
             expect(typeof template.resizable).toBe("boolean")
           }
-          
+
           if (template.splitPosition !== undefined) {
             expect(typeof template.splitPosition).toBe("number")
           }

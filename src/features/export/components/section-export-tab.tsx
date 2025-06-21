@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 
 import type { ExportSettings } from "../types/export-types"
@@ -80,7 +79,7 @@ export function SectionExportTab({ defaultSettings, onExport }: SectionExportTab
         },
         {
           id: "clip-2",
-          name: "Demo Clip 2", 
+          name: "Demo Clip 2",
           startTime: 15,
           endTime: 30,
           includeInExport: true,
@@ -154,7 +153,6 @@ export function SectionExportTab({ defaultSettings, onExport }: SectionExportTab
           bitrateMode: "vbr",
           quality: "good",
         }
-      case "final":
       default:
         return defaultSettings
     }

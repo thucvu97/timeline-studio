@@ -50,7 +50,7 @@ vi.mock("@/features/resources", () => ({
 
 describe("ResourcesPanel", () => {
   const mockRemoveResource = vi.fn()
-  
+
   const mockResources = {
     effectResources: [
       {
@@ -346,12 +346,12 @@ describe("ResourcesPanel", () => {
       // Delete buttons should exist but be hidden initially (opacity-0)
       const deleteButtons = screen.getAllByTestId("x-icon")
       expect(deleteButtons.length).toBeGreaterThan(0)
-      
+
       // Check that delete buttons have the parent button element
-      deleteButtons.forEach(icon => {
-        const button = icon.closest('button')
+      deleteButtons.forEach((icon) => {
+        const button = icon.closest("button")
         expect(button).toBeInTheDocument()
-        expect(button).toHaveClass('opacity-0')
+        expect(button).toHaveClass("opacity-0")
       })
     })
 
@@ -359,13 +359,13 @@ describe("ResourcesPanel", () => {
       const { container } = render(<ResourcesPanel />)
 
       // Find first resource delete button
-      const firstDeleteButton = container.querySelector('button.opacity-0')
+      const firstDeleteButton = container.querySelector("button.opacity-0")
       expect(firstDeleteButton).toBeInTheDocument()
 
       // Click the delete button
       if (firstDeleteButton) {
         firstDeleteButton.click()
-        
+
         // Should have called removeResource with the correct ID
         expect(mockRemoveResource).toHaveBeenCalledTimes(1)
         expect(mockRemoveResource).toHaveBeenCalledWith("effect-1")
@@ -378,14 +378,14 @@ describe("ResourcesPanel", () => {
       // Find all delete buttons
       const deleteButtons = screen.getAllByTestId("x-icon")
       expect(deleteButtons.length).toBeGreaterThan(0)
-      
+
       // Get the parent button of the first X icon
-      const firstDeleteButton = deleteButtons[0].closest('button')
+      const firstDeleteButton = deleteButtons[0].closest("button")
       expect(firstDeleteButton).toBeInTheDocument()
-      
+
       // Reset mock
       mockRemoveResource.mockClear()
-      
+
       // Click should work
       if (firstDeleteButton) {
         firstDeleteButton.click()

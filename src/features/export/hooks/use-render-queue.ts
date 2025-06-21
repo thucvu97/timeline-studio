@@ -4,14 +4,7 @@ import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
 
 import { ProjectFileService } from "@/features/app-state/services/project-file-service"
-import {
-  AspectRatio,
-  OutputFormat,
-  ProjectSchema,
-  RenderJob,
-  RenderProgress,
-  RenderStatus,
-} from "@/types/video-compiler"
+import { AspectRatio, OutputFormat, ProjectSchema, RenderJob, RenderStatus } from "@/types/video-compiler"
 
 interface UseRenderQueueReturn {
   // Состояние очереди

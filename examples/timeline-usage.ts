@@ -5,23 +5,22 @@
  */
 
 import {
+  createTimelineClip,
   createTimelineProject,
   createTimelineSection,
   createTimelineTrack,
-  createTimelineClip,
   TimelineProject,
   TrackType,
 } from "../src/features/timeline/types"
 
 import {
   calculateProjectDuration,
-  getAllTracks,
-  getAllClips,
-  findSectionAtTime,
   canPlaceClipOnTrack,
+  findSectionAtTime,
+  getAllClips,
+  getAllTracks,
   secondsToTimecode,
   snapToGrid,
-  getSelectedClips,
   validateProject,
 } from "../src/features/timeline/utils/utils"
 

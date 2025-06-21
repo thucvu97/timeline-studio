@@ -29,9 +29,7 @@ vi.mock("@/components/ui/resizable", () => ({
       {children}
     </div>
   ),
-  ResizableHandle: ({ className }: any) => (
-    <div data-testid="resizable-handle" className={className} />
-  ),
+  ResizableHandle: ({ className }: any) => <div data-testid="resizable-handle" className={className} />,
 }))
 
 // Мокаем VideoPanelComponent
@@ -54,9 +52,9 @@ describe("ResizableTemplate", () => {
     mockUsePlayer.mockReturnValue({
       isResizableMode: false,
     })
-    
+
     // Сбрасываем моки DOM API
-    Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
+    Object.defineProperty(HTMLElement.prototype, "getBoundingClientRect", {
       configurable: true,
       value: vi.fn(() => ({
         width: 1000,
@@ -255,11 +253,11 @@ describe("ResizableTemplate", () => {
       // Проверяем, что рендерится ResizablePanelGroup
       expect(screen.getByTestId("resizable-panel-group")).toBeInTheDocument()
       expect(screen.getByTestId("resizable-panel-group")).toHaveAttribute("data-direction", "horizontal")
-      
+
       // Проверяем, что есть ResizablePanel'ы
       const panels = screen.getAllByTestId("resizable-panel")
       expect(panels).toHaveLength(2)
-      
+
       // Проверяем, что есть ResizableHandle
       expect(screen.getByTestId("resizable-handle")).toBeInTheDocument()
     })
@@ -368,15 +366,15 @@ describe("ResizableTemplate", () => {
       )
 
       // Проверяем, что есть SVG элемент
-      const svgElement = document.querySelector('svg')
+      const svgElement = document.querySelector("svg")
       expect(svgElement).toBeInTheDocument()
-      
+
       // Проверяем, что есть circle элементы для drag точек
-      const circles = document.querySelectorAll('circle')
+      const circles = document.querySelectorAll("circle")
       expect(circles).toHaveLength(2)
-      
+
       // Проверяем, что есть line элемент для перетаскивания диагонали
-      const line = document.querySelector('line')
+      const line = document.querySelector("line")
       expect(line).toBeInTheDocument()
     })
   })
@@ -410,7 +408,7 @@ describe("ResizableTemplate", () => {
         <ResizableTemplate appliedTemplate={diagonalAppliedTemplate} videos={mockVideos} activeVideoId={null} />,
       )
 
-      const circles = document.querySelectorAll('circle')
+      const circles = document.querySelectorAll("circle")
       const firstCircle = circles[0]
 
       expect(firstCircle).toBeInTheDocument()
@@ -430,7 +428,7 @@ describe("ResizableTemplate", () => {
         <ResizableTemplate appliedTemplate={diagonalAppliedTemplate} videos={mockVideos} activeVideoId={null} />,
       )
 
-      const circles = document.querySelectorAll('circle')
+      const circles = document.querySelectorAll("circle")
       const secondCircle = circles[1]
 
       expect(secondCircle).toBeInTheDocument()
@@ -450,7 +448,7 @@ describe("ResizableTemplate", () => {
         <ResizableTemplate appliedTemplate={diagonalAppliedTemplate} videos={mockVideos} activeVideoId={null} />,
       )
 
-      const line = document.querySelector('line')
+      const line = document.querySelector("line")
       expect(line).toBeInTheDocument()
 
       // Симулируем mouse down на линии (point index 2)
@@ -468,7 +466,7 @@ describe("ResizableTemplate", () => {
         <ResizableTemplate appliedTemplate={diagonalAppliedTemplate} videos={mockVideos} activeVideoId={null} />,
       )
 
-      const circles = document.querySelectorAll('circle')
+      const circles = document.querySelectorAll("circle")
       const firstCircle = circles[0]
 
       // Начинаем dragging
@@ -515,9 +513,7 @@ describe("ResizableTemplate", () => {
     })
 
     it("should handle empty videos array", () => {
-      renderWithTemplates(
-        <ResizableTemplate appliedTemplate={mockAppliedTemplate} videos={[]} activeVideoId={null} />,
-      )
+      renderWithTemplates(<ResizableTemplate appliedTemplate={mockAppliedTemplate} videos={[]} activeVideoId={null} />)
 
       // Компонент должен отрендериться без ошибок
       expect(document.body).toBeInTheDocument()

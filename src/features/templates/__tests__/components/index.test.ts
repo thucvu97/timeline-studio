@@ -6,12 +6,12 @@ describe("Components Index Exports", () => {
     ResizableTemplate: "MockedResizableTemplate",
     default: "MockedResizableTemplateDefault",
   }))
-  
+
   vi.mock("../../components/template-list", () => ({
     TemplateList: "MockedTemplateList",
     default: "MockedTemplateListDefault",
   }))
-  
+
   vi.mock("../../components/template-preview", () => ({
     TemplatePreview: "MockedTemplatePreview",
     default: "MockedTemplatePreviewDefault",
@@ -35,7 +35,7 @@ describe("Components Index Exports", () => {
   it("should re-export all named exports", async () => {
     const module = await import("../../components/index")
     const exports = Object.keys(module)
-    
+
     expect(exports).toContain("ResizableTemplate")
     expect(exports).toContain("TemplateList")
     expect(exports).toContain("TemplatePreview")
@@ -43,7 +43,7 @@ describe("Components Index Exports", () => {
 
   it("should not have any missing exports", async () => {
     const module = await import("../../components/index")
-    
+
     // Check that we have the main components
     expect(module.ResizableTemplate).toBeDefined()
     expect(module.TemplateList).toBeDefined()
@@ -52,7 +52,7 @@ describe("Components Index Exports", () => {
 
   it("should maintain proper export structure", async () => {
     const module = await import("../../components/index")
-    
+
     // All exports should be defined (not undefined)
     Object.entries(module).forEach(([key, value]) => {
       expect(value).toBeDefined()

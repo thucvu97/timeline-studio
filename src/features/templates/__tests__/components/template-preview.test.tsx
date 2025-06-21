@@ -1,6 +1,4 @@
-import React from "react"
-
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { vi } from "vitest"
 
 import { useResources } from "@/features/resources"
@@ -31,12 +29,9 @@ vi.mock("@/features/browser/components/layout", () => ({
       mockOnAdd(e, resource)
       onAdd?.(e, resource)
     }
-    
+
     return (
-      <button
-        data-testid="add-button"
-        onClick={handleClick}
-      >
+      <button data-testid="add-button" onClick={handleClick}>
         Add
       </button>
     )
@@ -46,21 +41,14 @@ vi.mock("@/features/browser/components/layout", () => ({
       mockOnApply(resource, "template")
       onApply?.(resource, "template")
     }
-    
+
     return (
-      <button
-        data-testid="apply-button"
-        onClick={handleClick}
-      >
+      <button data-testid="apply-button" onClick={handleClick}>
         Apply
       </button>
     )
   },
-  FavoriteButton: ({ file }: any) => (
-    <button data-testid="favorite-button">
-      Favorite {file.id}
-    </button>
-  ),
+  FavoriteButton: ({ file }: any) => <button data-testid="favorite-button">Favorite {file.id}</button>,
 }))
 
 const mockUsePlayer = usePlayer as jest.MockedFunction<typeof usePlayer>
@@ -129,16 +117,16 @@ describe("TemplatePreview", () => {
   it("handles template without render function", () => {
     const templateWithoutRender = { ...mockTemplate, render: undefined }
     const { container } = render(<TemplatePreview {...defaultProps} template={templateWithoutRender} />)
-    
+
     // Should render a gray background div when no render function
-    const grayDiv = container.querySelector('.bg-gray-800')
+    const grayDiv = container.querySelector(".bg-gray-800")
     expect(grayDiv).toBeInTheDocument()
   })
 
   it("applies correct dimensions to the container", () => {
     const { container } = render(<TemplatePreview {...defaultProps} />)
     const previewContainer = container.firstChild as HTMLElement
-    
+
     expect(previewContainer.style.aspectRatio).toBe("1920 / 1080")
     expect(previewContainer.style.width).toBe("200px")
     expect(previewContainer.style.height).toMatch(/\d+px/)
@@ -147,44 +135,44 @@ describe("TemplatePreview", () => {
   it("handles click on preview", () => {
     const onClick = vi.fn()
     render(<TemplatePreview {...defaultProps} onClick={onClick} />)
-    
+
     const preview = screen.getByTestId("template-render").parentElement!
     fireEvent.click(preview)
-    
+
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
   it("handles apply template button click", () => {
     render(<TemplatePreview {...defaultProps} />)
-    
+
     const applyButton = screen.getByTestId("apply-button")
     fireEvent.click(applyButton)
-    
+
     // Check that our mock component was called with transformed template
     expect(mockOnApply).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "test-template",
-        name: "test-template", 
-        type: "template"
-      }), 
-      "template"
+        name: "test-template",
+        type: "template",
+      }),
+      "template",
     )
   })
 
   it("handles add template button click", async () => {
     const { container } = render(<TemplatePreview {...defaultProps} />)
-    
+
     const addButton = screen.getByTestId("add-button")
     fireEvent.click(addButton)
-    
+
     // The mock component should call our tracking mock with transformed template
     expect(mockOnAdd).toHaveBeenCalledWith(
-      expect.any(Object), 
+      expect.any(Object),
       expect.objectContaining({
         id: "test-template",
         name: "test-template",
-        type: "template"
-      })
+        type: "template",
+      }),
     )
   })
 
@@ -194,13 +182,11 @@ describe("TemplatePreview", () => {
       addTemplate: mockAddTemplate,
       isTemplateAdded: mockIsTemplateAdded,
       removeResource: mockRemoveResource,
-      templateResources: [
-        { id: "resource-1", resourceId: "test-template", type: "template" },
-      ],
+      templateResources: [{ id: "resource-1", resourceId: "test-template", type: "template" }],
     } as any)
 
     render(<TemplatePreview {...defaultProps} />)
-    
+
     // The mocked AddMediaButton should show "Add" text, but the logic should work
     const button = screen.getByTestId("add-button")
     expect(button.textContent).toBe("Add") // Mock always shows "Add"
@@ -212,13 +198,11 @@ describe("TemplatePreview", () => {
       addTemplate: mockAddTemplate,
       isTemplateAdded: mockIsTemplateAdded,
       removeResource: mockRemoveResource,
-      templateResources: [
-        { id: "resource-1", resourceId: "test-template", type: "template" },
-      ],
+      templateResources: [{ id: "resource-1", resourceId: "test-template", type: "template" }],
     } as any)
 
     const mockOnRemove = vi.fn()
-    
+
     // Mock AddMediaButton with custom onRemove behavior
     vi.doMock("@/features/browser/components/layout", () => ({
       AddMediaButton: ({ resource, onAdd, onRemove }: any) => (
@@ -237,25 +221,18 @@ describe("TemplatePreview", () => {
         </button>
       ),
       ApplyButton: ({ onApply, resource }: any) => (
-        <button
-          data-testid="apply-button"
-          onClick={() => onApply?.(resource, "template")}
-        >
+        <button data-testid="apply-button" onClick={() => onApply?.(resource, "template")}>
           Apply
         </button>
       ),
-      FavoriteButton: ({ file }: any) => (
-        <button data-testid="favorite-button">
-          Favorite {file.id}
-        </button>
-      ),
+      FavoriteButton: ({ file }: any) => <button data-testid="favorite-button">Favorite {file.id}</button>,
     }))
 
     render(<TemplatePreview {...defaultProps} />)
-    
+
     const removeButton = screen.getByTestId("add-button")
     fireEvent.click(removeButton)
-    
+
     // Since our mock doesn't actually call the real component logic,
     // we just verify the click happened
     expect(removeButton).toBeInTheDocument()
@@ -273,7 +250,7 @@ describe("TemplatePreview", () => {
     } as any)
 
     render(<TemplatePreview {...defaultProps} />)
-    
+
     const removeButton = screen.getByTestId("add-button")
     expect(removeButton).toBeInTheDocument()
   })
@@ -281,33 +258,31 @@ describe("TemplatePreview", () => {
   it("stops event propagation on add/remove click", () => {
     const onClick = vi.fn()
     render(<TemplatePreview {...defaultProps} onClick={onClick} />)
-    
+
     const addButton = screen.getByTestId("add-button")
     fireEvent.click(addButton)
-    
+
     // The mock component does call stopPropagation, so onClick should not be called
     expect(onClick).not.toHaveBeenCalled()
   })
 
   it("updates local state immediately on add", () => {
     const { rerender } = render(<TemplatePreview {...defaultProps} />)
-    
+
     const addButton = screen.getByTestId("add-button")
     fireEvent.click(addButton)
-    
+
     // Update mock to return true
     mockIsTemplateAdded.mockReturnValue(true)
     mockUseResources.mockReturnValue({
       addTemplate: mockAddTemplate,
       isTemplateAdded: mockIsTemplateAdded,
       removeResource: mockRemoveResource,
-      templateResources: [
-        { id: "resource-1", resourceId: "test-template", type: "template" },
-      ],
+      templateResources: [{ id: "resource-1", resourceId: "test-template", type: "template" }],
     } as any)
-    
+
     rerender(<TemplatePreview {...defaultProps} />)
-    
+
     const button = screen.getByTestId("add-button")
     // Mock always shows "Add" text
     expect(button.textContent).toBe("Add")
@@ -315,8 +290,8 @@ describe("TemplatePreview", () => {
 
   it("shows add button with correct opacity when not added", () => {
     const { container } = render(<TemplatePreview {...defaultProps} />)
-    const buttonContainer = container.querySelector('.transition-opacity')
-    
+    const buttonContainer = container.querySelector(".transition-opacity")
+
     if (buttonContainer) {
       expect(buttonContainer.className).toContain("transition-opacity")
     } else {
@@ -331,57 +306,53 @@ describe("TemplatePreview", () => {
       addTemplate: mockAddTemplate,
       isTemplateAdded: mockIsTemplateAdded,
       removeResource: mockRemoveResource,
-      templateResources: [
-        { id: "resource-1", resourceId: "test-template", type: "template" },
-      ],
+      templateResources: [{ id: "resource-1", resourceId: "test-template", type: "template" }],
     } as any)
 
     const { container } = render(<TemplatePreview {...defaultProps} />)
     const buttonContainer = container.querySelector('[style*="visibility"]')!
-    
+
     expect(buttonContainer.className).toContain("opacity-100")
     expect(buttonContainer.style.visibility).toBe("visible")
   })
 
   it("renders favorite button with correct file info", () => {
     render(<TemplatePreview {...defaultProps} />)
-    
+
     const favoriteButton = screen.getByTestId("favorite-button")
     expect(favoriteButton.textContent).toBe("Favorite test-template")
   })
 
   it("logs when applying template", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
-    
+
     render(<TemplatePreview {...defaultProps} />)
-    
+
     const applyButton = screen.getByTestId("apply-button")
     fireEvent.click(applyButton)
-    
+
     expect(consoleSpy).toHaveBeenCalledWith("[TemplatePreview] Applying template:", "test-template")
-    
+
     consoleSpy.mockRestore()
   })
 
   it("syncs local state with store state", async () => {
     const { rerender } = render(<TemplatePreview {...defaultProps} />)
-    
+
     // Initially not added
     expect(screen.getByTestId("add-button").textContent).toBe("Add")
-    
+
     // Simulate store update
     mockIsTemplateAdded.mockReturnValue(true)
     mockUseResources.mockReturnValue({
       addTemplate: mockAddTemplate,
       isTemplateAdded: mockIsTemplateAdded,
       removeResource: mockRemoveResource,
-      templateResources: [
-        { id: "resource-1", resourceId: "test-template", type: "template" },
-      ],
+      templateResources: [{ id: "resource-1", resourceId: "test-template", type: "template" }],
     } as any)
-    
+
     rerender(<TemplatePreview {...defaultProps} />)
-    
+
     await waitFor(() => {
       // Mock always shows "Add" regardless of state
       expect(screen.getByTestId("add-button").textContent).toBe("Add")
@@ -390,12 +361,10 @@ describe("TemplatePreview", () => {
 
   it("handles different template sizes correctly", () => {
     const sizes = [150, 200, 300]
-    
+
     sizes.forEach((size) => {
-      const { container } = render(
-        <TemplatePreview {...defaultProps} size={size} />
-      )
-      
+      const { container } = render(<TemplatePreview {...defaultProps} size={size} />)
+
       const previewContainer = container.firstChild as HTMLElement
       expect(previewContainer.style.width).toBe(`${size}px`)
     })
@@ -407,12 +376,10 @@ describe("TemplatePreview", () => {
       [1080, 1080], // 1:1
       [1080, 1920], // 9:16
     ]
-    
+
     dimensions.forEach(([width, height]) => {
-      const { container } = render(
-        <TemplatePreview {...defaultProps} dimensions={[width, height]} />
-      )
-      
+      const { container } = render(<TemplatePreview {...defaultProps} dimensions={[width, height]} />)
+
       const previewContainer = container.firstChild as HTMLElement
       expect(previewContainer.style.aspectRatio).toBe(`${width} / ${height}`)
     })

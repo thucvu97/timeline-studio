@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -39,7 +39,7 @@ export function useSocialExport() {
   }, [])
 
   const uploadToSocialNetwork = useCallback(
-    async (videoPath: string, settings: SocialExportSettings) => {
+    async (_videoPath: string, settings: SocialExportSettings) => {
       const network = SOCIAL_NETWORKS.find((n) => n.id === settings.socialNetwork)
 
       if (!network) {

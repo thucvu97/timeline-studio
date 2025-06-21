@@ -368,15 +368,11 @@ export const resourcesMachine = setup({
       // Разделяем ресурсы по типам
       effectResources: ({ event }) => {
         if (event.type !== "LOAD_RESOURCES") return []
-        return event.resources
-          .filter((r) => r.type === "effect")
-          .map((r) => ({ ...r, effect: {} as VideoEffect }))
+        return event.resources.filter((r) => r.type === "effect").map((r) => ({ ...r, effect: {} as VideoEffect }))
       },
       filterResources: ({ event }) => {
         if (event.type !== "LOAD_RESOURCES") return []
-        return event.resources
-          .filter((r) => r.type === "filter")
-          .map((r) => ({ ...r, filter: {} as VideoFilter }))
+        return event.resources.filter((r) => r.type === "filter").map((r) => ({ ...r, filter: {} as VideoFilter }))
       },
       transitionResources: ({ event }) => {
         if (event.type !== "LOAD_RESOURCES") return []
@@ -398,21 +394,15 @@ export const resourcesMachine = setup({
       },
       mediaResources: ({ event }) => {
         if (event.type !== "LOAD_RESOURCES") return []
-        return event.resources
-          .filter((r) => r.type === "media")
-          .map((r) => ({ ...r, file: {} as MediaFile }))
+        return event.resources.filter((r) => r.type === "media").map((r) => ({ ...r, file: {} as MediaFile }))
       },
       musicResources: ({ event }) => {
         if (event.type !== "LOAD_RESOURCES") return []
-        return event.resources
-          .filter((r) => r.type === "music")
-          .map((r) => ({ ...r, file: {} as MediaFile }))
+        return event.resources.filter((r) => r.type === "music").map((r) => ({ ...r, file: {} as MediaFile }))
       },
       subtitleResources: ({ event }) => {
         if (event.type !== "LOAD_RESOURCES") return []
-        return event.resources
-          .filter((r) => r.type === "subtitle")
-          .map((r) => ({ ...r, style: {} as SubtitleStyle }))
+        return event.resources.filter((r) => r.type === "subtitle").map((r) => ({ ...r, style: {} as SubtitleStyle }))
       },
     }),
 

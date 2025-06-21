@@ -2,16 +2,11 @@
   "mcpServers": {
     "sequential-thinking": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ]
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "playwright": {
       "command": "npx",
-      "args": [
-        "@playwright/mcp@latest"
-      ]
+      "args": ["@playwright/mcp@latest"]
     },
     "git": {
       "command": "uvx",
@@ -19,15 +14,11 @@
     },
     "github": {
       "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-github"
-      ]
+      "args": ["@modelcontextprotocol/server-github"]
     },
     "memory": {
       "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-memory"
-      ]
+      "args": ["@modelcontextprotocol/server-memory"]
     }
   }
 }

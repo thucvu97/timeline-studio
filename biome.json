@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.4/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -46,6 +46,7 @@
         "noPositiveTabindex": "error",
         "noRedundantAlt": "error",
         "noRedundantRoles": "error",
+        "noStaticElementInteractions": "off",
         "noSvgWithoutTitle": "off",
         "useButtonType": "off",
         "useFocusableInteractive": "error",

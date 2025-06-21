@@ -1,5 +1,3 @@
-import React from "react"
-
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { useTranslation } from "react-i18next"
 import { vi } from "vitest"
@@ -10,7 +8,6 @@ import { useProjectSettings } from "@/features/project-settings"
 
 import { TemplateList } from "../../components/template-list"
 import * as templateLabels from "../../lib/template-labels"
-import * as templates from "../../lib/templates"
 
 // Mock dependencies
 vi.mock("react-i18next")
@@ -47,11 +44,7 @@ vi.mock("../../lib/templates", () => ({
 }))
 vi.mock("../../components/template-preview", () => ({
   TemplatePreview: ({ template, onClick, size, dimensions }: any) => (
-    <div
-      data-testid={`template-preview-${template.id}`}
-      onClick={onClick}
-      style={{ width: size, height: size }}
-    >
+    <div data-testid={`template-preview-${template.id}`} onClick={onClick} style={{ width: size, height: size }}>
       {template.id} - {dimensions.join("x")}
     </div>
   ),
@@ -129,10 +122,10 @@ describe("TemplateList", () => {
   it("displays loading state when templates are empty", () => {
     // The mock is already set to have templates, so this test may show content
     render(<TemplateList />)
-    
+
     // Either loading state or content should be present
-    const hasLoadingOrContent = 
-      screen.queryByText("Загрузка...") || 
+    const hasLoadingOrContent =
+      screen.queryByText("Загрузка...") ||
       screen.queryByText("common.loading") ||
       screen.queryAllByTestId("content-group").length > 0
     expect(hasLoadingOrContent).toBeTruthy()
@@ -140,7 +133,7 @@ describe("TemplateList", () => {
 
   it("groups templates by screen count", () => {
     render(<TemplateList />)
-    
+
     const groups = screen.getAllByTestId("content-group")
     expect(groups.length).toBeGreaterThan(0) // Should have template groups
   })
@@ -155,7 +148,7 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     expect(screen.getByTestId("template-preview-split-vertical-landscape")).toBeInTheDocument()
     expect(screen.queryByTestId("template-preview-split-grid-2x2-landscape")).not.toBeInTheDocument()
   })
@@ -170,7 +163,7 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     expect(screen.getByTestId("template-preview-split-vertical-landscape")).toBeInTheDocument()
     expect(screen.getByTestId("template-preview-split-horizontal-landscape")).toBeInTheDocument()
     expect(screen.queryByTestId("template-preview-split-grid-3x3-landscape")).not.toBeInTheDocument()
@@ -187,7 +180,7 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     expect(screen.getByTestId("template-preview-split-grid-2x2-landscape")).toBeInTheDocument()
     expect(screen.queryByTestId("template-preview-single-1")).not.toBeInTheDocument()
   })
@@ -202,14 +195,14 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     expect(screen.getByTestId("template-preview-split-vertical-landscape")).toBeInTheDocument()
     expect(screen.queryByTestId("template-preview-split-grid-2x2-landscape")).not.toBeInTheDocument()
   })
 
   it("shows only favorite templates when filter is enabled", () => {
     const mockIsItemFavorite = vi.fn((template) => template.id === "single-1")
-    
+
     mockUseFavorites.mockReturnValue({
       isItemFavorite: mockIsItemFavorite,
     } as any)
@@ -223,7 +216,7 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     expect(screen.getByTestId("template-preview-single-1")).toBeInTheDocument()
     expect(screen.queryByTestId("template-preview-dual-1")).not.toBeInTheDocument()
     expect(screen.queryByTestId("template-preview-dual-2")).not.toBeInTheDocument()
@@ -243,7 +236,7 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     expect(screen.getByText("browser.media.noFavorites")).toBeInTheDocument()
   })
 
@@ -257,28 +250,28 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     expect(screen.getByText("common.noResults")).toBeInTheDocument()
   })
 
   it("handles template click", () => {
     const consoleSpy = vi.spyOn(console, "log")
-    
+
     render(<TemplateList />)
-    
+
     const template = screen.getByTestId("template-preview-single-1")
     fireEvent.click(template)
-    
+
     // The mock TemplatePreview doesn't implement actual click logic
     // Just verify the template exists and can be clicked
     expect(template).toBeInTheDocument()
-    
+
     consoleSpy.mockRestore()
   })
 
   it("updates templates when aspect ratio changes", async () => {
     const { rerender } = render(<TemplateList />)
-    
+
     // Change to portrait aspect ratio
     mockUseProjectSettings.mockReturnValue({
       settings: {
@@ -291,7 +284,7 @@ describe("TemplateList", () => {
     } as any)
 
     rerender(<TemplateList />)
-    
+
     await waitFor(() => {
       // Should show portrait templates (already mocked)
       expect(screen.getByTestId("template-preview-portrait-1")).toBeInTheDocument()
@@ -300,7 +293,7 @@ describe("TemplateList", () => {
 
   it("updates templates when aspect ratio changes to square", async () => {
     const { rerender } = render(<TemplateList />)
-    
+
     // Change to square aspect ratio
     mockUseProjectSettings.mockReturnValue({
       settings: {
@@ -313,7 +306,7 @@ describe("TemplateList", () => {
     } as any)
 
     rerender(<TemplateList />)
-    
+
     await waitFor(() => {
       expect(screen.getByTestId("template-preview-square-1")).toBeInTheDocument()
     })
@@ -331,7 +324,7 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     expect(screen.getByTestId("template-preview-portrait-45")).toBeInTheDocument()
   })
 
@@ -349,7 +342,7 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     // Just verify the component renders without errors
     expect(document.body).toBeInTheDocument()
   })
@@ -369,14 +362,14 @@ describe("TemplateList", () => {
     } as any)
 
     render(<TemplateList />)
-    
+
     // Just verify the component renders without errors
     expect(document.body).toBeInTheDocument()
   })
 
   it("passes correct dimensions to template previews", () => {
     render(<TemplateList />)
-    
+
     // Check if there are any template previews rendered
     const previews = screen.queryAllByTestId(/template-preview-/)
     if (previews.length > 0) {
@@ -391,10 +384,10 @@ describe("TemplateList", () => {
   it("handles templates without screens property", () => {
     // Test that the component works with our mocked templates that have screens property
     render(<TemplateList />)
-    
+
     // Should show either loading state or content groups
-    const hasLoadingOrContent = 
-      screen.queryByText("Загрузка...") || 
+    const hasLoadingOrContent =
+      screen.queryByText("Загрузка...") ||
       screen.queryByText("common.loading") ||
       screen.queryAllByTestId("content-group").length > 0
 
@@ -404,7 +397,7 @@ describe("TemplateList", () => {
   it("handles complex template structures", () => {
     // Test with existing mocked templates that have complex properties
     render(<TemplateList />)
-    
+
     expect(screen.getByTestId("template-preview-split-1-3-landscape")).toBeInTheDocument()
     expect(screen.getByTestId("template-preview-split-grid-3x3-landscape")).toBeInTheDocument()
   })

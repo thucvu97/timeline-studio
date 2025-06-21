@@ -60,11 +60,11 @@ const App: React.FC = () => {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-slate-900 to-black">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-purple-900/10 to-transparent"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-purple-900/10 to-transparent" />
           <div className="absolute top-0 left-0 w-full h-full">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+            <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
           </div>
         </div>
 
@@ -74,7 +74,7 @@ const App: React.FC = () => {
             <h1 className="text-6xl md:text-8xl font-black mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent animate-pulse">
               Timeline Studio
             </h1>
-            <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
+            <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
           </div>
           <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto text-gray-300 leading-relaxed">
             Профессиональное приложение для создания и редактирования видео
@@ -97,7 +97,7 @@ const App: React.FC = () => {
                 </svg>
                 Скачать бесплатно
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300" />
             </a>
             <a
               href="https://github.com/chatman-media/timeline-studio"
@@ -109,7 +109,7 @@ const App: React.FC = () => {
                 </svg>
                 Исходный код
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-600 rounded-xl opacity-0 group-hover:opacity-20 transition duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-600 rounded-xl opacity-0 group-hover:opacity-20 transition duration-300" />
             </a>
           </div>
         </div>
@@ -120,7 +120,7 @@ const App: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Ключевые возможности</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
@@ -158,7 +158,7 @@ const App: React.FC = () => {
         <div className="container mx-auto px-4 text-center">
           <div className="mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Скачать Timeline Studio</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6" />
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Доступно для всех основных операционных систем. Выберите вашу платформу:
             </p>
@@ -192,7 +192,7 @@ const App: React.FC = () => {
         <div className="container mx-auto px-4 text-center">
           <div className="mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Документация</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6" />
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Подробная документация поможет вам начать работу с Timeline Studio:
             </p>
@@ -203,14 +203,14 @@ const App: React.FC = () => {
               className="group relative bg-gray-700/50 backdrop-blur-sm border border-gray-600 hover:border-blue-500 text-gray-300 hover:text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
             >
               <span className="relative z-10">API документация</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300" />
             </a>
             <a
               href="https://github.com/chatman-media/timeline-studio#начало-работы"
               className="group relative bg-gray-700/50 backdrop-blur-sm border border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
             >
               <span className="relative z-10">Руководство пользователя</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300" />
             </a>
           </div>
         </div>
@@ -306,7 +306,7 @@ const App: React.FC = () => {
 const FeatureCard: React.FC<{ title: string; description: string; icon: string }> = ({ title, description, icon }) => {
   return (
     <div className="group relative bg-gray-800/50 backdrop-blur-sm border border-gray-700 hover:border-blue-500/50 p-8 rounded-2xl shadow-xl hover:shadow-blue-500/10 transition-all duration-300 transform hover:scale-105 hover:-translate-y-2">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-indigo-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-300"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-indigo-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-300" />
       <div className="relative z-10">
         <div className="text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-300">{icon}</div>
         <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">{title}</h3>
@@ -322,11 +322,11 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
   const getDownloadPath = () => {
     switch (platform.toLowerCase()) {
       case "windows":
-        return `timeline-studio_x64_en-US.msi`
+        return "timeline-studio_x64_en-US.msi"
       case "macos":
-        return `timeline-studio_universal.dmg`
+        return "timeline-studio_universal.dmg"
       case "linux":
-        return `timeline-studio_x86_64.AppImage`
+        return "timeline-studio_x86_64.AppImage"
       default:
         return `timeline-studio-${platform.toLowerCase()}.zip`
     }
@@ -371,7 +371,7 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
       </span>
       <div
         className={`absolute inset-0 bg-gradient-to-r ${getGradient(platform)} rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300`}
-      ></div>
+      />
     </a>
   )
 }

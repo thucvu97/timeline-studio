@@ -6,7 +6,7 @@
 export const selectors = {
   // Основные контейнеры
   app: {
-    mainContainer: 'div.min-h-screen',
+    mainContainer: "div.min-h-screen",
     mediaStudio: '[data-testid="media-studio"]',
   },
 
@@ -111,11 +111,11 @@ export const selectors = {
  */
 export function getSelector(baseSelector: string, attributes?: Record<string, string>): string {
   if (!attributes) return baseSelector
-  
+
   const attrString = Object.entries(attributes)
     .map(([key, value]) => `[${key}="${value}"]`)
-    .join('')
-  
+    .join("")
+
   return `${baseSelector}${attrString}`
 }
 

@@ -1,7 +1,7 @@
 import path from "node:path"
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
 import { codecovVitePlugin } from "@codecov/vite-plugin"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -44,8 +44,8 @@ export default defineConfig({
           ui: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "@radix-ui/react-select"],
           // Tauri APIs
           tauri: [
-            "@tauri-apps/api", 
-            "@tauri-apps/plugin-fs", 
+            "@tauri-apps/api",
+            "@tauri-apps/plugin-fs",
             "@tauri-apps/plugin-dialog",
             "@tauri-apps/plugin-store",
             "@tauri-apps/plugin-global-shortcut",
@@ -53,7 +53,7 @@ export default defineConfig({
             "@tauri-apps/plugin-notification",
             "@tauri-apps/plugin-opener",
             "@tauri-apps/plugin-websocket",
-            "@tauri-apps/plugin-window"
+            "@tauri-apps/plugin-window",
           ],
           // Utilities
           utils: ["dayjs", "clsx", "tailwind-merge"],

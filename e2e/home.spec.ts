@@ -1,11 +1,11 @@
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test("home page loads correctly", async ({ page }) => {
   // Слушаем логи консоли браузера
   page.on("console", (msg) => {
     console.log(`Browser console [${msg.type()}]:`, msg.text())
   })
-  
+
   page.on("pageerror", (error) => {
     console.error("Page error:", error)
   })
@@ -16,7 +16,7 @@ test("home page loads correctly", async ({ page }) => {
   await page.waitForLoadState("networkidle")
 
   // Делаем скриншот для отладки
-  await page.screenshot({ path: 'test-results/debug-screenshot.png' })
+  await page.screenshot({ path: "test-results/debug-screenshot.png" })
 
   // Проверяем наличие основного контейнера
   await expect(page.locator("div.min-h-screen")).toBeVisible({ timeout: 10000 })

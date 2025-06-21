@@ -2,7 +2,20 @@
 export type LanguageCode = "ru" | "en" | "es" | "fr" | "de" | "pt" | "zh" | "ja" | "ko" | "tr" | "th" | "it"
 
 // Список поддерживаемых языков
-export const SUPPORTED_LANGUAGES: LanguageCode[] = ["ru", "en", "es", "fr", "de", "pt", "zh", "ja", "ko", "tr", "th", "it"]
+export const SUPPORTED_LANGUAGES: LanguageCode[] = [
+  "ru",
+  "en",
+  "es",
+  "fr",
+  "de",
+  "pt",
+  "zh",
+  "ja",
+  "ko",
+  "tr",
+  "th",
+  "it",
+]
 
 // Язык по умолчанию
 export const DEFAULT_LANGUAGE: LanguageCode = "en"

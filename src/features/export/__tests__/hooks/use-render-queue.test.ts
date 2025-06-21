@@ -34,7 +34,7 @@ vi.mock("@/features/app-state/services/project-file-service", () => ({
 
 // Mock timeline utils
 vi.mock("@/features/timeline/utils/timeline-to-project", () => ({
-  timelineToProjectSchema: vi.fn((timeline) => ({
+  timelineToProjectSchema: vi.fn((_timeline) => ({
     version: "1.0.0",
     metadata: { name: "Test Project" },
     timeline: { duration: 60, fps: 30, resolution: [1920, 1080] },

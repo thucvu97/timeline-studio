@@ -224,11 +224,13 @@ describe("UserSettingsModal", () => {
 
   it("should clear screenshots path when X button is clicked", () => {
     // Переопределяем значение screenshotsPath для этого теста
-    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
-      screenshotsPath: "custom/path",
-      handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
-      handleAiApiKeyChange: mockHandleAiApiKeyChange,
-    }))
+    vi.mocked(useUserSettings).mockImplementation(() =>
+      getMockUserSettings({
+        screenshotsPath: "custom/path",
+        handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
+        handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      }),
+    )
 
     render(<UserSettingsModal />)
 
@@ -248,11 +250,13 @@ describe("UserSettingsModal", () => {
 
   it("should clear API key when X button is clicked", () => {
     // Переопределяем значение openAiApiKey для этого теста
-    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
-      openAiApiKey: "test-api-key",
-      handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
-      handleAiApiKeyChange: mockHandleAiApiKeyChange,
-    }))
+    vi.mocked(useUserSettings).mockImplementation(() =>
+      getMockUserSettings({
+        openAiApiKey: "test-api-key",
+        handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
+        handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      }),
+    )
 
     render(<UserSettingsModal />)
 
@@ -309,11 +313,13 @@ describe("UserSettingsModal", () => {
     expect(screenshotsPathInput).toHaveValue("public/screenshots")
 
     // Изменяем путь скриншотов в контексте
-    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
-      screenshotsPath: "new/path",
-      handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
-      handleAiApiKeyChange: mockHandleAiApiKeyChange,
-    }))
+    vi.mocked(useUserSettings).mockImplementation(() =>
+      getMockUserSettings({
+        screenshotsPath: "new/path",
+        handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
+        handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      }),
+    )
 
     // Перерендериваем компонент
     render(<UserSettingsModal />)
@@ -441,13 +447,15 @@ describe("UserSettingsModal", () => {
   it("should clear Claude API key when X button is clicked", () => {
     // Переопределяем значение claudeApiKey для этого теста
     const mockHandleClaudeApiKeyChangeFn = vi.fn()
-    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
-      claudeApiKey: "test-claude-key",
-      openAiApiKey: "", // Ensure openAI key is empty
-      handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
-      handleAiApiKeyChange: mockHandleAiApiKeyChange,
-      handleClaudeApiKeyChange: mockHandleClaudeApiKeyChangeFn,
-    }))
+    vi.mocked(useUserSettings).mockImplementation(() =>
+      getMockUserSettings({
+        claudeApiKey: "test-claude-key",
+        openAiApiKey: "", // Ensure openAI key is empty
+        handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
+        handleAiApiKeyChange: mockHandleAiApiKeyChange,
+        handleClaudeApiKeyChange: mockHandleClaudeApiKeyChangeFn,
+      }),
+    )
 
     render(<UserSettingsModal />)
 
@@ -607,10 +615,7 @@ describe("UserSettingsModal", () => {
       // Проверяем, что open был вызван
       expect(mockOpen).toHaveBeenCalled()
       // Проверяем, что был показан prompt
-      expect(mockPrompt).toHaveBeenCalledWith(
-        "dialogs.userSettings.selectFolderPrompt",
-        expect.any(String)
-      )
+      expect(mockPrompt).toHaveBeenCalledWith("dialogs.userSettings.selectFolderPrompt", expect.any(String))
     })
 
     // Восстанавливаем window.prompt
@@ -646,13 +651,15 @@ describe("UserSettingsModal", () => {
   it("should clear player screenshots path when X button is clicked", () => {
     // Переопределяем значение playerScreenshotsPath для этого теста
     const mockHandlePlayerScreenshotsPathChangeFn = vi.fn()
-    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
-      playerScreenshotsPath: "custom/player/path",
-      screenshotsPath: "public/screenshots", // Keep default value
-      handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
-      handleAiApiKeyChange: mockHandleAiApiKeyChange,
-      handlePlayerScreenshotsPathChange: mockHandlePlayerScreenshotsPathChangeFn,
-    }))
+    vi.mocked(useUserSettings).mockImplementation(() =>
+      getMockUserSettings({
+        playerScreenshotsPath: "custom/player/path",
+        screenshotsPath: "public/screenshots", // Keep default value
+        handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
+        handleAiApiKeyChange: mockHandleAiApiKeyChange,
+        handlePlayerScreenshotsPathChange: mockHandlePlayerScreenshotsPathChangeFn,
+      }),
+    )
 
     render(<UserSettingsModal />)
 

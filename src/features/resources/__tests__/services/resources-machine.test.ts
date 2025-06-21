@@ -870,7 +870,7 @@ describe("resourcesMachine", () => {
 
     const transition2: Transition = {
       id: "transition-2",
-      name: "Fade Out", 
+      name: "Fade Out",
       type: "fade", // Тип совпадает с ID первого перехода
       duration: 1000,
       ffmpegCommand: () => "fade=t=out:st=0:d=1",
@@ -879,11 +879,11 @@ describe("resourcesMachine", () => {
     }
 
     actor.send({ type: "ADD_TRANSITION", transition: transition1 })
-    
+
     // Проверяем что первый переход добавлен
     let snapshot = actor.getSnapshot()
     expect(snapshot.context.transitionResources.length).toBe(1)
-    
+
     actor.send({ type: "ADD_TRANSITION", transition: transition2 })
 
     snapshot = actor.getSnapshot()

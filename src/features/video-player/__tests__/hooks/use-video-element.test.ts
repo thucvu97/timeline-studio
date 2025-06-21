@@ -30,7 +30,7 @@ describe("useVideoElement", () => {
       return element
     })
 
-    vi.spyOn(document.body, "contains").mockImplementation((element) => {
+    vi.spyOn(document.body, "contains").mockImplementation((_element) => {
       // Simulate element being in DOM by default
       return true
     })
@@ -432,7 +432,7 @@ describe("useVideoElement", () => {
       const { result } = renderHook(() => useVideoElement())
 
       // Create multiple video elements
-      const elements = Array.from({ length: 5 }, (_, i) => {
+      const elements = Array.from({ length: 5 }, (_, _i) => {
         const element = document.createElement("video")
         element.pause = vi.fn()
         return element

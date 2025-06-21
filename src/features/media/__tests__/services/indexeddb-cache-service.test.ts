@@ -35,7 +35,6 @@ describe("IndexedDBCacheService", () => {
     vi.clearAllMocks()
 
     // Reset singleton instance
-
     ;(IndexedDBCacheService as any).instance = null
 
     // Mock store creation

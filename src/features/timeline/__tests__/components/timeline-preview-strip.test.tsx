@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { TimelinePreviewStrip, useTimelinePreviewStrip } from "@/features/timeline/components/timeline-preview-strip"
@@ -349,7 +349,7 @@ describe("useTimelinePreviewStrip hook", () => {
   beforeEach(() => {
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation((callback) => ({
-      observe: vi.fn().mockImplementation((element) => {
+      observe: vi.fn().mockImplementation((_element) => {
         // Simulate resize observation
         setTimeout(() => {
           callback([{ contentRect: { width: 1200 } }])

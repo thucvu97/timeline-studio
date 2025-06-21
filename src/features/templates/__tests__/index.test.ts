@@ -6,21 +6,21 @@ describe("Templates Index Exports", () => {
   vi.mock("../components/resizable-template", () => ({
     ResizableTemplate: "MockedResizableTemplate",
   }))
-  
+
   vi.mock("../components/template-list", () => ({
     TemplateList: "MockedTemplateList",
   }))
-  
+
   vi.mock("../components/template-preview", () => ({
     TemplatePreview: "MockedTemplatePreview",
   }))
-  
+
   vi.mock("../lib", () => ({
     TEMPLATE_MAP: { landscape: [], portrait: [], square: [] },
     createCellConfig: vi.fn(),
     getTemplateLabels: vi.fn(),
   }))
-  
+
   vi.mock("../services", () => ({
     getVideoStyleForTemplate: vi.fn(),
   }))
@@ -55,7 +55,7 @@ describe("Templates Index Exports", () => {
   it("should have all expected exports", async () => {
     const module = await import("../index")
     const exports = Object.keys(module)
-    
+
     expect(exports).toContain("ResizableTemplate")
     expect(exports).toContain("TemplateList")
     expect(exports).toContain("TemplatePreview")
