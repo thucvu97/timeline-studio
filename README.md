@@ -62,7 +62,7 @@ Timeline Studio is a modern video editor built on Tauri architecture (Rust + Rea
 - 🎬 Professional video editing with multi-track timeline
 - 🖥️ Cross-platform (Windows, macOS, Linux)
 - 🚀 GPU-accelerated video processing (NVENC, QuickSync, VideoToolbox)
-- 🤖 AI-powered object/face recognition (YOLO v11 - ORT fixed)
+- 🤖 AI-powered object/face recognition (YOLO v11)
 - 🎨 30+ transitions, visual effects, and filters
 - 📝 Advanced subtitle system with 12 styles and animations
 - 🎵 Multi-track audio editing with effects
@@ -156,6 +156,7 @@ bun run check:all
 | `bun run build`       | Build for production                   |
 | `bun run test`        | Run frontend tests                     |
 | `bun run test:rust`   | Run backend tests                      |
+| `bun run test:e2e`    | Run end-to-end tests                   |
 | `bun run lint`        | Check code quality                     |
 | `bun run fix:all`     | Auto-fix code issues                   |
 
