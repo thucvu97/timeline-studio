@@ -781,8 +781,7 @@ mod tests {
     for result in test_results {
       match result {
         Ok(()) => {
-          // Success case - should not panic
-          assert!(true);
+          // Success case - no assertion needed
         }
         Err(e) => {
           // Error case - should contain expected message
