@@ -62,7 +62,9 @@ export const VirtualizedContentGroupWithPreload = memo<VirtualizedContentGroupWi
         newRange[1] !== lastVisibleRangeRef.current[1]
       ) {
         lastVisibleRangeRef.current = newRange
-        handleVisibleRangeChange(newRange, files)
+        // Преобразуем MediaFile[] в массив с fileId для совместимости с хуком
+        const filesWithFileId = files.map(file => ({ fileId: file.id }))
+        handleVisibleRangeChange(newRange, filesWithFileId)
       }
     }, [files, handleVisibleRangeChange, rowVirtualizer])
 
