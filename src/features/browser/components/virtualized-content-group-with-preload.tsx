@@ -10,7 +10,6 @@ interface VirtualizedContentGroupWithPreloadProps {
   files: MediaFile[]
   viewMode: string
   itemHeight: number
-  itemWidth?: number
   previewSize: number
   groupName?: string
 }
@@ -20,7 +19,7 @@ interface VirtualizedContentGroupWithPreloadProps {
  * Использует @tanstack/react-virtual для виртуализации и usePreviewPreloader для предзагрузки
  */
 export const VirtualizedContentGroupWithPreload = memo<VirtualizedContentGroupWithPreloadProps>(
-  ({ files, viewMode, itemHeight, itemWidth, previewSize, groupName }) => {
+  ({ files, viewMode, itemHeight, previewSize, groupName }) => {
     const parentRef = useRef<HTMLDivElement>(null)
     const lastVisibleRangeRef = useRef<[number, number]>([0, 0])
 
