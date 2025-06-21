@@ -1,23 +1,24 @@
 import { describe, expect, it } from "vitest"
+
 import {
-  PREVIEW_SIZES,
-  DEFAULT_SIZE,
-  MIN_SIZE,
-  MAX_SIZE,
-  DEFAULT_PREVIEW_SIZE_INDEX,
   DEFAULT_CONTENT_SIZES,
-  getPreviewSizeIndex,
-  getPreviewSizeByIndex,
-  getNextPreviewSize,
-  getPreviousPreviewSize,
-  isValidPreviewSize,
-  getClosestPreviewSize,
-  calculateDimensionsWithAspectRatio,
-  getOptimalTemplateSize,
-  calculateGridColumns,
-  getResponsivePreviewSize,
+  DEFAULT_PREVIEW_SIZE_INDEX,
+  DEFAULT_SIZE,
+  MAX_SIZE,
+  MIN_SIZE,
+  PREVIEW_SIZES,
   type PreviewSize,
   type PreviewSizeKey,
+  calculateDimensionsWithAspectRatio,
+  calculateGridColumns,
+  getClosestPreviewSize,
+  getNextPreviewSize,
+  getOptimalTemplateSize,
+  getPreviewSizeByIndex,
+  getPreviewSizeIndex,
+  getPreviousPreviewSize,
+  getResponsivePreviewSize,
+  isValidPreviewSize,
 } from "../preview-sizes"
 
 describe("preview-sizes", () => {
@@ -326,9 +327,11 @@ describe("preview-sizes", () => {
     })
 
     it("should calculate correctly with exact fit", () => {
-      expect(calculateGridColumns(232, 100, 16)).toBe(2)
-      expect(calculateGridColumns(348, 100, 16)).toBe(3)
-      expect(calculateGridColumns(464, 100, 16)).toBe(4)
+      // 125 + 16 = 141 per item
+      expect(calculateGridColumns(232, 125 as PreviewSize, 16)).toBe(1) // 232 / 141 = 1.64 -> 1
+      expect(calculateGridColumns(282, 125 as PreviewSize, 16)).toBe(2) // 282 / 141 = 2 -> 2
+      expect(calculateGridColumns(423, 125 as PreviewSize, 16)).toBe(3) // 423 / 141 = 3 -> 3
+      expect(calculateGridColumns(564, 125 as PreviewSize, 16)).toBe(4) // 564 / 141 = 4 -> 4
     })
   })
 
