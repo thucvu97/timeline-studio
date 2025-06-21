@@ -12,6 +12,7 @@ export default defineConfig({
       enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
       bundleName: "timeline-studio",
       uploadToken: process.env.CODECOV_TOKEN,
+      gitService: "github",
     }),
   ],
   test: {

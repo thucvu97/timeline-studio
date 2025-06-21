@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react"
 
-import { TauriMockProvider } from "@/components/tauri-mock-provider"
+import { TauriMockProvider } from "@/features/media-studio/services/tauri-mock-provider"
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AppSettingsProvider } from "@/features/app-state"
 import { BrowserStateProvider } from "@/features/browser"

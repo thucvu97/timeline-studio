@@ -43,7 +43,18 @@ export default defineConfig({
           // UI components
           ui: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "@radix-ui/react-select"],
           // Tauri APIs
-          tauri: ["@tauri-apps/api", "@tauri-apps/plugin-fs", "@tauri-apps/plugin-dialog"],
+          tauri: [
+            "@tauri-apps/api", 
+            "@tauri-apps/plugin-fs", 
+            "@tauri-apps/plugin-dialog",
+            "@tauri-apps/plugin-store",
+            "@tauri-apps/plugin-global-shortcut",
+            "@tauri-apps/plugin-log",
+            "@tauri-apps/plugin-notification",
+            "@tauri-apps/plugin-opener",
+            "@tauri-apps/plugin-websocket",
+            "@tauri-apps/plugin-window"
+          ],
           // Utilities
           utils: ["dayjs", "clsx", "tailwind-merge"],
           // Media processing

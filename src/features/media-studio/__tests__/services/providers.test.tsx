@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest"
 import { Providers } from "../../services/providers"
 
 // Мокаем все провайдеры
-vi.mock("@/components/tauri-mock-provider", () => ({
+vi.mock("@/features/media-studio/services/tauri-mock-provider", () => ({
   TauriMockProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="tauri-mock-provider">{children}</div>
   ),

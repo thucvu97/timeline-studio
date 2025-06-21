@@ -22,8 +22,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@types/*": ["./src/types/*"],
-      "@features/*": ["./src/features/*"],
-      "@browser/*": ["./src/features/browser/*"]
+      "@ui/*": ["./src/components/ui/*"],
+      "@features/*": ["./src/features/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-env.d.ts", "dist/types/**/*.ts"],

@@ -253,6 +253,12 @@ ignore:
   - "node_modules"
   - "dist"
   - "build"
+  - "scripts"
+  - "docs"
+  - "e2e"
+  - "examples"
+  - "promo"
+  - "docs-ru"
   - "coverage"
   - "*.config.js"
   - "*.config.ts"
@@ -285,10 +291,8 @@ flag_management:
       statuses:
         - type: "project"
           target: 85%
-    # Bundle flag disabled - not properly configured
-    # To enable bundle analysis, install @codecov/bundler-plugin
-    # - name: bundle
-    #   carryforward: false
+    - name: bundle
+      carryforward: false
 
 # Comment configuration
 comment:
