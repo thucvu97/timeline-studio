@@ -165,7 +165,7 @@ bun run check:all
 ### Test Coverage Status
 
 ✅ **Frontend Tests**: 4168 passed
-✅ **Backend Tests**: 811 passed
+✅ **Backend Tests**: 798 passed
 ✅ **E2E Tests**: 927 passed
 📊 **Total**: >5,000 tests passing
 

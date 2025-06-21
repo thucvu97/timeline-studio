@@ -27,10 +27,6 @@ use app_dirs::{clear_app_cache, create_app_directories, get_app_directories, get
 mod video_compiler;
 use video_compiler::{initialize, VideoCompilerState};
 
-// Модуль Video Server
-mod video_server;
-use video_server::{VideoRegistrationResponse, VideoServerState};
-
 // Модуль распознавания (YOLO)
 mod recognition;
 use recognition::commands::{
@@ -187,26 +183,6 @@ async fn scan_media_folder_with_thumbnails(
 // Video Compiler Commands (non-duplicate ones only)
 // Команда clear_all_cache уже определена в video_compiler/commands.rs
 
-#[tauri::command]
-async fn register_video(
-  path: String,
-  state: tauri::State<'_, VideoServerState>,
-) -> Result<VideoRegistrationResponse, String> {
-  use std::path::PathBuf;
-
-  let path_buf = PathBuf::from(&path);
-  if !path_buf.exists() {
-    return Err("File does not exist".to_string());
-  }
-
-  let id = state.register_video(path_buf).await;
-
-  Ok(VideoRegistrationResponse {
-    id: id.clone(),
-    url: format!("http://localhost:4567/video/{}", id),
-  })
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   // Инициализация runtime для async операций
@@ -240,15 +216,6 @@ pub fn run() {
         VideoCompilerState::default()
       }
     }
-  });
-
-  // Инициализация Video Server
-  let video_server_state = VideoServerState::new();
-  let video_server_state_clone = video_server_state.clone();
-
-  // Запускаем video server в отдельной задаче
-  runtime.spawn(async move {
-    video_server::start_video_server(video_server_state_clone).await;
   });
 
   // Инициализация Preview Manager
@@ -314,7 +281,6 @@ pub fn run() {
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_store::Builder::default().build())
     .manage(video_compiler_state)
-    .manage(video_server_state)
     .manage(recognition_state)
     .manage(preview_manager_state)
     .manage(language_state)
@@ -338,8 +304,6 @@ pub fn run() {
       create_app_directories,
       get_directory_sizes,
       clear_app_cache,
-      // Video Server command
-      register_video,
       // Video Compiler commands
       compile_video,
       get_render_progress,
@@ -466,7 +430,6 @@ mod tests {
     // Это в основном проверка компиляции
     // Просто проверяем, что типы существуют
     let _ = std::any::type_name::<VideoCompilerState>();
-    let _ = std::any::type_name::<VideoServerState>();
   }
 
   #[tokio::test]
@@ -525,25 +488,6 @@ mod tests {
     assert!(memory_usage.total_mb() < 0.01); // Меньше 10KB
   }
 
-  #[tokio::test]
-  async fn test_register_video_functionality() {
-    // Создаем временный видео файл
-    let temp_dir = TempDir::new().unwrap();
-    let video_path = temp_dir.path().join("test_video.mp4");
-    std::fs::write(&video_path, b"fake video content").unwrap();
-
-    // Создаем VideoServerState и регистрируем видео напрямую
-    let state = VideoServerState::new();
-    let id = state.register_video(video_path.clone()).await;
-
-    assert!(!id.is_empty());
-
-    // Проверяем, что файл действительно зарегистрирован
-    let videos = state.video_registry.lock().await;
-    assert!(videos.contains_key(&id));
-    assert_eq!(videos.get(&id).unwrap(), &video_path);
-  }
-
   #[test]
   fn test_video_compiler_state_default() {
     // Проверяем, что VideoCompilerState::default() создается корректно
@@ -574,53 +518,6 @@ mod tests {
         assert!(e.to_string().contains("FFmpeg") || e.to_string().contains("ffmpeg"));
       }
     }
-  }
-
-  #[test]
-  fn test_video_server_state_new() {
-    // Проверяем создание VideoServerState
-    let state = VideoServerState::new();
-
-    // State должен быть создан успешно
-    // Проверяем, что он может быть клонирован
-    let _cloned = state.clone();
-  }
-
-  #[tokio::test]
-  async fn test_start_video_server() {
-    use std::time::Duration;
-
-    // Создаем VideoServerState
-    let state = VideoServerState::new();
-
-    // Запускаем сервер в отдельной задаче
-    let server_handle = tokio::spawn(async move {
-      video_server::start_video_server(state).await;
-    });
-
-    // Даем серверу время запуститься
-    tokio::time::sleep(Duration::from_millis(100)).await;
-
-    // Проверяем, что сервер доступен
-    let client = reqwest::Client::new();
-    let response = client
-      .get("http://localhost:4567/health")
-      .timeout(Duration::from_secs(1))
-      .send()
-      .await;
-
-    // Проверяем ответ или timeout (сервер может не запуститься в тестовом окружении)
-    match response {
-      Ok(resp) => {
-        assert_eq!(resp.status(), 200);
-      }
-      Err(_) => {
-        // Сервер может не запуститься в тестовом окружении, это нормально
-      }
-    }
-
-    // Останавливаем сервер
-    server_handle.abort();
   }
 
   // ==================== ТЕСТЫ ДЛЯ MEDIA PREVIEW MANAGER ====================
@@ -1303,70 +1200,6 @@ mod tests {
     let _ = result.is_ok(); // Основная проверка - нет panic
   }
 
-  // ==================== ТЕСТЫ ДЛЯ REGISTER_VIDEO ====================
-
-  #[tokio::test]
-  async fn test_register_video_command() {
-    // Создаем временный видео файл
-    let temp_dir = TempDir::new().unwrap();
-    let video_path = temp_dir.path().join("register_test.mp4");
-    std::fs::write(&video_path, b"fake video content for registration").unwrap();
-
-    // Создаем VideoServerState напрямую
-    let video_server_state = VideoServerState::new();
-
-    // Тестируем register_video напрямую через VideoServerState
-    let id = video_server_state.register_video(video_path.clone()).await;
-
-    // Проверяем результат
-    assert!(!id.is_empty());
-
-    // Проверяем что файл зарегистрирован
-    let registry = video_server_state.video_registry.lock().await;
-    assert!(registry.contains_key(&id));
-    assert_eq!(registry.get(&id).unwrap(), &video_path);
-  }
-
-  #[tokio::test]
-  async fn test_register_video_nonexistent_file() {
-    // Тестируем напрямую через функцию проверки существования файла
-    let nonexistent_path = std::path::PathBuf::from("/nonexistent/video/file.mp4");
-
-    // Файл не должен существовать
-    assert!(!nonexistent_path.exists());
-
-    // Проверяем что register_video функция корректно обрабатывает это
-    // (логика проверки реализована в самой функции register_video)
-  }
-
-  #[tokio::test]
-  async fn test_register_video_multiple_files() {
-    let temp_dir = TempDir::new().unwrap();
-    let video_server_state = VideoServerState::new();
-
-    // Регистрируем несколько файлов
-    let file_paths = ["multi1.mp4", "multi2.mov", "multi3.avi"];
-    let mut registered_ids = Vec::new();
-
-    for file_name in file_paths.iter() {
-      let file_path = temp_dir.path().join(file_name);
-      std::fs::write(&file_path, b"multi video content").unwrap();
-
-      let id = video_server_state.register_video(file_path).await;
-      registered_ids.push(id);
-    }
-
-    // Проверяем что все ID уникальны
-    let mut unique_ids = registered_ids.clone();
-    unique_ids.sort();
-    unique_ids.dedup();
-    assert_eq!(unique_ids.len(), file_paths.len());
-
-    // Проверяем что все файлы зарегистрированы
-    let registry = video_server_state.video_registry.lock().await;
-    assert_eq!(registry.len(), file_paths.len());
-  }
-
   // ==================== ТЕСТЫ ДЛЯ GET_TEST_LONGEST_VIDEO ====================
 
   #[cfg(test)]
@@ -1563,7 +1396,6 @@ mod tests {
         tokio::spawn(async move {
           // Создаем состояния одновременно
           let _language_state = LanguageState::new();
-          let _video_server_state = VideoServerState::new();
           let _preview_manager = PreviewDataManager::new(temp_path.clone());
 
           // Пытаемся создать recognition service
@@ -1618,10 +1450,6 @@ mod tests {
         }
       }
     }
-
-    // 3. Тестируем что VideoServerState всегда создается успешно
-    let video_state = VideoServerState::new();
-    let _cloned_state = video_state.clone(); // Должно работать
   }
 
   #[tokio::test]
@@ -1632,7 +1460,6 @@ mod tests {
     // Создаем и уничтожаем состояния несколько раз
     for _i in 0..10 {
       let _language_state = LanguageState::new();
-      let _video_server_state = VideoServerState::new();
       let _preview_manager = PreviewDataManager::new(temp_dir.path().to_path_buf());
 
       // Пытаемся создать recognition service (может завершиться ошибкой)

@@ -448,3 +448,18 @@ bun run test:e2e:video-all         # Все video тесты
 - **Общее количество**: >5,097 тестов
 
 **Статус**: ✅ Модули ffmpeg_builder и media/processor полностью покрыты тестами и готовы к production!
+
+## 🧹 Очистка неиспользуемого кода
+
+### Удален модуль video_server:
+- **Причина**: Отказ от стриминга через backend в пользу asset protocol
+- **Удалены файлы**:
+  - `src-tauri/src/video_server/server.rs`
+  - `src-tauri/src/video_server/mod.rs`
+  - `src-tauri/src/video_server/tests.rs`
+  - `src/features/browser/components/preview/simple-video-test.tsx`
+  - `src/features/media/services/video-streaming-service.ts`
+  - `src/features/media/hooks/use-video-streaming.ts`
+  - Соответствующие тесты
+- **Очищены импорты и команды** в `lib.rs`
+- **Результат**: Код успешно компилируется без предупреждений
