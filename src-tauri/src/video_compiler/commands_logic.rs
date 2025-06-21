@@ -1422,17 +1422,6 @@ mod tests {
   }
 
   #[tokio::test]
-  #[ignore = "Preview module behavior may vary"]
-  async fn test_get_video_info_logic() {
-    let state = create_test_state();
-
-    // Test with non-existent file
-    let result = get_video_info_logic("/non/existent/video.mp4", &state).await;
-    // Result depends on preview module implementation
-    let _ = result;
-  }
-
-  #[tokio::test]
   async fn test_set_ffmpeg_path_logic() {
     // Test with invalid path
     let result = set_ffmpeg_path_logic("/invalid/ffmpeg/path").await.unwrap();
