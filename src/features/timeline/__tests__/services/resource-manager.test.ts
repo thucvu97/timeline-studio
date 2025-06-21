@@ -1,12 +1,14 @@
-import { describe, it, expect, beforeEach } from "vitest"
-import { ResourceManager } from "../../services/resource-manager"
-import { TimelineProject } from "../../types/timeline"
+import { beforeEach, describe, expect, it } from "vitest"
+
 import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
-import { Transition } from "@/features/transitions/types/transitions"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { StyleTemplate } from "@/features/style-templates/types/style-template"
 import { MediaFile } from "@/features/media/types/media"
+import { StyleTemplate } from "@/features/style-templates/types/style-template"
+import { MediaTemplate } from "@/features/templates/lib/templates"
+import { Transition } from "@/features/transitions/types/transitions"
+
+import { ResourceManager } from "../../services/resource-manager"
+import { TimelineProject } from "../../types/timeline"
 
 describe("ResourceManager", () => {
   let mockProject: TimelineProject
