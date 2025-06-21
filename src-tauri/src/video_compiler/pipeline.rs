@@ -1993,3 +1993,8 @@ mod tests {
     assert_eq!(deserialized.error_count, stats.error_count);
   }
 }
+
+// Include extended tests module
+#[cfg(test)]
+#[path = "pipeline_extended_tests.rs"]
+mod pipeline_extended_tests;
