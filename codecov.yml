@@ -12,7 +12,6 @@ coverage:
       default:
         target: 70%
         threshold: 5%
-  max_report_age: off
 
 # Component-based coverage tracking - each feature is a separate component
 component_management:
