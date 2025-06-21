@@ -9,21 +9,24 @@ on:
 jobs:
   frontend-coverage:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-          
+
       - name: Install dependencies
         run: bun install
-        
+
       - name: Run frontend tests with coverage
         run: bun run test:coverage
-        
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+
       - name: Upload frontend coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -33,18 +36,18 @@ jobs:
           name: frontend-coverage
           fail_ci_if_error: false
           slug: chatman-media/timeline-studio
-          
+
   backend-coverage:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -66,7 +69,7 @@ jobs:
             libswresample-dev \
             pkg-config \
             wget
-            
+
       - name: Install ONNX Runtime
         run: |
           # Download ONNX Runtime 1.22.0 for Linux x64 (compatible with ort 2.0.0-rc.10)

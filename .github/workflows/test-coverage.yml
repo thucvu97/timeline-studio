@@ -32,12 +32,15 @@ jobs:
         run: npm run test:coverage
         env:
           CI: true
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
 
       - name: Upload coverage to Codecov (with plugin)
         if: always()
         run: npm run test:coverage
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
           CI: true
 
       - name: Upload coverage reports to Codecov (fallback)
