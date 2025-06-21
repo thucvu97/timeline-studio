@@ -645,28 +645,22 @@ describe("UserSettingsModal", () => {
 
   it("should clear player screenshots path when X button is clicked", () => {
     // Переопределяем значение playerScreenshotsPath для этого теста
-    vi.mocked(useUserSettings).mockImplementation(() => ({
-      screenshotsPath: "public/screenshots",
+    const mockHandlePlayerScreenshotsPathChangeFn = vi.fn()
+    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
       playerScreenshotsPath: "custom/player/path",
-      openAiApiKey: "",
-      claudeApiKey: "",
-      isBrowserVisible: true,
-      activeTab: "media",
-      layoutMode: "default",
+      screenshotsPath: "public/screenshots", // Keep default value
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
-      handleClaudeApiKeyChange: vi.fn(),
-      handlePlayerScreenshotsPathChange: vi.fn(),
-      handleTabChange: vi.fn(),
-      handleLayoutChange: vi.fn(),
-      toggleBrowserVisibility: vi.fn(),
+      handlePlayerScreenshotsPathChange: mockHandlePlayerScreenshotsPathChangeFn,
     }))
 
     render(<UserSettingsModal />)
 
     // Находим кнопку X рядом с инпутом пути скриншотов плеера
+    // Since the player screenshots path is not default, there should be a clear button for it
     const clearButtons = screen.getAllByTitle("dialogs.userSettings.clearPath")
-    const clearPlayerPathButton = clearButtons[1] // Вторая кнопка для player screenshots path
+    // Only player screenshots path has non-default value, so it should be the only clear button
+    const clearPlayerPathButton = clearButtons[0]
 
     // Кликаем по кнопке X
     act(() => {
@@ -676,8 +670,7 @@ describe("UserSettingsModal", () => {
     })
 
     // Проверяем, что handlePlayerScreenshotsPathChange был вызван с правильным значением
-    const mockHandlePlayerScreenshotsPathChange = vi.mocked(useUserSettings)().handlePlayerScreenshotsPathChange
-    expect(mockHandlePlayerScreenshotsPathChange).toHaveBeenCalledWith("public/media")
+    expect(mockHandlePlayerScreenshotsPathChangeFn).toHaveBeenCalledWith("public/media")
   })
 
   it("should open cache statistics modal when button is clicked", () => {
