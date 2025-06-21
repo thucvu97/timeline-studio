@@ -501,7 +501,7 @@ describe("OptionsLayout", () => {
       
       // Проверяем что правая панель существует когда Options видим
       let panels = screen.getAllByTestId("resizable-panel")
-      let optionsPanel = panels.find(p => 
+      const optionsPanel = panels.find(p => 
         p.getAttribute("data-default-size") === "30" &&
         p.querySelector('[data-testid="options"]')
       )
