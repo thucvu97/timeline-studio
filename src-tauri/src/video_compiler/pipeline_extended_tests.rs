@@ -244,10 +244,12 @@ mod extended_tests {
     });
 
     // Add subtitles
-    let mut subtitle_style = SubtitleStyle::default();
-    subtitle_style.font_size = 28.0;
-    subtitle_style.font_weight = SubtitleFontWeight::Bold;
-    subtitle_style.color = "#FFFF00".to_string();
+    let subtitle_style = SubtitleStyle {
+      font_size: 28.0,
+      font_weight: SubtitleFontWeight::Bold,
+      color: "#FFFF00".to_string(),
+      ..Default::default()
+    };
 
     project.subtitles.push(Subtitle {
       id: "subtitle1".to_string(),
@@ -538,11 +540,11 @@ mod extended_tests {
     let progress_tracker = Arc::new(ProgressTracker::new(tx));
 
     // Create custom settings
-    let mut custom_settings = CompilerSettings::default();
-    custom_settings.temp_directory = temp_dir.path().join("custom_temp");
-    custom_settings.ffmpeg_path = Some("/custom/path/to/ffmpeg".into());
-    // custom_settings doesn't have thread_count field
-    // custom_settings doesn't have memory_limit field
+    let custom_settings = CompilerSettings {
+      temp_directory: temp_dir.path().join("custom_temp"),
+      ffmpeg_path: Some("/custom/path/to/ffmpeg".into()),
+      ..Default::default()
+    };
 
     let settings = Arc::new(RwLock::new(custom_settings));
     let output_path = temp_dir.path().join("output.mp4");
@@ -559,10 +561,12 @@ mod extended_tests {
 
   #[tokio::test]
   async fn test_statistics_collection() {
-    let mut stats = PipelineStatistics::default();
+    let mut stats = PipelineStatistics {
+      validation_time: std::time::SystemTime::now(),
+      ..Default::default()
+    };
 
     // Simulate pipeline execution
-    stats.validation_time = std::time::SystemTime::now();
     tokio::time::sleep(Duration::from_millis(10)).await;
 
     stats.preprocessing_time = std::time::SystemTime::now();
