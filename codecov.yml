@@ -285,6 +285,10 @@ flag_management:
       statuses:
         - type: "project"
           target: 85%
+    # Bundle flag disabled - not properly configured
+    # To enable bundle analysis, install @codecov/bundler-plugin
+    # - name: bundle
+    #   carryforward: false
 
 # Comment configuration
 comment:

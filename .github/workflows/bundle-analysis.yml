@@ -56,13 +56,16 @@ jobs:
             cat dist-sizes.txt >> bundle-stats.json || echo "No size data available"
           fi
           
-      - name: Upload bundle stats to Codecov
-        if: always()
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          name: bundle-analysis
-          flags: bundle
-          files: bundle-stats.json,dist-sizes.txt
-          fail_ci_if_error: false
-          verbose: true
+      # Bundle analysis disabled - not properly configured
+      # To enable bundle analysis, install @codecov/bundler-plugin
+      # and configure it properly with webpack/vite/rollup
+      # - name: Upload bundle stats to Codecov
+      #   if: always()
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     name: bundle-analysis
+      #     flags: bundle
+      #     files: bundle-stats.json,dist-sizes.txt
+      #     fail_ci_if_error: false
+      #     verbose: true

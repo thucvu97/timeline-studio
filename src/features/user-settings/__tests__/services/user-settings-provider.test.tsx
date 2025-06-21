@@ -18,6 +18,8 @@ const mockState = {
     openAiApiKey: "",
     claudeApiKey: "",
     isBrowserVisible: true,
+    isTimelineVisible: true,
+    isOptionsVisible: true,
     isLoaded: true,
     previewSizes: {
       MEDIA: 100,
@@ -63,6 +65,8 @@ describe("UserSettingsProvider", () => {
       openAiApiKey: "",
       claudeApiKey: "",
       isBrowserVisible: true,
+      isTimelineVisible: true,
+      isOptionsVisible: true,
       isLoaded: true,
       previewSizes: {
         MEDIA: 100,
@@ -97,6 +101,8 @@ describe("UserSettingsProvider", () => {
     expect(result.current.openAiApiKey).toBe("")
     expect(result.current.claudeApiKey).toBe("")
     expect(result.current.isBrowserVisible).toBe(true)
+    expect(result.current.isTimelineVisible).toBe(true)
+    expect(result.current.isOptionsVisible).toBe(true)
   })
 
   it("should provide methods for interacting with user settings", () => {
@@ -128,6 +134,12 @@ describe("UserSettingsProvider", () => {
 
     expect(result.current.toggleBrowserVisibility).toBeDefined()
     expect(typeof result.current.toggleBrowserVisibility).toBe("function")
+
+    expect(result.current.toggleTimelineVisibility).toBeDefined()
+    expect(typeof result.current.toggleTimelineVisibility).toBe("function")
+
+    expect(result.current.toggleOptionsVisibility).toBeDefined()
+    expect(typeof result.current.toggleOptionsVisibility).toBe("function")
   })
 
   it("should throw error when useUserSettings is used outside of provider", () => {
@@ -205,6 +217,76 @@ describe("UserSettingsProvider", () => {
         path: "new/path",
       }),
     )
+  })
+
+  it("should handle player volume change", () => {
+    // Получаем доступ к send из мока useMachine
+    const { result } = renderHook(() => useUserSettings(), {
+      wrapper: UserSettingsProvider,
+    })
+
+    // Изменяем громкость плеера
+    act(() => {
+      result.current.handlePlayerVolumeChange(75)
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "UPDATE_PLAYER_VOLUME",
+      volume: 75,
+    })
+  })
+
+  it("should handle timeline visibility toggle", () => {
+    // Получаем доступ к send из мока useMachine
+    const { result } = renderHook(() => useUserSettings(), {
+      wrapper: UserSettingsProvider,
+    })
+
+    // Переключаем видимость временной шкалы
+    act(() => {
+      result.current.toggleTimelineVisibility()
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "TOGGLE_TIMELINE_VISIBILITY",
+    })
+  })
+
+  it("should handle options visibility toggle", () => {
+    // Получаем доступ к send из мока useMachine
+    const { result } = renderHook(() => useUserSettings(), {
+      wrapper: UserSettingsProvider,
+    })
+
+    // Переключаем видимость опций
+    act(() => {
+      result.current.toggleOptionsVisibility()
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "TOGGLE_OPTIONS_VISIBILITY",
+    })
+  })
+
+  it("should handle Claude API key change", () => {
+    // Получаем доступ к send из мока useMachine
+    const { result } = renderHook(() => useUserSettings(), {
+      wrapper: UserSettingsProvider,
+    })
+
+    // Изменяем Claude API ключ
+    act(() => {
+      result.current.handleClaudeApiKeyChange("claude-test-key")
+    })
+
+    // Проверяем, что send был вызван с правильными параметрами
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "UPDATE_CLAUDE_API_KEY",
+      apiKey: "claude-test-key",
+    })
   })
 
   it("should handle AI API key change", async () => {

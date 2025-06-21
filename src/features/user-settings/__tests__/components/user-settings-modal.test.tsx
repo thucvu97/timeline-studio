@@ -41,9 +41,39 @@ vi.mock("react-i18next", () => ({
 vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
 
+// Создаем функцию для получения моковых данных с переопределениями
+const getMockUserSettings = (overrides = {}) => ({
+  screenshotsPath: "public/screenshots",
+  playerScreenshotsPath: "public/media",
+  openAiApiKey: "",
+  claudeApiKey: "",
+  isBrowserVisible: true,
+  isTimelineVisible: true,
+  isOptionsVisible: true,
+  activeTab: "media" as const,
+  layoutMode: "default" as const,
+  playerVolume: 100,
+  handleScreenshotsPathChange: vi.fn(),
+  handleAiApiKeyChange: vi.fn(),
+  handleClaudeApiKeyChange: vi.fn(),
+  handlePlayerScreenshotsPathChange: vi.fn(),
+  handleTabChange: vi.fn(),
+  handleLayoutChange: vi.fn(),
+  toggleBrowserVisibility: vi.fn(),
+  handlePlayerVolumeChange: vi.fn(),
+  toggleTimelineVisibility: vi.fn(),
+  toggleOptionsVisibility: vi.fn(),
+  ...overrides,
+})
+
 describe("UserSettingsModal", () => {
   const mockHandleScreenshotsPathChange = vi.fn()
   const mockHandleAiApiKeyChange = vi.fn()
+  const mockHandleClaudeApiKeyChange = vi.fn()
+  const mockHandlePlayerScreenshotsPathChange = vi.fn()
+  const mockHandlePlayerVolumeChange = vi.fn()
+  const mockToggleTimelineVisibility = vi.fn()
+  const mockToggleOptionsVisibility = vi.fn()
   const mockChangeLanguage = vi.fn()
   const mockCloseModal = vi.fn()
 
@@ -58,15 +88,21 @@ describe("UserSettingsModal", () => {
       openAiApiKey: "",
       claudeApiKey: "",
       isBrowserVisible: true,
+      isTimelineVisible: true,
+      isOptionsVisible: true,
       activeTab: "media",
       layoutMode: "default",
+      playerVolume: 100,
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
-      handleClaudeApiKeyChange: vi.fn(),
-      handlePlayerScreenshotsPathChange: vi.fn(),
+      handleClaudeApiKeyChange: mockHandleClaudeApiKeyChange,
+      handlePlayerScreenshotsPathChange: mockHandlePlayerScreenshotsPathChange,
       handleTabChange: vi.fn(),
       handleLayoutChange: vi.fn(),
       toggleBrowserVisibility: vi.fn(),
+      handlePlayerVolumeChange: mockHandlePlayerVolumeChange,
+      toggleTimelineVisibility: mockToggleTimelineVisibility,
+      toggleOptionsVisibility: mockToggleOptionsVisibility,
     }))
 
     // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -82,6 +118,10 @@ describe("UserSettingsModal", () => {
     vi.mocked(useModal).mockImplementation(() => ({
       openModal: vi.fn(),
       closeModal: mockCloseModal,
+      modalType: null,
+      modalData: null,
+      isOpen: false,
+      submitModal: vi.fn(),
     }))
   })
 
@@ -184,21 +224,10 @@ describe("UserSettingsModal", () => {
 
   it("should clear screenshots path when X button is clicked", () => {
     // Переопределяем значение screenshotsPath для этого теста
-    vi.mocked(useUserSettings).mockImplementation(() => ({
+    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
       screenshotsPath: "custom/path",
-      playerScreenshotsPath: "public/media",
-      openAiApiKey: "",
-      claudeApiKey: "",
-      isBrowserVisible: true,
-      activeTab: "media",
-      layoutMode: "default",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
-      handleClaudeApiKeyChange: vi.fn(),
-      handlePlayerScreenshotsPathChange: vi.fn(),
-      handleTabChange: vi.fn(),
-      handleLayoutChange: vi.fn(),
-      toggleBrowserVisibility: vi.fn(),
     }))
 
     render(<UserSettingsModal />)
@@ -219,21 +248,10 @@ describe("UserSettingsModal", () => {
 
   it("should clear API key when X button is clicked", () => {
     // Переопределяем значение openAiApiKey для этого теста
-    vi.mocked(useUserSettings).mockImplementation(() => ({
-      screenshotsPath: "public/screenshots",
-      playerScreenshotsPath: "public/media",
+    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
       openAiApiKey: "test-api-key",
-      claudeApiKey: "",
-      isBrowserVisible: true,
-      activeTab: "media",
-      layoutMode: "default",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
-      handleClaudeApiKeyChange: vi.fn(),
-      handlePlayerScreenshotsPathChange: vi.fn(),
-      handleTabChange: vi.fn(),
-      handleLayoutChange: vi.fn(),
-      toggleBrowserVisibility: vi.fn(),
     }))
 
     render(<UserSettingsModal />)
@@ -291,21 +309,10 @@ describe("UserSettingsModal", () => {
     expect(screenshotsPathInput).toHaveValue("public/screenshots")
 
     // Изменяем путь скриншотов в контексте
-    vi.mocked(useUserSettings).mockImplementation(() => ({
+    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
       screenshotsPath: "new/path",
-      playerScreenshotsPath: "public/media",
-      openAiApiKey: "",
-      claudeApiKey: "",
-      isBrowserVisible: true,
-      activeTab: "media",
-      layoutMode: "default",
       handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
       handleAiApiKeyChange: mockHandleAiApiKeyChange,
-      handleClaudeApiKeyChange: vi.fn(),
-      handlePlayerScreenshotsPathChange: vi.fn(),
-      handleTabChange: vi.fn(),
-      handleLayoutChange: vi.fn(),
-      toggleBrowserVisibility: vi.fn(),
     }))
 
     // Перерендериваем компонент
@@ -337,9 +344,32 @@ describe("UserSettingsModal", () => {
   })
 
   it("should handle Claude API key change", () => {
-    // Пропускаем этот тест, так как в компоненте используется handleClaudeApiKeyChange,
-    // но в тесте мы не можем найти элемент с нужным плейсхолдером
-    // TODO: Исправить тест, когда будет исправлен компонент
+    render(<UserSettingsModal />)
+
+    // Находим инпуты API ключей (OpenAI и Claude)
+    const apiKeyInputs = screen.getAllByPlaceholderText("dialogs.userSettings.enterApiKey")
+
+    // Второй инпут - для Claude
+    const claudeKeyInput = apiKeyInputs[1]
+
+    // Вводим новый API ключ
+    act(() => {
+      act(() => {
+        fireEvent.change(claudeKeyInput, { target: { value: "claude-api-key" } })
+      })
+    })
+
+    // Нажимаем кнопку "Сохранить"
+    const saveButton = screen.getByText("dialogs.userSettings.save")
+    act(() => {
+      act(() => {
+        fireEvent.click(saveButton)
+      })
+    })
+
+    // Проверяем, что handleClaudeApiKeyChange был вызван с правильными параметрами
+    const mockHandleClaudeApiKeyChange = vi.mocked(useUserSettings)().handleClaudeApiKeyChange
+    expect(mockHandleClaudeApiKeyChange).toHaveBeenCalledWith("claude-api-key")
   })
 
   it("should handle folder selection button click using Tauri Dialog Plugin", async () => {
@@ -408,6 +438,100 @@ describe("UserSettingsModal", () => {
     expect(screenshotsPathInput).toHaveValue("selected/directory/path")
   })
 
+  it("should clear Claude API key when X button is clicked", () => {
+    // Переопределяем значение claudeApiKey для этого теста
+    const mockHandleClaudeApiKeyChangeFn = vi.fn()
+    vi.mocked(useUserSettings).mockImplementation(() => getMockUserSettings({
+      claudeApiKey: "test-claude-key",
+      openAiApiKey: "", // Ensure openAI key is empty
+      handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
+      handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      handleClaudeApiKeyChange: mockHandleClaudeApiKeyChangeFn,
+    }))
+
+    render(<UserSettingsModal />)
+
+    // Находим кнопку X рядом с инпутом Claude API ключа
+    // Since only Claude API key has a value, there should be only one clear button
+    const clearButton = screen.getByTitle("dialogs.userSettings.clearApiKey")
+
+    // Кликаем по кнопке X
+    act(() => {
+      act(() => {
+        fireEvent.click(clearButton)
+      })
+    })
+
+    // Проверяем, что handleClaudeApiKeyChange был вызван с пустой строкой
+    expect(mockHandleClaudeApiKeyChangeFn).toHaveBeenCalledWith("")
+  })
+
+  it("should handle player screenshots path selection", async () => {
+    // Получаем мок функции open из плагина dialog
+    const { open } = await import("@tauri-apps/plugin-dialog")
+    const mockOpen = open as unknown as ReturnType<typeof vi.fn>
+
+    // Очищаем историю вызовов мока
+    mockOpen.mockClear()
+
+    // Рендерим компонент
+    const { rerender } = render(<UserSettingsModal />)
+
+    // Находим кнопки выбора папки (у нас их две - для screenshotsPath и playerScreenshotsPath)
+    const folderButtons = screen.getAllByRole("button", {
+      name: /folder/i,
+    })
+
+    // Берем вторую кнопку (для playerScreenshotsPath)
+    const folderButton = folderButtons[1]
+
+    // Кликаем по кнопке
+    act(() => {
+      act(() => {
+        fireEvent.click(folderButton)
+      })
+    })
+
+    // Ждем, пока асинхронные операции завершатся
+    await vi.waitFor(() => {
+      // Проверяем, что open был вызван с правильными параметрами
+      expect(mockOpen).toHaveBeenCalledWith(
+        expect.objectContaining({
+          directory: true,
+          multiple: false,
+          title: "dialogs.userSettings.selectFolder",
+        }),
+      )
+    })
+
+    // Имитируем обновление состояния после выбора директории
+    vi.mocked(useUserSettings).mockImplementation(() => ({
+      screenshotsPath: "public/screenshots",
+      playerScreenshotsPath: "selected/directory/path",
+      openAiApiKey: "",
+      claudeApiKey: "",
+      isBrowserVisible: true,
+      activeTab: "media",
+      layoutMode: "default",
+      handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
+      handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      handleClaudeApiKeyChange: vi.fn(),
+      handlePlayerScreenshotsPathChange: vi.fn(),
+      handleTabChange: vi.fn(),
+      handleLayoutChange: vi.fn(),
+      toggleBrowserVisibility: vi.fn(),
+    }))
+
+    // Перерендериваем компонент
+    act(() => {
+      rerender(<UserSettingsModal />)
+    })
+
+    // Проверяем, что путь скриншотов плеера был обновлен
+    const playerScreenshotsPathInput = screen.getByPlaceholderText("public/media")
+    expect(playerScreenshotsPathInput).toHaveValue("selected/directory/path")
+  })
+
   it("should not update path when folder selection is cancelled", async () => {
     // Получаем мок функции open из плагина dialog и настраиваем его, чтобы он возвращал null
     const { open } = await import("@tauri-apps/plugin-dialog")
@@ -448,5 +572,161 @@ describe("UserSettingsModal", () => {
     // Проверяем, что путь скриншотов не изменился
     const screenshotsPathInput = screen.getByPlaceholderText("public/screenshots")
     expect(screenshotsPathInput).toHaveValue("public/screenshots")
+  })
+
+  it("should handle error when folder selection fails", async () => {
+    // Получаем мок функции open из плагина dialog и настраиваем его, чтобы он выбрасывал ошибку
+    const { open } = await import("@tauri-apps/plugin-dialog")
+    const mockOpen = open as unknown as ReturnType<typeof vi.fn>
+    mockOpen.mockClear()
+    mockOpen.mockRejectedValue(new Error("Permission denied"))
+
+    // Мокаем window.prompt
+    const mockPrompt = vi.spyOn(window, "prompt").mockReturnValue("custom/path")
+
+    // Рендерим компонент
+    render(<UserSettingsModal />)
+
+    // Находим кнопки выбора папки
+    const folderButtons = screen.getAllByRole("button", {
+      name: /folder/i,
+    })
+
+    // Берем первую кнопку (для screenshotsPath)
+    const folderButton = folderButtons[0]
+
+    // Кликаем по кнопке
+    act(() => {
+      act(() => {
+        fireEvent.click(folderButton)
+      })
+    })
+
+    // Ждем, пока асинхронные операции завершатся
+    await vi.waitFor(() => {
+      // Проверяем, что open был вызван
+      expect(mockOpen).toHaveBeenCalled()
+      // Проверяем, что был показан prompt
+      expect(mockPrompt).toHaveBeenCalledWith(
+        "dialogs.userSettings.selectFolderPrompt",
+        expect.any(String)
+      )
+    })
+
+    // Восстанавливаем window.prompt
+    mockPrompt.mockRestore()
+  })
+
+  it("should handle player screenshots path change input", () => {
+    render(<UserSettingsModal />)
+
+    // Находим инпут пути скриншотов плеера
+    const playerScreenshotsPathInput = screen.getByPlaceholderText("public/media")
+
+    // Вводим новый путь
+    act(() => {
+      act(() => {
+        fireEvent.change(playerScreenshotsPathInput, { target: { value: "new/player/path" } })
+      })
+    })
+
+    // Нажимаем кнопку "Сохранить"
+    const saveButton = screen.getByText("dialogs.userSettings.save")
+    act(() => {
+      act(() => {
+        fireEvent.click(saveButton)
+      })
+    })
+
+    // Проверяем, что handlePlayerScreenshotsPathChange был вызван с правильными параметрами
+    const mockHandlePlayerScreenshotsPathChange = vi.mocked(useUserSettings)().handlePlayerScreenshotsPathChange
+    expect(mockHandlePlayerScreenshotsPathChange).toHaveBeenCalledWith("new/player/path")
+  })
+
+  it("should clear player screenshots path when X button is clicked", () => {
+    // Переопределяем значение playerScreenshotsPath для этого теста
+    vi.mocked(useUserSettings).mockImplementation(() => ({
+      screenshotsPath: "public/screenshots",
+      playerScreenshotsPath: "custom/player/path",
+      openAiApiKey: "",
+      claudeApiKey: "",
+      isBrowserVisible: true,
+      activeTab: "media",
+      layoutMode: "default",
+      handleScreenshotsPathChange: mockHandleScreenshotsPathChange,
+      handleAiApiKeyChange: mockHandleAiApiKeyChange,
+      handleClaudeApiKeyChange: vi.fn(),
+      handlePlayerScreenshotsPathChange: vi.fn(),
+      handleTabChange: vi.fn(),
+      handleLayoutChange: vi.fn(),
+      toggleBrowserVisibility: vi.fn(),
+    }))
+
+    render(<UserSettingsModal />)
+
+    // Находим кнопку X рядом с инпутом пути скриншотов плеера
+    const clearButtons = screen.getAllByTitle("dialogs.userSettings.clearPath")
+    const clearPlayerPathButton = clearButtons[1] // Вторая кнопка для player screenshots path
+
+    // Кликаем по кнопке X
+    act(() => {
+      act(() => {
+        fireEvent.click(clearPlayerPathButton)
+      })
+    })
+
+    // Проверяем, что handlePlayerScreenshotsPathChange был вызван с правильным значением
+    const mockHandlePlayerScreenshotsPathChange = vi.mocked(useUserSettings)().handlePlayerScreenshotsPathChange
+    expect(mockHandlePlayerScreenshotsPathChange).toHaveBeenCalledWith("public/media")
+  })
+
+  it("should open cache statistics modal when button is clicked", () => {
+    const mockOpenModal = vi.fn()
+    vi.mocked(useModal).mockImplementation(() => ({
+      openModal: mockOpenModal,
+      closeModal: mockCloseModal,
+      modalType: null,
+      modalData: null,
+      isOpen: false,
+      submitModal: vi.fn(),
+    }))
+
+    render(<UserSettingsModal />)
+
+    // Находим кнопку статистики кэша
+    const cacheStatsButton = screen.getByText("dialogs.userSettings.cacheStats")
+
+    // Кликаем по кнопке
+    act(() => {
+      fireEvent.click(cacheStatsButton)
+    })
+
+    // Проверяем, что openModal был вызван с правильными параметрами
+    expect(mockOpenModal).toHaveBeenCalledWith("cache-statistics", { returnTo: "user-settings" })
+  })
+
+  it("should open cache settings modal when button is clicked", () => {
+    const mockOpenModal = vi.fn()
+    vi.mocked(useModal).mockImplementation(() => ({
+      openModal: mockOpenModal,
+      closeModal: mockCloseModal,
+      modalType: null,
+      modalData: null,
+      isOpen: false,
+      submitModal: vi.fn(),
+    }))
+
+    render(<UserSettingsModal />)
+
+    // Находим кнопку настроек кэша
+    const cacheSettingsButton = screen.getByText("dialogs.userSettings.cacheSettings")
+
+    // Кликаем по кнопке
+    act(() => {
+      fireEvent.click(cacheSettingsButton)
+    })
+
+    // Проверяем, что openModal был вызван с правильными параметрами
+    expect(mockOpenModal).toHaveBeenCalledWith("cache-settings", { returnTo: "user-settings" })
   })
 })

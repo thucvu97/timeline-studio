@@ -344,4 +344,286 @@ describe("UserSettingsMachine", () => {
       expect(LAYOUTS).toEqual(["default", "options", "vertical", "chat"])
     })
   })
+
+  describe("Timeline visibility functionality", () => {
+    it("should toggle timeline visibility when TOGGLE_TIMELINE_VISIBILITY event is sent", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Проверяем начальное значение видимости временной шкалы
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(true)
+
+      // Отправляем событие TOGGLE_TIMELINE_VISIBILITY
+      actor.send({ type: "TOGGLE_TIMELINE_VISIBILITY" })
+
+      // Проверяем, что видимость временной шкалы изменилась
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(false)
+
+      // Отправляем событие TOGGLE_TIMELINE_VISIBILITY еще раз
+      actor.send({ type: "TOGGLE_TIMELINE_VISIBILITY" })
+
+      // Проверяем, что видимость временной шкалы вернулась к исходному значению
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(true)
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should persist timeline visibility state across other updates", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Переключаем видимость временной шкалы
+      actor.send({ type: "TOGGLE_TIMELINE_VISIBILITY" })
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(false)
+
+      // Выполняем другие операции
+      actor.send({ type: "UPDATE_PLAYER_VOLUME", volume: 50 })
+      actor.send({ type: "UPDATE_LAYOUT", layoutMode: "vertical" })
+
+      // Проверяем, что видимость временной шкалы осталась без изменений
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(false)
+
+      // Останавливаем актора
+      actor.stop()
+    })
+  })
+
+  describe("Options visibility functionality", () => {
+    it("should toggle options visibility when TOGGLE_OPTIONS_VISIBILITY event is sent", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Проверяем начальное значение видимости опций
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(true)
+
+      // Отправляем событие TOGGLE_OPTIONS_VISIBILITY
+      actor.send({ type: "TOGGLE_OPTIONS_VISIBILITY" })
+
+      // Проверяем, что видимость опций изменилась
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(false)
+
+      // Отправляем событие TOGGLE_OPTIONS_VISIBILITY еще раз
+      actor.send({ type: "TOGGLE_OPTIONS_VISIBILITY" })
+
+      // Проверяем, что видимость опций вернулась к исходному значению
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(true)
+
+      // Останавливаем актора
+      actor.stop()
+    })
+
+    it("should persist options visibility state across other updates", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Переключаем видимость опций
+      actor.send({ type: "TOGGLE_OPTIONS_VISIBILITY" })
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(false)
+
+      // Выполняем другие операции
+      actor.send({ type: "UPDATE_ACTIVE_TAB", tab: "effects" })
+      actor.send({ type: "UPDATE_SCREENSHOTS_PATH", path: "new/path" })
+
+      // Проверяем, что видимость опций осталась без изменений
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(false)
+
+      // Останавливаем актора
+      actor.stop()
+    })
+  })
+
+  describe("Multiple visibility toggles", () => {
+    it("should handle multiple visibility toggles independently", () => {
+      // Создаем актора машины состояний
+      const actor = createActor(userSettingsMachine)
+
+      // Запускаем актора
+      actor.start()
+
+      // Проверяем начальные значения
+      expect(actor.getSnapshot().context.isBrowserVisible).toBe(true)
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(true)
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(true)
+
+      // Переключаем только браузер
+      actor.send({ type: "TOGGLE_BROWSER_VISIBILITY" })
+      expect(actor.getSnapshot().context.isBrowserVisible).toBe(false)
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(true)
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(true)
+
+      // Переключаем только временную шкалу
+      actor.send({ type: "TOGGLE_TIMELINE_VISIBILITY" })
+      expect(actor.getSnapshot().context.isBrowserVisible).toBe(false)
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(false)
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(true)
+
+      // Переключаем только опции
+      actor.send({ type: "TOGGLE_OPTIONS_VISIBILITY" })
+      expect(actor.getSnapshot().context.isBrowserVisible).toBe(false)
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(false)
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(false)
+
+      // Возвращаем все обратно
+      actor.send({ type: "TOGGLE_BROWSER_VISIBILITY" })
+      actor.send({ type: "TOGGLE_TIMELINE_VISIBILITY" })
+      actor.send({ type: "TOGGLE_OPTIONS_VISIBILITY" })
+      expect(actor.getSnapshot().context.isBrowserVisible).toBe(true)
+      expect(actor.getSnapshot().context.isTimelineVisible).toBe(true)
+      expect(actor.getSnapshot().context.isOptionsVisible).toBe(true)
+
+      // Останавливаем актора
+      actor.stop()
+    })
+  })
+
+  describe("Event handler coverage", () => {
+    it("should have TOGGLE_TIMELINE_VISIBILITY event handler", () => {
+      const idleState = userSettingsMachine.config.states?.idle
+      expect(idleState?.on?.TOGGLE_TIMELINE_VISIBILITY).toBeDefined()
+    })
+
+    it("should have TOGGLE_OPTIONS_VISIBILITY event handler", () => {
+      const idleState = userSettingsMachine.config.states?.idle
+      expect(idleState?.on?.TOGGLE_OPTIONS_VISIBILITY).toBeDefined()
+    })
+
+    it("should handle UPDATE_ALL with visibility settings", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Обновляем все настройки, включая видимость
+      actor.send({
+        type: "UPDATE_ALL",
+        settings: {
+          isBrowserVisible: false,
+          isTimelineVisible: false,
+          isOptionsVisible: false,
+          playerVolume: 25,
+          layoutMode: "chat",
+        },
+      })
+
+      // Проверяем, что все настройки обновились
+      const context = actor.getSnapshot().context
+      expect(context.isBrowserVisible).toBe(false)
+      expect(context.isTimelineVisible).toBe(false)
+      expect(context.isOptionsVisible).toBe(false)
+      expect(context.playerVolume).toBe(25)
+      expect(context.layoutMode).toBe("chat")
+
+      actor.stop()
+    })
+  })
+
+  describe("API keys handling", () => {
+    it("should handle both API keys updates", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Проверяем начальные значения
+      expect(actor.getSnapshot().context.openAiApiKey).toBe("")
+      expect(actor.getSnapshot().context.claudeApiKey).toBe("")
+
+      // Обновляем OpenAI API ключ
+      actor.send({ type: "UPDATE_OPENAI_API_KEY", apiKey: "openai-test-key" })
+      expect(actor.getSnapshot().context.openAiApiKey).toBe("openai-test-key")
+      expect(actor.getSnapshot().context.claudeApiKey).toBe("")
+
+      // Обновляем Claude API ключ
+      actor.send({ type: "UPDATE_CLAUDE_API_KEY", apiKey: "claude-test-key" })
+      expect(actor.getSnapshot().context.openAiApiKey).toBe("openai-test-key")
+      expect(actor.getSnapshot().context.claudeApiKey).toBe("claude-test-key")
+
+      // Очищаем OpenAI API ключ
+      actor.send({ type: "UPDATE_OPENAI_API_KEY", apiKey: "" })
+      expect(actor.getSnapshot().context.openAiApiKey).toBe("")
+      expect(actor.getSnapshot().context.claudeApiKey).toBe("claude-test-key")
+
+      actor.stop()
+    })
+  })
+
+  describe("Screenshots paths handling", () => {
+    it("should handle both screenshots paths independently", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Проверяем начальные значения
+      expect(actor.getSnapshot().context.screenshotsPath).toBe("public/screenshots")
+      expect(actor.getSnapshot().context.playerScreenshotsPath).toBe("public/media")
+
+      // Обновляем путь скриншотов
+      actor.send({ type: "UPDATE_SCREENSHOTS_PATH", path: "custom/screenshots" })
+      expect(actor.getSnapshot().context.screenshotsPath).toBe("custom/screenshots")
+      expect(actor.getSnapshot().context.playerScreenshotsPath).toBe("public/media")
+
+      // Обновляем путь скриншотов плеера
+      actor.send({ type: "UPDATE_PLAYER_SCREENSHOTS_PATH", path: "custom/player/screenshots" })
+      expect(actor.getSnapshot().context.screenshotsPath).toBe("custom/screenshots")
+      expect(actor.getSnapshot().context.playerScreenshotsPath).toBe("custom/player/screenshots")
+
+      actor.stop()
+    })
+  })
+
+  describe("Active tab functionality", () => {
+    it("should update active tab to all valid browser tabs", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Проверяем все допустимые табы
+      const allTabs = [
+        "media",
+        "music",
+        "subtitles",
+        "transitions",
+        "effects",
+        "filters",
+        "templates",
+        "style-templates",
+      ] as const
+
+      for (const tab of allTabs) {
+        actor.send({ type: "UPDATE_ACTIVE_TAB", tab })
+        expect(actor.getSnapshot().context.activeTab).toBe(tab)
+        expect(BROWSER_TABS).toContain(tab)
+      }
+
+      actor.stop()
+    })
+  })
+
+  describe("Preview size functionality", () => {
+    it("should update preview sizes for different content types", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Обновляем размер превью для MEDIA
+      actor.send({ type: "UPDATE_PREVIEW_SIZE", key: "MEDIA", size: 300 })
+      expect(actor.getSnapshot().context.previewSizes.MEDIA).toBe(300)
+
+      // Обновляем размер превью для TRANSITIONS
+      actor.send({ type: "UPDATE_PREVIEW_SIZE", key: "TRANSITIONS", size: 250 })
+      expect(actor.getSnapshot().context.previewSizes.TRANSITIONS).toBe(250)
+
+      // Обновляем размер превью для TEMPLATES
+      actor.send({ type: "UPDATE_PREVIEW_SIZE", key: "TEMPLATES", size: 400 })
+      expect(actor.getSnapshot().context.previewSizes.TEMPLATES).toBe(400)
+
+      actor.stop()
+    })
+  })
 })
