@@ -339,7 +339,7 @@ describe("TimelineAIService", () => {
           expect.objectContaining({ name: "browser_tool" }),
         ]),
         expect.objectContaining({
-          system: expect.stringContaining("AI аналитик для Timeline Studio"),
+          system: expect.stringContaining("анализа медиа ресурсов в Timeline Studio"),
           temperature: 0.5,
           max_tokens: 2000,
         }),
@@ -376,10 +376,9 @@ describe("TimelineAIService", () => {
       const callArgs = mockClaudeService.sendRequestWithTools.mock.calls[0]
       const systemPrompt = callArgs[3].system
 
-      expect(systemPrompt).toContain("2 медиа") // 2 media resources
-      expect(systemPrompt).toContain("2 эффектов") // 2 effects
-      expect(systemPrompt).toContain("0 файлов") // 0 browser files (mocked as empty)
-      expect(systemPrompt).toContain("test") // active filter
+      expect(systemPrompt).toContain("Медиафайлы: 2") // 2 media resources  
+      expect(systemPrompt).toContain("Эффекты: 2") // 2 effects
+      expect(systemPrompt).toContain("анализа медиа ресурсов") // analysis prompt type
     })
   })
 
@@ -678,10 +677,10 @@ describe("TimelineAIService", () => {
       const context = service.createContext()
       const prompt = service.createAnalysisSystemPrompt(context)
 
-      expect(prompt).toContain("AI аналитик для Timeline Studio")
-      expect(prompt).toContain("2 медиа, 2 эффектов")
-      expect(prompt).toContain("0 файлов")
-      expect(prompt).toContain("test")
+      expect(prompt).toContain("анализа медиа ресурсов в Timeline Studio")
+      expect(prompt).toContain("Медиафайлы: 2")
+      expect(prompt).toContain("Эффекты: 2")
+      expect(prompt).toContain("ПРИНЦИПЫ АНАЛИЗА")
     })
 
     it("should handle missing data in prompts", () => {

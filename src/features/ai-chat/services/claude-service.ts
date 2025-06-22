@@ -70,7 +70,11 @@ export class ClaudeService {
   private apiVersion = "2023-06-01"
 
   private constructor() {
-    // Конструктор пустой, API ключ будет устанавливаться извне
+    // Читаем API ключ из переменной окружения
+    this.apiKey = process.env.ANTHROPIC_API_KEY || ""
+    if (this.apiKey) {
+      console.log("Claude API key loaded from environment")
+    }
   }
 
   /**

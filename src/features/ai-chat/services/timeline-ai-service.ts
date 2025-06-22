@@ -278,6 +278,30 @@ export class TimelineAIService {
   }
 
   /**
+   * Создает системный промпт для анализа ресурсов
+   */
+  private createAnalysisSystemPrompt(context: TimelineStudioContext): string {
+    return `Ты - AI ассистент для анализа медиа ресурсов в Timeline Studio.
+
+ЗАДАЧА: Проанализировать доступные ресурсы и предложить рекомендации
+
+ДОСТУПНЫЕ РЕСУРСЫ:
+- Медиафайлы: ${context.resources.stats.totalMedia}
+- Эффекты: ${context.resources.stats.resourceTypes.effects}
+- Фильтры: ${context.resources.stats.resourceTypes.filters}
+- Переходы: ${context.resources.stats.resourceTypes.transitions}
+- Шаблоны: ${context.resources.stats.resourceTypes.templates}
+
+ПРИНЦИПЫ АНАЛИЗА:
+1. Оценивай качество и разнообразие контента
+2. Предлагай оптимальные комбинации ресурсов
+3. Учитывай цветовую схему и стиль
+4. Рекомендуй подходящие эффекты и переходы
+
+Используй доступные инструменты для анализа и предложений.`
+  }
+
+  /**
    * Создает системный промпт для Claude
    */
   private createSystemPrompt(context: TimelineStudioContext): string {
@@ -308,21 +332,6 @@ export class TimelineAIService {
 Отвечай кратко и конкретно. Фокусируйся на практических действиях.`
   }
 
-  /**
-   * Создает системный промпт для анализа
-   */
-  private createAnalysisSystemPrompt(context: TimelineStudioContext): string {
-    return `Ты - AI аналитик для Timeline Studio.
-
-ЗАДАЧА: Анализировать медиа ресурсы и предлагать оптимальные решения.
-
-КОНТЕКСТ:
-- Ресурсов в пуле: ${context.resources.availableResources.media.length} медиа, ${context.resources.availableResources.effects.length} эффектов
-- В браузере: ${context.browser.availableMedia.length} файлов
-- Активные фильтры: ${context.browser.currentFilters.searchQuery || "нет"}
-
-Сосредоточься на анализе качества, совместимости и предложениях по улучшению.`
-  }
 
   /**
    * Обрабатывает ответ Claude и выполняет инструменты
@@ -358,6 +367,7 @@ export class TimelineAIService {
 
     return result
   }
+
 
   /**
    * Выполняет функцию инструмента

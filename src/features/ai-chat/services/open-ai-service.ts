@@ -54,7 +54,11 @@ export class OpenAiService {
   private apiKey = ""
 
   private constructor() {
-    // Конструктор пустой, API ключ будет устанавливаться извне
+    // Читаем API ключ из переменной окружения (OpenAI имеет приоритет)
+    this.apiKey = process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY || ""
+    if (this.apiKey) {
+      console.log("AI API key loaded from environment")
+    }
   }
 
   /**
