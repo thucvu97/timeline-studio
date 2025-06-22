@@ -23,28 +23,28 @@
 
 ## 🎬 Project Overview
 
-**Timeline Studio** - видеоредактор с AI, который превращает ваши видео, музыку и любимые эффекты в десятки готовых роликов для всех платформ!
+**Timeline Studio** - AI-powered video editor that transforms your videos, music, and favorite effects into dozens of ready-to-publish clips for all platforms!
 
-### 🚀 Представьте возможности
+### 🚀 Imagine the Possibilities
 
-**Загрузили свои видео, фото, музыку один раз** → получили:
-- 📱 **TikTok** - вертикальные шортсы с трендовыми эффектами
-- 📺 **YouTube** - полные фильмы, короткие ролики, Shorts
-- 📸 **Instagram** - Reels, Stories, посты разной длительности
-- ✈️ **Telegram** - оптимизированные версии для каналов и чатов
+**Upload your videos, photos, music once** → get:
+- 📱 **TikTok** - vertical shorts with trending effects
+- 📺 **YouTube** - full films, short clips, Shorts
+- 📸 **Instagram** - Reels, Stories, posts of different lengths
+- ✈️ **Telegram** - optimized versions for channels and chats
 
-AI-ассистент сам создаст нужное количество версий под каждую платформу! 🤖
+AI assistant will create the right number of versions for each platform! 🤖
 
-### 💡 Как это работает?
+### 💡 How It Works
 
-> *"Создай видео о моем путешествии по Азии для всех соцсетей" - и через несколько минут у вас готовы варианты: динамичные шортсы для TikTok, атмосферный влог для YouTube, яркие Stories для Instagram. AI сам подберет лучшие моменты, синхронизирует с музыкой и адаптирует под каждую платформу.*
+> *"Create a video about my trip to Asia for all social media" - and within minutes you have options ready: dynamic shorts for TikTok, atmospheric vlog for YouTube, vibrant Stories for Instagram. AI will select the best moments, sync with music, and adapt for each platform.*
 
-### ⚡ Почему это меняет всё?
+### ⚡ Why This Changes Everything
 
-- **Экономия времени в 10 раз** - больше не нужно вручную адаптировать каждое видео
-- **AI понимает тренды** - знает, что работает в каждой соцсети
-- **Профессиональное качество** - используем те же инструменты, что и большие студии
-- **Всё работает локально** - ваш контент остается приватным
+- **10x time savings** - no more manual adaptation for each video
+- **AI understands trends** - knows what works on each social network
+- **Professional quality** - using the same tools as major studios
+- **Everything works locally** - your content stays private
 
 ![Timeline Interface #1](/public/screen2.png)
 

@@ -13,10 +13,12 @@ import { cn } from "@/lib/utils"
 
 import { useChat } from ".."
 import { ChatList } from "./chat-list"
+import { useSafeTimeline } from "../hooks/use-safe-timeline"
 import { chatStorageService } from "../services/chat-storage-service"
 import { CLAUDE_MODELS, ClaudeService } from "../services/claude-service"
 import { AI_MODELS, OpenAiService } from "../services/open-ai-service"
 import { ChatMessage } from "../types/chat"
+import { createTimelineContextPrompt } from "../utils/timeline-context"
 
 const AVAILABLE_AGENTS = [
   {
@@ -75,6 +77,9 @@ export function AiChat() {
   } = useChat()
   const { getApiKeyInfo } = useApiKeys()
   const { openModal } = useModal()
+  
+  // Получаем контекст Timeline (если доступен)
+  const timelineContext = useSafeTimeline()
 
   const [message, setMessage] = useState("")
   const [chatMode, setChatMode] = useState<ChatMode>("agent")
@@ -173,18 +178,46 @@ export function AiChat() {
 
         let responseContent: string
 
+        // Создаем системный промпт с контекстом Timeline
+        const systemPrompt = createTimelineContextPrompt(
+          timelineContext?.project || null,
+          timelineContext?.project?.sections?.[0] || null, // Активная секция (пока берем первую)
+          timelineContext?.uiState?.selectedClipIds?.map(id => {
+            // Находим выбранные клипы в проекте
+            for (const section of timelineContext.project?.sections || []) {
+              for (const track of section.tracks) {
+                const clip = track.clips.find(c => c.id === id)
+                if (clip) return clip
+              }
+            }
+            return null
+          }).filter(Boolean) as any[] || []
+        )
+
         if (isClaudeModel) {
           const claudeService = ClaudeService.getInstance()
           responseContent = await claudeService.sendRequest(
             selectedAgentId || CLAUDE_MODELS.CLAUDE_4_SONNET,
             messages,
-            { max_tokens: 2000 },
+            { 
+              max_tokens: 2000,
+              system: systemPrompt 
+            },
           )
         } else {
           const openAiService = OpenAiService.getInstance()
-          responseContent = await openAiService.sendRequest(selectedAgentId || AI_MODELS.GPT_4, messages, {
-            max_tokens: 2000,
-          })
+          // Для OpenAI добавляем системное сообщение в начало
+          const messagesWithSystem = [
+            { role: "system" as const, content: systemPrompt },
+            ...messages
+          ]
+          responseContent = await openAiService.sendRequest(
+            selectedAgentId || AI_MODELS.GPT_4, 
+            messagesWithSystem, 
+            {
+              max_tokens: 2000,
+            }
+          )
         }
 
         const agentMessage: ChatMessage = {
@@ -233,6 +266,7 @@ export function AiChat() {
     chatMessages,
     currentSessionId,
     t,
+    timelineContext,
   ])
 
   // Обработчик остановки обработки
