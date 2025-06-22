@@ -16,11 +16,9 @@
 [![Website](https://img.shields.io/badge/visit-website-brightgreen?style=for-the-badge&logo=globe&logoColor=white)](https://chatman-media.github.io/timeline-studio/)
 [![Telegram](https://img.shields.io/badge/Telegram-Join%20Group-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/timelinestudio)
 [![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
+[![X](https://img.shields.io/badge/Follow-@chatman_media-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/chatman_media)
 
 </div>
-
-## GitAds Sponsored
-[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=chatman-media/timeline-studio@github)](https://gitads.dev/v1/ad-track?source=chatman-media/timeline-studio@github)
 
 ## Project Overview
 
@@ -199,6 +197,9 @@ bun run check:all
 - [Playwright Documentation](https://playwright.dev/docs/intro)
 - [TypeDoc Documentation](https://typedoc.org/)
 - [ffmpeg Documentation](https://ffmpeg.org/documentation.html)
+
+## GitAds Sponsored
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=chatman-media/timeline-studio@github)](https://gitads.dev/v1/ad-track?source=chatman-media/timeline-studio@github)
 
 ## Star History
 <a href="https://www.star-history.com/#chatman-media/timeline-studio&Date">
