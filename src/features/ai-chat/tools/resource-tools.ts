@@ -1,7 +1,7 @@
 /**
  * AI инструменты для управления ресурсами
- * 
- * Предоставляет Claude инструменты для анализа, добавления 
+ *
+ * Предоставляет Claude инструменты для анализа, добавления
  * и управления ресурсами в Resources Provider
  */
 
@@ -20,24 +20,24 @@ export const resourceTools: ClaudeTool[] = [
         resourceType: {
           type: "string",
           enum: ["all", "media", "music", "effect", "filter", "transition", "template", "style-template"],
-          description: "Тип ресурсов для анализа"
+          description: "Тип ресурсов для анализа",
         },
         includeStats: {
           type: "boolean",
           description: "Включить статистику использования",
-          default: true
+          default: true,
         },
         filter: {
           type: "object",
           properties: {
             addedAfter: { type: "string", description: "ISO дата, после которой были добавлены ресурсы" },
-            addedBy: { type: "string", description: "Фильтр по источнику добавления" }
+            addedBy: { type: "string", description: "Фильтр по источнику добавления" },
           },
-          description: "Дополнительные фильтры для анализа"
-        }
+          description: "Дополнительные фильтры для анализа",
+        },
       },
-      required: ["resourceType"]
-    }
+      required: ["resourceType"],
+    },
   },
 
   {
@@ -49,24 +49,24 @@ export const resourceTools: ClaudeTool[] = [
         resourceType: {
           type: "string",
           enum: ["media", "music", "effect", "filter", "transition", "template", "style-template"],
-          description: "Тип добавляемого ресурса"
+          description: "Тип добавляемого ресурса",
         },
         resourceId: {
           type: "string",
-          description: "Уникальный идентификатор ресурса"
+          description: "Уникальный идентификатор ресурса",
         },
         reason: {
           type: "string",
-          description: "Объяснение, зачем этот ресурс добавляется в проект"
+          description: "Объяснение, зачем этот ресурс добавляется в проект",
         },
         autoApply: {
           type: "boolean",
           description: "Автоматически применить ресурс к подходящим элементам",
-          default: false
-        }
+          default: false,
+        },
       },
-      required: ["resourceType", "resourceId", "reason"]
-    }
+      required: ["resourceType", "resourceId", "reason"],
+    },
   },
 
   {
@@ -80,12 +80,12 @@ export const resourceTools: ClaudeTool[] = [
           properties: {
             resourceType: {
               type: "string",
-              enum: ["media", "music", "effect", "filter", "transition", "template", "style-template"]
+              enum: ["media", "music", "effect", "filter", "transition", "template", "style-template"],
             },
             selectionMethod: {
-              type: "string", 
+              type: "string",
               enum: ["all", "filtered", "recent", "favorites", "smart"],
-              description: "Метод выбора ресурсов"
+              description: "Метод выбора ресурсов",
             },
             filters: {
               type: "object",
@@ -95,32 +95,32 @@ export const resourceTools: ClaudeTool[] = [
                   type: "object",
                   properties: {
                     start: { type: "string" },
-                    end: { type: "string" }
-                  }
+                    end: { type: "string" },
+                  },
                 },
                 fileTypes: {
                   type: "array",
-                  items: { type: "string", enum: ["video", "audio", "image"] }
+                  items: { type: "string", enum: ["video", "audio", "image"] },
                 },
                 minDuration: { type: "number" },
                 maxDuration: { type: "number" },
-                tags: { type: "array", items: { type: "string" } }
-              }
+                tags: { type: "array", items: { type: "string" } },
+              },
             },
             maxCount: {
               type: "number",
-              description: "Максимальное количество ресурсов для добавления"
-            }
+              description: "Максимальное количество ресурсов для добавления",
+            },
           },
-          required: ["resourceType", "selectionMethod"]
+          required: ["resourceType", "selectionMethod"],
         },
         reason: {
           type: "string",
-          description: "Объяснение цели массового добавления ресурсов"
-        }
+          description: "Объяснение цели массового добавления ресурсов",
+        },
       },
-      required: ["criteria", "reason"]
-    }
+      required: ["criteria", "reason"],
+    },
   },
 
   {
@@ -131,20 +131,20 @@ export const resourceTools: ClaudeTool[] = [
       properties: {
         resourceId: {
           type: "string",
-          description: "Идентификатор удаляемого ресурса"
+          description: "Идентификатор удаляемого ресурса",
         },
         reason: {
           type: "string",
-          description: "Причина удаления ресурса"
+          description: "Причина удаления ресурса",
         },
         removeFromTimeline: {
           type: "boolean",
           description: "Также удалить из таймлайна, если используется",
-          default: false
-        }
+          default: false,
+        },
       },
-      required: ["resourceId", "reason"]
-    }
+      required: ["resourceId", "reason"],
+    },
   },
 
   {
@@ -159,33 +159,33 @@ export const resourceTools: ClaudeTool[] = [
             type: "object",
             properties: {
               resourceId: { type: "string" },
-              resourceType: { type: "string" }
-            }
+              resourceType: { type: "string" },
+            },
           },
-          description: "Основной контент для анализа"
+          description: "Основной контент для анализа",
         },
         projectType: {
           type: "string",
           enum: ["wedding", "travel", "corporate", "social", "documentary", "education", "music-video", "commercial"],
-          description: "Тип проекта для контекстных предложений"
+          description: "Тип проекта для контекстных предложений",
         },
         mood: {
           type: "string",
           enum: ["energetic", "calm", "dramatic", "romantic", "professional", "playful", "serious", "uplifting"],
-          description: "Желаемое настроение проекта"
+          description: "Желаемое настроение проекта",
         },
         targetDuration: {
           type: "number",
-          description: "Целевая длительность проекта в секундах"
+          description: "Целевая длительность проекта в секундах",
         },
         includeAutoAdd: {
           type: "boolean",
           description: "Автоматически добавить наиболее подходящие ресурсы",
-          default: false
-        }
+          default: false,
+        },
       },
-      required: ["projectType", "mood"]
-    }
+      required: ["projectType", "mood"],
+    },
   },
 
   {
@@ -196,19 +196,19 @@ export const resourceTools: ClaudeTool[] = [
       properties: {
         resourceId: {
           type: "string",
-          description: "Идентификатор ресурса для обновления"
+          description: "Идентификатор ресурса для обновления",
         },
         newParameters: {
           type: "object",
-          description: "Новые параметры ресурса (зависят от типа ресурса)"
+          description: "Новые параметры ресурса (зависят от типа ресурса)",
         },
         reason: {
           type: "string",
-          description: "Причина изменения параметров"
-        }
+          description: "Причина изменения параметров",
+        },
       },
-      required: ["resourceId", "newParameters", "reason"]
-    }
+      required: ["resourceId", "newParameters", "reason"],
+    },
   },
 
   {
@@ -220,21 +220,21 @@ export const resourceTools: ClaudeTool[] = [
         resourceIds: {
           type: "array",
           items: { type: "string" },
-          description: "Список идентификаторов ресурсов для проверки совместимости"
+          description: "Список идентификаторов ресурсов для проверки совместимости",
         },
         checkAgainst: {
           type: "string",
           enum: ["project-settings", "other-resources", "timeline-structure", "all"],
-          description: "С чем проверять совместимость"
+          description: "С чем проверять совместимость",
         },
         includeRecommendations: {
           type: "boolean",
           description: "Включить рекомендации по устранению проблем совместимости",
-          default: true
-        }
+          default: true,
+        },
       },
-      required: ["resourceIds"]
-    }
+      required: ["resourceIds"],
+    },
   },
 
   {
@@ -247,22 +247,22 @@ export const resourceTools: ClaudeTool[] = [
           type: "object",
           properties: {
             start: { type: "string", description: "Начальная дата анализа" },
-            end: { type: "string", description: "Конечная дата анализа" }
+            end: { type: "string", description: "Конечная дата анализа" },
           },
-          description: "Временной диапазон для анализа"
+          description: "Временной диапазон для анализа",
         },
         groupBy: {
           type: "string",
           enum: ["type", "date", "source", "usage-frequency"],
-          description: "Способ группировки статистики"
+          description: "Способ группировки статистики",
         },
         includeUnused: {
           type: "boolean",
           description: "Включить неиспользуемые ресурсы в статистику",
-          default: true
-        }
-      }
-    }
+          default: true,
+        },
+      },
+    },
   },
 
   {
@@ -274,7 +274,7 @@ export const resourceTools: ClaudeTool[] = [
         dryRun: {
           type: "boolean",
           description: "Только показать, что будет удалено, не удалять",
-          default: true
+          default: true,
         },
         criteria: {
           type: "object",
@@ -283,22 +283,22 @@ export const resourceTools: ClaudeTool[] = [
             resourceTypes: {
               type: "array",
               items: { type: "string" },
-              description: "Типы ресурсов для очистки"
+              description: "Типы ресурсов для очистки",
             },
             excludeFavorites: {
               type: "boolean",
               description: "Исключить избранные ресурсы",
-              default: true
-            }
-          }
+              default: true,
+            },
+          },
         },
         reason: {
           type: "string",
-          description: "Причина очистки ресурсов"
-        }
+          description: "Причина очистки ресурсов",
+        },
       },
-      required: ["reason"]
-    }
+      required: ["reason"],
+    },
   },
 
   {
@@ -310,32 +310,32 @@ export const resourceTools: ClaudeTool[] = [
         format: {
           type: "string",
           enum: ["json", "csv", "text", "markdown"],
-          description: "Формат экспорта"
+          description: "Формат экспорта",
         },
         includeMetadata: {
           type: "boolean",
           description: "Включить метаданные ресурсов",
-          default: true
+          default: true,
         },
         filterCriteria: {
           type: "object",
           properties: {
             resourceTypes: { type: "array", items: { type: "string" } },
             usedOnly: { type: "boolean" },
-            addedAfter: { type: "string" }
+            addedAfter: { type: "string" },
           },
-          description: "Критерии фильтрации для экспорта"
-        }
+          description: "Критерии фильтрации для экспорта",
+        },
       },
-      required: ["format"]
-    }
-  }
+      required: ["format"],
+    },
+  },
 ]
 
 /**
  * Типы событий для ресурсов, которые могут генерировать инструменты
  */
-export type ResourceToolEvent = 
+export type ResourceToolEvent =
   | { type: "RESOURCE_ADDED"; resourceId: string; resourceType: string; reason: string }
   | { type: "RESOURCE_REMOVED"; resourceId: string; reason: string }
   | { type: "RESOURCES_BULK_ADDED"; count: number; criteria: any; reason: string }

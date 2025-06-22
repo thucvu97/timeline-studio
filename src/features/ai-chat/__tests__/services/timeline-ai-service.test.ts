@@ -4,14 +4,14 @@ import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
 import { ResourcesContextType } from "@/features/resources/services/resources-provider"
-import { 
-  EffectResource, 
-  FilterResource, 
-  MediaResource, 
-  MusicResource, 
-  StyleTemplateResource, 
-  TemplateResource, 
-  TransitionResource 
+import {
+  EffectResource,
+  FilterResource,
+  MediaResource,
+  MusicResource,
+  StyleTemplateResource,
+  TemplateResource,
+  TransitionResource,
 } from "@/features/resources/types"
 import { StyleTemplate } from "@/features/style-templates/types/style-template"
 import { MediaTemplate } from "@/features/templates/lib/templates"
@@ -132,15 +132,11 @@ describe("TimelineAIService", () => {
       { id: "effect-1", effect: createMockEffect("effect-1", "Blur") },
       { id: "effect-2", effect: createMockEffect("effect-2", "Fade") },
     ] as EffectResource[],
-    filterResources: [
-      { id: "filter-1", filter: createMockFilter("filter-1", "Vintage") },
-    ] as FilterResource[],
+    filterResources: [{ id: "filter-1", filter: createMockFilter("filter-1", "Vintage") }] as FilterResource[],
     transitionResources: [] as TransitionResource[],
     templateResources: [] as TemplateResource[],
     styleTemplateResources: [] as StyleTemplateResource[],
-    musicResources: [
-      { id: "music-1", file: createMockMediaFile("music-1", "background.mp3", 120) },
-    ] as MusicResource[],
+    musicResources: [{ id: "music-1", file: createMockMediaFile("music-1", "background.mp3", 120) }] as MusicResource[],
   })
 
   beforeEach(() => {
@@ -230,12 +226,7 @@ describe("TimelineAIService", () => {
     }
 
     // Create service instance
-    service = new TimelineAIService(
-      mockResourcesProvider,
-      mockBrowserState,
-      mockPlayerState,
-      mockTimelineState
-    )
+    service = new TimelineAIService(mockResourcesProvider, mockBrowserState, mockPlayerState, mockTimelineState)
   })
 
   afterEach(() => {
@@ -254,10 +245,10 @@ describe("TimelineAIService", () => {
     it("should combine all tool types", () => {
       // The service should have combined all tools
       expect(service.allTools).toHaveLength(4) // browser, player, resource, timeline tools
-      expect(service.allTools.map(t => t.name)).toContain("browser_tool")
-      expect(service.allTools.map(t => t.name)).toContain("player_tool")
-      expect(service.allTools.map(t => t.name)).toContain("resource_tool")
-      expect(service.allTools.map(t => t.name)).toContain("timeline_tool")
+      expect(service.allTools.map((t) => t.name)).toContain("browser_tool")
+      expect(service.allTools.map((t) => t.name)).toContain("player_tool")
+      expect(service.allTools.map((t) => t.name)).toContain("resource_tool")
+      expect(service.allTools.map((t) => t.name)).toContain("timeline_tool")
     })
   })
 
@@ -290,7 +281,7 @@ describe("TimelineAIService", () => {
           system: expect.stringContaining("Timeline Studio"),
           temperature: 0.7,
           max_tokens: 4000,
-        })
+        }),
       )
 
       expect(result).toMatchObject({
@@ -351,7 +342,7 @@ describe("TimelineAIService", () => {
           system: expect.stringContaining("AI аналитик для Timeline Studio"),
           temperature: 0.5,
           max_tokens: 2000,
-        })
+        }),
       )
 
       expect(result).toMatchObject({
@@ -408,15 +399,17 @@ describe("TimelineAIService", () => {
 
       expect(mockClaudeService.sendRequestWithTools).toHaveBeenCalledWith(
         CLAUDE_MODELS.CLAUDE_4_SONNET,
-        [{ 
-          role: "user", 
-          content: expect.stringContaining("Apply blur effect") 
-        }],
+        [
+          {
+            role: "user",
+            content: expect.stringContaining("Apply blur effect"),
+          },
+        ],
         service.allTools,
         expect.objectContaining({
           temperature: 0.6,
           max_tokens: 3000,
-        })
+        }),
       )
 
       // Check that parameters are included in the prompt
@@ -746,7 +739,7 @@ describe("TimelineAIService", () => {
         mockResourcesProvider,
         mockBrowserState,
         mockPlayerState,
-        mockTimelineState
+        mockTimelineState,
       )
 
       const context = newService.createContext()
@@ -762,7 +755,7 @@ describe("TimelineAIService", () => {
   describe("executeToolFunction", () => {
     it("should log tool execution", async () => {
       const consoleSpy = vi.spyOn(console, "log")
-      
+
       const toolUse = {
         name: "test_tool",
         input: { param1: "value1", param2: 123 },
@@ -770,10 +763,10 @@ describe("TimelineAIService", () => {
 
       const result = await service.executeToolFunction(toolUse, {} as any)
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Executing tool: test_tool with input:",
-        { param1: "value1", param2: 123 }
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("Executing tool: test_tool with input:", {
+        param1: "value1",
+        param2: 123,
+      })
 
       expect(result).toEqual({
         success: true,
@@ -810,7 +803,7 @@ describe("TimelineAIService", () => {
       })
 
       const result = await service.createTimelineFromPrompt(
-        "Create a timeline from my vacation videos with smooth transitions"
+        "Create a timeline from my vacation videos with smooth transitions",
       )
 
       expect(result).toMatchObject({
@@ -848,9 +841,7 @@ describe("TimelineAIService", () => {
         },
       })
 
-      const result = await service.analyzeAndSuggestResources(
-        "Analyze my resources and suggest improvements"
-      )
+      const result = await service.analyzeAndSuggestResources("Analyze my resources and suggest improvements")
 
       expect(result.data?.analysis).toBeDefined()
       expect(result.data?.suggestions).toHaveLength(2)

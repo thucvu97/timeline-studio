@@ -113,7 +113,7 @@ describe("usePreviewPreloader", () => {
 
     // Should preload behind and ahead (but not the visible file itself)
     expect(mockGetPreviewData).toHaveBeenCalledWith("file2") // behind
-    expect(mockGetPreviewData).toHaveBeenCalledWith("file4") // ahead  
+    expect(mockGetPreviewData).toHaveBeenCalledWith("file4") // ahead
     expect(mockGetPreviewData).toHaveBeenCalledWith("file5") // ahead
     expect(mockGetPreviewData).not.toHaveBeenCalledWith("file3") // visible - should be skipped
   })
@@ -154,7 +154,10 @@ describe("usePreviewPreloader", () => {
       await result.current.preloadPreviews(items)
     })
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith("[PreviewPreloader] Failed to preload preview for: file1", expect.any(Error))
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "[PreviewPreloader] Failed to preload preview for: file1",
+      expect.any(Error),
+    )
     expect(result.current.isPreloading).toBe(false)
 
     consoleErrorSpy.mockRestore()
@@ -176,11 +179,7 @@ describe("usePreviewPreloader", () => {
 
     const { result } = renderHook(() => usePreviewPreloader({ debounceDelay: 100 }))
 
-    const allItems = [
-      { fileId: "file1" },
-      { fileId: "file2" },
-      { fileId: "file3" },
-    ]
+    const allItems = [{ fileId: "file1" }, { fileId: "file2" }, { fileId: "file3" }]
 
     // Make multiple rapid calls
     act(() => {

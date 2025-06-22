@@ -359,7 +359,7 @@ describe("ClaudeService", () => {
       ]
 
       const messages = [{ role: "user" as const, content: "Обрежь видео с 0 до 10 секунд" }]
-      
+
       const result = await service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)
 
       expect(fetch).toHaveBeenCalledWith(
@@ -405,7 +405,7 @@ describe("ClaudeService", () => {
       ]
 
       const messages = [{ role: "user" as const, content: "Расскажи о Timeline Studio" }]
-      
+
       const result = await service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)
 
       expect(result).toEqual({
@@ -496,9 +496,9 @@ describe("ClaudeService", () => {
 
       const messages = [{ role: "user" as const, content: "Тест ошибки" }]
 
-      await expect(
-        service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)
-      ).rejects.toThrow("Ошибка Claude API: 429")
+      await expect(service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)).rejects.toThrow(
+        "Ошибка Claude API: 429",
+      )
     })
 
     it("должен выбрасывать ошибку при отсутствии API ключа в запросах с инструментами", async () => {
@@ -515,9 +515,9 @@ describe("ClaudeService", () => {
 
       const messages = [{ role: "user" as const, content: "Тест без ключа" }]
 
-      await expect(
-        newService.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)
-      ).rejects.toThrow("API ключ не установлен")
+      await expect(newService.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)).rejects.toThrow(
+        "API ключ не установлен",
+      )
     })
 
     it("должен поддерживать конкретный выбор инструмента", async () => {

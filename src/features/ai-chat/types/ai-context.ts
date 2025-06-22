@@ -1,6 +1,6 @@
 /**
  * Типы для AI контекста Timeline Studio
- * 
+ *
  * Определяет структуры данных для передачи контекста между
  * различными компонентами приложения и AI агентом
  */
@@ -24,16 +24,16 @@ import { Transition } from "@/features/transitions/types/transitions"
 export interface TimelineStudioContext {
   // Состояние ресурсов
   resources: ResourcesContext
-  
+
   // Состояние медиа браузера
   browser: BrowserContext
-  
+
   // Состояние видеоплеера
   player: PlayerContext
-  
+
   // Состояние таймлайна
   timeline: TimelineContext
-  
+
   // Пользовательские предпочтения
   userPreferences: UserPreferencesContext
 }
@@ -52,7 +52,7 @@ export interface ResourcesContext {
     styleTemplates: StyleTemplate[]
     music: MediaFile[]
   }
-  
+
   // Статистика ресурсов
   stats: {
     totalMedia: number
@@ -60,7 +60,7 @@ export interface ResourcesContext {
     totalSize: number
     resourceTypes: Record<ResourceType, number>
   }
-  
+
   // Последние добавленные ресурсы
   recentlyAdded: Array<{
     resourceId: string
@@ -76,10 +76,10 @@ export interface ResourcesContext {
 export interface BrowserContext {
   // Активная вкладка
   activeTab: string
-  
+
   // Доступные медиафайлы в браузере
   availableMedia: MediaFile[]
-  
+
   // Текущие фильтры и поиск
   currentFilters: {
     searchQuery: string
@@ -91,7 +91,7 @@ export interface BrowserContext {
       end: Date
     }
   }
-  
+
   // Избранные файлы
   favoriteFiles: string[]
 }
@@ -102,7 +102,7 @@ export interface BrowserContext {
 export interface PlayerContext {
   // Текущее видео
   currentVideo: MediaFile | null
-  
+
   // Состояние воспроизведения
   playbackState: {
     isPlaying: boolean
@@ -110,19 +110,19 @@ export interface PlayerContext {
     duration: number
     volume: number
   }
-  
+
   // Применяемые эффекты в превью
   previewEffects: Array<{
     effectId: string
     params: Record<string, any>
   }>
-  
+
   // Применяемые фильтры в превью
   previewFilters: Array<{
     filterId: string
     params: Record<string, any>
   }>
-  
+
   // Применяемый шаблон
   previewTemplate: {
     templateId: string
@@ -136,7 +136,7 @@ export interface PlayerContext {
 export interface TimelineContext {
   // Текущий проект
   currentProject: TimelineProject | null
-  
+
   // Статистика проекта
   projectStats: {
     totalDuration: number
@@ -145,7 +145,7 @@ export interface TimelineContext {
     totalSections: number
     usedResources: Record<ResourceType, number>
   }
-  
+
   // Последние изменения
   recentChanges: Array<{
     action: string
@@ -153,7 +153,7 @@ export interface TimelineContext {
     description: string
     affectedElements: string[]
   }>
-  
+
   // Проблемы и предупреждения
   issues: Array<{
     type: "warning" | "error" | "suggestion"
@@ -173,7 +173,7 @@ export interface UserPreferencesContext {
     fps: number
     aspectRatio: string
   }
-  
+
   // Предпочтения по типам контента
   contentPreferences: {
     preferredTransitionDuration: number
@@ -181,7 +181,7 @@ export interface UserPreferencesContext {
     autoBalanceAudio: boolean
     preferredTrackTypes: string[]
   }
-  
+
   // История команд AI
   aiCommandHistory: Array<{
     command: string
@@ -269,9 +269,9 @@ export interface ClipPlacementStrategy {
 /**
  * Типы автоматических улучшений
  */
-export type EnhancementType = 
+export type EnhancementType =
   | "transitions"
-  | "color-correction" 
+  | "color-correction"
   | "audio-balance"
   | "stabilization"
   | "noise-reduction"
@@ -316,13 +316,13 @@ export interface ContentStoryAnalysis {
       suggestedEffects: string[]
     }
   }
-  
+
   suggestedMusic: {
     mood: string
     tempo: "slow" | "medium" | "fast"
     genreRecommendations: string[]
   }
-  
+
   detectedThemes: string[]
   keyMoments: Array<{
     timestamp: number
@@ -341,7 +341,7 @@ export interface ContentStoryAnalysis {
  */
 export type AICommandType =
   | "analyze-media"
-  | "add-resources" 
+  | "add-resources"
   | "create-timeline"
   | "place-clips"
   | "apply-enhancements"

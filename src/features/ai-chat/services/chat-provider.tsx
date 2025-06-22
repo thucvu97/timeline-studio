@@ -29,7 +29,7 @@ export interface ChatContextType {
   switchSession: (sessionId: string) => void
   deleteSession: (sessionId: string) => void
   updateSessions: (sessions: ChatListItem[]) => void
-  
+
   // Timeline AI события
   sendTimelineEvent: (event: any) => void
 }
@@ -56,10 +56,8 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
   const [state, send] = useActor(chatMachine)
 
   // Извлекаем данные из состояния машины
-  const { 
-    chatMessages, selectedAgentId, isProcessing, error, currentSessionId, sessions, isCreatingNewChat
-
-  } = state.context
+  const { chatMessages, selectedAgentId, isProcessing, error, currentSessionId, sessions, isCreatingNewChat } =
+    state.context
 
   // Создаем функции для отправки событий
   const sendChatMessage = (message: string) => {

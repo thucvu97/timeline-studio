@@ -35,12 +35,7 @@ interface PreloadItem {
  * Загружает превью для элементов, которые скоро появятся в области видимости
  */
 export function usePreviewPreloader(options: PreviewPreloaderOptions = {}) {
-  const {
-    preloadAhead = 5,
-    preloadBehind = 2,
-    debounceDelay = 100,
-    maxConcurrent = 3,
-  } = options
+  const { preloadAhead = 5, preloadBehind = 2, debounceDelay = 100, maxConcurrent = 3 } = options
 
   const { getPreviewData } = useMediaPreview({})
   const loadingQueueRef = useRef<Set<string>>(new Set())
@@ -52,9 +47,7 @@ export function usePreviewPreloader(options: PreviewPreloaderOptions = {}) {
   const preloadPreviews = useCallback(
     async (items: PreloadItem[]) => {
       // Фильтруем только те, которые еще не загружаются
-      const itemsToLoad = items.filter(
-        (item) => !loadingQueueRef.current.has(item.fileId)
-      )
+      const itemsToLoad = items.filter((item) => !loadingQueueRef.current.has(item.fileId))
 
       if (itemsToLoad.length === 0) return
 
@@ -79,7 +72,7 @@ export function usePreviewPreloader(options: PreviewPreloaderOptions = {}) {
               } catch (error) {
                 console.error(`[PreviewPreloader] Failed to preload preview for: ${item.fileId}`, error)
               }
-            })
+            }),
           )
         } finally {
           // Удаляем из очереди загрузки
@@ -87,7 +80,7 @@ export function usePreviewPreloader(options: PreviewPreloaderOptions = {}) {
         }
       }
     },
-    [getPreviewData, maxConcurrent]
+    [getPreviewData, maxConcurrent],
   )
 
   /**
@@ -112,11 +105,11 @@ export function usePreviewPreloader(options: PreviewPreloaderOptions = {}) {
 
         // Собираем элементы для предзагрузки
         const itemsToPreload: PreloadItem[] = []
-        
+
         for (let i = preloadStart; i <= preloadEnd; i++) {
           // Пропускаем видимые элементы (они уже загружены)
           if (i >= start && i <= end) continue
-          
+
           const item = allItems[i]
           if (item?.fileId) {
             itemsToPreload.push({ fileId: item.fileId, index: i })
@@ -125,12 +118,14 @@ export function usePreviewPreloader(options: PreviewPreloaderOptions = {}) {
 
         // Запускаем предзагрузку
         if (itemsToPreload.length > 0) {
-          console.log(`[PreviewPreloader] Preloading ${itemsToPreload.length} previews for range [${preloadStart}, ${preloadEnd}]`)
+          console.log(
+            `[PreviewPreloader] Preloading ${itemsToPreload.length} previews for range [${preloadStart}, ${preloadEnd}]`,
+          )
           void preloadPreviews(itemsToPreload)
         }
       }, debounceDelay)
     },
-    [preloadAhead, preloadBehind, debounceDelay, preloadPreviews]
+    [preloadAhead, preloadBehind, debounceDelay, preloadPreviews],
   )
 
   /**

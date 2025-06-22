@@ -5,7 +5,6 @@ import { useMediaPreview } from "@/features/media/hooks/use-media-preview"
 import { indexedDBCacheService } from "@/features/media/services/indexeddb-cache-service"
 import type { MediaPreviewData, ThumbnailData } from "@/features/media/types/preview"
 
-
 // Mock Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
@@ -500,13 +499,12 @@ describe("useMediaPreview", () => {
       mockIndexedDBCache.cachePreview.mockResolvedValue(undefined)
       mockIndexedDBCache.deletePreview.mockResolvedValue(undefined)
 
-      mockInvoke
-        .mockImplementation((command: string) => {
-          if (command === "get_media_preview_data") return Promise.resolve(mockPreviewData)
-          if (command === "generate_media_thumbnail") return Promise.resolve(thumbnailData)
-          if (command === "clear_media_preview_data") return Promise.resolve(undefined)
-          return Promise.reject(new Error(`Unknown command: ${command}`))
-        })
+      mockInvoke.mockImplementation((command: string) => {
+        if (command === "get_media_preview_data") return Promise.resolve(mockPreviewData)
+        if (command === "generate_media_thumbnail") return Promise.resolve(thumbnailData)
+        if (command === "clear_media_preview_data") return Promise.resolve(undefined)
+        return Promise.reject(new Error(`Unknown command: ${command}`))
+      })
 
       const { result } = renderHook(() => useMediaPreview())
 

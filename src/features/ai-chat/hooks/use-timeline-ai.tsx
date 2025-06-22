@@ -1,6 +1,6 @@
 /**
  * Hook для интеграции AI с Timeline Studio
- * 
+ *
  * Предоставляет методы для создания timeline проектов,
  * анализа ресурсов и выполнения AI команд
  */
@@ -15,10 +15,7 @@ import { TimelineAIResult, TimelineAIService } from "../services/timeline-ai-ser
 /**
  * Типы Timeline AI операций
  */
-export type TimelineAIOperation = 
-  | "create-timeline"
-  | "analyze-resources" 
-  | "execute-command"
+export type TimelineAIOperation = "create-timeline" | "analyze-resources" | "execute-command"
 
 /**
  * Результат Timeline AI операции
@@ -45,136 +42,148 @@ export function useTimelineAI() {
   const timelineAI = new TimelineAIService(
     resourcesProvider,
     {}, // browserState - заглушка
-    {}, // playerState - заглушка  
+    {}, // playerState - заглушка
     {}, // timelineState - заглушка
   )
 
   /**
    * Создает timeline проект из текстового промпта
    */
-  const createTimelineFromPrompt = useCallback(async (prompt: string): Promise<TimelineAIOperationResult> => {
-    try {
-      // Отправляем событие в chat-machine
-      sendTimelineEvent({ type: "CREATE_TIMELINE_FROM_PROMPT", prompt })
+  const createTimelineFromPrompt = useCallback(
+    async (prompt: string): Promise<TimelineAIOperationResult> => {
+      try {
+        // Отправляем событие в chat-machine
+        sendTimelineEvent({ type: "CREATE_TIMELINE_FROM_PROMPT", prompt })
 
-      // Выполняем операцию через Timeline AI сервис
-      const result = await timelineAI.createTimelineFromPrompt(prompt)
+        // Выполняем операцию через Timeline AI сервис
+        const result = await timelineAI.createTimelineFromPrompt(prompt)
 
-      // Уведомляем chat-machine о результате
-      if (result.success) {
-        sendTimelineEvent({ type: "TIMELINE_OPERATION_SUCCESS", result })
-      } else {
-        sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
-      }
+        // Уведомляем chat-machine о результате
+        if (result.success) {
+          sendTimelineEvent({ type: "TIMELINE_OPERATION_SUCCESS", result })
+        } else {
+          sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
+        }
 
-      return {
-        operation: "create-timeline",
-        success: result.success,
-        message: result.message,
-        data: result.data,
-        errors: result.errors,
-        warnings: result.warnings,
-        executionTime: result.executionTime,
+        return {
+          operation: "create-timeline",
+          success: result.success,
+          message: result.message,
+          data: result.data,
+          errors: result.errors,
+          warnings: result.warnings,
+          executionTime: result.executionTime,
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка"
+
+        sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
+
+        return {
+          operation: "create-timeline",
+          success: false,
+          message: errorMessage,
+          errors: [errorMessage],
+          executionTime: 0,
+        }
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
-      
-      sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
-      
-      return {
-        operation: "create-timeline",
-        success: false,
-        message: errorMessage,
-        errors: [errorMessage],
-        executionTime: 0,
-      }
-    }
-  }, [sendTimelineEvent, timelineAI])
+    },
+    [sendTimelineEvent, timelineAI],
+  )
 
   /**
    * Анализирует ресурсы и предлагает улучшения
    */
-  const analyzeResources = useCallback(async (query: string): Promise<TimelineAIOperationResult> => {
-    try {
-      sendTimelineEvent({ type: "ANALYZE_RESOURCES", query })
+  const analyzeResources = useCallback(
+    async (query: string): Promise<TimelineAIOperationResult> => {
+      try {
+        sendTimelineEvent({ type: "ANALYZE_RESOURCES", query })
 
-      const result = await timelineAI.analyzeAndSuggestResources(query)
+        const result = await timelineAI.analyzeAndSuggestResources(query)
 
-      if (result.success) {
-        sendTimelineEvent({ type: "TIMELINE_OPERATION_SUCCESS", result })
-      } else {
-        sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
-      }
+        if (result.success) {
+          sendTimelineEvent({ type: "TIMELINE_OPERATION_SUCCESS", result })
+        } else {
+          sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
+        }
 
-      return {
-        operation: "analyze-resources",
-        success: result.success,
-        message: result.message,
-        data: result.data,
-        errors: result.errors,
-        warnings: result.warnings,
-        executionTime: result.executionTime,
+        return {
+          operation: "analyze-resources",
+          success: result.success,
+          message: result.message,
+          data: result.data,
+          errors: result.errors,
+          warnings: result.warnings,
+          executionTime: result.executionTime,
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка"
+
+        sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
+
+        return {
+          operation: "analyze-resources",
+          success: false,
+          message: errorMessage,
+          errors: [errorMessage],
+          executionTime: 0,
+        }
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
-      
-      sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
-      
-      return {
-        operation: "analyze-resources",
-        success: false,
-        message: errorMessage,
-        errors: [errorMessage],
-        executionTime: 0,
-      }
-    }
-  }, [sendTimelineEvent, timelineAI])
+    },
+    [sendTimelineEvent, timelineAI],
+  )
 
   /**
    * Выполняет произвольную AI команду
    */
-  const executeCommand = useCallback(async (command: string, params?: any): Promise<TimelineAIOperationResult> => {
-    try {
-      sendTimelineEvent({ type: "EXECUTE_AI_COMMAND", command, params })
+  const executeCommand = useCallback(
+    async (command: string, params?: any): Promise<TimelineAIOperationResult> => {
+      try {
+        sendTimelineEvent({ type: "EXECUTE_AI_COMMAND", command, params })
 
-      const result = await timelineAI.executeCommand(command, params)
+        const result = await timelineAI.executeCommand(command, params)
 
-      if (result.success) {
-        sendTimelineEvent({ type: "TIMELINE_OPERATION_SUCCESS", result })
-      } else {
-        sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
-      }
+        if (result.success) {
+          sendTimelineEvent({ type: "TIMELINE_OPERATION_SUCCESS", result })
+        } else {
+          sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
+        }
 
-      return {
-        operation: "execute-command",
-        success: result.success,
-        message: result.message,
-        data: result.data,
-        errors: result.errors,
-        warnings: result.warnings,
-        executionTime: result.executionTime,
+        return {
+          operation: "execute-command",
+          success: result.success,
+          message: result.message,
+          data: result.data,
+          errors: result.errors,
+          warnings: result.warnings,
+          executionTime: result.executionTime,
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка"
+
+        sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
+
+        return {
+          operation: "execute-command",
+          success: false,
+          message: errorMessage,
+          errors: [errorMessage],
+          executionTime: 0,
+        }
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
-      
-      sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
-      
-      return {
-        operation: "execute-command",
-        success: false,
-        message: errorMessage,
-        errors: [errorMessage],
-        executionTime: 0,
-      }
-    }
-  }, [sendTimelineEvent, timelineAI])
+    },
+    [sendTimelineEvent, timelineAI],
+  )
 
   /**
    * Устанавливает API ключ для Claude
    */
-  const setApiKey = useCallback((apiKey: string) => {
-    timelineAI.setApiKey(apiKey)
-  }, [timelineAI])
+  const setApiKey = useCallback(
+    (apiKey: string) => {
+      timelineAI.setApiKey(apiKey)
+    },
+    [timelineAI],
+  )
 
   /**
    * Быстрые команды для распространенных операций
@@ -183,65 +192,53 @@ export function useTimelineAI() {
     /**
      * Добавить все видео из браузера в ресурсы
      */
-    addAllVideosToResources: () => executeCommand(
-      "Добавь все видеофайлы из браузера в ресурсы проекта"
-    ),
+    addAllVideosToResources: () => executeCommand("Добавь все видеофайлы из браузера в ресурсы проекта"),
 
     /**
      * Создать простой хронологический timeline
      */
-    createChronologicalTimeline: () => createTimelineFromPrompt(
-      "Создай хронологический timeline из всех доступных видео, упорядочив их по времени создания"
-    ),
+    createChronologicalTimeline: () =>
+      createTimelineFromPrompt(
+        "Создай хронологический timeline из всех доступных видео, упорядочив их по времени создания",
+      ),
 
     /**
      * Проанализировать качество медиа
      */
-    analyzeMediaQuality: () => analyzeResources(
-      "Проанализируй качество всех медиафайлов и предложи улучшения"
-    ),
+    analyzeMediaQuality: () => analyzeResources("Проанализируй качество всех медиафайлов и предложи улучшения"),
 
     /**
      * Создать свадебное видео
      */
-    createWeddingVideo: () => createTimelineFromPrompt(
-      "Создай свадебное видео из доступных материалов с романтичной музыкой и переходами"
-    ),
+    createWeddingVideo: () =>
+      createTimelineFromPrompt("Создай свадебное видео из доступных материалов с романтичной музыкой и переходами"),
 
     /**
      * Создать тревел-видео
      */
-    createTravelVideo: () => createTimelineFromPrompt(
-      "Создай динамичное тревел-видео с энергичной музыкой и быстрыми переходами"
-    ),
+    createTravelVideo: () =>
+      createTimelineFromPrompt("Создай динамичное тревел-видео с энергичной музыкой и быстрыми переходами"),
 
     /**
      * Создать корпоративное видео
      */
-    createCorporateVideo: () => createTimelineFromPrompt(
-      "Создай профессиональное корпоративное видео с титрами и спокойными переходами"
-    ),
+    createCorporateVideo: () =>
+      createTimelineFromPrompt("Создай профессиональное корпоративное видео с титрами и спокойными переходами"),
 
     /**
      * Применить цветокоррекцию ко всем видео
      */
-    applyColorCorrection: () => executeCommand(
-      "Примени автоматическую цветокоррекцию ко всем видео в ресурсах"
-    ),
+    applyColorCorrection: () => executeCommand("Примени автоматическую цветокоррекцию ко всем видео в ресурсах"),
 
     /**
      * Добавить переходы между всеми клипами
      */
-    addTransitionsBetweenClips: () => executeCommand(
-      "Добавь плавные переходы между всеми клипами на timeline"
-    ),
+    addTransitionsBetweenClips: () => executeCommand("Добавь плавные переходы между всеми клипами на timeline"),
 
     /**
      * Синхронизировать видео с музыкой
      */
-    syncVideoWithMusic: () => executeCommand(
-      "Синхронизируй видео клипы с ритмом музыкального сопровождения"
-    ),
+    syncVideoWithMusic: () => executeCommand("Синхронизируй видео клипы с ритмом музыкального сопровождения"),
   }
 
   return {

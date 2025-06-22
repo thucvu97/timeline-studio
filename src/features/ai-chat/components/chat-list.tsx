@@ -35,7 +35,7 @@ export function ChatList({
   return (
     <div className="flex flex-col space-y-2">
       <h3 className="px-4 text-sm font-medium text-muted-foreground">Previous Threads</h3>
-      
+
       <ScrollArea className="flex-1">
         <div className="space-y-1 px-2">
           {/* Временный элемент при создании нового чата */}
@@ -53,14 +53,14 @@ export function ChatList({
               key={session.id}
               className={cn(
                 "group flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted",
-                currentSessionId === session.id && "bg-muted"
+                currentSessionId === session.id && "bg-muted",
               )}
               onClick={() => onSelectSession(session.id)}
               onMouseEnter={() => setHoveredId(session.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
               <span className="flex-1 truncate">{session.title}</span>
-              
+
               {/* Показываем кнопки действий при наведении */}
               {hoveredId === session.id ? (
                 <div className="flex items-center gap-1">
@@ -90,7 +90,7 @@ export function ChatList({
               ) : (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span>{session.messageCount} messages</span>
-                  <span>{session.lastMessageAt ? formatDate(session.lastMessageAt) : 'No date'}</span>
+                  <span>{session.lastMessageAt ? formatDate(session.lastMessageAt) : "No date"}</span>
                 </div>
               )}
             </div>
@@ -119,14 +119,15 @@ function formatDate(date: Date): string {
 
   if (days === 0) {
     return "Today"
-  } else if (days === 1) {
-    return "Yesterday"
-  } else if (days < 7) {
-    return `${days} days ago`
-  } else {
-    return date.toLocaleDateString("ru-RU", { 
-      day: "numeric", 
-      month: "short" 
-    })
   }
+  if (days === 1) {
+    return "Yesterday"
+  }
+  if (days < 7) {
+    return `${days} days ago`
+  }
+  return date.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "short",
+  })
 }

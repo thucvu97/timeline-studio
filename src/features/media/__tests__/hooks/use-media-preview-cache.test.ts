@@ -23,7 +23,6 @@ const { invoke } = await import("@tauri-apps/api/core")
 const mockInvoke = vi.mocked(invoke)
 
 describe("useMediaPreview with IndexedDB cache", () => {
-
   beforeEach(() => {
     vi.clearAllMocks()
   })

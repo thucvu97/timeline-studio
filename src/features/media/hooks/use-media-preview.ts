@@ -41,13 +41,13 @@ export function useMediaPreview(options: UseMediaPreviewOptions = {}) {
 
         // Если нет в кэше, запрашиваем с бэкенда
         const data = await invoke<MediaPreviewData | null>("get_media_preview_data", { fileId })
-        
+
         // Сохраняем в кэш, если есть данные превью
         if (data?.browser_thumbnail?.base64_data) {
           await indexedDBCacheService.cachePreview(fileId, data.browser_thumbnail.base64_data)
           console.log(`[useMediaPreview] Preview cached in IndexedDB for file: ${fileId}`)
         }
-        
+
         return data
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Failed to get preview data"
@@ -108,10 +108,10 @@ export function useMediaPreview(options: UseMediaPreviewOptions = {}) {
       try {
         // Очищаем данные на бэкенде
         await invoke("clear_media_preview_data", { fileId })
-        
+
         // Очищаем конкретное превью из IndexedDB кэша
         await indexedDBCacheService.deletePreview(fileId)
-        
+
         console.log(`[useMediaPreview] Preview data cleared for file: ${fileId}`)
         return true
       } catch (err) {

@@ -120,8 +120,8 @@ vi.mock("@/features/video-player/components/prerender-controls", () => ({
 // Мокаем ResizablePanel компоненты
 vi.mock("@/components/ui/resizable", () => ({
   ResizablePanel: ({ children, defaultSize, minSize, maxSize }: any) => (
-    <div 
-      data-testid="resizable-panel" 
+    <div
+      data-testid="resizable-panel"
       data-default-size={defaultSize}
       data-min-size={minSize}
       data-max-size={maxSize}
@@ -132,7 +132,7 @@ vi.mock("@/components/ui/resizable", () => ({
   ),
   ResizableHandle: () => <div data-testid="resizable-handle" />,
   ResizablePanelGroup: ({ children, direction, autoSaveId }: any) => (
-    <div 
+    <div
       data-testid="resizable-panel-group"
       data-direction={direction}
       data-auto-save-id={autoSaveId}
@@ -174,8 +174,8 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panels = screen.getAllByTestId("resizable-panel")
-      const leftPanel = panels.find(p => p.getAttribute("data-default-size") === "70")
-      const rightPanel = panels.find(p => p.getAttribute("data-default-size") === "30")
+      const leftPanel = panels.find((p) => p.getAttribute("data-default-size") === "70")
+      const rightPanel = panels.find((p) => p.getAttribute("data-default-size") === "30")
 
       expect(leftPanel).toBeInTheDocument()
       expect(rightPanel).toBeInTheDocument()
@@ -200,9 +200,8 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panels = screen.getAllByTestId("resizable-panel")
-      const rightPanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "30" &&
-        p.querySelector('[data-testid="options"]')
+      const rightPanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "30" && p.querySelector('[data-testid="options"]'),
       )
 
       expect(rightPanel).toBeFalsy()
@@ -252,16 +251,14 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panelGroups = screen.getAllByTestId("resizable-panel-group")
-      expect(panelGroups.some(pg => pg.getAttribute("data-auto-save-id") === "opts-layout-1")).toBe(true)
+      expect(panelGroups.some((pg) => pg.getAttribute("data-auto-save-id") === "opts-layout-1")).toBe(true)
     })
 
     it("должен использовать горизонтальное направление", () => {
       render(<OptionsLayout />)
 
       const panelGroups = screen.getAllByTestId("resizable-panel-group")
-      const horizontalGroup = panelGroups.find(pg => 
-        pg.getAttribute("data-auto-save-id") === "opts-layout-1"
-      )
+      const horizontalGroup = panelGroups.find((pg) => pg.getAttribute("data-auto-save-id") === "opts-layout-1")
       expect(horizontalGroup).toHaveAttribute("data-direction", "horizontal")
     })
 
@@ -269,14 +266,12 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panels = screen.getAllByTestId("resizable-panel")
-      
-      const browserPanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "35" &&
-        p.querySelector('[data-testid="browser"]')
+
+      const browserPanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "35" && p.querySelector('[data-testid="browser"]'),
       )
-      const videoPanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "65" &&
-        p.querySelector('[data-testid="video-player"]')
+      const videoPanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "65" && p.querySelector('[data-testid="video-player"]'),
       )
 
       expect(browserPanel).toBeInTheDocument()
@@ -302,21 +297,19 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panelGroups = screen.getAllByTestId("resizable-panel-group")
-      expect(panelGroups.some(pg => pg.getAttribute("data-auto-save-id") === "opts-layout-2")).toBe(true)
+      expect(panelGroups.some((pg) => pg.getAttribute("data-auto-save-id") === "opts-layout-2")).toBe(true)
     })
 
     it("должен устанавливать правильные размеры панелей", () => {
       render(<OptionsLayout />)
 
       const panels = screen.getAllByTestId("resizable-panel")
-      
-      const videoPanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "65" &&
-        p.querySelector('[data-testid="video-player"]')
+
+      const videoPanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "65" && p.querySelector('[data-testid="video-player"]'),
       )
-      const timelinePanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "35" &&
-        p.querySelector('[data-testid="timeline"]')
+      const timelinePanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "35" && p.querySelector('[data-testid="timeline"]'),
       )
 
       expect(videoPanel).toBeInTheDocument()
@@ -329,9 +322,9 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panelGroups = screen.getAllByTestId("resizable-panel-group")
-      const verticalGroup = panelGroups.find(pg => 
-        pg.getAttribute("data-direction") === "vertical" &&
-        pg.getAttribute("data-auto-save-id") === "opts-layout-3"
+      const verticalGroup = panelGroups.find(
+        (pg) =>
+          pg.getAttribute("data-direction") === "vertical" && pg.getAttribute("data-auto-save-id") === "opts-layout-3",
       )
 
       expect(verticalGroup).toBeInTheDocument()
@@ -341,9 +334,10 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panelGroups = screen.getAllByTestId("resizable-panel-group")
-      const horizontalGroup = panelGroups.find(pg => 
-        pg.getAttribute("data-direction") === "horizontal" &&
-        pg.getAttribute("data-auto-save-id") === "opts-layout-4"
+      const horizontalGroup = panelGroups.find(
+        (pg) =>
+          pg.getAttribute("data-direction") === "horizontal" &&
+          pg.getAttribute("data-auto-save-id") === "opts-layout-4",
       )
 
       expect(horizontalGroup).toBeInTheDocument()
@@ -353,32 +347,28 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panels = screen.getAllByTestId("resizable-panel")
-      
+
       // Верхняя часть: 50%
-      const topPanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "50" &&
-        p.querySelector('[data-testid="resizable-panel-group"]')
+      const topPanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "50" && p.querySelector('[data-testid="resizable-panel-group"]'),
       )
       expect(topPanel).toBeInTheDocument()
 
       // Browser: 30%
-      const browserPanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "30" &&
-        p.querySelector('[data-testid="browser"]')
+      const browserPanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "30" && p.querySelector('[data-testid="browser"]'),
       )
       expect(browserPanel).toBeInTheDocument()
 
       // VideoPlayer: 50% (во вложенной группе)
-      const videoPanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "50" &&
-        p.querySelector('[data-testid="video-player"]')
+      const videoPanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "50" && p.querySelector('[data-testid="video-player"]'),
       )
       expect(videoPanel).toBeInTheDocument()
 
       // Timeline: 20% (внизу)
-      const timelinePanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "20" &&
-        p.querySelector('[data-testid="timeline"]')
+      const timelinePanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "20" && p.querySelector('[data-testid="timeline"]'),
       )
       expect(timelinePanel).toBeInTheDocument()
     })
@@ -394,21 +384,21 @@ describe("OptionsLayout", () => {
 
     it("должен добавлять разное количество handles для разных конфигураций", () => {
       const { rerender } = render(<OptionsLayout />)
-      
+
       let handles = screen.getAllByTestId("resizable-handle")
       const fullConfigHandles = handles.length
 
       // Без Timeline
       mockUserSettings.isTimelineVisible = false
       rerender(<OptionsLayout />)
-      
+
       handles = screen.getAllByTestId("resizable-handle")
       expect(handles.length).toBeLessThan(fullConfigHandles)
 
       // Без Browser и Timeline
       mockUserSettings.isBrowserVisible = false
       rerender(<OptionsLayout />)
-      
+
       handles = screen.getAllByTestId("resizable-handle")
       expect(handles.length).toBeLessThan(fullConfigHandles)
     })
@@ -419,16 +409,16 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panels = screen.getAllByTestId("resizable-panel")
-      
-      panels.forEach(panel => {
+
+      panels.forEach((panel) => {
         const minSize = panel.getAttribute("data-min-size")
         const maxSize = panel.getAttribute("data-max-size")
-        
+
         if (minSize) {
-          expect(parseInt(minSize)).toBeGreaterThanOrEqual(20)
+          expect(Number.parseInt(minSize)).toBeGreaterThanOrEqual(20)
         }
         if (maxSize) {
-          expect(parseInt(maxSize)).toBeLessThanOrEqual(100)
+          expect(Number.parseInt(maxSize)).toBeLessThanOrEqual(100)
         }
       })
     })
@@ -437,9 +427,8 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       const panels = screen.getAllByTestId("resizable-panel")
-      const videoPanel = panels.find(p => 
-        p.querySelector('[data-testid="video-player"]') &&
-        p.getAttribute("data-max-size") === "100"
+      const videoPanel = panels.find(
+        (p) => p.querySelector('[data-testid="video-player"]') && p.getAttribute("data-max-size") === "100",
       )
 
       expect(videoPanel).toBeInTheDocument()
@@ -449,47 +438,47 @@ describe("OptionsLayout", () => {
   describe("Динамическое изменение видимости", () => {
     it("должен корректно обрабатывать изменения видимости Options", () => {
       const { rerender } = render(<OptionsLayout />)
-      
+
       // Options видим
       expect(screen.getByTestId("options")).toBeInTheDocument()
-      
+
       // Скрываем Options
       mockUserSettings.isOptionsVisible = false
       rerender(<OptionsLayout />)
-      
+
       expect(screen.queryByTestId("options")).not.toBeInTheDocument()
-      
+
       // Показываем Options снова
       mockUserSettings.isOptionsVisible = true
       rerender(<OptionsLayout />)
-      
+
       expect(screen.getByTestId("options")).toBeInTheDocument()
     })
 
     it("должен корректно обрабатывать изменения видимости всех компонентов", () => {
       const { rerender } = render(<OptionsLayout />)
-      
+
       // Скрываем Timeline
       mockUserSettings.isTimelineVisible = false
       rerender(<OptionsLayout />)
-      
+
       expect(screen.queryByTestId("timeline")).not.toBeInTheDocument()
       expect(screen.getByTestId("browser")).toBeInTheDocument()
       expect(screen.getByTestId("video-player")).toBeInTheDocument()
-      
+
       // Скрываем Browser тоже
       mockUserSettings.isBrowserVisible = false
       rerender(<OptionsLayout />)
-      
+
       expect(screen.queryByTestId("browser")).not.toBeInTheDocument()
       expect(screen.queryByTestId("timeline")).not.toBeInTheDocument()
       expect(screen.getByTestId("video-player")).toBeInTheDocument()
-      
+
       // Возвращаем все обратно
       mockUserSettings.isBrowserVisible = true
       mockUserSettings.isTimelineVisible = true
       rerender(<OptionsLayout />)
-      
+
       expect(screen.getByTestId("browser")).toBeInTheDocument()
       expect(screen.getByTestId("timeline")).toBeInTheDocument()
     })
@@ -498,27 +487,24 @@ describe("OptionsLayout", () => {
   describe("Условный рендеринг Options панели", () => {
     it("должен использовать условный рендеринг для правой панели", () => {
       const { rerender } = render(<OptionsLayout />)
-      
+
       // Проверяем что правая панель существует когда Options видим
       let panels = screen.getAllByTestId("resizable-panel")
-      const optionsPanel = panels.find(p => 
-        p.getAttribute("data-default-size") === "30" &&
-        p.querySelector('[data-testid="options"]')
+      const optionsPanel = panels.find(
+        (p) => p.getAttribute("data-default-size") === "30" && p.querySelector('[data-testid="options"]'),
       )
       expect(optionsPanel).toBeInTheDocument()
-      
+
       // Скрываем Options
       mockUserSettings.isOptionsVisible = false
       rerender(<OptionsLayout />)
-      
+
       // Options не должен отображаться
       expect(screen.queryByTestId("options")).not.toBeInTheDocument()
-      
+
       // Проверяем что нет панели с Options
       panels = screen.getAllByTestId("resizable-panel")
-      const panelWithOptions = panels.find(p => 
-        p.querySelector('[data-testid="options"]')
-      )
+      const panelWithOptions = panels.find((p) => p.querySelector('[data-testid="options"]'))
       expect(panelWithOptions).toBeFalsy()
     })
   })
@@ -528,23 +514,23 @@ describe("OptionsLayout", () => {
       render(<OptionsLayout />)
 
       // Проверяем что есть основная группа
-      const mainGroup = screen.getAllByTestId("resizable-panel-group").find(pg =>
-        pg.getAttribute("data-auto-save-id") === "opts-layout-main"
-      )
+      const mainGroup = screen
+        .getAllByTestId("resizable-panel-group")
+        .find((pg) => pg.getAttribute("data-auto-save-id") === "opts-layout-main")
       expect(mainGroup).toBeInTheDocument()
       expect(mainGroup).toHaveAttribute("data-direction", "horizontal")
 
       // Проверяем что есть вертикальная группа для левой части
-      const verticalGroup = screen.getAllByTestId("resizable-panel-group").find(pg =>
-        pg.getAttribute("data-auto-save-id") === "opts-layout-3"
-      )
+      const verticalGroup = screen
+        .getAllByTestId("resizable-panel-group")
+        .find((pg) => pg.getAttribute("data-auto-save-id") === "opts-layout-3")
       expect(verticalGroup).toBeInTheDocument()
       expect(verticalGroup).toHaveAttribute("data-direction", "vertical")
 
       // Проверяем что есть вложенная горизонтальная группа
-      const nestedHorizontalGroup = screen.getAllByTestId("resizable-panel-group").find(pg =>
-        pg.getAttribute("data-auto-save-id") === "opts-layout-4"
-      )
+      const nestedHorizontalGroup = screen
+        .getAllByTestId("resizable-panel-group")
+        .find((pg) => pg.getAttribute("data-auto-save-id") === "opts-layout-4")
       expect(nestedHorizontalGroup).toBeInTheDocument()
       expect(nestedHorizontalGroup).toHaveAttribute("data-direction", "horizontal")
     })

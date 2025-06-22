@@ -118,7 +118,7 @@ describe("Environment Detection Utilities", () => {
     it("should return version when in desktop environment", async () => {
       // @ts-expect-error - mocking global window for testing
       global.window = { __TAURI__: {} }
-      
+
       // Мокируем динамический импорт
       vi.doMock("@tauri-apps/api/app", () => ({
         getVersion: vi.fn().mockResolvedValue("1.0.0"),
@@ -131,7 +131,7 @@ describe("Environment Detection Utilities", () => {
     it("should return null when Tauri API throws error", async () => {
       // @ts-expect-error - mocking global window for testing
       global.window = { __TAURI__: {} }
-      
+
       // Мокируем динамический импорт с ошибкой
       vi.doMock("@tauri-apps/api/app", () => {
         throw new Error("Failed to load Tauri API")
@@ -208,7 +208,7 @@ describe("Environment Detection Utilities", () => {
     it("should return desktop type with version when in Tauri", async () => {
       // @ts-expect-error - mocking global window for testing
       global.window = { __TAURI__: {} }
-      
+
       // Мокируем динамический импорт
       vi.doMock("@tauri-apps/api/app", () => ({
         getVersion: vi.fn().mockResolvedValue("2.0.0"),
@@ -225,7 +225,7 @@ describe("Environment Detection Utilities", () => {
     it("should return desktop type without version when Tauri API fails", async () => {
       // @ts-expect-error - mocking global window for testing
       global.window = { __TAURI__: {} }
-      
+
       // Мокируем динамический импорт с ошибкой
       vi.doMock("@tauri-apps/api/app", () => {
         throw new Error("Failed to load Tauri API")

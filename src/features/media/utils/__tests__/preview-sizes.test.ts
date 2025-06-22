@@ -58,13 +58,13 @@ describe("preview-sizes", () => {
         "SUBTITLES",
         "MUSIC",
       ]
-      
+
       expect(Object.keys(DEFAULT_CONTENT_SIZES)).toEqual(expectedKeys)
-      
-      Object.values(DEFAULT_CONTENT_SIZES).forEach(size => {
+
+      Object.values(DEFAULT_CONTENT_SIZES).forEach((size) => {
         expect(PREVIEW_SIZES).toContain(size)
       })
-      
+
       expect(DEFAULT_CONTENT_SIZES.MEDIA).toBe(250)
       expect(DEFAULT_CONTENT_SIZES.TEMPLATES).toBe(250)
       expect(DEFAULT_CONTENT_SIZES.STYLE_TEMPLATES).toBe(250)
@@ -199,8 +199,8 @@ describe("preview-sizes", () => {
     })
 
     it("should handle edge cases correctly", () => {
-      expect(getClosestPreviewSize(-Infinity)).toBe(125)
-      expect(getClosestPreviewSize(Infinity)).toBe(500)
+      expect(getClosestPreviewSize(Number.NEGATIVE_INFINITY)).toBe(125)
+      expect(getClosestPreviewSize(Number.POSITIVE_INFINITY)).toBe(500)
     })
   })
 
@@ -366,7 +366,7 @@ describe("preview-sizes", () => {
       const minColumns = 2
       const availableWidth = containerWidth - gap * (minColumns - 1)
       const maxItemWidth = Math.floor(availableWidth / minColumns)
-      
+
       expect(maxItemWidth).toBe(100)
       expect(getResponsivePreviewSize(216, 150, 2)).toBe(125)
     })
@@ -381,7 +381,7 @@ describe("preview-sizes", () => {
     it("should correctly type PreviewSizeKey", () => {
       const keys: PreviewSizeKey[] = [
         "MEDIA",
-        "TRANSITIONS", 
+        "TRANSITIONS",
         "TEMPLATES",
         "EFFECTS",
         "FILTERS",
@@ -389,8 +389,8 @@ describe("preview-sizes", () => {
         "STYLE_TEMPLATES",
         "MUSIC",
       ]
-      
-      keys.forEach(key => {
+
+      keys.forEach((key) => {
         expect(DEFAULT_CONTENT_SIZES).toHaveProperty(key)
       })
     })

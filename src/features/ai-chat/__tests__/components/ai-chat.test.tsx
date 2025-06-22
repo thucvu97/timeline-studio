@@ -24,7 +24,6 @@ vi.mock("@/features/user-settings", () => ({
   }),
 }))
 
-
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, disabled, ...props }: any) => (
     <button onClick={onClick} disabled={disabled} {...props}>
@@ -196,8 +195,8 @@ describe("AiChat Component", () => {
 
       // Находим кнопку dropdown меню для выбора модели
       const modelButtons = screen.getAllByRole("button")
-      const modelDropdown = modelButtons.find(btn => btn.textContent?.includes("Claude 4 Sonnet"))
-      
+      const modelDropdown = modelButtons.find((btn) => btn.textContent?.includes("Claude 4 Sonnet"))
+
       if (modelDropdown) {
         await user.click(modelDropdown)
         // Находим опцию в dropdown меню
@@ -254,7 +253,9 @@ describe("AiChat Component", () => {
 
       // В компоненте ошибка может отображаться в консоли или через toast
       // Проверяем что компонент отрендерился без краша
-      expect(screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions...")).toBeInTheDocument()
+      expect(
+        screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions..."),
+      ).toBeInTheDocument()
     })
   })
 

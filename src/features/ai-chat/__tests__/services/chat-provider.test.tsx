@@ -465,9 +465,12 @@ describe("ChatProvider", () => {
       expect(result.current.isCreatingNewChat).toBe(true)
 
       // Ждем пока создастся чат (1.5 секунды)
-      await waitFor(() => {
-        expect(result.current.isCreatingNewChat).toBe(false)
-      }, { timeout: 2000 })
+      await waitFor(
+        () => {
+          expect(result.current.isCreatingNewChat).toBe(false)
+        },
+        { timeout: 2000 },
+      )
 
       expect(result.current.sessions.length).toBeGreaterThan(0)
       expect(result.current.currentSessionId).toBeTruthy()

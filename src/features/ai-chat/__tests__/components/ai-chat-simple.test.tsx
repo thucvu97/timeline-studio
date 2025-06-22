@@ -95,7 +95,6 @@ const mockUseChat = {
   updateSessions: vi.fn(),
 }
 
-
 vi.mock("../../hooks/use-chat", () => ({
   useChat: () => mockUseChat,
 }))

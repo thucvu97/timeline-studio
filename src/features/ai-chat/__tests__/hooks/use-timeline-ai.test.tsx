@@ -32,7 +32,7 @@ vi.mock("../../services/timeline-ai-service", () => {
   mockTimelineAIService.prototype.analyzeAndSuggestResources = vi.fn()
   mockTimelineAIService.prototype.executeCommand = vi.fn()
   mockTimelineAIService.prototype.setApiKey = vi.fn()
-  
+
   return {
     TimelineAIService: mockTimelineAIService,
   }
@@ -44,7 +44,7 @@ describe("useTimelineAI", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockSendTimelineEvent.mockClear()
-    
+
     // Get the mocked instance
     mockTimelineAIInstance = TimelineAIService.prototype
   })
@@ -77,9 +77,9 @@ describe("useTimelineAI", () => {
         data: { createdProject: { id: "test-project" } },
         executionTime: 1500,
       }
-      
+
       mockTimelineAIInstance.createTimelineFromPrompt.mockResolvedValue(mockResult)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -111,7 +111,7 @@ describe("useTimelineAI", () => {
     it("должен обрабатывать ошибки при создании timeline", async () => {
       const mockError = new Error("Ошибка создания timeline")
       mockTimelineAIInstance.createTimelineFromPrompt.mockRejectedValue(mockError)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -141,9 +141,9 @@ describe("useTimelineAI", () => {
         warnings: ["Низкое качество видео"],
         executionTime: 500,
       }
-      
+
       mockTimelineAIInstance.createTimelineFromPrompt.mockResolvedValue(mockResult)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -176,9 +176,9 @@ describe("useTimelineAI", () => {
         },
         executionTime: 800,
       }
-      
+
       mockTimelineAIInstance.analyzeAndSuggestResources.mockResolvedValue(mockResult)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -210,7 +210,7 @@ describe("useTimelineAI", () => {
     it("должен обрабатывать ошибки при анализе ресурсов", async () => {
       const mockError = new Error("Сервис недоступен")
       mockTimelineAIInstance.analyzeAndSuggestResources.mockRejectedValue(mockError)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -234,7 +234,7 @@ describe("useTimelineAI", () => {
 
     it("должен обрабатывать ошибку не являющуюся Error объектом", async () => {
       mockTimelineAIInstance.analyzeAndSuggestResources.mockRejectedValue("Строковая ошибка")
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -258,9 +258,9 @@ describe("useTimelineAI", () => {
         errors: ["Нет медиафайлов для анализа"],
         executionTime: 100,
       }
-      
+
       mockTimelineAIInstance.analyzeAndSuggestResources.mockResolvedValue(mockResult)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -291,9 +291,9 @@ describe("useTimelineAI", () => {
         data: { appliedEnhancements: ["color-correction", "stabilization"] },
         executionTime: 1200,
       }
-      
+
       mockTimelineAIInstance.executeCommand.mockResolvedValue(mockResult)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       const params = { intensity: 0.8, mode: "auto" }
@@ -325,9 +325,9 @@ describe("useTimelineAI", () => {
         message: "Команда выполнена",
         executionTime: 300,
       }
-      
+
       mockTimelineAIInstance.executeCommand.mockResolvedValue(mockResult)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -342,7 +342,7 @@ describe("useTimelineAI", () => {
     it("должен обрабатывать ошибки выполнения команды", async () => {
       const mockError = new Error("Команда не распознана")
       mockTimelineAIInstance.executeCommand.mockRejectedValue(mockError)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -372,9 +372,9 @@ describe("useTimelineAI", () => {
         warnings: ["Устаревшая команда"],
         executionTime: 50,
       }
-      
+
       mockTimelineAIInstance.executeCommand.mockResolvedValue(mockResult)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -419,13 +419,13 @@ describe("useTimelineAI", () => {
         message: "Команда выполнена",
         executionTime: 500,
       })
-      
+
       mockTimelineAIInstance.createTimelineFromPrompt.mockResolvedValue({
         success: true,
         message: "Timeline создан",
         executionTime: 1000,
       })
-      
+
       mockTimelineAIInstance.analyzeAndSuggestResources.mockResolvedValue({
         success: true,
         message: "Анализ завершен",
@@ -442,7 +442,7 @@ describe("useTimelineAI", () => {
 
       expect(mockTimelineAIInstance.executeCommand).toHaveBeenCalledWith(
         "Добавь все видеофайлы из браузера в ресурсы проекта",
-        undefined
+        undefined,
       )
     })
 
@@ -454,7 +454,7 @@ describe("useTimelineAI", () => {
       })
 
       expect(mockTimelineAIInstance.createTimelineFromPrompt).toHaveBeenCalledWith(
-        "Создай хронологический timeline из всех доступных видео, упорядочив их по времени создания"
+        "Создай хронологический timeline из всех доступных видео, упорядочив их по времени создания",
       )
     })
 
@@ -466,7 +466,7 @@ describe("useTimelineAI", () => {
       })
 
       expect(mockTimelineAIInstance.analyzeAndSuggestResources).toHaveBeenCalledWith(
-        "Проанализируй качество всех медиафайлов и предложи улучшения"
+        "Проанализируй качество всех медиафайлов и предложи улучшения",
       )
     })
 
@@ -478,7 +478,7 @@ describe("useTimelineAI", () => {
       })
 
       expect(mockTimelineAIInstance.createTimelineFromPrompt).toHaveBeenCalledWith(
-        "Создай свадебное видео из доступных материалов с романтичной музыкой и переходами"
+        "Создай свадебное видео из доступных материалов с романтичной музыкой и переходами",
       )
     })
 
@@ -490,7 +490,7 @@ describe("useTimelineAI", () => {
       })
 
       expect(mockTimelineAIInstance.createTimelineFromPrompt).toHaveBeenCalledWith(
-        "Создай динамичное тревел-видео с энергичной музыкой и быстрыми переходами"
+        "Создай динамичное тревел-видео с энергичной музыкой и быстрыми переходами",
       )
     })
 
@@ -502,7 +502,7 @@ describe("useTimelineAI", () => {
       })
 
       expect(mockTimelineAIInstance.createTimelineFromPrompt).toHaveBeenCalledWith(
-        "Создай профессиональное корпоративное видео с титрами и спокойными переходами"
+        "Создай профессиональное корпоративное видео с титрами и спокойными переходами",
       )
     })
 
@@ -515,7 +515,7 @@ describe("useTimelineAI", () => {
 
       expect(mockTimelineAIInstance.executeCommand).toHaveBeenCalledWith(
         "Примени автоматическую цветокоррекцию ко всем видео в ресурсах",
-        undefined
+        undefined,
       )
     })
 
@@ -528,7 +528,7 @@ describe("useTimelineAI", () => {
 
       expect(mockTimelineAIInstance.executeCommand).toHaveBeenCalledWith(
         "Добавь плавные переходы между всеми клипами на timeline",
-        undefined
+        undefined,
       )
     })
 
@@ -541,7 +541,7 @@ describe("useTimelineAI", () => {
 
       expect(mockTimelineAIInstance.executeCommand).toHaveBeenCalledWith(
         "Синхронизируй видео клипы с ритмом музыкального сопровождения",
-        undefined
+        undefined,
       )
     })
   })
@@ -583,7 +583,7 @@ describe("useTimelineAI", () => {
 
       expect(mockTimelineAIInstance.executeCommand).toHaveBeenCalledWith(
         "Добавь все видеофайлы из браузера в ресурсы проекта",
-        undefined
+        undefined,
       )
     })
   })
@@ -591,7 +591,7 @@ describe("useTimelineAI", () => {
   describe("Edge cases and error handling", () => {
     it("должен обрабатывать null/undefined ошибки", async () => {
       mockTimelineAIInstance.createTimelineFromPrompt.mockRejectedValue(null)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -618,9 +618,9 @@ describe("useTimelineAI", () => {
         executionTime: 1500,
         nextActions: ["action1", "action2"],
       }
-      
+
       mockTimelineAIInstance.createTimelineFromPrompt.mockResolvedValue(mockResult)
-      
+
       const { result } = renderHook(() => useTimelineAI())
 
       let operationResult: any
@@ -660,9 +660,9 @@ describe("useTimelineAI", () => {
         message: "Команда выполнена",
         executionTime: 500,
       }
-      
+
       mockTimelineAIInstance.executeCommand.mockResolvedValue(mockResult)
-      
+
       const { result, rerender } = renderHook(() => useTimelineAI())
 
       // Вызываем функцию из первого рендера

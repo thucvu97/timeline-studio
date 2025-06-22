@@ -467,7 +467,7 @@ describe("OpenAiService", () => {
 
       const callArgs = mockFetch.mock.calls[0]
       expect(callArgs[0]).toBe("https://api.anthropic.com/v1/messages")
-      
+
       const headers = callArgs[1]?.headers
       expect(headers["x-api-key"]).toBe("sk-test-api-key")
       expect(headers["anthropic-version"]).toBe("2023-06-01")
@@ -551,7 +551,7 @@ describe("OpenAiService", () => {
           content: [{ text: "Claude response" }],
         }),
       }
-      
+
       // Mock для GPT
       const gptResponse = {
         ok: true,
@@ -562,7 +562,9 @@ describe("OpenAiService", () => {
 
       // Тест Claude модели
       mockFetch.mockResolvedValueOnce(claudeResponse as any)
-      const claudeResult = await service.sendRequest(AI_MODELS.CLAUDE_4_OPUS, [{ role: "user" as const, content: "Test" }])
+      const claudeResult = await service.sendRequest(AI_MODELS.CLAUDE_4_OPUS, [
+        { role: "user" as const, content: "Test" },
+      ])
       expect(claudeResult).toBe("Claude response")
       expect(mockFetch.mock.calls[0][0]).toContain("anthropic.com")
 

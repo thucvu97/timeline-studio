@@ -56,13 +56,10 @@ export const VirtualizedContentGroupWithPreload = memo<VirtualizedContentGroupWi
       const newRange: [number, number] = [firstVisibleIndex, lastVisibleIndex]
 
       // Проверяем, изменился ли диапазон
-      if (
-        newRange[0] !== lastVisibleRangeRef.current[0] ||
-        newRange[1] !== lastVisibleRangeRef.current[1]
-      ) {
+      if (newRange[0] !== lastVisibleRangeRef.current[0] || newRange[1] !== lastVisibleRangeRef.current[1]) {
         lastVisibleRangeRef.current = newRange
         // Преобразуем MediaFile[] в массив с fileId для совместимости с хуком
-        const filesWithFileId = files.map(file => ({ fileId: file.id }))
+        const filesWithFileId = files.map((file) => ({ fileId: file.id }))
         handleVisibleRangeChange(newRange, filesWithFileId)
       }
     }, [files, handleVisibleRangeChange, rowVirtualizer])
@@ -73,7 +70,7 @@ export const VirtualizedContentGroupWithPreload = memo<VirtualizedContentGroupWi
       if (!scrollElement) return
 
       scrollElement.addEventListener("scroll", handleScroll, { passive: true })
-      
+
       // Вызываем сразу для начальной загрузки
       handleScroll()
 
@@ -101,26 +98,17 @@ export const VirtualizedContentGroupWithPreload = memo<VirtualizedContentGroupWi
               transform: `translateY(${virtualItem.start}px)`,
             }}
           >
-            <MediaItem
-              file={file}
-              index={virtualItem.index}
-              viewMode={viewMode}
-              previewSize={previewSize}
-            />
+            <MediaItem file={file} index={virtualItem.index} viewMode={viewMode} previewSize={previewSize} />
           </div>
         )
       },
-      [files, viewMode, previewSize, rowVirtualizer.measureElement]
+      [files, viewMode, previewSize, rowVirtualizer.measureElement],
     )
 
     return (
       <div className="relative h-full w-full">
-        {groupName && (
-          <div className="sticky top-0 z-10 bg-background px-4 py-2 font-semibold">
-            {groupName}
-          </div>
-        )}
-        
+        {groupName && <div className="sticky top-0 z-10 bg-background px-4 py-2 font-semibold">{groupName}</div>}
+
         <div
           ref={parentRef}
           className="h-full w-full overflow-auto"
@@ -140,7 +128,7 @@ export const VirtualizedContentGroupWithPreload = memo<VirtualizedContentGroupWi
         </div>
       </div>
     )
-  }
+  },
 )
 
 VirtualizedContentGroupWithPreload.displayName = "VirtualizedContentGroupWithPreload"

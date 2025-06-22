@@ -4,12 +4,7 @@ import { Bot, ChevronDown, Copy, History, Plus, Send, Settings, StopCircle, Tras
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
 import { useModal } from "@/features/modals"
@@ -267,14 +262,10 @@ export function AiChat() {
                     "absolute bottom-3 right-3 h-8 w-8 rounded-md transition-colors",
                     message.trim()
                       ? "bg-teal text-white hover:bg-teal/80"
-                      : "bg-muted text-muted-foreground hover:bg-muted/50"
+                      : "bg-muted text-muted-foreground hover:bg-muted/50",
                   )}
                 >
-                  {isProcessing ? (
-                    <StopCircle className="h-4 w-4" />
-                  ) : (
-                    <Send className="h-4 w-4 rotate-45" />
-                  )}
+                  {isProcessing ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4 rotate-45" />}
                 </Button>
               </div>
 
@@ -301,9 +292,7 @@ export function AiChat() {
                           <div className="font-medium">{mode.name}</div>
                           <div className="text-xs text-muted-foreground/70">{mode.description}</div>
                         </div>
-                        {chatMode === mode.id && (
-                          <div className="ml-2 h-2 w-2 rounded-full bg-teal" />
-                        )}
+                        {chatMode === mode.id && <div className="ml-2 h-2 w-2 rounded-full bg-teal" />}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -336,7 +325,6 @@ export function AiChat() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-
             </div>
           )}
 
@@ -350,18 +338,12 @@ export function AiChat() {
                       key={msg.id}
                       className={cn(
                         "group flex max-w-[90%] flex-col rounded-lg p-3",
-                        msg.role === "user"
-                          ? "ml-auto bg-teal text-white"
-                          : "bg-muted text-foreground"
+                        msg.role === "user" ? "ml-auto bg-teal text-white" : "bg-muted text-foreground",
                       )}
                     >
                       <div className="flex items-start gap-2">
                         <div className="mt-0.5 flex-shrink-0">
-                          {msg.role === "user" ? (
-                            <User className="h-3.5 w-3.5" />
-                          ) : (
-                            <Bot className="h-3.5 w-3.5" />
-                          )}
+                          {msg.role === "user" ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
                         </div>
                         <div className="text-sm leading-relaxed">{msg.content}</div>
                       </div>
@@ -415,14 +397,10 @@ export function AiChat() {
                     "absolute bottom-2 right-2 h-8 w-8 rounded-md transition-colors",
                     message.trim()
                       ? "bg-teal text-white hover:bg-teal/80"
-                      : "bg-muted text-muted-foreground hover:bg-muted/50"
+                      : "bg-muted text-muted-foreground hover:bg-muted/50",
                   )}
                 >
-                  {isProcessing ? (
-                    <StopCircle className="h-4 w-4" />
-                  ) : (
-                    <Send className="h-4 w-4 rotate-45" />
-                  )}
+                  {isProcessing ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4 rotate-45" />}
                 </Button>
               </div>
 
@@ -449,9 +427,7 @@ export function AiChat() {
                           <div className="font-medium">{mode.name}</div>
                           <div className="text-xs text-muted-foreground/70">{mode.description}</div>
                         </div>
-                        {chatMode === mode.id && (
-                          <div className="ml-2 h-2 w-2 rounded-full bg-teal" />
-                        )}
+                        {chatMode === mode.id && <div className="ml-2 h-2 w-2 rounded-full bg-teal" />}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

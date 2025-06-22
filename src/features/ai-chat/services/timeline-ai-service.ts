@@ -1,6 +1,6 @@
 /**
  * Timeline AI Service
- * 
+ *
  * Основной сервис для координации AI операций между
  * ресурсами, браузером, плеером и таймлайном
  */
@@ -54,18 +54,13 @@ export class TimelineAIService {
   constructor(
     private resourcesProvider: ResourcesContextType,
     private browserState: any, // BrowserStateMachine context
-    private playerState: any, // PlayerStateMachine context  
+    private playerState: any, // PlayerStateMachine context
     private timelineState: any, // TimelineStateMachine context
   ) {
     this.claudeService = ClaudeService.getInstance()
-    
+
     // Объединяем все инструменты
-    this.allTools = [
-      ...resourceTools,
-      ...browserTools,
-      ...playerTools,
-      ...timelineTools,
-    ]
+    this.allTools = [...resourceTools, ...browserTools, ...playerTools, ...timelineTools]
   }
 
   /**
@@ -82,13 +77,13 @@ export class TimelineAIService {
     // Собираем контекст ресурсов
     const resourcesContext: ResourcesContext = {
       availableResources: {
-        media: this.resourcesProvider.mediaResources.map(r => r.file),
-        effects: this.resourcesProvider.effectResources.map(r => r.effect),
-        filters: this.resourcesProvider.filterResources.map(r => r.filter),
-        transitions: this.resourcesProvider.transitionResources.map(r => r.transition),
-        templates: this.resourcesProvider.templateResources.map(r => r.template),
-        styleTemplates: this.resourcesProvider.styleTemplateResources.map(r => r.template),
-        music: this.resourcesProvider.musicResources.map(r => r.file),
+        media: this.resourcesProvider.mediaResources.map((r) => r.file),
+        effects: this.resourcesProvider.effectResources.map((r) => r.effect),
+        filters: this.resourcesProvider.filterResources.map((r) => r.filter),
+        transitions: this.resourcesProvider.transitionResources.map((r) => r.transition),
+        templates: this.resourcesProvider.templateResources.map((r) => r.template),
+        styleTemplates: this.resourcesProvider.styleTemplateResources.map((r) => r.template),
+        music: this.resourcesProvider.musicResources.map((r) => r.file),
       },
       stats: {
         totalMedia: this.resourcesProvider.mediaResources.length,
@@ -159,13 +154,13 @@ export class TimelineAIService {
    */
   public async createTimelineFromPrompt(prompt: string): Promise<TimelineAIResult> {
     const startTime = Date.now()
-    
+
     try {
       const context = this.createContext()
-      
+
       // Создаем системный промпт для Claude
       const systemPrompt = this.createSystemPrompt(context)
-      
+
       // Отправляем запрос к Claude с инструментами
       const response = await this.claudeService.sendRequestWithTools(
         CLAUDE_MODELS.CLAUDE_4_SONNET,
@@ -175,12 +170,12 @@ export class TimelineAIService {
           system: systemPrompt,
           temperature: 0.7,
           max_tokens: 4000,
-        }
+        },
       )
 
       // Обрабатываем ответ и выполняем инструменты
       const result = await this.processClaudeResponse(response, context)
-      
+
       return {
         success: result.success,
         message: result.message,
@@ -193,8 +188,8 @@ export class TimelineAIService {
     } catch (error) {
       return {
         success: false,
-        message: `Ошибка при создании Timeline: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
-        errors: [error instanceof Error ? error.message : 'Неизвестная ошибка'],
+        message: `Ошибка при создании Timeline: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`,
+        errors: [error instanceof Error ? error.message : "Неизвестная ошибка"],
         executionTime: Date.now() - startTime,
       }
     }
@@ -205,11 +200,11 @@ export class TimelineAIService {
    */
   public async analyzeAndSuggestResources(query: string): Promise<TimelineAIResult> {
     const startTime = Date.now()
-    
+
     try {
       const context = this.createContext()
       const systemPrompt = this.createAnalysisSystemPrompt(context)
-      
+
       const response = await this.claudeService.sendRequestWithTools(
         CLAUDE_MODELS.CLAUDE_4_SONNET,
         [{ role: "user", content: query }],
@@ -218,11 +213,11 @@ export class TimelineAIService {
           system: systemPrompt,
           temperature: 0.5,
           max_tokens: 2000,
-        }
+        },
       )
 
       const result = await this.processClaudeResponse(response, context)
-      
+
       return {
         success: result.success,
         message: result.message,
@@ -233,8 +228,8 @@ export class TimelineAIService {
     } catch (error) {
       return {
         success: false,
-        message: `Ошибка при анализе ресурсов: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
-        errors: [error instanceof Error ? error.message : 'Неизвестная ошибка'],
+        message: `Ошибка при анализе ресурсов: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`,
+        errors: [error instanceof Error ? error.message : "Неизвестная ошибка"],
         executionTime: Date.now() - startTime,
       }
     }
@@ -245,13 +240,13 @@ export class TimelineAIService {
    */
   public async executeCommand(command: string, params: any = {}): Promise<TimelineAIResult> {
     const startTime = Date.now()
-    
+
     try {
       const context = this.createContext()
       const fullPrompt = `${command}\n\nПараметры: ${JSON.stringify(params, null, 2)}`
-      
+
       const systemPrompt = this.createSystemPrompt(context)
-      
+
       const response = await this.claudeService.sendRequestWithTools(
         CLAUDE_MODELS.CLAUDE_4_SONNET,
         [{ role: "user", content: fullPrompt }],
@@ -260,11 +255,11 @@ export class TimelineAIService {
           system: systemPrompt,
           temperature: 0.6,
           max_tokens: 3000,
-        }
+        },
       )
 
       const result = await this.processClaudeResponse(response, context)
-      
+
       return {
         success: result.success,
         message: result.message,
@@ -275,8 +270,8 @@ export class TimelineAIService {
     } catch (error) {
       return {
         success: false,
-        message: `Ошибка при выполнении команды: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`,
-        errors: [error instanceof Error ? error.message : 'Неизвестная ошибка'],
+        message: `Ошибка при выполнении команды: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`,
+        errors: [error instanceof Error ? error.message : "Неизвестная ошибка"],
         executionTime: Date.now() - startTime,
       }
     }
@@ -297,8 +292,8 @@ export class TimelineAIService {
 ТЕКУЩИЙ КОНТЕКСТ:
 - Доступно ресурсов: ${context.resources.stats.totalMedia} медиафайлов, ${Object.values(context.resources.stats.resourceTypes).reduce((a, b) => a + b, 0)} других ресурсов
 - Активная вкладка браузера: ${context.browser.activeTab}
-- Текущий проект: ${context.timeline.currentProject ? context.timeline.currentProject.name : 'отсутствует'}
-- Плеер: ${context.player.currentVideo ? 'воспроизводит ' + context.player.currentVideo.name : 'свободен'}
+- Текущий проект: ${context.timeline.currentProject ? context.timeline.currentProject.name : "отсутствует"}
+- Плеер: ${context.player.currentVideo ? "воспроизводит " + context.player.currentVideo.name : "свободен"}
 
 ПРИНЦИПЫ РАБОТЫ:
 1. Всегда сначала анализируй доступные ресурсы перед созданием Timeline
@@ -324,7 +319,7 @@ export class TimelineAIService {
 КОНТЕКСТ:
 - Ресурсов в пуле: ${context.resources.availableResources.media.length} медиа, ${context.resources.availableResources.effects.length} эффектов
 - В браузере: ${context.browser.availableMedia.length} файлов
-- Активные фильтры: ${context.browser.currentFilters.searchQuery || 'нет'}
+- Активные фильтры: ${context.browser.currentFilters.searchQuery || "нет"}
 
 Сосредоточься на анализе качества, совместимости и предложениях по улучшению.`
   }
@@ -334,7 +329,7 @@ export class TimelineAIService {
    */
   private async processClaudeResponse(
     response: { text: string; tool_use?: any },
-    context: TimelineStudioContext
+    context: TimelineStudioContext,
   ): Promise<AIToolResult> {
     const result: AIToolResult = {
       success: true,
@@ -347,7 +342,7 @@ export class TimelineAIService {
       try {
         const toolResult = await this.executeToolFunction(response.tool_use, context)
         result.data = { ...result.data, ...toolResult.data }
-        
+
         if (!toolResult.success) {
           result.success = false
           result.errors = toolResult.errors
@@ -355,7 +350,9 @@ export class TimelineAIService {
         }
       } catch (error) {
         result.success = false
-        result.errors = [`Ошибка выполнения инструмента: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`]
+        result.errors = [
+          `Ошибка выполнения инструмента: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`,
+        ]
       }
     }
 
@@ -371,7 +368,7 @@ export class TimelineAIService {
     // Здесь будет логика выполнения конкретных инструментов
     // Пока возвращаем заглушку
     console.log(`Executing tool: ${name} with input:`, input)
-    
+
     return {
       success: true,
       message: `Инструмент ${name} выполнен успешно`,
@@ -383,14 +380,14 @@ export class TimelineAIService {
 
   private calculateTotalDuration(): number {
     return this.resourcesProvider.mediaResources.reduce((total: number, resource) => {
-      const duration: number = typeof resource.file.duration === 'number' ? resource.file.duration : 0
+      const duration: number = typeof resource.file.duration === "number" ? resource.file.duration : 0
       return total + duration
     }, 0)
   }
 
   private calculateTotalSize(): number {
     return this.resourcesProvider.mediaResources.reduce((total: number, resource) => {
-      const size: number = typeof resource.file.size === 'number' ? resource.file.size : 0
+      const size: number = typeof resource.file.size === "number" ? resource.file.size : 0
       return total + size
     }, 0)
   }

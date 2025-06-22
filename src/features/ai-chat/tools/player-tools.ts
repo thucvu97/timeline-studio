@@ -1,6 +1,6 @@
 /**
  * AI инструменты для работы с видеоплеером
- * 
+ *
  * Предоставляет Claude возможности для управления плеером,
  * применения эффектов и анализа медиа
  */
@@ -20,25 +20,25 @@ export const playerTools: ClaudeTool[] = [
         includeMetadata: {
           type: "boolean",
           description: "Включить технические метаданные",
-          default: true
+          default: true,
         },
         includeEffects: {
-          type: "boolean", 
+          type: "boolean",
           description: "Включить информацию о применяемых эффектах",
-          default: true
+          default: true,
         },
         analyzeContent: {
           type: "boolean",
           description: "Анализировать содержимое медиа (сцены, объекты, лица)",
-          default: false
+          default: false,
         },
         detectIssues: {
           type: "boolean",
           description: "Обнаружить технические проблемы (шум, дрожание, экспозиция)",
-          default: true
-        }
-      }
-    }
+          default: true,
+        },
+      },
+    },
   },
 
   {
@@ -53,41 +53,41 @@ export const playerTools: ClaudeTool[] = [
             type: "object",
             properties: {
               effectId: { type: "string", description: "ID эффекта из ресурсов" },
-              parameters: { 
+              parameters: {
                 type: "object",
-                description: "Параметры эффекта (переопределяют значения по умолчанию)"
+                description: "Параметры эффекта (переопределяют значения по умолчанию)",
               },
-              intensity: { 
+              intensity: {
                 type: "number",
                 minimum: 0,
                 maximum: 1,
-                description: "Интенсивность применения эффекта"
+                description: "Интенсивность применения эффекта",
               },
               timeRange: {
                 type: "object",
                 properties: {
                   start: { type: "number" },
-                  end: { type: "number" }
+                  end: { type: "number" },
                 },
-                description: "Временной диапазон применения эффекта"
-              }
+                description: "Временной диапазон применения эффекта",
+              },
             },
-            required: ["effectId"]
-          }
+            required: ["effectId"],
+          },
         },
         previewMode: {
           type: "string",
           enum: ["real-time", "render-preview", "compare-split"],
-          description: "Режим предпросмотра эффектов"
+          description: "Режим предпросмотра эффектов",
         },
         autoOptimize: {
           type: "boolean",
           description: "Автоматически оптимизировать параметры для текущего медиа",
-          default: false
-        }
+          default: false,
+        },
       },
-      required: ["effects"]
-    }
+      required: ["effects"],
+    },
   },
 
   {
@@ -103,23 +103,23 @@ export const playerTools: ClaudeTool[] = [
             properties: {
               filterId: { type: "string", description: "ID фильтра из ресурсов" },
               parameters: { type: "object", description: "Параметры фильтра" },
-              order: { type: "number", description: "Порядок применения в цепочке" }
+              order: { type: "number", description: "Порядок применения в цепочке" },
             },
-            required: ["filterId"]
-          }
+            required: ["filterId"],
+          },
         },
         autoColorCorrection: {
           type: "boolean",
           description: "Включить автоматическую цветокоррекцию",
-          default: false
+          default: false,
         },
         referenceImage: {
           type: "string",
-          description: "ID изображения для использования как эталон цветокоррекции"
-        }
+          description: "ID изображения для использования как эталон цветокоррекции",
+        },
       },
-      required: ["filters"]
-    }
+      required: ["filters"],
+    },
   },
 
   {
@@ -130,7 +130,7 @@ export const playerTools: ClaudeTool[] = [
       properties: {
         templateId: {
           type: "string",
-          description: "ID шаблона раскладки из ресурсов"
+          description: "ID шаблона раскладки из ресурсов",
         },
         mediaFiles: {
           type: "array",
@@ -139,34 +139,34 @@ export const playerTools: ClaudeTool[] = [
             properties: {
               mediaId: { type: "string" },
               cellIndex: { type: "number", description: "Индекс ячейки в шаблоне" },
-              timeOffset: { type: "number", description: "Временной сдвиг для синхронизации" }
+              timeOffset: { type: "number", description: "Временной сдвиг для синхронизации" },
             },
-            required: ["mediaId"]
+            required: ["mediaId"],
           },
-          description: "Медиафайлы для размещения в шаблоне"
+          description: "Медиафайлы для размещения в шаблоне",
         },
         templateParameters: {
           type: "object",
           properties: {
-            syncMethod: { 
+            syncMethod: {
               type: "string",
               enum: ["timecode", "audio", "manual", "automatic"],
-              description: "Метод синхронизации камер"
+              description: "Метод синхронизации камер",
             },
-            audioSource: { 
+            audioSource: {
               type: "string",
               enum: ["main-camera", "external-audio", "mixed"],
-              description: "Источник аудио для шаблона"
+              description: "Источник аудио для шаблона",
             },
             transitionType: {
               type: "string",
-              description: "Тип переходов между камерами"
-            }
-          }
-        }
+              description: "Тип переходов между камерами",
+            },
+          },
+        },
       },
-      required: ["templateId", "mediaFiles"]
-    }
+      required: ["templateId", "mediaFiles"],
+    },
   },
 
   {
@@ -180,29 +180,35 @@ export const playerTools: ClaudeTool[] = [
           items: {
             type: "string",
             enum: [
-              "exposure", "color-balance", "sharpness", "noise", "stability",
-              "audio-quality", "compression-artifacts", "frame-drops"
-            ]
+              "exposure",
+              "color-balance",
+              "sharpness",
+              "noise",
+              "stability",
+              "audio-quality",
+              "compression-artifacts",
+              "frame-drops",
+            ],
           },
-          description: "Типы анализа качества"
+          description: "Типы анализа качества",
         },
         generateReport: {
           type: "boolean",
           description: "Создать подробный отчет о качестве",
-          default: true
+          default: true,
         },
         suggestCorrections: {
           type: "boolean",
           description: "Предложить автоматические коррекции",
-          default: true
+          default: true,
         },
         compareWithStandards: {
           type: "boolean",
           description: "Сравнить с отраслевыми стандартами",
-          default: false
-        }
-      }
-    }
+          default: false,
+        },
+      },
+    },
   },
 
   {
@@ -214,7 +220,7 @@ export const playerTools: ClaudeTool[] = [
         extractionType: {
           type: "string",
           enum: ["single-frame", "clip-segment", "audio-segment", "multiple-frames"],
-          description: "Тип извлечения"
+          description: "Тип извлечения",
         },
         timeParameters: {
           type: "object",
@@ -222,8 +228,8 @@ export const playerTools: ClaudeTool[] = [
             timestamp: { type: "number", description: "Временная метка для кадра" },
             startTime: { type: "number", description: "Начало сегмента" },
             endTime: { type: "number", description: "Конец сегмента" },
-            frameInterval: { type: "number", description: "Интервал между кадрами" }
-          }
+            frameInterval: { type: "number", description: "Интервал между кадрами" },
+          },
         },
         outputSettings: {
           type: "object",
@@ -234,18 +240,18 @@ export const playerTools: ClaudeTool[] = [
               type: "object",
               properties: {
                 width: { type: "number" },
-                height: { type: "number" }
-              }
-            }
-          }
+                height: { type: "number" },
+              },
+            },
+          },
         },
         purpose: {
           type: "string",
-          description: "Назначение извлечения (для оптимизации настроек)"
-        }
+          description: "Назначение извлечения (для оптимизации настроек)",
+        },
       },
-      required: ["extractionType", "timeParameters"]
-    }
+      required: ["extractionType", "timeParameters"],
+    },
   },
 
   {
@@ -257,7 +263,7 @@ export const playerTools: ClaudeTool[] = [
         comparisonType: {
           type: "string",
           enum: ["before-after", "multiple-versions", "with-reference"],
-          description: "Тип сравнения"
+          description: "Тип сравнения",
         },
         mediaVersions: {
           type: "array",
@@ -266,27 +272,27 @@ export const playerTools: ClaudeTool[] = [
             properties: {
               mediaId: { type: "string" },
               label: { type: "string" },
-              appliedEffects: { type: "array", items: { type: "string" } }
+              appliedEffects: { type: "array", items: { type: "string" } },
             },
-            required: ["mediaId", "label"]
-          }
+            required: ["mediaId", "label"],
+          },
         },
         comparisonMetrics: {
           type: "array",
           items: {
             type: "string",
-            enum: ["visual-quality", "color-accuracy", "sharpness", "noise-level", "file-size"]
+            enum: ["visual-quality", "color-accuracy", "sharpness", "noise-level", "file-size"],
           },
-          description: "Метрики для сравнения"
+          description: "Метрики для сравнения",
         },
         displayMode: {
           type: "string",
           enum: ["side-by-side", "overlay", "difference", "split-screen"],
-          description: "Режим отображения сравнения"
-        }
+          description: "Режим отображения сравнения",
+        },
       },
-      required: ["comparisonType", "mediaVersions"]
-    }
+      required: ["comparisonType", "mediaVersions"],
+    },
   },
 
   {
@@ -297,12 +303,12 @@ export const playerTools: ClaudeTool[] = [
       properties: {
         resourceName: {
           type: "string",
-          description: "Название для сохраненного ресурса"
+          description: "Название для сохраненного ресурса",
         },
         resourceType: {
           type: "string",
           enum: ["preset", "template", "media-export", "effect-chain"],
-          description: "Тип сохраняемого ресурса"
+          description: "Тип сохраняемого ресурса",
         },
         saveSettings: {
           type: "object",
@@ -310,21 +316,21 @@ export const playerTools: ClaudeTool[] = [
             includeEffects: { type: "boolean", description: "Включить примененные эффекты" },
             includeFilters: { type: "boolean", description: "Включить примененные фильтры" },
             includeTimestamp: { type: "boolean", description: "Включить временную метку" },
-            exportMedia: { type: "boolean", description: "Экспортировать обработанное медиа" }
-          }
+            exportMedia: { type: "boolean", description: "Экспортировать обработанное медиа" },
+          },
         },
         tags: {
           type: "array",
           items: { type: "string" },
-          description: "Теги для категоризации ресурса"
+          description: "Теги для категоризации ресурса",
         },
         description: {
           type: "string",
-          description: "Описание сохраняемого ресурса"
-        }
+          description: "Описание сохраняемого ресурса",
+        },
       },
-      required: ["resourceName", "resourceType"]
-    }
+      required: ["resourceName", "resourceType"],
+    },
   },
 
   {
@@ -336,7 +342,7 @@ export const playerTools: ClaudeTool[] = [
         action: {
           type: "string",
           enum: ["play", "pause", "stop", "seek", "step-forward", "step-backward", "set-speed"],
-          description: "Действие управления воспроизведением"
+          description: "Действие управления воспроизведением",
         },
         parameters: {
           type: "object",
@@ -344,16 +350,16 @@ export const playerTools: ClaudeTool[] = [
             seekTime: { type: "number", description: "Время для перехода (в секундах)" },
             playbackSpeed: { type: "number", description: "Скорость воспроизведения" },
             stepSize: { type: "number", description: "Размер шага в кадрах" },
-            volume: { type: "number", description: "Уровень громкости (0-1)" }
-          }
+            volume: { type: "number", description: "Уровень громкости (0-1)" },
+          },
         },
         reason: {
           type: "string",
-          description: "Причина изменения воспроизведения"
-        }
+          description: "Причина изменения воспроизведения",
+        },
       },
-      required: ["action"]
-    }
+      required: ["action"],
+    },
   },
 
   {
@@ -371,32 +377,32 @@ export const playerTools: ClaudeTool[] = [
               type: "object",
               properties: {
                 width: { type: "number" },
-                height: { type: "number" }
-              }
+                height: { type: "number" },
+              },
             },
             format: { type: "string", enum: ["jpg", "png", "webp"] },
-            quality: { type: "number", minimum: 1, maximum: 100 }
-          }
+            quality: { type: "number", minimum: 1, maximum: 100 },
+          },
         },
         extractionMethod: {
           type: "string",
           enum: ["uniform-intervals", "key-frames", "scene-changes", "custom-times"],
-          description: "Метод извлечения кадров"
+          description: "Метод извлечения кадров",
         },
         customTimes: {
           type: "array",
           items: { type: "number" },
-          description: "Пользовательские временные метки для превью"
-        }
-      }
-    }
-  }
+          description: "Пользовательские временные метки для превью",
+        },
+      },
+    },
+  },
 ]
 
 /**
  * Типы событий плеера, которые могут генерировать инструменты
  */
-export type PlayerToolEvent = 
+export type PlayerToolEvent =
   | { type: "MEDIA_ANALYZED"; mediaId: string; analysis: any }
   | { type: "EFFECTS_APPLIED"; effectIds: string[]; parameters: any }
   | { type: "FILTERS_APPLIED"; filterIds: string[]; parameters: any }

@@ -6,26 +6,19 @@ import { ChatContextType } from "../services/chat-provider"
  * @returns Только состояние чата
  */
 export function useChatState(): Pick<
-  ChatContextType, 
+  ChatContextType,
   "chatMessages" | "selectedAgentId" | "isProcessing" | "error" | "currentSessionId" | "sessions" | "isCreatingNewChat"
   > {
-  const { 
-    chatMessages, 
-    selectedAgentId, 
-    isProcessing, 
+  const { chatMessages, selectedAgentId, isProcessing, error, currentSessionId, sessions, isCreatingNewChat } =
+    useChat()
+
+  return {
+    chatMessages,
+    selectedAgentId,
+    isProcessing,
     error,
     currentSessionId,
     sessions,
-    isCreatingNewChat
-  } = useChat()
-  
-  return { 
-    chatMessages, 
-    selectedAgentId, 
-    isProcessing, 
-    error,
-    currentSessionId,
-    sessions,
-    isCreatingNewChat
+    isCreatingNewChat,
   }
 }

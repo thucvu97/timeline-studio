@@ -164,8 +164,8 @@ export const chatMachine = setup({
         },
         DELETE_SESSION: {
           actions: assign({
-            sessions: ({ context, event }) => context.sessions.filter(s => s.id !== event.sessionId),
-            currentSessionId: ({ context, event }) => 
+            sessions: ({ context, event }) => context.sessions.filter((s) => s.id !== event.sessionId),
+            currentSessionId: ({ context, event }) =>
               context.currentSessionId === event.sessionId ? null : context.currentSessionId,
           }),
         },
@@ -178,7 +178,7 @@ export const chatMachine = setup({
           }),
         },
         ANALYZE_RESOURCES: {
-          target: "analyzingResources", 
+          target: "analyzingResources",
           actions: assign({
             isProcessing: true,
             error: null,
