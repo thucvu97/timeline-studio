@@ -95,6 +95,18 @@ const mockUseChat = {
   updateSessions: vi.fn(),
 }
 
+vi.mock("../../hooks/use-timeline-ai", () => ({
+  useTimelineAI: () => ({
+    quickCommands: {
+      addAllVideosToResources: vi.fn(),
+      createChronologicalTimeline: vi.fn(),
+      analyzeMediaQuality: vi.fn(),
+      applyColorCorrection: vi.fn(),
+    },
+    setApiKey: vi.fn(),
+  }),
+}))
+
 vi.mock("../../hooks/use-chat", () => ({
   useChat: () => mockUseChat,
 }))

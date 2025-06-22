@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils"
 
 import { useChat } from ".."
 import { ChatList } from "./chat-list"
+import { useTimelineAI } from "../hooks/use-timeline-ai"
 import { chatStorageService } from "../services/chat-storage-service"
 import { CLAUDE_MODELS } from "../services/claude-service"
 import { AI_MODELS } from "../services/open-ai-service"
@@ -81,6 +82,7 @@ export function AiChat() {
   } = useChat()
   const { openAiApiKey } = useUserSettings()
   const { openModal } = useModal()
+  const { quickCommands, setApiKey } = useTimelineAI()
 
   const [message, setMessage] = useState("")
   const [chatMode, setChatMode] = useState<ChatMode>("agent")
@@ -336,6 +338,47 @@ export function AiChat() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
+
+              {/* Timeline AI Quick Actions */}
+              {chatMode === "agent" && (
+                <div className="mt-3 space-y-2">
+                  <div className="text-xs text-muted-foreground/70 font-medium">TIMELINE AI</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs border-border bg-muted/50 text-white hover:bg-accent"
+                      onClick={() => quickCommands.addAllVideosToResources()}
+                    >
+                      Добавить видео
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs border-border bg-muted/50 text-white hover:bg-accent"
+                      onClick={() => quickCommands.createChronologicalTimeline()}
+                    >
+                      Создать timeline
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs border-border bg-muted/50 text-white hover:bg-accent"
+                      onClick={() => quickCommands.analyzeMediaQuality()}
+                    >
+                      Анализ качества
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs border-border bg-muted/50 text-white hover:bg-accent"
+                      onClick={() => quickCommands.applyColorCorrection()}
+                    >
+                      Цветокоррекция
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

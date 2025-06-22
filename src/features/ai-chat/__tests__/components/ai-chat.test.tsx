@@ -24,6 +24,18 @@ vi.mock("@/features/user-settings", () => ({
   }),
 }))
 
+vi.mock("../../hooks/use-timeline-ai", () => ({
+  useTimelineAI: () => ({
+    quickCommands: {
+      addAllVideosToResources: vi.fn(),
+      createChronologicalTimeline: vi.fn(),
+      analyzeMediaQuality: vi.fn(),
+      applyColorCorrection: vi.fn(),
+    },
+    setApiKey: vi.fn(),
+  }),
+}))
+
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, disabled, ...props }: any) => (
     <button onClick={onClick} disabled={disabled} {...props}>

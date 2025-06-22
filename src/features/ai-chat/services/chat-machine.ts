@@ -28,6 +28,12 @@ export type ChatMachineEvent =
   | { type: "DELETE_SESSION"; sessionId: string }
   | { type: "SWITCH_SESSION"; sessionId: string }
   | { type: "UPDATE_SESSIONS"; sessions: ChatListItem[] }
+  // Timeline AI события
+  | { type: "CREATE_TIMELINE_FROM_PROMPT"; prompt: string }
+  | { type: "ANALYZE_RESOURCES"; query: string }
+  | { type: "EXECUTE_AI_COMMAND"; command: string; params?: any }
+  | { type: "TIMELINE_OPERATION_SUCCESS"; result: any }
+  | { type: "TIMELINE_OPERATION_ERROR"; error: string }
 
 // Начальный контекст
 const initialContext: ChatMachineContext = {
@@ -163,6 +169,28 @@ export const chatMachine = setup({
               context.currentSessionId === event.sessionId ? null : context.currentSessionId,
           }),
         },
+        // Timeline AI операции
+        CREATE_TIMELINE_FROM_PROMPT: {
+          target: "creatingTimeline",
+          actions: assign({
+            isProcessing: true,
+            error: null,
+          }),
+        },
+        ANALYZE_RESOURCES: {
+          target: "analyzingResources", 
+          actions: assign({
+            isProcessing: true,
+            error: null,
+          }),
+        },
+        EXECUTE_AI_COMMAND: {
+          target: "executingCommand",
+          actions: assign({
+            isProcessing: true,
+            error: null,
+          }),
+        },
       },
     },
     processing: {
@@ -197,6 +225,76 @@ export const chatMachine = setup({
               selectedAgentId: ({ event }) => event.agentId,
             }),
           ],
+        },
+      },
+    },
+    // Новые состояния для Timeline AI операций
+    creatingTimeline: {
+      on: {
+        TIMELINE_OPERATION_SUCCESS: {
+          target: "idle",
+          actions: [
+            assign({
+              isProcessing: false,
+              error: null,
+            }),
+            ({ event }) => {
+              console.log("[ChatMachine] Timeline создан успешно:", event.result)
+            },
+          ],
+        },
+        TIMELINE_OPERATION_ERROR: {
+          target: "idle",
+          actions: assign({
+            error: ({ event }) => event.error,
+            isProcessing: false,
+          }),
+        },
+      },
+    },
+    analyzingResources: {
+      on: {
+        TIMELINE_OPERATION_SUCCESS: {
+          target: "idle",
+          actions: [
+            assign({
+              isProcessing: false,
+              error: null,
+            }),
+            ({ event }) => {
+              console.log("[ChatMachine] Анализ ресурсов завершен:", event.result)
+            },
+          ],
+        },
+        TIMELINE_OPERATION_ERROR: {
+          target: "idle",
+          actions: assign({
+            error: ({ event }) => event.error,
+            isProcessing: false,
+          }),
+        },
+      },
+    },
+    executingCommand: {
+      on: {
+        TIMELINE_OPERATION_SUCCESS: {
+          target: "idle",
+          actions: [
+            assign({
+              isProcessing: false,
+              error: null,
+            }),
+            ({ event }) => {
+              console.log("[ChatMachine] Команда выполнена успешно:", event.result)
+            },
+          ],
+        },
+        TIMELINE_OPERATION_ERROR: {
+          target: "idle",
+          actions: assign({
+            error: ({ event }) => event.error,
+            isProcessing: false,
+          }),
         },
       },
     },
