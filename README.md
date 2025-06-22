@@ -197,6 +197,16 @@ bun run check:all
 - [TypeDoc Documentation](https://typedoc.org/)
 - [ffmpeg Documentation](https://ffmpeg.org/documentation.html)
 
+## Star History
+
+<a href="https://www.star-history.com/#chatman-media/timeline-studio&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=chatman-media/timeline-studio&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=chatman-media/timeline-studio&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=chatman-media/timeline-studio&type=Date" />
+ </picture>
+</a>
+
 ## License
 
 This project is distributed under the MIT License with Commons Clause condition.
