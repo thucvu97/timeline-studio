@@ -370,6 +370,135 @@
       "openAiApiKey": "OpenAI API Key",
       "playerScreenshotsPath": "Player screenshots save path",
       "claudeApiKey": "Claude API key",
+      "apiKeys": "API Keys",
+      "apiKeysDescription": "Configure API keys for AI services",
+      "apiKeyProvider": "Provider",
+      "apiKeyValue": "API Key",
+      "apiKeyStatus": "Status",
+      "apiKeyActions": "Actions",
+      "addApiKey": "Add API Key",
+      "editApiKey": "Edit API Key",
+      "deleteApiKey": "Delete API Key",
+      "testApiKey": "Test API Key",
+      "apiKeyValid": "Valid",
+      "apiKeyInvalid": "Invalid",
+      "apiKeyUntested": "Untested",
+      "apiKeyTesting": "Testing...",
+      "apiKeyTestSuccess": "API key is valid",
+      "apiKeyTestFailure": "API key is invalid or expired",
+      "apiKeyTestError": "Error testing API key",
+      "apiKeyDeleteConfirm": "Are you sure you want to delete this API key?",
+      "apiKeyProviders": {
+        "openai": "OpenAI",
+        "claude": "Claude (Anthropic)",
+        "gemini": "Google Gemini",
+        "custom": "Custom"
+      },
+      "apiKeyPlaceholder": "Enter your API key...",
+      "apiKeyMasked": "••••••••••••••••••••",
+      "noApiKeys": "No API keys configured",
+      "tabs": {
+        "general": "General",
+        "aiServices": "AI Services",
+        "socialNetworks": "Social Networks",
+        "development": "Development"
+      },
+      "status": {
+        "notSet": "Not configured",
+        "testing": "Testing...",
+        "invalid": "Error",
+        "valid": "Working"
+      },
+      "show": "Show",
+      "hide": "Hide",
+      "test": "Test",
+      "clear": "Clear",
+      "optional": "optional",
+      "connectionStatus": "Connection Status",
+      "authorize": "Authorize",
+      "setupInstructions": "Setup Instructions",
+      "step1": "Create OAuth application in developer console",
+      "step2": "Copy Client ID and Client Secret",
+      "step3": "Enter credentials in the fields above",
+      "step4": "Click 'Authorize' to get access token",
+      "connectionSuccess": "Connection successfully configured. You can publish content.",
+      "connectionError": "Connection error. Check credentials and retry authorization.",
+      "aiServices": {
+        "title": "AI Services",
+        "description": "Configure API keys for AI services used in Timeline Studio",
+        "securityNote": "API keys are stored securely on your device and never shared.",
+        "openai": {
+          "title": "OpenAI",
+          "description": "Required for GPT models in AI Chat",
+          "placeholder": "sk-...",
+          "getKey": "Get API Key"
+        },
+        "claude": {
+          "title": "Claude (Anthropic)",
+          "description": "Required for Claude models in AI Chat",
+          "placeholder": "sk-ant-...",
+          "getKey": "Get API Key"
+        }
+      },
+      "socialNetworks": {
+        "title": "Social Networks",
+        "description": "Configure OAuth connections for automatic content publishing",
+        "youtube": {
+          "title": "YouTube",
+          "description": "Upload videos directly to your YouTube channel",
+          "clientId": "Client ID",
+          "clientSecret": "Client Secret",
+          "clientIdPlaceholder": "Your YouTube OAuth Client ID",
+          "clientSecretPlaceholder": "Your YouTube OAuth Client Secret",
+          "getCredentials": "Get OAuth Credentials"
+        },
+        "tiktok": {
+          "title": "TikTok",
+          "description": "Publish short videos to TikTok",
+          "clientId": "Client Key",
+          "clientSecret": "Client Secret",
+          "clientIdPlaceholder": "Your TikTok App Client Key",
+          "clientSecretPlaceholder": "Your TikTok App Client Secret",
+          "getCredentials": "Create TikTok App"
+        },
+        "vimeo": {
+          "title": "Vimeo",
+          "description": "Upload videos to your Vimeo account",
+          "clientId": "Client ID",
+          "clientSecret": "Client Secret",
+          "accessToken": "Access Token",
+          "clientIdPlaceholder": "Your Vimeo OAuth Client ID",
+          "clientSecretPlaceholder": "Your Vimeo OAuth Client Secret",
+          "accessTokenPlaceholder": "Your Vimeo Access Token",
+          "getCredentials": "Create Vimeo App"
+        },
+        "telegram": {
+          "title": "Telegram",
+          "description": "Send videos to Telegram channels",
+          "botToken": "Bot Token",
+          "chatId": "Chat ID",
+          "botTokenPlaceholder": "Your Telegram Bot Token",
+          "chatIdPlaceholder": "Your Telegram Chat ID",
+          "getCredentials": "Create Telegram Bot"
+        }
+      },
+      "development": {
+        "title": "Development",
+        "description": "API keys for development and analytics services",
+        "devModeOnly": "These settings are only available in development mode",
+        "codecov": {
+          "title": "Codecov",
+          "description": "Code coverage reporting token",
+          "placeholder": "Your Codecov token",
+          "getToken": "Get Codecov Token"
+        },
+        "tauriAnalytics": {
+          "title": "Tauri Analytics",
+          "description": "Analytics and crash reporting key",
+          "placeholder": "Your Tauri Analytics key",
+          "getKey": "Get Analytics Key"
+        }
+      },
       "performance": "Performance",
       "cacheStats": "Cache Statistics",
       "cacheSettings": "Cache Settings",

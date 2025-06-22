@@ -293,6 +293,135 @@
         "openAiApiKey": "OpenAI API ключ",
         "claudeApiKey": "Claude API ключ",
         "playerScreenshotsPath": "Путь для сохранения скриншотов из плеера",
+        "apiKeys": "API Ключи",
+        "apiKeysDescription": "Настройка API ключей для сервисов ИИ",
+        "apiKeyProvider": "Провайдер",
+        "apiKeyValue": "API Ключ",
+        "apiKeyStatus": "Статус",
+        "apiKeyActions": "Действия",
+        "addApiKey": "Добавить API ключ",
+        "editApiKey": "Редактировать API ключ",
+        "deleteApiKey": "Удалить API ключ",
+        "testApiKey": "Тестировать API ключ",
+        "apiKeyValid": "Действующий",
+        "apiKeyInvalid": "Недействительный",
+        "apiKeyUntested": "Не проверен",
+        "apiKeyTesting": "Проверка...",
+        "apiKeyTestSuccess": "API ключ действителен",
+        "apiKeyTestFailure": "API ключ недействителен или истек",
+        "apiKeyTestError": "Ошибка проверки API ключа",
+        "apiKeyDeleteConfirm": "Вы уверены, что хотите удалить этот API ключ?",
+        "apiKeyProviders": {
+          "openai": "OpenAI",
+          "claude": "Claude (Anthropic)",
+          "gemini": "Google Gemini",
+          "custom": "Настраиваемый"
+        },
+        "apiKeyPlaceholder": "Введите ваш API ключ...",
+        "apiKeyMasked": "••••••••••••••••••••",
+        "noApiKeys": "API ключи не настроены",
+        "tabs": {
+          "general": "Общее",
+          "aiServices": "ИИ Сервисы",
+          "socialNetworks": "Социальные сети",
+          "development": "Разработка"
+        },
+        "status": {
+          "notSet": "Не настроено",
+          "testing": "Проверка...",
+          "invalid": "Ошибка",
+          "valid": "Работает"
+        },
+        "show": "Показать",
+        "hide": "Скрыть",
+        "test": "Тестировать",
+        "clear": "Очистить",
+        "optional": "опционально",
+        "connectionStatus": "Статус подключения",
+        "authorize": "Авторизоваться",
+        "setupInstructions": "Инструкции по настройке",
+        "step1": "Создайте OAuth приложение в консоли разработчика",
+        "step2": "Скопируйте Client ID и Client Secret",
+        "step3": "Введите данные в поля выше",
+        "step4": "Нажмите 'Авторизоваться' для получения токена доступа",
+        "connectionSuccess": "Подключение успешно настроено. Вы можете публиковать контент.",
+        "connectionError": "Ошибка подключения. Проверьте данные и повторите авторизацию.",
+        "aiServices": {
+          "title": "ИИ Сервисы",
+          "description": "Настройка API ключей для ИИ сервисов, используемых в Timeline Studio",
+          "securityNote": "API ключи хранятся безопасно на вашем устройстве и никогда не передаются третьим лицам.",
+          "openai": {
+            "title": "OpenAI",
+            "description": "Необходим для моделей GPT в ИИ Чате",
+            "placeholder": "sk-...",
+            "getKey": "Получить API ключ"
+          },
+          "claude": {
+            "title": "Claude (Anthropic)",
+            "description": "Необходим для моделей Claude в ИИ Чате",
+            "placeholder": "sk-ant-...",
+            "getKey": "Получить API ключ"
+          }
+        },
+        "socialNetworks": {
+          "title": "Социальные сети",
+          "description": "Настройка OAuth подключений для автоматической публикации контента",
+          "youtube": {
+            "title": "YouTube",
+            "description": "Загружайте видео напрямую на ваш YouTube канал",
+            "clientId": "Client ID",
+            "clientSecret": "Client Secret",
+            "clientIdPlaceholder": "Ваш YouTube OAuth Client ID",
+            "clientSecretPlaceholder": "Ваш YouTube OAuth Client Secret",
+            "getCredentials": "Получить OAuth данные"
+          },
+          "tiktok": {
+            "title": "TikTok",
+            "description": "Публикуйте короткие видео в TikTok",
+            "clientId": "Client Key",
+            "clientSecret": "Client Secret",
+            "clientIdPlaceholder": "Ваш TikTok App Client Key",
+            "clientSecretPlaceholder": "Ваш TikTok App Client Secret",
+            "getCredentials": "Создать TikTok приложение"
+          },
+          "vimeo": {
+            "title": "Vimeo",
+            "description": "Загружайте видео в ваш аккаунт Vimeo",
+            "clientId": "Client ID",
+            "clientSecret": "Client Secret",
+            "accessToken": "Токен доступа",
+            "clientIdPlaceholder": "Ваш Vimeo OAuth Client ID",
+            "clientSecretPlaceholder": "Ваш Vimeo OAuth Client Secret",
+            "accessTokenPlaceholder": "Ваш токен доступа Vimeo",
+            "getCredentials": "Создать Vimeo приложение"
+          },
+          "telegram": {
+            "title": "Telegram",
+            "description": "Отправляйте видео в каналы Telegram",
+            "botToken": "Токен бота",
+            "chatId": "ID чата",
+            "botTokenPlaceholder": "Ваш токен Telegram бота",
+            "chatIdPlaceholder": "Ваш ID чата Telegram",
+            "getCredentials": "Создать Telegram бота"
+          }
+        },
+        "development": {
+          "title": "Разработка",
+          "description": "API ключи для сервисов разработки и аналитики",
+          "devModeOnly": "Эти настройки доступны только в режиме разработки",
+          "codecov": {
+            "title": "Codecov",
+            "description": "Токен для отчетов о покрытии кода",
+            "placeholder": "Ваш токен Codecov",
+            "getToken": "Получить токен Codecov"
+          },
+          "tauriAnalytics": {
+            "title": "Tauri Analytics",
+            "description": "Ключ для аналитики и отчетов о сбоях",
+            "placeholder": "Ваш ключ Tauri Analytics",
+            "getKey": "Получить ключ аналитики"
+          }
+        },
         "performance": "Производительность",
         "cacheStats": "Статистика кэша",
         "cacheSettings": "Настройки кэша",

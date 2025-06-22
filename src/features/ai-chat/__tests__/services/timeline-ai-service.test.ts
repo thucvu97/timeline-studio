@@ -605,11 +605,11 @@ describe("TimelineAIService", () => {
         const stats = service.calculateResourceTypeStats()
         expect(stats).toEqual({
           media: 2,
-          effects: 2,
-          filters: 1,
-          transitions: 0,
-          templates: 0,
-          styleTemplates: 0,
+          effect: 2,
+          filter: 1,
+          transition: 0,
+          template: 0,
+          styleTemplate: 0,
           music: 1,
         })
       })

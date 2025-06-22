@@ -287,10 +287,10 @@ export class TimelineAIService {
 
 ДОСТУПНЫЕ РЕСУРСЫ:
 - Медиафайлы: ${context.resources.stats.totalMedia}
-- Эффекты: ${context.resources.stats.resourceTypes.effects}
-- Фильтры: ${context.resources.stats.resourceTypes.filters}
-- Переходы: ${context.resources.stats.resourceTypes.transitions}
-- Шаблоны: ${context.resources.stats.resourceTypes.templates}
+- Эффекты: ${context.resources.stats.resourceTypes.effect}
+- Фильтры: ${context.resources.stats.resourceTypes.filter}
+- Переходы: ${context.resources.stats.resourceTypes.transition}
+- Шаблоны: ${context.resources.stats.resourceTypes.template}
 
 ПРИНЦИПЫ АНАЛИЗА:
 1. Оценивай качество и разнообразие контента
@@ -405,11 +405,11 @@ export class TimelineAIService {
   private calculateResourceTypeStats(): Record<string, number> {
     return {
       media: this.resourcesProvider.mediaResources.length,
-      effects: this.resourcesProvider.effectResources.length,
-      filters: this.resourcesProvider.filterResources.length,
-      transitions: this.resourcesProvider.transitionResources.length,
-      templates: this.resourcesProvider.templateResources.length,
-      styleTemplates: this.resourcesProvider.styleTemplateResources.length,
+      effect: this.resourcesProvider.effectResources.length,
+      filter: this.resourcesProvider.filterResources.length,
+      transition: this.resourcesProvider.transitionResources.length,
+      template: this.resourcesProvider.templateResources.length,
+      styleTemplate: this.resourcesProvider.styleTemplateResources.length,
       music: this.resourcesProvider.musicResources.length,
     }
   }
