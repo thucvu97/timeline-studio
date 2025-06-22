@@ -256,6 +256,12 @@ ignore:
   - "scripts"
   - "docs"
   - "e2e"
+  - "e2e/**"
+  - "tests/e2e/**"
+  - "**/*.e2e.*"
+  - "**/*.spec.*"
+  - "playwright/**"
+  - "cypress/**"
   - "examples"
   - "promo"
   - "docs-ru"
@@ -263,10 +269,34 @@ ignore:
   - "*.config.js"
   - "*.config.ts"
   - "**/*.d.ts"
+  - "playwright.config.*"
+  - "vitest.config.*"
+  - "vite.config.*"
+  - "next.config.*"
+  - "tailwind.config.*"
+  - "postcss.config.*"
   - "src/test/**"
   - "src/**/__mocks__/**"
   - "src/components/ui/**"  # shadcn/ui components
   - "src/components/tauri-mock-provider.tsx"
+  - "src/lib/utils.ts"  # Utility functions from shadcn/ui
+  - "src/app/**"  # Next.js app directory (mostly routing)
+  - "src/pages/**"  # Next.js pages (if any)
+  - "**/*.stories.tsx"  # Storybook stories
+  - "**/constants.ts"  # Constants files (usually just exports)
+  - "**/constants/**"  # Constants directories
+  - "**/types.ts"  # Type definition files
+  - "**/types/**"  # Type directories (interfaces only)
+  - "src/styles/**"  # CSS/styling files
+  - "**/*.css"  # CSS files
+  - "**/*.scss"  # SCSS files
+  - "src/i18n/locales/**"  # Translation JSON files
+  - "**/index.ts"  # Re-export index files (usually just exports)
+  - "**/*.config.json"  # Configuration JSON files
+  - "src/features/**/lib/**"  # Library files with minimal logic
+  - "src/components/icons/**"  # Icon components (SVG wrappers)
+  - "**/fixtures/**"  # Test fixtures
+  - "**/fixtures.ts"  # Test fixture files
   - "target/**"  # Rust build artifacts
   - "src-tauri/target/**"
 
