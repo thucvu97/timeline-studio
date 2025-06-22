@@ -198,7 +198,6 @@ bun run check:all
 - [ffmpeg Documentation](https://ffmpeg.org/documentation.html)
 
 ## Star History
-
 <a href="https://www.star-history.com/#chatman-media/timeline-studio&Date">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=chatman-media/timeline-studio&type=Date&theme=dark" />
@@ -206,6 +205,9 @@ bun run check:all
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=chatman-media/timeline-studio&type=Date" />
  </picture>
 </a>
+
+## GitAds Sponsored
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=chatman-media/timeline-studio@github)](https://gitads.dev/v1/ad-track?source=chatman-media/timeline-studio@github)
 
 ## License
 
