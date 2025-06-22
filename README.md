@@ -24,16 +24,39 @@
 ## GitAds Sponsored
 [![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=chatman-media/timeline-studio@github)](https://gitads.dev/v1/ad-track?source=chatman-media/timeline-studio@github)
 
-## Project Overview
+## 🎬 Project Overview
 
-Timeline Studio is a modern video editor built on Tauri architecture (Rust + React).
+### Timeline Studio - Next-Gen AI-Powered Video Editor
 
-**Our goal**: create an editor combining:
-- **Professional power of DaVinci Resolve** - complete control over editing, color grading, audio mixing, visual effects, motion graphics, and advanced compositing
-- **Extensive creative library** - effects, filters, transitions, multi-camera templates, animated titles, style templates, and subtitle presets comparable to popular editors like Filmora
-- **AI scripting and automation** - automatic content generation in different languages and for different platforms
+<div align="center">
+<h3>🚀 Professional Power • 🎨 Creative Freedom • 🤖 AI Automation</h3>
+</div>
 
-**Key innovation**: It's enough for users to upload videos, music and other resources, and AI will automatically create a set of videos in different languages and optimized for different platforms (YouTube, TikTok, Vimeo, Telegram).
+#### 💡 **The Vision**
+Imagine **DaVinci Resolve's** professional capabilities merged with **Filmora's** rich creative library, powered by **AI automation** that creates content for you.
+
+#### ⚡ **The Revolution**
+> *"Just upload your footage and music. AI handles the rest - creating multiple versions in different languages, optimized for every platform."*
+
+#### 🎯 **Three Pillars of Excellence**
+
+**1. Professional Studio** 🎬
+- Color grading like DaVinci Resolve
+- Multi-track timeline editing
+- Advanced compositing & motion graphics
+- Professional audio mixing suite
+
+**2. Creative Arsenal** 🎨
+- 1000+ effects, filters & transitions
+- Multi-camera layout templates
+- Animated titles & intros
+- Style presets & LUTs
+
+**3. AI Automation** 🤖
+- Auto-generate videos for YouTube, TikTok, Instagram
+- Multi-language content creation
+- Smart scene detection & editing
+- One-click platform optimization
 
 ![Timeline Interface #1](/public/screen2.png)
 
