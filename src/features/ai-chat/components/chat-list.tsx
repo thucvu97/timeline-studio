@@ -90,7 +90,7 @@ export function ChatList({
               ) : (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span>{session.messageCount} messages</span>
-                  <span>{formatDate(session.lastMessageAt)}</span>
+                  <span>{session.lastMessageAt ? formatDate(session.lastMessageAt) : 'No date'}</span>
                 </div>
               )}
             </div>

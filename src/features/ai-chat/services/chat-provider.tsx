@@ -99,7 +99,7 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
         messageCount: 0,
       }
 
-      await chatStorageService.createSession(newSession)
+      await chatStorageService.createSession(newSession.title)
       send({ type: "NEW_CHAT_CREATED", session: newSession })
     }, 1500)
   }
