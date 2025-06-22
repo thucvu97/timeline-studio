@@ -239,3 +239,5 @@ Project uses GitHub Pages for hosting API documentation and promo page:
 - **API Documentation**: [https://chatman-media.github.io/timeline-studio/api-docs/](https://chatman-media.github.io/timeline-studio/api-docs/)
 
 Both pages are automatically updated when corresponding files are changed in the `main` branch using GitHub Actions workflows.
+
+<!-- GitAds-Verify: EIS875AHMQZGOHYNQFNPOUHHNSEXHVUR -->
