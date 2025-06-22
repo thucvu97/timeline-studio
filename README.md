@@ -167,35 +167,8 @@ bun run check:all
 
 ## License
 
-This project is distributed under the MIT License with Commons Clause condition.
+MIT License with Commons Clause - free for personal use, commercial use requires agreement.
 
-**Main terms:**
-
-- **Open Source**: You can freely use, modify, and distribute the code according to the MIT License terms.
-- **Commercial Use Restriction**: Commons Clause prohibits "selling" the software without a separate agreement with the author.
-- **"Selling"** means using the software functionality to provide third parties with a product or service for a fee.
-
-This license allows:
-
-- Using the code for personal and non-commercial projects
-- Studying and modifying the code
-- Distributing modifications under the same license
-
-But prohibits:
-
-- Creating commercial products or services based on the code without a license
-
-To obtain a commercial license, please contact the author: ak.chatman.media@gmail.com
-
-Full license text is available in the [LICENSE](./LICENSE) file
-
-## GitHub Pages
-
-Project uses GitHub Pages for hosting API documentation and promo page:
-
-- **Promo Page**: [https://chatman-media.github.io/timeline-studio/](https://chatman-media.github.io/timeline-studio/)
-- **API Documentation**: [https://chatman-media.github.io/timeline-studio/api-docs/](https://chatman-media.github.io/timeline-studio/api-docs/)
-
-Both pages are automatically updated when corresponding files are changed in the `main` branch using GitHub Actions workflows.
+📄 **[Full License Details →](docs-ru/10-legal/license.md)** | 📧 **Commercial License**: ak.chatman.media@gmail.com
 
 <!-- GitAds-Verify: EIS875AHMQZGOHYNQFNPOUHHNSEXHVUR -->
