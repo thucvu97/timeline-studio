@@ -152,6 +152,23 @@ pub async fn get_api_key_info(
   }
 }
 
+/// Получает расшифрованное значение API ключа для использования в сервисах
+#[tauri::command]
+pub async fn get_decrypted_api_key(
+  storage: SecureStorageState<'_>,
+  key_type: String,
+) -> Result<Option<String>, String> {
+  let key_type = ApiKeyType::from_str(&key_type).ok_or_else(|| "Invalid key type".to_string())?;
+
+  let mut storage_guard = storage.lock().await;
+
+  match storage_guard.get_api_key(key_type).await {
+    Ok(Some(key_data)) => Ok(Some(key_data.value)),
+    Ok(None) => Ok(None),
+    Err(e) => Err(format!("Failed to get API key: {}", e)),
+  }
+}
+
 /// Получает список всех API ключей
 #[tauri::command]
 pub async fn list_api_keys(storage: SecureStorageState<'_>) -> Result<Vec<ApiKeyInfo>, String> {

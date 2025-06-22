@@ -65,8 +65,10 @@ export class TimelineAIService {
 
   /**
    * Устанавливает API ключ Claude
+   * @deprecated Используйте API Keys Management вместо прямой установки ключа
    */
   public setApiKey(apiKey: string): void {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     this.claudeService.setApiKey(apiKey)
   }
 

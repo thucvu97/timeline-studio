@@ -177,9 +177,11 @@ export function useTimelineAI() {
 
   /**
    * Устанавливает API ключ для Claude
+   * @deprecated Используйте API Keys Management вместо прямой установки ключа
    */
   const setApiKey = useCallback(
     (apiKey: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       timelineAI.setApiKey(apiKey)
     },
     [timelineAI],
@@ -246,6 +248,7 @@ export function useTimelineAI() {
     createTimelineFromPrompt,
     analyzeResources,
     executeCommand,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     setApiKey,
 
     // Быстрые команды

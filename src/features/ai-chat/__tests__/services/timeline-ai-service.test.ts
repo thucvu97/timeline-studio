@@ -252,6 +252,7 @@ describe("TimelineAIService", () => {
   describe("setApiKey", () => {
     it("should set the API key in ClaudeService", () => {
       const apiKey = "test-api-key-123"
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       service.setApiKey(apiKey)
       expect(mockClaudeService.setApiKey).toHaveBeenCalledWith(apiKey)
     })

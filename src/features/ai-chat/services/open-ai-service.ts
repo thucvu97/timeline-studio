@@ -1,3 +1,4 @@
+import { ApiKeyLoader } from "./api-key-loader"
 import { AiMessage } from "../types/ai-message"
 
 // Интерфейс для запроса к API
@@ -51,14 +52,10 @@ const API_URLS = {
  */
 export class OpenAiService {
   private static instance: OpenAiService
-  private apiKey = ""
+  private apiKeyLoader: ApiKeyLoader
 
   private constructor() {
-    // Читаем API ключ из переменной окружения (OpenAI имеет приоритет)
-    this.apiKey = process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY || ""
-    if (this.apiKey) {
-      console.log("AI API key loaded from environment")
-    }
+    this.apiKeyLoader = ApiKeyLoader.getInstance()
   }
 
   /**
@@ -74,17 +71,23 @@ export class OpenAiService {
   /**
    * Установить API ключ
    * @param apiKey Новый API ключ
+   * @deprecated Используйте API Keys Management вместо прямой установки ключа
    */
   public setApiKey(apiKey: string): void {
-    this.apiKey = apiKey
+    // Определяем тип ключа по префиксу
+    const keyType = apiKey.startsWith("sk-ant-") ? "claude" : "openai"
+    this.apiKeyLoader.updateCache(keyType, apiKey)
     console.log("AI API key updated:", apiKey ? "***" : "(empty)")
   }
 
   /**
    * Проверить, установлен ли API ключ
+   * @param model Модель для проверки (опционально)
    */
-  public hasApiKey(): boolean {
-    return !!this.apiKey
+  public async hasApiKey(model?: string): Promise<boolean> {
+    const keyType = model?.startsWith("claude") ? "claude" : "openai"
+    const apiKey = await this.apiKeyLoader.getApiKey(keyType)
+    return !!apiKey
   }
 
   /**
@@ -109,16 +112,17 @@ export class OpenAiService {
     messages: AiMessage[],
     options: { temperature?: number; max_tokens?: number } = {},
   ): Promise<string> {
-    if (!this.apiKey) {
+    const provider = this.getProviderByModel(model)
+    const apiKey = await this.apiKeyLoader.getApiKey(provider === "anthropic" ? "claude" : "openai")
+
+    if (!apiKey) {
       throw new Error("API ключ не установлен. Пожалуйста, добавьте API ключ в настройках.")
     }
 
-    const provider = this.getProviderByModel(model)
-
     if (provider === "anthropic") {
-      return this.sendAnthropicRequest(model, messages, options)
+      return this.sendAnthropicRequest(model, messages, options, apiKey)
     }
-    return this.sendOpenAIRequest(model, messages, options)
+    return this.sendOpenAIRequest(model, messages, options, apiKey)
   }
 
   /**
@@ -127,14 +131,15 @@ export class OpenAiService {
   private async sendAnthropicRequest(
     model: string,
     messages: AiMessage[],
-    options: { temperature?: number; max_tokens?: number } = {},
+    options: { temperature?: number; max_tokens?: number },
+    apiKey: string,
   ): Promise<string> {
     try {
       const response = await fetch(API_URLS.ANTHROPIC, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": this.apiKey,
+          "x-api-key": apiKey,
           "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify({
@@ -164,14 +169,15 @@ export class OpenAiService {
   private async sendOpenAIRequest(
     model: string,
     messages: AiMessage[],
-    options: { temperature?: number; max_tokens?: number } = {},
+    options: { temperature?: number; max_tokens?: number },
+    apiKey: string,
   ): Promise<string> {
     try {
       const response = await fetch(API_URLS.OPENAI, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           model,

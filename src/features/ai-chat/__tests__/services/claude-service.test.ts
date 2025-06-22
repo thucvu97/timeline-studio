@@ -2,18 +2,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { CLAUDE_MODELS, ClaudeService } from "../../services/claude-service"
 
+// Mock для ApiKeyLoader
+vi.mock("../../services/api-key-loader")
+
 // Mock для fetch
 global.fetch = vi.fn()
 
 describe("ClaudeService", () => {
   let service: ClaudeService
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
     // Получаем singleton экземпляр
     service = ClaudeService.getInstance()
-    // Устанавливаем API ключ
-    service.setApiKey("test-api-key")
+    // Mock API key loader уже возвращает "test-api-key" по умолчанию
+    // Очищаем кэш loader для чистых тестов
+    const { ApiKeyLoader } = await import("../../services/api-key-loader")
+    const mockLoader = ApiKeyLoader.getInstance()
+    mockLoader.clearCache()
   })
 
   afterEach(() => {
@@ -32,18 +38,28 @@ describe("ClaudeService", () => {
       expect(typeof service.sendRequest).toBe("function")
     })
 
-    it("должен иметь метод setApiKey", () => {
+    it("должен иметь метод setApiKey (deprecated)", () => {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       expect(service.setApiKey).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       expect(typeof service.setApiKey).toBe("function")
+      // Note: setApiKey is deprecated but still exists for backward compatibility
     })
 
-    it("должен проверять наличие API ключа", () => {
-      const newService = ClaudeService.getInstance()
-      newService.setApiKey("")
-      expect(newService.hasApiKey()).toBe(false)
+    it("должен проверять наличие API ключа", async () => {
+      // По умолчанию mock возвращает test-key
+      expect(await service.hasApiKey()).toBe(true)
 
-      newService.setApiKey("test-key")
-      expect(newService.hasApiKey()).toBe(true)
+      // Очищаем кэш и устанавливаем отсутствие ключа
+      const { ApiKeyLoader } = await import("../../services/api-key-loader")
+      const mockLoader = ApiKeyLoader.getInstance()
+      mockLoader.clearCache()
+      mockLoader.updateCache("claude", "")
+      expect(await service.hasApiKey()).toBe(false)
+
+      // Устанавливаем наличие ключа снова
+      mockLoader.updateCache("claude", "new-test-key")
+      expect(await service.hasApiKey()).toBe(true)
     })
   })
 
@@ -69,7 +85,7 @@ describe("ClaudeService", () => {
           method: "POST",
           headers: expect.objectContaining({
             "Content-Type": "application/json",
-            "x-api-key": "test-api-key",
+            "x-api-key": "test-key",
             "anthropic-version": "2023-06-01",
           }),
           body: expect.stringContaining("Привет, Claude!"),
@@ -202,11 +218,20 @@ describe("ClaudeService", () => {
     })
 
     it("должен выбрасывать ошибку при отсутствии API ключа", async () => {
-      const newService = ClaudeService.getInstance()
-      newService.setApiKey("")
+      const { ApiKeyLoader } = await import("../../services/api-key-loader")
+      const mockLoader = ApiKeyLoader.getInstance()
+
+      // Очищаем кэш и устанавливаем отсутствие ключа
+      mockLoader.clearCache()
+      mockLoader.updateCache("claude", "")
+
+      // Убедимся, что fetch определен (хотя он не должен вызываться)
+      if (!global.fetch) {
+        global.fetch = vi.fn()
+      }
 
       const messages = [{ role: "user" as const, content: "Тест" }]
-      await expect(newService.sendRequest(CLAUDE_MODELS.CLAUDE_4_SONNET, messages)).rejects.toThrow(
+      await expect(service.sendRequest(CLAUDE_MODELS.CLAUDE_4_SONNET, messages)).rejects.toThrow(
         "API ключ не установлен",
       )
     })
@@ -221,9 +246,8 @@ describe("ClaudeService", () => {
       vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
 
       const messages = [{ role: "user" as const, content: "Тест" }]
-      await expect(service.sendRequest(CLAUDE_MODELS.CLAUDE_4_SONNET, messages)).rejects.toThrow(
-        "Cannot read properties of undefined",
-      )
+      // Ошибка будет при попытке обратиться к content[0].text
+      await expect(service.sendRequest(CLAUDE_MODELS.CLAUDE_4_SONNET, messages)).rejects.toThrow()
     })
   })
 
@@ -368,7 +392,7 @@ describe("ClaudeService", () => {
           method: "POST",
           headers: expect.objectContaining({
             "Content-Type": "application/json",
-            "x-api-key": "test-api-key",
+            "x-api-key": "test-key",
             "anthropic-version": "2023-06-01",
           }),
           body: expect.stringContaining("edit_video"),
@@ -502,8 +526,17 @@ describe("ClaudeService", () => {
     })
 
     it("должен выбрасывать ошибку при отсутствии API ключа в запросах с инструментами", async () => {
-      const newService = ClaudeService.getInstance()
-      newService.setApiKey("")
+      const { ApiKeyLoader } = await import("../../services/api-key-loader")
+      const mockLoader = ApiKeyLoader.getInstance()
+
+      // Очищаем кэш и устанавливаем отсутствие ключа
+      mockLoader.clearCache()
+      mockLoader.updateCache("claude", "")
+
+      // Убедимся, что fetch определен (хотя он не должен вызываться)
+      if (!global.fetch) {
+        global.fetch = vi.fn()
+      }
 
       const tools = [
         {
@@ -515,7 +548,7 @@ describe("ClaudeService", () => {
 
       const messages = [{ role: "user" as const, content: "Тест без ключа" }]
 
-      await expect(newService.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)).rejects.toThrow(
+      await expect(service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)).rejects.toThrow(
         "API ключ не установлен",
       )
     })

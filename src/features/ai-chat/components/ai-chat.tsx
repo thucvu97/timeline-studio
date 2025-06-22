@@ -8,14 +8,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { useModal } from "@/features/modals"
-import { useUserSettings } from "@/features/user-settings"
+import { useApiKeys } from "@/features/user-settings/hooks/use-api-keys"
 import { cn } from "@/lib/utils"
 
 import { useChat } from ".."
 import { ChatList } from "./chat-list"
 import { chatStorageService } from "../services/chat-storage-service"
-import { CLAUDE_MODELS } from "../services/claude-service"
-import { AI_MODELS } from "../services/open-ai-service"
+import { CLAUDE_MODELS, ClaudeService } from "../services/claude-service"
+import { AI_MODELS, OpenAiService } from "../services/open-ai-service"
 import { ChatMessage } from "../types/chat"
 
 const AVAILABLE_AGENTS = [
@@ -73,7 +73,7 @@ export function AiChat() {
     updateSessions,
     clearMessages,
   } = useChat()
-  const { openAiApiKey } = useUserSettings()
+  const { getApiKeyInfo } = useApiKeys()
   const { openModal } = useModal()
 
   const [message, setMessage] = useState("")
@@ -122,11 +122,22 @@ export function AiChat() {
   const handleSendMessage = useCallback(() => {
     if (!message.trim() || isProcessing) return
 
-    // Проверяем, установлен ли API ключ
-    if (!openAiApiKey) {
-      // Если API ключ не установлен, показываем диалог настроек
+    // Проверяем, установлен ли API ключ для выбранного агента
+    const isClaudeModel = selectedAgentId?.startsWith("claude") || false
+    const apiKeyInfo = getApiKeyInfo(isClaudeModel ? "claude" : "openai")
+
+    if (!apiKeyInfo.exists || apiKeyInfo.status !== "valid") {
+      // Если API ключ не установлен или невалидный, показываем диалог настроек
       openModal("user-settings")
       return
+    }
+
+    // Создаем сообщение пользователя
+    const userMessage: ChatMessage = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      content: message,
+      role: "user",
+      timestamp: new Date(),
     }
 
     // Отправляем сообщение пользователя
@@ -134,25 +145,81 @@ export function AiChat() {
     setMessage("")
     setProcessing(true)
 
+    // Сохраняем сообщение пользователя в историю
+    if (currentSessionId) {
+      void chatStorageService.addMessage(currentSessionId, userMessage)
+    }
+
     // Сбрасываем высоту textarea после очистки
     setTimeout(autoResizeTextarea, 0)
 
     // Фокус на поле ввода
     inputRef.current?.focus()
 
-    // Симуляция ответа ИИ (пока без реального API)
-    setTimeout(() => {
-      const agentMessage: ChatMessage = {
-        id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-        content: "Это тестовый ответ от ИИ. API интеграция будет добавлена позже.",
-        role: "assistant",
-        timestamp: new Date(),
-        agent: (selectedAgentId as any) || undefined,
-      }
+    // Выполняем реальный API запрос
+    const performApiRequest = async () => {
+      try {
+        const isClaudeModel = selectedAgentId?.startsWith("claude") || false
+        const messages = [
+          ...chatMessages.map((msg) => ({
+            role: msg.role as "user" | "assistant",
+            content: msg.content,
+          })),
+          {
+            role: "user" as const,
+            content: message,
+          },
+        ]
 
-      receiveChatMessage(agentMessage)
-      setProcessing(false)
-    }, 1000)
+        let responseContent: string
+
+        if (isClaudeModel) {
+          const claudeService = ClaudeService.getInstance()
+          responseContent = await claudeService.sendRequest(
+            selectedAgentId || CLAUDE_MODELS.CLAUDE_4_SONNET,
+            messages,
+            { max_tokens: 2000 },
+          )
+        } else {
+          const openAiService = OpenAiService.getInstance()
+          responseContent = await openAiService.sendRequest(selectedAgentId || AI_MODELS.GPT_4, messages, {
+            max_tokens: 2000,
+          })
+        }
+
+        const agentMessage: ChatMessage = {
+          id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          content: responseContent,
+          role: "assistant",
+          timestamp: new Date(),
+          agent: (selectedAgentId as any) || undefined,
+        }
+
+        receiveChatMessage(agentMessage)
+
+        // Сохраняем сообщение в историю
+        if (currentSessionId) {
+          await chatStorageService.addMessage(currentSessionId, agentMessage)
+        }
+      } catch (error) {
+        console.error("Error sending message to AI:", error)
+        const errorMessage: ChatMessage = {
+          id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          content: t(
+            "timeline.chat.error",
+            "Произошла ошибка при отправке сообщения. Пожалуйста, проверьте настройки API ключа.",
+          ),
+          role: "assistant",
+          timestamp: new Date(),
+          agent: (selectedAgentId as any) || undefined,
+        }
+        receiveChatMessage(errorMessage)
+      } finally {
+        setProcessing(false)
+      }
+    }
+
+    void performApiRequest()
   }, [
     message,
     sendChatMessage,
@@ -160,9 +227,12 @@ export function AiChat() {
     selectedAgentId,
     isProcessing,
     autoResizeTextarea,
-    openAiApiKey,
+    getApiKeyInfo,
     openModal,
     setProcessing,
+    chatMessages,
+    currentSessionId,
+    t,
   ])
 
   // Обработчик остановки обработки

@@ -20,6 +20,9 @@ vi.mock("@/features/user-settings", () => ({
   UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
+// Mock useApiKeys hook
+vi.mock("@/features/user-settings/hooks/use-api-keys")
+
 vi.mock("@/features/modals", () => ({
   useModal: () => ({
     openModal: vi.fn(),

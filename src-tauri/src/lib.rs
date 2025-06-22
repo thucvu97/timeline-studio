@@ -41,8 +41,9 @@ use recognition::{RecognitionService, RecognitionState};
 mod security;
 use security::{
   delete_api_key, exchange_oauth_code, export_to_env_format, generate_oauth_url, get_api_key_info,
-  get_oauth_user_info, import_from_env, list_api_keys, parse_oauth_callback_url,
-  refresh_oauth_token, save_oauth_credentials, save_simple_api_key, validate_api_key,
+  get_decrypted_api_key, get_oauth_user_info, import_from_env, list_api_keys,
+  parse_oauth_callback_url, refresh_oauth_token, save_oauth_credentials, save_simple_api_key,
+  validate_api_key,
 };
 
 // Импортируем GPU и Frame Extraction команды
@@ -720,6 +721,7 @@ pub fn run() {
       save_simple_api_key,
       save_oauth_credentials,
       get_api_key_info,
+      get_decrypted_api_key,
       list_api_keys,
       delete_api_key,
       validate_api_key,

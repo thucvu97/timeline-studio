@@ -1,6 +1,8 @@
 /**
  * Специализированный сервис для работы с Claude API
  */
+
+import { ApiKeyLoader } from "./api-key-loader"
 import { AiMessage } from "../types/ai-message"
 
 // Доступные модели Claude
@@ -65,16 +67,12 @@ interface ClaudeApiResponse {
  */
 export class ClaudeService {
   private static instance: ClaudeService
-  private apiKey = ""
   private apiUrl = "https://api.anthropic.com/v1/messages"
   private apiVersion = "2023-06-01"
+  private apiKeyLoader: ApiKeyLoader
 
   private constructor() {
-    // Читаем API ключ из переменной окружения
-    this.apiKey = process.env.ANTHROPIC_API_KEY || ""
-    if (this.apiKey) {
-      console.log("Claude API key loaded from environment")
-    }
+    this.apiKeyLoader = ApiKeyLoader.getInstance()
   }
 
   /**
@@ -90,17 +88,20 @@ export class ClaudeService {
   /**
    * Установить API ключ
    * @param apiKey Новый API ключ
+   * @deprecated Используйте API Keys Management вместо прямой установки ключа
    */
   public setApiKey(apiKey: string): void {
-    this.apiKey = apiKey
+    // Обновляем кэш загрузчика
+    this.apiKeyLoader.updateCache("claude", apiKey)
     console.log("Claude API key updated:", apiKey ? "***" : "(empty)")
   }
 
   /**
    * Проверить, установлен ли API ключ
    */
-  public hasApiKey(): boolean {
-    return !!this.apiKey
+  public async hasApiKey(): Promise<boolean> {
+    const apiKey = await this.apiKeyLoader.getApiKey("claude")
+    return !!apiKey
   }
 
   /**
@@ -120,7 +121,8 @@ export class ClaudeService {
       tool_choice?: "auto" | "any" | { name: string }
     } = {},
   ): Promise<string> {
-    if (!this.apiKey) {
+    const apiKey = await this.apiKeyLoader.getApiKey("claude")
+    if (!apiKey) {
       throw new Error("API ключ не установлен. Пожалуйста, добавьте API ключ в настройках.")
     }
 
@@ -147,7 +149,7 @@ export class ClaudeService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": this.apiKey,
+          "x-api-key": apiKey,
           "anthropic-version": this.apiVersion,
         },
         body: JSON.stringify(requestBody),
@@ -191,7 +193,8 @@ export class ClaudeService {
       tool_choice?: "auto" | "any" | { name: string }
     } = {},
   ): Promise<{ text: string; tool_use?: ClaudeToolUse }> {
-    if (!this.apiKey) {
+    const apiKey = await this.apiKeyLoader.getApiKey("claude")
+    if (!apiKey) {
       throw new Error("API ключ не установлен. Пожалуйста, добавьте API ключ в настройках.")
     }
 
@@ -214,7 +217,7 @@ export class ClaudeService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": this.apiKey,
+          "x-api-key": apiKey,
           "anthropic-version": this.apiVersion,
         },
         body: JSON.stringify(requestBody),

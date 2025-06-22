@@ -2,6 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { AI_MODELS, OpenAiService } from "../../services/open-ai-service"
 
+// Mock для ApiKeyLoader
+vi.mock("../../services/api-key-loader")
+
 // Mock для fetch
 const mockFetch = vi.fn()
 global.fetch = mockFetch
@@ -9,12 +12,15 @@ global.fetch = mockFetch
 describe("OpenAiService", () => {
   let service: OpenAiService
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
     // Получаем singleton экземпляр
     service = OpenAiService.getInstance()
-    // Устанавливаем API ключ
-    service.setApiKey("sk-test-api-key")
+    // Mock API key loader уже возвращает "test-api-key" по умолчанию
+    // Очищаем кэш loader для чистых тестов
+    const { ApiKeyLoader } = await import("../../services/api-key-loader")
+    const mockLoader = ApiKeyLoader.getInstance()
+    mockLoader.clearCache()
   })
 
   afterEach(() => {
@@ -33,18 +39,28 @@ describe("OpenAiService", () => {
       expect(typeof service.sendRequest).toBe("function")
     })
 
-    it("должен иметь метод setApiKey", () => {
+    it("должен иметь метод setApiKey (deprecated)", () => {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       expect(service.setApiKey).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       expect(typeof service.setApiKey).toBe("function")
+      // Note: setApiKey is deprecated but still exists for backward compatibility
     })
 
-    it("должен проверять наличие API ключа", () => {
-      const newService = OpenAiService.getInstance()
-      newService.setApiKey("")
-      expect(newService.hasApiKey()).toBe(false)
+    it("должен проверять наличие API ключа", async () => {
+      // По умолчанию mock возвращает sk-test
+      expect(await service.hasApiKey()).toBe(true)
 
-      newService.setApiKey("sk-test")
-      expect(newService.hasApiKey()).toBe(true)
+      // Очищаем кэш и устанавливаем отсутствие ключа
+      const { ApiKeyLoader } = await import("../../services/api-key-loader")
+      const mockLoader = ApiKeyLoader.getInstance()
+      mockLoader.clearCache()
+      mockLoader.updateCache("openai", "")
+      expect(await service.hasApiKey()).toBe(false)
+
+      // Устанавливаем наличие ключа снова
+      mockLoader.updateCache("openai", "sk-new-test")
+      expect(await service.hasApiKey()).toBe(true)
     })
   })
 
@@ -74,7 +90,7 @@ describe("OpenAiService", () => {
           method: "POST",
           headers: expect.objectContaining({
             "Content-Type": "application/json",
-            Authorization: "Bearer sk-test-api-key",
+            Authorization: "Bearer sk-test",
           }),
           body: expect.stringContaining("Привет, GPT!"),
         }),
@@ -229,11 +245,20 @@ describe("OpenAiService", () => {
     })
 
     it("должен выбрасывать ошибку при отсутствии API ключа", async () => {
-      const newService = OpenAiService.getInstance()
-      newService.setApiKey("")
+      const { ApiKeyLoader } = await import("../../services/api-key-loader")
+      const mockLoader = ApiKeyLoader.getInstance()
+
+      // Очищаем кэш и устанавливаем отсутствие ключа
+      mockLoader.clearCache()
+      mockLoader.updateCache("openai", "")
+
+      // Убедимся, что fetch определен (хотя он не должен вызываться)
+      if (!mockFetch) {
+        global.fetch = vi.fn()
+      }
 
       const messages = [{ role: "user" as const, content: "Тест" }]
-      await expect(newService.sendRequest(AI_MODELS.GPT_4, messages)).rejects.toThrow("API ключ не установлен")
+      await expect(service.sendRequest(AI_MODELS.GPT_4, messages)).rejects.toThrow("API ключ не установлен")
     })
 
     it("должен обрабатывать пустые ответы", async () => {
@@ -336,7 +361,7 @@ describe("OpenAiService", () => {
       }
       mockFetch.mockResolvedValueOnce(mockResponse as any)
 
-      await service.sendRequest(AI_MODELS.GPT_4, messages, { stream: false })
+      await service.sendRequest(AI_MODELS.GPT_4, messages)
 
       const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
@@ -469,7 +494,7 @@ describe("OpenAiService", () => {
       expect(callArgs[0]).toBe("https://api.anthropic.com/v1/messages")
 
       const headers = callArgs[1]?.headers
-      expect(headers["x-api-key"]).toBe("sk-test-api-key")
+      expect(headers["x-api-key"]).toBe("test-key") // Mock returns test-key
       expect(headers["anthropic-version"]).toBe("2023-06-01")
     })
 
