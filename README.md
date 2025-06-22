@@ -38,7 +38,7 @@ Timeline Studio is a modern video editor built on Tauri architecture (Rust + Rea
 
 ### Project Status (June 2025)
 
-**Overall Completion: 54.2%** ⬆️ (recalculated with export completion and 14 new planned modules)
+**Overall Completion: 57.5%** ⬆️ (recalculated with AI Chat at 90% and 14 new planned modules)
 - **Completed**: 12 modules (100% readiness)
 - **In development**: 8 modules (45-85% readiness)
 - **Planned**: 4 modules (30-80% readiness)
@@ -53,7 +53,7 @@ Timeline Studio is a modern video editor built on Tauri architecture (Rust + Rea
 - ✅ **Effects/Filters/Transitions** - rich effects library in Filmora style (75-80%)
 - ✅ **Export** - fully ready with 4 tabs support (100%)
 - ✅ **Resources Panel** - main UI ready, drag & drop missing (80%)
-- ❗ **AI Chat** - requires real API integration (30%)
+- ✅ **AI Chat** - Timeline AI integration with 41 Claude tools ready (90%)
 - 📋 **14 new planned modules** - [see planned/](docs-ru/08-roadmap/planned/) to achieve DaVinci + Filmora level
 - 🎯 **Goal** - combine DaVinci power and Filmora library with AI automation
 
