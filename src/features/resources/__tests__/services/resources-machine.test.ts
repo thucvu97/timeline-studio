@@ -1127,7 +1127,8 @@ describe("resourcesMachine", () => {
 
     actor.send({ type: "ADD_EFFECT", effect: testEffect })
 
-    const resourceId = actor.getSnapshot().context.resources[0].id
+    const snapshot = actor.getSnapshot()
+    const resourceId = snapshot.context.resources[0].id
 
     // Update with new params
     actor.send({
@@ -1136,9 +1137,9 @@ describe("resourcesMachine", () => {
       params: { intensity: 0.8 }, // Only update intensity
     })
 
-    const snapshot = actor.getSnapshot()
+    const updatedSnapshot = actor.getSnapshot()
     // Check that both old and new params are preserved
-    expect(snapshot.context.effectResources[0].params).toMatchObject({
+    expect(updatedSnapshot.context.effectResources[0].params).toMatchObject({
       intensity: 0.8,
       radius: 10,
     })
