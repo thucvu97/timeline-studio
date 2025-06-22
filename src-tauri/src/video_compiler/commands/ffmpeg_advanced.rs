@@ -387,6 +387,43 @@ pub async fn execute_ffmpeg_simple(command_args: Vec<String>) -> Result<Vec<u8>,
     .map_err(|e| format!("Ошибка выполнения FFmpeg: {}", e))
 }
 
+#[tauri::command]
+pub async fn get_ffmpeg_execution_info(
+  command_args: Vec<String>,
+) -> Result<serde_json::Value, String> {
+  log::debug!(
+    "Выполнение FFmpeg с получением информации: {:?}",
+    command_args
+  );
+
+  let executor = FFmpegExecutor::new();
+
+  // Создаем команду из аргументов
+  let mut cmd = tokio::process::Command::new("ffmpeg");
+  cmd.args(&command_args);
+
+  let result = executor
+    .execute(cmd)
+    .await
+    .map_err(|e| format!("Ошибка выполнения FFmpeg: {}", e))?;
+
+  // Возвращаем полную информацию о выполнении, включая final_progress
+  Ok(serde_json::json!({
+    "exit_code": result.exit_code,
+    "stdout": result.stdout,
+    "stderr": result.stderr,
+    "final_progress": result.final_progress.map(|p| {
+      serde_json::json!({
+        "percentage": p.percentage,
+        "current_frame": p.current_frame,
+        "total_frames": p.total_frames,
+        "elapsed_time": p.elapsed_time.as_secs(),
+        "message": p.message
+      })
+    })
+  }))
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -406,5 +443,6 @@ mod tests {
     let _ = get_ffmpeg_formats;
     let _ = execute_ffmpeg_with_progress;
     let _ = execute_ffmpeg_simple;
+    let _ = get_ffmpeg_execution_info;
   }
 }

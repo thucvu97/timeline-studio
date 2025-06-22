@@ -42,6 +42,7 @@ use video_compiler::commands::{
   add_subtitles_to_project,
   analyze_project,
   apply_quality_preset,
+  apply_video_filter,
   auto_select_gpu,
   backup_project,
   batch_generate_previews_service,
@@ -55,6 +56,7 @@ use video_compiler::commands::{
   cancel_render,
   check_ffmpeg_available,
   check_ffmpeg_capabilities,
+  check_ffmpeg_installation,
   check_gpu_encoder_availability,
   check_hardware_acceleration,
   check_hardware_acceleration_support,
@@ -76,6 +78,7 @@ use video_compiler::commands::{
   // Cache commands
   clear_render_cache,
   compile_video,
+  concat_videos,
   configure_cache,
   create_clip,
   create_custom_alert,
@@ -96,6 +99,8 @@ use video_compiler::commands::{
   detect_gpus,
   // New commands for unused methods
   emit_video_compiler_event,
+  execute_ffmpeg_simple,
+  execute_ffmpeg_with_progress,
   export_cache_stats,
   export_metrics_prometheus,
   export_settings,
@@ -110,6 +115,7 @@ use video_compiler::commands::{
   generate_effect_preview,
   // Preview commands
   generate_frame_preview,
+  generate_gif_preview,
   generate_preview,
   generate_preview_batch,
   generate_preview_batch_with_settings,
@@ -117,7 +123,10 @@ use video_compiler::commands::{
   generate_project_preview,
   generate_storyboard,
   generate_storyboard_service,
+  generate_subtitle_preview,
   generate_transition_preview,
+  // FFmpeg advanced commands
+  generate_video_preview,
   generate_video_thumbnails,
   // Preview service commands
   generate_video_thumbnails_service,
@@ -151,6 +160,9 @@ use video_compiler::commands::{
   get_error_statistics,
   get_ffmpeg_builder_project_info,
   get_ffmpeg_builder_settings,
+  get_ffmpeg_codecs,
+  get_ffmpeg_execution_info,
+  get_ffmpeg_formats,
   // Info commands
   get_ffmpeg_version,
   // Frame extraction commands
@@ -202,6 +214,7 @@ use video_compiler::commands::{
   pause_render,
   preload_media_to_cache,
   prerender_segment,
+  probe_media_file,
   reset_compiler_settings,
   reset_service_metrics,
   resume_render,
@@ -220,6 +233,7 @@ use video_compiler::commands::{
   shutdown_all_services,
   split_project,
   test_error_types,
+  test_hardware_acceleration,
   touch_project,
   touch_project_schema,
   track_operations,
@@ -662,7 +676,21 @@ pub fn run() {
       // Preview service commands
       generate_video_thumbnails_service,
       generate_storyboard_service,
-      batch_generate_previews_service
+      batch_generate_previews_service,
+      // FFmpeg advanced commands
+      generate_video_preview,
+      generate_gif_preview,
+      concat_videos,
+      apply_video_filter,
+      probe_media_file,
+      test_hardware_acceleration,
+      generate_subtitle_preview,
+      check_ffmpeg_installation,
+      get_ffmpeg_codecs,
+      get_ffmpeg_formats,
+      execute_ffmpeg_with_progress,
+      execute_ffmpeg_simple,
+      get_ffmpeg_execution_info
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
