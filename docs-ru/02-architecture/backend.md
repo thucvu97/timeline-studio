@@ -37,38 +37,94 @@ rayon = "1.8"  # Параллельные вычисления
 ```
 src-tauri/src/
 ├── main.rs              # Точка входа
-├── lib.rs              # Корневой модуль
+├── lib.rs              # Корневой модуль с регистрацией команд
 │
-├── commands/           # Tauri команды
+├── app_dirs/           # Управление директориями приложения
 │   ├── mod.rs
-│   ├── media.rs       # Медиа команды
-│   ├── project.rs     # Проект команды
-│   └── export.rs      # Экспорт команды
+│   └── commands.rs    # Команды для работы с директориями
+│
+├── filesystem/         # Файловая система
+│   └── mod.rs         # Команды работы с файлами
+│
+├── language_tauri/     # Мультиязычность
+│   └── mod.rs         # Управление языками приложения
 │
 ├── media/             # Медиа обработка
 │   ├── mod.rs
-│   ├── scanner.rs     # Сканирование файлов
-│   ├── metadata.rs    # Метаданные
+│   ├── commands.rs    # Медиа команды
+│   ├── types.rs       # Типы данных
+│   ├── processor.rs   # Обработка медиафайлов
+│   ├── scanner.rs     # Сканирование директорий
+│   ├── metadata.rs    # Извлечение метаданных
 │   ├── thumbnail.rs   # Генерация превью
-│   └── cache.rs       # Кэширование
-│
-├── video_compiler/    # Видео компиляция
-│   ├── mod.rs
-│   ├── ffmpeg.rs     # FFmpeg wrapper
-│   ├── encoder.rs    # Кодирование
-│   ├── effects.rs    # Применение эффектов
-│   └── gpu.rs        # GPU ускорение
+│   ├── preview_data.rs # Данные превью
+│   └── preview_manager.rs # Менеджер превью
 │
 ├── recognition/       # ML распознавание
 │   ├── mod.rs
-│   ├── yolo.rs       # YOLO интеграция
-│   ├── tracker.rs    # Объект трекинг
-│   └── models.rs     # Управление моделями
+│   ├── commands.rs    # Команды распознавания
+│   ├── yolo.rs        # YOLO интеграция
+│   ├── recognizer.rs  # Процесс распознавания
+│   └── models/        # ONNX модели
 │
-└── utils/            # Утилиты
+└── video_compiler/    # Видео компиляция
     ├── mod.rs
-    ├── fs.rs         # Файловая система
-    └── error.rs      # Обработка ошибок
+    ├── commands/      # Модульные команды
+    │   ├── mod.rs     # Экспорт всех команд
+    │   ├── rendering.rs    # Рендеринг видео
+    │   ├── cache.rs        # Управление кэшем
+    │   ├── gpu.rs          # GPU операции
+    │   ├── project.rs      # Управление проектами
+    │   ├── preview.rs      # Генерация превью
+    │   ├── settings.rs     # Настройки компилятора
+    │   ├── info.rs         # Системная информация
+    │   ├── metrics.rs      # Метрики производительности
+    │   ├── ffmpeg_advanced.rs # Продвинутые FFmpeg команды
+    │   └── state.rs        # Управление состоянием
+    │
+    ├── core/          # Основные компоненты
+    │   ├── mod.rs
+    │   ├── cache.rs        # Система кэширования
+    │   ├── error.rs        # Обработка ошибок
+    │   ├── gpu.rs          # GPU ускорение
+    │   ├── pipeline.rs     # Пайплайн рендеринга
+    │   ├── preview.rs      # Генератор превью
+    │   ├── progress.rs     # Отслеживание прогресса
+    │   └── renderer.rs     # Основной рендерер
+    │
+    ├── ffmpeg_builder/     # Построитель FFmpeg команд
+    │   ├── mod.rs
+    │   ├── builder.rs      # Основной построитель
+    │   ├── effects.rs      # Применение эффектов
+    │   ├── filters.rs      # Видео фильтры
+    │   ├── inputs.rs       # Обработка входов
+    │   ├── outputs.rs      # Настройка выходов
+    │   ├── subtitles.rs    # Работа с субтитрами
+    │   └── templates.rs    # Шаблоны мультикамеры
+    │
+    ├── ffmpeg_executor.rs  # Исполнитель FFmpeg команд
+    ├── schema/         # Схемы данных
+    │   ├── mod.rs
+    │   ├── project.rs      # Схема проекта
+    │   ├── timeline.rs     # Схема таймлайна
+    │   ├── effects.rs      # Схема эффектов
+    │   └── export.rs       # Схема экспорта
+    │
+    ├── services/       # Сервисы
+    │   ├── mod.rs
+    │   ├── cache_service.rs    # Сервис кэширования
+    │   ├── ffmpeg_service.rs   # FFmpeg сервис
+    │   ├── gpu_service.rs      # GPU сервис
+    │   ├── preview_service.rs  # Сервис превью
+    │   ├── project_service.rs  # Сервис проектов
+    │   ├── render_service.rs   # Сервис рендеринга
+    │   └── monitoring.rs       # Мониторинг и метрики
+    │
+    └── tests/         # Тесты
+        ├── mod.rs
+        ├── fixtures.rs     # Тестовые данные
+        ├── mocks.rs        # Моки для тестов
+        └── integration.rs  # Интеграционные тесты
 ```
 
 ## 🔧 Tauri интеграция
@@ -76,40 +132,73 @@ src-tauri/src/
 ### Команды (Commands)
 
 ```rust
-// commands/media.rs
+// video_compiler/commands/rendering.rs
 #[tauri::command]
-pub async fn get_media_metadata(
-    path: String,
-    state: State<'_, AppState>
-) -> Result<MediaMetadata, String> {
-    // Проверка кэша
-    if let Some(cached) = state.cache.get(&path).await {
-        return Ok(cached);
-    }
+pub async fn compile_video(
+    project_id: String,
+    output_path: String,
+    state: tauri::State<'_, VideoCompilerState>,
+) -> Result<String, String> {
+    let render_service = state.services.render_service();
     
-    // Извлечение метаданных через FFmpeg
-    let metadata = media::extract_metadata(&path)
+    // Создание задачи рендеринга
+    let job_id = render_service
+        .start_render(project_id, output_path)
         .await
         .map_err(|e| e.to_string())?;
     
-    // Сохранение в кэш
-    state.cache.insert(path, metadata.clone()).await;
-    
-    Ok(metadata)
+    Ok(job_id)
 }
 
+// video_compiler/commands/cache.rs
 #[tauri::command]
-pub async fn scan_media_folder(
-    folder: String,
-    state: State<'_, AppState>
-) -> Result<Vec<MediaFile>, String> {
-    let scanner = MediaScanner::new();
-    let files = scanner
-        .scan_directory(&folder)
-        .await
-        .map_err(|e| e.to_string())?;
+pub async fn get_cache_stats_detailed(
+    state: tauri::State<'_, VideoCompilerState>,
+) -> Result<serde_json::Value, String> {
+    let cache = state.cache_manager.read().await;
+    let stats = cache.get_stats();
+    let memory_usage = cache.get_memory_usage();
     
-    Ok(files)
+    Ok(serde_json::json!({
+        "preview_hit_ratio": stats.preview_hit_ratio(),
+        "memory_usage_mb": memory_usage.total_mb(),
+        "preview_hits": stats.preview_hits,
+        "preview_misses": stats.preview_misses,
+        "render_hits": stats.render_hits,
+        "render_misses": stats.render_misses,
+        "total_memory_bytes": memory_usage.total_bytes,
+    }))
+}
+
+// video_compiler/commands/ffmpeg_advanced.rs
+#[tauri::command]
+pub async fn execute_ffmpeg_with_progress(
+    command_args: Vec<String>,
+    app_handle: tauri::AppHandle,
+) -> Result<String, String> {
+    let (tx, mut rx) = mpsc::channel(100);
+    let executor = FFmpegExecutor::with_progress(tx);
+    
+    let mut cmd = tokio::process::Command::new("ffmpeg");
+    cmd.args(&command_args);
+    
+    // Запуск с отслеживанием прогресса
+    let handle = tokio::spawn(async move { 
+        executor.execute(cmd).await 
+    });
+    
+    // Отправка событий прогресса во фронтенд
+    tokio::spawn(async move {
+        while let Some(update) = rx.recv().await {
+            let _ = app_handle.emit("ffmpeg-progress", update);
+        }
+    });
+    
+    let result = handle.await
+        .map_err(|e| format!("Ошибка выполнения: {}", e))?;
+    
+    result.map(|r| r.stdout)
+        .map_err(|e| e.to_string())
 }
 ```
 
@@ -147,94 +236,148 @@ async fn export_video_internal(
 ### Архитектура Video Compiler
 
 ```rust
-// video_compiler/ffmpeg.rs
-pub struct FFmpegWrapper {
-    command: Command,
-    filters: Vec<VideoFilter>,
-    gpu_acceleration: Option<GpuAcceleration>,
+// video_compiler/ffmpeg_builder/builder.rs
+pub struct FFmpegBuilder {
+    project: ProjectSchema,
+    settings: FFmpegBuilderSettings,
 }
 
-impl FFmpegWrapper {
-    pub fn new() -> Self {
-        let mut command = Command::new("ffmpeg");
-        command.arg("-hide_banner");
-        
+impl FFmpegBuilder {
+    pub fn new(project: ProjectSchema) -> Self {
         Self {
-            command,
-            filters: Vec::new(),
-            gpu_acceleration: detect_gpu_acceleration(),
+            project,
+            settings: FFmpegBuilderSettings::default(),
         }
     }
     
-    pub fn input(mut self, path: &str) -> Self {
-        self.command.args(&["-i", path]);
-        self
-    }
-    
-    pub fn output_settings(mut self, settings: &ExportSettings) -> Self {
-        // Видео кодек
-        match &self.gpu_acceleration {
-            Some(GpuAcceleration::Nvidia) => {
-                self.command.args(&["-c:v", "h264_nvenc"]);
-            }
-            Some(GpuAcceleration::Intel) => {
-                self.command.args(&["-c:v", "h264_qsv"]);
-            }
-            _ => {
-                self.command.args(&["-c:v", "libx264"]);
-            }
+    pub async fn build_render_command(
+        &self,
+        output_path: &Path,
+    ) -> Result<Command> {
+        let mut cmd = Command::new(&self.settings.ffmpeg_path);
+        
+        // Глобальные опции
+        cmd.args(&self.settings.global_options);
+        
+        // Входные файлы
+        self.prepare_inputs(&mut cmd).await?;
+        
+        // Фильтры и эффекты
+        let filter_complex = self.build_filter_complex().await?;
+        if !filter_complex.is_empty() {
+            cmd.args(&["-filter_complex", &filter_complex]);
         }
         
-        // Битрейт и качество
-        self.command.args(&[
-            "-b:v", &settings.video_bitrate,
-            "-preset", &settings.preset,
-            "-crf", &settings.quality.to_string(),
-        ]);
+        // Настройки вывода
+        self.apply_output_settings(&mut cmd, output_path)?;
         
-        self
+        Ok(cmd)
+    }
+}
+
+// video_compiler/ffmpeg_executor.rs
+pub struct FFmpegExecutor {
+    progress_sender: Option<mpsc::Sender<ProgressUpdate>>,
+}
+
+impl FFmpegExecutor {
+    pub async fn execute(&self, mut command: Command) -> Result<FFmpegExecutionResult> {
+        command.stdout(Stdio::piped())
+               .stderr(Stdio::piped());
+        
+        let mut child = command.spawn()?;
+        let stderr = child.stderr.take().unwrap();
+        
+        // Обработка прогресса через stderr
+        if let Some(sender) = &self.progress_sender {
+            self.process_progress_stream(stderr, sender.clone()).await;
+        }
+        
+        let output = child.wait_with_output().await?;
+        
+        Ok(FFmpegExecutionResult {
+            exit_code: output.status.code().unwrap_or(-1),
+            stdout: String::from_utf8_lossy(&output.stdout).to_string(),
+            stderr: String::from_utf8_lossy(&output.stderr).to_string(),
+            final_progress: self.extract_final_progress(&output.stderr),
+        })
     }
 }
 ```
 
-### Применение эффектов
+### Применение эффектов и фильтров
 
 ```rust
-// video_compiler/effects.rs
-pub struct EffectProcessor {
-    ffmpeg: FFmpegWrapper,
-}
-
-impl EffectProcessor {
-    pub fn apply_filter(&mut self, filter: VideoFilter) {
-        match filter {
-            VideoFilter::Brightness(value) => {
-                self.ffmpeg.add_filter(&format!("eq=brightness={}", value));
+// video_compiler/ffmpeg_builder/effects.rs
+impl FFmpegBuilder {
+    pub fn build_effect_filter(&self, effect: &Effect) -> Result<String> {
+        match &effect.effect_type {
+            EffectType::Brightness => {
+                Ok(format!("eq=brightness={}", 
+                    effect.parameters.get("value").unwrap_or(&0.0)))
             }
-            VideoFilter::Blur(radius) => {
-                self.ffmpeg.add_filter(&format!("boxblur={}", radius));
+            EffectType::Contrast => {
+                Ok(format!("eq=contrast={}", 
+                    effect.parameters.get("value").unwrap_or(&1.0)))
             }
-            VideoFilter::ChromaKey { color, threshold } => {
-                self.ffmpeg.add_filter(&format!(
-                    "chromakey={}:{}:0.01", 
-                    color, threshold
-                ));
+            EffectType::Blur => {
+                let radius = effect.parameters.get("radius").unwrap_or(&5.0);
+                Ok(format!("boxblur=luma_radius={}:chroma_radius={}", 
+                    radius, radius))
             }
+            EffectType::ChromaKey => {
+                let color = effect.parameters.get("color")
+                    .map(|v| v.to_string())
+                    .unwrap_or_else(|| "0x00FF00".to_string());
+                let similarity = effect.parameters.get("similarity")
+                    .unwrap_or(&0.3);
+                Ok(format!("chromakey={}:{}:0.01", color, similarity))
+            }
+            _ => Err(VideoCompilerError::UnsupportedEffect(
+                format!("{:?}", effect.effect_type)
+            ))
         }
     }
-    
-    pub fn apply_transition(&mut self, transition: Transition) {
-        match transition {
-            Transition::Fade { duration } => {
-                self.ffmpeg.add_filter(&format!(
-                    "fade=t=in:st=0:d={}", 
-                    duration
-                ));
-            }
-            Transition::Wipe { direction, duration } => {
-                // Сложная логика для wipe transition
+}
+
+// video_compiler/ffmpeg_builder/filters.rs
+impl FFmpegBuilder {
+    pub fn build_filter_complex(&self) -> Result<String> {
+        let mut filter_chains = Vec::new();
+        
+        // Применение эффектов к клипам
+        for (track_idx, track) in self.project.timeline.tracks.iter().enumerate() {
+            for (clip_idx, clip) in track.clips.iter().enumerate() {
+                let input_label = format!("[{}:v]", 
+                    self.get_clip_input_index(clip)?);
+                
+                // Цепочка фильтров для клипа
+                let mut filters = Vec::new();
+                
+                // Масштабирование и позиционирование
+                if let Some(transform) = &clip.transform {
+                    filters.push(self.build_transform_filter(transform)?);
+                }
+                
+                // Эффекты клипа
+                for effect_id in &clip.effects {
+                    if let Some(effect) = self.find_effect(effect_id) {
+                        filters.push(self.build_effect_filter(effect)?);
+                    }
+                }
+                
+                if !filters.is_empty() {
+                    let output_label = format!("[t{}c{}]", track_idx, clip_idx);
+                    filter_chains.push(format!("{}{}{}", 
+                        input_label,
+                        filters.join(","),
+                        output_label
+                    ));
+                }
             }
         }
+        
+        Ok(filter_chains.join(";"))
     }
 }
 ```
@@ -336,71 +479,93 @@ impl ObjectTracker {
 
 ## 💾 Управление данными
 
-### Кэширование
+### Система кэширования
 
 ```rust
-// media/cache.rs
-use sqlx::{SqlitePool, sqlite::SqlitePoolOptions};
-
-pub struct MediaCache {
-    pool: SqlitePool,
-    memory_cache: Arc<RwLock<LruCache<String, CachedItem>>>,
+// video_compiler/core/cache.rs
+pub struct RenderCache {
+    metadata_cache: Arc<RwLock<HashMap<String, MediaMetadata>>>,
+    preview_cache: Arc<RwLock<HashMap<PreviewKey, Vec<u8>>>>,
+    render_cache: Arc<RwLock<HashMap<String, PathBuf>>>,
+    settings: CacheSettings,
+    stats: Arc<RwLock<CacheStats>>,
 }
 
-impl MediaCache {
-    pub async fn new(db_path: &str) -> Result<Self> {
-        let pool = SqlitePoolOptions::new()
-            .max_connections(5)
-            .connect(db_path)
-            .await?;
-            
-        // Создание таблиц
-        sqlx::query!(
-            r#"
-            CREATE TABLE IF NOT EXISTS media_cache (
-                path TEXT PRIMARY KEY,
-                metadata TEXT NOT NULL,
-                thumbnail BLOB,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            "#
-        )
-        .execute(&pool)
-        .await?;
+impl RenderCache {
+    pub async fn get_or_generate_preview(
+        &self,
+        key: PreviewKey,
+        generator: impl Future<Output = Result<Vec<u8>>>,
+    ) -> Result<Vec<u8>> {
+        // Проверка кэша
+        if let Some(data) = self.preview_cache.read().await.get(&key) {
+            self.stats.write().await.preview_hits += 1;
+            return Ok(data.clone());
+        }
         
-        let memory_cache = Arc::new(RwLock::new(
-            LruCache::new(NonZeroUsize::new(1000).unwrap())
-        ));
+        self.stats.write().await.preview_misses += 1;
         
-        Ok(Self { pool, memory_cache })
+        // Генерация превью
+        let data = generator.await?;
+        
+        // Сохранение в кэш
+        self.store_preview(key, data.clone()).await?;
+        
+        Ok(data)
     }
     
-    pub async fn get(&self, path: &str) -> Option<MediaMetadata> {
-        // Проверка memory cache
-        if let Some(item) = self.memory_cache.read().unwrap().get(path) {
-            return Some(item.metadata.clone());
+    pub fn get_memory_usage(&self) -> MemoryUsage {
+        let metadata_size = self.metadata_cache.read().unwrap()
+            .values()
+            .map(|m| std::mem::size_of_val(m))
+            .sum::<usize>();
+        
+        let preview_size = self.preview_cache.read().unwrap()
+            .values()
+            .map(|v| v.len())
+            .sum::<usize>();
+        
+        MemoryUsage {
+            metadata_bytes: metadata_size,
+            preview_bytes: preview_size,
+            render_bytes: 0,
+            total_bytes: metadata_size + preview_size,
+        }
+    }
+}
+
+// video_compiler/services/cache_service.rs
+pub struct CacheService {
+    cache: Arc<RwLock<RenderCache>>,
+    metrics: Arc<ServiceMetrics>,
+}
+
+impl Service for CacheService {
+    async fn start(&self) -> Result<()> {
+        // Загрузка сохраненного кэша
+        if let Ok(cached_data) = self.load_from_disk().await {
+            let mut cache = self.cache.write().await;
+            cache.restore_from(cached_data);
         }
         
-        // Проверка disk cache
-        if let Ok(record) = sqlx::query!(
-            "SELECT metadata FROM media_cache WHERE path = ?",
-            path
-        )
-        .fetch_one(&self.pool)
-        .await {
-            let metadata: MediaMetadata = serde_json::from_str(&record.metadata).ok()?;
-            
-            // Обновление memory cache
-            self.memory_cache.write().unwrap().put(
-                path.to_string(),
-                CachedItem { metadata: metadata.clone() }
-            );
-            
-            return Some(metadata);
-        }
+        // Запуск фонового процесса очистки
+        self.spawn_cleanup_task();
         
-        None
+        Ok(())
+    }
+    
+    async fn health_check(&self) -> ServiceHealth {
+        let cache = self.cache.read().await;
+        let usage = cache.get_memory_usage();
+        
+        ServiceHealth {
+            status: if usage.total_mb() < 1000.0 {
+                HealthStatus::Healthy
+            } else {
+                HealthStatus::Warning
+            },
+            message: format!("Cache size: {:.1} MB", usage.total_mb()),
+        }
     }
 }
 ```
@@ -408,53 +573,62 @@ impl MediaCache {
 ### Управление проектами
 
 ```rust
-// project/manager.rs
-pub struct ProjectManager {
+// video_compiler/services/project_service.rs
+pub struct ProjectService {
     projects_dir: PathBuf,
-    current_project: Option<Project>,
+    current_project: Arc<RwLock<Option<ProjectSchema>>>,
+    project_cache: Arc<RwLock<HashMap<String, ProjectSchema>>>,
 }
 
-impl ProjectManager {
-    pub async fn save_project(&self, project: &Project) -> Result<()> {
-        let project_path = self.projects_dir.join(&project.id).join("project.json");
+impl ProjectService {
+    pub async fn save_project(&self, project: &ProjectSchema) -> Result<String> {
+        let project_dir = self.projects_dir
+            .join(&project.metadata.id);
         
-        // Сериализация проекта
+        // Создание директории проекта
+        tokio::fs::create_dir_all(&project_dir).await?;
+        
+        // Сохранение файла проекта
+        let project_file = project_dir.join("project.tlp");
         let json = serde_json::to_string_pretty(project)?;
         
         // Атомарная запись
-        let temp_path = project_path.with_extension("tmp");
-        fs::write(&temp_path, json).await?;
-        fs::rename(temp_path, project_path).await?;
+        let temp_file = project_file.with_extension("tmp");
+        tokio::fs::write(&temp_file, json).await?;
+        tokio::fs::rename(temp_file, &project_file).await?;
         
-        // Сохранение медиа ссылок
-        self.save_media_references(project).await?;
+        // Обновление кэша
+        self.project_cache.write().await
+            .insert(project.metadata.id.clone(), project.clone());
         
-        Ok(())
+        // Сохранение ресурсов проекта
+        self.save_project_resources(project).await?;
+        
+        Ok(project_file.to_string_lossy().to_string())
     }
     
-    async fn save_media_references(&self, project: &Project) -> Result<()> {
-        let media_db = self.projects_dir.join(&project.id).join("media.db");
-        
-        let pool = SqlitePool::connect(&media_db.to_string_lossy()).await?;
-        
-        for media in &project.media_files {
-            sqlx::query!(
-                r#"
-                INSERT OR REPLACE INTO media_references 
-                (id, original_path, relative_path, hash, size)
-                VALUES (?, ?, ?, ?, ?)
-                "#,
-                media.id,
-                media.original_path,
-                media.relative_path,
-                media.hash,
-                media.size
-            )
-            .execute(&pool)
-            .await?;
+    pub async fn load_project(&self, project_id: &str) -> Result<ProjectSchema> {
+        // Проверка кэша
+        if let Some(project) = self.project_cache.read().await.get(project_id) {
+            return Ok(project.clone());
         }
         
-        Ok(())
+        // Загрузка с диска
+        let project_file = self.projects_dir
+            .join(project_id)
+            .join("project.tlp");
+        
+        let json = tokio::fs::read_to_string(&project_file).await?;
+        let project: ProjectSchema = serde_json::from_str(&json)?;
+        
+        // Валидация медиафайлов
+        self.validate_media_paths(&project).await?;
+        
+        // Сохранение в кэш
+        self.project_cache.write().await
+            .insert(project_id.to_string(), project.clone());
+        
+        Ok(project)
     }
 }
 ```
@@ -527,12 +701,210 @@ pub fn detect_gpu_acceleration() -> Option<GpuAcceleration> {
 }
 ```
 
+## 🏗️ Архитектура сервисов
+
+### Service Container
+
+```rust
+// video_compiler/services/mod.rs
+pub struct ServiceContainer {
+    cache_service: Arc<CacheService>,
+    ffmpeg_service: Arc<FFmpegService>,
+    gpu_service: Arc<GpuService>,
+    preview_service: Arc<PreviewService>,
+    project_service: Arc<ProjectService>,
+    render_service: Arc<RenderService>,
+}
+
+impl ServiceContainer {
+    pub async fn new(config: ServiceConfig) -> Result<Self> {
+        // Инициализация сервисов
+        let cache_service = Arc::new(
+            CacheService::new(config.cache_config).await?
+        );
+        
+        let ffmpeg_service = Arc::new(
+            FFmpegService::new(config.ffmpeg_path.clone())?
+        );
+        
+        let gpu_service = Arc::new(
+            GpuService::new().await?
+        );
+        
+        // Сервисы с зависимостями
+        let preview_service = Arc::new(
+            PreviewService::new(
+                cache_service.clone(),
+                ffmpeg_service.clone(),
+            )
+        );
+        
+        let render_service = Arc::new(
+            RenderService::new(
+                ffmpeg_service.clone(),
+                gpu_service.clone(),
+                cache_service.clone(),
+            )
+        );
+        
+        Ok(Self {
+            cache_service,
+            ffmpeg_service,
+            gpu_service,
+            preview_service,
+            project_service: Arc::new(ProjectService::new(config.projects_dir)),
+            render_service,
+        })
+    }
+    
+    pub async fn start_all(&self) -> Result<()> {
+        futures::try_join!(
+            self.cache_service.start(),
+            self.gpu_service.start(),
+            self.preview_service.start(),
+            self.render_service.start(),
+        )?;
+        
+        Ok(())
+    }
+}
+```
+
+### Мониторинг и метрики
+
+```rust
+// video_compiler/services/monitoring.rs
+pub struct ServiceMetrics {
+    operation_counter: IntCounterVec,
+    operation_duration: HistogramVec,
+    error_counter: IntCounterVec,
+    active_operations: IntGauge,
+}
+
+impl ServiceMetrics {
+    pub fn record_operation<F, R>(&self, op_type: &str, f: F) -> Result<R>
+    where
+        F: FnOnce() -> Result<R>,
+    {
+        let start = Instant::now();
+        self.active_operations.inc();
+        
+        let result = f();
+        
+        self.active_operations.dec();
+        let duration = start.elapsed();
+        
+        self.operation_counter
+            .with_label_values(&[op_type])
+            .inc();
+            
+        self.operation_duration
+            .with_label_values(&[op_type])
+            .observe(duration.as_secs_f64());
+        
+        if result.is_err() {
+            self.error_counter
+                .with_label_values(&[op_type])
+                .inc();
+        }
+        
+        result
+    }
+}
+
+// Использование в сервисах
+impl RenderService {
+    pub async fn render(&self, job: RenderJob) -> Result<String> {
+        self.metrics.record_operation("render", || {
+            self.render_internal(job).await
+        })
+    }
+}
+```
+
 ## 🔐 Безопасность
 
-1. **Изоляция процессов** - FFmpeg запускается в отдельном процессе
-2. **Валидация путей** - проверка всех файловых путей
-3. **Ограничение ресурсов** - лимиты на использование CPU/RAM
-4. **Шифрование данных** - чувствительные данные шифруются
+### Изоляция процессов
+
+```rust
+// video_compiler/ffmpeg_executor.rs
+impl FFmpegExecutor {
+    fn create_sandboxed_command(&self, args: &[String]) -> Command {
+        let mut cmd = Command::new(&self.ffmpeg_path);
+        
+        // Ограничение ресурсов
+        #[cfg(unix)]
+        {
+            use std::os::unix::process::CommandExt;
+            cmd.uid(1000)  // Непривилегированный пользователь
+               .env_clear()  // Очистка окружения
+               .env("PATH", "/usr/local/bin:/usr/bin:/bin");
+        }
+        
+        // Таймаут выполнения
+        cmd.arg("-timelimit").arg("3600");  // 1 час максимум
+        
+        // Валидация аргументов
+        for arg in args {
+            if self.is_safe_argument(arg) {
+                cmd.arg(arg);
+            } else {
+                log::warn!("Небезопасный аргумент отклонен: {}", arg);
+            }
+        }
+        
+        cmd
+    }
+    
+    fn is_safe_argument(&self, arg: &str) -> bool {
+        // Проверка на опасные паттерны
+        !arg.contains("..") && 
+        !arg.starts_with("/etc") &&
+        !arg.starts_with("/sys") &&
+        !arg.contains(";") &&
+        !arg.contains("|") &&
+        !arg.contains("&")
+    }
+}
+```
+
+### Валидация данных
+
+```rust
+// video_compiler/schema/project.rs
+impl ProjectSchema {
+    pub fn validate(&self) -> Result<()> {
+        // Валидация метаданных
+        if self.metadata.name.is_empty() {
+            return Err(VideoCompilerError::ValidationError(
+                "Имя проекта не может быть пустым".to_string()
+            ));
+        }
+        
+        // Валидация таймлайна
+        for track in &self.timeline.tracks {
+            for clip in &track.clips {
+                // Проверка путей файлов
+                let path = Path::new(&clip.source_file);
+                if !path.is_absolute() || !path.exists() {
+                    return Err(VideoCompilerError::ValidationError(
+                        format!("Недопустимый путь файла: {}", clip.source_file)
+                    ));
+                }
+                
+                // Проверка временных меток
+                if clip.start_time < 0.0 || clip.duration <= 0.0 {
+                    return Err(VideoCompilerError::ValidationError(
+                        "Недопустимые временные метки клипа".to_string()
+                    ));
+                }
+            }
+        }
+        
+        Ok(())
+    }
+}
+```
 
 ---
 

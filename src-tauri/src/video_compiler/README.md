@@ -8,7 +8,7 @@
 video_compiler/
 ├── mod.rs                # Главный модуль, инициализация
 ├── commands/             # Tauri команды API (модульная структура)
-│   ├── mod.rs           # Реэкспорт команд
+│   ├── mod.rs           # Реэкспорт всех команд
 │   ├── rendering.rs     # Команды рендеринга
 │   ├── cache.rs         # Команды управления кэшем
 │   ├── gpu.rs           # Команды GPU
@@ -16,7 +16,22 @@ video_compiler/
 │   ├── preview.rs       # Команды генерации превью
 │   ├── project.rs       # Команды управления проектами
 │   ├── settings.rs      # Команды настроек
-│   └── state.rs         # Типы состояния
+│   ├── metrics.rs       # Команды метрик и мониторинга
+│   ├── misc.rs          # Вспомогательные команды
+│   ├── ffmpeg_advanced.rs # Продвинутые FFmpeg команды
+│   ├── advanced_metrics.rs # Расширенные метрики
+│   ├── state.rs         # Управление состоянием
+│   └── tests/           # Тесты команд
+├── core/                 # Основные компоненты
+│   ├── mod.rs           # Реэкспорт основных модулей
+│   ├── cache.rs         # Система кэширования
+│   ├── error.rs         # Обработка ошибок
+│   ├── frame_extraction.rs # Извлечение кадров
+│   ├── gpu.rs           # GPU ускорение
+│   ├── pipeline.rs      # Конвейер рендеринга
+│   ├── preview.rs       # Генерация превью
+│   ├── progress.rs      # Отслеживание прогресса
+│   └── renderer.rs      # Основной рендерер
 ├── ffmpeg_builder/       # Построитель FFmpeg команд (модульная структура)
 │   ├── mod.rs           # Основной модуль
 │   ├── builder.rs       # Основной построитель
@@ -25,7 +40,9 @@ video_compiler/
 │   ├── outputs.rs       # Конфигурация вывода
 │   ├── effects.rs       # Обработка эффектов
 │   ├── subtitles.rs     # Обработка субтитров
-│   └── templates.rs     # Обработка шаблонов
+│   ├── templates.rs     # Обработка шаблонов
+│   └── tests.rs         # Тесты построителя
+├── ffmpeg_executor.rs    # Исполнитель FFmpeg команд
 ├── schema/               # Структуры данных проекта (модульная структура)
 │   ├── mod.rs           # Реэкспорт типов
 │   ├── project.rs       # Основная схема проекта
@@ -34,14 +51,24 @@ video_compiler/
 │   ├── templates.rs     # Шаблоны раскладок
 │   ├── subtitles.rs     # Субтитры
 │   ├── export.rs        # Настройки экспорта
-│   └── common.rs        # Общие типы
-├── renderer.rs           # Основной рендерер видео
-├── pipeline.rs           # Конвейер рендеринга
-├── preview.rs            # Генерация превью
-├── progress.rs           # Отслеживание прогресса
-├── cache.rs              # Кэширование превью
-├── gpu.rs                # GPU ускорение
-└── error.rs              # Обработка ошибок
+│   ├── common.rs        # Общие типы
+│   └── tests.rs         # Тесты схемы
+├── services/             # Сервисы
+│   ├── mod.rs           # Service Container
+│   ├── cache_service.rs # Сервис кэширования
+│   ├── cache_service_with_metrics.rs # Кэш с метриками
+│   ├── ffmpeg_service.rs # FFmpeg сервис
+│   ├── gpu_service.rs   # GPU сервис
+│   ├── preview_service.rs # Сервис превью
+│   ├── project_service.rs # Сервис проектов
+│   ├── render_service.rs # Сервис рендеринга
+│   └── monitoring.rs    # Мониторинг и метрики
+└── tests/               # Интеграционные тесты
+    ├── mod.rs           # Главный модуль тестов
+    ├── fixtures.rs      # Тестовые данные
+    ├── integration.rs   # Интеграционные тесты
+    ├── mocks.rs         # Моки для тестов
+    └── utils.rs         # Утилиты для тестов
 ```
 
 ## Основные компоненты
@@ -120,7 +147,7 @@ pub struct Clip {
 }
 ```
 
-## API Команды (57 команд)
+## API Команды (100+ команд)
 
 ### Рендеринг (rendering.rs)
 - `compile_video` - Запуск компиляции видео
@@ -212,6 +239,39 @@ pub struct Clip {
 - `get_quality_presets` - Предустановки качества
 - `apply_quality_preset` - Применить предустановку
 
+### FFmpeg продвинутые команды (ffmpeg_advanced.rs)
+- `generate_video_preview` - Генерация превью видео
+- `generate_gif_preview` - Создание GIF из видео
+- `concat_videos` - Объединение видео файлов
+- `apply_video_filter` - Применение фильтра к видео
+- `probe_media_file` - Анализ медиафайла
+- `test_hardware_acceleration` - Тест аппаратного ускорения
+- `generate_subtitle_preview` - Превью с субтитрами
+- `check_ffmpeg_installation` - Проверка установки FFmpeg
+- `get_ffmpeg_codecs` - Список поддерживаемых кодеков
+- `get_ffmpeg_formats` - Список поддерживаемых форматов
+- `execute_ffmpeg_with_progress` - Выполнение FFmpeg с прогрессом
+- `execute_ffmpeg_simple` - Простое выполнение FFmpeg
+- `get_ffmpeg_execution_info` - Полная информация о выполнении
+
+### Метрики и мониторинг (metrics.rs)
+- `get_all_metrics` - Все метрики системы
+- `get_service_metrics` - Метрики сервисов
+- `export_metrics_prometheus` - Экспорт в формате Prometheus
+- `reset_service_metrics` - Сброс метрик
+- `get_active_operations_count` - Количество активных операций
+- `get_error_statistics` - Статистика ошибок
+- `get_slow_operations` - Медленные операции
+
+### Расширенные метрики (advanced_metrics.rs)
+- `get_cache_performance_metrics` - Производительность кэша
+- `set_cache_alert_thresholds` - Пороги оповещений
+- `get_cache_alerts` - Активные оповещения
+- `get_gpu_utilization_metrics` - Использование GPU
+- `get_memory_usage_metrics` - Использование памяти
+- `create_custom_alert` - Создание пользовательского оповещения
+- `get_metrics_history` - История метрик
+
 ## Процесс рендеринга
 
 1. **Валидация проекта** - проверка структуры и путей к файлам
@@ -219,6 +279,31 @@ pub struct Clip {
 3. **Запуск процесса** - выполнение FFmpeg с отслеживанием прогресса
 4. **Мониторинг** - обновление статуса через каналы
 5. **Завершение** - очистка ресурсов и уведомление
+
+## FFmpeg Executor
+
+Новый компонент для выполнения FFmpeg команд с расширенными возможностями:
+
+```rust
+pub struct FFmpegExecutor {
+    progress_sender: Option<mpsc::Sender<ProgressUpdate>>,
+}
+
+pub struct FFmpegExecutionResult {
+    pub exit_code: i32,
+    pub stdout: String,
+    pub stderr: String,
+    pub final_progress: Option<RenderProgress>,
+}
+```
+
+### Возможности:
+- Выполнение команд с отслеживанием прогресса в реальном времени
+- Парсинг вывода FFmpeg для извлечения информации о прогрессе
+- Поддержка отмены операций
+- Простое выполнение для быстрых операций
+- Проверка доступности FFmpeg и его возможностей
+- Получение списка поддерживаемых кодеков и форматов
 
 ## GPU Ускорение
 
@@ -296,6 +381,38 @@ const previewPath = await invoke('generate_frame_preview', {
 // Проверка GPU
 const gpus = await invoke('detect_gpus');
 const capabilities = await invoke('get_gpu_capabilities', { gpuIndex: 0 });
+
+// Новые FFmpeg команды
+// Генерация GIF превью
+await invoke('generate_gif_preview', {
+    inputPath: '/path/to/video.mp4',
+    outputPath: '/path/to/preview.gif',
+    startTime: 5.0,
+    duration: 3.0,
+    fps: 10,
+    resolution: [320, 240]
+});
+
+// Объединение видео
+await invoke('concat_videos', {
+    inputPaths: ['/video1.mp4', '/video2.mp4'],
+    outputPath: '/output.mp4'
+});
+
+// Выполнение FFmpeg с отслеживанием прогресса
+await invoke('execute_ffmpeg_with_progress', {
+    commandArgs: ['-i', 'input.mp4', '-c:v', 'libx264', 'output.mp4']
+});
+
+// Слушатель событий прогресса
+await listen('ffmpeg-progress', (event) => {
+    console.log('Progress:', event.payload);
+});
+
+// Получение информации о медиафайле
+const fileInfo = await invoke('probe_media_file', {
+    inputPath: '/path/to/media.mp4'
+});
 ```
 
 ## Конфигурация
@@ -315,14 +432,21 @@ pub struct CompilerSettings {
 
 Модуль был значительно реорганизован для улучшения поддерживаемости:
 
-1. **commands.rs** разделен на 8 функциональных модулей
-2. **ffmpeg_builder.rs** разделен на 7 специализированных модулей
+1. **commands.rs** разделен на 12+ функциональных модулей
+2. **ffmpeg_builder.rs** разделен на 7 специализированных модулей  
 3. **schema.rs** разделен на 7 доменных модулей
-4. Добавлены недостающие зависимости (num_cpus, sysinfo, os_info)
-5. Обновлены типы для соответствия новой структуре схемы
+4. Добавлена модульная структура **core/** для основных компонентов
+5. Создана архитектура **services/** для управления сервисами
+6. Добавлен **ffmpeg_executor.rs** для выполнения FFmpeg команд
+7. Расширена система метрик и мониторинга
+8. Добавлены продвинутые FFmpeg команды для всех операций
+9. Полное покрытие тестами новых компонентов
 
-### Известные проблемы после рефакторинга
+### Ключевые улучшения:
 
-1. Некоторые методы в preview, cache и gpu модулях требуют реализации
-2. Поля CompilerSettings отличаются от ожидаемых в командах
-3. Необходимо обновить тесты под новую модульную структуру
+1. **Модульность** - каждый компонент теперь в отдельном модуле
+2. **Сервис-ориентированная архитектура** - все основные функции представлены как сервисы
+3. **Расширенный мониторинг** - детальные метрики для всех операций
+4. **FFmpeg интеграция** - полная поддержка всех возможностей FFmpeg
+5. **Тестируемость** - моки, фикстуры и утилиты для тестирования
+6. **Нулевые предупреждения компиляции** - весь код полностью используется
