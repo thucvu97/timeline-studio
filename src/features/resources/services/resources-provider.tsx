@@ -23,7 +23,7 @@ import { Transition } from "@/features/transitions/types/transitions"
 
 import { ResourcesMachineContext, resourcesMachine } from "./resources-machine"
 
-interface ResourcesContextType extends ResourcesMachineContext {
+export interface ResourcesContextType extends ResourcesMachineContext {
   // Методы для работы с ресурсами
   addResource: (resource: ResourceType, object: any) => void
 

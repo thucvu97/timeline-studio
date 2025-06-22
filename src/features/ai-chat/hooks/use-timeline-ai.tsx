@@ -37,7 +37,7 @@ export interface TimelineAIOperationResult {
  * Hook для работы с Timeline AI
  */
 export function useTimelineAI() {
-  const { send } = useChat()
+  const { sendTimelineEvent } = useChat()
   const resourcesProvider = useResources()
 
   // Создаем экземпляр TimelineAI сервиса
@@ -55,16 +55,16 @@ export function useTimelineAI() {
   const createTimelineFromPrompt = useCallback(async (prompt: string): Promise<TimelineAIOperationResult> => {
     try {
       // Отправляем событие в chat-machine
-      send({ type: "CREATE_TIMELINE_FROM_PROMPT", prompt })
+      sendTimelineEvent({ type: "CREATE_TIMELINE_FROM_PROMPT", prompt })
 
       // Выполняем операцию через Timeline AI сервис
       const result = await timelineAI.createTimelineFromPrompt(prompt)
 
       // Уведомляем chat-machine о результате
       if (result.success) {
-        send({ type: "TIMELINE_OPERATION_SUCCESS", result })
+        sendTimelineEvent({ type: "TIMELINE_OPERATION_SUCCESS", result })
       } else {
-        send({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
+        sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
       }
 
       return {
@@ -79,7 +79,7 @@ export function useTimelineAI() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
       
-      send({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
+      sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
       
       return {
         operation: "create-timeline",
@@ -89,21 +89,21 @@ export function useTimelineAI() {
         executionTime: 0,
       }
     }
-  }, [send, timelineAI])
+  }, [sendTimelineEvent, timelineAI])
 
   /**
    * Анализирует ресурсы и предлагает улучшения
    */
   const analyzeResources = useCallback(async (query: string): Promise<TimelineAIOperationResult> => {
     try {
-      send({ type: "ANALYZE_RESOURCES", query })
+      sendTimelineEvent({ type: "ANALYZE_RESOURCES", query })
 
       const result = await timelineAI.analyzeAndSuggestResources(query)
 
       if (result.success) {
-        send({ type: "TIMELINE_OPERATION_SUCCESS", result })
+        sendTimelineEvent({ type: "TIMELINE_OPERATION_SUCCESS", result })
       } else {
-        send({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
+        sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
       }
 
       return {
@@ -118,7 +118,7 @@ export function useTimelineAI() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
       
-      send({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
+      sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
       
       return {
         operation: "analyze-resources",
@@ -128,21 +128,21 @@ export function useTimelineAI() {
         executionTime: 0,
       }
     }
-  }, [send, timelineAI])
+  }, [sendTimelineEvent, timelineAI])
 
   /**
    * Выполняет произвольную AI команду
    */
   const executeCommand = useCallback(async (command: string, params?: any): Promise<TimelineAIOperationResult> => {
     try {
-      send({ type: "EXECUTE_AI_COMMAND", command, params })
+      sendTimelineEvent({ type: "EXECUTE_AI_COMMAND", command, params })
 
       const result = await timelineAI.executeCommand(command, params)
 
       if (result.success) {
-        send({ type: "TIMELINE_OPERATION_SUCCESS", result })
+        sendTimelineEvent({ type: "TIMELINE_OPERATION_SUCCESS", result })
       } else {
-        send({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
+        sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: result.message })
       }
 
       return {
@@ -157,7 +157,7 @@ export function useTimelineAI() {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка'
       
-      send({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
+      sendTimelineEvent({ type: "TIMELINE_OPERATION_ERROR", error: errorMessage })
       
       return {
         operation: "execute-command",
@@ -167,7 +167,7 @@ export function useTimelineAI() {
         executionTime: 0,
       }
     }
-  }, [send, timelineAI])
+  }, [sendTimelineEvent, timelineAI])
 
   /**
    * Устанавливает API ключ для Claude

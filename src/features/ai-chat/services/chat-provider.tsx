@@ -29,6 +29,9 @@ export interface ChatContextType {
   switchSession: (sessionId: string) => void
   deleteSession: (sessionId: string) => void
   updateSessions: (sessions: ChatListItem[]) => void
+  
+  // Timeline AI события
+  sendTimelineEvent: (event: any) => void
 }
 
 // Создаем контекст
@@ -116,6 +119,10 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
     send({ type: "UPDATE_SESSIONS", sessions })
   }
 
+  const sendTimelineEvent = (event: any) => {
+    send(event)
+  }
+
   // Создаем значение контекста
   const contextValue: ChatContextType = {
     // Состояние
@@ -139,6 +146,7 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
     switchSession,
     deleteSession,
     updateSessions,
+    sendTimelineEvent,
   }
 
   // Используем переданное значение для тестов или реальное значение

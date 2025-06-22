@@ -10,20 +10,15 @@ import { ResourcesContextType } from "@/features/resources/services/resources-pr
 import { TimelineProject } from "@/features/timeline/types"
 
 import { CLAUDE_MODELS, ClaudeService, ClaudeTool } from "./claude-service"
-import { BrowserToolResult, browserTools } from "../tools/browser-tools"
-import { PlayerToolResult, playerTools } from "../tools/player-tools"
-import { ResourceToolResult, resourceTools } from "../tools/resource-tools"
-import { TimelineToolResult, timelineTools } from "../tools/timeline-tools"
+import { browserTools } from "../tools/browser-tools"
+import { playerTools } from "../tools/player-tools"
+import { resourceTools } from "../tools/resource-tools"
+import { timelineTools } from "../tools/timeline-tools"
 import {
-  AICommand,
-  AICommandResult,
   AIToolResult,
   BrowserContext,
-  ClipPlacementStrategy,
   ContentStoryAnalysis,
-  EnhancementSettings,
   PlayerContext,
-  ProjectCreationSettings,
   ResourcesContext,
   TimelineContext,
   TimelineStudioContext,
@@ -87,13 +82,13 @@ export class TimelineAIService {
     // Собираем контекст ресурсов
     const resourcesContext: ResourcesContext = {
       availableResources: {
-        media: this.resourcesProvider.mediaResources.map(r => r.object as MediaFile),
-        effects: this.resourcesProvider.effectResources.map(r => r.object),
-        filters: this.resourcesProvider.filterResources.map(r => r.object),
-        transitions: this.resourcesProvider.transitionResources.map(r => r.object),
-        templates: this.resourcesProvider.templateResources.map(r => r.object),
-        styleTemplates: this.resourcesProvider.styleTemplateResources.map(r => r.object),
-        music: this.resourcesProvider.musicResources.map(r => r.object as MediaFile),
+        media: this.resourcesProvider.mediaResources.map(r => r.file),
+        effects: this.resourcesProvider.effectResources.map(r => r.effect),
+        filters: this.resourcesProvider.filterResources.map(r => r.filter),
+        transitions: this.resourcesProvider.transitionResources.map(r => r.transition),
+        templates: this.resourcesProvider.templateResources.map(r => r.template),
+        styleTemplates: this.resourcesProvider.styleTemplateResources.map(r => r.template),
+        music: this.resourcesProvider.musicResources.map(r => r.file),
       },
       stats: {
         totalMedia: this.resourcesProvider.mediaResources.length,
@@ -188,12 +183,12 @@ export class TimelineAIService {
       
       return {
         success: result.success,
-        message: result.text,
+        message: result.message,
         data: result.data,
         errors: result.errors,
         warnings: result.warnings,
         executionTime: Date.now() - startTime,
-        nextActions: result.nextActions,
+        nextActions: [], // AIToolResult не имеет nextActions
       }
     } catch (error) {
       return {
@@ -230,10 +225,10 @@ export class TimelineAIService {
       
       return {
         success: result.success,
-        message: result.text,
+        message: result.message,
         data: result.data,
         executionTime: Date.now() - startTime,
-        nextActions: result.nextActions,
+        nextActions: [], // AIToolResult не имеет nextActions
       }
     } catch (error) {
       return {
@@ -272,10 +267,10 @@ export class TimelineAIService {
       
       return {
         success: result.success,
-        message: result.text,
+        message: result.message,
         data: result.data,
         executionTime: Date.now() - startTime,
-        nextActions: result.nextActions,
+        nextActions: [], // AIToolResult не имеет nextActions
       }
     } catch (error) {
       return {
@@ -345,7 +340,6 @@ export class TimelineAIService {
       success: true,
       message: response.text,
       data: {},
-      nextActions: [],
     }
 
     // Если Claude использовал инструмент
@@ -389,16 +383,14 @@ export class TimelineAIService {
 
   private calculateTotalDuration(): number {
     return this.resourcesProvider.mediaResources.reduce((total: number, resource) => {
-      const media = resource.object as MediaFile
-      const duration: number = typeof media.duration === 'number' ? media.duration : 0
+      const duration: number = typeof resource.file.duration === 'number' ? resource.file.duration : 0
       return total + duration
     }, 0)
   }
 
   private calculateTotalSize(): number {
     return this.resourcesProvider.mediaResources.reduce((total: number, resource) => {
-      const media = resource.object as MediaFile
-      const size: number = typeof media.size === 'number' ? media.size : 0
+      const size: number = typeof resource.file.size === 'number' ? resource.file.size : 0
       return total + size
     }, 0)
   }
