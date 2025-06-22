@@ -471,7 +471,7 @@ pub async fn build_segment_render_command(
   };
 
   let builder = FFmpegBuilder::with_settings(project_schema.clone(), settings);
-  let mut command = Command::new(&state.ffmpeg_path.read().await.clone());
+  let mut command = Command::new(state.ffmpeg_path.read().await.clone());
 
   // Добавляем входные файлы
   let input_builder = InputBuilder::new(&project_schema);
@@ -484,7 +484,7 @@ pub async fn build_segment_render_command(
     .await?;
 
   // Добавляем выходные настройки
-  let output_builder = OutputBuilder::new(&project_schema, &builder.settings());
+  let output_builder = OutputBuilder::new(&project_schema, builder.settings());
   output_builder
     .add_output_settings(&mut command, std::path::Path::new(&output_path))
     .await?;

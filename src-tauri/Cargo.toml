@@ -29,6 +29,8 @@ tempfile = "3.8"
 tower = { version = "0.4", features = ["util"] }
 urlencoding = "2.1"
 reqwest = { version = "0.11", features = ["json"] }
+# Benchmarking
+criterion = { version = "0.5", features = ["html_reports"] }
 
 [dependencies]
 serde_json = "1"
@@ -100,6 +102,12 @@ macos_info_plist_additions = """
 <key>NSPhotoLibraryAddUsageDescription</key>
 <string>Timeline Studio needs permission to save videos to your photo library</string>
 """
+
+# Benchmarks commented out temporarily to fix compilation warnings
+# [[bench]]
+# name = "ffmpeg_benchmarks"
+# harness = false
+# path = "src/video_compiler/benchmarks/ffmpeg_benchmarks.rs"
 
 [workspace]
 resolver = "2"

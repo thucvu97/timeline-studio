@@ -117,17 +117,15 @@ pub trait PreviewService: Service + Send + Sync {
 
 /// Реализация сервиса превью
 pub struct PreviewServiceImpl {
-  ffmpeg_service: Arc<dyn FfmpegService>,
   preview_cache: Arc<RwLock<HashMap<String, PreviewResult>>>,
   temp_dir: PathBuf,
 }
 
 impl PreviewServiceImpl {
-  pub fn new(ffmpeg_service: Arc<dyn FfmpegService>) -> Self {
+  pub fn new(_ffmpeg_service: Arc<dyn FfmpegService>) -> Self {
     let temp_dir = std::env::temp_dir().join("timeline-studio-preview");
 
     Self {
-      ffmpeg_service,
       preview_cache: Arc::new(RwLock::new(HashMap::new())),
       temp_dir,
     }
@@ -195,20 +193,20 @@ impl PreviewService for PreviewServiceImpl {
     timestamp: f64,
     resolution: Option<(u32, u32)>,
   ) -> Result<Vec<u8>> {
-    // Проверяем существование файла
-    if !video_path.exists() {
-      return Err(VideoCompilerError::MediaFileError {
-        path: video_path.to_string_lossy().to_string(),
-        reason: "Видео файл не найден".to_string(),
-      });
-    }
-
     // Проверяем корректность timestamp
     if timestamp < 0.0 {
       return Err(VideoCompilerError::InvalidParameter(format!(
         "Некорректное время кадра: {}",
         timestamp
       )));
+    }
+
+    // Проверяем существование файла
+    if !video_path.exists() {
+      return Err(VideoCompilerError::MediaFileError {
+        path: video_path.to_string_lossy().to_string(),
+        reason: "Видео файл не найден".to_string(),
+      });
     }
 
     // Проверяем кэш
@@ -661,33 +659,5 @@ impl PreviewService for PreviewServiceImpl {
 }
 
 #[cfg(test)]
-mod tests {
-  use super::*;
-  use crate::video_compiler::services::FfmpegServiceImpl;
-
-  #[tokio::test]
-  async fn test_preview_service_creation() {
-    let ffmpeg_service = Arc::new(FfmpegServiceImpl::new("ffmpeg".to_string()));
-    let service = PreviewServiceImpl::new(ffmpeg_service);
-
-    assert!(service.initialize().await.is_ok());
-  }
-
-  #[tokio::test]
-  async fn test_cache_key_generation() {
-    let ffmpeg_service = Arc::new(FfmpegServiceImpl::new("ffmpeg".to_string()));
-    let service = PreviewServiceImpl::new(ffmpeg_service);
-
-    let key = service.generate_cache_key(
-      PreviewType::Frame,
-      Path::new("/tmp/video.mp4"),
-      Some(5.0),
-      Some((1920, 1080)),
-    );
-
-    assert!(key.contains("Frame"));
-    assert!(key.contains("video.mp4"));
-    assert!(key.contains("5"));
-    assert!(key.contains("1920x1080"));
-  }
-}
+#[path = "preview_service_tests.rs"]
+mod tests;

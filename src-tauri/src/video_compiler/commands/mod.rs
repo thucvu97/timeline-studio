@@ -12,6 +12,7 @@
 
 pub mod advanced_metrics;
 pub mod cache;
+pub mod ffmpeg_advanced;
 pub mod gpu;
 pub mod info;
 pub mod metrics;
@@ -26,6 +27,8 @@ pub mod tests_helpers;
 // Re-export всех команд для удобства использования
 pub use advanced_metrics::*;
 pub use cache::*;
+#[allow(unused_imports)]
+pub use ffmpeg_advanced::*;
 pub use gpu::*;
 pub use info::*;
 pub use metrics::*;

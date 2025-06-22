@@ -34,9 +34,11 @@ mod builder_tests {
   #[tokio::test]
   async fn test_hardware_acceleration() {
     let project = create_minimal_project();
-    let mut settings = FFmpegBuilderSettings::default();
-    settings.use_hardware_acceleration = true;
-    settings.hardware_acceleration_type = Some("nvenc".to_string());
+    let settings = FFmpegBuilderSettings {
+      use_hardware_acceleration: true,
+      hardware_acceleration_type: Some("nvenc".to_string()),
+      ..Default::default()
+    };
 
     let builder = FFmpegBuilder::with_settings(project, settings);
     let output_path = std::path::Path::new("/tmp/output.mp4");

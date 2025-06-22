@@ -55,13 +55,13 @@ pub fn create_fake_audio_file(dir: &Path, name: &str) -> Result<PathBuf> {
 
 /// Создает набор медиафайлов для тестирования
 pub fn create_test_media_files(dir: &Path) -> Result<Vec<PathBuf>> {
-  let mut files = Vec::new();
-
-  files.push(create_fake_video_file(dir, "video1.mp4")?);
-  files.push(create_fake_video_file(dir, "video2.mp4")?);
-  files.push(create_fake_video_file(dir, "video3.mov")?);
-  files.push(create_fake_audio_file(dir, "audio1.wav")?);
-  files.push(create_fake_audio_file(dir, "audio2.wav")?);
+  let files = vec![
+    create_fake_video_file(dir, "video1.mp4")?,
+    create_fake_video_file(dir, "video2.mp4")?,
+    create_fake_video_file(dir, "video3.mov")?,
+    create_fake_audio_file(dir, "audio1.wav")?,
+    create_fake_audio_file(dir, "audio2.wav")?,
+  ];
 
   Ok(files)
 }

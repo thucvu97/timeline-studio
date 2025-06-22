@@ -3,6 +3,7 @@
 //! Этот модуль содержит переиспользуемые фикстуры, моки и утилиты
 //! для тестирования различных компонентов video_compiler.
 
+pub mod ffmpeg_mocks;
 pub mod fixtures;
 pub mod integration;
 pub mod mocks;

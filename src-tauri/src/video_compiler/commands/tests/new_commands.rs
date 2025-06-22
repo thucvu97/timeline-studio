@@ -26,7 +26,7 @@ async fn test_get_cache_stats_detailed() {
   let stats = cache.get_stats();
   let memory_usage = cache.get_memory_usage();
 
-  let result: Result<serde_json::Value, VideoCompilerError> = Ok(serde_json::json!({
+  let stats_json = serde_json::json!({
     "preview_hit_ratio": stats.preview_hit_ratio(),
     "memory_usage_mb": memory_usage.total_mb(),
     "preview_hits": stats.preview_hits,
@@ -36,10 +36,9 @@ async fn test_get_cache_stats_detailed() {
     "metadata_requests": stats.metadata_requests,
     "preview_requests": stats.preview_requests,
     "total_memory_bytes": memory_usage.total_bytes,
-  }));
-  assert!(result.is_ok());
+  });
 
-  let stats = result.unwrap();
+  let stats = stats_json;
   assert!(stats.get("preview_hit_ratio").is_some());
   assert!(stats.get("memory_usage_mb").is_some());
 }

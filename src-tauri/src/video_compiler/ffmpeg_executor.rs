@@ -290,7 +290,10 @@ pub async fn get_available_formats(ffmpeg_path: &str) -> Result<Vec<String>> {
 }
 
 #[cfg(test)]
-mod tests {
+mod tests;
+
+#[cfg(test)]
+mod basic_tests {
   use super::*;
 
   #[tokio::test]
