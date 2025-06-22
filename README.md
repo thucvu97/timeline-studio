@@ -19,6 +19,9 @@
 
 </div>
 
+## GitAds Sponsored
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=chatman-media/timeline-studio@github)](https://gitads.dev/v1/ad-track?source=chatman-media/timeline-studio@github)
+
 ## Project Overview
 
 Timeline Studio is a modern video editor built on Tauri architecture (Rust + React).
@@ -205,9 +208,6 @@ bun run check:all
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=chatman-media/timeline-studio&type=Date" />
  </picture>
 </a>
-
-## GitAds Sponsored
-[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=chatman-media/timeline-studio@github)](https://gitads.dev/v1/ad-track?source=chatman-media/timeline-studio@github)
 
 ## License
 
