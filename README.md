@@ -84,41 +84,23 @@ Timeline Studio is a modern video editor built on Tauri architecture (Rust + Rea
 
 ## Getting Started
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- [Rust](https://www.rust-lang.org/tools/install) (latest stable version)
-- [bun](https://bun.sh/) (latest stable version)
-- [ffmpeg](https://ffmpeg.org/download.html) (latest stable version)
-
-**Windows users**: Please see [docs-ru/06-deployment/platforms/windows-build.md](docs-ru/06-deployment/platforms/windows-build.md) for detailed setup instructions including FFmpeg configuration.
-
-### Installation
-
-1. Clone the repository:
+### Quick Setup
 
 ```bash
+# Clone and install
 git clone https://github.com/chatman-media/timeline-studio.git
 cd timeline-studio
-```
-
-2. Install dependencies:
-
-```bash
 bun install
-```
 
-### Development Mode Launch
-
-```bash
+# Run development mode
 bun run tauri dev
 ```
 
-### Release Build
+### Requirements
+- Node.js v18+, Rust, Bun, FFmpeg
 
-```bash
-bun run tauri build
-```
+📚 **[Complete Installation Guide →](docs-ru/01-getting-started/README.md)**  
+🪟 **[Windows Setup →](docs-ru/06-deployment/platforms/windows-build.md)**
 
 ## Documentation
 
