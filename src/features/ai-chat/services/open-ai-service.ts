@@ -1,5 +1,6 @@
 import { ApiKeyLoader } from "./api-key-loader"
 import { AiMessage } from "../types/ai-message"
+import { OpenAIStreamingEvent, StreamingOptions, StreamingRequest } from "../types/streaming"
 
 // Интерфейс для запроса к API
 interface OpenAiApiRequest {
@@ -196,6 +197,108 @@ export class OpenAiService {
       return data.choices[0].message.content
     } catch (error) {
       console.error("Ошибка при отправке запроса к API OpenAI:", error)
+      throw error
+    }
+  }
+
+  /**
+   * Отправить потоковый запрос к OpenAI API
+   * @param model Модель OpenAI
+   * @param messages Сообщения для отправки
+   * @param options Опции для потокового запроса
+   */
+  public async sendStreamingRequest(
+    model: string,
+    messages: AiMessage[],
+    options: {
+      temperature?: number
+      max_tokens?: number
+    } & StreamingOptions = {},
+  ): Promise<void> {
+    const apiKey = await this.apiKeyLoader.getApiKey("openai")
+    if (!apiKey) {
+      const error = new Error("API ключ не установлен. Пожалуйста, добавьте API ключ в настройках.")
+      options.onError?.(error)
+      throw error
+    }
+
+    try {
+      const requestBody: StreamingRequest = {
+        model,
+        messages,
+        stream: true,
+        temperature: options.temperature || 0.7,
+        max_tokens: options.max_tokens || 2000,
+      }
+
+      const response = await fetch(API_URLS.OPENAI, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(requestBody),
+        signal: options.signal,
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        const error = new Error(`Ошибка OpenAI API: ${response.status} ${errorText}`)
+        options.onError?.(error)
+        throw error
+      }
+
+      const reader = response.body?.getReader()
+      if (!reader) {
+        const error = new Error("Не удалось получить поток данных")
+        options.onError?.(error)
+        throw error
+      }
+
+      const decoder = new TextDecoder()
+      let fullContent = ""
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          
+          if (done) break
+
+          const chunk = decoder.decode(value)
+          const lines = chunk.split("\n")
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6).trim()
+              
+              if (data === "[DONE]") {
+                options.onComplete?.(fullContent)
+                return
+              }
+
+              try {
+                const event: OpenAIStreamingEvent = JSON.parse(data)
+                
+                const content = event.choices[0]?.delta?.content
+                if (content) {
+                  fullContent += content
+                  options.onContent?.(content)
+                }
+              } catch (parseError) {
+                // Игнорируем ошибки парсинга отдельных событий
+                console.warn("Ошибка парсинга SSE события:", parseError)
+              }
+            }
+          }
+        }
+
+        options.onComplete?.(fullContent)
+      } finally {
+        reader.releaseLock()
+      }
+    } catch (error) {
+      console.error("Ошибка при отправке потокового запроса к OpenAI API:", error)
+      options.onError?.(error as Error)
       throw error
     }
   }

@@ -4,6 +4,7 @@
 
 import { ApiKeyLoader } from "./api-key-loader"
 import { AiMessage } from "../types/ai-message"
+import { ClaudeStreamingEvent, StreamingOptions, StreamingRequest } from "../types/streaming"
 
 // Доступные модели Claude
 export const CLAUDE_MODELS = {
@@ -245,6 +246,115 @@ export class ClaudeService {
       return { text: data.content[0].text }
     } catch (error) {
       console.error("Ошибка при отправке запроса к Claude API с инструментами:", error)
+      throw error
+    }
+  }
+
+  /**
+   * Отправить потоковый запрос к Claude API
+   * @param model Модель Claude
+   * @param messages Сообщения для отправки
+   * @param options Опции для потокового запроса
+   */
+  public async sendStreamingRequest(
+    model: string,
+    messages: AiMessage[],
+    options: {
+      system?: string
+      temperature?: number
+      max_tokens?: number
+    } & StreamingOptions = {},
+  ): Promise<void> {
+    const apiKey = await this.apiKeyLoader.getApiKey("claude")
+    if (!apiKey) {
+      const error = new Error("API ключ не установлен. Пожалуйста, добавьте API ключ в настройках.")
+      options.onError?.(error)
+      throw error
+    }
+
+    try {
+      const requestBody: StreamingRequest = {
+        model,
+        messages,
+        stream: true,
+        temperature: options.temperature || 0.7,
+        max_tokens: options.max_tokens || 2000,
+      }
+
+      // Добавляем системное сообщение, если оно есть
+      if (options.system) {
+        requestBody.system = options.system
+      }
+
+      const response = await fetch(this.apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": this.apiVersion,
+        },
+        body: JSON.stringify(requestBody),
+        signal: options.signal,
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        const error = new Error(`Ошибка Claude API: ${response.status} ${errorText}`)
+        options.onError?.(error)
+        throw error
+      }
+
+      const reader = response.body?.getReader()
+      if (!reader) {
+        const error = new Error("Не удалось получить поток данных")
+        options.onError?.(error)
+        throw error
+      }
+
+      const decoder = new TextDecoder()
+      let fullContent = ""
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          
+          if (done) break
+
+          const chunk = decoder.decode(value)
+          const lines = chunk.split("\n")
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6).trim()
+              
+              if (data === "[DONE]") {
+                options.onComplete?.(fullContent)
+                return
+              }
+
+              try {
+                const event: ClaudeStreamingEvent = JSON.parse(data)
+                
+                if (event.type === "content_block_delta" && event.delta?.text) {
+                  const content = event.delta.text
+                  fullContent += content
+                  options.onContent?.(content)
+                }
+              } catch (parseError) {
+                // Игнорируем ошибки парсинга отдельных событий
+                console.warn("Ошибка парсинга SSE события:", parseError)
+              }
+            }
+          }
+        }
+
+        options.onComplete?.(fullContent)
+      } finally {
+        reader.releaseLock()
+      }
+    } catch (error) {
+      console.error("Ошибка при отправке потокового запроса к Claude API:", error)
+      options.onError?.(error as Error)
       throw error
     }
   }

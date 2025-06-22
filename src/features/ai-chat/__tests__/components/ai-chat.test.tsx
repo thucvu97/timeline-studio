@@ -24,6 +24,17 @@ vi.mock("@/features/user-settings", () => ({
   }),
 }))
 
+vi.mock("@/features/user-settings/hooks/use-api-keys", () => ({
+  useApiKeys: () => ({
+    getApiKeyInfo: vi.fn().mockReturnValue({
+      has_value: true,
+      is_valid: true,
+      key_type: "claude",
+    }),
+    getApiKeyStatus: vi.fn().mockReturnValue("valid"),
+  }),
+}))
+
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, disabled, ...props }: any) => (
     <button onClick={onClick} disabled={disabled} {...props}>

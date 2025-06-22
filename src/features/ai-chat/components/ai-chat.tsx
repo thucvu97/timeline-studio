@@ -18,6 +18,7 @@ import { chatStorageService } from "../services/chat-storage-service"
 import { CLAUDE_MODELS, ClaudeService } from "../services/claude-service"
 import { AI_MODELS, OpenAiService } from "../services/open-ai-service"
 import { ChatMessage } from "../types/chat"
+import { compressContext, isContextOverLimit } from "../utils/context-manager"
 import { createTimelineContextPrompt } from "../utils/timeline-context"
 
 const AVAILABLE_AGENTS = [
@@ -84,8 +85,11 @@ export function AiChat() {
   const [message, setMessage] = useState("")
   const [chatMode, setChatMode] = useState<ChatMode>("agent")
   const [showHistory, setShowHistory] = useState(false)
+  const [streamingContent, setStreamingContent] = useState("")
+  const [isStreaming, setIsStreaming] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   // Load chat history on mount
   useEffect(() => {
@@ -125,13 +129,13 @@ export function AiChat() {
 
   // Обработчик отправки сообщения
   const handleSendMessage = useCallback(() => {
-    if (!message.trim() || isProcessing) return
+    if (!message.trim() || isProcessing || isStreaming) return
 
     // Проверяем, установлен ли API ключ для выбранного агента
     const isClaudeModel = selectedAgentId?.startsWith("claude") || false
     const apiKeyInfo = getApiKeyInfo(isClaudeModel ? "claude" : "openai")
 
-    if (!apiKeyInfo.exists || apiKeyInfo.status !== "valid") {
+    if (!apiKeyInfo || !apiKeyInfo.has_value || apiKeyInfo.is_valid !== true) {
       // Если API ключ не установлен или невалидный, показываем диалог настроек
       openModal("user-settings")
       return
@@ -161,11 +165,17 @@ export function AiChat() {
     // Фокус на поле ввода
     inputRef.current?.focus()
 
-    // Выполняем реальный API запрос
+    // Выполняем реальный API запрос с поддержкой потоковых ответов
     const performApiRequest = async () => {
+      // Создаем контроллер для отмены запроса
+      abortControllerRef.current = new AbortController()
+      
       try {
         const isClaudeModel = selectedAgentId?.startsWith("claude") || false
-        const messages = [
+        const currentModel = selectedAgentId || (isClaudeModel ? CLAUDE_MODELS.CLAUDE_4_SONNET : AI_MODELS.GPT_4)
+        
+        // Подготавливаем все сообщения
+        const allMessages = [
           ...chatMessages.map((msg) => ({
             role: msg.role as "user" | "assistant",
             content: msg.content,
@@ -176,17 +186,15 @@ export function AiChat() {
           },
         ]
 
-        let responseContent: string
-
         // Создаем системный промпт с контекстом Timeline
         const systemPrompt = createTimelineContextPrompt(
           timelineContext?.project || null,
           timelineContext?.project?.sections?.[0] || null, // Активная секция (пока берем первую)
-          timelineContext?.uiState?.selectedClipIds?.map(id => {
+          timelineContext?.uiState?.selectedClipIds?.map((id: string) => {
             // Находим выбранные клипы в проекте
             for (const section of timelineContext.project?.sections || []) {
               for (const track of section.tracks) {
-                const clip = track.clips.find(c => c.id === id)
+                const clip = track.clips.find((c: any) => c.id === id)
                 if (clip) return clip
               }
             }
@@ -194,14 +202,56 @@ export function AiChat() {
           }).filter(Boolean) as any[] || []
         )
 
+        // Управление размером контекста
+        let messages: { role: "user" | "assistant"; content: string }[] = allMessages
+        if (isContextOverLimit(allMessages, currentModel, systemPrompt)) {
+          console.log("Контекст превышает лимиты модели, сжимаем...")
+          const compressedMessages = compressContext(allMessages, currentModel, systemPrompt)
+          // Фильтруем только user и assistant сообщения для API
+          messages = compressedMessages.filter(msg => msg.role === "user" || msg.role === "assistant") as { role: "user" | "assistant"; content: string }[]
+        }
+
+        // Начинаем потоковый ответ
+        setIsStreaming(true)
+        setStreamingContent("")
+
         if (isClaudeModel) {
           const claudeService = ClaudeService.getInstance()
-          responseContent = await claudeService.sendRequest(
-            selectedAgentId || CLAUDE_MODELS.CLAUDE_4_SONNET,
+          await claudeService.sendStreamingRequest(
+            currentModel,
             messages,
             { 
               max_tokens: 2000,
-              system: systemPrompt 
+              system: systemPrompt,
+              signal: abortControllerRef.current.signal,
+              onContent: (content) => {
+                setStreamingContent(prev => prev + content)
+              },
+              onComplete: async (fullContent) => {
+                setIsStreaming(false)
+                setStreamingContent("")
+
+                const agentMessage: ChatMessage = {
+                  id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                  content: fullContent,
+                  role: "assistant",
+                  timestamp: new Date(),
+                  agent: (selectedAgentId as any) || undefined,
+                }
+
+                receiveChatMessage(agentMessage)
+
+                // Сохраняем сообщение в историю
+                if (currentSessionId) {
+                  await chatStorageService.addMessage(currentSessionId, agentMessage)
+                }
+              },
+              onError: (error) => {
+                console.error("Error in streaming:", error)
+                setIsStreaming(false)
+                setStreamingContent("")
+                throw error
+              }
             },
           )
         } else {
@@ -211,44 +261,65 @@ export function AiChat() {
             { role: "system" as const, content: systemPrompt },
             ...messages
           ]
-          responseContent = await openAiService.sendRequest(
-            selectedAgentId || AI_MODELS.GPT_4, 
+          await openAiService.sendStreamingRequest(
+            currentModel, 
             messagesWithSystem, 
             {
               max_tokens: 2000,
+              signal: abortControllerRef.current.signal,
+              onContent: (content) => {
+                setStreamingContent(prev => prev + content)
+              },
+              onComplete: async (fullContent) => {
+                setIsStreaming(false)
+                setStreamingContent("")
+
+                const agentMessage: ChatMessage = {
+                  id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                  content: fullContent,
+                  role: "assistant",
+                  timestamp: new Date(),
+                  agent: (selectedAgentId as any) || undefined,
+                }
+
+                receiveChatMessage(agentMessage)
+
+                // Сохраняем сообщение в историю
+                if (currentSessionId) {
+                  await chatStorageService.addMessage(currentSessionId, agentMessage)
+                }
+              },
+              onError: (error) => {
+                console.error("Error in streaming:", error)
+                setIsStreaming(false)
+                setStreamingContent("")
+                throw error
+              }
             }
           )
         }
-
-        const agentMessage: ChatMessage = {
-          id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          content: responseContent,
-          role: "assistant",
-          timestamp: new Date(),
-          agent: (selectedAgentId as any) || undefined,
-        }
-
-        receiveChatMessage(agentMessage)
-
-        // Сохраняем сообщение в историю
-        if (currentSessionId) {
-          await chatStorageService.addMessage(currentSessionId, agentMessage)
-        }
       } catch (error) {
         console.error("Error sending message to AI:", error)
-        const errorMessage: ChatMessage = {
-          id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          content: t(
-            "timeline.chat.error",
-            "Произошла ошибка при отправке сообщения. Пожалуйста, проверьте настройки API ключа.",
-          ),
-          role: "assistant",
-          timestamp: new Date(),
-          agent: (selectedAgentId as any) || undefined,
+        setIsStreaming(false)
+        setStreamingContent("")
+        
+        // Если это не ошибка отмены запроса, показываем сообщение об ошибке
+        if ((error as Error).name !== "AbortError") {
+          const errorMessage: ChatMessage = {
+            id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            content: t(
+              "timeline.chat.error",
+              "Произошла ошибка при отправке сообщения. Пожалуйста, проверьте настройки API ключа.",
+            ),
+            role: "assistant",
+            timestamp: new Date(),
+            agent: (selectedAgentId as any) || undefined,
+          }
+          receiveChatMessage(errorMessage)
         }
-        receiveChatMessage(errorMessage)
       } finally {
         setProcessing(false)
+        abortControllerRef.current = null
       }
     }
 
@@ -259,6 +330,7 @@ export function AiChat() {
     receiveChatMessage,
     selectedAgentId,
     isProcessing,
+    isStreaming,
     autoResizeTextarea,
     getApiKeyInfo,
     openModal,
@@ -271,7 +343,14 @@ export function AiChat() {
 
   // Обработчик остановки обработки
   const handleStopProcessing = useCallback(() => {
+    // Прерываем текущий запрос, если он активен
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
     setProcessing(false)
+    setIsStreaming(false)
+    setStreamingContent("")
   }, [setProcessing])
 
   // Обработчик нажатия Enter
@@ -354,21 +433,21 @@ export function AiChat() {
                   onKeyDown={handleKeyDown}
                   placeholder="@ to mention, ⌘L to add a selection. Enter instructions..."
                   className="min-h-[100px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
-                  disabled={isProcessing}
+                  disabled={isProcessing || isStreaming}
                   rows={4}
                 />
                 <Button
-                  onClick={handleSendMessage}
-                  disabled={!message.trim() || isProcessing}
+                  onClick={isProcessing || isStreaming ? handleStopProcessing : handleSendMessage}
+                  disabled={!message.trim() && !isProcessing && !isStreaming}
                   size="icon"
                   className={cn(
                     "absolute bottom-3 right-3 h-8 w-8 rounded-md transition-colors",
-                    message.trim()
+                    (isProcessing || isStreaming) || message.trim()
                       ? "bg-teal text-white hover:bg-teal/80"
                       : "bg-muted text-muted-foreground hover:bg-muted/50",
                   )}
                 >
-                  {isProcessing ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4 rotate-45" />}
+                  {(isProcessing || isStreaming) ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4 rotate-45" />}
                 </Button>
               </div>
 
@@ -455,16 +534,23 @@ export function AiChat() {
                       </div>
                     </div>
                   ))}
-                  {isProcessing && (
+                  {(isProcessing || isStreaming) && (
                     <div className="flex max-w-[90%] flex-col rounded-lg bg-muted p-3 text-gray-100">
                       <div className="flex items-start gap-2">
                         <div className="mt-0.5 flex-shrink-0">
                           <Bot className="h-3.5 w-3.5" />
                         </div>
-                        <div className="text-sm">
-                          <span className="inline-block animate-pulse">
-                            {t("timeline.chat.processing", "Обработка...")}
-                          </span>
+                        <div className="text-sm leading-relaxed">
+                          {isStreaming && streamingContent ? (
+                            <div>
+                              {streamingContent}
+                              <span className="inline-block w-2 h-4 bg-teal animate-pulse ml-1"></span>
+                            </div>
+                          ) : (
+                            <span className="inline-block animate-pulse">
+                              {t("timeline.chat.processing", "Обработка...")}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -489,21 +575,21 @@ export function AiChat() {
                   onKeyDown={handleKeyDown}
                   placeholder="@ to mention, ⌘L to add a selection. Enter instructions..."
                   className="min-h-[40px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
-                  disabled={isProcessing}
+                  disabled={isProcessing || isStreaming}
                   rows={1}
                 />
                 <Button
-                  onClick={handleSendMessage}
-                  disabled={!message.trim() || isProcessing}
+                  onClick={isProcessing || isStreaming ? handleStopProcessing : handleSendMessage}
+                  disabled={!message.trim() && !isProcessing && !isStreaming}
                   size="icon"
                   className={cn(
                     "absolute bottom-2 right-2 h-8 w-8 rounded-md transition-colors",
-                    message.trim()
+                    (isProcessing || isStreaming) || message.trim()
                       ? "bg-teal text-white hover:bg-teal/80"
                       : "bg-muted text-muted-foreground hover:bg-muted/50",
                   )}
                 >
-                  {isProcessing ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4 rotate-45" />}
+                  {(isProcessing || isStreaming) ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4 rotate-45" />}
                 </Button>
               </div>
 

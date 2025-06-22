@@ -101,8 +101,8 @@ function calculateProjectStats(project: TimelineProject) {
       track.clips.forEach((clip) => {
         clipCount++
         effectCount += clip.effects?.length || 0
-        if (clip.transitionIn) transitionCount++
-        if (clip.transitionOut) transitionCount++
+        if ((clip as any).transitionIn) transitionCount++
+        if ((clip as any).transitionOut) transitionCount++
       })
     })
   })
@@ -121,7 +121,7 @@ function calculateProjectStats(project: TimelineProject) {
  * Получает описание клипа
  */
 function getClipDescription(clip: TimelineClip): string {
-  const duration = formatDuration((clip.endFrame - clip.startFrame) / 30) // Примерно 30 fps
+  const duration = formatDuration(((clip as any).endFrame - (clip as any).startFrame) / 30) // Примерно 30 fps
   const effects = clip.effects?.length || 0
   
   let description = `"${clip.name}" (${duration})`
@@ -176,9 +176,9 @@ export function createDetailedTimelineContext(
     } : null,
     selectedClips: selectedClips?.map(clip => ({
       name: clip.name,
-      duration: (clip.endFrame - clip.startFrame) / 30,
+      duration: ((clip as any).endFrame - (clip as any).startFrame) / 30,
       effectCount: clip.effects?.length || 0,
-      hasTransitions: !!(clip.transitionIn || clip.transitionOut),
+      hasTransitions: !!((clip as any).transitionIn || (clip as any).transitionOut),
     })) || [],
   }
 }
