@@ -3,7 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { AI_MODELS, OpenAiService } from "../../services/open-ai-service"
 
 // Mock для fetch
-global.fetch = vi.fn()
+const mockFetch = vi.fn()
+global.fetch = mockFetch
 
 describe("OpenAiService", () => {
   let service: OpenAiService
@@ -61,7 +62,7 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const messages = [{ role: "user" as const, content: "Привет, GPT!" }]
 
@@ -95,7 +96,7 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const systemPrompt = `Ты - AI ассистент в видеоредакторе Timeline Studio.
 Помогай пользователям с монтажом видео, эффектами и фильтрами.`
@@ -107,7 +108,7 @@ describe("OpenAiService", () => {
 
       await service.sendRequest(AI_MODELS.GPT_4, messages)
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
 
       expect(body.messages[0].role).toBe("system")
@@ -127,12 +128,12 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const messages = [{ role: "user" as const, content: "Тест" }]
       await service.sendRequest(AI_MODELS.GPT_3_5, messages)
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
 
       expect(body.model).toBe(AI_MODELS.GPT_3_5)
@@ -151,7 +152,7 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const messages = [{ role: "user" as const, content: "Тест" }]
       await service.sendRequest(AI_MODELS.GPT_4, messages, {
@@ -159,7 +160,7 @@ describe("OpenAiService", () => {
         max_tokens: 2000,
       })
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
 
       expect(body.temperature).toBe(0.5)
@@ -179,12 +180,12 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const messages = [{ role: "user" as const, content: "Тест" }]
       await service.sendRequest(AI_MODELS.GPT_4, messages)
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
 
       expect(body.temperature).toBe(0.7)
@@ -194,7 +195,7 @@ describe("OpenAiService", () => {
 
   describe("Обработка ошибок", () => {
     it("должен обрабатывать ошибки сети", async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error("Network error"))
+      mockFetch.mockRejectedValueOnce(new Error("Network error"))
 
       const messages = [{ role: "user" as const, content: "Тест" }]
       await expect(service.sendRequest(AI_MODELS.GPT_4, messages)).rejects.toThrow("Network error")
@@ -207,7 +208,7 @@ describe("OpenAiService", () => {
         statusText: "Unauthorized",
         text: async () => "Invalid API key",
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockErrorResponse as any)
+      mockFetch.mockResolvedValueOnce(mockErrorResponse as any)
 
       const messages = [{ role: "user" as const, content: "Тест" }]
       await expect(service.sendRequest(AI_MODELS.GPT_4, messages)).rejects.toThrow("Ошибка API OpenAI: 401")
@@ -221,7 +222,7 @@ describe("OpenAiService", () => {
           unexpected: "format",
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const messages = [{ role: "user" as const, content: "Тест" }]
       await expect(service.sendRequest(AI_MODELS.GPT_4, messages)).rejects.toThrow()
@@ -242,7 +243,7 @@ describe("OpenAiService", () => {
           choices: [],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const messages = [{ role: "user" as const, content: "Тест" }]
       await expect(service.sendRequest(AI_MODELS.GPT_4, messages)).rejects.toThrow()
@@ -263,7 +264,7 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const messages = [
         {
@@ -275,7 +276,7 @@ describe("OpenAiService", () => {
 
       await service.sendRequest(AI_MODELS.GPT_4, messages)
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
 
       expect(body.messages[0].content).toContain("Timeline Studio")
@@ -294,7 +295,7 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const messages = [
         { role: "user" as const, content: "Первый вопрос" },
@@ -304,7 +305,7 @@ describe("OpenAiService", () => {
 
       await service.sendRequest(AI_MODELS.GPT_4, messages)
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
 
       expect(body.messages).toHaveLength(3)
@@ -333,11 +334,11 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       await service.sendRequest(AI_MODELS.GPT_4, messages, { stream: false })
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
 
       // Пока stream не поддерживается
@@ -360,14 +361,14 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const messages = [{ role: "user" as const, content: "Добавь эффект" }]
 
       // В будущем здесь будут функции
       await service.sendRequest(AI_MODELS.GPT_4, messages)
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
 
       expect(body.functions).toBeUndefined() // Пока не реализовано
@@ -390,18 +391,18 @@ describe("OpenAiService", () => {
       }
 
       // GPT-4
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
       await service.sendRequest(AI_MODELS.GPT_4, [{ role: "user" as const, content: "Тест" }])
 
-      let callArgs = vi.mocked(fetch).mock.calls[0]
+      let callArgs = mockFetch.mock.calls[0]
       let body = JSON.parse(callArgs[1]?.body as string)
       expect(body.model).toBe(AI_MODELS.GPT_4)
 
       // GPT-3.5
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
       await service.sendRequest(AI_MODELS.GPT_3_5, [{ role: "user" as const, content: "Тест" }])
 
-      callArgs = vi.mocked(fetch).mock.calls[1]
+      callArgs = mockFetch.mock.calls[1]
       body = JSON.parse(callArgs[1]?.body as string)
       expect(body.model).toBe(AI_MODELS.GPT_3_5)
     })
@@ -421,7 +422,7 @@ describe("OpenAiService", () => {
           ],
         }),
       }
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
 
       const contextMessage = `Контекст проекта:
 - Название: Мой фильм
@@ -436,12 +437,140 @@ describe("OpenAiService", () => {
 
       await service.sendRequest(AI_MODELS.GPT_4, messages)
 
-      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const callArgs = mockFetch.mock.calls[0]
       const body = JSON.parse(callArgs[1]?.body as string)
 
       expect(body.messages[0].content).toContain("Мой фильм")
       expect(body.messages[0].content).toContain("120 секунд")
       expect(body.messages[0].content).toContain("clip1.mp4")
+    })
+  })
+
+  describe("Anthropic API", () => {
+    it("должен отправлять запрос к Anthropic API для моделей Claude", async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({
+          content: [
+            {
+              text: "Ответ от Claude",
+            },
+          ],
+        }),
+      }
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
+
+      const messages = [{ role: "user" as const, content: "Привет, Claude!" }]
+      const result = await service.sendRequest(AI_MODELS.CLAUDE_4_SONNET, messages)
+
+      expect(result).toBe("Ответ от Claude")
+
+      const callArgs = mockFetch.mock.calls[0]
+      expect(callArgs[0]).toBe("https://api.anthropic.com/v1/messages")
+      
+      const headers = callArgs[1]?.headers
+      expect(headers["x-api-key"]).toBe("sk-test-api-key")
+      expect(headers["anthropic-version"]).toBe("2023-06-01")
+    })
+
+    it("должен обрабатывать ошибки Anthropic API", async () => {
+      const mockErrorResponse = {
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+        text: async () => "Invalid API key",
+      }
+      mockFetch.mockResolvedValueOnce(mockErrorResponse as any)
+
+      const messages = [{ role: "user" as const, content: "Тест" }]
+      await expect(service.sendRequest(AI_MODELS.CLAUDE_4_OPUS, messages)).rejects.toThrow("Ошибка API Anthropic: 401")
+    })
+
+    it("должен использовать правильные параметры для Anthropic API", async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({
+          content: [
+            {
+              text: "Ответ",
+            },
+          ],
+        }),
+      }
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
+
+      const messages = [{ role: "user" as const, content: "Тест" }]
+      await service.sendRequest(AI_MODELS.CLAUDE_4_SONNET, messages, {
+        temperature: 0.5,
+        max_tokens: 1500,
+      })
+
+      const callArgs = mockFetch.mock.calls[0]
+      const body = JSON.parse(callArgs[1]?.body as string)
+
+      expect(body.temperature).toBe(0.5)
+      expect(body.max_tokens).toBe(1500)
+      expect(body.model).toBe(AI_MODELS.CLAUDE_4_SONNET)
+    })
+
+    it("должен обрабатывать ошибки сети для Anthropic API", async () => {
+      mockFetch.mockRejectedValueOnce(new Error("Network error"))
+
+      const messages = [{ role: "user" as const, content: "Тест" }]
+      await expect(service.sendRequest(AI_MODELS.CLAUDE_4_SONNET, messages)).rejects.toThrow("Network error")
+    })
+
+    it("должен использовать значения по умолчанию для Anthropic API", async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({
+          content: [
+            {
+              text: "Ответ",
+            },
+          ],
+        }),
+      }
+      mockFetch.mockResolvedValueOnce(mockResponse as any)
+
+      const messages = [{ role: "user" as const, content: "Тест" }]
+      await service.sendRequest(AI_MODELS.CLAUDE_4_SONNET, messages)
+
+      const callArgs = mockFetch.mock.calls[0]
+      const body = JSON.parse(callArgs[1]?.body as string)
+
+      expect(body.temperature).toBe(0.7)
+      expect(body.max_tokens).toBe(1000)
+    })
+
+    it("должен правильно определять провайдера по модели", async () => {
+      // Mock для Claude
+      const claudeResponse = {
+        ok: true,
+        json: async () => ({
+          content: [{ text: "Claude response" }],
+        }),
+      }
+      
+      // Mock для GPT
+      const gptResponse = {
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: "GPT response" } }],
+        }),
+      }
+
+      // Тест Claude модели
+      mockFetch.mockResolvedValueOnce(claudeResponse as any)
+      const claudeResult = await service.sendRequest(AI_MODELS.CLAUDE_4_OPUS, [{ role: "user" as const, content: "Test" }])
+      expect(claudeResult).toBe("Claude response")
+      expect(mockFetch.mock.calls[0][0]).toContain("anthropic.com")
+
+      // Тест GPT модели
+      mockFetch.mockResolvedValueOnce(gptResponse as any)
+      const gptResult = await service.sendRequest(AI_MODELS.GPT_4, [{ role: "user" as const, content: "Test" }])
+      expect(gptResult).toBe("GPT response")
+      expect(mockFetch.mock.calls[1][0]).toContain("openai.com")
     })
   })
 })
