@@ -147,19 +147,6 @@ bun run test && bun run test:rust
 bun run check:all
 ```
 
-### Essential Commands
-
-| Command | Description |
-|---------|-------------|
-| `bun run tauri dev`   | Launch full application in development |
-| `bun run dev`         | Launch frontend only                   |
-| `bun run build`       | Build for production                   |
-| `bun run test`        | Run frontend tests                     |
-| `bun run test:rust`   | Run backend tests                      |
-| `bun run test:e2e`    | Run end-to-end tests                   |
-| `bun run lint`        | Check code quality                     |
-| `bun run fix:all`     | Auto-fix code issues                   |
-
 📚 **[Complete Development Guide →](docs-ru/05-development/README.md)**
 
 ## CI/CD & Code Quality
@@ -179,22 +166,6 @@ bun run check:all
 - 🚀 [**Website**](https://chatman-media.github.io/timeline-studio/) - Project showcase
 - 📖 [**Complete Documentation**](docs-ru/README.md) - Full guide in Russian
 
-## Additional Resources
-
-- [Tauri Documentation](https://v2.tauri.app/start/)
-- [XState Documentation](https://xstate.js.org/docs/)
-- [Vitest Documentation](https://vitest.dev/guide/)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Shadcn UI Documentation](https://ui.shadcn.com/)
-- [Stylelint Documentation](https://stylelint.io/)
-- [ESLint Documentation](https://eslint.org/docs/latest/)
-- [Playwright Documentation](https://playwright.dev/docs/intro)
-- [TypeDoc Documentation](https://typedoc.org/)
-- [ffmpeg Documentation](https://ffmpeg.org/documentation.html)
-
-## GitAds Sponsored
-[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=chatman-media/timeline-studio@github)](https://gitads.dev/v1/ad-track?source=chatman-media/timeline-studio@github)
-
 ## Star History
 <a href="https://www.star-history.com/#chatman-media/timeline-studio&Date">
  <picture>
@@ -203,6 +174,9 @@ bun run check:all
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=chatman-media/timeline-studio&type=Date" />
  </picture>
 </a>
+
+## GitAds Sponsored
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=chatman-media/timeline-studio@github)](https://gitads.dev/v1/ad-track?source=chatman-media/timeline-studio@github)
 
 ## License
 
