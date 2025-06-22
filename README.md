@@ -41,24 +41,29 @@ Timeline Studio is a modern video editor built on Tauri architecture (Rust + Rea
 
 ### Project Status (June 2025)
 
-**Overall Completion: 57.5%** ⬆️ (recalculated with AI Chat at 90% and 14 new planned modules)
-- **Completed**: 12 modules (100% readiness)
-- **In development**: 8 modules (45-85% readiness)
+**Overall Completion: 58%** ⬆️ (recalculated with API Keys Management at 100% and 14 new planned modules)
+- **Completed**: 13 modules (100% readiness)
+- **In development**: 7 modules (45-90% readiness)
 - **Planned**: 4 modules (30-80% readiness)
 - **New planned**: 14 modules (0% readiness) - [details in planned/](docs-ru/08-roadmap/planned/)
 
 ### Key Achievements:
-- ✅ **Video Compiler** - fully implemented with GPU acceleration (100%)
-- ✅ **Timeline** - main editor fully functional (100%)
-- ✅ **Media Management** - file management ready (100%)
-- ✅ **Core Architecture** - app-state, browser, modals, user/project settings (100%)
+- ✅ **Core Architecture** - Timeline, Video Compiler, Media Management (100%)
+- ✅ **API Keys Management** - secure storage with AES-256-GCM encryption (100%)
 - ✅ **Recognition** - YOLO v11 object and face recognition (100%)
-- ✅ **Effects/Filters/Transitions** - rich effects library in Filmora style (75-80%)
-- ✅ **Export** - fully ready with 4 tabs support (100%)
-- ✅ **Resources Panel** - main UI ready, drag & drop missing (80%)
-- ✅ **AI Chat** - Timeline AI integration with 41 Claude tools ready (90%)
-- 📋 **14 new planned modules** - [see planned/](docs-ru/08-roadmap/planned/) to achieve DaVinci + Filmora level
-- 🎯 **Goal** - combine DaVinci power and Filmora library with AI automation
+- ✅ **Export** - OAuth integration for YouTube/TikTok/Vimeo (100%)
+- 🚧 **Effects/Filters/Transitions** - rich library in progress (75-80%)
+- 🚧 **Timeline AI** - automation with 41 Claude tools (90%)
+
+### Current Tasks:
+- 🔄 **OAuth callback handling** - completing social network integration
+- ⏳ **HTTP API validation** - real-time connection testing
+- ⏳ **Import from .env** - migration of existing keys
+
+### Next Steps:
+1. **Social Networks Integration** - full OAuth flow implementation
+2. **Advanced Effects** - completing Filmora-style library
+3. **Timeline AI** - intelligent video creation automation
 
 ## Key Features
 
