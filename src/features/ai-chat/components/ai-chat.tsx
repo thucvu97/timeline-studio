@@ -38,7 +38,7 @@ const AVAILABLE_AGENTS = [
 ]
 
 // Chat modes
-type ChatMode = "chat" | "gather" | "agent"
+type ChatMode = "chat" | "agent"
 
 const CHAT_MODES: Array<{
   id: ChatMode
@@ -50,12 +50,6 @@ const CHAT_MODES: Array<{
     id: "chat",
     name: "Chat",
     description: "Normal chat",
-    canEdit: false,
-  },
-  {
-    id: "gather",
-    name: "Gather",
-    description: "Reads files, but can't edit",
     canEdit: false,
   },
   {
@@ -83,6 +77,7 @@ export function AiChat() {
     switchSession,
     deleteSession,
     updateSessions,
+    clearMessages,
   } = useChat()
   const { openAiApiKey } = useUserSettings()
   const { openModal } = useModal()
@@ -216,7 +211,11 @@ export function AiChat() {
               size="icon"
               variant="ghost"
               className="h-8 w-8 text-muted-foreground hover:text-white"
-              onClick={() => setShowHistory(!showHistory)}
+              onClick={() => {
+                // Return to initial screen by clearing messages
+                clearMessages()
+                setShowHistory(!showHistory)
+              }}
             >
               <History className="h-4 w-4" />
             </Button>
