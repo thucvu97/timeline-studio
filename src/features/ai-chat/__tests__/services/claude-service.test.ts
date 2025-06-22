@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { CLAUDE_MODELS, ClaudeService } from "../../components/claude-service"
+import { CLAUDE_MODELS, ClaudeService } from "../../services/claude-service"
 
 // Mock для fetch
 global.fetch = vi.fn()
@@ -324,6 +324,239 @@ describe("ClaudeService", () => {
       expect(response).toContain("intensity")
 
       // В будущем можно добавить обработку tool_use для выполнения действий
+    })
+  })
+
+  describe("sendRequestWithTools", () => {
+    it("должен отправлять запрос с инструментами", async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({
+          content: [{ text: "Выполняю задачу" }],
+          tool_use: {
+            id: "tool-1",
+            name: "edit_video",
+            input: { action: "trim", start: 0, end: 10 },
+          },
+        }),
+      }
+      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+
+      const tools = [
+        {
+          name: "edit_video",
+          description: "Редактирует видео клип",
+          input_schema: {
+            type: "object",
+            properties: {
+              action: { type: "string" },
+              start: { type: "number" },
+              end: { type: "number" },
+            },
+            required: ["action"],
+          },
+        },
+      ]
+
+      const messages = [{ role: "user" as const, content: "Обрежь видео с 0 до 10 секунд" }]
+      
+      const result = await service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)
+
+      expect(fetch).toHaveBeenCalledWith(
+        "https://api.anthropic.com/v1/messages",
+        expect.objectContaining({
+          method: "POST",
+          headers: expect.objectContaining({
+            "Content-Type": "application/json",
+            "x-api-key": "test-api-key",
+            "anthropic-version": "2023-06-01",
+          }),
+          body: expect.stringContaining("edit_video"),
+        }),
+      )
+
+      expect(result).toEqual({
+        text: "Выполняю задачу",
+        tool_use: {
+          name: "edit_video",
+          input: { action: "trim", start: 0, end: 10 },
+        },
+      })
+    })
+
+    it("должен возвращать только текст, если инструмент не использовался", async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({
+          content: [{ text: "Простой текстовый ответ" }],
+        }),
+      }
+      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+
+      const tools = [
+        {
+          name: "test_tool",
+          description: "Тестовый инструмент",
+          input_schema: {
+            type: "object",
+            properties: {},
+          },
+        },
+      ]
+
+      const messages = [{ role: "user" as const, content: "Расскажи о Timeline Studio" }]
+      
+      const result = await service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)
+
+      expect(result).toEqual({
+        text: "Простой текстовый ответ",
+      })
+    })
+
+    it("должен включать системное сообщение в запрос с инструментами", async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({
+          content: [{ text: "Ответ с контекстом" }],
+        }),
+      }
+      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+
+      const tools = [
+        {
+          name: "context_tool",
+          description: "Инструмент с контекстом",
+          input_schema: { type: "object", properties: {} },
+        },
+      ]
+
+      const messages = [{ role: "user" as const, content: "Тест с контекстом" }]
+      const systemPrompt = "Ты помощник в видеоредакторе"
+
+      await service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools, {
+        system: systemPrompt,
+      })
+
+      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const body = JSON.parse(callArgs[1]?.body as string)
+
+      expect(body.system).toBe(systemPrompt)
+      expect(body.tools).toEqual(tools)
+      expect(body.tool_choice).toBe("auto")
+    })
+
+    it("должен устанавливать пользовательские параметры в запросе с инструментами", async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({
+          content: [{ text: "Ответ с параметрами" }],
+        }),
+      }
+      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+
+      const tools = [
+        {
+          name: "param_tool",
+          description: "Инструмент с параметрами",
+          input_schema: { type: "object", properties: {} },
+        },
+      ]
+
+      const messages = [{ role: "user" as const, content: "Тест параметров" }]
+
+      await service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools, {
+        temperature: 0.3,
+        max_tokens: 1500,
+        tool_choice: "any",
+      })
+
+      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const body = JSON.parse(callArgs[1]?.body as string)
+
+      expect(body.temperature).toBe(0.3)
+      expect(body.max_tokens).toBe(1500)
+      expect(body.tool_choice).toBe("any")
+    })
+
+    it("должен обрабатывать ошибки API в запросах с инструментами", async () => {
+      const mockErrorResponse = {
+        ok: false,
+        status: 429,
+        text: async () => "Rate limit exceeded",
+      }
+      vi.mocked(fetch).mockResolvedValueOnce(mockErrorResponse as any)
+
+      const tools = [
+        {
+          name: "error_tool",
+          description: "Инструмент для тестирования ошибок",
+          input_schema: { type: "object", properties: {} },
+        },
+      ]
+
+      const messages = [{ role: "user" as const, content: "Тест ошибки" }]
+
+      await expect(
+        service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)
+      ).rejects.toThrow("Ошибка Claude API: 429")
+    })
+
+    it("должен выбрасывать ошибку при отсутствии API ключа в запросах с инструментами", async () => {
+      const newService = ClaudeService.getInstance()
+      newService.setApiKey("")
+
+      const tools = [
+        {
+          name: "no_key_tool",
+          description: "Инструмент без ключа",
+          input_schema: { type: "object", properties: {} },
+        },
+      ]
+
+      const messages = [{ role: "user" as const, content: "Тест без ключа" }]
+
+      await expect(
+        newService.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools)
+      ).rejects.toThrow("API ключ не установлен")
+    })
+
+    it("должен поддерживать конкретный выбор инструмента", async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({
+          content: [{ text: "Использую конкретный инструмент" }],
+          tool_use: {
+            id: "specific-tool-1",
+            name: "specific_action",
+            input: { param: "value" },
+          },
+        }),
+      }
+      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as any)
+
+      const tools = [
+        {
+          name: "specific_action",
+          description: "Конкретное действие",
+          input_schema: {
+            type: "object",
+            properties: {
+              param: { type: "string" },
+            },
+          },
+        },
+      ]
+
+      const messages = [{ role: "user" as const, content: "Выполни конкретное действие" }]
+
+      await service.sendRequestWithTools(CLAUDE_MODELS.CLAUDE_4_SONNET, messages, tools, {
+        tool_choice: { name: "specific_action" },
+      })
+
+      const callArgs = vi.mocked(fetch).mock.calls[0]
+      const body = JSON.parse(callArgs[1]?.body as string)
+
+      expect(body.tool_choice).toEqual({ name: "specific_action" })
     })
   })
 })

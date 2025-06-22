@@ -5,10 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { renderWithChat } from "@/test/test-utils"
 
-import { ClaudeService } from "../../components/claude-service"
-import { OpenAiService } from "../../components/open-ai-service"
 import { useChat } from "../../hooks/use-chat"
 import { ChatContext, ChatProvider } from "../../services/chat-provider"
+import { ClaudeService } from "../../services/claude-service"
+import { OpenAiService } from "../../services/open-ai-service"
+
+import type { ChatListItem } from "../../types/chat"
 
 // Mock user settings
 vi.mock("@/features/user-settings", () => ({
@@ -49,7 +51,7 @@ vi.mock("@/i18n/services/i18n-provider", () => ({
 }))
 
 // Mock AI сервисы
-vi.mock("../../components/claude-service", () => ({
+vi.mock("../../services/claude-service", () => ({
   ClaudeService: {
     getInstance: vi.fn().mockReturnValue({
       setApiKey: vi.fn(),
@@ -58,7 +60,7 @@ vi.mock("../../components/claude-service", () => ({
   },
 }))
 
-vi.mock("../../components/open-ai-service", () => ({
+vi.mock("../../services/open-ai-service", () => ({
   OpenAiService: {
     getInstance: vi.fn().mockReturnValue({
       setApiKey: vi.fn(),
@@ -445,6 +447,109 @@ describe("ChatProvider", () => {
       })
 
       vi.useRealTimers()
+    })
+  })
+
+  describe("Управление сессиями", () => {
+    it("должен создавать новый чат", async () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: ChatProvider,
+      })
+
+      expect(result.current.isCreatingNewChat).toBe(false)
+
+      act(() => {
+        result.current.createNewChat()
+      })
+
+      expect(result.current.isCreatingNewChat).toBe(true)
+
+      // Ждем пока создастся чат (1.5 секунды)
+      await waitFor(() => {
+        expect(result.current.isCreatingNewChat).toBe(false)
+      }, { timeout: 2000 })
+
+      expect(result.current.sessions.length).toBeGreaterThan(0)
+      expect(result.current.currentSessionId).toBeTruthy()
+    })
+
+    it("должен переключать сессии", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: ChatProvider,
+      })
+
+      const sessionId = "test-session-123"
+
+      act(() => {
+        result.current.switchSession(sessionId)
+      })
+
+      expect(result.current.currentSessionId).toBe(sessionId)
+      expect(result.current.chatMessages).toHaveLength(0)
+    })
+
+    it("должен удалять сессию", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: ChatProvider,
+      })
+
+      // Добавляем тестовые сессии
+      const testSessions: ChatListItem[] = [
+        {
+          id: "session-1",
+          title: "Тест 1",
+          lastMessageAt: new Date(),
+          messageCount: 5,
+        },
+        {
+          id: "session-2",
+          title: "Тест 2",
+          lastMessageAt: new Date(),
+          messageCount: 3,
+        },
+      ]
+
+      act(() => {
+        result.current.updateSessions(testSessions)
+        result.current.switchSession("session-1")
+      })
+
+      expect(result.current.sessions).toHaveLength(2)
+      expect(result.current.currentSessionId).toBe("session-1")
+
+      act(() => {
+        result.current.deleteSession("session-1")
+      })
+
+      expect(result.current.sessions).toHaveLength(1)
+      expect(result.current.currentSessionId).toBeNull()
+    })
+
+    it("должен обновлять список сессий", () => {
+      const { result } = renderHook(() => useChat(), {
+        wrapper: ChatProvider,
+      })
+
+      const newSessions: ChatListItem[] = [
+        {
+          id: "new-1",
+          title: "Новый чат 1",
+          lastMessageAt: new Date(),
+          messageCount: 10,
+        },
+        {
+          id: "new-2",
+          title: "Новый чат 2",
+          lastMessageAt: new Date(),
+          messageCount: 20,
+        },
+      ]
+
+      act(() => {
+        result.current.updateSessions(newSessions)
+      })
+
+      expect(result.current.sessions).toEqual(newSessions)
     })
   })
 })

@@ -18,16 +18,11 @@ import { cn } from "@/lib/utils"
 
 import { useChat } from ".."
 import { ChatList } from "./chat-list"
-import { CLAUDE_MODELS } from "./claude-service"
-import { AI_MODELS } from "./open-ai-service"
 import { chatStorageService } from "../services/chat-storage-service"
+import { CLAUDE_MODELS } from "../services/claude-service"
+import { AI_MODELS } from "../services/open-ai-service"
+import { AiMessage } from "../types/ai-message"
 import { ChatListItem, ChatMessage } from "../types/chat"
-
-// Типы сообщений
-export interface AiMessage {
-  role: "user" | "assistant" | "system"
-  content: string
-}
 
 const AVAILABLE_AGENTS = [
   {

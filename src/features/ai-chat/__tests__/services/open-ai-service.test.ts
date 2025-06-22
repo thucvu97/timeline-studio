@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { AI_MODELS, OpenAiService } from "../../components/open-ai-service"
+import { AI_MODELS, OpenAiService } from "../../services/open-ai-service"
 
 // Mock для fetch
 global.fetch = vi.fn()

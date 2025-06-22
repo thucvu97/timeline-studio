@@ -85,9 +85,19 @@
     - project.rs: validate_project_schema, analyze_project, merge_projects, split_project, add_subtitles_to_project и др.
     - settings.rs: get_compiler_settings, update_compiler_settings, set_ffmpeg_path, apply_quality_preset и др.
     - state.rs: основные типы состояния (VideoCompilerState, RenderJob, ActiveRenderJob)
-- [ ] Создание правильной структуры тестов
+- [x] Исправление всех ошибок компиляции в ffmpeg_builder и командах
+  - Исправлены все проблемы с типами и API
+  - Обновлены все импорты и использования схемы
+  - Исправлены проблемы с ffmpeg_path через Arc<RwLock>
+  - Проект успешно компилируется без ошибок
+- [x] Создание правильной структуры тестов
+  - Создан модуль tests/ с общими утилитами
+  - Добавлены фикстуры для создания тестовых объектов
+  - Добавлены моки для внешних зависимостей
+  - Созданы тесты для ffmpeg_builder, schema и commands
+  - Организована структура тестов по модулям
 - [ ] Извлечение сервисного слоя для команд
-- [ ] Исправление оставшихся ошибок компиляции в ffmpeg_builder
+- [ ] Удаление старых файлов после завершения рефакторинга
 
 ## Обнаруженные проблемы
 

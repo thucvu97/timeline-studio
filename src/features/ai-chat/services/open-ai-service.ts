@@ -1,4 +1,4 @@
-import { AiMessage } from "./ai-chat"
+import { AiMessage } from "../types/ai-message"
 
 // Интерфейс для запроса к API
 interface OpenAiApiRequest {

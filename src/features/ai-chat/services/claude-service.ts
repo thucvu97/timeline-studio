@@ -1,7 +1,7 @@
 /**
  * Специализированный сервис для работы с Claude API
  */
-import { AiMessage } from "./ai-chat"
+import { AiMessage } from "../types/ai-message"
 
 // Доступные модели Claude
 export const CLAUDE_MODELS = {
