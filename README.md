@@ -26,37 +26,25 @@
 
 ## 🎬 Project Overview
 
-### Timeline Studio - Next-Gen AI-Powered Video Editor
+**Timeline Studio** - профессиональный видеоредактор с AI-ассистентом, доступный каждому.
 
-<div align="center">
-<h3>🚀 Professional Power • 🎨 Creative Freedom • 🤖 AI Automation</h3>
-</div>
+### 🎯 Что это такое?
 
-#### 💡 **The Vision**
-Imagine **DaVinci Resolve's** professional capabilities merged with **Filmora's** rich creative library, powered by **AI automation** that creates content for you.
+Представьте видеоредактор, где вы получаете:
+- **Мощь профессиональных инструментов** - полный контроль над монтажом, цветом и звуком
+- **Богатую библиотеку эффектов** - сотни переходов, фильтров и шаблонов как в популярных редакторах
+- **AI-помощника** - который понимает ваши команды и помогает создавать контент быстрее
 
-#### ⚡ **The Revolution**
-> *"Just upload your footage and music. AI handles the rest - creating multiple versions in different languages, optimized for every platform."*
+### 💡 Ключевая особенность
 
-#### 🎯 **Three Pillars of Excellence**
+> *С AI-ассистентом вы можете просто описать, что хотите получить, а Timeline Studio поможет это реализовать - от простого монтажа до сложных проектов с адаптацией под разные платформы.*
 
-**1. Professional Studio** 🎬
-- Color grading like DaVinci Resolve
-- Multi-track timeline editing
-- Advanced compositing & motion graphics
-- Professional audio mixing suite
+### ⚡ Почему Timeline Studio?
 
-**2. Creative Arsenal** 🎨
-- 1000+ effects, filters & transitions
-- Multi-camera layout templates
-- Animated titles & intros
-- Style presets & LUTs
-
-**3. AI Automation** 🤖
-- Auto-generate videos for YouTube, TikTok, Instagram
-- Multi-language content creation
-- Smart scene detection & editing
-- One-click platform optimization
+- **Все в одном месте** - не нужно переключаться между разными программами
+- **Работает локально** - ваши данные остаются у вас, не нужен интернет для работы
+- **Открытый код** - можете изучать, модифицировать и быть уверенными в безопасности
+- **Кроссплатформенность** - одинаково хорошо работает на Windows, macOS и Linux
 
 ![Timeline Interface #1](/public/screen2.png)
 
