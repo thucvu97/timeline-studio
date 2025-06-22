@@ -27,14 +27,14 @@ interface ApiKeyInputProps {
  * Переиспользуемый компонент для ввода API ключей
  * Поддерживает скрытие/показ, валидацию и тестирование
  */
-export function ApiKeyInput({ 
-  value, 
-  onChange, 
-  placeholder, 
-  service, 
+export function ApiKeyInput({
+  value,
+  onChange,
+  placeholder,
+  service,
   label,
   testable = false,
-  links = []
+  links = [],
 }: ApiKeyInputProps) {
   const { t } = useTranslation()
   const { getApiKeyStatus, testApiKey } = useApiKeys()
@@ -45,7 +45,7 @@ export function ApiKeyInput({
 
   const handleTest = async () => {
     if (!value || isTesting) return
-    
+
     setIsTesting(true)
     try {
       await testApiKey(service)
@@ -79,7 +79,7 @@ export function ApiKeyInput({
             placeholder={placeholder}
             className="h-9 pr-16 font-mono text-sm"
           />
-          
+
           {/* Кнопки в поле ввода */}
           <div className="absolute top-1/2 right-2 -translate-y-1/2 flex items-center gap-1">
             {/* Показать/скрыть ключ */}
@@ -88,12 +88,16 @@ export function ApiKeyInput({
                 type="button"
                 onClick={() => setShowKey(!showKey)}
                 className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                title={showKey ? t("dialogs.userSettings.hideKey", "Скрыть ключ") : t("dialogs.userSettings.showKey", "Показать ключ")}
+                title={
+                  showKey
+                    ? t("dialogs.userSettings.hideKey", "Скрыть ключ")
+                    : t("dialogs.userSettings.showKey", "Показать ключ")
+                }
               >
                 {showKey ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
               </button>
             )}
-            
+
             {/* Очистить ключ */}
             {value && (
               <button
@@ -114,10 +118,10 @@ export function ApiKeyInput({
             variant="outline"
             size="sm"
             onClick={handleTest}
-            disabled={!value || isTesting || status === 'testing'}
+            disabled={!value || isTesting || status === "testing"}
             className="h-9 px-3"
           >
-            {(isTesting || status === 'testing') ? (
+            {isTesting || status === "testing" ? (
               <Loader2 className="h-3 w-3 animate-spin" />
             ) : (
               t("dialogs.userSettings.test", "Тест")
@@ -135,7 +139,7 @@ export function ApiKeyInput({
               variant="ghost"
               size="sm"
               className="h-7 px-2 text-xs"
-              onClick={() => window.open(link.url, '_blank')}
+              onClick={() => window.open(link.url, "_blank")}
             >
               <ExternalLink className="h-3 w-3 mr-1" />
               {link.text}
@@ -145,12 +149,12 @@ export function ApiKeyInput({
       )}
 
       {/* Статусное сообщение */}
-      {status === 'invalid' && (
+      {status === "invalid" && (
         <p className="text-xs text-red-600 dark:text-red-400">
           {t("dialogs.userSettings.invalidKey", "Неверный API ключ или проблемы с подключением")}
         </p>
       )}
-      {status === 'valid' && (
+      {status === "valid" && (
         <p className="text-xs text-green-600 dark:text-green-400">
           {t("dialogs.userSettings.validKey", "API ключ работает корректно")}
         </p>

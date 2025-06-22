@@ -20,12 +20,8 @@ import { useUserSettings } from "../../hooks/use-user-settings"
  * Содержит основные настройки: язык, пути, производительность
  */
 export function GeneralSettingsTab() {
-  const {
-    screenshotsPath,
-    playerScreenshotsPath,
-    handlePlayerScreenshotsPathChange,
-    handleScreenshotsPathChange,
-  } = useUserSettings()
+  const { screenshotsPath, playerScreenshotsPath, handlePlayerScreenshotsPathChange, handleScreenshotsPathChange } =
+    useUserSettings()
 
   const { openModal } = useModal()
   const { t } = useTranslation()
@@ -108,10 +104,7 @@ export function GeneralSettingsTab() {
                   }
                 } catch (error) {
                   console.error("Ошибка при выборе директории:", error)
-                  const promptResult = window.prompt(
-                    t("dialogs.userSettings.selectFolderPrompt"),
-                    "public/screenshots"
-                  )
+                  const promptResult = window.prompt(t("dialogs.userSettings.selectFolderPrompt"), "public/screenshots")
                   if (promptResult) {
                     handleScreenshotsPathChange(promptResult.trim())
                   }
@@ -168,10 +161,7 @@ export function GeneralSettingsTab() {
                   }
                 } catch (error) {
                   console.error("Ошибка при выборе директории:", error)
-                  const promptResult = window.prompt(
-                    t("dialogs.userSettings.selectFolderPrompt"),
-                    "public/media"
-                  )
+                  const promptResult = window.prompt(t("dialogs.userSettings.selectFolderPrompt"), "public/media")
                   if (promptResult) {
                     handlePlayerScreenshotsPathChange(promptResult.trim())
                   }

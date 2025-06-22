@@ -391,3 +391,465 @@ impl<'a> OutputBuilder<'a> {
     base_bitrate.clamp(1000, 50000)
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::video_compiler::schema::export::OutputFormat;
+  use crate::video_compiler::tests::fixtures::*;
+  use std::path::PathBuf;
+  use tokio::process::Command;
+
+  #[test]
+  fn test_output_builder_new() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+
+    assert_eq!(builder.project.metadata.name, "Test Project");
+    assert_eq!(builder.settings.ffmpeg_path, "ffmpeg");
+  }
+
+  #[tokio::test]
+  async fn test_add_output_settings_basic() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+    let output_path = PathBuf::from("/tmp/output.mp4");
+
+    let result = builder.add_output_settings(&mut cmd, &output_path).await;
+    assert!(
+      result.is_ok(),
+      "Basic output settings should be added successfully"
+    );
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Проверяем основные элементы
+    assert!(args.contains(&"-f".to_string()));
+    assert!(args.contains(&"mp4".to_string()));
+    assert!(args.contains(&"-c:v".to_string()));
+    assert!(args.contains(&"/tmp/output.mp4".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_add_output_settings_with_hardware_acceleration() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings {
+      use_hardware_acceleration: true,
+      hardware_acceleration_type: Some("nvenc".to_string()),
+      ..Default::default()
+    };
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+    let output_path = PathBuf::from("/tmp/output.mp4");
+
+    let result = builder.add_output_settings(&mut cmd, &output_path).await;
+    assert!(
+      result.is_ok(),
+      "Hardware acceleration settings should be added"
+    );
+  }
+
+  #[tokio::test]
+  async fn test_add_prerender_settings() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+    let output_path = PathBuf::from("/tmp/prerender.mov");
+
+    let result = builder.add_prerender_settings(&mut cmd, &output_path).await;
+    assert!(
+      result.is_ok(),
+      "Prerender settings should be added successfully"
+    );
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Проверяем ProRes кодек
+    assert!(args.contains(&"-c:v".to_string()));
+    assert!(args.contains(&"prores_ks".to_string()));
+    assert!(args.contains(&"-profile:v".to_string()));
+    assert!(args.contains(&"3".to_string()));
+
+    // Проверяем аудио кодек
+    assert!(args.contains(&"-c:a".to_string()));
+    assert!(args.contains(&"pcm_s16le".to_string()));
+  }
+
+  #[test]
+  fn test_add_cpu_encoding_mp4() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_cpu_encoding(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    assert!(args.contains(&"-c:v".to_string()));
+    assert!(args.contains(&"libx264".to_string()));
+    assert!(args.contains(&"-preset".to_string()));
+    assert!(args.contains(&"-tune".to_string()));
+    assert!(args.contains(&"film".to_string()));
+  }
+
+  #[test]
+  fn test_add_cpu_encoding_webm() {
+    let mut project = create_minimal_project();
+    project.settings.output.format = OutputFormat::WebM;
+
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_cpu_encoding(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    assert!(args.contains(&"-c:v".to_string()));
+    assert!(args.contains(&"libvpx-vp9".to_string()));
+    assert!(args.contains(&"-cpu-used".to_string()));
+    assert!(args.contains(&"2".to_string()));
+  }
+
+  #[test]
+  fn test_add_format_settings_mp4() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_format_settings(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    assert!(args.contains(&"-f".to_string()));
+    assert!(args.contains(&"mp4".to_string()));
+    assert!(args.contains(&"-movflags".to_string()));
+    assert!(args.contains(&"+faststart".to_string()));
+
+    // Проверяем разрешение
+    assert!(args.contains(&"-s".to_string()));
+    assert!(args.contains(&"1920x1080".to_string()));
+
+    // Проверяем частоту кадров
+    assert!(args.contains(&"-r".to_string()));
+    assert!(args.contains(&"30".to_string()));
+  }
+
+  #[test]
+  fn test_add_bitrate_settings_with_crf() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_bitrate_settings(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Должен использовать CRF для качества
+    assert!(args.contains(&"-crf".to_string()));
+  }
+
+  #[test]
+  fn test_add_bitrate_settings_with_custom_bitrate() {
+    let mut project = create_minimal_project();
+    project.settings.output.video_bitrate = Some(5000);
+
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_bitrate_settings(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Должен использовать заданный битрейт
+    assert!(args.contains(&"-b:v".to_string()));
+    assert!(args.contains(&"5000k".to_string()));
+    assert!(args.contains(&"-bufsize".to_string()));
+    assert!(args.contains(&"-maxrate".to_string()));
+  }
+
+  #[test]
+  fn test_add_audio_settings_mp4() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_audio_settings(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    assert!(args.contains(&"-c:a".to_string()));
+    assert!(args.contains(&"aac".to_string()));
+    assert!(args.contains(&"-profile:a".to_string()));
+    assert!(args.contains(&"aac_low".to_string()));
+    assert!(args.contains(&"-b:a".to_string()));
+    assert!(args.contains(&"192k".to_string()));
+    assert!(args.contains(&"-ar".to_string()));
+    assert!(args.contains(&"48000".to_string()));
+  }
+
+  #[test]
+  fn test_add_audio_settings_gif() {
+    let mut project = create_minimal_project();
+    project.settings.output.format = OutputFormat::Gif;
+
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_audio_settings(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // GIF не должен иметь аудио
+    assert!(args.contains(&"-an".to_string()));
+  }
+
+  #[test]
+  fn test_add_advanced_encoding_settings() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_advanced_encoding_settings(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Базовые настройки
+    assert!(args.contains(&"-pix_fmt".to_string()));
+    assert!(args.contains(&"yuv420p".to_string()));
+    assert!(args.contains(&"-threads".to_string()));
+    assert!(args.contains(&"0".to_string()));
+
+    // H.264 настройки для MP4
+    assert!(args.contains(&"-profile:v".to_string()));
+    assert!(args.contains(&"high".to_string()));
+    assert!(args.contains(&"-level".to_string()));
+    assert!(args.contains(&"4.2".to_string()));
+  }
+
+  #[test]
+  fn test_add_metadata() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_metadata(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    assert!(args.contains(&"-metadata".to_string()));
+
+    // Проверяем что метаданные содержат название проекта
+    let title_meta = args.iter().any(|arg| arg.starts_with("title="));
+    assert!(title_meta);
+
+    // Проверяем кодировщик
+    let encoder_meta = args.iter().any(|arg| arg.contains("Timeline Studio"));
+    assert!(encoder_meta);
+  }
+
+  #[test]
+  fn test_get_preset() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+
+    // Тестируем качество по умолчанию (85)
+    assert_eq!(builder.get_preset(), "slow"); // quality = 85 -> slow
+
+    // Создаем проект с высоким качеством
+    let mut high_quality_project = create_minimal_project();
+    high_quality_project.settings.output.quality = 90;
+    let builder = OutputBuilder::new(&high_quality_project, &settings);
+    assert_eq!(builder.get_preset(), "slow");
+  }
+
+  #[test]
+  fn test_calculate_default_bitrate() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+
+    let bitrate = builder.calculate_default_bitrate();
+
+    // Проверяем что битрейт в разумных пределах
+    assert!(bitrate >= 1000);
+    assert!(bitrate <= 50000);
+
+    // Для 1920x1080 30fps качества 85% проверяем что битрейт в разумных пределах
+    // Фактический расчет: 1920*1080*30*0.07*0.85 ≈ 36,864 kbps
+    // Но clamp ограничивает максимум до 50,000 kbps
+    assert!(bitrate >= 3000);
+    assert!(bitrate <= 50000); // Максимальное значение по clamp
+  }
+
+  #[test]
+  fn test_output_formats_encoding() {
+    let formats = vec![
+      OutputFormat::Mp4,
+      OutputFormat::WebM,
+      OutputFormat::Mov,
+      OutputFormat::Avi,
+      OutputFormat::Mkv,
+      OutputFormat::Gif,
+    ];
+
+    for format in formats {
+      let mut project = create_minimal_project();
+      project.settings.output.format = format.clone();
+
+      let settings = FFmpegBuilderSettings::default();
+      let builder = OutputBuilder::new(&project, &settings);
+      let mut cmd = Command::new("ffmpeg");
+
+      // Проверяем что все форматы успешно добавляют настройки
+      let cpu_result = builder.add_cpu_encoding(&mut cmd);
+      assert!(
+        cpu_result.is_ok(),
+        "CPU encoding failed for format: {:?}",
+        format
+      );
+
+      let format_result = builder.add_format_settings(&mut cmd);
+      assert!(
+        format_result.is_ok(),
+        "Format settings failed for format: {:?}",
+        format
+      );
+
+      let audio_result = builder.add_audio_settings(&mut cmd);
+      assert!(
+        audio_result.is_ok(),
+        "Audio settings failed for format: {:?}",
+        format
+      );
+    }
+  }
+
+  #[test]
+  fn test_custom_format() {
+    let mut project = create_minimal_project();
+    project.settings.output.format = OutputFormat::Custom("flv".to_string());
+
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_format_settings(&mut cmd);
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    assert!(args.contains(&"-f".to_string()));
+    assert!(args.contains(&"flv".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_output_with_duration() {
+    let mut project = create_minimal_project();
+    project.settings.output.duration = 30.0; // 30 секунд
+
+    let settings = FFmpegBuilderSettings::default();
+    let builder = OutputBuilder::new(&project, &settings);
+    let mut cmd = Command::new("ffmpeg");
+    let output_path = PathBuf::from("/tmp/output.mp4");
+
+    let result = builder.add_output_settings(&mut cmd, &output_path).await;
+    assert!(result.is_ok());
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Проверяем длительность
+    assert!(args.contains(&"-t".to_string()));
+    assert!(args.contains(&"30".to_string()));
+  }
+
+  #[test]
+  fn test_quality_to_preset_mapping() {
+    let settings = FFmpegBuilderSettings::default();
+
+    // Тестируем разные уровни качества
+    let test_cases = vec![(90, "slow"), (70, "medium"), (50, "fast"), (30, "faster")];
+
+    for (quality, expected_preset) in test_cases {
+      let mut project = create_minimal_project();
+      project.settings.output.quality = quality;
+
+      let builder = OutputBuilder::new(&project, &settings);
+      assert_eq!(builder.get_preset(), expected_preset);
+    }
+  }
+}

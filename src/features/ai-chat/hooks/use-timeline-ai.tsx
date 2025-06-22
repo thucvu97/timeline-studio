@@ -10,7 +10,7 @@ import { useCallback } from "react"
 import { useResources } from "@/features/resources/services/resources-provider"
 
 import { useChat } from "../hooks/use-chat"
-import { TimelineAIResult, TimelineAIService } from "../services/timeline-ai-service"
+import { TimelineAIService } from "../services/timeline-ai-service"
 
 /**
  * Типы Timeline AI операций

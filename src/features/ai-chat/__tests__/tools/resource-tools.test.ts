@@ -14,7 +14,7 @@ describe("Resource Tools", () => {
       expect(tool).toHaveProperty("input_schema")
       expect(tool.input_schema).toHaveProperty("type", "object")
       expect(tool.input_schema).toHaveProperty("properties")
-      
+
       expect(typeof tool.name).toBe("string")
       expect(typeof tool.description).toBe("string")
       expect(tool.name.length).toBeGreaterThan(0)
@@ -23,25 +23,25 @@ describe("Resource Tools", () => {
   })
 
   it("должен содержать инструмент analyze_available_resources", () => {
-    const tool = resourceTools.find(t => t.name === "analyze_available_resources")
+    const tool = resourceTools.find((t) => t.name === "analyze_available_resources")
     expect(tool).toBeDefined()
     expect(tool?.description.toLowerCase()).toContain("анализ")
   })
 
   it("должен содержать инструмент add_resource_to_pool", () => {
-    const tool = resourceTools.find(t => t.name === "add_resource_to_pool")
+    const tool = resourceTools.find((t) => t.name === "add_resource_to_pool")
     expect(tool).toBeDefined()
     expect(tool?.input_schema.properties).toHaveProperty("resourceType")
   })
 
   it("должен содержать инструмент bulk_add_resources", () => {
-    const tool = resourceTools.find(t => t.name === "bulk_add_resources")
+    const tool = resourceTools.find((t) => t.name === "bulk_add_resources")
     expect(tool).toBeDefined()
     expect(tool?.input_schema.properties).toHaveProperty("criteria")
   })
 
   it("все инструменты должны иметь уникальные имена", () => {
-    const names = resourceTools.map(tool => tool.name)
+    const names = resourceTools.map((tool) => tool.name)
     const uniqueNames = new Set(names)
     expect(uniqueNames.size).toBe(names.length)
   })

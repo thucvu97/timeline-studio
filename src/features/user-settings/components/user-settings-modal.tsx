@@ -30,11 +30,7 @@ export function UserSettingsModal() {
       {/* Кнопки действий в нижней части модального окна */}
       <DialogFooter className="flex justify-between space-x-4 mt-4 pt-4 border-t">
         {/* Кнопка отмены */}
-        <Button
-          variant="default"
-          className="flex-1 cursor-pointer"
-          onClick={() => closeModal()}
-        >
+        <Button variant="default" className="flex-1 cursor-pointer" onClick={() => closeModal()}>
           {t("dialogs.userSettings.cancel")}
         </Button>
 

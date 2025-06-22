@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useModal } from "@/features/modals/services/modal-provider"
@@ -54,21 +54,21 @@ describe("UserSettingsModalTabs", () => {
 
     // Мок для useApiKeys
     vi.mocked(useApiKeys).mockImplementation(() => ({
-      getApiKeyStatus: vi.fn().mockReturnValue('not_set'),
+      getApiKeyStatus: vi.fn().mockReturnValue("not_set"),
       updateApiKeyStatus: vi.fn(),
       testApiKey: vi.fn(),
       initiateOAuth: vi.fn(),
-      youtubeCredentials: { clientId: '', clientSecret: '' },
+      youtubeCredentials: { clientId: "", clientSecret: "" },
       updateYoutubeCredentials: vi.fn(),
-      tiktokCredentials: { clientId: '', clientSecret: '' },
+      tiktokCredentials: { clientId: "", clientSecret: "" },
       updateTiktokCredentials: vi.fn(),
-      vimeoCredentials: { clientId: '', clientSecret: '', accessToken: '' },
+      vimeoCredentials: { clientId: "", clientSecret: "", accessToken: "" },
       updateVimeoCredentials: vi.fn(),
-      telegramCredentials: { botToken: '', chatId: '' },
+      telegramCredentials: { botToken: "", chatId: "" },
       updateTelegramCredentials: vi.fn(),
-      codecovToken: '',
+      codecovToken: "",
       updateCodecovToken: vi.fn(),
-      tauriAnalyticsKey: '',
+      tauriAnalyticsKey: "",
       updateTauriAnalyticsKey: vi.fn(),
     }))
 
@@ -118,12 +118,12 @@ describe("UserSettingsModalTabs", () => {
     // Проверяем, что табы кликабельны
     const aiServicesTab = screen.getByText("dialogs.userSettings.tabs.aiServices")
     const socialNetworksTab = screen.getByText("dialogs.userSettings.tabs.socialNetworks")
-    
+
     expect(aiServicesTab).toBeInTheDocument()
     expect(socialNetworksTab).toBeInTheDocument()
-    
+
     // Проверяем, что это кнопки
-    expect(aiServicesTab.closest('button')).toBeInTheDocument()
-    expect(socialNetworksTab.closest('button')).toBeInTheDocument()
+    expect(aiServicesTab.closest("button")).toBeInTheDocument()
+    expect(socialNetworksTab.closest("button")).toBeInTheDocument()
   })
 })

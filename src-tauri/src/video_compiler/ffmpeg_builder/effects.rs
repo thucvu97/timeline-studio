@@ -517,4 +517,179 @@ impl<'a> EffectBuilder<'a> {
   fn find_filter(&self, filter_id: &str) -> Option<&Filter> {
     self.project.filters.iter().find(|f| f.id == filter_id)
   }
+
+  /// Конвертировать параметр в строку
+  #[allow(dead_code)]
+  fn convert_parameter_to_string(&self, param: &EffectParameter) -> String {
+    match param {
+      EffectParameter::Float(f) => f.to_string(),
+      EffectParameter::Int(i) => i.to_string(),
+      EffectParameter::Bool(b) => if *b { "1" } else { "0" }.to_string(),
+      EffectParameter::String(s) => s.clone(),
+      EffectParameter::Color(color) => format!("#{:06x}", color),
+      EffectParameter::FloatArray(array) => array
+        .iter()
+        .map(|f| f.to_string())
+        .collect::<Vec<_>>()
+        .join(","),
+      EffectParameter::FilePath(path) => path.to_string_lossy().to_string(),
+    }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::video_compiler::tests::fixtures::*;
+
+  #[test]
+  fn test_effect_builder_new() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    assert_eq!(builder.project.metadata.name, "Test Project");
+  }
+
+  #[tokio::test]
+  async fn test_build_clip_effects_empty() {
+    let project = create_project_with_clips();
+    let builder = EffectBuilder::new(&project);
+    let clip = &project.tracks[0].clips[0];
+
+    let result = builder.build_clip_effects(clip, 0).await;
+    assert!(result.is_ok());
+
+    // Пустой клип без эффектов должен вернуть пустую строку
+    let effects = result.unwrap();
+    assert!(effects.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_build_audio_effects_empty() {
+    let project = create_project_with_clips();
+    let builder = EffectBuilder::new(&project);
+    let clip = &project.tracks[0].clips[0];
+
+    let result = builder.build_audio_effects(clip, 0).await;
+    assert!(result.is_ok());
+
+    // Пустой клип без аудио эффектов
+    let effects = result.unwrap();
+    assert!(effects.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_build_transition_filter() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    // Создаем простые клипы для теста перехода
+    use crate::video_compiler::schema::timeline::Clip;
+    use std::path::PathBuf;
+
+    let clip1 = Clip::new(PathBuf::from("/test/video1.mp4"), 0.0, 5.0);
+    let clip2 = Clip::new(PathBuf::from("/test/video2.mp4"), 5.0, 10.0);
+
+    // Создаем простой переход
+    use crate::video_compiler::schema::effects::{Transition, TransitionDuration};
+    let transition = Transition {
+      id: "transition1".to_string(),
+      name: "Fade".to_string(),
+      transition_type: "fade".to_string(),
+      duration: TransitionDuration {
+        value: 1.0,
+        min: None,
+        max: None,
+      },
+      category: None,
+      tags: Vec::new(),
+      complexity: None,
+      enabled: true,
+      parameters: HashMap::new(),
+      ffmpeg_command: None,
+      easing: None,
+      direction: None,
+    };
+
+    let result = builder
+      .build_transition_filter(&clip1, &clip2, &transition, 0)
+      .await;
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn test_find_effect() {
+    let project = create_complex_project(); // Проект с эффектами
+    let builder = EffectBuilder::new(&project);
+
+    if !project.effects.is_empty() {
+      let effect_id = &project.effects[0].id;
+      let found_effect = builder.find_effect(effect_id);
+      assert!(found_effect.is_some());
+    }
+  }
+
+  #[test]
+  fn test_find_filter() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    // Поиск несуществующего фильтра
+    let found_filter = builder.find_filter("non_existent_filter");
+    assert!(found_filter.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_build_effect_brightness() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let effect = create_test_effect(EffectType::Brightness);
+    let result = builder.build_effect(&effect, 0).await;
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn test_build_filter_blur() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    use crate::video_compiler::schema::effects::Filter;
+    let filter = Filter {
+      id: "blur1".to_string(),
+      name: "Blur".to_string(),
+      filter_type: FilterType::Blur,
+      parameters: HashMap::new(),
+      enabled: true,
+      ffmpeg_command: None,
+      intensity: 1.0,
+      custom_filter: None,
+    };
+
+    let result = builder.build_filter(&filter, 0);
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn test_parameter_conversion() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    // Тест конвертации разных типов параметров
+    let float_param = EffectParameter::Float(1.5);
+    let result = builder.convert_parameter_to_string(&float_param);
+    assert_eq!(result, "1.5");
+
+    let int_param = EffectParameter::Int(10);
+    let result = builder.convert_parameter_to_string(&int_param);
+    assert_eq!(result, "10");
+
+    let bool_param = EffectParameter::Bool(true);
+    let result = builder.convert_parameter_to_string(&bool_param);
+    assert_eq!(result, "1");
+
+    let string_param = EffectParameter::String("test".to_string());
+    let result = builder.convert_parameter_to_string(&string_param);
+    assert_eq!(result, "test");
+  }
 }

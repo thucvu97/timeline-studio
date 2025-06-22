@@ -655,3 +655,180 @@ impl<'a> TemplateBuilder<'a> {
       .find(|t| t.id == template_id)
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::video_compiler::tests::fixtures::*;
+
+  #[test]
+  fn test_template_builder_new() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    assert_eq!(builder.project.metadata.name, "Test Project");
+  }
+
+  #[tokio::test]
+  async fn test_build_template_filter_not_found() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    let result = builder
+      .build_template_filter("non_existent_template", 0, 0)
+      .await;
+    assert!(result.is_err());
+
+    if let Err(VideoCompilerError::TemplateNotFound(id)) = result {
+      assert_eq!(id, "non_existent_template");
+    } else {
+      panic!("Expected TemplateNotFound error");
+    }
+  }
+
+  #[test]
+  fn test_find_template() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    // Поиск несуществующего шаблона
+    let found_template = builder.find_template("non_existent");
+    assert!(found_template.is_none());
+  }
+
+  #[test]
+  fn test_find_style_template() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    // Поиск несуществующего стильного шаблона
+    let found_template = builder.find_style_template("non_existent");
+    assert!(found_template.is_none());
+  }
+
+  #[test]
+  fn test_get_system_font() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    // Тестируем получение системных шрифтов
+    let arial_path = builder.get_system_font("Arial");
+    assert!(arial_path.contains("Helvetica") || arial_path.contains("Arial"));
+
+    let times_path = builder.get_system_font("Times New Roman");
+    assert!(times_path.contains("Times") || times_path.contains("Helvetica"));
+
+    let courier_path = builder.get_system_font("Courier New");
+    assert!(courier_path.contains("Courier") || courier_path.contains("Helvetica"));
+
+    // Неизвестный шрифт должен вернуть дефолтный
+    let unknown_path = builder.get_system_font("Unknown Font");
+    assert!(unknown_path.contains("Helvetica"));
+  }
+
+  #[tokio::test]
+  async fn test_build_multi_camera_template_filter() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    // Создаем простой шаблон
+    use crate::video_compiler::schema::templates::{Template, TemplateRegion, TemplateType};
+
+    let template = Template {
+      id: "test_template".to_string(),
+      name: "Test Template".to_string(),
+      template_type: TemplateType::Grid,
+      screens: 1,
+      cells: vec![],
+      regions: vec![TemplateRegion {
+        x: 0,
+        y: 0,
+        width: 960,
+        height: 1080,
+        padding: 0,
+      }],
+    };
+
+    let result = builder
+      .build_multi_camera_template_filter(&template, 0)
+      .await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_build_style_template_filter() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    // Создаем простой стильный шаблон
+    use crate::video_compiler::schema::templates::{
+      StyleTemplate, StyleTemplateCategory, StyleTemplateStyle,
+    };
+
+    let style_template = StyleTemplate {
+      id: "style_test".to_string(),
+      name: "Style Test".to_string(),
+      category: StyleTemplateCategory::Intro,
+      style: StyleTemplateStyle::Modern,
+      duration: 3.0,
+      elements: vec![],
+      background_color: "#000000".to_string(),
+      transitions: vec![],
+    };
+
+    let result = builder
+      .build_style_template_filter(&style_template, 0, 0)
+      .await;
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn test_template_builder_with_populated_project() {
+    let mut project = create_minimal_project();
+
+    // Добавляем шаблон в проект
+    use crate::video_compiler::schema::templates::{Template, TemplateType};
+
+    let template = Template {
+      id: "existing_template".to_string(),
+      name: "Existing Template".to_string(),
+      template_type: TemplateType::Grid,
+      screens: 1,
+      cells: vec![],
+      regions: vec![],
+    };
+
+    project.templates.push(template);
+
+    let builder = TemplateBuilder::new(&project);
+    let found = builder.find_template("existing_template");
+    assert!(found.is_some());
+    assert_eq!(found.unwrap().name, "Existing Template");
+  }
+
+  #[test]
+  fn test_font_path_validation() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    // Проверяем что все возвращаемые пути к шрифтам валидны
+    let fonts = vec!["Arial", "Times New Roman", "Courier New", "Unknown"];
+
+    for font in fonts {
+      let path = builder.get_system_font(font);
+      assert!(!path.is_empty());
+      assert!(path.starts_with("/") || path.contains("\\"));
+      assert!(path.ends_with(".ttc") || path.ends_with(".ttf") || path.ends_with(".otf"));
+    }
+  }
+
+  #[tokio::test]
+  async fn test_template_filter_with_complex_project() {
+    let project = create_complex_project();
+    let builder = TemplateBuilder::new(&project);
+
+    // Тестируем что builder работает с комплексным проектом
+    let result = builder.build_template_filter("non_existent", 0, 0).await;
+    assert!(result.is_err()); // Должен вернуть ошибку о ненайденном шаблоне
+  }
+}

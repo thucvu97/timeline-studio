@@ -317,7 +317,7 @@ export class TimelineAIService {
 - Доступно ресурсов: ${context.resources.stats.totalMedia} медиафайлов, ${Object.values(context.resources.stats.resourceTypes).reduce((a, b) => a + b, 0)} других ресурсов
 - Активная вкладка браузера: ${context.browser.activeTab}
 - Текущий проект: ${context.timeline.currentProject ? context.timeline.currentProject.name : "отсутствует"}
-- Плеер: ${context.player.currentVideo ? "воспроизводит " + context.player.currentVideo.name : "свободен"}
+- Плеер: ${context.player.currentVideo ? `воспроизводит ${context.player.currentVideo.name}` : "свободен"}
 
 ПРИНЦИПЫ РАБОТЫ:
 1. Всегда сначала анализируй доступные ресурсы перед созданием Timeline
@@ -331,7 +331,6 @@ export class TimelineAIService {
 
 Отвечай кратко и конкретно. Фокусируйся на практических действиях.`
   }
-
 
   /**
    * Обрабатывает ответ Claude и выполняет инструменты
@@ -368,11 +367,10 @@ export class TimelineAIService {
     return result
   }
 
-
   /**
    * Выполняет функцию инструмента
    */
-  private async executeToolFunction(toolUse: any, context: TimelineStudioContext): Promise<AIToolResult> {
+  private async executeToolFunction(toolUse: any, _context: TimelineStudioContext): Promise<AIToolResult> {
     const { name, input } = toolUse
 
     // Здесь будет логика выполнения конкретных инструментов

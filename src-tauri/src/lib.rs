@@ -1,5 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::time::{SystemTime, UNIX_EPOCH};
+use tauri::Manager;
 
 // Модуль для работы с языком
 mod language_tauri; // Tauri v2 proper state management
@@ -35,6 +36,14 @@ use recognition::commands::{
   process_video_recognition, process_yolo_batch, set_yolo_target_classes,
 };
 use recognition::{RecognitionService, RecognitionState};
+
+// Модуль безопасности и API ключей
+mod security;
+use security::{
+  delete_api_key, exchange_oauth_code, export_to_env_format, generate_oauth_url, get_api_key_info,
+  get_oauth_user_info, import_from_env, list_api_keys, parse_oauth_callback_url,
+  refresh_oauth_token, save_oauth_credentials, save_simple_api_key, validate_api_key,
+};
 
 // Импортируем GPU и Frame Extraction команды
 use video_compiler::commands::{
@@ -435,6 +444,22 @@ pub fn run() {
     .manage(recognition_state)
     .manage(preview_manager_state)
     .manage(language_state)
+    .setup(|app| {
+      // Инициализируем SecureStorage
+      let app_handle = app.handle().clone();
+      tauri::async_runtime::spawn(async move {
+        match security::init_secure_storage(app_handle.clone()).await {
+          Ok(storage) => {
+            app_handle.manage(tokio::sync::Mutex::new(storage));
+            log::info!("SecureStorage инициализировано успешно");
+          }
+          Err(e) => {
+            log::error!("Ошибка инициализации SecureStorage: {}", e);
+          }
+        }
+      });
+      Ok(())
+    })
     .invoke_handler(tauri::generate_handler![
       greet,
       #[cfg(test)]
@@ -690,7 +715,21 @@ pub fn run() {
       get_ffmpeg_formats,
       execute_ffmpeg_with_progress,
       execute_ffmpeg_simple,
-      get_ffmpeg_execution_info
+      get_ffmpeg_execution_info,
+      // Security commands
+      save_simple_api_key,
+      save_oauth_credentials,
+      get_api_key_info,
+      list_api_keys,
+      delete_api_key,
+      validate_api_key,
+      generate_oauth_url,
+      exchange_oauth_code,
+      refresh_oauth_token,
+      get_oauth_user_info,
+      parse_oauth_callback_url,
+      import_from_env,
+      export_to_env_format
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

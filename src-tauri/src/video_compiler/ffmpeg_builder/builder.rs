@@ -188,3 +188,284 @@ pub fn quality_to_crf(quality: u32) -> u32 {
   // Quality 0 = CRF 51 (низкое качество)
   51 - (quality * 33 / 100).min(33)
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::video_compiler::tests::fixtures::*;
+  use std::path::PathBuf;
+
+  #[test]
+  fn test_ffmpeg_builder_settings_default() {
+    let settings = FFmpegBuilderSettings::default();
+
+    assert_eq!(settings.ffmpeg_path, "ffmpeg");
+    assert!(!settings.use_hardware_acceleration);
+    assert!(settings.hardware_acceleration_type.is_none());
+    assert!(settings.global_options.is_empty());
+  }
+
+  #[test]
+  fn test_ffmpeg_builder_new() {
+    let project = create_minimal_project();
+    let builder = FFmpegBuilder::new(project.clone());
+
+    assert_eq!(builder.project().metadata.name, project.metadata.name);
+    assert_eq!(builder.settings().ffmpeg_path, "ffmpeg");
+  }
+
+  #[test]
+  fn test_ffmpeg_builder_with_settings() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings {
+      ffmpeg_path: "/usr/local/bin/ffmpeg".to_string(),
+      use_hardware_acceleration: true,
+      hardware_acceleration_type: Some("nvenc".to_string()),
+      global_options: vec!["-threads".to_string(), "4".to_string()],
+    };
+
+    let builder = FFmpegBuilder::with_settings(project, settings.clone());
+
+    assert_eq!(builder.settings().ffmpeg_path, "/usr/local/bin/ffmpeg");
+    assert!(builder.settings().use_hardware_acceleration);
+    assert_eq!(
+      builder.settings().hardware_acceleration_type,
+      Some("nvenc".to_string())
+    );
+    assert_eq!(builder.settings().global_options, vec!["-threads", "4"]);
+  }
+
+  #[tokio::test]
+  async fn test_build_render_command_structure() {
+    let project = create_project_with_clips();
+    let builder = FFmpegBuilder::new(project);
+
+    let output_path = PathBuf::from("/tmp/test_output.mp4");
+    let result = builder.build_render_command(&output_path).await;
+
+    assert!(result.is_ok(), "Command building should succeed");
+
+    let cmd = result.unwrap();
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Проверяем что команда содержит основные элементы
+    assert!(
+      args.contains(&"-y".to_string()),
+      "Should have overwrite flag"
+    );
+    assert!(
+      args.contains(&"-hide_banner".to_string()),
+      "Should hide banner"
+    );
+    assert!(
+      args.contains(&"-loglevel".to_string()),
+      "Should have loglevel"
+    );
+    assert!(
+      args.contains(&"-progress".to_string()),
+      "Should have progress reporting"
+    );
+  }
+
+  #[tokio::test]
+  async fn test_build_preview_command() {
+    let project = create_minimal_project();
+    let builder = FFmpegBuilder::new(project);
+
+    let input_path = PathBuf::from("/test/input.mp4");
+    let output_path = PathBuf::from("/tmp/preview.jpg");
+    let timestamp = 30.5;
+    let resolution = (640, 360);
+
+    let result = builder
+      .build_preview_command(&input_path, timestamp, &output_path, resolution)
+      .await;
+
+    assert!(result.is_ok(), "Preview command should build successfully");
+
+    let cmd = result.unwrap();
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Проверяем seek к timestamp
+    assert!(args.contains(&"-ss".to_string()));
+    assert!(args.contains(&"30.5".to_string()));
+
+    // Проверяем входной файл
+    assert!(args.contains(&"-i".to_string()));
+    assert!(args.contains(&"/test/input.mp4".to_string()));
+
+    // Проверяем один кадр
+    assert!(args.contains(&"-vframes".to_string()));
+    assert!(args.contains(&"1".to_string()));
+
+    // Проверяем масштабирование
+    assert!(args.contains(&"-vf".to_string()));
+    assert!(args.contains(&"scale=640:360".to_string()));
+
+    // Проверяем качество
+    assert!(args.contains(&"-q:v".to_string()));
+    assert!(args.contains(&"2".to_string()));
+
+    // Проверяем перезапись
+    assert!(args.contains(&"-y".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_build_prerender_segment_command() {
+    let project = create_project_with_clips();
+    let builder = FFmpegBuilder::new(project);
+
+    let start_time = 10.0;
+    let end_time = 20.0;
+    let output_path = PathBuf::from("/tmp/segment.mp4");
+
+    let result = builder
+      .build_prerender_segment_command(start_time, end_time, &output_path)
+      .await;
+
+    assert!(result.is_ok(), "Segment command should build successfully");
+
+    let cmd = result.unwrap();
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Проверяем что команда содержит основные элементы сегмента
+    assert!(args.contains(&"-y".to_string()));
+    assert!(args.contains(&"-hide_banner".to_string()));
+  }
+
+  #[test]
+  fn test_quality_to_crf_conversion() {
+    // Тестируем граничные значения
+    assert_eq!(quality_to_crf(100), 18); // Высокое качество
+    assert_eq!(quality_to_crf(50), 35); // Среднее качество
+    assert_eq!(quality_to_crf(0), 51); // Низкое качество
+
+    // Тестируем промежуточные значения
+    assert_eq!(quality_to_crf(75), 27);
+    assert_eq!(quality_to_crf(25), 43);
+
+    // Проверяем что CRF не выходит за границы
+    assert!(quality_to_crf(100) >= 18);
+    assert!(quality_to_crf(0) <= 51);
+  }
+
+  #[test]
+  fn test_global_options_application() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings {
+      global_options: vec![
+        "-threads".to_string(),
+        "8".to_string(),
+        "-preset".to_string(),
+        "fast".to_string(),
+      ],
+      ..Default::default()
+    };
+
+    let builder = FFmpegBuilder::with_settings(project, settings);
+    let mut cmd = Command::new("ffmpeg");
+
+    builder.add_global_options(&mut cmd);
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Проверяем стандартные опции
+    assert!(args.contains(&"-y".to_string()));
+    assert!(args.contains(&"-hide_banner".to_string()));
+    assert!(args.contains(&"-loglevel".to_string()));
+    assert!(args.contains(&"info".to_string()));
+    assert!(args.contains(&"-progress".to_string()));
+    assert!(args.contains(&"pipe:1".to_string()));
+
+    // Проверяем пользовательские опции
+    assert!(args.contains(&"-threads".to_string()));
+    assert!(args.contains(&"8".to_string()));
+    assert!(args.contains(&"-preset".to_string()));
+    assert!(args.contains(&"fast".to_string()));
+  }
+
+  #[test]
+  fn test_builder_accessors() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings {
+      ffmpeg_path: "/custom/ffmpeg".to_string(),
+      ..Default::default()
+    };
+
+    let builder = FFmpegBuilder::with_settings(project.clone(), settings.clone());
+
+    // Проверяем доступ к настройкам
+    assert_eq!(builder.settings().ffmpeg_path, "/custom/ffmpeg");
+
+    // Проверяем доступ к проекту
+    assert_eq!(builder.project().metadata.name, project.metadata.name);
+  }
+
+  #[tokio::test]
+  async fn test_hardware_acceleration_settings() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings {
+      use_hardware_acceleration: true,
+      hardware_acceleration_type: Some("cuda".to_string()),
+      ..Default::default()
+    };
+
+    let builder = FFmpegBuilder::with_settings(project, settings);
+
+    // Проверяем что настройки аппаратного ускорения применяются
+    assert!(builder.settings().use_hardware_acceleration);
+    assert_eq!(
+      builder.settings().hardware_acceleration_type,
+      Some("cuda".to_string())
+    );
+  }
+
+  #[tokio::test]
+  async fn test_builder_with_empty_project() {
+    let mut project = create_minimal_project();
+    project.tracks.clear(); // Убираем все треки, создавая "пустой" проект
+    let builder = FFmpegBuilder::new(project);
+
+    let output_path = PathBuf::from("/tmp/empty.mp4");
+    let result = builder.build_render_command(&output_path).await;
+
+    // Даже пустой проект должен успешно создать команду
+    assert!(result.is_ok(), "Empty project should still build command");
+  }
+
+  #[tokio::test]
+  async fn test_builder_with_custom_ffmpeg_path() {
+    let project = create_minimal_project();
+    let settings = FFmpegBuilderSettings {
+      ffmpeg_path: "/opt/ffmpeg/bin/ffmpeg".to_string(),
+      ..Default::default()
+    };
+
+    let builder = FFmpegBuilder::with_settings(project, settings);
+    let output_path = PathBuf::from("/tmp/output.mp4");
+
+    let cmd = builder.build_render_command(&output_path).await.unwrap();
+
+    // Проверяем что используется правильный путь к FFmpeg
+    assert_eq!(
+      cmd.as_std().get_program().to_string_lossy(),
+      "/opt/ffmpeg/bin/ffmpeg"
+    );
+  }
+}

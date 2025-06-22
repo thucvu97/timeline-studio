@@ -65,6 +65,59 @@ export interface TauriCommands {
     outputPath: string
     format: string
   }) => Promise<{ success: boolean; path?: string; error?: string }>
+
+  // API Keys commands
+  save_simple_api_key: (args: {
+    params: { key_type: string; value: string }
+  }) => Promise<{ success: boolean; message: string }>
+  save_oauth_credentials: (args: {
+    params: {
+      key_type: string
+      client_id: string
+      client_secret: string
+      access_token?: string
+      refresh_token?: string
+    }
+  }) => Promise<{ success: boolean; message: string }>
+  get_api_key_info: (args: { keyType: string }) => Promise<{
+    key_type: string
+    has_value: boolean
+    is_oauth: boolean
+    has_access_token: boolean
+    is_valid?: boolean
+  } | null>
+  list_api_keys: () => Promise<
+    Array<{
+      key_type: string
+      has_value: boolean
+      is_oauth: boolean
+      has_access_token: boolean
+      is_valid?: boolean
+    }>
+  >
+  delete_api_key: (args: { keyType: string }) => Promise<{ success: boolean; message: string }>
+  validate_api_key: (args: { keyType: string }) => Promise<{
+    is_valid: boolean
+    error_message?: string
+    service_info?: string
+  }>
+  generate_oauth_url: (args: { keyType: string; clientId: string; state?: string }) => Promise<string>
+  exchange_oauth_code: (args: {
+    keyType: string
+    clientId: string
+    clientSecret: string
+    code: string
+  }) => Promise<{ success: boolean; message: string }>
+  refresh_oauth_token: (args: { keyType: string }) => Promise<{ success: boolean; message: string }>
+  get_oauth_user_info: (args: { keyType: string }) => Promise<Record<string, unknown>>
+  parse_oauth_callback_url: (args: { url: string }) => Promise<{
+    code?: string
+    state?: string
+    error?: string
+    all_params: Record<string, string>
+  }>
+  import_from_env: (args: { envFilePath?: string }) => Promise<{ success: boolean; message: string }>
+  export_to_env_format: () => Promise<string>
 }
 
 // Type-safe mock factory
@@ -108,6 +161,29 @@ export function createTauriMock() {
           this.on("write_text_file", async () => undefined)
           this.on("search_files_by_name", async () => [])
           this.on("get_absolute_path", async (args) => `/absolute${args?.path || ""}`)
+
+          // API Keys mock handlers
+          this.on("save_simple_api_key", async () => ({ success: true, message: "API key saved" }))
+          this.on("save_oauth_credentials", async () => ({ success: true, message: "OAuth credentials saved" }))
+          this.on("get_api_key_info", async () => null)
+          this.on("list_api_keys", async () => [])
+          this.on("delete_api_key", async () => ({ success: true, message: "API key deleted" }))
+          this.on("validate_api_key", async () => ({ is_valid: true, service_info: "Mock validation" }))
+          this.on("generate_oauth_url", async () => "https://example.com/oauth")
+          this.on("exchange_oauth_code", async () => ({ success: true, message: "Token exchanged" }))
+          this.on("refresh_oauth_token", async () => ({ success: true, message: "Token refreshed" }))
+          this.on("get_oauth_user_info", async () => ({
+            id: "123",
+            name: "Mock User",
+            email: "mock@example.com",
+          }))
+          this.on("parse_oauth_callback_url", async (_args) => ({
+            code: "mock_auth_code",
+            state: "mock_state",
+            all_params: { code: "mock_auth_code", state: "mock_state" },
+          }))
+          this.on("import_from_env", async () => ({ success: true, message: "Imported from .env" }))
+          this.on("export_to_env_format", async () => "# Mock .env content")
           break
 
         case "empty":

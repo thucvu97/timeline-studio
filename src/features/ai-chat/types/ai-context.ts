@@ -11,7 +11,7 @@ import { MediaFile } from "@/features/media/types/media"
 import { ResourceType } from "@/features/resources/types"
 import { StyleTemplate } from "@/features/style-templates/types/style-template"
 import { MediaTemplate } from "@/features/templates/lib/templates"
-import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types"
+import { TimelineProject } from "@/features/timeline/types"
 import { Transition } from "@/features/transitions/types/transitions"
 
 // ============================================================================

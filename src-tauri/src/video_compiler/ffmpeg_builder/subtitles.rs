@@ -549,3 +549,202 @@ impl<'a> SubtitleBuilder<'a> {
     }
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::video_compiler::schema::subtitles::Subtitle;
+  use crate::video_compiler::tests::fixtures::*;
+
+  #[test]
+  fn test_subtitle_builder_new() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    assert_eq!(builder.project.metadata.name, "Test Project");
+  }
+
+  #[tokio::test]
+  async fn test_build_subtitle_filter_empty() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let result = builder.build_subtitle_filter().await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(
+      filter.is_empty(),
+      "Empty project should have no subtitle filters"
+    );
+  }
+
+  #[tokio::test]
+  async fn test_build_subtitle_filter_with_subtitles() {
+    let mut project = create_minimal_project();
+
+    // Добавляем субтитр
+    let subtitle = Subtitle::new("Test subtitle".to_string(), 1.0, 3.0);
+    project.subtitles.push(subtitle);
+
+    let builder = SubtitleBuilder::new(&project);
+    let result = builder.build_subtitle_filter().await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(
+      !filter.is_empty(),
+      "Project with subtitles should have filter"
+    );
+    assert!(filter.contains("[outv_with_subs]"));
+  }
+
+  #[tokio::test]
+  async fn test_build_single_subtitle_filter() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test subtitle".to_string(), 1.0, 3.0);
+    let resolution = &project.settings.resolution;
+
+    let result = builder
+      .build_single_subtitle_filter(&subtitle, 0, resolution)
+      .await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(!filter.is_empty());
+    assert!(filter.contains("drawtext"));
+  }
+
+  #[test]
+  fn test_calculate_position() {
+    use crate::video_compiler::schema::Resolution;
+
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test subtitle".to_string(), 1.0, 3.0);
+    let resolution = Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    let (x, y) = builder.calculate_position(&subtitle, &resolution);
+
+    // Координаты должны быть рассчитаны
+    assert!(!x.is_empty());
+    assert!(!y.is_empty());
+  }
+
+  #[test]
+  fn test_get_font_weight_value() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    use crate::video_compiler::schema::subtitles::SubtitleFontWeight;
+
+    assert_eq!(
+      builder.get_font_weight_value(&SubtitleFontWeight::Thin),
+      "100"
+    );
+    assert_eq!(
+      builder.get_font_weight_value(&SubtitleFontWeight::Light),
+      "300"
+    );
+    assert_eq!(
+      builder.get_font_weight_value(&SubtitleFontWeight::Normal),
+      "400"
+    );
+    assert_eq!(
+      builder.get_font_weight_value(&SubtitleFontWeight::Medium),
+      "500"
+    );
+    assert_eq!(
+      builder.get_font_weight_value(&SubtitleFontWeight::Bold),
+      "700"
+    );
+    assert_eq!(
+      builder.get_font_weight_value(&SubtitleFontWeight::Black),
+      "900"
+    );
+  }
+
+  #[test]
+  fn test_subtitle_timing() {
+    let _project = create_minimal_project();
+
+    let subtitle = Subtitle::new("Test subtitle".to_string(), 2.5, 5.8);
+
+    // Проверяем что время правильно установлено
+    assert_eq!(subtitle.start_time, 2.5);
+    assert_eq!(subtitle.end_time, 5.8);
+    assert!((subtitle.duration - 3.3).abs() < 0.01); // Проверяем длительность
+  }
+
+  #[tokio::test]
+  async fn test_multiple_subtitles() {
+    let mut project = create_minimal_project();
+
+    // Добавляем несколько субтитров
+    project
+      .subtitles
+      .push(Subtitle::new("First subtitle".to_string(), 1.0, 3.0));
+    project
+      .subtitles
+      .push(Subtitle::new("Second subtitle".to_string(), 3.5, 6.0));
+    project
+      .subtitles
+      .push(Subtitle::new("Third subtitle".to_string(), 6.5, 9.0));
+
+    let builder = SubtitleBuilder::new(&project);
+    let result = builder.build_subtitle_filter().await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(!filter.is_empty());
+
+    // Должны быть промежуточные выходы для нескольких субтитров
+    assert!(filter.contains("[sub_tmp") || filter.contains("[outv_with_subs]"));
+  }
+
+  #[test]
+  fn test_escape_subtitle_text() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    // Тестируем экранирование специальных символов
+    let text_with_quotes = "Text with \"quotes\" and 'apostrophes'";
+    let escaped = builder.escape_text(text_with_quotes);
+
+    // Проверяем что кавычки экранированы
+    assert!(escaped.contains("\\'") || escaped.contains("\\\\"));
+  }
+
+  #[test]
+  fn test_slide_positions() {
+    use crate::video_compiler::schema::subtitles::SubtitleDirection;
+    use crate::video_compiler::schema::Resolution;
+
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test subtitle".to_string(), 1.0, 3.0);
+    let resolution = Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    // Тест анимации слайда слева
+    let (start_x, start_y, _end_x, end_y) = builder.calculate_slide_positions(
+      &subtitle,
+      &resolution,
+      &SubtitleDirection::Left,
+      true, // is_slide_in
+    );
+
+    // При SlideIn слева, начинаем за левым краем экрана
+    assert!(start_x < 0);
+    assert_eq!(start_y, end_y); // Y координата не должна изменяться для горизонтального слайда
+  }
+}

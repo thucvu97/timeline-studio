@@ -14,7 +14,7 @@ describe("Timeline Tools", () => {
       expect(tool).toHaveProperty("input_schema")
       expect(tool.input_schema).toHaveProperty("type", "object")
       expect(tool.input_schema).toHaveProperty("properties")
-      
+
       expect(typeof tool.name).toBe("string")
       expect(typeof tool.description).toBe("string")
       expect(tool.name.length).toBeGreaterThan(0)
@@ -23,19 +23,19 @@ describe("Timeline Tools", () => {
   })
 
   it("должен содержать инструмент create_timeline_project", () => {
-    const tool = timelineTools.find(t => t.name === "create_timeline_project")
+    const tool = timelineTools.find((t) => t.name === "create_timeline_project")
     expect(tool).toBeDefined()
     expect(tool?.description.toLowerCase()).toContain("создает")
   })
 
   it("должен содержать инструмент place_clips_on_timeline", () => {
-    const tool = timelineTools.find(t => t.name === "place_clips_on_timeline")
+    const tool = timelineTools.find((t) => t.name === "place_clips_on_timeline")
     expect(tool).toBeDefined()
     expect(tool?.input_schema.properties).toHaveProperty("clipsToPlace")
   })
 
   it("все инструменты должны иметь уникальные имена", () => {
-    const names = timelineTools.map(tool => tool.name)
+    const names = timelineTools.map((tool) => tool.name)
     const uniqueNames = new Set(names)
     expect(uniqueNames.size).toBe(names.length)
   })

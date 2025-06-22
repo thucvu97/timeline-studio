@@ -1,13 +1,11 @@
 import { describe, expect, it } from "vitest"
 
-import type { 
-  AIToolResult, 
+import type {
+  AIToolResult,
   BrowserContext,
   ContentStoryAnalysis,
-  PlayerContext,
   ResourcesContext,
-  TimelineContext,
-  TimelineStudioContext
+  TimelineStudioContext,
 } from "../../types/ai-context"
 
 describe("AI Context Types", () => {
@@ -25,11 +23,11 @@ describe("AI Context Types", () => {
           transition: 1,
           template: 1,
           styleTemplate: 0,
-          music: 0
-        }
+          music: 0,
+        },
       },
       recentlyAdded: [],
-      currentSelection: []
+      currentSelection: [],
     }
 
     expect(context.totalResources).toBe(10)
@@ -43,7 +41,7 @@ describe("AI Context Types", () => {
       availableMedia: [],
       filters: {},
       favorites: [],
-      scanning: false
+      scanning: false,
     }
 
     expect(context.activeTab).toBe("media")
@@ -55,7 +53,7 @@ describe("AI Context Types", () => {
     const result: AIToolResult = {
       success: true,
       message: "Операция выполнена успешно",
-      data: { test: "value" }
+      data: { test: "value" },
     }
 
     expect(result.success).toBe(true)
@@ -70,7 +68,7 @@ describe("AI Context Types", () => {
       emotionalTone: "positive",
       pacing: "medium",
       visualStyle: "cinematic",
-      recommendations: ["add_music", "color_correction"]
+      recommendations: ["add_music", "color_correction"],
     }
 
     expect(analysis.storyStructure).toBe("linear")
@@ -94,25 +92,25 @@ describe("AI Context Types", () => {
             transition: 1,
             template: 1,
             styleTemplate: 0,
-            music: 0
-          }
+            music: 0,
+          },
         },
         recentlyAdded: [],
-        currentSelection: []
+        currentSelection: [],
       },
       browser: {
         activeTab: "media",
         availableMedia: [],
         filters: {},
         favorites: [],
-        scanning: false
+        scanning: false,
       },
       player: {
         currentVideo: null,
         isPlaying: false,
         currentTime: 0,
         duration: 0,
-        volume: 1
+        volume: 1,
       },
       timeline: {
         currentProject: null,
@@ -121,16 +119,16 @@ describe("AI Context Types", () => {
           totalClips: 0,
           totalTracks: 0,
           totalSections: 0,
-          usedResources: {}
+          usedResources: {},
         },
-        recentChanges: []
+        recentChanges: [],
       },
       userPreferences: {
         preferredStyle: "cinematic",
         defaultDuration: 60,
         autoEnhancements: true,
-        aiCommandHistory: []
-      }
+        aiCommandHistory: [],
+      },
     }
 
     expect(context).toHaveProperty("resources")

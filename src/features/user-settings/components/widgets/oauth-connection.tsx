@@ -31,15 +31,9 @@ interface OAuthConnectionProps {
  * Компонент для настройки OAuth подключений
  * Поддерживает множественные поля и авторизацию
  */
-export function OAuthConnection({
-  service,
-  credentials,
-  onUpdate,
-  fields,
-  links = []
-}: OAuthConnectionProps) {
+export function OAuthConnection({ service, credentials, onUpdate, fields, links = [] }: OAuthConnectionProps) {
   const { t } = useTranslation()
-  const { getApiKeyStatus, initiateOAuth } = useApiKeys()
+  const { getApiKeyStatus, saveOAuthCredentials } = useApiKeys()
 
   const status = getApiKeyStatus(service)
 
@@ -59,23 +53,24 @@ export function OAuthConnection({
 
   const handleInitiateOAuth = async () => {
     try {
-      await initiateOAuth(service, credentials)
+      // Simple OAuth credentials save for now
+      if (credentials.clientId && credentials.clientSecret) {
+        await saveOAuthCredentials(service, credentials.clientId, credentials.clientSecret)
+      }
     } catch (error) {
       console.error(`OAuth error for ${service}:`, error)
     }
   }
 
   const isReadyForOAuth = fields
-    .filter(field => !field.optional)
-    .every(field => (credentials[field.key] || "").length > 0)
+    .filter((field) => !field.optional)
+    .every((field) => (credentials[field.key] || "").length > 0)
 
   return (
     <div className="space-y-4">
       {/* Статус подключения */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">
-          {t("dialogs.userSettings.connectionStatus", "Статус подключения")}
-        </span>
+        <span className="text-sm font-medium">{t("dialogs.userSettings.connectionStatus", "Статус подключения")}</span>
         <KeyStatusIndicator status={status} />
       </div>
 
@@ -121,7 +116,7 @@ export function OAuthConnection({
           variant="default"
           size="sm"
           onClick={handleInitiateOAuth}
-          disabled={!isReadyForOAuth || status === 'testing'}
+          disabled={!isReadyForOAuth || status === "testing"}
           className="flex items-center gap-2"
         >
           <Link className="h-3 w-3" />
@@ -135,7 +130,7 @@ export function OAuthConnection({
             variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            onClick={() => window.open(link.url, '_blank')}
+            onClick={() => window.open(link.url, "_blank")}
           >
             <ExternalLink className="h-3 w-3" />
             {link.text}
@@ -157,15 +152,18 @@ export function OAuthConnection({
       </div>
 
       {/* Статусные сообщения */}
-      {status === 'valid' && (
+      {status === "valid" && (
         <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md">
           <p className="text-sm text-green-800 dark:text-green-200">
-            {t("dialogs.userSettings.connectionSuccess", "Подключение успешно настроено. Вы можете публиковать контент.")}
+            {t(
+              "dialogs.userSettings.connectionSuccess",
+              "Подключение успешно настроено. Вы можете публиковать контент.",
+            )}
           </p>
         </div>
       )}
 
-      {status === 'invalid' && (
+      {status === "invalid" && (
         <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-md">
           <p className="text-sm text-red-800 dark:text-red-200">
             {t("dialogs.userSettings.connectionError", "Ошибка подключения. Проверьте данные и повторите авторизацию.")}

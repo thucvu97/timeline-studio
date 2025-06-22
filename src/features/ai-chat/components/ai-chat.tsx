@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { Bot, ChevronDown, Copy, History, Plus, Send, Settings, StopCircle, Trash2, User, X } from "lucide-react"
+import { Bot, ChevronDown, History, Plus, Send, Settings, StopCircle, User, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tooltip, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { useModal } from "@/features/modals"
 import { useUserSettings } from "@/features/user-settings"
 import { cn } from "@/lib/utils"
@@ -16,8 +16,7 @@ import { ChatList } from "./chat-list"
 import { chatStorageService } from "../services/chat-storage-service"
 import { CLAUDE_MODELS } from "../services/claude-service"
 import { AI_MODELS } from "../services/open-ai-service"
-import { AiMessage } from "../types/ai-message"
-import { ChatListItem, ChatMessage } from "../types/chat"
+import { ChatMessage } from "../types/chat"
 
 const AVAILABLE_AGENTS = [
   {

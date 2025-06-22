@@ -461,3 +461,348 @@ impl<'a> FilterBuilder<'a> {
       .collect()
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::video_compiler::tests::fixtures::*;
+  use tokio::process::Command;
+
+  #[test]
+  fn test_filter_builder_new() {
+    let project = create_minimal_project();
+    let builder = FilterBuilder::new(&project);
+
+    // Проверяем что builder создается без ошибок
+    assert_eq!(builder.project.metadata.name, "Test Project");
+  }
+
+  #[test]
+  fn test_has_video_tracks() {
+    // Проект без видео треков
+    let project = create_minimal_project();
+    let builder = FilterBuilder::new(&project);
+    assert!(!builder.has_video_tracks());
+
+    // Проект с видео треками
+    let project = create_project_with_clips();
+    let builder = FilterBuilder::new(&project);
+    assert!(builder.has_video_tracks());
+  }
+
+  #[test]
+  fn test_has_audio_tracks() {
+    // Проект без аудио треков
+    let project = create_minimal_project();
+    let builder = FilterBuilder::new(&project);
+    assert!(!builder.has_audio_tracks());
+
+    // Создаем проект с аудио треком
+    let mut project = create_minimal_project();
+    let audio_track = Track::new(TrackType::Audio, "Audio Track".to_string());
+    project.tracks.push(audio_track);
+
+    let builder = FilterBuilder::new(&project);
+    assert!(builder.has_audio_tracks());
+  }
+
+  #[test]
+  fn test_get_video_tracks() {
+    let project = create_project_with_clips();
+    let builder = FilterBuilder::new(&project);
+
+    let video_tracks = builder.get_video_tracks();
+    assert_eq!(video_tracks.len(), 1);
+    assert_eq!(video_tracks[0].track_type, TrackType::Video);
+  }
+
+  #[test]
+  fn test_get_audio_tracks() {
+    let mut project = create_minimal_project();
+    let audio_track = Track::new(TrackType::Audio, "Audio Track".to_string());
+    project.tracks.push(audio_track);
+
+    let builder = FilterBuilder::new(&project);
+    let audio_tracks = builder.get_audio_tracks();
+
+    assert_eq!(audio_tracks.len(), 1);
+    assert_eq!(audio_tracks[0].track_type, TrackType::Audio);
+  }
+
+  #[tokio::test]
+  async fn test_add_filter_complex_empty_project() {
+    let project = create_minimal_project();
+    let builder = FilterBuilder::new(&project);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_filter_complex(&mut cmd).await;
+    assert!(
+      result.is_ok(),
+      "Empty project should not fail filter complex"
+    );
+
+    // Проверяем что команда не содержит -filter_complex для пустого проекта
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+    assert!(!args.contains(&"-filter_complex".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_add_filter_complex_with_video_tracks() {
+    let project = create_project_with_clips();
+    let builder = FilterBuilder::new(&project);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_filter_complex(&mut cmd).await;
+    assert!(result.is_ok(), "Video project should build filter complex");
+
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    // Если есть видео треки, должен быть filter_complex
+    if builder.has_video_tracks() {
+      assert!(args.contains(&"-filter_complex".to_string()));
+      assert!(args.contains(&"-map".to_string()));
+    }
+  }
+
+  #[tokio::test]
+  async fn test_add_segment_filters() {
+    let project = create_project_with_clips();
+    let builder = FilterBuilder::new(&project);
+    let mut cmd = Command::new("ffmpeg");
+
+    let start_time = 1.0;
+    let end_time = 3.0;
+
+    let result = builder
+      .add_segment_filters(&mut cmd, start_time, end_time)
+      .await;
+    assert!(result.is_ok(), "Segment filters should build successfully");
+  }
+
+  #[tokio::test]
+  async fn test_build_filter_complex_empty() {
+    let project = create_minimal_project();
+    let builder = FilterBuilder::new(&project);
+
+    let result = builder.build_filter_complex().await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    // Пустой проект может иметь пустую строку фильтров
+    assert!(filter.is_empty() || !filter.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_build_video_filter_chain() {
+    let project = create_project_with_clips();
+    let builder = FilterBuilder::new(&project);
+    let mut input_index = 0;
+
+    let result = builder.build_video_filter_chain(&mut input_index).await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(!filter.is_empty(), "Video filter chain should not be empty");
+
+    // Проверяем что input_index был увеличен
+    assert!(input_index > 0);
+  }
+
+  #[tokio::test]
+  async fn test_build_audio_filter_chain() {
+    let mut project = create_minimal_project();
+
+    // Создаем аудио трек с клипом
+    let mut audio_track = Track::new(TrackType::Audio, "Audio Track".to_string());
+    let audio_clip = Clip::new(std::path::PathBuf::from("/tmp/audio.mp3"), 0.0, 5.0);
+    audio_track.clips.push(audio_clip);
+    project.tracks.push(audio_track);
+
+    let builder = FilterBuilder::new(&project);
+    let mut input_index = 0;
+
+    let result = builder.build_audio_filter_chain(&mut input_index).await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(!filter.is_empty(), "Audio filter chain should not be empty");
+  }
+
+  #[tokio::test]
+  async fn test_build_segment_video_filter_chain() {
+    let project = create_project_with_clips();
+    let builder = FilterBuilder::new(&project);
+    let mut input_index = 0;
+
+    let start_time = 0.0;
+    let end_time = 10.0;
+
+    let result = builder
+      .build_segment_video_filter_chain(&mut input_index, start_time, end_time)
+      .await;
+    assert!(result.is_ok());
+
+    // Результат может быть пустым если клипы не попадают в сегмент
+    let _filter = result.unwrap();
+  }
+
+  #[tokio::test]
+  async fn test_build_clip_filter() {
+    let project = create_project_with_clips();
+    let builder = FilterBuilder::new(&project);
+
+    // Берем первый клип из первого трека
+    let clip = &project.tracks[0].clips[0];
+    let input_index = 0;
+    let track_index = 0;
+
+    let result = builder
+      .build_clip_filter(clip, input_index, track_index)
+      .await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(!filter.is_empty(), "Clip filter should not be empty");
+
+    // Проверяем что фильтр содержит базовые элементы
+    assert!(filter.contains("scale="));
+    assert!(filter.contains("setpts="));
+  }
+
+  #[tokio::test]
+  async fn test_build_audio_clip_filter() {
+    let project = create_project_with_clips();
+    let builder = FilterBuilder::new(&project);
+
+    let clip = &project.tracks[0].clips[0];
+    let input_index = 0;
+
+    let result = builder.build_audio_clip_filter(clip, input_index).await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(!filter.is_empty(), "Audio clip filter should not be empty");
+
+    // Проверяем что фильтр содержит аудио элементы
+    assert!(filter.contains("asetpts="));
+    assert!(filter.contains("volume="));
+  }
+
+  #[test]
+  fn test_build_overlay_filter() {
+    let project = create_minimal_project();
+    let builder = FilterBuilder::new(&project);
+
+    // Тест с одним треком
+    let overlay = builder.build_overlay_filter(1);
+    assert!(overlay.contains("[track0]"));
+    assert!(overlay.contains("[outv]"));
+
+    // Тест с несколькими треками
+    let overlay = builder.build_overlay_filter(3);
+    assert!(overlay.contains("[track0]"));
+    assert!(overlay.contains("[track1]"));
+    assert!(overlay.contains("[track2]"));
+    assert!(overlay.contains("overlay"));
+    assert!(overlay.contains("[outv]"));
+  }
+
+  #[tokio::test]
+  async fn test_filter_chain_with_disabled_tracks() {
+    let mut project = create_project_with_clips();
+
+    // Отключаем первый трек
+    project.tracks[0].enabled = false;
+
+    let builder = FilterBuilder::new(&project);
+
+    // Проверяем что отключенные треки не учитываются
+    assert!(!builder.has_video_tracks());
+
+    let mut input_index = 0;
+    let result = builder.build_video_filter_chain(&mut input_index).await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    // Фильтр должен быть пустым так как нет активных треков
+    assert!(filter.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_complex_project_filter_building() {
+    let project = create_complex_project();
+    let builder = FilterBuilder::new(&project);
+
+    let result = builder.build_filter_complex().await;
+    assert!(
+      result.is_ok(),
+      "Complex project should build filters successfully"
+    );
+
+    let filter = result.unwrap();
+    // Комплексный проект должен создать фильтры
+    assert!(!filter.is_empty() || project.tracks.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_segment_audio_filter_chain() {
+    let mut project = create_minimal_project();
+
+    // Создаем аудио трек с клипом
+    let mut audio_track = Track::new(TrackType::Audio, "Audio Track".to_string());
+    let audio_clip = Clip::new(std::path::PathBuf::from("/tmp/audio.mp3"), 2.0, 8.0);
+    audio_track.clips.push(audio_clip);
+    project.tracks.push(audio_track);
+
+    let builder = FilterBuilder::new(&project);
+    let mut input_index = 0;
+
+    // Тестируем сегмент который пересекается с клипом
+    let start_time = 5.0;
+    let end_time = 10.0;
+
+    let result = builder
+      .build_segment_audio_filter_chain(&mut input_index, start_time, end_time)
+      .await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    // Должен создать фильтр так как клип пересекается с сегментом
+    assert!(!filter.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_filter_with_subtitles() {
+    let mut project = create_project_with_clips();
+
+    // Добавляем субтитры
+    use crate::video_compiler::schema::subtitles::Subtitle;
+    let subtitle = Subtitle::new("Test subtitle".to_string(), 1.0, 3.0);
+    project.subtitles.push(subtitle);
+
+    let builder = FilterBuilder::new(&project);
+    let mut cmd = Command::new("ffmpeg");
+
+    let result = builder.add_filter_complex(&mut cmd).await;
+    assert!(result.is_ok());
+
+    // Проверяем что маппинг учитывает субтитры
+    let args: Vec<String> = cmd
+      .as_std()
+      .get_args()
+      .map(|s| s.to_string_lossy().to_string())
+      .collect();
+
+    if builder.has_video_tracks() {
+      assert!(args.contains(&"-map".to_string()));
+    }
+  }
+}

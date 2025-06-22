@@ -127,21 +127,21 @@ describe("UserSettingsModal", () => {
     }))
 
     vi.mocked(useApiKeys).mockImplementation(() => ({
-      getApiKeyStatus: vi.fn().mockReturnValue('not_set'),
+      getApiKeyStatus: vi.fn().mockReturnValue("not_set"),
       updateApiKeyStatus: vi.fn(),
       testApiKey: vi.fn(),
       initiateOAuth: vi.fn(),
-      youtubeCredentials: { clientId: '', clientSecret: '' },
+      youtubeCredentials: { clientId: "", clientSecret: "" },
       updateYoutubeCredentials: vi.fn(),
-      tiktokCredentials: { clientId: '', clientSecret: '' },
+      tiktokCredentials: { clientId: "", clientSecret: "" },
       updateTiktokCredentials: vi.fn(),
-      vimeoCredentials: { clientId: '', clientSecret: '', accessToken: '' },
+      vimeoCredentials: { clientId: "", clientSecret: "", accessToken: "" },
       updateVimeoCredentials: vi.fn(),
-      telegramCredentials: { botToken: '', chatId: '' },
+      telegramCredentials: { botToken: "", chatId: "" },
       updateTelegramCredentials: vi.fn(),
-      codecovToken: '',
+      codecovToken: "",
       updateCodecovToken: vi.fn(),
-      tauriAnalyticsKey: '',
+      tauriAnalyticsKey: "",
       updateTauriAnalyticsKey: vi.fn(),
     }))
   })
@@ -208,7 +208,7 @@ describe("UserSettingsModal", () => {
     expect(screen.getByText("dialogs.userSettings.tabs.general")).toBeInTheDocument()
     expect(screen.getByText("dialogs.userSettings.tabs.aiServices")).toBeInTheDocument()
     expect(screen.getByText("dialogs.userSettings.tabs.socialNetworks")).toBeInTheDocument()
-    
+
     // General tab активен по умолчанию, проверяем его содержимое
     expect(screen.getByText("dialogs.userSettings.interfaceLanguage")).toBeInTheDocument()
   })
@@ -253,7 +253,6 @@ describe("UserSettingsModal", () => {
     // Проверяем, что handleScreenshotsPathChange был вызван с правильным значением
     expect(mockHandleScreenshotsPathChange).toHaveBeenCalledWith("public/screenshots")
   })
-
 
   it("should update state when language changes in context", () => {
     // Рендерим компонент
@@ -306,8 +305,6 @@ describe("UserSettingsModal", () => {
     const updatedScreenshotsPathInput = screen.getAllByPlaceholderText("public/screenshots")[1]
     expect(updatedScreenshotsPathInput).toHaveValue("new/path")
   })
-
-
 
   it("should handle folder selection button click using Tauri Dialog Plugin", async () => {
     // Получаем мок функции open из плагина dialog
@@ -374,7 +371,6 @@ describe("UserSettingsModal", () => {
     const screenshotsPathInput = screen.getByPlaceholderText("public/screenshots")
     expect(screenshotsPathInput).toHaveValue("selected/directory/path")
   })
-
 
   it("should handle player screenshots path selection", async () => {
     // Получаем мок функции open из плагина dialog

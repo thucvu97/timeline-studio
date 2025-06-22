@@ -45,11 +45,11 @@ export interface UserSettingsContextType {
   screenshotsPath: string // Путь для сохранения скриншотов
   playerScreenshotsPath: string // Путь для сохранения скриншотов из плеера
   playerVolume: number // Громкость плеера (0-100)
-  
+
   // AI сервисы
   openAiApiKey: string // API ключ для OpenAI
   claudeApiKey: string // API ключ для Claude
-  
+
   // Социальные сети OAuth
   youtubeClientId: string // YouTube OAuth Client ID
   youtubeClientSecret: string // YouTube OAuth Client Secret
@@ -60,14 +60,14 @@ export interface UserSettingsContextType {
   vimeoAccessToken: string // Vimeo Personal Access Token
   telegramBotToken: string // Telegram Bot Token
   telegramChatId: string // Telegram Chat ID или Channel ID
-  
+
   // Дополнительные сервисы
   codecovToken: string // Codecov token для отчетов покрытия
   tauriAnalyticsKey: string // Tauri Analytics ключ
-  
+
   // Статусы подключений
-  apiKeysStatus: Record<string, 'not_set' | 'testing' | 'invalid' | 'valid'> // Статус каждого API ключа
-  
+  apiKeysStatus: Record<string, "not_set" | "testing" | "invalid" | "valid"> // Статус каждого API ключа
+
   isBrowserVisible: boolean // Флаг видимости браузера
   isTimelineVisible: boolean // Флаг видимости временной шкалы
   isOptionsVisible: boolean // Флаг видимости опций
@@ -87,11 +87,11 @@ const initialContext: UserSettingsContextType = {
   screenshotsPath: "public/screenshots", // Путь для скриншотов по умолчанию
   playerScreenshotsPath: "public/media", // Путь для скриншотов плеера по умолчанию
   playerVolume: 100, // Громкость плеера по умолчанию (100%)
-  
+
   // AI сервисы - пустые по умолчанию
   openAiApiKey: "", // Пустой API ключ OpenAI
   claudeApiKey: "", // Пустой API ключ Claude
-  
+
   // Социальные сети - пустые по умолчанию
   youtubeClientId: "",
   youtubeClientSecret: "",
@@ -102,23 +102,23 @@ const initialContext: UserSettingsContextType = {
   vimeoAccessToken: "",
   telegramBotToken: "",
   telegramChatId: "",
-  
+
   // Дополнительные сервисы - пустые по умолчанию
   codecovToken: "",
   tauriAnalyticsKey: "",
-  
+
   // Статусы всех ключей - не настроены по умолчанию
   apiKeysStatus: {
-    openai: 'not_set',
-    claude: 'not_set',
-    youtube: 'not_set',
-    tiktok: 'not_set',
-    vimeo: 'not_set',
-    telegram: 'not_set',
-    codecov: 'not_set',
-    tauri_analytics: 'not_set',
+    openai: "not_set",
+    claude: "not_set",
+    youtube: "not_set",
+    tiktok: "not_set",
+    vimeo: "not_set",
+    telegram: "not_set",
+    codecov: "not_set",
+    tauri_analytics: "not_set",
   },
-  
+
   isBrowserVisible: true, // Браузер виден по умолчанию
   isTimelineVisible: true, // Временная шкала видна по умолчанию
   isOptionsVisible: true, // Опции видны по умолчанию
@@ -283,7 +283,7 @@ interface UpdateTauriAnalyticsKeyEvent {
 interface UpdateApiKeyStatusEvent {
   type: "UPDATE_API_KEY_STATUS"
   service: string
-  status: 'not_set' | 'testing' | 'invalid' | 'valid'
+  status: "not_set" | "testing" | "invalid" | "valid"
 }
 
 interface TestApiKeyEvent {
@@ -637,14 +637,18 @@ export const userSettingsMachine = createMachine(
       updateYoutubeCredentials: assign(({ context, event }) => {
         const typedEvent = event as UpdateYoutubeCredentialsEvent
         console.log("Updating YouTube credentials")
-        
+
         return {
           ...context,
           youtubeClientId: typedEvent.clientId,
           youtubeClientSecret: typedEvent.clientSecret,
           apiKeysStatus: {
             ...context.apiKeysStatus,
-            youtube: (typedEvent.clientId && typedEvent.clientSecret ? 'valid' : 'not_set') as 'not_set' | 'testing' | 'invalid' | 'valid',
+            youtube: (typedEvent.clientId && typedEvent.clientSecret ? "valid" : "not_set") as
+              | "not_set"
+              | "testing"
+              | "invalid"
+              | "valid",
           },
         }
       }),
@@ -652,14 +656,18 @@ export const userSettingsMachine = createMachine(
       updateTiktokCredentials: assign(({ context, event }) => {
         const typedEvent = event as UpdateTiktokCredentialsEvent
         console.log("Updating TikTok credentials")
-        
+
         return {
           ...context,
           tiktokClientId: typedEvent.clientId,
           tiktokClientSecret: typedEvent.clientSecret,
           apiKeysStatus: {
             ...context.apiKeysStatus,
-            tiktok: (typedEvent.clientId && typedEvent.clientSecret ? 'valid' : 'not_set') as 'not_set' | 'testing' | 'invalid' | 'valid',
+            tiktok: (typedEvent.clientId && typedEvent.clientSecret ? "valid" : "not_set") as
+              | "not_set"
+              | "testing"
+              | "invalid"
+              | "valid",
           },
         }
       }),
@@ -667,7 +675,7 @@ export const userSettingsMachine = createMachine(
       updateVimeoCredentials: assign(({ context, event }) => {
         const typedEvent = event as UpdateVimeoCredentialsEvent
         console.log("Updating Vimeo credentials")
-        
+
         return {
           ...context,
           vimeoClientId: typedEvent.clientId,
@@ -675,7 +683,11 @@ export const userSettingsMachine = createMachine(
           vimeoAccessToken: typedEvent.accessToken,
           apiKeysStatus: {
             ...context.apiKeysStatus,
-            vimeo: (typedEvent.clientId && typedEvent.clientSecret ? 'valid' : 'not_set') as 'not_set' | 'testing' | 'invalid' | 'valid',
+            vimeo: (typedEvent.clientId && typedEvent.clientSecret ? "valid" : "not_set") as
+              | "not_set"
+              | "testing"
+              | "invalid"
+              | "valid",
           },
         }
       }),
@@ -683,14 +695,14 @@ export const userSettingsMachine = createMachine(
       updateTelegramCredentials: assign(({ context, event }) => {
         const typedEvent = event as UpdateTelegramCredentialsEvent
         console.log("Updating Telegram credentials")
-        
+
         return {
           ...context,
           telegramBotToken: typedEvent.botToken,
           telegramChatId: typedEvent.chatId,
           apiKeysStatus: {
             ...context.apiKeysStatus,
-            telegram: (typedEvent.botToken ? 'valid' : 'not_set') as 'not_set' | 'testing' | 'invalid' | 'valid',
+            telegram: (typedEvent.botToken ? "valid" : "not_set") as "not_set" | "testing" | "invalid" | "valid",
           },
         }
       }),
@@ -698,13 +710,13 @@ export const userSettingsMachine = createMachine(
       updateCodecovToken: assign(({ context, event }) => {
         const typedEvent = event as UpdateCodecovTokenEvent
         console.log("Updating Codecov token:", typedEvent.token ? "***" : "(empty)")
-        
+
         return {
           ...context,
           codecovToken: typedEvent.token,
           apiKeysStatus: {
             ...context.apiKeysStatus,
-            codecov: (typedEvent.token ? 'valid' : 'not_set') as 'not_set' | 'testing' | 'invalid' | 'valid',
+            codecov: (typedEvent.token ? "valid" : "not_set") as "not_set" | "testing" | "invalid" | "valid",
           },
         }
       }),
@@ -712,13 +724,13 @@ export const userSettingsMachine = createMachine(
       updateTauriAnalyticsKey: assign(({ context, event }) => {
         const typedEvent = event as UpdateTauriAnalyticsKeyEvent
         console.log("Updating Tauri Analytics key:", typedEvent.key ? "***" : "(empty)")
-        
+
         return {
           ...context,
           tauriAnalyticsKey: typedEvent.key,
           apiKeysStatus: {
             ...context.apiKeysStatus,
-            tauri_analytics: (typedEvent.key ? 'valid' : 'not_set') as 'not_set' | 'testing' | 'invalid' | 'valid',
+            tauri_analytics: (typedEvent.key ? "valid" : "not_set") as "not_set" | "testing" | "invalid" | "valid",
           },
         }
       }),
@@ -726,7 +738,7 @@ export const userSettingsMachine = createMachine(
       updateApiKeyStatus: assign(({ context, event }) => {
         const typedEvent = event as UpdateApiKeyStatusEvent
         console.log(`Updating API key status for ${typedEvent.service}:`, typedEvent.status)
-        
+
         return {
           ...context,
           apiKeysStatus: {
@@ -739,13 +751,13 @@ export const userSettingsMachine = createMachine(
       testApiKey: assign(({ context, event }) => {
         const typedEvent = event as TestApiKeyEvent
         console.log(`Testing API key for service: ${typedEvent.service}`)
-        
+
         // Устанавливаем статус "testing" пока идет проверка
         return {
           ...context,
           apiKeysStatus: {
             ...context.apiKeysStatus,
-            [typedEvent.service]: 'testing' as 'not_set' | 'testing' | 'invalid' | 'valid',
+            [typedEvent.service]: "testing" as "not_set" | "testing" | "invalid" | "valid",
           },
         }
       }),

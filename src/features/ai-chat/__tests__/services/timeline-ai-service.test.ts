@@ -13,10 +13,7 @@ import {
   TemplateResource,
   TransitionResource,
 } from "@/features/resources/types"
-import { StyleTemplate } from "@/features/style-templates/types/style-template"
-import { MediaTemplate } from "@/features/templates/lib/templates"
 import { TimelineProject } from "@/features/timeline/types"
-import { Transition } from "@/features/transitions/types/transitions"
 
 import { CLAUDE_MODELS, ClaudeService } from "../../services/claude-service"
 import { TimelineAIService } from "../../services/timeline-ai-service"
@@ -376,7 +373,7 @@ describe("TimelineAIService", () => {
       const callArgs = mockClaudeService.sendRequestWithTools.mock.calls[0]
       const systemPrompt = callArgs[3].system
 
-      expect(systemPrompt).toContain("Медиафайлы: 2") // 2 media resources  
+      expect(systemPrompt).toContain("Медиафайлы: 2") // 2 media resources
       expect(systemPrompt).toContain("Эффекты: 2") // 2 effects
       expect(systemPrompt).toContain("анализа медиа ресурсов") // analysis prompt type
     })
