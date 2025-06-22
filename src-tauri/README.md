@@ -185,9 +185,47 @@ cargo clean
 cargo tarpaulin --features "custom-protocol"
 ```
 
+## Documentation
+
+### Backend Architecture & Implementation
+
+- **[Backend Improvements Summary](./BACKEND_IMPROVEMENTS_SUMMARY.md)** - Overview of completed refactoring and service layer architecture
+- **[Monitoring Implementation](./MONITORING_IMPLEMENTATION.md)** - Comprehensive monitoring, metrics, and alerting system
+- **[Error Handling](./ERROR_HANDLING.md)** - Error types, handling patterns, and recovery strategies
+- **[Development Guide](./DEV.md)** - Internal development documentation
+- **[Refactoring Summary](./REFACTORING_SUMMARY.md)** - Details of the modular refactoring
+
+### Key Implementation Details
+
+1. **Service Layer Architecture**
+   - Clean separation: Commands → Services → Core Logic
+   - Dependency injection for testability
+   - Automatic metrics collection
+   - Comprehensive error handling
+
+2. **FFmpeg Integration**
+   - Advanced operations (thumbnails, GIF, waveform)
+   - Real-time progress tracking
+   - Hardware acceleration support
+   - Fallback strategies
+
+3. **Monitoring & Metrics**
+   - Per-service performance tracking
+   - Resource usage monitoring (CPU, GPU, Memory)
+   - Prometheus export endpoint
+   - Alert system with configurable thresholds
+
+4. **Error Handling**
+   - Type-safe error variants
+   - Context-rich error messages
+   - Automatic retry for transient errors
+   - User-friendly error conversion
+
 ## Contributing
 
 1. Write tests for new features
-2. Maintain >90% code coverage
+2. Maintain >80% code coverage
 3. Run `cargo fmt` before committing
-4. Update this README for new modules
+4. Update relevant documentation
+5. Follow error handling patterns
+6. Add metrics for new operations

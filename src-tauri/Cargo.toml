@@ -56,6 +56,7 @@ regex = "1.0"
 parking_lot = "0.12"
 async-trait = "0.1"
 base64 = "0.22.1"
+once_cell = "1.19"
 # Video Server dependencies
 axum = { version = "0.7", features = ["tokio", "http2"] }
 tokio-util = { version = "0.7", features = ["io"] }
@@ -66,6 +67,10 @@ dirs = "5.0"
 anyhow = "1.0.98"
 ort = { version = "=2.0.0-rc.10", default-features = false, features = ["std", "load-dynamic"] }
 ndarray = "0.15"
+# System information dependencies
+num_cpus = "1.16"
+sysinfo = "0.31"
+os_info = "3.8"
 
 [features]
 # by default Tauri runs in production mode

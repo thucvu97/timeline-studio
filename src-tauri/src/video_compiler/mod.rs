@@ -7,38 +7,31 @@
 //! - Генератор превью (PreviewGenerator)
 //! - Отслеживание прогресса (ProgressTracker)
 
-pub mod cache;
+// Новая модульная структура
 pub mod commands;
-pub mod commands_logic;
-pub mod error;
+pub mod core;
 pub mod ffmpeg_builder;
-pub mod frame_extraction;
-pub mod gpu;
-pub mod pipeline;
-pub mod preview;
-pub mod progress;
-pub mod renderer;
+pub mod ffmpeg_executor;
 pub mod schema;
+pub mod services;
 
 #[cfg(test)]
-mod test_integration;
-
-#[cfg(test)]
-mod error_tests;
-
-#[cfg(test)]
-mod progress_tests;
-
-#[cfg(test)]
-mod frame_extraction_tests;
-
-#[cfg(test)]
-mod commands_tests;
+pub mod tests;
 
 // Re-export основных типов для удобства использования
 pub use commands::VideoCompilerState;
-pub use error::{Result, VideoCompilerError};
-pub use progress::RenderProgress;
+pub use core::error::{Result, VideoCompilerError};
+pub use core::progress::RenderProgress;
+
+// Re-export core modules for backward compatibility
+pub use core::cache;
+pub use core::error;
+pub use core::frame_extraction;
+pub use core::gpu;
+pub use core::pipeline;
+pub use core::preview;
+pub use core::progress;
+pub use core::renderer;
 
 use serde::{Deserialize, Serialize};
 
@@ -170,8 +163,11 @@ pub async fn initialize() -> Result<VideoCompilerState> {
   let ffmpeg_path = check_dependencies().await?;
 
   // Создаем состояние с найденным путем FFmpeg
-  let mut state = VideoCompilerState::new();
-  state.ffmpeg_path = ffmpeg_path;
+  let state = VideoCompilerState::new().await;
+  {
+    let mut ffmpeg_path_state = state.ffmpeg_path.write().await;
+    *ffmpeg_path_state = ffmpeg_path;
+  }
 
   // Обновляем настройки
   {
@@ -187,51 +183,7 @@ pub async fn initialize() -> Result<VideoCompilerState> {
 
   log::info!(
     "Video Compiler модуль успешно инициализирован с FFmpeg: {}",
-    &state.ffmpeg_path
+    &state.ffmpeg_path.read().await
   );
   Ok(state)
-}
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[tokio::test]
-  async fn test_video_compiler_state_creation() {
-    let state = VideoCompilerState::new();
-    assert_eq!(state.active_jobs.read().await.len(), 0);
-
-    let settings = state.settings.read().await;
-    assert_eq!(settings.max_concurrent_jobs, 2);
-    assert_eq!(settings.cache_size_mb, 512);
-  }
-
-  #[tokio::test]
-  async fn test_compiler_settings_default() {
-    let settings = CompilerSettings::default();
-    assert_eq!(settings.max_concurrent_jobs, 2);
-    assert_eq!(settings.cache_size_mb, 512);
-    assert!(settings.hardware_acceleration);
-    assert_eq!(settings.preview_quality, 75);
-  }
-
-  #[tokio::test]
-  async fn test_check_dependencies() {
-    // Тест может не пройти если FFmpeg не установлен, но это ожидаемо
-    match check_dependencies().await {
-      Ok(_) => println!("FFmpeg найден и работает"),
-      Err(e) => println!("FFmpeg недоступен: {:?}", e),
-    }
-  }
-
-  #[test]
-  fn test_video_compiler_event_serialization() {
-    let event = VideoCompilerEvent::RenderStarted {
-      job_id: "test-123".to_string(),
-    };
-
-    let json = serde_json::to_string(&event).unwrap();
-    assert!(json.contains("RenderStarted"));
-    assert!(json.contains("test-123"));
-  }
 }

@@ -1,0 +1,551 @@
+//! FFmpeg Builder - Модуль обработки субтитров
+
+use crate::video_compiler::error::Result;
+use crate::video_compiler::schema::{
+  ProjectSchema, Subtitle, SubtitleAlignX, SubtitleAlignY, SubtitleAnimation,
+  SubtitleAnimationType, SubtitleDirection, SubtitleFontWeight, SubtitlePosition,
+};
+
+/// Построитель субтитров
+pub struct SubtitleBuilder<'a> {
+  project: &'a ProjectSchema,
+}
+
+impl<'a> SubtitleBuilder<'a> {
+  /// Создать новый построитель субтитров
+  pub fn new(project: &'a ProjectSchema) -> Self {
+    Self { project }
+  }
+
+  /// Построить фильтр субтитров
+  pub async fn build_subtitle_filter(&self) -> Result<String> {
+    if self.project.subtitles.is_empty() {
+      return Ok(String::new());
+    }
+
+    let mut subtitle_filters = Vec::new();
+    let base_resolution = &self.project.settings.resolution;
+
+    for (idx, subtitle) in self.project.subtitles.iter().enumerate() {
+      let filter = self
+        .build_single_subtitle_filter(subtitle, idx, base_resolution)
+        .await?;
+      subtitle_filters.push(filter);
+    }
+
+    // Объединяем все субтитры
+    if subtitle_filters.len() == 1 {
+      Ok(format!("[outv]{}[outv_with_subs]", subtitle_filters[0]))
+    } else {
+      // Накладываем субтитры последовательно
+      let mut filter_chain = String::new();
+      let mut current_input = "[outv]".to_string();
+
+      for (idx, filter) in subtitle_filters.iter().enumerate() {
+        let output = if idx == subtitle_filters.len() - 1 {
+          "[outv_with_subs]".to_string()
+        } else {
+          format!("[sub_tmp{}]", idx)
+        };
+
+        filter_chain.push_str(&format!("{}{}{};", current_input, filter, output));
+
+        if idx < subtitle_filters.len() - 1 {
+          current_input = format!("[sub_tmp{}]", idx);
+        }
+      }
+
+      Ok(filter_chain)
+    }
+  }
+
+  /// Построить фильтр для одного субтитра
+  async fn build_single_subtitle_filter(
+    &self,
+    subtitle: &Subtitle,
+    _index: usize,
+    resolution: &crate::video_compiler::schema::Resolution,
+  ) -> Result<String> {
+    let mut filter = String::new();
+
+    // Экранируем текст
+    let escaped_text = self.escape_text(&subtitle.text);
+
+    // Получаем путь к шрифту
+    let font_path = self.get_font_path(&subtitle.font_family);
+
+    // Вычисляем позицию
+    let (x, y) = self.calculate_position(subtitle, resolution);
+
+    // Базовые параметры drawtext
+    filter.push_str(&format!(
+      "drawtext=text='{}':fontfile='{}':fontsize={}:fontcolor={}@{}",
+      escaped_text,
+      font_path,
+      subtitle.font_size,
+      &subtitle.color[1..], // Убираем # из цвета
+      subtitle.opacity
+    ));
+
+    // Добавляем жирность шрифта
+    if subtitle.font_weight != SubtitleFontWeight::Normal {
+      filter.push_str(&format!(
+        ":font_weight={}",
+        self.get_font_weight_value(&subtitle.font_weight)
+      ));
+    }
+
+    // Добавляем позицию
+    filter.push_str(&format!(":x={}:y={}", x, y));
+
+    // Добавляем тень если включена
+    if subtitle.shadow {
+      filter.push_str(":shadowx=2:shadowy=2:shadowcolor=black@0.5");
+    }
+
+    // Добавляем обводку если включена
+    if subtitle.outline {
+      filter.push_str(":borderw=2:bordercolor=black@0.8");
+    }
+
+    // Временные границы
+    filter.push_str(&format!(
+      ":enable='between(t,{},{})'",
+      subtitle.start_time,
+      subtitle.start_time + subtitle.duration
+    ));
+
+    // Применяем анимации
+    if !subtitle.animations.is_empty() {
+      filter = self.apply_animations_to_subtitle(filter, subtitle, resolution)?;
+    }
+
+    Ok(filter)
+  }
+
+  /// Применить анимации к субтитру
+  fn apply_animations_to_subtitle(
+    &self,
+    mut filter: String,
+    subtitle: &Subtitle,
+    resolution: &crate::video_compiler::schema::Resolution,
+  ) -> Result<String> {
+    for animation in &subtitle.animations {
+      filter = self.apply_single_animation(filter, animation, subtitle, resolution)?;
+    }
+    Ok(filter)
+  }
+
+  /// Применить одну анимацию к субтитру
+  fn apply_single_animation(
+    &self,
+    filter: String,
+    animation: &SubtitleAnimation,
+    subtitle: &Subtitle,
+    resolution: &crate::video_compiler::schema::Resolution,
+  ) -> Result<String> {
+    let start_time = subtitle.start_time + animation.start_time;
+    let end_time = start_time + animation.duration;
+
+    match animation.animation_type {
+      SubtitleAnimationType::FadeIn => {
+        // Заменяем статическую прозрачность на анимированную для fade in
+        Ok(filter.replace(
+          &format!("@{}", subtitle.opacity),
+          &format!(
+            "@{{if(lt(t,{}),0,if(gt(t,{}),{},({}-{})*(t-{})/{}+0))}}",
+            start_time,
+            end_time,
+            subtitle.opacity,
+            subtitle.opacity,
+            0.0,
+            start_time,
+            animation.duration
+          ),
+        ))
+      }
+      SubtitleAnimationType::FadeOut => {
+        // Анимация исчезновения
+        Ok(filter.replace(
+          &format!("@{}", subtitle.opacity),
+          &format!(
+            "@{{if(lt(t,{}),{},if(gt(t,{}),0,{}*(1-(t-{})/{})))}}",
+            start_time,
+            subtitle.opacity,
+            end_time,
+            subtitle.opacity,
+            start_time,
+            animation.duration
+          ),
+        ))
+      }
+      SubtitleAnimationType::SlideIn => {
+        // Анимация появления слайдом
+        let direction = animation
+          .direction
+          .as_ref()
+          .unwrap_or(&SubtitleDirection::Top);
+        let (start_x, start_y, end_x, end_y) =
+          self.calculate_slide_positions(subtitle, resolution, direction, true);
+
+        let x_expr = format!(
+          "{{if(lt(t,{}),{},if(gt(t,{}),{},{}+({}-({}))*(t-{})/{}))}}",
+          start_time,
+          start_x,
+          end_time,
+          end_x,
+          start_x,
+          end_x,
+          start_x,
+          start_time,
+          animation.duration
+        );
+
+        let y_expr = format!(
+          "{{if(lt(t,{}),{},if(gt(t,{}),{},{}+({}-({}))*(t-{})/{}))}}",
+          start_time,
+          start_y,
+          end_time,
+          end_y,
+          start_y,
+          end_y,
+          start_y,
+          start_time,
+          animation.duration
+        );
+
+        Ok(
+          filter
+            .replace(
+              &format!(":x={}", self.calculate_position(subtitle, resolution).0),
+              &format!(":x={}", x_expr),
+            )
+            .replace(
+              &format!(":y={}", self.calculate_position(subtitle, resolution).1),
+              &format!(":y={}", y_expr),
+            ),
+        )
+      }
+      SubtitleAnimationType::SlideOut => {
+        // Анимация исчезновения слайдом
+        let direction = animation
+          .direction
+          .as_ref()
+          .unwrap_or(&SubtitleDirection::Bottom);
+        let (start_x, start_y, end_x, end_y) =
+          self.calculate_slide_positions(subtitle, resolution, direction, false);
+
+        let x_expr = format!(
+          "{{if(lt(t,{}),{},if(gt(t,{}),{},{}+({}-({}))*(t-{})/{}))}}",
+          start_time,
+          start_x,
+          end_time,
+          end_x,
+          start_x,
+          end_x,
+          start_x,
+          start_time,
+          animation.duration
+        );
+
+        let y_expr = format!(
+          "{{if(lt(t,{}),{},if(gt(t,{}),{},{}+({}-({}))*(t-{})/{}))}}",
+          start_time,
+          start_y,
+          end_time,
+          end_y,
+          start_y,
+          end_y,
+          start_y,
+          start_time,
+          animation.duration
+        );
+
+        Ok(
+          filter
+            .replace(
+              &format!(":x={}", self.calculate_position(subtitle, resolution).0),
+              &format!(":x={}", x_expr),
+            )
+            .replace(
+              &format!(":y={}", self.calculate_position(subtitle, resolution).1),
+              &format!(":y={}", y_expr),
+            ),
+        )
+      }
+      SubtitleAnimationType::Scale => {
+        // Анимация масштабирования
+        let scale_expr = format!(
+          "{{if(lt(t,{}),0,if(gt(t,{}),1,(t-{})/{}))}}",
+          start_time, end_time, start_time, animation.duration
+        );
+
+        // Модифицируем размер шрифта
+        Ok(filter.replace(
+          &format!(":fontsize={}", subtitle.font_size),
+          &format!(":fontsize={}{}", subtitle.font_size, scale_expr),
+        ))
+      }
+      SubtitleAnimationType::ScaleIn => {
+        // Анимация появления с увеличением
+        let scale_expr = format!(
+          "{{if(lt(t,{}),0,if(gt(t,{}),1,(t-{})/{}))}}",
+          start_time, end_time, start_time, animation.duration
+        );
+        Ok(filter.replace(
+          &format!(":fontsize={}", subtitle.font_size),
+          &format!(":fontsize={}{}", subtitle.font_size, scale_expr),
+        ))
+      }
+      SubtitleAnimationType::ScaleOut => {
+        // Анимация исчезновения с уменьшением
+        let scale_expr = format!(
+          "{{if(lt(t,{}),1,if(gt(t,{}),0,1-(t-{})/{}))}}",
+          start_time, end_time, start_time, animation.duration
+        );
+        Ok(filter.replace(
+          &format!(":fontsize={}", subtitle.font_size),
+          &format!(":fontsize={}{}", subtitle.font_size, scale_expr),
+        ))
+      }
+      SubtitleAnimationType::Typewriter => {
+        // Эффект печатной машинки - постепенное появление букв
+        // Используем простую fade in анимацию как приближение
+        Ok(filter.replace(
+          &format!("@{}", subtitle.opacity),
+          &format!(
+            "@{{if(lt(t,{}),0,if(gt(t,{}),{},({}-{})*(t-{})/{}+0))}}",
+            start_time,
+            end_time,
+            subtitle.opacity,
+            subtitle.opacity,
+            0.0,
+            start_time,
+            animation.duration
+          ),
+        ))
+      }
+      SubtitleAnimationType::Bounce => {
+        // Анимация подпрыгивания
+        // Простая вертикальная анимация
+        let bounce_expr = format!(
+          "{{if(lt(t,{}),0,if(gt(t,{}),0,sin((t-{})*3.14/{})*20))}}",
+          start_time, end_time, start_time, animation.duration
+        );
+        Ok(filter.replace(
+          &format!(":y={}", self.calculate_position(subtitle, resolution).1),
+          &format!(
+            ":y={}-{}",
+            self.calculate_position(subtitle, resolution).1,
+            bounce_expr
+          ),
+        ))
+      }
+      SubtitleAnimationType::Shake => {
+        // Анимация тряски
+        let shake_expr = format!(
+          "{{if(lt(t,{}),0,if(gt(t,{}),0,sin(t*50)*5))}}",
+          start_time, end_time
+        );
+        Ok(filter.replace(
+          &format!(":x={}", self.calculate_position(subtitle, resolution).0),
+          &format!(
+            ":x={}+{}",
+            self.calculate_position(subtitle, resolution).0,
+            shake_expr
+          ),
+        ))
+      }
+      SubtitleAnimationType::Blink => {
+        // Анимация мигания - используем fade in/out
+        Ok(filter.replace(
+          &format!("@{}", subtitle.opacity),
+          &format!(
+            "@{{if(lt(t,{}),0,if(gt(t,{}),{},{}*abs(sin((t-{})*3.14/{}))))}}",
+            start_time,
+            end_time,
+            subtitle.opacity,
+            subtitle.opacity,
+            start_time,
+            animation.duration
+          ),
+        ))
+      }
+      SubtitleAnimationType::Dissolve => {
+        // Анимация растворения
+        Ok(filter.replace(
+          &format!("@{}", subtitle.opacity),
+          &format!(
+            "@{{if(lt(t,{}),{},if(gt(t,{}),0,{}*(1-(t-{})/{})))}}",
+            start_time,
+            subtitle.opacity,
+            end_time,
+            subtitle.opacity,
+            start_time,
+            animation.duration
+          ),
+        ))
+      }
+      SubtitleAnimationType::Wave => {
+        // Анимация волны - используем bounce как замену
+        let wave_expr = format!(
+          "{{if(lt(t,{}),0,if(gt(t,{}),0,sin((t-{})*3.14/{})*10))}}",
+          start_time, end_time, start_time, animation.duration
+        );
+        Ok(filter.replace(
+          &format!(":y={}", self.calculate_position(subtitle, resolution).1),
+          &format!(
+            ":y={}-{}",
+            self.calculate_position(subtitle, resolution).1,
+            wave_expr
+          ),
+        ))
+      }
+    }
+  }
+
+  /// Экранировать текст субтитра для FFmpeg
+  fn escape_text(&self, text: &str) -> String {
+    text
+      .replace("'", "\\'")
+      .replace(":", "\\:")
+      .replace("\\", "\\\\")
+      .replace("\n", "\\n")
+  }
+
+  /// Получить путь к шрифту
+  fn get_font_path(&self, font_family: &str) -> String {
+    // Здесь можно добавить логику поиска системных шрифтов
+    // Пока используем дефолтный путь
+    match font_family {
+      "Arial" => "/System/Library/Fonts/Helvetica.ttc".to_string(),
+      "Times New Roman" => "/System/Library/Fonts/Times.ttc".to_string(),
+      "Courier New" => "/System/Library/Fonts/Courier.ttc".to_string(),
+      _ => "/System/Library/Fonts/Helvetica.ttc".to_string(), // Default
+    }
+  }
+
+  /// Вычислить позицию субтитра
+  fn calculate_position(
+    &self,
+    subtitle: &Subtitle,
+    resolution: &crate::video_compiler::schema::Resolution,
+  ) -> (String, String) {
+    let (x, y) = match &subtitle.position {
+      SubtitlePosition::Absolute { x, y } => (*x as i32, *y as i32),
+      SubtitlePosition::Relative { align_x, align_y } => {
+        let x = match align_x {
+          SubtitleAlignX::Left => 20,
+          SubtitleAlignX::Center => resolution.width as i32 / 2,
+          SubtitleAlignX::Right => resolution.width as i32 - 20,
+        };
+
+        let y = match align_y {
+          SubtitleAlignY::Top => 20,
+          SubtitleAlignY::Center => resolution.height as i32 / 2,
+          SubtitleAlignY::Middle => resolution.height as i32 / 2,
+          SubtitleAlignY::Bottom => resolution.height as i32 - 50,
+        };
+
+        (x, y)
+      }
+    };
+
+    // Для центрирования текста по X
+    let x_expr = if matches!(
+      subtitle.position,
+      SubtitlePosition::Relative {
+        align_x: SubtitleAlignX::Center,
+        ..
+      }
+    ) {
+      "(w-text_w)/2".to_string()
+    } else if matches!(
+      subtitle.position,
+      SubtitlePosition::Relative {
+        align_x: SubtitleAlignX::Right,
+        ..
+      }
+    ) {
+      format!("{}-text_w", x)
+    } else {
+      x.to_string()
+    };
+
+    // Для центрирования текста по Y
+    let y_expr = if matches!(
+      subtitle.position,
+      SubtitlePosition::Relative {
+        align_y: SubtitleAlignY::Middle,
+        ..
+      }
+    ) {
+      "(h-text_h)/2".to_string()
+    } else if matches!(
+      subtitle.position,
+      SubtitlePosition::Relative {
+        align_y: SubtitleAlignY::Bottom,
+        ..
+      }
+    ) {
+      format!("{}-text_h", y)
+    } else {
+      y.to_string()
+    };
+
+    (x_expr, y_expr)
+  }
+
+  /// Вычислить позиции для анимации слайда
+  fn calculate_slide_positions(
+    &self,
+    subtitle: &Subtitle,
+    resolution: &crate::video_compiler::schema::Resolution,
+    direction: &SubtitleDirection,
+    is_slide_in: bool,
+  ) -> (i32, i32, i32, i32) {
+    let (x, y) = self.calculate_position(subtitle, resolution);
+    let (end_x, end_y) = (
+      x.parse::<i32>().unwrap_or(resolution.width as i32 / 2),
+      y.parse::<i32>().unwrap_or(resolution.height as i32 / 2),
+    );
+
+    let (start_x, start_y) = if is_slide_in {
+      match direction {
+        SubtitleDirection::Left => (-200, end_y),
+        SubtitleDirection::Right => (resolution.width as i32 + 200, end_y),
+        SubtitleDirection::Top => (end_x, -50),
+        SubtitleDirection::Bottom => (end_x, resolution.height as i32 + 50),
+        SubtitleDirection::Center => (end_x, end_y), // Без движения
+      }
+    } else {
+      (end_x, end_y)
+    };
+
+    let (end_x, end_y) = if !is_slide_in {
+      match direction {
+        SubtitleDirection::Left => (-200, end_y),
+        SubtitleDirection::Right => (resolution.width as i32 + 200, end_y),
+        SubtitleDirection::Top => (end_x, -50),
+        SubtitleDirection::Bottom => (end_x, resolution.height as i32 + 50),
+        SubtitleDirection::Center => (end_x, end_y), // Без движения
+      }
+    } else {
+      (end_x, end_y)
+    };
+
+    (start_x, start_y, end_x, end_y)
+  }
+
+  /// Получить значение жирности шрифта
+  fn get_font_weight_value(&self, weight: &SubtitleFontWeight) -> &str {
+    match weight {
+      SubtitleFontWeight::Thin => "100",
+      SubtitleFontWeight::Light => "300",
+      SubtitleFontWeight::Normal => "400",
+      SubtitleFontWeight::Medium => "500",
+      SubtitleFontWeight::Bold => "700",
+      SubtitleFontWeight::Black => "900",
+    }
+  }
+}
