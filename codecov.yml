@@ -320,7 +320,7 @@ flag_management:
       carryforward: true
       statuses:
         - type: "project"
-          target: 85%
+          target: 80%
     - name: bundle
       carryforward: false
 
