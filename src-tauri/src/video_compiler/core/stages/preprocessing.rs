@@ -291,7 +291,7 @@ impl PreprocessingStage {
   }
 
   /// Генерация шумового клипа
-  async fn generate_noise_clip(
+  pub async fn generate_noise_clip(
     &self,
     duration: f64,
     output_path: &PathBuf,
@@ -330,7 +330,7 @@ impl PreprocessingStage {
   }
 
   /// Генерация градиентного клипа
-  async fn generate_gradient_clip(
+  pub async fn generate_gradient_clip(
     &self,
     color: &Option<String>,
     duration: f64,

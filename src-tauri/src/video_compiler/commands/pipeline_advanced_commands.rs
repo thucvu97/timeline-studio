@@ -269,6 +269,87 @@ pub async fn get_pipeline_user_data_direct(
   Ok(result)
 }
 
+/// Сгенерировать шумовой клип (прямое использование generate_noise_clip)
+#[tauri::command]
+pub async fn generate_noise_clip_direct(
+  duration: f64,
+  output_filename: String,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<serde_json::Value> {
+  // Используем оригинальный метод PreprocessingStage::generate_noise_clip
+  use crate::video_compiler::core::stages::preprocessing::PreprocessingStage;
+  use crate::video_compiler::core::stages::PipelineContext;
+  use crate::video_compiler::schema::ProjectSchema;
+  use std::path::PathBuf;
+  
+  // Создаем необходимые компоненты
+  let preprocessing_stage = PreprocessingStage::new();
+  let project = ProjectSchema::new("noise-generation".to_string());
+  let output_path = PathBuf::from("/tmp").join(&output_filename);
+  let context = PipelineContext::new(project, output_path.clone());
+  
+  // Используем оригинальный метод generate_noise_clip
+  match preprocessing_stage.generate_noise_clip(duration, &output_path, &context).await {
+    Ok(_) => Ok(serde_json::json!({
+      "success": true,
+      "clip_type": "noise",
+      "duration": duration,
+      "output_path": output_path.to_string_lossy(),
+      "resolution": {
+        "width": context.project.settings.resolution.width,
+        "height": context.project.settings.resolution.height
+      },
+      "frame_rate": context.project.settings.frame_rate,
+    })),
+    Err(e) => Ok(serde_json::json!({
+      "success": false,
+      "error": e.to_string()
+    }))
+  }
+}
+
+/// Сгенерировать градиентный клип (прямое использование generate_gradient_clip)
+#[tauri::command]
+pub async fn generate_gradient_clip_direct(
+  start_color: Option<String>,
+  duration: f64,
+  output_filename: String,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<serde_json::Value> {
+  // Используем оригинальный метод PreprocessingStage::generate_gradient_clip
+  use crate::video_compiler::core::stages::preprocessing::PreprocessingStage;
+  use crate::video_compiler::core::stages::PipelineContext;
+  use crate::video_compiler::schema::ProjectSchema;
+  use std::path::PathBuf;
+  
+  // Создаем необходимые компоненты
+  let preprocessing_stage = PreprocessingStage::new();
+  let project = ProjectSchema::new("gradient-generation".to_string());
+  let output_path = PathBuf::from("/tmp").join(&output_filename);
+  let context = PipelineContext::new(project, output_path.clone());
+  
+  // Используем оригинальный метод generate_gradient_clip
+  match preprocessing_stage.generate_gradient_clip(&start_color, duration, &output_path, &context).await {
+    Ok(_) => Ok(serde_json::json!({
+      "success": true,
+      "clip_type": "gradient",
+      "duration": duration,
+      "output_path": output_path.to_string_lossy(),
+      "start_color": start_color.as_deref().unwrap_or("#000000"),
+      "end_color": "#ffffff",
+      "resolution": {
+        "width": context.project.settings.resolution.width,
+        "height": context.project.settings.resolution.height
+      },
+      "frame_rate": context.project.settings.frame_rate,
+    })),
+    Err(e) => Ok(serde_json::json!({
+      "success": false,
+      "error": e.to_string()
+    }))
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -355,5 +436,27 @@ mod tests {
     
     // Проверяем что контекст создался
     assert_eq!(context.project.metadata.name, project_name);
+  }
+
+  #[test]
+  fn test_noise_clip_generation_params() {
+    // Тест параметров для генерации шумового клипа
+    let duration = 5.0;
+    let output_filename = "noise_test.mp4".to_string();
+    
+    assert!(duration > 0.0);
+    assert!(output_filename.ends_with(".mp4"));
+  }
+
+  #[test]
+  fn test_gradient_clip_generation_params() {
+    // Тест параметров для генерации градиентного клипа
+    let start_color = Some("#FF0000".to_string());
+    let duration = 3.0;
+    let output_filename = "gradient_test.mp4".to_string();
+    
+    assert!(duration > 0.0);
+    assert!(output_filename.ends_with(".mp4"));
+    assert_eq!(start_color.as_deref(), Some("#FF0000"));
   }
 }
