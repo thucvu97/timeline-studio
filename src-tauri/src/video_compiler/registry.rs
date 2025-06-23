@@ -377,6 +377,9 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       get_recognition_results_by_time_range,
       get_recognition_results_by_class,
       format_recognition_results_for_timeline,
+      check_yolo_model_is_face_model,
+      check_yolo_model_is_segmentation_model,
+      get_yolo_model_info_extended,
       // Security advanced commands
       init_secure_storage_advanced,
       create_secure_storage_instance,

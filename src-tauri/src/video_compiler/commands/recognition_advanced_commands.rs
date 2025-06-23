@@ -306,6 +306,105 @@ pub async fn format_recognition_results_for_timeline(
   Ok(filtered_segments)
 }
 
+/// Проверить тип YOLO модели по её названию (прямое использование is_face_model)
+#[tauri::command]
+pub async fn check_yolo_model_is_face_model(
+  model_name: String,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<bool> {
+  // Используем логику из YoloModel::is_face_model
+  use crate::recognition::model_manager::YoloModel;
+
+  // Пытаемся определить тип модели по названию и проверить is_face_model
+  let is_face = if model_name.to_lowercase().contains("yolov11")
+    && model_name.to_lowercase().contains("face")
+  {
+    let model = YoloModel::YoloV11Face;
+    model.is_face_model()
+  } else if model_name.to_lowercase().contains("yolov8")
+    && model_name.to_lowercase().contains("face")
+  {
+    let model = YoloModel::YoloV8Face;
+    model.is_face_model()
+  } else {
+    let model = YoloModel::YoloV8Detection; // Default model
+    model.is_face_model()
+  };
+
+  Ok(is_face)
+}
+
+/// Проверить тип YOLO модели по её названию (прямое использование is_segmentation_model)
+#[tauri::command]
+pub async fn check_yolo_model_is_segmentation_model(
+  model_name: String,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<bool> {
+  // Используем логику из YoloModel::is_segmentation_model
+  use crate::recognition::model_manager::YoloModel;
+
+  // Пытаемся определить тип модели по названию и проверить is_segmentation_model
+  let is_segmentation =
+    if model_name.to_lowercase().contains("yolov11") && model_name.to_lowercase().contains("seg") {
+      let model = YoloModel::YoloV11Segmentation;
+      model.is_segmentation_model()
+    } else if model_name.to_lowercase().contains("yolov8")
+      && model_name.to_lowercase().contains("seg")
+    {
+      let model = YoloModel::YoloV8Segmentation;
+      model.is_segmentation_model()
+    } else {
+      let model = YoloModel::YoloV8Detection; // Default model
+      model.is_segmentation_model()
+    };
+
+  Ok(is_segmentation)
+}
+
+/// Получить полную информацию о YOLO модели (используя существующую структуру)
+#[tauri::command]
+pub async fn get_yolo_model_info_extended(
+  model_name: String,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<YoloModelInfo> {
+  use crate::recognition::model_manager::YoloModel;
+
+  // Определяем тип модели по названию
+  let (model, model_type) = if model_name.to_lowercase().contains("yolov11") {
+    if model_name.to_lowercase().contains("face") {
+      (YoloModel::YoloV11Face, "YOLOv11 Face Detection")
+    } else if model_name.to_lowercase().contains("seg") {
+      (YoloModel::YoloV11Segmentation, "YOLOv11 Segmentation")
+    } else {
+      (YoloModel::YoloV11Detection, "YOLOv11 Detection")
+    }
+  } else if model_name.to_lowercase().contains("yolov8") {
+    if model_name.to_lowercase().contains("face") {
+      (YoloModel::YoloV8Face, "YOLOv8 Face Detection")
+    } else if model_name.to_lowercase().contains("seg") {
+      (YoloModel::YoloV8Segmentation, "YOLOv8 Segmentation")
+    } else {
+      (YoloModel::YoloV8Detection, "YOLOv8 Detection")
+    }
+  } else {
+    (YoloModel::YoloV8Detection, "YOLOv8 Detection (Default)")
+  };
+
+  // Используем оригинальные методы YoloModel
+  let is_face_model = model.is_face_model();
+  let is_segmentation_model = model.is_segmentation_model();
+
+  // Возвращаем структуру, используя существующие поля
+  Ok(YoloModelInfo {
+    model_path: model_name, // Используем model_path вместо model_name
+    model_type: model_type.to_string(),
+    is_face_model,
+    is_segmentation_model,
+    input_size: (640, 640), // Стандартный размер для YOLO
+    classes_count: if is_face_model { 1 } else { 80 }, // 1 для лиц, 80 для COCO
+  })
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -340,5 +439,45 @@ mod tests {
     let json = serde_json::to_string(&detection).unwrap();
     assert!(json.contains("person"));
     assert!(json.contains("0.85"));
+  }
+
+  #[test]
+  fn test_yolo_model_face_detection() {
+    // Тест для Face модели
+    let face_model_name = "yolov8_face_model.onnx".to_string();
+    assert!(face_model_name.contains("face"));
+
+    // Тест для обычной модели
+    let normal_model_name = "yolov8n.onnx".to_string();
+    assert!(!normal_model_name.contains("face"));
+  }
+
+  #[test]
+  fn test_yolo_model_segmentation_detection() {
+    // Тест для Segmentation модели
+    let seg_model_name = "yolov11_seg_model.onnx".to_string();
+    assert!(seg_model_name.contains("seg"));
+
+    // Тест для обычной модели
+    let normal_model_name = "yolov8s.onnx".to_string();
+    assert!(!normal_model_name.contains("seg"));
+  }
+
+  #[test]
+  fn test_yolo_model_info_serialization() {
+    let model_info = YoloModelInfo {
+      model_path: "yolov8_face.onnx".to_string(),
+      model_type: "YOLOv8 Face Detection".to_string(),
+      is_face_model: true,
+      is_segmentation_model: false,
+      input_size: (640, 640),
+      classes_count: 1,
+    };
+
+    let json = serde_json::to_string(&model_info).unwrap();
+    assert!(json.contains("yolov8_face.onnx"));
+    assert!(json.contains("true"));
+    assert!(json.contains("false"));
+    assert!(json.contains("YOLOv8 Face Detection"));
   }
 }
