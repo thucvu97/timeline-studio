@@ -1,0 +1,44 @@
+use super::commands::{
+  clear_recognition_results, export_recognition_results, get_preview_data_with_recognition,
+  get_recognition_results, get_yolo_class_names, load_yolo_model, process_video_batch,
+  process_video_recognition, process_yolo_batch, set_yolo_target_classes,
+};
+use super::commands::yolo_commands::*;
+use crate::command_registry::CommandRegistry;
+use tauri::{Builder, Runtime};
+
+/// Recognition module command registry
+pub struct RecognitionCommandRegistry;
+
+impl CommandRegistry for RecognitionCommandRegistry {
+  fn register_commands<R: Runtime>(builder: Builder<R>) -> Builder<R> {
+    builder.invoke_handler(tauri::generate_handler![
+      // YOLO model management (legacy)
+      load_yolo_model,
+      get_yolo_class_names,
+      set_yolo_target_classes,
+      // Recognition processing
+      process_video_recognition,
+      process_video_batch,
+      process_yolo_batch,
+      // Results management
+      get_recognition_results,
+      get_preview_data_with_recognition,
+      clear_recognition_results,
+      export_recognition_results,
+      // New YOLO processor commands
+      create_yolo_processor,
+      process_image_with_yolo,
+      process_video_file_with_yolo,
+      process_image_sequence_with_yolo,
+      save_yolo_results,
+      update_yolo_config,
+      get_yolo_config,
+      extract_frames_for_yolo,
+      get_available_yolo_models,
+      remove_yolo_processor,
+      list_active_yolo_processors,
+      cleanup_yolo_processors,
+    ])
+  }
+}

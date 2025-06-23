@@ -1,9 +1,13 @@
+pub mod yolo_commands;
+
+// Re-export YOLO commands for convenience
+
 use anyhow::Result;
 use serde_json::Value;
 use tauri::{AppHandle, Emitter, State};
 
-use super::recognition_service::{RecognitionEvent, RecognitionService};
-use super::types::RecognitionResults;
+use crate::recognition::recognition_service::{RecognitionEvent, RecognitionService};
+use crate::recognition::types::RecognitionResults;
 
 /// State для сервиса распознавания
 pub struct RecognitionState {

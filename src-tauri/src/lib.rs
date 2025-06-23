@@ -30,6 +30,7 @@ use video_compiler::VideoCompilerState;
 
 // Модуль распознавания (YOLO)
 mod recognition;
+use recognition::commands::yolo_commands::YoloProcessorState;
 use recognition::RecognitionState;
 
 // Модуль безопасности и API ключей
@@ -126,6 +127,10 @@ pub fn run() {
       // Create Recognition State
       let recognition_state = RecognitionState::new();
       app.manage(recognition_state);
+
+      // Create YOLO Processor State
+      let yolo_processor_state = YoloProcessorState::default();
+      app.manage(yolo_processor_state);
 
       log::info!("Application setup completed");
       Ok(())
