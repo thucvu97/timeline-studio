@@ -27,7 +27,7 @@ pub enum ProcessorEvent {
   MetadataReady {
     file_id: String,
     file_path: String,
-    metadata: MediaFile,
+    metadata: Box<MediaFile>,
   },
   /// Превью готово
   ThumbnailReady {
@@ -244,7 +244,7 @@ async fn process_single_file<R: tauri::Runtime>(
         ProcessorEvent::MetadataReady {
           file_id: file.id.clone(),
           file_path: file.path.clone(),
-          metadata: meta.clone(),
+          metadata: Box::new(meta.clone()),
         },
       );
       meta
@@ -496,7 +496,7 @@ mod tests {
     let event = ProcessorEvent::MetadataReady {
       file_id: "test-id".to_string(),
       file_path: "/path/to/test.mp4".to_string(),
-      metadata: create_test_media_file(),
+      metadata: Box::new(create_test_media_file()),
     };
 
     let json = serde_json::to_string(&event).unwrap();
@@ -1033,7 +1033,7 @@ mod tests {
       ProcessorEvent::MetadataReady {
         file_id: "meta-id".to_string(),
         file_path: "/test.mp4".to_string(),
-        metadata: create_test_media_file(),
+        metadata: Box::new(create_test_media_file()),
       },
     ];
 

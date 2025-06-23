@@ -26,15 +26,14 @@ impl CompositionStage {
     let mut layer_outputs = Vec::new();
     let tracks_len = context.project.tracks.len();
 
-    for track_idx in 0..tracks_len {
+    for (track_idx, track) in context.project.tracks.clone().iter().enumerate() {
       if context.is_cancelled() {
         return Err(VideoCompilerError::CancelledError(
           "Композиция отменена".to_string(),
         ));
       }
 
-      let track = context.project.tracks[track_idx].clone();
-      let track_output = self.process_track(&track, track_idx, context).await?;
+      let track_output = self.process_track(track, track_idx, context).await?;
       layer_outputs.push(track_output);
 
       let progress = ((track_idx + 1) * 70 / tracks_len) as u64;
@@ -242,9 +241,8 @@ impl CompositionStage {
     _context: &PipelineContext,
   ) -> Result<PathBuf> {
     let mut current_input = input_path.to_path_buf();
-    let mut temp_counter = 0;
 
-    for effect in effects {
+    for (temp_counter, effect) in effects.iter().enumerate() {
       let temp_output = if temp_counter == effects.len() - 1 {
         output_path.to_path_buf()
       } else {
@@ -259,7 +257,6 @@ impl CompositionStage {
         .apply_single_effect(&current_input, effect, &temp_output)
         .await?;
       current_input = temp_output;
-      temp_counter += 1;
     }
 
     Ok(output_path.to_path_buf())

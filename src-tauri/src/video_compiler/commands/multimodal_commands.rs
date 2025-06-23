@@ -265,10 +265,8 @@ pub async fn cleanup_extracted_frames(clip_id: String) -> Result<u32, String> {
     .map_err(|e| format!("Ошибка перечисления файлов: {}", e))?
   {
     let path = entry.path();
-    if path.is_file() {
-      if let Ok(_) = fs::remove_file(&path).await {
-        removed_count += 1;
-      }
+    if path.is_file() && fs::remove_file(&path).await.is_ok() {
+      removed_count += 1;
     }
   }
 

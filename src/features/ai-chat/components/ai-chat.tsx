@@ -527,6 +527,7 @@ export function AiChat() {
                   className="min-h-[100px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
                   disabled={isProcessing || isStreaming}
                   rows={4}
+                  data-testid="chat-input"
                 />
                 <Button
                   onClick={isProcessing || isStreaming ? handleStopProcessing : handleSendMessage}
@@ -538,6 +539,7 @@ export function AiChat() {
                       ? "bg-teal text-white hover:bg-teal/80"
                       : "bg-muted text-muted-foreground hover:bg-muted/50",
                   )}
+                  data-testid="send-button"
                 >
                   {isProcessing || isStreaming ? (
                     <StopCircle className="h-4 w-4" />
@@ -554,6 +556,7 @@ export function AiChat() {
                     <Button
                       variant="outline"
                       className="h-9 justify-between border-border bg-muted text-sm text-white hover:bg-accent"
+                      data-testid="chat-mode-selector"
                     >
                       {CHAT_MODES.find((m) => m.id === chatMode)?.name}
                       <ChevronDown className="ml-2 h-4 w-4" />
@@ -581,6 +584,7 @@ export function AiChat() {
                     <Button
                       variant="outline"
                       className="h-9 flex-1 justify-between border-border bg-muted text-sm text-white hover:bg-accent"
+                      data-testid="agent-selector"
                     >
                       <span className="truncate">
                         {selectedAgentId
@@ -590,12 +594,13 @@ export function AiChat() {
                       <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-[250px] border-border bg-muted">
+                  <DropdownMenuContent align="start" className="w-[250px] border-border bg-muted" data-testid="agent-dropdown">
                     {AVAILABLE_AGENTS.map((agent) => (
                       <DropdownMenuItem
                         key={agent.id}
                         onClick={() => selectAgent(agent.id)}
                         className="text-foreground hover:bg-accent hover:text-white"
+                        data-testid={`agent-option-${agent.id}`}
                       >
                         {agent.name}
                       </DropdownMenuItem>
@@ -610,7 +615,7 @@ export function AiChat() {
           {chatMessages.length > 0 && (
             <ScrollArea className="flex-1">
               <div className="p-4">
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3" data-testid="messages-container">
                   {chatMessages.map((msg) => (
                     <div
                       key={msg.id}
@@ -618,6 +623,7 @@ export function AiChat() {
                         "group flex max-w-[90%] flex-col rounded-lg p-3",
                         msg.role === "user" ? "ml-auto bg-teal text-white" : "bg-muted text-foreground",
                       )}
+                      data-testid={`message-${msg.role}-${msg.id}`}
                     >
                       <div className="flex items-start gap-2">
                         <div className="mt-0.5 flex-shrink-0">
@@ -631,7 +637,7 @@ export function AiChat() {
                     </div>
                   ))}
                   {(isProcessing || isStreaming) && (
-                    <div className="flex max-w-[90%] flex-col rounded-lg bg-muted p-3 text-gray-100">
+                    <div className="flex max-w-[90%] flex-col rounded-lg bg-muted p-3 text-gray-100" data-testid="processing-message">
                       <div className="flex items-start gap-2">
                         <div className="mt-0.5 flex-shrink-0">
                           <Bot className="h-3.5 w-3.5" />
@@ -673,6 +679,7 @@ export function AiChat() {
                   className="min-h-[40px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
                   disabled={isProcessing || isStreaming}
                   rows={1}
+                  data-testid="chat-input-with-messages"
                 />
                 <Button
                   onClick={isProcessing || isStreaming ? handleStopProcessing : handleSendMessage}
@@ -684,6 +691,7 @@ export function AiChat() {
                       ? "bg-teal text-white hover:bg-teal/80"
                       : "bg-muted text-muted-foreground hover:bg-muted/50",
                   )}
+                  data-testid="send-button-with-messages"
                 >
                   {isProcessing || isStreaming ? (
                     <StopCircle className="h-4 w-4" />
@@ -727,6 +735,7 @@ export function AiChat() {
                     <Button
                       variant="outline"
                       className="h-9 flex-1 justify-between border-border bg-muted text-sm text-white hover:bg-accent"
+                      data-testid="agent-selector"
                     >
                       <span className="truncate">
                         {selectedAgentId
@@ -736,12 +745,13 @@ export function AiChat() {
                       <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-[250px] border-border bg-muted">
+                  <DropdownMenuContent align="start" className="w-[250px] border-border bg-muted" data-testid="agent-dropdown">
                     {AVAILABLE_AGENTS.map((agent) => (
                       <DropdownMenuItem
                         key={agent.id}
                         onClick={() => selectAgent(agent.id)}
                         className="text-foreground hover:bg-accent hover:text-white"
+                        data-testid={`agent-option-${agent.id}`}
                       >
                         {agent.name}
                       </DropdownMenuItem>
@@ -754,7 +764,7 @@ export function AiChat() {
 
           {/* Previous threads section */}
           {chatMessages.length === 0 && (
-            <div className="flex-1">
+            <div className="flex-1" data-testid="chat-list-container">
               <ChatList
                 sessions={sessions}
                 currentSessionId={currentSessionId}

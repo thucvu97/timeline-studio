@@ -1,3 +1,4 @@
+use super::additional_commands::*;
 use super::commands::*;
 use crate::command_registry::CommandRegistry;
 use tauri::{Builder, Runtime};
@@ -25,6 +26,11 @@ impl CommandRegistry for SecurityCommandRegistry {
       // Import/Export
       import_from_env,
       export_to_env_format,
+      // Security Storage commands
+      create_secure_storage,
+      get_or_create_encryption_key_command,
+      check_storage_security,
+      get_secure_storage_info,
     ])
   }
 }

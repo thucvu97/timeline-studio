@@ -1,3 +1,4 @@
+pub mod additional_commands;
 pub mod api_validator;
 pub mod commands;
 pub mod env_importer;

@@ -118,7 +118,7 @@ impl SecureStorage {
   }
 
   /// Получает или создает ключ шифрования через keyring
-  fn get_or_create_encryption_key() -> Result<[u8; 32]> {
+  pub fn get_or_create_encryption_key() -> Result<[u8; 32]> {
     let entry = Entry::new("timeline-studio", "api-encryption-key")
       .context("Failed to create keyring entry")?;
 

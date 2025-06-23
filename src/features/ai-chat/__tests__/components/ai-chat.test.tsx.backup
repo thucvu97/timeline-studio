@@ -1,0 +1,924 @@
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { AiChat } from "../../components/ai-chat"
+import { chatStorageService } from "../../services/chat-storage-service"
+import { ClaudeService } from "../../services/claude-service"
+import { DeepSeekService } from "../../services/deepseek-service"
+import { OllamaService } from "../../services/ollama-service"
+import { OpenAiService } from "../../services/open-ai-service"
+import { ChatMessage } from "../../types/chat"
+
+// Mock dependencies
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string, fallback?: string) => fallback || key,
+  }),
+}))
+
+const mockOpenModal = vi.fn()
+vi.mock("@/features/modals", () => ({
+  useModal: () => ({
+    openModal: mockOpenModal,
+  }),
+}))
+
+const mockGetApiKeyInfo = vi.fn((provider: string) => {
+  if (provider === "ollama") return null
+  return {
+    has_value: true,
+    is_valid: true,
+  }
+})
+
+vi.mock("@/features/user-settings/hooks/use-api-keys", () => ({
+  useApiKeys: () => ({
+    getApiKeyInfo: mockGetApiKeyInfo,
+  }),
+}))
+
+vi.mock("../../hooks/use-safe-timeline", () => ({
+  useSafeTimeline: () => ({
+    project: {
+      name: "Test Project",
+      sections: [
+        {
+          id: "section-1",
+          name: "Section 1",
+          tracks: [
+            {
+              id: "track-1",
+              clips: [
+                { id: "clip-1", name: "Clip 1" },
+                { id: "clip-2", name: "Clip 2" },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    uiState: {
+      selectedClipIds: ["clip-1"],
+    },
+  }),
+}))
+
+vi.mock("../../services/chat-storage-service", () => ({
+  chatStorageService: {
+    getAllSessions: vi.fn().mockResolvedValue([]),
+    addMessage: vi.fn(),
+    deleteSession: vi.fn(),
+  },
+}))
+
+const mockClaudeService = {
+  sendStreamingRequest: vi.fn(),
+}
+vi.mock("../../services/claude-service", () => ({
+  ClaudeService: {
+    getInstance: vi.fn(() => mockClaudeService),
+  },
+  CLAUDE_MODELS: {
+    CLAUDE_4_SONNET: "claude-4-sonnet",
+    CLAUDE_4_OPUS: "claude-4-opus",
+  },
+}))
+
+const mockDeepSeekService = {
+  sendStreamingRequest: vi.fn(),
+}
+vi.mock("../../services/deepseek-service", () => ({
+  DeepSeekService: {
+    getInstance: vi.fn(() => mockDeepSeekService),
+  },
+  DEEPSEEK_MODELS: {
+    DEEPSEEK_R1: "deepseek-r1",
+    DEEPSEEK_CHAT: "deepseek-chat",
+    DEEPSEEK_CODER: "deepseek-coder",
+  },
+}))
+
+const mockOllamaService = {
+  sendStreamingRequest: vi.fn(),
+}
+vi.mock("../../services/ollama-service", () => ({
+  OllamaService: {
+    getInstance: vi.fn(() => mockOllamaService),
+  },
+  OLLAMA_MODELS: {
+    LLAMA2: "llama2",
+    MISTRAL: "mistral",
+    CODELLAMA: "codellama",
+  },
+}))
+
+const mockOpenAiService = {
+  sendStreamingRequest: vi.fn(),
+}
+vi.mock("../../services/open-ai-service", () => ({
+  OpenAiService: {
+    getInstance: vi.fn(() => mockOpenAiService),
+  },
+  AI_MODELS: {
+    GPT_4: "gpt-4",
+    GPT_4O: "gpt-4o",
+    GPT_3_5: "gpt-3.5-turbo",
+    O3: "o3",
+  },
+}))
+
+const mockUseChat = {
+  chatMessages: [] as ChatMessage[],
+  sendChatMessage: vi.fn(),
+  receiveChatMessage: vi.fn(),
+  selectedAgentId: "claude-4-sonnet",
+  selectAgent: vi.fn(),
+  isProcessing: false,
+  setProcessing: vi.fn(),
+  currentSessionId: "session-1",
+  sessions: [],
+  isCreatingNewChat: false,
+  createNewChat: vi.fn(),
+  switchSession: vi.fn(),
+  deleteSession: vi.fn(),
+  updateSessions: vi.fn(),
+  clearMessages: vi.fn(),
+}
+
+vi.mock("../..", () => ({
+  useChat: () => mockUseChat,
+}))
+
+// Mock UI components
+vi.mock("@/components/ui/button", () => ({
+  Button: ({ children, onClick, disabled, className }: any) => (
+    <button onClick={onClick} disabled={disabled} className={className}>
+      {children}
+    </button>
+  ),
+}))
+
+vi.mock("@/components/ui/dropdown-menu", () => ({
+  DropdownMenu: ({ children }: any) => <div>{children}</div>,
+  DropdownMenuTrigger: ({ children, asChild }: any) => <div>{children}</div>,
+  DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-content">{children}</div>,
+  DropdownMenuItem: ({ children, onClick }: any) => (
+    <div onClick={onClick} role="menuitem">
+      {children}
+    </div>
+  ),
+}))
+
+vi.mock("@/components/ui/scroll-area", () => ({
+  ScrollArea: ({ children }: any) => <div>{children}</div>,
+}))
+
+vi.mock("@/components/ui/tooltip", () => ({
+  TooltipProvider: ({ children }: any) => <div>{children}</div>,
+}))
+
+vi.mock("../chat-list", () => ({
+  ChatList: ({ sessions, onSelectSession, onDeleteSession, onCopySession }: any) => (
+    <div className="flex flex-col space-y-2">
+      <h3 className="px-4 text-sm font-medium text-muted-foreground">Previous Threads</h3>
+      <div>
+        <div className="space-y-1 px-2">
+          {sessions?.map?.((session: any) => (
+            <div key={session.id} className="group">
+              <button onClick={() => onSelectSession(session.id)}>Select Session</button>
+              <button onClick={() => onDeleteSession(session.id)}>Delete Session</button>
+              <button onClick={() => onCopySession(session.id)}>Copy Session</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  ),
+}))
+
+vi.mock("@/lib/utils", () => ({
+  cn: (...args: any[]) => args.filter(Boolean).join(" "),
+}))
+
+// Mock scrollIntoView
+Element.prototype.scrollIntoView = vi.fn()
+
+describe("AiChat", () => {
+  const user = userEvent.setup()
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockUseChat.chatMessages = []
+    mockUseChat.selectedAgentId = "claude-4-sonnet"
+    mockUseChat.isProcessing = false
+    mockUseChat.currentSessionId = "session-1"
+    mockOpenModal.mockClear()
+    mockGetApiKeyInfo.mockClear()
+    mockClaudeService.sendStreamingRequest.mockClear()
+    mockDeepSeekService.sendStreamingRequest.mockClear()
+    mockOllamaService.sendStreamingRequest.mockClear()
+    mockOpenAiService.sendStreamingRequest.mockClear()
+  })
+
+  it("should render initial UI with no messages", () => {
+    render(<AiChat />)
+
+    expect(screen.getByText("CHAT")).toBeInTheDocument()
+    expect(screen.getByPlaceholderText(/Enter instructions/)).toBeInTheDocument()
+    expect(screen.getByText("Previous Threads")).toBeInTheDocument()
+  })
+
+  it("should load chat history on mount", async () => {
+    const mockSessions = [
+      { id: "session-1", title: "Session 1", messages: [], createdAt: new Date() },
+    ]
+    vi.mocked(chatStorageService.getAllSessions).mockResolvedValue(mockSessions)
+
+    render(<AiChat />)
+
+    await waitFor(() => {
+      expect(chatStorageService.getAllSessions).toHaveBeenCalled()
+      expect(mockUseChat.updateSessions).toHaveBeenCalledWith(mockSessions)
+    })
+  })
+
+  it("should send message on Enter key", async () => {
+    mockClaudeService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      options.onContent("Hello")
+      options.onContent(" from AI!")
+      await new Promise(resolve => setTimeout(resolve, 10))
+      options.onComplete("Hello from AI!")
+    })
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Hello AI")
+    
+    await act(async () => {
+      fireEvent.keyDown(textarea, { key: "Enter", shiftKey: false })
+    })
+
+    expect(mockUseChat.sendChatMessage).toHaveBeenCalledWith("Hello AI")
+    expect(mockUseChat.setProcessing).toHaveBeenCalledWith(true)
+
+    await waitFor(() => {
+      expect(mockClaudeService.sendStreamingRequest).toHaveBeenCalled()
+      expect(mockUseChat.receiveChatMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: "Hello from AI!",
+          role: "assistant",
+        })
+      )
+    })
+  })
+
+  it("should not send message on Shift+Enter", async () => {
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Hello AI")
+    
+    fireEvent.keyDown(textarea, { key: "Enter", shiftKey: true })
+
+    expect(mockUseChat.sendChatMessage).not.toHaveBeenCalled()
+  })
+
+  it("should send message on button click", async () => {
+    mockOpenAiService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      options.onComplete("Response from GPT")
+    })
+    mockUseChat.selectedAgentId = "gpt-4"
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Hello GPT")
+    
+    const sendButtons = screen.getAllByRole("button")
+    // Find send button by looking for the one that's not in the header
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    expect(mockUseChat.sendChatMessage).toHaveBeenCalledWith("Hello GPT")
+    
+    await waitFor(() => {
+      expect(mockOpenAiService.sendStreamingRequest).toHaveBeenCalled()
+    })
+  })
+
+  it("should display chat messages", () => {
+    mockUseChat.chatMessages = [
+      {
+        id: "msg-1",
+        content: "Hello",
+        role: "user",
+        timestamp: new Date(),
+      },
+      {
+        id: "msg-2",
+        content: "Hi there!",
+        role: "assistant",
+        timestamp: new Date(),
+        agent: "claude-4-sonnet",
+      },
+    ]
+
+    render(<AiChat />)
+
+    expect(screen.getByText("Hello")).toBeInTheDocument()
+    expect(screen.getByText("Hi there!")).toBeInTheDocument()
+  })
+
+  it("should show processing state", () => {
+    mockUseChat.isProcessing = true
+    mockUseChat.chatMessages = [
+      {
+        id: "msg-1",
+        content: "Test",
+        role: "user",
+        timestamp: new Date(),
+      },
+    ]
+
+    render(<AiChat />)
+
+    expect(screen.getByText("Обработка...")).toBeInTheDocument()
+  })
+
+  it("should show streaming content", async () => {
+    mockUseChat.chatMessages = [
+      {
+        id: "msg-1",
+        content: "Test",
+        role: "user",
+        timestamp: new Date(),
+      },
+    ]
+
+    let streamingCallback: any
+    mockDeepSeekService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      streamingCallback = options.onContent
+      // Simulate streaming
+      options.onContent("Streaming")
+      await new Promise(resolve => setTimeout(resolve, 50))
+      options.onContent(" content")
+      await new Promise(resolve => setTimeout(resolve, 50))
+      options.onComplete("Streaming content")
+    })
+    mockUseChat.selectedAgentId = "deepseek-chat"
+
+    const { rerender } = render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Test message")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    // Force re-render to see streaming state
+    mockUseChat.isProcessing = true
+    rerender(<AiChat />)
+
+    // Simulate streaming by calling the callback
+    if (streamingCallback) {
+      act(() => {
+        streamingCallback("Streaming")
+      })
+    }
+
+    await waitFor(() => {
+      const streamingElement = screen.getByText(/Streaming/)
+      expect(streamingElement).toBeInTheDocument()
+    })
+  })
+
+  it("should handle stop processing", async () => {
+    mockUseChat.isProcessing = true
+    mockUseChat.chatMessages = [
+      {
+        id: "msg-1",
+        content: "Test",
+        role: "user",
+        timestamp: new Date(),
+      },
+    ]
+
+    render(<AiChat />)
+
+    const stopButtons = screen.getAllByRole("button")
+    const stopButton = stopButtons.find(btn => 
+      btn.className?.includes("bottom-2")
+    )
+    await user.click(stopButton!)
+
+    expect(mockUseChat.setProcessing).toHaveBeenCalledWith(false)
+  })
+
+  it("should auto-resize textarea", async () => {
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/) as HTMLTextAreaElement
+    
+    // Type multi-line text
+    await user.type(textarea, "Line 1\nLine 2\nLine 3")
+
+    // Check that height style was set
+    expect(textarea.style.height).toBeTruthy()
+  })
+
+  it("should handle mode selection", async () => {
+    render(<AiChat />)
+
+    // Find and click the mode dropdown
+    const buttons = screen.getAllByRole("button")
+    const agentButton = buttons.find(btn => btn.textContent === "Agent")
+    await user.click(agentButton!)
+
+    // Click Chat mode
+    const chatModeOption = screen.getByText("Chat")
+    await user.click(chatModeOption)
+
+    // Verify mode changed (would need to check state or effects)
+  })
+
+  it("should handle agent selection", async () => {
+    render(<AiChat />)
+
+    // Find and click the agent dropdown
+    const buttons = screen.getAllByRole("button")
+    const agentButton = buttons.find(btn => btn.textContent?.includes("Claude 4 Sonnet"))
+    await user.click(agentButton!)
+
+    // Click different agent
+    const gptOption = screen.getByText("GPT-4")
+    await user.click(gptOption)
+
+    expect(mockUseChat.selectAgent).toHaveBeenCalledWith("gpt-4")
+  })
+
+  it("should open settings when API key is missing", async () => {
+    mockGetApiKeyInfo.mockReturnValue({
+      has_value: false,
+      is_valid: false,
+    })
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Test")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(mockGetApiKeyInfo).toHaveBeenCalledWith("claude")
+      expect(mockOpenModal).toHaveBeenCalledWith("user-settings")
+    })
+  })
+
+  it("should handle error responses", async () => {
+    mockClaudeService.sendStreamingRequest.mockRejectedValue(new Error("API Error"))
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Test error")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(mockUseChat.receiveChatMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.stringContaining("Произошла ошибка"),
+          role: "assistant",
+        })
+      )
+    })
+  })
+
+  it("should handle abort errors gracefully", async () => {
+    const abortError = new Error("Aborted")
+    abortError.name = "AbortError"
+    
+    mockClaudeService.sendStreamingRequest.mockRejectedValue(abortError)
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Test abort")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(mockUseChat.setProcessing).toHaveBeenCalledWith(false)
+    })
+
+    // Should not show error message for abort
+    expect(mockUseChat.receiveChatMessage).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.stringContaining("Произошла ошибка"),
+      })
+    )
+  })
+
+  it("should handle Ollama service without API key", async () => {
+    mockOllamaService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      options.onComplete("Local response")
+    })
+    mockUseChat.selectedAgentId = "llama2"
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Test local")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(mockOllamaService.sendStreamingRequest).toHaveBeenCalled()
+    })
+  })
+
+  it("should save messages to storage", async () => {
+    mockClaudeService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      options.onComplete("Saved response")
+    })
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Save this")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(chatStorageService.addMessage).toHaveBeenCalledWith(
+        "session-1",
+        expect.objectContaining({
+          content: "Save this",
+          role: "user",
+        })
+      )
+    })
+
+    await waitFor(() => {
+      expect(chatStorageService.addMessage).toHaveBeenCalledWith(
+        "session-1",
+        expect.objectContaining({
+          content: "Saved response",
+          role: "assistant",
+        })
+      )
+    })
+  })
+
+  it("should handle new chat creation", async () => {
+    render(<AiChat />)
+
+    const newChatButton = screen.getAllByRole("button")[0]
+    await user.click(newChatButton)
+
+    expect(mockUseChat.createNewChat).toHaveBeenCalled()
+  })
+
+  it("should handle history toggle", async () => {
+    render(<AiChat />)
+
+    const historyButton = screen.getAllByRole("button")[1]
+    await user.click(historyButton)
+
+    expect(mockUseChat.clearMessages).toHaveBeenCalled()
+  })
+
+  it("should handle settings button", async () => {
+    render(<AiChat />)
+
+    const settingsButton = screen.getAllByRole("button")[2]
+    await user.click(settingsButton)
+
+    expect(mockOpenModal).toHaveBeenCalledWith("user-settings")
+  })
+
+  it("should handle session selection from chat list", async () => {
+    mockUseChat.sessions = [
+      { id: "session-1", title: "Test Session", messageCount: 5, lastMessageAt: new Date() }
+    ]
+
+    render(<AiChat />)
+
+    const selectButton = screen.getByText("Select Session")
+    await user.click(selectButton)
+
+    expect(mockUseChat.switchSession).toHaveBeenCalledWith("session-1")
+  })
+
+  it("should handle session deletion from chat list", async () => {
+    mockUseChat.sessions = [
+      { id: "session-1", title: "Test Session", messageCount: 5, lastMessageAt: new Date() }
+    ]
+
+    render(<AiChat />)
+
+    const deleteButton = screen.getByText("Delete Session")
+    await user.click(deleteButton)
+
+    await waitFor(() => {
+      expect(chatStorageService.deleteSession).toHaveBeenCalledWith("session-1")
+      expect(mockUseChat.deleteSession).toHaveBeenCalledWith("session-1")
+    })
+  })
+
+  it("should handle session copy from chat list", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
+    mockUseChat.sessions = [
+      { id: "session-1", title: "Test Session", messageCount: 5, lastMessageAt: new Date() }
+    ]
+
+    render(<AiChat />)
+
+    const copyButton = screen.getByText("Copy Session")
+    await user.click(copyButton)
+
+    expect(consoleSpy).toHaveBeenCalledWith("Copy session:", "session-1")
+
+    consoleSpy.mockRestore()
+  })
+
+  it("should handle context compression", async () => {
+    // Create a large message history
+    const largeMessages = Array(100).fill(null).map((_, i) => ({
+      id: `msg-${i}`,
+      content: `Message ${i} with some long content to fill up the context window`,
+      role: i % 2 === 0 ? "user" : "assistant",
+      timestamp: new Date(),
+    }))
+    
+    mockUseChat.chatMessages = largeMessages as ChatMessage[]
+
+    mockClaudeService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      // Check that messages were compressed
+      expect(messages.length).toBeLessThan(100)
+      options.onComplete("Compressed response")
+    })
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Test compression")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(mockClaudeService.sendStreamingRequest).toHaveBeenCalled()
+    })
+  })
+
+  it("should include timeline context in system prompt", async () => {
+    mockClaudeService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      // Check that system prompt includes timeline context
+      expect(options.system).toContain("Test Project")
+      expect(options.system).toContain("Section 1")
+      expect(options.system).toContain("Clip 1")
+      options.onComplete("Context response")
+    })
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Test context")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(mockClaudeService.sendStreamingRequest).toHaveBeenCalled()
+    })
+  })
+
+  it("should format message timestamps", () => {
+    const now = new Date("2024-01-01T14:30:00")
+    mockUseChat.chatMessages = [
+      {
+        id: "msg-1",
+        content: "Test",
+        role: "user",
+        timestamp: now,
+      },
+    ]
+
+    render(<AiChat />)
+
+    // Hover to show timestamp
+    const message = screen.getByText("Test").closest(".group")
+    fireEvent.mouseEnter(message!)
+
+    // Time should be formatted as HH:MM
+    expect(screen.getByText("14:30")).toBeInTheDocument()
+  })
+
+  it("should disable input during processing", () => {
+    mockUseChat.isProcessing = true
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/) as HTMLTextAreaElement
+    expect(textarea.disabled).toBe(true)
+  })
+
+  it("should not send empty messages", async () => {
+    render(<AiChat />)
+
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    expect(mockUseChat.sendChatMessage).not.toHaveBeenCalled()
+  })
+
+  it("should trim whitespace from messages", async () => {
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "   ")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    expect(mockUseChat.sendChatMessage).not.toHaveBeenCalled()
+  })
+
+  it("should focus input after sending message", async () => {
+    mockClaudeService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      options.onComplete("Response")
+    })
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/) as HTMLTextAreaElement
+    await user.type(textarea, "Test focus")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(textarea)
+    })
+  })
+
+  it("should handle unknown provider error", async () => {
+    mockUseChat.selectedAgentId = "unknown-model"
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Test unknown")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(mockUseChat.receiveChatMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: expect.stringContaining("Произошла ошибка"),
+          role: "assistant",
+        })
+      )
+    })
+  })
+
+  it("should handle deepseek provider", async () => {
+    mockDeepSeekService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      options.onComplete("DeepSeek response")
+    })
+    mockUseChat.selectedAgentId = "deepseek-r1"
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/)
+    await user.type(textarea, "Test deepseek")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    await user.click(sendButton!)
+
+    await waitFor(() => {
+      expect(mockDeepSeekService.sendStreamingRequest).toHaveBeenCalled()
+      const call = mockDeepSeekService.sendStreamingRequest.mock.calls[0]
+      expect(call[1][0]).toMatchObject({ role: "system", content: expect.any(String) })
+    })
+  })
+
+  it("should show different UI when messages exist", () => {
+    mockUseChat.chatMessages = [
+      {
+        id: "msg-1",
+        content: "Test",
+        role: "user",
+        timestamp: new Date(),
+      },
+    ]
+
+    render(<AiChat />)
+
+    // Should not show chat list when messages exist
+    expect(screen.queryByText("Previous Threads")).not.toBeInTheDocument()
+    
+    // Should show messages area
+    expect(screen.getByText("Test")).toBeInTheDocument()
+    
+    // Input should be at bottom
+    const textareas = screen.getAllByPlaceholderText(/Enter instructions/)
+    expect(textareas).toHaveLength(1)
+  })
+
+  it("should clear message after sending", async () => {
+    mockClaudeService.sendStreamingRequest.mockImplementation(async (model, messages, options) => {
+      options.onComplete("Response")
+    })
+
+    render(<AiChat />)
+
+    const textarea = screen.getByPlaceholderText(/Enter instructions/) as HTMLTextAreaElement
+    await user.type(textarea, "Test message")
+    
+    expect(textarea.value).toBe("Test message")
+    
+    const sendButtons = screen.getAllByRole("button")
+    const sendButton = sendButtons.find(btn => 
+      btn.className?.includes("bottom-3") || btn.className?.includes("bottom-2")
+    )
+    
+    // Trigger the send
+    await act(async () => {
+      await user.click(sendButton!)
+    })
+    
+    // Wait for the message to be cleared
+    await waitFor(() => {
+      expect(textarea.value).toBe("")
+    })
+  })
+
+  it("should handle streaming state UI", async () => {
+    mockUseChat.chatMessages = [
+      {
+        id: "msg-1",
+        content: "Test",
+        role: "user",
+        timestamp: new Date(),
+      },
+    ]
+    mockUseChat.isProcessing = true
+
+    render(<AiChat />)
+    
+    // Should show processing state
+    expect(screen.getByText("Обработка...")).toBeInTheDocument()
+  })
+})

@@ -14,7 +14,7 @@ pub enum MetadataEvent {
   MetadataReady {
     file_id: String,
     file_path: String,
-    metadata: MediaFile,
+    metadata: Box<MediaFile>,
   },
   /// Ошибка извлечения метаданных
   MetadataError {
@@ -52,7 +52,7 @@ impl MetadataExtractor {
           MetadataEvent::MetadataReady {
             file_id: file_id.clone(),
             file_path: file_path.clone(),
-            metadata: metadata.clone(),
+            metadata: Box::new(metadata.clone()),
           },
         );
         Ok(metadata)

@@ -92,7 +92,7 @@ mod tests {
     let event = ProcessorEvent::MetadataReady {
       file_id: "test-id".to_string(),
       file_path: "/path/to/test.mp4".to_string(),
-      metadata: media_file.clone(),
+      metadata: Box::new(media_file.clone()),
     };
 
     if let ProcessorEvent::MetadataReady {

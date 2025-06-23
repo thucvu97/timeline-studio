@@ -51,7 +51,8 @@ describe("KeyStatusIndicator", () => {
 
     const spinner = container?.querySelector(".animate-spin")
     expect(spinner).toBeInTheDocument()
-    expect(spinner).toHaveClass("h-3", "w-3")
+    expect(spinner).toHaveClass("h-3")
+    expect(spinner).toHaveClass("w-3")
   })
 
   it("should render invalid status with X icon", () => {

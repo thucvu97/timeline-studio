@@ -626,4 +626,505 @@ describe("UserSettingsMachine", () => {
       actor.stop()
     })
   })
+
+  describe("Social media credentials handling", () => {
+    it("should handle YouTube credentials updates", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Проверяем начальные значения
+      expect(actor.getSnapshot().context.youtubeClientId).toBe("")
+      expect(actor.getSnapshot().context.youtubeClientSecret).toBe("")
+      expect(actor.getSnapshot().context.apiKeysStatus.youtube).toBe("not_set")
+
+      // Обновляем YouTube credentials
+      actor.send({
+        type: "UPDATE_YOUTUBE_CREDENTIALS",
+        clientId: "youtube-client-id",
+        clientSecret: "youtube-client-secret"
+      })
+
+      const context = actor.getSnapshot().context
+      expect(context.youtubeClientId).toBe("youtube-client-id")
+      expect(context.youtubeClientSecret).toBe("youtube-client-secret")
+      expect(context.apiKeysStatus.youtube).toBe("valid")
+
+      actor.stop()
+    })
+
+    it("should handle TikTok credentials updates", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Проверяем начальные значения
+      expect(actor.getSnapshot().context.tiktokClientId).toBe("")
+      expect(actor.getSnapshot().context.tiktokClientSecret).toBe("")
+      expect(actor.getSnapshot().context.apiKeysStatus.tiktok).toBe("not_set")
+
+      // Обновляем TikTok credentials
+      actor.send({
+        type: "UPDATE_TIKTOK_CREDENTIALS",
+        clientId: "tiktok-client-id",
+        clientSecret: "tiktok-client-secret"
+      })
+
+      const context = actor.getSnapshot().context
+      expect(context.tiktokClientId).toBe("tiktok-client-id")
+      expect(context.tiktokClientSecret).toBe("tiktok-client-secret")
+      expect(context.apiKeysStatus.tiktok).toBe("valid")
+
+      actor.stop()
+    })
+
+    it("should handle Vimeo credentials updates", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Проверяем начальные значения
+      expect(actor.getSnapshot().context.vimeoClientId).toBe("")
+      expect(actor.getSnapshot().context.vimeoClientSecret).toBe("")
+      expect(actor.getSnapshot().context.vimeoAccessToken).toBe("")
+      expect(actor.getSnapshot().context.apiKeysStatus.vimeo).toBe("not_set")
+
+      // Обновляем Vimeo credentials
+      actor.send({
+        type: "UPDATE_VIMEO_CREDENTIALS",
+        clientId: "vimeo-client-id",
+        clientSecret: "vimeo-client-secret",
+        accessToken: "vimeo-access-token"
+      })
+
+      const context = actor.getSnapshot().context
+      expect(context.vimeoClientId).toBe("vimeo-client-id")
+      expect(context.vimeoClientSecret).toBe("vimeo-client-secret")
+      expect(context.vimeoAccessToken).toBe("vimeo-access-token")
+      expect(context.apiKeysStatus.vimeo).toBe("valid")
+
+      actor.stop()
+    })
+
+    it("should handle Telegram credentials updates", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Проверяем начальные значения
+      expect(actor.getSnapshot().context.telegramBotToken).toBe("")
+      expect(actor.getSnapshot().context.telegramChatId).toBe("")
+      expect(actor.getSnapshot().context.apiKeysStatus.telegram).toBe("not_set")
+
+      // Обновляем Telegram credentials
+      actor.send({
+        type: "UPDATE_TELEGRAM_CREDENTIALS",
+        botToken: "telegram-bot-token",
+        chatId: "telegram-chat-id"
+      })
+
+      const context = actor.getSnapshot().context
+      expect(context.telegramBotToken).toBe("telegram-bot-token")
+      expect(context.telegramChatId).toBe("telegram-chat-id")
+      expect(context.apiKeysStatus.telegram).toBe("valid")
+
+      actor.stop()
+    })
+
+    it("should set status to not_set when credentials are empty", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Обновляем YouTube credentials с пустыми значениями
+      actor.send({
+        type: "UPDATE_YOUTUBE_CREDENTIALS",
+        clientId: "",
+        clientSecret: ""
+      })
+
+      expect(actor.getSnapshot().context.apiKeysStatus.youtube).toBe("not_set")
+
+      // Обновляем TikTok credentials с частично пустыми значениями
+      actor.send({
+        type: "UPDATE_TIKTOK_CREDENTIALS",
+        clientId: "some-id",
+        clientSecret: ""
+      })
+
+      expect(actor.getSnapshot().context.apiKeysStatus.tiktok).toBe("not_set")
+
+      // Обновляем Telegram credentials с пустым bot token
+      actor.send({
+        type: "UPDATE_TELEGRAM_CREDENTIALS",
+        botToken: "",
+        chatId: "some-chat-id"
+      })
+
+      expect(actor.getSnapshot().context.apiKeysStatus.telegram).toBe("not_set")
+
+      actor.stop()
+    })
+  })
+
+  describe("Additional service tokens handling", () => {
+    it("should handle Codecov token updates", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Проверяем начальные значения
+      expect(actor.getSnapshot().context.codecovToken).toBe("")
+      expect(actor.getSnapshot().context.apiKeysStatus.codecov).toBe("not_set")
+
+      // Обновляем Codecov token
+      actor.send({
+        type: "UPDATE_CODECOV_TOKEN",
+        token: "codecov-token-123"
+      })
+
+      const context = actor.getSnapshot().context
+      expect(context.codecovToken).toBe("codecov-token-123")
+      expect(context.apiKeysStatus.codecov).toBe("valid")
+
+      // Очищаем token
+      actor.send({
+        type: "UPDATE_CODECOV_TOKEN",
+        token: ""
+      })
+
+      const contextAfterClear = actor.getSnapshot().context
+      expect(contextAfterClear.codecovToken).toBe("")
+      expect(contextAfterClear.apiKeysStatus.codecov).toBe("not_set")
+
+      actor.stop()
+    })
+
+    it("should handle Tauri Analytics key updates", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Проверяем начальные значения
+      expect(actor.getSnapshot().context.tauriAnalyticsKey).toBe("")
+      expect(actor.getSnapshot().context.apiKeysStatus.tauri_analytics).toBe("not_set")
+
+      // Обновляем Tauri Analytics key
+      actor.send({
+        type: "UPDATE_TAURI_ANALYTICS_KEY",
+        key: "tauri-analytics-key-456"
+      })
+
+      const context = actor.getSnapshot().context
+      expect(context.tauriAnalyticsKey).toBe("tauri-analytics-key-456")
+      expect(context.apiKeysStatus.tauri_analytics).toBe("valid")
+
+      // Очищаем key
+      actor.send({
+        type: "UPDATE_TAURI_ANALYTICS_KEY",
+        key: ""
+      })
+
+      const contextAfterClear = actor.getSnapshot().context
+      expect(contextAfterClear.tauriAnalyticsKey).toBe("")
+      expect(contextAfterClear.apiKeysStatus.tauri_analytics).toBe("not_set")
+
+      actor.stop()
+    })
+  })
+
+  describe("API key status management", () => {
+    it("should handle UPDATE_API_KEY_STATUS event", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      const validStatuses = ["not_set", "testing", "invalid", "valid"] as const
+
+      // Тестируем все возможные статусы для разных сервисов
+      for (const status of validStatuses) {
+        actor.send({
+          type: "UPDATE_API_KEY_STATUS",
+          service: "openai",
+          status
+        })
+
+        expect(actor.getSnapshot().context.apiKeysStatus.openai).toBe(status)
+      }
+
+      // Тестируем для других сервисов
+      actor.send({
+        type: "UPDATE_API_KEY_STATUS",
+        service: "claude",
+        status: "invalid"
+      })
+
+      expect(actor.getSnapshot().context.apiKeysStatus.claude).toBe("invalid")
+
+      actor.send({
+        type: "UPDATE_API_KEY_STATUS",
+        service: "youtube",
+        status: "testing"
+      })
+
+      expect(actor.getSnapshot().context.apiKeysStatus.youtube).toBe("testing")
+
+      actor.stop()
+    })
+
+    it("should handle TEST_API_KEY event", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Изначально статус openai should be not_set
+      expect(actor.getSnapshot().context.apiKeysStatus.openai).toBe("not_set")
+
+      // Отправляем событие тестирования API ключа
+      actor.send({
+        type: "TEST_API_KEY",
+        service: "openai"
+      })
+
+      // Статус должен стать "testing"
+      expect(actor.getSnapshot().context.apiKeysStatus.openai).toBe("testing")
+
+      // Тестируем для других сервисов
+      actor.send({
+        type: "TEST_API_KEY",
+        service: "claude"
+      })
+
+      expect(actor.getSnapshot().context.apiKeysStatus.claude).toBe("testing")
+
+      actor.send({
+        type: "TEST_API_KEY",
+        service: "youtube"
+      })
+
+      expect(actor.getSnapshot().context.apiKeysStatus.youtube).toBe("testing")
+
+      actor.stop()
+    })
+
+    it("should maintain status for untested services", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Устанавливаем некоторые статусы
+      actor.send({
+        type: "UPDATE_API_KEY_STATUS",
+        service: "openai",
+        status: "valid"
+      })
+
+      actor.send({
+        type: "UPDATE_API_KEY_STATUS",
+        service: "claude",
+        status: "invalid"
+      })
+
+      // Тестируем только один сервис
+      actor.send({
+        type: "TEST_API_KEY",
+        service: "youtube"
+      })
+
+      // Проверяем, что статусы других сервисов не изменились
+      const context = actor.getSnapshot().context
+      expect(context.apiKeysStatus.openai).toBe("valid")
+      expect(context.apiKeysStatus.claude).toBe("invalid")
+      expect(context.apiKeysStatus.youtube).toBe("testing")
+
+      actor.stop()
+    })
+  })
+
+  describe("Complex state interactions", () => {
+    it("should handle multiple credential updates without affecting other settings", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Устанавливаем начальные настройки
+      actor.send({ type: "UPDATE_LAYOUT", layoutMode: "chat" })
+      actor.send({ type: "UPDATE_PLAYER_VOLUME", volume: 75 })
+      actor.send({ type: "TOGGLE_BROWSER_VISIBILITY" })
+
+      // Обновляем множественные credentials
+      actor.send({
+        type: "UPDATE_YOUTUBE_CREDENTIALS",
+        clientId: "youtube-id",
+        clientSecret: "youtube-secret"
+      })
+
+      actor.send({
+        type: "UPDATE_OPENAI_API_KEY",
+        apiKey: "openai-key"
+      })
+
+      actor.send({
+        type: "UPDATE_CODECOV_TOKEN",
+        token: "codecov-token"
+      })
+
+      // Проверяем, что все настройки сохранились
+      const context = actor.getSnapshot().context
+      expect(context.layoutMode).toBe("chat")
+      expect(context.playerVolume).toBe(75)
+      expect(context.isBrowserVisible).toBe(false)
+      expect(context.youtubeClientId).toBe("youtube-id")
+      expect(context.youtubeClientSecret).toBe("youtube-secret")
+      expect(context.openAiApiKey).toBe("openai-key")
+      expect(context.codecovToken).toBe("codecov-token")
+
+      actor.stop()
+    })
+
+    it("should handle UPDATE_ALL with social media credentials", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Обновляем все настройки, включая социальные сети
+      actor.send({
+        type: "UPDATE_ALL",
+        settings: {
+          youtubeClientId: "bulk-youtube-id",
+          youtubeClientSecret: "bulk-youtube-secret",
+          tiktokClientId: "bulk-tiktok-id",
+          tiktokClientSecret: "bulk-tiktok-secret",
+          vimeoClientId: "bulk-vimeo-id",
+          vimeoClientSecret: "bulk-vimeo-secret",
+          vimeoAccessToken: "bulk-vimeo-token",
+          telegramBotToken: "bulk-telegram-bot",
+          telegramChatId: "bulk-telegram-chat",
+          codecovToken: "bulk-codecov-token",
+          tauriAnalyticsKey: "bulk-tauri-key",
+          apiKeysStatus: {
+            openai: "valid",
+            claude: "invalid",
+            youtube: "testing",
+            tiktok: "not_set",
+            vimeo: "valid",
+            telegram: "invalid",
+            codecov: "valid",
+            tauri_analytics: "testing"
+          }
+        }
+      })
+
+      // Проверяем, что все настройки обновились
+      const context = actor.getSnapshot().context
+      expect(context.youtubeClientId).toBe("bulk-youtube-id")
+      expect(context.youtubeClientSecret).toBe("bulk-youtube-secret")
+      expect(context.tiktokClientId).toBe("bulk-tiktok-id")
+      expect(context.tiktokClientSecret).toBe("bulk-tiktok-secret")
+      expect(context.vimeoClientId).toBe("bulk-vimeo-id")
+      expect(context.vimeoClientSecret).toBe("bulk-vimeo-secret")
+      expect(context.vimeoAccessToken).toBe("bulk-vimeo-token")
+      expect(context.telegramBotToken).toBe("bulk-telegram-bot")
+      expect(context.telegramChatId).toBe("bulk-telegram-chat")
+      expect(context.codecovToken).toBe("bulk-codecov-token")
+      expect(context.tauriAnalyticsKey).toBe("bulk-tauri-key")
+      expect(context.apiKeysStatus.openai).toBe("valid")
+      expect(context.apiKeysStatus.claude).toBe("invalid")
+      expect(context.apiKeysStatus.youtube).toBe("testing")
+      expect(context.apiKeysStatus.tiktok).toBe("not_set")
+      expect(context.apiKeysStatus.vimeo).toBe("valid")
+      expect(context.apiKeysStatus.telegram).toBe("invalid")
+      expect(context.apiKeysStatus.codecov).toBe("valid")
+      expect(context.apiKeysStatus.tauri_analytics).toBe("testing")
+
+      actor.stop()
+    })
+  })
+
+  describe("Event handler definitions", () => {
+    it("should have all social media credential event handlers", () => {
+      const idleState = userSettingsMachine.config.states?.idle
+      
+      expect(idleState?.on?.UPDATE_YOUTUBE_CREDENTIALS).toBeDefined()
+      expect(idleState?.on?.UPDATE_TIKTOK_CREDENTIALS).toBeDefined()
+      expect(idleState?.on?.UPDATE_VIMEO_CREDENTIALS).toBeDefined()
+      expect(idleState?.on?.UPDATE_TELEGRAM_CREDENTIALS).toBeDefined()
+      expect(idleState?.on?.UPDATE_CODECOV_TOKEN).toBeDefined()
+      expect(idleState?.on?.UPDATE_TAURI_ANALYTICS_KEY).toBeDefined()
+      expect(idleState?.on?.UPDATE_API_KEY_STATUS).toBeDefined()
+      expect(idleState?.on?.TEST_API_KEY).toBeDefined()
+    })
+
+    it("should have correct action assignments for new events", () => {
+      const idleState = userSettingsMachine.config.states?.idle
+      
+      expect(idleState?.on?.UPDATE_YOUTUBE_CREDENTIALS?.actions).toContain("updateYoutubeCredentials")
+      expect(idleState?.on?.UPDATE_TIKTOK_CREDENTIALS?.actions).toContain("updateTiktokCredentials")
+      expect(idleState?.on?.UPDATE_VIMEO_CREDENTIALS?.actions).toContain("updateVimeoCredentials")
+      expect(idleState?.on?.UPDATE_TELEGRAM_CREDENTIALS?.actions).toContain("updateTelegramCredentials")
+      expect(idleState?.on?.UPDATE_CODECOV_TOKEN?.actions).toContain("updateCodecovToken")
+      expect(idleState?.on?.UPDATE_TAURI_ANALYTICS_KEY?.actions).toContain("updateTauriAnalyticsKey")
+      expect(idleState?.on?.UPDATE_API_KEY_STATUS?.actions).toContain("updateApiKeyStatus")
+      expect(idleState?.on?.TEST_API_KEY?.actions).toContain("testApiKey")
+    })
+  })
+
+  describe("Edge cases and security", () => {
+    it("should handle empty and undefined values gracefully", () => {
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Тестируем пустые строки
+      actor.send({
+        type: "UPDATE_YOUTUBE_CREDENTIALS",
+        clientId: "",
+        clientSecret: ""
+      })
+
+      const context1 = actor.getSnapshot().context
+      expect(context1.youtubeClientId).toBe("")
+      expect(context1.youtubeClientSecret).toBe("")
+      expect(context1.apiKeysStatus.youtube).toBe("not_set")
+
+      // Тестируем пустые токены
+      actor.send({
+        type: "UPDATE_CODECOV_TOKEN",
+        token: ""
+      })
+
+      const context2 = actor.getSnapshot().context
+      expect(context2.codecovToken).toBe("")
+      expect(context2.apiKeysStatus.codecov).toBe("not_set")
+
+      actor.stop()
+    })
+
+    it("should not log sensitive information in console", () => {
+      const consoleSpy = vi.spyOn(console, "log")
+      
+      const actor = createActor(userSettingsMachine)
+      actor.start()
+
+      // Обновляем API ключи
+      actor.send({
+        type: "UPDATE_OPENAI_API_KEY",
+        apiKey: "secret-openai-key"
+      })
+
+      actor.send({
+        type: "UPDATE_CLAUDE_API_KEY",
+        apiKey: "secret-claude-key"
+      })
+
+      actor.send({
+        type: "UPDATE_CODECOV_TOKEN",
+        token: "secret-codecov-token"
+      })
+
+      // Проверяем, что в логах нет полных ключей
+      const logCalls = consoleSpy.mock.calls.map(call => call.join(" "))
+      
+      for (const logCall of logCalls) {
+        expect(logCall).not.toContain("secret-openai-key")
+        expect(logCall).not.toContain("secret-claude-key")
+        expect(logCall).not.toContain("secret-codecov-token")
+      }
+
+      // Но должны содержать замаскированные версии или индикаторы
+      const hasOpenAiLog = logCalls.some(log => 
+        log.includes("Updating OpenAI API key") && (log.includes("***") || log.includes("(empty)"))
+      )
+      expect(hasOpenAiLog).toBe(true)
+
+      actor.stop()
+    })
+  })
 })

@@ -9,7 +9,6 @@ use crate::video_compiler::ffmpeg_executor::{
 };
 use crate::video_compiler::schema::ProjectSchema;
 use std::path::{Path, PathBuf};
-use tauri::Emitter;
 
 #[tauri::command]
 #[allow(dead_code)]
@@ -264,7 +263,6 @@ use tokio::sync::mpsc;
 #[tauri::command]
 pub async fn execute_ffmpeg_with_progress(
   command_args: Vec<String>,
-  app_handle: tauri::AppHandle,
 ) -> Result<String, String> {
   log::debug!(
     "Выполнение FFmpeg с отслеживанием прогресса: {:?}",
@@ -281,33 +279,18 @@ pub async fn execute_ffmpeg_with_progress(
   // Запускаем выполнение в отдельной задаче
   let handle = tokio::spawn(async move { executor.execute(cmd).await });
 
-  // Отправляем обновления прогресса в frontend
+  // Обрабатываем обновления прогресса с логированием вместо отправки событий
   tokio::spawn(async move {
     while let Some(update) = rx.recv().await {
       match update {
         ProgressUpdate::JobStarted { job_id } => {
-          let _ = app_handle.emit(
-            "ffmpeg-progress",
-            serde_json::json!({
-              "type": "started",
-              "jobId": job_id
-            }),
-          );
+          log::info!("FFmpeg job started: {}", job_id);
         }
         ProgressUpdate::ProgressChanged { job_id, progress } => {
-          let _ = app_handle.emit(
-            "ffmpeg-progress",
-            serde_json::json!({
-              "type": "progress",
-              "jobId": job_id,
-              "progress": {
-                "percentage": progress.percentage,
-                "currentFrame": progress.current_frame,
-                "totalFrames": progress.total_frames,
-                "elapsedTime": progress.elapsed_time.as_secs(),
-                "message": progress.message
-              }
-            }),
+          log::debug!(
+            "FFmpeg progress for job {}: {}%",
+            job_id,
+            progress.percentage
           );
         }
         ProgressUpdate::JobCompleted {
@@ -315,14 +298,11 @@ pub async fn execute_ffmpeg_with_progress(
           output_path,
           duration,
         } => {
-          let _ = app_handle.emit(
-            "ffmpeg-progress",
-            serde_json::json!({
-              "type": "completed",
-              "jobId": job_id,
-              "outputPath": output_path,
-              "duration": duration.as_secs_f64()
-            }),
+          log::info!(
+            "FFmpeg job completed: {} -> {} (duration: {:?})",
+            job_id,
+            output_path,
+            duration
           );
         }
         ProgressUpdate::JobFailed {
@@ -330,24 +310,15 @@ pub async fn execute_ffmpeg_with_progress(
           error,
           duration,
         } => {
-          let _ = app_handle.emit(
-            "ffmpeg-progress",
-            serde_json::json!({
-              "type": "failed",
-              "jobId": job_id,
-              "error": error,
-              "duration": duration.as_secs_f64()
-            }),
+          log::error!(
+            "FFmpeg job failed: {} - {} (duration: {:?})",
+            job_id,
+            error,
+            duration
           );
         }
         ProgressUpdate::JobCancelled { job_id } => {
-          let _ = app_handle.emit(
-            "ffmpeg-progress",
-            serde_json::json!({
-              "type": "cancelled",
-              "jobId": job_id
-            }),
-          );
+          log::warn!("FFmpeg job cancelled: {}", job_id);
         }
       }
     }
