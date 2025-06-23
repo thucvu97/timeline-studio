@@ -12,7 +12,7 @@ use super::state::VideoCompilerState;
 
 /// Получить текущие настройки компилятора
 #[tauri::command]
-pub async fn get_compiler_settings(
+pub async fn get_compiler_settings_original(
   state: State<'_, VideoCompilerState>,
 ) -> Result<CompilerSettings> {
   let settings = state.settings.read().await;
@@ -21,7 +21,7 @@ pub async fn get_compiler_settings(
 
 /// Обновить настройки компилятора
 #[tauri::command]
-pub async fn update_compiler_settings(
+pub async fn update_compiler_settings_original(
   new_settings: CompilerSettings,
   state: State<'_, VideoCompilerState>,
 ) -> Result<()> {
@@ -32,7 +32,7 @@ pub async fn update_compiler_settings(
 
 /// Установить путь к FFmpeg
 #[tauri::command]
-pub async fn set_ffmpeg_path(path: String, state: State<'_, VideoCompilerState>) -> Result<()> {
+pub async fn set_ffmpeg_path_original(path: String, state: State<'_, VideoCompilerState>) -> Result<()> {
   // Проверяем, что FFmpeg доступен по указанному пути
   let output = std::process::Command::new(&path)
     .arg("-version")
@@ -61,7 +61,7 @@ pub async fn set_ffmpeg_path(path: String, state: State<'_, VideoCompilerState>)
 
 /// Установить максимальное количество параллельных задач
 #[tauri::command]
-pub async fn set_parallel_jobs(jobs: u32, state: State<'_, VideoCompilerState>) -> Result<()> {
+pub async fn set_parallel_jobs_original(jobs: u32, state: State<'_, VideoCompilerState>) -> Result<()> {
   if jobs == 0 {
     return Err(
       crate::video_compiler::error::VideoCompilerError::InvalidParameter(
@@ -77,7 +77,7 @@ pub async fn set_parallel_jobs(jobs: u32, state: State<'_, VideoCompilerState>) 
 
 /// Установить лимит памяти
 #[tauri::command]
-pub async fn set_memory_limit(limit_mb: u64, state: State<'_, VideoCompilerState>) -> Result<()> {
+pub async fn set_memory_limit_original(limit_mb: u64, state: State<'_, VideoCompilerState>) -> Result<()> {
   let mut settings = state.settings.write().await;
   // Поле memory_limit_mb не существует в CompilerSettings
   // Это поле можно добавить позже или использовать cache_size_mb
@@ -87,7 +87,7 @@ pub async fn set_memory_limit(limit_mb: u64, state: State<'_, VideoCompilerState
 
 /// Установить временную директорию
 #[tauri::command]
-pub async fn set_temp_directory(path: String, state: State<'_, VideoCompilerState>) -> Result<()> {
+pub async fn set_temp_directory_original(path: String, state: State<'_, VideoCompilerState>) -> Result<()> {
   // Проверяем, что директория существует
   if !std::path::Path::new(&path).is_dir() {
     return Err(
@@ -105,7 +105,7 @@ pub async fn set_temp_directory(path: String, state: State<'_, VideoCompilerStat
 
 /// Установить уровень логирования
 #[tauri::command]
-pub async fn set_log_level(level: String, state: State<'_, VideoCompilerState>) -> Result<()> {
+pub async fn set_log_level_original(level: String, state: State<'_, VideoCompilerState>) -> Result<()> {
   let _log_level = match level.to_lowercase().as_str() {
     "error" | "quiet" => "error",
     "warning" | "warn" => "warning",
@@ -129,7 +129,7 @@ pub async fn set_log_level(level: String, state: State<'_, VideoCompilerState>) 
 
 /// Сбросить настройки на значения по умолчанию
 #[tauri::command]
-pub async fn reset_compiler_settings(state: State<'_, VideoCompilerState>) -> Result<()> {
+pub async fn reset_compiler_settings_original(state: State<'_, VideoCompilerState>) -> Result<()> {
   let mut settings = state.settings.write().await;
   *settings = CompilerSettings::default();
   Ok(())
@@ -137,7 +137,7 @@ pub async fn reset_compiler_settings(state: State<'_, VideoCompilerState>) -> Re
 
 /// Получить рекомендуемые настройки для системы
 #[tauri::command]
-pub async fn get_recommended_settings() -> Result<CompilerSettings> {
+pub async fn get_recommended_settings_original() -> Result<CompilerSettings> {
   let mut settings = CompilerSettings::default();
 
   // Настраиваем количество параллельных задач на основе количества ядер
@@ -165,7 +165,7 @@ pub async fn get_recommended_settings() -> Result<CompilerSettings> {
 
 /// Экспортировать настройки в JSON
 #[tauri::command]
-pub async fn export_settings(path: String, state: State<'_, VideoCompilerState>) -> Result<()> {
+pub async fn export_settings_original(path: String, state: State<'_, VideoCompilerState>) -> Result<()> {
   let settings = state.settings.read().await;
   let json = serde_json::to_string_pretty(&*settings).map_err(|e| {
     crate::video_compiler::error::VideoCompilerError::SerializationError(e.to_string())
@@ -179,7 +179,7 @@ pub async fn export_settings(path: String, state: State<'_, VideoCompilerState>)
 
 /// Импортировать настройки из JSON
 #[tauri::command]
-pub async fn import_settings(path: String, state: State<'_, VideoCompilerState>) -> Result<()> {
+pub async fn import_settings_original(path: String, state: State<'_, VideoCompilerState>) -> Result<()> {
   let json = std::fs::read_to_string(&path)
     .map_err(|e| crate::video_compiler::error::VideoCompilerError::IoError(e.to_string()))?;
 
@@ -195,7 +195,7 @@ pub async fn import_settings(path: String, state: State<'_, VideoCompilerState>)
 
 /// Получить предустановленные настройки качества
 #[tauri::command]
-pub async fn get_quality_presets() -> Result<serde_json::Value> {
+pub async fn get_quality_presets_original() -> Result<serde_json::Value> {
   Ok(serde_json::json!({
     "low": {
       "name": "Low Quality",

@@ -175,7 +175,7 @@ pub async fn export_with_preset<R: tauri::Runtime>(
 
 /// Получить статистику рендеринга для активной задачи
 #[tauri::command]
-pub async fn get_render_pipeline_statistics(
+pub async fn get_render_pipeline_statistics_original(
   job_id: String,
   state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
@@ -262,7 +262,7 @@ pub async fn build_render_command_with_settings(
 
 /// Извлечь кадры для клипа
 #[tauri::command]
-pub async fn extract_frames_for_clip(
+pub async fn extract_frames_for_clip_original(
   _clip_id: String,
   _timestamps: Vec<f64>,
   state: State<'_, VideoCompilerState>,
@@ -294,7 +294,7 @@ pub async fn extract_frames_for_clip(
 
 /// Извлечь кадры для субтитров
 #[tauri::command]
-pub async fn extract_frames_for_subtitles(
+pub async fn extract_frames_for_subtitles_original(
   subtitle_timestamps: Vec<f64>,
   video_path: String,
   state: State<'_, VideoCompilerState>,
@@ -381,7 +381,7 @@ pub async fn build_preview_command(
 
 /// Получить настройки FFmpeg Builder
 #[tauri::command]
-pub async fn get_ffmpeg_builder_settings(
+pub async fn get_ffmpeg_builder_settings_original(
   project_schema: ProjectSchema,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
@@ -400,7 +400,7 @@ pub async fn get_ffmpeg_builder_settings(
 
 /// Получить информацию о проекте из FFmpeg Builder
 #[tauri::command]
-pub async fn get_ffmpeg_builder_project_info(
+pub async fn get_ffmpeg_builder_project_info_original(
   project_schema: ProjectSchema,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
@@ -474,7 +474,7 @@ pub async fn build_segment_render_command(
 
 /// Получить информацию о фильтрах для сегмента
 #[tauri::command]
-pub async fn get_segment_filters_info(
+pub async fn get_segment_filters_info_original(
   project_schema: ProjectSchema,
   start_time: f64,
   end_time: f64,
@@ -500,7 +500,7 @@ pub async fn get_segment_filters_info(
 
 /// Проверить корректность временных меток сегмента
 #[tauri::command]
-pub async fn validate_segment_timestamps(
+pub async fn validate_segment_timestamps_original(
   project_schema: ProjectSchema,
   start_time: f64,
   end_time: f64,
@@ -532,7 +532,7 @@ pub async fn validate_segment_timestamps(
 
 /// Получить кэш менеджера извлечения кадров
 #[tauri::command]
-pub async fn get_frame_extraction_cache(
+pub async fn get_frame_extraction_cache_original(
   state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
   use crate::video_compiler::core::frame_extraction::FrameExtractionManager;
@@ -551,7 +551,7 @@ pub async fn get_frame_extraction_cache(
 
 /// Получить индекс входа для клипа
 #[tauri::command]
-pub async fn get_clip_input_index(
+pub async fn get_clip_input_index_original(
   project_schema: ProjectSchema,
   clip_id: String,
   _state: State<'_, VideoCompilerState>,

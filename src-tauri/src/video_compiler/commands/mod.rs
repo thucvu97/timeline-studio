@@ -71,6 +71,7 @@ pub use frame_manager_commands::*;
 pub use gpu::*;
 pub use info::*;
 pub use metrics_advanced_commands::*;
+pub use metrics::*;
 pub use misc::*;
 pub use monitoring_commands::*;
 pub use multimodal_commands::*;
@@ -87,6 +88,7 @@ pub use service_commands::*;
 pub use service_container_commands::*;
 pub use settings::*;
 pub use test_helper_commands::*;
+pub use tests_helpers::*;
 pub use timeline_schema_commands::*;
 // Video analysis commands
 pub use video_analysis::*;

@@ -9,7 +9,7 @@ use super::state::VideoCompilerState;
 
 /// Получить сводку метрик для всех сервисов
 #[tauri::command]
-pub async fn get_all_metrics(_state: State<'_, VideoCompilerState>) -> Result<Vec<MetricsSummary>> {
+pub async fn get_all_metrics_original(_state: State<'_, VideoCompilerState>) -> Result<Vec<MetricsSummary>> {
   log::debug!("Получение метрик всех сервисов");
   let summaries = METRICS.get_all_summaries().await;
   Ok(summaries)
@@ -17,7 +17,7 @@ pub async fn get_all_metrics(_state: State<'_, VideoCompilerState>) -> Result<Ve
 
 /// Получить метрики конкретного сервиса
 #[tauri::command]
-pub async fn get_service_metrics(
+pub async fn get_service_metrics_original(
   service_name: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<Option<MetricsSummary>> {
@@ -32,7 +32,7 @@ pub async fn get_service_metrics(
 
 /// Экспортировать метрики в формате Prometheus
 #[tauri::command]
-pub async fn export_metrics_prometheus(_state: State<'_, VideoCompilerState>) -> Result<String> {
+pub async fn export_metrics_prometheus_original(_state: State<'_, VideoCompilerState>) -> Result<String> {
   log::debug!("Экспорт метрик в формате Prometheus");
   let prometheus_data = METRICS.export_prometheus().await;
   Ok(prometheus_data)
@@ -40,7 +40,7 @@ pub async fn export_metrics_prometheus(_state: State<'_, VideoCompilerState>) ->
 
 /// Сбросить метрики для сервиса
 #[tauri::command]
-pub async fn reset_service_metrics(
+pub async fn reset_service_metrics_original(
   service_name: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<()> {
@@ -61,7 +61,7 @@ pub async fn reset_service_metrics(
 
 /// Получить текущее количество активных операций
 #[tauri::command]
-pub async fn get_active_operations_count(
+pub async fn get_active_operations_count_original(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
   let summaries = METRICS.get_all_summaries().await;
@@ -85,7 +85,7 @@ pub async fn get_active_operations_count(
 
 /// Получить статистику ошибок
 #[tauri::command]
-pub async fn get_error_statistics(
+pub async fn get_error_statistics_original(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
   let summaries = METRICS.get_all_summaries().await;
@@ -131,7 +131,7 @@ pub async fn get_error_statistics(
 
 /// Получить топ медленных операций
 #[tauri::command]
-pub async fn get_slow_operations(
+pub async fn get_slow_operations_original(
   limit: Option<usize>,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<Vec<serde_json::Value>> {
@@ -188,7 +188,7 @@ mod tests {
 
 /// Получить прямой доступ к метрикам контейнера сервисов
 #[tauri::command]
-pub async fn get_service_container_metrics(
+pub async fn get_service_container_metrics_original(
   state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
   // Используем поля ServiceMetricsContainer для доступа к метрикам сервисов

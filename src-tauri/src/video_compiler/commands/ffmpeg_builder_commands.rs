@@ -11,15 +11,6 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use tauri::State;
 
-/// Временный сегмент для работы с FFmpeg builder
-#[derive(Debug, Clone)]
-struct TimelineSegment {
-  pub id: String,
-  pub start_time: f64,
-  pub end_time: f64,
-  pub clip_id: String,
-  pub track_id: String,
-}
 
 /// Параметры для добавления сегментных входов
 #[derive(Debug, Clone, Serialize, Deserialize)]

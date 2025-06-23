@@ -6,7 +6,7 @@ use crate::video_compiler::error::Result;
 
 /// Создать тестовые данные кэша для демонстрации
 #[tauri::command]
-pub async fn create_test_render_cache() -> Result<serde_json::Value> {
+pub async fn create_test_render_cache_original() -> Result<serde_json::Value> {
   // Создаем примеры тестовых данных без использования моков
   let test_preview_info = serde_json::json!({
     "image_data_size": 5,
@@ -34,7 +34,7 @@ pub async fn create_test_render_cache() -> Result<serde_json::Value> {
 
 /// Получить пример превью данных
 #[tauri::command]
-pub async fn get_test_cache_preview(key: String) -> Result<serde_json::Value> {
+pub async fn get_test_cache_preview_original(key: String) -> Result<serde_json::Value> {
   let found = key == "test_clip_1";
 
   if found {
@@ -55,7 +55,7 @@ pub async fn get_test_cache_preview(key: String) -> Result<serde_json::Value> {
 
 /// Получить пример метаданных
 #[tauri::command]
-pub async fn get_test_cache_metadata(key: String) -> Result<serde_json::Value> {
+pub async fn get_test_cache_metadata_original(key: String) -> Result<serde_json::Value> {
   let found = key == "test_file.mp4";
 
   if found {
@@ -80,7 +80,7 @@ pub async fn get_test_cache_metadata(key: String) -> Result<serde_json::Value> {
 
 /// Создать тестовые GPU возможности
 #[tauri::command]
-pub async fn get_mock_gpu_capabilities() -> Result<serde_json::Value> {
+pub async fn get_mock_gpu_capabilities_original() -> Result<serde_json::Value> {
   // Создаем тестовые возможности GPU без использования моков
   let mock_capabilities = serde_json::json!({
     "available_encoders": ["Software", "Nvenc"],
@@ -103,7 +103,7 @@ pub async fn get_mock_gpu_capabilities() -> Result<serde_json::Value> {
 
 /// Валидировать тестовые компоненты
 #[tauri::command]
-pub async fn validate_test_mocks() -> Result<serde_json::Value> {
+pub async fn validate_test_mocks_original() -> Result<serde_json::Value> {
   let mut validation_results = Vec::new();
 
   // Тест создания тестовых данных
@@ -126,21 +126,21 @@ pub async fn validate_test_mocks() -> Result<serde_json::Value> {
   }));
 
   // Тест получения данных
-  let preview_result = get_test_cache_preview("test_clip_1".to_string()).await;
+  let preview_result = get_test_cache_preview_original("test_clip_1".to_string()).await;
   validation_results.push(serde_json::json!({
     "component": "TestDataRetrieval",
     "method": "get_preview",
     "status": if preview_result.is_ok() { "success" } else { "failed" }
   }));
 
-  let metadata_result = get_test_cache_metadata("test_file.mp4".to_string()).await;
+  let metadata_result = get_test_cache_metadata_original("test_file.mp4".to_string()).await;
   validation_results.push(serde_json::json!({
     "component": "TestDataRetrieval",
     "method": "get_metadata",
     "status": if metadata_result.is_ok() { "success" } else { "failed" }
   }));
 
-  let gpu_result = get_mock_gpu_capabilities().await;
+  let gpu_result = get_mock_gpu_capabilities_original().await;
   validation_results.push(serde_json::json!({
     "component": "TestDataRetrieval",
     "method": "get_gpu_capabilities",
@@ -161,7 +161,7 @@ pub async fn validate_test_mocks() -> Result<serde_json::Value> {
 
 /// Создать состояние для тестирования  
 #[tauri::command]
-pub async fn create_test_state() -> Result<serde_json::Value> {
+pub async fn create_test_state_original() -> Result<serde_json::Value> {
   // Возвращаем информацию о создании тестового состояния
   Ok(serde_json::json!({
     "status": "success",
