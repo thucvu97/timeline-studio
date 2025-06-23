@@ -69,7 +69,7 @@ export function trimMessagesForContext(
     return [
       {
         ...lastUserMessage,
-        content: lastUserMessage.content.substring(0, maxChars) + "...",
+        content: `${lastUserMessage.content.substring(0, maxChars)}...`,
       },
     ]
   }

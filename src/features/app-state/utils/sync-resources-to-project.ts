@@ -43,8 +43,7 @@ export function syncResourcesToProject(
       (sum, item) => sum + item.metadata.fileSize,
       0,
     ),
-    onlineItems: Array.from(updatedProject.mediaPool.items.values()).filter((item) => item.status === "online")
-      .length,
+    onlineItems: Array.from(updatedProject.mediaPool.items.values()).filter((item) => item.status === "online").length,
     offlineItems: Array.from(updatedProject.mediaPool.items.values()).filter(
       (item) => item.status === "offline" || item.status === "missing",
     ).length,
@@ -64,15 +63,15 @@ export function syncResourcesToProject(
 export function getResourcesFromStorage(): {
   mediaResources: MediaResource[]
   musicResources: MusicResource[]
-} {
+  } {
   // Check if we're on the client side
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
     return {
       mediaResources: [],
       musicResources: [],
     }
   }
-  
+
   try {
     const stored = localStorage.getItem("timeline-studio-resources")
     if (stored) {

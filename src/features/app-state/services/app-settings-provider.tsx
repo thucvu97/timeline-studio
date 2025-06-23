@@ -177,13 +177,13 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
         const project = await projectService.openProject(tempPath)
 
         console.log(`Loaded existing temp project from: ${tempPath}`)
-        
+
         // Синхронизируем ресурсы из проекта в localStorage
         // чтобы они отобразились в UI
         if (project.mediaPool && project.mediaPool.items.size > 0) {
           const mediaResources: any[] = []
           const musicResources: any[] = []
-          
+
           project.mediaPool.items.forEach((item) => {
             const resource = {
               id: item.id,
@@ -202,14 +202,14 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
               },
               addedAt: item.metadata.importedDate.getTime(),
             }
-            
+
             if (item.binId === "music") {
               musicResources.push(resource)
             } else {
               mediaResources.push(resource)
             }
           })
-          
+
           // Сохраняем в localStorage для синхронизации с UI
           const resourcesData = {
             resources: [...mediaResources, ...musicResources],
@@ -223,8 +223,10 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
             styleTemplateResources: [],
           }
           localStorage.setItem("timeline-studio-resources", JSON.stringify(resourcesData))
-          
-          console.log(`Loaded ${mediaResources.length} media and ${musicResources.length} music resources from temp project`)
+
+          console.log(
+            `Loaded ${mediaResources.length} media and ${musicResources.length} music resources from temp project`,
+          )
         }
 
         // Обновляем состояние
@@ -456,21 +458,21 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       // Проверяем, что это временный проект
       if (currentProject.path && currentProject.path.includes(TEMP_PROJECT_FILENAME)) {
         console.log("Auto-saving temp project...")
-        
+
         const projectService = TimelineStudioProjectService.getInstance()
-        
+
         // Загружаем текущий проект
         const project = await projectService.openProject(currentProject.path)
-        
+
         // Получаем ресурсы из localStorage
         const { mediaResources, musicResources } = getResourcesFromStorage()
-        
+
         // Синхронизируем ресурсы с проектом
         const updatedProject = syncResourcesToProject(project, mediaResources, musicResources)
-        
+
         // Сохраняем обновленный проект
         await projectService.saveProject(updatedProject, currentProject.path)
-        
+
         console.log(`Temp project auto-saved with ${updatedProject.mediaPool.items.size} media items`)
       }
     } catch (error) {

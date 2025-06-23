@@ -75,7 +75,7 @@ describe("context-manager", () => {
       const result = trimMessagesForContext(messages, "gpt-3.5-turbo")
 
       expect(result).toHaveLength(1)
-      expect(result[0].content).toBe(longMessage.substring(0, 14000 * 4 - 100) + "...")
+      expect(result[0].content).toBe(`${longMessage.substring(0, 14000 * 4 - 100)}...`)
     })
   })
 

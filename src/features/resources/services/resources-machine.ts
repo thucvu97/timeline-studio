@@ -68,10 +68,10 @@ type ResourcesMachineEvent =
 // Функция для загрузки ресурсов из localStorage
 function loadResourcesFromStorage(): Partial<ResourcesMachineContext> {
   // Check if we're on the client side
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
     return {}
   }
-  
+
   try {
     const stored = localStorage.getItem("timeline-studio-resources")
     if (stored) {

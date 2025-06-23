@@ -2,7 +2,7 @@
  * Утилиты для создания контекста Timeline для AI
  */
 
-import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types"
+import { TimelineClip, TimelineProject, TimelineSection } from "@/features/timeline/types"
 
 /**
  * Создает системный промпт с контекстом Timeline
