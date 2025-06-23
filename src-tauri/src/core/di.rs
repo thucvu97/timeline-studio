@@ -7,8 +7,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use crate::video_compiler::error::{Result, VideoCompilerError};
+use async_trait::async_trait;
 
 /// Базовый trait для всех сервисов с жизненным циклом
+#[async_trait]
 pub trait Service: Send + Sync + 'static {
     /// Инициализация сервиса
     async fn initialize(&mut self) -> Result<()> {
@@ -200,6 +202,7 @@ mod tests {
         initialized: bool,
     }
     
+    #[async_trait]
     impl Service for TestService {
         async fn initialize(&mut self) -> Result<()> {
             self.initialized = true;

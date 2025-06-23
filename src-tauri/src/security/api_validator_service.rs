@@ -4,7 +4,8 @@
 
 use crate::core::{Service, EventBus, AppEvent};
 use crate::video_compiler::error::Result;
-use crate::security::api_validator::{ApiValidator, ServiceType};
+use crate::security::api_validator::{ApiValidator, ValidationResult};
+use crate::security::ApiKeyType;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -32,40 +33,49 @@ impl ApiValidatorService {
     }
     
     /// Валидировать API ключ
-    pub async fn validate_key(&self, service: ServiceType, api_key: &str) -> Result<bool> {
+    pub async fn validate_key(&self, key_type: ApiKeyType, api_key: &str) -> Result<bool> {
         let validator = self.validator.read().await;
-        let result = validator.validate_api_key(service, api_key).await;
+        let result = validator.validate_api_key(key_type.clone(), api_key).await;
         
         // Публикуем событие о валидации
         if let Some(event_bus) = &self.event_bus {
             let event = match &result {
-                Ok(true) => AppEvent::ConfigChanged {
-                    key: format!("api_key_valid_{:?}", service),
+                Ok(validation_result) if validation_result.is_valid => AppEvent::ConfigChanged {
+                    key: format!("api_key_valid_{:?}", key_type),
                     value: serde_json::json!(true),
                 },
-                Ok(false) => AppEvent::ConfigChanged {
-                    key: format!("api_key_invalid_{:?}", service),
-                    value: serde_json::json!(false),
+                Ok(validation_result) if !validation_result.is_valid => AppEvent::ConfigChanged {
+                    key: format!("api_key_invalid_{:?}", key_type),
+                    value: serde_json::json!(validation_result.error_message),
                 },
                 Err(e) => AppEvent::ConfigChanged {
-                    key: format!("api_key_error_{:?}", service),
+                    key: format!("api_key_error_{:?}", key_type),
                     value: serde_json::json!(e.to_string()),
+                },
+                _ => AppEvent::ConfigChanged {
+                    key: format!("api_key_unknown_{:?}", key_type),
+                    value: serde_json::json!("unknown"),
                 },
             };
             
             let _ = event_bus.publish_app_event(event).await;
         }
         
-        result
+        // Конвертируем ValidationResult в bool
+        match result {
+            Ok(validation_result) => Ok(validation_result.is_valid),
+            Err(e) => Err(crate::video_compiler::error::VideoCompilerError::InternalError(e.to_string())),
+        }
     }
     
     /// Проверить доступность сервиса
-    pub async fn check_service_availability(&self, service: ServiceType) -> Result<bool> {
+    pub async fn check_service_availability(&self, key_type: ApiKeyType) -> Result<bool> {
+        // Простая проверка - пытаемся валидировать пустой ключ
+        // Если сервис доступен, он вернет ошибку валидации, а не сетевую ошибку
         let validator = self.validator.read().await;
-        match service {
-            ServiceType::OpenAI => Ok(validator.check_openai_service().await.is_ok()),
-            ServiceType::Claude => Ok(validator.check_claude_service().await.is_ok()),
-            _ => Ok(true), // Для остальных сервисов предполагаем доступность
+        match validator.validate_api_key(key_type, "").await {
+            Ok(_) => Ok(true), // Сервис доступен (даже если ключ неверный)
+            Err(_) => Ok(false), // Сервис недоступен
         }
     }
 }
