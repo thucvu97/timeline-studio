@@ -1,5 +1,6 @@
 pub mod additional_commands;
 pub mod api_validator;
+pub mod api_validator_service;
 pub mod commands;
 pub mod env_importer;
 pub mod oauth_handler;

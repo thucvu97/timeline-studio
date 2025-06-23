@@ -2,6 +2,9 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::Manager;
 
+// Core infrastructure modules
+mod core;
+
 // Command registry module
 mod command_registry;
 pub use command_registry::CommandRegistry;

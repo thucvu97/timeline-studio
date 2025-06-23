@@ -98,6 +98,9 @@ pub enum VideoCompilerError {
 
   /// Слишком много активных задач
   TooManyActiveJobs(String),
+  
+  /// Сервис не найден в DI контейнере
+  ServiceNotFound(String),
 }
 
 impl fmt::Display for VideoCompilerError {
@@ -209,6 +212,9 @@ impl fmt::Display for VideoCompilerError {
       }
       VideoCompilerError::TooManyActiveJobs(msg) => {
         write!(f, "Слишком много активных задач: {}", msg)
+      }
+      VideoCompilerError::ServiceNotFound(service) => {
+        write!(f, "Сервис не найден в DI контейнере: {}", service)
       }
     }
   }
@@ -415,6 +421,7 @@ impl VideoCompilerError {
       VideoCompilerError::NotImplemented(_) => "NOT_IMPLEMENTED",
       VideoCompilerError::InvalidPath(_) => "INVALID_PATH",
       VideoCompilerError::TooManyActiveJobs(_) => "TOO_MANY_ACTIVE_JOBS",
+      VideoCompilerError::ServiceNotFound(_) => "SERVICE_NOT_FOUND",
     }
   }
 }

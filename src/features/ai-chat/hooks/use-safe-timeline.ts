@@ -3,7 +3,7 @@
  * Работает даже если Timeline Provider недоступен (например, в тестах)
  */
 
-import { useMemo } from "react"
+// Removed useMemo import as it's no longer needed
 
 // Пытаемся импортировать useTimeline, если доступен
 let timelineHook: (() => any) | undefined
@@ -21,18 +21,15 @@ try {
  * Возвращает null если Timeline Provider недоступен
  */
 export function useSafeTimeline() {
-  const timelineContext = useMemo(() => {
-    if (!timelineHook) {
-      return null
-    }
+  if (!timelineHook) {
+    return null
+  }
 
-    try {
-      return timelineHook()
-    } catch {
-      // Timeline Provider может быть недоступен
-      return null
-    }
-  }, [])
-
-  return timelineContext
+  try {
+    // Вызываем хук напрямую, не внутри useMemo
+    return timelineHook()
+  } catch {
+    // Timeline Provider может быть недоступен
+    return null
+  }
 }
