@@ -11,9 +11,9 @@
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/graphs/commit-activity)
 [![GitHub stars](https://img.shields.io/github/stars/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/stargazers)
 [![npm downloads](https://img.shields.io/npm/dm/timeline-studio?style=for-the-badge&label=npm%20downloads)](https://www.npmjs.com/package/timeline-studio)
-[![Open Collective](https://img.shields.io/opencollective/all/timeline-studio?style=for-the-badge&label=sponsors)](https://opencollective.com/timeline-studio)
 [![Documentation](https://img.shields.io/badge/read-docs-blue?style=for-the-badge)](https://chatman-media.github.io/timeline-studio/api-docs/)
 [![Website](https://img.shields.io/badge/visit-website-brightgreen?style=for-the-badge&logo=globe&logoColor=white)](https://chatman-media.github.io/timeline-studio/)
+
 [![Telegram](https://img.shields.io/badge/Join%20Group-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/timelinestudio)
 [![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
 [![X](https://img.shields.io/badge/Follow-@chatman-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/chatman_media)
@@ -64,7 +64,7 @@ AI assistant will create the right number of versions for each platform! 🤖
 - 🖥️ Cross-platform (Windows, macOS, Linux)
 - 🚀 GPU-accelerated video processing (NVENC, QuickSync, VideoToolbox)
 - 🤖 AI-powered object/face recognition (YOLO v11)
-- 🎨 30+ transitions, visual effects, and filters
+- 🎨 100+ transitions, visual effects, and filters
 - 📝 Advanced subtitle system with 72 styles and animations
 - 🎵 Multi-track audio editing with effects
 - 📤 Export to MP4/MOV/WebM with social media OAuth integration
@@ -167,5 +167,3 @@ bun run check:all
 MIT License with Commons Clause - free for personal use, commercial use requires agreement.
 
 📄 **[Full License Details →](docs-ru/10-legal/license.md)** | 📧 **Commercial License**: ak.chatman.media@gmail.com
-
-<!-- GitAds-Verify: EIS875AHMQZGOHYNQFNPOUHHNSEXHVUR -->

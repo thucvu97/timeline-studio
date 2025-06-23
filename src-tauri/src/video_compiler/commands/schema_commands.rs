@@ -351,3 +351,86 @@ pub async fn create_schema_objects(
 
   Ok(objects)
 }
+
+/// Создать разрешение с заданными параметрами (использование Resolution::new)
+#[tauri::command]
+pub async fn create_resolution(
+  width: u32,
+  height: u32,
+) -> Result<crate::video_compiler::schema::common::Resolution> {
+  use crate::video_compiler::schema::common::Resolution;
+  
+  // Используем метод Resolution::new
+  Ok(Resolution::new(width, height))
+}
+
+/// Получить стандартное HD разрешение (использование Resolution::hd)
+#[tauri::command]
+pub async fn get_hd_resolution() -> Result<crate::video_compiler::schema::common::Resolution> {
+  use crate::video_compiler::schema::common::Resolution;
+  
+  // Используем метод Resolution::hd
+  Ok(Resolution::hd())
+}
+
+/// Получить стандартное 4K разрешение (использование Resolution::uhd_4k)
+#[tauri::command]
+pub async fn get_uhd_4k_resolution() -> Result<crate::video_compiler::schema::common::Resolution> {
+  use crate::video_compiler::schema::common::Resolution;
+  
+  // Используем метод Resolution::uhd_4k
+  Ok(Resolution::uhd_4k())
+}
+
+/// Получить список предустановленных разрешений
+#[tauri::command]
+pub async fn get_preset_resolutions() -> Result<Vec<serde_json::Value>> {
+  use crate::video_compiler::schema::common::Resolution;
+  
+  // Создаем список предустановленных разрешений используя методы Resolution
+  let resolutions = vec![
+    serde_json::json!({
+      "name": "HD (720p)",
+      "resolution": Resolution::hd()
+    }),
+    serde_json::json!({
+      "name": "Full HD (1080p)",
+      "resolution": Resolution::full_hd()
+    }),
+    serde_json::json!({
+      "name": "4K UHD (2160p)",
+      "resolution": Resolution::uhd_4k()
+    }),
+    serde_json::json!({
+      "name": "Custom Square",
+      "resolution": Resolution::new(1080, 1080)
+    }),
+    serde_json::json!({
+      "name": "Custom Portrait",
+      "resolution": Resolution::new(1080, 1920)
+    }),
+  ];
+  
+  Ok(resolutions)
+}
+
+/// Создать разрешение для определенного формата
+#[tauri::command]
+pub async fn create_resolution_for_format(
+  format: String,
+) -> Result<crate::video_compiler::schema::common::Resolution> {
+  use crate::video_compiler::schema::common::Resolution;
+  
+  // Создаем разрешение в зависимости от формата
+  let resolution = match format.as_str() {
+    "hd" | "720p" => Resolution::hd(),
+    "fullhd" | "1080p" => Resolution::full_hd(),
+    "4k" | "uhd" | "2160p" => Resolution::uhd_4k(),
+    "square" => Resolution::new(1080, 1080),
+    "portrait" | "vertical" => Resolution::new(1080, 1920),
+    "ultrawide" => Resolution::new(2560, 1080),
+    _ => Resolution::new(1920, 1080), // По умолчанию Full HD
+  };
+  
+  Ok(resolution)
+}

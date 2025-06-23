@@ -272,6 +272,11 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       create_subtitle_animation,
       create_template,
       create_track,
+      create_resolution,
+      get_hd_resolution,
+      get_uhd_4k_resolution,
+      get_preset_resolutions,
+      create_resolution_for_format,
       // Test helper commands
       emit_video_compiler_event,
       get_project_service_info,
