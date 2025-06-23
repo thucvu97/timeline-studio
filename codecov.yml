@@ -277,8 +277,9 @@ ignore:
   - "postcss.config.*"
   - "src/test/**"
   - "src/**/__mocks__/**"
+  - "src/**/__tests__/**"
   - "src/components/ui/**"  # shadcn/ui components
-  - "src/components/tauri-mock-provider.tsx"
+  - "src/features/media-studio/services/tauri-mock-provider.tsx"  # Mock provider for non-Tauri environments
   - "src/lib/utils.ts"  # Utility functions from shadcn/ui
   - "src/app/**"  # Next.js app directory (mostly routing)
   - "src/pages/**"  # Next.js pages (if any)

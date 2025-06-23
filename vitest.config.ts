@@ -39,7 +39,7 @@ export default defineConfig({
         "**/__mocks__/**",
         "**/mocks/**",
         "src/components/ui/**", // Исключаем UI компоненты из проверки покрытия
-        "src/components/tauri-mock-provider.tsx", // Исключаем mock компонент для тестирования
+        "src/features/media-studio/services/tauri-mock-provider.tsx", // Mock provider for non-Tauri environments
       ],
       include: ["src/**/*.{ts,tsx}"],
       reportsDirectory: "./coverage",
