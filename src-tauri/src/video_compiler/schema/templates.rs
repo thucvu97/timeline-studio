@@ -24,6 +24,7 @@ pub struct Template {
 
 impl Template {
   /// Создать новый шаблон
+  #[allow(dead_code)]
   pub fn new(template_type: TemplateType, name: String, screens: usize) -> Self {
     Self {
       id: uuid::Uuid::new_v4().to_string(),

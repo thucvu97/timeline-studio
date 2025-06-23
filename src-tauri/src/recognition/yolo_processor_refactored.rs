@@ -40,6 +40,7 @@ pub struct YoloProcessor {
   model_manager: Arc<Mutex<ModelManager>>,
   frame_processor: Arc<FrameProcessor>,
   config: ProcessorConfig,
+  #[allow(dead_code)]
   class_names: Vec<String>,
 }
 

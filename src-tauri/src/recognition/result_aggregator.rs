@@ -184,6 +184,7 @@ impl ResultAggregator {
   }
 
   /// Получить результаты по временному диапазону
+  #[allow(dead_code)]
   pub fn get_results_by_time_range(
     &self,
     start_time: f64,
@@ -197,6 +198,7 @@ impl ResultAggregator {
   }
 
   /// Получить результаты по классу
+  #[allow(dead_code)]
   pub fn get_results_by_class(&self, class_name: &str) -> Vec<&FrameRecognitionResult> {
     self
       .frame_results
@@ -275,6 +277,7 @@ impl ResultFormatter {
   }
 
   /// Форматировать результаты для временной шкалы
+  #[allow(dead_code)]
   pub fn format_for_timeline(results: &AggregatedResults) -> Vec<TimelineSegment> {
     let mut segments = Vec::new();
     let mut current_segments: HashMap<String, TimelineSegment> = HashMap::new();

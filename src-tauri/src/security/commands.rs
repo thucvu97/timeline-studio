@@ -541,6 +541,7 @@ pub fn parse_oauth_callback_url(url: String) -> Result<serde_json::Value, String
 }
 
 /// Инициализирует SecureStorage
+#[allow(dead_code)]
 pub async fn init_secure_storage(app_handle: AppHandle) -> Result<SecureStorage, String> {
   SecureStorage::new(app_handle).map_err(|e| format!("Failed to initialize secure storage: {}", e))
 }

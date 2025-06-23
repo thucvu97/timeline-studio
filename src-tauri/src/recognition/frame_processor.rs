@@ -239,6 +239,7 @@ impl FrameProcessor {
   }
 
   /// Получить имена классов
+  #[allow(dead_code)]
   pub fn get_class_names(&self) -> &[String] {
     &self.class_names
   }

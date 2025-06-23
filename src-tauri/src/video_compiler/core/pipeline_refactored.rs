@@ -23,6 +23,7 @@ pub struct RenderPipeline {
   /// Этапы конвейера
   stages: Vec<Box<dyn PipelineStage>>,
   /// Трекер прогресса
+  #[allow(dead_code)]
   progress_tracker: Arc<ProgressTracker>,
   /// Настройки
   settings: Arc<RwLock<CompilerSettings>>,
@@ -228,6 +229,7 @@ impl RenderPipeline {
   }
 
   /// Получить мутабельный контекст выполнения
+  #[allow(dead_code)]
   pub fn get_context_mut(&mut self) -> &mut PipelineContext {
     &mut self.context
   }

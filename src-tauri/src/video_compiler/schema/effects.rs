@@ -54,6 +54,7 @@ pub struct EffectPreset {
 
 impl Effect {
   /// Создать новый эффект
+  #[allow(dead_code)]
   pub fn new(effect_type: EffectType, name: String) -> Self {
     Self {
       id: uuid::Uuid::new_v4().to_string(),
@@ -292,6 +293,7 @@ pub struct Filter {
 
 impl Filter {
   /// Создать новый фильтр
+  #[allow(dead_code)]
   pub fn new(filter_type: FilterType, name: String) -> Self {
     Self {
       id: uuid::Uuid::new_v4().to_string(),
