@@ -2,6 +2,7 @@
 
 pub mod di;
 pub mod events;
+pub mod plugins;
 
 // Re-export only when fully implemented
 #[allow(unused_imports)]

@@ -4,7 +4,7 @@
 
 use crate::core::{Service, EventBus, AppEvent};
 use crate::video_compiler::error::Result;
-use crate::security::api_validator::{ApiValidator, ValidationResult};
+use crate::security::api_validator::ApiValidator;
 use crate::security::ApiKeyType;
 use std::sync::Arc;
 use tokio::sync::RwLock;

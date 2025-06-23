@@ -113,7 +113,7 @@ impl ServiceContainer {
         
         if provider_exists {
             // Создаем сервис через provider
-            let _service = {
+            {
                 let providers = self.providers.read().await;
                 if let Some(_provider_any) = providers.get(&TypeId::of::<T>()) {
                     // Это сложная часть - нужно правильно downcast provider
