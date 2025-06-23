@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
+  AVAILABLE_LOCAL_MODELS,
+  LocalWhisperModel,
+  WhisperSegment,
   WhisperService,
   WhisperTranscriptionOptions,
   WhisperTranscriptionResult,
   WhisperTranslationOptions,
   WhisperTranslationResult,
-  WhisperSegment,
-  LocalWhisperModel,
-  AVAILABLE_LOCAL_MODELS,
 } from "../../services/whisper-service"
 
 // Mock Tauri API
@@ -225,9 +225,7 @@ describe("WhisperService", () => {
     it("should throw error when API key is not set", async () => {
       service.setApiKey("")
 
-      await expect(service.transcribeWithOpenAI("/path/to/audio.mp3")).rejects.toThrow(
-        "API ключ OpenAI не установлен"
-      )
+      await expect(service.transcribeWithOpenAI("/path/to/audio.mp3")).rejects.toThrow("API ключ OpenAI не установлен")
     })
 
     it("should handle transcription errors", async () => {
@@ -235,7 +233,7 @@ describe("WhisperService", () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
       await expect(service.transcribeWithOpenAI("/path/to/audio.mp3")).rejects.toThrow(
-        "Не удалось выполнить транскрипцию: Error: Transcription failed"
+        "Не удалось выполнить транскрипцию: Error: Transcription failed",
       )
 
       expect(consoleSpy).toHaveBeenCalledWith("Ошибка транскрипции через OpenAI:", expect.any(Error))
@@ -293,9 +291,7 @@ describe("WhisperService", () => {
     it("should throw error when API key is not set", async () => {
       service.setApiKey("")
 
-      await expect(service.translateWithOpenAI("/path/to/audio.mp3")).rejects.toThrow(
-        "API ключ OpenAI не установлен"
-      )
+      await expect(service.translateWithOpenAI("/path/to/audio.mp3")).rejects.toThrow("API ключ OpenAI не установлен")
     })
 
     it("should handle translation errors", async () => {
@@ -303,7 +299,7 @@ describe("WhisperService", () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
       await expect(service.translateWithOpenAI("/path/to/audio.mp3")).rejects.toThrow(
-        "Не удалось выполнить перевод: Error: Translation failed"
+        "Не удалось выполнить перевод: Error: Translation failed",
       )
 
       expect(consoleSpy).toHaveBeenCalledWith("Ошибка перевода через OpenAI:", expect.any(Error))
@@ -355,9 +351,9 @@ describe("WhisperService", () => {
       invoke.mockRejectedValue(new Error("Model not found"))
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-      await expect(
-        service.transcribeWithLocalModel("/path/to/audio.wav", "whisper-unknown")
-      ).rejects.toThrow("Не удалось выполнить локальную транскрипцию: Error: Model not found")
+      await expect(service.transcribeWithLocalModel("/path/to/audio.wav", "whisper-unknown")).rejects.toThrow(
+        "Не удалось выполнить локальную транскрипцию: Error: Model not found",
+      )
 
       expect(consoleSpy).toHaveBeenCalledWith("Ошибка локальной транскрипции:", expect.any(Error))
 
@@ -413,7 +409,7 @@ describe("WhisperService", () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
       await expect(service.downloadLocalModel("whisper-large-v3")).rejects.toThrow(
-        "Не удалось скачать модель whisper-large-v3: Error: Network error"
+        "Не удалось скачать модель whisper-large-v3: Error: Network error",
       )
 
       expect(consoleSpy).toHaveBeenCalledWith("Ошибка скачивания модели:", expect.any(Error))
@@ -473,12 +469,12 @@ describe("WhisperService", () => {
         name: "Auto-detect",
         nativeName: "Автоопределение",
       })
-      expect(languages.find(l => l.code === "ru")).toEqual({
+      expect(languages.find((l) => l.code === "ru")).toEqual({
         code: "ru",
         name: "Russian",
         nativeName: "Русский",
       })
-      expect(languages.find(l => l.code === "zh")).toEqual({
+      expect(languages.find((l) => l.code === "zh")).toEqual({
         code: "zh",
         name: "Chinese",
         nativeName: "中文",
@@ -516,7 +512,7 @@ describe("WhisperService", () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
       await expect(service.extractAudioForTranscription("/path/to/video.mp4")).rejects.toThrow(
-        "Не удалось извлечь аудио: Error: FFmpeg error"
+        "Не удалось извлечь аудио: Error: FFmpeg error",
       )
 
       expect(consoleSpy).toHaveBeenCalledWith("Ошибка извлечения аудио:", expect.any(Error))
@@ -579,8 +575,7 @@ describe("WhisperService", () => {
       const srt = service.convertToSRT(segments)
 
       expect(srt).toBe(
-        "1\n00:00:00,000 --> 00:00:02,500\nHello world\n\n" +
-        "2\n00:00:02,500 --> 00:00:05,000\nThis is a test\n\n"
+        "1\n00:00:00,000 --> 00:00:02,500\nHello world\n\n" + "2\n00:00:02,500 --> 00:00:05,000\nThis is a test\n\n",
       )
     })
 
@@ -660,8 +655,8 @@ describe("WhisperService", () => {
 
       expect(vtt).toBe(
         "WEBVTT\n\n" +
-        "00:00:00.000 --> 00:00:02.500\nHello world\n\n" +
-        "00:00:02.500 --> 00:00:05.000\nThis is a test\n\n"
+          "00:00:00.000 --> 00:00:02.500\nHello world\n\n" +
+          "00:00:02.500 --> 00:00:05.000\nThis is a test\n\n",
       )
     })
 
@@ -735,13 +730,13 @@ describe("WhisperService", () => {
       ]
 
       const srt = service.convertToSRT(testSegments)
-      
+
       expect(srt).toContain("00:00:00,000 --> 00:00:00,001")
       expect(srt).toContain("00:59:59,998 --> 01:00:00,000") // Округление миллисекунд
       expect(srt).toContain("23:59:59,998 --> 24:00:00,000")
 
       const vtt = service.convertToVTT(testSegments)
-      
+
       expect(vtt).toContain("00:00:00.000 --> 00:00:00.001")
       expect(vtt).toContain("00:59:59.998 --> 01:00:00.000") // Округление миллисекунд
       expect(vtt).toContain("23:59:59.998 --> 24:00:00.000")

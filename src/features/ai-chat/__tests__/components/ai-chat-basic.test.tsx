@@ -70,9 +70,7 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenu: ({ children }: any) => <div>{children}</div>,
   DropdownMenuTrigger: ({ children }: any) => <div>{children}</div>,
   DropdownMenuContent: ({ children }: any) => <div>{children}</div>,
-  DropdownMenuItem: ({ children, onClick }: any) => (
-    <div onClick={onClick}>{children}</div>
-  ),
+  DropdownMenuItem: ({ children, onClick }: any) => <div onClick={onClick}>{children}</div>,
 }))
 
 vi.mock("@/components/ui/scroll-area", () => ({
@@ -110,7 +108,7 @@ describe("AiChat Basic Coverage", () => {
 
   it("renders the chat interface", () => {
     render(<AiChat />)
-    
+
     expect(screen.getByText("CHAT")).toBeInTheDocument()
     expect(screen.getByPlaceholderText(/Enter instructions/)).toBeInTheDocument()
   })
@@ -133,7 +131,7 @@ describe("AiChat Basic Coverage", () => {
     ]
 
     render(<AiChat />)
-    
+
     expect(screen.getByText("Hello")).toBeInTheDocument()
     expect(screen.getByText("Hi there!")).toBeInTheDocument()
   })
@@ -150,13 +148,13 @@ describe("AiChat Basic Coverage", () => {
     ]
 
     render(<AiChat />)
-    
+
     expect(screen.getByText("Обработка...")).toBeInTheDocument()
   })
 
   it("renders agent selection options", () => {
     render(<AiChat />)
-    
+
     expect(screen.getAllByText("Claude 4 Sonnet")).toHaveLength(2) // Button and dropdown
     expect(screen.getByText("GPT-4")).toBeInTheDocument()
     expect(screen.getByText("DeepSeek R1")).toBeInTheDocument()
@@ -164,14 +162,14 @@ describe("AiChat Basic Coverage", () => {
 
   it("renders chat modes", () => {
     render(<AiChat />)
-    
+
     expect(screen.getAllByText("Agent")).toHaveLength(2) // Button and dropdown option
     expect(screen.getByText("Chat")).toBeInTheDocument()
   })
 
   it("renders chat list when no messages", () => {
     render(<AiChat />)
-    
+
     expect(screen.getByText("Previous Threads")).toBeInTheDocument()
   })
 
@@ -186,7 +184,7 @@ describe("AiChat Basic Coverage", () => {
     ]
 
     render(<AiChat />)
-    
+
     expect(screen.queryByTestId("chat-list")).not.toBeInTheDocument()
   })
 
@@ -194,14 +192,14 @@ describe("AiChat Basic Coverage", () => {
     mockUseChat.isProcessing = true
 
     render(<AiChat />)
-    
+
     const textarea = screen.getByPlaceholderText(/Enter instructions/)
     expect(textarea).toBeDisabled()
   })
 
   it("renders send button", () => {
     render(<AiChat />)
-    
+
     const buttons = screen.getAllByRole("button")
     expect(buttons.length).toBeGreaterThan(0)
   })

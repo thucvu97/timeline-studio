@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
-  FFmpegAnalysisService,
-  VideoMetadata,
-  SceneDetectionResult,
-  QualityAnalysisResult,
-  SilenceDetectionResult,
-  MotionAnalysisResult,
-  KeyFrameExtractionResult,
   AudioAnalysisResult,
+  FFmpegAnalysisService,
+  KeyFrameExtractionResult,
+  MotionAnalysisResult,
+  QualityAnalysisResult,
+  SceneDetectionResult,
+  SilenceDetectionResult,
   VideoAnalysisOptions,
+  VideoMetadata,
 } from "../../services/ffmpeg-analysis-service"
 
 // Mock Tauri API
@@ -61,7 +61,7 @@ describe("FFmpegAnalysisService", () => {
   const mockSilenceDetection: SilenceDetectionResult = {
     silences: [
       { startTime: 15.0, endTime: 16.5, duration: 1.5, confidence: 0.95 },
-      { startTime: 45.2, endTime: 46.0, duration: 0.8, confidence: 0.90 },
+      { startTime: 45.2, endTime: 46.0, duration: 0.8, confidence: 0.9 },
     ],
     totalSilenceDuration: 2.3,
     speechPercentage: 98.08,
@@ -146,7 +146,7 @@ describe("FFmpegAnalysisService", () => {
       invoke.mockRejectedValue(new Error("FFmpeg error"))
 
       await expect(service.getVideoMetadata("test.mp4")).rejects.toThrow(
-        "Не удалось получить метаданные: Error: FFmpeg error"
+        "Не удалось получить метаданные: Error: FFmpeg error",
       )
     })
   })
@@ -187,7 +187,7 @@ describe("FFmpegAnalysisService", () => {
       invoke.mockRejectedValue(new Error("Scene detection failed"))
 
       await expect(service.detectScenes("test.mp4")).rejects.toThrow(
-        "Не удалось определить сцены: Error: Scene detection failed"
+        "Не удалось определить сцены: Error: Scene detection failed",
       )
     })
   })
@@ -231,7 +231,7 @@ describe("FFmpegAnalysisService", () => {
       invoke.mockRejectedValue(new Error("Quality analysis failed"))
 
       await expect(service.analyzeQuality("test.mp4")).rejects.toThrow(
-        "Не удалось проанализировать качество: Error: Quality analysis failed"
+        "Не удалось проанализировать качество: Error: Quality analysis failed",
       )
     })
   })
@@ -272,7 +272,7 @@ describe("FFmpegAnalysisService", () => {
       invoke.mockRejectedValue(new Error("Silence detection failed"))
 
       await expect(service.detectSilence("test.mp4")).rejects.toThrow(
-        "Не удалось определить тишину: Error: Silence detection failed"
+        "Не удалось определить тишину: Error: Silence detection failed",
       )
     })
   })
@@ -310,7 +310,7 @@ describe("FFmpegAnalysisService", () => {
       invoke.mockRejectedValue(new Error("Motion analysis failed"))
 
       await expect(service.analyzeMotion("test.mp4")).rejects.toThrow(
-        "Не удалось проанализировать движение: Error: Motion analysis failed"
+        "Не удалось проанализировать движение: Error: Motion analysis failed",
       )
     })
   })
@@ -354,7 +354,7 @@ describe("FFmpegAnalysisService", () => {
       invoke.mockRejectedValue(new Error("Key frame extraction failed"))
 
       await expect(service.extractKeyFrames("test.mp4")).rejects.toThrow(
-        "Не удалось извлечь ключевые кадры: Error: Key frame extraction failed"
+        "Не удалось извлечь ключевые кадры: Error: Key frame extraction failed",
       )
     })
   })
@@ -395,7 +395,7 @@ describe("FFmpegAnalysisService", () => {
       invoke.mockRejectedValue(new Error("Audio analysis failed"))
 
       await expect(service.analyzeAudio("test.mp4")).rejects.toThrow(
-        "Не удалось проанализировать аудио: Error: Audio analysis failed"
+        "Не удалось проанализировать аудио: Error: Audio analysis failed",
       )
     })
   })
@@ -475,9 +475,7 @@ describe("FFmpegAnalysisService", () => {
         return Promise.reject(new Error(`${command} failed`))
       })
 
-      await expect(service.comprehensiveAnalysis("test.mp4")).rejects.toThrow(
-        "Не удалось выполнить комплексный анализ"
-      )
+      await expect(service.comprehensiveAnalysis("test.mp4")).rejects.toThrow("Не удалось выполнить комплексный анализ")
     })
   })
 

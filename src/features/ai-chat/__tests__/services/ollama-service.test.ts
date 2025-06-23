@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { OllamaService, OLLAMA_MODELS } from "../../services/ollama-service"
+import { OLLAMA_MODELS, OllamaService } from "../../services/ollama-service"
 import { AiMessage } from "../../types/ai-message"
 import { StreamingOptions } from "../../types/streaming"
 
@@ -183,10 +183,7 @@ describe("OllamaService", () => {
 
       await expect(service.getInstalledModels()).rejects.toThrow("Network error")
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Ошибка при получении списка моделей Ollama:",
-        expect.any(Error)
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("Ошибка при получении списка моделей Ollama:", expect.any(Error))
 
       consoleSpy.mockRestore()
     })
@@ -272,9 +269,9 @@ describe("OllamaService", () => {
         ok: false,
       } as Response)
 
-      await expect(
-        service.sendRequest(OLLAMA_MODELS.LLAMA2, mockMessages)
-      ).rejects.toThrow("Ollama сервер недоступен. Убедитесь, что Ollama запущен на http://localhost:11434")
+      await expect(service.sendRequest(OLLAMA_MODELS.LLAMA2, mockMessages)).rejects.toThrow(
+        "Ollama сервер недоступен. Убедитесь, что Ollama запущен на http://localhost:11434",
+      )
     })
 
     it("should handle API errors", async () => {
@@ -286,9 +283,9 @@ describe("OllamaService", () => {
         text: async () => "Model not found",
       } as Response)
 
-      await expect(
-        service.sendRequest("unknown-model", mockMessages)
-      ).rejects.toThrow("Ошибка Ollama API: 404 Model not found")
+      await expect(service.sendRequest("unknown-model", mockMessages)).rejects.toThrow(
+        "Ошибка Ollama API: 404 Model not found",
+      )
     })
 
     it("should handle network errors", async () => {
@@ -298,14 +295,9 @@ describe("OllamaService", () => {
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-      await expect(
-        service.sendRequest(OLLAMA_MODELS.LLAMA2, mockMessages)
-      ).rejects.toThrow("Network error")
+      await expect(service.sendRequest(OLLAMA_MODELS.LLAMA2, mockMessages)).rejects.toThrow("Network error")
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Ошибка при отправке запроса к Ollama API:",
-        expect.any(Error)
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("Ошибка при отправке запроса к Ollama API:", expect.any(Error))
 
       consoleSpy.mockRestore()
     })
@@ -328,7 +320,6 @@ describe("OllamaService", () => {
   }
 
   describe("sendStreamingRequest", () => {
-
     it("should handle streaming response", async () => {
       const onContent = vi.fn()
       const onComplete = vi.fn()
@@ -356,11 +347,7 @@ describe("OllamaService", () => {
         },
       } as Response)
 
-      await service.sendStreamingRequest(
-        OLLAMA_MODELS.LLAMA2,
-        mockMessages,
-        streamingOptions
-      )
+      await service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)
 
       expect(onContent).toHaveBeenCalledWith("Hello")
       expect(onContent).toHaveBeenCalledWith(" world")
@@ -377,9 +364,9 @@ describe("OllamaService", () => {
       const mockFetch = vi.mocked(fetch)
       mockFetch.mockResolvedValue({ ok: false } as Response)
 
-      await expect(
-        service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)
-      ).rejects.toThrow("Ollama сервер недоступен")
+      await expect(service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)).rejects.toThrow(
+        "Ollama сервер недоступен",
+      )
 
       expect(onError).toHaveBeenCalledWith(expect.any(Error))
     })
@@ -396,9 +383,9 @@ describe("OllamaService", () => {
         text: async () => "Internal server error",
       } as Response)
 
-      await expect(
-        service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)
-      ).rejects.toThrow("Ошибка Ollama API: 500 Internal server error")
+      await expect(service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)).rejects.toThrow(
+        "Ошибка Ollama API: 500 Internal server error",
+      )
 
       expect(onError).toHaveBeenCalledWith(expect.any(Error))
     })
@@ -414,9 +401,9 @@ describe("OllamaService", () => {
         body: null,
       } as Response)
 
-      await expect(
-        service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)
-      ).rejects.toThrow("Не удалось получить поток данных")
+      await expect(service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)).rejects.toThrow(
+        "Не удалось получить поток данных",
+      )
 
       expect(onError).toHaveBeenCalledWith(expect.any(Error))
     })
@@ -427,7 +414,7 @@ describe("OllamaService", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
 
       const chunks = [
-        'invalid json\n',
+        "invalid json\n",
         '{"model":"llama2","created_at":"2023-12-01T00:00:00Z","message":{"role":"assistant","content":"Valid"},"done":false}\n',
         '{"model":"llama2","created_at":"2023-12-01T00:00:00Z","message":{},"done":true}\n',
       ]
@@ -466,7 +453,7 @@ describe("OllamaService", () => {
         service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, {
           signal: controller.signal,
           onError,
-        })
+        }),
       ).rejects.toThrow("Aborted")
 
       expect(onError).toHaveBeenCalledWith(expect.any(DOMException))
@@ -557,14 +544,9 @@ describe("OllamaService", () => {
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-      await expect(service.pullModel("invalid-model")).rejects.toThrow(
-        "Ошибка при скачивании модели: 400"
-      )
+      await expect(service.pullModel("invalid-model")).rejects.toThrow("Ошибка при скачивании модели: 400")
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Ошибка при скачивании модели Ollama:",
-        expect.any(Error)
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("Ошибка при скачивании модели Ollama:", expect.any(Error))
 
       consoleSpy.mockRestore()
     })
@@ -589,14 +571,14 @@ describe("OllamaService", () => {
         size: "3.8GB",
       })
 
-      expect(models.find(m => m.id === OLLAMA_MODELS.MISTRAL)).toEqual({
+      expect(models.find((m) => m.id === OLLAMA_MODELS.MISTRAL)).toEqual({
         id: OLLAMA_MODELS.MISTRAL,
         name: "Mistral (7B)",
         description: "Высокопроизводительная модель от Mistral AI",
         size: "4.1GB",
       })
 
-      expect(models.find(m => m.id === OLLAMA_MODELS.CODELLAMA_13B)).toEqual({
+      expect(models.find((m) => m.id === OLLAMA_MODELS.CODELLAMA_13B)).toEqual({
         id: OLLAMA_MODELS.CODELLAMA_13B,
         name: "Code Llama (13B)",
         description: "Улучшенная модель для программирования",
@@ -606,7 +588,7 @@ describe("OllamaService", () => {
 
     it("should include all defined models", () => {
       const models = service.getAvailableModels()
-      const modelIds = models.map(m => m.id)
+      const modelIds = models.map((m) => m.id)
 
       expect(modelIds).toContain(OLLAMA_MODELS.LLAMA2)
       expect(modelIds).toContain(OLLAMA_MODELS.LLAMA2_13B)
@@ -644,9 +626,7 @@ describe("OllamaService", () => {
     it("should handle streaming with no content in messages", async () => {
       const onComplete = vi.fn()
 
-      const chunks = [
-        '{"model":"llama2","created_at":"2023-12-01T00:00:00Z","done":true}\n',
-      ]
+      const chunks = ['{"model":"llama2","created_at":"2023-12-01T00:00:00Z","done":true}\n']
 
       const mockReader = createMockReader(chunks)
       const mockFetch = vi.mocked(fetch)

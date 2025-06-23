@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { 
-  BatchProcessingService, 
-  BatchOperationType, 
+import {
   BatchOperationParams,
-  BatchProgress,
-  BatchJobStatus
+  BatchOperationType,
+  BatchProcessingService,
 } from "../../services/batch-processing-service"
 
 // Mock Tauri API
@@ -45,7 +43,7 @@ describe("BatchProcessingService", () => {
       const jobId = await service.startBatchOperation(params)
 
       expect(jobId).toMatch(/^batch_\d+_[a-z0-9]+$/)
-      
+
       const progress = service.getBatchProgress(jobId)
       expect(progress).toBeDefined()
       expect(progress).toMatchObject({
@@ -71,7 +69,7 @@ describe("BatchProcessingService", () => {
       const jobId = await service.startBatchOperation(params)
 
       // Wait for async processing
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(progressCallback).toHaveBeenCalled()
     })
@@ -120,7 +118,7 @@ describe("BatchProcessingService", () => {
       }
 
       const jobId = await service.startBatchOperation(params)
-      
+
       // Update status to running
       const progress = service.getBatchProgress(jobId)
       if (progress) {
@@ -142,10 +140,10 @@ describe("BatchProcessingService", () => {
       }
 
       const jobId = await service.startBatchOperation(params)
-      
+
       // Wait for it to potentially start running, then wait for it to complete
-      await new Promise(resolve => setTimeout(resolve, 150))
-      
+      await new Promise((resolve) => setTimeout(resolve, 150))
+
       const cancelled = await service.cancelBatchOperation(jobId)
       expect(cancelled).toBe(false)
     })
@@ -159,7 +157,7 @@ describe("BatchProcessingService", () => {
   describe("getBatchProcessingStats", () => {
     it("should return initial stats", () => {
       const stats = service.getBatchProcessingStats()
-      
+
       expect(stats).toMatchObject({
         totalJobs: 0,
         runningJobs: 0,
@@ -180,7 +178,7 @@ describe("BatchProcessingService", () => {
 
       await service.startBatchOperation(params)
       const stats = service.getBatchProcessingStats()
-      
+
       expect(stats.totalJobs).toBeGreaterThan(0)
     })
   })
@@ -208,11 +206,11 @@ describe("BatchProcessingService", () => {
   describe("batch operations", () => {
     describe("video_analysis", () => {
       it("should process video analysis", async () => {
-        invoke.mockResolvedValue({ 
+        invoke.mockResolvedValue({
           duration: 120,
           width: 1920,
           height: 1080,
-          fps: 30
+          fps: 30,
         })
 
         const params: BatchOperationParams = {
@@ -222,12 +220,12 @@ describe("BatchProcessingService", () => {
         }
 
         const jobId = await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         expect(invoke).toHaveBeenCalledWith("ffmpeg_quick_analysis", {
-          filePath: expect.stringContaining("clip1.mp4")
+          filePath: expect.stringContaining("clip1.mp4"),
         })
       })
     })
@@ -239,9 +237,9 @@ describe("BatchProcessingService", () => {
             return Promise.resolve("/tmp/audio.wav")
           }
           if (cmd === "whisper_transcribe_openai") {
-            return Promise.resolve({ 
+            return Promise.resolve({
               text: "Transcribed text",
-              language: "en"
+              language: "en",
             })
           }
           return Promise.resolve({})
@@ -252,18 +250,18 @@ describe("BatchProcessingService", () => {
           operation: "whisper_transcription",
           options: {
             model: "whisper-1",
-            language: "en"
+            language: "en",
           },
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         expect(invoke).toHaveBeenCalledWith("extract_audio_for_whisper", {
           videoFilePath: expect.any(String),
-          outputFormat: "wav"
+          outputFormat: "wav",
         })
 
         expect(invoke).toHaveBeenCalledWith("whisper_transcribe_openai", {
@@ -273,7 +271,7 @@ describe("BatchProcessingService", () => {
           language: "en",
           responseFormat: "verbose_json",
           temperature: 0,
-          timestampGranularities: ["segment"]
+          timestampGranularities: ["segment"],
         })
       })
     })
@@ -285,8 +283,8 @@ describe("BatchProcessingService", () => {
             return Promise.resolve("/tmp/audio.wav")
           }
           if (cmd === "whisper_transcribe_openai") {
-            return Promise.resolve({ 
-              text: "This is a test transcription with many words that should be split into multiple subtitle lines for better readability"
+            return Promise.resolve({
+              text: "This is a test transcription with many words that should be split into multiple subtitle lines for better readability",
             })
           }
           return Promise.resolve({})
@@ -296,18 +294,18 @@ describe("BatchProcessingService", () => {
           clipIds: ["clip1"],
           operation: "subtitle_generation",
           options: {
-            maxCharactersPerLine: 42
+            maxCharactersPerLine: 42,
           },
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         const history = service.getBatchHistory()
         expect(history.length).toBeGreaterThan(0)
-        
+
         const result = history[0]?.results[0]?.data
         expect(result).toHaveProperty("subtitles")
         expect(result.subtitles).toBeInstanceOf(Array)
@@ -320,7 +318,7 @@ describe("BatchProcessingService", () => {
         invoke.mockResolvedValue({
           bitrate: 5000000,
           resolution: "1920x1080",
-          qualityScore: 0.85
+          qualityScore: 0.85,
         })
 
         const params: BatchOperationParams = {
@@ -330,14 +328,14 @@ describe("BatchProcessingService", () => {
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_quality", {
           filePath: expect.any(String),
           enableBitrateAnalysis: true,
-          enableResolutionAnalysis: true
+          enableResolutionAnalysis: true,
         })
       })
     })
@@ -347,8 +345,8 @@ describe("BatchProcessingService", () => {
         invoke.mockResolvedValue({
           scenes: [
             { start: 0, end: 5.5 },
-            { start: 5.5, end: 12.3 }
-          ]
+            { start: 5.5, end: 12.3 },
+          ],
         })
 
         const params: BatchOperationParams = {
@@ -356,19 +354,19 @@ describe("BatchProcessingService", () => {
           operation: "scene_detection",
           options: {
             threshold: 0.4,
-            minSceneLength: 2.0
+            minSceneLength: 2.0,
           },
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         expect(invoke).toHaveBeenCalledWith("ffmpeg_detect_scenes", {
           filePath: expect.any(String),
           threshold: 0.4,
-          minSceneLength: 2.0
+          minSceneLength: 2.0,
         })
       })
     })
@@ -377,7 +375,7 @@ describe("BatchProcessingService", () => {
       it("should analyze motion", async () => {
         invoke.mockResolvedValue({
           motionVectors: [],
-          averageMotion: 0.25
+          averageMotion: 0.25,
         })
 
         const params: BatchOperationParams = {
@@ -385,19 +383,19 @@ describe("BatchProcessingService", () => {
           operation: "motion_analysis",
           options: {
             algorithm: "optical_flow",
-            sensitivity: 0.2
+            sensitivity: 0.2,
           },
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_motion", {
           filePath: expect.any(String),
           algorithm: "optical_flow",
-          sensitivity: 0.2
+          sensitivity: 0.2,
         })
       })
     })
@@ -407,7 +405,7 @@ describe("BatchProcessingService", () => {
         invoke.mockResolvedValue({
           channels: 2,
           sampleRate: 48000,
-          dynamics: { peak: -3, rms: -18 }
+          dynamics: { peak: -3, rms: -18 },
         })
 
         const params: BatchOperationParams = {
@@ -417,14 +415,14 @@ describe("BatchProcessingService", () => {
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_audio", {
           filePath: expect.any(String),
           enableSpectralAnalysis: true,
-          enableDynamicsAnalysis: true
+          enableDynamicsAnalysis: true,
         })
       })
     })
@@ -436,9 +434,9 @@ describe("BatchProcessingService", () => {
             return Promise.resolve("/tmp/audio.wav")
           }
           if (cmd === "whisper_transcribe_openai") {
-            return Promise.resolve({ 
+            return Promise.resolve({
               text: "Hello world",
-              language: "en"
+              language: "en",
             })
           }
           return Promise.resolve({})
@@ -451,9 +449,9 @@ describe("BatchProcessingService", () => {
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         const history = service.getBatchHistory()
         const result = history[0]?.results[0]?.data
@@ -485,13 +483,13 @@ describe("BatchProcessingService", () => {
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         const history = service.getBatchHistory()
         const result = history[0]?.results[0]?.data
-        
+
         expect(result).toHaveProperty("video")
         expect(result).toHaveProperty("audio")
         expect(result).toHaveProperty("quality")
@@ -509,9 +507,9 @@ describe("BatchProcessingService", () => {
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         const history = service.getBatchHistory()
         expect(history[0]?.errors.length).toBeGreaterThan(0)
@@ -528,9 +526,9 @@ describe("BatchProcessingService", () => {
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         const history = service.getBatchHistory()
         expect(history[0]?.failureCount).toBe(1)
@@ -555,9 +553,9 @@ describe("BatchProcessingService", () => {
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         expect(callCount).toBeGreaterThanOrEqual(1)
       })
@@ -568,9 +566,7 @@ describe("BatchProcessingService", () => {
         const processingTimes: number[] = []
         invoke.mockImplementation(() => {
           processingTimes.push(Date.now())
-          return new Promise(resolve => 
-            setTimeout(() => resolve({ success: true }), 50)
-          )
+          return new Promise((resolve) => setTimeout(() => resolve({ success: true }), 50))
         })
 
         const params: BatchOperationParams = {
@@ -581,13 +577,13 @@ describe("BatchProcessingService", () => {
         }
 
         await service.startBatchOperation(params)
-        
+
         // Wait for processing
-        await new Promise(resolve => setTimeout(resolve, 300))
+        await new Promise((resolve) => setTimeout(resolve, 300))
 
         // Check that processing was batched
         expect(processingTimes.length).toBe(5)
-        
+
         // First two should start almost simultaneously
         const firstBatchDiff = processingTimes[1] - processingTimes[0]
         expect(firstBatchDiff).toBeLessThan(10)
@@ -602,7 +598,7 @@ describe("BatchProcessingService", () => {
   describe("private methods", () => {
     it("should generate unique job IDs", async () => {
       const jobIds = new Set<string>()
-      
+
       for (let i = 0; i < 100; i++) {
         const params: BatchOperationParams = {
           clipIds: ["clip"],

@@ -1,16 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { ApiKeyLoader } from "../../services/api-key-loader"
 import {
-  MultimodalAnalysisService,
-  MultimodalAnalysisType,
   FrameAnalysisParams,
   FrameAnalysisResult,
-  VideoAnalysisParams,
-  VideoAnalysisResult,
+  MultimodalAnalysisService,
+  MultimodalAnalysisType,
   ThumbnailSuggestionParams,
-  ThumbnailSuggestion,
+  VideoAnalysisParams,
 } from "../../services/multimodal-analysis-service"
-import { ApiKeyLoader } from "../../services/api-key-loader"
 
 // Mock dependencies
 vi.mock("@tauri-apps/api/core", () => ({
@@ -155,7 +153,7 @@ describe("MultimodalAnalysisService", () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${mockApiKey}`,
           },
-        })
+        }),
       )
 
       const fetchBody = JSON.parse(mockFetch.mock.calls[0][1]?.body as string)
@@ -200,7 +198,7 @@ describe("MultimodalAnalysisService", () => {
       }
 
       await expect(service.analyzeFrame(params)).rejects.toThrow(
-        "OpenAI API ключ не найден. Необходим для GPT-4V анализа."
+        "OpenAI API ключ не найден. Необходим для GPT-4V анализа.",
       )
     })
 
@@ -219,7 +217,7 @@ describe("MultimodalAnalysisService", () => {
       }
 
       await expect(service.analyzeFrame(params)).rejects.toThrow(
-        "Ошибка анализа кадра: Error: OpenAI API error: 401 Unauthorized"
+        "Ошибка анализа кадра: Error: OpenAI API error: 401 Unauthorized",
       )
     })
 
@@ -575,11 +573,10 @@ describe("MultimodalAnalysisService", () => {
       const progressCallback = vi.fn()
       const clipIds = ["clip1", "clip2", "clip3"]
 
-      const results = await service.batchAnalyzeVideos(
-        clipIds,
-        ["frame_description"],
-        { maxConcurrent: 2, progressCallback }
-      )
+      const results = await service.batchAnalyzeVideos(clipIds, ["frame_description"], {
+        maxConcurrent: 2,
+        progressCallback,
+      })
 
       expect(Object.keys(results)).toHaveLength(3)
       expect(results.clip1).toBeDefined()
@@ -603,10 +600,7 @@ describe("MultimodalAnalysisService", () => {
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-      const results = await service.batchAnalyzeVideos(
-        ["clip1", "clip2"],
-        ["frame_description"]
-      )
+      const results = await service.batchAnalyzeVideos(["clip1", "clip2"], ["frame_description"])
 
       expect(Object.keys(results)).toHaveLength(0)
       expect(consoleSpy).toHaveBeenCalled()
@@ -638,11 +632,9 @@ describe("MultimodalAnalysisService", () => {
         json: async () => mockGPTResponse,
       } as Response)
 
-      await service.batchAnalyzeVideos(
-        ["clip1", "clip2", "clip3", "clip4"],
-        ["frame_description"],
-        { maxConcurrent: 2 }
-      )
+      await service.batchAnalyzeVideos(["clip1", "clip2", "clip3", "clip4"], ["frame_description"], {
+        maxConcurrent: 2,
+      })
 
       expect(maxConcurrent).toBeLessThanOrEqual(2)
     })
@@ -703,9 +695,7 @@ describe("MultimodalAnalysisService", () => {
         analysisType: "frame_description",
       }
 
-      await expect(service.analyzeFrame(params)).rejects.toThrow(
-        "Ошибка анализа кадра: Error: Network error"
-      )
+      await expect(service.analyzeFrame(params)).rejects.toThrow("Ошибка анализа кадра: Error: Network error")
     })
 
     it("should calculate average confidence correctly", async () => {
@@ -720,16 +710,37 @@ describe("MultimodalAnalysisService", () => {
       })
 
       const responses = [
-        { ...mockGPTResponse, choices: [{ message: { content: JSON.stringify({ ...JSON.parse(mockGPTResponse.choices[0].message.content), confidence: 0.8 }) } }] },
-        { ...mockGPTResponse, choices: [{ message: { content: JSON.stringify({ ...JSON.parse(mockGPTResponse.choices[0].message.content), confidence: 0.6 }) } }] },
+        {
+          ...mockGPTResponse,
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({ ...JSON.parse(mockGPTResponse.choices[0].message.content), confidence: 0.8 }),
+              },
+            },
+          ],
+        },
+        {
+          ...mockGPTResponse,
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({ ...JSON.parse(mockGPTResponse.choices[0].message.content), confidence: 0.6 }),
+              },
+            },
+          ],
+        },
       ]
 
       let responseIndex = 0
       const mockFetch = vi.mocked(fetch)
-      mockFetch.mockImplementation(async () => ({
-        ok: true,
-        json: async () => responses[responseIndex++],
-      } as Response))
+      mockFetch.mockImplementation(
+        async () =>
+          ({
+            ok: true,
+            json: async () => responses[responseIndex++],
+          }) as Response,
+      )
 
       const params: VideoAnalysisParams = {
         clipId: "clip123",

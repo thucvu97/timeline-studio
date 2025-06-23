@@ -2,12 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
   WorkflowAutomationService,
-  WorkflowType,
-  WorkflowParams,
-  WorkflowResult,
-  WorkflowStep,
   WorkflowContext,
-  WorkflowStepResult,
+  WorkflowParams,
+  WorkflowType,
 } from "../../services/workflow-automation-service"
 
 // Mock Tauri API
@@ -149,7 +146,7 @@ describe("WorkflowAutomationService", () => {
       expect(result.executionLog.length).toBeGreaterThan(0)
 
       // Verify core steps were executed
-      const stepNames = result.executionLog.map(log => log.step)
+      const stepNames = result.executionLog.map((log) => log.step)
       expect(stepNames).toContain("Анализ входного контента")
       expect(stepNames).toContain("Обнаружение сцен")
       expect(stepNames).toContain("Создание временной линии")
@@ -177,18 +174,24 @@ describe("WorkflowAutomationService", () => {
       const result = await service.executeWorkflow(params)
 
       expect(result.success).toBe(true)
-      
+
       // Verify platform optimization was called for both platforms
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_optimize_for_platform", expect.objectContaining({
-        outputPath: expect.stringContaining("instagram_optimized.mp4"),
-      }))
-      
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_optimize_for_platform", expect.objectContaining({
-        outputPath: expect.stringContaining("tiktok_optimized.mp4"),
-      }))
-      
+      expect(invoke).toHaveBeenCalledWith(
+        "ffmpeg_optimize_for_platform",
+        expect.objectContaining({
+          outputPath: expect.stringContaining("instagram_optimized.mp4"),
+        }),
+      )
+
+      expect(invoke).toHaveBeenCalledWith(
+        "ffmpeg_optimize_for_platform",
+        expect.objectContaining({
+          outputPath: expect.stringContaining("tiktok_optimized.mp4"),
+        }),
+      )
+
       // Verify that platform optimization calls were made (exact dimensions may vary based on platform)
-      const optimizationCalls = invoke.mock.calls.filter(call => call[0] === "ffmpeg_optimize_for_platform")
+      const optimizationCalls = invoke.mock.calls.filter((call) => call[0] === "ffmpeg_optimize_for_platform")
       expect(optimizationCalls.length).toBeGreaterThan(0)
     })
 
@@ -202,9 +205,12 @@ describe("WorkflowAutomationService", () => {
 
       expect(result.success).toBe(true)
       expect(invoke).toHaveBeenCalledWith("extract_audio_for_whisper", expect.any(Object))
-      expect(invoke).toHaveBeenCalledWith("whisper_transcribe_openai", expect.objectContaining({
-        language: "ru",
-      }))
+      expect(invoke).toHaveBeenCalledWith(
+        "whisper_transcribe_openai",
+        expect.objectContaining({
+          language: "ru",
+        }),
+      )
     })
 
     it("should continue execution on non-critical step failures", async () => {
@@ -231,7 +237,7 @@ describe("WorkflowAutomationService", () => {
       const result = await service.executeWorkflow(mockWorkflowParams)
 
       expect(result.success).toBe(true) // Should still succeed overall
-      const failedSteps = result.executionLog.filter(log => log.status === "failed")
+      const failedSteps = result.executionLog.filter((log) => log.status === "failed")
       expect(failedSteps.length).toBeGreaterThan(0)
     })
 
@@ -245,22 +251,22 @@ describe("WorkflowAutomationService", () => {
       // Instead of testing internal step execution, test the full workflow with progress callback
       // by mocking executeWorkflow to use our callback
       const originalExecute = service.executeWorkflow.bind(service)
-      
+
       // Spy on the executeWorkflow method to inject our progress callback
-      const executeWorkflowSpy = vi.spyOn(service, 'executeWorkflow').mockImplementation(async (params) => {
+      const executeWorkflowSpy = vi.spyOn(service, "executeWorkflow").mockImplementation(async (params) => {
         // Create a context with our progress callback
         const result = await originalExecute(params)
-        
+
         // Simulate progress callback being called during execution
         progressCallback(50, "Test step")
-        
+
         return result
       })
 
       await service.executeWorkflow(params)
 
       expect(progressCallback).toHaveBeenCalledWith(50, "Test step")
-      
+
       executeWorkflowSpy.mockRestore()
     })
 
@@ -272,7 +278,7 @@ describe("WorkflowAutomationService", () => {
             return Promise.resolve()
           case "ffmpeg_quick_analysis":
             // Make this step slow so we can cancel it
-            return new Promise(resolve => setTimeout(() => resolve(mockAnalysisResult), 100))
+            return new Promise((resolve) => setTimeout(() => resolve(mockAnalysisResult), 100))
           case "ffmpeg_detect_scenes":
             return Promise.resolve(mockSceneDetectionResult)
           case "create_timeline_project":
@@ -285,13 +291,13 @@ describe("WorkflowAutomationService", () => {
             return Promise.reject(new Error(`Unknown command: ${command}`))
         }
       })
-      
+
       // Start a workflow but don't await it immediately
       const promise = service.executeWorkflow(mockWorkflowParams)
-      
+
       // Use a small delay to allow the workflow to start and be added to active workflows
-      await new Promise(resolve => setTimeout(resolve, 10))
-      
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
       // Get active workflows
       const activeWorkflows = service.getActiveWorkflows()
       expect(activeWorkflows.length).toBeGreaterThan(0)
@@ -306,7 +312,7 @@ describe("WorkflowAutomationService", () => {
         await promise
       } catch (error) {
         // It's ok if the workflow throws an error due to cancellation
-        console.log('Workflow was cancelled as expected')
+        console.log("Workflow was cancelled as expected")
       }
     })
 
@@ -333,8 +339,8 @@ describe("WorkflowAutomationService", () => {
       const workflows = service.getAvailableWorkflows()
 
       expect(workflows).toHaveLength(10)
-      
-      const quickEdit = workflows.find(w => w.type === "quick_edit")
+
+      const quickEdit = workflows.find((w) => w.type === "quick_edit")
       expect(quickEdit).toMatchObject({
         type: "quick_edit",
         name: "Быстрый монтаж",
@@ -342,7 +348,7 @@ describe("WorkflowAutomationService", () => {
         estimatedDuration: 5,
       })
 
-      const socialMedia = workflows.find(w => w.type === "social_media_pack")
+      const socialMedia = workflows.find((w) => w.type === "social_media_pack")
       expect(socialMedia).toMatchObject({
         type: "social_media_pack",
         name: "Пакет для соцсетей",
@@ -350,7 +356,7 @@ describe("WorkflowAutomationService", () => {
         outputs: ["instagram_square", "tiktok_vertical", "youtube_shorts"],
       })
 
-      const weddingHighlights = workflows.find(w => w.type === "wedding_highlights")
+      const weddingHighlights = workflows.find((w) => w.type === "wedding_highlights")
       expect(weddingHighlights).toMatchObject({
         type: "wedding_highlights",
         complexity: "complex",
@@ -360,7 +366,7 @@ describe("WorkflowAutomationService", () => {
 
     it("should include all workflow types", () => {
       const workflows = service.getAvailableWorkflows()
-      const types = workflows.map(w => w.type)
+      const types = workflows.map((w) => w.type)
 
       const expectedTypes: WorkflowType[] = [
         "quick_edit",
@@ -375,7 +381,7 @@ describe("WorkflowAutomationService", () => {
         "corporate_intro",
       ]
 
-      expectedTypes.forEach(type => {
+      expectedTypes.forEach((type) => {
         expect(types).toContain(type)
       })
     })
@@ -450,10 +456,13 @@ describe("WorkflowAutomationService", () => {
 
       expect(result.success).toBe(true)
       expect(context.analysisResults.scenes).toHaveLength(2)
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_detect_scenes", expect.objectContaining({
-        threshold: 0.3,
-        minSceneLength: 2.0,
-      }))
+      expect(invoke).toHaveBeenCalledWith(
+        "ffmpeg_detect_scenes",
+        expect.objectContaining({
+          threshold: 0.3,
+          minSceneLength: 2.0,
+        }),
+      )
     })
 
     it("should skip subtitles when not requested", async () => {
@@ -592,10 +601,13 @@ describe("WorkflowAutomationService", () => {
 
       expect(result.success).toBe(true)
       expect(context.intermediateFiles.finalVideo).toBe("/path/to/output/final_video.mp4")
-      expect(invoke).toHaveBeenCalledWith("compile_workflow_video", expect.objectContaining({
-        projectFile: "/tmp/test/project.json",
-        outputPath: "/path/to/output/final_video.mp4",
-      }))
+      expect(invoke).toHaveBeenCalledWith(
+        "compile_workflow_video",
+        expect.objectContaining({
+          projectFile: "/tmp/test/project.json",
+          outputPath: "/path/to/output/final_video.mp4",
+        }),
+      )
     })
 
     it("should optimize for multiple platforms", async () => {
@@ -654,14 +666,14 @@ describe("WorkflowAutomationService", () => {
         "corporate_intro",
       ]
 
-      workflowTypes.forEach(type => {
+      workflowTypes.forEach((type) => {
         // @ts-expect-error - accessing private method for testing
         const steps = service.getWorkflowSteps(type)
-        
+
         expect(steps.length).toBeGreaterThan(0)
         expect(steps[0].id).toBe("analyze_input")
         expect(steps[1].id).toBe("detect_scenes")
-        
+
         // All workflows should end with export
         const lastStep = steps[steps.length - 1]
         expect(["export_video", "optimize_platforms"]).toContain(lastStep.id)
@@ -669,16 +681,12 @@ describe("WorkflowAutomationService", () => {
     })
 
     it("should include subtitles for appropriate workflows", () => {
-      const subtitleWorkflows: WorkflowType[] = [
-        "podcast_editing",
-        "presentation_video",
-        "educational_content",
-      ]
+      const subtitleWorkflows: WorkflowType[] = ["podcast_editing", "presentation_video", "educational_content"]
 
-      subtitleWorkflows.forEach(type => {
+      subtitleWorkflows.forEach((type) => {
         // @ts-expect-error - accessing private method for testing
         const steps = service.getWorkflowSteps(type)
-        const stepIds = steps.map(s => s.id)
+        const stepIds = steps.map((s) => s.id)
         expect(stepIds).toContain("generate_subtitles")
       })
     })
@@ -692,10 +700,10 @@ describe("WorkflowAutomationService", () => {
         "corporate_intro",
       ]
 
-      effectWorkflows.forEach(type => {
+      effectWorkflows.forEach((type) => {
         // @ts-expect-error - accessing private method for testing
         const steps = service.getWorkflowSteps(type)
-        const stepIds = steps.map(s => s.id)
+        const stepIds = steps.map((s) => s.id)
         expect(stepIds).toContain("apply_effects")
       })
     })
@@ -726,10 +734,10 @@ describe("WorkflowAutomationService", () => {
     it("should handle different color grading styles", () => {
       const styles = ["warm", "cool", "cinematic", "natural", "unknown"]
 
-      styles.forEach(async style => {
+      styles.forEach(async (style) => {
         // @ts-expect-error - accessing private method for testing
         const effect = await service.applyColorGrading({}, style)
-        
+
         expect(effect.type).toBe("color_correction")
         expect(effect.settings).toBeDefined()
       })
@@ -738,10 +746,10 @@ describe("WorkflowAutomationService", () => {
     it("should handle different music pace settings", () => {
       const paces = ["slow", "medium", "fast", "dynamic", "unknown"]
 
-      paces.forEach(async pace => {
+      paces.forEach(async (pace) => {
         // @ts-expect-error - accessing private method for testing
         const audioTrack = await service.synchronizeMusic({}, "/music.mp3", pace)
-        
+
         expect(audioTrack.audioFile).toBe("/music.mp3")
         expect(audioTrack.tempoMultiplier).toBeGreaterThan(0)
       })
@@ -752,19 +760,17 @@ describe("WorkflowAutomationService", () => {
     it("should handle critical workflow errors", async () => {
       invoke.mockRejectedValue(new Error("Critical error"))
 
-      await expect(service.executeWorkflow(mockWorkflowParams)).rejects.toThrow(
-        "Critical error"
-      )
+      await expect(service.executeWorkflow(mockWorkflowParams)).rejects.toThrow("Critical error")
     })
 
     it("should clean up on workflow completion", async () => {
       const result = await service.executeWorkflow(mockWorkflowParams)
 
       expect(result.success).toBe(true)
-      
+
       // Verify workflow is removed from active list
       const activeWorkflows = service.getActiveWorkflows()
-      expect(activeWorkflows.find(w => w.workflowId === result.workflowId)).toBeUndefined()
+      expect(activeWorkflows.find((w) => w.workflowId === result.workflowId)).toBeUndefined()
     })
 
     it("should handle step execution errors gracefully", async () => {
@@ -780,7 +786,7 @@ describe("WorkflowAutomationService", () => {
 
       // Should still complete but with failed steps
       expect(result.success).toBe(true)
-      const failedStep = result.executionLog.find(log => log.step === "Обнаружение сцен")
+      const failedStep = result.executionLog.find((log) => log.step === "Обнаружение сцен")
       expect(failedStep?.status).toBe("failed")
       expect(failedStep?.details).toContain("Scene detection failed")
     })

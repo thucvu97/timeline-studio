@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { DeepSeekService, DEEPSEEK_MODELS } from "../../services/deepseek-service"
 import { ApiKeyLoader } from "../../services/api-key-loader"
+import { DEEPSEEK_MODELS, DeepSeekService } from "../../services/deepseek-service"
 import { AiMessage } from "../../types/ai-message"
 import { StreamingOptions } from "../../types/streaming"
 
@@ -66,7 +66,7 @@ describe("DeepSeekService", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Reset singleton instance
     // @ts-expect-error - accessing private property for testing
     DeepSeekService.instance = undefined
@@ -153,25 +153,22 @@ describe("DeepSeekService", () => {
 
       const result = await service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.deepseek.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${mockApiKey}`,
-          },
-          body: JSON.stringify({
-            model: DEEPSEEK_MODELS.DEEPSEEK_CHAT,
-            messages: mockMessages,
-            temperature: 0.7,
-            max_tokens: 1000,
-            top_p: 1.0,
-            presence_penalty: 0.0,
-            frequency_penalty: 0.0,
-          }),
-        }
-      )
+      expect(mockFetch).toHaveBeenCalledWith("https://api.deepseek.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${mockApiKey}`,
+        },
+        body: JSON.stringify({
+          model: DEEPSEEK_MODELS.DEEPSEEK_CHAT,
+          messages: mockMessages,
+          temperature: 0.7,
+          max_tokens: 1000,
+          top_p: 1.0,
+          presence_penalty: 0.0,
+          frequency_penalty: 0.0,
+        }),
+      })
 
       expect(result).toBe(mockApiResponse.choices[0].message.content)
     })
@@ -197,16 +194,16 @@ describe("DeepSeekService", () => {
         expect.any(String),
         expect.objectContaining({
           body: expect.stringContaining('"temperature":0.9'),
-        })
+        }),
       )
     })
 
     it("should throw error when API key is not set", async () => {
       mockApiKeyLoader.getApiKey.mockResolvedValue(null)
 
-      await expect(
-        service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)
-      ).rejects.toThrow("DeepSeek API ключ не установлен")
+      await expect(service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)).rejects.toThrow(
+        "DeepSeek API ключ не установлен",
+      )
     })
 
     it("should handle API errors", async () => {
@@ -217,9 +214,9 @@ describe("DeepSeekService", () => {
         text: async () => "Unauthorized",
       } as Response)
 
-      await expect(
-        service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)
-      ).rejects.toThrow("Ошибка DeepSeek API: 401 Unauthorized")
+      await expect(service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)).rejects.toThrow(
+        "Ошибка DeepSeek API: 401 Unauthorized",
+      )
     })
 
     it("should handle network errors", async () => {
@@ -228,14 +225,9 @@ describe("DeepSeekService", () => {
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-      await expect(
-        service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)
-      ).rejects.toThrow("Network error")
+      await expect(service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)).rejects.toThrow("Network error")
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Ошибка при отправке запроса к DeepSeek API:",
-        expect.any(Error)
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("Ошибка при отправке запроса к DeepSeek API:", expect.any(Error))
 
       consoleSpy.mockRestore()
     })
@@ -272,7 +264,7 @@ describe("DeepSeekService", () => {
       const chunks = [
         'data: {"id":"1","object":"chat.completion.chunk","created":1234567890,"model":"deepseek-chat","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}\n',
         'data: {"id":"1","object":"chat.completion.chunk","created":1234567890,"model":"deepseek-chat","choices":[{"index":0,"delta":{"content":" world"},"finish_reason":null}]}\n',
-        'data: [DONE]\n',
+        "data: [DONE]\n",
       ]
 
       const mockReader = createMockReader(chunks)
@@ -284,11 +276,7 @@ describe("DeepSeekService", () => {
         },
       } as Response)
 
-      await service.sendStreamingRequest(
-        DEEPSEEK_MODELS.DEEPSEEK_CHAT,
-        mockMessages,
-        streamingOptions
-      )
+      await service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions)
 
       expect(onContent).toHaveBeenCalledWith("Hello")
       expect(onContent).toHaveBeenCalledWith(" world")
@@ -309,7 +297,7 @@ describe("DeepSeekService", () => {
       } as Response)
 
       await expect(
-        service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions)
+        service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions),
       ).rejects.toThrow("Ошибка DeepSeek API: 429 Rate limit exceeded")
 
       expect(onError).toHaveBeenCalledWith(expect.any(Error))
@@ -321,7 +309,7 @@ describe("DeepSeekService", () => {
       const streamingOptions: StreamingOptions = { onError }
 
       await expect(
-        service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions)
+        service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions),
       ).rejects.toThrow("DeepSeek API ключ не установлен")
 
       expect(onError).toHaveBeenCalledWith(expect.any(Error))
@@ -338,7 +326,7 @@ describe("DeepSeekService", () => {
       } as Response)
 
       await expect(
-        service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions)
+        service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions),
       ).rejects.toThrow("Не удалось получить поток данных")
 
       expect(onError).toHaveBeenCalledWith(expect.any(Error))
@@ -351,9 +339,9 @@ describe("DeepSeekService", () => {
 
       const chunks = [
         'data: {"valid":"json"}\n',
-        'data: invalid json\n',
+        "data: invalid json\n",
         'data: {"id":"1","object":"chat.completion.chunk","created":1234567890,"model":"deepseek-chat","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}\n',
-        'data: [DONE]\n',
+        "data: [DONE]\n",
       ]
 
       const mockReader = createMockReader(chunks)
@@ -388,7 +376,7 @@ describe("DeepSeekService", () => {
         service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, {
           signal: controller.signal,
           onError,
-        })
+        }),
       ).rejects.toThrow("Aborted")
 
       expect(onError).toHaveBeenCalledWith(expect.any(DOMException))
@@ -421,7 +409,7 @@ describe("DeepSeekService", () => {
   describe("streaming edge cases", () => {
     it("should handle empty chunks", async () => {
       const onComplete = vi.fn()
-      const chunks = ['', 'data: [DONE]\n']
+      const chunks = ["", "data: [DONE]\n"]
 
       const mockReader = createMockReader(chunks)
       const mockFetch = vi.mocked(fetch)

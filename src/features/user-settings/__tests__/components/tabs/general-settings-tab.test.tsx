@@ -138,7 +138,7 @@ describe("GeneralSettingsTab", () => {
     // Click the dropdown option (the last one is usually the dropdown item)
     const englishOptions = screen.getAllByText("language.native.en")
     const dropdownOption = englishOptions[englishOptions.length - 1]
-    
+
     act(() => {
       fireEvent.click(dropdownOption)
     })
@@ -166,7 +166,7 @@ describe("GeneralSettingsTab", () => {
     // Click the dropdown option (the last one is usually the dropdown item)
     const spanishOptions = screen.getAllByText("language.native.es")
     const dropdownOption = spanishOptions[spanishOptions.length - 1]
-    
+
     act(() => {
       fireEvent.click(dropdownOption)
     })

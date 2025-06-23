@@ -641,7 +641,7 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_YOUTUBE_CREDENTIALS",
         clientId: "youtube-client-id",
-        clientSecret: "youtube-client-secret"
+        clientSecret: "youtube-client-secret",
       })
 
       const context = actor.getSnapshot().context
@@ -665,7 +665,7 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_TIKTOK_CREDENTIALS",
         clientId: "tiktok-client-id",
-        clientSecret: "tiktok-client-secret"
+        clientSecret: "tiktok-client-secret",
       })
 
       const context = actor.getSnapshot().context
@@ -691,7 +691,7 @@ describe("UserSettingsMachine", () => {
         type: "UPDATE_VIMEO_CREDENTIALS",
         clientId: "vimeo-client-id",
         clientSecret: "vimeo-client-secret",
-        accessToken: "vimeo-access-token"
+        accessToken: "vimeo-access-token",
       })
 
       const context = actor.getSnapshot().context
@@ -716,7 +716,7 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_TELEGRAM_CREDENTIALS",
         botToken: "telegram-bot-token",
-        chatId: "telegram-chat-id"
+        chatId: "telegram-chat-id",
       })
 
       const context = actor.getSnapshot().context
@@ -735,7 +735,7 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_YOUTUBE_CREDENTIALS",
         clientId: "",
-        clientSecret: ""
+        clientSecret: "",
       })
 
       expect(actor.getSnapshot().context.apiKeysStatus.youtube).toBe("not_set")
@@ -744,7 +744,7 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_TIKTOK_CREDENTIALS",
         clientId: "some-id",
-        clientSecret: ""
+        clientSecret: "",
       })
 
       expect(actor.getSnapshot().context.apiKeysStatus.tiktok).toBe("not_set")
@@ -753,7 +753,7 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_TELEGRAM_CREDENTIALS",
         botToken: "",
-        chatId: "some-chat-id"
+        chatId: "some-chat-id",
       })
 
       expect(actor.getSnapshot().context.apiKeysStatus.telegram).toBe("not_set")
@@ -774,7 +774,7 @@ describe("UserSettingsMachine", () => {
       // Обновляем Codecov token
       actor.send({
         type: "UPDATE_CODECOV_TOKEN",
-        token: "codecov-token-123"
+        token: "codecov-token-123",
       })
 
       const context = actor.getSnapshot().context
@@ -784,7 +784,7 @@ describe("UserSettingsMachine", () => {
       // Очищаем token
       actor.send({
         type: "UPDATE_CODECOV_TOKEN",
-        token: ""
+        token: "",
       })
 
       const contextAfterClear = actor.getSnapshot().context
@@ -805,7 +805,7 @@ describe("UserSettingsMachine", () => {
       // Обновляем Tauri Analytics key
       actor.send({
         type: "UPDATE_TAURI_ANALYTICS_KEY",
-        key: "tauri-analytics-key-456"
+        key: "tauri-analytics-key-456",
       })
 
       const context = actor.getSnapshot().context
@@ -815,7 +815,7 @@ describe("UserSettingsMachine", () => {
       // Очищаем key
       actor.send({
         type: "UPDATE_TAURI_ANALYTICS_KEY",
-        key: ""
+        key: "",
       })
 
       const contextAfterClear = actor.getSnapshot().context
@@ -838,7 +838,7 @@ describe("UserSettingsMachine", () => {
         actor.send({
           type: "UPDATE_API_KEY_STATUS",
           service: "openai",
-          status
+          status,
         })
 
         expect(actor.getSnapshot().context.apiKeysStatus.openai).toBe(status)
@@ -848,7 +848,7 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_API_KEY_STATUS",
         service: "claude",
-        status: "invalid"
+        status: "invalid",
       })
 
       expect(actor.getSnapshot().context.apiKeysStatus.claude).toBe("invalid")
@@ -856,7 +856,7 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_API_KEY_STATUS",
         service: "youtube",
-        status: "testing"
+        status: "testing",
       })
 
       expect(actor.getSnapshot().context.apiKeysStatus.youtube).toBe("testing")
@@ -874,7 +874,7 @@ describe("UserSettingsMachine", () => {
       // Отправляем событие тестирования API ключа
       actor.send({
         type: "TEST_API_KEY",
-        service: "openai"
+        service: "openai",
       })
 
       // Статус должен стать "testing"
@@ -883,14 +883,14 @@ describe("UserSettingsMachine", () => {
       // Тестируем для других сервисов
       actor.send({
         type: "TEST_API_KEY",
-        service: "claude"
+        service: "claude",
       })
 
       expect(actor.getSnapshot().context.apiKeysStatus.claude).toBe("testing")
 
       actor.send({
         type: "TEST_API_KEY",
-        service: "youtube"
+        service: "youtube",
       })
 
       expect(actor.getSnapshot().context.apiKeysStatus.youtube).toBe("testing")
@@ -906,19 +906,19 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_API_KEY_STATUS",
         service: "openai",
-        status: "valid"
+        status: "valid",
       })
 
       actor.send({
         type: "UPDATE_API_KEY_STATUS",
         service: "claude",
-        status: "invalid"
+        status: "invalid",
       })
 
       // Тестируем только один сервис
       actor.send({
         type: "TEST_API_KEY",
-        service: "youtube"
+        service: "youtube",
       })
 
       // Проверяем, что статусы других сервисов не изменились
@@ -945,17 +945,17 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_YOUTUBE_CREDENTIALS",
         clientId: "youtube-id",
-        clientSecret: "youtube-secret"
+        clientSecret: "youtube-secret",
       })
 
       actor.send({
         type: "UPDATE_OPENAI_API_KEY",
-        apiKey: "openai-key"
+        apiKey: "openai-key",
       })
 
       actor.send({
         type: "UPDATE_CODECOV_TOKEN",
-        token: "codecov-token"
+        token: "codecov-token",
       })
 
       // Проверяем, что все настройки сохранились
@@ -998,9 +998,9 @@ describe("UserSettingsMachine", () => {
             vimeo: "valid",
             telegram: "invalid",
             codecov: "valid",
-            tauri_analytics: "testing"
-          }
-        }
+            tauri_analytics: "testing",
+          },
+        },
       })
 
       // Проверяем, что все настройки обновились
@@ -1032,7 +1032,7 @@ describe("UserSettingsMachine", () => {
   describe("Event handler definitions", () => {
     it("should have all social media credential event handlers", () => {
       const idleState = userSettingsMachine.config.states?.idle
-      
+
       expect(idleState?.on?.UPDATE_YOUTUBE_CREDENTIALS).toBeDefined()
       expect(idleState?.on?.UPDATE_TIKTOK_CREDENTIALS).toBeDefined()
       expect(idleState?.on?.UPDATE_VIMEO_CREDENTIALS).toBeDefined()
@@ -1045,7 +1045,7 @@ describe("UserSettingsMachine", () => {
 
     it("should have correct action assignments for new events", () => {
       const idleState = userSettingsMachine.config.states?.idle
-      
+
       expect(idleState?.on?.UPDATE_YOUTUBE_CREDENTIALS?.actions).toContain("updateYoutubeCredentials")
       expect(idleState?.on?.UPDATE_TIKTOK_CREDENTIALS?.actions).toContain("updateTiktokCredentials")
       expect(idleState?.on?.UPDATE_VIMEO_CREDENTIALS?.actions).toContain("updateVimeoCredentials")
@@ -1066,7 +1066,7 @@ describe("UserSettingsMachine", () => {
       actor.send({
         type: "UPDATE_YOUTUBE_CREDENTIALS",
         clientId: "",
-        clientSecret: ""
+        clientSecret: "",
       })
 
       const context1 = actor.getSnapshot().context
@@ -1077,7 +1077,7 @@ describe("UserSettingsMachine", () => {
       // Тестируем пустые токены
       actor.send({
         type: "UPDATE_CODECOV_TOKEN",
-        token: ""
+        token: "",
       })
 
       const context2 = actor.getSnapshot().context
@@ -1089,29 +1089,29 @@ describe("UserSettingsMachine", () => {
 
     it("should not log sensitive information in console", () => {
       const consoleSpy = vi.spyOn(console, "log")
-      
+
       const actor = createActor(userSettingsMachine)
       actor.start()
 
       // Обновляем API ключи
       actor.send({
         type: "UPDATE_OPENAI_API_KEY",
-        apiKey: "secret-openai-key"
+        apiKey: "secret-openai-key",
       })
 
       actor.send({
         type: "UPDATE_CLAUDE_API_KEY",
-        apiKey: "secret-claude-key"
+        apiKey: "secret-claude-key",
       })
 
       actor.send({
         type: "UPDATE_CODECOV_TOKEN",
-        token: "secret-codecov-token"
+        token: "secret-codecov-token",
       })
 
       // Проверяем, что в логах нет полных ключей
-      const logCalls = consoleSpy.mock.calls.map(call => call.join(" "))
-      
+      const logCalls = consoleSpy.mock.calls.map((call) => call.join(" "))
+
       for (const logCall of logCalls) {
         expect(logCall).not.toContain("secret-openai-key")
         expect(logCall).not.toContain("secret-claude-key")
@@ -1119,8 +1119,8 @@ describe("UserSettingsMachine", () => {
       }
 
       // Но должны содержать замаскированные версии или индикаторы
-      const hasOpenAiLog = logCalls.some(log => 
-        log.includes("Updating OpenAI API key") && (log.includes("***") || log.includes("(empty)"))
+      const hasOpenAiLog = logCalls.some(
+        (log) => log.includes("Updating OpenAI API key") && (log.includes("***") || log.includes("(empty)")),
       )
       expect(hasOpenAiLog).toBe(true)
 

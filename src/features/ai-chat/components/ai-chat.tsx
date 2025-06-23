@@ -594,7 +594,11 @@ export function AiChat() {
                       <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-[250px] border-border bg-muted" data-testid="agent-dropdown">
+                  <DropdownMenuContent
+                    align="start"
+                    className="w-[250px] border-border bg-muted"
+                    data-testid="agent-dropdown"
+                  >
                     {AVAILABLE_AGENTS.map((agent) => (
                       <DropdownMenuItem
                         key={agent.id}
@@ -637,7 +641,10 @@ export function AiChat() {
                     </div>
                   ))}
                   {(isProcessing || isStreaming) && (
-                    <div className="flex max-w-[90%] flex-col rounded-lg bg-muted p-3 text-gray-100" data-testid="processing-message">
+                    <div
+                      className="flex max-w-[90%] flex-col rounded-lg bg-muted p-3 text-gray-100"
+                      data-testid="processing-message"
+                    >
                       <div className="flex items-start gap-2">
                         <div className="mt-0.5 flex-shrink-0">
                           <Bot className="h-3.5 w-3.5" />
@@ -745,7 +752,11 @@ export function AiChat() {
                       <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-[250px] border-border bg-muted" data-testid="agent-dropdown">
+                  <DropdownMenuContent
+                    align="start"
+                    className="w-[250px] border-border bg-muted"
+                    data-testid="agent-dropdown"
+                  >
                     {AVAILABLE_AGENTS.map((agent) => (
                       <DropdownMenuItem
                         key={agent.id}

@@ -131,7 +131,7 @@ describe("DevelopmentTab", () => {
     // The inputs are password type, so we need to find them by placeholder
     const codecovInput = screen.getByPlaceholderText("your_codecov_token_here")
     const tauriInput = screen.getByPlaceholderText("your_tauri_analytics_key")
-    
+
     expect(codecovInput).toHaveValue("••••••••••••••••••••••••••••••••••••••••••••••••••••")
     expect(tauriInput).toHaveValue("••••••••••••••••••••••••••••••••••••••••••••••••••••")
   })
@@ -257,7 +257,7 @@ describe("DevelopmentTab", () => {
     // The inputs are password type, so we need to find them by placeholder
     const codecovInput = screen.getByPlaceholderText("your_codecov_token_here")
     const tauriInput = screen.getByPlaceholderText("your_tauri_analytics_key")
-    
+
     expect(codecovInput).toHaveValue("••••••••••••••••••••••••••••••••••••••••••••••••••••")
     expect(tauriInput).toHaveValue("")
   })

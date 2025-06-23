@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -72,7 +72,7 @@ vi.mock("../../services/open-ai-service", () => ({
   },
   AI_MODELS: {
     GPT_4: "gpt-4",
-    GPT_4O: "gpt-4o", 
+    GPT_4O: "gpt-4o",
     GPT_3_5: "gpt-3.5-turbo",
     O3: "o3",
   },
@@ -86,7 +86,7 @@ vi.mock("../../services/ollama-service", () => ({
   },
   OLLAMA_MODELS: {
     LLAMA2: "llama2",
-    MISTRAL: "mistral", 
+    MISTRAL: "mistral",
     CODELLAMA: "codellama",
   },
 }))
@@ -105,7 +105,9 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenuTrigger: ({ children }: any) => <div>{children}</div>,
   DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-content">{children}</div>,
   DropdownMenuItem: ({ children, onClick }: any) => (
-    <div role="menuitem" onClick={onClick}>{children}</div>
+    <div role="menuitem" onClick={onClick}>
+      {children}
+    </div>
   ),
 }))
 
@@ -178,7 +180,7 @@ describe("AiChat - Fixed Tests", () => {
 
   it("should render initial UI correctly", () => {
     render(<AiChat />)
-    
+
     expect(screen.getByText("CHAT")).toBeInTheDocument()
     expect(screen.getByTestId("chat-input")).toBeInTheDocument()
     expect(screen.getByText("Previous Threads")).toBeInTheDocument()
@@ -186,22 +188,22 @@ describe("AiChat - Fixed Tests", () => {
 
   it("should handle text input in textarea", async () => {
     render(<AiChat />)
-    
+
     const textarea = screen.getByTestId("chat-input")
     await user.type(textarea, "Hello AI")
-    
+
     expect(textarea).toHaveValue("Hello AI")
   })
 
   it("should call sendChatMessage when button is clicked", async () => {
     render(<AiChat />)
-    
+
     const textarea = screen.getByTestId("chat-input")
     await user.type(textarea, "Test message")
-    
+
     const sendButton = screen.getByTestId("send-button")
     await user.click(sendButton)
-    
+
     expect(mockSendChatMessage).toHaveBeenCalledWith("Test message")
   })
 
@@ -217,7 +219,7 @@ describe("AiChat - Fixed Tests", () => {
     ]
 
     render(<AiChat />)
-    
+
     expect(screen.getByTestId("processing-message")).toBeInTheDocument()
     expect(screen.getByText("Обработка...")).toBeInTheDocument()
   })
@@ -233,14 +235,14 @@ describe("AiChat - Fixed Tests", () => {
       {
         id: "2",
         content: "AI response",
-        role: "assistant", 
+        role: "assistant",
         timestamp: new Date(),
         agent: "claude-4-sonnet",
       },
     ]
 
     render(<AiChat />)
-    
+
     expect(screen.getByText("User message")).toBeInTheDocument()
     expect(screen.getByText("AI response")).toBeInTheDocument()
     expect(screen.getByTestId("messages-container")).toBeInTheDocument()
@@ -248,33 +250,33 @@ describe("AiChat - Fixed Tests", () => {
 
   it("should show chat list when no messages", () => {
     render(<AiChat />)
-    
+
     expect(screen.getByTestId("chat-list-container")).toBeInTheDocument()
     expect(screen.getByText("Previous Threads")).toBeInTheDocument()
   })
 
   it("should disable input during processing", () => {
     mockUseChat.isProcessing = true
-    
+
     render(<AiChat />)
-    
+
     const textarea = screen.getByTestId("chat-input")
     expect(textarea).toBeDisabled()
   })
 
   it("should handle agent selection", async () => {
     render(<AiChat />)
-    
+
     const agentSelector = screen.getByTestId("agent-selector")
     await user.click(agentSelector)
-    
+
     // Check that the dropdown contains agent options
     expect(screen.getByText("Claude 4 Opus")).toBeInTheDocument()
     expect(screen.getByText("GPT-4")).toBeInTheDocument()
-    
+
     const claudeOption = screen.getByText("Claude 4 Opus")
     await user.click(claudeOption)
-    
+
     expect(mockSelectAgent).toHaveBeenCalledWith("claude-4-opus")
   })
 
@@ -302,58 +304,58 @@ describe("AiChat - Fixed Tests", () => {
 
   it("should handle Enter key in textarea", async () => {
     render(<AiChat />)
-    
-    const textarea = screen.getByTestId("chat-input") as HTMLTextAreaElement
+
+    const textarea = screen.getByTestId("chat-input")
     await user.type(textarea, "Test message")
-    
+
     // Simulate Enter key
     fireEvent.keyDown(textarea, { key: "Enter", shiftKey: false })
-    
+
     expect(mockSendChatMessage).toHaveBeenCalledWith("Test message")
   })
 
   it("should not send message on Shift+Enter", async () => {
     render(<AiChat />)
-    
-    const textarea = screen.getByTestId("chat-input") as HTMLTextAreaElement
+
+    const textarea = screen.getByTestId("chat-input")
     await user.type(textarea, "Test message")
-    
+
     // Simulate Shift+Enter key
     fireEvent.keyDown(textarea, { key: "Enter", shiftKey: true })
-    
+
     expect(mockSendChatMessage).not.toHaveBeenCalled()
   })
 
   it("should render send button with correct test ID", () => {
     render(<AiChat />)
-    
+
     expect(screen.getByTestId("send-button")).toBeInTheDocument()
   })
 
   it("should render agent selector with test ID", () => {
     render(<AiChat />)
-    
+
     expect(screen.getByTestId("agent-selector")).toBeInTheDocument()
   })
 
   it("should render chat mode selector with test ID", () => {
     render(<AiChat />)
-    
+
     expect(screen.getByTestId("chat-mode-selector")).toBeInTheDocument()
   })
 
   it("should handle empty messages correctly", () => {
     mockUseChat.chatMessages = []
-    
+
     render(<AiChat />)
-    
+
     expect(screen.queryByTestId("messages-container")).not.toBeInTheDocument()
     expect(screen.getByTestId("chat-list-container")).toBeInTheDocument()
   })
 
   it("should display correct placeholder text", () => {
     render(<AiChat />)
-    
+
     const textarea = screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions...")
     expect(textarea).toBeInTheDocument()
   })
