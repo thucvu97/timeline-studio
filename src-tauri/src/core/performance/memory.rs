@@ -154,8 +154,10 @@ pub struct PooledBuffer {
 impl PooledBuffer {
   /// Создать новый буфер из pool
   async fn new(pool: Arc<Mutex<BlockPool>>, size: usize) -> Result<Self> {
-    let mut pool_guard = pool.lock().await;
-    let block = pool_guard.acquire()?;
+    let block = {
+      let mut pool_guard = pool.lock().await;
+      pool_guard.acquire()?
+    };
 
     Ok(Self {
       block: Some(block),
@@ -408,7 +410,7 @@ pub struct MemoryManager {
 }
 
 /// Статистика memory manager
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct MemoryManagerStats {
   pub allocations: u64,
   pub deallocations: u64,
@@ -452,7 +454,7 @@ impl MemoryManager {
   /// Получить статистику manager
   pub async fn get_manager_stats(&self) -> MemoryManagerStats {
     let stats = self.stats_collector.read().await;
-    stats.clone()
+    (*stats).clone()
   }
 
   /// Получить полную статистику

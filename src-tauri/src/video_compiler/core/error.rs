@@ -61,10 +61,7 @@ pub enum VideoCompilerError {
   },
 
   /// Тайм-аут операции
-  TimeoutError {
-    operation: String,
-    timeout_seconds: u64,
-  },
+  TimeoutError(String),
 
   /// Операция была отменена пользователем
   CancelledError(String),
@@ -101,6 +98,9 @@ pub enum VideoCompilerError {
 
   /// Сервис не найден в DI контейнере
   ServiceNotFound(String),
+
+  /// Ошибка безопасности
+  SecurityError(String),
 }
 
 impl fmt::Display for VideoCompilerError {
@@ -170,15 +170,8 @@ impl fmt::Display for VideoCompilerError {
           resource_type, available, required
         )
       }
-      VideoCompilerError::TimeoutError {
-        operation,
-        timeout_seconds,
-      } => {
-        write!(
-          f,
-          "Тайм-аут операции '{}' ({}с)",
-          operation, timeout_seconds
-        )
+      VideoCompilerError::TimeoutError(msg) => {
+        write!(f, "Тайм-аут операции: {}", msg)
       }
       VideoCompilerError::CancelledError(msg) => {
         write!(f, "Операция отменена: {}", msg)
@@ -215,6 +208,9 @@ impl fmt::Display for VideoCompilerError {
       }
       VideoCompilerError::ServiceNotFound(service) => {
         write!(f, "Сервис не найден в DI контейнере: {}", service)
+      }
+      VideoCompilerError::SecurityError(msg) => {
+        write!(f, "Ошибка безопасности: {}", msg)
       }
     }
   }
@@ -282,10 +278,7 @@ impl From<uuid::Error> for VideoCompilerError {
 
 impl From<tokio::time::error::Elapsed> for VideoCompilerError {
   fn from(_error: tokio::time::error::Elapsed) -> Self {
-    VideoCompilerError::TimeoutError {
-      operation: "Unknown".to_string(),
-      timeout_seconds: 0,
-    }
+    VideoCompilerError::TimeoutError("Operation timed out".to_string())
   }
 }
 
@@ -367,11 +360,8 @@ impl VideoCompilerError {
 
   /// Создать ошибку тайм-аута
   #[allow(dead_code)]
-  pub fn timeout<S: Into<String>>(operation: S, timeout_seconds: u64) -> Self {
-    VideoCompilerError::TimeoutError {
-      operation: operation.into(),
-      timeout_seconds,
-    }
+  pub fn timeout<S: Into<String>>(operation: S) -> Self {
+    VideoCompilerError::TimeoutError(operation.into())
   }
 
   /// Проверить, является ли ошибка критической (требует остановки процесса)
@@ -389,7 +379,7 @@ impl VideoCompilerError {
     matches!(
       self,
       VideoCompilerError::IoError(_)
-        | VideoCompilerError::TimeoutError { .. }
+        | VideoCompilerError::TimeoutError(_)
         | VideoCompilerError::CacheError(_)
     )
   }
@@ -409,7 +399,7 @@ impl VideoCompilerError {
       VideoCompilerError::CacheError(_) => "CACHE_ERROR",
       VideoCompilerError::ConfigError(_) => "CONFIG_ERROR",
       VideoCompilerError::ResourceError { .. } => "RESOURCE_ERROR",
-      VideoCompilerError::TimeoutError { .. } => "TIMEOUT_ERROR",
+      VideoCompilerError::TimeoutError(_) => "TIMEOUT_ERROR",
       VideoCompilerError::CancelledError(_) => "CANCELLED_ERROR",
       VideoCompilerError::GpuError(_) => "GPU_ERROR",
       VideoCompilerError::GpuUnavailable(_) => "GPU_UNAVAILABLE",
@@ -422,6 +412,7 @@ impl VideoCompilerError {
       VideoCompilerError::InvalidPath(_) => "INVALID_PATH",
       VideoCompilerError::TooManyActiveJobs(_) => "TOO_MANY_ACTIVE_JOBS",
       VideoCompilerError::ServiceNotFound(_) => "SERVICE_NOT_FOUND",
+      VideoCompilerError::SecurityError(_) => "SECURITY_ERROR",
     }
   }
 }
@@ -705,11 +696,8 @@ mod tests {
         "Нехватка ресурса 'memory': доступно 1GB, требуется 2GB",
       ),
       (
-        VideoCompilerError::TimeoutError {
-          operation: "rendering".to_string(),
-          timeout_seconds: 30,
-        },
-        "Тайм-аут операции 'rendering' (30с)",
+        VideoCompilerError::TimeoutError("rendering operation timeout".to_string()),
+        "Тайм-аут операции: rendering operation timeout",
       ),
       (
         VideoCompilerError::CancelledError("User cancelled".to_string()),
@@ -814,10 +802,7 @@ mod tests {
         "RESOURCE_ERROR",
       ),
       (
-        VideoCompilerError::TimeoutError {
-          operation: "test".to_string(),
-          timeout_seconds: 0,
-        },
+        VideoCompilerError::TimeoutError("test".to_string()),
         "TIMEOUT_ERROR",
       ),
       (
@@ -918,14 +903,10 @@ mod tests {
       _ => panic!("Неожиданный тип ошибки"),
     }
 
-    let timeout = VideoCompilerError::timeout("video encoding", 120);
+    let timeout = VideoCompilerError::timeout("video encoding timeout");
     match timeout {
-      VideoCompilerError::TimeoutError {
-        operation,
-        timeout_seconds,
-      } => {
-        assert_eq!(operation, "video encoding");
-        assert_eq!(timeout_seconds, 120);
+      VideoCompilerError::TimeoutError(msg) => {
+        assert_eq!(msg, "video encoding timeout");
       }
       _ => panic!("Неожиданный тип ошибки"),
     }
@@ -946,22 +927,14 @@ mod tests {
     // Некритические ошибки
     assert!(!VideoCompilerError::ValidationError("test".to_string()).is_critical());
     assert!(!VideoCompilerError::IoError("test".to_string()).is_critical());
-    assert!(!VideoCompilerError::TimeoutError {
-      operation: "test".to_string(),
-      timeout_seconds: 0
-    }
-    .is_critical());
+    assert!(!VideoCompilerError::TimeoutError("test".to_string()).is_critical());
   }
 
   #[test]
   fn test_is_retryable_comprehensive() {
     // Повторяемые ошибки
     assert!(VideoCompilerError::IoError("test".to_string()).is_retryable());
-    assert!(VideoCompilerError::TimeoutError {
-      operation: "test".to_string(),
-      timeout_seconds: 0
-    }
-    .is_retryable());
+    assert!(VideoCompilerError::TimeoutError("test".to_string()).is_retryable());
     assert!(VideoCompilerError::CacheError("test".to_string()).is_retryable());
 
     // Неповторяемые ошибки
@@ -999,12 +972,8 @@ mod tests {
     if let Err(elapsed) = result {
       let video_error: VideoCompilerError = elapsed.into();
       match video_error {
-        VideoCompilerError::TimeoutError {
-          operation,
-          timeout_seconds,
-        } => {
-          assert_eq!(operation, "Unknown");
-          assert_eq!(timeout_seconds, 0);
+        VideoCompilerError::TimeoutError(msg) => {
+          assert_eq!(msg, "Operation timed out");
         }
         _ => panic!("Ожидалась TimeoutError"),
       }

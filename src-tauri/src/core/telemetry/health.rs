@@ -225,7 +225,9 @@ impl HealthCheck for MemoryHealthCheck {
       )
       .with_data(
         "usage_percent",
-        serde_json::Value::Number(serde_json::Number::from_f64(usage_percent).unwrap_or_default()),
+        serde_json::Value::Number(
+          serde_json::Number::from_f64(usage_percent).unwrap_or_else(|| serde_json::Number::from(0))
+        ),
       )
   }
 }
@@ -274,11 +276,11 @@ impl HealthCheck for PluginHealthCheck {
     result
       .with_data(
         "total_plugins",
-        serde_json::Value::Number(serde_json::Number::from(total_count)),
+        serde_json::json!(total_count),
       )
       .with_data(
         "active_plugins",
-        serde_json::Value::Number(serde_json::Number::from(active_count)),
+        serde_json::json!(active_count),
       )
   }
 }

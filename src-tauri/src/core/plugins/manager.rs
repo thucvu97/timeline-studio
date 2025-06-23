@@ -153,13 +153,15 @@ impl PluginManager {
 
     // Обновляем метрики
     if let Some(metrics) = &self.metrics {
-      metrics
+      let plugin_id_str = plugin_id.to_string();
+      let plugin_type_str = plugin_type.as_str().to_string();
+      (*metrics)
         .plugin_loads_total
-        .with_label("plugin_id", plugin_id)
-        .with_label("plugin_type", plugin_type.as_str())
+        .with_label("plugin_id", plugin_id_str)
+        .with_label("plugin_type", plugin_type_str)
         .inc();
 
-      metrics.plugin_active_count.add(1);
+      (*metrics).plugin_active_count.add(1);
     }
 
     // Публикуем событие
@@ -202,7 +204,7 @@ impl PluginManager {
 
     // Обновляем метрики
     if let Some(metrics) = &self.metrics {
-      metrics.plugin_active_count.add(-1);
+      (*metrics).plugin_active_count.add(-1);
     }
 
     // Публикуем событие
@@ -257,17 +259,19 @@ impl PluginManager {
     // Обновляем метрики
     if let Some(metrics) = &self.metrics {
       let duration = start.elapsed();
-      metrics
+      let plugin_id_str = plugin_id.to_string();
+      let command_name_str = command_name.as_str().to_string();
+      (*metrics)
         .plugin_command_duration
-        .with_label("plugin_id", plugin_id)
-        .with_label("command", command_name.as_str())
+        .with_label("plugin_id", plugin_id_str.clone())
+        .with_label("command", command_name_str)
         .with_label("success", if result.is_ok() { "true" } else { "false" })
         .observe(duration.as_secs_f64());
 
       if result.is_err() {
-        metrics
+        (*metrics)
           .plugin_errors_total
-          .with_label("plugin_id", plugin_id)
+          .with_label("plugin_id", plugin_id_str)
           .with_label("error_type", "command_failed")
           .inc();
       }

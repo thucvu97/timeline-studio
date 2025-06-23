@@ -194,7 +194,7 @@ impl MetricsCollector {
     };
 
     // Устанавливаем глобальный provider
-    global::set_meter_provider(provider);
+    let _ = global::set_meter_provider(provider);
 
     // Получаем meter
     let meter = global::meter("timeline-studio");

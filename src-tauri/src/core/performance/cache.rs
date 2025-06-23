@@ -377,13 +377,14 @@ where
 }
 
 /// Потокобезопасный кэш
+#[derive(Clone)]
 pub struct MemoryCache<K, V>
 where
   K: Clone + Eq + Hash + Send + Sync + 'static,
   V: Cacheable,
 {
   inner: Arc<RwLock<LruCache<K, V>>>,
-  _cleanup_handle: tokio::task::JoinHandle<()>,
+  _cleanup_handle: Arc<tokio::task::JoinHandle<()>>,
 }
 
 impl<K, V> MemoryCache<K, V>
@@ -412,7 +413,7 @@ where
 
     Self {
       inner,
-      _cleanup_handle: cleanup_handle,
+      _cleanup_handle: Arc::new(cleanup_handle),
     }
   }
 
@@ -484,7 +485,7 @@ impl CacheManager {
   }
 
   /// Получить кэш по имени
-  pub async fn get_cache<K, V>(&self, name: &str) -> Option<Arc<MemoryCache<K, V>>>
+  pub async fn get_cache<K, V>(&self, name: &str) -> Option<MemoryCache<K, V>>
   where
     K: Clone + Eq + Hash + Send + Sync + 'static,
     V: Cacheable,
@@ -493,7 +494,7 @@ impl CacheManager {
     caches
       .get(name)?
       .downcast_ref::<MemoryCache<K, V>>()
-      .map(|cache| Arc::new(cache.clone()))
+      .cloned()
   }
 
   /// Удалить кэш

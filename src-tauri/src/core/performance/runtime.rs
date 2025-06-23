@@ -161,9 +161,22 @@ impl WorkerPool {
     }
 
     // Получаем permit
-    let _permit = self.semaphore.acquire().await.map_err(|_| {
-      VideoCompilerError::InternalError("Failed to acquire semaphore permit".to_string())
-    })?;
+    let _permit = match self.semaphore.acquire().await {
+      Ok(permit) => permit,
+      Err(_) => {
+        // Обновляем статистику перед возвратом ошибки
+        {
+          let mut stats = self.stats.write().await;
+          stats.active_tasks -= 1;
+          stats.failed_tasks += 1;
+        }
+        return TaskResult {
+          result: Err(VideoCompilerError::InternalError("Failed to acquire semaphore permit".to_string())),
+          duration: start.elapsed(),
+          pool_name: self.name.clone(),
+        };
+      }
+    };
 
     // Выполняем задачу с timeout если настроен
     let result = if let Some(timeout) = self.config.timeout {

@@ -42,11 +42,7 @@ impl TracingMiddleware {
     let response = next.run(request).instrument(span.clone()).await;
 
     // Добавляем атрибуты ответа
-    let context = span.context();
-    context.span().set_attribute(opentelemetry::KeyValue::new(
-      "http.status_code",
-      response.status().as_u16() as i64,
-    ));
+    span.record("http.status_code", response.status().as_u16());
 
     response
   }
@@ -75,7 +71,7 @@ impl MetricsMiddleware {
     let path = normalize_path(request.uri().path());
 
     // Увеличиваем счетчик активных запросов
-    metrics.http_active_requests.add(1);
+    (*metrics).http_active_requests.add(1);
 
     // Получаем размер запроса
     if let Some(content_length) = request
@@ -84,7 +80,7 @@ impl MetricsMiddleware {
       .and_then(|v| v.to_str().ok())
       .and_then(|v| v.parse::<f64>().ok())
     {
-      metrics
+      (*metrics)
         .http_request_size
         .with_label("method", method.clone())
         .with_label("path", path.clone())
@@ -97,21 +93,22 @@ impl MetricsMiddleware {
     let duration = start.elapsed();
 
     // Уменьшаем счетчик активных запросов
-    metrics.http_active_requests.add(-1);
+    (*metrics).http_active_requests.add(-1);
 
     // Записываем метрики
-    metrics
+    let status_str = status.as_u16().to_string();
+    (*metrics)
       .http_requests_total
       .with_label("method", method.clone())
       .with_label("path", path.clone())
-      .with_label("status", status.as_u16().to_string())
+      .with_label("status", status_str.clone())
       .inc();
 
-    metrics
+    (*metrics)
       .http_request_duration
       .with_label("method", method)
       .with_label("path", path)
-      .with_label("status", status.as_u16().to_string())
+      .with_label("status", status_str)
       .observe(duration.as_secs_f64());
 
     // Получаем размер ответа
@@ -121,7 +118,7 @@ impl MetricsMiddleware {
       .and_then(|v| v.to_str().ok())
       .and_then(|v| v.parse::<f64>().ok())
     {
-      metrics
+      (*metrics)
         .http_response_size
         .with_label("status", status.as_u16().to_string())
         .observe(content_length);

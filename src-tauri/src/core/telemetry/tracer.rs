@@ -135,7 +135,7 @@ impl Tracer {
 
   /// Создать новый span
   pub fn span(&self, name: &str) -> SpanBuilder {
-    SpanBuilder::new(self.tracer.clone(), name.to_string())
+    SpanBuilder::new(name.to_string())
   }
 
   /// Выполнить функцию с трассировкой
@@ -204,7 +204,6 @@ impl Tracer {
 
 /// Builder для создания span
 pub struct SpanBuilder {
-  tracer: opentelemetry::global::BoxedTracer,
   name: String,
   kind: SpanKind,
   attributes: Vec<KeyValue>,
@@ -212,9 +211,8 @@ pub struct SpanBuilder {
 }
 
 impl SpanBuilder {
-  fn new(tracer: opentelemetry::global::BoxedTracer, name: String) -> Self {
+  fn new(name: String) -> Self {
     Self {
-      tracer,
       name,
       kind: SpanKind::Internal,
       attributes: vec![],

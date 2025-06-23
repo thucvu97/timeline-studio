@@ -304,7 +304,7 @@ pub struct ZeroCopyManager {
 }
 
 /// Статистика zero-copy операций
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ZeroCopyStats {
   /// Количество созданных буферов
   pub buffers_created: u64,
@@ -451,7 +451,7 @@ impl ZeroCopyManager {
   }
 
   /// Объединить несколько буферов в один без копирования (создает view)
-  pub async fn concatenate_views(&self, views: &[ZeroCopyView]) -> Result<Vec<&[u8]>> {
+  pub async fn concatenate_views<'a>(&self, views: &'a [ZeroCopyView]) -> Result<Vec<&'a [u8]>> {
     let mut result = Vec::with_capacity(views.len());
 
     for view in views {
@@ -469,7 +469,7 @@ impl ZeroCopyManager {
 
   /// Получить статистику
   pub async fn get_stats(&self) -> ZeroCopyStats {
-    self.stats.lock().await.clone()
+    (*self.stats.lock().await).clone()
   }
 
   /// Очистить пулы буферов
