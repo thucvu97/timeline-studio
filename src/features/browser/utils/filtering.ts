@@ -2,7 +2,7 @@ import type { FilterConfig, ListItem } from "../types/list"
 
 /**
  * Фильтрует массив элементов по заданным критериям
- * 
+ *
  * @param items - Массив элементов для фильтрации
  * @param filters - Конфигурация фильтров
  * @param getSearchableText - Функция для получения текста для поиска
@@ -15,7 +15,7 @@ export function filterItems<T extends ListItem>(
   filters: FilterConfig,
   getSearchableText: (item: T) => string[],
   matchesFilter?: (item: T, filterType: string) => boolean,
-  isFavorite?: (item: T) => boolean
+  isFavorite?: (item: T) => boolean,
 ): T[] {
   if (!items || items.length === 0) {
     return items
@@ -29,9 +29,7 @@ export function filterItems<T extends ListItem>(
     if (query) {
       filtered = filtered.filter((item) => {
         const searchableTexts = getSearchableText(item)
-        return searchableTexts.some((text) => 
-          text && text.toLowerCase().includes(query)
-        )
+        return searchableTexts.some((text) => text && text.toLowerCase().includes(query))
       })
     }
   }
@@ -51,7 +49,7 @@ export function filterItems<T extends ListItem>(
 
 /**
  * Вспомогательная функция для безопасного получения строкового значения
- * 
+ *
  * @param value - Значение любого типа
  * @returns Строковое представление значения
  */
@@ -62,7 +60,7 @@ export function safeStringValue(value: any): string {
 
 /**
  * Проверяет, соответствует ли элемент фильтру по расширению файла
- * 
+ *
  * @param fileName - Имя файла
  * @param extension - Расширение для проверки
  * @returns true если файл имеет указанное расширение
@@ -75,7 +73,7 @@ export function matchesExtension(fileName: string, extension: string): boolean {
 
 /**
  * Проверяет, соответствует ли элемент одному из расширений
- * 
+ *
  * @param fileName - Имя файла
  * @param extensions - Массив расширений для проверки
  * @returns true если файл имеет одно из указанных расширений
@@ -87,7 +85,7 @@ export function matchesAnyExtension(fileName: string, extensions: string[]): boo
 
 /**
  * Фильтрует элементы по категории
- * 
+ *
  * @param category - Категория элемента
  * @param filterCategory - Категория фильтра
  * @returns true если категории совпадают
@@ -99,7 +97,7 @@ export function matchesCategory(category: string | undefined, filterCategory: st
 
 /**
  * Фильтрует элементы по сложности
- * 
+ *
  * @param complexity - Сложность элемента
  * @param filterComplexity - Сложность фильтра
  * @returns true если сложности совпадают
@@ -111,7 +109,7 @@ export function matchesComplexity(complexity: string | undefined, filterComplexi
 
 /**
  * Фильтрует элементы по тегам
- * 
+ *
  * @param tags - Теги элемента
  * @param filterTag - Тег для поиска
  * @returns true если элемент содержит указанный тег

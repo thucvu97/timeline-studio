@@ -98,7 +98,7 @@ pub enum VideoCompilerError {
 
   /// Слишком много активных задач
   TooManyActiveJobs(String),
-  
+
   /// Сервис не найден в DI контейнере
   ServiceNotFound(String),
 }

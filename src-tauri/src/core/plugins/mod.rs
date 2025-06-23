@@ -3,18 +3,18 @@
 //! Система плагинов позволяет расширять функциональность приложения
 //! без изменения основного кода.
 
-pub mod plugin;
+pub mod api;
+pub mod context;
 pub mod loader;
 pub mod manager;
-pub mod context;
 pub mod permissions;
-pub mod api;
+pub mod plugin;
 pub mod sandbox;
 
-pub use plugin::{Plugin, PluginMetadata, PluginType, PluginCommand, PluginResponse};
-pub use loader::{PluginLoader, PluginRegistry};
-pub use manager::{PluginManager, PluginHandle};
-pub use context::PluginContext;
-pub use permissions::{PluginPermissions, FileSystemPermissions, NetworkPermissions};
 pub use api::{PluginApi, PluginApiImpl};
-pub use sandbox::{PluginSandbox, SandboxManager, ResourceLimits, SandboxStats};
+pub use context::PluginContext;
+pub use loader::{PluginLoader, PluginRegistry};
+pub use manager::{PluginHandle, PluginManager};
+pub use permissions::{FileSystemPermissions, NetworkPermissions, PluginPermissions};
+pub use plugin::{Plugin, PluginCommand, PluginMetadata, PluginResponse, PluginType};
+pub use sandbox::{PluginSandbox, ResourceLimits, SandboxManager, SandboxStats};

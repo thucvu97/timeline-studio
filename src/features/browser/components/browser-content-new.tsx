@@ -6,14 +6,14 @@ import { useBrowserState } from "@/features/browser/services/browser-state-provi
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useTimelineActions } from "@/features/timeline/hooks"
 
-import { useMediaAdapter } from "../adapters/use-media-adapter"
-import { useMusicAdapter } from "../adapters/use-music-adapter"
 import { useEffectsAdapter } from "../adapters/use-effects-adapter"
 import { useFiltersAdapter } from "../adapters/use-filters-adapter"
-import { useTransitionsAdapter } from "../adapters/use-transitions-adapter"
+import { useMediaAdapter } from "../adapters/use-media-adapter"
+import { useMusicAdapter } from "../adapters/use-music-adapter"
+import { useStyleTemplatesAdapter } from "../adapters/use-style-templates-adapter"
 import { useSubtitlesAdapter } from "../adapters/use-subtitles-adapter"
 import { useTemplatesAdapter } from "../adapters/use-templates-adapter"
-import { useStyleTemplatesAdapter } from "../adapters/use-style-templates-adapter"
+import { useTransitionsAdapter } from "../adapters/use-transitions-adapter"
 
 /**
  * Новая версия BrowserContent с использованием UniversalList и адаптеров
@@ -21,7 +21,7 @@ import { useStyleTemplatesAdapter } from "../adapters/use-style-templates-adapte
  */
 export function BrowserContentNew() {
   const contentClassName = "bg-background m-0 flex-1 overflow-auto"
-  
+
   // Получаем состояние браузера
   const {
     activeTab,
@@ -34,10 +34,10 @@ export function BrowserContentNew() {
     setViewMode,
     setPreviewSize,
   } = useBrowserState()
-  
+
   // Хук для добавления медиафайлов на таймлайн
   const { addMediaToTimeline } = useTimelineActions()
-  
+
   // Получаем все адаптеры
   const mediaAdapter = useMediaAdapter()
   const musicAdapter = useMusicAdapter()
@@ -47,59 +47,59 @@ export function BrowserContentNew() {
   const subtitlesAdapter = useSubtitlesAdapter()
   const templatesAdapter = useTemplatesAdapter()
   const styleTemplatesAdapter = useStyleTemplatesAdapter()
-  
+
   // Извлекаем настройки для текущей вкладки
   const { searchQuery, showFavoritesOnly, viewMode, sortBy, filterType, groupBy, sortOrder, previewSizeIndex } =
     currentTabSettings
-  
+
   // Получаем конфигурацию тулбара для текущей вкладки
   const toolbarConfig = getToolbarConfigForContent(activeTab)
-  
+
   // Обработчики
   const handleSearch = (query: string) => {
     setSearchQuery(query, activeTab)
   }
-  
+
   const handleSort = (sortBy: string) => {
     setSort(sortBy, sortOrder, activeTab)
   }
-  
+
   const handleFilter = (filterType: string) => {
     setFilter(filterType, activeTab)
   }
-  
+
   const handleChangeOrder = () => {
     const newOrder = sortOrder === "asc" ? "desc" : "asc"
     setSort(sortBy, newOrder, activeTab)
   }
-  
+
   const handleViewModeChange = (mode: "list" | "grid" | "thumbnails") => {
     setViewMode(mode as any, activeTab)
   }
-  
+
   const handleGroupBy = (groupBy: string) => {
     setGroupBy(groupBy, activeTab)
   }
-  
+
   const handleToggleFavorites = () => {
     toggleFavorites(activeTab)
   }
-  
+
   const handleZoomIn = () => {
     if (previewSizeIndex < PREVIEW_SIZES.length - 1) {
       setPreviewSize(previewSizeIndex + 1, activeTab)
     }
   }
-  
+
   const handleZoomOut = () => {
     if (previewSizeIndex > 0) {
       setPreviewSize(previewSizeIndex - 1, activeTab)
     }
   }
-  
+
   const canZoomIn = previewSizeIndex < PREVIEW_SIZES.length - 1
   const canZoomOut = previewSizeIndex > 0
-  
+
   // Получаем адаптер для текущей вкладки
   const getAdapterForTab = () => {
     switch (activeTab) {
@@ -123,9 +123,9 @@ export function BrowserContentNew() {
         return undefined
     }
   }
-  
+
   const adapter = getAdapterForTab()
-  
+
   // Обработчики взаимодействия для разных типов контента
   const handleItemSelect = (item: any) => {
     switch (activeTab) {
@@ -164,14 +164,14 @@ export function BrowserContentNew() {
         console.log("Неизвестный тип контента:", activeTab)
     }
   }
-  
+
   const handleItemDragStart = (item: any, event: React.DragEvent) => {
     // Устанавливаем данные для drag-and-drop в зависимости от типа
     const dragData = {
       type: activeTab,
-      item: item
+      item: item,
     }
-    
+
     switch (activeTab) {
       case "media":
         event.dataTransfer.setData("mediaFile", JSON.stringify(item))
@@ -201,7 +201,7 @@ export function BrowserContentNew() {
         event.dataTransfer.setData("browserItem", JSON.stringify(dragData))
     }
   }
-  
+
   return (
     <>
       {/* Общий тулбар для всех вкладок */}
@@ -242,23 +242,17 @@ export function BrowserContentNew() {
         canZoomIn={canZoomIn}
         canZoomOut={canZoomOut}
       />
-      
+
       {/* Контент с использованием UniversalList для всех типов */}
       {adapter ? (
         <TabsContent value={activeTab} className={contentClassName}>
-          <UniversalList
-            adapter={adapter}
-            onItemSelect={handleItemSelect}
-            onItemDragStart={handleItemDragStart}
-          />
+          <UniversalList adapter={adapter} onItemSelect={handleItemSelect} onItemDragStart={handleItemDragStart} />
         </TabsContent>
       ) : (
         // Показываем сообщение если адаптер не найден
         <TabsContent value={activeTab} className={contentClassName}>
           <div className="flex h-full items-center justify-center">
-            <div className="text-muted-foreground">
-              Адаптер для "{activeTab}" не найден
-            </div>
+            <div className="text-muted-foreground">Адаптер для &quot;{activeTab}&quot; не найден</div>
           </div>
         </TabsContent>
       )}

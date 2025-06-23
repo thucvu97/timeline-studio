@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { setTranslations } from "@/test/mocks/libraries"
 
-import { SOCIAL_NETWORKS } from "../../constants/export-constants"
 import { useSocialExport } from "../../hooks/use-social-export"
 import { SocialNetworksService } from "../../services/social-networks-service"
 

@@ -44,13 +44,10 @@ export function syncResourcesToProject(
   // Обновляем статистику
   updatedProject.mediaPool.stats = {
     totalItems: updatedProject.mediaPool.items.size,
-    totalSize: Array.from(updatedProject.mediaPool.items.values()).reduce<number>(
-      (sum, item) => {
-        const fileSize = typeof item.metadata.fileSize === 'number' ? item.metadata.fileSize : 0
-        return Number(sum) + Number(fileSize)
-      },
-      0,
-    ),
+    totalSize: Array.from(updatedProject.mediaPool.items.values()).reduce<number>((sum, item) => {
+      const fileSize = typeof item.metadata.fileSize === "number" ? item.metadata.fileSize : 0
+      return Number(sum) + Number(fileSize)
+    }, 0),
     onlineItems: Array.from(updatedProject.mediaPool.items.values()).filter((item) => item.status === "online").length,
     offlineItems: Array.from(updatedProject.mediaPool.items.values()).filter(
       (item) => item.status === "offline" || item.status === "missing",

@@ -19,7 +19,7 @@ const SubtitlePreviewWrapper: React.FC<PreviewComponentProps<SubtitleStyle>> = (
   isSelected,
   isFavorite,
   onToggleFavorite,
-  onAddToTimeline
+  onAddToTimeline,
 }) => {
   const handleClick = () => {
     onClick?.(style)
@@ -51,7 +51,7 @@ const SubtitlePreviewWrapper: React.FC<PreviewComponentProps<SubtitleStyle>> = (
               fontSize: "8px",
               fontWeight: style.style.fontWeight || "normal",
               color: style.style.color || "#000",
-              textShadow: style.style.textShadow || "none"
+              textShadow: style.style.textShadow || "none",
             }}
           >
             Abc
@@ -67,29 +67,20 @@ const SubtitlePreviewWrapper: React.FC<PreviewComponentProps<SubtitleStyle>> = (
         </div>
 
         {/* Category */}
-        <div className="flex-shrink-0 text-xs text-muted-foreground">
-          {style.category}
-        </div>
+        <div className="flex-shrink-0 text-xs text-muted-foreground">{style.category}</div>
 
         {/* Complexity */}
-        <div className="flex-shrink-0 text-xs text-muted-foreground">
-          {style.complexity}
-        </div>
+        <div className="flex-shrink-0 text-xs text-muted-foreground">{style.complexity}</div>
 
         {/* Font Family */}
-        <div className="flex-shrink-0 text-xs text-muted-foreground">
-          {style.style.fontFamily || "default"}
-        </div>
+        <div className="flex-shrink-0 text-xs text-muted-foreground">{style.style.fontFamily || "default"}</div>
       </div>
     )
   }
 
   // Thumbnails mode - use the original SubtitlePreview component
   return (
-    <div
-      onDragStart={handleDragStart}
-      draggable
-    >
+    <div onDragStart={handleDragStart} draggable>
       <SubtitlePreview
         style={style}
         onClick={handleClick}
@@ -107,40 +98,40 @@ const SubtitlePreviewWrapper: React.FC<PreviewComponentProps<SubtitleStyle>> = (
 export function useSubtitlesAdapter(): ListAdapter<SubtitleStyle> {
   const { subtitles, loading, error } = useSubtitles()
   const { isItemFavorite } = useFavorites()
-  
+
   return {
     // Хук для получения данных
     useData: () => ({
       items: subtitles,
       loading,
-      error: error || null
+      error: error || null,
     }),
-    
+
     // Компонент превью
     PreviewComponent: SubtitlePreviewWrapper,
-    
+
     // Функция для получения значения сортировки
     getSortValue: (style, sortBy) => {
       switch (sortBy) {
         case "name":
           return (style.labels?.ru || style.labels?.en || style.name).toLowerCase()
-        
+
         case "category":
           return style.category.toLowerCase()
-        
+
         case "complexity":
           // Определяем порядок сложности: basic < intermediate < advanced
           const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
           return complexityOrder[style.complexity || "basic"]
-        
+
         case "font":
           return (style.style.fontFamily || "default").toLowerCase()
-        
+
         default:
           return (style.labels?.ru || style.labels?.en || style.name).toLowerCase()
       }
     },
-    
+
     // Функция для получения текста для поиска
     getSearchableText: (style) => {
       const texts = [
@@ -151,56 +142,56 @@ export function useSubtitlesAdapter(): ListAdapter<SubtitleStyle> {
         style.description?.en || "",
         style.category,
         style.style.fontFamily || "",
-        ...(style.tags || [])
+        ...(style.tags || []),
       ]
       return texts.filter(Boolean)
     },
-    
+
     // Функция для получения значения группировки
     getGroupValue: (style, groupBy) => {
       switch (groupBy) {
         case "category":
           return style.category || "other"
-        
+
         case "complexity":
           return style.complexity || "basic"
-        
+
         case "font":
           return style.style.fontFamily || "default"
-        
+
         case "tags":
           // Группируем по первому тегу или "untagged"
           return style.tags && style.tags.length > 0 ? style.tags[0] : "untagged"
-        
+
         default:
           return ""
       }
     },
-    
+
     // Функция для фильтрации по типу
     matchesFilter: (style, filterType) => {
       if (filterType === "all") return true
-      
+
       // Фильтрация по сложности
       if (["basic", "intermediate", "advanced"].includes(filterType)) {
         return (style.complexity || "basic") === filterType
       }
-      
+
       // Фильтрация по категории
       if (["basic", "cinematic", "stylized", "minimal", "animated", "modern"].includes(filterType)) {
         return style.category === filterType
       }
-      
+
       return true
     },
-    
+
     // Обработчики импорта не нужны для стилей субтитров (они встроенные)
     importHandlers: undefined,
-    
+
     // Проверка избранного
     isFavorite: (style) => isItemFavorite(style, "subtitle"),
-    
+
     // Тип для системы избранного
-    favoriteType: "subtitle"
+    favoriteType: "subtitle",
   }
 }

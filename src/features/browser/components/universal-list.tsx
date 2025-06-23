@@ -7,10 +7,11 @@ import { useBrowserState } from "@/features/browser/services/browser-state-provi
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { cn } from "@/lib/utils"
 
+import { filterItems, groupItems, sortItems } from "../utils"
 import { NoFiles } from "./no-files"
 import { VirtualizedContentGroup } from "./virtualized-content-group"
-import type { GroupedItems, ListAdapter, ListItem, UniversalListProps } from "../types/list"
-import { filterItems, groupItems, sortItems } from "../utils"
+
+import type { ListItem, UniversalListProps } from "../types/list"
 
 /**
  * Универсальный компонент списка для отображения любого типа контента
@@ -20,20 +21,21 @@ export function UniversalList<T extends ListItem>({
   adapter,
   onItemSelect,
   onItemDragStart,
-  className
+  className,
 }: UniversalListProps<T>) {
   const { t } = useTranslation()
-  
+
   // Получаем данные через адаптер
   const { items, loading, error } = adapter.useData()
-  
+
   // Получаем настройки из состояния браузера
   const { currentTabSettings } = useBrowserState()
-  const { searchQuery, showFavoritesOnly, viewMode, sortBy, filterType, groupBy, sortOrder, previewSizeIndex } = currentTabSettings
-  
+  const { searchQuery, showFavoritesOnly, viewMode, sortBy, filterType, groupBy, sortOrder, previewSizeIndex } =
+    currentTabSettings
+
   // Получаем текущий размер превью
   const currentPreviewSize = PREVIEW_SIZES[previewSizeIndex]
-  
+
   // Фильтрация и сортировка
   const processedItems = useMemo(() => {
     // Фильтрация
@@ -42,17 +44,12 @@ export function UniversalList<T extends ListItem>({
       { searchQuery, showFavoritesOnly, filterType },
       adapter.getSearchableText,
       adapter.matchesFilter,
-      adapter.isFavorite
+      adapter.isFavorite,
     )
-    
+
     // Сортировка
-    const sorted = sortItems(
-      filtered,
-      sortBy,
-      sortOrder,
-      adapter.getSortValue
-    )
-    
+    const sorted = sortItems(filtered, sortBy, sortOrder, adapter.getSortValue)
+
     return sorted
   }, [
     items,
@@ -64,19 +61,14 @@ export function UniversalList<T extends ListItem>({
     adapter.getSearchableText,
     adapter.getSortValue,
     adapter.matchesFilter,
-    adapter.isFavorite
+    adapter.isFavorite,
   ])
-  
+
   // Группировка
   const groupedItems = useMemo(() => {
-    return groupItems(
-      processedItems,
-      groupBy,
-      adapter.getGroupValue,
-      sortOrder
-    )
+    return groupItems(processedItems, groupBy, adapter.getGroupValue, sortOrder)
   }, [processedItems, groupBy, sortOrder, adapter.getGroupValue])
-  
+
   // Обработка состояний загрузки и ошибок
   if (loading) {
     return (
@@ -85,57 +77,64 @@ export function UniversalList<T extends ListItem>({
       </div>
     )
   }
-  
+
   if (error) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="text-red-500">{t("common.error")}: {error.message}</div>
+        <div className="text-red-500">
+          {t("common.error")}: {error.message}
+        </div>
       </div>
     )
   }
-  
+
   // Если нет элементов
   if (items.length === 0) {
     return (
       <NoFiles
         message={t("browser.noFiles.message")}
-        actions={adapter.importHandlers ? [
-          {
-            label: t("browser.noFiles.importFile"),
-            onClick: adapter.importHandlers.importFile || (() => {}),
-            disabled: adapter.importHandlers.isImporting
-          },
-          ...(adapter.importHandlers.importFolder ? [{
-            label: t("browser.noFiles.importFolder"),
-            onClick: adapter.importHandlers.importFolder,
-            disabled: adapter.importHandlers.isImporting
-          }] : [])
-        ] : []}
+        actions={
+          adapter.importHandlers
+            ? [
+              {
+                label: t("browser.noFiles.importFile"),
+                onClick: adapter.importHandlers.importFile || (() => {}),
+                disabled: adapter.importHandlers.isImporting,
+              },
+              ...(adapter.importHandlers.importFolder
+                ? [
+                  {
+                    label: t("browser.noFiles.importFolder"),
+                    onClick: adapter.importHandlers.importFolder,
+                    disabled: adapter.importHandlers.isImporting,
+                  },
+                ]
+                : []),
+            ]
+            : []
+        }
       />
     )
   }
-  
+
   // Если после фильтрации нет элементов
   if (processedItems.length === 0) {
     return (
       <div className="flex h-full flex-col">
         <NoFiles
-          message={searchQuery 
-            ? t("browser.noFiles.noSearchResults") 
-            : showFavoritesOnly 
-              ? t("browser.noFiles.noFavorites")
-              : t("browser.noFiles.noFilesInFilter")
+          message={
+            searchQuery
+              ? t("browser.noFiles.noSearchResults")
+              : showFavoritesOnly
+                ? t("browser.noFiles.noFavorites")
+                : t("browser.noFiles.noFilesInFilter")
           }
         />
-        <StatusBar
-          totalCount={items.length}
-          filteredCount={0}
-          selectedCount={0}
-        />
+        <StatusBar totalCount={items.length} filteredCount={0} selectedCount={0} />
       </div>
     )
   }
-  
+
   // Рендерим группы
   return (
     <div className={cn("flex h-full flex-col", className)}>
@@ -164,12 +163,8 @@ export function UniversalList<T extends ListItem>({
           />
         ))}
       </div>
-      
-      <StatusBar
-        totalCount={items.length}
-        filteredCount={processedItems.length}
-        selectedCount={0}
-      />
+
+      <StatusBar totalCount={items.length} filteredCount={processedItems.length} selectedCount={0} />
     </div>
   )
 }

@@ -4,13 +4,12 @@ import { useAppSettings, useFavorites } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser/components/preview/media-preview"
 import { parseDuration, parseFileSize } from "@/features/browser/utils"
 import { getFileType } from "@/features/media"
-import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { MediaFile } from "@/features/media/types/media"
-import { formatDateByLanguage } from "@/i18n/constants"
 import i18n from "@/i18n"
 
-import type { ListAdapter, PreviewComponentProps } from "../types/list"
 import { getDateGroup, getDurationGroup } from "../utils/grouping"
+
+import type { ListAdapter, PreviewComponentProps } from "../types/list"
 
 /**
  * Компонент превью для медиафайлов
@@ -24,7 +23,7 @@ const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
   isSelected,
   isFavorite,
   onToggleFavorite,
-  onAddToTimeline
+  onAddToTimeline,
 }) => {
   return (
     <MediaPreview
@@ -50,23 +49,23 @@ export const MediaAdapter: ListAdapter<MediaFile> = {
     const { isLoading, getError, state } = useAppSettings()
     const allMediaFiles = state.context.mediaFiles.allFiles || []
     const error = getError()
-    
+
     return {
       items: allMediaFiles,
       loading: isLoading,
-      error
+      error,
     }
   },
-  
+
   // Компонент превью
   PreviewComponent: MediaPreviewWrapper,
-  
+
   // Функция для получения значения сортировки
   getSortValue: (file, sortBy) => {
     switch (sortBy) {
       case "name":
         return file.name.toLowerCase()
-      
+
       case "size":
         // Приоритетно используем размер из метаданных
         if (file.probeData?.format.size !== undefined) {
@@ -74,36 +73,34 @@ export const MediaAdapter: ListAdapter<MediaFile> = {
         }
         // Иначе парсим размер
         return parseFileSize(file.size)
-      
+
       case "duration":
         return parseDuration(file.duration)
-      
-      case "date":
       default:
         return file.startTime || 0
     }
   },
-  
+
   // Функция для получения текста для поиска
   getSearchableText: (file) => {
     const texts = [
       file.name,
       String(file.probeData?.format.tags?.title || ""),
       String(file.probeData?.format.tags?.artist || ""),
-      String(file.probeData?.format.tags?.album || "")
+      String(file.probeData?.format.tags?.album || ""),
     ]
     return texts.filter(Boolean)
   },
-  
+
   // Функция для получения значения группировки
   getGroupValue: (file, groupBy) => {
     const currentLanguage = i18n.language || "ru"
-    
+
     switch (groupBy) {
       case "type":
         const fileType = getFileType(file)
         return i18n.t(`browser.media.${fileType}`)
-      
+
       case "date":
         // Для изображений используем дату создания файла, если она доступна
         let timestamp = file.startTime
@@ -114,20 +111,20 @@ export const MediaAdapter: ListAdapter<MediaFile> = {
             : 0
         }
         return getDateGroup(timestamp, currentLanguage)
-      
+
       case "duration":
         const duration = parseDuration(file.duration)
         return getDurationGroup(duration)
-      
+
       default:
         return ""
     }
   },
-  
+
   // Функция для фильтрации по типу
   matchesFilter: (file, filterType) => {
     if (filterType === "all") return true
-    
+
     // Проверяем, загружены ли метаданные
     if (file.isLoadingMetadata === true) {
       // Если метаданные еще загружаются, используем базовые свойства файла
@@ -136,32 +133,29 @@ export const MediaAdapter: ListAdapter<MediaFile> = {
       if (filterType === "image" && file.isImage) return true
       return false
     }
-    
+
     // Если метаданные загружены, используем их для более точной фильтрации
     if (filterType === "video") {
       return file.isVideo || file.probeData?.streams.some((s) => s.codec_type === "video") || false
     }
-    
+
     if (filterType === "audio") {
       return file.isAudio || file.probeData?.streams.some((s) => s.codec_type === "audio") || false
     }
-    
+
     if (filterType === "image") {
       return file.isImage || /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name)
     }
-    
+
     return false
   },
-  
+
   // Обработчики импорта - будут установлены в компоненте
   importHandlers: undefined,
-  
-  // Проверка избранного
-  isFavorite: (file) => {
-    const { isItemFavorite } = useFavorites()
-    return isItemFavorite(file, "media")
-  },
-  
+
+  // Проверка избранного - будет переопределена в хуке
+  isFavorite: () => false,
+
   // Тип для системы избранного
-  favoriteType: "media"
+  favoriteType: "media",
 }

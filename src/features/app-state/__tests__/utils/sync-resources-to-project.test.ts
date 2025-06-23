@@ -89,7 +89,7 @@ describe("sync-resources-to-project", () => {
     },
     usage: {
       sequences: [],
-      count: 0
+      count: 0,
     },
     tags: [],
   }
@@ -147,9 +147,7 @@ describe("sync-resources-to-project", () => {
     },
     mediaPool: {
       items: new Map(),
-      bins: new Map([
-        ["root", { id: "root", name: "Root", parentId: null, children: [], items: [] }],
-      ]),
+      bins: new Map([["root", { id: "root", name: "Root", parentId: null, children: [], items: [] }]]),
       stats: {
         totalItems: 0,
         totalSize: 0,
@@ -205,11 +203,7 @@ describe("sync-resources-to-project", () => {
         .mockReturnValueOnce(mockMediaPoolItem)
         .mockReturnValueOnce(mockMusicPoolItem)
 
-      const result = syncResourcesToProject(
-        project,
-        [mockMediaResource],
-        [mockMusicResource],
-      )
+      const result = syncResourcesToProject(project, [mockMediaResource], [mockMusicResource])
 
       expect(result).not.toBe(project) // Should return a new object
       expect(result.mediaPool.items.size).toBe(2)
@@ -220,14 +214,10 @@ describe("sync-resources-to-project", () => {
     it("should clear existing media pool items before syncing", () => {
       const project = createMockProject()
       project.mediaPool.items.set("existing-item", mockMediaPoolItem)
-      
+
       vi.mocked(convertMediaFileToPoolItem).mockReturnValueOnce(mockMediaPoolItem)
 
-      const result = syncResourcesToProject(
-        project,
-        [mockMediaResource],
-        [],
-      )
+      const result = syncResourcesToProject(project, [mockMediaResource], [])
 
       expect(result.mediaPool.items.size).toBe(1)
       expect(result.mediaPool.items.has("existing-item")).toBe(false)
@@ -240,11 +230,7 @@ describe("sync-resources-to-project", () => {
         .mockReturnValueOnce(mockMediaPoolItem)
         .mockReturnValueOnce(mockMusicPoolItem)
 
-      syncResourcesToProject(
-        project,
-        [mockMediaResource],
-        [mockMusicResource],
-      )
+      syncResourcesToProject(project, [mockMediaResource], [mockMusicResource])
 
       expect(convertMediaFileToPoolItem).toHaveBeenCalledWith(mockMediaFile)
       expect(convertMediaFileToPoolItem).toHaveBeenCalledWith(mockMusicFile, "music")
@@ -257,11 +243,7 @@ describe("sync-resources-to-project", () => {
         file: undefined as any,
       }
 
-      const result = syncResourcesToProject(
-        project,
-        [resourceWithoutFile],
-        [],
-      )
+      const result = syncResourcesToProject(project, [resourceWithoutFile], [])
 
       expect(result.mediaPool.items.size).toBe(0)
       expect(convertMediaFileToPoolItem).not.toHaveBeenCalled()
@@ -273,11 +255,7 @@ describe("sync-resources-to-project", () => {
         .mockReturnValueOnce(mockMediaPoolItem)
         .mockReturnValueOnce(mockMusicPoolItem)
 
-      const result = syncResourcesToProject(
-        project,
-        [mockMediaResource],
-        [mockMusicResource],
-      )
+      const result = syncResourcesToProject(project, [mockMediaResource], [mockMusicResource])
 
       expect(result.mediaPool.stats).toEqual({
         totalItems: 2,
@@ -320,7 +298,7 @@ describe("sync-resources-to-project", () => {
     it("should update project modified date", () => {
       const project = createMockProject()
       const originalModified = project.metadata.modified
-      
+
       // Mock Date.now to return a specific time
       const mockDate = new Date("2023-12-01")
       vi.spyOn(global, "Date").mockImplementation(() => mockDate as any)
@@ -489,7 +467,7 @@ describe("sync-resources-to-project", () => {
   describe("integration scenarios", () => {
     it("should handle complete sync workflow", () => {
       const project = createMockProject()
-      
+
       // Setup localStorage with resources
       const storedData = {
         mediaResources: [mockMediaResource],
@@ -505,11 +483,7 @@ describe("sync-resources-to-project", () => {
       const resources = getResourcesFromStorage()
 
       // Sync to project
-      const result = syncResourcesToProject(
-        project,
-        resources.mediaResources,
-        resources.musicResources,
-      )
+      const result = syncResourcesToProject(project, resources.mediaResources, resources.musicResources)
 
       expect(result.mediaPool.items.size).toBe(2)
       expect(result.mediaPool.stats.totalItems).toBe(2)
@@ -545,16 +519,12 @@ describe("sync-resources-to-project", () => {
 
     it("should maintain data integrity during sync", () => {
       const project = createMockProject()
-      
+
       vi.mocked(convertMediaFileToPoolItem)
         .mockReturnValueOnce(mockMediaPoolItem)
         .mockReturnValueOnce(mockMusicPoolItem)
-      
-      const result = syncResourcesToProject(
-        project,
-        [mockMediaResource],
-        [mockMusicResource],
-      )
+
+      const result = syncResourcesToProject(project, [mockMediaResource], [mockMusicResource])
 
       // Verify that the original project wasn't mutated
       expect(project.mediaPool.items.size).toBe(0)
@@ -570,16 +540,10 @@ describe("sync-resources-to-project", () => {
       const project = createMockProject()
       const onlineItem = { ...mockMediaPoolItem, status: "online" as const }
       const offlineItem = { ...mockMusicPoolItem, status: "offline" as const }
-      
-      vi.mocked(convertMediaFileToPoolItem)
-        .mockReturnValueOnce(onlineItem)
-        .mockReturnValueOnce(offlineItem)
 
-      const result = syncResourcesToProject(
-        project,
-        [mockMediaResource],
-        [mockMusicResource],
-      )
+      vi.mocked(convertMediaFileToPoolItem).mockReturnValueOnce(onlineItem).mockReturnValueOnce(offlineItem)
+
+      const result = syncResourcesToProject(project, [mockMediaResource], [mockMusicResource])
 
       expect(result.mediaPool.stats.onlineItems).toBe(1)
       expect(result.mediaPool.stats.offlineItems).toBe(1)

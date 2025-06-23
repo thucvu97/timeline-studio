@@ -2,7 +2,7 @@ import type { GroupedItems, ListItem } from "../types/list"
 
 /**
  * Группирует массив элементов по заданному критерию
- * 
+ *
  * @param items - Массив элементов для группировки
  * @param groupBy - Критерий группировки
  * @param getValue - Функция для получения значения группировки из элемента
@@ -13,7 +13,7 @@ export function groupItems<T extends ListItem>(
   items: T[],
   groupBy: string,
   getValue: (item: T, groupBy: string) => string,
-  sortOrder: "asc" | "desc" = "asc"
+  sortOrder: "asc" | "desc" = "asc",
 ): GroupedItems<T>[] {
   if (!items || items.length === 0) {
     return []
@@ -30,7 +30,7 @@ export function groupItems<T extends ListItem>(
   // Группируем элементы
   items.forEach((item) => {
     const groupValue = getValue(item, groupBy) || "Без группы"
-    
+
     if (!groups.has(groupValue)) {
       groups.set(groupValue, [])
     }
@@ -44,11 +44,11 @@ export function groupItems<T extends ListItem>(
       // Специальная обработка для группы "Без группы" - всегда в конце
       if (a.title === "Без группы") return 1
       if (b.title === "Без группы") return -1
-      
+
       // Обычная сортировка
-      const comparison = a.title.localeCompare(b.title, undefined, { 
-        numeric: true, 
-        sensitivity: "base" 
+      const comparison = a.title.localeCompare(b.title, undefined, {
+        numeric: true,
+        sensitivity: "base",
       })
       return sortOrder === "asc" ? comparison : -comparison
     })
@@ -58,55 +58,59 @@ export function groupItems<T extends ListItem>(
 
 /**
  * Функция для группировки по дате с форматированием
- * 
+ *
  * @param timestamp - Временная метка в секундах или миллисекундах
  * @param locale - Локаль для форматирования
  * @returns Отформатированная строка даты
  */
-export function getDateGroup(timestamp: number | undefined, locale: string = "ru"): string {
+export function getDateGroup(timestamp: number | undefined, locale = "ru"): string {
   if (!timestamp) return "Без даты"
-  
+
   // Конвертируем в миллисекунды если нужно
   const ms = timestamp < 10000000000 ? timestamp * 1000 : timestamp
   const date = new Date(ms)
-  
+
   // Проверяем валидность даты
-  if (isNaN(date.getTime())) return "Без даты"
-  
+  if (Number.isNaN(date.getTime())) return "Без даты"
+
   // Форматируем дату
   const today = new Date()
   const yesterday = new Date(today)
   yesterday.setDate(yesterday.getDate() - 1)
-  
+
   // Сравниваем даты
   if (isSameDay(date, today)) {
     return "Сегодня"
-  } else if (isSameDay(date, yesterday)) {
+  }
+  if (isSameDay(date, yesterday)) {
     return "Вчера"
-  } else if (isThisWeek(date)) {
+  }
+  if (isThisWeek(date)) {
     return "На этой неделе"
-  } else if (isLastWeek(date)) {
+  }
+  if (isLastWeek(date)) {
     return "На прошлой неделе"
-  } else if (isThisMonth(date)) {
+  }
+  if (isThisMonth(date)) {
     return "В этом месяце"
-  } else if (isThisYear(date)) {
+  }
+  if (isThisYear(date)) {
     // Возвращаем название месяца
     return date.toLocaleDateString(locale, { month: "long", year: "numeric" })
-  } else {
-    // Возвращаем год
-    return date.getFullYear().toString()
   }
+  // Возвращаем год
+  return date.getFullYear().toString()
 }
 
 /**
  * Функция для группировки по продолжительности
- * 
+ *
  * @param duration - Продолжительность в секундах
  * @returns Группа продолжительности
  */
 export function getDurationGroup(duration: number | undefined): string {
   if (!duration || duration <= 0) return "Без продолжительности"
-  
+
   if (duration < 30) return "До 30 секунд"
   if (duration < 60) return "30 сек - 1 мин"
   if (duration < 180) return "1-3 минуты"
@@ -120,16 +124,16 @@ export function getDurationGroup(duration: number | undefined): string {
 
 /**
  * Функция для группировки по размеру файла
- * 
+ *
  * @param size - Размер файла в байтах
  * @returns Группа размера
  */
 export function getSizeGroup(size: number | undefined): string {
   if (!size || size <= 0) return "Без размера"
-  
+
   const MB = 1024 * 1024
   const GB = MB * 1024
-  
+
   if (size < MB) return "До 1 МБ"
   if (size < 10 * MB) return "1-10 МБ"
   if (size < 50 * MB) return "10-50 МБ"
@@ -142,13 +146,13 @@ export function getSizeGroup(size: number | undefined): string {
 
 /**
  * Функция для группировки по количеству экранов (для шаблонов)
- * 
+ *
  * @param screens - Количество экранов
  * @returns Группа экранов
  */
 export function getScreensGroup(screens: number | undefined): string {
   if (!screens || screens <= 0) return "Без экранов"
-  
+
   if (screens === 1) return "1 экран"
   if (screens === 2) return "2 экрана"
   if (screens <= 4) return "3-4 экрана"
@@ -161,9 +165,11 @@ export function getScreensGroup(screens: number | undefined): string {
 
 // Вспомогательные функции для работы с датами
 function isSameDay(date1: Date, date2: Date): boolean {
-  return date1.getFullYear() === date2.getFullYear() &&
-         date1.getMonth() === date2.getMonth() &&
-         date1.getDate() === date2.getDate()
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  )
 }
 
 function isThisWeek(date: Date): boolean {
@@ -171,7 +177,7 @@ function isThisWeek(date: Date): boolean {
   const weekStart = new Date(now)
   weekStart.setDate(now.getDate() - now.getDay())
   weekStart.setHours(0, 0, 0, 0)
-  
+
   return date >= weekStart
 }
 
@@ -180,17 +186,16 @@ function isLastWeek(date: Date): boolean {
   const weekStart = new Date(now)
   weekStart.setDate(now.getDate() - now.getDay() - 7)
   weekStart.setHours(0, 0, 0, 0)
-  
+
   const weekEnd = new Date(weekStart)
   weekEnd.setDate(weekStart.getDate() + 7)
-  
+
   return date >= weekStart && date < weekEnd
 }
 
 function isThisMonth(date: Date): boolean {
   const now = new Date()
-  return date.getFullYear() === now.getFullYear() &&
-         date.getMonth() === now.getMonth()
+  return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()
 }
 
 function isThisYear(date: Date): boolean {

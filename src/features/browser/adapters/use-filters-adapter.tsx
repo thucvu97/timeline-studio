@@ -19,7 +19,7 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
   isSelected,
   isFavorite,
   onToggleFavorite,
-  onAddToTimeline
+  onAddToTimeline,
 }) => {
   const handleClick = () => {
     onClick?.(filter)
@@ -57,30 +57,21 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
         {/* Filter Info */}
         <div className="flex-1 min-w-0">
           <div className="font-medium text-sm truncate">{filter.labels?.ru || filter.name}</div>
-          <div className="text-xs text-muted-foreground truncate">
-            {filter.description?.en || ""}
-          </div>
+          <div className="text-xs text-muted-foreground truncate">{filter.description?.en || ""}</div>
         </div>
 
         {/* Category */}
-        <div className="flex-shrink-0 text-xs text-muted-foreground">
-          {filter.category}
-        </div>
+        <div className="flex-shrink-0 text-xs text-muted-foreground">{filter.category}</div>
 
         {/* Complexity */}
-        <div className="flex-shrink-0 text-xs text-muted-foreground">
-          {filter.complexity}
-        </div>
+        <div className="flex-shrink-0 text-xs text-muted-foreground">{filter.complexity}</div>
       </div>
     )
   }
 
   // Thumbnails mode - use the original FilterPreview component
   return (
-    <div
-      onDragStart={handleDragStart}
-      draggable
-    >
+    <div onDragStart={handleDragStart} draggable>
       <FilterPreview
         filter={filter}
         onClick={handleClick}
@@ -96,22 +87,15 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
  * Функция для получения CSS-фильтра для превью
  */
 function getFilterPreviewStyle(filter: VideoFilter): string {
-  const {
-    brightness,
-    contrast,
-    saturation,
-    hue,
-    temperature,
-    tint
-  } = filter.params
-  
+  const { brightness, contrast, saturation, hue, temperature, tint } = filter.params
+
   const filters = []
 
   if (brightness !== undefined) filters.push(`brightness(${Math.max(0, 1 + brightness)})`)
   if (contrast !== undefined) filters.push(`contrast(${Math.max(0, contrast)})`)
   if (saturation !== undefined) filters.push(`saturate(${Math.max(0, saturation)})`)
   if (hue !== undefined) filters.push(`hue-rotate(${hue}deg)`)
-  
+
   // Простая эмуляция температуры
   if (temperature !== undefined) {
     const tempValue = Math.abs(temperature) * 0.01
@@ -121,7 +105,7 @@ function getFilterPreviewStyle(filter: VideoFilter): string {
       filters.push(`hue-rotate(${temperature * 2}deg)`)
     }
   }
-  
+
   if (tint !== undefined) filters.push(`hue-rotate(${tint}deg)`)
 
   return filters.join(" ")
@@ -133,37 +117,37 @@ function getFilterPreviewStyle(filter: VideoFilter): string {
 export function useFiltersAdapter(): ListAdapter<VideoFilter> {
   const { filters, loading, error } = useFilters()
   const { isItemFavorite } = useFavorites()
-  
+
   return {
     // Хук для получения данных
     useData: () => ({
       items: filters,
       loading,
-      error: error || null
+      error: error || null,
     }),
-    
+
     // Компонент превью
     PreviewComponent: FilterPreviewWrapper,
-    
+
     // Функция для получения значения сортировки
     getSortValue: (filter, sortBy) => {
       switch (sortBy) {
         case "name":
           return filter.name.toLowerCase()
-        
+
         case "category":
           return filter.category.toLowerCase()
-        
+
         case "complexity":
           // Определяем порядок сложности: basic < intermediate < advanced
           const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
           return complexityOrder[filter.complexity || "basic"]
-        
+
         default:
           return filter.name.toLowerCase()
       }
     },
-    
+
     // Функция для получения текста для поиска
     getSearchableText: (filter) => {
       const texts = [
@@ -172,53 +156,53 @@ export function useFiltersAdapter(): ListAdapter<VideoFilter> {
         filter.labels?.en || "",
         filter.description?.en || "",
         filter.category,
-        ...(filter.tags || [])
+        ...(filter.tags || []),
       ]
       return texts.filter(Boolean)
     },
-    
+
     // Функция для получения значения группировки
     getGroupValue: (filter, groupBy) => {
       switch (groupBy) {
         case "category":
           return filter.category || "other"
-        
+
         case "complexity":
           return filter.complexity || "basic"
-        
+
         case "tags":
           // Группируем по первому тегу или "untagged"
           return filter.tags && filter.tags.length > 0 ? filter.tags[0] : "untagged"
-        
+
         default:
           return ""
       }
     },
-    
+
     // Функция для фильтрации по типу
     matchesFilter: (filter, filterType) => {
       if (filterType === "all") return true
-      
+
       // Фильтрация по сложности
       if (["basic", "intermediate", "advanced"].includes(filterType)) {
         return (filter.complexity || "basic") === filterType
       }
-      
+
       // Фильтрация по категории
       if (["color-correction", "creative", "cinematic", "vintage", "technical", "artistic"].includes(filterType)) {
         return filter.category === filterType
       }
-      
+
       return true
     },
-    
+
     // Обработчики импорта не нужны для фильтров (они встроенные)
     importHandlers: undefined,
-    
+
     // Проверка избранного
     isFavorite: (filter) => isItemFavorite(filter, "filter"),
-    
+
     // Тип для системы избранного
-    favoriteType: "filter"
+    favoriteType: "filter",
   }
 }

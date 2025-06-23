@@ -77,7 +77,7 @@ describe("DeepSeekService", () => {
       getApiKey: vi.fn(),
       updateCache: vi.fn(),
     } as any
-    
+
     // Setup default return value
     vi.mocked(mockApiKeyLoader.getApiKey).mockResolvedValue(mockApiKey)
 
