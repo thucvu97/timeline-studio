@@ -46,7 +46,7 @@ AI assistant will create the right number of versions for each platform! 🤖
 - **Professional quality** - using the same tools as major studios
 - **Everything works locally** - your content stays private
 
-![Timeline Interface #1](/public/screen2.png)
+![Timeline Interface #1](/public/screen3.png)
 
 ![Timeline Interface #2](/public/screen4.png)
 
