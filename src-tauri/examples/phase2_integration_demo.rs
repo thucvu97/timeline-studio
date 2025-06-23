@@ -15,8 +15,8 @@ use timeline_studio_lib::core::{
     telemetry::{TelemetryConfigBuilder, LogLevel},
     
     // Performance
-    RuntimeManager, MemoryManager, CacheManager,
-    performance::{RuntimeConfig, CacheConfig},
+    RuntimeManager, MemoryManager, CacheManager, ZeroCopyManager,
+    performance::{RuntimeConfig, CacheConfig, DataType},
 };
 
 use std::sync::Arc;
@@ -28,6 +28,7 @@ struct VideoProcessingService {
     runtime_manager: Arc<RuntimeManager>,
     memory_manager: Arc<MemoryManager>,
     cache_manager: Arc<CacheManager>,
+    zerocopy_manager: Arc<ZeroCopyManager>,
     event_bus: Arc<EventBus>,
     plugin_manager: Arc<PluginManager>,
 }
@@ -57,6 +58,7 @@ impl VideoProcessingService {
         runtime_manager: Arc<RuntimeManager>,
         memory_manager: Arc<MemoryManager>,
         cache_manager: Arc<CacheManager>,
+        zerocopy_manager: Arc<ZeroCopyManager>,
         event_bus: Arc<EventBus>,
         plugin_manager: Arc<PluginManager>,
     ) -> Self {
@@ -64,6 +66,7 @@ impl VideoProcessingService {
             runtime_manager,
             memory_manager,
             cache_manager,
+            zerocopy_manager,
             event_bus,
             plugin_manager,
         }
@@ -90,12 +93,17 @@ impl VideoProcessingService {
         
         log::info!("Video decoded in {:?}", decode_result.duration);
         
-        // Выделяем буфер для обработки кадров
-        let frame_buffer = self.memory_manager.allocate(1920 * 1080 * 4).await?; // 4K кадр
-        log::info!("Allocated frame buffer: {} bytes", frame_buffer.len());
+        // Выделяем zero-copy буферы для обработки кадров
+        let yuv_frame = self.zerocopy_manager.get_frame_buffer(1920, 1080, DataType::Yuv420p).await?;
+        log::info!("Allocated YUV frame buffer: {} bytes", yuv_frame.size());
+        
+        // Создаем RGB буфер без копирования через view
+        let rgb_frame = self.zerocopy_manager.get_frame_buffer(1920, 1080, DataType::Rgb24).await?;
+        let frame_view = self.zerocopy_manager.create_view(&rgb_frame, 0, rgb_frame.size()).await?;
+        log::info!("Created zero-copy frame view: {} bytes", frame_view.size());
         
         // Применяем эффекты через плагины
-        let plugins = self.plugin_manager.list_plugins().await;
+        let plugins = self.plugin_manager.list_loaded_plugins().await;
         for plugin in plugins {
             if plugin.state == timeline_studio_lib::core::plugins::plugin::PluginState::Active {
                 log::info!("Applying effects from plugin: {}", plugin.id);
@@ -194,6 +202,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     let memory_manager = Arc::new(MemoryManager::new());
     let cache_manager = Arc::new(CacheManager::new());
+    let zerocopy_manager = Arc::new(ZeroCopyManager::new());
     
     // 5. Создаем Plugin Manager
     println!("🔌 Creating Plugin Manager...");
@@ -219,6 +228,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         runtime_manager,
         memory_manager,
         cache_manager.clone(),
+        zerocopy_manager.clone(),
         event_bus.clone(),
         plugin_manager,
     );
@@ -277,6 +287,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let metrics_stats = metrics_collector.get_stats().await;
     println!("Metrics collected: {} pools active", metrics_stats.total_allocated());
     
+    // Показываем zero-copy статистику
+    let zerocopy_stats = zerocopy_manager.get_stats().await;
+    println!("Zero-Copy Stats:");
+    println!("  Operations: {}, Bytes saved: {:.2} MB", 
+             zerocopy_stats.zero_copy_operations, 
+             zerocopy_stats.bytes_saved as f64 / 1024.0 / 1024.0);
+    
     // Завершаем работу
     println!("\n🛑 Shutting down gracefully...");
     telemetry_manager.shutdown().await?;
@@ -292,6 +309,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("  ✅ Memory management");
     println!("  ✅ Caching system");
     println!("  ✅ Async runtime tuning");
+    println!("  ✅ Zero-copy operations");
     println!("\n🎉 Phase 2 refactoring architecture is ready for production!");
     
     Ok(())

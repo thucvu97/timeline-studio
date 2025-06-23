@@ -1,7 +1,7 @@
 // Компоненты
 
 export * from "./components/filter-group"
-export * from "./components/filter-list"
+// export * from "./components/filter-list" // Removed - replaced by adapter pattern
 export * from "./components/filter-preview"
 
 // Хуки

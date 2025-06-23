@@ -1,7 +1,7 @@
 // Компоненты
 
 export * from "./components/transition-group"
-export * from "./components/transition-list"
+// export * from "./components/transition-list" // Removed - replaced by adapter pattern
 export * from "./components/transition-preview"
 
 // Хуки

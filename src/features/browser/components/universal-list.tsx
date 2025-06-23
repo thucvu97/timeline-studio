@@ -28,11 +28,11 @@ export function UniversalList<T extends ListItem>({
   const { items, loading, error } = adapter.useData()
   
   // Получаем настройки из состояния браузера
-  const { currentTabSettings, previewSize } = useBrowserState()
-  const { searchQuery, showFavoritesOnly, viewMode, sortBy, filterType, groupBy, sortOrder } = currentTabSettings
+  const { currentTabSettings } = useBrowserState()
+  const { searchQuery, showFavoritesOnly, viewMode, sortBy, filterType, groupBy, sortOrder, previewSizeIndex } = currentTabSettings
   
   // Получаем текущий размер превью
-  const currentPreviewSize = PREVIEW_SIZES[previewSize]
+  const currentPreviewSize = PREVIEW_SIZES[previewSizeIndex]
   
   // Фильтрация и сортировка
   const processedItems = useMemo(() => {

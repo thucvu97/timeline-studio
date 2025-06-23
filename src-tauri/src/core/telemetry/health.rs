@@ -255,10 +255,10 @@ impl HealthCheck for PluginHealthCheck {
     async fn check(&self) -> HealthCheckResult {
         let start = Instant::now();
         
-        let plugins = self.plugin_manager.list_plugins().await;
+        let plugins = self.plugin_manager.list_loaded_plugins().await;
         let total_count = plugins.len();
         let active_count = plugins.iter()
-            .filter(|p| matches!(p.state, crate::core::plugins::plugin::PluginState::Active))
+            .filter(|p| matches!(p.1, crate::core::plugins::plugin::PluginState::Active))
             .count();
         
         let message = format!("Plugins: {}/{} active", active_count, total_count);

@@ -7,10 +7,17 @@ import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useTimelineActions } from "@/features/timeline/hooks"
 
 import { useMediaAdapter } from "../adapters/use-media-adapter"
+import { useMusicAdapter } from "../adapters/use-music-adapter"
+import { useEffectsAdapter } from "../adapters/use-effects-adapter"
+import { useFiltersAdapter } from "../adapters/use-filters-adapter"
+import { useTransitionsAdapter } from "../adapters/use-transitions-adapter"
+import { useSubtitlesAdapter } from "../adapters/use-subtitles-adapter"
+import { useTemplatesAdapter } from "../adapters/use-templates-adapter"
+import { useStyleTemplatesAdapter } from "../adapters/use-style-templates-adapter"
 
 /**
- * Новая версия BrowserContent с использованием UniversalList
- * Пока только для медиа файлов для тестирования
+ * Новая версия BrowserContent с использованием UniversalList и адаптеров
+ * Поддерживает все типы контента через единую архитектуру
  */
 export function BrowserContentNew() {
   const contentClassName = "bg-background m-0 flex-1 overflow-auto"
@@ -31,8 +38,15 @@ export function BrowserContentNew() {
   // Хук для добавления медиафайлов на таймлайн
   const { addMediaToTimeline } = useTimelineActions()
   
-  // Получаем адаптер для медиа
+  // Получаем все адаптеры
   const mediaAdapter = useMediaAdapter()
+  const musicAdapter = useMusicAdapter()
+  const effectsAdapter = useEffectsAdapter()
+  const filtersAdapter = useFiltersAdapter()
+  const transitionsAdapter = useTransitionsAdapter()
+  const subtitlesAdapter = useSubtitlesAdapter()
+  const templatesAdapter = useTemplatesAdapter()
+  const styleTemplatesAdapter = useStyleTemplatesAdapter()
   
   // Извлекаем настройки для текущей вкладки
   const { searchQuery, showFavoritesOnly, viewMode, sortBy, filterType, groupBy, sortOrder, previewSizeIndex } =
@@ -87,7 +101,106 @@ export function BrowserContentNew() {
   const canZoomOut = previewSizeIndex > 0
   
   // Получаем адаптер для текущей вкладки
-  const adapter = activeTab === "media" ? mediaAdapter : undefined
+  const getAdapterForTab = () => {
+    switch (activeTab) {
+      case "media":
+        return mediaAdapter
+      case "music":
+        return musicAdapter
+      case "effects":
+        return effectsAdapter
+      case "filters":
+        return filtersAdapter
+      case "transitions":
+        return transitionsAdapter
+      case "subtitles":
+        return subtitlesAdapter
+      case "templates":
+        return templatesAdapter
+      case "style-templates":
+        return styleTemplatesAdapter
+      default:
+        return undefined
+    }
+  }
+  
+  const adapter = getAdapterForTab()
+  
+  // Обработчики взаимодействия для разных типов контента
+  const handleItemSelect = (item: any) => {
+    switch (activeTab) {
+      case "media":
+        addMediaToTimeline(item)
+        break
+      case "music":
+        // Музыка добавляется через AddMediaButton в адаптере
+        console.log("Музыкальный файл выбран:", item.name)
+        break
+      case "effects":
+        // Эффекты применяются через кнопки в превью
+        console.log("Эффект выбран:", item.name)
+        break
+      case "filters":
+        // Фильтры применяются через кнопки в превью
+        console.log("Фильтр выбран:", item.name)
+        break
+      case "transitions":
+        // Переходы применяются через кнопки в превью
+        console.log("Переход выбран:", item.name || item.labels?.ru)
+        break
+      case "subtitles":
+        // Стили субтитров применяются через кнопки в превью
+        console.log("Стиль субтитров выбран:", item.name || item.labels?.ru)
+        break
+      case "templates":
+        // Шаблоны применяются к проекту
+        console.log("Шаблон выбран:", item.id)
+        break
+      case "style-templates":
+        // Стилистические шаблоны добавляются в проект
+        console.log("Стилистический шаблон выбран:", item.name?.ru || item.name?.en)
+        break
+      default:
+        console.log("Неизвестный тип контента:", activeTab)
+    }
+  }
+  
+  const handleItemDragStart = (item: any, event: React.DragEvent) => {
+    // Устанавливаем данные для drag-and-drop в зависимости от типа
+    const dragData = {
+      type: activeTab,
+      item: item
+    }
+    
+    switch (activeTab) {
+      case "media":
+        event.dataTransfer.setData("mediaFile", JSON.stringify(item))
+        break
+      case "music":
+        event.dataTransfer.setData("musicFile", JSON.stringify(item))
+        break
+      case "effects":
+        event.dataTransfer.setData("effect", JSON.stringify(item))
+        break
+      case "filters":
+        event.dataTransfer.setData("filter", JSON.stringify(item))
+        break
+      case "transitions":
+        event.dataTransfer.setData("transition", JSON.stringify(item))
+        break
+      case "subtitles":
+        event.dataTransfer.setData("subtitleStyle", JSON.stringify(item))
+        break
+      case "templates":
+        event.dataTransfer.setData("template", JSON.stringify(item))
+        break
+      case "style-templates":
+        event.dataTransfer.setData("styleTemplate", JSON.stringify(item))
+        break
+      default:
+        event.dataTransfer.setData("browserItem", JSON.stringify(dragData))
+    }
+  }
   
   return (
     <>
@@ -108,7 +221,7 @@ export function BrowserContentNew() {
         filterOptions={toolbarConfig.filterOptions}
         availableViewModes={toolbarConfig.viewModes}
         // Настройки отображения
-        showImport={true}
+        showImport={!!adapter?.importHandlers} // Показываем импорт только если есть обработчики
         showGroupBy={toolbarConfig.showGroupBy}
         showZoom={toolbarConfig.showZoom}
         // Колбэки
@@ -130,23 +243,21 @@ export function BrowserContentNew() {
         canZoomOut={canZoomOut}
       />
       
-      {/* Контент с использованием UniversalList для медиа */}
-      {activeTab === "media" && adapter ? (
-        <TabsContent value="media" className={contentClassName}>
+      {/* Контент с использованием UniversalList для всех типов */}
+      {adapter ? (
+        <TabsContent value={activeTab} className={contentClassName}>
           <UniversalList
             adapter={adapter}
-            onItemSelect={(item) => addMediaToTimeline(item)}
-            onItemDragStart={(item, event) => {
-              event.dataTransfer.setData("mediaFile", JSON.stringify(item))
-            }}
+            onItemSelect={handleItemSelect}
+            onItemDragStart={handleItemDragStart}
           />
         </TabsContent>
       ) : (
-        // Временно показываем заглушку для остальных вкладок
+        // Показываем сообщение если адаптер не найден
         <TabsContent value={activeTab} className={contentClassName}>
           <div className="flex h-full items-center justify-center">
             <div className="text-muted-foreground">
-              {activeTab} - адаптер в разработке
+              Адаптер для "{activeTab}" не найден
             </div>
           </div>
         </TabsContent>

@@ -20,8 +20,8 @@ vi.mock("../../components/browser-tabs", () => ({
   ),
 }))
 
-vi.mock("../../components/browser-content", () => ({
-  BrowserContent: () => <div data-testid="browser-content">Browser Content</div>,
+vi.mock("../../components/browser-content-new", () => ({
+  BrowserContentNew: () => <div data-testid="browser-content">Browser Content</div>,
 }))
 
 vi.mock("@/components/ui/tabs", () => ({
@@ -38,6 +38,7 @@ vi.mock("@/features/app-state", () => ({
     getUserSettings: vi.fn(() => ({})),
     updateUserSettings: vi.fn(),
   }),
+  AppSettingsProvider: ({ children }: { children: any }) => children,
 }))
 
 describe("Browser", () => {

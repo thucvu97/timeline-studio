@@ -3,7 +3,7 @@
 export * from "./components/subtitle-group"
 
 // Компоненты
-export * from "./components/subtitle-list"
+// export * from "./components/subtitle-list" // Removed - replaced by adapter pattern
 export * from "./components/subtitle-preview"
 // Хуки
 export * from "./hooks/use-subtitle-styles"
