@@ -109,7 +109,7 @@ impl ResultAggregator {
       for detection in &frame_result.detections {
         stats_map
           .entry(detection.class.clone())
-          .or_insert_with(Vec::new)
+          .or_default()
           .push((frame_result.frame_number, detection.confidence));
       }
     }
@@ -352,7 +352,7 @@ impl Default for ResultAggregator {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::recognition::types::BoundingBox;
+  use crate::recognition::frame_processor::BoundingBox;
 
   #[test]
   fn test_result_aggregation() {

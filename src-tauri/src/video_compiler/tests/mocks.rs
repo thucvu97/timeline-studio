@@ -106,6 +106,7 @@ pub async fn create_mock_state() -> crate::video_compiler::commands::state::Vide
   crate::video_compiler::commands::state::VideoCompilerState {
     services: Arc::new(services),
     active_jobs,
+    active_pipelines: Arc::new(RwLock::new(HashMap::new())),
     cache_manager,
     ffmpeg_path,
     settings,

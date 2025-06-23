@@ -102,7 +102,7 @@ impl CompositionStage {
     // Получаем исходный обработанный файл
     let source_key = if matches!(
       clip.source,
-      crate::video_compiler::schema::ClipSource::Generated { .. }
+      crate::video_compiler::schema::ClipSource::Generated
     ) {
       format!("generated_track_{}_clip_{}", track_idx, clip_idx)
     } else {

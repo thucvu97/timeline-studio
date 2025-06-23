@@ -23,6 +23,8 @@ pub mod info;
 pub mod metrics;
 pub mod misc;
 pub mod multimodal_commands;
+pub mod pipeline_commands;
+pub mod platform_optimization_commands;
 pub mod prerender_commands;
 pub mod preview;
 pub mod project;
@@ -35,6 +37,7 @@ pub mod test_helper_commands;
 pub mod tests_helpers;
 pub mod video_analysis;
 pub mod whisper_commands;
+pub mod workflow_commands;
 
 // Re-export всех команд для удобства использования
 pub use advanced_metrics::*;
@@ -47,6 +50,8 @@ pub use gpu::*;
 pub use info::*;
 pub use misc::*;
 pub use multimodal_commands::*;
+pub use pipeline_commands::*;
+pub use platform_optimization_commands::*;
 pub use prerender_commands::*;
 pub use preview::*;
 pub use project::*;
@@ -57,6 +62,7 @@ pub use test_helper_commands::*;
 // Video analysis commands
 pub use video_analysis::*;
 pub use whisper_commands::*;
+pub use workflow_commands::*;
 
 // Re-export основных типов
 pub use state::VideoCompilerState;

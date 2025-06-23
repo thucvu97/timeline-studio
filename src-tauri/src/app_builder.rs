@@ -138,6 +138,19 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::create_frame_collage,
     crate::video_compiler::commands::optimize_image_for_analysis,
     crate::video_compiler::commands::cleanup_extracted_frames,
+    // Platform optimization commands
+    crate::video_compiler::commands::ffmpeg_optimize_for_platform,
+    crate::video_compiler::commands::ffmpeg_generate_platform_thumbnail,
+    crate::video_compiler::commands::ffmpeg_batch_optimize_platforms,
+    crate::video_compiler::commands::ffmpeg_analyze_platform_compliance,
+    crate::video_compiler::commands::ffmpeg_create_progressive_video,
+    // Workflow automation commands
+    crate::video_compiler::commands::create_directory,
+    crate::video_compiler::commands::create_timeline_project,
+    crate::video_compiler::commands::compile_workflow_video,
+    crate::video_compiler::commands::analyze_workflow_video_quality,
+    crate::video_compiler::commands::create_workflow_preview,
+    crate::video_compiler::commands::cleanup_workflow_temp_files,
     // Misc commands
     crate::greet,
     crate::scan_media_folder,

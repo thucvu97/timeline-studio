@@ -160,8 +160,9 @@ impl YoloProcessor {
   pub fn update_config(&mut self, config: ProcessorConfig) {
     self.config = config;
     // Обновляем конфигурацию в frame_processor
-    Arc::get_mut(&mut self.frame_processor)
-      .map(|fp| fp.update_config(self.config.processing_config.clone()));
+    if let Some(fp) = Arc::get_mut(&mut self.frame_processor) {
+      fp.update_config(self.config.processing_config.clone())
+    }
   }
 
   /// Получить текущую конфигурацию

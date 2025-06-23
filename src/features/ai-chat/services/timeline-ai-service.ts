@@ -13,12 +13,14 @@ import { CLAUDE_MODELS, ClaudeService, ClaudeTool } from "./claude-service"
 import { batchProcessingTools, executeBatchProcessingTool } from "../tools/batch-processing-tools"
 import { browserTools } from "../tools/browser-tools"
 import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools/multimodal-analysis-tools"
+import { executePlatformOptimizationTool, platformOptimizationTools } from "../tools/platform-optimization-tools"
 import { playerTools } from "../tools/player-tools"
 import { resourceTools } from "../tools/resource-tools"
 import { executeSubtitleTool , subtitleTools } from "../tools/subtitle-tools"
 import { timelineTools } from "../tools/timeline-tools"
 import { executeVideoAnalysisTool , videoAnalysisTools } from "../tools/video-analysis-tools"
 import { executeWhisperTool, whisperTools } from "../tools/whisper-tools"
+import { executeWorkflowAutomationTool, workflowAutomationTools } from "../tools/workflow-automation-tools"
 import {
   AIToolResult,
   BrowserContext,
@@ -75,6 +77,8 @@ export class TimelineAIService {
       ...whisperTools,
       ...batchProcessingTools,
       ...multimodalAnalysisTools,
+      ...platformOptimizationTools,
+      ...workflowAutomationTools,
     ]
   }
 
@@ -432,6 +436,19 @@ export class TimelineAIService {
                  'analyze_video_aesthetics', 'batch_analyze_multimodal', 'generate_video_descriptions',
                  'moderate_video_content'].includes(name)) {
         result = await executeMultimodalAnalysisTool(name, input)
+      }
+      else if (name.startsWith('platform_') || 
+               ['get_platform_specs', 'get_all_platforms', 'get_recommended_platforms',
+                 'analyze_video_for_platforms', 'optimize_for_platform', 'batch_optimize_for_platforms',
+                 'generate_platform_thumbnail', 'check_platform_compliance', 'get_optimization_stats',
+                 'generate_platform_metadata'].includes(name)) {
+        result = await executePlatformOptimizationTool(name, input)
+      }
+      else if (name.startsWith('workflow_') || name.includes('workflow') ||
+               ['get_available_workflows', 'execute_workflow', 'get_workflow_status',
+                 'cancel_workflow', 'create_custom_workflow', 'analyze_video_for_workflow',
+                 'get_workflow_suggestions', 'export_workflow_results', 'create_workflow_template'].includes(name)) {
+        result = await executeWorkflowAutomationTool(name, input)
       }
       else {
         // Пока заглушка для остальных инструментов (browser, player, timeline, resource)

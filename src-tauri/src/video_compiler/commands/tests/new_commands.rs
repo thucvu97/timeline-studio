@@ -79,8 +79,8 @@ async fn test_test_error_types() {
 async fn test_create_schema_objects() {
   // Test creating resolution
   let params = std::collections::HashMap::from([
-      ("width".to_string(), serde_json::json!(3840)),
-      ("height".to_string(), serde_json::json!(2160))
+    ("width".to_string(), serde_json::json!(3840)),
+    ("height".to_string(), serde_json::json!(2160)),
   ]);
   let result = create_schema_objects("resolution".to_string(), 1, params).await;
   assert!(result.is_ok());
@@ -92,16 +92,16 @@ async fn test_create_schema_objects() {
 
   // Test creating effect
   let params = std::collections::HashMap::from([
-      ("name".to_string(), serde_json::json!("Test Effect")),
-      ("effect_type".to_string(), serde_json::json!("blur"))
+    ("name".to_string(), serde_json::json!("Test Effect")),
+    ("effect_type".to_string(), serde_json::json!("blur")),
   ]);
   let result = create_schema_objects("effect".to_string(), 1, params).await;
   assert!(result.is_ok());
 
   // Test creating filter
   let params = std::collections::HashMap::from([
-      ("name".to_string(), serde_json::json!("Test Filter")),
-      ("filter_type".to_string(), serde_json::json!("brightness"))
+    ("name".to_string(), serde_json::json!("Test Filter")),
+    ("filter_type".to_string(), serde_json::json!("brightness")),
   ]);
   let result = create_schema_objects("filter".to_string(), 1, params).await;
   assert!(result.is_ok());

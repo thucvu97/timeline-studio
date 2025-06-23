@@ -389,7 +389,7 @@ impl Default for PipelineBuilder {
 }
 
 /// Резюме выполнения конвейера
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ExecutionSummary {
   pub project_name: String,
   pub total_stages: usize,
@@ -432,7 +432,8 @@ mod tests {
   async fn test_pipeline_builder() {
     let project = create_test_project();
     let output_path = std::env::temp_dir().join("test_output.mp4");
-    let progress_tracker = Arc::new(ProgressTracker::new());
+    let (progress_sender, _progress_receiver) = tokio::sync::mpsc::unbounded_channel();
+    let progress_tracker = Arc::new(ProgressTracker::new(progress_sender));
     let settings = Arc::new(RwLock::new(CompilerSettings::default()));
 
     let pipeline = PipelineBuilder::new()
@@ -450,7 +451,8 @@ mod tests {
   async fn test_pipeline_stage_management() {
     let project = create_test_project();
     let output_path = std::env::temp_dir().join("test_output.mp4");
-    let progress_tracker = Arc::new(ProgressTracker::new());
+    let (progress_sender, _progress_receiver) = tokio::sync::mpsc::unbounded_channel();
+    let progress_tracker = Arc::new(ProgressTracker::new(progress_sender));
     let settings = Arc::new(RwLock::new(CompilerSettings::default()));
 
     let mut pipeline = RenderPipeline::new(project, progress_tracker, settings, output_path)
@@ -477,7 +479,10 @@ mod tests {
     let pipeline = RenderPipeline {
       project,
       stages: vec![],
-      progress_tracker: Arc::new(ProgressTracker::new()),
+      progress_tracker: {
+        let (progress_sender, _) = tokio::sync::mpsc::unbounded_channel();
+        Arc::new(ProgressTracker::new(progress_sender))
+      },
       settings: Arc::new(RwLock::new(CompilerSettings::default())),
       context,
       statistics: PipelineStatistics::default(),

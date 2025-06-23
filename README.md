@@ -52,10 +52,10 @@ AI assistant will create the right number of versions for each platform! 🤖
 
 ### Project Status (23 June 2025)
 
-**Overall Completion: 67%** ⬆️ (updated with Style Templates and Templates completion)
-- **Completed**: 17 modules (100% readiness)
-- **In development**: 5 modules (75-80% readiness)
-- **Planned**: 4 modules (30-80% readiness)
+**Overall Completion: 70.5%** ⬆️ (updated with AI Models Integration and Workflow Automation completion)
+- **Completed**: 19 modules (100% readiness) - including full AI platform!
+- **In development**: 3 modules (75-80% readiness)
+- **Planned**: 3 modules (35-80% readiness)
 - **New planned**: 14 modules (0% readiness) - [details in planned/](docs-ru/08-roadmap/planned/)
 
 ## Key Features
@@ -65,7 +65,7 @@ AI assistant will create the right number of versions for each platform! 🤖
 - 🚀 GPU-accelerated video processing (NVENC, QuickSync, VideoToolbox)
 - 🤖 AI-powered object/face recognition (YOLO v11)
 - 🎨 30+ transitions, visual effects, and filters
-- 📝 Advanced subtitle system with 12 styles and animations
+- 📝 Advanced subtitle system with 72 styles and animations
 - 🎵 Multi-track audio editing with effects
 - 📤 Export to MP4/MOV/WebM with social media OAuth integration
 - 🔐 YouTube/TikTok/Vimeo/Telegram OAuth support with secure token storage
@@ -74,6 +74,10 @@ AI assistant will create the right number of versions for each platform! 🤖
 - 💾 Smart caching and unified preview system
 - 🎨 Modern UI using Tailwind CSS v4, shadcn-ui
 - 📚 Complete documentation with more than 5,000 tests and over 80% code coverage
+- 🧠 **NEW: Full AI Platform** - 82 Claude AI tools for video automation
+- 🎤 **NEW: Whisper transcription** - Speech-to-text with OpenAI/local models
+- 📱 **NEW: Platform optimization** - Auto-adapt for 10+ social platforms
+- 🤖 **NEW: Workflow automation** - 10 pre-built processes for quick editing
 
 ## Getting Started
 

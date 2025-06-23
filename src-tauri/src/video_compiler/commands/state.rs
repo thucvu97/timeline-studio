@@ -37,6 +37,16 @@ pub struct VideoCompilerState {
   /// Активные задачи рендеринга (для обратной совместимости)
   pub active_jobs: Arc<RwLock<HashMap<String, ActiveRenderJob>>>,
 
+  /// Активные конвейеры рендеринга (новая архитектура)
+  pub active_pipelines: Arc<
+    RwLock<
+      HashMap<
+        String,
+        Arc<RwLock<crate::video_compiler::core::pipeline_refactored::RenderPipeline>>,
+      >,
+    >,
+  >,
+
   /// Менеджер кэша (для обратной совместимости)
   pub cache_manager: Arc<RwLock<RenderCache>>,
 
@@ -109,6 +119,7 @@ impl VideoCompilerState {
             },
           }),
           active_jobs: Arc::new(RwLock::new(HashMap::new())),
+          active_pipelines: Arc::new(RwLock::new(HashMap::new())),
           cache_manager,
           ffmpeg_path: Arc::new(RwLock::new("ffmpeg".to_string())),
           settings,
@@ -126,6 +137,7 @@ impl VideoCompilerState {
     Self {
       services,
       active_jobs: Arc::new(RwLock::new(HashMap::new())),
+      active_pipelines: Arc::new(RwLock::new(HashMap::new())),
       cache_manager,
       ffmpeg_path: Arc::new(RwLock::new("ffmpeg".to_string())),
       settings,
@@ -193,6 +205,7 @@ impl Default for VideoCompilerState {
     Self {
       services: Arc::new(services),
       active_jobs: Arc::new(RwLock::new(HashMap::new())),
+      active_pipelines: Arc::new(RwLock::new(HashMap::new())),
       cache_manager,
       ffmpeg_path: Arc::new(RwLock::new("ffmpeg".to_string())),
       settings,

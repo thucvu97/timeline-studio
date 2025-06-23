@@ -48,7 +48,7 @@ impl PreprocessingStage {
               processed_path,
             );
           }
-          ClipSource::Generated { .. } => {
+          ClipSource::Generated => {
             // Генерируем медиафайл
             let generated_path = self
               .generate_media_file(
@@ -182,7 +182,7 @@ impl PreprocessingStage {
       .arg("-i")
       .arg(input_path)
       .arg("-vcodec")
-      .arg(&"libx264")
+      .arg("libx264")
       .arg("-s")
       .arg(format!(
         "{}x{}",
@@ -194,7 +194,7 @@ impl PreprocessingStage {
       .arg(format!("{}k", export_settings.export.video_bitrate / 1000))
       .arg("-preset")
       .arg(
-        &export_settings
+        export_settings
           .export
           .preset
           .as_ref()
@@ -273,7 +273,7 @@ impl PreprocessingStage {
         export_settings.frame_rate
       ))
       .arg("-c:v")
-      .arg(&"libx264")
+      .arg("libx264")
       .arg("-y")
       .arg(output_path);
 
@@ -312,7 +312,7 @@ impl PreprocessingStage {
         export_settings.frame_rate
       ))
       .arg("-c:v")
-      .arg(&"libx264")
+      .arg("libx264")
       .arg("-y")
       .arg(output_path);
 
@@ -354,7 +354,7 @@ impl PreprocessingStage {
         start_color
       ))
       .arg("-c:v")
-      .arg(&"libx264")
+      .arg("libx264")
       .arg("-y")
       .arg(output_path);
 

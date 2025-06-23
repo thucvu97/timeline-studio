@@ -70,6 +70,69 @@ vi.mock("../../tools/timeline-tools", () => ({
   ],
 }))
 
+vi.mock("../../tools/subtitle-tools", () => ({
+  subtitleTools: Array.from({ length: 12 }, (_, i) => ({
+    name: `subtitle_tool_${i + 1}`,
+    description: "Subtitle tool",
+    input_schema: { type: "object", properties: {} },
+  })),
+  executeSubtitleTool: vi.fn(),
+}))
+
+vi.mock("../../tools/video-analysis-tools", () => ({
+  videoAnalysisTools: Array.from({ length: 15 }, (_, i) => ({
+    name: `video_analysis_tool_${i + 1}`,
+    description: "Video analysis tool",
+    input_schema: { type: "object", properties: {} },
+  })),
+  executeVideoAnalysisTool: vi.fn(),
+}))
+
+vi.mock("../../tools/whisper-tools", () => ({
+  whisperTools: Array.from({ length: 10 }, (_, i) => ({
+    name: `whisper_tool_${i + 1}`,
+    description: "Whisper tool",
+    input_schema: { type: "object", properties: {} },
+  })),
+  executeWhisperTool: vi.fn(),
+}))
+
+vi.mock("../../tools/batch-processing-tools", () => ({
+  batchProcessingTools: Array.from({ length: 12 }, (_, i) => ({
+    name: `batch_tool_${i + 1}`,
+    description: "Batch processing tool",
+    input_schema: { type: "object", properties: {} },
+  })),
+  executeBatchProcessingTool: vi.fn(),
+}))
+
+vi.mock("../../tools/multimodal-analysis-tools", () => ({
+  multimodalAnalysisTools: Array.from({ length: 10 }, (_, i) => ({
+    name: `multimodal_tool_${i + 1}`,
+    description: "Multimodal analysis tool",
+    input_schema: { type: "object", properties: {} },
+  })),
+  executeMultimodalAnalysisTool: vi.fn(),
+}))
+
+vi.mock("../../tools/platform-optimization-tools", () => ({
+  platformOptimizationTools: Array.from({ length: 10 }, (_, i) => ({
+    name: `platform_tool_${i + 1}`,
+    description: "Platform optimization tool",
+    input_schema: { type: "object", properties: {} },
+  })),
+  executePlatformOptimizationTool: vi.fn(),
+}))
+
+vi.mock("../../tools/workflow-automation-tools", () => ({
+  workflowAutomationTools: Array.from({ length: 9 }, (_, i) => ({
+    name: `workflow_tool_${i + 1}`,
+    description: "Workflow automation tool",
+    input_schema: { type: "object", properties: {} },
+  })),
+  executeWorkflowAutomationTool: vi.fn(),
+}))
+
 describe("TimelineAIService", () => {
   let service: TimelineAIService
   let mockClaudeService: any
@@ -241,7 +304,7 @@ describe("TimelineAIService", () => {
 
     it("should combine all tool types", () => {
       // The service should have combined all tools including new ones
-      expect(service.allTools).toHaveLength(63) // all tool categories combined
+      expect(service.allTools).toHaveLength(82) // 1+1+1+1+12+15+10+12+10+10+9 = 82 tools
       expect(service.allTools.map((t) => t.name)).toContain("browser_tool")
       expect(service.allTools.map((t) => t.name)).toContain("player_tool")
       expect(service.allTools.map((t) => t.name)).toContain("resource_tool")

@@ -356,8 +356,8 @@ export class BatchProcessingService {
           responseFormat: "verbose_json",
           temperature: 0,
           timestampGranularities: ["segment"]
-        }) as { language?: string }
-        return { language: result.language || "unknown", confidence: 0.9 }
+        })
+        return { language: (result as any)?.language || "unknown", confidence: 0.9 }
 
       case "comprehensive_analysis":
         // Комплексный анализ - запускаем несколько операций параллельно

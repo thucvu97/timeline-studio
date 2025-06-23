@@ -82,8 +82,8 @@ impl MediaAnalyzer {
       .find(|s| s.codec_type == "video")
     {
       resolution = Some((
-        video_stream.width.unwrap_or(0) as u32,
-        video_stream.height.unwrap_or(0) as u32,
+        video_stream.width.unwrap_or(0),
+        video_stream.height.unwrap_or(0),
       ));
 
       if let Some(fps_str) = &video_stream.r_frame_rate {
@@ -167,7 +167,7 @@ impl MediaAnalyzer {
         .iter()
         .find(|s| s.codec_type == "audio");
 
-      let channels = audio_stream.and_then(|s| s.channels).unwrap_or(2) as u8;
+      let channels = audio_stream.and_then(|s| s.channels).unwrap_or(2);
 
       let sample_rate = audio_stream
         .and_then(|s| s.sample_rate.as_ref())
