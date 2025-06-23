@@ -1,17 +1,17 @@
-# Codecov Setup Guide
+# Настройка Codecov
 
-## Overview
+## Обзор
 
-This project uses Codecov for code coverage reporting with the following setup:
-- **Frontend**: JavaScript/TypeScript coverage using Vitest
-- **Backend**: Rust coverage using cargo-llvm-cov
-- **Integration**: Codecov Vite plugin for bundle analysis
+Этот проект использует Codecov для отчетности покрытия кода со следующей настройкой:
+- **Frontend**: Покрытие JavaScript/TypeScript с использованием Vitest
+- **Backend**: Покрытие Rust с использованием cargo-llvm-cov  
+- **Интеграция**: Codecov Vite плагин для анализа бандлов
 
-## Configuration
+## Конфигурация
 
-### 1. Vite Plugin Configuration
+### 1. Конфигурация Vite Plugin
 
-The Codecov Vite plugin is configured in `vitest.config.ts`:
+Плагин Codecov Vite настроен в `vitest.config.ts`:
 
 ```typescript
 import { codecovVitePlugin } from "@codecov/vite-plugin"
@@ -29,9 +29,9 @@ export default defineConfig({
 })
 ```
 
-### 2. Coverage Settings
+### 2. Настройки покрытия
 
-Coverage is configured in `vitest.config.ts`:
+Покрытие настроено в `vitest.config.ts`:
 
 ```typescript
 coverage: {
@@ -54,14 +54,14 @@ coverage: {
 }
 ```
 
-## Running Coverage Locally
+## Запуск покрытия локально
 
-### Frontend Coverage
+### Покрытие Frontend
 ```bash
-# Run tests with coverage
+# Запуск тестов с покрытием
 npm run test:coverage
 
-# Generate and upload coverage report
+# Генерация и загрузка отчета покрытия
 npm run test:coverage:report
 ```
 
