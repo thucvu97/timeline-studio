@@ -31,7 +31,22 @@ vi.mock("../../components/media-content", () => ({
 
 // Мокаем useAppSettings
 vi.mock("@/features/app-state", () => ({
-  useAppSettings: vi.fn(),
+  useAppSettings: vi.fn(() => ({
+    getUserSettings: vi.fn().mockReturnValue({
+      browserSettings: null,
+      theme: "light",
+      language: "en",
+    }),
+    updateUserSettings: vi.fn(),
+  })),
+  useCurrentProject: () => ({
+    currentProject: {
+      name: "Test Project",
+      path: "/test/project.tlsp",
+      timeline: { tracks: [], duration: 0 },
+    },
+    setProjectDirty: vi.fn(),
+  }),
   useFavorites: vi.fn(),
   AppSettingsProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))

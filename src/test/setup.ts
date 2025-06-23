@@ -32,6 +32,47 @@ vi.mock("@/features/modals", () => ({
   ModalProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
+vi.mock("@/features/app-state", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/app-state")>()
+  return {
+    ...actual,
+    useCurrentProject: () => ({
+      currentProject: {
+        name: "Test Project",
+        path: "/test/project.tlsp",
+        timeline: { tracks: [], duration: 0 },
+      },
+      createNewProject: vi.fn(),
+      createTempProject: vi.fn(),
+      loadOrCreateTempProject: vi.fn(),
+      openProject: vi.fn(),
+      saveProject: vi.fn(),
+      setProjectDirty: vi.fn(),
+      isTempProject: false,
+    }),
+    useAppSettings: () => ({
+      getCurrentProject: vi.fn().mockReturnValue({
+        name: "Test Project",
+        path: "/test/project.tlsp",
+        timeline: { tracks: [], duration: 0 },
+      }),
+      getUserSettings: vi.fn().mockReturnValue({
+        browserSettings: null,
+        theme: "light",
+        language: "en",
+      }),
+      updateUserSettings: vi.fn(),
+      createNewProject: vi.fn(),
+      createTempProject: vi.fn(),
+      loadOrCreateTempProject: vi.fn(),
+      openProject: vi.fn(),
+      saveProject: vi.fn(),
+      setProjectDirty: vi.fn(),
+      isTempProject: false,
+    }),
+  }
+})
+
 vi.mock("@/features/app-state/services", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/features/app-state/services")>()
   return {

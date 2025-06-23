@@ -61,6 +61,22 @@ vi.mock("../../hooks", () => ({
 
 vi.mock("@/features/app-state", () => ({
   useFavorites: () => mockUseFavorites(),
+  useCurrentProject: () => ({
+    currentProject: {
+      name: "Test Project",
+      path: "/test/project.tlsp",
+      timeline: { tracks: [], duration: 0 },
+    },
+    setProjectDirty: vi.fn(),
+  }),
+  useAppSettings: () => ({
+    getUserSettings: vi.fn().mockReturnValue({
+      browserSettings: null,
+      theme: "light",
+      language: "en",
+    }),
+    updateUserSettings: vi.fn(),
+  }),
   AppSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 

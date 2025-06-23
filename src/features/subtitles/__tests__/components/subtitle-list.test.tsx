@@ -59,9 +59,21 @@ vi.mock("@/features/app-state", () => ({
       subtitle: [],
     },
   })),
+  useCurrentProject: () => ({
+    currentProject: {
+      name: "Test Project",
+      path: "/test/project.tlsp",
+      timeline: { tracks: [], duration: 0 },
+    },
+    setProjectDirty: vi.fn(),
+  }),
   AppSettingsProvider: ({ children }: any) => children,
   useAppSettings: vi.fn(() => ({
-    getUserSettings: vi.fn(),
+    getUserSettings: vi.fn().mockReturnValue({
+      browserSettings: null,
+      theme: "light",
+      language: "en",
+    }),
     updateUserSettings: vi.fn(),
   })),
 }))

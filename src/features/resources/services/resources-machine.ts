@@ -65,6 +65,35 @@ type ResourcesMachineEvent =
  * - Шаблоны
  * - Музыкальные файлы
  */
+// Функция для загрузки ресурсов из localStorage
+function loadResourcesFromStorage(): Partial<ResourcesMachineContext> {
+  // Check if we're on the client side
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return {}
+  }
+  
+  try {
+    const stored = localStorage.getItem("timeline-studio-resources")
+    if (stored) {
+      const data = JSON.parse(stored)
+      return {
+        resources: data.resources || [],
+        mediaResources: data.mediaResources || [],
+        musicResources: data.musicResources || [],
+        subtitleResources: data.subtitleResources || [],
+        effectResources: data.effectResources || [],
+        filterResources: data.filterResources || [],
+        transitionResources: data.transitionResources || [],
+        templateResources: data.templateResources || [],
+        styleTemplateResources: data.styleTemplateResources || [],
+      }
+    }
+  } catch (error) {
+    console.warn("Failed to load resources from localStorage:", error)
+  }
+  return {}
+}
+
 export const resourcesMachine = setup({
   types: {
     context: {} as ResourcesMachineContext,
@@ -564,6 +593,7 @@ export const resourcesMachine = setup({
     styleTemplateResources: [],
     musicResources: [],
     subtitleResources: [],
+    ...loadResourcesFromStorage(),
   },
   states: {
     active: {

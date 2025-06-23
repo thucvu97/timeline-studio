@@ -12,7 +12,7 @@
       "duration": 3,
       "hasText": true,
       "hasAnimation": true,
-      "thumbnail": "/images/style-templates/modern-intro-1.jpg",
+      "thumbnail": "/images/style-templates/modern-intro-1.svg",
       "previewVideo": "/videos/style-templates/modern-intro-1.mp4",
       "tags": {
         "ru": ["интро", "современный", "текст", "анимация"],
@@ -91,7 +91,7 @@
       "duration": 4,
       "hasText": true,
       "hasAnimation": true,
-      "thumbnail": "/images/style-templates/minimal-outro-1.jpg",
+      "thumbnail": "/images/style-templates/minimal-outro-1.svg",
       "previewVideo": "/videos/style-templates/minimal-outro-1.mp4",
       "tags": {
         "ru": ["концовка", "минимализм", "чистый", "простой"],
@@ -167,7 +167,7 @@
       "duration": 5,
       "hasText": true,
       "hasAnimation": true,
-      "thumbnail": "/images/style-templates/corporate-lower-third-1.jpg",
+      "thumbnail": "/images/style-templates/corporate-lower-third-1.svg",
       "previewVideo": "/videos/style-templates/corporate-lower-third-1.mp4",
       "tags": {
         "ru": ["нижняя треть", "корпоративный", "профессиональный"],
@@ -259,12 +259,12 @@
         "en": "Bold Title"
       },
       "category": "title",
-      "style": "creative",
+      "style": "bold",
       "aspectRatio": "16:9",
       "duration": 2.5,
       "hasText": true,
       "hasAnimation": true,
-      "thumbnail": "/images/style-templates/bold-title-1.jpg",
+      "thumbnail": "/images/style-templates/bold-title-1.svg",
       "previewVideo": "/videos/style-templates/bold-title-1.mp4",
       "tags": {
         "ru": ["заголовок", "яркий", "креативный"],
@@ -309,12 +309,12 @@
         "en": "Classic Overlay"
       },
       "category": "overlay",
-      "style": "vintage",
+      "style": "classic",
       "aspectRatio": "16:9",
       "duration": 6,
       "hasText": false,
       "hasAnimation": true,
-      "thumbnail": "/images/style-templates/classic-overlay-1.jpg",
+      "thumbnail": "/images/style-templates/classic-overlay-1.svg",
       "previewVideo": "/videos/style-templates/classic-overlay-1.mp4",
       "tags": {
         "ru": ["наложение", "классический", "винтаж"],

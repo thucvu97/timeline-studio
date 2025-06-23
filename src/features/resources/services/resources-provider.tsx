@@ -2,6 +2,7 @@ import React, { ReactNode, createContext, useContext } from "react"
 
 import { useMachine } from "@xstate/react"
 
+import { useCurrentProject } from "@/features/app-state"
 import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
@@ -67,6 +68,7 @@ export function useResources(): ResourcesContextType {
 
 export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const [state, send] = useMachine(resourcesMachine)
+  const { setProjectDirty } = useCurrentProject()
 
   // Извлекаем свойства контекста из состояния машины
   const {
@@ -81,64 +83,102 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     styleTemplateResources,
   } = state.context
 
+  // Сохраняем состояние ресурсов в localStorage при каждом изменении
+  React.useEffect(() => {
+    try {
+      const resourcesData = {
+        resources,
+        mediaResources,
+        musicResources,
+        subtitleResources,
+        effectResources,
+        filterResources,
+        transitionResources,
+        templateResources,
+        styleTemplateResources,
+      }
+      localStorage.setItem("timeline-studio-resources", JSON.stringify(resourcesData))
+    } catch (error) {
+      console.warn("Failed to save resources to localStorage:", error)
+    }
+  }, [
+    resources,
+    mediaResources,
+    musicResources,
+    subtitleResources,
+    effectResources,
+    filterResources,
+    transitionResources,
+    templateResources,
+    styleTemplateResources,
+  ])
+
   // Методы для работы с ресурсами
   const handleAddEffect = React.useCallback(
     (effect: VideoEffect) => {
       send({ type: "ADD_EFFECT", effect })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const handleAddFilter = React.useCallback(
     (filter: VideoFilter) => {
       send({ type: "ADD_FILTER", filter })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const handleAddTransition = React.useCallback(
     (transition: Transition) => {
       send({ type: "ADD_TRANSITION", transition })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const handleAddTemplate = React.useCallback(
     (template: MediaTemplate) => {
       send({ type: "ADD_TEMPLATE", template })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const handleAddStyleTemplate = React.useCallback(
     (template: StyleTemplate) => {
       send({ type: "ADD_STYLE_TEMPLATE", template })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const handleAddMusic = React.useCallback(
     (file: MediaFile) => {
       console.log("Adding music file to resources:", file.name)
       send({ type: "ADD_MUSIC", file })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const handleAddMedia = React.useCallback(
     (file: MediaFile) => {
       console.log("Adding media to resources:", file.name)
       send({ type: "ADD_MEDIA", file })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const handleAddSubtitle = React.useCallback(
     (style: SubtitleStyle) => {
       console.log("Adding subtitle style to resources:", style.name)
       send({ type: "ADD_SUBTITLE", style })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const handleAddResource = React.useCallback(
@@ -187,15 +227,17 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const handleRemoveResource = React.useCallback(
     (resourceId: string) => {
       send({ type: "REMOVE_RESOURCE", resourceId })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const handleUpdateResource = React.useCallback(
     (resourceId: string, params: Record<string, any>) => {
       send({ type: "UPDATE_RESOURCE", resourceId, params })
+      setProjectDirty(true)
     },
-    [send],
+    [send, setProjectDirty],
   )
 
   const isAdded = React.useCallback(

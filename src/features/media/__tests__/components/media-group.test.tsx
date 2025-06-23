@@ -88,7 +88,21 @@ vi.mock("@/features/browser/components/virtualized-content-group", () => ({
 vi.mock("@/features/app-state", () => ({
   useAppSettings: vi.fn(() => ({
     getMediaFiles: vi.fn(() => ({ allFiles: [] })),
+    getUserSettings: vi.fn().mockReturnValue({
+      browserSettings: null,
+      theme: "light",
+      language: "en",
+    }),
+    updateUserSettings: vi.fn(),
   })),
+  useCurrentProject: () => ({
+    currentProject: {
+      name: "Test Project",
+      path: "/test/project.tlsp",
+      timeline: { tracks: [], duration: 0 },
+    },
+    setProjectDirty: vi.fn(),
+  }),
   AppSettingsProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 

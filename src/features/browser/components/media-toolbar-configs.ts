@@ -174,8 +174,10 @@ export const styleTemplatesFilterOptions = [
   { value: "overlay", label: "styleTemplates.categories.overlay" },
   // По стилям
   { value: "modern", label: "styleTemplates.styles.modern" },
-  { value: "vintage", label: "styleTemplates.styles.vintage" },
+  { value: "classic", label: "styleTemplates.styles.classic" },
   { value: "minimal", label: "styleTemplates.styles.minimal" },
+  { value: "bold", label: "styleTemplates.styles.bold" },
+  { value: "vintage", label: "styleTemplates.styles.vintage" },
   { value: "corporate", label: "styleTemplates.styles.corporate" },
   { value: "creative", label: "styleTemplates.styles.creative" },
   { value: "cinematic", label: "styleTemplates.styles.cinematic" },

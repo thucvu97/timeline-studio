@@ -1898,8 +1898,10 @@
     },
     "styles": {
       "modern": "Modern",
-      "vintage": "Vintage",
+      "classic": "Classic",
       "minimal": "Minimal",
+      "bold": "Bold",
+      "vintage": "Vintage",
       "corporate": "Corporate",
       "creative": "Creative",
       "cinematic": "Cinematic"

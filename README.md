@@ -52,9 +52,9 @@ AI assistant will create the right number of versions for each platform! 🤖
 
 ### Project Status (23 June 2025)
 
-**Overall Completion: 62%** ⬆️ (recalculated with API Keys Management at 100% and 14 new planned modules)
-- **Completed**: 13 modules (100% readiness)
-- **In development**: 7 modules (45-90% readiness)
+**Overall Completion: 67%** ⬆️ (updated with Style Templates and Templates completion)
+- **Completed**: 17 modules (100% readiness)
+- **In development**: 5 modules (75-80% readiness)
 - **Planned**: 4 modules (30-80% readiness)
 - **New planned**: 14 modules (0% readiness) - [details in planned/](docs-ru/08-roadmap/planned/)
 

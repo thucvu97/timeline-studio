@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Style Template Video Preview Placeholder</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            color: white;
+        }
+        .play-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(56, 218, 202, 0.8);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .play-icon:hover {
+            transform: scale(1.1);
+        }
+        .play-icon::after {
+            content: "";
+            width: 0;
+            height: 0;
+            border-left: 25px solid white;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            margin-left: 5px;
+        }
+        h2 {
+            margin: 10px 0;
+            font-size: 24px;
+        }
+        p {
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="play-icon"></div>
+        <h2>Video Preview</h2>
+        <p>This is a placeholder for style template animation preview</p>
+        <p>In production, this would show the actual animation</p>
+    </div>
+</body>
+</html>
