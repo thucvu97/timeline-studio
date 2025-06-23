@@ -29,64 +29,71 @@ pub struct ThumbnailGenerationResult {
   pub message: String,
 }
 
+/// Параметры оптимизации для платформы
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PlatformOptimizationParams {
+  pub input_path: String,
+  pub output_path: String,
+  pub target_width: u32,
+  pub target_height: u32,
+  pub target_bitrate: u32,
+  pub target_framerate: u32,
+  pub audio_codec: String,
+  pub video_codec: String,
+  pub crop_to_fit: bool,
+}
+
 /**
  * Оптимизировать видео для конкретной платформы
  */
 #[tauri::command]
 pub async fn ffmpeg_optimize_for_platform(
-  input_path: String,
-  output_path: String,
-  target_width: u32,
-  target_height: u32,
-  target_bitrate: u32,
-  target_framerate: u32,
-  audio_codec: String,
-  video_codec: String,
-  crop_to_fit: bool,
+  params: PlatformOptimizationParams,
 ) -> Result<PlatformOptimizationResult, String> {
   let start_time = std::time::Instant::now();
 
-  if !Path::new(&input_path).exists() {
-    return Err(format!("Входной файл не найден: {}", input_path));
+  if !Path::new(&params.input_path).exists() {
+    return Err(format!("Входной файл не найден: {}", params.input_path));
   }
 
   // Получаем информацию об исходном файле
-  let original_metadata = get_video_metadata(&input_path)?;
+  let original_metadata = get_video_metadata(&params.input_path)?;
 
   // Строим команду FFmpeg
   let mut ffmpeg_cmd = Command::new("ffmpeg");
   ffmpeg_cmd
     .arg("-i")
-    .arg(&input_path)
+    .arg(&params.input_path)
     .arg("-y") // Перезаписать выходной файл
     .arg("-c:v")
-    .arg(&video_codec)
+    .arg(&params.video_codec)
     .arg("-c:a")
-    .arg(&audio_codec)
+    .arg(&params.audio_codec)
     .arg("-b:v")
-    .arg(format!("{}k", target_bitrate))
+    .arg(format!("{}k", params.target_bitrate))
     .arg("-r")
-    .arg(target_framerate.to_string())
+    .arg(params.target_framerate.to_string())
     .arg("-movflags")
     .arg("+faststart"); // Оптимизация для веб-стриминга
 
   // Настройка разрешения и обрезки
-  if crop_to_fit {
+  if params.crop_to_fit {
     // Обрезка с сохранением пропорций
     let scale_filter = format!(
       "scale={}:{}:force_original_aspect_ratio=increase,crop={}:{}",
-      target_width, target_height, target_width, target_height
+      params.target_width, params.target_height, params.target_width, params.target_height
     );
     ffmpeg_cmd.arg("-vf").arg(scale_filter);
   } else {
     // Простое масштабирование
-    ffmpeg_cmd
-      .arg("-vf")
-      .arg(format!("scale={}:{}", target_width, target_height));
+    ffmpeg_cmd.arg("-vf").arg(format!(
+      "scale={}:{}",
+      params.target_width, params.target_height
+    ));
   }
 
   // Дополнительные настройки качества
-  if video_codec == "h264" {
+  if params.video_codec == "h264" {
     ffmpeg_cmd
       .arg("-preset")
       .arg("medium")
@@ -101,7 +108,7 @@ pub async fn ffmpeg_optimize_for_platform(
     .arg("-b:a")
     .arg("128k"); // Битрейт аудио
 
-  ffmpeg_cmd.arg(&output_path);
+  ffmpeg_cmd.arg(&params.output_path);
 
   // Выполняем команду
   let output = ffmpeg_cmd
@@ -114,7 +121,7 @@ pub async fn ffmpeg_optimize_for_platform(
   }
 
   // Получаем информацию о результирующем файле
-  let processed_metadata = get_video_metadata(&output_path)?;
+  let processed_metadata = get_video_metadata(&params.output_path)?;
   let processing_time = start_time.elapsed().as_secs_f64();
 
   let compression_ratio =
@@ -122,7 +129,7 @@ pub async fn ffmpeg_optimize_for_platform(
 
   Ok(PlatformOptimizationResult {
     success: true,
-    output_path: output_path.clone(),
+    output_path: params.output_path.clone(),
     file_size: processed_metadata.file_size,
     duration: processed_metadata.duration,
     width: processed_metadata.width,
@@ -252,24 +259,25 @@ pub async fn ffmpeg_batch_optimize_platforms(
 
     let output_path = format!("{}/{}", output_directory, output_filename);
 
-    let result = ffmpeg_optimize_for_platform(
-      input_path.clone(),
+    let params = PlatformOptimizationParams {
+      input_path: input_path.clone(),
       output_path,
-      platform_config["width"].as_u64().unwrap_or(1920) as u32,
-      platform_config["height"].as_u64().unwrap_or(1080) as u32,
-      platform_config["bitrate"].as_u64().unwrap_or(3500) as u32,
-      platform_config["framerate"].as_u64().unwrap_or(30) as u32,
-      platform_config["audioCodec"]
+      target_width: platform_config["width"].as_u64().unwrap_or(1920) as u32,
+      target_height: platform_config["height"].as_u64().unwrap_or(1080) as u32,
+      target_bitrate: platform_config["bitrate"].as_u64().unwrap_or(3500) as u32,
+      target_framerate: platform_config["framerate"].as_u64().unwrap_or(30) as u32,
+      audio_codec: platform_config["audioCodec"]
         .as_str()
         .unwrap_or("aac")
         .to_string(),
-      platform_config["videoCodec"]
+      video_codec: platform_config["videoCodec"]
         .as_str()
         .unwrap_or("h264")
         .to_string(),
-      platform_config["cropToFit"].as_bool().unwrap_or(false),
-    )
-    .await;
+      crop_to_fit: platform_config["cropToFit"].as_bool().unwrap_or(false),
+    };
+
+    let result = ffmpeg_optimize_for_platform(params).await;
 
     match result {
       Ok(platform_result) => results.push(platform_result),
@@ -428,18 +436,19 @@ pub async fn ffmpeg_create_progressive_video(
 
     let output_path = format!("{}/{}", output_directory, output_filename);
 
-    let result = ffmpeg_optimize_for_platform(
-      input_path.clone(),
-      output_path.clone(),
-      width,
-      height,
-      bitrate,
-      30,
-      "aac".to_string(),
-      "h264".to_string(),
-      true,
-    )
-    .await;
+    let params = PlatformOptimizationParams {
+      input_path: input_path.clone(),
+      output_path: output_path.clone(),
+      target_width: width,
+      target_height: height,
+      target_bitrate: bitrate,
+      target_framerate: 30,
+      audio_codec: "aac".to_string(),
+      video_codec: "h264".to_string(),
+      crop_to_fit: true,
+    };
+
+    let result = ffmpeg_optimize_for_platform(params).await;
 
     results.push(json!({
         "quality": quality_name,

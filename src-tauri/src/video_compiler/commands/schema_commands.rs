@@ -324,6 +324,25 @@ pub async fn create_schema_objects(
         .await?;
         serde_json::to_value(effect).unwrap()
       }
+      "filter" => {
+        let filter = create_filter(
+          props
+            .get("filter_type")
+            .and_then(|v| v.as_str())
+            .unwrap_or("brightness")
+            .to_string(),
+          HashMap::new(),
+        )
+        .await?;
+        serde_json::to_value(filter).unwrap()
+      }
+      "resolution" => {
+        serde_json::json!({
+          "width": props.get("width").and_then(|v| v.as_u64()).unwrap_or(1920),
+          "height": props.get("height").and_then(|v| v.as_u64()).unwrap_or(1080),
+          "index": i
+        })
+      }
       _ => serde_json::json!({}),
     };
 

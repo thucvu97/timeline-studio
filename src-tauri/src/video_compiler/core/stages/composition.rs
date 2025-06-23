@@ -1,7 +1,7 @@
 //! Composition Stage - Этап композиции видео
 
 use async_trait::async_trait;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use super::{PipelineContext, PipelineStage};
@@ -236,17 +236,17 @@ impl CompositionStage {
   /// Применение эффектов
   async fn apply_effects(
     &self,
-    input_path: &PathBuf,
+    input_path: &Path,
     effects: &[&Effect],
-    output_path: &PathBuf,
+    output_path: &Path,
     _context: &PipelineContext,
   ) -> Result<PathBuf> {
-    let mut current_input = input_path.clone();
+    let mut current_input = input_path.to_path_buf();
     let mut temp_counter = 0;
 
     for effect in effects {
       let temp_output = if temp_counter == effects.len() - 1 {
-        output_path.clone()
+        output_path.to_path_buf()
       } else {
         PathBuf::from(format!(
           "{}_temp_{}.mp4",
@@ -262,7 +262,7 @@ impl CompositionStage {
       temp_counter += 1;
     }
 
-    Ok(output_path.clone())
+    Ok(output_path.to_path_buf())
   }
 
   /// Применение одного эффекта

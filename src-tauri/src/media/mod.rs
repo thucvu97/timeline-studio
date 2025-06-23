@@ -13,6 +13,7 @@ pub mod thumbnail;
 pub mod types;
 
 // Новые модули после рефакторинга
+pub mod additional_commands;
 pub mod file_scanner;
 pub mod media_analyzer;
 pub mod metadata_extractor;

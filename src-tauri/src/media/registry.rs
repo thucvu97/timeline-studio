@@ -1,3 +1,4 @@
+use super::additional_commands::*;
 use super::commands::*;
 use crate::command_registry::CommandRegistry;
 use tauri::{Builder, Runtime};
@@ -25,6 +26,11 @@ impl CommandRegistry for MediaCommandRegistry {
       load_preview_data,
       save_preview_data,
       get_files_with_previews,
+      // Additional commands
+      get_media_files_in_directory,
+      probe_media_file_detailed,
+      get_current_gpu_information,
+      test_hardware_acceleration_support,
     ])
   }
 }

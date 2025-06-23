@@ -242,32 +242,32 @@ impl MediaAnalyzer {
     fps: &Option<f64>,
   ) -> f32 {
     let mut score = 0.0;
-    let mut factors = 0;
+    let mut total_weight = 0.0;
 
     // Оценка разрешения
     if let Some((width, height)) = resolution {
       let pixels = (*width as f32) * (*height as f32);
       let resolution_score = (pixels / (3840.0 * 2160.0)).min(1.0); // 4K as reference
       score += resolution_score * 0.4;
-      factors += 1;
+      total_weight += 0.4;
     }
 
     // Оценка битрейта
     if let Some(br) = bitrate {
       let bitrate_score = (*br as f32 / 10_000_000.0).min(1.0); // 10 Mbps as reference
       score += bitrate_score * 0.3;
-      factors += 1;
+      total_weight += 0.3;
     }
 
     // Оценка FPS
     if let Some(f) = fps {
       let fps_score = ((*f as f32) / 60.0).min(1.0); // 60 fps as reference
       score += fps_score * 0.3;
-      factors += 1;
+      total_weight += 0.3;
     }
 
-    if factors > 0 {
-      score / factors as f32
+    if total_weight > 0.0 {
+      score / total_weight
     } else {
       0.5 // Default middle score
     }

@@ -168,7 +168,7 @@ pub async fn export_metrics_prometheus_detailed(
       name, summary.error_rate
     ));
 
-    output.push_str("\n");
+    output.push('\n');
   }
 
   Ok(output)
@@ -269,6 +269,25 @@ pub async fn reset_all_metrics(state: State<'_, VideoCompilerState>) -> Result<(
   state.services.metrics.ffmpeg.reset().await;
 
   Ok(())
+}
+
+/// Получить метрики конкретного сервиса из реестра
+#[tauri::command]
+pub async fn get_registry_service_metrics(
+  service_name: String,
+  state: State<'_, VideoCompilerState>,
+) -> Result<Option<MetricsSummary>, String> {
+  // В реальной реализации здесь бы использовался глобальный MetricsRegistry
+  // Пока используем прямой доступ к метрикам из состояния
+  match service_name.as_str() {
+    "render" => Ok(Some(state.services.metrics.render.get_summary().await)),
+    "cache" => Ok(Some(state.services.metrics.cache.get_summary().await)),
+    "gpu" => Ok(Some(state.services.metrics.gpu.get_summary().await)),
+    "preview" => Ok(Some(state.services.metrics.preview.get_summary().await)),
+    "project" => Ok(Some(state.services.metrics.project.get_summary().await)),
+    "ffmpeg" => Ok(Some(state.services.metrics.ffmpeg.get_summary().await)),
+    _ => Ok(None),
+  }
 }
 
 #[cfg(test)]

@@ -103,6 +103,13 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::backup_project,
     crate::video_compiler::commands::check_project_media_availability,
     crate::video_compiler::commands::batch_generate_previews_service,
+    // Preview advanced commands
+    crate::video_compiler::commands::create_preview_generator_with_ffmpeg,
+    crate::video_compiler::commands::set_preview_generator_ffmpeg_path_advanced,
+    crate::video_compiler::commands::generate_preview_batch_advanced,
+    crate::video_compiler::commands::generate_single_frame_preview,
+    crate::video_compiler::commands::get_preview_generator_info,
+    crate::video_compiler::commands::generate_preview_with_options,
     crate::video_compiler::commands::apply_quality_preset,
     crate::video_compiler::commands::apply_video_filter,
     crate::video_compiler::commands::check_ffmpeg_available,
@@ -141,6 +148,7 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::check_services_health,
     crate::video_compiler::commands::get_performance_metrics,
     crate::video_compiler::commands::reset_all_metrics,
+    crate::video_compiler::commands::get_registry_service_metrics,
     // Video analysis commands
     crate::video_compiler::commands::ffmpeg_get_metadata,
     crate::video_compiler::commands::ffmpeg_detect_scenes,
@@ -187,6 +195,16 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::analyze_workflow_video_quality,
     crate::video_compiler::commands::create_workflow_preview,
     crate::video_compiler::commands::cleanup_workflow_temp_files,
+    // FFmpeg builder commands
+    crate::video_compiler::commands::add_segment_inputs_to_builder,
+    crate::video_compiler::commands::create_ffmpeg_with_prerender_settings,
+    crate::video_compiler::commands::get_clip_input_index_from_builder,
+    crate::video_compiler::commands::get_ffmpeg_builder_info,
+    // FFmpeg executor commands
+    crate::video_compiler::commands::execute_ffmpeg_with_progress_tracking,
+    crate::video_compiler::commands::execute_ffmpeg_simple_no_progress,
+    crate::video_compiler::commands::get_ffmpeg_executor_capabilities,
+    crate::video_compiler::commands::check_ffmpeg_executor_availability,
     // Misc commands
     crate::greet,
     crate::scan_media_folder,

@@ -110,6 +110,23 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       get_pipeline_execution_summary,
       get_pipeline_progress,
       cleanup_completed_pipelines,
+      // FFmpeg Utilities commands
+      execute_ffmpeg_simple_command,
+      execute_ffmpeg_with_progress_advanced,
+      get_ffmpeg_available_codecs,
+      get_ffmpeg_available_formats,
+      generate_subtitle_preview_advanced,
+      get_ffmpeg_execution_information,
+      // Frame Extraction Advanced commands
+      extract_timeline_frames_advanced,
+      extract_subtitle_frames_advanced,
+      extract_video_frame_advanced,
+      extract_video_frames_batch_advanced,
+      get_video_thumbnails_advanced,
+      get_frame_extraction_cache_information,
+      generate_preview_frame,
+      generate_preview_batch_frames,
+      generate_preview_with_custom_settings,
       // Other commands from misc.rs will be added here
     ])
   }
