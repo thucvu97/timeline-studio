@@ -147,7 +147,7 @@ impl PreprocessingStage {
 
     // Проверяем кодек
     if let Some(codec) = &file_info.codec {
-      if codec != &"libx264" {
+      if codec != "libx264" {
         log::debug!("Требуется изменение кодека: {} -> {}", codec, "libx264");
         return Ok(true);
       }

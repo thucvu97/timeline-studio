@@ -271,55 +271,6 @@ mod env_importer_tests {
   fn test_export_all_key_types() {
     let importer = EnvImporter::new();
 
-    // Create API key data for each type
-    let mut keys = Vec::new();
-
-    // Simple API keys
-    keys.push(ApiKeyData {
-      key_type: ApiKeyType::OpenAI,
-      value: "sk-openai".to_string(),
-      oauth_data: None,
-      created_at: chrono::Utc::now(),
-      last_validated: None,
-      is_valid: None,
-    });
-
-    keys.push(ApiKeyData {
-      key_type: ApiKeyType::Claude,
-      value: "claude-key".to_string(),
-      oauth_data: None,
-      created_at: chrono::Utc::now(),
-      last_validated: None,
-      is_valid: None,
-    });
-
-    keys.push(ApiKeyData {
-      key_type: ApiKeyType::Codecov,
-      value: "codecov-token".to_string(),
-      oauth_data: None,
-      created_at: chrono::Utc::now(),
-      last_validated: None,
-      is_valid: None,
-    });
-
-    keys.push(ApiKeyData {
-      key_type: ApiKeyType::TauriAnalytics,
-      value: "tauri-key".to_string(),
-      oauth_data: None,
-      created_at: chrono::Utc::now(),
-      last_validated: None,
-      is_valid: None,
-    });
-
-    keys.push(ApiKeyData {
-      key_type: ApiKeyType::Telegram,
-      value: "telegram-bot-token".to_string(),
-      oauth_data: None,
-      created_at: chrono::Utc::now(),
-      last_validated: None,
-      is_valid: None,
-    });
-
     // OAuth keys
     let tiktok_oauth = OAuthCredentials {
       client_id: "tiktok_client".to_string(),
@@ -329,14 +280,58 @@ mod env_importer_tests {
       expires_at: None,
     };
 
-    keys.push(ApiKeyData {
-      key_type: ApiKeyType::TikTok,
-      value: "tiktok_client".to_string(),
-      oauth_data: Some(tiktok_oauth),
-      created_at: chrono::Utc::now(),
-      last_validated: None,
-      is_valid: None,
-    });
+    // Create API key data for each type
+    let keys = vec![
+      // Simple API keys
+      ApiKeyData {
+        key_type: ApiKeyType::OpenAI,
+        value: "sk-openai".to_string(),
+        oauth_data: None,
+        created_at: chrono::Utc::now(),
+        last_validated: None,
+        is_valid: None,
+      },
+      ApiKeyData {
+        key_type: ApiKeyType::Claude,
+        value: "claude-key".to_string(),
+        oauth_data: None,
+        created_at: chrono::Utc::now(),
+        last_validated: None,
+        is_valid: None,
+      },
+      ApiKeyData {
+        key_type: ApiKeyType::Codecov,
+        value: "codecov-token".to_string(),
+        oauth_data: None,
+        created_at: chrono::Utc::now(),
+        last_validated: None,
+        is_valid: None,
+      },
+      ApiKeyData {
+        key_type: ApiKeyType::TauriAnalytics,
+        value: "tauri-key".to_string(),
+        oauth_data: None,
+        created_at: chrono::Utc::now(),
+        last_validated: None,
+        is_valid: None,
+      },
+      ApiKeyData {
+        key_type: ApiKeyType::Telegram,
+        value: "telegram-bot-token".to_string(),
+        oauth_data: None,
+        created_at: chrono::Utc::now(),
+        last_validated: None,
+        is_valid: None,
+      },
+      ApiKeyData {
+        key_type: ApiKeyType::TikTok,
+        value: "tiktok_client".to_string(),
+        oauth_data: Some(tiktok_oauth),
+        created_at: chrono::Utc::now(),
+        last_validated: None,
+        is_valid: None,
+      },
+    ];
 
     let env_content = importer.export_to_env_format(&keys);
 

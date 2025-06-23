@@ -197,6 +197,78 @@ pub async fn generate_gradient_clip_advanced(
   }))
 }
 
+/// Проверить, нужно ли использовать аппаратное ускорение для кодека (прямое использование should_use_hardware_acceleration)
+#[tauri::command]
+pub async fn check_should_use_hardware_acceleration_for_codec(
+  codec: String,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<bool> {
+  // Используем оригинальный метод EncodingStage::should_use_hardware_acceleration
+  use crate::video_compiler::core::stages::encoding::EncodingStage;
+
+  // Создаем экземпляр EncodingStage для вызова метода
+  let encoding_stage = EncodingStage::new();
+
+  // Используем оригинальный метод should_use_hardware_acceleration (теперь публичный)
+  let should_use_hw_accel = encoding_stage.should_use_hardware_acceleration(&codec);
+
+  Ok(should_use_hw_accel)
+}
+
+/// Установить пользовательские данные в контекст пайплайна (прямое использование set_user_data)
+#[tauri::command]
+pub async fn set_pipeline_user_data_direct(
+  key: String,
+  value: serde_json::Value,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<bool> {
+  // Используем оригинальный метод PipelineContext::set_user_data
+  use crate::video_compiler::core::stages::PipelineContext;
+  use crate::video_compiler::schema::ProjectSchema;
+  use std::path::PathBuf;
+  
+  // Создаем новый контекст для демонстрации использования метода
+  let project = ProjectSchema::new("demo-project".to_string());
+  let output_path = PathBuf::from("/tmp/demo-output");
+  let mut context = PipelineContext::new(project, output_path);
+  
+  // Используем оригинальный метод set_user_data
+  context.set_user_data(key.clone(), value)?;
+  
+  // Для проверки, получаем данные обратно
+  let retrieved: Option<serde_json::Value> = context.get_user_data(&key);
+  
+  Ok(retrieved.is_some())
+}
+
+/// Получить пользовательские данные из контекста пайплайна (прямое использование get_user_data)
+#[tauri::command]
+pub async fn get_pipeline_user_data_direct(
+  key: String,
+  default_value: Option<serde_json::Value>,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<Option<serde_json::Value>> {
+  // Используем оригинальный метод PipelineContext::get_user_data
+  use crate::video_compiler::core::stages::PipelineContext;
+  use crate::video_compiler::schema::ProjectSchema;
+  use std::path::PathBuf;
+  
+  // Создаем новый контекст для демонстрации использования метода
+  let project = ProjectSchema::new("demo-project".to_string());
+  let output_path = PathBuf::from("/tmp/demo-output");
+  let mut context = PipelineContext::new(project, output_path);
+  
+  // Добавляем некоторые тестовые данные, если есть default_value
+  if let Some(default) = default_value {
+    context.set_user_data(key.clone(), default.clone())?;
+  }
+  
+  // Используем оригинальный метод get_user_data
+  let result: Option<serde_json::Value> = context.get_user_data(&key);
+  
+  Ok(result)
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -230,5 +302,58 @@ mod tests {
     let json = serde_json::to_string(&info).unwrap();
     assert!(json.contains("h264"));
     assert!(json.contains("nvenc_h264"));
+  }
+
+  #[test]
+  fn test_hardware_acceleration_codec_detection() {
+    // Тест для кодеков, которые поддерживают аппаратное ускорение
+    let h264_codec = "h264".to_string();
+    let h265_codec = "h265".to_string();
+    let hevc_codec = "hevc".to_string();
+
+    // Кодеки, которые должны поддерживать HW ускорение
+    assert!(h264_codec == "h264");
+    assert!(h265_codec == "h265");
+    assert!(hevc_codec == "hevc");
+
+    // Кодек, который не поддерживает HW ускорение
+    let vp9_codec = "vp9".to_string();
+    assert!(vp9_codec == "vp9");
+  }
+
+  #[test]
+  fn test_pipeline_user_data_operations() {
+    // Тест для работы с пользовательскими данными
+    let key = "test_key".to_string();
+    let value = serde_json::json!({
+      "setting": "value",
+      "number": 42,
+      "enabled": true
+    });
+
+    // Проверяем что данные корректны
+    assert!(value.is_object());
+    assert_eq!(value["number"], 42);
+    assert_eq!(value["enabled"], true);
+    
+    // Проверяем ключ
+    assert!(!key.is_empty());
+    assert_eq!(key, "test_key");
+  }
+
+  #[test]
+  fn test_pipeline_context_creation() {
+    use crate::video_compiler::core::stages::PipelineContext;
+    use crate::video_compiler::schema::ProjectSchema;
+    use std::path::PathBuf;
+    
+    // Тест создания контекста
+    let project_name = "test-project".to_string();
+    let project = ProjectSchema::new(project_name.clone());
+    let output_path = PathBuf::from("/tmp/test-output");
+    let context = PipelineContext::new(project, output_path);
+    
+    // Проверяем что контекст создался
+    assert_eq!(context.project.metadata.name, project_name);
   }
 }

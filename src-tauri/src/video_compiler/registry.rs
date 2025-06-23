@@ -369,6 +369,9 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       should_use_hardware_acceleration_for_codec,
       generate_noise_clip_advanced,
       generate_gradient_clip_advanced,
+      check_should_use_hardware_acceleration_for_codec,
+      set_pipeline_user_data_direct,
+      get_pipeline_user_data_direct,
       // Recognition advanced commands
       get_frame_processor_class_names,
       check_is_face_model,

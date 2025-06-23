@@ -279,7 +279,7 @@ mod commands_tests {
     // Test empty value
     let info_empty = ApiKeyInfo {
       key_type: "test".to_string(),
-      has_value: !"".is_empty(), // Simulates !key_data.value.is_empty()
+      has_value: false, // Simulates !key_data.value.is_empty() for empty string
       is_oauth: false,
       has_access_token: false,
       created_at: None,
@@ -291,7 +291,7 @@ mod commands_tests {
     // Test non-empty value
     let info_filled = ApiKeyInfo {
       key_type: "test".to_string(),
-      has_value: !"sk-test123".is_empty(),
+      has_value: true, // Simulates !key_data.value.is_empty() for non-empty string
       is_oauth: false,
       has_access_token: false,
       created_at: None,

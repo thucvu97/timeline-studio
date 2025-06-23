@@ -63,7 +63,7 @@ impl EncodingStage {
   }
 
   /// Определение необходимости аппаратного ускорения
-  fn should_use_hardware_acceleration(&self, codec: &str) -> bool {
+  pub fn should_use_hardware_acceleration(&self, codec: &str) -> bool {
     matches!(codec, "h264" | "h265" | "hevc")
   }
 
