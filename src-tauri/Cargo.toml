@@ -83,6 +83,15 @@ ndarray = "0.15"
 num_cpus = "1.16"
 sysinfo = "0.31"
 os_info = "3.8"
+# OpenTelemetry dependencies
+opentelemetry = { version = "0.27", features = ["trace", "metrics"] }
+opentelemetry_sdk = { version = "0.27", features = ["rt-tokio", "trace", "metrics"] }
+opentelemetry-otlp = { version = "0.27", features = ["tonic", "metrics", "trace"] }
+opentelemetry-semantic-conventions = "0.28"
+tracing = "0.1"
+tracing-opentelemetry = "0.27"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tonic = "0.12"
 
 [features]
 # by default Tauri runs in production mode

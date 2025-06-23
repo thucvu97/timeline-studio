@@ -1,7 +1,8 @@
 import { Tabs } from "@/components/ui/tabs"
 import { BrowserStateProvider, useBrowserState } from "@/features/browser/services/browser-state-provider"
 
-import { BrowserContent } from "./browser-content"
+// import { BrowserContent } from "./browser-content"
+import { BrowserContentNew as BrowserContent } from "./browser-content-new" // Временно используем новую версию для тестирования
 import { BrowserTabs } from "./browser-tabs"
 
 // Внутренний компонент, который использует состояние браузера

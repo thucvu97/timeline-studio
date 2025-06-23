@@ -5,7 +5,8 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 use crate::video_compiler::error::{Result, VideoCompilerError};
-use crate::core::{EventBus, ServiceContainer, AppEvent, Service};
+use crate::core::{EventBus, ServiceContainer, AppEvent, Service, Tracer, MetricsCollector};
+use crate::core::telemetry::metrics::Metrics;
 use async_trait::async_trait;
 use super::{
     plugin::{Plugin, PluginState, PluginCommand, PluginResponse, AppEventType},
@@ -30,6 +31,8 @@ pub struct PluginManager {
     event_bus: Arc<EventBus>,
     service_container: Arc<ServiceContainer>,
     app_version: super::plugin::Version,
+    tracer: Option<Arc<Tracer>>,
+    metrics: Option<Arc<Metrics>>,
 }
 
 impl PluginManager {
@@ -47,7 +50,16 @@ impl PluginManager {
             event_bus,
             service_container,
             app_version,
+            tracer: None,
+            metrics: None,
         }
+    }
+    
+    /// Добавить телеметрию
+    pub fn with_telemetry(mut self, tracer: Arc<Tracer>, collector: Arc<MetricsCollector>) -> Result<Self> {
+        self.tracer = Some(tracer);
+        self.metrics = Some(Arc::new(Metrics::new(&collector)?));
+        Ok(self)
     }
     
     /// Получить загрузчик плагинов
@@ -57,6 +69,18 @@ impl PluginManager {
     
     /// Загрузить и инициализировать плагин
     pub async fn load_plugin(&self, plugin_id: &str, permissions: PluginPermissions) -> Result<String> {
+        // Трассируем операцию
+        let tracer = self.tracer.clone();
+        let span = tracer.as_ref().map(|t| 
+            t.span("plugin.load")
+                .with_attribute("plugin.id", plugin_id)
+                .with_attribute("permissions.ui_access", permissions.ui_access)
+                .with_attribute("permissions.process_spawn", permissions.process_spawn)
+                .start()
+        );
+        
+        let _guard = span.as_ref().map(|s| s.enter());
+        
         // Проверяем не загружен ли уже
         {
             let plugins = self.plugins.read().await;
@@ -72,6 +96,7 @@ impl PluginManager {
         
         // Получаем версию до перемещения plugin
         let version_string = plugin.metadata().version.to_string();
+        let plugin_type = format!("{:?}", plugin.metadata().plugin_type);
         
         // Создаем контекст
         let context = PluginContext::new(
@@ -105,6 +130,16 @@ impl PluginManager {
             plugins.insert(plugin_id.to_string(), handle);
         }
         
+        // Обновляем метрики
+        if let Some(metrics) = &self.metrics {
+            metrics.plugin_loads_total
+                .with_label("plugin_id", plugin_id)
+                .with_label("plugin_type", plugin_type.as_str())
+                .inc();
+            
+            metrics.plugin_active_count.add(1);
+        }
+        
         // Публикуем событие
         self.event_bus.publish_app_event(AppEvent::PluginLoaded {
             plugin_id: plugin_id.to_string(),
@@ -135,6 +170,11 @@ impl PluginManager {
         handle.context.cleanup_temp_files().await
             .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
         
+        // Обновляем метрики
+        if let Some(metrics) = &self.metrics {
+            metrics.plugin_active_count.add(-1);
+        }
+        
         // Публикуем событие
         self.event_bus.publish_app_event(AppEvent::PluginUnloaded {
             plugin_id: plugin_id.to_string(),
@@ -147,6 +187,10 @@ impl PluginManager {
     
     /// Отправить команду плагину
     pub async fn send_command(&self, plugin_id: &str, command: PluginCommand) -> Result<PluginResponse> {
+        // Измеряем время выполнения команды
+        let start = std::time::Instant::now();
+        let command_name = command.command.clone();
+        
         let plugins = self.plugins.read().await;
         
         let handle = plugins.get(plugin_id)
@@ -170,7 +214,26 @@ impl PluginManager {
         }
         
         // Отправляем команду
-        handle.plugin.handle_command(command).await
+        let result = handle.plugin.handle_command(command).await;
+        
+        // Обновляем метрики
+        if let Some(metrics) = &self.metrics {
+            let duration = start.elapsed();
+            metrics.plugin_command_duration
+                .with_label("plugin_id", plugin_id)
+                .with_label("command", command_name.as_str())
+                .with_label("success", if result.is_ok() { "true" } else { "false" })
+                .observe(duration.as_secs_f64());
+            
+            if result.is_err() {
+                metrics.plugin_errors_total
+                    .with_label("plugin_id", plugin_id)
+                    .with_label("error_type", "command_failed")
+                    .inc();
+            }
+        }
+        
+        result
     }
     
     /// Передать событие всем заинтересованным плагинам

@@ -17,7 +17,7 @@ interface VirtualizedContentGroupProps<T> {
   /** Режим отображения */
   viewMode?: "list" | "grid" | "thumbnails"
   /** Функция рендеринга элемента */
-  renderItem: (item: T, index: number) => React.ReactNode
+  renderItem: (item: T, props?: any) => React.ReactNode
   /** Функция для добавления всех элементов группы */
   onAddAll?: (items: T[]) => void
   /** Проверка, все ли элементы добавлены */
@@ -27,7 +27,9 @@ interface VirtualizedContentGroupProps<T> {
   /** Текст кнопки когда все добавлены */
   addedButtonText?: string
   /** Размер превью для вычисления размеров элементов */
-  previewSize?: number
+  previewSize?: { width: number; height: number } | number
+  /** Тип элемента для системы избранного */
+  favoriteType?: string
 }
 
 /**
@@ -44,6 +46,7 @@ export function VirtualizedContentGroup<T>({
   addButtonText,
   addedButtonText,
   previewSize = 150,
+  favoriteType,
 }: VirtualizedContentGroupProps<T>) {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -52,16 +55,17 @@ export function VirtualizedContentGroup<T>({
 
   // Вычисляем размеры элементов в зависимости от режима отображения
   const { itemWidth, itemHeight, gap } = useMemo(() => {
+    const size = typeof previewSize === "number" ? previewSize : previewSize.width
     switch (viewMode) {
       case "list":
         // Для list режима используем фиксированную высоту
         return { itemWidth: 0, itemHeight: 68, gap: 4 } // 60px preview + 8px padding
       case "grid":
-        return { itemWidth: previewSize + 16, itemHeight: previewSize + 60, gap: 16 }
+        return { itemWidth: size + 16, itemHeight: size + 60, gap: 16 }
       case "thumbnails":
-        return { itemWidth: previewSize + 16, itemHeight: previewSize + 60, gap: 12 }
+        return { itemWidth: size + 16, itemHeight: size + 60, gap: 12 }
       default:
-        return { itemWidth: previewSize + 16, itemHeight: previewSize + 60, gap: 12 }
+        return { itemWidth: size + 16, itemHeight: size + 60, gap: 12 }
     }
   }, [viewMode, previewSize])
 

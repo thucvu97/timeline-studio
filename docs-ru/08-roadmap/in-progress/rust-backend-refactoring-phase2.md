@@ -58,7 +58,7 @@
 - [ ] Интеграция с существующими модулями
 - [ ] Performance оптимизация
 
-### Этап 3: Plugin System (85%)
+### Этап 3: Plugin System (90%)
 - [x] Архитектура плагинов
 - [x] Plugin trait и lifecycle
 - [x] PluginLoader для статической загрузки
@@ -67,8 +67,22 @@
 - [x] PluginContext для изоляции
 - [x] PluginApi (заглушка для будущей реализации)
 - [x] Примеры плагинов (BlurEffect, YouTubeUploader)
+- [x] Интеграция с Telemetry (метрики и трассировка)
 - [ ] Sandboxing и ограничение ресурсов
 - [ ] Динамическая загрузка (WASM/dylib)
+
+### Этап 4: OpenTelemetry & Observability (80%)
+- [x] Архитектура телеметрии
+- [x] TelemetryManager с конфигурацией
+- [x] Tracer для distributed tracing
+- [x] MetricsCollector для метрик
+- [x] Structured logging интеграция
+- [x] Middleware для HTTP трассировки
+- [x] Предопределенные метрики приложения
+- [x] Интеграция с Plugin System
+- [ ] OTLP/Jaeger экспортеры (заглушка готова)
+- [ ] Prometheus экспортер
+- [ ] Health checks endpoints
 
 ## Технические детали
 
@@ -159,10 +173,18 @@ trait Plugin: Send + Sync {
 - **permissions.rs** - Система разрешений и SecurityLevel
 - **api.rs** - PluginApi для доступа к функциям приложения
 
+### ✅ Telemetry & Observability (`src/core/telemetry/`)
+- **mod.rs** - TelemetryManager для координации всех компонентов
+- **config.rs** - Конфигурация с поддержкой разных экспортеров
+- **tracer.rs** - Distributed tracing с OpenTelemetry
+- **metrics.rs** - Сбор метрик с типизированными счетчиками
+- **middleware.rs** - HTTP middleware для автоматической инструментации
+
 ### ✅ Примеры использования (`examples/`)
 - **di_container_example.rs** - Демонстрация DI Container
 - **event_system_example.rs** - Демонстрация Event System
 - **plugin_system_demo.rs** - Полная демонстрация Plugin System
+- **telemetry_demo.rs** - Полная демонстрация OpenTelemetry интеграции
 - **plugins/blur_effect_plugin.rs** - Пример плагина эффектов
 - **plugins/youtube_uploader_plugin.rs** - Пример сервисного плагина
 
