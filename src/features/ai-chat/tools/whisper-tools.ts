@@ -540,10 +540,19 @@ async function createSubtitlesFromTranscription(params: any): Promise<{
   format: string
   lineCount: number
 }> {
-  const { transcriptionText, format, maxCharactersPerLine, maxLinesPerSubtitle } = params
+  const { transcriptionText, format = "srt", maxCharactersPerLine = 42, maxLinesPerSubtitle = 2 } = params
+
+  // Handle empty transcription
+  if (!transcriptionText || transcriptionText.trim() === "") {
+    return {
+      subtitle: "",
+      format,
+      lineCount: 0,
+    }
+  }
 
   // Простая реализация разбивки текста на субтитры
-  const words = transcriptionText.split(" ")
+  const words = transcriptionText.trim().split(" ")
   const subtitles = []
   let currentSubtitle = ""
   let lineCount = 0
@@ -637,31 +646,54 @@ async function improveTranscriptionQuality(params: any): Promise<{
 
   if (removeFillers) {
     const fillers = ["эм", "ах", "э-э", "м-м", "ну", "как бы", "в общем"]
-    const originalLength = improvedText.length
+    const originalText = improvedText
 
     fillers.forEach((filler) => {
-      const regex = new RegExp(`\\b${filler}\\b`, "gi")
-      improvedText = improvedText.replace(regex, "")
+      // Use word boundaries that work with Cyrillic and Latin characters
+      const escapedFiller = filler.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      // Use (^|\s) and (\s|$) instead of \b for better Cyrillic support
+      const regex = new RegExp(`(^|\\s)${escapedFiller}(\\s|$)`, "gi")
+      improvedText = improvedText.replace(regex, (_match, before, after) => {
+        // Keep the spaces but remove the filler word
+        return String(before) + String(after)
+      })
     })
 
-    if (improvedText.length < originalLength) {
+    // Clean up extra spaces after removal
+    improvedText = improvedText.replace(/\s+/g, " ").trim()
+
+    if (improvedText !== originalText) {
       changes.push("Удалены слова-паразиты")
     }
   }
 
   if (fixPunctuation) {
     // Простая логика добавления точек
+    const beforePunctuation = improvedText
+
+    // Add period at the end if missing
+    if (!/[.!?]$/.test(improvedText.trim())) {
+      improvedText = `${improvedText.trim()}.`
+    }
+
+    // Add periods before capitalized words (sentence breaks)
     improvedText = improvedText.replace(/([a-zA-Zа-яА-Я])\s+([А-ЯA-Z])/g, "$1. $2")
-    changes.push("Исправлена пунктуация")
+
+    if (improvedText !== beforePunctuation) {
+      changes.push("Исправлена пунктуация")
+    }
   }
 
   if (fixCapitalization) {
     // Заглавные буквы в начале предложений
+    const beforeCapitalization = improvedText
     improvedText = improvedText.replace(
       /(^|\. )([a-zа-я])/g,
       (_match: string, p1: string, p2: string) => String(p1) + String(p2).toUpperCase(),
     )
-    changes.push("Исправлены заглавные буквы")
+    if (improvedText !== beforeCapitalization) {
+      changes.push("Исправлены заглавные буквы")
+    }
   }
 
   // Очистка лишних пробелов

@@ -11,7 +11,6 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use tauri::State;
 
-
 /// Параметры для добавления сегментных входов
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SegmentInputParams {

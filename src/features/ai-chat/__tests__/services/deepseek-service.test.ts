@@ -74,9 +74,12 @@ describe("DeepSeekService", () => {
     // Setup mock ApiKeyLoader
     mockApiKeyLoader = {
       getInstance: vi.fn(),
-      getApiKey: vi.fn().mockResolvedValue(mockApiKey),
+      getApiKey: vi.fn(),
       updateCache: vi.fn(),
     } as any
+    
+    // Setup default return value
+    vi.mocked(mockApiKeyLoader.getApiKey).mockResolvedValue(mockApiKey)
 
     vi.mocked(ApiKeyLoader.getInstance).mockReturnValue(mockApiKeyLoader)
 
@@ -96,24 +99,24 @@ describe("DeepSeekService", () => {
       // Test that the service properly integrates with ApiKeyLoader
       expect(mockApiKeyLoader.updateCache).toBeDefined()
       expect(mockApiKeyLoader.getApiKey).toBeDefined()
-      
+
       // Verify service uses the loader instance
       expect(vi.mocked(ApiKeyLoader.getInstance)).toHaveBeenCalled()
     })
 
     it("should handle API key updates through loader", () => {
       const newApiKey = "new-api-key"
-      
+
       // Simulate updating API key through the loader
       mockApiKeyLoader.updateCache("deepseek", newApiKey)
-      
+
       expect(mockApiKeyLoader.updateCache).toHaveBeenCalledWith("deepseek", newApiKey)
     })
   })
 
   describe("hasApiKey", () => {
     it("should return true when API key exists", async () => {
-      mockApiKeyLoader.getApiKey.mockResolvedValue(mockApiKey)
+      vi.mocked(mockApiKeyLoader.getApiKey).mockResolvedValue(mockApiKey)
 
       const result = await service.hasApiKey()
 
@@ -122,7 +125,7 @@ describe("DeepSeekService", () => {
     })
 
     it("should return false when API key is empty", async () => {
-      mockApiKeyLoader.getApiKey.mockResolvedValue("")
+      vi.mocked(mockApiKeyLoader.getApiKey).mockResolvedValue("")
 
       const result = await service.hasApiKey()
 
@@ -130,7 +133,7 @@ describe("DeepSeekService", () => {
     })
 
     it("should return false when API key is null", async () => {
-      mockApiKeyLoader.getApiKey.mockResolvedValue(null)
+      vi.mocked(mockApiKeyLoader.getApiKey).mockResolvedValue(null)
 
       const result = await service.hasApiKey()
 
@@ -144,7 +147,7 @@ describe("DeepSeekService", () => {
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockApiResponse,
-      } as Response)
+      } as unknown as Response)
 
       const result = await service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)
 
@@ -173,7 +176,7 @@ describe("DeepSeekService", () => {
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockApiResponse,
-      } as Response)
+      } as unknown as Response)
 
       const customOptions = {
         temperature: 0.9,
@@ -194,7 +197,7 @@ describe("DeepSeekService", () => {
     })
 
     it("should throw error when API key is not set", async () => {
-      mockApiKeyLoader.getApiKey.mockResolvedValue(null)
+      vi.mocked(mockApiKeyLoader.getApiKey).mockResolvedValue(null)
 
       await expect(service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)).rejects.toThrow(
         "DeepSeek API ключ не установлен",
@@ -207,7 +210,7 @@ describe("DeepSeekService", () => {
         ok: false,
         status: 401,
         text: async () => "Unauthorized",
-      } as Response)
+      } as unknown as Response)
 
       await expect(service.sendRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages)).rejects.toThrow(
         "Ошибка DeepSeek API: 401 Unauthorized",
@@ -269,7 +272,7 @@ describe("DeepSeekService", () => {
         body: {
           getReader: () => mockReader,
         },
-      } as Response)
+      } as unknown as Response)
 
       await service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions)
 
@@ -289,7 +292,7 @@ describe("DeepSeekService", () => {
         ok: false,
         status: 429,
         text: async () => "Rate limit exceeded",
-      } as Response)
+      } as unknown as Response)
 
       await expect(
         service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions),
@@ -299,7 +302,7 @@ describe("DeepSeekService", () => {
     })
 
     it("should handle missing API key in streaming", async () => {
-      mockApiKeyLoader.getApiKey.mockResolvedValue(null)
+      vi.mocked(mockApiKeyLoader.getApiKey).mockResolvedValue(null)
       const onError = vi.fn()
       const streamingOptions: StreamingOptions = { onError }
 
@@ -318,7 +321,7 @@ describe("DeepSeekService", () => {
       mockFetch.mockResolvedValue({
         ok: true,
         body: null,
-      } as Response)
+      } as unknown as Response)
 
       await expect(
         service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, streamingOptions),
@@ -346,7 +349,7 @@ describe("DeepSeekService", () => {
         body: {
           getReader: () => mockReader,
         },
-      } as Response)
+      } as unknown as Response)
 
       await service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, {
         onContent,
@@ -413,7 +416,7 @@ describe("DeepSeekService", () => {
         body: {
           getReader: () => mockReader,
         },
-      } as Response)
+      } as unknown as Response)
 
       await service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, {
         onComplete,
@@ -437,7 +440,7 @@ describe("DeepSeekService", () => {
         body: {
           getReader: () => mockReader,
         },
-      } as Response)
+      } as unknown as Response)
 
       await service.sendStreamingRequest(DEEPSEEK_MODELS.DEEPSEEK_CHAT, mockMessages, {
         onContent,

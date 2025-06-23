@@ -261,9 +261,7 @@ use crate::video_compiler::progress::ProgressUpdate;
 use tokio::sync::mpsc;
 
 #[tauri::command]
-pub async fn execute_ffmpeg_with_progress(
-  command_args: Vec<String>,
-) -> Result<String, String> {
+pub async fn execute_ffmpeg_with_progress(command_args: Vec<String>) -> Result<String, String> {
   log::debug!(
     "Выполнение FFmpeg с отслеживанием прогресса: {:?}",
     command_args

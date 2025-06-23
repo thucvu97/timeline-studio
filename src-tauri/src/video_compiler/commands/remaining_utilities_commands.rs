@@ -300,7 +300,7 @@ mod tests {
   #[test]
   fn test_track_operations_params_serialization() {
     use crate::video_compiler::schema::{Track, TrackType};
-    
+
     let track = Track::new(TrackType::Video, "Test Track".to_string());
     let params = TrackOperationsParams {
       track,

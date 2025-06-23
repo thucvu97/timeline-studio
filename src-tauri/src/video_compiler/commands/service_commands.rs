@@ -138,7 +138,9 @@ pub async fn set_preview_ffmpeg_path(
 
 /// Получить все метрики сервисов
 #[tauri::command]
-pub async fn get_all_service_metrics(state: State<'_, VideoCompilerState>) -> Result<serde_json::Value> {
+pub async fn get_all_service_metrics(
+  state: State<'_, VideoCompilerState>,
+) -> Result<serde_json::Value> {
   log::debug!("Getting all service metrics");
 
   let active_jobs = state.active_jobs.read().await;

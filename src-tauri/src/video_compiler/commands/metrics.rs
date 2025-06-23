@@ -9,7 +9,9 @@ use super::state::VideoCompilerState;
 
 /// Получить сводку метрик для всех сервисов
 #[tauri::command]
-pub async fn get_all_metrics_original(_state: State<'_, VideoCompilerState>) -> Result<Vec<MetricsSummary>> {
+pub async fn get_all_metrics_original(
+  _state: State<'_, VideoCompilerState>,
+) -> Result<Vec<MetricsSummary>> {
   log::debug!("Получение метрик всех сервисов");
   let summaries = METRICS.get_all_summaries().await;
   Ok(summaries)
@@ -32,7 +34,9 @@ pub async fn get_service_metrics_original(
 
 /// Экспортировать метрики в формате Prometheus
 #[tauri::command]
-pub async fn export_metrics_prometheus_original(_state: State<'_, VideoCompilerState>) -> Result<String> {
+pub async fn export_metrics_prometheus_original(
+  _state: State<'_, VideoCompilerState>,
+) -> Result<String> {
   log::debug!("Экспорт метрик в формате Prometheus");
   let prometheus_data = METRICS.export_prometheus().await;
   Ok(prometheus_data)

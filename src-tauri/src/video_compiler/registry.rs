@@ -362,6 +362,38 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       get_mock_gpu_capabilities_original,
       validate_test_mocks_original,
       create_test_state_original,
+      // Pipeline advanced commands
+      get_pipeline_context_mutable,
+      set_pipeline_user_data,
+      get_pipeline_user_data,
+      should_use_hardware_acceleration_for_codec,
+      generate_noise_clip_advanced,
+      generate_gradient_clip_advanced,
+      // Recognition advanced commands
+      get_frame_processor_class_names,
+      check_is_face_model,
+      check_is_segmentation_model,
+      get_model_manager_status,
+      get_recognition_results_by_time_range,
+      get_recognition_results_by_class,
+      format_recognition_results_for_timeline,
+      // Security advanced commands
+      init_secure_storage_advanced,
+      create_secure_storage_instance,
+      get_secure_storage_info_advanced,
+      verify_secure_storage_integrity,
+      export_secure_storage_config,
+      clear_secure_storage,
+      // FFmpeg Builder extra commands
+      build_prerender_segment_command_advanced,
+      validate_prerender_segment_params,
+      get_optimal_prerender_settings,
+      // Progress tracker commands
+      get_render_progress_tracker,
+      get_progress_tracker_statistics,
+      reset_progress_tracker,
+      set_progress_callback_enabled,
+      get_current_operation_details,
     ])
   }
 }

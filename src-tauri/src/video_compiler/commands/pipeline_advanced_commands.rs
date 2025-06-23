@@ -1,0 +1,234 @@
+//! Pipeline Advanced Commands - продвинутые команды для работы с pipeline
+
+use crate::video_compiler::error::Result;
+use crate::video_compiler::VideoCompilerState;
+use serde::{Deserialize, Serialize};
+use tauri::State;
+
+/// Контекст пайплайна
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PipelineContextInfo {
+  pub project_name: String,
+  pub current_stage: String,
+  pub progress: f32,
+  pub user_data_keys: Vec<String>,
+  pub error_count: usize,
+  pub warning_count: usize,
+}
+
+/// Пользовательские данные для пайплайна
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserData {
+  pub key: String,
+  pub value: serde_json::Value,
+}
+
+/// Параметры для установки пользовательских данных
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SetUserDataParams {
+  pub key: String,
+  pub value: serde_json::Value,
+}
+
+/// Информация о поддержке аппаратного ускорения
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwareAccelerationInfo {
+  pub codec: String,
+  pub should_use: bool,
+  pub available_encoders: Vec<String>,
+  pub recommended_encoder: Option<String>,
+  pub reason: String,
+}
+
+/// Получить изменяемый контекст пайплайна (эмуляция)
+#[tauri::command]
+pub async fn get_pipeline_context_mutable(
+  _state: State<'_, VideoCompilerState>,
+) -> Result<PipelineContextInfo> {
+  // Заглушка для get_context_mut - создаем демо контекст
+  Ok(PipelineContextInfo {
+    project_name: "Current Project".to_string(),
+    current_stage: "composition".to_string(),
+    progress: 0.75,
+    user_data_keys: vec!["custom_filter".to_string(), "user_preference".to_string()],
+    error_count: 0,
+    warning_count: 2,
+  })
+}
+
+/// Установить пользовательские данные в контекст пайплайна
+#[tauri::command]
+pub async fn set_pipeline_user_data(
+  params: SetUserDataParams,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<bool> {
+  // Заглушка для set_user_data
+  log::info!(
+    "Setting user data: key={}, value={}",
+    params.key,
+    serde_json::to_string(&params.value).unwrap_or_default()
+  );
+  Ok(true)
+}
+
+/// Получить пользовательские данные из контекста пайплайна
+#[tauri::command]
+pub async fn get_pipeline_user_data(
+  key: String,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<Option<serde_json::Value>> {
+  // Заглушка для get_user_data
+  match key.as_str() {
+    "custom_filter" => Ok(Some(serde_json::json!({
+        "type": "blur",
+        "intensity": 5.0,
+        "enabled": true
+    }))),
+    "user_preference" => Ok(Some(serde_json::json!({
+        "quality": "high",
+        "format": "mp4",
+        "notifications": true
+    }))),
+    _ => Ok(None),
+  }
+}
+
+/// Проверить, следует ли использовать аппаратное ускорение для кодека
+#[tauri::command]
+pub async fn should_use_hardware_acceleration_for_codec(
+  codec: String,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<HardwareAccelerationInfo> {
+  // Заглушка для should_use_hardware_acceleration
+  let should_use = match codec.as_str() {
+    "h264" | "h265" => true,
+    "vp8" | "vp9" => false,
+    "av1" => true,
+    _ => false,
+  };
+
+  let available_encoders = match codec.as_str() {
+    "h264" => vec![
+      "nvenc_h264".to_string(),
+      "qsv_h264".to_string(),
+      "libx264".to_string(),
+    ],
+    "h265" => vec![
+      "nvenc_h265".to_string(),
+      "qsv_h265".to_string(),
+      "libx265".to_string(),
+    ],
+    "av1" => vec!["libaom-av1".to_string(), "libsvtav1".to_string()],
+    _ => vec!["software".to_string()],
+  };
+
+  let recommended_encoder = if should_use && !available_encoders.is_empty() {
+    available_encoders.first().cloned()
+  } else {
+    None
+  };
+
+  let reason = if should_use {
+    "Hardware acceleration available and beneficial for this codec".to_string()
+  } else {
+    "Software encoding recommended for this codec".to_string()
+  };
+
+  Ok(HardwareAccelerationInfo {
+    codec,
+    should_use,
+    available_encoders,
+    recommended_encoder,
+    reason,
+  })
+}
+
+/// Сгенерировать шумовой клип (эмуляция generate_noise_clip)
+#[tauri::command]
+pub async fn generate_noise_clip_advanced(
+  duration: f64,
+  width: u32,
+  height: u32,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<serde_json::Value> {
+  // Заглушка для generate_noise_clip
+  Ok(serde_json::json!({
+      "success": true,
+      "clip_type": "noise",
+      "duration": duration,
+      "resolution": {
+          "width": width,
+          "height": height
+      },
+      "noise_type": "white",
+      "intensity": 0.5,
+      "generated_path": format!("/tmp/noise_{}x{}_{:.1}s.mp4", width, height, duration),
+      "file_size_mb": (width * height * duration as u32) / 1000000, // Примерный размер
+  }))
+}
+
+/// Сгенерировать градиентный клип (эмуляция generate_gradient_clip)
+#[tauri::command]
+pub async fn generate_gradient_clip_advanced(
+  duration: f64,
+  width: u32,
+  height: u32,
+  start_color: String,
+  end_color: String,
+  _state: State<'_, VideoCompilerState>,
+) -> Result<serde_json::Value> {
+  // Заглушка для generate_gradient_clip
+  Ok(serde_json::json!({
+      "success": true,
+      "clip_type": "gradient",
+      "duration": duration,
+      "resolution": {
+          "width": width,
+          "height": height
+      },
+      "gradient": {
+          "start_color": start_color,
+          "end_color": end_color,
+          "direction": "linear",
+          "angle": 45
+      },
+      "generated_path": format!("/tmp/gradient_{}x{}_{:.1}s.mp4", width, height, duration),
+      "file_size_mb": (width * height * duration as u32) / 1000000,
+  }))
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_pipeline_context_info_serialization() {
+    let info = PipelineContextInfo {
+      project_name: "Test Project".to_string(),
+      current_stage: "encoding".to_string(),
+      progress: 0.5,
+      user_data_keys: vec!["key1".to_string()],
+      error_count: 0,
+      warning_count: 1,
+    };
+
+    let json = serde_json::to_string(&info).unwrap();
+    assert!(json.contains("Test Project"));
+    assert!(json.contains("encoding"));
+  }
+
+  #[test]
+  fn test_hardware_acceleration_info_serialization() {
+    let info = HardwareAccelerationInfo {
+      codec: "h264".to_string(),
+      should_use: true,
+      available_encoders: vec!["nvenc_h264".to_string()],
+      recommended_encoder: Some("nvenc_h264".to_string()),
+      reason: "Hardware available".to_string(),
+    };
+
+    let json = serde_json::to_string(&info).unwrap();
+    assert!(json.contains("h264"));
+    assert!(json.contains("nvenc_h264"));
+  }
+}
