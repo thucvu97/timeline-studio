@@ -230,7 +230,9 @@ pub async fn create_subtitle_animation_new(
   delay: Option<f64>,
   easing: Option<String>,
 ) -> Result<crate::video_compiler::schema::subtitles::SubtitleAnimation> {
-  use crate::video_compiler::schema::subtitles::{SubtitleAnimation, SubtitleAnimationType, SubtitleEasing};
+  use crate::video_compiler::schema::subtitles::{
+    SubtitleAnimation, SubtitleAnimationType, SubtitleEasing,
+  };
 
   let anim_type = match animation_type.as_str() {
     "fade_in" => SubtitleAnimationType::FadeIn,
@@ -272,7 +274,9 @@ pub async fn create_style_template_new(
   style: Option<String>,
   duration: Option<f64>,
 ) -> Result<crate::video_compiler::schema::templates::StyleTemplate> {
-  use crate::video_compiler::schema::templates::{StyleTemplate, StyleTemplateCategory, StyleTemplateStyle};
+  use crate::video_compiler::schema::templates::{
+    StyleTemplate, StyleTemplateCategory, StyleTemplateStyle,
+  };
 
   let template_category = match category.as_str() {
     "intro" => StyleTemplateCategory::Intro,
@@ -440,7 +444,7 @@ pub async fn create_resolution(
   height: u32,
 ) -> Result<crate::video_compiler::schema::common::Resolution> {
   use crate::video_compiler::schema::common::Resolution;
-  
+
   // Используем метод Resolution::new
   Ok(Resolution::new(width, height))
 }
@@ -449,7 +453,7 @@ pub async fn create_resolution(
 #[tauri::command]
 pub async fn get_hd_resolution() -> Result<crate::video_compiler::schema::common::Resolution> {
   use crate::video_compiler::schema::common::Resolution;
-  
+
   // Используем метод Resolution::hd
   Ok(Resolution::hd())
 }
@@ -458,7 +462,7 @@ pub async fn get_hd_resolution() -> Result<crate::video_compiler::schema::common
 #[tauri::command]
 pub async fn get_uhd_4k_resolution() -> Result<crate::video_compiler::schema::common::Resolution> {
   use crate::video_compiler::schema::common::Resolution;
-  
+
   // Используем метод Resolution::uhd_4k
   Ok(Resolution::uhd_4k())
 }
@@ -467,7 +471,7 @@ pub async fn get_uhd_4k_resolution() -> Result<crate::video_compiler::schema::co
 #[tauri::command]
 pub async fn get_preset_resolutions() -> Result<Vec<serde_json::Value>> {
   use crate::video_compiler::schema::common::Resolution;
-  
+
   // Создаем список предустановленных разрешений используя методы Resolution
   let resolutions = vec![
     serde_json::json!({
@@ -491,7 +495,7 @@ pub async fn get_preset_resolutions() -> Result<Vec<serde_json::Value>> {
       "resolution": Resolution::new(1080, 1920)
     }),
   ];
-  
+
   Ok(resolutions)
 }
 
@@ -501,7 +505,7 @@ pub async fn create_resolution_for_format(
   format: String,
 ) -> Result<crate::video_compiler::schema::common::Resolution> {
   use crate::video_compiler::schema::common::Resolution;
-  
+
   // Создаем разрешение в зависимости от формата
   let resolution = match format.as_str() {
     "hd" | "720p" => Resolution::hd(),
@@ -512,6 +516,6 @@ pub async fn create_resolution_for_format(
     "ultrawide" => Resolution::new(2560, 1080),
     _ => Resolution::new(1920, 1080), // По умолчанию Full HD
   };
-  
+
   Ok(resolution)
 }

@@ -36,10 +36,10 @@ pub async fn create_secure_storage_new(
 ) -> Result<SecureStorageResult> {
   // В реальном приложении AppHandle должен быть передан через систему
   // Здесь возвращаем демо-результат для демонстрации использования SecureStorage::new
-  
+
   // Демонстрируем что функция SecureStorage::new вызывается
   // В реальной реализации здесь был бы вызов: SecureStorage::new(app_handle)
-  
+
   Ok(SecureStorageResult {
     success: true,
     storage_id: format!("secure_storage_{}", uuid::Uuid::new_v4()),

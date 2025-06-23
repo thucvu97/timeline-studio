@@ -226,18 +226,18 @@ pub async fn set_pipeline_user_data_direct(
   use crate::video_compiler::core::stages::PipelineContext;
   use crate::video_compiler::schema::ProjectSchema;
   use std::path::PathBuf;
-  
+
   // Создаем новый контекст для демонстрации использования метода
   let project = ProjectSchema::new("demo-project".to_string());
   let output_path = PathBuf::from("/tmp/demo-output");
   let mut context = PipelineContext::new(project, output_path);
-  
+
   // Используем оригинальный метод set_user_data
   context.set_user_data(key.clone(), value)?;
-  
+
   // Для проверки, получаем данные обратно
   let retrieved: Option<serde_json::Value> = context.get_user_data(&key);
-  
+
   Ok(retrieved.is_some())
 }
 
@@ -252,20 +252,20 @@ pub async fn get_pipeline_user_data_direct(
   use crate::video_compiler::core::stages::PipelineContext;
   use crate::video_compiler::schema::ProjectSchema;
   use std::path::PathBuf;
-  
+
   // Создаем новый контекст для демонстрации использования метода
   let project = ProjectSchema::new("demo-project".to_string());
   let output_path = PathBuf::from("/tmp/demo-output");
   let mut context = PipelineContext::new(project, output_path);
-  
+
   // Добавляем некоторые тестовые данные, если есть default_value
   if let Some(default) = default_value {
     context.set_user_data(key.clone(), default.clone())?;
   }
-  
+
   // Используем оригинальный метод get_user_data
   let result: Option<serde_json::Value> = context.get_user_data(&key);
-  
+
   Ok(result)
 }
 
@@ -281,15 +281,18 @@ pub async fn generate_noise_clip_direct(
   use crate::video_compiler::core::stages::PipelineContext;
   use crate::video_compiler::schema::ProjectSchema;
   use std::path::PathBuf;
-  
+
   // Создаем необходимые компоненты
   let preprocessing_stage = PreprocessingStage::new();
   let project = ProjectSchema::new("noise-generation".to_string());
   let output_path = PathBuf::from("/tmp").join(&output_filename);
   let context = PipelineContext::new(project, output_path.clone());
-  
+
   // Используем оригинальный метод generate_noise_clip
-  match preprocessing_stage.generate_noise_clip(duration, &output_path, &context).await {
+  match preprocessing_stage
+    .generate_noise_clip(duration, &output_path, &context)
+    .await
+  {
     Ok(_) => Ok(serde_json::json!({
       "success": true,
       "clip_type": "noise",
@@ -304,7 +307,7 @@ pub async fn generate_noise_clip_direct(
     Err(e) => Ok(serde_json::json!({
       "success": false,
       "error": e.to_string()
-    }))
+    })),
   }
 }
 
@@ -321,15 +324,18 @@ pub async fn generate_gradient_clip_direct(
   use crate::video_compiler::core::stages::PipelineContext;
   use crate::video_compiler::schema::ProjectSchema;
   use std::path::PathBuf;
-  
+
   // Создаем необходимые компоненты
   let preprocessing_stage = PreprocessingStage::new();
   let project = ProjectSchema::new("gradient-generation".to_string());
   let output_path = PathBuf::from("/tmp").join(&output_filename);
   let context = PipelineContext::new(project, output_path.clone());
-  
+
   // Используем оригинальный метод generate_gradient_clip
-  match preprocessing_stage.generate_gradient_clip(&start_color, duration, &output_path, &context).await {
+  match preprocessing_stage
+    .generate_gradient_clip(&start_color, duration, &output_path, &context)
+    .await
+  {
     Ok(_) => Ok(serde_json::json!({
       "success": true,
       "clip_type": "gradient",
@@ -346,7 +352,7 @@ pub async fn generate_gradient_clip_direct(
     Err(e) => Ok(serde_json::json!({
       "success": false,
       "error": e.to_string()
-    }))
+    })),
   }
 }
 
@@ -416,7 +422,7 @@ mod tests {
     assert!(value.is_object());
     assert_eq!(value["number"], 42);
     assert_eq!(value["enabled"], true);
-    
+
     // Проверяем ключ
     assert!(!key.is_empty());
     assert_eq!(key, "test_key");
@@ -427,13 +433,13 @@ mod tests {
     use crate::video_compiler::core::stages::PipelineContext;
     use crate::video_compiler::schema::ProjectSchema;
     use std::path::PathBuf;
-    
+
     // Тест создания контекста
     let project_name = "test-project".to_string();
     let project = ProjectSchema::new(project_name.clone());
     let output_path = PathBuf::from("/tmp/test-output");
     let context = PipelineContext::new(project, output_path);
-    
+
     // Проверяем что контекст создался
     assert_eq!(context.project.metadata.name, project_name);
   }
@@ -443,7 +449,7 @@ mod tests {
     // Тест параметров для генерации шумового клипа
     let duration = 5.0;
     let output_filename = "noise_test.mp4".to_string();
-    
+
     assert!(duration > 0.0);
     assert!(output_filename.ends_with(".mp4"));
   }
@@ -454,7 +460,7 @@ mod tests {
     let start_color = Some("#FF0000".to_string());
     let duration = 3.0;
     let output_filename = "gradient_test.mp4".to_string();
-    
+
     assert!(duration > 0.0);
     assert!(output_filename.ends_with(".mp4"));
     assert_eq!(start_color.as_deref(), Some("#FF0000"));

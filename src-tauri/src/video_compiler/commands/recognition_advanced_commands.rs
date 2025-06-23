@@ -407,12 +407,10 @@ pub async fn get_yolo_model_info_extended(
 
 /// Получить информацию о сессии модели (прямое использование get_session)
 #[tauri::command]
-pub async fn get_model_session_info(
-  model_type: String,
-) -> Result<serde_json::Value> {
+pub async fn get_model_session_info(model_type: String) -> Result<serde_json::Value> {
   // Создаем ModelManager для проверки
   use crate::recognition::model_manager::{ModelManager, YoloModel};
-  
+
   let yolo_model = match model_type.as_str() {
     "yolo11_detection" => YoloModel::YoloV11Detection,
     "yolo11_segmentation" => YoloModel::YoloV11Segmentation,
@@ -422,9 +420,9 @@ pub async fn get_model_session_info(
     "yolo8_face" => YoloModel::YoloV8Face,
     _ => YoloModel::YoloV11Detection,
   };
-  
+
   let mut manager = ModelManager::new(yolo_model)?;
-  
+
   // Пытаемся загрузить модель
   match manager.load_model().await {
     Ok(_) => {
@@ -446,26 +444,24 @@ pub async fn get_model_session_info(
           "model_type": model_type,
           "error": e.to_string(),
           "session_available": false
-        }))
+        })),
       }
-    },
+    }
     Err(e) => Ok(serde_json::json!({
       "success": false,
       "model_type": model_type,
       "error": format!("Failed to load model: {}", e),
       "session_available": false
-    }))
+    })),
   }
 }
 
 /// Получить тип загруженной модели (прямое использование get_model_type)
 #[tauri::command]
-pub async fn get_loaded_model_type(
-  model_type: String,
-) -> Result<serde_json::Value> {
+pub async fn get_loaded_model_type(model_type: String) -> Result<serde_json::Value> {
   // Создаем ModelManager для проверки
   use crate::recognition::model_manager::{ModelManager, YoloModel};
-  
+
   let yolo_model = match model_type.as_str() {
     "yolo11_detection" => YoloModel::YoloV11Detection,
     "yolo11_segmentation" => YoloModel::YoloV11Segmentation,
@@ -475,12 +471,12 @@ pub async fn get_loaded_model_type(
     "yolo8_face" => YoloModel::YoloV8Face,
     _ => YoloModel::YoloV11Detection,
   };
-  
+
   let manager = ModelManager::new(yolo_model)?;
-  
+
   // Используем метод get_model_type
   let model_type_info = manager.get_model_type();
-  
+
   Ok(serde_json::json!({
     "success": true,
     "model_type": match model_type_info {
@@ -503,12 +499,10 @@ pub async fn get_loaded_model_type(
 
 /// Проверить, загружена ли модель (прямое использование is_loaded)
 #[tauri::command]
-pub async fn check_model_is_loaded(
-  model_type: String,
-) -> Result<serde_json::Value> {
+pub async fn check_model_is_loaded(model_type: String) -> Result<serde_json::Value> {
   // Создаем ModelManager для проверки
   use crate::recognition::model_manager::{ModelManager, YoloModel};
-  
+
   let yolo_model = match model_type.as_str() {
     "yolo11_detection" => YoloModel::YoloV11Detection,
     "yolo11_segmentation" => YoloModel::YoloV11Segmentation,
@@ -518,16 +512,16 @@ pub async fn check_model_is_loaded(
     "yolo8_face" => YoloModel::YoloV8Face,
     _ => YoloModel::YoloV11Detection,
   };
-  
+
   let mut manager = ModelManager::new(yolo_model)?;
-  
+
   // Проверяем состояние без загрузки
   let is_loaded_before = manager.is_loaded();
-  
+
   // Пытаемся загрузить модель
   let load_result = manager.load_model().await;
   let is_loaded_after = manager.is_loaded();
-  
+
   Ok(serde_json::json!({
     "success": true,
     "model_type": model_type,
@@ -636,7 +630,7 @@ mod tests {
       "yolo8_segmentation",
       "yolo8_face",
     ];
-    
+
     for model_type in model_types {
       assert!(!model_type.is_empty());
       assert!(model_type.contains("yolo"));
@@ -648,7 +642,7 @@ mod tests {
     // Тест для проверки статуса загрузки
     let is_loaded_before = false;
     let is_loaded_after = true;
-    
+
     assert!(!is_loaded_before);
     assert!(is_loaded_after);
   }

@@ -304,6 +304,7 @@ pub mod test_data {
     get_test_files().iter().max_by_key(|f| f.size).unwrap()
   }
 
+  #[allow(dead_code)]
   pub fn get_longest_video() -> &'static TestMediaFile {
     get_video_files()
       .iter()
