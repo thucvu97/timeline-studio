@@ -66,16 +66,6 @@ AI assistant will create the right number of versions for each platform! 🤖
 - 🚧 **Effects/Filters/Transitions** - rich library in progress (75-80%)
 - 🚧 **Timeline AI** - automation with 41 Claude tools (90%)
 
-### Current Tasks:
-- 🔄 **OAuth callback handling** - completing social network integration
-- ⏳ **HTTP API validation** - real-time connection testing
-- ⏳ **Import from .env** - migration of existing keys
-
-### Next Steps:
-1. **Social Networks Integration** - full OAuth flow implementation
-2. **Advanced Effects** - completing Filmora-style library
-3. **Timeline AI** - intelligent video creation automation
-
 ## Key Features
 
 - 🎬 Professional video editing with multi-track timeline
