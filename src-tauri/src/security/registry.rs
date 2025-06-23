@@ -26,8 +26,9 @@ impl CommandRegistry for SecurityCommandRegistry {
       // Import/Export
       import_from_env,
       export_to_env_format,
-      // Security Storage commands
+      // Security Storage commands (from additional_commands)
       create_secure_storage,
+      create_secure_storage_new,
       get_or_create_encryption_key_command,
       check_storage_security,
       get_secure_storage_info,

@@ -222,6 +222,87 @@ pub async fn create_subtitle_animation(
   Ok(project)
 }
 
+/// Создать новую анимацию субтитров (использование SubtitleAnimation::new)
+#[tauri::command]
+pub async fn create_subtitle_animation_new(
+  animation_type: String,
+  duration: f64,
+  delay: Option<f64>,
+  easing: Option<String>,
+) -> Result<crate::video_compiler::schema::subtitles::SubtitleAnimation> {
+  use crate::video_compiler::schema::subtitles::{SubtitleAnimation, SubtitleAnimationType, SubtitleEasing};
+
+  let anim_type = match animation_type.as_str() {
+    "fade_in" => SubtitleAnimationType::FadeIn,
+    "fade_out" => SubtitleAnimationType::FadeOut,
+    "slide_in" => SubtitleAnimationType::SlideIn,
+    "slide_out" => SubtitleAnimationType::SlideOut,
+    "scale_in" => SubtitleAnimationType::ScaleIn,
+    "scale_out" => SubtitleAnimationType::ScaleOut,
+    "typewriter" => SubtitleAnimationType::Typewriter,
+    "wave" => SubtitleAnimationType::Wave,
+    "bounce" => SubtitleAnimationType::Bounce,
+    "shake" => SubtitleAnimationType::Shake,
+    "blink" => SubtitleAnimationType::Blink,
+    "dissolve" => SubtitleAnimationType::Dissolve,
+    "scale" => SubtitleAnimationType::Scale,
+    _ => SubtitleAnimationType::FadeIn,
+  };
+
+  let easing_type = match easing.as_deref() {
+    Some("linear") => SubtitleEasing::Linear,
+    Some("ease_in") => SubtitleEasing::EaseIn,
+    Some("ease_out") => SubtitleEasing::EaseOut,
+    Some("ease_in_out") => SubtitleEasing::EaseInOut,
+    _ => SubtitleEasing::EaseInOut,
+  };
+
+  // Используем метод SubtitleAnimation::new и устанавливаем дополнительные параметры
+  let mut animation = SubtitleAnimation::new(anim_type, duration);
+  animation.delay = delay.unwrap_or(0.0);
+  animation.easing = easing_type;
+  Ok(animation)
+}
+
+/// Создать новый стилевой шаблон (использование StyleTemplate::new)  
+#[tauri::command]
+pub async fn create_style_template_new(
+  name: String,
+  category: String,
+  style: Option<String>,
+  duration: Option<f64>,
+) -> Result<crate::video_compiler::schema::templates::StyleTemplate> {
+  use crate::video_compiler::schema::templates::{StyleTemplate, StyleTemplateCategory, StyleTemplateStyle};
+
+  let template_category = match category.as_str() {
+    "intro" => StyleTemplateCategory::Intro,
+    "outro" => StyleTemplateCategory::Outro,
+    "title" => StyleTemplateCategory::Title,
+    "lower_third" => StyleTemplateCategory::LowerThird,
+    "transition" => StyleTemplateCategory::Transition,
+    "overlay" => StyleTemplateCategory::Overlay,
+    _ => StyleTemplateCategory::Overlay,
+  };
+
+  let template_style = match style.as_deref() {
+    Some("modern") => StyleTemplateStyle::Modern,
+    Some("minimal") => StyleTemplateStyle::Minimal,
+    Some("vintage") => StyleTemplateStyle::Vintage,
+    Some("corporate") => StyleTemplateStyle::Corporate,
+    Some("creative") => StyleTemplateStyle::Creative,
+    Some("cinematic") => StyleTemplateStyle::Cinematic,
+    _ => StyleTemplateStyle::Modern,
+  };
+
+  // Используем метод StyleTemplate::new
+  Ok(StyleTemplate::new(
+    name,
+    template_category,
+    template_style,
+    duration.unwrap_or(5.0),
+  ))
+}
+
 /// Создать шаблон
 #[tauri::command]
 pub async fn create_template(

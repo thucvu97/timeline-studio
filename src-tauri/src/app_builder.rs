@@ -56,6 +56,13 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::recognition::commands::yolo_commands::list_active_yolo_processors,
     crate::recognition::commands::yolo_commands::cleanup_yolo_processors,
     crate::recognition::commands::yolo_commands::create_yolo_processor_with_builder,
+    // Recognition advanced commands
+    crate::video_compiler::commands::recognition_advanced_commands::get_frame_processor_class_names,
+    crate::video_compiler::commands::recognition_advanced_commands::get_recognition_results_by_time_range,
+    crate::video_compiler::commands::recognition_advanced_commands::get_recognition_results_by_class,
+    crate::video_compiler::commands::recognition_advanced_commands::format_recognition_results_for_timeline,
+    crate::video_compiler::commands::recognition_advanced_commands::check_is_face_model,
+    crate::video_compiler::commands::recognition_advanced_commands::check_is_segmentation_model,
     // Security commands
     crate::security::save_simple_api_key,
     crate::security::save_oauth_credentials,
@@ -71,6 +78,12 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::security::parse_oauth_callback_url,
     crate::security::import_from_env,
     crate::security::export_to_env_format,
+    // Security advanced commands from additional_commands module
+    crate::security::additional_commands::create_secure_storage,
+    crate::security::additional_commands::create_secure_storage_new,
+    crate::security::additional_commands::get_or_create_encryption_key_command,
+    crate::security::additional_commands::check_storage_security,
+    crate::security::additional_commands::get_secure_storage_info,
     // Video compiler commands - using the already exported commands from the module
     crate::video_compiler::commands::auto_select_gpu,
     crate::video_compiler::commands::benchmark_gpu,
@@ -126,6 +139,8 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::create_filter,
     crate::video_compiler::commands::create_schema_objects,
     crate::video_compiler::commands::create_style_template,
+    crate::video_compiler::commands::create_subtitle_animation_new,
+    crate::video_compiler::commands::create_style_template_new,
     // Pipeline commands
     crate::video_compiler::commands::create_and_execute_pipeline,
     crate::video_compiler::commands::get_pipeline_info,
