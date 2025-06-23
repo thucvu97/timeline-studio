@@ -1,25 +1,5 @@
 use super::*;
 use chrono::Utc;
-use tempfile::TempDir;
-
-/// Mock Tauri AppHandle for testing
-struct MockAppHandle {
-  _temp_dir: TempDir,
-}
-
-impl MockAppHandle {
-  fn new() -> Self {
-    let temp_dir = TempDir::new().expect("Failed to create temp dir");
-    Self {
-      _temp_dir: temp_dir,
-    }
-  }
-}
-
-/// Creates a mock app handle for testing
-fn create_mock_app_handle() -> MockAppHandle {
-  MockAppHandle::new()
-}
 
 #[cfg(test)]
 mod secure_storage_tests {
