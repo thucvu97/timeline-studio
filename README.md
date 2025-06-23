@@ -50,21 +50,13 @@ AI assistant will create the right number of versions for each platform! 🤖
 
 ![Timeline Interface #2](/public/screen4.png)
 
-### Project Status (June 2025)
+### Project Status (23 June 2025)
 
-**Overall Completion: 58%** ⬆️ (recalculated with API Keys Management at 100% and 14 new planned modules)
+**Overall Completion: 62%** ⬆️ (recalculated with API Keys Management at 100% and 14 new planned modules)
 - **Completed**: 13 modules (100% readiness)
 - **In development**: 7 modules (45-90% readiness)
 - **Planned**: 4 modules (30-80% readiness)
 - **New planned**: 14 modules (0% readiness) - [details in planned/](docs-ru/08-roadmap/planned/)
-
-### Key Achievements:
-- ✅ **Core Architecture** - Timeline, Video Compiler, Media Management (100%)
-- ✅ **API Keys Management** - secure storage with AES-256-GCM encryption (100%)
-- ✅ **Recognition** - YOLO v11 object and face recognition (100%)
-- ✅ **Export** - OAuth integration for YouTube/TikTok/Vimeo (100%)
-- 🚧 **Effects/Filters/Transitions** - rich library in progress (75-80%)
-- 🚧 **Timeline AI** - automation with 41 Claude tools (90%)
 
 ## Key Features
 
