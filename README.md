@@ -63,7 +63,7 @@ AI assistant will create the right number of versions for each platform! 🤖
 - 🎬 Professional video editing with multi-track timeline
 - 🖥️ Cross-platform (Windows, macOS, Linux)
 - 🚀 GPU-accelerated video processing (NVENC, QuickSync, VideoToolbox)
-- 🤖 AI-powered object/face recognition (YOLO v11)
+- 🤖 AI-powered object/face recognition
 - 🎨 100+ transitions, visual effects, and filters
 - 📝 Advanced subtitle system with 72 styles and animations
 - 🎵 Multi-track audio editing with effects

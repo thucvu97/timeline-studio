@@ -15,9 +15,30 @@
 
 ### Компоненты
 
-1. **YoloProcessor** - Основной процессор для работы с YOLO моделями
-2. **RecognitionService** - Сервис для обработки видео и управления результатами
-3. **Commands** - Tauri команды для взаимодействия с фронтендом
+1. **YoloProcessor** - Основной процессор для работы с YOLO моделями (yolo_processor.rs)
+2. **ModelManager** - Управление загрузкой и доступом к YOLO моделям (model_manager.rs)
+3. **FrameProcessor** - Обработка отдельных кадров (frame_processor.rs)
+4. **ResultAggregator** - Агрегация и форматирование результатов (result_aggregator.rs)
+5. **RecognitionService** - Сервис для обработки видео и управления результатами
+6. **Commands** - Tauri команды для взаимодействия с фронтендом (commands/)
+
+### Структура после рефакторинга (2025)
+
+```
+recognition/
+├── mod.rs                    # Главный модуль и реэкспорт
+├── commands/                 # Tauri команды
+│   ├── mod.rs               # Реэкспорт команд
+│   └── yolo_commands.rs     # Команды YOLO процессора
+├── model_manager.rs         # Управление моделями (329 строк)
+├── frame_processor.rs       # Обработка кадров
+├── result_aggregator.rs     # Агрегация результатов
+├── yolo_processor.rs        # Основной процессор (из 1030 строк)
+├── yolo_processor_refactored.rs # Новая архитектура процессора
+├── service.rs               # Сервис распознавания
+├── registry.rs              # Регистрация команд
+└── tests.rs                 # Тесты модуля
+```
 
 ### Поддерживаемые модели
 
