@@ -14,11 +14,16 @@ export function syncResourcesToProject(
   mediaResources: MediaResource[],
   musicResources: MusicResource[],
 ): TimelineStudioProject {
-  // Создаем копию проекта чтобы не мутировать оригинал
-  const updatedProject = { ...project }
-
-  // Очищаем существующие медиа в проекте
-  updatedProject.mediaPool.items.clear()
+  // Создаем глубокую копию проекта чтобы не мутировать оригинал
+  const updatedProject = {
+    ...project,
+    mediaPool: {
+      ...project.mediaPool,
+      items: new Map(), // Создаем новую Map вместо очистки существующей
+      stats: { ...project.mediaPool.stats },
+    },
+    metadata: { ...project.metadata },
+  }
 
   // Добавляем медиа ресурсы
   mediaResources.forEach((resource) => {
@@ -39,8 +44,11 @@ export function syncResourcesToProject(
   // Обновляем статистику
   updatedProject.mediaPool.stats = {
     totalItems: updatedProject.mediaPool.items.size,
-    totalSize: Array.from(updatedProject.mediaPool.items.values()).reduce(
-      (sum, item) => sum + item.metadata.fileSize,
+    totalSize: Array.from(updatedProject.mediaPool.items.values()).reduce<number>(
+      (sum, item) => {
+        const fileSize = typeof item.metadata.fileSize === 'number' ? item.metadata.fileSize : 0
+        return Number(sum) + Number(fileSize)
+      },
       0,
     ),
     onlineItems: Array.from(updatedProject.mediaPool.items.values()).filter((item) => item.status === "online").length,

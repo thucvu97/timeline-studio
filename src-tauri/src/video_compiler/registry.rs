@@ -388,6 +388,7 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       build_prerender_segment_command_advanced,
       validate_prerender_segment_params,
       get_optimal_prerender_settings,
+      build_prerender_segment_direct,
       // Progress tracker commands
       get_render_progress_tracker,
       get_progress_tracker_statistics,
