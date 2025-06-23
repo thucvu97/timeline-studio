@@ -100,7 +100,7 @@ pub async fn create_ffmpeg_with_prerender_settings(
   // Создаем builder с проектом
   let _builder = FFmpegBuilder::new(params.project.clone());
   let settings = FFmpegBuilderSettings::default();
-  let output_builder = OutputBuilder::new(&params.project, &settings);
+  let _output_builder = OutputBuilder::new(&params.project, &settings);
 
   // Создаем команду
   let mut cmd = Command::new("ffmpeg");

@@ -30,7 +30,7 @@ pub async fn get_media_files_in_directory(
   params: GetMediaFilesParams,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<MediaFilesResult> {
-  let directory = PathBuf::from(&params.directory);
+  let _directory = PathBuf::from(&params.directory);
   let extensions = params.extensions.unwrap_or_else(|| {
     vec![
       "mp4".to_string(),
