@@ -131,15 +131,58 @@ impl MetricsMiddleware {
     }
 }
 
-/// Health check endpoint
-pub async fn health_check() -> StatusCode {
-    StatusCode::OK
+/// Health check endpoint - liveness probe
+pub async fn health_check(
+    State(health_manager): State<Arc<super::HealthCheckManager>>,
+) -> impl axum::response::IntoResponse {
+    let summary = health_manager.check_all().await;
+    let status_code = axum::http::StatusCode::from_u16(summary.http_status_code()).unwrap_or(axum::http::StatusCode::INTERNAL_SERVER_ERROR);
+    
+    (status_code, axum::Json(summary))
 }
 
-/// Ready check endpoint
-pub async fn ready_check() -> StatusCode {
-    // TODO: Проверить готовность всех компонентов
-    StatusCode::OK
+/// Ready check endpoint - readiness probe
+pub async fn ready_check(
+    State(health_manager): State<Arc<super::HealthCheckManager>>,
+) -> impl axum::response::IntoResponse {
+    let summary = health_manager.check_all().await;
+    let status_code = if summary.is_ready() {
+        axum::http::StatusCode::OK
+    } else {
+        axum::http::StatusCode::SERVICE_UNAVAILABLE
+    };
+    
+    (status_code, axum::Json(serde_json::json!({
+        "status": if summary.is_ready() { "ready" } else { "not_ready" },
+        "timestamp": summary.timestamp
+    })))
+}
+
+/// Live check endpoint - простая проверка что приложение запущено
+pub async fn live_check() -> impl axum::response::IntoResponse {
+    (axum::http::StatusCode::OK, axum::Json(serde_json::json!({
+        "status": "alive",
+        "timestamp": chrono::Utc::now()
+    })))
+}
+
+/// Конкретный health check endpoint
+pub async fn health_check_single(
+    State(health_manager): State<Arc<super::HealthCheckManager>>,
+    axum::extract::Path(check_name): axum::extract::Path<String>,
+) -> impl axum::response::IntoResponse {
+    match health_manager.check_one(&check_name).await {
+        Some(result) => {
+            let status_code = axum::http::StatusCode::from_u16(result.status.http_status_code())
+                .unwrap_or(axum::http::StatusCode::INTERNAL_SERVER_ERROR);
+            (status_code, axum::Json(result))
+        },
+        None => {
+            (axum::http::StatusCode::NOT_FOUND, axum::Json(serde_json::json!({
+                "error": format!("Health check '{}' not found", check_name)
+            })))
+        }
+    }
 }
 
 /// Метрики endpoint (для Prometheus)

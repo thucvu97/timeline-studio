@@ -43,6 +43,7 @@ pub enum AppEvent {
     // System events
     SystemStartup,
     SystemShutdown,
+    SystemHealthCheck { timestamp: chrono::DateTime<chrono::Utc> },
     ConfigChanged { key: String, value: serde_json::Value },
     MemoryWarning { usage_percent: f32 },
 }

@@ -1,3 +1,5 @@
+import React from "react"
+
 import { useAppSettings, useFavorites } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser/components/preview/media-preview"
 import { parseDuration, parseFileSize } from "@/features/browser/utils"
@@ -6,8 +8,38 @@ import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { MediaFile } from "@/features/media/types/media"
 import i18n from "@/i18n"
 
-import type { ListAdapter } from "../types/list"
+import type { ListAdapter, PreviewComponentProps } from "../types/list"
 import { getDateGroup, getDurationGroup } from "../utils/grouping"
+
+/**
+ * Компонент превью для медиафайлов - адаптер для MediaPreview
+ */
+const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
+  item: file,
+  size,
+  viewMode,
+  onClick,
+  onDragStart,
+  isSelected,
+  isFavorite,
+  onToggleFavorite,
+  onAddToTimeline
+}) => {
+  return (
+    <div
+      onClick={() => onClick?.(file)}
+      onDragStart={(e) => onDragStart?.(file, e)}
+      draggable
+      className="cursor-pointer"
+    >
+      <MediaPreview
+        file={file}
+        size={typeof size === "number" ? size : size.width}
+        showFileName={viewMode === "list"}
+      />
+    </div>
+  )
+}
 
 /**
  * Хук для создания адаптера медиафайлов с использованием React хуков
@@ -29,7 +61,7 @@ export function useMediaAdapter(): ListAdapter<MediaFile> {
     }),
     
     // Компонент превью
-    PreviewComponent: MediaPreview,
+    PreviewComponent: MediaPreviewWrapper,
     
     // Функция для получения значения сортировки
     getSortValue: (file, sortBy) => {

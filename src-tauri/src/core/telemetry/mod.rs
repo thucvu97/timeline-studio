@@ -4,11 +4,13 @@ pub mod tracer;
 pub mod metrics;
 pub mod config;
 pub mod middleware;
+pub mod health;
 
 pub use tracer::{Tracer, TraceContext, SpanBuilder};
 pub use metrics::{MetricsCollector, Counter, Gauge, Histogram};
 pub use config::{TelemetryConfig, ExporterConfig};
 pub use middleware::{TracingMiddleware, MetricsMiddleware};
+pub use health::{HealthCheck, HealthCheckManager, HealthCheckResult, HealthStatus, HealthCheckSummary};
 
 use crate::video_compiler::error::Result;
 use std::sync::Arc;
@@ -18,6 +20,7 @@ use tokio::sync::RwLock;
 pub struct TelemetryManager {
     tracer: Arc<Tracer>,
     metrics: Arc<MetricsCollector>,
+    health: Arc<HealthCheckManager>,
     config: Arc<RwLock<TelemetryConfig>>,
 }
 
@@ -26,10 +29,16 @@ impl TelemetryManager {
     pub async fn new(config: TelemetryConfig) -> Result<Self> {
         let tracer = Arc::new(Tracer::new(&config).await?);
         let metrics = Arc::new(MetricsCollector::new(&config).await?);
+        let health = Arc::new(HealthCheckManager::new());
+        
+        // Добавляем базовые health checks
+        health.add_check(Box::new(health::DatabaseHealthCheck::new())).await;
+        health.add_check(Box::new(health::MemoryHealthCheck::new())).await;
         
         Ok(Self {
             tracer,
             metrics,
+            health,
             config: Arc::new(RwLock::new(config)),
         })
     }
@@ -44,12 +53,38 @@ impl TelemetryManager {
         self.metrics.clone()
     }
     
+    /// Получить health check manager
+    pub fn health(&self) -> Arc<HealthCheckManager> {
+        self.health.clone()
+    }
+    
     /// Обновить конфигурацию
     pub async fn update_config(&self, config: TelemetryConfig) -> Result<()> {
         let mut current = self.config.write().await;
         *current = config;
         
         // TODO: Реконфигурировать tracer и metrics
+        
+        Ok(())
+    }
+    
+    /// Добавить health checks для компонентов системы
+    pub async fn setup_system_health_checks(
+        &self,
+        event_bus: Option<Arc<crate::core::EventBus>>,
+        plugin_manager: Option<Arc<crate::core::PluginManager>>,
+    ) -> Result<()> {
+        if let Some(event_bus) = event_bus {
+            self.health.add_check(Box::new(
+                health::EventBusHealthCheck::new(event_bus)
+            )).await;
+        }
+        
+        if let Some(plugin_manager) = plugin_manager {
+            self.health.add_check(Box::new(
+                health::PluginHealthCheck::new(plugin_manager)
+            )).await;
+        }
         
         Ok(())
     }
