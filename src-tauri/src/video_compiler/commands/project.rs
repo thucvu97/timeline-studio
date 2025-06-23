@@ -348,9 +348,9 @@ fn format_time_vtt(seconds: f64) -> String {
   format!("{:02}:{:02}:{:06.3}", hours, minutes, secs)
 }
 
-/// Создать новые объекты схемы
-#[tauri::command]
-pub async fn create_schema_objects(
+// create_schema_objects moved to schema_commands.rs - removing duplicate
+// This function body will be removed in next edit
+async fn _create_schema_objects_old(
   object_type: String,
   params: serde_json::Value,
 ) -> Result<serde_json::Value> {

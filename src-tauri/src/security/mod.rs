@@ -2,6 +2,7 @@ pub mod api_validator;
 pub mod commands;
 pub mod env_importer;
 pub mod oauth_handler;
+pub mod registry;
 /// Модуль безопасности Timeline Studio
 ///
 /// Обеспечивает:

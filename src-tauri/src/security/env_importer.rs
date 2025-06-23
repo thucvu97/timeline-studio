@@ -105,6 +105,11 @@ impl EnvImporter {
       ],
     );
 
+    mappings.insert(
+      ApiKeyType::DeepSeek,
+      vec!["DEEPSEEK_API_KEY".to_string(), "DEEPSEEK_KEY".to_string()],
+    );
+
     // Социальные сети - OAuth credentials
     mappings.insert(
       ApiKeyType::YouTube,
@@ -170,6 +175,7 @@ impl EnvImporter {
       // Простые API ключи
       ApiKeyType::OpenAI
       | ApiKeyType::Claude
+      | ApiKeyType::DeepSeek
       | ApiKeyType::Codecov
       | ApiKeyType::TauriAnalytics => {
         for env_var in _env_vars {
@@ -351,6 +357,9 @@ impl EnvImporter {
         }
         ApiKeyType::Claude => {
           env_content.push_str(&format!("CLAUDE_API_KEY=\"{}\"\n", key_data.value));
+        }
+        ApiKeyType::DeepSeek => {
+          env_content.push_str(&format!("DEEPSEEK_API_KEY=\"{}\"\n", key_data.value));
         }
         ApiKeyType::YouTube => {
           if let Some(oauth_data) = &key_data.oauth_data {

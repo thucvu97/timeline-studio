@@ -21,10 +21,10 @@ export class ApiKeyLoader {
 
   /**
    * Получить API ключ из безопасного хранилища
-   * @param keyType Тип ключа (openai, claude)
+   * @param keyType Тип ключа (openai, claude, deepseek)
    * @returns Promise с расшифрованным ключом или null
    */
-  public async getApiKey(keyType: "openai" | "claude"): Promise<string | null> {
+  public async getApiKey(keyType: "openai" | "claude" | "deepseek"): Promise<string | null> {
     // Проверяем кэш
     const cached = this.keyCache.get(keyType)
     if (cached) {
@@ -62,7 +62,7 @@ export class ApiKeyLoader {
    * @param keyType Тип ключа
    * @param value Новое значение (null для удаления из кэша)
    */
-  public updateCache(keyType: "openai" | "claude", value: string | null): void {
+  public updateCache(keyType: "openai" | "claude" | "deepseek", value: string | null): void {
     if (value) {
       this.keyCache.set(keyType, value)
     } else {

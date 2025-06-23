@@ -45,6 +45,7 @@ impl ApiValidator {
     match key_type {
       ApiKeyType::OpenAI => self.validate_openai_key(value).await,
       ApiKeyType::Claude => self.validate_claude_key(value).await,
+      ApiKeyType::DeepSeek => self.validate_deepseek_key(value).await,
       ApiKeyType::YouTube => self.validate_youtube_oauth(value).await,
       ApiKeyType::TikTok => self.validate_tiktok_oauth(value).await,
       ApiKeyType::Vimeo => self.validate_vimeo_key(value).await,
@@ -162,6 +163,52 @@ impl ApiValidator {
             is_valid: false,
             error_message: Some(format!("HTTP error: {}", status)),
             service_info: None,
+            rate_limits: None,
+          })
+        }
+      }
+      Err(e) => Ok(ValidationResult {
+        is_valid: false,
+        error_message: Some(format!("Network error: {}", e)),
+        service_info: None,
+        rate_limits: None,
+      }),
+    }
+  }
+
+  async fn validate_deepseek_key(&self, api_key: &str) -> Result<ValidationResult> {
+    // Простой тест запрос к DeepSeek API
+    let body = json!({
+        "model": "deepseek-chat",
+        "max_tokens": 10,
+        "messages": [{"role": "user", "content": "Hi"}]
+    });
+
+    let response = self
+      .client
+      .post("https://api.deepseek.com/v1/chat/completions")
+      .header("Authorization", format!("Bearer {}", api_key))
+      .header("content-type", "application/json")
+      .json(&body)
+      .send()
+      .await;
+
+    match response {
+      Ok(resp) => {
+        if resp.status().is_success() {
+          Ok(ValidationResult {
+            is_valid: true,
+            error_message: None,
+            service_info: Some("DeepSeek API".to_string()),
+            rate_limits: None,
+          })
+        } else {
+          let status = resp.status();
+          let error_text = resp.text().await.unwrap_or_default();
+          Ok(ValidationResult {
+            is_valid: false,
+            error_message: Some(format!("DeepSeek API error {}: {}", status, error_text)),
+            service_info: Some("DeepSeek API".to_string()),
             rate_limits: None,
           })
         }

@@ -1,19 +1,16 @@
 // Модуль для получения метаданных медиафайлов
 
-use std::path::Path;
-use std::process::Command;
-use std::str;
-use std::time::{SystemTime, UNIX_EPOCH};
-use tauri::command;
-
 use super::ffmpeg::check_ffmpeg;
 use super::types::{
   AudioMetadata, FfprobeFormat, FfprobeStream, ImageMetadata, MediaFile, MediaMetadata, ProbeData,
   VideoMetadata,
 };
+use std::path::Path;
+use std::process::Command;
+use std::str;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Получение метаданных медиафайла с помощью FFmpeg
-#[command]
 pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
   // Проверяем наличие FFmpeg
   check_ffmpeg()?;

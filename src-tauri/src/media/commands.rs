@@ -1,11 +1,109 @@
 use anyhow::Result;
+use chrono;
 use std::path::PathBuf;
 use tauri::State;
 
-use super::metadata::get_media_metadata;
+use super::ffmpeg::check_ffmpeg;
 use super::preview_data::MediaPreviewData;
 use super::preview_manager::PreviewDataManager;
+use super::types::{MediaFile, SUPPORTED_EXTENSIONS};
 use serde::Serialize;
+use std::path::Path;
+use std::process::Command;
+use uuid;
+
+// Команды для Tauri - объявляем прямо здесь
+#[tauri::command]
+pub fn get_media_files(directory: String) -> Result<Vec<String>, String> {
+  let path = Path::new(&directory);
+
+  if !path.exists() || !path.is_dir() {
+    return Err(format!("Директория не найдена: {}", directory));
+  }
+
+  let entries = std::fs::read_dir(path).map_err(|e| format!("Ошибка чтения директории: {}", e))?;
+
+  let mut media_files = Vec::new();
+
+  for entry in entries.flatten() {
+    let path = entry.path();
+
+    // Проверяем только файлы
+    if path.is_file() {
+      if let Some(extension) = path.extension().and_then(|e| e.to_str()) {
+        // Проверяем расширение файла
+        let ext = extension.to_lowercase();
+        if SUPPORTED_EXTENSIONS.contains(&ext.as_str()) {
+          if let Some(path_str) = path.to_str() {
+            media_files.push(path_str.to_string());
+          }
+        }
+      }
+    }
+  }
+
+  Ok(media_files)
+}
+
+#[tauri::command]
+pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
+  // Проверяем наличие FFmpeg
+  check_ffmpeg()?;
+
+  // Проверяем существование файла
+  if !Path::new(&file_path).exists() {
+    return Err(format!("Файл не найден: {}", file_path));
+  }
+
+  // Получаем информацию о файле в формате JSON
+  let output = Command::new("ffprobe")
+    .args([
+      "-v",
+      "quiet",
+      "-print_format",
+      "json",
+      "-show_format",
+      "-show_streams",
+      &file_path,
+    ])
+    .output()
+    .map_err(|e| format!("Ошибка выполнения ffprobe: {}", e))?;
+
+  if !output.status.success() {
+    let error = String::from_utf8_lossy(&output.stderr);
+    return Err(format!("FFprobe завершился с ошибкой: {}", error));
+  }
+
+  let json_str = String::from_utf8_lossy(&output.stdout);
+
+  // Парсим JSON и создаем MediaFile
+  let probe_data: super::types::ProbeData =
+    serde_json::from_str(&json_str).map_err(|e| format!("Ошибка парсинга JSON: {}", e))?;
+
+  // Создаем простой MediaFile для компиляции
+  let file_path_ref = &file_path;
+  let media_file = MediaFile {
+    id: uuid::Uuid::new_v4().to_string(),
+    path: file_path.clone(),
+    name: Path::new(file_path_ref)
+      .file_name()
+      .unwrap_or_default()
+      .to_string_lossy()
+      .to_string(),
+    size: std::fs::metadata(file_path_ref)
+      .map(|m| m.len())
+      .unwrap_or(0),
+    duration: probe_data.format.duration,
+    is_video: probe_data.streams.iter().any(|s| s.codec_type == "video"),
+    is_audio: probe_data.streams.iter().any(|s| s.codec_type == "audio"),
+    is_image: false, // Упрощенная логика
+    start_time: 0,
+    creation_time: chrono::Utc::now().to_rfc3339(),
+    probe_data,
+  };
+
+  Ok(media_file)
+}
 
 /// State для менеджера превью
 pub struct PreviewManagerState {

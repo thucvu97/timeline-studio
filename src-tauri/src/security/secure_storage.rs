@@ -16,6 +16,7 @@ pub enum ApiKeyType {
   // AI сервисы
   OpenAI,
   Claude,
+  DeepSeek,
 
   // Социальные сети
   YouTube,
@@ -33,6 +34,7 @@ impl ApiKeyType {
     match self {
       ApiKeyType::OpenAI => "openai",
       ApiKeyType::Claude => "claude",
+      ApiKeyType::DeepSeek => "deepseek",
       ApiKeyType::YouTube => "youtube",
       ApiKeyType::TikTok => "tiktok",
       ApiKeyType::Vimeo => "vimeo",
@@ -46,6 +48,7 @@ impl ApiKeyType {
     match s {
       "openai" => Some(ApiKeyType::OpenAI),
       "claude" => Some(ApiKeyType::Claude),
+      "deepseek" => Some(ApiKeyType::DeepSeek),
       "youtube" => Some(ApiKeyType::YouTube),
       "tiktok" => Some(ApiKeyType::TikTok),
       "vimeo" => Some(ApiKeyType::Vimeo),

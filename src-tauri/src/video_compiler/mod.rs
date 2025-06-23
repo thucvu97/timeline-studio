@@ -12,6 +12,7 @@ pub mod commands;
 pub mod core;
 pub mod ffmpeg_builder;
 pub mod ffmpeg_executor;
+pub mod registry;
 pub mod schema;
 pub mod services;
 

@@ -10,10 +10,15 @@ import { ResourcesContextType } from "@/features/resources/services/resources-pr
 import { TimelineProject } from "@/features/timeline/types"
 
 import { CLAUDE_MODELS, ClaudeService, ClaudeTool } from "./claude-service"
+import { batchProcessingTools, executeBatchProcessingTool } from "../tools/batch-processing-tools"
 import { browserTools } from "../tools/browser-tools"
+import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools/multimodal-analysis-tools"
 import { playerTools } from "../tools/player-tools"
 import { resourceTools } from "../tools/resource-tools"
+import { executeSubtitleTool , subtitleTools } from "../tools/subtitle-tools"
 import { timelineTools } from "../tools/timeline-tools"
+import { executeVideoAnalysisTool , videoAnalysisTools } from "../tools/video-analysis-tools"
+import { executeWhisperTool, whisperTools } from "../tools/whisper-tools"
 import {
   AIToolResult,
   BrowserContext,
@@ -60,7 +65,17 @@ export class TimelineAIService {
     this.claudeService = ClaudeService.getInstance()
 
     // Объединяем все инструменты
-    this.allTools = [...resourceTools, ...browserTools, ...playerTools, ...timelineTools]
+    this.allTools = [
+      ...resourceTools,
+      ...browserTools,
+      ...playerTools,
+      ...timelineTools,
+      ...subtitleTools,
+      ...videoAnalysisTools,
+      ...whisperTools,
+      ...batchProcessingTools,
+      ...multimodalAnalysisTools,
+    ]
   }
 
   /**
@@ -375,14 +390,72 @@ export class TimelineAIService {
   private async executeToolFunction(toolUse: any, _context: TimelineStudioContext): Promise<AIToolResult> {
     const { name, input } = toolUse
 
-    // Здесь будет логика выполнения конкретных инструментов
-    // Пока возвращаем заглушку
-    console.log(`Executing tool: ${name} with input:`, input)
+    try {
+      console.log(`Executing tool: ${name} with input:`, input)
+      
+      let result: any
 
-    return {
-      success: true,
-      message: `Инструмент ${name} выполнен успешно`,
-      data: { toolName: name, input },
+      // Роутинг по категориям инструментов
+      if (name.startsWith('whisper_') || 
+          ['check_whisper_availability', 'get_whisper_models', 'download_whisper_model', 
+            'transcribe_media', 'translate_audio_to_english', 'batch_transcribe_clips',
+            'create_subtitles_from_transcription', 'detect_audio_language',
+            'improve_transcription_quality', 'sync_subtitles_with_whisper'].includes(name)) {
+        result = await executeWhisperTool(name, input)
+      }
+      else if (name.startsWith('subtitle_') ||
+               ['analyze_audio_for_transcription', 'generate_subtitles_from_audio',
+                 'translate_subtitles', 'edit_subtitle_text', 'sync_subtitles_with_audio',
+                 'apply_subtitle_styling', 'split_long_subtitles', 'filter_subtitle_content',
+                 'export_subtitles', 'create_multilingual_subtitles', 'analyze_subtitle_quality',
+                 'create_chapters_from_subtitles'].includes(name)) {
+        result = await executeSubtitleTool(name, input)
+      }
+      else if (name.startsWith('video_analysis_') || name.startsWith('ffmpeg_') ||
+               ['get_video_metadata', 'detect_video_scenes', 'analyze_video_quality',
+                 'detect_silence_segments', 'analyze_motion_detection', 'extract_keyframes',
+                 'analyze_audio_properties', 'quick_video_analysis', 'comprehensive_video_analysis',
+                 'batch_analyze_videos', 'analyze_video_for_editing', 'detect_scene_changes',
+                 'analyze_video_content', 'compare_video_quality', 'analyze_video_encoding'].includes(name)) {
+        result = await executeVideoAnalysisTool(name, input)
+      }
+      else if (name.startsWith('batch_') ||
+               ['start_batch_operation', 'get_batch_progress', 'cancel_batch_operation',
+                 'get_batch_processing_stats', 'get_batch_history', 'batch_analyze_videos',
+                 'batch_transcribe_videos', 'batch_generate_subtitles', 'batch_detect_languages',
+                 'batch_detect_scenes', 'create_batch_report', 'clear_batch_history'].includes(name)) {
+        result = await executeBatchProcessingTool(name, input)
+      }
+      else if (name.startsWith('multimodal_') || name.startsWith('analyze_video_') ||
+               ['analyze_video_frame', 'analyze_video_multimodal', 'suggest_video_thumbnails',
+                 'detect_video_highlights', 'analyze_video_emotions', 'extract_video_text',
+                 'analyze_video_aesthetics', 'batch_analyze_multimodal', 'generate_video_descriptions',
+                 'moderate_video_content'].includes(name)) {
+        result = await executeMultimodalAnalysisTool(name, input)
+      }
+      else {
+        // Пока заглушка для остальных инструментов (browser, player, timeline, resource)
+        console.warn(`Tool execution not implemented for: ${name}`)
+        result = {
+          success: false,
+          message: `Инструмент ${name} пока не реализован`,
+          toolName: name,
+          input
+        }
+      }
+
+      return {
+        success: true,
+        message: `Инструмент ${name} выполнен успешно`,
+        data: result,
+      }
+    } catch (error) {
+      console.error(`Error executing tool ${name}:`, error)
+      return {
+        success: false,
+        message: `Ошибка выполнения инструмента ${name}: ${String(error)}`,
+        data: { toolName: name, input, error: String(error) },
+      }
     }
   }
 

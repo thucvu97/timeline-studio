@@ -19,4 +19,8 @@ pub mod preview;
 pub mod progress;
 pub mod renderer;
 
+// Новые модули после рефакторинга
+pub mod pipeline_refactored;
+pub mod stages;
+
 // Re-export основных типов

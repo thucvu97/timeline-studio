@@ -2,10 +2,7 @@
 
 use super::types::SUPPORTED_EXTENSIONS;
 use std::path::Path;
-use tauri::command;
-
 /// Получение списка медиафайлов в директории
-#[command]
 pub fn get_media_files(directory: String) -> Result<Vec<String>, String> {
   let path = Path::new(&directory);
 

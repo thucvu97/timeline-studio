@@ -2,7 +2,7 @@
 #[allow(clippy::module_inception)]
 mod tests {
   use crate::media::types::{MediaFile, ProbeData};
-  use crate::{get_media_files, get_media_metadata};
+  use crate::media::commands::{get_media_files, get_media_metadata};
   use tempfile::TempDir;
 
   #[test]

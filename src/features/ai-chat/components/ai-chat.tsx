@@ -16,22 +16,93 @@ import { ChatList } from "./chat-list"
 import { useSafeTimeline } from "../hooks/use-safe-timeline"
 import { chatStorageService } from "../services/chat-storage-service"
 import { CLAUDE_MODELS, ClaudeService } from "../services/claude-service"
+import { DEEPSEEK_MODELS, DeepSeekService } from "../services/deepseek-service"
+import { OLLAMA_MODELS, OllamaService } from "../services/ollama-service"
 import { AI_MODELS, OpenAiService } from "../services/open-ai-service"
 import { ChatMessage } from "../types/chat"
 import { compressContext, isContextOverLimit } from "../utils/context-manager"
 import { createTimelineContextPrompt } from "../utils/timeline-context"
 
 const AVAILABLE_AGENTS = [
+  // Claude модели
   {
     id: CLAUDE_MODELS.CLAUDE_4_SONNET,
     name: "Claude 4 Sonnet",
     useTools: true,
+    provider: "claude",
   },
-  { id: CLAUDE_MODELS.CLAUDE_4_OPUS, name: "Claude 4 Opus", useTools: true },
-  { id: AI_MODELS.GPT_4, name: "GPT-4", useTools: false },
-  { id: AI_MODELS.GPT_4O, name: "GPT-4o", useTools: false },
-  { id: AI_MODELS.GPT_3_5, name: "GPT-3.5 Turbo", useTools: false },
-  { id: AI_MODELS.O3, name: "o3", useTools: false },
+  { 
+    id: CLAUDE_MODELS.CLAUDE_4_OPUS, 
+    name: "Claude 4 Opus", 
+    useTools: true,
+    provider: "claude",
+  },
+  
+  // OpenAI модели
+  { 
+    id: AI_MODELS.GPT_4, 
+    name: "GPT-4", 
+    useTools: false,
+    provider: "openai",
+  },
+  { 
+    id: AI_MODELS.GPT_4O, 
+    name: "GPT-4o", 
+    useTools: false,
+    provider: "openai",
+  },
+  { 
+    id: AI_MODELS.GPT_3_5, 
+    name: "GPT-3.5 Turbo", 
+    useTools: false,
+    provider: "openai",
+  },
+  { 
+    id: AI_MODELS.O3, 
+    name: "o3", 
+    useTools: false,
+    provider: "openai",
+  },
+
+  // DeepSeek модели
+  {
+    id: DEEPSEEK_MODELS.DEEPSEEK_R1,
+    name: "DeepSeek R1",
+    useTools: false,
+    provider: "deepseek",
+  },
+  {
+    id: DEEPSEEK_MODELS.DEEPSEEK_CHAT,
+    name: "DeepSeek Chat",
+    useTools: false,
+    provider: "deepseek",
+  },
+  {
+    id: DEEPSEEK_MODELS.DEEPSEEK_CODER,
+    name: "DeepSeek Coder",
+    useTools: false,
+    provider: "deepseek",
+  },
+
+  // Ollama модели (базовые)
+  {
+    id: OLLAMA_MODELS.LLAMA2,
+    name: "Llama 2 (Local)",
+    useTools: false,
+    provider: "ollama",
+  },
+  {
+    id: OLLAMA_MODELS.MISTRAL,
+    name: "Mistral (Local)",
+    useTools: false,
+    provider: "ollama",
+  },
+  {
+    id: OLLAMA_MODELS.CODELLAMA,
+    name: "Code Llama (Local)",
+    useTools: false,
+    provider: "ollama",
+  },
 ]
 
 // Chat modes
@@ -131,14 +202,24 @@ export function AiChat() {
   const handleSendMessage = useCallback(() => {
     if (!message.trim() || isProcessing || isStreaming) return
 
-    // Проверяем, установлен ли API ключ для выбранного агента
-    const isClaudeModel = selectedAgentId?.startsWith("claude") || false
-    const apiKeyInfo = getApiKeyInfo(isClaudeModel ? "claude" : "openai")
+    // Определяем провайдера по модели
+    const getProviderByModel = (model: string) => {
+      if (model.startsWith("claude")) return "claude"
+      if (model.startsWith("gpt") || model.startsWith("o3")) return "openai"
+      if (model.startsWith("deepseek")) return "deepseek"
+      return "ollama" // По умолчанию для локальных моделей
+    }
 
-    if (!apiKeyInfo || !apiKeyInfo.has_value || apiKeyInfo.is_valid !== true) {
-      // Если API ключ не установлен или невалидный, показываем диалог настроек
-      openModal("user-settings")
-      return
+    const provider = getProviderByModel(selectedAgentId || "")
+    
+    // Проверяем API ключ только для облачных провайдеров
+    if (provider !== "ollama") {
+      const apiKeyInfo = getApiKeyInfo(provider)
+      if (!apiKeyInfo || !apiKeyInfo.has_value || apiKeyInfo.is_valid !== true) {
+        // Если API ключ не установлен или невалидный, показываем диалог настроек
+        openModal("user-settings")
+        return
+      }
     }
 
     // Создаем сообщение пользователя
@@ -171,8 +252,8 @@ export function AiChat() {
       abortControllerRef.current = new AbortController()
 
       try {
-        const isClaudeModel = selectedAgentId?.startsWith("claude") || false
-        const currentModel = selectedAgentId || (isClaudeModel ? CLAUDE_MODELS.CLAUDE_4_SONNET : AI_MODELS.GPT_4)
+        const currentModel = selectedAgentId || CLAUDE_MODELS.CLAUDE_4_SONNET
+        const provider = getProviderByModel(currentModel)
 
         // Подготавливаем все сообщения
         const allMessages = [
@@ -220,77 +301,94 @@ export function AiChat() {
         setIsStreaming(true)
         setStreamingContent("")
 
-        if (isClaudeModel) {
-          const claudeService = ClaudeService.getInstance()
-          await claudeService.sendStreamingRequest(currentModel, messages, {
-            max_tokens: 2000,
-            system: systemPrompt,
-            signal: abortControllerRef.current.signal,
-            onContent: (content) => {
-              setStreamingContent((prev) => prev + content)
-            },
-            onComplete: async (fullContent) => {
-              setIsStreaming(false)
-              setStreamingContent("")
+        // Общий обработчик для завершения потокового ответа
+        const handleStreamComplete = async (fullContent: string) => {
+          setIsStreaming(false)
+          setStreamingContent("")
 
-              const agentMessage: ChatMessage = {
-                id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                content: fullContent,
-                role: "assistant",
-                timestamp: new Date(),
-                agent: (selectedAgentId as any) || undefined,
-              }
+          const agentMessage: ChatMessage = {
+            id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            content: fullContent,
+            role: "assistant",
+            timestamp: new Date(),
+            agent: (selectedAgentId as any) || undefined,
+          }
 
-              receiveChatMessage(agentMessage)
+          receiveChatMessage(agentMessage)
 
-              // Сохраняем сообщение в историю
-              if (currentSessionId) {
-                await chatStorageService.addMessage(currentSessionId, agentMessage)
-              }
-            },
-            onError: (error) => {
-              console.error("Error in streaming:", error)
-              setIsStreaming(false)
-              setStreamingContent("")
-              throw error
-            },
-          })
-        } else {
-          const openAiService = OpenAiService.getInstance()
-          // Для OpenAI добавляем системное сообщение в начало
-          const messagesWithSystem = [{ role: "system" as const, content: systemPrompt }, ...messages]
-          await openAiService.sendStreamingRequest(currentModel, messagesWithSystem, {
-            max_tokens: 2000,
-            signal: abortControllerRef.current.signal,
-            onContent: (content) => {
-              setStreamingContent((prev) => prev + content)
-            },
-            onComplete: async (fullContent) => {
-              setIsStreaming(false)
-              setStreamingContent("")
+          // Сохраняем сообщение в историю
+          if (currentSessionId) {
+            await chatStorageService.addMessage(currentSessionId, agentMessage)
+          }
+        }
 
-              const agentMessage: ChatMessage = {
-                id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                content: fullContent,
-                role: "assistant",
-                timestamp: new Date(),
-                agent: (selectedAgentId as any) || undefined,
-              }
+        // Общий обработчик ошибок
+        const handleStreamError = (error: Error) => {
+          console.error("Error in streaming:", error)
+          setIsStreaming(false)
+          setStreamingContent("")
+          throw error
+        }
 
-              receiveChatMessage(agentMessage)
+        // Выбираем сервис по провайдеру
+        switch (provider) {
+          case "claude": {
+            const claudeService = ClaudeService.getInstance()
+            await claudeService.sendStreamingRequest(currentModel, messages, {
+              max_tokens: 2000,
+              system: systemPrompt,
+              signal: abortControllerRef.current.signal,
+              onContent: (content) => setStreamingContent((prev) => prev + content),
+              onComplete: handleStreamComplete,
+              onError: handleStreamError,
+            })
+            break
+          }
 
-              // Сохраняем сообщение в историю
-              if (currentSessionId) {
-                await chatStorageService.addMessage(currentSessionId, agentMessage)
-              }
-            },
-            onError: (error) => {
-              console.error("Error in streaming:", error)
-              setIsStreaming(false)
-              setStreamingContent("")
-              throw error
-            },
-          })
+          case "openai": {
+            const openAiService = OpenAiService.getInstance()
+            // Для OpenAI добавляем системное сообщение в начало
+            const messagesWithSystem = [{ role: "system" as const, content: systemPrompt }, ...messages]
+            await openAiService.sendStreamingRequest(currentModel, messagesWithSystem, {
+              max_tokens: 2000,
+              signal: abortControllerRef.current.signal,
+              onContent: (content) => setStreamingContent((prev) => prev + content),
+              onComplete: handleStreamComplete,
+              onError: handleStreamError,
+            })
+            break
+          }
+
+          case "deepseek": {
+            const deepSeekService = DeepSeekService.getInstance()
+            // Для DeepSeek добавляем системное сообщение в начало
+            const messagesWithSystem = [{ role: "system" as const, content: systemPrompt }, ...messages]
+            await deepSeekService.sendStreamingRequest(currentModel, messagesWithSystem, {
+              max_tokens: 2000,
+              signal: abortControllerRef.current.signal,
+              onContent: (content) => setStreamingContent((prev) => prev + content),
+              onComplete: handleStreamComplete,
+              onError: handleStreamError,
+            })
+            break
+          }
+
+          case "ollama": {
+            const ollamaService = OllamaService.getInstance()
+            // Для Ollama добавляем системное сообщение в начало
+            const messagesWithSystem = [{ role: "system" as const, content: systemPrompt }, ...messages]
+            await ollamaService.sendStreamingRequest(currentModel, messagesWithSystem, {
+              temperature: 0.7,
+              signal: abortControllerRef.current.signal,
+              onContent: (content) => setStreamingContent((prev) => prev + content),
+              onComplete: handleStreamComplete,
+              onError: handleStreamError,
+            })
+            break
+          }
+
+          default:
+            throw new Error(`Неподдерживаемый провайдер: ${provider}`)
         }
       } catch (error) {
         console.error("Error sending message to AI:", error)

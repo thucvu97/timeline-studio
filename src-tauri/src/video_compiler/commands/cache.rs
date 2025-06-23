@@ -63,6 +63,7 @@ pub async fn clear_project_cache(
 
 /// Получить размер кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_cache_size(state: State<'_, VideoCompilerState>) -> Result<u64> {
   let cache_service = state
     .services
@@ -74,6 +75,7 @@ pub async fn get_cache_size(state: State<'_, VideoCompilerState>) -> Result<u64>
 
 /// Получить статистику использования кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_cache_stats(state: State<'_, VideoCompilerState>) -> Result<CacheStats> {
   let cache_service = state
     .services
@@ -84,6 +86,7 @@ pub async fn get_cache_stats(state: State<'_, VideoCompilerState>) -> Result<Cac
 
 /// Получить расширенную статистику кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_cache_stats_detailed(
   state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
@@ -107,6 +110,7 @@ pub async fn get_cache_stats_detailed(
 
 /// Очистить устаревшие записи кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn clean_old_cache(
   max_age_days: u32,
   state: State<'_, VideoCompilerState>,
@@ -140,6 +144,7 @@ pub async fn clean_old_cache(
 
 /// Получить список закэшированных проектов
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_cached_projects(state: State<'_, VideoCompilerState>) -> Result<Vec<String>> {
   let cache = state.cache_manager.read().await;
   Ok(cache.get_cached_projects())
@@ -147,6 +152,7 @@ pub async fn get_cached_projects(state: State<'_, VideoCompilerState>) -> Result
 
 /// Проверить наличие кэша для проекта
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn has_project_cache(
   project_id: String,
   state: State<'_, VideoCompilerState>,
@@ -157,6 +163,7 @@ pub async fn has_project_cache(
 
 /// Получить метаданные закэшированных медиафайлов
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_cached_media_metadata(
   state: State<'_, VideoCompilerState>,
 ) -> Result<HashMap<String, crate::video_compiler::core::cache::MediaMetadata>> {
@@ -175,6 +182,7 @@ pub async fn clear_media_metadata_cache(state: State<'_, VideoCompilerState>) ->
 
 /// Оптимизировать кэш (дефрагментация и удаление неиспользуемых данных)
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn optimize_cache(state: State<'_, VideoCompilerState>) -> Result<usize> {
   let cache_service = state
     .services
@@ -185,6 +193,7 @@ pub async fn optimize_cache(state: State<'_, VideoCompilerState>) -> Result<usiz
 
 /// Экспортировать статистику кэша в JSON
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn export_cache_stats(state: State<'_, VideoCompilerState>) -> Result<serde_json::Value> {
   let cache_service = state
     .services
@@ -203,6 +212,7 @@ pub async fn export_cache_stats(state: State<'_, VideoCompilerState>) -> Result<
 
 /// Установить максимальный размер кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn set_cache_size_limit(
   size_mb: u64,
   state: State<'_, VideoCompilerState>,
@@ -222,6 +232,7 @@ pub async fn set_cache_size_limit(
 
 /// Получить текущий лимит размера кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_cache_size_limit(state: State<'_, VideoCompilerState>) -> Result<u64> {
   let cache = state.cache_manager.read().await;
   let (preview, metadata, render) = cache.get_cache_limits();
@@ -232,6 +243,7 @@ pub async fn get_cache_size_limit(state: State<'_, VideoCompilerState>) -> Resul
 
 /// Предварительно загрузить медиафайлы в кэш
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn preload_media_to_cache(
   _file_paths: Vec<String>,
   state: State<'_, VideoCompilerState>,
@@ -267,6 +279,7 @@ pub async fn clear_preview_cache(state: State<'_, VideoCompilerState>) -> Result
 
 /// Получить путь к каталогу кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_cache_path(state: State<'_, VideoCompilerState>) -> Result<PathBuf> {
   let cache_service = state
     .services

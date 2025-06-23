@@ -2,73 +2,15 @@
 //!
 //! Команды, которые не вошли в основные категории
 
-use std::collections::HashMap;
 use tauri::State;
 
 use crate::video_compiler::error::{Result, VideoCompilerError};
-use crate::video_compiler::preview::PreviewGenerator;
-use crate::video_compiler::schema::{
-  timeline::{Clip, ClipSource},
-  Effect, Filter, StyleTemplate, Subtitle, Template, Track, TrackType,
-};
 
 use super::state::VideoCompilerState;
 
-/// Результат предрендеринга
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct PrerenderResult {
-  pub segment_id: String,
-  pub output_path: String,
-  pub duration: f64,
-  pub size_bytes: u64,
-  pub compression_ratio: f64,
-}
+// Prerender structures moved to prerender_commands.rs
 
-/// Информация о кэше предрендеринга
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct PrerenderCacheInfo {
-  pub segments: usize,
-  pub total_size: u64,
-  pub total_duration: f64,
-}
-
-/// Файл кэша предрендеринга
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct PrerenderCacheFile {
-  pub path: String,
-  pub segment_id: String,
-  pub duration: f64,
-  pub size_bytes: u64,
-  pub created_at: String,
-}
-
-/// Кадр таймлайна
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct TimelineFrame {
-  pub timestamp: f64,
-  pub frame_data: Vec<u8>,
-  pub width: u32,
-  pub height: u32,
-}
-
-/// Результат кадра субтитров
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct SubtitleFrameResult {
-  pub subtitle_id: String,
-  pub timestamp: f64,
-  pub frame_path: String,
-  pub width: u32,
-  pub height: u32,
-}
-
-/// Запрос на превью
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct PreviewRequest {
-  pub video_path: String,
-  pub timestamp: f64,
-  pub resolution: Option<(u32, u32)>,
-  pub quality: Option<u8>,
-}
+// Frame extraction structures moved to frame_extraction_commands.rs
 
 /// Возможности FFmpeg
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -87,28 +29,7 @@ pub struct HardwareAcceleration {
   pub videotoolbox: bool,
 }
 
-/// Добавить клип в трек
-#[tauri::command]
-pub async fn add_clip_to_track(
-  track_id: String,
-  clip: Clip,
-  mut project_schema: crate::video_compiler::schema::ProjectSchema,
-) -> Result<crate::video_compiler::schema::ProjectSchema> {
-  let track = project_schema
-    .tracks
-    .iter_mut()
-    .find(|t| t.id == track_id)
-    .ok_or_else(|| {
-      VideoCompilerError::InvalidParameter(format!("Track not found: {}", track_id))
-    })?;
-
-  track.clips.push(clip);
-  track
-    .clips
-    .sort_by(|a, b| a.start_time.partial_cmp(&b.start_time).unwrap());
-
-  Ok(project_schema)
-}
+// add_clip_to_track moved to schema_commands.rs
 
 /// Кэшировать метаданные медиафайла
 #[tauri::command]
@@ -211,34 +132,7 @@ pub async fn check_hardware_acceleration(state: State<'_, VideoCompilerState>) -
   Ok(!encoders.is_empty())
 }
 
-/// Проверить таймауты задач рендеринга
-#[tauri::command]
-pub async fn check_render_job_timeouts(
-  state: State<'_, VideoCompilerState>,
-) -> Result<Vec<String>> {
-  let mut timed_out_jobs = Vec::new();
-  let active_jobs = state.active_jobs.read().await;
-
-  for (job_id, job) in active_jobs.iter() {
-    // Проверяем метаданные задачи
-    let elapsed = job
-      .metadata
-      .created_at
-      .parse::<chrono::DateTime<chrono::Utc>>()
-      .map(|created| {
-        chrono::Utc::now()
-          .signed_duration_since(created)
-          .num_seconds()
-      })
-      .unwrap_or(0);
-    // Считаем, что задача зависла, если она выполняется более 6 часов
-    if elapsed > 21600 {
-      timed_out_jobs.push(job_id.clone());
-    }
-  }
-
-  Ok(timed_out_jobs)
-}
+// check_render_job_timeouts moved to test_helper_commands.rs
 
 /// Очистить кэш (общая функция)
 #[tauri::command]
@@ -271,27 +165,9 @@ pub async fn clear_file_preview_cache(
   Ok(())
 }
 
-/// Очистить кэш кадров
-#[tauri::command]
-pub async fn clear_frame_cache(
-  _project_id: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<()> {
-  let mut cache = state.cache_manager.write().await;
-  cache.clear_previews().await;
-  Ok(())
-}
+// clear_frame_cache moved to frame_extraction_commands.rs
 
-/// Очистить кэш предрендеринга
-#[tauri::command]
-pub async fn clear_prerender_cache(
-  _project_id: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<()> {
-  let mut cache = state.cache_manager.write().await;
-  cache.clear_all().await;
-  Ok(())
-}
+// clear_prerender_cache moved to prerender_commands.rs
 
 /// Настроить кэш
 #[tauri::command]
@@ -312,100 +188,11 @@ pub async fn configure_cache(
   Ok(())
 }
 
-/// Создать клип
-#[tauri::command]
-pub async fn create_clip(source_path: String, start_time: f64, end_time: f64) -> Result<Clip> {
-  use crate::video_compiler::schema::timeline::ClipProperties;
+// create_clip moved to schema_commands.rs
 
-  Ok(Clip {
-    id: uuid::Uuid::new_v4().to_string(),
-    source: ClipSource::File(source_path),
-    start_time,
-    end_time,
-    source_start: 0.0,
-    source_end: end_time - start_time,
-    speed: 1.0,
-    opacity: 1.0,
-    effects: vec![],
-    filters: vec![],
-    template_id: None,
-    template_position: None,
-    color_correction: None,
-    crop: None,
-    transform: None,
-    audio_track_index: None,
-    properties: ClipProperties {
-      notes: None,
-      tags: vec![],
-      custom_metadata: std::collections::HashMap::new(),
-    },
-  })
-}
+// create_effect moved to schema_commands.rs
 
-/// Создать эффект
-#[tauri::command]
-pub async fn create_effect(
-  effect_type: String,
-  _parameters: HashMap<String, serde_json::Value>,
-) -> Result<Effect> {
-  use crate::video_compiler::schema::effects::EffectType;
-
-  // Упрощенная реализация - создаем эффект размытия
-  let effect_type_enum = match effect_type.as_str() {
-    "blur" => EffectType::Blur,
-    "brightness" => EffectType::Brightness,
-    "contrast" => EffectType::Contrast,
-    _ => EffectType::Blur, // По умолчанию
-  };
-
-  Ok(Effect {
-    id: uuid::Uuid::new_v4().to_string(),
-    effect_type: effect_type_enum,
-    name: effect_type.clone(),
-    category: None,
-    complexity: None,
-    tags: vec![],
-    description: None,
-    labels: None,
-    enabled: true,
-    parameters: HashMap::new(),
-    start_time: None,
-    end_time: None,
-    ffmpeg_command: None,
-    css_filter: None,
-    preview_path: None,
-    presets: None,
-  })
-}
-
-/// Создать фильтр
-#[tauri::command]
-pub async fn create_filter(
-  filter_type: String,
-  _parameters: HashMap<String, serde_json::Value>,
-) -> Result<Filter> {
-  use crate::video_compiler::schema::effects::FilterType;
-
-  let filter_type_enum = match filter_type.as_str() {
-    "brightness" => FilterType::Brightness,
-    "contrast" => FilterType::Contrast,
-    "saturation" => FilterType::Saturation,
-    "hue" => FilterType::Hue,
-    "blur" => FilterType::Blur,
-    _ => FilterType::Brightness, // По умолчанию
-  };
-
-  Ok(Filter {
-    id: uuid::Uuid::new_v4().to_string(),
-    filter_type: filter_type_enum,
-    name: filter_type.clone(),
-    enabled: true,
-    parameters: HashMap::new(),
-    ffmpeg_command: None,
-    intensity: 1.0,
-    custom_filter: None,
-  })
-}
+// create_filter moved to schema_commands.rs
 
 /// Создать новый проект
 #[tauri::command]
@@ -443,249 +230,27 @@ pub async fn create_new_project(
   })
 }
 
-/// Создать стилевой шаблон
-#[tauri::command]
-pub async fn create_style_template(name: String, template_type: String) -> Result<StyleTemplate> {
-  use crate::video_compiler::schema::templates::{StyleTemplateCategory, StyleTemplateStyle};
+// create_style_template moved to schema_commands.rs
 
-  let category = match template_type.as_str() {
-    "intro" => StyleTemplateCategory::Intro,
-    "outro" => StyleTemplateCategory::Outro,
-    "title" => StyleTemplateCategory::Title,
-    _ => StyleTemplateCategory::LowerThird,
-  };
+// create_subtitle moved to schema_commands.rs
 
-  Ok(StyleTemplate {
-    id: uuid::Uuid::new_v4().to_string(),
-    name,
-    category,
-    style: StyleTemplateStyle::Modern,
-    duration: 3.0,
-    elements: vec![],
-    background_color: "#000000".to_string(),
-    transitions: vec![],
-  })
-}
+// create_subtitle_animation moved to schema_commands.rs
 
-/// Создать субтитр
-#[tauri::command]
-pub async fn create_subtitle(text: String, start_time: f64, end_time: f64) -> Result<Subtitle> {
-  use crate::video_compiler::schema::subtitles::{
-    SubtitleFontWeight, SubtitlePosition, SubtitleStyle,
-  };
+// create_template moved to schema_commands.rs
 
-  Ok(Subtitle {
-    id: uuid::Uuid::new_v4().to_string(),
-    text,
-    start_time,
-    end_time,
-    position: SubtitlePosition::default(),
-    style: SubtitleStyle::default(),
-    enabled: true,
-    animations: vec![],
-    font_family: "Arial".to_string(),
-    font_size: 24.0,
-    color: "#FFFFFF".to_string(),
-    opacity: 1.0,
-    font_weight: SubtitleFontWeight::Normal,
-    shadow: false,
-    outline: false,
-    duration: end_time - start_time,
-  })
-}
+// create_track moved to schema_commands.rs
 
-/// Создать анимацию субтитров
-#[tauri::command]
-pub async fn create_subtitle_animation(
-  subtitle_id: String,
-  animation_type: String,
-  parameters: HashMap<String, serde_json::Value>,
-) -> Result<serde_json::Value> {
-  Ok(serde_json::json!({
-    "subtitle_id": subtitle_id,
-    "animation": {
-      "type": animation_type,
-      "parameters": parameters,
-      "duration": 0.5,
-    }
-  }))
-}
+// extract_subtitle_frames moved to frame_extraction_commands.rs
 
-/// Создать шаблон
-#[tauri::command]
-pub async fn create_template(
-  name: String,
-  layout_type: String,
-  _positions: Vec<serde_json::Value>,
-) -> Result<Template> {
-  use crate::video_compiler::schema::templates::TemplateType;
+// extract_timeline_frames moved to frame_extraction_commands.rs
 
-  let template_type = match layout_type.as_str() {
-    "vertical" => TemplateType::Vertical,
-    "horizontal" => TemplateType::Horizontal,
-    "grid" => TemplateType::Grid,
-    _ => TemplateType::Custom,
-  };
+// generate_preview moved to frame_extraction_commands.rs
 
-  Ok(Template {
-    id: uuid::Uuid::new_v4().to_string(),
-    template_type,
-    name,
-    screens: 2,
-    cells: vec![],
-    regions: vec![],
-  })
-}
+// generate_preview_batch moved to frame_extraction_commands.rs
 
-/// Создать трек
-#[tauri::command]
-pub async fn create_track(name: String, track_type: TrackType) -> Result<Track> {
-  Ok(Track {
-    id: uuid::Uuid::new_v4().to_string(),
-    track_type,
-    name,
-    clips: vec![],
-    enabled: true,
-    locked: false,
-    volume: 1.0,
-    effects: vec![],
-    filters: vec![],
-  })
-}
+// generate_preview_with_settings moved to frame_extraction_commands.rs
 
-/// Извлечь кадры субтитров
-#[tauri::command]
-pub async fn extract_subtitle_frames(
-  project_schema: crate::video_compiler::schema::ProjectSchema,
-  output_dir: String,
-  _state: State<'_, VideoCompilerState>,
-) -> Result<Vec<String>> {
-  let mut frame_paths = Vec::new();
-
-  for subtitle in &project_schema.subtitles {
-    let frame_path = format!("{}/subtitle_{}.png", output_dir, subtitle.id);
-    // Здесь должна быть логика генерации кадра с субтитром
-    frame_paths.push(frame_path);
-  }
-
-  Ok(frame_paths)
-}
-
-/// Извлечь кадры таймлайна
-#[tauri::command]
-pub async fn extract_timeline_frames(
-  project_schema: crate::video_compiler::schema::ProjectSchema,
-  interval: f64,
-  output_dir: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<Vec<String>> {
-  let mut frame_paths = Vec::new();
-  let duration = project_schema.timeline.duration;
-  let mut timestamp = 0.0;
-
-  while timestamp <= duration {
-    let frame_path = format!("{}/frame_{:.2}.png", output_dir, timestamp);
-
-    // Генерируем кадр
-    let ffmpeg_path = state.ffmpeg_path.read().await.clone();
-    let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
-    generator
-      .generate_frame(&project_schema, timestamp, &frame_path, None)
-      .await?;
-
-    frame_paths.push(frame_path);
-    timestamp += interval;
-  }
-
-  Ok(frame_paths)
-}
-
-/// Генерировать превью (альтернативная версия)
-#[tauri::command]
-pub async fn generate_preview(
-  project_schema: crate::video_compiler::schema::ProjectSchema,
-  timestamp: f64,
-  output_path: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<String> {
-  let ffmpeg_path = state.ffmpeg_path.read().await.clone();
-  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
-  generator
-    .generate_frame(&project_schema, timestamp, &output_path, None)
-    .await?;
-
-  Ok(output_path)
-}
-
-/// Генерировать пакет превью
-#[tauri::command]
-pub async fn generate_preview_batch(
-  project_schema: crate::video_compiler::schema::ProjectSchema,
-  timestamps: Vec<f64>,
-  output_dir: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<Vec<String>> {
-  let ffmpeg_path = state.ffmpeg_path.read().await.clone();
-  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
-  let mut paths = Vec::new();
-
-  for timestamp in timestamps {
-    let output_path = format!("{}/preview_{:.2}.png", output_dir, timestamp);
-    generator
-      .generate_frame(&project_schema, timestamp, &output_path, None)
-      .await?;
-    paths.push(output_path);
-  }
-
-  Ok(paths)
-}
-
-/// Генерировать превью с настройками
-#[tauri::command]
-pub async fn generate_preview_with_settings(
-  project_schema: crate::video_compiler::schema::ProjectSchema,
-  timestamp: f64,
-  output_path: String,
-  settings: serde_json::Value,
-  state: State<'_, VideoCompilerState>,
-) -> Result<String> {
-  let ffmpeg_path = state.ffmpeg_path.read().await.clone();
-  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
-
-  // Извлекаем настройки
-  let width = settings
-    .get("width")
-    .and_then(|v| v.as_u64())
-    .unwrap_or(1920) as u32;
-  let height = settings
-    .get("height")
-    .and_then(|v| v.as_u64())
-    .unwrap_or(1080) as u32;
-  let quality = settings
-    .get("quality")
-    .and_then(|v| v.as_u64())
-    .unwrap_or(80) as u8;
-
-  let options = crate::video_compiler::preview::PreviewOptions {
-    width: Some(width),
-    height: Some(height),
-    quality,
-    format: "png".to_string(),
-  };
-
-  generator
-    .generate_frame(&project_schema, timestamp, &output_path, Some(options))
-    .await?;
-
-  Ok(output_path)
-}
-
-/// Получить активные задачи
-#[tauri::command]
-pub async fn get_active_jobs(state: State<'_, VideoCompilerState>) -> Result<Vec<String>> {
-  let active_jobs = state.active_jobs.read().await;
-  Ok(active_jobs.keys().cloned().collect())
-}
+// get_active_jobs moved to service_commands.rs
 
 /// Получить использование памяти кэшем
 #[tauri::command]
@@ -747,23 +312,7 @@ pub async fn get_current_gpu_info(
   }
 }
 
-/// Получить информацию о кэше извлечения кадров
-#[tauri::command]
-pub async fn get_frame_extraction_cache_info(
-  project_id: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<serde_json::Value> {
-  let _cache = state.cache_manager.read().await;
-  // Заглушка для несуществующего метода
-  let _info = &project_id;
-
-  Ok(serde_json::json!({
-    "project_id": project_id,
-    "frame_count": 0,
-    "total_size": 0,
-    "last_accessed": chrono::Utc::now().to_rfc3339(),
-  }))
-}
+// get_frame_extraction_cache_info moved to frame_extraction_commands.rs
 
 /// Получить информацию о GPU (альтернативная версия)
 #[tauri::command]
@@ -773,62 +322,9 @@ pub async fn get_gpu_info(
   super::gpu::detect_gpus(state).await
 }
 
-/// Получить информацию об источниках входных данных
-#[tauri::command]
-pub async fn get_input_sources_info(
-  project_schema: crate::video_compiler::schema::ProjectSchema,
-) -> Result<serde_json::Value> {
-  let mut sources = HashMap::new();
+// get_input_sources_info moved to service_commands.rs
 
-  for track in &project_schema.tracks {
-    for clip in &track.clips {
-      let path = match &clip.source {
-        ClipSource::File(path) => path.clone(),
-        _ => continue,
-      };
-      sources.entry(path.clone()).or_insert_with(|| {
-        serde_json::json!({
-          "track_id": track.id,
-          "clip_count": 0,
-          "total_duration": 0.0,
-        })
-      });
-
-      if let Some(source_info) = sources.get_mut(&path) {
-        if let Some(count) = source_info.get("clip_count").and_then(|v| v.as_u64()) {
-          source_info["clip_count"] = serde_json::json!(count + 1);
-        }
-        if let Some(duration) = source_info.get("total_duration").and_then(|v| v.as_f64()) {
-          source_info["total_duration"] =
-            serde_json::json!(duration + (clip.end_time - clip.start_time));
-        }
-      }
-    }
-  }
-
-  Ok(serde_json::json!({
-    "sources": sources,
-    "total_sources": sources.len(),
-  }))
-}
-
-/// Получить информацию о кэше предрендеринга
-#[tauri::command]
-pub async fn get_prerender_cache_info(
-  project_id: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<serde_json::Value> {
-  let _cache = state.cache_manager.read().await;
-  // Заглушка для несуществующего метода
-  let _info = &project_id;
-
-  Ok(serde_json::json!({
-    "project_id": project_id,
-    "segments": 0,
-    "total_size": 0,
-    "total_duration": 0.0,
-  }))
-}
+// get_prerender_cache_info moved to prerender_commands.rs
 
 /// Получить рекомендуемый GPU кодировщик
 #[tauri::command]
@@ -856,53 +352,9 @@ pub async fn get_render_cache_info(
   }))
 }
 
-/// Получить прогресс рендеринга
-#[tauri::command]
-pub async fn get_render_progress(
-  job_id: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<f64> {
-  let active_jobs = state.active_jobs.read().await;
+// get_render_progress moved to service_commands.rs
 
-  if let Some(_job) = active_jobs.get(&job_id) {
-    // Заглушка для отсутствующего поля progress
-    Ok(0.0)
-  } else {
-    Err(VideoCompilerError::RenderError {
-      job_id,
-      stage: "progress".to_string(),
-      message: "Job not found".to_string(),
-    })
-  }
-}
-
-/// Получить статистику рендеринга
-#[tauri::command]
-pub async fn get_render_statistics(
-  job_id: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<serde_json::Value> {
-  let active_jobs = state.active_jobs.read().await;
-
-  if let Some(job) = active_jobs.get(&job_id) {
-    Ok(serde_json::json!({
-      "job_id": job_id,
-      "progress": 0.0,
-      "status": "running",
-      "start_time": job.metadata.created_at,
-      "frames_processed": 0,
-      "frames_total": 100,
-      "current_fps": 0.0,
-      "eta_seconds": 0,
-    }))
-  } else {
-    Err(VideoCompilerError::RenderError {
-      job_id,
-      stage: "statistics".to_string(),
-      message: "Job not found".to_string(),
-    })
-  }
-}
+// get_render_statistics moved to service_commands.rs
 
 /// Получить информацию о видео
 #[tauri::command]
@@ -935,265 +387,18 @@ pub async fn get_video_info(
   Ok(info_json)
 }
 
-/// Предварительно отрендерить сегмент
-#[tauri::command]
-pub async fn prerender_segment(
-  project_schema: crate::video_compiler::schema::ProjectSchema,
-  start_time: f64,
-  end_time: f64,
-  output_path: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<String> {
-  use crate::video_compiler::renderer::VideoRenderer;
+// prerender_segment moved to prerender_commands.rs
 
-  // Создаем временный проект только с нужным сегментом
-  let mut segment_project = project_schema.clone();
-  segment_project.timeline.duration = end_time - start_time;
+// set_preview_ffmpeg_path moved to service_commands.rs
 
-  // Фильтруем клипы
-  for track in &mut segment_project.tracks {
-    track
-      .clips
-      .retain(|clip| clip.start_time < end_time && clip.end_time > start_time);
+// touch_project moved to service_commands.rs
 
-    // Корректируем времена клипов
-    for clip in &mut track.clips {
-      if clip.start_time < start_time {
-        clip.source_start += start_time - clip.start_time;
-        clip.start_time = 0.0;
-      } else {
-        clip.start_time -= start_time;
-      }
+// test_error_types moved to test_helper_commands.rs
 
-      if clip.end_time > end_time {
-        clip.end_time = end_time - start_time;
-      } else {
-        clip.end_time -= start_time;
-      }
-    }
-  }
+// emit_video_compiler_event moved to test_helper_commands.rs
 
-  // Создаем рендерер
-  let (progress_tx, _progress_rx) = tokio::sync::mpsc::unbounded_channel();
+// health_check_all_services moved to test_helper_commands.rs
 
-  let mut renderer = VideoRenderer::new(
-    segment_project.clone(),
-    state.settings.clone(),
-    state.cache_manager.clone(),
-    progress_tx,
-  )
-  .await?;
+// shutdown_all_services moved to test_helper_commands.rs
 
-  // Рендерим сегмент
-  let _job_id = uuid::Uuid::new_v4().to_string();
-  renderer.render(std::path::Path::new(&output_path)).await?;
-
-  Ok(output_path)
-}
-
-/// Установить путь к FFmpeg для превью
-#[tauri::command]
-pub async fn set_preview_ffmpeg_path(
-  path: String,
-  state: State<'_, VideoCompilerState>,
-) -> Result<()> {
-  // Проверяем путь
-  let output = std::process::Command::new(&path)
-    .arg("-version")
-    .output()
-    .map_err(|e| VideoCompilerError::InvalidParameter(format!("Invalid FFmpeg path: {}", e)))?;
-
-  if !output.status.success() {
-    return Err(VideoCompilerError::InvalidParameter(
-      "Invalid FFmpeg executable".to_string(),
-    ));
-  }
-
-  // Обновляем путь
-  let mut ffmpeg_path = state.ffmpeg_path.write().await;
-  *ffmpeg_path = path;
-
-  Ok(())
-}
-
-/// Обновить время доступа к проекту
-#[tauri::command]
-pub async fn touch_project(project_id: String, state: State<'_, VideoCompilerState>) -> Result<()> {
-  let _cache = state.cache_manager.write().await;
-  // Заглушка для несуществующего метода
-  let _project_id = &project_id;
-  Ok(())
-}
-
-/// Тестовая команда для проверки различных типов ошибок
-#[tauri::command]
-pub async fn test_error_types(error_type: String) -> Result<String> {
-  match error_type.as_str() {
-    "io" => Err(VideoCompilerError::io("Test IO error")),
-    "gpu_unavailable" => Err(VideoCompilerError::gpu_unavailable("Test GPU unavailable")),
-    "validation" => Err(VideoCompilerError::ValidationError(
-      "Test validation error".to_string(),
-    )),
-    _ => Ok(format!("No error handler for type: {}", error_type)),
-  }
-}
-
-/// Эмитировать события Video Compiler для тестирования
-#[tauri::command]
-pub async fn emit_video_compiler_event(
-  app: tauri::AppHandle,
-  event_type: String,
-  params: serde_json::Value,
-) -> Result<()> {
-  use crate::video_compiler::{progress::RenderProgress, VideoCompilerEvent};
-  use tauri::Emitter;
-
-  let event = match event_type.as_str() {
-    "render_progress" => {
-      let job_id = params
-        .get("job_id")
-        .and_then(|v| v.as_str())
-        .unwrap_or("test-job")
-        .to_string();
-      let progress = RenderProgress {
-        job_id: job_id.clone(),
-        stage: params
-          .get("stage")
-          .and_then(|v| v.as_str())
-          .unwrap_or("processing")
-          .to_string(),
-        percentage: params
-          .get("percentage")
-          .and_then(|v| v.as_f64())
-          .unwrap_or(50.0) as f32,
-        current_frame: params
-          .get("current_frame")
-          .and_then(|v| v.as_u64())
-          .unwrap_or(100),
-        total_frames: params
-          .get("total_frames")
-          .and_then(|v| v.as_u64())
-          .unwrap_or(200),
-        elapsed_time: std::time::Duration::from_secs(
-          params
-            .get("elapsed_seconds")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(0),
-        ),
-        estimated_remaining: params
-          .get("eta_seconds")
-          .and_then(|v| v.as_u64())
-          .map(std::time::Duration::from_secs),
-        status: crate::video_compiler::progress::RenderStatus::Processing,
-        message: params
-          .get("message")
-          .and_then(|v| v.as_str())
-          .map(String::from),
-      };
-      VideoCompilerEvent::RenderProgress { job_id, progress }
-    }
-    "render_completed" => {
-      let job_id = params
-        .get("job_id")
-        .and_then(|v| v.as_str())
-        .unwrap_or("test-job")
-        .to_string();
-      let output_path = params
-        .get("output_path")
-        .and_then(|v| v.as_str())
-        .unwrap_or("/tmp/output.mp4")
-        .to_string();
-      VideoCompilerEvent::RenderCompleted {
-        job_id,
-        output_path,
-      }
-    }
-    "render_failed" => {
-      let job_id = params
-        .get("job_id")
-        .and_then(|v| v.as_str())
-        .unwrap_or("test-job")
-        .to_string();
-      let error = params
-        .get("error")
-        .and_then(|v| v.as_str())
-        .unwrap_or("Test error")
-        .to_string();
-      VideoCompilerEvent::RenderFailed { job_id, error }
-    }
-    "preview_generated" => {
-      let timestamp = params
-        .get("timestamp")
-        .and_then(|v| v.as_f64())
-        .unwrap_or(0.0);
-      let image_data = vec![0u8; 1024]; // Test data
-      VideoCompilerEvent::PreviewGenerated {
-        timestamp,
-        image_data,
-      }
-    }
-    "cache_updated" => {
-      let cache_size_mb = params
-        .get("cache_size_mb")
-        .and_then(|v| v.as_f64())
-        .unwrap_or(100.0);
-      VideoCompilerEvent::CacheUpdated { cache_size_mb }
-    }
-    _ => {
-      return Err(VideoCompilerError::InvalidParameter(format!(
-        "Unknown event type: {}",
-        event_type
-      )));
-    }
-  };
-
-  app
-    .emit("video-compiler", &event)
-    .map_err(|e| VideoCompilerError::InternalError(format!("Failed to emit event: {}", e)))?;
-
-  Ok(())
-}
-
-/// Проверить здоровье всех сервисов
-#[tauri::command]
-pub async fn health_check_all_services(
-  state: State<'_, VideoCompilerState>,
-) -> Result<serde_json::Value> {
-  state.services.health_check_all().await?;
-
-  Ok(serde_json::json!({
-    "status": "healthy",
-    "services": {
-      "render": "ok",
-      "cache": "ok",
-      "gpu": "ok",
-      "preview": "ok",
-      "ffmpeg": "ok",
-    }
-  }))
-}
-
-/// Выключить все сервисы
-#[tauri::command]
-pub async fn shutdown_all_services(state: State<'_, VideoCompilerState>) -> Result<()> {
-  state.services.shutdown_all().await
-}
-
-/// Получить информацию о проектном сервисе
-#[tauri::command]
-pub async fn get_project_service_info(
-  state: State<'_, VideoCompilerState>,
-) -> Result<serde_json::Value> {
-  if let Some(_project_service) = state.services.get_project_service() {
-    // Сервис существует
-    Ok(serde_json::json!({
-      "available": true,
-      "service_name": "ProjectService",
-    }))
-  } else {
-    Ok(serde_json::json!({
-      "available": false,
-      "service_name": "ProjectService",
-    }))
-  }
-}
+// get_project_service_info moved to test_helper_commands.rs

@@ -13,8 +13,8 @@ use super::state::{RenderJob, VideoCompilerState};
 
 /// Запуск компиляции видео
 #[tauri::command]
-pub async fn compile_video(
-  app: tauri::AppHandle,
+pub async fn compile_video<R: tauri::Runtime>(
+  app: tauri::AppHandle<R>,
   project_schema: ProjectSchema,
   output_path: String,
   state: State<'_, VideoCompilerState>,
@@ -133,8 +133,8 @@ pub async fn resume_render(job_id: String, state: State<'_, VideoCompilerState>)
 
 /// Экспортировать проект с предустановленными настройками
 #[tauri::command]
-pub async fn export_with_preset(
-  app: tauri::AppHandle,
+pub async fn export_with_preset<R: tauri::Runtime>(
+  app: tauri::AppHandle<R>,
   project_schema: ProjectSchema,
   output_path: String,
   preset: String,
@@ -377,38 +377,7 @@ pub async fn build_preview_command(
   Ok(result)
 }
 
-/// Построить команду пререндера сегмента
-#[tauri::command]
-pub async fn build_prerender_segment_command(
-  project_schema: ProjectSchema,
-  segment_index: usize,
-  output_path: String,
-  _state: State<'_, VideoCompilerState>,
-) -> Result<Vec<String>> {
-  use crate::video_compiler::ffmpeg_builder::FFmpegBuilder;
-
-  let builder = FFmpegBuilder::new(project_schema);
-  // Преобразуем индекс сегмента во временные рамки (предполагаем 10 секунд на сегмент)
-  let start_time = segment_index as f64 * 10.0;
-  let end_time = start_time + 10.0;
-
-  let command = builder
-    .build_prerender_segment_command(start_time, end_time, std::path::Path::new(&output_path))
-    .await?;
-
-  // Конвертируем Command в вектор строк
-  let program = format!("{}", command.as_std().get_program().to_string_lossy());
-  let args: Vec<String> = command
-    .as_std()
-    .get_args()
-    .map(|arg| arg.to_string_lossy().to_string())
-    .collect();
-
-  let mut result = vec![program];
-  result.extend(args);
-
-  Ok(result)
-}
+// build_prerender_segment_command moved to prerender_commands.rs
 
 /// Получить настройки FFmpeg Builder
 #[tauri::command]

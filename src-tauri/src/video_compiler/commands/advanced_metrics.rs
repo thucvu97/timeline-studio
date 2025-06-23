@@ -14,6 +14,7 @@ use super::state::VideoCompilerState;
 
 /// Получить расширенные метрики производительности кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_cache_performance_metrics(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<CachePerformanceMetrics> {
@@ -45,6 +46,7 @@ pub async fn get_cache_performance_metrics(
 
 /// Установить пороги для алертов кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn set_cache_alert_thresholds(
   thresholds: CacheAlertThresholds,
   _state: State<'_, VideoCompilerState>,
@@ -63,6 +65,7 @@ pub async fn set_cache_alert_thresholds(
 
 /// Получить активные алерты кэша
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_cache_alerts(_state: State<'_, VideoCompilerState>) -> Result<Vec<CacheAlert>> {
   log::debug!("Получение активных алертов кэша");
 
@@ -91,6 +94,7 @@ pub async fn get_cache_alerts(_state: State<'_, VideoCompilerState>) -> Result<V
 
 /// Получить метрики использования GPU
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_gpu_utilization_metrics(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
@@ -135,6 +139,7 @@ pub async fn get_gpu_utilization_metrics(
 
 /// Получить метрики использования памяти для всех сервисов
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_memory_usage_metrics(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
@@ -204,6 +209,7 @@ pub async fn get_memory_usage_metrics(
 
 /// Создать кастомный алерт для метрик
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn create_custom_alert(
   alert_name: String,
   metric_name: String,
@@ -229,6 +235,7 @@ pub async fn create_custom_alert(
 
 /// Получить историю метрик для анализа трендов
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn get_metrics_history(
   service_name: String,
   metric_name: String,

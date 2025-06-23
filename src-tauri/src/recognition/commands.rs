@@ -10,10 +10,28 @@ pub struct RecognitionState {
   pub service: RecognitionService,
 }
 
+impl RecognitionState {
+  pub fn new() -> Self {
+    let base_dir = dirs::cache_dir()
+      .unwrap_or_default()
+      .join("timeline-studio");
+
+    let service = RecognitionService::new(base_dir).unwrap_or_else(|_| {
+      // Fallback если не удалось создать сервис
+      log::warn!("Failed to create RecognitionService, using default");
+      // Создаем временный сервис для компиляции
+      RecognitionService::new(std::env::temp_dir().join("timeline-studio"))
+        .expect("Failed to create fallback RecognitionService")
+    });
+
+    Self { service }
+  }
+}
+
 /// Обработать видео и распознать объекты/лица
 #[tauri::command]
-pub async fn process_video_recognition(
-  app: AppHandle,
+pub async fn process_video_recognition<R: tauri::Runtime>(
+  app: AppHandle<R>,
   state: State<'_, RecognitionState>,
   file_id: String,
   frame_paths: Vec<String>,

@@ -12,6 +12,7 @@ use std::path::{Path, PathBuf};
 use tauri::Emitter;
 
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn generate_video_preview(
   input_path: String,
   output_path: String,
@@ -45,6 +46,7 @@ pub async fn generate_video_preview(
 }
 
 #[tauri::command]
+#[allow(dead_code)]
 pub async fn generate_gif_preview(
   input_path: String,
   output_path: String,

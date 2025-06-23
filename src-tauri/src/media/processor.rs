@@ -79,15 +79,15 @@ impl Default for ThumbnailOptions {
 }
 
 /// Процессор медиафайлов
-pub struct MediaProcessor {
-  app_handle: AppHandle,
+pub struct MediaProcessor<R: tauri::Runtime = tauri::Wry> {
+  app_handle: AppHandle<R>,
   thumbnail_dir: PathBuf,
   max_concurrent_tasks: usize,
 }
 
-impl MediaProcessor {
+impl<R: tauri::Runtime> MediaProcessor<R> {
   /// Создает новый процессор
-  pub fn new(app_handle: AppHandle, thumbnail_dir: PathBuf) -> Self {
+  pub fn new(app_handle: AppHandle<R>, thumbnail_dir: PathBuf) -> Self {
     Self {
       app_handle,
       thumbnail_dir,
@@ -227,8 +227,8 @@ impl MediaProcessor {
 }
 
 /// Обрабатывает один файл
-async fn process_single_file(
-  app_handle: &AppHandle,
+async fn process_single_file<R: tauri::Runtime>(
+  app_handle: &AppHandle<R>,
   file: DiscoveredFile,
   thumbnail_dir: &Path,
   thumbnail_options: &ThumbnailOptions,
