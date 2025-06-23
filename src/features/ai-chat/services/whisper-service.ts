@@ -70,43 +70,43 @@ export const AVAILABLE_LOCAL_MODELS: LocalWhisperModel[] = [
     size: "39 MB",
     languages: ["multilingual"],
     isDownloaded: false,
-    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin"
+    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin",
   },
   {
     name: "whisper-base",
-    size: "74 MB", 
+    size: "74 MB",
     languages: ["multilingual"],
     isDownloaded: false,
-    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
+    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
   },
   {
     name: "whisper-small",
     size: "244 MB",
     languages: ["multilingual"],
     isDownloaded: false,
-    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin"
+    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin",
   },
   {
     name: "whisper-medium",
     size: "769 MB",
     languages: ["multilingual"],
     isDownloaded: false,
-    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin"
+    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin",
   },
   {
     name: "whisper-large-v2",
     size: "1550 MB",
     languages: ["multilingual"],
     isDownloaded: false,
-    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v2.bin"
+    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v2.bin",
   },
   {
     name: "whisper-large-v3",
     size: "1550 MB",
     languages: ["multilingual"],
     isDownloaded: false,
-    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin"
-  }
+    downloadUrl: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin",
+  },
 ]
 
 /**
@@ -148,7 +148,7 @@ export class WhisperService {
   public async loadApiKey(): Promise<boolean> {
     try {
       const apiKey = await invoke<string>("get_decrypted_api_key", {
-        keyType: "openai"
+        keyType: "openai",
       })
       if (apiKey) {
         this.setApiKey(apiKey)
@@ -166,7 +166,7 @@ export class WhisperService {
    */
   public async transcribeWithOpenAI(
     audioFilePath: string,
-    options: WhisperTranscriptionOptions = {}
+    options: WhisperTranscriptionOptions = {},
   ): Promise<WhisperTranscriptionResult> {
     if (!this.hasApiKey()) {
       throw new Error("API ключ OpenAI не установлен")
@@ -182,7 +182,7 @@ export class WhisperService {
         prompt: options.prompt,
         responseFormat: options.response_format || "verbose_json",
         temperature: options.temperature || 0,
-        timestampGranularities: options.timestamp_granularities || ["segment"]
+        timestampGranularities: options.timestamp_granularities || ["segment"],
       })
 
       return result
@@ -197,7 +197,7 @@ export class WhisperService {
    */
   public async translateWithOpenAI(
     audioFilePath: string,
-    options: WhisperTranslationOptions = {}
+    options: WhisperTranslationOptions = {},
   ): Promise<WhisperTranslationResult> {
     if (!this.hasApiKey()) {
       throw new Error("API ключ OpenAI не установлен")
@@ -210,7 +210,7 @@ export class WhisperService {
         model: options.model || "whisper-1",
         prompt: options.prompt,
         responseFormat: options.response_format || "verbose_json",
-        temperature: options.temperature || 0
+        temperature: options.temperature || 0,
       })
 
       return result
@@ -230,7 +230,7 @@ export class WhisperService {
       language?: string
       threads?: number
       outputFormat?: "txt" | "srt" | "vtt" | "json"
-    } = {}
+    } = {},
   ): Promise<WhisperTranscriptionResult> {
     try {
       const result = await invoke<WhisperTranscriptionResult>("whisper_transcribe_local", {
@@ -238,7 +238,7 @@ export class WhisperService {
         modelName,
         language: options.language || "auto",
         threads: options.threads || 4,
-        outputFormat: options.outputFormat || "json"
+        outputFormat: options.outputFormat || "json",
       })
 
       return result
@@ -264,10 +264,7 @@ export class WhisperService {
   /**
    * Скачать локальную модель Whisper
    */
-  public async downloadLocalModel(
-    modelName: string,
-    onProgress?: (progress: number) => void
-  ): Promise<boolean> {
+  public async downloadLocalModel(modelName: string, onProgress?: (progress: number) => void): Promise<boolean> {
     try {
       // Создаем канал для отслеживания прогресса
       if (onProgress) {
@@ -275,7 +272,7 @@ export class WhisperService {
       }
 
       const success = await invoke<boolean>("whisper_download_model", {
-        modelName
+        modelName,
       })
 
       return success
@@ -321,7 +318,7 @@ export class WhisperService {
       { code: "sv", name: "Swedish", nativeName: "Svenska" },
       { code: "da", name: "Danish", nativeName: "Dansk" },
       { code: "no", name: "Norwegian", nativeName: "Norsk" },
-      { code: "fi", name: "Finnish", nativeName: "Suomi" }
+      { code: "fi", name: "Finnish", nativeName: "Suomi" },
     ]
   }
 
@@ -330,12 +327,12 @@ export class WhisperService {
    */
   public async extractAudioForTranscription(
     videoFilePath: string,
-    outputFormat: "wav" | "mp3" | "flac" = "wav"
+    outputFormat: "wav" | "mp3" | "flac" = "wav",
   ): Promise<string> {
     try {
       const audioPath = await invoke<string>("extract_audio_for_whisper", {
         videoFilePath,
-        outputFormat
+        outputFormat,
       })
       return audioPath
     } catch (error) {
@@ -354,9 +351,8 @@ export class WhisperService {
       if (durationSeconds < 900) return "whisper-small"
       if (durationSeconds < 1800) return "whisper-medium"
       return "whisper-large-v3"
-    } else {
-      return "whisper-1" // OpenAI API model
     }
+    return "whisper-1" // OpenAI API model
   }
 
   /**
@@ -364,16 +360,16 @@ export class WhisperService {
    */
   public convertToSRT(segments: WhisperSegment[]): string {
     let srtContent = ""
-    
+
     segments.forEach((segment, index) => {
       const startTime = this.formatSRTTime(segment.start)
       const endTime = this.formatSRTTime(segment.end)
-      
+
       srtContent += `${index + 1}\n`
       srtContent += `${startTime} --> ${endTime}\n`
       srtContent += `${segment.text.trim()}\n\n`
     })
-    
+
     return srtContent
   }
 
@@ -382,15 +378,15 @@ export class WhisperService {
    */
   public convertToVTT(segments: WhisperSegment[]): string {
     let vttContent = "WEBVTT\n\n"
-    
+
     segments.forEach((segment) => {
       const startTime = this.formatVTTTime(segment.start)
       const endTime = this.formatVTTTime(segment.end)
-      
+
       vttContent += `${startTime} --> ${endTime}\n`
       vttContent += `${segment.text.trim()}\n\n`
     })
-    
+
     return vttContent
   }
 
@@ -402,8 +398,8 @@ export class WhisperService {
     const minutes = Math.floor((seconds % 3600) / 60)
     const secs = Math.floor(seconds % 60)
     const milliseconds = Math.floor((seconds % 1) * 1000)
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${milliseconds.toString().padStart(3, '0')}`
+
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")},${milliseconds.toString().padStart(3, "0")}`
   }
 
   /**
@@ -414,7 +410,7 @@ export class WhisperService {
     const minutes = Math.floor((seconds % 3600) / 60)
     const secs = Math.floor(seconds % 60)
     const milliseconds = Math.floor((seconds % 1) * 1000)
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`
+
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}.${milliseconds.toString().padStart(3, "0")}`
   }
 }

@@ -13,9 +13,9 @@ import { ClaudeTool } from "../services/claude-service"
 export interface SubtitleItem {
   id: string
   startTime: number // в миллисекундах
-  endTime: number   // в миллисекундах
+  endTime: number // в миллисекундах
   text: string
-  speaker?: string  // имя говорящего (для диалогов)
+  speaker?: string // имя говорящего (для диалогов)
 }
 
 /**
@@ -107,26 +107,26 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         clipId: {
           type: "string",
-          description: "ID клипа для анализа аудио"
+          description: "ID клипа для анализа аудио",
         },
         language: {
-          type: "string", 
+          type: "string",
           description: "Язык речи (ru, en, es, fr, de и др.)",
-          default: "ru"
+          default: "ru",
         },
         detectSpeakers: {
           type: "boolean",
           description: "Определять разных говорящих",
-          default: false
+          default: false,
         },
         minimumSilenceDuration: {
           type: "number",
           description: "Минимальная длительность тишины для разбивки (мс)",
-          default: 1000
-        }
+          default: 1000,
+        },
       },
-      required: ["clipId"]
-    }
+      required: ["clipId"],
+    },
   },
 
   // 2. Генерация субтитров из аудио
@@ -134,40 +134,40 @@ export const subtitleTools: ClaudeTool[] = [
     name: "generate_subtitles_from_audio",
     description: "Создает субтитры на основе аудиодорожки клипа используя распознавание речи",
     input_schema: {
-      type: "object", 
+      type: "object",
       properties: {
         clipId: {
           type: "string",
-          description: "ID клипа для создания субтитров"
+          description: "ID клипа для создания субтитров",
         },
         language: {
           type: "string",
           description: "Язык речи для распознавания",
-          default: "ru"
+          default: "ru",
         },
         autoSync: {
-          type: "boolean", 
+          type: "boolean",
           description: "Автоматически синхронизировать с аудио",
-          default: true
+          default: true,
         },
         includeTimestamps: {
           type: "boolean",
           description: "Включать точные временные метки",
-          default: true
+          default: true,
         },
         detectSpeakers: {
           type: "boolean",
           description: "Определять разных говорящих",
-          default: false
+          default: false,
         },
         confidenceThreshold: {
           type: "number",
           description: "Минимальный уровень уверенности распознавания (0-1)",
-          default: 0.7
-        }
+          default: 0.7,
+        },
       },
-      required: ["clipId", "language"]
-    }
+      required: ["clipId", "language"],
+    },
   },
 
   // 3. Перевод существующих субтитров
@@ -178,27 +178,27 @@ export const subtitleTools: ClaudeTool[] = [
       type: "object",
       properties: {
         subtitleTrackId: {
-          type: "string", 
-          description: "ID дорожки субтитров для перевода"
+          type: "string",
+          description: "ID дорожки субтитров для перевода",
         },
         targetLanguage: {
           type: "string",
-          description: "Целевой язык перевода (ru, en, es, fr, de и др.)"
+          description: "Целевой язык перевода (ru, en, es, fr, de и др.)",
         },
         preserveTimestamps: {
           type: "boolean",
           description: "Сохранить оригинальные временные метки",
-          default: true
+          default: true,
         },
         formatStyle: {
           type: "string",
           enum: ["formal", "casual", "technical"],
           description: "Стиль перевода",
-          default: "formal"
-        }
+          default: "formal",
+        },
       },
-      required: ["subtitleTrackId", "targetLanguage"]
-    }
+      required: ["subtitleTrackId", "targetLanguage"],
+    },
   },
 
   // 4. Редактирование текста субтитров
@@ -210,20 +210,20 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         subtitleId: {
           type: "string",
-          description: "ID субтитра для редактирования"
+          description: "ID субтитра для редактирования",
         },
         newText: {
-          type: "string", 
-          description: "Новый текст субтитра"
+          type: "string",
+          description: "Новый текст субтитра",
         },
         adjustTiming: {
           type: "boolean",
           description: "Автоматически подстроить временные метки под новый текст",
-          default: false
-        }
+          default: false,
+        },
       },
-      required: ["subtitleId", "newText"]
-    }
+      required: ["subtitleId", "newText"],
+    },
   },
 
   // 5. Синхронизация субтитров с аудио
@@ -235,25 +235,25 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         subtitleTrackId: {
           type: "string",
-          description: "ID дорожки субтитров для синхронизации"
+          description: "ID дорожки субтитров для синхронизации",
         },
         clipId: {
-          type: "string", 
-          description: "ID клипа с эталонным аудио"
+          type: "string",
+          description: "ID клипа с эталонным аудио",
         },
         offsetMs: {
           type: "number",
           description: "Сдвиг всех субтитров в миллисекундах",
-          default: 0
+          default: 0,
         },
         autoAdjust: {
           type: "boolean",
           description: "Автоматически корректировать временные метки",
-          default: true
-        }
+          default: true,
+        },
       },
-      required: ["subtitleTrackId", "clipId"]
-    }
+      required: ["subtitleTrackId", "clipId"],
+    },
   },
 
   // 6. Применение стилей к субтитрам
@@ -265,49 +265,49 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         subtitleTrackId: {
           type: "string",
-          description: "ID дорожки субтитров для стилизации"
+          description: "ID дорожки субтитров для стилизации",
         },
         fontSize: {
           type: "number",
           description: "Размер шрифта в пикселях",
-          default: 24
+          default: 24,
         },
         fontFamily: {
           type: "string",
           description: "Семейство шрифта",
-          default: "Arial"
+          default: "Arial",
         },
         color: {
-          type: "string", 
+          type: "string",
           description: "Цвет текста (hex, rgb или название)",
-          default: "#FFFFFF"
+          default: "#FFFFFF",
         },
         backgroundColor: {
           type: "string",
           description: "Цвет фона (hex, rgb или название)",
-          default: "rgba(0,0,0,0.7)"
+          default: "rgba(0,0,0,0.7)",
         },
         position: {
           type: "string",
           enum: ["bottom", "top", "center"],
           description: "Позиция субтитров на экране",
-          default: "bottom"
+          default: "bottom",
         },
         alignment: {
           type: "string",
           enum: ["left", "center", "right"],
           description: "Выравнивание текста",
-          default: "center"
+          default: "center",
         },
         animation: {
           type: "string",
           enum: ["fade", "slide", "typewriter", "none"],
           description: "Анимация появления/исчезновения",
-          default: "fade"
-        }
+          default: "fade",
+        },
       },
-      required: ["subtitleTrackId"]
-    }
+      required: ["subtitleTrackId"],
+    },
   },
 
   // 7. Автоматическое разбиение длинных субтитров
@@ -319,26 +319,26 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         subtitleTrackId: {
           type: "string",
-          description: "ID дорожки субтитров для обработки"
+          description: "ID дорожки субтитров для обработки",
         },
         maxCharacters: {
           type: "number",
           description: "Максимальное количество символов в одном субтитре",
-          default: 42
+          default: 42,
         },
         maxLines: {
-          type: "number", 
+          type: "number",
           description: "Максимальное количество строк в одном субтитре",
-          default: 2
+          default: 2,
         },
         preserveMeaning: {
           type: "boolean",
           description: "Разбивать по смыслу, а не механически",
-          default: true
-        }
+          default: true,
+        },
       },
-      required: ["subtitleTrackId"]
-    }
+      required: ["subtitleTrackId"],
+    },
   },
 
   // 8. Удаление или фильтрация нежелательного контента
@@ -350,33 +350,33 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         subtitleTrackId: {
           type: "string",
-          description: "ID дорожки субтитров для фильтрации"
+          description: "ID дорожки субтитров для фильтрации",
         },
         removeFillers: {
           type: "boolean",
           description: "Удалить заполнители речи (эм, ах, э-э)",
-          default: true
+          default: true,
         },
         censorProfanity: {
           type: "boolean",
           description: "Заменить ненормативную лексику на звездочки",
-          default: false
+          default: false,
         },
         removeBracketedText: {
           type: "boolean",
           description: "Удалить текст в скобках [кашель], [музыка]",
-          default: false
+          default: false,
         },
         customFilters: {
           type: "array",
           items: {
-            type: "string"
+            type: "string",
           },
-          description: "Пользовательские слова/фразы для удаления"
-        }
+          description: "Пользовательские слова/фразы для удаления",
+        },
       },
-      required: ["subtitleTrackId"]
-    }
+      required: ["subtitleTrackId"],
+    },
   },
 
   // 9. Экспорт субтитров в различных форматах
@@ -388,26 +388,26 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         subtitleTrackId: {
           type: "string",
-          description: "ID дорожки субтитров для экспорта"
+          description: "ID дорожки субтитров для экспорта",
         },
         format: {
           type: "string",
           enum: ["srt", "vtt", "ass", "txt"],
           description: "Формат экспорта",
-          default: "srt"
+          default: "srt",
         },
         filename: {
           type: "string",
-          description: "Имя файла для сохранения (без расширения)"
+          description: "Имя файла для сохранения (без расширения)",
         },
         includeMetadata: {
           type: "boolean",
           description: "Включить метаданные в экспорт",
-          default: false
-        }
+          default: false,
+        },
       },
-      required: ["subtitleTrackId", "format"]
-    }
+      required: ["subtitleTrackId", "format"],
+    },
   },
 
   // 10. Создание многоязычных субтитров
@@ -419,33 +419,33 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         clipId: {
           type: "string",
-          description: "ID клипа для создания субтитров"
+          description: "ID клипа для создания субтитров",
         },
         sourceLanguage: {
           type: "string",
           description: "Исходный язык аудио",
-          default: "ru"
+          default: "ru",
         },
         targetLanguages: {
           type: "array",
           items: {
-            type: "string"
+            type: "string",
           },
-          description: "Список целевых языков для перевода"
+          description: "Список целевых языков для перевода",
         },
         generateFromAudio: {
           type: "boolean",
           description: "Создавать исходные субтитры из аудио",
-          default: true
+          default: true,
         },
         synchronizeAll: {
           type: "boolean",
           description: "Синхронизировать все дорожки субтитров",
-          default: true
-        }
+          default: true,
+        },
       },
-      required: ["clipId", "targetLanguages"]
-    }
+      required: ["clipId", "targetLanguages"],
+    },
   },
 
   // 11. Анализ качества субтитров
@@ -457,31 +457,31 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         subtitleTrackId: {
           type: "string",
-          description: "ID дорожки субтитров для анализа"
+          description: "ID дорожки субтитров для анализа",
         },
         checkReadability: {
           type: "boolean",
           description: "Проверить читаемость (скорость чтения)",
-          default: true
+          default: true,
         },
         checkGrammar: {
           type: "boolean",
           description: "Проверить грамматику и пунктуацию",
-          default: true
+          default: true,
         },
         checkTiming: {
           type: "boolean",
           description: "Проверить корректность временных меток",
-          default: true
+          default: true,
         },
         suggestImprovements: {
           type: "boolean",
           description: "Предложить конкретные улучшения",
-          default: true
-        }
+          default: true,
+        },
       },
-      required: ["subtitleTrackId"]
-    }
+      required: ["subtitleTrackId"],
+    },
   },
 
   // 12. Автоматическое создание глав и разделов
@@ -493,32 +493,32 @@ export const subtitleTools: ClaudeTool[] = [
       properties: {
         subtitleTrackId: {
           type: "string",
-          description: "ID дорожки субтитров для анализа"
+          description: "ID дорожки субтитров для анализа",
         },
         detectTopicChanges: {
           type: "boolean",
           description: "Автоматически определять смену тем",
-          default: true
+          default: true,
         },
         minimumChapterLength: {
           type: "number",
           description: "Минимальная длительность главы в секундах",
-          default: 30
+          default: 30,
         },
         generateTitles: {
           type: "boolean",
           description: "Генерировать названия глав",
-          default: true
+          default: true,
         },
         maxChapters: {
           type: "number",
           description: "Максимальное количество глав",
-          default: 10
-        }
+          default: 10,
+        },
       },
-      required: ["subtitleTrackId"]
-    }
-  }
+      required: ["subtitleTrackId"],
+    },
+  },
 ]
 
 /**
@@ -573,39 +573,40 @@ export async function executeSubtitleTool(toolName: string, input: Record<string
 // Заглушки для реализации функций (будут реализованы при интеграции)
 async function analyzeAudioForTranscription(params: any): Promise<AudioAnalysisResult> {
   const { clipId, language, detectSpeakers, minimumSilenceDuration } = params
-  
+
   try {
     // Получаем путь к файлу по clipId (заглушка - в реальности нужно получать из Timeline)
     const filePath = `/path/to/video/${clipId}.mp4`
-    
+
     // Извлекаем аудио для анализа
     const audioPath = await invoke("extract_audio_for_whisper", {
       videoFilePath: filePath,
-      outputFormat: "wav"
+      outputFormat: "wav",
     })
-    
+
     // Анализируем аудио через FFmpeg
     const audioAnalysis = await invoke("ffmpeg_analyze_audio", {
       filePath: audioPath,
       enableSpectralAnalysis: true,
-      enableDynamicsAnalysis: true
+      enableDynamicsAnalysis: true,
     })
-    
+
     // Детектируем тишину
     const silenceDetection = await invoke("ffmpeg_detect_silence", {
       filePath: audioPath,
       threshold: -30,
-      minDuration: minimumSilenceDuration / 1000 || 1.0
+      minDuration: minimumSilenceDuration / 1000 || 1.0,
     })
-    
+
     return {
       duration: (audioAnalysis as any)?.duration || 60000,
       speakers: detectSpeakers ? ["Speaker 1", "Speaker 2"] : ["Speaker 1"],
       speechSegments: [], // TODO: Реализовать детекцию речевых сегментов
-      silenceSegments: (silenceDetection as any)?.silences?.map((silence: any) => ({
-        startTime: silence.start_time * 1000,
-        endTime: silence.end_time * 1000
-      })) || []
+      silenceSegments:
+        (silenceDetection as any)?.silences?.map((silence: any) => ({
+          startTime: silence.start_time * 1000,
+          endTime: silence.end_time * 1000,
+        })) || [],
     }
   } catch (error) {
     console.error("Ошибка анализа аудио:", error)
@@ -615,17 +616,17 @@ async function analyzeAudioForTranscription(params: any): Promise<AudioAnalysisR
 
 async function generateSubtitlesFromAudio(params: any): Promise<SubtitleItem[]> {
   const { clipId, language, autoSync, includeTimestamps, detectSpeakers, confidenceThreshold } = params
-  
+
   try {
     // Получаем путь к файлу по clipId
     const filePath = `/path/to/video/${clipId}.mp4`
-    
+
     // Извлекаем аудио для Whisper
     const audioPath = await invoke("extract_audio_for_whisper", {
       videoFilePath: filePath,
-      outputFormat: "wav"
+      outputFormat: "wav",
     })
-    
+
     // Пытаемся использовать OpenAI Whisper API
     try {
       const transcription = await invoke("whisper_transcribe_openai", {
@@ -635,9 +636,9 @@ async function generateSubtitlesFromAudio(params: any): Promise<SubtitleItem[]> 
         language: language !== "auto" ? language : undefined,
         responseFormat: "verbose_json",
         temperature: 0,
-        timestampGranularities: ["segment", "word"]
+        timestampGranularities: ["segment", "word"],
       })
-      
+
       // Конвертируем результат в SubtitleItem[]
       if ((transcription as any)?.segments) {
         return (transcription as any).segments.map((segment: any, index: number) => ({
@@ -645,50 +646,52 @@ async function generateSubtitlesFromAudio(params: any): Promise<SubtitleItem[]> 
           startTime: segment.start * 1000, // конвертируем в миллисекунды
           endTime: segment.end * 1000,
           text: segment.text.trim(),
-          speaker: detectSpeakers ? `Speaker ${(index % 2) + 1}` : undefined
+          speaker: detectSpeakers ? `Speaker ${(index % 2) + 1}` : undefined,
         }))
       }
-      
+
       // Fallback: создаем один субтитр из всего текста
-      return [{
-        id: "subtitle_0",
-        startTime: 0,
-        endTime: 10000, // 10 секунд по умолчанию
-        text: (transcription as any)?.text || "Transcription failed",
-        speaker: detectSpeakers ? "Speaker 1" : undefined
-      }]
-      
+      return [
+        {
+          id: "subtitle_0",
+          startTime: 0,
+          endTime: 10000, // 10 секунд по умолчанию
+          text: (transcription as any)?.text || "Transcription failed",
+          speaker: detectSpeakers ? "Speaker 1" : undefined,
+        },
+      ]
     } catch (openaiError) {
       console.warn("OpenAI Whisper недоступен, пытаемся использовать локальную модель:", openaiError)
-      
+
       // Fallback на локальную модель
       const localTranscription = await invoke("whisper_transcribe_local", {
         audioFilePath: audioPath,
         modelName: "whisper-base",
         language: language !== "auto" ? language : "auto",
         threads: 4,
-        outputFormat: "json"
+        outputFormat: "json",
       })
-      
+
       if ((localTranscription as any)?.segments) {
         return (localTranscription as any).segments.map((segment: any, index: number) => ({
           id: `subtitle_${index}`,
           startTime: segment.start * 1000,
           endTime: segment.end * 1000,
           text: segment.text.trim(),
-          speaker: detectSpeakers ? `Speaker ${(index % 2) + 1}` : undefined
+          speaker: detectSpeakers ? `Speaker ${(index % 2) + 1}` : undefined,
         }))
       }
-      
-      return [{
-        id: "subtitle_0",
-        startTime: 0,
-        endTime: 10000,
-        text: (localTranscription as any)?.text || "Local transcription failed",
-        speaker: detectSpeakers ? "Speaker 1" : undefined
-      }]
+
+      return [
+        {
+          id: "subtitle_0",
+          startTime: 0,
+          endTime: 10000,
+          text: (localTranscription as any)?.text || "Local transcription failed",
+          speaker: detectSpeakers ? "Speaker 1" : undefined,
+        },
+      ]
     }
-    
   } catch (error) {
     console.error("Ошибка генерации субтитров:", error)
     throw error
@@ -750,7 +753,7 @@ async function analyzeSubtitleQuality(params: any): Promise<any> {
     readabilityScore: 0.8,
     grammarIssues: [],
     timingIssues: [],
-    suggestions: []
+    suggestions: [],
   }
 }
 

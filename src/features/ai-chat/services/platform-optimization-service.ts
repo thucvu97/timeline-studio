@@ -8,9 +8,9 @@ import { invoke } from "@tauri-apps/api/core"
 /**
  * Поддерживаемые платформы
  */
-export type SupportedPlatform = 
+export type SupportedPlatform =
   | "youtube"
-  | "tiktok" 
+  | "tiktok"
   | "instagram_feed"
   | "instagram_stories"
   | "instagram_reels"
@@ -23,7 +23,7 @@ export type SupportedPlatform =
 /**
  * Категории контента для оптимизации
  */
-export type ContentCategory = 
+export type ContentCategory =
   | "shorts" // Короткие вертикальные видео
   | "standard" // Обычные горизонтальные видео
   | "live" // Прямые трансляции
@@ -117,7 +117,7 @@ export interface BatchOptimizationStats {
  */
 export class PlatformOptimizationService {
   private static instance: PlatformOptimizationService
-  
+
   // Спецификации платформ
   private readonly platformSpecs: Record<SupportedPlatform, PlatformSpecs> = {
     youtube: {
@@ -133,7 +133,7 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 60,
-      description: "Оптимизация для YouTube с высоким качеством"
+      description: "Оптимизация для YouTube с высоким качеством",
     },
     tiktok: {
       name: "tiktok",
@@ -148,7 +148,7 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 30,
-      description: "Вертикальные видео для TikTok"
+      description: "Вертикальные видео для TikTok",
     },
     instagram_feed: {
       name: "instagram_feed",
@@ -163,7 +163,7 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 30,
-      description: "Квадратные видео для ленты Instagram"
+      description: "Квадратные видео для ленты Instagram",
     },
     instagram_stories: {
       name: "instagram_stories",
@@ -178,7 +178,7 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 30,
-      description: "Вертикальные истории для Instagram"
+      description: "Вертикальные истории для Instagram",
     },
     instagram_reels: {
       name: "instagram_reels",
@@ -193,7 +193,7 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 30,
-      description: "Короткие вертикальные видео для Instagram Reels"
+      description: "Короткие вертикальные видео для Instagram Reels",
     },
     facebook: {
       name: "facebook",
@@ -208,7 +208,7 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 30,
-      description: "Оптимизация для Facebook"
+      description: "Оптимизация для Facebook",
     },
     twitter: {
       name: "twitter",
@@ -223,7 +223,7 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 40,
-      description: "Короткие видео для Twitter"
+      description: "Короткие видео для Twitter",
     },
     linkedin: {
       name: "linkedin",
@@ -238,7 +238,7 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 30,
-      description: "Профессиональные видео для LinkedIn"
+      description: "Профессиональные видео для LinkedIn",
     },
     vimeo: {
       name: "vimeo",
@@ -253,7 +253,7 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 60,
-      description: "Высококачественные видео для Vimeo"
+      description: "Высококачественные видео для Vimeo",
     },
     twitch: {
       name: "twitch",
@@ -268,8 +268,8 @@ export class PlatformOptimizationService {
       audioCodec: "aac",
       videoCodec: "h264",
       framerate: 60,
-      description: "Стримы и клипы для Twitch"
-    }
+      description: "Стримы и клипы для Twitch",
+    },
   }
 
   private constructor() {}
@@ -303,8 +303,8 @@ export class PlatformOptimizationService {
    */
   public getRecommendedPlatforms(
     contentCategory: ContentCategory,
-    aspectRatio?: string,
-    duration?: number
+    _aspectRatio?: string,
+    duration?: number,
   ): SupportedPlatform[] {
     const recommendations: SupportedPlatform[] = []
 
@@ -332,7 +332,7 @@ export class PlatformOptimizationService {
 
     // Фильтрация по продолжительности
     if (duration) {
-      return recommendations.filter(platform => {
+      return recommendations.filter((platform) => {
         const specs = this.platformSpecs[platform]
         return duration >= specs.minDuration && duration <= specs.maxDuration
       })
@@ -346,11 +346,11 @@ export class PlatformOptimizationService {
    */
   public async optimizeForPlatform(params: OptimizationParams): Promise<OptimizationResult> {
     const specs = this.platformSpecs[params.platform]
-    
+
     // Получаем метаданные исходного видео
-    const originalMetadata = await invoke("ffmpeg_get_metadata", {
-      filePath: params.inputVideoPath
-    }) as any
+    const originalMetadata = (await invoke("ffmpeg_get_metadata", {
+      filePath: params.inputVideoPath,
+    })) as any
 
     // Определяем параметры оптимизации
     const targetResolution = params.customSettings?.targetResolution || specs.recommendedResolution
@@ -372,13 +372,13 @@ export class PlatformOptimizationService {
         targetFramerate: targetFramerate,
         audioCodec: specs.audioCodec,
         videoCodec: specs.videoCodec,
-        cropToFit: params.customSettings?.cropToFit || false
+        cropToFit: params.customSettings?.cropToFit || false,
       })
 
       // Получаем метаданные оптимизированного видео
-      const optimizedMetadata = await invoke("ffmpeg_get_metadata", {
-        filePath: outputPath
-      }) as any
+      const optimizedMetadata = (await invoke("ffmpeg_get_metadata", {
+        filePath: outputPath,
+      })) as any
 
       // Генерируем превью если требуется
       let thumbnailPath: string | undefined
@@ -386,7 +386,7 @@ export class PlatformOptimizationService {
         thumbnailPath = await invoke("ffmpeg_generate_thumbnail", {
           videoPath: outputPath,
           outputPath: `${params.outputDirectory}/thumb_${params.platform}_${Date.now()}.jpg`,
-          timestamp: originalMetadata.duration / 2 // Середина видео
+          timestamp: originalMetadata.duration / 2, // Середина видео
         })
       }
 
@@ -394,12 +394,7 @@ export class PlatformOptimizationService {
       const compliance = this.checkPlatformCompliance(optimizedMetadata, specs)
 
       // Генерируем предложения по улучшению
-      const suggestions = this.generateOptimizationSuggestions(
-        originalMetadata,
-        optimizedMetadata,
-        specs,
-        params
-      )
+      const suggestions = this.generateOptimizationSuggestions(originalMetadata, optimizedMetadata, specs, params)
 
       return {
         platform: params.platform,
@@ -412,21 +407,20 @@ export class PlatformOptimizationService {
           compressionRatio: (originalMetadata.fileSize || 0) / (optimizedMetadata.fileSize || 1),
           originalResolution: {
             width: originalMetadata.width || 0,
-            height: originalMetadata.height || 0
+            height: originalMetadata.height || 0,
           },
           optimizedResolution: {
             width: optimizedMetadata.width || 0,
-            height: optimizedMetadata.height || 0
+            height: optimizedMetadata.height || 0,
           },
           originalDuration: originalMetadata.duration || 0,
           optimizedDuration: optimizedMetadata.duration || 0,
           originalBitrate: originalMetadata.bitRate || 0,
-          optimizedBitrate: optimizedMetadata.bitRate || 0
+          optimizedBitrate: optimizedMetadata.bitRate || 0,
         },
         platformCompliance: compliance,
-        suggestions
+        suggestions,
       }
-
     } catch (error) {
       console.error(`Ошибка оптимизации для ${params.platform}:`, error)
       throw new Error(`Не удалось оптимизировать видео для ${specs.displayName}: ${String(error)}`)
@@ -440,7 +434,7 @@ export class PlatformOptimizationService {
     inputVideoPath: string,
     platforms: SupportedPlatform[],
     outputDirectory: string,
-    contentCategory: ContentCategory = "standard"
+    contentCategory: ContentCategory = "standard",
   ): Promise<{
     results: OptimizationResult[]
     stats: BatchOptimizationStats
@@ -461,8 +455,8 @@ export class PlatformOptimizationService {
           contentCategory,
           outputDirectory,
           customSettings: {
-            generateThumbnail: true
-          }
+            generateThumbnail: true,
+          },
         })
 
         results.push(result)
@@ -470,7 +464,6 @@ export class PlatformOptimizationService {
         totalOriginalSize += result.metadata.originalSize
         totalOptimizedSize += result.metadata.optimizedSize
         platformDistribution[platform] = (platformDistribution[platform] || 0) + 1
-
       } catch (error) {
         console.error(`Ошибка оптимизации для ${platform}:`, error)
         failedOptimizations++
@@ -484,7 +477,7 @@ export class PlatformOptimizationService {
       totalOriginalSize,
       totalOptimizedSize,
       averageCompressionRatio: totalOriginalSize / totalOptimizedSize || 1,
-      platformDistribution
+      platformDistribution,
     }
 
     return { results, stats }
@@ -504,30 +497,32 @@ export class PlatformOptimizationService {
   }> {
     // Анализируем видео
     const analysis = await invoke("ffmpeg_quick_analysis", {
-      filePath: videoPath
+      filePath: videoPath,
     })
 
-    const metadata = await invoke("ffmpeg_get_metadata", {
-      filePath: videoPath
-    }) as any
+    const metadata = (await invoke("ffmpeg_get_metadata", {
+      filePath: videoPath,
+    })) as any
 
     // Оцениваем совместимость с каждой платформой
-    const recommendations = Object.entries(this.platformSpecs).map(([platform, specs]) => {
-      const score = this.calculateSuitabilityScore(metadata, specs)
-      const reasons = this.getSuitabilityReasons(metadata, specs)
-      const changes = this.getRequiredChanges(metadata, specs)
+    const recommendations = Object.entries(this.platformSpecs)
+      .map(([platform, specs]) => {
+        const score = this.calculateSuitabilityScore(metadata, specs)
+        const reasons = this.getSuitabilityReasons(metadata, specs)
+        const changes = this.getRequiredChanges(metadata, specs)
 
-      return {
-        platform: platform as SupportedPlatform,
-        suitabilityScore: score,
-        reasons,
-        requiredChanges: changes
-      }
-    }).sort((a, b) => b.suitabilityScore - a.suitabilityScore)
+        return {
+          platform: platform as SupportedPlatform,
+          suitabilityScore: score,
+          reasons,
+          requiredChanges: changes,
+        }
+      })
+      .sort((a, b) => b.suitabilityScore - a.suitabilityScore)
 
     return {
       videoAnalysis: { ...(analysis as any), metadata },
-      recommendedPlatforms: recommendations
+      recommendedPlatforms: recommendations,
     }
   }
 
@@ -568,7 +563,7 @@ export class PlatformOptimizationService {
       sizeCompliant,
       formatCompliant,
       resolutionCompliant,
-      warnings
+      warnings,
     }
   }
 
@@ -663,7 +658,7 @@ export class PlatformOptimizationService {
     original: any,
     optimized: any,
     specs: PlatformSpecs,
-    params: OptimizationParams
+    params: OptimizationParams,
   ): string[] {
     const suggestions: string[] = []
 

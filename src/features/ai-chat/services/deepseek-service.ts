@@ -4,7 +4,7 @@
 
 import { ApiKeyLoader } from "./api-key-loader"
 import { AiMessage } from "../types/ai-message"
-import { StreamingOptions, StreamingRequest } from "../types/streaming"
+import { StreamingOptions } from "../types/streaming"
 
 // Доступные модели DeepSeek
 export const DEEPSEEK_MODELS = {

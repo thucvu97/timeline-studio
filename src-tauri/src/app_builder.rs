@@ -133,6 +133,14 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::get_pipeline_execution_summary,
     crate::video_compiler::commands::get_pipeline_progress,
     crate::video_compiler::commands::cleanup_completed_pipelines,
+    // Monitoring commands
+    crate::video_compiler::commands::get_service_metrics_summary,
+    crate::video_compiler::commands::reset_service_metrics_detailed,
+    crate::video_compiler::commands::get_all_metrics_summaries,
+    crate::video_compiler::commands::export_metrics_prometheus_detailed,
+    crate::video_compiler::commands::check_services_health,
+    crate::video_compiler::commands::get_performance_metrics,
+    crate::video_compiler::commands::reset_all_metrics,
     // Video analysis commands
     crate::video_compiler::commands::ffmpeg_get_metadata,
     crate::video_compiler::commands::ffmpeg_detect_scenes,

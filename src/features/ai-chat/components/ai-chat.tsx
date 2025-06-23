@@ -31,35 +31,35 @@ const AVAILABLE_AGENTS = [
     useTools: true,
     provider: "claude",
   },
-  { 
-    id: CLAUDE_MODELS.CLAUDE_4_OPUS, 
-    name: "Claude 4 Opus", 
+  {
+    id: CLAUDE_MODELS.CLAUDE_4_OPUS,
+    name: "Claude 4 Opus",
     useTools: true,
     provider: "claude",
   },
-  
+
   // OpenAI модели
-  { 
-    id: AI_MODELS.GPT_4, 
-    name: "GPT-4", 
+  {
+    id: AI_MODELS.GPT_4,
+    name: "GPT-4",
     useTools: false,
     provider: "openai",
   },
-  { 
-    id: AI_MODELS.GPT_4O, 
-    name: "GPT-4o", 
+  {
+    id: AI_MODELS.GPT_4O,
+    name: "GPT-4o",
     useTools: false,
     provider: "openai",
   },
-  { 
-    id: AI_MODELS.GPT_3_5, 
-    name: "GPT-3.5 Turbo", 
+  {
+    id: AI_MODELS.GPT_3_5,
+    name: "GPT-3.5 Turbo",
     useTools: false,
     provider: "openai",
   },
-  { 
-    id: AI_MODELS.O3, 
-    name: "o3", 
+  {
+    id: AI_MODELS.O3,
+    name: "o3",
     useTools: false,
     provider: "openai",
   },
@@ -211,7 +211,7 @@ export function AiChat() {
     }
 
     const provider = getProviderByModel(selectedAgentId || "")
-    
+
     // Проверяем API ключ только для облачных провайдеров
     if (provider !== "ollama") {
       const apiKeyInfo = getApiKeyInfo(provider)

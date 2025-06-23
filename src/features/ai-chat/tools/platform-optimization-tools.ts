@@ -5,10 +5,10 @@
 import { invoke } from "@tauri-apps/api/core"
 
 import { ClaudeTool } from "../services/claude-service"
-import { 
+import {
   ContentCategory,
   PlatformOptimizationService,
-  SupportedPlatform 
+  SupportedPlatform,
 } from "../services/platform-optimization-service"
 
 const platformService = PlatformOptimizationService.getInstance()
@@ -25,14 +25,22 @@ export const getPlatformSpecsTool: ClaudeTool = {
       platform: {
         type: "string",
         enum: [
-          "youtube", "tiktok", "instagram_feed", "instagram_stories", 
-          "instagram_reels", "facebook", "twitter", "linkedin", "vimeo", "twitch"
+          "youtube",
+          "tiktok",
+          "instagram_feed",
+          "instagram_stories",
+          "instagram_reels",
+          "facebook",
+          "twitter",
+          "linkedin",
+          "vimeo",
+          "twitch",
         ],
-        description: "Название платформы для получения спецификаций"
-      }
+        description: "Название платформы для получения спецификаций",
+      },
     },
-    required: ["platform"]
-  }
+    required: ["platform"],
+  },
 }
 
 /**
@@ -44,8 +52,8 @@ export const getAllPlatformsTool: ClaudeTool = {
   input_schema: {
     type: "object",
     properties: {},
-    required: []
-  }
+    required: [],
+  },
 }
 
 /**
@@ -60,39 +68,39 @@ export const getRecommendedPlatformsTool: ClaudeTool = {
       contentCategory: {
         type: "string",
         enum: ["shorts", "standard", "live", "stories", "ads"],
-        description: "Категория контента для оптимизации"
+        description: "Категория контента для оптимизации",
       },
       aspectRatio: {
         type: "string",
         description: "Соотношение сторон видео (например, '16:9', '9:16', '1:1')",
-        pattern: "^\\d+:\\d+$"
+        pattern: "^\\d+:\\d+$",
       },
       duration: {
         type: "number",
         description: "Длительность видео в секундах",
-        minimum: 1
-      }
+        minimum: 1,
+      },
     },
-    required: ["contentCategory"]
-  }
+    required: ["contentCategory"],
+  },
 }
 
 /**
  * Инструмент для анализа видео и рекомендаций платформ
  */
 export const analyzeVideoForPlatformsTool: ClaudeTool = {
-  name: "analyze_video_for_platforms", 
+  name: "analyze_video_for_platforms",
   description: "Анализировать видео и получить рекомендации по платформам с оценками совместимости",
   input_schema: {
     type: "object",
     properties: {
       videoPath: {
         type: "string",
-        description: "Путь к видеофайлу для анализа"
-      }
+        description: "Путь к видеофайлу для анализа",
+      },
     },
-    required: ["videoPath"]
-  }
+    required: ["videoPath"],
+  },
 }
 
 /**
@@ -102,28 +110,36 @@ export const optimizeForPlatformTool: ClaudeTool = {
   name: "optimize_for_platform",
   description: "Оптимизировать видео под конкретную социальную платформу с настройкой параметров",
   input_schema: {
-    type: "object", 
+    type: "object",
     properties: {
       inputVideoPath: {
         type: "string",
-        description: "Путь к исходному видеофайлу"
+        description: "Путь к исходному видеофайлу",
       },
       platform: {
         type: "string",
         enum: [
-          "youtube", "tiktok", "instagram_feed", "instagram_stories",
-          "instagram_reels", "facebook", "twitter", "linkedin", "vimeo", "twitch"
+          "youtube",
+          "tiktok",
+          "instagram_feed",
+          "instagram_stories",
+          "instagram_reels",
+          "facebook",
+          "twitter",
+          "linkedin",
+          "vimeo",
+          "twitch",
         ],
-        description: "Целевая платформа для оптимизации"
+        description: "Целевая платформа для оптимизации",
       },
       contentCategory: {
         type: "string",
         enum: ["shorts", "standard", "live", "stories", "ads"],
-        description: "Категория контента"
+        description: "Категория контента",
       },
       outputDirectory: {
         type: "string",
-        description: "Директория для сохранения оптимизированного видео"
+        description: "Директория для сохранения оптимизированного видео",
       },
       customSettings: {
         type: "object",
@@ -133,37 +149,37 @@ export const optimizeForPlatformTool: ClaudeTool = {
             type: "object",
             properties: {
               width: { type: "number", minimum: 1 },
-              height: { type: "number", minimum: 1 }
-            }
+              height: { type: "number", minimum: 1 },
+            },
           },
           targetBitrate: {
             type: "number",
             description: "Целевой битрейт в kbps",
-            minimum: 100
+            minimum: 100,
           },
           targetFramerate: {
-            type: "number", 
+            type: "number",
             description: "Целевая частота кадров",
             minimum: 1,
-            maximum: 120
+            maximum: 120,
           },
           cropToFit: {
             type: "boolean",
-            description: "Обрезать видео для точного соответствия соотношению сторон"
+            description: "Обрезать видео для точного соответствия соотношению сторон",
           },
           addPlatformBranding: {
             type: "boolean",
-            description: "Добавить брендинг платформы"
+            description: "Добавить брендинг платформы",
           },
           generateThumbnail: {
-            type: "boolean", 
-            description: "Создать превью изображение"
-          }
-        }
-      }
+            type: "boolean",
+            description: "Создать превью изображение",
+          },
+        },
+      },
     },
-    required: ["inputVideoPath", "platform", "contentCategory", "outputDirectory"]
-  }
+    required: ["inputVideoPath", "platform", "contentCategory", "outputDirectory"],
+  },
 }
 
 /**
@@ -177,33 +193,41 @@ export const batchOptimizeForPlatformsTool: ClaudeTool = {
     properties: {
       inputVideoPath: {
         type: "string",
-        description: "Путь к исходному видеофайлу"
+        description: "Путь к исходному видеофайлу",
       },
       platforms: {
         type: "array",
         items: {
           type: "string",
           enum: [
-            "youtube", "tiktok", "instagram_feed", "instagram_stories",
-            "instagram_reels", "facebook", "twitter", "linkedin", "vimeo", "twitch"
-          ]
+            "youtube",
+            "tiktok",
+            "instagram_feed",
+            "instagram_stories",
+            "instagram_reels",
+            "facebook",
+            "twitter",
+            "linkedin",
+            "vimeo",
+            "twitch",
+          ],
         },
         description: "Список платформ для оптимизации",
-        minItems: 1
+        minItems: 1,
       },
       outputDirectory: {
         type: "string",
-        description: "Директория для сохранения всех оптимизированных видео"
+        description: "Директория для сохранения всех оптимизированных видео",
       },
       contentCategory: {
         type: "string",
         enum: ["shorts", "standard", "live", "stories", "ads"],
         description: "Категория контента",
-        default: "standard"
-      }
+        default: "standard",
+      },
     },
-    required: ["inputVideoPath", "platforms", "outputDirectory"]
-  }
+    required: ["inputVideoPath", "platforms", "outputDirectory"],
+  },
 }
 
 /**
@@ -217,33 +241,41 @@ export const generatePlatformThumbnailTool: ClaudeTool = {
     properties: {
       videoPath: {
         type: "string",
-        description: "Путь к видеофайлу"
+        description: "Путь к видеофайлу",
       },
       platform: {
         type: "string",
         enum: [
-          "youtube", "tiktok", "instagram_feed", "instagram_stories",
-          "instagram_reels", "facebook", "twitter", "linkedin", "vimeo", "twitch"
+          "youtube",
+          "tiktok",
+          "instagram_feed",
+          "instagram_stories",
+          "instagram_reels",
+          "facebook",
+          "twitter",
+          "linkedin",
+          "vimeo",
+          "twitch",
         ],
-        description: "Платформа для создания превью"
+        description: "Платформа для создания превью",
       },
       outputPath: {
         type: "string",
-        description: "Путь для сохранения превью"
+        description: "Путь для сохранения превью",
       },
       timestamp: {
         type: "number",
         description: "Временная метка в секундах для создания кадра (по умолчанию - середина видео)",
-        minimum: 0
+        minimum: 0,
       },
       addOverlay: {
         type: "boolean",
         description: "Добавить текстовые элементы и брендинг",
-        default: false
-      }
+        default: false,
+      },
     },
-    required: ["videoPath", "platform", "outputPath"]
-  }
+    required: ["videoPath", "platform", "outputPath"],
+  },
 }
 
 /**
@@ -257,19 +289,27 @@ export const checkPlatformComplianceTool: ClaudeTool = {
     properties: {
       videoPath: {
         type: "string",
-        description: "Путь к видеофайлу для проверки"
+        description: "Путь к видеофайлу для проверки",
       },
       platform: {
         type: "string",
         enum: [
-          "youtube", "tiktok", "instagram_feed", "instagram_stories",
-          "instagram_reels", "facebook", "twitter", "linkedin", "vimeo", "twitch"
+          "youtube",
+          "tiktok",
+          "instagram_feed",
+          "instagram_stories",
+          "instagram_reels",
+          "facebook",
+          "twitter",
+          "linkedin",
+          "vimeo",
+          "twitch",
         ],
-        description: "Платформа для проверки соответствия"
-      }
+        description: "Платформа для проверки соответствия",
+      },
     },
-    required: ["videoPath", "platform"]
-  }
+    required: ["videoPath", "platform"],
+  },
 }
 
 /**
@@ -285,19 +325,27 @@ export const getOptimizationStatsTool: ClaudeTool = {
         type: "string",
         enum: ["day", "week", "month", "all"],
         description: "Временной диапазон для статистики",
-        default: "all"
+        default: "all",
       },
       platform: {
         type: "string",
         enum: [
-          "youtube", "tiktok", "instagram_feed", "instagram_stories",
-          "instagram_reels", "facebook", "twitter", "linkedin", "vimeo", "twitch"
+          "youtube",
+          "tiktok",
+          "instagram_feed",
+          "instagram_stories",
+          "instagram_reels",
+          "facebook",
+          "twitter",
+          "linkedin",
+          "vimeo",
+          "twitch",
         ],
-        description: "Фильтр по конкретной платформе (опционально)"
-      }
+        description: "Фильтр по конкретной платформе (опционально)",
+      },
     },
-    required: []
-  }
+    required: [],
+  },
 }
 
 /**
@@ -311,37 +359,45 @@ export const generatePlatformMetadataTool: ClaudeTool = {
     properties: {
       videoPath: {
         type: "string",
-        description: "Путь к видеофайлу"
+        description: "Путь к видеофайлу",
       },
       platform: {
-        type: "string", 
+        type: "string",
         enum: [
-          "youtube", "tiktok", "instagram_feed", "instagram_stories",
-          "instagram_reels", "facebook", "twitter", "linkedin", "vimeo", "twitch"
+          "youtube",
+          "tiktok",
+          "instagram_feed",
+          "instagram_stories",
+          "instagram_reels",
+          "facebook",
+          "twitter",
+          "linkedin",
+          "vimeo",
+          "twitch",
         ],
-        description: "Целевая платформа"
+        description: "Целевая платформа",
       },
       contentTheme: {
         type: "string",
-        description: "Основная тема или тематика видео"
+        description: "Основная тема или тематика видео",
       },
       targetAudience: {
         type: "string",
-        description: "Целевая аудитория (например, 'молодежь 18-25', 'профессионалы', 'геймеры')"
+        description: "Целевая аудитория (например, 'молодежь 18-25', 'профессионалы', 'геймеры')",
       },
       language: {
         type: "string",
         description: "Язык для метаданных",
-        default: "ru"
+        default: "ru",
       },
       includeHashtags: {
         type: "boolean",
         description: "Включить рекомендуемые хештеги",
-        default: true
-      }
+        default: true,
+      },
     },
-    required: ["videoPath", "platform", "contentTheme"]
-  }
+    required: ["videoPath", "platform", "contentTheme"],
+  },
 }
 
 /**
@@ -349,7 +405,7 @@ export const generatePlatformMetadataTool: ClaudeTool = {
  */
 export const platformOptimizationTools: ClaudeTool[] = [
   getPlatformSpecsTool,
-  getAllPlatformsTool, 
+  getAllPlatformsTool,
   getRecommendedPlatformsTool,
   analyzeVideoForPlatformsTool,
   optimizeForPlatformTool,
@@ -357,16 +413,13 @@ export const platformOptimizationTools: ClaudeTool[] = [
   generatePlatformThumbnailTool,
   checkPlatformComplianceTool,
   getOptimizationStatsTool,
-  generatePlatformMetadataTool
+  generatePlatformMetadataTool,
 ]
 
 /**
  * Выполнение инструментов оптимизации платформ
  */
-export async function executePlatformOptimizationTool(
-  toolName: string, 
-  input: any
-): Promise<any> {
+export async function executePlatformOptimizationTool(toolName: string, input: any): Promise<any> {
   try {
     switch (toolName) {
       case "get_platform_specs":
@@ -375,7 +428,7 @@ export async function executePlatformOptimizationTool(
       case "get_all_platforms":
         return {
           platforms: platformService.getAllPlatforms(),
-          totalPlatforms: platformService.getAllPlatforms().length
+          totalPlatforms: platformService.getAllPlatforms().length,
         }
 
       case "get_recommended_platforms":
@@ -383,9 +436,9 @@ export async function executePlatformOptimizationTool(
           recommendedPlatforms: platformService.getRecommendedPlatforms(
             input.contentCategory as ContentCategory,
             input.aspectRatio,
-            input.duration
+            input.duration,
           ),
-          contentCategory: input.contentCategory
+          contentCategory: input.contentCategory,
         }
 
       case "analyze_video_for_platforms":
@@ -397,7 +450,7 @@ export async function executePlatformOptimizationTool(
           platform: input.platform as SupportedPlatform,
           contentCategory: input.contentCategory as ContentCategory,
           outputDirectory: input.outputDirectory,
-          customSettings: input.customSettings
+          customSettings: input.customSettings,
         })
 
       case "batch_optimize_for_platforms":
@@ -405,7 +458,7 @@ export async function executePlatformOptimizationTool(
           input.inputVideoPath,
           input.platforms as SupportedPlatform[],
           input.outputDirectory,
-          input.contentCategory as ContentCategory || "standard"
+          (input.contentCategory as ContentCategory) || "standard",
         )
 
       case "generate_platform_thumbnail":
@@ -418,20 +471,20 @@ export async function executePlatformOptimizationTool(
           targetHeight: specs.recommendedResolution.height,
           aspectRatio: specs.aspectRatio,
           addOverlay: input.addOverlay || false,
-          platformName: specs.displayName
+          platformName: specs.displayName,
         })
 
       case "check_platform_compliance":
         const metadata = await invoke("ffmpeg_get_metadata", {
-          filePath: input.videoPath
+          filePath: input.videoPath,
         })
         const platformSpecs = platformService.getPlatformSpecs(input.platform as SupportedPlatform)
-        
+
         return {
           platform: input.platform,
           videoPath: input.videoPath,
           compliance: checkCompliance(metadata, platformSpecs),
-          recommendations: generateComplianceRecommendations(metadata, platformSpecs)
+          recommendations: generateComplianceRecommendations(metadata, platformSpecs),
         }
 
       case "get_optimization_stats":
@@ -442,7 +495,7 @@ export async function executePlatformOptimizationTool(
           totalOptimizations: 0,
           platformDistribution: {},
           averageCompressionRatio: 0,
-          message: "Статистика будет доступна после выполнения оптимизаций"
+          message: "Статистика будет доступна после выполнения оптимизаций",
         }
 
       case "generate_platform_metadata":
@@ -452,7 +505,7 @@ export async function executePlatformOptimizationTool(
           input.contentTheme,
           input.targetAudience,
           input.language || "ru",
-          input.includeHashtags !== false
+          input.includeHashtags !== false,
         )
 
       default:
@@ -470,7 +523,7 @@ export async function executePlatformOptimizationTool(
 function checkCompliance(metadata: any, specs: any) {
   const issues: string[] = []
   const warnings: string[] = []
-  
+
   // Проверка длительности
   if (metadata.duration < specs.minDuration) {
     issues.push(`Видео слишком короткое. Минимум: ${specs.minDuration}с, текущее: ${metadata.duration}с`)
@@ -487,7 +540,9 @@ function checkCompliance(metadata: any, specs: any) {
 
   // Проверка битрейта
   if ((metadata.bitRate || 0) > specs.maxBitrate) {
-    warnings.push(`Битрейт превышает рекомендованный. Максимум: ${specs.maxBitrate}kbps, текущий: ${metadata.bitRate}kbps`)
+    warnings.push(
+      `Битрейт превышает рекомендованный. Максимум: ${specs.maxBitrate}kbps, текущий: ${metadata.bitRate}kbps`,
+    )
   }
 
   // Проверка соотношения сторон
@@ -501,7 +556,7 @@ function checkCompliance(metadata: any, specs: any) {
     compliant: issues.length === 0,
     issues,
     warnings,
-    score: Math.max(0, 100 - (issues.length * 25) - (warnings.length * 10))
+    score: Math.max(0, 100 - issues.length * 25 - warnings.length * 10),
   }
 }
 
@@ -522,7 +577,7 @@ function generateComplianceRecommendations(metadata: any, specs: any): string[] 
   // Рекомендации по размеру
   const fileSizeMB = (metadata.fileSize || 0) / (1024 * 1024)
   if (fileSizeMB > specs.maxFileSize) {
-    recommendations.push(`Уменьшите размер файла (сжатие, битрейт, разрешение)`)
+    recommendations.push("Уменьшите размер файла (сжатие, битрейт, разрешение)")
   }
 
   // Рекомендации по качеству
@@ -532,7 +587,9 @@ function generateComplianceRecommendations(metadata: any, specs: any): string[] 
 
   // Рекомендации по формату
   recommendations.push(`Используйте кодек ${specs.videoCodec} для видео и ${specs.audioCodec} для аудио`)
-  recommendations.push(`Установите разрешение ${specs.recommendedResolution.width}x${specs.recommendedResolution.height}`)
+  recommendations.push(
+    `Установите разрешение ${specs.recommendedResolution.width}x${specs.recommendedResolution.height}`,
+  )
 
   return recommendations
 }
@@ -546,7 +603,7 @@ async function generateMetadataForPlatform(
   contentTheme: string,
   targetAudience?: string,
   _language = "ru",
-  includeHashtags = true
+  includeHashtags = true,
 ): Promise<any> {
   // Анализируем видео для получения контекста
   const _analysis = await invoke("ffmpeg_quick_analysis", { filePath: videoPath })
@@ -554,10 +611,10 @@ async function generateMetadataForPlatform(
 
   // Генерируем заголовок в зависимости от платформы
   const title = generateTitle(platform, contentTheme, specs)
-  
+
   // Генерируем описание
   const description = generateDescription(platform, contentTheme, targetAudience, specs)
-  
+
   // Генерируем теги и хештеги
   const tags = generateTags(platform, contentTheme, includeHashtags)
 
@@ -566,13 +623,13 @@ async function generateMetadataForPlatform(
     title,
     description,
     tags,
-    hashtags: includeHashtags ? tags.filter(tag => tag.startsWith('#')) : [],
-    keywords: tags.filter(tag => !tag.startsWith('#')),
+    hashtags: includeHashtags ? tags.filter((tag) => tag.startsWith("#")) : [],
+    keywords: tags.filter((tag) => !tag.startsWith("#")),
     recommendations: [
       `Для ${specs.displayName} рекомендуется ${specs.aspectRatio} формат`,
       `Максимальная длительность: ${specs.maxDuration} секунд`,
-      `Используйте ${specs.videoCodec} кодек для лучшего качества`
-    ]
+      `Используйте ${specs.videoCodec} кодек для лучшего качества`,
+    ],
   }
 }
 
@@ -590,7 +647,7 @@ function generateTitle(platform: SupportedPlatform, contentTheme: string, _specs
     twitter: contentTheme,
     linkedin: `Профессиональный взгляд на ${contentTheme}`,
     vimeo: `${contentTheme} - Творческое видео`,
-    twitch: `Стрим: ${contentTheme}`
+    twitch: `Стрим: ${contentTheme}`,
   }
 
   return templates[platform] || contentTheme
@@ -600,25 +657,25 @@ function generateTitle(platform: SupportedPlatform, contentTheme: string, _specs
  * Генерация описания для платформы
  */
 function generateDescription(
-  platform: SupportedPlatform, 
-  contentTheme: string, 
+  platform: SupportedPlatform,
+  contentTheme: string,
   targetAudience?: string,
-  _specs?: any
+  _specs?: any,
 ): string {
   const baseDescription = `Контент на тему: ${contentTheme}`
   const audienceText = targetAudience ? ` для ${targetAudience}` : ""
 
   const platformDescriptions = {
-    youtube: `${baseDescription}${audienceText}.\n\nПодписывайтесь на канал для новых видео!\n\n#YouTube #${contentTheme.replace(/\s+/g, '')}`,
-    tiktok: `${baseDescription}${audienceText} 🎬\n\n#TikTok #${contentTheme.replace(/\s+/g, '')} #ВидеоКонтент`,
-    instagram_feed: `${baseDescription}${audienceText} 📸\n\n#Instagram #${contentTheme.replace(/\s+/g, '')}`,
+    youtube: `${baseDescription}${audienceText}.\n\nПодписывайтесь на канал для новых видео!\n\n#YouTube #${contentTheme.replace(/\s+/g, "")}`,
+    tiktok: `${baseDescription}${audienceText} 🎬\n\n#TikTok #${contentTheme.replace(/\s+/g, "")} #ВидеоКонтент`,
+    instagram_feed: `${baseDescription}${audienceText} 📸\n\n#Instagram #${contentTheme.replace(/\s+/g, "")}`,
     instagram_stories: `${baseDescription}${audienceText}`,
-    instagram_reels: `${baseDescription}${audienceText} 🎥\n\n#Reels #${contentTheme.replace(/\s+/g, '')}`,
-    facebook: `${baseDescription}${audienceText}.\n\nПоделитесь с друзьями!\n\n#Facebook #${contentTheme.replace(/\s+/g, '')}`,
-    twitter: `${baseDescription}${audienceText} 🧵\n\n#Twitter #${contentTheme.replace(/\s+/g, '')}`,
-    linkedin: `Профессиональный контент: ${contentTheme}${audienceText}.\n\n#LinkedIn #ПрофессиональныйРост #${contentTheme.replace(/\s+/g, '')}`,
-    vimeo: `Творческое видео: ${contentTheme}${audienceText}.\n\n#Vimeo #ТворчествоВидео #${contentTheme.replace(/\s+/g, '')}`,
-    twitch: `Стрим на тему: ${contentTheme}${audienceText}.\n\nСледите за трансляциями!\n\n#Twitch #Стрим #${contentTheme.replace(/\s+/g, '')}`
+    instagram_reels: `${baseDescription}${audienceText} 🎥\n\n#Reels #${contentTheme.replace(/\s+/g, "")}`,
+    facebook: `${baseDescription}${audienceText}.\n\nПоделитесь с друзьями!\n\n#Facebook #${contentTheme.replace(/\s+/g, "")}`,
+    twitter: `${baseDescription}${audienceText} 🧵\n\n#Twitter #${contentTheme.replace(/\s+/g, "")}`,
+    linkedin: `Профессиональный контент: ${contentTheme}${audienceText}.\n\n#LinkedIn #ПрофессиональныйРост #${contentTheme.replace(/\s+/g, "")}`,
+    vimeo: `Творческое видео: ${contentTheme}${audienceText}.\n\n#Vimeo #ТворчествоВидео #${contentTheme.replace(/\s+/g, "")}`,
+    twitch: `Стрим на тему: ${contentTheme}${audienceText}.\n\nСледите за трансляциями!\n\n#Twitch #Стрим #${contentTheme.replace(/\s+/g, "")}`,
   }
 
   return platformDescriptions[platform] || baseDescription
@@ -628,8 +685,8 @@ function generateDescription(
  * Генерация тегов для платформы
  */
 function generateTags(platform: SupportedPlatform, contentTheme: string, includeHashtags: boolean): string[] {
-  const baseTags = [contentTheme.replace(/\s+/g, ''), "видео", "контент"]
-  const hashtags = includeHashtags ? baseTags.map(tag => `#${tag}`) : []
+  const baseTags = [contentTheme.replace(/\s+/g, ""), "видео", "контент"]
+  const hashtags = includeHashtags ? baseTags.map((tag) => `#${tag}`) : []
 
   const platformTags = {
     youtube: [...baseTags, "youtube", "обзор", "туториал"],
@@ -641,7 +698,7 @@ function generateTags(platform: SupportedPlatform, contentTheme: string, include
     twitter: [...hashtags, "#Twitter", "#Новости", "#Обсуждение"],
     linkedin: [...baseTags, "linkedin", "профессиональное", "бизнес"],
     vimeo: [...baseTags, "vimeo", "творчество", "искусство"],
-    twitch: [...baseTags, "twitch", "стрим", "игры"]
+    twitch: [...baseTags, "twitch", "стрим", "игры"],
   }
 
   return platformTags[platform] || baseTags

@@ -4,35 +4,35 @@
  */
 
 // Типы намерений пользователя
-export type UserIntent = 
+export type UserIntent =
   // Основные операции с видео
   | "create_video"
-  | "edit_video" 
+  | "edit_video"
   | "analyze_video"
-  
+
   // Работа с субтитрами
   | "generate_subtitles"
   | "translate_subtitles"
   | "edit_subtitles"
-  
+
   // Автоматизация монтажа
   | "auto_cut"
   | "remove_pauses"
-  | "color_correction" 
+  | "color_correction"
   | "stabilization"
   | "apply_effects"
-  
+
   // Работа с контентом
   | "generate_title"
   | "create_thumbnail"
   | "extract_metadata"
   | "platform_adaptation"
-  
+
   // Помощь и навигация
   | "help_navigation"
   | "explain_feature"
   | "tutorial_request"
-  
+
   // Обычное общение
   | "general_chat"
 
@@ -58,23 +58,15 @@ const INTENT_RULES: IntentRule[] = [
   {
     intent: "create_video",
     keywords: ["создай", "сделай", "создать", "сгенерируй", "видео", "ролик", "клип"],
-    patterns: [
-      /создай\s+(.+)\s+видео/i,
-      /сделай\s+(.+)\s+ролик/i,
-      /создать\s+(.+)/i,
-    ],
+    patterns: [/создай\s+(.+)\s+видео/i, /сделай\s+(.+)\s+ролик/i, /создать\s+(.+)/i],
     weight: 1.0,
   },
 
   // Редактирование видео
   {
-    intent: "edit_video", 
+    intent: "edit_video",
     keywords: ["отредактируй", "измени", "обрежь", "склей", "добавь", "убери", "редактировать"],
-    patterns: [
-      /отредактируй\s+(.+)/i,
-      /измени\s+(.+)/i,
-      /обрежь\s+(.+)/i,
-    ],
+    patterns: [/отредактируй\s+(.+)/i, /измени\s+(.+)/i, /обрежь\s+(.+)/i],
     weight: 1.0,
   },
 
@@ -82,21 +74,14 @@ const INTENT_RULES: IntentRule[] = [
   {
     intent: "generate_subtitles",
     keywords: ["субтитры", "титры", "добавь субтитры", "создай субтитры", "транскрипция"],
-    patterns: [
-      /добавь\s+субтитры/i,
-      /создай\s+субтитры/i,
-      /сгенерируй\s+субтитры/i,
-    ],
+    patterns: [/добавь\s+субтитры/i, /создай\s+субтитры/i, /сгенерируй\s+субтитры/i],
     weight: 1.0,
   },
 
   {
     intent: "translate_subtitles",
     keywords: ["переведи", "перевод", "на английский", "на русский", "translate"],
-    patterns: [
-      /переведи\s+субтитры/i,
-      /перевод\s+на\s+(\w+)/i,
-    ],
+    patterns: [/переведи\s+субтитры/i, /перевод\s+на\s+(\w+)/i],
     weight: 1.0,
   },
 
@@ -104,44 +89,28 @@ const INTENT_RULES: IntentRule[] = [
   {
     intent: "auto_cut",
     keywords: ["нарежь", "разрежь", "разбей", "сегменты", "части", "сцены"],
-    patterns: [
-      /нарежь\s+(.+)/i,
-      /разбей\s+на\s+(.+)/i,
-      /разрежь\s+по\s+(.+)/i,
-    ],
+    patterns: [/нарежь\s+(.+)/i, /разбей\s+на\s+(.+)/i, /разрежь\s+по\s+(.+)/i],
     weight: 1.0,
   },
 
   {
     intent: "remove_pauses",
     keywords: ["удали паузы", "убери паузы", "пауза", "тишина", "silence"],
-    patterns: [
-      /удали\s+паузы/i,
-      /убери\s+(.+)\s+паузы/i,
-      /удали\s+тишину/i,
-    ],
+    patterns: [/удали\s+паузы/i, /убери\s+(.+)\s+паузы/i, /удали\s+тишину/i],
     weight: 1.0,
   },
 
   {
     intent: "color_correction",
     keywords: ["цветокоррекция", "цвет", "яркость", "контраст", "насыщенность"],
-    patterns: [
-      /исправь\s+цвет/i,
-      /цветокоррекция/i,
-      /улучши\s+качество/i,
-    ],
+    patterns: [/исправь\s+цвет/i, /цветокоррекция/i, /улучши\s+качество/i],
     weight: 1.0,
   },
 
   {
     intent: "apply_effects",
     keywords: ["эффект", "фильтр", "примени", "добавь эффект"],
-    patterns: [
-      /добавь\s+эффект\s+(.+)/i,
-      /примени\s+(.+)/i,
-      /добавь\s+фильтр\s+(.+)/i,
-    ],
+    patterns: [/добавь\s+эффект\s+(.+)/i, /примени\s+(.+)/i, /добавь\s+фильтр\s+(.+)/i],
     weight: 1.0,
   },
 
@@ -149,33 +118,21 @@ const INTENT_RULES: IntentRule[] = [
   {
     intent: "generate_title",
     keywords: ["заголовок", "название", "title", "создай название"],
-    patterns: [
-      /создай\s+заголовок/i,
-      /придумай\s+название/i,
-      /сгенерируй\s+title/i,
-    ],
+    patterns: [/создай\s+заголовок/i, /придумай\s+название/i, /сгенерируй\s+title/i],
     weight: 1.0,
   },
 
   {
     intent: "create_thumbnail",
     keywords: ["превью", "обложка", "thumbnail", "preview"],
-    patterns: [
-      /создай\s+превью/i,
-      /сделай\s+обложку/i,
-      /generate\s+thumbnail/i,
-    ],
+    patterns: [/создай\s+превью/i, /сделай\s+обложку/i, /generate\s+thumbnail/i],
     weight: 1.0,
   },
 
   {
     intent: "platform_adaptation",
     keywords: ["youtube", "tiktok", "instagram", "адаптируй", "под платформу"],
-    patterns: [
-      /адаптируй\s+для\s+(\w+)/i,
-      /под\s+(\w+)/i,
-      /для\s+(youtube|tiktok|instagram)/i,
-    ],
+    patterns: [/адаптируй\s+для\s+(\w+)/i, /под\s+(\w+)/i, /для\s+(youtube|tiktok|instagram)/i],
     weight: 1.0,
   },
 
@@ -183,22 +140,14 @@ const INTENT_RULES: IntentRule[] = [
   {
     intent: "help_navigation",
     keywords: ["помощь", "как", "где", "найти", "help"],
-    patterns: [
-      /как\s+(.+)/i,
-      /где\s+(.+)/i,
-      /помоги\s+(.+)/i,
-    ],
+    patterns: [/как\s+(.+)/i, /где\s+(.+)/i, /помоги\s+(.+)/i],
     weight: 0.8,
   },
 
   {
     intent: "explain_feature",
     keywords: ["что такое", "объясни", "расскажи", "explain"],
-    patterns: [
-      /что\s+такое\s+(.+)/i,
-      /объясни\s+(.+)/i,
-      /расскажи\s+о\s+(.+)/i,
-    ],
+    patterns: [/что\s+такое\s+(.+)/i, /объясни\s+(.+)/i, /расскажи\s+о\s+(.+)/i],
     weight: 0.8,
   },
 
@@ -206,11 +155,7 @@ const INTENT_RULES: IntentRule[] = [
   {
     intent: "general_chat",
     keywords: ["привет", "как дела", "спасибо", "пока"],
-    patterns: [
-      /^привет/i,
-      /как\s+дела/i,
-      /спасибо/i,
-    ],
+    patterns: [/^привет/i, /как\s+дела/i, /спасибо/i],
     weight: 0.5,
   },
 ]
@@ -259,7 +204,7 @@ export class IntentRecognitionService {
         const match = normalizedText.match(pattern)
         if (match) {
           score += rule.weight * 0.7 // 70% веса за совпадение паттерна
-          
+
           // Извлекаем сущности из совпадений
           if (match.length > 1) {
             entities[rule.intent] = match.slice(1)
@@ -330,7 +275,7 @@ export class IntentRecognitionService {
       create_video: 10,
       edit_video: 10,
       analyze_video: 9,
-      
+
       // Средне-высокий приоритет - автоматизация
       generate_subtitles: 8,
       auto_cut: 8,
@@ -338,7 +283,7 @@ export class IntentRecognitionService {
       color_correction: 7,
       stabilization: 7,
       apply_effects: 7,
-      
+
       // Средний приоритет - контент
       translate_subtitles: 6,
       edit_subtitles: 6,
@@ -346,12 +291,12 @@ export class IntentRecognitionService {
       create_thumbnail: 5,
       extract_metadata: 5,
       platform_adaptation: 5,
-      
+
       // Низкий приоритет - помощь
       help_navigation: 3,
       explain_feature: 3,
       tutorial_request: 3,
-      
+
       // Минимальный приоритет - общение
       general_chat: 1,
     }
@@ -362,7 +307,7 @@ export class IntentRecognitionService {
   /**
    * Сгенерировать предложение на основе намерения
    */
-  private generateSuggestion(intent: UserIntent, entities: Record<string, any>): string | undefined {
+  private generateSuggestion(intent: UserIntent, _entities: Record<string, any>): string | undefined {
     const suggestions: Record<UserIntent, string | undefined> = {
       create_video: "Я могу помочь создать видео из ваших материалов. Опишите, какого типа видео вы хотите.",
       edit_video: "Расскажите, какие изменения нужно внести в видео, и я помогу с редактированием.",
@@ -404,7 +349,7 @@ export class IntentRecognitionService {
         const durationPattern = /(\d+)\s*(сек|секунд|с|seconds?)/i
         const durationMatch = durationPattern.exec(normalizedText)
         if (durationMatch) {
-          params.pauseDuration = parseInt(durationMatch[1])
+          params.pauseDuration = Number.parseInt(durationMatch[1])
         }
         break
 

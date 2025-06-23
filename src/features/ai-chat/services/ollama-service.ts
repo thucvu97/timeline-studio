@@ -169,7 +169,7 @@ export class OllamaService {
     } = {},
   ): Promise<string> {
     if (!(await this.isAvailable())) {
-      throw new Error("Ollama сервер недоступен. Убедитесь, что Ollama запущен на " + this.baseUrl)
+      throw new Error(`Ollama сервер недоступен. Убедитесь, что Ollama запущен на ${this.baseUrl}`)
     }
 
     try {
@@ -225,7 +225,7 @@ export class OllamaService {
     } & StreamingOptions = {},
   ): Promise<void> {
     if (!(await this.isAvailable())) {
-      const error = new Error("Ollama сервер недоступен. Убедитесь, что Ollama запущен на " + this.baseUrl)
+      const error = new Error(`Ollama сервер недоступен. Убедитесь, что Ollama запущен на ${this.baseUrl}`)
       options.onError?.(error)
       throw error
     }

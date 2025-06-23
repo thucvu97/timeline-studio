@@ -3,12 +3,12 @@
  * Массовый анализ, транскрипция и обработка видео
  */
 
-import { 
-  BatchOperationParams, 
-  BatchOperationResult, 
+import {
+  BatchOperationParams,
+  BatchOperationResult,
   BatchOperationType,
   BatchProcessingService,
-  BatchProgress 
+  BatchProgress,
 } from "../services/batch-processing-service"
 import { ClaudeTool } from "../services/claude-service"
 
@@ -26,22 +26,22 @@ export const batchProcessingTools: ClaudeTool[] = [
         clipIds: {
           type: "array",
           items: { type: "string" },
-          description: "Список ID клипов для обработки"
+          description: "Список ID клипов для обработки",
         },
         operation: {
           type: "string",
           enum: [
             "video_analysis",
-            "whisper_transcription", 
+            "whisper_transcription",
             "subtitle_generation",
             "quality_analysis",
             "scene_detection",
-            "motion_analysis", 
+            "motion_analysis",
             "audio_analysis",
             "language_detection",
-            "comprehensive_analysis"
+            "comprehensive_analysis",
           ],
-          description: "Тип пакетной операции"
+          description: "Тип пакетной операции",
         },
         options: {
           type: "object",
@@ -49,36 +49,36 @@ export const batchProcessingTools: ClaudeTool[] = [
           properties: {
             language: {
               type: "string",
-              description: "Язык для транскрипции"
+              description: "Язык для транскрипции",
             },
             model: {
-              type: "string", 
-              description: "Модель для использования"
+              type: "string",
+              description: "Модель для использования",
             },
             threshold: {
               type: "number",
-              description: "Порог для детекции сцен"
+              description: "Порог для детекции сцен",
             },
             format: {
               type: "string",
-              description: "Формат вывода"
-            }
-          }
+              description: "Формат вывода",
+            },
+          },
         },
         priority: {
           type: "string",
           enum: ["low", "medium", "high"],
           description: "Приоритет операции",
-          default: "medium"
+          default: "medium",
         },
         maxConcurrent: {
           type: "number",
           description: "Максимальное количество одновременных операций",
-          default: 3
-        }
+          default: 3,
+        },
       },
-      required: ["clipIds", "operation"]
-    }
+      required: ["clipIds", "operation"],
+    },
   },
 
   // 2. Получение прогресса пакетной операции
@@ -90,27 +90,27 @@ export const batchProcessingTools: ClaudeTool[] = [
       properties: {
         jobId: {
           type: "string",
-          description: "ID пакетной операции"
-        }
+          description: "ID пакетной операции",
+        },
       },
-      required: ["jobId"]
-    }
+      required: ["jobId"],
+    },
   },
 
   // 3. Отмена пакетной операции
   {
-    name: "cancel_batch_operation", 
+    name: "cancel_batch_operation",
     description: "Отменяет выполняющуюся пакетную операцию",
     input_schema: {
       type: "object",
       properties: {
         jobId: {
           type: "string",
-          description: "ID пакетной операции для отмены"
-        }
+          description: "ID пакетной операции для отмены",
+        },
       },
-      required: ["jobId"]
-    }
+      required: ["jobId"],
+    },
   },
 
   // 4. Получение статистики пакетных операций
@@ -120,8 +120,8 @@ export const batchProcessingTools: ClaudeTool[] = [
     input_schema: {
       type: "object",
       properties: {},
-      required: []
-    }
+      required: [],
+    },
   },
 
   // 5. Получение истории пакетных операций
@@ -134,11 +134,11 @@ export const batchProcessingTools: ClaudeTool[] = [
         limit: {
           type: "number",
           description: "Максимальное количество записей для возврата",
-          default: 50
-        }
+          default: 50,
+        },
       },
-      required: []
-    }
+      required: [],
+    },
   },
 
   // 6. Массовый анализ видео
@@ -151,24 +151,24 @@ export const batchProcessingTools: ClaudeTool[] = [
         clipIds: {
           type: "array",
           items: { type: "string" },
-          description: "Список ID клипов для анализа"
+          description: "Список ID клипов для анализа",
         },
         analysisTypes: {
           type: "array",
           items: {
             type: "string",
-            enum: ["quality", "scenes", "motion", "audio", "metadata"]
+            enum: ["quality", "scenes", "motion", "audio", "metadata"],
           },
-          description: "Типы анализа для выполнения"
+          description: "Типы анализа для выполнения",
         },
         detailedReport: {
           type: "boolean",
           description: "Создать детальный отчет",
-          default: true
-        }
+          default: true,
+        },
       },
-      required: ["clipIds", "analysisTypes"]
-    }
+      required: ["clipIds", "analysisTypes"],
+    },
   },
 
   // 7. Массовая транскрипция
@@ -181,32 +181,32 @@ export const batchProcessingTools: ClaudeTool[] = [
         clipIds: {
           type: "array",
           items: { type: "string" },
-          description: "Список ID клипов для транскрипции"
+          description: "Список ID клипов для транскрипции",
         },
         language: {
           type: "string",
           description: "Язык аудио (auto для автоопределения)",
-          default: "auto"
+          default: "auto",
         },
         model: {
           type: "string",
           description: "Модель Whisper для использования",
-          default: "whisper-1"
+          default: "whisper-1",
         },
         generateSubtitles: {
           type: "boolean",
           description: "Также генерировать файлы субтитров",
-          default: false
+          default: false,
         },
         subtitleFormat: {
           type: "string",
           enum: ["srt", "vtt", "ass"],
           description: "Формат субтитров",
-          default: "srt"
-        }
+          default: "srt",
+        },
       },
-      required: ["clipIds"]
-    }
+      required: ["clipIds"],
+    },
   },
 
   // 8. Массовая генерация субтитров
@@ -219,32 +219,32 @@ export const batchProcessingTools: ClaudeTool[] = [
         clipIds: {
           type: "array",
           items: { type: "string" },
-          description: "Список ID клипов для генерации субтитров"
+          description: "Список ID клипов для генерации субтитров",
         },
         language: {
           type: "string",
           description: "Язык для распознавания речи",
-          default: "auto"
+          default: "auto",
         },
         format: {
           type: "string",
           enum: ["srt", "vtt", "ass"],
           description: "Формат субтитров",
-          default: "srt"
+          default: "srt",
         },
         maxCharactersPerLine: {
           type: "number",
           description: "Максимальное количество символов в строке",
-          default: 42
+          default: 42,
         },
         translateToLanguages: {
-          type: "array", 
+          type: "array",
           items: { type: "string" },
-          description: "Языки для перевода субтитров"
-        }
+          description: "Языки для перевода субтитров",
+        },
       },
-      required: ["clipIds"]
-    }
+      required: ["clipIds"],
+    },
   },
 
   // 9. Определение языка в нескольких видео
@@ -257,16 +257,16 @@ export const batchProcessingTools: ClaudeTool[] = [
         clipIds: {
           type: "array",
           items: { type: "string" },
-          description: "Список ID клипов для анализа языка"
+          description: "Список ID клипов для анализа языка",
         },
         sampleDuration: {
           type: "number",
           description: "Длительность образца для анализа в секундах",
-          default: 30
-        }
+          default: 30,
+        },
       },
-      required: ["clipIds"]
-    }
+      required: ["clipIds"],
+    },
   },
 
   // 10. Массовая детекция сцен
@@ -279,26 +279,26 @@ export const batchProcessingTools: ClaudeTool[] = [
         clipIds: {
           type: "array",
           items: { type: "string" },
-          description: "Список ID клипов для детекции сцен"
+          description: "Список ID клипов для детекции сцен",
         },
         threshold: {
           type: "number",
           description: "Порог чувствительности для детекции сцен",
-          default: 0.3
+          default: 0.3,
         },
         minSceneLength: {
           type: "number",
           description: "Минимальная длительность сцены в секундах",
-          default: 1.0
+          default: 1.0,
         },
         exportTimestamps: {
           type: "boolean",
           description: "Экспортировать временные метки сцен",
-          default: true
-        }
+          default: true,
+        },
       },
-      required: ["clipIds"]
-    }
+      required: ["clipIds"],
+    },
   },
 
   // 11. Создание отчета по пакетной обработке
@@ -310,27 +310,27 @@ export const batchProcessingTools: ClaudeTool[] = [
       properties: {
         jobId: {
           type: "string",
-          description: "ID завершенной пакетной операции"
+          description: "ID завершенной пакетной операции",
         },
         format: {
           type: "string",
           enum: ["json", "csv", "html", "markdown"],
           description: "Формат отчета",
-          default: "json"
+          default: "json",
         },
         includeDetails: {
           type: "boolean",
           description: "Включить детальную информацию по каждому клипу",
-          default: true
+          default: true,
         },
         includeErrors: {
-          type: "boolean", 
+          type: "boolean",
           description: "Включить информацию об ошибках",
-          default: true
-        }
+          default: true,
+        },
       },
-      required: ["jobId"]
-    }
+      required: ["jobId"],
+    },
   },
 
   // 12. Очистка истории пакетных операций
@@ -342,17 +342,17 @@ export const batchProcessingTools: ClaudeTool[] = [
       properties: {
         olderThan: {
           type: "string",
-          description: "Удалить записи старше указанной даты (ISO format)"
+          description: "Удалить записи старше указанной даты (ISO format)",
         },
         keepSuccessful: {
           type: "boolean",
           description: "Сохранить успешные операции",
-          default: false
-        }
+          default: false,
+        },
       },
-      required: []
-    }
-  }
+      required: [],
+    },
+  },
 ]
 
 /**
@@ -407,43 +407,43 @@ export async function executeBatchProcessingTool(toolName: string, input: Record
 
 async function startBatchOperation(params: any): Promise<{ jobId: string; message: string }> {
   const batchService = BatchProcessingService.getInstance()
-  
+
   const operationParams: BatchOperationParams = {
     clipIds: params.clipIds,
     operation: params.operation as BatchOperationType,
     options: params.options || {},
     priority: params.priority || "medium",
-    maxConcurrent: params.maxConcurrent || 3
+    maxConcurrent: params.maxConcurrent || 3,
   }
 
   const jobId = await batchService.startBatchOperation(operationParams)
-  
+
   return {
     jobId,
-    message: `Пакетная операция ${params.operation} запущена для ${params.clipIds.length} клипов`
+    message: `Пакетная операция ${params.operation} запущена для ${params.clipIds.length} клипов`,
   }
 }
 
 function getBatchProgress(jobId: string): BatchProgress | { error: string } {
   const batchService = BatchProcessingService.getInstance()
   const progress = batchService.getBatchProgress(jobId)
-  
+
   if (!progress) {
     return { error: `Пакетная операция с ID ${jobId} не найдена` }
   }
-  
+
   return progress
 }
 
 async function cancelBatchOperation(jobId: string): Promise<{ success: boolean; message: string }> {
   const batchService = BatchProcessingService.getInstance()
   const cancelled = await batchService.cancelBatchOperation(jobId)
-  
+
   return {
     success: cancelled,
-    message: cancelled 
+    message: cancelled
       ? `Пакетная операция ${jobId} отменена`
-      : `Не удалось отменить операцию ${jobId} (возможно, уже завершена)`
+      : `Не удалось отменить операцию ${jobId} (возможно, уже завершена)`,
   }
 }
 
@@ -459,46 +459,46 @@ function getBatchHistory(limit?: number): BatchOperationResult[] {
 
 async function batchAnalyzeVideos(params: any): Promise<{ jobId: string; message: string }> {
   const batchService = BatchProcessingService.getInstance()
-  
+
   const jobId = await batchService.startBatchOperation({
     clipIds: params.clipIds,
     operation: "comprehensive_analysis",
     options: {
       analysisTypes: params.analysisTypes,
-      detailedReport: params.detailedReport
-    }
+      detailedReport: params.detailedReport,
+    },
   })
 
   return {
     jobId,
-    message: `Запущен комплексный анализ ${params.clipIds.length} видео`
+    message: `Запущен комплексный анализ ${params.clipIds.length} видео`,
   }
 }
 
 async function batchTranscribeVideos(params: any): Promise<{ jobId: string; message: string }> {
   const batchService = BatchProcessingService.getInstance()
-  
+
   const operation = params.generateSubtitles ? "subtitle_generation" : "whisper_transcription"
-  
+
   const jobId = await batchService.startBatchOperation({
     clipIds: params.clipIds,
     operation,
     options: {
       language: params.language,
       model: params.model,
-      format: params.subtitleFormat
-    }
+      format: params.subtitleFormat,
+    },
   })
 
   return {
     jobId,
-    message: `Запущена транскрипция ${params.clipIds.length} видео`
+    message: `Запущена транскрипция ${params.clipIds.length} видео`,
   }
 }
 
 async function batchGenerateSubtitles(params: any): Promise<{ jobId: string; message: string }> {
   const batchService = BatchProcessingService.getInstance()
-  
+
   const jobId = await batchService.startBatchOperation({
     clipIds: params.clipIds,
     operation: "subtitle_generation",
@@ -506,57 +506,57 @@ async function batchGenerateSubtitles(params: any): Promise<{ jobId: string; mes
       language: params.language,
       format: params.format,
       maxCharactersPerLine: params.maxCharactersPerLine,
-      translateToLanguages: params.translateToLanguages
-    }
+      translateToLanguages: params.translateToLanguages,
+    },
   })
 
   return {
     jobId,
-    message: `Запущена генерация субтитров для ${params.clipIds.length} видео`
+    message: `Запущена генерация субтитров для ${params.clipIds.length} видео`,
   }
 }
 
 async function batchDetectLanguages(params: any): Promise<{ jobId: string; message: string }> {
   const batchService = BatchProcessingService.getInstance()
-  
+
   const jobId = await batchService.startBatchOperation({
     clipIds: params.clipIds,
     operation: "language_detection",
     options: {
-      sampleDuration: params.sampleDuration
-    }
+      sampleDuration: params.sampleDuration,
+    },
   })
 
   return {
     jobId,
-    message: `Запущено определение языка для ${params.clipIds.length} видео`
+    message: `Запущено определение языка для ${params.clipIds.length} видео`,
   }
 }
 
 async function batchDetectScenes(params: any): Promise<{ jobId: string; message: string }> {
   const batchService = BatchProcessingService.getInstance()
-  
+
   const jobId = await batchService.startBatchOperation({
     clipIds: params.clipIds,
     operation: "scene_detection",
     options: {
       threshold: params.threshold,
       minSceneLength: params.minSceneLength,
-      exportTimestamps: params.exportTimestamps
-    }
+      exportTimestamps: params.exportTimestamps,
+    },
   })
 
   return {
     jobId,
-    message: `Запущена детекция сцен для ${params.clipIds.length} видео`
+    message: `Запущена детекция сцен для ${params.clipIds.length} видео`,
   }
 }
 
 async function createBatchReport(params: any): Promise<any> {
   const batchService = BatchProcessingService.getInstance()
   const history = batchService.getBatchHistory()
-  
-  const job = history.find(j => j.jobId === params.jobId)
+
+  const job = history.find((j) => j.jobId === params.jobId)
   if (!job) {
     return { error: `Пакетная операция с ID ${params.jobId} не найдена в истории` }
   }
@@ -570,25 +570,25 @@ async function createBatchReport(params: any): Promise<any> {
       failed: job.failureCount,
       executionTime: job.executionTime,
       startTime: job.summary.startTime,
-      endTime: job.summary.endTime
+      endTime: job.summary.endTime,
     },
     results: params.includeDetails ? job.results : undefined,
     errors: params.includeErrors ? job.errors : undefined,
-    format: params.format
+    format: params.format,
   }
 
   return report
 }
 
-function clearBatchHistory(params: any): { cleared: number; message: string } {
+function clearBatchHistory(_params: any): { cleared: number; message: string } {
   const batchService = BatchProcessingService.getInstance()
   const historyBefore = batchService.getBatchHistory().length
-  
+
   // TODO: Добавить фильтрацию по дате и статусу
   batchService.clearBatchHistory()
-  
+
   return {
     cleared: historyBefore,
-    message: `Очищено ${historyBefore} записей из истории пакетных операций`
+    message: `Очищено ${historyBefore} записей из истории пакетных операций`,
   }
 }

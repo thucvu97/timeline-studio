@@ -10,17 +10,17 @@ import { ApiKeyLoader } from "./api-key-loader"
 /**
  * Типы мультимодального анализа
  */
-export type MultimodalAnalysisType = 
-  | "frame_description"      // Описание кадров
-  | "scene_understanding"    // Понимание сцен
-  | "object_detection"       // Детекция объектов
-  | "emotion_analysis"       // Анализ эмоций
-  | "action_recognition"     // Распознавание действий
-  | "text_recognition"       // Распознавание текста в кадрах
-  | "aesthetic_analysis"     // Эстетический анализ
-  | "content_moderation"     // Модерация контента
-  | "thumbnail_selection"    // Выбор превью
-  | "highlight_detection"    // Детекция ключевых моментов
+export type MultimodalAnalysisType =
+  | "frame_description" // Описание кадров
+  | "scene_understanding" // Понимание сцен
+  | "object_detection" // Детекция объектов
+  | "emotion_analysis" // Анализ эмоций
+  | "action_recognition" // Распознавание действий
+  | "text_recognition" // Распознавание текста в кадрах
+  | "aesthetic_analysis" // Эстетический анализ
+  | "content_moderation" // Модерация контента
+  | "thumbnail_selection" // Выбор превью
+  | "highlight_detection" // Детекция ключевых моментов
 
 /**
  * Параметры анализа кадра
@@ -183,34 +183,37 @@ export class MultimodalAnalysisService {
 
     // Конвертируем изображение в base64
     const imageBase64 = await this.imageToBase64(params.frameImagePath)
-    
+
     // Создаем промпт в зависимости от типа анализа
     const prompt = this.buildAnalysisPrompt(params)
-    
+
     try {
-      const response = await this.callGPT4Vision({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: prompt
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: `data:image/jpeg;base64,${imageBase64}`,
-                  detail: params.detailLevel || "medium"
-                }
-              }
-            ]
-          }
-        ],
-        max_tokens: 1000,
-        temperature: 0.1
-      }, apiKey)
+      const response = await this.callGPT4Vision(
+        {
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: prompt,
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: `data:image/jpeg;base64,${imageBase64}`,
+                    detail: params.detailLevel || "medium",
+                  },
+                },
+              ],
+            },
+          ],
+          max_tokens: 1000,
+          temperature: 0.1,
+        },
+        apiKey,
+      )
 
       return this.parseFrameAnalysisResponse(response, params)
     } catch (error) {
@@ -223,15 +226,15 @@ export class MultimodalAnalysisService {
    */
   public async analyzeVideo(params: VideoAnalysisParams): Promise<VideoAnalysisResult> {
     console.log(`Начинаем мультимодальный анализ видео ${params.clipId}`)
-    
+
     // Извлекаем кадры из видео
     const frames = await this.extractFramesForAnalysis(params.clipId, {
       samplingRate: params.samplingRate || 1,
-      maxFrames: params.maxFrames || 20
+      maxFrames: params.maxFrames || 20,
     })
 
     const frameResults: FrameAnalysisResult[] = []
-    
+
     // Анализируем каждый кадр
     for (const frame of frames) {
       for (const analysisType of params.analysisTypes) {
@@ -243,13 +246,13 @@ export class MultimodalAnalysisService {
             contextInfo: {
               ...params.contextInfo,
               frameTimestamp: frame.timestamp,
-              previousFrames: frameResults.slice(-3).map(r => r.description)
-            }
+              previousFrames: frameResults.slice(-3).map((r) => r.description),
+            },
           })
-          
+
           frameResults.push({
             ...result,
-            frameTimestamp: frame.timestamp
+            frameTimestamp: frame.timestamp,
           })
         } catch (error) {
           console.error(`Ошибка анализа кадра ${frame.timestamp}:`, error)
@@ -259,7 +262,7 @@ export class MultimodalAnalysisService {
 
     // Создаем общий анализ видео
     const summary = this.generateVideoSummary(frameResults, params.contextInfo)
-    
+
     return {
       clipId: params.clipId,
       analysisTypes: params.analysisTypes,
@@ -269,8 +272,8 @@ export class MultimodalAnalysisService {
         totalFramesAnalyzed: frames.length,
         processingTime: Date.now(), // TODO: реальное время
         averageConfidence: this.calculateAverageConfidence(frameResults),
-        detectedLanguages: this.extractDetectedLanguages(frameResults)
-      }
+        detectedLanguages: this.extractDetectedLanguages(frameResults),
+      },
     }
   }
 
@@ -281,7 +284,7 @@ export class MultimodalAnalysisService {
     // Извлекаем кадры-кандидаты
     const candidateFrames = await this.extractFramesForAnalysis(params.clipId, {
       samplingRate: 0.5, // Каждые 2 секунды
-      maxFrames: 50
+      maxFrames: 50,
     })
 
     const suggestions: ThumbnailSuggestion[] = []
@@ -294,8 +297,8 @@ export class MultimodalAnalysisService {
           analysisType: "thumbnail_selection",
           customPrompt: this.buildThumbnailSelectionPrompt(params),
           contextInfo: {
-            frameTimestamp: frame.timestamp
-          }
+            frameTimestamp: frame.timestamp,
+          },
         })
 
         const suggestion: ThumbnailSuggestion = {
@@ -306,7 +309,7 @@ export class MultimodalAnalysisService {
           aestheticScore: analysisResult.aestheticScore?.overall || 0,
           emotionalImpact: this.extractEmotionalImpact(analysisResult),
           visualComplexity: this.calculateVisualComplexity(analysisResult),
-          textContent: analysisResult.detectedText?.map(t => t.text).join(" ")
+          textContent: analysisResult.detectedText?.map((t) => t.text).join(" "),
         }
 
         suggestions.push(suggestion)
@@ -316,9 +319,7 @@ export class MultimodalAnalysisService {
     }
 
     // Сортируем по общему скору и возвращаем лучшие
-    return suggestions
-      .sort((a, b) => b.score - a.score)
-      .slice(0, params.count || 5)
+    return suggestions.sort((a, b) => b.score - a.score).slice(0, params.count || 5)
   }
 
   /**
@@ -330,11 +331,11 @@ export class MultimodalAnalysisService {
     options?: {
       maxConcurrent?: number
       progressCallback?: (progress: { completed: number; total: number; current: string }) => void
-    }
+    },
   ): Promise<Record<string, VideoAnalysisResult>> {
     const results: Record<string, VideoAnalysisResult> = {}
     const maxConcurrent = options?.maxConcurrent || 2 // GPT-4V имеет ограничения
-    
+
     // Разбиваем на батчи для контроля параллельности
     const batches = this.chunkArray(clipIds, maxConcurrent)
     let completed = 0
@@ -346,17 +347,17 @@ export class MultimodalAnalysisService {
             clipId,
             analysisTypes,
             samplingRate: 1,
-            maxFrames: 10 // Ограничиваем для пакетного анализа
+            maxFrames: 10, // Ограничиваем для пакетного анализа
           })
-          
+
           results[clipId] = result
           completed++
-          
+
           if (options?.progressCallback) {
             options.progressCallback({
               completed,
               total: clipIds.length,
-              current: clipId
+              current: clipId,
             })
           }
         } catch (error) {
@@ -379,34 +380,37 @@ export class MultimodalAnalysisService {
   }
 
   private async extractFramesForAnalysis(
-    clipId: string, 
-    options: { samplingRate: number; maxFrames: number }
+    clipId: string,
+    options: { samplingRate: number; maxFrames: number },
   ): Promise<Array<{ imagePath: string; timestamp: number }>> {
     return await invoke("extract_frames_for_multimodal_analysis", {
       clipId,
       samplingRate: options.samplingRate,
-      maxFrames: options.maxFrames
+      maxFrames: options.maxFrames,
     })
   }
 
   private buildAnalysisPrompt(params: FrameAnalysisParams): string {
     const basePrompts: Record<MultimodalAnalysisType, string> = {
       frame_description: "Опишите этот кадр детально, включая объекты, людей, действия, настроение и композицию.",
-      scene_understanding: "Проанализируйте сцену: что происходит, где это происходит, какое время дня, настроение сцены.",
-      object_detection: "Перечислите все объекты, которые вы видите в кадре, с указанием их местоположения и уверенности.",
+      scene_understanding:
+        "Проанализируйте сцену: что происходит, где это происходит, какое время дня, настроение сцены.",
+      object_detection:
+        "Перечислите все объекты, которые вы видите в кадре, с указанием их местоположения и уверенности.",
       emotion_analysis: "Определите эмоции людей в кадре, их настроение и эмоциональную атмосферу сцены.",
       action_recognition: "Опишите все действия и движения, которые происходят в кадре.",
       text_recognition: "Найдите и извлеките весь текст, видимый в кадре, включая надписи, титры, знаки.",
-      aesthetic_analysis: "Оцените эстетические качества кадра: композицию, освещение, цветовую гармонию, визуальную привлекательность.",
+      aesthetic_analysis:
+        "Оцените эстетические качества кадра: композицию, освещение, цветовую гармонию, визуальную привлекательность.",
       content_moderation: "Проверьте содержимое на наличие неподходящего контента, насилия, откровенных сцен.",
       thumbnail_selection: "Оцените, насколько этот кадр подходит для использования в качестве превью видео.",
-      highlight_detection: "Определите, является ли этот кадр ключевым моментом, который стоит выделить."
+      highlight_detection: "Определите, является ли этот кадр ключевым моментом, который стоит выделить.",
     }
 
     let prompt = params.customPrompt || basePrompts[params.analysisType]
-    
+
     if (params.contextInfo) {
-      prompt += `\n\nКонтекст: `
+      prompt += "\n\nКонтекст: "
       if (params.contextInfo.videoTitle) prompt += `Название видео: "${params.contextInfo.videoTitle}". `
       if (params.contextInfo.frameTimestamp) prompt += `Временная метка: ${params.contextInfo.frameTimestamp}с. `
       if (params.contextInfo.previousFrames?.length) {
@@ -427,13 +431,13 @@ export class MultimodalAnalysisService {
 
   private buildThumbnailSelectionPrompt(params: ThumbnailSuggestionParams): string {
     let prompt = "Оцените этот кадр как потенциальное превью для видео. "
-    
+
     if (params.criteria) {
       prompt += `Особое внимание уделите: ${params.criteria.join(", ")}. `
     }
-    
+
     if (params.contextPrompt) {
-      prompt += params.contextPrompt + " "
+      prompt += `${params.contextPrompt} `
     }
 
     prompt += `Оцените по критериям:
@@ -453,9 +457,9 @@ export class MultimodalAnalysisService {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
+        Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
@@ -470,7 +474,7 @@ export class MultimodalAnalysisService {
   private parseFrameAnalysisResponse(response: string, params: FrameAnalysisParams): FrameAnalysisResult {
     try {
       const parsed = JSON.parse(response)
-      
+
       return {
         frameTimestamp: params.contextInfo?.frameTimestamp || 0,
         analysisType: params.analysisType,
@@ -481,7 +485,7 @@ export class MultimodalAnalysisService {
         emotions: parsed.emotions || [],
         aestheticScore: parsed.aesthetic || undefined,
         tags: parsed.tags || [],
-        metadata: parsed.metadata || {}
+        metadata: parsed.metadata || {},
       }
     } catch (error) {
       // Fallback если JSON parsing не удался
@@ -491,37 +495,41 @@ export class MultimodalAnalysisService {
         description: response,
         confidence: 0.5,
         tags: [],
-        metadata: {}
+        metadata: {},
       }
     }
   }
 
-  private generateVideoSummary(frameResults: FrameAnalysisResult[], contextInfo?: any): VideoAnalysisResult["summary"] {
+  private generateVideoSummary(
+    frameResults: FrameAnalysisResult[],
+    _contextInfo?: any,
+  ): VideoAnalysisResult["summary"] {
     // Извлекаем основные субъекты
-    const allTags = frameResults.flatMap(r => r.tags)
+    const allTags = frameResults.flatMap((r) => r.tags)
     const tagCounts = allTags.reduce<Record<string, number>>((acc, tag) => {
       acc[tag] = (acc[tag] || 0) + 1
       return acc
     }, {})
-    
+
     const mainSubjects = Object.entries(tagCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
       .map(([tag]) => tag)
 
     // Определяем общее настроение
-    const emotions = frameResults.flatMap(r => r.emotions || [])
-    const overallMood = emotions.length > 0 
-      ? emotions.reduce((prev, curr) => curr.confidence > prev.confidence ? curr : prev).emotion
-      : "neutral"
+    const emotions = frameResults.flatMap((r) => r.emotions || [])
+    const overallMood =
+      emotions.length > 0
+        ? emotions.reduce((prev, curr) => (curr.confidence > prev.confidence ? curr : prev)).emotion
+        : "neutral"
 
     // Находим ключевые моменты (кадры с высокой уверенностью)
     const keyMoments = frameResults
-      .filter(r => r.confidence > 0.8)
-      .map(r => ({
+      .filter((r) => r.confidence > 0.8)
+      .map((r) => ({
         timestamp: r.frameTimestamp,
         description: r.description,
-        importance: r.confidence
+        importance: r.confidence,
       }))
       .sort((a, b) => b.importance - a.importance)
       .slice(0, 10)
@@ -532,12 +540,12 @@ export class MultimodalAnalysisService {
       keyMoments,
       suggestedCuts: [], // TODO: implement cut detection
       aestheticHighlights: frameResults
-        .filter(r => r.aestheticScore?.overall && r.aestheticScore.overall > 7)
-        .map(r => ({
+        .filter((r) => r.aestheticScore?.overall && r.aestheticScore.overall > 7)
+        .map((r) => ({
           timestamp: r.frameTimestamp,
           score: r.aestheticScore!.overall,
-          reason: "High aesthetic score"
-        }))
+          reason: "High aesthetic score",
+        })),
     }
   }
 
@@ -549,8 +557,8 @@ export class MultimodalAnalysisService {
 
   private extractDetectedLanguages(frameResults: FrameAnalysisResult[]): string[] {
     const languages = new Set<string>()
-    frameResults.forEach(r => {
-      r.detectedText?.forEach(t => {
+    frameResults.forEach((r) => {
+      r.detectedText?.forEach((t) => {
         if (t.language) languages.add(t.language)
       })
     })
@@ -566,7 +574,7 @@ export class MultimodalAnalysisService {
     // Простая эвристика на основе количества объектов
     const objectCount = result.detectedObjects?.length || 0
     const textCount = result.detectedText?.length || 0
-    return Math.min(10, (objectCount * 0.5 + textCount * 0.3))
+    return Math.min(10, objectCount * 0.5 + textCount * 0.3)
   }
 
   private chunkArray<T>(array: T[], chunkSize: number): T[][] {

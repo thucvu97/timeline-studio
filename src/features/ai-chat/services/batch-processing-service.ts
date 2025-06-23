@@ -8,9 +8,9 @@ import { invoke } from "@tauri-apps/api/core"
 /**
  * Типы пакетных операций
  */
-export type BatchOperationType = 
+export type BatchOperationType =
   | "video_analysis"
-  | "whisper_transcription" 
+  | "whisper_transcription"
   | "subtitle_generation"
   | "quality_analysis"
   | "scene_detection"
@@ -22,12 +22,7 @@ export type BatchOperationType =
 /**
  * Статус пакетной операции
  */
-export type BatchJobStatus = 
-  | "pending"
-  | "running" 
-  | "completed"
-  | "failed"
-  | "cancelled"
+export type BatchJobStatus = "pending" | "running" | "completed" | "failed" | "cancelled"
 
 /**
  * Параметры для пакетной операции
@@ -116,7 +111,7 @@ export class BatchProcessingService {
    */
   public async startBatchOperation(params: BatchOperationParams): Promise<string> {
     const jobId = this.generateJobId()
-    
+
     const progress: BatchProgress = {
       jobId,
       total: params.clipIds.length,
@@ -124,7 +119,7 @@ export class BatchProcessingService {
       failed: 0,
       status: "pending",
       startTime: new Date(),
-      errors: []
+      errors: [],
     }
 
     this.activeJobs.set(jobId, progress)
@@ -162,14 +157,15 @@ export class BatchProcessingService {
    * Получить статистику пакетных операций
    */
   public getBatchProcessingStats(): BatchProcessingStats {
-    const runningJobs = Array.from(this.activeJobs.values()).filter(j => j.status === "running").length
+    const runningJobs = Array.from(this.activeJobs.values()).filter((j) => j.status === "running").length
     const totalJobs = this.jobHistory.length + this.activeJobs.size
-    const completedJobs = this.jobHistory.filter(j => j.status === "completed").length
-    const failedJobs = this.jobHistory.filter(j => j.status === "failed").length
-    
-    const averageExecutionTime = this.jobHistory.length > 0 
-      ? this.jobHistory.reduce((sum, job) => sum + job.executionTime, 0) / this.jobHistory.length
-      : 0
+    const completedJobs = this.jobHistory.filter((j) => j.status === "completed").length
+    const failedJobs = this.jobHistory.filter((j) => j.status === "failed").length
+
+    const averageExecutionTime =
+      this.jobHistory.length > 0
+        ? this.jobHistory.reduce((sum, job) => sum + job.executionTime, 0) / this.jobHistory.length
+        : 0
 
     const totalClipsProcessed = this.jobHistory.reduce((sum, job) => sum + job.totalProcessed, 0)
     const successRate = totalJobs > 0 ? (completedJobs / totalJobs) * 100 : 0
@@ -181,7 +177,7 @@ export class BatchProcessingService {
       failedJobs,
       averageExecutionTime,
       totalClipsProcessed,
-      successRate
+      successRate,
     }
   }
 
@@ -214,7 +210,7 @@ export class BatchProcessingService {
     try {
       // Определяем максимальное количество одновременных операций
       const maxConcurrent = params.maxConcurrent || this.maxConcurrentJobs
-      
+
       // Разбиваем клипы на батчи
       const batches = this.chunkArray(params.clipIds, maxConcurrent)
 
@@ -226,9 +222,9 @@ export class BatchProcessingService {
         }
 
         // Обрабатываем батч параллельно
-        const batchPromises = batch.map(clipId => 
+        const batchPromises = batch.map((clipId) =>
           this.processingleClip(clipId, params.operation, params.options)
-            .then(result => {
+            .then((result) => {
               results.push({ clipId, success: true, data: result })
               progress.completed++
               progress.currentClip = clipId
@@ -242,15 +238,15 @@ export class BatchProcessingService {
               progress.failed++
               progress.errors.push(errorMessage)
               results.push({ clipId, success: false, error: String(error) })
-              
+
               if (params.progressCallback) {
                 params.progressCallback(progress)
               }
-            })
+            }),
         )
 
         await Promise.all(batchPromises)
-        
+
         // Обновляем прогресс
         this.activeJobs.set(jobId, progress)
       }
@@ -261,7 +257,7 @@ export class BatchProcessingService {
 
       // Get final progress status as it might have been updated by cancellation
       const finalProgress = this.activeJobs.get(jobId)!
-      
+
       const operationResult: BatchOperationResult = {
         jobId,
         status: finalProgress.status === "cancelled" ? "cancelled" : "completed",
@@ -275,14 +271,13 @@ export class BatchProcessingService {
           operation: params.operation,
           clipIds: params.clipIds,
           startTime: progress.startTime,
-          endTime: new Date()
-        }
+          endTime: new Date(),
+        },
       }
 
       // Сохраняем в историю и удаляем из активных
       this.jobHistory.push(operationResult)
       this.activeJobs.delete(jobId)
-
     } catch (error) {
       console.error(`Batch operation ${jobId} failed:`, error)
       progress.status = "failed"
@@ -295,9 +290,9 @@ export class BatchProcessingService {
    * Обработка одного клипа
    */
   private async processingleClip(
-    clipId: string, 
-    operation: BatchOperationType, 
-    options: Record<string, any>
+    clipId: string,
+    operation: BatchOperationType,
+    options: Record<string, any>,
   ): Promise<any> {
     switch (operation) {
       case "video_analysis":
@@ -311,7 +306,7 @@ export class BatchProcessingService {
           language: options.language,
           responseFormat: "verbose_json",
           temperature: 0,
-          timestampGranularities: ["segment"]
+          timestampGranularities: ["segment"],
         })
 
       case "subtitle_generation":
@@ -320,31 +315,31 @@ export class BatchProcessingService {
         return this.generateSubtitlesFromTranscription(transcription.text, options)
 
       case "quality_analysis":
-        return await invoke("ffmpeg_analyze_quality", { 
+        return await invoke("ffmpeg_analyze_quality", {
           filePath: this.getClipPath(clipId),
           enableBitrateAnalysis: true,
-          enableResolutionAnalysis: true
+          enableResolutionAnalysis: true,
         })
 
       case "scene_detection":
         return await invoke("ffmpeg_detect_scenes", {
           filePath: this.getClipPath(clipId),
           threshold: options.threshold || 0.3,
-          minSceneLength: options.minSceneLength || 1.0
+          minSceneLength: options.minSceneLength || 1.0,
         })
 
       case "motion_analysis":
         return await invoke("ffmpeg_analyze_motion", {
           filePath: this.getClipPath(clipId),
           algorithm: options.algorithm || "optical_flow",
-          sensitivity: options.sensitivity || 0.1
+          sensitivity: options.sensitivity || 0.1,
         })
 
       case "audio_analysis":
         return await invoke("ffmpeg_analyze_audio", {
           filePath: this.getClipPath(clipId),
           enableSpectralAnalysis: true,
-          enableDynamicsAnalysis: true
+          enableDynamicsAnalysis: true,
         })
 
       case "language_detection":
@@ -355,7 +350,7 @@ export class BatchProcessingService {
           model: "whisper-1",
           responseFormat: "verbose_json",
           temperature: 0,
-          timestampGranularities: ["segment"]
+          timestampGranularities: ["segment"],
         })
         return { language: (result as any)?.language || "unknown", confidence: 0.9 }
 
@@ -364,15 +359,15 @@ export class BatchProcessingService {
         const [videoAnalysis, audioAnalysis, qualityAnalysis] = await Promise.all([
           this.processingleClip(clipId, "video_analysis", options),
           this.processingleClip(clipId, "audio_analysis", options),
-          this.processingleClip(clipId, "quality_analysis", options)
+          this.processingleClip(clipId, "quality_analysis", options),
         ])
-        
+
         return {
           video: videoAnalysis,
           audio: audioAnalysis,
           quality: qualityAnalysis,
           clipId,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }
 
       default:
@@ -384,9 +379,9 @@ export class BatchProcessingService {
    * Генерация субтитров из текста транскрипции
    */
   private generateSubtitlesFromTranscription(text: string, options: Record<string, any>): any {
-    const words = text.split(' ')
+    const words = text.split(" ")
     const subtitles = []
-    let currentSubtitle = ''
+    let currentSubtitle = ""
     const maxCharsPerLine = options.maxCharactersPerLine || 42
 
     for (const word of words) {
@@ -396,7 +391,7 @@ export class BatchProcessingService {
           currentSubtitle = word
         }
       } else {
-        currentSubtitle += (currentSubtitle ? ' ' : '') + word
+        currentSubtitle += (currentSubtitle ? " " : "") + word
       }
     }
 
@@ -408,7 +403,7 @@ export class BatchProcessingService {
       subtitles,
       format: options.format || "srt",
       lineCount: subtitles.length,
-      totalCharacters: text.length
+      totalCharacters: text.length,
     }
   }
 
@@ -428,7 +423,7 @@ export class BatchProcessingService {
     const videoPath = this.getClipPath(clipId)
     return await invoke("extract_audio_for_whisper", {
       videoFilePath: videoPath,
-      outputFormat: "wav"
+      outputFormat: "wav",
     })
   }
 

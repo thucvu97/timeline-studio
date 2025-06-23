@@ -16,9 +16,9 @@ import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools
 import { executePlatformOptimizationTool, platformOptimizationTools } from "../tools/platform-optimization-tools"
 import { playerTools } from "../tools/player-tools"
 import { resourceTools } from "../tools/resource-tools"
-import { executeSubtitleTool , subtitleTools } from "../tools/subtitle-tools"
+import { executeSubtitleTool, subtitleTools } from "../tools/subtitle-tools"
 import { timelineTools } from "../tools/timeline-tools"
-import { executeVideoAnalysisTool , videoAnalysisTools } from "../tools/video-analysis-tools"
+import { executeVideoAnalysisTool, videoAnalysisTools } from "../tools/video-analysis-tools"
 import { executeWhisperTool, whisperTools } from "../tools/whisper-tools"
 import { executeWorkflowAutomationTool, workflowAutomationTools } from "../tools/workflow-automation-tools"
 import {
@@ -396,68 +396,141 @@ export class TimelineAIService {
 
     try {
       console.log(`Executing tool: ${name} with input:`, input)
-      
+
       let result: any
 
       // Роутинг по категориям инструментов
-      if (name.startsWith('whisper_') || 
-          ['check_whisper_availability', 'get_whisper_models', 'download_whisper_model', 
-            'transcribe_media', 'translate_audio_to_english', 'batch_transcribe_clips',
-            'create_subtitles_from_transcription', 'detect_audio_language',
-            'improve_transcription_quality', 'sync_subtitles_with_whisper'].includes(name)) {
+      if (
+        name.startsWith("whisper_") ||
+        [
+          "check_whisper_availability",
+          "get_whisper_models",
+          "download_whisper_model",
+          "transcribe_media",
+          "translate_audio_to_english",
+          "batch_transcribe_clips",
+          "create_subtitles_from_transcription",
+          "detect_audio_language",
+          "improve_transcription_quality",
+          "sync_subtitles_with_whisper",
+        ].includes(name)
+      ) {
         result = await executeWhisperTool(name, input)
-      }
-      else if (name.startsWith('subtitle_') ||
-               ['analyze_audio_for_transcription', 'generate_subtitles_from_audio',
-                 'translate_subtitles', 'edit_subtitle_text', 'sync_subtitles_with_audio',
-                 'apply_subtitle_styling', 'split_long_subtitles', 'filter_subtitle_content',
-                 'export_subtitles', 'create_multilingual_subtitles', 'analyze_subtitle_quality',
-                 'create_chapters_from_subtitles'].includes(name)) {
+      } else if (
+        name.startsWith("subtitle_") ||
+        [
+          "analyze_audio_for_transcription",
+          "generate_subtitles_from_audio",
+          "translate_subtitles",
+          "edit_subtitle_text",
+          "sync_subtitles_with_audio",
+          "apply_subtitle_styling",
+          "split_long_subtitles",
+          "filter_subtitle_content",
+          "export_subtitles",
+          "create_multilingual_subtitles",
+          "analyze_subtitle_quality",
+          "create_chapters_from_subtitles",
+        ].includes(name)
+      ) {
         result = await executeSubtitleTool(name, input)
-      }
-      else if (name.startsWith('video_analysis_') || name.startsWith('ffmpeg_') ||
-               ['get_video_metadata', 'detect_video_scenes', 'analyze_video_quality',
-                 'detect_silence_segments', 'analyze_motion_detection', 'extract_keyframes',
-                 'analyze_audio_properties', 'quick_video_analysis', 'comprehensive_video_analysis',
-                 'batch_analyze_videos', 'analyze_video_for_editing', 'detect_scene_changes',
-                 'analyze_video_content', 'compare_video_quality', 'analyze_video_encoding'].includes(name)) {
+      } else if (
+        name.startsWith("video_analysis_") ||
+        name.startsWith("ffmpeg_") ||
+        [
+          "get_video_metadata",
+          "detect_video_scenes",
+          "analyze_video_quality",
+          "detect_silence_segments",
+          "analyze_motion_detection",
+          "extract_keyframes",
+          "analyze_audio_properties",
+          "quick_video_analysis",
+          "comprehensive_video_analysis",
+          "batch_analyze_videos",
+          "analyze_video_for_editing",
+          "detect_scene_changes",
+          "analyze_video_content",
+          "compare_video_quality",
+          "analyze_video_encoding",
+        ].includes(name)
+      ) {
         result = await executeVideoAnalysisTool(name, input)
-      }
-      else if (name.startsWith('batch_') ||
-               ['start_batch_operation', 'get_batch_progress', 'cancel_batch_operation',
-                 'get_batch_processing_stats', 'get_batch_history', 'batch_analyze_videos',
-                 'batch_transcribe_videos', 'batch_generate_subtitles', 'batch_detect_languages',
-                 'batch_detect_scenes', 'create_batch_report', 'clear_batch_history'].includes(name)) {
+      } else if (
+        name.startsWith("batch_") ||
+        [
+          "start_batch_operation",
+          "get_batch_progress",
+          "cancel_batch_operation",
+          "get_batch_processing_stats",
+          "get_batch_history",
+          "batch_analyze_videos",
+          "batch_transcribe_videos",
+          "batch_generate_subtitles",
+          "batch_detect_languages",
+          "batch_detect_scenes",
+          "create_batch_report",
+          "clear_batch_history",
+        ].includes(name)
+      ) {
         result = await executeBatchProcessingTool(name, input)
-      }
-      else if (name.startsWith('multimodal_') || name.startsWith('analyze_video_') ||
-               ['analyze_video_frame', 'analyze_video_multimodal', 'suggest_video_thumbnails',
-                 'detect_video_highlights', 'analyze_video_emotions', 'extract_video_text',
-                 'analyze_video_aesthetics', 'batch_analyze_multimodal', 'generate_video_descriptions',
-                 'moderate_video_content'].includes(name)) {
+      } else if (
+        name.startsWith("multimodal_") ||
+        name.startsWith("analyze_video_") ||
+        [
+          "analyze_video_frame",
+          "analyze_video_multimodal",
+          "suggest_video_thumbnails",
+          "detect_video_highlights",
+          "analyze_video_emotions",
+          "extract_video_text",
+          "analyze_video_aesthetics",
+          "batch_analyze_multimodal",
+          "generate_video_descriptions",
+          "moderate_video_content",
+        ].includes(name)
+      ) {
         result = await executeMultimodalAnalysisTool(name, input)
-      }
-      else if (name.startsWith('platform_') || 
-               ['get_platform_specs', 'get_all_platforms', 'get_recommended_platforms',
-                 'analyze_video_for_platforms', 'optimize_for_platform', 'batch_optimize_for_platforms',
-                 'generate_platform_thumbnail', 'check_platform_compliance', 'get_optimization_stats',
-                 'generate_platform_metadata'].includes(name)) {
+      } else if (
+        name.startsWith("platform_") ||
+        [
+          "get_platform_specs",
+          "get_all_platforms",
+          "get_recommended_platforms",
+          "analyze_video_for_platforms",
+          "optimize_for_platform",
+          "batch_optimize_for_platforms",
+          "generate_platform_thumbnail",
+          "check_platform_compliance",
+          "get_optimization_stats",
+          "generate_platform_metadata",
+        ].includes(name)
+      ) {
         result = await executePlatformOptimizationTool(name, input)
-      }
-      else if (name.startsWith('workflow_') || name.includes('workflow') ||
-               ['get_available_workflows', 'execute_workflow', 'get_workflow_status',
-                 'cancel_workflow', 'create_custom_workflow', 'analyze_video_for_workflow',
-                 'get_workflow_suggestions', 'export_workflow_results', 'create_workflow_template'].includes(name)) {
+      } else if (
+        name.startsWith("workflow_") ||
+        name.includes("workflow") ||
+        [
+          "get_available_workflows",
+          "execute_workflow",
+          "get_workflow_status",
+          "cancel_workflow",
+          "create_custom_workflow",
+          "analyze_video_for_workflow",
+          "get_workflow_suggestions",
+          "export_workflow_results",
+          "create_workflow_template",
+        ].includes(name)
+      ) {
         result = await executeWorkflowAutomationTool(name, input)
-      }
-      else {
+      } else {
         // Пока заглушка для остальных инструментов (browser, player, timeline, resource)
         console.warn(`Tool execution not implemented for: ${name}`)
         result = {
           success: false,
           message: `Инструмент ${name} пока не реализован`,
           toolName: name,
-          input
+          input,
         }
       }
 

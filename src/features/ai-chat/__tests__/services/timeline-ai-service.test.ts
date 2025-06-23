@@ -831,11 +831,11 @@ describe("TimelineAIService", () => {
       expect(result).toEqual({
         success: true,
         message: "Инструмент test_tool выполнен успешно",
-        data: { 
-          toolName: "test_tool", 
+        data: {
+          toolName: "test_tool",
           input: toolUse.input,
           success: false,
-          message: "Инструмент test_tool пока не реализован"
+          message: "Инструмент test_tool пока не реализован",
         },
       })
     })

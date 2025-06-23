@@ -3,11 +3,7 @@
  */
 
 import { ClaudeTool } from "../services/claude-service"
-import { 
-  WorkflowAutomationService,
-  WorkflowParams,
-  WorkflowType 
-} from "../services/workflow-automation-service"
+import { WorkflowAutomationService, WorkflowParams, WorkflowType } from "../services/workflow-automation-service"
 
 const workflowService = WorkflowAutomationService.getInstance()
 
@@ -23,16 +19,16 @@ export const getAvailableWorkflowsTool: ClaudeTool = {
       complexity: {
         type: "string",
         enum: ["simple", "medium", "complex"],
-        description: "Фильтр по сложности workflow (опционально)"
+        description: "Фильтр по сложности workflow (опционально)",
       },
       category: {
         type: "string",
         enum: ["social_media", "business", "personal", "educational", "entertainment"],
-        description: "Фильтр по категории контента (опционально)"
-      }
+        description: "Фильтр по категории контента (опционально)",
+      },
     },
-    required: []
-  }
+    required: [],
+  },
 }
 
 /**
@@ -48,20 +44,27 @@ export const executeWorkflowTool: ClaudeTool = {
         type: "array",
         items: { type: "string" },
         description: "Массив путей к входным видеофайлам",
-        minItems: 1
+        minItems: 1,
       },
       workflowType: {
         type: "string",
         enum: [
-          "quick_edit", "social_media_pack", "podcast_editing", "presentation_video",
-          "wedding_highlights", "travel_vlog", "product_showcase", "educational_content",
-          "music_video", "corporate_intro"
+          "quick_edit",
+          "social_media_pack",
+          "podcast_editing",
+          "presentation_video",
+          "wedding_highlights",
+          "travel_vlog",
+          "product_showcase",
+          "educational_content",
+          "music_video",
+          "corporate_intro",
         ],
-        description: "Тип автоматизированного workflow"
+        description: "Тип автоматизированного workflow",
       },
       outputDirectory: {
         type: "string",
-        description: "Директория для сохранения результатов"
+        description: "Директория для сохранения результатов",
       },
       preferences: {
         type: "object",
@@ -71,42 +74,42 @@ export const executeWorkflowTool: ClaudeTool = {
             type: "number",
             description: "Целевая длительность в секундах",
             minimum: 5,
-            maximum: 7200
+            maximum: 7200,
           },
           musicTrack: {
             type: "string",
-            description: "Путь к фоновой музыке"
+            description: "Путь к фоновой музыке",
           },
           colorGrading: {
             type: "string",
             enum: ["auto", "warm", "cool", "cinematic", "natural"],
-            description: "Стиль цветокоррекции"
+            description: "Стиль цветокоррекции",
           },
           transitionStyle: {
             type: "string",
             enum: ["cuts", "dissolve", "zoom", "slide"],
-            description: "Стиль переходов между сценами"
+            description: "Стиль переходов между сценами",
           },
           titleStyle: {
             type: "string",
             enum: ["minimal", "bold", "elegant", "modern"],
-            description: "Стиль титров и надписей"
+            description: "Стиль титров и надписей",
           },
           pace: {
             type: "string",
             enum: ["slow", "medium", "fast", "dynamic"],
-            description: "Темп монтажа"
+            description: "Темп монтажа",
           },
           includeSubtitles: {
             type: "boolean",
-            description: "Добавлять ли субтитры автоматически"
+            description: "Добавлять ли субтитры автоматически",
           },
           language: {
             type: "string",
             description: "Язык для субтитров и анализа",
-            default: "ru"
-          }
-        }
+            default: "ru",
+          },
+        },
       },
       platformTargets: {
         type: "array",
@@ -116,23 +119,23 @@ export const executeWorkflowTool: ClaudeTool = {
           properties: {
             platform: {
               type: "string",
-              enum: ["youtube", "instagram", "tiktok", "facebook", "twitter"]
+              enum: ["youtube", "instagram", "tiktok", "facebook", "twitter"],
             },
             aspectRatio: {
               type: "string",
-              enum: ["16:9", "9:16", "1:1", "4:5"]
+              enum: ["16:9", "9:16", "1:1", "4:5"],
             },
             maxDuration: {
               type: "number",
-              description: "Максимальная длительность для платформы"
-            }
+              description: "Максимальная длительность для платформы",
+            },
           },
-          required: ["platform", "aspectRatio"]
-        }
-      }
+          required: ["platform", "aspectRatio"],
+        },
+      },
     },
-    required: ["inputVideos", "workflowType", "outputDirectory"]
-  }
+    required: ["inputVideos", "workflowType", "outputDirectory"],
+  },
 }
 
 /**
@@ -146,16 +149,16 @@ export const getWorkflowStatusTool: ClaudeTool = {
     properties: {
       workflowId: {
         type: "string",
-        description: "ID конкретного workflow (опционально - если не указан, возвращает все активные)"
+        description: "ID конкретного workflow (опционально - если не указан, возвращает все активные)",
       },
       includeCompleted: {
         type: "boolean",
         description: "Включать ли завершённые workflow в результат",
-        default: false
-      }
+        default: false,
+      },
     },
-    required: []
-  }
+    required: [],
+  },
 }
 
 /**
@@ -169,15 +172,15 @@ export const cancelWorkflowTool: ClaudeTool = {
     properties: {
       workflowId: {
         type: "string",
-        description: "ID workflow для отмены"
+        description: "ID workflow для отмены",
       },
       reason: {
         type: "string",
-        description: "Причина отмены (опционально)"
-      }
+        description: "Причина отмены (опционально)",
+      },
     },
-    required: ["workflowId"]
-  }
+    required: ["workflowId"],
+  },
 }
 
 /**
@@ -191,11 +194,11 @@ export const createCustomWorkflowTool: ClaudeTool = {
     properties: {
       name: {
         type: "string",
-        description: "Название пользовательского workflow"
+        description: "Название пользовательского workflow",
       },
       description: {
         type: "string",
-        description: "Описание назначения workflow"
+        description: "Описание назначения workflow",
       },
       steps: {
         type: "array",
@@ -205,19 +208,26 @@ export const createCustomWorkflowTool: ClaudeTool = {
             stepType: {
               type: "string",
               enum: [
-                "analyze_input", "detect_scenes", "generate_subtitles", "create_timeline",
-                "apply_effects", "add_transitions", "add_music", "export_video", "optimize_platforms"
-              ]
+                "analyze_input",
+                "detect_scenes",
+                "generate_subtitles",
+                "create_timeline",
+                "apply_effects",
+                "add_transitions",
+                "add_music",
+                "export_video",
+                "optimize_platforms",
+              ],
             },
             parameters: {
               type: "object",
-              description: "Параметры для конкретного шага"
-            }
+              description: "Параметры для конкретного шага",
+            },
           },
-          required: ["stepType"]
+          required: ["stepType"],
         },
         description: "Последовательность шагов workflow",
-        minItems: 2
+        minItems: 2,
       },
       inputRequirements: {
         type: "object",
@@ -225,16 +235,16 @@ export const createCustomWorkflowTool: ClaudeTool = {
         properties: {
           videoFormats: {
             type: "array",
-            items: { type: "string" }
+            items: { type: "string" },
           },
           minDuration: { type: "number" },
           maxDuration: { type: "number" },
-          requiresAudio: { type: "boolean" }
-        }
-      }
+          requiresAudio: { type: "boolean" },
+        },
+      },
     },
-    required: ["name", "description", "steps"]
-  }
+    required: ["name", "description", "steps"],
+  },
 }
 
 /**
@@ -248,21 +258,21 @@ export const analyzeVideoForWorkflowTool: ClaudeTool = {
     properties: {
       videoPath: {
         type: "string",
-        description: "Путь к видеофайлу для анализа"
+        description: "Путь к видеофайлу для анализа",
       },
       analysisDepth: {
         type: "string",
         enum: ["basic", "detailed", "comprehensive"],
         description: "Глубина анализа",
-        default: "basic"
+        default: "basic",
       },
       userIntent: {
         type: "string",
-        description: "Описание того, что пользователь хочет получить"
-      }
+        description: "Описание того, что пользователь хочет получить",
+      },
     },
-    required: ["videoPath"]
-  }
+    required: ["videoPath"],
+  },
 }
 
 /**
@@ -277,11 +287,18 @@ export const getWorkflowSuggestionsTool: ClaudeTool = {
       workflowType: {
         type: "string",
         enum: [
-          "quick_edit", "social_media_pack", "podcast_editing", "presentation_video",
-          "wedding_highlights", "travel_vlog", "product_showcase", "educational_content",
-          "music_video", "corporate_intro"
+          "quick_edit",
+          "social_media_pack",
+          "podcast_editing",
+          "presentation_video",
+          "wedding_highlights",
+          "travel_vlog",
+          "product_showcase",
+          "educational_content",
+          "music_video",
+          "corporate_intro",
         ],
-        description: "Тип workflow для анализа"
+        description: "Тип workflow для анализа",
       },
       inputCharacteristics: {
         type: "object",
@@ -291,21 +308,21 @@ export const getWorkflowSuggestionsTool: ClaudeTool = {
           videoCount: { type: "number" },
           hasAudio: { type: "boolean" },
           resolution: { type: "string" },
-          contentType: { type: "string" }
-        }
+          contentType: { type: "string" },
+        },
       },
       targetAudience: {
         type: "string",
-        description: "Целевая аудитория контента"
+        description: "Целевая аудитория контента",
       },
       budget: {
         type: "string",
         enum: ["low", "medium", "high"],
-        description: "Бюджет времени на обработку"
-      }
+        description: "Бюджет времени на обработку",
+      },
     },
-    required: ["workflowType"]
-  }
+    required: ["workflowType"],
+  },
 }
 
 /**
@@ -319,30 +336,30 @@ export const exportWorkflowResultsTool: ClaudeTool = {
     properties: {
       workflowId: {
         type: "string",
-        description: "ID завершённого workflow"
+        description: "ID завершённого workflow",
       },
       exportFormat: {
         type: "string",
         enum: ["json", "xml", "csv", "pdf_report"],
-        description: "Формат экспорта результатов"
+        description: "Формат экспорта результатов",
       },
       includeMetadata: {
         type: "boolean",
         description: "Включать ли метаданные в экспорт",
-        default: true
+        default: true,
       },
       includeStatistics: {
         type: "boolean",
         description: "Включать ли статистику выполнения",
-        default: true
+        default: true,
       },
       outputPath: {
         type: "string",
-        description: "Путь для сохранения экспортированных данных"
-      }
+        description: "Путь для сохранения экспортированных данных",
+      },
     },
-    required: ["workflowId", "exportFormat", "outputPath"]
-  }
+    required: ["workflowId", "exportFormat", "outputPath"],
+  },
 }
 
 /**
@@ -356,15 +373,15 @@ export const createWorkflowTemplateTool: ClaudeTool = {
     properties: {
       basedOnWorkflowId: {
         type: "string",
-        description: "ID workflow, на основе которого создаётся шаблон"
+        description: "ID workflow, на основе которого создаётся шаблон",
       },
       templateName: {
         type: "string",
-        description: "Название шаблона"
+        description: "Название шаблона",
       },
       templateDescription: {
         type: "string",
-        description: "Описание шаблона"
+        description: "Описание шаблона",
       },
       variableParameters: {
         type: "array",
@@ -374,20 +391,20 @@ export const createWorkflowTemplateTool: ClaudeTool = {
             name: { type: "string" },
             type: { type: "string" },
             defaultValue: { type: "string" },
-            description: { type: "string" }
+            description: { type: "string" },
           },
-          required: ["name", "type"]
+          required: ["name", "type"],
         },
-        description: "Параметры, которые можно изменять в шаблоне"
+        description: "Параметры, которые можно изменять в шаблоне",
       },
       tags: {
         type: "array",
         items: { type: "string" },
-        description: "Теги для категоризации шаблона"
-      }
+        description: "Теги для категоризации шаблона",
+      },
     },
-    required: ["basedOnWorkflowId", "templateName", "templateDescription"]
-  }
+    required: ["basedOnWorkflowId", "templateName", "templateDescription"],
+  },
 }
 
 /**
@@ -402,55 +419,45 @@ export const workflowAutomationTools: ClaudeTool[] = [
   analyzeVideoForWorkflowTool,
   getWorkflowSuggestionsTool,
   exportWorkflowResultsTool,
-  createWorkflowTemplateTool
+  createWorkflowTemplateTool,
 ]
 
 /**
  * Выполнение инструментов автоматизации workflow
  */
-export async function executeWorkflowAutomationTool(
-  toolName: string,
-  input: any
-): Promise<any> {
+export async function executeWorkflowAutomationTool(toolName: string, input: any): Promise<any> {
   try {
     switch (toolName) {
       case "get_available_workflows":
         const workflows = workflowService.getAvailableWorkflows()
-        
+
         // Фильтрация по сложности
         let filteredWorkflows = workflows
         if (input.complexity) {
-          filteredWorkflows = workflows.filter(w => w.complexity === input.complexity)
+          filteredWorkflows = workflows.filter((w) => w.complexity === input.complexity)
         }
-        
+
         // Группировка по категориям
         const categorizedWorkflows = {
-          social_media: filteredWorkflows.filter(w => 
-            ['social_media_pack', 'quick_edit'].includes(w.type)
+          social_media: filteredWorkflows.filter((w) => ["social_media_pack", "quick_edit"].includes(w.type)),
+          business: filteredWorkflows.filter((w) =>
+            ["corporate_intro", "presentation_video", "product_showcase"].includes(w.type),
           ),
-          business: filteredWorkflows.filter(w => 
-            ['corporate_intro', 'presentation_video', 'product_showcase'].includes(w.type)
-          ),
-          personal: filteredWorkflows.filter(w => 
-            ['wedding_highlights', 'travel_vlog'].includes(w.type)
-          ),
-          educational: filteredWorkflows.filter(w => 
-            ['educational_content', 'podcast_editing'].includes(w.type)
-          ),
-          entertainment: filteredWorkflows.filter(w => 
-            ['music_video'].includes(w.type)
-          )
+          personal: filteredWorkflows.filter((w) => ["wedding_highlights", "travel_vlog"].includes(w.type)),
+          educational: filteredWorkflows.filter((w) => ["educational_content", "podcast_editing"].includes(w.type)),
+          entertainment: filteredWorkflows.filter((w) => ["music_video"].includes(w.type)),
         }
 
         const categoryKey = input.category as keyof typeof categorizedWorkflows
-        
+
         return {
           totalWorkflows: filteredWorkflows.length,
-          workflows: input.category && categoryKey in categorizedWorkflows 
-            ? categorizedWorkflows[categoryKey] 
-            : filteredWorkflows,
+          workflows:
+            input.category && categoryKey in categorizedWorkflows
+              ? categorizedWorkflows[categoryKey]
+              : filteredWorkflows,
           categories: Object.keys(categorizedWorkflows),
-          filters: { complexity: input.complexity, category: input.category }
+          filters: { complexity: input.complexity, category: input.category },
         }
 
       case "execute_workflow":
@@ -459,23 +466,23 @@ export async function executeWorkflowAutomationTool(
           workflowType: input.workflowType as WorkflowType,
           outputDirectory: input.outputDirectory,
           preferences: input.preferences || {},
-          platformTargets: input.platformTargets
+          platformTargets: input.platformTargets,
         }
-        
+
         return await workflowService.executeWorkflow(workflowParams)
 
       case "get_workflow_status":
         const activeWorkflows = workflowService.getActiveWorkflows()
-        
+
         if (input.workflowId) {
-          const specificWorkflow = activeWorkflows.find(w => w.workflowId === input.workflowId)
+          const specificWorkflow = activeWorkflows.find((w) => w.workflowId === input.workflowId)
           return specificWorkflow ? { workflow: specificWorkflow } : { error: "Workflow not found" }
         }
-        
+
         return {
           activeWorkflows,
           totalActive: activeWorkflows.length,
-          includeCompleted: input.includeCompleted || false
+          includeCompleted: input.includeCompleted || false,
         }
 
       case "cancel_workflow":
@@ -484,7 +491,7 @@ export async function executeWorkflowAutomationTool(
           success: cancelled,
           workflowId: input.workflowId,
           reason: input.reason,
-          message: cancelled ? "Workflow successfully cancelled" : "Workflow not found or already completed"
+          message: cancelled ? "Workflow successfully cancelled" : "Workflow not found or already completed",
         }
 
       case "create_custom_workflow":
@@ -495,19 +502,19 @@ export async function executeWorkflowAutomationTool(
           name: input.name,
           description: input.description,
           stepsCount: input.steps.length,
-          message: "Custom workflow template created successfully"
+          message: "Custom workflow template created successfully",
         }
 
       case "analyze_video_for_workflow":
         // Анализируем видео и предлагаем подходящие workflow
         const analysis = await analyzeVideoContent(input.videoPath, input.analysisDepth)
         const recommendations = generateWorkflowRecommendations(analysis, input.userIntent)
-        
+
         return {
           videoAnalysis: analysis,
           recommendedWorkflows: recommendations,
           analysisDepth: input.analysisDepth,
-          confidence: calculateRecommendationConfidence(analysis, recommendations)
+          confidence: calculateRecommendationConfidence(analysis, recommendations),
         }
 
       case "get_workflow_suggestions":
@@ -515,14 +522,14 @@ export async function executeWorkflowAutomationTool(
           input.workflowType,
           input.inputCharacteristics,
           input.targetAudience,
-          input.budget
+          input.budget,
         )
-        
+
         return {
           workflowType: input.workflowType,
           suggestions,
           optimizationPotential: calculateOptimizationPotential(suggestions),
-          estimatedImprovement: "15-30% faster processing"
+          estimatedImprovement: "15-30% faster processing",
         }
 
       case "export_workflow_results":
@@ -533,7 +540,7 @@ export async function executeWorkflowAutomationTool(
           exportFormat: input.exportFormat,
           outputPath: input.outputPath,
           fileSize: Math.floor(Math.random() * 1000) + 100, // Mock size
-          message: "Workflow results exported successfully"
+          message: "Workflow results exported successfully",
         }
 
       case "create_workflow_template":
@@ -545,7 +552,7 @@ export async function executeWorkflowAutomationTool(
           basedOnWorkflow: input.basedOnWorkflowId,
           variableParameters: input.variableParameters?.length || 0,
           tags: input.tags || [],
-          message: "Workflow template created successfully"
+          message: "Workflow template created successfully",
         }
 
       default:
@@ -560,14 +567,14 @@ export async function executeWorkflowAutomationTool(
 /**
  * Анализ контента видео для рекомендаций workflow
  */
-async function analyzeVideoContent(videoPath: string, depth: string): Promise<any> {
+async function analyzeVideoContent(_videoPath: string, depth: string): Promise<any> {
   // Базовый анализ
   const basicAnalysis = {
     duration: Math.floor(Math.random() * 300) + 60, // Mock duration
     hasAudio: true,
     resolution: "1920x1080",
     framerate: 30,
-    fileSize: Math.floor(Math.random() * 1000) + 100
+    fileSize: Math.floor(Math.random() * 1000) + 100,
   }
 
   if (depth === "basic") {
@@ -581,7 +588,7 @@ async function analyzeVideoContent(videoPath: string, depth: string): Promise<an
     audioQuality: Math.floor(Math.random() * 40) + 60,
     videoQuality: Math.floor(Math.random() * 30) + 70,
     contentType: detectContentType(),
-    motionLevel: Math.random() > 0.5 ? "high" : "medium"
+    motionLevel: Math.random() > 0.5 ? "high" : "medium",
   }
 
   if (depth === "detailed") {
@@ -594,7 +601,7 @@ async function analyzeVideoContent(videoPath: string, depth: string): Promise<an
     emotionalTone: getRandomEmotionalTone(),
     subjectMatters: getRandomSubjects(),
     technicalIssues: getRandomTechnicalIssues(),
-    recommendedEnhancements: getRecommendedEnhancements()
+    recommendedEnhancements: getRecommendedEnhancements(),
   }
 }
 
@@ -609,7 +616,7 @@ function generateWorkflowRecommendations(analysis: any, userIntent?: string): an
     recommendations.push({
       workflow: "social_media_pack",
       reason: "Short video perfect for social media platforms",
-      confidence: 0.9
+      confidence: 0.9,
     })
   }
 
@@ -617,7 +624,7 @@ function generateWorkflowRecommendations(analysis: any, userIntent?: string): an
     recommendations.push({
       workflow: "educational_content",
       reason: "Long-form content suitable for structured presentation",
-      confidence: 0.8
+      confidence: 0.8,
     })
   }
 
@@ -626,7 +633,7 @@ function generateWorkflowRecommendations(analysis: any, userIntent?: string): an
     recommendations.push({
       workflow: "presentation_video",
       reason: "Detected presentation-style content",
-      confidence: 0.85
+      confidence: 0.85,
     })
   }
 
@@ -634,7 +641,7 @@ function generateWorkflowRecommendations(analysis: any, userIntent?: string): an
     recommendations.push({
       workflow: "podcast_editing",
       reason: "Single speaker detected, suitable for podcast workflow",
-      confidence: 0.75
+      confidence: 0.75,
     })
   }
 
@@ -643,7 +650,7 @@ function generateWorkflowRecommendations(analysis: any, userIntent?: string): an
     recommendations.push({
       workflow: "social_media_pack",
       reason: "User explicitly mentioned social media",
-      confidence: 0.95
+      confidence: 0.95,
     })
   }
 
@@ -656,8 +663,8 @@ function generateWorkflowRecommendations(analysis: any, userIntent?: string): an
 function generateWorkflowOptimizationSuggestions(
   workflowType: string,
   inputCharacteristics?: any,
-  targetAudience?: string,
-  budget?: string
+  _targetAudience?: string,
+  budget?: string,
 ): string[] {
   const suggestions = []
 
@@ -722,12 +729,13 @@ function getRecommendedEnhancements(): string[] {
   return enhancements.slice(0, Math.floor(Math.random() * 3) + 1)
 }
 
-function calculateRecommendationConfidence(analysis: any, recommendations: any[]): number {
+function calculateRecommendationConfidence(_analysis: any, recommendations: any[]): number {
   // Простая логика расчёта уверенности в рекомендациях
-  const avgConfidence = recommendations.reduce<number>((sum: number, rec: any) => {
-    const confidence: number = typeof rec.confidence === 'number' ? rec.confidence : 0.85
-    return sum + confidence
-  }, 0) / recommendations.length
+  const avgConfidence =
+    recommendations.reduce<number>((sum: number, rec: any) => {
+      const confidence: number = typeof rec.confidence === "number" ? rec.confidence : 0.85
+      return sum + confidence
+    }, 0) / recommendations.length
   return Math.round(avgConfidence * 100) / 100
 }
 

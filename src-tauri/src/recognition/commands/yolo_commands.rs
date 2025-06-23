@@ -4,7 +4,7 @@ use crate::recognition::frame_processor::ProcessingConfig;
 use crate::recognition::model_manager::YoloModel;
 use crate::recognition::result_aggregator::AggregatedResults;
 use crate::recognition::yolo_processor_refactored::{
-  OutputFormat, ProcessorConfig, YoloProcessor,
+  OutputFormat, ProcessorBuilder, ProcessorConfig, YoloProcessor,
 };
 use anyhow::Result;
 use serde::{Deserialize, Serialize};

@@ -8,7 +8,7 @@ import { invoke } from "@tauri-apps/api/core"
 /**
  * Типы автоматизированных workflow
  */
-export type WorkflowType = 
+export type WorkflowType =
   | "quick_edit" // Быстрый монтаж с автообрезкой и переходами
   | "social_media_pack" // Создание контента для соцсетей
   | "podcast_editing" // Автомонтаж подкастов
@@ -130,7 +130,7 @@ export interface WorkflowStepResult {
 export class WorkflowAutomationService {
   private static instance: WorkflowAutomationService
   private activeWorkflows = new Map<string, WorkflowContext>()
-  
+
   // Предустановленные workflow шаги
   private workflowSteps = new Map<string, WorkflowStep>()
 
@@ -161,7 +161,7 @@ export class WorkflowAutomationService {
       tempDirectory: await this.createTempDirectory(workflowId),
       intermediateFiles: {},
       analysisResults: {},
-      timelineData: null
+      timelineData: null,
     }
 
     this.activeWorkflows.set(workflowId, context)
@@ -177,19 +177,19 @@ export class WorkflowAutomationService {
       // Выполняем шаги последовательно
       for (const step of steps) {
         const stepStartTime = Date.now()
-        
+
         try {
           context.progressCallback?.(currentProgress, step.name)
-          
+
           const result = await step.execute(context)
-          
+
           const stepDuration = Date.now() - stepStartTime
-          
+
           executionLog.push({
             step: step.name,
             status: result.success ? "completed" : "failed",
             duration: stepDuration,
-            details: result.errors?.join("; ")
+            details: result.errors?.join("; "),
           })
 
           if (!result.success) {
@@ -198,13 +198,12 @@ export class WorkflowAutomationService {
           }
 
           currentProgress += progressIncrement
-          
         } catch (error) {
           executionLog.push({
             step: step.name,
-            status: "failed", 
+            status: "failed",
             duration: Date.now() - stepStartTime,
-            details: String(error)
+            details: String(error),
           })
           console.error(`Critical error in workflow step ${step.name}:`, error)
         }
@@ -223,15 +222,14 @@ export class WorkflowAutomationService {
           projectFile: context.intermediateFiles.projectFile || "",
           sectionsCreated: context.timelineData?.sections?.length || 0,
           effectsApplied: context.timelineData?.effects || [],
-          transitionsUsed: context.timelineData?.transitions || []
+          transitionsUsed: context.timelineData?.transitions || [],
         },
         statistics,
         suggestions,
-        executionLog
+        executionLog,
       }
 
       return result
-
     } catch (error) {
       console.error(`Workflow ${workflowId} failed:`, error)
       throw new Error(`Workflow execution failed: ${String(error)}`)
@@ -261,7 +259,7 @@ export class WorkflowAutomationService {
         estimatedDuration: 5,
         complexity: "simple",
         supportedInputs: ["mp4", "mov", "avi"],
-        outputs: ["edited_video", "highlights"]
+        outputs: ["edited_video", "highlights"],
       },
       {
         type: "social_media_pack",
@@ -270,7 +268,7 @@ export class WorkflowAutomationService {
         estimatedDuration: 15,
         complexity: "medium",
         supportedInputs: ["mp4", "mov"],
-        outputs: ["instagram_square", "tiktok_vertical", "youtube_shorts"]
+        outputs: ["instagram_square", "tiktok_vertical", "youtube_shorts"],
       },
       {
         type: "podcast_editing",
@@ -279,7 +277,7 @@ export class WorkflowAutomationService {
         estimatedDuration: 10,
         complexity: "medium",
         supportedInputs: ["mp4", "mov", "mp3", "wav"],
-        outputs: ["clean_audio", "video_with_waveform", "highlights"]
+        outputs: ["clean_audio", "video_with_waveform", "highlights"],
       },
       {
         type: "presentation_video",
@@ -288,7 +286,7 @@ export class WorkflowAutomationService {
         estimatedDuration: 8,
         complexity: "medium",
         supportedInputs: ["mp4", "mov"],
-        outputs: ["presentation_video", "thumbnail"]
+        outputs: ["presentation_video", "thumbnail"],
       },
       {
         type: "wedding_highlights",
@@ -297,7 +295,7 @@ export class WorkflowAutomationService {
         estimatedDuration: 20,
         complexity: "complex",
         supportedInputs: ["mp4", "mov"],
-        outputs: ["highlight_reel", "ceremony_edit", "reception_moments"]
+        outputs: ["highlight_reel", "ceremony_edit", "reception_moments"],
       },
       {
         type: "travel_vlog",
@@ -306,7 +304,7 @@ export class WorkflowAutomationService {
         estimatedDuration: 18,
         complexity: "complex",
         supportedInputs: ["mp4", "mov", "jpg", "png"],
-        outputs: ["travel_video", "location_highlights", "social_snippets"]
+        outputs: ["travel_video", "location_highlights", "social_snippets"],
       },
       {
         type: "product_showcase",
@@ -315,7 +313,7 @@ export class WorkflowAutomationService {
         estimatedDuration: 12,
         complexity: "medium",
         supportedInputs: ["mp4", "mov"],
-        outputs: ["product_demo", "feature_highlights", "social_ads"]
+        outputs: ["product_demo", "feature_highlights", "social_ads"],
       },
       {
         type: "educational_content",
@@ -324,7 +322,7 @@ export class WorkflowAutomationService {
         estimatedDuration: 15,
         complexity: "medium",
         supportedInputs: ["mp4", "mov"],
-        outputs: ["lesson_video", "chapters", "quiz_snippets"]
+        outputs: ["lesson_video", "chapters", "quiz_snippets"],
       },
       {
         type: "music_video",
@@ -333,7 +331,7 @@ export class WorkflowAutomationService {
         estimatedDuration: 25,
         complexity: "complex",
         supportedInputs: ["mp4", "mov", "mp3"],
-        outputs: ["music_video", "lyric_video", "behind_scenes"]
+        outputs: ["music_video", "lyric_video", "behind_scenes"],
       },
       {
         type: "corporate_intro",
@@ -342,8 +340,8 @@ export class WorkflowAutomationService {
         estimatedDuration: 10,
         complexity: "medium",
         supportedInputs: ["mp4", "mov", "png"],
-        outputs: ["intro_video", "branded_content", "team_presentation"]
-      }
+        outputs: ["intro_video", "branded_content", "team_presentation"],
+      },
     ]
   }
 
@@ -362,7 +360,7 @@ export class WorkflowAutomationService {
       type: context.params.workflowType,
       progress: 0, // TODO: Implement progress tracking
       currentStep: "processing",
-      startTime: new Date()
+      startTime: new Date(),
     }))
   }
 
@@ -398,7 +396,7 @@ export class WorkflowAutomationService {
         }
         context.analysisResults.inputAnalysis = analyses
         return { success: true, outputs: { analyses } }
-      }
+      },
     })
 
     // Обнаружение сцен
@@ -415,18 +413,18 @@ export class WorkflowAutomationService {
           const sceneData = await invoke("ffmpeg_detect_scenes", {
             filePath: video,
             threshold: 0.3,
-            minSceneLength: 2.0
+            minSceneLength: 2.0,
           })
           scenes.push(sceneData)
         }
         context.analysisResults.scenes = scenes
         return { success: true, outputs: { scenes } }
-      }
+      },
     })
 
     // Генерация субтитров
     this.workflowSteps.set("generate_subtitles", {
-      id: "generate_subtitles", 
+      id: "generate_subtitles",
       name: "Генерация субтитров",
       description: "Автоматическая транскрипция речи в субтитры",
       category: "enhancement",
@@ -441,23 +439,23 @@ export class WorkflowAutomationService {
         for (const video of context.params.inputVideos) {
           const audioPath = await invoke("extract_audio_for_whisper", {
             videoFilePath: video,
-            outputFormat: "wav"
+            outputFormat: "wav",
           })
-          
+
           const transcription = await invoke("whisper_transcribe_openai", {
             audioFilePath: audioPath,
             apiKey: "",
             model: "whisper-1",
             language: context.params.preferences.language || "auto",
-            responseFormat: "verbose_json"
+            responseFormat: "verbose_json",
           })
-          
+
           subtitles.push(transcription)
         }
-        
+
         context.analysisResults.subtitles = subtitles
         return { success: true, outputs: { subtitles } }
-      }
+      },
     })
 
     // Создание временной линии
@@ -470,22 +468,19 @@ export class WorkflowAutomationService {
       estimatedDuration: 60,
       execute: async (context) => {
         // Генерируем timeline на основе анализа сцен
-        const timelineData = this.generateTimelineFromScenes(
-          context.analysisResults.scenes,
-          context.params
-        )
-        
+        const timelineData = this.generateTimelineFromScenes(context.analysisResults.scenes, context.params)
+
         const projectFile = `${context.tempDirectory}/project.json`
         await invoke("create_timeline_project", {
           projectData: JSON.stringify(timelineData),
-          outputPath: projectFile
+          outputPath: projectFile,
         })
-        
+
         context.timelineData = timelineData
         context.intermediateFiles.projectFile = projectFile
-        
+
         return { success: true, outputs: { timelineData, projectFile } }
-      }
+      },
     })
 
     // Применение эффектов
@@ -498,23 +493,23 @@ export class WorkflowAutomationService {
       estimatedDuration: 90,
       execute: async (context) => {
         const effects = []
-        
+
         // Применяем цветокоррекцию
         if (context.params.preferences.colorGrading !== "auto") {
           const colorEffect = await this.applyColorGrading(
             context.timelineData,
-            context.params.preferences.colorGrading!
+            context.params.preferences.colorGrading!,
           )
           effects.push(colorEffect)
         }
-        
+
         // Стабилизация видео если нужно
         const stabilizationEffect = await this.applyVideoStabilization(context.timelineData)
         effects.push(stabilizationEffect)
-        
+
         context.timelineData.effects = effects
         return { success: true, outputs: { effects } }
-      }
+      },
     })
 
     // Добавление переходов
@@ -528,10 +523,10 @@ export class WorkflowAutomationService {
       execute: async (context) => {
         const transitionStyle = context.params.preferences.transitionStyle || "dissolve"
         const transitions = this.generateTransitions(context.timelineData, transitionStyle)
-        
+
         context.timelineData.transitions = transitions
         return { success: true, outputs: { transitions } }
-      }
+      },
     })
 
     // Добавление музыки
@@ -546,16 +541,16 @@ export class WorkflowAutomationService {
         if (!context.params.preferences.musicTrack) {
           return { success: true, outputs: {} }
         }
-        
+
         const musicSync = await this.synchronizeMusic(
           context.timelineData,
           context.params.preferences.musicTrack,
-          context.params.preferences.pace || "medium"
+          context.params.preferences.pace || "medium",
         )
-        
+
         context.timelineData.audioTracks = [musicSync]
         return { success: true, outputs: { musicSync } }
-      }
+      },
     })
 
     // Экспорт результата
@@ -568,20 +563,20 @@ export class WorkflowAutomationService {
       estimatedDuration: 300,
       execute: async (context) => {
         const outputPath = `${context.params.outputDirectory}/final_video.mp4`
-        
+
         const renderResult = await invoke("compile_workflow_video", {
           projectFile: context.intermediateFiles.projectFile,
           outputPath,
           settings: JSON.stringify({
             resolution: { width: 1920, height: 1080 },
             framerate: 30,
-            quality: "high"
-          })
+            quality: "high",
+          }),
         })
-        
+
         context.intermediateFiles.finalVideo = outputPath
         return { success: true, outputs: { renderResult, outputPath } }
-      }
+      },
     })
 
     // Оптимизация для платформ
@@ -596,13 +591,13 @@ export class WorkflowAutomationService {
         if (!context.params.platformTargets?.length) {
           return { success: true, outputs: {} }
         }
-        
+
         const platformVersions = []
         const sourceVideo = context.intermediateFiles.finalVideo
-        
+
         for (const target of context.params.platformTargets) {
           const optimizedPath = `${context.params.outputDirectory}/${target.platform}_optimized.mp4`
-          
+
           const optimizationResult = await invoke("ffmpeg_optimize_for_platform", {
             inputPath: sourceVideo,
             outputPath: optimizedPath,
@@ -612,18 +607,18 @@ export class WorkflowAutomationService {
             targetFramerate: 30,
             audioCodec: "aac",
             videoCodec: "h264",
-            cropToFit: true
+            cropToFit: true,
           })
-          
+
           platformVersions.push({
             platform: target.platform,
             path: optimizedPath,
-            result: optimizationResult
+            result: optimizationResult,
           })
         }
-        
+
         return { success: true, outputs: { platformVersions } }
-      }
+      },
     })
   }
 
@@ -632,22 +627,44 @@ export class WorkflowAutomationService {
    */
   private getWorkflowSteps(workflowType: WorkflowType): WorkflowStep[] {
     const baseSteps = ["analyze_input", "detect_scenes"]
-    
+
     const workflowConfigs: Record<WorkflowType, string[]> = {
       quick_edit: [...baseSteps, "create_timeline", "add_transitions", "export_video"],
       social_media_pack: [...baseSteps, "create_timeline", "add_transitions", "export_video", "optimize_platforms"],
       podcast_editing: [...baseSteps, "generate_subtitles", "create_timeline", "add_music", "export_video"],
       presentation_video: [...baseSteps, "generate_subtitles", "create_timeline", "add_transitions", "export_video"],
-      wedding_highlights: [...baseSteps, "create_timeline", "apply_effects", "add_music", "add_transitions", "export_video"],
-      travel_vlog: [...baseSteps, "create_timeline", "apply_effects", "add_music", "add_transitions", "export_video", "optimize_platforms"],
-      product_showcase: [...baseSteps, "create_timeline", "apply_effects", "add_transitions", "export_video", "optimize_platforms"],
+      wedding_highlights: [
+        ...baseSteps,
+        "create_timeline",
+        "apply_effects",
+        "add_music",
+        "add_transitions",
+        "export_video",
+      ],
+      travel_vlog: [
+        ...baseSteps,
+        "create_timeline",
+        "apply_effects",
+        "add_music",
+        "add_transitions",
+        "export_video",
+        "optimize_platforms",
+      ],
+      product_showcase: [
+        ...baseSteps,
+        "create_timeline",
+        "apply_effects",
+        "add_transitions",
+        "export_video",
+        "optimize_platforms",
+      ],
       educational_content: [...baseSteps, "generate_subtitles", "create_timeline", "add_transitions", "export_video"],
       music_video: [...baseSteps, "create_timeline", "apply_effects", "add_music", "add_transitions", "export_video"],
-      corporate_intro: [...baseSteps, "create_timeline", "apply_effects", "add_transitions", "export_video"]
+      corporate_intro: [...baseSteps, "create_timeline", "apply_effects", "add_transitions", "export_video"],
     }
-    
+
     const stepIds = workflowConfigs[workflowType] || baseSteps
-    return stepIds.map(id => this.workflowSteps.get(id)!).filter(Boolean)
+    return stepIds.map((id) => this.workflowSteps.get(id)!).filter(Boolean)
   }
 
   /**
@@ -663,87 +680,87 @@ export class WorkflowAutomationService {
     return tempDir
   }
 
-  private generateTimelineFromScenes(scenes: any[], params: WorkflowParams): any {
+  private generateTimelineFromScenes(scenes: any[], _params: WorkflowParams): any {
     // Генерируем данные timeline на основе обнаруженных сцен
     return {
       version: "1.0",
       settings: {
         resolution: { width: 1920, height: 1080 },
-        framerate: 30
+        framerate: 30,
       },
       sections: scenes.map((scene, index) => ({
         id: `section_${index}`,
         name: `Scene ${index + 1}`,
         startTime: scene.startTime || 0,
         endTime: scene.endTime || 10,
-        clips: scene.clips || []
+        clips: scene.clips || [],
       })),
       effects: [],
-      transitions: []
+      transitions: [],
     }
   }
 
-  private async applyColorGrading(timelineData: any, style: string): Promise<any> {
+  private async applyColorGrading(_timelineData: any, style: string): Promise<any> {
     // Применяем цветокоррекцию в зависимости от стиля
     const colorGradingConfigs = {
       warm: { temperature: 200, tint: 50, saturation: 110 },
       cool: { temperature: -200, tint: -50, saturation: 105 },
       cinematic: { contrast: 120, shadows: -30, highlights: -20 },
-      natural: { exposure: 0, contrast: 105, saturation: 100 }
+      natural: { exposure: 0, contrast: 105, saturation: 100 },
     }
-    
+
     return {
       type: "color_correction",
-      settings: colorGradingConfigs[style as keyof typeof colorGradingConfigs] || colorGradingConfigs.natural
+      settings: colorGradingConfigs[style as keyof typeof colorGradingConfigs] || colorGradingConfigs.natural,
     }
   }
 
-  private async applyVideoStabilization(timelineData: any): Promise<any> {
+  private async applyVideoStabilization(_timelineData: any): Promise<any> {
     return {
       type: "stabilization",
-      settings: { strength: 0.5, smoothness: 0.7 }
+      settings: { strength: 0.5, smoothness: 0.7 },
     }
   }
 
   private generateTransitions(timelineData: any, style: string): any[] {
     // Генерируем переходы между секциями
     const transitions = []
-    
+
     for (let i = 0; i < timelineData.sections.length - 1; i++) {
       transitions.push({
         type: style,
         duration: 1.0,
         fromSection: timelineData.sections[i].id,
-        toSection: timelineData.sections[i + 1].id
+        toSection: timelineData.sections[i + 1].id,
       })
     }
-    
+
     return transitions
   }
 
-  private async synchronizeMusic(timelineData: any, musicTrack: string, pace: string): Promise<any> {
+  private async synchronizeMusic(_timelineData: any, musicTrack: string, pace: string): Promise<any> {
     // Синхронизируем музыку с видеорядом
     const paceMulipliers = { slow: 0.8, medium: 1.0, fast: 1.2, dynamic: 1.5 }
     const multiplier = paceMulipliers[pace as keyof typeof paceMulipliers] || 1.0
-    
+
     return {
       audioFile: musicTrack,
       volume: 0.3,
       fadeIn: 2.0,
       fadeOut: 3.0,
-      tempoMultiplier: multiplier
+      tempoMultiplier: multiplier,
     }
   }
 
   private async collectWorkflowOutputs(context: WorkflowContext): Promise<WorkflowResult["outputs"]> {
     const outputs: WorkflowResult["outputs"] = []
-    
+
     // Основное видео
     if (context.intermediateFiles.finalVideo) {
-      const metadata = await invoke("ffmpeg_get_metadata", {
-        filePath: context.intermediateFiles.finalVideo
-      }) as any
-      
+      const metadata = (await invoke("ffmpeg_get_metadata", {
+        filePath: context.intermediateFiles.finalVideo,
+      })) as any
+
       outputs.push({
         type: "main_video",
         filePath: context.intermediateFiles.finalVideo,
@@ -751,51 +768,48 @@ export class WorkflowAutomationService {
           duration: metadata.duration || 0,
           resolution: { width: metadata.width || 1920, height: metadata.height || 1080 },
           fileSize: metadata.fileSize || 0,
-          qualityScore: 85
-        }
+          qualityScore: 85,
+        },
       })
     }
-    
+
     return outputs
   }
 
   private async calculateWorkflowStatistics(
-    context: WorkflowContext, 
-    totalTime: number
+    _context: WorkflowContext,
+    totalTime: number,
   ): Promise<WorkflowResult["statistics"]> {
     return {
       processingTime: totalTime,
       automationLevel: 85,
-      manualAdjustmentsNeeded: [
-        "Проверить синхронизацию субтитров",
-        "Настроить громкость музыки"
-      ],
+      manualAdjustmentsNeeded: ["Проверить синхронизацию субтитров", "Настроить громкость музыки"],
       qualityAnalysis: {
         videoQuality: 88,
         audioQuality: 82,
         editingFlow: 90,
-        overallScore: 87
-      }
+        overallScore: 87,
+      },
     }
   }
 
   private generateWorkflowSuggestions(
-    context: WorkflowContext, 
-    executionLog: WorkflowResult["executionLog"]
+    context: WorkflowContext,
+    executionLog: WorkflowResult["executionLog"],
   ): string[] {
     const suggestions = []
-    
-    const failedSteps = executionLog.filter(step => step.status === "failed")
+
+    const failedSteps = executionLog.filter((step) => step.status === "failed")
     if (failedSteps.length > 0) {
       suggestions.push("Некоторые шаги завершились с ошибками - рекомендуется ручная проверка")
     }
-    
+
     if (context.params.preferences.targetDuration) {
       suggestions.push("Проверьте длительность финального видео")
     }
-    
+
     suggestions.push("Рекомендуется предварительный просмотр перед финальным экспортом")
-    
+
     return suggestions
   }
 }
