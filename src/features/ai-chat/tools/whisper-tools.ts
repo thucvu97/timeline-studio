@@ -653,7 +653,7 @@ async function improveTranscriptionQuality(params: any): Promise<{
       const escapedFiller = filler.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
       // Use (^|\s) and (\s|$) instead of \b for better Cyrillic support
       const regex = new RegExp(`(^|\\s)${escapedFiller}(\\s|$)`, "gi")
-      improvedText = improvedText.replace(regex, (_match, before, after) => {
+      improvedText = improvedText.replace(regex, (_match: string, before: string, after: string) => {
         // Keep the spaces but remove the filler word
         return String(before) + String(after)
       })
