@@ -25,7 +25,7 @@ export function useSafeTimeline() {
     if (!timelineHook) {
       return null
     }
-    
+
     try {
       return timelineHook()
     } catch {
@@ -33,6 +33,6 @@ export function useSafeTimeline() {
       return null
     }
   }, [])
-  
+
   return timelineContext
 }

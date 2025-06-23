@@ -78,7 +78,7 @@ export function AiChat() {
   } = useChat()
   const { getApiKeyInfo } = useApiKeys()
   const { openModal } = useModal()
-  
+
   // Получаем контекст Timeline (если доступен)
   const timelineContext = useSafeTimeline()
 
@@ -169,11 +169,11 @@ export function AiChat() {
     const performApiRequest = async () => {
       // Создаем контроллер для отмены запроса
       abortControllerRef.current = new AbortController()
-      
+
       try {
         const isClaudeModel = selectedAgentId?.startsWith("claude") || false
         const currentModel = selectedAgentId || (isClaudeModel ? CLAUDE_MODELS.CLAUDE_4_SONNET : AI_MODELS.GPT_4)
-        
+
         // Подготавливаем все сообщения
         const allMessages = [
           ...chatMessages.map((msg) => ({
@@ -190,16 +190,18 @@ export function AiChat() {
         const systemPrompt = createTimelineContextPrompt(
           timelineContext?.project || null,
           timelineContext?.project?.sections?.[0] || null, // Активная секция (пока берем первую)
-          timelineContext?.uiState?.selectedClipIds?.map((id: string) => {
-            // Находим выбранные клипы в проекте
-            for (const section of timelineContext.project?.sections || []) {
-              for (const track of section.tracks) {
-                const clip = track.clips.find((c: any) => c.id === id)
-                if (clip) return clip
+          (timelineContext?.uiState?.selectedClipIds
+            ?.map((id: string) => {
+              // Находим выбранные клипы в проекте
+              for (const section of timelineContext.project?.sections || []) {
+                for (const track of section.tracks) {
+                  const clip = track.clips.find((c: any) => c.id === id)
+                  if (clip) return clip
+                }
               }
-            }
-            return null
-          }).filter(Boolean) as any[] || []
+              return null
+            })
+            .filter(Boolean) as any[]) || [],
         )
 
         // Управление размером контекста
@@ -208,7 +210,10 @@ export function AiChat() {
           console.log("Контекст превышает лимиты модели, сжимаем...")
           const compressedMessages = compressContext(allMessages, currentModel, systemPrompt)
           // Фильтруем только user и assistant сообщения для API
-          messages = compressedMessages.filter(msg => msg.role === "user" || msg.role === "assistant") as { role: "user" | "assistant"; content: string }[]
+          messages = compressedMessages.filter((msg) => msg.role === "user" || msg.role === "assistant") as {
+            role: "user" | "assistant"
+            content: string
+          }[]
         }
 
         // Начинаем потоковый ответ
@@ -217,92 +222,81 @@ export function AiChat() {
 
         if (isClaudeModel) {
           const claudeService = ClaudeService.getInstance()
-          await claudeService.sendStreamingRequest(
-            currentModel,
-            messages,
-            { 
-              max_tokens: 2000,
-              system: systemPrompt,
-              signal: abortControllerRef.current.signal,
-              onContent: (content) => {
-                setStreamingContent(prev => prev + content)
-              },
-              onComplete: async (fullContent) => {
-                setIsStreaming(false)
-                setStreamingContent("")
+          await claudeService.sendStreamingRequest(currentModel, messages, {
+            max_tokens: 2000,
+            system: systemPrompt,
+            signal: abortControllerRef.current.signal,
+            onContent: (content) => {
+              setStreamingContent((prev) => prev + content)
+            },
+            onComplete: async (fullContent) => {
+              setIsStreaming(false)
+              setStreamingContent("")
 
-                const agentMessage: ChatMessage = {
-                  id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                  content: fullContent,
-                  role: "assistant",
-                  timestamp: new Date(),
-                  agent: (selectedAgentId as any) || undefined,
-                }
+              const agentMessage: ChatMessage = {
+                id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                content: fullContent,
+                role: "assistant",
+                timestamp: new Date(),
+                agent: (selectedAgentId as any) || undefined,
+              }
 
-                receiveChatMessage(agentMessage)
+              receiveChatMessage(agentMessage)
 
-                // Сохраняем сообщение в историю
-                if (currentSessionId) {
-                  await chatStorageService.addMessage(currentSessionId, agentMessage)
-                }
-              },
-              onError: (error) => {
-                console.error("Error in streaming:", error)
-                setIsStreaming(false)
-                setStreamingContent("")
-                throw error
+              // Сохраняем сообщение в историю
+              if (currentSessionId) {
+                await chatStorageService.addMessage(currentSessionId, agentMessage)
               }
             },
-          )
+            onError: (error) => {
+              console.error("Error in streaming:", error)
+              setIsStreaming(false)
+              setStreamingContent("")
+              throw error
+            },
+          })
         } else {
           const openAiService = OpenAiService.getInstance()
           // Для OpenAI добавляем системное сообщение в начало
-          const messagesWithSystem = [
-            { role: "system" as const, content: systemPrompt },
-            ...messages
-          ]
-          await openAiService.sendStreamingRequest(
-            currentModel, 
-            messagesWithSystem, 
-            {
-              max_tokens: 2000,
-              signal: abortControllerRef.current.signal,
-              onContent: (content) => {
-                setStreamingContent(prev => prev + content)
-              },
-              onComplete: async (fullContent) => {
-                setIsStreaming(false)
-                setStreamingContent("")
+          const messagesWithSystem = [{ role: "system" as const, content: systemPrompt }, ...messages]
+          await openAiService.sendStreamingRequest(currentModel, messagesWithSystem, {
+            max_tokens: 2000,
+            signal: abortControllerRef.current.signal,
+            onContent: (content) => {
+              setStreamingContent((prev) => prev + content)
+            },
+            onComplete: async (fullContent) => {
+              setIsStreaming(false)
+              setStreamingContent("")
 
-                const agentMessage: ChatMessage = {
-                  id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                  content: fullContent,
-                  role: "assistant",
-                  timestamp: new Date(),
-                  agent: (selectedAgentId as any) || undefined,
-                }
-
-                receiveChatMessage(agentMessage)
-
-                // Сохраняем сообщение в историю
-                if (currentSessionId) {
-                  await chatStorageService.addMessage(currentSessionId, agentMessage)
-                }
-              },
-              onError: (error) => {
-                console.error("Error in streaming:", error)
-                setIsStreaming(false)
-                setStreamingContent("")
-                throw error
+              const agentMessage: ChatMessage = {
+                id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                content: fullContent,
+                role: "assistant",
+                timestamp: new Date(),
+                agent: (selectedAgentId as any) || undefined,
               }
-            }
-          )
+
+              receiveChatMessage(agentMessage)
+
+              // Сохраняем сообщение в историю
+              if (currentSessionId) {
+                await chatStorageService.addMessage(currentSessionId, agentMessage)
+              }
+            },
+            onError: (error) => {
+              console.error("Error in streaming:", error)
+              setIsStreaming(false)
+              setStreamingContent("")
+              throw error
+            },
+          })
         }
       } catch (error) {
         console.error("Error sending message to AI:", error)
         setIsStreaming(false)
         setStreamingContent("")
-        
+
         // Если это не ошибка отмены запроса, показываем сообщение об ошибке
         if ((error as Error).name !== "AbortError") {
           const errorMessage: ChatMessage = {
@@ -442,12 +436,16 @@ export function AiChat() {
                   size="icon"
                   className={cn(
                     "absolute bottom-3 right-3 h-8 w-8 rounded-md transition-colors",
-                    (isProcessing || isStreaming) || message.trim()
+                    isProcessing || isStreaming || message.trim()
                       ? "bg-teal text-white hover:bg-teal/80"
                       : "bg-muted text-muted-foreground hover:bg-muted/50",
                   )}
                 >
-                  {(isProcessing || isStreaming) ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4 rotate-45" />}
+                  {isProcessing || isStreaming ? (
+                    <StopCircle className="h-4 w-4" />
+                  ) : (
+                    <Send className="h-4 w-4 rotate-45" />
+                  )}
                 </Button>
               </div>
 
@@ -544,7 +542,7 @@ export function AiChat() {
                           {isStreaming && streamingContent ? (
                             <div>
                               {streamingContent}
-                              <span className="inline-block w-2 h-4 bg-teal animate-pulse ml-1"></span>
+                              <span className="inline-block w-2 h-4 bg-teal animate-pulse ml-1" />
                             </div>
                           ) : (
                             <span className="inline-block animate-pulse">
@@ -584,12 +582,16 @@ export function AiChat() {
                   size="icon"
                   className={cn(
                     "absolute bottom-2 right-2 h-8 w-8 rounded-md transition-colors",
-                    (isProcessing || isStreaming) || message.trim()
+                    isProcessing || isStreaming || message.trim()
                       ? "bg-teal text-white hover:bg-teal/80"
                       : "bg-muted text-muted-foreground hover:bg-muted/50",
                   )}
                 >
-                  {(isProcessing || isStreaming) ? <StopCircle className="h-4 w-4" /> : <Send className="h-4 w-4 rotate-45" />}
+                  {isProcessing || isStreaming ? (
+                    <StopCircle className="h-4 w-4" />
+                  ) : (
+                    <Send className="h-4 w-4 rotate-45" />
+                  )}
                 </Button>
               </div>
 

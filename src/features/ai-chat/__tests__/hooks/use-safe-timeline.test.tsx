@@ -6,7 +6,7 @@ import { useSafeTimeline } from "../../hooks/use-safe-timeline"
 describe("useSafeTimeline", () => {
   it("должен возвращать null когда Timeline недоступен", () => {
     const { result } = renderHook(() => useSafeTimeline())
-    
+
     // В тестовой среде Timeline Provider недоступен, поэтому ожидаем null
     expect(result.current).toBeNull()
   })
@@ -19,11 +19,11 @@ describe("useSafeTimeline", () => {
 
   it("должен стабильно возвращать одно и то же значение", () => {
     const { result, rerender } = renderHook(() => useSafeTimeline())
-    
+
     const firstResult = result.current
     rerender()
     const secondResult = result.current
-    
+
     expect(firstResult).toBe(secondResult)
   })
 })

@@ -261,7 +261,7 @@ export class OpenAiService {
       try {
         while (true) {
           const { done, value } = await reader.read()
-          
+
           if (done) break
 
           const chunk = decoder.decode(value)
@@ -270,7 +270,7 @@ export class OpenAiService {
           for (const line of lines) {
             if (line.startsWith("data: ")) {
               const data = line.slice(6).trim()
-              
+
               if (data === "[DONE]") {
                 options.onComplete?.(fullContent)
                 return
@@ -278,7 +278,7 @@ export class OpenAiService {
 
               try {
                 const event: OpenAIStreamingEvent = JSON.parse(data)
-                
+
                 const content = event.choices[0]?.delta?.content
                 if (content) {
                   fullContent += content

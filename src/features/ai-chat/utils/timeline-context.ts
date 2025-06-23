@@ -18,12 +18,12 @@ export function createTimelineContextPrompt(
 
   // Если нет проекта, возвращаем базовый промпт
   if (!project) {
-    prompt += `\n\nТекущий контекст: Проект не открыт.`
+    prompt += "\n\nТекущий контекст: Проект не открыт."
     return prompt
   }
 
   // Добавляем информацию о проекте
-  prompt += `\n\nТекущий проект:`
+  prompt += "\n\nТекущий проект:"
   prompt += `\n- Название: ${project.name}`
   prompt += `\n- Описание: ${project.description || "Нет описания"}`
   prompt += `\n- Разрешение: ${project.settings.resolution.width}x${project.settings.resolution.height}`
@@ -32,7 +32,7 @@ export function createTimelineContextPrompt(
 
   // Статистика проекта
   const stats = calculateProjectStats(project)
-  prompt += `\n\nСтатистика проекта:`
+  prompt += "\n\nСтатистика проекта:"
   prompt += `\n- Длительность: ${formatDuration(stats.totalDuration)}`
   prompt += `\n- Количество секций: ${stats.sectionCount}`
   prompt += `\n- Количество треков: ${stats.trackCount}`
@@ -42,7 +42,7 @@ export function createTimelineContextPrompt(
 
   // Информация о текущей секции
   if (activeSection) {
-    prompt += `\n\nАктивная секция:`
+    prompt += "\n\nАктивная секция:"
     prompt += `\n- Название: ${activeSection.name}`
     prompt += `\n- Длительность: ${formatDuration(activeSection.duration)}`
     prompt += `\n- Количество треков: ${activeSection.tracks.length}`
@@ -60,9 +60,9 @@ export function createTimelineContextPrompt(
   }
 
   // Последние действия (заглушка)
-  prompt += `\n\nПоследние действия:`
+  prompt += "\n\nПоследние действия:"
   prompt += `\n- Открыт проект "${project.name}"`
-  
+
   return prompt
 }
 
@@ -73,14 +73,14 @@ function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const secs = Math.floor(seconds % 60)
-  
+
   if (hours > 0) {
     return `${hours}ч ${minutes}м ${secs}с`
-  } else if (minutes > 0) {
-    return `${minutes}м ${secs}с`
-  } else {
-    return `${secs}с`
   }
+  if (minutes > 0) {
+    return `${minutes}м ${secs}с`
+  }
+  return `${secs}с`
 }
 
 /**
@@ -96,7 +96,7 @@ function calculateProjectStats(project: TimelineProject) {
   project.sections.forEach((section) => {
     totalDuration += section.duration
     trackCount += section.tracks.length
-    
+
     section.tracks.forEach((track) => {
       track.clips.forEach((clip) => {
         clipCount++
@@ -123,12 +123,12 @@ function calculateProjectStats(project: TimelineProject) {
 function getClipDescription(clip: TimelineClip): string {
   const duration = formatDuration(((clip as any).endFrame - (clip as any).startFrame) / 30) // Примерно 30 fps
   const effects = clip.effects?.length || 0
-  
+
   let description = `"${clip.name}" (${duration})`
   if (effects > 0) {
     description += ` с ${effects} эффектами`
   }
-  
+
   return description
 }
 
@@ -151,7 +151,7 @@ export function createDetailedTimelineContext(
   }
 
   const stats = calculateProjectStats(project)
-  
+
   return {
     hasProject: true,
     projectName: project.name,
@@ -169,16 +169,19 @@ export function createDetailedTimelineContext(
       effectCount: stats.effectCount,
       transitionCount: stats.transitionCount,
     },
-    activeSection: activeSection ? {
-      name: activeSection.name,
-      duration: activeSection.duration,
-      trackCount: activeSection.tracks.length,
-    } : null,
-    selectedClips: selectedClips?.map(clip => ({
-      name: clip.name,
-      duration: ((clip as any).endFrame - (clip as any).startFrame) / 30,
-      effectCount: clip.effects?.length || 0,
-      hasTransitions: !!((clip as any).transitionIn || (clip as any).transitionOut),
-    })) || [],
+    activeSection: activeSection
+      ? {
+        name: activeSection.name,
+        duration: activeSection.duration,
+        trackCount: activeSection.tracks.length,
+      }
+      : null,
+    selectedClips:
+      selectedClips?.map((clip) => ({
+        name: clip.name,
+        duration: ((clip as any).endFrame - (clip as any).startFrame) / 30,
+        effectCount: clip.effects?.length || 0,
+        hasTransitions: !!((clip as any).transitionIn || (clip as any).transitionOut),
+      })) || [],
   }
 }

@@ -11,7 +11,7 @@ const MODEL_CONTEXT_LIMITS = {
   "gpt-4": 32000,
   "gpt-4o": 128000,
   "gpt-3.5-turbo": 16000,
-  "o3": 128000,
+  o3: 128000,
 } as const
 
 // Примерное соотношение символов к токенам (1 токен ≈ 4 символа)
@@ -49,7 +49,7 @@ export function trimMessagesForContext(
   messages: AiMessage[],
   model: string,
   systemPrompt?: string,
-  maxTokensForResponse = 2000
+  maxTokensForResponse = 2000,
 ): AiMessage[] {
   const contextLimit = getModelContextLimit(model)
   const systemTokens = systemPrompt ? estimateTokens(systemPrompt) : 0
@@ -62,14 +62,16 @@ export function trimMessagesForContext(
   // Всегда сохраняем последнее сообщение пользователя
   const lastUserMessage = messages[messages.length - 1]
   const lastUserTokens = estimateTokens(lastUserMessage.content)
-  
+
   if (lastUserTokens >= availableTokens) {
     // Если даже последнее сообщение слишком большое, обрезаем его
-    const maxChars = (availableTokens * CHARS_PER_TOKEN) - 100 // Оставляем запас
-    return [{
-      ...lastUserMessage,
-      content: lastUserMessage.content.substring(0, maxChars) + "..."
-    }]
+    const maxChars = availableTokens * CHARS_PER_TOKEN - 100 // Оставляем запас
+    return [
+      {
+        ...lastUserMessage,
+        content: lastUserMessage.content.substring(0, maxChars) + "...",
+      },
+    ]
   }
 
   // Собираем сообщения, начиная с конца
@@ -79,7 +81,7 @@ export function trimMessagesForContext(
   for (let i = messages.length - 2; i >= 0; i--) {
     const message = messages[i]
     const messageTokens = estimateTokens(message.content)
-    
+
     if (totalTokens + messageTokens <= availableTokens) {
       result.unshift(message)
       totalTokens += messageTokens
@@ -98,14 +100,14 @@ export function compressContext(
   messages: AiMessage[],
   model: string,
   systemPrompt?: string,
-  maxTokensForResponse = 2000
+  maxTokensForResponse = 2000,
 ): AiMessage[] {
   const contextLimit = getModelContextLimit(model)
   const systemTokens = systemPrompt ? estimateTokens(systemPrompt) : 0
   const availableTokens = contextLimit - systemTokens - maxTokensForResponse
 
   const currentTokens = calculateMessagesTokens(messages)
-  
+
   if (currentTokens <= availableTokens) {
     return messages
   }
@@ -129,7 +131,7 @@ export function compressContext(
   }
 
   const compressedMessages = [...firstMessages, middleSummary, ...lastMessages]
-  
+
   // Проверяем, помещается ли сжатый контекст
   if (calculateMessagesTokens(compressedMessages) <= availableTokens) {
     return compressedMessages
@@ -144,7 +146,7 @@ export function compressContext(
  */
 function extractKeyTopics(messages: AiMessage[]): string[] {
   const topics: string[] = []
-  
+
   // Ищем ключевые слова и фразы в сообщениях
   const keywordPatterns = [
     /timeline|таймлайн/i,
@@ -157,9 +159,12 @@ function extractKeyTopics(messages: AiMessage[]): string[] {
     /project|проект/i,
   ]
 
-  const contentText = messages.map(m => m.content).join(" ").toLowerCase()
-  
-  keywordPatterns.forEach(pattern => {
+  const contentText = messages
+    .map((m) => m.content)
+    .join(" ")
+    .toLowerCase()
+
+  keywordPatterns.forEach((pattern) => {
     if (pattern.test(contentText)) {
       const match = contentText.match(pattern)
       if (match) {
@@ -178,7 +183,7 @@ export function isContextOverLimit(
   messages: AiMessage[],
   model: string,
   systemPrompt?: string,
-  maxTokensForResponse = 2000
+  maxTokensForResponse = 2000,
 ): boolean {
   const contextLimit = getModelContextLimit(model)
   const systemTokens = systemPrompt ? estimateTokens(systemPrompt) : 0

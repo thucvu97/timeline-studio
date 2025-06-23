@@ -11,7 +11,13 @@ export interface StreamingMessage {
 
 // Интерфейс для потокового ответа Claude
 export interface ClaudeStreamingEvent {
-  type: "message_start" | "content_block_start" | "content_block_delta" | "content_block_stop" | "message_delta" | "message_stop"
+  type:
+    | "message_start"
+    | "content_block_start"
+    | "content_block_delta"
+    | "content_block_stop"
+    | "message_delta"
+    | "message_stop"
   index?: number
   content_block?: {
     type: string

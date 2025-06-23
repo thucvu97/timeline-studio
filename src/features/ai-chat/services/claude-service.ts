@@ -317,7 +317,7 @@ export class ClaudeService {
       try {
         while (true) {
           const { done, value } = await reader.read()
-          
+
           if (done) break
 
           const chunk = decoder.decode(value)
@@ -326,7 +326,7 @@ export class ClaudeService {
           for (const line of lines) {
             if (line.startsWith("data: ")) {
               const data = line.slice(6).trim()
-              
+
               if (data === "[DONE]") {
                 options.onComplete?.(fullContent)
                 return
@@ -334,7 +334,7 @@ export class ClaudeService {
 
               try {
                 const event: ClaudeStreamingEvent = JSON.parse(data)
-                
+
                 if (event.type === "content_block_delta" && event.delta?.text) {
                   const content = event.delta.text
                   fullContent += content
