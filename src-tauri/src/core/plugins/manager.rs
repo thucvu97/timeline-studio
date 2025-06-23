@@ -13,6 +13,7 @@ use super::{
     loader::PluginLoader,
     context::PluginContext,
     permissions::PluginPermissions,
+    sandbox::SandboxManager,
 };
 
 /// Handle для управления загруженным плагином
@@ -33,6 +34,7 @@ pub struct PluginManager {
     app_version: super::plugin::Version,
     tracer: Option<Arc<Tracer>>,
     metrics: Option<Arc<Metrics>>,
+    sandbox_manager: Arc<SandboxManager>,
 }
 
 impl PluginManager {
@@ -43,6 +45,7 @@ impl PluginManager {
         service_container: Arc<ServiceContainer>,
     ) -> Self {
         let loader = Arc::new(PluginLoader::new(app_version.clone()));
+        let sandbox_manager = Arc::new(SandboxManager::new());
         
         Self {
             plugins: Arc::new(RwLock::new(HashMap::new())),
@@ -52,6 +55,7 @@ impl PluginManager {
             app_version,
             tracer: None,
             metrics: None,
+            sandbox_manager,
         }
     }
     
@@ -104,8 +108,14 @@ impl PluginManager {
             self.app_version.clone(),
             self.event_bus.clone(),
             self.service_container.clone(),
-            permissions,
+            permissions.clone(),
         );
+        
+        // Создаем sandbox для плагина
+        let _sandbox = self.sandbox_manager.create_sandbox(
+            plugin_id.to_string(),
+            &permissions
+        ).await;
         
         // Создаем директории
         context.ensure_directories().await
@@ -169,6 +179,9 @@ impl PluginManager {
         // Очищаем временные файлы
         handle.context.cleanup_temp_files().await
             .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        
+        // Удаляем sandbox плагина
+        self.sandbox_manager.remove_sandbox(plugin_id).await;
         
         // Обновляем метрики
         if let Some(metrics) = &self.metrics {
@@ -354,6 +367,40 @@ impl PluginManager {
             "instance_id": handle.instance_id,
             "permissions": handle.context.permissions,
         }))
+    }
+    
+    /// Получить статистику sandbox для всех плагинов
+    pub async fn get_sandbox_stats(&self) -> Vec<super::sandbox::SandboxStats> {
+        self.sandbox_manager.get_all_stats().await
+    }
+    
+    /// Получить статистику sandbox для конкретного плагина
+    pub async fn get_plugin_sandbox_stats(&self, plugin_id: &str) -> Option<super::sandbox::SandboxStats> {
+        if let Some(sandbox) = self.sandbox_manager.get_sandbox(plugin_id).await {
+            Some(sandbox.get_usage_stats().await)
+        } else {
+            None
+        }
+    }
+    
+    /// Найти плагины, нарушившие лимиты ресурсов
+    pub async fn get_violating_plugins(&self) -> Vec<String> {
+        self.sandbox_manager.get_violating_plugins().await
+    }
+    
+    /// Сбросить нарушения лимитов для плагина
+    pub async fn reset_plugin_violations(&self, plugin_id: &str) -> bool {
+        if let Some(sandbox) = self.sandbox_manager.get_sandbox(plugin_id).await {
+            sandbox.reset_violation_flag();
+            true
+        } else {
+            false
+        }
+    }
+    
+    /// Получить SandboxManager для прямого доступа
+    pub fn sandbox_manager(&self) -> Arc<SandboxManager> {
+        self.sandbox_manager.clone()
     }
 }
 

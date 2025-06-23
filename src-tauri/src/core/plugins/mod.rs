@@ -9,6 +9,7 @@ pub mod manager;
 pub mod context;
 pub mod permissions;
 pub mod api;
+pub mod sandbox;
 
 pub use plugin::{Plugin, PluginMetadata, PluginType, PluginCommand, PluginResponse};
 pub use loader::{PluginLoader, PluginRegistry};
@@ -16,3 +17,4 @@ pub use manager::{PluginManager, PluginHandle};
 pub use context::PluginContext;
 pub use permissions::{PluginPermissions, FileSystemPermissions, NetworkPermissions};
 pub use api::{PluginApi, PluginApiImpl};
+pub use sandbox::{PluginSandbox, SandboxManager, ResourceLimits, SandboxStats};
