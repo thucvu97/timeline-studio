@@ -289,6 +289,12 @@ impl From<String> for VideoCompilerError {
   }
 }
 
+impl From<anyhow::Error> for VideoCompilerError {
+  fn from(error: anyhow::Error) -> Self {
+    VideoCompilerError::InternalError(error.to_string())
+  }
+}
+
 /// Вспомогательные функции для создания ошибок
 impl VideoCompilerError {
   /// Создать ошибку валидации

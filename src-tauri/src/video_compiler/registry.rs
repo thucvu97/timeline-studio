@@ -385,6 +385,9 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       check_yolo_model_is_face_model,
       check_yolo_model_is_segmentation_model,
       get_yolo_model_info_extended,
+      get_model_session_info,
+      get_loaded_model_type,
+      check_model_is_loaded,
       // Security advanced commands
       init_secure_storage_advanced,
       create_secure_storage_instance,

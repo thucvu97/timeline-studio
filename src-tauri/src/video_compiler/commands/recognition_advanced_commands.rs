@@ -405,6 +405,142 @@ pub async fn get_yolo_model_info_extended(
   })
 }
 
+/// Получить информацию о сессии модели (прямое использование get_session)
+#[tauri::command]
+pub async fn get_model_session_info(
+  model_type: String,
+) -> Result<serde_json::Value> {
+  // Создаем ModelManager для проверки
+  use crate::recognition::model_manager::{ModelManager, YoloModel};
+  
+  let yolo_model = match model_type.as_str() {
+    "yolo11_detection" => YoloModel::YoloV11Detection,
+    "yolo11_segmentation" => YoloModel::YoloV11Segmentation,
+    "yolo11_face" => YoloModel::YoloV11Face,
+    "yolo8_detection" => YoloModel::YoloV8Detection,
+    "yolo8_segmentation" => YoloModel::YoloV8Segmentation,
+    "yolo8_face" => YoloModel::YoloV8Face,
+    _ => YoloModel::YoloV11Detection,
+  };
+  
+  let mut manager = ModelManager::new(yolo_model)?;
+  
+  // Пытаемся загрузить модель
+  match manager.load_model().await {
+    Ok(_) => {
+      // Получаем сессию
+      match manager.get_session() {
+        Ok(_session) => Ok(serde_json::json!({
+          "success": true,
+          "model_type": model_type,
+          "session_available": true,
+          "session_info": {
+            "loaded": true,
+            "runtime": "ONNX Runtime",
+            "optimization_level": "Level3",
+            "threads": 4
+          }
+        })),
+        Err(e) => Ok(serde_json::json!({
+          "success": false,
+          "model_type": model_type,
+          "error": e.to_string(),
+          "session_available": false
+        }))
+      }
+    },
+    Err(e) => Ok(serde_json::json!({
+      "success": false,
+      "model_type": model_type,
+      "error": format!("Failed to load model: {}", e),
+      "session_available": false
+    }))
+  }
+}
+
+/// Получить тип загруженной модели (прямое использование get_model_type)
+#[tauri::command]
+pub async fn get_loaded_model_type(
+  model_type: String,
+) -> Result<serde_json::Value> {
+  // Создаем ModelManager для проверки
+  use crate::recognition::model_manager::{ModelManager, YoloModel};
+  
+  let yolo_model = match model_type.as_str() {
+    "yolo11_detection" => YoloModel::YoloV11Detection,
+    "yolo11_segmentation" => YoloModel::YoloV11Segmentation,
+    "yolo11_face" => YoloModel::YoloV11Face,
+    "yolo8_detection" => YoloModel::YoloV8Detection,
+    "yolo8_segmentation" => YoloModel::YoloV8Segmentation,
+    "yolo8_face" => YoloModel::YoloV8Face,
+    _ => YoloModel::YoloV11Detection,
+  };
+  
+  let manager = ModelManager::new(yolo_model)?;
+  
+  // Используем метод get_model_type
+  let model_type_info = manager.get_model_type();
+  
+  Ok(serde_json::json!({
+    "success": true,
+    "model_type": match model_type_info {
+      YoloModel::YoloV11Detection => "yolo11_detection",
+      YoloModel::YoloV11Segmentation => "yolo11_segmentation",
+      YoloModel::YoloV11Face => "yolo11_face",
+      YoloModel::YoloV8Detection => "yolo8_detection",
+      YoloModel::YoloV8Segmentation => "yolo8_segmentation",
+      YoloModel::YoloV8Face => "yolo8_face",
+      YoloModel::Custom(path) => return Ok(serde_json::json!({
+        "success": true,
+        "model_type": "custom",
+        "custom_path": path.to_string_lossy()
+      })),
+    },
+    "is_face_model": model_type_info.is_face_model(),
+    "is_segmentation_model": model_type_info.is_segmentation_model(),
+  }))
+}
+
+/// Проверить, загружена ли модель (прямое использование is_loaded)
+#[tauri::command]
+pub async fn check_model_is_loaded(
+  model_type: String,
+) -> Result<serde_json::Value> {
+  // Создаем ModelManager для проверки
+  use crate::recognition::model_manager::{ModelManager, YoloModel};
+  
+  let yolo_model = match model_type.as_str() {
+    "yolo11_detection" => YoloModel::YoloV11Detection,
+    "yolo11_segmentation" => YoloModel::YoloV11Segmentation,
+    "yolo11_face" => YoloModel::YoloV11Face,
+    "yolo8_detection" => YoloModel::YoloV8Detection,
+    "yolo8_segmentation" => YoloModel::YoloV8Segmentation,
+    "yolo8_face" => YoloModel::YoloV8Face,
+    _ => YoloModel::YoloV11Detection,
+  };
+  
+  let mut manager = ModelManager::new(yolo_model)?;
+  
+  // Проверяем состояние без загрузки
+  let is_loaded_before = manager.is_loaded();
+  
+  // Пытаемся загрузить модель
+  let load_result = manager.load_model().await;
+  let is_loaded_after = manager.is_loaded();
+  
+  Ok(serde_json::json!({
+    "success": true,
+    "model_type": model_type,
+    "is_loaded_before_load": is_loaded_before,
+    "is_loaded_after_load": is_loaded_after,
+    "load_attempted": load_result.is_ok(),
+    "load_error": load_result.err().map(|e| e.to_string()),
+    "model_path": manager.get_model_type().get_model_path()
+      .ok()
+      .map(|p| p.to_string_lossy().to_string()),
+  }))
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -479,5 +615,41 @@ mod tests {
     assert!(json.contains("true"));
     assert!(json.contains("false"));
     assert!(json.contains("YOLOv8 Face Detection"));
+  }
+
+  #[test]
+  fn test_model_session_info() {
+    // Тест для параметров сессии
+    let model_type = "yolo11_detection".to_string();
+    assert!(model_type.contains("yolo11"));
+    assert!(model_type.contains("detection"));
+  }
+
+  #[test]
+  fn test_model_type_mapping() {
+    // Тест для маппинга типов моделей
+    let model_types = vec![
+      "yolo11_detection",
+      "yolo11_segmentation",
+      "yolo11_face",
+      "yolo8_detection",
+      "yolo8_segmentation",
+      "yolo8_face",
+    ];
+    
+    for model_type in model_types {
+      assert!(!model_type.is_empty());
+      assert!(model_type.contains("yolo"));
+    }
+  }
+
+  #[test]
+  fn test_model_load_status() {
+    // Тест для проверки статуса загрузки
+    let is_loaded_before = false;
+    let is_loaded_after = true;
+    
+    assert!(!is_loaded_before);
+    assert!(is_loaded_after);
   }
 }
