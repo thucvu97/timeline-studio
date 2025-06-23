@@ -34,7 +34,7 @@ mod env_importer_tests {
   fn test_load_env_file_valid() -> Result<(), Box<dyn std::error::Error>> {
     let mut temp_file = NamedTempFile::new()?;
     writeln!(temp_file, "# This is a comment")?;
-    writeln!(temp_file, "")?;
+    writeln!(temp_file)?;
     writeln!(temp_file, "TEST_KEY_1=value1")?;
     writeln!(temp_file, "TEST_KEY_2=\"quoted value\"")?;
     writeln!(temp_file, "TEST_KEY_3='single quoted'")?;
@@ -395,7 +395,7 @@ mod env_importer_tests {
   fn test_env_file_parsing_edge_cases() -> Result<(), Box<dyn std::error::Error>> {
     let mut temp_file = NamedTempFile::new()?;
     writeln!(temp_file, "# Comment line")?;
-    writeln!(temp_file, "")?; // Empty line
+    writeln!(temp_file)?; // Empty line
     writeln!(temp_file, "   ")?; // Whitespace only
     writeln!(temp_file, "KEY_WITHOUT_VALUE")?; // No equals sign
     writeln!(temp_file, "VALID_KEY=valid_value")?;

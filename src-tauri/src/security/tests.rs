@@ -88,8 +88,8 @@ mod secure_storage_tests {
   #[test]
   fn test_encrypted_data_concept() {
     // Test the general concept of encrypted data structure
-    let nonce = vec![1, 2, 3, 4, 5];
-    let ciphertext = vec![6, 7, 8, 9, 10];
+    let nonce = [1, 2, 3, 4, 5];
+    let ciphertext = [6, 7, 8, 9, 10];
     let created_at = Utc::now();
 
     // Verify basic properties
@@ -301,7 +301,7 @@ mod oauth_handler_tests {
     assert!(youtube_config.is_some());
     let config = youtube_config.unwrap();
     assert!(config.auth_url.contains("google.com"));
-    assert!(config.scopes.len() > 0);
+    assert!(!config.scopes.is_empty());
 
     let tiktok_config = handler.get_oauth_config(&ApiKeyType::TikTok);
     assert!(tiktok_config.is_some());
