@@ -283,6 +283,7 @@ mod tests {
   #[derive(Debug)]
   struct TestService {
     initialized: Arc<AtomicBool>,
+    #[allow(dead_code)]
     name: String,
   }
 

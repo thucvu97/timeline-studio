@@ -14,6 +14,8 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+#[cfg(test)]
+use uuid::Uuid;
 
 /// Handle для управления загруженным плагином
 pub struct PluginHandle {

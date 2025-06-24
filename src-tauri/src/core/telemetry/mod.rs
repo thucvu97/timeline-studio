@@ -6,7 +6,7 @@ pub mod metrics;
 pub mod middleware;
 pub mod tracer;
 
-pub use config::TelemetryConfig;
+pub use config::{LogLevel, TelemetryConfig, TelemetryConfigBuilder};
 pub use health::HealthCheckManager;
 pub use metrics::MetricsCollector;
 pub use tracer::Tracer;

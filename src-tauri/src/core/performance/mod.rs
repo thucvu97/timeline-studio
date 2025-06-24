@@ -5,6 +5,7 @@ pub mod memory;
 pub mod runtime;
 pub mod zerocopy;
 
-pub use cache::CacheManager;
+pub use cache::{CacheConfig, CacheManager};
 pub use memory::MemoryManager;
-pub use runtime::RuntimeManager;
+pub use runtime::{RuntimeConfig, RuntimeManager};
+pub use zerocopy::{AudioZeroCopy, DataType, VideoZeroCopy, ZeroCopyBuffer, ZeroCopyManager};
