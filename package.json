@@ -5,7 +5,7 @@
   "author": "Alexander Kireyev <ak.chatman.media@gmail.com>",
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build --no-lint",
     "build:analyze": "ANALYZE=true CODECOV_TOKEN=$CODECOV_TOKEN next build --no-lint",
     "start": "next start",

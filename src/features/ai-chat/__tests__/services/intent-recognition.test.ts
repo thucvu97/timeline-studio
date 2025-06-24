@@ -1,6 +1,8 @@
-import { describe, expect, it, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
+
 import { IntentRecognitionService } from "../../services/intent-recognition"
-import type { UserIntent, IntentResult } from "../../services/intent-recognition"
+
+import type { UserIntent } from "../../services/intent-recognition"
 
 describe("IntentRecognitionService", () => {
   let service: IntentRecognitionService
@@ -20,11 +22,7 @@ describe("IntentRecognitionService", () => {
   describe("recognizeIntent", () => {
     describe("video creation intents", () => {
       it("should recognize create_video intent", () => {
-        const testCases = [
-          "создай новое видео",
-          "сделай короткий ролик",
-          "сгенерируй видео про путешествие",
-        ]
+        const testCases = ["создай новое видео", "сделай короткий ролик", "сгенерируй видео про путешествие"]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)
@@ -34,12 +32,7 @@ describe("IntentRecognitionService", () => {
       })
 
       it("should recognize edit_video intent", () => {
-        const testCases = [
-          "отредактируй мое видео",
-          "измени начало",
-          "обрежь видео",
-          "склей части",
-        ]
+        const testCases = ["отредактируй мое видео", "измени начало", "обрежь видео", "склей части"]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)
@@ -60,12 +53,7 @@ describe("IntentRecognitionService", () => {
 
     describe("subtitle intents", () => {
       it("should recognize generate_subtitles intent", () => {
-        const testCases = [
-          "добавь субтитры",
-          "создай субтитры",
-          "сгенерируй субтитры",
-          "транскрипция",
-        ]
+        const testCases = ["добавь субтитры", "создай субтитры", "сгенерируй субтитры", "транскрипция"]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)
@@ -113,10 +101,7 @@ describe("IntentRecognitionService", () => {
       })
 
       it("should recognize remove_pauses intent", () => {
-        const testCases = [
-          "удали паузы",
-          "удали тишину",
-        ]
+        const testCases = ["удали паузы", "удали тишину"]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)
@@ -133,11 +118,7 @@ describe("IntentRecognitionService", () => {
       })
 
       it("should recognize color_correction intent", () => {
-        const testCases = [
-          "цветокоррекция",
-          "исправь цвет",
-          "улучши качество",
-        ]
+        const testCases = ["цветокоррекция", "исправь цвет", "улучши качество"]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)
@@ -147,11 +128,7 @@ describe("IntentRecognitionService", () => {
       })
 
       it("should recognize apply_effects intent", () => {
-        const testCases = [
-          "добавь эффект размытия",
-          "примени фильтр черно-белый",
-          "добавь фильтр ретро",
-        ]
+        const testCases = ["добавь эффект размытия", "примени фильтр черно-белый", "добавь фильтр ретро"]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)
@@ -163,11 +140,7 @@ describe("IntentRecognitionService", () => {
 
     describe("content intents", () => {
       it("should recognize generate_title intent", () => {
-        const testCases = [
-          "создай заголовок",
-          "придумай название",
-          "сгенерируй title",
-        ]
+        const testCases = ["создай заголовок", "придумай название", "сгенерируй title"]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)
@@ -177,11 +150,7 @@ describe("IntentRecognitionService", () => {
       })
 
       it("should recognize create_thumbnail intent", () => {
-        const testCases = [
-          "создай превью",
-          "сделай обложку",
-          "generate thumbnail",
-        ]
+        const testCases = ["создай превью", "сделай обложку", "generate thumbnail"]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)
@@ -218,11 +187,7 @@ describe("IntentRecognitionService", () => {
       })
 
       it("should recognize explain_feature intent", () => {
-        const testCases = [
-          "что такое таймлайн",
-          "объясни монтаж",
-          "расскажи о стабилизации",
-        ]
+        const testCases = ["что такое таймлайн", "объясни монтаж", "расскажи о стабилизации"]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)
@@ -299,13 +264,7 @@ describe("IntentRecognitionService", () => {
       })
 
       it("should have confidence between 0 and 1", () => {
-        const testCases = [
-          "создай видео",
-          "удали паузы",
-          "привет",
-          "абракадабра",
-          "",
-        ]
+        const testCases = ["создай видео", "удали паузы", "привет", "абракадабра", ""]
 
         testCases.forEach((text) => {
           const result = service.recognizeIntent(text)

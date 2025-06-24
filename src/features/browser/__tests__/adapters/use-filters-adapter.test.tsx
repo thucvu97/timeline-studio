@@ -1,12 +1,12 @@
 import "./browser-adapter-mocks" // Импортируем моки первыми
 
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { FilterCategory, VideoFilter } from "@/features/filters/types/filters"
 import { BrowserProviders } from "@/test/test-utils"
 
 import { useFiltersAdapter } from "../../adapters/use-filters-adapter"
-import type { VideoFilter, FilterCategory } from "@/features/filters/types/filters"
 
 // Мокаем только специфичные для filters зависимости
 vi.mock("@/features/filters/hooks/use-filters", () => ({
@@ -66,7 +66,7 @@ vi.mock("@/features/filters/hooks/use-filters", () => ({
         category: "artistic" as FilterCategory,
         tags: [],
         params: {},
-      }
+      },
     ],
     loading: false,
     error: null,
@@ -169,7 +169,7 @@ describe("useFiltersAdapter", () => {
       const searchableText = result.current.getSearchableText(minimalFilter)
       expect(searchableText).toContain("Минимальный")
       expect(searchableText).toContain("basic")
-      expect(searchableText.every(text => text !== undefined && text !== "")).toBe(true)
+      expect(searchableText.every((text) => text !== undefined && text !== "")).toBe(true)
     })
   })
 
@@ -246,7 +246,7 @@ describe("useFiltersAdapter", () => {
     it("should return true for 'all' filter", () => {
       const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
 
-      filters.forEach(filter => {
+      filters.forEach((filter) => {
         expect(result.current.matchesFilter?.(filter, "all")).toBe(true)
       })
     })

@@ -320,7 +320,8 @@ mod tests {
     pub available_encoders: Vec<GpuEncoder>,
     pub gpu_info: Vec<GpuInfo>,
     pub should_fail: AtomicBool,
-    pub benchmark_results: std::sync::Mutex<std::collections::HashMap<GpuEncoder, GpuBenchmarkResult>>,
+    pub benchmark_results:
+      std::sync::Mutex<std::collections::HashMap<GpuEncoder, GpuBenchmarkResult>>,
   }
 
   impl MockGpuService {
@@ -414,7 +415,11 @@ mod tests {
           memory_used: Some(4_294_967_296),   // 4GB в байтах
           utilization: Some(60.0),
           encoder_type: GpuEncoder::Nvenc,
-          supported_codecs: vec!["h264_nvenc".to_string(), "hevc_nvenc".to_string(), "av1_nvenc".to_string()],
+          supported_codecs: vec![
+            "h264_nvenc".to_string(),
+            "hevc_nvenc".to_string(),
+            "av1_nvenc".to_string(),
+          ],
         },
         GpuInfo {
           name: "Intel UHD Graphics 770".to_string(),
@@ -428,7 +433,11 @@ mod tests {
       ];
 
       Self {
-        available_encoders: vec![GpuEncoder::Nvenc, GpuEncoder::QuickSync, GpuEncoder::Software],
+        available_encoders: vec![
+          GpuEncoder::Nvenc,
+          GpuEncoder::QuickSync,
+          GpuEncoder::Software,
+        ],
         gpu_info,
         should_fail: AtomicBool::new(false),
         benchmark_results: std::sync::Mutex::new(std::collections::HashMap::new()),
@@ -451,14 +460,18 @@ mod tests {
   impl Service for MockGpuService {
     async fn initialize(&self) -> Result<()> {
       if self.should_fail.load(Ordering::Relaxed) {
-        return Err(VideoCompilerError::InternalError("Mock GPU service failed to initialize".to_string()));
+        return Err(VideoCompilerError::InternalError(
+          "Mock GPU service failed to initialize".to_string(),
+        ));
       }
       Ok(())
     }
 
     async fn health_check(&self) -> Result<()> {
       if self.should_fail.load(Ordering::Relaxed) {
-        return Err(VideoCompilerError::InternalError("Mock GPU service health check failed".to_string()));
+        return Err(VideoCompilerError::InternalError(
+          "Mock GPU service health check failed".to_string(),
+        ));
       }
       Ok(())
     }
@@ -472,20 +485,28 @@ mod tests {
   impl GpuService for MockGpuService {
     async fn detect_gpus(&self) -> Result<Vec<GpuInfo>> {
       if self.should_fail.load(Ordering::Relaxed) {
-        return Err(VideoCompilerError::InternalError("Failed to detect GPUs".to_string()));
+        return Err(VideoCompilerError::InternalError(
+          "Failed to detect GPUs".to_string(),
+        ));
       }
       Ok(self.gpu_info.clone())
     }
 
     async fn get_capabilities(&self) -> Result<GpuCapabilities> {
       if self.should_fail.load(Ordering::Relaxed) {
-        return Err(VideoCompilerError::InternalError("Failed to get GPU capabilities".to_string()));
+        return Err(VideoCompilerError::InternalError(
+          "Failed to get GPU capabilities".to_string(),
+        ));
       }
 
-      let hardware_acceleration_available = self.available_encoders.iter()
+      let hardware_acceleration_available = self
+        .available_encoders
+        .iter()
         .any(|e| !matches!(e, GpuEncoder::Software));
 
-      let recommended_encoder = self.available_encoders.iter()
+      let recommended_encoder = self
+        .available_encoders
+        .iter()
         .find(|e| !matches!(e, GpuEncoder::Software))
         .cloned();
 
@@ -499,14 +520,23 @@ mod tests {
 
     async fn check_hardware_acceleration(&self) -> Result<bool> {
       if self.should_fail.load(Ordering::Relaxed) {
-        return Err(VideoCompilerError::InternalError("Failed to check hardware acceleration".to_string()));
+        return Err(VideoCompilerError::InternalError(
+          "Failed to check hardware acceleration".to_string(),
+        ));
       }
-      Ok(self.available_encoders.iter().any(|e| !matches!(e, GpuEncoder::Software)))
+      Ok(
+        self
+          .available_encoders
+          .iter()
+          .any(|e| !matches!(e, GpuEncoder::Software)),
+      )
     }
 
     async fn benchmark_gpu(&self, encoder: GpuEncoder) -> Result<GpuBenchmarkResult> {
       if self.should_fail.load(Ordering::Relaxed) {
-        return Err(VideoCompilerError::InternalError("Benchmark failed".to_string()));
+        return Err(VideoCompilerError::InternalError(
+          "Benchmark failed".to_string(),
+        ));
       }
 
       let results = self.benchmark_results.lock().unwrap();
@@ -541,7 +571,9 @@ mod tests {
 
     async fn refresh_gpu_info(&self) -> Result<()> {
       if self.should_fail.load(Ordering::Relaxed) {
-        return Err(VideoCompilerError::InternalError("Failed to refresh GPU info".to_string()));
+        return Err(VideoCompilerError::InternalError(
+          "Failed to refresh GPU info".to_string(),
+        ));
       }
       Ok(())
     }
@@ -575,7 +607,7 @@ mod tests {
   #[tokio::test]
   async fn test_mock_nvidia_gpu() {
     let service = MockGpuService::nvidia_available();
-    
+
     let gpus = service.detect_gpus().await.unwrap();
     assert_eq!(gpus.len(), 1);
     assert_eq!(gpus[0].name, "NVIDIA GeForce RTX 3080");
@@ -591,7 +623,7 @@ mod tests {
   #[tokio::test]
   async fn test_mock_amd_gpu() {
     let service = MockGpuService::amd_available();
-    
+
     let gpus = service.detect_gpus().await.unwrap();
     assert_eq!(gpus.len(), 1);
     assert_eq!(gpus[0].name, "AMD Radeon RX 6700 XT");
@@ -606,7 +638,7 @@ mod tests {
   #[tokio::test]
   async fn test_mock_intel_gpu() {
     let service = MockGpuService::intel_available();
-    
+
     let gpus = service.detect_gpus().await.unwrap();
     assert_eq!(gpus.len(), 1);
     assert_eq!(gpus[0].name, "Intel Arc A380");
@@ -621,7 +653,7 @@ mod tests {
   #[tokio::test]
   async fn test_mock_no_gpu() {
     let service = MockGpuService::no_gpu();
-    
+
     let gpus = service.detect_gpus().await.unwrap();
     assert!(gpus.is_empty());
 
@@ -634,15 +666,15 @@ mod tests {
   #[tokio::test]
   async fn test_mock_multiple_gpus() {
     let service = MockGpuService::multiple_gpus();
-    
+
     let gpus = service.detect_gpus().await.unwrap();
     assert_eq!(gpus.len(), 2);
-    
+
     // Первый GPU - NVIDIA
     assert_eq!(gpus[0].name, "NVIDIA GeForce RTX 4090");
     assert_eq!(gpus[0].memory_total, Some(25_769_803_776));
     assert_eq!(gpus[0].encoder_type, GpuEncoder::Nvenc);
-    
+
     // Второй GPU - Intel
     assert_eq!(gpus[1].name, "Intel UHD Graphics 770");
     assert_eq!(gpus[1].encoder_type, GpuEncoder::QuickSync);
@@ -658,13 +690,13 @@ mod tests {
   #[tokio::test]
   async fn test_gpu_service_caching() {
     let service = GpuServiceImpl::new("mock_ffmpeg".to_string());
-    
+
     // Первый вызов должен заполнить кэш
     let result1 = service.detect_gpus().await;
-    
+
     // Второй вызов должен использовать кэш (если первый был успешным)
     let result2 = service.detect_gpus().await;
-    
+
     // Если оба провалились (FFmpeg недоступен), это ожидаемо
     match (result1, result2) {
       (Ok(gpus1), Ok(gpus2)) => {
@@ -680,32 +712,35 @@ mod tests {
   #[tokio::test]
   async fn test_gpu_service_refresh() {
     let service = MockGpuService::nvidia_available();
-    
+
     // Получаем начальные возможности
     let caps1 = service.get_capabilities().await.unwrap();
-    
+
     // Обновляем информацию
     service.refresh_gpu_info().await.unwrap();
-    
+
     // Получаем обновленные возможности
     let caps2 = service.get_capabilities().await.unwrap();
-    
+
     // В mock сервисе результаты должны быть одинаковыми
     assert_eq!(caps1.available_encoders, caps2.available_encoders);
-    assert_eq!(caps1.hardware_acceleration_available, caps2.hardware_acceleration_available);
+    assert_eq!(
+      caps1.hardware_acceleration_available,
+      caps2.hardware_acceleration_available
+    );
   }
 
   #[tokio::test]
   async fn test_benchmark_nvidia() {
     let service = MockGpuService::nvidia_available();
-    
+
     let benchmark = service.benchmark_gpu(GpuEncoder::Nvenc).await.unwrap();
-    
+
     assert_eq!(benchmark.encoder, GpuEncoder::Nvenc);
     assert!(benchmark.encoding_speed > 0.0);
     assert!(benchmark.quality_score > 0.0 && benchmark.quality_score <= 100.0);
     assert!(benchmark.power_efficiency > 0.0 && benchmark.power_efficiency <= 100.0);
-    
+
     // NVENC должен иметь хорошую производительность
     assert!(benchmark.encoding_speed > 100.0);
     assert!(benchmark.quality_score > 90.0);
@@ -715,11 +750,11 @@ mod tests {
   #[tokio::test]
   async fn test_benchmark_software() {
     let service = MockGpuService::no_gpu();
-    
+
     let benchmark = service.benchmark_gpu(GpuEncoder::Software).await.unwrap();
-    
+
     assert_eq!(benchmark.encoder, GpuEncoder::Software);
-    
+
     // Software кодирование должно быть медленнее но качественнее
     assert!(benchmark.encoding_speed < 100.0);
     assert_eq!(benchmark.quality_score, 100.0);
@@ -729,7 +764,7 @@ mod tests {
   #[tokio::test]
   async fn test_custom_benchmark_results() {
     let service = MockGpuService::nvidia_available();
-    
+
     // Устанавливаем кастомный результат бенчмарка
     let custom_result = GpuBenchmarkResult {
       encoder: GpuEncoder::Nvenc,
@@ -738,9 +773,9 @@ mod tests {
       power_efficiency: 95.0,
     };
     service.set_benchmark_result(GpuEncoder::Nvenc, custom_result.clone());
-    
+
     let benchmark = service.benchmark_gpu(GpuEncoder::Nvenc).await.unwrap();
-    
+
     assert_eq!(benchmark.encoding_speed, 200.0);
     assert_eq!(benchmark.quality_score, 98.0);
     assert_eq!(benchmark.power_efficiency, 95.0);
@@ -749,7 +784,7 @@ mod tests {
   #[tokio::test]
   async fn test_gpu_service_error_handling() {
     let service = MockGpuService::failing();
-    
+
     // Все операции должны возвращать ошибки
     assert!(service.initialize().await.is_err());
     assert!(service.health_check().await.is_err());
@@ -763,14 +798,14 @@ mod tests {
   #[tokio::test]
   async fn test_gpu_service_error_recovery() {
     let service = MockGpuService::nvidia_available();
-    
+
     // Сначала сервис работает
     assert!(service.detect_gpus().await.is_ok());
-    
+
     // Включаем режим ошибок
     service.set_should_fail(true);
     assert!(service.detect_gpus().await.is_err());
-    
+
     // Восстанавливаем работу
     service.set_should_fail(false);
     assert!(service.detect_gpus().await.is_ok());
@@ -780,8 +815,11 @@ mod tests {
   async fn test_hardware_acceleration_detection() {
     // С GPU
     let service_with_gpu = MockGpuService::nvidia_available();
-    assert!(service_with_gpu.check_hardware_acceleration().await.unwrap());
-    
+    assert!(service_with_gpu
+      .check_hardware_acceleration()
+      .await
+      .unwrap());
+
     // Без GPU
     let service_no_gpu = MockGpuService::no_gpu();
     assert!(!service_no_gpu.check_hardware_acceleration().await.unwrap());
@@ -793,17 +831,17 @@ mod tests {
     let nvidia_service = MockGpuService::nvidia_available();
     let recommended = nvidia_service.get_recommended_encoder().await.unwrap();
     assert_eq!(recommended, Some(GpuEncoder::Nvenc));
-    
+
     // AMD GPU - должен рекомендовать AMF
     let amd_service = MockGpuService::amd_available();
     let recommended = amd_service.get_recommended_encoder().await.unwrap();
     assert_eq!(recommended, Some(GpuEncoder::Amf));
-    
+
     // Intel GPU - должен рекомендовать QuickSync
     let intel_service = MockGpuService::intel_available();
     let recommended = intel_service.get_recommended_encoder().await.unwrap();
     assert_eq!(recommended, Some(GpuEncoder::QuickSync));
-    
+
     // Нет GPU - не должен ничего рекомендовать
     let no_gpu_service = MockGpuService::no_gpu();
     let recommended = no_gpu_service.get_recommended_encoder().await.unwrap();
@@ -814,17 +852,20 @@ mod tests {
   async fn test_gpu_capabilities_serialization() {
     let service = MockGpuService::nvidia_available();
     let caps = service.get_capabilities().await.unwrap();
-    
+
     // Тестируем сериализацию в JSON
     let serialized = serde_json::to_string(&caps).unwrap();
     assert!(serialized.contains("available_encoders"));
     assert!(serialized.contains("gpu_info"));
     assert!(serialized.contains("hardware_acceleration_available"));
-    
+
     // Тестируем десериализацию
     let deserialized: GpuCapabilities = serde_json::from_str(&serialized).unwrap();
     assert_eq!(deserialized.available_encoders, caps.available_encoders);
-    assert_eq!(deserialized.hardware_acceleration_available, caps.hardware_acceleration_available);
+    assert_eq!(
+      deserialized.hardware_acceleration_available,
+      caps.hardware_acceleration_available
+    );
     assert_eq!(deserialized.recommended_encoder, caps.recommended_encoder);
   }
 
@@ -836,14 +877,14 @@ mod tests {
       quality_score: 95.2,
       power_efficiency: 89.7,
     };
-    
+
     // Тестируем сериализацию
     let serialized = serde_json::to_string(&result).unwrap();
     assert!(serialized.contains("Nvenc"));
     assert!(serialized.contains("120.5"));
     assert!(serialized.contains("95.2"));
     assert!(serialized.contains("89.7"));
-    
+
     // Тестируем десериализацию
     let deserialized: GpuBenchmarkResult = serde_json::from_str(&serialized).unwrap();
     assert_eq!(deserialized.encoder, GpuEncoder::Nvenc);

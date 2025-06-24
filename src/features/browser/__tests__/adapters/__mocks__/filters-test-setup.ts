@@ -8,15 +8,15 @@ vi.mock("@/features/app-state", () => ({
 }))
 
 vi.mock("@/features/filters/components/filter-preview", () => ({
-  FilterPreview: ({ filter, onClick, size, previewWidth, previewHeight }: any) => (
-    <div 
-      data-testid="filter-preview" 
-      onClick={onClick}
-      style={{ width: previewWidth || size, height: previewHeight || size }}
-    >
-      {filter.name}
-    </div>
-  ),
+  FilterPreview: ({ filter, onClick, size, previewWidth, previewHeight }: any) => {
+    const div = document.createElement('div');
+    div.setAttribute('data-testid', 'filter-preview');
+    if (onClick) div.onclick = onClick;
+    div.style.width = `${previewWidth || size}px`;
+    div.style.height = `${previewHeight || size}px`;
+    div.textContent = filter.name;
+    return div;
+  },
 }))
 
 vi.mock("@/features/filters/hooks/use-filters", () => ({

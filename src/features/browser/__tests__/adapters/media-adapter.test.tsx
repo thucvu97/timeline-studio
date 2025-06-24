@@ -1,9 +1,5 @@
-import React from "react"
-
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
-
-import { BrowserProviders } from "@/test/test-utils"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { createMockMediaFile } from "./test-utils"
 import { useMediaAdapter } from "../../adapters/use-media-adapter"
@@ -75,7 +71,7 @@ vi.mock("@/features/browser/utils", () => ({
 }))
 
 vi.mock("@/features/browser/utils/grouping", () => ({
-  getDateGroup: vi.fn((timestamp, language) => {
+  getDateGroup: vi.fn((timestamp, _language) => {
     if (!timestamp || timestamp === 0) return "Без даты"
     return "2024"
   }),
@@ -139,7 +135,7 @@ describe("useMediaAdapter", () => {
   describe("getSortValue", () => {
     it("should sort by different fields correctly", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "Test.mp4",
         size: 1024,
@@ -160,7 +156,7 @@ describe("useMediaAdapter", () => {
 
     it("should handle missing duration data", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         duration: undefined,
         probeData: undefined,
@@ -171,7 +167,7 @@ describe("useMediaAdapter", () => {
 
     it("should prioritize probe data for size", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         size: 1024,
@@ -181,13 +177,13 @@ describe("useMediaAdapter", () => {
           format: { size: 2048 },
         },
       })
-      
+
       expect(result.current.getSortValue(testFile, "size")).toBe(2048) // Probe data has priority
     })
 
     it("should handle missing probe data for size", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         size: 1024,
@@ -197,7 +193,7 @@ describe("useMediaAdapter", () => {
           format: {},
         },
       })
-      
+
       expect(result.current.getSortValue(testFile, "size")).toBe(1024) // Falls back to parsed size
     })
   })
@@ -205,7 +201,7 @@ describe("useMediaAdapter", () => {
   describe("getSearchableText", () => {
     it("should return searchable text array", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test-video.mp4",
         startTime: 0,
@@ -227,7 +223,7 @@ describe("useMediaAdapter", () => {
 
     it("should filter out empty values", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         probeData: undefined,
@@ -240,7 +236,7 @@ describe("useMediaAdapter", () => {
 
     it("should handle missing tags", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,
@@ -258,7 +254,7 @@ describe("useMediaAdapter", () => {
   describe("getGroupValue", () => {
     it("should group by type", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         extension: ".mp4",
@@ -271,7 +267,7 @@ describe("useMediaAdapter", () => {
 
     it("should group by date", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0, // No date
@@ -283,7 +279,7 @@ describe("useMediaAdapter", () => {
 
     it("should group by date with timestamp", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 1672531200, // 2023-01-01
@@ -295,7 +291,7 @@ describe("useMediaAdapter", () => {
 
     it("should group by duration", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         duration: 120, // 2 minutes
@@ -308,7 +304,7 @@ describe("useMediaAdapter", () => {
 
     it("should handle image metadata for date grouping", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.jpg",
         startTime: 0,
@@ -328,7 +324,7 @@ describe("useMediaAdapter", () => {
 
     it("should return empty string for unknown group type", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,
@@ -342,7 +338,7 @@ describe("useMediaAdapter", () => {
   describe("matchesFilter", () => {
     it("should match video filter", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const videoFile = createMockMediaFile({
         name: "test.mp4",
         extension: ".mp4",
@@ -361,7 +357,7 @@ describe("useMediaAdapter", () => {
 
     it("should match image filter", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const imageFile = createMockMediaFile({
         name: "test.jpg",
         extension: ".jpg",
@@ -380,7 +376,7 @@ describe("useMediaAdapter", () => {
 
     it("should match audio filter", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const audioFile = createMockMediaFile({
         name: "test.mp3",
         extension: ".mp3",
@@ -399,7 +395,7 @@ describe("useMediaAdapter", () => {
 
     it("should handle loading metadata state", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const loadingFile = createMockMediaFile({
         name: "test.mp4",
         extension: ".mp4",
@@ -414,7 +410,7 @@ describe("useMediaAdapter", () => {
 
     it("should handle image filter by extension when no metadata", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const imageFile = createMockMediaFile({
         name: "test.png",
         extension: ".png",
@@ -430,7 +426,7 @@ describe("useMediaAdapter", () => {
 
     it("should match 'all' filter", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,
@@ -441,7 +437,7 @@ describe("useMediaAdapter", () => {
 
     it("should return false for unknown filter", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,
@@ -461,7 +457,7 @@ describe("useMediaAdapter", () => {
     it("should render MediaPreview correctly in list mode", () => {
       const { result } = renderHook(() => useMediaAdapter())
       const PreviewComponent = result.current.PreviewComponent
-      
+
       const mockFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,
@@ -485,7 +481,7 @@ describe("useMediaAdapter", () => {
     it("should handle thumbnails view mode", () => {
       const { result } = renderHook(() => useMediaAdapter())
       const PreviewComponent = result.current.PreviewComponent
-      
+
       const mockFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,
@@ -510,7 +506,7 @@ describe("useMediaAdapter", () => {
       const { result } = renderHook(() => useMediaAdapter())
       const PreviewComponent = result.current.PreviewComponent
       const mockOnClick = vi.fn()
-      
+
       const mockFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,
@@ -536,7 +532,7 @@ describe("useMediaAdapter", () => {
       const { result } = renderHook(() => useMediaAdapter())
       const PreviewComponent = result.current.PreviewComponent
       const mockOnDragStart = vi.fn()
-      
+
       const mockFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,
@@ -561,7 +557,7 @@ describe("useMediaAdapter", () => {
   describe("importHandlers", () => {
     it("should provide import functions", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       expect(result.current.importHandlers).toBeDefined()
       expect(typeof result.current.importHandlers?.importFile).toBe("function")
       expect(typeof result.current.importHandlers?.importFolder).toBe("function")
@@ -570,7 +566,7 @@ describe("useMediaAdapter", () => {
 
     it("should have correct import function signatures", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       // Test that functions exist and are callable
       expect(result.current.importHandlers?.importFile).toBeDefined()
       expect(result.current.importHandlers?.importFolder).toBeDefined()
@@ -581,7 +577,7 @@ describe("useMediaAdapter", () => {
   describe("isFavorite", () => {
     it("should check if file is favorite", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,
@@ -593,7 +589,7 @@ describe("useMediaAdapter", () => {
 
     it("should use correct favorite type", () => {
       const { result } = renderHook(() => useMediaAdapter())
-      
+
       const testFile = createMockMediaFile({
         name: "test.mp4",
         startTime: 0,

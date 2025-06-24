@@ -1,9 +1,7 @@
 import "./browser-adapter-mocks" // Импортируем моки первыми
 
-import React from "react"
-
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { BrowserProviders } from "@/test/test-utils"
 

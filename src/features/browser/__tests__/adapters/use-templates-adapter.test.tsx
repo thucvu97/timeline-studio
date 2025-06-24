@@ -1,7 +1,7 @@
 import "./browser-adapter-mocks" // Импортируем моки первыми
 
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { BrowserProviders } from "@/test/test-utils"
 
@@ -37,8 +37,6 @@ vi.mock("@/features/templates/components/template-preview", () => ({
     </div>
   ),
 }))
-
-
 
 describe("useTemplatesAdapter", () => {
   beforeEach(() => {
@@ -133,7 +131,7 @@ describe("useTemplatesAdapter", () => {
     const nonResizableTemplate = {
       id: "grid-2x2",
       screens: 4,
-      split: "grid", 
+      split: "grid",
       resizable: false,
     }
 
@@ -229,7 +227,7 @@ describe("useTemplatesAdapter", () => {
     it("should render in list view mode", () => {
       const { result } = renderHook(() => useTemplatesAdapter(), { wrapper: BrowserProviders })
       const PreviewComponent = result.current.PreviewComponent
-      
+
       const mockTemplate = {
         id: "split-horizontal",
         screens: 2,
@@ -255,7 +253,7 @@ describe("useTemplatesAdapter", () => {
     it("should render in thumbnails view mode", () => {
       const { result } = renderHook(() => useTemplatesAdapter(), { wrapper: BrowserProviders })
       const PreviewComponent = result.current.PreviewComponent
-      
+
       const mockTemplate = {
         id: "grid-2x2",
         screens: 4,
@@ -281,7 +279,7 @@ describe("useTemplatesAdapter", () => {
     it("should handle template with single screen correctly", () => {
       const { result } = renderHook(() => useTemplatesAdapter(), { wrapper: BrowserProviders })
       const PreviewComponent = result.current.PreviewComponent
-      
+
       const singleScreenTemplate = {
         id: "single",
         screens: 1,
@@ -308,7 +306,7 @@ describe("useTemplatesAdapter", () => {
   describe("isFavorite", () => {
     it("should check if template is favorite", () => {
       const { result } = renderHook(() => useTemplatesAdapter(), { wrapper: BrowserProviders })
-      
+
       const testTemplate = {
         id: "split-horizontal",
         screens: 2,

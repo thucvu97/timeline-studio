@@ -1,20 +1,18 @@
 import "./browser-adapter-mocks" // Импортируем моки первыми
 
-import React from "react"
-import { render, screen } from "@testing-library/react"
-import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { render, renderHook, screen } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { FilterCategory, VideoFilter } from "@/features/filters/types/filters"
 import { BrowserProviders } from "@/test/test-utils"
 
 import { useFiltersAdapter } from "../../adapters/use-filters-adapter"
-import type { VideoFilter, FilterCategory } from "@/features/filters/types/filters"
 
 // Мокаем FilterPreview компонент
 vi.mock("@/features/filters/components/filter-preview", () => ({
   FilterPreview: ({ filter, onClick, size, previewWidth, previewHeight }: any) => (
-    <div 
-      data-testid="filter-preview" 
+    <div
+      data-testid="filter-preview"
       onClick={onClick}
       style={{ width: previewWidth || size, height: previewHeight || size }}
     >
@@ -54,24 +52,17 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const onClick = vi.fn()
 
-      render(
-        <PreviewComponent
-          item={mockFilter}
-          size="small"
-          viewMode="list"
-          onClick={onClick}
-        />
-      )
+      render(<PreviewComponent item={mockFilter} size="small" viewMode="list" onClick={onClick} />)
 
       // Check name
       expect(screen.getByText("Тестовый")).toBeInTheDocument()
-      
+
       // Check description
       expect(screen.getByText("Test filter")).toBeInTheDocument()
-      
+
       // Check category
       expect(screen.getByText("color-correction")).toBeInTheDocument()
-      
+
       // Check complexity
       expect(screen.getByText("basic")).toBeInTheDocument()
     })
@@ -81,16 +72,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const onClick = vi.fn()
 
-      render(
-        <PreviewComponent
-          item={mockFilter}
-          size="small"
-          viewMode="list"
-          onClick={onClick}
-        />
-      )
+      render(<PreviewComponent item={mockFilter} size="small" viewMode="list" onClick={onClick} />)
 
-      const container = screen.getByText("Тестовый").closest('.flex')
+      const container = screen.getByText("Тестовый").closest(".flex")
       container?.click()
 
       expect(onClick).toHaveBeenCalledWith(mockFilter)
@@ -102,12 +86,7 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const onDragStart = vi.fn()
 
       const { container } = render(
-        <PreviewComponent
-          item={mockFilter}
-          size="small"
-          viewMode="list"
-          onDragStart={onDragStart}
-        />
+        <PreviewComponent item={mockFilter} size="small" viewMode="list" onDragStart={onDragStart} />,
       )
 
       const draggableElement = container.querySelector('[draggable="true"]')
@@ -119,13 +98,7 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithoutLabels = { ...mockFilter, labels: undefined }
 
-      render(
-        <PreviewComponent
-          item={filterWithoutLabels}
-          size="small"
-          viewMode="list"
-        />
-      )
+      render(<PreviewComponent item={filterWithoutLabels} size="small" viewMode="list" />)
 
       // Should show name instead of label
       expect(screen.getByText("Тестовый фильтр")).toBeInTheDocument()
@@ -136,16 +109,13 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithoutDescription = { ...mockFilter, description: undefined }
 
-      render(
-        <PreviewComponent
-          item={filterWithoutDescription}
-          size="small"
-          viewMode="list"
-        />
-      )
+      render(<PreviewComponent item={filterWithoutDescription} size="small" viewMode="list" />)
 
       // Should have empty description
-      const descriptionElement = screen.getByText("Тестовый").closest('.flex-1')?.querySelector('.text-muted-foreground')
+      const descriptionElement = screen
+        .getByText("Тестовый")
+        .closest(".flex-1")
+        ?.querySelector(".text-muted-foreground")
       expect(descriptionElement?.textContent).toBe("")
     })
 
@@ -153,27 +123,21 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
       const PreviewComponent = result.current.PreviewComponent
 
-      const { container } = render(
-        <PreviewComponent
-          item={mockFilter}
-          size="small"
-          viewMode="list"
-        />
-      )
+      const { container } = render(<PreviewComponent item={mockFilter} size="small" viewMode="list" />)
 
-      const video = container.querySelector('video')
-      expect(video).toHaveAttribute('src', '/t1.mp4')
+      const video = container.querySelector("video")
+      expect(video).toHaveAttribute("src", "/t1.mp4")
       expect(video).toBeTruthy()
       expect(video?.muted).toBe(true)
-      expect(video?.getAttribute('preload')).toBe('metadata')
-      
+      expect(video?.getAttribute("preload")).toBe("metadata")
+
       // Check filter style
       const filterStyle = video?.style.filter
-      expect(filterStyle).toContain('brightness')
-      expect(filterStyle).toContain('contrast')
-      expect(filterStyle).toContain('saturate')
-      expect(filterStyle).toContain('hue-rotate')
-      expect(filterStyle).toContain('sepia') // positive temperature
+      expect(filterStyle).toContain("brightness")
+      expect(filterStyle).toContain("contrast")
+      expect(filterStyle).toContain("saturate")
+      expect(filterStyle).toContain("hue-rotate")
+      expect(filterStyle).toContain("sepia") // positive temperature
     })
 
     it("should handle negative temperature", () => {
@@ -181,17 +145,11 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithNegativeTemp = { ...mockFilter, params: { temperature: -20 } }
 
-      const { container } = render(
-        <PreviewComponent
-          item={filterWithNegativeTemp}
-          size="small"
-          viewMode="list"
-        />
-      )
+      const { container } = render(<PreviewComponent item={filterWithNegativeTemp} size="small" viewMode="list" />)
 
-      const video = container.querySelector('video')
+      const video = container.querySelector("video")
       const filterStyle = video?.style.filter
-      expect(filterStyle).toContain('hue-rotate(-40deg)') // temperature * 2
+      expect(filterStyle).toContain("hue-rotate(-40deg)") // temperature * 2
     })
 
     it("should handle zero brightness", () => {
@@ -199,17 +157,11 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithZeroBrightness = { ...mockFilter, params: { brightness: -1 } }
 
-      const { container } = render(
-        <PreviewComponent
-          item={filterWithZeroBrightness}
-          size="small"
-          viewMode="list"
-        />
-      )
+      const { container } = render(<PreviewComponent item={filterWithZeroBrightness} size="small" viewMode="list" />)
 
-      const video = container.querySelector('video')
+      const video = container.querySelector("video")
       const filterStyle = video?.style.filter
-      expect(filterStyle).toContain('brightness(0)') // Math.max(0, 1 + (-1))
+      expect(filterStyle).toContain("brightness(0)") // Math.max(0, 1 + (-1))
     })
   })
 
@@ -219,14 +171,7 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const onClick = vi.fn()
 
-      render(
-        <PreviewComponent
-          item={mockFilter}
-          size="medium"
-          viewMode="thumbnails"
-          onClick={onClick}
-        />
-      )
+      render(<PreviewComponent item={mockFilter} size="medium" viewMode="thumbnails" onClick={onClick} />)
 
       const preview = screen.getByTestId("filter-preview")
       expect(preview).toBeInTheDocument()
@@ -238,13 +183,7 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
       const PreviewComponent = result.current.PreviewComponent
 
-      render(
-        <PreviewComponent
-          item={mockFilter}
-          size={{ width: 200, height: 150 }}
-          viewMode="thumbnails"
-        />
-      )
+      render(<PreviewComponent item={mockFilter} size={{ width: 200, height: 150 }} viewMode="thumbnails" />)
 
       const preview = screen.getByTestId("filter-preview")
       expect(preview).toHaveStyle({ width: "200px", height: "150px" })
@@ -254,13 +193,7 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
       const PreviewComponent = result.current.PreviewComponent
 
-      render(
-        <PreviewComponent
-          item={mockFilter}
-          size={100}
-          viewMode="thumbnails"
-        />
-      )
+      render(<PreviewComponent item={mockFilter} size={100} viewMode="thumbnails" />)
 
       const preview = screen.getByTestId("filter-preview")
       expect(preview).toHaveStyle({ width: "100px", height: "100px" })
@@ -271,14 +204,7 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const onClick = vi.fn()
 
-      render(
-        <PreviewComponent
-          item={mockFilter}
-          size="medium"
-          viewMode="thumbnails"
-          onClick={onClick}
-        />
-      )
+      render(<PreviewComponent item={mockFilter} size="medium" viewMode="thumbnails" onClick={onClick} />)
 
       const preview = screen.getByTestId("filter-preview")
       preview.click()
@@ -292,12 +218,7 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const onDragStart = vi.fn()
 
       const { container } = render(
-        <PreviewComponent
-          item={mockFilter}
-          size="medium"
-          viewMode="thumbnails"
-          onDragStart={onDragStart}
-        />
+        <PreviewComponent item={mockFilter} size="medium" viewMode="thumbnails" onDragStart={onDragStart} />,
       )
 
       const draggableElement = container.querySelector('[draggable="true"]')
@@ -311,15 +232,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithEmptyParams = { ...mockFilter, params: {} }
 
-      const { container } = render(
-        <PreviewComponent
-          item={filterWithEmptyParams}
-          size="small"
-          viewMode="list"
-        />
-      )
+      const { container } = render(<PreviewComponent item={filterWithEmptyParams} size="small" viewMode="list" />)
 
-      const video = container.querySelector('video')
+      const video = container.querySelector("video")
       expect(video?.style.filter).toBe("")
     })
 
@@ -328,15 +243,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithUndefinedParams = { ...mockFilter, params: undefined as any }
 
-      const { container } = render(
-        <PreviewComponent
-          item={filterWithUndefinedParams}
-          size="small"
-          viewMode="list"
-        />
-      )
+      const { container } = render(<PreviewComponent item={filterWithUndefinedParams} size="small" viewMode="list" />)
 
-      const video = container.querySelector('video')
+      const video = container.querySelector("video")
       expect(video?.style.filter).toBe("")
     })
 
@@ -358,7 +267,7 @@ describe("useFiltersAdapter - PreviewComponent", () => {
           isSelected={true}
           isFavorite={true}
           {...allHandlers}
-        />
+        />,
       )
 
       // Component should render without errors
