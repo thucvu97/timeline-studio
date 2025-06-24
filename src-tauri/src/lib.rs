@@ -37,7 +37,7 @@ use recognition::commands::yolo_commands::YoloProcessorState;
 use recognition::RecognitionState;
 
 // Модуль безопасности и API ключей
-mod security;
+pub mod security;
 use security::secure_storage::SecureStorage;
 
 // Simple commands that don't belong to specific modules yet
