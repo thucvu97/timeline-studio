@@ -71,14 +71,19 @@ pub use ffmpeg_builder_extra_commands::*;
 pub use ffmpeg_executor_commands::*;
 pub use ffmpeg_utilities_commands::*;
 pub use final_utilities_commands::*;
+#[allow(ambiguous_glob_reexports)]
 pub use frame_extraction_advanced_commands::*;
 pub use frame_extraction_commands::*;
+#[allow(ambiguous_glob_reexports)]
 pub use frame_manager_commands::*;
 pub use gpu::*;
 pub use info::*;
 pub use metrics::*;
+
+#[allow(ambiguous_glob_reexports)]
 pub use metrics_advanced_commands::*;
 pub use misc::*;
+#[allow(ambiguous_glob_reexports)]
 pub use monitoring_commands::*;
 pub use multimodal_commands::*;
 pub use pipeline_advanced_commands::*;
