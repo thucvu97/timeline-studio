@@ -492,9 +492,11 @@ describe("useResources", () => {
 
 describe("useResourceSources", () => {
   function TestComponent() {
-    const { loadSource, refreshSource, isSourceLoaded, getSourceConfig, updateSourceConfig, loadingState } = useResourceSources()
+    const { loadSource, refreshSource, isSourceLoaded, getSourceConfig, updateSourceConfig, loadingState } =
+      useResourceSources()
     const [loaded, setLoaded] = useState(false)
     const [config, setConfig] = useState<any>(null)
+    const [refreshed, setRefreshed] = useState(false)
 
     useEffect(() => {
       setLoaded(isSourceLoaded("built-in"))
@@ -502,11 +504,13 @@ describe("useResourceSources", () => {
     }, [isSourceLoaded, getSourceConfig])
 
     const handleLoad = async () => {
-      await loadSource("plugin")
+      // Загружаем встроенный источник заново для теста
+      await loadSource("built-in")
     }
 
     const handleRefresh = async () => {
       await refreshSource("built-in")
+      setRefreshed(true)
     }
 
     const handleUpdateConfig = () => {
@@ -518,7 +522,8 @@ describe("useResourceSources", () => {
         <div data-testid="is-loaded">{String(loaded)}</div>
         <div data-testid="config">{JSON.stringify(config)}</div>
         <div data-testid="loading-state">{String(loadingState.isLoading)}</div>
-        <button onClick={handleLoad}>Load Plugin</button>
+        <div data-testid="refreshed">{String(refreshed)}</div>
+        <button onClick={handleLoad}>Load Built-in</button>
         <button onClick={handleRefresh}>Refresh</button>
         <button onClick={handleUpdateConfig}>Update Config</button>
       </div>
@@ -533,15 +538,18 @@ describe("useResourceSources", () => {
     )
 
     // Ждем пока loading state станет false
-    await waitFor(() => {
-      expect(screen.getByTestId("loading-state")).toHaveTextContent("false")
-    }, { timeout: 5000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("loading-state")).toHaveTextContent("false")
+      },
+      { timeout: 5000 },
+    )
 
     // Проверяем что config доступен
     expect(screen.getByTestId("config")).toHaveTextContent("built-in")
-    
+
     // Проверяем что кнопки управления источниками доступны
-    expect(screen.getByText("Load Plugin")).toBeInTheDocument()
+    expect(screen.getByText("Load Built-in")).toBeInTheDocument()
     expect(screen.getByText("Refresh")).toBeInTheDocument()
     expect(screen.getByText("Update Config")).toBeInTheDocument()
   })
