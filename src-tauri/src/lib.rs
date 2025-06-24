@@ -40,6 +40,9 @@ use recognition::RecognitionState;
 pub mod security;
 use security::secure_storage::SecureStorage;
 
+// Модуль плагинов
+pub mod plugins;
+
 // Simple commands that don't belong to specific modules yet
 
 #[tauri::command]
