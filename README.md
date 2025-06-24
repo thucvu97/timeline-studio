@@ -7,9 +7,8 @@
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg?style=for-the-badge)](https://www.npmjs.com/package/timeline-studio)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/build.yml?style=for-the-badge&label=build)](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml)
 [![Tests](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/test-coverage.yml?style=for-the-badge&label=tests)](https://github.com/chatman-media/timeline-studio/actions/workflows/test-coverage.yml)
-[![codecov](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?style=for-the-badge&label=coverage)](https://codecov.io/gh/chatman-media/timeline-studio)
-[![Lines of Code](https://img.shields.io/tokei/lines/github/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio)
-[![Latest Release](https://img.shields.io/github/v/release/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/releases/latest)
+[![Frontend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?style=for-the-badge&label=frontend&flag=frontend)](https://codecov.io/gh/chatman-media/timeline-studio)
+[![Backend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?style=for-the-badge&label=backend&flag=backend)](https://codecov.io/gh/chatman-media/timeline-studio)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/graphs/commit-activity)
 [![GitHub stars](https://img.shields.io/github/stars/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/stargazers)
 [![npm downloads](https://img.shields.io/npm/dm/timeline-studio?style=for-the-badge&label=npm%20downloads)](https://www.npmjs.com/package/timeline-studio)
@@ -98,7 +97,7 @@ bun run tauri dev
 ### Requirements
 - Node.js v18+, Rust, Bun, FFmpeg
 
-📚 **[Complete Installation Guide →](docs-ru/01-getting-started/README.md)**  
+📚 **[Complete Installation Guide →](docs-ru/01-getting-started/README.md)**
 🪟 **[Windows Setup →](docs-ru/06-deployment/platforms/windows-build.md)**
 
 ## Documentation
@@ -146,7 +145,7 @@ bun run check:all
 - ✅ **Coverage**: Codecov integration
 - ✅ **Build**: Cross-platform builds
 
-📚 **[Detailed CI/CD Guide →](docs-ru/06-deployment/README.md)**  
+📚 **[Detailed CI/CD Guide →](docs-ru/06-deployment/README.md)**
 🔧 **[Linting & Formatting →](docs-ru/05-development/linting-and-formatting.md)**
 
 ## Documentation & Resources
