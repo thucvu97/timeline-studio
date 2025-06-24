@@ -133,14 +133,20 @@ describe("EffectsProvider", () => {
     )
 
     // Ждем инициализации
-    await waitFor(() => {
-      expect(screen.getByTestId("initialized")).toHaveTextContent("true")
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("initialized")).toHaveTextContent("true")
+      },
+      { timeout: 3000 },
+    )
 
     // Ждем загрузки ресурсов с более длительным таймаутом
-    await waitFor(() => {
-      expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
+      },
+      { timeout: 3000 },
+    )
 
     expect(screen.getByTestId("filters-count")).toHaveTextContent("1")
     expect(screen.getByTestId("transitions-count")).toHaveTextContent("1")
@@ -181,14 +187,20 @@ describe("EffectsProvider", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("initialized")).toHaveTextContent("true")
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("initialized")).toHaveTextContent("true")
+      },
+      { timeout: 3000 },
+    )
 
     // Ждем загрузки ресурсов с более длительным таймаутом
-    await waitFor(() => {
-      expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
+      },
+      { timeout: 3000 },
+    )
   })
 
   it("должен выбрасывать ошибку при использовании хука вне провайдера", () => {
@@ -280,9 +292,9 @@ describe("EffectsProvider API", () => {
     expect(testBasicResults[0].complexity).toBe("basic")
 
     // Комбинированный поиск: category + complexity
-    const colorIntermediateResults = api.searchResources("effects", { 
-      category: "color-correction", 
-      complexity: "intermediate" 
+    const colorIntermediateResults = api.searchResources("effects", {
+      category: "color-correction",
+      complexity: "intermediate",
     })
     expect(colorIntermediateResults).toHaveLength(1)
     expect(colorIntermediateResults[0].category).toBe("color-correction")

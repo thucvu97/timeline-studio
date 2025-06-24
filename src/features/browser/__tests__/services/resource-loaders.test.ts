@@ -26,7 +26,7 @@ vi.mock("@/features/effects/data/effects.json", () => ({
       {
         id: "test-effect-2",
         name: "Test Effect 2",
-        type: "brightness", 
+        type: "brightness",
         category: "color-correction",
         complexity: "intermediate",
         tags: ["test"],
@@ -165,7 +165,7 @@ describe("loadAllResourcesLazy", () => {
     const result = await loadAllResourcesLazy()
 
     expect(result).toHaveProperty("effects")
-    expect(result).toHaveProperty("filters") 
+    expect(result).toHaveProperty("filters")
     expect(result).toHaveProperty("transitions")
     expect(result.effects).toHaveProperty("success")
     expect(result.filters).toHaveProperty("success")
@@ -193,7 +193,9 @@ describe("loadResourcesByCategory", () => {
     const controller = new AbortController()
     controller.abort()
 
-    await expect(loadResourcesByCategory("effects", "artistic", controller.signal)).rejects.toThrow("Loading was aborted")
+    await expect(loadResourcesByCategory("effects", "artistic", controller.signal)).rejects.toThrow(
+      "Loading was aborted",
+    )
   })
 
   it("должен обрабатывать неизвестный тип ресурса", async () => {

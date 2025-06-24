@@ -86,7 +86,7 @@ export const loadEffectsLazy = vi.fn().mockResolvedValue({
 export const loadFiltersLazy = vi.fn().mockResolvedValue({
   success: true,
   data: mockResourcesData.filters,
-  source: "built-in", 
+  source: "built-in",
   timestamp: Date.now(),
 })
 
@@ -100,7 +100,7 @@ export const loadTransitionsLazy = vi.fn().mockResolvedValue({
 export const loadResourcesByCategory = vi.fn().mockImplementation(async (type: string, category: string) => {
   const data = mockResourcesData[type as keyof typeof mockResourcesData] || []
   const filteredData = data.filter((item: any) => item.category === category)
-  
+
   return {
     success: true,
     data: filteredData,
@@ -112,7 +112,7 @@ export const loadResourcesByCategory = vi.fn().mockImplementation(async (type: s
 export const loadResourcesInChunks = vi.fn().mockImplementation(async function* (type: string, chunkSize = 50) {
   const data = mockResourcesData[type as keyof typeof mockResourcesData] || []
   const chunkSizeNum = Number(chunkSize)
-  
+
   for (let i = 0; i < data.length; i += chunkSizeNum) {
     const chunk = data.slice(i, i + chunkSizeNum)
     yield {

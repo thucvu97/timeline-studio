@@ -160,7 +160,11 @@ describe("BrowserTabs", () => {
     const firstRender = screen.getByTestId("tabs-list")
 
     // Перерендериваем с теми же пропсами
-    rerender(<EffectsProvider><BrowserTabs activeTab="media" onTabChange={mockOnTabChange} /></EffectsProvider>)
+    rerender(
+      <EffectsProvider>
+        <BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />
+      </EffectsProvider>,
+    )
 
     const secondRender = screen.getByTestId("tabs-list")
 
@@ -176,7 +180,11 @@ describe("BrowserTabs", () => {
     expect(screen.getByTestId("media-tab")).toHaveAttribute("data-state", "active")
     expect(screen.getByTestId("tab-trigger-music")).toHaveAttribute("data-state", "inactive")
 
-    rerender(<EffectsProvider><BrowserTabs activeTab="music" onTabChange={mockOnTabChange} /></EffectsProvider>)
+    rerender(
+      <EffectsProvider>
+        <BrowserTabs activeTab="music" onTabChange={mockOnTabChange} />
+      </EffectsProvider>,
+    )
 
     expect(screen.getByTestId("media-tab")).toHaveAttribute("data-state", "inactive")
     expect(screen.getByTestId("tab-trigger-music")).toHaveAttribute("data-state", "active")
