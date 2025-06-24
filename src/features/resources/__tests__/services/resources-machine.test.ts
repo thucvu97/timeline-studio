@@ -1139,6 +1139,11 @@ describe("resourcesMachine", () => {
 
     const updatedSnapshot = actor.getSnapshot()
     // Check that both old and new params are preserved
+    expect(updatedSnapshot.context.resources[0].params).toMatchObject({
+      intensity: 0.8,
+      radius: 10,
+    })
+    // Also check in effectResources
     expect(updatedSnapshot.context.effectResources[0].params).toMatchObject({
       intensity: 0.8,
       radius: 10,
