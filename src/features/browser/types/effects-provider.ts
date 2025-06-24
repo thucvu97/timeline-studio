@@ -5,11 +5,11 @@ import type { Transition } from "@/features/transitions/types/transitions"
 /**
  * Источники данных ресурсов (по аналогии с Filmora)
  */
-export type ResourceSource = 
-  | "built-in"  // Встроенные ресурсы из JSON файлов
-  | "local"     // Локальные пользовательские ресурсы  
-  | "remote"    // Ресурсы из базы данных сервера
-  | "imported"  // Импортированные файлы (.cube, .lut, .preset)
+export type ResourceSource =
+  | "built-in" // Встроенные ресурсы из JSON файлов
+  | "local" // Локальные пользовательские ресурсы
+  | "remote" // Ресурсы из базы данных сервера
+  | "imported" // Импортированные файлы (.cube, .lut, .preset)
 
 /**
  * Типы ресурсов
@@ -82,12 +82,15 @@ export interface LoadResult<T = Resource[]> {
 /**
  * Кэш для ресурсов
  */
-export type ResourceCache = Record<string, {
+export type ResourceCache = Record<
+  string,
+  {
     data: Resource[]
     timestamp: number
     source: ResourceSource
     size: number
-  }>;
+  }
+>
 
 /**
  * Конфигурация источника данных
@@ -123,86 +126,86 @@ export interface ResourceStats {
  */
 export interface EffectsProviderAPI {
   // === Получение ресурсов ===
-  
+
   /** Получить все эффекты */
   getEffects(source?: ResourceSource): VideoEffect[]
-  
+
   /** Получить все фильтры */
   getFilters(source?: ResourceSource): VideoFilter[]
-  
+
   /** Получить все переходы */
   getTransitions(source?: ResourceSource): Transition[]
-  
+
   /** Получить ресурсы по типу */
   getResources<T extends Resource>(type: ResourceType, source?: ResourceSource): T[]
-  
+
   /** Получить ресурс по ID */
-  getResourceById<T extends Resource>(type: ResourceType, id: string): T | null
-  
+  getResourceById(type: ResourceType, id: string): Resource | null
+
   // === Поиск и фильтрация ===
-  
+
   /** Поиск ресурсов */
   searchResources<T extends Resource>(type: ResourceType, options: SearchOptions): T[]
-  
+
   /** Получить ресурсы по категории */
   getResourcesByCategory<T extends Resource>(type: ResourceType, category: string): T[]
-  
+
   /** Получить ресурсы по тегам */
   getResourcesByTags<T extends Resource>(type: ResourceType, tags: string[]): T[]
-  
+
   /** Получить ресурсы по сложности */
   getResourcesByComplexity<T extends Resource>(type: ResourceType, complexity: string): T[]
-  
+
   // === Управление источниками ===
-  
+
   /** Загрузить источник данных */
   loadSource(source: ResourceSource): Promise<LoadResult>
-  
+
   /** Проверить загружен ли источник */
   isSourceLoaded(source: ResourceSource): boolean
-  
+
   /** Обновить источник данных */
   refreshSource(source: ResourceSource): Promise<LoadResult>
-  
+
   /** Загрузить ресурсы определенной категории */
   preloadCategory(type: ResourceType, category: string): Promise<LoadResult>
-  
+
   /** Получить конфигурацию источника */
   getSourceConfig(source: ResourceSource): SourceConfig | null
-  
+
   /** Обновить конфигурацию источника */
   updateSourceConfig(source: ResourceSource, config: Partial<SourceConfig>): void
-  
+
   // === Состояние и статистика ===
-  
+
   /** Получить состояние загрузки */
   getLoadingState(): LoadingState
-  
+
   /** Получить статистику по ресурсам */
   getStats(): ResourceStats
-  
+
   /** Получить размер кэша в байтах */
   getCacheSize(): number
-  
+
   // === Кэширование ===
-  
+
   /** Очистить кэш */
   clearCache(type?: ResourceType): void
-  
+
   /** Очистить кэш источника */
   clearSourceCache(source: ResourceSource): void
-  
+
   /** Принудительно обновить кэш */
   invalidateCache(): void
-  
+
   // === События ===
-  
+
   /** Подписаться на события загрузки */
   onLoadingStateChange(callback: (state: LoadingState) => void): () => void
-  
+
   /** Подписаться на обновления ресурсов */
   onResourcesUpdate(callback: (type: ResourceType, resources: Resource[]) => void): () => void
-  
+
   /** Подписаться на ошибки */
   onError(callback: (error: string, source?: ResourceSource) => void): () => void
 }

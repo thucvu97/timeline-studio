@@ -65,9 +65,7 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
         <div className="flex-shrink-0 text-xs text-muted-foreground">{transition.complexity}</div>
 
         {/* Duration */}
-        <div className="flex-shrink-0 text-xs text-muted-foreground">
-          {transition.duration?.default || 1}s
-        </div>
+        <div className="flex-shrink-0 text-xs text-muted-foreground">{transition.duration?.default || 1}s</div>
       </div>
     )
   }
@@ -212,6 +210,8 @@ export function useTransitionsAdapterNew(): ListAdapter<Transition> {
             return duration > 0.5 && duration <= 2
           case "long":
             return duration > 2
+          default:
+            return false
         }
       }
 

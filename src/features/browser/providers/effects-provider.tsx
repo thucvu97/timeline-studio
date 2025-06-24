@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 
 import type { VideoEffect } from "@/features/effects/types"
 import type { VideoFilter } from "@/features/filters/types/filters"
@@ -108,7 +108,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
   getResources<T extends Resource>(type: ResourceType, source?: ResourceSource): T[] {
     const key = source ? `${type}:${source}` : type
     const resources = this.resources.get(key) || []
-    
+
     if (source) {
       return resources as T[]
     }
@@ -124,9 +124,9 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     return allResources
   }
 
-  getResourceById<T extends Resource>(type: ResourceType, id: string): T | null {
-    const resources = this.getResources<T>(type)
-    return resources.find(r => r.id === id) || null
+  getResourceById(type: ResourceType, id: string): Resource | null {
+    const resources = this.getResources(type)
+    return resources.find((r) => r.id === id) || null
   }
 
   // === Поиск и фильтрация ===
@@ -137,39 +137,36 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     // Поиск по тексту
     if (options.query) {
       const query = options.query.toLowerCase()
-      resources = resources.filter(resource => {
-        const name = 'name' in resource ? resource.name?.toLowerCase() : ''
-        const labels = 'labels' in resource ? Object.values(resource.labels).join(' ').toLowerCase() : ''
-        const description = 'description' in resource 
-          ? typeof resource.description === 'object' 
-            ? Object.values(resource.description).join(' ').toLowerCase()
-            : resource.description?.toLowerCase() || ''
-          : ''
-        
+      resources = resources.filter((resource) => {
+        const name = "name" in resource ? resource.name?.toLowerCase() : ""
+        const labels = "labels" in resource ? Object.values(resource.labels).join(" ").toLowerCase() : ""
+        const description =
+          "description" in resource
+            ? typeof resource.description === "object"
+              ? Object.values(resource.description).join(" ").toLowerCase()
+              : resource.description?.toLowerCase() || ""
+            : ""
+
         return name.includes(query) || labels.includes(query) || description.includes(query)
       })
     }
 
     // Фильтрация по категории
     if (options.category) {
-      resources = resources.filter(resource => 
-        'category' in resource && resource.category === options.category
-      )
+      resources = resources.filter((resource) => "category" in resource && resource.category === options.category)
     }
 
     // Фильтрация по тегам
     if (options.tags && options.tags.length > 0) {
-      resources = resources.filter(resource => {
-        if (!('tags' in resource) || !Array.isArray(resource.tags)) return false
-        return options.tags!.some(tag => resource.tags.includes(tag as any))
+      resources = resources.filter((resource) => {
+        if (!("tags" in resource) || !Array.isArray(resource.tags)) return false
+        return options.tags!.some((tag) => resource.tags.includes(tag as any))
       })
     }
 
     // Фильтрация по сложности
     if (options.complexity) {
-      resources = resources.filter(resource =>
-        'complexity' in resource && resource.complexity === options.complexity
-      )
+      resources = resources.filter((resource) => "complexity" in resource && resource.complexity === options.complexity)
     }
 
     // Пагинация
@@ -215,33 +212,31 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
     try {
       const result = await this.loadSourceData(source)
-      
+
       this.updateLoadingState({
         loadedSources: new Set([...this.loadingState.loadedSources, source]),
-        loadingQueue: this.loadingState.loadingQueue.filter(s => s !== source),
+        loadingQueue: this.loadingState.loadingQueue.filter((s) => s !== source),
         isLoading: this.loadingState.loadingQueue.length > 1,
         progress: (this.loadingState.loadedSources.size / Object.keys(this.sourceConfigs).length) * 100,
       })
 
       // Уведомляем подписчиков об обновлении ресурсов
-      ;(["effects", "filters", "transitions"] as ResourceType[]).forEach(type => {
+      ;(["effects", "filters", "transitions"] as ResourceType[]).forEach((type) => {
         const resources = this.getResources(type, source)
-        this.eventListeners.resourcesUpdate.forEach(callback => 
-          callback(type, resources)
-        )
+        this.eventListeners.resourcesUpdate.forEach((callback) => callback(type, resources))
       })
 
       return result
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-      
+
       this.updateLoadingState({
-        loadingQueue: this.loadingState.loadingQueue.filter(s => s !== source),
+        loadingQueue: this.loadingState.loadingQueue.filter((s) => s !== source),
         isLoading: this.loadingState.loadingQueue.length > 1,
         error: errorMessage,
       })
 
-      this.eventListeners.error.forEach(callback => callback(errorMessage, source))
+      this.eventListeners.error.forEach((callback) => callback(errorMessage, source))
 
       return {
         success: false,
@@ -272,7 +267,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     try {
       // Используем оптимизированные ленивые загрузчики
       const { loadAllResourcesLazy } = await import("../services/resource-loaders")
-      
+
       const results = await loadAllResourcesLazy()
 
       // Сохраняем ресурсы в кэш только если загрузка успешна
@@ -297,10 +292,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
         throw new Error(`Failed to load some resources: ${errors.join(", ")}`)
       }
 
-      const totalResources = 
-        results.effects.data.length +
-        results.filters.data.length +
-        results.transitions.data.length
+      const totalResources = results.effects.data.length + results.filters.data.length + results.transitions.data.length
 
       return {
         success: true,
@@ -309,7 +301,8 @@ class EffectsProviderImpl implements EffectsProviderAPI {
         timestamp: Date.now(),
       }
     } catch (error) {
-      throw new Error(`Failed to load built-in resources: ${error}`)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      throw new Error(`Failed to load built-in resources: ${errorMessage}`)
     }
   }
 
@@ -318,7 +311,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     this.resources.set("effects:local", [])
     this.resources.set("filters:local", [])
     this.resources.set("transitions:local", [])
-    
+
     return {
       success: true,
       data: [],
@@ -332,7 +325,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     this.resources.set("effects:remote", [])
     this.resources.set("filters:remote", [])
     this.resources.set("transitions:remote", [])
-    
+
     return {
       success: true,
       data: [],
@@ -346,7 +339,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     this.resources.set("effects:imported", [])
     this.resources.set("filters:imported", [])
     this.resources.set("transitions:imported", [])
-    
+
     return {
       success: true,
       data: [],
@@ -362,15 +355,15 @@ class EffectsProviderImpl implements EffectsProviderAPI {
   async refreshSource(source: ResourceSource): Promise<LoadResult> {
     // Удаляем из кэша
     this.clearSourceCache(source)
-    
+
     // Удаляем из загруженных источников
     this.loadingState.loadedSources.delete(source)
-    
+
     // Загружаем заново
     return this.loadSource(source)
   }
 
-  async preloadCategory(type: ResourceType, category: string): Promise<LoadResult> {
+  async preloadCategory(_type: ResourceType, _category: string): Promise<LoadResult> {
     // TODO: Реализовать предзагрузку категории
     return {
       success: true,
@@ -411,10 +404,8 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
     // Подсчитываем ресурсы по источникам
     for (const source of this.loadingState.loadedSources) {
-      stats.bySource[source] = 
-        this.getEffects(source).length + 
-        this.getFilters(source).length + 
-        this.getTransitions(source).length
+      stats.bySource[source] =
+        this.getEffects(source).length + this.getFilters(source).length + this.getTransitions(source).length
     }
 
     return stats
@@ -490,9 +481,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
   private updateLoadingState(updates: Partial<LoadingState>): void {
     this.loadingState = { ...this.loadingState, ...updates }
-    this.eventListeners.loadingStateChange.forEach(callback => 
-      callback(this.loadingState)
-    )
+    this.eventListeners.loadingStateChange.forEach((callback) => callback(this.loadingState))
   }
 }
 
@@ -524,9 +513,7 @@ export function EffectsProvider({ children, config = {}, onError }: EffectsProvi
         })
 
         // Загружаем начальные источники
-        const loadPromises = finalConfig.initialSources.map(source => 
-          api.loadSource(source)
-        )
+        const loadPromises = finalConfig.initialSources.map((source) => api.loadSource(source))
 
         await Promise.allSettled(loadPromises)
 
@@ -537,10 +524,11 @@ export function EffectsProvider({ children, config = {}, onError }: EffectsProvi
           setTimeout(() => {
             if (!cancelled) {
               const backgroundSources: ResourceSource[] = ["local", "imported"]
-              backgroundSources.forEach(source => {
+              backgroundSources.forEach((source) => {
                 if (!api.isSourceLoaded(source)) {
-                  api.loadSource(source).catch(error => {
-                    console.warn(`Background loading failed for ${source}:`, error)
+                  api.loadSource(source).catch((error: unknown) => {
+                    const errorMessage = error instanceof Error ? error.message : String(error)
+                    console.warn(`Background loading failed for ${source}:`, errorMessage)
                   })
                 }
               })
@@ -557,24 +545,23 @@ export function EffectsProvider({ children, config = {}, onError }: EffectsProvi
       }
     }
 
-    initialize()
+    void initialize()
 
     return () => {
       cancelled = true
     }
   }, [finalConfig, api, onError])
 
-  const contextValue = useMemo<EffectsProviderContext>(() => ({
-    api,
-    config: finalConfig,
-    isInitialized,
-  }), [api, finalConfig, isInitialized])
-
-  return (
-    <EffectsProviderContextValue.Provider value={contextValue}>
-      {children}
-    </EffectsProviderContextValue.Provider>
+  const contextValue = useMemo<EffectsProviderContext>(
+    () => ({
+      api,
+      config: finalConfig,
+      isInitialized,
+    }),
+    [api, finalConfig, isInitialized],
   )
+
+  return <EffectsProviderContextValue.Provider value={contextValue}>{children}</EffectsProviderContextValue.Provider>
 }
 
 /**
@@ -582,11 +569,11 @@ export function EffectsProvider({ children, config = {}, onError }: EffectsProvi
  */
 export function useEffectsProvider(): EffectsProviderContext {
   const context = useContext(EffectsProviderContextValue)
-  
+
   if (!context) {
     throw new Error("useEffectsProvider must be used within an EffectsProvider")
   }
-  
+
   return context
 }
 
