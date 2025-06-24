@@ -39,6 +39,37 @@ src-tauri/src/
 ├── main.rs              # Точка входа
 ├── lib.rs              # Корневой модуль с регистрацией команд
 │
+├── core/               # 🆕 Core инфраструктура
+│   ├── mod.rs         # Основной модуль
+│   ├── di.rs          # Dependency Injection контейнер
+│   ├── events.rs      # Event system
+│   ├── test_utils.rs  # Тестовая инфраструктура
+│   │
+│   ├── plugins/       # Plugin система
+│   │   ├── mod.rs
+│   │   ├── plugin.rs      # Базовые структуры плагинов
+│   │   ├── manager.rs     # Менеджер жизненного цикла
+│   │   ├── permissions.rs # Система разрешений
+│   │   ├── sandbox.rs     # WASM sandbox
+│   │   ├── loader.rs      # Загрузчик WASM
+│   │   ├── api.rs        # Plugin API
+│   │   └── context.rs    # Контекст выполнения
+│   │
+│   ├── telemetry/     # Telemetry система
+│   │   ├── mod.rs
+│   │   ├── metrics.rs     # OpenTelemetry метрики
+│   │   ├── health.rs      # Health checks
+│   │   ├── tracer.rs      # Distributed tracing
+│   │   ├── middleware.rs  # HTTP middleware
+│   │   └── config.rs      # Конфигурация
+│   │
+│   └── performance/   # Performance оптимизация
+│       ├── mod.rs
+│       ├── runtime.rs     # Worker pools
+│       ├── cache.rs       # Кэширование
+│       ├── memory.rs      # Memory pools
+│       └── zerocopy.rs    # Zero-copy операции
+│
 ├── app_dirs/           # Управление директориями приложения
 │   ├── mod.rs
 │   └── commands.rs    # Команды для работы с директориями
@@ -126,6 +157,228 @@ src-tauri/src/
         ├── mocks.rs        # Моки для тестов
         └── integration.rs  # Интеграционные тесты
 ```
+
+## 🎯 Core инфраструктура
+
+### Dependency Injection
+
+```rust
+// core/di.rs
+use std::any::{Any, TypeId};
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+pub struct ServiceContainer {
+    services: Arc<RwLock<HashMap<TypeId, ServiceEntry>>>,
+}
+
+impl ServiceContainer {
+    pub async fn register<T>(&self, service: T) -> Result<()>
+    where
+        T: Service + Any + Send + Sync + 'static,
+    {
+        let entry = ServiceEntry {
+            service: Arc::new(service),
+            metadata: ServiceMetadata {
+                name: T::NAME,
+                initialized: false,
+            },
+        };
+        
+        self.services.write().await
+            .insert(TypeId::of::<T>(), entry);
+        Ok(())
+    }
+    
+    pub async fn resolve<T>(&self) -> Result<Arc<T>>
+    where
+        T: Service + Any + Send + Sync + 'static,
+    {
+        self.services.read().await
+            .get(&TypeId::of::<T>())
+            .and_then(|entry| entry.service.clone().downcast::<T>().ok())
+            .ok_or_else(|| VideoCompilerError::ServiceNotFound(
+                std::any::type_name::<T>().to_string()
+            ))
+    }
+}
+```
+
+### Event System
+
+```rust
+// core/events.rs
+pub struct EventBus {
+    subscribers: Arc<RwLock<HashMap<TypeId, Vec<EventSubscription>>>>,
+}
+
+impl EventBus {
+    pub async fn subscribe<E>(&self, handler: impl EventHandler<E>) 
+    where
+        E: Event + 'static,
+    {
+        let subscription = EventSubscription {
+            handler: Box::new(handler),
+            priority: Priority::Normal,
+        };
+        
+        self.subscribers.write().await
+            .entry(TypeId::of::<E>())
+            .or_default()
+            .push(subscription);
+    }
+    
+    pub async fn publish<E>(&self, event: E) -> Result<()>
+    where
+        E: Event + Clone + 'static,
+    {
+        if let Some(subscriptions) = self.subscribers.read().await.get(&TypeId::of::<E>()) {
+            for subscription in subscriptions {
+                subscription.handler.handle(event.clone()).await?;
+            }
+        }
+        Ok(())
+    }
+}
+```
+
+### Plugin System
+
+```rust
+// core/plugins/manager.rs
+pub struct PluginManager {
+    plugins: HashMap<PluginId, Plugin>,
+    sandbox: WasmSandbox,
+    permissions: PermissionManager,
+}
+
+impl PluginManager {
+    pub async fn load_plugin(&mut self, path: &str) -> Result<PluginId> {
+        // Загрузка WASM модуля
+        let wasm_module = self.sandbox.load_module(path).await?;
+        
+        // Получение метаданных плагина
+        let metadata = wasm_module.get_metadata()?;
+        
+        // Проверка разрешений
+        self.permissions.validate(&metadata.required_permissions)?;
+        
+        // Создание плагина
+        let plugin = Plugin {
+            id: PluginId::new(&metadata.name),
+            metadata,
+            wasm_module: Some(wasm_module),
+            state: PluginState::Loaded,
+        };
+        
+        let id = plugin.id.clone();
+        self.plugins.insert(id.clone(), plugin);
+        
+        Ok(id)
+    }
+    
+    pub async fn execute_command(
+        &self,
+        plugin_id: &PluginId,
+        command: &str,
+        args: serde_json::Value,
+    ) -> Result<serde_json::Value> {
+        let plugin = self.plugins.get(plugin_id)
+            .ok_or(PluginError::NotFound)?;
+        
+        // Проверка состояния плагина
+        if plugin.state != PluginState::Running {
+            return Err(PluginError::NotRunning);
+        }
+        
+        // Выполнение в sandbox
+        self.sandbox.execute_command(
+            &plugin.wasm_module,
+            command,
+            args,
+            &plugin.metadata.permissions,
+        ).await
+    }
+}
+```
+
+### Telemetry System
+
+```rust
+// core/telemetry/metrics.rs
+pub struct Metrics {
+    meter: Meter,
+    counters: Arc<RwLock<HashMap<String, Counter<u64>>>>,
+    gauges: Arc<RwLock<HashMap<String, ObservableGauge<f64>>>>,
+    histograms: Arc<RwLock<HashMap<String, Histogram<f64>>>>,
+}
+
+impl Metrics {
+    pub async fn increment_counter(&self, name: &str, value: u64) -> Result<()> {
+        let counter = self.get_or_create_counter(name).await?;
+        counter.add(value, &[]);
+        Ok(())
+    }
+    
+    pub async fn record_histogram(&self, name: &str, value: f64) -> Result<()> {
+        let histogram = self.get_or_create_histogram(name).await?;
+        histogram.record(value, &[]);
+        Ok(())
+    }
+    
+    pub async fn collect_system_metrics(&self) -> Result<()> {
+        let cpu_usage = get_cpu_usage();
+        let memory_usage = get_memory_usage();
+        
+        self.set_gauge("system_cpu_usage_percent", cpu_usage).await?;
+        self.set_gauge("system_memory_usage_bytes", memory_usage as f64).await?;
+        
+        Ok(())
+    }
+}
+```
+
+### Performance Optimization
+
+```rust
+// core/performance/runtime.rs
+pub struct WorkerPool {
+    pool_id: String,
+    executor: Arc<ThreadPoolExecutor>,
+    config: TaskPoolConfig,
+    metrics: Arc<PoolMetrics>,
+}
+
+impl WorkerPool {
+    pub async fn execute<F, T>(&self, task: F) -> Result<T>
+    where
+        F: Future<Output = T> + Send + 'static,
+        T: Send + 'static,
+    {
+        // Проверка загрузки пула
+        if self.is_overloaded() {
+            self.metrics.rejected_tasks.fetch_add(1, Ordering::Relaxed);
+            return Err(PerformanceError::PoolOverloaded);
+        }
+        
+        // Выполнение задачи
+        let start = Instant::now();
+        let result = self.executor.spawn(task).await?;
+        
+        // Обновление метрик
+        let duration = start.elapsed();
+        self.metrics.tasks_executed.fetch_add(1, Ordering::Relaxed);
+        self.metrics.total_execution_time.fetch_add(
+            duration.as_millis() as u64,
+            Ordering::Relaxed
+        );
+        
+        Ok(result)
+    }
+}
+```
+
+📖 **[Подробная документация Core модулей](../../src-tauri/src/core/README.md)**
 
 ## 🔧 Tauri интеграция
 

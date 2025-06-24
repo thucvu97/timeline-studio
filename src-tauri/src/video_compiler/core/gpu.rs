@@ -12,7 +12,7 @@ use crate::video_compiler::error::{Result, VideoCompilerError};
 use serde::{Deserialize, Serialize};
 
 /// Типы GPU кодировщиков
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum GpuEncoder {
   /// Нет GPU ускорения (CPU only)
   None,
@@ -69,7 +69,7 @@ impl GpuEncoder {
 }
 
 /// Информация о GPU
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GpuInfo {
   pub name: String,
   pub driver_version: Option<String>,
