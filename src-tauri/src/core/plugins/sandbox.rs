@@ -383,7 +383,7 @@ impl<'a> Drop for NetworkGuard<'a> {
 }
 
 /// Статистика sandbox
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct SandboxStats {
   pub plugin_id: String,
   pub memory_used: u64,

@@ -4,6 +4,8 @@
 //! без изменения основного кода.
 
 pub mod api;
+pub mod api_factory;
+pub mod commands;
 pub mod context;
 pub mod loader;
 pub mod manager;

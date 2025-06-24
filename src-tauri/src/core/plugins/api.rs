@@ -3,6 +3,7 @@
 use crate::{
   core::{
     di::ServiceContainer,
+    events::{AppEvent, EventBus},
     plugins::permissions::{PluginPermissions, SecurityLevel},
   },
   video_compiler::error::{Result, VideoCompilerError},
@@ -300,6 +301,7 @@ pub struct PluginApiImpl {
   #[allow(dead_code)]
   app_handle: tauri::AppHandle,
   storage_path: PathBuf,
+  event_bus: Arc<EventBus>,
 }
 
 impl PluginApiImpl {
@@ -309,6 +311,7 @@ impl PluginApiImpl {
     service_container: Arc<ServiceContainer>,
     app_handle: tauri::AppHandle,
     storage_path: PathBuf,
+    event_bus: Arc<EventBus>,
   ) -> Self {
     Self {
       plugin_id,
@@ -316,6 +319,7 @@ impl PluginApiImpl {
       service_container,
       app_handle,
       storage_path,
+      event_bus,
     }
   }
 
@@ -442,23 +446,62 @@ impl PluginApi for PluginApiImpl {
     // Проверка разрешений
     self.check_permission("media_read")?;
 
-    // TODO: Реализовать через MediaProcessor когда будет доступен из состояния
-    log::warn!(
-      "[Plugin {}] get_media_info is not fully implemented yet",
-      self.plugin_id
+    // TODO: Интеграция с реальными сервисами будет добавлена в следующих итерациях
+    // Пока используем улучшенную заглушку с проверкой файла
+    log::info!(
+      "[Plugin {}] Processing media info request for: {}",
+      self.plugin_id,
+      media_id
     );
 
-    // Возвращаем заглушку
-    Ok(MediaInfo {
-      id: media_id.to_string(),
-      path: PathBuf::from(media_id),
-      duration: 0.0,
-      width: 1920,
-      height: 1080,
-      fps: 30.0,
-      codec: "h264".to_string(),
-      bitrate: 5000000,
-    })
+    let media_path = PathBuf::from(media_id);
+
+    // Проверяем существование файла если это путь
+    if media_path.exists() {
+      // Пытаемся определить базовую информацию из метаданных файла
+      if let Ok(metadata) = tokio::fs::metadata(&media_path).await {
+        log::info!(
+          "[Plugin {}] Found media file: {} (size: {} bytes)",
+          self.plugin_id,
+          media_id,
+          metadata.len()
+        );
+
+        Ok(MediaInfo {
+          id: media_id.to_string(),
+          path: media_path,
+          duration: 0.0, // TODO: Определить через FFmpeg
+          width: 1920,
+          height: 1080,
+          fps: 30.0,
+          codec: "unknown".to_string(),
+          bitrate: 0,
+        })
+      } else {
+        Err(VideoCompilerError::InvalidParameter(format!(
+          "Cannot access media file: {}",
+          media_id
+        )))
+      }
+    } else {
+      // Возможно media_id это не путь к файлу, а ID в базе данных
+      log::warn!(
+        "[Plugin {}] Media ID '{}' is not a valid file path, treating as media ID",
+        self.plugin_id,
+        media_id
+      );
+
+      Ok(MediaInfo {
+        id: media_id.to_string(),
+        path: PathBuf::from(media_id),
+        duration: 0.0,
+        width: 1920,
+        height: 1080,
+        fps: 30.0,
+        codec: "h264".to_string(),
+        bitrate: 5000000,
+      })
+    }
   }
 
   async fn apply_effect(&self, _media_id: &str, _effect: Effect) -> Result<()> {
@@ -470,13 +513,7 @@ impl PluginApi for PluginApiImpl {
     // Проверка разрешений
     self.check_permission("media_read")?;
 
-    // TODO: Реализовать через PreviewService когда будет доступен
-    log::warn!(
-      "[Plugin {}] generate_thumbnail is not fully implemented yet",
-      self.plugin_id
-    );
-
-    // Возвращаем путь к заглушке
+    // Создаем директорию для thumbnails
     let thumbnail_dir = self.storage_path.join("thumbnails");
     tokio::fs::create_dir_all(&thumbnail_dir)
       .await
@@ -488,11 +525,71 @@ impl PluginApi for PluginApiImpl {
       (time * 1000.0) as u64
     ));
 
-    // TODO: Генерировать реальный thumbnail
-    // Пока создаем пустой файл
-    tokio::fs::write(&thumbnail_path, b"")
-      .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+    // TODO: Интеграция с PreviewService будет добавлена в следующих итерациях
+    // Пока создаем заглушку thumbnail
+    log::info!(
+      "[Plugin {}] Generating thumbnail placeholder for: {} at time {}",
+      self.plugin_id,
+      media_id,
+      time
+    );
+
+    let media_path = PathBuf::from(media_id);
+
+    // Проверяем существование медиа файла
+    if media_path.exists() {
+      log::info!(
+        "[Plugin {}] Media file exists, creating thumbnail placeholder",
+        self.plugin_id
+      );
+
+      // Создаем простую заглушку (1x1 пиксель в формате JPEG)
+      let placeholder_jpeg = vec![
+        0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00,
+        0x48, 0x00, 0x48, 0x00, 0x00, 0xFF, 0xDB, 0x00, 0x43, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        0xC0, 0x00, 0x11, 0x08, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x11, 0x00, 0x02, 0x11, 0x01,
+        0x03, 0x11, 0x01, 0xFF, 0xC4, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0xFF, 0xC4, 0x00, 0x14, 0x10,
+        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0xFF, 0xDA, 0x00, 0x0C, 0x03, 0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00, 0x3F,
+        0x00, 0x00, 0xFF, 0xD9,
+      ];
+
+      tokio::fs::write(&thumbnail_path, placeholder_jpeg)
+        .await
+        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+
+      // Публикуем событие о создании thumbnail
+      if let Err(e) = self
+        .event_bus
+        .publish_app_event(AppEvent::ThumbnailGenerated {
+          media_id: media_id.to_string(),
+          thumbnail_path: thumbnail_path.to_string_lossy().to_string(),
+        })
+        .await
+      {
+        log::warn!(
+          "[Plugin {}] Failed to publish ThumbnailGenerated event: {}",
+          self.plugin_id,
+          e
+        );
+      }
+    } else {
+      log::warn!(
+        "[Plugin {}] Media file not found: {}, creating empty placeholder",
+        self.plugin_id,
+        media_id
+      );
+
+      // Создаем пустой файл для несуществующего медиа
+      tokio::fs::write(&thumbnail_path, b"")
+        .await
+        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+    }
 
     Ok(thumbnail_path)
   }
@@ -537,8 +634,28 @@ impl PluginApi for PluginApiImpl {
       clip.start_time
     );
 
-    // TODO: Отправлять событие через EventBus когда будет реализована интеграция
-    log::debug!("[Plugin {}] Event: timeline.clip.added", self.plugin_id);
+    // Публикуем событие о добавлении клипа через EventBus
+    if let Err(e) = self
+      .event_bus
+      .publish_app_event(AppEvent::PluginEvent {
+        plugin_id: self.plugin_id.clone(),
+        event: serde_json::json!({
+          "type": "timeline.clip.added",
+          "clip_id": clip_id,
+          "track_id": clip.track_id,
+          "start_time": clip.start_time,
+          "duration": clip.duration,
+          "media_id": clip.media_id
+        }),
+      })
+      .await
+    {
+      log::warn!(
+        "[Plugin {}] Failed to publish clip added event: {}",
+        self.plugin_id,
+        e
+      );
+    }
 
     Ok(clip_id)
   }
@@ -549,8 +666,24 @@ impl PluginApi for PluginApiImpl {
 
     log::info!("[Plugin {}] Removing clip {}", self.plugin_id, clip_id);
 
-    // TODO: Отправлять событие через EventBus когда будет реализована интеграция
-    log::debug!("[Plugin {}] Event: timeline.clip.removed", self.plugin_id);
+    // Публикуем событие об удалении клипа через EventBus
+    if let Err(e) = self
+      .event_bus
+      .publish_app_event(AppEvent::PluginEvent {
+        plugin_id: self.plugin_id.clone(),
+        event: serde_json::json!({
+          "type": "timeline.clip.removed",
+          "clip_id": clip_id
+        }),
+      })
+      .await
+    {
+      log::warn!(
+        "[Plugin {}] Failed to publish clip removed event: {}",
+        self.plugin_id,
+        e
+      );
+    }
 
     Ok(())
   }
@@ -561,8 +694,24 @@ impl PluginApi for PluginApiImpl {
 
     log::info!("[Plugin {}] Updating clip {}", self.plugin_id, clip_id);
 
-    // TODO: Отправлять событие через EventBus когда будет реализована интеграция
-    log::debug!("[Plugin {}] Event: timeline.clip.updated", self.plugin_id);
+    // Публикуем событие об обновлении клипа через EventBus
+    if let Err(e) = self
+      .event_bus
+      .publish_app_event(AppEvent::PluginEvent {
+        plugin_id: self.plugin_id.clone(),
+        event: serde_json::json!({
+          "type": "timeline.clip.updated",
+          "clip_id": clip_id
+        }),
+      })
+      .await
+    {
+      log::warn!(
+        "[Plugin {}] Failed to publish clip updated event: {}",
+        self.plugin_id,
+        e
+      );
+    }
 
     Ok(())
   }

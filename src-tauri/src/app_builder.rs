@@ -243,9 +243,23 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::execute_ffmpeg_simple_no_progress,
     crate::video_compiler::commands::get_ffmpeg_executor_capabilities,
     crate::video_compiler::commands::check_ffmpeg_executor_availability,
+    // Plugin system commands
+    crate::core::plugins::commands::load_plugin,
+    crate::core::plugins::commands::unload_plugin,
+    crate::core::plugins::commands::list_loaded_plugins,
+    crate::core::plugins::commands::list_available_plugins,
+    crate::core::plugins::commands::send_plugin_command,
+    crate::core::plugins::commands::get_plugin_info,
+    crate::core::plugins::commands::suspend_plugin,
+    crate::core::plugins::commands::resume_plugin,
+    crate::core::plugins::commands::get_plugins_sandbox_stats,
+    crate::core::plugins::commands::get_violating_plugins,
+    crate::core::plugins::commands::reset_plugin_violations,
+    crate::core::plugins::commands::register_example_plugins,
     // Misc commands
     crate::greet,
     crate::scan_media_folder,
     crate::scan_media_folder_with_thumbnails,
+    crate::test_plugin_system,
   ])
 }

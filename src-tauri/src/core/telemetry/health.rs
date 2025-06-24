@@ -633,7 +633,9 @@ mod tests {
 
     // Тест должен проверить что пороги применяются корректно
     // В зависимости от реального использования памяти результат может быть разным
-    let usage_percent = result.data.get("usage_percent")
+    let usage_percent = result
+      .data
+      .get("usage_percent")
       .and_then(|v| v.as_f64())
       .unwrap_or(0.0);
 
@@ -647,7 +649,7 @@ mod tests {
       assert_eq!(result.status, HealthStatus::Healthy);
       assert!(result.message.contains("Memory usage"));
     }
-    
+
     assert!(result.message.contains("memory usage"));
   }
 

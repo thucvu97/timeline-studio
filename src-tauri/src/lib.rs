@@ -99,6 +99,37 @@ async fn scan_media_folder_with_thumbnails<R: tauri::Runtime>(
   processor.scan_and_process(folder, thumbnail_options).await
 }
 
+/// Тестовая команда для проверки системы плагинов
+#[tauri::command]
+async fn test_plugin_system(
+  plugin_manager: tauri::State<'_, core::plugins::PluginManager>,
+) -> Result<String, String> {
+  // Получаем список доступных плагинов
+  let registry = plugin_manager.loader().registry();
+  let available_plugins = registry.list_plugins().await;
+
+  let mut results = Vec::new();
+  results.push("Plugin System Test Results:".to_string());
+  results.push(format!("Available plugins: {}", available_plugins.len()));
+
+  for plugin in &available_plugins {
+    results.push(format!(
+      "- {} v{} ({})",
+      plugin.name, plugin.version, plugin.author
+    ));
+  }
+
+  // Получаем список загруженных плагинов
+  let loaded_plugins = plugin_manager.list_loaded_plugins().await;
+  results.push(format!("Loaded plugins: {}", loaded_plugins.len()));
+
+  for (id, state) in &loaded_plugins {
+    results.push(format!("- {} (state: {:?})", id, state));
+  }
+
+  Ok(results.join("\n"))
+}
+
 // This is where you export your tauri app
 pub fn run() {
   // Ensure app directories exist on startup
@@ -149,6 +180,29 @@ pub fn run() {
           // Continue running without secure storage
         }
       }
+
+      // Initialize Plugin Manager
+      let app_version = core::plugins::plugin::Version::new(0, 23, 0); // Current app version
+      let event_bus = std::sync::Arc::new(core::EventBus::new());
+      let service_container = std::sync::Arc::new(core::di::ServiceContainer::new());
+
+      let plugin_manager = core::plugins::PluginManager::new(
+        app_version,
+        event_bus.clone(),
+        service_container.clone(),
+      );
+
+      // Регистрируем примеры плагинов
+      let registry = plugin_manager.loader().registry();
+      if let Err(e) = tauri::async_runtime::block_on(plugins::register_example_plugins(&registry)) {
+        log::warn!("Failed to register example plugins: {}", e);
+      } else {
+        log::info!("Example plugins registered successfully");
+      }
+
+      app.manage(plugin_manager);
+      app.manage(event_bus);
+      app.manage(service_container);
 
       log::info!("Application setup completed");
       Ok(())
