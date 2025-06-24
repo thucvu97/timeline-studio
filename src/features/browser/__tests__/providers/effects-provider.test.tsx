@@ -267,6 +267,32 @@ describe("EffectsProvider API", () => {
     expect(results[0].name).toContain("Test")
   })
 
+  it("должен поддерживать комбинированный поиск с фильтрацией по сложности", () => {
+    // Поиск только по complexity
+    const basicResults = api.searchResources("effects", { complexity: "basic" })
+    expect(basicResults).toHaveLength(1)
+    expect(basicResults[0].complexity).toBe("basic")
+
+    // Комбинированный поиск: query + complexity
+    const testBasicResults = api.searchResources("effects", { query: "test", complexity: "basic" })
+    expect(testBasicResults).toHaveLength(1)
+    expect(testBasicResults[0].name).toContain("Test")
+    expect(testBasicResults[0].complexity).toBe("basic")
+
+    // Комбинированный поиск: category + complexity
+    const colorIntermediateResults = api.searchResources("effects", { 
+      category: "color-correction", 
+      complexity: "intermediate" 
+    })
+    expect(colorIntermediateResults).toHaveLength(1)
+    expect(colorIntermediateResults[0].category).toBe("color-correction")
+    expect(colorIntermediateResults[0].complexity).toBe("intermediate")
+
+    // Поиск с несуществующей сложностью
+    const advancedResults = api.searchResources("effects", { complexity: "advanced" })
+    expect(advancedResults).toHaveLength(0)
+  })
+
   it("должен поддерживать фильтрацию по категории", () => {
     const artisticEffects = api.getResourcesByCategory("effects", "artistic")
     expect(artisticEffects).toHaveLength(1)
@@ -283,6 +309,31 @@ describe("EffectsProvider API", () => {
 
     const colorResources = api.getResourcesByTags("effects", ["color"])
     expect(colorResources).toHaveLength(1)
+  })
+
+  it("должен поддерживать фильтрацию по сложности", () => {
+    const basicEffects = api.getResourcesByComplexity("effects", "basic")
+    expect(basicEffects).toHaveLength(1)
+    expect(basicEffects[0].complexity).toBe("basic")
+    expect(basicEffects[0].id).toBe("test-effect-1")
+
+    const intermediateEffects = api.getResourcesByComplexity("effects", "intermediate")
+    expect(intermediateEffects).toHaveLength(1)
+    expect(intermediateEffects[0].complexity).toBe("intermediate")
+    expect(intermediateEffects[0].id).toBe("test-effect-2")
+
+    const advancedEffects = api.getResourcesByComplexity("effects", "advanced")
+    expect(advancedEffects).toHaveLength(0)
+
+    // Проверка для фильтров
+    const basicFilters = api.getResourcesByComplexity("filters", "basic")
+    expect(basicFilters).toHaveLength(1)
+    expect(basicFilters[0].complexity).toBe("basic")
+
+    // Проверка для переходов
+    const basicTransitions = api.getResourcesByComplexity("transitions", "basic")
+    expect(basicTransitions).toHaveLength(1)
+    expect(basicTransitions[0].complexity).toBe("basic")
   })
 
   it("должен поддерживать получение ресурса по ID", () => {
