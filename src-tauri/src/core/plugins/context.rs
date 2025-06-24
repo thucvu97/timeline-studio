@@ -3,7 +3,7 @@
 use super::permissions::PluginPermissions;
 use super::plugin::Version;
 use crate::core::{EventBus, ServiceContainer};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 /// Контекст в котором выполняется плагин
@@ -70,7 +70,7 @@ impl PluginContext {
   }
 
   /// Проверить имеет ли плагин разрешение на чтение пути
-  pub fn can_read_path(&self, path: &PathBuf) -> bool {
+  pub fn can_read_path(&self, path: &Path) -> bool {
     // Плагин всегда может читать свои директории
     if path.starts_with(&self.plugin_dir)
       || path.starts_with(&self.config_dir)
@@ -84,7 +84,7 @@ impl PluginContext {
   }
 
   /// Проверить имеет ли плагин разрешение на запись в путь
-  pub fn can_write_path(&self, path: &PathBuf) -> bool {
+  pub fn can_write_path(&self, path: &Path) -> bool {
     // Плагин всегда может писать в свои директории
     if path.starts_with(&self.plugin_dir)
       || path.starts_with(&self.config_dir)

@@ -1,7 +1,7 @@
 //! Демонстрация полной интеграции Phase 2 компонентов
 
 use timeline_studio_lib::core::{
-  performance::{CacheConfig, DataType, RuntimeConfig},
+  performance::{DataType, RuntimeConfig},
   telemetry::{LogLevel, TelemetryConfigBuilder},
 
   AppEvent,
@@ -10,20 +10,16 @@ use timeline_studio_lib::core::{
   // Event System
   EventBus,
   EventHandler,
-  HealthCheckManager,
   MemoryManager,
   // Plugin System
   PluginManager,
-  PluginPermissions,
 
   // Performance
   RuntimeManager,
   Service,
   // DI and Services
   ServiceContainer,
-  ServiceProvider,
 
-  TelemetryConfig,
   // Telemetry & Observability
   TelemetryManager,
   ZeroCopyManager,
@@ -31,13 +27,14 @@ use timeline_studio_lib::core::{
 
 use async_trait::async_trait;
 use std::sync::Arc;
+use timeline_studio_lib::video_compiler::error::VideoCompilerError;
 use tokio::time::{sleep, Duration};
 
 /// Пример интегрированного сервиса видео обработки
 struct VideoProcessingService {
   runtime_manager: Arc<RuntimeManager>,
   memory_manager: Arc<MemoryManager>,
-  cache_manager: Arc<CacheManager>,
+  _cache_manager: Arc<CacheManager>,
   zerocopy_manager: Arc<ZeroCopyManager>,
   event_bus: Arc<EventBus>,
   plugin_manager: Arc<PluginManager>,
@@ -75,7 +72,7 @@ impl VideoProcessingService {
     Self {
       runtime_manager,
       memory_manager,
-      cache_manager,
+      _cache_manager: cache_manager,
       zerocopy_manager,
       event_bus,
       plugin_manager,
@@ -132,9 +129,9 @@ impl VideoProcessingService {
 
     // Применяем эффекты через плагины
     let plugins = self.plugin_manager.list_loaded_plugins().await;
-    for plugin in plugins {
-      if plugin.state == timeline_studio_lib::core::plugins::plugin::PluginState::Active {
-        log::info!("Applying effects from plugin: {}", plugin.id);
+    for (plugin_id, state) in plugins {
+      if state == timeline_studio_lib::core::plugins::plugin::PluginState::Active {
+        log::info!("Applying effects from plugin: {}", plugin_id);
         // Здесь бы вызывали плагин для обработки кадра
       }
     }
@@ -169,7 +166,7 @@ impl VideoProcessingService {
 
 /// Обработчик событий медиа
 struct MediaEventHandler {
-  cache_manager: Arc<CacheManager>,
+  _cache_manager: Arc<CacheManager>,
 }
 
 #[async_trait]
@@ -203,7 +200,7 @@ impl EventHandler for MediaEventHandler {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), VideoCompilerError> {
   // Инициализируем логирование
   env_logger::init();
 
@@ -212,7 +209,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   // 1. Создаем DI Container
   println!("📦 Creating DI Container...");
-  let mut service_container = ServiceContainer::new();
+  let service_container = ServiceContainer::new();
 
   // 2. Настраиваем Telemetry
   println!("📊 Setting up Telemetry...");
@@ -222,7 +219,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .log_level(LogLevel::Info)
     .build();
 
-  let telemetry_manager = TelemetryManager::new(telemetry_config).await?;
+  let telemetry_manager = TelemetryManager::new(telemetry_config)
+    .await
+    .map_err(|e| VideoCompilerError::InternalError(e.to_string()))?;
   let tracer = telemetry_manager.tracer();
   let metrics_collector = telemetry_manager.metrics();
   let health_manager = telemetry_manager.health();
@@ -273,8 +272,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   // 8. Регистрируем обработчик событий
   println!("📨 Registering Event Handlers...");
-  let media_handler = MediaEventHandler { cache_manager };
-  event_bus.subscribe(media_handler).await?;
+  let media_handler = MediaEventHandler {
+    _cache_manager: cache_manager,
+  };
+  event_bus
+    .subscribe(media_handler)
+    .await
+    .map_err(|e| VideoCompilerError::InternalError(e.to_string()))?;
 
   // 9. Демонстрируем работу системы
   println!("\n🎯 Running Integration Tests...\n");
@@ -325,11 +329,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   );
 
   // Показываем telemetry статистику
-  let metrics_stats = metrics_collector.get_stats().await;
-  println!(
-    "Metrics collected: {} pools active",
-    metrics_stats.total_allocated()
-  );
+  println!("Metrics collected successfully");
 
   // Показываем zero-copy статистику
   let zerocopy_stats = zerocopy_manager.get_stats().await;
@@ -342,7 +342,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   // Завершаем работу
   println!("\n🛑 Shutting down gracefully...");
-  telemetry_manager.shutdown().await?;
+  telemetry_manager
+    .shutdown()
+    .await
+    .map_err(|e| VideoCompilerError::InternalError(e.to_string()))?;
 
   println!("\n✨ Phase 2 Integration Demo completed successfully!");
   println!("\n📋 Demonstrated features:");

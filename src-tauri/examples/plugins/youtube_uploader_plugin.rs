@@ -8,7 +8,7 @@ use timeline_studio_lib::core::plugins::{
   AppEventType, Plugin, PluginCommand, PluginContext, PluginDependency, PluginMetadata,
   PluginResponse, PluginType, Version,
 };
-use timeline_studio_lib::core::{AppEvent, EventBus};
+use timeline_studio_lib::core::AppEvent;
 use timeline_studio_lib::video_compiler::error::Result;
 use tokio::sync::Mutex;
 
@@ -107,7 +107,7 @@ impl YouTubeUploaderPlugin {
   }
 
   /// Симуляция процесса загрузки
-  async fn process_upload_queue(&self) {
+  async fn _process_upload_queue(&self) {
     loop {
       let task = {
         let mut queue = self.upload_queue.lock().await;
@@ -205,9 +205,9 @@ impl Plugin for YouTubeUploaderPlugin {
     self.initialized = true;
 
     // Запускаем обработчик очереди загрузок
-    let queue = self.upload_queue.clone();
-    let plugin_context = self.context.clone();
-    let metadata = self.metadata.clone();
+    let _queue = self.upload_queue.clone();
+    let _plugin_context = self.context.clone();
+    let _metadata = self.metadata.clone();
 
     tokio::spawn(async move {
       // В реальном плагине здесь был бы цикл обработки
@@ -325,7 +325,7 @@ impl Plugin for YouTubeUploaderPlugin {
 
       "set_api_key" => {
         // Установить API ключ
-        let api_key = command
+        let _api_key = command
           .params
           .get("api_key")
           .and_then(|v| v.as_str())
@@ -375,29 +375,27 @@ impl Plugin for YouTubeUploaderPlugin {
   }
 
   async fn handle_event(&self, event: &AppEvent) -> Result<()> {
-    match event {
-      AppEvent::RenderCompleted {
-        job_id,
-        output_path,
-      } => {
-        log::info!("YouTube Uploader: Render completed - {}", output_path);
+    if let AppEvent::RenderCompleted {
+      job_id,
+      output_path,
+    } = event
+    {
+      log::info!("YouTube Uploader: Render completed - {}", output_path);
 
-        // Можно автоматически предложить загрузку
-        if let Some(context) = &self.context {
-          context
-            .event_bus
-            .publish_app_event(AppEvent::PluginEvent {
-              plugin_id: self.metadata.id.clone(),
-              event: serde_json::json!({
-                  "type": "upload_available",
-                  "job_id": job_id,
-                  "video_path": output_path,
-              }),
-            })
-            .await?;
-        }
+      // Можно автоматически предложить загрузку
+      if let Some(context) = &self.context {
+        context
+          .event_bus
+          .publish_app_event(AppEvent::PluginEvent {
+            plugin_id: self.metadata.id.clone(),
+            event: serde_json::json!({
+                "type": "upload_available",
+                "job_id": job_id,
+                "video_path": output_path,
+            }),
+          })
+          .await?;
       }
-      _ => {}
     }
 
     Ok(())

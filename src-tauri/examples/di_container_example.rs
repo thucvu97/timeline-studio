@@ -24,13 +24,13 @@ impl CacheManagerService {
     }
   }
 
-  async fn clear_cache(&self) -> Result<()> {
+  async fn _clear_cache(&self) -> Result<()> {
     log::info!("Clearing cache in: {}", self.cache_dir);
     // Логика очистки кэша
     Ok(())
   }
 
-  async fn get_cache_size(&self) -> Result<u64> {
+  async fn _get_cache_size(&self) -> Result<u64> {
     // Логика подсчета размера кэша
     Ok(1024) // Возвращаем тестовое значение
   }
@@ -257,12 +257,12 @@ mod advanced {
   use super::*;
 
   /// Сервис базы данных
-  struct DatabaseService {
+  struct _DatabaseService {
     connection_string: String,
   }
 
   #[async_trait]
-  impl Service for DatabaseService {
+  impl Service for _DatabaseService {
     async fn initialize(&mut self) -> Result<()> {
       log::info!("Connecting to database: {}", self.connection_string);
       Ok(())
@@ -274,15 +274,15 @@ mod advanced {
   }
 
   /// Сервис который зависит от DatabaseService
-  struct UserService {
+  struct _UserService {
     // В реальном приложении здесь был бы Arc<DatabaseService>
     db_available: bool,
   }
 
-  impl UserService {
-    async fn create_with_dependencies(container: &ServiceContainer) -> Result<Self> {
+  impl _UserService {
+    async fn _create_with_dependencies(container: &ServiceContainer) -> Result<Self> {
       // Проверяем наличие зависимости
-      let db_available = container.has::<DatabaseService>().await;
+      let db_available = container.has::<_DatabaseService>().await;
 
       if !db_available {
         return Err(
@@ -297,7 +297,7 @@ mod advanced {
   }
 
   #[async_trait]
-  impl Service for UserService {
+  impl Service for _UserService {
     async fn initialize(&mut self) -> Result<()> {
       log::info!(
         "Initializing User Service (DB available: {})",

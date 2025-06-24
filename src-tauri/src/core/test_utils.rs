@@ -94,6 +94,12 @@ pub struct MockEventBus {
   subscribers: Arc<RwLock<HashMap<String, u32>>>,
 }
 
+impl Default for MockEventBus {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 impl MockEventBus {
   pub fn new() -> Self {
     Self {
@@ -134,6 +140,12 @@ impl MockEventBus {
 pub struct MockPluginManager {
   plugins: Arc<RwLock<Vec<String>>>,
   loaded_count: Arc<AtomicU32>,
+}
+
+impl Default for MockPluginManager {
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl MockPluginManager {

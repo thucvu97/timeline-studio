@@ -24,6 +24,12 @@ pub struct MockRenderCache {
   render_cache: HashMap<String, RenderCacheData>,
 }
 
+impl Default for MockRenderCache {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 impl MockRenderCache {
   #[allow(dead_code)]
   pub fn new() -> Self {
@@ -58,6 +64,12 @@ impl MockRenderCache {
 /// Мок GPU детектор
 pub struct MockGpuDetector {
   pub mock_capabilities: GpuCapabilities,
+}
+
+impl Default for MockGpuDetector {
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl MockGpuDetector {

@@ -18,8 +18,8 @@ struct CustomMediaEvent {
 #[derive(Debug, Clone)]
 enum MediaEventType {
   Imported,
-  Analyzed,
-  ThumbnailReady,
+  _Analyzed,
+  _ThumbnailReady,
 }
 
 /// Handler для обработки событий проекта
@@ -111,10 +111,10 @@ impl EventHandler for MediaEventHandler {
       MediaEventType::Imported => {
         println!("📥 Media imported: {}", event.media_id);
       }
-      MediaEventType::Analyzed => {
+      MediaEventType::_Analyzed => {
         println!("🔍 Media analyzed: {}", event.media_id);
       }
-      MediaEventType::ThumbnailReady => {
+      MediaEventType::_ThumbnailReady => {
         println!("🖼️ Thumbnail ready: {}", event.media_id);
       }
     }
@@ -252,7 +252,7 @@ async fn main() -> Result<()> {
 }
 
 /// Расширенный пример с цепочкой событий
-async fn advanced_example(event_bus: Arc<EventBus>) -> Result<()> {
+async fn _advanced_example(event_bus: Arc<EventBus>) -> Result<()> {
   // Handler который генерирует новые события в ответ на полученные
   struct ChainedEventHandler {
     event_bus: Arc<EventBus>,

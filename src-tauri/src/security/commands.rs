@@ -1,5 +1,6 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 use tauri::{AppHandle, State};
 use tokio::sync::Mutex;
 
@@ -55,7 +56,7 @@ pub async fn save_simple_api_key(
   params: SaveSimpleApiKeyParams,
 ) -> Result<ApiKeyOperationResult, String> {
   let key_type =
-    ApiKeyType::from_str(&params.key_type).ok_or_else(|| "Invalid key type".to_string())?;
+    ApiKeyType::from_str(&params.key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let mut storage_guard = storage.lock().await;
 
@@ -83,7 +84,7 @@ pub async fn save_oauth_credentials(
   params: SaveOAuthCredentialsParams,
 ) -> Result<ApiKeyOperationResult, String> {
   let key_type =
-    ApiKeyType::from_str(&params.key_type).ok_or_else(|| "Invalid key type".to_string())?;
+    ApiKeyType::from_str(&params.key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let oauth_data = OAuthCredentials {
     client_id: params.client_id.clone(),
@@ -124,7 +125,7 @@ pub async fn get_api_key_info(
   storage: SecureStorageState<'_>,
   key_type: String,
 ) -> Result<Option<ApiKeyInfo>, String> {
-  let key_type = ApiKeyType::from_str(&key_type).ok_or_else(|| "Invalid key type".to_string())?;
+  let key_type = ApiKeyType::from_str(&key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let mut storage_guard = storage.lock().await;
 
@@ -158,7 +159,7 @@ pub async fn get_decrypted_api_key(
   storage: SecureStorageState<'_>,
   key_type: String,
 ) -> Result<Option<String>, String> {
-  let key_type = ApiKeyType::from_str(&key_type).ok_or_else(|| "Invalid key type".to_string())?;
+  let key_type = ApiKeyType::from_str(&key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let mut storage_guard = storage.lock().await;
 
@@ -211,7 +212,7 @@ pub async fn delete_api_key(
   storage: SecureStorageState<'_>,
   key_type: String,
 ) -> Result<ApiKeyOperationResult, String> {
-  let key_type = ApiKeyType::from_str(&key_type).ok_or_else(|| "Invalid key type".to_string())?;
+  let key_type = ApiKeyType::from_str(&key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let mut storage_guard = storage.lock().await;
 
@@ -235,7 +236,7 @@ pub async fn validate_api_key(
   storage: SecureStorageState<'_>,
   key_type: String,
 ) -> Result<ValidationResult, String> {
-  let key_type = ApiKeyType::from_str(&key_type).ok_or_else(|| "Invalid key type".to_string())?;
+  let key_type = ApiKeyType::from_str(&key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let mut storage_guard = storage.lock().await;
 
@@ -280,7 +281,7 @@ pub fn generate_oauth_url(
   client_id: String,
   state: Option<String>,
 ) -> Result<String, String> {
-  let key_type = ApiKeyType::from_str(&key_type).ok_or_else(|| "Invalid key type".to_string())?;
+  let key_type = ApiKeyType::from_str(&key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let oauth_handler = OAuthHandler::new();
 
@@ -299,7 +300,7 @@ pub async fn exchange_oauth_code(
   client_secret: String,
   code: String,
 ) -> Result<ApiKeyOperationResult, String> {
-  let key_type = ApiKeyType::from_str(&key_type).ok_or_else(|| "Invalid key type".to_string())?;
+  let key_type = ApiKeyType::from_str(&key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let oauth_handler = OAuthHandler::new();
 
@@ -421,7 +422,7 @@ pub async fn refresh_oauth_token(
   storage: SecureStorageState<'_>,
   key_type: String,
 ) -> Result<ApiKeyOperationResult, String> {
-  let key_type = ApiKeyType::from_str(&key_type).ok_or_else(|| "Invalid key type".to_string())?;
+  let key_type = ApiKeyType::from_str(&key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let mut storage_guard = storage.lock().await;
 
@@ -495,7 +496,7 @@ pub async fn get_oauth_user_info(
   storage: SecureStorageState<'_>,
   key_type: String,
 ) -> Result<serde_json::Value, String> {
-  let key_type = ApiKeyType::from_str(&key_type).ok_or_else(|| "Invalid key type".to_string())?;
+  let key_type = ApiKeyType::from_str(&key_type).map_err(|_| "Invalid key type".to_string())?;
 
   let mut storage_guard = storage.lock().await;
 

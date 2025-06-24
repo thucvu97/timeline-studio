@@ -10,8 +10,8 @@ use plugins::{
 };
 use std::sync::Arc;
 use timeline_studio_lib::core::{
-  plugins::{PluginManager, PluginPermissions, SecurityLevel, Version},
-  AppEvent, EventBus, ServiceContainer,
+  plugins::{loader::PluginRegistration, PluginManager, SecurityLevel, Version},
+  AppEvent, EventBus, Plugin, ServiceContainer,
 };
 use timeline_studio_lib::video_compiler::error::Result;
 
@@ -47,12 +47,10 @@ async fn main() -> Result<()> {
   {
     let plugin = BlurEffectPlugin::new();
     let metadata = plugin.metadata().clone();
-    let factory = Box::new(|| {
-      Box::new(BlurEffectPlugin::new()) as Box<dyn timeline_studio_lib::core::plugins::Plugin>
-    });
+    let factory = Box::new(|| Box::new(BlurEffectPlugin::new()) as Box<dyn Plugin>);
 
     registry
-      .register(timeline_studio_lib::core::plugins::PluginRegistration { metadata, factory })
+      .register(PluginRegistration { metadata, factory })
       .await?;
 
     println!("✅ Registered Blur Effect Plugin");
@@ -62,12 +60,10 @@ async fn main() -> Result<()> {
   {
     let plugin = YouTubeUploaderPlugin::new();
     let metadata = plugin.metadata().clone();
-    let factory = Box::new(|| {
-      Box::new(YouTubeUploaderPlugin::new()) as Box<dyn timeline_studio_lib::core::plugins::Plugin>
-    });
+    let factory = Box::new(|| Box::new(YouTubeUploaderPlugin::new()) as Box<dyn Plugin>);
 
     registry
-      .register(timeline_studio_lib::core::plugins::PluginRegistration { metadata, factory })
+      .register(PluginRegistration { metadata, factory })
       .await?;
 
     println!("✅ Registered YouTube Uploader Plugin");
@@ -277,7 +273,7 @@ mod custom_plugin_example {
   }
 
   impl EventCounterPlugin {
-    pub fn new() -> Self {
+    pub fn _new() -> Self {
       Self {
         metadata: PluginMetadata {
           id: "event-counter".to_string(),

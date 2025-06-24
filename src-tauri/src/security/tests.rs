@@ -1,5 +1,6 @@
 use super::*;
 use chrono::Utc;
+use std::str::FromStr;
 
 #[cfg(test)]
 mod secure_storage_tests {
@@ -40,18 +41,18 @@ mod secure_storage_tests {
     assert_eq!(ApiKeyType::TauriAnalytics.as_str(), "tauri_analytics");
 
     // Test from_str
-    assert_eq!(ApiKeyType::from_str("openai"), Some(ApiKeyType::OpenAI));
-    assert_eq!(ApiKeyType::from_str("claude"), Some(ApiKeyType::Claude));
-    assert_eq!(ApiKeyType::from_str("youtube"), Some(ApiKeyType::YouTube));
-    assert_eq!(ApiKeyType::from_str("tiktok"), Some(ApiKeyType::TikTok));
-    assert_eq!(ApiKeyType::from_str("vimeo"), Some(ApiKeyType::Vimeo));
-    assert_eq!(ApiKeyType::from_str("telegram"), Some(ApiKeyType::Telegram));
-    assert_eq!(ApiKeyType::from_str("codecov"), Some(ApiKeyType::Codecov));
+    assert_eq!(ApiKeyType::from_str("openai"), Ok(ApiKeyType::OpenAI));
+    assert_eq!(ApiKeyType::from_str("claude"), Ok(ApiKeyType::Claude));
+    assert_eq!(ApiKeyType::from_str("youtube"), Ok(ApiKeyType::YouTube));
+    assert_eq!(ApiKeyType::from_str("tiktok"), Ok(ApiKeyType::TikTok));
+    assert_eq!(ApiKeyType::from_str("vimeo"), Ok(ApiKeyType::Vimeo));
+    assert_eq!(ApiKeyType::from_str("telegram"), Ok(ApiKeyType::Telegram));
+    assert_eq!(ApiKeyType::from_str("codecov"), Ok(ApiKeyType::Codecov));
     assert_eq!(
       ApiKeyType::from_str("tauri_analytics"),
-      Some(ApiKeyType::TauriAnalytics)
+      Ok(ApiKeyType::TauriAnalytics)
     );
-    assert_eq!(ApiKeyType::from_str("invalid"), None);
+    assert!(ApiKeyType::from_str("invalid").is_err());
   }
 
   #[test]

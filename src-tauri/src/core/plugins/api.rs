@@ -3,7 +3,7 @@
 use crate::video_compiler::error::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use uuid::Uuid;
 
 /// Информация о медиа файле
@@ -174,10 +174,10 @@ pub trait PluginApi: Send + Sync {
   async fn pick_directory(&self) -> Result<Option<PathBuf>>;
 
   /// Прочитать файл (с проверкой разрешений)
-  async fn read_file(&self, path: &PathBuf) -> Result<Vec<u8>>;
+  async fn read_file(&self, path: &Path) -> Result<Vec<u8>>;
 
   /// Записать файл (с проверкой разрешений)
-  async fn write_file(&self, path: &PathBuf, data: &[u8]) -> Result<()>;
+  async fn write_file(&self, path: &Path, data: &[u8]) -> Result<()>;
 
   // Системная информация
 
@@ -286,12 +286,12 @@ impl PluginApi for PluginApiImpl {
     todo!("Implement pick_directory")
   }
 
-  async fn read_file(&self, _path: &PathBuf) -> Result<Vec<u8>> {
+  async fn read_file(&self, _path: &Path) -> Result<Vec<u8>> {
     // TODO: Реализовать с проверкой разрешений
     todo!("Implement read_file")
   }
 
-  async fn write_file(&self, _path: &PathBuf, _data: &[u8]) -> Result<()> {
+  async fn write_file(&self, _path: &Path, _data: &[u8]) -> Result<()> {
     // TODO: Реализовать с проверкой разрешений
     todo!("Implement write_file")
   }

@@ -64,7 +64,7 @@ impl BlurEffectPlugin {
   }
 
   /// Генерировать FFmpeg фильтр для размытия
-  fn generate_ffmpeg_filter(&self) -> String {
+  fn _generate_ffmpeg_filter(&self) -> String {
     let radius = self.config.radius;
     let sigma = match self.config.quality {
       BlurQuality::Low => radius * 0.5,

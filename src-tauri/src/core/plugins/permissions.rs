@@ -1,7 +1,7 @@
 //! Система разрешений для плагинов
 
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Разрешения плагина
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -98,7 +98,7 @@ impl FileSystemPermissions {
   }
 
   /// Проверить может ли читать путь
-  pub fn can_read(&self, path: &PathBuf) -> bool {
+  pub fn can_read(&self, path: &Path) -> bool {
     if self.read_all {
       return true;
     }
@@ -110,7 +110,7 @@ impl FileSystemPermissions {
   }
 
   /// Проверить может ли писать в путь
-  pub fn can_write(&self, path: &PathBuf) -> bool {
+  pub fn can_write(&self, path: &Path) -> bool {
     if self.write_all {
       return true;
     }

@@ -2,7 +2,7 @@
 
 use std::time::Instant;
 use timeline_studio_lib::core::performance::{
-  AudioZeroCopy, DataType, VideoZeroCopy, ZeroCopyBuffer, ZeroCopyManager,
+  AudioZeroCopy, DataType, VideoZeroCopy, ZeroCopyManager,
 };
 
 #[tokio::main]

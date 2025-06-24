@@ -9,7 +9,7 @@ use timeline_studio_lib::video_compiler::error::Result;
 #[derive(Debug)]
 struct TestService {
   initialized: Arc<AtomicBool>,
-  name: String,
+  _name: String,
 }
 
 #[async_trait]
@@ -37,7 +37,7 @@ impl ServiceProvider for TestProvider {
 
     Ok(TestService {
       initialized: Arc::new(AtomicBool::new(false)),
-      name: format!("TestService-{}", count),
+      _name: format!("TestService-{}", count),
     })
   }
 }
@@ -49,7 +49,7 @@ async fn test_di_container_basic_operations() {
   // Test service registration
   let service = TestService {
     initialized: Arc::new(AtomicBool::new(false)),
-    name: "test".to_string(),
+    _name: "test".to_string(),
   };
 
   assert!(container.register(service).await.is_ok());
@@ -66,7 +66,7 @@ async fn test_di_container_arc_services() {
   let container = ServiceContainer::new();
   let service = Arc::new(TestService {
     initialized: Arc::new(AtomicBool::new(false)),
-    name: "arc-test".to_string(),
+    _name: "arc-test".to_string(),
   });
 
   // Register Arc service

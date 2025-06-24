@@ -7,6 +7,7 @@ use argon2::Argon2;
 use keyring::Entry;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::str::FromStr;
 use tauri_plugin_store::{Store, StoreBuilder};
 use uuid::Uuid;
 
@@ -43,19 +44,23 @@ impl ApiKeyType {
       ApiKeyType::TauriAnalytics => "tauri_analytics",
     }
   }
+}
 
-  pub fn from_str(s: &str) -> Option<Self> {
+impl FromStr for ApiKeyType {
+  type Err = String;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
     match s {
-      "openai" => Some(ApiKeyType::OpenAI),
-      "claude" => Some(ApiKeyType::Claude),
-      "deepseek" => Some(ApiKeyType::DeepSeek),
-      "youtube" => Some(ApiKeyType::YouTube),
-      "tiktok" => Some(ApiKeyType::TikTok),
-      "vimeo" => Some(ApiKeyType::Vimeo),
-      "telegram" => Some(ApiKeyType::Telegram),
-      "codecov" => Some(ApiKeyType::Codecov),
-      "tauri_analytics" => Some(ApiKeyType::TauriAnalytics),
-      _ => None,
+      "openai" => Ok(ApiKeyType::OpenAI),
+      "claude" => Ok(ApiKeyType::Claude),
+      "deepseek" => Ok(ApiKeyType::DeepSeek),
+      "youtube" => Ok(ApiKeyType::YouTube),
+      "tiktok" => Ok(ApiKeyType::TikTok),
+      "vimeo" => Ok(ApiKeyType::Vimeo),
+      "telegram" => Ok(ApiKeyType::Telegram),
+      "codecov" => Ok(ApiKeyType::Codecov),
+      "tauri_analytics" => Ok(ApiKeyType::TauriAnalytics),
+      _ => Err(format!("Unknown API key type: {}", s)),
     }
   }
 }
@@ -243,7 +248,7 @@ impl SecureStorage {
 
     for (key, _) in self.store.entries() {
       if let Some(service_name) = key.strip_prefix("api_key_") {
-        if let Some(key_type) = ApiKeyType::from_str(service_name) {
+        if let Ok(key_type) = ApiKeyType::from_str(service_name) {
           keys.push(key_type);
         }
       }

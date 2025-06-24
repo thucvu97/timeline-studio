@@ -4,6 +4,7 @@ mod commands_tests {
   use super::super::*;
   use chrono::Utc;
   use serde_json::json;
+  use std::str::FromStr;
 
   #[test]
   fn test_api_key_operation_result_serialization() {
@@ -200,7 +201,7 @@ mod commands_tests {
     };
 
     // This should be caught by ApiKeyType::from_str validation
-    assert!(ApiKeyType::from_str(&invalid_params.key_type).is_none());
+    assert!(ApiKeyType::from_str(&invalid_params.key_type).is_err());
 
     // Test valid key type
     let valid_params = SaveSimpleApiKeyParams {
@@ -208,7 +209,7 @@ mod commands_tests {
       value: "sk-test123".to_string(),
     };
 
-    assert!(ApiKeyType::from_str(&valid_params.key_type).is_some());
+    assert!(ApiKeyType::from_str(&valid_params.key_type).is_ok());
   }
 
   #[test]
