@@ -2,7 +2,25 @@ use tauri::{Builder, Runtime};
 
 /// Build Tauri application with all registered commands
 pub fn build_app<R: Runtime>() -> Builder<R> {
-  Builder::<R>::new().invoke_handler(tauri::generate_handler![
+  let mut builder = Builder::<R>::new()
+    // Register plugins
+    .plugin(tauri_plugin_log::Builder::new().build())
+    .plugin(tauri_plugin_notification::init())
+    .plugin(tauri_plugin_fs::init())
+    .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_websocket::init())
+    .plugin(tauri_plugin_opener::init())
+    .plugin(tauri_plugin_store::Builder::default().build())
+    .plugin(tauri_plugin_window::init());
+
+  // Platform-specific plugin registration
+  #[cfg(not(any(target_os = "android", target_os = "ios")))]
+  {
+    builder = builder.plugin(tauri_plugin_global_shortcut::Builder::new().build());
+  }
+
+  // Register command handler
+  builder.invoke_handler(tauri::generate_handler![
     // Language commands
     crate::language_tauri::get_app_language_tauri,
     crate::language_tauri::set_app_language_tauri,
