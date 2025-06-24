@@ -109,11 +109,12 @@ export const loadResourcesByCategory = vi.fn().mockImplementation(async (type: s
   }
 })
 
-export const loadResourcesInChunks = vi.fn().mockImplementation(async function* (type: string, chunkSize: number = 50) {
+export const loadResourcesInChunks = vi.fn().mockImplementation(async function* (type: string, chunkSize = 50) {
   const data = mockResourcesData[type as keyof typeof mockResourcesData] || []
+  const chunkSizeNum = Number(chunkSize)
   
-  for (let i = 0; i < data.length; i += chunkSize) {
-    const chunk = data.slice(i, i + chunkSize)
+  for (let i = 0; i < data.length; i += chunkSizeNum) {
+    const chunk = data.slice(i, i + chunkSizeNum)
     yield {
       success: true,
       data: chunk,
