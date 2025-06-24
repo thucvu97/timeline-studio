@@ -101,3 +101,121 @@ impl TelemetryManager {
     Ok(())
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[tokio::test]
+  async fn test_telemetry_manager_creation() {
+    let config = TelemetryConfig::default();
+    let manager = TelemetryManager::new(config).await;
+
+    assert!(manager.is_ok());
+    let manager = manager.unwrap();
+
+    // Проверяем что все компоненты созданы
+    // Arc всегда валидны, просто проверяем что они существуют
+    let _ = manager.tracer();
+    let _ = manager.metrics();
+    let _ = manager.health();
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_disabled() {
+    let config = TelemetryConfig {
+      enabled: false,
+      ..Default::default()
+    };
+
+    let manager = TelemetryManager::new(config).await;
+    assert!(manager.is_ok());
+
+    // Даже с отключенной телеметрией менеджер должен работать
+    let manager = manager.unwrap();
+    let tracer = manager.tracer();
+    let metrics = manager.metrics();
+    let health = manager.health();
+
+    // Компоненты должны быть созданы (Arc всегда валидны)
+    // Просто проверяем что можем получить ссылки
+    assert!(Arc::strong_count(&tracer) >= 1);
+    assert!(Arc::strong_count(&metrics) >= 1);
+    assert!(Arc::strong_count(&health) >= 1);
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_health_checks() {
+    let config = TelemetryConfig::default();
+    let manager = TelemetryManager::new(config).await.unwrap();
+
+    // Проверяем что базовые health checks добавлены
+    let checks = manager.health.list_checks().await;
+    assert!(checks.contains(&"database".to_string()));
+    assert!(checks.contains(&"memory".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_config_update() {
+    let config = TelemetryConfig::default();
+    let manager = TelemetryManager::new(config).await.unwrap();
+
+    // Обновляем конфигурацию
+    let new_config = TelemetryConfig {
+      service_name: "updated-service".to_string(),
+      ..Default::default()
+    };
+
+    let result = manager.update_config(new_config.clone()).await;
+    assert!(result.is_ok());
+
+    // Проверяем что конфигурация обновлена
+    let current_config = manager.config.read().await;
+    assert_eq!(current_config.service_name, "updated-service");
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_shutdown() {
+    let config = TelemetryConfig::default();
+    let manager = TelemetryManager::new(config).await.unwrap();
+
+    // Shutdown должен работать без ошибок
+    let result = manager.shutdown().await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_system_health_checks() {
+    use crate::core::plugins::plugin::Version;
+    use crate::core::{EventBus, PluginManager, ServiceContainer};
+
+    let config = TelemetryConfig::default();
+    let manager = TelemetryManager::new(config).await.unwrap();
+
+    // Создаем моковые компоненты
+    let event_bus = Arc::new(EventBus::new());
+    let service_container = Arc::new(ServiceContainer::new());
+    let app_version = Version {
+      major: 1,
+      minor: 0,
+      patch: 0,
+      pre_release: None,
+    };
+    let plugin_manager = Arc::new(PluginManager::new(
+      app_version,
+      event_bus.clone(),
+      service_container,
+    ));
+
+    // Добавляем системные health checks
+    let result = manager
+      .setup_system_health_checks(Some(event_bus), Some(plugin_manager))
+      .await;
+
+    assert!(result.is_ok());
+
+    // Проверяем что health checks добавлены
+    let checks = manager.health.list_checks().await;
+    assert!(checks.len() >= 2); // Как минимум database и memory
+  }
+}

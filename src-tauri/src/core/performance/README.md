@@ -151,9 +151,17 @@ coordinator.auto_tune_all_pools().await?;
 - FIFO (First In, First Out)
 - TTL (Time To Live) based
 - Hybrid стратегии
+- ClearableCache trait для универсальной очистки
 
 **Основные компоненты**:
 ```rust
+// Trait для универсальной очистки кэшей
+#[async_trait::async_trait]
+pub trait ClearableCache: Send + Sync {
+    async fn clear(&self);
+    fn cache_name(&self) -> &str;
+}
+
 pub struct Cache<K, V> {
     storage: Arc<RwLock<HashMap<K, CacheEntry<V>>>>,
     eviction_policy: EvictionPolicy,
@@ -237,6 +245,19 @@ where
 pub type VideoFrameCache = Cache<String, Vec<u8>>;      // Кэш кадров видео
 pub type ThumbnailCache = Cache<String, Vec<u8>>;       // Кэш миниатюр
 pub type MetadataCache = Cache<String, VideoMetadata>;   // Кэш метаданных
+
+// Менеджер для централизованного управления кэшами
+pub struct CacheManager {
+    caches: Arc<RwLock<HashMap<String, Box<dyn std::any::Any + Send + Sync>>>>,
+    clearable_caches: Arc<RwLock<HashMap<String, Box<dyn ClearableCache>>>>,
+}
+
+impl CacheManager {
+    pub async fn add_cache<K, V>(&self, name: String, cache: MemoryCache<K, V>)
+    pub async fn add_clearable_cache(&self, name: String, cache: Box<dyn ClearableCache>)
+    pub async fn clear_all(&self)  // Очищает все зарегистрированные кэши
+    pub async fn list_caches(&self) -> Vec<String>
+}
 ```
 
 **Примеры использования**:
@@ -281,6 +302,15 @@ let hybrid_cache = Cache::new(CacheConfig {
 // Мониторинг производительности кэша
 println!("Cache hit rate: {:.2}%", frame_cache.hit_rate() * 100.0);
 println!("Memory usage: {} MB", frame_cache.memory_usage() / (1024 * 1024));
+
+// Использование CacheManager для централизованной очистки
+let manager = CacheManager::new();
+manager.add_cache("frames".to_string(), frame_cache).await;
+manager.add_cache("thumbnails".to_string(), thumbnail_cache).await;
+
+// Очистка всех кэшей одной командой
+manager.clear_all().await;
+println!("All caches cleared!");
 ```
 
 ---
@@ -486,7 +516,7 @@ async fn transfer_zero_copy<S: ZeroCopySource, D: ZeroCopyDestination>(
 
 ## 🧪 Тестирование
 
-### Покрытие тестами: 29 unit тестов
+### Покрытие тестами: 32 unit тестов
 
 **`runtime.rs` (14 тестов)**:
 - ✅ Worker pool creation и configuration
@@ -497,7 +527,7 @@ async fn transfer_zero_copy<S: ZeroCopySource, D: ZeroCopyDestination>(
 - ✅ Metrics collection
 - ✅ System monitoring и auto-tuning
 
-**`cache.rs` (15 тестов)**:
+**`cache.rs` (18 тестов)**:
 - ✅ Все eviction policies (LRU, LFU, FIFO, TTL)
 - ✅ TTL expiration и cleanup
 - ✅ Concurrent access patterns
@@ -505,6 +535,9 @@ async fn transfer_zero_copy<S: ZeroCopySource, D: ZeroCopyDestination>(
 - ✅ Hit/miss statistics
 - ✅ Batch operations
 - ✅ Cache resizing
+- ✅ CacheManager operations (clear_all, list_caches)
+- ✅ ClearableCache trait implementation
+- ✅ Multi-type cache management
 
 **Примеры тестов**:
 ```rust
@@ -729,6 +762,17 @@ impl WorkerPool {
 - [Memory Management Best Practices](../../../../../docs-ru/05-video-compiler/memory-management.md)
 - [Caching Strategies](../../../../../docs-ru/05-video-compiler/caching.md)
 - [Backend Testing Architecture](../../../../../docs-ru/08-roadmap/in-progress/backend-testing-architecture.md)
+
+---
+
+## 🔨 Последние изменения
+
+### Cache Management Implementation (24.06.2025)
+- Добавлен **ClearableCache trait** для универсальной очистки кэшей
+- Реализован **CacheManager** с поддержкой различных типов кэшей
+- Добавлен метод `clear_all()` для централизованной очистки всех кэшей
+- Интегрирован с системой команд Tauri через `clear_all_cache` команду
+- Добавлены тесты для новой функциональности (3 новых теста)
 
 ---
 

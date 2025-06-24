@@ -63,6 +63,9 @@ pub struct ExporterConfig {
 
   /// Размер батча
   pub batch_size: usize,
+
+  /// Prometheus endpoint (например "0.0.0.0:9090")
+  pub prometheus_endpoint: Option<String>,
 }
 
 impl Default for ExporterConfig {
@@ -73,6 +76,7 @@ impl Default for ExporterConfig {
       headers: vec![],
       timeout: Duration::from_secs(10),
       batch_size: 512,
+      prometheus_endpoint: None,
     }
   }
 }
@@ -226,5 +230,125 @@ impl TelemetryConfigBuilder {
 
   pub fn build(self) -> TelemetryConfig {
     self.config
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_telemetry_config_default() {
+    let config = TelemetryConfig::default();
+
+    assert!(config.enabled);
+    assert_eq!(config.service_name, "timeline-studio");
+    assert_eq!(config.environment, "development");
+    assert_eq!(config.log_level, LogLevel::Info);
+  }
+
+  #[test]
+  fn test_exporter_config_default() {
+    let config = ExporterConfig::default();
+
+    assert_eq!(config.exporter_type, ExporterType::Console);
+    assert!(config.otlp_endpoint.is_none());
+    assert!(config.headers.is_empty());
+    assert_eq!(config.timeout, Duration::from_secs(10));
+    assert_eq!(config.batch_size, 512);
+    assert!(config.prometheus_endpoint.is_none());
+  }
+
+  #[test]
+  fn test_tracing_config_default() {
+    let config = TracingConfig::default();
+
+    assert_eq!(config.sample_rate, 1.0);
+    assert_eq!(config.max_attributes_per_span, 128);
+    assert_eq!(config.max_events_per_span, 128);
+    assert_eq!(config.max_links_per_span, 128);
+    assert_eq!(config.ignored_paths.len(), 3);
+    assert!(config.ignored_paths.contains(&"/health".to_string()));
+  }
+
+  #[test]
+  fn test_metrics_config_default() {
+    let config = MetricsConfig::default();
+
+    assert_eq!(config.collection_interval, Duration::from_secs(10));
+    assert_eq!(config.export_interval, Duration::from_secs(60));
+    assert!(config.runtime_metrics);
+    assert!(config.system_metrics);
+    assert!(config.process_metrics);
+  }
+
+  #[test]
+  fn test_log_level_conversion() {
+    assert_eq!(tracing::Level::from(LogLevel::Trace), tracing::Level::TRACE);
+    assert_eq!(tracing::Level::from(LogLevel::Debug), tracing::Level::DEBUG);
+    assert_eq!(tracing::Level::from(LogLevel::Info), tracing::Level::INFO);
+    assert_eq!(tracing::Level::from(LogLevel::Warn), tracing::Level::WARN);
+    assert_eq!(tracing::Level::from(LogLevel::Error), tracing::Level::ERROR);
+  }
+
+  #[test]
+  fn test_telemetry_config_builder() {
+    let config = TelemetryConfigBuilder::new()
+      .service_name("test-service")
+      .environment("production")
+      .log_level(LogLevel::Debug)
+      .sample_rate(0.5)
+      .build();
+
+    assert_eq!(config.service_name, "test-service");
+    assert_eq!(config.environment, "production");
+    assert_eq!(config.log_level, LogLevel::Debug);
+    assert_eq!(config.tracing.sample_rate, 0.5);
+  }
+
+  #[test]
+  fn test_telemetry_config_builder_otlp() {
+    let config = TelemetryConfigBuilder::new()
+      .otlp_endpoint("http://localhost:4317")
+      .build();
+
+    assert_eq!(config.exporter.exporter_type, ExporterType::Otlp);
+    assert_eq!(
+      config.exporter.otlp_endpoint,
+      Some("http://localhost:4317".to_string())
+    );
+  }
+
+  #[test]
+  fn test_sample_rate_clamping() {
+    // Тестируем что sample_rate ограничен диапазоном 0.0 - 1.0
+    let config1 = TelemetryConfigBuilder::new().sample_rate(2.0).build();
+    assert_eq!(config1.tracing.sample_rate, 1.0);
+
+    let config2 = TelemetryConfigBuilder::new().sample_rate(-0.5).build();
+    assert_eq!(config2.tracing.sample_rate, 0.0);
+
+    let config3 = TelemetryConfigBuilder::new().sample_rate(0.75).build();
+    assert_eq!(config3.tracing.sample_rate, 0.75);
+  }
+
+  #[test]
+  fn test_exporter_type_equality() {
+    assert_eq!(ExporterType::Console, ExporterType::Console);
+    assert_ne!(ExporterType::Console, ExporterType::Otlp);
+    assert_ne!(ExporterType::Prometheus, ExporterType::Jaeger);
+  }
+
+  #[test]
+  fn test_config_serialization() {
+    let config = TelemetryConfig::default();
+
+    // Проверяем что можем сериализовать и десериализовать
+    let json = serde_json::to_string(&config).unwrap();
+    let deserialized: TelemetryConfig = serde_json::from_str(&json).unwrap();
+
+    assert_eq!(config.service_name, deserialized.service_name);
+    assert_eq!(config.enabled, deserialized.enabled);
+    assert_eq!(config.environment, deserialized.environment);
   }
 }

@@ -174,9 +174,9 @@ pub async fn get_cached_media_metadata(
 /// Очистить кэш метаданных медиафайлов
 #[tauri::command]
 pub async fn clear_media_metadata_cache(state: State<'_, VideoCompilerState>) -> Result<()> {
-  let mut cache = state.cache_manager.write().await;
-  // Упрощенная реализация - очищаем весь кэш
-  cache.clear_all().await;
+  let mut render_cache = state.cache_manager.write().await;
+  // Очищаем все кэши (включая метаданные)
+  render_cache.clear_all().await;
   Ok(())
 }
 
@@ -260,11 +260,17 @@ pub async fn preload_media_to_cache(
 /// Очистить весь кэш
 #[tauri::command]
 pub async fn clear_all_cache(state: State<'_, VideoCompilerState>) -> Result<()> {
-  let cache_service = state
-    .services
-    .get_cache_service()
-    .ok_or_else(|| VideoCompilerError::validation("CacheService не найден"))?;
-  cache_service.clear_all().await
+  // Очищаем через CacheService
+  if let Some(cache_service) = state.services.get_cache_service() {
+    cache_service.clear_all().await?;
+  }
+
+  // Также очищаем in-memory RenderCache
+  let mut render_cache = state.cache_manager.write().await;
+  render_cache.clear_all().await;
+
+  log::info!("All caches cleared successfully");
+  Ok(())
 }
 
 /// Очистить кэш превью

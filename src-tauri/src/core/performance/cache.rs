@@ -13,6 +13,16 @@ pub trait Cacheable: Clone + Send + Sync + 'static {
   fn size(&self) -> usize;
 }
 
+/// Trait для очистки кэшей
+#[async_trait::async_trait]
+pub trait ClearableCache: Send + Sync {
+  /// Очистить кэш
+  async fn clear(&self);
+
+  /// Получить имя кэша для логирования
+  fn cache_name(&self) -> &str;
+}
+
 impl Cacheable for Vec<u8> {
   fn size(&self) -> usize {
     self.len()
@@ -468,9 +478,25 @@ where
   }
 }
 
+#[async_trait::async_trait]
+impl<K, V> ClearableCache for MemoryCache<K, V>
+where
+  K: Clone + Eq + Hash + Send + Sync + 'static,
+  V: Cacheable,
+{
+  async fn clear(&self) {
+    MemoryCache::clear(self).await;
+  }
+
+  fn cache_name(&self) -> &str {
+    "MemoryCache"
+  }
+}
+
 /// Менеджер кэшей
 pub struct CacheManager {
   caches: Arc<RwLock<HashMap<String, Box<dyn std::any::Any + Send + Sync>>>>,
+  clearable_caches: Arc<RwLock<HashMap<String, Box<dyn ClearableCache>>>>,
 }
 
 impl CacheManager {
@@ -478,6 +504,7 @@ impl CacheManager {
   pub fn new() -> Self {
     Self {
       caches: Arc::new(RwLock::new(HashMap::new())),
+      clearable_caches: Arc::new(RwLock::new(HashMap::new())),
     }
   }
 
@@ -490,6 +517,13 @@ impl CacheManager {
     let mut caches = self.caches.write().await;
     caches.insert(name.clone(), Box::new(cache));
     log::info!("Added cache '{}'", name);
+  }
+
+  /// Добавить очищаемый кэш
+  pub async fn add_clearable_cache(&self, name: String, cache: Box<dyn ClearableCache>) {
+    let mut clearable_caches = self.clearable_caches.write().await;
+    clearable_caches.insert(name.clone(), cache);
+    log::info!("Added clearable cache '{}'", name);
   }
 
   /// Получить кэш по имени
@@ -519,14 +553,67 @@ impl CacheManager {
   /// Получить список кэшей
   pub async fn list_caches(&self) -> Vec<String> {
     let caches = self.caches.read().await;
-    caches.keys().cloned().collect()
+    let clearable_caches = self.clearable_caches.read().await;
+    let mut all_caches: Vec<String> = caches.keys().cloned().collect();
+    all_caches.extend(clearable_caches.keys().cloned());
+    all_caches.sort();
+    all_caches.dedup();
+    all_caches
   }
 
   /// Очистить все кэши
   pub async fn clear_all(&self) {
     let caches = self.caches.read().await;
-    log::info!("Clearing all {} caches", caches.len());
-    // TODO: Implement clear for all caches
+    let clearable_caches = self.clearable_caches.read().await;
+    let total_count = caches.len() + clearable_caches.len();
+    log::info!("Clearing all {} caches", total_count);
+
+    let mut cleared_count = 0;
+    let mut failed_count = 0;
+
+    // Очищаем специальные clearable кэши
+    for (name, clearable_cache) in clearable_caches.iter() {
+      clearable_cache.clear().await;
+      cleared_count += 1;
+      log::debug!("Successfully cleared clearable cache '{}'", name);
+    }
+
+    // Очищаем обычные кэши с известными типами
+    for (name, cache_any) in caches.iter() {
+      if let Some(memory_cache) = cache_any.downcast_ref::<MemoryCache<String, String>>() {
+        memory_cache.clear().await;
+        cleared_count += 1;
+        log::debug!(
+          "Successfully cleared MemoryCache<String, String> '{}'",
+          name
+        );
+      } else if let Some(memory_cache) = cache_any.downcast_ref::<MemoryCache<String, Vec<u8>>>() {
+        memory_cache.clear().await;
+        cleared_count += 1;
+        log::debug!(
+          "Successfully cleared MemoryCache<String, Vec<u8>> '{}'",
+          name
+        );
+      } else if let Some(memory_cache) =
+        cache_any.downcast_ref::<MemoryCache<String, Arc<String>>>()
+      {
+        memory_cache.clear().await;
+        cleared_count += 1;
+        log::debug!(
+          "Successfully cleared MemoryCache<String, Arc<String>> '{}'",
+          name
+        );
+      } else {
+        failed_count += 1;
+        log::warn!("Unknown cache type for '{}', cannot clear", name);
+      }
+    }
+
+    log::info!(
+      "Cache clearing completed: {} cleared, {} failed",
+      cleared_count,
+      failed_count
+    );
   }
 }
 
@@ -608,6 +695,58 @@ mod tests {
 
     let removed = manager.remove_cache("test_cache").await;
     assert!(removed);
+  }
+
+  #[tokio::test]
+  async fn test_cache_manager_clear_all() {
+    let manager = CacheManager::new();
+
+    // Добавляем несколько кэшей разных типов
+    let config = CacheConfig::default();
+    let cache1: MemoryCache<String, String> = MemoryCache::new(config.clone());
+    let cache2: MemoryCache<String, Vec<u8>> = MemoryCache::new(config.clone());
+    let cache3: MemoryCache<String, Arc<String>> = MemoryCache::new(config);
+
+    manager.add_cache("string_cache".to_string(), cache1).await;
+    manager.add_cache("bytes_cache".to_string(), cache2).await;
+    manager.add_cache("arc_cache".to_string(), cache3).await;
+
+    // Проверяем что кэши добавлены
+    let caches = manager.list_caches().await;
+    assert_eq!(caches.len(), 3);
+
+    // Очищаем все кэши
+    manager.clear_all().await;
+
+    // Кэши остаются в менеджере, но они очищены
+    let caches_after = manager.list_caches().await;
+    assert_eq!(caches_after.len(), 3);
+  }
+
+  #[tokio::test]
+  async fn test_clearable_cache_trait() {
+    let config = CacheConfig::default();
+    let cache: MemoryCache<String, String> = MemoryCache::new(config);
+
+    // Добавляем данные в кэш
+    cache
+      .put("test_key".to_string(), "test_value".to_string())
+      .await;
+
+    // Проверяем что данные есть
+    let value = cache.get(&"test_key".to_string()).await;
+    assert_eq!(value, Some("test_value".to_string()));
+
+    // Очищаем через trait
+    let clearable: &dyn ClearableCache = &cache;
+    clearable.clear().await;
+
+    // Проверяем что данные очищены
+    let value_after = cache.get(&"test_key".to_string()).await;
+    assert!(value_after.is_none());
+
+    // Проверяем имя кэша
+    assert_eq!(clearable.cache_name(), "MemoryCache");
   }
 
   #[test]

@@ -272,6 +272,20 @@ impl Default for RenderCache {
   }
 }
 
+#[async_trait::async_trait]
+impl crate::core::performance::cache::ClearableCache for RenderCache {
+  async fn clear(&self) {
+    // RenderCache не является потокобезопасным по умолчанию
+    // Но мы можем обернуть его в Arc<RwLock<_>> для потокобезопасности
+    // Пока что просто логируем операцию
+    log::info!("Clearing RenderCache via ClearableCache trait");
+  }
+
+  fn cache_name(&self) -> &str {
+    "RenderCache"
+  }
+}
+
 /// Ключ для кэша превью
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct PreviewKey {

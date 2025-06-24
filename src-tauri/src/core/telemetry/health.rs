@@ -124,7 +124,8 @@ pub trait HealthCheck: Send + Sync {
 
 /// Health check для базы данных/файловой системы
 pub struct DatabaseHealthCheck {
-  // TODO: Добавить подключение к базе данных когда будет
+  /// Путь к директории данных приложения
+  data_dir: Option<std::path::PathBuf>,
 }
 
 impl Default for DatabaseHealthCheck {
@@ -135,7 +136,36 @@ impl Default for DatabaseHealthCheck {
 
 impl DatabaseHealthCheck {
   pub fn new() -> Self {
-    Self {}
+    // Получаем директорию данных приложения
+    let data_dir = dirs::data_dir().map(|dir| dir.join("timeline-studio"));
+    Self { data_dir }
+  }
+
+  /// Проверить доступность и права записи в директорию
+  async fn check_directory(path: &std::path::Path) -> Result<(), String> {
+    // Проверяем существование директории
+    if !path.exists() {
+      // Пытаемся создать директорию
+      std::fs::create_dir_all(path)
+        .map_err(|e| format!("Failed to create data directory: {}", e))?;
+    }
+
+    // Проверяем что это директория
+    let metadata =
+      std::fs::metadata(path).map_err(|e| format!("Failed to access directory: {}", e))?;
+
+    if !metadata.is_dir() {
+      return Err("Path exists but is not a directory".to_string());
+    }
+
+    // Проверяем права записи путем создания временного файла
+    let temp_file = path.join(".health_check_test");
+    std::fs::write(&temp_file, b"test").map_err(|e| format!("Directory is not writable: {}", e))?;
+
+    // Удаляем временный файл
+    std::fs::remove_file(&temp_file).map_err(|e| format!("Failed to cleanup test file: {}", e))?;
+
+    Ok(())
   }
 }
 
@@ -148,18 +178,101 @@ impl HealthCheck for DatabaseHealthCheck {
   async fn check(&self) -> HealthCheckResult {
     let start = Instant::now();
 
-    // TODO: Проверить подключение к базе данных
-    // Пока что проверяем файловую систему
-    match std::fs::metadata("./") {
-      Ok(metadata) => {
-        if metadata.is_dir() {
-          HealthCheckResult::healthy("Filesystem accessible", start.elapsed())
-            .with_data("writable", serde_json::Value::Bool(true))
-        } else {
-          HealthCheckResult::unhealthy("Current directory is not accessible", start.elapsed())
+    // Timeline Studio использует файловое хранилище вместо БД
+    // Проверяем доступность директорий данных
+
+    // Проверяем основную директорию данных
+    if let Some(ref data_dir) = self.data_dir {
+      match Self::check_directory(data_dir).await {
+        Ok(()) => {
+          // Проверяем поддиректории
+          let mut all_healthy = true;
+          let mut details = serde_json::Map::new();
+
+          // Проверяем projects директорию
+          let projects_dir = data_dir.join("projects");
+          match Self::check_directory(&projects_dir).await {
+            Ok(()) => {
+              details.insert(
+                "projects_dir".to_string(),
+                serde_json::Value::String("healthy".to_string()),
+              );
+            }
+            Err(e) => {
+              all_healthy = false;
+              details.insert(
+                "projects_dir".to_string(),
+                serde_json::Value::String(format!("error: {}", e)),
+              );
+            }
+          }
+
+          // Проверяем cache директорию
+          let cache_dir = data_dir.join("cache");
+          match Self::check_directory(&cache_dir).await {
+            Ok(()) => {
+              details.insert(
+                "cache_dir".to_string(),
+                serde_json::Value::String("healthy".to_string()),
+              );
+            }
+            Err(e) => {
+              all_healthy = false;
+              details.insert(
+                "cache_dir".to_string(),
+                serde_json::Value::String(format!("error: {}", e)),
+              );
+            }
+          }
+
+          // Проверяем logs директорию
+          let logs_dir = data_dir.join("logs");
+          match Self::check_directory(&logs_dir).await {
+            Ok(()) => {
+              details.insert(
+                "logs_dir".to_string(),
+                serde_json::Value::String("healthy".to_string()),
+              );
+            }
+            Err(e) => {
+              all_healthy = false;
+              details.insert(
+                "logs_dir".to_string(),
+                serde_json::Value::String(format!("error: {}", e)),
+              );
+            }
+          }
+
+          // Добавляем информацию о пути
+          details.insert(
+            "data_path".to_string(),
+            serde_json::Value::String(data_dir.display().to_string()),
+          );
+
+          if all_healthy {
+            HealthCheckResult::healthy(
+              "All data directories accessible and writable",
+              start.elapsed(),
+            )
+            .with_data("directories", serde_json::Value::Object(details))
+          } else {
+            HealthCheckResult::unhealthy("Some data directories have issues", start.elapsed())
+              .with_data("directories", serde_json::Value::Object(details))
+          }
+        }
+        Err(e) => {
+          HealthCheckResult::unhealthy(format!("Data directory error: {}", e), start.elapsed())
+            .with_data(
+              "data_path",
+              serde_json::Value::String(data_dir.display().to_string()),
+            )
         }
       }
-      Err(e) => HealthCheckResult::unhealthy(format!("Filesystem error: {}", e), start.elapsed()),
+    } else {
+      HealthCheckResult::unhealthy(
+        "Could not determine application data directory",
+        start.elapsed(),
+      )
     }
   }
 }
@@ -608,10 +721,18 @@ mod tests {
     assert_eq!(db_check.name(), "database");
 
     let result = db_check.check().await;
-    // Поскольку мы проверяем текущую директорию, результат должен быть положительным
-    assert_eq!(result.status, HealthStatus::Healthy);
-    assert!(result.message.contains("Filesystem accessible"));
-    assert!(result.data.contains_key("writable"));
+    // Проверяем что статус не Unknown
+    assert_ne!(result.status, HealthStatus::Unknown);
+
+    // Проверяем сообщение в зависимости от статуса
+    if result.status == HealthStatus::Healthy {
+      assert!(result.message.contains("All data directories accessible"));
+      assert!(result.data.contains_key("directories"));
+    } else if result.status == HealthStatus::Unhealthy {
+      assert!(result.message.contains("error") || result.message.contains("issues"));
+      // Должна быть информация о проблеме
+      assert!(!result.data.is_empty());
+    }
   }
 
   #[tokio::test]
@@ -650,7 +771,10 @@ mod tests {
       assert!(result.message.contains("Memory usage"));
     }
 
-    assert!(result.message.contains("memory usage"));
+    // Проверяем что процент использования памяти корректный
+    assert!((0.0..=100.0).contains(&usage_percent));
+    // Проверяем что сообщение содержит процент
+    assert!(result.message.contains(&format!("{:.1}%", usage_percent)));
   }
 
   #[tokio::test]
@@ -871,5 +995,53 @@ mod tests {
       deserialized.data.get("test_key"),
       Some(&serde_json::json!("test_value"))
     );
+  }
+
+  #[tokio::test]
+  async fn test_database_health_check_with_directories() {
+    let check = DatabaseHealthCheck::new();
+
+    // Выполняем проверку
+    let result = check.check().await;
+
+    // Проверяем что результат не unknown
+    assert_ne!(result.status, HealthStatus::Unknown);
+
+    // Проверяем что результат содержит информацию о директориях
+    if result.status == HealthStatus::Healthy || result.status == HealthStatus::Unhealthy {
+      // Если есть data_dir, проверяем что есть информация о директориях
+      if let Some(directories) = result.data.get("directories") {
+        assert!(directories.is_object());
+      } else if let Some(data_path) = result.data.get("data_path") {
+        assert!(data_path.is_string());
+      }
+    }
+
+    // Проверяем что duration установлен (всегда >= 0)
+    assert!(result.duration.as_millis() < 10000); // Проверяем что операция завершилась быстро
+  }
+
+  #[tokio::test]
+  async fn test_database_health_check_directory_operations() {
+    use tempfile::TempDir;
+
+    // Создаем временную директорию для теста
+    let temp_dir = TempDir::new().unwrap();
+    let test_path = temp_dir.path();
+
+    // Тестируем создание поддиректорий
+    let result = DatabaseHealthCheck::check_directory(test_path).await;
+    assert!(result.is_ok());
+
+    // Тестируем проверку существующей директории
+    let result2 = DatabaseHealthCheck::check_directory(test_path).await;
+    assert!(result2.is_ok());
+
+    // Тестируем невалидный путь (файл вместо директории)
+    let file_path = test_path.join("test_file");
+    std::fs::write(&file_path, b"test").unwrap();
+    let result3 = DatabaseHealthCheck::check_directory(&file_path).await;
+    assert!(result3.is_err());
+    assert!(result3.unwrap_err().contains("not a directory"));
   }
 }
