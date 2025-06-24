@@ -16,17 +16,16 @@ struct MediaProcessorService {
 
 impl MediaProcessorService {
   fn new(tracer: Arc<Tracer>, _collector: Arc<MetricsCollector>) -> Self {
-    Self { 
-      tracer,
-    }
+    Self { tracer }
   }
 
   async fn process_media(&self, file_path: &str) -> Result<(), VideoCompilerError> {
     // Трассируем операцию
     let tracer = self.tracer.clone();
     let file_path_owned = file_path.to_string();
-    
-    self.tracer
+
+    self
+      .tracer
       .trace("media.process", async move {
         log::info!("Processing media file: {}", file_path_owned);
 
@@ -59,13 +58,13 @@ impl MediaProcessorService {
         Ok(())
       })
       .await?;
-    
+
     // Note: In a real application, metrics would be created once during initialization
     // and reused across multiple operations. For this demo, we'll just log the metrics
     // instead of creating them multiple times.
     log::info!("Metric: media.files.imported type=video count=1");
     log::info!("Metric: media.processing.duration type=video value=100.0ms");
-    
+
     Ok(())
   }
 }
@@ -78,10 +77,7 @@ struct RenderService {
 
 impl RenderService {
   fn new(tracer: Arc<Tracer>, _collector: Arc<MetricsCollector>, event_bus: Arc<EventBus>) -> Self {
-    Self {
-      tracer,
-      event_bus,
-    }
+    Self { tracer, event_bus }
   }
 
   async fn render_project(&self, project_id: &str) -> Result<(), VideoCompilerError> {
@@ -93,7 +89,8 @@ impl RenderService {
     log::info!("Metric: render.jobs.active value=+1");
 
     // Публикуем событие начала
-    self.event_bus
+    self
+      .event_bus
       .publish_app_event(AppEvent::RenderStarted {
         job_id: job_id.clone(),
         project_id: project_id.to_string(),
@@ -104,7 +101,7 @@ impl RenderService {
     let event_bus = self.event_bus.clone();
     let job_id_for_span = job_id.clone();
     let job_id_for_async = job_id.clone();
-    
+
     let result = self
       .tracer
       .span("render.job")
@@ -138,12 +135,21 @@ impl RenderService {
 
     // Логируем метрики
     log::info!("Metric: render.jobs.active value=-1");
-    log::info!("Metric: render.duration project={} value=1000.0ms", project_id);
-    log::info!("Metric: render.frames.processed project={} count=100", project_id);
+    log::info!(
+      "Metric: render.duration project={} value=1000.0ms",
+      project_id
+    );
+    log::info!(
+      "Metric: render.frames.processed project={} count=100",
+      project_id
+    );
 
     // Обрабатываем ошибки
     if let Err(e) = &result {
-      log::info!("Metric: render.errors.total project={} error_type=unknown count=1", project_id);
+      log::info!(
+        "Metric: render.errors.total project={} error_type=unknown count=1",
+        project_id
+      );
 
       self
         .event_bus
@@ -227,7 +233,7 @@ async fn main() -> Result<(), VideoCompilerError> {
         // Параллельные операции
         let tracer_for_task1 = tracer_clone.clone();
         let tracer_for_task2 = tracer_clone.clone();
-        
+
         let (result1, result2) = tokio::join!(
           tracer_for_task1.trace("parallel_task_1", async {
             log::info!("Parallel task 1");
