@@ -15,6 +15,6 @@ pub use context::PluginContext;
 pub use manager::PluginManager;
 pub use permissions::{PluginPermissions, SecurityLevel};
 pub use plugin::{
-    AppEventType, Plugin, PluginCommand, PluginDependency, PluginMetadata, PluginResponse,
-    PluginType, Version,
+  AppEventType, Plugin, PluginCommand, PluginDependency, PluginMetadata, PluginResponse,
+  PluginType, Version,
 };
