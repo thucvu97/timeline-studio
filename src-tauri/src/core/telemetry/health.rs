@@ -128,9 +128,9 @@ pub struct DatabaseHealthCheck {
 }
 
 impl Default for DatabaseHealthCheck {
-    fn default() -> Self {
-        Self::new()
-    }
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl DatabaseHealthCheck {
@@ -171,9 +171,9 @@ pub struct MemoryHealthCheck {
 }
 
 impl Default for MemoryHealthCheck {
-    fn default() -> Self {
-        Self::new()
-    }
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl MemoryHealthCheck {
@@ -333,9 +333,9 @@ pub struct HealthCheckManager {
 }
 
 impl Default for HealthCheckManager {
-    fn default() -> Self {
-        Self::new()
-    }
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl HealthCheckManager {

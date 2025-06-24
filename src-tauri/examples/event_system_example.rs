@@ -263,38 +263,35 @@ async fn advanced_example(event_bus: Arc<EventBus>) -> Result<()> {
     type Event = AppEvent;
 
     async fn handle(&self, event: Self::Event) -> Result<()> {
-      match event {
-        AppEvent::MediaImported { media_id, .. } => {
-          // После импорта автоматически начинаем анализ
-          println!("🔗 Chained: Starting recognition for {}", media_id);
+      if let AppEvent::MediaImported { media_id, .. } = event {
+        // После импорта автоматически начинаем анализ
+        println!("🔗 Chained: Starting recognition for {}", media_id);
 
-          self
-            .event_bus
-            .publish_app_event(AppEvent::RecognitionStarted {
-              media_id: media_id.clone(),
-              model: "yolov8".to_string(),
-            })
-            .await?;
+        self
+          .event_bus
+          .publish_app_event(AppEvent::RecognitionStarted {
+            media_id: media_id.clone(),
+            model: "yolov8".to_string(),
+          })
+          .await?;
 
-          // Симуляция завершения распознавания
-          tokio::spawn({
-            let event_bus = self.event_bus.clone();
-            let media_id = media_id.clone();
-            async move {
-              tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-              let _ = event_bus
-                .publish_app_event(AppEvent::RecognitionCompleted {
-                  media_id,
-                  results: serde_json::json!({
-                      "objects": ["person", "car", "dog"],
-                      "confidence": [0.95, 0.87, 0.92]
-                  }),
-                })
-                .await;
-            }
-          });
-        }
-        _ => {}
+        // Симуляция завершения распознавания
+        tokio::spawn({
+          let event_bus = self.event_bus.clone();
+          let media_id = media_id.clone();
+          async move {
+            tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+            let _ = event_bus
+              .publish_app_event(AppEvent::RecognitionCompleted {
+                media_id,
+                results: serde_json::json!({
+                    "objects": ["person", "car", "dog"],
+                    "confidence": [0.95, 0.87, 0.92]
+                }),
+              })
+              .await;
+          }
+        });
       }
       Ok(())
     }

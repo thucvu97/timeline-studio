@@ -5,7 +5,6 @@ use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
 use timeline_studio_lib::core::{Service, ServiceContainer, ServiceProvider};
 use timeline_studio_lib::video_compiler::error::Result;
-use tokio::sync::RwLock;
 
 #[derive(Debug)]
 struct TestService {

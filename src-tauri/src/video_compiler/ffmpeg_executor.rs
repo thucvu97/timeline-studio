@@ -34,9 +34,9 @@ pub struct FFmpegExecutor {
 }
 
 impl Default for FFmpegExecutor {
-    fn default() -> Self {
-        Self::new()
-    }
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl FFmpegExecutor {

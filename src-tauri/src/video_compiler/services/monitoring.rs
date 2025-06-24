@@ -219,9 +219,9 @@ pub struct MetricsRegistry {
 }
 
 impl Default for MetricsRegistry {
-    fn default() -> Self {
-        Self::new()
-    }
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl MetricsRegistry {

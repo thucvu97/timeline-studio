@@ -186,9 +186,9 @@ pub struct TelemetryConfigBuilder {
 }
 
 impl Default for TelemetryConfigBuilder {
-    fn default() -> Self {
-        Self::new()
-    }
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl TelemetryConfigBuilder {
