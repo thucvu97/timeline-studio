@@ -82,14 +82,12 @@ export interface LoadResult<T = Resource[]> {
 /**
  * Кэш для ресурсов
  */
-export interface ResourceCache {
-  [key: string]: {
+export type ResourceCache = Record<string, {
     data: Resource[]
     timestamp: number
     source: ResourceSource
     size: number
-  }
-}
+  }>;
 
 /**
  * Конфигурация источника данных

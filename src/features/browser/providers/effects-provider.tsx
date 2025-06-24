@@ -1,0 +1,593 @@
+"use client"
+
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
+
+import type { VideoEffect } from "@/features/effects/types"
+import type { VideoFilter } from "@/features/filters/types/filters"
+import type { Transition } from "@/features/transitions/types/transitions"
+
+import type {
+  EffectsProviderAPI,
+  EffectsProviderContext,
+  EffectsProviderProps,
+  LoadResult,
+  LoadingConfig,
+  LoadingState,
+  Resource,
+  ResourceCache,
+  ResourceSource,
+  ResourceStats,
+  ResourceType,
+  SearchOptions,
+  SourceConfig,
+} from "../types/effects-provider"
+
+// Константы по умолчанию
+const DEFAULT_CONFIG: LoadingConfig = {
+  initialSources: ["built-in"],
+  backgroundLoadDelay: 1000,
+  enableCaching: true,
+  maxCacheSize: 50 * 1024 * 1024, // 50MB
+}
+
+const DEFAULT_SOURCE_CONFIGS: Record<ResourceSource, SourceConfig> = {
+  "built-in": {
+    source: "built-in",
+    enabled: true,
+    priority: 10,
+    timeout: 5000,
+  },
+  local: {
+    source: "local",
+    enabled: true,
+    priority: 8,
+    timeout: 3000,
+  },
+  remote: {
+    source: "remote",
+    enabled: false, // Отключен по умолчанию
+    priority: 5,
+    timeout: 10000,
+  },
+  imported: {
+    source: "imported",
+    enabled: true,
+    priority: 6,
+    timeout: 5000,
+  },
+}
+
+/**
+ * Контекст для EffectsProvider
+ */
+const EffectsProviderContextValue = createContext<EffectsProviderContext | null>(null)
+
+/**
+ * Внутренняя реализация EffectsProvider API
+ */
+class EffectsProviderImpl implements EffectsProviderAPI {
+  private resources = new Map<string, Resource[]>()
+  private cache: ResourceCache = {}
+  private loadingState: LoadingState = {
+    isLoading: false,
+    loadedSources: new Set(),
+    loadingQueue: [],
+    error: null,
+    progress: 0,
+  }
+  private sourceConfigs: Record<ResourceSource, SourceConfig> = { ...DEFAULT_SOURCE_CONFIGS }
+  private config: LoadingConfig
+  private eventListeners: {
+    loadingStateChange: ((state: LoadingState) => void)[]
+    resourcesUpdate: ((type: ResourceType, resources: Resource[]) => void)[]
+    error: ((error: string, source?: ResourceSource) => void)[]
+  } = {
+      loadingStateChange: [],
+      resourcesUpdate: [],
+      error: [],
+    }
+
+  constructor(config: LoadingConfig) {
+    this.config = config
+  }
+
+  // === Получение ресурсов ===
+
+  getEffects(source?: ResourceSource): VideoEffect[] {
+    return this.getResources<VideoEffect>("effects", source)
+  }
+
+  getFilters(source?: ResourceSource): VideoFilter[] {
+    return this.getResources<VideoFilter>("filters", source)
+  }
+
+  getTransitions(source?: ResourceSource): Transition[] {
+    return this.getResources<Transition>("transitions", source)
+  }
+
+  getResources<T extends Resource>(type: ResourceType, source?: ResourceSource): T[] {
+    const key = source ? `${type}:${source}` : type
+    const resources = this.resources.get(key) || []
+    
+    if (source) {
+      return resources as T[]
+    }
+
+    // Если источник не указан, объединяем ресурсы из всех загруженных источников
+    const allResources: T[] = []
+    for (const loadedSource of this.loadingState.loadedSources) {
+      const sourceKey = `${type}:${loadedSource}`
+      const sourceResources = this.resources.get(sourceKey) || []
+      allResources.push(...(sourceResources as T[]))
+    }
+
+    return allResources
+  }
+
+  getResourceById<T extends Resource>(type: ResourceType, id: string): T | null {
+    const resources = this.getResources<T>(type)
+    return resources.find(r => r.id === id) || null
+  }
+
+  // === Поиск и фильтрация ===
+
+  searchResources<T extends Resource>(type: ResourceType, options: SearchOptions): T[] {
+    let resources = this.getResources<T>(type, options.source)
+
+    // Поиск по тексту
+    if (options.query) {
+      const query = options.query.toLowerCase()
+      resources = resources.filter(resource => {
+        const name = 'name' in resource ? resource.name?.toLowerCase() : ''
+        const labels = 'labels' in resource ? Object.values(resource.labels).join(' ').toLowerCase() : ''
+        const description = 'description' in resource 
+          ? typeof resource.description === 'object' 
+            ? Object.values(resource.description).join(' ').toLowerCase()
+            : resource.description?.toLowerCase() || ''
+          : ''
+        
+        return name.includes(query) || labels.includes(query) || description.includes(query)
+      })
+    }
+
+    // Фильтрация по категории
+    if (options.category) {
+      resources = resources.filter(resource => 
+        'category' in resource && resource.category === options.category
+      )
+    }
+
+    // Фильтрация по тегам
+    if (options.tags && options.tags.length > 0) {
+      resources = resources.filter(resource => {
+        if (!('tags' in resource) || !Array.isArray(resource.tags)) return false
+        return options.tags!.some(tag => resource.tags.includes(tag as any))
+      })
+    }
+
+    // Фильтрация по сложности
+    if (options.complexity) {
+      resources = resources.filter(resource =>
+        'complexity' in resource && resource.complexity === options.complexity
+      )
+    }
+
+    // Пагинация
+    if (options.offset || options.limit) {
+      const start = options.offset || 0
+      const end = options.limit ? start + options.limit : undefined
+      resources = resources.slice(start, end)
+    }
+
+    return resources
+  }
+
+  getResourcesByCategory<T extends Resource>(type: ResourceType, category: string): T[] {
+    return this.searchResources<T>(type, { category })
+  }
+
+  getResourcesByTags<T extends Resource>(type: ResourceType, tags: string[]): T[] {
+    return this.searchResources<T>(type, { tags })
+  }
+
+  getResourcesByComplexity<T extends Resource>(type: ResourceType, complexity: string): T[] {
+    return this.searchResources<T>(type, { complexity })
+  }
+
+  // === Управление источниками ===
+
+  async loadSource(source: ResourceSource): Promise<LoadResult> {
+    if (this.loadingState.loadingQueue.includes(source)) {
+      return {
+        success: false,
+        data: [],
+        error: "Source is already loading",
+        source,
+        timestamp: Date.now(),
+      }
+    }
+
+    this.updateLoadingState({
+      isLoading: true,
+      loadingQueue: [...this.loadingState.loadingQueue, source],
+      error: null,
+    })
+
+    try {
+      const result = await this.loadSourceData(source)
+      
+      this.updateLoadingState({
+        loadedSources: new Set([...this.loadingState.loadedSources, source]),
+        loadingQueue: this.loadingState.loadingQueue.filter(s => s !== source),
+        isLoading: this.loadingState.loadingQueue.length > 1,
+        progress: (this.loadingState.loadedSources.size / Object.keys(this.sourceConfigs).length) * 100,
+      })
+
+      // Уведомляем подписчиков об обновлении ресурсов
+      ;(["effects", "filters", "transitions"] as ResourceType[]).forEach(type => {
+        const resources = this.getResources(type, source)
+        this.eventListeners.resourcesUpdate.forEach(callback => 
+          callback(type, resources)
+        )
+      })
+
+      return result
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      
+      this.updateLoadingState({
+        loadingQueue: this.loadingState.loadingQueue.filter(s => s !== source),
+        isLoading: this.loadingState.loadingQueue.length > 1,
+        error: errorMessage,
+      })
+
+      this.eventListeners.error.forEach(callback => callback(errorMessage, source))
+
+      return {
+        success: false,
+        data: [],
+        error: errorMessage,
+        source,
+        timestamp: Date.now(),
+      }
+    }
+  }
+
+  private async loadSourceData(source: ResourceSource): Promise<LoadResult> {
+    switch (source) {
+      case "built-in":
+        return this.loadBuiltInResources()
+      case "local":
+        return this.loadLocalResources()
+      case "remote":
+        return this.loadRemoteResources()
+      case "imported":
+        return this.loadImportedResources()
+      default:
+        throw new Error(`Unknown source: ${source}`)
+    }
+  }
+
+  private async loadBuiltInResources(): Promise<LoadResult> {
+    try {
+      // Используем оптимизированные ленивые загрузчики
+      const { loadAllResourcesLazy } = await import("../services/resource-loaders")
+      
+      const results = await loadAllResourcesLazy()
+
+      // Сохраняем ресурсы в кэш только если загрузка успешна
+      if (results.effects.success) {
+        this.resources.set("effects:built-in", results.effects.data)
+      }
+      if (results.filters.success) {
+        this.resources.set("filters:built-in", results.filters.data)
+      }
+      if (results.transitions.success) {
+        this.resources.set("transitions:built-in", results.transitions.data)
+      }
+
+      // Проверяем наличие ошибок
+      const errors = [
+        !results.effects.success ? results.effects.error : null,
+        !results.filters.success ? results.filters.error : null,
+        !results.transitions.success ? results.transitions.error : null,
+      ].filter(Boolean)
+
+      if (errors.length > 0) {
+        throw new Error(`Failed to load some resources: ${errors.join(", ")}`)
+      }
+
+      const totalResources = 
+        results.effects.data.length +
+        results.filters.data.length +
+        results.transitions.data.length
+
+      return {
+        success: true,
+        data: [],
+        source: "built-in",
+        timestamp: Date.now(),
+      }
+    } catch (error) {
+      throw new Error(`Failed to load built-in resources: ${error}`)
+    }
+  }
+
+  private async loadLocalResources(): Promise<LoadResult> {
+    // TODO: Реализовать загрузку локальных ресурсов из localStorage/IndexedDB
+    this.resources.set("effects:local", [])
+    this.resources.set("filters:local", [])
+    this.resources.set("transitions:local", [])
+    
+    return {
+      success: true,
+      data: [],
+      source: "local",
+      timestamp: Date.now(),
+    }
+  }
+
+  private async loadRemoteResources(): Promise<LoadResult> {
+    // TODO: Реализовать загрузку удаленных ресурсов
+    this.resources.set("effects:remote", [])
+    this.resources.set("filters:remote", [])
+    this.resources.set("transitions:remote", [])
+    
+    return {
+      success: true,
+      data: [],
+      source: "remote",
+      timestamp: Date.now(),
+    }
+  }
+
+  private async loadImportedResources(): Promise<LoadResult> {
+    // TODO: Реализовать загрузку импортированных ресурсов
+    this.resources.set("effects:imported", [])
+    this.resources.set("filters:imported", [])
+    this.resources.set("transitions:imported", [])
+    
+    return {
+      success: true,
+      data: [],
+      source: "imported",
+      timestamp: Date.now(),
+    }
+  }
+
+  isSourceLoaded(source: ResourceSource): boolean {
+    return this.loadingState.loadedSources.has(source)
+  }
+
+  async refreshSource(source: ResourceSource): Promise<LoadResult> {
+    // Удаляем из кэша
+    this.clearSourceCache(source)
+    
+    // Удаляем из загруженных источников
+    this.loadingState.loadedSources.delete(source)
+    
+    // Загружаем заново
+    return this.loadSource(source)
+  }
+
+  async preloadCategory(type: ResourceType, category: string): Promise<LoadResult> {
+    // TODO: Реализовать предзагрузку категории
+    return {
+      success: true,
+      data: [],
+      source: "built-in",
+      timestamp: Date.now(),
+    }
+  }
+
+  getSourceConfig(source: ResourceSource): SourceConfig | null {
+    return this.sourceConfigs[source] || null
+  }
+
+  updateSourceConfig(source: ResourceSource, config: Partial<SourceConfig>): void {
+    this.sourceConfigs[source] = { ...this.sourceConfigs[source], ...config }
+  }
+
+  // === Состояние и статистика ===
+
+  getLoadingState(): LoadingState {
+    return { ...this.loadingState }
+  }
+
+  getStats(): ResourceStats {
+    const stats: ResourceStats = {
+      total: 0,
+      byType: { effects: 0, filters: 0, transitions: 0 },
+      bySource: { "built-in": 0, local: 0, remote: 0, imported: 0 },
+      cacheSize: this.getCacheSize(),
+      memoryUsage: 0, // TODO: Подсчитать использование памяти
+    }
+
+    // Подсчитываем ресурсы по типам
+    stats.byType.effects = this.getEffects().length
+    stats.byType.filters = this.getFilters().length
+    stats.byType.transitions = this.getTransitions().length
+    stats.total = stats.byType.effects + stats.byType.filters + stats.byType.transitions
+
+    // Подсчитываем ресурсы по источникам
+    for (const source of this.loadingState.loadedSources) {
+      stats.bySource[source] = 
+        this.getEffects(source).length + 
+        this.getFilters(source).length + 
+        this.getTransitions(source).length
+    }
+
+    return stats
+  }
+
+  getCacheSize(): number {
+    return JSON.stringify(this.cache).length
+  }
+
+  // === Кэширование ===
+
+  clearCache(type?: ResourceType): void {
+    if (type) {
+      // Очищаем кэш для конкретного типа
+      for (const key of this.resources.keys()) {
+        if (key.startsWith(type)) {
+          this.resources.delete(key)
+        }
+      }
+    } else {
+      // Очищаем весь кэш
+      this.resources.clear()
+      this.cache = {}
+    }
+  }
+
+  clearSourceCache(source: ResourceSource): void {
+    for (const key of this.resources.keys()) {
+      if (key.endsWith(`:${source}`)) {
+        this.resources.delete(key)
+      }
+    }
+  }
+
+  invalidateCache(): void {
+    this.clearCache()
+    this.loadingState.loadedSources.clear()
+  }
+
+  // === События ===
+
+  onLoadingStateChange(callback: (state: LoadingState) => void): () => void {
+    this.eventListeners.loadingStateChange.push(callback)
+    return () => {
+      const index = this.eventListeners.loadingStateChange.indexOf(callback)
+      if (index > -1) {
+        this.eventListeners.loadingStateChange.splice(index, 1)
+      }
+    }
+  }
+
+  onResourcesUpdate(callback: (type: ResourceType, resources: Resource[]) => void): () => void {
+    this.eventListeners.resourcesUpdate.push(callback)
+    return () => {
+      const index = this.eventListeners.resourcesUpdate.indexOf(callback)
+      if (index > -1) {
+        this.eventListeners.resourcesUpdate.splice(index, 1)
+      }
+    }
+  }
+
+  onError(callback: (error: string, source?: ResourceSource) => void): () => void {
+    this.eventListeners.error.push(callback)
+    return () => {
+      const index = this.eventListeners.error.indexOf(callback)
+      if (index > -1) {
+        this.eventListeners.error.splice(index, 1)
+      }
+    }
+  }
+
+  // === Внутренние методы ===
+
+  private updateLoadingState(updates: Partial<LoadingState>): void {
+    this.loadingState = { ...this.loadingState, ...updates }
+    this.eventListeners.loadingStateChange.forEach(callback => 
+      callback(this.loadingState)
+    )
+  }
+}
+
+/**
+ * Компонент EffectsProvider
+ */
+export function EffectsProvider({ children, config = {}, onError }: EffectsProviderProps) {
+  const finalConfig = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config])
+  const [isInitialized, setIsInitialized] = useState(false)
+  const apiRef = useRef<EffectsProviderImpl>()
+
+  // Создаем API инстанс
+  if (!apiRef.current) {
+    apiRef.current = new EffectsProviderImpl(finalConfig)
+  }
+
+  const api = apiRef.current
+
+  // Инициализация при монтировании
+  useEffect(() => {
+    let cancelled = false
+
+    const initialize = async () => {
+      try {
+        // Подписываемся на ошибки
+        const unsubscribeError = api.onError((error, source) => {
+          console.error(`EffectsProvider error from ${source}:`, error)
+          onError?.(error)
+        })
+
+        // Загружаем начальные источники
+        const loadPromises = finalConfig.initialSources.map(source => 
+          api.loadSource(source)
+        )
+
+        await Promise.allSettled(loadPromises)
+
+        if (!cancelled) {
+          setIsInitialized(true)
+
+          // Запускаем фоновую загрузку других источников
+          setTimeout(() => {
+            if (!cancelled) {
+              const backgroundSources: ResourceSource[] = ["local", "imported"]
+              backgroundSources.forEach(source => {
+                if (!api.isSourceLoaded(source)) {
+                  api.loadSource(source).catch(error => {
+                    console.warn(`Background loading failed for ${source}:`, error)
+                  })
+                }
+              })
+            }
+          }, finalConfig.backgroundLoadDelay)
+        }
+
+        return () => {
+          unsubscribeError()
+        }
+      } catch (error) {
+        console.error("EffectsProvider initialization failed:", error)
+        onError?.(error instanceof Error ? error.message : String(error))
+      }
+    }
+
+    initialize()
+
+    return () => {
+      cancelled = true
+    }
+  }, [finalConfig, api, onError])
+
+  const contextValue = useMemo<EffectsProviderContext>(() => ({
+    api,
+    config: finalConfig,
+    isInitialized,
+  }), [api, finalConfig, isInitialized])
+
+  return (
+    <EffectsProviderContextValue.Provider value={contextValue}>
+      {children}
+    </EffectsProviderContextValue.Provider>
+  )
+}
+
+/**
+ * Хук для использования EffectsProvider
+ */
+export function useEffectsProvider(): EffectsProviderContext {
+  const context = useContext(EffectsProviderContextValue)
+  
+  if (!context) {
+    throw new Error("useEffectsProvider must be used within an EffectsProvider")
+  }
+  
+  return context
+}
+
+export type { EffectsProviderAPI, EffectsProviderContext, EffectsProviderProps }

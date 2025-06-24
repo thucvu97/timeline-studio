@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { BrowserTabLoadingBadge } from "./browser-loading-indicator"
+
 export const TAB_TRIGGER_STYLES =
   "h-[50px] text-xs text-gray-600 dark:bg-[#2D2D2D] border-none " +
   "hover:text-gray-900 dark:text-gray-400 dark:hover:bg-background dark:hover:text-gray-100 " +
@@ -67,7 +69,10 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
         data-state={activeTab === "effects" ? "active" : "inactive"}
       >
         <Sparkles className="h-4 w-4" />
-        <span>{t("browser.tabs.effects")}</span>
+        <span className="flex items-center gap-1">
+          {t("browser.tabs.effects")}
+          <BrowserTabLoadingBadge resourceType="effects" />
+        </span>
       </TabsTrigger>
       <TabsTrigger
         value="filters"
@@ -76,7 +81,10 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
         data-state={activeTab === "filters" ? "active" : "inactive"}
       >
         <Blend className="h-4 w-4" />
-        <span>{t("browser.tabs.filters")}</span>
+        <span className="flex items-center gap-1">
+          {t("browser.tabs.filters")}
+          <BrowserTabLoadingBadge resourceType="filters" />
+        </span>
       </TabsTrigger>
       <TabsTrigger
         value="transitions"
@@ -85,7 +93,10 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
         data-state={activeTab === "transitions" ? "active" : "inactive"}
       >
         <FlipHorizontal2 className="h-4 w-4" />
-        <span>{t("browser.tabs.transitions")}</span>
+        <span className="flex items-center gap-1">
+          {t("browser.tabs.transitions")}
+          <BrowserTabLoadingBadge resourceType="transitions" />
+        </span>
       </TabsTrigger>
       <TabsTrigger
         value="templates"

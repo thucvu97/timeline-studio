@@ -1,6 +1,7 @@
 import { Tabs } from "@/components/ui/tabs"
 import { BrowserStateProvider, useBrowserState } from "@/features/browser/services/browser-state-provider"
 
+import { EffectsProvider } from "../providers/effects-provider"
 import { BrowserContentNew as BrowserContent } from "./browser-content-new"
 import { BrowserTabs } from "./browser-tabs"
 
@@ -31,7 +32,19 @@ function BrowserWithState() {
 export function Browser() {
   return (
     <BrowserStateProvider>
-      <BrowserWithState />
+      <EffectsProvider
+        config={{
+          initialSources: ["built-in"],
+          backgroundLoadDelay: 1500,
+          enableCaching: true,
+          maxCacheSize: 50 * 1024 * 1024, // 50MB
+        }}
+        onError={(error) => {
+          console.error("Browser EffectsProvider Error:", error)
+        }}
+      >
+        <BrowserWithState />
+      </EffectsProvider>
     </BrowserStateProvider>
   )
 }

@@ -21,6 +21,14 @@ const nextConfig: NextConfig = {
         maxInitialRequests: 30,
         enforceSizeThreshold: 50000,
         cacheGroups: {
+          // Отдельный чанк для больших JSON ресурсов
+          browserResources: {
+            test: /[\\/](effects|filters|transitions)[\\/]data[\\/].*\.json$/,
+            name: 'browser-resources',
+            chunks: 'async',
+            priority: 20,
+            enforce: true,
+          },
           defaultVendors: {
             test: /[\\/]node_modules[\\/]/,
             priority: -10,

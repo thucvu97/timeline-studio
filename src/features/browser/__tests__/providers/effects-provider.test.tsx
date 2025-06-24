@@ -1,0 +1,299 @@
+import React from "react"
+
+import { render, screen, waitFor } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { EffectsProvider, useEffectsProvider } from "../../providers/effects-provider"
+
+// Мокаем ленивые загрузчики ресурсов
+vi.mock("../../services/resource-loaders", () => ({
+  loadAllResourcesLazy: vi.fn().mockResolvedValue({
+    effects: {
+      success: true,
+      data: [
+        {
+          id: "test-effect-1",
+          name: "Test Effect 1",
+          type: "blur",
+          category: "artistic",
+          complexity: "basic",
+          tags: ["test"],
+          description: { ru: "Тестовый эффект 1", en: "Test Effect 1" },
+          ffmpegCommand: () => "blur=5",
+          params: { intensity: 50 },
+          previewPath: "/test1.mp4",
+          labels: { en: "Test Effect 1", ru: "Тестовый эффект 1" },
+        },
+        {
+          id: "test-effect-2", 
+          name: "Test Effect 2",
+          type: "brightness",
+          category: "color-correction",
+          complexity: "intermediate",
+          tags: ["test", "color"],
+          description: { ru: "Тестовый эффект 2", en: "Test Effect 2" },
+          ffmpegCommand: () => "brightness=0.1",
+          params: { intensity: 75 },
+          previewPath: "/test2.mp4",
+          labels: { en: "Test Effect 2", ru: "Тестовый эффект 2" },
+        },
+      ],
+      source: "built-in",
+      timestamp: Date.now(),
+    },
+    filters: {
+      success: true,
+      data: [
+        {
+          id: "test-filter-1",
+          name: "Test Filter 1",
+          category: "color-correction",
+          complexity: "basic",
+          tags: ["test"],
+          description: { en: "Test Filter 1" },
+          labels: { en: "Test Filter 1", ru: "Тестовый фильтр 1" },
+          params: { brightness: 0, contrast: 0, saturation: 0 },
+        },
+      ],
+      source: "built-in",
+      timestamp: Date.now(),
+    },
+    transitions: {
+      success: true,
+      data: [
+        {
+          id: "test-transition-1",
+          type: "fade",
+          labels: { ru: "Тестовый переход 1", en: "Test Transition 1" },
+          description: { ru: "Тестовый переход 1", en: "Test Transition 1" },
+          category: "basic",
+          complexity: "basic",
+          tags: ["test"],
+          duration: { min: 0.5, max: 3, default: 1 },
+          ffmpegCommand: () => "fade",
+        },
+      ],
+      source: "built-in",
+      timestamp: Date.now(),
+    },
+  }),
+  loadEffectsLazy: vi.fn(),
+  loadFiltersLazy: vi.fn(),
+  loadTransitionsLazy: vi.fn(),
+}))
+
+// Тестовый компонент для проверки хуков
+function TestComponent() {
+  const { api, isInitialized } = useEffectsProvider()
+  const [effects, setEffects] = React.useState<any[]>([])
+  const [filters, setFilters] = React.useState<any[]>([])
+  const [transitions, setTransitions] = React.useState<any[]>([])
+
+  React.useEffect(() => {
+    if (isInitialized) {
+      setEffects(api.getEffects())
+      setFilters(api.getFilters())
+      setTransitions(api.getTransitions())
+    }
+  }, [api, isInitialized])
+
+  return (
+    <div>
+      <div data-testid="initialized">{String(isInitialized)}</div>
+      <div data-testid="effects-count">{effects.length}</div>
+      <div data-testid="filters-count">{filters.length}</div>
+      <div data-testid="transitions-count">{transitions.length}</div>
+      {effects.map(effect => (
+        <div key={effect.id} data-testid="effect-item">
+          {effect.name}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+describe("EffectsProvider", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("должен инициализироваться с встроенными ресурсами", async () => {
+    render(
+      <EffectsProvider>
+        <TestComponent />
+      </EffectsProvider>
+    )
+
+    // Ждем инициализации
+    await waitFor(() => {
+      expect(screen.getByTestId("initialized")).toHaveTextContent("true")
+    })
+
+    // Проверяем загруженные ресурсы
+    expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
+    expect(screen.getByTestId("filters-count")).toHaveTextContent("1")
+    expect(screen.getByTestId("transitions-count")).toHaveTextContent("1")
+
+    // Проверяем конкретные эффекты
+    expect(screen.getByText("Test Effect 1")).toBeInTheDocument()
+    expect(screen.getByText("Test Effect 2")).toBeInTheDocument()
+  })
+
+  it("должен обрабатывать ошибки инициализации", async () => {
+    const onError = vi.fn()
+
+    render(
+      <EffectsProvider onError={onError}>
+        <TestComponent />
+      </EffectsProvider>
+    )
+
+    // В случае успешной загрузки ошибок быть не должно
+    await waitFor(() => {
+      expect(screen.getByTestId("initialized")).toHaveTextContent("true")
+    })
+
+    expect(onError).not.toHaveBeenCalled()
+  })
+
+  it("должен поддерживать кастомную конфигурацию", async () => {
+    const config = {
+      initialSources: ["built-in" as const],
+      backgroundLoadDelay: 500,
+      enableCaching: false,
+      maxCacheSize: 1024,
+    }
+
+    render(
+      <EffectsProvider config={config}>
+        <TestComponent />
+      </EffectsProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId("initialized")).toHaveTextContent("true")
+    })
+
+    // Проверяем, что ресурсы все равно загружены
+    expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
+  })
+
+  it("должен выбрасывать ошибку при использовании хука вне провайдера", () => {
+    // Захватываем console.error для предотвращения вывода в тесте
+    const originalError = console.error
+    console.error = vi.fn()
+
+    expect(() => {
+      render(<TestComponent />)
+    }).toThrow("useEffectsProvider must be used within an EffectsProvider")
+
+    console.error = originalError
+  })
+})
+
+describe("EffectsProvider API", () => {
+  let api: any
+
+  function APITestComponent() {
+    const { api: providerAPI, isInitialized } = useEffectsProvider()
+    
+    React.useEffect(() => {
+      if (isInitialized) {
+        api = providerAPI
+      }
+    }, [providerAPI, isInitialized])
+
+    return <div data-testid="api-ready">{String(isInitialized)}</div>
+  }
+
+  beforeEach(async () => {
+    render(
+      <EffectsProvider>
+        <APITestComponent />
+      </EffectsProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId("api-ready")).toHaveTextContent("true")
+    })
+  })
+
+  it("должен предоставлять методы для получения ресурсов", () => {
+    expect(api.getEffects).toBeDefined()
+    expect(api.getFilters).toBeDefined()
+    expect(api.getTransitions).toBeDefined()
+    expect(api.getResources).toBeDefined()
+    expect(api.getResourceById).toBeDefined()
+  })
+
+  it("должен предоставлять методы для поиска", () => {
+    expect(api.searchResources).toBeDefined()
+    expect(api.getResourcesByCategory).toBeDefined()
+    expect(api.getResourcesByTags).toBeDefined()
+    expect(api.getResourcesByComplexity).toBeDefined()
+  })
+
+  it("должен предоставлять методы управления источниками", () => {
+    expect(api.loadSource).toBeDefined()
+    expect(api.isSourceLoaded).toBeDefined()
+    expect(api.refreshSource).toBeDefined()
+    expect(api.getSourceConfig).toBeDefined()
+    expect(api.updateSourceConfig).toBeDefined()
+  })
+
+  it("должен предоставлять методы для работы с кэшем", () => {
+    expect(api.clearCache).toBeDefined()
+    expect(api.clearSourceCache).toBeDefined()
+    expect(api.invalidateCache).toBeDefined()
+    expect(api.getCacheSize).toBeDefined()
+  })
+
+  it("должен поддерживать поиск по запросу", () => {
+    const results = api.searchResources("effects", { query: "test" })
+    expect(results).toHaveLength(2)
+    expect(results[0].name).toContain("Test")
+  })
+
+  it("должен поддерживать фильтрацию по категории", () => {
+    const artisticEffects = api.getResourcesByCategory("effects", "artistic")
+    expect(artisticEffects).toHaveLength(1)
+    expect(artisticEffects[0].category).toBe("artistic")
+
+    const colorEffects = api.getResourcesByCategory("effects", "color-correction")
+    expect(colorEffects).toHaveLength(1)
+    expect(colorEffects[0].category).toBe("color-correction")
+  })
+
+  it("должен поддерживать фильтрацию по тегам", () => {
+    const testResources = api.getResourcesByTags("effects", ["test"])
+    expect(testResources).toHaveLength(2)
+
+    const colorResources = api.getResourcesByTags("effects", ["color"])
+    expect(colorResources).toHaveLength(1)
+  })
+
+  it("должен поддерживать получение ресурса по ID", () => {
+    const effect = api.getResourceById("effects", "test-effect-1")
+    expect(effect).toBeDefined()
+    expect(effect.name).toBe("Test Effect 1")
+
+    const nonExistent = api.getResourceById("effects", "non-existent")
+    expect(nonExistent).toBeNull()
+  })
+
+  it("должен предоставлять статистику", () => {
+    const stats = api.getStats()
+    expect(stats.total).toBe(4) // 2 эффекта + 1 фильтр + 1 переход
+    expect(stats.byType.effects).toBe(2)
+    expect(stats.byType.filters).toBe(1)
+    expect(stats.byType.transitions).toBe(1)
+    expect(stats.bySource["built-in"]).toBe(4)
+  })
+
+  it("должен предоставлять состояние загрузки", () => {
+    const loadingState = api.getLoadingState()
+    expect(loadingState.isLoading).toBe(false)
+    expect(loadingState.loadedSources.has("built-in")).toBe(true)
+    expect(loadingState.error).toBeNull()
+  })
+})
