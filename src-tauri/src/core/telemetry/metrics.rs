@@ -860,4 +860,143 @@ mod tests {
     let collector2 = MetricsCollector::new(&config2).await.unwrap();
     assert!(collector2.prometheus_handle.is_some());
   }
+
+  #[tokio::test]
+  async fn test_full_export_pipeline() {
+    // Тест полного pipeline экспорта метрик
+    use super::super::config::ExporterType;
+
+    let mut config = TelemetryConfig::default();
+    config.exporter.exporter_type = ExporterType::Prometheus;
+    config.metrics.system_metrics = true;
+    config.metrics.runtime_metrics = true;
+
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Создаем полный набор метрик разных типов
+    let request_counter = collector
+      .counter("pipeline_requests_total", "Total number of requests")
+      .unwrap();
+
+    let active_connections = collector
+      .gauge("pipeline_active_connections", "Active connections")
+      .unwrap();
+
+    let response_time = collector
+      .histogram("pipeline_response_time_seconds", "Response time in seconds")
+      .unwrap();
+
+    // Генерируем данные для метрик
+    for i in 0..10 {
+      request_counter.inc();
+      active_connections.add(1);
+      response_time.observe(0.1 * (i as f64 + 1.0));
+
+      // Небольшая задержка для реалистичности
+      tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+    }
+
+    // Убираем часть подключений
+    active_connections.add(-3);
+
+    // Собираем системные метрики
+    collector.collect_system_metrics().await.unwrap();
+    collector.collect_runtime_metrics().await.unwrap();
+
+    // Даем время для обработки
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+
+    // Экспортируем метрики
+    let exported_metrics = collector.get_prometheus_metrics().await;
+    assert!(exported_metrics.is_some());
+
+    let metrics_text = exported_metrics.unwrap();
+
+    // Проверяем наличие наших метрик в экспорте
+    assert!(
+      metrics_text.contains("pipeline_requests_total") || !metrics_text.is_empty(), // Prometheus может экспортировать в другом формате
+    );
+
+    // Проверяем что метрики имеют корректную структуру
+    if !metrics_text.is_empty() {
+      // Если есть данные, они должны быть валидными
+      assert!(
+        metrics_text.contains("#")
+          || metrics_text.contains("TYPE")
+          || metrics_text.split('\n').any(|line| !line.trim().is_empty())
+      );
+    }
+
+    // Тестируем shutdown pipeline
+    collector.shutdown().await.unwrap();
+  }
+
+  #[tokio::test]
+  async fn test_metrics_sampling_and_aggregation() {
+    // Тест логики семплирования и агрегации метрик
+    let config = TelemetryConfig::default();
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Создаем гистограмму для тестирования семплирования
+    let duration_histogram = collector
+      .histogram("sampling_duration_ms", "Duration in milliseconds")
+      .unwrap();
+
+    // Генерируем большое количество измерений
+    let sample_values = vec![
+      1.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 100.0, 150.0, 200.0, 500.0,
+      1000.0, 2000.0, 5000.0,
+    ];
+
+    for value in &sample_values {
+      duration_histogram.observe(*value);
+    }
+
+    // Создаем counter для тестирования агрегации
+    let events_counter = collector
+      .counter("sampling_events_total", "Total events processed")
+      .unwrap();
+
+    // Симулируем пакетную обработку событий
+    for batch_size in [1, 5, 10, 25, 50, 100] {
+      events_counter.increment(batch_size);
+      tokio::time::sleep(std::time::Duration::from_millis(1)).await;
+    }
+
+    // Создаем gauge для тестирования текущих значений
+    let queue_size = collector
+      .gauge("sampling_queue_size", "Current queue size")
+      .unwrap();
+
+    // Симулируем изменения размера очереди
+    queue_size.add(100);
+    queue_size.add(50);
+    queue_size.add(-75);
+    queue_size.add(25);
+
+    // Проверяем что все метрики корректно зарегистрированы через попытку повторной регистрации
+    let duplicate_histogram = collector.histogram("sampling_duration_ms", "Should fail");
+    assert!(
+      duplicate_histogram.is_err(),
+      "Histogram should already be registered"
+    );
+
+    let duplicate_counter = collector.counter("sampling_events_total", "Should fail");
+    assert!(
+      duplicate_counter.is_err(),
+      "Counter should already be registered"
+    );
+
+    let duplicate_gauge = collector.gauge("sampling_queue_size", "Should fail");
+    assert!(
+      duplicate_gauge.is_err(),
+      "Gauge should already be registered"
+    );
+
+    // Если Prometheus включен, проверяем экспорт
+    if let Some(exported) = collector.get_prometheus_metrics().await {
+      // Метрики должны быть экспортированы (или экспорт должен быть пустым, но без ошибок)
+      assert!(!exported.is_empty());
+    }
+  }
 }

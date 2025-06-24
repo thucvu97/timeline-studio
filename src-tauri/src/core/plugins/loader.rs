@@ -16,6 +16,7 @@ pub struct PluginRegistration {
 }
 
 /// Реестр плагинов для статической регистрации
+#[derive(Clone)]
 pub struct PluginRegistry {
   registrations: Arc<RwLock<HashMap<String, PluginRegistration>>>,
 }
@@ -115,6 +116,8 @@ impl PluginLoader {
     // Проверка ID
     if metadata.id.is_empty() {
       result.add_error("Plugin ID cannot be empty".to_string());
+    } else if metadata.id.len() > 100 {
+      result.add_error("Plugin ID cannot be longer than 100 characters".to_string());
     } else if !metadata
       .id
       .chars()
@@ -396,5 +399,278 @@ mod tests {
     // Несовместимые версии
     assert!(!loader.is_version_compatible(&Version::new(2, 2, 0)));
     assert!(!loader.is_version_compatible(&Version::new(3, 0, 0)));
+  }
+
+  #[tokio::test]
+  async fn test_plugin_dependency_validation() {
+    // Тест валидации зависимостей плагинов
+    let loader = PluginLoader::new(Version::new(1, 0, 0));
+    let registry = loader.registry();
+
+    // Регистрируем базовый плагин
+    let base_metadata = PluginMetadata {
+      id: "base-plugin".to_string(),
+      name: "Base Plugin".to_string(),
+      version: Version::new(1, 5, 0),
+      author: "Author".to_string(),
+      description: "Base plugin".to_string(),
+      plugin_type: PluginType::Universal,
+      homepage: None,
+      license: None,
+      dependencies: vec![],
+      min_app_version: None,
+    };
+
+    let factory: PluginFactory = Box::new(|| {
+      panic!("Test factory");
+    });
+
+    registry
+      .register(PluginRegistration {
+        metadata: base_metadata,
+        factory,
+      })
+      .await
+      .unwrap();
+
+    // Плагин с валидными зависимостями
+    let valid_dependent = PluginMetadata {
+      id: "dependent-plugin".to_string(),
+      name: "Dependent Plugin".to_string(),
+      version: Version::new(1, 0, 0),
+      author: "Author".to_string(),
+      description: "Plugin with dependencies".to_string(),
+      plugin_type: PluginType::Effect,
+      homepage: None,
+      license: None,
+      dependencies: vec![PluginDependency {
+        plugin_id: "base-plugin".to_string(),
+        min_version: Some(Version::new(1, 0, 0)),
+        max_version: Some(Version::new(2, 0, 0)),
+      }],
+      min_app_version: None,
+    };
+
+    let result = loader.validate_plugin(&valid_dependent).await;
+    assert!(result.is_valid);
+
+    // Плагин с невалидными зависимостями (слишком новая версия)
+    let invalid_dependent = PluginMetadata {
+      id: "invalid-dependent".to_string(),
+      name: "Invalid Dependent".to_string(),
+      version: Version::new(1, 0, 0),
+      author: "Author".to_string(),
+      description: "Plugin with invalid dependencies".to_string(),
+      plugin_type: PluginType::Effect,
+      homepage: None,
+      license: None,
+      dependencies: vec![PluginDependency {
+        plugin_id: "base-plugin".to_string(),
+        min_version: Some(Version::new(2, 0, 0)), // Требует версию > чем есть
+        max_version: None,
+      }],
+      min_app_version: None,
+    };
+
+    let result = loader.validate_plugin(&invalid_dependent).await;
+    assert!(!result.is_valid);
+    assert!(!result.errors.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_plugin_loading_error_cases() {
+    // Тест различных случаев ошибок при загрузке плагинов
+    let loader = PluginLoader::new(Version::new(1, 0, 0));
+
+    // Попытка загрузить несуществующий плагин
+    let result = loader.load_plugin("non-existent").await;
+    assert!(result.is_err());
+
+    // Регистрируем плагин, который создает factory с ошибкой
+    let registry = loader.registry();
+    let metadata = PluginMetadata {
+      id: "failing-plugin".to_string(),
+      name: "Failing Plugin".to_string(),
+      version: Version::new(1, 0, 0),
+      author: "Author".to_string(),
+      description: "Plugin that fails to load".to_string(),
+      plugin_type: PluginType::Effect,
+      homepage: None,
+      license: None,
+      dependencies: vec![],
+      min_app_version: None,
+    };
+
+    // Factory который паникует при вызове
+    let factory: PluginFactory = Box::new(|| {
+      panic!("Plugin factory failed!");
+    });
+
+    registry
+      .register(PluginRegistration { metadata, factory })
+      .await
+      .unwrap();
+
+    // Попытка загрузить этот плагин должна завершиться ошибкой
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+      tokio::runtime::Runtime::new()
+        .unwrap()
+        .block_on(async { loader.load_plugin("failing-plugin").await })
+    }));
+
+    assert!(result.is_err()); // Должна быть паника
+  }
+
+  #[tokio::test]
+  async fn test_plugin_registry_concurrent_access() {
+    // Тест конкурентного доступа к реестру плагинов
+    let registry = PluginRegistry::new();
+    let mut handles = vec![];
+
+    // Запускаем несколько задач, регистрирующих плагины параллельно
+    for i in 0..10 {
+      let registry_clone = registry.clone();
+      let handle = tokio::spawn(async move {
+        let metadata = PluginMetadata {
+          id: format!("plugin-{}", i),
+          name: format!("Plugin {}", i),
+          version: Version::new(1, 0, 0),
+          author: "Author".to_string(),
+          description: format!("Plugin {}", i),
+          plugin_type: PluginType::Effect,
+          homepage: None,
+          license: None,
+          dependencies: vec![],
+          min_app_version: None,
+        };
+
+        let factory: PluginFactory = Box::new(move || {
+          panic!("Test factory {}", i);
+        });
+
+        registry_clone
+          .register(PluginRegistration { metadata, factory })
+          .await
+      });
+      handles.push(handle);
+    }
+
+    // Ждем завершения всех задач
+    for handle in handles {
+      let result = handle.await.unwrap();
+      assert!(result.is_ok());
+    }
+
+    // Проверяем что все плагины зарегистрированы
+    let plugins = registry.list_plugins().await;
+    assert_eq!(plugins.len(), 10);
+
+    // Проверяем что имена правильные
+    for i in 0..10 {
+      let plugin_name = format!("plugin-{}", i);
+      assert!(plugins.iter().any(|p| p.id == plugin_name));
+    }
+  }
+
+  #[tokio::test]
+  async fn test_plugin_metadata_validation_edge_cases() {
+    // Тест граничных случаев валидации метаданных
+    let loader = PluginLoader::new(Version::new(1, 0, 0));
+
+    // Плагин с пустым ID
+    let empty_id = PluginMetadata {
+      id: "".to_string(),
+      name: "Test Plugin".to_string(),
+      version: Version::new(1, 0, 0),
+      author: "Author".to_string(),
+      description: "Description".to_string(),
+      plugin_type: PluginType::Effect,
+      homepage: None,
+      license: None,
+      dependencies: vec![],
+      min_app_version: None,
+    };
+
+    let result = loader.validate_plugin(&empty_id).await;
+    assert!(!result.is_valid);
+
+    // Плагин с очень длинным ID
+    let long_id = PluginMetadata {
+      id: "a".repeat(1000),
+      name: "Test Plugin".to_string(),
+      version: Version::new(1, 0, 0),
+      author: "Author".to_string(),
+      description: "Description".to_string(),
+      plugin_type: PluginType::Effect,
+      homepage: None,
+      license: None,
+      dependencies: vec![],
+      min_app_version: None,
+    };
+
+    let result = loader.validate_plugin(&long_id).await;
+    assert!(!result.is_valid);
+
+    // Плагин с недостижимой минимальной версией приложения
+    let incompatible_app_version = PluginMetadata {
+      id: "incompatible-plugin".to_string(),
+      name: "Incompatible Plugin".to_string(),
+      version: Version::new(1, 0, 0),
+      author: "Author".to_string(),
+      description: "Description".to_string(),
+      plugin_type: PluginType::Effect,
+      homepage: None,
+      license: None,
+      dependencies: vec![],
+      min_app_version: Some(Version::new(99, 0, 0)), // Очень высокая версия
+    };
+
+    let result = loader.validate_plugin(&incompatible_app_version).await;
+    assert!(!result.is_valid);
+  }
+
+  #[test]
+  fn test_version_dependency_satisfaction() {
+    // Тест проверки удовлетворения зависимостей по версиям
+    let loader = PluginLoader::new(Version::new(1, 0, 0));
+
+    // Тестируем минимальные версии
+    assert!(loader.is_dependency_version_satisfied(
+      &Version::new(1, 5, 0),
+      &Version::new(1, 0, 0),
+      true // is_min
+    ));
+
+    assert!(!loader.is_dependency_version_satisfied(
+      &Version::new(1, 0, 0),
+      &Version::new(1, 5, 0),
+      true // is_min
+    ));
+
+    // Тестируем максимальные версии
+    assert!(loader.is_dependency_version_satisfied(
+      &Version::new(1, 0, 0),
+      &Version::new(1, 5, 0),
+      false // is_max
+    ));
+
+    assert!(!loader.is_dependency_version_satisfied(
+      &Version::new(1, 5, 0),
+      &Version::new(1, 0, 0),
+      false // is_max
+    ));
+
+    // Граничные случаи - точное совпадение
+    assert!(loader.is_dependency_version_satisfied(
+      &Version::new(1, 5, 3),
+      &Version::new(1, 5, 3),
+      true // is_min
+    ));
+
+    assert!(loader.is_dependency_version_satisfied(
+      &Version::new(1, 5, 3),
+      &Version::new(1, 5, 3),
+      false // is_max
+    ));
   }
 }

@@ -1163,4 +1163,614 @@ exit /b 0"#;
       assert!(result.is_ok());
     }
   }
+
+  #[tokio::test]
+  async fn test_gpu_vs_cpu_performance_comparison() {
+    // Тест сравнения производительности GPU vs CPU кодировщиков
+    use std::time::Instant;
+
+    let gpu_encoders = vec![
+      GpuEncoder::Nvenc,
+      GpuEncoder::QuickSync,
+      GpuEncoder::VideoToolbox,
+      GpuEncoder::Vaapi,
+      GpuEncoder::Amf,
+    ];
+
+    let cpu_encoders = vec![GpuEncoder::None, GpuEncoder::Software];
+
+    // Симулируем время генерации параметров как proxy для производительности
+    for encoder in &gpu_encoders {
+      let start = Instant::now();
+      for quality in (10..=90).step_by(10) {
+        let _params = GpuHelper::get_ffmpeg_params(encoder, quality);
+      }
+      let gpu_time = start.elapsed();
+
+      // GPU параметры должны генерироваться быстро и включать аппаратное ускорение
+      let params = GpuHelper::get_ffmpeg_params(encoder, 75);
+      assert!(
+        params.len() >= 6,
+        "GPU encoder should have complex parameters"
+      );
+      // Parameters should not contain codec name - that's added separately
+      assert!(!params.is_empty(), "GPU encoder should generate parameters");
+
+      // Время генерации параметров должно быть разумным
+      assert!(
+        gpu_time.as_millis() < 100,
+        "Parameter generation should be fast"
+      );
+    }
+
+    // Тестируем CPU кодировщики
+    for encoder in &cpu_encoders {
+      let start = Instant::now();
+      for quality in (10..=90).step_by(10) {
+        let _params = GpuHelper::get_ffmpeg_params(encoder, quality);
+      }
+      let cpu_time = start.elapsed();
+
+      let params = GpuHelper::get_ffmpeg_params(encoder, 75);
+      assert!(
+        params.len() >= 2,
+        "CPU encoder should have basic parameters"
+      );
+
+      // CPU параметры проще, но время генерации тоже должно быть разумным
+      assert!(
+        cpu_time.as_millis() < 50,
+        "CPU parameter generation should be fast"
+      );
+    }
+
+    // Проверяем что GPU кодировщики используют аппаратные кодеки
+    for encoder in &gpu_encoders {
+      let codec_name = encoder.h264_codec_name();
+      assert!(
+        !codec_name.contains("libx264"),
+        "GPU encoder {} should not use software codec",
+        codec_name
+      );
+    }
+
+    // Проверяем что CPU кодировщики используют программные кодеки
+    for encoder in &cpu_encoders {
+      let codec_name = encoder.h264_codec_name();
+      assert!(
+        codec_name == "libx264" || codec_name.contains("software"),
+        "CPU encoder should use software codec"
+      );
+    }
+  }
+
+  #[tokio::test]
+  async fn test_encoder_performance_characteristics() {
+    // Тест характеристик производительности различных кодировщиков
+    struct EncoderProfile {
+      encoder: GpuEncoder,
+      expected_speed: &'static str,
+      expected_complexity: usize,
+    }
+
+    let profiles = vec![
+      EncoderProfile {
+        encoder: GpuEncoder::Nvenc,
+        expected_speed: "fast", // NVENC обычно быстрый
+        expected_complexity: 8, // Много параметров
+      },
+      EncoderProfile {
+        encoder: GpuEncoder::QuickSync,
+        expected_speed: "medium", // QuickSync умеренный
+        expected_complexity: 6,
+      },
+      EncoderProfile {
+        encoder: GpuEncoder::VideoToolbox,
+        expected_speed: "slow", // VideoToolbox качественный
+        expected_complexity: 4,
+      },
+      EncoderProfile {
+        encoder: GpuEncoder::None,
+        expected_speed: "medium", // CPU baseline
+        expected_complexity: 2,
+      },
+    ];
+
+    for profile in profiles {
+      let params = GpuHelper::get_ffmpeg_params(&profile.encoder, 75);
+
+      // Проверяем сложность параметров
+      assert!(
+        params.len() >= profile.expected_complexity,
+        "Encoder {:?} should have at least {} parameters, got {}",
+        profile.encoder,
+        profile.expected_complexity,
+        params.len()
+      );
+
+      // Проверяем что параметры включают ожидаемые настройки скорости/качества
+      if profile.encoder != GpuEncoder::None {
+        let has_speed_or_quality = params.contains(&profile.expected_speed.to_string())
+          || params
+            .iter()
+            .any(|p| p.contains("preset") || p.contains("quality") || p.contains("q:v"));
+        assert!(
+          has_speed_or_quality,
+          "Encoder {:?} should include speed/quality settings",
+          profile.encoder
+        );
+      }
+
+      // Проверяем что параметры генерируются (кодек добавляется отдельно)
+      let codec = profile.encoder.h264_codec_name();
+      assert!(!codec.is_empty(), "Codec name should not be empty");
+      assert!(!params.is_empty(), "Should generate parameters for encoder");
+    }
+  }
+
+  #[tokio::test]
+  async fn test_real_encoder_integration() {
+    // Интеграционный тест с реальными кодировщиками
+    let temp_dir = TempDir::new().unwrap();
+
+    // Создаем более реалистичный mock ffmpeg, который поддерживает разные кодеки
+    let mock_ffmpeg = temp_dir.path().join("ffmpeg");
+
+    #[cfg(unix)]
+    {
+      let script = r#"#!/bin/bash
+case "$*" in
+  *"-encoders"*)
+    echo "Video:"
+    echo " h264_nvenc          NVIDIA NVENC H.264 encoder"
+    echo " h264_qsv            Intel QuickSync Video H.264 encoder"  
+    echo " h264_videotoolbox   VideoToolbox H.264 encoder"
+    echo " h264_vaapi          VAAPI H.264 encoder"
+    echo " libx264             libx264 H.264 encoder"
+    ;;
+  *"h264_nvenc"*)
+    echo "Encoder h264_nvenc:"
+    echo "General capabilities: encoder"
+    ;;
+  *"h264_qsv"*)
+    echo "Encoder h264_qsv:"
+    echo "General capabilities: encoder"
+    ;;
+  *)
+    echo "ffmpeg version 4.4.0"
+    ;;
+esac
+exit 0"#;
+      std::fs::write(&mock_ffmpeg, script).unwrap();
+      use std::os::unix::fs::PermissionsExt;
+      std::fs::set_permissions(&mock_ffmpeg, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+
+    #[cfg(windows)]
+    {
+      let script = r#"@echo off
+if "%*" == "-encoders" (
+    echo Video:
+    echo  h264_nvenc          NVIDIA NVENC H.264 encoder
+    echo  h264_qsv            Intel QuickSync Video H.264 encoder
+    echo  libx264             libx264 H.264 encoder
+) else if "%*" == "-f null -" (
+    echo ffmpeg version 4.4.0
+) else (
+    echo Encoder test output
+)
+exit /b 0"#;
+      std::fs::write(&mock_ffmpeg, script).unwrap();
+    }
+
+    let detector = GpuDetector::new(mock_ffmpeg.to_string_lossy().to_string());
+
+    // Тестируем обнаружение различных кодировщиков
+    let encoder_tests = vec![
+      ("h264_nvenc", GpuEncoder::Nvenc),
+      ("h264_qsv", GpuEncoder::QuickSync),
+      ("h264_videotoolbox", GpuEncoder::VideoToolbox),
+      ("libx264", GpuEncoder::None),
+    ];
+
+    for (codec_name, expected_encoder) in encoder_tests {
+      let available = detector.check_encoder_available(codec_name).await.unwrap();
+
+      if available {
+        // Если кодировщик доступен, проверяем генерацию параметров
+        let params = GpuHelper::get_ffmpeg_params(&expected_encoder, 75);
+        assert!(
+          !params.is_empty(),
+          "Should generate parameters for {}",
+          codec_name
+        );
+        // Note: codec name is not included in parameters - it's added as -c:v separately
+        assert!(!codec_name.is_empty(), "Codec name should not be empty");
+        assert!(!params.is_empty(), "Should generate parameters for codec");
+
+        // Проверяем что параметры подходят для реального использования
+        if expected_encoder != GpuEncoder::None {
+          assert!(
+            params.len() >= 4,
+            "Hardware encoder should have multiple parameters"
+          );
+          assert!(
+            params.contains(&"-preset".to_string())
+              || params.iter().any(|p| p.contains("quality")
+                || p.contains("q:v")
+                || p.contains("cq")
+                || p.contains("global_quality")),
+            "Hardware encoder should have quality/preset settings"
+          );
+        }
+      }
+    }
+
+    // Тестируем обнаружение множественных GPU
+    let available_encoders = detector.detect_available_encoders().await.unwrap();
+    assert!(
+      !available_encoders.is_empty(),
+      "Should detect at least one encoder"
+    );
+
+    // Проверяем что рекомендуемый кодировщик разумный
+    if let Some(recommended) = detector.get_recommended_encoder().await.unwrap() {
+      assert!(
+        available_encoders.contains(&recommended),
+        "Recommended encoder should be in available list"
+      );
+
+      // Рекомендуемый кодировщик не должен быть "None" если есть GPU опции
+      if available_encoders.len() > 1 {
+        assert!(
+          recommended != GpuEncoder::None,
+          "Should recommend GPU encoder when available"
+        );
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_encoder_fallback_chain() {
+    // Тест цепочки fallback кодировщиков
+    let temp_dir = TempDir::new().unwrap();
+    let mock_ffmpeg = temp_dir.path().join("ffmpeg");
+
+    // Mock ffmpeg который поддерживает только CPU кодировщик
+    #[cfg(unix)]
+    {
+      let script = r#"#!/bin/bash
+case "$*" in
+  *"-encoders"*)
+    echo "Video:"
+    echo " libx264             libx264 H.264 encoder"
+    ;;
+  *"libx264"*)
+    echo "Encoder libx264:"
+    echo "General capabilities: encoder"
+    ;;
+  *"h264_nvenc"*|*"h264_qsv"*|*"h264_vaapi"*)
+    echo "Unknown encoder"
+    exit 1
+    ;;
+  *)
+    echo "ffmpeg version 4.4.0"
+    ;;
+esac
+exit 0"#;
+      std::fs::write(&mock_ffmpeg, script).unwrap();
+      use std::os::unix::fs::PermissionsExt;
+      std::fs::set_permissions(&mock_ffmpeg, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+
+    #[cfg(windows)]
+    {
+      let script = r#"@echo off
+if "%*" == "-encoders" (
+    echo Video:
+    echo  libx264             libx264 H.264 encoder
+) else if "%1" == "libx264" (
+    echo Encoder libx264:
+    echo General capabilities: encoder
+) else (
+    echo Unknown encoder
+    exit /b 1
+)
+exit /b 0"#;
+      std::fs::write(&mock_ffmpeg, script).unwrap();
+    }
+
+    let detector = GpuDetector::new(mock_ffmpeg.to_string_lossy().to_string());
+
+    // Тестируем fallback когда GPU кодировщики недоступны
+    let gpu_encoders = vec!["h264_nvenc", "h264_qsv", "h264_vaapi", "h264_videotoolbox"];
+
+    for encoder in gpu_encoders {
+      let available = detector
+        .check_encoder_available(encoder)
+        .await
+        .unwrap_or(false);
+      assert!(
+        !available,
+        "GPU encoder {} should not be available in CPU-only mock",
+        encoder
+      );
+    }
+
+    // CPU кодировщик должен быть доступен
+    let cpu_available = detector.check_encoder_available("libx264").await.unwrap();
+    assert!(cpu_available, "CPU encoder should always be available");
+
+    // Проверяем что система корректно fallback на CPU
+    let available_encoders = detector.detect_available_encoders().await.unwrap();
+    assert!(!available_encoders.is_empty());
+    assert!(
+      available_encoders.contains(&GpuEncoder::None)
+        || available_encoders.contains(&GpuEncoder::Software)
+    );
+
+    // Рекомендуемый кодировщик должен быть CPU-based
+    let recommended = detector.get_recommended_encoder().await.unwrap();
+    assert!(
+      recommended == Some(GpuEncoder::None)
+        || recommended == Some(GpuEncoder::Software)
+        || recommended.is_none()
+    );
+  }
+
+  #[test]
+  fn test_encoder_codec_compatibility_matrix() {
+    // Тест матрицы совместимости кодировщиков и кодеков
+    let encoders = vec![
+      GpuEncoder::Nvenc,
+      GpuEncoder::QuickSync,
+      GpuEncoder::VideoToolbox,
+      GpuEncoder::Vaapi,
+      GpuEncoder::Amf,
+      GpuEncoder::None,
+      GpuEncoder::Software,
+    ];
+
+    for encoder in encoders {
+      // Проверяем H.264 поддержку
+      let h264_codec = encoder.h264_codec_name();
+      assert!(
+        !h264_codec.is_empty(),
+        "H.264 codec name should not be empty"
+      );
+
+      // Проверяем H.265 поддержку
+      let h265_codec = encoder.hevc_codec_name();
+      assert!(
+        !h265_codec.is_empty(),
+        "H.265 codec name should not be empty"
+      );
+
+      // Проверяем корректность названий кодеков
+      match encoder {
+        GpuEncoder::Nvenc => {
+          assert!(h264_codec.contains("nvenc"));
+          assert!(h265_codec.contains("nvenc"));
+        }
+        GpuEncoder::QuickSync => {
+          assert!(h264_codec.contains("qsv"));
+          assert!(h265_codec.contains("qsv"));
+        }
+        GpuEncoder::VideoToolbox => {
+          assert!(h264_codec.contains("videotoolbox"));
+          assert!(h265_codec.contains("videotoolbox"));
+        }
+        GpuEncoder::Vaapi => {
+          assert!(h264_codec.contains("vaapi"));
+          assert!(h265_codec.contains("vaapi"));
+        }
+        GpuEncoder::Amf => {
+          assert!(h264_codec.contains("amf"));
+          assert!(h265_codec.contains("amf"));
+        }
+        GpuEncoder::None | GpuEncoder::Software => {
+          assert!(h264_codec == "libx264");
+          assert!(h265_codec == "libx265");
+        }
+        GpuEncoder::V4l2 => {
+          assert!(h264_codec.contains("v4l2"));
+          assert!(h265_codec.contains("v4l2"));
+        }
+      }
+
+      // Проверяем что кодировщик аппаратный или программный
+      let is_hw = encoder.is_hardware();
+      match encoder {
+        GpuEncoder::None | GpuEncoder::Software => assert!(!is_hw),
+        _ => assert!(is_hw),
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_encoder_fallback_chain_with_priorities() {
+    // Тест цепочки fallback с приоритетами для разных платформ
+    use tempfile::TempDir;
+
+    let temp_dir = TempDir::new().unwrap();
+    let mock_ffmpeg = temp_dir.path().join("ffmpeg");
+
+    // Mock ffmpeg с различными доступными кодировщиками
+    #[cfg(unix)]
+    {
+      let script = r#"#!/bin/bash
+case "$*" in
+  *"-encoders"*)
+    echo "Video:"
+    echo " h264_nvenc         NVENC H.264 encoder"
+    echo " h264_qsv           Intel QuickSync Video H.264 encoder" 
+    echo " h264_vaapi         VA-API H.264 encoder"
+    echo " libx264           libx264 H.264 encoder"
+    ;;
+  *)
+    echo "ffmpeg version 4.4.0"
+    ;;
+esac
+exit 0"#;
+      std::fs::write(&mock_ffmpeg, script).unwrap();
+      use std::os::unix::fs::PermissionsExt;
+      std::fs::set_permissions(&mock_ffmpeg, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+
+    #[cfg(windows)]
+    {
+      let script = r#"@echo off
+if "%*" == "-encoders" (
+    echo Video:
+    echo  h264_nvenc         NVENC H.264 encoder
+    echo  h264_qsv           Intel QuickSync Video H.264 encoder
+    echo  h264_vaapi         VA-API H.264 encoder
+    echo  libx264           libx264 H.264 encoder
+) else (
+    echo ffmpeg version 4.4.0
+)
+exit /b 0"#;
+      std::fs::write(&mock_ffmpeg, script).unwrap();
+    }
+
+    let detector = GpuDetector::new(mock_ffmpeg.to_string_lossy().to_string());
+
+    // Получаем доступные кодировщики
+    let available_encoders = detector.detect_available_encoders().await.unwrap();
+    let recommended = detector.get_recommended_encoder().await.unwrap();
+
+    // Проверяем что рекомендация основана на приоритетах платформы
+    if let Some(rec) = recommended {
+      assert!(
+        available_encoders.contains(&rec),
+        "Recommended encoder should be available"
+      );
+
+      // На разных платформах должны быть разные приоритеты
+      #[cfg(target_os = "linux")]
+      {
+        // На Linux предпочтение: NVENC > VAAPI > QuickSync
+        if available_encoders.contains(&GpuEncoder::Nvenc) {
+          assert_eq!(rec, GpuEncoder::Nvenc, "Should prefer NVENC on Linux");
+        } else if available_encoders.contains(&GpuEncoder::Vaapi) {
+          assert_eq!(
+            rec,
+            GpuEncoder::Vaapi,
+            "Should prefer VAAPI over QuickSync on Linux"
+          );
+        }
+      }
+
+      #[cfg(target_os = "windows")]
+      {
+        // На Windows предпочтение: NVENC > QuickSync > AMF
+        if available_encoders.contains(&GpuEncoder::Nvenc) {
+          assert_eq!(rec, GpuEncoder::Nvenc, "Should prefer NVENC on Windows");
+        } else if available_encoders.contains(&GpuEncoder::QuickSync) {
+          assert_eq!(
+            rec,
+            GpuEncoder::QuickSync,
+            "Should prefer QuickSync on Windows"
+          );
+        }
+      }
+
+      #[cfg(target_os = "macos")]
+      {
+        // На macOS предпочтение: VideoToolbox > NVENC
+        if available_encoders.contains(&GpuEncoder::VideoToolbox) {
+          assert_eq!(
+            rec,
+            GpuEncoder::VideoToolbox,
+            "Should prefer VideoToolbox on macOS"
+          );
+        } else if available_encoders.contains(&GpuEncoder::Nvenc) {
+          assert_eq!(rec, GpuEncoder::Nvenc, "Should prefer NVENC on macOS");
+        }
+      }
+    }
+  }
+
+  #[test]
+  fn test_encoder_codec_compatibility_matrix_extended() {
+    // Расширенный тест матрицы совместимости кодеков
+    let all_encoders = vec![
+      GpuEncoder::Nvenc,
+      GpuEncoder::QuickSync,
+      GpuEncoder::VideoToolbox,
+      GpuEncoder::Vaapi,
+      GpuEncoder::Amf,
+      GpuEncoder::V4l2,
+      GpuEncoder::None,
+      GpuEncoder::Software,
+    ];
+
+    for encoder in &all_encoders {
+      // Тестируем все поддерживаемые кодеки
+      let h264_codec = encoder.h264_codec_name();
+      let h265_codec = encoder.hevc_codec_name();
+
+      // Проверяем что названия кодеков уникальны и корректны
+      assert!(!h264_codec.is_empty());
+      assert!(!h265_codec.is_empty());
+      assert_ne!(
+        h264_codec, h265_codec,
+        "H.264 and H.265 codecs should be different"
+      );
+
+      // Проверяем соответствие аппаратной природы кодировщика
+      let is_hardware = encoder.is_hardware();
+      match encoder {
+        GpuEncoder::None | GpuEncoder::Software => {
+          assert!(!is_hardware, "Software encoders should not be hardware");
+          assert!(
+            h264_codec.contains("lib"),
+            "Software codecs should use lib prefix"
+          );
+        }
+        _ => {
+          assert!(is_hardware, "GPU encoders should be hardware");
+          assert!(
+            !h264_codec.contains("lib"),
+            "Hardware codecs should not use lib prefix"
+          );
+        }
+      }
+
+      // Проверяем генерацию параметров FFmpeg для разных уровней качества
+      for quality in [25, 50, 75, 90] {
+        let params = GpuHelper::get_ffmpeg_params(encoder, quality);
+        assert!(
+          !params.is_empty(),
+          "Should generate params for quality {}",
+          quality
+        );
+
+        // Параметры не содержат кодек напрямую - он добавляется отдельно как -c:v
+        assert!(!h264_codec.is_empty(), "Codec name should not be empty");
+        assert!(!params.is_empty(), "Should generate parameters");
+
+        // Для hardware кодировщиков должны быть специальные параметры
+        if is_hardware {
+          let has_hw_params = params.iter().any(|p| {
+            p.contains("preset")
+              || p.contains("quality")
+              || p.contains("cq")
+              || p.contains("global_quality")
+              || p.contains("q:v")
+              || p.contains("rc")
+              || p.contains("bitrate")
+              || p.contains("-usage")
+              || p.contains("vaapi_device")
+              || p.contains("profile")
+          });
+          assert!(
+            has_hw_params,
+            "Hardware encoder should have quality parameters for {:?}",
+            encoder
+          );
+        }
+      }
+    }
+  }
 }

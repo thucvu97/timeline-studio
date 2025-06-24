@@ -238,10 +238,16 @@ impl PluginSandbox {
   pub async fn check_network_access(&self, domain: &str) -> Result<NetworkGuard> {
     // Проверяем домен в whitelist
     if !self.allowed_domains.is_empty() {
-      let domain_allowed = self
-        .allowed_domains
-        .iter()
-        .any(|allowed| domain.ends_with(allowed) || allowed == "*");
+      let domain_allowed = self.allowed_domains.iter().any(|allowed| {
+        if allowed == "*" {
+          true
+        } else if let Some(suffix) = allowed.strip_prefix("*.") {
+          // Убираем "*."
+          domain.ends_with(suffix)
+        } else {
+          domain == allowed
+        }
+      });
 
       if !domain_allowed {
         return Err(VideoCompilerError::SecurityError(format!(
@@ -566,6 +572,328 @@ mod tests {
     // Превышение лимита
     let result = sandbox.update_memory_usage(600);
     assert!(result.is_err());
+    assert!(sandbox.usage.limits_violated.load(Ordering::Relaxed));
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_operations_limit() {
+    // Тест лимита на количество одновременных операций
+    let permissions = PluginPermissions::default();
+    let _sandbox = PluginSandbox::new("test".to_string(), &permissions);
+
+    // Пересоздаем semaphore с лимитом 2
+    let operation_semaphore = Arc::new(Semaphore::new(2));
+
+    // Заменяем semaphore в sandbox (создаем новый sandbox с нужным лимитом)
+    let sandbox = PluginSandbox {
+      plugin_id: "test".to_string(),
+      limits: ResourceLimits {
+        max_concurrent_operations: 2,
+        ..ResourceLimits::for_security_level(permissions.get_security_level())
+      },
+      usage: Arc::new(ResourceUsage::new()),
+      operation_semaphore: operation_semaphore.clone(),
+      network_semaphore: Arc::new(Semaphore::new(5)),
+      allowed_domains: vec![],
+      file_permissions: permissions.file_system,
+    };
+
+    // Первые два permit должны пройти
+    let _guard1 = sandbox.acquire_operation_permit().await.unwrap();
+    let _guard2 = sandbox.acquire_operation_permit().await.unwrap();
+
+    assert_eq!(sandbox.usage.active_operations.load(Ordering::Relaxed), 2);
+
+    // Третий должен заблокироваться (таймаут через короткое время)
+    let result = tokio::time::timeout(
+      std::time::Duration::from_millis(100),
+      sandbox.acquire_operation_permit(),
+    )
+    .await;
+
+    // Таймаут должен сработать, так как нет свободных permits
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_network_connection_limits() {
+    // Тест лимита сетевых соединений
+    let mut permissions = PluginPermissions::default();
+    permissions.network.allowed_hosts = vec!["*.example.com".to_string()];
+
+    // Создаем sandbox с правильным лимитом
+    let sandbox = PluginSandbox {
+      plugin_id: "test".to_string(),
+      limits: ResourceLimits {
+        max_network_connections: 2,
+        ..ResourceLimits::for_security_level(permissions.get_security_level())
+      },
+      usage: Arc::new(ResourceUsage::new()),
+      operation_semaphore: Arc::new(Semaphore::new(10)),
+      network_semaphore: Arc::new(Semaphore::new(2)),
+      allowed_domains: vec!["*.example.com".to_string()],
+      file_permissions: permissions.file_system,
+    };
+
+    // Первые два соединения должны пройти
+    let _guard1 = sandbox
+      .check_network_access("api.example.com")
+      .await
+      .unwrap();
+    let _guard2 = sandbox
+      .check_network_access("cdn.example.com")
+      .await
+      .unwrap();
+
+    assert_eq!(
+      sandbox
+        .usage
+        .active_network_connections
+        .load(Ordering::Relaxed),
+      2
+    );
+
+    // Третье соединение должно заблокироваться
+    let result = tokio::time::timeout(
+      std::time::Duration::from_millis(100),
+      sandbox.check_network_access("images.example.com"),
+    )
+    .await;
+
+    assert!(result.is_err()); // Таймаут
+  }
+
+  #[tokio::test]
+  async fn test_file_access_permissions() {
+    // Тест проверки разрешений на доступ к файлам
+    let mut permissions = PluginPermissions::default();
+    permissions.file_system.read_paths = vec![std::path::PathBuf::from("/allowed/read")];
+    permissions.file_system.write_paths = vec![std::path::PathBuf::from("/allowed/write")];
+
+    let sandbox = PluginSandbox::new("test".to_string(), &permissions);
+
+    // Разрешенный доступ
+    assert!(sandbox
+      .check_file_access(std::path::Path::new("/allowed/read/file.txt"), false)
+      .is_ok());
+    assert!(sandbox
+      .check_file_access(std::path::Path::new("/allowed/write/file.txt"), true)
+      .is_ok());
+
+    // Запрещенный доступ
+    assert!(sandbox
+      .check_file_access(std::path::Path::new("/forbidden/file.txt"), false)
+      .is_err());
+    assert!(sandbox
+      .check_file_access(std::path::Path::new("/forbidden/file.txt"), true)
+      .is_err());
+
+    // Попытка записи в read-only директорию
+    assert!(sandbox
+      .check_file_access(std::path::Path::new("/allowed/read/file.txt"), true)
+      .is_err());
+  }
+
+  #[tokio::test]
+  async fn test_network_domain_filtering() {
+    // Тест фильтрации доменов для сетевых запросов
+    let mut permissions = PluginPermissions::default();
+    permissions.network.allowed_hosts = vec![
+      "api.example.com".to_string(),
+      "*.googleapis.com".to_string(),
+    ];
+
+    let sandbox = PluginSandbox::new("test".to_string(), &permissions);
+
+    // Разрешенные домены
+    assert!(sandbox
+      .check_network_access("api.example.com")
+      .await
+      .is_ok());
+    assert!(sandbox
+      .check_network_access("sheets.googleapis.com")
+      .await
+      .is_ok());
+    assert!(sandbox
+      .check_network_access("drive.googleapis.com")
+      .await
+      .is_ok());
+
+    // Запрещенные домены
+    assert!(sandbox.check_network_access("evil.com").await.is_err());
+    assert!(sandbox
+      .check_network_access("subdomain.evil.com")
+      .await
+      .is_err());
+  }
+
+  #[tokio::test]
+  async fn test_memory_peak_tracking() {
+    // Тест отслеживания пикового использования памяти
+    let permissions = PluginPermissions::default();
+    let sandbox = PluginSandbox::new("test".to_string(), &permissions);
+
+    // Постепенно увеличиваем память
+    sandbox.update_memory_usage(100).unwrap();
+    assert_eq!(sandbox.usage.memory_peak.load(Ordering::Relaxed), 100);
+
+    sandbox.update_memory_usage(50).unwrap();
+    assert_eq!(sandbox.usage.memory_used.load(Ordering::Relaxed), 150);
+    assert_eq!(sandbox.usage.memory_peak.load(Ordering::Relaxed), 150);
+
+    // Освобождаем память
+    sandbox.free_memory(75);
+    assert_eq!(sandbox.usage.memory_used.load(Ordering::Relaxed), 75);
+    assert_eq!(sandbox.usage.memory_peak.load(Ordering::Relaxed), 150); // Пик не меняется
+
+    // Снова увеличиваем, но не превышаем пик
+    sandbox.update_memory_usage(50).unwrap();
+    assert_eq!(sandbox.usage.memory_used.load(Ordering::Relaxed), 125);
+    assert_eq!(sandbox.usage.memory_peak.load(Ordering::Relaxed), 150); // Пик не изменился
+  }
+
+  #[tokio::test]
+  async fn test_api_rate_limit_reset() {
+    // Тест сброса лимита API вызовов после истечения секунды
+    let permissions = PluginPermissions::default();
+    let mut sandbox = PluginSandbox::new("test".to_string(), &permissions);
+    sandbox.limits.max_api_calls_per_second = 1;
+
+    // Первый вызов должен пройти
+    sandbox.check_api_rate_limit().await.unwrap();
+    assert_eq!(
+      sandbox
+        .usage
+        .api_calls_current_second
+        .load(Ordering::Relaxed),
+      1
+    );
+
+    // Второй вызов должен вызвать ошибку
+    let result = sandbox.check_api_rate_limit().await;
+    assert!(result.is_err());
+    assert!(sandbox.usage.limits_violated.load(Ordering::Relaxed));
+
+    // Сбрасываем флаг нарушений
+    sandbox.reset_violation_flag();
+    assert!(!sandbox.usage.limits_violated.load(Ordering::Relaxed));
+
+    // Ручной сброс счетчика (имитация прошедшей секунды)
+    sandbox
+      .usage
+      .api_calls_current_second
+      .store(0, Ordering::Relaxed);
+
+    // Теперь вызов должен пройти снова
+    let result = sandbox.check_api_rate_limit().await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_sandbox_stats_calculation() {
+    // Тест вычисления статистики использования ресурсов
+    let permissions = PluginPermissions::default();
+    let mut sandbox = PluginSandbox::new("test".to_string(), &permissions);
+
+    // Устанавливаем лимиты
+    sandbox.limits.max_memory = 1000;
+    sandbox.limits.max_concurrent_operations = 5;
+    sandbox.limits.max_api_calls_per_second = 10;
+
+    // Устанавливаем использование
+    sandbox.update_memory_usage(500).unwrap();
+    let _guard = sandbox.acquire_operation_permit().await.unwrap();
+    sandbox.check_api_rate_limit().await.unwrap();
+    sandbox.check_api_rate_limit().await.unwrap();
+
+    let stats = sandbox.get_usage_stats().await;
+
+    // Проверяем статистику
+    assert_eq!(stats.plugin_id, "test");
+    assert_eq!(stats.memory_used, 500);
+    assert_eq!(stats.memory_peak, 500);
+    assert_eq!(stats.memory_limit, 1000);
+    assert_eq!(stats.active_operations, 1);
+    assert_eq!(stats.api_calls_current_second, 2);
+
+    // Проверяем процентные значения
+    assert_eq!(stats.memory_usage_percent(), 50.0);
+    assert_eq!(stats.operation_usage_percent(), 20.0);
+    assert_eq!(stats.api_rate_usage_percent(), 20.0);
+  }
+
+  #[tokio::test]
+  async fn test_sandbox_manager_operations() {
+    // Тест операций SandboxManager
+    let manager = SandboxManager::new();
+    let permissions = PluginPermissions::default();
+
+    // Создаем sandbox
+    let sandbox1 = manager
+      .create_sandbox("plugin-1".to_string(), &permissions)
+      .await;
+    let sandbox2 = manager
+      .create_sandbox("plugin-2".to_string(), &permissions)
+      .await;
+
+    assert_eq!(sandbox1.plugin_id, "plugin-1");
+    assert_eq!(sandbox2.plugin_id, "plugin-2");
+
+    // Получаем sandbox
+    let retrieved = manager.get_sandbox("plugin-1").await;
+    assert!(retrieved.is_some());
+    assert_eq!(retrieved.unwrap().plugin_id, "plugin-1");
+
+    // Получаем несуществующий sandbox
+    let missing = manager.get_sandbox("non-existent").await;
+    assert!(missing.is_none());
+
+    // Получаем статистику всех sandbox
+    let all_stats = manager.get_all_stats().await;
+    assert_eq!(all_stats.len(), 2);
+
+    // Имитируем нарушение лимитов
+    sandbox1
+      .usage
+      .limits_violated
+      .store(true, Ordering::Relaxed);
+    let violators = manager.get_violating_plugins().await;
+    assert_eq!(violators.len(), 1);
+    assert_eq!(violators[0], "plugin-1");
+
+    // Удаляем sandbox
+    assert!(manager.remove_sandbox("plugin-1").await);
+    assert!(!manager.remove_sandbox("plugin-1").await); // Уже удален
+
+    let remaining_stats = manager.get_all_stats().await;
+    assert_eq!(remaining_stats.len(), 1);
+  }
+
+  #[tokio::test]
+  async fn test_execution_time_monitoring() {
+    // Тест мониторинга времени выполнения операций
+    let permissions = PluginPermissions::default();
+    let mut sandbox = PluginSandbox::new("test".to_string(), &permissions);
+    sandbox.limits.max_execution_time = std::time::Duration::from_millis(50);
+
+    // Операция в пределах лимита времени
+    {
+      let _guard = sandbox.acquire_operation_permit().await.unwrap();
+      tokio::time::sleep(std::time::Duration::from_millis(30)).await;
+      // Guard автоматически освободится здесь
+    }
+
+    // Проверяем что нарушений нет
+    assert!(!sandbox.usage.limits_violated.load(Ordering::Relaxed));
+
+    // Операция, превышающая лимит времени
+    {
+      let _guard = sandbox.acquire_operation_permit().await.unwrap();
+      tokio::time::sleep(std::time::Duration::from_millis(70)).await;
+      // Guard освободится здесь и зафиксирует превышение времени
+    }
+
+    // Проверяем что зафиксировано нарушение
     assert!(sandbox.usage.limits_violated.load(Ordering::Relaxed));
   }
 }

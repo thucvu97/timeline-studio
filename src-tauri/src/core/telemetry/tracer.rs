@@ -278,4 +278,94 @@ mod tests {
 
     assert_eq!(result.unwrap(), 42);
   }
+
+  #[tokio::test]
+  async fn test_trace_generation_with_nested_spans() {
+    // Тест генерации trace с вложенными span
+    let config = TelemetryConfig::default();
+    let tracer = Tracer::new(&config).await.unwrap();
+
+    let result = tracer
+      .trace("parent_operation", async {
+        // Родительский span
+        tokio::time::sleep(Duration::from_millis(5)).await;
+
+        // Вложенный span 1
+        let child1_result = tracer
+          .trace("child_operation_1", async {
+            tokio::time::sleep(Duration::from_millis(3)).await;
+            Ok::<i32, crate::video_compiler::error::VideoCompilerError>(10)
+          })
+          .await?;
+
+        // Вложенный span 2
+        let child2_result = tracer
+          .trace("child_operation_2", async {
+            tokio::time::sleep(Duration::from_millis(2)).await;
+            Ok::<i32, crate::video_compiler::error::VideoCompilerError>(20)
+          })
+          .await?;
+
+        // Еще более глубокий span
+        let deep_result = tracer
+          .trace("deep_operation", async {
+            tracer
+              .trace("deepest_operation", async {
+                tokio::time::sleep(Duration::from_millis(1)).await;
+                Ok::<i32, crate::video_compiler::error::VideoCompilerError>(5)
+              })
+              .await
+          })
+          .await?;
+
+        Ok(child1_result + child2_result + deep_result)
+      })
+      .await;
+
+    assert_eq!(result.unwrap(), 35);
+  }
+
+  #[tokio::test]
+  async fn test_span_with_attributes() {
+    // Тест span с атрибутами
+    let config = TelemetryConfig::default();
+    let tracer = Tracer::new(&config).await.unwrap();
+
+    let result = tracer
+      .span("http_request")
+      .with_kind(SpanKind::Client)
+      .with_attribute("user.id", "12345")
+      .with_attribute("request.method", "GET")
+      .with_attribute("request.size", 1024i64)
+      .with_http_attributes("GET", "/api/users", 200)
+      .run(async {
+        // Симулируем HTTP запрос
+        tokio::time::sleep(Duration::from_millis(15)).await;
+        Ok::<String, crate::video_compiler::error::VideoCompilerError>("response_data".to_string())
+      })
+      .await;
+
+    assert_eq!(result.unwrap(), "response_data");
+  }
+
+  #[tokio::test]
+  async fn test_span_with_error_handling() {
+    // Тест обработки ошибок в span
+    let config = TelemetryConfig::default();
+    let tracer = Tracer::new(&config).await.unwrap();
+
+    let result = tracer
+      .trace("failing_operation", async {
+        tokio::time::sleep(Duration::from_millis(5)).await;
+        Err::<i32, crate::video_compiler::error::VideoCompilerError>(
+          crate::video_compiler::error::VideoCompilerError::InvalidParameter(
+            "test error".to_string(),
+          ),
+        )
+      })
+      .await;
+
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("test error"));
+  }
 }

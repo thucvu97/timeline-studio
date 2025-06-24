@@ -651,4 +651,209 @@ mod tests {
     assert_eq!(rgba_buffer.data_type(), DataType::Rgba32);
     assert_eq!(rgba_buffer.size(), 2 * 2 * 4);
   }
+
+  #[tokio::test]
+  async fn test_zero_copy_buffer_clone_ref() {
+    let buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+    let cloned = buffer.clone_ref();
+
+    assert_eq!(buffer.size(), cloned.size());
+    assert_eq!(buffer.data_type(), cloned.data_type());
+  }
+
+  #[tokio::test]
+  async fn test_multiple_views() {
+    let buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+
+    // Create multiple views of the same buffer
+    let view1 = buffer.view(0, 256).unwrap();
+    let view2 = buffer.view(256, 256).unwrap();
+    let view3 = buffer.view(512, 256).unwrap();
+
+    assert_eq!(view1.size(), 256);
+    assert_eq!(view2.size(), 256);
+    assert_eq!(view3.size(), 256);
+
+    // Views should have different content addresses
+    assert_ne!(view1.as_slice().as_ptr(), view2.as_slice().as_ptr());
+    assert_ne!(view2.as_slice().as_ptr(), view3.as_slice().as_ptr());
+  }
+
+  #[tokio::test]
+  async fn test_audio_interleave() {
+    // Create mono audio buffers
+    let mut left = ZeroCopyBuffer::new(8, 16, DataType::AudioF32).unwrap();
+    let mut right = ZeroCopyBuffer::new(8, 16, DataType::AudioF32).unwrap();
+
+    // Set dimensions for 2 samples (4 bytes each)
+    left.dimensions = Some((2, 1));
+    right.dimensions = Some((2, 1));
+
+    // Fill with test data
+    left
+      .as_mut_slice()
+      .copy_from_slice(&[1u8, 0, 0, 0, 2, 0, 0, 0]); // 1.0, 2.0 as f32
+    right
+      .as_mut_slice()
+      .copy_from_slice(&[3u8, 0, 0, 0, 4, 0, 0, 0]); // 3.0, 4.0 as f32
+
+    let interleaved = AudioZeroCopy::interleave_stereo(&left, &right).unwrap();
+
+    assert_eq!(interleaved.size(), 16); // 4 samples * 4 bytes
+    assert_eq!(interleaved.dimensions(), Some((4, 1))); // 4 interleaved samples
+
+    let data = interleaved.as_slice();
+    // Should be: L R L R pattern
+    assert_eq!(&data[0..4], &[1u8, 0, 0, 0]); // First left
+    assert_eq!(&data[4..8], &[3u8, 0, 0, 0]); // First right
+    assert_eq!(&data[8..12], &[2u8, 0, 0, 0]); // Second left
+    assert_eq!(&data[12..16], &[4u8, 0, 0, 0]); // Second right
+  }
+
+  #[tokio::test]
+  async fn test_yuv_plane_extraction() {
+    // Create YUV420p buffer for 4x4 image
+    let mut yuv_buffer = ZeroCopyBuffer::for_frame(4, 4, DataType::Yuv420p).unwrap();
+    yuv_buffer.dimensions = Some((4, 4));
+
+    let (y_plane, u_plane, v_plane) = VideoZeroCopy::extract_yuv_planes(&yuv_buffer).unwrap();
+
+    // Y plane should be 4x4 = 16 bytes
+    assert_eq!(y_plane.size(), 16);
+    // U and V planes should be 2x2 = 4 bytes each (subsampled)
+    assert_eq!(u_plane.size(), 4);
+    assert_eq!(v_plane.size(), 4);
+  }
+
+  #[tokio::test]
+  async fn test_buffer_alignment() {
+    // Test different alignments
+    let buffer_8 = ZeroCopyBuffer::new(1024, 8, DataType::Raw).unwrap();
+    let buffer_16 = ZeroCopyBuffer::new(1024, 16, DataType::Raw).unwrap();
+    let buffer_32 = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+
+    assert_eq!(buffer_8.alignment(), 8);
+    assert_eq!(buffer_16.alignment(), 16);
+    assert_eq!(buffer_32.alignment(), 32);
+
+    // Check that pointers are actually aligned
+    assert_eq!(buffer_8.as_slice().as_ptr() as usize % 8, 0);
+    assert_eq!(buffer_16.as_slice().as_ptr() as usize % 16, 0);
+    assert_eq!(buffer_32.as_slice().as_ptr() as usize % 32, 0);
+  }
+
+  #[tokio::test]
+  async fn test_zero_copy_manager_pooling() {
+    let manager = ZeroCopyManager::new();
+
+    // Get and explicitly return a buffer
+    let buffer1 = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+    assert_eq!(buffer1.size(), 1024);
+
+    // Return buffer to pool
+    manager.return_buffer(buffer1).await;
+
+    // Get another buffer of same size - should be pooled
+    let buffer2 = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+    assert_eq!(buffer2.size(), 1024);
+
+    let stats = manager.get_stats().await;
+    // Should show reuse
+    assert!(stats.buffers_reused > 0);
+  }
+
+  #[tokio::test]
+  async fn test_buffer_data_type_element_size() {
+    assert_eq!(DataType::Raw.element_size(), 1);
+    assert_eq!(DataType::Rgb24.element_size(), 3);
+    assert_eq!(DataType::Rgba32.element_size(), 4);
+    assert_eq!(DataType::AudioF32.element_size(), 4);
+    assert_eq!(DataType::Yuv420p.element_size(), 1);
+  }
+
+  #[tokio::test]
+  async fn test_buffer_error_cases() {
+    let buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+
+    // Test view beyond buffer bounds
+    let result = buffer.view(2000, 100);
+    assert!(result.is_err());
+
+    // Test view with size extending beyond buffer
+    let result = buffer.view(1000, 100);
+    assert!(result.is_err());
+
+    // Test RGB to RGBA with wrong data type
+    let wrong_buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+    let result = VideoZeroCopy::rgb_to_rgba_inplace(&wrong_buffer);
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_manager_stats_tracking() {
+    let manager = ZeroCopyManager::new();
+
+    // Create several buffers
+    let _buf1 = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+    let _buf2 = manager.get_buffer(2048, DataType::Rgb24).await.unwrap();
+    let _buf3 = manager.get_buffer(1024, DataType::Raw).await.unwrap(); // Should reuse
+
+    let stats = manager.get_stats().await;
+    assert!(stats.buffers_created >= 2);
+    assert!(stats.total_memory >= 3072);
+    assert_eq!(stats.active_buffers, 3);
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_zero_copy_operations() {
+    let manager = Arc::new(ZeroCopyManager::new());
+    let mut handles = vec![];
+
+    // Spawn multiple tasks performing zero-copy operations
+    for i in 0..10 {
+      let manager_clone = manager.clone();
+      let handle = tokio::spawn(async move {
+        let buffer = manager_clone
+          .get_buffer(1024 * (i + 1), DataType::Raw)
+          .await
+          .unwrap();
+
+        // Create view
+        let view = buffer.view(0, 512).unwrap();
+        assert_eq!(view.size(), 512);
+
+        // Clone buffer reference
+        let _cloned = buffer.clone_ref();
+      });
+      handles.push(handle);
+    }
+
+    // Wait for all tasks
+    for handle in handles {
+      handle.await.unwrap();
+    }
+
+    let stats = manager.get_stats().await;
+    assert!(stats.buffers_created >= 10);
+  }
+
+  #[tokio::test]
+  async fn test_buffer_view_safety() {
+    let mut buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+
+    // Fill buffer with test pattern
+    let data = buffer.as_mut_slice();
+    for (i, item) in data.iter_mut().enumerate() {
+      *item = (i % 256) as u8;
+    }
+
+    // Create view
+    let view = buffer.view(100, 200).unwrap();
+    let view_data = view.as_slice();
+
+    // Verify view shows correct data
+    for (i, &byte) in view_data.iter().enumerate() {
+      assert_eq!(byte, ((100 + i) % 256) as u8);
+    }
+  }
 }

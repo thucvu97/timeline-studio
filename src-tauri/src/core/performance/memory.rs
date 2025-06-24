@@ -535,4 +535,201 @@ mod tests {
     assert_eq!(stats.allocations, 2);
     assert_eq!(stats.bytes_allocated, 3072);
   }
+
+  #[tokio::test]
+  async fn test_memory_pool_recycling() {
+    let pool = MemoryPool::new();
+
+    // Allocate and drop buffer to test recycling
+    {
+      let _buffer = pool.allocate(1024).await.unwrap();
+      // Buffer is dropped here
+    }
+
+    // Wait for async drop to complete
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+
+    // Allocate another buffer of same size - should be recycled
+    let _buffer2 = pool.allocate(1024).await.unwrap();
+
+    let stats = pool.get_stats().await;
+    assert!(stats.small_pool.total_recycled > 0);
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_custom_sizes() {
+    let pool = MemoryPool::new();
+
+    // Test custom size allocation (> 16MB)
+    let custom_size = 32 * 1024 * 1024; // 32MB
+    let buffer = pool.allocate(custom_size).await.unwrap();
+    assert_eq!(buffer.len(), custom_size);
+
+    // Check that custom pool was created
+    let stats = pool.get_stats().await;
+    assert!(!stats.custom_pools.is_empty());
+
+    // Test power-of-two rounding
+    let odd_size = 20 * 1024 * 1024; // 20MB
+    let _buffer2 = pool.allocate(odd_size).await.unwrap();
+
+    // Should round to 32MB (next power of two)
+    let rounded_size = odd_size.next_power_of_two();
+    assert!(stats.custom_pools.contains_key(&rounded_size));
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_cleanup() {
+    let pool = MemoryPool::new();
+
+    // Create custom pool
+    let _buffer = pool.allocate(32 * 1024 * 1024).await.unwrap();
+    drop(_buffer);
+
+    // Wait for buffer to be returned
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+
+    // Clean up unused pools
+    pool.cleanup_custom_pools().await;
+
+    // Stats should still show the pool (it has blocks in it)
+    let stats = pool.get_stats().await;
+    assert!(!stats.custom_pools.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_memory_block_zero() {
+    let pool = MemoryPool::new();
+    let mut buffer = pool.allocate(1024).await.unwrap();
+
+    // Write some data
+    let data = buffer.as_mut_slice();
+    for (i, item) in data.iter_mut().enumerate() {
+      *item = (i % 256) as u8;
+    }
+
+    // Drop and reallocate - should be zeroed
+    drop(buffer);
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+
+    let buffer2 = pool.allocate(1024).await.unwrap();
+    let data2 = buffer2.as_slice();
+
+    // Check that data was zeroed
+    for &byte in data2 {
+      assert_eq!(byte, 0);
+    }
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_stats() {
+    let pool = MemoryPool::new();
+
+    // Allocate various sizes
+    let _small = pool.allocate(2 * 1024).await.unwrap();
+    let _medium = pool.allocate(32 * 1024).await.unwrap();
+    let _large = pool.allocate(512 * 1024).await.unwrap();
+    let _huge = pool.allocate(8 * 1024 * 1024).await.unwrap();
+
+    let stats = pool.get_stats().await;
+
+    // Check that all pools have allocations
+    assert_eq!(stats.small_pool.total_allocated, 1);
+    assert_eq!(stats.medium_pool.total_allocated, 1);
+    assert_eq!(stats.large_pool.total_allocated, 1);
+    assert_eq!(stats.huge_pool.total_allocated, 1);
+
+    // Test efficiency calculation
+    assert_eq!(stats.recycling_efficiency(), 0.0); // No recycling yet
+  }
+
+  #[tokio::test]
+  async fn test_memory_manager_peak_usage() {
+    let manager = MemoryManager::new();
+
+    // Allocate increasing sizes
+    let buf1 = manager.allocate(1024).await.unwrap();
+    let buf2 = manager.allocate(2048).await.unwrap();
+    let _buf3 = manager.allocate(4096).await.unwrap();
+
+    let stats = manager.get_manager_stats().await;
+    assert_eq!(stats.peak_memory_usage, 7168); // 1024 + 2048 + 4096
+    assert_eq!(stats.current_memory_usage, 7168);
+
+    // Drop some buffers
+    drop(buf1);
+    drop(buf2);
+
+    // Peak should remain the same
+    let stats = manager.get_manager_stats().await;
+    assert_eq!(stats.peak_memory_usage, 7168);
+  }
+
+  #[tokio::test]
+  async fn test_pooled_buffer_operations() {
+    let pool = MemoryPool::new();
+    let mut buffer = pool.allocate(256).await.unwrap();
+
+    // Test as_ptr operations
+    assert!(!buffer.as_ptr().is_null());
+    assert!(!buffer.as_mut_ptr().is_null());
+
+    // Test write and read through slices
+    let data = vec![1u8, 2, 3, 4, 5];
+    buffer.as_mut_slice()[..5].copy_from_slice(&data);
+
+    assert_eq!(&buffer.as_slice()[..5], &data[..]);
+
+    // Test is_empty
+    assert!(!buffer.is_empty());
+
+    let empty_buffer = pool.allocate(0).await.unwrap();
+    assert!(empty_buffer.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_concurrent_access() {
+    let pool = Arc::new(MemoryPool::new());
+    let mut handles = vec![];
+
+    // Spawn multiple tasks allocating memory
+    for i in 0..10 {
+      let pool_clone = pool.clone();
+      let handle = tokio::spawn(async move {
+        let size = 1024 * (i + 1);
+        let buffer = pool_clone.allocate(size).await.unwrap();
+        assert_eq!(buffer.len(), size);
+      });
+      handles.push(handle);
+    }
+
+    // Wait for all tasks
+    for handle in handles {
+      handle.await.unwrap();
+    }
+
+    let stats = pool.get_stats().await;
+    assert!(stats.total_allocated() >= 10);
+  }
+
+  #[tokio::test]
+  async fn test_block_pool_limit() {
+    let pool = MemoryPool::new();
+    let mut buffers = vec![];
+
+    // Allocate MAX_BLOCKS_PER_POOL buffers
+    for _ in 0..10 {
+      buffers.push(pool.allocate(1024).await.unwrap());
+    }
+
+    // Drop them all
+    buffers.clear();
+
+    // Wait for returns
+    tokio::time::sleep(std::time::Duration::from_millis(200)).await;
+
+    let stats = pool.get_stats().await;
+    // Pool should have some blocks but respect MAX_BLOCKS_PER_POOL limit
+    assert!(stats.small_pool.available_blocks <= MAX_BLOCKS_PER_POOL);
+  }
 }

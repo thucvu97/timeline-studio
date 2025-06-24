@@ -27,6 +27,7 @@ pub struct PluginHandle {
 }
 
 /// Менеджер плагинов
+#[derive(Clone)]
 pub struct PluginManager {
   plugins: Arc<RwLock<HashMap<String, PluginHandle>>>,
   loader: Arc<PluginLoader>,
@@ -573,5 +574,220 @@ mod tests {
     // Проверяем что плагин выгружен
     let loaded = manager.list_loaded_plugins().await;
     assert_eq!(loaded.len(), 0);
+  }
+
+  #[tokio::test]
+  async fn test_plugin_dynamic_loading_multiple() {
+    // Тест динамической загрузки нескольких плагинов одновременно
+    let event_bus = Arc::new(EventBus::new());
+    let service_container = Arc::new(ServiceContainer::new());
+    let app_version = Version::new(1, 0, 0);
+
+    let manager = PluginManager::new(app_version, event_bus, service_container);
+    let registry = manager.loader().registry();
+
+    // Регистрируем несколько плагинов
+    for i in 1..=3 {
+      let plugin_id = format!("plugin-{}", i);
+      let mut metadata = TestPlugin::new().metadata().clone();
+      metadata.id = plugin_id.clone();
+      metadata.name = format!("Test Plugin {}", i);
+
+      let factory = Box::new(move || {
+        let mut plugin = TestPlugin::new();
+        plugin.metadata.id = plugin_id.clone();
+        plugin.metadata.name = format!("Test Plugin {}", i);
+        Box::new(plugin) as Box<dyn Plugin>
+      });
+
+      registry
+        .register(crate::core::plugins::loader::PluginRegistration { metadata, factory })
+        .await
+        .unwrap();
+    }
+
+    // Загружаем все плагины параллельно
+    let mut handles = vec![];
+    for i in 1..=3 {
+      let plugin_id = format!("plugin-{}", i);
+      let manager_clone = manager.clone();
+      let handle = tokio::spawn(async move {
+        let permissions = PluginPermissions::default();
+        manager_clone.load_plugin(&plugin_id, permissions).await
+      });
+      handles.push(handle);
+    }
+
+    // Ждем загрузки всех плагинов
+    let mut instance_ids = vec![];
+    for handle in handles {
+      let instance_id = handle.await.unwrap().unwrap();
+      instance_ids.push(instance_id);
+    }
+
+    // Проверяем что все плагины загружены
+    let loaded = manager.list_loaded_plugins().await;
+    assert_eq!(loaded.len(), 3);
+
+    // Отправляем команды всем плагинам
+    for plugin_id in &["plugin-1", "plugin-2", "plugin-3"] {
+      let command = PluginCommand {
+        id: Uuid::new_v4(),
+        command: "test".to_string(),
+        params: serde_json::json!({"plugin": plugin_id}),
+      };
+
+      let response = manager.send_command(plugin_id, command).await.unwrap();
+      assert!(response.success);
+    }
+
+    // Выгружаем все плагины
+    for plugin_id in &["plugin-1", "plugin-2", "plugin-3"] {
+      manager.unload_plugin(plugin_id).await.unwrap();
+    }
+
+    // Проверяем что все плагины выгружены
+    let loaded = manager.list_loaded_plugins().await;
+    assert_eq!(loaded.len(), 0);
+  }
+
+  #[tokio::test]
+  async fn test_plugin_error_handling() {
+    // Тест обработки ошибок при загрузке и работе с плагинами
+    let event_bus = Arc::new(EventBus::new());
+    let service_container = Arc::new(ServiceContainer::new());
+    let app_version = Version::new(1, 0, 0);
+
+    let manager = PluginManager::new(app_version, event_bus, service_container);
+
+    // Попытка загрузить несуществующий плагин
+    let result = manager
+      .load_plugin("non-existent", PluginPermissions::default())
+      .await;
+    assert!(result.is_err());
+
+    // Попытка отправить команду несуществующему плагину
+    let command = PluginCommand {
+      id: Uuid::new_v4(),
+      command: "test".to_string(),
+      params: serde_json::json!({}),
+    };
+    let result = manager.send_command("non-existent", command).await;
+    assert!(result.is_err());
+
+    // Попытка выгрузить несуществующий плагин
+    let result = manager.unload_plugin("non-existent").await;
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_plugin_event_dispatch() {
+    // Тест рассылки событий плагинам
+    let event_bus = Arc::new(EventBus::new());
+    let service_container = Arc::new(ServiceContainer::new());
+    let app_version = Version::new(1, 0, 0);
+
+    let manager = PluginManager::new(app_version, event_bus, service_container);
+    let registry = manager.loader().registry();
+
+    // Регистрируем плагин
+    let plugin = TestPlugin::new();
+    let metadata = plugin.metadata().clone();
+    let factory = Box::new(|| Box::new(TestPlugin::new()) as Box<dyn Plugin>);
+
+    registry
+      .register(crate::core::plugins::loader::PluginRegistration { metadata, factory })
+      .await
+      .unwrap();
+
+    // Загружаем плагин
+    let permissions = PluginPermissions::default();
+    manager
+      .load_plugin("test-plugin", permissions)
+      .await
+      .unwrap();
+
+    // Отправляем событие, на которое плагин подписан
+    let event = AppEvent::ProjectCreated {
+      project_id: "test-project".to_string(),
+    };
+
+    let result = manager.dispatch_event(&event).await;
+    assert!(result.is_ok());
+
+    // Отправляем событие, на которое плагин не подписан
+    let event = AppEvent::MediaImported {
+      media_id: "test-media".to_string(),
+      path: "/test/path".to_string(),
+    };
+
+    let result = manager.dispatch_event(&event).await;
+    assert!(result.is_ok()); // Должно пройти без ошибок, просто проигнорируется
+
+    // Очистка
+    manager.unload_plugin("test-plugin").await.unwrap();
+  }
+
+  #[tokio::test]
+  async fn test_plugin_suspend_resume() {
+    // Тест приостановки и возобновления плагинов
+    let event_bus = Arc::new(EventBus::new());
+    let service_container = Arc::new(ServiceContainer::new());
+    let app_version = Version::new(1, 0, 0);
+
+    let manager = PluginManager::new(app_version, event_bus, service_container);
+    let registry = manager.loader().registry();
+
+    // Регистрируем плагин
+    let plugin = TestPlugin::new();
+    let metadata = plugin.metadata().clone();
+    let factory = Box::new(|| Box::new(TestPlugin::new()) as Box<dyn Plugin>);
+
+    registry
+      .register(crate::core::plugins::loader::PluginRegistration { metadata, factory })
+      .await
+      .unwrap();
+
+    // Загружаем плагин
+    let permissions = PluginPermissions::default();
+    manager
+      .load_plugin("test-plugin", permissions)
+      .await
+      .unwrap();
+
+    // Проверяем что плагин активен
+    let loaded = manager.list_loaded_plugins().await;
+    assert_eq!(loaded[0].1, PluginState::Active);
+
+    // Приостанавливаем плагин
+    manager.suspend_plugin("test-plugin").await.unwrap();
+    let loaded = manager.list_loaded_plugins().await;
+    assert_eq!(loaded[0].1, PluginState::Suspended);
+
+    // Попытка отправить команду приостановленному плагину должна завершиться ошибкой
+    let command = PluginCommand {
+      id: Uuid::new_v4(),
+      command: "test".to_string(),
+      params: serde_json::json!({}),
+    };
+    let result = manager.send_command("test-plugin", command).await;
+    assert!(result.is_err());
+
+    // Возобновляем плагин
+    manager.resume_plugin("test-plugin").await.unwrap();
+    let loaded = manager.list_loaded_plugins().await;
+    assert_eq!(loaded[0].1, PluginState::Active);
+
+    // Теперь команда должна работать
+    let command = PluginCommand {
+      id: Uuid::new_v4(),
+      command: "test".to_string(),
+      params: serde_json::json!({}),
+    };
+    let result = manager.send_command("test-plugin", command).await;
+    assert!(result.is_ok());
+
+    // Очистка
+    manager.unload_plugin("test-plugin").await.unwrap();
   }
 }
