@@ -199,7 +199,7 @@ impl NetworkPermissions {
 }
 
 /// Уровень безопасности плагина
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum SecurityLevel {
   /// Минимальные разрешения (только чтение)
   Minimal,
