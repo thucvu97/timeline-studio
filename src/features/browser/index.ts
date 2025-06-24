@@ -1,7 +1,3 @@
-// Новые адаптеры
-export { useEffectsAdapterNew } from "./adapters/use-effects-adapter-new"
-export { useFiltersAdapterNew } from "./adapters/use-filters-adapter-new"
-export { useTransitionsAdapterNew } from "./adapters/use-transitions-adapter-new"
 export * from "./components"
 export { BrowserLazy } from "./components/browser-lazy"
 // Компоненты
