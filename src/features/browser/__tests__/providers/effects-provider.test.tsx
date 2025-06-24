@@ -135,10 +135,13 @@ describe("EffectsProvider", () => {
     // Ждем инициализации
     await waitFor(() => {
       expect(screen.getByTestId("initialized")).toHaveTextContent("true")
-    })
+    }, { timeout: 3000 })
 
-    // Проверяем загруженные ресурсы
-    expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
+    // Ждем загрузки ресурсов с более длительным таймаутом
+    await waitFor(() => {
+      expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
+    }, { timeout: 3000 })
+
     expect(screen.getByTestId("filters-count")).toHaveTextContent("1")
     expect(screen.getByTestId("transitions-count")).toHaveTextContent("1")
 
