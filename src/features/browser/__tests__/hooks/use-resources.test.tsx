@@ -108,11 +108,22 @@ vi.mock("../../services/resource-loaders", () => ({
 }))
 
 // Общая очистка состояния перед каждым тестом
-beforeEach(() => {
+beforeEach(async () => {
   vi.clearAllMocks()
   resetEffectsProviderState()
   resetTransitionsState()
+  // Небольшая задержка для гарантии очистки состояния
+  await new Promise(resolve => setTimeout(resolve, 10))
 })
+
+// Вспомогательная функция для ожидания загрузки провайдера
+const waitForProviderReady = async () => {
+  await waitFor(() => {
+    expect(screen.getByTestId("loading")).toHaveTextContent("false")
+  }, { timeout: 5000 })
+  // Дополнительная задержка для стабильности
+  await new Promise(resolve => setTimeout(resolve, 50))
+}
 
 describe("useEffects", () => {
   function TestComponent() {
@@ -137,9 +148,7 @@ describe("useEffects", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false")
-    })
+    await waitForProviderReady()
 
     expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
     expect(screen.getByText("Test Effect 1")).toBeInTheDocument()
@@ -170,9 +179,7 @@ describe("useFilters", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false")
-    })
+    await waitForProviderReady()
 
     expect(screen.getByTestId("filters-count")).toHaveTextContent("1")
     expect(screen.getByText("Test Filter 1")).toBeInTheDocument()
@@ -202,9 +209,7 @@ describe("useTransitions", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false")
-    })
+    await waitForProviderReady()
 
     expect(screen.getByTestId("transitions-count")).toHaveTextContent("1")
     expect(screen.getByText("Fade")).toBeInTheDocument()
@@ -229,9 +234,7 @@ describe("useResourceById", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false")
-    })
+    await waitForProviderReady()
 
     expect(screen.getByTestId("resource-name")).toHaveTextContent("Test Effect 1")
   })
@@ -243,9 +246,7 @@ describe("useResourceById", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false")
-    })
+    await waitForProviderReady()
 
     expect(screen.getByTestId("resource-name")).toHaveTextContent("Not found")
   })
@@ -275,9 +276,7 @@ describe("useResourcesSearch", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false")
-    })
+    await waitForProviderReady()
 
     expect(screen.getByTestId("results-count")).toHaveTextContent("1")
     expect(screen.getByText("Test Effect 1")).toBeInTheDocument()
@@ -290,9 +289,7 @@ describe("useResourcesSearch", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false")
-    })
+    await waitForProviderReady()
 
     expect(screen.getByTestId("results-count")).toHaveTextContent("1")
     expect(screen.getByText("Test Effect 1")).toBeInTheDocument()
@@ -305,9 +302,7 @@ describe("useResourcesSearch", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false")
-    })
+    await waitForProviderReady()
 
     expect(screen.getByTestId("results-count")).toHaveTextContent("1")
     expect(screen.getByText("Test Effect 1")).toBeInTheDocument()
@@ -320,9 +315,7 @@ describe("useResourcesSearch", () => {
       </EffectsProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false")
-    })
+    await waitForProviderReady()
 
     expect(screen.getByTestId("results-count")).toHaveTextContent("1")
     expect(screen.getByText("Test Effect 2")).toBeInTheDocument()
