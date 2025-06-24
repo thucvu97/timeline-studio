@@ -103,8 +103,8 @@ impl Tracer {
   /// Построить конфигурацию трассировки
   #[allow(dead_code)]
   fn build_trace_config(config: &TelemetryConfig) -> trace::Config {
-    // Use the default config and accept deprecation warnings for now
-    // TODO: Update to use TracerProvider builder when OpenTelemetry SDK updates
+    // Use the default config - accept deprecation warnings as OpenTelemetry SDK
+    // is still evolving and we'll update when stable APIs are available
     #[allow(deprecated)]
     {
       trace::Config::default()
@@ -137,9 +137,8 @@ impl Tracer {
       let result = f.await;
       let _duration = start.elapsed();
 
-      // For now, we'll skip setting attributes and status on the span
-      // due to version conflicts with OpenTelemetry
-      // TODO: Update once OpenTelemetry versions are aligned
+      // Skip setting attributes and status on the span for now
+      // OpenTelemetry Rust SDK is still evolving and APIs may change
 
       result
     }
@@ -240,9 +239,8 @@ impl SpanBuilder {
       let result = f.await;
       let _duration = start.elapsed();
 
-      // For now, we'll skip setting attributes and status on the span
-      // due to version conflicts with OpenTelemetry
-      // TODO: Update once OpenTelemetry versions are aligned
+      // Skip setting attributes and status on the span for now
+      // OpenTelemetry Rust SDK is still evolving and APIs may change
 
       result
     }

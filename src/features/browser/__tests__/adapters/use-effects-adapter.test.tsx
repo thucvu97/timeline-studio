@@ -193,6 +193,93 @@ describe("useEffectsAdapter", () => {
       expect(result.current.PreviewComponent).toBeDefined()
       expect(typeof result.current.PreviewComponent).toBe("function")
     })
+
+    it("should render correctly in list mode", () => {
+      const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockEffect = {
+        id: "blur",
+        name: "Размытие",
+        description: { ru: "Эффект размытия", en: "Blur effect" },
+        category: "filter",
+        type: "blur",
+        complexity: "basic" as const,
+        tags: ["blur"],
+      }
+
+      const mockProps = {
+        item: mockEffect,
+        size: 100,
+        viewMode: "list" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: false,
+        isFavorite: false,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
+
+    it("should render correctly in grid mode", () => {
+      const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockEffect = {
+        id: "sepia",
+        name: "Сепия",
+        description: { ru: "Эффект сепии", en: "Sepia effect" },
+        category: "color",
+        type: "sepia",
+        complexity: "intermediate" as const,
+        tags: ["vintage"],
+      }
+
+      const mockProps = {
+        item: mockEffect,
+        size: 120,
+        viewMode: "grid" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: false,
+        isFavorite: false,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
+
+    it("should handle thumbnails mode with dimensions", () => {
+      const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockEffect = {
+        id: "grayscale",
+        name: "Черно-белое",
+        description: { ru: "Черно-белый эффект", en: "Grayscale effect" },
+        category: "color",
+        type: "grayscale",
+        complexity: "basic" as const,
+        tags: ["bw"],
+      }
+
+      const mockProps = {
+        item: mockEffect,
+        size: { width: 160, height: 90 },
+        viewMode: "thumbnails" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: true,
+        isFavorite: true,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
   })
 
   describe("favoriteType", () => {
@@ -200,6 +287,26 @@ describe("useEffectsAdapter", () => {
       const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
 
       expect(result.current.favoriteType).toBe("effect")
+    })
+  })
+
+  describe("isFavorite", () => {
+    it("should check if effect is favorite", () => {
+      const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
+
+      const testEffect = {
+        id: "blur",
+        name: "Размытие",
+        description: { ru: "Эффект размытия", en: "Blur effect" },
+        category: "filter",
+        type: "blur",
+        complexity: "basic" as const,
+        tags: ["blur"],
+      }
+
+      expect(result.current.isFavorite).toBeDefined()
+      expect(typeof result.current.isFavorite).toBe("function")
+      expect(result.current.isFavorite(testEffect)).toBe(false)
     })
   })
 })

@@ -66,7 +66,9 @@ impl TelemetryManager {
     let mut current = self.config.write().await;
     *current = config;
 
-    // TODO: Реконфигурировать tracer и metrics
+    // Примечание: Реконфигурация tracer и metrics требует перезапуска
+    // OpenTelemetry SDK не поддерживает горячую реконфигурацию
+    // Для применения изменений требуется вызвать shutdown() и создать новый TelemetryManager
 
     Ok(())
   }
