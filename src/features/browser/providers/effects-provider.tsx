@@ -477,11 +477,52 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     }
   }
 
+  // === Очистка состояния ===
+
+  /**
+   * Очищает все состояние провайдера для тестов
+   */
+  cleanup(): void {
+    // Очищаем ресурсы
+    this.resources.clear()
+    
+    // Очищаем кэш
+    this.cache = {}
+    
+    // Сбрасываем состояние загрузки
+    this.loadingState = {
+      isLoading: false,
+      loadedSources: new Set(),
+      loadingQueue: [],
+      error: null,
+      progress: 0,
+    }
+    
+    // Очищаем слушатели событий
+    this.eventListeners.loadingStateChange = []
+    this.eventListeners.resourcesUpdate = []
+    this.eventListeners.error = []
+  }
+
   // === Внутренние методы ===
 
   private updateLoadingState(updates: Partial<LoadingState>): void {
     this.loadingState = { ...this.loadingState, ...updates }
     this.eventListeners.loadingStateChange.forEach((callback) => callback(this.loadingState))
+  }
+}
+
+// === Экспорт для тестов ===
+
+// Глобальная переменная для хранения инстанса для очистки в тестах
+let globalProviderInstance: EffectsProviderImpl | null = null
+
+/**
+ * Очищает глобальное состояние провайдера (для тестов)
+ */
+export function resetEffectsProviderState(): void {
+  if (globalProviderInstance) {
+    globalProviderInstance.cleanup()
   }
 }
 
@@ -496,6 +537,7 @@ export function EffectsProvider({ children, config = {}, onError }: EffectsProvi
   // Создаем API инстанс
   if (!apiRef.current) {
     apiRef.current = new EffectsProviderImpl(finalConfig)
+    globalProviderInstance = apiRef.current
   }
 
   const api = apiRef.current
@@ -503,11 +545,13 @@ export function EffectsProvider({ children, config = {}, onError }: EffectsProvi
   // Инициализация при монтировании
   useEffect(() => {
     let cancelled = false
+    let unsubscribeError: (() => void) | undefined
+    let backgroundTimer: NodeJS.Timeout | undefined
 
     const initialize = async () => {
       try {
         // Подписываемся на ошибки
-        const unsubscribeError = api.onError((error, source) => {
+        unsubscribeError = api.onError((error, source) => {
           console.error(`EffectsProvider error from ${source}:`, error)
           onError?.(error)
         })
@@ -521,7 +565,7 @@ export function EffectsProvider({ children, config = {}, onError }: EffectsProvi
           setIsInitialized(true)
 
           // Запускаем фоновую загрузку других источников
-          setTimeout(() => {
+          backgroundTimer = setTimeout(() => {
             if (!cancelled) {
               const backgroundSources: ResourceSource[] = ["local", "imported"]
               backgroundSources.forEach((source) => {
@@ -535,10 +579,6 @@ export function EffectsProvider({ children, config = {}, onError }: EffectsProvi
             }
           }, finalConfig.backgroundLoadDelay)
         }
-
-        return () => {
-          unsubscribeError()
-        }
       } catch (error) {
         console.error("EffectsProvider initialization failed:", error)
         onError?.(error instanceof Error ? error.message : String(error))
@@ -549,6 +589,12 @@ export function EffectsProvider({ children, config = {}, onError }: EffectsProvi
 
     return () => {
       cancelled = true
+      if (backgroundTimer) {
+        clearTimeout(backgroundTimer)
+      }
+      if (unsubscribeError) {
+        unsubscribeError()
+      }
     }
   }, [finalConfig, api, onError])
 

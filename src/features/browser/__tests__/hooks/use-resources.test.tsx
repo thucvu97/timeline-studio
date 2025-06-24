@@ -15,7 +15,7 @@ import {
   useResourcesStats,
   useTransitions,
 } from "../../hooks/use-resources"
-import { EffectsProvider } from "../../providers/effects-provider"
+import { EffectsProvider, resetEffectsProviderState } from "../../providers/effects-provider"
 
 // Мокаем JSON файл с переходами
 vi.mock("@/features/transitions/data/transitions.json", () => ({
@@ -107,6 +107,13 @@ vi.mock("../../services/resource-loaders", () => ({
   }),
 }))
 
+// Общая очистка состояния перед каждым тестом
+beforeEach(() => {
+  vi.clearAllMocks()
+  resetEffectsProviderState()
+  resetTransitionsState()
+})
+
 describe("useEffects", () => {
   function TestComponent() {
     const { effects, loading } = useEffects()
@@ -125,7 +132,7 @@ describe("useEffects", () => {
 
   it("должен загружать и возвращать эффекты", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="useEffects-test">
         <TestComponent />
       </EffectsProvider>,
     )
@@ -158,7 +165,7 @@ describe("useFilters", () => {
 
   it("должен загружать и возвращать фильтры", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="useFilters-test">
         <TestComponent />
       </EffectsProvider>,
     )
@@ -173,11 +180,6 @@ describe("useFilters", () => {
 })
 
 describe("useTransitions", () => {
-  beforeEach(() => {
-    // Сбрасываем глобальное состояние перед каждым тестом
-    resetTransitionsState()
-  })
-
   function TestComponent() {
     const { transitions, loading } = useTransitions()
     return (
@@ -195,7 +197,7 @@ describe("useTransitions", () => {
 
   it("должен загружать и возвращать переходы", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="useTransitions-test">
         <TestComponent />
       </EffectsProvider>,
     )
@@ -222,7 +224,7 @@ describe("useResourceById", () => {
 
   it("должен находить ресурс по ID", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="useResourceById-found-test">
         <TestComponent id="test-effect-1" />
       </EffectsProvider>,
     )
@@ -236,7 +238,7 @@ describe("useResourceById", () => {
 
   it("должен возвращать null для несуществующего ID", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="useResourceById-notfound-test">
         <TestComponent id="non-existent" />
       </EffectsProvider>,
     )
@@ -265,10 +267,6 @@ describe("useResourcesSearch", () => {
     )
   }
 
-  // Очистка состояния между тестами
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
 
   it("должен выполнять поиск по запросу", async () => {
     render(
@@ -302,7 +300,7 @@ describe("useResourcesSearch", () => {
 
   it("должен фильтровать по тегам", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="search-tags-test">
         <TestComponent options={{ tags: ["popular"] }} />
       </EffectsProvider>,
     )
@@ -343,7 +341,7 @@ describe("useResourcesByCategory", () => {
 
   it("должен возвращать ресурсы по категории", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="category-test">
         <TestComponent category="artistic" />
       </EffectsProvider>,
     )
@@ -366,7 +364,7 @@ describe("useResourcesByTags", () => {
 
   it("должен возвращать ресурсы по тегам", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="tags-test">
         <TestComponent tags={["popular"]} />
       </EffectsProvider>,
     )
@@ -389,7 +387,7 @@ describe("useResourcesByComplexity", () => {
 
   it("должен возвращать ресурсы по сложности", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="complexity-test">
         <TestComponent complexity="basic" />
       </EffectsProvider>,
     )
@@ -414,7 +412,7 @@ describe("useLoadingState", () => {
 
   it("должен возвращать состояние загрузки", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="loading-state-test">
         <TestComponent />
       </EffectsProvider>,
     )
@@ -442,7 +440,7 @@ describe("useResourcesStats", () => {
 
   it("должен возвращать статистику ресурсов", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="stats-test">
         <TestComponent />
       </EffectsProvider>,
     )
