@@ -78,7 +78,7 @@
 
 ## Связанные файлы
 
-- `/docs-ru/10-known-issues/test-memory-issues.md`
+- `/docs-ru/13-known-issues/test-memory-issues.md`
 - `/vitest.config.ts`
 - `/src/features/browser/__tests__/adapters/*.test.tsx`
 - `/src/test/test-utils.tsx`
