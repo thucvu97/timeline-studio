@@ -51,9 +51,7 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
         {/* Filter Info */}
         <div className="flex-1 min-w-0">
           <div className="font-medium text-sm truncate">{filter.name}</div>
-          <div className="text-xs text-muted-foreground truncate">
-            {filter.description?.en || ""}
-          </div>
+          <div className="text-xs text-muted-foreground truncate">{filter.description?.en || ""}</div>
         </div>
 
         {/* Category */}
@@ -169,9 +167,7 @@ export function useFiltersAdapterNew(): ListAdapter<VideoFilter> {
       }
 
       // Фильтрация по категории
-      if (
-        ["color-correction", "technical", "cinematic", "artistic", "creative", "vintage"].includes(filterType)
-      ) {
+      if (["color-correction", "technical", "cinematic", "artistic", "creative", "vintage"].includes(filterType)) {
         return filter.category === filterType
       }
 

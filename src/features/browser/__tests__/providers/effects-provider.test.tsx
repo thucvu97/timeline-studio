@@ -25,7 +25,7 @@ vi.mock("../../services/resource-loaders", () => ({
           labels: { en: "Test Effect 1", ru: "Тестовый эффект 1" },
         },
         {
-          id: "test-effect-2", 
+          id: "test-effect-2",
           name: "Test Effect 2",
           type: "brightness",
           category: "color-correction",
@@ -103,7 +103,7 @@ function TestComponent() {
       <div data-testid="effects-count">{effects.length}</div>
       <div data-testid="filters-count">{filters.length}</div>
       <div data-testid="transitions-count">{transitions.length}</div>
-      {effects.map(effect => (
+      {effects.map((effect) => (
         <div key={effect.id} data-testid="effect-item">
           {effect.name}
         </div>
@@ -121,7 +121,7 @@ describe("EffectsProvider", () => {
     render(
       <EffectsProvider>
         <TestComponent />
-      </EffectsProvider>
+      </EffectsProvider>,
     )
 
     // Ждем инициализации
@@ -145,7 +145,7 @@ describe("EffectsProvider", () => {
     render(
       <EffectsProvider onError={onError}>
         <TestComponent />
-      </EffectsProvider>
+      </EffectsProvider>,
     )
 
     // В случае успешной загрузки ошибок быть не должно
@@ -167,7 +167,7 @@ describe("EffectsProvider", () => {
     render(
       <EffectsProvider config={config}>
         <TestComponent />
-      </EffectsProvider>
+      </EffectsProvider>,
     )
 
     await waitFor(() => {
@@ -196,7 +196,7 @@ describe("EffectsProvider API", () => {
 
   function APITestComponent() {
     const { api: providerAPI, isInitialized } = useEffectsProvider()
-    
+
     React.useEffect(() => {
       if (isInitialized) {
         api = providerAPI
@@ -210,7 +210,7 @@ describe("EffectsProvider API", () => {
     render(
       <EffectsProvider>
         <APITestComponent />
-      </EffectsProvider>
+      </EffectsProvider>,
     )
 
     await waitFor(() => {

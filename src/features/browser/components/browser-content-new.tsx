@@ -6,8 +6,7 @@ import { useBrowserState } from "@/features/browser/services/browser-state-provi
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useTimelineActions } from "@/features/timeline/hooks"
 
-import { BrowserLoadingIndicator, BrowserResourcesSkeleton } from "./browser-loading-indicator"
-
+import { BrowserLoadingIndicator } from "./browser-loading-indicator"
 import { useEffectsAdapter } from "../adapters/use-effects-adapter"
 import { useFiltersAdapter } from "../adapters/use-filters-adapter"
 import { useMediaAdapter } from "../adapters/use-media-adapter"

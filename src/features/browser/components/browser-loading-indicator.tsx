@@ -1,7 +1,5 @@
 "use client"
 
-import React from "react"
-
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -28,23 +26,17 @@ export function BrowserLoadingIndicator() {
           {loadingState.isLoading ? (
             <>
               <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-              <span className="text-sm font-medium">
-                Загрузка ресурсов...
-              </span>
+              <span className="text-sm font-medium">Загрузка ресурсов...</span>
             </>
           ) : loadingState.error ? (
             <>
               <div className="h-4 w-4 bg-destructive rounded-full" />
-              <span className="text-sm font-medium text-destructive">
-                Ошибка загрузки
-              </span>
+              <span className="text-sm font-medium text-destructive">Ошибка загрузки</span>
             </>
           ) : (
             <>
               <div className="h-4 w-4 bg-green-500 rounded-full" />
-              <span className="text-sm font-medium text-green-600">
-                Загрузка завершена
-              </span>
+              <span className="text-sm font-medium text-green-600">Загрузка завершена</span>
             </>
           )}
         </div>
@@ -56,7 +48,7 @@ export function BrowserLoadingIndicator() {
               {stats.total} ресурсов
             </Badge>
           )}
-          
+
           {loadingState.loadedSources.size > 0 && (
             <Badge variant="outline" className="text-xs">
               {loadingState.loadedSources.size} источников
@@ -71,9 +63,7 @@ export function BrowserLoadingIndicator() {
           <Progress value={loadingState.progress} className="h-1.5" />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>
-              {loadingState.loadingQueue.length > 0 && 
-                `Загружается: ${loadingState.loadingQueue.join(", ")}`
-              }
+              {loadingState.loadingQueue.length > 0 && `Загружается: ${loadingState.loadingQueue.join(", ")}`}
             </span>
             <span>{Math.round(loadingState.progress)}%</span>
           </div>
@@ -82,23 +72,15 @@ export function BrowserLoadingIndicator() {
 
       {/* Ошибка */}
       {loadingState.error && (
-        <div className="mt-2 text-xs text-destructive bg-destructive/10 p-2 rounded">
-          {loadingState.error}
-        </div>
+        <div className="mt-2 text-xs text-destructive bg-destructive/10 p-2 rounded">{loadingState.error}</div>
       )}
 
       {/* Детальная статистика (только при загрузке) */}
       {loadingState.isLoading && stats.total > 0 && (
         <div className="mt-2 flex gap-3 text-xs text-muted-foreground">
-          {stats.byType.effects > 0 && (
-            <span>Эффекты: {stats.byType.effects}</span>
-          )}
-          {stats.byType.filters > 0 && (
-            <span>Фильтры: {stats.byType.filters}</span>
-          )}
-          {stats.byType.transitions > 0 && (
-            <span>Переходы: {stats.byType.transitions}</span>
-          )}
+          {stats.byType.effects > 0 && <span>Эффекты: {stats.byType.effects}</span>}
+          {stats.byType.filters > 0 && <span>Фильтры: {stats.byType.filters}</span>}
+          {stats.byType.transitions > 0 && <span>Переходы: {stats.byType.transitions}</span>}
         </div>
       )}
     </div>
@@ -115,7 +97,7 @@ export function BrowserResourcesSkeleton() {
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-5 w-20" />
       </div>
-      
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
         {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} className="space-y-2">
@@ -144,10 +126,7 @@ export function BrowserTabLoadingBadge({ resourceType }: { resourceType: "effect
   }
 
   return (
-    <Badge 
-      variant={isLoading ? "secondary" : "outline"} 
-      className="ml-1 text-xs h-5 min-w-5 px-1"
-    >
+    <Badge variant={isLoading ? "secondary" : "outline"} className="ml-1 text-xs h-5 min-w-5 px-1">
       {isLoading ? (
         <div className="animate-spin h-2 w-2 border border-current border-t-transparent rounded-full" />
       ) : (

@@ -1,18 +1,16 @@
 "use client"
 
-import React from "react"
-
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import { 
-  useEffects, 
-  useFilters, 
+import {
+  useEffects,
+  useFilters,
   useLoadingState,
   useResourceSources,
   useResourcesStats,
-  useTransitions 
+  useTransitions,
 } from "../hooks/use-resources"
 import { EffectsProvider } from "../providers/effects-provider"
 
@@ -146,9 +144,7 @@ function LoadingStatus() {
           <div>Прогресс: {Math.round(loadingState.progress)}%</div>
           <div>Загружено источников: {loadingState.loadedSources.size}</div>
           <div>Очередь загрузки: {loadingState.loadingQueue.length}</div>
-          {loadingState.error && (
-            <div className="text-red-500">Ошибка: {loadingState.error}</div>
-          )}
+          {loadingState.error && <div className="text-red-500">Ошибка: {loadingState.error}</div>}
         </div>
       </div>
 

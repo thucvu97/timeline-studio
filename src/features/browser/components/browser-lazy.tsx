@@ -5,10 +5,10 @@ import React, { Suspense, lazy } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 
 // Ленивая загрузка Browser компонента
-const BrowserComponent = lazy(() => 
-  import("./browser").then(module => ({ 
-    default: module.Browser 
-  }))
+const BrowserComponent = lazy(() =>
+  import("./browser").then((module) => ({
+    default: module.Browser,
+  })),
 )
 
 /**
@@ -26,7 +26,7 @@ function BrowserSkeleton() {
           </div>
         ))}
       </div>
-      
+
       {/* Индикатор загрузки */}
       <div className="p-3 border-b bg-muted/30">
         <div className="flex items-center gap-2">
@@ -35,7 +35,7 @@ function BrowserSkeleton() {
         </div>
         <Skeleton className="h-2 w-full mt-2 rounded-full" />
       </div>
-      
+
       {/* Тулбар */}
       <div className="p-3 border-b bg-background flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -48,7 +48,7 @@ function BrowserSkeleton() {
           <Skeleton className="h-8 w-8 rounded" />
         </div>
       </div>
-      
+
       {/* Контент */}
       <div className="flex-1 p-3">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
@@ -72,14 +72,10 @@ function BrowserErrorFallback({ error, retry }: { error: Error; retry?: () => vo
   return (
     <div className="h-full w-full flex items-center justify-center">
       <div className="text-center space-y-4 max-w-md">
-        <div className="text-destructive text-lg font-medium">
-          Ошибка загрузки Browser
-        </div>
-        <div className="text-muted-foreground text-sm">
-          {error.message}
-        </div>
+        <div className="text-destructive text-lg font-medium">Ошибка загрузки Browser</div>
+        <div className="text-muted-foreground text-sm">{error.message}</div>
         {retry && (
-          <button 
+          <button
             onClick={retry}
             className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
           >
@@ -107,10 +103,7 @@ export function BrowserLazy() {
 /**
  * Error Boundary для обработки ошибок загрузки
  */
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error?: Error }> {
   constructor(props: { children: React.ReactNode }) {
     super(props)
     this.state = { hasError: false }
@@ -127,7 +120,7 @@ class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <BrowserErrorFallback 
+        <BrowserErrorFallback
           error={this.state.error || new Error("Unknown error")}
           retry={() => this.setState({ hasError: false, error: undefined })}
         />
