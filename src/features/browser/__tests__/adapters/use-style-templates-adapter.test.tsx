@@ -207,16 +207,22 @@ describe("useStyleTemplatesAdapter", () => {
       id: "intro-fade",
       name: { ru: "Плавное появление" },
       category: "intro",
+      style: "modern",
+      aspectRatio: "16:9",
       duration: 2,
       hasAnimation: true,
+      hasText: false,
     }
 
     const titleTemplate = {
       id: "title-bounce",
       name: { ru: "Подпрыгивающий заголовок" },
       category: "title",
+      style: "creative",
+      aspectRatio: "16:9",
       duration: 1.5,
       hasAnimation: true,
+      hasText: true,
     }
 
     it("should match filter by category", () => {
@@ -226,6 +232,42 @@ describe("useStyleTemplatesAdapter", () => {
       expect(result.current.matchesFilter?.(titleTemplate, "intro")).toBe(false)
       expect(result.current.matchesFilter?.(titleTemplate, "title")).toBe(true)
       expect(result.current.matchesFilter?.(introTemplate, "title")).toBe(false)
+    })
+
+    it("should match filter by style", () => {
+      const { result } = renderHook(() => useStyleTemplatesAdapter(), { wrapper: BrowserProviders })
+
+      expect(result.current.matchesFilter?.(introTemplate, "modern")).toBe(true)
+      expect(result.current.matchesFilter?.(titleTemplate, "modern")).toBe(false)
+      expect(result.current.matchesFilter?.(titleTemplate, "creative")).toBe(true)
+      expect(result.current.matchesFilter?.(introTemplate, "creative")).toBe(false)
+    })
+
+    it("should match filter by aspect ratio", () => {
+      const { result } = renderHook(() => useStyleTemplatesAdapter(), { wrapper: BrowserProviders })
+
+      const verticalTemplate = { ...introTemplate, aspectRatio: "9:16" }
+      const squareTemplate = { ...introTemplate, aspectRatio: "1:1" }
+
+      expect(result.current.matchesFilter?.(introTemplate, "16:9")).toBe(true)
+      expect(result.current.matchesFilter?.(verticalTemplate, "16:9")).toBe(false)
+      expect(result.current.matchesFilter?.(verticalTemplate, "9:16")).toBe(true)
+      expect(result.current.matchesFilter?.(squareTemplate, "1:1")).toBe(true)
+    })
+
+    it("should match filter by features", () => {
+      const { result } = renderHook(() => useStyleTemplatesAdapter(), { wrapper: BrowserProviders })
+
+      expect(result.current.matchesFilter?.(introTemplate, "hasAnimation")).toBe(true)
+      expect(result.current.matchesFilter?.(titleTemplate, "hasText")).toBe(true)
+      expect(result.current.matchesFilter?.(introTemplate, "hasText")).toBe(false)
+    })
+
+    it("should return true for 'all' filter", () => {
+      const { result } = renderHook(() => useStyleTemplatesAdapter(), { wrapper: BrowserProviders })
+
+      expect(result.current.matchesFilter?.(introTemplate, "all")).toBe(true)
+      expect(result.current.matchesFilter?.(titleTemplate, "all")).toBe(true)
     })
 
     it("should return true for unknown filter", () => {
@@ -242,6 +284,105 @@ describe("useStyleTemplatesAdapter", () => {
       expect(result.current.PreviewComponent).toBeDefined()
       expect(typeof result.current.PreviewComponent).toBe("function")
     })
+
+    it("should render correctly in list mode", () => {
+      const { result } = renderHook(() => useStyleTemplatesAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockTemplate = {
+        id: "intro-fade",
+        name: { en: "Fade Intro", ru: "Плавное появление" },
+        description: { en: "Smooth fade in animation", ru: "Плавная анимация появления" },
+        category: "intro",
+        style: "modern",
+        aspectRatio: "16:9",
+        duration: 2,
+        hasAnimation: true,
+        hasText: false,
+        thumbnail: "/style-templates/fade-intro.png",
+        tags: { ru: ["вступление", "плавное"], en: ["intro", "fade"] },
+      }
+
+      const mockProps = {
+        item: mockTemplate,
+        size: 100,
+        viewMode: "list" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: false,
+        isFavorite: false,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
+
+    it("should render correctly in grid mode", () => {
+      const { result } = renderHook(() => useStyleTemplatesAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockTemplate = {
+        id: "title-bounce",
+        name: { en: "Bouncing Title", ru: "Подпрыгивающий заголовок" },
+        description: { en: "Bouncing title animation", ru: "Анимация подпрыгивающего заголовка" },
+        category: "title",
+        style: "creative",
+        aspectRatio: "16:9",
+        duration: 1.5,
+        hasAnimation: true,
+        hasText: true,
+        thumbnail: "/style-templates/bounce-title.png",
+        tags: { ru: ["заголовок", "анимация"], en: ["title", "bounce"] },
+      }
+
+      const mockProps = {
+        item: mockTemplate,
+        size: 120,
+        viewMode: "grid" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: false,
+        isFavorite: false,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
+
+    it("should handle thumbnails mode with dimensions", () => {
+      const { result } = renderHook(() => useStyleTemplatesAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockTemplate = {
+        id: "outro-minimal",
+        name: { en: "Minimal Outro", ru: "Минималистичное завершение" },
+        description: { en: "Clean minimal outro", ru: "Чистое минималистичное завершение" },
+        category: "outro",
+        style: "minimal",
+        aspectRatio: "9:16",
+        duration: 15,
+        hasAnimation: false,
+        hasText: true,
+        thumbnail: null,
+        tags: { ru: ["завершение", "минимализм"], en: ["outro", "minimal"] },
+      }
+
+      const mockProps = {
+        item: mockTemplate,
+        size: { width: 160, height: 90 },
+        viewMode: "thumbnails" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: true,
+        isFavorite: true,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
   })
 
   describe("favoriteType", () => {
@@ -249,6 +390,30 @@ describe("useStyleTemplatesAdapter", () => {
       const { result } = renderHook(() => useStyleTemplatesAdapter(), { wrapper: BrowserProviders })
 
       expect(result.current.favoriteType).toBe("template")
+    })
+  })
+
+  describe("isFavorite", () => {
+    it("should check if style template is favorite", () => {
+      const { result } = renderHook(() => useStyleTemplatesAdapter(), { wrapper: BrowserProviders })
+
+      const testTemplate = {
+        id: "intro-fade",
+        name: { en: "Fade Intro", ru: "Плавное появление" },
+        description: { en: "Smooth fade in animation", ru: "Плавная анимация появления" },
+        category: "intro",
+        style: "modern",
+        aspectRatio: "16:9",
+        duration: 2,
+        hasAnimation: true,
+        hasText: false,
+        thumbnail: "/style-templates/fade-intro.png",
+        tags: { ru: ["вступление", "плавное"], en: ["intro", "fade"] },
+      }
+
+      expect(result.current.isFavorite).toBeDefined()
+      expect(typeof result.current.isFavorite).toBe("function")
+      expect(result.current.isFavorite(testTemplate)).toBe(false)
     })
   })
 })

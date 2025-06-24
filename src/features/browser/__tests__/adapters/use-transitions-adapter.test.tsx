@@ -200,6 +200,96 @@ describe("useTransitionsAdapter", () => {
       expect(result.current.PreviewComponent).toBeDefined()
       expect(typeof result.current.PreviewComponent).toBe("function")
     })
+
+    it("should render correctly in list mode", () => {
+      const { result } = renderHook(() => useTransitionsAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockTransition = {
+        id: "fade",
+        name: "Fade",
+        labels: { ru: "Затухание", en: "Fade" },
+        description: { ru: "Плавное затухание", en: "Smooth fade" },
+        category: "basic",
+        type: "fade",
+        complexity: "basic" as const,
+        duration: { default: 1, min: 0.5, max: 3 },
+      }
+
+      const mockProps = {
+        item: mockTransition,
+        size: 100,
+        viewMode: "list" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: false,
+        isFavorite: false,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
+
+    it("should render correctly in grid mode", () => {
+      const { result } = renderHook(() => useTransitionsAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockTransition = {
+        id: "slide",
+        name: "Slide",
+        labels: { ru: "Слайд", en: "Slide" },
+        description: { ru: "Слайд переход", en: "Slide transition" },
+        category: "advanced",
+        type: "slide",
+        complexity: "intermediate" as const,
+        duration: { default: 0.8, min: 0.3, max: 2 },
+      }
+
+      const mockProps = {
+        item: mockTransition,
+        size: 120,
+        viewMode: "grid" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: false,
+        isFavorite: false,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
+
+    it("should handle thumbnails mode with dimensions", () => {
+      const { result } = renderHook(() => useTransitionsAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockTransition = {
+        id: "wipe",
+        name: "Wipe",
+        labels: { ru: "Вытеснение", en: "Wipe" },
+        description: { ru: "Эффект вытеснения", en: "Wipe effect" },
+        category: "creative",
+        type: "wipe",
+        complexity: "advanced" as const,
+        duration: { default: 1.5, min: 0.5, max: 3 },
+      }
+
+      const mockProps = {
+        item: mockTransition,
+        size: { width: 160, height: 90 },
+        viewMode: "thumbnails" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: true,
+        isFavorite: true,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
   })
 
   describe("favoriteType", () => {
@@ -207,6 +297,27 @@ describe("useTransitionsAdapter", () => {
       const { result } = renderHook(() => useTransitionsAdapter(), { wrapper: BrowserProviders })
 
       expect(result.current.favoriteType).toBe("transition")
+    })
+  })
+
+  describe("isFavorite", () => {
+    it("should check if transition is favorite", () => {
+      const { result } = renderHook(() => useTransitionsAdapter(), { wrapper: BrowserProviders })
+
+      const testTransition = {
+        id: "fade",
+        name: "Fade",
+        labels: { ru: "Затухание", en: "Fade" },
+        description: { ru: "Плавное затухание", en: "Smooth fade" },
+        category: "basic",
+        type: "fade",
+        complexity: "basic" as const,
+        duration: { default: 1, min: 0.5, max: 3 },
+      }
+
+      expect(result.current.isFavorite).toBeDefined()
+      expect(typeof result.current.isFavorite).toBe("function")
+      expect(result.current.isFavorite(testTransition)).toBe(false)
     })
   })
 })

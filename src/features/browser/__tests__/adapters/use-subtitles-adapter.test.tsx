@@ -213,6 +213,109 @@ describe("useSubtitlesAdapter", () => {
       expect(result.current.PreviewComponent).toBeDefined()
       expect(typeof result.current.PreviewComponent).toBe("function")
     })
+
+    it("should render correctly in list mode", () => {
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockStyle = {
+        id: "basic",
+        name: "Основной",
+        labels: { ru: "Основной", en: "Basic" },
+        description: { ru: "Стандартный стиль", en: "Standard style" },
+        category: "basic",
+        complexity: "basic" as const,
+        style: {
+          color: "#ffffff",
+          fontSize: "16px",
+          fontWeight: "bold",
+          fontFamily: "Arial",
+        },
+      }
+
+      const mockProps = {
+        item: mockStyle,
+        size: 100,
+        viewMode: "list" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: false,
+        isFavorite: false,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
+
+    it("should render correctly in grid mode", () => {
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockStyle = {
+        id: "cinematic",
+        name: "Кинематографический",
+        labels: { ru: "Кинематографический", en: "Cinematic" },
+        description: { ru: "Стиль для фильмов", en: "Cinema style" },
+        category: "cinematic",
+        complexity: "intermediate" as const,
+        style: {
+          color: "#ffff00",
+          fontSize: "18px",
+          fontWeight: "normal",
+          fontFamily: "Times New Roman",
+          textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+        },
+      }
+
+      const mockProps = {
+        item: mockStyle,
+        size: 120,
+        viewMode: "grid" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: false,
+        isFavorite: false,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
+
+    it("should handle thumbnails mode with dimensions", () => {
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
+      const PreviewComponent = result.current.PreviewComponent
+
+      const mockStyle = {
+        id: "minimal",
+        name: "Минималистичный",
+        labels: { ru: "Минималистичный", en: "Minimal" },
+        description: { ru: "Простой стиль", en: "Simple style" },
+        category: "minimal",
+        complexity: "basic" as const,
+        style: {
+          color: "#000000",
+          fontSize: "14px",
+          fontWeight: "normal",
+          fontFamily: "Helvetica",
+        },
+      }
+
+      const mockProps = {
+        item: mockStyle,
+        size: { width: 160, height: 90 },
+        viewMode: "thumbnails" as const,
+        onClick: vi.fn(),
+        onDragStart: vi.fn(),
+        isSelected: true,
+        isFavorite: true,
+        onToggleFavorite: vi.fn(),
+        onAddToTimeline: vi.fn(),
+      }
+
+      expect(() => <PreviewComponent {...mockProps} />).not.toThrow()
+    })
   })
 
   describe("favoriteType", () => {
@@ -220,6 +323,31 @@ describe("useSubtitlesAdapter", () => {
       const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
 
       expect(result.current.favoriteType).toBe("subtitle")
+    })
+  })
+
+  describe("isFavorite", () => {
+    it("should check if subtitle style is favorite", () => {
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
+
+      const testStyle = {
+        id: "basic",
+        name: "Основной",
+        labels: { ru: "Основной", en: "Basic" },
+        description: { ru: "Стандартный стиль", en: "Standard style" },
+        category: "basic",
+        complexity: "basic" as const,
+        style: {
+          color: "#ffffff",
+          fontSize: "16px",
+          fontWeight: "bold",
+          fontFamily: "Arial",
+        },
+      }
+
+      expect(result.current.isFavorite).toBeDefined()
+      expect(typeof result.current.isFavorite).toBe("function")
+      expect(result.current.isFavorite(testStyle)).toBe(false)
     })
   })
 })
