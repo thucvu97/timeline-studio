@@ -87,6 +87,8 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
  * Функция для получения CSS-фильтра для превью
  */
 function getFilterPreviewStyle(filter: VideoFilter): string {
+  if (!filter.params) return ""
+  
   const { brightness, contrast, saturation, hue, temperature, tint } = filter.params
 
   const filters = []

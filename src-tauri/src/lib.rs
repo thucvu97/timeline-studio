@@ -38,6 +38,7 @@ use recognition::RecognitionState;
 
 // Модуль безопасности и API ключей
 mod security;
+use security::secure_storage::SecureStorage;
 
 // Simple commands that don't belong to specific modules yet
 
@@ -134,6 +135,17 @@ pub fn run() {
       // Create YOLO Processor State
       let yolo_processor_state = YoloProcessorState::default();
       app.manage(yolo_processor_state);
+
+      // Create Secure Storage for API keys
+      match SecureStorage::new(app.handle().clone()) {
+        Ok(storage) => {
+          app.manage(storage);
+        }
+        Err(e) => {
+          log::error!("Failed to initialize SecureStorage: {}", e);
+          // Continue running without secure storage
+        }
+      }
 
       log::info!("Application setup completed");
       Ok(())

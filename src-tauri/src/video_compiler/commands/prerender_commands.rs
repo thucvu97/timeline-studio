@@ -93,18 +93,14 @@ pub async fn prerender_segment(
 /// Получить информацию о кэше предрендеринга
 #[tauri::command]
 pub async fn get_prerender_cache_info(
-  project_id: String,
   state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
-  let _cache = state.cache_manager.read().await;
-  // Заглушка для несуществующего метода
-  let _info = &project_id;
-
+  // TODO: Implement actual cache info retrieval
+  // For now, return mock data
   Ok(serde_json::json!({
-      "project_id": project_id,
-      "segments": 0,
+      "file_count": 0,
       "total_size": 0,
-      "total_duration": 0.0,
+      "files": []
   }))
 }
 

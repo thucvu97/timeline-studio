@@ -10,8 +10,7 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_websocket::init())
     .plugin(tauri_plugin_opener::init())
-    .plugin(tauri_plugin_store::Builder::default().build())
-    .plugin(tauri_plugin_window::init());
+    .plugin(tauri_plugin_store::Builder::default().build());
 
   // Platform-specific plugin registration
   #[cfg(not(any(target_os = "android", target_os = "ios")))]
@@ -117,6 +116,12 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::clear_frame_cache,
     crate::video_compiler::commands::clear_media_metadata_cache,
     crate::video_compiler::commands::clear_prerender_cache,
+    crate::video_compiler::commands::get_prerender_cache_info,
+    crate::video_compiler::commands::prerender_segment,
+    crate::video_compiler::commands::check_prerender_status,
+    crate::video_compiler::commands::get_prerendered_segments,
+    crate::video_compiler::commands::delete_prerendered_segment,
+    crate::video_compiler::commands::optimize_prerender_cache,
     crate::video_compiler::commands::clear_preview_cache,
     crate::video_compiler::commands::clear_preview_cache_for_file,
     crate::video_compiler::commands::clear_preview_generator_cache_for_file,
