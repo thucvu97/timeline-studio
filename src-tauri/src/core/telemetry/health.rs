@@ -631,11 +631,23 @@ mod tests {
     let memory_check = MemoryHealthCheck::with_thresholds(10.0, 20.0);
     let result = memory_check.check().await;
 
-    // С низкими порогами результат скорее всего будет warning или unhealthy
-    assert!(matches!(
-      result.status,
-      HealthStatus::Warning | HealthStatus::Unhealthy
-    ));
+    // Тест должен проверить что пороги применяются корректно
+    // В зависимости от реального использования памяти результат может быть разным
+    let usage_percent = result.data.get("usage_percent")
+      .and_then(|v| v.as_f64())
+      .unwrap_or(0.0);
+
+    if usage_percent > 20.0 {
+      assert_eq!(result.status, HealthStatus::Unhealthy);
+      assert!(result.message.contains("Critical memory usage"));
+    } else if usage_percent > 10.0 {
+      assert_eq!(result.status, HealthStatus::Warning);
+      assert!(result.message.contains("High memory usage"));
+    } else {
+      assert_eq!(result.status, HealthStatus::Healthy);
+      assert!(result.message.contains("Memory usage"));
+    }
+    
     assert!(result.message.contains("memory usage"));
   }
 

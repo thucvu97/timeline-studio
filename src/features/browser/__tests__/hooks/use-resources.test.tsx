@@ -267,9 +267,14 @@ describe("useResourcesSearch", () => {
     )
   }
 
+  // Очистка состояния между тестами
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it("должен выполнять поиск по запросу", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="search-query-test">
         <TestComponent options={{ query: "Effect 1" }} />
       </EffectsProvider>,
     )
@@ -284,7 +289,7 @@ describe("useResourcesSearch", () => {
 
   it("должен фильтровать по категории", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="search-category-test">
         <TestComponent options={{ category: "artistic" }} />
       </EffectsProvider>,
     )
@@ -314,7 +319,7 @@ describe("useResourcesSearch", () => {
 
   it("должен фильтровать по сложности", async () => {
     render(
-      <EffectsProvider>
+      <EffectsProvider key="search-complexity-test">
         <TestComponent options={{ complexity: "intermediate" }} />
       </EffectsProvider>,
     )
