@@ -127,6 +127,12 @@ pub struct DatabaseHealthCheck {
   // TODO: Добавить подключение к базе данных когда будет
 }
 
+impl Default for DatabaseHealthCheck {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DatabaseHealthCheck {
   pub fn new() -> Self {
     Self {}
@@ -162,6 +168,12 @@ impl HealthCheck for DatabaseHealthCheck {
 pub struct MemoryHealthCheck {
   warning_threshold: f64,  // Процент использования памяти для warning
   critical_threshold: f64, // Процент использования памяти для critical
+}
+
+impl Default for MemoryHealthCheck {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl MemoryHealthCheck {
@@ -318,6 +330,12 @@ pub struct HealthCheckManager {
   checks: Arc<RwLock<HashMap<String, Box<dyn HealthCheck>>>>,
   cache: Arc<RwLock<HashMap<String, (HealthCheckResult, Instant)>>>,
   cache_duration: Duration,
+}
+
+impl Default for HealthCheckManager {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl HealthCheckManager {

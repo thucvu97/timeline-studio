@@ -379,6 +379,12 @@ pub trait PipelineStage: Send + Sync + std::fmt::Debug {
 #[derive(Debug)]
 pub struct ValidationStage;
 
+impl Default for ValidationStage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ValidationStage {
   pub fn new() -> Self {
     Self
@@ -529,6 +535,12 @@ impl PipelineStage for ValidationStage {
 /// Этап предобработки медиа
 #[derive(Debug)]
 pub struct PreprocessingStage;
+
+impl Default for PreprocessingStage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl PreprocessingStage {
   pub fn new() -> Self {
@@ -701,6 +713,12 @@ impl PreprocessingStage {
 /// Этап композиции видео
 #[derive(Debug)]
 pub struct CompositionStage;
+
+impl Default for CompositionStage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl CompositionStage {
   pub fn new() -> Self {
@@ -962,6 +980,12 @@ impl CompositionStage {
 #[derive(Debug)]
 pub struct EncodingStage;
 
+impl Default for EncodingStage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EncodingStage {
   pub fn new() -> Self {
     Self
@@ -1168,6 +1192,12 @@ impl EncodingStage {
 /// Этап финализации
 #[derive(Debug)]
 pub struct FinalizationStage;
+
+impl Default for FinalizationStage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl FinalizationStage {
   pub fn new() -> Self {

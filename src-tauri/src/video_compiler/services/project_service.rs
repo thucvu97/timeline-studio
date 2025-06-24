@@ -91,6 +91,12 @@ pub trait ProjectService: Service + Send + Sync {
 /// Реализация сервиса проектов
 pub struct ProjectServiceImpl;
 
+impl Default for ProjectServiceImpl {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ProjectServiceImpl {
   pub fn new() -> Self {
     Self

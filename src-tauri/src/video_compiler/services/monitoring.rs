@@ -218,6 +218,12 @@ pub struct MetricsRegistry {
   services: Arc<RwLock<HashMap<String, Arc<ServiceMetrics>>>>,
 }
 
+impl Default for MetricsRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MetricsRegistry {
   pub fn new() -> Self {
     Self {

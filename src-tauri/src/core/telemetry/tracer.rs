@@ -15,7 +15,7 @@ use opentelemetry_semantic_conventions::{
   attribute::{HTTP_REQUEST_METHOD, HTTP_RESPONSE_STATUS_CODE, HTTP_ROUTE},
   resource::{SERVICE_NAME, SERVICE_VERSION},
 };
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tracing::{info_span, Instrument};
 
 use super::config::{ExporterType, TelemetryConfig};

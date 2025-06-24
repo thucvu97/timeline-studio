@@ -13,9 +13,7 @@ use crate::video_compiler::error::{Result, VideoCompilerError};
 use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::Duration;
 use tokio::sync::RwLock;
-use uuid::Uuid;
 
 /// Handle для управления загруженным плагином
 pub struct PluginHandle {

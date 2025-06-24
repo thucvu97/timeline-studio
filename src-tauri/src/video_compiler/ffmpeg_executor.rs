@@ -33,6 +33,12 @@ pub struct FFmpegExecutor {
   progress_sender: Option<mpsc::Sender<ProgressUpdate>>,
 }
 
+impl Default for FFmpegExecutor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FFmpegExecutor {
   /// Создать новый исполнитель
   pub fn new() -> Self {
