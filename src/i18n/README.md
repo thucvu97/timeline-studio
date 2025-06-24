@@ -102,7 +102,7 @@ import { useTranslation } from 'react-i18next'
 
 function MyComponent() {
   const { t } = useTranslation()
-  
+
   return (
     <div>
       <h1>{t('common.title')}</h1>
@@ -118,10 +118,10 @@ import { useLanguage } from '@/i18n/hooks/use-language'
 
 function LanguageSwitcher() {
   const { currentLanguage, changeLanguage } = useLanguage()
-  
+
   return (
-    <select 
-      value={currentLanguage} 
+    <select
+      value={currentLanguage}
       onChange={(e) => changeLanguage(e.target.value)}
     >
       <option value="en">English</option>
@@ -139,12 +139,12 @@ import { useLanguage } from '@/i18n/hooks/use-language'
 
 function DateDisplay({ date }: { date: Date }) {
   const { currentLanguage } = useLanguage()
-  
+
   const formattedDate = formatDateByLanguage(date, currentLanguage, {
     includeYear: true,
     longFormat: true
   })
-  
+
   return <span>{formattedDate}</span>
 }
 ```
@@ -298,17 +298,17 @@ i18n.options.resources               // загруженные переводы
 ### Будущие релизы (Phase 3-6)
 
 #### Phase 3: Популярные азиатские языки
-- 🇮🇳 **Хинди** (hi)
-- 🇵🇰 **Урду** (ur) + RTL
-- 🇧🇩 **Бенгальский** (bn)
 - 🇮🇩 **Индонезийский** (id)
 - 🇻🇳 **Вьетнамский** (vi)
 - 🇵🇱 **Польский** (pl)
-- 🇮🇳 **Тамильский** (ta)
 - 🇷🇴 **Румынский** (ro)
+- 🇮🇳 **Хинди** (hi)
+- 🇵🇰 **Урду** (ur) + RTL
+- 🇧🇩 **Бенгальский** (bn)
 
 #### Phase 4: Африканские и региональные языки
 - 🇰🇪 **Суахили** (sw)
+- 🇮🇳 **Тамильский** (ta)
 - 🇮🇳 **Гуджарати** (gu)
 - 🇮🇳 **Каннада** (kn)
 - 🇪🇹 **Амхарский** (am)

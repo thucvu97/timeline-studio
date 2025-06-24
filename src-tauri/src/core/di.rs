@@ -66,6 +66,7 @@ struct ProviderWrapper<P: ServiceProvider> {
 #[async_trait]
 trait AnyProvider: Send + Sync {
   async fn create_any(&self, container: &ServiceContainer) -> Result<Arc<dyn Any + Send + Sync>>;
+  #[allow(dead_code)]
   fn output_type_id(&self) -> TypeId;
 }
 
@@ -221,7 +222,7 @@ impl ServiceContainer {
   pub async fn initialize_all(&self) -> Result<()> {
     let services = self.services.read().await;
 
-    for (type_id, entry) in services.iter() {
+    for (_type_id, entry) in services.iter() {
       if !entry.initialized {
         log::info!("Initializing service: {}", entry.name);
         // В реальной реализации здесь нужно вызвать initialize() на сервисе

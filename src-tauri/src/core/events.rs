@@ -113,6 +113,7 @@ pub trait EventHandler: Send + Sync + 'static {
 
 /// Подписка на события
 struct Subscription {
+  #[allow(dead_code)]
   handler: Box<dyn Any + Send + Sync>,
   name: &'static str,
 }

@@ -150,7 +150,7 @@ impl MetricsCollector {
     }
 
     // Создаем ресурс
-    let resource = Resource::new(vec![
+    let _resource = Resource::new(vec![
       KeyValue::new(SERVICE_NAME, config.service_name.clone()),
       KeyValue::new(SERVICE_VERSION, config.service_version.clone()),
       KeyValue::new("deployment.environment", config.environment.clone()),

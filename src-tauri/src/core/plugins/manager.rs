@@ -152,8 +152,8 @@ impl PluginManager {
 
     // Обновляем метрики
     if let Some(metrics) = &self.metrics {
-      let plugin_id_str = plugin_id.to_string();
-      let plugin_type_str = plugin_type.as_str().to_string();
+      let _plugin_id_str = plugin_id.to_string();
+      let _plugin_type_str = plugin_type.as_str().to_string();
       metrics.plugin_loads_total.inc();
 
       metrics.plugin_active_count.add(1);
@@ -254,8 +254,8 @@ impl PluginManager {
     // Обновляем метрики
     if let Some(metrics) = &self.metrics {
       let duration = start.elapsed();
-      let plugin_id_str = plugin_id.to_string();
-      let command_name_str = command_name.as_str().to_string();
+      let _plugin_id_str = plugin_id.to_string();
+      let _command_name_str = command_name.as_str().to_string();
       metrics
         .plugin_command_duration
         .observe(duration.as_secs_f64());

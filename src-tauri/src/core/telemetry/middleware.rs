@@ -15,6 +15,7 @@ use super::{metrics::Metrics, MetricsCollector, Tracer};
 /// Middleware для трассировки HTTP запросов
 #[derive(Clone)]
 pub struct TracingMiddleware {
+  #[allow(dead_code)]
   tracer: Arc<Tracer>,
 }
 
@@ -50,6 +51,7 @@ impl TracingMiddleware {
 /// Middleware для сбора метрик HTTP запросов
 #[derive(Clone)]
 pub struct MetricsMiddleware {
+  #[allow(dead_code)]
   metrics: Arc<Metrics>,
 }
 
@@ -66,8 +68,8 @@ impl MetricsMiddleware {
     next: Next,
   ) -> Response {
     let start = Instant::now();
-    let method = request.method().to_string();
-    let path = normalize_path(request.uri().path());
+    let _method = request.method().to_string();
+    let _path = normalize_path(request.uri().path());
 
     // Увеличиваем счетчик активных запросов
     metrics.http_active_requests.add(1);
@@ -91,7 +93,7 @@ impl MetricsMiddleware {
     metrics.http_active_requests.add(-1);
 
     // Записываем метрики
-    let status_str = status.as_u16().to_string();
+    let _status_str = status.as_u16().to_string();
     metrics.http_requests_total.inc();
 
     metrics

@@ -59,6 +59,7 @@ impl TraceContext {
 
 /// Tracer для создания spans
 pub struct Tracer {
+  #[allow(dead_code)]
   tracer: opentelemetry::global::BoxedTracer,
   config: TelemetryConfig,
 }
@@ -78,7 +79,7 @@ impl Tracer {
     global::set_text_map_propagator(TraceContextPropagator::new());
 
     // Создаем ресурс
-    let resource = Resource::new(vec![
+    let _resource = Resource::new(vec![
       KeyValue::new(SERVICE_NAME, config.service_name.clone()),
       KeyValue::new(SERVICE_VERSION, config.service_version.clone()),
       KeyValue::new("deployment.environment", config.environment.clone()),
@@ -100,13 +101,19 @@ impl Tracer {
   }
 
   /// Построить конфигурацию трассировки
+  #[allow(dead_code)]
   fn build_trace_config(config: &TelemetryConfig) -> trace::Config {
-    trace::Config::default()
-      .with_sampler(Sampler::TraceIdRatioBased(config.tracing.sample_rate))
-      .with_id_generator(RandomIdGenerator::default())
-      .with_max_attributes_per_span(config.tracing.max_attributes_per_span)
-      .with_max_events_per_span(config.tracing.max_events_per_span)
-      .with_max_links_per_span(config.tracing.max_links_per_span)
+    // Use the default config and accept deprecation warnings for now
+    // TODO: Update to use TracerProvider builder when OpenTelemetry SDK updates
+    #[allow(deprecated)]
+    {
+      trace::Config::default()
+        .with_sampler(Sampler::TraceIdRatioBased(config.tracing.sample_rate))
+        .with_id_generator(RandomIdGenerator::default())
+        .with_max_attributes_per_span(config.tracing.max_attributes_per_span)
+        .with_max_events_per_span(config.tracing.max_events_per_span)
+        .with_max_links_per_span(config.tracing.max_links_per_span)
+    }
   }
 
   /// Создать новый span
@@ -128,7 +135,7 @@ impl Tracer {
     async move {
       let start = Instant::now();
       let result = f.await;
-      let duration = start.elapsed();
+      let _duration = start.elapsed();
 
       // For now, we'll skip setting attributes and status on the span
       // due to version conflicts with OpenTelemetry
@@ -170,6 +177,7 @@ pub struct SpanBuilder {
   name: String,
   kind: SpanKind,
   attributes: Vec<KeyValue>,
+  #[allow(dead_code)]
   links: Vec<opentelemetry::trace::Link>,
 }
 
@@ -230,7 +238,7 @@ impl SpanBuilder {
     async move {
       let start = Instant::now();
       let result = f.await;
-      let duration = start.elapsed();
+      let _duration = start.elapsed();
 
       // For now, we'll skip setting attributes and status on the span
       // due to version conflicts with OpenTelemetry
