@@ -113,16 +113,19 @@ beforeEach(async () => {
   resetEffectsProviderState()
   resetTransitionsState()
   // Небольшая задержка для гарантии очистки состояния
-  await new Promise(resolve => setTimeout(resolve, 10))
+  await new Promise((resolve) => setTimeout(resolve, 10))
 })
 
 // Вспомогательная функция для ожидания загрузки провайдера
 const waitForProviderReady = async () => {
-  await waitFor(() => {
-    expect(screen.getByTestId("loading")).toHaveTextContent("false")
-  }, { timeout: 5000 })
+  await waitFor(
+    () => {
+      expect(screen.getByTestId("loading")).toHaveTextContent("false")
+    },
+    { timeout: 5000 },
+  )
   // Дополнительная задержка для стабильности
-  await new Promise(resolve => setTimeout(resolve, 50))
+  await new Promise((resolve) => setTimeout(resolve, 50))
 }
 
 describe("useEffects", () => {
@@ -267,7 +270,6 @@ describe("useResourcesSearch", () => {
       </div>
     )
   }
-
 
   it("должен выполнять поиск по запросу", async () => {
     render(

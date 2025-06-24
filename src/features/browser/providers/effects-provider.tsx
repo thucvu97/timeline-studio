@@ -485,10 +485,10 @@ class EffectsProviderImpl implements EffectsProviderAPI {
   cleanup(): void {
     // Очищаем ресурсы
     this.resources.clear()
-    
+
     // Очищаем кэш
     this.cache = {}
-    
+
     // Сбрасываем состояние загрузки
     this.loadingState = {
       isLoading: false,
@@ -497,7 +497,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
       error: null,
       progress: 0,
     }
-    
+
     // Очищаем слушатели событий
     this.eventListeners.loadingStateChange = []
     this.eventListeners.resourcesUpdate = []
