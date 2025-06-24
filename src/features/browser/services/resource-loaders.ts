@@ -2,7 +2,7 @@ import type { VideoEffect } from "@/features/effects/types"
 import type { VideoFilter } from "@/features/filters/types/filters"
 import type { Transition } from "@/features/transitions/types/transitions"
 
-import type { ResourceSource, LoadResult } from "../types/effects-provider"
+import type { LoadResult } from "../types/effects-provider"
 
 /**
  * Ленивые загрузчики ресурсов для оптимизации памяти
@@ -16,11 +16,12 @@ export async function loadEffectsLazy(): Promise<LoadResult<VideoEffect[]>> {
   try {
     // Динамический импорт JSON файла
     const module = await import("@/features/effects/data/effects.json")
-    const effects = module.default as VideoEffect[]
-    
+    const data = module.default as any
+    const effects = data.effects || [] // Эффекты находятся под ключом 'effects'
+
     // Обрабатываем эффекты для преобразования строковых функций
     const processedEffects = await processEffects(effects)
-    
+
     return {
       success: true,
       data: processedEffects,
@@ -45,11 +46,12 @@ export async function loadEffectsLazy(): Promise<LoadResult<VideoEffect[]>> {
 export async function loadFiltersLazy(): Promise<LoadResult<VideoFilter[]>> {
   try {
     const module = await import("@/features/filters/data/filters.json")
-    const filters = module.default as VideoFilter[]
-    
+    const data = module.default as any
+    const filters = data.filters || [] // Фильтры находятся под ключом 'filters'
+
     // Обрабатываем фильтры
     const processedFilters = await processFilters(filters)
-    
+
     return {
       success: true,
       data: processedFilters,
@@ -74,11 +76,12 @@ export async function loadFiltersLazy(): Promise<LoadResult<VideoFilter[]>> {
 export async function loadTransitionsLazy(): Promise<LoadResult<Transition[]>> {
   try {
     const module = await import("@/features/transitions/data/transitions.json")
-    const transitions = module.default as Transition[]
-    
+    const data = module.default as any
+    const transitions = data.transitions || [] // Переходы находятся под ключом 'transitions'
+
     // Обрабатываем переходы
     const processedTransitions = await processTransitions(transitions)
-    
+
     return {
       success: true,
       data: processedTransitions,
@@ -163,18 +166,12 @@ async function processTransitions(transitions: any[]): Promise<Transition[]> {
 /**
  * Пакетная загрузка всех ресурсов с возможностью отмены
  */
-export async function loadAllResourcesLazy(
-  signal?: AbortSignal
-): Promise<{
+export async function loadAllResourcesLazy(signal?: AbortSignal): Promise<{
   effects: LoadResult<VideoEffect[]>
   filters: LoadResult<VideoFilter[]>
   transitions: LoadResult<Transition[]>
 }> {
-  const loadPromises = [
-    loadEffectsLazy(),
-    loadFiltersLazy(), 
-    loadTransitionsLazy(),
-  ]
+  const loadPromises = [loadEffectsLazy(), loadFiltersLazy(), loadTransitionsLazy()]
 
   // Проверяем отмену
   if (signal?.aborted) {
@@ -184,27 +181,36 @@ export async function loadAllResourcesLazy(
   const [effects, filters, transitions] = await Promise.allSettled(loadPromises)
 
   return {
-    effects: effects.status === "fulfilled" ? effects.value : {
-      success: false,
-      data: [],
-      error: effects.status === "rejected" ? String(effects.reason) : "Unknown error",
-      source: "built-in",
-      timestamp: Date.now(),
-    },
-    filters: filters.status === "fulfilled" ? filters.value : {
-      success: false,
-      data: [],
-      error: filters.status === "rejected" ? String(filters.reason) : "Unknown error",
-      source: "built-in",
-      timestamp: Date.now(),
-    },
-    transitions: transitions.status === "fulfilled" ? transitions.value : {
-      success: false,
-      data: [],
-      error: transitions.status === "rejected" ? String(transitions.reason) : "Unknown error",
-      source: "built-in",
-      timestamp: Date.now(),
-    },
+    effects:
+      effects.status === "fulfilled"
+        ? effects.value
+        : {
+          success: false,
+          data: [],
+          error: effects.status === "rejected" ? String(effects.reason) : "Unknown error",
+          source: "built-in",
+          timestamp: Date.now(),
+        },
+    filters:
+      filters.status === "fulfilled"
+        ? filters.value
+        : {
+          success: false,
+          data: [],
+          error: filters.status === "rejected" ? String(filters.reason) : "Unknown error",
+          source: "built-in",
+          timestamp: Date.now(),
+        },
+    transitions:
+      transitions.status === "fulfilled"
+        ? transitions.value
+        : {
+          success: false,
+          data: [],
+          error: transitions.status === "rejected" ? String(transitions.reason) : "Unknown error",
+          source: "built-in",
+          timestamp: Date.now(),
+        },
   }
 }
 
@@ -214,7 +220,7 @@ export async function loadAllResourcesLazy(
 export async function loadResourcesByCategory(
   type: "effects" | "filters" | "transitions",
   category: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<LoadResult<any[]>> {
   if (signal?.aborted) {
     throw new Error("Loading was aborted")
@@ -262,12 +268,14 @@ export async function loadResourcesByCategory(
  */
 export async function* loadResourcesInChunks(
   type: "effects" | "filters" | "transitions",
-  chunkSize: number = 50,
-  signal?: AbortSignal
+  chunkSize = 50,
+  signal?: AbortSignal,
 ): AsyncGenerator<LoadResult<any[]>, void, unknown> {
-  const result = await (type === "effects" ? loadEffectsLazy() :
-                        type === "filters" ? loadFiltersLazy() :
-                        loadTransitionsLazy())
+  const result = await (type === "effects"
+    ? loadEffectsLazy()
+    : type === "filters"
+      ? loadFiltersLazy()
+      : loadTransitionsLazy())
 
   if (!result.success) {
     yield result
@@ -287,6 +295,6 @@ export async function* loadResourcesInChunks(
     }
 
     // Небольшая задержка между чанками для не блокирования UI
-    await new Promise(resolve => setTimeout(resolve, 1))
+    await new Promise((resolve) => setTimeout(resolve, 1))
   }
 }
