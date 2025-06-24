@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react"
+
 import { render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -5,15 +7,22 @@ import { resetTransitionsState } from "@/features/transitions/hooks/use-transiti
 
 import {
   useEffects,
+  useEffectsSearch,
   useFilters,
+  useFiltersSearch,
   useLoadingState,
   useResourceById,
+  useResourceSources,
+  useResources,
+  useResourcesAdapter,
   useResourcesByCategory,
   useResourcesByComplexity,
   useResourcesByTags,
+  useResourcesCache,
   useResourcesSearch,
   useResourcesStats,
   useTransitions,
+  useTransitionsSearch,
 } from "../../hooks/use-resources"
 import { EffectsProvider, resetEffectsProviderState } from "../../providers/effects-provider"
 
@@ -447,5 +456,261 @@ describe("useResourcesStats", () => {
     expect(screen.getByTestId("effects")).toHaveTextContent("2")
     expect(screen.getByTestId("filters")).toHaveTextContent("1")
     expect(screen.getByTestId("transitions")).toHaveTextContent("1")
+  })
+})
+
+describe("useResources", () => {
+  function TestComponent({ type }: { type: any }) {
+    const { resources, loading } = useResources(type)
+    return (
+      <div>
+        <div data-testid="loading">{String(loading)}</div>
+        <div data-testid="resources-count">{resources.length}</div>
+        {resources.map((resource) => (
+          <div key={resource.id} data-testid="resource-item">
+            {resource.name}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  it("должен загружать ресурсы по типу", async () => {
+    render(
+      <EffectsProvider key="useResources-test">
+        <TestComponent type="effects" />
+      </EffectsProvider>,
+    )
+
+    await waitForProviderReady()
+
+    expect(screen.getByTestId("resources-count")).toHaveTextContent("2")
+    expect(screen.getByText("Test Effect 1")).toBeInTheDocument()
+    expect(screen.getByText("Test Effect 2")).toBeInTheDocument()
+  })
+})
+
+describe("useResourceSources", () => {
+  function TestComponent() {
+    const { loadSource, refreshSource, isSourceLoaded, getSourceConfig, updateSourceConfig, loadingState } = useResourceSources()
+    const [loaded, setLoaded] = useState(false)
+    const [config, setConfig] = useState<any>(null)
+
+    useEffect(() => {
+      setLoaded(isSourceLoaded("built-in"))
+      setConfig(getSourceConfig("built-in"))
+    }, [isSourceLoaded, getSourceConfig])
+
+    const handleLoad = async () => {
+      await loadSource("plugin")
+    }
+
+    const handleRefresh = async () => {
+      await refreshSource("built-in")
+    }
+
+    const handleUpdateConfig = () => {
+      updateSourceConfig("built-in", { test: true })
+    }
+
+    return (
+      <div>
+        <div data-testid="is-loaded">{String(loaded)}</div>
+        <div data-testid="config">{JSON.stringify(config)}</div>
+        <div data-testid="loading-state">{String(loadingState.isLoading)}</div>
+        <button onClick={handleLoad}>Load Plugin</button>
+        <button onClick={handleRefresh}>Refresh</button>
+        <button onClick={handleUpdateConfig}>Update Config</button>
+      </div>
+    )
+  }
+
+  it("должен управлять источниками данных", async () => {
+    render(
+      <EffectsProvider key="sources-test">
+        <TestComponent />
+      </EffectsProvider>,
+    )
+
+    // Ждем пока loading state станет false
+    await waitFor(() => {
+      expect(screen.getByTestId("loading-state")).toHaveTextContent("false")
+    }, { timeout: 5000 })
+
+    // Проверяем что config доступен
+    expect(screen.getByTestId("config")).toHaveTextContent("built-in")
+    
+    // Проверяем что кнопки управления источниками доступны
+    expect(screen.getByText("Load Plugin")).toBeInTheDocument()
+    expect(screen.getByText("Refresh")).toBeInTheDocument()
+    expect(screen.getByText("Update Config")).toBeInTheDocument()
+  })
+})
+
+describe("useResourcesCache", () => {
+  function TestComponent() {
+    const { clearCache, clearSourceCache, invalidateCache, getCacheSize } = useResourcesCache()
+    const [cacheSize, setCacheSize] = useState(0)
+
+    useEffect(() => {
+      setCacheSize(getCacheSize())
+    }, [getCacheSize])
+
+    const handleClearCache = () => {
+      clearCache("effects")
+      setCacheSize(getCacheSize())
+    }
+
+    const handleClearSourceCache = () => {
+      clearSourceCache("built-in")
+      setCacheSize(getCacheSize())
+    }
+
+    const handleInvalidateCache = () => {
+      invalidateCache()
+      setCacheSize(getCacheSize())
+    }
+
+    return (
+      <div>
+        <div data-testid="cache-size">{cacheSize}</div>
+        <button onClick={handleClearCache}>Clear Effects Cache</button>
+        <button onClick={handleClearSourceCache}>Clear Source Cache</button>
+        <button onClick={handleInvalidateCache}>Invalidate Cache</button>
+      </div>
+    )
+  }
+
+  it("должен управлять кэшем", async () => {
+    render(
+      <EffectsProvider key="cache-test">
+        <TestComponent />
+      </EffectsProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cache-size")).toBeInTheDocument()
+    })
+
+    // Проверяем, что методы кэша доступны
+    const clearButton = screen.getByText("Clear Effects Cache")
+    const clearSourceButton = screen.getByText("Clear Source Cache")
+    const invalidateButton = screen.getByText("Invalidate Cache")
+
+    expect(clearButton).toBeInTheDocument()
+    expect(clearSourceButton).toBeInTheDocument()
+    expect(invalidateButton).toBeInTheDocument()
+  })
+})
+
+describe("useResourcesAdapter", () => {
+  function TestComponent({ type, options }: { type: any; options?: any }) {
+    const adapter = useResourcesAdapter(type, options)
+    return (
+      <div>
+        <div data-testid="items-count">{adapter.items.length}</div>
+        <div data-testid="loading">{String(adapter.loading)}</div>
+        <div data-testid="error">{adapter.error || "none"}</div>
+        <div data-testid="total-stats">{adapter.stats.total}</div>
+        {adapter.items.map((item) => (
+          <div key={item.id} data-testid="adapter-item">
+            {item.name}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  it("должен предоставлять унифицированный интерфейс адаптера", async () => {
+    render(
+      <EffectsProvider key="adapter-test">
+        <TestComponent type="effects" />
+      </EffectsProvider>,
+    )
+
+    await waitForProviderReady()
+
+    expect(screen.getByTestId("items-count")).toHaveTextContent("2")
+    expect(screen.getByTestId("loading")).toHaveTextContent("false")
+    expect(screen.getByTestId("error")).toHaveTextContent("none")
+    expect(screen.getByTestId("total-stats")).toHaveTextContent("4")
+  })
+
+  it("должен фильтровать через адаптер", async () => {
+    render(
+      <EffectsProvider key="adapter-filter-test">
+        <TestComponent type="effects" options={{ category: "artistic" }} />
+      </EffectsProvider>,
+    )
+
+    await waitForProviderReady()
+
+    expect(screen.getByTestId("items-count")).toHaveTextContent("1")
+    expect(screen.getByText("Test Effect 1")).toBeInTheDocument()
+  })
+})
+
+describe("Typed search hooks", () => {
+  function TestEffectsSearch() {
+    const { results } = useEffectsSearch({ category: "artistic" })
+    return (
+      <div>
+        <div data-testid="effects-search-count">{results.length}</div>
+      </div>
+    )
+  }
+
+  function TestFiltersSearch() {
+    const { results } = useFiltersSearch({ category: "technical" })
+    return (
+      <div>
+        <div data-testid="filters-search-count">{results.length}</div>
+      </div>
+    )
+  }
+
+  function TestTransitionsSearch() {
+    const { results } = useTransitionsSearch({ category: "basic" })
+    return (
+      <div>
+        <div data-testid="transitions-search-count">{results.length}</div>
+      </div>
+    )
+  }
+
+  it("должен выполнять типизированный поиск эффектов", async () => {
+    render(
+      <EffectsProvider key="typed-effects-test">
+        <TestEffectsSearch />
+      </EffectsProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId("effects-search-count")).toHaveTextContent("1")
+    })
+  })
+
+  it("должен выполнять типизированный поиск фильтров", async () => {
+    render(
+      <EffectsProvider key="typed-filters-test">
+        <TestFiltersSearch />
+      </EffectsProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId("filters-search-count")).toHaveTextContent("1")
+    })
+  })
+
+  it("должен выполнять типизированный поиск переходов", async () => {
+    render(
+      <EffectsProvider key="typed-transitions-test">
+        <TestTransitionsSearch />
+      </EffectsProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId("transitions-search-count")).toHaveTextContent("1")
+    })
   })
 })
