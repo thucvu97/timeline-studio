@@ -3,6 +3,8 @@ import React from "react"
 import { render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { resetTransitionsState } from "@/features/transitions/hooks/use-transitions"
+
 import {
   useEffects,
   useFilters,
@@ -16,6 +18,24 @@ import {
   useTransitions,
 } from "../../hooks/use-resources"
 import { EffectsProvider } from "../../providers/effects-provider"
+
+// Мокаем JSON файл с переходами
+vi.mock("@/features/transitions/data/transitions.json", () => ({
+  default: {
+    transitions: [
+      {
+        id: "test-transition-1",
+        type: "fade",
+        labels: { ru: "Исчезновение", en: "Fade" },
+        description: { ru: "Плавное исчезновение", en: "Smooth fade" },
+        category: "basic",
+        complexity: "basic",
+        tags: ["smooth", "classic"],
+        duration: { min: 0.1, max: 5, default: 1 },
+      },
+    ],
+  },
+}))
 
 // Мокаем ленивые загрузчики ресурсов
 vi.mock("../../services/resource-loaders", () => ({
@@ -155,6 +175,11 @@ describe("useFilters", () => {
 })
 
 describe("useTransitions", () => {
+  beforeEach(() => {
+    // Сбрасываем глобальное состояние перед каждым тестом
+    resetTransitionsState()
+  })
+
   function TestComponent() {
     const { transitions, loading } = useTransitions()
     return (

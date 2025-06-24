@@ -15,6 +15,17 @@ let globalLoading = true
 let globalError: string | null = null
 let globalInitialized = false
 
+/**
+ * Сбрасывает глобальное состояние (для тестов)
+ * @internal
+ */
+export function resetTransitionsState() {
+  globalTransitions = []
+  globalLoading = true
+  globalError = null
+  globalInitialized = false
+}
+
 interface UseTransitionsReturn {
   transitions: Transition[]
   loading: boolean
