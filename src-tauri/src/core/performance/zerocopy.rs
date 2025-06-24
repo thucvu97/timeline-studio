@@ -292,10 +292,13 @@ impl ZeroCopyView {
 unsafe impl Send for ZeroCopyView {}
 unsafe impl Sync for ZeroCopyView {}
 
+/// Тип для пулов буферов
+type BufferPools = Arc<RwLock<HashMap<(usize, DataType), Vec<ZeroCopyBuffer>>>>;
+
 /// Менеджер zero-copy буферов с пулингом
 pub struct ZeroCopyManager {
   /// Пулы буферов разных размеров
-  pools: Arc<RwLock<HashMap<(usize, DataType), Vec<ZeroCopyBuffer>>>>,
+  pools: BufferPools,
   /// Статистика использования
   stats: Arc<Mutex<ZeroCopyStats>>,
   /// Максимальный размер пула для каждого типа

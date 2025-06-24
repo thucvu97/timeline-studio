@@ -27,12 +27,14 @@ impl ApiValidatorService {
   }
 
   /// Установить EventBus для публикации событий
+  #[allow(dead_code)]
   pub fn with_event_bus(mut self, event_bus: Arc<EventBus>) -> Self {
     self.event_bus = Some(event_bus);
     self
   }
 
   /// Валидировать API ключ
+  #[allow(dead_code)]
   pub async fn validate_key(&self, key_type: ApiKeyType, api_key: &str) -> Result<bool> {
     let validator = self.validator.read().await;
     let result = validator.validate_api_key(key_type.clone(), api_key).await;
@@ -69,6 +71,7 @@ impl ApiValidatorService {
   }
 
   /// Проверить доступность сервиса
+  #[allow(dead_code)]
   pub async fn check_service_availability(&self, key_type: ApiKeyType) -> Result<bool> {
     // Простая проверка - пытаемся валидировать пустой ключ
     // Если сервис доступен, он вернет ошибку валидации, а не сетевую ошибку
