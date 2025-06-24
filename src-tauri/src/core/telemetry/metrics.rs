@@ -611,8 +611,10 @@ mod tests {
 
   #[tokio::test]
   async fn test_disabled_collector() {
-    let mut config = TelemetryConfig::default();
-    config.enabled = false;
+    let config = TelemetryConfig {
+      enabled: false,
+      ..Default::default()
+    };
 
     let collector = MetricsCollector::new(&config).await.unwrap();
 

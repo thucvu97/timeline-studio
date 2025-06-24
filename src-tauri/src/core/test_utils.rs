@@ -87,10 +87,13 @@ impl Service for FailingService {
 
 // ===== Mock Event Bus =====
 
+type EventData = Box<dyn std::any::Any + Send + Sync>;
+type EventStore = Arc<RwLock<Vec<(String, EventData)>>>;
+
 /// Mock event bus for testing
 #[derive(Clone)]
 pub struct MockEventBus {
-  events: Arc<RwLock<Vec<(String, Box<dyn std::any::Any + Send + Sync>)>>>,
+  events: EventStore,
   subscribers: Arc<RwLock<HashMap<String, u32>>>,
 }
 

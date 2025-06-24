@@ -484,7 +484,7 @@ impl PluginApi for PluginApiImpl {
 
     let thumbnail_path = thumbnail_dir.join(format!(
       "{}_{}.jpg",
-      media_id.replace('/', "_").replace('\\', "_"),
+      media_id.replace(['/', '\\'], "_"),
       (time * 1000.0) as u64
     ));
 
