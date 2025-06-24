@@ -1,86 +1,48 @@
+import "./browser-adapter-mocks" // Импортируем моки первыми
+
 import React from "react"
 
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi, beforeEach } from "vitest"
 
 import { BrowserProviders } from "@/test/test-utils"
 
 import { useEffectsAdapter } from "../../adapters/use-effects-adapter"
 
-// Мокаем зависимости
-vi.mock("@/features/effects", () => ({
+// Мокаем только специфичные для эффектов зависимости
+vi.mock("@/features/effects/hooks/use-effects", () => ({
   useEffects: vi.fn(() => ({
-    isLoading: false,
-    error: null,
     effects: [
       {
         id: "blur",
         name: "Размытие",
-        description: "Эффект размытия изображения",
+        description: { ru: "Эффект размытия изображения", en: "Image blur effect" },
         category: "filter",
-        cssFilter: "blur(5px)",
-        icon: "🌫️",
+        type: "blur",
+        complexity: "basic",
+        tags: ["blur", "filter"],
+        labels: { ru: "Размытие", en: "Blur" },
       },
       {
         id: "sepia",
         name: "Сепия",
-        description: "Винтажный эффект сепии",
+        description: { ru: "Винтажный эффект сепии", en: "Vintage sepia effect" },
         category: "color",
-        cssFilter: "sepia(100%)",
-        icon: "🟤",
+        type: "sepia",
+        complexity: "intermediate",
+        tags: ["vintage", "color"],
+        labels: { ru: "Сепия", en: "Sepia" },
       },
     ],
-  })),
-}))
-
-vi.mock("@/features/app-state", () => ({
-  AppSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
-  useFavorites: vi.fn(() => ({
-    isItemFavorite: vi.fn(() => false),
-  })),
-  useAppSettings: vi.fn(() => ({
-    getMusicFiles: vi.fn(() => ({ allFiles: [] })),
-  })),
-}))
-
-vi.mock("@/i18n", () => ({
-  default: {
-    t: vi.fn((key) => key),
-  },
-}))
-
-vi.mock("@/i18n/services/i18n-provider", () => ({
-  I18nProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
-
-vi.mock("@/features/top-bar/components/theme/theme-context", () => ({
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
-
-vi.mock("@/features/resources", () => ({
-  ResourcesProvider: ({ children }: { children: React.ReactNode }) => children,
-  useResources: vi.fn(() => ({})),
-}))
-
-vi.mock("@/features/project-settings", () => ({
-  ProjectSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
-  useProjectSettings: vi.fn(() => ({
-    settings: {
-      fps: 30,
-      resolution: { width: 1920, height: 1080 },
-    },
-  })),
-}))
-
-vi.mock("@/features/browser/services/browser-state-provider", () => ({
-  BrowserStateProvider: ({ children }: { children: React.ReactNode }) => children,
-  useBrowserState: vi.fn(() => ({
-    state: {},
-    send: vi.fn(),
+    loading: false,
+    error: null,
   })),
 }))
 
 describe("useEffectsAdapter", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
   it("should return effects adapter with correct structure", () => {
     const { result } = renderHook(() => useEffectsAdapter(), {
       wrapper: BrowserProviders,
@@ -91,7 +53,7 @@ describe("useEffectsAdapter", () => {
     expect(result.current).toHaveProperty("getSortValue")
     expect(result.current).toHaveProperty("getSearchableText")
     expect(result.current).toHaveProperty("getGroupValue")
-    expect(result.current).toHaveProperty("favoriteType", "effects")
+    expect(result.current).toHaveProperty("favoriteType", "effect")
   })
 
   describe("useData", () => {
@@ -111,19 +73,21 @@ describe("useEffectsAdapter", () => {
     const testEffect = {
       id: "blur",
       name: "Размытие",
-      description: "Эффект размытия",
+      description: { ru: "Эффект размытия", en: "Blur effect" },
       category: "filter",
-      cssFilter: "blur(5px)",
-      icon: "🌫️",
+      type: "blur",
+      complexity: "basic" as const,
+      tags: ["blur"],
     }
 
     it("should sort by different fields", () => {
       const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
 
-      expect(result.current.getSortValue(testEffect, "name")).toBe("Размытие")
+      expect(result.current.getSortValue(testEffect, "name")).toBe("размытие")
       expect(result.current.getSortValue(testEffect, "category")).toBe("filter")
-      expect(result.current.getSortValue(testEffect, "id")).toBe("blur")
-      expect(result.current.getSortValue(testEffect, "unknown")).toBe("Размытие")
+      expect(result.current.getSortValue(testEffect, "complexity")).toBe(0) // basic = 0
+      expect(result.current.getSortValue(testEffect, "type")).toBe("blur")
+      expect(result.current.getSortValue(testEffect, "unknown")).toBe("размытие")
     })
   })
 
@@ -131,17 +95,24 @@ describe("useEffectsAdapter", () => {
     const testEffect = {
       id: "blur",
       name: "Размытие",
-      description: "Эффект размытия изображения",
+      description: { ru: "Эффект размытия изображения", en: "Image blur effect" },
       category: "filter",
-      cssFilter: "blur(5px)",
-      icon: "🌫️",
+      type: "blur",
+      complexity: "basic" as const,
+      tags: ["blur", "filter"],
+      labels: { ru: "Размытие", en: "Blur" },
     }
 
     it("should return searchable text array", () => {
       const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
 
       const searchableText = result.current.getSearchableText(testEffect)
-      expect(searchableText).toEqual(["Размытие", "Эффект размытия изображения", "filter"])
+      expect(searchableText).toContain("Размытие")
+      expect(searchableText).toContain("Blur")
+      expect(searchableText).toContain("Эффект размытия изображения")
+      expect(searchableText).toContain("Image blur effect")
+      expect(searchableText).toContain("filter")
+      expect(searchableText).toContain("blur")
     })
   })
 
@@ -149,16 +120,20 @@ describe("useEffectsAdapter", () => {
     const testEffect = {
       id: "blur",
       name: "Размытие",
-      description: "Эффект размытия",
+      description: { ru: "Эффект размытия", en: "Blur effect" },
       category: "filter",
-      cssFilter: "blur(5px)",
-      icon: "🌫️",
+      type: "blur",
+      complexity: "basic" as const,
+      tags: ["blur", "filter"],
     }
 
-    it("should group by category", () => {
+    it("should group by different fields", () => {
       const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
 
       expect(result.current.getGroupValue(testEffect, "category")).toBe("filter")
+      expect(result.current.getGroupValue(testEffect, "complexity")).toBe("basic")
+      expect(result.current.getGroupValue(testEffect, "type")).toBe("blur")
+      expect(result.current.getGroupValue(testEffect, "tags")).toBe("blur")
       expect(result.current.getGroupValue(testEffect, "unknown")).toBe("")
     })
   })
@@ -167,28 +142,43 @@ describe("useEffectsAdapter", () => {
     const filterEffect = {
       id: "blur",
       name: "Размытие",
-      description: "Эффект размытия",
+      description: { ru: "Эффект размытия", en: "Blur effect" },
       category: "filter",
-      cssFilter: "blur(5px)",
-      icon: "🌫️",
+      type: "blur",
+      complexity: "basic" as const,
+      tags: ["blur"],
     }
 
     const colorEffect = {
       id: "sepia",
       name: "Сепия",
-      description: "Винтажный эффект",
-      category: "color",
-      cssFilter: "sepia(100%)",
-      icon: "🟤",
+      description: { ru: "Винтажный эффект", en: "Vintage effect" },
+      category: "color-correction",
+      type: "sepia",
+      complexity: "intermediate" as const,
+      tags: ["vintage"],
     }
+
+    it("should match filter by complexity", () => {
+      const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
+
+      expect(result.current.matchesFilter?.(filterEffect, "basic")).toBe(true)
+      expect(result.current.matchesFilter?.(filterEffect, "intermediate")).toBe(false)
+      expect(result.current.matchesFilter?.(colorEffect, "intermediate")).toBe(true)
+    })
 
     it("should match filter by category", () => {
       const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
 
-      expect(result.current.matchesFilter?.(filterEffect, "filter")).toBe(true)
-      expect(result.current.matchesFilter?.(colorEffect, "filter")).toBe(false)
-      expect(result.current.matchesFilter?.(colorEffect, "color")).toBe(true)
-      expect(result.current.matchesFilter?.(filterEffect, "color")).toBe(false)
+      expect(result.current.matchesFilter?.(colorEffect, "color-correction")).toBe(true)
+      expect(result.current.matchesFilter?.(filterEffect, "color-correction")).toBe(false)
+    })
+
+    it("should return true for 'all' filter", () => {
+      const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
+
+      expect(result.current.matchesFilter?.(filterEffect, "all")).toBe(true)
+      expect(result.current.matchesFilter?.(colorEffect, "all")).toBe(true)
     })
 
     it("should return true for unknown filter", () => {
@@ -208,10 +198,10 @@ describe("useEffectsAdapter", () => {
   })
 
   describe("favoriteType", () => {
-    it("should be 'effects'", () => {
+    it("should be 'effect'", () => {
       const { result } = renderHook(() => useEffectsAdapter(), { wrapper: BrowserProviders })
 
-      expect(result.current.favoriteType).toBe("effects")
+      expect(result.current.favoriteType).toBe("effect")
     })
   })
 })

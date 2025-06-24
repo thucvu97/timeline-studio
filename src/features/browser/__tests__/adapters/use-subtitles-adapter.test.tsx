@@ -1,74 +1,75 @@
+import "./browser-adapter-mocks" // Импортируем моки первыми
+
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi, beforeEach } from "vitest"
+
+import { BrowserProviders } from "@/test/test-utils"
 
 import { useSubtitlesAdapter } from "../../adapters/use-subtitles-adapter"
 
-// Мокаем зависимости
-vi.mock("@/features/subtitles", () => ({
-  useSubtitleStyles: vi.fn(() => ({
-    isLoading: false,
-    error: null,
-    subtitleStyles: [
+// Мокаем только специфичные для subtitles зависимости
+vi.mock("@/features/subtitles/hooks/use-subtitle-styles", () => ({
+  useSubtitles: vi.fn(() => ({
+    subtitles: [
       {
         id: "basic",
         name: "Основной",
-        description: "Стандартный стиль субтитров",
+        description: { ru: "Стандартный стиль субтитров", en: "Standard subtitle style" },
         category: "basic",
-        cssStyles: {
+        complexity: "basic",
+        labels: { ru: "Основной", en: "Basic" },
+        tags: ["standard", "simple"],
+        style: {
           color: "#ffffff",
           fontSize: "16px",
           fontWeight: "bold",
+          fontFamily: "Arial",
         },
       },
       {
         id: "cinematic",
         name: "Кинематографический",
-        description: "Стиль для фильмов",
+        description: { ru: "Стиль для фильмов", en: "Cinema style" },
         category: "cinematic",
-        cssStyles: {
+        complexity: "intermediate",
+        labels: { ru: "Кинематографический", en: "Cinematic" },
+        tags: ["cinema", "movie"],
+        style: {
           color: "#ffff00",
           fontSize: "18px",
           fontWeight: "normal",
+          fontFamily: "Times New Roman",
         },
       },
     ],
+    loading: false,
+    error: null,
   })),
 }))
 
-vi.mock("@/features/app-state", async (importOriginal) => {
-  const actual = await importOriginal()
-  return {
-    ...actual,
-    useFavorites: vi.fn(() => ({
-      isItemFavorite: vi.fn(() => false),
-    })),
-  }
-})
-
-vi.mock("@/i18n", () => ({
-  default: {
-    t: vi.fn((key) => key),
-  },
-}))
-
 describe("useSubtitlesAdapter", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
   it("should return subtitles adapter with correct structure", () => {
-    const { result } = renderHook(() => useSubtitlesAdapter())
+    const { result } = renderHook(() => useSubtitlesAdapter(), {
+      wrapper: BrowserProviders,
+    })
 
     expect(result.current).toHaveProperty("useData")
     expect(result.current).toHaveProperty("PreviewComponent")
     expect(result.current).toHaveProperty("getSortValue")
     expect(result.current).toHaveProperty("getSearchableText")
     expect(result.current).toHaveProperty("getGroupValue")
-    expect(result.current).toHaveProperty("favoriteType", "subtitles")
+    expect(result.current).toHaveProperty("favoriteType", "subtitle")
   })
 
   describe("useData", () => {
     it("should return subtitle styles data", () => {
-      const { result } = renderHook(() => useSubtitlesAdapter())
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
       const { result: dataResult } = renderHook(() => result.current.useData())
 
-      expect(dataResult.current.isLoading).toBe(false)
+      expect(dataResult.current.loading).toBe(false)
       expect(dataResult.current.error).toBeNull()
       expect(dataResult.current.items).toHaveLength(2)
       expect(dataResult.current.items[0].name).toBe("Основной")
@@ -80,21 +81,25 @@ describe("useSubtitlesAdapter", () => {
     const testStyle = {
       id: "basic",
       name: "Основной",
-      description: "Стандартный стиль",
+      description: { ru: "Стандартный стиль", en: "Standard style" },
       category: "basic",
-      cssStyles: {
+      complexity: "basic",
+      labels: { ru: "Основной", en: "Basic" },
+      style: {
         color: "#ffffff",
         fontSize: "16px",
+        fontFamily: "Arial",
       },
     }
 
     it("should sort by different fields", () => {
-      const { result } = renderHook(() => useSubtitlesAdapter())
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
 
-      expect(result.current.getSortValue(testStyle, "name")).toBe("Основной")
+      expect(result.current.getSortValue(testStyle, "name")).toBe("основной")
       expect(result.current.getSortValue(testStyle, "category")).toBe("basic")
-      expect(result.current.getSortValue(testStyle, "id")).toBe("basic")
-      expect(result.current.getSortValue(testStyle, "unknown")).toBe("Основной")
+      expect(result.current.getSortValue(testStyle, "complexity")).toBe(0) // basic = 0
+      expect(result.current.getSortValue(testStyle, "font")).toBe("arial")
+      expect(result.current.getSortValue(testStyle, "unknown")).toBe("основной")
     })
   })
 
@@ -102,18 +107,27 @@ describe("useSubtitlesAdapter", () => {
     const testStyle = {
       id: "basic",
       name: "Основной",
-      description: "Стандартный стиль субтитров",
+      description: { ru: "Стандартный стиль субтитров", en: "Standard subtitle style" },
       category: "basic",
-      cssStyles: {
+      labels: { ru: "Основной", en: "Basic" },
+      tags: ["standard", "simple"],
+      style: {
         color: "#ffffff",
+        fontFamily: "Arial",
       },
     }
 
     it("should return searchable text array", () => {
-      const { result } = renderHook(() => useSubtitlesAdapter())
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
 
       const searchableText = result.current.getSearchableText(testStyle)
-      expect(searchableText).toEqual(["Основной", "Стандартный стиль субтитров", "basic"])
+      expect(searchableText).toContain("Основной")
+      expect(searchableText).toContain("Basic")
+      expect(searchableText).toContain("Стандартный стиль субтитров")
+      expect(searchableText).toContain("Standard subtitle style")
+      expect(searchableText).toContain("basic")
+      expect(searchableText).toContain("Arial")
+      expect(searchableText).toContain("standard")
     })
   })
 
@@ -121,18 +135,24 @@ describe("useSubtitlesAdapter", () => {
     const testStyle = {
       id: "basic",
       name: "Основной",
-      description: "Стандартный стиль",
+      description: { ru: "Стандартный стиль", en: "Standard style" },
       category: "basic",
-      cssStyles: {
+      complexity: "basic",
+      tags: ["standard", "simple"],
+      style: {
         color: "#ffffff",
+        fontFamily: "Arial",
       },
     }
 
-    it("should group by category", () => {
-      const { result } = renderHook(() => useSubtitlesAdapter())
+    it("should group by different fields", () => {
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
 
       expect(result.current.getGroupValue(testStyle, "category")).toBe("basic")
-      expect(result.current.getGroupValue(testStyle, "unknown")).toBe("Прочее")
+      expect(result.current.getGroupValue(testStyle, "complexity")).toBe("basic")
+      expect(result.current.getGroupValue(testStyle, "font")).toBe("Arial")
+      expect(result.current.getGroupValue(testStyle, "tags")).toBe("standard")
+      expect(result.current.getGroupValue(testStyle, "unknown")).toBe("")
     })
   })
 
@@ -140,21 +160,31 @@ describe("useSubtitlesAdapter", () => {
     const basicStyle = {
       id: "basic",
       name: "Основной",
-      description: "Стандартный стиль",
+      description: { ru: "Стандартный стиль", en: "Standard style" },
       category: "basic",
-      cssStyles: { color: "#ffffff" },
+      complexity: "basic",
+      style: { color: "#ffffff", fontFamily: "Arial" },
     }
 
     const cinematicStyle = {
       id: "cinematic",
       name: "Кинематографический",
-      description: "Стиль для фильмов",
+      description: { ru: "Стиль для фильмов", en: "Cinema style" },
       category: "cinematic",
-      cssStyles: { color: "#ffff00" },
+      complexity: "intermediate",
+      style: { color: "#ffff00", fontFamily: "Times New Roman" },
     }
 
+    it("should match filter by complexity", () => {
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
+
+      expect(result.current.matchesFilter?.(basicStyle, "basic")).toBe(true)
+      expect(result.current.matchesFilter?.(basicStyle, "intermediate")).toBe(false)
+      expect(result.current.matchesFilter?.(cinematicStyle, "intermediate")).toBe(true)
+    })
+
     it("should match filter by category", () => {
-      const { result } = renderHook(() => useSubtitlesAdapter())
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
 
       expect(result.current.matchesFilter?.(basicStyle, "basic")).toBe(true)
       expect(result.current.matchesFilter?.(cinematicStyle, "basic")).toBe(false)
@@ -162,8 +192,15 @@ describe("useSubtitlesAdapter", () => {
       expect(result.current.matchesFilter?.(basicStyle, "cinematic")).toBe(false)
     })
 
+    it("should return true for 'all' filter", () => {
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
+
+      expect(result.current.matchesFilter?.(basicStyle, "all")).toBe(true)
+      expect(result.current.matchesFilter?.(cinematicStyle, "all")).toBe(true)
+    })
+
     it("should return true for unknown filter", () => {
-      const { result } = renderHook(() => useSubtitlesAdapter())
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
 
       expect(result.current.matchesFilter?.(basicStyle, "unknown")).toBe(true)
     })
@@ -171,7 +208,7 @@ describe("useSubtitlesAdapter", () => {
 
   describe("PreviewComponent", () => {
     it("should be defined", () => {
-      const { result } = renderHook(() => useSubtitlesAdapter())
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
 
       expect(result.current.PreviewComponent).toBeDefined()
       expect(typeof result.current.PreviewComponent).toBe("function")
@@ -179,10 +216,10 @@ describe("useSubtitlesAdapter", () => {
   })
 
   describe("favoriteType", () => {
-    it("should be 'subtitles'", () => {
-      const { result } = renderHook(() => useSubtitlesAdapter())
+    it("should be 'subtitle'", () => {
+      const { result } = renderHook(() => useSubtitlesAdapter(), { wrapper: BrowserProviders })
 
-      expect(result.current.favoriteType).toBe("subtitles")
+      expect(result.current.favoriteType).toBe("subtitle")
     })
   })
 })

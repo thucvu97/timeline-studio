@@ -228,6 +228,15 @@ mod tests {
   use super::*;
 
   #[test]
+  fn test_version_creation() {
+    let version = Version::new(1, 2, 3);
+    assert_eq!(version.major, 1);
+    assert_eq!(version.minor, 2);
+    assert_eq!(version.patch, 3);
+    assert!(version.pre_release.is_none());
+  }
+
+  #[test]
   fn test_version_display() {
     let version = Version::new(1, 2, 3);
     assert_eq!(version.to_string(), "1.2.3");
@@ -242,14 +251,155 @@ mod tests {
   }
 
   #[test]
+  fn test_version_equality() {
+    let v1 = Version::new(1, 0, 0);
+    let v2 = Version::new(1, 0, 0);
+    let v3 = Version::new(1, 0, 1);
+
+    assert_eq!(v1, v2);
+    assert_ne!(v1, v3);
+  }
+
+  #[test]
+  fn test_plugin_type_serialization() {
+    let plugin_type = PluginType::Effect;
+    let serialized = serde_json::to_string(&plugin_type).unwrap();
+    assert_eq!(serialized, "\"Effect\"");
+
+    let deserialized: PluginType = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(deserialized, PluginType::Effect);
+  }
+
+  #[test]
+  fn test_plugin_state_transitions() {
+    let state = PluginState::Loaded;
+    assert_eq!(state, PluginState::Loaded);
+
+    let error_state = PluginState::Error("Test error".to_string());
+    match error_state {
+      PluginState::Error(msg) => assert_eq!(msg, "Test error"),
+      _ => panic!("Expected error state"),
+    }
+  }
+
+  #[test]
+  fn test_app_event_type() {
+    let event_type = AppEventType::ProjectCreated;
+    assert_eq!(event_type, AppEventType::ProjectCreated);
+    assert_ne!(event_type, AppEventType::ProjectOpened);
+
+    // Test All event type
+    let all_events = AppEventType::All;
+    assert_eq!(all_events, AppEventType::All);
+  }
+
+  #[test]
+  fn test_plugin_metadata() {
+    let metadata = PluginMetadata {
+      id: "test-plugin".to_string(),
+      name: "Test Plugin".to_string(),
+      version: Version::new(1, 0, 0),
+      description: "A test plugin".to_string(),
+      author: "Test Author".to_string(),
+      plugin_type: PluginType::Effect,
+      homepage: Some("https://example.com".to_string()),
+      license: Some("MIT".to_string()),
+      dependencies: vec![],
+      min_app_version: Some(Version::new(0, 1, 0)),
+    };
+
+    assert_eq!(metadata.id, "test-plugin");
+    assert_eq!(metadata.name, "Test Plugin");
+    assert_eq!(metadata.plugin_type, PluginType::Effect);
+    assert_eq!(metadata.homepage, Some("https://example.com".to_string()));
+    assert_eq!(metadata.license, Some("MIT".to_string()));
+  }
+
+  #[test]
+  fn test_plugin_command() {
+    let command_id = Uuid::new_v4();
+    let command = PluginCommand {
+      id: command_id,
+      command: "test_action".to_string(),
+      params: serde_json::json!({"param": "value"}),
+    };
+
+    assert_eq!(command.id, command_id);
+    assert_eq!(command.command, "test_action");
+    assert_eq!(command.params, serde_json::json!({"param": "value"}));
+  }
+
+  #[test]
+  fn test_plugin_response() {
+    let command_id = Uuid::new_v4();
+    let success_response = PluginResponse {
+      command_id,
+      success: true,
+      data: Some(serde_json::json!({"result": "success"})),
+      error: None,
+    };
+
+    assert_eq!(success_response.command_id, command_id);
+    assert!(success_response.success);
+    assert!(success_response.data.is_some());
+    assert!(success_response.error.is_none());
+
+    let error_response = PluginResponse {
+      command_id,
+      success: false,
+      data: None,
+      error: Some("Something went wrong".to_string()),
+    };
+
+    assert!(!error_response.success);
+    assert!(error_response.data.is_none());
+    assert_eq!(error_response.error.unwrap(), "Something went wrong");
+  }
+
+  #[test]
   fn test_plugin_validation_result() {
     let mut result = PluginValidationResult::valid();
     assert!(result.is_valid);
+    assert!(result.errors.is_empty());
+    assert!(result.warnings.is_empty());
 
     result.add_warning("This is a warning".to_string());
     assert!(result.is_valid);
+    assert_eq!(result.warnings.len(), 1);
 
     result.add_error("This is an error".to_string());
     assert!(!result.is_valid);
+    assert_eq!(result.errors.len(), 1);
+  }
+
+  #[test]
+  fn test_plugin_validation_result_invalid() {
+    let result = PluginValidationResult::invalid("Critical error".to_string());
+    assert!(!result.is_valid);
+    assert_eq!(result.errors.len(), 1);
+    assert_eq!(result.errors[0], "Critical error");
+  }
+
+  #[test]
+  fn test_plugin_serialization() {
+    let metadata = PluginMetadata {
+      id: "test".to_string(),
+      name: "Test".to_string(),
+      version: Version::new(1, 0, 0),
+      description: "Test".to_string(),
+      author: "Test".to_string(),
+      plugin_type: PluginType::Effect,
+      homepage: None,
+      license: None,
+      dependencies: vec![],
+      min_app_version: Some(Version::new(0, 1, 0)),
+    };
+
+    let serialized = serde_json::to_string(&metadata).unwrap();
+    let deserialized: PluginMetadata = serde_json::from_str(&serialized).unwrap();
+
+    assert_eq!(metadata.id, deserialized.id);
+    assert_eq!(metadata.version, deserialized.version);
+    assert_eq!(metadata.plugin_type, deserialized.plugin_type);
   }
 }

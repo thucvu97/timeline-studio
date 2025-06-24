@@ -1,86 +1,48 @@
+import "./browser-adapter-mocks" // Импортируем моки первыми
+
 import React from "react"
 
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi, beforeEach } from "vitest"
 
 import { BrowserProviders } from "@/test/test-utils"
 
 import { useFiltersAdapter } from "../../adapters/use-filters-adapter"
 
-// Мокаем зависимости
-vi.mock("@/features/filters", () => ({
+// Мокаем только специфичные для фильтров зависимости
+vi.mock("@/features/filters/hooks/use-filters", () => ({
   useFilters: vi.fn(() => ({
-    isLoading: false,
-    error: null,
     filters: [
       {
         id: "brightness",
         name: "Яркость",
-        description: "Регулировка яркости изображения",
-        category: "color",
-        cssFilter: "brightness(1.2)",
-        icon: "☀️",
+        description: { en: "Регулировка яркости изображения", ru: "Brightness adjustment" },
+        category: "color-correction",
+        complexity: "basic",
+        labels: { ru: "Яркость", en: "Brightness" },
+        tags: ["color", "brightness"],
+        params: { brightness: 0.2 },
       },
       {
         id: "contrast",
         name: "Контрастность",
-        description: "Регулировка контрастности",
-        category: "color",
-        cssFilter: "contrast(1.5)",
-        icon: "🌓",
+        description: { en: "Регулировка контрастности", ru: "Contrast adjustment" },
+        category: "color-correction",
+        complexity: "basic",
+        labels: { ru: "Контрастность", en: "Contrast" },
+        tags: ["color", "contrast"],
+        params: { contrast: 1.5 },
       },
     ],
-  })),
-}))
-
-vi.mock("@/features/app-state", () => ({
-  AppSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
-  useFavorites: vi.fn(() => ({
-    isItemFavorite: vi.fn(() => false),
-  })),
-  useAppSettings: vi.fn(() => ({
-    getMusicFiles: vi.fn(() => ({ allFiles: [] })),
-  })),
-}))
-
-vi.mock("@/i18n", () => ({
-  default: {
-    t: vi.fn((key) => key),
-  },
-}))
-
-vi.mock("@/i18n/services/i18n-provider", () => ({
-  I18nProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
-
-vi.mock("@/features/top-bar/components/theme/theme-context", () => ({
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
-
-vi.mock("@/features/resources", () => ({
-  ResourcesProvider: ({ children }: { children: React.ReactNode }) => children,
-  useResources: vi.fn(() => ({})),
-}))
-
-vi.mock("@/features/project-settings", () => ({
-  ProjectSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
-  useProjectSettings: vi.fn(() => ({
-    settings: {
-      fps: 30,
-      resolution: { width: 1920, height: 1080 },
-    },
-  })),
-}))
-
-vi.mock("@/features/browser/services/browser-state-provider", () => ({
-  BrowserStateProvider: ({ children }: { children: React.ReactNode }) => children,
-  useBrowserState: vi.fn(() => ({
-    state: {},
-    send: vi.fn(),
+    loading: false,
+    error: null,
   })),
 }))
 
 describe("useFiltersAdapter", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
   it("should return filters adapter with correct structure", () => {
     const { result } = renderHook(() => useFiltersAdapter(), {
       wrapper: BrowserProviders,
@@ -111,19 +73,21 @@ describe("useFiltersAdapter", () => {
     const testFilter = {
       id: "brightness",
       name: "Яркость",
-      description: "Регулировка яркости",
-      category: "color",
-      cssFilter: "brightness(1.2)",
-      icon: "☀️",
+      description: { en: "Регулировка яркости", ru: "Brightness adjustment" },
+      category: "color-correction",
+      complexity: "basic" as const,
+      labels: { ru: "Яркость", en: "Brightness" },
+      tags: ["color"],
+      params: { brightness: 0.2 },
     }
 
     it("should sort by different fields", () => {
       const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
 
-      expect(result.current.getSortValue(testFilter, "name")).toBe("Яркость")
-      expect(result.current.getSortValue(testFilter, "category")).toBe("color")
-      expect(result.current.getSortValue(testFilter, "id")).toBe("brightness")
-      expect(result.current.getSortValue(testFilter, "unknown")).toBe("Яркость")
+      expect(result.current.getSortValue(testFilter, "name")).toBe("яркость")
+      expect(result.current.getSortValue(testFilter, "category")).toBe("color-correction")
+      expect(result.current.getSortValue(testFilter, "complexity")).toBe(0) // basic = 0
+      expect(result.current.getSortValue(testFilter, "unknown")).toBe("яркость")
     })
   })
 
@@ -131,17 +95,24 @@ describe("useFiltersAdapter", () => {
     const testFilter = {
       id: "brightness",
       name: "Яркость",
-      description: "Регулировка яркости изображения",
-      category: "color",
-      cssFilter: "brightness(1.2)",
-      icon: "☀️",
+      description: { en: "Регулировка яркости изображения", ru: "Brightness adjustment" },
+      category: "color-correction",
+      complexity: "basic" as const,
+      labels: { ru: "Яркость", en: "Brightness" },
+      tags: ["color", "brightness"],
+      params: { brightness: 0.2 },
     }
 
     it("should return searchable text array", () => {
       const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
 
       const searchableText = result.current.getSearchableText(testFilter)
-      expect(searchableText).toEqual(["Яркость", "Регулировка яркости изображения", "color"])
+      expect(searchableText).toContain("Яркость")
+      expect(searchableText).toContain("Brightness")
+      expect(searchableText).toContain("Регулировка яркости изображения")
+      expect(searchableText).toContain("color-correction")
+      expect(searchableText).toContain("color")
+      expect(searchableText).toContain("brightness")
     })
   })
 
@@ -149,16 +120,20 @@ describe("useFiltersAdapter", () => {
     const testFilter = {
       id: "brightness",
       name: "Яркость",
-      description: "Регулировка яркости",
-      category: "color",
-      cssFilter: "brightness(1.2)",
-      icon: "☀️",
+      description: { en: "Регулировка яркости", ru: "Brightness adjustment" },
+      category: "color-correction",
+      complexity: "basic" as const,
+      labels: { ru: "Яркость", en: "Brightness" },
+      tags: ["color", "brightness"],
+      params: { brightness: 0.2 },
     }
 
-    it("should group by category", () => {
+    it("should group by different fields", () => {
       const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
 
-      expect(result.current.getGroupValue(testFilter, "category")).toBe("color")
+      expect(result.current.getGroupValue(testFilter, "category")).toBe("color-correction")
+      expect(result.current.getGroupValue(testFilter, "complexity")).toBe("basic")
+      expect(result.current.getGroupValue(testFilter, "tags")).toBe("color")
       expect(result.current.getGroupValue(testFilter, "unknown")).toBe("")
     })
   })
@@ -167,28 +142,47 @@ describe("useFiltersAdapter", () => {
     const colorFilter = {
       id: "brightness",
       name: "Яркость",
-      description: "Регулировка яркости",
-      category: "color",
-      cssFilter: "brightness(1.2)",
-      icon: "☀️",
+      description: { en: "Регулировка яркости", ru: "Brightness adjustment" },
+      category: "color-correction",
+      complexity: "basic" as const,
+      labels: { ru: "Яркость", en: "Brightness" },
+      tags: ["color"],
+      params: { brightness: 0.2 },
     }
 
-    const blurFilter = {
+    const creativeFilter = {
       id: "gaussian",
       name: "Размытие",
-      description: "Гауссово размытие",
-      category: "blur",
-      cssFilter: "blur(2px)",
-      icon: "🌫️",
+      description: { en: "Гауссово размытие", ru: "Gaussian blur" },
+      category: "creative",
+      complexity: "intermediate" as const,
+      labels: { ru: "Размытие", en: "Blur" },
+      tags: ["blur"],
+      params: { blur: 2 },
     }
+
+    it("should match filter by complexity", () => {
+      const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
+
+      expect(result.current.matchesFilter?.(colorFilter, "basic")).toBe(true)
+      expect(result.current.matchesFilter?.(colorFilter, "intermediate")).toBe(false)
+      expect(result.current.matchesFilter?.(creativeFilter, "intermediate")).toBe(true)
+    })
 
     it("should match filter by category", () => {
       const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
 
-      expect(result.current.matchesFilter?.(colorFilter, "color")).toBe(true)
-      expect(result.current.matchesFilter?.(blurFilter, "color")).toBe(false)
-      expect(result.current.matchesFilter?.(blurFilter, "blur")).toBe(true)
-      expect(result.current.matchesFilter?.(colorFilter, "blur")).toBe(false)
+      expect(result.current.matchesFilter?.(colorFilter, "color-correction")).toBe(true)
+      expect(result.current.matchesFilter?.(creativeFilter, "color-correction")).toBe(false)
+      expect(result.current.matchesFilter?.(creativeFilter, "creative")).toBe(true)
+      expect(result.current.matchesFilter?.(colorFilter, "creative")).toBe(false)
+    })
+
+    it("should return true for 'all' filter", () => {
+      const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
+
+      expect(result.current.matchesFilter?.(colorFilter, "all")).toBe(true)
+      expect(result.current.matchesFilter?.(creativeFilter, "all")).toBe(true)
     })
 
     it("should return true for unknown filter", () => {

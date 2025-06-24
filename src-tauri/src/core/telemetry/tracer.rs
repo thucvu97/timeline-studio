@@ -15,7 +15,7 @@ use opentelemetry_semantic_conventions::{
   attribute::{HTTP_REQUEST_METHOD, HTTP_RESPONSE_STATUS_CODE, HTTP_ROUTE},
   resource::{SERVICE_NAME, SERVICE_VERSION},
 };
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use tracing::{info_span, Instrument};
 
 use super::config::{ExporterType, TelemetryConfig};
@@ -265,7 +265,7 @@ mod tests {
       .trace("test_operation", async {
         // Симулируем работу
         tokio::time::sleep(Duration::from_millis(10)).await;
-        Ok::<_, VideoCompilerError>(42)
+        Ok::<_, crate::video_compiler::error::VideoCompilerError>(42)
       })
       .await;
 

@@ -235,17 +235,11 @@ impl MetricsCollector {
     let mut metrics = futures::executor::block_on(self.registered_metrics.write());
 
     if let Some(existing_type) = metrics.get(name) {
-      if !matches!(
-        (existing_type, &metric_type),
-        (MetricType::Counter, MetricType::Counter)
-          | (MetricType::Gauge, MetricType::Gauge)
-          | (MetricType::Histogram, MetricType::Histogram)
-      ) {
-        return Err(VideoCompilerError::InvalidParameter(format!(
-          "Metric '{}' already registered with different type",
-          name
-        )));
-      }
+      // Если метрика уже зарегистрирована, возвращаем ошибку
+      return Err(VideoCompilerError::InvalidParameter(format!(
+        "Metric '{}' already registered with type {:?}",
+        name, existing_type
+      )));
     } else {
       metrics.insert(name.to_string(), metric_type);
     }
@@ -428,5 +422,224 @@ mod tests {
       .await;
 
     assert_eq!(result, 42);
+  }
+
+  #[test]
+  fn test_counter_with_labels() {
+    let _config = TelemetryConfig::default();
+    let meter = opentelemetry::global::meter("test");
+    let otel_counter = meter.u64_counter("test_counter").build();
+
+    let counter = Counter::new(otel_counter)
+      .with_label("environment", "test")
+      .with_label("version", "1.0.0");
+
+    // Тестируем основные операции
+    counter.inc();
+    counter.increment(5);
+
+    // Счетчик не должен паниковать при использовании
+    counter.increment(0);
+  }
+
+  #[test]
+  fn test_gauge_operations() {
+    let _config = TelemetryConfig::default();
+    let meter = opentelemetry::global::meter("test");
+    let otel_gauge = meter.i64_up_down_counter("test_gauge").build();
+
+    let gauge = Gauge::new(otel_gauge).with_label("component", "test");
+
+    // Тестируем операции gauge
+    gauge.add(10);
+    gauge.add(-5);
+    gauge.add(0);
+
+    // set() должен выдать warning но не паниковать
+    gauge.set(100);
+  }
+
+  #[test]
+  fn test_histogram_observe() {
+    let _config = TelemetryConfig::default();
+    let meter = opentelemetry::global::meter("test");
+    let otel_histogram = meter.f64_histogram("test_histogram").build();
+
+    let histogram = Histogram::new(otel_histogram).with_label("operation", "test");
+
+    // Тестируем наблюдения различных значений
+    histogram.observe(0.0);
+    histogram.observe(1.5);
+    histogram.observe(100.0);
+    histogram.observe(-1.0); // Отрицательные значения тоже валидны
+  }
+
+  #[tokio::test]
+  async fn test_metrics_collector_duplicate_registration() {
+    let config = TelemetryConfig::default();
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Первая регистрация должна пройти успешно
+    let counter1 = collector.counter("duplicate_test", "Test counter");
+    assert!(counter1.is_ok());
+
+    // Повторная регистрация той же метрики должна вернуть ошибку
+    let counter2 = collector.counter("duplicate_test", "Test counter duplicate");
+    assert!(counter2.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_metrics_collector_different_types() {
+    let config = TelemetryConfig::default();
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Создаем метрики всех типов
+    let counter = collector
+      .counter("test_counter_types", "Test counter")
+      .unwrap();
+    let gauge = collector.gauge("test_gauge_types", "Test gauge").unwrap();
+    let histogram = collector
+      .histogram("test_histogram_types", "Test histogram")
+      .unwrap();
+
+    // Используем все метрики
+    counter.increment(1);
+    gauge.add(50);
+    histogram.observe(2.5);
+
+    // Проверяем что регистрация разных типов с одинаковыми именами вызывает ошибку
+    let duplicate_counter = collector.gauge("test_counter_types", "Should fail");
+    assert!(duplicate_counter.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_system_metrics_collection() {
+    let mut config = TelemetryConfig::default();
+    config.metrics.system_metrics = true;
+
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Тестируем сбор системных метрик
+    let result = collector.collect_system_metrics().await;
+    assert!(result.is_ok());
+
+    // Проверяем что метрики были зарегистрированы
+    let metrics = collector.registered_metrics.read().await;
+    assert!(metrics.contains_key("system.cpu.usage"));
+    assert!(metrics.contains_key("system.memory.used"));
+    assert!(metrics.contains_key("system.memory.total"));
+  }
+
+  #[tokio::test]
+  async fn test_runtime_metrics_collection() {
+    let mut config = TelemetryConfig::default();
+    config.metrics.runtime_metrics = true;
+
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Сбор runtime метрик пока не реализован полностью, но не должен падать
+    let result = collector.collect_runtime_metrics().await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_metrics_collection_disabled() {
+    let mut config = TelemetryConfig::default();
+    config.metrics.system_metrics = false;
+    config.metrics.runtime_metrics = false;
+
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Должно пройти успешно даже если метрики отключены
+    assert!(collector.collect_system_metrics().await.is_ok());
+    assert!(collector.collect_runtime_metrics().await.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_metrics_shutdown() {
+    let config = TelemetryConfig::default();
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Тестируем завершение работы
+    let result = collector.shutdown().await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_predefined_metrics_creation() {
+    let config = TelemetryConfig::default();
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Создаем предопределенный набор метрик
+    let metrics = Metrics::new(&collector);
+    assert!(metrics.is_ok());
+
+    let metrics = metrics.unwrap();
+
+    // Тестируем что все метрики можно использовать
+    metrics.http_requests_total.inc();
+    metrics.http_active_requests.add(1);
+    metrics.http_request_duration.observe(0.1);
+
+    metrics.render_jobs_total.inc();
+    metrics.render_jobs_active.add(1);
+    metrics.render_duration.observe(5.0);
+
+    metrics.media_files_imported.inc();
+    metrics.media_cache_hits.inc();
+    metrics.media_processing_duration.observe(2.0);
+
+    metrics.plugin_loads_total.inc();
+    metrics.plugin_active_count.add(1);
+    metrics.plugin_command_duration.observe(0.05);
+  }
+
+  #[test]
+  fn test_metric_type_enum() {
+    // Тестируем что enum может быть клонирован и отлажен
+    let counter_type = MetricType::Counter;
+    let gauge_type = MetricType::Gauge;
+    let histogram_type = MetricType::Histogram;
+
+    assert_eq!(format!("{:?}", counter_type), "Counter");
+    assert_eq!(format!("{:?}", gauge_type), "Gauge");
+    assert_eq!(format!("{:?}", histogram_type), "Histogram");
+
+    let cloned = counter_type.clone();
+    assert_eq!(format!("{:?}", cloned), "Counter");
+  }
+
+  #[tokio::test]
+  async fn test_disabled_collector() {
+    let mut config = TelemetryConfig::default();
+    config.enabled = false;
+
+    let collector = MetricsCollector::new(&config).await.unwrap();
+
+    // Даже с отключенным коллектором методы должны работать
+    let counter = collector.counter("disabled_counter", "Test counter");
+    assert!(counter.is_ok());
+
+    let gauge = collector.gauge("disabled_gauge", "Test gauge");
+    assert!(gauge.is_ok());
+
+    let histogram = collector.histogram("disabled_histogram", "Test histogram");
+    assert!(histogram.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_prometheus_exporter_not_implemented() {
+    use super::super::config::ExporterType;
+
+    let mut config = TelemetryConfig::default();
+    config.exporter.exporter_type = ExporterType::Prometheus;
+
+    // Prometheus экспортер пока не реализован
+    let result = MetricsCollector::new(&config).await;
+    assert!(result.is_err());
+
+    if let Err(e) = result {
+      assert!(e.to_string().contains("not implemented"));
+    }
   }
 }

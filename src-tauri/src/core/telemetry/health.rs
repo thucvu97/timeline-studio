@@ -546,4 +546,298 @@ mod tests {
     assert!(result.is_some());
     assert_eq!(result.unwrap().status, HealthStatus::Healthy);
   }
+
+  #[test]
+  fn test_health_status_http_codes() {
+    assert_eq!(HealthStatus::Healthy.http_status_code(), 200);
+    assert_eq!(HealthStatus::Warning.http_status_code(), 200);
+    assert_eq!(HealthStatus::Unhealthy.http_status_code(), 503);
+    assert_eq!(HealthStatus::Unknown.http_status_code(), 503);
+  }
+
+  #[test]
+  fn test_health_check_result_creation() {
+    let duration = Duration::from_millis(100);
+
+    let healthy = HealthCheckResult::healthy("All good", duration);
+    assert_eq!(healthy.status, HealthStatus::Healthy);
+    assert_eq!(healthy.message, "All good");
+    assert_eq!(healthy.duration, duration);
+
+    let warning = HealthCheckResult::warning("Some issues", duration);
+    assert_eq!(warning.status, HealthStatus::Warning);
+    assert_eq!(warning.message, "Some issues");
+
+    let unhealthy = HealthCheckResult::unhealthy("System down", duration);
+    assert_eq!(unhealthy.status, HealthStatus::Unhealthy);
+    assert_eq!(unhealthy.message, "System down");
+  }
+
+  #[test]
+  fn test_health_check_result_with_data() {
+    let result = HealthCheckResult::healthy("Test", Duration::from_millis(1))
+      .with_data("key1", serde_json::json!("value1"))
+      .with_data("key2", serde_json::json!(42));
+
+    assert_eq!(result.data.len(), 2);
+    assert_eq!(result.data.get("key1"), Some(&serde_json::json!("value1")));
+    assert_eq!(result.data.get("key2"), Some(&serde_json::json!(42)));
+  }
+
+  #[tokio::test]
+  async fn test_database_health_check() {
+    let db_check = DatabaseHealthCheck::new();
+    assert_eq!(db_check.name(), "database");
+
+    let result = db_check.check().await;
+    // Поскольку мы проверяем текущую директорию, результат должен быть положительным
+    assert_eq!(result.status, HealthStatus::Healthy);
+    assert!(result.message.contains("Filesystem accessible"));
+    assert!(result.data.contains_key("writable"));
+  }
+
+  #[tokio::test]
+  async fn test_memory_health_check() {
+    let memory_check = MemoryHealthCheck::new();
+    assert_eq!(memory_check.name(), "memory");
+
+    let result = memory_check.check().await;
+    // Результат может быть любым в зависимости от системы, но должен содержать данные
+    assert!(result.data.contains_key("total_bytes"));
+    assert!(result.data.contains_key("used_bytes"));
+    assert!(result.data.contains_key("usage_percent"));
+  }
+
+  #[tokio::test]
+  async fn test_memory_health_check_with_custom_thresholds() {
+    let memory_check = MemoryHealthCheck::with_thresholds(10.0, 20.0);
+    let result = memory_check.check().await;
+
+    // С низкими порогами результат скорее всего будет warning или unhealthy
+    assert!(matches!(
+      result.status,
+      HealthStatus::Warning | HealthStatus::Unhealthy
+    ));
+    assert!(result.message.contains("memory usage"));
+  }
+
+  #[tokio::test]
+  async fn test_health_check_manager_operations() {
+    let manager = HealthCheckManager::new();
+
+    // Проверяем пустой список
+    let checks = manager.list_checks().await;
+    assert!(checks.is_empty());
+
+    // Добавляем проверку
+    manager
+      .add_check(Box::new(TestHealthCheck::new(
+        "test",
+        HealthStatus::Healthy,
+      )))
+      .await;
+
+    let checks = manager.list_checks().await;
+    assert_eq!(checks.len(), 1);
+    assert!(checks.contains(&"test".to_string()));
+
+    // Удаляем проверку
+    manager.remove_check("test").await;
+    let checks = manager.list_checks().await;
+    assert!(checks.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_health_check_manager_cache() {
+    let manager = HealthCheckManager::new();
+
+    manager
+      .add_check(Box::new(TestHealthCheck::new(
+        "cached_test",
+        HealthStatus::Healthy,
+      )))
+      .await;
+
+    // Первая проверка
+    let result1 = manager.check_one("cached_test").await;
+    assert!(result1.is_some());
+
+    // Вторая проверка должна использовать кэш (мы не можем это легко проверить,
+    // но можем убедиться что результат тот же)
+    let result2 = manager.check_one("cached_test").await;
+    assert!(result2.is_some());
+    assert_eq!(result1.unwrap().status, result2.unwrap().status);
+
+    // Очищаем кэш
+    manager.clear_cache().await;
+
+    // Проверка после очистки кэша
+    let result3 = manager.check_one("cached_test").await;
+    assert!(result3.is_some());
+  }
+
+  #[tokio::test]
+  async fn test_health_check_manager_nonexistent() {
+    let manager = HealthCheckManager::new();
+
+    let result = manager.check_one("nonexistent").await;
+    assert!(result.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_health_check_summary_methods() {
+    let mut checks = HashMap::new();
+    checks.insert(
+      "test1".to_string(),
+      HealthCheckResult::healthy("OK", Duration::from_millis(1)),
+    );
+    checks.insert(
+      "test2".to_string(),
+      HealthCheckResult::warning("Warning", Duration::from_millis(1)),
+    );
+
+    let summary = HealthCheckSummary {
+      status: HealthStatus::Warning,
+      checks,
+      timestamp: chrono::Utc::now(),
+    };
+
+    assert_eq!(summary.http_status_code(), 200);
+    assert!(summary.is_ready());
+    assert!(summary.is_alive());
+
+    // Тестируем unhealthy summary
+    let unhealthy_summary = HealthCheckSummary {
+      status: HealthStatus::Unhealthy,
+      checks: HashMap::new(),
+      timestamp: chrono::Utc::now(),
+    };
+
+    assert_eq!(unhealthy_summary.http_status_code(), 503);
+    assert!(!unhealthy_summary.is_ready());
+    assert!(!unhealthy_summary.is_alive());
+  }
+
+  #[tokio::test]
+  async fn test_health_check_manager_critical_vs_non_critical() {
+    let manager = HealthCheckManager::new();
+
+    // Критичная проверка (по умолчанию все критичные)
+    manager
+      .add_check(Box::new(TestHealthCheck::new(
+        "critical",
+        HealthStatus::Unhealthy,
+      )))
+      .await;
+
+    // Некритичная проверка
+    struct NonCriticalCheck;
+
+    #[async_trait::async_trait]
+    impl HealthCheck for NonCriticalCheck {
+      fn name(&self) -> &'static str {
+        "non_critical"
+      }
+
+      fn is_critical(&self) -> bool {
+        false
+      }
+
+      async fn check(&self) -> HealthCheckResult {
+        HealthCheckResult::unhealthy("Failed", Duration::from_millis(1))
+      }
+    }
+
+    manager.add_check(Box::new(NonCriticalCheck)).await;
+
+    let summary = manager.check_all().await;
+    // Критичная unhealthy проверка должна сделать систему unhealthy
+    assert_eq!(summary.status, HealthStatus::Unhealthy);
+  }
+
+  struct TimeoutHealthCheck;
+
+  #[async_trait::async_trait]
+  impl HealthCheck for TimeoutHealthCheck {
+    fn name(&self) -> &'static str {
+      "timeout_test"
+    }
+
+    fn timeout(&self) -> Duration {
+      Duration::from_millis(10) // Очень короткий timeout
+    }
+
+    async fn check(&self) -> HealthCheckResult {
+      tokio::time::sleep(Duration::from_millis(100)).await; // Долгая операция
+      HealthCheckResult::healthy("Should not reach", Duration::from_millis(1))
+    }
+  }
+
+  #[tokio::test]
+  async fn test_health_check_timeout() {
+    let manager = HealthCheckManager::new();
+    manager.add_check(Box::new(TimeoutHealthCheck)).await;
+
+    let result = manager.check_one("timeout_test").await;
+    assert!(result.is_some());
+    let result = result.unwrap();
+    assert_eq!(result.status, HealthStatus::Unhealthy);
+    assert!(result.message.contains("timed out"));
+  }
+
+  #[test]
+  fn test_health_status_combine_comprehensive() {
+    // Тестируем все возможные комбинации
+    let statuses = [
+      HealthStatus::Healthy,
+      HealthStatus::Warning,
+      HealthStatus::Unhealthy,
+      HealthStatus::Unknown,
+    ];
+
+    for &status1 in &statuses {
+      for &status2 in &statuses {
+        let combined = status1.combine(status2);
+
+        // Unhealthy всегда выигрывает
+        if status1 == HealthStatus::Unhealthy || status2 == HealthStatus::Unhealthy {
+          assert_eq!(combined, HealthStatus::Unhealthy);
+        }
+        // Unknown выигрывает если нет Unhealthy
+        else if status1 == HealthStatus::Unknown || status2 == HealthStatus::Unknown {
+          assert_eq!(combined, HealthStatus::Unknown);
+        }
+        // Warning выигрывает если нет Unhealthy или Unknown
+        else if status1 == HealthStatus::Warning || status2 == HealthStatus::Warning {
+          assert_eq!(combined, HealthStatus::Warning);
+        }
+        // Только если оба Healthy
+        else {
+          assert_eq!(combined, HealthStatus::Healthy);
+        }
+      }
+    }
+  }
+
+  #[test]
+  fn test_health_check_result_serialization() {
+    let result = HealthCheckResult::healthy("Test message", Duration::from_millis(150))
+      .with_data("test_key", serde_json::json!("test_value"));
+
+    // Тестируем сериализацию
+    let serialized = serde_json::to_string(&result).unwrap();
+    assert!(serialized.contains("Healthy"));
+    assert!(serialized.contains("Test message"));
+    assert!(serialized.contains("test_key"));
+
+    // Тестируем десериализацию
+    let deserialized: HealthCheckResult = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(deserialized.status, HealthStatus::Healthy);
+    assert_eq!(deserialized.message, "Test message");
+    assert_eq!(deserialized.duration, Duration::from_millis(150));
+    assert_eq!(
+      deserialized.data.get("test_key"),
+      Some(&serde_json::json!("test_value"))
+    );
+  }
 }

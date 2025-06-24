@@ -3,7 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::Manager;
 
 // Core infrastructure modules
-mod core;
+pub mod core;
 
 // Command registry module
 mod command_registry;
@@ -28,7 +28,7 @@ mod filesystem;
 mod app_dirs;
 
 // Модуль Video Compiler
-mod video_compiler;
+pub mod video_compiler;
 use video_compiler::VideoCompilerState;
 
 // Модуль распознавания (YOLO)

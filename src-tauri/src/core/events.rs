@@ -244,19 +244,23 @@ macro_rules! event_handler {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use std::sync::atomic::{AtomicU32, Ordering};
 
   #[derive(Clone)]
   struct TestEvent {
     message: String,
   }
 
-  struct TestHandler;
+  struct TestHandler {
+    call_count: Arc<AtomicU32>,
+  }
 
   #[async_trait]
   impl EventHandler for TestHandler {
     type Event = TestEvent;
 
     async fn handle(&self, event: Self::Event) -> Result<()> {
+      self.call_count.fetch_add(1, Ordering::SeqCst);
       println!("Handled: {}", event.message);
       Ok(())
     }
@@ -269,19 +273,204 @@ mod tests {
   #[tokio::test]
   async fn test_event_subscription() {
     let event_bus = EventBus::new();
-    let handler = TestHandler;
+    let handler = TestHandler {
+      call_count: Arc::new(AtomicU32::new(0)),
+    };
 
     assert!(event_bus.subscribe(handler).await.is_ok());
+
+    // Verify subscription was added
+    let subs = event_bus.subscriptions.read().await;
+    assert_eq!(subs.len(), 1);
+    assert!(subs.contains_key(&TypeId::of::<TestEvent>()));
+  }
+
+  #[tokio::test]
+  async fn test_multiple_handlers_for_same_event() {
+    let event_bus = EventBus::new();
+
+    let handler1 = TestHandler {
+      call_count: Arc::new(AtomicU32::new(0)),
+    };
+    let handler2 = TestHandler {
+      call_count: Arc::new(AtomicU32::new(0)),
+    };
+
+    event_bus.subscribe(handler1).await.unwrap();
+    event_bus.subscribe(handler2).await.unwrap();
+
+    let subs = event_bus.subscriptions.read().await;
+    let handlers = subs.get(&TypeId::of::<TestEvent>()).unwrap();
+    assert_eq!(handlers.len(), 2);
   }
 
   #[tokio::test]
   async fn test_app_event_publishing() {
     let event_bus = EventBus::new();
 
-    let event = AppEvent::ProjectCreated {
-      project_id: "test-123".to_string(),
+    // Test various event types
+    let events = vec![
+      AppEvent::ProjectCreated {
+        project_id: "test-123".to_string(),
+      },
+      AppEvent::RenderStarted {
+        job_id: "job-456".to_string(),
+        project_id: "test-123".to_string(),
+      },
+      AppEvent::RenderProgress {
+        job_id: "job-456".to_string(),
+        progress: 0.5,
+      },
+      AppEvent::RenderCompleted {
+        job_id: "job-456".to_string(),
+        output_path: "/tmp/output.mp4".to_string(),
+      },
+    ];
+
+    for event in events {
+      assert!(event_bus.publish_app_event(event).await.is_ok());
+    }
+  }
+
+  #[tokio::test]
+  async fn test_event_processor() {
+    let event_bus = EventBus::new();
+
+    // Start the processor
+    event_bus.start_app_event_processor().await;
+
+    // Give processor time to start
+    tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+
+    // Publish some events
+    event_bus
+      .publish_app_event(AppEvent::SystemStartup)
+      .await
+      .unwrap();
+    event_bus
+      .publish_app_event(AppEvent::SystemShutdown)
+      .await
+      .unwrap();
+
+    // Give processor time to handle events
+    tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+  }
+
+  async fn handle_test_event(event: TestEvent) -> Result<()> {
+    println!("Macro handler: {}", event.message);
+    Ok(())
+  }
+
+  #[tokio::test]
+  async fn test_event_handler_macro() {
+    event_handler!(MacroTestHandler, TestEvent, handle_test_event);
+
+    let event_bus = EventBus::new();
+    let handler = MacroTestHandler;
+
+    assert!(event_bus.subscribe(handler).await.is_ok());
+    assert_eq!(MacroTestHandler.name(), "MacroTestHandler");
+  }
+
+  #[tokio::test]
+  async fn test_memory_warning_event() {
+    let event_bus = EventBus::new();
+
+    let event = AppEvent::MemoryWarning {
+      usage_percent: 85.5,
     };
 
     assert!(event_bus.publish_app_event(event).await.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_plugin_events() {
+    let event_bus = EventBus::new();
+
+    let events = vec![
+      AppEvent::PluginLoaded {
+        plugin_id: "test-plugin".to_string(),
+        version: "1.0.0".to_string(),
+      },
+      AppEvent::PluginEvent {
+        plugin_id: "test-plugin".to_string(),
+        event: serde_json::json!({"type": "custom", "data": "test"}),
+      },
+      AppEvent::PluginUnloaded {
+        plugin_id: "test-plugin".to_string(),
+      },
+    ];
+
+    for event in events {
+      assert!(event_bus.publish_app_event(event).await.is_ok());
+    }
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_event_publishing() {
+    let event_bus = Arc::new(EventBus::new());
+
+    let mut handles = vec![];
+
+    // Spawn multiple tasks publishing events concurrently
+    for i in 0..10 {
+      let bus = event_bus.clone();
+      let handle = tokio::spawn(async move {
+        bus
+          .publish_app_event(AppEvent::ProjectCreated {
+            project_id: format!("project-{}", i),
+          })
+          .await
+      });
+      handles.push(handle);
+    }
+
+    // Wait for all tasks
+    for handle in handles {
+      assert!(handle.await.unwrap().is_ok());
+    }
+  }
+
+  #[derive(Clone)]
+  struct CounterEvent {
+    value: u32,
+  }
+
+  struct CounterHandler {
+    total: Arc<RwLock<u32>>,
+  }
+
+  #[async_trait]
+  impl EventHandler for CounterHandler {
+    type Event = CounterEvent;
+
+    async fn handle(&self, event: Self::Event) -> Result<()> {
+      let mut total = self.total.write().await;
+      *total += event.value;
+      Ok(())
+    }
+
+    fn name(&self) -> &'static str {
+      "CounterHandler"
+    }
+  }
+
+  #[tokio::test]
+  async fn test_event_handler_state() {
+    let event_bus = EventBus::new();
+    let total = Arc::new(RwLock::new(0));
+
+    let handler = CounterHandler {
+      total: total.clone(),
+    };
+
+    event_bus.subscribe(handler).await.unwrap();
+
+    // The actual event publishing logic would need to be implemented
+    // to make this test meaningful
+
+    // For now, just verify the handler was registered
+    let subs = event_bus.subscriptions.read().await;
+    assert!(subs.contains_key(&TypeId::of::<CounterEvent>()));
   }
 }

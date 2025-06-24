@@ -6,6 +6,9 @@ pub mod performance;
 pub mod plugins;
 pub mod telemetry;
 
+#[cfg(test)]
+pub mod test_utils;
+
 // Re-export only when fully implemented
 #[allow(unused_imports)]
 pub use di::{Service, ServiceContainer, ServiceProvider};

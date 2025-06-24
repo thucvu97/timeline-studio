@@ -609,4 +609,364 @@ mod tests {
     let removed = manager.remove_cache("test_cache").await;
     assert!(removed);
   }
+
+  #[test]
+  fn test_eviction_policies() {
+    // Тест LFU (Least Frequently Used)
+    let config = CacheConfig {
+      max_entries: 2,
+      max_size_bytes: 1000,
+      ttl: Duration::from_secs(10),
+      cleanup_interval: Duration::from_secs(5),
+      eviction_policy: EvictionPolicy::LFU,
+    };
+
+    let mut cache = LruCache::new(config);
+    cache.put("key1".to_string(), "value1".to_string());
+    cache.put("key2".to_string(), "value2".to_string());
+
+    // Делаем key1 более часто используемым
+    cache.get(&"key1".to_string());
+    cache.get(&"key1".to_string());
+    cache.get(&"key2".to_string());
+
+    // Добавляем третий элемент - должен вытеснить key2 (менее частый)
+    cache.put("key3".to_string(), "value3".to_string());
+
+    assert_eq!(cache.len(), 2);
+    assert!(cache.get(&"key1".to_string()).is_some());
+    assert!(cache.get(&"key3".to_string()).is_some());
+    assert!(cache.get(&"key2".to_string()).is_none());
+
+    // Тест FIFO (First In First Out)
+    let config = CacheConfig {
+      max_entries: 2,
+      max_size_bytes: 1000,
+      ttl: Duration::from_secs(10),
+      cleanup_interval: Duration::from_secs(5),
+      eviction_policy: EvictionPolicy::FIFO,
+    };
+
+    let mut cache = LruCache::new(config);
+    cache.put("first".to_string(), "value1".to_string());
+    std::thread::sleep(Duration::from_millis(1)); // Гарантируем разное время
+    cache.put("second".to_string(), "value2".to_string());
+
+    // Добавляем третий - должен вытеснить первый
+    cache.put("third".to_string(), "value3".to_string());
+
+    assert_eq!(cache.len(), 2);
+    assert!(cache.get(&"first".to_string()).is_none());
+    assert!(cache.get(&"second".to_string()).is_some());
+    assert!(cache.get(&"third".to_string()).is_some());
+  }
+
+  #[test]
+  fn test_cache_size_limits() {
+    let config = CacheConfig {
+      max_entries: 100,
+      max_size_bytes: 50, // Очень маленький лимит
+      ttl: Duration::from_secs(10),
+      cleanup_interval: Duration::from_secs(5),
+      eviction_policy: EvictionPolicy::LRU,
+    };
+
+    let mut cache = LruCache::new(config);
+
+    // Добавляем строки по 20 байт
+    cache.put("key1".to_string(), "x".repeat(20));
+    cache.put("key2".to_string(), "y".repeat(20));
+
+    assert_eq!(cache.len(), 2);
+
+    // Добавляем третью строку - должна вытеснить первую
+    cache.put("key3".to_string(), "z".repeat(20));
+
+    assert_eq!(cache.len(), 2);
+    assert!(cache.get(&"key1".to_string()).is_none());
+    assert!(cache.get(&"key2".to_string()).is_some());
+    assert!(cache.get(&"key3".to_string()).is_some());
+
+    // Проверяем что размер не превышает лимит
+    let stats = cache.stats();
+    assert!(stats.size_bytes <= 50);
+  }
+
+  #[test]
+  fn test_ttl_expiration() {
+    let config = CacheConfig {
+      max_entries: 10,
+      max_size_bytes: 1000,
+      ttl: Duration::from_millis(10), // Очень короткий TTL
+      cleanup_interval: Duration::from_secs(5),
+      eviction_policy: EvictionPolicy::LRU,
+    };
+
+    let mut cache = LruCache::new(config);
+
+    cache.put("key1".to_string(), "value1".to_string());
+    assert!(cache.get(&"key1".to_string()).is_some());
+
+    // Ждем истечения TTL
+    std::thread::sleep(Duration::from_millis(15));
+
+    // Элемент должен быть просрочен и удален при доступе
+    assert!(cache.get(&"key1".to_string()).is_none());
+
+    // Проверяем статистику
+    let stats = cache.stats();
+    assert!(stats.expired_removals > 0);
+  }
+
+  #[tokio::test]
+  async fn test_memory_cache_concurrent_access() {
+    let config = CacheConfig::default();
+    let cache = Arc::new(MemoryCache::new(config));
+
+    let mut handles = vec![];
+
+    // Запускаем множественные операции одновременно
+    for i in 0..10 {
+      let cache_clone = cache.clone();
+      let handle = tokio::spawn(async move {
+        let key = format!("key{}", i);
+        let value = format!("value{}", i);
+
+        // Добавляем
+        cache_clone.put(key.clone(), value.clone()).await;
+
+        // Читаем
+        let result = cache_clone.get(&key).await;
+        assert_eq!(result, Some(value));
+
+        // Удаляем
+        let removed = cache_clone.remove(&key).await;
+        assert_eq!(removed, Some(format!("value{}", i)));
+      });
+      handles.push(handle);
+    }
+
+    // Ждем завершения всех операций
+    for handle in handles {
+      handle.await.unwrap();
+    }
+
+    // Проверяем что кэш пуст
+    assert!(cache.is_empty().await);
+  }
+
+  #[test]
+  fn test_cache_config_validation() {
+    let config = CacheConfig::default();
+
+    // Проверяем разумные значения по умолчанию
+    assert!(config.max_entries > 0);
+    assert!(config.max_size_bytes > 0);
+    assert!(config.ttl > Duration::from_secs(0));
+    assert!(config.cleanup_interval > Duration::from_secs(0));
+    assert!(matches!(config.eviction_policy, EvictionPolicy::LRU));
+
+    // Проверяем что можно создать кэш с конфигурацией
+    let cache = LruCache::<String, String>::new(config);
+    assert!(cache.is_empty());
+  }
+
+  #[test]
+  fn test_cacheable_implementations() {
+    // Vec<u8>
+    let vec_data = vec![1, 2, 3, 4, 5];
+    assert_eq!(vec_data.size(), 5);
+
+    // String
+    let string_data = "hello world".to_string();
+    assert_eq!(string_data.size(), 11);
+
+    // Arc<T>
+    let arc_data = Arc::new(42u32);
+    assert_eq!(arc_data.size(), std::mem::size_of::<u32>());
+  }
+
+  #[tokio::test]
+  async fn test_cache_cleanup_expired() {
+    let config = CacheConfig {
+      max_entries: 10,
+      max_size_bytes: 1000,
+      ttl: Duration::from_millis(50),
+      cleanup_interval: Duration::from_secs(5),
+      eviction_policy: EvictionPolicy::LRU,
+    };
+
+    let mut cache = LruCache::new(config);
+
+    // Добавляем несколько элементов
+    cache.put("key1".to_string(), "value1".to_string());
+    cache.put("key2".to_string(), "value2".to_string());
+    cache.put("key3".to_string(), "value3".to_string());
+
+    assert_eq!(cache.len(), 3);
+
+    // Ждем истечения TTL
+    tokio::time::sleep(Duration::from_millis(60)).await;
+
+    // Вручную запускаем очистку
+    cache.cleanup_expired();
+
+    // Все элементы должны быть удалены
+    assert_eq!(cache.len(), 0);
+    assert!(cache.is_empty());
+
+    let stats = cache.stats();
+    assert_eq!(stats.expired_removals, 3);
+  }
+
+  #[test]
+  fn test_cache_stats_calculation() {
+    let config = CacheConfig::default();
+    let mut cache = LruCache::new(config);
+
+    // Начальная статистика
+    let stats = cache.stats();
+    assert_eq!(stats.hits, 0);
+    assert_eq!(stats.misses, 0);
+    assert_eq!(stats.hit_rate, 0.0);
+
+    // Добавляем элемент
+    cache.put("key1".to_string(), "value1".to_string());
+
+    // Miss - элемента не было
+    cache.get(&"nonexistent".to_string());
+    let stats = cache.stats();
+    assert_eq!(stats.hits, 0);
+    assert_eq!(stats.misses, 1);
+    assert_eq!(stats.hit_rate, 0.0);
+
+    // Hit - элемент есть
+    cache.get(&"key1".to_string());
+    let stats = cache.stats();
+    assert_eq!(stats.hits, 1);
+    assert_eq!(stats.misses, 1);
+    assert_eq!(stats.hit_rate, 0.5);
+
+    // Еще один hit
+    cache.get(&"key1".to_string());
+    let stats = cache.stats();
+    assert_eq!(stats.hits, 2);
+    assert_eq!(stats.misses, 1);
+    assert!((stats.hit_rate - 2.0 / 3.0).abs() < 0.001);
+  }
+
+  #[test]
+  fn test_random_eviction_policy() {
+    let config = CacheConfig {
+      max_entries: 2,
+      max_size_bytes: 1000,
+      ttl: Duration::from_secs(10),
+      cleanup_interval: Duration::from_secs(5),
+      eviction_policy: EvictionPolicy::Random,
+    };
+
+    let mut cache = LruCache::new(config);
+
+    cache.put("key1".to_string(), "value1".to_string());
+    cache.put("key2".to_string(), "value2".to_string());
+
+    assert_eq!(cache.len(), 2);
+
+    // Добавляем третий элемент - один из первых двух должен быть вытеснен случайно
+    cache.put("key3".to_string(), "value3".to_string());
+
+    assert_eq!(cache.len(), 2);
+    assert!(cache.get(&"key3".to_string()).is_some()); // Новый элемент должен быть
+
+    // Один из key1 или key2 должен быть удален
+    let key1_exists = cache.get(&"key1".to_string()).is_some();
+    let key2_exists = cache.get(&"key2".to_string()).is_some();
+    assert!(key1_exists ^ key2_exists); // Только один из них должен существовать
+
+    let stats = cache.stats();
+    assert!(stats.evictions > 0);
+  }
+
+  #[tokio::test]
+  async fn test_cache_manager_get_cache() {
+    let manager = CacheManager::new();
+
+    let config = CacheConfig::default();
+    let cache: MemoryCache<String, String> = MemoryCache::new(config);
+
+    manager.add_cache("string_cache".to_string(), cache).await;
+
+    // Получаем кэш обратно
+    let retrieved_cache: Option<MemoryCache<String, String>> =
+      manager.get_cache("string_cache").await;
+
+    assert!(retrieved_cache.is_some());
+
+    let cache = retrieved_cache.unwrap();
+
+    // Тестируем что он работает
+    cache.put("test".to_string(), "value".to_string()).await;
+    let value = cache.get(&"test".to_string()).await;
+    assert_eq!(value, Some("value".to_string()));
+
+    // Тестируем получение несуществующего кэша
+    let nonexistent: Option<MemoryCache<String, String>> = manager.get_cache("nonexistent").await;
+    assert!(nonexistent.is_none());
+  }
+
+  #[test]
+  fn test_cache_clear() {
+    let config = CacheConfig::default();
+    let mut cache = LruCache::new(config);
+
+    // Добавляем элементы
+    cache.put("key1".to_string(), "value1".to_string());
+    cache.put("key2".to_string(), "value2".to_string());
+    cache.put("key3".to_string(), "value3".to_string());
+
+    assert_eq!(cache.len(), 3);
+    assert!(!cache.is_empty());
+
+    // Очищаем кэш
+    cache.clear();
+
+    assert_eq!(cache.len(), 0);
+    assert!(cache.is_empty());
+
+    // Проверяем что статистика размера сброшена
+    let stats = cache.stats();
+    assert_eq!(stats.entries, 0);
+    assert_eq!(stats.size_bytes, 0);
+
+    // Проверяем что элементы действительно удалены
+    assert!(cache.get(&"key1".to_string()).is_none());
+    assert!(cache.get(&"key2".to_string()).is_none());
+    assert!(cache.get(&"key3".to_string()).is_none());
+  }
+
+  #[test]
+  fn test_cache_remove() {
+    let config = CacheConfig::default();
+    let mut cache = LruCache::new(config);
+
+    // Добавляем элементы
+    cache.put("key1".to_string(), "value1".to_string());
+    cache.put("key2".to_string(), "value2".to_string());
+
+    assert_eq!(cache.len(), 2);
+
+    // Удаляем существующий элемент
+    let removed = cache.remove(&"key1".to_string());
+    assert_eq!(removed, Some("value1".to_string()));
+    assert_eq!(cache.len(), 1);
+    assert!(cache.get(&"key1".to_string()).is_none());
+
+    // Удаляем несуществующий элемент
+    let removed = cache.remove(&"nonexistent".to_string());
+    assert!(removed.is_none());
+    assert_eq!(cache.len(), 1);
+
+    // Проверяем что второй элемент остался
+    assert!(cache.get(&"key2".to_string()).is_some());
+  }
 }

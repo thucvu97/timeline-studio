@@ -21,15 +21,7 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     exclude: [
       "e2e/**/*", 
-      "node_modules/**/*",
-      // Временно исключаем проблемные тесты с утечками памяти
-      // TODO: Исправить моки и утечки памяти в этих тестах
-      "src/features/browser/__tests__/adapters/use-effects-adapter.test.tsx",
-      "src/features/browser/__tests__/adapters/use-filters-adapter.test.tsx",
-      "src/features/browser/__tests__/adapters/use-style-templates-adapter.test.tsx",
-      "src/features/browser/__tests__/adapters/use-subtitles-adapter.test.tsx",
-      "src/features/browser/__tests__/adapters/use-templates-adapter.test.tsx",
-      "src/features/browser/__tests__/adapters/use-transitions-adapter.test.tsx"
+      "node_modules/**/*"
     ],
     testTimeout: 30000,
     environmentOptions: {
