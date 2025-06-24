@@ -219,9 +219,8 @@ impl Drop for PooledBuffer {
       // Возвращаем блок в pool асинхронно
       let pool = self.pool.clone();
       tokio::spawn(async move {
-        if let Ok(mut pool_guard) = pool.lock().await {
-          let _ = pool_guard.release(block);
-        }
+        let mut pool_guard = pool.lock().await;
+        let _ = pool_guard.release(block);
       });
     }
   }

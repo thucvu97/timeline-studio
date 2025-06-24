@@ -109,7 +109,7 @@ describe("PrerenderControls", () => {
     it("should render prerender controls button", () => {
       render(<PrerenderControls {...defaultProps} />)
 
-      const button = screen.getByRole("button", { name: /sparkles/i })
+      const button = screen.getByRole("button", { name: /настройки пререндера/i })
       expect(button).toBeInTheDocument()
       expect(button).toHaveClass("text-primary") // enabled state
     })
@@ -144,7 +144,7 @@ describe("PrerenderControls", () => {
 
       render(<PrerenderControls {...defaultProps} />)
 
-      const button = screen.getByRole("button", { name: /sparkles/i })
+      const button = screen.getByRole("button", { name: /настройки пререндера/i })
       expect(button).not.toHaveClass("text-primary")
     })
   })
@@ -153,7 +153,7 @@ describe("PrerenderControls", () => {
     beforeEach(async () => {
       render(<PrerenderControls {...defaultProps} />)
 
-      const button = screen.getByRole("button", { name: /sparkles/i })
+      const button = screen.getByRole("button", { name: /настройки пререндера/i })
       fireEvent.click(button)
 
       await waitFor(() => {
@@ -188,7 +188,7 @@ describe("PrerenderControls", () => {
     it("should hide advanced settings when disabled", async () => {
       render(<PrerenderControls {...defaultProps} />)
 
-      const button = screen.getByRole("button", { name: /sparkles/i })
+      const button = screen.getByRole("button", { name: /настройки пререндера/i })
       fireEvent.click(button)
 
       await waitFor(() => {
@@ -204,7 +204,7 @@ describe("PrerenderControls", () => {
     beforeEach(async () => {
       render(<PrerenderControls {...defaultProps} />)
 
-      const button = screen.getByRole("button", { name: /sparkles/i })
+      const button = screen.getByRole("button", { name: /настройки пререндера/i })
       fireEvent.click(button)
 
       await waitFor(() => {
@@ -264,7 +264,7 @@ describe("PrerenderControls", () => {
     beforeEach(async () => {
       render(<PrerenderControls {...defaultProps} />)
 
-      const button = screen.getByRole("button", { name: /sparkles/i })
+      const button = screen.getByRole("button", { name: /настройки пререндера/i })
       fireEvent.click(button)
 
       await waitFor(() => {
@@ -312,7 +312,7 @@ describe("PrerenderControls", () => {
 
       render(<PrerenderControls {...defaultProps} />)
 
-      const buttons = screen.getAllByRole("button", { name: /sparkles/i })
+      const buttons = screen.getAllByRole("button", { name: /настройки пререндера/i })
       const button = buttons[0] // Take the first one
       fireEvent.click(button)
 
@@ -354,7 +354,7 @@ describe("PrerenderControls", () => {
 
       render(<PrerenderControls {...defaultProps} />)
 
-      const buttons = screen.getAllByRole("button", { name: /sparkles/i })
+      const buttons = screen.getAllByRole("button", { name: /настройки пререндера/i })
       const button = buttons[0] // Take the first one
       fireEvent.click(button)
 
@@ -381,7 +381,7 @@ describe("PrerenderControls", () => {
 
       render(<PrerenderControls {...defaultProps} />)
 
-      const button = screen.getByRole("button", { name: /sparkles/i })
+      const button = screen.getByRole("button", { name: /настройки пререндера/i })
       fireEvent.click(button)
 
       await waitFor(() => {
@@ -394,7 +394,7 @@ describe("PrerenderControls", () => {
     it("should not show result info when no result available", async () => {
       render(<PrerenderControls {...defaultProps} />)
 
-      const button = screen.getByRole("button", { name: /sparkles/i })
+      const button = screen.getByRole("button", { name: /настройки пререндера/i })
       fireEvent.click(button)
 
       await waitFor(() => {
@@ -413,7 +413,7 @@ describe("PrerenderControls", () => {
 
       render(<PrerenderControls {...defaultProps} />)
 
-      expect(screen.getByRole("button", { name: /sparkles/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /настройки пререндера/i })).toBeInTheDocument()
     })
 
     it("should handle zero cache size", () => {
@@ -445,7 +445,7 @@ describe("PrerenderControls", () => {
 
       render(<PrerenderControls {...edgeProps} />)
 
-      const buttons = screen.getAllByRole("button", { name: /sparkles/i })
+      const buttons = screen.getAllByRole("button", { name: /настройки пререндера/i })
       const button = buttons[0] // Take the first one
       fireEvent.click(button)
 
@@ -479,7 +479,7 @@ describe("PrerenderControls", () => {
 
       render(<PrerenderControls {...defaultProps} />)
 
-      const button = screen.getByRole("button", { name: /sparkles/i })
+      const button = screen.getByRole("button", { name: /настройки пререндера/i })
       fireEvent.click(button)
 
       await waitFor(() => {
@@ -513,7 +513,7 @@ describe("PrerenderControls", () => {
 
       render(<PrerenderControls {...defaultProps} />)
 
-      const buttons = screen.getAllByRole("button", { name: /sparkles/i })
+      const buttons = screen.getAllByRole("button", { name: /настройки пререндера/i })
       const button = buttons[0] // Take the first one
       fireEvent.click(button)
 
@@ -532,7 +532,7 @@ describe("PrerenderControls", () => {
 
       render(<PrerenderControls {...defaultProps} />)
 
-      const buttons = screen.getAllByRole("button", { name: /sparkles/i })
+      const buttons = screen.getAllByRole("button", { name: /настройки пререндера/i })
       const button = buttons[0] // Take the first one
       fireEvent.click(button)
 
@@ -554,7 +554,7 @@ describe("PrerenderControls", () => {
       render(<PrerenderControls {...defaultProps} onSettingsChange={onSettingsChange} />)
 
       // Component should render without TypeScript errors
-      expect(screen.getByRole("button", { name: /sparkles/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /настройки пререндера/i })).toBeInTheDocument()
     })
   })
 })

@@ -92,6 +92,13 @@ tracing = "0.1"
 tracing-opentelemetry = "0.27"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 tonic = "0.12"
+# WebAssembly runtime dependencies
+wasmtime = "28.0"
+wasmtime-wasi = "28.0"
+wasm-bindgen = "0.2"
+# Additional security dependencies
+cap-std = "3.4"
+sha2 = "0.10"
 
 [features]
 # by default Tauri runs in production mode

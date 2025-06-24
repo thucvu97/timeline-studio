@@ -1,7 +1,6 @@
 //! Health checks для мониторинга состояния системы
 
-use crate::core::{EventBus, PluginManager, ServiceContainer};
-use crate::video_compiler::error::{Result, VideoCompilerError};
+use crate::core::{EventBus, PluginManager};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -226,7 +225,8 @@ impl HealthCheck for MemoryHealthCheck {
       .with_data(
         "usage_percent",
         serde_json::Value::Number(
-          serde_json::Number::from_f64(usage_percent).unwrap_or_else(|| serde_json::Number::from(0))
+          serde_json::Number::from_f64(usage_percent)
+            .unwrap_or_else(|| serde_json::Number::from(0)),
         ),
       )
   }
@@ -274,14 +274,8 @@ impl HealthCheck for PluginHealthCheck {
     };
 
     result
-      .with_data(
-        "total_plugins",
-        serde_json::json!(total_count),
-      )
-      .with_data(
-        "active_plugins",
-        serde_json::json!(active_count),
-      )
+      .with_data("total_plugins", serde_json::json!(total_count))
+      .with_data("active_plugins", serde_json::json!(active_count))
   }
 }
 

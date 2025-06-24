@@ -6,10 +6,7 @@ use opentelemetry::{
   metrics::{Counter as OtelCounter, Histogram as OtelHistogram, Meter, UpDownCounter},
   KeyValue,
 };
-use opentelemetry_sdk::{
-  metrics::{self, PeriodicReader, Temporality},
-  Resource,
-};
+use opentelemetry_sdk::Resource;
 use opentelemetry_semantic_conventions::resource::{SERVICE_NAME, SERVICE_VERSION};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -159,51 +156,39 @@ impl MetricsCollector {
       KeyValue::new("deployment.environment", config.environment.clone()),
     ]);
 
-    // Создаем meter provider
-    let provider = match config.exporter.exporter_type {
+    // Создаем meter в зависимости от типа экспортера
+    match config.exporter.exporter_type {
       ExporterType::Console => {
         // Console metrics for development - use noop
-        return Ok(Self {
+        Ok(Self {
           meter: global::meter("noop"),
           config: config.clone(),
           registered_metrics: Arc::new(RwLock::new(HashMap::new())),
-        });
+        })
       }
       ExporterType::Otlp => {
         // OTLP for production - temporarily noop
-        return Ok(Self {
+        Ok(Self {
           meter: global::meter("otlp-noop"),
           config: config.clone(),
           registered_metrics: Arc::new(RwLock::new(HashMap::new())),
-        });
+        })
       }
       ExporterType::Prometheus => {
         // TODO: Реализовать Prometheus экспортер
-        return Err(VideoCompilerError::NotImplemented(
+        Err(VideoCompilerError::NotImplemented(
           "Prometheus exporter not implemented yet".to_string(),
-        ));
+        ))
       }
       _ => {
         // Для остальных типов используем noop
-        return Ok(Self {
+        Ok(Self {
           meter: global::meter("noop"),
           config: config.clone(),
           registered_metrics: Arc::new(RwLock::new(HashMap::new())),
-        });
+        })
       }
-    };
-
-    // Устанавливаем глобальный provider
-    let _ = global::set_meter_provider(provider);
-
-    // Получаем meter
-    let meter = global::meter("timeline-studio");
-
-    Ok(Self {
-      meter,
-      config: config.clone(),
-      registered_metrics: Arc::new(RwLock::new(HashMap::new())),
-    })
+    }
   }
 
   /// Создать счетчик
@@ -212,9 +197,9 @@ impl MetricsCollector {
 
     let counter = self
       .meter
-      .u64_counter(name)
-      .with_description(description)
-      .init();
+      .u64_counter(name.to_string())
+      .with_description(description.to_string())
+      .build();
 
     Ok(Counter::new(counter))
   }
@@ -225,9 +210,9 @@ impl MetricsCollector {
 
     let gauge = self
       .meter
-      .i64_up_down_counter(name)
-      .with_description(description)
-      .init();
+      .i64_up_down_counter(name.to_string())
+      .with_description(description.to_string())
+      .build();
 
     Ok(Gauge::new(gauge))
   }
@@ -238,9 +223,9 @@ impl MetricsCollector {
 
     let histogram = self
       .meter
-      .f64_histogram(name)
-      .with_description(description)
-      .init();
+      .f64_histogram(name.to_string())
+      .with_description(description.to_string())
+      .build();
 
     Ok(Histogram::new(histogram))
   }

@@ -57,7 +57,11 @@ const StyleTemplatePreviewWrapper: React.FC<PreviewComponentProps<StyleTemplate>
           {template.thumbnail ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={template.thumbnail} alt={template.name[currentLanguage]} className="w-full h-full object-cover" />
+              <img
+                src={template.thumbnail}
+                alt={template.name[currentLanguage]}
+                className="w-full h-full object-cover"
+              />
             </>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">

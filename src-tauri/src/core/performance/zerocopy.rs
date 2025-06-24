@@ -7,7 +7,6 @@ use crate::video_compiler::error::{Result, VideoCompilerError};
 use std::alloc::{self, Layout};
 use std::collections::HashMap;
 use std::marker::PhantomData;
-use std::ops::{Deref, DerefMut};
 use std::ptr::NonNull;
 use std::slice;
 use std::sync::Arc;

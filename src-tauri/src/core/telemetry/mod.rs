@@ -6,13 +6,10 @@ pub mod metrics;
 pub mod middleware;
 pub mod tracer;
 
-pub use config::{ExporterConfig, TelemetryConfig};
-pub use health::{
-  HealthCheck, HealthCheckManager, HealthCheckResult, HealthCheckSummary, HealthStatus,
-};
-pub use metrics::{Counter, Gauge, Histogram, MetricsCollector};
-pub use middleware::{MetricsMiddleware, TracingMiddleware};
-pub use tracer::{SpanBuilder, TraceContext, Tracer};
+pub use config::TelemetryConfig;
+pub use health::HealthCheckManager;
+pub use metrics::MetricsCollector;
+pub use tracer::Tracer;
 
 use crate::video_compiler::error::Result;
 use std::sync::Arc;

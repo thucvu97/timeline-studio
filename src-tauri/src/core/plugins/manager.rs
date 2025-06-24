@@ -14,7 +14,6 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use uuid::Uuid;
 
 /// Handle для управления загруженным плагином
 pub struct PluginHandle {
@@ -85,7 +84,7 @@ impl PluginManager {
     let tracer = self.tracer.clone();
     let span = tracer.as_ref().map(|t| {
       t.span("plugin.load")
-        .with_attribute("plugin.id", plugin_id)
+        .with_attribute("plugin.id", plugin_id.to_string())
         .with_attribute("permissions.ui_access", permissions.ui_access)
         .with_attribute("permissions.process_spawn", permissions.process_spawn)
         .start()
@@ -155,13 +154,9 @@ impl PluginManager {
     if let Some(metrics) = &self.metrics {
       let plugin_id_str = plugin_id.to_string();
       let plugin_type_str = plugin_type.as_str().to_string();
-      (*metrics)
-        .plugin_loads_total
-        .with_label("plugin_id", plugin_id_str)
-        .with_label("plugin_type", plugin_type_str)
-        .inc();
+      metrics.plugin_loads_total.inc();
 
-      (*metrics).plugin_active_count.add(1);
+      metrics.plugin_active_count.add(1);
     }
 
     // Публикуем событие
@@ -204,7 +199,7 @@ impl PluginManager {
 
     // Обновляем метрики
     if let Some(metrics) = &self.metrics {
-      (*metrics).plugin_active_count.add(-1);
+      metrics.plugin_active_count.add(-1);
     }
 
     // Публикуем событие
@@ -261,19 +256,12 @@ impl PluginManager {
       let duration = start.elapsed();
       let plugin_id_str = plugin_id.to_string();
       let command_name_str = command_name.as_str().to_string();
-      (*metrics)
+      metrics
         .plugin_command_duration
-        .with_label("plugin_id", plugin_id_str.clone())
-        .with_label("command", command_name_str)
-        .with_label("success", if result.is_ok() { "true" } else { "false" })
         .observe(duration.as_secs_f64());
 
       if result.is_err() {
-        (*metrics)
-          .plugin_errors_total
-          .with_label("plugin_id", plugin_id_str)
-          .with_label("error_type", "command_failed")
-          .inc();
+        metrics.plugin_errors_total.inc();
       }
     }
 
@@ -549,7 +537,7 @@ mod tests {
     let factory = Box::new(|| Box::new(TestPlugin::new()) as Box<dyn Plugin>);
 
     registry
-      .register(super::loader::PluginRegistration { metadata, factory })
+      .register(crate::core::plugins::loader::PluginRegistration { metadata, factory })
       .await
       .unwrap();
 

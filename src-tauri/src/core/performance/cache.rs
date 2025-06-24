@@ -1,6 +1,5 @@
 //! Система кэширования для оптимизации производительности
 
-use crate::video_compiler::error::{Result, VideoCompilerError};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, LinkedList};
 use std::hash::Hash;
@@ -165,22 +164,31 @@ where
 
   /// Получить элемент из кэша
   pub fn get(&mut self, key: &K) -> Option<V> {
-    if let Some(entry) = self.entries.get_mut(key) {
+    // Сначала проверяем наличие и срок действия
+    let (exists, is_expired, value) = if let Some(entry) = self.entries.get_mut(key) {
       if entry.is_expired(self.config.ttl) {
-        // Элемент истек
-        self.remove_key(key);
-        self.stats.misses += 1;
-        self.stats.expired_removals += 1;
-        None
+        (true, true, None)
       } else {
-        // Обновляем порядок доступа
-        self.update_access_order(key);
-
-        let value = entry.access().clone();
-        self.stats.hits += 1;
-        self.stats.update_hit_rate();
-        Some(value)
+        let val = entry.access().clone();
+        (true, false, Some(val))
       }
+    } else {
+      (false, false, None)
+    };
+
+    // Теперь выполняем действия без активных заимствований
+    if exists && is_expired {
+      // Элемент истек
+      self.remove_key(key);
+      self.stats.misses += 1;
+      self.stats.expired_removals += 1;
+      None
+    } else if let Some(val) = value {
+      // Обновляем порядок доступа
+      self.update_access_order(key);
+      self.stats.hits += 1;
+      self.stats.update_hit_rate();
+      Some(val)
     } else {
       self.stats.misses += 1;
       self.stats.update_hit_rate();

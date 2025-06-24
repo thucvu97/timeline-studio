@@ -1,6 +1,6 @@
 //! Система sandboxing для изоляции плагинов
 
-use super::permissions::{PluginPermissions, SecurityLevel};
+use super::permissions::{FileSystemPermissions, PluginPermissions, SecurityLevel};
 use crate::video_compiler::error::{Result, VideoCompilerError};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
@@ -34,7 +34,7 @@ impl ResourceLimits {
   /// Создать лимиты по умолчанию для уровня безопасности
   pub fn for_security_level(level: SecurityLevel) -> Self {
     match level {
-      SecurityLevel::Unrestricted => Self {
+      SecurityLevel::Full => Self {
         max_memory: 1024 * 1024 * 1024,               // 1GB
         max_execution_time: Duration::from_secs(300), // 5 минут
         max_concurrent_operations: 100,
@@ -42,7 +42,7 @@ impl ResourceLimits {
         max_api_calls_per_second: 1000,
         max_network_connections: 100,
       },
-      SecurityLevel::Trusted => Self {
+      SecurityLevel::Extended => Self {
         max_memory: 256 * 1024 * 1024,               // 256MB
         max_execution_time: Duration::from_secs(60), // 1 минута
         max_concurrent_operations: 50,
@@ -50,7 +50,7 @@ impl ResourceLimits {
         max_api_calls_per_second: 100,
         max_network_connections: 10,
       },
-      SecurityLevel::Sandboxed => Self {
+      SecurityLevel::Standard => Self {
         max_memory: 64 * 1024 * 1024,                // 64MB
         max_execution_time: Duration::from_secs(30), // 30 секунд
         max_concurrent_operations: 10,
@@ -58,7 +58,7 @@ impl ResourceLimits {
         max_api_calls_per_second: 50,
         max_network_connections: 5,
       },
-      SecurityLevel::Restricted => Self {
+      SecurityLevel::Minimal => Self {
         max_memory: 16 * 1024 * 1024,                // 16MB
         max_execution_time: Duration::from_secs(10), // 10 секунд
         max_concurrent_operations: 5,
@@ -71,7 +71,7 @@ impl ResourceLimits {
 }
 
 /// Статистика использования ресурсов
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct ResourceUsage {
   /// Текущее использование памяти
   pub memory_used: AtomicU64,
@@ -122,6 +122,12 @@ impl ResourceUsage {
   }
 }
 
+impl Default for ResourceUsage {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 /// Sandbox для изоляции плагина
 pub struct PluginSandbox {
   plugin_id: String,
@@ -133,8 +139,8 @@ pub struct PluginSandbox {
   /// Whitelist доменов для сетевых запросов
   allowed_domains: Vec<String>,
 
-  /// Whitelist путей для файловых операций
-  allowed_paths: Vec<std::path::PathBuf>,
+  /// Файловые разрешения
+  file_permissions: FileSystemPermissions,
 }
 
 impl PluginSandbox {
@@ -145,9 +151,9 @@ impl PluginSandbox {
     let operation_semaphore = Arc::new(Semaphore::new(limits.max_concurrent_operations));
     let network_semaphore = Arc::new(Semaphore::new(limits.max_network_connections));
 
-    // Извлекаем разрешенные домены и пути из permissions
-    let allowed_domains = permissions.network.allowed_domains.clone();
-    let allowed_paths = permissions.file_system.allowed_paths.clone();
+    // Извлекаем разрешенные домены и файловые разрешения из permissions
+    let allowed_domains = permissions.network.allowed_hosts.clone();
+    let file_permissions = permissions.file_system.clone();
 
     Self {
       plugin_id,
@@ -156,7 +162,7 @@ impl PluginSandbox {
       operation_semaphore,
       network_semaphore,
       allowed_domains,
-      allowed_paths,
+      file_permissions,
     }
   }
 
@@ -207,23 +213,25 @@ impl PluginSandbox {
   }
 
   /// Проверить разрешение на доступ к файлу
-  pub fn check_file_access(&self, path: &std::path::Path) -> Result<()> {
-    // Если нет ограничений на файлы, разрешаем все
-    if self.allowed_paths.is_empty() {
-      return Ok(());
-    }
-
-    // Проверяем что путь находится в whitelist
-    for allowed_path in &self.allowed_paths {
-      if path.starts_with(allowed_path) {
-        return Ok(());
+  pub fn check_file_access(&self, path: &std::path::Path, is_write: bool) -> Result<()> {
+    let path_buf = path.to_path_buf();
+    if is_write {
+      if self.file_permissions.can_write(&path_buf) {
+        Ok(())
+      } else {
+        Err(VideoCompilerError::SecurityError(format!(
+          "Plugin '{}' attempted to write to unauthorized path: {:?}",
+          self.plugin_id, path
+        )))
       }
+    } else if self.file_permissions.can_read(&path_buf) {
+      Ok(())
+    } else {
+      Err(VideoCompilerError::SecurityError(format!(
+        "Plugin '{}' attempted to read from unauthorized path: {:?}",
+        self.plugin_id, path
+      )))
     }
-
-    Err(VideoCompilerError::SecurityError(format!(
-      "Plugin '{}' attempted to access unauthorized path: {:?}",
-      self.plugin_id, path
-    )))
   }
 
   /// Проверить разрешение на сетевой запрос

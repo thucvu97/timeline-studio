@@ -1,7 +1,6 @@
 //! Middleware для интеграции телеметрии
 
 use axum::{
-  body::Body,
   extract::{Request, State},
   http::{HeaderMap, StatusCode},
   middleware::Next,
@@ -71,7 +70,7 @@ impl MetricsMiddleware {
     let path = normalize_path(request.uri().path());
 
     // Увеличиваем счетчик активных запросов
-    (*metrics).http_active_requests.add(1);
+    metrics.http_active_requests.add(1);
 
     // Получаем размер запроса
     if let Some(content_length) = request
@@ -80,11 +79,7 @@ impl MetricsMiddleware {
       .and_then(|v| v.to_str().ok())
       .and_then(|v| v.parse::<f64>().ok())
     {
-      (*metrics)
-        .http_request_size
-        .with_label("method", method.clone())
-        .with_label("path", path.clone())
-        .observe(content_length);
+      metrics.http_request_size.observe(content_length);
     }
 
     // Выполняем запрос
@@ -93,22 +88,14 @@ impl MetricsMiddleware {
     let duration = start.elapsed();
 
     // Уменьшаем счетчик активных запросов
-    (*metrics).http_active_requests.add(-1);
+    metrics.http_active_requests.add(-1);
 
     // Записываем метрики
     let status_str = status.as_u16().to_string();
-    (*metrics)
-      .http_requests_total
-      .with_label("method", method.clone())
-      .with_label("path", path.clone())
-      .with_label("status", status_str.clone())
-      .inc();
+    metrics.http_requests_total.inc();
 
-    (*metrics)
+    metrics
       .http_request_duration
-      .with_label("method", method)
-      .with_label("path", path)
-      .with_label("status", status_str)
       .observe(duration.as_secs_f64());
 
     // Получаем размер ответа
@@ -118,10 +105,7 @@ impl MetricsMiddleware {
       .and_then(|v| v.to_str().ok())
       .and_then(|v| v.parse::<f64>().ok())
     {
-      (*metrics)
-        .http_response_size
-        .with_label("status", status.as_u16().to_string())
-        .observe(content_length);
+      metrics.http_response_size.observe(content_length);
     }
 
     response
@@ -179,7 +163,10 @@ pub async fn health_check_single(
     Some(result) => {
       let status_code = axum::http::StatusCode::from_u16(result.status.http_status_code())
         .unwrap_or(axum::http::StatusCode::INTERNAL_SERVER_ERROR);
-      (status_code, axum::Json(result))
+      (
+        status_code,
+        axum::Json(serde_json::to_value(result).unwrap()),
+      )
     }
     None => (
       axum::http::StatusCode::NOT_FOUND,

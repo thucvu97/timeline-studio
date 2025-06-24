@@ -171,7 +171,9 @@ impl WorkerPool {
           stats.failed_tasks += 1;
         }
         return TaskResult {
-          result: Err(VideoCompilerError::InternalError("Failed to acquire semaphore permit".to_string())),
+          result: Err(VideoCompilerError::InternalError(
+            "Failed to acquire semaphore permit".to_string(),
+          )),
           duration: start.elapsed(),
           pool_name: self.name.clone(),
         };
@@ -409,7 +411,7 @@ fn get_system_stats() -> SystemStats {
     cpu_count: num_cpus::get(),
     memory_usage: system.used_memory(),
     total_memory: system.total_memory(),
-    load_average: system.load_average().one,
+    load_average: sysinfo::System::load_average().one,
     thread_count: std::thread::available_parallelism()
       .map(|p| p.get())
       .unwrap_or(1),

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 /// Разрешения плагина
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct PluginPermissions {
   /// Разрешения файловой системы
   pub file_system: FileSystemPermissions,
@@ -20,18 +20,6 @@ pub struct PluginPermissions {
 
   /// Возможность запускать процессы
   pub process_spawn: bool,
-}
-
-impl Default for PluginPermissions {
-  fn default() -> Self {
-    Self {
-      file_system: FileSystemPermissions::default(),
-      network: NetworkPermissions::default(),
-      ui_access: false,
-      system_info: false,
-      process_spawn: false,
-    }
-  }
 }
 
 impl PluginPermissions {
@@ -67,10 +55,23 @@ impl PluginPermissions {
       process_spawn: false,
     }
   }
+
+  /// Определить уровень безопасности на основе текущих разрешений
+  pub fn get_security_level(&self) -> SecurityLevel {
+    if self.file_system.write_all && self.file_system.read_all && self.process_spawn {
+      SecurityLevel::Full
+    } else if self.system_info || self.network.allowed_hosts.len() > 5 {
+      SecurityLevel::Extended
+    } else if !self.file_system.write_paths.is_empty() || !self.network.allowed_hosts.is_empty() {
+      SecurityLevel::Standard
+    } else {
+      SecurityLevel::Minimal
+    }
+  }
 }
 
 /// Разрешения файловой системы
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct FileSystemPermissions {
   /// Пути для чтения
   pub read_paths: Vec<PathBuf>,
@@ -83,17 +84,6 @@ pub struct FileSystemPermissions {
 
   /// Разрешить запись во все пути
   pub write_all: bool,
-}
-
-impl Default for FileSystemPermissions {
-  fn default() -> Self {
-    Self {
-      read_paths: vec![],
-      write_paths: vec![],
-      read_all: false,
-      write_all: false,
-    }
-  }
 }
 
 impl FileSystemPermissions {
@@ -198,9 +188,8 @@ impl NetworkPermissions {
     }
 
     self.allowed_hosts.iter().any(|allowed| {
-      if allowed.starts_with("*.") {
+      if let Some(domain) = allowed.strip_prefix("*.") {
         // Wildcard domain
-        let domain = &allowed[2..];
         host.ends_with(domain)
       } else {
         host == allowed

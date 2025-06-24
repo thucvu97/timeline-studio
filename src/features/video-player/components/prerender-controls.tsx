@@ -116,7 +116,12 @@ export function PrerenderControls({ currentTime, duration, onSettingsChange }: P
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className={`relative ${settings.enabled ? "text-primary" : ""}`}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className={`relative ${settings.enabled ? "text-primary" : ""}`}
+          aria-label="Настройки пререндера"
+        >
           <Sparkles className="h-4 w-4" />
           {isRendering && (
             <span className="absolute -right-1 -top-1 h-2 w-2 animate-pulse rounded-full bg-orange-500" />

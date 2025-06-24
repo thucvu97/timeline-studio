@@ -1,6 +1,6 @@
 import React from "react"
 
-import { useAppSettings, useFavorites } from "@/features/app-state"
+import { useAppSettings } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser/components/preview/media-preview"
 import { parseDuration, parseFileSize } from "@/features/browser/utils"
 import { getFileType } from "@/features/media"

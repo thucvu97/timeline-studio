@@ -1,9 +1,9 @@
 //! Трассировка с OpenTelemetry
 
-use crate::video_compiler::error::{Result, VideoCompilerError};
+use crate::video_compiler::error::Result;
 use opentelemetry::{
   global,
-  trace::{Span, SpanId, SpanKind, Status, TraceContextExt, TraceId},
+  trace::{SpanId, SpanKind, TraceContextExt, TraceId},
   Context as OtelContext, KeyValue,
 };
 use opentelemetry_sdk::{
@@ -15,10 +15,8 @@ use opentelemetry_semantic_conventions::{
   attribute::{HTTP_REQUEST_METHOD, HTTP_RESPONSE_STATUS_CODE, HTTP_ROUTE},
   resource::{SERVICE_NAME, SERVICE_VERSION},
 };
-use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tracing::{info_span, Instrument};
-use tracing_opentelemetry::OpenTelemetrySpanExt;
 
 use super::config::{ExporterType, TelemetryConfig};
 
@@ -86,36 +84,14 @@ impl Tracer {
       KeyValue::new("deployment.environment", config.environment.clone()),
     ]);
 
-    // Создаем tracer provider
-    let provider = match config.exporter.exporter_type {
-      ExporterType::Console => {
-        // Console exporter for development
-        return Ok(Self {
-          tracer: global::tracer("console-noop"),
-          config: config.clone(),
-        });
-      }
-      ExporterType::Otlp => {
-        // OTLP for production - temporarily noop
-        return Ok(Self {
-          tracer: global::tracer("otlp-noop"),
-          config: config.clone(),
-        });
-      }
-      _ => {
-        // Для остальных типов используем noop
-        return Ok(Self {
-          tracer: global::tracer("noop"),
-          config: config.clone(),
-        });
-      }
+    // Создаем tracer в зависимости от типа экспортера
+    let tracer_name = match config.exporter.exporter_type {
+      ExporterType::Console => "console-tracer",
+      ExporterType::Otlp => "otlp-tracer",
+      _ => "noop-tracer",
     };
 
-    // Устанавливаем глобальный provider
-    let _ = global::set_tracer_provider(provider);
-
-    // Получаем tracer
-    let tracer = global::tracer("timeline-studio");
+    let tracer = global::tracer(tracer_name);
 
     Ok(Self {
       tracer,
@@ -154,22 +130,9 @@ impl Tracer {
       let result = f.await;
       let duration = start.elapsed();
 
-      // Добавляем атрибуты
-      let current_span = span.context();
-      current_span
-        .span()
-        .set_attribute(KeyValue::new("duration_ms", duration.as_millis() as i64));
-
-      // Устанавливаем статус
-      match &result {
-        Ok(_) => {
-          current_span.span().set_status(Status::ok());
-        }
-        Err(e) => {
-          current_span.span().record_error(&e);
-          current_span.span().set_status(Status::error(e.to_string()));
-        }
-      }
+      // For now, we'll skip setting attributes and status on the span
+      // due to version conflicts with OpenTelemetry
+      // TODO: Update once OpenTelemetry versions are aligned
 
       result
     }
@@ -237,8 +200,8 @@ impl SpanBuilder {
   /// Добавить HTTP атрибуты
   pub fn with_http_attributes(self, method: &str, route: &str, status: u16) -> Self {
     self
-      .with_attribute(HTTP_REQUEST_METHOD, method)
-      .with_attribute(HTTP_ROUTE, route)
+      .with_attribute(HTTP_REQUEST_METHOD, method.to_string())
+      .with_attribute(HTTP_ROUTE, route.to_string())
       .with_attribute(HTTP_RESPONSE_STATUS_CODE, status as i64)
   }
 
@@ -250,11 +213,9 @@ impl SpanBuilder {
         otel.kind = ?self.kind,
     );
 
-    // Добавляем атрибуты
-    let context = span.context();
-    for attr in self.attributes {
-      context.span().set_attribute(attr);
-    }
+    // For now, we'll skip setting attributes on the span
+    // due to version conflicts with OpenTelemetry
+    // TODO: Update once OpenTelemetry versions are aligned
 
     span
   }
@@ -271,20 +232,9 @@ impl SpanBuilder {
       let result = f.await;
       let duration = start.elapsed();
 
-      let current_span = span.context();
-      current_span
-        .span()
-        .set_attribute(KeyValue::new("duration_ms", duration.as_millis() as i64));
-
-      match &result {
-        Ok(_) => {
-          current_span.span().set_status(Status::ok());
-        }
-        Err(e) => {
-          current_span.span().record_error(&e);
-          current_span.span().set_status(Status::error(e.to_string()));
-        }
-      }
+      // For now, we'll skip setting attributes and status on the span
+      // due to version conflicts with OpenTelemetry
+      // TODO: Update once OpenTelemetry versions are aligned
 
       result
     }
