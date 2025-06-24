@@ -77,9 +77,6 @@ vi.mock("../../services/resource-loaders", () => ({
       timestamp: Date.now(),
     },
   }),
-  loadEffectsLazy: vi.fn(),
-  loadFiltersLazy: vi.fn(),
-  loadTransitionsLazy: vi.fn(),
 }))
 
 // Тестовый компонент для проверки хуков
@@ -91,9 +88,20 @@ function TestComponent() {
 
   React.useEffect(() => {
     if (isInitialized) {
-      setEffects(api.getEffects())
-      setFilters(api.getFilters())
-      setTransitions(api.getTransitions())
+      const updateResources = () => {
+        setEffects(api.getEffects())
+        setFilters(api.getFilters())
+        setTransitions(api.getTransitions())
+      }
+
+      updateResources()
+
+      // Подписываемся на обновления
+      const unsubscribe = api.onResourcesUpdate(() => {
+        updateResources()
+      })
+
+      return unsubscribe
     }
   }, [api, isInitialized])
 
@@ -172,10 +180,12 @@ describe("EffectsProvider", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("initialized")).toHaveTextContent("true")
-    })
+    }, { timeout: 3000 })
 
-    // Проверяем, что ресурсы все равно загружены
-    expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
+    // Ждем загрузки ресурсов с более длительным таймаутом
+    await waitFor(() => {
+      expect(screen.getByTestId("effects-count")).toHaveTextContent("2")
+    }, { timeout: 3000 })
   })
 
   it("должен выбрасывать ошибку при использовании хука вне провайдера", () => {

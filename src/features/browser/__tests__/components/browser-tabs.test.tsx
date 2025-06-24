@@ -2,6 +2,16 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { BrowserTabs } from "../../components/browser-tabs"
+import { EffectsProvider } from "../../providers/effects-provider"
+
+// Мокаем ленивые загрузчики ресурсов
+vi.mock("../../services/resource-loaders", () => ({
+  loadAllResourcesLazy: vi.fn().mockResolvedValue({
+    effects: { success: true, data: [], source: "built-in", timestamp: Date.now() },
+    filters: { success: true, data: [], source: "built-in", timestamp: Date.now() },
+    transitions: { success: true, data: [], source: "built-in", timestamp: Date.now() },
+  }),
+}))
 
 // Мокаем react-i18next
 vi.mock("react-i18next", () => ({
@@ -39,6 +49,10 @@ vi.mock("lucide-react", () => ({
 describe("BrowserTabs", () => {
   const mockOnTabChange = vi.fn()
 
+  const renderWithProvider = (component: React.ReactElement) => {
+    return render(<EffectsProvider>{component}</EffectsProvider>)
+  }
+
   beforeEach(() => {
     vi.clearAllMocks()
     vi.spyOn(console, "log").mockImplementation(() => {})
@@ -49,7 +63,7 @@ describe("BrowserTabs", () => {
   })
 
   it("должен рендерить все вкладки", () => {
-    render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    renderWithProvider(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
     expect(screen.getByTestId("media-tab")).toBeInTheDocument()
     expect(screen.getByTestId("tab-trigger-music")).toBeInTheDocument()
@@ -62,7 +76,7 @@ describe("BrowserTabs", () => {
   })
 
   it("должен отображать правильные иконки для каждой вкладки", () => {
-    render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    renderWithProvider(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
     expect(screen.getByTestId("media-tab")).toContainElement(screen.getByTestId("icon-clapperboard"))
     expect(screen.getByTestId("tab-trigger-music")).toContainElement(screen.getByTestId("icon-music"))
@@ -75,7 +89,7 @@ describe("BrowserTabs", () => {
   })
 
   it("должен отображать правильные метки для каждой вкладки", () => {
-    render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    renderWithProvider(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
     expect(screen.getByTestId("media-tab")).toHaveTextContent("browser.tabs.media")
     expect(screen.getByTestId("tab-trigger-music")).toHaveTextContent("browser.tabs.music")
@@ -88,7 +102,7 @@ describe("BrowserTabs", () => {
   })
 
   it("должен устанавливать правильное состояние для активной вкладки", () => {
-    render(<BrowserTabs activeTab="music" onTabChange={mockOnTabChange} />)
+    renderWithProvider(<BrowserTabs activeTab="music" onTabChange={mockOnTabChange} />)
 
     expect(screen.getByTestId("media-tab")).toHaveAttribute("data-state", "inactive")
     expect(screen.getByTestId("tab-trigger-music")).toHaveAttribute("data-state", "active")
@@ -96,7 +110,7 @@ describe("BrowserTabs", () => {
   })
 
   it("должен вызывать onTabChange при клике на вкладку", () => {
-    render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    renderWithProvider(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
     fireEvent.click(screen.getByTestId("tab-trigger-music"))
     expect(mockOnTabChange).toHaveBeenCalledWith("music")
@@ -109,7 +123,7 @@ describe("BrowserTabs", () => {
   })
 
   it("должен применять правильные CSS классы к списку вкладок", () => {
-    render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    renderWithProvider(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
     const tabsList = screen.getByTestId("tabs-list")
     expect(tabsList).toHaveClass(
@@ -125,7 +139,7 @@ describe("BrowserTabs", () => {
   })
 
   it("должен не вызывать onTabChange при клике на уже активную вкладку", () => {
-    render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    renderWithProvider(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
     fireEvent.click(screen.getByTestId("media-tab"))
     expect(mockOnTabChange).toHaveBeenCalledWith("media")
@@ -135,18 +149,18 @@ describe("BrowserTabs", () => {
   it("должен логировать активную вкладку при рендере", () => {
     const consoleLogSpy = vi.spyOn(console, "log")
 
-    render(<BrowserTabs activeTab="effects" onTabChange={mockOnTabChange} />)
+    renderWithProvider(<BrowserTabs activeTab="effects" onTabChange={mockOnTabChange} />)
 
     expect(consoleLogSpy).toHaveBeenCalledWith("BrowserTabs rendered, activeTab:", "effects")
   })
 
   it("должен мемоизировать компонент", () => {
-    const { rerender } = render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    const { rerender } = renderWithProvider(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
     const firstRender = screen.getByTestId("tabs-list")
 
     // Перерендериваем с теми же пропсами
-    rerender(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    rerender(<EffectsProvider><BrowserTabs activeTab="media" onTabChange={mockOnTabChange} /></EffectsProvider>)
 
     const secondRender = screen.getByTestId("tabs-list")
 
@@ -157,12 +171,12 @@ describe("BrowserTabs", () => {
   })
 
   it("должен обновляться при изменении activeTab", () => {
-    const { rerender } = render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    const { rerender } = renderWithProvider(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
     expect(screen.getByTestId("media-tab")).toHaveAttribute("data-state", "active")
     expect(screen.getByTestId("tab-trigger-music")).toHaveAttribute("data-state", "inactive")
 
-    rerender(<BrowserTabs activeTab="music" onTabChange={mockOnTabChange} />)
+    rerender(<EffectsProvider><BrowserTabs activeTab="music" onTabChange={mockOnTabChange} /></EffectsProvider>)
 
     expect(screen.getByTestId("media-tab")).toHaveAttribute("data-state", "inactive")
     expect(screen.getByTestId("tab-trigger-music")).toHaveAttribute("data-state", "active")
@@ -180,7 +194,7 @@ describe("BrowserTabs", () => {
       { testId: "tab-trigger-style-templates", value: "style-templates" },
     ]
 
-    render(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
+    renderWithProvider(<BrowserTabs activeTab="media" onTabChange={mockOnTabChange} />)
 
     tabs.forEach(({ testId, value }) => {
       fireEvent.click(screen.getByTestId(testId))
