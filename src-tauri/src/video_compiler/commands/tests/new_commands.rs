@@ -53,7 +53,6 @@ async fn test_get_gpu_encoder_details() {
   assert_eq!(details["encoder_type"], "nvenc");
 }
 
-
 #[tokio::test]
 async fn test_create_schema_objects() {
   // Test creating resolution
