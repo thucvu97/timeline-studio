@@ -122,37 +122,35 @@ impl SecureStorage {
   /// Получает или создает ключ шифрования из локального файла
   pub fn get_or_create_encryption_key() -> Result<[u8; 32]> {
     use std::fs;
-    
+
     // Получаем путь к директории конфигурации приложения
     let config_dir = dirs::config_dir()
       .ok_or_else(|| anyhow::anyhow!("Failed to get config directory"))?
       .join("timeline-studio");
-    
+
     // Создаем директорию если не существует
     fs::create_dir_all(&config_dir)?;
-    
+
     let key_file = config_dir.join(".encryption_key");
-    
+
     if key_file.exists() {
       // Читаем существующий ключ
-      let key_data = fs::read(&key_file)
-        .context("Failed to read encryption key file")?;
-      
+      let key_data = fs::read(&key_file).context("Failed to read encryption key file")?;
+
       if key_data.len() != 32 {
         return Err(anyhow::anyhow!("Invalid key file size"));
       }
-      
+
       let mut key = [0u8; 32];
       key.copy_from_slice(&key_data);
       Ok(key)
     } else {
       // Создаем новый случайный ключ
       let key = Aes256Gcm::generate_key(&mut OsRng);
-      
+
       // Сохраняем в файл
-      fs::write(&key_file, key.as_slice())
-        .context("Failed to write encryption key file")?;
-      
+      fs::write(&key_file, key.as_slice()).context("Failed to write encryption key file")?;
+
       // Устанавливаем права доступа только для владельца (Unix-like системы)
       #[cfg(unix)]
       {
@@ -161,7 +159,7 @@ impl SecureStorage {
         perms.set_mode(0o600);
         fs::set_permissions(&key_file, perms)?;
       }
-      
+
       Ok(key.into())
     }
   }
