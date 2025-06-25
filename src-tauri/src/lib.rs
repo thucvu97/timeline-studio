@@ -173,7 +173,8 @@ pub fn run() {
       // Create Secure Storage for API keys
       match SecureStorage::new(app.handle().clone()) {
         Ok(storage) => {
-          app.manage(storage);
+          // Wrap SecureStorage in Mutex for thread-safe access
+          app.manage(tokio::sync::Mutex::new(storage));
         }
         Err(e) => {
           log::error!("Failed to initialize SecureStorage: {}", e);
