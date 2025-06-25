@@ -226,17 +226,23 @@ pub async fn generate_storyboard(
   Ok(output_path)
 }
 
+/// Параметры для генерации анимированного превью
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct AnimatedPreviewParams {
+  pub video_path: String,
+  pub start_time: f64,
+  pub output_path: String,
+  pub width: u32,
+  pub height: u32,
+  pub fps: u32,
+  pub duration: f64,
+}
+
 /// Генерировать анимированное превью (GIF)
 #[tauri::command]
 pub async fn generate_animated_preview(
   _project_schema: ProjectSchema,
-  video_path: String,
-  start_time: f64,
-  output_path: String,
-  width: u32,
-  height: u32,
-  fps: u32,
-  duration: f64,
+  params: AnimatedPreviewParams,
   state: State<'_, VideoCompilerState>,
 ) -> Result<String> {
   let _preview_service = state
@@ -249,16 +255,19 @@ pub async fn generate_animated_preview(
   cmd.args([
     "-y", // Перезаписывать выходной файл
     "-i",
-    &video_path,
+    &params.video_path,
     "-ss",
-    &start_time.to_string(), // Начальное время
+    &params.start_time.to_string(), // Начальное время
     "-t",
-    &duration.to_string(), // Длительность
+    &params.duration.to_string(), // Длительность
     "-vf",
-    &format!("fps={},scale={}:{}", fps, width, height), // Фильтры: FPS и масштабирование
+    &format!(
+      "fps={},scale={}:{}",
+      params.fps, params.width, params.height
+    ), // Фильтры: FPS и масштабирование
     "-loop",
     "0", // Бесконечный цикл
-    &output_path,
+    &params.output_path,
   ]);
 
   let output = cmd.output().map_err(|e| VideoCompilerError::FFmpegError {
@@ -276,7 +285,7 @@ pub async fn generate_animated_preview(
     });
   }
 
-  Ok(output_path)
+  Ok(params.output_path)
 }
 
 /// Генерировать превью звуковой волны
