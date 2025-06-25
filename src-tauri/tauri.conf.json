@@ -65,6 +65,29 @@
     "copyright": "© 2025 Chatman Media",
     "category": "Video",
     "shortDescription": "Приложение для создания и редактирования видео",
-    "longDescription": "Timeline Studio - мощное приложение для создания и редактирования видео, построенное на базе Tauri, React и XState."
+    "longDescription": "Timeline Studio - мощное приложение для создания и редактирования видео, построенное на базе Tauri, React и XState.",
+    "macOS": {
+      "exceptionDomain": "com.chatman-media.timeline-studio",
+      "frameworks": [],
+      "minimumSystemVersion": "10.15"
+    },
+    "windows": {
+      "digestAlgorithm": "sha256",
+      "certificateThumbprint": null,
+      "timestampUrl": "",
+      "tsp": false,
+      "wix": {
+        "language": "en-US",
+        "template": null,
+        "fragmentPaths": [],
+        "componentGroupRefs": [],
+        "componentRefs": [],
+        "featureGroupRefs": [],
+        "featureRefs": [],
+        "mergeRefs": [],
+        "dialogImagePath": null,
+        "bannerPath": null
+      }
+    }
   }
 }
