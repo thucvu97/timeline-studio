@@ -31,7 +31,7 @@ export const test = base.extend<TestFixtures>({
               // Базовые моки для команд
               switch (cmd) {
                 case "get_app_info":
-                  return { version: "0.23.0", name: "Timeline Studio" }
+                  return { version: "0.24.0", name: "Timeline Studio" }
                 case "get_media_files":
                   return []
                 case "get_project_settings":
