@@ -181,6 +181,7 @@ pub struct Clip {
     pub effects: Vec<String>,    // ID эффектов
     pub filters: Vec<String>,    // ID фильтров
     pub properties: ClipProperties,
+    pub real_path: Option<PathBuf>, // Реальный путь к файлу (для восстановления)
 }
 ```
 
@@ -332,6 +333,29 @@ pub struct FFmpegExecutionResult {
     pub stderr: String,
     pub final_progress: Option<RenderProgress>,
 }
+
+pub struct FFmpegExecutionContext {
+    pub command_args: Vec<String>,
+    pub project_id: Option<String>,
+    pub operation_type: FFmpegOperationType,
+    pub timeout: Option<Duration>,
+    pub env_vars: HashMap<String, String>,
+    pub working_dir: Option<PathBuf>,
+}
+
+pub enum FFmpegOperationType {
+    VideoCompilation,
+    FrameExtraction,
+    ThumbnailGeneration,
+    MediaAnalysis,
+    GifCreation,
+    VideoConcat,
+    FilterApplication,
+    SubtitleRendering,
+    AudioProcessing,
+    StreamCopy,
+    Custom(String),
+}
 ```
 
 ### Возможности:
@@ -341,6 +365,10 @@ pub struct FFmpegExecutionResult {
 - Простое выполнение для быстрых операций
 - Проверка доступности FFmpeg и его возможностей
 - Получение списка поддерживаемых кодеков и форматов
+- Контекстное выполнение с FFmpegExecutionContext
+- Типизированные операции через FFmpegOperationType
+- Настройка окружения и рабочей директории
+- Гибкие таймауты для разных операций
 
 ## GPU Ускорение
 
@@ -464,6 +492,32 @@ pub struct CompilerSettings {
     pub preview_quality: u8,
 }
 ```
+
+## Восстановление медиафайлов
+
+Модуль поддерживает восстановление ссылок на перемещенные медиафайлы:
+
+```rust
+pub struct MediaRestorationService {
+    pub async fn restore_missing_files(
+        &self,
+        project_schema: &mut ProjectSchema
+    ) -> Result<Vec<RestorationResult>>
+    
+    pub async fn find_file_by_signature(
+        &self,
+        original_path: &Path,
+        search_dirs: Vec<PathBuf>
+    ) -> Option<PathBuf>
+}
+```
+
+### Алгоритм восстановления:
+1. Проверка существования файлов по оригинальным путям
+2. Поиск по имени файла в указанных директориях
+3. Сравнение метаданных (размер, длительность для видео)
+4. Обновление путей в схеме проекта
+5. Сохранение real_path для будущих восстановлений
 
 ## Рефакторинг (2025)
 

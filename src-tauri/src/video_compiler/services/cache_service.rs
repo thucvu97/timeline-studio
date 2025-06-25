@@ -72,6 +72,16 @@ pub struct CacheAlert {
   pub threshold_value: f64,
 }
 
+/// Информация об элементе кэша
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct CacheItemInfo {
+  pub key: String,
+  pub size_bytes: u64,
+  pub created_at: String,
+  pub last_accessed: String,
+  pub access_count: u64,
+}
+
 /// Типы алертов кэша
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum CacheAlertType {
@@ -125,6 +135,12 @@ pub trait CacheService: Service + Send + Sync {
 
   /// Проверить наличие в кэше
   async fn exists_in_cache(&self, key: &str) -> Result<bool>;
+
+  /// Получить список всех элементов в кэше
+  async fn list_cached_items(&self) -> Result<Vec<String>>;
+
+  /// Получить информацию об элементе кэша
+  async fn get_item_info(&self, key: &str) -> Result<Option<CacheItemInfo>>;
 
   /// Получить расширенную статистику с метриками производительности
   async fn get_performance_metrics(&self) -> Result<CachePerformanceMetrics>;
@@ -442,6 +458,73 @@ impl CacheService for CacheServiceImpl {
   async fn exists_in_cache(&self, key: &str) -> Result<bool> {
     let cache_path = self.cache_dir.join("temp").join(key);
     Ok(cache_path.exists())
+  }
+
+  async fn list_cached_items(&self) -> Result<Vec<String>> {
+    let mut items = Vec::new();
+
+    // Проверяем все поддиректории кэша
+    for subdir in &["temp", "preview", "render"] {
+      let dir_path = self.cache_dir.join(subdir);
+      if dir_path.exists() {
+        let mut entries = tokio::fs::read_dir(&dir_path)
+          .await
+          .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+
+        while let Some(entry) = entries
+          .next_entry()
+          .await
+          .map_err(|e| VideoCompilerError::IoError(e.to_string()))?
+        {
+          if entry.metadata().await.unwrap().is_file() {
+            if let Some(name) = entry.file_name().to_str() {
+              items.push(format!("{}/{}", subdir, name));
+            }
+          }
+        }
+      }
+    }
+
+    Ok(items)
+  }
+
+  async fn get_item_info(&self, key: &str) -> Result<Option<CacheItemInfo>> {
+    // Попробуем найти файл в разных поддиректориях
+    for subdir in &["temp", "preview", "render"] {
+      let cache_path = self.cache_dir.join(subdir).join(key);
+
+      if cache_path.exists() {
+        let metadata = tokio::fs::metadata(&cache_path)
+          .await
+          .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+
+        let created_at = metadata
+          .created()
+          .ok()
+          .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+          .map(|d| chrono::Utc::now() - chrono::Duration::seconds(d.as_secs() as i64))
+          .unwrap_or_else(chrono::Utc::now)
+          .to_rfc3339();
+
+        let last_accessed = metadata
+          .accessed()
+          .ok()
+          .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+          .map(|d| chrono::Utc::now() - chrono::Duration::seconds(d.as_secs() as i64))
+          .unwrap_or_else(chrono::Utc::now)
+          .to_rfc3339();
+
+        return Ok(Some(CacheItemInfo {
+          key: key.to_string(),
+          size_bytes: metadata.len(),
+          created_at,
+          last_accessed,
+          access_count: 0, // В простой реализации не отслеживаем
+        }));
+      }
+    }
+
+    Ok(None)
   }
 
   async fn get_performance_metrics(&self) -> Result<CachePerformanceMetrics> {

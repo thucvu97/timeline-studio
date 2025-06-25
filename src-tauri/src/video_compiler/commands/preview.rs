@@ -230,11 +230,13 @@ pub async fn generate_storyboard(
 #[tauri::command]
 pub async fn generate_animated_preview(
   _project_schema: ProjectSchema,
+  video_path: String,
+  start_time: f64,
   output_path: String,
-  _width: u32,
-  _height: u32,
-  _fps: u32,
-  _duration: f64,
+  width: u32,
+  height: u32,
+  fps: u32,
+  duration: f64,
   state: State<'_, VideoCompilerState>,
 ) -> Result<String> {
   let _preview_service = state
@@ -242,9 +244,37 @@ pub async fn generate_animated_preview(
     .get_preview_service()
     .ok_or_else(|| VideoCompilerError::validation("PreviewService не найден"))?;
 
-  // TODO: Реализовать генерацию GIF через FFmpeg
-  // Пока создаем пустой файл
-  std::fs::write(&output_path, b"")?;
+  // Используем FFmpeg для создания анимированного GIF из видео
+  let mut cmd = std::process::Command::new("ffmpeg");
+  cmd.args([
+    "-y", // Перезаписывать выходной файл
+    "-i",
+    &video_path,
+    "-ss",
+    &start_time.to_string(), // Начальное время
+    "-t",
+    &duration.to_string(), // Длительность
+    "-vf",
+    &format!("fps={},scale={}:{}", fps, width, height), // Фильтры: FPS и масштабирование
+    "-loop",
+    "0", // Бесконечный цикл
+    &output_path,
+  ]);
+
+  let output = cmd.output().map_err(|e| VideoCompilerError::FFmpegError {
+    exit_code: None,
+    stderr: format!("Не удалось запустить FFmpeg для GIF: {}", e),
+    command: "ffmpeg".to_string(),
+  })?;
+
+  if !output.status.success() {
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    return Err(VideoCompilerError::FFmpegError {
+      exit_code: output.status.code(),
+      stderr: format!("FFmpeg не смог создать GIF: {}", stderr),
+      command: "ffmpeg".to_string(),
+    });
+  }
 
   Ok(output_path)
 }
@@ -252,23 +282,27 @@ pub async fn generate_animated_preview(
 /// Генерировать превью звуковой волны
 #[tauri::command]
 pub async fn generate_waveform_preview(
-  _audio_path: String,
+  audio_path: String,
   output_path: String,
-  _width: u32,
-  _height: u32,
-  _color: String,
+  width: u32,
+  height: u32,
+  color: String,
   state: State<'_, VideoCompilerState>,
 ) -> Result<String> {
-  let _preview_service = state
+  let preview_service = state
     .services
     .get_preview_service()
     .ok_or_else(|| VideoCompilerError::validation("PreviewService не найден"))?;
 
-  // TODO: Реализовать генерацию waveform через FFmpeg
-  // Пока создаем пустой PNG файл
-  // PNG signature: 89 50 4E 47 0D 0A 1A 0A
-  let png_header = vec![0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
-  std::fs::write(&output_path, png_header)?;
+  // Используем PreviewService для генерации waveform
+  let waveform_data = preview_service
+    .generate_waveform(std::path::Path::new(&audio_path), width, height, &color)
+    .await?;
+
+  // Сохраняем результат в файл
+  tokio::fs::write(&output_path, waveform_data)
+    .await
+    .map_err(|e| VideoCompilerError::IoError(format!("Не удалось сохранить waveform: {}", e)))?;
 
   Ok(output_path)
 }

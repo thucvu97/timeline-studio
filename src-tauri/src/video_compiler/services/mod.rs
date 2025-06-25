@@ -73,7 +73,11 @@ impl ServiceContainer {
     let gpu = Arc::new(GpuServiceImpl::new(ffmpeg_path));
     let preview = Arc::new(PreviewServiceImpl::new(ffmpeg.clone()));
     let project = Arc::new(ProjectServiceImpl::new());
-    let render = Arc::new(RenderServiceImpl::new(ffmpeg.clone(), max_concurrent_jobs));
+    let render = Arc::new(RenderServiceImpl::new(
+      ffmpeg.clone(),
+      max_concurrent_jobs,
+      cache.clone(),
+    ));
 
     // Регистрируем метрики для каждого сервиса
     let metrics = ServiceMetricsContainer {

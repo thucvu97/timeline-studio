@@ -334,7 +334,7 @@ impl PreviewDataManager {
         let frame = crate::media::commands::TimelineFrame {
           timestamp: preview.timestamp,
           base64_data: preview.base64_data.clone().unwrap_or_default(),
-          is_keyframe: false, // TODO: определить keyframes
+          is_keyframe: self.is_keyframe_by_timestamp(preview.timestamp), // Определение keyframe по временной метке
         };
         frames.push(frame);
       }
@@ -343,6 +343,13 @@ impl PreviewDataManager {
     } else {
       Ok(Vec::new())
     }
+  }
+
+  /// Определить является ли кадр keyframe по временной метке
+  fn is_keyframe_by_timestamp(&self, timestamp: f64) -> bool {
+    // Простая эвристика: считаем keyframe'ом кадры через каждые 2 секунды
+    // В реальной реализации можно анализировать метаданные FFmpeg
+    timestamp % 2.0 < 0.1 || timestamp < 0.1
   }
 }
 

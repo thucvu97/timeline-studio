@@ -1,4 +1,5 @@
 use crate::video_compiler::ffmpeg_executor::FFmpegExecutor;
+use crate::video_compiler::schema::ProjectSchema;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -37,11 +38,12 @@ pub struct FrameExtractionResult {
 /// Извлекает кадры из видео для мультимодального анализа
 #[tauri::command]
 pub async fn extract_frames_for_multimodal_analysis(
+  project_schema: ProjectSchema,
   clip_id: String,
   sampling_rate: f64,
   max_frames: u32,
 ) -> Result<Vec<ExtractedFrame>, String> {
-  let video_path = get_video_path_by_clip_id(&clip_id)?;
+  let video_path = get_video_path_by_clip_id(&project_schema, &clip_id)?;
 
   if !Path::new(&video_path).exists() {
     return Err(format!("Видео файл не найден: {}", video_path));
@@ -122,11 +124,12 @@ pub async fn convert_image_to_base64(image_path: String) -> Result<String, Strin
 /// Извлекает кадры с оптимизацией для анализа превью
 #[tauri::command]
 pub async fn extract_thumbnail_candidates(
+  project_schema: ProjectSchema,
   clip_id: String,
   count: u32,
   aspect_ratio: Option<String>,
 ) -> Result<Vec<ExtractedFrame>, String> {
-  let video_path = get_video_path_by_clip_id(&clip_id)?;
+  let video_path = get_video_path_by_clip_id(&project_schema, &clip_id)?;
   let video_info = get_video_info(&video_path).await?;
 
   // Избегаем первых и последних 10% видео для лучших превью
@@ -441,10 +444,14 @@ fn get_temp_frames_dir(clip_id: &str) -> PathBuf {
     .join(clip_id)
 }
 
-fn get_video_path_by_clip_id(clip_id: &str) -> Result<String, String> {
-  // TODO: Реализовать получение реального пути к видео по clip_id
-  // Пока возвращаем заглушку
-  Ok(format!("/path/to/video/{}.mp4", clip_id))
+fn get_video_path_by_clip_id(project: &ProjectSchema, clip_id: &str) -> Result<String, String> {
+  // Ищем клип в проекте и получаем путь к файлу
+  project.get_clip_file_path(clip_id).ok_or_else(|| {
+    format!(
+      "Клип с ID '{}' не найден в проекте или не является файлом",
+      clip_id
+    )
+  })
 }
 
 #[derive(Debug, Serialize, Deserialize)]

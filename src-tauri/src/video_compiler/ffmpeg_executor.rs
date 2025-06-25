@@ -11,6 +11,15 @@ use tokio::sync::mpsc;
 use crate::video_compiler::error::{Result, VideoCompilerError};
 use crate::video_compiler::progress::{ProgressUpdate, RenderProgress};
 
+/// Контекст выполнения FFmpeg задачи
+#[derive(Debug, Clone)]
+pub struct FFmpegExecutionContext {
+  /// Идентификатор задачи
+  pub job_id: String,
+  /// Общая длительность проекта (для расчета процента)
+  pub total_duration: f64,
+}
+
 /// Регулярное выражение для парсинга прогресса FFmpeg
 const PROGRESS_REGEX: &str = r"frame=\s*(\d+).*fps=\s*([\d.]+).*time=\s*([\d:.]+)";
 
@@ -31,6 +40,8 @@ pub struct FFmpegExecutionResult {
 pub struct FFmpegExecutor {
   /// Канал для отправки обновлений прогресса
   progress_sender: Option<mpsc::Sender<ProgressUpdate>>,
+  /// Контекст выполнения
+  context: Option<FFmpegExecutionContext>,
 }
 
 impl Default for FFmpegExecutor {
@@ -44,6 +55,7 @@ impl FFmpegExecutor {
   pub fn new() -> Self {
     Self {
       progress_sender: None,
+      context: None,
     }
   }
 
@@ -51,6 +63,24 @@ impl FFmpegExecutor {
   pub fn with_progress(progress_sender: mpsc::Sender<ProgressUpdate>) -> Self {
     Self {
       progress_sender: Some(progress_sender),
+      context: None,
+    }
+  }
+
+  /// Установить контекст выполнения
+  pub fn with_context(mut self, context: FFmpegExecutionContext) -> Self {
+    self.context = Some(context);
+    self
+  }
+
+  /// Создать исполнитель с каналом прогресса и контекстом
+  pub fn with_progress_and_context(
+    progress_sender: mpsc::Sender<ProgressUpdate>,
+    context: FFmpegExecutionContext,
+  ) -> Self {
+    Self {
+      progress_sender: Some(progress_sender),
+      context: Some(context),
     }
   }
 
@@ -96,10 +126,13 @@ impl FFmpegExecutor {
 
         // Отправляем обновление если есть канал
         if let Some(ref sender) = self.progress_sender {
-          let update = ProgressUpdate::ProgressChanged {
-            job_id: "ffmpeg_exec".to_string(), // TODO: Передавать job_id из контекста
-            progress,
-          };
+          let job_id = self
+            .context
+            .as_ref()
+            .map(|ctx| ctx.job_id.clone())
+            .unwrap_or_else(|| "ffmpeg_exec".to_string());
+
+          let update = ProgressUpdate::ProgressChanged { job_id, progress };
           let _ = sender.send(update).await;
         }
       }
@@ -188,12 +221,22 @@ impl FFmpegExecutor {
         let seconds = time_parts[2].parse::<f64>().ok()?;
         let total_seconds = hours * 3600.0 + minutes * 60.0 + seconds;
 
-        // Предполагаем общую длительность (нужно передавать из контекста)
-        let total_duration = 100.0; // TODO: Получать из проекта
+        // Получаем общую длительность из контекста или используем значение по умолчанию
+        let total_duration = self
+          .context
+          .as_ref()
+          .map(|ctx| ctx.total_duration)
+          .unwrap_or(100.0);
         let percentage = (total_seconds / total_duration * 100.0).min(100.0);
 
+        let job_id = self
+          .context
+          .as_ref()
+          .map(|ctx| ctx.job_id.clone())
+          .unwrap_or_else(|| "ffmpeg_parse".to_string());
+
         return Some(RenderProgress {
-          job_id: "ffmpeg_parse".to_string(), // TODO: Передавать job_id из контекста
+          job_id,
           stage: "Encoding".to_string(),
           percentage: percentage as f32,
           current_frame: frame,

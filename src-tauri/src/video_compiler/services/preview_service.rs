@@ -149,6 +149,108 @@ impl PreviewServiceImpl {
         .unwrap_or_default()
     )
   }
+
+  /// Создает storyboard композицию из массива thumbnails
+  async fn create_storyboard_composition_internal(
+    &self,
+    thumbnails: &[Vec<u8>],
+    columns: u32,
+    rows: u32,
+    thumbnail_size: (u32, u32),
+  ) -> Result<Vec<u8>> {
+    // Создаем временную директорию для композиции
+    let temp_dir_path = std::env::temp_dir().join(format!("storyboard_{}", uuid::Uuid::new_v4()));
+    std::fs::create_dir_all(&temp_dir_path).map_err(|e| {
+      VideoCompilerError::IoError(format!("Не удалось создать временную директорию: {}", e))
+    })?;
+
+    let (thumb_width, thumb_height) = thumbnail_size;
+    let total_width = columns * thumb_width;
+    let total_height = rows * thumb_height;
+
+    // Сохраняем все thumbnails как временные файлы
+    let mut thumbnail_paths = Vec::new();
+    for (i, thumbnail_data) in thumbnails.iter().enumerate() {
+      let thumb_path = temp_dir_path.join(format!("thumb_{}.jpg", i));
+      tokio::fs::write(&thumb_path, thumbnail_data)
+        .await
+        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      thumbnail_paths.push(thumb_path);
+    }
+
+    // Создаем FFmpeg команду для композиции storyboard
+    let output_path = temp_dir_path.join("storyboard.jpg");
+
+    // Используем FFmpeg filter для создания сетки из изображений
+    let mut cmd = std::process::Command::new("ffmpeg");
+    cmd.arg("-y"); // Перезаписывать выходной файл
+
+    // Добавляем все thumbnail файлы как входы
+    for thumb_path in &thumbnail_paths {
+      cmd.arg("-i").arg(thumb_path);
+    }
+
+    // Создаем filter для tile композиции
+    let filter = format!("tile={}x{}:margin=2:padding=2", columns, rows);
+
+    cmd.args([
+      "-filter_complex",
+      &filter,
+      "-s",
+      &format!("{}x{}", total_width, total_height),
+      "-q:v",
+      "2", // Высокое качество JPEG
+      output_path.to_str().unwrap(),
+    ]);
+
+    // Выполняем команду
+    let output = cmd.output().map_err(|e| {
+      VideoCompilerError::IoError(format!("Не удалось запустить FFmpeg для storyboard: {}", e))
+    })?;
+
+    if !output.status.success() {
+      let stderr = String::from_utf8_lossy(&output.stderr);
+      log::warn!("FFmpeg storyboard предупреждение: {}", stderr);
+
+      // Если композиция не удалась, создаем простую плитку вручную
+      return self
+        .create_simple_storyboard_fallback_internal(thumbnails, columns, rows, thumbnail_size)
+        .await;
+    }
+
+    // Читаем результат
+    let storyboard_data = tokio::fs::read(&output_path)
+      .await
+      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+
+    // Удаляем временную директорию
+    let _ = std::fs::remove_dir_all(&temp_dir_path);
+
+    Ok(storyboard_data)
+  }
+
+  /// Fallback метод для создания простого storyboard без композиции
+  async fn create_simple_storyboard_fallback_internal(
+    &self,
+    thumbnails: &[Vec<u8>],
+    _columns: u32,
+    _rows: u32,
+    _thumbnail_size: (u32, u32),
+  ) -> Result<Vec<u8>> {
+    // Простой fallback: возвращаем первый thumbnail
+    // В будущем можно реализовать композицию через image-rs или подобное
+    log::info!("Используется fallback для storyboard - возвращается первый thumbnail");
+
+    if let Some(first_thumbnail) = thumbnails.first() {
+      Ok(first_thumbnail.clone())
+    } else {
+      // Создаем пустое изображение
+      Ok(vec![
+        0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00,
+        0x01, 0x00, 0x01, 0x00, 0x00, 0xFF, 0xD9,
+      ])
+    }
+  }
 }
 
 #[async_trait]
@@ -366,11 +468,31 @@ impl PreviewService for PreviewServiceImpl {
       }
     }
 
-    // Создаем композитное изображение
-    // TODO: Реализовать создание storyboard из thumbnails
+    // Создаем композитное изображение storyboard
+    if thumbnails.is_empty() {
+      return Ok(Vec::new());
+    }
 
-    // Пока возвращаем первый thumbnail
-    Ok(thumbnails.first().cloned().unwrap_or_default())
+    // Если только один thumbnail, возвращаем его
+    if thumbnails.len() == 1 {
+      return Ok(thumbnails[0].clone());
+    }
+
+    // Создаем storyboard композицию
+    let storyboard_result = self
+      .create_storyboard_composition_internal(&thumbnails, columns, rows, thumbnail_size)
+      .await;
+
+    match storyboard_result {
+      Ok(storyboard) => Ok(storyboard),
+      Err(e) => {
+        log::warn!(
+          "Не удалось создать storyboard композицию: {:?}. Возвращаем первый thumbnail.",
+          e
+        );
+        Ok(thumbnails[0].clone())
+      }
+    }
   }
 
   async fn generate_waveform(

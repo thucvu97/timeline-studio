@@ -93,14 +93,43 @@ pub async fn prerender_segment(
 /// Получить информацию о кэше предрендеринга
 #[tauri::command]
 pub async fn get_prerender_cache_info(
-  _state: State<'_, VideoCompilerState>,
+  state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
-  // TODO: Implement actual cache info retrieval
-  // For now, return mock data
+  // Получаем CacheService из контейнера сервисов
+  let cache_service = state.services.get_cache_service().ok_or_else(|| {
+    crate::video_compiler::error::VideoCompilerError::validation("CacheService не найден")
+  })?;
+
+  // Получаем статистику кэша
+  let cache_stats = cache_service.get_cache_stats().await?;
+
+  // Получаем информацию о кэшированных элементах
+  let cached_items = cache_service.list_cached_items().await?;
+
+  // Фильтруем только элементы предрендеринга (по префиксу или типу)
+  let prerender_items: Vec<_> = cached_items
+    .into_iter()
+    .filter(|item| item.starts_with("prerender_") || item.contains("prerender"))
+    .collect();
+
+  // Вычисляем размер предрендеринговых файлов
+  let mut total_prerender_size = 0u64;
+  for item_key in &prerender_items {
+    if let Ok(Some(item_info)) = cache_service.get_item_info(item_key).await {
+      total_prerender_size += item_info.size_bytes;
+    }
+  }
+
   Ok(serde_json::json!({
-      "file_count": 0,
-      "total_size": 0,
-      "files": []
+      "file_count": prerender_items.len(),
+      "total_size": total_prerender_size,
+      "files": prerender_items,
+      "cache_stats": {
+        "total_files": cache_stats.total_files,
+        "total_size_mb": cache_stats.total_size_mb,
+        "hit_rate": cache_stats.hit_rate,
+        "miss_rate": 1.0 - cache_stats.hit_rate
+      }
   }))
 }
 

@@ -74,6 +74,10 @@ impl VideoCompilerState {
       Err(e) => {
         log::error!("Ошибка создания контейнера сервисов: {:?}", e);
         // Создаем минимальный контейнер для fallback
+        let cache = Arc::new(crate::video_compiler::services::CacheServiceImpl::new(
+          std::env::temp_dir().join("timeline-studio"),
+        ));
+
         return Self {
           services: Arc::new(ServiceContainer {
             render: Arc::new(crate::video_compiler::services::RenderServiceImpl::new(
@@ -81,10 +85,9 @@ impl VideoCompilerState {
                 "ffmpeg".to_string(),
               )),
               2,
+              cache.clone(),
             )),
-            cache: Arc::new(crate::video_compiler::services::CacheServiceImpl::new(
-              std::env::temp_dir().join("timeline-studio"),
-            )),
+            cache: cache.clone(),
             gpu: Arc::new(crate::video_compiler::services::GpuServiceImpl::new(
               "ffmpeg".to_string(),
             )),
@@ -168,6 +171,7 @@ impl Default for VideoCompilerState {
     let render = Arc::new(crate::video_compiler::services::RenderServiceImpl::new(
       ffmpeg.clone(),
       2,
+      cache_service.clone(),
     ));
 
     // Создаем метрики

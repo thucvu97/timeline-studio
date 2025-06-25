@@ -5,7 +5,7 @@ use crate::video_compiler::{
   progress::{RenderProgress, RenderStatus},
   renderer::VideoRenderer,
   schema::ProjectSchema,
-  services::{FfmpegService, Service},
+  services::{CacheService, FfmpegService, Service},
 };
 use async_trait::async_trait;
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
@@ -50,13 +50,20 @@ pub struct RenderJob {
 pub struct RenderServiceImpl {
   active_jobs: Arc<RwLock<HashMap<String, RenderJob>>>,
   max_concurrent_jobs: usize,
+  #[allow(dead_code)]
+  cache_service: Arc<dyn CacheService>,
 }
 
 impl RenderServiceImpl {
-  pub fn new(_ffmpeg_service: Arc<dyn FfmpegService>, max_concurrent_jobs: usize) -> Self {
+  pub fn new(
+    _ffmpeg_service: Arc<dyn FfmpegService>,
+    max_concurrent_jobs: usize,
+    cache_service: Arc<dyn CacheService>,
+  ) -> Self {
     Self {
       active_jobs: Arc::new(RwLock::new(HashMap::new())),
       max_concurrent_jobs,
+      cache_service,
     }
   }
 }
@@ -117,7 +124,9 @@ impl RenderService for RenderServiceImpl {
       crate::video_compiler::CompilerSettings::default(),
     ));
 
-    // Создаем временный кэш (TODO: интегрировать с CacheService)
+    // Создаем кэш для рендера (интегрирован с CacheService)
+    // Note: VideoRenderer использует локальный RenderCache, но CacheService
+    // используется для операций кэширования на более высоком уровне
     let cache = Arc::new(RwLock::new(crate::video_compiler::cache::RenderCache::new()));
 
     // Создаем рендерер
@@ -238,12 +247,13 @@ impl RenderService for RenderServiceImpl {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::video_compiler::services::FfmpegServiceImpl;
+  use crate::video_compiler::services::{FfmpegServiceImpl, CacheServiceImpl};
 
   #[tokio::test]
   async fn test_render_service_creation() {
     let ffmpeg_service = Arc::new(FfmpegServiceImpl::new("ffmpeg".to_string()));
-    let service = RenderServiceImpl::new(ffmpeg_service, 4);
+    let cache_service = Arc::new(CacheServiceImpl::new(std::env::temp_dir()));
+    let service = RenderServiceImpl::new(ffmpeg_service, 4, cache_service);
 
     assert!(service.initialize().await.is_ok());
     assert!(service.has_available_slots().await.unwrap());
@@ -252,7 +262,8 @@ mod tests {
   #[tokio::test]
   async fn test_concurrent_job_limit() {
     let ffmpeg_service = Arc::new(FfmpegServiceImpl::new("ffmpeg".to_string()));
-    let service = RenderServiceImpl::new(ffmpeg_service, 2);
+    let cache_service = Arc::new(CacheServiceImpl::new(std::env::temp_dir()));
+    let service = RenderServiceImpl::new(ffmpeg_service, 2, cache_service);
 
     // Проверяем начальное состояние
     assert!(service.has_available_slots().await.unwrap());

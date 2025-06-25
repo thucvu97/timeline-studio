@@ -323,6 +323,57 @@ impl CacheService for CacheServiceWithMetrics {
       }
     }
   }
+
+  async fn list_cached_items(&self) -> Result<Vec<String>> {
+    let tracker = self.metrics.start_operation("list_cached_items");
+    match self.inner.list_cached_items().await {
+      Ok(result) => {
+        tracker.complete().await;
+        log::debug!(
+          "[CacheService] Получен список из {} элементов кэша",
+          result.len()
+        );
+        Ok(result)
+      }
+      Err(e) => {
+        tracker.fail(e.to_string()).await;
+        log::error!(
+          "[CacheService] Ошибка получения списка элементов кэша: {}",
+          e
+        );
+        Err(e)
+      }
+    }
+  }
+
+  async fn get_item_info(&self, key: &str) -> Result<Option<super::cache_service::CacheItemInfo>> {
+    let tracker = self.metrics.start_operation("get_item_info");
+    match self.inner.get_item_info(key).await {
+      Ok(Some(info)) => {
+        tracker.complete().await;
+        log::debug!(
+          "[CacheService] Получена информация об элементе кэша: {} ({} байт)",
+          key,
+          info.size_bytes
+        );
+        Ok(Some(info))
+      }
+      Ok(None) => {
+        tracker.complete().await;
+        log::debug!("[CacheService] Элемент кэша не найден: {}", key);
+        Ok(None)
+      }
+      Err(e) => {
+        tracker.fail(e.to_string()).await;
+        log::error!(
+          "[CacheService] Ошибка получения информации об элементе кэша {}: {}",
+          key,
+          e
+        );
+        Err(e)
+      }
+    }
+  }
 }
 
 /// Хелпер для создания CacheService с метриками

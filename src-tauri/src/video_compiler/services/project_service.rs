@@ -381,15 +381,22 @@ impl ProjectService for ProjectServiceImpl {
         self.save_project(project, output_path).await?;
       }
       ProjectExportFormat::Zip => {
-        // TODO: Реализовать экспорт в ZIP
+        // ZIP экспорт: архивирует проект с медиафайлами
+        // Планируется: включение всех медиафайлов, настроек и метаданных
+        // Требует добавления zip-rs зависимости
+        log::warn!("ZIP экспорт пока не реализован. Используйте JSON формат.");
         return Err(VideoCompilerError::NotImplemented(
-          "ZIP экспорт еще не реализован".to_string(),
+          "ZIP экспорт будет реализован в следующих версиях. Требуется интеграция с zip-rs."
+            .to_string(),
         ));
       }
       ProjectExportFormat::Package => {
-        // TODO: Реализовать экспорт в пакет
+        // Package экспорт: создает полный пакет для дистрибуции
+        // Планируется: проект + медиафайлы + плагины + настройки
+        // Требует определения формата пакета и компрессии
+        log::warn!("Package экспорт пока не реализован. Используйте JSON формат.");
         return Err(VideoCompilerError::NotImplemented(
-          "Package экспорт еще не реализован".to_string(),
+          "Package экспорт будет реализован в следующих версиях. Формат пакета находится в стадии проектирования.".to_string(),
         ));
       }
     }

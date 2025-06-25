@@ -115,6 +115,30 @@ impl ProjectSchema {
   pub fn touch(&mut self) {
     self.metadata.modified_at = Utc::now();
   }
+
+  /// Найти клип по ID во всех треках
+  pub fn find_clip_by_id(&self, clip_id: &str) -> Option<&super::timeline::Clip> {
+    for track in &self.tracks {
+      for clip in &track.clips {
+        if clip.id == clip_id {
+          return Some(clip);
+        }
+      }
+    }
+    None
+  }
+
+  /// Получить путь к файлу по ID клипа
+  pub fn get_clip_file_path(&self, clip_id: &str) -> Option<String> {
+    if let Some(clip) = self.find_clip_by_id(clip_id) {
+      match &clip.source {
+        super::timeline::ClipSource::File(path) => Some(path.clone()),
+        _ => None,
+      }
+    } else {
+      None
+    }
+  }
 }
 
 /// Метаданные проекта
