@@ -28,12 +28,26 @@ jobs:
           npm config set fetch-retries 5
           npm ci --prefer-offline --no-audit --no-fund
 
+      - name: Create test results directory
+        run: mkdir -p test-results
+
       - name: Run tests with coverage
         run: npm run test:coverage
         env:
           CI: true
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./test-results/junit.xml
+          flags: frontend
+          name: frontend-tests
+          fail_ci_if_error: false
+          verbose: true
 
       - name: Upload coverage to Codecov (with plugin)
         if: always()
@@ -81,6 +95,12 @@ jobs:
             cargo install cargo-llvm-cov --locked
           fi
 
+      - name: Install cargo2junit
+        run: |
+          if ! command -v cargo2junit &> /dev/null; then
+            cargo install cargo2junit --locked
+          fi
+
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
@@ -101,11 +121,31 @@ jobs:
       - name: Create empty dist directory
         run: mkdir dist
 
+      - name: Create test results directory
+        run: mkdir -p test-results
+
       - name: Run Rust tests with coverage
-        run: npm run test:coverage:rust
+        run: |
+          # Run tests with JSON output for JUnit conversion
+          cd src-tauri
+          cargo test -- -Z unstable-options --format json --report-time | cargo2junit > ../test-results/rust-junit.xml
+          cd ..
+          # Also run coverage tests
+          npm run test:coverage:rust
         env:
           RUSTFLAGS: -Cinstrument-coverage
           LLVM_PROFILE_FILE: timeline-studio-%p-%m.profraw
+
+      - name: Upload Rust test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./test-results/rust-junit.xml
+          flags: rust
+          name: rust-tests
+          fail_ci_if_error: false
+          verbose: true
 
       - name: Upload Rust coverage to Codecov
         uses: codecov/codecov-action@v4
