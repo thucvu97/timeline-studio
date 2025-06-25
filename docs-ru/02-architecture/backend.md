@@ -148,7 +148,7 @@ src-tauri/src/
     │   ├── gpu_service.rs      # GPU сервис
     │   ├── preview_service.rs  # Сервис превью
     │   ├── project_service.rs  # Сервис проектов
-    │   ├── render_service.rs   # Сервис рендеринга
+    │   ├── render_service.rs   # Сервис рендеринга и экспорта
     │   └── monitoring.rs       # Мониторинг и метрики
     │
     └── tests/         # Тесты

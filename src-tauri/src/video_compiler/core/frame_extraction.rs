@@ -1023,3 +1023,6 @@ mod tests {
     );
   }
 }
+
+#[cfg(test)]
+mod frame_extraction_tests;

@@ -187,3 +187,6 @@ pub enum PreviewFormat {
   Png,
   WebP,
 }
+
+#[cfg(test)]
+mod export_tests;
