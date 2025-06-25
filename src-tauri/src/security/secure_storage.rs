@@ -3,13 +3,10 @@ use aes_gcm::{
   Aes256Gcm, Key, Nonce,
 };
 use anyhow::{Context, Result};
-use argon2::Argon2;
-use keyring::Entry;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;
 use tauri_plugin_store::{Store, StoreBuilder};
-use uuid::Uuid;
 
 /// Тип API ключа для определения сервиса
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -122,41 +119,50 @@ impl SecureStorage {
     })
   }
 
-  /// Получает или создает ключ шифрования через keyring
+  /// Получает или создает ключ шифрования из локального файла
   pub fn get_or_create_encryption_key() -> Result<[u8; 32]> {
-    let entry = Entry::new("timeline-studio", "api-encryption-key")
-      .context("Failed to create keyring entry")?;
-
-    match entry.get_password() {
-      Ok(password) => {
-        // Используем существующий ключ
-        let mut key = [0u8; 32];
-        let salt = b"timeline-studio-salt"; // Фиксированная соль для детерминированного ключа
-
-        let argon2 = Argon2::default();
-        argon2
-          .hash_password_into(password.as_bytes(), salt, &mut key)
-          .map_err(|e| anyhow::anyhow!("Failed to derive key: {:?}", e))?;
-
-        Ok(key)
+    use std::fs;
+    
+    // Получаем путь к директории конфигурации приложения
+    let config_dir = dirs::config_dir()
+      .ok_or_else(|| anyhow::anyhow!("Failed to get config directory"))?
+      .join("timeline-studio");
+    
+    // Создаем директорию если не существует
+    fs::create_dir_all(&config_dir)?;
+    
+    let key_file = config_dir.join(".encryption_key");
+    
+    if key_file.exists() {
+      // Читаем существующий ключ
+      let key_data = fs::read(&key_file)
+        .context("Failed to read encryption key file")?;
+      
+      if key_data.len() != 32 {
+        return Err(anyhow::anyhow!("Invalid key file size"));
       }
-      Err(_) => {
-        // Создаем новый ключ
-        let password = Uuid::new_v4().to_string();
-        entry
-          .set_password(&password)
-          .context("Failed to store encryption key")?;
-
-        let mut key = [0u8; 32];
-        let salt = b"timeline-studio-salt";
-
-        let argon2 = Argon2::default();
-        argon2
-          .hash_password_into(password.as_bytes(), salt, &mut key)
-          .map_err(|e| anyhow::anyhow!("Failed to derive key: {:?}", e))?;
-
-        Ok(key)
+      
+      let mut key = [0u8; 32];
+      key.copy_from_slice(&key_data);
+      Ok(key)
+    } else {
+      // Создаем новый случайный ключ
+      let key = Aes256Gcm::generate_key(&mut OsRng);
+      
+      // Сохраняем в файл
+      fs::write(&key_file, key.as_slice())
+        .context("Failed to write encryption key file")?;
+      
+      // Устанавливаем права доступа только для владельца (Unix-like системы)
+      #[cfg(unix)]
+      {
+        use std::os::unix::fs::PermissionsExt;
+        let mut perms = fs::metadata(&key_file)?.permissions();
+        perms.set_mode(0o600);
+        fs::set_permissions(&key_file, perms)?;
       }
+      
+      Ok(key.into())
     }
   }
 
