@@ -308,3 +308,6 @@ pub struct ClipProperties {
   /// Пользовательские метаданные
   pub custom_metadata: std::collections::HashMap<String, serde_json::Value>,
 }
+
+#[cfg(test)]
+mod timeline_tests;

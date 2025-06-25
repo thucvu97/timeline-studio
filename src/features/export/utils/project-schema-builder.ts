@@ -157,6 +157,62 @@ export class ProjectSchemaBuilder {
   }
 
   /**
+   * Apply time range for section export
+   */
+  withTimeRange(startTime: number, endTime: number): this {
+    // Фильтруем клипы по временному диапазону
+    this.projectSchema.tracks = this.projectSchema.tracks.map((track) => ({
+      ...track,
+      clips: track.clips.filter((clip) => {
+        const clipStart = clip.start_time
+        const clipEnd = clip.end_time
+        // Клип включается, если он хотя бы частично пересекается с диапазоном
+        return clipEnd > startTime && clipStart < endTime
+      }).map((clip) => {
+        // Обрезаем клипы по границам диапазона
+        const adjustedStart = Math.max(clip.start_time, startTime)
+        const adjustedEnd = Math.min(clip.end_time, endTime)
+        const adjustedSourceStart = clip.source_start + (adjustedStart - clip.start_time)
+        const adjustedSourceEnd = clip.source_end - (clip.end_time - adjustedEnd)
+
+        return {
+          ...clip,
+          start_time: adjustedStart - startTime, // Сдвигаем к началу
+          end_time: adjustedEnd - startTime,
+          source_start: adjustedSourceStart,
+          source_end: adjustedSourceEnd,
+        }
+      }),
+    }))
+
+    // Фильтруем субтитры по временному диапазону
+    this.projectSchema.subtitles = this.projectSchema.subtitles.filter((subtitle) => {
+      return subtitle.end_time > startTime && subtitle.start_time < endTime
+    }).map((subtitle) => {
+      const adjustedStart = Math.max(subtitle.start_time, startTime) - startTime
+      const adjustedEnd = Math.min(subtitle.end_time, endTime) - startTime
+      
+      return {
+        ...subtitle,
+        start_time: adjustedStart,
+        end_time: adjustedEnd,
+      }
+    })
+
+    // Обновляем длительность проекта
+    this.projectSchema.timeline.duration = endTime - startTime
+
+    // Добавляем информацию о временном диапазоне в кастомные настройки
+    this.projectSchema.settings.custom.timeRange = {
+      start: startTime,
+      end: endTime,
+      originalDuration: this.projectSchema.timeline.duration,
+    }
+
+    return this
+  }
+
+  /**
    * Get the built ProjectSchema
    */
   build(): ProjectSchema {
@@ -204,6 +260,22 @@ export class ProjectSchemaBuilder {
     })
 
     return builder.build()
+  }
+
+  /**
+   * Create ProjectSchema for section export with time range
+   */
+  static createForSectionExport(
+    timeline: Timeline,
+    exportSettings: ExportSettings,
+    startTime: number,
+    endTime: number,
+    sectionName?: string
+  ): ProjectSchema {
+    return new ProjectSchemaBuilder(timeline, sectionName || "section")
+      .withExportSettings(exportSettings)
+      .withTimeRange(startTime, endTime)
+      .build()
   }
 }
 

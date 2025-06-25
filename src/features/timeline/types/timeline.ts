@@ -50,6 +50,18 @@ export interface ProjectResources {
 }
 
 /**
+ * Маркер времени для навигации и экспорта секций
+ */
+export interface TimelineMarker {
+  id: string
+  name: string
+  time: number // Время в секундах
+  color?: string // Цвет маркера
+  type?: "chapter" | "section" | "note" | "export" // Тип маркера
+  description?: string
+}
+
+/**
  * Проект Timeline - корневой объект
  */
 export interface TimelineProject {
@@ -65,6 +77,9 @@ export interface TimelineProject {
   // Структура проекта
   sections: TimelineSection[]
   globalTracks: TimelineTrack[] // Глобальные треки (музыка, титры)
+
+  // Маркеры времени для навигации и экспорта
+  markers?: TimelineMarker[]
 
   // Централизованное хранилище всех ресурсов проекта
   resources: ProjectResources

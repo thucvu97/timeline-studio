@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
-import { Clock, Flag, Scissors, Video } from "lucide-react"
+import { Clock, Flag, Play, Scissors, Video } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,7 @@ import type { ExportSettings } from "../types/export-types"
 interface SectionExportTabProps {
   defaultSettings: ExportSettings
   onExport: (settings: ExportSettings & { sections: ExportSection[] }) => void
+  onPreviewSection?: (startTime: number) => void
 }
 
 interface ExportSection {
@@ -37,9 +38,9 @@ interface TimeMarker {
   type: "start" | "end" | "marker"
 }
 
-export function SectionExportTab({ defaultSettings, onExport }: SectionExportTabProps) {
+export function SectionExportTab({ defaultSettings, onExport, onPreviewSection }: SectionExportTabProps) {
   const { t } = useTranslation()
-  const { project } = useTimeline()
+  const { project, seek } = useTimeline()
   const [exportMode, setExportMode] = useState<"markers" | "manual" | "clips">("markers")
   const [sections, setSections] = useState<ExportSection[]>([])
   const [manualStart, setManualStart] = useState("00:00:00")
@@ -49,15 +50,39 @@ export function SectionExportTab({ defaultSettings, onExport }: SectionExportTab
   // Convert markers to sections
   useEffect(() => {
     if (exportMode === "markers" && project) {
-      // Используем реальные секции из проекта как маркеры
-      const markerSections: ExportSection[] = project.sections.map((section) => ({
-        id: section.id,
-        name: section.name,
-        startTime: section.startTime,
-        endTime: section.endTime,
-        includeInExport: true,
-      }))
-      setSections(markerSections)
+      if (project.markers && project.markers.length > 0) {
+        // Используем маркеры для создания секций
+        const markerSections: ExportSection[] = []
+        const sortedMarkers = [...project.markers].sort((a, b) => a.time - b.time)
+        
+        for (let i = 0; i < sortedMarkers.length; i++) {
+          const currentMarker = sortedMarkers[i]
+          const nextMarker = sortedMarkers[i + 1]
+          
+          // Определяем конец секции как следующий маркер или конец проекта
+          const endTime = nextMarker ? nextMarker.time : project.duration
+          
+          markerSections.push({
+            id: currentMarker.id,
+            name: currentMarker.name,
+            startTime: currentMarker.time,
+            endTime: endTime,
+            includeInExport: true,
+          })
+        }
+        
+        setSections(markerSections)
+      } else {
+        // Fallback: используем секции проекта как маркеры
+        const markerSections: ExportSection[] = project.sections.map((section) => ({
+          id: section.id,
+          name: section.name,
+          startTime: section.startTime,
+          endTime: section.endTime,
+          includeInExport: true,
+        }))
+        setSections(markerSections)
+      }
     }
   }, [exportMode, project])
 
@@ -106,11 +131,16 @@ export function SectionExportTab({ defaultSettings, onExport }: SectionExportTab
     )
   }
 
-  const formatTime = (seconds: number): string => {
+
+  const formatTimeShort = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
     const secs = Math.floor(seconds % 60)
-    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+    }
+    return `${minutes}:${secs.toString().padStart(2, "0")}`
   }
 
   const parseTime = (timeStr: string): number => {
@@ -166,6 +196,15 @@ export function SectionExportTab({ defaultSettings, onExport }: SectionExportTab
       sections: selectedSections,
     })
   }
+
+  const handlePreviewSection = useCallback((section: ExportSection) => {
+    // Переход к началу секции для предпросмотра
+    if (onPreviewSection) {
+      onPreviewSection(section.startTime)
+    } else if (seek) {
+      seek(section.startTime)
+    }
+  }, [onPreviewSection, seek])
 
   const selectedCount = sections.filter((s) => s.includeInExport).length
 
@@ -305,17 +344,28 @@ export function SectionExportTab({ defaultSettings, onExport }: SectionExportTab
                           className="h-7 text-sm"
                           placeholder={t("export.sections.fileName")}
                         />
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground ml-2">
-                          <Clock className="h-3 w-3" />
-                          <span>
-                            {formatTime(section.startTime)} - {formatTime(section.endTime)}
-                          </span>
+                        <div className="flex items-center gap-2 ml-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handlePreviewSection(section)}
+                            className="h-7 px-2"
+                            title={t("export.sections.preview")}
+                          >
+                            <Play className="h-3 w-3" />
+                          </Button>
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>
+                              {formatTimeShort(section.startTime)} - {formatTimeShort(section.endTime)}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
                       <div className="text-xs text-muted-foreground">
                         {t("export.sections.duration", {
-                          duration: formatTime(section.endTime - section.startTime),
+                          duration: formatTimeShort(section.endTime - section.startTime),
                         })}
                       </div>
                     </div>

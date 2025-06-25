@@ -151,21 +151,19 @@ export function ExportModal() {
             try {
               // Handle section export
               for (const section of settings.sections) {
-                // Используем ProjectSchemaBuilder для создания схемы с настройками экспорта
-                const projectSchema = new ProjectSchemaBuilder(project)
-                  .withExportSettings({
+                // Используем специализированный метод для экспорта секций
+                const projectSchema = ProjectSchemaBuilder.createForSectionExport(
+                  project,
+                  {
                     format: settings.format,
                     quality: settings.quality,
                     videoBitrate: settings.bitrate || 5000,
                     enableGPU: settings.enableGPU,
-                  })
-                  .withCustomSettings({
-                    // Добавляем временной диапазон как кастомные настройки
-                    // Backend может использовать их для обрезки видео
-                    sectionStartTime: section.startTime,
-                    sectionEndTime: section.endTime,
-                  })
-                  .build()
+                  },
+                  section.startTime,
+                  section.endTime,
+                  section.name
+                )
 
                 // Generate output path
                 const fileName = section.customFileName || section.name
