@@ -51,11 +51,11 @@ AI assistant will create the right number of versions for each platform! 🤖
 
 ## 🏗️ Project Status
 
-**Overall readiness: 74.5%** (weighted progress)  
-**🎯 Alpha version: 80.7%** ready
+**Overall readiness: 76.2%** (weighted progress)  
+**🎯 Alpha version: 86.3%** ready
 
-✅ **Completed**: 45 core modules (27 frontend + 18 backend)  
-🔄 **In progress**: Export (95%), Plugins (70%), Color Grading (25%)  
+✅ **Completed**: 47 core modules (27 frontend + 20 backend)  
+🔄 **In progress**: Plugins (70%)  
 🔧 **Partially implemented**: Scene Analyzer (30%), Script Generator (20%)  
 📋 **Planned**: 13 additional modules for DaVinci Resolve level
 
@@ -81,6 +81,7 @@ AI assistant will create the right number of versions for each platform! 🤖
 - 🎤 **NEW: Whisper transcription** - Speech-to-text with OpenAI/local models
 - 📱 **NEW: Platform optimization** - Auto-adapt for 4 social platforms
 - 🤖 **NEW: Workflow automation** - 10 pre-built processes for quick editing
+- 🎨 **NEW: Advanced Color Grading** - Professional color correction with wheels, curves, LUT, scopes
 
 ## Getting Started
 
