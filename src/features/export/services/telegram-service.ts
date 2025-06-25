@@ -225,7 +225,7 @@ export class TelegramService {
     }
   }
 
-  static async sendTestMessage(chatId: string, message: string = "Test message from Timeline Studio"): Promise<boolean> {
+  static async sendTestMessage(chatId: string, message = "Test message from Timeline Studio"): Promise<boolean> {
     const botToken = localStorage.getItem("telegram_bot_token")
     if (!botToken) {
       throw new Error("No Telegram bot token found")

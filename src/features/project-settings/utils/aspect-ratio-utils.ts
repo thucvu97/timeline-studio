@@ -2,6 +2,8 @@
  * Утилиты для работы с соотношениями сторон
  */
 
+import { AspectRatio } from "@/types/video-compiler"
+
 /**
  * Функция для преобразования ширины и высоты в строку формата X:Y
  * Определяет стандартные соотношения сторон или вычисляет соотношение
@@ -83,4 +85,29 @@ export function isStandardAspectRatio(width: number, height: number): boolean {
   const standardRatios = [16 / 9, 9 / 16, 1, 4 / 3, 3 / 4, 4 / 5, 5 / 4, 21 / 9]
 
   return standardRatios.some((standardRatio) => Math.abs(ratio - standardRatio) < 0.01)
+}
+
+/**
+ * Преобразует ширину и высоту в enum AspectRatio
+ *
+ * @param {number} width - Ширина в пикселях
+ * @param {number} height - Высота в пикселях
+ * @returns {AspectRatio} Enum соотношения сторон
+ */
+export function calculateAspectRatio(width: number, height: number): AspectRatio {
+  const ratioString = getAspectRatioString(width, height)
+
+  // Преобразуем строку в enum
+  switch (ratioString) {
+    case "16:9":
+      return AspectRatio.Ratio16x9
+    case "4:3":
+      return AspectRatio.Ratio4x3
+    case "1:1":
+      return AspectRatio.Ratio1x1
+    case "9:16":
+      return AspectRatio.Ratio9x16
+    default:
+      return AspectRatio.Ratio16x9
+  }
 }

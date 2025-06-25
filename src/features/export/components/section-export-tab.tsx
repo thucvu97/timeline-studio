@@ -63,28 +63,29 @@ export function SectionExportTab({ defaultSettings, onExport }: SectionExportTab
 
   // Convert clips to sections
   useEffect(() => {
-    if (exportMode === "clips") {
-      // TODO: Implement clips functionality when TimelineProject supports tracks/clips
-      // For now, create demo sections
-      const clipSections: ExportSection[] = [
-        {
-          id: "clip-1",
-          name: "Demo Clip 1",
-          startTime: 0,
-          endTime: 15,
-          includeInExport: true,
-        },
-        {
-          id: "clip-2",
-          name: "Demo Clip 2",
-          startTime: 15,
-          endTime: 30,
-          includeInExport: true,
-        },
-      ]
+    if (exportMode === "clips" && project) {
+      // Собираем все клипы из всех треков всех секций
+      const clipSections: ExportSection[] = []
+
+      project.sections.forEach((section) => {
+        section.tracks.forEach((track) => {
+          track.clips.forEach((clip) => {
+            clipSections.push({
+              id: clip.id,
+              name: clip.name || `${track.name} - Clip`,
+              startTime: section.startTime + clip.startTime,
+              endTime: section.startTime + clip.startTime + clip.duration,
+              includeInExport: true,
+            })
+          })
+        })
+      })
+
+      // Сортируем по времени начала
+      clipSections.sort((a, b) => a.startTime - b.startTime)
       setSections(clipSections)
     }
-  }, [exportMode])
+  }, [exportMode, project])
 
   const handleToggleSection = (sectionId: string) => {
     setSections((prev) =>

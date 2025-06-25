@@ -118,7 +118,7 @@ describe("useSocialExport", () => {
       ).rejects.toThrow("Unknown social network")
     })
 
-    it("should throw error for Tauri file reading (current implementation)", async () => {
+    it("should handle file not found error when uploading to social network", async () => {
       const { result } = renderHook(() => useSocialExport())
 
       await expect(
@@ -126,7 +126,7 @@ describe("useSocialExport", () => {
           socialNetwork: "youtube",
           title: "Test Video",
         }),
-      ).rejects.toThrow("Social media upload requires file reading implementation in Tauri")
+      ).rejects.toThrow("File not found: /path/to/video.mp4")
 
       expect(result.current.isUploading).toBe(false)
       expect(toast.error).toHaveBeenCalledWith("Upload to {{network}} failed")

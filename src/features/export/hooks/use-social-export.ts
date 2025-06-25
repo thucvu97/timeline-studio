@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react"
 
+import { readFile } from "@tauri-apps/plugin-fs"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { readBinaryFile } from "@tauri-apps/api/fs"
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
 import { SocialNetworksService } from "../services/social-networks-service"
@@ -52,9 +52,9 @@ export function useSocialExport() {
         setUploadProgress(0)
 
         // Читаем файл через Tauri API
-        const fileData = await readBinaryFile(videoPath)
-        const videoBlob = new Blob([fileData], { type: 'video/mp4' })
-        
+        const fileData = await readFile(videoPath)
+        const videoBlob = new Blob([fileData], { type: "video/mp4" })
+
         const result = await SocialNetworksService.uploadVideo(network.id, videoBlob, {
           title: settings.title || "Untitled Video",
           description: settings.description || "",
@@ -86,8 +86,7 @@ export function useSocialExport() {
       return { valid: false, error: "Unknown social network" }
     }
 
-    // TODO: Add file size and duration validation when limits are defined in SOCIAL_NETWORKS
-    // For now, we'll use hardcoded limits
+    // Лимиты для каждой социальной платформы
     const limits: Record<string, { maxFileSize?: number; maxDuration?: number }> = {
       youtube: { maxFileSize: 128 * 1024 * 1024 * 1024, maxDuration: 12 * 60 * 60 }, // 128GB, 12 hours
       tiktok: { maxFileSize: 287 * 1024 * 1024, maxDuration: 10 * 60 }, // 287MB, 10 minutes

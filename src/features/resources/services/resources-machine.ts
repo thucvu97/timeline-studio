@@ -353,55 +353,55 @@ export const resourcesMachine = setup({
       resources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.resources
         return context.resources.filter(
-          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId
+          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId,
         )
       },
       mediaResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.mediaResources
         return context.mediaResources.filter(
-          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId
+          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId,
         )
       },
       effectResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.effectResources
         return context.effectResources.filter(
-          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId
+          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId,
         )
       },
       filterResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.filterResources
         return context.filterResources.filter(
-          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId
+          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId,
         )
       },
       transitionResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.transitionResources
         return context.transitionResources.filter(
-          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId
+          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId,
         )
       },
       templateResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.templateResources
         return context.templateResources.filter(
-          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId
+          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId,
         )
       },
       styleTemplateResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.styleTemplateResources
         return context.styleTemplateResources.filter(
-          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId
+          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId,
         )
       },
       musicResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.musicResources
         return context.musicResources.filter(
-          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId
+          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId,
         )
       },
       subtitleResources: ({ context, event }) => {
         if (event.type !== "REMOVE_RESOURCE") return context.subtitleResources
         return context.subtitleResources.filter(
-          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId
+          (resource) => resource.id !== event.resourceId && resource.resourceId !== event.resourceId,
         )
       },
     }),

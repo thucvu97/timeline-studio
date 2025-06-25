@@ -4,7 +4,34 @@ import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
 
 import { ProjectFileService } from "@/features/app-state/services/project-file-service"
-import { AspectRatio, OutputFormat, ProjectSchema, RenderJob, RenderStatus } from "@/types/video-compiler"
+import { calculateAspectRatio } from "@/features/project-settings/utils/aspect-ratio-utils"
+import { OutputFormat, ProjectSchema, RenderJob, RenderStatus } from "@/types/video-compiler"
+
+function calculateProjectDuration(projectFile: any): number {
+  try {
+    // Пытаемся получить длительность из project.duration
+    if (projectFile.project?.duration) {
+      return projectFile.project.duration
+    }
+
+    // Если нет duration, вычисляем из секций
+    if (projectFile.project?.sections) {
+      const maxEndTime = Math.max(...projectFile.project.sections.map((s: any) => s.endTime || 0))
+      if (maxEndTime > 0) return maxEndTime
+    }
+
+    // Если нет секций, пытаемся вычислить из timeline
+    if (projectFile.timeline?.duration) {
+      return projectFile.timeline.duration
+    }
+
+    // Fallback - стандартная длительность
+    return 30
+  } catch (error) {
+    console.warn("Failed to calculate project duration:", error)
+    return 30
+  }
+}
 
 interface UseRenderQueueReturn {
   // Состояние очереди
@@ -94,8 +121,11 @@ export function useRenderQueue(): UseRenderQueueReturn {
             // Загружаем проект из файла
             const projectFile = await ProjectFileService.loadProject(project.path)
 
-            // Создаем минимальную схему проекта для экспорта
-            // В реальном проекте здесь должна быть полная загрузка timeline данных
+            // Создаем схему проекта из реальных данных timeline
+            const resolution = projectFile.settings.resolution.split("x").map(Number) as [number, number]
+            const aspectRatio = calculateAspectRatio(resolution[0], resolution[1])
+            const totalDuration = calculateProjectDuration(projectFile)
+
             const projectSchema: ProjectSchema = {
               version: "1.0.0",
               metadata: {
@@ -104,11 +134,11 @@ export function useRenderQueue(): UseRenderQueueReturn {
                 modified_at: new Date().toISOString(),
               },
               timeline: {
-                duration: 60, // TODO: Получить из реального проекта
+                duration: totalDuration,
                 fps: Number.parseInt(projectFile.settings.frameRate) || 30,
-                resolution: projectFile.settings.resolution.split("x").map(Number) as [number, number],
+                resolution: resolution,
                 sample_rate: 48000,
-                aspect_ratio: AspectRatio.Ratio16x9, // TODO: Вычислить из resolution
+                aspect_ratio: aspectRatio,
               },
               tracks: [],
               effects: [],

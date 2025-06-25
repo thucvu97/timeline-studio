@@ -3,10 +3,10 @@
 import { toast } from "sonner"
 
 import { OAuthService } from "./oauth-service"
-import { TikTokService } from "./tiktok-service"
-import { YouTubeService } from "./youtube-service"
-import { VimeoService } from "./vimeo-service"
 import { TelegramService } from "./telegram-service"
+import { TikTokService } from "./tiktok-service"
+import { VimeoService } from "./vimeo-service"
+import { YouTubeService } from "./youtube-service"
 import { SocialExportSettings } from "../types/export-types"
 
 export interface SocialUploadResult {
