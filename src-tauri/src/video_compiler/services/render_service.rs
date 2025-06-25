@@ -247,7 +247,7 @@ impl RenderService for RenderServiceImpl {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::video_compiler::services::{FfmpegServiceImpl, CacheServiceImpl};
+  use crate::video_compiler::services::{CacheServiceImpl, FfmpegServiceImpl};
 
   #[tokio::test]
   async fn test_render_service_creation() {
