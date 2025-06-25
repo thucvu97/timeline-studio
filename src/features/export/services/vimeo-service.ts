@@ -1,5 +1,6 @@
 // Vimeo API service для загрузки видео
 
+import { OAuthService } from "./oauth-service"
 import { SocialExportSettings } from "../types/export-types"
 
 export interface VimeoUploadResult {
@@ -54,11 +55,12 @@ export class VimeoService {
     onProgress?: (progress: number) => void,
   ): Promise<VimeoUploadResult> {
     try {
-      // Получаем сохраненный токен
-      const token = localStorage.getItem("vimeo_access_token")
-      if (!token) {
-        throw new Error("No Vimeo access token found")
+      // Получаем токен через OAuth service
+      const tokenData = await OAuthService.getStoredToken("vimeo")
+      if (!tokenData) {
+        throw new Error("Not authenticated with Vimeo")
       }
+      const token = tokenData.accessToken
 
       // 1. Создаем upload URL
       const createResponse = await fetch(`${VimeoService.API_BASE}/me/videos`, {

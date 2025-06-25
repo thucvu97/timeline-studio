@@ -23,6 +23,13 @@ vi.mock("lucide-react", async (importOriginal) => {
     ...actual,
     LogIn: ({ className }: { className?: string }) => <div data-testid="login-icon" className={className} />,
     Upload: ({ className }: { className?: string }) => <div data-testid="upload-icon" className={className} />,
+    AlertCircle: ({ className }: { className?: string }) => (
+      <div data-testid="alert-circle-icon" className={className} />
+    ),
+    CheckCircle: ({ className }: { className?: string }) => (
+      <div data-testid="check-circle-icon" className={className} />
+    ),
+    Info: ({ className }: { className?: string }) => <div data-testid="info-icon" className={className} />,
   }
 })
 
@@ -32,6 +39,18 @@ const mockUseSocialExport = {
   logoutFromSocialNetwork: vi.fn().mockResolvedValue(true),
   uploadToSocialNetwork: vi.fn().mockResolvedValue(true),
   validateSocialExport: vi.fn().mockReturnValue({ valid: true, error: null }),
+  getNetworkLimits: vi.fn().mockReturnValue({
+    titleMaxLength: 100,
+    descriptionMaxLength: 5000,
+    tagsMaxCount: 15,
+    maxFileSize: 128 * 1024 * 1024 * 1024,
+    maxDuration: 12 * 60 * 60,
+  }),
+  getOptimalSettings: vi.fn().mockReturnValue({
+    resolution: "1080",
+    quality: "good",
+    format: "mp4",
+  }),
 }
 
 vi.mock("../../hooks/use-social-export", () => ({

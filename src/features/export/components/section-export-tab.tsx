@@ -54,14 +54,14 @@ export function SectionExportTab({ defaultSettings, onExport, onPreviewSection }
         // Используем маркеры для создания секций
         const markerSections: ExportSection[] = []
         const sortedMarkers = [...project.markers].sort((a, b) => a.time - b.time)
-        
+
         for (let i = 0; i < sortedMarkers.length; i++) {
           const currentMarker = sortedMarkers[i]
           const nextMarker = sortedMarkers[i + 1]
-          
+
           // Определяем конец секции как следующий маркер или конец проекта
           const endTime = nextMarker ? nextMarker.time : project.duration
-          
+
           markerSections.push({
             id: currentMarker.id,
             name: currentMarker.name,
@@ -70,7 +70,7 @@ export function SectionExportTab({ defaultSettings, onExport, onPreviewSection }
             includeInExport: true,
           })
         }
-        
+
         setSections(markerSections)
       } else {
         // Fallback: используем секции проекта как маркеры
@@ -131,12 +131,11 @@ export function SectionExportTab({ defaultSettings, onExport, onPreviewSection }
     )
   }
 
-
   const formatTimeShort = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
     const secs = Math.floor(seconds % 60)
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
     }
@@ -197,14 +196,17 @@ export function SectionExportTab({ defaultSettings, onExport, onPreviewSection }
     })
   }
 
-  const handlePreviewSection = useCallback((section: ExportSection) => {
-    // Переход к началу секции для предпросмотра
-    if (onPreviewSection) {
-      onPreviewSection(section.startTime)
-    } else if (seek) {
-      seek(section.startTime)
-    }
-  }, [onPreviewSection, seek])
+  const handlePreviewSection = useCallback(
+    (section: ExportSection) => {
+      // Переход к началу секции для предпросмотра
+      if (onPreviewSection) {
+        onPreviewSection(section.startTime)
+      } else if (seek) {
+        seek(section.startTime)
+      }
+    },
+    [onPreviewSection, seek],
+  )
 
   const selectedCount = sections.filter((s) => s.includeInExport).length
 

@@ -7,8 +7,8 @@ import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { ProjectSchemaBuilder } from "@/features/export/utils/project-schema-builder"
+import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 
 import {
   type PrerenderCacheFile,

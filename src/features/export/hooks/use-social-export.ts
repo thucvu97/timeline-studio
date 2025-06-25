@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
 import { SocialNetworksService } from "../services/social-networks-service"
+import { SocialValidationService } from "../services/social-validation-service"
 import { SocialExportSettings } from "../types/export-types"
 
 export function useSocialExport() {
@@ -80,48 +81,40 @@ export function useSocialExport() {
     [t],
   )
 
-  const validateSocialExport = useCallback((settings: SocialExportSettings) => {
-    const network = SOCIAL_NETWORKS.find((n) => n.id === settings.socialNetwork)
-    if (!network) {
-      return { valid: false, error: "Unknown social network" }
-    }
-
-    // Лимиты для каждой социальной платформы
-    const limits: Record<string, { maxFileSize?: number; maxDuration?: number }> = {
-      youtube: { maxFileSize: 128 * 1024 * 1024 * 1024, maxDuration: 12 * 60 * 60 }, // 128GB, 12 hours
-      tiktok: { maxFileSize: 287 * 1024 * 1024, maxDuration: 10 * 60 }, // 287MB, 10 minutes
-      telegram: { maxFileSize: 2 * 1024 * 1024 * 1024, maxDuration: undefined }, // 2GB, no duration limit
-      vimeo: { maxFileSize: undefined, maxDuration: undefined }, // Varies by plan
-    }
-
-    const networkLimits = limits[network.id]
-
-    // Validate file size
-    if (settings.fileSizeBytes && networkLimits?.maxFileSize && settings.fileSizeBytes > networkLimits.maxFileSize) {
-      return {
-        valid: false,
-        error: `File size exceeds ${network.name} limit of ${networkLimits.maxFileSize / (1024 * 1024)}MB`,
+  const validateSocialExport = useCallback(
+    (settings: SocialExportSettings, videoFile?: { size: number; duration: number; format: string }) => {
+      const network = SOCIAL_NETWORKS.find((n) => n.id === settings.socialNetwork)
+      if (!network) {
+        return { valid: false, error: "Unknown social network" }
       }
-    }
 
-    // Validate duration
-    if (
-      settings.durationSeconds &&
-      networkLimits?.maxDuration &&
-      settings.durationSeconds > networkLimits.maxDuration
-    ) {
-      return {
-        valid: false,
-        error: `Video duration exceeds ${network.name} limit of ${networkLimits.maxDuration} seconds`,
+      const validation = SocialValidationService.validateExportSettings(network.id, settings, videoFile)
+
+      if (!validation.isValid) {
+        return {
+          valid: false,
+          error: validation.errors[0] || "Validation failed",
+          errors: validation.errors,
+          warnings: validation.warnings,
+          suggestions: validation.suggestions,
+        }
       }
-    }
 
-    // Validate title
-    if (!settings.title || settings.title.trim().length === 0) {
-      return { valid: false, error: "Title is required" }
-    }
+      return {
+        valid: true,
+        warnings: validation.warnings,
+        suggestions: validation.suggestions,
+      }
+    },
+    [],
+  )
 
-    return { valid: true }
+  const getOptimalSettings = useCallback((networkId: string) => {
+    return SocialValidationService.getOptimalSettings(networkId)
+  }, [])
+
+  const getNetworkLimits = useCallback((networkId: string) => {
+    return SocialValidationService.getNetworkLimits(networkId)
   }, [])
 
   return {
@@ -131,6 +124,8 @@ export function useSocialExport() {
     getUserInfo,
     uploadToSocialNetwork,
     validateSocialExport,
+    getOptimalSettings,
+    getNetworkLimits,
     uploadProgress,
     isUploading,
   }

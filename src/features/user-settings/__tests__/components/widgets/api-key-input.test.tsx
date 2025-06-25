@@ -184,9 +184,12 @@ describe("ApiKeyInput", () => {
 
   it("should show loading spinner during test", async () => {
     let resolveTest: (value: boolean) => void
-    mockTestApiKey.mockImplementation(() => new Promise((resolve) => {
-      resolveTest = resolve
-    }))
+    mockTestApiKey.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveTest = resolve
+        }),
+    )
 
     render(<ApiKeyInput {...defaultProps} value="test-key" testable={true} />)
 
@@ -200,7 +203,7 @@ describe("ApiKeyInput", () => {
       const spinner = document.querySelector(".animate-spin")
       expect(spinner).toBeInTheDocument()
     })
-    
+
     // Resolve the promise to prevent hanging
     act(() => {
       resolveTest(true)
@@ -269,9 +272,12 @@ describe("ApiKeyInput", () => {
 
   it("should not attempt test when already testing", async () => {
     let resolveTest: (value: boolean) => void
-    mockTestApiKey.mockImplementation(() => new Promise((resolve) => {
-      resolveTest = resolve
-    }))
+    mockTestApiKey.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveTest = resolve
+        }),
+    )
 
     render(<ApiKeyInput {...defaultProps} value="test-key" testable={true} />)
 
@@ -286,7 +292,7 @@ describe("ApiKeyInput", () => {
     })
 
     expect(mockTestApiKey).toHaveBeenCalledTimes(1)
-    
+
     // Resolve the promise to prevent hanging
     act(() => {
       resolveTest(true)

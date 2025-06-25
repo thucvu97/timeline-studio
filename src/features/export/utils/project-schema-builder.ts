@@ -1,8 +1,10 @@
-import { OutputFormat } from "@/types/video-compiler"
-import type { ProjectSchema } from "@/types/video-compiler"
 import type { TimelineProject as Timeline } from "@/features/timeline/types/timeline"
 import { timelineToProjectSchema } from "@/features/timeline/utils/timeline-to-project"
+import type { ProjectSchema } from "@/types/video-compiler"
+import { OutputFormat } from "@/types/video-compiler"
+
 import { AUDIO_BITRATE } from "../constants/export-constants"
+
 import type { ExportSettings } from "../types/export-types"
 
 /**
@@ -112,11 +114,7 @@ export class ProjectSchemaBuilder {
   /**
    * Apply preview settings to the project schema
    */
-  withPreviewSettings(previewSettings: {
-    resolution?: [number, number]
-    fps?: number
-    quality?: number
-  }): this {
+  withPreviewSettings(previewSettings: { resolution?: [number, number]; fps?: number; quality?: number }): this {
     if (previewSettings.resolution) {
       this.projectSchema.settings.preview.resolution = previewSettings.resolution
     }
@@ -163,41 +161,45 @@ export class ProjectSchemaBuilder {
     // Фильтруем клипы по временному диапазону
     this.projectSchema.tracks = this.projectSchema.tracks.map((track) => ({
       ...track,
-      clips: track.clips.filter((clip) => {
-        const clipStart = clip.start_time
-        const clipEnd = clip.end_time
-        // Клип включается, если он хотя бы частично пересекается с диапазоном
-        return clipEnd > startTime && clipStart < endTime
-      }).map((clip) => {
-        // Обрезаем клипы по границам диапазона
-        const adjustedStart = Math.max(clip.start_time, startTime)
-        const adjustedEnd = Math.min(clip.end_time, endTime)
-        const adjustedSourceStart = clip.source_start + (adjustedStart - clip.start_time)
-        const adjustedSourceEnd = clip.source_end - (clip.end_time - adjustedEnd)
+      clips: track.clips
+        .filter((clip) => {
+          const clipStart = clip.start_time
+          const clipEnd = clip.end_time
+          // Клип включается, если он хотя бы частично пересекается с диапазоном
+          return clipEnd > startTime && clipStart < endTime
+        })
+        .map((clip) => {
+          // Обрезаем клипы по границам диапазона
+          const adjustedStart = Math.max(clip.start_time, startTime)
+          const adjustedEnd = Math.min(clip.end_time, endTime)
+          const adjustedSourceStart = clip.source_start + (adjustedStart - clip.start_time)
+          const adjustedSourceEnd = clip.source_end - (clip.end_time - adjustedEnd)
 
-        return {
-          ...clip,
-          start_time: adjustedStart - startTime, // Сдвигаем к началу
-          end_time: adjustedEnd - startTime,
-          source_start: adjustedSourceStart,
-          source_end: adjustedSourceEnd,
-        }
-      }),
+          return {
+            ...clip,
+            start_time: adjustedStart - startTime, // Сдвигаем к началу
+            end_time: adjustedEnd - startTime,
+            source_start: adjustedSourceStart,
+            source_end: adjustedSourceEnd,
+          }
+        }),
     }))
 
     // Фильтруем субтитры по временному диапазону
-    this.projectSchema.subtitles = this.projectSchema.subtitles.filter((subtitle) => {
-      return subtitle.end_time > startTime && subtitle.start_time < endTime
-    }).map((subtitle) => {
-      const adjustedStart = Math.max(subtitle.start_time, startTime) - startTime
-      const adjustedEnd = Math.min(subtitle.end_time, endTime) - startTime
-      
-      return {
-        ...subtitle,
-        start_time: adjustedStart,
-        end_time: adjustedEnd,
-      }
-    })
+    this.projectSchema.subtitles = this.projectSchema.subtitles
+      .filter((subtitle) => {
+        return subtitle.end_time > startTime && subtitle.start_time < endTime
+      })
+      .map((subtitle) => {
+        const adjustedStart = Math.max(subtitle.start_time, startTime) - startTime
+        const adjustedEnd = Math.min(subtitle.end_time, endTime) - startTime
+
+        return {
+          ...subtitle,
+          start_time: adjustedStart,
+          end_time: adjustedEnd,
+        }
+      })
 
     // Обновляем длительность проекта
     this.projectSchema.timeline.duration = endTime - startTime
@@ -229,14 +231,8 @@ export class ProjectSchemaBuilder {
   /**
    * Create ProjectSchema optimized for export
    */
-  static createForExport(
-    timeline: Timeline,
-    exportSettings: ExportSettings,
-    projectName?: string
-  ): ProjectSchema {
-    return new ProjectSchemaBuilder(timeline, projectName)
-      .withExportSettings(exportSettings)
-      .build()
+  static createForExport(timeline: Timeline, exportSettings: ExportSettings, projectName?: string): ProjectSchema {
+    return new ProjectSchemaBuilder(timeline, projectName).withExportSettings(exportSettings).build()
   }
 
   /**
@@ -248,7 +244,7 @@ export class ProjectSchemaBuilder {
       resolution?: [number, number]
       fps?: number
       quality?: number
-    }
+    },
   ): ProjectSchema {
     const builder = new ProjectSchemaBuilder(timeline, "preview")
 
@@ -270,7 +266,7 @@ export class ProjectSchemaBuilder {
     exportSettings: ExportSettings,
     startTime: number,
     endTime: number,
-    sectionName?: string
+    sectionName?: string,
   ): ProjectSchema {
     return new ProjectSchemaBuilder(timeline, sectionName || "section")
       .withExportSettings(exportSettings)

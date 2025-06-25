@@ -181,30 +181,42 @@ describe("useSocialExport", () => {
       const { result } = renderHook(() => useSocialExport())
 
       // TikTok has 287MB limit
-      const validation = result.current.validateSocialExport({
-        socialNetwork: "tiktok",
-        title: "Test Video",
-        fileSizeBytes: 300 * 1024 * 1024, // 300MB
-      })
+      const validation = result.current.validateSocialExport(
+        {
+          socialNetwork: "tiktok",
+          title: "Test Video",
+        },
+        {
+          size: 300 * 1024 * 1024, // 300MB
+          duration: 60,
+          format: "mp4",
+        },
+      )
 
       expect(validation.valid).toBe(false)
-      expect(validation.error).toContain("File size exceeds")
-      expect(validation.error).toContain("TikTok")
+      expect(validation.error).toContain("File size")
+      expect(validation.error).toContain("287MB")
     })
 
     it("should validate duration limits", () => {
       const { result } = renderHook(() => useSocialExport())
 
       // TikTok has 10 minutes limit
-      const validation = result.current.validateSocialExport({
-        socialNetwork: "tiktok",
-        title: "Test Video",
-        durationSeconds: 11 * 60, // 11 minutes
-      })
+      const validation = result.current.validateSocialExport(
+        {
+          socialNetwork: "tiktok",
+          title: "Test Video",
+        },
+        {
+          size: 100 * 1024 * 1024, // 100MB
+          duration: 11 * 60, // 11 minutes
+          format: "mp4",
+        },
+      )
 
       expect(validation.valid).toBe(false)
-      expect(validation.error).toContain("Video duration exceeds")
-      expect(validation.error).toContain("TikTok")
+      expect(validation.error).toContain("Video duration")
+      expect(validation.error).toContain("10min")
     })
 
     it("should pass validation for valid settings", () => {

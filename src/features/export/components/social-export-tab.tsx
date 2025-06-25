@@ -1,8 +1,10 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
-import { LogIn, Upload } from "lucide-react"
+import { AlertCircle, CheckCircle, Info, LogIn, Upload } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -65,10 +67,61 @@ export function SocialExportTab({
   hasProject,
 }: SocialExportTabProps) {
   const { t } = useTranslation()
-  const { loginToSocialNetwork, logoutFromSocialNetwork, validateSocialExport } = useSocialExport()
+  const { loginToSocialNetwork, logoutFromSocialNetwork, validateSocialExport, getOptimalSettings, getNetworkLimits } =
+    useSocialExport()
 
   const [selectedNetwork, setSelectedNetwork] = useState<string>(settings.socialNetwork || "youtube")
   const [loginStates, setLoginStates] = useState<Record<string, boolean>>({})
+
+  // Валидация в реальном времени
+  const validation = useMemo(() => {
+    return validateSocialExport(settings)
+  }, [settings, validateSocialExport])
+
+  // Получаем лимиты для выбранной сети
+  const networkLimits = useMemo(() => {
+    return getNetworkLimits(selectedNetwork)
+  }, [selectedNetwork, getNetworkLimits])
+
+  // Получаем оптимальные настройки
+  const optimalSettings = useMemo(() => {
+    return getOptimalSettings(selectedNetwork)
+  }, [selectedNetwork, getOptimalSettings])
+
+  // Функция для получения статуса валидации
+  const getValidationStatus = () => {
+    if (validation.valid) {
+      return validation.warnings?.length > 0 || validation.suggestions?.length > 0 ? "warning" : "success"
+    }
+    return "error"
+  }
+
+  // Функция для форматирования размера файла
+  const formatFileSize = (bytes: number) => {
+    const units = ["B", "KB", "MB", "GB"]
+    let size = bytes
+    let unitIndex = 0
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024
+      unitIndex++
+    }
+    return `${Math.round(size * 10) / 10}${units[unitIndex]}`
+  }
+
+  // Функция для форматирования времени
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const remainingSeconds = seconds % 60
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`
+    }
+    if (minutes > 0) {
+      return `${minutes}m ${remainingSeconds}s`
+    }
+    return `${remainingSeconds}s`
+  }
 
   // Обработчик входа в социальную сеть
   const handleLogin = async (networkId: string) => {
@@ -204,6 +257,98 @@ export function SocialExportTab({
         })}
       </div>
 
+      {/* Валидация и лимиты сети */}
+      {selectedNetworkData && networkLimits && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {getSocialIcon(selectedNetwork)}
+                {selectedNetworkData.name} Limits & Validation
+              </div>
+              <div className="flex items-center gap-2">
+                {validation.valid ? (
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                ) : (
+                  <AlertCircle className="h-5 w-5 text-red-500" />
+                )}
+                <Badge variant={validation.valid ? "default" : "destructive"}>
+                  {validation.valid ? "Valid" : "Invalid"}
+                </Badge>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Лимиты платформы */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
+              <div className="text-center">
+                <div className="text-sm font-medium">Max File Size</div>
+                <div className="text-xs text-muted-foreground">
+                  {(networkLimits.maxFileSize / (1024 * 1024 * 1024)).toFixed(1)}GB
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-medium">Max Duration</div>
+                <div className="text-xs text-muted-foreground">{Math.round(networkLimits.maxDuration / 3600)}h</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-medium">Max Resolution</div>
+                <div className="text-xs text-muted-foreground">{networkLimits.maxResolution}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-medium">Title Limit</div>
+                <div className="text-xs text-muted-foreground">{networkLimits.titleMaxLength} chars</div>
+              </div>
+            </div>
+
+            {/* Ошибки валидации */}
+            {!validation.valid && validation.errors && validation.errors.length > 0 && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="space-y-1">
+                    {validation.errors.map((error, index) => (
+                      <div key={index}>{error}</div>
+                    ))}
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Предупреждения */}
+            {validation.warnings && validation.warnings.length > 0 && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="space-y-1">
+                    {validation.warnings.map((warning, index) => (
+                      <div key={index}>{warning}</div>
+                    ))}
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Предложения по оптимизации */}
+            {validation.suggestions && validation.suggestions.length > 0 && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="space-y-1">
+                    <div className="font-medium">Optimization suggestions:</div>
+                    {validation.suggestions.map((suggestion, index) => (
+                      <div key={index} className="text-sm">
+                        • {suggestion}
+                      </div>
+                    ))}
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Настройки выбранной сети */}
       {selectedNetworkData && (
         <Card>
@@ -216,24 +361,60 @@ export function SocialExportTab({
           <CardContent className="space-y-4">
             {/* Название видео */}
             <div className="space-y-2">
-              <Label>{t("dialogs.export.videoTitle")}</Label>
+              <Label className="flex items-center justify-between">
+                {t("dialogs.export.videoTitle")}
+                {networkLimits && (
+                  <span
+                    className={`text-xs ${
+                      (settings.title || "").length > networkLimits.titleMaxLength
+                        ? "text-red-500"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {(settings.title || "").length}/{networkLimits.titleMaxLength}
+                  </span>
+                )}
+              </Label>
               <Input
                 placeholder={t("dialogs.export.enterTitle")}
                 value={settings.title || ""}
                 onChange={(e) => onSettingsChange({ title: e.target.value })}
                 disabled={isRendering}
+                className={
+                  networkLimits && (settings.title || "").length > networkLimits.titleMaxLength
+                    ? "border-red-500 focus:border-red-500"
+                    : ""
+                }
               />
             </div>
 
             {/* Описание */}
             <div className="space-y-2">
-              <Label>{t("dialogs.export.description")}</Label>
+              <Label className="flex items-center justify-between">
+                {t("dialogs.export.description")}
+                {networkLimits && (
+                  <span
+                    className={`text-xs ${
+                      (settings.description || "").length > networkLimits.descriptionMaxLength
+                        ? "text-red-500"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {(settings.description || "").length}/{networkLimits.descriptionMaxLength}
+                  </span>
+                )}
+              </Label>
               <Textarea
                 placeholder={t("dialogs.export.enterDescription")}
                 value={settings.description || ""}
                 onChange={(e) => onSettingsChange({ description: e.target.value })}
                 disabled={isRendering}
                 rows={3}
+                className={
+                  networkLimits && (settings.description || "").length > networkLimits.descriptionMaxLength
+                    ? "border-red-500 focus:border-red-500"
+                    : ""
+                }
               />
             </div>
 
@@ -259,7 +440,20 @@ export function SocialExportTab({
             {/* Теги (только для YouTube) */}
             {selectedNetwork === "youtube" && (
               <div className="space-y-2">
-                <Label>{t("dialogs.export.tags")}</Label>
+                <Label className="flex items-center justify-between">
+                  {t("dialogs.export.tags")}
+                  {networkLimits && (
+                    <span
+                      className={`text-xs ${
+                        (settings.tags || []).length > networkLimits.tagsMaxCount
+                          ? "text-red-500"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {(settings.tags || []).length}/{networkLimits.tagsMaxCount}
+                    </span>
+                  )}
+                </Label>
                 <Input
                   placeholder={t("dialogs.export.enterTags")}
                   value={settings.tags?.join(", ") || ""}
@@ -272,6 +466,11 @@ export function SocialExportTab({
                     })
                   }
                   disabled={isRendering}
+                  className={
+                    networkLimits && (settings.tags || []).length > networkLimits.tagsMaxCount
+                      ? "border-red-500 focus:border-red-500"
+                      : ""
+                  }
                 />
               </div>
             )}

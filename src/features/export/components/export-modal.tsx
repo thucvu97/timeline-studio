@@ -162,7 +162,7 @@ export function ExportModal() {
                   },
                   section.startTime,
                   section.endTime,
-                  section.name
+                  section.name,
                 )
 
                 // Generate output path

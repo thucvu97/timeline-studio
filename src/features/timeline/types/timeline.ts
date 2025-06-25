@@ -382,14 +382,6 @@ export interface TimelineHistoryEntry {
 // UTILITY TYPES
 // ============================================================================
 
-export interface TimelineMarker {
-  id: string
-  time: number
-  name: string
-  color?: string
-  type: "chapter" | "beat" | "sync" | "custom"
-}
-
 export interface TimelineKeyframe {
   id: string
   time: number
