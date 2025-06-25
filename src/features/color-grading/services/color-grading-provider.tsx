@@ -1,17 +1,18 @@
 import { ReactNode, createContext, useContext } from "react"
 
 import { useColorGrading } from "../hooks/use-color-grading"
-import { 
-  BasicParametersState, 
-  ColorGradingState, 
-  ColorWheelType, 
+import {
+  BasicParametersState,
+  ColorGradingState,
+  ColorWheelType,
   CurvePoint,
   CurveType,
-  RGBValue
+  RGBValue,
 } from "../types/color-grading"
 
 interface ColorGradingContextValue {
   state: ColorGradingState
+  dispatch: (action: any) => void
   updateColorWheel: (wheelType: ColorWheelType, value: RGBValue) => void
   updateBasicParameter: (parameter: keyof BasicParametersState, value: number) => void
   updateCurve: (curveType: CurveType, points: CurvePoint[]) => void
@@ -32,17 +33,16 @@ const ColorGradingContext = createContext<ColorGradingContextValue | null>(null)
 export function ColorGradingProvider({ children }: { children: ReactNode }) {
   const colorGrading = useColorGrading()
 
-  return (
-    <ColorGradingContext.Provider value={colorGrading}>
-      {children}
-    </ColorGradingContext.Provider>
-  )
+  return <ColorGradingContext.Provider value={colorGrading}>{children}</ColorGradingContext.Provider>
 }
 
 export function useColorGradingContext() {
   const context = useContext(ColorGradingContext)
   if (!context) {
-    throw new Error('useColorGradingContext must be used within ColorGradingProvider')
+    throw new Error("useColorGradingContext must be used within ColorGradingProvider")
   }
   return context
 }
+
+// Экспортируем useColorGrading как синоним для useColorGradingContext
+export { useColorGradingContext as useColorGrading }

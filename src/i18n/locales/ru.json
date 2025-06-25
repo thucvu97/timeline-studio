@@ -1933,8 +1933,8 @@
     "primaryCorrection": "Первичная цветокоррекция",
     "curves": "Кривые",
     "hslCorrection": "HSL коррекция",
-    "lut": "LUT",
-    "scopes": "Скопы",
+    "lutSection": "LUT",
+    "scopesSection": "Скопы",
     "colorWheels": {
       "description": "Настройте тени (Lift), средние тона (Gamma) и света (Gain)",
       "lift": "Lift (Тени)",
@@ -1977,22 +1977,16 @@
       "vibrance": "Сочность"
     },
     "lut": {
-      "description": "Применение таблиц соответствия для творческой цветокоррекции",
+      "description": "Применение профессиональных цветовых стилей с помощью LUT файлов",
       "file": "LUT файл",
-      "intensity": "Интенсивность LUT",
+      "intensity": "Интенсивность",
       "none": "Нет",
-      "cinematicWarm": "Кинематографический теплый",
-      "vintageFilm": "Винтажная пленка",
-      "moodynlue": "Мрачный синий",
-      "highContrast": "Высокий контраст",
-      "loadCustom": "Загрузить пользовательский...",
-      "selectPlaceholder": "Выберите LUT...",
-      "loadCustomTooltip": "Загрузить пользовательский .cube файл",
-      "remove": "Удалить LUT",
+      "enable": "Включить LUT",
+      "selectFile": "Выбрать LUT",
+      "refresh": "Обновить",
       "preview": "Превью",
       "original": "Оригинал",
-      "withLut": "С LUT",
-      "supportedFormats": "Поддерживаемые форматы"
+      "supportedFormats": "Поддерживаемые форматы: .cube, .3dl, .dat, .look, .mga, .m3d"
     },
     "scopes": {
       "description": "Анализ цвета и экспозиции в реальном времени",
@@ -2013,11 +2007,32 @@
       "savePreset": "Сохранить пресет",
       "preview": "Превью",
       "applyToClip": "Применить к клипу",
+      "auto": "Авто",
       "resetAllTooltip": "Сбросить всю цветокоррекцию",
       "loadPresetTooltip": "Загрузить пресет цветокоррекции",
       "savePresetTooltip": "Сохранить текущие настройки как пресет",
       "togglePreviewTooltip": "Переключить предпросмотр в реальном времени",
-      "applyToClipTooltip": "Применить цветокоррекцию к выбранному клипу"
+      "applyToClipTooltip": "Применить цветокоррекцию к выбранному клипу",
+      "autoCorrectTooltip": "Автоматически настроить уровни"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "Кинематографические",
+        "vintage": "Винтажные",
+        "modern": "Современные",
+        "blackwhite": "Черно-белые",
+        "creative": "Креативные",
+        "correction": "Коррекция",
+        "custom": "Пользовательские"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "Сохранить пресет цветокоррекции",
+        "description": "Введите название для вашего пресета цветокоррекции",
+        "nameLabel": "Название",
+        "namePlaceholder": "Мой пресет"
+      }
     }
   },
   "resources": {

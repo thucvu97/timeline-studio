@@ -2029,8 +2029,8 @@
     "primaryCorrection": "Primary Color Correction",
     "curves": "Curves",
     "hslCorrection": "HSL Correction",
-    "lut": "LUT",
-    "scopes": "Scopes",
+    "lutSection": "LUT",
+    "scopesSection": "Scopes",
     "colorWheels": {
       "description": "Adjust shadows (Lift), midtones (Gamma), and highlights (Gain)",
       "lift": "Lift (Shadows)",
@@ -2073,22 +2073,16 @@
       "vibrance": "Vibrance"
     },
     "lut": {
-      "description": "Apply Look-Up Tables for creative color grading",
+      "description": "Apply professional color looks with LUT files",
       "file": "LUT File",
-      "intensity": "LUT Intensity",
+      "intensity": "Intensity",
       "none": "None",
-      "cinematicWarm": "Cinematic Warm",
-      "vintageFilm": "Vintage Film",
-      "moodynlue": "Moody Blue",
-      "highContrast": "High Contrast",
-      "loadCustom": "Load Custom...",
-      "selectPlaceholder": "Select LUT...",
-      "loadCustomTooltip": "Load custom .cube file",
-      "remove": "Remove LUT",
+      "enable": "Enable LUT",
+      "selectFile": "Select LUT",
+      "refresh": "Refresh",
       "preview": "Preview",
       "original": "Original",
-      "withLut": "With LUT",
-      "supportedFormats": "Supported formats"
+      "supportedFormats": "Supported formats: .cube, .3dl, .dat, .look, .mga, .m3d"
     },
     "scopes": {
       "description": "Real-time analysis of color and exposure",
@@ -2109,11 +2103,32 @@
       "savePreset": "Save Preset",
       "preview": "Preview",
       "applyToClip": "Apply to Clip",
+      "auto": "Auto",
       "resetAllTooltip": "Reset all color corrections",
       "loadPresetTooltip": "Load color grading preset",
       "savePresetTooltip": "Save current settings as preset",
       "togglePreviewTooltip": "Toggle real-time preview",
-      "applyToClipTooltip": "Apply color grading to selected clip"
+      "applyToClipTooltip": "Apply color grading to selected clip",
+      "autoCorrectTooltip": "Automatically adjust levels"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "Cinematic",
+        "vintage": "Vintage",
+        "modern": "Modern",
+        "blackwhite": "Black & White",
+        "creative": "Creative",
+        "correction": "Correction",
+        "custom": "Custom"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "Save Color Grading Preset",
+        "description": "Enter a name for your color grading preset",
+        "nameLabel": "Name",
+        "namePlaceholder": "My Preset"
+      }
     }
   },
   "videoCompiler": {
