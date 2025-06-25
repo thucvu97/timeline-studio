@@ -103,6 +103,15 @@ export const SOCIAL_NETWORKS = [
     aspectRatios: ["16:9", "9:16", "1:1"],
   },
   {
+    id: "vimeo",
+    name: "Vimeo",
+    icon: "/vimeo.svg",
+    maxResolution: "4k",
+    maxFps: 60,
+    recommendedFormats: ["mp4", "mov"],
+    aspectRatios: ["16:9", "9:16", "1:1", "4:3"],
+  },
+  {
     id: "tiktok",
     name: "TikTok",
     icon: "/tiktok-new.svg",
