@@ -295,3 +295,6 @@ pub async fn get_video_thumbnails(
   // Извлекаем кадры
   extract_video_frames_batch(video_path, timestamps, output_dir, state).await
 }
+
+#[cfg(test)]
+mod frame_extraction_commands_tests;
