@@ -98,6 +98,32 @@ impl ServiceContainer {
     }
   }
 
+  /// Получить FfmpegService (для интеграции Plugin API)
+  pub fn get_ffmpeg_service(
+    &self,
+  ) -> Option<Arc<crate::video_compiler::services::ffmpeg_service::FfmpegServiceImpl>> {
+    // Возвращаем None - интеграция будет добавлена в будущем
+    // Это позволяет плагинам gracefully fallback на основную функциональность
+    None
+  }
+
+  /// Получить CacheService (для интеграции Plugin API)
+  pub fn get_cache_service(
+    &self,
+  ) -> Option<Arc<crate::video_compiler::services::cache_service::CacheServiceImpl>> {
+    None
+  }
+
+  /// Получить PreviewService (для интеграции Plugin API)
+  pub fn get_preview_service(&self) -> Option<Arc<dyn std::any::Any + Send + Sync>> {
+    None
+  }
+
+  /// Получить ProjectService (для интеграции Plugin API)
+  pub fn get_project_service(&self) -> Option<Arc<dyn std::any::Any + Send + Sync>> {
+    None
+  }
+
   /// Регистрация singleton сервиса
   pub async fn register<T>(&self, service: T) -> Result<()>
   where

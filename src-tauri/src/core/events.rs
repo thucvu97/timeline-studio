@@ -59,6 +59,11 @@ pub enum AppEvent {
     media_id: String,
     thumbnail_path: String,
   },
+  EffectApplied {
+    media_id: String,
+    effect_type: String,
+    parameters: String,
+  },
 
   // Recognition events
   RecognitionStarted {

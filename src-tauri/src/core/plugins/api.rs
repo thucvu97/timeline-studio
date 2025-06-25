@@ -16,7 +16,6 @@ use std::{
   sync::Arc,
 };
 use tokio::sync::RwLock;
-use uuid::Uuid;
 
 /// Информация о медиа файле
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -51,7 +50,11 @@ pub struct TimelineState {
 pub struct TrackInfo {
   pub id: String,
   pub track_type: String,
+  pub name: String,
   pub clips: Vec<ClipInfo>,
+  pub muted: bool,
+  pub locked: bool,
+  pub height: u32,
 }
 
 /// Информация о клипе
@@ -293,15 +296,20 @@ impl PluginStorage for PluginStorageImpl {
 }
 
 /// Реализация PluginApi
+#[derive(Clone)]
 pub struct PluginApiImpl {
   plugin_id: String,
   permissions: Arc<PluginPermissions>,
   #[allow(dead_code)]
   service_container: Arc<ServiceContainer>,
   #[allow(dead_code)]
-  app_handle: tauri::AppHandle,
+  app_handle: Option<tauri::AppHandle>,
   storage_path: PathBuf,
   event_bus: Arc<EventBus>,
+  // Мосты для интеграции с сервисами
+  media_bridge: super::services::MediaBridge,
+  timeline_bridge: super::services::TimelineBridge,
+  ui_bridge: super::services::UIBridge,
 }
 
 impl PluginApiImpl {
@@ -309,10 +317,30 @@ impl PluginApiImpl {
     plugin_id: String,
     permissions: Arc<PluginPermissions>,
     service_container: Arc<ServiceContainer>,
-    app_handle: tauri::AppHandle,
+    app_handle: Option<tauri::AppHandle>,
     storage_path: PathBuf,
     event_bus: Arc<EventBus>,
   ) -> Self {
+    // Создаем мосты для интеграции
+    let media_bridge = super::services::MediaBridge::new(
+      service_container.clone(),
+      permissions.clone(),
+      plugin_id.clone(),
+    );
+
+    let timeline_bridge = super::services::TimelineBridge::new(
+      service_container.clone(),
+      permissions.clone(),
+      plugin_id.clone(),
+    );
+
+    let ui_bridge = super::services::UIBridge::new(
+      service_container.clone(),
+      permissions.clone(),
+      plugin_id.clone(),
+      app_handle.clone(),
+    );
+
     Self {
       plugin_id,
       permissions,
@@ -320,6 +348,9 @@ impl PluginApiImpl {
       app_handle,
       storage_path,
       event_bus,
+      media_bridge,
+      timeline_bridge,
+      ui_bridge,
     }
   }
 
@@ -443,198 +474,81 @@ impl PluginApiImpl {
 #[async_trait]
 impl PluginApi for PluginApiImpl {
   async fn get_media_info(&self, media_id: &str) -> Result<MediaInfo> {
-    // Проверка разрешений
-    self.check_permission("media_read")?;
-
-    // TODO: Интеграция с реальными сервисами будет добавлена в следующих итерациях
-    // Пока используем улучшенную заглушку с проверкой файла
-    log::info!(
-      "[Plugin {}] Processing media info request for: {}",
-      self.plugin_id,
-      media_id
-    );
-
-    let media_path = PathBuf::from(media_id);
-
-    // Проверяем существование файла если это путь
-    if media_path.exists() {
-      // Пытаемся определить базовую информацию из метаданных файла
-      if let Ok(metadata) = tokio::fs::metadata(&media_path).await {
-        log::info!(
-          "[Plugin {}] Found media file: {} (size: {} bytes)",
-          self.plugin_id,
-          media_id,
-          metadata.len()
-        );
-
-        Ok(MediaInfo {
-          id: media_id.to_string(),
-          path: media_path,
-          duration: 0.0, // TODO: Определить через FFmpeg
-          width: 1920,
-          height: 1080,
-          fps: 30.0,
-          codec: "unknown".to_string(),
-          bitrate: 0,
-        })
-      } else {
-        Err(VideoCompilerError::InvalidParameter(format!(
-          "Cannot access media file: {}",
-          media_id
-        )))
-      }
-    } else {
-      // Возможно media_id это не путь к файлу, а ID в базе данных
-      log::warn!(
-        "[Plugin {}] Media ID '{}' is not a valid file path, treating as media ID",
-        self.plugin_id,
-        media_id
-      );
-
-      Ok(MediaInfo {
-        id: media_id.to_string(),
-        path: PathBuf::from(media_id),
-        duration: 0.0,
-        width: 1920,
-        height: 1080,
-        fps: 30.0,
-        codec: "h264".to_string(),
-        bitrate: 5000000,
-      })
-    }
+    // Используем MediaBridge для получения информации о медиа
+    self.media_bridge.get_media_info(media_id).await
   }
 
-  async fn apply_effect(&self, _media_id: &str, _effect: Effect) -> Result<()> {
-    // TODO: Реализовать через EffectProcessor
-    todo!("Implement apply_effect")
+  async fn apply_effect(&self, media_id: &str, effect: Effect) -> Result<()> {
+    // Используем MediaBridge для применения эффекта
+    self.media_bridge.apply_effect(media_id, &effect).await?;
+
+    // Публикуем событие о применении эффекта
+    self
+      .event_bus
+      .publish_app_event(AppEvent::EffectApplied {
+        media_id: media_id.to_string(),
+        effect_type: effect.effect_type.clone(),
+        parameters: effect.parameters.to_string(),
+      })
+      .await?;
+
+    Ok(())
   }
 
   async fn generate_thumbnail(&self, media_id: &str, time: f64) -> Result<PathBuf> {
-    // Проверка разрешений
-    self.check_permission("media_read")?;
-
-    // Создаем директорию для thumbnails
+    // Создаем путь для thumbnail
     let thumbnail_dir = self.storage_path.join("thumbnails");
-    tokio::fs::create_dir_all(&thumbnail_dir)
-      .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
-
     let thumbnail_path = thumbnail_dir.join(format!(
       "{}_{}.jpg",
       media_id.replace(['/', '\\'], "_"),
       (time * 1000.0) as u64
     ));
 
-    // TODO: Интеграция с PreviewService будет добавлена в следующих итерациях
-    // Пока создаем заглушку thumbnail
-    log::info!(
-      "[Plugin {}] Generating thumbnail placeholder for: {} at time {}",
-      self.plugin_id,
-      media_id,
-      time
-    );
+    // Используем MediaBridge для генерации thumbnail
+    self
+      .media_bridge
+      .generate_thumbnail(media_id, time, &thumbnail_path)
+      .await?;
 
-    let media_path = PathBuf::from(media_id);
-
-    // Проверяем существование медиа файла
-    if media_path.exists() {
-      log::info!(
-        "[Plugin {}] Media file exists, creating thumbnail placeholder",
-        self.plugin_id
-      );
-
-      // Создаем простую заглушку (1x1 пиксель в формате JPEG)
-      let placeholder_jpeg = vec![
-        0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00,
-        0x48, 0x00, 0x48, 0x00, 0x00, 0xFF, 0xDB, 0x00, 0x43, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-        0xC0, 0x00, 0x11, 0x08, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x11, 0x00, 0x02, 0x11, 0x01,
-        0x03, 0x11, 0x01, 0xFF, 0xC4, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0xFF, 0xC4, 0x00, 0x14, 0x10,
-        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0xFF, 0xDA, 0x00, 0x0C, 0x03, 0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00, 0x3F,
-        0x00, 0x00, 0xFF, 0xD9,
-      ];
-
-      tokio::fs::write(&thumbnail_path, placeholder_jpeg)
-        .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
-
-      // Публикуем событие о создании thumbnail
-      if let Err(e) = self
-        .event_bus
-        .publish_app_event(AppEvent::ThumbnailGenerated {
-          media_id: media_id.to_string(),
-          thumbnail_path: thumbnail_path.to_string_lossy().to_string(),
-        })
-        .await
-      {
-        log::warn!(
-          "[Plugin {}] Failed to publish ThumbnailGenerated event: {}",
-          self.plugin_id,
-          e
-        );
-      }
-    } else {
+    // Публикуем событие о создании thumbnail
+    if let Err(e) = self
+      .event_bus
+      .publish_app_event(AppEvent::ThumbnailGenerated {
+        media_id: media_id.to_string(),
+        thumbnail_path: thumbnail_path.to_string_lossy().to_string(),
+      })
+      .await
+    {
       log::warn!(
-        "[Plugin {}] Media file not found: {}, creating empty placeholder",
+        "[Plugin {}] Failed to publish ThumbnailGenerated event: {}",
         self.plugin_id,
-        media_id
+        e
       );
-
-      // Создаем пустой файл для несуществующего медиа
-      tokio::fs::write(&thumbnail_path, b"")
-        .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
     }
 
     Ok(thumbnail_path)
   }
 
   async fn get_timeline_state(&self) -> Result<TimelineState> {
-    // Проверка разрешений
-    self.check_permission("timeline_read")?;
-
-    // В реальной реализации здесь нужно получить текущий проект из состояния приложения
-    // Пока возвращаем заглушку
-    log::warn!(
-      "[Plugin {}] get_timeline_state is not fully implemented yet",
-      self.plugin_id
-    );
-
-    Ok(TimelineState {
-      duration: 0.0,
-      current_time: 0.0,
-      tracks: vec![],
-    })
+    // Используем TimelineBridge для получения состояния timeline
+    self.timeline_bridge.get_timeline_state().await
   }
 
   async fn add_clip(&self, clip: Clip) -> Result<String> {
-    // Проверка разрешений
-    self.check_permission("timeline_write")?;
+    // Конвертируем клип в JSON для передачи в TimelineBridge
+    let clip_data = serde_json::json!({
+      "media_id": clip.media_id,
+      "start_time": clip.start_time,
+      "duration": clip.duration
+    });
 
-    // Генерируем ID для нового клипа
-    let clip_id = Uuid::new_v4().to_string();
+    // Используем TimelineBridge для добавления клипа
+    let clip_id = self
+      .timeline_bridge
+      .add_clip(&clip.track_id, clip_data)
+      .await?;
 
-    // В реальной реализации здесь нужно:
-    // 1. Получить текущий проект из состояния
-    // 2. Найти нужный трек
-    // 3. Добавить клип
-    // 4. Обновить состояние проекта
-    // 5. Отправить событие об изменении
-
-    log::info!(
-      "[Plugin {}] Added clip {} to track {} at time {}",
-      self.plugin_id,
-      clip_id,
-      clip.track_id,
-      clip.start_time
-    );
-
-    // Публикуем событие о добавлении клипа через EventBus
+    // Публикуем событие о добавлении клипа
     if let Err(e) = self
       .event_bus
       .publish_app_event(AppEvent::PluginEvent {
@@ -661,12 +575,10 @@ impl PluginApi for PluginApiImpl {
   }
 
   async fn remove_clip(&self, clip_id: &str) -> Result<()> {
-    // Проверка разрешений
-    self.check_permission("timeline_write")?;
+    // Используем TimelineBridge для удаления клипа
+    self.timeline_bridge.remove_clip(clip_id).await?;
 
-    log::info!("[Plugin {}] Removing clip {}", self.plugin_id, clip_id);
-
-    // Публикуем событие об удалении клипа через EventBus
+    // Публикуем событие об удалении клипа
     if let Err(e) = self
       .event_bus
       .publish_app_event(AppEvent::PluginEvent {
@@ -688,13 +600,20 @@ impl PluginApi for PluginApiImpl {
     Ok(())
   }
 
-  async fn update_clip(&self, clip_id: &str, _clip: ClipInfo) -> Result<()> {
-    // Проверка разрешений
-    self.check_permission("timeline_write")?;
+  async fn update_clip(&self, clip_id: &str, clip: ClipInfo) -> Result<()> {
+    // Конвертируем изменения в JSON
+    let updates = serde_json::json!({
+      "media_id": clip.media_id,
+      "start_time": clip.start_time,
+      "duration": clip.duration,
+      "in_point": clip.in_point,
+      "out_point": clip.out_point
+    });
 
-    log::info!("[Plugin {}] Updating clip {}", self.plugin_id, clip_id);
+    // Используем TimelineBridge для обновления клипа
+    self.timeline_bridge.update_clip(clip_id, updates).await?;
 
-    // Публикуем событие об обновлении клипа через EventBus
+    // Публикуем событие об обновлении клипа
     if let Err(e) = self
       .event_bus
       .publish_app_event(AppEvent::PluginEvent {
@@ -717,74 +636,145 @@ impl PluginApi for PluginApiImpl {
   }
 
   async fn show_dialog(&self, dialog: PluginDialog) -> Result<DialogResult> {
-    // Проверка разрешений
-    self.check_permission("ui_access")?;
+    // Конвертируем PluginDialog в опции для UIBridge
+    let options = serde_json::json!({
+      "title": dialog.title,
+      "message": dialog.message,
+      "buttons": dialog.buttons
+    });
 
-    // В Tauri v2 диалоги работают через команды
-    // Пока возвращаем заглушку
-    log::info!(
-      "[Plugin {}] Showing dialog: {} - {}",
-      self.plugin_id,
-      dialog.title,
-      dialog.message
-    );
+    // Конвертируем DialogType в строку
+    let dialog_type_str = match dialog.dialog_type {
+      DialogType::Info => "info",
+      DialogType::Warning => "warning",
+      DialogType::Error => "error",
+      DialogType::Question => "confirm",
+      DialogType::Input => "input",
+    };
 
-    // TODO: Реализовать через Tauri команды когда UI будет готов
-    // Для этого нужно отправить событие на фронтенд и получить ответ
+    // Используем UIBridge для показа диалога
+    let result = self.ui_bridge.show_dialog(dialog_type_str, options).await?;
+
+    // Конвертируем результат из JSON в DialogResult
+    let button_index = result
+      .get("button_index")
+      .and_then(|v| v.as_u64())
+      .map(|v| v as usize);
+    let input_text = result
+      .get("input_text")
+      .and_then(|v| v.as_str())
+      .map(|s| s.to_string());
+    let cancelled = result
+      .get("cancelled")
+      .and_then(|v| v.as_bool())
+      .unwrap_or(false);
 
     Ok(DialogResult {
-      button_index: Some(0), // OK button
-      input_text: None,
-      cancelled: false,
+      button_index,
+      input_text,
+      cancelled,
     })
   }
 
   async fn add_menu_item(&self, menu: MenuItem) -> Result<()> {
-    // Проверка разрешений
-    self.check_permission("ui_access")?;
+    // Конвертируем MenuItem в конфигурацию для UIBridge
+    let item_config = serde_json::json!({
+      "label": menu.label,
+      "action": format!("plugin_{}_{}", self.plugin_id, menu.id),
+      "shortcut": menu.shortcut,
+      "enabled": menu.enabled
+    });
 
-    log::info!(
-      "[Plugin {}] Adding menu item: {} ({})",
-      self.plugin_id,
-      menu.label,
-      menu.id
-    );
+    // Определяем путь меню
+    let menu_path = menu.parent_menu.unwrap_or_else(|| "plugins".to_string());
 
-    // В реальной реализации здесь нужно:
-    // 1. Использовать Tauri Menu API
-    // 2. Зарегистрировать обработчик событий для пункта меню
-    // 3. Связать с плагином
+    // Используем UIBridge для добавления пункта меню
+    self
+      .ui_bridge
+      .add_menu_item(&menu_path, item_config)
+      .await?;
 
-    // TODO: Отправлять событие через EventBus когда будет реализована интеграция
-    log::debug!("[Plugin {}] Event: ui.menu.added", self.plugin_id);
+    // Публикуем событие о добавлении пункта меню
+    if let Err(e) = self
+      .event_bus
+      .publish_app_event(AppEvent::PluginEvent {
+        plugin_id: self.plugin_id.clone(),
+        event: serde_json::json!({
+          "type": "ui.menu.added",
+          "menu_id": menu.id,
+          "menu_path": menu_path,
+          "label": menu.label
+        }),
+      })
+      .await
+    {
+      log::warn!(
+        "[Plugin {}] Failed to publish menu added event: {}",
+        self.plugin_id,
+        e
+      );
+    }
 
     Ok(())
   }
 
   async fn remove_menu_item(&self, menu_id: &str) -> Result<()> {
-    // Проверка разрешений
-    self.check_permission("ui_access")?;
+    // Создаем полный ID меню для плагина
+    let full_menu_id = format!("plugin_{}_{}", self.plugin_id, menu_id);
 
-    log::info!(
-      "[Plugin {}] Removing menu item: {}",
-      self.plugin_id,
-      menu_id
-    );
+    // Используем UIBridge для удаления пункта меню
+    self.ui_bridge.remove_menu_item(&full_menu_id).await?;
 
-    // TODO: Отправлять событие через EventBus когда будет реализована интеграция
-    log::debug!("[Plugin {}] Event: ui.menu.removed", self.plugin_id);
+    // Публикуем событие об удалении пункта меню
+    if let Err(e) = self
+      .event_bus
+      .publish_app_event(AppEvent::PluginEvent {
+        plugin_id: self.plugin_id.clone(),
+        event: serde_json::json!({
+          "type": "ui.menu.removed",
+          "menu_id": menu_id,
+          "full_menu_id": full_menu_id
+        }),
+      })
+      .await
+    {
+      log::warn!(
+        "[Plugin {}] Failed to publish menu removed event: {}",
+        self.plugin_id,
+        e
+      );
+    }
 
     Ok(())
   }
 
   async fn show_notification(&self, title: &str, message: &str) -> Result<()> {
-    // TODO: Реализовать через NotificationService
-    log::info!(
-      "[Plugin {}] Notification: {} - {}",
-      self.plugin_id,
-      title,
-      message
-    );
+    // Используем UIBridge для показа уведомления
+    self
+      .ui_bridge
+      .show_notification(title, message, "info")
+      .await?;
+
+    // Публикуем событие о показе уведомления
+    if let Err(e) = self
+      .event_bus
+      .publish_app_event(AppEvent::PluginEvent {
+        plugin_id: self.plugin_id.clone(),
+        event: serde_json::json!({
+          "type": "ui.notification.shown",
+          "title": title,
+          "message": message
+        }),
+      })
+      .await
+    {
+      log::warn!(
+        "[Plugin {}] Failed to publish notification event: {}",
+        self.plugin_id,
+        e
+      );
+    }
+
     Ok(())
   }
 
@@ -798,28 +788,58 @@ impl PluginApi for PluginApiImpl {
   }
 
   async fn pick_file(&self, filters: Vec<(&str, Vec<&str>)>) -> Result<Option<PathBuf>> {
-    // Проверка разрешений
-    self.check_permission("ui_access")?;
+    // Конвертируем фильтры в формат для UIBridge
+    let filters_json: Vec<serde_json::Value> = filters
+      .into_iter()
+      .map(|(name, extensions)| {
+        serde_json::json!({
+          "name": name,
+          "extensions": extensions
+        })
+      })
+      .collect();
 
-    // В Tauri v2 файловые диалоги работают через команды на фронтенде
-    // Пока возвращаем заглушку
-    log::info!(
-      "[Plugin {}] File picker requested with {} filters",
-      self.plugin_id,
-      filters.len()
-    );
+    let dialog_options = serde_json::json!({
+      "title": "Select File",
+      "filters": filters_json,
+      "multiple": false
+    });
 
-    // TODO: Реализовать через Tauri команды когда UI будет готов
+    // Используем UIBridge для показа диалога выбора файла
+    let result = self
+      .ui_bridge
+      .show_dialog("file_picker", dialog_options)
+      .await?;
+
+    // Парсим результат
+    if let Some(files) = result.get("files").and_then(|f| f.as_array()) {
+      if let Some(first_file) = files.first().and_then(|f| f.as_str()) {
+        return Ok(Some(PathBuf::from(first_file)));
+      }
+    }
+
     Ok(None)
   }
 
   async fn pick_directory(&self) -> Result<Option<PathBuf>> {
-    // Проверка разрешений
-    self.check_permission("ui_access")?;
+    let dialog_options = serde_json::json!({
+      "title": "Select Directory",
+      "directory": true
+    });
 
-    log::info!("[Plugin {}] Directory picker requested", self.plugin_id);
+    // Используем UIBridge для показа диалога выбора директории
+    let result = self
+      .ui_bridge
+      .show_dialog("file_picker", dialog_options)
+      .await?;
 
-    // TODO: Реализовать через Tauri команды когда UI будет готов
+    // Парсим результат
+    if let Some(files) = result.get("files").and_then(|f| f.as_array()) {
+      if let Some(directory) = files.first().and_then(|f| f.as_str()) {
+        return Ok(Some(PathBuf::from(directory)));
+      }
+    }
+
     Ok(None)
   }
 

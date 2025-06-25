@@ -32,6 +32,9 @@ pub struct PluginContext {
 
   /// ID экземпляра плагина
   pub instance_id: String,
+
+  /// Tauri AppHandle для интеграции с frontend
+  pub app_handle: Option<tauri::AppHandle>,
 }
 
 impl PluginContext {
@@ -42,6 +45,7 @@ impl PluginContext {
     event_bus: Arc<EventBus>,
     service_container: Arc<ServiceContainer>,
     permissions: PluginPermissions,
+    app_handle: Option<tauri::AppHandle>,
   ) -> Self {
     let base_dir = dirs::data_dir()
       .unwrap_or_else(|| PathBuf::from("."))
@@ -66,6 +70,7 @@ impl PluginContext {
       service_container,
       permissions,
       instance_id,
+      app_handle,
     }
   }
 
@@ -117,6 +122,18 @@ impl PluginContext {
     }
     Ok(())
   }
+
+  /// Создать API для плагина
+  pub fn create_plugin_api(&self, plugin_id: String) -> super::api::PluginApiImpl {
+    super::api::PluginApiImpl::new(
+      plugin_id,
+      std::sync::Arc::new(self.permissions.clone()),
+      self.service_container.clone(),
+      self.app_handle.clone(),
+      self.plugin_dir.clone(),
+      self.event_bus.clone(),
+    )
+  }
 }
 
 #[cfg(test)]
@@ -140,6 +157,7 @@ mod tests {
       Arc::new(EventBus::new()),
       Arc::new(ServiceContainer::new()),
       permissions,
+      None, // AppHandle not available in tests
     );
 
     assert!(context
@@ -169,6 +187,7 @@ mod tests {
       Arc::new(EventBus::new()),
       Arc::new(ServiceContainer::new()),
       permissions,
+      None, // AppHandle not available in tests
     );
 
     // Плагин может читать/писать в свои директории

@@ -37,6 +37,7 @@ pub struct PluginManager {
   tracer: Option<Arc<Tracer>>,
   metrics: Option<Arc<Metrics>>,
   sandbox_manager: Arc<SandboxManager>,
+  app_handle: Option<tauri::AppHandle>,
 }
 
 impl PluginManager {
@@ -58,7 +59,14 @@ impl PluginManager {
       tracer: None,
       metrics: None,
       sandbox_manager,
+      app_handle: None,
     }
+  }
+
+  /// Установить AppHandle для интеграции с frontend
+  pub fn with_app_handle(mut self, app_handle: tauri::AppHandle) -> Self {
+    self.app_handle = Some(app_handle);
+    self
   }
 
   /// Добавить телеметрию
@@ -120,6 +128,7 @@ impl PluginManager {
       self.event_bus.clone(),
       self.service_container.clone(),
       permissions.clone(),
+      self.app_handle.clone(),
     );
 
     // Создаем sandbox для плагина

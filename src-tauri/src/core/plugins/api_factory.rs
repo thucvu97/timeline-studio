@@ -37,18 +37,11 @@ impl PluginApiFactory {
     storage_path: std::path::PathBuf,
     event_bus: Arc<crate::core::EventBus>,
   ) -> Result<Arc<dyn PluginApi>> {
-    // Проверяем что AppHandle доступен
-    let app_handle = self.app_handle.as_ref().ok_or_else(|| {
-      crate::video_compiler::error::VideoCompilerError::InvalidParameter(
-        "AppHandle not set in PluginApiFactory".to_string(),
-      )
-    })?;
-
     let api = PluginApiImpl::new(
       plugin_id.to_string(),
       permissions,
       self.service_container.clone(),
-      app_handle.clone(),
+      self.app_handle.clone(),
       storage_path,
       event_bus,
     );
@@ -105,9 +98,9 @@ mod tests {
     let permissions = Arc::new(SecurityLevel::Minimal.permissions());
     let storage_path = std::path::PathBuf::from("/tmp");
 
-    // Должно возвращать ошибку без AppHandle
+    // Теперь API может работать без AppHandle (с None)
     let event_bus = Arc::new(crate::core::EventBus::new());
     let result = factory.create_api("test-plugin", permissions, storage_path, event_bus);
-    assert!(result.is_err());
+    assert!(result.is_ok());
   }
 }

@@ -12,6 +12,13 @@ pub mod manager;
 pub mod permissions;
 pub mod plugin;
 pub mod sandbox;
+pub mod services;
+
+#[cfg(test)]
+pub mod integration_tests;
+
+#[cfg(test)]
+pub mod integration_tests_real_services;
 
 pub use context::PluginContext;
 pub use manager::PluginManager;
@@ -20,3 +27,4 @@ pub use plugin::{
   AppEventType, Plugin, PluginCommand, PluginDependency, PluginMetadata, PluginResponse,
   PluginType, Version,
 };
+pub use services::{MediaBridge, TimelineBridge, UIBridge};
