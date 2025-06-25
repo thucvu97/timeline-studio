@@ -465,7 +465,10 @@ mod tests {
   #[tokio::test]
   async fn test_run_command() {
     let service = FfmpegServiceImpl::new("echo".to_string());
-    let output = service.run_command(vec!["hello".to_string(), "world".to_string()]).await.unwrap();
+    let output = service
+      .run_command(vec!["hello".to_string(), "world".to_string()])
+      .await
+      .unwrap();
     assert_eq!(output.trim(), "hello world");
   }
 
@@ -474,7 +477,7 @@ mod tests {
     let service = FfmpegServiceImpl::new("false".to_string()); // false всегда возвращает код ошибки
     let result = service.run_command(vec!["test".to_string()]).await;
     assert!(result.is_err());
-    
+
     match result.unwrap_err() {
       VideoCompilerError::FFmpegError { exit_code, .. } => {
         assert!(exit_code.is_some());
@@ -486,13 +489,13 @@ mod tests {
   #[tokio::test]
   async fn test_service_lifecycle() {
     let service = FfmpegServiceImpl::new("echo".to_string());
-    
+
     // Initialize
     assert!(service.initialize().await.is_ok());
-    
+
     // Health check
     assert!(service.health_check().await.is_ok());
-    
+
     // Shutdown
     assert!(service.shutdown().await.is_ok());
   }
@@ -502,7 +505,7 @@ mod tests {
     let service = FfmpegServiceImpl::new("/nonexistent/ffmpeg".to_string());
     let result = service.initialize().await;
     assert!(result.is_err());
-    
+
     match result.unwrap_err() {
       VideoCompilerError::DependencyMissing(msg) => {
         assert!(msg.contains("FFmpeg не найден"));
@@ -535,7 +538,7 @@ Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'test.mp4':
   Duration: 00:05:30.50, start: 0.000000, bitrate: 1234 kb/s
     Stream #0:0(und): Video: h264
 "#;
-    
+
     let duration = parse_duration(ffmpeg_output).unwrap();
     assert_eq!(duration, 330.5);
   }
@@ -552,7 +555,7 @@ Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'test.mp4':
     let ffmpeg_output = r#"
 Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 8000 kb/s, 30 fps
 "#;
-    
+
     let (width, height) = parse_resolution(ffmpeg_output).unwrap();
     assert_eq!(width, 1920);
     assert_eq!(height, 1080);
@@ -563,7 +566,7 @@ Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SA
     let ffmpeg_output = r#"
 Stream #0:0: Video: mpeg4, yuv420p, 640x480, 25 fps
 "#;
-    
+
     let (width, height) = parse_resolution(ffmpeg_output).unwrap();
     assert_eq!(width, 640);
     assert_eq!(height, 480);
@@ -574,7 +577,7 @@ Stream #0:0: Video: mpeg4, yuv420p, 640x480, 25 fps
     let ffmpeg_output = r#"
 Stream #0:0(und): Video: h264, yuv420p, 1920x1080, 8000 kb/s, 60 fps, 60 tbr
 "#;
-    
+
     let fps = parse_fps(ffmpeg_output).unwrap();
     assert_eq!(fps, 60.0);
   }
@@ -584,7 +587,7 @@ Stream #0:0(und): Video: h264, yuv420p, 1920x1080, 8000 kb/s, 60 fps, 60 tbr
     let ffmpeg_output = r#"
 Stream #0:0: Video: h264, 1280x720, 29.97 fps
 "#;
-    
+
     let fps = parse_fps(ffmpeg_output).unwrap();
     assert_eq!(fps, 29.97);
   }
@@ -601,7 +604,7 @@ Stream #0:0: Video: h264, 1280x720, 29.97 fps
     let ffmpeg_output = r#"
 Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p
 "#;
-    
+
     let codec = parse_video_codec(ffmpeg_output).unwrap();
     assert_eq!(codec, "h264 (High) (avc1 / 0x31637661)");
   }
@@ -611,7 +614,7 @@ Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p
     let ffmpeg_output = r#"
 Duration: 00:01:00.00, start: 0.000000, bitrate: 1500 kb/s
 "#;
-    
+
     let bitrate = parse_bitrate(ffmpeg_output).unwrap();
     assert_eq!(bitrate, 1500);
   }
@@ -621,7 +624,7 @@ Duration: 00:01:00.00, start: 0.000000, bitrate: 1500 kb/s
     let ffmpeg_output = r#"
 Stream #0:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 192 kb/s
 "#;
-    
+
     let codec = parse_audio_codec(ffmpeg_output);
     assert_eq!(codec, Some("aac (LC) (mp4a / 0x6134706D)".to_string()));
   }
@@ -638,7 +641,7 @@ Stream #0:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 1
     let ffmpeg_output = r#"
 Stream #0:1(und): Audio: aac, 48000 Hz, stereo, fltp, 192 kb/s
 "#;
-    
+
     let bitrate = parse_audio_bitrate(ffmpeg_output);
     assert_eq!(bitrate, Some(192));
   }
@@ -654,7 +657,7 @@ Stream #0:1(und): Audio: aac, 48000 Hz, stereo, fltp, 192 kb/s
   async fn test_get_file_info_mock() {
     let service = FfmpegServiceImpl::new("echo".to_string());
     let result = service.get_file_info(Path::new("test.mp4")).await;
-    
+
     // С echo вместо ffmpeg это не сработает
     assert!(result.is_err());
   }
@@ -663,7 +666,7 @@ Stream #0:1(und): Audio: aac, 48000 Hz, stereo, fltp, 192 kb/s
   async fn test_get_supported_formats_mock() {
     let service = FfmpegServiceImpl::new("echo".to_string());
     let result = service.get_supported_formats().await;
-    
+
     // echo вернет успех, но список будет пустой
     assert!(result.is_ok());
     let formats = result.unwrap();
@@ -674,7 +677,7 @@ Stream #0:1(und): Audio: aac, 48000 Hz, stereo, fltp, 192 kb/s
   async fn test_get_supported_codecs_mock() {
     let service = FfmpegServiceImpl::new("echo".to_string());
     let result = service.get_supported_codecs().await;
-    
+
     // echo вернет успех, но список будет пустой
     assert!(result.is_ok());
     let codecs = result.unwrap();
@@ -705,9 +708,15 @@ Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'sample.mp4':
     assert_eq!(parse_duration(ffmpeg_output).unwrap(), 634.53);
     assert_eq!(parse_resolution(ffmpeg_output).unwrap(), (1920, 1080));
     assert_eq!(parse_fps(ffmpeg_output).unwrap(), 29.97);
-    assert_eq!(parse_video_codec(ffmpeg_output).unwrap(), "h264 (High) (avc1 / 0x31637661)");
+    assert_eq!(
+      parse_video_codec(ffmpeg_output).unwrap(),
+      "h264 (High) (avc1 / 0x31637661)"
+    );
     assert_eq!(parse_bitrate(ffmpeg_output).unwrap(), 4567);
-    assert_eq!(parse_audio_codec(ffmpeg_output).unwrap(), "aac (LC) (mp4a / 0x6134706D)");
+    assert_eq!(
+      parse_audio_codec(ffmpeg_output).unwrap(),
+      "aac (LC) (mp4a / 0x6134706D)"
+    );
     assert_eq!(parse_audio_bitrate(ffmpeg_output).unwrap(), 192);
   }
 }

@@ -318,7 +318,7 @@ impl CacheService for CacheServiceImpl {
     log::info!("Очистка кэша рендеринга");
     let mut cache = self.render_cache.write().await;
     cache.clear().await?;
-    
+
     // Также очищаем физические файлы
     let render_dir = self.cache_dir.join("render");
     if render_dir.exists() {
@@ -329,7 +329,7 @@ impl CacheService for CacheServiceImpl {
         .await
         .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
     }
-    
+
     Ok(())
   }
 
@@ -615,15 +615,21 @@ mod tests {
     service.initialize().await.unwrap();
 
     // Добавляем данные в разные категории кэша
-    service.save_to_cache("temp_file", b"temp data").await.unwrap();
-    
+    service
+      .save_to_cache("temp_file", b"temp data")
+      .await
+      .unwrap();
+
     // Создаем файлы в разных директориях
     tokio::fs::write(temp_dir.path().join("render/render_file"), b"render data")
       .await
       .unwrap();
-    tokio::fs::write(temp_dir.path().join("preview/preview_file"), b"preview data")
-      .await
-      .unwrap();
+    tokio::fs::write(
+      temp_dir.path().join("preview/preview_file"),
+      b"preview data",
+    )
+    .await
+    .unwrap();
 
     // Проверяем очистку preview кэша
     assert!(service.clear_preview_cache().await.is_ok());
@@ -643,7 +649,10 @@ mod tests {
 
     // Добавляем тестовые данные
     service.save_to_cache("file1", b"data1").await.unwrap();
-    service.save_to_cache("file2", b"data2 with more content").await.unwrap();
+    service
+      .save_to_cache("file2", b"data2 with more content")
+      .await
+      .unwrap();
 
     let stats = service.get_cache_stats().await.unwrap();
     assert!(stats.total_size_mb > 0.0);
@@ -660,13 +669,21 @@ mod tests {
     // Создаем старый файл
     let old_file_path = temp_dir.path().join("temp/old_file");
     tokio::fs::write(&old_file_path, b"old data").await.unwrap();
-    
+
     // Изменяем время модификации на 10 дней назад
-    let ten_days_ago = std::time::SystemTime::now() - std::time::Duration::from_secs(10 * 24 * 3600);
-    filetime::set_file_mtime(&old_file_path, filetime::FileTime::from_system_time(ten_days_ago)).unwrap();
+    let ten_days_ago =
+      std::time::SystemTime::now() - std::time::Duration::from_secs(10 * 24 * 3600);
+    filetime::set_file_mtime(
+      &old_file_path,
+      filetime::FileTime::from_system_time(ten_days_ago),
+    )
+    .unwrap();
 
     // Создаем новый файл
-    service.save_to_cache("new_file", b"new data").await.unwrap();
+    service
+      .save_to_cache("new_file", b"new data")
+      .await
+      .unwrap();
 
     // Оптимизируем кэш (удаляем файлы старше 5 дней)
     let removed = service.optimize_cache(5).await.unwrap();
@@ -709,7 +726,7 @@ mod tests {
 
     let info = service.get_item_info(key).await.unwrap();
     assert!(info.is_some());
-    
+
     let item_info = info.unwrap();
     assert_eq!(item_info.key, key);
     assert_eq!(item_info.size_bytes, data.len() as u64);
@@ -763,7 +780,7 @@ mod tests {
     };
 
     assert!(service.set_alert_thresholds(thresholds).await.is_ok());
-    
+
     let alerts = service.get_active_alerts().await.unwrap();
     assert_eq!(alerts.len(), 0); // Изначально нет алертов
   }
@@ -802,7 +819,7 @@ mod tests {
 
     // Сбрасываем метрики
     assert!(service.reset_metrics().await.is_ok());
-    
+
     // Проверяем, что метрики сброшены (в нашей заглушке просто проверяем успешность)
     let metrics = service.get_performance_metrics().await.unwrap();
     assert!(metrics.slow_operations.is_empty());

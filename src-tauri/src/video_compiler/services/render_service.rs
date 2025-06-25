@@ -143,7 +143,10 @@ impl RenderServiceImpl {
       job.status = status;
       Ok(())
     } else {
-      Err(VideoCompilerError::validation(format!("Job {} not found", job_id)))
+      Err(VideoCompilerError::validation(format!(
+        "Job {} not found",
+        job_id
+      )))
     }
   }
 
@@ -154,7 +157,10 @@ impl RenderServiceImpl {
       job.progress = Some(progress);
       Ok(())
     } else {
-      Err(VideoCompilerError::validation(format!("Job {} not found", job_id)))
+      Err(VideoCompilerError::validation(format!(
+        "Job {} not found",
+        job_id
+      )))
     }
   }
 
@@ -166,7 +172,10 @@ impl RenderServiceImpl {
       job.error = Some(error);
       Ok(())
     } else {
-      Err(VideoCompilerError::validation(format!("Job {} not found", job_id)))
+      Err(VideoCompilerError::validation(format!(
+        "Job {} not found",
+        job_id
+      )))
     }
   }
 
@@ -380,7 +389,7 @@ mod tests {
   #[tokio::test]
   async fn test_active_jobs_tracking() {
     use uuid::Uuid;
-    
+
     let ffmpeg_service = Arc::new(FfmpegServiceImpl::new("ffmpeg".to_string()));
     let cache_service = Arc::new(CacheServiceImpl::new(std::env::temp_dir()));
     let service = Arc::new(RenderServiceImpl::new(ffmpeg_service, 3, cache_service));
@@ -412,7 +421,7 @@ mod tests {
     // Теперь должна быть одна задача
     let jobs = service.get_active_jobs().await.unwrap();
     assert_eq!(jobs.len(), 1);
-    
+
     // Проверяем статус задачи
     let job = &jobs[0];
     assert_eq!(job.status, RenderJobStatus::Initializing);
@@ -421,7 +430,7 @@ mod tests {
   #[tokio::test]
   async fn test_job_cleanup() {
     use uuid::Uuid;
-    
+
     let ffmpeg_service = Arc::new(FfmpegServiceImpl::new("ffmpeg".to_string()));
     let cache_service = Arc::new(CacheServiceImpl::new(std::env::temp_dir()));
     let service = Arc::new(RenderServiceImpl::new(ffmpeg_service, 2, cache_service));
@@ -499,7 +508,7 @@ mod tests {
   #[tokio::test]
   async fn test_job_status_transitions() {
     use crate::video_compiler::schema::ProjectSchema;
-    
+
     let ffmpeg_service = Arc::new(FfmpegServiceImpl::new("ffmpeg".to_string()));
     let cache_service = Arc::new(CacheServiceImpl::new(std::env::temp_dir()));
     let service = Arc::new(RenderServiceImpl::new(ffmpeg_service, 2, cache_service));
@@ -530,14 +539,20 @@ mod tests {
     assert_eq!(status.unwrap().status, RenderJobStatus::Initializing);
 
     // Обновляем статус на Rendering
-    service.update_job_status(&job_id, RenderJobStatus::Rendering).await.unwrap();
-    
+    service
+      .update_job_status(&job_id, RenderJobStatus::Rendering)
+      .await
+      .unwrap();
+
     let status = service.get_job_status(&job_id).await.unwrap();
     assert_eq!(status.unwrap().status, RenderJobStatus::Rendering);
 
     // Обновляем статус на Failed с ошибкой
-    service.fail_job(&job_id, "Test error".to_string()).await.unwrap();
-    
+    service
+      .fail_job(&job_id, "Test error".to_string())
+      .await
+      .unwrap();
+
     let status = service.get_job_status(&job_id).await.unwrap().unwrap();
     assert_eq!(status.status, RenderJobStatus::Failed);
     assert_eq!(status.error, Some("Test error".to_string()));
@@ -547,7 +562,7 @@ mod tests {
   async fn test_job_progress_update() {
     use crate::video_compiler::progress::{RenderProgress, RenderStatus};
     use std::time::Duration;
-    
+
     let ffmpeg_service = Arc::new(FfmpegServiceImpl::new("ffmpeg".to_string()));
     let cache_service = Arc::new(CacheServiceImpl::new(std::env::temp_dir()));
     let service = Arc::new(RenderServiceImpl::new(ffmpeg_service, 2, cache_service));
@@ -584,7 +599,10 @@ mod tests {
       message: Some("Processing frame 100".to_string()),
     };
 
-    service.update_job_progress(&job_id, progress.clone()).await.unwrap();
+    service
+      .update_job_progress(&job_id, progress.clone())
+      .await
+      .unwrap();
 
     // Проверяем, что прогресс обновился
     let job_status = service.get_job_status(&job_id).await.unwrap().unwrap();
