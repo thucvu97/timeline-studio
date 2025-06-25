@@ -33,8 +33,14 @@ interface RawEffectData {
  * Создает функцию из строкового шаблона с параметрами
  * Заменяет {paramName} на значения из объекта параметров
  */
-function createFunctionFromTemplate(template: string) {
+function createFunctionFromTemplate(template: string | undefined | null) {
   return (params: Record<string, any> = {}) => {
+    // Return empty string if template is not a string
+    if (typeof template !== "string") {
+      console.warn("createFunctionFromTemplate: template is not a string:", template)
+      return ""
+    }
+
     return template.replace(/\{(\w+)\}/g, (match, key) => {
       const value = params[key]
       return value !== undefined ? value.toString() : match

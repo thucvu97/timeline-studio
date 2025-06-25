@@ -35,7 +35,7 @@ export function StatusBar({
   addedFiles,
 }: StatusBarProps) {
   const { t } = useTranslation()
-  const addedFilesSet = new Set(addedFiles.map((file) => file.path))
+  const addedFilesSet = new Set(addedFiles?.map((file) => file.path) || [])
   const { remainingVideoCount, remainingAudioCount, allFilesAdded } = getRemainingMediaCounts(media, addedFilesSet)
   const topDateWithRemainingFiles = getTopDateWithRemainingFiles(sortedDates, addedFilesSet)
 

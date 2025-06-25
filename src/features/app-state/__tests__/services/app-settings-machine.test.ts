@@ -151,7 +151,7 @@ describe("App Settings Machine", () => {
     expect(actor.getSnapshot().context.error).toBeNull()
   })
 
-  it("should transition from loading to error on failed load", async () => {
+  it("should load default settings on failed load", async () => {
     // Мокируем ошибку при загрузке настроек
     vi.mocked(storeService.getSettings).mockRejectedValueOnce(new Error("Failed to load settings"))
 
@@ -164,15 +164,18 @@ describe("App Settings Machine", () => {
     // Проверяем, что начальное состояние - loading
     expect(actor.getSnapshot().value).toBe("loading")
 
-    // Ждем, пока машина перейдет в состояние error
+    // Ждем, пока машина загрузит настройки по умолчанию
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    // Проверяем, что машина перешла в состояние error
-    expect(actor.getSnapshot().value).toBe("error")
+    // Проверяем, что машина перешла в состояние idle с настройками по умолчанию
+    expect(actor.getSnapshot().value).toBe("idle")
 
-    // Проверяем, что контекст обновился
+    // Проверяем, что контекст обновился с настройками по умолчанию
     expect(actor.getSnapshot().context.isLoading).toBe(false)
-    expect(actor.getSnapshot().context.error).toContain("Error loading settings")
+    expect(actor.getSnapshot().context.error).toBeNull()
+    // Проверяем, что загружены настройки по умолчанию
+    expect(actor.getSnapshot().context.userSettings.layoutMode).toBe("default")
+    expect(actor.getSnapshot().context.currentProject.name).toBe("Новый проект")
   })
 
   it("should handle UPDATE_USER_SETTINGS event", async () => {

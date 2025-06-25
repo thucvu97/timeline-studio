@@ -31,17 +31,17 @@ export function CurvesSection() {
   const activeCurvePoints = useMemo(() => {
     switch (activeCurve) {
       case "master":
-        return state.masterCurve
+        return state.curves.master || DEFAULT_CURVE_POINTS
       case "red":
-        return state.redCurve
+        return state.curves.red || DEFAULT_CURVE_POINTS
       case "green":
-        return state.greenCurve
+        return state.curves.green || DEFAULT_CURVE_POINTS
       case "blue":
-        return state.blueCurve
+        return state.curves.blue || DEFAULT_CURVE_POINTS
       default:
-        return state.masterCurve
+        return state.curves.master || DEFAULT_CURVE_POINTS
     }
-  }, [activeCurve, state])
+  }, [activeCurve, state.curves])
 
   // Обработчик изменения точек кривой
   const handlePointsChange = (points: CurvePoint[]) => {

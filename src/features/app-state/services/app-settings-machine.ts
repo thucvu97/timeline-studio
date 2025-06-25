@@ -110,7 +110,8 @@ const loadSettings = fromPromise(async () => {
     return getDefaultSettings()
   } catch (error) {
     console.error("[AppSettingsMachine] Error loading settings:", error)
-    throw error
+    // Возвращаем настройки по умолчанию вместо выброса ошибки
+    return getDefaultSettings()
   }
 })
 

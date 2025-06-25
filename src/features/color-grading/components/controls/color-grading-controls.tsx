@@ -54,13 +54,10 @@ export function ColorGradingControls() {
 
   // Группируем пресеты по категориям
   const presetCategories = getAllPresetCategories()
-  const presetsByCategory = presetCategories.reduce<Record<string, typeof availablePresets>>(
-    (acc, category) => {
-      acc[category] = availablePresets.filter((preset) => preset.category === category)
-      return acc
-    },
-    {},
-  )
+  const presetsByCategory = presetCategories.reduce<Record<string, typeof availablePresets>>((acc, category) => {
+    acc[category] = availablePresets.filter((preset) => preset.category === category)
+    return acc
+  }, {})
 
   return (
     <>

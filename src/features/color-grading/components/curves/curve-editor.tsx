@@ -17,7 +17,7 @@ interface CurveEditorProps {
 
 // Безье интерполяция для плавной кривой
 function generateBezierPath(points: CurvePoint[]): string {
-  if (points.length < 2) return ""
+  if (!points || points.length < 2) return ""
 
   // Сортируем точки по X координате
   const sortedPoints = [...points].sort((a, b) => a.x - b.x)
@@ -42,7 +42,7 @@ function generateBezierPath(points: CurvePoint[]): string {
   return path
 }
 
-export function CurveEditor({ points, onPointsChange, color = "white", className }: CurveEditorProps) {
+export function CurveEditor({ points = [], onPointsChange, color = "white", className }: CurveEditorProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [isDragging, setIsDragging] = useState<string | null>(null)
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null)
@@ -111,7 +111,7 @@ export function CurveEditor({ points, onPointsChange, color = "white", className
   const handlePointDoubleClick = useCallback(
     (pointId: string) => {
       // Не удаляем если остается менее 2 точек
-      if (points.length <= 2) return
+      if (!points || points.length <= 2) return
 
       const newPoints = points.filter((point) => point.id !== pointId)
       onPointsChange(newPoints)
@@ -145,36 +145,39 @@ export function CurveEditor({ points, onPointsChange, color = "white", className
         <line x1="0" y1={height} x2={width} y2="0" stroke="gray" strokeWidth="1" opacity="0.2" strokeDasharray="4 2" />
 
         {/* Кривая */}
-        {points.length >= 2 && <path d={curvePath} stroke={color} strokeWidth="2" fill="none" pointerEvents="none" />}
+        {points && points.length >= 2 && (
+          <path d={curvePath} stroke={color} strokeWidth="2" fill="none" pointerEvents="none" />
+        )}
 
         {/* Интерактивные точки */}
-        {points.map((point) => (
-          <g key={point.id}>
-            {/* Увеличенная область клика */}
-            <circle
-              cx={point.x}
-              cy={point.y}
-              r="12"
-              fill="transparent"
-              className="cursor-move"
-              onMouseDown={() => handleMouseDown(point.id)}
-              onDoubleClick={() => handlePointDoubleClick(point.id)}
-              onMouseEnter={() => setHoveredPoint(point.id)}
-              onMouseLeave={() => setHoveredPoint(null)}
-            />
+        {points &&
+          points.map((point) => (
+            <g key={point.id}>
+              {/* Увеличенная область клика */}
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r="12"
+                fill="transparent"
+                className="cursor-move"
+                onMouseDown={() => handleMouseDown(point.id)}
+                onDoubleClick={() => handlePointDoubleClick(point.id)}
+                onMouseEnter={() => setHoveredPoint(point.id)}
+                onMouseLeave={() => setHoveredPoint(null)}
+              />
 
-            {/* Визуальная точка */}
-            <circle
-              cx={point.x}
-              cy={point.y}
-              r={hoveredPoint === point.id || isDragging === point.id ? "6" : "4"}
-              fill="white"
-              stroke={color}
-              strokeWidth="2"
-              className="pointer-events-none transition-all"
-            />
-          </g>
-        ))}
+              {/* Визуальная точка */}
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r={hoveredPoint === point.id || isDragging === point.id ? "6" : "4"}
+                fill="white"
+                stroke={color}
+                strokeWidth="2"
+                className="pointer-events-none transition-all"
+              />
+            </g>
+          ))}
       </svg>
 
       {/* Подсказка */}

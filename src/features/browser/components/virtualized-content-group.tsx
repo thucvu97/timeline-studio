@@ -191,7 +191,9 @@ export function VirtualizedContentGroup<T>({
             transform: `translateY(${Math.floor(visibleRange.start / (viewMode === "list" ? 1 : Math.floor(800 / (itemWidth + gap)) || 1)) * (itemHeight + gap)}px)`,
           }}
         >
-          {visibleItems.map((item, index) => renderItem(item, visibleRange.start + index))}
+          {visibleItems.map((item, index) => (
+            <React.Fragment key={visibleRange.start + index}>{renderItem(item)}</React.Fragment>
+          ))}
         </div>
       </div>
     )
@@ -228,7 +230,9 @@ export function VirtualizedContentGroup<T>({
             transform: `translateY(${Math.floor(visibleRange.start / (viewMode === "list" ? 1 : Math.floor(800 / (itemWidth + gap)) || 1)) * (itemHeight + gap)}px)`,
           }}
         >
-          {visibleItems.map((item, index) => renderItem(item, visibleRange.start + index))}
+          {visibleItems.map((item, index) => (
+            <React.Fragment key={visibleRange.start + index}>{renderItem(item)}</React.Fragment>
+          ))}
         </div>
       </div>
     </div>

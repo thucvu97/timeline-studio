@@ -1148,6 +1148,11 @@ describe("resourcesMachine", () => {
       intensity: 0.8,
       radius: 10,
     })
+    // The original effect object should remain unchanged
+    expect(updatedSnapshot.context.effectResources[0].effect.params).toMatchObject({
+      intensity: 0.5,
+      radius: 10,
+    })
 
     actor.stop()
   })

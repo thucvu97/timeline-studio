@@ -2,7 +2,6 @@ import { useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { StatusBar } from "@/features/browser/components/layout/status-bar"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { cn } from "@/lib/utils"
@@ -90,47 +89,54 @@ export function UniversalList<T extends ListItem>({
 
   // Если нет элементов
   if (items.length === 0) {
-    return (
-      <NoFiles
-        message={t("browser.noFiles.message")}
-        actions={
-          adapter.importHandlers
-            ? [
-              {
-                label: t("browser.noFiles.importFile"),
-                onClick: adapter.importHandlers.importFile || (() => {}),
-                disabled: adapter.importHandlers.isImporting,
-              },
-              ...(adapter.importHandlers.importFolder
-                ? [
-                  {
-                    label: t("browser.noFiles.importFolder"),
-                    onClick: adapter.importHandlers.importFolder,
-                    disabled: adapter.importHandlers.isImporting,
-                  },
-                ]
-                : []),
-            ]
-            : []
-        }
-      />
-    )
+    // Получаем тип из адаптера для NoFiles компонента
+    const mediaType =
+      adapter.favoriteType === "media"
+        ? "media"
+        : adapter.favoriteType === "music"
+          ? "music"
+          : adapter.favoriteType === "effect"
+            ? "effects"
+            : adapter.favoriteType === "filter"
+              ? "filters"
+              : adapter.favoriteType === "transition"
+                ? "transitions"
+                : adapter.favoriteType === "template"
+                  ? "templates"
+                  : adapter.favoriteType === "styleTemplate"
+                    ? "style-templates"
+                    : adapter.favoriteType === "subtitle"
+                      ? "subtitles"
+                      : "media"
+
+    return <NoFiles type={mediaType} onImport={adapter.importHandlers?.importFile} />
   }
 
   // Если после фильтрации нет элементов
   if (processedItems.length === 0) {
+    // Получаем тип из адаптера для NoFiles компонента
+    const mediaType =
+      adapter.favoriteType === "media"
+        ? "media"
+        : adapter.favoriteType === "music"
+          ? "music"
+          : adapter.favoriteType === "effect"
+            ? "effects"
+            : adapter.favoriteType === "filter"
+              ? "filters"
+              : adapter.favoriteType === "transition"
+                ? "transitions"
+                : adapter.favoriteType === "template"
+                  ? "templates"
+                  : adapter.favoriteType === "styleTemplate"
+                    ? "style-templates"
+                    : adapter.favoriteType === "subtitle"
+                      ? "subtitles"
+                      : "media"
+
     return (
       <div className="flex h-full flex-col">
-        <NoFiles
-          message={
-            searchQuery
-              ? t("browser.noFiles.noSearchResults")
-              : showFavoritesOnly
-                ? t("browser.noFiles.noFavorites")
-                : t("browser.noFiles.noFilesInFilter")
-          }
-        />
-        <StatusBar totalCount={items.length} filteredCount={0} selectedCount={0} />
+        <NoFiles type={mediaType} />
       </div>
     )
   }
@@ -147,7 +153,7 @@ export function UniversalList<T extends ListItem>({
             viewMode={viewMode}
             previewSize={{ width: currentPreviewSize, height: currentPreviewSize }}
             favoriteType={adapter.favoriteType}
-            renderItem={(item, itemProps) => (
+            renderItem={(item) => (
               <adapter.PreviewComponent
                 item={item}
                 size={{ width: currentPreviewSize, height: currentPreviewSize }}
@@ -157,14 +163,13 @@ export function UniversalList<T extends ListItem>({
                 isSelected={false}
                 isFavorite={adapter.isFavorite?.(item) || false}
                 onToggleFavorite={() => {}}
-                {...itemProps}
               />
             )}
           />
         ))}
       </div>
 
-      <StatusBar totalCount={items.length} filteredCount={processedItems.length} selectedCount={0} />
+      {/* StatusBar is only needed for media tab, skip it for other tabs */}
     </div>
   )
 }

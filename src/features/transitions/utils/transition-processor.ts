@@ -83,8 +83,14 @@ export function processTransitions(rawTransitions: RawTransitionData[]): Transit
  * @param template - Шаблон FFmpeg команды
  * @returns Функция, которая генерирует FFmpeg команду
  */
-function createFFmpegCommand(template: string) {
+function createFFmpegCommand(template: string | undefined | null) {
   return (params: { fps: number; width?: number; height?: number; scale?: number; duration?: number }) => {
+    // Return empty string if template is not a string
+    if (typeof template !== "string") {
+      console.warn("createFFmpegCommand: template is not a string:", template)
+      return ""
+    }
+
     let command = template
 
     // Заменяем плейсхолдеры на реальные значения

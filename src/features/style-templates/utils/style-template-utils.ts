@@ -225,7 +225,7 @@ export function validateTemplate(template: any): template is StyleTemplate {
 export function generateTemplateId(template: Partial<StyleTemplate>): string {
   const { name, category, style } = template
   const baseName = name?.en || name?.ru || "template"
-  const normalizedName = baseName.toLowerCase().replace(/[^a-z0-9]/g, "-")
+  const normalizedName = typeof baseName === "string" ? baseName.toLowerCase().replace(/[^a-z0-9]/g, "-") : "template"
   const timestamp = Date.now().toString(36)
 
   return `${category || "unknown"}-${style || "default"}-${normalizedName}-${timestamp}`
