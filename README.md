@@ -106,16 +106,21 @@ bun run tauri dev
 
 ### 📚 Main Documentation
 
-- 📚 [Documentation Overview](docs-ru/README.md) - Complete documentation map
-- 🚀 [Getting Started](docs-ru/01-getting-started/README.md) - Installation and first steps
-- 🏗️ [Architecture Guide](docs-ru/02-architecture/README.md) - System architecture
-- 🎯 [Features Guide](docs-ru/03-features/README.md) - Feature overview and status
-- 📡 [API Reference](docs-ru/04-api-reference/README.md) - Tauri commands reference
-- 🧪 [Development Guide](docs-ru/05-development/README.md) - Testing and development
-- 🚀 [Deployment Guide](docs-ru/06-deployment/README.md) - Build and deployment
-- 📋 [User Guides](docs-ru/07-guides/README.md) - Performance and best practices
-- 🛣️ [Roadmap](docs-ru/08-roadmap/README.md) - Development roadmap
-- 🔐 [OAuth Setup](docs-ru/09-oauth-setup/oauth-setup-guide.md) - Social media integration
+- 📚 [Обзор документации](docs-ru/README.md) - Полная карта документации
+- 🚀 [Начало работы](docs-ru/01-getting-started/README.md) - Установка и первые шаги
+- 🏗️ [Руководство по архитектуре](docs-ru/02-architecture/README.md) - Архитектура системы
+- 🎯 [Руководство по функциям](docs-ru/03-features/README.md) - Обзор функций и статус
+- 📡 [Справочник API](docs-ru/04-api-reference/README.md) - Справочник команд Tauri
+- 🧪 [Руководство разработчика](docs-ru/05-development/README.md) - Тестирование и разработка
+- 🚀 [Руководство по развертыванию](docs-ru/06-deployment/README.md) - Сборка и развертывание
+- 📋 [Пользовательские руководства](docs-ru/07-guides/README.md) - Производительность и лучшие практики
+- 🔌 [Руководство по плагинам](docs-ru/08-plugins/README.md) - Система плагинов и разработка
+- 📊 [Телеметрия](docs-ru/09-telemetry/README.md) - Телеметрия и аналитика
+- 🛣️ [Дорожная карта](docs-ru/10-roadmap/README.md) - Дорожная карта разработки
+- 🔐 [Настройка OAuth](docs-ru/11-oauth-setup/oauth-setup-guide.md) - Интеграция с социальными сетями
+- 🧪 [Руководство по тестированию](docs-ru/12-testing/README.md) - Документация по тестированию
+- ⚠️ [Известные проблемы](docs-ru/13-known-issues/README.md) - Известные проблемы и обходные пути
+- 📄 [Юридическая информация](docs-ru/14-legal/README.md) - Лицензия и правовая информация
 
 ### 📋 Project Documentation
 
@@ -169,4 +174,4 @@ bun run check:all
 
 MIT License with Commons Clause - free for personal use, commercial use requires agreement.
 
-📄 **[Full License Details →](docs-ru/10-legal/license.md)** | 📧 **Commercial License**: ak.chatman.media@gmail.com
+📄 **[Full License Details →](docs-ru/14-legal/license.md)** | 📧 **Commercial License**: ak.chatman.media@gmail.com
