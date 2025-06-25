@@ -11,6 +11,7 @@
 //! - Рендеринг видео
 
 pub mod cache;
+pub mod constants;
 pub mod error;
 pub mod frame_extraction;
 pub mod gpu;

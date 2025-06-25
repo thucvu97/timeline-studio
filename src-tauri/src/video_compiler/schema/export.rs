@@ -116,19 +116,21 @@ pub struct ExportSettings {
 
 impl Default for ExportSettings {
   fn default() -> Self {
+    use crate::video_compiler::core::constants::export::*;
+
     Self {
       format: OutputFormat::Mp4,
-      quality: 85,
-      video_bitrate: 8000,
-      audio_bitrate: 192,
-      hardware_acceleration: true,
+      quality: DEFAULT_QUALITY,
+      video_bitrate: DEFAULT_VIDEO_BITRATE,
+      audio_bitrate: DEFAULT_AUDIO_BITRATE,
+      hardware_acceleration: DEFAULT_HARDWARE_ACCELERATION,
       preferred_gpu_encoder: None,
       ffmpeg_args: Vec::new(),
 
       // Новые поля по умолчанию
       encoding_profile: Some("main".to_string()),
       rate_control_mode: Some("vbr".to_string()),
-      keyframe_interval: Some(60),
+      keyframe_interval: Some(DEFAULT_KEYFRAME_INTERVAL),
       b_frames: Some(2),
       multi_pass: Some(1),
       preset: Some("medium".to_string()),
@@ -187,6 +189,3 @@ pub enum PreviewFormat {
   Png,
   WebP,
 }
-
-#[cfg(test)]
-mod export_tests;

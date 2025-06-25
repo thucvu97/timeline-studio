@@ -22,7 +22,5 @@ pub mod templates;
 // Re-export main types
 pub use builder::FFmpegBuilder;
 
-// Re-export for backward compatibility
-
 #[cfg(test)]
 mod tests;

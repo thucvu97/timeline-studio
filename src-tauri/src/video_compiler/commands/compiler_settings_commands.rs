@@ -1,5 +1,6 @@
 //! Compiler Settings Commands - команды для управления настройками компилятора
 
+use crate::video_compiler::core::constants::{compiler::*, export::*, quality_presets};
 use crate::video_compiler::error::Result;
 use crate::video_compiler::VideoCompilerState;
 use serde::{Deserialize, Serialize};
@@ -43,12 +44,12 @@ pub async fn get_compiler_settings_advanced(
 ) -> Result<CompilerSettings> {
   // Заглушка - возвращаем настройки по умолчанию
   Ok(CompilerSettings {
-    ffmpeg_path: "ffmpeg".to_string(),
-    parallel_jobs: 4,
-    memory_limit_mb: 2048,
+    ffmpeg_path: DEFAULT_FFMPEG_PATH.to_string(),
+    parallel_jobs: DEFAULT_PARALLEL_JOBS,
+    memory_limit_mb: DEFAULT_MEMORY_LIMIT_MB,
     temp_directory: std::env::temp_dir().to_string_lossy().to_string(),
-    log_level: "info".to_string(),
-    hardware_acceleration: true,
+    log_level: DEFAULT_LOG_LEVEL.to_string(),
+    hardware_acceleration: DEFAULT_HARDWARE_ACCELERATION,
   })
 }
 
@@ -120,12 +121,12 @@ pub async fn reset_compiler_settings_advanced(
 ) -> Result<CompilerSettings> {
   log::info!("Resetting compiler settings to defaults");
   Ok(CompilerSettings {
-    ffmpeg_path: "ffmpeg".to_string(),
-    parallel_jobs: 4,
-    memory_limit_mb: 2048,
+    ffmpeg_path: DEFAULT_FFMPEG_PATH.to_string(),
+    parallel_jobs: DEFAULT_PARALLEL_JOBS,
+    memory_limit_mb: DEFAULT_MEMORY_LIMIT_MB,
     temp_directory: std::env::temp_dir().to_string_lossy().to_string(),
-    log_level: "info".to_string(),
-    hardware_acceleration: true,
+    log_level: DEFAULT_LOG_LEVEL.to_string(),
+    hardware_acceleration: DEFAULT_HARDWARE_ACCELERATION,
   })
 }
 
@@ -142,12 +143,12 @@ pub async fn get_recommended_settings_advanced(
     memory_gb,
     parallel_jobs: cpu_cores.min(8),
     settings: CompilerSettings {
-      ffmpeg_path: "ffmpeg".to_string(),
+      ffmpeg_path: DEFAULT_FFMPEG_PATH.to_string(),
       parallel_jobs: cpu_cores.min(8),
       memory_limit_mb: (memory_gb * 1024) / 2, // Половина от доступной памяти
       temp_directory: std::env::temp_dir().to_string_lossy().to_string(),
-      log_level: "info".to_string(),
-      hardware_acceleration: true,
+      log_level: DEFAULT_LOG_LEVEL.to_string(),
+      hardware_acceleration: DEFAULT_HARDWARE_ACCELERATION,
     },
   })
 }
@@ -156,12 +157,12 @@ pub async fn get_recommended_settings_advanced(
 #[tauri::command]
 pub async fn export_settings_advanced(_state: State<'_, VideoCompilerState>) -> Result<String> {
   let settings = CompilerSettings {
-    ffmpeg_path: "ffmpeg".to_string(),
-    parallel_jobs: 4,
-    memory_limit_mb: 2048,
+    ffmpeg_path: DEFAULT_FFMPEG_PATH.to_string(),
+    parallel_jobs: DEFAULT_PARALLEL_JOBS,
+    memory_limit_mb: DEFAULT_MEMORY_LIMIT_MB,
     temp_directory: std::env::temp_dir().to_string_lossy().to_string(),
-    log_level: "info".to_string(),
-    hardware_acceleration: true,
+    log_level: DEFAULT_LOG_LEVEL.to_string(),
+    hardware_acceleration: DEFAULT_HARDWARE_ACCELERATION,
   };
 
   serde_json::to_string_pretty(&settings)
@@ -185,36 +186,36 @@ pub async fn get_quality_presets_advanced(
 ) -> Result<Vec<QualityPreset>> {
   Ok(vec![
     QualityPreset {
-      name: "Low".to_string(),
-      description: "Низкое качество для быстрого просмотра".to_string(),
-      bitrate_kbps: 1000,
-      resolution: "720p".to_string(),
-      fps: 30,
-      codec: "h264".to_string(),
+      name: quality_presets::low::NAME.to_string(),
+      description: quality_presets::low::DESCRIPTION.to_string(),
+      bitrate_kbps: quality_presets::low::VIDEO_BITRATE,
+      resolution: quality_presets::low::RESOLUTION.to_string(),
+      fps: quality_presets::low::FPS,
+      codec: quality_presets::low::CODEC.to_string(),
     },
     QualityPreset {
-      name: "Medium".to_string(),
-      description: "Среднее качество для общего использования".to_string(),
-      bitrate_kbps: 3000,
-      resolution: "1080p".to_string(),
-      fps: 30,
-      codec: "h264".to_string(),
+      name: quality_presets::medium::NAME.to_string(),
+      description: quality_presets::medium::DESCRIPTION.to_string(),
+      bitrate_kbps: quality_presets::medium::VIDEO_BITRATE,
+      resolution: quality_presets::medium::RESOLUTION.to_string(),
+      fps: quality_presets::medium::FPS,
+      codec: quality_presets::medium::CODEC.to_string(),
     },
     QualityPreset {
-      name: "High".to_string(),
-      description: "Высокое качество для финального рендера".to_string(),
-      bitrate_kbps: 8000,
-      resolution: "1080p".to_string(),
-      fps: 60,
-      codec: "h264".to_string(),
+      name: quality_presets::high::NAME.to_string(),
+      description: quality_presets::high::DESCRIPTION.to_string(),
+      bitrate_kbps: quality_presets::high::VIDEO_BITRATE,
+      resolution: quality_presets::high::RESOLUTION.to_string(),
+      fps: quality_presets::high::FPS,
+      codec: quality_presets::high::CODEC.to_string(),
     },
     QualityPreset {
-      name: "Ultra".to_string(),
-      description: "Максимальное качество для профессионального использования".to_string(),
-      bitrate_kbps: 20000,
-      resolution: "4K".to_string(),
-      fps: 60,
-      codec: "h265".to_string(),
+      name: quality_presets::ultra::NAME.to_string(),
+      description: quality_presets::ultra::DESCRIPTION.to_string(),
+      bitrate_kbps: quality_presets::ultra::VIDEO_BITRATE,
+      resolution: quality_presets::ultra::RESOLUTION.to_string(),
+      fps: quality_presets::ultra::FPS,
+      codec: quality_presets::ultra::CODEC.to_string(),
     },
   ])
 }

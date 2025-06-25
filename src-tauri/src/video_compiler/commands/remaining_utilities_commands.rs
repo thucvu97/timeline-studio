@@ -4,7 +4,6 @@ use crate::video_compiler::commands::ffmpeg_advanced::test_hardware_acceleration
 use crate::video_compiler::commands::project::{
   get_clip_info, touch_project_schema, track_operations, validate_subtitle,
 };
-use crate::video_compiler::commands::test_helper_commands::test_error_types;
 use crate::video_compiler::core::cache::{CacheStats, RenderCache};
 use crate::video_compiler::error::Result;
 use crate::video_compiler::schema::{Clip, ProjectSchema, Subtitle, Track};
@@ -132,26 +131,6 @@ pub struct ErrorTestResult {
   pub error_type: String,
   pub test_result: String,
   pub error_generated: bool,
-}
-
-/// Протестировать типы ошибок
-#[tauri::command]
-pub async fn test_error_handling_types(
-  params: ErrorTestParams,
-  _state: State<'_, VideoCompilerState>,
-) -> Result<ErrorTestResult> {
-  match test_error_types(params.error_type.clone()).await {
-    Ok(result) => Ok(ErrorTestResult {
-      error_type: params.error_type,
-      test_result: result,
-      error_generated: false,
-    }),
-    Err(e) => Ok(ErrorTestResult {
-      error_type: params.error_type,
-      test_result: e.to_string(),
-      error_generated: true,
-    }),
-  }
 }
 
 /// Параметры для получения метаданных из кэша

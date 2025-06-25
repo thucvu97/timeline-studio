@@ -1919,6 +1919,7 @@
     "tabs": {
       "video": "Video",
       "audio": "Audio",
+      "color": "Color",
       "speed": "Speed",
       "info": "Info"
     },
@@ -2021,6 +2022,98 @@
       "metadata": "Metadata",
       "createdAt": "Created At",
       "device": "Device"
+    }
+  },
+  "colorGrading": {
+    "title": "Color Grading",
+    "primaryCorrection": "Primary Color Correction",
+    "curves": "Curves",
+    "hslCorrection": "HSL Correction",
+    "lut": "LUT",
+    "scopes": "Scopes",
+    "colorWheels": {
+      "description": "Adjust shadows (Lift), midtones (Gamma), and highlights (Gain)",
+      "lift": "Lift (Shadows)",
+      "gamma": "Gamma (Midtones)",
+      "gain": "Gain (Highlights)",
+      "offset": "Offset"
+    },
+    "parameters": {
+      "temperature": "Temperature",
+      "tint": "Tint",
+      "contrast": "Contrast",
+      "saturation": "Saturation",
+      "hue": "Hue",
+      "luminance": "Luminance",
+      "pivot": "Contrast Pivot",
+      "vibrance": "Vibrance"
+    },
+    "curves": {
+      "description": "Fine-tune tonal response with interactive curves",
+      "master": "Master",
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "hueVsHue": "Hue vs Hue",
+      "hueVsSaturation": "Hue vs Saturation",
+      "hueVsLuminance": "Hue vs Luminance",
+      "luminanceVsSaturation": "Luminance vs Saturation",
+      "saturationVsSaturation": "Saturation vs Saturation",
+      "reset": "Reset",
+      "auto": "Auto",
+      "hint": "Click to add points, drag to adjust"
+    },
+    "hsl": {
+      "description": "Advanced HSL adjustments and secondary color correction",
+      "hue": "Hue",
+      "saturation": "Saturation",
+      "luminance": "Luminance",
+      "advanced": "Advanced",
+      "pivot": "Contrast Pivot",
+      "vibrance": "Vibrance"
+    },
+    "lut": {
+      "description": "Apply Look-Up Tables for creative color grading",
+      "file": "LUT File",
+      "intensity": "LUT Intensity",
+      "none": "None",
+      "cinematicWarm": "Cinematic Warm",
+      "vintageFilm": "Vintage Film",
+      "moodynlue": "Moody Blue",
+      "highContrast": "High Contrast",
+      "loadCustom": "Load Custom...",
+      "selectPlaceholder": "Select LUT...",
+      "loadCustomTooltip": "Load custom .cube file",
+      "remove": "Remove LUT",
+      "preview": "Preview",
+      "original": "Original",
+      "withLut": "With LUT",
+      "supportedFormats": "Supported formats"
+    },
+    "scopes": {
+      "description": "Real-time analysis of color and exposure",
+      "enabled": "Enabled",
+      "waveform": "Waveform",
+      "vectorscope": "Vectorscope",
+      "histogram": "Histogram",
+      "waveformHint": "Shows luminance distribution across the image",
+      "vectorscopeHint": "Shows color saturation and hue distribution",
+      "histogramHint": "Shows tonal distribution for RGB channels",
+      "refreshRate": "Refresh Rate",
+      "settings": "Settings",
+      "fullscreen": "Fullscreen"
+    },
+    "controls": {
+      "resetAll": "Reset All",
+      "loadPreset": "Load Preset",
+      "savePreset": "Save Preset",
+      "preview": "Preview",
+      "applyToClip": "Apply to Clip",
+      "resetAllTooltip": "Reset all color corrections",
+      "loadPresetTooltip": "Load color grading preset",
+      "savePresetTooltip": "Save current settings as preset",
+      "togglePreviewTooltip": "Toggle real-time preview",
+      "applyToClipTooltip": "Apply color grading to selected clip"
     }
   },
   "videoCompiler": {

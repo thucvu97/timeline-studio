@@ -1823,6 +1823,7 @@
     "tabs": {
       "video": "Видео",
       "audio": "Аудио",
+      "color": "Цвет",
       "speed": "Скорость",
       "info": "Информация"
     },
@@ -1925,6 +1926,98 @@
       "metadata": "Метаданные",
       "createdAt": "Дата создания",
       "device": "Устройство"
+    }
+  },
+  "colorGrading": {
+    "title": "Цветокоррекция",
+    "primaryCorrection": "Первичная цветокоррекция",
+    "curves": "Кривые",
+    "hslCorrection": "HSL коррекция",
+    "lut": "LUT",
+    "scopes": "Скопы",
+    "colorWheels": {
+      "description": "Настройте тени (Lift), средние тона (Gamma) и света (Gain)",
+      "lift": "Lift (Тени)",
+      "gamma": "Gamma (Средние тона)",
+      "gain": "Gain (Света)",
+      "offset": "Смещение"
+    },
+    "parameters": {
+      "temperature": "Температура",
+      "tint": "Оттенок",
+      "contrast": "Контраст",
+      "saturation": "Насыщенность",
+      "hue": "Тон",
+      "luminance": "Яркость",
+      "pivot": "Точка контраста",
+      "vibrance": "Сочность"
+    },
+    "curves": {
+      "description": "Точная настройка тонального отклика с интерактивными кривыми",
+      "master": "Общая",
+      "red": "Красный",
+      "green": "Зеленый",
+      "blue": "Синий",
+      "hueVsHue": "Тон к тону",
+      "hueVsSaturation": "Тон к насыщенности",
+      "hueVsLuminance": "Тон к яркости",
+      "luminanceVsSaturation": "Яркость к насыщенности",
+      "saturationVsSaturation": "Насыщенность к насыщенности",
+      "reset": "Сброс",
+      "auto": "Авто",
+      "hint": "Нажмите для добавления точек, перетаскивайте для настройки"
+    },
+    "hsl": {
+      "description": "Продвинутые HSL настройки и вторичная цветокоррекция",
+      "hue": "Тон",
+      "saturation": "Насыщенность",
+      "luminance": "Яркость",
+      "advanced": "Дополнительно",
+      "pivot": "Точка контраста",
+      "vibrance": "Сочность"
+    },
+    "lut": {
+      "description": "Применение таблиц соответствия для творческой цветокоррекции",
+      "file": "LUT файл",
+      "intensity": "Интенсивность LUT",
+      "none": "Нет",
+      "cinematicWarm": "Кинематографический теплый",
+      "vintageFilm": "Винтажная пленка",
+      "moodynlue": "Мрачный синий",
+      "highContrast": "Высокий контраст",
+      "loadCustom": "Загрузить пользовательский...",
+      "selectPlaceholder": "Выберите LUT...",
+      "loadCustomTooltip": "Загрузить пользовательский .cube файл",
+      "remove": "Удалить LUT",
+      "preview": "Превью",
+      "original": "Оригинал",
+      "withLut": "С LUT",
+      "supportedFormats": "Поддерживаемые форматы"
+    },
+    "scopes": {
+      "description": "Анализ цвета и экспозиции в реальном времени",
+      "enabled": "Включено",
+      "waveform": "Волновая форма",
+      "vectorscope": "Векторскоп",
+      "histogram": "Гистограмма",
+      "waveformHint": "Показывает распределение яркости по изображению",
+      "vectorscopeHint": "Показывает распределение насыщенности и тона цвета",
+      "histogramHint": "Показывает тональное распределение RGB каналов",
+      "refreshRate": "Частота обновления",
+      "settings": "Настройки",
+      "fullscreen": "Полный экран"
+    },
+    "controls": {
+      "resetAll": "Сбросить все",
+      "loadPreset": "Загрузить пресет",
+      "savePreset": "Сохранить пресет",
+      "preview": "Превью",
+      "applyToClip": "Применить к клипу",
+      "resetAllTooltip": "Сбросить всю цветокоррекцию",
+      "loadPresetTooltip": "Загрузить пресет цветокоррекции",
+      "savePresetTooltip": "Сохранить текущие настройки как пресет",
+      "togglePreviewTooltip": "Переключить предпросмотр в реальном времени",
+      "applyToClipTooltip": "Применить цветокоррекцию к выбранному клипу"
     }
   },
   "resources": {

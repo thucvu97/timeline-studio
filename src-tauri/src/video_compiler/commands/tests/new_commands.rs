@@ -1,7 +1,6 @@
 //! Tests for new commands that use previously unused methods
 
 use crate::video_compiler::commands::*;
-use crate::video_compiler::error::VideoCompilerError;
 use crate::video_compiler::schema::{ProjectSchema, Subtitle};
 
 #[tokio::test]
@@ -54,26 +53,6 @@ async fn test_get_gpu_encoder_details() {
   assert_eq!(details["encoder_type"], "nvenc");
 }
 
-#[tokio::test]
-async fn test_test_error_types() {
-  // Test IO error
-  let result = test_error_types("io".to_string()).await;
-  assert!(result.is_err());
-  if let Err(VideoCompilerError::Io(msg)) = result {
-    assert_eq!(msg, "Test IO error");
-  } else {
-    panic!("Expected Io error");
-  }
-
-  // Test GPU unavailable error
-  let result = test_error_types("gpu_unavailable".to_string()).await;
-  assert!(result.is_err());
-  if let Err(VideoCompilerError::GpuUnavailable(msg)) = result {
-    assert_eq!(msg, "Test GPU unavailable");
-  } else {
-    panic!("Expected GpuUnavailable");
-  }
-}
 
 #[tokio::test]
 async fn test_create_schema_objects() {

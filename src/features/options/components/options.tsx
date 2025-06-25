@@ -1,10 +1,11 @@
 import { JSX, useEffect, useState } from "react"
 
-import { AudioLines, Gauge, Info, Video } from "lucide-react"
+import { AudioLines, Gauge, Info, Palette, Video } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TAB_TRIGGER_STYLES } from "@/features/browser"
+import { ColorSettings } from "@/features/color-grading"
 import { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
 
@@ -13,11 +14,12 @@ import { MediaInfo } from "./media-info"
 import { SpeedSettings } from "./speed-settings"
 import { VideoSettings } from "./video-settings"
 
-type OptionsTab = "video" | "audio" | "speed" | "info"
+type OptionsTab = "video" | "audio" | "color" | "speed" | "info"
 
 const TABS: Array<{ id: OptionsTab; labelKey: string; icon: JSX.Element }> = [
   { id: "video", labelKey: "options.tabs.video", icon: <Video /> },
   { id: "audio", labelKey: "options.tabs.audio", icon: <AudioLines /> },
+  { id: "color", labelKey: "options.tabs.color", icon: <Palette /> },
   { id: "speed", labelKey: "options.tabs.speed", icon: <Gauge /> },
   { id: "info", labelKey: "options.tabs.info", icon: <Info /> },
 ]
@@ -43,6 +45,8 @@ export function Options({ selectedMediaFile }: OptionsProps) {
         return <VideoSettings />
       case "audio":
         return <AudioSettings />
+      case "color":
+        return <ColorSettings />
       case "speed":
         return <SpeedSettings />
       case "info":
@@ -62,7 +66,7 @@ export function Options({ selectedMediaFile }: OptionsProps) {
       >
         {/* Вкладки */}
         <TabsList
-          className="grid w-full grid-cols-4 flex-shrink-0 border-none bg-[#252526] rounded-none m-0 p-0"
+          className="grid w-full grid-cols-5 flex-shrink-0 border-none bg-[#252526] rounded-none m-0 p-0"
           data-testid="options-tabs-list"
         >
           {TABS.map((tab) => (

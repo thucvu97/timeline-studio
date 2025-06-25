@@ -24,15 +24,8 @@ pub use commands::VideoCompilerState;
 pub use core::error::{Result, VideoCompilerError};
 pub use core::progress::RenderProgress;
 
-// Re-export core modules for backward compatibility
-pub use core::cache;
-pub use core::error;
-pub use core::frame_extraction;
-pub use core::gpu;
-pub use core::pipeline;
-pub use core::preview;
-pub use core::progress;
-pub use core::renderer;
+// Re-export core modules that are used by other parts of the application
+pub use core::{cache, error, frame_extraction, gpu, pipeline, preview, progress, renderer};
 
 use serde::{Deserialize, Serialize};
 
