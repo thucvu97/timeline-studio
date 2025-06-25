@@ -21,8 +21,6 @@ mod tests {
 
   /// Создать тестовый ServiceContainer с мок-сервисами
   async fn create_test_service_container() -> Arc<ServiceContainer> {
-    
-
     // TODO: Добавить регистрацию реальных сервисов
     // Пока container остается пустым, что тестирует fallback поведение
 
