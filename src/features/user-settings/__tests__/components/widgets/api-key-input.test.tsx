@@ -183,7 +183,10 @@ describe("ApiKeyInput", () => {
   })
 
   it("should show loading spinner during test", async () => {
-    mockTestApiKey.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve(true), 100)))
+    let resolveTest: (value: boolean) => void
+    mockTestApiKey.mockImplementation(() => new Promise((resolve) => {
+      resolveTest = resolve
+    }))
 
     render(<ApiKeyInput {...defaultProps} value="test-key" testable={true} />)
 
@@ -196,6 +199,11 @@ describe("ApiKeyInput", () => {
       // Check if the button contains a loading spinner
       const spinner = document.querySelector(".animate-spin")
       expect(spinner).toBeInTheDocument()
+    })
+    
+    // Resolve the promise to prevent hanging
+    act(() => {
+      resolveTest(true)
     })
   })
 
@@ -260,7 +268,10 @@ describe("ApiKeyInput", () => {
   })
 
   it("should not attempt test when already testing", async () => {
-    mockTestApiKey.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve(true), 1000)))
+    let resolveTest: (value: boolean) => void
+    mockTestApiKey.mockImplementation(() => new Promise((resolve) => {
+      resolveTest = resolve
+    }))
 
     render(<ApiKeyInput {...defaultProps} value="test-key" testable={true} />)
 
@@ -275,6 +286,11 @@ describe("ApiKeyInput", () => {
     })
 
     expect(mockTestApiKey).toHaveBeenCalledTimes(1)
+    
+    // Resolve the promise to prevent hanging
+    act(() => {
+      resolveTest(true)
+    })
   })
 
   it("should reset showKey state when clearing input", () => {
@@ -332,6 +348,10 @@ describe("ApiKeyInput", () => {
     const testButton = screen.getByText("Тест")
     act(() => {
       fireEvent.click(testButton)
+    })
+
+    await waitFor(() => {
+      expect(mockTestApiKey).toHaveBeenCalledWith("openai")
     })
 
     await waitFor(() => {
