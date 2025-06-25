@@ -49,13 +49,17 @@ AI assistant will create the right number of versions for each platform! 🤖
 
 ![Timeline Interface #1](/public/screen3.png)
 
-### Project Status (23 June 2025)
+## 🏗️ Project Status
 
-**Overall Completion: 75.5%** ⬆️ (updated with AI Models Integration and Workflow Automation completion)
-- **Completed**: 19 modules (100% readiness) - including full AI platform!
-- **In development**: 3 modules (75-80% readiness)
-- **Planned**: 3 modules (35-80% readiness)
-- **New planned**: 14 modules (0% readiness) - [details in planned/](docs-ru/08-roadmap/planned/)
+**Overall readiness: 74.5%** (weighted progress)  
+**🎯 Alpha version: 80.7%** ready
+
+✅ **Completed**: 45 core modules (27 frontend + 18 backend)  
+🔄 **In progress**: Export (95%), Plugins (70%), Color Grading (25%)  
+🔧 **Partially implemented**: Scene Analyzer (30%), Script Generator (20%)  
+📋 **Planned**: 13 additional modules for DaVinci Resolve level
+
+[→ Detailed Roadmap](docs-ru/10-roadmap/README.md)
 
 ## Key Features
 
@@ -77,18 +81,6 @@ AI assistant will create the right number of versions for each platform! 🤖
 - 🎤 **NEW: Whisper transcription** - Speech-to-text with OpenAI/local models
 - 📱 **NEW: Platform optimization** - Auto-adapt for 4 social platforms
 - 🤖 **NEW: Workflow automation** - 10 pre-built processes for quick editing
-
-## 🏗️ Project Status
-
-**Overall readiness: 74.5%** (weighted progress)  
-**🎯 Alpha version: 80.7%** ready
-
-✅ **Completed**: 45 core modules (27 frontend + 18 backend)  
-🔄 **In progress**: Export (95%), Plugins (70%), Color Grading (25%)  
-🔧 **Partially implemented**: Scene Analyzer (30%), Script Generator (20%)  
-📋 **Planned**: 13 additional modules for DaVinci Resolve level
-
-[→ Detailed Roadmap](docs-ru/10-roadmap/README.md)
 
 ## Getting Started
 
