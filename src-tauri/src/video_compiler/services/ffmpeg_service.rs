@@ -433,10 +433,281 @@ mod tests {
     assert_eq!(service.ffmpeg_path, "ffmpeg");
   }
 
+  #[tokio::test]
+  async fn test_get_ffmpeg_path() {
+    let service = FfmpegServiceImpl::new("/custom/path/ffmpeg".to_string());
+    let path = service.get_ffmpeg_path().await.unwrap();
+    assert_eq!(path, "/custom/path/ffmpeg");
+  }
+
+  #[tokio::test]
+  async fn test_is_available_with_echo() {
+    // Используем echo как mock для FFmpeg
+    let service = FfmpegServiceImpl::new("echo".to_string());
+    let available = service.is_available().await.unwrap();
+    assert!(available); // echo должен быть доступен в системе
+  }
+
+  #[tokio::test]
+  async fn test_is_available_with_nonexistent() {
+    let service = FfmpegServiceImpl::new("/definitely/does/not/exist".to_string());
+    let available = service.is_available().await.unwrap();
+    assert!(!available);
+  }
+
+  #[tokio::test]
+  async fn test_get_version_with_echo() {
+    let service = FfmpegServiceImpl::new("echo".to_string());
+    let version = service.get_version().await.unwrap();
+    assert_eq!(version, "-version"); // echo просто вернет аргумент
+  }
+
+  #[tokio::test]
+  async fn test_run_command() {
+    let service = FfmpegServiceImpl::new("echo".to_string());
+    let output = service.run_command(vec!["hello".to_string(), "world".to_string()]).await.unwrap();
+    assert_eq!(output.trim(), "hello world");
+  }
+
+  #[tokio::test]
+  async fn test_run_command_failure() {
+    let service = FfmpegServiceImpl::new("false".to_string()); // false всегда возвращает код ошибки
+    let result = service.run_command(vec!["test".to_string()]).await;
+    assert!(result.is_err());
+    
+    match result.unwrap_err() {
+      VideoCompilerError::FFmpegError { exit_code, .. } => {
+        assert!(exit_code.is_some());
+      }
+      _ => panic!("Expected FFmpegError"),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_service_lifecycle() {
+    let service = FfmpegServiceImpl::new("echo".to_string());
+    
+    // Initialize
+    assert!(service.initialize().await.is_ok());
+    
+    // Health check
+    assert!(service.health_check().await.is_ok());
+    
+    // Shutdown
+    assert!(service.shutdown().await.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_service_initialization_failure() {
+    let service = FfmpegServiceImpl::new("/nonexistent/ffmpeg".to_string());
+    let result = service.initialize().await;
+    assert!(result.is_err());
+    
+    match result.unwrap_err() {
+      VideoCompilerError::DependencyMissing(msg) => {
+        assert!(msg.contains("FFmpeg не найден"));
+      }
+      _ => panic!("Expected DependencyMissing error"),
+    }
+  }
+
+  // Тесты для парсинга функций
+
   #[test]
   fn test_parse_time_to_seconds() {
     assert_eq!(parse_time_to_seconds("00:01:30.00").unwrap(), 90.0);
     assert_eq!(parse_time_to_seconds("01:00:00.00").unwrap(), 3600.0);
     assert_eq!(parse_time_to_seconds("00:00:05.50").unwrap(), 5.5);
+    assert_eq!(parse_time_to_seconds("10:15:30.25").unwrap(), 36930.25);
+  }
+
+  #[test]
+  fn test_parse_time_to_seconds_invalid() {
+    assert!(parse_time_to_seconds("invalid").is_err());
+    assert!(parse_time_to_seconds("1:30").is_err());
+    assert!(parse_time_to_seconds("").is_err());
+  }
+
+  #[test]
+  fn test_parse_duration() {
+    let ffmpeg_output = r#"
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'test.mp4':
+  Duration: 00:05:30.50, start: 0.000000, bitrate: 1234 kb/s
+    Stream #0:0(und): Video: h264
+"#;
+    
+    let duration = parse_duration(ffmpeg_output).unwrap();
+    assert_eq!(duration, 330.5);
+  }
+
+  #[test]
+  fn test_parse_duration_not_found() {
+    let ffmpeg_output = "No duration info";
+    let result = parse_duration(ffmpeg_output);
+    assert!(result.is_err());
+  }
+
+  #[test]
+  fn test_parse_resolution() {
+    let ffmpeg_output = r#"
+Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 8000 kb/s, 30 fps
+"#;
+    
+    let (width, height) = parse_resolution(ffmpeg_output).unwrap();
+    assert_eq!(width, 1920);
+    assert_eq!(height, 1080);
+  }
+
+  #[test]
+  fn test_parse_resolution_different_format() {
+    let ffmpeg_output = r#"
+Stream #0:0: Video: mpeg4, yuv420p, 640x480, 25 fps
+"#;
+    
+    let (width, height) = parse_resolution(ffmpeg_output).unwrap();
+    assert_eq!(width, 640);
+    assert_eq!(height, 480);
+  }
+
+  #[test]
+  fn test_parse_fps() {
+    let ffmpeg_output = r#"
+Stream #0:0(und): Video: h264, yuv420p, 1920x1080, 8000 kb/s, 60 fps, 60 tbr
+"#;
+    
+    let fps = parse_fps(ffmpeg_output).unwrap();
+    assert_eq!(fps, 60.0);
+  }
+
+  #[test]
+  fn test_parse_fps_decimal() {
+    let ffmpeg_output = r#"
+Stream #0:0: Video: h264, 1280x720, 29.97 fps
+"#;
+    
+    let fps = parse_fps(ffmpeg_output).unwrap();
+    assert_eq!(fps, 29.97);
+  }
+
+  #[test]
+  fn test_parse_fps_default() {
+    let ffmpeg_output = "No fps info";
+    let fps = parse_fps(ffmpeg_output).unwrap();
+    assert_eq!(fps, 30.0); // Значение по умолчанию
+  }
+
+  #[test]
+  fn test_parse_video_codec() {
+    let ffmpeg_output = r#"
+Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p
+"#;
+    
+    let codec = parse_video_codec(ffmpeg_output).unwrap();
+    assert_eq!(codec, "h264 (High) (avc1 / 0x31637661)");
+  }
+
+  #[test]
+  fn test_parse_bitrate() {
+    let ffmpeg_output = r#"
+Duration: 00:01:00.00, start: 0.000000, bitrate: 1500 kb/s
+"#;
+    
+    let bitrate = parse_bitrate(ffmpeg_output).unwrap();
+    assert_eq!(bitrate, 1500);
+  }
+
+  #[test]
+  fn test_parse_audio_codec() {
+    let ffmpeg_output = r#"
+Stream #0:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 192 kb/s
+"#;
+    
+    let codec = parse_audio_codec(ffmpeg_output);
+    assert_eq!(codec, Some("aac (LC) (mp4a / 0x6134706D)".to_string()));
+  }
+
+  #[test]
+  fn test_parse_audio_codec_not_found() {
+    let ffmpeg_output = "No audio stream";
+    let codec = parse_audio_codec(ffmpeg_output);
+    assert!(codec.is_none());
+  }
+
+  #[test]
+  fn test_parse_audio_bitrate() {
+    let ffmpeg_output = r#"
+Stream #0:1(und): Audio: aac, 48000 Hz, stereo, fltp, 192 kb/s
+"#;
+    
+    let bitrate = parse_audio_bitrate(ffmpeg_output);
+    assert_eq!(bitrate, Some(192));
+  }
+
+  #[test]
+  fn test_parse_audio_bitrate_not_found() {
+    let ffmpeg_output = "No audio bitrate info";
+    let bitrate = parse_audio_bitrate(ffmpeg_output);
+    assert!(bitrate.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_get_file_info_mock() {
+    let service = FfmpegServiceImpl::new("echo".to_string());
+    let result = service.get_file_info(Path::new("test.mp4")).await;
+    
+    // С echo вместо ffmpeg это не сработает
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_get_supported_formats_mock() {
+    let service = FfmpegServiceImpl::new("echo".to_string());
+    let result = service.get_supported_formats().await;
+    
+    // echo вернет успех, но список будет пустой
+    assert!(result.is_ok());
+    let formats = result.unwrap();
+    assert!(formats.is_empty()); // echo не возвращает форматы
+  }
+
+  #[tokio::test]
+  async fn test_get_supported_codecs_mock() {
+    let service = FfmpegServiceImpl::new("echo".to_string());
+    let result = service.get_supported_codecs().await;
+    
+    // echo вернет успех, но список будет пустой
+    assert!(result.is_ok());
+    let codecs = result.unwrap();
+    assert!(codecs.is_empty()); // echo не возвращает кодеки
+  }
+
+  // Интеграционный тест для проверки полного парсинга
+  #[test]
+  fn test_full_ffmpeg_output_parsing() {
+    let ffmpeg_output = r#"
+ffmpeg version 4.4.0 Copyright (c) 2000-2021 the FFmpeg developers
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'sample.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf58.76.100
+  Duration: 00:10:34.53, start: 0.000000, bitrate: 4567 kb/s
+    Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 4321 kb/s, 29.97 fps, 29.97 tbr, 30k tbn, 59.94 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+    Stream #0:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 192 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+"#;
+
+    // Тестируем все функции парсинга
+    assert_eq!(parse_duration(ffmpeg_output).unwrap(), 634.53);
+    assert_eq!(parse_resolution(ffmpeg_output).unwrap(), (1920, 1080));
+    assert_eq!(parse_fps(ffmpeg_output).unwrap(), 29.97);
+    assert_eq!(parse_video_codec(ffmpeg_output).unwrap(), "h264 (High) (avc1 / 0x31637661)");
+    assert_eq!(parse_bitrate(ffmpeg_output).unwrap(), 4567);
+    assert_eq!(parse_audio_codec(ffmpeg_output).unwrap(), "aac (LC) (mp4a / 0x6134706D)");
+    assert_eq!(parse_audio_bitrate(ffmpeg_output).unwrap(), 192);
   }
 }

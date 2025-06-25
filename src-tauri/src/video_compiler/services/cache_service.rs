@@ -298,7 +298,7 @@ impl CacheService for CacheServiceImpl {
     cache.clear().await?;
 
     // Очищаем дополнительные директории
-    let dirs = vec!["preview", "temp", "projects"];
+    let dirs = vec!["render", "preview", "temp", "projects"];
     for dir_name in dirs {
       let dir_path = self.cache_dir.join(dir_name);
       if dir_path.exists() {
@@ -318,6 +318,18 @@ impl CacheService for CacheServiceImpl {
     log::info!("Очистка кэша рендеринга");
     let mut cache = self.render_cache.write().await;
     cache.clear().await?;
+    
+    // Также очищаем физические файлы
+    let render_dir = self.cache_dir.join("render");
+    if render_dir.exists() {
+      tokio::fs::remove_dir_all(&render_dir)
+        .await
+        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      tokio::fs::create_dir_all(&render_dir)
+        .await
+        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+    }
+    
     Ok(())
   }
 
@@ -383,19 +395,20 @@ impl CacheService for CacheServiceImpl {
       0.0
     };
 
-    // Подсчет файлов
+    // Подсчет файлов рекурсивно
     let mut total_files = 0;
-    let mut entries = tokio::fs::read_dir(&self.cache_dir)
-      .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
-
-    while let Some(entry) = entries
-      .next_entry()
-      .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?
-    {
-      if entry.metadata().await.unwrap().is_file() {
-        total_files += 1;
+    for subdir in &["temp", "render", "preview", "projects"] {
+      let dir_path = self.cache_dir.join(subdir);
+      if dir_path.exists() {
+        if let Ok(mut entries) = tokio::fs::read_dir(&dir_path).await {
+          while let Ok(Some(entry)) = entries.next_entry().await {
+            if let Ok(metadata) = entry.metadata().await {
+              if metadata.is_file() {
+                total_files += 1;
+              }
+            }
+          }
+        }
       }
     }
 
@@ -593,5 +606,205 @@ mod tests {
     assert_eq!(retrieved, Some(data.to_vec()));
 
     assert!(service.exists_in_cache(key).await.unwrap());
+  }
+
+  #[tokio::test]
+  async fn test_cache_clear_operations() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    // Добавляем данные в разные категории кэша
+    service.save_to_cache("temp_file", b"temp data").await.unwrap();
+    
+    // Создаем файлы в разных директориях
+    tokio::fs::write(temp_dir.path().join("render/render_file"), b"render data")
+      .await
+      .unwrap();
+    tokio::fs::write(temp_dir.path().join("preview/preview_file"), b"preview data")
+      .await
+      .unwrap();
+
+    // Проверяем очистку preview кэша
+    assert!(service.clear_preview_cache().await.is_ok());
+    assert!(!temp_dir.path().join("preview/preview_file").exists());
+    assert!(temp_dir.path().join("render/render_file").exists());
+
+    // Проверяем очистку всего кэша
+    assert!(service.clear_all().await.is_ok());
+    assert!(!temp_dir.path().join("render/render_file").exists());
+  }
+
+  #[tokio::test]
+  async fn test_cache_stats() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    // Добавляем тестовые данные
+    service.save_to_cache("file1", b"data1").await.unwrap();
+    service.save_to_cache("file2", b"data2 with more content").await.unwrap();
+
+    let stats = service.get_cache_stats().await.unwrap();
+    assert!(stats.total_size_mb > 0.0);
+    assert!(stats.total_files > 0);
+    assert_eq!(stats.hit_rate, 0.0); // Начальное значение
+  }
+
+  #[tokio::test]
+  async fn test_cache_optimization() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    // Создаем старый файл
+    let old_file_path = temp_dir.path().join("temp/old_file");
+    tokio::fs::write(&old_file_path, b"old data").await.unwrap();
+    
+    // Изменяем время модификации на 10 дней назад
+    let ten_days_ago = std::time::SystemTime::now() - std::time::Duration::from_secs(10 * 24 * 3600);
+    filetime::set_file_mtime(&old_file_path, filetime::FileTime::from_system_time(ten_days_ago)).unwrap();
+
+    // Создаем новый файл
+    service.save_to_cache("new_file", b"new data").await.unwrap();
+
+    // Оптимизируем кэш (удаляем файлы старше 5 дней)
+    let removed = service.optimize_cache(5).await.unwrap();
+    assert_eq!(removed, 1);
+    assert!(!old_file_path.exists());
+    assert!(service.exists_in_cache("new_file").await.unwrap());
+  }
+
+  #[tokio::test]
+  async fn test_list_cached_items() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    // Добавляем файлы в разные категории
+    service.save_to_cache("temp_item", b"data").await.unwrap();
+    tokio::fs::write(temp_dir.path().join("render/render_item"), b"data")
+      .await
+      .unwrap();
+    tokio::fs::write(temp_dir.path().join("preview/preview_item"), b"data")
+      .await
+      .unwrap();
+
+    let items = service.list_cached_items().await.unwrap();
+    assert!(items.len() >= 3);
+    assert!(items.iter().any(|i| i.contains("temp_item")));
+    assert!(items.iter().any(|i| i.contains("render_item")));
+    assert!(items.iter().any(|i| i.contains("preview_item")));
+  }
+
+  #[tokio::test]
+  async fn test_get_item_info() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    let key = "test_info";
+    let data = b"test data for info";
+    service.save_to_cache(key, data).await.unwrap();
+
+    let info = service.get_item_info(key).await.unwrap();
+    assert!(info.is_some());
+    
+    let item_info = info.unwrap();
+    assert_eq!(item_info.key, key);
+    assert_eq!(item_info.size_bytes, data.len() as u64);
+    assert!(!item_info.created_at.is_empty());
+    assert!(!item_info.last_accessed.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_cache_project_operations() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    let project_id = "test_project";
+    let project_dir = temp_dir.path().join("projects").join(project_id);
+    tokio::fs::create_dir_all(&project_dir).await.unwrap();
+    tokio::fs::write(project_dir.join("project_data"), b"project specific data")
+      .await
+      .unwrap();
+
+    assert!(project_dir.exists());
+    assert!(service.clear_project_cache(project_id).await.is_ok());
+    assert!(!project_dir.exists());
+  }
+
+  #[tokio::test]
+  async fn test_performance_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    let metrics = service.get_performance_metrics().await.unwrap();
+    assert!(metrics.hit_rate_last_hour >= 0.0 && metrics.hit_rate_last_hour <= 1.0);
+    assert!(metrics.hit_rate_last_day >= 0.0 && metrics.hit_rate_last_day <= 1.0);
+    assert!(metrics.average_response_time_ms >= 0.0);
+    assert!(metrics.current_memory_usage_mb >= 0.0);
+    assert!(metrics.fragmentation_ratio >= 0.0 && metrics.fragmentation_ratio <= 1.0);
+  }
+
+  #[tokio::test]
+  async fn test_alert_thresholds() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    let thresholds = CacheAlertThresholds {
+      min_hit_rate: 0.8,
+      max_memory_usage_mb: 1024.0,
+      max_response_time_ms: 100.0,
+      max_fragmentation: 0.3,
+    };
+
+    assert!(service.set_alert_thresholds(thresholds).await.is_ok());
+    
+    let alerts = service.get_active_alerts().await.unwrap();
+    assert_eq!(alerts.len(), 0); // Изначально нет алертов
+  }
+
+  #[tokio::test]
+  async fn test_health_check() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    // Проверка здоровья должна пройти успешно
+    assert!(service.health_check().await.is_ok());
+
+    // Удаляем директорию кэша
+    std::fs::remove_dir_all(temp_dir.path()).unwrap();
+
+    // Теперь проверка здоровья должна провалиться
+    assert!(service.health_check().await.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_cache_path() {
+    let temp_dir = TempDir::new().unwrap();
+    let expected_path = temp_dir.path().to_path_buf();
+    let service = CacheServiceImpl::new(expected_path.clone());
+
+    let cache_path = service.get_cache_path().await.unwrap();
+    assert_eq!(cache_path, expected_path);
+  }
+
+  #[tokio::test]
+  async fn test_reset_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let service = CacheServiceImpl::new(temp_dir.path().to_path_buf());
+    service.initialize().await.unwrap();
+
+    // Сбрасываем метрики
+    assert!(service.reset_metrics().await.is_ok());
+    
+    // Проверяем, что метрики сброшены (в нашей заглушке просто проверяем успешность)
+    let metrics = service.get_performance_metrics().await.unwrap();
+    assert!(metrics.slow_operations.is_empty());
   }
 }
