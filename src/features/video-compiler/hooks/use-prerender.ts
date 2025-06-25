@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
-import { timelineToProjectSchema } from "@/features/timeline/utils/timeline-to-project"
+import { ProjectSchemaBuilder } from "@/features/export/utils/project-schema-builder"
 
 import {
   type PrerenderCacheFile,
@@ -63,8 +63,10 @@ export function usePrerender() {
       }))
 
       try {
-        // Преобразуем timeline в схему проекта
-        const projectSchema = timelineToProjectSchema(project)
+        // Используем ProjectSchemaBuilder для создания схемы с настройками для preview
+        const projectSchema = ProjectSchemaBuilder.createForPreview(project, {
+          quality: quality || 75,
+        })
 
         // Запускаем пререндер
         const result = await prerenderSegment({

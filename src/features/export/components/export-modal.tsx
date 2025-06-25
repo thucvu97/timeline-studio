@@ -6,50 +6,16 @@ import { toast } from "sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useModal } from "@/features/modals/services"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
-import { timelineToProjectSchema } from "@/features/timeline/utils/timeline-to-project"
 import { useVideoCompiler } from "@/features/video-compiler/hooks/use-video-compiler"
-import { OutputFormat } from "@/types/video-compiler"
 
 import { BatchExportTab } from "./batch-export-tab"
 import { DetailedExportInterface } from "./detailed-export-interface"
 import { SectionExportTab } from "./section-export-tab"
 import { SocialExportTab } from "./social-export-tab"
-import { AUDIO_BITRATE } from "../constants/export-constants"
 import { useExportSettings } from "../hooks/use-export-settings"
 import { useSocialExport } from "../hooks/use-social-export"
 import { SocialExportSettings } from "../types/export-types"
-
-// Helper function to convert format string to OutputFormat enum
-const formatToOutputFormat = (format: string): OutputFormat => {
-  const formatMap: Record<string, OutputFormat> = {
-    mp4: OutputFormat.Mp4,
-    avi: OutputFormat.Avi,
-    mov: OutputFormat.Mov,
-    mkv: OutputFormat.Mkv,
-    webm: OutputFormat.WebM,
-    gif: OutputFormat.Gif,
-    Mp4: OutputFormat.Mp4,
-    Avi: OutputFormat.Avi,
-    Mov: OutputFormat.Mov,
-    Mkv: OutputFormat.Mkv,
-    WebM: OutputFormat.WebM,
-    Gif: OutputFormat.Gif,
-  }
-  return formatMap[format] || OutputFormat.Mp4
-}
-
-// Helper function to convert quality string to number
-const qualityToNumber = (quality: string | number): number => {
-  if (typeof quality === "number") {
-    return quality
-  }
-  const qualityMap: Record<string, number> = {
-    normal: 70,
-    good: 85,
-    best: 95,
-  }
-  return qualityMap[quality] || 70
-}
+import { ProjectSchemaBuilder } from "../utils/project-schema-builder"
 
 export function ExportModal() {
   const { t } = useTranslation()
@@ -83,23 +49,9 @@ export function ExportModal() {
     }
 
     try {
-      // Преобразуем timeline в схему проекта
-      const projectSchema = timelineToProjectSchema(project)
+      // Используем ProjectSchemaBuilder для создания схемы с настройками экспорта
       const exportConfig = getExportConfig()
-
-      // Обновляем настройки экспорта в схеме
-      projectSchema.settings.export = {
-        format: formatToOutputFormat(exportConfig.format),
-        quality: qualityToNumber(exportConfig.quality),
-        video_bitrate: exportConfig.videoBitrate,
-        audio_bitrate: AUDIO_BITRATE,
-        hardware_acceleration: exportConfig.enableGPU,
-        ffmpeg_args: [],
-      }
-
-      // Обновляем разрешение и FPS
-      projectSchema.timeline.resolution = exportConfig.resolution
-      projectSchema.timeline.fps = exportConfig.frameRate
+      const projectSchema = ProjectSchemaBuilder.createForExport(project, exportConfig)
 
       // Запускаем экспорт
       await startRender(projectSchema, settings.savePath)
@@ -118,23 +70,9 @@ export function ExportModal() {
       }
 
       try {
-        // Преобразуем timeline в схему проекта
-        const projectSchema = timelineToProjectSchema(project)
+        // Используем ProjectSchemaBuilder для создания схемы с настройками экспорта
         const exportConfig = getExportConfig()
-
-        // Обновляем настройки экспорта в схеме для социальной сети
-        projectSchema.settings.export = {
-          format: formatToOutputFormat(exportConfig.format),
-          quality: qualityToNumber(exportConfig.quality),
-          video_bitrate: exportConfig.videoBitrate,
-          audio_bitrate: AUDIO_BITRATE,
-          hardware_acceleration: exportConfig.enableGPU,
-          ffmpeg_args: [],
-        }
-
-        // Обновляем разрешение и FPS для социальной сети
-        projectSchema.timeline.resolution = exportConfig.resolution
-        projectSchema.timeline.fps = exportConfig.frameRate
+        const projectSchema = ProjectSchemaBuilder.createForExport(project, exportConfig)
 
         // Запускаем экспорт и загрузку в социальную сеть
         const tempPath = `/tmp/export_${Date.now()}.mp4`
@@ -213,22 +151,21 @@ export function ExportModal() {
             try {
               // Handle section export
               for (const section of settings.sections) {
-                const projectSchema = timelineToProjectSchema(project)
-
-                // Set export settings
-                projectSchema.settings.export = {
-                  format: formatToOutputFormat(settings.format),
-                  quality: qualityToNumber(settings.quality),
-                  video_bitrate: settings.bitrate || 5000,
-                  audio_bitrate: AUDIO_BITRATE,
-                  hardware_acceleration: settings.enableGPU,
-                  ffmpeg_args: [],
-                }
-
-                // Set time range for section (these properties might need to be added to the Timeline interface)
-                // For now, we'll skip setting time ranges as they're not part of the standard Timeline interface
-                // projectSchema.timeline.start_time = section.startTime
-                // projectSchema.timeline.end_time = section.endTime
+                // Используем ProjectSchemaBuilder для создания схемы с настройками экспорта
+                const projectSchema = new ProjectSchemaBuilder(project)
+                  .withExportSettings({
+                    format: settings.format,
+                    quality: settings.quality,
+                    videoBitrate: settings.bitrate || 5000,
+                    enableGPU: settings.enableGPU,
+                  })
+                  .withCustomSettings({
+                    // Добавляем временной диапазон как кастомные настройки
+                    // Backend может использовать их для обрезки видео
+                    sectionStartTime: section.startTime,
+                    sectionEndTime: section.endTime,
+                  })
+                  .build()
 
                 // Generate output path
                 const fileName = section.customFileName || section.name

@@ -34,6 +34,31 @@ vi.mock("@/features/timeline/utils/timeline-to-project", () => ({
   })),
 }))
 
+vi.mock("@/features/export/utils/project-schema-builder", () => ({
+  ProjectSchemaBuilder: {
+    createForPreview: vi.fn((project) => ({
+      ...project,
+      version: "1.0.0",
+      settings: {
+        preview: {
+          resolution: [1280, 720],
+          fps: 30,
+          quality: 75,
+        },
+        export: {
+          format: "Mp4",
+          quality: 85,
+          video_bitrate: 8000,
+          audio_bitrate: 192,
+          hardware_acceleration: true,
+          ffmpeg_args: [],
+        },
+        custom: {},
+      },
+    })),
+  },
+}))
+
 vi.mock("../../services/video-compiler-service", () => ({
   prerenderSegment: vi.fn(),
   getPrerenderCacheInfo: vi.fn(),
