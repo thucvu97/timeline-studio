@@ -1,0 +1,59 @@
+name: Bundle Analysis
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  bundle-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build with bundle analysis
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CI: true
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          # Enable debug logging for Codecov plugin
+          DEBUG: "@codecov/*"
+        run: |
+          echo "Building with bundle analysis..."
+          echo "CODECOV_TOKEN is $([ -n "$CODECOV_TOKEN" ] && echo "set" || echo "not set")"
+          echo "CI environment variables:"
+          echo "  GITHUB_SHA: $GITHUB_SHA"
+          echo "  GITHUB_REF_NAME: $GITHUB_REF_NAME"
+          echo "  GITHUB_PR_NUMBER: $GITHUB_PR_NUMBER"
+          echo "  GITHUB_RUN_ID: $GITHUB_RUN_ID"
+          bun run build
+
+      # Codecov плагин должен автоматически загрузить bundle stats во время сборки
+      # Этот шаг является дополнительной страховкой на случай, если автоматическая загрузка не сработала
+      - name: Upload bundle stats to Codecov (fallback)
+        if: failure()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: bundle
+          name: bundle-analysis
+          fail_ci_if_error: false
+          verbose: true
+          slug: chatman-media/timeline-studio

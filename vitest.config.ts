@@ -12,6 +12,14 @@ export default defineConfig({
       bundleName: "timeline-studio",
       uploadToken: process.env.CODECOV_TOKEN,
       gitService: "github",
+      ...(process.env.CI && {
+        uploadOverrides: {
+          sha: process.env.GITHUB_SHA,
+          branch: process.env.GITHUB_REF_NAME?.replace("refs/heads/", ""),
+          pr: process.env.GITHUB_PR_NUMBER,
+          build: process.env.GITHUB_RUN_ID,
+        },
+      }),
     }),
   ],
   test: {
