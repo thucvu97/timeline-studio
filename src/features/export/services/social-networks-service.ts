@@ -5,6 +5,8 @@ import { toast } from "sonner"
 import { OAuthService } from "./oauth-service"
 import { TikTokService } from "./tiktok-service"
 import { YouTubeService } from "./youtube-service"
+import { VimeoService } from "./vimeo-service"
+import { TelegramService } from "./telegram-service"
 import { SocialExportSettings } from "../types/export-types"
 
 export interface SocialUploadResult {
@@ -59,6 +61,10 @@ export class SocialNetworksService {
         return YouTubeService.getUserInfo(accessToken)
       case "tiktok":
         return TikTokService.getUserInfo(accessToken)
+      case "vimeo":
+        return VimeoService.getUserInfo(accessToken)
+      case "telegram":
+        return TelegramService.getUserInfo(accessToken)
       default:
         throw new Error(`User info not implemented for ${network}`)
     }
@@ -104,6 +110,16 @@ export class SocialNetworksService {
           result = await TikTokService.uploadVideo(videoFile, metadata, onProgress)
           break
         }
+        case "vimeo": {
+          const metadata = await VimeoService.exportSettings(settings)
+          result = await VimeoService.uploadVideo(videoFile, metadata, onProgress)
+          break
+        }
+        case "telegram": {
+          const metadata = await TelegramService.exportSettings(settings)
+          result = await TelegramService.uploadVideo(videoFile, metadata, onProgress)
+          break
+        }
         default:
           throw new Error(`Upload not implemented for ${network}`)
       }
@@ -128,6 +144,10 @@ export class SocialNetworksService {
         return YouTubeService.validateSettings(settings)
       case "tiktok":
         return TikTokService.validateSettings(settings)
+      case "vimeo":
+        return VimeoService.validateSettings(settings)
+      case "telegram":
+        return TelegramService.validateSettings(settings)
       default:
         return []
     }
@@ -144,6 +164,8 @@ export class SocialNetworksService {
         }
       case "tiktok":
         return TikTokService.getOptimalSettings()
+      case "vimeo":
+        return VimeoService.getOptimalSettings()
       case "telegram":
         return {
           resolution: "720",
@@ -210,6 +232,9 @@ export class SocialNetworksService {
         if (file.size > maxYouTubeSize) {
           errors.push("Video file size must be less than 256GB")
         }
+        break
+      case "vimeo":
+        errors.push(...VimeoService.validateVideoFile(file))
         break
       case "telegram":
         // Telegram имеет лимит 2GB

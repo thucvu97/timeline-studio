@@ -48,21 +48,18 @@ export function SectionExportTab({ defaultSettings, onExport }: SectionExportTab
 
   // Convert markers to sections
   useEffect(() => {
-    if (exportMode === "markers") {
-      // TODO: Implement markers functionality when TimelineProject supports markers
-      // For now, create a demo section
-      const markerSections: ExportSection[] = [
-        {
-          id: "demo-1",
-          name: "Demo Section 1",
-          startTime: 0,
-          endTime: 30,
-          includeInExport: true,
-        },
-      ]
+    if (exportMode === "markers" && project) {
+      // Используем реальные секции из проекта как маркеры
+      const markerSections: ExportSection[] = project.sections.map((section) => ({
+        id: section.id,
+        name: section.name,
+        startTime: section.startTime,
+        endTime: section.endTime,
+        includeInExport: true,
+      }))
       setSections(markerSections)
     }
-  }, [exportMode])
+  }, [exportMode, project])
 
   // Convert clips to sections
   useEffect(() => {

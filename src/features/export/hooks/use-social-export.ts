@@ -2,6 +2,7 @@ import { useCallback, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import { readBinaryFile } from "@tauri-apps/api/fs"
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
 import { SocialNetworksService } from "../services/social-networks-service"
@@ -39,7 +40,7 @@ export function useSocialExport() {
   }, [])
 
   const uploadToSocialNetwork = useCallback(
-    async (_videoPath: string, settings: SocialExportSettings) => {
+    async (videoPath: string, settings: SocialExportSettings) => {
       const network = SOCIAL_NETWORKS.find((n) => n.id === settings.socialNetwork)
 
       if (!network) {
@@ -50,29 +51,25 @@ export function useSocialExport() {
         setIsUploading(true)
         setUploadProgress(0)
 
-        // В Tauri нужно читать файл через API
-        // TODO: Implement file reading from path in Tauri
-        // For now, we'll throw an error as this needs backend implementation
-        throw new Error("Social media upload requires file reading implementation in Tauri")
+        // Читаем файл через Tauri API
+        const fileData = await readBinaryFile(videoPath)
+        const videoBlob = new Blob([fileData], { type: 'video/mp4' })
+        
+        const result = await SocialNetworksService.uploadVideo(network.id, videoBlob, {
+          title: settings.title || "Untitled Video",
+          description: settings.description || "",
+          tags: settings.tags || [],
+          privacy: settings.privacy || "public",
+          onProgress: (progress) => {
+            setUploadProgress(progress)
+          },
+        })
 
-        // Когда будет реализовано чтение файла:
-        // const fileData = await readBinaryFile(videoPath)
-        // const videoBlob = new Blob([fileData], { type: 'video/mp4' })
-        // const result = await SocialNetworksService.uploadVideo(network.id, videoBlob, {
-        //   title: settings.title || "Untitled Video",
-        //   description: settings.description || "",
-        //   tags: settings.tags || [],
-        //   privacy: settings.privacy || "public",
-        //   onProgress: (progress) => {
-        //     setUploadProgress(progress)
-        //   },
-        // })
-        //
-        // setIsUploading(false)
-        // setUploadProgress(100)
-        //
-        // toast.success(t("dialogs.export.uploadSuccess", { network: network.name }))
-        // return result
+        setIsUploading(false)
+        setUploadProgress(100)
+
+        toast.success(t("dialogs.export.uploadSuccess", { network: network.name }))
+        return result
       } catch (error) {
         setIsUploading(false)
         console.error(`Upload to ${network.name} failed:`, error)
