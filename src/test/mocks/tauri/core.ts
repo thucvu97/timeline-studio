@@ -1,6 +1,5 @@
-import { vi } from "vitest"
-
 import type { InvokeArgs } from "@tauri-apps/api/core"
+import { vi } from "vitest"
 
 export const mockInvoke = vi.fn()
 export const mockConvertFileSrc = vi.fn((src: string) => src)
@@ -23,7 +22,7 @@ vi.mock("@tauri-apps/plugin-os", () => ({
 // Mock Tauri app API
 vi.mock("@tauri-apps/api/app", () => ({
   getName: vi.fn().mockResolvedValue("Timeline Studio"),
-  getVersion: vi.fn().mockResolvedValue("0.24.0"),
+  getVersion: vi.fn().mockResolvedValue("0.25.0"),
   getTauriVersion: vi.fn().mockResolvedValue("2.0.0"),
 }))
 
