@@ -46,7 +46,14 @@ export function ColorSettings({ className }: ColorSettingsProps) {
         </div>
 
         {/* Прокручиваемое содержимое */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div 
+          className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar" 
+          style={{ 
+            scrollbarGutter: "stable",
+            scrollbarWidth: "thin",
+            scrollbarColor: "#4b5563 #1f2937"
+          }}
+        >
           {/* 1. ОСНОВНЫЕ НАСТРОЙКИ - Color Wheels */}
           <Collapsible open={openSections.colorWheels} onOpenChange={() => toggleSection("colorWheels")}>
             <CollapsibleTrigger

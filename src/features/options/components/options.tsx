@@ -59,7 +59,7 @@ export function Options({ selectedMediaFile }: OptionsProps) {
   return (
     <div className="flex h-full flex-col bg-background p-0 m-0" data-testid="options">
       <Tabs
-        className="flex-shrink-0 justify-start border-none rounded-none m-0 p-0"
+        className="flex flex-col h-full justify-start border-none rounded-none m-0 p-0"
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as OptionsTab)}
         data-testid="options-tabs"
@@ -87,10 +87,10 @@ export function Options({ selectedMediaFile }: OptionsProps) {
           <TabsContent
             key={tab.id}
             value={tab.id}
-            className="flex-1 h-full overflow-x-hidden overflow-y-auto p-4"
+            className="flex-1 min-h-0 overflow-hidden p-0"
             data-testid={`options-content-${tab.id}`}
           >
-            {activeTab === tab.id && <div data-testid={`options-${tab.id}-settings`}>{renderTabContent()}</div>}
+            {activeTab === tab.id && <div className="h-full" data-testid={`options-${tab.id}-settings`}>{renderTabContent()}</div>}
           </TabsContent>
         ))}
       </Tabs>
