@@ -77,9 +77,8 @@ AI assistant will create the right number of versions for each platform! 🤖
 - 🔐 YouTube/TikTok/Vimeo/Telegram OAuth support with secure token storage
 - 📱 Device presets (iPhone, iPad, Android) for optimized exports
 - 🌐 Internationalization support (13 languages)
-- 💾 Smart caching and unified preview system
 - 🎨 Modern UI using Tailwind CSS v4, shadcn-ui
-- 📚 Complete documentation with more than 5,000 tests and over 80% code coverage
+- 📚 Complete documentation with more than 7,000 tests and over 70% code coverage
 - 🧠 **NEW: Full AI Platform** - 82 Claude AI tools for video automation
 - 🎤 **NEW: Whisper transcription** - Speech-to-text with OpenAI/local models
 - 📱 **NEW: Platform optimization** - Auto-adapt for 4 social platforms
