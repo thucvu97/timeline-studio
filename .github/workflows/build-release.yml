@@ -230,10 +230,8 @@ jobs:
         run: |
           # Создаем файл .npmrc, чтобы указать использование npm
           echo "engine-strict=false" > .npmrc
-          # Устанавливаем все зависимости, включая dev-зависимости
-          npm ci --prefer-offline --no-audit --no-fund
-          # Устанавливаем дополнительные зависимости для тестирования
-          npm install --save-dev @testing-library/dom @testing-library/react @testing-library/user-event @testing-library/jest-dom
+          # Устанавливаем только production зависимости для сборки
+          npm ci --prefer-offline --no-audit --no-fund --production
 
       - name: Install Tauri CLI
         run: |
@@ -243,9 +241,8 @@ jobs:
           # Проверяем установку
           cargo tauri --version
 
-      # Temporarily disable tests in release builds to avoid dev-dependencies timeout
-      # - name: Run tests
-      #   run: npm run test
+      # Skip all tests in release builds to avoid compilation issues
+      # Tests are run in separate CI workflows
 
       # Исправляем имя продукта в tauri.conf.json перед сборкой
       - name: Fix product name (Unix)
@@ -285,6 +282,8 @@ jobs:
           PKG_CONFIG_SYSROOT_DIR_x86_64_apple_darwin: /
           PKG_CONFIG_PATH_aarch64_apple_darwin: /opt/homebrew/lib/pkgconfig
           PKG_CONFIG_SYSROOT_DIR_aarch64_apple_darwin: /
+          RUST_BACKTRACE: 1
+          CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
@@ -292,7 +291,7 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: false
           prerelease: ${{ github.event.inputs.prerelease }}
-          args: --target universal-apple-darwin --ci --no-dev-deps
+          args: --target universal-apple-darwin --ci
           includeDebug: false
           includeRelease: true
           includeUpdaterJson: true
@@ -306,6 +305,8 @@ jobs:
           VCPKG_ROOT: C:\vcpkg
           PKG_CONFIG_PATH: C:\vcpkg\installed\x64-windows\lib\pkgconfig
           ORT_DYLIB_PATH: C:\onnxruntime\onnxruntime-win-x64-1.19.2\lib\onnxruntime.dll
+          RUST_BACKTRACE: 1
+          CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
@@ -317,7 +318,7 @@ jobs:
           includeRelease: true
           includeUpdaterJson: true
           tauriScript: "cargo tauri"
-          args: --ci --no-dev-deps
+          args: --ci
 
   update-release-description:
     needs: [create-release, build-tauri]
