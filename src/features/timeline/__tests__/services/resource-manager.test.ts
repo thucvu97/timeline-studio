@@ -405,8 +405,8 @@ describe("ResourceManager", () => {
       const usedEffect: VideoEffect = {
         id: "used-effect",
         name: "Used Effect",
-        type: "color",
-        category: "basic",
+        type: "sepia",
+        category: "artistic",
         description: "Used",
         preview: "preview.png",
         parameters: {},
@@ -416,8 +416,8 @@ describe("ResourceManager", () => {
       const unusedEffect: VideoEffect = {
         id: "unused-effect",
         name: "Unused Effect",
-        type: "color",
-        category: "basic",
+        type: "sepia",
+        category: "artistic",
         description: "Unused",
         preview: "preview.png",
         parameters: {},

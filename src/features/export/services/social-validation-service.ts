@@ -258,10 +258,6 @@ export class SocialValidationService {
       }
     }
 
-    // Проверка соотношения сторон
-    if (settings.aspectRatio && !limits.recommendedAspectRatios.includes(settings.aspectRatio)) {
-      result.suggestions.push(`Consider using recommended aspect ratios: ${limits.recommendedAspectRatios.join(", ")}`)
-    }
   }
 
   private static addOptimizationSuggestions(
@@ -275,18 +271,13 @@ export class SocialValidationService {
     // Платформо-специфичные предложения
     switch (networkId) {
       case "tiktok":
-        if (settings.aspectRatio !== "9:16") {
-          result.suggestions.push("TikTok performs best with vertical videos (9:16 aspect ratio)")
-        }
         if (!settings.title?.includes("#")) {
           result.suggestions.push("Consider adding hashtags to your title for better discoverability on TikTok")
         }
         break
 
       case "youtube":
-        if (settings.aspectRatio === "9:16") {
-          result.suggestions.push("Consider using YouTube Shorts format for vertical videos")
-        }
+        // Consider using YouTube Shorts format for vertical videos
         if (settings.resolution && Number.parseInt(settings.resolution) < 1080) {
           result.suggestions.push("YouTube recommends 1080p or higher for best quality")
         }
@@ -331,37 +322,33 @@ export class SocialValidationService {
       case "youtube":
         return {
           resolution: "1080",
-          aspectRatio: "16:9",
           frameRate: "30",
           quality: "good",
-          format: "mp4",
+          format: "Mp4",
         }
 
       case "tiktok":
         return {
           resolution: "1080",
-          aspectRatio: "9:16",
           frameRate: "30",
           quality: "good",
-          format: "mp4",
+          format: "Mp4",
         }
 
       case "vimeo":
         return {
           resolution: "1080",
-          aspectRatio: "16:9",
           frameRate: "30",
-          quality: "high",
-          format: "mp4",
+          quality: "best",
+          format: "Mp4",
         }
 
       case "telegram":
         return {
           resolution: "720",
-          aspectRatio: "16:9",
           frameRate: "30",
           quality: "normal",
-          format: "mp4",
+          format: "Mp4",
         }
 
       default:

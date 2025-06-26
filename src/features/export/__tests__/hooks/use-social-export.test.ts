@@ -7,6 +7,8 @@ import { setTranslations } from "@/test/mocks/libraries"
 import { useSocialExport } from "../../hooks/use-social-export"
 import { SocialNetworksService } from "../../services/social-networks-service"
 
+import type { SocialExportSettings } from "../../types/export-types"
+
 vi.mock("sonner", () => ({
   toast: {
     error: vi.fn(),
@@ -114,7 +116,15 @@ describe("useSocialExport", () => {
         result.current.uploadToSocialNetwork("/path/to/video.mp4", {
           socialNetwork: "unknown",
           title: "Test Video",
-        }),
+          isLoggedIn: true,
+          fileName: "test-video",
+          savePath: "/path/to",
+          format: "Mp4",
+          quality: "normal",
+          resolution: "1080",
+          frameRate: "30",
+          enableGPU: false,
+        } as SocialExportSettings),
       ).rejects.toThrow("Unknown social network")
     })
 
@@ -125,7 +135,15 @@ describe("useSocialExport", () => {
         result.current.uploadToSocialNetwork("/path/to/video.mp4", {
           socialNetwork: "youtube",
           title: "Test Video",
-        }),
+          isLoggedIn: true,
+          fileName: "test-video",
+          savePath: "/path/to",
+          format: "Mp4",
+          quality: "normal",
+          resolution: "1080",
+          frameRate: "30",
+          enableGPU: false,
+        } as SocialExportSettings),
       ).rejects.toThrow("File not found: /path/to/video.mp4")
 
       expect(result.current.isUploading).toBe(false)
@@ -142,7 +160,15 @@ describe("useSocialExport", () => {
         await result.current.uploadToSocialNetwork("/path/to/video.mp4", {
           socialNetwork: "youtube",
           title: "Test Video",
-        })
+          isLoggedIn: true,
+          fileName: "test-video",
+          savePath: "/path/to",
+          format: "Mp4",
+          quality: "normal",
+          resolution: "1080",
+          frameRate: "30",
+          enableGPU: false,
+        } as SocialExportSettings)
       } catch {
         // Expected to throw
       }
@@ -159,7 +185,15 @@ describe("useSocialExport", () => {
       const validation = result.current.validateSocialExport({
         socialNetwork: "unknown",
         title: "Test Video",
-      })
+        isLoggedIn: true,
+        fileName: "test-video",
+        savePath: "/path/to",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: false,
+      } as SocialExportSettings)
 
       expect(validation.valid).toBe(false)
       expect(validation.error).toBe("Unknown social network")
@@ -171,7 +205,15 @@ describe("useSocialExport", () => {
       const validation = result.current.validateSocialExport({
         socialNetwork: "youtube",
         title: "",
-      })
+        isLoggedIn: true,
+        fileName: "test-video",
+        savePath: "/path/to",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: false,
+      } as SocialExportSettings)
 
       expect(validation.valid).toBe(false)
       expect(validation.error).toBe("Title is required")
@@ -185,11 +227,19 @@ describe("useSocialExport", () => {
         {
           socialNetwork: "tiktok",
           title: "Test Video",
-        },
+          isLoggedIn: true,
+          fileName: "test-video",
+          savePath: "/path/to",
+          format: "Mp4",
+          quality: "normal",
+          resolution: "1080",
+          frameRate: "30",
+          enableGPU: false,
+        } as SocialExportSettings,
         {
           size: 300 * 1024 * 1024, // 300MB
           duration: 60,
-          format: "mp4",
+          format: "Mp4",
         },
       )
 
@@ -206,11 +256,19 @@ describe("useSocialExport", () => {
         {
           socialNetwork: "tiktok",
           title: "Test Video",
-        },
+          isLoggedIn: true,
+          fileName: "test-video",
+          savePath: "/path/to",
+          format: "Mp4",
+          quality: "normal",
+          resolution: "1080",
+          frameRate: "30",
+          enableGPU: false,
+        } as SocialExportSettings,
         {
           size: 100 * 1024 * 1024, // 100MB
           duration: 11 * 60, // 11 minutes
-          format: "mp4",
+          format: "Mp4",
         },
       )
 
@@ -227,7 +285,15 @@ describe("useSocialExport", () => {
         title: "Test Video",
         fileSizeBytes: 1024 * 1024 * 1024, // 1GB
         durationSeconds: 60 * 60, // 1 hour
-      })
+        isLoggedIn: true,
+        fileName: "test-video",
+        savePath: "/path/to",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: false,
+      } as SocialExportSettings)
 
       expect(validation.valid).toBe(true)
       expect(validation.error).toBeUndefined()
@@ -242,7 +308,15 @@ describe("useSocialExport", () => {
         title: "Test Video",
         fileSizeBytes: 1 * 1024 * 1024 * 1024, // 1GB (under 2GB limit)
         durationSeconds: 24 * 60 * 60, // 24 hours
-      })
+        isLoggedIn: true,
+        fileName: "test-video",
+        savePath: "/path/to",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: false,
+      } as SocialExportSettings)
 
       expect(validation.valid).toBe(true)
     })

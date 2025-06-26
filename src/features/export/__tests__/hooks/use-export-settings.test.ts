@@ -54,13 +54,13 @@ describe("useExportSettings", () => {
     act(() => {
       result.current.updateSettings({
         fileName: "Updated Video",
-        format: "mov",
+        format: "Mov",
       })
     })
 
     const updatedSettings = result.current.getCurrentSettings()
     expect(updatedSettings.fileName).toBe("Updated Video")
-    expect(updatedSettings.format).toBe("mov")
+    expect(updatedSettings.format).toBe("Mov")
   })
 
   it("should generate export config with proper values", () => {
@@ -72,7 +72,7 @@ describe("useExportSettings", () => {
         resolution: "4k",
         frameRate: "60",
         enableGPU: true,
-        format: "mp4",
+        format: "Mp4",
       })
     })
 
@@ -113,7 +113,7 @@ describe("useExportSettings", () => {
   it("should handle different formats", () => {
     const { result } = renderHook(() => useExportSettings())
 
-    const formats = ["mp4", "mov", "webm"]
+    const formats = ["Mp4", "Mkv", "WebM"]
 
     formats.forEach((format) => {
       act(() => {

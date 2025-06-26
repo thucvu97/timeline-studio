@@ -78,7 +78,7 @@ describe("useFiltersAdapter - PreviewComponent", () => {
 
       render(<PreviewComponent item={mockFilter} size={{ width: 100, height: 100 }} viewMode="list" onClick={onClick} />)
 
-      const container = screen.getByText("Тестовый").closest(".flex") as HTMLElement
+      const container = screen.getByText("Тестовый").closest(".flex")!
       container?.click()
 
       expect(onClick).toHaveBeenCalledWith(mockFilter)

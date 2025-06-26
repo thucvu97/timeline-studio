@@ -88,10 +88,6 @@ const mockMediaFile: MediaFile = {
   isVideo: true,
   duration: 120,
   size: 1024,
-  extension: "mp4",
-  isLocal: true,
-  isDirectory: false,
-  lastModified: Date.now(),
 }
 
 describe("PlayerProvider", () => {

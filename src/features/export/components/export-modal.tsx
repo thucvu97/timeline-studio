@@ -14,7 +14,7 @@ import { SectionExportTab } from "./section-export-tab"
 import { SocialExportTab } from "./social-export-tab"
 import { useExportSettings } from "../hooks/use-export-settings"
 import { useSocialExport } from "../hooks/use-social-export"
-import { SocialExportSettings } from "../types/export-types"
+import { ExportSettings, SocialExportSettings } from "../types/export-types"
 import { ProjectSchemaBuilder } from "../utils/project-schema-builder"
 
 export function ExportModal() {
@@ -50,8 +50,7 @@ export function ExportModal() {
 
     try {
       // Используем ProjectSchemaBuilder для создания схемы с настройками экспорта
-      const exportConfig = getExportConfig()
-      const projectSchema = ProjectSchemaBuilder.createForExport(project, exportConfig)
+      const projectSchema = ProjectSchemaBuilder.createForExport(project, settings)
 
       // Запускаем экспорт
       await startRender(projectSchema, settings.savePath)
@@ -71,8 +70,7 @@ export function ExportModal() {
 
       try {
         // Используем ProjectSchemaBuilder для создания схемы с настройками экспорта
-        const exportConfig = getExportConfig()
-        const projectSchema = ProjectSchemaBuilder.createForExport(project, exportConfig)
+        const projectSchema = ProjectSchemaBuilder.createForExport(project, socialSettings)
 
         // Запускаем экспорт и загрузку в социальную сеть
         const tempPath = `/tmp/export_${Date.now()}.mp4`
@@ -152,14 +150,18 @@ export function ExportModal() {
               // Handle section export
               for (const section of settings.sections) {
                 // Используем специализированный метод для экспорта секций
+                const sectionExportSettings: ExportSettings = {
+                  ...currentSettings,
+                  format: settings.format,
+                  quality: settings.quality,
+                  bitrate: settings.bitrate || 5000,
+                  enableGPU: settings.enableGPU,
+                  fileName: section.customFileName || section.name,
+                  savePath: settings.savePath,
+                }
                 const projectSchema = ProjectSchemaBuilder.createForSectionExport(
                   project,
-                  {
-                    format: settings.format,
-                    quality: settings.quality,
-                    videoBitrate: settings.bitrate || 5000,
-                    enableGPU: settings.enableGPU,
-                  },
+                  sectionExportSettings,
                   section.startTime,
                   section.endTime,
                   section.name,

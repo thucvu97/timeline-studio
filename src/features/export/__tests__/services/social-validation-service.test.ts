@@ -12,6 +12,14 @@ describe("SocialValidationService", () => {
         description: "Test description",
         tags: ["test", "video"],
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const result = SocialValidationService.validateExportSettings("youtube", settings)
@@ -25,6 +33,14 @@ describe("SocialValidationService", () => {
         socialNetwork: "youtube",
         title: "a".repeat(101), // Exceeds YouTube's 100 char limit
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const result = SocialValidationService.validateExportSettings("youtube", settings)
@@ -38,6 +54,14 @@ describe("SocialValidationService", () => {
         socialNetwork: "youtube",
         title: "",
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const result = SocialValidationService.validateExportSettings("youtube", settings)
@@ -52,6 +76,14 @@ describe("SocialValidationService", () => {
         title: "Test Video",
         description: "a".repeat(5001), // Exceeds YouTube's 5000 char limit
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const result = SocialValidationService.validateExportSettings("youtube", settings)
@@ -66,6 +98,14 @@ describe("SocialValidationService", () => {
         title: "Test Video",
         tags: Array(16).fill("tag"), // Exceeds YouTube's 15 tag limit
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const result = SocialValidationService.validateExportSettings("youtube", settings)
@@ -80,6 +120,14 @@ describe("SocialValidationService", () => {
         title: "Test Video",
         tags: ["a".repeat(31)], // Exceeds YouTube's 30 char tag limit
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const result = SocialValidationService.validateExportSettings("youtube", settings)
@@ -93,6 +141,14 @@ describe("SocialValidationService", () => {
         socialNetwork: "tiktok",
         title: "Test Video",
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const videoFile = {
@@ -112,6 +168,14 @@ describe("SocialValidationService", () => {
         socialNetwork: "tiktok",
         title: "Test Video",
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const videoFile = {
@@ -133,6 +197,14 @@ describe("SocialValidationService", () => {
         socialNetwork: "tiktok",
         title: "Test Video",
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const videoFile = {
@@ -152,6 +224,14 @@ describe("SocialValidationService", () => {
         socialNetwork: "youtube",
         title: "Test Video",
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const videoFile = {
@@ -169,21 +249,36 @@ describe("SocialValidationService", () => {
     it("should provide suggestions for optimization", () => {
       const settings: SocialExportSettings = {
         socialNetwork: "tiktok",
-        title: "Test Video",
-        aspectRatio: "16:9", // Not optimal for TikTok
+        title: "Test Video without hashtags",
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const result = SocialValidationService.validateExportSettings("tiktok", settings)
 
-      expect(result.suggestions).toContain("TikTok performs best with vertical videos (9:16 aspect ratio)")
+      expect(result.suggestions).toContain("Consider adding hashtags to your title for better discoverability on TikTok")
     })
 
     it("should validate privacy settings", () => {
       const settings: SocialExportSettings = {
         socialNetwork: "youtube",
         title: "Test Video",
-        privacy: "friends", // Not supported by YouTube
+        privacy: "friends" as any, // Not supported by YouTube
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const result = SocialValidationService.validateExportSettings("youtube", settings)
@@ -198,6 +293,14 @@ describe("SocialValidationService", () => {
         socialNetwork: "unsupported",
         title: "Test Video",
         privacy: "public",
+        isLoggedIn: true,
+        fileName: "test",
+        savePath: "/test",
+        format: "Mp4",
+        quality: "normal",
+        resolution: "1080",
+        frameRate: "30",
+        enableGPU: true,
       }
 
       const result = SocialValidationService.validateExportSettings("unsupported", settings)
@@ -239,10 +342,9 @@ describe("SocialValidationService", () => {
 
       expect(settings).toEqual({
         resolution: "1080",
-        aspectRatio: "16:9",
         frameRate: "30",
         quality: "good",
-        format: "mp4",
+        format: "Mp4",
       })
     })
 
@@ -251,10 +353,9 @@ describe("SocialValidationService", () => {
 
       expect(settings).toEqual({
         resolution: "1080",
-        aspectRatio: "9:16",
         frameRate: "30",
         quality: "good",
-        format: "mp4",
+        format: "Mp4",
       })
     })
 
@@ -263,10 +364,9 @@ describe("SocialValidationService", () => {
 
       expect(settings).toEqual({
         resolution: "1080",
-        aspectRatio: "16:9",
         frameRate: "30",
-        quality: "high",
-        format: "mp4",
+        quality: "best",
+        format: "Mp4",
       })
     })
 

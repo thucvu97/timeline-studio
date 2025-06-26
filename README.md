@@ -51,13 +51,16 @@ AI assistant will create the right number of versions for each platform! 🤖
 
 ## 🏗️ Project Status
 
-**Overall readiness: 76.2%** (weighted progress)  
+**Overall readiness: 76.2%** (weighted progress considering module complexity)  
 **🎯 Alpha version: 86.3%** ready
 
-✅ **Completed**: 47 core modules (27 frontend + 20 backend)  
-🔄 **In progress**: Plugins (70%)  
+✅ **Completed**: 47 modules (100% ready) - 27 frontend + 20 backend  
+🔄 **In progress**: 1 module - Plugins (70%)  
 🔧 **Partially implemented**: Scene Analyzer (30%), Script Generator (20%)  
-📋 **Planned**: 13 additional modules for DaVinci Resolve level
+📋 **Planned**: 13 modules (0% ready) for DaVinci Resolve level
+
+**Alpha includes**: Phases 1-3 (professional tools, AI & automation, additional features)  
+**Excluded from Alpha**: Phases 4-5 (Advanced Timeline, Fairlight Audio, Plugin System, Performance Optimization, Telegram Mini App, Cloud Rendering)
 
 [→ Detailed Roadmap](docs-ru/10-roadmap/README.md)
 
@@ -115,13 +118,6 @@ bun run tauri dev
 - 🧪 [Development Guide](docs-ru/05-development/README.md) - Testing and development
 - 🚀 [Deployment Guide](docs-ru/06-deployment/README.md) - Build and deployment
 - 📋 [User Guides](docs-ru/07-guides/README.md) - Performance and best practices
-- 🔌 [Plugins Guide](docs-ru/08-plugins/README.md) - Plugin system and development
-- 📊 [Telemetry](docs-ru/09-telemetry/README.md) - Telemetry and analytics
-- 🛣️ [Roadmap](docs-ru/10-roadmap/README.md) - Development roadmap
-- 🔐 [OAuth Setup](docs-ru/11-oauth-setup/oauth-setup-guide.md) - Social media integration
-- 🧪 [Testing Guide](docs-ru/12-testing/README.md) - Testing documentation
-- ⚠️ [Known Issues](docs-ru/13-known-issues/README.md) - Known issues and workarounds
-- 📄 [Legal](docs-ru/14-legal/README.md) - License and legal information
 
 ### 📋 Project Documentation
 

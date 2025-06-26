@@ -50,6 +50,7 @@ vi.mock("../../hooks", () => ({
     error: null,
     startScreenCapture: vi.fn(),
     stopScreenCapture: vi.fn(),
+    getSourceInfo: vi.fn(() => null),
   })),
 }))
 
@@ -125,6 +126,7 @@ describe("CameraCaptureModal - Screen Recording", () => {
       error: null,
       startScreenCapture: mockStartScreenCapture,
       stopScreenCapture: mockStopScreenCapture,
+      getSourceInfo: vi.fn(() => null),
     })
 
     render(
@@ -189,6 +191,13 @@ describe("CameraCaptureModal - Screen Recording", () => {
       error: null,
       startScreenCapture: vi.fn(),
       stopScreenCapture: mockStopScreenCapture,
+      getSourceInfo: vi.fn(() => ({
+        width: 1920,
+        height: 1080,
+        frameRate: 30,
+        displaySurface: 'monitor',
+        cursor: 'always',
+      })),
     })
 
     render(
@@ -218,6 +227,7 @@ describe("CameraCaptureModal - Screen Recording", () => {
       error: "Permission denied",
       startScreenCapture: vi.fn().mockRejectedValue(new Error("Permission denied")),
       stopScreenCapture: vi.fn(),
+      getSourceInfo: vi.fn(() => null),
     })
 
     render(
