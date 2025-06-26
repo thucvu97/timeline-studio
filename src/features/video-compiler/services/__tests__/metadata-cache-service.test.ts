@@ -64,7 +64,7 @@ describe("metadata-cache-service", () => {
 
       expect(result).toEqual(mockMetadata)
       expect(invoke).toHaveBeenCalledWith("get_cached_metadata", {
-        filePath: "/path/to/test-video.mp4",
+        file_path: "/path/to/test-video.mp4",
       })
     })
 
@@ -75,7 +75,7 @@ describe("metadata-cache-service", () => {
 
       expect(result).toBeNull()
       expect(invoke).toHaveBeenCalledWith("get_cached_metadata", {
-        filePath: "/path/to/unknown-video.mp4",
+        file_path: "/path/to/unknown-video.mp4",
       })
     })
 
@@ -97,7 +97,7 @@ describe("metadata-cache-service", () => {
       await cacheMediaMetadata("/path/to/test-video.mp4", mockMetadata)
 
       expect(invoke).toHaveBeenCalledWith("cache_media_metadata", {
-        filePath: "/path/to/test-video.mp4",
+        file_path: "/path/to/test-video.mp4",
         metadata: mockMetadata,
       })
     })
@@ -149,7 +149,7 @@ describe("metadata-cache-service", () => {
       // Check that files are cached with correct parameters
       files.forEach((file, index) => {
         expect(invoke).toHaveBeenNthCalledWith(index + 1, "cache_media_metadata", {
-          filePath: file.path,
+          file_path: file.path,
           metadata: file.metadata,
         })
       })
