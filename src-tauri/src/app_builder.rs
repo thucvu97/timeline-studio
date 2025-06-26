@@ -97,6 +97,12 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::security::parse_oauth_callback_url,
     crate::security::import_from_env,
     crate::security::export_to_env_format,
+    // Subtitle commands
+    crate::subtitles::read_subtitle_file,
+    crate::subtitles::save_subtitle_file,
+    crate::subtitles::validate_subtitle_format,
+    crate::subtitles::convert_subtitle_format,
+    crate::subtitles::get_subtitle_info,
     // Security advanced commands from additional_commands module
     crate::security::additional_commands::create_secure_storage,
     crate::security::additional_commands::create_secure_storage_new,

@@ -1994,3 +1994,5 @@ mod tests {
 }
 
 // Include extended tests module
+#[cfg(test)]
+mod pipeline_tests;

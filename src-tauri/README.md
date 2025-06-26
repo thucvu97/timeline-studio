@@ -177,4 +177,4 @@ cargo check --all-features
 
 ## Лицензия
 
-Copyright © 2024 Timeline Studio. Все права защищены.
+Copyright © 2025 Timeline Studio. Все права защищены.

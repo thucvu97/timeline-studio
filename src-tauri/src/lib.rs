@@ -43,6 +43,9 @@ use security::secure_storage::SecureStorage;
 // Модуль плагинов
 pub mod plugins;
 
+// Модуль субтитров
+mod subtitles;
+
 // Simple commands that don't belong to specific modules yet
 
 #[tauri::command]
@@ -136,7 +139,7 @@ pub fn run() {
   tracing_subscriber::fmt()
     .with_env_filter(
       tracing_subscriber::EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"))
+        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
     )
     .init();
 
