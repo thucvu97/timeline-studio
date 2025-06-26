@@ -26,12 +26,12 @@ tauri-build = { version = "2.0.0-rc.13", features = [] }
 [dev-dependencies]
 # For test cleanup and initialization
 ctor = "0.2"
-env_logger = "0.11"
+env_logger = "0.10"
 libc = "0.2"
 # Test utilities
 tempfile = "3.8"
 tower = { version = "0.4", features = ["util"] }
-urlencoding = "2.1"
+urlencoding = "2.0"
 reqwest = { version = "0.11", features = ["json"] }
 # Benchmarking
 criterion = { version = "0.5", features = ["html_reports"] }
