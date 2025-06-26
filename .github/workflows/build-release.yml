@@ -74,6 +74,7 @@ jobs:
 
   build-tauri:
     needs: create-release
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -99,6 +100,17 @@ jobs:
 
       - name: Install Rust (stable)
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+          key: ${{ matrix.platform }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install dependencies (macOS only)
         if: matrix.platform == 'macos-latest'
@@ -142,30 +154,52 @@ jobs:
           pkg-config --modversion libavcodec || echo "libavcodec not found"
           pkg-config --modversion libavformat || echo "libavformat not found"
 
+      - name: Cache vcpkg (Windows only)
+        if: matrix.platform == 'windows-latest'
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:\vcpkg
+            C:\onnxruntime
+          key: windows-vcpkg-ffmpeg-onnx-v3
+
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
         run: |
           # Install pkg-config for Windows
           choco install pkgconfiglite
           
-          # Install vcpkg for FFmpeg development libraries
-          git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
-          cd C:\vcpkg
-          .\bootstrap-vcpkg.bat
-          .\vcpkg integrate install
-          
-          # Install FFmpeg with development libraries
-          .\vcpkg install ffmpeg:x64-windows
+          # Check if vcpkg exists from cache
+          if (-Not (Test-Path "C:\vcpkg")) {
+            # Install vcpkg for FFmpeg development libraries
+            git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
+            cd C:\vcpkg
+            .\bootstrap-vcpkg.bat
+            .\vcpkg integrate install
+            
+            # Install FFmpeg with development libraries
+            .\vcpkg install ffmpeg:x64-windows
+          } else {
+            echo "Using cached vcpkg installation"
+            cd C:\vcpkg
+            .\vcpkg integrate install
+          }
           
           # Set environment variables for FFmpeg
           echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
           echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
           echo "C:\vcpkg\installed\x64-windows\bin" >> $env:GITHUB_PATH
           
-          # Install ONNX Runtime
+          # Check if ONNX Runtime exists from cache
           $ONNX_VERSION = "1.19.2"
-          Invoke-WebRequest -Uri "https://github.com/microsoft/onnxruntime/releases/download/v$ONNX_VERSION/onnxruntime-win-x64-$ONNX_VERSION.zip" -OutFile "onnxruntime.zip"
-          Expand-Archive -Path "onnxruntime.zip" -DestinationPath "C:\onnxruntime"
+          if (-Not (Test-Path "C:\onnxruntime")) {
+            # Install ONNX Runtime
+            Invoke-WebRequest -Uri "https://github.com/microsoft/onnxruntime/releases/download/v$ONNX_VERSION/onnxruntime-win-x64-$ONNX_VERSION.zip" -OutFile "onnxruntime.zip"
+            Expand-Archive -Path "onnxruntime.zip" -DestinationPath "C:\onnxruntime"
+          } else {
+            echo "Using cached ONNX Runtime installation"
+          }
+          
           echo "C:\onnxruntime\onnxruntime-win-x64-$ONNX_VERSION\lib" >> $env:GITHUB_PATH
           echo "ORT_DYLIB_PATH=C:\onnxruntime\onnxruntime-win-x64-$ONNX_VERSION\lib\onnxruntime.dll" >> $env:GITHUB_ENV
 
@@ -197,7 +231,7 @@ jobs:
           # Создаем файл .npmrc, чтобы указать использование npm
           echo "engine-strict=false" > .npmrc
           # Устанавливаем все зависимости, включая dev-зависимости
-          npm install
+          npm ci --prefer-offline --no-audit --no-fund
           # Устанавливаем дополнительные зависимости для тестирования
           npm install --save-dev @testing-library/dom @testing-library/react @testing-library/user-event @testing-library/jest-dom
 
