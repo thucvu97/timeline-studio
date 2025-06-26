@@ -403,3 +403,38 @@ pub async fn process_media_file_simple(
     error: None,
   })
 }
+
+/// Process multiple media files and return MediaFile array
+#[tauri::command]
+pub async fn process_media_files(file_paths: Vec<String>) -> Result<Vec<MediaFile>, String> {
+  let mut media_files = Vec::new();
+
+  for file_path in file_paths {
+    match get_media_metadata(file_path.clone()) {
+      Ok(media_file) => {
+        media_files.push(media_file);
+      }
+      Err(e) => {
+        log::warn!("Failed to process file {}: {}", file_path, e);
+        // Continue processing other files even if one fails
+      }
+    }
+  }
+
+  Ok(media_files)
+}
+
+/// Process multiple media files with thumbnail generation
+/// Note: This currently just processes files without generating thumbnails
+/// because thumbnail generation requires additional state parameters
+#[tauri::command]
+pub async fn process_media_files_with_thumbnails(
+  file_paths: Vec<String>,
+  _width: u32,
+  _height: u32,
+) -> Result<Vec<MediaFile>, String> {
+  // For now, just process files without thumbnails
+  // The frontend will need to call generate_media_thumbnail separately
+  // with the proper state and file_id parameters
+  process_media_files(file_paths).await
+}

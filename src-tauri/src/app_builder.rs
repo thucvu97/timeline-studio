@@ -46,6 +46,8 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::media::commands::get_timeline_frames,
     crate::media::commands::load_preview_data,
     crate::media::commands::process_media_file_simple,
+    crate::media::commands::process_media_files,
+    crate::media::commands::process_media_files_with_thumbnails,
     crate::media::commands::save_preview_data,
     crate::media::commands::save_timeline_frames,
     // Recognition commands
