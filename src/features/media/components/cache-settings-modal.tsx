@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { AlertCircle, Database, HardDrive, RefreshCw, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -21,6 +21,8 @@ export function CacheSettingsModal() {
   const [cacheStats, setCacheStats] = useState<CacheStatistics | null>(null)
   const [clearingProgress, setClearingProgress] = useState(0)
   const [isClearing, setIsClearing] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Загрузка статистики кэша
   const loadCacheStats = useCallback(async () => {
@@ -42,13 +44,16 @@ export function CacheSettingsModal() {
     setClearingProgress(0)
     try {
       // Показываем прогресс
-      const progressInterval = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         setClearingProgress((prev) => Math.min(prev + 20, 90))
       }, 100)
 
       await indexedDBCacheService.clearPreviewCache()
 
-      clearInterval(progressInterval)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
       setClearingProgress(100)
 
       toast.success(t("browser.media.cache.success.clearPreview"))
@@ -56,10 +61,15 @@ export function CacheSettingsModal() {
     } catch (error) {
       console.error("Ошибка очистки кэша превью:", error)
       toast.error(t("browser.media.cache.errors.clearPreview"))
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
     } finally {
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setClearingProgress(0)
         setIsClearing(false)
+        timeoutRef.current = null
       }, 500)
     }
   }, [loadCacheStats, t])
@@ -161,6 +171,20 @@ export function CacheSettingsModal() {
   useEffect(() => {
     void loadCacheStats()
   }, [loadCacheStats])
+
+  // Очистка таймеров при размонтировании
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+  }, [])
 
   if (isLoading || !cacheStats) {
     return (

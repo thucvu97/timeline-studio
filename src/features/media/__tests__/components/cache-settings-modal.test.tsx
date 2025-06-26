@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { renderWithProviders } from "@/test/test-utils"
 
@@ -58,6 +58,7 @@ describe("CacheSettingsModal", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useFakeTimers()
 
     // Настраиваем моки сервиса кеша
     vi.mocked(indexedDBCacheService.getCacheStatistics).mockResolvedValue(mockStatistics)
@@ -67,6 +68,11 @@ describe("CacheSettingsModal", () => {
     vi.mocked(indexedDBCacheService.clearSubtitleCache).mockResolvedValue(undefined)
     vi.mocked(indexedDBCacheService.clearAllCache).mockResolvedValue(undefined)
     vi.mocked(indexedDBCacheService.cleanupExpiredCache).mockResolvedValue(undefined)
+  })
+
+  afterEach(() => {
+    vi.runOnlyPendingTimers()
+    vi.useRealTimers()
   })
 
   it("should render cache settings component", async () => {
@@ -126,6 +132,9 @@ describe("CacheSettingsModal", () => {
     await waitFor(() => {
       expect(indexedDBCacheService.clearPreviewCache).toHaveBeenCalledTimes(1)
     })
+
+    // Продвигаем таймеры, чтобы завершить setTimeout в компоненте
+    vi.advanceTimersByTime(500)
   })
 
   it("should clear frame cache", async () => {
@@ -143,6 +152,9 @@ describe("CacheSettingsModal", () => {
     await waitFor(() => {
       expect(indexedDBCacheService.clearFrameCache).toHaveBeenCalledTimes(1)
     })
+
+    // Продвигаем таймеры, чтобы завершить setTimeout в компоненте
+    vi.advanceTimersByTime(500)
   })
 
   it("should clear recognition cache", async () => {
@@ -160,6 +172,9 @@ describe("CacheSettingsModal", () => {
     await waitFor(() => {
       expect(indexedDBCacheService.clearRecognitionCache).toHaveBeenCalledTimes(1)
     })
+
+    // Продвигаем таймеры, чтобы завершить setTimeout в компоненте
+    vi.advanceTimersByTime(500)
   })
 
   it("should clear subtitle cache", async () => {
@@ -177,6 +192,9 @@ describe("CacheSettingsModal", () => {
     await waitFor(() => {
       expect(indexedDBCacheService.clearSubtitleCache).toHaveBeenCalledTimes(1)
     })
+
+    // Продвигаем таймеры, чтобы завершить setTimeout в компоненте
+    vi.advanceTimersByTime(500)
   })
 
   it("should clear all cache at once", async () => {
@@ -197,6 +215,9 @@ describe("CacheSettingsModal", () => {
     await waitFor(() => {
       expect(indexedDBCacheService.clearAllCache).toHaveBeenCalledTimes(1)
     })
+
+    // Продвигаем таймеры, чтобы завершить setTimeout в компоненте
+    vi.advanceTimersByTime(500)
   })
 
   it("should test cleanup expired cache", async () => {
@@ -217,6 +238,9 @@ describe("CacheSettingsModal", () => {
     await waitFor(() => {
       expect(indexedDBCacheService.cleanupExpiredCache).toHaveBeenCalledTimes(1)
     })
+
+    // Продвигаем таймеры, чтобы завершить setTimeout в компоненте
+    vi.advanceTimersByTime(500)
   })
 
   it("should show empty state when no cache", async () => {
