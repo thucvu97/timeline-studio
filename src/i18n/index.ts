@@ -9,6 +9,7 @@ import translationDE from "./locales/de.json"
 import translationEN from "./locales/en.json"
 import translationES from "./locales/es.json"
 import translationFR from "./locales/fr.json"
+import translationHI from "./locales/hi.json"
 import translationIT from "./locales/it.json"
 import translationJA from "./locales/ja.json"
 import translationKO from "./locales/ko.json"
@@ -58,6 +59,9 @@ const resources = {
   },
   it: {
     translation: translationIT,
+  },
+  hi: {
+    translation: translationHI,
   },
 }
 

@@ -6,8 +6,8 @@ use std::sync::Mutex;
 use tauri::State;
 
 // Поддерживаемые языки
-const SUPPORTED_LANGUAGES: [&str; 12] = [
-  "en", "ru", "es", "pt", "fr", "de", "zh", "ja", "ko", "tr", "th", "it",
+const SUPPORTED_LANGUAGES: [&str; 13] = [
+  "en", "ru", "es", "pt", "fr", "de", "zh", "ja", "ko", "tr", "th", "it", "hi",
 ];
 const DEFAULT_LANGUAGE: &str = "en";
 
@@ -125,6 +125,7 @@ mod tests {
     assert!(is_supported_language("tr"));
     assert!(is_supported_language("th"));
     assert!(is_supported_language("it"));
+    assert!(is_supported_language("hi"));
 
     // Test unsupported languages
     assert!(!is_supported_language("pl"));
@@ -134,7 +135,7 @@ mod tests {
 
   #[test]
   fn test_supported_languages_constant() {
-    assert_eq!(SUPPORTED_LANGUAGES.len(), 12);
+    assert_eq!(SUPPORTED_LANGUAGES.len(), 13);
     assert!(SUPPORTED_LANGUAGES.contains(&"en"));
     assert!(SUPPORTED_LANGUAGES.contains(&"ru"));
     assert!(SUPPORTED_LANGUAGES.contains(&"es"));
@@ -147,6 +148,7 @@ mod tests {
     assert!(SUPPORTED_LANGUAGES.contains(&"tr"));
     assert!(SUPPORTED_LANGUAGES.contains(&"th"));
     assert!(SUPPORTED_LANGUAGES.contains(&"it"));
+    assert!(SUPPORTED_LANGUAGES.contains(&"hi"));
   }
 
   #[test]

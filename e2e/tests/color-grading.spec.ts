@@ -96,20 +96,20 @@ test.describe("Color Grading", () => {
     await colorTab.click()
     await page.waitForTimeout(300)
     
-    // Ищем кнопку Preview
-    const previewButton = page.locator('button:has-text("Preview")')
+    // Ищем кнопку Preview более точным способом
+    const previewButton = page.getByRole('button', { name: /Preview/i })
     
     if (await previewButton.isVisible()) {
-      const initialState = await previewButton.textContent()
+      // Проверяем начальное состояние через HTML содержимое (иконка Eye/EyeOff)
+      const initialHTML = await previewButton.innerHTML()
       
       // Кликаем для переключения
       await previewButton.click()
       await page.waitForTimeout(300)
       
-      // Проверяем что состояние изменилось (иконка или текст)
-      const hasToggled = 
-        (await page.locator('[aria-checked="true"], [aria-checked="false"]').count()) > 0 ||
-        (await previewButton.textContent()) !== initialState
+      // Проверяем что HTML изменилось (иконка изменилась)
+      const newHTML = await previewButton.innerHTML()
+      const hasToggled = initialHTML !== newHTML
       
       expect(hasToggled).toBeTruthy()
     }
@@ -169,7 +169,7 @@ test.describe("Color Grading", () => {
     
     // Проверяем наличие секции LUT
     const hasLUT = 
-      (await page.locator('text=/LUT|Look.*Up.*Table|\.cube/i').count()) > 0 ||
+      (await page.locator('text=/LUT|Look.*Up.*Table|.cube/i').count()) > 0 ||
       (await page.locator('[data-testid="lut-section"]').count()) > 0
     
     if (hasLUT) {
@@ -212,8 +212,8 @@ test.describe("Color Grading", () => {
       await page.waitForTimeout(300)
     }
     
-    // Ищем кнопку Reset All
-    const resetButton = page.locator('button:has-text("Reset All"), button:has-text("Reset")')
+    // Ищем кнопку Reset All более точным способом
+    const resetButton = page.getByRole('button', { name: 'Reset All' })
     
     if (await resetButton.isVisible()) {
       await resetButton.click()
@@ -223,10 +223,16 @@ test.describe("Color Grading", () => {
       if (await slider.isVisible()) {
         const value = await slider.inputValue()
         console.log(`Slider value after reset: ${value}`)
+        
+        // Проверяем что значение изменилось (должно быть близко к дефолтному)
+        const numValue = parseInt(value)
+        const hasReset = numValue !== 75 && numValue >= 0 && numValue <= 100
+        expect(hasReset).toBeTruthy()
       }
+    } else {
+      // Если кнопка не видна, проверяем что она может быть заблокирована
+      expect(true).toBeTruthy()
     }
-    
-    expect(true).toBeTruthy()
   })
 
   test("should apply auto correction", async ({ page }) => {

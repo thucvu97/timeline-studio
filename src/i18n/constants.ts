@@ -1,5 +1,5 @@
 // Типы для языков
-export type LanguageCode = "ru" | "en" | "es" | "fr" | "de" | "pt" | "zh" | "ja" | "ko" | "tr" | "th" | "it"
+export type LanguageCode = "ru" | "en" | "es" | "fr" | "de" | "pt" | "zh" | "ja" | "ko" | "tr" | "th" | "it" | "hi"
 
 // Список поддерживаемых языков
 export const SUPPORTED_LANGUAGES: LanguageCode[] = [
@@ -15,6 +15,7 @@ export const SUPPORTED_LANGUAGES: LanguageCode[] = [
   "tr",
   "th",
   "it",
+  "hi",
 ]
 
 // Язык по умолчанию
@@ -34,6 +35,7 @@ export const LANGUAGE_LOCALES: Record<LanguageCode, string> = {
   tr: "tr-TR",
   th: "th-TH",
   it: "it-IT",
+  hi: "hi-IN",
 }
 
 // Функция для получения локали по коду языка
