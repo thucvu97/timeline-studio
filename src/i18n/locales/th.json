@@ -1729,6 +1729,113 @@
       "device": "อุปกรณ์"
     }
   },
+  "colorGrading": {
+    "title": "การปรับแต่งสี",
+    "primaryCorrection": "การแก้ไขสีขั้นต้น",
+    "curvesSection": "เส้นโค้ง",
+    "hslCorrection": "การแก้ไข HSL",
+    "lutSection": "LUT",
+    "scopesSection": "สโคป",
+    "colorWheels": {
+      "description": "ปรับเงา (Lift), โทนกลาง (Gamma) และไฮไลท์ (Gain)",
+      "lift": "Lift (เงา)",
+      "gamma": "Gamma (โทนกลาง)",
+      "gain": "Gain (ไฮไลท์)",
+      "offset": "ออฟเซ็ต"
+    },
+    "parameters": {
+      "temperature": "อุณหภูมิสี",
+      "tint": "โทนสี",
+      "contrast": "ความคมชัด",
+      "saturation": "ความอิ่มตัวสี",
+      "hue": "สีสัน",
+      "luminance": "ความสว่าง",
+      "pivot": "จุดหมุนความคมชัด",
+      "vibrance": "ความสดใส"
+    },
+    "curves": {
+      "description": "ปรับแต่งการตอบสนองโทนด้วยเส้นโค้งแบบโต้ตอบ",
+      "master": "มาสเตอร์",
+      "red": "แดง",
+      "green": "เขียว",
+      "blue": "น้ำเงิน",
+      "hueVsHue": "สีสัน vs สีสัน",
+      "hueVsSaturation": "สีสัน vs ความอิ่มตัว",
+      "hueVsLuminance": "สีสัน vs ความสว่าง",
+      "luminanceVsSaturation": "ความสว่าง vs ความอิ่มตัว",
+      "saturationVsSaturation": "ความอิ่มตัว vs ความอิ่มตัว",
+      "reset": "รีเซ็ต",
+      "auto": "อัตโนมัติ",
+      "hint": "คลิกเพื่อเพิ่มจุด ลากเพื่อปรับ"
+    },
+    "hsl": {
+      "description": "การปรับ HSL ขั้นสูงและการแก้ไขสีขั้นรอง",
+      "hue": "สีสัน",
+      "saturation": "ความอิ่มตัว",
+      "luminance": "ความสว่าง",
+      "advanced": "ขั้นสูง",
+      "pivot": "จุดหมุนความคมชัด",
+      "vibrance": "ความสดใส"
+    },
+    "lut": {
+      "description": "ใช้ลุคสีแบบมืออาชีพด้วยไฟล์ LUT",
+      "file": "ไฟล์ LUT",
+      "intensity": "ความเข้ม",
+      "none": "ไม่มี",
+      "enable": "เปิดใช้ LUT",
+      "selectFile": "เลือก LUT",
+      "refresh": "รีเฟรช",
+      "preview": "ดูตัวอย่าง",
+      "original": "ต้นฉบับ",
+      "supportedFormats": "รูปแบบที่รองรับ: .cube, .3dl, .dat, .look, .mga, .m3d"
+    },
+    "scopes": {
+      "description": "วิเคราะห์สีและค่าแสงแบบเรียลไทม์",
+      "enabled": "เปิดใช้งาน",
+      "waveform": "เวฟฟอร์ม",
+      "vectorscope": "เวคเตอร์สโคป",
+      "histogram": "ฮิสโตแกรม",
+      "waveformHint": "แสดงการกระจายความสว่างในภาพ",
+      "vectorscopeHint": "แสดงความอิ่มตัวสีและการกระจายสีสัน",
+      "histogramHint": "แสดงการกระจายโทนสำหรับช่อง RGB",
+      "refreshRate": "อัตราการรีเฟรช",
+      "settings": "การตั้งค่า",
+      "fullscreen": "เต็มจอ"
+    },
+    "controls": {
+      "resetAll": "รีเซ็ตทั้งหมด",
+      "loadPreset": "โหลดพรีเซ็ต",
+      "savePreset": "บันทึกพรีเซ็ต",
+      "preview": "ดูตัวอย่าง",
+      "applyToClip": "ใช้กับคลิป",
+      "auto": "อัตโนมัติ",
+      "resetAllTooltip": "รีเซ็ตการแก้ไขสีทั้งหมด",
+      "loadPresetTooltip": "โหลดพรีเซ็ตการปรับแต่งสี",
+      "savePresetTooltip": "บันทึกการตั้งค่าปัจจุบันเป็นพรีเซ็ต",
+      "togglePreviewTooltip": "สลับการดูตัวอย่างแบบเรียลไทม์",
+      "applyToClipTooltip": "ใช้การปรับแต่งสีกับคลิปที่เลือก",
+      "autoCorrectTooltip": "ปรับระดับอัตโนมัติ"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "ภาพยนตร์",
+        "vintage": "วินเทจ",
+        "modern": "ทันสมัย",
+        "blackwhite": "ขาวดำ",
+        "creative": "สร้างสรรค์",
+        "correction": "การแก้ไข",
+        "custom": "กำหนดเอง"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "บันทึกพรีเซ็ตการปรับแต่งสี",
+        "description": "กรอกชื่อสำหรับพรีเซ็ตการปรับแต่งสีของคุณ",
+        "nameLabel": "ชื่อ",
+        "namePlaceholder": "พรีเซ็ตของฉัน"
+      }
+    }
+  },
   "videoCompiler": {
     "tasks": "งาน",
     "renderTasks": "งานเรนเดอร์",

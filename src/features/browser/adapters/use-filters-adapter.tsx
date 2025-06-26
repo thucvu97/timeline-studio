@@ -16,10 +16,6 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
   viewMode,
   onClick,
   onDragStart,
-  isSelected,
-  isFavorite,
-  onToggleFavorite,
-  onAddToTimeline,
 }) => {
   const handleClick = () => {
     onClick?.(filter)

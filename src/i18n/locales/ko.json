@@ -1677,6 +1677,113 @@
       "device": "장치"
     }
   },
+  "colorGrading": {
+    "title": "커러 그레이딩",
+    "primaryCorrection": "1차 색보정",
+    "curvesSection": "커브",
+    "hslCorrection": "HSL 보정",
+    "lutSection": "LUT",
+    "scopesSection": "스코프",
+    "colorWheels": {
+      "description": "스도우(리프트), 중간톤(감마), 하이라이트(게인) 조정",
+      "lift": "리프트 (스도우)",
+      "gamma": "감마 (중간톤)",
+      "gain": "게인 (하이라이트)",
+      "offset": "오프셋"
+    },
+    "parameters": {
+      "temperature": "색온도",
+      "tint": "틴트",
+      "contrast": "대비",
+      "saturation": "채도",
+      "hue": "색조",
+      "luminance": "휘도",
+      "pivot": "대비 피벗",
+      "vibrance": "생동감"
+    },
+    "curves": {
+      "description": "인터랙티브 커브로 톤 반응을 미세 조정",
+      "master": "마스터",
+      "red": "빨강",
+      "green": "초록",
+      "blue": "파랑",
+      "hueVsHue": "색조 vs 색조",
+      "hueVsSaturation": "색조 vs 채도",
+      "hueVsLuminance": "색조 vs 휘도",
+      "luminanceVsSaturation": "휘도 vs 채도",
+      "saturationVsSaturation": "채도 vs 채도",
+      "reset": "초기화",
+      "auto": "자동",
+      "hint": "클릭하여 포인트 추가, 드래그하여 조정"
+    },
+    "hsl": {
+      "description": "고급 HSL 조정 및 2차 색보정",
+      "hue": "색조",
+      "saturation": "채도",
+      "luminance": "휘도",
+      "advanced": "고급",
+      "pivot": "대비 피벗",
+      "vibrance": "생동감"
+    },
+    "lut": {
+      "description": "LUT 파일로 전문가 수준의 커러 룩 적용",
+      "file": "LUT 파일",
+      "intensity": "강도",
+      "none": "없음",
+      "enable": "LUT 활성화",
+      "selectFile": "LUT 선택",
+      "refresh": "새로고침",
+      "preview": "미리보기",
+      "original": "원본",
+      "supportedFormats": "지원 형식: .cube, .3dl, .dat, .look, .mga, .m3d"
+    },
+    "scopes": {
+      "description": "색상 및 노출의 실시간 분석",
+      "enabled": "활성화",
+      "waveform": "파형",
+      "vectorscope": "벡터스코프",
+      "histogram": "히스토그램",
+      "waveformHint": "이미지의 휘도 분포를 표시",
+      "vectorscopeHint": "색 채도와 색조 분포를 표시",
+      "histogramHint": "RGB 채널의 톤 분포를 표시",
+      "refreshRate": "새로고침 비율",
+      "settings": "설정",
+      "fullscreen": "전체화면"
+    },
+    "controls": {
+      "resetAll": "모두 초기화",
+      "loadPreset": "프리셋 불러오기",
+      "savePreset": "프리셋 저장",
+      "preview": "미리보기",
+      "applyToClip": "클립에 적용",
+      "auto": "자동",
+      "resetAllTooltip": "모든 색보정 초기화",
+      "loadPresetTooltip": "커러 그레이딩 프리셋 불러오기",
+      "savePresetTooltip": "현재 설정을 프리셋으로 저장",
+      "togglePreviewTooltip": "실시간 미리보기 전환",
+      "applyToClipTooltip": "선택한 클립에 커러 그레이딩 적용",
+      "autoCorrectTooltip": "레벨 자동 조정"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "시네마틱",
+        "vintage": "빈티지",
+        "modern": "모던",
+        "blackwhite": "흑백",
+        "creative": "크리에이티브",
+        "correction": "보정",
+        "custom": "사용자 정의"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "커러 그레이딩 프리셋 저장",
+        "description": "커러 그레이딩 프리셋의 이름을 입력하세요",
+        "nameLabel": "이름",
+        "namePlaceholder": "내 프리셋"
+      }
+    }
+  },
   "videoCompiler": {
     "tasks": "작업",
     "renderTasks": "렌더링 작업",

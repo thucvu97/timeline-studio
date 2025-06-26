@@ -1685,6 +1685,113 @@
       "device": "Gerät"
     }
   },
+  "colorGrading": {
+    "title": "Farbkorrektur",
+    "primaryCorrection": "Primäre Farbkorrektur",
+    "curvesSection": "Kurven",
+    "hslCorrection": "HSL-Korrektur",
+    "lutSection": "LUT",
+    "scopesSection": "Messinstrumente",
+    "colorWheels": {
+      "description": "Schatten (Lift), Mitteltöne (Gamma) und Lichter (Gain) anpassen",
+      "lift": "Lift (Schatten)",
+      "gamma": "Gamma (Mitteltöne)",
+      "gain": "Gain (Lichter)",
+      "offset": "Offset"
+    },
+    "parameters": {
+      "temperature": "Temperatur",
+      "tint": "Tönung",
+      "contrast": "Kontrast",
+      "saturation": "Sättigung",
+      "hue": "Farbton",
+      "luminance": "Helligkeit",
+      "pivot": "Kontrast-Pivot",
+      "vibrance": "Lebendigkeit"
+    },
+    "curves": {
+      "description": "Feinabstimmung der Tonwertanpassung mit interaktiven Kurven",
+      "master": "Master",
+      "red": "Rot",
+      "green": "Grün",
+      "blue": "Blau",
+      "hueVsHue": "Farbton vs Farbton",
+      "hueVsSaturation": "Farbton vs Sättigung",
+      "hueVsLuminance": "Farbton vs Helligkeit",
+      "luminanceVsSaturation": "Helligkeit vs Sättigung",
+      "saturationVsSaturation": "Sättigung vs Sättigung",
+      "reset": "Zurücksetzen",
+      "auto": "Auto",
+      "hint": "Klicken um Punkte hinzuzufügen, ziehen zum Anpassen"
+    },
+    "hsl": {
+      "description": "Erweiterte HSL-Anpassungen und sekundäre Farbkorrektur",
+      "hue": "Farbton",
+      "saturation": "Sättigung",
+      "luminance": "Helligkeit",
+      "advanced": "Erweitert",
+      "pivot": "Kontrast-Pivot",
+      "vibrance": "Lebendigkeit"
+    },
+    "lut": {
+      "description": "Professionelle Farblooks mit LUT-Dateien anwenden",
+      "file": "LUT-Datei",
+      "intensity": "Intensität",
+      "none": "Keine",
+      "enable": "LUT aktivieren",
+      "selectFile": "LUT auswählen",
+      "refresh": "Aktualisieren",
+      "preview": "Vorschau",
+      "original": "Original",
+      "supportedFormats": "Unterstützte Formate: .cube, .3dl, .dat, .look, .mga, .m3d"
+    },
+    "scopes": {
+      "description": "Echtzeitanalyse von Farbe und Belichtung",
+      "enabled": "Aktiviert",
+      "waveform": "Wellenform",
+      "vectorscope": "Vektorskop",
+      "histogram": "Histogramm",
+      "waveformHint": "Zeigt die Helligkeitsverteilung im Bild",
+      "vectorscopeHint": "Zeigt die Farbsättigung und Farbtonverteilung",
+      "histogramHint": "Zeigt die Tonwertverteilung für RGB-Kanäle",
+      "refreshRate": "Aktualisierungsrate",
+      "settings": "Einstellungen",
+      "fullscreen": "Vollbild"
+    },
+    "controls": {
+      "resetAll": "Alles zurücksetzen",
+      "loadPreset": "Preset laden",
+      "savePreset": "Preset speichern",
+      "preview": "Vorschau",
+      "applyToClip": "Auf Clip anwenden",
+      "auto": "Auto",
+      "resetAllTooltip": "Alle Farbkorrekturen zurücksetzen",
+      "loadPresetTooltip": "Farbkorrektur-Preset laden",
+      "savePresetTooltip": "Aktuelle Einstellungen als Preset speichern",
+      "togglePreviewTooltip": "Echtzeitvorschau umschalten",
+      "applyToClipTooltip": "Farbkorrektur auf ausgewählten Clip anwenden",
+      "autoCorrectTooltip": "Pegel automatisch anpassen"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "Filmisch",
+        "vintage": "Vintage",
+        "modern": "Modern",
+        "blackwhite": "Schwarz-Weiß",
+        "creative": "Kreativ",
+        "correction": "Korrektur",
+        "custom": "Benutzerdefiniert"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "Farbkorrektur-Preset speichern",
+        "description": "Geben Sie einen Namen für Ihr Farbkorrektur-Preset ein",
+        "nameLabel": "Name",
+        "namePlaceholder": "Mein Preset"
+      }
+    }
+  },
   "videoCompiler": {
     "tasks": "Aufgaben",
     "renderTasks": "Render-Aufgaben",

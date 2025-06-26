@@ -16,10 +16,6 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
   viewMode,
   onClick,
   onDragStart,
-  isSelected,
-  isFavorite,
-  onToggleFavorite,
-  onAddToTimeline,
 }) => {
   const handleClick = () => {
     onClick?.(effect)
@@ -103,7 +99,7 @@ export function useEffectsAdapter(): ListAdapter<VideoEffect> {
     useData: () => ({
       items: effects,
       loading,
-      error: error || null,
+      error: error ?? null,
     }),
 
     // Компонент превью

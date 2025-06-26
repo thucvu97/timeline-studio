@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useRef, useState } from "react"
+import { MouseEvent, useCallback, useId, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -46,6 +46,7 @@ export function CurveEditor({ points = [], onPointsChange, color = "white", clas
   const svgRef = useRef<SVGSVGElement>(null)
   const [isDragging, setIsDragging] = useState<string | null>(null)
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null)
+  const gridPatternId = useId()
 
   // Размеры SVG
   const width = 256
@@ -135,11 +136,11 @@ export function CurveEditor({ points = [], onPointsChange, color = "white", clas
       >
         {/* Сетка */}
         <defs>
-          <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+          <pattern id={gridPatternId} width="32" height="32" patternUnits="userSpaceOnUse">
             <path d="M 32 0 L 0 0 0 32" fill="none" stroke="gray" strokeWidth="0.5" opacity="0.3" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
+        <rect width="100%" height="100%" fill={`url(#${gridPatternId})`} />
 
         {/* Диагональная референсная линия */}
         <line x1="0" y1={height} x2={width} y2="0" stroke="gray" strokeWidth="1" opacity="0.2" strokeDasharray="4 2" />

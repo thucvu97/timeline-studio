@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useId, useMemo, useState } from "react"
 
 import {
   FolderOpen,
@@ -42,6 +42,7 @@ const TopBarComponent = function TopBar() {
   const { currentProject, openProject, saveProject, setProjectDirty } = useCurrentProject()
   const [isEditing, setIsEditing] = useState(false)
   const [projectName, setProjectName] = useState(currentProject.name)
+  const projectNameInputId = useId()
 
   // Синхронизируем projectName с currentProject.name
   useEffect(() => {
@@ -248,7 +249,7 @@ const TopBarComponent = function TopBar() {
           <div className={projectNameClassName} onClick={() => setIsEditing(true)}>
             {isEditing ? (
               <input
-                id="project-name-input"
+                id={projectNameInputId}
                 type="text"
                 value={projectName}
                 onChange={handleNameChange}

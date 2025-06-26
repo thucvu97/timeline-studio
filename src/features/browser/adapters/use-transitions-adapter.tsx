@@ -17,10 +17,6 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
   viewMode,
   onClick,
   onDragStart,
-  isSelected,
-  isFavorite,
-  onToggleFavorite,
-  onAddToTimeline,
 }) => {
   const handleClick = () => {
     onClick?.(transition)

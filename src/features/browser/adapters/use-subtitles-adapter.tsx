@@ -16,10 +16,6 @@ const SubtitlePreviewWrapper: React.FC<PreviewComponentProps<SubtitleStyle>> = (
   viewMode,
   onClick,
   onDragStart,
-  isSelected,
-  isFavorite,
-  onToggleFavorite,
-  onAddToTimeline,
 }) => {
   const handleClick = () => {
     onClick?.(style)

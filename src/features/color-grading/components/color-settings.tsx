@@ -79,7 +79,7 @@ export function ColorSettings({ className }: ColorSettingsProps) {
             >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-400" />
-                <h3 className="font-medium text-white">{t("colorGrading.curves", "Curves")}</h3>
+                <h3 className="font-medium text-white">{t("colorGrading.curvesSection", "Curves")}</h3>
               </div>
               <ChevronDown
                 className={`h-4 w-4 text-gray-400 transition-transform ${openSections.curves ? "rotate-180" : ""}`}

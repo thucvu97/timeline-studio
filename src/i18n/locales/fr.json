@@ -1842,6 +1842,113 @@
       "device": "Appareil"
     }
   },
+  "colorGrading": {
+    "title": "Étalonnage des couleurs",
+    "primaryCorrection": "Correction primaire des couleurs",
+    "curvesSection": "Courbes",
+    "hslCorrection": "Correction TSL",
+    "lutSection": "LUT",
+    "scopesSection": "Scopes",
+    "colorWheels": {
+      "description": "Ajuster les ombres (Lift), les tons moyens (Gamma) et les hautes lumières (Gain)",
+      "lift": "Lift (Ombres)",
+      "gamma": "Gamma (Tons moyens)",
+      "gain": "Gain (Hautes lumières)",
+      "offset": "Décalage"
+    },
+    "parameters": {
+      "temperature": "Température",
+      "tint": "Teinte",
+      "contrast": "Contraste",
+      "saturation": "Saturation",
+      "hue": "Teinte",
+      "luminance": "Luminosité",
+      "pivot": "Pivot de contraste",
+      "vibrance": "Vibrance"
+    },
+    "curves": {
+      "description": "Affiner la réponse tonale avec des courbes interactives",
+      "master": "Master",
+      "red": "Rouge",
+      "green": "Vert",
+      "blue": "Bleu",
+      "hueVsHue": "Teinte vs Teinte",
+      "hueVsSaturation": "Teinte vs Saturation",
+      "hueVsLuminance": "Teinte vs Luminosité",
+      "luminanceVsSaturation": "Luminosité vs Saturation",
+      "saturationVsSaturation": "Saturation vs Saturation",
+      "reset": "Réinitialiser",
+      "auto": "Auto",
+      "hint": "Cliquez pour ajouter des points, faites glisser pour ajuster"
+    },
+    "hsl": {
+      "description": "Ajustements TSL avancés et correction secondaire des couleurs",
+      "hue": "Teinte",
+      "saturation": "Saturation",
+      "luminance": "Luminosité",
+      "advanced": "Avancé",
+      "pivot": "Pivot de contraste",
+      "vibrance": "Vibrance"
+    },
+    "lut": {
+      "description": "Appliquer des looks professionnels avec des fichiers LUT",
+      "file": "Fichier LUT",
+      "intensity": "Intensité",
+      "none": "Aucun",
+      "enable": "Activer LUT",
+      "selectFile": "Sélectionner LUT",
+      "refresh": "Actualiser",
+      "preview": "Aperçu",
+      "original": "Original",
+      "supportedFormats": "Formats supportés : .cube, .3dl, .dat, .look, .mga, .m3d"
+    },
+    "scopes": {
+      "description": "Analyse en temps réel de la couleur et de l'exposition",
+      "enabled": "Activé",
+      "waveform": "Forme d'onde",
+      "vectorscope": "Vectorscope",
+      "histogram": "Histogramme",
+      "waveformHint": "Affiche la distribution de luminance dans l'image",
+      "vectorscopeHint": "Affiche la saturation des couleurs et la distribution des teintes",
+      "histogramHint": "Affiche la distribution tonale pour les canaux RVB",
+      "refreshRate": "Taux de rafraîchissement",
+      "settings": "Paramètres",
+      "fullscreen": "Plein écran"
+    },
+    "controls": {
+      "resetAll": "Tout réinitialiser",
+      "loadPreset": "Charger un preset",
+      "savePreset": "Enregistrer un preset",
+      "preview": "Aperçu",
+      "applyToClip": "Appliquer au clip",
+      "auto": "Auto",
+      "resetAllTooltip": "Réinitialiser toutes les corrections de couleur",
+      "loadPresetTooltip": "Charger un preset d'étalonnage",
+      "savePresetTooltip": "Enregistrer les paramètres actuels comme preset",
+      "togglePreviewTooltip": "Activer/désactiver l'aperçu en temps réel",
+      "applyToClipTooltip": "Appliquer l'étalonnage au clip sélectionné",
+      "autoCorrectTooltip": "Ajuster automatiquement les niveaux"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "Cinématique",
+        "vintage": "Vintage",
+        "modern": "Moderne",
+        "blackwhite": "Noir et blanc",
+        "creative": "Créatif",
+        "correction": "Correction",
+        "custom": "Personnalisé"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "Enregistrer le preset d'étalonnage",
+        "description": "Entrez un nom pour votre preset d'étalonnage",
+        "nameLabel": "Nom",
+        "namePlaceholder": "Mon preset"
+      }
+    }
+  },
   "videoCompiler": {
     "tasks": "Tâches",
     "renderTasks": "Tâches de rendu",

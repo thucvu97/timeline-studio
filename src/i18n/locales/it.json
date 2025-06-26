@@ -1892,6 +1892,113 @@
       "device": "Dispositivo"
     }
   },
+  "colorGrading": {
+    "title": "Color Grading",
+    "primaryCorrection": "Correzione colore primaria",
+    "curvesSection": "Curve",
+    "hslCorrection": "Correzione HSL",
+    "lutSection": "LUT",
+    "scopesSection": "Scopes",
+    "colorWheels": {
+      "description": "Regola ombre (Lift), mezzitoni (Gamma) e luci (Gain)",
+      "lift": "Lift (Ombre)",
+      "gamma": "Gamma (Mezzitoni)",
+      "gain": "Gain (Luci)",
+      "offset": "Offset"
+    },
+    "parameters": {
+      "temperature": "Temperatura",
+      "tint": "Tinta",
+      "contrast": "Contrasto",
+      "saturation": "Saturazione",
+      "hue": "Tonalità",
+      "luminance": "Luminosità",
+      "pivot": "Pivot contrasto",
+      "vibrance": "Vividezza"
+    },
+    "curves": {
+      "description": "Regolazione fine della risposta tonale con curve interattive",
+      "master": "Master",
+      "red": "Rosso",
+      "green": "Verde",
+      "blue": "Blu",
+      "hueVsHue": "Tonalità vs Tonalità",
+      "hueVsSaturation": "Tonalità vs Saturazione",
+      "hueVsLuminance": "Tonalità vs Luminosità",
+      "luminanceVsSaturation": "Luminosità vs Saturazione",
+      "saturationVsSaturation": "Saturazione vs Saturazione",
+      "reset": "Reimposta",
+      "auto": "Auto",
+      "hint": "Clicca per aggiungere punti, trascina per regolare"
+    },
+    "hsl": {
+      "description": "Regolazioni HSL avanzate e correzione colore secondaria",
+      "hue": "Tonalità",
+      "saturation": "Saturazione",
+      "luminance": "Luminosità",
+      "advanced": "Avanzate",
+      "pivot": "Pivot contrasto",
+      "vibrance": "Vividezza"
+    },
+    "lut": {
+      "description": "Applica look professionali con file LUT",
+      "file": "File LUT",
+      "intensity": "Intensità",
+      "none": "Nessuno",
+      "enable": "Abilita LUT",
+      "selectFile": "Seleziona LUT",
+      "refresh": "Aggiorna",
+      "preview": "Anteprima",
+      "original": "Originale",
+      "supportedFormats": "Formati supportati: .cube, .3dl, .dat, .look, .mga, .m3d"
+    },
+    "scopes": {
+      "description": "Analisi in tempo reale di colore ed esposizione",
+      "enabled": "Abilitato",
+      "waveform": "Forma d'onda",
+      "vectorscope": "Vettorscopio",
+      "histogram": "Istogramma",
+      "waveformHint": "Mostra la distribuzione della luminosità nell'immagine",
+      "vectorscopeHint": "Mostra la saturazione del colore e la distribuzione della tonalità",
+      "histogramHint": "Mostra la distribuzione tonale per i canali RGB",
+      "refreshRate": "Frequenza di aggiornamento",
+      "settings": "Impostazioni",
+      "fullscreen": "Schermo intero"
+    },
+    "controls": {
+      "resetAll": "Reimposta tutto",
+      "loadPreset": "Carica preset",
+      "savePreset": "Salva preset",
+      "preview": "Anteprima",
+      "applyToClip": "Applica alla clip",
+      "auto": "Auto",
+      "resetAllTooltip": "Reimposta tutte le correzioni colore",
+      "loadPresetTooltip": "Carica preset color grading",
+      "savePresetTooltip": "Salva impostazioni attuali come preset",
+      "togglePreviewTooltip": "Attiva/disattiva anteprima in tempo reale",
+      "applyToClipTooltip": "Applica color grading alla clip selezionata",
+      "autoCorrectTooltip": "Regola automaticamente i livelli"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "Cinematico",
+        "vintage": "Vintage",
+        "modern": "Moderno",
+        "blackwhite": "Bianco e nero",
+        "creative": "Creativo",
+        "correction": "Correzione",
+        "custom": "Personalizzato"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "Salva preset color grading",
+        "description": "Inserisci un nome per il tuo preset color grading",
+        "nameLabel": "Nome",
+        "namePlaceholder": "Il mio preset"
+      }
+    }
+  },
   "videoCompiler": {
     "tasks": "Attività",
     "renderTasks": "Attività di Rendering ed Esportazione",

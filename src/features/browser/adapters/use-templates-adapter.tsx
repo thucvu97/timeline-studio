@@ -25,10 +25,6 @@ const TemplatePreviewWrapper: React.FC<PreviewComponentProps<MediaTemplate>> = (
   viewMode,
   onClick,
   onDragStart,
-  isSelected,
-  isFavorite,
-  onToggleFavorite,
-  onAddToTimeline,
 }) => {
   const { settings } = useProjectSettings()
 

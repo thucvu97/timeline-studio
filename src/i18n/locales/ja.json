@@ -1677,6 +1677,113 @@
       "device": "デバイス"
     }
   },
+  "colorGrading": {
+    "title": "カラーグレーディング",
+    "primaryCorrection": "プライマリカラー補正",
+    "curvesSection": "カーブ",
+    "hslCorrection": "HSL補正",
+    "lutSection": "LUT",
+    "scopesSection": "スコープ",
+    "colorWheels": {
+      "description": "シャドウ（リフト）、ミッドトーン（ガンマ）、ハイライト（ゲイン）を調整",
+      "lift": "リフト（シャドウ）",
+      "gamma": "ガンマ（ミッドトーン）",
+      "gain": "ゲイン（ハイライト）",
+      "offset": "オフセット"
+    },
+    "parameters": {
+      "temperature": "色温度",
+      "tint": "色かぶり",
+      "contrast": "コントラスト",
+      "saturation": "彩度",
+      "hue": "色相",
+      "luminance": "輝度",
+      "pivot": "コントラストピボット",
+      "vibrance": "自然な彩度"
+    },
+    "curves": {
+      "description": "インタラクティブなカーブでトーンレスポンスを微調整",
+      "master": "マスター",
+      "red": "赤",
+      "green": "緑",
+      "blue": "青",
+      "hueVsHue": "色相 vs 色相",
+      "hueVsSaturation": "色相 vs 彩度",
+      "hueVsLuminance": "色相 vs 輝度",
+      "luminanceVsSaturation": "輝度 vs 彩度",
+      "saturationVsSaturation": "彩度 vs 彩度",
+      "reset": "リセット",
+      "auto": "自動",
+      "hint": "クリックでポイントを追加、ドラッグで調整"
+    },
+    "hsl": {
+      "description": "高度なHSL調整とセカンダリカラー補正",
+      "hue": "色相",
+      "saturation": "彩度",
+      "luminance": "輝度",
+      "advanced": "詳細設定",
+      "pivot": "コントラストピボット",
+      "vibrance": "自然な彩度"
+    },
+    "lut": {
+      "description": "LUTファイルでプロフェッショナルなカラールックを適用",
+      "file": "LUTファイル",
+      "intensity": "強度",
+      "none": "なし",
+      "enable": "LUTを有効化",
+      "selectFile": "LUTを選択",
+      "refresh": "更新",
+      "preview": "プレビュー",
+      "original": "オリジナル",
+      "supportedFormats": "サポートされる形式: .cube, .3dl, .dat, .look, .mga, .m3d"
+    },
+    "scopes": {
+      "description": "カラーと露出のリアルタイム分析",
+      "enabled": "有効",
+      "waveform": "波形",
+      "vectorscope": "ベクトルスコープ",
+      "histogram": "ヒストグラム",
+      "waveformHint": "画像全体の輝度分布を表示",
+      "vectorscopeHint": "色の彩度と色相分布を表示",
+      "histogramHint": "RGBチャンネルのトーン分布を表示",
+      "refreshRate": "更新間隔",
+      "settings": "設定",
+      "fullscreen": "全画面"
+    },
+    "controls": {
+      "resetAll": "すべてリセット",
+      "loadPreset": "プリセットを読み込み",
+      "savePreset": "プリセットを保存",
+      "preview": "プレビュー",
+      "applyToClip": "クリップに適用",
+      "auto": "自動",
+      "resetAllTooltip": "すべてのカラー補正をリセット",
+      "loadPresetTooltip": "カラーグレーディングプリセットを読み込み",
+      "savePresetTooltip": "現在の設定をプリセットとして保存",
+      "togglePreviewTooltip": "リアルタイムプレビューを切り替え",
+      "applyToClipTooltip": "選択したクリップにカラーグレーディングを適用",
+      "autoCorrectTooltip": "レベルを自動調整"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "シネマティック",
+        "vintage": "ビンテージ",
+        "modern": "モダン",
+        "blackwhite": "モノクロ",
+        "creative": "クリエイティブ",
+        "correction": "補正",
+        "custom": "カスタム"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "カラーグレーディングプリセットを保存",
+        "description": "カラーグレーディングプリセットの名前を入力してください",
+        "nameLabel": "名前",
+        "namePlaceholder": "マイプリセット"
+      }
+    }
+  },
   "videoCompiler": {
     "tasks": "タスク",
     "renderTasks": "レンダータスク",

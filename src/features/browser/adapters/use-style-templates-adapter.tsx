@@ -18,9 +18,6 @@ const StyleTemplatePreviewWrapper: React.FC<PreviewComponentProps<StyleTemplate>
   viewMode,
   onClick,
   onDragStart,
-  isSelected,
-  isFavorite,
-  onToggleFavorite,
   onAddToTimeline,
 }) => {
   const { i18n } = useTranslation()

@@ -9,6 +9,7 @@ import {
   CurveType,
   RGBValue,
 } from "../types/color-grading"
+import { ColorGradingPreset } from "../types/presets"
 
 interface ColorGradingContextValue {
   state: ColorGradingState
@@ -22,10 +23,12 @@ interface ColorGradingContextValue {
   togglePreview: (enabled: boolean) => void
   applyToClip: () => void
   resetAll: () => void
+  autoCorrect: () => void
   loadPreset: (presetId: string) => void
   savePreset: (name: string) => void
   hasChanges: boolean
   isActive: boolean
+  availablePresets: ColorGradingPreset[]
 }
 
 const ColorGradingContext = createContext<ColorGradingContextValue | null>(null)

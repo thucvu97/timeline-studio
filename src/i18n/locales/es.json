@@ -1649,6 +1649,113 @@
       "device": "Dispositivo"
     }
   },
+  "colorGrading": {
+    "title": "Corrección de color",
+    "primaryCorrection": "Corrección de color primaria",
+    "curvesSection": "Curvas",
+    "hslCorrection": "Corrección HSL",
+    "lutSection": "LUT",
+    "scopesSection": "Ámbitos",
+    "colorWheels": {
+      "description": "Ajustar sombras (Lift), medios tonos (Gamma) y luces (Gain)",
+      "lift": "Lift (Sombras)",
+      "gamma": "Gamma (Medios tonos)",
+      "gain": "Gain (Luces)",
+      "offset": "Desplazamiento"
+    },
+    "parameters": {
+      "temperature": "Temperatura",
+      "tint": "Matiz",
+      "contrast": "Contraste",
+      "saturation": "Saturación",
+      "hue": "Tono",
+      "luminance": "Luminancia",
+      "pivot": "Pivote de contraste",
+      "vibrance": "Intensidad"
+    },
+    "curves": {
+      "description": "Ajuste fino de la respuesta tonal con curvas interactivas",
+      "master": "Maestro",
+      "red": "Rojo",
+      "green": "Verde",
+      "blue": "Azul",
+      "hueVsHue": "Tono vs Tono",
+      "hueVsSaturation": "Tono vs Saturación",
+      "hueVsLuminance": "Tono vs Luminancia",
+      "luminanceVsSaturation": "Luminancia vs Saturación",
+      "saturationVsSaturation": "Saturación vs Saturación",
+      "reset": "Restablecer",
+      "auto": "Auto",
+      "hint": "Haz clic para agregar puntos, arrastra para ajustar"
+    },
+    "hsl": {
+      "description": "Ajustes HSL avanzados y corrección de color secundaria",
+      "hue": "Tono",
+      "saturation": "Saturación",
+      "luminance": "Luminancia",
+      "advanced": "Avanzado",
+      "pivot": "Pivote de contraste",
+      "vibrance": "Intensidad"
+    },
+    "lut": {
+      "description": "Aplicar looks de color profesionales con archivos LUT",
+      "file": "Archivo LUT",
+      "intensity": "Intensidad",
+      "none": "Ninguno",
+      "enable": "Habilitar LUT",
+      "selectFile": "Seleccionar LUT",
+      "refresh": "Actualizar",
+      "preview": "Vista previa",
+      "original": "Original",
+      "supportedFormats": "Formatos soportados: .cube, .3dl, .dat, .look, .mga, .m3d"
+    },
+    "scopes": {
+      "description": "Análisis en tiempo real de color y exposición",
+      "enabled": "Habilitado",
+      "waveform": "Forma de onda",
+      "vectorscope": "Vectorscopio",
+      "histogram": "Histograma",
+      "waveformHint": "Muestra la distribución de luminancia en la imagen",
+      "vectorscopeHint": "Muestra la saturación de color y distribución de tono",
+      "histogramHint": "Muestra la distribución tonal para canales RGB",
+      "refreshRate": "Tasa de actualización",
+      "settings": "Configuración",
+      "fullscreen": "Pantalla completa"
+    },
+    "controls": {
+      "resetAll": "Restablecer todo",
+      "loadPreset": "Cargar preset",
+      "savePreset": "Guardar preset",
+      "preview": "Vista previa",
+      "applyToClip": "Aplicar al clip",
+      "auto": "Auto",
+      "resetAllTooltip": "Restablecer todas las correcciones de color",
+      "loadPresetTooltip": "Cargar preset de corrección de color",
+      "savePresetTooltip": "Guardar configuración actual como preset",
+      "togglePreviewTooltip": "Alternar vista previa en tiempo real",
+      "applyToClipTooltip": "Aplicar corrección de color al clip seleccionado",
+      "autoCorrectTooltip": "Ajustar niveles automáticamente"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "Cinemático",
+        "vintage": "Vintage",
+        "modern": "Moderno",
+        "blackwhite": "Blanco y negro",
+        "creative": "Creativo",
+        "correction": "Corrección",
+        "custom": "Personalizado"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "Guardar preset de corrección de color",
+        "description": "Ingrese un nombre para su preset de corrección de color",
+        "nameLabel": "Nombre",
+        "namePlaceholder": "Mi preset"
+      }
+    }
+  },
   "videoCompiler": {
     "tasks": "Tareas",
     "renderTasks": "Tareas de renderizado",

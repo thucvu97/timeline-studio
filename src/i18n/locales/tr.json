@@ -1677,6 +1677,113 @@
       "device": "Cihaz"
     }
   },
+  "colorGrading": {
+    "title": "Renk Düzenleme",
+    "primaryCorrection": "Birincil Renk Düzeltme",
+    "curvesSection": "Eğriler",
+    "hslCorrection": "HSL Düzeltme",
+    "lutSection": "LUT",
+    "scopesSection": "Kapsam Göstergeleri",
+    "colorWheels": {
+      "description": "Gölgeler (Lift), orta tonlar (Gamma) ve parlak alanları (Gain) ayarlayın",
+      "lift": "Lift (Gölgeler)",
+      "gamma": "Gamma (Orta Tonlar)",
+      "gain": "Gain (Parlak Alanlar)",
+      "offset": "Ofset"
+    },
+    "parameters": {
+      "temperature": "Sıcaklık",
+      "tint": "Renk Tonu",
+      "contrast": "Kontrast",
+      "saturation": "Doygunluk",
+      "hue": "Renk",
+      "luminance": "Parlaklık",
+      "pivot": "Kontrast Pivot",
+      "vibrance": "Canlılık"
+    },
+    "curves": {
+      "description": "Etkileşimli eğrilerle ton yanıtını ince ayarlama",
+      "master": "Ana",
+      "red": "Kırmızı",
+      "green": "Yeşil",
+      "blue": "Mavi",
+      "hueVsHue": "Renk vs Renk",
+      "hueVsSaturation": "Renk vs Doygunluk",
+      "hueVsLuminance": "Renk vs Parlaklık",
+      "luminanceVsSaturation": "Parlaklık vs Doygunluk",
+      "saturationVsSaturation": "Doygunluk vs Doygunluk",
+      "reset": "Sıfırla",
+      "auto": "Otomatik",
+      "hint": "Nokta eklemek için tıklayın, ayarlamak için sürükleyin"
+    },
+    "hsl": {
+      "description": "Gelişmiş HSL ayarları ve ikincil renk düzeltme",
+      "hue": "Renk",
+      "saturation": "Doygunluk",
+      "luminance": "Parlaklık",
+      "advanced": "Gelişmiş",
+      "pivot": "Kontrast Pivot",
+      "vibrance": "Canlılık"
+    },
+    "lut": {
+      "description": "LUT dosyalarıyla profesyonel renk görünümleri uygulama",
+      "file": "LUT Dosyası",
+      "intensity": "Yoğunluk",
+      "none": "Yok",
+      "enable": "LUT'u Etkinleştir",
+      "selectFile": "LUT Seç",
+      "refresh": "Yenile",
+      "preview": "Önizleme",
+      "original": "Orijinal",
+      "supportedFormats": "Desteklenen formatlar: .cube, .3dl, .dat, .look, .mga, .m3d"
+    },
+    "scopes": {
+      "description": "Renk ve pozun gerçek zamanlı analizi",
+      "enabled": "Etkin",
+      "waveform": "Dalga Formu",
+      "vectorscope": "Vektörskop",
+      "histogram": "Histogram",
+      "waveformHint": "Görüntüdeki parlaklık dağılımını gösterir",
+      "vectorscopeHint": "Renk doygunluğu ve renk dağılımını gösterir",
+      "histogramHint": "RGB kanalları için ton dağılımını gösterir",
+      "refreshRate": "Yenileme Hızı",
+      "settings": "Ayarlar",
+      "fullscreen": "Tam Ekran"
+    },
+    "controls": {
+      "resetAll": "Tümünü Sıfırla",
+      "loadPreset": "Hazır Ayar Yükle",
+      "savePreset": "Hazır Ayar Kaydet",
+      "preview": "Önizleme",
+      "applyToClip": "Klibe Uygula",
+      "auto": "Otomatik",
+      "resetAllTooltip": "Tüm renk düzeltmelerini sıfırla",
+      "loadPresetTooltip": "Renk düzenleme hazır ayarını yükle",
+      "savePresetTooltip": "Mevcut ayarları hazır ayar olarak kaydet",
+      "togglePreviewTooltip": "Gerçek zamanlı önizlemeyi aç/kapat",
+      "applyToClipTooltip": "Seçili klibe renk düzenleme uygula",
+      "autoCorrectTooltip": "Seviyeleri otomatik olarak ayarla"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "Sinematik",
+        "vintage": "Vintage",
+        "modern": "Modern",
+        "blackwhite": "Siyah Beyaz",
+        "creative": "Yaratıcı",
+        "correction": "Düzeltme",
+        "custom": "Özel"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "Renk Düzenleme Hazır Ayarını Kaydet",
+        "description": "Renk düzenleme hazır ayarınız için bir ad girin",
+        "nameLabel": "Ad",
+        "namePlaceholder": "Hazır Ayarım"
+      }
+    }
+  },
   "videoCompiler": {
     "tasks": "Görevler",
     "renderTasks": "İşleme Görevleri",

@@ -1677,6 +1677,113 @@
       "device": "Device"
     }
   },
+  "colorGrading": {
+    "title": "调色",
+    "primaryCorrection": "一级调色",
+    "curvesSection": "曲线",
+    "hslCorrection": "HSL校正",
+    "lutSection": "LUT",
+    "scopesSection": "示波器",
+    "colorWheels": {
+      "description": "调整阴影（Lift）、中间调（Gamma）和高光（Gain）",
+      "lift": "Lift（阴影）",
+      "gamma": "Gamma（中间调）",
+      "gain": "Gain（高光）",
+      "offset": "偏移"
+    },
+    "parameters": {
+      "temperature": "色温",
+      "tint": "色调",
+      "contrast": "对比度",
+      "saturation": "饱和度",
+      "hue": "色相",
+      "luminance": "亮度",
+      "pivot": "对比度支点",
+      "vibrance": "自然饱和度"
+    },
+    "curves": {
+      "description": "使用交互式曲线微调色调响应",
+      "master": "主曲线",
+      "red": "红色",
+      "green": "绿色",
+      "blue": "蓝色",
+      "hueVsHue": "色相 vs 色相",
+      "hueVsSaturation": "色相 vs 饱和度",
+      "hueVsLuminance": "色相 vs 亮度",
+      "luminanceVsSaturation": "亮度 vs 饱和度",
+      "saturationVsSaturation": "饱和度 vs 饱和度",
+      "reset": "重置",
+      "auto": "自动",
+      "hint": "点击添加控制点，拖动进行调整"
+    },
+    "hsl": {
+      "description": "高级HSL调整和二级调色",
+      "hue": "色相",
+      "saturation": "饱和度",
+      "luminance": "亮度",
+      "advanced": "高级",
+      "pivot": "对比度支点",
+      "vibrance": "自然饱和度"
+    },
+    "lut": {
+      "description": "使用LUT文件应用专业色彩风格",
+      "file": "LUT文件",
+      "intensity": "强度",
+      "none": "无",
+      "enable": "启用LUT",
+      "selectFile": "选择LUT",
+      "refresh": "刷新",
+      "preview": "预览",
+      "original": "原始",
+      "supportedFormats": "支持的格式：.cube、.3dl、.dat、.look、.mga、.m3d"
+    },
+    "scopes": {
+      "description": "实时分析颜色和曝光",
+      "enabled": "已启用",
+      "waveform": "波形图",
+      "vectorscope": "矢量示波器",
+      "histogram": "直方图",
+      "waveformHint": "显示图像中的亮度分布",
+      "vectorscopeHint": "显示颜色饱和度和色相分布",
+      "histogramHint": "显示RGB通道的色调分布",
+      "refreshRate": "刷新率",
+      "settings": "设置",
+      "fullscreen": "全屏"
+    },
+    "controls": {
+      "resetAll": "全部重置",
+      "loadPreset": "加载预设",
+      "savePreset": "保存预设",
+      "preview": "预览",
+      "applyToClip": "应用到片段",
+      "auto": "自动",
+      "resetAllTooltip": "重置所有颜色校正",
+      "loadPresetTooltip": "加载调色预设",
+      "savePresetTooltip": "将当前设置保存为预设",
+      "togglePreviewTooltip": "切换实时预览",
+      "applyToClipTooltip": "将调色应用到选中的片段",
+      "autoCorrectTooltip": "自动调整电平"
+    },
+    "presets": {
+      "categories": {
+        "cinematic": "电影感",
+        "vintage": "复古",
+        "modern": "现代",
+        "blackwhite": "黑白",
+        "creative": "创意",
+        "correction": "校正",
+        "custom": "自定义"
+      }
+    },
+    "dialogs": {
+      "savePreset": {
+        "title": "保存调色预设",
+        "description": "为您的调色预设输入名称",
+        "nameLabel": "名称",
+        "namePlaceholder": "我的预设"
+      }
+    }
+  },
   "videoCompiler": {
     "tasks": "任务",
     "renderTasks": "渲染任务",

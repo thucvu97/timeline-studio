@@ -1931,7 +1931,7 @@
   "colorGrading": {
     "title": "Цветокоррекция",
     "primaryCorrection": "Первичная цветокоррекция",
-    "curves": "Кривые",
+    "curvesSection": "Кривые",
     "hslCorrection": "HSL коррекция",
     "lutSection": "LUT",
     "scopesSection": "Скопы",

@@ -68,7 +68,10 @@ export class ProjectSchemaBuilder {
   private projectSchema: ProjectSchema
 
   constructor(timeline: Timeline, projectName?: string) {
-    this.projectSchema = timelineToProjectSchema(timeline, projectName)
+    this.projectSchema = timelineToProjectSchema(timeline)
+    if (projectName) {
+      this.projectSchema.metadata.name = projectName
+    }
   }
 
   /**
@@ -86,12 +89,12 @@ export class ProjectSchemaBuilder {
     }
 
     // Update video bitrate
-    if (exportSettings.videoBitrate !== undefined) {
-      this.projectSchema.settings.export.video_bitrate = exportSettings.videoBitrate
+    if (exportSettings.bitrate !== undefined) {
+      this.projectSchema.settings.export.video_bitrate = exportSettings.bitrate
     }
 
     // Update audio bitrate (use default if not specified)
-    this.projectSchema.settings.export.audio_bitrate = exportSettings.audioBitrate || AUDIO_BITRATE
+    this.projectSchema.settings.export.audio_bitrate = AUDIO_BITRATE
 
     // Update GPU acceleration
     if (exportSettings.enableGPU !== undefined) {
@@ -100,12 +103,24 @@ export class ProjectSchemaBuilder {
 
     // Update resolution
     if (exportSettings.resolution) {
-      this.projectSchema.timeline.resolution = exportSettings.resolution
+      const resolutionMap: Record<string, [number, number]> = {
+        "720": [1280, 720],
+        "1080": [1920, 1080],
+        "1440": [2560, 1440],
+        "4k": [3840, 2160],
+      }
+      
+      if (exportSettings.resolution !== "timeline" && resolutionMap[exportSettings.resolution]) {
+        this.projectSchema.timeline.resolution = resolutionMap[exportSettings.resolution]
+      }
     }
 
     // Update frame rate
     if (exportSettings.frameRate !== undefined) {
-      this.projectSchema.timeline.fps = exportSettings.frameRate
+      const fps = Number.parseInt(exportSettings.frameRate)
+      if (!Number.isNaN(fps)) {
+        this.projectSchema.timeline.fps = fps
+      }
     }
 
     return this
