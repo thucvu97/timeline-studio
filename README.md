@@ -76,7 +76,7 @@ AI assistant will create the right number of versions for each platform! 🤖
 - 📤 Export to MP4/MOV/WebM with social media OAuth integration
 - 🔐 YouTube/TikTok/Vimeo/Telegram OAuth support with secure token storage
 - 📱 Device presets (iPhone, iPad, Android) for optimized exports
-- 🌐 Internationalization support (11 languages)
+- 🌐 Internationalization support (13 languages)
 - 💾 Smart caching and unified preview system
 - 🎨 Modern UI using Tailwind CSS v4, shadcn-ui
 - 📚 Complete documentation with more than 5,000 tests and over 80% code coverage
@@ -122,7 +122,7 @@ bun run tauri dev
 ### 📋 Project Documentation
 
 - **`src/features/README.md`** - overview of all features with priorities and status
-- **Language versions**: Available in 12 languages via the switcher above
+- **Language versions**: Available in 15 languages via the switcher above
 
 ## Development
 
