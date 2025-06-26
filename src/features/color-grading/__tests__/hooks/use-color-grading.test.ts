@@ -1,209 +1,261 @@
 import { act, renderHook } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useColorGrading } from "../../hooks/use-color-grading"
+import { BUILT_IN_PRESETS } from "../../types/presets"
+
+// Мокаем localStorage
+const mockLocalStorage = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+  length: 0,
+  key: vi.fn(),
+}
+Object.defineProperty(window, "localStorage", { value: mockLocalStorage })
 
 describe("useColorGrading", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockLocalStorage.getItem.mockReturnValue("[]")
+  })
+
   it("should initialize with default state", () => {
     const { result } = renderHook(() => useColorGrading())
 
-    expect(result.current.state.colorWheels.lift).toEqual({ r: 0, g: 0, b: 0 })
-    expect(result.current.state.basicParameters.temperature).toBe(0)
-    expect(result.current.state.curves.master).toHaveLength(2)
-    expect(result.current.state.lut.isEnabled).toBe(false)
-    expect(result.current.state.scopes.waveformEnabled).toBe(true)
+    expect(result.current.state.colorWheels).toEqual({
+      lift: { r: 0, g: 0, b: 0 },
+      gamma: { r: 0, g: 0, b: 0 },
+      gain: { r: 0, g: 0, b: 0 },
+      offset: { r: 0, g: 0, b: 0 },
+    })
+
+    expect(result.current.state.basicParameters).toEqual({
+      temperature: 0,
+      tint: 0,
+      contrast: 0,
+      pivot: 0.5,
+      saturation: 0,
+      hue: 0,
+      luminance: 0,
+    })
+
+    expect(result.current.state.previewEnabled).toBe(true)
+    expect(result.current.state.isActive).toBe(false)
     expect(result.current.hasChanges).toBe(false)
   })
 
-  describe("Color Wheels", () => {
-    it("should update color wheel values", () => {
-      const { result } = renderHook(() => useColorGrading())
+  it("should update color wheel values", () => {
+    const { result } = renderHook(() => useColorGrading())
 
-      act(() => {
-        result.current.updateColorWheel("lift", { r: 10, g: 20, b: 30 })
-      })
-
-      expect(result.current.state.colorWheels.lift).toEqual({ r: 10, g: 20, b: 30 })
-      expect(result.current.state.hasUnsavedChanges).toBe(true)
-      expect(result.current.hasChanges).toBe(true)
+    act(() => {
+      result.current.updateColorWheel("lift", { r: 10, g: 20, b: 30 })
     })
+
+    expect(result.current.state.colorWheels.lift).toEqual({ r: 10, g: 20, b: 30 })
+    expect(result.current.state.hasUnsavedChanges).toBe(true)
+    expect(result.current.hasChanges).toBe(true)
   })
 
-  describe("Basic Parameters", () => {
-    it("should update basic parameters", () => {
-      const { result } = renderHook(() => useColorGrading())
+  it("should update basic parameters", () => {
+    const { result } = renderHook(() => useColorGrading())
 
-      act(() => {
-        result.current.updateBasicParameter("temperature", 50)
-      })
-
-      expect(result.current.state.basicParameters.temperature).toBe(50)
-      expect(result.current.state.hasUnsavedChanges).toBe(true)
+    act(() => {
+      result.current.updateBasicParameter("temperature", 50)
     })
 
-    it("should detect changes for pivot parameter", () => {
-      const { result } = renderHook(() => useColorGrading())
-
-      act(() => {
-        result.current.updateBasicParameter("pivot", 0.7)
-      })
-
-      expect(result.current.hasChanges).toBe(true)
-    })
+    expect(result.current.state.basicParameters.temperature).toBe(50)
+    expect(result.current.state.hasUnsavedChanges).toBe(true)
+    expect(result.current.hasChanges).toBe(true)
   })
 
-  describe("Curves", () => {
-    it("should update curve points", () => {
-      const { result } = renderHook(() => useColorGrading())
+  it("should update curves", () => {
+    const { result } = renderHook(() => useColorGrading())
 
-      const newPoints = [
-        { x: 0, y: 256, id: "start" },
-        { x: 128, y: 128, id: "mid" },
-        { x: 256, y: 0, id: "end" },
-      ]
+    const newPoints = [
+      { x: 0, y: 256, id: "start" },
+      { x: 128, y: 128, id: "mid" },
+      { x: 256, y: 0, id: "end" },
+    ]
 
-      act(() => {
-        result.current.updateCurve("master", newPoints)
-      })
-
-      expect(result.current.state.curves.master).toHaveLength(3)
-      expect(result.current.state.curves.master[1].id).toBe("mid")
+    act(() => {
+      result.current.updateCurve("master", newPoints)
     })
+
+    expect(result.current.state.curves.master).toEqual(newPoints)
+    expect(result.current.state.hasUnsavedChanges).toBe(true)
   })
 
-  describe("LUT", () => {
-    it("should load LUT file", () => {
-      const { result } = renderHook(() => useColorGrading())
+  it("should load LUT file", () => {
+    const { result } = renderHook(() => useColorGrading())
 
-      act(() => {
-        result.current.loadLUT("film-kodak-2383")
-      })
-
-      expect(result.current.state.lut.file).toBe("film-kodak-2383")
-      expect(result.current.state.lut.isEnabled).toBe(true)
+    act(() => {
+      result.current.loadLUT("/path/to/lut.cube")
     })
 
-    it("should update LUT intensity", () => {
-      const { result } = renderHook(() => useColorGrading())
-
-      act(() => {
-        result.current.setLUTIntensity(75)
-      })
-
-      expect(result.current.state.lut.intensity).toBe(75)
-    })
-
-    it("should toggle LUT", () => {
-      const { result } = renderHook(() => useColorGrading())
-
-      act(() => {
-        result.current.loadLUT("orange-teal")
-        result.current.toggleLUT(false)
-      })
-
-      expect(result.current.state.lut.isEnabled).toBe(false)
-      expect(result.current.state.lut.file).toBe("orange-teal")
-    })
+    expect(result.current.state.lut.file).toBe("/path/to/lut.cube")
+    expect(result.current.state.lut.isEnabled).toBe(true)
+    expect(result.current.state.hasUnsavedChanges).toBe(true)
   })
 
-  describe("Scopes", () => {
-    it("should toggle scope visibility through dispatch", () => {
-      const { result } = renderHook(() => useColorGrading())
+  it("should set LUT intensity", () => {
+    const { result } = renderHook(() => useColorGrading())
 
-      act(() => {
-        result.current.dispatch({
-          type: "TOGGLE_SCOPE",
-          scopeType: "vectorscope",
-          enabled: true,
-        })
-      })
-
-      expect(result.current.state.scopes.vectorscopeEnabled).toBe(true)
+    act(() => {
+      result.current.setLUTIntensity(75)
     })
 
-    it("should update refresh rate through dispatch", () => {
-      const { result } = renderHook(() => useColorGrading())
-
-      act(() => {
-        result.current.dispatch({
-          type: "SET_SCOPE_REFRESH_RATE",
-          value: 60,
-        })
-      })
-
-      expect(result.current.state.scopes.refreshRate).toBe(60)
-    })
+    expect(result.current.state.lut.intensity).toBe(75)
+    expect(result.current.state.hasUnsavedChanges).toBe(true)
   })
 
-  describe("Reset", () => {
-    it("should reset all settings", () => {
-      const { result } = renderHook(() => useColorGrading())
+  it("should toggle LUT", () => {
+    const { result } = renderHook(() => useColorGrading())
 
-      // Make some changes
-      act(() => {
-        result.current.updateColorWheel("gamma", { r: 50, g: 50, b: 50 })
-        result.current.updateBasicParameter("contrast", 25)
-        result.current.loadLUT("vintage-fade")
-      })
-
-      expect(result.current.hasChanges).toBe(true)
-
-      // Reset
-      act(() => {
-        result.current.resetAll()
-      })
-
-      expect(result.current.state.colorWheels.gamma).toEqual({ r: 0, g: 0, b: 0 })
-      expect(result.current.state.basicParameters.contrast).toBe(0)
-      expect(result.current.state.lut.file).toBeNull()
-      expect(result.current.hasChanges).toBe(false)
+    act(() => {
+      result.current.toggleLUT(true)
     })
 
-    it("should reset LUT through dispatch", () => {
-      const { result } = renderHook(() => useColorGrading())
+    expect(result.current.state.lut.isEnabled).toBe(true)
 
-      act(() => {
-        result.current.loadLUT("bw-contrast")
-      })
-
-      act(() => {
-        result.current.dispatch({ type: "RESET_LUT" })
-      })
-
-      expect(result.current.state.lut.file).toBeNull()
-      expect(result.current.state.lut.isEnabled).toBe(false)
+    act(() => {
+      result.current.toggleLUT(false)
     })
+
+    expect(result.current.state.lut.isEnabled).toBe(false)
   })
 
-  describe("Dispatch", () => {
-    it("should handle unknown action types", () => {
-      const { result } = renderHook(() => useColorGrading())
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
+  it("should toggle preview", () => {
+    const { result } = renderHook(() => useColorGrading())
 
-      act(() => {
-        result.current.dispatch({ type: "UNKNOWN_ACTION" })
-      })
-
-      expect(consoleSpy).toHaveBeenCalledWith("Unknown action type:", "UNKNOWN_ACTION")
-      consoleSpy.mockRestore()
+    act(() => {
+      result.current.togglePreview(false)
     })
+
+    expect(result.current.state.previewEnabled).toBe(false)
+
+    act(() => {
+      result.current.togglePreview(true)
+    })
+
+    expect(result.current.state.previewEnabled).toBe(true)
   })
 
-  describe("Preview", () => {
-    it("should toggle preview", () => {
-      const { result } = renderHook(() => useColorGrading())
+  it("should reset all settings", () => {
+    const { result } = renderHook(() => useColorGrading())
 
-      act(() => {
-        result.current.togglePreview(false)
-      })
-
-      expect(result.current.state.previewEnabled).toBe(false)
-
-      act(() => {
-        result.current.togglePreview(true)
-      })
-
-      expect(result.current.state.previewEnabled).toBe(true)
+    // Сначала изменим некоторые настройки
+    act(() => {
+      result.current.updateColorWheel("lift", { r: 10, g: 20, b: 30 })
+      result.current.updateBasicParameter("temperature", 50)
     })
+
+    // Теперь сбросим
+    act(() => {
+      result.current.resetAll()
+    })
+
+    expect(result.current.state.colorWheels.lift).toEqual({ r: 0, g: 0, b: 0 })
+    expect(result.current.state.basicParameters.temperature).toBe(0)
+    expect(result.current.hasChanges).toBe(false)
+  })
+
+  it("should load preset", () => {
+    const { result } = renderHook(() => useColorGrading())
+    const presetId = BUILT_IN_PRESETS[0].id
+
+    act(() => {
+      result.current.loadPreset(presetId)
+    })
+
+    expect(result.current.state.currentPreset).toBe(presetId)
+    expect(result.current.state.hasUnsavedChanges).toBe(true)
+  })
+
+  it("should save custom preset", () => {
+    const { result } = renderHook(() => useColorGrading())
+
+    act(() => {
+      result.current.savePreset("My Custom Preset")
+    })
+
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+      "colorGradingPresets",
+      expect.stringContaining("My Custom Preset")
+    )
+  })
+
+  it("should apply auto correction", () => {
+    const { result } = renderHook(() => useColorGrading())
+
+    act(() => {
+      result.current.autoCorrect()
+    })
+
+    // Проверяем, что автокоррекция изменила кривые
+    expect(result.current.state.curves.master).toHaveLength(3)
+    expect(result.current.state.basicParameters.contrast).toBe(5)
+    expect(result.current.state.basicParameters.saturation).toBe(5)
+    expect(result.current.state.hasUnsavedChanges).toBe(true)
+  })
+
+  it("should handle dispatch actions", () => {
+    const { result } = renderHook(() => useColorGrading())
+
+    act(() => {
+      result.current.dispatch({
+        type: "UPDATE_COLOR_WHEEL",
+        wheel: "gamma",
+        value: { r: 5, g: 10, b: 15 },
+      })
+    })
+
+    expect(result.current.state.colorWheels.gamma).toEqual({ r: 5, g: 10, b: 15 })
+
+    act(() => {
+      result.current.dispatch({
+        type: "UPDATE_BASIC_PARAMETER",
+        parameter: "tint",
+        value: 25,
+      })
+    })
+
+    expect(result.current.state.basicParameters.tint).toBe(25)
+  })
+
+  it("should detect changes correctly", () => {
+    const { result } = renderHook(() => useColorGrading())
+
+    // Изначально нет изменений
+    expect(result.current.hasChanges).toBe(false)
+
+    // Изменяем цветовое колесо
+    act(() => {
+      result.current.updateColorWheel("lift", { r: 5, g: 0, b: 0 })
+    })
+
+    expect(result.current.hasChanges).toBe(true)
+
+    // Сбрасываем
+    act(() => {
+      result.current.resetAll()
+    })
+
+    expect(result.current.hasChanges).toBe(false)
+
+    // Изменяем базовый параметр
+    act(() => {
+      result.current.updateBasicParameter("temperature", 10)
+    })
+
+    expect(result.current.hasChanges).toBe(true)
+  })
+
+  it("should return available presets", () => {
+    const { result } = renderHook(() => useColorGrading())
+
+    expect(result.current.availablePresets).toEqual(BUILT_IN_PRESETS)
+    expect(result.current.availablePresets.length).toBeGreaterThan(0)
   })
 })

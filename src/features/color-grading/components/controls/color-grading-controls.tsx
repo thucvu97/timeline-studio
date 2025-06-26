@@ -61,7 +61,7 @@ export function ColorGradingControls() {
 
   return (
     <>
-      <div className="flex justify-between items-center p-4" data-testid="color-grading-controls">
+      <div className="flex justify-between items-center p-1" data-testid="color-grading-controls">
         {/* Левые кнопки - управление пресетами */}
         <div className="flex gap-2">
           <Button
