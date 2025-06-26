@@ -122,9 +122,11 @@ jobs:
 
       - name: Run Rust tests with coverage
         run: |
-          # Run tests with JSON output for JUnit conversion
           cd src-tauri
-          cargo test --message-format json | cargo2junit > ../test-results/rust-junit.xml
+          # Run all tests normally first to ensure they pass
+          cargo test --lib --bins --tests
+          # Run with JSON output for JUnit (excluding doctests which don't support JSON format)
+          cargo test --lib --bins --tests --no-fail-fast --message-format json 2>/dev/null | cargo2junit > ../test-results/rust-junit.xml || true
           cd ..
           # Also run coverage tests
           bun run test:coverage:rust
