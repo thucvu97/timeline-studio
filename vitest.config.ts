@@ -57,6 +57,10 @@ export default defineConfig({
         "**/mocks/**",
         "src/components/ui/**", // Исключаем UI компоненты из проверки покрытия
         "src/features/media-studio/services/tauri-mock-provider.tsx", // Mock provider for non-Tauri environments
+        "src/features/color-grading/components/scopes/histogram-scope.tsx", // Низкоуровневый компонент анализа данных
+        "src/features/color-grading/components/scopes/vectorscope-scope.tsx", // Низкоуровневый компонент анализа данных
+        "src/features/color-grading/components/scopes/waveform-scope.tsx", // Низкоуровневый компонент анализа данных
+        "src/features/color-grading/components/scopes/scope-viewer.tsx", // Координатор отображения скопов
       ],
       include: ["src/**/*.{ts,tsx}"],
       reportsDirectory: "./coverage",
