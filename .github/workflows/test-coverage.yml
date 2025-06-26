@@ -128,7 +128,7 @@ jobs:
         run: |
           # Run tests with JSON output for JUnit conversion
           cd src-tauri
-          cargo test -- -Z unstable-options --format json --report-time | cargo2junit > ../test-results/rust-junit.xml
+          cargo test --message-format json | cargo2junit > ../test-results/rust-junit.xml
           cd ..
           # Also run coverage tests
           npm run test:coverage:rust
