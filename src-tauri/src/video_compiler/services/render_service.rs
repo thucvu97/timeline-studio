@@ -344,6 +344,9 @@ impl RenderService for RenderServiceImpl {
 }
 
 #[cfg(test)]
+mod render_service_tests;
+
+#[cfg(test)]
 mod tests {
   use super::*;
   use crate::video_compiler::services::{CacheServiceImpl, FfmpegServiceImpl};
