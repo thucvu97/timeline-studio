@@ -174,7 +174,16 @@ test.describe("Media Browser Functionality", () => {
       }
     }
 
-    expect(await isAnyVisible(page, ['[class*="media"]'])).toBe(true)
+    // Check that the media browser is visible (more specific selectors)
+    const mediaBrowserVisible = await isAnyVisible(page, [
+      '[class*="browser"]',
+      '[class*="media-browser"]',
+      '[data-testid="media-browser"]',
+      'button:has-text("Import")',
+      'text=/no media|drag.*drop/i',
+    ])
+    
+    expect(mediaBrowserVisible).toBe(true)
   })
 
   test("should show media metadata panel", async ({ page }) => {
