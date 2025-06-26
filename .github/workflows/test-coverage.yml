@@ -16,23 +16,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: '20.10.0'
-          cache: 'npm'
+          bun-version: latest
 
       - name: Install dependencies
-        run: |
-          npm config set fetch-timeout 300000
-          npm config set fetch-retries 5
-          npm ci --prefer-offline --no-audit --no-fund
+        run: bun install
 
       - name: Create test results directory
         run: mkdir -p test-results
 
       - name: Run tests with coverage
-        run: npm run test:coverage
+        run: bun run test:coverage
         env:
           CI: true
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -51,7 +47,7 @@ jobs:
 
       - name: Upload coverage to Codecov (with plugin)
         if: always()
-        run: npm run test:coverage
+        run: bun run test:coverage
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
@@ -131,7 +127,7 @@ jobs:
           cargo test --message-format json | cargo2junit > ../test-results/rust-junit.xml
           cd ..
           # Also run coverage tests
-          npm run test:coverage:rust
+          bun run test:coverage:rust
         env:
           RUSTFLAGS: -Cinstrument-coverage
           LLVM_PROFILE_FILE: timeline-studio-%p-%m.profraw
