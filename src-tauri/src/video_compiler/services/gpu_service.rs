@@ -227,19 +227,65 @@ impl GpuService for GpuServiceImpl {
         .iter()
         .any(|e| !matches!(e, GpuEncoder::Software));
 
-    // Определяем рекомендуемый кодировщик
-    let recommended_encoder = if available_encoders.contains(&GpuEncoder::Nvenc) {
-      Some(GpuEncoder::Nvenc)
-    } else if available_encoders.contains(&GpuEncoder::QuickSync) {
-      Some(GpuEncoder::QuickSync)
-    } else if available_encoders.contains(&GpuEncoder::VideoToolbox) {
-      Some(GpuEncoder::VideoToolbox)
-    } else if available_encoders.contains(&GpuEncoder::Amf) {
-      Some(GpuEncoder::Amf)
-    } else if available_encoders.contains(&GpuEncoder::Vaapi) {
-      Some(GpuEncoder::Vaapi)
-    } else {
-      None
+    // Определяем рекомендуемый кодировщик с учётом платформы
+    let recommended_encoder = {
+      #[cfg(target_os = "macos")]
+      {
+        // На macOS VideoToolbox в приоритете
+        if available_encoders.contains(&GpuEncoder::VideoToolbox) {
+          Some(GpuEncoder::VideoToolbox)
+        } else if available_encoders.contains(&GpuEncoder::Nvenc) {
+          Some(GpuEncoder::Nvenc)
+        } else {
+          None
+        }
+      }
+
+      #[cfg(target_os = "windows")]
+      {
+        // На Windows приоритет: NVENC > QuickSync > AMF
+        if available_encoders.contains(&GpuEncoder::Nvenc) {
+          Some(GpuEncoder::Nvenc)
+        } else if available_encoders.contains(&GpuEncoder::QuickSync) {
+          Some(GpuEncoder::QuickSync)
+        } else if available_encoders.contains(&GpuEncoder::Amf) {
+          Some(GpuEncoder::Amf)
+        } else {
+          None
+        }
+      }
+
+      #[cfg(target_os = "linux")]
+      {
+        // На Linux приоритет: NVENC > VAAPI > QuickSync
+        if available_encoders.contains(&GpuEncoder::Nvenc) {
+          Some(GpuEncoder::Nvenc)
+        } else if available_encoders.contains(&GpuEncoder::Vaapi) {
+          Some(GpuEncoder::Vaapi)
+        } else if available_encoders.contains(&GpuEncoder::QuickSync) {
+          Some(GpuEncoder::QuickSync)
+        } else {
+          None
+        }
+      }
+
+      #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
+      {
+        // Для других платформ - общий приоритет
+        if available_encoders.contains(&GpuEncoder::Nvenc) {
+          Some(GpuEncoder::Nvenc)
+        } else if available_encoders.contains(&GpuEncoder::QuickSync) {
+          Some(GpuEncoder::QuickSync)
+        } else if available_encoders.contains(&GpuEncoder::VideoToolbox) {
+          Some(GpuEncoder::VideoToolbox)
+        } else if available_encoders.contains(&GpuEncoder::Amf) {
+          Some(GpuEncoder::Amf)
+        } else if available_encoders.contains(&GpuEncoder::Vaapi) {
+          Some(GpuEncoder::Vaapi)
+        } else {
+          None
+        }
+      }
     };
 
     let capabilities = GpuCapabilities {

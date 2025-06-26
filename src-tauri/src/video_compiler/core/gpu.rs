@@ -103,6 +103,8 @@ impl GpuDetector {
   pub async fn detect_available_encoders(&self) -> Result<Vec<GpuEncoder>> {
     let mut available = Vec::new();
 
+    log::info!("Detecting available GPU encoders...");
+
     // Проверяем каждый тип кодировщика
     let encoders_to_check = [
       (GpuEncoder::Nvenc, "h264_nvenc"),
@@ -118,15 +120,23 @@ impl GpuDetector {
 
     for (encoder_type, codec_name) in encoders_to_check {
       if self.check_encoder_available(codec_name).await? {
+        log::info!(
+          "Found available encoder: {:?} ({})",
+          encoder_type,
+          codec_name
+        );
         available.push(encoder_type);
       }
     }
 
+    log::info!("Total available encoders: {:?}", available);
     Ok(available)
   }
 
   /// Проверить доступность конкретного кодировщика
   async fn check_encoder_available(&self, codec: &str) -> Result<bool> {
+    log::debug!("Checking encoder availability for: {}", codec);
+
     let output = tokio::process::Command::new(&self.ffmpeg_path)
       .args(["-encoders"])
       .output()
@@ -135,8 +145,22 @@ impl GpuDetector {
 
     if output.status.success() {
       let stdout = String::from_utf8_lossy(&output.stdout);
-      Ok(stdout.contains(codec))
+      let available = stdout.contains(codec);
+      log::debug!(
+        "Encoder {} is {}",
+        codec,
+        if available {
+          "available"
+        } else {
+          "not available"
+        }
+      );
+      Ok(available)
     } else {
+      log::error!(
+        "Failed to check encoders: {}",
+        String::from_utf8_lossy(&output.stderr)
+      );
       Ok(false)
     }
   }
@@ -148,6 +172,8 @@ impl GpuDetector {
     if available.is_empty() {
       return Ok(None);
     }
+
+    log::info!("Available encoders: {:?}", available);
 
     // Приоритет кодировщиков по платформам
     #[cfg(target_os = "windows")]
@@ -165,12 +191,21 @@ impl GpuDetector {
     // Находим первый доступный из приоритетного списка
     for preferred in &priority {
       if available.contains(preferred) {
+        log::info!("Recommended encoder: {:?}", preferred);
         return Ok(Some(preferred.clone()));
       }
     }
 
-    // Если ни один приоритетный не найден, берем первый доступный
-    Ok(available.first().cloned())
+    // Если ни один приоритетный не найден, берем первый доступный hardware encoder
+    let hardware_encoder = available.iter().find(|e| e.is_hardware()).cloned();
+
+    if let Some(encoder) = hardware_encoder {
+      log::info!("Using first available hardware encoder: {:?}", encoder);
+      Ok(Some(encoder))
+    } else {
+      log::info!("No hardware encoders available");
+      Ok(None)
+    }
   }
 
   /// Обнаружить доступные GPU

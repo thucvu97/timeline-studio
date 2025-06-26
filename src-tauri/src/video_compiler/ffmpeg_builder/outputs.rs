@@ -80,23 +80,59 @@ impl<'a> OutputBuilder<'a> {
 
   /// Добавить аппаратное ускорение
   async fn add_hardware_acceleration(&self, cmd: &mut Command) -> Result<()> {
-    use crate::video_compiler::core::gpu::{GpuEncoder, GpuHelper};
+    use crate::video_compiler::core::gpu::{GpuDetector, GpuEncoder, GpuHelper};
 
+    // Если указан конкретный тип, пытаемся использовать его
     let hw_type = self
       .settings
       .hardware_acceleration_type
       .as_deref()
       .unwrap_or("auto");
 
-    let encoder = match hw_type {
-      "nvidia" | "nvenc" => GpuEncoder::Nvenc,
-      "amd" | "amf" => GpuEncoder::Amf,
-      "intel" | "qsv" => GpuEncoder::QuickSync,
-      "apple" | "videotoolbox" => GpuEncoder::VideoToolbox,
-      "vaapi" => GpuEncoder::Vaapi,
-      _ => GpuEncoder::Software,
+    let encoder = if hw_type == "auto" {
+      // Автоматически определяем лучший доступный кодировщик
+      let detector = GpuDetector::new(self.settings.ffmpeg_path.clone());
+      match detector.get_recommended_encoder().await? {
+        Some(recommended) => {
+          log::info!("Using recommended encoder: {:?}", recommended);
+          recommended
+        }
+        None => {
+          log::warn!("No hardware encoders available, falling back to software");
+          GpuEncoder::Software
+        }
+      }
+    } else {
+      // Используем указанный тип
+      match hw_type {
+        "nvidia" | "nvenc" => GpuEncoder::Nvenc,
+        "amd" | "amf" => GpuEncoder::Amf,
+        "intel" | "qsv" => GpuEncoder::QuickSync,
+        "apple" | "videotoolbox" => GpuEncoder::VideoToolbox,
+        "vaapi" => GpuEncoder::Vaapi,
+        _ => GpuEncoder::Software,
+      }
     };
 
+    // Добавляем кодек в зависимости от формата и кодировщика
+    match self.project.settings.output.format {
+      OutputFormat::Mp4 | OutputFormat::Mov => {
+        cmd.args(["-c:v", encoder.h264_codec_name()]);
+      }
+      OutputFormat::WebM => {
+        // WebM не поддерживает hardware encoders, используем VP9
+        cmd.args(["-c:v", "libvpx-vp9"]);
+      }
+      OutputFormat::Mkv => {
+        // Для MKV можем использовать HEVC если поддерживается
+        cmd.args(["-c:v", encoder.hevc_codec_name()]);
+      }
+      _ => {
+        cmd.args(["-c:v", encoder.h264_codec_name()]);
+      }
+    }
+
+    // Добавляем параметры качества для выбранного кодировщика
     let quality = self.project.settings.export.quality;
     let params = GpuHelper::get_ffmpeg_params(&encoder, quality);
 
@@ -104,9 +140,10 @@ impl<'a> OutputBuilder<'a> {
       cmd.arg(param);
     }
 
-    if encoder == GpuEncoder::Software {
-      // Fallback к CPU кодированию
-      self.add_cpu_encoding(cmd)?;
+    // Если это software encoder, дополнительные настройки не нужны
+    if encoder == GpuEncoder::Software || encoder == GpuEncoder::None {
+      // Параметры уже добавлены через GpuHelper
+      log::info!("Using software encoding with optimized settings");
     }
 
     Ok(())

@@ -62,9 +62,12 @@ impl VideoCompilerState {
     let settings = Arc::new(RwLock::new(CompilerSettings::default()));
     let cache_manager = Arc::new(RwLock::new(RenderCache::new()));
 
+    // Определяем путь к ffmpeg
+    let ffmpeg_path = "ffmpeg".to_string(); // Будет обновлен позже через initialize()
+
     // Создаем контейнер сервисов
     let services = match ServiceContainer::new(
-      "ffmpeg".to_string(),
+      ffmpeg_path.clone(),
       std::env::temp_dir().join("timeline-studio"),
       2,
     )
@@ -82,23 +85,23 @@ impl VideoCompilerState {
           services: Arc::new(ServiceContainer {
             render: Arc::new(crate::video_compiler::services::RenderServiceImpl::new(
               Arc::new(crate::video_compiler::services::FfmpegServiceImpl::new(
-                "ffmpeg".to_string(),
+                ffmpeg_path.clone(),
               )),
               2,
               cache.clone(),
             )),
             cache: cache.clone(),
             gpu: Arc::new(crate::video_compiler::services::GpuServiceImpl::new(
-              "ffmpeg".to_string(),
+              ffmpeg_path.clone(),
             )),
             preview: Arc::new(crate::video_compiler::services::PreviewServiceImpl::new(
               Arc::new(crate::video_compiler::services::FfmpegServiceImpl::new(
-                "ffmpeg".to_string(),
+                ffmpeg_path.clone(),
               )),
             )),
             project: Arc::new(crate::video_compiler::services::ProjectServiceImpl::new()),
             ffmpeg: Arc::new(crate::video_compiler::services::FfmpegServiceImpl::new(
-              "ffmpeg".to_string(),
+              ffmpeg_path.clone(),
             )),
             metrics: crate::video_compiler::services::ServiceMetricsContainer {
               render: Arc::new(crate::video_compiler::services::ServiceMetrics::new(
@@ -124,7 +127,7 @@ impl VideoCompilerState {
           active_jobs: Arc::new(RwLock::new(HashMap::new())),
           active_pipelines: Arc::new(RwLock::new(HashMap::new())),
           cache_manager,
-          ffmpeg_path: Arc::new(RwLock::new("ffmpeg".to_string())),
+          ffmpeg_path: Arc::new(RwLock::new(ffmpeg_path)),
           settings,
         };
       }
@@ -142,9 +145,21 @@ impl VideoCompilerState {
       active_jobs: Arc::new(RwLock::new(HashMap::new())),
       active_pipelines: Arc::new(RwLock::new(HashMap::new())),
       cache_manager,
-      ffmpeg_path: Arc::new(RwLock::new("ffmpeg".to_string())),
+      ffmpeg_path: Arc::new(RwLock::new(ffmpeg_path)),
       settings,
     }
+  }
+
+  /// Обновить путь к FFmpeg во всех сервисах
+  pub async fn update_ffmpeg_path(&self, new_path: String) {
+    // Обновляем общий путь
+    {
+      let mut path = self.ffmpeg_path.write().await;
+      *path = new_path.clone();
+    }
+
+    // Обновляем путь в сервисах
+    self.services.update_ffmpeg_path(new_path);
   }
 }
 

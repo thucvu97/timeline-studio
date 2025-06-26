@@ -132,6 +132,16 @@ async fn test_plugin_system(
 
 // This is where you export your tauri app
 pub fn run() {
+  // Initialize logging using tracing which is already in dependencies
+  tracing_subscriber::fmt()
+    .with_env_filter(
+      tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"))
+    )
+    .init();
+
+  log::info!("Starting Timeline Studio backend...");
+
   // Ensure app directories exist on startup
   tauri::async_runtime::block_on(async {
     if let Err(e) = app_dirs::create_app_directories().await {

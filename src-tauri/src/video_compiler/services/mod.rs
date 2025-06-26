@@ -173,6 +173,14 @@ impl ServiceContainer {
   pub fn get_ffmpeg_service(&self) -> Option<Arc<dyn FfmpegService>> {
     Some(self.ffmpeg.clone())
   }
+
+  /// Обновить путь к FFmpeg во всех сервисах
+  pub fn update_ffmpeg_path(&self, _new_path: String) {
+    // В текущей архитектуре сервисы создаются один раз при инициализации
+    // и не поддерживают динамическое обновление пути к FFmpeg.
+    // Эта функция оставлена для совместимости.
+    log::warn!("update_ffmpeg_path вызван, но динамическое обновление пути к FFmpeg не поддерживается текущей архитектурой");
+  }
 }
 
 #[cfg(test)]

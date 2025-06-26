@@ -28,6 +28,12 @@ pub use core::progress::RenderProgress;
 pub use core::{cache, error, frame_extraction, gpu, pipeline, preview, progress, renderer};
 
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+use crate::video_compiler::cache::RenderCache;
+use crate::video_compiler::services::ServiceContainer;
 
 /// Настройки компилятора видео
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -155,29 +161,54 @@ pub async fn initialize() -> Result<VideoCompilerState> {
 
   // Проверяем зависимости и получаем путь к FFmpeg
   let ffmpeg_path = check_dependencies().await?;
+  log::info!("FFmpeg найден по пути: {}", ffmpeg_path);
 
-  // Создаем состояние с найденным путем FFmpeg
-  let state = VideoCompilerState::new().await;
-  {
-    let mut ffmpeg_path_state = state.ffmpeg_path.write().await;
-    *ffmpeg_path_state = ffmpeg_path;
+  // Создаем временную директорию если не существует
+  let temp_dir = std::env::temp_dir().join("timeline-studio");
+  if !temp_dir.exists() {
+    tokio::fs::create_dir_all(&temp_dir)
+      .await
+      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
   }
 
-  // Обновляем настройки
+  // Создаем контейнер сервисов с правильным путем к FFmpeg
+  let services = match ServiceContainer::new(
+    ffmpeg_path.clone(),
+    temp_dir.clone(),
+    2, // max_concurrent_jobs
+  )
+  .await
   {
-    let settings = state.settings.write().await;
-
-    // Создаем временную директорию если не существует
-    if !settings.temp_directory.exists() {
-      tokio::fs::create_dir_all(&settings.temp_directory.clone())
-        .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+    Ok(container) => container,
+    Err(e) => {
+      log::error!("Ошибка создания контейнера сервисов: {:?}", e);
+      return Err(e);
     }
+  };
+
+  // Инициализируем сервисы
+  if let Err(e) = services.initialize_all().await {
+    log::error!("Ошибка инициализации сервисов: {:?}", e);
   }
+
+  let services = Arc::new(services);
+
+  // Создаем состояние
+  let state = VideoCompilerState {
+    services,
+    active_jobs: Arc::new(RwLock::new(HashMap::new())),
+    active_pipelines: Arc::new(RwLock::new(HashMap::new())),
+    cache_manager: Arc::new(RwLock::new(RenderCache::new())),
+    ffmpeg_path: Arc::new(RwLock::new(ffmpeg_path.clone())),
+    settings: Arc::new(RwLock::new(CompilerSettings {
+      temp_directory: temp_dir,
+      ..CompilerSettings::default()
+    })),
+  };
 
   log::info!(
     "Video Compiler модуль успешно инициализирован с FFmpeg: {}",
-    &state.ffmpeg_path.read().await
+    ffmpeg_path
   );
   Ok(state)
 }
