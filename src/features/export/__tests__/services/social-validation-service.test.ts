@@ -263,7 +263,9 @@ describe("SocialValidationService", () => {
 
       const result = SocialValidationService.validateExportSettings("tiktok", settings)
 
-      expect(result.suggestions).toContain("Consider adding hashtags to your title for better discoverability on TikTok")
+      expect(result.suggestions).toContain(
+        "Consider adding hashtags to your title for better discoverability on TikTok",
+      )
     })
 
     it("should validate privacy settings", () => {

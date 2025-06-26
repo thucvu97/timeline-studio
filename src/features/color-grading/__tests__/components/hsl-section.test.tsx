@@ -49,19 +49,19 @@ describe("HSLSection", () => {
 
   it("should render HSL section", () => {
     render(<HSLSection />)
-    
+
     expect(screen.getByTestId("hsl-section")).toBeInTheDocument()
   })
 
   it("should render description text", () => {
     render(<HSLSection />)
-    
+
     expect(screen.getByText("Advanced HSL adjustments and secondary color correction")).toBeInTheDocument()
   })
 
   it("should render all parameter sliders", () => {
     render(<HSLSection />)
-    
+
     expect(screen.getByTestId("parameter-slider-Hue")).toBeInTheDocument()
     expect(screen.getByTestId("parameter-slider-Saturation")).toBeInTheDocument()
     expect(screen.getByTestId("parameter-slider-Luminance")).toBeInTheDocument()
@@ -71,93 +71,93 @@ describe("HSLSection", () => {
 
   it("should format hue value with degree symbol", () => {
     render(<HSLSection />)
-    
+
     expect(screen.getByTestId("value-Hue")).toHaveTextContent("0°")
   })
 
   it("should format saturation value with plus sign for positive", () => {
     mockContextValue.state.basicParameters.saturation = 25
     render(<HSLSection />)
-    
+
     expect(screen.getByTestId("value-Saturation")).toHaveTextContent("+25")
   })
 
   it("should format luminance value with plus sign for positive", () => {
     mockContextValue.state.basicParameters.luminance = 50
     render(<HSLSection />)
-    
+
     expect(screen.getByTestId("value-Luminance")).toHaveTextContent("+50")
   })
 
   it("should format pivot value with two decimal places", () => {
     mockContextValue.state.basicParameters.pivot = 0.75
     render(<HSLSection />)
-    
+
     expect(screen.getByTestId("value-Contrast Pivot")).toHaveTextContent("0.75")
   })
 
   it("should update hue parameter", async () => {
     const user = userEvent.setup()
     render(<HSLSection />)
-    
+
     await user.click(screen.getByText("Change Hue"))
-    
+
     expect(mockContextValue.updateBasicParameter).toHaveBeenCalledWith("hue", 50)
   })
 
   it("should update saturation parameter", async () => {
     const user = userEvent.setup()
     render(<HSLSection />)
-    
+
     await user.click(screen.getByText("Change Saturation"))
-    
+
     expect(mockContextValue.updateBasicParameter).toHaveBeenCalledWith("saturation", 50)
   })
 
   it("should update luminance parameter", async () => {
     const user = userEvent.setup()
     render(<HSLSection />)
-    
+
     await user.click(screen.getByText("Change Luminance"))
-    
+
     expect(mockContextValue.updateBasicParameter).toHaveBeenCalledWith("luminance", 50)
   })
 
   it("should update pivot parameter", async () => {
     const user = userEvent.setup()
     render(<HSLSection />)
-    
+
     await user.click(screen.getByText("Change Contrast Pivot"))
-    
+
     expect(mockContextValue.updateBasicParameter).toHaveBeenCalledWith("pivot", 50)
   })
 
   it("should update vibrance (saturation) parameter", async () => {
     const user = userEvent.setup()
     render(<HSLSection />)
-    
+
     await user.click(screen.getByText("Change Vibrance"))
-    
+
     expect(mockContextValue.updateBasicParameter).toHaveBeenCalledWith("saturation", 50)
   })
 
   it("should render advanced section", () => {
     render(<HSLSection />)
-    
+
     expect(screen.getByText("Advanced")).toBeInTheDocument()
   })
 
   it("should apply gradient classes to sliders", () => {
     render(<HSLSection />)
-    
+
     const hueSlider = screen.getByTestId("parameter-slider-Hue")
     expect(hueSlider).toHaveClass("[&_input]:bg-gradient-to-r")
     expect(hueSlider).toHaveClass("[&_input]:from-red-500")
-    
+
     const saturationSlider = screen.getByTestId("parameter-slider-Saturation")
     expect(saturationSlider).toHaveClass("[&_input]:from-gray-500")
     expect(saturationSlider).toHaveClass("[&_input]:to-purple-500")
-    
+
     const luminanceSlider = screen.getByTestId("parameter-slider-Luminance")
     expect(luminanceSlider).toHaveClass("[&_input]:from-black")
     expect(luminanceSlider).toHaveClass("[&_input]:to-white")
@@ -165,7 +165,7 @@ describe("HSLSection", () => {
 
   it("should have correct slider ranges", () => {
     const { container } = render(<HSLSection />)
-    
+
     // We can't directly test the props passed to ParameterSlider
     // but we can verify the sliders are rendered with correct labels
     expect(screen.getByText("Hue")).toBeInTheDocument()
@@ -177,7 +177,7 @@ describe("HSLSection", () => {
 
   it("should render border separator before advanced section", () => {
     const { container } = render(<HSLSection />)
-    
+
     const borderDiv = container.querySelector(".border-t.border-gray-600")
     expect(borderDiv).toBeInTheDocument()
   })
@@ -193,9 +193,9 @@ describe("HSLSection", () => {
       tint: 0,
       contrast: 0,
     }
-    
+
     render(<HSLSection />)
-    
+
     expect(screen.getByTestId("value-Hue")).toHaveTextContent("45°")
     expect(screen.getByTestId("value-Saturation")).toHaveTextContent("-20")
     expect(screen.getByTestId("value-Luminance")).toHaveTextContent("+30")

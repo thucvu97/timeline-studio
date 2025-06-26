@@ -24,11 +24,7 @@ vi.mock("react-i18next", () => ({
 // Мокаем UI компоненты
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, variant, ...props }: any) => (
-    <button 
-      onClick={onClick} 
-      data-variant={variant}
-      {...props}
-    >
+    <button onClick={onClick} data-variant={variant} {...props}>
       {children}
     </button>
   ),
@@ -36,26 +32,23 @@ vi.mock("@/components/ui/button", () => ({
 
 vi.mock("@/components/ui/label", () => ({
   Label: ({ children, htmlFor, ...props }: any) => (
-    <label htmlFor={htmlFor} {...props}>{children}</label>
+    <label htmlFor={htmlFor} {...props}>
+      {children}
+    </label>
   ),
 }))
 
 vi.mock("@/components/ui/select", () => ({
   Select: ({ children, value, onValueChange }: any) => (
     <div data-testid="select" data-value={value}>
-      {React.Children.map(children, child =>
-        React.cloneElement(child, { onValueChange })
-      )}
+      {React.Children.map(children, (child) => React.cloneElement(child, { onValueChange }))}
     </div>
   ),
   SelectTrigger: ({ children }: any) => <div data-testid="select-trigger">{children}</div>,
   SelectValue: () => <span>SelectValue</span>,
   SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
   SelectItem: ({ children, value, onClick }: any) => (
-    <div 
-      data-testid={`select-item-${value}`} 
-      onClick={() => onClick?.({ target: { value } })}
-    >
+    <div data-testid={`select-item-${value}`} onClick={() => onClick?.({ target: { value } })}>
       {children}
     </div>
   ),
@@ -63,11 +56,7 @@ vi.mock("@/components/ui/select", () => ({
 
 vi.mock("@/components/ui/switch", () => ({
   Switch: ({ checked, onCheckedChange }: any) => (
-    <button
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onCheckedChange(!checked)}
-    >
+    <button role="switch" aria-checked={checked} onClick={() => onCheckedChange(!checked)}>
       Switch
     </button>
   ),
@@ -76,12 +65,7 @@ vi.mock("@/components/ui/switch", () => ({
 // Мокаем ScopeViewer
 vi.mock("../../components/scopes/scope-viewer", () => ({
   ScopeViewer: ({ type, refreshRate, isFullscreen, onClose }: any) => (
-    <div 
-      data-testid="scope-viewer" 
-      data-type={type}
-      data-refresh-rate={refreshRate}
-      data-fullscreen={isFullscreen}
-    >
+    <div data-testid="scope-viewer" data-type={type} data-refresh-rate={refreshRate} data-fullscreen={isFullscreen}>
       <span>Scope Viewer - {type}</span>
       {onClose && <button onClick={onClose}>Close</button>}
     </div>
@@ -120,19 +104,19 @@ describe("ScopesSection", () => {
 
   it("should render scopes section", () => {
     render(<ScopesSection />)
-    
+
     expect(screen.getByTestId("scopes-section")).toBeInTheDocument()
   })
 
   it("should render description text", () => {
     render(<ScopesSection />)
-    
+
     expect(screen.getByText("Real-time analysis of color and exposure")).toBeInTheDocument()
   })
 
   it("should render all scope toggles", () => {
     render(<ScopesSection />)
-    
+
     expect(screen.getByText("Waveform")).toBeInTheDocument()
     expect(screen.getByText("Vectorscope")).toBeInTheDocument()
     expect(screen.getByText("Histogram")).toBeInTheDocument()
@@ -141,7 +125,7 @@ describe("ScopesSection", () => {
 
   it("should render refresh rate selector", () => {
     render(<ScopesSection />)
-    
+
     expect(screen.getByText("Refresh Rate")).toBeInTheDocument()
     expect(screen.getByTestId("select")).toBeInTheDocument()
     expect(screen.getByTestId("select")).toHaveAttribute("data-value", "30")
@@ -150,10 +134,10 @@ describe("ScopesSection", () => {
   it("should toggle waveform scope", async () => {
     const user = userEvent.setup()
     render(<ScopesSection />)
-    
+
     const switches = screen.getAllByRole("switch")
     await user.click(switches[0]) // First switch is waveform
-    
+
     expect(mockDispatch).toHaveBeenCalledWith({
       type: "TOGGLE_SCOPE",
       scopeType: "waveform",
@@ -164,10 +148,10 @@ describe("ScopesSection", () => {
   it("should toggle vectorscope", async () => {
     const user = userEvent.setup()
     render(<ScopesSection />)
-    
+
     const switches = screen.getAllByRole("switch")
     await user.click(switches[1]) // Second switch is vectorscope
-    
+
     expect(mockDispatch).toHaveBeenCalledWith({
       type: "TOGGLE_SCOPE",
       scopeType: "vectorscope",
@@ -178,10 +162,10 @@ describe("ScopesSection", () => {
   it("should toggle histogram", async () => {
     const user = userEvent.setup()
     render(<ScopesSection />)
-    
+
     const switches = screen.getAllByRole("switch")
     await user.click(switches[2]) // Third switch is histogram
-    
+
     expect(mockDispatch).toHaveBeenCalledWith({
       type: "TOGGLE_SCOPE",
       scopeType: "histogram",
@@ -191,21 +175,21 @@ describe("ScopesSection", () => {
 
   it("should change refresh rate", () => {
     render(<ScopesSection />)
-    
+
     // Mock the select change
     const selectContent = screen.getByTestId("select-content")
     const select15fps = selectContent.querySelector('[data-testid="select-item-15"]')
-    
+
     // Simulate selecting 15 FPS
     fireEvent.click(select15fps!)
-    
+
     // Note: In the real implementation, onValueChange would be called
   })
 
   it("should show scope viewer when scopes are enabled", () => {
     mockState.scopes.waveformEnabled = true
     render(<ScopesSection />)
-    
+
     expect(screen.getByTestId("scope-viewer")).toBeInTheDocument()
     expect(screen.getByTestId("scope-viewer")).toHaveAttribute("data-type", "waveform")
   })
@@ -214,12 +198,11 @@ describe("ScopesSection", () => {
     mockState.scopes.waveformEnabled = true
     mockState.scopes.vectorscopeEnabled = true
     render(<ScopesSection />)
-    
+
     // Should have 2 scope type buttons
     const buttons = screen.getAllByRole("button")
-    const scopeButtons = buttons.filter(btn => 
-      btn.textContent?.includes("Waveform") || 
-      btn.textContent?.includes("Vectorscope")
+    const scopeButtons = buttons.filter(
+      (btn) => btn.textContent?.includes("Waveform") || btn.textContent?.includes("Vectorscope"),
     )
     expect(scopeButtons).toHaveLength(2)
   })
@@ -228,20 +211,22 @@ describe("ScopesSection", () => {
     mockState.scopes.waveformEnabled = true
     mockState.scopes.vectorscopeEnabled = true
     mockState.scopes.histogramEnabled = true
-    
+
     const user = userEvent.setup()
     render(<ScopesSection />)
-    
+
     // Initially shows waveform
     expect(screen.getByTestId("scope-viewer")).toHaveAttribute("data-type", "waveform")
-    
+
     // Find the vectorscope button specifically (not the label)
     const vectorscopeButtons = screen.getAllByText("Vectorscope")
-    const vectorscopeButton = vectorscopeButtons.find(el => el.closest("button")?.getAttribute("data-variant"))?.closest("button")
-    
+    const vectorscopeButton = vectorscopeButtons
+      .find((el) => el.closest("button")?.getAttribute("data-variant"))
+      ?.closest("button")
+
     if (vectorscopeButton) {
       await user.click(vectorscopeButton)
-      
+
       // The test logic would need actual state change in real implementation
       // For now, just verify the button exists and is clickable
       expect(vectorscopeButton).toBeInTheDocument()
@@ -251,7 +236,7 @@ describe("ScopesSection", () => {
   it("should show fullscreen button when scopes are enabled", () => {
     mockState.scopes.waveformEnabled = true
     render(<ScopesSection />)
-    
+
     expect(screen.getByText("Settings")).toBeInTheDocument()
   })
 
@@ -259,14 +244,14 @@ describe("ScopesSection", () => {
     mockState.scopes.waveformEnabled = true
     const user = userEvent.setup()
     const { container } = render(<ScopesSection />)
-    
+
     const settingsButton = screen.getByText("Settings").closest("button")
     await user.click(settingsButton!)
-    
+
     // Check for fullscreen classes
     const fullscreenDiv = container.querySelector(".fixed.inset-0.z-50")
     expect(fullscreenDiv).toBeInTheDocument()
-    
+
     // Check that scope viewer has fullscreen prop
     expect(screen.getByTestId("scope-viewer")).toHaveAttribute("data-fullscreen", "true")
   })
@@ -275,11 +260,11 @@ describe("ScopesSection", () => {
     mockState.scopes.waveformEnabled = true
     const user = userEvent.setup()
     render(<ScopesSection />)
-    
+
     // Enter fullscreen
     const settingsButton = screen.getByText("Settings").closest("button")
     await user.click(settingsButton!)
-    
+
     // Should have close button
     expect(screen.getByText("Close")).toBeInTheDocument()
   })
@@ -288,18 +273,18 @@ describe("ScopesSection", () => {
     mockState.scopes.waveformEnabled = true
     const user = userEvent.setup()
     const { container, rerender } = render(<ScopesSection />)
-    
+
     // Enter fullscreen
     const settingsButton = screen.getByText("Settings").closest("button")
     await user.click(settingsButton!)
-    
+
     // Click close
     const closeButton = screen.getByText("Close")
     await user.click(closeButton)
-    
+
     // Force re-render
     rerender(<ScopesSection />)
-    
+
     // Should exit fullscreen
     const fullscreenDiv = container.querySelector(".fixed.inset-0.z-50")
     expect(fullscreenDiv).not.toBeInTheDocument()
@@ -308,24 +293,26 @@ describe("ScopesSection", () => {
   it("should show hints for different scope types", () => {
     mockState.scopes.waveformEnabled = true
     render(<ScopesSection />)
-    
+
     expect(screen.getByText("Shows luminance distribution across the image")).toBeInTheDocument()
   })
 
   it("should show vectorscope hint when active", async () => {
     mockState.scopes.waveformEnabled = true
     mockState.scopes.vectorscopeEnabled = true
-    
+
     const user = userEvent.setup()
     render(<ScopesSection />)
-    
+
     // Find the vectorscope button specifically (not the label)
     const vectorscopeButtons = screen.getAllByText("Vectorscope")
-    const vectorscopeButton = vectorscopeButtons.find(el => el.closest("button")?.getAttribute("data-variant"))?.closest("button")
-    
+    const vectorscopeButton = vectorscopeButtons
+      .find((el) => el.closest("button")?.getAttribute("data-variant"))
+      ?.closest("button")
+
     if (vectorscopeButton) {
       await user.click(vectorscopeButton)
-      
+
       // After clicking vectorscope, should show vectorscope hint
       const hintText = screen.getByText("Shows color saturation and hue distribution")
       expect(hintText).toBeInTheDocument()
@@ -334,7 +321,7 @@ describe("ScopesSection", () => {
 
   it("should not show scope viewer when all scopes are disabled", () => {
     render(<ScopesSection />)
-    
+
     expect(screen.queryByTestId("scope-viewer")).not.toBeInTheDocument()
   })
 
@@ -342,17 +329,17 @@ describe("ScopesSection", () => {
     mockState.scopes.waveformEnabled = true
     mockState.scopes.vectorscopeEnabled = true
     render(<ScopesSection />)
-    
+
     const waveformButton = screen.getAllByText("Waveform")[1].closest("button") // Second is the type button
     expect(waveformButton).toHaveAttribute("data-variant", "default")
-    
+
     const vectorscopeButton = screen.getAllByText("Vectorscope")[1].closest("button")
     expect(vectorscopeButton).toHaveAttribute("data-variant", "ghost")
   })
 
   it("should render refresh rate options", () => {
     render(<ScopesSection />)
-    
+
     expect(screen.getByTestId("select-item-15")).toHaveTextContent("15 FPS")
     expect(screen.getByTestId("select-item-30")).toHaveTextContent("30 FPS")
     expect(screen.getByTestId("select-item-60")).toHaveTextContent("60 FPS")
@@ -363,21 +350,21 @@ describe("ScopesSection", () => {
     mockState.scopes.vectorscopeEnabled = true
     mockState.scopes.histogramEnabled = true
     render(<ScopesSection />)
-    
+
     // Count scope type buttons (not the toggles)
     const buttons = screen.getAllByRole("button")
-    const scopeTypeButtons = buttons.filter(btn => {
+    const scopeTypeButtons = buttons.filter((btn) => {
       const text = btn.textContent || ""
       return text.includes("Waveform") || text.includes("Vectorscope") || text.includes("Histogram")
     })
-    
+
     // Should have 3 type buttons + 3 toggle switches + 1 settings button
     expect(scopeTypeButtons.length).toBeGreaterThanOrEqual(3)
   })
 
   it("should render icons for each scope type", () => {
     render(<ScopesSection />)
-    
+
     expect(screen.getAllByText("Activity")).toHaveLength(1)
     expect(screen.getAllByText("CircleDot")).toHaveLength(1)
     expect(screen.getAllByText("BarChart3")).toHaveLength(1)

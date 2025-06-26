@@ -11,14 +11,10 @@ import { useFiltersAdapter } from "../../adapters/use-filters-adapter"
 // Мокаем FilterPreview компонент
 vi.mock("@/features/filters/components/filter-preview", () => ({
   FilterPreview: ({ filter, onClick, size, previewWidth, previewHeight }: any) => {
-    const width = previewWidth || (typeof size === 'object' ? size.width : size)
-    const height = previewHeight || (typeof size === 'object' ? size.height : size)
+    const width = previewWidth || (typeof size === "object" ? size.width : size)
+    const height = previewHeight || (typeof size === "object" ? size.height : size)
     return (
-      <div
-        data-testid="filter-preview"
-        onClick={onClick}
-        style={{ width, height }}
-      >
+      <div data-testid="filter-preview" onClick={onClick} style={{ width, height }}>
         {filter.name}
       </div>
     )
@@ -56,7 +52,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const onClick = vi.fn()
 
-      render(<PreviewComponent item={mockFilter} size={{ width: 100, height: 100 }} viewMode="list" onClick={onClick} />)
+      render(
+        <PreviewComponent item={mockFilter} size={{ width: 100, height: 100 }} viewMode="list" onClick={onClick} />,
+      )
 
       // Check name
       expect(screen.getByText("Тестовый")).toBeInTheDocument()
@@ -76,7 +74,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const onClick = vi.fn()
 
-      render(<PreviewComponent item={mockFilter} size={{ width: 100, height: 100 }} viewMode="list" onClick={onClick} />)
+      render(
+        <PreviewComponent item={mockFilter} size={{ width: 100, height: 100 }} viewMode="list" onClick={onClick} />,
+      )
 
       const container = screen.getByText("Тестовый").closest(".flex")!
       container?.click()
@@ -90,7 +90,12 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const onDragStart = vi.fn()
 
       const { container } = render(
-        <PreviewComponent item={mockFilter} size={{ width: 100, height: 100 }} viewMode="list" onDragStart={onDragStart} />,
+        <PreviewComponent
+          item={mockFilter}
+          size={{ width: 100, height: 100 }}
+          viewMode="list"
+          onDragStart={onDragStart}
+        />,
       )
 
       const draggableElement = container.querySelector('[draggable="true"]')
@@ -127,7 +132,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const { result } = renderHook(() => useFiltersAdapter(), { wrapper: BrowserProviders })
       const PreviewComponent = result.current.PreviewComponent
 
-      const { container } = render(<PreviewComponent item={mockFilter} size={{ width: 100, height: 100 }} viewMode="list" />)
+      const { container } = render(
+        <PreviewComponent item={mockFilter} size={{ width: 100, height: 100 }} viewMode="list" />,
+      )
 
       const video = container.querySelector("video")
       expect(video).toHaveAttribute("src", "/t1.mp4")
@@ -149,7 +156,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithNegativeTemp = { ...mockFilter, params: { temperature: -20 } }
 
-      const { container } = render(<PreviewComponent item={filterWithNegativeTemp} size={{ width: 100, height: 100 }} viewMode="list" />)
+      const { container } = render(
+        <PreviewComponent item={filterWithNegativeTemp} size={{ width: 100, height: 100 }} viewMode="list" />,
+      )
 
       const video = container.querySelector("video")
       const filterStyle = video?.style.filter
@@ -161,7 +170,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithZeroBrightness = { ...mockFilter, params: { brightness: -1 } }
 
-      const { container } = render(<PreviewComponent item={filterWithZeroBrightness} size={{ width: 100, height: 100 }} viewMode="list" />)
+      const { container } = render(
+        <PreviewComponent item={filterWithZeroBrightness} size={{ width: 100, height: 100 }} viewMode="list" />,
+      )
 
       const video = container.querySelector("video")
       const filterStyle = video?.style.filter
@@ -175,7 +186,14 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const onClick = vi.fn()
 
-      render(<PreviewComponent item={mockFilter} size={{ width: 150, height: 150 }} viewMode="thumbnails" onClick={onClick} />)
+      render(
+        <PreviewComponent
+          item={mockFilter}
+          size={{ width: 150, height: 150 }}
+          viewMode="thumbnails"
+          onClick={onClick}
+        />,
+      )
 
       const preview = screen.getByTestId("filter-preview")
       expect(preview).toBeInTheDocument()
@@ -208,7 +226,14 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const onClick = vi.fn()
 
-      render(<PreviewComponent item={mockFilter} size={{ width: 150, height: 150 }} viewMode="thumbnails" onClick={onClick} />)
+      render(
+        <PreviewComponent
+          item={mockFilter}
+          size={{ width: 150, height: 150 }}
+          viewMode="thumbnails"
+          onClick={onClick}
+        />,
+      )
 
       const preview = screen.getByTestId("filter-preview")
       preview.click()
@@ -222,7 +247,12 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const onDragStart = vi.fn()
 
       const { container } = render(
-        <PreviewComponent item={mockFilter} size={{ width: 150, height: 150 }} viewMode="thumbnails" onDragStart={onDragStart} />,
+        <PreviewComponent
+          item={mockFilter}
+          size={{ width: 150, height: 150 }}
+          viewMode="thumbnails"
+          onDragStart={onDragStart}
+        />,
       )
 
       const draggableElement = container.querySelector('[draggable="true"]')
@@ -236,7 +266,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithEmptyParams = { ...mockFilter, params: {} }
 
-      const { container } = render(<PreviewComponent item={filterWithEmptyParams} size={{ width: 100, height: 100 }} viewMode="list" />)
+      const { container } = render(
+        <PreviewComponent item={filterWithEmptyParams} size={{ width: 100, height: 100 }} viewMode="list" />,
+      )
 
       const video = container.querySelector("video")
       expect(video?.style.filter).toBe("")
@@ -247,7 +279,9 @@ describe("useFiltersAdapter - PreviewComponent", () => {
       const PreviewComponent = result.current.PreviewComponent
       const filterWithUndefinedParams = { ...mockFilter, params: undefined as any }
 
-      const { container } = render(<PreviewComponent item={filterWithUndefinedParams} size={{ width: 100, height: 100 }} viewMode="list" />)
+      const { container } = render(
+        <PreviewComponent item={filterWithUndefinedParams} size={{ width: 100, height: 100 }} viewMode="list" />,
+      )
 
       const video = container.querySelector("video")
       expect(video?.style.filter).toBe("")

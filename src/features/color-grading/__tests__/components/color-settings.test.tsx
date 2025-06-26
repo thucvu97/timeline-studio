@@ -100,20 +100,20 @@ vi.mock("../../components/controls/color-grading-controls", () => ({
 describe("ColorSettings", () => {
   it("should render color settings panel", () => {
     render(<ColorSettings />)
-    
+
     expect(screen.getByTestId("color-settings")).toBeInTheDocument()
   })
 
   it("should render all collapsible sections", () => {
     render(<ColorSettings />)
-    
+
     // Проверяем наличие всех секций
     expect(screen.getByTestId("color-wheels-trigger")).toBeInTheDocument()
     expect(screen.getByTestId("curves-trigger")).toBeInTheDocument()
     expect(screen.getByTestId("hsl-trigger")).toBeInTheDocument()
     expect(screen.getByTestId("lut-trigger")).toBeInTheDocument()
     expect(screen.getByTestId("scopes-trigger")).toBeInTheDocument()
-    
+
     // Проверяем тексты секций
     expect(screen.getByText("Primary Color Correction")).toBeInTheDocument()
     expect(screen.getByText("Curves")).toBeInTheDocument()
@@ -124,10 +124,10 @@ describe("ColorSettings", () => {
 
   it("should have color wheels section open by default", () => {
     render(<ColorSettings />)
-    
+
     // Color wheels должны быть открыты по умолчанию
     expect(screen.getByTestId("color-wheels-section")).toBeInTheDocument()
-    
+
     // Остальные секции должны быть закрыты
     expect(screen.queryByTestId("curves-section")).not.toBeInTheDocument()
     expect(screen.queryByTestId("hsl-section")).not.toBeInTheDocument()
@@ -138,17 +138,17 @@ describe("ColorSettings", () => {
   it("should toggle sections when clicking triggers", async () => {
     const user = userEvent.setup()
     render(<ColorSettings />)
-    
+
     // Изначально только color wheels открыты
     expect(screen.getByTestId("color-wheels-section")).toBeInTheDocument()
     expect(screen.queryByTestId("curves-section")).not.toBeInTheDocument()
-    
+
     // Кликаем на curves trigger
     await user.click(screen.getByTestId("curves-trigger"))
-    
+
     // Curves должны открыться
     expect(screen.getByTestId("curves-section")).toBeInTheDocument()
-    
+
     // Кликаем еще раз - должны закрыться
     await user.click(screen.getByTestId("curves-trigger"))
     expect(screen.queryByTestId("curves-section")).not.toBeInTheDocument()
@@ -156,13 +156,13 @@ describe("ColorSettings", () => {
 
   it("should render color grading controls at the bottom", () => {
     render(<ColorSettings />)
-    
+
     expect(screen.getByTestId("color-grading-controls")).toBeInTheDocument()
   })
 
   it("should have proper scrollable container", () => {
     render(<ColorSettings />)
-    
+
     const scrollableContainer = screen.getByTestId("color-settings").querySelector(".overflow-y-auto")
     expect(scrollableContainer).toBeInTheDocument()
     expect(scrollableContainer).toHaveClass("custom-scrollbar")
@@ -170,16 +170,16 @@ describe("ColorSettings", () => {
 
   it("should apply custom className when provided", () => {
     render(<ColorSettings className="test-custom-class" />)
-    
+
     expect(screen.getByTestId("color-settings")).toHaveClass("test-custom-class")
   })
 
   it("should have proper flex layout structure", () => {
     render(<ColorSettings />)
-    
+
     const container = screen.getByTestId("color-settings")
     expect(container).toHaveClass("h-full", "flex", "flex-col")
-    
+
     // Проверяем структуру flex контейнеров
     const scrollableContent = container.querySelector(".flex-1.min-h-0")
     expect(scrollableContent).toBeInTheDocument()

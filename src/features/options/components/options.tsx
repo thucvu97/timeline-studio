@@ -90,7 +90,11 @@ export function Options({ selectedMediaFile }: OptionsProps) {
             className="flex-1 min-h-0 overflow-hidden p-0"
             data-testid={`options-content-${tab.id}`}
           >
-            {activeTab === tab.id && <div className="h-full" data-testid={`options-${tab.id}-settings`}>{renderTabContent()}</div>}
+            {activeTab === tab.id && (
+              <div className="h-full" data-testid={`options-${tab.id}-settings`}>
+                {renderTabContent()}
+              </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>

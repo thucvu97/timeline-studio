@@ -72,23 +72,23 @@ describe("ColorWheelsSection", () => {
 
   it("should render color wheels section", () => {
     render(<ColorWheelsSection />)
-    
+
     expect(screen.getByTestId("color-wheels-section")).toBeInTheDocument()
   })
 
   it("should render description text", () => {
     render(<ColorWheelsSection />)
-    
+
     expect(screen.getByText("Adjust shadows (Lift), midtones (Gamma), and highlights (Gain)")).toBeInTheDocument()
   })
 
   it("should render all three color wheels", () => {
     render(<ColorWheelsSection />)
-    
+
     expect(screen.getByTestId("color-wheel-lift")).toBeInTheDocument()
     expect(screen.getByTestId("color-wheel-gamma")).toBeInTheDocument()
     expect(screen.getByTestId("color-wheel-gain")).toBeInTheDocument()
-    
+
     expect(screen.getByText("Lift (Shadows)")).toBeInTheDocument()
     expect(screen.getByText("Gamma (Midtones)")).toBeInTheDocument()
     expect(screen.getByText("Gain (Highlights)")).toBeInTheDocument()
@@ -97,15 +97,15 @@ describe("ColorWheelsSection", () => {
   it("should call updateColorWheel when color wheel changes", async () => {
     const user = userEvent.setup()
     render(<ColorWheelsSection />)
-    
+
     await user.click(screen.getByText("Change lift"))
-    
+
     expect(mockContextValue.updateColorWheel).toHaveBeenCalledWith("lift", { r: 0.5, g: 0.5, b: 0.5 })
   })
 
   it("should render all parameter sliders", () => {
     render(<ColorWheelsSection />)
-    
+
     expect(screen.getByTestId("parameter-slider-Temperature")).toBeInTheDocument()
     expect(screen.getByTestId("parameter-slider-Tint")).toBeInTheDocument()
     expect(screen.getByTestId("parameter-slider-Contrast")).toBeInTheDocument()
@@ -115,11 +115,11 @@ describe("ColorWheelsSection", () => {
   it("should call updateBasicParameter when slider changes", async () => {
     const user = userEvent.setup()
     render(<ColorWheelsSection />)
-    
+
     const temperatureSlider = screen.getByLabelText("Temperature")
     // Для range input используем fireEvent вместо user.clear/type
     fireEvent.change(temperatureSlider, { target: { value: "50" } })
-    
+
     expect(mockContextValue.updateBasicParameter).toHaveBeenCalledWith("temperature", 50)
   })
 
@@ -142,16 +142,16 @@ describe("ColorWheelsSection", () => {
       updateColorWheel: vi.fn(),
       updateBasicParameter: vi.fn(),
     }
-    
+
     // Mock the context to return our test values
     mockUseColorGradingContext.mockReturnValueOnce(testMockContextValue)
-    
+
     render(<ColorWheelsSection />)
-    
+
     // Debug: Давайте проверим, что находится на экране
     const temperatureSlider = screen.getByLabelText("Temperature")
-    const tintSlider = screen.getByLabelText("Tint") 
-    
+    const tintSlider = screen.getByLabelText("Tint")
+
     // Проверим атрибут value напрямую
     expect(temperatureSlider).toHaveAttribute("value", "25")
     expect(tintSlider).toHaveAttribute("value", "-10")
@@ -162,16 +162,16 @@ describe("ColorWheelsSection", () => {
   it("should handle multiple parameter updates and color wheel changes", async () => {
     const user = userEvent.setup()
     render(<ColorWheelsSection />)
-    
+
     // Test temperature update
     const temperatureSlider = screen.getByLabelText("Temperature")
     fireEvent.change(temperatureSlider, { target: { value: "75" } })
     expect(mockContextValue.updateBasicParameter).toHaveBeenLastCalledWith("temperature", 75)
-    
+
     // Test color wheel click
     await user.click(screen.getByText("Change gamma"))
     expect(mockContextValue.updateColorWheel).toHaveBeenLastCalledWith("gamma", { r: 0.5, g: 0.5, b: 0.5 })
-    
+
     // Test that we can interact with all controls
     expect(screen.getByLabelText("Tint")).toBeInTheDocument()
     expect(screen.getByLabelText("Contrast")).toBeInTheDocument()

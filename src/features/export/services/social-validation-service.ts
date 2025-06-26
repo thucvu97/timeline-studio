@@ -257,7 +257,6 @@ export class SocialValidationService {
         result.warnings.push(`Resolution ${settings.resolution}p may exceed platform limits`)
       }
     }
-
   }
 
   private static addOptimizationSuggestions(

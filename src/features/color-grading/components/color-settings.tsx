@@ -40,12 +40,12 @@ export function ColorSettings({ className }: ColorSettingsProps) {
     <ColorGradingProvider>
       <div className={`color-grading-panel h-full flex flex-col ${className || ""}`} data-testid="color-settings">
         {/* Прокручиваемое содержимое */}
-        <div 
-          className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar" 
-          style={{ 
+        <div
+          className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar"
+          style={{
             scrollbarGutter: "stable",
             scrollbarWidth: "thin",
-            scrollbarColor: "#4b5563 #1f2937"
+            scrollbarColor: "#4b5563 #1f2937",
           }}
         >
           {/* 1. ОСНОВНЫЕ НАСТРОЙКИ - Color Wheels */}

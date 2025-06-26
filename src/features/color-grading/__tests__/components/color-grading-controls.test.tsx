@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import { userEvent } from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
@@ -98,13 +98,13 @@ describe("ColorGradingControls", () => {
 
   it("should render color grading controls", () => {
     render(<ColorGradingControls />)
-    
+
     expect(screen.getByTestId("color-grading-controls")).toBeInTheDocument()
   })
 
   it("should render all control buttons", () => {
     render(<ColorGradingControls />)
-    
+
     expect(screen.getByText("Reset All")).toBeInTheDocument()
     expect(screen.getByText("Auto")).toBeInTheDocument()
     expect(screen.getByText("Load Preset")).toBeInTheDocument()
@@ -115,7 +115,7 @@ describe("ColorGradingControls", () => {
 
   it("should disable reset button when no changes", () => {
     render(<ColorGradingControls />)
-    
+
     const resetButton = screen.getByText("Reset All")
     expect(resetButton).toBeDisabled()
   })
@@ -126,9 +126,9 @@ describe("ColorGradingControls", () => {
       hasChanges: true,
     }
     mockUseColorGradingContext.mockReturnValueOnce(contextWithChanges)
-    
+
     render(<ColorGradingControls />)
-    
+
     const resetButton = screen.getByText("Reset All")
     expect(resetButton).not.toBeDisabled()
   })
@@ -139,34 +139,34 @@ describe("ColorGradingControls", () => {
       hasChanges: true,
     }
     mockUseColorGradingContext.mockReturnValueOnce(contextWithChanges)
-    
+
     const user = userEvent.setup()
     render(<ColorGradingControls />)
-    
+
     await user.click(screen.getByText("Reset All"))
-    
+
     expect(mockContextValue.resetAll).toHaveBeenCalled()
   })
 
   it("should call autoCorrect when auto button clicked", async () => {
     const user = userEvent.setup()
     render(<ColorGradingControls />)
-    
+
     await user.click(screen.getByText("Auto"))
-    
+
     expect(mockContextValue.autoCorrect).toHaveBeenCalled()
   })
 
   it("should render preset dropdown", async () => {
     render(<ColorGradingControls />)
-    
+
     const dropdownTrigger = screen.getByText("Load Preset")
     expect(dropdownTrigger).toBeInTheDocument()
-    
+
     // Check dropdown content
     const dropdownContent = screen.getByTestId("dropdown-content")
     expect(dropdownContent).toBeInTheDocument()
-    
+
     // Check that presets are rendered
     const firstPreset = BUILT_IN_PRESETS[0]
     expect(screen.getByText(firstPreset.name)).toBeInTheDocument()
@@ -175,16 +175,16 @@ describe("ColorGradingControls", () => {
   it("should call loadPreset when preset clicked", async () => {
     const user = userEvent.setup()
     render(<ColorGradingControls />)
-    
+
     const firstPreset = BUILT_IN_PRESETS[0]
     await user.click(screen.getByText(firstPreset.name))
-    
+
     expect(mockContextValue.loadPreset).toHaveBeenCalledWith(firstPreset.id)
   })
 
   it("should disable save preset button when no changes", () => {
     render(<ColorGradingControls />)
-    
+
     const saveButton = screen.getByText("Save Preset")
     expect(saveButton).toBeDisabled()
   })
@@ -195,12 +195,12 @@ describe("ColorGradingControls", () => {
       hasChanges: true,
     }
     mockUseColorGradingContext.mockReturnValueOnce(contextWithChanges)
-    
+
     const user = userEvent.setup()
     render(<ColorGradingControls />)
-    
+
     await user.click(screen.getByText("Save Preset"))
-    
+
     expect(screen.getByTestId("dialog")).toBeInTheDocument()
     expect(screen.getByText("Save Color Grading Preset")).toBeInTheDocument()
   })
@@ -211,30 +211,30 @@ describe("ColorGradingControls", () => {
       hasChanges: true,
     }
     mockUseColorGradingContext.mockReturnValueOnce(contextWithChanges)
-    
+
     const user = userEvent.setup()
     render(<ColorGradingControls />)
-    
+
     // Open dialog
     await user.click(screen.getByText("Save Preset"))
-    
+
     // Enter preset name
     const input = screen.getByPlaceholderText("My Preset")
     await user.type(input, "Custom Preset")
-    
+
     // Save
     const saveButton = screen.getAllByText("Save")[1] // Second "Save" is in dialog
     await user.click(saveButton)
-    
+
     expect(mockContextValue.savePreset).toHaveBeenCalledWith("Custom Preset")
   })
 
   it("should toggle preview", async () => {
     const user = userEvent.setup()
     render(<ColorGradingControls />)
-    
+
     await user.click(screen.getByText("Preview"))
-    
+
     expect(mockContextValue.togglePreview).toHaveBeenCalledWith(false)
   })
 
@@ -243,9 +243,9 @@ describe("ColorGradingControls", () => {
     const { unmount } = render(<ColorGradingControls />)
     expect(screen.getByText("Eye")).toBeInTheDocument()
     expect(screen.queryByText("EyeOff")).not.toBeInTheDocument()
-    
+
     unmount()
-    
+
     // Preview disabled
     const contextWithPreviewOff = {
       ...mockContextValue,
@@ -255,16 +255,16 @@ describe("ColorGradingControls", () => {
       },
     }
     mockUseColorGradingContext.mockReturnValueOnce(contextWithPreviewOff)
-    
+
     render(<ColorGradingControls />)
-    
+
     expect(screen.getByText("EyeOff")).toBeInTheDocument()
     expect(screen.queryByText("Eye")).not.toBeInTheDocument()
   })
 
   it("should disable apply to clip when no clip selected", () => {
     render(<ColorGradingControls />)
-    
+
     const applyButton = screen.getByText("Apply to Clip")
     expect(applyButton).toBeDisabled()
   })
@@ -279,9 +279,9 @@ describe("ColorGradingControls", () => {
       hasChanges: true,
     }
     mockUseColorGradingContext.mockReturnValueOnce(contextWithClipAndChanges)
-    
+
     render(<ColorGradingControls />)
-    
+
     const applyButton = screen.getByText("Apply to Clip")
     expect(applyButton).not.toBeDisabled()
   })
@@ -296,12 +296,12 @@ describe("ColorGradingControls", () => {
       hasChanges: true,
     }
     mockUseColorGradingContext.mockReturnValueOnce(contextWithClipAndChanges)
-    
+
     const user = userEvent.setup()
     render(<ColorGradingControls />)
-    
+
     await user.click(screen.getByText("Apply to Clip"))
-    
+
     expect(mockContextValue.applyToClip).toHaveBeenCalled()
   })
 
@@ -311,17 +311,17 @@ describe("ColorGradingControls", () => {
       hasChanges: true,
     }
     mockUseColorGradingContext.mockReturnValueOnce(contextWithChanges)
-    
+
     const user = userEvent.setup()
     render(<ColorGradingControls />)
-    
+
     // Open dialog
     await user.click(screen.getByText("Save Preset"))
     expect(screen.getByTestId("dialog")).toBeInTheDocument()
-    
+
     // Cancel
     await user.click(screen.getByText("Cancel"))
-    
+
     // Dialog should close
     await waitFor(() => {
       expect(screen.queryByTestId("dialog")).not.toBeInTheDocument()
@@ -334,35 +334,35 @@ describe("ColorGradingControls", () => {
       hasChanges: true,
     }
     mockUseColorGradingContext.mockReturnValueOnce(contextWithChanges)
-    
+
     const user = userEvent.setup()
     render(<ColorGradingControls />)
-    
+
     // Open dialog
     await user.click(screen.getByText("Save Preset"))
-    
+
     const saveButton = screen.getAllByText("Save")[1]
     expect(saveButton).toBeDisabled()
-    
+
     // Type something
     const input = screen.getByPlaceholderText("My Preset")
     await user.type(input, "Test")
-    
+
     expect(saveButton).not.toBeDisabled()
   })
 
   it("should group presets by category", () => {
     render(<ColorGradingControls />)
-    
+
     // Check that category labels are rendered
     const categories = ["cinematic", "vintage", "modern", "blackwhite", "creative", "correction", "custom"]
-    categories.forEach(category => {
+    categories.forEach((category) => {
       const categoryText = screen.queryByText(category)
       if (categoryText) {
         expect(categoryText).toBeInTheDocument()
       }
     })
-    
+
     // Verify at least some categories are present
     expect(screen.getByText("cinematic")).toBeInTheDocument()
     expect(screen.getByText("vintage")).toBeInTheDocument()
@@ -370,9 +370,9 @@ describe("ColorGradingControls", () => {
 
   it("should show preset descriptions", () => {
     render(<ColorGradingControls />)
-    
+
     // Find a preset with description
-    const presetWithDescription = BUILT_IN_PRESETS.find(p => p.description)
+    const presetWithDescription = BUILT_IN_PRESETS.find((p) => p.description)
     if (presetWithDescription) {
       expect(screen.getByText(presetWithDescription.description!)).toBeInTheDocument()
     }

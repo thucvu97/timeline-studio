@@ -182,7 +182,7 @@ describe("useColorGrading", () => {
 
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
       "colorGradingPresets",
-      expect.stringContaining("My Custom Preset")
+      expect.stringContaining("My Custom Preset"),
     )
   })
 

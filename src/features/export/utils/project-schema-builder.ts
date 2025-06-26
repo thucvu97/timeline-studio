@@ -109,7 +109,7 @@ export class ProjectSchemaBuilder {
         "1440": [2560, 1440],
         "4k": [3840, 2160],
       }
-      
+
       if (exportSettings.resolution !== "timeline" && resolutionMap[exportSettings.resolution]) {
         this.projectSchema.timeline.resolution = resolutionMap[exportSettings.resolution]
       }

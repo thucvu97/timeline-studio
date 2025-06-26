@@ -195,8 +195,8 @@ describe("CameraCaptureModal - Screen Recording", () => {
         width: 1920,
         height: 1080,
         frameRate: 30,
-        displaySurface: 'monitor',
-        cursor: 'always',
+        displaySurface: "monitor",
+        cursor: "always",
       })),
     })
 
