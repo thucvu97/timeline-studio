@@ -13,7 +13,7 @@ import type { CacheMemoryUsage } from "../types/cache"
  */
 export async function getCachedMetadata(filePath: string): Promise<MediaMetadata | null> {
   try {
-    return await invoke<MediaMetadata | null>("get_cached_metadata", { filePath })
+    return await invoke<MediaMetadata | null>("get_cached_metadata", { file_path: filePath })
   } catch (error) {
     console.error("Failed to get cached metadata:", error)
     return null
@@ -25,7 +25,7 @@ export async function getCachedMetadata(filePath: string): Promise<MediaMetadata
  */
 export async function cacheMediaMetadata(filePath: string, metadata: MediaMetadata): Promise<void> {
   try {
-    await invoke("cache_media_metadata", { filePath, metadata })
+    await invoke("cache_media_metadata", { file_path: filePath, metadata })
   } catch (error) {
     console.error("Failed to cache metadata:", error)
     throw error
