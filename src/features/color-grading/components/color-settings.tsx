@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { ChevronDown, Palette } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -39,12 +39,6 @@ export function ColorSettings({ className }: ColorSettingsProps) {
   return (
     <ColorGradingProvider>
       <div className={`color-grading-panel h-full flex flex-col ${className || ""}`} data-testid="color-settings">
-        {/* Заголовок */}
-        <div className="flex items-center gap-2 p-4 border-b bg-[#2D2D30]">
-          <Palette className="h-5 w-5 text-blue-400" />
-          <h2 className="text-lg font-semibold text-white">{t("colorGrading.title", "Color Grading")}</h2>
-        </div>
-
         {/* Прокручиваемое содержимое */}
         <div 
           className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 custom-scrollbar" 
