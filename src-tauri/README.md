@@ -1,231 +1,153 @@
-# Timeline Studio - Tauri Backend
+# Timeline Studio - Backend на Rust
 
-## Overview
+## Обзор
 
-This is the Rust backend for Timeline Studio, built with Tauri v2. It provides native functionality for video processing, file management, and a local HTTP server for video streaming.
+Бэкенд Timeline Studio построен на Tauri v2 и предоставляет нативную функциональность для обработки видео, управления файлами и локальный HTTP-сервер для стриминга видео.
 
-## Architecture
+## Быстрый старт
 
-### Modules
+### Требования
 
-- **`video_server`** - HTTP server for video streaming with Range request support
-- **`video_compiler`** - FFmpeg-based video rendering and processing
-- **`media`** - Media file metadata extraction using FFprobe
-- **`filesystem`** - File system operations and path utilities
-- **`language`** - Localization and language detection
+- Rust 1.81.0+
+- FFmpeg 7.0+
+- Node.js 18+ и Bun
+- ONNX Runtime (для функций распознавания)
 
-### Key Features
-
-1. **Video Streaming Server**
-   - Runs on `http://localhost:4567`
-   - Supports Range requests for video seeking
-   - Handles Cyrillic and special characters in file paths
-   - CORS enabled for web access
-
-2. **Video Compiler**
-   - Hardware acceleration support (NVENC, QuickSync, VideoToolbox)
-   - Frame extraction for thumbnails
-   - Preview generation
-   - Render caching
-
-3. **Media Processing**
-   - FFprobe integration for metadata extraction
-   - Support for various video formats (MP4, WebM, MOV, AVI, MKV)
-   - Audio track detection
-
-## Development
-
-### Prerequisites
-
-- Rust 1.70+
-- FFmpeg 7.0+ (for video processing)
-- Node.js 18+ (for frontend)
-
-### Setup
+### Установка зависимостей
 
 ```bash
-# Install dependencies
+# macOS
+brew install ffmpeg onnxruntime
+export ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib
+
+# Ubuntu/Debian  
+sudo apt-get install ffmpeg libavcodec-dev libavformat-dev libavutil-dev
+# Установка ONNX Runtime отдельно
+
+# Windows
+# См. подробные инструкции в CLAUDE.md
+```
+
+### Разработка
+
+```bash
+# Сборка
 cargo build
 
-# Run tests
+# Запуск тестов
 cargo test
 
-# Run with coverage
-cargo tarpaulin --out Html --output-dir coverage
-```
-
-### Testing
-
-We use `tarpaulin` for code coverage:
-
-```bash
-# Install tarpaulin
-cargo install cargo-tarpaulin
-
-# Run tests with coverage
+# Запуск с покрытием кода
 cargo tarpaulin --out Html --output-dir coverage
 
-# Generate coverage report in different formats
-cargo tarpaulin --out Xml --out Lcov --output-dir coverage
-
-# Exclude certain files from coverage
-cargo tarpaulin --exclude-files "*/tests/*" --exclude-files "*/build.rs"
+# Запуск в режиме разработки
+cargo tauri dev
 ```
 
-### Project Structure
+## Архитектура
+
+### Основные модули
+
+- **`video_server`** - HTTP-сервер для стриминга видео (порт 4567)
+- **`video_compiler`** - Движок рендеринга видео на базе FFmpeg
+- **`media`** - Извлечение метаданных через FFprobe
+- **`filesystem`** - Файловые операции и утилиты
+- **`language`** - Локализация (10 языков)
+
+### Ключевые возможности
+
+- ✅ Аппаратное ускорение (NVENC, QuickSync, VideoToolbox, AMF)
+- ✅ Стриминг видео с поддержкой Range-запросов
+- ✅ Генерация превью и миниатюр
+- ✅ Кеширование рендеров
+- ✅ Мониторинг производительности и метрики
+- ✅ Комплексная обработка ошибок
+
+## Основные API команды
+
+### Обработка видео
+- `compile_video` - Рендеринг видеопроекта
+- `generate_preview` - Генерация превью
+- `extract_frame` - Извлечение кадра
+- `get_gpu_capabilities` - Проверка GPU-кодировщиков
+
+### Работа с медиа
+- `get_media_metadata` - Метаданные файла
+- `register_video` - Регистрация для стриминга
+- `get_media_files` - Список медиафайлов
+
+### Файловая система
+- `file_exists` - Проверка существования
+- `get_file_stats` - Статистика файла
+- `search_files_by_name` - Поиск файлов
+
+## Документация
+
+### 📚 Архитектура и дизайн
+- [**Архитектура бэкенда**](./docs/architecture.md) - Общая архитектура и структура кода
+- [**Сервисный слой**](./docs/service-layer.md) - Архитектура сервисов и паттерны
+- [**Система плагинов**](./docs/plugin-system-design.md) - Расширяемость через плагины
+- [**Итоги рефакторинга**](./docs/refactoring-summary.md) - Результаты модернизации архитектуры
+
+### 🛠️ Разработка
+- [**Руководство по тестированию**](./docs/testing-guide.md) - Стратегия тестирования и покрытие
+- [**Интеграция с FFmpeg**](./docs/ffmpeg-integration.md) - Работа с FFmpeg и кодировщиками
+- [**Обработка ошибок**](./docs/error-handling-guide.md) - Типы ошибок и восстановление
+- [**Мониторинг и метрики**](./docs/monitoring-and-metrics.md) - Система мониторинга производительности
+
+### 📦 Документация модулей
+- [**Core**](./src/core/README.md) - Ядро системы и основные компоненты
+  - [Performance](./src/core/performance/README.md) - Оптимизация производительности
+  - [Plugins](./src/core/plugins/README.md) - Система плагинов
+  - [Telemetry](./src/core/telemetry/README.md) - Телеметрия и аналитика
+- [**Video Compiler**](./src/video_compiler/README.md) - Движок рендеринга видео
+- [**Media**](./src/media/README.md) - Обработка медиафайлов
+- [**Recognition**](./src/recognition/README.md) - Распознавание объектов и сцен
+
+## Структура проекта
 
 ```
 src-tauri/
 ├── src/
-│   ├── main.rs              # Entry point
-│   ├── lib.rs               # Tauri app configuration
-│   ├── video_server.rs      # HTTP video streaming server
-│   ├── media/               # Media processing module
-│   ├── filesystem/          # File system utilities
-│   ├── language/            # Localization
-│   └── video_compiler/      # Video rendering engine
-├── tests/                   # Integration tests
-├── Cargo.toml              # Dependencies
-└── tauri.conf.json         # Tauri configuration
+│   ├── main.rs                    # Точка входа
+│   ├── lib.rs                     # Конфигурация Tauri
+│   ├── video_server/              # HTTP сервер для видео
+│   ├── video_compiler/            # Движок рендеринга
+│   │   ├── services/              # Сервисный слой
+│   │   ├── ffmpeg_builder/        # Построитель FFmpeg команд
+│   │   └── commands/              # Команды Tauri
+│   ├── media/                     # Обработка медиа
+│   ├── filesystem/                # Файловые операции
+│   └── language/                  # Локализация
+├── tests/                         # Интеграционные тесты
+├── docs/                          # Документация
+└── Cargo.toml                     # Зависимости
 ```
 
-## API Commands
+## Вклад в проект
 
-### Video Server
+### Требования к коду
 
-- `register_video(path: String)` - Register a video file and get streaming URL
+1. ✅ Пишите тесты для новых функций
+2. ✅ Поддерживайте покрытие кода >80%
+3. ✅ Запускайте `cargo fmt` перед коммитом
+4. ✅ Обновляйте документацию
+5. ✅ Следуйте паттернам обработки ошибок
+6. ✅ Добавляйте метрики для новых операций
 
-### Media
+### Полезные команды
 
-- `get_media_metadata(file_path: String)` - Extract video metadata using FFprobe
-- `get_media_files(directory: String)` - List media files in directory
-
-### File System
-
-- `file_exists(path: String)` - Check if file exists
-- `get_file_stats(path: String)` - Get file statistics
-- `search_files_by_name(directory: String, query: String)` - Search files
-
-### Video Compiler
-
-- `compile_video(project: Project, output_path: String)` - Render video project
-- `generate_preview(file_path: String, timestamp: f64)` - Generate video thumbnail
-- `get_gpu_capabilities()` - Check available GPU encoders
-
-## Configuration
-
-### Video Server Port
-
-The video server runs on port 4567 by default. To change:
-
-```rust
-// In video_server.rs
-let listener = tokio::net::TcpListener::bind("127.0.0.1:4567").await?;
-```
-
-### FFmpeg Path
-
-Set custom FFmpeg path:
-
-```rust
-invoke('set_ffmpeg_path', { path: '/usr/local/bin/ffmpeg' })
-```
-
-## Error Handling
-
-All commands return `Result<T, String>` where errors are serialized as strings for frontend consumption.
-
-## Performance Considerations
-
-1. **Video Streaming**
-   - Uses tokio for async I/O
-   - Supports partial content for efficient streaming
-   - Files are not loaded into memory
-
-2. **Caching**
-   - Preview images are cached
-   - Render outputs can be cached
-   - LRU eviction policy
-
-3. **Concurrency**
-   - Video server runs in separate tokio task
-   - Multiple concurrent video streams supported
-   - Thread pool for CPU-intensive tasks
-
-## Security
-
-- Video server only binds to localhost
-- File paths are validated before access
-- CORS configured for local development
-
-## Troubleshooting
-
-### Video Server Not Starting
-
-Check if port 4567 is already in use:
 ```bash
-lsof -i :4567
+# Проверка форматирования
+cargo fmt -- --check
+
+# Линтинг
+cargo clippy -- -D warnings
+
+# Полная проверка
+cargo check --all-features
 ```
 
-### FFmpeg Not Found
+## Лицензия
 
-Ensure FFmpeg is in PATH or set explicitly:
-```rust
-invoke('set_ffmpeg_path', { path: '/path/to/ffmpeg' })
-```
-
-### Coverage Reports
-
-If tarpaulin fails, try:
-```bash
-# Clean build
-cargo clean
-
-# Run with specific features
-cargo tarpaulin --features "custom-protocol"
-```
-
-## Documentation
-
-### Backend Architecture & Implementation
-
-- **[Backend Improvements Summary](./BACKEND_IMPROVEMENTS_SUMMARY.md)** - Overview of completed refactoring and service layer architecture
-- **[Monitoring Implementation](./MONITORING_IMPLEMENTATION.md)** - Comprehensive monitoring, metrics, and alerting system
-- **[Error Handling](./ERROR_HANDLING.md)** - Error types, handling patterns, and recovery strategies
-- **[Development Guide](./DEV.md)** - Internal development documentation
-- **[Refactoring Summary](./REFACTORING_SUMMARY.md)** - Details of the modular refactoring
-
-### Key Implementation Details
-
-1. **Service Layer Architecture**
-   - Clean separation: Commands → Services → Core Logic
-   - Dependency injection for testability
-   - Automatic metrics collection
-   - Comprehensive error handling
-
-2. **FFmpeg Integration**
-   - Advanced operations (thumbnails, GIF, waveform)
-   - Real-time progress tracking
-   - Hardware acceleration support
-   - Fallback strategies
-
-3. **Monitoring & Metrics**
-   - Per-service performance tracking
-   - Resource usage monitoring (CPU, GPU, Memory)
-   - Prometheus export endpoint
-   - Alert system with configurable thresholds
-
-4. **Error Handling**
-   - Type-safe error variants
-   - Context-rich error messages
-   - Automatic retry for transient errors
-   - User-friendly error conversion
-
-## Contributing
-
-1. Write tests for new features
-2. Maintain >80% code coverage
-3. Run `cargo fmt` before committing
-4. Update relevant documentation
-5. Follow error handling patterns
-6. Add metrics for new operations
+Copyright © 2024 Timeline Studio. Все права защищены.
