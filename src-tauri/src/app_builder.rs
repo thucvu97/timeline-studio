@@ -115,6 +115,7 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::check_gpu_encoder_availability,
     crate::video_compiler::commands::check_hardware_acceleration,
     crate::video_compiler::commands::check_hardware_acceleration_support,
+    crate::video_compiler::commands::get_gpu_capabilities_full,
     crate::video_compiler::commands::cache_media_metadata,
     crate::video_compiler::commands::clean_old_cache,
     crate::video_compiler::commands::cleanup_cache,
@@ -158,6 +159,7 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::check_ffmpeg_available,
     crate::video_compiler::commands::check_ffmpeg_capabilities,
     crate::video_compiler::commands::check_ffmpeg_installation,
+    crate::video_compiler::commands::get_system_info,
     crate::video_compiler::commands::concat_videos,
     crate::video_compiler::commands::configure_cache,
     crate::video_compiler::commands::add_clip_to_track,
@@ -236,6 +238,9 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::ffmpeg_batch_optimize_platforms,
     crate::video_compiler::commands::ffmpeg_analyze_platform_compliance,
     crate::video_compiler::commands::ffmpeg_create_progressive_video,
+    // Compiler settings commands
+    crate::video_compiler::commands::get_compiler_settings_advanced,
+    crate::video_compiler::commands::update_compiler_settings_advanced,
     // Workflow automation commands
     crate::video_compiler::commands::create_directory,
     crate::video_compiler::commands::create_timeline_project,
