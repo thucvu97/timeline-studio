@@ -9,7 +9,7 @@ const mockUpdateClip = vi.fn()
 const mockToast = vi.fn()
 
 vi.mock("@/features/timeline/hooks/use-timeline", () => ({
-  useTimelineActions: () => ({
+  useTimeline: () => ({
     updateClip: mockUpdateClip,
   }),
 }))
@@ -159,10 +159,10 @@ describe("SubtitleSyncTools", () => {
 
     await waitFor(() => {
       expect(mockUpdateClip).toHaveBeenCalledTimes(2)
-      expect(mockUpdateClip).toHaveBeenCalledWith("subtitle-track-1", "sub-1", {
+      expect(mockUpdateClip).toHaveBeenCalledWith("sub-1", {
         startTime: 3, // 1 + 2
       })
-      expect(mockUpdateClip).toHaveBeenCalledWith("subtitle-track-1", "sub-2", {
+      expect(mockUpdateClip).toHaveBeenCalledWith("sub-2", {
         startTime: 6, // 4 + 2
       })
     })
@@ -185,7 +185,7 @@ describe("SubtitleSyncTools", () => {
     fireEvent.click(applyButton)
 
     await waitFor(() => {
-      expect(mockUpdateClip).toHaveBeenCalledWith("subtitle-track-1", "sub-1", {
+      expect(mockUpdateClip).toHaveBeenCalledWith("sub-1", {
         startTime: 0, // Max(0, 1 - 2) = 0
       })
     })

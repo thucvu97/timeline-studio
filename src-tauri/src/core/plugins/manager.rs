@@ -759,7 +759,7 @@ mod tests {
 
     // Загружаем плагин
     let permissions = PluginPermissions::default();
-    manager
+    let _instance_id = manager
       .load_plugin("test-plugin", permissions)
       .await
       .unwrap();

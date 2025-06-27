@@ -16,9 +16,7 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 }))
 
 vi.mock("@/features/timeline/hooks/use-timeline", () => ({
-  useTimelineActions: () => ({
-    addClipToTrack: vi.fn().mockResolvedValue(undefined),
-  }),
+  useTimeline: () => ({}),
 }))
 
 vi.mock("@/hooks/use-toast", () => ({

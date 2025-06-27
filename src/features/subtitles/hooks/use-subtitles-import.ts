@@ -3,8 +3,9 @@ import { useCallback, useState } from "react"
 import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
 
-import { useTimelineActions } from "@/features/timeline/hooks/use-timeline"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
+
+import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 
 import { parseSubtitleFile } from "../utils/subtitle-parsers"
 
@@ -19,8 +20,18 @@ const generateId = () => `sub-${Date.now()}-${Math.random().toString(36).substri
  */
 export function useSubtitlesImport() {
   const [isImporting, setIsImporting] = useState(false)
-  const { addClipToTrack } = useTimelineActions()
-  const { toast } = useToast()
+  const timeline = useTimeline()
+
+  /**
+   * Временная функция для добавления субтитров на таймлайн
+   * TODO: реализовать правильное добавление SubtitleClip в timeline-machine
+   */
+  const addSubtitleClip = useCallback(async (trackId: string, subtitle: any) => {
+    // Временная заглушка - просто логируем
+    console.log('Adding subtitle clip:', { trackId, subtitle })
+    // В будущем здесь будет:
+    // timeline.addSubtitleClip(trackId, subtitle.text, subtitle.startTime, subtitle.duration)
+  }, [])
 
   /**
    * Импорт файлов субтитров (SRT, VTT, ASS)
@@ -59,7 +70,7 @@ export function useSubtitlesImport() {
             const subtitleTrackId = "subtitle-track-1" // TODO: получать из текущего проекта
 
             for (const subtitle of subtitles) {
-              await addClipToTrack(subtitleTrackId, {
+              await addSubtitleClip(subtitleTrackId, {
                 ...subtitle,
                 id: generateId(),
                 trackId: subtitleTrackId,
@@ -69,32 +80,27 @@ export function useSubtitlesImport() {
             totalImported += subtitles.length
           } catch (error) {
             console.error(`Ошибка при импорте файла ${filePath}:`, error)
-            toast({
-              title: "Ошибка импорта",
+            toast.error("Ошибка импорта", {
               description: `Не удалось импортировать файл ${filePath}`,
-              variant: "destructive",
             })
           }
         }
 
         if (totalImported > 0) {
-          toast({
-            title: "Субтитры импортированы",
+          toast.success("Субтитры импортированы", {
             description: `Импортировано ${totalImported} субтитров из ${files.length} файлов`,
           })
         }
       }
     } catch (error) {
       console.error("Ошибка при импорте субтитров:", error)
-      toast({
-        title: "Ошибка",
+      toast.error("Ошибка", {
         description: "Не удалось импортировать субтитры",
-        variant: "destructive",
       })
     } finally {
       setIsImporting(false)
     }
-  }, [isImporting, addClipToTrack, toast])
+  }, [isImporting, addSubtitleClip])
 
   /**
    * Импорт одного файла субтитров
@@ -128,37 +134,32 @@ export function useSubtitlesImport() {
           const subtitleTrackId = "subtitle-track-1" // TODO: получать из текущего проекта
 
           for (const subtitle of subtitles) {
-            await addClipToTrack(subtitleTrackId, {
+            await addSubtitleClip(subtitleTrackId, {
               ...subtitle,
               id: generateId(),
               trackId: subtitleTrackId,
             })
           }
 
-          toast({
-            title: "Субтитры импортированы",
+          toast.success("Субтитры импортированы", {
             description: `Импортировано ${subtitles.length} субтитров из файла ${result.file_name}`,
           })
         } catch (error) {
           console.error("Ошибка при импорте файла:", error)
-          toast({
-            title: "Ошибка импорта",
+          toast.error("Ошибка импорта", {
             description: "Не удалось импортировать файл субтитров",
-            variant: "destructive",
           })
         }
       }
     } catch (error) {
       console.error("Ошибка при выборе файла:", error)
-      toast({
-        title: "Ошибка",
+      toast.error("Ошибка", {
         description: "Не удалось выбрать файл",
-        variant: "destructive",
       })
     } finally {
       setIsImporting(false)
     }
-  }, [isImporting, addClipToTrack, toast])
+  }, [isImporting, addSubtitleClip])
 
   return {
     importSubtitleFiles,

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useTimelineActions } from "@/features/timeline/hooks/use-timeline"
+import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { useTracks } from "@/features/timeline/hooks/use-tracks"
 
 import { SubtitleClip } from "../types/subtitles"
@@ -20,7 +20,7 @@ import { SubtitleClip } from "../types/subtitles"
 export function SubtitleSyncTools() {
   const { t } = useTranslation()
   const { tracks } = useTracks()
-  const { updateClip } = useTimelineActions()
+  const { updateClip } = useTimeline()
 
   const [timeOffset, setTimeOffset] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
@@ -74,7 +74,7 @@ export function SubtitleSyncTools() {
       for (const subtitle of subtitles) {
         const newStartTime = Math.max(0, Number(subtitle.startTime || 0) + Number(timeOffset || 0))
 
-        await updateClip(subtitle.trackId, subtitle.id, {
+        await updateClip(subtitle.id, {
           startTime: newStartTime,
         })
 

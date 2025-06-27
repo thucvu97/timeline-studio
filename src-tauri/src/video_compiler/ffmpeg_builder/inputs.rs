@@ -185,6 +185,9 @@ impl<'a> InputBuilder<'a> {
 }
 
 #[cfg(test)]
+mod inputs_tests;
+
+#[cfg(test)]
 mod tests {
   use super::*;
   use crate::video_compiler::schema::timeline::{Clip, Track, TrackType};

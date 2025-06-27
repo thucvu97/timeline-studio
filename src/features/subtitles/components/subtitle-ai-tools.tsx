@@ -2,6 +2,7 @@ import { useState } from "react"
 
 import { Languages, Loader2, Mic } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useTimelineActions } from "@/features/timeline/hooks/use-timeline"
+import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 
 import { parseSRT } from "../utils/subtitle-parsers"
 
@@ -40,10 +41,7 @@ const useCurrentProject = () => ({
 // Временная заглушка для generateId
 const generateId = () => `sub-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 
-// Временная заглушка для useToast
-const useToast = () => ({
-  toast: (options: any) => console.log("Toast:", options),
-})
+// useToast удален - используем прямой импорт toast из sonner
 
 // TODO: Import from actual AI service when integrated
 // import { transcribeAudio } from "@/features/ai-models-integration/services/whisper-service"
@@ -54,9 +52,19 @@ const useToast = () => ({
  */
 export function SubtitleAITools() {
   const { t } = useTranslation()
-  const { addClipToTrack } = useTimelineActions()
+  const timeline = useTimeline()
   const project = useCurrentProject()
-  const { toast } = useToast()
+
+  /**
+   * Временная функция для добавления субтитров на таймлайн
+   * TODO: реализовать правильное добавление SubtitleClip в timeline-machine
+   */
+  const addSubtitleClip = async (trackId: string, subtitle: any) => {
+    // Временная заглушка - просто логируем
+    console.log('Adding subtitle clip:', { trackId, subtitle })
+    // В будущем здесь будет:
+    // timeline.addSubtitleClip(trackId, subtitle.text, subtitle.startTime, subtitle.duration)
+  }
 
   const [isOpen, setIsOpen] = useState(false)
   const [isTranscribing, setIsTranscribing] = useState(false)
@@ -93,10 +101,8 @@ export function SubtitleAITools() {
    */
   const startTranscription = async () => {
     if (!selectedTrack) {
-      toast({
-        title: t("subtitles.ai.selectFile", "Выберите файл"),
+      toast.error(t("subtitles.ai.selectFile", "Выберите файл"), {
         description: t("subtitles.ai.selectFileDesc", "Выберите аудио или видео файл для транскрипции"),
-        variant: "destructive",
       })
       return
     }
@@ -125,25 +131,22 @@ export function SubtitleAITools() {
       const subtitleTrackId = "subtitle-track-1" // TODO: получать из проекта
 
       for (const subtitle of subtitles) {
-        await addClipToTrack(subtitleTrackId, {
+        await addSubtitleClip(subtitleTrackId, {
           ...subtitle,
           id: generateId(),
           trackId: subtitleTrackId,
         })
       }
 
-      toast({
-        title: t("subtitles.ai.success", "Транскрипция завершена"),
+      toast.success(t("subtitles.ai.success", "Транскрипция завершена"), {
         description: t("subtitles.ai.successDesc", "Добавлено {{count}} субтитров", { count: subtitles.length }),
       })
 
       setIsOpen(false)
     } catch (error) {
       console.error("Ошибка транскрипции:", error)
-      toast({
-        title: t("subtitles.ai.error", "Ошибка транскрипции"),
+      toast.error(t("subtitles.ai.error", "Ошибка транскрипции"), {
         description: t("subtitles.ai.errorDesc", "Не удалось выполнить транскрипцию аудио"),
-        variant: "destructive",
       })
     } finally {
       setIsTranscribing(false)

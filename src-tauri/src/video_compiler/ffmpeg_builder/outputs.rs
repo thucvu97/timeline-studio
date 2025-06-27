@@ -430,6 +430,9 @@ impl<'a> OutputBuilder<'a> {
 }
 
 #[cfg(test)]
+mod outputs_tests;
+
+#[cfg(test)]
 mod tests {
   use super::*;
   use crate::video_compiler::schema::export::OutputFormat;
