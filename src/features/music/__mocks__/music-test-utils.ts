@@ -17,7 +17,7 @@ export function createMockMusicFile(overrides?: Partial<MediaFile>): MediaFile {
     size: 5000000,
     duration: 180,
     startTime: 0,
-    createdAt: "2024-01-01T00:00:00Z",
+    createdAt: "2025-01-01T00:00:00Z",
     isLoadingMetadata: false,
     probeData: {
       format: {
@@ -29,7 +29,7 @@ export function createMockMusicFile(overrides?: Partial<MediaFile>): MediaFile {
           artist: "Test Artist",
           album: "Test Album",
           genre: "Test Genre",
-          date: "2024",
+          date: "2025",
         },
       },
       streams: [

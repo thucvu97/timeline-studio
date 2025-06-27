@@ -2097,6 +2097,64 @@
       "complexity": "Komplexität",
       "tags": "Tags",
       "applySubtitle": "Untertitel anwenden"
+    },
+    "import": {
+      "title": "Importieren",
+      "selectFormat": "Format auswählen",
+      "singleFile": "Eine Datei importieren",
+      "multipleFiles": "Mehrere Dateien importieren",
+      "success": "Untertitel importiert",
+      "successMessage": "{{count}} Untertitel aus {{files}} Dateien importiert",
+      "error": "Importfehler",
+      "errorMessage": "Fehler beim Importieren von {{file}}",
+      "noSubtitles": "Fehler beim Importieren der Untertitel"
+    },
+    "export": {
+      "title": "Exportieren",
+      "selectFormat": "Format auswählen",
+      "srt": "SubRip (.srt)",
+      "vtt": "WebVTT (.vtt)",
+      "ass": "Advanced SSA (.ass)",
+      "success": "Untertitel exportiert",
+      "successMessage": "{{count}} Untertitel im Format {{format}} exportiert",
+      "error": "Exportfehler",
+      "errorMessage": "Fehler beim Exportieren der Untertitel",
+      "noSubtitles": "Keine Untertitel in der Timeline zum Exportieren",
+      "noSelected": "Keine Untertitel ausgewählt",
+      "noRange": "Keine Untertitel im angegebenen Zeitbereich"
+    },
+    "sync": {
+      "title": "Synchronisation",
+      "adjustTiming": "Timing anpassen",
+      "adjustDesc": "Alle Untertitel um die angegebene Zeit verschieben",
+      "timeOffset": "Zeitversatz (Sekunden)",
+      "shiftForward": "Untertitel werden um {{time}}s vorwärts verschoben",
+      "shiftBackward": "Untertitel werden um {{time}}s rückwärts verschoben",
+      "noShift": "Untertitel werden nicht verschoben",
+      "apply": "Anwenden",
+      "success": "Synchronisation abgeschlossen",
+      "successDesc": "{{count}} Untertitel aktualisiert",
+      "error": "Synchronisationsfehler",
+      "errorDesc": "Fehler beim Synchronisieren der Untertitel",
+      "noSubtitles": "Keine Untertitel",
+      "noSubtitlesDesc": "Keine Untertitel in der Timeline zum Synchronisieren"
+    },
+    "ai": {
+      "title": "KI-Transkription",
+      "dialogTitle": "Automatische Transkription",
+      "dialogDesc": "KI verwenden, um automatisch Untertitel aus Audio zu erstellen",
+      "selectMedia": "Mediendatei auswählen",
+      "selectPlaceholder": "Datei auswählen...",
+      "language": "Audio-Sprache",
+      "autoDetect": "Automatische Erkennung",
+      "start": "Transkription starten",
+      "success": "Transkription abgeschlossen",
+      "successDesc": "{{count}} Untertitel hinzugefügt",
+      "error": "Transkriptionsfehler",
+      "errorDesc": "Fehler beim Transkribieren des Audios",
+      "selectFile": "Datei auswählen",
+      "selectFileDesc": "Audio- oder Videodatei für Transkription auswählen",
+      "noMedia": "Video- oder Audiodateien zum Projekt für Transkription hinzufügen"
     }
   }
 }

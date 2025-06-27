@@ -168,14 +168,14 @@ describe("StatusBar", () => {
 
       const sortedDates = [
         {
-          date: "2024-01-15",
+          date: "2025-06-25",
           files: files,
         },
       ]
 
       render(<StatusBar {...defaultProps} media={files} sortedDates={sortedDates} addedFiles={[]} />)
 
-      expect(screen.getByText(/2 video 2024-01-15/)).toBeInTheDocument()
+      expect(screen.getByText(/2 video 2025-06-25/)).toBeInTheDocument()
     })
 
     it("не должен отображать кнопку даты если все файлы за эту дату добавлены", () => {
@@ -183,14 +183,14 @@ describe("StatusBar", () => {
 
       const sortedDates = [
         {
-          date: "2024-01-15",
+          date: "2025-06-25",
           files: files,
         },
       ]
 
       render(<StatusBar {...defaultProps} media={files} sortedDates={sortedDates} addedFiles={files} />)
 
-      expect(screen.queryByText(/2024-01-15/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/2025-06-25/)).not.toBeInTheDocument()
     })
   })
 
@@ -222,14 +222,14 @@ describe("StatusBar", () => {
 
       const sortedDates = [
         {
-          date: "2024-01-15",
+          date: "2025-06-25",
           files: files,
         },
       ]
 
       render(<StatusBar {...defaultProps} media={files} sortedDates={sortedDates} addedFiles={[]} />)
 
-      const dateButton = screen.getByText(/2024-01-15/).closest("button")
+      const dateButton = screen.getByText(/2025-06-25/).closest("button")
       fireEvent.click(dateButton!)
 
       expect(mockOnAddDateFiles).toHaveBeenCalledWith(files)
@@ -272,7 +272,7 @@ describe("StatusBar", () => {
       const files2 = [createMockMediaFile({ path: "/video3.mp4" }), createMockMediaFile({ path: "/video4.mp4" })]
 
       const sortedDates = [
-        { date: "2024-01-15", files: files1 },
+        { date: "2025-06-25", files: files1 },
         { date: "2024-01-16", files: files2 },
       ]
 
@@ -287,7 +287,7 @@ describe("StatusBar", () => {
 
       // Должна показывать только вторую дату
       expect(screen.getByText(/2024-01-16/)).toBeInTheDocument()
-      expect(screen.queryByText(/2024-01-15/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/2025-06-25/)).not.toBeInTheDocument()
     })
   })
 })

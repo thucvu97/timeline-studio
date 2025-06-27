@@ -1959,6 +1959,64 @@
       "parameters": "Parametreler",
       "tags": "Etiketler",
       "applySubtitle": "Altyazıyı Uygula"
+    },
+    "import": {
+      "title": "İçe Aktar",
+      "selectFormat": "Format seç",
+      "singleFile": "Tek dosya içe aktar",
+      "multipleFiles": "Birden fazla dosya içe aktar",
+      "success": "Altyazılar içe aktarıldı",
+      "successMessage": "{{files}} dosyadan {{count}} altyazı içe aktarıldı",
+      "error": "İçe aktarma hatası",
+      "errorMessage": "{{file}} içe aktarılırken hata oluştu",
+      "noSubtitles": "Altyazıları içe aktarırken hata oluştu"
+    },
+    "export": {
+      "title": "Dışa Aktar",
+      "selectFormat": "Format seç",
+      "srt": "SubRip (.srt)",
+      "vtt": "WebVTT (.vtt)",
+      "ass": "Advanced SSA (.ass)",
+      "success": "Altyazılar dışa aktarıldı",
+      "successMessage": "{{count}} altyazı {{format}} formatında dışa aktarıldı",
+      "error": "Dışa aktarma hatası",
+      "errorMessage": "Altyazıları dışa aktarırken hata oluştu",
+      "noSubtitles": "Zaman çizelgesinde dışa aktarılacak altyazı yok",
+      "noSelected": "Seçili altyazı yok",
+      "noRange": "Belirtilen zaman aralığında altyazı yok"
+    },
+    "sync": {
+      "title": "Senkronizasyon",
+      "adjustTiming": "Zamanlamayı ayarla",
+      "adjustDesc": "Tüm altyazıları belirtilen süre kadar kaydır",
+      "timeOffset": "Zaman kayması (saniye)",
+      "shiftForward": "Altyazılar {{time}}s ileri kaydırılacak",
+      "shiftBackward": "Altyazılar {{time}}s geri kaydırılacak",
+      "noShift": "Altyazılar kaydırılmayacak",
+      "apply": "Uygula",
+      "success": "Senkronizasyon tamamlandı",
+      "successDesc": "{{count}} altyazı güncellendi",
+      "error": "Senkronizasyon hatası",
+      "errorDesc": "Altyazıları senkronize ederken hata oluştu",
+      "noSubtitles": "Altyazı yok",
+      "noSubtitlesDesc": "Zaman çizelgesinde senkronize edilecek altyazı yok"
+    },
+    "ai": {
+      "title": "AI Transkripsiyon",
+      "dialogTitle": "Otomatik transkripsiyon",
+      "dialogDesc": "Sesten otomatik olarak altyazı oluşturmak için AI kullan",
+      "selectMedia": "Medya dosyası seç",
+      "selectPlaceholder": "Dosya seç...",
+      "language": "Ses dili",
+      "autoDetect": "Otomatik algıla",
+      "start": "Transkripsiyonu başlat",
+      "success": "Transkripsiyon tamamlandı",
+      "successDesc": "{{count}} altyazı eklendi",
+      "error": "Transkripsiyon hatası",
+      "errorDesc": "Ses transkribe edilirken hata oluştu",
+      "selectFile": "Dosya seç",
+      "selectFileDesc": "Transkripsiyon için ses veya video dosyası seç",
+      "noMedia": "Transkripsiyon için projeye video veya ses dosyası ekle"
     }
   }
 }

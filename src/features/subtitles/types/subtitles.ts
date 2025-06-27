@@ -100,3 +100,64 @@ export interface Subtitle {
   confidence?: number // Уверенность распознавания (0-1)
   language?: string // Язык субтитра
 }
+
+/**
+ * Интерфейс для клипа субтитров на таймлайне
+ */
+export interface SubtitleClip {
+  id: string
+  trackId: string
+  type: "subtitle"
+  startTime: number
+  duration: number
+  text: string
+  style?: {
+    fontFamily?: string
+    fontSize?: number
+    fontWeight?: string | number
+    fontStyle?: string
+    color?: string
+    backgroundColor?: string
+    textShadow?: string
+    textAlign?: string
+    lineHeight?: number
+    letterSpacing?: number
+    textTransform?: string
+    animation?: string
+    background?: string
+    WebkitBackgroundClip?: string
+    WebkitTextFillColor?: string
+    padding?: string
+    borderRadius?: string
+  }
+  position?: {
+    x: number
+    y: number
+    width?: number
+    height?: number
+    rotation?: number
+    scaleX?: number
+    scaleY?: number
+  }
+  subtitlePosition?: {
+    alignment: string
+  }
+}
+
+/**
+ * Результат импорта файла субтитров
+ */
+export interface SubtitleImportResult {
+  content: string
+  format: string
+  file_name: string
+}
+
+/**
+ * Опции экспорта субтитров
+ */
+export interface SubtitleExportOptions {
+  format: "srt" | "vtt" | "ass"
+  content: string
+  output_path: string
+}

@@ -2001,6 +2001,64 @@
       "parameters": "Parámetros",
       "tags": "Etiquetas",
       "applySubtitle": "Aplicar subtítulo"
+    },
+    "import": {
+      "title": "Importar",
+      "selectFormat": "Seleccionar formato",
+      "singleFile": "Importar un archivo",
+      "multipleFiles": "Importar múltiples archivos",
+      "success": "Subtítulos importados",
+      "successMessage": "Importados {{count}} subtítulos de {{files}} archivos",
+      "error": "Error de importación",
+      "errorMessage": "Error al importar {{file}}",
+      "noSubtitles": "Error al importar subtítulos"
+    },
+    "export": {
+      "title": "Exportar",
+      "selectFormat": "Seleccionar formato",
+      "srt": "SubRip (.srt)",
+      "vtt": "WebVTT (.vtt)",
+      "ass": "Advanced SSA (.ass)",
+      "success": "Subtítulos exportados",
+      "successMessage": "Exportados {{count}} subtítulos en formato {{format}}",
+      "error": "Error de exportación",
+      "errorMessage": "Error al exportar subtítulos",
+      "noSubtitles": "No hay subtítulos en la línea de tiempo para exportar",
+      "noSelected": "No hay subtítulos seleccionados",
+      "noRange": "No hay subtítulos en el rango de tiempo especificado"
+    },
+    "sync": {
+      "title": "Sincronización",
+      "adjustTiming": "Ajustar tiempo",
+      "adjustDesc": "Desplazar todos los subtítulos por tiempo especificado",
+      "timeOffset": "Desplazamiento de tiempo (segundos)",
+      "shiftForward": "Los subtítulos se desplazarán hacia adelante {{time}}s",
+      "shiftBackward": "Los subtítulos se desplazarán hacia atrás {{time}}s",
+      "noShift": "Los subtítulos no se desplazarán",
+      "apply": "Aplicar",
+      "success": "Sincronización completada",
+      "successDesc": "Actualizados {{count}} subtítulos",
+      "error": "Error de sincronización",
+      "errorDesc": "Error al sincronizar subtítulos",
+      "noSubtitles": "No hay subtítulos",
+      "noSubtitlesDesc": "No hay subtítulos en la línea de tiempo para sincronizar"
+    },
+    "ai": {
+      "title": "Transcripción IA",
+      "dialogTitle": "Transcripción automática",
+      "dialogDesc": "Usar IA para crear automáticamente subtítulos desde audio",
+      "selectMedia": "Seleccionar archivo multimedia",
+      "selectPlaceholder": "Seleccionar archivo...",
+      "language": "Idioma del audio",
+      "autoDetect": "Detección automática",
+      "start": "Iniciar transcripción",
+      "success": "Transcripción completada",
+      "successDesc": "Agregados {{count}} subtítulos",
+      "error": "Error de transcripción",
+      "errorDesc": "Error al transcribir audio",
+      "selectFile": "Seleccionar archivo",
+      "selectFileDesc": "Seleccionar archivo de audio o video para transcripción",
+      "noMedia": "Agregar archivos de video o audio al proyecto para transcripción"
     }
   }
 }

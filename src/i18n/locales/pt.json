@@ -1955,6 +1955,64 @@
       "complexity": "Complexidade",
       "tags": "Tags",
       "applySubtitle": "Aplicar legenda"
+    },
+    "import": {
+      "title": "Importar",
+      "selectFormat": "Selecionar formato",
+      "singleFile": "Importar um arquivo",
+      "multipleFiles": "Importar múltiplos arquivos",
+      "success": "Legendas importadas",
+      "successMessage": "Importadas {{count}} legendas de {{files}} arquivos",
+      "error": "Erro de importação",
+      "errorMessage": "Erro ao importar {{file}}",
+      "noSubtitles": "Erro ao importar legendas"
+    },
+    "export": {
+      "title": "Exportar",
+      "selectFormat": "Selecionar formato",
+      "srt": "SubRip (.srt)",
+      "vtt": "WebVTT (.vtt)",
+      "ass": "Advanced SSA (.ass)",
+      "success": "Legendas exportadas",
+      "successMessage": "Exportadas {{count}} legendas no formato {{format}}",
+      "error": "Erro de exportação",
+      "errorMessage": "Erro ao exportar legendas",
+      "noSubtitles": "Nenhuma legenda na timeline para exportar",
+      "noSelected": "Nenhuma legenda selecionada",
+      "noRange": "Nenhuma legenda no intervalo de tempo especificado"
+    },
+    "sync": {
+      "title": "Sincronização",
+      "adjustTiming": "Ajustar timing",
+      "adjustDesc": "Deslocar todas as legendas pelo tempo especificado",
+      "timeOffset": "Deslocamento de tempo (segundos)",
+      "shiftForward": "As legendas serão deslocadas para frente em {{time}}s",
+      "shiftBackward": "As legendas serão deslocadas para trás em {{time}}s",
+      "noShift": "As legendas não serão deslocadas",
+      "apply": "Aplicar",
+      "success": "Sincronização concluída",
+      "successDesc": "Atualizadas {{count}} legendas",
+      "error": "Erro de sincronização",
+      "errorDesc": "Erro ao sincronizar legendas",
+      "noSubtitles": "Nenhuma legenda",
+      "noSubtitlesDesc": "Nenhuma legenda na timeline para sincronizar"
+    },
+    "ai": {
+      "title": "Transcrição IA",
+      "dialogTitle": "Transcrição automática",
+      "dialogDesc": "Usar IA para criar automaticamente legendas a partir do áudio",
+      "selectMedia": "Selecionar arquivo de mídia",
+      "selectPlaceholder": "Selecionar arquivo...",
+      "language": "Idioma do áudio",
+      "autoDetect": "Detecção automática",
+      "start": "Iniciar transcrição",
+      "success": "Transcrição concluída",
+      "successDesc": "Adicionadas {{count}} legendas",
+      "error": "Erro de transcrição",
+      "errorDesc": "Erro ao transcrever áudio",
+      "selectFile": "Selecionar arquivo",
+      "selectFileDesc": "Selecionar arquivo de áudio ou vídeo para transcrição",
+      "noMedia": "Adicionar arquivos de vídeo ou áudio ao projeto para transcrição"
     }
   }
 }

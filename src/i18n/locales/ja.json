@@ -1959,6 +1959,64 @@
       "parameters": "パラメーター",
       "tags": "タグ",
       "applySubtitle": "字幕を適用"
+    },
+    "import": {
+      "title": "インポート",
+      "selectFormat": "フォーマットを選択",
+      "singleFile": "単一ファイルをインポート",
+      "multipleFiles": "複数ファイルをインポート",
+      "success": "字幕をインポートしました",
+      "successMessage": "{{files}}個のファイルから{{count}}個の字幕をインポートしました",
+      "error": "インポートエラー",
+      "errorMessage": "{{file}}のインポートでエラーが発生しました",
+      "noSubtitles": "字幕のインポートでエラーが発生しました"
+    },
+    "export": {
+      "title": "エクスポート",
+      "selectFormat": "フォーマットを選択",
+      "srt": "SubRip (.srt)",
+      "vtt": "WebVTT (.vtt)",
+      "ass": "Advanced SSA (.ass)",
+      "success": "字幕をエクスポートしました",
+      "successMessage": "{{format}}フォーマットで{{count}}個の字幕をエクスポートしました",
+      "error": "エクスポートエラー",
+      "errorMessage": "字幕のエクスポートでエラーが発生しました",
+      "noSubtitles": "タイムラインにエクスポートする字幕がありません",
+      "noSelected": "字幕が選択されていません",
+      "noRange": "指定された時間範囲に字幕がありません"
+    },
+    "sync": {
+      "title": "同期",
+      "adjustTiming": "タイミング調整",
+      "adjustDesc": "すべての字幕を指定された時間だけシフト",
+      "timeOffset": "タイムオフセット（秒）",
+      "shiftForward": "字幕を{{time}}秒前方にシフトします",
+      "shiftBackward": "字幕を{{time}}秒後方にシフトします",
+      "noShift": "字幕はシフトされません",
+      "apply": "適用",
+      "success": "同期完了",
+      "successDesc": "{{count}}個の字幕を更新しました",
+      "error": "同期エラー",
+      "errorDesc": "字幕の同期でエラーが発生しました",
+      "noSubtitles": "字幕がありません",
+      "noSubtitlesDesc": "タイムラインに同期する字幕がありません"
+    },
+    "ai": {
+      "title": "AI転写",
+      "dialogTitle": "自動転写",
+      "dialogDesc": "AIを使用してオーディオから自動的に字幕を作成",
+      "selectMedia": "メディアファイルを選択",
+      "selectPlaceholder": "ファイルを選択...",
+      "language": "オーディオ言語",
+      "autoDetect": "自動検出",
+      "start": "転写開始",
+      "success": "転写完了",
+      "successDesc": "{{count}}個の字幕を追加しました",
+      "error": "転写エラー",
+      "errorDesc": "オーディオの転写でエラーが発生しました",
+      "selectFile": "ファイルを選択",
+      "selectFileDesc": "転写用のオーディオまたはビデオファイルを選択",
+      "noMedia": "転写用のビデオまたはオーディオファイルをプロジェクトに追加してください"
     }
   }
 }

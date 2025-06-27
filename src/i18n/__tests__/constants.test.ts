@@ -12,7 +12,21 @@ import {
 describe("i18n constants", () => {
   describe("SUPPORTED_LANGUAGES", () => {
     it("should contain all supported languages", () => {
-      expect(SUPPORTED_LANGUAGES).toEqual(["ru", "en", "es", "fr", "de", "pt", "zh", "ja", "ko", "tr", "th", "it", "hi"])
+      expect(SUPPORTED_LANGUAGES).toEqual([
+        "ru",
+        "en",
+        "es",
+        "fr",
+        "de",
+        "pt",
+        "zh",
+        "ja",
+        "ko",
+        "tr",
+        "th",
+        "it",
+        "hi",
+      ])
     })
   })
 

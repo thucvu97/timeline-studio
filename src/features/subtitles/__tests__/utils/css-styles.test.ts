@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
-import { SubtitleStyle } from "../types/subtitles"
+import { SubtitleStyle } from "../../types/subtitles"
 import {
   applySubtitleStyle,
   generateSubtitleCSS,
@@ -9,7 +9,7 @@ import {
   subtitleAnimations,
   subtitleStyleToCSS,
   validateSubtitleStyle,
-} from "../utils/css-styles"
+} from "../../utils/css-styles"
 
 describe("CSS Styles Module", () => {
   describe("subtitleStyleToCSS", () => {

@@ -365,7 +365,7 @@ describe("Sequence Types", () => {
         history: [
           {
             id: "hist-1",
-            timestamp: new Date("2024-01-01T10:00:00"),
+            timestamp: new Date("2025-01-01T10:00:00"),
             action: "ADD_CLIP",
             snapshot: {
               /* состояние */
@@ -374,7 +374,7 @@ describe("Sequence Types", () => {
           },
           {
             id: "hist-2",
-            timestamp: new Date("2024-01-01T10:01:00"),
+            timestamp: new Date("2025-01-01T10:01:00"),
             action: "DELETE_CLIP",
             snapshot: {
               /* состояние */

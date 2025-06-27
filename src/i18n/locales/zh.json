@@ -1955,6 +1955,64 @@
       "parameters": "参数",
       "tags": "标签",
       "applySubtitle": "应用字幕"
+    },
+    "import": {
+      "title": "导入",
+      "selectFormat": "选择格式",
+      "singleFile": "导入单个文件",
+      "multipleFiles": "导入多个文件",
+      "success": "字幕导入成功",
+      "successMessage": "从 {{files}} 个文件中导入了 {{count}} 个字幕",
+      "error": "导入错误",
+      "errorMessage": "导入 {{file}} 时出错",
+      "noSubtitles": "导入字幕时出错"
+    },
+    "export": {
+      "title": "导出",
+      "selectFormat": "选择格式",
+      "srt": "SubRip (.srt)",
+      "vtt": "WebVTT (.vtt)",
+      "ass": "Advanced SSA (.ass)",
+      "success": "字幕导出成功",
+      "successMessage": "以 {{format}} 格式导出了 {{count}} 个字幕",
+      "error": "导出错误",
+      "errorMessage": "导出字幕时出错",
+      "noSubtitles": "时间轴中没有字幕可导出",
+      "noSelected": "未选择字幕",
+      "noRange": "指定时间范围内没有字幕"
+    },
+    "sync": {
+      "title": "同步",
+      "adjustTiming": "调整时间",
+      "adjustDesc": "将所有字幕按指定时间偏移",
+      "timeOffset": "时间偏移（秒）",
+      "shiftForward": "字幕将向前偏移 {{time}} 秒",
+      "shiftBackward": "字幕将向后偏移 {{time}} 秒",
+      "noShift": "字幕不会偏移",
+      "apply": "应用",
+      "success": "同步完成",
+      "successDesc": "已更新 {{count}} 个字幕",
+      "error": "同步错误",
+      "errorDesc": "同步字幕时出错",
+      "noSubtitles": "没有字幕",
+      "noSubtitlesDesc": "时间轴中没有字幕可同步"
+    },
+    "ai": {
+      "title": "AI 转录",
+      "dialogTitle": "自动转录",
+      "dialogDesc": "使用 AI 从音频自动创建字幕",
+      "selectMedia": "选择媒体文件",
+      "selectPlaceholder": "选择文件...",
+      "language": "音频语言",
+      "autoDetect": "自动检测",
+      "start": "开始转录",
+      "success": "转录完成",
+      "successDesc": "已添加 {{count}} 个字幕",
+      "error": "转录错误",
+      "errorDesc": "转录音频时出错",
+      "selectFile": "选择文件",
+      "selectFileDesc": "选择音频或视频文件进行转录",
+      "noMedia": "将视频或音频文件添加到项目中进行转录"
     }
   }
 }

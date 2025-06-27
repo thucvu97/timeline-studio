@@ -2306,6 +2306,64 @@
       "parameters": "Parameters",
       "tags": "Tags",
       "applySubtitle": "Apply Subtitle"
+    },
+    "import": {
+      "title": "Import",
+      "selectFormat": "Select format",
+      "singleFile": "Import single file",
+      "multipleFiles": "Import multiple files",
+      "success": "Subtitles imported",
+      "successMessage": "Imported {{count}} subtitles from {{files}} files",
+      "error": "Import error",
+      "errorMessage": "Failed to import {{file}}",
+      "noSubtitles": "Failed to import subtitles"
+    },
+    "export": {
+      "title": "Export",
+      "selectFormat": "Select format",
+      "srt": "SubRip (.srt)",
+      "vtt": "WebVTT (.vtt)",
+      "ass": "Advanced SSA (.ass)",
+      "success": "Subtitles exported",
+      "successMessage": "Exported {{count}} subtitles in {{format}} format",
+      "error": "Export error",
+      "errorMessage": "Failed to export subtitles",
+      "noSubtitles": "No subtitles on timeline to export",
+      "noSelected": "No selected subtitles",
+      "noRange": "No subtitles in specified time range"
+    },
+    "sync": {
+      "title": "Synchronization",
+      "adjustTiming": "Adjust Timing",
+      "adjustDesc": "Shift all subtitles by specified time",
+      "timeOffset": "Time Offset (seconds)",
+      "shiftForward": "Subtitles will be shifted forward by {{time}}s",
+      "shiftBackward": "Subtitles will be shifted backward by {{time}}s",
+      "noShift": "Subtitles will not be shifted",
+      "apply": "Apply",
+      "success": "Synchronization completed",
+      "successDesc": "Updated {{count}} subtitles",
+      "error": "Synchronization error",
+      "errorDesc": "Failed to synchronize subtitles",
+      "noSubtitles": "No subtitles",
+      "noSubtitlesDesc": "No subtitles on timeline to synchronize"
+    },
+    "ai": {
+      "title": "AI Transcription",
+      "dialogTitle": "Automatic Transcription",
+      "dialogDesc": "Use AI to automatically create subtitles from audio",
+      "selectMedia": "Select media file",
+      "selectPlaceholder": "Select file...",
+      "language": "Audio language",
+      "autoDetect": "Auto-detect",
+      "start": "Start transcription",
+      "success": "Transcription completed",
+      "successDesc": "Added {{count}} subtitles",
+      "error": "Transcription error",
+      "errorDesc": "Failed to transcribe audio",
+      "selectFile": "Select file",
+      "selectFileDesc": "Select audio or video file for transcription",
+      "noMedia": "Add video or audio files to project for transcription"
     }
   }
 }
