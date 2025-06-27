@@ -345,13 +345,13 @@ mod encryption_key_tests {
   fn test_encryption_key_properties() {
     // Тестируем свойства ключа шифрования
     let key = SecureStorage::get_or_create_encryption_key().unwrap();
-    
+
     // Ключ должен быть 32 байта для AES-256
     assert_eq!(key.len(), 32);
-    
+
     // Ключ не должен быть нулевым
     assert_ne!(key, [0u8; 32]);
-    
+
     // Повторный вызов должен вернуть тот же ключ
     let key2 = SecureStorage::get_or_create_encryption_key().unwrap();
     assert_eq!(key, key2);
@@ -374,10 +374,10 @@ mod encryption_key_tests {
   #[test]
   fn test_encryption_key_format() {
     let key = SecureStorage::get_or_create_encryption_key().unwrap();
-    
+
     // Проверяем формат ключа
     assert_eq!(key.len(), 32, "Key should be 32 bytes for AES-256");
-    
+
     // Проверяем что ключ содержит не только нули
     let has_non_zero = key.iter().any(|&b| b != 0);
     assert!(has_non_zero, "Key should not be all zeros");

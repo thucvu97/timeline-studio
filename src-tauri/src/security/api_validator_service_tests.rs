@@ -160,11 +160,7 @@ mod validation_tests {
         }
         Err(e) => {
           // Ошибка сети или валидации - это нормально для тестового окружения
-          println!(
-            "Expected error for {:?} with empty key: {}",
-            key_type,
-            e
-          );
+          println!("Expected error for {:?} with empty key: {}", key_type, e);
         }
       }
     }
