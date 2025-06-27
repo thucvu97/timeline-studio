@@ -74,7 +74,7 @@ export function SubtitleSyncTools() {
       for (const subtitle of subtitles) {
         const newStartTime = Math.max(0, Number(subtitle.startTime || 0) + Number(timeOffset || 0))
 
-        await updateClip(subtitle.id, {
+        updateClip(subtitle.id, {
           startTime: newStartTime,
         })
 

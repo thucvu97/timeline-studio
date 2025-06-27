@@ -2,7 +2,6 @@ import { useCallback, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
-
 import { toast } from "sonner"
 
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
