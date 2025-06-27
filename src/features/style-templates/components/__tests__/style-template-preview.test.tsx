@@ -201,11 +201,12 @@ describe("StyleTemplatePreview", () => {
     const previewContainer = screen.getByAltText("Тестовый шаблон").parentElement
     await user.click(previewContainer!)
 
-    expect(mockAddStyleTemplate).toHaveBeenCalledWith(mockTemplate)
+    // Clicking the container should only trigger preview, not add to resources
+    expect(mockAddStyleTemplate).not.toHaveBeenCalled()
     expect(onSelectMock).toHaveBeenCalledWith("test-template-1")
   })
 
-  it("should not add template if already added", async () => {
+  it("should only trigger preview on template click regardless of added state", async () => {
     const user = userEvent.setup()
     const onSelectMock = vi.fn()
     mockIsStyleTemplateAdded.mockReturnValue(true)
@@ -215,6 +216,32 @@ describe("StyleTemplatePreview", () => {
     const previewContainer = screen.getByAltText("Тестовый шаблон").parentElement
     await user.click(previewContainer!)
 
+    // Should never add template on container click
+    expect(mockAddStyleTemplate).not.toHaveBeenCalled()
+    expect(onSelectMock).toHaveBeenCalledWith("test-template-1")
+  })
+
+  it("should show preview button on hover but not add to resources on any click", async () => {
+    const user = userEvent.setup()
+    const onSelectMock = vi.fn()
+
+    renderWithBrowser(<StyleTemplatePreview {...defaultProps} onSelect={onSelectMock} />)
+
+    const previewContainer = screen.getByAltText("Тестовый шаблон").parentElement
+    
+    // Hover to show preview button
+    await user.hover(previewContainer!)
+    
+    // Wait for the play button to appear
+    await waitFor(() => {
+      const playButton = screen.queryByTestId("play-button")
+      expect(playButton).toBeInTheDocument()
+    })
+
+    // Click anywhere on the container
+    await user.click(previewContainer!)
+
+    // Should only trigger preview, not add to resources
     expect(mockAddStyleTemplate).not.toHaveBeenCalled()
     expect(onSelectMock).toHaveBeenCalledWith("test-template-1")
   })

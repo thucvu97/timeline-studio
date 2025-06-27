@@ -33,7 +33,7 @@ export function StyleTemplatePreview({
   const { t, i18n } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
   const [selectedColorScheme, setSelectedColorScheme] = useState<string>("default")
-  const { addStyleTemplate, isStyleTemplateAdded } = useResources()
+  const { isStyleTemplateAdded } = useResources()
 
   // Доступные цветовые схемы
   const colorSchemes = [
@@ -136,8 +136,9 @@ export function StyleTemplatePreview({
             <div 
               className="rounded-full bg-teal p-3 transition-transform hover:scale-110 cursor-pointer"
               onClick={handlePreview}
+              data-testid="play-button"
             >
-              <Play className="h-6 w-6 text-white" fill="white" />
+              <Play className="h-6 w-6 text-white" fill="white" data-testid="play-icon" />
             </div>
           </div>
         )}
