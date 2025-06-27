@@ -86,12 +86,15 @@ export function StyleTemplatePreview({
     [t],
   )
 
-  const handleClick = useCallback(() => {
-    if (!isAdded) {
-      addStyleTemplate(template)
-    }
+  const handlePreview = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
     onSelect(template.id)
-  }, [isAdded, addStyleTemplate, template, onSelect])
+  }, [onSelect, template.id])
+
+  const handleClick = useCallback(() => {
+    // Only trigger preview, don't automatically add to resources
+    onSelect(template.id)
+  }, [onSelect, template.id])
 
   return (
     <div className="flex flex-col items-center">
@@ -130,7 +133,10 @@ export function StyleTemplatePreview({
         {/* Кнопка воспроизведения при наведении */}
         {isHovered && template.previewVideo && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="rounded-full bg-teal p-3 transition-transform hover:scale-110">
+            <div 
+              className="rounded-full bg-teal p-3 transition-transform hover:scale-110 cursor-pointer"
+              onClick={handlePreview}
+            >
               <Play className="h-6 w-6 text-white" fill="white" />
             </div>
           </div>
