@@ -23,6 +23,18 @@ mod commands_test;
 #[cfg(test)]
 mod env_importer_test;
 
+#[cfg(test)]
+mod oauth_handler_simple_tests;
+
+#[cfg(test)]
+mod api_validator_service_tests;
+
+#[cfg(test)]
+mod api_validator_tests;
+
+#[cfg(test)]
+mod secure_storage_tests;
+
 // Re-export основных типов и функций
 pub use commands::*;
 pub use secure_storage::*;
