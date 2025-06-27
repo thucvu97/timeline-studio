@@ -315,7 +315,7 @@ mod concurrent_operations_tests {
       let service_clone = service.clone();
       tasks.spawn(async move {
         // Каждая задача проверяет доступность слотов и добавляет/удаляет job'ы
-        let has_slots_before = service_clone.has_available_slots().await.unwrap();
+        let _has_slots_before = service_clone.has_available_slots().await.unwrap();
 
         let job_id = format!("slot_test_{}", i);
         {
@@ -338,8 +338,24 @@ mod concurrent_operations_tests {
 
         let has_slots_after = service_clone.has_available_slots().await.unwrap();
 
-        // Результаты должны быть консистентными
-        assert!(has_slots_before || has_slots_after || !has_slots_after);
+        // Результаты должны быть консистентными:
+        // Если до операции были слоты, а после нет, значит мы добавили job
+        // Если до операции не было слотов, то и после тоже не должно быть
+        // (логика проверки доступности слотов должна работать корректно)
+        
+        // Проверим основные инварианты вместо buggy expression
+        let final_job_count = {
+          let active_jobs = service_clone.active_jobs.read().await;
+          active_jobs.len()
+        };
+        
+        // Количество job'ов не должно превышать лимит
+        assert!(final_job_count <= 3);
+        
+        // Если есть слоты, то job'ов должно быть меньше лимита
+        if has_slots_after {
+          assert!(final_job_count < 3);
+        }
 
         job_id
       });
