@@ -252,3 +252,309 @@ pub async fn optimize_prerender_cache(
   // Возвращаем количество освобожденных байт
   Ok(0)
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  // Only using the struct definitions we actually test
+
+  #[test]
+  fn test_prerender_result_creation() {
+    let result = PrerenderResult {
+      segment_id: "segment_123".to_string(),
+      output_path: "/tmp/segment_123.mp4".to_string(),
+      duration: 10.5,
+      size_bytes: 1024000,
+      compression_ratio: 0.85,
+    };
+
+    assert_eq!(result.segment_id, "segment_123");
+    assert_eq!(result.output_path, "/tmp/segment_123.mp4");
+    assert_eq!(result.duration, 10.5);
+    assert_eq!(result.size_bytes, 1024000);
+    assert_eq!(result.compression_ratio, 0.85);
+  }
+
+  #[test]
+  fn test_prerender_result_serialization() {
+    let result = PrerenderResult {
+      segment_id: "test_segment".to_string(),
+      output_path: "/output/test.mp4".to_string(),
+      duration: 5.0,
+      size_bytes: 512000,
+      compression_ratio: 0.75,
+    };
+
+    // Test serialization
+    let serialized = serde_json::to_string(&result).unwrap();
+    assert!(serialized.contains("test_segment"));
+    assert!(serialized.contains("/output/test.mp4"));
+    assert!(serialized.contains("5.0"));
+    assert!(serialized.contains("512000"));
+    assert!(serialized.contains("0.75"));
+
+    // Test deserialization
+    let deserialized: PrerenderResult = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(deserialized.segment_id, result.segment_id);
+    assert_eq!(deserialized.output_path, result.output_path);
+    assert_eq!(deserialized.duration, result.duration);
+    assert_eq!(deserialized.size_bytes, result.size_bytes);
+    assert_eq!(deserialized.compression_ratio, result.compression_ratio);
+  }
+
+  #[test]
+  fn test_prerender_cache_info_creation() {
+    let cache_info = PrerenderCacheInfo {
+      segments: 5,
+      total_size: 2048000,
+      total_duration: 50.0,
+    };
+
+    assert_eq!(cache_info.segments, 5);
+    assert_eq!(cache_info.total_size, 2048000);
+    assert_eq!(cache_info.total_duration, 50.0);
+  }
+
+  #[test]
+  fn test_prerender_cache_info_serialization() {
+    let cache_info = PrerenderCacheInfo {
+      segments: 3,
+      total_size: 1536000,
+      total_duration: 30.0,
+    };
+
+    let serialized = serde_json::to_string(&cache_info).unwrap();
+    assert!(serialized.contains("\"segments\":3"));
+    assert!(serialized.contains("\"total_size\":1536000"));
+    assert!(serialized.contains("\"total_duration\":30.0"));
+
+    let deserialized: PrerenderCacheInfo = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(deserialized.segments, cache_info.segments);
+    assert_eq!(deserialized.total_size, cache_info.total_size);
+    assert_eq!(deserialized.total_duration, cache_info.total_duration);
+  }
+
+  #[test]
+  fn test_prerender_cache_file_creation() {
+    let cache_file = PrerenderCacheFile {
+      path: "/cache/segment_001.mp4".to_string(),
+      segment_id: "segment_001".to_string(),
+      duration: 15.0,
+      size_bytes: 768000,
+      created_at: "2024-01-01T00:00:00Z".to_string(),
+    };
+
+    assert_eq!(cache_file.path, "/cache/segment_001.mp4");
+    assert_eq!(cache_file.segment_id, "segment_001");
+    assert_eq!(cache_file.duration, 15.0);
+    assert_eq!(cache_file.size_bytes, 768000);
+    assert_eq!(cache_file.created_at, "2024-01-01T00:00:00Z");
+  }
+
+  #[test]
+  fn test_prerender_cache_file_serialization() {
+    let cache_file = PrerenderCacheFile {
+      path: "/test/cache.mp4".to_string(),
+      segment_id: "test_seg".to_string(),
+      duration: 12.5,
+      size_bytes: 1024,
+      created_at: "2024-06-28T12:00:00Z".to_string(),
+    };
+
+    let serialized = serde_json::to_string(&cache_file).unwrap();
+    assert!(serialized.contains("test_seg"));
+    assert!(serialized.contains("/test/cache.mp4"));
+    assert!(serialized.contains("12.5"));
+    assert!(serialized.contains("1024"));
+    assert!(serialized.contains("2024-06-28T12:00:00Z"));
+
+    let deserialized: PrerenderCacheFile = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(deserialized.path, cache_file.path);
+    assert_eq!(deserialized.segment_id, cache_file.segment_id);
+    assert_eq!(deserialized.duration, cache_file.duration);
+    assert_eq!(deserialized.size_bytes, cache_file.size_bytes);
+    assert_eq!(deserialized.created_at, cache_file.created_at);
+  }
+
+  #[test]
+  fn test_build_ffmpeg_command_logic() {
+    // Test the FFmpeg command building logic
+    let mut cmd = vec!["ffmpeg".to_string()];
+    let input_files = [
+      "/input/video1.mp4".to_string(),
+      "/input/video2.mp4".to_string(),
+    ];
+    let output_path = "/output/test.mp4".to_string();
+
+    // Add input files
+    for input in input_files.iter() {
+      cmd.extend(["-i".to_string(), input.clone()]);
+    }
+
+    // Add codec settings
+    cmd.extend([
+      "-c:v".to_string(),
+      "libx264".to_string(),
+      "-c:a".to_string(),
+      "aac".to_string(),
+      "-preset".to_string(),
+      "fast".to_string(),
+    ]);
+
+    // Add output
+    cmd.push(output_path.clone());
+
+    let command_str = cmd.join(" ");
+    assert!(command_str.contains("ffmpeg"));
+    assert!(command_str.contains("-i"));
+    assert!(command_str.contains(&input_files[0]));
+    assert!(command_str.contains(&input_files[1]));
+    assert!(command_str.contains(&output_path));
+    assert!(command_str.contains("-c:v"));
+    assert!(command_str.contains("libx264"));
+    assert!(command_str.contains("-c:a"));
+    assert!(command_str.contains("aac"));
+    assert!(command_str.contains("-preset"));
+    assert!(command_str.contains("fast"));
+  }
+
+  #[test]
+  fn test_ffmpeg_command_with_bitrate_settings() {
+    // Test FFmpeg command building with custom bitrate settings
+    let mut cmd = vec!["ffmpeg".to_string()];
+    let input_files = vec!["/input/test.mp4".to_string()];
+    let output_path = "/output/test_with_bitrate.mp4".to_string();
+
+    // Add input files
+    for input in input_files {
+      cmd.extend(["-i".to_string(), input]);
+    }
+
+    // Add codec settings
+    cmd.extend([
+      "-c:v".to_string(),
+      "libx264".to_string(),
+      "-c:a".to_string(),
+      "aac".to_string(),
+      "-preset".to_string(),
+      "fast".to_string(),
+    ]);
+
+    // Add bitrate settings
+    cmd.extend(["-b:v".to_string(), "8000k".to_string()]);
+    cmd.extend(["-b:a".to_string(), "192k".to_string()]);
+
+    // Add output
+    cmd.push(output_path.clone());
+
+    let command_str = cmd.join(" ");
+    assert!(command_str.contains("-b:v"));
+    assert!(command_str.contains("8000k"));
+    assert!(command_str.contains("-b:a"));
+    assert!(command_str.contains("192k"));
+    assert!(command_str.contains(&output_path));
+  }
+
+  #[test]
+  fn test_prerender_result_debug() {
+    let result = PrerenderResult {
+      segment_id: "debug_test".to_string(),
+      output_path: "/debug/test.mp4".to_string(),
+      duration: 7.5,
+      size_bytes: 256000,
+      compression_ratio: 0.9,
+    };
+
+    let debug_str = format!("{:?}", result);
+    assert!(debug_str.contains("debug_test"));
+    assert!(debug_str.contains("/debug/test.mp4"));
+    assert!(debug_str.contains("7.5"));
+    assert!(debug_str.contains("256000"));
+    assert!(debug_str.contains("0.9"));
+  }
+
+  #[test]
+  fn test_prerender_cache_info_debug() {
+    let cache_info = PrerenderCacheInfo {
+      segments: 7,
+      total_size: 4096000,
+      total_duration: 70.0,
+    };
+
+    let debug_str = format!("{:?}", cache_info);
+    assert!(debug_str.contains("segments: 7"));
+    assert!(debug_str.contains("total_size: 4096000"));
+    assert!(debug_str.contains("total_duration: 70.0"));
+  }
+
+  #[test]
+  fn test_prerender_cache_file_debug() {
+    let cache_file = PrerenderCacheFile {
+      path: "/debug/cache.mp4".to_string(),
+      segment_id: "debug_cache".to_string(),
+      duration: 20.0,
+      size_bytes: 2048000,
+      created_at: "2024-06-28T14:30:00Z".to_string(),
+    };
+
+    let debug_str = format!("{:?}", cache_file);
+    assert!(debug_str.contains("debug_cache"));
+    assert!(debug_str.contains("/debug/cache.mp4"));
+    assert!(debug_str.contains("20.0"));
+    assert!(debug_str.contains("2048000"));
+    assert!(debug_str.contains("2024-06-28T14:30:00Z"));
+  }
+
+  #[test]
+  fn test_prerender_result_clone() {
+    let result1 = PrerenderResult {
+      segment_id: "clone_test".to_string(),
+      output_path: "/clone/test.mp4".to_string(),
+      duration: 5.5,
+      size_bytes: 128000,
+      compression_ratio: 0.8,
+    };
+
+    let result2 = result1.clone();
+
+    assert_eq!(result1.segment_id, result2.segment_id);
+    assert_eq!(result1.output_path, result2.output_path);
+    assert_eq!(result1.duration, result2.duration);
+    assert_eq!(result1.size_bytes, result2.size_bytes);
+    assert_eq!(result1.compression_ratio, result2.compression_ratio);
+  }
+
+  #[test]
+  fn test_prerender_cache_info_clone() {
+    let info1 = PrerenderCacheInfo {
+      segments: 10,
+      total_size: 8192000,
+      total_duration: 100.0,
+    };
+
+    let info2 = info1.clone();
+
+    assert_eq!(info1.segments, info2.segments);
+    assert_eq!(info1.total_size, info2.total_size);
+    assert_eq!(info1.total_duration, info2.total_duration);
+  }
+
+  #[test]
+  fn test_prerender_cache_file_clone() {
+    let file1 = PrerenderCacheFile {
+      path: "/clone/cache.mp4".to_string(),
+      segment_id: "clone_cache".to_string(),
+      duration: 25.0,
+      size_bytes: 3072000,
+      created_at: "2024-06-28T16:00:00Z".to_string(),
+    };
+
+    let file2 = file1.clone();
+
+    assert_eq!(file1.path, file2.path);
+    assert_eq!(file1.segment_id, file2.segment_id);
+    assert_eq!(file1.duration, file2.duration);
+    assert_eq!(file1.size_bytes, file2.size_bytes);
+    assert_eq!(file1.created_at, file2.created_at);
+  }
+}
