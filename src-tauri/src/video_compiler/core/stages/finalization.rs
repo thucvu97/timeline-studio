@@ -48,7 +48,7 @@ impl FinalizationStage {
           log::debug!("🗑️ Удалена временная директория: {:?}", context.temp_dir);
         }
         Err(e) => {
-          log::warn!("⚠️ Не удалось удалить временную директорию: {}", e);
+          log::warn!("⚠️ Не удалось удалить временную директорию: {e}");
         }
       }
     }
@@ -80,7 +80,7 @@ impl FinalizationStage {
 
     context.update_progress(60, "Finalization").await?;
 
-    log::info!("✅ Метаданные сохранены: {:?}", metadata_path);
+    log::info!("✅ Метаданные сохранены: {metadata_path:?}");
     Ok(())
   }
 
@@ -225,7 +225,7 @@ impl FinalizationStage {
       .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
 
     if output.status.success() {
-      log::info!("✅ Превью создано: {:?}", thumbnail_path);
+      log::info!("✅ Превью создано: {thumbnail_path:?}");
     } else {
       log::warn!("⚠️ Не удалось создать превью");
     }

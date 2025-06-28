@@ -42,10 +42,10 @@ impl EventHandler for ProjectEventHandler {
         );
       }
       AppEvent::ProjectOpened { project_id, path } => {
-        println!("Project opened: {} from {}", project_id, path);
+        println!("Project opened: {project_id} from {path}");
       }
       AppEvent::ProjectClosed { project_id } => {
-        println!("Project closed: {}", project_id);
+        println!("Project closed: {project_id}");
       }
       _ => {} // Игнорируем другие события
     }
@@ -67,7 +67,7 @@ impl EventHandler for RenderProgressHandler {
   async fn handle(&self, event: Self::Event) -> Result<()> {
     match event {
       AppEvent::RenderStarted { job_id, project_id } => {
-        println!("🎬 Render started: {} for project {}", job_id, project_id);
+        println!("🎬 Render started: {job_id} for project {project_id}");
       }
       AppEvent::RenderProgress { job_id, progress } => {
         let progress_bar = "█".repeat((progress * 20.0) as usize);
@@ -84,10 +84,10 @@ impl EventHandler for RenderProgressHandler {
         job_id,
         output_path,
       } => {
-        println!("✅ Render completed: {} -> {}", job_id, output_path);
+        println!("✅ Render completed: {job_id} -> {output_path}");
       }
       AppEvent::RenderFailed { job_id, error } => {
-        println!("❌ Render failed: {} - {}", job_id, error);
+        println!("❌ Render failed: {job_id} - {error}");
       }
       _ => {}
     }
@@ -265,7 +265,7 @@ async fn _advanced_example(event_bus: Arc<EventBus>) -> Result<()> {
     async fn handle(&self, event: Self::Event) -> Result<()> {
       if let AppEvent::MediaImported { media_id, .. } = event {
         // После импорта автоматически начинаем анализ
-        println!("🔗 Chained: Starting recognition for {}", media_id);
+        println!("🔗 Chained: Starting recognition for {media_id}");
 
         self
           .event_bus

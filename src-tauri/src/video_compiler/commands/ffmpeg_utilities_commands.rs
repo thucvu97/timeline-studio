@@ -124,7 +124,7 @@ pub async fn execute_ffmpeg_with_progress_advanced(
       stderr: String::new(),
       final_progress: None,
       duration_ms: start_time.elapsed().as_millis() as u64,
-      error: Some(format!("Task join error: {}", e)),
+      error: Some(format!("Task join error: {e}")),
     }),
   }
 }
@@ -138,8 +138,7 @@ pub async fn get_ffmpeg_available_codecs(
     Ok(codecs) => Ok(codecs),
     Err(e) => Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Failed to get FFmpeg codecs: {}",
-        e
+        "Failed to get FFmpeg codecs: {e}"
       )),
     ),
   }
@@ -154,8 +153,7 @@ pub async fn get_ffmpeg_available_formats(
     Ok(formats) => Ok(formats),
     Err(e) => Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Failed to get FFmpeg formats: {}",
-        e
+        "Failed to get FFmpeg formats: {e}"
       )),
     ),
   }
@@ -235,8 +233,7 @@ pub async fn get_ffmpeg_execution_information(
     }
     Err(e) => Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Failed to get FFmpeg execution info: {}",
-        e
+        "Failed to get FFmpeg execution info: {e}"
       )),
     ),
   }

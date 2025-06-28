@@ -59,7 +59,7 @@ pub async fn get_recommended_gpu(state: State<'_, VideoCompilerState>) -> Result
   let recommended_encoder = gpu_service.get_recommended_encoder().await?;
 
   Ok(recommended_encoder.map(|encoder| GpuInfo {
-    name: format!("{:?} Encoder", encoder),
+    name: format!("{encoder:?} Encoder"),
     driver_version: None,
     memory_total: None,
     memory_used: None,
@@ -224,7 +224,7 @@ mod tests {
     // Test logic for creating recommended GPU info
     let encoder = GpuEncoder::Nvenc;
     let gpu_info = GpuInfo {
-      name: format!("{:?} Encoder", encoder),
+      name: format!("{encoder:?} Encoder"),
       driver_version: None,
       memory_total: None,
       memory_used: None,
@@ -312,7 +312,7 @@ mod tests {
         "vaapi" => GpuEncoder::Vaapi,
         _ => GpuEncoder::Software,
       };
-      assert_eq!(result, expected, "Failed for input: {}", input);
+      assert_eq!(result, expected, "Failed for input: {input}");
     }
   }
 
@@ -401,16 +401,14 @@ mod tests {
     for util in &valid_utilizations {
       assert!(
         (0.0..=100.0).contains(util),
-        "Utilization {} should be valid",
-        util
+        "Utilization {util} should be valid"
       );
     }
 
     for util in &invalid_utilizations {
       assert!(
         !(0.0..=100.0).contains(util),
-        "Utilization {} should be invalid",
-        util
+        "Utilization {util} should be invalid"
       );
     }
   }

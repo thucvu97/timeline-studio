@@ -239,7 +239,7 @@ impl<'a> FilterBuilder<'a> {
       let mix_filter = format!(
         "{}amix=inputs={}[outa]",
         (0..filters.len())
-          .map(|i| format!("[atrack{}]", i))
+          .map(|i| format!("[atrack{i}]"))
           .collect::<Vec<_>>()
           .join(""),
         filters.len()
@@ -410,11 +410,11 @@ impl<'a> FilterBuilder<'a> {
 
     for i in 0..track_count {
       if i == 0 {
-        overlay.push_str(&format!("[track{}]", i));
+        overlay.push_str(&format!("[track{i}]"));
       } else {
-        overlay.push_str(&format!("[track{}]overlay=0:0", i));
+        overlay.push_str(&format!("[track{i}]overlay=0:0"));
         if i < track_count - 1 {
-          overlay.push_str(&format!("[tmp{}];[tmp{}]", i, i));
+          overlay.push_str(&format!("[tmp{i}];[tmp{i}]"));
         }
       }
     }

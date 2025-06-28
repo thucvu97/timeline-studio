@@ -66,7 +66,7 @@ impl ProgressTracker {
     };
     let _ = self.progress_sender.send(update);
 
-    log::info!("Создана новая задача рендеринга: {}", job_id);
+    log::info!("Создана новая задача рендеринга: {job_id}");
     Ok(job_id)
   }
 
@@ -169,7 +169,7 @@ impl ProgressTracker {
       };
       let _ = self.progress_sender.send(update);
 
-      log::error!("Задача {} завершена с ошибкой: {}", job_id, error);
+      log::error!("Задача {job_id} завершена с ошибкой: {error}");
     } else {
       return Err(VideoCompilerError::render(
         job_id,
@@ -194,7 +194,7 @@ impl ProgressTracker {
       };
       let _ = self.progress_sender.send(update);
 
-      log::info!("Задача {} отменена", job_id);
+      log::info!("Задача {job_id} отменена");
     } else {
       return Err(VideoCompilerError::render(
         job_id,
@@ -245,7 +245,7 @@ impl ProgressTracker {
     // Удаляем просроченные задачи
     for job_id in expired_job_ids {
       if let Some(mut job) = jobs.remove(&job_id) {
-        let _ = job.fail(format!("Задача превысила таймаут ({:?})", timeout_duration));
+        let _ = job.fail(format!("Задача превысила таймаут ({timeout_duration:?})"));
 
         // Отправляем уведомление о таймауте
         let update = ProgressUpdate::JobFailed {
@@ -256,7 +256,7 @@ impl ProgressTracker {
         let _ = self.progress_sender.send(update);
 
         timed_out_jobs.push(job_id.clone());
-        log::warn!("Задача {} отменена по таймауту", job_id);
+        log::warn!("Задача {job_id} отменена по таймауту");
       }
     }
 

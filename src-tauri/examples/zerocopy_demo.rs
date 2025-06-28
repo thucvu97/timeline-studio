@@ -167,13 +167,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   }
   let zero_copy_time = start.elapsed();
 
-  println!("  📈 Results for {} iterations:", iterations);
-  println!("    With copying: {:?}", with_copy_time);
-  println!("    Zero-copy: {:?}", zero_copy_time);
+  println!("  📈 Results for {iterations} iterations:");
+  println!("    With copying: {with_copy_time:?}");
+  println!("    Zero-copy: {zero_copy_time:?}");
 
   if with_copy_time > zero_copy_time {
     let speedup = with_copy_time.as_nanos() as f64 / zero_copy_time.as_nanos() as f64;
-    println!("    🚀 Zero-copy is {:.1}x faster!", speedup);
+    println!("    🚀 Zero-copy is {speedup:.1}x faster!");
   }
 
   // 8. Демонстрируем практический пример: обработка видео
@@ -184,10 +184,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   let width = 1280;
   let height = 720;
 
-  println!(
-    "  Processing {} frames ({}x{})...",
-    frame_count, width, height
-  );
+  println!("  Processing {frame_count} frames ({width}x{height})...");
   let pipeline_start = Instant::now();
 
   for frame_num in 0..frame_count {
@@ -224,7 +221,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   }
 
   let pipeline_time = pipeline_start.elapsed();
-  println!("  ✅ Pipeline completed in {:?}", pipeline_time);
+  println!("  ✅ Pipeline completed in {pipeline_time:?}");
   println!(
     "    Average: {:.2}ms per frame",
     pipeline_time.as_millis() as f64 / frame_count as f64

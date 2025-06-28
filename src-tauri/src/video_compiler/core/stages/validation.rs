@@ -50,31 +50,27 @@ impl ValidationStage {
     // Проверяем существование файла
     if !file_path.exists() {
       return Err(VideoCompilerError::ValidationError(format!(
-        "Файл не найден: {}",
-        path
+        "Файл не найден: {path}"
       )));
     }
 
     // Проверяем, что это файл, а не директория
     if !file_path.is_file() {
       return Err(VideoCompilerError::ValidationError(format!(
-        "Путь не является файлом: {}",
-        path
+        "Путь не является файлом: {path}"
       )));
     }
 
     // Проверяем размер файла
     let metadata = tokio::fs::metadata(file_path).await.map_err(|e| {
       VideoCompilerError::ValidationError(format!(
-        "Не удалось получить метаданные файла {}: {}",
-        path, e
+        "Не удалось получить метаданные файла {path}: {e}"
       ))
     })?;
 
     if metadata.len() == 0 {
       return Err(VideoCompilerError::ValidationError(format!(
-        "Файл пуст: {}",
-        path
+        "Файл пуст: {path}"
       )));
     }
 
@@ -82,7 +78,7 @@ impl ValidationStage {
     if let Some(extension) = file_path.extension().and_then(|e| e.to_str()) {
       let ext = extension.to_lowercase();
       if !self.is_supported_format(&ext) {
-        log::warn!("⚠️ Неподдерживаемый формат файла: {} ({})", path, ext);
+        log::warn!("⚠️ Неподдерживаемый формат файла: {path} ({ext})");
       }
     }
 
@@ -168,7 +164,7 @@ impl ValidationStage {
       export.resolution.height
     );
     log::info!("🎞️ FPS: {}", export.frame_rate);
-    log::info!("⏱️ Длительность: {:.2}s", total_duration);
+    log::info!("⏱️ Длительность: {total_duration:.2}s");
     log::info!("🎬 Треков: {}", project.tracks.len());
 
     Ok(())
@@ -198,8 +194,7 @@ impl ValidationStage {
       // Проверяем существование родительской директории
       if !parent.exists() {
         return Err(VideoCompilerError::ValidationError(format!(
-          "Выходная директория не существует: {:?}",
-          parent
+          "Выходная директория не существует: {parent:?}"
         )));
       }
 
@@ -212,8 +207,7 @@ impl ValidationStage {
         }
         Err(e) => {
           return Err(VideoCompilerError::ValidationError(format!(
-            "Нет прав на запись в директорию {:?}: {}",
-            parent, e
+            "Нет прав на запись в директорию {parent:?}: {e}"
           )));
         }
       }
@@ -241,8 +235,7 @@ impl ValidationStage {
 
     if available_space < min_required_space {
       return Err(VideoCompilerError::ValidationError(format!(
-        "Недостаточно места на диске. Доступно: {} байт, требуется минимум: {} байт",
-        available_space, min_required_space
+        "Недостаточно места на диске. Доступно: {available_space} байт, требуется минимум: {min_required_space} байт"
       )));
     }
 

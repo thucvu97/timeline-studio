@@ -66,7 +66,7 @@ pub async fn set_preview_generator_ffmpeg_path_advanced(
   }
 
   // В реальной реализации здесь бы обновлялся путь в конкретном генераторе
-  log::info!("FFmpeg path updated to: {}", new_path);
+  log::info!("FFmpeg path updated to: {new_path}");
 
   Ok(())
 }

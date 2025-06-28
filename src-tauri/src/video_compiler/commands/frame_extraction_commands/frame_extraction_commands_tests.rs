@@ -158,7 +158,7 @@ mod tests {
   fn test_frame_path_generation() {
     let output_dir = "/tmp/frames";
     let timestamp = 5.75;
-    let expected_path = format!("{}/frame_{:.2}.png", output_dir, timestamp);
+    let expected_path = format!("{output_dir}/frame_{timestamp:.2}.png");
 
     assert_eq!(expected_path, "/tmp/frames/frame_5.75.png");
   }
@@ -173,7 +173,7 @@ mod tests {
     ];
 
     for (timestamp, expected) in test_cases {
-      let filename = format!("frame_{:.2}.png", timestamp);
+      let filename = format!("frame_{timestamp:.2}.png");
       assert_eq!(filename, expected);
     }
   }

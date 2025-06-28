@@ -214,8 +214,7 @@ pub async fn extract_project_subtitles(
       Ok(vtt_content)
     }
     _ => Err(VideoCompilerError::InvalidParameter(format!(
-      "Unsupported subtitle format: {}",
-      format
+      "Unsupported subtitle format: {format}"
     ))),
   }
 }
@@ -338,14 +337,14 @@ fn format_time_srt(seconds: f64) -> String {
   let hours = (seconds / 3600.0) as u32;
   let minutes = ((seconds % 3600.0) / 60.0) as u32;
   let secs = seconds % 60.0;
-  format!("{:02}:{:02}:{:06.3}", hours, minutes, secs).replace('.', ",")
+  format!("{hours:02}:{minutes:02}:{secs:06.3}").replace('.', ",")
 }
 
 fn format_time_vtt(seconds: f64) -> String {
   let hours = (seconds / 3600.0) as u32;
   let minutes = ((seconds % 3600.0) / 60.0) as u32;
   let secs = seconds % 60.0;
-  format!("{:02}:{:02}:{:06.3}", hours, minutes, secs)
+  format!("{hours:02}:{minutes:02}:{secs:06.3}")
 }
 
 // create_schema_objects moved to schema_commands.rs - removing duplicate
@@ -568,8 +567,7 @@ async fn _create_schema_objects_old(
       Ok(serde_json::to_value(clip)?)
     }
     _ => Err(VideoCompilerError::InvalidParameter(format!(
-      "Unknown object type: {}",
-      object_type
+      "Unknown object type: {object_type}"
     ))),
   }
 }
@@ -594,8 +592,7 @@ pub async fn track_operations(
     }
     _ => {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Unknown operation: {}",
-        operation
+        "Unknown operation: {operation}"
       )))
     }
   }
@@ -618,8 +615,7 @@ pub async fn get_clip_info(clip: Clip, info_type: String) -> Result<serde_json::
       }))
     }
     _ => Err(VideoCompilerError::InvalidParameter(format!(
-      "Unknown info type: {}",
-      info_type
+      "Unknown info type: {info_type}"
     ))),
   }
 }

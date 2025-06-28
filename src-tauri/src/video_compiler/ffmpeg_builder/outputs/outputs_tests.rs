@@ -330,8 +330,7 @@ mod bitrate_edge_cases_tests {
       let bitrate = builder.calculate_default_bitrate();
       assert_eq!(
         bitrate, expected_bitrate,
-        "Bitrate {} should be {} for {}x{} {}fps quality {}",
-        bitrate, expected_bitrate, width, height, fps, quality
+        "Bitrate {bitrate} should be {expected_bitrate} for {width}x{height} {fps}fps quality {quality}"
       );
     }
   }
@@ -605,9 +604,7 @@ mod preset_quality_tests {
       assert_eq!(
         builder.get_preset(),
         expected_preset,
-        "Quality {} should map to preset {}",
-        quality,
-        expected_preset
+        "Quality {quality} should map to preset {expected_preset}"
       );
     }
   }
@@ -823,10 +820,10 @@ mod performance_tests {
       let settings = create_ffmpeg_settings(false, None);
       let builder = OutputBuilder::new(&project, &settings);
       let mut cmd = Command::new("ffmpeg");
-      let output_path = PathBuf::from(format!("/tmp/test.{:?}", format));
+      let output_path = PathBuf::from(format!("/tmp/test.{format:?}"));
 
       let result = builder.add_output_settings(&mut cmd, &output_path).await;
-      assert!(result.is_ok(), "Failed for format: {:?}", format);
+      assert!(result.is_ok(), "Failed for format: {format:?}");
     }
   }
 
@@ -846,8 +843,7 @@ mod performance_tests {
     // Должно выполняться быстро
     assert!(
       duration.as_millis() < 100,
-      "Bitrate calculation too slow: {:?}",
-      duration
+      "Bitrate calculation too slow: {duration:?}"
     );
   }
 }

@@ -468,7 +468,7 @@ impl FrameExtractionManager {
           scene_change_score: None,
           is_keyframe: false,
         });
-        log::debug!("Кадр на {:.2}s найден в кэше", timestamp);
+        log::debug!("Кадр на {timestamp:.2}s найден в кэше");
       } else {
         uncached_timestamps.push(*timestamp);
       }
@@ -514,7 +514,7 @@ impl FrameExtractionManager {
 
               let mut cache = self.cache.write().await;
               if let Err(e) = cache.store_preview(preview_key, data.clone()).await {
-                log::warn!("Не удалось сохранить кадр в кэш: {}", e);
+                log::warn!("Не удалось сохранить кадр в кэш: {e}");
               }
               drop(cache);
 
@@ -527,7 +527,7 @@ impl FrameExtractionManager {
               });
             }
             Err(e) => {
-              log::warn!("Не удалось извлечь кадр на {:.2}s: {}", timestamp, e);
+              log::warn!("Не удалось извлечь кадр на {timestamp:.2}s: {e}");
             }
           }
         }
@@ -555,7 +555,7 @@ impl FrameExtractionManager {
 
               let mut cache = self.cache.write().await;
               if let Err(e) = cache.store_preview(preview_key, data.clone()).await {
-                log::warn!("Не удалось сохранить кадр в кэш: {}", e);
+                log::warn!("Не удалось сохранить кадр в кэш: {e}");
               }
               drop(cache);
 
@@ -568,7 +568,7 @@ impl FrameExtractionManager {
               });
             }
             Err(e) => {
-              log::warn!("Не удалось извлечь кадр на {:.2}s: {}", timestamp, e);
+              log::warn!("Не удалось извлечь кадр на {timestamp:.2}s: {e}");
             }
           }
         }

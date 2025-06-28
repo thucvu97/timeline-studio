@@ -146,8 +146,8 @@ pub async fn process_video_batch(
       Ok(results)
     }
     Err(e) => {
-      log::error!("Ошибка пакетного распознавания: {}", e);
-      Err(format!("Ошибка пакетного распознавания: {}", e))
+      log::error!("Ошибка пакетного распознавания: {e}");
+      Err(format!("Ошибка пакетного распознавания: {e}"))
     }
   }
 }
@@ -187,7 +187,7 @@ pub async fn load_yolo_model(state: State<'_, RecognitionState>) -> Result<(), S
     .service
     .load_object_model()
     .await
-    .map_err(|e| format!("Ошибка загрузки модели YOLO: {}", e))?;
+    .map_err(|e| format!("Ошибка загрузки модели YOLO: {e}"))?;
 
   log::info!("Модель YOLO для объектов загружена успешно");
   Ok(())
@@ -201,7 +201,7 @@ pub async fn set_yolo_target_classes(
 ) -> Result<(), String> {
   state.service.set_object_classes(classes.clone()).await;
 
-  log::info!("Установлены целевые классы для объектов: {:?}", classes);
+  log::info!("Установлены целевые классы для объектов: {classes:?}");
   Ok(())
 }
 
@@ -228,7 +228,7 @@ pub async fn process_yolo_batch(
     .service
     .process_objects_batch(paths)
     .await
-    .map_err(|e| format!("Ошибка пакетной обработки YOLO для объектов: {}", e))
+    .map_err(|e| format!("Ошибка пакетной обработки YOLO для объектов: {e}"))
 }
 
 /// Очистить результаты распознавания

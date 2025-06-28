@@ -411,7 +411,7 @@ async fn test_cleanup_if_needed_with_memory_limit() {
 
   // Добавляем много больших превью чтобы превысить лимит памяти
   for i in 0..100 {
-    let key = PreviewKey::new(format!("/test{}.mp4", i), i as f64, (1920, 1080), 90);
+    let key = PreviewKey::new(format!("/test{i}.mp4"), i as f64, (1920, 1080), 90);
     let large_data = vec![0u8; 100000]; // 100KB на превью
     cache.store_preview(key, large_data).await.unwrap();
   }

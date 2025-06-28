@@ -219,7 +219,7 @@ pub async fn get_prerendered_segments(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<Vec<PrerenderCacheFile>> {
   // Заглушка - возвращаем пустой список
-  log::debug!("Getting prerendered segments for project: {}", project_id);
+  log::debug!("Getting prerendered segments for project: {project_id}");
   Ok(vec![])
 }
 
@@ -229,7 +229,7 @@ pub async fn delete_prerendered_segment(
   segment_id: String,
   state: State<'_, VideoCompilerState>,
 ) -> Result<()> {
-  log::info!("Deleting prerendered segment: {}", segment_id);
+  log::info!("Deleting prerendered segment: {segment_id}");
 
   // Очищаем из кэша
   let mut cache = state.cache_manager.write().await;
@@ -244,7 +244,7 @@ pub async fn optimize_prerender_cache(
   max_size_mb: u64,
   state: State<'_, VideoCompilerState>,
 ) -> Result<u64> {
-  log::info!("Optimizing prerender cache to max size: {} MB", max_size_mb);
+  log::info!("Optimizing prerender cache to max size: {max_size_mb} MB");
 
   let mut cache = state.cache_manager.write().await;
   cache.cleanup_old_entries().await?;
@@ -465,7 +465,7 @@ mod tests {
       compression_ratio: 0.9,
     };
 
-    let debug_str = format!("{:?}", result);
+    let debug_str = format!("{result:?}");
     assert!(debug_str.contains("debug_test"));
     assert!(debug_str.contains("/debug/test.mp4"));
     assert!(debug_str.contains("7.5"));
@@ -481,7 +481,7 @@ mod tests {
       total_duration: 70.0,
     };
 
-    let debug_str = format!("{:?}", cache_info);
+    let debug_str = format!("{cache_info:?}");
     assert!(debug_str.contains("segments: 7"));
     assert!(debug_str.contains("total_size: 4096000"));
     assert!(debug_str.contains("total_duration: 70.0"));
@@ -497,7 +497,7 @@ mod tests {
       created_at: "2024-06-28T14:30:00Z".to_string(),
     };
 
-    let debug_str = format!("{:?}", cache_file);
+    let debug_str = format!("{cache_file:?}");
     assert!(debug_str.contains("debug_cache"));
     assert!(debug_str.contains("/debug/cache.mp4"));
     assert!(debug_str.contains("20.0"));

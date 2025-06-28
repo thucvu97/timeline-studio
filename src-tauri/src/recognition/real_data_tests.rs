@@ -24,19 +24,19 @@ async fn extract_frames_for_recognition(
   // Временная реализация - создаем пути к несуществующим кадрам
   // В реальной реализации здесь должен использоваться FrameExtractionManager
 
-  println!("Mock frame extraction from: {:?}", video_path);
+  println!("Mock frame extraction from: {video_path:?}");
 
   let recognition_dir = output_dir.join("recognition");
   std::fs::create_dir_all(&recognition_dir)?;
 
   let mut frame_paths = Vec::new();
   for i in 0..count {
-    let frame_path = recognition_dir.join(format!("frame_{:03}.png", i));
+    let frame_path = recognition_dir.join(format!("frame_{i:03}.png"));
     frame_paths.push(frame_path);
   }
 
   // В реальной реализации здесь бы вызывался FFmpeg для извлечения кадров
-  println!("Would extract {} frames to {:?}", count, recognition_dir);
+  println!("Would extract {count} frames to {recognition_dir:?}");
 
   Ok(frame_paths)
 }
@@ -99,7 +99,7 @@ async fn test_yolo_on_hevc_video() {
         // }
       }
       Err(e) => {
-        println!("Failed to load YOLO model: {}", e);
+        println!("Failed to load YOLO model: {e}");
         println!("Skipping test - model not available");
       }
     }
@@ -339,13 +339,13 @@ async fn test_batch_processing() {
         match processor.process_batch(all_frame_paths).await {
           Ok(batch_results) => {
             let duration = start.elapsed();
-            println!("Batch processed in {:?}", duration);
+            println!("Batch processed in {duration:?}");
 
             let total_detections: usize = batch_results.iter().map(|r| r.len()).sum();
 
-            println!("Total detections across all frames: {}", total_detections);
+            println!("Total detections across all frames: {total_detections}");
           }
-          Err(e) => println!("Batch processing failed: {}", e),
+          Err(e) => println!("Batch processing failed: {e}"),
         }
       }
     }

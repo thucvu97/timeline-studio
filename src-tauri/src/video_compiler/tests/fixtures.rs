@@ -91,7 +91,7 @@ pub fn create_test_effect(effect_type: EffectType) -> Effect {
 
   Effect {
     id: format!("effect-{}", uuid::Uuid::new_v4()),
-    name: format!("{:?} Effect", effect_type),
+    name: format!("{effect_type:?} Effect"),
     effect_type,
     category: None,
     complexity: None,

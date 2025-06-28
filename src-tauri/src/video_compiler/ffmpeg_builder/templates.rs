@@ -83,9 +83,9 @@ impl<'a> TemplateBuilder<'a> {
 
     for (idx, region) in template.regions.iter().enumerate() {
       let input_label = if region.padding > 0 {
-        format!("[padded{}]", idx)
+        format!("[padded{idx}]")
       } else {
-        format!("[region{}]", idx)
+        format!("[region{idx}]")
       };
 
       if idx == 0 {
@@ -149,7 +149,7 @@ impl<'a> TemplateBuilder<'a> {
           // Применяем анимацию
           if !element.animations.is_empty() {
             let animated_filter = self.apply_element_animation(
-              &format!("[text{}]", idx),
+              &format!("[text{idx}]"),
               element,
               idx,
               template.duration,
@@ -161,7 +161,7 @@ impl<'a> TemplateBuilder<'a> {
           let output = if idx == template.elements.len() - 1 {
             "[style_output]"
           } else {
-            &format!("[layer{}]", idx)
+            &format!("[layer{idx}]")
           };
 
           overlay_chain.push_str(&format!(
@@ -170,7 +170,7 @@ impl<'a> TemplateBuilder<'a> {
           ));
 
           if idx < template.elements.len() - 1 {
-            let layer_name = format!("[layer{}]", idx);
+            let layer_name = format!("[layer{idx}]");
             layer_names.push(layer_name.clone());
             current_layer = layer_name;
           }
@@ -186,7 +186,7 @@ impl<'a> TemplateBuilder<'a> {
           // Применяем анимацию
           if !element.animations.is_empty() {
             let animated_filter = self.apply_element_animation(
-              &format!("[img{}]", idx),
+              &format!("[img{idx}]"),
               element,
               idx,
               template.duration,
@@ -198,7 +198,7 @@ impl<'a> TemplateBuilder<'a> {
           let output = if idx == template.elements.len() - 1 {
             "[style_output]"
           } else {
-            &format!("[layer{}]", idx)
+            &format!("[layer{idx}]")
           };
 
           overlay_chain.push_str(&format!(
@@ -207,7 +207,7 @@ impl<'a> TemplateBuilder<'a> {
           ));
 
           if idx < template.elements.len() - 1 {
-            let layer_name = format!("[layer{}]", idx);
+            let layer_name = format!("[layer{idx}]");
             layer_names.push(layer_name.clone());
             current_layer = layer_name;
           }
@@ -220,7 +220,7 @@ impl<'a> TemplateBuilder<'a> {
           // Применяем анимацию
           if !element.animations.is_empty() {
             let animated_filter = self.apply_element_animation(
-              &format!("[shape{}]", idx),
+              &format!("[shape{idx}]"),
               element,
               idx,
               template.duration,
@@ -232,7 +232,7 @@ impl<'a> TemplateBuilder<'a> {
           let output = if idx == template.elements.len() - 1 {
             "[style_output]"
           } else {
-            &format!("[layer{}]", idx)
+            &format!("[layer{idx}]")
           };
 
           overlay_chain.push_str(&format!(
@@ -241,7 +241,7 @@ impl<'a> TemplateBuilder<'a> {
           ));
 
           if idx < template.elements.len() - 1 {
-            let layer_name = format!("[layer{}]", idx);
+            let layer_name = format!("[layer{idx}]");
             layer_names.push(layer_name.clone());
             current_layer = layer_name;
           }
@@ -262,7 +262,7 @@ impl<'a> TemplateBuilder<'a> {
           // Применяем анимацию
           if !element.animations.is_empty() {
             let animated_filter = self.apply_element_animation(
-              &format!("[vid{}]", idx),
+              &format!("[vid{idx}]"),
               element,
               idx,
               template.duration,
@@ -274,7 +274,7 @@ impl<'a> TemplateBuilder<'a> {
           let output = if idx == template.elements.len() - 1 {
             "[style_output]"
           } else {
-            &format!("[layer{}]", idx)
+            &format!("[layer{idx}]")
           };
 
           overlay_chain.push_str(&format!(
@@ -283,7 +283,7 @@ impl<'a> TemplateBuilder<'a> {
           ));
 
           if idx < template.elements.len() - 1 {
-            let layer_name = format!("[layer{}]", idx);
+            let layer_name = format!("[layer{idx}]");
             layer_names.push(layer_name.clone());
             current_layer = layer_name;
           }
@@ -479,16 +479,12 @@ impl<'a> TemplateBuilder<'a> {
         AnimationType::Bounce => {
           // Bounce effect using sine wave
           filter.push_str(&format!(
-            "{}overlay=x=0:y=sin(t*10)*20[animated{}]",
-            input, index
+            "{input}overlay=x=0:y=sin(t*10)*20[animated{index}]"
           ));
         }
         AnimationType::Shake => {
           // Shake effect
-          filter.push_str(&format!(
-            "{}crop=iw:ih:sin(t*50)*5:0[animated{}]",
-            input, index
-          ));
+          filter.push_str(&format!("{input}crop=iw:ih:sin(t*50)*5:0[animated{index}]"));
         }
         AnimationType::Pulse => {
           // Pulse effect
@@ -564,7 +560,7 @@ impl<'a> TemplateBuilder<'a> {
 
     if filter.is_empty() {
       // Если нет анимаций, просто переименовываем выход
-      Ok(format!("{}null[animated{}]", input, index))
+      Ok(format!("{input}null[animated{index}]"))
     } else {
       Ok(filter)
     }
@@ -582,43 +578,42 @@ impl<'a> TemplateBuilder<'a> {
   ) -> Result<String> {
     let (x_expr, y_expr) = match (direction, is_in) {
       ("left", true) => (
-        format!("-w + w * (t - {}) / {}", start_time, duration),
+        format!("-w + w * (t - {start_time}) / {duration}"),
         "0".to_string(),
       ),
       ("left", false) => (
-        format!("0 - w * (t - {}) / {}", start_time, duration),
+        format!("0 - w * (t - {start_time}) / {duration}"),
         "0".to_string(),
       ),
       ("right", true) => (
-        format!("W - W * (1 - (t - {}) / {})", start_time, duration),
+        format!("W - W * (1 - (t - {start_time}) / {duration})"),
         "0".to_string(),
       ),
       ("right", false) => (
-        format!("0 + W * (t - {}) / {}", start_time, duration),
+        format!("0 + W * (t - {start_time}) / {duration}"),
         "0".to_string(),
       ),
       ("top", true) => (
         "0".to_string(),
-        format!("-h + h * (t - {}) / {}", start_time, duration),
+        format!("-h + h * (t - {start_time}) / {duration}"),
       ),
       ("top", false) => (
         "0".to_string(),
-        format!("0 - h * (t - {}) / {}", start_time, duration),
+        format!("0 - h * (t - {start_time}) / {duration}"),
       ),
       ("bottom", true) => (
         "0".to_string(),
-        format!("H - H * (1 - (t - {}) / {})", start_time, duration),
+        format!("H - H * (1 - (t - {start_time}) / {duration})"),
       ),
       ("bottom", false) => (
         "0".to_string(),
-        format!("0 + H * (t - {}) / {}", start_time, duration),
+        format!("0 + H * (t - {start_time}) / {duration}"),
       ),
       _ => ("0".to_string(), "0".to_string()),
     };
 
     Ok(format!(
-      "{}overlay=x='{}':y='{}'[animated{}]",
-      input, x_expr, y_expr, index
+      "{input}overlay=x='{x_expr}':y='{y_expr}'[animated{index}]"
     ))
   }
 

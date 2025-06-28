@@ -264,7 +264,7 @@ impl OAuthHandler {
           Ok(true)
         }
         Err(e) => {
-          log::warn!("Failed to auto-refresh token for {:?}: {}", service, e);
+          log::warn!("Failed to auto-refresh token for {service:?}: {e}");
           Err(e)
         }
       }
@@ -289,7 +289,7 @@ impl OAuthHandler {
     let response = self
       .client
       .get(endpoint)
-      .header("Authorization", format!("Bearer {}", access_token))
+      .header("Authorization", format!("Bearer {access_token}"))
       .send()
       .await
       .context("Failed to get user info")?;

@@ -219,11 +219,7 @@ pub async fn create_custom_alert(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<String> {
   log::info!(
-    "Создание кастомного алерта: {} для метрики {} {} {}",
-    alert_name,
-    metric_name,
-    operator,
-    threshold
+    "Создание кастомного алерта: {alert_name} для метрики {metric_name} {operator} {threshold}"
   );
 
   let alert_id = uuid::Uuid::new_v4().to_string();
@@ -242,12 +238,7 @@ pub async fn get_metrics_history(
   hours_back: u32,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
-  log::debug!(
-    "Получение истории метрик для {} - {} за {} часов",
-    service_name,
-    metric_name,
-    hours_back
-  );
+  log::debug!("Получение истории метрик для {service_name} - {metric_name} за {hours_back} часов");
 
   // Симуляция исторических данных
   let mut data_points = Vec::new();

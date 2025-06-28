@@ -78,7 +78,7 @@ pub async fn execute_ffmpeg_with_progress_tracking(
   let result = execution_task.await.map_err(|e| {
     crate::video_compiler::error::VideoCompilerError::FFmpegError {
       exit_code: None,
-      stderr: format!("Task join error: {}", e),
+      stderr: format!("Task join error: {e}"),
       command: "ffmpeg".to_string(),
     }
   })?;

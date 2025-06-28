@@ -209,7 +209,7 @@ pub async fn reset_service_metrics_advanced(
   service_name: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
-  log::info!("Resetting metrics for service: {}", service_name);
+  log::info!("Resetting metrics for service: {service_name}");
   Ok(true)
 }
 

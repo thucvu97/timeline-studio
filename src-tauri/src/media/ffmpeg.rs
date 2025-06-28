@@ -14,7 +14,7 @@ pub fn check_ffmpeg() -> Result<(), String> {
 
 /// Извлекает кадр из видео в указанный момент времени
 pub fn extract_frame(input_path: &str, output_path: &str, time_seconds: f64) -> Result<(), String> {
-  let time_str = format!("{:.2}", time_seconds);
+  let time_str = format!("{time_seconds:.2}");
 
   let output = Command::new("ffmpeg")
     .args([
@@ -30,13 +30,13 @@ pub fn extract_frame(input_path: &str, output_path: &str, time_seconds: f64) -> 
       output_path, // Выходной файл
     ])
     .output()
-    .map_err(|e| format!("Failed to run ffmpeg: {}", e))?;
+    .map_err(|e| format!("Failed to run ffmpeg: {e}"))?;
 
   if output.status.success() {
     Ok(())
   } else {
     let error = String::from_utf8_lossy(&output.stderr);
-    Err(format!("FFmpeg failed: {}", error))
+    Err(format!("FFmpeg failed: {error}"))
   }
 }
 
@@ -50,7 +50,7 @@ mod tests {
     // Примечание: этот тест может не пройти, если FFmpeg не установлен
     match check_ffmpeg() {
       Ok(_) => println!("FFmpeg найден"),
-      Err(e) => println!("FFmpeg не найден: {}", e),
+      Err(e) => println!("FFmpeg не найден: {e}"),
     }
     // Не делаем assert, так как FFmpeg может быть не установлен в CI
   }

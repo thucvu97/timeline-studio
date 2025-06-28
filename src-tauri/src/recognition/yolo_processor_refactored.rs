@@ -87,7 +87,7 @@ impl YoloProcessor {
     let frames = self.extract_frames(video_path)?;
 
     let total_frames = frames.len();
-    log::info!("Processing {} frames from video", total_frames);
+    log::info!("Processing {total_frames} frames from video");
 
     for (frame_idx, (frame_number, timestamp, image)) in frames.into_iter().enumerate() {
       if frame_idx % self.config.frame_interval != 0 {
@@ -99,14 +99,14 @@ impl YoloProcessor {
           aggregator.add_frame_result(frame_number, timestamp, detections);
         }
         Err(e) => {
-          log::warn!("Failed to process frame {}: {}", frame_number, e);
+          log::warn!("Failed to process frame {frame_number}: {e}");
         }
       }
 
       // Прогресс
       if frame_idx % 30 == 0 {
         let progress = (frame_idx as f32 / total_frames as f32) * 100.0;
-        log::info!("Processing progress: {:.1}%", progress);
+        log::info!("Processing progress: {progress:.1}%");
       }
     }
 
@@ -127,7 +127,7 @@ impl YoloProcessor {
           aggregator.add_frame_result(frame_number, timestamp, detections);
         }
         Err(e) => {
-          log::warn!("Failed to process frame {}: {}", frame_number, e);
+          log::warn!("Failed to process frame {frame_number}: {e}");
         }
       }
 
@@ -153,7 +153,7 @@ impl YoloProcessor {
     };
 
     tokio::fs::write(output_path, content).await?;
-    log::info!("Results saved to {:?}", output_path);
+    log::info!("Results saved to {output_path:?}");
     Ok(())
   }
 

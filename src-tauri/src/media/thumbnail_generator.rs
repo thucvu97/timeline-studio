@@ -80,7 +80,7 @@ impl ThumbnailGenerator {
     is_video: bool,
     options: &ThumbnailOptions,
   ) -> Result<(PathBuf, Option<String>), String> {
-    let thumbnail_filename = format!("{}.jpg", file_id);
+    let thumbnail_filename = format!("{file_id}.jpg");
     let thumbnail_path = self.thumbnail_dir.join(&thumbnail_filename);
     let file_path = Path::new(&file_path);
 
@@ -91,13 +91,13 @@ impl ThumbnailGenerator {
         thumbnail_path.to_str().unwrap(),
         options.time_offset,
       )
-      .map_err(|e| format!("Failed to extract frame: {}", e))?;
+      .map_err(|e| format!("Failed to extract frame: {e}"))?;
 
       // Загружаем извлеченный кадр
-      image::open(&thumbnail_path).map_err(|e| format!("Failed to open extracted frame: {}", e))?
+      image::open(&thumbnail_path).map_err(|e| format!("Failed to open extracted frame: {e}"))?
     } else {
       // Загружаем изображение
-      image::open(file_path).map_err(|e| format!("Failed to open image: {}", e))?
+      image::open(file_path).map_err(|e| format!("Failed to open image: {e}"))?
     };
 
     // Изменяем размер с сохранением пропорций
@@ -106,7 +106,7 @@ impl ThumbnailGenerator {
     // Сохраняем превью
     resized
       .save_with_format(&thumbnail_path, options.format)
-      .map_err(|e| format!("Failed to save thumbnail: {}", e))?;
+      .map_err(|e| format!("Failed to save thumbnail: {e}"))?;
 
     // Опционально конвертируем в base64
     let thumbnail_data = self.create_base64_data(&resized, options)?;
@@ -136,7 +136,7 @@ impl ThumbnailGenerator {
       let mut buffer = Vec::new();
       image
         .write_to(&mut std::io::Cursor::new(&mut buffer), options.format)
-        .map_err(|e| format!("Failed to encode image: {}", e))?;
+        .map_err(|e| format!("Failed to encode image: {e}"))?;
       Ok(Some(
         base64::engine::general_purpose::STANDARD.encode(&buffer),
       ))

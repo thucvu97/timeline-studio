@@ -146,13 +146,12 @@ impl DatabaseHealthCheck {
     // Проверяем существование директории
     if !path.exists() {
       // Пытаемся создать директорию
-      std::fs::create_dir_all(path)
-        .map_err(|e| format!("Failed to create data directory: {}", e))?;
+      std::fs::create_dir_all(path).map_err(|e| format!("Failed to create data directory: {e}"))?;
     }
 
     // Проверяем что это директория
     let metadata =
-      std::fs::metadata(path).map_err(|e| format!("Failed to access directory: {}", e))?;
+      std::fs::metadata(path).map_err(|e| format!("Failed to access directory: {e}"))?;
 
     if !metadata.is_dir() {
       return Err("Path exists but is not a directory".to_string());
@@ -160,10 +159,10 @@ impl DatabaseHealthCheck {
 
     // Проверяем права записи путем создания временного файла
     let temp_file = path.join(".health_check_test");
-    std::fs::write(&temp_file, b"test").map_err(|e| format!("Directory is not writable: {}", e))?;
+    std::fs::write(&temp_file, b"test").map_err(|e| format!("Directory is not writable: {e}"))?;
 
     // Удаляем временный файл
-    std::fs::remove_file(&temp_file).map_err(|e| format!("Failed to cleanup test file: {}", e))?;
+    std::fs::remove_file(&temp_file).map_err(|e| format!("Failed to cleanup test file: {e}"))?;
 
     Ok(())
   }
@@ -202,7 +201,7 @@ impl HealthCheck for DatabaseHealthCheck {
               all_healthy = false;
               details.insert(
                 "projects_dir".to_string(),
-                serde_json::Value::String(format!("error: {}", e)),
+                serde_json::Value::String(format!("error: {e}")),
               );
             }
           }
@@ -220,7 +219,7 @@ impl HealthCheck for DatabaseHealthCheck {
               all_healthy = false;
               details.insert(
                 "cache_dir".to_string(),
-                serde_json::Value::String(format!("error: {}", e)),
+                serde_json::Value::String(format!("error: {e}")),
               );
             }
           }
@@ -238,7 +237,7 @@ impl HealthCheck for DatabaseHealthCheck {
               all_healthy = false;
               details.insert(
                 "logs_dir".to_string(),
-                serde_json::Value::String(format!("error: {}", e)),
+                serde_json::Value::String(format!("error: {e}")),
               );
             }
           }
@@ -261,7 +260,7 @@ impl HealthCheck for DatabaseHealthCheck {
           }
         }
         Err(e) => {
-          HealthCheckResult::unhealthy(format!("Data directory error: {}", e), start.elapsed())
+          HealthCheckResult::unhealthy(format!("Data directory error: {e}"), start.elapsed())
             .with_data(
               "data_path",
               serde_json::Value::String(data_dir.display().to_string()),
@@ -323,17 +322,17 @@ impl HealthCheck for MemoryHealthCheck {
 
     let result = if usage_percent > self.critical_threshold {
       HealthCheckResult::unhealthy(
-        format!("Critical memory usage: {:.1}%", usage_percent),
+        format!("Critical memory usage: {usage_percent:.1}%"),
         start.elapsed(),
       )
     } else if usage_percent > self.warning_threshold {
       HealthCheckResult::warning(
-        format!("High memory usage: {:.1}%", usage_percent),
+        format!("High memory usage: {usage_percent:.1}%"),
         start.elapsed(),
       )
     } else {
       HealthCheckResult::healthy(
-        format!("Memory usage: {:.1}%", usage_percent),
+        format!("Memory usage: {usage_percent:.1}%"),
         start.elapsed(),
       )
     };
@@ -388,7 +387,7 @@ impl HealthCheck for PluginHealthCheck {
       .filter(|p| matches!(p.1, crate::core::plugins::plugin::PluginState::Active))
       .count();
 
-    let message = format!("Plugins: {}/{} active", active_count, total_count);
+    let message = format!("Plugins: {active_count}/{total_count} active");
 
     let result = if active_count == total_count {
       HealthCheckResult::healthy(message, start.elapsed())
@@ -433,7 +432,7 @@ impl HealthCheck for EventBusHealthCheck {
       .await
     {
       Ok(_) => HealthCheckResult::healthy("Event bus is responding", start.elapsed()),
-      Err(e) => HealthCheckResult::unhealthy(format!("Event bus error: {}", e), start.elapsed()),
+      Err(e) => HealthCheckResult::unhealthy(format!("Event bus error: {e}"), start.elapsed()),
     }
   }
 }
@@ -533,7 +532,7 @@ impl HealthCheckManager {
     let result = match tokio::time::timeout(timeout, check.check()).await {
       Ok(result) => result,
       Err(_) => HealthCheckResult::unhealthy(
-        format!("Health check '{}' timed out after {:?}", name, timeout),
+        format!("Health check '{name}' timed out after {timeout:?}"),
         timeout,
       ),
     };
@@ -774,7 +773,7 @@ mod tests {
     // Проверяем что процент использования памяти корректный
     assert!((0.0..=100.0).contains(&usage_percent));
     // Проверяем что сообщение содержит процент
-    assert!(result.message.contains(&format!("{:.1}%", usage_percent)));
+    assert!(result.message.contains(&format!("{usage_percent:.1}%")));
   }
 
   #[tokio::test]

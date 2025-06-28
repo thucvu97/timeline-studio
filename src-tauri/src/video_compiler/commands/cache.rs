@@ -21,8 +21,8 @@ pub async fn clear_render_cache(state: State<'_, VideoCompilerState>) -> Result<
   })?;
 
   cache_service.clear_render_cache().await.map_err(|e| {
-    log::error!("Ошибка очистки кэша рендеринга: {}", e);
-    VideoCompilerError::CacheError(format!("Не удалось очистить кэш рендеринга: {}", e))
+    log::error!("Ошибка очистки кэша рендеринга: {e}");
+    VideoCompilerError::CacheError(format!("Не удалось очистить кэш рендеринга: {e}"))
   })?;
 
   log::info!("Кэш рендеринга успешно очищен");
@@ -50,14 +50,11 @@ pub async fn clear_project_cache(
     .clear_project_cache(&project_id)
     .await
     .map_err(|e| {
-      log::error!("Ошибка очистки кэша проекта {}: {}", project_id, e);
-      VideoCompilerError::CacheError(format!(
-        "Не удалось очистить кэш проекта {}: {}",
-        project_id, e
-      ))
+      log::error!("Ошибка очистки кэша проекта {project_id}: {e}");
+      VideoCompilerError::CacheError(format!("Не удалось очистить кэш проекта {project_id}: {e}"))
     })?;
 
-  log::info!("Кэш проекта {} успешно очищен", project_id);
+  log::info!("Кэш проекта {project_id} успешно очищен");
   Ok(())
 }
 
@@ -130,15 +127,11 @@ pub async fn clean_old_cache(
     .optimize_cache(max_age_days)
     .await
     .map_err(|e| {
-      log::error!("Ошибка очистки устаревшего кэша: {}", e);
-      VideoCompilerError::CacheError(format!("Не удалось очистить устаревший кэш: {}", e))
+      log::error!("Ошибка очистки устаревшего кэша: {e}");
+      VideoCompilerError::CacheError(format!("Не удалось очистить устаревший кэш: {e}"))
     })?;
 
-  log::info!(
-    "Очищено {} файлов старше {} дней",
-    cleaned_files,
-    max_age_days
-  );
+  log::info!("Очищено {cleaned_files} файлов старше {max_age_days} дней");
   Ok(cleaned_files as u64)
 }
 

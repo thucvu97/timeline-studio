@@ -266,36 +266,27 @@ impl MetricsRegistry {
 
       // Основные метрики
       output.push_str(&format!(
-        "# HELP {}_operations_total Total number of operations\n",
-        service_name
+        "# HELP {service_name}_operations_total Total number of operations\n"
       ));
-      output.push_str(&format!(
-        "# TYPE {}_operations_total counter\n",
-        service_name
-      ));
+      output.push_str(&format!("# TYPE {service_name}_operations_total counter\n"));
       output.push_str(&format!(
         "{}_operations_total {}\n",
         service_name, summary.total_operations
       ));
 
       output.push_str(&format!(
-        "# HELP {}_errors_total Total number of errors\n",
-        service_name
+        "# HELP {service_name}_errors_total Total number of errors\n"
       ));
-      output.push_str(&format!("# TYPE {}_errors_total counter\n", service_name));
+      output.push_str(&format!("# TYPE {service_name}_errors_total counter\n"));
       output.push_str(&format!(
         "{}_errors_total {}\n",
         service_name, summary.total_errors
       ));
 
       output.push_str(&format!(
-        "# HELP {}_active_operations Current active operations\n",
-        service_name
+        "# HELP {service_name}_active_operations Current active operations\n"
       ));
-      output.push_str(&format!(
-        "# TYPE {}_active_operations gauge\n",
-        service_name
-      ));
+      output.push_str(&format!("# TYPE {service_name}_active_operations gauge\n"));
       output.push_str(&format!(
         "{}_active_operations {}\n",
         service_name, summary.active_operations

@@ -83,7 +83,7 @@ impl FileScanner {
     Box::pin(async move {
       let mut entries = fs::read_dir(path)
         .await
-        .map_err(|e| format!("Failed to read directory {:?}: {}", path, e))?;
+        .map_err(|e| format!("Failed to read directory {path:?}: {e}"))?;
 
       while let Ok(Some(entry)) = entries.next_entry().await {
         let path = entry.path();

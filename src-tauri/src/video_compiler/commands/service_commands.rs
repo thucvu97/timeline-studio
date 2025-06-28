@@ -121,7 +121,7 @@ pub async fn set_preview_ffmpeg_path(
   let output = std::process::Command::new(&path)
     .arg("-version")
     .output()
-    .map_err(|e| VideoCompilerError::InvalidParameter(format!("Invalid FFmpeg path: {}", e)))?;
+    .map_err(|e| VideoCompilerError::InvalidParameter(format!("Invalid FFmpeg path: {e}")))?;
 
   if !output.status.success() {
     return Err(VideoCompilerError::InvalidParameter(
@@ -181,7 +181,7 @@ pub async fn get_specific_service_metrics(
   service_name: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
-  log::debug!("Getting metrics for service: {}", service_name);
+  log::debug!("Getting metrics for service: {service_name}");
 
   let metrics = match service_name.as_str() {
     "render" => serde_json::json!({
@@ -218,8 +218,7 @@ pub async fn get_specific_service_metrics(
     }),
     _ => {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Unknown service: {}",
-        service_name
+        "Unknown service: {service_name}"
       )))
     }
   };
@@ -306,18 +305,17 @@ pub async fn restart_service(
   service_name: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<()> {
-  log::info!("Restarting service: {}", service_name);
+  log::info!("Restarting service: {service_name}");
 
   match service_name.as_str() {
     "render" | "cache" | "preview" | "gpu" => {
       // В реальной реализации здесь была бы логика перезапуска
       // Сейчас просто логируем
-      log::info!("Service {} restarted successfully", service_name);
+      log::info!("Service {service_name} restarted successfully");
       Ok(())
     }
     _ => Err(VideoCompilerError::InvalidParameter(format!(
-      "Unknown service: {}",
-      service_name
+      "Unknown service: {service_name}"
     ))),
   }
 }

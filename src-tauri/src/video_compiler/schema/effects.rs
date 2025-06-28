@@ -748,7 +748,7 @@ mod tests {
       max: Some(10.0),
     };
 
-    assert_eq!(format!("{}", duration), "2.5");
+    assert_eq!(format!("{duration}"), "2.5");
   }
 
   #[test]

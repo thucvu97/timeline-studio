@@ -61,8 +61,7 @@ impl MediaBridge {
     // Проверяем существование файла
     if !media_path.exists() {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Media file not found: {}",
-        media_id
+        "Media file not found: {media_id}"
       )));
     }
 
@@ -292,7 +291,7 @@ mod tests {
     // Должно работать для разрешенных путей (если они есть в permissions)
     let result = bridge.get_media_info(media_file.to_str().unwrap()).await;
     // В зависимости от разрешений может быть как Ok так и Err
-    println!("Media info result: {:?}", result);
+    println!("Media info result: {result:?}");
   }
 
   #[tokio::test]
@@ -314,7 +313,7 @@ mod tests {
     // Валидный эффект должен пройти проверку типа
     // (разрешения могут блокировать, но валидация пройдет)
     let result1 = bridge.apply_effect("test.mp4", &valid_effect).await;
-    println!("Valid effect result: {:?}", result1);
+    println!("Valid effect result: {result1:?}");
 
     // Невалидный эффект должен быть отклонен
     let result2 = bridge.apply_effect("test.mp4", &invalid_effect).await;

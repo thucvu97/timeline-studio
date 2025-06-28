@@ -217,12 +217,10 @@ async fn test_parse_various_progress_formats() {
 
   for (line, expected_frame, _expected_time) in test_cases {
     // Проверяем что строка содержит ожидаемые данные
-    let frame_pattern = format!(" {}", expected_frame);
+    let frame_pattern = format!(" {expected_frame}");
     assert!(
       line.contains("frame=") && line.contains(&frame_pattern),
-      "Line '{}' should contain frame={}",
-      line,
-      expected_frame
+      "Line '{line}' should contain frame={expected_frame}"
     );
   }
 }
@@ -350,7 +348,7 @@ async fn test_concurrent_executions() {
     let exec = executor.clone();
     let handle = tokio::spawn(async move {
       let mut cmd = Command::new("echo");
-      cmd.arg(format!("Task {}", i));
+      cmd.arg(format!("Task {i}"));
       exec.execute_simple(cmd).await
     });
     handles.push(handle);
@@ -368,6 +366,6 @@ async fn test_concurrent_executions() {
   for (i, result) in results.iter().enumerate() {
     assert!(result.is_ok());
     let output = String::from_utf8_lossy(result.as_ref().unwrap());
-    assert!(output.contains(&format!("Task {}", i)));
+    assert!(output.contains(&format!("Task {i}")));
   }
 }

@@ -528,8 +528,7 @@ mod edge_cases_tests {
       // Все должны быть невалидными из-за неправильного регистра
       assert!(
         result.is_err(),
-        "Should fail for case variation: {}",
-        variation
+        "Should fail for case variation: {variation}"
       );
     }
   }
@@ -648,11 +647,11 @@ mod integration_tests {
 
       // Сериализация должна работать для всех типов
       let serialized = serde_json::to_string(&key_data);
-      assert!(serialized.is_ok(), "Failed to serialize {:?}", key_type);
+      assert!(serialized.is_ok(), "Failed to serialize {key_type:?}");
 
       // Десериализация должна работать для всех типов
       let deserialized: Result<ApiKeyData, _> = serde_json::from_str(&serialized.unwrap());
-      assert!(deserialized.is_ok(), "Failed to deserialize {:?}", key_type);
+      assert!(deserialized.is_ok(), "Failed to deserialize {key_type:?}");
 
       let deserialized_data = deserialized.unwrap();
       assert_eq!(deserialized_data.key_type, key_type);

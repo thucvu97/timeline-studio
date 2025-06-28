@@ -159,7 +159,7 @@ mod pipeline_execute_tests {
 
     // Проверяем, что pipeline выполнился (может быть успешно или с ошибкой)
     if let Err(ref e) = result {
-      println!("Pipeline execution result: {}", e);
+      println!("Pipeline execution result: {e}");
     }
     // Принимаем любой результат, поскольку без реальных видеофайлов
     // различные этапы могут завершиться с ошибками
@@ -176,7 +176,7 @@ mod pipeline_execute_tests {
     }
     // Прогресс может быть получен или не получен в зависимости от того,
     // на каком этапе произошла ошибка
-    println!("Progress received: {}", progress_received);
+    println!("Progress received: {progress_received}");
   }
 
   #[tokio::test]
@@ -377,7 +377,7 @@ mod composition_stage_tests {
     // Проверяем логику пропуска composition stage
     // Может пропускаться или не пропускаться в зависимости от реализации
     let can_skip = stage.can_skip(&context);
-    println!("Composition stage can_skip: {}", can_skip);
+    println!("Composition stage can_skip: {can_skip}");
     // Тест может пройти с любым результатом логики пропуска
     // Просто убеждаемся, что функция can_skip не падает
     let _ = can_skip;
@@ -446,7 +446,7 @@ mod encoding_stage_tests {
     // Должен вернуть ошибку без composition результата
     assert!(result.is_err());
     if let Err(ref e) = result {
-      println!("Encoding error (expected): {}", e);
+      println!("Encoding error (expected): {e}");
       // Проверяем, что это ошибка связанная с отсутствием composition результата
       assert!(
         e.to_string().contains("Результат композиции не найден")
@@ -522,7 +522,7 @@ mod finalization_stage_tests {
 
     // Finalization может завершиться успешно или с ошибкой - зависит от реализации
     if let Err(ref e) = result {
-      println!("Finalization result: {}", e);
+      println!("Finalization result: {e}");
     }
     assert!(result.is_ok() || result.is_err());
   }
@@ -557,7 +557,7 @@ mod finalization_stage_tests {
 
     // Тестируем базовую логику - результат может быть различным
     if let Err(ref e) = result {
-      println!("Finalization with metadata result: {}", e);
+      println!("Finalization with metadata result: {e}");
     }
     assert!(result.is_ok() || result.is_err());
 
@@ -595,11 +595,11 @@ mod error_handling_tests {
     // Запускаем несколько pipeline параллельно
     for i in 0..3 {
       tasks.spawn(async move {
-        let project = create_complete_project_schema(&format!("Concurrent Test {}", i));
+        let project = create_complete_project_schema(&format!("Concurrent Test {i}"));
         let (tx, _rx) = mpsc::unbounded_channel::<ProgressUpdate>();
         let progress_tracker = Arc::new(ProgressTracker::new(tx));
         let settings = Arc::new(RwLock::new(CompilerSettings::default()));
-        let output_path = PathBuf::from(format!("/tmp/concurrent_{}.mp4", i));
+        let output_path = PathBuf::from(format!("/tmp/concurrent_{i}.mp4"));
 
         let mut pipeline = RenderPipeline::new(project, progress_tracker, settings, output_path)
           .await
@@ -607,7 +607,7 @@ mod error_handling_tests {
 
         // Отменяем сразу для быстрого теста
         pipeline.cancel().await.unwrap();
-        let result = pipeline.execute(&format!("job_{}", i)).await;
+        let result = pipeline.execute(&format!("job_{i}")).await;
         assert!(result.is_err());
       });
     }

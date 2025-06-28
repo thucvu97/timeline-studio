@@ -24,12 +24,12 @@ impl FFmpegBuilder {
     cmd.args(["-i", &input_path.to_string_lossy()]);
 
     // Фильтр для выбора кадров
-    let fps_filter = format!("fps=1/{}", count);
+    let fps_filter = format!("fps=1/{count}");
     let mut filter_complex = fps_filter;
 
     // Добавляем масштабирование если указан размер
     if let Some((width, height)) = size {
-      filter_complex = format!("{},scale={}:{}", filter_complex, width, height);
+      filter_complex = format!("{filter_complex},scale={width}:{height}");
     }
 
     cmd.args(["-vf", &filter_complex]);
@@ -68,7 +68,7 @@ impl FFmpegBuilder {
 
     // Масштабирование
     if let Some((width, height)) = size {
-      filters.push(format!("scale={}:{}", width, height));
+      filters.push(format!("scale={width}:{height}"));
     }
 
     // Ускорение видео для создания быстрого превью
@@ -80,7 +80,7 @@ impl FFmpegBuilder {
 
     // Битрейт
     if let Some(br) = bitrate {
-      cmd.args(["-b:v", &format!("{}k", br)]);
+      cmd.args(["-b:v", &format!("{br}k")]);
     } else {
       cmd.args(["-b:v", "1000k"]);
     }
@@ -156,7 +156,7 @@ impl FFmpegBuilder {
 
     // Масштабирование
     let (width, height) = size.unwrap_or((320, 180));
-    filters.push(format!("scale={}:{}:flags=lanczos", width, height));
+    filters.push(format!("scale={width}:{height}:flags=lanczos"));
 
     // Палитра для лучшего качества GIF
     let palette_filter = format!(
@@ -190,8 +190,8 @@ impl FFmpegBuilder {
     // Добавляем все входные файлы
     for (i, path) in segment_paths.iter().enumerate() {
       cmd.args(["-i", &path.to_string_lossy()]);
-      filter_parts.push(format!("[{}:v][{}:a]", i, i));
-      stream_refs.push(format!("[v{}][a{}]", i, i));
+      filter_parts.push(format!("[{i}:v][{i}:a]"));
+      stream_refs.push(format!("[v{i}][a{i}]"));
     }
 
     // Concat filter

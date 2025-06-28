@@ -106,7 +106,7 @@ pub async fn create_batch_job(params: CreateBatchJobParams) -> Result<String, St
   {
     let mut jobs = BATCH_JOBS
       .lock()
-      .map_err(|e| format!("Ошибка доступа к заданиям: {}", e))?;
+      .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
     jobs.insert(job_id.clone(), job_info);
   }
 
@@ -125,12 +125,12 @@ pub async fn create_batch_job(params: CreateBatchJobParams) -> Result<String, St
 pub async fn get_batch_job_info(job_id: String) -> Result<BatchJobInfo, String> {
   let jobs = BATCH_JOBS
     .lock()
-    .map_err(|e| format!("Ошибка доступа к заданиям: {}", e))?;
+    .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   jobs
     .get(&job_id)
     .cloned()
-    .ok_or_else(|| format!("Задание с ID {} не найдено", job_id))
+    .ok_or_else(|| format!("Задание с ID {job_id} не найдено"))
 }
 
 /// Отменяет пакетное задание
@@ -138,7 +138,7 @@ pub async fn get_batch_job_info(job_id: String) -> Result<BatchJobInfo, String> 
 pub async fn cancel_batch_job(job_id: String) -> Result<bool, String> {
   let mut jobs = BATCH_JOBS
     .lock()
-    .map_err(|e| format!("Ошибка доступа к заданиям: {}", e))?;
+    .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   if let Some(job_info) = jobs.get_mut(&job_id) {
     if matches!(
@@ -147,13 +147,13 @@ pub async fn cancel_batch_job(job_id: String) -> Result<bool, String> {
     ) {
       job_info.status = BatchJobStatus::Cancelled;
       job_info.end_time = Some(chrono::Utc::now().to_rfc3339());
-      log::info!("Отменено пакетное задание {}", job_id);
+      log::info!("Отменено пакетное задание {job_id}");
       Ok(true)
     } else {
       Ok(false)
     }
   } else {
-    Err(format!("Задание с ID {} не найдено", job_id))
+    Err(format!("Задание с ID {job_id} не найдено"))
   }
 }
 
@@ -162,7 +162,7 @@ pub async fn cancel_batch_job(job_id: String) -> Result<bool, String> {
 pub async fn list_batch_jobs(limit: Option<usize>) -> Result<Vec<BatchJobInfo>, String> {
   let jobs = BATCH_JOBS
     .lock()
-    .map_err(|e| format!("Ошибка доступа к заданиям: {}", e))?;
+    .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   let mut job_list: Vec<BatchJobInfo> = jobs.values().cloned().collect();
   job_list.sort_by(|a, b| b.start_time.cmp(&a.start_time)); // Сортировка по времени создания (новые первые)
@@ -179,7 +179,7 @@ pub async fn list_batch_jobs(limit: Option<usize>) -> Result<Vec<BatchJobInfo>, 
 pub async fn get_batch_processing_stats() -> Result<BatchProcessingStats, String> {
   let jobs = BATCH_JOBS
     .lock()
-    .map_err(|e| format!("Ошибка доступа к заданиям: {}", e))?;
+    .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   let total_jobs = jobs.len();
   let running_jobs = jobs
@@ -235,7 +235,7 @@ pub async fn update_batch_clip_result(
 ) -> Result<(), String> {
   let mut jobs = BATCH_JOBS
     .lock()
-    .map_err(|e| format!("Ошибка доступа к заданиям: {}", e))?;
+    .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   if let Some(job_info) = jobs.get_mut(&job_id) {
     // Обновляем результат для клипа
@@ -247,7 +247,7 @@ pub async fn update_batch_clip_result(
     } else {
       job_info.failed_clips += 1;
       if let Some(error) = result.error {
-        job_info.errors.push(format!("{}: {}", clip_id, error));
+        job_info.errors.push(format!("{clip_id}: {error}"));
       }
     }
 
@@ -263,7 +263,7 @@ pub async fn update_batch_clip_result(
 
     Ok(())
   } else {
-    Err(format!("Задание с ID {} не найдено", job_id))
+    Err(format!("Задание с ID {job_id} не найдено"))
   }
 }
 
@@ -272,7 +272,7 @@ pub async fn update_batch_clip_result(
 pub async fn cleanup_batch_jobs(older_than_hours: Option<u64>) -> Result<usize, String> {
   let mut jobs = BATCH_JOBS
     .lock()
-    .map_err(|e| format!("Ошибка доступа к заданиям: {}", e))?;
+    .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   let threshold_hours = older_than_hours.unwrap_or(24); // По умолчанию удаляем задания старше 24 часов
   let threshold_time = chrono::Utc::now() - chrono::Duration::hours(threshold_hours as i64);
@@ -296,7 +296,7 @@ pub async fn cleanup_batch_jobs(older_than_hours: Option<u64>) -> Result<usize, 
   });
 
   let removed_count = initial_count - jobs.len();
-  log::info!("Удалено {} завершенных пакетных заданий", removed_count);
+  log::info!("Удалено {removed_count} завершенных пакетных заданий");
 
   Ok(removed_count)
 }
@@ -306,7 +306,7 @@ pub async fn cleanup_batch_jobs(older_than_hours: Option<u64>) -> Result<usize, 
 pub async fn set_batch_job_status(job_id: String, status: BatchJobStatus) -> Result<(), String> {
   let mut jobs = BATCH_JOBS
     .lock()
-    .map_err(|e| format!("Ошибка доступа к заданиям: {}", e))?;
+    .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   if let Some(job_info) = jobs.get_mut(&job_id) {
     job_info.status = status;
@@ -321,7 +321,7 @@ pub async fn set_batch_job_status(job_id: String, status: BatchJobStatus) -> Res
 
     Ok(())
   } else {
-    Err(format!("Задание с ID {} не найдено", job_id))
+    Err(format!("Задание с ID {job_id} не найдено"))
   }
 }
 

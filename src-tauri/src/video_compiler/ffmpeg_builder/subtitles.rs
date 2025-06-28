@@ -45,13 +45,13 @@ impl<'a> SubtitleBuilder<'a> {
         let output = if idx == subtitle_filters.len() - 1 {
           "[outv_with_subs]".to_string()
         } else {
-          format!("[sub_tmp{}]", idx)
+          format!("[sub_tmp{idx}]")
         };
 
-        filter_chain.push_str(&format!("{}{}{};", current_input, filter, output));
+        filter_chain.push_str(&format!("{current_input}{filter}{output};"));
 
         if idx < subtitle_filters.len() - 1 {
-          current_input = format!("[sub_tmp{}]", idx);
+          current_input = format!("[sub_tmp{idx}]");
         }
       }
 
@@ -96,7 +96,7 @@ impl<'a> SubtitleBuilder<'a> {
     }
 
     // Добавляем позицию
-    filter.push_str(&format!(":x={}:y={}", x, y));
+    filter.push_str(&format!(":x={x}:y={y}"));
 
     // Добавляем тень если включена
     if subtitle.shadow {
@@ -218,11 +218,11 @@ impl<'a> SubtitleBuilder<'a> {
           filter
             .replace(
               &format!(":x={}", self.calculate_position(subtitle, resolution).0),
-              &format!(":x={}", x_expr),
+              &format!(":x={x_expr}"),
             )
             .replace(
               &format!(":y={}", self.calculate_position(subtitle, resolution).1),
-              &format!(":y={}", y_expr),
+              &format!(":y={y_expr}"),
             ),
         )
       }
@@ -265,11 +265,11 @@ impl<'a> SubtitleBuilder<'a> {
           filter
             .replace(
               &format!(":x={}", self.calculate_position(subtitle, resolution).0),
-              &format!(":x={}", x_expr),
+              &format!(":x={x_expr}"),
             )
             .replace(
               &format!(":y={}", self.calculate_position(subtitle, resolution).1),
-              &format!(":y={}", y_expr),
+              &format!(":y={y_expr}"),
             ),
         )
       }
@@ -343,10 +343,7 @@ impl<'a> SubtitleBuilder<'a> {
       }
       SubtitleAnimationType::Shake => {
         // Анимация тряски
-        let shake_expr = format!(
-          "{{if(lt(t,{}),0,if(gt(t,{}),0,sin(t*50)*5))}}",
-          start_time, end_time
-        );
+        let shake_expr = format!("{{if(lt(t,{start_time}),0,if(gt(t,{end_time}),0,sin(t*50)*5))}}");
         Ok(filter.replace(
           &format!(":x={}", self.calculate_position(subtitle, resolution).0),
           &format!(
@@ -467,7 +464,7 @@ impl<'a> SubtitleBuilder<'a> {
         ..
       }
     ) {
-      format!("{}-text_w", x)
+      format!("{x}-text_w")
     } else {
       x.to_string()
     };
@@ -488,7 +485,7 @@ impl<'a> SubtitleBuilder<'a> {
         ..
       }
     ) {
-      format!("{}-text_h", y)
+      format!("{y}-text_h")
     } else {
       y.to_string()
     };

@@ -160,7 +160,7 @@ mod validation_tests {
         }
         Err(e) => {
           // Ошибка сети или валидации - это нормально для тестового окружения
-          println!("Expected error for {:?} with empty key: {}", key_type, e);
+          println!("Expected error for {key_type:?} with empty key: {e}");
         }
       }
     }
@@ -208,11 +208,11 @@ mod validation_tests {
       match result {
         Ok(is_valid) => {
           // В большинстве случаев malformed ключи не валидны
-          println!("Input '{}' validation result: {}", input, is_valid);
+          println!("Input '{input}' validation result: {is_valid}");
         }
         Err(e) => {
           // Ошибки ожидаемы для некорректных входов
-          println!("Expected error for input '{}': {}", input, e);
+          println!("Expected error for input '{input}': {e}");
         }
       }
     }
@@ -245,12 +245,12 @@ mod service_availability_tests {
       match result {
         Ok(is_available) => {
           // Сервис может быть доступен или нет, зависит от сети
-          println!("Service {:?} availability: {}", key_type, is_available);
+          println!("Service {key_type:?} availability: {is_available}");
           // Любой bool результат приемлем для проверки доступности
         }
         Err(e) => {
           // Ошибка проверки доступности - ожидаемо в тестовом окружении
-          println!("Service availability check error for {:?}: {}", key_type, e);
+          println!("Service availability check error for {key_type:?}: {e}");
         }
       }
     }
@@ -271,7 +271,7 @@ mod service_availability_tests {
 
     // Если получили результаты, они должны быть разумными
     if !results.is_empty() {
-      println!("Service availability results: {:?}", results);
+      println!("Service availability results: {results:?}");
       // Результаты могут отличаться из-за сети, но должны быть bool
       for _result in results {
         // Результат должен быть bool (любое значение приемлемо)
@@ -304,10 +304,10 @@ mod event_bus_integration_tests {
     // Результат может быть любым, главное - без паники
     match result {
       Ok(is_valid) => {
-        println!("Validation with event bus result: {}", is_valid);
+        println!("Validation with event bus result: {is_valid}");
       }
       Err(e) => {
-        println!("Validation with event bus error: {}", e);
+        println!("Validation with event bus error: {e}");
       }
     }
   }
@@ -354,7 +354,7 @@ mod error_handling_tests {
             !error_string.is_empty(),
             "Error message should not be empty"
           );
-          println!("Error for {:?}: {}", key_type, error_string);
+          println!("Error for {key_type:?}: {error_string}");
         }
       }
     }
@@ -433,10 +433,10 @@ mod edge_cases_tests {
       // Главное - никаких паник или крашей
       match result {
         Ok(is_valid) => {
-          println!("Special key '{}' validation: {}", special_key, is_valid);
+          println!("Special key '{special_key}' validation: {is_valid}");
         }
         Err(e) => {
-          println!("Special key '{}' error: {}", special_key, e);
+          println!("Special key '{special_key}' error: {e}");
         }
       }
     }
@@ -484,10 +484,10 @@ mod edge_cases_tests {
       match result {
         Ok(is_valid) => {
           // Пустые ключи обычно не валидны
-          println!("Whitespace key '{:?}' validation: {}", key, is_valid);
+          println!("Whitespace key '{key:?}' validation: {is_valid}");
         }
         Err(e) => {
-          println!("Whitespace key '{:?}' error: {}", key, e);
+          println!("Whitespace key '{key:?}' error: {e}");
         }
       }
     }
@@ -518,8 +518,8 @@ mod integration_tests {
     // Все операции должны завершиться без паники
     for (i, result) in validations.into_iter().enumerate() {
       match result {
-        Ok(_) => println!("Validation {} succeeded", i),
-        Err(e) => println!("Validation {} failed: {}", i, e),
+        Ok(_) => println!("Validation {i} succeeded"),
+        Err(e) => println!("Validation {i} failed: {e}"),
       }
     }
 
@@ -543,10 +543,10 @@ mod integration_tests {
 
       match result {
         Ok(is_valid) => {
-          println!("OAuth service {:?} validation: {}", service_type, is_valid);
+          println!("OAuth service {service_type:?} validation: {is_valid}");
         }
         Err(e) => {
-          println!("OAuth service {:?} error: {}", service_type, e);
+          println!("OAuth service {service_type:?} error: {e}");
         }
       }
     }
@@ -574,16 +574,10 @@ mod integration_tests {
       // Сервис должен быть устойчив ко всем входам
       match result {
         Ok(is_valid) => {
-          println!(
-            "Resilience test for {:?} with '{}': {}",
-            key_type, test_key, is_valid
-          );
+          println!("Resilience test for {key_type:?} with '{test_key}': {is_valid}");
         }
         Err(e) => {
-          println!(
-            "Resilience test for {:?} with '{}' error: {}",
-            key_type, test_key, e
-          );
+          println!("Resilience test for {key_type:?} with '{test_key}' error: {e}");
           // Ошибки допустимы, но не паники
         }
       }

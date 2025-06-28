@@ -60,9 +60,9 @@ impl CompositionStage {
     track_idx: usize,
     context: &mut PipelineContext,
   ) -> Result<PathBuf> {
-    log::debug!("🎵 Обработка трека {}", track_idx);
+    log::debug!("🎵 Обработка трека {track_idx}");
 
-    let track_output = context.get_temp_file_path(&format!("track_{}.mp4", track_idx));
+    let track_output = context.get_temp_file_path(&format!("track_{track_idx}.mp4"));
 
     if track.clips.is_empty() {
       // Создаем пустой трек
@@ -84,7 +84,7 @@ impl CompositionStage {
       .concatenate_clips(&clip_outputs, &track_output, context)
       .await?;
 
-    log::debug!("✅ Трек {} обработан", track_idx);
+    log::debug!("✅ Трек {track_idx} обработан");
     Ok(track_output)
   }
 
@@ -96,26 +96,25 @@ impl CompositionStage {
     clip_idx: usize,
     context: &mut PipelineContext,
   ) -> Result<PathBuf> {
-    log::debug!("🎞️ Обработка клипа {}:{}", track_idx, clip_idx);
+    log::debug!("🎞️ Обработка клипа {track_idx}:{clip_idx}");
 
     // Получаем исходный обработанный файл
     let source_key = if matches!(
       clip.source,
       crate::video_compiler::schema::ClipSource::Generated
     ) {
-      format!("generated_track_{}_clip_{}", track_idx, clip_idx)
+      format!("generated_track_{track_idx}_clip_{clip_idx}")
     } else {
-      format!("preprocessed_track_{}_clip_{}", track_idx, clip_idx)
+      format!("preprocessed_track_{track_idx}_clip_{clip_idx}")
     };
 
     let source_path = context.get_intermediate_file(&source_key).ok_or_else(|| {
       VideoCompilerError::InternalError(format!(
-        "Источник для клипа {}:{} не найден",
-        track_idx, clip_idx
+        "Источник для клипа {track_idx}:{clip_idx} не найден"
       ))
     })?;
 
-    let clip_output = context.get_temp_file_path(&format!("clip_{}_{}.mp4", track_idx, clip_idx));
+    let clip_output = context.get_temp_file_path(&format!("clip_{track_idx}_{clip_idx}.mp4"));
 
     // Применяем обрезку времени
     let trimmed_path = self
@@ -123,7 +122,7 @@ impl CompositionStage {
         source_path,
         clip.start_time,
         clip.end_time,
-        &context.get_temp_file_path(&format!("trimmed_{}_{}.mp4", track_idx, clip_idx)),
+        &context.get_temp_file_path(&format!("trimmed_{track_idx}_{clip_idx}.mp4")),
         context,
       )
       .await?;
@@ -142,7 +141,7 @@ impl CompositionStage {
           .apply_effects(
             &trimmed_path,
             &actual_effects,
-            &context.get_temp_file_path(&format!("effects_{}_{}.mp4", track_idx, clip_idx)),
+            &context.get_temp_file_path(&format!("effects_{track_idx}_{clip_idx}.mp4")),
             context,
           )
           .await?
@@ -167,7 +166,7 @@ impl CompositionStage {
           .apply_filters(
             &effects_applied_path,
             &actual_filters,
-            &context.get_temp_file_path(&format!("filters_{}_{}.mp4", track_idx, clip_idx)),
+            &context.get_temp_file_path(&format!("filters_{track_idx}_{clip_idx}.mp4")),
             context,
           )
           .await?
@@ -183,7 +182,7 @@ impl CompositionStage {
       .apply_positioning(&filters_applied_path, clip, &clip_output, context)
       .await?;
 
-    log::debug!("✅ Клип {}:{} обработан", track_idx, clip_idx);
+    log::debug!("✅ Клип {track_idx}:{clip_idx} обработан");
     Ok(clip_output)
   }
 
@@ -279,7 +278,7 @@ impl CompositionStage {
             _ => None,
           })
           .unwrap_or(1.0);
-        format!("fade=in:0:{}", duration)
+        format!("fade=in:0:{duration}")
       }
       crate::video_compiler::schema::effects::EffectType::AudioFadeOut => {
         let duration = effect
@@ -290,7 +289,7 @@ impl CompositionStage {
             _ => None,
           })
           .unwrap_or(1.0);
-        format!("fade=out:st={}:d={}", duration, duration)
+        format!("fade=out:st={duration}:d={duration}")
       }
       crate::video_compiler::schema::effects::EffectType::Blur => {
         let radius = effect
@@ -301,7 +300,7 @@ impl CompositionStage {
             _ => None,
           })
           .unwrap_or(5.0);
-        format!("boxblur={}", radius)
+        format!("boxblur={radius}")
       }
       crate::video_compiler::schema::effects::EffectType::Brightness => {
         let value = effect
@@ -312,7 +311,7 @@ impl CompositionStage {
             _ => None,
           })
           .unwrap_or(0.0);
-        format!("eq=brightness={}", value)
+        format!("eq=brightness={value}")
       }
       crate::video_compiler::schema::effects::EffectType::Contrast => {
         let value = effect
@@ -323,7 +322,7 @@ impl CompositionStage {
             _ => None,
           })
           .unwrap_or(1.0);
-        format!("eq=contrast={}", value)
+        format!("eq=contrast={value}")
       }
       _ => {
         log::warn!("Неподдерживаемый эффект: {:?}", effect.effect_type);
@@ -375,19 +374,19 @@ impl CompositionStage {
       let filter_string = match filter.filter_type {
         crate::video_compiler::schema::effects::FilterType::Brightness => {
           let value = filter.parameters.get("value").unwrap_or(&0.0);
-          format!("eq=brightness={}", value)
+          format!("eq=brightness={value}")
         }
         crate::video_compiler::schema::effects::FilterType::Contrast => {
           let value = filter.parameters.get("value").unwrap_or(&1.0);
-          format!("eq=contrast={}", value)
+          format!("eq=contrast={value}")
         }
         crate::video_compiler::schema::effects::FilterType::Saturation => {
           let value = filter.parameters.get("value").unwrap_or(&1.0);
-          format!("eq=saturation={}", value)
+          format!("eq=saturation={value}")
         }
         crate::video_compiler::schema::effects::FilterType::Blur => {
           let radius = filter.parameters.get("radius").unwrap_or(&5.0);
-          format!("boxblur={}", radius)
+          format!("boxblur={radius}")
         }
         crate::video_compiler::schema::effects::FilterType::Sharpen => {
           "unsharp=5:5:1.0:5:5:0.0".to_string()
@@ -466,8 +465,7 @@ impl CompositionStage {
       .arg(input_path)
       .arg("-vf")
       .arg(format!(
-        "scale={}:{},pad={}:{}:{}:{}:black",
-        scaled_width, scaled_height, width, height, x, y
+        "scale={scaled_width}:{scaled_height},pad={width}:{height}:{x}:{y}:black"
       ))
       .arg("-y")
       .arg(output_path);
@@ -600,13 +598,10 @@ impl CompositionStage {
       let next_label = if i == layer_paths.len() - 1 {
         "[out]".to_string()
       } else {
-        format!("[tmp{}]", i)
+        format!("[tmp{i}]")
       };
 
-      filter_complex.push_str(&format!(
-        "{}[{}:v]overlay=0:0{}; ",
-        current_label, i, next_label
-      ));
+      filter_complex.push_str(&format!("{current_label}[{i}:v]overlay=0:0{next_label}; "));
 
       current_label = next_label.clone();
     }

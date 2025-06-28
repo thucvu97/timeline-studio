@@ -104,7 +104,7 @@ impl<R: tauri::Runtime> MediaProcessor<R> {
     // Создаем директорию для превью, если не существует
     fs::create_dir_all(&self.thumbnail_dir)
       .await
-      .map_err(|e| format!("Failed to create thumbnail directory: {}", e))?;
+      .map_err(|e| format!("Failed to create thumbnail directory: {e}"))?;
 
     // Сканируем папку
     let discovered_files = self.scan_folder(folder_path).await?;
@@ -158,7 +158,7 @@ impl<R: tauri::Runtime> MediaProcessor<R> {
     while let Some(result) = rx.recv().await {
       match result {
         Ok(media_file) => processed_files.push(media_file),
-        Err(e) => eprintln!("Error processing file: {}", e),
+        Err(e) => eprintln!("Error processing file: {e}"),
       }
     }
 
@@ -176,18 +176,18 @@ impl<R: tauri::Runtime> MediaProcessor<R> {
     while let Some(dir) = dirs_to_scan.pop() {
       let mut entries = fs::read_dir(&dir)
         .await
-        .map_err(|e| format!("Failed to read directory {:?}: {}", dir, e))?;
+        .map_err(|e| format!("Failed to read directory {dir:?}: {e}"))?;
 
       while let Some(entry) = entries
         .next_entry()
         .await
-        .map_err(|e| format!("Failed to read entry: {}", e))?
+        .map_err(|e| format!("Failed to read entry: {e}"))?
       {
         let path = entry.path();
         let metadata = entry
           .metadata()
           .await
-          .map_err(|e| format!("Failed to read metadata: {}", e))?;
+          .map_err(|e| format!("Failed to read metadata: {e}"))?;
 
         if metadata.is_dir() {
           dirs_to_scan.push(path);
@@ -222,7 +222,7 @@ impl<R: tauri::Runtime> MediaProcessor<R> {
     self
       .app_handle
       .emit("media-processor", event)
-      .map_err(|e| format!("Failed to emit event: {}", e))
+      .map_err(|e| format!("Failed to emit event: {e}"))
   }
 }
 
@@ -250,7 +250,7 @@ async fn process_single_file<R: tauri::Runtime>(
       meta
     }
     Err(e) => {
-      let error_msg = format!("Failed to get metadata: {}", e);
+      let error_msg = format!("Failed to get metadata: {e}");
       let _ = app_handle.emit(
         "media-processor",
         ProcessorEvent::ProcessingError {
@@ -306,13 +306,13 @@ async fn generate_thumbnail(
       thumbnail_path.to_str().unwrap(),
       options.time_offset,
     )
-    .map_err(|e| format!("Failed to extract frame: {}", e))?;
+    .map_err(|e| format!("Failed to extract frame: {e}"))?;
 
     // Загружаем и изменяем размер
-    image::open(&thumbnail_path).map_err(|e| format!("Failed to open extracted frame: {}", e))?
+    image::open(&thumbnail_path).map_err(|e| format!("Failed to open extracted frame: {e}"))?
   } else {
     // Загружаем изображение
-    image::open(file_path).map_err(|e| format!("Failed to open image: {}", e))?
+    image::open(file_path).map_err(|e| format!("Failed to open image: {e}"))?
   };
 
   // Изменяем размер с сохранением пропорций
@@ -321,7 +321,7 @@ async fn generate_thumbnail(
   // Сохраняем превью
   resized
     .save_with_format(&thumbnail_path, options.format)
-    .map_err(|e| format!("Failed to save thumbnail: {}", e))?;
+    .map_err(|e| format!("Failed to save thumbnail: {e}"))?;
 
   // Опционально конвертируем в base64
   let thumbnail_data = if options.format == ImageFormat::Jpeg {
@@ -723,8 +723,7 @@ mod tests {
       let is_supported = SUPPORTED_EXTENSIONS.contains(&ext);
       assert_eq!(
         is_supported, should_be_supported,
-        "Extension {} support mismatch",
-        ext
+        "Extension {ext} support mismatch"
       );
     }
   }
@@ -882,9 +881,9 @@ mod tests {
 
     for ext in &extensions {
       let file = DiscoveredFile {
-        id: format!("test-{}", ext),
-        path: format!("/test/file.{}", ext),
-        name: format!("file.{}", ext),
+        id: format!("test-{ext}"),
+        path: format!("/test/file.{ext}"),
+        name: format!("file.{ext}"),
         extension: ext.to_string(),
         size: 1024,
       };
@@ -1071,7 +1070,7 @@ mod tests {
   #[test]
   fn test_thumbnail_options_debug_trait() {
     let opts = ThumbnailOptions::default();
-    let debug_string = format!("{:?}", opts);
+    let debug_string = format!("{opts:?}");
 
     assert!(debug_string.contains("ThumbnailOptions"));
     assert!(debug_string.contains("320"));
@@ -1084,7 +1083,7 @@ mod tests {
       current: 5,
       total: 10,
     };
-    let debug_string = format!("{:?}", event);
+    let debug_string = format!("{event:?}");
 
     assert!(debug_string.contains("ScanProgress"));
     assert!(debug_string.contains("5"));
@@ -1094,7 +1093,7 @@ mod tests {
   #[test]
   fn test_discovered_file_debug_trait() {
     let file = create_test_discovered_file();
-    let debug_string = format!("{:?}", file);
+    let debug_string = format!("{file:?}");
 
     assert!(debug_string.contains("DiscoveredFile"));
     assert!(debug_string.contains("test-file-id"));

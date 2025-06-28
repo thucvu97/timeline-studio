@@ -113,11 +113,11 @@ pub async fn ffmpeg_optimize_for_platform(
   // Выполняем команду
   let output = ffmpeg_cmd
     .output()
-    .map_err(|e| format!("Ошибка запуска FFmpeg: {}", e))?;
+    .map_err(|e| format!("Ошибка запуска FFmpeg: {e}"))?;
 
   if !output.status.success() {
     let stderr = String::from_utf8_lossy(&output.stderr);
-    return Err(format!("FFmpeg завершился с ошибкой: {}", stderr));
+    return Err(format!("FFmpeg завершился с ошибкой: {stderr}"));
   }
 
   // Получаем информацию о результирующем файле
@@ -137,10 +137,7 @@ pub async fn ffmpeg_optimize_for_platform(
     bitrate: processed_metadata.bitrate,
     compression_ratio,
     processing_time,
-    message: format!(
-      "Видео успешно оптимизировано. Размер уменьшен в {:.2} раз",
-      compression_ratio
-    ),
+    message: format!("Видео успешно оптимизировано. Размер уменьшен в {compression_ratio:.2} раз"),
   })
 }
 
@@ -159,7 +156,7 @@ pub async fn ffmpeg_generate_platform_thumbnail(
   platform_name: String,
 ) -> Result<ThumbnailGenerationResult, String> {
   if !Path::new(&video_path).exists() {
-    return Err(format!("Видеофайл не найден: {}", video_path));
+    return Err(format!("Видеофайл не найден: {video_path}"));
   }
 
   // Получаем длительность видео для определения времени кадра
@@ -183,7 +180,7 @@ pub async fn ffmpeg_generate_platform_thumbnail(
             target_width, target_height, platform_name, target_height / 20
         )
   } else {
-    format!("scale={}:{}", target_width, target_height)
+    format!("scale={target_width}:{target_height}")
   };
 
   ffmpeg_cmd.arg("-vf").arg(filter_complex);
@@ -197,11 +194,11 @@ pub async fn ffmpeg_generate_platform_thumbnail(
   // Выполняем команду
   let output = ffmpeg_cmd
     .output()
-    .map_err(|e| format!("Ошибка запуска FFmpeg: {}", e))?;
+    .map_err(|e| format!("Ошибка запуска FFmpeg: {e}"))?;
 
   if !output.status.success() {
     let stderr = String::from_utf8_lossy(&output.stderr);
-    return Err(format!("FFmpeg завершился с ошибкой: {}", stderr));
+    return Err(format!("FFmpeg завершился с ошибкой: {stderr}"));
   }
 
   // Проверяем создался ли файл
@@ -210,7 +207,7 @@ pub async fn ffmpeg_generate_platform_thumbnail(
   }
 
   let file_size = std::fs::metadata(&output_path)
-    .map_err(|e| format!("Ошибка получения размера файла: {}", e))?
+    .map_err(|e| format!("Ошибка получения размера файла: {e}"))?
     .len();
 
   Ok(ThumbnailGenerationResult {
@@ -219,7 +216,7 @@ pub async fn ffmpeg_generate_platform_thumbnail(
     width: target_width,
     height: target_height,
     file_size,
-    message: format!("Превью для {} успешно создано", platform_name),
+    message: format!("Превью для {platform_name} успешно создано"),
   })
 }
 
@@ -235,7 +232,7 @@ pub async fn ffmpeg_batch_optimize_platforms(
   use serde_json::Value;
 
   let platforms: Value = serde_json::from_str(&platforms_config)
-    .map_err(|e| format!("Ошибка парсинга конфигурации платформ: {}", e))?;
+    .map_err(|e| format!("Ошибка парсинга конфигурации платформ: {e}"))?;
 
   let platforms_array = platforms
     .as_array()
@@ -257,7 +254,7 @@ pub async fn ffmpeg_batch_optimize_platforms(
         .as_secs()
     );
 
-    let output_path = format!("{}/{}", output_directory, output_filename);
+    let output_path = format!("{output_directory}/{output_filename}");
 
     let params = PlatformOptimizationParams {
       input_path: input_path.clone(),
@@ -292,7 +289,7 @@ pub async fn ffmpeg_batch_optimize_platforms(
           bitrate: 0,
           compression_ratio: 0.0,
           processing_time: 0.0,
-          message: format!("Ошибка оптимизации для {}: {}", platform_name, error),
+          message: format!("Ошибка оптимизации для {platform_name}: {error}"),
         });
       }
     }
@@ -312,7 +309,7 @@ pub async fn ffmpeg_analyze_platform_compliance(
   use serde_json::{json, Value};
 
   let specs: Value = serde_json::from_str(&platform_specs)
-    .map_err(|e| format!("Ошибка парсинга спецификаций платформы: {}", e))?;
+    .map_err(|e| format!("Ошибка парсинга спецификаций платформы: {e}"))?;
 
   let metadata = get_video_metadata(&video_path)?;
 
@@ -346,8 +343,7 @@ pub async fn ffmpeg_analyze_platform_compliance(
 
   if file_size_mb > max_file_size_mb {
     compliance_issues.push(format!(
-      "Файл слишком большой: {:.2}MB (максимум: {}MB)",
-      file_size_mb, max_file_size_mb
+      "Файл слишком большой: {file_size_mb:.2}MB (максимум: {max_file_size_mb}MB)"
     ));
     score -= 20;
   }
@@ -434,7 +430,7 @@ pub async fn ffmpeg_create_progressive_video(
       height
     );
 
-    let output_path = format!("{}/{}", output_directory, output_filename);
+    let output_path = format!("{output_directory}/{output_filename}");
 
     let params = PlatformOptimizationParams {
       input_path: input_path.clone(),
@@ -491,7 +487,7 @@ fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, String> {
       file_path,
     ])
     .output()
-    .map_err(|e| format!("Ошибка запуска ffprobe: {}", e))?;
+    .map_err(|e| format!("Ошибка запуска ffprobe: {e}"))?;
 
   if !output.status.success() {
     return Err("ffprobe завершился с ошибкой".to_string());
@@ -499,7 +495,7 @@ fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, String> {
 
   let json_str = String::from_utf8_lossy(&output.stdout);
   let json: serde_json::Value =
-    serde_json::from_str(&json_str).map_err(|e| format!("Ошибка парсинга JSON: {}", e))?;
+    serde_json::from_str(&json_str).map_err(|e| format!("Ошибка парсинга JSON: {e}"))?;
 
   let video_stream = json["streams"]
     .as_array()
@@ -552,13 +548,12 @@ fn generate_compliance_recommendations(
 
   if metadata.duration < min_duration {
     recommendations.push(format!(
-      "Увеличьте длительность видео до {} секунд",
-      min_duration
+      "Увеличьте длительность видео до {min_duration} секунд"
     ));
   }
 
   if metadata.duration > max_duration {
-    recommendations.push(format!("Сократите видео до {} секунд", max_duration));
+    recommendations.push(format!("Сократите видео до {max_duration} секунд"));
   }
 
   let max_file_size_mb = specs["maxFileSize"].as_f64().unwrap_or(f64::MAX);
@@ -570,14 +565,13 @@ fn generate_compliance_recommendations(
 
   let max_bitrate = specs["maxBitrate"].as_u64().unwrap_or(u64::MAX) as u32;
   if metadata.bitrate > max_bitrate {
-    recommendations.push(format!("Снизьте битрейт до {} kbps", max_bitrate));
+    recommendations.push(format!("Снизьте битрейт до {max_bitrate} kbps"));
   }
 
   let video_codec = specs["videoCodec"].as_str().unwrap_or("h264");
   let audio_codec = specs["audioCodec"].as_str().unwrap_or("aac");
   recommendations.push(format!(
-    "Используйте кодек {} для видео и {} для аудио",
-    video_codec, audio_codec
+    "Используйте кодек {video_codec} для видео и {audio_codec} для аудио"
   ));
 
   let recommended_width = specs["recommendedResolution"]["width"]
@@ -587,8 +581,7 @@ fn generate_compliance_recommendations(
     .as_u64()
     .unwrap_or(1080);
   recommendations.push(format!(
-    "Установите разрешение {}x{}",
-    recommended_width, recommended_height
+    "Установите разрешение {recommended_width}x{recommended_height}"
   ));
 
   recommendations

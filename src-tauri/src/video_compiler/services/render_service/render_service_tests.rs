@@ -128,7 +128,7 @@ mod integration_tests {
       }
       Err(e) => {
         // Ошибка может быть связана с отсутствием FFmpeg или недоступностью VideoRenderer
-        println!("Expected error in test environment: {}", e);
+        println!("Expected error in test environment: {e}");
       }
     }
   }
@@ -257,7 +257,7 @@ mod concurrent_operations_tests {
     for i in 0..3 {
       let service_clone = service.clone();
       tasks.spawn(async move {
-        let job_id = format!("concurrent_job_{}", i);
+        let job_id = format!("concurrent_job_{i}");
 
         // Создаем задачу
         {
@@ -317,7 +317,7 @@ mod concurrent_operations_tests {
         // Каждая задача проверяет доступность слотов и добавляет/удаляет job'ы
         let _has_slots_before = service_clone.has_available_slots().await.unwrap();
 
-        let job_id = format!("slot_test_{}", i);
+        let job_id = format!("slot_test_{i}");
         {
           let mut active_jobs = service_clone.active_jobs.write().await;
           if active_jobs.len() < 3 {
@@ -480,7 +480,7 @@ mod service_lifecycle_tests {
     {
       let mut active_jobs = service.active_jobs.write().await;
       for i in 0..3 {
-        let job_id = format!("shutdown_job_{}", i);
+        let job_id = format!("shutdown_job_{i}");
         active_jobs.insert(
           job_id.clone(),
           RenderJob {

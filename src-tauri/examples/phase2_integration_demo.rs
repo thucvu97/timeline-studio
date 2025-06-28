@@ -84,7 +84,7 @@ impl VideoProcessingService {
     &self,
     file_path: &str,
   ) -> timeline_studio_lib::video_compiler::error::Result<String> {
-    log::info!("Starting video processing for: {}", file_path);
+    log::info!("Starting video processing for: {file_path}");
 
     // Публикуем событие начала обработки
     self
@@ -131,7 +131,7 @@ impl VideoProcessingService {
     let plugins = self.plugin_manager.list_loaded_plugins().await;
     for (plugin_id, state) in plugins {
       if state == timeline_studio_lib::core::plugins::plugin::PluginState::Active {
-        log::info!("Applying effects from plugin: {}", plugin_id);
+        log::info!("Applying effects from plugin: {plugin_id}");
         // Здесь бы вызывали плагин для обработки кадра
       }
     }
@@ -159,7 +159,7 @@ impl VideoProcessingService {
       })
       .await?;
 
-    log::info!("Video processing completed: {}", output_path);
+    log::info!("Video processing completed: {output_path}");
     Ok(output_path)
   }
 }
@@ -179,7 +179,7 @@ impl EventHandler for MediaEventHandler {
   ) -> timeline_studio_lib::video_compiler::error::Result<()> {
     match event {
       AppEvent::MediaImported { media_id, path } => {
-        log::info!("Media imported: {} -> {}", media_id, path);
+        log::info!("Media imported: {media_id} -> {path}");
 
         // Кэшируем метаданные медиа файла
         // В реальности здесь бы был реальный кэш с метаданными
@@ -187,7 +187,7 @@ impl EventHandler for MediaEventHandler {
         Ok(())
       }
       AppEvent::MediaProcessed { media_id } => {
-        log::info!("Media processing completed: {}", media_id);
+        log::info!("Media processing completed: {media_id}");
         Ok(())
       }
       _ => Ok(()),
@@ -292,12 +292,12 @@ async fn main() -> Result<(), VideoCompilerError> {
   // Обрабатываем несколько видео файлов
   println!("\n🎬 Processing video files...");
   for i in 1..=3 {
-    let file_path = format!("/videos/sample_{}.mp4", i);
+    let file_path = format!("/videos/sample_{i}.mp4");
 
-    println!("\n--- Processing {} ---", file_path);
+    println!("\n--- Processing {file_path} ---");
     match video_service.process_video(&file_path).await {
-      Ok(output) => println!("✅ Successfully processed: {}", output),
-      Err(e) => println!("❌ Processing failed: {}", e),
+      Ok(output) => println!("✅ Successfully processed: {output}"),
+      Err(e) => println!("❌ Processing failed: {e}"),
     }
   }
 

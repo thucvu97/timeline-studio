@@ -138,8 +138,7 @@ mod oauth_handler_basic_tests {
       let config = handler.get_oauth_config(&service);
       assert!(
         config.is_none(),
-        "Service {:?} should not support OAuth",
-        service
+        "Service {service:?} should not support OAuth"
       );
     }
   }
@@ -252,18 +251,16 @@ mod auth_url_generation_tests {
 
     for service in supported_services {
       let result = handler.generate_auth_url(service.clone(), "test_client", None);
-      assert!(result.is_ok(), "Should support OAuth for {:?}", service);
+      assert!(result.is_ok(), "Should support OAuth for {service:?}");
 
       let url = result.unwrap();
       assert!(
         url.starts_with("https://"),
-        "URL should be HTTPS for {:?}",
-        service
+        "URL should be HTTPS for {service:?}"
       );
       assert!(
         url.contains("client_id=test_client"),
-        "URL should contain client_id for {:?}",
-        service
+        "URL should contain client_id for {service:?}"
       );
     }
   }
@@ -485,8 +482,7 @@ mod user_info_tests {
         let error_msg = e.to_string().to_lowercase();
         assert!(
           !error_msg.contains("user info not supported"),
-          "Service {:?} should support user info",
-          service
+          "Service {service:?} should support user info"
         );
       }
       // Если успешно - то метод поддерживается для этого сервиса
@@ -713,7 +709,7 @@ mod edge_cases_tests {
     let handler = create_test_handler();
     let config = handler.get_oauth_config(&ApiKeyType::YouTube).unwrap();
 
-    let debug_string = format!("{:?}", config);
+    let debug_string = format!("{config:?}");
     assert!(debug_string.contains("auth_url"));
     assert!(debug_string.contains("token_url"));
     assert!(debug_string.contains("scopes"));
@@ -751,7 +747,7 @@ mod edge_cases_tests {
       scope: Some("test_scope".to_string()),
     };
 
-    let debug_string = format!("{:?}", oauth_result);
+    let debug_string = format!("{oauth_result:?}");
     assert!(debug_string.contains("access_token"));
     assert!(debug_string.contains("refresh_token"));
   }
@@ -809,7 +805,7 @@ mod edge_cases_tests {
     assert!(result.is_ok());
     let url = result.unwrap();
     assert!(url.len() > 1000);
-    assert!(url.contains(&format!("client_id={}", long_client_id)));
+    assert!(url.contains(&format!("client_id={long_client_id}")));
   }
 
   #[test]
@@ -971,10 +967,7 @@ mod integration_tests {
       let url = auth_url.unwrap();
       assert!(
         url.to_lowercase().contains(expected_domain),
-        "URL should contain {} for service {:?}: {}",
-        expected_domain,
-        service,
-        url
+        "URL should contain {expected_domain} for service {service:?}: {url}"
       );
     }
   }

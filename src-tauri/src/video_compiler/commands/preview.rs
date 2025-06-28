@@ -71,7 +71,7 @@ pub async fn generate_video_thumbnails(
 
   // Генерируем пути файлов на основе временных меток
   let thumbnails: Vec<String> = (0..count)
-    .map(|i| format!("{}/thumbnail_{}.jpg", output_dir, i))
+    .map(|i| format!("{output_dir}/thumbnail_{i}.jpg"))
     .collect();
 
   Ok(thumbnails)
@@ -212,7 +212,7 @@ pub async fn generate_storyboard(
 
   // Генерируем кадры
   for (i, timestamp) in timestamps.into_iter().enumerate() {
-    let frame_path = format!("{}/frame_{:03}.jpg", output_path, i);
+    let frame_path = format!("{output_path}/frame_{i:03}.jpg");
     preview_service
       .generate_frame(
         &project_schema,
@@ -272,7 +272,7 @@ pub async fn generate_animated_preview(
 
   let output = cmd.output().map_err(|e| VideoCompilerError::FFmpegError {
     exit_code: None,
-    stderr: format!("Не удалось запустить FFmpeg для GIF: {}", e),
+    stderr: format!("Не удалось запустить FFmpeg для GIF: {e}"),
     command: "ffmpeg".to_string(),
   })?;
 
@@ -280,7 +280,7 @@ pub async fn generate_animated_preview(
     let stderr = String::from_utf8_lossy(&output.stderr);
     return Err(VideoCompilerError::FFmpegError {
       exit_code: output.status.code(),
-      stderr: format!("FFmpeg не смог создать GIF: {}", stderr),
+      stderr: format!("FFmpeg не смог создать GIF: {stderr}"),
       command: "ffmpeg".to_string(),
     });
   }
@@ -311,7 +311,7 @@ pub async fn generate_waveform_preview(
   // Сохраняем результат в файл
   tokio::fs::write(&output_path, waveform_data)
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Не удалось сохранить waveform: {}", e)))?;
+    .map_err(|e| VideoCompilerError::IoError(format!("Не удалось сохранить waveform: {e}")))?;
 
   Ok(output_path)
 }
@@ -363,7 +363,7 @@ pub async fn generate_custom_preview(
 
   // Парсим настройки из JSON
   let preview_options: PreviewOptions = serde_json::from_value(options)
-    .map_err(|e| VideoCompilerError::InvalidParameter(format!("Invalid preview options: {}", e)))?;
+    .map_err(|e| VideoCompilerError::InvalidParameter(format!("Invalid preview options: {e}")))?;
 
   preview_service
     .generate_frame(&project_schema, 0.0, &output_path, Some(preview_options))
@@ -476,7 +476,7 @@ pub async fn set_preview_generator_ffmpeg_path(
   let output = std::process::Command::new(&path)
     .arg("-version")
     .output()
-    .map_err(|e| VideoCompilerError::InvalidParameter(format!("Invalid FFmpeg path: {}", e)))?;
+    .map_err(|e| VideoCompilerError::InvalidParameter(format!("Invalid FFmpeg path: {e}")))?;
 
   if !output.status.success() {
     return Err(VideoCompilerError::InvalidParameter(
@@ -550,7 +550,7 @@ pub async fn generate_video_thumbnails_service(
   let thumbnail_paths: Vec<String> = thumbnails
     .iter()
     .enumerate()
-    .map(|(i, _)| format!("{}/thumbnail_{:03}.jpg", output_dir, i))
+    .map(|(i, _)| format!("{output_dir}/thumbnail_{i:03}.jpg"))
     .collect();
 
   Ok(thumbnail_paths)
@@ -662,7 +662,7 @@ pub async fn batch_generate_previews_service(
   let output_paths: Vec<String> = results
     .iter()
     .enumerate()
-    .map(|(i, _)| format!("/tmp/batch_preview_{:03}.jpg", i))
+    .map(|(i, _)| format!("/tmp/batch_preview_{i:03}.jpg"))
     .collect();
 
   Ok(output_paths)

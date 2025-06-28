@@ -82,7 +82,7 @@ impl RenderPipeline {
   /// Выполнить весь конвейер
   pub async fn execute(&mut self, job_id: &str) -> Result<PathBuf> {
     log::info!("=== Запуск конвейера обработки ===");
-    log::info!("ID задачи: {}", job_id);
+    log::info!("ID задачи: {job_id}");
     log::info!("Проект: {}", self.project.metadata.name);
     log::info!("Выходной файл: {:?}", self.context.output_path);
     log::info!("Временная директория: {:?}", self.context.temp_dir);
@@ -116,10 +116,7 @@ impl RenderPipeline {
       // Проверяем, можно ли пропустить этап
       if stage.can_skip(&self.context) {
         log::info!(
-          "[{}/{}] Этап '{}' пропущен (can_skip = true)",
-          current_stage,
-          total_stages,
-          stage_name
+          "[{current_stage}/{total_stages}] Этап '{stage_name}' пропущен (can_skip = true)"
         );
         continue;
       }
@@ -154,7 +151,7 @@ impl RenderPipeline {
         .update_progress(job_id, progress_percentage as u64, stage_name)
         .await
       {
-        log::warn!("Не удалось обновить прогресс: {}", e);
+        log::warn!("Не удалось обновить прогресс: {e}");
         // Увеличиваем счетчик предупреждений
         self.context.statistics.add_warning();
         // Продолжаем выполнение
@@ -180,7 +177,7 @@ impl RenderPipeline {
           self.context.statistics.frames_processed += 1;
         }
         Err(e) => {
-          log::error!("✗ Ошибка на этапе '{}': {}", stage_name, e);
+          log::error!("✗ Ошибка на этапе '{stage_name}': {e}");
           log::error!("  Код ошибки: {}", e.error_code());
           log::error!(
             "  Критическая: {}",
@@ -190,14 +187,14 @@ impl RenderPipeline {
             "  Можно повторить: {}",
             if e.is_retryable() { "да" } else { "нет" }
           );
-          log::debug!("Детали ошибки: {:?}", e);
+          log::debug!("Детали ошибки: {e:?}");
 
           // Увеличиваем счетчик ошибок в статистике
           self.context.statistics.add_error();
 
           // Очищаем временные файлы при ошибке
           if let Err(cleanup_err) = self.context.cleanup().await {
-            log::warn!("Не удалось очистить временные файлы: {}", cleanup_err);
+            log::warn!("Не удалось очистить временные файлы: {cleanup_err}");
             // Увеличиваем счетчик предупреждений за проблемы с очисткой
             self.context.statistics.add_warning();
           }
@@ -216,7 +213,7 @@ impl RenderPipeline {
 
     // Очищаем временные файлы
     if let Err(e) = self.context.cleanup().await {
-      log::warn!("Не удалось очистить временные файлы: {}", e);
+      log::warn!("Не удалось очистить временные файлы: {e}");
       self.context.statistics.add_warning();
     }
 
@@ -457,14 +454,12 @@ impl PipelineStage for ValidationStage {
               if let Some(unsupported_formats) =
                 validation_stats["unsupported_formats"].as_array_mut()
               {
-                unsupported_formats.push(serde_json::Value::String(format!(
-                  "{}: .{}",
-                  path, extension
-                )));
+                unsupported_formats
+                  .push(serde_json::Value::String(format!("{path}: .{extension}")));
               }
               return Err(VideoCompilerError::media_file(
                 path.clone(),
-                format!("Неподдерживаемый формат файла: .{}", extension),
+                format!("Неподдерживаемый формат файла: .{extension}"),
               ));
             }
           }
@@ -482,8 +477,7 @@ impl PipelineStage for ValidationStage {
         let duration = clip.end_time - clip.start_time;
         if duration <= 0.0 {
           return Err(VideoCompilerError::validation(format!(
-            "Некорректная длительность клипа: {}",
-            duration
+            "Некорректная длительность клипа: {duration}"
           )));
         }
       }
@@ -610,7 +604,7 @@ impl PreprocessingStage {
       .map_err(|e| {
         VideoCompilerError::ffmpeg(
           None,
-          format!("Не удалось запустить FFprobe: {}", e),
+          format!("Не удалось запустить FFprobe: {e}"),
           "ffprobe".to_string(),
         )
       })?;
@@ -619,7 +613,7 @@ impl PreprocessingStage {
       let error = String::from_utf8_lossy(&output.stderr);
       return Err(VideoCompilerError::media_file(
         path.to_string_lossy(),
-        format!("FFprobe ошибка: {}", error),
+        format!("FFprobe ошибка: {error}"),
       ));
     }
 
@@ -628,7 +622,7 @@ impl PreprocessingStage {
     let probe_data: serde_json::Value = serde_json::from_str(&json_str).map_err(|e| {
       VideoCompilerError::media_file(
         path.to_string_lossy(),
-        format!("Ошибка парсинга FFprobe данных: {}", e),
+        format!("Ошибка парсинга FFprobe данных: {e}"),
       )
     })?;
 
@@ -647,7 +641,7 @@ impl PreprocessingStage {
     }
 
     // Здесь можно добавить дополнительную логику анализа
-    log::debug!("Анализ файла: {:?}", path);
+    log::debug!("Анализ файла: {path:?}");
     Ok(())
   }
 
@@ -678,10 +672,10 @@ impl PreprocessingStage {
       // Создаем путь для временного файла
       let temp_file = context
         .temp_dir
-        .join(format!("track_{}_clip_{}_temp.mp4", track_idx, clip_idx));
+        .join(format!("track_{track_idx}_clip_{clip_idx}_temp.mp4"));
 
       // Сохраняем информацию о временном файле
-      let key = format!("track_{}_clip_{}", track_idx, clip_idx);
+      let key = format!("track_{track_idx}_clip_{clip_idx}");
       context.add_intermediate_file(key, temp_file);
 
       log::info!("Клип {} требует преобразования", source_path.display());
@@ -800,7 +794,7 @@ impl CompositionStage {
     let output = cmd.output().await.map_err(|e| {
       VideoCompilerError::ffmpeg(
         None,
-        format!("Не удалось запустить FFmpeg для видео композиции: {}", e),
+        format!("Не удалось запустить FFmpeg для видео композиции: {e}"),
         "video composition".to_string(),
       )
     })?;
@@ -809,7 +803,7 @@ impl CompositionStage {
       let error = String::from_utf8_lossy(&output.stderr);
       return Err(VideoCompilerError::ffmpeg(
         output.status.code(),
-        format!("FFmpeg видео композиция не удалась: {}", error),
+        format!("FFmpeg видео композиция не удалась: {error}"),
         "video composition".to_string(),
       ));
     }
@@ -850,9 +844,9 @@ impl CompositionStage {
 
       // Простой пример конкатенации
       for i in 0..input_count {
-        filter_complex.push_str(&format!("[{}:v]", i));
+        filter_complex.push_str(&format!("[{i}:v]"));
       }
-      filter_complex.push_str(&format!("concat=n={}:v=1:a=0[outv]", input_count));
+      filter_complex.push_str(&format!("concat=n={input_count}:v=1:a=0[outv]"));
 
       command.extend([
         "-filter_complex".to_string(),
@@ -867,7 +861,7 @@ impl CompositionStage {
       command.push(video_composite.to_string_lossy().to_string());
     }
 
-    log::debug!("FFmpeg команда для видео: {:?}", command);
+    log::debug!("FFmpeg команда для видео: {command:?}");
     Ok(command)
   }
 
@@ -901,7 +895,7 @@ impl CompositionStage {
       .map_err(|e| {
         VideoCompilerError::ffmpeg(
           None,
-          format!("Не удалось запустить FFmpeg для аудио композиции: {}", e),
+          format!("Не удалось запустить FFmpeg для аудио композиции: {e}"),
           "audio composition".to_string(),
         )
       })?;
@@ -910,7 +904,7 @@ impl CompositionStage {
       let error = String::from_utf8_lossy(&output.stderr);
       return Err(VideoCompilerError::ffmpeg(
         output.status.code(),
-        format!("FFmpeg аудио композиция не удалась: {}", error),
+        format!("FFmpeg аудио композиция не удалась: {error}"),
         "audio composition".to_string(),
       ));
     }
@@ -951,11 +945,10 @@ impl CompositionStage {
 
       // Используем amix для микширования нескольких аудио потоков
       for i in 0..input_count {
-        filter_complex.push_str(&format!("[{}:a]", i));
+        filter_complex.push_str(&format!("[{i}:a]"));
       }
       filter_complex.push_str(&format!(
-        "amix=inputs={}:duration=longest:dropout_transition=2[outa]",
-        input_count
+        "amix=inputs={input_count}:duration=longest:dropout_transition=2[outa]"
       ));
 
       command.extend([
@@ -971,7 +964,7 @@ impl CompositionStage {
       command.push(audio_composite.to_string_lossy().to_string());
     }
 
-    log::debug!("FFmpeg команда для аудио: {:?}", command);
+    log::debug!("FFmpeg команда для аудио: {command:?}");
     Ok(command)
   }
 }
@@ -1055,7 +1048,7 @@ impl EncodingStage {
       .map_err(|e| {
         VideoCompilerError::ffmpeg(
           None,
-          format!("Не удалось запустить FFmpeg: {}", e),
+          format!("Не удалось запустить FFmpeg: {e}"),
           "ffmpeg spawn".to_string(),
         )
       })?;
@@ -1070,7 +1063,7 @@ impl EncodingStage {
         if line.contains("frame=") {
           self.parse_ffmpeg_progress(&line, context).await;
         }
-        log::trace!("FFmpeg: {}", line);
+        log::trace!("FFmpeg: {line}");
 
         // Проверяем отмену
         if context.is_cancelled() {
@@ -1086,7 +1079,7 @@ impl EncodingStage {
     let status = child.wait().await.map_err(|e| {
       VideoCompilerError::ffmpeg(
         None,
-        format!("Ошибка ожидания FFmpeg: {}", e),
+        format!("Ошибка ожидания FFmpeg: {e}"),
         "ffmpeg wait".to_string(),
       )
     })?;
@@ -1171,7 +1164,7 @@ impl EncodingStage {
             )
             .await
           {
-            log::warn!("Не удалось обновить прогресс: {}", e);
+            log::warn!("Не удалось обновить прогресс: {e}");
           }
         }
       }
@@ -1181,7 +1174,7 @@ impl EncodingStage {
         if let Some(frame_str) = frame_match.split_whitespace().next() {
           if let Ok(frame) = frame_str.trim().parse::<u64>() {
             context.statistics.frames_processed = frame;
-            log::trace!("Обработано кадров: {}", frame);
+            log::trace!("Обработано кадров: {frame}");
           }
         }
       }
@@ -1298,7 +1291,7 @@ impl FinalizationStage {
       .map_err(|e| {
         VideoCompilerError::ffmpeg(
           None,
-          format!("Не удалось добавить метаданные: {}", e),
+          format!("Не удалось добавить метаданные: {e}"),
           "add metadata".to_string(),
         )
       })?;
@@ -1307,7 +1300,7 @@ impl FinalizationStage {
       // Заменяем оригинальный файл
       tokio::fs::rename(&tmp_file, &context.output_path)
         .await
-        .map_err(|e| VideoCompilerError::IoError(format!("Не удалось заменить файл: {}", e)))?;
+        .map_err(|e| VideoCompilerError::IoError(format!("Не удалось заменить файл: {e}")))?;
 
       log::info!("Метаданные добавлены к выходному файлу");
     } else {
@@ -1334,16 +1327,14 @@ impl FinalizationStage {
     });
 
     let stats_string = serde_json::to_string_pretty(&stats_json).map_err(|e| {
-      VideoCompilerError::IoError(format!("Не удалось сериализовать статистику: {}", e))
+      VideoCompilerError::IoError(format!("Не удалось сериализовать статистику: {e}"))
     })?;
 
     tokio::fs::write(&stats_path, stats_string)
       .await
-      .map_err(|e| {
-        VideoCompilerError::IoError(format!("Не удалось сохранить статистику: {}", e))
-      })?;
+      .map_err(|e| VideoCompilerError::IoError(format!("Не удалось сохранить статистику: {e}")))?;
 
-    log::info!("Статистика рендеринга сохранена в {:?}", stats_path);
+    log::info!("Статистика рендеринга сохранена в {stats_path:?}");
     Ok(())
   }
 }
@@ -1597,7 +1588,7 @@ mod tests {
     if let Err(e) = result {
       // The validation stage checks for missing files
       let error_msg = e.to_string();
-      println!("Error message: {}", error_msg);
+      println!("Error message: {error_msg}");
       assert!(
         error_msg.contains("Файл не найден")
           || error_msg.contains("File not found")
@@ -1632,7 +1623,7 @@ mod tests {
     assert!(result.is_err());
     if let Err(e) = result {
       let error_msg = e.to_string();
-      println!("Error message: {}", error_msg);
+      println!("Error message: {error_msg}");
       assert!(
         error_msg.contains("Некорректная длительность")
           || error_msg.contains("duration")
@@ -1966,8 +1957,8 @@ mod tests {
 
     // Add multiple intermediate files
     for i in 0..10 {
-      let key = format!("temp_{}", i);
-      let path = PathBuf::from(format!("/tmp/temp_{}.mp4", i));
+      let key = format!("temp_{i}");
+      let path = PathBuf::from(format!("/tmp/temp_{i}.mp4"));
       context.add_intermediate_file(key.clone(), path.clone());
 
       assert_eq!(context.get_intermediate_file(&key), Some(&path));

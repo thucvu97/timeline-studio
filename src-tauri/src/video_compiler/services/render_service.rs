@@ -121,7 +121,7 @@ impl Service for RenderServiceImpl {
 
     for job_id in job_ids {
       if let Err(e) = self.cancel_render(&job_id).await {
-        log::error!("Ошибка при отмене задачи {}: {:?}", job_id, e);
+        log::error!("Ошибка при отмене задачи {job_id}: {e:?}");
       }
     }
 
@@ -144,8 +144,7 @@ impl RenderServiceImpl {
       Ok(())
     } else {
       Err(VideoCompilerError::validation(format!(
-        "Job {} not found",
-        job_id
+        "Job {job_id} not found"
       )))
     }
   }
@@ -158,8 +157,7 @@ impl RenderServiceImpl {
       Ok(())
     } else {
       Err(VideoCompilerError::validation(format!(
-        "Job {} not found",
-        job_id
+        "Job {job_id} not found"
       )))
     }
   }
@@ -173,8 +171,7 @@ impl RenderServiceImpl {
       Ok(())
     } else {
       Err(VideoCompilerError::validation(format!(
-        "Job {} not found",
-        job_id
+        "Job {job_id} not found"
       )))
     }
   }
@@ -262,7 +259,7 @@ impl RenderService for RenderServiceImpl {
       if let Some(mut renderer) = renderer {
         match renderer.render(&output_path_clone).await {
           Ok(_) => {
-            log::info!("Рендеринг {} успешно завершен", job_id_clone);
+            log::info!("Рендеринг {job_id_clone} успешно завершен");
             // Обновляем статус
             let mut jobs_lock = jobs.write().await;
             if let Some(job) = jobs_lock.get_mut(&job_id_clone) {
@@ -270,7 +267,7 @@ impl RenderService for RenderServiceImpl {
             }
           }
           Err(e) => {
-            log::error!("Ошибка рендеринга {}: {:?}", job_id_clone, e);
+            log::error!("Ошибка рендеринга {job_id_clone}: {e:?}");
             // Обновляем статус
             let mut jobs_lock = jobs.write().await;
             if let Some(job) = jobs_lock.get_mut(&job_id_clone) {
@@ -481,9 +478,9 @@ mod tests {
       let mut active_jobs = service.active_jobs.write().await;
       for i in 0..2 {
         active_jobs.insert(
-          format!("job_{}", i),
+          format!("job_{i}"),
           RenderJob {
-            id: format!("job_{}", i),
+            id: format!("job_{i}"),
             project_schema: None,
             status: RenderJobStatus::Rendering,
             progress: None,

@@ -516,14 +516,14 @@ impl CacheManager {
   {
     let mut caches = self.caches.write().await;
     caches.insert(name.clone(), Box::new(cache));
-    log::info!("Added cache '{}'", name);
+    log::info!("Added cache '{name}'");
   }
 
   /// Добавить очищаемый кэш
   pub async fn add_clearable_cache(&self, name: String, cache: Box<dyn ClearableCache>) {
     let mut clearable_caches = self.clearable_caches.write().await;
     clearable_caches.insert(name.clone(), cache);
-    log::info!("Added clearable cache '{}'", name);
+    log::info!("Added clearable cache '{name}'");
   }
 
   /// Получить кэш по имени
@@ -543,7 +543,7 @@ impl CacheManager {
   pub async fn remove_cache(&self, name: &str) -> bool {
     let mut caches = self.caches.write().await;
     if caches.remove(name).is_some() {
-      log::info!("Removed cache '{}'", name);
+      log::info!("Removed cache '{name}'");
       true
     } else {
       false
@@ -566,7 +566,7 @@ impl CacheManager {
     let caches = self.caches.read().await;
     let clearable_caches = self.clearable_caches.read().await;
     let total_count = caches.len() + clearable_caches.len();
-    log::info!("Clearing all {} caches", total_count);
+    log::info!("Clearing all {total_count} caches");
 
     let mut cleared_count = 0;
     let mut failed_count = 0;
@@ -575,7 +575,7 @@ impl CacheManager {
     for (name, clearable_cache) in clearable_caches.iter() {
       clearable_cache.clear().await;
       cleared_count += 1;
-      log::debug!("Successfully cleared clearable cache '{}'", name);
+      log::debug!("Successfully cleared clearable cache '{name}'");
     }
 
     // Очищаем обычные кэши с известными типами
@@ -583,37 +583,24 @@ impl CacheManager {
       if let Some(memory_cache) = cache_any.downcast_ref::<MemoryCache<String, String>>() {
         memory_cache.clear().await;
         cleared_count += 1;
-        log::debug!(
-          "Successfully cleared MemoryCache<String, String> '{}'",
-          name
-        );
+        log::debug!("Successfully cleared MemoryCache<String, String> '{name}'");
       } else if let Some(memory_cache) = cache_any.downcast_ref::<MemoryCache<String, Vec<u8>>>() {
         memory_cache.clear().await;
         cleared_count += 1;
-        log::debug!(
-          "Successfully cleared MemoryCache<String, Vec<u8>> '{}'",
-          name
-        );
+        log::debug!("Successfully cleared MemoryCache<String, Vec<u8>> '{name}'");
       } else if let Some(memory_cache) =
         cache_any.downcast_ref::<MemoryCache<String, Arc<String>>>()
       {
         memory_cache.clear().await;
         cleared_count += 1;
-        log::debug!(
-          "Successfully cleared MemoryCache<String, Arc<String>> '{}'",
-          name
-        );
+        log::debug!("Successfully cleared MemoryCache<String, Arc<String>> '{name}'");
       } else {
         failed_count += 1;
-        log::warn!("Unknown cache type for '{}', cannot clear", name);
+        log::warn!("Unknown cache type for '{name}', cannot clear");
       }
     }
 
-    log::info!(
-      "Cache clearing completed: {} cleared, {} failed",
-      cleared_count,
-      failed_count
-    );
+    log::info!("Cache clearing completed: {cleared_count} cleared, {failed_count} failed");
   }
 }
 
@@ -868,8 +855,8 @@ mod tests {
     for i in 0..10 {
       let cache_clone = cache.clone();
       let handle = tokio::spawn(async move {
-        let key = format!("key{}", i);
-        let value = format!("value{}", i);
+        let key = format!("key{i}");
+        let value = format!("value{i}");
 
         // Добавляем
         cache_clone.put(key.clone(), value.clone()).await;
@@ -880,7 +867,7 @@ mod tests {
 
         // Удаляем
         let removed = cache_clone.remove(&key).await;
-        assert_eq!(removed, Some(format!("value{}", i)));
+        assert_eq!(removed, Some(format!("value{i}")));
       });
       handles.push(handle);
     }

@@ -162,7 +162,7 @@ impl EventBus {
       .or_insert_with(Vec::new)
       .push(subscription);
 
-    log::info!("Subscribed handler '{}' to event type", handler_name);
+    log::info!("Subscribed handler '{handler_name}' to event type");
     Ok(())
   }
 
@@ -203,15 +203,15 @@ impl EventBus {
       let mut rx = receiver.write().await;
 
       while let Some(event) = rx.recv().await {
-        log::debug!("Processing app event: {:?}", event);
+        log::debug!("Processing app event: {event:?}");
 
         // Здесь можно добавить логику маршрутизации событий
         match &event {
           AppEvent::ProjectCreated { project_id } => {
-            log::info!("Project created: {}", project_id);
+            log::info!("Project created: {project_id}");
           }
           AppEvent::RenderStarted { job_id, .. } => {
-            log::info!("Render started: {}", job_id);
+            log::info!("Render started: {job_id}");
           }
           _ => {}
         }
@@ -424,7 +424,7 @@ mod tests {
       let handle = tokio::spawn(async move {
         bus
           .publish_app_event(AppEvent::ProjectCreated {
-            project_id: format!("project-{}", i),
+            project_id: format!("project-{i}"),
           })
           .await
       });

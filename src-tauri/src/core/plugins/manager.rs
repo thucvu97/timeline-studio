@@ -108,8 +108,7 @@ impl PluginManager {
       let plugins = self.plugins.read().await;
       if plugins.contains_key(plugin_id) {
         return Err(VideoCompilerError::InvalidParameter(format!(
-          "Plugin '{}' is already loaded",
-          plugin_id
+          "Plugin '{plugin_id}' is already loaded"
         )));
       }
     }
@@ -180,7 +179,7 @@ impl PluginManager {
       })
       .await?;
 
-    log::info!("Plugin '{}' loaded and initialized", plugin_id);
+    log::info!("Plugin '{plugin_id}' loaded and initialized");
 
     Ok(instance_id)
   }
@@ -190,7 +189,7 @@ impl PluginManager {
     let mut handle = {
       let mut plugins = self.plugins.write().await;
       plugins.remove(plugin_id).ok_or_else(|| {
-        VideoCompilerError::InvalidParameter(format!("Plugin '{}' is not loaded", plugin_id))
+        VideoCompilerError::InvalidParameter(format!("Plugin '{plugin_id}' is not loaded"))
       })?
     };
 
@@ -222,7 +221,7 @@ impl PluginManager {
       })
       .await?;
 
-    log::info!("Plugin '{}' unloaded", plugin_id);
+    log::info!("Plugin '{plugin_id}' unloaded");
 
     Ok(())
   }
@@ -240,7 +239,7 @@ impl PluginManager {
     let plugins = self.plugins.read().await;
 
     let handle = plugins.get(plugin_id).ok_or_else(|| {
-      VideoCompilerError::InvalidParameter(format!("Plugin '{}' is not loaded", plugin_id))
+      VideoCompilerError::InvalidParameter(format!("Plugin '{plugin_id}' is not loaded"))
     })?;
 
     // Проверяем состояние
@@ -248,14 +247,12 @@ impl PluginManager {
       PluginState::Active => {}
       PluginState::Suspended => {
         return Err(VideoCompilerError::InvalidParameter(format!(
-          "Plugin '{}' is suspended",
-          plugin_id
+          "Plugin '{plugin_id}' is suspended"
         )));
       }
       _ => {
         return Err(VideoCompilerError::InvalidParameter(format!(
-          "Plugin '{}' is not active",
-          plugin_id
+          "Plugin '{plugin_id}' is not active"
         )));
       }
     }
@@ -314,7 +311,7 @@ impl PluginManager {
       match handle.plugin.handle_event(event).await {
         Ok(_) => {}
         Err(e) => {
-          log::error!("Plugin '{}' failed to handle event: {}", plugin_id, e);
+          log::error!("Plugin '{plugin_id}' failed to handle event: {e}");
         }
       }
     }
@@ -336,20 +333,19 @@ impl PluginManager {
     let mut plugins = self.plugins.write().await;
 
     let handle = plugins.get_mut(plugin_id).ok_or_else(|| {
-      VideoCompilerError::InvalidParameter(format!("Plugin '{}' is not loaded", plugin_id))
+      VideoCompilerError::InvalidParameter(format!("Plugin '{plugin_id}' is not loaded"))
     })?;
 
     if handle.state != PluginState::Active {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Plugin '{}' is not active",
-        plugin_id
+        "Plugin '{plugin_id}' is not active"
       )));
     }
 
     handle.plugin.suspend().await?;
     handle.state = PluginState::Suspended;
 
-    log::info!("Plugin '{}' suspended", plugin_id);
+    log::info!("Plugin '{plugin_id}' suspended");
 
     Ok(())
   }
@@ -359,20 +355,19 @@ impl PluginManager {
     let mut plugins = self.plugins.write().await;
 
     let handle = plugins.get_mut(plugin_id).ok_or_else(|| {
-      VideoCompilerError::InvalidParameter(format!("Plugin '{}' is not loaded", plugin_id))
+      VideoCompilerError::InvalidParameter(format!("Plugin '{plugin_id}' is not loaded"))
     })?;
 
     if handle.state != PluginState::Suspended {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Plugin '{}' is not suspended",
-        plugin_id
+        "Plugin '{plugin_id}' is not suspended"
       )));
     }
 
     handle.plugin.resume().await?;
     handle.state = PluginState::Active;
 
-    log::info!("Plugin '{}' resumed", plugin_id);
+    log::info!("Plugin '{plugin_id}' resumed");
 
     Ok(())
   }
@@ -382,7 +377,7 @@ impl PluginManager {
     let plugins = self.plugins.read().await;
 
     let handle = plugins.get(plugin_id).ok_or_else(|| {
-      VideoCompilerError::InvalidParameter(format!("Plugin '{}' is not loaded", plugin_id))
+      VideoCompilerError::InvalidParameter(format!("Plugin '{plugin_id}' is not loaded"))
     })?;
 
     let metadata = handle.plugin.metadata();
@@ -461,7 +456,7 @@ impl Service for PluginManager {
 
     for plugin_id in plugin_ids {
       if let Err(e) = self.unload_plugin(&plugin_id).await {
-        log::error!("Failed to unload plugin '{}': {}", plugin_id, e);
+        log::error!("Failed to unload plugin '{plugin_id}': {e}");
       }
     }
 
@@ -597,15 +592,15 @@ mod tests {
 
     // Регистрируем несколько плагинов
     for i in 1..=3 {
-      let plugin_id = format!("plugin-{}", i);
+      let plugin_id = format!("plugin-{i}");
       let mut metadata = TestPlugin::new().metadata().clone();
       metadata.id = plugin_id.clone();
-      metadata.name = format!("Test Plugin {}", i);
+      metadata.name = format!("Test Plugin {i}");
 
       let factory = Box::new(move || {
         let mut plugin = TestPlugin::new();
         plugin.metadata.id = plugin_id.clone();
-        plugin.metadata.name = format!("Test Plugin {}", i);
+        plugin.metadata.name = format!("Test Plugin {i}");
         Box::new(plugin) as Box<dyn Plugin>
       });
 
@@ -618,7 +613,7 @@ mod tests {
     // Загружаем все плагины параллельно
     let mut handles = vec![];
     for i in 1..=3 {
-      let plugin_id = format!("plugin-{}", i);
+      let plugin_id = format!("plugin-{i}");
       let manager_clone = manager.clone();
       let handle = tokio::spawn(async move {
         let permissions = PluginPermissions::default();

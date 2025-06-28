@@ -57,7 +57,7 @@ impl FromStr for ApiKeyType {
       "telegram" => Ok(ApiKeyType::Telegram),
       "codecov" => Ok(ApiKeyType::Codecov),
       "tauri_analytics" => Ok(ApiKeyType::TauriAnalytics),
-      _ => Err(format!("Unknown API key type: {}", s)),
+      _ => Err(format!("Unknown API key type: {s}")),
     }
   }
 }

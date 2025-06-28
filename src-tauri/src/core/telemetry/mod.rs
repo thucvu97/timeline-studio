@@ -236,7 +236,7 @@ mod tests {
 
     for i in 0..total_traces {
       let result = tracer
-        .trace(&format!("sample_operation_{}", i), async {
+        .trace(&format!("sample_operation_{i}"), async {
           tokio::time::sleep(std::time::Duration::from_millis(1)).await;
           Ok::<i32, crate::video_compiler::error::VideoCompilerError>(i)
         })
@@ -264,14 +264,13 @@ mod tests {
       let result = test_tracer
         .trace("sample_rate_test", async {
           Ok::<String, crate::video_compiler::error::VideoCompilerError>(format!(
-            "rate_{}",
-            sample_rate
+            "rate_{sample_rate}"
           ))
         })
         .await;
 
       assert!(result.is_ok());
-      assert_eq!(result.unwrap(), format!("rate_{}", sample_rate));
+      assert_eq!(result.unwrap(), format!("rate_{sample_rate}"));
     }
   }
 
@@ -320,7 +319,7 @@ mod tests {
 
     // 2. Генерируем трейсы с метриками
     for i in 0..5 {
-      let operation_name = format!("integration_operation_{}", i);
+      let operation_name = format!("integration_operation_{i}");
 
       let result = tracer
         .span(&operation_name)
@@ -336,7 +335,7 @@ mod tests {
           request_counter.inc();
           response_time.observe(start.elapsed().as_secs_f64());
 
-          Ok::<String, crate::video_compiler::error::VideoCompilerError>(format!("completed_{}", i))
+          Ok::<String, crate::video_compiler::error::VideoCompilerError>(format!("completed_{i}"))
         })
         .await;
 

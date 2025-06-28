@@ -27,7 +27,7 @@ impl MediaProcessorService {
     self
       .tracer
       .trace("media.process", async move {
-        log::info!("Processing media file: {}", file_path_owned);
+        log::info!("Processing media file: {file_path_owned}");
 
         // Симулируем обработку
         sleep(Duration::from_millis(100)).await;
@@ -85,7 +85,7 @@ impl RenderService {
     let project_id_owned = project_id.to_string();
 
     // Note: In a real application, metrics would be created once during initialization
-    log::info!("Metric: render.jobs.total project={} count=1", project_id);
+    log::info!("Metric: render.jobs.total project={project_id} count=1");
     log::info!("Metric: render.jobs.active value=+1");
 
     // Публикуем событие начала
@@ -135,21 +135,12 @@ impl RenderService {
 
     // Логируем метрики
     log::info!("Metric: render.jobs.active value=-1");
-    log::info!(
-      "Metric: render.duration project={} value=1000.0ms",
-      project_id
-    );
-    log::info!(
-      "Metric: render.frames.processed project={} count=100",
-      project_id
-    );
+    log::info!("Metric: render.duration project={project_id} value=1000.0ms");
+    log::info!("Metric: render.frames.processed project={project_id} count=100");
 
     // Обрабатываем ошибки
     if let Err(e) = &result {
-      log::info!(
-        "Metric: render.errors.total project={} error_type=unknown count=1",
-        project_id
-      );
+      log::info!("Metric: render.errors.total project={project_id} error_type=unknown count=1");
 
       self
         .event_bus
@@ -199,7 +190,7 @@ async fn main() -> Result<(), VideoCompilerError> {
   // Обрабатываем медиа файлы
   println!("📹 Processing media files...");
   for i in 1..=3 {
-    let file_path = format!("/videos/clip_{}.mp4", i);
+    let file_path = format!("/videos/clip_{i}.mp4");
     media_processor.process_media(&file_path).await?;
   }
 
@@ -248,7 +239,7 @@ async fn main() -> Result<(), VideoCompilerError> {
         );
 
         let sum = result1? + result2?;
-        log::info!("Complex operation completed with result: {}", sum);
+        log::info!("Complex operation completed with result: {sum}");
 
         Ok::<_, VideoCompilerError>(())
       })
@@ -268,7 +259,7 @@ async fn main() -> Result<(), VideoCompilerError> {
     .await;
 
   if let Err(e) = error_result {
-    log::error!("Operation failed as expected: {}", e);
+    log::error!("Operation failed as expected: {e}");
   }
 
   // Даем время на экспорт данных

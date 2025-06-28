@@ -56,8 +56,7 @@ impl UIBridge {
       "input" => self.show_input_dialog(options).await,
       "file_picker" => self.show_file_picker_dialog(options).await,
       _ => Err(VideoCompilerError::InvalidParameter(format!(
-        "Unsupported dialog type: {}",
-        dialog_type
+        "Unsupported dialog type: {dialog_type}"
       ))),
     }
   }
@@ -378,14 +377,13 @@ impl UIBridge {
 
     // Fallback: логируем уведомление
     match notification_type {
-      "info" => log::info!("[Plugin Notification] {}: {}", title, message),
-      "warning" => log::warn!("[Plugin Notification] {}: {}", title, message),
-      "error" => log::error!("[Plugin Notification] {}: {}", title, message),
-      "success" => log::info!("[Plugin Notification Success] {}: {}", title, message),
+      "info" => log::info!("[Plugin Notification] {title}: {message}"),
+      "warning" => log::warn!("[Plugin Notification] {title}: {message}"),
+      "error" => log::error!("[Plugin Notification] {title}: {message}"),
+      "success" => log::info!("[Plugin Notification Success] {title}: {message}"),
       _ => {
         return Err(VideoCompilerError::InvalidParameter(format!(
-          "Unsupported notification type: {}",
-          notification_type
+          "Unsupported notification type: {notification_type}"
         )));
       }
     }

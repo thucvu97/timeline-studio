@@ -246,7 +246,7 @@ pub async fn verify_service_initialized<T: Service + Any + Send + Sync + 'static
 /// Helper to create multiple mock services
 pub fn create_mock_services(count: usize) -> Vec<MockService> {
   (0..count)
-    .map(|i| MockService::new(format!("MockService{}", i)))
+    .map(|i| MockService::new(format!("MockService{i}")))
     .collect()
 }
 

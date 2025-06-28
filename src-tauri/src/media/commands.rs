@@ -18,10 +18,10 @@ pub fn get_media_files(directory: String) -> Result<Vec<String>, String> {
   let path = Path::new(&directory);
 
   if !path.exists() || !path.is_dir() {
-    return Err(format!("Директория не найдена: {}", directory));
+    return Err(format!("Директория не найдена: {directory}"));
   }
 
-  let entries = std::fs::read_dir(path).map_err(|e| format!("Ошибка чтения директории: {}", e))?;
+  let entries = std::fs::read_dir(path).map_err(|e| format!("Ошибка чтения директории: {e}"))?;
 
   let mut media_files = Vec::new();
 
@@ -52,7 +52,7 @@ pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
 
   // Проверяем существование файла
   if !Path::new(&file_path).exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   // Получаем информацию о файле в формате JSON
@@ -67,18 +67,18 @@ pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
       &file_path,
     ])
     .output()
-    .map_err(|e| format!("Ошибка выполнения ffprobe: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения ffprobe: {e}"))?;
 
   if !output.status.success() {
     let error = String::from_utf8_lossy(&output.stderr);
-    return Err(format!("FFprobe завершился с ошибкой: {}", error));
+    return Err(format!("FFprobe завершился с ошибкой: {error}"));
   }
 
   let json_str = String::from_utf8_lossy(&output.stdout);
 
   // Парсим JSON и создаем MediaFile
   let probe_data: super::types::ProbeData =
-    serde_json::from_str(&json_str).map_err(|e| format!("Ошибка парсинга JSON: {}", e))?;
+    serde_json::from_str(&json_str).map_err(|e| format!("Ошибка парсинга JSON: {e}"))?;
 
   // Создаем простой MediaFile для компиляции
   let file_path_ref = &file_path;
@@ -375,7 +375,7 @@ pub async fn process_media_file_simple(
       })
     }
     Err(e) => {
-      log::warn!("Failed to get media info for {}: {}", file_path, e);
+      log::warn!("Failed to get media info for {file_path}: {e}");
       None
     }
   };
@@ -415,7 +415,7 @@ pub async fn process_media_files(file_paths: Vec<String>) -> Result<Vec<MediaFil
         media_files.push(media_file);
       }
       Err(e) => {
-        log::warn!("Failed to process file {}: {}", file_path, e);
+        log::warn!("Failed to process file {file_path}: {e}");
         // Continue processing other files even if one fails
       }
     }

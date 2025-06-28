@@ -324,8 +324,7 @@ impl TimelineBridge {
         height: 60,
       }),
       _ => Err(VideoCompilerError::InvalidParameter(format!(
-        "Track not found: {}",
-        track_id
+        "Track not found: {track_id}"
       ))),
     }
   }
@@ -343,8 +342,7 @@ impl TimelineBridge {
     // Валидация типа трека
     if !["video", "audio", "subtitle"].contains(&track_type) {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Invalid track type: {}. Supported types: video, audio, subtitle",
-        track_type
+        "Invalid track type: {track_type}. Supported types: video, audio, subtitle"
       )));
     }
 

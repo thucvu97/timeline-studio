@@ -629,7 +629,7 @@ mod edge_cases_tests {
 
     // Создаем очень длинный путь
     let long_path = format!("/test/{}", "very_long_directory_name/".repeat(10));
-    let long_path = format!("{}very_long_file_name.mp4", long_path);
+    let long_path = format!("{long_path}very_long_file_name.mp4");
 
     let source = InputSource {
       path: PathBuf::from(long_path.clone()),
@@ -794,7 +794,7 @@ mod input_source_validation_tests {
       track_type: TrackType::Video,
     };
 
-    let debug_string = format!("{:?}", source);
+    let debug_string = format!("{source:?}");
     assert!(debug_string.contains("debug.mp4"));
     assert!(debug_string.contains("1.5"));
     assert!(debug_string.contains("3.7"));

@@ -37,14 +37,14 @@ impl PreprocessingStage {
             let processed_path = self
               .preprocess_media_file(
                 path.as_str(),
-                &format!("track_{}_clip_{}", track_idx, clip_idx),
+                &format!("track_{track_idx}_clip_{clip_idx}"),
                 context,
               )
               .await?;
 
             // Добавляем обработанный файл в промежуточные файлы
             context.add_intermediate_file(
-              format!("preprocessed_track_{}_clip_{}", track_idx, clip_idx),
+              format!("preprocessed_track_{track_idx}_clip_{clip_idx}"),
               processed_path,
             );
           }
@@ -53,13 +53,13 @@ impl PreprocessingStage {
             let generated_path = self
               .generate_media_file(
                 clip,
-                &format!("generated_track_{}_clip_{}", track_idx, clip_idx),
+                &format!("generated_track_{track_idx}_clip_{clip_idx}"),
                 context,
               )
               .await?;
 
             context.add_intermediate_file(
-              format!("generated_track_{}_clip_{}", track_idx, clip_idx),
+              format!("generated_track_{track_idx}_clip_{clip_idx}"),
               generated_path,
             );
           }
@@ -77,7 +77,7 @@ impl PreprocessingStage {
       }
     }
 
-    log::info!("✅ Обработано {} медиафайлов", processed_files);
+    log::info!("✅ Обработано {processed_files} медиафайлов");
     Ok(())
   }
 
@@ -98,10 +98,10 @@ impl PreprocessingStage {
     identifier: &str,
     context: &PipelineContext,
   ) -> Result<PathBuf> {
-    log::debug!("🔄 Предобработка файла: {}", source_path);
+    log::debug!("🔄 Предобработка файла: {source_path}");
 
     let source = PathBuf::from(source_path);
-    let output_path = context.get_temp_file_path(&format!("{}_preprocessed.mp4", identifier));
+    let output_path = context.get_temp_file_path(&format!("{identifier}_preprocessed.mp4"));
 
     // Проверяем, нужна ли предобработка
     if self.needs_preprocessing(&source, context).await? {
@@ -109,13 +109,13 @@ impl PreprocessingStage {
       self
         .run_ffmpeg_preprocessing(&source, &output_path, context)
         .await?;
-      log::debug!("✅ Предобработка завершена: {:?}", output_path);
+      log::debug!("✅ Предобработка завершена: {output_path:?}");
     } else {
       // Просто копируем файл
       tokio::fs::copy(&source, &output_path)
         .await
         .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
-      log::debug!("📋 Файл скопирован без изменений: {:?}", output_path);
+      log::debug!("📋 Файл скопирован без изменений: {output_path:?}");
     }
 
     Ok(output_path)
@@ -223,9 +223,9 @@ impl PreprocessingStage {
     identifier: &str,
     context: &PipelineContext,
   ) -> Result<PathBuf> {
-    log::debug!("🎨 Генерация файла для клипа: {}", identifier);
+    log::debug!("🎨 Генерация файла для клипа: {identifier}");
 
-    let output_path = context.get_temp_file_path(&format!("{}_generated.mp4", identifier));
+    let output_path = context.get_temp_file_path(&format!("{identifier}_generated.mp4"));
 
     match &clip.source {
       ClipSource::Generated => {
@@ -244,7 +244,7 @@ impl PreprocessingStage {
       }
     }
 
-    log::debug!("✅ Генерация завершена: {:?}", output_path);
+    log::debug!("✅ Генерация завершена: {output_path:?}");
     Ok(output_path)
   }
 

@@ -91,7 +91,7 @@ impl PipelineContext {
 
   /// Добавить промежуточный файл
   pub fn add_intermediate_file(&mut self, key: String, path: PathBuf) {
-    log::debug!("Добавляем промежуточный файл: {} -> {:?}", key, path);
+    log::debug!("Добавляем промежуточный файл: {key} -> {path:?}");
     self.intermediate_files.insert(key, path);
   }
 
@@ -139,7 +139,7 @@ impl PipelineContext {
       tokio::fs::remove_dir_all(&self.temp_dir)
         .await
         .map_err(|e| {
-          log::warn!("Не удалось удалить временную директорию: {}", e);
+          log::warn!("Не удалось удалить временную директорию: {e}");
           crate::video_compiler::error::VideoCompilerError::IoError(e.to_string())
         })?;
       log::debug!("Очищена временная директория: {:?}", self.temp_dir);
@@ -159,7 +159,7 @@ impl PipelineContext {
         .update_progress(job_id, percentage, stage.to_string(), None)
         .await
         .unwrap_or_else(|e| {
-          log::warn!("Failed to update progress: {:?}", e);
+          log::warn!("Failed to update progress: {e:?}");
         });
     }
     Ok(())

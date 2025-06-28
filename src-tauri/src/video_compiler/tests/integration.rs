@@ -26,7 +26,7 @@ async fn test_check_dependencies() {
   // Тест может не пройти если FFmpeg не установлен, но это ожидаемо
   match check_dependencies().await {
     Ok(_) => println!("FFmpeg найден и работает"),
-    Err(e) => println!("FFmpeg недоступен: {:?}", e),
+    Err(e) => println!("FFmpeg недоступен: {e:?}"),
   }
 }
 

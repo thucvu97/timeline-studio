@@ -101,7 +101,7 @@ pub async fn check_dependencies() -> Result<String> {
 
   // Пробуем найти FFmpeg
   for path in &ffmpeg_paths {
-    log::debug!("Проверка FFmpeg по пути: {}", path);
+    log::debug!("Проверка FFmpeg по пути: {path}");
 
     let output = tokio::process::Command::new(path)
       .arg("-version")
@@ -110,12 +110,12 @@ pub async fn check_dependencies() -> Result<String> {
 
     if let Ok(output) = output {
       if output.status.success() {
-        log::info!("FFmpeg найден по пути: {}", path);
+        log::info!("FFmpeg найден по пути: {path}");
 
         // Извлекаем версию FFmpeg
         if let Ok(version_str) = String::from_utf8(output.stdout) {
           if let Some(version_line) = version_str.lines().next() {
-            log::info!("Версия FFmpeg: {}", version_line);
+            log::info!("Версия FFmpeg: {version_line}");
           }
         }
 
@@ -139,7 +139,7 @@ pub async fn check_dependencies() -> Result<String> {
     if output.status.success() {
       if let Ok(path_str) = String::from_utf8(output.stdout) {
         let path = path_str.trim().to_string();
-        log::info!("FFmpeg найден через {}: {}", which_cmd, path);
+        log::info!("FFmpeg найден через {which_cmd}: {path}");
         return Ok(path);
       }
     }
@@ -161,7 +161,7 @@ pub async fn initialize() -> Result<VideoCompilerState> {
 
   // Проверяем зависимости и получаем путь к FFmpeg
   let ffmpeg_path = check_dependencies().await?;
-  log::info!("FFmpeg найден по пути: {}", ffmpeg_path);
+  log::info!("FFmpeg найден по пути: {ffmpeg_path}");
 
   // Создаем временную директорию если не существует
   let temp_dir = std::env::temp_dir().join("timeline-studio");
@@ -181,14 +181,14 @@ pub async fn initialize() -> Result<VideoCompilerState> {
   {
     Ok(container) => container,
     Err(e) => {
-      log::error!("Ошибка создания контейнера сервисов: {:?}", e);
+      log::error!("Ошибка создания контейнера сервисов: {e:?}");
       return Err(e);
     }
   };
 
   // Инициализируем сервисы
   if let Err(e) = services.initialize_all().await {
-    log::error!("Ошибка инициализации сервисов: {:?}", e);
+    log::error!("Ошибка инициализации сервисов: {e:?}");
   }
 
   let services = Arc::new(services);
@@ -206,9 +206,6 @@ pub async fn initialize() -> Result<VideoCompilerState> {
     })),
   };
 
-  log::info!(
-    "Video Compiler модуль успешно инициализирован с FFmpeg: {}",
-    ffmpeg_path
-  );
+  log::info!("Video Compiler модуль успешно инициализирован с FFmpeg: {ffmpeg_path}");
   Ok(state)
 }

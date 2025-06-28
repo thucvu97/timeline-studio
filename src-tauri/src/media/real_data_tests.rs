@@ -34,7 +34,7 @@ mod real_data_tests {
     let result = extract_metadata(&path).await;
 
     let duration = start.elapsed();
-    println!("Metadata extraction took: {:?}", duration);
+    println!("Metadata extraction took: {duration:?}");
 
     assert!(
       result.is_ok(),
@@ -87,7 +87,7 @@ mod real_data_tests {
     let result = extract_metadata(&path).await;
     let duration = start.elapsed();
 
-    println!("Metadata extraction took: {:?}", duration);
+    println!("Metadata extraction took: {duration:?}");
     assert!(duration.as_secs() < 5, "Metadata extraction took too long");
 
     assert!(result.is_ok());
@@ -124,7 +124,7 @@ mod real_data_tests {
     let result = generate_thumbnail(&path, &output_path, 320, 180, 1.0).await;
 
     let duration = start.elapsed();
-    println!("Thumbnail generation took: {:?}", duration);
+    println!("Thumbnail generation took: {duration:?}");
 
     assert!(
       result.is_ok(),
@@ -140,8 +140,7 @@ mod real_data_tests {
     // (может быть медленнее на некоторых системах)
     assert!(
       duration.as_secs() < 10,
-      "Thumbnail generation too slow for 4K video: {:?}",
-      duration
+      "Thumbnail generation too slow for 4K video: {duration:?}"
     );
   }
 
@@ -158,11 +157,7 @@ mod real_data_tests {
     );
 
     // Проверяем, что путь существует
-    assert!(
-      path.exists(),
-      "File with cyrillic name not found: {:?}",
-      path
-    );
+    assert!(path.exists(), "File with cyrillic name not found: {path:?}");
 
     // Проверяем извлечение метаданных
     let result = extract_metadata(&path).await;
@@ -209,7 +204,7 @@ mod real_data_tests {
       assert!(video_meta.width.is_some());
       assert!(video_meta.height.is_some());
     } else {
-      panic!("Expected video metadata, got {:?}", metadata);
+      panic!("Expected video metadata, got {metadata:?}");
     }
   }
 
@@ -330,10 +325,7 @@ mod real_data_tests {
       .filter(|v| v.video_codec == Some("hevc"))
       .count();
 
-    println!(
-      "Codec distribution: H.264: {}, HEVC: {}",
-      h264_count, hevc_count
-    );
+    println!("Codec distribution: H.264: {h264_count}, HEVC: {hevc_count}");
 
     // Убеждаемся, что у нас есть разные кодеки для тестирования
     assert!(h264_count > 0, "No H.264 videos for testing");
@@ -385,10 +377,7 @@ mod real_data_tests {
       .filter(|f| f.sample_rate == 48000)
       .count();
 
-    println!(
-      "Sample rates: 44.1kHz: {}, 48kHz: {}",
-      files_44khz, files_48khz
-    );
+    println!("Sample rates: 44.1kHz: {files_44khz}, 48kHz: {files_48khz}");
 
     // Проверяем, что у нас есть файлы с разными частотами
     assert!(
@@ -421,12 +410,11 @@ mod real_data_tests {
     // Проверяем, что обработка не занимает слишком много времени
     assert!(
       duration.as_secs() < 10,
-      "Processing large file took too long: {:?}",
-      duration
+      "Processing large file took too long: {duration:?}"
     );
 
     // В реальном приложении здесь можно было бы замерить использование памяти
-    println!("Large file processed in {:?}", duration);
+    println!("Large file processed in {duration:?}");
   }
 
   #[tokio::test]
@@ -444,10 +432,7 @@ mod real_data_tests {
       .filter(|f| f.has_video && !f.has_audio)
       .count();
 
-    println!(
-      "Mixed content: {} videos with audio, {} without audio",
-      with_audio, without_audio
-    );
+    println!("Mixed content: {with_audio} videos with audio, {without_audio} without audio");
 
     // Убеждаемся, что у нас есть оба типа
     assert!(with_audio > 0, "No videos with audio for testing");
@@ -502,10 +487,7 @@ mod real_data_tests {
       }
     }
 
-    println!(
-      "Import cycle complete: {} processed, {} errors",
-      processed, errors
-    );
+    println!("Import cycle complete: {processed} processed, {errors} errors");
     assert_eq!(errors, 0, "Some files failed to process");
     assert_eq!(
       processed,
@@ -629,16 +611,12 @@ mod real_data_tests {
     let metadata_duration = start.elapsed();
 
     assert!(result.is_ok(), "Failed to extract metadata from large file");
-    println!(
-      "Metadata extraction for 256MB file took: {:?}",
-      metadata_duration
-    );
+    println!("Metadata extraction for 256MB file took: {metadata_duration:?}");
 
     // Для больших файлов допускаем до 5 секунд на извлечение метаданных
     assert!(
       metadata_duration.as_secs() < 5,
-      "Metadata extraction too slow for large file: {:?}",
-      metadata_duration
+      "Metadata extraction too slow for large file: {metadata_duration:?}"
     );
   }
 

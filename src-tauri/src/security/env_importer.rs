@@ -44,9 +44,9 @@ impl EnvImporter {
           }
         }
 
-        log::info!("Loaded .env file: {}", env_path);
+        log::info!("Loaded .env file: {env_path}");
       } else {
-        log::warn!(".env file not found: {}", env_path);
+        log::warn!(".env file not found: {env_path}");
       }
     }
 
@@ -369,7 +369,7 @@ impl EnvImporter {
               oauth_data.client_secret
             ));
             if let Some(access_token) = &oauth_data.access_token {
-              env_content.push_str(&format!("YOUTUBE_ACCESS_TOKEN=\"{}\"\n", access_token));
+              env_content.push_str(&format!("YOUTUBE_ACCESS_TOKEN=\"{access_token}\"\n"));
             }
           }
         }
@@ -390,7 +390,7 @@ impl EnvImporter {
               oauth_data.client_secret
             ));
             if let Some(access_token) = &oauth_data.access_token {
-              env_content.push_str(&format!("VIMEO_ACCESS_TOKEN=\"{}\"\n", access_token));
+              env_content.push_str(&format!("VIMEO_ACCESS_TOKEN=\"{access_token}\"\n"));
             }
           } else {
             env_content.push_str(&format!("VIMEO_ACCESS_TOKEN=\"{}\"\n", key_data.value));

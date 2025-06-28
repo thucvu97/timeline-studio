@@ -98,10 +98,7 @@ impl GpuServiceImpl {
         "-f",
         "lavfi",
         "-i",
-        &format!(
-          "testsrc2=duration={}:size={}:rate={}",
-          duration, resolution, fps
-        ),
+        &format!("testsrc2=duration={duration}:size={resolution}:rate={fps}"),
         "-pix_fmt",
         "yuv420p",
       ])

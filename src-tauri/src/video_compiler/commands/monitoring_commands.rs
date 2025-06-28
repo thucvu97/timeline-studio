@@ -20,7 +20,7 @@ pub async fn get_service_metrics_summary(
     "preview" => &state.services.metrics.preview,
     "project" => &state.services.metrics.project,
     "ffmpeg" => &state.services.metrics.ffmpeg,
-    _ => return Err(format!("Unknown service: {}", service_name)),
+    _ => return Err(format!("Unknown service: {service_name}")),
   };
 
   Ok(metrics.get_summary().await)
@@ -40,7 +40,7 @@ pub async fn reset_service_metrics_detailed(
     "preview" => &state.services.metrics.preview,
     "project" => &state.services.metrics.project,
     "ffmpeg" => &state.services.metrics.ffmpeg,
-    _ => return Err(format!("Unknown service: {}", service_name)),
+    _ => return Err(format!("Unknown service: {service_name}")),
   };
 
   metrics.reset().await;
@@ -104,12 +104,10 @@ pub async fn export_metrics_prometheus_detailed(
 
     // Формат Prometheus
     output.push_str(&format!(
-      "# HELP timeline_studio_{}_operations_total Total number of operations\n",
-      name
+      "# HELP timeline_studio_{name}_operations_total Total number of operations\n"
     ));
     output.push_str(&format!(
-      "# TYPE timeline_studio_{}_operations_total counter\n",
-      name
+      "# TYPE timeline_studio_{name}_operations_total counter\n"
     ));
     output.push_str(&format!(
       "timeline_studio_{}_operations_total {}\n",
@@ -117,12 +115,10 @@ pub async fn export_metrics_prometheus_detailed(
     ));
 
     output.push_str(&format!(
-      "# HELP timeline_studio_{}_errors_total Total number of errors\n",
-      name
+      "# HELP timeline_studio_{name}_errors_total Total number of errors\n"
     ));
     output.push_str(&format!(
-      "# TYPE timeline_studio_{}_errors_total counter\n",
-      name
+      "# TYPE timeline_studio_{name}_errors_total counter\n"
     ));
     output.push_str(&format!(
       "timeline_studio_{}_errors_total {}\n",
@@ -130,12 +126,10 @@ pub async fn export_metrics_prometheus_detailed(
     ));
 
     output.push_str(&format!(
-      "# HELP timeline_studio_{}_active_operations Number of active operations\n",
-      name
+      "# HELP timeline_studio_{name}_active_operations Number of active operations\n"
     ));
     output.push_str(&format!(
-      "# TYPE timeline_studio_{}_active_operations gauge\n",
-      name
+      "# TYPE timeline_studio_{name}_active_operations gauge\n"
     ));
     output.push_str(&format!(
       "timeline_studio_{}_active_operations {}\n",
@@ -143,12 +137,10 @@ pub async fn export_metrics_prometheus_detailed(
     ));
 
     output.push_str(&format!(
-      "# HELP timeline_studio_{}_operations_per_second Operations per second\n",
-      name
+      "# HELP timeline_studio_{name}_operations_per_second Operations per second\n"
     ));
     output.push_str(&format!(
-      "# TYPE timeline_studio_{}_operations_per_second gauge\n",
-      name
+      "# TYPE timeline_studio_{name}_operations_per_second gauge\n"
     ));
     output.push_str(&format!(
       "timeline_studio_{}_operations_per_second {:.2}\n",
@@ -156,13 +148,9 @@ pub async fn export_metrics_prometheus_detailed(
     ));
 
     output.push_str(&format!(
-      "# HELP timeline_studio_{}_error_rate Error rate\n",
-      name
+      "# HELP timeline_studio_{name}_error_rate Error rate\n"
     ));
-    output.push_str(&format!(
-      "# TYPE timeline_studio_{}_error_rate gauge\n",
-      name
-    ));
+    output.push_str(&format!("# TYPE timeline_studio_{name}_error_rate gauge\n"));
     output.push_str(&format!(
       "timeline_studio_{}_error_rate {:.4}\n",
       name, summary.error_rate

@@ -86,10 +86,7 @@ async fn main() -> Result<()> {
   let blur_instance = plugin_manager
     .load_plugin("blur-effect", blur_permissions)
     .await?;
-  println!(
-    "  ✅ Loaded Blur Effect Plugin (instance: {})",
-    blur_instance
-  );
+  println!("  ✅ Loaded Blur Effect Plugin (instance: {blur_instance})");
 
   // YouTube Uploader - расширенные разрешения (сеть + файлы)
   let mut youtube_permissions = SecurityLevel::Extended.permissions();
@@ -105,15 +102,12 @@ async fn main() -> Result<()> {
   let youtube_instance = plugin_manager
     .load_plugin("youtube-uploader", youtube_permissions)
     .await?;
-  println!(
-    "  ✅ Loaded YouTube Uploader Plugin (instance: {})",
-    youtube_instance
-  );
+  println!("  ✅ Loaded YouTube Uploader Plugin (instance: {youtube_instance})");
 
   // Проверяем загруженные плагины
   println!("\n📊 Loaded Plugins Status:");
   for (plugin_id, state) in plugin_manager.list_loaded_plugins().await {
-    println!("  - {}: {:?}", plugin_id, state);
+    println!("  - {plugin_id}: {state:?}");
   }
 
   // Отправляем команды плагинам
@@ -188,7 +182,7 @@ async fn main() -> Result<()> {
 
   // Проверяем статус
   for (plugin_id, state) in plugin_manager.list_loaded_plugins().await {
-    println!("  - {}: {:?}", plugin_id, state);
+    println!("  - {plugin_id}: {state:?}");
   }
 
   plugin_manager.resume_plugin("blur-effect").await?;
@@ -218,7 +212,7 @@ async fn main() -> Result<()> {
       .and_then(|v| v.as_str())
       .unwrap_or("");
 
-    println!("  Upload task created: {}", task_id);
+    println!("  Upload task created: {task_id}");
 
     // Проверяем статус загрузки
     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;

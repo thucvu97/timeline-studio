@@ -491,7 +491,7 @@ impl CacheService for CacheServiceImpl {
         {
           if entry.metadata().await.unwrap().is_file() {
             if let Some(name) = entry.file_name().to_str() {
-              items.push(format!("{}/{}", subdir, name));
+              items.push(format!("{subdir}/{name}"));
             }
           }
         }

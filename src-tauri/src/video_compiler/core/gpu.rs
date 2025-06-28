@@ -120,28 +120,24 @@ impl GpuDetector {
 
     for (encoder_type, codec_name) in encoders_to_check {
       if self.check_encoder_available(codec_name).await? {
-        log::info!(
-          "Found available encoder: {:?} ({})",
-          encoder_type,
-          codec_name
-        );
+        log::info!("Found available encoder: {encoder_type:?} ({codec_name})");
         available.push(encoder_type);
       }
     }
 
-    log::info!("Total available encoders: {:?}", available);
+    log::info!("Total available encoders: {available:?}");
     Ok(available)
   }
 
   /// Проверить доступность конкретного кодировщика
   async fn check_encoder_available(&self, codec: &str) -> Result<bool> {
-    log::debug!("Checking encoder availability for: {}", codec);
+    log::debug!("Checking encoder availability for: {codec}");
 
     let output = tokio::process::Command::new(&self.ffmpeg_path)
       .args(["-encoders"])
       .output()
       .await
-      .map_err(|e| VideoCompilerError::Io(format!("Failed to run ffmpeg: {}", e)))?;
+      .map_err(|e| VideoCompilerError::Io(format!("Failed to run ffmpeg: {e}")))?;
 
     if output.status.success() {
       let stdout = String::from_utf8_lossy(&output.stdout);
@@ -173,7 +169,7 @@ impl GpuDetector {
       return Ok(None);
     }
 
-    log::info!("Available encoders: {:?}", available);
+    log::info!("Available encoders: {available:?}");
 
     // Приоритет кодировщиков по платформам
     #[cfg(target_os = "windows")]
@@ -191,7 +187,7 @@ impl GpuDetector {
     // Находим первый доступный из приоритетного списка
     for preferred in &priority {
       if available.contains(preferred) {
-        log::info!("Recommended encoder: {:?}", preferred);
+        log::info!("Recommended encoder: {preferred:?}");
         return Ok(Some(preferred.clone()));
       }
     }
@@ -200,7 +196,7 @@ impl GpuDetector {
     let hardware_encoder = available.iter().find(|e| e.is_hardware()).cloned();
 
     if let Some(encoder) = hardware_encoder {
-      log::info!("Using first available hardware encoder: {:?}", encoder);
+      log::info!("Using first available hardware encoder: {encoder:?}");
       Ok(Some(encoder))
     } else {
       log::info!("No hardware encoders available");
@@ -431,7 +427,7 @@ impl GpuDetector {
       .args(["SPDisplaysDataType", "-json"])
       .output()
       .await
-      .map_err(|e| VideoCompilerError::Io(format!("Failed to run system_profiler: {}", e)))?;
+      .map_err(|e| VideoCompilerError::Io(format!("Failed to run system_profiler: {e}")))?;
 
     if output.status.success() {
       // Парсим JSON вывод system_profiler
@@ -1264,8 +1260,7 @@ exit /b 0"#;
       let codec_name = encoder.h264_codec_name();
       assert!(
         !codec_name.contains("libx264"),
-        "GPU encoder {} should not use software codec",
-        codec_name
+        "GPU encoder {codec_name} should not use software codec"
       );
     }
 
@@ -1416,8 +1411,7 @@ exit /b 0"#;
         let params = GpuHelper::get_ffmpeg_params(&expected_encoder, 75);
         assert!(
           !params.is_empty(),
-          "Should generate parameters for {}",
-          codec_name
+          "Should generate parameters for {codec_name}"
         );
         // Note: codec name is not included in parameters - it's added as -c:v separately
         assert!(!codec_name.is_empty(), "Codec name should not be empty");
@@ -1527,8 +1521,7 @@ exit /b 0"#;
         .unwrap_or(false);
       assert!(
         !available,
-        "GPU encoder {} should not be available in CPU-only mock",
-        encoder
+        "GPU encoder {encoder} should not be available in CPU-only mock"
       );
     }
 
@@ -1777,8 +1770,7 @@ exit /b 0"#;
         let params = GpuHelper::get_ffmpeg_params(encoder, quality);
         assert!(
           !params.is_empty(),
-          "Should generate params for quality {}",
-          quality
+          "Should generate params for quality {quality}"
         );
 
         // Параметры не содержат кодек напрямую - он добавляется отдельно как -c:v
@@ -1801,8 +1793,7 @@ exit /b 0"#;
           });
           assert!(
             has_hw_params,
-            "Hardware encoder should have quality parameters for {:?}",
-            encoder
+            "Hardware encoder should have quality parameters for {encoder:?}"
           );
         }
       }

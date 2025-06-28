@@ -37,7 +37,7 @@ impl ServiceProvider for TestProvider {
 
     Ok(TestService {
       initialized: Arc::new(AtomicBool::new(false)),
-      _name: format!("TestService-{}", count),
+      _name: format!("TestService-{count}"),
     })
   }
 }

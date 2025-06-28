@@ -52,7 +52,7 @@ mod subtitles;
 fn greet() -> String {
   let now = SystemTime::now();
   let epoch_ms = now.duration_since(UNIX_EPOCH).unwrap().as_millis();
-  format!("Hello world from Rust! Current epoch: {}", epoch_ms)
+  format!("Hello world from Rust! Current epoch: {epoch_ms}")
 }
 
 #[tauri::command]
@@ -127,7 +127,7 @@ async fn test_plugin_system(
   results.push(format!("Loaded plugins: {}", loaded_plugins.len()));
 
   for (id, state) in &loaded_plugins {
-    results.push(format!("- {} (state: {:?})", id, state));
+    results.push(format!("- {id} (state: {state:?})"));
   }
 
   Ok(results.join("\n"))
@@ -142,7 +142,7 @@ pub fn run() {
   // Ensure app directories exist on startup
   tauri::async_runtime::block_on(async {
     if let Err(e) = app_dirs::create_app_directories().await {
-      eprintln!("Failed to create app directories: {}", e);
+      eprintln!("Failed to create app directories: {e}");
     }
   });
 
@@ -162,7 +162,7 @@ pub fn run() {
           app.manage(state);
         }
         Err(e) => {
-          log::error!("Failed to initialize Video Compiler: {}", e);
+          log::error!("Failed to initialize Video Compiler: {e}");
           // Продолжаем работу даже если Video Compiler не инициализирован
           // Создаем дефолтное состояние
           app.manage(tauri::async_runtime::block_on(VideoCompilerState::new()));

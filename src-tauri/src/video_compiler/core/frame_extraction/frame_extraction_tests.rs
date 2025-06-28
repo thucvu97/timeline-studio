@@ -296,7 +296,7 @@ mod tests {
       let hours = (seconds / 3600.0).floor() as u32;
       let minutes = ((seconds % 3600.0) / 60.0).floor() as u32;
       let secs = seconds % 60.0;
-      format!("{:02}:{:02}:{:06.3}", hours, minutes, secs)
+      format!("{hours:02}:{minutes:02}:{secs:06.3}")
     }
 
     assert_eq!(format_timestamp(0.0), "00:00:00.000");

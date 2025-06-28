@@ -58,7 +58,7 @@ impl MetadataExtractor {
         Ok(metadata)
       }
       Err(e) => {
-        let error_msg = format!("Failed to get metadata: {}", e);
+        let error_msg = format!("Failed to get metadata: {e}");
         let _ = self.app_handle.emit(
           "media-processor",
           MetadataEvent::MetadataError {

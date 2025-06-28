@@ -72,7 +72,7 @@ pub fn get_app_language_tauri(
   let language = language_state
     .current_language
     .lock()
-    .map_err(|e| format!("Failed to lock language state: {}", e))?
+    .map_err(|e| format!("Failed to lock language state: {e}"))?
     .clone();
 
   Ok(LanguageResponse {
@@ -89,14 +89,14 @@ pub fn set_app_language_tauri(
 ) -> Result<LanguageResponse, String> {
   // Проверяем, поддерживается ли язык
   if !is_supported_language(&lang) {
-    return Err(format!("Unsupported language: {}", lang));
+    return Err(format!("Unsupported language: {lang}"));
   }
 
   // Устанавливаем новый язык в состоянии Tauri
   *language_state
     .current_language
     .lock()
-    .map_err(|e| format!("Failed to lock language state: {}", e))? = lang.clone();
+    .map_err(|e| format!("Failed to lock language state: {e}"))? = lang.clone();
 
   Ok(LanguageResponse {
     language: lang,

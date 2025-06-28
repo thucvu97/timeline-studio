@@ -142,7 +142,7 @@ impl MediaAnalyzer {
 
       let aspect_ratio = if let Some(stream) = video_stream {
         if let (Some(w), Some(h)) = (stream.width, stream.height) {
-          format!("{}:{}", w, h)
+          format!("{w}:{h}")
         } else {
           "unknown".to_string()
         }
@@ -224,8 +224,7 @@ impl MediaAnalyzer {
     if let Some(codec) = &metrics.codec {
       if codec != "h264" && codec != "hevc" {
         recommendations.push(format!(
-          "Consider using H.264 or H.265 codec instead of {}",
-          codec
+          "Consider using H.264 or H.265 codec instead of {codec}"
         ));
       }
     }

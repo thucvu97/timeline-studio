@@ -96,12 +96,12 @@ impl PreviewGenerator {
     {
       let mut cache = self.cache.write().await;
       if let Some(cached_data) = cache.get_preview(&cache_key).await {
-        log::debug!("Превью найдено в кэше: {:?} at {}s", video_path, timestamp);
+        log::debug!("Превью найдено в кэше: {video_path:?} at {timestamp}s");
         return Ok(cached_data.image_data);
       }
     }
 
-    log::debug!("Генерация превью: {:?} at {}s", video_path, timestamp);
+    log::debug!("Генерация превью: {video_path:?} at {timestamp}s");
 
     // Валидация входных данных
     self.validate_input(video_path, timestamp)?;
@@ -165,7 +165,7 @@ impl PreviewGenerator {
       match task.await {
         Ok(result) => results.push(result),
         Err(e) => {
-          log::error!("Ошибка в задаче генерации превью: {:?}", e);
+          log::error!("Ошибка в задаче генерации превью: {e:?}");
         }
       }
     }
@@ -221,7 +221,7 @@ impl PreviewGenerator {
       match task.await {
         Ok(result) => results.push(result),
         Err(e) => {
-          log::error!("Ошибка в задаче генерации превью: {:?}", e);
+          log::error!("Ошибка в задаче генерации превью: {e:?}");
         }
       }
     }
@@ -311,7 +311,7 @@ impl PreviewGenerator {
     ]);
 
     if let (Some(width), Some(height)) = (options.width, options.height) {
-      cmd.args(["-vf", &format!("scale={}:{}", width, height)]);
+      cmd.args(["-vf", &format!("scale={width}:{height}")]);
     }
 
     let output = cmd
@@ -320,14 +320,14 @@ impl PreviewGenerator {
       .map_err(|e| VideoCompilerError::FFmpegError {
         exit_code: None,
         stderr: e.to_string(),
-        command: format!("{:?}", cmd),
+        command: format!("{cmd:?}"),
       })?;
 
     if !output.status.success() {
       return Err(VideoCompilerError::FFmpegError {
         exit_code: output.status.code(),
         stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-        command: format!("{:?}", cmd),
+        command: format!("{cmd:?}"),
       });
     }
 
@@ -351,7 +351,7 @@ impl PreviewGenerator {
     let output = cmd.output().await.map_err(|e| {
       VideoCompilerError::ffmpeg(
         None,
-        format!("Не удалось запустить FFmpeg: {}", e),
+        format!("Не удалось запустить FFmpeg: {e}"),
         "ffprobe".to_string(),
       )
     })?;
@@ -404,15 +404,15 @@ impl PreviewGenerator {
     cmd.stdout(Stdio::null());
     cmd.stderr(Stdio::piped());
 
-    log::debug!("Выполнение команды FFmpeg: {:?}", cmd);
+    log::debug!("Выполнение команды FFmpeg: {cmd:?}");
 
     let output = cmd.output().await.map_err(|e| {
       let error = VideoCompilerError::ffmpeg(
         None,
-        format!("Не удалось запустить FFmpeg: {}", e),
+        format!("Не удалось запустить FFmpeg: {e}"),
         "generate_preview".to_string(),
       );
-      log::error!("Ошибка FFmpeg: {}", error);
+      log::error!("Ошибка FFmpeg: {error}");
       log::error!("  Код ошибки: {}", error.error_code());
       log::error!(
         "  Критическая: {}",
@@ -430,9 +430,9 @@ impl PreviewGenerator {
       let error = VideoCompilerError::ffmpeg(
         output.status.code(),
         stderr.to_string(),
-        format!("ffmpeg generate preview at {}s", timestamp),
+        format!("ffmpeg generate preview at {timestamp}s"),
       );
-      log::error!("Ошибка выполнения FFmpeg: {}", error);
+      log::error!("Ошибка выполнения FFmpeg: {error}");
       log::error!("  Код ошибки: {}", error.error_code());
       log::error!(
         "  Можно повторить: {}",
@@ -447,21 +447,14 @@ impl PreviewGenerator {
 
     // Читаем сгенерированный файл
     let image_data = tokio::fs::read(&temp_output).await.map_err(|e| {
-      VideoCompilerError::preview(
-        timestamp,
-        format!("Не удалось прочитать превью файл: {}", e),
-      )
+      VideoCompilerError::preview(timestamp, format!("Не удалось прочитать превью файл: {e}"))
     })?;
 
     // Удаляем временный файл
     if let Err(e) = tokio::fs::remove_file(&temp_output).await {
-      log::warn!("Не удалось удалить временный файл превью: {}", e);
+      log::warn!("Не удалось удалить временный файл превью: {e}");
     }
-    log::debug!(
-      "Превью успешно сгенерировано: {:?} at {}s",
-      video_path,
-      timestamp
-    );
+    log::debug!("Превью успешно сгенерировано: {video_path:?} at {timestamp}s");
     Ok(image_data)
   }
 

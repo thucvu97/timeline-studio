@@ -64,7 +64,7 @@ async fn test_complete_media_workflow() {
 
   // Получаем информацию о медиа (может завершиться ошибкой из-за ограничений файловой системы)
   let media_info_result = plugin_api.get_media_info(&media_id).await;
-  println!("Media info result: {:?}", media_info_result);
+  println!("Media info result: {media_info_result:?}");
 
   // Тест 2: Применение эффекта
   let effect = Effect {
@@ -73,11 +73,11 @@ async fn test_complete_media_workflow() {
   };
 
   let effect_result = plugin_api.apply_effect(&media_id, effect).await;
-  println!("Effect application result: {:?}", effect_result);
+  println!("Effect application result: {effect_result:?}");
 
   // Тест 3: Генерация превью
   let thumbnail_result = plugin_api.generate_thumbnail(&media_id, 30.0).await;
-  println!("Thumbnail generation result: {:?}", thumbnail_result);
+  println!("Thumbnail generation result: {thumbnail_result:?}");
 }
 
 #[tokio::test]
@@ -167,13 +167,13 @@ async fn test_file_system_operations() {
   // В тестовой среде возвращается заглушка
   let picked_file = pick_result.unwrap();
   assert!(picked_file.is_some());
-  println!("Picked file: {:?}", picked_file);
+  println!("Picked file: {picked_file:?}");
 
   let dir_pick_result = plugin_api.pick_directory().await;
   assert!(dir_pick_result.is_ok());
   let picked_dir = dir_pick_result.unwrap();
   assert!(picked_dir.is_some());
-  println!("Picked directory: {:?}", picked_dir);
+  println!("Picked directory: {picked_dir:?}");
 
   // Тест 2: Чтение/запись файлов (может завершиться ошибкой из-за разрешений)
   let temp_dir = tempdir().unwrap();
@@ -181,7 +181,7 @@ async fn test_file_system_operations() {
   let test_data = b"Hello, World!";
 
   let write_result = plugin_api.write_file(&test_file, test_data).await;
-  println!("File write result: {:?}", write_result);
+  println!("File write result: {write_result:?}");
 
   if write_result.is_ok() {
     let read_result = plugin_api.read_file(&test_file).await;
@@ -243,7 +243,7 @@ async fn test_system_info() {
   assert!(!system_info.arch.is_empty());
   assert!(system_info.cpu_count > 0);
 
-  println!("System info: {:?}", system_info);
+  println!("System info: {system_info:?}");
 }
 
 #[tokio::test]
@@ -341,7 +341,7 @@ async fn test_concurrent_operations() {
     let api_clone = plugin_api.clone();
     let handle = tokio::spawn(async move {
       let storage = api_clone.get_storage().await.unwrap();
-      let key = format!("concurrent_key_{}", i);
+      let key = format!("concurrent_key_{i}");
       let value = json!({"index": i, "data": format!("test_data_{}", i)});
 
       storage.set(&key, value.clone()).await.unwrap();
@@ -386,6 +386,6 @@ async fn test_thumbnail_generation_validity() {
     let thumbnail_data = tokio::fs::read(&thumbnail_path).await.unwrap();
     assert!(is_valid_jpeg(&thumbnail_data));
 
-    println!("Generated thumbnail: {:?}", thumbnail_path);
+    println!("Generated thumbnail: {thumbnail_path:?}");
   }
 }

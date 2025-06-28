@@ -458,7 +458,7 @@ mod integration_tests {
 
     // Все команды должны создаваться успешно
     for (i, cmd_result) in commands.iter().enumerate() {
-      assert!(cmd_result.is_ok(), "Command {} failed to build", i);
+      assert!(cmd_result.is_ok(), "Command {i} failed to build");
     }
   }
 }

@@ -23,7 +23,7 @@ pub async fn read_subtitle_file(file_path: String) -> Result<SubtitleImportResul
 
   // Проверяем существование файла
   if !path.exists() {
-    return Err(format!("File not found: {}", file_path));
+    return Err(format!("File not found: {file_path}"));
   }
 
   // Определяем формат по расширению
@@ -37,12 +37,11 @@ pub async fn read_subtitle_file(file_path: String) -> Result<SubtitleImportResul
     "srt" => "srt",
     "vtt" => "vtt",
     "ass" | "ssa" => "ass",
-    _ => return Err(format!("Unsupported subtitle format: {}", extension)),
+    _ => return Err(format!("Unsupported subtitle format: {extension}")),
   };
 
   // Читаем содержимое файла
-  let content =
-    fs::read_to_string(&file_path).map_err(|e| format!("Failed to read file: {}", e))?;
+  let content = fs::read_to_string(&file_path).map_err(|e| format!("Failed to read file: {e}"))?;
 
   // Получаем имя файла
   let file_name = path
@@ -65,12 +64,12 @@ pub async fn save_subtitle_file(options: SubtitleExportOptions) -> Result<(), St
 
   // Создаем директорию если не существует
   if let Some(parent) = path.parent() {
-    fs::create_dir_all(parent).map_err(|e| format!("Failed to create directory: {}", e))?;
+    fs::create_dir_all(parent).map_err(|e| format!("Failed to create directory: {e}"))?;
   }
 
   // Записываем файл
   fs::write(&options.output_path, &options.content)
-    .map_err(|e| format!("Failed to write file: {}", e))?;
+    .map_err(|e| format!("Failed to write file: {e}"))?;
 
   Ok(())
 }
@@ -99,7 +98,7 @@ pub async fn validate_subtitle_format(content: String, format: String) -> Result
       let has_events = content.contains("[Events]");
       Ok(has_script_info || has_events)
     }
-    _ => Err(format!("Unknown format: {}", format)),
+    _ => Err(format!("Unknown format: {format}")),
   }
 }
 
@@ -117,11 +116,7 @@ pub async fn convert_subtitle_format(
 
   // Для демонстрации - просто возвращаем контент
   // В реальной реализации здесь должна быть конвертация
-  log::warn!(
-    "Subtitle format conversion from {} to {} is not yet implemented",
-    from_format,
-    to_format
-  );
+  log::warn!("Subtitle format conversion from {from_format} to {to_format} is not yet implemented");
 
   Ok(content)
 }

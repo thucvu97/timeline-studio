@@ -192,7 +192,7 @@ impl MetricsCollector {
 
         // Создаем фиктивный exporter для совместимости
         let exporter = opentelemetry_prometheus::exporter().build().map_err(|e| {
-          VideoCompilerError::InternalError(format!("Failed to create Prometheus exporter: {}", e))
+          VideoCompilerError::InternalError(format!("Failed to create Prometheus exporter: {e}"))
         })?;
 
         // Используем noop meter для OpenTelemetry, но будем создавать prometheus метрики напрямую
@@ -278,8 +278,7 @@ impl MetricsCollector {
     if let Some(existing_type) = metrics.get(name) {
       // Если метрика уже зарегистрирована, возвращаем ошибку
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Metric '{}' already registered with type {:?}",
-        name, existing_type
+        "Metric '{name}' already registered with type {existing_type:?}"
       )));
     } else {
       metrics.insert(name.to_string(), metric_type);
@@ -366,13 +365,13 @@ impl MetricsCollector {
       .parse()
       .unwrap_or_else(|_| "0.0.0.0:9090".parse().unwrap());
 
-    log::info!("Starting Prometheus metrics server on {}", addr);
+    log::info!("Starting Prometheus metrics server on {addr}");
 
     let server = Server::bind(&addr).serve(make_svc);
 
     let server_handle = tokio::spawn(async move {
       if let Err(e) = server.await {
-        log::error!("Prometheus server error: {}", e);
+        log::error!("Prometheus server error: {e}");
       }
     });
 
@@ -742,12 +741,12 @@ mod tests {
     let gauge_type = MetricType::Gauge;
     let histogram_type = MetricType::Histogram;
 
-    assert_eq!(format!("{:?}", counter_type), "Counter");
-    assert_eq!(format!("{:?}", gauge_type), "Gauge");
-    assert_eq!(format!("{:?}", histogram_type), "Histogram");
+    assert_eq!(format!("{counter_type:?}"), "Counter");
+    assert_eq!(format!("{gauge_type:?}"), "Gauge");
+    assert_eq!(format!("{histogram_type:?}"), "Histogram");
 
     let cloned = counter_type.clone();
-    assert_eq!(format!("{:?}", cloned), "Counter");
+    assert_eq!(format!("{cloned:?}"), "Counter");
   }
 
   #[tokio::test]
@@ -834,7 +833,7 @@ mod tests {
     assert!(metrics.is_some());
 
     let metrics_text = metrics.unwrap();
-    println!("Prometheus metrics output:\n{}", metrics_text);
+    println!("Prometheus metrics output:\n{metrics_text}");
 
     // Проверяем что хотя бы наша тестовая метрика есть
     assert!(metrics_text.contains("direct_test_counter") || !metrics_text.is_empty());

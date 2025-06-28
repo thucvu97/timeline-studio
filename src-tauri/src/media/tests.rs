@@ -42,7 +42,7 @@ mod tests {
     // Create some test files
     let video_extensions = vec!["mp4", "avi", "mkv", "mov"];
     for ext in &video_extensions {
-      let file_path = temp_dir.path().join(format!("test.{}", ext));
+      let file_path = temp_dir.path().join(format!("test.{ext}"));
       std::fs::write(&file_path, b"dummy content").unwrap();
     }
 

@@ -27,12 +27,9 @@ fn init_ort() -> Result<()> {
       if let Err(e) = ort::init().commit() {
         // В тестах разрешаем работу без ONNX Runtime
         if cfg!(test) {
-          eprintln!(
-            "Warning: Failed to initialize ONNX Runtime in test mode: {}",
-            e
-          );
+          eprintln!("Warning: Failed to initialize ONNX Runtime in test mode: {e}");
         } else {
-          panic!("Failed to initialize ORT: {}", e);
+          panic!("Failed to initialize ORT: {e}");
         }
       }
     });
@@ -408,7 +405,7 @@ impl YoloProcessor {
     class_names
       .get(class_id)
       .cloned()
-      .unwrap_or_else(|| format!("class_{}", class_id))
+      .unwrap_or_else(|| format!("class_{class_id}"))
   }
 
   /// Обработать несколько изображений пакетом
@@ -719,7 +716,7 @@ mod tests {
       let deserialized: YoloModel = serde_json::from_str(&serialized).unwrap();
       match (model, deserialized) {
         (YoloModel::Custom(p1), YoloModel::Custom(p2)) => assert_eq!(p1, p2),
-        (m1, m2) => assert_eq!(format!("{:?}", m1), format!("{:?}", m2)),
+        (m1, m2) => assert_eq!(format!("{m1:?}"), format!("{:?}", m2)),
       }
     }
   }
@@ -970,7 +967,7 @@ mod tests {
     let mut paths = Vec::new();
 
     for i in 0..3 {
-      let image_path = temp_dir.path().join(format!("test{}.jpg", i));
+      let image_path = temp_dir.path().join(format!("test{i}.jpg"));
       let img = ImageBuffer::from_fn(640, 480, |_, _| Rgb([255u8, 255u8, 255u8]));
       img.save(&image_path).unwrap();
       paths.push(image_path);

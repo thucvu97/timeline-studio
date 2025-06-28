@@ -23,7 +23,7 @@ pub async fn get_service_metrics_original(
   service_name: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<Option<MetricsSummary>> {
-  log::debug!("Получение метрик сервиса: {}", service_name);
+  log::debug!("Получение метрик сервиса: {service_name}");
 
   if let Some(metrics) = METRICS.get_service_metrics(&service_name).await {
     Ok(Some(metrics.get_summary().await))
@@ -48,7 +48,7 @@ pub async fn reset_service_metrics_original(
   service_name: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<()> {
-  log::info!("Сброс метрик для сервиса: {}", service_name);
+  log::info!("Сброс метрик для сервиса: {service_name}");
 
   if let Some(metrics) = METRICS.get_service_metrics(&service_name).await {
     metrics.reset().await;
@@ -56,8 +56,7 @@ pub async fn reset_service_metrics_original(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::InvalidParameter(format!(
-        "Сервис '{}' не найден",
-        service_name
+        "Сервис '{service_name}' не найден"
       )),
     )
   }

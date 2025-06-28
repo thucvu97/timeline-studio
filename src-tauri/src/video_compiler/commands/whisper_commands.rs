@@ -69,13 +69,13 @@ pub async fn whisper_transcribe_openai(
 ) -> Result<WhisperTranscriptionResult, String> {
   let file_path = Path::new(&audio_file_path);
   if !file_path.exists() {
-    return Err(format!("Аудио файл не найден: {}", audio_file_path));
+    return Err(format!("Аудио файл не найден: {audio_file_path}"));
   }
 
   // Читаем файл
   let file_content = fs::read(&file_path)
     .await
-    .map_err(|e| format!("Ошибка чтения файла: {}", e))?;
+    .map_err(|e| format!("Ошибка чтения файла: {e}"))?;
 
   let file_name = file_path
     .file_name()
@@ -111,22 +111,22 @@ pub async fn whisper_transcribe_openai(
   let client = reqwest::Client::new();
   let response = client
     .post("https://api.openai.com/v1/audio/transcriptions")
-    .header("Authorization", format!("Bearer {}", api_key))
+    .header("Authorization", format!("Bearer {api_key}"))
     .multipart(form)
     .send()
     .await
-    .map_err(|e| format!("Ошибка запроса к OpenAI: {}", e))?;
+    .map_err(|e| format!("Ошибка запроса к OpenAI: {e}"))?;
 
   let status = response.status();
   if !status.is_success() {
     let error_text = response.text().await.unwrap_or_default();
-    return Err(format!("OpenAI API error {}: {}", status, error_text));
+    return Err(format!("OpenAI API error {status}: {error_text}"));
   }
 
   let transcription: WhisperTranscriptionResult = response
     .json()
     .await
-    .map_err(|e| format!("Ошибка парсинга ответа: {}", e))?;
+    .map_err(|e| format!("Ошибка парсинга ответа: {e}"))?;
 
   Ok(transcription)
 }
@@ -143,13 +143,13 @@ pub async fn whisper_translate_openai(
 ) -> Result<WhisperTranslationResult, String> {
   let file_path = Path::new(&audio_file_path);
   if !file_path.exists() {
-    return Err(format!("Аудио файл не найден: {}", audio_file_path));
+    return Err(format!("Аудио файл не найден: {audio_file_path}"));
   }
 
   // Читаем файл
   let file_content = fs::read(&file_path)
     .await
-    .map_err(|e| format!("Ошибка чтения файла: {}", e))?;
+    .map_err(|e| format!("Ошибка чтения файла: {e}"))?;
 
   let file_name = file_path
     .file_name()
@@ -174,22 +174,22 @@ pub async fn whisper_translate_openai(
   let client = reqwest::Client::new();
   let response = client
     .post("https://api.openai.com/v1/audio/translations")
-    .header("Authorization", format!("Bearer {}", api_key))
+    .header("Authorization", format!("Bearer {api_key}"))
     .multipart(form)
     .send()
     .await
-    .map_err(|e| format!("Ошибка запроса к OpenAI: {}", e))?;
+    .map_err(|e| format!("Ошибка запроса к OpenAI: {e}"))?;
 
   let status = response.status();
   if !status.is_success() {
     let error_text = response.text().await.unwrap_or_default();
-    return Err(format!("OpenAI API error {}: {}", status, error_text));
+    return Err(format!("OpenAI API error {status}: {error_text}"));
   }
 
   let translation: WhisperTranslationResult = response
     .json()
     .await
-    .map_err(|e| format!("Ошибка парсинга ответа: {}", e))?;
+    .map_err(|e| format!("Ошибка парсинга ответа: {e}"))?;
 
   Ok(translation)
 }
@@ -205,7 +205,7 @@ pub async fn whisper_transcribe_local(
 ) -> Result<WhisperTranscriptionResult, String> {
   let file_path = Path::new(&audio_file_path);
   if !file_path.exists() {
-    return Err(format!("Аудио файл не найден: {}", audio_file_path));
+    return Err(format!("Аудио файл не найден: {audio_file_path}"));
   }
 
   // Проверяем наличие whisper.cpp
@@ -216,10 +216,7 @@ pub async fn whisper_transcribe_local(
   // Получаем путь к модели
   let model_path = get_whisper_model_path(&model_name)?;
   if !model_path.exists() {
-    return Err(format!(
-      "Модель {} не найдена: {:?}",
-      model_name, model_path
-    ));
+    return Err(format!("Модель {model_name} не найдена: {model_path:?}"));
   }
 
   // Создаем временный файл для вывода
@@ -253,11 +250,11 @@ pub async fn whisper_transcribe_local(
   let output = cmd
     .output()
     .await
-    .map_err(|e| format!("Ошибка выполнения whisper.cpp: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения whisper.cpp: {e}"))?;
 
   if !output.status.success() {
     let stderr = String::from_utf8_lossy(&output.stderr);
-    return Err(format!("Whisper.cpp завершился с ошибкой: {}", stderr));
+    return Err(format!("Whisper.cpp завершился с ошибкой: {stderr}"));
   }
 
   // Читаем результат
@@ -266,11 +263,11 @@ pub async fn whisper_transcribe_local(
       let json_file = output_file.with_extension("json");
       let content = fs::read_to_string(&json_file)
         .await
-        .map_err(|e| format!("Ошибка чтения результата: {}", e))?;
+        .map_err(|e| format!("Ошибка чтения результата: {e}"))?;
 
       // Парсим JSON результат whisper.cpp
       let whisper_result: serde_json::Value =
-        serde_json::from_str(&content).map_err(|e| format!("Ошибка парсинга JSON: {}", e))?;
+        serde_json::from_str(&content).map_err(|e| format!("Ошибка парсинга JSON: {e}"))?;
 
       let text = whisper_result["text"].as_str().unwrap_or("").to_string();
       let segments = parse_whisper_segments(&whisper_result);
@@ -290,7 +287,7 @@ pub async fn whisper_transcribe_local(
       let txt_file = output_file.with_extension("txt");
       let text = fs::read_to_string(&txt_file)
         .await
-        .map_err(|e| format!("Ошибка чтения результата: {}", e))?;
+        .map_err(|e| format!("Ошибка чтения результата: {e}"))?;
 
       // Удаляем временный файл
       let _ = fs::remove_file(&txt_file).await;
@@ -303,7 +300,7 @@ pub async fn whisper_transcribe_local(
         words: None,
       })
     }
-    _ => Err(format!("Неподдерживаемый формат вывода: {}", output_format)),
+    _ => Err(format!("Неподдерживаемый формат вывода: {output_format}")),
   }
 }
 
@@ -338,8 +335,7 @@ pub async fn whisper_get_local_models() -> Result<Vec<LocalWhisperModel>, String
       },
       is_downloaded,
       download_url: Some(format!(
-        "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/{}",
-        filename
+        "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/{filename}"
       )),
     });
   }
@@ -355,7 +351,7 @@ pub async fn whisper_download_model(model_name: String) -> Result<bool, String> 
   // Создаем директорию если её нет
   fs::create_dir_all(&models_dir)
     .await
-    .map_err(|e| format!("Ошибка создания директории моделей: {}", e))?;
+    .map_err(|e| format!("Ошибка создания директории моделей: {e}"))?;
 
   // Определяем имя файла модели
   let filename = match model_name.as_str() {
@@ -365,7 +361,7 @@ pub async fn whisper_download_model(model_name: String) -> Result<bool, String> 
     "whisper-medium" => "ggml-medium.bin",
     "whisper-large-v2" => "ggml-large-v2.bin",
     "whisper-large-v3" => "ggml-large-v3.bin",
-    _ => return Err(format!("Неизвестная модель: {}", model_name)),
+    _ => return Err(format!("Неизвестная модель: {model_name}")),
   };
 
   let model_path = models_dir.join(filename);
@@ -376,10 +372,8 @@ pub async fn whisper_download_model(model_name: String) -> Result<bool, String> 
   }
 
   // URL для скачивания
-  let download_url = format!(
-    "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/{}",
-    filename
-  );
+  let download_url =
+    format!("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/{filename}");
 
   // Скачиваем модель
   let client = reqwest::Client::new();
@@ -387,7 +381,7 @@ pub async fn whisper_download_model(model_name: String) -> Result<bool, String> 
     .get(&download_url)
     .send()
     .await
-    .map_err(|e| format!("Ошибка скачивания модели: {}", e))?;
+    .map_err(|e| format!("Ошибка скачивания модели: {e}"))?;
 
   if !response.status().is_success() {
     return Err(format!("Ошибка скачивания: HTTP {}", response.status()));
@@ -397,11 +391,11 @@ pub async fn whisper_download_model(model_name: String) -> Result<bool, String> 
   let content = response
     .bytes()
     .await
-    .map_err(|e| format!("Ошибка получения данных: {}", e))?;
+    .map_err(|e| format!("Ошибка получения данных: {e}"))?;
 
   fs::write(&model_path, content)
     .await
-    .map_err(|e| format!("Ошибка сохранения модели: {}", e))?;
+    .map_err(|e| format!("Ошибка сохранения модели: {e}"))?;
 
   Ok(true)
 }
@@ -422,18 +416,18 @@ pub async fn extract_audio_for_whisper(
 ) -> Result<String, String> {
   let video_path = Path::new(&video_file_path);
   if !video_path.exists() {
-    return Err(format!("Видео файл не найден: {}", video_file_path));
+    return Err(format!("Видео файл не найден: {video_file_path}"));
   }
 
   // Создаем временную директорию
   let temp_dir = std::env::temp_dir().join("timeline_studio_whisper");
   fs::create_dir_all(&temp_dir)
     .await
-    .map_err(|e| format!("Ошибка создания временной директории: {}", e))?;
+    .map_err(|e| format!("Ошибка создания временной директории: {e}"))?;
 
   // Генерируем имя выходного файла
   let timestamp = chrono::Utc::now().timestamp_millis();
-  let audio_filename = format!("extracted_audio_{}.{}", timestamp, output_format);
+  let audio_filename = format!("extracted_audio_{timestamp}.{output_format}");
   let audio_path = temp_dir.join(&audio_filename);
 
   // Используем FFmpeg для извлечения аудио
@@ -490,14 +484,14 @@ pub async fn extract_audio_for_whisper(
       ]);
     }
     _ => {
-      return Err(format!("Неподдерживаемый формат аудио: {}", output_format));
+      return Err(format!("Неподдерживаемый формат аудио: {output_format}"));
     }
   }
 
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка извлечения аудио: {}", e))?;
+    .map_err(|e| format!("Ошибка извлечения аудио: {e}"))?;
 
   if result.exit_code != 0 {
     return Err(format!("FFmpeg завершился с ошибкой: {}", result.stderr));
@@ -524,7 +518,7 @@ fn get_whisper_model_path(model_name: &str) -> Result<PathBuf, String> {
     "whisper-medium" => "ggml-medium.bin",
     "whisper-large-v2" => "ggml-large-v2.bin",
     "whisper-large-v3" => "ggml-large-v3.bin",
-    _ => return Err(format!("Неизвестная модель: {}", model_name)),
+    _ => return Err(format!("Неизвестная модель: {model_name}")),
   };
 
   Ok(models_dir.join(filename))

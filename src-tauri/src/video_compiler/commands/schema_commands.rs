@@ -22,9 +22,7 @@ pub async fn add_clip_to_track(
     .tracks
     .iter_mut()
     .find(|t| t.id == track_id)
-    .ok_or_else(|| {
-      VideoCompilerError::InvalidParameter(format!("Track not found: {}", track_id))
-    })?;
+    .ok_or_else(|| VideoCompilerError::InvalidParameter(format!("Track not found: {track_id}")))?;
 
   track.clips.push(clip);
   track
@@ -1157,18 +1155,16 @@ mod tests {
 
     for (format, expected_width, expected_height) in formats {
       let result = create_resolution_for_format(format.to_string()).await;
-      assert!(result.is_ok(), "Failed for format: {}", format);
+      assert!(result.is_ok(), "Failed for format: {format}");
 
       let resolution = result.unwrap();
       assert_eq!(
         resolution.width, expected_width,
-        "Width mismatch for format: {}",
-        format
+        "Width mismatch for format: {format}"
       );
       assert_eq!(
         resolution.height, expected_height,
-        "Height mismatch for format: {}",
-        format
+        "Height mismatch for format: {format}"
       );
     }
   }

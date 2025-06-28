@@ -75,7 +75,7 @@ impl VideoCompilerState {
     {
       Ok(container) => container,
       Err(e) => {
-        log::error!("Ошибка создания контейнера сервисов: {:?}", e);
+        log::error!("Ошибка создания контейнера сервисов: {e:?}");
         // Создаем минимальный контейнер для fallback
         let cache = Arc::new(crate::video_compiler::services::CacheServiceImpl::new(
           std::env::temp_dir().join("timeline-studio"),
@@ -135,7 +135,7 @@ impl VideoCompilerState {
 
     // Инициализируем сервисы
     if let Err(e) = services.initialize_all().await {
-      log::error!("Ошибка инициализации сервисов: {:?}", e);
+      log::error!("Ошибка инициализации сервисов: {e:?}");
     }
 
     let services = Arc::new(services);
@@ -551,7 +551,7 @@ mod tests {
       error_message: None,
     };
 
-    let debug_str = format!("{:?}", job);
+    let debug_str = format!("{job:?}");
     assert!(debug_str.contains("debug-test"));
     assert!(debug_str.contains("Debug Project"));
     assert!(debug_str.contains("Processing"));

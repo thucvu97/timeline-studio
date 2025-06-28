@@ -139,7 +139,7 @@ impl ServiceContainer {
     let mut services = self.services.write().await;
     services.insert(TypeId::of::<T>(), entry);
 
-    log::info!("Registered service: {}", name);
+    log::info!("Registered service: {name}");
     Ok(())
   }
 
@@ -158,7 +158,7 @@ impl ServiceContainer {
     let mut services = self.services.write().await;
     services.insert(TypeId::of::<T>(), entry);
 
-    log::info!("Registered Arc service: {}", name);
+    log::info!("Registered Arc service: {name}");
     Ok(())
   }
 
@@ -876,8 +876,7 @@ mod tests {
     let count = creation_count.load(Ordering::SeqCst);
     assert!(
       (1..=2).contains(&count),
-      "Should create 1-2 service instances (improved from 1-5), got {}",
-      count
+      "Should create 1-2 service instances (improved from 1-5), got {count}"
     );
 
     // В контейнере всегда должен остаться ровно один экземпляр (последний созданный)

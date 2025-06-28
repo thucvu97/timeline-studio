@@ -97,7 +97,7 @@ impl FFmpegExecutor {
       .spawn()
       .map_err(|e| VideoCompilerError::FFmpegError {
         exit_code: None,
-        stderr: format!("Не удалось запустить FFmpeg: {}", e),
+        stderr: format!("Не удалось запустить FFmpeg: {e}"),
         command: "ffmpeg".to_string(),
       })?;
 
@@ -139,9 +139,9 @@ impl FFmpegExecutor {
 
       // Логируем важные сообщения
       if line.contains("error") || line.contains("Error") {
-        log::error!("FFmpeg error: {}", line);
+        log::error!("FFmpeg error: {line}");
       } else if line.contains("warning") || line.contains("Warning") {
-        log::warn!("FFmpeg warning: {}", line);
+        log::warn!("FFmpeg warning: {line}");
       }
     }
 
@@ -157,7 +157,7 @@ impl FFmpegExecutor {
       .await
       .map_err(|e| VideoCompilerError::FFmpegError {
         exit_code: None,
-        stderr: format!("Ошибка ожидания процесса: {}", e),
+        stderr: format!("Ошибка ожидания процесса: {e}"),
         command: "ffmpeg".to_string(),
       })?;
 
@@ -191,7 +191,7 @@ impl FFmpegExecutor {
       .await
       .map_err(|e| VideoCompilerError::FFmpegError {
         exit_code: None,
-        stderr: format!("Не удалось выполнить FFmpeg: {}", e),
+        stderr: format!("Не удалось выполнить FFmpeg: {e}"),
         command: "ffmpeg".to_string(),
       })?;
 
@@ -246,7 +246,7 @@ impl FFmpegExecutor {
             (total_duration - total_seconds) / (total_seconds / frame as f64),
           )),
           status: crate::video_compiler::progress::RenderStatus::Processing,
-          message: Some(format!("Обработка: кадр {} @ {:.1} fps", frame, fps)),
+          message: Some(format!("Обработка: кадр {frame} @ {fps:.1} fps")),
         });
       }
     }
@@ -261,10 +261,7 @@ pub async fn check_ffmpeg_available(ffmpeg_path: &str) -> Result<String> {
   cmd.arg("-version");
 
   let output = cmd.output().await.map_err(|e| {
-    VideoCompilerError::DependencyMissing(format!(
-      "FFmpeg не найден по пути '{}': {}",
-      ffmpeg_path, e
-    ))
+    VideoCompilerError::DependencyMissing(format!("FFmpeg не найден по пути '{ffmpeg_path}': {e}"))
   })?;
 
   if !output.status.success() {

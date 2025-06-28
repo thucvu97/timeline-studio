@@ -458,7 +458,7 @@ impl SandboxManager {
     let mut sandboxes = self.sandboxes.write().await;
     sandboxes.insert(plugin_id.clone(), sandbox.clone());
 
-    log::info!("Created sandbox for plugin '{}'", plugin_id);
+    log::info!("Created sandbox for plugin '{plugin_id}'");
     sandbox
   }
 
@@ -472,7 +472,7 @@ impl SandboxManager {
   pub async fn remove_sandbox(&self, plugin_id: &str) -> bool {
     let mut sandboxes = self.sandboxes.write().await;
     if sandboxes.remove(plugin_id).is_some() {
-      log::info!("Removed sandbox for plugin '{}'", plugin_id);
+      log::info!("Removed sandbox for plugin '{plugin_id}'");
       true
     } else {
       false

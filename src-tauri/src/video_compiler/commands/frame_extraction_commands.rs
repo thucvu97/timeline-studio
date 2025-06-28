@@ -48,7 +48,7 @@ pub async fn extract_timeline_frames(
   let mut timestamp = 0.0;
 
   while timestamp <= duration {
-    let frame_path = format!("{}/frame_{:.2}.png", output_dir, timestamp);
+    let frame_path = format!("{output_dir}/frame_{timestamp:.2}.png");
 
     // Генерируем кадр
     let ffmpeg_path = state.ffmpeg_path.read().await.clone();
@@ -112,7 +112,7 @@ pub async fn generate_preview_batch(
   let mut paths = Vec::new();
 
   for timestamp in timestamps {
-    let output_path = format!("{}/preview_{:.2}.png", output_dir, timestamp);
+    let output_path = format!("{output_dir}/preview_{timestamp:.2}.png");
     generator
       .generate_frame(&project_schema, timestamp, &output_path, None)
       .await?;
@@ -242,7 +242,7 @@ pub async fn extract_video_frames_batch(
   let mut frame_paths = Vec::new();
 
   for (index, timestamp) in timestamps.iter().enumerate() {
-    let output_path = format!("{}/frame_{:04}.png", output_dir, index);
+    let output_path = format!("{output_dir}/frame_{index:04}.png");
 
     extract_video_frame(
       video_path.clone(),

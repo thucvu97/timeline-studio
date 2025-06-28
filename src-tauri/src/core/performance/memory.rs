@@ -293,7 +293,7 @@ impl MemoryPool {
       let new_pool = Arc::new(Mutex::new(BlockPool::new(pool_size)));
       pools.insert(pool_size, new_pool.clone());
 
-      log::info!("Created custom memory pool for size {}", pool_size);
+      log::info!("Created custom memory pool for size {pool_size}");
       Ok(new_pool)
     }
   }
@@ -337,7 +337,7 @@ impl MemoryPool {
 
     for size in to_remove {
       pools.remove(&size);
-      log::info!("Removed unused custom memory pool for size {}", size);
+      log::info!("Removed unused custom memory pool for size {size}");
     }
   }
 }

@@ -7,10 +7,10 @@ pub fn get_media_files(directory: String) -> Result<Vec<String>, String> {
   let path = Path::new(&directory);
 
   if !path.exists() || !path.is_dir() {
-    return Err(format!("Директория не найдена: {}", directory));
+    return Err(format!("Директория не найдена: {directory}"));
   }
 
-  let entries = std::fs::read_dir(path).map_err(|e| format!("Ошибка чтения директории: {}", e))?;
+  let entries = std::fs::read_dir(path).map_err(|e| format!("Ошибка чтения директории: {e}"))?;
 
   let mut media_files = Vec::new();
 
@@ -134,12 +134,12 @@ mod tests {
 
     // Создаем поддерживаемые файлы
     for ext in &supported_extensions {
-      create_test_file(&temp_dir, &format!("test.{}", ext), b"test content");
+      create_test_file(&temp_dir, &format!("test.{ext}"), b"test content");
     }
 
     // Создаем неподдерживаемые файлы
     for ext in &unsupported_extensions {
-      create_test_file(&temp_dir, &format!("test.{}", ext), b"test content");
+      create_test_file(&temp_dir, &format!("test.{ext}"), b"test content");
     }
 
     let dir_path = temp_dir.path().to_string_lossy().to_string();
@@ -159,8 +159,7 @@ mod tests {
 
       assert!(
         supported_extensions.contains(&extension.as_str()),
-        "Неподдерживаемое расширение найдено: {}",
-        extension
+        "Неподдерживаемое расширение найдено: {extension}"
       );
     }
   }

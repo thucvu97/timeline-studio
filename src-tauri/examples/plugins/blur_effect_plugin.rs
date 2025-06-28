@@ -72,7 +72,7 @@ impl BlurEffectPlugin {
       BlurQuality::High => radius * 1.0,
     };
 
-    format!("gblur=sigma={}:steps=3", sigma)
+    format!("gblur=sigma={sigma}:steps=3")
   }
 }
 
@@ -102,7 +102,7 @@ impl Plugin for BlurEffectPlugin {
           }
         }
         Err(e) => {
-          log::warn!("Failed to load config: {}", e);
+          log::warn!("Failed to load config: {e}");
         }
       }
     }
@@ -236,11 +236,11 @@ impl Plugin for BlurEffectPlugin {
   async fn handle_event(&self, event: &AppEvent) -> Result<()> {
     match event {
       AppEvent::MediaImported { media_id, .. } => {
-        log::info!("Blur Effect: New media imported: {}", media_id);
+        log::info!("Blur Effect: New media imported: {media_id}");
         // Здесь можно автоматически применить эффект к новым медиа
       }
       AppEvent::MediaProcessed { media_id } => {
-        log::info!("Blur Effect: Media processed: {}", media_id);
+        log::info!("Blur Effect: Media processed: {media_id}");
       }
       _ => {}
     }

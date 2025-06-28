@@ -43,8 +43,7 @@ pub async fn get_media_files_in_directory(
 
   let files = get_media_files(params.directory.clone()).map_err(|e| {
     crate::video_compiler::error::VideoCompilerError::validation(format!(
-      "Failed to get media files: {}",
-      e
+      "Failed to get media files: {e}"
     ))
   })?;
 

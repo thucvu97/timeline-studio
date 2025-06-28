@@ -60,7 +60,7 @@ impl PreviewDataManager {
     let output_path = self
       .base_dir
       .join("Caches/preview/browser")
-      .join(format!("{}_{}x{}.jpg", file_id, width, height));
+      .join(format!("{file_id}_{width}x{height}.jpg"));
 
     // Создаем директорию если не существует
     if let Some(parent) = output_path.parent() {
@@ -124,7 +124,7 @@ impl PreviewDataManager {
         let base64 = STANDARD.encode(image_data);
 
         // Сохраняем файл на диск для совместимости
-        let file_path = output_dir.join(format!("frame_{:04}.jpg", i));
+        let file_path = output_dir.join(format!("frame_{i:04}.jpg"));
         tokio::fs::write(&file_path, image_data).await?;
 
         let timeline_preview = TimelinePreview {
@@ -141,7 +141,7 @@ impl PreviewDataManager {
 
       if base64_data.is_none() {
         // Если нет данных, создаем пустой превью
-        let file_path = output_dir.join(format!("frame_{:04}_empty.jpg", i));
+        let file_path = output_dir.join(format!("frame_{i:04}_empty.jpg"));
         let timeline_preview = TimelinePreview {
           timestamp: preview_result.timestamp,
           path: file_path,
@@ -197,7 +197,7 @@ impl PreviewDataManager {
 
     for (i, frame) in frames_to_use.iter().enumerate() {
       // Сохраняем данные кадра на диск
-      let file_path = output_dir.join(format!("recognition_frame_{:04}.jpg", i));
+      let file_path = output_dir.join(format!("recognition_frame_{i:04}.jpg"));
       tokio::fs::write(&file_path, &frame.frame_data).await?;
 
       let recognition_frame = RecognitionFrame {
@@ -296,7 +296,7 @@ impl PreviewDataManager {
       let frame_path = self
         .base_dir
         .join("Caches/timeline")
-        .join(format!("{}_{}.jpg", file_id, index));
+        .join(format!("{file_id}_{index}.jpg"));
 
       // Создаем директорию если не существует
       if let Some(parent) = frame_path.parent() {
@@ -638,8 +638,8 @@ mod tests {
     for i in 0..5 {
       let manager_clone = manager.clone();
       let handle = tokio::spawn(async move {
-        let file_id = format!("test_file_{}", i);
-        let file_path = PathBuf::from(format!("/test/video_{}.mp4", i));
+        let file_id = format!("test_file_{i}");
+        let file_path = PathBuf::from(format!("/test/video_{i}.mp4"));
 
         // Добавляем данные
         {

@@ -19,7 +19,7 @@ pub async fn generate_video_preview(
   resolution: Option<(u32, u32)>,
   bitrate: Option<u32>,
 ) -> Result<(), String> {
-  log::debug!("Генерация превью видео: {} -> {}", input_path, output_path);
+  log::debug!("Генерация превью видео: {input_path} -> {output_path}");
 
   let project = ProjectSchema::new("video_preview".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -33,13 +33,13 @@ pub async fn generate_video_preview(
       bitrate,
     )
     .await
-    .map_err(|e| format!("Ошибка создания команды превью: {}", e))?;
+    .map_err(|e| format!("Ошибка создания команды превью: {e}"))?;
 
   let executor = FFmpegExecutor::new();
   executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения команды превью: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения команды превью: {e}"))?;
 
   Ok(())
 }
@@ -54,7 +54,7 @@ pub async fn generate_gif_preview(
   fps: u32,
   resolution: Option<(u32, u32)>,
 ) -> Result<(), String> {
-  log::debug!("Генерация GIF превью: {} -> {}", input_path, output_path);
+  log::debug!("Генерация GIF превью: {input_path} -> {output_path}");
 
   let project = ProjectSchema::new("gif_preview".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -69,20 +69,20 @@ pub async fn generate_gif_preview(
       resolution,
     )
     .await
-    .map_err(|e| format!("Ошибка создания команды GIF: {}", e))?;
+    .map_err(|e| format!("Ошибка создания команды GIF: {e}"))?;
 
   let executor = FFmpegExecutor::new();
   executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения команды GIF: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения команды GIF: {e}"))?;
 
   Ok(())
 }
 
 #[tauri::command]
 pub async fn concat_videos(input_paths: Vec<String>, output_path: String) -> Result<(), String> {
-  log::debug!("Объединение видео: {:?} -> {}", input_paths, output_path);
+  log::debug!("Объединение видео: {input_paths:?} -> {output_path}");
 
   let project = ProjectSchema::new("concat_videos".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -91,13 +91,13 @@ pub async fn concat_videos(input_paths: Vec<String>, output_path: String) -> Res
   let cmd = builder
     .build_concat_command(&paths, Path::new(&output_path))
     .await
-    .map_err(|e| format!("Ошибка создания команды объединения: {}", e))?;
+    .map_err(|e| format!("Ошибка создания команды объединения: {e}"))?;
 
   let executor = FFmpegExecutor::new();
   executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения команды объединения: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения команды объединения: {e}"))?;
 
   Ok(())
 }
@@ -109,12 +109,7 @@ pub async fn apply_video_filter(
   filter_name: String,
   duration: Option<f64>,
 ) -> Result<(), String> {
-  log::debug!(
-    "Применение фильтра {} к видео: {} -> {}",
-    filter_name,
-    input_path,
-    output_path
-  );
+  log::debug!("Применение фильтра {filter_name} к видео: {input_path} -> {output_path}");
 
   let project = ProjectSchema::new("filter_preview".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -127,20 +122,20 @@ pub async fn apply_video_filter(
       duration,
     )
     .await
-    .map_err(|e| format!("Ошибка создания команды фильтра: {}", e))?;
+    .map_err(|e| format!("Ошибка создания команды фильтра: {e}"))?;
 
   let executor = FFmpegExecutor::new();
   executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения команды фильтра: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения команды фильтра: {e}"))?;
 
   Ok(())
 }
 
 #[tauri::command]
 pub async fn probe_media_file(input_path: String) -> Result<serde_json::Value, String> {
-  log::debug!("Анализ медиа файла: {}", input_path);
+  log::debug!("Анализ медиа файла: {input_path}");
 
   let project = ProjectSchema::new("probe".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -148,17 +143,17 @@ pub async fn probe_media_file(input_path: String) -> Result<serde_json::Value, S
   let cmd = builder
     .build_probe_command(Path::new(&input_path))
     .await
-    .map_err(|e| format!("Ошибка создания команды анализа: {}", e))?;
+    .map_err(|e| format!("Ошибка создания команды анализа: {e}"))?;
 
   let executor = FFmpegExecutor::new();
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения команды анализа: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения команды анализа: {e}"))?;
 
   // Парсим JSON вывод от ffprobe
   serde_json::from_str(&result.stdout)
-    .map_err(|e| format!("Ошибка парсинга результата анализа: {}", e))
+    .map_err(|e| format!("Ошибка парсинга результата анализа: {e}"))
 }
 
 #[tauri::command]
@@ -171,13 +166,13 @@ pub async fn test_hardware_acceleration() -> Result<Vec<String>, String> {
   let cmd = builder
     .build_hwaccel_test_command()
     .await
-    .map_err(|e| format!("Ошибка создания команды теста: {}", e))?;
+    .map_err(|e| format!("Ошибка создания команды теста: {e}"))?;
 
   let executor = FFmpegExecutor::new();
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения команды теста: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения команды теста: {e}"))?;
 
   // Парсим доступные кодеры из вывода
   let encoders: Vec<String> = result
@@ -199,12 +194,7 @@ pub async fn generate_subtitle_preview(
   output_path: String,
   start_time: Option<f64>,
 ) -> Result<(), String> {
-  log::debug!(
-    "Генерация превью с субтитрами: {} + {} -> {}",
-    video_path,
-    subtitle_path,
-    output_path
-  );
+  log::debug!("Генерация превью с субтитрами: {video_path} + {subtitle_path} -> {output_path}");
 
   let project = ProjectSchema::new("subtitle_preview".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -217,13 +207,13 @@ pub async fn generate_subtitle_preview(
       start_time.unwrap_or(0.0),
     )
     .await
-    .map_err(|e| format!("Ошибка создания команды субтитров: {}", e))?;
+    .map_err(|e| format!("Ошибка создания команды субтитров: {e}"))?;
 
   let executor = FFmpegExecutor::new();
   executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения команды субтитров: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения команды субтитров: {e}"))?;
 
   Ok(())
 }
@@ -234,7 +224,7 @@ pub async fn check_ffmpeg_installation() -> Result<String, String> {
 
   check_ffmpeg_available("ffmpeg")
     .await
-    .map_err(|e| format!("FFmpeg не найден: {}", e))
+    .map_err(|e| format!("FFmpeg не найден: {e}"))
 }
 
 #[tauri::command]
@@ -243,7 +233,7 @@ pub async fn get_ffmpeg_codecs() -> Result<Vec<String>, String> {
 
   get_available_codecs("ffmpeg")
     .await
-    .map_err(|e| format!("Ошибка получения кодеков: {}", e))
+    .map_err(|e| format!("Ошибка получения кодеков: {e}"))
 }
 
 #[tauri::command]
@@ -252,7 +242,7 @@ pub async fn get_ffmpeg_formats() -> Result<Vec<String>, String> {
 
   get_available_formats("ffmpeg")
     .await
-    .map_err(|e| format!("Ошибка получения форматов: {}", e))
+    .map_err(|e| format!("Ошибка получения форматов: {e}"))
 }
 
 // Команды для использования FFmpegExecutor с прогрессом
@@ -262,10 +252,7 @@ use tokio::sync::mpsc;
 
 #[tauri::command]
 pub async fn execute_ffmpeg_with_progress(command_args: Vec<String>) -> Result<String, String> {
-  log::debug!(
-    "Выполнение FFmpeg с отслеживанием прогресса: {:?}",
-    command_args
-  );
+  log::debug!("Выполнение FFmpeg с отслеживанием прогресса: {command_args:?}");
 
   let (tx, mut rx) = mpsc::channel(100);
   let executor = FFmpegExecutor::with_progress(tx);
@@ -282,7 +269,7 @@ pub async fn execute_ffmpeg_with_progress(command_args: Vec<String>) -> Result<S
     while let Some(update) = rx.recv().await {
       match update {
         ProgressUpdate::JobStarted { job_id } => {
-          log::info!("FFmpeg job started: {}", job_id);
+          log::info!("FFmpeg job started: {job_id}");
         }
         ProgressUpdate::ProgressChanged { job_id, progress } => {
           log::debug!(
@@ -296,27 +283,17 @@ pub async fn execute_ffmpeg_with_progress(command_args: Vec<String>) -> Result<S
           output_path,
           duration,
         } => {
-          log::info!(
-            "FFmpeg job completed: {} -> {} (duration: {:?})",
-            job_id,
-            output_path,
-            duration
-          );
+          log::info!("FFmpeg job completed: {job_id} -> {output_path} (duration: {duration:?})");
         }
         ProgressUpdate::JobFailed {
           job_id,
           error,
           duration,
         } => {
-          log::error!(
-            "FFmpeg job failed: {} - {} (duration: {:?})",
-            job_id,
-            error,
-            duration
-          );
+          log::error!("FFmpeg job failed: {job_id} - {error} (duration: {duration:?})");
         }
         ProgressUpdate::JobCancelled { job_id } => {
-          log::warn!("FFmpeg job cancelled: {}", job_id);
+          log::warn!("FFmpeg job cancelled: {job_id}");
         }
       }
     }
@@ -325,7 +302,7 @@ pub async fn execute_ffmpeg_with_progress(command_args: Vec<String>) -> Result<S
   // Ждем завершения
   let result = handle
     .await
-    .map_err(|e| format!("Ошибка выполнения задачи: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения задачи: {e}"))?;
 
   match result {
     Ok(execution_result) => {
@@ -338,13 +315,13 @@ pub async fn execute_ffmpeg_with_progress(command_args: Vec<String>) -> Result<S
         ))
       }
     }
-    Err(e) => Err(format!("Ошибка выполнения FFmpeg: {}", e)),
+    Err(e) => Err(format!("Ошибка выполнения FFmpeg: {e}")),
   }
 }
 
 #[tauri::command]
 pub async fn execute_ffmpeg_simple(command_args: Vec<String>) -> Result<Vec<u8>, String> {
-  log::debug!("Простое выполнение FFmpeg: {:?}", command_args);
+  log::debug!("Простое выполнение FFmpeg: {command_args:?}");
 
   let executor = FFmpegExecutor::new();
 
@@ -355,17 +332,14 @@ pub async fn execute_ffmpeg_simple(command_args: Vec<String>) -> Result<Vec<u8>,
   executor
     .execute_simple(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения FFmpeg: {}", e))
+    .map_err(|e| format!("Ошибка выполнения FFmpeg: {e}"))
 }
 
 #[tauri::command]
 pub async fn get_ffmpeg_execution_info(
   command_args: Vec<String>,
 ) -> Result<serde_json::Value, String> {
-  log::debug!(
-    "Выполнение FFmpeg с получением информации: {:?}",
-    command_args
-  );
+  log::debug!("Выполнение FFmpeg с получением информации: {command_args:?}");
 
   let executor = FFmpegExecutor::new();
 
@@ -376,7 +350,7 @@ pub async fn get_ffmpeg_execution_info(
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения FFmpeg: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения FFmpeg: {e}"))?;
 
   // Возвращаем полную информацию о выполнении, включая final_progress
   Ok(serde_json::json!({

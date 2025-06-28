@@ -364,8 +364,7 @@ impl PluginApiImpl {
           Ok(())
         } else {
           Err(VideoCompilerError::SecurityError(format!(
-            "Permission denied: {}",
-            required
+            "Permission denied: {required}"
           )))
         }
       }
@@ -374,8 +373,7 @@ impl PluginApiImpl {
           Ok(())
         } else {
           Err(VideoCompilerError::SecurityError(format!(
-            "Permission denied: {}",
-            required
+            "Permission denied: {required}"
           )))
         }
       }
@@ -384,8 +382,7 @@ impl PluginApiImpl {
           Ok(())
         } else {
           Err(VideoCompilerError::SecurityError(format!(
-            "Permission denied: {}",
-            required
+            "Permission denied: {required}"
           )))
         }
       }
@@ -394,8 +391,7 @@ impl PluginApiImpl {
           Ok(())
         } else {
           Err(VideoCompilerError::SecurityError(format!(
-            "Permission denied: {}",
-            required
+            "Permission denied: {required}"
           )))
         }
       }
@@ -404,8 +400,7 @@ impl PluginApiImpl {
           Ok(())
         } else {
           Err(VideoCompilerError::SecurityError(format!(
-            "Permission denied: {}",
-            required
+            "Permission denied: {required}"
           )))
         }
       }
@@ -414,8 +409,7 @@ impl PluginApiImpl {
           Ok(())
         } else {
           Err(VideoCompilerError::SecurityError(format!(
-            "Permission denied: {}",
-            required
+            "Permission denied: {required}"
           )))
         }
       }
@@ -424,8 +418,7 @@ impl PluginApiImpl {
           Ok(())
         } else {
           Err(VideoCompilerError::SecurityError(format!(
-            "Permission denied: {}",
-            required
+            "Permission denied: {required}"
           )))
         }
       }
@@ -434,14 +427,12 @@ impl PluginApiImpl {
           Ok(())
         } else {
           Err(VideoCompilerError::SecurityError(format!(
-            "Permission denied: {}",
-            required
+            "Permission denied: {required}"
           )))
         }
       }
       _ => Err(VideoCompilerError::SecurityError(format!(
-        "Unknown permission: {}",
-        required
+        "Unknown permission: {required}"
       ))),
     }
   }
@@ -452,8 +443,7 @@ impl PluginApiImpl {
       Ok(())
     } else {
       Err(VideoCompilerError::SecurityError(format!(
-        "Read access denied for path: {:?}",
-        path
+        "Read access denied for path: {path:?}"
       )))
     }
   }
@@ -464,8 +454,7 @@ impl PluginApiImpl {
       Ok(())
     } else {
       Err(VideoCompilerError::SecurityError(format!(
-        "Write access denied for path: {:?}",
-        path
+        "Write access denied for path: {path:?}"
       )))
     }
   }
@@ -851,7 +840,7 @@ impl PluginApi for PluginApiImpl {
     // Читаем файл
     tokio::fs::read(path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(format!("Failed to read file: {}", e)))
+      .map_err(|e| VideoCompilerError::IoError(format!("Failed to read file: {e}")))
   }
 
   async fn write_file(&self, path: &Path, data: &[u8]) -> Result<()> {
@@ -863,13 +852,13 @@ impl PluginApi for PluginApiImpl {
     if let Some(parent) = path.parent() {
       tokio::fs::create_dir_all(parent)
         .await
-        .map_err(|e| VideoCompilerError::IoError(format!("Failed to create directory: {}", e)))?;
+        .map_err(|e| VideoCompilerError::IoError(format!("Failed to create directory: {e}")))?;
     }
 
     // Записываем файл
     tokio::fs::write(path, data)
       .await
-      .map_err(|e| VideoCompilerError::IoError(format!("Failed to write file: {}", e)))
+      .map_err(|e| VideoCompilerError::IoError(format!("Failed to write file: {e}")))
   }
 
   async fn get_system_info(&self) -> Result<SystemInfo> {

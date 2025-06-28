@@ -37,7 +37,7 @@ pub struct WorkflowOutputMetadata {
  */
 #[tauri::command]
 pub async fn create_directory(path: String) -> Result<bool, String> {
-  std::fs::create_dir_all(&path).map_err(|e| format!("Ошибка создания директории: {}", e))?;
+  std::fs::create_dir_all(&path).map_err(|e| format!("Ошибка создания директории: {e}"))?;
   Ok(true)
 }
 
@@ -53,18 +53,18 @@ pub async fn create_timeline_project(
 
   // Проверяем что данные проекта валидны
   let _project: serde_json::Value =
-    serde_json::from_str(&project_data).map_err(|e| format!("Невалидные данные проекта: {}", e))?;
+    serde_json::from_str(&project_data).map_err(|e| format!("Невалидные данные проекта: {e}"))?;
 
   // Создаем директорию если не существует
   if let Some(parent) = Path::new(&output_path).parent() {
-    fs::create_dir_all(parent).map_err(|e| format!("Ошибка создания директории: {}", e))?;
+    fs::create_dir_all(parent).map_err(|e| format!("Ошибка создания директории: {e}"))?;
   }
 
   // Записываем данные проекта в файл
   fs::write(&output_path, &project_data)
-    .map_err(|e| format!("Ошибка записи файла проекта: {}", e))?;
+    .map_err(|e| format!("Ошибка записи файла проекта: {e}"))?;
 
-  Ok(format!("Проект timeline создан: {}", output_path))
+  Ok(format!("Проект timeline создан: {output_path}"))
 }
 
 /**
@@ -79,7 +79,7 @@ pub async fn compile_workflow_video(
   use serde_json::{json, Value};
 
   let render_settings: Value = serde_json::from_str(&settings)
-    .map_err(|e| format!("Ошибка парсинга настроек рендеринга: {}", e))?;
+    .map_err(|e| format!("Ошибка парсинга настроек рендеринга: {e}"))?;
 
   // Пока используем простую заглушку для компиляции
   // В реальной реализации здесь должна быть логика FFmpeg рендеринга
@@ -87,18 +87,18 @@ pub async fn compile_workflow_video(
 
   // Проверяем существование файла проекта
   if !Path::new(&project_file).exists() {
-    return Err(format!("Файл проекта не найден: {}", project_file));
+    return Err(format!("Файл проекта не найден: {project_file}"));
   }
 
   // Создаем выходную директорию если не существует
   if let Some(parent) = Path::new(&output_path).parent() {
     std::fs::create_dir_all(parent)
-      .map_err(|e| format!("Ошибка создания выходной директории: {}", e))?;
+      .map_err(|e| format!("Ошибка создания выходной директории: {e}"))?;
   }
 
   // Простое копирование файла для демонстрации (в реальности здесь FFmpeg)
   std::fs::copy(&project_file, &output_path)
-    .map_err(|e| format!("Ошибка создания выходного файла: {}", e))?;
+    .map_err(|e| format!("Ошибка создания выходного файла: {e}"))?;
 
   let processing_time = start_time.elapsed().as_secs_f64();
 
@@ -127,7 +127,7 @@ pub async fn analyze_workflow_video_quality(
   use serde_json::json;
 
   if !Path::new(&video_path).exists() {
-    return Err(format!("Видеофайл не найден: {}", video_path));
+    return Err(format!("Видеофайл не найден: {video_path}"));
   }
 
   // Получаем метаданные видео с помощью ffprobe
@@ -142,7 +142,7 @@ pub async fn analyze_workflow_video_quality(
       &video_path,
     ])
     .output()
-    .map_err(|e| format!("Ошибка запуска ffprobe: {}", e))?;
+    .map_err(|e| format!("Ошибка запуска ffprobe: {e}"))?;
 
   if !output.status.success() {
     return Err("ffprobe завершился с ошибкой".to_string());
@@ -150,7 +150,7 @@ pub async fn analyze_workflow_video_quality(
 
   let json_str = String::from_utf8_lossy(&output.stdout);
   let metadata: serde_json::Value =
-    serde_json::from_str(&json_str).map_err(|e| format!("Ошибка парсинга метаданных: {}", e))?;
+    serde_json::from_str(&json_str).map_err(|e| format!("Ошибка парсинга метаданных: {e}"))?;
 
   // Базовый анализ качества
   let video_stream = metadata["streams"]
@@ -211,7 +211,7 @@ pub async fn create_workflow_preview(
   use serde_json::json;
 
   if !Path::new(&video_path).exists() {
-    return Err(format!("Исходное видео не найдено: {}", video_path));
+    return Err(format!("Исходное видео не найдено: {video_path}"));
   }
 
   let frame_time = timestamp.unwrap_or(5.0); // По умолчанию 5 секунда
@@ -233,15 +233,15 @@ pub async fn create_workflow_preview(
 
   let output = ffmpeg_cmd
     .output()
-    .map_err(|e| format!("Ошибка запуска FFmpeg: {}", e))?;
+    .map_err(|e| format!("Ошибка запуска FFmpeg: {e}"))?;
 
   if !output.status.success() {
     let stderr = String::from_utf8_lossy(&output.stderr);
-    return Err(format!("FFmpeg завершился с ошибкой: {}", stderr));
+    return Err(format!("FFmpeg завершился с ошибкой: {stderr}"));
   }
 
   let file_size = std::fs::metadata(&output_path)
-    .map_err(|e| format!("Ошибка получения размера файла: {}", e))?
+    .map_err(|e| format!("Ошибка получения размера файла: {e}"))?
     .len();
 
   Ok(json!({
@@ -261,7 +261,7 @@ pub async fn create_workflow_preview(
 pub async fn cleanup_workflow_temp_files(temp_directory: String) -> Result<bool, String> {
   if Path::new(&temp_directory).exists() {
     std::fs::remove_dir_all(&temp_directory)
-      .map_err(|e| format!("Ошибка удаления временной директории: {}", e))?;
+      .map_err(|e| format!("Ошибка удаления временной директории: {e}"))?;
   }
   Ok(true)
 }

@@ -86,7 +86,7 @@ pub async fn check_ffmpeg_capabilities(
   let output = std::process::Command::new(&*ffmpeg_path)
     .args(["-version"])
     .output()
-    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {}", e)))?;
+    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {e}")))?;
 
   let version = String::from_utf8_lossy(&output.stdout);
   let has_cuda = version.contains("--enable-cuda");
@@ -117,7 +117,7 @@ pub async fn check_gpu_encoder_availability(
   let output = std::process::Command::new(&*ffmpeg_path)
     .args(["-encoders"])
     .output()
-    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {}", e)))?;
+    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {e}")))?;
 
   let encoders = String::from_utf8_lossy(&output.stdout);
   Ok(encoders.contains(&encoder))
@@ -299,7 +299,7 @@ pub async fn get_current_gpu_info(
     let encoder = detector.get_recommended_encoder().await?;
 
     Ok(encoder.map(|enc| crate::video_compiler::gpu::GpuInfo {
-      name: format!("{:?} Encoder", enc),
+      name: format!("{enc:?} Encoder"),
       driver_version: None,
       memory_total: None,
       memory_used: None,
@@ -334,7 +334,7 @@ pub async fn get_recommended_gpu_encoder(
   let ffmpeg_path = state.ffmpeg_path.read().await.clone();
   let detector = crate::video_compiler::gpu::GpuDetector::new(ffmpeg_path);
   let encoder = detector.get_recommended_encoder().await?;
-  Ok(encoder.map(|e| format!("{:?}", e)))
+  Ok(encoder.map(|e| format!("{e:?}")))
 }
 
 /// Получить информацию о кэше рендеринга
@@ -500,7 +500,7 @@ mod tests {
       videotoolbox: false,
     };
 
-    let debug_str = format!("{:?}", hw_accel);
+    let debug_str = format!("{hw_accel:?}");
     assert!(debug_str.contains("cuda: true"));
     assert!(debug_str.contains("nvenc: true"));
     assert!(debug_str.contains("qsv: false"));
@@ -540,7 +540,7 @@ mod tests {
       },
     };
 
-    let debug_str = format!("{:?}", capabilities);
+    let debug_str = format!("{capabilities:?}");
     assert!(debug_str.contains("version: \"6.0\""));
     assert!(debug_str.contains("hardware_acceleration"));
     assert!(debug_str.contains("cuda: true"));
@@ -748,7 +748,7 @@ mod tests {
     // Test logic for creating GPU info structure
     let encoder_type = crate::video_compiler::core::gpu::GpuEncoder::Nvenc;
     let gpu_info = crate::video_compiler::core::gpu::GpuInfo {
-      name: format!("{:?} Encoder", encoder_type),
+      name: format!("{encoder_type:?} Encoder"),
       driver_version: Some("470.82.01".to_string()),
       memory_total: Some(8192),
       memory_used: Some(2048),

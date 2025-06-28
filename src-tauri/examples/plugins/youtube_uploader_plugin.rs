@@ -196,7 +196,7 @@ impl Plugin for YouTubeUploaderPlugin {
           log::info!("Loaded YouTube API key");
         }
         Err(e) => {
-          log::warn!("Failed to load API key: {}", e);
+          log::warn!("Failed to load API key: {e}");
         }
       }
     }
@@ -380,7 +380,7 @@ impl Plugin for YouTubeUploaderPlugin {
       output_path,
     } = event
     {
-      log::info!("YouTube Uploader: Render completed - {}", output_path);
+      log::info!("YouTube Uploader: Render completed - {output_path}");
 
       // Можно автоматически предложить загрузку
       if let Some(context) = &self.context {

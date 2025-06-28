@@ -331,15 +331,14 @@ impl RuntimeManager {
 
     if pools.contains_key(&name) {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Pool '{}' already exists",
-        name
+        "Pool '{name}' already exists"
       )));
     }
 
     let pool = Arc::new(WorkerPool::new(name.clone(), config));
     pools.insert(name.clone(), pool);
 
-    log::info!("Added worker pool '{}'", name);
+    log::info!("Added worker pool '{name}'");
     Ok(())
   }
 
@@ -348,12 +347,11 @@ impl RuntimeManager {
     let mut pools = self.pools.write().await;
 
     if pools.remove(name).is_some() {
-      log::info!("Removed worker pool '{}'", name);
+      log::info!("Removed worker pool '{name}'");
       Ok(())
     } else {
       Err(VideoCompilerError::InvalidParameter(format!(
-        "Pool '{}' not found",
-        name
+        "Pool '{name}' not found"
       )))
     }
   }

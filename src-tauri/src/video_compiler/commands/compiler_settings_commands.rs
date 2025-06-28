@@ -60,7 +60,7 @@ pub async fn update_compiler_settings_advanced(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
   // Заглушка - логируем что настройки обновлены
-  log::info!("Updating compiler settings: {:?}", settings);
+  log::info!("Updating compiler settings: {settings:?}");
   Ok(true)
 }
 
@@ -70,7 +70,7 @@ pub async fn set_ffmpeg_path_advanced(
   path: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
-  log::info!("Setting FFmpeg path to: {}", path);
+  log::info!("Setting FFmpeg path to: {path}");
   Ok(true)
 }
 
@@ -80,7 +80,7 @@ pub async fn set_parallel_jobs_advanced(
   jobs: usize,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
-  log::info!("Setting parallel jobs to: {}", jobs);
+  log::info!("Setting parallel jobs to: {jobs}");
   Ok(true)
 }
 
@@ -90,7 +90,7 @@ pub async fn set_memory_limit_advanced(
   limit_mb: usize,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
-  log::info!("Setting memory limit to: {}MB", limit_mb);
+  log::info!("Setting memory limit to: {limit_mb}MB");
   Ok(true)
 }
 
@@ -100,7 +100,7 @@ pub async fn set_temp_directory_advanced(
   directory: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
-  log::info!("Setting temp directory to: {}", directory);
+  log::info!("Setting temp directory to: {directory}");
   Ok(true)
 }
 
@@ -110,7 +110,7 @@ pub async fn set_log_level_advanced(
   level: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
-  log::info!("Setting log level to: {}", level);
+  log::info!("Setting log level to: {level}");
   Ok(true)
 }
 

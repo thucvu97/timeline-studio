@@ -45,7 +45,7 @@ pub async fn list_loaded_plugins(
   Ok(
     plugins
       .into_iter()
-      .map(|(id, state)| (id, format!("{:?}", state)))
+      .map(|(id, state)| (id, format!("{state:?}")))
       .collect(),
   )
 }

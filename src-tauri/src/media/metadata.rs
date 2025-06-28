@@ -17,7 +17,7 @@ pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
 
   // Проверяем существование файла
   if !Path::new(&file_path).exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   // Получаем информацию о файле в формате JSON
@@ -32,14 +32,14 @@ pub fn get_media_metadata(file_path: String) -> Result<MediaFile, String> {
       &file_path,
     ])
     .output()
-    .map_err(|e| format!("Ошибка выполнения ffprobe: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения ffprobe: {e}"))?;
 
   let output_str =
-    str::from_utf8(&output.stdout).map_err(|e| format!("Ошибка декодирования вывода: {}", e))?;
+    str::from_utf8(&output.stdout).map_err(|e| format!("Ошибка декодирования вывода: {e}"))?;
 
   // Парсим JSON
   let probe_data: serde_json::Value =
-    serde_json::from_str(output_str).map_err(|e| format!("Ошибка парсинга JSON: {}", e))?;
+    serde_json::from_str(output_str).map_err(|e| format!("Ошибка парсинга JSON: {e}"))?;
 
   // Получаем имя файла из пути
   let file_name = Path::new(&file_path)
@@ -242,7 +242,7 @@ fn generate_iso8601_timestamp() -> String {
   let secs = now.as_secs();
   let nanos = now.subsec_nanos();
 
-  format!("{}.{:09}Z", secs, nanos)
+  format!("{secs}.{nanos:09}Z")
 }
 
 /// Асинхронная функция для извлечения метаданных
@@ -252,7 +252,7 @@ pub async fn extract_metadata(file_path: &Path) -> Result<MediaMetadata, String>
 
   // Проверяем существование файла
   if !file_path.exists() {
-    return Err(format!("File not found: {:?}", file_path));
+    return Err(format!("File not found: {file_path:?}"));
   }
 
   // Выполняем ffprobe асинхронно
@@ -268,7 +268,7 @@ pub async fn extract_metadata(file_path: &Path) -> Result<MediaMetadata, String>
     ])
     .output()
     .await
-    .map_err(|e| format!("Failed to execute ffprobe: {}", e))?;
+    .map_err(|e| format!("Failed to execute ffprobe: {e}"))?;
 
   if !output.status.success() {
     return Err(format!(
@@ -278,10 +278,10 @@ pub async fn extract_metadata(file_path: &Path) -> Result<MediaMetadata, String>
   }
 
   let output_str =
-    std::str::from_utf8(&output.stdout).map_err(|e| format!("Failed to decode output: {}", e))?;
+    std::str::from_utf8(&output.stdout).map_err(|e| format!("Failed to decode output: {e}"))?;
 
   let probe_data: serde_json::Value =
-    serde_json::from_str(output_str).map_err(|e| format!("Failed to parse JSON: {}", e))?;
+    serde_json::from_str(output_str).map_err(|e| format!("Failed to parse JSON: {e}"))?;
 
   // Извлекаем потоки
   let streams = probe_data["streams"].as_array();

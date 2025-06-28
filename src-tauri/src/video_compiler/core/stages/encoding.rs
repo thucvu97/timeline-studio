@@ -368,7 +368,7 @@ impl EncodingStage {
       .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
 
     let file_size_mb = metadata.len() / 1_000_000;
-    log::info!("📦 Размер выходного файла: {} MB", file_size_mb);
+    log::info!("📦 Размер выходного файла: {file_size_mb} MB");
 
     // Проверяем интегрость файла
     self.verify_output_integrity(&context.output_path).await?;
@@ -399,8 +399,7 @@ impl EncodingStage {
     if !output.status.success() {
       let error_msg = String::from_utf8_lossy(&output.stderr);
       return Err(VideoCompilerError::ValidationError(format!(
-        "Выходной файл поврежден: {}",
-        error_msg
+        "Выходной файл поврежден: {error_msg}"
       )));
     }
 
@@ -411,7 +410,7 @@ impl EncodingStage {
           "Выходной файл имеет нулевую длительность".to_string(),
         ));
       }
-      log::info!("✅ Длительность выходного файла: {:.2}s", duration);
+      log::info!("✅ Длительность выходного файла: {duration:.2}s");
     }
 
     Ok(())

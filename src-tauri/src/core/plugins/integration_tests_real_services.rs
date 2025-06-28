@@ -79,7 +79,7 @@ mod tests {
       }
       Err(e) => {
         // Ожидаем ошибку безопасности или проблемы с путем
-        log::info!("MediaBridge integration test error (expected): {}", e);
+        log::info!("MediaBridge integration test error (expected): {e}");
       }
     }
   }
@@ -205,10 +205,7 @@ mod tests {
         log::info!("Effect application integration test passed (success)");
       }
       Err(e) => {
-        log::info!(
-          "Effect application integration test passed (expected error): {}",
-          e
-        );
+        log::info!("Effect application integration test passed (expected error): {e}");
         // Проверяем что это ошибка безопасности или валидации
         assert!(e.to_string().contains("permission") || e.to_string().contains("not found"));
       }
@@ -227,7 +224,7 @@ mod tests {
 
     match file_result {
       Ok(Some(path)) => {
-        log::info!("File picker integration test passed: {:?}", path);
+        log::info!("File picker integration test passed: {path:?}");
         // Fallback возвращает мок-путь
         assert!(path.to_string_lossy().contains("selected_file"));
       }
@@ -235,7 +232,7 @@ mod tests {
         log::info!("File picker integration test passed (no selection)");
       }
       Err(e) => {
-        log::info!("File picker integration test error: {}", e);
+        log::info!("File picker integration test error: {e}");
       }
     }
 
@@ -243,14 +240,14 @@ mod tests {
     let directory_result = plugin_api.pick_directory().await;
     match directory_result {
       Ok(Some(path)) => {
-        log::info!("Directory picker integration test passed: {:?}", path);
+        log::info!("Directory picker integration test passed: {path:?}");
         assert!(path.to_string_lossy().contains("selected_directory"));
       }
       Ok(None) => {
         log::info!("Directory picker integration test passed (no selection)");
       }
       Err(e) => {
-        log::info!("Directory picker integration test error: {}", e);
+        log::info!("Directory picker integration test error: {e}");
         // Может быть ошибка безопасности или другая проблема
         assert!(
           e.to_string().contains("permission")
@@ -277,14 +274,14 @@ mod tests {
             log::info!("File operations integration test passed");
           }
           Err(e) => {
-            log::info!("File read integration test error: {}", e);
+            log::info!("File read integration test error: {e}");
           }
         }
       }
       Err(e) => {
-        log::info!("File write integration test error (expected): {}", e);
+        log::info!("File write integration test error (expected): {e}");
         // Ожидаем ошибку безопасности или доступа к файлам
-        println!("Write error: {}", e);
+        println!("Write error: {e}");
         assert!(
           e.to_string().contains("permission")
             || e.to_string().contains("SecurityError")
@@ -397,7 +394,7 @@ mod tests {
         }
       }
 
-      log::info!("Security level {:?} integration test passed", level);
+      log::info!("Security level {level:?} integration test passed");
     }
   }
 
@@ -419,7 +416,7 @@ mod tests {
             0 => {
               let storage = api.get_storage().await.unwrap();
               storage
-                .set(&format!("key_{}", i), serde_json::json!(i))
+                .set(&format!("key_{i}"), serde_json::json!(i))
                 .await
                 .unwrap();
             }

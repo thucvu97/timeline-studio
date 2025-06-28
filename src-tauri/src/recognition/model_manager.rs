@@ -178,12 +178,9 @@ fn init_ort() -> Result<()> {
     INIT.call_once(|| {
       if let Err(e) = ort::init().commit() {
         if cfg!(test) {
-          eprintln!(
-            "Warning: Failed to initialize ONNX Runtime in test mode: {}",
-            e
-          );
+          eprintln!("Warning: Failed to initialize ONNX Runtime in test mode: {e}");
         } else {
-          panic!("Failed to initialize ORT: {}", e);
+          panic!("Failed to initialize ORT: {e}");
         }
       }
     });

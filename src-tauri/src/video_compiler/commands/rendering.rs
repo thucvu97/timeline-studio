@@ -108,8 +108,7 @@ pub async fn pause_render(job_id: String, state: State<'_, VideoCompilerState>) 
     Ok(())
   } else {
     Err(VideoCompilerError::InternalError(format!(
-      "Render job '{}' not found",
-      job_id
+      "Render job '{job_id}' not found"
     )))
   }
 }
@@ -125,8 +124,7 @@ pub async fn resume_render(job_id: String, state: State<'_, VideoCompilerState>)
     Ok(())
   } else {
     Err(VideoCompilerError::InternalError(format!(
-      "Render job '{}' not found",
-      job_id
+      "Render job '{job_id}' not found"
     )))
   }
 }
@@ -163,8 +161,7 @@ pub async fn export_with_preset<R: tauri::Runtime>(
     }
     _ => {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Unknown preset: {}",
-        preset
+        "Unknown preset: {preset}"
       )));
     }
   }
@@ -182,7 +179,7 @@ pub async fn get_render_pipeline_statistics_original(
   // Проверяем, что задача существует
   let active_jobs = state.active_jobs.read().await;
   let job = active_jobs.get(&job_id).ok_or_else(|| {
-    VideoCompilerError::InvalidParameter(format!("Render job {} not found", job_id))
+    VideoCompilerError::InvalidParameter(format!("Render job {job_id} not found"))
   })?;
 
   // Получаем статистику из рендерера задачи
@@ -306,7 +303,7 @@ pub async fn extract_frames_for_subtitles_original(
   let subtitles: Vec<Subtitle> = subtitle_timestamps
     .iter()
     .enumerate()
-    .map(|(i, &timestamp)| Subtitle::new(format!("Subtitle {}", i), timestamp, timestamp + 2.0))
+    .map(|(i, &timestamp)| Subtitle::new(format!("Subtitle {i}"), timestamp, timestamp + 2.0))
     .collect();
 
   // Получаем менеджер извлечения кадров

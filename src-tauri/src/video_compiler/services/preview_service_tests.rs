@@ -184,7 +184,7 @@ mod cache_tests {
       };
 
       service
-        .cache_preview(&format!("key_{}", i), &result)
+        .cache_preview(&format!("key_{i}"), &result)
         .await
         .unwrap();
     }

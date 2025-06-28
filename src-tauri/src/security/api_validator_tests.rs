@@ -176,7 +176,7 @@ mod api_key_validation_tests {
         }
         Err(e) => {
           // Ошибки валидации допустимы в тестовом окружении
-          println!("Validation error for {:?}: {}", key_type, e);
+          println!("Validation error for {key_type:?}: {e}");
         }
       }
     }
@@ -199,11 +199,11 @@ mod api_key_validation_tests {
             api_type, validation_result.is_valid
           );
           if let Some(error) = validation_result.error_message {
-            println!("Error message: {}", error);
+            println!("Error message: {error}");
           }
         }
         Err(e) => {
-          println!("Expected error for empty key with {:?}: {}", api_type, e);
+          println!("Expected error for empty key with {api_type:?}: {e}");
         }
       }
     }
@@ -238,7 +238,7 @@ mod api_key_validation_tests {
           // Malformed ключи обычно не валидны, но может зависеть от API
         }
         Err(e) => {
-          println!("Error for malformed key: {}", e);
+          println!("Error for malformed key: {e}");
         }
       }
     }
@@ -266,14 +266,12 @@ mod api_key_validation_tests {
                 || msg_lower.contains("not implemented")
                 || msg_lower.contains("access token")
                 || msg_lower.contains("invalid token"),
-              "OAuth type {:?} should mention OAuth/credentials/token issues in error: {}",
-              oauth_type,
-              error_msg
+              "OAuth type {oauth_type:?} should mention OAuth/credentials/token issues in error: {error_msg}"
             );
           }
         }
         Err(e) => {
-          println!("OAuth validation error for {:?}: {}", oauth_type, e);
+          println!("OAuth validation error for {oauth_type:?}: {e}");
         }
       }
     }
@@ -305,11 +303,11 @@ mod oauth_credentials_validation_tests {
           );
           if let Some(error) = &validation_result.error_message {
             // Ошибки сети ожидаемы с fake токенами
-            println!("OAuth error for {:?}: {}", service, error);
+            println!("OAuth error for {service:?}: {error}");
           }
         }
         Err(e) => {
-          println!("OAuth credentials error for {:?}: {}", service, e);
+          println!("OAuth credentials error for {service:?}: {e}");
         }
       }
     }
@@ -339,8 +337,7 @@ mod oauth_credentials_validation_tests {
           // Неподдерживаемые сервисы должны возвращать ошибку
           assert!(
             !validation_result.is_valid,
-            "Service {:?} should not support OAuth validation",
-            service
+            "Service {service:?} should not support OAuth validation"
           );
           assert!(validation_result.error_message.is_some());
 
@@ -348,13 +345,11 @@ mod oauth_credentials_validation_tests {
           assert!(
             error_msg.to_lowercase().contains("not supported")
               || error_msg.to_lowercase().contains("oauth"),
-            "Error message for {:?} should mention OAuth support: {}",
-            service,
-            error_msg
+            "Error message for {service:?} should mention OAuth support: {error_msg}"
           );
         }
         Err(e) => {
-          println!("Expected error for non-OAuth service {:?}: {}", service, e);
+          println!("Expected error for non-OAuth service {service:?}: {e}");
         }
       }
     }
@@ -378,7 +373,7 @@ mod oauth_credentials_validation_tests {
         );
       }
       Err(e) => {
-        println!("OAuth without token error: {}", e);
+        println!("OAuth without token error: {e}");
       }
     }
   }
@@ -425,7 +420,7 @@ mod oauth_credentials_validation_tests {
           println!("Edge case {}: valid={}", i, validation_result.is_valid);
         }
         Err(e) => {
-          println!("Edge case {} error: {}", i, e);
+          println!("Edge case {i} error: {e}");
         }
       }
     }
@@ -467,7 +462,7 @@ mod error_handling_tests {
         Err(e) => {
           // Анализируем тип ошибки
           let error_str = e.to_string();
-          println!("Error for {:?}: {}", api_type, error_str);
+          println!("Error for {api_type:?}: {error_str}");
 
           // Ошибки должны быть информативными
           assert!(!error_str.is_empty(), "Error message should not be empty");
@@ -498,7 +493,7 @@ mod error_handling_tests {
     // Ждем завершения всех задач
     for (i, handle) in handles.into_iter().enumerate() {
       let result = handle.await;
-      assert!(result.is_ok(), "Task {} should not panic", i);
+      assert!(result.is_ok(), "Task {i} should not panic");
 
       match result.unwrap() {
         Ok(validation_result) => {
@@ -508,7 +503,7 @@ mod error_handling_tests {
           );
         }
         Err(e) => {
-          println!("Concurrent validation {} error: {}", i, e);
+          println!("Concurrent validation {i} error: {e}");
         }
       }
     }
@@ -545,7 +540,7 @@ mod edge_cases_tests {
           );
         }
         Err(e) => {
-          println!("Unicode key '{}' error: {}", unicode_key, e);
+          println!("Unicode key '{unicode_key}' error: {e}");
         }
       }
     }
@@ -573,7 +568,7 @@ mod edge_cases_tests {
           println!("Control chars key: valid={}", validation_result.is_valid);
         }
         Err(e) => {
-          println!("Control chars key error: {}", e);
+          println!("Control chars key error: {e}");
         }
       }
     }
@@ -627,7 +622,7 @@ mod edge_cases_tests {
     if !results.is_empty() {
       // Результаты должны быть одинаковыми для одинаковых входов
       // (хотя могут отличаться из-за сетевых условий)
-      println!("Consistency results: {:?}", results);
+      println!("Consistency results: {results:?}");
 
       // Просто проверяем что все значения являются bool
       for _result in results {
@@ -677,10 +672,7 @@ mod integration_tests {
             );
           }
           _ => {
-            println!(
-              "Workflow for {:?}: some validation failed (expected in test env)",
-              api_type
-            );
+            println!("Workflow for {api_type:?}: some validation failed (expected in test env)");
           }
         }
       } else {
@@ -689,7 +681,7 @@ mod integration_tests {
             println!("API workflow for {:?}: valid={}", api_type, result.is_valid);
           }
           Err(e) => {
-            println!("API workflow error for {:?}: {}", api_type, e);
+            println!("API workflow error for {api_type:?}: {e}");
           }
         }
       }
@@ -734,7 +726,7 @@ mod integration_tests {
           }
         }
         Err(e) => {
-          println!("Extreme input error for {:?}: {}", api_type, e);
+          println!("Extreme input error for {api_type:?}: {e}");
           // Ошибки допустимы для экстремальных входов
         }
       }

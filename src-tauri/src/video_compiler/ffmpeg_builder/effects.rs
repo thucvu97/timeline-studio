@@ -152,110 +152,91 @@ impl<'a> EffectBuilder<'a> {
       FilterType::Brightness => {
         let value = filter.intensity;
         Ok(format!(
-          "[v{}]eq=brightness={}[v{}]",
-          input_index, value, input_index
+          "[v{input_index}]eq=brightness={value}[v{input_index}]"
         ))
       }
       FilterType::Contrast => {
         let value = 1.0 + filter.intensity;
         Ok(format!(
-          "[v{}]eq=contrast={}[v{}]",
-          input_index, value, input_index
+          "[v{input_index}]eq=contrast={value}[v{input_index}]"
         ))
       }
       FilterType::Saturation => {
         let value = 1.0 + filter.intensity;
         Ok(format!(
-          "[v{}]eq=saturation={}[v{}]",
-          input_index, value, input_index
+          "[v{input_index}]eq=saturation={value}[v{input_index}]"
         ))
       }
       FilterType::Hue => {
         let value = filter.intensity * 180.0; // Конвертируем в градусы
-        Ok(format!(
-          "[v{}]hue=h={}[v{}]",
-          input_index, value, input_index
-        ))
+        Ok(format!("[v{input_index}]hue=h={value}[v{input_index}]"))
       }
       FilterType::Blur => {
         let radius = (filter.intensity * 10.0).max(0.1);
         Ok(format!(
-          "[v{}]boxblur={}:{}[v{}]",
-          input_index, radius, radius, input_index
+          "[v{input_index}]boxblur={radius}:{radius}[v{input_index}]"
         ))
       }
       FilterType::Sharpen => {
         let amount = filter.intensity * 2.0;
         Ok(format!(
-          "[v{}]unsharp=5:5:{}:5:5:0[v{}]",
-          input_index, amount, input_index
+          "[v{input_index}]unsharp=5:5:{amount}:5:5:0[v{input_index}]"
         ))
       }
       FilterType::Vignette => {
         let angle = filter.intensity * 1.5;
         Ok(format!(
-          "[v{}]vignette=angle={}[v{}]",
-          input_index, angle, input_index
+          "[v{input_index}]vignette=angle={angle}[v{input_index}]"
         ))
       }
       FilterType::Grain => {
         let strength = filter.intensity * 50.0;
         Ok(format!(
-          "[v{}]noise=alls={}[v{}]",
-          input_index, strength, input_index
+          "[v{input_index}]noise=alls={strength}[v{input_index}]"
         ))
       }
       FilterType::Glow => {
         let radius = filter.intensity * 5.0;
         Ok(format!(
-          "[v{}]gblur=sigma={}[v{}]",
-          input_index, radius, input_index
+          "[v{input_index}]gblur=sigma={radius}[v{input_index}]"
         ))
       }
       FilterType::ShadowsHighlights => {
         let shadows = filter.intensity;
         let highlights = 1.0 - filter.intensity;
         Ok(format!(
-          "[v{}]eq=shadows={}:highlights={}[v{}]",
-          input_index, shadows, highlights, input_index
+          "[v{input_index}]eq=shadows={shadows}:highlights={highlights}[v{input_index}]"
         ))
       }
       FilterType::WhiteBalance => {
         let temp = filter.intensity * 1000.0;
         Ok(format!(
-          "[v{}]colortemperature=temperature={}[v{}]",
-          input_index, temp, input_index
+          "[v{input_index}]colortemperature=temperature={temp}[v{input_index}]"
         ))
       }
       FilterType::Exposure => {
         let exposure = filter.intensity;
         Ok(format!(
-          "[v{}]eq=brightness={}[v{}]",
-          input_index, exposure, input_index
+          "[v{input_index}]eq=brightness={exposure}[v{input_index}]"
         ))
       }
       FilterType::Curves => {
         // Простая реализация кривых через eq
         let curve = filter.intensity;
-        Ok(format!(
-          "[v{}]eq=gamma={}[v{}]",
-          input_index, curve, input_index
-        ))
+        Ok(format!("[v{input_index}]eq=gamma={curve}[v{input_index}]"))
       }
       FilterType::Levels => {
         // Простая реализация уровней
         let level = filter.intensity;
         Ok(format!(
-          "[v{}]eq=contrast={}[v{}]",
-          input_index, level, input_index
+          "[v{input_index}]eq=contrast={level}[v{input_index}]"
         ))
       }
       FilterType::ColorBalance => {
         // Простая реализация цветового баланса
         let balance = filter.intensity;
         Ok(format!(
-          "[v{}]eq=saturation={}[v{}]",
-          input_index, balance, input_index
+          "[v{input_index}]eq=saturation={balance}[v{input_index}]"
         ))
       }
       FilterType::Custom => {
@@ -282,8 +263,7 @@ impl<'a> EffectBuilder<'a> {
       self.build_complex_color_correction(&effect.parameters, input_index)
     } else {
       Ok(format!(
-        "[v{}]eq=brightness={}:contrast={}:saturation={}:gamma={}[v{}]",
-        input_index, brightness, contrast, saturation, gamma, input_index
+        "[v{input_index}]eq=brightness={brightness}:contrast={contrast}:saturation={saturation}:gamma={gamma}[v{input_index}]"
       ))
     }
   }
@@ -294,8 +274,7 @@ impl<'a> EffectBuilder<'a> {
     let sigma = self.get_param_value(&effect.parameters, "sigma", 1.0);
 
     Ok(format!(
-      "[v{}]gblur=radius={}:sigma={}[v{}]",
-      input_index, radius, sigma, input_index
+      "[v{input_index}]gblur=radius={radius}:sigma={sigma}[v{input_index}]"
     ))
   }
 
@@ -305,8 +284,7 @@ impl<'a> EffectBuilder<'a> {
     let radius = self.get_param_value(&effect.parameters, "radius", 5.0);
 
     Ok(format!(
-      "[v{}]unsharp={}:{}:{}[v{}]",
-      input_index, radius, radius, amount, input_index
+      "[v{input_index}]unsharp={radius}:{radius}:{amount}[v{input_index}]"
     ))
   }
 
@@ -317,8 +295,7 @@ impl<'a> EffectBuilder<'a> {
     let blend = self.get_param_value(&effect.parameters, "blend", 0.0);
 
     Ok(format!(
-      "[v{}]chromakey={}:{}:{}[v{}]",
-      input_index, color, similarity, blend, input_index
+      "[v{input_index}]chromakey={color}:{similarity}:{blend}[v{input_index}]"
     ))
   }
 
@@ -341,11 +318,11 @@ impl<'a> EffectBuilder<'a> {
         let mut filters = Vec::new();
 
         if fade_in > 0.0 {
-          filters.push(format!("afade=in:duration={}", fade_in));
+          filters.push(format!("afade=in:duration={fade_in}"));
         }
 
         if fade_out > 0.0 {
-          filters.push(format!("afade=out:duration={}", fade_out));
+          filters.push(format!("afade=out:duration={fade_out}"));
         }
 
         if filters.is_empty() {
@@ -366,8 +343,7 @@ impl<'a> EffectBuilder<'a> {
         let release = self.get_param_value(&effect.parameters, "release", 50.0);
 
         Ok(format!(
-          "[a{}]compand=attacks={}:decays={}:ratio={}[a{}]",
-          input_index, attack, release, ratio, input_index
+          "[a{input_index}]compand=attacks={attack}:decays={release}:ratio={ratio}[a{input_index}]"
         ))
       }
       EffectType::AudioEqualizer => {
@@ -376,8 +352,7 @@ impl<'a> EffectBuilder<'a> {
         let treble = self.get_param_value(&effect.parameters, "treble", 0.0);
 
         Ok(format!(
-          "[a{}]equalizer=f=100:g={}:t=q:w=1,equalizer=f=1000:g={}:t=q:w=1,equalizer=f=10000:g={}:t=q:w=1[a{}]",
-          input_index, bass, mid, treble, input_index
+          "[a{input_index}]equalizer=f=100:g={bass}:t=q:w=1,equalizer=f=1000:g={mid}:t=q:w=1,equalizer=f=10000:g={treble}:t=q:w=1[a{input_index}]"
         ))
       }
       _ => Ok(String::new()),
@@ -403,18 +378,7 @@ impl<'a> EffectBuilder<'a> {
     let shadows_b = self.get_param_value(parameters, "shadows_b", 1.0);
 
     Ok(format!(
-      "[v{}]colorchannelmixer={}:{}:{}:{}:{}:{}:{}:{}:{}[v{}]",
-      input_index,
-      shadows_r,
-      midtones_r,
-      highlights_r,
-      shadows_g,
-      midtones_g,
-      highlights_g,
-      shadows_b,
-      midtones_b,
-      highlights_b,
-      input_index
+      "[v{input_index}]colorchannelmixer={shadows_r}:{midtones_r}:{highlights_r}:{shadows_g}:{midtones_g}:{highlights_g}:{shadows_b}:{midtones_b}:{highlights_b}[v{input_index}]"
     ))
   }
 
@@ -435,18 +399,18 @@ impl<'a> EffectBuilder<'a> {
     let mut result = template.to_string();
 
     // Заменяем плейсхолдеры
-    result = result.replace("{input}", &format!("[v{}]", input_index));
-    result = result.replace("{output}", &format!("[v{}]", input_index));
+    result = result.replace("{input}", &format!("[v{input_index}]"));
+    result = result.replace("{output}", &format!("[v{input_index}]"));
 
     // Заменяем параметры
     for (name, param) in parameters {
-      let placeholder = format!("{{{}}}", name);
+      let placeholder = format!("{{{name}}}");
       let value = match param {
         EffectParameter::Float(f) => f.to_string(),
         EffectParameter::Int(i) => i.to_string(),
         EffectParameter::String(s) => s.clone(),
         EffectParameter::Bool(b) => b.to_string(),
-        EffectParameter::Color(c) => format!("#{:08x}", c),
+        EffectParameter::Color(c) => format!("#{c:08x}"),
         EffectParameter::FloatArray(arr) => arr
           .iter()
           .map(|f| f.to_string())
@@ -463,8 +427,8 @@ impl<'a> EffectBuilder<'a> {
   /// Обработать пользовательский фильтр
   fn process_custom_filter(&self, filter: &str, input_index: usize) -> String {
     filter
-      .replace("{input}", &format!("[v{}]", input_index))
-      .replace("{output}", &format!("[v{}]", input_index))
+      .replace("{input}", &format!("[v{input_index}]"))
+      .replace("{output}", &format!("[v{input_index}]"))
   }
 
   /// Проверить, является ли эффект аудио эффектом
@@ -526,7 +490,7 @@ impl<'a> EffectBuilder<'a> {
       EffectParameter::Int(i) => i.to_string(),
       EffectParameter::Bool(b) => if *b { "1" } else { "0" }.to_string(),
       EffectParameter::String(s) => s.clone(),
-      EffectParameter::Color(color) => format!("#{:06x}", color),
+      EffectParameter::Color(color) => format!("#{color:06x}"),
       EffectParameter::FloatArray(array) => array
         .iter()
         .map(|f| f.to_string())

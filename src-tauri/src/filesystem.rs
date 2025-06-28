@@ -29,7 +29,7 @@ pub fn get_file_stats(path: String) -> Result<FileStats, String> {
   let file_path = Path::new(&path);
 
   if !file_path.exists() {
-    return Err(format!("File does not exist: {}", path));
+    return Err(format!("File does not exist: {path}"));
   }
 
   match fs::metadata(file_path) {
@@ -39,9 +39,9 @@ pub fn get_file_stats(path: String) -> Result<FileStats, String> {
       // Получаем время модификации в миллисекундах
       let last_modified = metadata
         .modified()
-        .map_err(|e| format!("Failed to get modification time: {}", e))?
+        .map_err(|e| format!("Failed to get modification time: {e}"))?
         .duration_since(std::time::UNIX_EPOCH)
-        .map_err(|e| format!("Failed to convert time: {}", e))?
+        .map_err(|e| format!("Failed to convert time: {e}"))?
         .as_millis() as u64;
 
       Ok(FileStats {
@@ -49,7 +49,7 @@ pub fn get_file_stats(path: String) -> Result<FileStats, String> {
         last_modified,
       })
     }
-    Err(e) => Err(format!("Failed to get file metadata: {}", e)),
+    Err(e) => Err(format!("Failed to get file metadata: {e}")),
   }
 }
 
@@ -73,7 +73,7 @@ pub fn search_files_by_name(
   let dir_path = Path::new(&directory);
 
   if !dir_path.exists() {
-    return Err(format!("Directory does not exist: {}", directory));
+    return Err(format!("Directory does not exist: {directory}"));
   }
 
   let mut found_files = Vec::new();
@@ -125,12 +125,12 @@ fn search_files_recursive(
             }
           }
           Err(e) => {
-            eprintln!("Error reading directory entry: {}", e);
+            eprintln!("Error reading directory entry: {e}");
           }
         }
       }
     }
-    Err(e) => return Err(format!("Failed to read directory: {}", e)),
+    Err(e) => return Err(format!("Failed to read directory: {e}")),
   }
 
   Ok(())
@@ -151,7 +151,7 @@ pub fn get_absolute_path(path: String) -> Result<String, String> {
         Err("Failed to convert path to string".to_string())
       }
     }
-    Err(e) => Err(format!("Failed to get absolute path: {}", e)),
+    Err(e) => Err(format!("Failed to get absolute path: {e}")),
   }
 }
 

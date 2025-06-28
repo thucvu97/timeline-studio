@@ -43,19 +43,19 @@ impl ApiValidatorService {
     if let Some(event_bus) = &self.event_bus {
       let event = match &result {
         Ok(validation_result) if validation_result.is_valid => AppEvent::ConfigChanged {
-          key: format!("api_key_valid_{:?}", key_type),
+          key: format!("api_key_valid_{key_type:?}"),
           value: serde_json::json!(true),
         },
         Ok(validation_result) if !validation_result.is_valid => AppEvent::ConfigChanged {
-          key: format!("api_key_invalid_{:?}", key_type),
+          key: format!("api_key_invalid_{key_type:?}"),
           value: serde_json::json!(validation_result.error_message),
         },
         Err(e) => AppEvent::ConfigChanged {
-          key: format!("api_key_error_{:?}", key_type),
+          key: format!("api_key_error_{key_type:?}"),
           value: serde_json::json!(e.to_string()),
         },
         _ => AppEvent::ConfigChanged {
-          key: format!("api_key_unknown_{:?}", key_type),
+          key: format!("api_key_unknown_{key_type:?}"),
           value: serde_json::json!("unknown"),
         },
       };

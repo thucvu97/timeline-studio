@@ -36,8 +36,7 @@ impl PluginRegistry {
 
     if registrations.contains_key(&plugin_id) {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Plugin '{}' is already registered",
-        plugin_id
+        "Plugin '{plugin_id}' is already registered"
       )));
     }
 
@@ -76,8 +75,7 @@ impl PluginRegistry {
         Ok(plugin)
       }
       None => Err(VideoCompilerError::InvalidParameter(format!(
-        "Plugin '{}' not found",
-        plugin_id
+        "Plugin '{plugin_id}' not found"
       ))),
     }
   }
@@ -146,7 +144,7 @@ impl PluginLoader {
     // Проверка зависимостей
     for dep in &metadata.dependencies {
       if let Err(e) = self.validate_dependency(dep).await {
-        result.add_error(format!("Dependency validation failed: {}", e));
+        result.add_error(format!("Dependency validation failed: {e}"));
       }
     }
 
@@ -246,7 +244,7 @@ impl PluginLoader {
   pub async fn load_plugin(&self, plugin_id: &str) -> Result<Box<dyn Plugin>> {
     // Получаем метаданные
     let metadata = self.registry.find_plugin(plugin_id).await.ok_or_else(|| {
-      VideoCompilerError::InvalidParameter(format!("Plugin '{}' not found", plugin_id))
+      VideoCompilerError::InvalidParameter(format!("Plugin '{plugin_id}' not found"))
     })?;
 
     // Валидируем
@@ -281,7 +279,7 @@ impl PluginLoader {
           loaded_plugins.push((plugin_id, plugin));
         }
         Err(e) => {
-          log::error!("Failed to load plugin '{}': {}", plugin_id, e);
+          log::error!("Failed to load plugin '{plugin_id}': {e}");
         }
       }
     }
@@ -532,11 +530,11 @@ mod tests {
       let registry_clone = registry.clone();
       let handle = tokio::spawn(async move {
         let metadata = PluginMetadata {
-          id: format!("plugin-{}", i),
-          name: format!("Plugin {}", i),
+          id: format!("plugin-{i}"),
+          name: format!("Plugin {i}"),
           version: Version::new(1, 0, 0),
           author: "Author".to_string(),
-          description: format!("Plugin {}", i),
+          description: format!("Plugin {i}"),
           plugin_type: PluginType::Effect,
           homepage: None,
           license: None,
@@ -545,7 +543,7 @@ mod tests {
         };
 
         let factory: PluginFactory = Box::new(move || {
-          panic!("Test factory {}", i);
+          panic!("Test factory {i}");
         });
 
         registry_clone
@@ -567,7 +565,7 @@ mod tests {
 
     // Проверяем что имена правильные
     for i in 0..10 {
-      let plugin_name = format!("plugin-{}", i);
+      let plugin_name = format!("plugin-{i}");
       assert!(plugins.iter().any(|p| p.id == plugin_name));
     }
   }

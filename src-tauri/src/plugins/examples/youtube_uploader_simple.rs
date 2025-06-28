@@ -244,7 +244,7 @@ impl Plugin for YouTubeUploaderPlugin {
 
   async fn handle_event(&self, event: &AppEvent) -> Result<()> {
     if let AppEvent::RenderCompleted { output_path, .. } = event {
-      log::info!("YouTube Uploader: Render completed at {}", output_path);
+      log::info!("YouTube Uploader: Render completed at {output_path}");
     }
     Ok(())
   }

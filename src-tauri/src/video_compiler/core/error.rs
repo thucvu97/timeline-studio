@@ -107,7 +107,7 @@ impl fmt::Display for VideoCompilerError {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
       VideoCompilerError::ValidationError(msg) => {
-        write!(f, "Ошибка валидации: {}", msg)
+        write!(f, "Ошибка валидации: {msg}")
       }
       VideoCompilerError::FFmpegError {
         exit_code,
@@ -116,27 +116,25 @@ impl fmt::Display for VideoCompilerError {
       } => {
         write!(
           f,
-          "Ошибка FFmpeg (код выхода: {:?}): {}\nКоманда: {}",
-          exit_code, stderr, command
+          "Ошибка FFmpeg (код выхода: {exit_code:?}): {stderr}\nКоманда: {command}"
         )
       }
       VideoCompilerError::DependencyMissing(dep) => {
-        write!(f, "Отсутствует зависимость: {}", dep)
+        write!(f, "Отсутствует зависимость: {dep}")
       }
       VideoCompilerError::IoError(msg) => {
-        write!(f, "Ошибка ввода/вывода: {}", msg)
+        write!(f, "Ошибка ввода/вывода: {msg}")
       }
       VideoCompilerError::SerializationError(msg) => {
-        write!(f, "Ошибка сериализации: {}", msg)
+        write!(f, "Ошибка сериализации: {msg}")
       }
       VideoCompilerError::MediaFileError { path, reason } => {
-        write!(f, "Ошибка медиа файла '{}': {}", path, reason)
+        write!(f, "Ошибка медиа файла '{path}': {reason}")
       }
       VideoCompilerError::UnsupportedFormat { format, file_path } => {
         write!(
           f,
-          "Неподдерживаемый формат '{}' для файла '{}'",
-          format, file_path
+          "Неподдерживаемый формат '{format}' для файла '{file_path}'"
         )
       }
       VideoCompilerError::RenderError {
@@ -146,18 +144,17 @@ impl fmt::Display for VideoCompilerError {
       } => {
         write!(
           f,
-          "Ошибка рендеринга [{}] на этапе '{}': {}",
-          job_id, stage, message
+          "Ошибка рендеринга [{job_id}] на этапе '{stage}': {message}"
         )
       }
       VideoCompilerError::PreviewError { timestamp, reason } => {
-        write!(f, "Ошибка генерации превью на {}с: {}", timestamp, reason)
+        write!(f, "Ошибка генерации превью на {timestamp}с: {reason}")
       }
       VideoCompilerError::CacheError(msg) => {
-        write!(f, "Ошибка кэша: {}", msg)
+        write!(f, "Ошибка кэша: {msg}")
       }
       VideoCompilerError::ConfigError(msg) => {
-        write!(f, "Ошибка конфигурации: {}", msg)
+        write!(f, "Ошибка конфигурации: {msg}")
       }
       VideoCompilerError::ResourceError {
         resource_type,
@@ -166,51 +163,50 @@ impl fmt::Display for VideoCompilerError {
       } => {
         write!(
           f,
-          "Нехватка ресурса '{}': доступно {}, требуется {}",
-          resource_type, available, required
+          "Нехватка ресурса '{resource_type}': доступно {available}, требуется {required}"
         )
       }
       VideoCompilerError::TimeoutError(msg) => {
-        write!(f, "Тайм-аут операции: {}", msg)
+        write!(f, "Тайм-аут операции: {msg}")
       }
       VideoCompilerError::CancelledError(msg) => {
-        write!(f, "Операция отменена: {}", msg)
+        write!(f, "Операция отменена: {msg}")
       }
       VideoCompilerError::GpuError(msg) => {
-        write!(f, "Ошибка GPU: {}", msg)
+        write!(f, "Ошибка GPU: {msg}")
       }
       VideoCompilerError::GpuUnavailable(msg) => {
-        write!(f, "GPU недоступен: {}", msg)
+        write!(f, "GPU недоступен: {msg}")
       }
       VideoCompilerError::Io(msg) => {
-        write!(f, "Ошибка ввода/вывода: {}", msg)
+        write!(f, "Ошибка ввода/вывода: {msg}")
       }
       VideoCompilerError::InternalError(msg) => {
-        write!(f, "Внутренняя ошибка: {}", msg)
+        write!(f, "Внутренняя ошибка: {msg}")
       }
       VideoCompilerError::Unknown(msg) => {
-        write!(f, "Неизвестная ошибка: {}", msg)
+        write!(f, "Неизвестная ошибка: {msg}")
       }
       VideoCompilerError::TemplateNotFound(template_id) => {
-        write!(f, "Шаблон не найден: {}", template_id)
+        write!(f, "Шаблон не найден: {template_id}")
       }
       VideoCompilerError::InvalidParameter(msg) => {
-        write!(f, "Неверный параметр: {}", msg)
+        write!(f, "Неверный параметр: {msg}")
       }
       VideoCompilerError::NotImplemented(msg) => {
-        write!(f, "Функция не реализована: {}", msg)
+        write!(f, "Функция не реализована: {msg}")
       }
       VideoCompilerError::InvalidPath(path) => {
-        write!(f, "Неверный путь к файлу: {}", path)
+        write!(f, "Неверный путь к файлу: {path}")
       }
       VideoCompilerError::TooManyActiveJobs(msg) => {
-        write!(f, "Слишком много активных задач: {}", msg)
+        write!(f, "Слишком много активных задач: {msg}")
       }
       VideoCompilerError::ServiceNotFound(service) => {
-        write!(f, "Сервис не найден в DI контейнере: {}", service)
+        write!(f, "Сервис не найден в DI контейнере: {service}")
       }
       VideoCompilerError::SecurityError(msg) => {
-        write!(f, "Ошибка безопасности: {}", msg)
+        write!(f, "Ошибка безопасности: {msg}")
       }
     }
   }
@@ -272,7 +268,7 @@ impl From<serde_json::Error> for VideoCompilerError {
 
 impl From<uuid::Error> for VideoCompilerError {
   fn from(error: uuid::Error) -> Self {
-    VideoCompilerError::InternalError(format!("UUID error: {}", error))
+    VideoCompilerError::InternalError(format!("UUID error: {error}"))
   }
 }
 
@@ -951,7 +947,7 @@ mod tests {
   fn test_uuid_error_conversion() {
     // Создаём UUID ошибку вручную
     let uuid_error_str = "invalid UUID";
-    let error = VideoCompilerError::InternalError(format!("UUID error: {}", uuid_error_str));
+    let error = VideoCompilerError::InternalError(format!("UUID error: {uuid_error_str}"));
     match error {
       VideoCompilerError::InternalError(msg) => {
         assert!(msg.contains("UUID error"));

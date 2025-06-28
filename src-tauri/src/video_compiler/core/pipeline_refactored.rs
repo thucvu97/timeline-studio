@@ -115,7 +115,7 @@ impl RenderPipeline {
     self.start_time = Some(Instant::now());
 
     log::info!("=== Запуск конвейера обработки ===");
-    log::info!("ID задачи: {}", job_id);
+    log::info!("ID задачи: {job_id}");
     log::info!("Проект: {}", self.project.metadata.name);
     log::info!("Выходной файл: {:?}", self.context.output_path);
     log::info!("Временная директория: {:?}", self.context.temp_dir);
@@ -134,7 +134,7 @@ impl RenderPipeline {
       .map(|stage| stage.estimated_duration())
       .sum();
 
-    log::info!("⏱️ Оценочная длительность: {:?}", total_estimated_duration);
+    log::info!("⏱️ Оценочная длительность: {total_estimated_duration:?}");
 
     // Выполняем каждый этап
     let mut _current_progress = 0u64;
@@ -212,7 +212,7 @@ impl RenderPipeline {
     log::info!("🧹 Очистка ресурсов...");
 
     if let Err(e) = self.context.cleanup().await {
-      log::warn!("⚠️ Ошибка при очистке: {}", e);
+      log::warn!("⚠️ Ошибка при очистке: {e}");
     }
 
     Ok(())
@@ -276,8 +276,7 @@ impl RenderPipeline {
     if let Some(parent) = self.context.output_path.parent() {
       if !parent.exists() {
         return Err(VideoCompilerError::ValidationError(format!(
-          "Выходная директория не существует: {:?}",
-          parent
+          "Выходная директория не существует: {parent:?}"
         )));
       }
     }

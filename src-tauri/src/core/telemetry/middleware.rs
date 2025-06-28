@@ -31,7 +31,7 @@ impl TracingMiddleware {
 
     // Создаем span для запроса
     let span = tracer
-      .span(&format!("{} {}", method, uri))
+      .span(&format!("{method} {uri}"))
       .with_kind(opentelemetry::trace::SpanKind::Server)
       .with_attribute("http.method", method.clone())
       .with_attribute("http.target", uri.clone())

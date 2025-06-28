@@ -277,7 +277,7 @@ fn test_frame_info_with_objects() {
   // Add multiple objects
   for i in 0..5 {
     frame_results.objects.push(DetectedObject {
-      class: format!("object_{}", i),
+      class: format!("object_{i}"),
       confidence: 0.8 + (i as f32) * 0.02,
       timestamps: vec![1.0],
       bounding_boxes: vec![BoundingBox {
@@ -532,7 +532,7 @@ async fn test_save_and_load_results() {
   let results_dir = temp_dir.path().join("Recognition");
   std::fs::create_dir_all(&results_dir).unwrap();
 
-  let results_file = results_dir.join(format!("{}_recognition.json", file_id));
+  let results_file = results_dir.join(format!("{file_id}_recognition.json"));
   let json = serde_json::to_string_pretty(&results).unwrap();
   tokio::fs::write(&results_file, json).await.unwrap();
 
@@ -689,7 +689,7 @@ mod integration_tests {
           // Mock модель может вернуть любые результаты
         }
         Err(e) => {
-          println!("Image processing failed: {:?}", e);
+          println!("Image processing failed: {e:?}");
           // Это тоже нормально для тестирования
         }
       }
@@ -719,8 +719,7 @@ mod integration_tests {
       let error_msg = e.to_string();
       assert!(
         error_msg.contains("not found") || error_msg.contains("Model file"),
-        "Error should mention file not found: {}",
-        error_msg
+        "Error should mention file not found: {error_msg}"
       );
     }
   }
@@ -751,8 +750,7 @@ mod integration_tests {
           || error_msg.contains("session")
           || error_msg.contains("not loaded")
           || error_msg.contains("load_model"),
-        "Error should mention file or model issue: {}",
-        error_msg
+        "Error should mention file or model issue: {error_msg}"
       );
     }
   }

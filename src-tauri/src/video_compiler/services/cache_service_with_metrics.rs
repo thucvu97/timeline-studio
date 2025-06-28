@@ -81,7 +81,7 @@ impl CacheService for CacheServiceWithMetrics {
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!("[CacheService] Ошибка очистки кэша: {}", e);
+        log::error!("[CacheService] Ошибка очистки кэша: {e}");
         Err(e)
       }
     }
@@ -97,7 +97,7 @@ impl CacheService for CacheServiceWithMetrics {
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!("[CacheService] Ошибка очистки кэша рендеринга: {}", e);
+        log::error!("[CacheService] Ошибка очистки кэша рендеринга: {e}");
         Err(e)
       }
     }
@@ -113,7 +113,7 @@ impl CacheService for CacheServiceWithMetrics {
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!("[CacheService] Ошибка очистки кэша превью: {}", e);
+        log::error!("[CacheService] Ошибка очистки кэша превью: {e}");
         Err(e)
       }
     }
@@ -124,16 +124,12 @@ impl CacheService for CacheServiceWithMetrics {
     match self.inner.clear_project_cache(project_id).await {
       Ok(result) => {
         tracker.complete().await;
-        log::info!("[CacheService] Кэш проекта {} успешно очищен", project_id);
+        log::info!("[CacheService] Кэш проекта {project_id} успешно очищен");
         Ok(result)
       }
       Err(e) => {
-        tracker.fail(format!("Проект {}: {}", project_id, e)).await;
-        log::error!(
-          "[CacheService] Ошибка очистки кэша проекта {}: {}",
-          project_id,
-          e
-        );
+        tracker.fail(format!("Проект {project_id}: {e}")).await;
+        log::error!("[CacheService] Ошибка очистки кэша проекта {project_id}: {e}");
         Err(e)
       }
     }
@@ -144,12 +140,12 @@ impl CacheService for CacheServiceWithMetrics {
     match self.inner.get_cache_size().await {
       Ok(size) => {
         tracker.complete().await;
-        log::debug!("[CacheService] Размер кэша: {:.2} MB", size);
+        log::debug!("[CacheService] Размер кэша: {size:.2} MB");
         Ok(size)
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!("[CacheService] Ошибка получения размера кэша: {}", e);
+        log::error!("[CacheService] Ошибка получения размера кэша: {e}");
         Err(e)
       }
     }
@@ -169,7 +165,7 @@ impl CacheService for CacheServiceWithMetrics {
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!("[CacheService] Ошибка получения статистики кэша: {}", e);
+        log::error!("[CacheService] Ошибка получения статистики кэша: {e}");
         Err(e)
       }
     }
@@ -181,15 +177,13 @@ impl CacheService for CacheServiceWithMetrics {
       Ok(removed_count) => {
         tracker.complete().await;
         log::info!(
-          "[CacheService] Оптимизация кэша завершена: удалено {} файлов старше {} дней",
-          removed_count,
-          max_age_days
+          "[CacheService] Оптимизация кэша завершена: удалено {removed_count} файлов старше {max_age_days} дней"
         );
         Ok(removed_count)
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!("[CacheService] Ошибка оптимизации кэша: {}", e);
+        log::error!("[CacheService] Ошибка оптимизации кэша: {e}");
         Err(e)
       }
     }
@@ -223,7 +217,7 @@ impl CacheService for CacheServiceWithMetrics {
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!("[CacheService] Ошибка сохранения в кэш {}: {}", key, e);
+        log::error!("[CacheService] Ошибка сохранения в кэш {key}: {e}");
         Err(e)
       }
     }
@@ -243,12 +237,12 @@ impl CacheService for CacheServiceWithMetrics {
       }
       Ok(None) => {
         tracker.complete().await;
-        log::trace!("[CacheService] Не найдено в кэше: {}", key);
+        log::trace!("[CacheService] Не найдено в кэше: {key}");
         Ok(None)
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!("[CacheService] Ошибка чтения из кэша {}: {}", key, e);
+        log::error!("[CacheService] Ошибка чтения из кэша {key}: {e}");
         Err(e)
       }
     }
@@ -337,10 +331,7 @@ impl CacheService for CacheServiceWithMetrics {
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!(
-          "[CacheService] Ошибка получения списка элементов кэша: {}",
-          e
-        );
+        log::error!("[CacheService] Ошибка получения списка элементов кэша: {e}");
         Err(e)
       }
     }
@@ -360,16 +351,12 @@ impl CacheService for CacheServiceWithMetrics {
       }
       Ok(None) => {
         tracker.complete().await;
-        log::debug!("[CacheService] Элемент кэша не найден: {}", key);
+        log::debug!("[CacheService] Элемент кэша не найден: {key}");
         Ok(None)
       }
       Err(e) => {
         tracker.fail(e.to_string()).await;
-        log::error!(
-          "[CacheService] Ошибка получения информации об элементе кэша {}: {}",
-          key,
-          e
-        );
+        log::error!("[CacheService] Ошибка получения информации об элементе кэша {key}: {e}");
         Err(e)
       }
     }
@@ -476,7 +463,7 @@ mod tests {
     // Добавляем элементы в кэш
     for i in 0..5 {
       service
-        .save_to_cache(&format!("key{}", i), format!("data{}", i).as_bytes())
+        .save_to_cache(&format!("key{i}"), format!("data{i}").as_bytes())
         .await
         .unwrap();
     }
@@ -538,10 +525,10 @@ mod tests {
     // Симулируем операции для генерации метрик производительности
     for i in 0..10 {
       service
-        .save_to_cache(&format!("key{}", i), format!("data{}", i).as_bytes())
+        .save_to_cache(&format!("key{i}"), format!("data{i}").as_bytes())
         .await
         .unwrap();
-      service.get_from_cache(&format!("key{}", i)).await.unwrap();
+      service.get_from_cache(&format!("key{i}")).await.unwrap();
     }
 
     // Получаем метрики производительности
@@ -689,8 +676,8 @@ mod tests {
     for i in 0..5 {
       let service_clone = service.clone();
       let handle = tokio::spawn(async move {
-        let key = format!("concurrent_key_{}", i);
-        let data = format!("concurrent_data_{}", i);
+        let key = format!("concurrent_key_{i}");
+        let data = format!("concurrent_data_{i}");
         service_clone
           .save_to_cache(&key, data.as_bytes())
           .await

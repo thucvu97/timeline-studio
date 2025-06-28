@@ -79,7 +79,7 @@ impl ApiValidator {
     let response = self
       .client
       .get("https://api.openai.com/v1/models")
-      .header("Authorization", format!("Bearer {}", api_key))
+      .header("Authorization", format!("Bearer {api_key}"))
       .send()
       .await;
 
@@ -106,7 +106,7 @@ impl ApiValidator {
         } else {
           Ok(ValidationResult {
             is_valid: false,
-            error_message: Some(format!("HTTP error: {}", status)),
+            error_message: Some(format!("HTTP error: {status}")),
             service_info: None,
             rate_limits: None,
           })
@@ -114,7 +114,7 @@ impl ApiValidator {
       }
       Err(e) => Ok(ValidationResult {
         is_valid: false,
-        error_message: Some(format!("Network error: {}", e)),
+        error_message: Some(format!("Network error: {e}")),
         service_info: None,
         rate_limits: None,
       }),
@@ -161,7 +161,7 @@ impl ApiValidator {
         } else {
           Ok(ValidationResult {
             is_valid: false,
-            error_message: Some(format!("HTTP error: {}", status)),
+            error_message: Some(format!("HTTP error: {status}")),
             service_info: None,
             rate_limits: None,
           })
@@ -169,7 +169,7 @@ impl ApiValidator {
       }
       Err(e) => Ok(ValidationResult {
         is_valid: false,
-        error_message: Some(format!("Network error: {}", e)),
+        error_message: Some(format!("Network error: {e}")),
         service_info: None,
         rate_limits: None,
       }),
@@ -187,7 +187,7 @@ impl ApiValidator {
     let response = self
       .client
       .post("https://api.deepseek.com/v1/chat/completions")
-      .header("Authorization", format!("Bearer {}", api_key))
+      .header("Authorization", format!("Bearer {api_key}"))
       .header("content-type", "application/json")
       .json(&body)
       .send()
@@ -207,7 +207,7 @@ impl ApiValidator {
           let error_text = resp.text().await.unwrap_or_default();
           Ok(ValidationResult {
             is_valid: false,
-            error_message: Some(format!("DeepSeek API error {}: {}", status, error_text)),
+            error_message: Some(format!("DeepSeek API error {status}: {error_text}")),
             service_info: Some("DeepSeek API".to_string()),
             rate_limits: None,
           })
@@ -215,7 +215,7 @@ impl ApiValidator {
       }
       Err(e) => Ok(ValidationResult {
         is_valid: false,
-        error_message: Some(format!("Network error: {}", e)),
+        error_message: Some(format!("Network error: {e}")),
         service_info: None,
         rate_limits: None,
       }),
@@ -244,7 +244,7 @@ impl ApiValidator {
         .client
         .get("https://www.googleapis.com/youtube/v3/channels")
         .query(&[("part", "snippet"), ("mine", "true")])
-        .header("Authorization", format!("Bearer {}", access_token))
+        .header("Authorization", format!("Bearer {access_token}"))
         .send()
         .await;
 
@@ -268,7 +268,7 @@ impl ApiValidator {
         }
         Err(e) => Ok(ValidationResult {
           is_valid: false,
-          error_message: Some(format!("Network error: {}", e)),
+          error_message: Some(format!("Network error: {e}")),
           service_info: None,
           rate_limits: None,
         }),
@@ -313,7 +313,7 @@ impl ApiValidator {
     let response = self
       .client
       .get("https://api.vimeo.com/me")
-      .header("Authorization", format!("Bearer {}", access_token))
+      .header("Authorization", format!("Bearer {access_token}"))
       .send()
       .await;
 
@@ -337,7 +337,7 @@ impl ApiValidator {
       }
       Err(e) => Ok(ValidationResult {
         is_valid: false,
-        error_message: Some(format!("Network error: {}", e)),
+        error_message: Some(format!("Network error: {e}")),
         service_info: None,
         rate_limits: None,
       }),
@@ -362,7 +362,7 @@ impl ApiValidator {
 
   // Telegram Bot валидация
   async fn validate_telegram_bot(&self, bot_token: &str) -> Result<ValidationResult> {
-    let url = format!("https://api.telegram.org/bot{}/getMe", bot_token);
+    let url = format!("https://api.telegram.org/bot{bot_token}/getMe");
     let response = self.client.get(&url).send().await;
 
     match response {
@@ -374,7 +374,7 @@ impl ApiValidator {
             Ok(ValidationResult {
               is_valid: true,
               error_message: None,
-              service_info: Some(format!("Telegram bot @{} confirmed", bot_name)),
+              service_info: Some(format!("Telegram bot @{bot_name} confirmed")),
               rate_limits: None,
             })
           } else {
@@ -396,7 +396,7 @@ impl ApiValidator {
       }
       Err(e) => Ok(ValidationResult {
         is_valid: false,
-        error_message: Some(format!("Network error: {}", e)),
+        error_message: Some(format!("Network error: {e}")),
         service_info: None,
         rate_limits: None,
       }),
@@ -408,7 +408,7 @@ impl ApiValidator {
     let response = self
       .client
       .get("https://codecov.io/api/v2/user")
-      .header("Authorization", format!("token {}", token))
+      .header("Authorization", format!("token {token}"))
       .send()
       .await;
 
@@ -432,7 +432,7 @@ impl ApiValidator {
       }
       Err(e) => Ok(ValidationResult {
         is_valid: false,
-        error_message: Some(format!("Network error: {}", e)),
+        error_message: Some(format!("Network error: {e}")),
         service_info: None,
         rate_limits: None,
       }),

@@ -55,7 +55,7 @@ pub async fn get_ffmpeg_version(state: State<'_, VideoCompilerState>) -> Result<
   let output = Command::new(&*ffmpeg_path)
     .arg("-version")
     .output()
-    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {}", e)))?;
+    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {e}")))?;
 
   if output.status.success() {
     let version_output = String::from_utf8_lossy(&output.stdout);
@@ -92,7 +92,7 @@ pub async fn get_supported_formats(state: State<'_, VideoCompilerState>) -> Resu
   let output = Command::new(&*ffmpeg_path)
     .args(["-formats", "-hide_banner"])
     .output()
-    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {}", e)))?;
+    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {e}")))?;
 
   if output.status.success() {
     let formats_output = String::from_utf8_lossy(&output.stdout);
@@ -129,7 +129,7 @@ pub async fn get_supported_video_codecs(
   let output = Command::new(&*ffmpeg_path)
     .args(["-codecs", "-hide_banner"])
     .output()
-    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {}", e)))?;
+    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {e}")))?;
 
   if output.status.success() {
     let codecs_output = String::from_utf8_lossy(&output.stdout);
@@ -171,7 +171,7 @@ pub async fn get_supported_audio_codecs(
   let output = Command::new(&*ffmpeg_path)
     .args(["-codecs", "-hide_banner"])
     .output()
-    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {}", e)))?;
+    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {e}")))?;
 
   if output.status.success() {
     let codecs_output = String::from_utf8_lossy(&output.stdout);
@@ -244,9 +244,7 @@ pub async fn get_disk_space(path: String) -> Result<serde_json::Value> {
     .list()
     .iter()
     .find(|disk| path.starts_with(disk.mount_point().to_str().unwrap_or("")))
-    .ok_or_else(|| {
-      VideoCompilerError::InternalError(format!("No disk found for path: {}", path))
-    })?;
+    .ok_or_else(|| VideoCompilerError::InternalError(format!("No disk found for path: {path}")))?;
 
   Ok(serde_json::json!({
     "mount_point": path_disk.mount_point(),
@@ -688,7 +686,7 @@ pub async fn get_available_filters(state: State<'_, VideoCompilerState>) -> Resu
   let output = Command::new(&*ffmpeg_path)
     .args(["-filters", "-hide_banner"])
     .output()
-    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {}", e)))?;
+    .map_err(|e| VideoCompilerError::DependencyMissing(format!("FFmpeg not found: {e}")))?;
 
   if output.status.success() {
     let filters_output = String::from_utf8_lossy(&output.stdout);

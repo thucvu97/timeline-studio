@@ -154,7 +154,7 @@ pub struct AudioQuality {
 pub async fn ffmpeg_get_metadata(file_path: String) -> Result<VideoMetadata, String> {
   let path = Path::new(&file_path);
   if !path.exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   let executor = FFmpegExecutor::new();
@@ -174,7 +174,7 @@ pub async fn ffmpeg_get_metadata(file_path: String) -> Result<VideoMetadata, Str
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения ffprobe: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения ffprobe: {e}"))?;
 
   if result.exit_code != 0 {
     return Err(format!("ffprobe завершился с ошибкой: {}", result.stderr));
@@ -182,7 +182,7 @@ pub async fn ffmpeg_get_metadata(file_path: String) -> Result<VideoMetadata, Str
 
   // Парсим JSON ответ
   let probe_data: serde_json::Value =
-    serde_json::from_str(&result.stdout).map_err(|e| format!("Ошибка парсинга JSON: {}", e))?;
+    serde_json::from_str(&result.stdout).map_err(|e| format!("Ошибка парсинга JSON: {e}"))?;
 
   // Извлекаем метаданные
   let format = probe_data.get("format").ok_or("Не найдена секция format")?;
@@ -299,7 +299,7 @@ pub async fn ffmpeg_detect_scenes(
 ) -> Result<SceneDetectionResult, String> {
   let path = Path::new(&file_path);
   if !path.exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   let _executor = FFmpegExecutor::new();
@@ -310,7 +310,7 @@ pub async fn ffmpeg_detect_scenes(
     "-i",
     &file_path,
     "-filter:v",
-    &format!("select='gt(scene,{})'", threshold),
+    &format!("select='gt(scene,{threshold})'"),
     "-vsync",
     "vfr",
     "-f",
@@ -321,7 +321,7 @@ pub async fn ffmpeg_detect_scenes(
   let _result = _executor
     .execute(_cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения ffmpeg: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения ffmpeg: {e}"))?;
 
   // Для демонстрации возвращаем заглушку
   // В реальной реализации нужно парсить вывод FFmpeg
@@ -361,7 +361,7 @@ pub async fn ffmpeg_analyze_quality(
 ) -> Result<QualityAnalysisResult, String> {
   let path = Path::new(&file_path);
   if !path.exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   let _executor = FFmpegExecutor::new();
@@ -403,7 +403,7 @@ pub async fn ffmpeg_detect_silence(
 ) -> Result<SilenceDetectionResult, String> {
   let path = Path::new(&file_path);
   if !path.exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   let executor = FFmpegExecutor::new();
@@ -414,7 +414,7 @@ pub async fn ffmpeg_detect_silence(
     "-i",
     &file_path,
     "-af",
-    &format!("silencedetect=noise={}dB:d={}", threshold, min_duration),
+    &format!("silencedetect=noise={threshold}dB:d={min_duration}"),
     "-f",
     "null",
     "-",
@@ -423,7 +423,7 @@ pub async fn ffmpeg_detect_silence(
   let _result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка выполнения ffmpeg: {}", e))?;
+    .map_err(|e| format!("Ошибка выполнения ffmpeg: {e}"))?;
 
   // Парсим вывод для поиска тишины
   let silences = vec![
@@ -458,7 +458,7 @@ pub async fn ffmpeg_analyze_motion(
 ) -> Result<MotionAnalysisResult, String> {
   let path = Path::new(&file_path);
   if !path.exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   // Для демонстрации возвращаем заглушку
@@ -498,7 +498,7 @@ pub async fn ffmpeg_extract_keyframes(
 ) -> Result<KeyFrameExtractionResult, String> {
   let path = Path::new(&file_path);
   if !path.exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   // Для демонстрации возвращаем заглушку
@@ -538,7 +538,7 @@ pub async fn ffmpeg_analyze_audio(
 ) -> Result<AudioAnalysisResult, String> {
   let path = Path::new(&file_path);
   if !path.exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   // Для демонстрации возвращаем заглушку
@@ -570,7 +570,7 @@ pub async fn ffmpeg_analyze_audio(
 pub async fn ffmpeg_quick_analysis(file_path: String) -> Result<serde_json::Value, String> {
   let path = Path::new(&file_path);
   if !path.exists() {
-    return Err(format!("Файл не найден: {}", file_path));
+    return Err(format!("Файл не найден: {file_path}"));
   }
 
   // Для демонстрации возвращаем заглушку

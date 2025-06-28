@@ -94,7 +94,7 @@ impl<'a> OutputBuilder<'a> {
       let detector = GpuDetector::new(self.settings.ffmpeg_path.clone());
       match detector.get_recommended_encoder().await? {
         Some(recommended) => {
-          log::info!("Using recommended encoder: {:?}", recommended);
+          log::info!("Using recommended encoder: {recommended:?}");
           recommended
         }
         None => {
@@ -240,15 +240,15 @@ impl<'a> OutputBuilder<'a> {
     // Видео битрейт
     if let Some(video_bitrate) = self.project.settings.output.video_bitrate {
       // Использовать заданный битрейт
-      cmd.args(["-b:v", &format!("{}k", video_bitrate)]);
+      cmd.args(["-b:v", &format!("{video_bitrate}k")]);
 
       // Добавляем буфер для VBR
       let bufsize = video_bitrate * 2;
-      cmd.args(["-bufsize", &format!("{}k", bufsize)]);
+      cmd.args(["-bufsize", &format!("{bufsize}k")]);
 
       // Максимальный битрейт
       let maxrate = (video_bitrate as f64 * 1.5) as u32;
-      cmd.args(["-maxrate", &format!("{}k", maxrate)]);
+      cmd.args(["-maxrate", &format!("{maxrate}k")]);
     } else {
       // Использовать CRF для качества
       let crf = quality_to_crf(quality);
@@ -268,12 +268,12 @@ impl<'a> OutputBuilder<'a> {
         OutputFormat::Gif => {
           // Для GIF используем битрейт
           let default_bitrate = self.calculate_default_bitrate();
-          cmd.args(["-b:v", &format!("{}k", default_bitrate)]);
+          cmd.args(["-b:v", &format!("{default_bitrate}k")]);
         }
         OutputFormat::Avi | OutputFormat::Custom(_) => {
           // Для других форматов используем битрейт по умолчанию
           let default_bitrate = self.calculate_default_bitrate();
-          cmd.args(["-b:v", &format!("{}k", default_bitrate)]);
+          cmd.args(["-b:v", &format!("{default_bitrate}k")]);
         }
       }
     }
@@ -311,7 +311,7 @@ impl<'a> OutputBuilder<'a> {
 
     // Аудио битрейт
     let audio_bitrate = self.project.settings.output.audio_bitrate.unwrap_or(192);
-    cmd.args(["-b:a", &format!("{}k", audio_bitrate)]);
+    cmd.args(["-b:a", &format!("{audio_bitrate}k")]);
 
     // Частота дискретизации
     cmd.args(["-ar", "48000"]);
@@ -388,7 +388,7 @@ impl<'a> OutputBuilder<'a> {
     // Автор
     if let Some(ref author) = self.project.metadata.author {
       if !author.is_empty() {
-        cmd.args(["-metadata", &format!("artist={}", author)]);
+        cmd.args(["-metadata", &format!("artist={author}")]);
       }
     }
 
@@ -811,22 +811,19 @@ mod tests {
       let cpu_result = builder.add_cpu_encoding(&mut cmd);
       assert!(
         cpu_result.is_ok(),
-        "CPU encoding failed for format: {:?}",
-        format
+        "CPU encoding failed for format: {format:?}"
       );
 
       let format_result = builder.add_format_settings(&mut cmd);
       assert!(
         format_result.is_ok(),
-        "Format settings failed for format: {:?}",
-        format
+        "Format settings failed for format: {format:?}"
       );
 
       let audio_result = builder.add_audio_settings(&mut cmd);
       assert!(
         audio_result.is_ok(),
-        "Audio settings failed for format: {:?}",
-        format
+        "Audio settings failed for format: {format:?}"
       );
     }
   }

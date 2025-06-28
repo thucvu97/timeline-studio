@@ -145,24 +145,21 @@ pub fn create_mock_ffmpeg_output(
 /// Проверяет, что вектор содержит определенный элемент
 pub fn assert_contains<T: PartialEq + std::fmt::Debug>(vec: &[T], item: &T) {
   if !vec.contains(item) {
-    panic!("Vector {:?} does not contain {:?}", vec, item);
+    panic!("Vector {vec:?} does not contain {item:?}");
   }
 }
 
 /// Проверяет, что строка содержит подстроку
 pub fn assert_str_contains(haystack: &str, needle: &str) {
   if !haystack.contains(needle) {
-    panic!("String '{}' does not contain '{}'", haystack, needle);
+    panic!("String '{haystack}' does not contain '{needle}'");
   }
 }
 
 /// Утилита для сравнения float значений с погрешностью
 pub fn assert_float_eq(a: f64, b: f64, epsilon: f64) {
   if (a - b).abs() > epsilon {
-    panic!(
-      "Float values not equal: {} != {} (epsilon: {})",
-      a, b, epsilon
-    );
+    panic!("Float values not equal: {a} != {b} (epsilon: {epsilon})");
   }
 }
 

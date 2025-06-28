@@ -82,7 +82,7 @@ impl ZeroCopyBuffer {
     }
 
     let layout = Layout::from_size_align(size, alignment)
-      .map_err(|e| VideoCompilerError::InternalError(format!("Invalid layout: {}", e)))?;
+      .map_err(|e| VideoCompilerError::InternalError(format!("Invalid layout: {e}")))?;
 
     let ptr = unsafe {
       let raw_ptr = alloc::alloc_zeroed(layout);

@@ -19,18 +19,18 @@ pub async fn generate_thumbnail(
     .arg("-vframes")
     .arg("1")
     .arg("-vf")
-    .arg(format!("scale={}:{}", width, height))
+    .arg(format!("scale={width}:{height}"))
     .arg("-q:v")
     .arg("2")
     .arg(output_path.to_string_lossy().as_ref())
     .arg("-y") // Перезаписать если существует
     .output()
     .await
-    .map_err(|e| format!("Failed to execute ffmpeg: {}", e))?;
+    .map_err(|e| format!("Failed to execute ffmpeg: {e}"))?;
 
   if !status.status.success() {
     let stderr = String::from_utf8_lossy(&status.stderr);
-    return Err(format!("FFmpeg failed: {}", stderr));
+    return Err(format!("FFmpeg failed: {stderr}"));
   }
 
   Ok(())
@@ -113,9 +113,7 @@ mod tests {
     ];
 
     for (width, height) in test_cases {
-      let output_path = temp_dir
-        .path()
-        .join(format!("thumb_{}x{}.jpg", width, height));
+      let output_path = temp_dir.path().join(format!("thumb_{width}x{height}.jpg"));
       let result = generate_thumbnail(&input_path, &output_path, width, height, 0.0).await;
       // All should fail because our dummy file isn't a real video
       assert!(result.is_err());
@@ -133,7 +131,7 @@ mod tests {
     let time_offsets = vec![0.0, 0.5, 1.0, 5.0, 10.0, 60.0, 3600.0];
 
     for offset in time_offsets {
-      let output_path = temp_dir.path().join(format!("thumb_{}.jpg", offset));
+      let output_path = temp_dir.path().join(format!("thumb_{offset}.jpg"));
       let result = generate_thumbnail(&input_path, &output_path, 320, 240, offset).await;
       // All should fail because our dummy file isn't a real video
       assert!(result.is_err());

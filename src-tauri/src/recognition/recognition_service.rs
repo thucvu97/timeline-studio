@@ -137,7 +137,7 @@ impl RecognitionService {
       .into_iter()
       .enumerate()
       .map(|(idx, (timestamp, detection))| DetectedFace {
-        face_id: Some(format!("face_{}", idx)),
+        face_id: Some(format!("face_{idx}")),
         person_name: None,
         confidence: detection.confidence,
         timestamps: vec![timestamp],
@@ -227,9 +227,7 @@ impl RecognitionService {
 
   /// Сохранить результаты в файл
   async fn save_results(&self, file_id: &str, results: &RecognitionResults) -> Result<()> {
-    let results_file = self
-      .results_dir
-      .join(format!("{}_recognition.json", file_id));
+    let results_file = self.results_dir.join(format!("{file_id}_recognition.json"));
     let json = serde_json::to_string_pretty(results)?;
     tokio::fs::write(results_file, json).await?;
     Ok(())
@@ -237,9 +235,7 @@ impl RecognitionService {
 
   /// Загрузить результаты из файла
   pub async fn load_results(&self, file_id: &str) -> Result<Option<RecognitionResults>> {
-    let results_file = self
-      .results_dir
-      .join(format!("{}_recognition.json", file_id));
+    let results_file = self.results_dir.join(format!("{file_id}_recognition.json"));
 
     if results_file.exists() {
       let json = tokio::fs::read_to_string(results_file).await?;
@@ -265,7 +261,7 @@ impl RecognitionService {
             results.push((file_id, recognition_results));
           }
           Err(e) => {
-            eprintln!("Failed to process file {}: {}", file_id, e);
+            eprintln!("Failed to process file {file_id}: {e}");
           }
         }
       }
@@ -417,7 +413,7 @@ mod tests {
     assert_eq!(grouped.len(), 3);
 
     for (idx, face) in grouped.iter().enumerate() {
-      assert_eq!(face.face_id, Some(format!("face_{}", idx)));
+      assert_eq!(face.face_id, Some(format!("face_{idx}")));
       assert_eq!(face.timestamps.len(), 1);
       assert_eq!(face.bounding_boxes.len(), 1);
       assert!(face.confidence >= 0.85);

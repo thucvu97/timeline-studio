@@ -46,7 +46,7 @@ pub async fn extract_frames_for_multimodal_analysis(
   let video_path = get_video_path_by_clip_id(&project_schema, &clip_id)?;
 
   if !Path::new(&video_path).exists() {
-    return Err(format!("Видео файл не найден: {}", video_path));
+    return Err(format!("Видео файл не найден: {video_path}"));
   }
 
   // Получаем информацию о видео
@@ -69,7 +69,7 @@ pub async fn extract_frames_for_multimodal_analysis(
 
   // Извлекаем кадры
   while current_time < duration && frame_count < max_frames {
-    let frame_filename = format!("frame_{:06}.jpg", frame_count);
+    let frame_filename = format!("frame_{frame_count:06}.jpg");
     let frame_path = temp_dir.join(&frame_filename);
 
     // Извлекаем кадр в указанное время
@@ -107,13 +107,13 @@ pub async fn convert_image_to_base64(image_path: String) -> Result<String, Strin
   let path = Path::new(&image_path);
 
   if !path.exists() {
-    return Err(format!("Изображение не найдено: {}", image_path));
+    return Err(format!("Изображение не найдено: {image_path}"));
   }
 
   // Читаем файл
   let image_data = fs::read(&path)
     .await
-    .map_err(|e| format!("Ошибка чтения изображения: {}", e))?;
+    .map_err(|e| format!("Ошибка чтения изображения: {e}"))?;
 
   // Конвертируем в base64
   let base64_data = STANDARD.encode(&image_data);
@@ -145,7 +145,7 @@ pub async fn extract_thumbnail_candidates(
 
   for i in 0..count {
     let timestamp = start_offset + (i as f64 * interval);
-    let frame_filename = format!("thumbnail_candidate_{:03}.jpg", i);
+    let frame_filename = format!("thumbnail_candidate_{i:03}.jpg");
     let frame_path = temp_dir.join(&frame_filename);
 
     // Извлекаем кадр с высоким качеством для превью
@@ -186,7 +186,7 @@ pub async fn create_frame_collage(
   // Проверяем, что все файлы существуют
   for path in &frame_paths {
     if !Path::new(path).exists() {
-      return Err(format!("Кадр не найден: {}", path));
+      return Err(format!("Кадр не найден: {path}"));
     }
   }
 
@@ -212,7 +212,7 @@ pub async fn optimize_image_for_analysis(
   let _output = Path::new(&output_path);
 
   if !input.exists() {
-    return Err(format!("Входное изображение не найдено: {}", input_path));
+    return Err(format!("Входное изображение не найдено: {input_path}"));
   }
 
   let max_dim = max_dimension.unwrap_or(2048); // GPT-4V оптимально работает с изображениями до 2K
@@ -226,10 +226,7 @@ pub async fn optimize_image_for_analysis(
     "-i",
     &input_path,
     "-vf",
-    &format!(
-      "scale='min({},iw)':'min({},ih)':force_original_aspect_ratio=decrease",
-      max_dim, max_dim
-    ),
+    &format!("scale='min({max_dim},iw)':'min({max_dim},ih)':force_original_aspect_ratio=decrease"),
     "-q:v",
     &jpeg_quality.to_string(),
     "-y", // перезаписать файл
@@ -239,7 +236,7 @@ pub async fn optimize_image_for_analysis(
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка оптимизации изображения: {}", e))?;
+    .map_err(|e| format!("Ошибка оптимизации изображения: {e}"))?;
 
   if result.exit_code == 0 {
     Ok(output_path)
@@ -260,12 +257,12 @@ pub async fn cleanup_extracted_frames(clip_id: String) -> Result<u32, String> {
   let mut removed_count = 0;
   let mut entries = fs::read_dir(&temp_dir)
     .await
-    .map_err(|e| format!("Ошибка чтения директории: {}", e))?;
+    .map_err(|e| format!("Ошибка чтения директории: {e}"))?;
 
   while let Some(entry) = entries
     .next_entry()
     .await
-    .map_err(|e| format!("Ошибка перечисления файлов: {}", e))?
+    .map_err(|e| format!("Ошибка перечисления файлов: {e}"))?
   {
     let path = entry.path();
     if path.is_file() && fs::remove_file(&path).await.is_ok() {
@@ -276,11 +273,7 @@ pub async fn cleanup_extracted_frames(clip_id: String) -> Result<u32, String> {
   // Удаляем саму директорию если она пустая
   let _ = fs::remove_dir(&temp_dir).await;
 
-  log::info!(
-    "Удалено {} временных кадров для клипа {}",
-    removed_count,
-    clip_id
-  );
+  log::info!("Удалено {removed_count} временных кадров для клипа {clip_id}");
   Ok(removed_count)
 }
 
@@ -310,7 +303,7 @@ async fn extract_single_frame(
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка извлечения кадра: {}", e))?;
+    .map_err(|e| format!("Ошибка извлечения кадра: {e}"))?;
 
   Ok(result.exit_code == 0 && output_path.exists())
 }
@@ -359,7 +352,7 @@ async fn extract_high_quality_frame(
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка извлечения превью кадра: {}", e))?;
+    .map_err(|e| format!("Ошибка извлечения превью кадра: {e}"))?;
 
   Ok(result.exit_code == 0 && output_path.exists())
 }
@@ -387,7 +380,7 @@ async fn create_ffmpeg_collage(
   let _filter_chain: Vec<String> = Vec::new();
 
   for i in 0..(cols * rows).min(frame_paths.len() as u32) {
-    filter_inputs.push(format!("[{}:v]", i));
+    filter_inputs.push(format!("[{i}:v]"));
   }
 
   // Фильтр для создания сетки
@@ -422,7 +415,7 @@ async fn create_ffmpeg_collage(
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка создания коллажа: {}", e))?;
+    .map_err(|e| format!("Ошибка создания коллажа: {e}"))?;
 
   Ok(result.exit_code == 0)
 }
@@ -433,7 +426,7 @@ async fn create_temp_frames_dir(clip_id: &str) -> Result<PathBuf, String> {
 
   fs::create_dir_all(&clip_dir)
     .await
-    .map_err(|e| format!("Ошибка создания временной директории: {}", e))?;
+    .map_err(|e| format!("Ошибка создания временной директории: {e}"))?;
 
   Ok(clip_dir)
 }
@@ -446,12 +439,9 @@ fn get_temp_frames_dir(clip_id: &str) -> PathBuf {
 
 fn get_video_path_by_clip_id(project: &ProjectSchema, clip_id: &str) -> Result<String, String> {
   // Ищем клип в проекте и получаем путь к файлу
-  project.get_clip_file_path(clip_id).ok_or_else(|| {
-    format!(
-      "Клип с ID '{}' не найден в проекте или не является файлом",
-      clip_id
-    )
-  })
+  project
+    .get_clip_file_path(clip_id)
+    .ok_or_else(|| format!("Клип с ID '{clip_id}' не найден в проекте или не является файлом"))
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -479,7 +469,7 @@ async fn get_video_info(video_path: &str) -> Result<VideoInfo, String> {
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка получения информации о видео: {}", e))?;
+    .map_err(|e| format!("Ошибка получения информации о видео: {e}"))?;
 
   if result.exit_code != 0 {
     return Err(format!("FFprobe завершился с ошибкой: {}", result.stderr));
@@ -487,7 +477,7 @@ async fn get_video_info(video_path: &str) -> Result<VideoInfo, String> {
 
   // Парсим JSON ответ от ffprobe
   let probe_data: serde_json::Value = serde_json::from_str(&result.stdout)
-    .map_err(|e| format!("Ошибка парсинга ffprobe JSON: {}", e))?;
+    .map_err(|e| format!("Ошибка парсинга ffprobe JSON: {e}"))?;
 
   let format = probe_data
     .get("format")
@@ -566,7 +556,7 @@ async fn get_image_info(image_path: &Path) -> Result<ImageInfo, String> {
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| format!("Ошибка получения информации об изображении: {}", e))?;
+    .map_err(|e| format!("Ошибка получения информации об изображении: {e}"))?;
 
   if result.exit_code != 0 {
     return Ok(ImageInfo {
@@ -617,8 +607,7 @@ fn parse_grid_size(grid_str: &str) -> Result<(u32, u32), String> {
   let parts: Vec<&str> = grid_str.split('x').collect();
   if parts.len() != 2 {
     return Err(format!(
-      "Неверный формат сетки: {}. Ожидается 'WxH'",
-      grid_str
+      "Неверный формат сетки: {grid_str}. Ожидается 'WxH'"
     ));
   }
 

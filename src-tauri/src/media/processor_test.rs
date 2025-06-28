@@ -303,7 +303,7 @@ mod tests {
   async fn test_create_thumbnail_path() {
     let file_id = "abc123";
     let temp_dir = TempDir::new().unwrap();
-    let thumbnail_path = temp_dir.path().join(format!("thumb_{}.jpg", file_id));
+    let thumbnail_path = temp_dir.path().join(format!("thumb_{file_id}.jpg"));
 
     assert!(thumbnail_path
       .to_string_lossy()

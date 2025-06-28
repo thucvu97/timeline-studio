@@ -52,7 +52,7 @@ pub async fn extract_frames_for_clip_command(
         .enumerate()
         .map(|(idx, frame)| ExtractedFrameInfo {
           timestamp: frame.timestamp,
-          file_path: format!("frame_{}.jpg", idx), // Создаем имя файла
+          file_path: format!("frame_{idx}.jpg"), // Создаем имя файла
           frame_index: idx,
         })
         .collect();

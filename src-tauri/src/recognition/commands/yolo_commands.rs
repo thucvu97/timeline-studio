@@ -99,7 +99,7 @@ pub async fn create_yolo_processor(
       processors.insert(processor_id.clone(), Arc::new(RwLock::new(processor)));
       Ok(processor_id)
     }
-    Err(e) => Err(format!("Failed to create processor: {}", e)),
+    Err(e) => Err(format!("Failed to create processor: {e}")),
   }
 }
 
@@ -119,12 +119,12 @@ pub async fn process_image_with_yolo(
     match image::open(&image_path) {
       Ok(image) => match processor.process_image(&image).await {
         Ok(detections) => Ok(serde_json::to_value(detections).unwrap()),
-        Err(e) => Err(format!("Failed to process image: {}", e)),
+        Err(e) => Err(format!("Failed to process image: {e}")),
       },
-      Err(e) => Err(format!("Failed to load image: {}", e)),
+      Err(e) => Err(format!("Failed to load image: {e}")),
     }
   } else {
-    Err(format!("Processor not found: {}", processor_id))
+    Err(format!("Processor not found: {processor_id}"))
   }
 }
 
@@ -143,10 +143,10 @@ pub async fn process_video_file_with_yolo(
 
     match processor.process_video_file(&path).await {
       Ok(results) => Ok(serde_json::to_value(results).unwrap()),
-      Err(e) => Err(format!("Failed to process video: {}", e)),
+      Err(e) => Err(format!("Failed to process video: {e}")),
     }
   } else {
-    Err(format!("Processor not found: {}", processor_id))
+    Err(format!("Processor not found: {processor_id}"))
   }
 }
 
@@ -175,7 +175,7 @@ pub async fn process_image_sequence_with_yolo(
           images.push((idx, *timestamp, image));
         }
         Err(e) => {
-          log::warn!("Failed to load image {}: {}", path, e);
+          log::warn!("Failed to load image {path}: {e}");
         }
       }
     }
@@ -186,10 +186,10 @@ pub async fn process_image_sequence_with_yolo(
 
     match processor.process_image_sequence(images).await {
       Ok(results) => Ok(serde_json::to_value(results).unwrap()),
-      Err(e) => Err(format!("Failed to process image sequence: {}", e)),
+      Err(e) => Err(format!("Failed to process image sequence: {e}")),
     }
   } else {
-    Err(format!("Processor not found: {}", processor_id))
+    Err(format!("Processor not found: {processor_id}"))
   }
 }
 
@@ -217,10 +217,10 @@ pub async fn save_yolo_results(
 
     match processor.save_results(&results, &path, output_format).await {
       Ok(_) => Ok(()),
-      Err(e) => Err(format!("Failed to save results: {}", e)),
+      Err(e) => Err(format!("Failed to save results: {e}")),
     }
   } else {
-    Err(format!("Processor not found: {}", processor_id))
+    Err(format!("Processor not found: {processor_id}"))
   }
 }
 
@@ -239,7 +239,7 @@ pub async fn update_yolo_config(
     processor.update_config(processor_config);
     Ok(())
   } else {
-    Err(format!("Processor not found: {}", processor_id))
+    Err(format!("Processor not found: {processor_id}"))
   }
 }
 
@@ -256,7 +256,7 @@ pub async fn get_yolo_config(
     let config = processor.get_config();
     Ok(config.into())
   } else {
-    Err(format!("Processor not found: {}", processor_id))
+    Err(format!("Processor not found: {processor_id}"))
   }
 }
 
@@ -271,10 +271,7 @@ pub async fn extract_frames_for_yolo(
   // В реальной реализации здесь должен быть код для извлечения кадров
 
   log::info!(
-    "Extracting frames from {} with interval {} (max: {:?})",
-    video_path,
-    frame_interval,
-    max_frames
+    "Extracting frames from {video_path} with interval {frame_interval} (max: {max_frames:?})"
   );
 
   // Возвращаем пустой массив как заглушку
@@ -384,7 +381,7 @@ pub async fn create_yolo_processor_with_builder(
       processors.insert(processor_id.clone(), Arc::new(RwLock::new(processor)));
       Ok(processor_id)
     }
-    Err(e) => Err(format!("Failed to build processor: {}", e)),
+    Err(e) => Err(format!("Failed to build processor: {e}")),
   }
 }
 

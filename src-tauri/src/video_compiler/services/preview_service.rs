@@ -145,7 +145,7 @@ impl PreviewServiceImpl {
       source.to_string_lossy(),
       timestamp.unwrap_or(0.0),
       resolution
-        .map(|(w, h)| format!("{}x{}", w, h))
+        .map(|(w, h)| format!("{w}x{h}"))
         .unwrap_or_default()
     )
   }
@@ -161,7 +161,7 @@ impl PreviewServiceImpl {
     // Создаем временную директорию для композиции
     let temp_dir_path = std::env::temp_dir().join(format!("storyboard_{}", uuid::Uuid::new_v4()));
     std::fs::create_dir_all(&temp_dir_path).map_err(|e| {
-      VideoCompilerError::IoError(format!("Не удалось создать временную директорию: {}", e))
+      VideoCompilerError::IoError(format!("Не удалось создать временную директорию: {e}"))
     })?;
 
     let (thumb_width, thumb_height) = thumbnail_size;
@@ -171,7 +171,7 @@ impl PreviewServiceImpl {
     // Сохраняем все thumbnails как временные файлы
     let mut thumbnail_paths = Vec::new();
     for (i, thumbnail_data) in thumbnails.iter().enumerate() {
-      let thumb_path = temp_dir_path.join(format!("thumb_{}.jpg", i));
+      let thumb_path = temp_dir_path.join(format!("thumb_{i}.jpg"));
       tokio::fs::write(&thumb_path, thumbnail_data)
         .await
         .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
@@ -191,13 +191,13 @@ impl PreviewServiceImpl {
     }
 
     // Создаем filter для tile композиции
-    let filter = format!("tile={}x{}:margin=2:padding=2", columns, rows);
+    let filter = format!("tile={columns}x{rows}:margin=2:padding=2");
 
     cmd.args([
       "-filter_complex",
       &filter,
       "-s",
-      &format!("{}x{}", total_width, total_height),
+      &format!("{total_width}x{total_height}"),
       "-q:v",
       "2", // Высокое качество JPEG
       output_path.to_str().unwrap(),
@@ -205,12 +205,12 @@ impl PreviewServiceImpl {
 
     // Выполняем команду
     let output = cmd.output().map_err(|e| {
-      VideoCompilerError::IoError(format!("Не удалось запустить FFmpeg для storyboard: {}", e))
+      VideoCompilerError::IoError(format!("Не удалось запустить FFmpeg для storyboard: {e}"))
     })?;
 
     if !output.status.success() {
       let stderr = String::from_utf8_lossy(&output.stderr);
-      log::warn!("FFmpeg storyboard предупреждение: {}", stderr);
+      log::warn!("FFmpeg storyboard предупреждение: {stderr}");
 
       // Если композиция не удалась, создаем простую плитку вручную
       return self
@@ -298,8 +298,7 @@ impl PreviewService for PreviewServiceImpl {
     // Проверяем корректность timestamp
     if timestamp < 0.0 {
       return Err(VideoCompilerError::InvalidParameter(format!(
-        "Некорректное время кадра: {}",
-        timestamp
+        "Некорректное время кадра: {timestamp}"
       )));
     }
 
@@ -317,18 +316,14 @@ impl PreviewService for PreviewServiceImpl {
 
     match self.get_cached_preview(&cache_key).await {
       Ok(Some(cached)) => {
-        log::debug!(
-          "Превью найдено в кэше для {:?} на {}",
-          video_path,
-          timestamp
-        );
+        log::debug!("Превью найдено в кэше для {video_path:?} на {timestamp}");
         return Ok(cached.data);
       }
       Ok(None) => {
         log::debug!("Превью не найдено в кэше, генерируем новое");
       }
       Err(e) => {
-        log::warn!("Ошибка при проверке кэша: {}, продолжаем генерацию", e);
+        log::warn!("Ошибка при проверке кэша: {e}, продолжаем генерацию");
       }
     }
 
@@ -345,11 +340,11 @@ impl PreviewService for PreviewServiceImpl {
       )
       .await
       .map_err(|e| {
-        log::error!("Ошибка генерации превью для {:?}: {}", video_path, e);
+        log::error!("Ошибка генерации превью для {video_path:?}: {e}");
         match e {
           VideoCompilerError::FFmpegError { .. } => VideoCompilerError::PreviewError {
             timestamp,
-            reason: format!("FFmpeg не смог сгенерировать кадр: {}", e),
+            reason: format!("FFmpeg не смог сгенерировать кадр: {e}"),
           },
           VideoCompilerError::TimeoutError { .. } => VideoCompilerError::PreviewError {
             timestamp,
@@ -377,7 +372,7 @@ impl PreviewService for PreviewServiceImpl {
     };
 
     if let Err(e) = self.cache_preview(&cache_key, &result).await {
-      log::warn!("Не удалось сохранить превью в кэш: {}", e);
+      log::warn!("Не удалось сохранить превью в кэш: {e}");
       // Не прерываем выполнение, если кэш не работает
     }
 
@@ -419,7 +414,7 @@ impl PreviewService for PreviewServiceImpl {
     // Читаем сгенерированные файлы
     let mut thumbnails = Vec::new();
     for i in 1..=count {
-      let thumb_path = temp_dir.join(format!("thumb_{:03}.jpg", i));
+      let thumb_path = temp_dir.join(format!("thumb_{i:03}.jpg"));
       if thumb_path.exists() {
         let data = tokio::fs::read(&thumb_path)
           .await
@@ -486,10 +481,7 @@ impl PreviewService for PreviewServiceImpl {
     match storyboard_result {
       Ok(storyboard) => Ok(storyboard),
       Err(e) => {
-        log::warn!(
-          "Не удалось создать storyboard композицию: {:?}. Возвращаем первый thumbnail.",
-          e
-        );
+        log::warn!("Не удалось создать storyboard композицию: {e:?}. Возвращаем первый thumbnail.");
         Ok(thumbnails[0].clone())
       }
     }
@@ -683,35 +675,32 @@ impl PreviewService for PreviewServiceImpl {
         .generate_frame_preview(Path::new(&file_path), clip_offset, Some(size))
         .await
         .map_err(|e| {
-          log::error!("Ошибка генерации кадра из {}: {}", file_path, e);
+          log::error!("Ошибка генерации кадра из {file_path}: {e}");
           VideoCompilerError::PreviewError {
             timestamp,
-            reason: format!("Не удалось сгенерировать кадр: {}", e),
+            reason: format!("Не удалось сгенерировать кадр: {e}"),
           }
         })?;
 
       // Создаем директорию для вывода если нужно
       if let Some(parent) = Path::new(output_path).parent() {
         tokio::fs::create_dir_all(parent).await.map_err(|e| {
-          VideoCompilerError::IoError(format!("Не удалось создать директорию: {}", e))
+          VideoCompilerError::IoError(format!("Не удалось создать директорию: {e}"))
         })?;
       }
 
       // Сохраняем результат в файл
       tokio::fs::write(output_path, preview)
         .await
-        .map_err(|e| VideoCompilerError::IoError(format!("Не удалось сохранить превью: {}", e)))?;
+        .map_err(|e| VideoCompilerError::IoError(format!("Не удалось сохранить превью: {e}")))?;
     } else {
       // Если нет активного клипа, создаем черный кадр
-      log::debug!(
-        "Нет активного клипа на времени {}, создаем черный кадр",
-        timestamp
-      );
+      log::debug!("Нет активного клипа на времени {timestamp}, создаем черный кадр");
 
       // Создаем директорию для вывода если нужно
       if let Some(parent) = Path::new(output_path).parent() {
         tokio::fs::create_dir_all(parent).await.map_err(|e| {
-          VideoCompilerError::IoError(format!("Не удалось создать директорию: {}", e))
+          VideoCompilerError::IoError(format!("Не удалось создать директорию: {e}"))
         })?;
       }
 
@@ -746,7 +735,7 @@ impl PreviewService for PreviewServiceImpl {
       tokio::fs::write(output_path, black_jpeg)
         .await
         .map_err(|e| {
-          VideoCompilerError::IoError(format!("Не удалось сохранить черный кадр: {}", e))
+          VideoCompilerError::IoError(format!("Не удалось сохранить черный кадр: {e}"))
         })?;
     }
 

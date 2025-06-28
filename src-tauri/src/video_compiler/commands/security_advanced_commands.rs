@@ -85,7 +85,7 @@ pub async fn create_secure_storage_instance(
   Ok(CreateSecureStorageResult {
     success: true,
     storage_id: storage_id.clone(),
-    storage_path: format!("/secure_storage/{}.db", storage_id),
+    storage_path: format!("/secure_storage/{storage_id}.db"),
     encryption_enabled: true,
     error: None,
   })

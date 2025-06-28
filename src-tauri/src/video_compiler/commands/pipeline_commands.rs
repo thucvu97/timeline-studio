@@ -91,8 +91,7 @@ pub async fn get_pipeline_info(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -110,8 +109,7 @@ pub async fn cancel_pipeline(job_id: String, state: State<'_, VideoCompilerState
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -132,8 +130,7 @@ pub async fn get_pipeline_statistics(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -165,8 +162,7 @@ pub async fn get_pipeline_context(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -188,8 +184,7 @@ pub async fn update_pipeline_settings(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -210,8 +205,7 @@ pub async fn validate_pipeline_configuration(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -247,8 +241,7 @@ pub async fn insert_pipeline_stage(
       _ => {
         return Err(
           crate::video_compiler::error::VideoCompilerError::validation(format!(
-            "Unknown stage type: {}",
-            stage_name
+            "Unknown stage type: {stage_name}"
           )),
         );
       }
@@ -258,8 +251,7 @@ pub async fn insert_pipeline_stage(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -280,8 +272,7 @@ pub async fn remove_pipeline_stage(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -342,7 +333,7 @@ pub async fn build_custom_pipeline(
         ));
       }
       _ => {
-        log::warn!("Unknown stage type: {}", stage_name);
+        log::warn!("Unknown stage type: {stage_name}");
       }
     }
   }
@@ -379,8 +370,7 @@ pub async fn get_pipeline_execution_summary(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -400,8 +390,7 @@ pub async fn get_pipeline_progress(
   } else {
     Err(
       crate::video_compiler::error::VideoCompilerError::validation(format!(
-        "Pipeline not found: {}",
-        job_id
+        "Pipeline not found: {job_id}"
       )),
     )
   }
@@ -614,8 +603,7 @@ mod tests {
   fn test_error_messages() {
     let job_id = "test-123";
     let error = crate::video_compiler::error::VideoCompilerError::validation(format!(
-      "Pipeline not found: {}",
-      job_id
+      "Pipeline not found: {job_id}"
     ));
 
     let error_str = error.to_string();

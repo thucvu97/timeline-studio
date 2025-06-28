@@ -23,16 +23,16 @@ impl fmt::Display for AspectRatio {
       AspectRatio::Ratio21x9 => "21:9".to_string(),
       AspectRatio::Ratio1x1 => "1:1".to_string(),
       AspectRatio::Ratio9x16 => "9:16".to_string(),
-      AspectRatio::Custom(ratio) => format!("{:.2}:1", ratio),
+      AspectRatio::Custom(ratio) => format!("{ratio:.2}:1"),
     };
-    write!(f, "{}", s)
+    write!(f, "{s}")
   }
 }
 
 impl AspectRatio {
   /// Преобразовать в строку для FFmpeg
   pub fn to_ffmpeg_string(&self) -> String {
-    format!("{}", self)
+    format!("{self}")
   }
 }
 

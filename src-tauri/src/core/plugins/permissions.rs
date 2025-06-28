@@ -530,7 +530,7 @@ mod tests {
     // Test with many allowed hosts (should trigger Extended level)
     let many_hosts_perms = PluginPermissions {
       network: NetworkPermissions {
-        allowed_hosts: (0..10).map(|i| format!("host{}.com", i)).collect(),
+        allowed_hosts: (0..10).map(|i| format!("host{i}.com")).collect(),
         ..Default::default()
       },
       ..Default::default()
@@ -543,7 +543,7 @@ mod tests {
     // Test with exactly 5 hosts (should not trigger Extended)
     let five_hosts_perms = PluginPermissions {
       network: NetworkPermissions {
-        allowed_hosts: (0..5).map(|i| format!("host{}.com", i)).collect(),
+        allowed_hosts: (0..5).map(|i| format!("host{i}.com")).collect(),
         ..Default::default()
       },
       ..Default::default()

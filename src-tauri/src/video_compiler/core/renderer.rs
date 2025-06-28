@@ -97,7 +97,7 @@ impl VideoRenderer {
             .await;
         }
         Err(e) => {
-          log::error!("Ошибка рендеринга: {}", e);
+          log::error!("Ошибка рендеринга: {e}");
           log::error!("  Код ошибки: {}", e.error_code());
           log::error!(
             "  Критическая: {}",
@@ -147,11 +147,11 @@ impl VideoRenderer {
                   .await; // Выходим из замыкания успешно
               }
               Err(cpu_error) => {
-                log::error!("CPU fallback также завершился ошибкой: {}", cpu_error);
+                log::error!("CPU fallback также завершился ошибкой: {cpu_error}");
                 let _ = progress_tracker_clone
                   .fail_job(
                     &job_id_clone,
-                    format!("GPU failed: {}, CPU failed: {}", e, cpu_error),
+                    format!("GPU failed: {e}, CPU failed: {cpu_error}"),
                   )
                   .await;
               }
@@ -219,7 +219,7 @@ impl VideoRenderer {
     // Запускаем pipeline
     let final_output = pipeline.execute(&job_id).await?;
 
-    log::info!("Рендеринг завершен: {:?}", final_output);
+    log::info!("Рендеринг завершен: {final_output:?}");
 
     Ok(final_output.to_string_lossy().to_string())
   }
@@ -267,7 +267,7 @@ impl VideoRenderer {
     // Проверяем доступность GPU
     if self.project.settings.export.hardware_acceleration {
       if let Some(gpu_encoder) = &self.project.settings.export.preferred_gpu_encoder {
-        warnings.push(format!("Using GPU encoder: {}", gpu_encoder));
+        warnings.push(format!("Using GPU encoder: {gpu_encoder}"));
       } else {
         warnings.push("GPU acceleration requested but no preferred encoder specified".to_string());
       }

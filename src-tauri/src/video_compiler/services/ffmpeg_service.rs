@@ -101,7 +101,7 @@ impl FfmpegService for FfmpegServiceImpl {
       .output()
       .map_err(|e| VideoCompilerError::FFmpegError {
         exit_code: None,
-        stderr: format!("Не удалось запустить FFmpeg: {}", e),
+        stderr: format!("Не удалось запустить FFmpeg: {e}"),
         command: "-version".to_string(),
       })?;
 
@@ -154,7 +154,7 @@ impl FfmpegService for FfmpegServiceImpl {
       .output()
       .map_err(|e| VideoCompilerError::FFmpegError {
         exit_code: None,
-        stderr: format!("Ошибка запуска FFmpeg: {}", e),
+        stderr: format!("Ошибка запуска FFmpeg: {e}"),
         command: "ffprobe".to_string(),
       })?;
 
@@ -199,7 +199,7 @@ impl FfmpegService for FfmpegServiceImpl {
       .output()
       .map_err(|e| VideoCompilerError::FFmpegError {
         exit_code: None,
-        stderr: format!("Ошибка получения форматов: {}", e),
+        stderr: format!("Ошибка получения форматов: {e}"),
         command: "-formats".to_string(),
       })?;
 
@@ -234,7 +234,7 @@ impl FfmpegService for FfmpegServiceImpl {
       .output()
       .map_err(|e| VideoCompilerError::FFmpegError {
         exit_code: None,
-        stderr: format!("Ошибка получения кодеков: {}", e),
+        stderr: format!("Ошибка получения кодеков: {e}"),
         command: "-codecs".to_string(),
       })?;
 
@@ -273,7 +273,7 @@ impl FfmpegService for FfmpegServiceImpl {
       .output()
       .map_err(|e| VideoCompilerError::FFmpegError {
         exit_code: None,
-        stderr: format!("Ошибка выполнения команды: {}", e),
+        stderr: format!("Ошибка выполнения команды: {e}"),
         command: args.join(" "),
       })?;
 

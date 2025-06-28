@@ -326,7 +326,7 @@ mod tests {
 
     for file in get_test_files().iter() {
       let path = file.get_path();
-      assert!(path.exists(), "Test file not found: {:?}", path);
+      assert!(path.exists(), "Test file not found: {path:?}");
     }
   }
 

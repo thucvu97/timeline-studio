@@ -71,7 +71,7 @@ pub async fn save_simple_api_key(
     }),
     Err(e) => Ok(ApiKeyOperationResult {
       success: false,
-      message: format!("Failed to save API key: {}", e),
+      message: format!("Failed to save API key: {e}"),
       data: None,
     }),
   }
@@ -113,7 +113,7 @@ pub async fn save_oauth_credentials(
     }),
     Err(e) => Ok(ApiKeyOperationResult {
       success: false,
-      message: format!("Failed to save OAuth credentials: {}", e),
+      message: format!("Failed to save OAuth credentials: {e}"),
       data: None,
     }),
   }
@@ -149,7 +149,7 @@ pub async fn get_api_key_info(
       Ok(Some(info))
     }
     Ok(None) => Ok(None),
-    Err(e) => Err(format!("Failed to get API key info: {}", e)),
+    Err(e) => Err(format!("Failed to get API key info: {e}")),
   }
 }
 
@@ -166,7 +166,7 @@ pub async fn get_decrypted_api_key(
   match storage_guard.get_api_key(key_type).await {
     Ok(Some(key_data)) => Ok(Some(key_data.value)),
     Ok(None) => Ok(None),
-    Err(e) => Err(format!("Failed to get API key: {}", e)),
+    Err(e) => Err(format!("Failed to get API key: {e}")),
   }
 }
 
@@ -202,7 +202,7 @@ pub async fn list_api_keys(storage: SecureStorageState<'_>) -> Result<Vec<ApiKey
 
       Ok(result)
     }
-    Err(e) => Err(format!("Failed to list API keys: {}", e)),
+    Err(e) => Err(format!("Failed to list API keys: {e}")),
   }
 }
 
@@ -224,7 +224,7 @@ pub async fn delete_api_key(
     }),
     Err(e) => Ok(ApiKeyOperationResult {
       success: false,
-      message: format!("Failed to delete API key: {}", e),
+      message: format!("Failed to delete API key: {e}"),
       data: None,
     }),
   }
@@ -261,16 +261,16 @@ pub async fn validate_api_key(
             .update_validation_status(key_type, validation_result.is_valid)
             .await
           {
-            log::warn!("Failed to update validation status: {}", e);
+            log::warn!("Failed to update validation status: {e}");
           }
 
           Ok(validation_result)
         }
-        Err(e) => Err(format!("Validation failed: {}", e)),
+        Err(e) => Err(format!("Validation failed: {e}")),
       }
     }
     Ok(None) => Err("API key not found".to_string()),
-    Err(e) => Err(format!("Failed to get API key: {}", e)),
+    Err(e) => Err(format!("Failed to get API key: {e}")),
   }
 }
 
@@ -287,7 +287,7 @@ pub fn generate_oauth_url(
 
   match oauth_handler.generate_auth_url(key_type, &client_id, state.as_deref()) {
     Ok(url) => Ok(url),
-    Err(e) => Err(format!("Failed to generate OAuth URL: {}", e)),
+    Err(e) => Err(format!("Failed to generate OAuth URL: {e}")),
   }
 }
 
@@ -333,14 +333,14 @@ pub async fn exchange_oauth_code(
         }),
         Err(e) => Ok(ApiKeyOperationResult {
           success: false,
-          message: format!("Failed to save OAuth token: {}", e),
+          message: format!("Failed to save OAuth token: {e}"),
           data: None,
         }),
       }
     }
     Err(e) => Ok(ApiKeyOperationResult {
       success: false,
-      message: format!("OAuth token exchange failed: {}", e),
+      message: format!("OAuth token exchange failed: {e}"),
       data: None,
     }),
   }
@@ -374,7 +374,7 @@ pub async fn import_from_env(
       }
 
       let message = if errors.is_empty() {
-        format!("Successfully imported {} API keys", saved_count)
+        format!("Successfully imported {saved_count} API keys")
       } else {
         format!(
           "Imported {} API keys with {} errors: {}",
@@ -395,7 +395,7 @@ pub async fn import_from_env(
     }
     Err(e) => Ok(ApiKeyOperationResult {
       success: false,
-      message: format!("Failed to import from .env: {}", e),
+      message: format!("Failed to import from .env: {e}"),
       data: None,
     }),
   }
@@ -412,7 +412,7 @@ pub async fn export_to_env_format(storage: SecureStorageState<'_>) -> Result<Str
       let importer = EnvImporter::new();
       Ok(importer.export_to_env_format(&keys_vec))
     }
-    Err(e) => Err(format!("Failed to export keys: {}", e)),
+    Err(e) => Err(format!("Failed to export keys: {e}")),
   }
 }
 
@@ -445,7 +445,7 @@ pub async fn refresh_oauth_token(
               if let Err(e) = storage_guard.save_api_key(key_data).await {
                 return Ok(ApiKeyOperationResult {
                   success: false,
-                  message: format!("Failed to save refreshed token: {}", e),
+                  message: format!("Failed to save refreshed token: {e}"),
                   data: None,
                 });
               }
@@ -465,7 +465,7 @@ pub async fn refresh_oauth_token(
           }
           Err(e) => Ok(ApiKeyOperationResult {
             success: false,
-            message: format!("Token refresh failed: {}", e),
+            message: format!("Token refresh failed: {e}"),
             data: None,
           }),
         }
@@ -484,7 +484,7 @@ pub async fn refresh_oauth_token(
     }),
     Err(e) => Ok(ApiKeyOperationResult {
       success: false,
-      message: format!("Failed to get API key: {}", e),
+      message: format!("Failed to get API key: {e}"),
       data: None,
     }),
   }
@@ -508,7 +508,7 @@ pub async fn get_oauth_user_info(
 
           match oauth_handler.get_user_info(key_type, access_token).await {
             Ok(user_info) => Ok(user_info),
-            Err(e) => Err(format!("Failed to get user info: {}", e)),
+            Err(e) => Err(format!("Failed to get user info: {e}")),
           }
         } else {
           Err("No access token available".to_string())
@@ -518,7 +518,7 @@ pub async fn get_oauth_user_info(
       }
     }
     Ok(None) => Err("API key not found".to_string()),
-    Err(e) => Err(format!("Failed to get API key: {}", e)),
+    Err(e) => Err(format!("Failed to get API key: {e}")),
   }
 }
 
@@ -537,12 +537,12 @@ pub fn parse_oauth_callback_url(url: String) -> Result<serde_json::Value, String
       });
       Ok(result)
     }
-    Err(e) => Err(format!("Failed to parse callback URL: {}", e)),
+    Err(e) => Err(format!("Failed to parse callback URL: {e}")),
   }
 }
 
 /// Инициализирует SecureStorage
 #[allow(dead_code)]
 pub async fn init_secure_storage(app_handle: AppHandle) -> Result<SecureStorage, String> {
-  SecureStorage::new(app_handle).map_err(|e| format!("Failed to initialize secure storage: {}", e))
+  SecureStorage::new(app_handle).map_err(|e| format!("Failed to initialize secure storage: {e}"))
 }

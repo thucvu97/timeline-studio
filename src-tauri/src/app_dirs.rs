@@ -350,35 +350,35 @@ fn clear_directory(path: &Path) -> Result<(), std::io::Error> {
 /// Команда Tauri для получения директорий приложения
 #[tauri::command]
 pub async fn get_app_directories() -> Result<AppDirectories, String> {
-  AppDirectories::get_or_create().map_err(|e| format!("Failed to get app directories: {}", e))
+  AppDirectories::get_or_create().map_err(|e| format!("Failed to get app directories: {e}"))
 }
 
 /// Команда Tauri для создания директорий приложения
 #[tauri::command]
 pub async fn create_app_directories() -> Result<AppDirectories, String> {
-  AppDirectories::get_or_create().map_err(|e| format!("Failed to create app directories: {}", e))
+  AppDirectories::get_or_create().map_err(|e| format!("Failed to create app directories: {e}"))
 }
 
 /// Команда Tauri для получения размеров директорий
 #[tauri::command]
 pub async fn get_directory_sizes() -> Result<DirectorySizes, String> {
   let app_dirs =
-    AppDirectories::get_or_create().map_err(|e| format!("Failed to get app directories: {}", e))?;
+    AppDirectories::get_or_create().map_err(|e| format!("Failed to get app directories: {e}"))?;
 
   app_dirs
     .get_directory_sizes()
-    .map_err(|e| format!("Failed to get directory sizes: {}", e))
+    .map_err(|e| format!("Failed to get directory sizes: {e}"))
 }
 
 /// Команда Tauri для очистки кэша
 #[tauri::command]
 pub async fn clear_app_cache() -> Result<(), String> {
   let app_dirs =
-    AppDirectories::get_or_create().map_err(|e| format!("Failed to get app directories: {}", e))?;
+    AppDirectories::get_or_create().map_err(|e| format!("Failed to get app directories: {e}"))?;
 
   app_dirs
     .clear_cache_directory()
-    .map_err(|e| format!("Failed to clear cache: {}", e))
+    .map_err(|e| format!("Failed to clear cache: {e}"))
 }
 
 #[cfg(test)]

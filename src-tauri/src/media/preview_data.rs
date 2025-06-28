@@ -223,7 +223,7 @@ mod tests {
   fn create_test_timeline_preview(timestamp: f64) -> TimelinePreview {
     TimelinePreview {
       timestamp,
-      path: PathBuf::from(format!("/tmp/preview_{}.jpg", timestamp)),
+      path: PathBuf::from(format!("/tmp/preview_{timestamp}.jpg")),
       base64_data: None,
     }
   }
@@ -231,7 +231,7 @@ mod tests {
   fn create_test_recognition_frame(timestamp: f64, processed: bool) -> RecognitionFrame {
     RecognitionFrame {
       timestamp,
-      path: PathBuf::from(format!("/tmp/frame_{}.jpg", timestamp)),
+      path: PathBuf::from(format!("/tmp/frame_{timestamp}.jpg")),
       processed,
     }
   }
