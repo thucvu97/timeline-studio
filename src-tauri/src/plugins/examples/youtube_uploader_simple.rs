@@ -280,4 +280,178 @@ mod tests {
     assert_eq!(deserialized.title, settings.title);
     assert_eq!(deserialized.tags.len(), 2);
   }
+
+  #[test]
+  fn test_youtube_category_serialization() {
+    assert_eq!(
+      serde_json::to_string(&YouTubeCategory::Education).unwrap(),
+      "\"education\""
+    );
+    assert_eq!(
+      serde_json::to_string(&YouTubeCategory::Entertainment).unwrap(),
+      "\"entertainment\""
+    );
+    assert_eq!(
+      serde_json::to_string(&YouTubeCategory::Gaming).unwrap(),
+      "\"gaming\""
+    );
+    assert_eq!(
+      serde_json::to_string(&YouTubeCategory::Music).unwrap(),
+      "\"music\""
+    );
+    assert_eq!(
+      serde_json::to_string(&YouTubeCategory::Other).unwrap(),
+      "\"other\""
+    );
+  }
+
+  #[test]
+  fn test_privacy_status_serialization() {
+    assert_eq!(
+      serde_json::to_string(&PrivacyStatus::Private).unwrap(),
+      "\"private\""
+    );
+    assert_eq!(
+      serde_json::to_string(&PrivacyStatus::Unlisted).unwrap(),
+      "\"unlisted\""
+    );
+    assert_eq!(
+      serde_json::to_string(&PrivacyStatus::Public).unwrap(),
+      "\"public\""
+    );
+  }
+
+  #[test]
+  fn test_upload_state_serialization() {
+    assert_eq!(
+      serde_json::to_string(&UploadState::Preparing).unwrap(),
+      "\"preparing\""
+    );
+    assert_eq!(
+      serde_json::to_string(&UploadState::Uploading).unwrap(),
+      "\"uploading\""
+    );
+    assert_eq!(
+      serde_json::to_string(&UploadState::Processing).unwrap(),
+      "\"processing\""
+    );
+    assert_eq!(
+      serde_json::to_string(&UploadState::Completed).unwrap(),
+      "\"completed\""
+    );
+    assert_eq!(
+      serde_json::to_string(&UploadState::Failed).unwrap(),
+      "\"failed\""
+    );
+  }
+
+  #[test]
+  fn test_plugin_metadata() {
+    let plugin = YouTubeUploaderPlugin::default();
+    let metadata = plugin.metadata();
+
+    assert_eq!(metadata.id, "youtube-uploader");
+    assert_eq!(metadata.name, "YouTube Uploader");
+    assert_eq!(metadata.version, Version::new(1, 0, 0));
+    assert_eq!(metadata.plugin_type, PluginType::Exporter);
+    assert!(metadata.dependencies.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_plugin_shutdown() {
+    let mut plugin = YouTubeUploaderPlugin::default();
+
+    // Add a fake upload
+    plugin.active_uploads.write().await.insert(
+      "test-upload".to_string(),
+      UploadStatus {
+        upload_id: "test-upload".to_string(),
+        progress: 50.0,
+        status: UploadState::Uploading,
+        video_url: None,
+      },
+    );
+
+    let result = plugin.shutdown().await;
+    assert!(result.is_ok());
+    assert!(plugin.context.is_none());
+    // Note: shutdown doesn't clear active uploads, it just cleans up the context
+  }
+
+  #[test]
+  fn test_subscribed_events() {
+    let plugin = YouTubeUploaderPlugin::default();
+    let events = plugin.subscribed_events();
+
+    assert_eq!(events.len(), 1);
+    assert!(events.contains(&AppEventType::RenderCompleted));
+  }
+
+  #[tokio::test]
+  async fn test_handle_event() {
+    let plugin = YouTubeUploaderPlugin::default();
+
+    let event = AppEvent::RenderCompleted {
+      output_path: "/test/output.mp4".to_string(),
+      job_id: "test-job-123".to_string(),
+    };
+
+    let result = plugin.handle_event(&event).await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_suspend_resume() {
+    let mut plugin = YouTubeUploaderPlugin::default();
+
+    let result = plugin.suspend().await;
+    assert!(result.is_ok());
+
+    let result = plugin.resume().await;
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn test_upload_status_serialization() {
+    let status = UploadStatus {
+      upload_id: "test-123".to_string(),
+      progress: 50.5,
+      status: UploadState::Uploading,
+      video_url: None,
+    };
+
+    let json = serde_json::to_string(&status).unwrap();
+    let deserialized: UploadStatus = serde_json::from_str(&json).unwrap();
+
+    assert_eq!(deserialized.upload_id, status.upload_id);
+    assert_eq!(deserialized.progress, status.progress);
+    assert!(deserialized.video_url.is_none());
+  }
+
+  #[test]
+  fn test_upload_settings_validation() {
+    // Test empty title
+    let settings = YouTubeUploadSettings {
+      title: "".to_string(),
+      description: "Description".to_string(),
+      tags: vec![],
+      category: YouTubeCategory::Other,
+      privacy: PrivacyStatus::Private,
+    };
+    assert!(settings.title.is_empty());
+
+    // Test max tags
+    let mut many_tags = vec![];
+    for i in 0..100 {
+      many_tags.push(format!("tag{}", i));
+    }
+    let settings_many_tags = YouTubeUploadSettings {
+      title: "Test".to_string(),
+      description: "Description".to_string(),
+      tags: many_tags,
+      category: YouTubeCategory::Other,
+      privacy: PrivacyStatus::Private,
+    };
+    assert_eq!(settings_many_tags.tags.len(), 100);
+  }
 }

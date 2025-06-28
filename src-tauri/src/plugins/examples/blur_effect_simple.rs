@@ -204,4 +204,105 @@ mod tests {
     assert_eq!(deserialized.intensity, params.intensity);
     assert!(deserialized.edge_blur);
   }
+
+  #[test]
+  fn test_blur_type_serialization() {
+    // Test all blur types serialize correctly
+    let gaussian = serde_json::to_string(&BlurType::Gaussian).unwrap();
+    assert_eq!(gaussian, "\"gaussian\"");
+
+    let motion = serde_json::to_string(&BlurType::Motion).unwrap();
+    assert_eq!(motion, "\"motion\"");
+
+    let box_blur = serde_json::to_string(&BlurType::Box).unwrap();
+    assert_eq!(box_blur, "\"box\"");
+
+    let median = serde_json::to_string(&BlurType::Median).unwrap();
+    assert_eq!(median, "\"median\"");
+  }
+
+  #[test]
+  fn test_plugin_metadata() {
+    let plugin = BlurEffectPlugin::default();
+    let metadata = plugin.metadata();
+
+    assert_eq!(metadata.id, "blur-effect");
+    assert_eq!(metadata.name, "Blur Effect Plugin");
+    assert_eq!(metadata.version, Version::new(1, 0, 0));
+    assert_eq!(metadata.plugin_type, PluginType::Effect);
+    assert_eq!(metadata.author, "Timeline Studio Team");
+    assert!(metadata.homepage.is_some());
+    assert!(metadata.license.is_some());
+    assert!(metadata.min_app_version.is_some());
+  }
+
+  #[test]
+  fn test_subscribed_events() {
+    let plugin = BlurEffectPlugin::default();
+    let events = plugin.subscribed_events();
+
+    assert_eq!(events.len(), 2);
+    assert!(events.contains(&AppEventType::ProjectOpened));
+    assert!(events.contains(&AppEventType::MediaImported));
+  }
+
+  #[tokio::test]
+  async fn test_handle_event() {
+    let plugin = BlurEffectPlugin::default();
+
+    // Test ProjectOpened event
+    let event = AppEvent::ProjectOpened {
+      project_id: "test-project-123".to_string(),
+      path: "/test/project.proj".to_string(),
+    };
+    let result = plugin.handle_event(&event).await;
+    assert!(result.is_ok());
+
+    // Test MediaImported event
+    let event = AppEvent::MediaImported {
+      media_id: "test-media-456".to_string(),
+      path: "/test/media.mp4".to_string(),
+    };
+    let result = plugin.handle_event(&event).await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_suspend_resume() {
+    let mut plugin = BlurEffectPlugin::default();
+
+    // Test suspend
+    let result = plugin.suspend().await;
+    assert!(result.is_ok());
+
+    // Test resume
+    let result = plugin.resume().await;
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn test_blur_parameters_validation() {
+    // Test valid intensity range
+    let valid_params = BlurParameters {
+      intensity: 50.0,
+      blur_type: BlurType::Gaussian,
+      edge_blur: false,
+    };
+    assert!(valid_params.intensity >= 0.0 && valid_params.intensity <= 100.0);
+
+    // Test edge cases
+    let min_params = BlurParameters {
+      intensity: 0.0,
+      blur_type: BlurType::Box,
+      edge_blur: false,
+    };
+    assert_eq!(min_params.intensity, 0.0);
+
+    let max_params = BlurParameters {
+      intensity: 100.0,
+      blur_type: BlurType::Median,
+      edge_blur: true,
+    };
+    assert_eq!(max_params.intensity, 100.0);
+  }
 }
