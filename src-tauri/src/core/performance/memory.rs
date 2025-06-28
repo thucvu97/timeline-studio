@@ -732,4 +732,520 @@ mod tests {
     // Pool should have some blocks but respect MAX_BLOCKS_PER_POOL limit
     assert!(stats.small_pool.available_blocks <= MAX_BLOCKS_PER_POOL);
   }
+
+  // Additional comprehensive tests
+
+  #[test]
+  fn test_memory_block_creation() {
+    let block = MemoryBlock::new(4096).unwrap();
+    assert_eq!(block.size(), 4096);
+    assert!(!block.as_ptr().is_null());
+  }
+
+  #[test]
+  fn test_memory_block_zero_operation() {
+    let mut block = MemoryBlock::new(128).unwrap();
+
+    // Write some data
+    unsafe {
+      for i in 0..128 {
+        *block.as_ptr().add(i) = (i % 256) as u8;
+      }
+    }
+
+    // Zero the block
+    block.zero();
+
+    // Verify all bytes are zero
+    unsafe {
+      for i in 0..128 {
+        assert_eq!(*block.as_ptr().add(i), 0);
+      }
+    }
+  }
+
+  #[test]
+  fn test_memory_block_invalid_size() {
+    // Test with size that would cause layout error
+    let result = MemoryBlock::new(usize::MAX);
+    assert!(result.is_err());
+  }
+
+  #[test]
+  fn test_pool_stats_creation() {
+    let stats = PoolStats {
+      block_size: 4096,
+      available_blocks: 10,
+      total_allocated: 100,
+      total_recycled: 50,
+    };
+
+    assert_eq!(stats.block_size, 4096);
+    assert_eq!(stats.available_blocks, 10);
+    assert_eq!(stats.total_allocated, 100);
+    assert_eq!(stats.total_recycled, 50);
+  }
+
+  #[test]
+  fn test_block_pool_new() {
+    let pool = BlockPool::new(8192);
+    assert_eq!(pool.block_size, 8192);
+    assert_eq!(pool.blocks.len(), 0);
+    assert_eq!(pool.allocated_count.load(Ordering::Relaxed), 0);
+    assert_eq!(pool.recycled_count.load(Ordering::Relaxed), 0);
+  }
+
+  #[tokio::test]
+  async fn test_block_pool_acquire_release() {
+    let mut pool = BlockPool::new(2048);
+
+    // Acquire new block
+    let block = pool.acquire().unwrap();
+    assert_eq!(block.size(), 2048);
+    assert_eq!(pool.allocated_count.load(Ordering::Relaxed), 1);
+
+    // Release block back
+    pool.release(block).unwrap();
+    assert_eq!(pool.blocks.len(), 1);
+
+    // Acquire again - should reuse
+    let _block2 = pool.acquire().unwrap();
+    assert_eq!(pool.recycled_count.load(Ordering::Relaxed), 1);
+  }
+
+  #[tokio::test]
+  async fn test_block_pool_release_wrong_size() {
+    let mut pool = BlockPool::new(1024);
+    let wrong_block = MemoryBlock::new(2048).unwrap();
+
+    let result = pool.release(wrong_block);
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("size mismatch"));
+  }
+
+  #[tokio::test]
+  async fn test_pooled_buffer_empty() {
+    let pool = MemoryPool::new();
+    let buffer = pool.allocate(0).await.unwrap();
+
+    assert!(buffer.is_empty());
+    assert_eq!(buffer.len(), 0);
+    assert_eq!(buffer.as_slice().len(), 0);
+  }
+
+  #[tokio::test]
+  async fn test_pooled_buffer_slice_bounds() {
+    let pool = MemoryPool::new();
+    let buffer = pool.allocate(100).await.unwrap();
+
+    // Even if block is larger, slice should respect requested size
+    assert_eq!(buffer.as_slice().len(), 100);
+    assert_eq!(buffer.len(), 100);
+  }
+
+  #[test]
+  fn test_memory_pool_stats_calculations() {
+    let stats = MemoryPoolStats {
+      small_pool: PoolStats {
+        block_size: SMALL_BLOCK_SIZE,
+        available_blocks: 5,
+        total_allocated: 10,
+        total_recycled: 5,
+      },
+      medium_pool: PoolStats {
+        block_size: MEDIUM_BLOCK_SIZE,
+        available_blocks: 3,
+        total_allocated: 6,
+        total_recycled: 3,
+      },
+      large_pool: PoolStats {
+        block_size: LARGE_BLOCK_SIZE,
+        available_blocks: 2,
+        total_allocated: 4,
+        total_recycled: 2,
+      },
+      huge_pool: PoolStats {
+        block_size: HUGE_BLOCK_SIZE,
+        available_blocks: 1,
+        total_allocated: 2,
+        total_recycled: 1,
+      },
+      custom_pools: HashMap::new(),
+    };
+
+    assert_eq!(stats.total_allocated(), 22);
+    assert_eq!(stats.total_recycled(), 11);
+    assert_eq!(stats.recycling_efficiency(), 0.5);
+  }
+
+  #[test]
+  fn test_memory_pool_stats_with_custom() {
+    let mut custom_pools = HashMap::new();
+    custom_pools.insert(
+      32 * 1024 * 1024,
+      PoolStats {
+        block_size: 32 * 1024 * 1024,
+        available_blocks: 2,
+        total_allocated: 5,
+        total_recycled: 3,
+      },
+    );
+
+    let stats = MemoryPoolStats {
+      small_pool: PoolStats {
+        block_size: SMALL_BLOCK_SIZE,
+        available_blocks: 0,
+        total_allocated: 10,
+        total_recycled: 5,
+      },
+      medium_pool: PoolStats {
+        block_size: MEDIUM_BLOCK_SIZE,
+        available_blocks: 0,
+        total_allocated: 0,
+        total_recycled: 0,
+      },
+      large_pool: PoolStats {
+        block_size: LARGE_BLOCK_SIZE,
+        available_blocks: 0,
+        total_allocated: 0,
+        total_recycled: 0,
+      },
+      huge_pool: PoolStats {
+        block_size: HUGE_BLOCK_SIZE,
+        available_blocks: 0,
+        total_allocated: 0,
+        total_recycled: 0,
+      },
+      custom_pools,
+    };
+
+    assert_eq!(stats.total_allocated(), 15);
+    assert_eq!(stats.total_recycled(), 8);
+  }
+
+  #[test]
+  fn test_memory_pool_stats_zero_efficiency() {
+    let stats = MemoryPoolStats {
+      small_pool: PoolStats {
+        block_size: SMALL_BLOCK_SIZE,
+        available_blocks: 0,
+        total_allocated: 0,
+        total_recycled: 0,
+      },
+      medium_pool: PoolStats {
+        block_size: MEDIUM_BLOCK_SIZE,
+        available_blocks: 0,
+        total_allocated: 0,
+        total_recycled: 0,
+      },
+      large_pool: PoolStats {
+        block_size: LARGE_BLOCK_SIZE,
+        available_blocks: 0,
+        total_allocated: 0,
+        total_recycled: 0,
+      },
+      huge_pool: PoolStats {
+        block_size: HUGE_BLOCK_SIZE,
+        available_blocks: 0,
+        total_allocated: 0,
+        total_recycled: 0,
+      },
+      custom_pools: HashMap::new(),
+    };
+
+    assert_eq!(stats.recycling_efficiency(), 0.0);
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_select_pool() {
+    let pool = MemoryPool::new();
+
+    // Test small size
+    let small_pool = pool.select_pool(1024).await.unwrap();
+    assert!(Arc::ptr_eq(&small_pool, &pool.small_pool));
+
+    // Test medium size
+    let medium_pool = pool.select_pool(32 * 1024).await.unwrap();
+    assert!(Arc::ptr_eq(&medium_pool, &pool.medium_pool));
+
+    // Test large size
+    let large_pool = pool.select_pool(512 * 1024).await.unwrap();
+    assert!(Arc::ptr_eq(&large_pool, &pool.large_pool));
+
+    // Test huge size
+    let huge_pool = pool.select_pool(8 * 1024 * 1024).await.unwrap();
+    assert!(Arc::ptr_eq(&huge_pool, &pool.huge_pool));
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_custom_pool_creation() {
+    let pool = MemoryPool::new();
+
+    // Create custom pool
+    let custom_size = 64 * 1024 * 1024; // 64MB
+    let custom_pool1 = pool.get_or_create_custom_pool(custom_size).await.unwrap();
+
+    // Get same pool again
+    let custom_pool2 = pool.get_or_create_custom_pool(custom_size).await.unwrap();
+
+    // Should be the same pool
+    assert!(Arc::ptr_eq(&custom_pool1, &custom_pool2));
+
+    // Check it was added to custom pools
+    let pools = pool.custom_pools.read().await;
+    assert!(pools.contains_key(&custom_size));
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_custom_pool_power_of_two() {
+    let pool = MemoryPool::new();
+
+    // Test non-power-of-two size
+    let size: usize = 20 * 1024 * 1024; // 20MB
+    let expected_size = size.next_power_of_two(); // 32MB
+
+    let _ = pool.get_or_create_custom_pool(size).await.unwrap();
+
+    let pools = pool.custom_pools.read().await;
+    assert!(pools.contains_key(&expected_size));
+    assert!(!pools.contains_key(&size));
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_concurrent_custom_pool_creation() {
+    let pool = Arc::new(MemoryPool::new());
+    let mut handles = vec![];
+
+    // Try to create same custom pool concurrently
+    let custom_size = 128 * 1024 * 1024;
+
+    for _ in 0..5 {
+      let pool_clone = pool.clone();
+      let handle = tokio::spawn(async move {
+        pool_clone
+          .get_or_create_custom_pool(custom_size)
+          .await
+          .unwrap()
+      });
+      handles.push(handle);
+    }
+
+    for handle in handles {
+      handle.await.unwrap();
+    }
+
+    // Should only have one pool created
+    let pools = pool.custom_pools.read().await;
+    assert_eq!(pools.len(), 1);
+    assert!(pools.contains_key(&custom_size));
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_cleanup_empty_pools() {
+    let pool = MemoryPool::new();
+
+    // Create custom pool but don't use it
+    let custom_size = 256 * 1024 * 1024;
+    let custom_pool = pool.get_or_create_custom_pool(custom_size).await.unwrap();
+
+    // Drop the reference
+    drop(custom_pool);
+
+    // Now cleanup should remove it
+    pool.cleanup_custom_pools().await;
+
+    let pools = pool.custom_pools.read().await;
+    assert!(pools.is_empty());
+  }
+
+  #[test]
+  fn test_memory_manager_stats_default() {
+    let stats = MemoryManagerStats::default();
+    assert_eq!(stats.allocations, 0);
+    assert_eq!(stats.deallocations, 0);
+    assert_eq!(stats.bytes_allocated, 0);
+    assert_eq!(stats.bytes_deallocated, 0);
+    assert_eq!(stats.peak_memory_usage, 0);
+    assert_eq!(stats.current_memory_usage, 0);
+  }
+
+  #[tokio::test]
+  async fn test_memory_manager_allocation_tracking() {
+    let manager = MemoryManager::new();
+
+    let _buf1 = manager.allocate(1000).await.unwrap();
+    let _buf2 = manager.allocate(2000).await.unwrap();
+    let _buf3 = manager.allocate(3000).await.unwrap();
+
+    let stats = manager.get_manager_stats().await;
+    assert_eq!(stats.allocations, 3);
+    assert_eq!(stats.bytes_allocated, 6000);
+    assert_eq!(stats.current_memory_usage, 6000);
+    assert_eq!(stats.peak_memory_usage, 6000);
+  }
+
+  #[tokio::test]
+  async fn test_memory_manager_get_pool() {
+    let manager = MemoryManager::new();
+    let pool = manager.pool();
+
+    // Verify we can use the pool directly
+    let buffer = pool.allocate(1024).await.unwrap();
+    assert_eq!(buffer.len(), 1024);
+  }
+
+  #[tokio::test]
+  async fn test_memory_manager_full_stats() {
+    let manager = MemoryManager::new();
+
+    let _buf = manager.allocate(1024).await.unwrap();
+
+    let (manager_stats, pool_stats) = manager.get_full_stats().await;
+
+    assert_eq!(manager_stats.allocations, 1);
+    assert_eq!(manager_stats.bytes_allocated, 1024);
+    assert!(pool_stats.total_allocated() > 0);
+  }
+
+  #[tokio::test]
+  async fn test_pooled_buffer_drop_behavior() {
+    let pool = Arc::new(MemoryPool::new());
+
+    // Track initial stats
+    let initial_stats = pool.get_stats().await;
+    let initial_allocated = initial_stats.small_pool.total_allocated;
+
+    // Allocate and immediately drop
+    {
+      let _buffer = pool.allocate(1024).await.unwrap();
+      // Buffer dropped here
+    }
+
+    // Wait for async drop
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+
+    // Check that block was returned to pool
+    let final_stats = pool.get_stats().await;
+    assert_eq!(
+      final_stats.small_pool.total_allocated,
+      initial_allocated + 1
+    );
+    assert!(final_stats.small_pool.available_blocks > 0);
+  }
+
+  #[tokio::test]
+  async fn test_block_pool_max_limit() {
+    let mut pool = BlockPool::new(1024);
+    let mut blocks = Vec::new();
+
+    // Fill pool beyond MAX_BLOCKS_PER_POOL
+    for _ in 0..MAX_BLOCKS_PER_POOL + 10 {
+      blocks.push(MemoryBlock::new(1024).unwrap());
+    }
+
+    // Try to release all blocks
+    for block in blocks {
+      let _ = pool.release(block);
+    }
+
+    // Pool should only keep MAX_BLOCKS_PER_POOL
+    assert!(pool.blocks.len() <= MAX_BLOCKS_PER_POOL);
+  }
+
+  #[test]
+  fn test_pooled_buffer_null_handling() {
+    // Test behavior when block is None (shouldn't happen in normal use)
+    let pool = Arc::new(Mutex::new(BlockPool::new(1024)));
+    let buffer = PooledBuffer {
+      block: None,
+      pool,
+      size: 1024,
+    };
+
+    assert_eq!(buffer.as_slice().len(), 0);
+    assert!(buffer.as_ptr().is_null());
+  }
+
+  #[tokio::test]
+  async fn test_memory_pool_all_sizes() {
+    let pool = MemoryPool::new();
+
+    let test_sizes = vec![
+      100,               // Small
+      SMALL_BLOCK_SIZE,  // Exact small
+      30 * 1024,         // Medium
+      MEDIUM_BLOCK_SIZE, // Exact medium
+      500 * 1024,        // Large
+      LARGE_BLOCK_SIZE,  // Exact large
+      10 * 1024 * 1024,  // Huge
+      HUGE_BLOCK_SIZE,   // Exact huge
+      32 * 1024 * 1024,  // Custom
+    ];
+
+    for size in test_sizes {
+      let buffer = pool.allocate(size).await.unwrap();
+      assert_eq!(buffer.len(), size);
+    }
+  }
+
+  #[test]
+  fn test_memory_constants() {
+    assert_eq!(SMALL_BLOCK_SIZE, 4 * 1024);
+    assert_eq!(MEDIUM_BLOCK_SIZE, 64 * 1024);
+    assert_eq!(LARGE_BLOCK_SIZE, 1024 * 1024);
+    assert_eq!(HUGE_BLOCK_SIZE, 16 * 1024 * 1024);
+    assert_eq!(MAX_BLOCKS_PER_POOL, 1000);
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_pool_operations() {
+    let pool = Arc::new(MemoryPool::new());
+    let mut handles = vec![];
+
+    // Spawn tasks doing various operations
+    for i in 0..20 {
+      let pool_clone = pool.clone();
+      let handle = tokio::spawn(async move {
+        match i % 3 {
+          0 => {
+            // Allocate and hold
+            let _buf = pool_clone.allocate(1024 * (i + 1)).await.unwrap();
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+          }
+          1 => {
+            // Allocate and drop immediately
+            let _ = pool_clone.allocate(2048 * (i + 1)).await.unwrap();
+          }
+          _ => {
+            // Get stats
+            let _ = pool_clone.get_stats().await;
+          }
+        }
+      });
+      handles.push(handle);
+    }
+
+    for handle in handles {
+      handle.await.unwrap();
+    }
+
+    // Verify pool is still functional
+    let buffer = pool.allocate(1024).await.unwrap();
+    assert_eq!(buffer.len(), 1024);
+  }
+
+  #[tokio::test]
+  async fn test_memory_manager_background_cleanup() {
+    let manager = MemoryManager::new();
+
+    // Start background cleanup
+    manager.start_background_cleanup().await;
+
+    // Create custom pool
+    let _buf = manager.allocate(64 * 1024 * 1024).await.unwrap();
+
+    // Verify manager still works
+    let stats = manager.get_manager_stats().await;
+    assert!(stats.allocations > 0);
+  }
 }

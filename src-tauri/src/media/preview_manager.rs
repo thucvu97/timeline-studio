@@ -692,6 +692,391 @@ mod tests {
     assert!(result.is_err()); // Должна быть ошибка парсинга JSON
   }
 
+  #[test]
+  fn test_is_keyframe_by_timestamp() {
+    let temp_dir = tempdir().unwrap();
+    let manager = PreviewDataManager::new(temp_dir.path().to_path_buf());
+
+    // Тест для keyframe определения
+    assert!(manager.is_keyframe_by_timestamp(0.0)); // Первый кадр
+    assert!(manager.is_keyframe_by_timestamp(0.05)); // Близко к 0
+    assert!(manager.is_keyframe_by_timestamp(2.0)); // Кратно 2
+    assert!(manager.is_keyframe_by_timestamp(4.0)); // Кратно 2
+    assert!(manager.is_keyframe_by_timestamp(2.05)); // Близко к кратному 2
+
+    assert!(!manager.is_keyframe_by_timestamp(1.0)); // Не кратно 2
+    assert!(!manager.is_keyframe_by_timestamp(3.5)); // Не кратно 2
+    assert!(!manager.is_keyframe_by_timestamp(1.5)); // Не кратно 2
+  }
+
+  #[tokio::test]
+  async fn test_save_timeline_frames_empty_list() {
+    let manager = create_test_manager().await;
+    let file_id = "test_video".to_string();
+
+    // Сохраняем пустой список frames
+    let frames = vec![];
+    let result = manager.save_timeline_frames(file_id.clone(), frames).await;
+    assert!(result.is_ok());
+
+    // Проверяем что данные созданы но timeline_previews пустой
+    let data = manager.data.read().await;
+    let preview_data = data.get(&file_id).unwrap();
+    assert_eq!(preview_data.timeline_previews.len(), 0);
+  }
+
+  #[tokio::test]
+  async fn test_save_timeline_frames_overwrite_existing() {
+    let manager = create_test_manager().await;
+    let file_id = "test_video".to_string();
+
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+    let test_data = vec![255, 0, 0, 255];
+    let base64_data = STANDARD.encode(&test_data);
+
+    // Сохраняем первый набор frames
+    let frames1 = vec![
+      crate::media::commands::TimelineFrame {
+        timestamp: 1.0,
+        base64_data: base64_data.clone(),
+        is_keyframe: true,
+      },
+      crate::media::commands::TimelineFrame {
+        timestamp: 2.0,
+        base64_data: base64_data.clone(),
+        is_keyframe: false,
+      },
+    ];
+    manager
+      .save_timeline_frames(file_id.clone(), frames1)
+      .await
+      .unwrap();
+
+    // Сохраняем второй набор frames (должен перезаписать первый)
+    let frames2 = vec![crate::media::commands::TimelineFrame {
+      timestamp: 3.0,
+      base64_data: base64_data.clone(),
+      is_keyframe: true,
+    }];
+    manager
+      .save_timeline_frames(file_id.clone(), frames2)
+      .await
+      .unwrap();
+
+    // Проверяем что остался только второй набор
+    let data = manager.data.read().await;
+    let preview_data = data.get(&file_id).unwrap();
+    assert_eq!(preview_data.timeline_previews.len(), 1);
+    assert_eq!(preview_data.timeline_previews[0].timestamp, 3.0);
+  }
+
+  #[tokio::test]
+  async fn test_save_timeline_frames_creates_directories() {
+    let temp_dir = tempdir().unwrap();
+    let manager = PreviewDataManager::new(temp_dir.path().to_path_buf());
+    let file_id = "test_video".to_string();
+
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+    let test_data = vec![255, 0, 0, 255];
+    let base64_data = STANDARD.encode(&test_data);
+
+    let frames = vec![crate::media::commands::TimelineFrame {
+      timestamp: 1.0,
+      base64_data: base64_data.clone(),
+      is_keyframe: true,
+    }];
+
+    // Директория не должна существовать изначально
+    let cache_dir = temp_dir.path().join("Caches/timeline");
+    assert!(!cache_dir.exists());
+
+    // Сохраняем frames
+    manager.save_timeline_frames(file_id, frames).await.unwrap();
+
+    // Проверяем что директория создана
+    assert!(cache_dir.exists());
+  }
+
+  #[tokio::test]
+  async fn test_get_timeline_frames_with_mixed_base64_data() {
+    let manager = create_test_manager().await;
+    let file_id = "test_video";
+
+    // Добавляем данные с разным base64_data состоянием
+    {
+      let mut data = manager.data.write().await;
+      let mut preview_data =
+        MediaPreviewData::new(file_id.to_string(), PathBuf::from("/test/video.mp4"));
+
+      // Frame с base64
+      preview_data.add_timeline_preview(TimelinePreview {
+        timestamp: 1.0,
+        path: PathBuf::from("/test/frame1.jpg"),
+        base64_data: Some("test_base64".to_string()),
+      });
+
+      // Frame без base64
+      preview_data.add_timeline_preview(TimelinePreview {
+        timestamp: 2.0,
+        path: PathBuf::from("/test/frame2.jpg"),
+        base64_data: None,
+      });
+
+      data.insert(file_id.to_string(), preview_data);
+    }
+
+    // Получаем frames
+    let frames = manager.get_timeline_frames(file_id).await.unwrap();
+    assert_eq!(frames.len(), 2);
+    assert_eq!(frames[0].base64_data, "test_base64");
+    assert_eq!(frames[1].base64_data, ""); // None превращается в пустую строку
+  }
+
+  #[tokio::test]
+  async fn test_clear_file_data_with_all_preview_types() {
+    let manager = create_test_manager().await;
+    let file_id = "test_video";
+    let temp_dir = tempdir().unwrap();
+
+    // Создаем файлы для всех типов превью
+    let thumb_path = temp_dir.path().join("thumb.jpg");
+    let timeline_path = temp_dir.path().join("timeline.jpg");
+    let recognition_path = temp_dir.path().join("recognition.jpg");
+
+    fs::write(&thumb_path, b"thumb").await.unwrap();
+    fs::write(&timeline_path, b"timeline").await.unwrap();
+    fs::write(&recognition_path, b"recognition").await.unwrap();
+
+    // Добавляем данные со всеми типами превью
+    {
+      let mut data = manager.data.write().await;
+      let mut preview_data =
+        MediaPreviewData::new(file_id.to_string(), PathBuf::from("/test/video.mp4"));
+
+      preview_data.set_browser_thumbnail(ThumbnailData {
+        path: thumb_path.clone(),
+        base64_data: Some("thumb_base64".to_string()),
+        timestamp: 0.0,
+        width: 160,
+        height: 90,
+      });
+
+      preview_data.add_timeline_preview(TimelinePreview {
+        timestamp: 1.0,
+        path: timeline_path.clone(),
+        base64_data: Some("timeline_base64".to_string()),
+      });
+
+      preview_data.add_recognition_frame(RecognitionFrame {
+        timestamp: 2.0,
+        path: recognition_path.clone(),
+        processed: false,
+      });
+
+      data.insert(file_id.to_string(), preview_data);
+    }
+
+    // Проверяем что файлы существуют
+    assert!(thumb_path.exists());
+    assert!(timeline_path.exists());
+    assert!(recognition_path.exists());
+
+    // Очищаем данные
+    manager.clear_file_data(file_id).await.unwrap();
+
+    // Проверяем что файлы удалены (или попытка удаления была сделана)
+    // Примечание: файлы могут не удалиться если нет прав, но попытка должна быть
+    let data = manager.data.read().await;
+    assert!(!data.contains_key(file_id));
+  }
+
+  #[tokio::test]
+  async fn test_save_and_load_complex_data() {
+    let manager = create_test_manager().await;
+    let temp_dir = tempdir().unwrap();
+    let save_path = temp_dir.path().join("complex_data.json");
+
+    // Создаем сложные данные с разными типами превью
+    {
+      let mut data = manager.data.write().await;
+
+      // Первый файл
+      let mut preview1 =
+        MediaPreviewData::new("file1".to_string(), PathBuf::from("/test/video1.mp4"));
+      preview1.set_browser_thumbnail(ThumbnailData {
+        path: PathBuf::from("/test/thumb1.jpg"),
+        base64_data: Some("thumb1_base64".to_string()),
+        timestamp: 0.0,
+        width: 160,
+        height: 90,
+      });
+      for i in 0..3 {
+        preview1.add_timeline_preview(TimelinePreview {
+          timestamp: i as f64,
+          path: PathBuf::from(format!("/test/timeline1_{i}.jpg")),
+          base64_data: Some(format!("timeline1_{i}_base64")),
+        });
+      }
+
+      // Второй файл
+      let mut preview2 =
+        MediaPreviewData::new("file2".to_string(), PathBuf::from("/test/video2.mp4"));
+      for i in 0..2 {
+        preview2.add_recognition_frame(RecognitionFrame {
+          timestamp: i as f64 * 2.0,
+          path: PathBuf::from(format!("/test/recognition2_{i}.jpg")),
+          processed: i % 2 == 0,
+        });
+      }
+
+      data.insert("file1".to_string(), preview1);
+      data.insert("file2".to_string(), preview2);
+    }
+
+    // Сохраняем
+    manager.save_to_file(&save_path).await.unwrap();
+
+    // Создаем новый менеджер и загружаем данные
+    let manager2 = create_test_manager().await;
+    manager2.load_from_file(&save_path).await.unwrap();
+
+    // Проверяем что все данные загрузились корректно
+    let data = manager2.data.read().await;
+    assert_eq!(data.len(), 2);
+
+    let preview1 = data.get("file1").unwrap();
+    assert!(preview1.browser_thumbnail.is_some());
+    assert_eq!(preview1.timeline_previews.len(), 3);
+
+    let preview2 = data.get("file2").unwrap();
+    assert_eq!(preview2.recognition_frames.len(), 2);
+    assert!(preview2.recognition_frames[0].processed);
+    assert!(!preview2.recognition_frames[1].processed);
+  }
+
+  #[tokio::test]
+  async fn test_preview_manager_drop_behavior() {
+    // Тест поведения при удалении менеджера
+    let temp_dir = tempdir().unwrap();
+    let base_dir = temp_dir.path().to_path_buf();
+
+    {
+      let manager = PreviewDataManager::new(base_dir.clone());
+
+      // Добавляем некоторые данные
+      let mut data = manager.data.write().await;
+      let preview_data =
+        MediaPreviewData::new("test".to_string(), PathBuf::from("/test/video.mp4"));
+      data.insert("test".to_string(), preview_data);
+    }
+    // manager удален здесь
+
+    // Создаем новый менеджер с тем же base_dir
+    let manager2 = PreviewDataManager::new(base_dir);
+    let data = manager2.data.read().await;
+    assert_eq!(data.len(), 0); // Данные не персистентны между экземплярами
+  }
+
+  #[tokio::test]
+  async fn test_generate_browser_thumbnail_creates_parent_dirs() {
+    let temp_dir = tempdir().unwrap();
+    let manager = PreviewDataManager::new(temp_dir.path().to_path_buf());
+
+    // Создаем фейковый видео файл
+    let video_path = temp_dir.path().join("video.mp4");
+    fs::write(&video_path, b"fake video").await.unwrap();
+
+    // Пытаемся сгенерировать thumbnail (FFmpeg вероятно вернет ошибку)
+    let result = manager
+      .generate_browser_thumbnail("test".to_string(), video_path, 160, 90, 0.0)
+      .await;
+
+    // Проверяем что директория была создана даже если генерация провалилась
+    let cache_dir = temp_dir.path().join("Caches/preview/browser");
+    assert!(cache_dir.exists());
+
+    // Результат может быть ошибкой из-за FFmpeg
+    if result.is_ok() {
+      // Если каким-то образом успешно
+    }
+    // Ожидаемая ошибка FFmpeg тоже допустима
+  }
+
+  #[tokio::test]
+  async fn test_extract_recognition_frames_zero_count() {
+    let manager = create_test_manager().await;
+    let video_path = PathBuf::from("/test/video.mp4");
+
+    // Запрашиваем 0 кадров
+    let result = manager
+      .extract_recognition_frames("test".to_string(), video_path, 0)
+      .await;
+
+    // Должен вернуть пустой результат или ошибку
+    if let Ok(frames) = result {
+      assert_eq!(frames.len(), 0);
+    }
+    // Ошибка также допустима
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_write_operations() {
+    let manager = Arc::new(create_test_manager().await);
+    let mut handles = Vec::new();
+
+    // Запускаем несколько операций записи одновременно
+    for i in 0..10 {
+      let manager_clone = manager.clone();
+      let handle = tokio::spawn(async move {
+        let file_id = format!("file_{i}");
+
+        // Операция 1: Сохранение timeline frames
+        if i % 2 == 0 {
+          use base64::{engine::general_purpose::STANDARD, Engine as _};
+          let data = vec![255, 0, 0, 255];
+          let base64 = STANDARD.encode(&data);
+
+          let frames = vec![crate::media::commands::TimelineFrame {
+            timestamp: i as f64,
+            base64_data: base64,
+            is_keyframe: true,
+          }];
+
+          manager_clone
+            .save_timeline_frames(file_id.clone(), frames)
+            .await
+            .unwrap();
+        }
+
+        // Операция 2: Прямое добавление данных
+        {
+          let mut data = manager_clone.data.write().await;
+          let preview = MediaPreviewData::new(
+            file_id.clone(),
+            PathBuf::from(format!("/test/video_{i}.mp4")),
+          );
+          data.insert(file_id.clone(), preview);
+        }
+
+        // Операция 3: Чтение данных
+        let _ = manager_clone.get_preview_data(&file_id).await;
+
+        file_id
+      });
+      handles.push(handle);
+    }
+
+    // Ждем завершения всех операций
+    let results = futures::future::join_all(handles).await;
+    for result in &results {
+      assert!(result.is_ok());
+    }
+
+    // Проверяем что все файлы сохранены
+    let files = manager.get_all_files_with_previews().await;
+    assert_eq!(files.len(), 10);
+  }
+
   // Интеграционные тесты для проверки полного workflow
   mod integration_tests {
     use super::*;
@@ -751,6 +1136,53 @@ mod tests {
       assert!(manager.get_preview_data(file_id).await.is_none());
       let files_after_clear = manager.get_all_files_with_previews().await;
       assert!(!files_after_clear.contains(&file_id.to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_workflow_with_persistence() {
+      let temp_dir = tempdir().unwrap();
+      let save_path = temp_dir.path().join("workflow_data.json");
+      let file_id = "persist_test";
+
+      // Фаза 1: Создание и сохранение данных
+      {
+        let manager = create_test_manager().await;
+
+        use base64::{engine::general_purpose::STANDARD, Engine as _};
+        let data = vec![255, 255, 255, 255];
+        let base64 = STANDARD.encode(&data);
+
+        let frames = vec![crate::media::commands::TimelineFrame {
+          timestamp: 5.0,
+          base64_data: base64,
+          is_keyframe: false,
+        }];
+
+        manager
+          .save_timeline_frames(file_id.to_string(), frames)
+          .await
+          .unwrap();
+
+        // Сохраняем состояние
+        manager.save_to_file(&save_path).await.unwrap();
+      }
+
+      // Фаза 2: Загрузка и проверка данных
+      {
+        let manager = create_test_manager().await;
+
+        // Загружаем состояние
+        manager.load_from_file(&save_path).await.unwrap();
+
+        // Проверяем что данные восстановились
+        let preview_data = manager.get_preview_data(file_id).await;
+        assert!(preview_data.is_some());
+
+        let frames = manager.get_timeline_frames(file_id).await.unwrap();
+        assert_eq!(frames.len(), 1);
+        assert_eq!(frames[0].timestamp, 5.0);
+        assert!(!frames[0].is_keyframe); // Должно быть false по нашей логике
+      }
     }
   }
 }

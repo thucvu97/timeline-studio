@@ -211,6 +211,18 @@ impl Drop for ZeroCopyBuffer {
   }
 }
 
+impl std::fmt::Debug for ZeroCopyBuffer {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.debug_struct("ZeroCopyBuffer")
+      .field("size", &self.size)
+      .field("alignment", &self.alignment)
+      .field("data_type", &self.data_type)
+      .field("dimensions", &self.dimensions)
+      .field("ref_count", &Arc::strong_count(&self.ref_count))
+      .finish()
+  }
+}
+
 // Безопасно для отправки между потоками, так как мы используем выровненную память
 unsafe impl Send for ZeroCopyBuffer {}
 unsafe impl Sync for ZeroCopyBuffer {}
@@ -291,6 +303,15 @@ impl ZeroCopyView {
 
 unsafe impl Send for ZeroCopyView {}
 unsafe impl Sync for ZeroCopyView {}
+
+impl std::fmt::Debug for ZeroCopyView {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.debug_struct("ZeroCopyView")
+      .field("size", &self.size)
+      .field("data_type", &self.data_type)
+      .finish()
+  }
+}
 
 /// Тип для пулов буферов
 type BufferPools = Arc<RwLock<HashMap<(usize, DataType), Vec<ZeroCopyBuffer>>>>;
@@ -855,5 +876,509 @@ mod tests {
     for (i, &byte) in view_data.iter().enumerate() {
       assert_eq!(byte, ((100 + i) % 256) as u8);
     }
+  }
+
+  // Additional tests for uncovered functionality
+
+  #[test]
+  fn test_data_type_frame_size() {
+    // Test frame size calculations for different data types
+    assert_eq!(DataType::Rgb24.frame_size(100, 100), 30000);
+    assert_eq!(DataType::Rgba32.frame_size(100, 100), 40000);
+    assert_eq!(DataType::Yuv420p.frame_size(100, 100), 15000); // 10000 + 2500 + 2500
+    assert_eq!(DataType::Raw.frame_size(100, 100), 10000);
+    assert_eq!(DataType::AudioF32.frame_size(100, 1), 400);
+    assert_eq!(DataType::AudioPcm16.frame_size(100, 1), 200);
+  }
+
+  #[test]
+  fn test_zero_copy_buffer_zero_size() {
+    // Test error on zero size
+    let result = ZeroCopyBuffer::new(0, 32, DataType::Raw);
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("zero"));
+  }
+
+  #[test]
+  fn test_zero_copy_buffer_invalid_alignment() {
+    // Test with various alignments
+    let result = ZeroCopyBuffer::new(1024, 7, DataType::Raw); // Non-power-of-2
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_audio_buffer_creation() {
+    // Test audio buffer creation with valid types
+    let buffer_f32 = ZeroCopyBuffer::for_audio(1000, DataType::AudioF32).unwrap();
+    assert_eq!(buffer_f32.size(), 4000); // 1000 samples * 4 bytes
+    assert_eq!(buffer_f32.dimensions(), Some((1000, 1)));
+    assert_eq!(buffer_f32.data_type(), DataType::AudioF32);
+
+    let buffer_pcm = ZeroCopyBuffer::for_audio(1000, DataType::AudioPcm16).unwrap();
+    assert_eq!(buffer_pcm.size(), 2000); // 1000 samples * 2 bytes
+    assert_eq!(buffer_pcm.dimensions(), Some((1000, 1)));
+  }
+
+  #[tokio::test]
+  async fn test_audio_buffer_invalid_type() {
+    // Test audio buffer creation with invalid type
+    let result = ZeroCopyBuffer::for_audio(1000, DataType::Rgb24);
+    assert!(result.is_err());
+    assert!(result
+      .unwrap_err()
+      .to_string()
+      .contains("Invalid audio data type"));
+  }
+
+  #[test]
+  fn test_buffer_ref_count() {
+    let buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+    assert!(buffer.is_unique());
+    assert_eq!(buffer.ref_count(), 1);
+
+    let _ref1 = buffer.clone_ref();
+    assert!(!buffer.is_unique());
+    assert_eq!(buffer.ref_count(), 2);
+
+    let _ref2 = buffer.clone_ref();
+    assert_eq!(buffer.ref_count(), 3);
+  }
+
+  #[tokio::test]
+  async fn test_zero_copy_transfer() {
+    let manager = ZeroCopyManager::new();
+
+    // Create source buffer
+    let mut src_buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+    src_buffer.as_mut_slice().fill(42);
+    let src_ref = src_buffer.clone_ref();
+
+    // Create destination buffer
+    let mut dst_buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+
+    // Transfer data
+    manager
+      .transfer_data(&src_ref, &mut dst_buffer)
+      .await
+      .unwrap();
+
+    // Verify data was copied
+    assert_eq!(dst_buffer.as_slice()[0], 42);
+    assert_eq!(dst_buffer.as_slice()[1023], 42);
+
+    let stats = manager.get_stats().await;
+    assert_eq!(stats.zero_copy_operations, 1);
+    assert_eq!(stats.bytes_saved, 1024);
+  }
+
+  #[tokio::test]
+  async fn test_zero_copy_transfer_size_mismatch() {
+    let manager = ZeroCopyManager::new();
+
+    let src_buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+    let src_ref = src_buffer.clone_ref();
+    let mut dst_buffer = ZeroCopyBuffer::new(2048, 32, DataType::Raw).unwrap();
+
+    let result = manager.transfer_data(&src_ref, &mut dst_buffer).await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("sizes must match"));
+  }
+
+  #[tokio::test]
+  async fn test_zero_copy_transfer_type_mismatch() {
+    let manager = ZeroCopyManager::new();
+
+    let src_buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+    let src_ref = src_buffer.clone_ref();
+    let mut dst_buffer = ZeroCopyBuffer::new(1024, 32, DataType::Rgb24).unwrap();
+
+    let result = manager.transfer_data(&src_ref, &mut dst_buffer).await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("types must match"));
+  }
+
+  #[tokio::test]
+  async fn test_manager_create_view() {
+    let manager = ZeroCopyManager::new();
+    let buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+
+    let view = manager.create_view(&buffer, 100, 500).await.unwrap();
+    assert_eq!(view.size(), 500);
+    assert_eq!(view.data_type(), DataType::Raw);
+
+    let stats = manager.get_stats().await;
+    assert_eq!(stats.zero_copy_operations, 1);
+    assert_eq!(stats.bytes_saved, 500);
+  }
+
+  #[tokio::test]
+  async fn test_manager_concatenate_views() {
+    let manager = ZeroCopyManager::new();
+    let buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+
+    let view1 = buffer.view(0, 100).unwrap();
+    let view2 = buffer.view(100, 200).unwrap();
+    let view3 = buffer.view(300, 300).unwrap();
+
+    let views = vec![view1, view2, view3];
+    let slices = manager.concatenate_views(&views).await.unwrap();
+
+    assert_eq!(slices.len(), 3);
+    assert_eq!(slices[0].len(), 100);
+    assert_eq!(slices[1].len(), 200);
+    assert_eq!(slices[2].len(), 300);
+
+    let stats = manager.get_stats().await;
+    assert_eq!(stats.bytes_saved, 600);
+  }
+
+  #[tokio::test]
+  async fn test_manager_pool_info() {
+    let manager = ZeroCopyManager::new();
+
+    // Create and return buffers to populate pools
+    let buf1 = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+    let buf2 = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+    let buf3 = manager.get_buffer(2048, DataType::Rgb24).await.unwrap();
+
+    manager.return_buffer(buf1).await;
+    manager.return_buffer(buf2).await;
+    manager.return_buffer(buf3).await;
+
+    let pool_info = manager.get_pool_info().await;
+    assert!(pool_info.contains_key(&(1024, DataType::Raw)));
+    assert!(pool_info.contains_key(&(2048, DataType::Rgb24)));
+  }
+
+  #[tokio::test]
+  async fn test_manager_clear_pools() {
+    let manager = ZeroCopyManager::new();
+
+    // Populate pools
+    let buf = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+    manager.return_buffer(buf).await;
+
+    let pool_info = manager.get_pool_info().await;
+    assert!(!pool_info.is_empty());
+
+    // Clear pools
+    manager.clear_pools().await;
+
+    let pool_info = manager.get_pool_info().await;
+    assert!(pool_info.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_manager_max_pool_size() {
+    let manager = ZeroCopyManager::new();
+
+    // Return more buffers than max_pool_size (16)
+    for _ in 0..20 {
+      let buf = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+      manager.return_buffer(buf).await;
+    }
+
+    let pool_info = manager.get_pool_info().await;
+    let pool_size = pool_info.get(&(1024, DataType::Raw)).copied().unwrap_or(0);
+    assert!(pool_size <= 16); // Should not exceed max_pool_size
+  }
+
+  #[tokio::test]
+  async fn test_manager_return_buffer_not_unique() {
+    let manager = ZeroCopyManager::new();
+
+    let buffer = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+    let _ref = buffer.clone_ref(); // Create additional reference
+
+    let stats_before = manager.get_stats().await;
+    manager.return_buffer(buffer).await; // Should not return to pool
+    let stats_after = manager.get_stats().await;
+
+    // Active buffers should not decrease since buffer wasn't unique
+    assert_eq!(stats_before.active_buffers, stats_after.active_buffers);
+  }
+
+  #[tokio::test]
+  async fn test_manager_get_frame_buffer() {
+    let manager = ZeroCopyManager::new();
+
+    let buffer = manager
+      .get_frame_buffer(640, 480, DataType::Rgb24)
+      .await
+      .unwrap();
+    assert_eq!(buffer.dimensions(), Some((640, 480)));
+    assert_eq!(buffer.size(), 640 * 480 * 3);
+    assert_eq!(buffer.data_type(), DataType::Rgb24);
+  }
+
+  #[tokio::test]
+  async fn test_manager_get_audio_buffer() {
+    let manager = ZeroCopyManager::new();
+
+    let buffer = manager
+      .get_audio_buffer(48000, DataType::AudioF32)
+      .await
+      .unwrap();
+    assert_eq!(buffer.dimensions(), Some((48000, 1)));
+    assert_eq!(buffer.size(), 48000 * 4);
+    assert_eq!(buffer.data_type(), DataType::AudioF32);
+  }
+
+  #[tokio::test]
+  async fn test_manager_get_audio_buffer_invalid_type() {
+    let manager = ZeroCopyManager::new();
+
+    let result = manager.get_audio_buffer(48000, DataType::Rgb24).await;
+    assert!(result.is_err());
+  }
+
+  #[test]
+  fn test_video_zero_copy_rgb_to_rgba() {
+    // Create small RGB buffer
+    let mut rgb_buffer = ZeroCopyBuffer::for_frame(2, 2, DataType::Rgb24).unwrap();
+    let rgb_data = rgb_buffer.as_mut_slice();
+
+    // Fill with test pattern (R, G, B)
+    rgb_data[0] = 255;
+    rgb_data[1] = 0;
+    rgb_data[2] = 0; // Red
+    rgb_data[3] = 0;
+    rgb_data[4] = 255;
+    rgb_data[5] = 0; // Green
+    rgb_data[6] = 0;
+    rgb_data[7] = 0;
+    rgb_data[8] = 255; // Blue
+    rgb_data[9] = 128;
+    rgb_data[10] = 128;
+    rgb_data[11] = 128; // Gray
+
+    let rgba_buffer = VideoZeroCopy::rgb_to_rgba_inplace(&rgb_buffer).unwrap();
+    let rgba_data = rgba_buffer.as_slice();
+
+    // Verify RGBA data
+    assert_eq!(rgba_data[0], 255);
+    assert_eq!(rgba_data[1], 0);
+    assert_eq!(rgba_data[2], 0);
+    assert_eq!(rgba_data[3], 255);
+    assert_eq!(rgba_data[4], 0);
+    assert_eq!(rgba_data[5], 255);
+    assert_eq!(rgba_data[6], 0);
+    assert_eq!(rgba_data[7], 255);
+    assert_eq!(rgba_data[8], 0);
+    assert_eq!(rgba_data[9], 0);
+    assert_eq!(rgba_data[10], 255);
+    assert_eq!(rgba_data[11], 255);
+    assert_eq!(rgba_data[12], 128);
+    assert_eq!(rgba_data[13], 128);
+    assert_eq!(rgba_data[14], 128);
+    assert_eq!(rgba_data[15], 255);
+  }
+
+  #[test]
+  fn test_video_zero_copy_rgb_to_rgba_no_dimensions() {
+    let mut buffer = ZeroCopyBuffer::new(12, 32, DataType::Rgb24).unwrap();
+    buffer.dimensions = None; // Remove dimensions
+
+    let result = VideoZeroCopy::rgb_to_rgba_inplace(&buffer);
+    assert!(result.is_err());
+    assert!(result
+      .unwrap_err()
+      .to_string()
+      .contains("missing dimensions"));
+  }
+
+  #[test]
+  fn test_video_zero_copy_extract_yuv_wrong_type() {
+    let buffer = ZeroCopyBuffer::for_frame(4, 4, DataType::Rgb24).unwrap();
+
+    let result = VideoZeroCopy::extract_yuv_planes(&buffer);
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("Expected YUV420p"));
+  }
+
+  #[test]
+  fn test_video_zero_copy_extract_yuv_no_dimensions() {
+    let mut buffer = ZeroCopyBuffer::new(24, 32, DataType::Yuv420p).unwrap();
+    buffer.dimensions = None;
+
+    let result = VideoZeroCopy::extract_yuv_planes(&buffer);
+    assert!(result.is_err());
+    assert!(result
+      .unwrap_err()
+      .to_string()
+      .contains("missing dimensions"));
+  }
+
+  #[test]
+  fn test_audio_zero_copy_interleave_different_types() {
+    let left = ZeroCopyBuffer::for_audio(100, DataType::AudioF32).unwrap();
+    let right = ZeroCopyBuffer::for_audio(100, DataType::AudioPcm16).unwrap();
+
+    let result = AudioZeroCopy::interleave_stereo(&left, &right);
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("same type"));
+  }
+
+  #[test]
+  fn test_audio_zero_copy_interleave_different_sizes() {
+    let left = ZeroCopyBuffer::for_audio(100, DataType::AudioF32).unwrap();
+    let right = ZeroCopyBuffer::for_audio(200, DataType::AudioF32).unwrap();
+
+    let result = AudioZeroCopy::interleave_stereo(&left, &right);
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("same size"));
+  }
+
+  #[test]
+  fn test_audio_zero_copy_interleave_pcm16() {
+    let mut left = ZeroCopyBuffer::for_audio(2, DataType::AudioPcm16).unwrap();
+    let mut right = ZeroCopyBuffer::for_audio(2, DataType::AudioPcm16).unwrap();
+
+    // Fill with test data (16-bit PCM)
+    left
+      .as_mut_slice()
+      .copy_from_slice(&[0x11, 0x11, 0x22, 0x22]);
+    right
+      .as_mut_slice()
+      .copy_from_slice(&[0x33, 0x33, 0x44, 0x44]);
+
+    let interleaved = AudioZeroCopy::interleave_stereo(&left, &right).unwrap();
+    let data = interleaved.as_slice();
+
+    // Verify interleaved pattern
+    assert_eq!(&data[0..2], &[0x11, 0x11]); // L1
+    assert_eq!(&data[2..4], &[0x33, 0x33]); // R1
+    assert_eq!(&data[4..6], &[0x22, 0x22]); // L2
+    assert_eq!(&data[6..8], &[0x44, 0x44]); // R2
+  }
+
+  #[test]
+  fn test_zero_copy_ref_clone() {
+    let buffer = ZeroCopyBuffer::new(1024, 32, DataType::Raw).unwrap();
+    let ref1 = buffer.clone_ref();
+    let ref2 = ref1.clone();
+
+    assert_eq!(ref1.size(), ref2.size());
+    assert_eq!(ref1.data_type(), ref2.data_type());
+    assert_eq!(ref1.dimensions(), ref2.dimensions());
+  }
+
+  #[test]
+  fn test_data_type_equality() {
+    assert_eq!(DataType::Rgb24, DataType::Rgb24);
+    assert_ne!(DataType::Rgb24, DataType::Rgba32);
+    assert_ne!(DataType::AudioF32, DataType::AudioPcm16);
+  }
+
+  #[tokio::test]
+  async fn test_zero_copy_manager_stats_consistency() {
+    let manager = ZeroCopyManager::new();
+
+    // Create buffers
+    let buf1 = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+    let _buf2 = manager.get_buffer(2048, DataType::Raw).await.unwrap();
+
+    let stats = manager.get_stats().await;
+    assert_eq!(stats.buffers_created, 2);
+    assert_eq!(stats.active_buffers, 2);
+    assert_eq!(stats.total_memory, 3072);
+
+    // Return one buffer
+    manager.return_buffer(buf1).await;
+
+    let stats = manager.get_stats().await;
+    assert_eq!(stats.active_buffers, 1);
+    assert_eq!(stats.total_memory, 2048);
+
+    // Get buffer again (should reuse)
+    let _buf3 = manager.get_buffer(1024, DataType::Raw).await.unwrap();
+
+    let stats = manager.get_stats().await;
+    assert_eq!(stats.buffers_created, 2); // No new buffer created
+    assert_eq!(stats.buffers_reused, 1);
+    assert_eq!(stats.active_buffers, 2);
+    assert_eq!(stats.total_memory, 3072);
+  }
+
+  #[test]
+  fn test_buffer_send_sync() {
+    // Compile-time test to ensure types implement Send + Sync
+    fn assert_send_sync<T: Send + Sync>() {}
+
+    assert_send_sync::<ZeroCopyBuffer>();
+    assert_send_sync::<ZeroCopyRef>();
+    assert_send_sync::<ZeroCopyView>();
+  }
+
+  #[tokio::test]
+  async fn test_large_buffer_handling() {
+    let manager = ZeroCopyManager::new();
+
+    // Test with various large sizes
+    let sizes = vec![
+      1024 * 1024,      // 1 MB
+      10 * 1024 * 1024, // 10 MB
+      50 * 1024 * 1024, // 50 MB
+    ];
+
+    for size in sizes {
+      let buffer = manager.get_buffer(size, DataType::Raw).await.unwrap();
+      assert_eq!(buffer.size(), size);
+
+      // Verify we can write and read
+      let slice = buffer.as_slice();
+      assert_eq!(slice.len(), size);
+    }
+  }
+
+  #[test]
+  fn test_buffer_drop_deallocates_memory() {
+    // This test verifies that Drop implementation works
+    // by creating and dropping many buffers
+    for _ in 0..100 {
+      let buffer = ZeroCopyBuffer::new(1024 * 1024, 32, DataType::Raw).unwrap();
+      let _slice = buffer.as_slice(); // Use the buffer
+                                      // Buffer dropped here
+    }
+    // If Drop doesn't work properly, we'd run out of memory
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_manager_access() {
+    let manager = Arc::new(ZeroCopyManager::new());
+    let mut handles = vec![];
+
+    // Spawn many concurrent tasks
+    for i in 0..50 {
+      let manager_clone = manager.clone();
+      let handle = tokio::spawn(async move {
+        // Each task performs multiple operations
+        for j in 0..10 {
+          let size = 1024 * ((i * 10 + j) % 10 + 1);
+          let buffer = manager_clone.get_buffer(size, DataType::Raw).await.unwrap();
+
+          // Create some views
+          if size > 100 {
+            let _view = manager_clone.create_view(&buffer, 0, 100).await.unwrap();
+          }
+
+          // Return buffer sometimes
+          if j % 2 == 0 {
+            manager_clone.return_buffer(buffer).await;
+          }
+        }
+      });
+      handles.push(handle);
+    }
+
+    // Wait for all tasks
+    for handle in handles {
+      handle.await.unwrap();
+    }
+
+    // Verify manager is still in consistent state
+    let stats = manager.get_stats().await;
+    assert!(stats.buffers_created > 0);
+    assert!(stats.zero_copy_operations > 0);
   }
 }
