@@ -383,7 +383,7 @@ mod tests {
   #[test]
   fn test_track_creation() {
     let track = Track::new(TrackType::Video, "Main Video".to_string());
-    
+
     assert!(!track.id.is_empty());
     assert_eq!(track.track_type, TrackType::Video);
     assert_eq!(track.name, "Main Video");
@@ -420,24 +420,24 @@ mod tests {
   #[test]
   fn test_track_add_remove_clips() {
     let mut track = Track::new(TrackType::Video, "Video Track".to_string());
-    
+
     // Добавляем клипы
     let clip1 = Clip::new(PathBuf::from("video1.mp4"), 5.0, 10.0);
     let clip1_id = clip1.id.clone();
     let clip2 = Clip::new(PathBuf::from("video2.mp4"), 0.0, 5.0);
     let clip2_id = clip2.id.clone();
     let clip3 = Clip::new(PathBuf::from("video3.mp4"), 15.0, 10.0);
-    
+
     track.add_clip(clip1);
     track.add_clip(clip2);
     track.add_clip(clip3);
-    
+
     // Проверяем, что клипы отсортированы по времени начала
     assert_eq!(track.clips.len(), 3);
     assert_eq!(track.clips[0].start_time, 0.0);
     assert_eq!(track.clips[1].start_time, 5.0);
     assert_eq!(track.clips[2].start_time, 15.0);
-    
+
     // Удаляем клип
     track.remove_clip(&clip2_id);
     assert_eq!(track.clips.len(), 2);
@@ -454,7 +454,7 @@ mod tests {
   #[test]
   fn test_clip_creation() {
     let clip = Clip::new(PathBuf::from("test.mp4"), 10.0, 5.0);
-    
+
     assert!(!clip.id.is_empty());
     assert!(matches!(clip.source, ClipSource::File(_)));
     assert_eq!(clip.start_time, 10.0);
@@ -489,13 +489,19 @@ mod tests {
     invalid_clip.source = ClipSource::File("video.mp4".to_string());
     invalid_clip.start_time = -1.0;
     assert!(invalid_clip.validate().is_err());
-    assert!(invalid_clip.validate().unwrap_err().contains("отрицательным"));
+    assert!(invalid_clip
+      .validate()
+      .unwrap_err()
+      .contains("отрицательным"));
 
     // Клип с end_time <= start_time
     invalid_clip.start_time = 10.0;
     invalid_clip.end_time = 10.0;
     assert!(invalid_clip.validate().is_err());
-    assert!(invalid_clip.validate().unwrap_err().contains("больше времени начала"));
+    assert!(invalid_clip
+      .validate()
+      .unwrap_err()
+      .contains("больше времени начала"));
 
     // Клип с невалидной скоростью
     invalid_clip.end_time = 20.0;
@@ -513,18 +519,18 @@ mod tests {
   #[test]
   fn test_clip_durations() {
     let clip = Clip::new(PathBuf::from("video.mp4"), 5.0, 10.0);
-    
+
     // Timeline duration
     assert_eq!(clip.get_timeline_duration(), 10.0);
-    
+
     // Source duration с нормальной скоростью
     assert_eq!(clip.get_source_duration(), 10.0);
-    
+
     // Source duration с измененной скоростью
     let mut fast_clip = clip.clone();
     fast_clip.speed = 2.0;
     assert_eq!(fast_clip.get_source_duration(), 5.0);
-    
+
     let mut slow_clip = clip.clone();
     slow_clip.speed = 0.5;
     assert_eq!(slow_clip.get_source_duration(), 20.0);
@@ -533,7 +539,7 @@ mod tests {
   #[test]
   fn test_clip_contains_time() {
     let clip = Clip::new(PathBuf::from("video.mp4"), 10.0, 5.0);
-    
+
     assert!(!clip.contains_time(9.9));
     assert!(clip.contains_time(10.0));
     assert!(clip.contains_time(12.5));
@@ -545,22 +551,22 @@ mod tests {
   #[test]
   fn test_clip_with_advanced_properties() {
     let mut clip = Clip::new(PathBuf::from("video.mp4"), 0.0, 10.0);
-    
+
     // Добавляем эффекты и фильтры
     clip.effects = vec!["effect1".to_string(), "effect2".to_string()];
     clip.filters = vec!["filter1".to_string()];
-    
+
     // Добавляем template info
     clip.template_id = Some("template_123".to_string());
     clip.template_position = Some(2);
-    
+
     // Добавляем цветокоррекцию
     clip.color_correction = Some(ColorCorrection {
       brightness: 0.1,
       contrast: 1.2,
       ..Default::default()
     });
-    
+
     // Добавляем crop
     clip.crop = Some(CropSettings {
       left: 10,
@@ -568,7 +574,7 @@ mod tests {
       right: 30,
       bottom: 40,
     });
-    
+
     // Добавляем transform
     clip.transform = Some(TransformSettings {
       scale_x: 1.5,
@@ -576,10 +582,10 @@ mod tests {
       rotation: 45.0,
       ..Default::default()
     });
-    
+
     // Добавляем audio track
     clip.audio_track_index = Some(2);
-    
+
     // Валидация должна пройти
     assert!(clip.validate().is_ok());
   }
@@ -613,23 +619,21 @@ mod tests {
   #[test]
   fn test_clip_properties() {
     let mut props = ClipProperties::default();
-    
+
     // Добавляем заметки
     props.notes = Some("This is a test clip".to_string());
-    
+
     // Добавляем теги
     props.tags = vec!["intro".to_string(), "logo".to_string()];
-    
+
     // Добавляем кастомные метаданные
-    props.custom_metadata.insert(
-      "author".to_string(),
-      serde_json::json!("John Doe")
-    );
-    props.custom_metadata.insert(
-      "rating".to_string(),
-      serde_json::json!(5)
-    );
-    
+    props
+      .custom_metadata
+      .insert("author".to_string(), serde_json::json!("John Doe"));
+    props
+      .custom_metadata
+      .insert("rating".to_string(), serde_json::json!(5));
+
     assert_eq!(props.notes, Some("This is a test clip".to_string()));
     assert_eq!(props.tags.len(), 2);
     assert_eq!(props.custom_metadata.len(), 2);
@@ -639,7 +643,7 @@ mod tests {
   fn test_complete_timeline_serialization() {
     // Создаем полный timeline с треками и клипами
     let mut track = Track::new(TrackType::Video, "Main Video".to_string());
-    
+
     let mut clip = Clip::new(PathBuf::from("video.mp4"), 0.0, 10.0);
     clip.effects = vec!["fade_in".to_string()];
     clip.color_correction = Some(ColorCorrection {
@@ -647,15 +651,15 @@ mod tests {
       contrast: 1.1,
       ..Default::default()
     });
-    
+
     track.add_clip(clip);
-    
+
     // Сериализуем трек
     let json = serde_json::to_string_pretty(&track).unwrap();
-    
+
     // Десериализуем обратно
     let deserialized: Track = serde_json::from_str(&json).unwrap();
-    
+
     assert_eq!(deserialized.name, track.name);
     assert_eq!(deserialized.clips.len(), 1);
     assert_eq!(deserialized.clips[0].effects, vec!["fade_in"]);
@@ -665,13 +669,13 @@ mod tests {
   #[test]
   fn test_track_with_invalid_clips() {
     let mut track = Track::new(TrackType::Video, "Video Track".to_string());
-    
+
     // Добавляем невалидный клип
     let mut invalid_clip = Clip::new(PathBuf::from("video.mp4"), 0.0, 10.0);
     invalid_clip.opacity = 2.0; // Невалидная прозрачность
-    
+
     track.add_clip(invalid_clip);
-    
+
     // Валидация трека должна провалиться из-за невалидного клипа
     assert!(track.validate().is_err());
   }
@@ -684,21 +688,21 @@ mod tests {
       ..Clip::new(PathBuf::from("dummy"), 0.0, 10.0)
     };
     assert!(file_clip.validate().is_ok());
-    
+
     // Generated source - всегда валидно
     let generated_clip = Clip {
       source: ClipSource::Generated,
       ..Clip::new(PathBuf::from("dummy"), 0.0, 10.0)
     };
     assert!(generated_clip.validate().is_ok());
-    
+
     // Stream source - всегда валидно (даже с пустой строкой)
     let stream_clip = Clip {
       source: ClipSource::Stream("".to_string()),
       ..Clip::new(PathBuf::from("dummy"), 0.0, 10.0)
     };
     assert!(stream_clip.validate().is_ok());
-    
+
     // Device source - всегда валидно
     let device_clip = Clip {
       source: ClipSource::Device("camera".to_string()),
@@ -713,12 +717,12 @@ mod tests {
     let tiny_clip = Clip::new(PathBuf::from("tiny.mp4"), 0.0, 0.001);
     assert!(tiny_clip.validate().is_ok());
     assert_eq!(tiny_clip.get_timeline_duration(), 0.001);
-    
+
     // Track с максимальной громкостью
     let mut loud_track = Track::new(TrackType::Audio, "Loud".to_string());
     loud_track.volume = 2.0;
     assert!(loud_track.validate().is_ok());
-    
+
     // Clip с очень высокой скоростью
     let mut fast_clip = Clip::new(PathBuf::from("fast.mp4"), 0.0, 10.0);
     fast_clip.speed = 100.0;

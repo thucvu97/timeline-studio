@@ -606,7 +606,7 @@ mod tests {
     ];
 
     for (key, data) in &items {
-      service.save_to_cache(key, *data).await.unwrap();
+      service.save_to_cache(key, data).await.unwrap();
     }
 
     // Получаем статистику кэша
