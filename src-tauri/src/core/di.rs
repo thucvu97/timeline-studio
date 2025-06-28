@@ -87,6 +87,8 @@ impl<P: ServiceProvider> AnyProvider for ProviderWrapper<P> {
 pub struct ServiceContainer {
   services: Arc<RwLock<HashMap<TypeId, ServiceEntry>>>,
   providers: Arc<RwLock<HashMap<TypeId, Box<dyn AnyProvider>>>>,
+  /// Отслеживание сервисов, которые в данный момент создаются
+  creating: Arc<RwLock<HashMap<TypeId, Arc<tokio::sync::Mutex<()>>>>>,
 }
 
 impl ServiceContainer {
@@ -95,6 +97,7 @@ impl ServiceContainer {
     Self {
       services: Arc::new(RwLock::new(HashMap::new())),
       providers: Arc::new(RwLock::new(HashMap::new())),
+      creating: Arc::new(RwLock::new(HashMap::new())),
     }
   }
 
@@ -199,11 +202,32 @@ impl ServiceContainer {
     };
 
     if provider_exists {
-      // Создаем сервис через provider БЕЗ удержания lock
+      // Получаем или создаем mutex для этого типа сервиса
+      let creation_mutex = {
+        let mut creating = self.creating.write().await;
+        creating
+          .entry(type_id)
+          .or_insert_with(|| Arc::new(tokio::sync::Mutex::new(())))
+          .clone()
+      };
+
+      // Захватываем эксклюзивный доступ к созданию этого типа сервиса
+      let _guard = creation_mutex.lock().await;
+
+      // Проверяем еще раз, не был ли сервис создан другим потоком
+      {
+        let services = self.services.read().await;
+        if let Some(entry) = services.get(&type_id) {
+          return entry.service.clone().downcast::<T>().map_err(|_| {
+            VideoCompilerError::InternalError("Failed to downcast service".to_string())
+          });
+        }
+      }
+
+      // Создаем сервис через provider
       let service_arc = {
         let providers = self.providers.read().await;
         if let Some(provider) = providers.get(&type_id) {
-          // ВАЖНО: вызываем provider БЕЗ удержания lock на services
           provider.create_any(self).await?
         } else {
           return Err(VideoCompilerError::ServiceNotFound(
@@ -212,17 +236,8 @@ impl ServiceContainer {
         }
       };
 
-      // Теперь берем write lock для сохранения
-      let mut services = self.services.write().await;
-
-      // Double-check: возможно, сервис был создан другим потоком
-      if let Some(entry) = services.get(&type_id) {
-        return entry.service.clone().downcast::<T>().map_err(|_| {
-          VideoCompilerError::InternalError("Failed to downcast service".to_string())
-        });
-      }
-
       // Сохраняем созданный сервис
+      let mut services = self.services.write().await;
       services.insert(
         type_id,
         ServiceEntry {
