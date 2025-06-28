@@ -65,6 +65,22 @@ export interface UserSettingsContextType {
   codecovToken: string // Codecov token для отчетов покрытия
   tauriAnalyticsKey: string // Tauri Analytics ключ
 
+  // GPU и производительность
+  gpuAccelerationEnabled: boolean // Включено ли GPU ускорение
+  preferredGpuEncoder: string // Предпочитаемый GPU кодировщик (auto, nvidia, amd, intel, apple)
+  maxConcurrentJobs: number // Максимальное количество параллельных задач
+  renderQuality: string // Качество рендеринга (low, medium, high, ultra)
+  backgroundRenderingEnabled: boolean // Включен ли фоновый рендеринг
+  renderDelay: number // Задержка начала рендеринга в секундах
+
+  // Настройки прокси
+  proxyEnabled: boolean // Включен ли прокси
+  proxyType: string // Тип прокси (http, https, socks5)
+  proxyHost: string // Хост прокси
+  proxyPort: string // Порт прокси
+  proxyUsername: string // Имя пользователя для прокси
+  proxyPassword: string // Пароль для прокси
+
   // Статусы подключений
   apiKeysStatus: Record<string, "not_set" | "testing" | "invalid" | "valid"> // Статус каждого API ключа
 
@@ -106,6 +122,22 @@ const initialContext: UserSettingsContextType = {
   // Дополнительные сервисы - пустые по умолчанию
   codecovToken: "",
   tauriAnalyticsKey: "",
+
+  // GPU и производительность - значения по умолчанию
+  gpuAccelerationEnabled: true, // GPU ускорение включено по умолчанию
+  preferredGpuEncoder: "auto", // Автоматический выбор кодировщика
+  maxConcurrentJobs: 2, // 2 параллельные задачи по умолчанию
+  renderQuality: "high", // Высокое качество рендеринга по умолчанию
+  backgroundRenderingEnabled: true, // Фоновый рендеринг включен
+  renderDelay: 5, // Задержка 5 секунд перед началом рендеринга
+
+  // Настройки прокси - отключены по умолчанию
+  proxyEnabled: false, // Прокси отключен
+  proxyType: "http", // HTTP прокси по умолчанию
+  proxyHost: "", // Пустой хост
+  proxyPort: "", // Пустой порт
+  proxyUsername: "", // Пустое имя пользователя
+  proxyPassword: "", // Пустой пароль
 
   // Статусы всех ключей - не настроены по умолчанию
   apiKeysStatus: {
@@ -445,6 +477,56 @@ export const userSettingsMachine = createMachine(
           TEST_API_KEY: {
             actions: ["testApiKey"],
           },
+
+          // GPU и производительность события
+          UPDATE_GPU_ACCELERATION: {
+            actions: ["updateGpuAcceleration"],
+          },
+
+          UPDATE_PREFERRED_GPU_ENCODER: {
+            actions: ["updatePreferredGpuEncoder"],
+          },
+
+          UPDATE_MAX_CONCURRENT_JOBS: {
+            actions: ["updateMaxConcurrentJobs"],
+          },
+
+          UPDATE_RENDER_QUALITY: {
+            actions: ["updateRenderQuality"],
+          },
+
+          UPDATE_BACKGROUND_RENDERING: {
+            actions: ["updateBackgroundRendering"],
+          },
+
+          UPDATE_RENDER_DELAY: {
+            actions: ["updateRenderDelay"],
+          },
+
+          // Прокси события
+          UPDATE_PROXY_ENABLED: {
+            actions: ["updateProxyEnabled"],
+          },
+
+          UPDATE_PROXY_TYPE: {
+            actions: ["updateProxyType"],
+          },
+
+          UPDATE_PROXY_HOST: {
+            actions: ["updateProxyHost"],
+          },
+
+          UPDATE_PROXY_PORT: {
+            actions: ["updateProxyPort"],
+          },
+
+          UPDATE_PROXY_USERNAME: {
+            actions: ["updateProxyUsername"],
+          },
+
+          UPDATE_PROXY_PASSWORD: {
+            actions: ["updateProxyPassword"],
+          },
         },
       },
     },
@@ -760,6 +842,80 @@ export const userSettingsMachine = createMachine(
             [typedEvent.service]: "testing" as "not_set" | "testing" | "invalid" | "valid",
           },
         }
+      }),
+
+      // GPU и производительность действия
+      updateGpuAcceleration: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_GPU_ACCELERATION"; enabled: boolean }
+        console.log("Updating GPU acceleration:", typedEvent.enabled)
+        return { ...context, gpuAccelerationEnabled: typedEvent.enabled }
+      }),
+
+      updatePreferredGpuEncoder: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_PREFERRED_GPU_ENCODER"; encoder: string }
+        console.log("Updating preferred GPU encoder:", typedEvent.encoder)
+        return { ...context, preferredGpuEncoder: typedEvent.encoder }
+      }),
+
+      updateMaxConcurrentJobs: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_MAX_CONCURRENT_JOBS"; jobs: number }
+        console.log("Updating max concurrent jobs:", typedEvent.jobs)
+        return { ...context, maxConcurrentJobs: typedEvent.jobs }
+      }),
+
+      updateRenderQuality: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_RENDER_QUALITY"; quality: string }
+        console.log("Updating render quality:", typedEvent.quality)
+        return { ...context, renderQuality: typedEvent.quality }
+      }),
+
+      updateBackgroundRendering: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_BACKGROUND_RENDERING"; enabled: boolean }
+        console.log("Updating background rendering:", typedEvent.enabled)
+        return { ...context, backgroundRenderingEnabled: typedEvent.enabled }
+      }),
+
+      updateRenderDelay: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_RENDER_DELAY"; delay: number }
+        console.log("Updating render delay:", typedEvent.delay)
+        return { ...context, renderDelay: typedEvent.delay }
+      }),
+
+      // Прокси действия
+      updateProxyEnabled: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_PROXY_ENABLED"; enabled: boolean }
+        console.log("Updating proxy enabled:", typedEvent.enabled)
+        return { ...context, proxyEnabled: typedEvent.enabled }
+      }),
+
+      updateProxyType: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_PROXY_TYPE"; proxyType: string }
+        console.log("Updating proxy type:", typedEvent.proxyType)
+        return { ...context, proxyType: typedEvent.proxyType }
+      }),
+
+      updateProxyHost: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_PROXY_HOST"; host: string }
+        console.log("Updating proxy host:", typedEvent.host)
+        return { ...context, proxyHost: typedEvent.host }
+      }),
+
+      updateProxyPort: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_PROXY_PORT"; port: string }
+        console.log("Updating proxy port:", typedEvent.port)
+        return { ...context, proxyPort: typedEvent.port }
+      }),
+
+      updateProxyUsername: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_PROXY_USERNAME"; username: string }
+        console.log("Updating proxy username:", typedEvent.username)
+        return { ...context, proxyUsername: typedEvent.username }
+      }),
+
+      updateProxyPassword: assign(({ context, event }) => {
+        const typedEvent = event as { type: "UPDATE_PROXY_PASSWORD"; password: string }
+        console.log("Updating proxy password:", "***")
+        return { ...context, proxyPassword: typedEvent.password }
       }),
     },
   },

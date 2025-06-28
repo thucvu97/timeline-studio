@@ -266,7 +266,6 @@
       "split-grid-5x5-landscape": "Vingt-cinq écrans dans une grille 5×5"
     }
   },
-
   "dialogs": {
     "export": {
       "title": "Exporter",
@@ -440,14 +439,62 @@
       "aiApiKey": "Clé API pour l'IA",
       "clearApiKey": "Effacer la clé API",
       "enterApiKey": "Entrez la clé API",
-      "performance": "Performance",
+      "performance": {
+        "title": "Performance",
+        "description": "Configurer les paramètres de performance et de rendu",
+        "gpuAcceleration": "Accélération GPU",
+        "preferredGpuEncoder": "Encodeur GPU Préféré",
+        "selectEncoder": "Sélectionner l'encodeur",
+        "encoderAuto": "Détection automatique",
+        "encoderNvidia": "NVIDIA (NVENC)",
+        "encoderAmd": "AMD (AMF)",
+        "encoderIntel": "Intel (Quick Sync)",
+        "encoderApple": "Apple (VideoToolbox)",
+        "renderingSettings": "Paramètres de Rendu",
+        "renderQuality": "Qualité de Rendu",
+        "selectQuality": "Sélectionner la qualité",
+        "qualityLow": "Basse (Rapide)",
+        "qualityMedium": "Moyenne (Équilibré)",
+        "qualityHigh": "Haute (Qualité)",
+        "qualityUltra": "Ultra (Meilleure)",
+        "backgroundRendering": "Rendu en Arrière-plan",
+        "backgroundRenderingDesc": "Effectuer le rendu des sections de la timeline en arrière-plan pendant l'édition",
+        "renderDelay": "Délai de Rendu",
+        "renderDelayTooltip": "Temps d'attente avant de commencer le rendu en arrière-plan",
+        "startAfter": "Commencer après",
+        "seconds": "secondes",
+        "maxConcurrentJobs": "Maximum de Tâches de Rendu Simultanées",
+        "task": "tâche",
+        "tasks": "tâches",
+        "proxyServer": "Serveur Proxy",
+        "proxyType": "Type de Proxy",
+        "selectProxyType": "Sélectionner le type de proxy",
+        "proxyHost": "Hôte du Proxy",
+        "proxyPort": "Port du Proxy",
+        "proxyAuth": "Authentification du Proxy",
+        "username": "Nom d'utilisateur",
+        "usernamePlaceholder": "Entrez le nom d'utilisateur du proxy",
+        "password": "Mot de passe",
+        "passwordPlaceholder": "Entrez le mot de passe du proxy",
+        "show": "Afficher",
+        "hide": "Masquer",
+        "autoProxyMedia": "Générer Automatiquement des Médias Proxy",
+        "autoProxyMediaDesc": "Créer automatiquement des proxies basse résolution pour une édition fluide"
+      },
       "cacheStats": "Statistiques du cache",
       "cacheSettings": "Paramètres du cache",
       "cancel": "Annuler",
       "save": "OK",
       "playerScreenshotsPath": "Chemin d'enregistrement des captures du lecteur",
       "claudeApiKey": "Clé API Claude",
-      "openAiApiKey": "Clé API OpenAI"
+      "openAiApiKey": "Clé API OpenAI",
+      "tabs": {
+        "general": "Général",
+        "aiServices": "Services IA",
+        "socialNetworks": "Réseaux Sociaux",
+        "development": "Développement",
+        "performance": "Performance"
+      }
     },
     "keyboardShortcuts": {
       "title": "Raccourcis clavier",

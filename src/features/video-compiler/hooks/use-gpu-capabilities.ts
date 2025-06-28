@@ -39,13 +39,37 @@ export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
       setIsLoading(true)
       setError(null)
 
+      console.log("Refreshing GPU capabilities...")
+
       // Загружаем все данные параллельно
-      const [gpu, system, ffmpeg, settings] = await Promise.all([
-        invoke<GpuCapabilities>("get_gpu_capabilities"),
-        invoke<SystemInfo>("get_system_info"),
-        invoke<FfmpegCapabilities>("check_ffmpeg_capabilities"),
-        invoke<CompilerSettings>("get_compiler_settings"),
+      const [gpuResponse, system, ffmpeg, settings] = await Promise.all([
+        invoke<any>("get_gpu_capabilities_full").catch((err: unknown) => {
+          console.error("Failed to get GPU capabilities:", err)
+          throw err
+        }),
+        invoke<SystemInfo>("get_system_info").catch((err: unknown) => {
+          console.error("Failed to get system info:", err)
+          throw err
+        }),
+        invoke<FfmpegCapabilities>("check_ffmpeg_capabilities").catch((err: unknown) => {
+          console.error("Failed to check FFmpeg:", err)
+          throw err
+        }),
+        invoke<CompilerSettings>("get_compiler_settings_advanced").catch((err: unknown) => {
+          console.error("Failed to get compiler settings:", err)
+          throw err
+        }),
       ])
+
+      console.log("GPU Response:", gpuResponse)
+
+      // Преобразуем ответ в нужный формат
+      const gpu: GpuCapabilities = {
+        available_encoders: gpuResponse.available_encoders || [],
+        recommended_encoder: gpuResponse.recommended_encoder,
+        current_gpu: gpuResponse.current_gpu,
+        hardware_acceleration_supported: gpuResponse.hardware_acceleration_supported || false,
+      }
 
       setGpuCapabilities(gpu)
       setCurrentGpu(gpu.current_gpu || null)
@@ -64,9 +88,20 @@ export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
         })
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : t("common.unknownError")
+      let errorMsg = err instanceof Error ? err.message : t("common.unknownError")
+      
+      // Специальная обработка для Apple Silicon
+      if (errorMsg.includes("Metal") || errorMsg.includes("VideoToolbox")) {
+        errorMsg = t("videoCompiler.gpu.appleMetalError", "Apple Metal/VideoToolbox initialization error. This is usually temporary.")
+      }
+      
       setError(errorMsg)
-      toast.error(t("videoCompiler.gpu.errorGettingInfo"), { description: errorMsg })
+      console.error("GPU capabilities error:", err)
+      
+      // Не показываем toast при первой загрузке, только логируем
+      if (!isLoading) {
+        toast.error(t("videoCompiler.gpu.errorGettingInfo"), { description: errorMsg })
+      }
     } finally {
       setIsLoading(false)
     }
@@ -75,7 +110,7 @@ export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
   // Обновить настройки компилятора
   const updateSettings = useCallback(async (newSettings: CompilerSettings) => {
     try {
-      await invoke("update_compiler_settings", { newSettings })
+      await invoke("set_hardware_acceleration", { enabled: newSettings.hardware_acceleration })
       setCompilerSettings(newSettings)
 
       toast.success(t("videoCompiler.gpu.settingsUpdated"), {
@@ -93,7 +128,7 @@ export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
   // Проверить доступность аппаратного ускорения
   const checkHardwareAcceleration = useCallback(async (): Promise<boolean> => {
     try {
-      return await invoke<boolean>("check_hardware_acceleration")
+      return await invoke<boolean>("check_hardware_acceleration_support")
     } catch (err) {
       console.error("Failed to check hardware acceleration:", err)
       return false

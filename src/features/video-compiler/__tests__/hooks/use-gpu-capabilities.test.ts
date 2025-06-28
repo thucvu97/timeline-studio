@@ -41,49 +41,61 @@ vi.mock("sonner", () => ({
 describe("useGpuCapabilities", () => {
   let mockInvoke: any
 
-  const mockGpuCapabilities = {
-    hardware_acceleration_supported: true,
-    available_encoders: [GpuEncoder.Nvenc, GpuEncoder.QuickSync],
-    recommended_encoder: GpuEncoder.Nvenc,
+  const mockGpuResponse = {
+    available_encoders: ["Nvenc", "QuickSync"],
+    recommended_encoder: "Nvenc",
     current_gpu: {
-      id: "0",
       name: "NVIDIA GeForce RTX 3080",
-      vendor: "NVIDIA",
       driver_version: "535.123.01",
       memory_total: 10737418240, // 10GB
       memory_used: 2147483648, // 2GB
-      memory_free: 8589934592, // 8GB
       utilization: 45,
-      temperature: 65,
+      encoder_type: "Nvenc",
+      supported_codecs: ["h264", "hevc"]
     },
-    gpus: [],
+    hardware_acceleration_supported: true
+  }
+
+  const mockGpuCapabilities = {
+    hardware_acceleration_supported: true,
+    available_encoders: ["Nvenc", "QuickSync"],
+    recommended_encoder: "Nvenc",
+    current_gpu: mockGpuResponse.current_gpu,
   }
 
   const mockSystemInfo = {
-    os: "Linux",
-    arch: "x86_64",
-    cpu_cores: 16,
-    total_memory: 34359738368, // 32GB
-    available_memory: 25769803776, // 24GB
-    ffmpeg_version: "5.1.2",
+    os: {
+      type: "Linux",
+      version: "5.15.0",
+      architecture: "x86_64"
+    },
+    cpu: {
+      cores: 16,
+      arch: "x86_64"
+    },
+    memory: {
+      total_bytes: 34359738368, // 32GB
+      total_mb: 32768,
+      total_gb: 32
+    },
+    runtime: {
+      rust_version: "0.25.0",
+      tauri_version: "2.0.0"
+    }
   }
 
   const mockFfmpegCapabilities = {
     version: "5.1.2",
-    encoders: ["libx264", "h264_nvenc", "h264_qsv"],
-    decoders: ["h264", "hevc", "vp9"],
-    formats: ["mp4", "mov", "webm"],
-    has_gpu_support: true,
+    available_codecs: ["h264", "hevc", "vp9", "av1"],
+    hardware_encoders: ["h264_nvenc", "h264_qsv"],
+    path: "/usr/local/bin/ffmpeg"
   }
 
   const mockCompilerSettings = {
     hardware_acceleration: true,
-    preferred_encoder: GpuEncoder.Auto,
-    quality: 85,
     max_concurrent_jobs: 2,
-    cache_size_mb: 2048,
     temp_directory: "/tmp/timeline-studio",
-    preview_quality: 85,
+    cache_size_mb: 2048
   }
 
   beforeEach(async () => {
@@ -94,7 +106,7 @@ describe("useGpuCapabilities", () => {
 
   it("should load GPU capabilities on mount", async () => {
     mockInvoke
-      .mockResolvedValueOnce(mockGpuCapabilities)
+      .mockResolvedValueOnce(mockGpuResponse)
       .mockResolvedValueOnce(mockSystemInfo)
       .mockResolvedValueOnce(mockFfmpegCapabilities)
       .mockResolvedValueOnce(mockCompilerSettings)
@@ -117,7 +129,12 @@ describe("useGpuCapabilities", () => {
 
   it("should handle error when loading capabilities", async () => {
     const errorMessage = "Failed to get GPU info"
-    mockInvoke.mockRejectedValueOnce(new Error(errorMessage))
+    // Mock all 4 calls - first one fails, others succeed (but won't be reached due to Promise.all)
+    mockInvoke
+      .mockRejectedValueOnce(new Error(errorMessage))
+      .mockResolvedValueOnce(mockSystemInfo)
+      .mockResolvedValueOnce(mockFfmpegCapabilities)
+      .mockResolvedValueOnce(mockCompilerSettings)
 
     const { result } = renderHook(() => useGpuCapabilities())
 
@@ -131,7 +148,7 @@ describe("useGpuCapabilities", () => {
 
   it("should refresh capabilities", async () => {
     mockInvoke
-      .mockResolvedValueOnce(mockGpuCapabilities)
+      .mockResolvedValueOnce(mockGpuResponse)
       .mockResolvedValueOnce(mockSystemInfo)
       .mockResolvedValueOnce(mockFfmpegCapabilities)
       .mockResolvedValueOnce(mockCompilerSettings)
@@ -144,7 +161,7 @@ describe("useGpuCapabilities", () => {
 
     // Обновляем возможности
     mockInvoke
-      .mockResolvedValueOnce({ ...mockGpuCapabilities, hardware_acceleration_supported: false })
+      .mockResolvedValueOnce({ ...mockGpuResponse, hardware_acceleration_supported: false })
       .mockResolvedValueOnce(mockSystemInfo)
       .mockResolvedValueOnce(mockFfmpegCapabilities)
       .mockResolvedValueOnce(mockCompilerSettings)
@@ -158,7 +175,7 @@ describe("useGpuCapabilities", () => {
 
   it("should update compiler settings", async () => {
     mockInvoke
-      .mockResolvedValueOnce(mockGpuCapabilities)
+      .mockResolvedValueOnce(mockGpuResponse)
       .mockResolvedValueOnce(mockSystemInfo)
       .mockResolvedValueOnce(mockFfmpegCapabilities)
       .mockResolvedValueOnce(mockCompilerSettings)
@@ -176,13 +193,13 @@ describe("useGpuCapabilities", () => {
       await result.current.updateSettings(newSettings)
     })
 
-    expect(mockInvoke).toHaveBeenCalledWith("update_compiler_settings", { newSettings })
+    expect(mockInvoke).toHaveBeenCalledWith("set_hardware_acceleration", { enabled: false })
     expect(result.current.compilerSettings).toEqual(newSettings)
   })
 
   it("should check hardware acceleration", async () => {
     mockInvoke
-      .mockResolvedValueOnce(mockGpuCapabilities)
+      .mockResolvedValueOnce(mockGpuResponse)
       .mockResolvedValueOnce(mockSystemInfo)
       .mockResolvedValueOnce(mockFfmpegCapabilities)
       .mockResolvedValueOnce(mockCompilerSettings)
@@ -197,7 +214,7 @@ describe("useGpuCapabilities", () => {
 
     const hasAcceleration = await result.current.checkHardwareAcceleration()
 
-    expect(mockInvoke).toHaveBeenCalledWith("check_hardware_acceleration")
+    expect(mockInvoke).toHaveBeenCalledWith("check_hardware_acceleration_support")
     expect(hasAcceleration).toBe(true)
   })
 })
@@ -255,7 +272,7 @@ describe("GPU utility functions", () => {
     })
 
     it("should handle undefined values", () => {
-      expect(formatGpuMemory(undefined, mockT)).toBe("Unknown")
+      expect(formatGpuMemory(undefined as any, mockT)).toBe("Unknown")
     })
   })
 
@@ -267,7 +284,7 @@ describe("GPU utility functions", () => {
     })
 
     it("should handle undefined values", () => {
-      expect(formatGpuUtilization(undefined, mockT)).toBe("Unknown")
+      expect(formatGpuUtilization(undefined as any, mockT)).toBe("Unknown")
     })
   })
 
@@ -296,12 +313,14 @@ describe("GPU utility functions", () => {
         available_encoders: [GpuEncoder.Nvenc],
         recommended_encoder: GpuEncoder.Nvenc,
         current_gpu: {
-          id: "0",
           name: "NVIDIA RTX 3080",
-          vendor: "NVIDIA",
+          driver_version: "535.123.01",
           memory_total: 10 * 1024 * 1024 * 1024,
+          memory_used: 2147483648,
+          utilization: 45,
+          encoder_type: GpuEncoder.Nvenc,
+          supported_codecs: ["h264", "hevc"]
         },
-        gpus: [],
       }
       const recommendations = getGpuRecommendations(capabilities, mockT)
       expect(recommendations).toContain("NVIDIA NVENC detected")
@@ -315,12 +334,14 @@ describe("GPU utility functions", () => {
         available_encoders: [GpuEncoder.QuickSync],
         recommended_encoder: GpuEncoder.QuickSync,
         current_gpu: {
-          id: "0",
           name: "Intel UHD Graphics",
-          vendor: "Intel",
+          driver_version: "31.0.101.2125",
           memory_total: 1.5 * 1024 * 1024 * 1024,
+          memory_used: 536870912,
+          utilization: 30,
+          encoder_type: GpuEncoder.QuickSync,
+          supported_codecs: ["h264", "hevc"]
         },
-        gpus: [],
       }
       const recommendations = getGpuRecommendations(capabilities, mockT)
       expect(recommendations).toContain("Intel QuickSync detected")
@@ -334,12 +355,14 @@ describe("GPU utility functions", () => {
         available_encoders: [GpuEncoder.VideoToolbox],
         recommended_encoder: GpuEncoder.VideoToolbox,
         current_gpu: {
-          id: "0",
           name: "Apple M1",
-          vendor: "Apple",
+          driver_version: "Metal 3.0",
           memory_total: 8 * 1024 * 1024 * 1024,
+          memory_used: 2147483648,
+          utilization: 25,
+          encoder_type: GpuEncoder.VideoToolbox,
+          supported_codecs: ["h264", "hevc"]
         },
-        gpus: [],
       }
       const recommendations = getGpuRecommendations(capabilities, mockT)
       expect(recommendations).toContain("Apple VideoToolbox detected")

@@ -18,7 +18,7 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
           return { callback, once, id }
         },
         invoke: async (cmd: string, args?: any) => {
-          console.log("Mock Tauri invoke:", cmd, args)
+          console.log(`[TauriMock] Command: ${cmd}`, args)
 
           // Mock responses for common commands
           switch (cmd) {
@@ -40,12 +40,61 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
               return { settings: {}, projects: [], resources: [] }
             case "get_gpu_capabilities":
               return { has_gpu: false, gpu_name: "Mock GPU", vram_mb: 0 }
+            case "get_gpu_capabilities_full":
+              return {
+                available_encoders: ["VideoToolbox", "Software"],
+                recommended_encoder: "VideoToolbox",
+                current_gpu: {
+                  name: "Apple M1",
+                  driver_version: "Metal 3.0",
+                  memory_total: 8192,
+                  memory_used: 2048,
+                  utilization: 25,
+                  encoder_type: "VideoToolbox",
+                  supported_codecs: ["h264", "hevc"]
+                },
+                hardware_acceleration_supported: true
+              }
             case "get_system_info":
-              return { os: "Mock OS", cpu_cores: 4, total_memory_mb: 8192 }
+              return { 
+                os: {
+                  type: "Darwin",
+                  version: "14.0",
+                  architecture: "aarch64"
+                },
+                cpu: {
+                  cores: 8,
+                  arch: "aarch64"
+                },
+                memory: {
+                  total_bytes: 8589934592,
+                  total_mb: 8192,
+                  total_gb: 8
+                },
+                runtime: {
+                  rust_version: "0.25.0",
+                  tauri_version: "2.0.0"
+                }
+              }
             case "check_ffmpeg_capabilities":
-              return { available: true, version: "4.4.0", codecs: [], filters: [] }
+              return { 
+                version: "5.1.2",
+                available_codecs: ["h264", "hevc", "vp9", "av1"],
+                hardware_encoders: ["h264_videotoolbox", "hevc_videotoolbox"],
+                path: "/usr/local/bin/ffmpeg"
+              }
             case "get_compiler_settings":
-              return { gpu_enabled: false, threads: 4, memory_limit_mb: 4096 }
+            case "get_compiler_settings_advanced":
+              return { 
+                hardware_acceleration: true,
+                max_concurrent_jobs: 2,
+                temp_directory: "/tmp",
+                cache_size_mb: 1024
+              }
+            case "check_hardware_acceleration_support":
+              return true
+            case "set_hardware_acceleration":
+              return null
             case "get_prerender_cache_info":
               return { file_count: 0, total_size_mb: 0, cache_path: "/tmp/cache" }
             case "plugin:event|listen":
@@ -73,8 +122,9 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
               // Возвращаем успешный результат
               return { success: true, processed: 0 }
             default:
-              console.warn(`Unhandled Tauri command: ${cmd}`)
-              return null
+              console.warn(`[TauriMock] Unhandled command: ${cmd}`, args)
+              // Throw error for unhandled commands to see stack trace
+              throw new Error(`Command ${cmd} not found`)
           }
         },
       }

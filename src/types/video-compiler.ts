@@ -652,13 +652,24 @@ export interface CompilerSettings {
 }
 
 export interface SystemInfo {
-  os: string
-  arch: string
-  ffmpeg_path: string
-  temp_directory: string
-  gpu_capabilities?: GpuCapabilities
-  available_memory?: number
-  cpu_cores: number
+  os: {
+    type: string
+    version: string
+    architecture: string
+  }
+  cpu: {
+    cores: number
+    arch: string
+  }
+  memory: {
+    total_bytes: number
+    total_mb: number
+    total_gb: number
+  }
+  runtime: {
+    rust_version: string
+    tauri_version: string
+  }
 }
 
 export interface FfmpegCapabilities {
@@ -683,7 +694,7 @@ export interface TauriCommands {
   generate_preview(project: ProjectSchema, timestamp: number, quality?: number): Promise<Uint8Array> // JPEG данные
 
   // GPU команды
-  get_gpu_capabilities(): Promise<GpuCapabilities>
+  get_gpu_capabilities_full(): Promise<GpuCapabilities>
   get_current_gpu_info(): Promise<GpuInfo | null>
   check_hardware_acceleration(): Promise<boolean>
 

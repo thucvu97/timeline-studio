@@ -23,6 +23,22 @@ export interface UserSettingsContextValue {
   isTimelineVisible: boolean // Флаг видимости временной шкалы
   isOptionsVisible: boolean // Флаг видимости опций
 
+  // GPU и производительность
+  gpuAccelerationEnabled: boolean
+  preferredGpuEncoder: string
+  maxConcurrentJobs: number
+  renderQuality: string
+  backgroundRenderingEnabled: boolean
+  renderDelay: number
+
+  // Настройки прокси
+  proxyEnabled: boolean
+  proxyType: string
+  proxyHost: string
+  proxyPort: string
+  proxyUsername: string
+  proxyPassword: string
+
   // Методы для изменения настроек
   handleTabChange: (value: string) => void // Изменение активной вкладки
   handleLayoutChange: (value: LayoutMode) => void // Изменение макета интерфейса
@@ -34,6 +50,22 @@ export interface UserSettingsContextValue {
   toggleBrowserVisibility: () => void // Переключение видимости браузера
   toggleTimelineVisibility: () => void // Переключение видимости временной шкалы
   toggleOptionsVisibility: () => void // Переключение видимости опций
+
+  // Методы для GPU и производительности
+  handleGpuAccelerationChange: (value: boolean) => void
+  handlePreferredGpuEncoderChange: (value: string) => void
+  handleMaxConcurrentJobsChange: (value: number) => void
+  handleRenderQualityChange: (value: string) => void
+  handleBackgroundRenderingChange: (value: boolean) => void
+  handleRenderDelayChange: (value: number) => void
+
+  // Методы для прокси
+  handleProxyEnabledChange: (value: boolean) => void
+  handleProxyTypeChange: (value: string) => void
+  handleProxyHostChange: (value: string) => void
+  handleProxyPortChange: (value: string) => void
+  handleProxyUsernameChange: (value: string) => void
+  handleProxyPasswordChange: (value: string) => void
 }
 
 /**
@@ -75,6 +107,22 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
     isBrowserVisible: state.context.isBrowserVisible,
     isTimelineVisible: state.context.isTimelineVisible,
     isOptionsVisible: state.context.isOptionsVisible,
+
+    // GPU и производительность
+    gpuAccelerationEnabled: state.context.gpuAccelerationEnabled,
+    preferredGpuEncoder: state.context.preferredGpuEncoder,
+    maxConcurrentJobs: state.context.maxConcurrentJobs,
+    renderQuality: state.context.renderQuality,
+    backgroundRenderingEnabled: state.context.backgroundRenderingEnabled,
+    renderDelay: state.context.renderDelay,
+
+    // Настройки прокси
+    proxyEnabled: state.context.proxyEnabled,
+    proxyType: state.context.proxyType,
+    proxyHost: state.context.proxyHost,
+    proxyPort: state.context.proxyPort,
+    proxyUsername: state.context.proxyUsername,
+    proxyPassword: state.context.proxyPassword,
 
     /**
      * Обработчик изменения активной вкладки
@@ -217,6 +265,92 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
         type: "TOGGLE_OPTIONS_VISIBILITY",
       })
       console.log("Options visibility toggled")
+    },
+
+    // Методы для GPU и производительности
+    handleGpuAccelerationChange: (value: boolean) => {
+      send({
+        type: "UPDATE_GPU_ACCELERATION",
+        enabled: value,
+      })
+    },
+
+    handlePreferredGpuEncoderChange: (value: string) => {
+      send({
+        type: "UPDATE_PREFERRED_GPU_ENCODER",
+        encoder: value,
+      })
+    },
+
+    handleMaxConcurrentJobsChange: (value: number) => {
+      send({
+        type: "UPDATE_MAX_CONCURRENT_JOBS",
+        jobs: value,
+      })
+    },
+
+    handleRenderQualityChange: (value: string) => {
+      send({
+        type: "UPDATE_RENDER_QUALITY",
+        quality: value,
+      })
+    },
+
+    handleBackgroundRenderingChange: (value: boolean) => {
+      send({
+        type: "UPDATE_BACKGROUND_RENDERING",
+        enabled: value,
+      })
+    },
+
+    handleRenderDelayChange: (value: number) => {
+      send({
+        type: "UPDATE_RENDER_DELAY",
+        delay: value,
+      })
+    },
+
+    // Методы для прокси
+    handleProxyEnabledChange: (value: boolean) => {
+      send({
+        type: "UPDATE_PROXY_ENABLED",
+        enabled: value,
+      })
+    },
+
+    handleProxyTypeChange: (value: string) => {
+      send({
+        type: "UPDATE_PROXY_TYPE",
+        proxyType: value,
+      })
+    },
+
+    handleProxyHostChange: (value: string) => {
+      send({
+        type: "UPDATE_PROXY_HOST",
+        host: value,
+      })
+    },
+
+    handleProxyPortChange: (value: string) => {
+      send({
+        type: "UPDATE_PROXY_PORT",
+        port: value,
+      })
+    },
+
+    handleProxyUsernameChange: (value: string) => {
+      send({
+        type: "UPDATE_PROXY_USERNAME",
+        username: value,
+      })
+    },
+
+    handleProxyPasswordChange: (value: string) => {
+      send({
+        type: "UPDATE_PROXY_PASSWORD",
+        password: value,
+      })
     },
   }
 
