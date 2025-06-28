@@ -643,4 +643,219 @@ mod tests {
     drop(services);
     container.shutdown_all().await.unwrap();
   }
+
+  #[tokio::test]
+  async fn test_register_services_macro() {
+    let container = ServiceContainer::new();
+    
+    let service1 = TestService {
+      initialized: Arc::new(AtomicBool::new(false)),
+      name: "service1".to_string(),
+    };
+    
+    let service2 = AnotherTestService {
+      initialized: Arc::new(AtomicBool::new(false)),
+    };
+    
+    // Тестируем макрос register_services
+    let result = register_services!(container, service1, service2).await;
+    assert!(result.is_ok());
+    
+    // Проверяем что оба сервиса зарегистрированы
+    assert!(container.has::<TestService>().await);
+    assert!(container.has::<AnotherTestService>().await);
+  }
+
+  #[tokio::test]
+  async fn test_container_clone() {
+    let container = ServiceContainer::new();
+    
+    // Регистрируем сервис
+    container
+      .register(TestService {
+        initialized: Arc::new(AtomicBool::new(false)),
+        name: "test".to_string(),
+      })
+      .await
+      .unwrap();
+    
+    // Клонируем контейнер
+    let container_clone = container.clone();
+    
+    // Сервис должен быть доступен в клоне
+    assert!(container_clone.has::<TestService>().await);
+    
+    // Resolve должен вернуть тот же экземпляр
+    let service1 = container.resolve::<TestService>().await.unwrap();
+    let service2 = container_clone.resolve::<TestService>().await.unwrap();
+    assert!(Arc::ptr_eq(&service1, &service2));
+  }
+
+  #[tokio::test]
+  async fn test_provider_creates_singleton() {
+    let container = ServiceContainer::new();
+    let counter = Arc::new(AtomicUsize::new(0));
+    
+    struct CountingProvider {
+      counter: Arc<AtomicUsize>,
+    }
+    
+    #[async_trait]
+    impl ServiceProvider for CountingProvider {
+      type Output = TestService;
+      
+      async fn provide(&self, _container: &ServiceContainer) -> Result<Self::Output> {
+        self.counter.fetch_add(1, Ordering::SeqCst);
+        Ok(TestService {
+          initialized: Arc::new(AtomicBool::new(false)),
+          name: format!("counted-{}", self.counter.load(Ordering::SeqCst)),
+        })
+      }
+    }
+    
+    container.register_provider(CountingProvider {
+      counter: counter.clone(),
+    }).await.unwrap();
+    
+    // Первый resolve создает сервис
+    let _service1 = container.resolve::<TestService>().await.unwrap();
+    assert_eq!(counter.load(Ordering::SeqCst), 1);
+    
+    // Второй resolve возвращает кешированный
+    let _service2 = container.resolve::<TestService>().await.unwrap();
+    assert_eq!(counter.load(Ordering::SeqCst), 1); // Счетчик не увеличился
+  }
+
+  #[tokio::test]
+  async fn test_has_service_with_provider_only() {
+    let container = ServiceContainer::new();
+    
+    // Регистрируем только provider
+    container.register_provider(TestProvider {
+      counter: Arc::new(RwLock::new(0)),
+    }).await.unwrap();
+    
+    // has должен вернуть true даже если сервис еще не создан
+    assert!(container.has::<TestService>().await);
+    
+    // Но сервис еще не в services map
+    let services = container.services.read().await;
+    assert!(!services.contains_key(&TypeId::of::<TestService>()));
+  }
+
+  #[tokio::test]
+  async fn test_empty_container() {
+    let container = ServiceContainer::new();
+    
+    // Пустой контейнер не имеет сервисов
+    assert!(!container.has::<TestService>().await);
+    assert!(!container.has::<AnotherTestService>().await);
+    
+    // list_services возвращает пустой список
+    let services = container.list_services().await;
+    assert!(services.is_empty());
+    
+    // initialize_all и shutdown_all работают без ошибок
+    assert!(container.initialize_all().await.is_ok());
+    assert!(container.shutdown_all().await.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_service_name_in_entry() {
+    let container = ServiceContainer::new();
+    
+    // Регистрируем сервис с конкретным именем
+    container
+      .register(TestService {
+        initialized: Arc::new(AtomicBool::new(false)),
+        name: "custom_name".to_string(),
+      })
+      .await
+      .unwrap();
+    
+    // Проверяем что имя сохранено
+    let services = container.list_services().await;
+    assert_eq!(services.len(), 1);
+    assert!(services[0].contains("TestService"));
+    assert!(services[0].contains("initialized: false"));
+  }
+
+  #[tokio::test]
+  async fn test_provider_wrapper_output_type() {
+    let provider = TestProvider {
+      counter: Arc::new(RwLock::new(0)),
+    };
+    
+    let wrapper = ProviderWrapper { provider };
+    
+    // Проверяем что wrapper правильно возвращает TypeId
+    assert_eq!(wrapper.output_type_id(), TypeId::of::<TestService>());
+  }
+
+  #[tokio::test]
+  async fn test_integration_methods() {
+    let container = ServiceContainer::new();
+    
+    // Все интеграционные методы возвращают None
+    assert!(container.get_ffmpeg_service().is_none());
+    assert!(container.get_cache_service().is_none());
+    assert!(container.get_preview_service().is_none());
+    assert!(container.get_project_service().is_none());
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_provider_resolution() {
+    use std::sync::Barrier;
+    
+    let container = Arc::new(ServiceContainer::new());
+    let creation_count = Arc::new(AtomicUsize::new(0));
+    
+    struct ConcurrentProvider {
+      count: Arc<AtomicUsize>,
+    }
+    
+    #[async_trait]
+    impl ServiceProvider for ConcurrentProvider {
+      type Output = TestService;
+      
+      async fn provide(&self, _container: &ServiceContainer) -> Result<Self::Output> {
+        // Небольшая задержка для имитации создания
+        tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+        self.count.fetch_add(1, Ordering::SeqCst);
+        
+        Ok(TestService {
+          initialized: Arc::new(AtomicBool::new(false)),
+          name: "concurrent".to_string(),
+        })
+      }
+    }
+    
+    container.register_provider(ConcurrentProvider {
+      count: creation_count.clone(),
+    }).await.unwrap();
+    
+    // Запускаем несколько потоков одновременно
+    let barrier = Arc::new(Barrier::new(5));
+    let mut handles = vec![];
+    
+    for _ in 0..5 {
+      let container = container.clone();
+      let barrier = barrier.clone();
+      
+      let handle = tokio::spawn(async move {
+        barrier.wait();
+        container.resolve::<TestService>().await
+      });
+      
+      handles.push(handle);
+    }
+    
+    // Ждем завершения всех
+    for handle in handles {
+      assert!(handle.await.unwrap().is_ok());
+    }
+    
+    // Проверяем что сервис создан только один раз
+    assert_eq!(creation_count.load(Ordering::SeqCst), 1);
+  }
 }

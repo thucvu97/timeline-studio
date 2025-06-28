@@ -425,7 +425,7 @@ mod tests {
 
     // Инициализация
     service.initialize().await.unwrap();
-    
+
     // Выполняем различные операции
     service.save_to_cache("key1", b"data1").await.unwrap();
     service.save_to_cache("key2", b"data2").await.unwrap();
@@ -434,7 +434,7 @@ mod tests {
     service.get_cache_size().await.unwrap();
     service.get_cache_stats().await.unwrap();
     service.list_cached_items().await.unwrap();
-    
+
     // Проверяем метрики
     let summary = metrics.get_summary().await;
     assert!(summary.total_operations >= 8);
@@ -475,7 +475,10 @@ mod tests {
 
     // Добавляем элементы в кэш
     for i in 0..5 {
-      service.save_to_cache(&format!("key{}", i), format!("data{}", i).as_bytes()).await.unwrap();
+      service
+        .save_to_cache(&format!("key{}", i), format!("data{}", i).as_bytes())
+        .await
+        .unwrap();
     }
 
     // Оптимизируем кэш (удаляем файлы старше 0 дней - т.е. все)
@@ -498,9 +501,18 @@ mod tests {
     service.initialize().await.unwrap();
 
     // Добавляем элементы
-    service.save_to_cache("render/item1", b"data1").await.unwrap();
-    service.save_to_cache("preview/item2", b"data2").await.unwrap();
-    service.save_to_cache("project/test/item3", b"data3").await.unwrap();
+    service
+      .save_to_cache("render/item1", b"data1")
+      .await
+      .unwrap();
+    service
+      .save_to_cache("preview/item2", b"data2")
+      .await
+      .unwrap();
+    service
+      .save_to_cache("project/test/item3", b"data3")
+      .await
+      .unwrap();
 
     // Очищаем различные типы кэша
     service.clear_render_cache().await.unwrap();
@@ -525,7 +537,10 @@ mod tests {
 
     // Симулируем операции для генерации метрик производительности
     for i in 0..10 {
-      service.save_to_cache(&format!("key{}", i), format!("data{}", i).as_bytes()).await.unwrap();
+      service
+        .save_to_cache(&format!("key{}", i), format!("data{}", i).as_bytes())
+        .await
+        .unwrap();
       service.get_from_cache(&format!("key{}", i)).await.unwrap();
     }
 
@@ -533,10 +548,10 @@ mod tests {
     let perf_metrics = service.get_performance_metrics().await.unwrap();
     assert!(perf_metrics.hit_rate_last_hour >= 0.0);
     assert!(perf_metrics.current_memory_usage_mb >= 0.0);
-    
+
     // Сбрасываем метрики
     service.reset_metrics().await.unwrap();
-    
+
     // Проверяем, что сброс сработал через сервис кэша
     let cache_stats = service.get_cache_stats().await.unwrap();
     assert_eq!(cache_stats.cache_hits, 0);
@@ -584,7 +599,10 @@ mod tests {
     let items = vec![
       ("item1", b"short data" as &[u8]),
       ("item2", b"longer data with more content" as &[u8]),
-      ("item3", b"very long data with lots of content to test size calculations" as &[u8]),
+      (
+        "item3",
+        b"very long data with lots of content to test size calculations" as &[u8],
+      ),
     ];
 
     for (key, data) in &items {
@@ -667,13 +685,16 @@ mod tests {
 
     // Запускаем несколько операций параллельно
     let mut handles = vec![];
-    
+
     for i in 0..5 {
       let service_clone = service.clone();
       let handle = tokio::spawn(async move {
         let key = format!("concurrent_key_{}", i);
         let data = format!("concurrent_data_{}", i);
-        service_clone.save_to_cache(&key, data.as_bytes()).await.unwrap();
+        service_clone
+          .save_to_cache(&key, data.as_bytes())
+          .await
+          .unwrap();
         service_clone.get_from_cache(&key).await.unwrap();
       });
       handles.push(handle);
