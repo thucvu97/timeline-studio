@@ -7,8 +7,10 @@ import { cn } from "@/lib/utils"
 import { ChannelWithAudio } from "./channel-with-audio"
 import { MasterSection } from "./master-section"
 import { useAudioEngine } from "../../hooks/use-audio-engine"
+import { useMidiIntegration } from "../../hooks/use-midi-integration"
 import { useMixerState } from "../../hooks/use-mixer-state"
 import { useTimelineMixerSync } from "../../services/timeline-sync-service"
+import { MidiIndicator } from "../midi/midi-indicator"
 
 interface MixerConsoleProps {
   className?: string
@@ -17,6 +19,9 @@ interface MixerConsoleProps {
 export function MixerConsole({ className }: MixerConsoleProps) {
   const { t } = useTranslation()
   const { channels, updateChannel, toggleMute, toggleSolo, toggleArm, setChannels } = useMixerState()
+
+  // Enable MIDI integration
+  useMidiIntegration()
 
   const {
     engine,
@@ -130,6 +135,9 @@ export function MixerConsole({ className }: MixerConsoleProps) {
 
       {/* Right section - Buses and Master */}
       <div className="w-64 border-l border-zinc-800 bg-zinc-900">
+        <div className="p-2 border-b border-zinc-800 flex justify-end">
+          <MidiIndicator />
+        </div>
         <MasterSection />
       </div>
     </div>

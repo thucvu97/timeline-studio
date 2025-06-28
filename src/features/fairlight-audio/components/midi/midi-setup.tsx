@@ -1,0 +1,233 @@
+import { useState } from "react"
+
+import { Info, Loader2, Music, Plus, Settings, Trash2 } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+import { MidiLearnDialog } from "./midi-learn-dialog"
+import { MidiMappingEditor } from "./midi-mapping-editor"
+import { useMidi } from "../../hooks/use-midi"
+import { MidiDevice } from "../../services/midi/midi-engine"
+
+export function MidiSetup() {
+  const {
+    devices,
+    inputDevices,
+    outputDevices,
+    mappings,
+    isInitialized,
+    error,
+    addMapping,
+    removeMapping,
+    updateMapping,
+  } = useMidi()
+
+  const [selectedInput, setSelectedInput] = useState<string>("")
+  const [selectedOutput, setSelectedOutput] = useState<string>("")
+  const [isLearnDialogOpen, setIsLearnDialogOpen] = useState(false)
+  const [editingMapping, setEditingMapping] = useState<string | null>(null)
+
+  if (!isInitialized) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center space-y-2">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-zinc-400" />
+          <p className="text-sm text-zinc-400">Initializing MIDI...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+        <div className="flex items-start gap-2">
+          <Info className="w-4 h-4 text-red-400 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-red-400">MIDI Error</p>
+            <p className="text-xs text-zinc-400 mt-1">{error}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <Tabs defaultValue="devices" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="devices">Devices</TabsTrigger>
+          <TabsTrigger value="mappings">Mappings</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="devices" className="space-y-4">
+          {/* Input Devices */}
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-zinc-100 mb-3">MIDI Input Devices</h3>
+
+            {inputDevices.length === 0 ? (
+              <p className="text-sm text-zinc-500">No MIDI input devices detected</p>
+            ) : (
+              <div className="space-y-2">
+                {inputDevices.map((device) => (
+                  <DeviceItem key={device.id} device={device} />
+                ))}
+              </div>
+            )}
+          </Card>
+
+          {/* Output Devices */}
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-zinc-100 mb-3">MIDI Output Devices</h3>
+
+            {outputDevices.length === 0 ? (
+              <p className="text-sm text-zinc-500">No MIDI output devices detected</p>
+            ) : (
+              <div className="space-y-2">
+                {outputDevices.map((device) => (
+                  <DeviceItem key={device.id} device={device} />
+                ))}
+              </div>
+            )}
+          </Card>
+
+          {/* Default Device Selection */}
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-zinc-100 mb-3">Default Devices</h3>
+
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="default-input" className="text-xs text-zinc-400">
+                  Default Input
+                </Label>
+                <Select value={selectedInput} onValueChange={setSelectedInput}>
+                  <SelectTrigger id="default-input" className="h-8 mt-1">
+                    <SelectValue placeholder="Select input device" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {inputDevices.map((device) => (
+                      <SelectItem key={device.id} value={device.id}>
+                        {device.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="default-output" className="text-xs text-zinc-400">
+                  Default Output
+                </Label>
+                <Select value={selectedOutput} onValueChange={setSelectedOutput}>
+                  <SelectTrigger id="default-output" className="h-8 mt-1">
+                    <SelectValue placeholder="Select output device" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {outputDevices.map((device) => (
+                      <SelectItem key={device.id} value={device.id}>
+                        {device.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="mappings" className="space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-sm font-semibold text-zinc-100">MIDI Mappings</h3>
+            <Button size="sm" onClick={() => setIsLearnDialogOpen(true)} disabled={inputDevices.length === 0}>
+              <Plus className="w-3 h-3 mr-1" />
+              Add Mapping
+            </Button>
+          </div>
+
+          {mappings.length === 0 ? (
+            <Card className="p-8">
+              <div className="text-center space-y-2">
+                <Music className="w-12 h-12 text-zinc-600 mx-auto" />
+                <p className="text-sm text-zinc-400">No MIDI mappings configured</p>
+                <p className="text-xs text-zinc-500">Click &quot;Add Mapping&quot; to create your first MIDI control</p>
+              </div>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {mappings.map((mapping) => (
+                <Card key={mapping.id} className="p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-zinc-100">{mapping.targetParameter}</p>
+                      <p className="text-xs text-zinc-500">
+                        {devices.find((d) => d.id === mapping.deviceId)?.name || "Unknown Device"} •
+                        {mapping.messageType.toUpperCase()}
+                        {mapping.controller !== undefined && ` CC${mapping.controller}`}
+                        {mapping.channel && ` CH${mapping.channel}`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => setEditingMapping(mapping.id)}>
+                        <Settings className="w-3 h-3" />
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => removeMapping(mapping.id)}>
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Dialogs */}
+      <MidiLearnDialog
+        open={isLearnDialogOpen}
+        onClose={() => setIsLearnDialogOpen(false)}
+        devices={inputDevices}
+        onComplete={(deviceId, message, targetParameter) => {
+          addMapping({
+            deviceId,
+            messageType: message.type,
+            channel: message.channel,
+            controller: message.data.controller,
+            targetParameter,
+            min: 0,
+            max: 1,
+            curve: "linear",
+          })
+          setIsLearnDialogOpen(false)
+        }}
+      />
+
+      {editingMapping && (
+        <MidiMappingEditor
+          mapping={mappings.find((m) => m.id === editingMapping)!}
+          onSave={(updates) => {
+            updateMapping(editingMapping, updates)
+            setEditingMapping(null)
+          }}
+          onClose={() => setEditingMapping(null)}
+        />
+      )}
+    </div>
+  )
+}
+
+function DeviceItem({ device }: { device: MidiDevice }) {
+  return (
+    <div className="flex items-center justify-between p-2 rounded bg-zinc-900/50">
+      <div>
+        <p className="text-sm font-medium text-zinc-100">{device.name}</p>
+        <p className="text-xs text-zinc-500">{device.manufacturer}</p>
+      </div>
+      <div className={`w-2 h-2 rounded-full ${device.state === "connected" ? "bg-green-500" : "bg-red-500"}`} />
+    </div>
+  )
+}
