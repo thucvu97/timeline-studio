@@ -47,33 +47,55 @@ jobs:
         run: |
           Write-Host "Setting up prebuilt FFmpeg..."
           
-          # Method 1: Try GitHub releases (fastest)
+          # Method 1: Try GitHub releases with dev headers (fastest and most compatible)
           try {
             $ffmpegUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip"
+            Write-Host "Downloading FFmpeg from GitHub releases..."
             Invoke-WebRequest -Uri $ffmpegUrl -OutFile "ffmpeg.zip" -TimeoutSec 300
+            
+            Write-Host "Extracting FFmpeg..."
             Expand-Archive -Path "ffmpeg.zip" -DestinationPath "C:\" -Force
             $ffmpegExtracted = Get-ChildItem "C:\ffmpeg-*" | Select-Object -First 1
             if ($ffmpegExtracted) {
               Rename-Item $ffmpegExtracted.FullName "C:\ffmpeg" -Force
-              Write-Host "FFmpeg setup successful via GitHub releases"
+              Write-Host "✅ FFmpeg setup successful via GitHub releases"
+              
+              # Verify critical components exist
+              $requiredPaths = @(
+                "C:\ffmpeg\bin\ffmpeg.exe",
+                "C:\ffmpeg\include\libavcodec\avcodec.h",
+                "C:\ffmpeg\lib\avcodec.lib"
+              )
+              
+              foreach ($path in $requiredPaths) {
+                if (Test-Path $path) {
+                  Write-Host "✅ Found: $path"
+                } else {
+                  Write-Host "❌ Missing: $path"
+                }
+              }
             }
           }
           catch {
-            Write-Host "GitHub method failed, trying alternative..."
+            Write-Host "GitHub method failed: $($_.Exception.Message)"
+            Write-Host "Trying alternative method..."
             
-            # Method 2: Gyan.dev (fallback)
+            # Method 2: Gyan.dev with full dev package (fallback)
             try {
               $ffmpegUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full-shared.7z"
+              Write-Host "Downloading FFmpeg from Gyan.dev..."
               Invoke-WebRequest -Uri $ffmpegUrl -OutFile "ffmpeg.7z" -TimeoutSec 600
+              
+              Write-Host "Extracting FFmpeg..."
               7z x ffmpeg.7z -o"C:\" -y
               $ffmpegDir = Get-ChildItem "C:\ffmpeg-*" | Select-Object -First 1
               if ($ffmpegDir) {
                 Rename-Item $ffmpegDir.FullName "C:\ffmpeg" -Force
-                Write-Host "FFmpeg setup successful via Gyan.dev"
+                Write-Host "✅ FFmpeg setup successful via Gyan.dev"
               }
             }
             catch {
-              Write-Host "All FFmpeg download methods failed"
+              Write-Host "❌ All FFmpeg download methods failed: $($_.Exception.Message)"
               exit 1
             }
           }
@@ -86,17 +108,79 @@ jobs:
       - name: Set FFmpeg environment variables
         shell: powershell
         run: |
+          # Basic FFmpeg paths
           echo "FFMPEG_DIR=C:\ffmpeg" >> $env:GITHUB_ENV
           echo "PKG_CONFIG_PATH=C:\ffmpeg\lib\pkgconfig" >> $env:GITHUB_ENV
           echo "C:\ffmpeg\bin" >> $env:GITHUB_PATH
           
+          # Critical: Configure ffmpeg-sys-next crate environment
+          echo "FFMPEG_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_LIB_DIR=C:\ffmpeg\lib" >> $env:GITHUB_ENV
+          echo "FFMPEG_LINK_TYPE=dynamic" >> $env:GITHUB_ENV
+          
+          # Disable problematic auto-detection
+          echo "FFMPEG_NO_PKG_CONFIG=1" >> $env:GITHUB_ENV
+          
+          # Force Windows-style paths for bindgen
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:\ffmpeg\include" >> $env:GITHUB_ENV
+          
           # Verify FFmpeg installation
+          Write-Host "=== FFmpeg Installation Verification ==="
           if (Test-Path "C:\ffmpeg\bin\ffmpeg.exe") {
-            Write-Host "FFmpeg found successfully"
+            Write-Host "✅ FFmpeg executable found"
             & "C:\ffmpeg\bin\ffmpeg.exe" -version | Select-Object -First 3
           } else {
-            Write-Host "ERROR: FFmpeg not found at expected location"
+            Write-Host "❌ FFmpeg executable not found"
             exit 1
+          }
+          
+          # Verify development headers
+          $criticalHeaders = @(
+            "C:\ffmpeg\include\libavcodec\avcodec.h",
+            "C:\ffmpeg\include\libavformat\avformat.h",
+            "C:\ffmpeg\include\libavutil\avutil.h"
+          )
+          
+          Write-Host "=== FFmpeg Headers Verification ==="
+          $missingHeaders = 0
+          foreach ($header in $criticalHeaders) {
+            if (Test-Path $header) {
+              Write-Host "✅ Found: $header"
+            } else {
+              Write-Host "❌ Missing: $header"
+              $missingHeaders++
+            }
+          }
+          
+          if ($missingHeaders -gt 0) {
+            Write-Host "❌ $missingHeaders critical headers missing - build will likely fail"
+            # Don't exit - try to continue anyway
+          } else {
+            Write-Host "✅ All critical headers found"
+          }
+          
+          # Verify libraries
+          $criticalLibs = @(
+            "C:\ffmpeg\lib\avcodec.lib",
+            "C:\ffmpeg\lib\avformat.lib",
+            "C:\ffmpeg\lib\avutil.lib"
+          )
+          
+          Write-Host "=== FFmpeg Libraries Verification ==="
+          $missingLibs = 0
+          foreach ($lib in $criticalLibs) {
+            if (Test-Path $lib) {
+              Write-Host "✅ Found: $lib"
+            } else {
+              Write-Host "❌ Missing: $lib"
+              $missingLibs++
+            }
+          }
+          
+          if ($missingLibs -gt 0) {
+            Write-Host "❌ $missingLibs critical libraries missing - linking will likely fail"
+          } else {
+            Write-Host "✅ All critical libraries found"
           }
           
       - name: Install frontend dependencies
