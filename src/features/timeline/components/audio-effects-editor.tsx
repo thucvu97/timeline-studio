@@ -84,7 +84,7 @@ const audioEffectPresets = {
   },
 }
 
-export function AudioEffectsEditor({ open, onOpenChange, clip, track, onApplyEffects }: AudioEffectsEditorProps) {
+export function AudioEffectsEditor({ open, onOpenChange, clip, onApplyEffects }: AudioEffectsEditorProps) {
   const [activeEffects, setActiveEffects] = useState<Record<string, any>>({})
   const [selectedTab, setSelectedTab] = useState("basic")
 

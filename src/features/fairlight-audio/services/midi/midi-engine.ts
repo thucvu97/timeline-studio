@@ -111,6 +111,8 @@ export class MidiEngine extends EventEmitter {
 
   private handleStateChange(event: MIDIConnectionEvent): void {
     const port = event.port
+    if (!port) return // Guard against null port
+    
     const deviceId = port.id || ""
 
     if (port.type === "input" && port.state === "connected") {
@@ -270,7 +272,6 @@ export class MidiEngine extends EventEmitter {
       case "logarithmic":
         normalized = Math.log(normalized + 1) / Math.log(2)
         break
-      case "linear":
       default:
         // No transformation needed for linear
         break
@@ -357,7 +358,7 @@ export class MidiEngine extends EventEmitter {
   // Cleanup
   dispose(): void {
     // Remove all input handlers
-    for (const [deviceId, handler] of this.inputHandlers) {
+    for (const [deviceId] of this.inputHandlers) {
       const input = this.midiAccess?.inputs.get(deviceId)
       if (input) {
         input.onmidimessage = null
