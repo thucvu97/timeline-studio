@@ -48,7 +48,7 @@ const mockUseSubtitleCategories = () => ({
 describe("useSubtitles", () => {
   it("должен возвращать мокированные субтитры", () => {
     const result = mockUseSubtitles()
-    
+
     expect(result.subtitles).toHaveLength(1)
     expect(result.subtitles[0].id).toBe("basic-white")
     expect(result.isReady).toBe(true)

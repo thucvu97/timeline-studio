@@ -29,10 +29,12 @@ export function SubtitleSyncTools() {
    * Проверяет, является ли клип субтитром
    */
   const isSubtitleClip = (clip: any): clip is SubtitleClip => {
-    return clip.type === "subtitle" && 
-           typeof clip.text === "string" &&
-           typeof clip.startTime === "number" &&
-           typeof clip.duration === "number"
+    return (
+      clip.type === "subtitle" &&
+      typeof clip.text === "string" &&
+      typeof clip.startTime === "number" &&
+      typeof clip.duration === "number"
+    )
   }
 
   /**

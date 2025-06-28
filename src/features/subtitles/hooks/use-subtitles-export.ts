@@ -8,10 +8,7 @@ import { useTracks } from "@/features/timeline/hooks/use-tracks"
 
 import { exportSubtitles, getSubtitleFileExtension } from "../utils/subtitle-exporters"
 
-import type { SubtitleClip , SubtitleExportOptions } from "../types/subtitles"
-
-
-
+import type { SubtitleClip, SubtitleExportOptions } from "../types/subtitles"
 
 /**
  * Хук для экспорта субтитров в различные форматы
@@ -25,10 +22,12 @@ export function useSubtitlesExport() {
    * Проверяет, является ли клип субтитром
    */
   const isSubtitleClip = (clip: any): clip is SubtitleClip => {
-    return clip.type === "subtitle" && 
-           typeof clip.text === "string" &&
-           typeof clip.startTime === "number" &&
-           typeof clip.duration === "number"
+    return (
+      clip.type === "subtitle" &&
+      typeof clip.text === "string" &&
+      typeof clip.startTime === "number" &&
+      typeof clip.duration === "number"
+    )
   }
 
   /**

@@ -216,7 +216,7 @@ describe("useClips - Comprehensive Tests", () => {
         "track-1",
         mockMediaFile,
         11, // startTime after original clip
-        10  // same duration
+        10, // same duration
       )
     })
 
@@ -229,12 +229,7 @@ describe("useClips - Comprehensive Tests", () => {
         result.current.duplicateClip("clip-1", "track-2")
       })
 
-      expect(mockUseTimeline.addClip).toHaveBeenCalledWith(
-        "track-2",
-        mockMediaFile,
-        11,
-        10
-      )
+      expect(mockUseTimeline.addClip).toHaveBeenCalledWith("track-2", mockMediaFile, 11, 10)
     })
 
     it("should not duplicate non-existent clip", () => {

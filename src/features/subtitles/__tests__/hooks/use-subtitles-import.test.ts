@@ -150,7 +150,7 @@ Second subtitle`
 
     // Проверяем что состояние изменилось на true
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 1))
+      await new Promise((resolve) => setTimeout(resolve, 1))
     })
     expect(result.current.isImporting).toBe(true)
 

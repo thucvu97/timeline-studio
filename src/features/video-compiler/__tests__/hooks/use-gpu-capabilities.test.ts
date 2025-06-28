@@ -51,9 +51,9 @@ describe("useGpuCapabilities", () => {
       memory_used: 2147483648, // 2GB
       utilization: 45,
       encoder_type: "Nvenc",
-      supported_codecs: ["h264", "hevc"]
+      supported_codecs: ["h264", "hevc"],
     },
-    hardware_acceleration_supported: true
+    hardware_acceleration_supported: true,
   }
 
   const mockGpuCapabilities = {
@@ -67,35 +67,35 @@ describe("useGpuCapabilities", () => {
     os: {
       type: "Linux",
       version: "5.15.0",
-      architecture: "x86_64"
+      architecture: "x86_64",
     },
     cpu: {
       cores: 16,
-      arch: "x86_64"
+      arch: "x86_64",
     },
     memory: {
       total_bytes: 34359738368, // 32GB
       total_mb: 32768,
-      total_gb: 32
+      total_gb: 32,
     },
     runtime: {
       rust_version: "0.25.0",
-      tauri_version: "2.0.0"
-    }
+      tauri_version: "2.0.0",
+    },
   }
 
   const mockFfmpegCapabilities = {
     version: "5.1.2",
     available_codecs: ["h264", "hevc", "vp9", "av1"],
     hardware_encoders: ["h264_nvenc", "h264_qsv"],
-    path: "/usr/local/bin/ffmpeg"
+    path: "/usr/local/bin/ffmpeg",
   }
 
   const mockCompilerSettings = {
     hardware_acceleration: true,
     max_concurrent_jobs: 2,
     temp_directory: "/tmp/timeline-studio",
-    cache_size_mb: 2048
+    cache_size_mb: 2048,
   }
 
   beforeEach(async () => {
@@ -319,7 +319,7 @@ describe("GPU utility functions", () => {
           memory_used: 2147483648,
           utilization: 45,
           encoder_type: GpuEncoder.Nvenc,
-          supported_codecs: ["h264", "hevc"]
+          supported_codecs: ["h264", "hevc"],
         },
       }
       const recommendations = getGpuRecommendations(capabilities, mockT)
@@ -340,7 +340,7 @@ describe("GPU utility functions", () => {
           memory_used: 536870912,
           utilization: 30,
           encoder_type: GpuEncoder.QuickSync,
-          supported_codecs: ["h264", "hevc"]
+          supported_codecs: ["h264", "hevc"],
         },
       }
       const recommendations = getGpuRecommendations(capabilities, mockT)
@@ -361,7 +361,7 @@ describe("GPU utility functions", () => {
           memory_used: 2147483648,
           utilization: 25,
           encoder_type: GpuEncoder.VideoToolbox,
-          supported_codecs: ["h264", "hevc"]
+          supported_codecs: ["h264", "hevc"],
         },
       }
       const recommendations = getGpuRecommendations(capabilities, mockT)

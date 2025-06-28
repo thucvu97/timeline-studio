@@ -239,7 +239,7 @@ describe("EffectsProvider API", () => {
   beforeEach(async () => {
     // Reset api before each test
     api = undefined
-    
+
     render(
       <EffectsProvider>
         <APITestComponent />

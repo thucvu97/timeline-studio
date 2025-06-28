@@ -29,7 +29,7 @@ export function PerformanceSettingsTab() {
     // GPU настройки
     gpuAccelerationEnabled = true,
     preferredGpuEncoder = "auto",
-    
+
     // Прокси настройки
     proxyEnabled = false,
     proxyType = "http",
@@ -37,13 +37,13 @@ export function PerformanceSettingsTab() {
     proxyPort = "",
     proxyUsername = "",
     proxyPassword = "",
-    
+
     // Дополнительные настройки производительности
     maxConcurrentJobs = 2,
     renderQuality = "high",
     backgroundRenderingEnabled = true,
     renderDelay = 5,
-    
+
     // Методы обновления
     handleGpuAccelerationChange,
     handlePreferredGpuEncoderChange,
@@ -71,17 +71,14 @@ export function PerformanceSettingsTab() {
             <Zap className="h-5 w-5 text-primary" />
             <Label className="text-base font-semibold">{t("dialogs.userSettings.performance.gpuAcceleration")}</Label>
           </div>
-          <Switch
-            checked={gpuAccelerationEnabled}
-            onCheckedChange={handleGpuAccelerationChange}
-          />
+          <Switch checked={gpuAccelerationEnabled} onCheckedChange={handleGpuAccelerationChange} />
         </div>
-        
+
         {gpuAccelerationEnabled && (
           <div className="ml-7 space-y-4">
             {/* Компонент статуса GPU */}
             <GpuStatus showDetails={true} />
-            
+
             {/* Выбор предпочитаемого GPU кодировщика */}
             <div className="space-y-2">
               <Label className="text-sm">{t("dialogs.userSettings.performance.preferredGpuEncoder")}</Label>
@@ -107,7 +104,7 @@ export function PerformanceSettingsTab() {
       {/* Настройки рендеринга */}
       <div className="space-y-4">
         <Label className="text-base font-semibold">{t("dialogs.userSettings.performance.renderingSettings")}</Label>
-        
+
         {/* Качество рендеринга */}
         <div className="space-y-2">
           <Label className="text-sm">{t("dialogs.userSettings.performance.renderQuality")}</Label>
@@ -132,10 +129,7 @@ export function PerformanceSettingsTab() {
               {t("dialogs.userSettings.performance.backgroundRenderingDesc")}
             </p>
           </div>
-          <Switch
-            checked={backgroundRenderingEnabled}
-            onCheckedChange={handleBackgroundRenderingChange}
-          />
+          <Switch checked={backgroundRenderingEnabled} onCheckedChange={handleBackgroundRenderingChange} />
         </div>
 
         {/* Задержка начала рендеринга */}
@@ -192,10 +186,7 @@ export function PerformanceSettingsTab() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Label className="text-base font-semibold">{t("dialogs.userSettings.performance.proxyServer")}</Label>
-          <Switch
-            checked={proxyEnabled}
-            onCheckedChange={handleProxyEnabledChange}
-          />
+          <Switch checked={proxyEnabled} onCheckedChange={handleProxyEnabledChange} />
         </div>
 
         {proxyEnabled && (
@@ -264,7 +255,9 @@ export function PerformanceSettingsTab() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground hover:text-foreground"
                     >
-                      {showPassword ? t("dialogs.userSettings.performance.hide") : t("dialogs.userSettings.performance.show")}
+                      {showPassword
+                        ? t("dialogs.userSettings.performance.hide")
+                        : t("dialogs.userSettings.performance.show")}
                     </button>
                   </div>
                 </div>
@@ -274,11 +267,7 @@ export function PerformanceSettingsTab() {
             {/* Настройки прокси для медиа */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Switch
-                  id="proxy-media"
-                  checked={true}
-                  disabled
-                />
+                <Switch id="proxy-media" checked={true} disabled />
                 <Label htmlFor="proxy-media" className="text-sm">
                   {t("dialogs.userSettings.performance.autoProxyMedia")}
                 </Label>

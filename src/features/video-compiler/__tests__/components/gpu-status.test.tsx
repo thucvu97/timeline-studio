@@ -48,21 +48,21 @@ describe("GpuStatus", () => {
     os: {
       type: "Linux",
       version: "5.15.0",
-      architecture: "x86_64"
+      architecture: "x86_64",
     },
     cpu: {
       cores: 16,
-      arch: "x86_64"
+      arch: "x86_64",
     },
     memory: {
       total_bytes: 34359738368, // 32GB
       total_mb: 32768,
-      total_gb: 32
+      total_gb: 32,
     },
     runtime: {
       rust_version: "0.25.0",
-      tauri_version: "2.0.0"
-    }
+      tauri_version: "2.0.0",
+    },
   }
 
   const mockCompilerSettings = {

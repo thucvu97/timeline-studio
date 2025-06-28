@@ -86,10 +86,13 @@ export function StyleTemplatePreview({
     [t],
   )
 
-  const handlePreview = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    onSelect(template.id)
-  }, [onSelect, template.id])
+  const handlePreview = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      onSelect(template.id)
+    },
+    [onSelect, template.id],
+  )
 
   const handleClick = useCallback(() => {
     // Only trigger preview, don't automatically add to resources
@@ -133,7 +136,7 @@ export function StyleTemplatePreview({
         {/* Кнопка воспроизведения при наведении */}
         {isHovered && template.previewVideo && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div 
+            <div
               className="rounded-full bg-teal p-3 transition-transform hover:scale-110 cursor-pointer"
               onClick={handlePreview}
               data-testid="play-button"

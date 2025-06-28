@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 
-
 import { SubtitleClip } from "../../types/subtitles"
 import {
   exportSubtitles,
@@ -107,7 +106,9 @@ with multiple lines`,
       expect(result).toContain("[V4+ Styles]")
       expect(result).toContain("[Events]")
       expect(result).toContain("Dialogue: 0,0:00:00.00,0:00:02.50,Default,,0,0,0,,Hello world")
-      expect(result).toContain("Dialogue: 0,0:00:03.00,0:00:05.00,Default,,0,0,0,,{\\c&H00ffff&}This is a test\nwith multiple lines")
+      expect(result).toContain(
+        "Dialogue: 0,0:00:03.00,0:00:05.00,Default,,0,0,0,,{\\c&H00ffff&}This is a test\nwith multiple lines",
+      )
     })
 
     it("should include video dimensions", () => {

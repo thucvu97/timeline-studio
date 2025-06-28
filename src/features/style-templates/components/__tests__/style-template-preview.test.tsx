@@ -228,10 +228,10 @@ describe("StyleTemplatePreview", () => {
     renderWithBrowser(<StyleTemplatePreview {...defaultProps} onSelect={onSelectMock} />)
 
     const previewContainer = screen.getByAltText("Тестовый шаблон").parentElement
-    
+
     // Hover to show preview button
     await user.hover(previewContainer!)
-    
+
     // Wait for the play button to appear
     await waitFor(() => {
       const playButton = screen.queryByTestId("play-button")

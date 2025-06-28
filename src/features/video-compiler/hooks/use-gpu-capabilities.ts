@@ -89,15 +89,18 @@ export function useGpuCapabilities(): UseGpuCapabilitiesReturn {
       }
     } catch (err) {
       let errorMsg = err instanceof Error ? err.message : t("common.unknownError")
-      
+
       // Специальная обработка для Apple Silicon
       if (errorMsg.includes("Metal") || errorMsg.includes("VideoToolbox")) {
-        errorMsg = t("videoCompiler.gpu.appleMetalError", "Apple Metal/VideoToolbox initialization error. This is usually temporary.")
+        errorMsg = t(
+          "videoCompiler.gpu.appleMetalError",
+          "Apple Metal/VideoToolbox initialization error. This is usually temporary.",
+        )
       }
-      
+
       setError(errorMsg)
       console.error("GPU capabilities error:", err)
-      
+
       // Не показываем toast при первой загрузке, только логируем
       if (!isLoading) {
         toast.error(t("videoCompiler.gpu.errorGettingInfo"), { description: errorMsg })

@@ -67,40 +67,21 @@ describe("VideoClip", () => {
 
   describe("Rendering", () => {
     it("should render video clip with correct name and icon", () => {
-      render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       expect(screen.getByText("Test Video Clip")).toBeInTheDocument()
       expect(screen.getByText("10s")).toBeInTheDocument()
     })
 
     it("should render image clip with image icon", () => {
-      render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockImageTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<VideoClip clip={mockVideoClip} track={mockImageTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       expect(screen.getByText("Test Video Clip")).toBeInTheDocument()
     })
 
     it("should apply correct colors for video track", () => {
       const { container } = render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       const clipElement = container.firstChild
@@ -109,12 +90,7 @@ describe("VideoClip", () => {
 
     it("should apply correct colors for image track", () => {
       const { container } = render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockImageTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={mockVideoClip} track={mockImageTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       const clipElement = container.firstChild
@@ -125,12 +101,7 @@ describe("VideoClip", () => {
   describe("Selection", () => {
     it("should call onUpdate when clicked", () => {
       const { container } = render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       fireEvent.click(container.firstChild!)
@@ -140,12 +111,7 @@ describe("VideoClip", () => {
     it("should toggle selection state", () => {
       const selectedClip = { ...mockVideoClip, isSelected: true }
       const { container } = render(
-        <VideoClip
-          clip={selectedClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={selectedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       fireEvent.click(container.firstChild!)
@@ -155,12 +121,7 @@ describe("VideoClip", () => {
     it("should show selection ring when selected", () => {
       const selectedClip = { ...mockVideoClip, isSelected: true }
       const { container } = render(
-        <VideoClip
-          clip={selectedClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={selectedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(container.firstChild).toHaveClass("ring-2")
@@ -169,14 +130,7 @@ describe("VideoClip", () => {
 
   describe("Hover Effects", () => {
     it("should show action buttons on hover", () => {
-      render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       // Initially buttons should not be visible
       expect(screen.queryByTitle("Копировать")).not.toBeInTheDocument()
@@ -194,17 +148,10 @@ describe("VideoClip", () => {
     })
 
     it("should hide action buttons on mouse leave", () => {
-      render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Video Clip").closest("div")!
-      
+
       // Hover and then leave
       fireEvent.mouseEnter(clipElement.parentElement!)
       fireEvent.mouseLeave(clipElement.parentElement!)
@@ -215,14 +162,7 @@ describe("VideoClip", () => {
 
     it("should not show buttons when clip is locked", () => {
       const lockedClip = { ...mockVideoClip, isLocked: true }
-      render(
-        <VideoClip
-          clip={lockedClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<VideoClip clip={lockedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Video Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -233,12 +173,7 @@ describe("VideoClip", () => {
 
     it("should show resize handles on hover", () => {
       const { container } = render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       fireEvent.mouseEnter(container.firstChild as Element)
@@ -251,15 +186,8 @@ describe("VideoClip", () => {
   describe("Action Buttons", () => {
     it("should handle copy button click", () => {
       const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
-      
-      render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+
+      render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Video Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -273,15 +201,8 @@ describe("VideoClip", () => {
 
     it("should handle split button click", () => {
       const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
-      
-      render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+
+      render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Video Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -294,14 +215,7 @@ describe("VideoClip", () => {
     })
 
     it("should handle remove button click", () => {
-      render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Video Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -313,14 +227,7 @@ describe("VideoClip", () => {
     })
 
     it("should stop propagation on button clicks", () => {
-      render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Video Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -339,14 +246,9 @@ describe("VideoClip", () => {
         ...mockVideoClip,
         effects: [{ id: "effect-1", type: "blur" }],
       }
-      
+
       render(
-        <VideoClip
-          clip={clipWithEffects}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={clipWithEffects} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(screen.getByTitle("Эффекты применены")).toBeInTheDocument()
@@ -357,14 +259,9 @@ describe("VideoClip", () => {
         ...mockVideoClip,
         filters: [{ id: "filter-1", type: "brightness" }],
       }
-      
+
       render(
-        <VideoClip
-          clip={clipWithFilters}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={clipWithFilters} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(screen.getByTitle("Фильтры применены")).toBeInTheDocument()
@@ -375,14 +272,9 @@ describe("VideoClip", () => {
         ...mockVideoClip,
         transitions: [{ id: "transition-1", type: "fade" }],
       }
-      
+
       render(
-        <VideoClip
-          clip={clipWithTransitions}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={clipWithTransitions} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(screen.getByTitle("Переходы применены")).toBeInTheDocument()
@@ -391,12 +283,7 @@ describe("VideoClip", () => {
     it("should show opacity when locked", () => {
       const lockedClip = { ...mockVideoClip, isLocked: true }
       const { container } = render(
-        <VideoClip
-          clip={lockedClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={lockedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(container.firstChild).toHaveClass("opacity-60")
@@ -411,14 +298,9 @@ describe("VideoClip", () => {
         mediaEndTime: 15,
         duration: 5,
       }
-      
+
       const { container } = render(
-        <VideoClip
-          clip={trimmedClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={trimmedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       const progressBar = container.querySelector(".h-1.bg-black\\/30 > div")
@@ -433,12 +315,7 @@ describe("VideoClip", () => {
     it("should handle clip without name", () => {
       const clipWithoutName = { ...mockVideoClip, name: "" }
       render(
-        <VideoClip
-          clip={clipWithoutName}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={clipWithoutName} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       // Should not throw error
@@ -448,24 +325,14 @@ describe("VideoClip", () => {
     it("should handle zero duration", () => {
       const zeroDurationClip = { ...mockVideoClip, duration: 0 }
       render(
-        <VideoClip
-          clip={zeroDurationClip}
-          track={mockVideoTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <VideoClip clip={zeroDurationClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(screen.getByText("0s")).toBeInTheDocument()
     })
 
     it("should handle missing callbacks", () => {
-      const { container } = render(
-        <VideoClip
-          clip={mockVideoClip}
-          track={mockVideoTrack}
-        />
-      )
+      const { container } = render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} />)
 
       // Should not throw when clicking without callbacks
       expect(() => fireEvent.click(container.firstChild!)).not.toThrow()

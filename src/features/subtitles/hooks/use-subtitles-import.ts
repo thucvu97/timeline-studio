@@ -27,7 +27,7 @@ export function useSubtitlesImport() {
    */
   const addSubtitleClip = useCallback(async (trackId: string, subtitle: any) => {
     // Временная заглушка - просто логируем
-    console.log('Adding subtitle clip:', { trackId, subtitle })
+    console.log("Adding subtitle clip:", { trackId, subtitle })
     // В будущем здесь будет:
     // timeline.addSubtitleClip(trackId, subtitle.text, subtitle.startTime, subtitle.duration)
   }, [])

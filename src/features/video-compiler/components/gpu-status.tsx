@@ -193,10 +193,12 @@ export function GpuStatus({ className, showDetails = true, onSettingsClick }: Gp
                 </div>
                 <div className="ml-6 space-y-1 text-sm text-muted-foreground">
                   <p>
-                    {t("videoCompiler.gpu.os")}: {systemInfo.os.type} {systemInfo.os.version} ({systemInfo.os.architecture})
+                    {t("videoCompiler.gpu.os")}: {systemInfo.os.type} {systemInfo.os.version} (
+                    {systemInfo.os.architecture})
                   </p>
                   <p>
-                    {t("videoCompiler.gpu.cpu")}: {systemInfo.cpu.cores} {t("videoCompiler.gpu.cores")} ({systemInfo.cpu.arch})
+                    {t("videoCompiler.gpu.cpu")}: {systemInfo.cpu.cores} {t("videoCompiler.gpu.cores")} (
+                    {systemInfo.cpu.arch})
                   </p>
                   {systemInfo.memory && (
                     <p>

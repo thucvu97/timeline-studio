@@ -17,7 +17,7 @@ function parseSRTTime(timeStr: string): number {
     Number.parseInt(hours) * 3600 +
     Number.parseInt(minutes) * 60 +
     Number.parseInt(seconds) +
-    Number.parseInt(milliseconds.padEnd(3, '0')) / 1000
+    Number.parseInt(milliseconds.padEnd(3, "0")) / 1000
   )
 }
 
@@ -33,9 +33,7 @@ function parseVTTTime(timeStr: string): number {
     if (match) {
       const [, minutes, seconds, milliseconds] = match
       return (
-        Number.parseInt(minutes) * 60 +
-        Number.parseInt(seconds) +
-        Number.parseInt(milliseconds.padEnd(3, '0')) / 1000
+        Number.parseInt(minutes) * 60 + Number.parseInt(seconds) + Number.parseInt(milliseconds.padEnd(3, "0")) / 1000
       )
     }
     throw new Error(`Invalid VTT time format: ${timeStr}`)
@@ -46,7 +44,7 @@ function parseVTTTime(timeStr: string): number {
     Number.parseInt(hours) * 3600 +
     Number.parseInt(minutes) * 60 +
     Number.parseInt(seconds) +
-    Number.parseInt(milliseconds.padEnd(3, '0')) / 1000
+    Number.parseInt(milliseconds.padEnd(3, "0")) / 1000
   )
 }
 
@@ -153,7 +151,7 @@ export function parseVTT(content: string): Omit<SubtitleClip, "id" | "trackId">[
         break
       }
     }
-    
+
     if (timingLineIndex === -1) continue
 
     const timingMatch = /(.+?) --> (.+)/.exec(lines[timingLineIndex])

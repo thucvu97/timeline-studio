@@ -51,45 +51,45 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
                   memory_used: 2048,
                   utilization: 25,
                   encoder_type: "VideoToolbox",
-                  supported_codecs: ["h264", "hevc"]
+                  supported_codecs: ["h264", "hevc"],
                 },
-                hardware_acceleration_supported: true
+                hardware_acceleration_supported: true,
               }
             case "get_system_info":
-              return { 
+              return {
                 os: {
                   type: "Darwin",
                   version: "14.0",
-                  architecture: "aarch64"
+                  architecture: "aarch64",
                 },
                 cpu: {
                   cores: 8,
-                  arch: "aarch64"
+                  arch: "aarch64",
                 },
                 memory: {
                   total_bytes: 8589934592,
                   total_mb: 8192,
-                  total_gb: 8
+                  total_gb: 8,
                 },
                 runtime: {
                   rust_version: "0.25.0",
-                  tauri_version: "2.0.0"
-                }
+                  tauri_version: "2.0.0",
+                },
               }
             case "check_ffmpeg_capabilities":
-              return { 
+              return {
                 version: "5.1.2",
                 available_codecs: ["h264", "hevc", "vp9", "av1"],
                 hardware_encoders: ["h264_videotoolbox", "hevc_videotoolbox"],
-                path: "/usr/local/bin/ffmpeg"
+                path: "/usr/local/bin/ffmpeg",
               }
             case "get_compiler_settings":
             case "get_compiler_settings_advanced":
-              return { 
+              return {
                 hardware_acceleration: true,
                 max_concurrent_jobs: 2,
                 temp_directory: "/tmp",
-                cache_size_mb: 1024
+                cache_size_mb: 1024,
               }
             case "check_hardware_acceleration_support":
               return true

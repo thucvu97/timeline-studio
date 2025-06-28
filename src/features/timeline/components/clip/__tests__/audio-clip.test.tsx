@@ -2,9 +2,7 @@
  * Tests for AudioClip component
  */
 
-import React from "react"
-
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { TimelineClip, TimelineTrack, TrackType } from "../../../types"
@@ -19,17 +17,9 @@ vi.mock("../../../hooks", () => ({
 
 // Mock components
 vi.mock("../audio-effects-editor", () => ({
-  AudioEffectsEditor: ({ 
-    onApply, 
-    onClose 
-  }: { 
-    onApply: (effects: any[]) => void
-    onClose: () => void 
-  }) => (
+  AudioEffectsEditor: ({ onApply, onClose }: { onApply: (effects: any[]) => void; onClose: () => void }) => (
     <div data-testid="audio-effects-editor">
-      <button onClick={() => onApply([{ id: "effect-1", type: "reverb" }])}>
-        Apply Effects
-      </button>
+      <button onClick={() => onApply([{ id: "effect-1", type: "reverb" }])}>Apply Effects</button>
       <button onClick={onClose}>Close</button>
     </div>
   ),
@@ -48,12 +38,36 @@ vi.mock("lucide-react", async () => {
   const actual = await vi.importActual<typeof import("lucide-react")>("lucide-react")
   return {
     ...actual,
-    Music: (props: any) => <svg {...props} data-testid="music-icon">Music</svg>,
-    Sparkles: (props: any) => <svg {...props} data-testid="sparkles-icon">Sparkles</svg>,
-    Copy: (props: any) => <svg {...props} data-testid="copy-icon">Copy</svg>,
-    Scissors: (props: any) => <svg {...props} data-testid="scissors-icon">Scissors</svg>,
-    Trash2: (props: any) => <svg {...props} data-testid="trash-icon">Trash</svg>,
-    Volume2: (props: any) => <svg {...props} data-testid="volume-icon">Volume</svg>,
+    Music: (props: any) => (
+      <svg {...props} data-testid="music-icon">
+        Music
+      </svg>
+    ),
+    Sparkles: (props: any) => (
+      <svg {...props} data-testid="sparkles-icon">
+        Sparkles
+      </svg>
+    ),
+    Copy: (props: any) => (
+      <svg {...props} data-testid="copy-icon">
+        Copy
+      </svg>
+    ),
+    Scissors: (props: any) => (
+      <svg {...props} data-testid="scissors-icon">
+        Scissors
+      </svg>
+    ),
+    Trash2: (props: any) => (
+      <svg {...props} data-testid="trash-icon">
+        Trash
+      </svg>
+    ),
+    Volume2: (props: any) => (
+      <svg {...props} data-testid="volume-icon">
+        Volume
+      </svg>
+    ),
   }
 })
 
@@ -148,28 +162,14 @@ describe("AudioClip", () => {
 
   describe("Rendering", () => {
     it("should render audio clip with correct name and icon", () => {
-      render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       expect(screen.getByText("Test Audio Clip")).toBeInTheDocument()
       expect(screen.getByTestId("music-icon")).toBeInTheDocument()
     })
 
     it("should handle audio rendering", () => {
-      render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       // The component should render the main content area
       expect(screen.getByText("Test Audio Clip")).toBeInTheDocument()
@@ -177,7 +177,6 @@ describe("AudioClip", () => {
       expect(screen.getByText("80%")).toBeInTheDocument()
       expect(screen.getByText("30s")).toBeInTheDocument()
     })
-
 
     it("should show effects indicator when effects are present", () => {
       const clipWithEffects = {
@@ -189,12 +188,7 @@ describe("AudioClip", () => {
       }
 
       render(
-        <AudioClip
-          clip={clipWithEffects}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={clipWithEffects} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(screen.getByTitle("Эффекты применены")).toBeInTheDocument()
@@ -204,12 +198,7 @@ describe("AudioClip", () => {
   describe("Track Type Colors", () => {
     it("should apply music track color", () => {
       const { container } = render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(container.firstChild).toHaveClass("bg-pink-500")
@@ -217,12 +206,7 @@ describe("AudioClip", () => {
 
     it("should apply voiceover track color", () => {
       const { container } = render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockVoiceoverTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={mockAudioClip} track={mockVoiceoverTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(container.firstChild).toHaveClass("bg-cyan-500")
@@ -230,12 +214,7 @@ describe("AudioClip", () => {
 
     it("should apply sfx track color", () => {
       const { container } = render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockSfxTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={mockAudioClip} track={mockSfxTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(container.firstChild).toHaveClass("bg-red-500")
@@ -243,12 +222,7 @@ describe("AudioClip", () => {
 
     it("should apply ambient track color", () => {
       const { container } = render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockAmbientTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={mockAudioClip} track={mockAmbientTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(container.firstChild).toHaveClass("bg-gray-500")
@@ -256,12 +230,7 @@ describe("AudioClip", () => {
 
     it("should apply default audio track color", () => {
       const { container } = render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockAudioTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={mockAudioClip} track={mockAudioTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(container.firstChild).toHaveClass("bg-green-500")
@@ -271,12 +240,7 @@ describe("AudioClip", () => {
   describe("Selection", () => {
     it("should call onUpdate when clicked", () => {
       const { container } = render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       fireEvent.click(container.firstChild!)
@@ -286,12 +250,7 @@ describe("AudioClip", () => {
     it("should toggle selection state", () => {
       const selectedClip = { ...mockAudioClip, isSelected: true }
       const { container } = render(
-        <AudioClip
-          clip={selectedClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={selectedClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       fireEvent.click(container.firstChild!)
@@ -301,12 +260,7 @@ describe("AudioClip", () => {
     it("should show selection ring when selected", () => {
       const selectedClip = { ...mockAudioClip, isSelected: true }
       const { container } = render(
-        <AudioClip
-          clip={selectedClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={selectedClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(container.firstChild).toHaveClass("ring-2")
@@ -315,14 +269,7 @@ describe("AudioClip", () => {
 
   describe("Hover Effects", () => {
     it("should show action buttons on hover", () => {
-      render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       expect(screen.queryByTitle("Эффекты")).not.toBeInTheDocument()
 
@@ -336,14 +283,7 @@ describe("AudioClip", () => {
     })
 
     it("should hide action buttons on mouse leave", () => {
-      render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Audio Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -354,14 +294,7 @@ describe("AudioClip", () => {
 
     it("should not show buttons when clip is locked", () => {
       const lockedClip = { ...mockAudioClip, isLocked: true }
-      render(
-        <AudioClip
-          clip={lockedClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<AudioClip clip={lockedClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Audio Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -371,16 +304,11 @@ describe("AudioClip", () => {
 
     it("should change color on hover", () => {
       const { container } = render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       const clipElement = container.firstChild as Element
-      
+
       expect(clipElement).toHaveClass("bg-pink-500")
       expect(clipElement).not.toHaveClass("bg-pink-600")
 
@@ -395,15 +323,8 @@ describe("AudioClip", () => {
   describe("Action Buttons", () => {
     it("should handle effects button click", () => {
       const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
-      
-      render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+
+      render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Audio Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -418,15 +339,8 @@ describe("AudioClip", () => {
 
     it("should handle copy button click", () => {
       const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
-      
-      render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+
+      render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Audio Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -440,15 +354,8 @@ describe("AudioClip", () => {
 
     it("should handle split button click", () => {
       const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
-      
-      render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+
+      render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Audio Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -461,14 +368,7 @@ describe("AudioClip", () => {
     })
 
     it("should handle remove button click", () => {
-      render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       const clipElement = screen.getByText("Test Audio Clip").closest("div")!
       fireEvent.mouseEnter(clipElement.parentElement!)
@@ -483,12 +383,7 @@ describe("AudioClip", () => {
   describe("Effects Editor", () => {
     it("should handle effects button click", () => {
       const { container } = render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       const clipElement = screen.getByText("Test Audio Clip").closest("div")!
@@ -496,7 +391,7 @@ describe("AudioClip", () => {
 
       const effectsButton = screen.getByTitle("Эффекты")
       expect(effectsButton).toBeInTheDocument()
-      
+
       // The effects editor should exist in the DOM but might not be visible initially
       expect(container.querySelector('[data-testid="audio-effects-editor"]')).toBeDefined()
     })
@@ -506,26 +401,14 @@ describe("AudioClip", () => {
     it("should show opacity when locked", () => {
       const lockedClip = { ...mockAudioClip, isLocked: true }
       const { container } = render(
-        <AudioClip
-          clip={lockedClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={lockedClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(container.firstChild).toHaveClass("opacity-60")
     })
 
     it("should show volume icon", () => {
-      render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       expect(screen.getByTestId("volume-icon")).toBeInTheDocument()
     })
@@ -535,12 +418,7 @@ describe("AudioClip", () => {
     it("should handle clip without name", () => {
       const clipWithoutName = { ...mockAudioClip, name: "" }
       render(
-        <AudioClip
-          clip={clipWithoutName}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={clipWithoutName} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       expect(screen.getByTestId("music-icon")).toBeInTheDocument()
@@ -549,12 +427,7 @@ describe("AudioClip", () => {
     it("should handle clip without media file", () => {
       const clipWithoutMedia = { ...mockAudioClip, mediaFile: undefined }
       render(
-        <AudioClip
-          clip={clipWithoutMedia}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={clipWithoutMedia} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       // Should show fallback waveform instead of the Waveform component
@@ -564,17 +437,12 @@ describe("AudioClip", () => {
     })
 
     it("should show fallback waveform when no audio URL", () => {
-      const clipWithoutPath = { 
-        ...mockAudioClip, 
-        mediaFile: { ...mockAudioClip.mediaFile!, path: "" }
+      const clipWithoutPath = {
+        ...mockAudioClip,
+        mediaFile: { ...mockAudioClip.mediaFile!, path: "" },
       }
       const { container } = render(
-        <AudioClip
-          clip={clipWithoutPath}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
+        <AudioClip clip={clipWithoutPath} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
       // Should show fallback waveform (array of divs)
@@ -586,25 +454,13 @@ describe("AudioClip", () => {
 
     it("should handle zero volume", () => {
       const zeroVolumeClip = { ...mockAudioClip, volume: 0 }
-      render(
-        <AudioClip
-          clip={zeroVolumeClip}
-          track={mockMusicTrack}
-          onUpdate={mockOnUpdate}
-          onRemove={mockOnRemove}
-        />
-      )
+      render(<AudioClip clip={zeroVolumeClip} track={mockMusicTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
       expect(screen.getByText("0%")).toBeInTheDocument()
     })
 
     it("should handle missing callbacks", () => {
-      const { container } = render(
-        <AudioClip
-          clip={mockAudioClip}
-          track={mockMusicTrack}
-        />
-      )
+      const { container } = render(<AudioClip clip={mockAudioClip} track={mockMusicTrack} />)
 
       expect(() => fireEvent.click(container.firstChild!)).not.toThrow()
     })
