@@ -223,15 +223,23 @@ describe("EffectsProvider API", () => {
     const { api: providerAPI, isInitialized } = useEffectsProvider()
 
     React.useEffect(() => {
-      if (isInitialized) {
+      if (isInitialized && providerAPI) {
         api = providerAPI
       }
     }, [providerAPI, isInitialized])
 
-    return <div data-testid="api-ready">{String(isInitialized)}</div>
+    return (
+      <div>
+        <div data-testid="api-ready">{String(isInitialized)}</div>
+        <div data-testid="api-available">{String(!!providerAPI)}</div>
+      </div>
+    )
   }
 
   beforeEach(async () => {
+    // Reset api before each test
+    api = undefined
+    
     render(
       <EffectsProvider>
         <APITestComponent />
@@ -240,6 +248,15 @@ describe("EffectsProvider API", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("api-ready")).toHaveTextContent("true")
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId("api-available")).toHaveTextContent("true")
+    })
+
+    // Additional wait to ensure api is set
+    await waitFor(() => {
+      expect(api).toBeDefined()
     })
   })
 
