@@ -70,7 +70,17 @@ jobs:
             libavcodec-dev \
             libavformat-dev \
             libavutil-dev \
-            pkg-config
+            libavfilter-dev \
+            libavdevice-dev \
+            libswscale-dev \
+            libswresample-dev \
+            libglib2.0-dev \
+            libcairo2-dev \
+            libpango1.0-dev \
+            libsoup-3.0-dev \
+            libjavascriptcoregtk-4.1-dev \
+            pkg-config \
+            build-essential
 
       - name: Install ONNX Runtime
         run: |

@@ -99,7 +99,8 @@ jobs:
             libavdevice-dev \
             libswscale-dev \
             libswresample-dev \
-            pkg-config
+            pkg-config \
+            build-essential
 
       - name: Install ONNX Runtime
         run: |
@@ -175,6 +176,15 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev \
             ffmpeg \
+            libavcodec-dev \
+            libavformat-dev \
+            libavutil-dev \
+            libavfilter-dev \
+            libavdevice-dev \
+            libswscale-dev \
+            libswresample-dev \
+            pkg-config \
+            build-essential \
             xvfb
 
       - name: Install system dependencies (macOS)
