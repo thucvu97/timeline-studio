@@ -365,7 +365,7 @@ mod tests {
   #[test]
   fn test_supported_codecs_return() {
     // Test standard GPU supported codecs
-    let codecs = vec!["h264".to_string(), "hevc".to_string()];
+    let codecs = ["h264".to_string(), "hevc".to_string()];
 
     assert_eq!(codecs.len(), 2);
     assert!(codecs.contains(&"h264".to_string()));

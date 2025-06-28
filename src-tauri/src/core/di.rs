@@ -180,27 +180,43 @@ impl ServiceContainer {
   where
     T: Service + Any + Send + Sync + 'static,
   {
-    // Сначала проверяем существующие сервисы
+    let type_id = TypeId::of::<T>();
+
+    // Первая проверка с read lock - быстрый путь для уже созданных сервисов
     {
       let services = self.services.read().await;
-      if let Some(entry) = services.get(&TypeId::of::<T>()) {
+      if let Some(entry) = services.get(&type_id) {
         return entry.service.clone().downcast::<T>().map_err(|_| {
           VideoCompilerError::InternalError("Failed to downcast service".to_string())
         });
       }
     }
 
-    // Если сервиса нет, пробуем создать через provider
+    // Если сервиса нет, используем write lock для создания
+    // Это предотвращает race condition между проверкой и созданием
+    let mut services = self.services.write().await;
+
+    // Double-checked locking: проверяем снова после получения write lock
+    if let Some(entry) = services.get(&type_id) {
+      return entry
+        .service
+        .clone()
+        .downcast::<T>()
+        .map_err(|_| VideoCompilerError::InternalError("Failed to downcast service".to_string()));
+    }
+
+    // Теперь мы точно знаем, что сервиса нет и у нас есть эксклюзивный доступ
+    // Проверяем наличие provider
     let provider_exists = {
       let providers = self.providers.read().await;
-      providers.contains_key(&TypeId::of::<T>())
+      providers.contains_key(&type_id)
     };
 
     if provider_exists {
       // Создаем сервис через provider
       let service_arc = {
         let providers = self.providers.read().await;
-        if let Some(provider) = providers.get(&TypeId::of::<T>()) {
+        if let Some(provider) = providers.get(&type_id) {
           provider.create_any(self).await?
         } else {
           return Err(VideoCompilerError::ServiceNotFound(
@@ -209,18 +225,15 @@ impl ServiceContainer {
         }
       };
 
-      // Сохраняем созданный сервис
-      {
-        let mut services = self.services.write().await;
-        services.insert(
-          TypeId::of::<T>(),
-          ServiceEntry {
-            service: service_arc.clone(),
-            name: "Provider-created service",
-            initialized: false,
-          },
-        );
-      }
+      // Сохраняем созданный сервис (у нас уже есть write lock)
+      services.insert(
+        type_id,
+        ServiceEntry {
+          service: service_arc.clone(),
+          name: "Provider-created service",
+          initialized: false,
+        },
+      );
 
       // Пытаемся downcast
       service_arc.downcast::<T>().map_err(|_| {
@@ -858,16 +871,21 @@ mod tests {
       assert!(handle.await.unwrap().is_ok());
     }
 
-    // В текущей реализации есть race condition, поэтому может быть создано
-    // несколько экземпляров. Это известная проблема, которая требует
-    // более сложной синхронизации для исправления.
-    // Проверяем что хотя бы один сервис был создан
+    // После улучшения race condition, создается минимальное количество экземпляров
+    // В идеале должен быть создан только один, но в многопоточной среде может быть больше
     let count = creation_count.load(Ordering::SeqCst);
-    assert!(count >= 1);
-    assert!(count <= 5);
+    assert!(
+      (1..=2).contains(&count),
+      "Should create 1-2 service instances (improved from 1-5), got {}",
+      count
+    );
 
-    // Но в итоге в контейнере должен остаться только один экземпляр
+    // В контейнере всегда должен остаться ровно один экземпляр (последний созданный)
     let services = container.services.read().await;
-    assert_eq!(services.len(), 1);
+    assert_eq!(
+      services.len(),
+      1,
+      "Container should have exactly one service instance"
+    );
   }
 }
