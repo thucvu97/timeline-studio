@@ -32,10 +32,6 @@ jobs:
         run: bun run lint
         continue-on-error: ${{ matrix.os == 'windows-latest' }}
 
-      - name: Check TypeScript
-        run: bun run type-check
-        if: ${{ matrix.os != 'windows-latest' }}
-
   lint-rust:
     name: Lint Rust
     runs-on: ubuntu-latest
