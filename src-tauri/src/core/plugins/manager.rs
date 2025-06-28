@@ -707,10 +707,13 @@ mod tests {
     // Загружаем плагин
     let permissions = PluginPermissions::default();
     let load_result = manager.load_plugin("test-plugin", permissions).await;
-    
+
     // Если не удалось загрузить плагин, пропускаем тест
     if load_result.is_err() {
-      eprintln!("Skipping test - plugin load failed: {:?}", load_result.err());
+      eprintln!(
+        "Skipping test - plugin load failed: {:?}",
+        load_result.err()
+      );
       return;
     }
 

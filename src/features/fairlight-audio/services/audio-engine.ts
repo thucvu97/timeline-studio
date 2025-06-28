@@ -1,3 +1,4 @@
+import { AudioClipEditor } from "./audio-clip-editor"
 import { EqualizerProcessor } from "./effects/equalizer-processor"
 
 export interface ChannelNode {
@@ -18,6 +19,7 @@ export class AudioEngine {
   private masterLimiter: DynamicsCompressorNode
   private channels = new Map<string, ChannelNode>()
   private soloChannels = new Set<string>()
+  public clipEditor: AudioClipEditor
 
   constructor() {
     this.context = new AudioContext({
@@ -39,6 +41,9 @@ export class AudioEngine {
     // Connect master chain
     this.masterGain.connect(this.masterLimiter)
     this.masterLimiter.connect(this.context.destination)
+
+    // Initialize clip editor
+    this.clipEditor = new AudioClipEditor(this.context)
   }
 
   get audioContext() {

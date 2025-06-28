@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
+import { useAutomation } from "../../hooks/use-automation"
+
 interface FaderProps {
   value: number // 0-100
   onChange: (value: number) => void
@@ -12,6 +14,8 @@ interface FaderProps {
   onSolo?: () => void
   dbScale?: boolean // Show dB scale instead of percentage
   className?: string
+  channelId?: string // For automation
+  parameterId?: string // For automation
 }
 
 export function Fader({
@@ -24,9 +28,12 @@ export function Fader({
   onSolo,
   dbScale = true,
   className,
+  channelId,
+  parameterId = "volume",
 }: FaderProps) {
   const [isDragging, setIsDragging] = useState(false)
   const faderRef = useRef<HTMLDivElement>(null)
+  const { writeParameter, touchParameter, releaseParameter } = useAutomation()
 
   // Convert percentage to dB (0% = -∞ dB, 100% = 0 dB)
   const percentToDb = (percent: number): string => {
@@ -38,6 +45,11 @@ export function Fader({
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true)
     updateValue(e)
+
+    // Touch parameter for automation
+    if (channelId && parameterId) {
+      touchParameter(channelId, parameterId)
+    }
   }
 
   const handleMouseMove = useCallback(
@@ -49,13 +61,23 @@ export function Fader({
       const height = rect.height
       const newValue = Math.max(0, Math.min(100, (1 - y / height) * 100))
       onChange(newValue)
+
+      // Write automation data
+      if (channelId && parameterId) {
+        writeParameter(channelId, parameterId, newValue / 100)
+      }
     },
-    [isDragging, onChange],
+    [isDragging, onChange, channelId, parameterId, writeParameter],
   )
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false)
-  }, [])
+
+    // Release parameter for automation
+    if (channelId && parameterId) {
+      releaseParameter(channelId, parameterId)
+    }
+  }, [channelId, parameterId, releaseParameter])
 
   const updateValue = (e: React.MouseEvent) => {
     if (!faderRef.current) return
@@ -65,6 +87,11 @@ export function Fader({
     const height = rect.height
     const newValue = Math.max(0, Math.min(100, (1 - y / height) * 100))
     onChange(newValue)
+
+    // Write automation data on initial touch
+    if (channelId && parameterId) {
+      writeParameter(channelId, parameterId, newValue / 100)
+    }
   }
 
   // Add global mouse listeners when dragging
