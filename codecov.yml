@@ -11,6 +11,16 @@ coverage:
         target: 80%
         threshold: 2%
         base: auto
+      frontend:
+        target: 75%
+        threshold: 2%
+        flags:
+          - frontend
+      rust:
+        target: 80%
+        threshold: 2%
+        flags:
+          - rust
     patch:
       default:
         target: 70%
@@ -305,25 +315,6 @@ ignore:
 flag_management:
   default_rules:
     carryforward: true
-    statuses:
-      - type: "project"
-        target: 80%
-      - type: "patch"
-        target: 70%
-        
-  individual_flags:
-    - name: frontend
-      carryforward: true
-      statuses:
-        - type: "project" 
-          target: 75%
-    - name: rust
-      carryforward: true
-      statuses:
-        - type: "project"
-          target: 80%
-    - name: bundle
-      carryforward: false
 
 # Comment configuration
 comment:
