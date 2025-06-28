@@ -639,6 +639,8 @@ fn parse_grid_size(grid_str: &str) -> Result<(u32, u32), String> {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use tempfile::TempDir;
+  use tokio::fs;
 
   #[test]
   fn test_parse_grid_size() {
@@ -647,5 +649,314 @@ mod tests {
     assert!(parse_grid_size("invalid").is_err());
     assert!(parse_grid_size("0x2").is_err());
     assert!(parse_grid_size("15x15").is_err());
+  }
+
+  #[test]
+  fn test_parse_grid_size_edge_cases() {
+    // Максимальные значения
+    assert_eq!(parse_grid_size("10x10").unwrap(), (10, 10));
+
+    // Минимальные значения
+    assert_eq!(parse_grid_size("1x1").unwrap(), (1, 1));
+
+    // Превышение лимита
+    assert!(parse_grid_size("11x10").is_err());
+    assert!(parse_grid_size("10x11").is_err());
+
+    // Неправильные форматы
+    assert!(parse_grid_size("2-2").is_err());
+    assert!(parse_grid_size("2x2x2").is_err());
+    assert!(parse_grid_size("").is_err());
+    assert!(parse_grid_size("x").is_err());
+  }
+
+  #[test]
+  fn test_extracted_frame_creation() {
+    let frame = ExtractedFrame {
+      image_path: "/tmp/frame_001.jpg".to_string(),
+      timestamp: 5.5,
+      width: 1920,
+      height: 1080,
+      format: "jpg".to_string(),
+    };
+
+    assert_eq!(frame.image_path, "/tmp/frame_001.jpg");
+    assert_eq!(frame.timestamp, 5.5);
+    assert_eq!(frame.width, 1920);
+    assert_eq!(frame.height, 1080);
+    assert_eq!(frame.format, "jpg");
+  }
+
+  #[test]
+  fn test_frame_extraction_params() {
+    let params = FrameExtractionParams {
+      clip_id: "clip-123".to_string(),
+      sampling_rate: 1.0, // 1 frame per second
+      max_frames: 10,
+      output_format: "jpg".to_string(),
+      quality: 85,
+      resolution: Some("1920x1080".to_string()),
+    };
+
+    assert_eq!(params.clip_id, "clip-123");
+    assert_eq!(params.sampling_rate, 1.0);
+    assert_eq!(params.max_frames, 10);
+    assert_eq!(params.output_format, "jpg");
+    assert_eq!(params.quality, 85);
+    assert_eq!(params.resolution, Some("1920x1080".to_string()));
+  }
+
+  #[test]
+  fn test_frame_extraction_result() {
+    let result = FrameExtractionResult {
+      frames: vec![
+        ExtractedFrame {
+          image_path: "/tmp/frame_001.jpg".to_string(),
+          timestamp: 0.0,
+          width: 1920,
+          height: 1080,
+          format: "jpg".to_string(),
+        },
+        ExtractedFrame {
+          image_path: "/tmp/frame_002.jpg".to_string(),
+          timestamp: 1.0,
+          width: 1920,
+          height: 1080,
+          format: "jpg".to_string(),
+        },
+      ],
+      total_extracted: 2,
+      video_duration: 10.0,
+      extraction_time_ms: 1500,
+    };
+
+    assert_eq!(result.frames.len(), 2);
+    assert_eq!(result.total_extracted, 2);
+    assert_eq!(result.video_duration, 10.0);
+    assert_eq!(result.extraction_time_ms, 1500);
+  }
+
+  #[test]
+  fn test_video_info_struct() {
+    let info = VideoInfo {
+      duration: 60.5,
+      width: 1920,
+      height: 1080,
+      fps: 29.97,
+    };
+
+    assert_eq!(info.duration, 60.5);
+    assert_eq!(info.width, 1920);
+    assert_eq!(info.height, 1080);
+    assert_eq!(info.fps, 29.97);
+  }
+
+  #[test]
+  fn test_image_info_struct() {
+    let info = ImageInfo {
+      width: 1280,
+      height: 720,
+      format: "png".to_string(),
+    };
+
+    assert_eq!(info.width, 1280);
+    assert_eq!(info.height, 720);
+    assert_eq!(info.format, "png");
+  }
+
+  #[tokio::test]
+  async fn test_convert_image_to_base64_missing_file() {
+    let result = convert_image_to_base64("/non/existent/image.jpg".to_string()).await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("Изображение не найдено"));
+  }
+
+  #[tokio::test]
+  async fn test_convert_image_to_base64_success() {
+    let temp_dir = TempDir::new().unwrap();
+    let image_path = temp_dir.path().join("test_image.jpg");
+
+    // Создаем тестовое изображение (простой JPEG header)
+    let jpeg_data = vec![
+      0xFF, 0xD8, 0xFF, 0xE0, // JPEG SOI and APP0 marker
+      0x00, 0x10, // APP0 length
+      b'J', b'F', b'I', b'F', 0x00, // JFIF identifier
+      0x01, 0x01, // Version
+      0x00, // Units
+      0x00, 0x01, 0x00, 0x01, // X and Y density
+      0x00, 0x00, // Thumbnail width and height
+    ];
+
+    fs::write(&image_path, &jpeg_data).await.unwrap();
+
+    let result = convert_image_to_base64(image_path.to_string_lossy().to_string()).await;
+    assert!(result.is_ok());
+
+    let base64_data = result.unwrap();
+    assert!(!base64_data.is_empty());
+
+    // Проверяем, что это валидный base64
+    let decoded = STANDARD.decode(&base64_data);
+    assert!(decoded.is_ok());
+    assert_eq!(decoded.unwrap(), jpeg_data);
+  }
+
+  #[tokio::test]
+  async fn test_cleanup_extracted_frames() {
+    let temp_base = std::env::temp_dir().join("timeline_studio_multimodal");
+    let clip_id = "test-clip-cleanup";
+    let clip_dir = temp_base.join(clip_id);
+
+    // Создаем директорию и файлы
+    fs::create_dir_all(&clip_dir).await.unwrap();
+    fs::write(clip_dir.join("frame_001.jpg"), "test")
+      .await
+      .unwrap();
+    fs::write(clip_dir.join("frame_002.jpg"), "test")
+      .await
+      .unwrap();
+    fs::write(clip_dir.join("frame_003.jpg"), "test")
+      .await
+      .unwrap();
+
+    let result = cleanup_extracted_frames(clip_id.to_string()).await;
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap(), 3);
+
+    // Проверяем, что файлы удалены
+    assert!(!clip_dir.join("frame_001.jpg").exists());
+    assert!(!clip_dir.join("frame_002.jpg").exists());
+    assert!(!clip_dir.join("frame_003.jpg").exists());
+  }
+
+  #[tokio::test]
+  async fn test_cleanup_extracted_frames_non_existent() {
+    let result = cleanup_extracted_frames("non-existent-clip".to_string()).await;
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap(), 0);
+  }
+
+  #[tokio::test]
+  async fn test_create_temp_frames_dir() {
+    let clip_id = "test-clip-dir";
+    let result = create_temp_frames_dir(clip_id).await;
+
+    assert!(result.is_ok());
+    let dir_path = result.unwrap();
+    assert!(dir_path.exists());
+    assert!(dir_path.is_dir());
+    assert!(dir_path
+      .to_string_lossy()
+      .contains("timeline_studio_multimodal"));
+    assert!(dir_path.to_string_lossy().contains(clip_id));
+
+    // Cleanup
+    let _ = fs::remove_dir_all(dir_path).await;
+  }
+
+  #[test]
+  fn test_get_temp_frames_dir() {
+    let clip_id = "test-clip";
+    let dir_path = get_temp_frames_dir(clip_id);
+
+    assert!(dir_path
+      .to_string_lossy()
+      .contains("timeline_studio_multimodal"));
+    assert!(dir_path.to_string_lossy().contains(clip_id));
+  }
+
+  #[tokio::test]
+  async fn test_optimize_image_for_analysis_missing_file() {
+    let result = optimize_image_for_analysis(
+      "/non/existent/input.jpg".to_string(),
+      "/tmp/output.jpg".to_string(),
+      Some(1920),
+      Some(90),
+    )
+    .await;
+
+    assert!(result.is_err());
+    assert!(result
+      .unwrap_err()
+      .contains("Входное изображение не найдено"));
+  }
+
+  #[tokio::test]
+  async fn test_create_frame_collage_empty_frames() {
+    let result = create_frame_collage(
+      vec![],
+      "/tmp/collage.jpg".to_string(),
+      Some("2x2".to_string()),
+    )
+    .await;
+
+    assert!(result.is_err());
+    assert!(result
+      .unwrap_err()
+      .contains("Список кадров не может быть пустым"));
+  }
+
+  #[tokio::test]
+  async fn test_create_frame_collage_missing_frame() {
+    let result = create_frame_collage(
+      vec!["/non/existent/frame.jpg".to_string()],
+      "/tmp/collage.jpg".to_string(),
+      Some("1x1".to_string()),
+    )
+    .await;
+
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("Кадр не найден"));
+  }
+
+  #[test]
+  fn test_serialization() {
+    // Тест сериализации ExtractedFrame
+    let frame = ExtractedFrame {
+      image_path: "/tmp/frame.jpg".to_string(),
+      timestamp: 10.5,
+      width: 1920,
+      height: 1080,
+      format: "jpg".to_string(),
+    };
+
+    let json = serde_json::to_string(&frame).unwrap();
+    assert!(json.contains("image_path"));
+    assert!(json.contains("10.5"));
+
+    let deserialized: ExtractedFrame = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.timestamp, 10.5);
+
+    // Тест сериализации FrameExtractionResult
+    let result = FrameExtractionResult {
+      frames: vec![frame],
+      total_extracted: 1,
+      video_duration: 60.0,
+      extraction_time_ms: 500,
+    };
+
+    let json = serde_json::to_string(&result).unwrap();
+    assert!(json.contains("total_extracted"));
+    assert!(json.contains("video_duration"));
+
+    let deserialized: FrameExtractionResult = serde_json::from_str(&json).unwrap();
+    assert_eq!(deserialized.frames.len(), 1);
+    assert_eq!(deserialized.extraction_time_ms, 500);
+  }
+
+  #[test]
+  fn test_frame_extraction_params_default_values() {
+    let params = FrameExtractionParams {
+      clip_id: "clip-test".to_string(),
+      sampling_rate: 0.0, // Should use max_frames to calculate interval
+      max_frames: 5,
+      output_format: "png".to_string(),
+      quality: 100,
+      resolution: None,
+    };
+
+    assert_eq!(params.sampling_rate, 0.0);
+    assert_eq!(params.max_frames, 5);
+    assert!(params.resolution.is_none());
   }
 }

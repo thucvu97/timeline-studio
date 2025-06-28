@@ -324,3 +324,490 @@ pub async fn set_batch_job_status(job_id: String, status: BatchJobStatus) -> Res
     Err(format!("Задание с ID {} не найдено", job_id))
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  /// Помощник для очистки состояния между тестами
+  fn cleanup_jobs() {
+    if let Ok(mut jobs) = BATCH_JOBS.lock() {
+      jobs.clear();
+    }
+  }
+
+  #[tokio::test]
+  async fn test_batch_job_status_variants() {
+    assert!(matches!(BatchJobStatus::Pending, BatchJobStatus::Pending));
+    assert!(matches!(BatchJobStatus::Running, BatchJobStatus::Running));
+    assert!(matches!(
+      BatchJobStatus::Completed,
+      BatchJobStatus::Completed
+    ));
+    assert!(matches!(BatchJobStatus::Failed, BatchJobStatus::Failed));
+    assert!(matches!(
+      BatchJobStatus::Cancelled,
+      BatchJobStatus::Cancelled
+    ));
+  }
+
+  #[tokio::test]
+  async fn test_batch_operation_types() {
+    let ops = [
+      BatchOperationType::VideoAnalysis,
+      BatchOperationType::WhisperTranscription,
+      BatchOperationType::SubtitleGeneration,
+      BatchOperationType::QualityAnalysis,
+      BatchOperationType::SceneDetection,
+      BatchOperationType::MotionAnalysis,
+      BatchOperationType::AudioAnalysis,
+      BatchOperationType::LanguageDetection,
+      BatchOperationType::ComprehensiveAnalysis,
+    ];
+
+    assert_eq!(ops.len(), 9);
+  }
+
+  #[tokio::test]
+  async fn test_create_batch_job() {
+    cleanup_jobs();
+
+    let params = CreateBatchJobParams {
+      operation: BatchOperationType::VideoAnalysis,
+      clip_ids: vec![
+        "clip1".to_string(),
+        "clip2".to_string(),
+        "clip3".to_string(),
+      ],
+      options: HashMap::new(),
+      max_concurrent: Some(2),
+      priority: Some("high".to_string()),
+    };
+
+    let result = create_batch_job(params).await;
+    assert!(result.is_ok());
+
+    let job_id = result.unwrap();
+    assert!(!job_id.is_empty());
+
+    // Проверяем, что задание создано
+    let job_info = get_batch_job_info(job_id.clone()).await;
+    assert!(job_info.is_ok());
+
+    let info = job_info.unwrap();
+    assert_eq!(info.job_id, job_id);
+    assert_eq!(info.total_clips, 3);
+    assert_eq!(info.completed_clips, 0);
+    assert_eq!(info.failed_clips, 0);
+    assert!(matches!(info.status, BatchJobStatus::Pending));
+  }
+
+  #[tokio::test]
+  async fn test_get_batch_job_info_not_found() {
+    cleanup_jobs();
+
+    let result = get_batch_job_info("non-existent-id".to_string()).await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("не найдено"));
+  }
+
+  #[tokio::test]
+  async fn test_cancel_batch_job() {
+    cleanup_jobs();
+
+    // Создаем задание
+    let params = CreateBatchJobParams {
+      operation: BatchOperationType::SceneDetection,
+      clip_ids: vec!["clip1".to_string()],
+      options: HashMap::new(),
+      max_concurrent: None,
+      priority: None,
+    };
+
+    let job_id = create_batch_job(params).await.unwrap();
+
+    // Устанавливаем статус Running
+    set_batch_job_status(job_id.clone(), BatchJobStatus::Running)
+      .await
+      .unwrap();
+
+    // Отменяем задание
+    let cancelled = cancel_batch_job(job_id.clone()).await.unwrap();
+    assert!(cancelled);
+
+    // Проверяем статус
+    let info = get_batch_job_info(job_id).await.unwrap();
+    assert!(matches!(info.status, BatchJobStatus::Cancelled));
+    assert!(info.end_time.is_some());
+  }
+
+  #[tokio::test]
+  async fn test_cancel_completed_job() {
+    cleanup_jobs();
+
+    // Создаем задание
+    let params = CreateBatchJobParams {
+      operation: BatchOperationType::AudioAnalysis,
+      clip_ids: vec!["clip1".to_string()],
+      options: HashMap::new(),
+      max_concurrent: None,
+      priority: None,
+    };
+
+    let job_id = create_batch_job(params).await.unwrap();
+
+    // Устанавливаем статус Completed
+    set_batch_job_status(job_id.clone(), BatchJobStatus::Completed)
+      .await
+      .unwrap();
+
+    // Пытаемся отменить завершенное задание
+    let cancelled = cancel_batch_job(job_id).await.unwrap();
+    assert!(!cancelled); // Нельзя отменить завершенное задание
+  }
+
+  #[tokio::test]
+  async fn test_list_batch_jobs() {
+    cleanup_jobs();
+
+    // Создаем несколько заданий
+    for i in 0..3 {
+      let params = CreateBatchJobParams {
+        operation: BatchOperationType::VideoAnalysis,
+        clip_ids: vec![format!("clip{}", i)],
+        options: HashMap::new(),
+        max_concurrent: None,
+        priority: None,
+      };
+      create_batch_job(params).await.unwrap();
+    }
+
+    // Получаем список без лимита
+    let jobs = list_batch_jobs(None).await.unwrap();
+    assert_eq!(jobs.len(), 3);
+
+    // Получаем список с лимитом
+    let limited_jobs = list_batch_jobs(Some(2)).await.unwrap();
+    assert_eq!(limited_jobs.len(), 2);
+  }
+
+  #[tokio::test]
+  async fn test_get_batch_processing_stats() {
+    cleanup_jobs();
+
+    // Создаем задания с разными статусами
+    let params1 = CreateBatchJobParams {
+      operation: BatchOperationType::VideoAnalysis,
+      clip_ids: vec!["clip1".to_string(), "clip2".to_string()],
+      options: HashMap::new(),
+      max_concurrent: None,
+      priority: None,
+    };
+    let job1 = create_batch_job(params1).await.unwrap();
+    set_batch_job_status(job1, BatchJobStatus::Completed)
+      .await
+      .unwrap();
+
+    let params2 = CreateBatchJobParams {
+      operation: BatchOperationType::SceneDetection,
+      clip_ids: vec!["clip3".to_string()],
+      options: HashMap::new(),
+      max_concurrent: None,
+      priority: None,
+    };
+    let job2 = create_batch_job(params2).await.unwrap();
+    set_batch_job_status(job2, BatchJobStatus::Running)
+      .await
+      .unwrap();
+
+    let params3 = CreateBatchJobParams {
+      operation: BatchOperationType::AudioAnalysis,
+      clip_ids: vec!["clip4".to_string()],
+      options: HashMap::new(),
+      max_concurrent: None,
+      priority: None,
+    };
+    let job3 = create_batch_job(params3).await.unwrap();
+    set_batch_job_status(job3, BatchJobStatus::Failed)
+      .await
+      .unwrap();
+
+    let stats = get_batch_processing_stats().await.unwrap();
+    assert_eq!(stats.total_jobs, 3);
+    assert_eq!(stats.running_jobs, 1);
+    assert_eq!(stats.completed_jobs, 1);
+    assert_eq!(stats.failed_jobs, 1);
+    assert_eq!(stats.total_clips_processed, 2); // Только завершенные задания
+    assert!(stats.success_rate > 30.0 && stats.success_rate < 40.0); // ~33.3%
+  }
+
+  #[tokio::test]
+  async fn test_update_batch_clip_result_success() {
+    cleanup_jobs();
+
+    // Создаем задание
+    let params = CreateBatchJobParams {
+      operation: BatchOperationType::WhisperTranscription,
+      clip_ids: vec!["clip1".to_string(), "clip2".to_string()],
+      options: HashMap::new(),
+      max_concurrent: None,
+      priority: None,
+    };
+
+    let job_id = create_batch_job(params).await.unwrap();
+    set_batch_job_status(job_id.clone(), BatchJobStatus::Running)
+      .await
+      .unwrap();
+
+    // Обновляем результат для первого клипа
+    let result1 = BatchClipResult {
+      clip_id: "clip1".to_string(),
+      success: true,
+      data: Some(serde_json::json!({"transcript": "Hello world"})),
+      error: None,
+      execution_time_ms: 1234,
+    };
+
+    update_batch_clip_result(job_id.clone(), "clip1".to_string(), result1)
+      .await
+      .unwrap();
+
+    let info = get_batch_job_info(job_id.clone()).await.unwrap();
+    assert_eq!(info.completed_clips, 1);
+    assert_eq!(info.failed_clips, 0);
+    assert!(matches!(info.status, BatchJobStatus::Running)); // Еще не все клипы обработаны
+
+    // Обновляем результат для второго клипа
+    let result2 = BatchClipResult {
+      clip_id: "clip2".to_string(),
+      success: true,
+      data: Some(serde_json::json!({"transcript": "Goodbye world"})),
+      error: None,
+      execution_time_ms: 2345,
+    };
+
+    update_batch_clip_result(job_id.clone(), "clip2".to_string(), result2)
+      .await
+      .unwrap();
+
+    let final_info = get_batch_job_info(job_id).await.unwrap();
+    assert_eq!(final_info.completed_clips, 2);
+    assert_eq!(final_info.failed_clips, 0);
+    assert!(matches!(final_info.status, BatchJobStatus::Completed));
+    assert!(final_info.end_time.is_some());
+  }
+
+  #[tokio::test]
+  async fn test_update_batch_clip_result_failure() {
+    cleanup_jobs();
+
+    // Создаем задание
+    let params = CreateBatchJobParams {
+      operation: BatchOperationType::QualityAnalysis,
+      clip_ids: vec!["clip1".to_string(), "clip2".to_string()],
+      options: HashMap::new(),
+      max_concurrent: None,
+      priority: None,
+    };
+
+    let job_id = create_batch_job(params).await.unwrap();
+
+    // Обновляем результат с ошибкой для первого клипа
+    let result1 = BatchClipResult {
+      clip_id: "clip1".to_string(),
+      success: false,
+      data: None,
+      error: Some("Failed to analyze quality".to_string()),
+      execution_time_ms: 500,
+    };
+
+    update_batch_clip_result(job_id.clone(), "clip1".to_string(), result1)
+      .await
+      .unwrap();
+
+    // Обновляем результат с успехом для второго клипа
+    let result2 = BatchClipResult {
+      clip_id: "clip2".to_string(),
+      success: true,
+      data: Some(serde_json::json!({"quality": "1080p"})),
+      error: None,
+      execution_time_ms: 1500,
+    };
+
+    update_batch_clip_result(job_id.clone(), "clip2".to_string(), result2)
+      .await
+      .unwrap();
+
+    let info = get_batch_job_info(job_id).await.unwrap();
+    assert_eq!(info.completed_clips, 1);
+    assert_eq!(info.failed_clips, 1);
+    assert!(matches!(info.status, BatchJobStatus::Failed)); // Есть ошибки
+    assert_eq!(info.errors.len(), 1);
+    assert!(info.errors[0].contains("Failed to analyze quality"));
+  }
+
+  #[tokio::test]
+  async fn test_cleanup_batch_jobs() {
+    cleanup_jobs();
+
+    // Создаем несколько заданий
+    let mut job_ids = vec![];
+
+    for i in 0..4 {
+      let params = CreateBatchJobParams {
+        operation: BatchOperationType::VideoAnalysis,
+        clip_ids: vec![format!("clip{}", i)],
+        options: HashMap::new(),
+        max_concurrent: None,
+        priority: None,
+      };
+      let job_id = create_batch_job(params).await.unwrap();
+      job_ids.push(job_id);
+    }
+
+    // Устанавливаем разные статусы
+    set_batch_job_status(job_ids[0].clone(), BatchJobStatus::Completed)
+      .await
+      .unwrap();
+    set_batch_job_status(job_ids[1].clone(), BatchJobStatus::Failed)
+      .await
+      .unwrap();
+    set_batch_job_status(job_ids[2].clone(), BatchJobStatus::Running)
+      .await
+      .unwrap();
+    set_batch_job_status(job_ids[3].clone(), BatchJobStatus::Cancelled)
+      .await
+      .unwrap();
+
+    // Очистка с очень маленьким порогом (удалит все завершенные)
+    let removed = cleanup_batch_jobs(Some(0)).await.unwrap();
+    assert_eq!(removed, 3); // Completed, Failed, Cancelled
+
+    // Проверяем, что остался только Running
+    let remaining = list_batch_jobs(None).await.unwrap();
+    assert_eq!(remaining.len(), 1);
+    assert!(matches!(remaining[0].status, BatchJobStatus::Running));
+  }
+
+  #[tokio::test]
+  async fn test_batch_job_info_serialization() {
+    let job_info = BatchJobInfo {
+      job_id: "test-123".to_string(),
+      operation: BatchOperationType::ComprehensiveAnalysis,
+      clip_ids: vec!["clip1".to_string(), "clip2".to_string()],
+      status: BatchJobStatus::Completed,
+      total_clips: 2,
+      completed_clips: 2,
+      failed_clips: 0,
+      start_time: chrono::Utc::now().to_rfc3339(),
+      end_time: Some(chrono::Utc::now().to_rfc3339()),
+      errors: vec![],
+      results: {
+        let mut results = HashMap::new();
+        results.insert("clip1".to_string(), serde_json::json!({"data": "test1"}));
+        results.insert("clip2".to_string(), serde_json::json!({"data": "test2"}));
+        results
+      },
+    };
+
+    // Сериализация
+    let json = serde_json::to_string(&job_info).unwrap();
+
+    // Десериализация
+    let deserialized: BatchJobInfo = serde_json::from_str(&json).unwrap();
+
+    assert_eq!(deserialized.job_id, job_info.job_id);
+    assert_eq!(deserialized.total_clips, job_info.total_clips);
+    assert_eq!(deserialized.results.len(), 2);
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_job_creation() {
+    cleanup_jobs();
+
+    // Создаем несколько заданий параллельно
+    let mut handles = vec![];
+
+    for i in 0..5 {
+      let handle = tokio::spawn(async move {
+        let params = CreateBatchJobParams {
+          operation: BatchOperationType::VideoAnalysis,
+          clip_ids: vec![format!("clip{}", i)],
+          options: HashMap::new(),
+          max_concurrent: None,
+          priority: None,
+        };
+        create_batch_job(params).await
+      });
+      handles.push(handle);
+    }
+
+    // Ждем завершения всех
+    let mut results = vec![];
+    for handle in handles {
+      let result = handle.await.unwrap();
+      assert!(result.is_ok());
+      results.push(result.unwrap());
+    }
+
+    // Проверяем, что все ID уникальные
+    let unique_ids: std::collections::HashSet<_> = results.iter().collect();
+    assert_eq!(unique_ids.len(), 5);
+
+    // Проверяем, что все задания созданы
+    let jobs = list_batch_jobs(None).await.unwrap();
+    assert_eq!(jobs.len(), 5);
+  }
+
+  #[tokio::test]
+  async fn test_edge_cases() {
+    cleanup_jobs();
+
+    // Создание задания без клипов
+    let params = CreateBatchJobParams {
+      operation: BatchOperationType::MotionAnalysis,
+      clip_ids: vec![],
+      options: HashMap::new(),
+      max_concurrent: None,
+      priority: None,
+    };
+
+    let job_id = create_batch_job(params).await.unwrap();
+    let info = get_batch_job_info(job_id).await.unwrap();
+    assert_eq!(info.total_clips, 0);
+
+    // Статистика с пустым хранилищем
+    cleanup_jobs();
+    let stats = get_batch_processing_stats().await.unwrap();
+    assert_eq!(stats.total_jobs, 0);
+    assert_eq!(stats.success_rate, 0.0);
+
+    // Очистка пустого хранилища
+    let removed = cleanup_batch_jobs(None).await.unwrap();
+    assert_eq!(removed, 0);
+  }
+
+  #[tokio::test]
+  async fn test_create_job_with_options() {
+    cleanup_jobs();
+
+    let mut options = HashMap::new();
+    options.insert("language".to_string(), serde_json::json!("en"));
+    options.insert("model".to_string(), serde_json::json!("base"));
+    options.insert("threads".to_string(), serde_json::json!(4));
+
+    let params = CreateBatchJobParams {
+      operation: BatchOperationType::LanguageDetection,
+      clip_ids: vec!["clip1".to_string(), "clip2".to_string()],
+      options,
+      max_concurrent: Some(2),
+      priority: Some("high".to_string()),
+    };
+
+    let job_id = create_batch_job(params).await.unwrap();
+    assert!(!job_id.is_empty());
+
+    let info = get_batch_job_info(job_id).await.unwrap();
+    assert_eq!(info.clip_ids.len(), 2);
+  }
+}
