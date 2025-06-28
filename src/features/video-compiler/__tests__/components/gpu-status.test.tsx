@@ -45,12 +45,24 @@ describe("GpuStatus", () => {
   }
 
   const mockSystemInfo = {
-    os: "Linux",
-    arch: "x86_64",
-    cpu_cores: 16,
-    total_memory: 34359738368, // 32GB
-    available_memory: 25769803776, // 24GB
-    ffmpeg_version: "5.1.2",
+    os: {
+      type: "Linux",
+      version: "5.15.0",
+      architecture: "x86_64"
+    },
+    cpu: {
+      cores: 16,
+      arch: "x86_64"
+    },
+    memory: {
+      total_bytes: 34359738368, // 32GB
+      total_mb: 32768,
+      total_gb: 32
+    },
+    runtime: {
+      rust_version: "0.25.0",
+      tauri_version: "2.0.0"
+    }
   }
 
   const mockCompilerSettings = {
@@ -190,8 +202,8 @@ describe("GpuStatus", () => {
     render(<GpuStatus />)
 
     expect(screen.getByText("videoCompiler.gpu.system")).toBeInTheDocument()
-    expect(screen.getByText(/Linux.*x86_64/)).toBeInTheDocument()
-    expect(screen.getByText(/16.*videoCompiler\.gpu\.cores/)).toBeInTheDocument()
+    expect(screen.getByText(/Linux.*5\.15\.0.*x86_64/)).toBeInTheDocument()
+    expect(screen.getByText(/16.*videoCompiler\.gpu\.cores.*x86_64/)).toBeInTheDocument()
   })
 
   it("should show recommendations", () => {

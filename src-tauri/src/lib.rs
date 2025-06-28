@@ -184,7 +184,7 @@ pub fn run() {
           app.manage(tokio::sync::Mutex::new(storage));
         }
         Err(e) => {
-          log::error!("Failed to initialize SecureStorage: {}", e);
+          log::error!("Failed to initialize SecureStorage: {e}");
           // Continue running without secure storage
         }
       }
@@ -203,7 +203,7 @@ pub fn run() {
       // Регистрируем примеры плагинов
       let registry = plugin_manager.loader().registry();
       if let Err(e) = tauri::async_runtime::block_on(plugins::register_example_plugins(&registry)) {
-        log::warn!("Failed to register example plugins: {}", e);
+        log::warn!("Failed to register example plugins: {e}");
       } else {
         log::info!("Example plugins registered successfully");
       }
