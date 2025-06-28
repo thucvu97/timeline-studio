@@ -31,3 +31,7 @@ macro_rules! register_commands {
         $builder$(.invoke_handler(tauri::generate_handler![$($cmd),*]))?
     };
 }
+
+#[cfg(test)]
+#[path = "command_registry_tests.rs"]
+mod tests;

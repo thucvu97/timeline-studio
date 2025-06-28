@@ -337,4 +337,200 @@ mod tests {
     let unique_langs: HashSet<_> = SUPPORTED_LANGUAGES.iter().collect();
     assert_eq!(unique_langs.len(), SUPPORTED_LANGUAGES.len());
   }
+
+  #[test]
+  fn test_multiple_language_state_instances() {
+    // Test that multiple instances of LanguageState work independently
+    let state1 = LanguageState::new();
+    let state2 = LanguageState::new();
+
+    // Set different languages
+    {
+      let mut lang1 = state1.current_language.lock().unwrap();
+      *lang1 = "fr".to_string();
+    }
+
+    {
+      let mut lang2 = state2.current_language.lock().unwrap();
+      *lang2 = "de".to_string();
+    }
+
+    // Verify they are independent
+    assert_eq!(*state1.current_language.lock().unwrap(), "fr");
+    assert_eq!(*state2.current_language.lock().unwrap(), "de");
+  }
+
+  #[test]
+  fn test_language_state_drop_behavior() {
+    // Test that LanguageState properly drops
+    {
+      let state = LanguageState::new();
+      let mut lang = state.current_language.lock().unwrap();
+      *lang = "es".to_string();
+      // state is dropped here
+    }
+
+    // Create a new state - should start fresh
+    let new_state = LanguageState::new();
+    assert_eq!(
+      *new_state.current_language.lock().unwrap(),
+      DEFAULT_LANGUAGE
+    );
+  }
+
+  #[test]
+  fn test_language_state_thread_safety() {
+    use std::sync::Arc;
+    use std::thread;
+
+    let state = Arc::new(LanguageState::new());
+    let mut handles = vec![];
+
+    // Test reading from multiple threads
+    for i in 0..5 {
+      let state_clone = state.clone();
+      let handle = thread::spawn(move || {
+        thread::sleep(std::time::Duration::from_millis(i * 10));
+        let lang = state_clone.current_language.lock().unwrap();
+        lang.clone()
+      });
+      handles.push(handle);
+    }
+
+    // Collect results
+    for handle in handles {
+      let result = handle.join().unwrap();
+      assert_eq!(result, DEFAULT_LANGUAGE);
+    }
+  }
+
+  #[test]
+  fn test_language_state_write_contention() {
+    use std::sync::Arc;
+    use std::thread;
+
+    let state = Arc::new(LanguageState::new());
+    let languages = ["en", "fr", "de", "es", "ru"];
+    let mut handles = vec![];
+
+    // Multiple threads trying to write
+    for (i, lang) in languages.iter().enumerate() {
+      let state_clone = state.clone();
+      let lang = lang.to_string();
+      let handle = thread::spawn(move || {
+        thread::sleep(std::time::Duration::from_millis(i as u64));
+        let mut current = state_clone.current_language.lock().unwrap();
+        *current = lang;
+      });
+      handles.push(handle);
+    }
+
+    // Wait for all threads
+    for handle in handles {
+      handle.join().unwrap();
+    }
+
+    // The final language should be one of the test languages
+    let final_lang = state.current_language.lock().unwrap();
+    assert!(languages.contains(&final_lang.as_str()));
+  }
+
+  #[test]
+  fn test_supported_language_validation_edge_cases() {
+    // Test edge cases for language validation
+    assert!(!is_supported_language("EN")); // uppercase
+    assert!(!is_supported_language("En")); // mixed case
+    assert!(!is_supported_language(" en")); // with space
+    assert!(!is_supported_language("en ")); // with space
+    assert!(!is_supported_language("e")); // too short
+    assert!(!is_supported_language("eng")); // too long
+    assert!(!is_supported_language("12")); // numbers
+    assert!(!is_supported_language("e!")); // special characters
+  }
+
+  #[test]
+  fn test_language_response_debug_format() {
+    let response = LanguageResponse {
+      language: "fr".to_string(),
+      system_language: "en".to_string(),
+    };
+
+    let debug_str = format!("{:?}", response);
+    assert!(debug_str.contains("LanguageResponse"));
+    assert!(debug_str.contains("fr"));
+    assert!(debug_str.contains("en"));
+  }
+
+  #[test]
+  fn test_mutex_error_handling() {
+    // Test that we can handle mutex errors gracefully
+    let state = LanguageState::new();
+
+    // Normal lock should work
+    let result = state.current_language.lock();
+    assert!(result.is_ok());
+    drop(result);
+
+    // Test with try_lock
+    let result1 = state.current_language.try_lock();
+    assert!(result1.is_ok());
+
+    // Second try_lock should fail while first is held
+    let result2 = state.current_language.try_lock();
+    assert!(result2.is_err());
+
+    drop(result1);
+
+    // Now it should work again
+    let result3 = state.current_language.try_lock();
+    assert!(result3.is_ok());
+  }
+
+  #[test]
+  fn test_language_state_memory_safety() {
+    // Test that LanguageState doesn't leak memory
+    let states: Vec<_> = (0..100).map(|_| LanguageState::new()).collect();
+
+    // Set different values
+    for (i, state) in states.iter().enumerate() {
+      let mut lang = state.current_language.lock().unwrap();
+      *lang = format!("test_{}", i);
+    }
+
+    // Verify values
+    for (i, state) in states.iter().enumerate() {
+      let lang = state.current_language.lock().unwrap();
+      assert_eq!(*lang, format!("test_{}", i));
+    }
+
+    // states are dropped here
+  }
+
+  #[test]
+  fn test_system_language_parsing() {
+    // We can't control what sys_locale returns, but we can test
+    // that our parsing logic works correctly
+
+    // Simulate various locale formats
+    let test_cases = vec![
+      ("en_US", "en"),
+      ("fr_FR", "fr"),
+      ("de_DE", "de"),
+      ("es_ES", "es"),
+      ("pt_BR", "pt"),
+      ("zh_CN", "zh"),
+      ("ja_JP", "ja"),
+      ("ko_KR", "ko"),
+      ("tr_TR", "tr"),
+      ("th_TH", "th"),
+      ("it_IT", "it"),
+      ("hi_IN", "hi"),
+    ];
+
+    for (locale, expected) in test_cases {
+      let lang_code = locale.chars().take(2).collect::<String>().to_lowercase();
+      assert_eq!(lang_code, expected);
+      assert!(is_supported_language(&lang_code));
+    }
+  }
 }

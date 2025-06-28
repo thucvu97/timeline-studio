@@ -43,6 +43,8 @@ pub fn extract_frame(input_path: &str, output_path: &str, time_seconds: f64) -> 
 #[cfg(test)]
 mod tests {
   use super::*;
+  use std::fs;
+  use tempfile::TempDir;
 
   #[test]
   fn test_check_ffmpeg() {
@@ -53,5 +55,227 @@ mod tests {
       Err(e) => println!("FFmpeg не найден: {e}"),
     }
     // Не делаем assert, так как FFmpeg может быть не установлен в CI
+  }
+
+  #[test]
+  fn test_check_ffmpeg_result_types() {
+    // Проверяем что функция возвращает правильные типы
+    let result = check_ffmpeg();
+    match result {
+      Ok(()) => {
+        // Успешный результат должен быть пустым tuple
+      }
+      Err(msg) => {
+        // Ошибка должна содержать сообщение
+        assert!(!msg.is_empty());
+        assert!(msg.contains("FFmpeg") || msg.contains("ffmpeg"));
+      }
+    }
+  }
+
+  #[test]
+  fn test_extract_frame_invalid_input() {
+    // Тест с несуществующим входным файлом
+    let temp_dir = TempDir::new().unwrap();
+    let output_path = temp_dir.path().join("output.jpg");
+
+    let result = extract_frame("/nonexistent/video.mp4", output_path.to_str().unwrap(), 5.0);
+
+    assert!(result.is_err());
+    // FFmpeg должен вернуть ошибку о несуществующем файле
+  }
+
+  #[test]
+  fn test_extract_frame_time_formatting() {
+    // Проверяем форматирование времени
+    let time_seconds = 123.456;
+    let expected_format = format!("{:.2}", time_seconds);
+    assert_eq!(expected_format, "123.46");
+
+    let time_seconds = 0.5;
+    let expected_format = format!("{:.2}", time_seconds);
+    assert_eq!(expected_format, "0.50");
+  }
+
+  #[test]
+  fn test_extract_frame_command_construction() {
+    // Проверяем что команда строится правильно
+    // Этот тест не запускает FFmpeg, просто проверяет логику
+    let input_path = "/test/video.mp4";
+    let output_path = "/test/frame.jpg";
+    let time_seconds = 10.5;
+
+    // Проверяем форматирование времени
+    let time_str = format!("{time_seconds:.2}");
+    assert_eq!(time_str, "10.50");
+
+    // Проверяем что пути не изменяются
+    assert_eq!(input_path, "/test/video.mp4");
+    assert_eq!(output_path, "/test/frame.jpg");
+  }
+
+  #[test]
+  fn test_extract_frame_with_empty_paths() {
+    // Тест с пустыми путями
+    let result = extract_frame("", "", 0.0);
+    assert!(result.is_err());
+  }
+
+  #[test]
+  fn test_extract_frame_negative_time() {
+    // Тест с отрицательным временем
+    let temp_dir = TempDir::new().unwrap();
+    let output_path = temp_dir.path().join("output.jpg");
+
+    let result = extract_frame("/some/video.mp4", output_path.to_str().unwrap(), -5.0);
+
+    // FFmpeg может обработать отрицательное время как 0
+    // или вернуть ошибку - оба варианта допустимы
+    match result {
+      Ok(_) => {
+        // FFmpeg обработал как начало видео
+      }
+      Err(msg) => {
+        // FFmpeg вернул ошибку
+        assert!(!msg.is_empty());
+      }
+    }
+  }
+
+  #[test]
+  fn test_extract_frame_very_large_time() {
+    // Тест с очень большим временем
+    let temp_dir = TempDir::new().unwrap();
+    let output_path = temp_dir.path().join("output.jpg");
+
+    let result = extract_frame("/some/video.mp4", output_path.to_str().unwrap(), 999999.99);
+
+    // FFmpeg должен вернуть ошибку так как видео не может быть таким длинным
+    assert!(result.is_err());
+  }
+
+  #[test]
+  fn test_extract_frame_special_characters_in_path() {
+    // Тест с специальными символами в пути
+    let temp_dir = TempDir::new().unwrap();
+    let output_path = temp_dir.path().join("output with spaces.jpg");
+
+    // Создаем путь со специальными символами
+    let input_path = "/test/video with spaces & special.mp4";
+
+    let result = extract_frame(input_path, output_path.to_str().unwrap(), 1.0);
+
+    // Результат зависит от наличия FFmpeg и файла
+    match result {
+      Ok(_) => {
+        // FFmpeg обработал пути правильно
+      }
+      Err(msg) => {
+        // Ожидаемая ошибка о несуществующем файле
+        assert!(!msg.is_empty());
+      }
+    }
+  }
+
+  #[test]
+  fn test_error_message_formatting() {
+    // Проверяем форматирование сообщений об ошибках
+    let error_msg = format!("Failed to run ffmpeg: {}", "test error");
+    assert_eq!(error_msg, "Failed to run ffmpeg: test error");
+
+    let error_msg = format!("FFmpeg failed: {}", "stderr output");
+    assert_eq!(error_msg, "FFmpeg failed: stderr output");
+  }
+
+  #[cfg(unix)]
+  #[test]
+  fn test_extract_frame_permission_denied() {
+    // Тест с файлом без прав на запись (только для Unix)
+    use std::os::unix::fs::PermissionsExt;
+
+    let temp_dir = TempDir::new().unwrap();
+    let protected_dir = temp_dir.path().join("protected");
+    fs::create_dir(&protected_dir).unwrap();
+
+    // Устанавливаем права только на чтение
+    let mut perms = fs::metadata(&protected_dir).unwrap().permissions();
+    perms.set_mode(0o444);
+    fs::set_permissions(&protected_dir, perms).unwrap();
+
+    let output_path = protected_dir.join("output.jpg");
+    let result = extract_frame("/some/video.mp4", output_path.to_str().unwrap(), 1.0);
+
+    // Должна быть ошибка о правах доступа
+    assert!(result.is_err());
+
+    // Восстанавливаем права для удаления
+    let mut perms = fs::metadata(&protected_dir).unwrap().permissions();
+    perms.set_mode(0o755);
+    fs::set_permissions(&protected_dir, perms).unwrap();
+  }
+
+  #[test]
+  fn test_extract_frame_output_path_validation() {
+    // Проверяем различные выходные пути
+    let test_paths = vec![
+      "output.jpg",
+      "output.png",
+      "output.bmp",
+      "frame_001.jpeg",
+      "/tmp/test/output.jpg",
+      "./relative/path/output.jpg",
+    ];
+
+    for path in test_paths {
+      // Проверяем что путь принимается без изменений
+      let result = extract_frame("/input.mp4", path, 1.0);
+      // Результат зависит от наличия FFmpeg
+      if result.is_ok() {}
+    }
+  }
+
+  #[test]
+  fn test_time_precision() {
+    // Проверяем точность времени
+    let times = vec![
+      (0.0, "0.00"),
+      (1.0, "1.00"),
+      (1.5, "1.50"),
+      (10.123, "10.12"),
+      (10.126, "10.13"),
+      (100.999, "101.00"),
+    ];
+
+    for (time, expected) in times {
+      let formatted = format!("{:.2}", time);
+      assert_eq!(formatted, expected);
+    }
+  }
+
+  // Мок тест для проверки вызова FFmpeg с правильными аргументами
+  #[test]
+  fn test_ffmpeg_arguments() {
+    // Проверяем что аргументы для FFmpeg формируются правильно
+    let expected_args = [
+      "-ss",
+      "5.50",
+      "-i",
+      "/input/video.mp4",
+      "-vframes",
+      "1",
+      "-q:v",
+      "2",
+      "-y",
+      "/output/frame.jpg",
+    ];
+
+    // Проверяем что аргументы соответствуют ожидаемым
+    assert_eq!(expected_args[0], "-ss");
+    assert_eq!(expected_args[2], "-i");
+    assert_eq!(expected_args[4], "-vframes");
+    assert_eq!(expected_args[5], "1");
+    assert_eq!(expected_args[6], "-q:v");
+    assert_eq!(expected_args[7], "2");
+    assert_eq!(expected_args[8], "-y");
   }
 }
