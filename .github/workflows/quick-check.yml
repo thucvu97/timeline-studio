@@ -1,0 +1,58 @@
+name: Quick Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quick-validation:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg pkg-config
+          
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ubuntu-cargo-${{ hashFiles('**/Cargo.lock') }}
+          
+      - name: Install frontend dependencies
+        run: bun install
+        
+      - name: Frontend lint check
+        run: bun run lint
+        
+      - name: Backend format check
+        working-directory: src-tauri
+        run: cargo fmt -- --check
+        
+      - name: Backend clippy check
+        working-directory: src-tauri
+        run: cargo clippy --lib -- -D warnings
+        
+      - name: Quick backend test (core modules only)
+        working-directory: src-tauri
+        run: |
+          # Run only critical backend tests to catch major issues quickly
+          cargo test --lib language_tauri::tests -- --test-threads=1
+          cargo test --lib command_registry::tests -- --test-threads=1
+          cargo test --lib core::di::tests -- --test-threads=1

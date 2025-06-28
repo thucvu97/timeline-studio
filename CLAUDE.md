@@ -56,6 +56,27 @@ Before working with this codebase, ensure you have the following dependencies in
   - pkg-config (через `choco install pkgconfiglite`)
   - vcpkg или предсобранные FFmpeg библиотеки
   
+## CI/CD Configuration
+
+### GitHub Actions Workflows
+
+Проект включает оптимизированные workflow для CI/CD:
+
+1. **`.github/workflows/ci.yml`** - Основной CI pipeline
+   - Тестирование фронтенда и бэкенда на всех платформах
+   - Оптимизированная установка FFmpeg на Windows (предсобранные библиотеки)
+   - Кэширование зависимостей для ускорения сборки
+
+2. **`.github/workflows/quick-check.yml`** - Быстрая валидация
+   - Lint и format проверки
+   - Критически важные тесты
+   - Запускается на каждый push/PR
+
+3. **`.github/workflows/windows-build.yml`** - Специализированная сборка для Windows
+   - Оптимизированная установка FFmpeg (избегает зависания vcpkg)
+   - Таймауты для предотвращения зависания
+   - Кэширование FFmpeg библиотек
+
 ### Windows-specific FFmpeg Setup
 
 Для сборки на Windows требуется один из следующих вариантов:
