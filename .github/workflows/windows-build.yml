@@ -122,7 +122,11 @@ jobs:
           echo "FFMPEG_NO_PKG_CONFIG=1" >> $env:GITHUB_ENV
           
           # Force Windows-style paths for bindgen
-          echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:/ffmpeg/include" >> $env:GITHUB_ENV
+          
+          # Additional fix for ffmpeg-sys-next looking for Unix paths
+          echo "LIBCLANG_PATH=C:\Program Files\LLVM\bin" >> $env:GITHUB_ENV
+          echo "FFMPEG_PKG_CONFIG_PATH=C:\ffmpeg\lib\pkgconfig" >> $env:GITHUB_ENV
           
           # Verify FFmpeg installation
           Write-Host "=== FFmpeg Installation Verification ==="

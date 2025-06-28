@@ -31,15 +31,10 @@ export function Timeline({ className, style, noChat = false }: TimelineProps = {
       data-testid="timeline"
       style={style}
     >
-      {/* Левая панель - Ресурсы (только для timeline view) */}
-      {activeView === "timeline" && (
-        <>
-          <ResizablePanel defaultSize={15} minSize={5} maxSize={30}>
-            <ResourcesPanel />
-          </ResizablePanel>
-          <ResizableHandle />
-        </>
-      )}
+      <ResizablePanel defaultSize={15} minSize={5} maxSize={30}>
+        <ResourcesPanel />
+      </ResizablePanel>
+      <ResizableHandle />
 
       {/* Средняя панель (основная часть) */}
       <ResizablePanel defaultSize={activeView === "timeline" ? 65 : 80} minSize={40}>
