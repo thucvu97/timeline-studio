@@ -656,4 +656,434 @@ mod tests {
     let result = builder.convert_parameter_to_string(&string_param);
     assert_eq!(result, "test");
   }
+
+  #[test]
+  fn test_build_color_correction() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut effect = Effect::new(EffectType::ColorCorrection, "Color Correction".to_string());
+    effect
+      .parameters
+      .insert("brightness".to_string(), EffectParameter::Float(0.5));
+    effect
+      .parameters
+      .insert("contrast".to_string(), EffectParameter::Float(1.2));
+    effect
+      .parameters
+      .insert("saturation".to_string(), EffectParameter::Float(1.1));
+    effect
+      .parameters
+      .insert("gamma".to_string(), EffectParameter::Float(0.9));
+
+    let result = builder.build_color_correction(&effect, 0);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("brightness=0.5"));
+    assert!(filter.contains("contrast=1.2"));
+  }
+
+  #[test]
+  fn test_build_blur_effect() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut effect = Effect::new(EffectType::Blur, "Blur".to_string());
+    effect
+      .parameters
+      .insert("radius".to_string(), EffectParameter::Float(10.0));
+    effect
+      .parameters
+      .insert("sigma".to_string(), EffectParameter::Float(2.0));
+
+    let result = builder.build_blur_effect(&effect, 0);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("gblur"));
+    assert!(filter.contains("radius=10"));
+    assert!(filter.contains("sigma=2"));
+  }
+
+  #[test]
+  fn test_build_sharpen_effect() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut effect = Effect::new(EffectType::Sharpen, "Sharpen".to_string());
+    effect
+      .parameters
+      .insert("amount".to_string(), EffectParameter::Float(1.5));
+    effect
+      .parameters
+      .insert("radius".to_string(), EffectParameter::Float(3.0));
+
+    let result = builder.build_sharpen_effect(&effect, 0);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("unsharp"));
+  }
+
+  #[test]
+  fn test_build_chroma_key() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut effect = Effect::new(EffectType::ChromaKey, "Chroma Key".to_string());
+    effect.parameters.insert(
+      "color".to_string(),
+      EffectParameter::String("0x00ff00".to_string()),
+    );
+    effect
+      .parameters
+      .insert("similarity".to_string(), EffectParameter::Float(0.4));
+    effect
+      .parameters
+      .insert("blend".to_string(), EffectParameter::Float(0.1));
+
+    let result = builder.build_chroma_key(&effect, 0);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("chromakey"));
+    assert!(filter.contains("0x00ff00"));
+  }
+
+  #[test]
+  fn test_build_custom_effect() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut effect = Effect::new(EffectType::Custom, "Custom Effect".to_string());
+    effect
+      .parameters
+      .insert("strength".to_string(), EffectParameter::Float(0.8));
+    effect.ffmpeg_command = Some("{input}custom_filter=strength={strength}{output}".to_string());
+
+    let result = builder.build_custom_effect(&effect, 0);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("custom_filter"));
+    assert!(filter.contains("strength=0.8"));
+  }
+
+  #[test]
+  fn test_build_audio_fade() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut effect = Effect::new(EffectType::AudioFade, "Audio Fade".to_string());
+    effect
+      .parameters
+      .insert("fade_in".to_string(), EffectParameter::Float(2.0));
+    effect
+      .parameters
+      .insert("fade_out".to_string(), EffectParameter::Float(3.0));
+
+    let result = builder.build_audio_effect(&effect, 0);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("afade=in:duration=2"));
+    assert!(filter.contains("afade=out:duration=3"));
+  }
+
+  #[test]
+  fn test_build_audio_compressor() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut effect = Effect::new(EffectType::AudioCompressor, "Audio Compressor".to_string());
+    effect
+      .parameters
+      .insert("threshold".to_string(), EffectParameter::Float(-15.0));
+    effect
+      .parameters
+      .insert("ratio".to_string(), EffectParameter::Float(6.0));
+    effect
+      .parameters
+      .insert("attack".to_string(), EffectParameter::Float(10.0));
+    effect
+      .parameters
+      .insert("release".to_string(), EffectParameter::Float(100.0));
+
+    let result = builder.build_audio_effect(&effect, 0);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("compand"));
+    assert!(filter.contains("attacks=10"));
+    assert!(filter.contains("ratio=6"));
+  }
+
+  #[test]
+  fn test_build_audio_equalizer() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut effect = Effect::new(EffectType::AudioEqualizer, "Audio Equalizer".to_string());
+    effect
+      .parameters
+      .insert("bass".to_string(), EffectParameter::Float(3.0));
+    effect
+      .parameters
+      .insert("mid".to_string(), EffectParameter::Float(-2.0));
+    effect
+      .parameters
+      .insert("treble".to_string(), EffectParameter::Float(1.0));
+
+    let result = builder.build_audio_effect(&effect, 0);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("equalizer"));
+    assert!(filter.contains("f=100:g=3"));
+    assert!(filter.contains("f=1000:g=-2"));
+    assert!(filter.contains("f=10000:g=1"));
+  }
+
+  #[test]
+  fn test_is_audio_effect() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let audio_effect = Effect::new(EffectType::AudioFade, "Audio Effect".to_string());
+    let video_effect = Effect::new(EffectType::Blur, "Video Effect".to_string());
+
+    assert!(builder.is_audio_effect(&audio_effect));
+    assert!(!builder.is_audio_effect(&video_effect));
+  }
+
+  #[test]
+  fn test_get_param_value() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut parameters = HashMap::new();
+    parameters.insert("float_param".to_string(), EffectParameter::Float(1.5));
+    parameters.insert("int_param".to_string(), EffectParameter::Int(10));
+
+    let float_value = builder.get_param_value(&parameters, "float_param", 0.0);
+    assert_eq!(float_value, 1.5);
+
+    let int_value = builder.get_param_value(&parameters, "int_param", 0.0);
+    assert_eq!(int_value, 10.0);
+
+    let default_value = builder.get_param_value(&parameters, "missing_param", 5.0);
+    assert_eq!(default_value, 5.0);
+  }
+
+  #[test]
+  fn test_get_param_string() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut parameters = HashMap::new();
+    parameters.insert(
+      "string_param".to_string(),
+      EffectParameter::String("test_value".to_string()),
+    );
+
+    let string_value = builder.get_param_string(&parameters, "string_param", "default");
+    assert_eq!(string_value, "test_value");
+
+    let default_value = builder.get_param_string(&parameters, "missing_param", "default");
+    assert_eq!(default_value, "default");
+  }
+
+  #[test]
+  fn test_process_custom_filter() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let filter = "{input}customfilter=param1:param2{output}";
+    let result = builder.process_custom_filter(filter, 5);
+
+    assert!(result.contains("[v5]"));
+    assert!(result.contains("customfilter"));
+  }
+
+  #[test]
+  fn test_process_effect_template() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let template = "{input}effect=param1={value1}:param2={value2}{output}";
+    let mut parameters = HashMap::new();
+    parameters.insert("value1".to_string(), EffectParameter::Float(1.0));
+    parameters.insert(
+      "value2".to_string(),
+      EffectParameter::String("test".to_string()),
+    );
+
+    let result = builder.process_effect_template(template, &parameters, 3);
+
+    assert!(result.contains("[v3]"));
+    assert!(result.contains("param1=1"));
+    assert!(result.contains("param2=test"));
+  }
+
+  #[test]
+  fn test_build_complex_color_correction() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut parameters = HashMap::new();
+    parameters.insert("highlights_r".to_string(), EffectParameter::Float(1.2));
+    parameters.insert("highlights_g".to_string(), EffectParameter::Float(1.1));
+    parameters.insert("highlights_b".to_string(), EffectParameter::Float(0.9));
+    parameters.insert("midtones_r".to_string(), EffectParameter::Float(1.0));
+    parameters.insert("midtones_g".to_string(), EffectParameter::Float(1.0));
+    parameters.insert("midtones_b".to_string(), EffectParameter::Float(1.0));
+    parameters.insert("shadows_r".to_string(), EffectParameter::Float(0.8));
+    parameters.insert("shadows_g".to_string(), EffectParameter::Float(0.9));
+    parameters.insert("shadows_b".to_string(), EffectParameter::Float(1.1));
+
+    let result = builder.build_complex_color_correction(&parameters, 0);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("colorchannelmixer"));
+  }
+
+  #[test]
+  fn test_needs_complex_color_correction() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let mut simple_params = HashMap::new();
+    simple_params.insert("brightness".to_string(), EffectParameter::Float(1.0));
+    assert!(!builder.needs_complex_color_correction(&simple_params));
+
+    let mut complex_params = HashMap::new();
+    complex_params.insert("highlights_r".to_string(), EffectParameter::Float(1.0));
+    assert!(builder.needs_complex_color_correction(&complex_params));
+  }
+
+  #[test]
+  fn test_build_filter_all_types() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    // Test various filter types
+    let filter_types = vec![
+      (FilterType::Brightness, "brightness"),
+      (FilterType::Contrast, "contrast"),
+      (FilterType::Saturation, "saturation"),
+      (FilterType::Hue, "hue"),
+      (FilterType::Blur, "boxblur"),
+      (FilterType::Sharpen, "unsharp"),
+      (FilterType::Vignette, "vignette"),
+      (FilterType::Grain, "noise"),
+      (FilterType::Glow, "gblur"),
+      (FilterType::ShadowsHighlights, "shadows"),
+      (FilterType::WhiteBalance, "colortemperature"),
+      (FilterType::Exposure, "brightness"),
+      (FilterType::Curves, "gamma"),
+      (FilterType::Levels, "contrast"),
+      (FilterType::ColorBalance, "saturation"),
+    ];
+
+    for (filter_type, expected) in filter_types {
+      let filter = Filter {
+        id: "test".to_string(),
+        name: "Test Filter".to_string(),
+        filter_type: filter_type.clone(),
+        parameters: HashMap::new(),
+        enabled: true,
+        ffmpeg_command: None,
+        intensity: 1.0,
+        custom_filter: None,
+      };
+
+      let result = builder.build_filter(&filter, 0);
+      assert!(result.is_ok());
+      let filter_str = result.unwrap();
+      assert!(
+        filter_str.contains(expected),
+        "Filter type {:?} should contain {}",
+        filter_type,
+        expected
+      );
+    }
+  }
+
+  #[tokio::test]
+  async fn test_build_transition_all_types() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    use crate::video_compiler::schema::timeline::Clip;
+    use std::path::PathBuf;
+
+    let clip1 = Clip::new(PathBuf::from("/test/video1.mp4"), 0.0, 5.0);
+    let clip2 = Clip::new(PathBuf::from("/test/video2.mp4"), 5.0, 10.0);
+
+    let transition_types = vec![
+      ("fade", "blend"),
+      ("wipe_left", "wipeleft"),
+      ("wipe_right", "wiperight"),
+      ("slide_left", "slideleft"),
+      ("slide_right", "slideright"),
+      ("unknown", "fade"), // default case
+    ];
+
+    for (transition_type, expected) in transition_types {
+      let transition = Transition {
+        id: "test".to_string(),
+        name: "Test Transition".to_string(),
+        transition_type: transition_type.to_string(),
+        duration: crate::video_compiler::schema::effects::TransitionDuration {
+          value: 1.0,
+          min: None,
+          max: None,
+        },
+        category: None,
+        tags: Vec::new(),
+        complexity: None,
+        enabled: true,
+        parameters: HashMap::new(),
+        ffmpeg_command: None,
+        easing: None,
+        direction: None,
+      };
+
+      let result = builder
+        .build_transition_filter(&clip1, &clip2, &transition, 0)
+        .await;
+      assert!(result.is_ok());
+      let filter_str = result.unwrap();
+      assert!(
+        filter_str.contains(expected),
+        "Transition type {} should contain {}",
+        transition_type,
+        expected
+      );
+    }
+  }
+
+  #[test]
+  fn test_parameter_color_conversion() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let color_param = EffectParameter::Color(0x00ff00);
+    let result = builder.convert_parameter_to_string(&color_param);
+    assert_eq!(result, "#00ff00");
+  }
+
+  #[test]
+  fn test_parameter_float_array_conversion() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    let array_param = EffectParameter::FloatArray(vec![1.0, 2.0, 3.0]);
+    let result = builder.convert_parameter_to_string(&array_param);
+    assert_eq!(result, "1,2,3");
+  }
+
+  #[test]
+  fn test_parameter_filepath_conversion() {
+    let project = create_minimal_project();
+    let builder = EffectBuilder::new(&project);
+
+    use std::path::PathBuf;
+    let path_param = EffectParameter::FilePath(PathBuf::from("/test/file.txt"));
+    let result = builder.convert_parameter_to_string(&path_param);
+    assert_eq!(result, "/test/file.txt");
+  }
 }

@@ -404,9 +404,9 @@ impl<'a> SubtitleBuilder<'a> {
   /// Экранировать текст субтитра для FFmpeg
   fn escape_text(&self, text: &str) -> String {
     text
+      .replace("\\", "\\\\")
       .replace("'", "\\'")
       .replace(":", "\\:")
-      .replace("\\", "\\\\")
       .replace("\n", "\\n")
   }
 
@@ -551,7 +551,9 @@ impl<'a> SubtitleBuilder<'a> {
 mod tests {
   use super::*;
   use crate::video_compiler::schema::subtitles::Subtitle;
+  use crate::video_compiler::schema::SubtitleEasing;
   use crate::video_compiler::tests::fixtures::*;
+  use std::collections::HashMap;
 
   #[test]
   fn test_subtitle_builder_new() {
@@ -743,5 +745,453 @@ mod tests {
     // При SlideIn слева, начинаем за левым краем экрана
     assert!(start_x < 0);
     assert_eq!(start_y, end_y); // Y координата не должна изменяться для горизонтального слайда
+  }
+
+  #[test]
+  fn test_escape_text() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    assert_eq!(builder.escape_text("Simple text"), "Simple text");
+    assert_eq!(
+      builder.escape_text("Text with 'quotes'"),
+      "Text with \\'quotes\\'"
+    );
+    assert_eq!(
+      builder.escape_text("Text with : colon"),
+      "Text with \\: colon"
+    );
+    assert_eq!(
+      builder.escape_text("Text with \\ backslash"),
+      "Text with \\\\ backslash"
+    );
+    assert_eq!(
+      builder.escape_text("Text with\nnewline"),
+      "Text with\\nnewline"
+    );
+    assert_eq!(
+      builder.escape_text("Complex 'text' with: all\\chars\n"),
+      "Complex \\'text\\' with\\: all\\\\chars\\n"
+    );
+  }
+
+  #[test]
+  fn test_get_font_path() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let arial_path = builder.get_font_path("Arial");
+    assert!(arial_path.contains("Helvetica"));
+
+    let times_path = builder.get_font_path("Times New Roman");
+    assert!(times_path.contains("Times"));
+
+    let courier_path = builder.get_font_path("Courier New");
+    assert!(courier_path.contains("Courier"));
+
+    let unknown_path = builder.get_font_path("Unknown Font");
+    assert!(unknown_path.contains("Helvetica")); // Should fallback to default
+  }
+
+  #[test]
+  fn test_calculate_position_absolute() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let mut subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+    subtitle.position = SubtitlePosition::Absolute { x: 100.0, y: 200.0 };
+
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    let (x, y) = builder.calculate_position(&subtitle, &resolution);
+    assert_eq!(x, "100");
+    assert_eq!(y, "200");
+  }
+
+  #[test]
+  fn test_calculate_position_relative() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let mut subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    // Test center alignment
+    subtitle.position = SubtitlePosition::Relative {
+      align_x: SubtitleAlignX::Center,
+      align_y: SubtitleAlignY::Middle,
+    };
+    let (x, y) = builder.calculate_position(&subtitle, &resolution);
+    assert_eq!(x, "(w-text_w)/2");
+    assert_eq!(y, "(h-text_h)/2");
+
+    // Test right-bottom alignment
+    subtitle.position = SubtitlePosition::Relative {
+      align_x: SubtitleAlignX::Right,
+      align_y: SubtitleAlignY::Bottom,
+    };
+    let (x, y) = builder.calculate_position(&subtitle, &resolution);
+    assert!(x.contains("text_w"));
+    assert!(y.contains("text_h"));
+  }
+
+  #[test]
+  fn test_apply_animations_to_subtitle() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let mut subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+    subtitle.animations.push(SubtitleAnimation {
+      id: "anim1".to_string(),
+      animation_type: SubtitleAnimationType::FadeIn,
+      start_time: 0.0,
+      duration: 1.0,
+      delay: 0.0,
+      direction: None,
+      easing: SubtitleEasing::Linear,
+      properties: HashMap::new(),
+    });
+
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    let filter = "drawtext=text='Test':fontsize=24@1.0".to_string();
+    let result = builder.apply_animations_to_subtitle(filter, &subtitle, &resolution);
+
+    assert!(result.is_ok());
+    let animated_filter = result.unwrap();
+    assert!(animated_filter.contains("if("));
+  }
+
+  #[test]
+  fn test_apply_single_animation_fade_in() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+    let animation = SubtitleAnimation {
+      id: "anim1".to_string(),
+      animation_type: SubtitleAnimationType::FadeIn,
+      start_time: 0.0,
+      duration: 1.0,
+      delay: 0.0,
+      direction: None,
+      easing: SubtitleEasing::Linear,
+      properties: HashMap::new(),
+    };
+
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    let filter = format!("drawtext=text='Test':fontsize=24@{}", subtitle.opacity);
+    let result = builder.apply_single_animation(filter, &animation, &subtitle, &resolution);
+
+    assert!(result.is_ok());
+    let animated = result.unwrap();
+    assert!(animated.contains("if(lt(t,"));
+  }
+
+  #[test]
+  fn test_apply_single_animation_slide_in() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+    let animation = SubtitleAnimation {
+      id: "anim1".to_string(),
+      animation_type: SubtitleAnimationType::SlideIn,
+      start_time: 0.0,
+      duration: 1.0,
+      delay: 0.0,
+      direction: Some(SubtitleDirection::Left),
+      easing: SubtitleEasing::Linear,
+      properties: HashMap::new(),
+    };
+
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    let (x, y) = builder.calculate_position(&subtitle, &resolution);
+    let filter = format!("drawtext=text='Test':x={x}:y={y}");
+    let result = builder.apply_single_animation(filter, &animation, &subtitle, &resolution);
+
+    assert!(result.is_ok());
+    let animated = result.unwrap();
+    assert!(animated.contains("if(lt(t,"));
+  }
+
+  #[test]
+  fn test_apply_single_animation_scale() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+    let animation = SubtitleAnimation {
+      id: "anim1".to_string(),
+      animation_type: SubtitleAnimationType::Scale,
+      start_time: 0.0,
+      duration: 1.0,
+      delay: 0.0,
+      direction: None,
+      easing: SubtitleEasing::Linear,
+      properties: HashMap::new(),
+    };
+
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    let filter = format!("drawtext=text='Test':fontsize={}", subtitle.font_size);
+    let result = builder.apply_single_animation(filter, &animation, &subtitle, &resolution);
+
+    assert!(result.is_ok());
+    let animated = result.unwrap();
+    assert!(animated.contains("fontsize="));
+    assert!(animated.contains("if(lt(t,"));
+  }
+
+  #[test]
+  fn test_apply_single_animation_bounce() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+    let animation = SubtitleAnimation {
+      id: "anim1".to_string(),
+      animation_type: SubtitleAnimationType::Bounce,
+      start_time: 0.0,
+      duration: 1.0,
+      delay: 0.0,
+      direction: None,
+      easing: SubtitleEasing::Linear,
+      properties: HashMap::new(),
+    };
+
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    let (_x, y) = builder.calculate_position(&subtitle, &resolution);
+    let filter = format!("drawtext=text='Test':y={y}");
+    let result = builder.apply_single_animation(filter, &animation, &subtitle, &resolution);
+
+    assert!(result.is_ok());
+    let animated = result.unwrap();
+    assert!(animated.contains("sin("));
+  }
+
+  #[test]
+  fn test_apply_single_animation_shake() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+    let animation = SubtitleAnimation {
+      id: "anim1".to_string(),
+      animation_type: SubtitleAnimationType::Shake,
+      start_time: 0.0,
+      duration: 1.0,
+      delay: 0.0,
+      direction: None,
+      easing: SubtitleEasing::Linear,
+      properties: HashMap::new(),
+    };
+
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    let (x, _y) = builder.calculate_position(&subtitle, &resolution);
+    let filter = format!("drawtext=text='Test':x={x}");
+    let result = builder.apply_single_animation(filter, &animation, &subtitle, &resolution);
+
+    assert!(result.is_ok());
+    let animated = result.unwrap();
+    assert!(animated.contains("sin(t*50)"));
+  }
+
+  #[test]
+  fn test_calculate_slide_positions_all_directions() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    // Test all directions for slide in
+    let directions = vec![
+      SubtitleDirection::Left,
+      SubtitleDirection::Right,
+      SubtitleDirection::Top,
+      SubtitleDirection::Bottom,
+      SubtitleDirection::Center,
+    ];
+
+    for direction in directions {
+      let (start_x, start_y, end_x, end_y) = builder.calculate_slide_positions(
+        &subtitle,
+        &resolution,
+        &direction,
+        true, // is_slide_in
+      );
+
+      match direction {
+        SubtitleDirection::Left => assert!(start_x < 0),
+        SubtitleDirection::Right => assert!(start_x > resolution.width as i32),
+        SubtitleDirection::Top => assert!(start_y < 0),
+        SubtitleDirection::Bottom => assert!(start_y > resolution.height as i32),
+        SubtitleDirection::Center => {
+          assert_eq!(start_x, end_x);
+          assert_eq!(start_y, end_y);
+        }
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_build_single_subtitle_with_shadow_and_outline() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let mut subtitle = Subtitle::new("Test subtitle".to_string(), 1.0, 3.0);
+    subtitle.shadow = true;
+    subtitle.outline = true;
+
+    let resolution = &project.settings.resolution;
+
+    let result = builder
+      .build_single_subtitle_filter(&subtitle, 0, resolution)
+      .await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("shadowx=2"));
+    assert!(filter.contains("shadowy=2"));
+    assert!(filter.contains("borderw=2"));
+    assert!(filter.contains("bordercolor=black"));
+  }
+
+  #[tokio::test]
+  async fn test_build_single_subtitle_with_bold_font() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let mut subtitle = Subtitle::new("Bold text".to_string(), 1.0, 3.0);
+    subtitle.font_weight = SubtitleFontWeight::Bold;
+
+    let resolution = &project.settings.resolution;
+
+    let result = builder
+      .build_single_subtitle_filter(&subtitle, 0, resolution)
+      .await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains(":font_weight=700"));
+  }
+
+  #[test]
+  fn test_apply_all_animation_types() {
+    let project = create_minimal_project();
+    let builder = SubtitleBuilder::new(&project);
+
+    let subtitle = Subtitle::new("Test".to_string(), 1.0, 3.0);
+    let resolution = crate::video_compiler::schema::Resolution {
+      width: 1920,
+      height: 1080,
+    };
+
+    let animation_types = vec![
+      SubtitleAnimationType::FadeIn,
+      SubtitleAnimationType::FadeOut,
+      SubtitleAnimationType::SlideIn,
+      SubtitleAnimationType::SlideOut,
+      SubtitleAnimationType::Scale,
+      SubtitleAnimationType::ScaleIn,
+      SubtitleAnimationType::ScaleOut,
+      SubtitleAnimationType::Typewriter,
+      SubtitleAnimationType::Bounce,
+      SubtitleAnimationType::Shake,
+      SubtitleAnimationType::Blink,
+      SubtitleAnimationType::Dissolve,
+      SubtitleAnimationType::Wave,
+    ];
+
+    for anim_type in animation_types {
+      let animation = SubtitleAnimation {
+        id: "anim1".to_string(),
+        animation_type: anim_type.clone(),
+        start_time: 0.0,
+        duration: 1.0,
+        delay: 0.0,
+        direction: Some(SubtitleDirection::Left),
+        easing: SubtitleEasing::Linear,
+        properties: HashMap::new(),
+      };
+
+      let filter = format!(
+        "drawtext=text='Test':x=100:y=100:fontsize=24@{}",
+        subtitle.opacity
+      );
+      let result = builder.apply_single_animation(filter, &animation, &subtitle, &resolution);
+
+      assert!(result.is_ok(), "Failed for animation type: {:?}", anim_type);
+    }
+  }
+
+  #[tokio::test]
+  async fn test_build_subtitle_filter_with_animations() {
+    let mut project = create_minimal_project();
+
+    let mut subtitle = Subtitle::new("Animated text".to_string(), 1.0, 3.0);
+    subtitle.animations.push(SubtitleAnimation {
+      id: "anim1".to_string(),
+      animation_type: SubtitleAnimationType::FadeIn,
+      start_time: 0.0,
+      duration: 0.5,
+      delay: 0.0,
+      direction: None,
+      easing: SubtitleEasing::Linear,
+      properties: HashMap::new(),
+    });
+    subtitle.animations.push(SubtitleAnimation {
+      id: "anim2".to_string(),
+      animation_type: SubtitleAnimationType::FadeOut,
+      start_time: 2.5,
+      duration: 0.5,
+      delay: 0.0,
+      direction: None,
+      easing: SubtitleEasing::Linear,
+      properties: HashMap::new(),
+    });
+
+    project.subtitles.push(subtitle);
+
+    let builder = SubtitleBuilder::new(&project);
+    let result = builder.build_subtitle_filter().await;
+
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(!filter.is_empty());
+    assert!(filter.contains("if("));
   }
 }

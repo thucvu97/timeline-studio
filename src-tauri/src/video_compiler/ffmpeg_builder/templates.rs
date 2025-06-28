@@ -826,4 +826,807 @@ mod tests {
     let result = builder.build_template_filter("non_existent", 0, 0).await;
     assert!(result.is_err()); // Должен вернуть ошибку о ненайденном шаблоне
   }
+
+  #[tokio::test]
+  async fn test_build_multi_camera_template_with_padding() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::templates::{Template, TemplateRegion, TemplateType};
+
+    let template = Template {
+      id: "padded_template".to_string(),
+      name: "Padded Template".to_string(),
+      template_type: TemplateType::Grid,
+      screens: 2,
+      cells: vec![],
+      regions: vec![
+        TemplateRegion {
+          x: 0,
+          y: 0,
+          width: 960,
+          height: 540,
+          padding: 10,
+        },
+        TemplateRegion {
+          x: 960,
+          y: 0,
+          width: 960,
+          height: 540,
+          padding: 10,
+        },
+      ],
+    };
+
+    let result = builder
+      .build_multi_camera_template_filter(&template, 0)
+      .await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("pad="));
+    assert!(filter.contains("overlay="));
+  }
+
+  #[tokio::test]
+  async fn test_build_style_template_with_text_element() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      ElementStyle, ElementTiming, StyleElementType, StyleTemplate, StyleTemplateCategory,
+      StyleTemplateElement, StyleTemplateStyle,
+    };
+
+    let mut style_template = StyleTemplate {
+      id: "text_template".to_string(),
+      name: "Text Template".to_string(),
+      category: StyleTemplateCategory::Title,
+      style: StyleTemplateStyle::Modern,
+      duration: 5.0,
+      elements: vec![],
+      background_color: "#FF0000".to_string(),
+      transitions: vec![],
+    };
+
+    let text_element = StyleTemplateElement {
+      id: "text1".to_string(),
+      element_type: StyleElementType::Text,
+      name: "Title".to_string(),
+      position: Position2D { x: 100.0, y: 100.0 },
+      size: Size2D {
+        width: 200.0,
+        height: 50.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 5.0,
+        duration: 5.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: "Hello World".to_string(),
+      style: Some(ElementStyle {
+        font_family: Some("Arial".to_string()),
+        font_size: Some(32),
+        color: Some("#FFFFFF".to_string()),
+        background_color: None,
+      }),
+    };
+
+    style_template.elements.push(text_element);
+
+    let result = builder
+      .build_style_template_filter(&style_template, 0, 0)
+      .await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("drawtext"));
+    assert!(filter.contains("Hello World"));
+  }
+
+  #[test]
+  fn test_build_text_element_filter() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      ElementStyle, ElementTiming, StyleElementType, StyleTemplateElement,
+    };
+
+    let element = StyleTemplateElement {
+      id: "text1".to_string(),
+      element_type: StyleElementType::Text,
+      name: "Test Text".to_string(),
+      position: Position2D { x: 50.0, y: 50.0 },
+      size: Size2D {
+        width: 100.0,
+        height: 30.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 3.0,
+        duration: 3.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: "Test Content".to_string(),
+      style: Some(ElementStyle {
+        font_family: Some("Arial".to_string()),
+        font_size: Some(24),
+        color: Some("#FF0000".to_string()),
+        background_color: None,
+      }),
+    };
+
+    let result = builder.build_text_element_filter(&element, 0);
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("drawtext"));
+    assert!(filter.contains("Test Content"));
+    assert!(filter.contains("fontsize=24"));
+    assert!(filter.contains("fontcolor=FF0000"));
+  }
+
+  #[test]
+  fn test_build_shape_element_filter() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      ElementStyle, ElementTiming, StyleElementType, StyleTemplateElement,
+    };
+
+    let element = StyleTemplateElement {
+      id: "shape1".to_string(),
+      element_type: StyleElementType::Shape,
+      name: "Test Shape".to_string(),
+      position: Position2D { x: 0.0, y: 0.0 },
+      size: Size2D {
+        width: 200.0,
+        height: 100.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 3.0,
+        duration: 3.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: String::new(),
+      style: Some(ElementStyle {
+        font_family: None,
+        font_size: None,
+        color: None,
+        background_color: Some("#00FF00".to_string()),
+      }),
+    };
+
+    let result = builder.build_shape_element_filter(&element, 0);
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("color=c=00FF00"));
+    assert!(filter.contains("s=200x100"));
+  }
+
+  #[test]
+  fn test_apply_element_animation_fade_in() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      AnimationDirection, AnimationEasing, AnimationType, ElementAnimation, ElementTiming,
+      StyleElementType, StyleTemplateElement,
+    };
+    use std::collections::HashMap;
+
+    let element = StyleTemplateElement {
+      id: "elem1".to_string(),
+      element_type: StyleElementType::Text,
+      name: "Animated Element".to_string(),
+      position: Position2D { x: 0.0, y: 0.0 },
+      size: Size2D {
+        width: 100.0,
+        height: 50.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 5.0,
+        duration: 5.0,
+      },
+      properties: Default::default(),
+      animations: vec![ElementAnimation {
+        id: "anim1".to_string(),
+        animation_type: AnimationType::FadeIn,
+        duration: 1.0,
+        delay: 0.5,
+        easing: AnimationEasing::Linear,
+        repeat: 1,
+        direction: AnimationDirection::Normal,
+        properties: HashMap::new(),
+      }],
+      content: String::new(),
+      style: None,
+    };
+
+    let result = builder.apply_element_animation("[input]", &element, 0, 5.0);
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("fade=in"));
+    assert!(filter.contains("st=0.5"));
+    assert!(filter.contains("d=1"));
+  }
+
+  #[test]
+  fn test_apply_element_animation_scale() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      AnimationDirection, AnimationEasing, AnimationType, ElementAnimation, ElementTiming,
+      StyleElementType, StyleTemplateElement,
+    };
+    use std::collections::HashMap;
+
+    let mut properties = HashMap::new();
+    properties.insert("from".to_string(), serde_json::json!(0.5));
+    properties.insert("to".to_string(), serde_json::json!(1.5));
+
+    let element = StyleTemplateElement {
+      id: "elem1".to_string(),
+      element_type: StyleElementType::Shape,
+      name: "Scaled Element".to_string(),
+      position: Position2D { x: 0.0, y: 0.0 },
+      size: Size2D {
+        width: 100.0,
+        height: 100.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 5.0,
+        duration: 5.0,
+      },
+      properties: Default::default(),
+      animations: vec![ElementAnimation {
+        id: "anim1".to_string(),
+        animation_type: AnimationType::Scale,
+        duration: 2.0,
+        delay: 0.0,
+        easing: AnimationEasing::EaseInOut,
+        repeat: 1,
+        direction: AnimationDirection::Normal,
+        properties,
+      }],
+      content: String::new(),
+      style: None,
+    };
+
+    let result = builder.apply_element_animation("[shape0]", &element, 0, 5.0);
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("scale="));
+    assert!(filter.contains("0.5"));
+    assert!(filter.contains("1.5"));
+  }
+
+  #[test]
+  fn test_build_slide_animation() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    // Test slide from left
+    let result = builder.build_slide_animation("[input]", 0, 0.0, 1.0, "left", true);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("overlay="));
+    assert!(filter.contains("-w"));
+
+    // Test slide to right
+    let result = builder.build_slide_animation("[input]", 1, 0.0, 1.0, "right", false);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("overlay="));
+
+    // Test slide from top
+    let result = builder.build_slide_animation("[input]", 2, 0.0, 1.0, "top", true);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("overlay="));
+    assert!(filter.contains("-h"));
+
+    // Test slide to bottom
+    let result = builder.build_slide_animation("[input]", 3, 0.0, 1.0, "bottom", false);
+    assert!(result.is_ok());
+    let filter = result.unwrap();
+    assert!(filter.contains("overlay="));
+  }
+
+  #[tokio::test]
+  async fn test_style_template_with_multiple_elements() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      ElementStyle, ElementTiming, StyleElementType, StyleTemplate, StyleTemplateCategory,
+      StyleTemplateElement, StyleTemplateStyle,
+    };
+
+    let mut style_template = StyleTemplate {
+      id: "multi_element".to_string(),
+      name: "Multi Element Template".to_string(),
+      category: StyleTemplateCategory::Intro,
+      style: StyleTemplateStyle::Corporate,
+      duration: 5.0,
+      elements: vec![],
+      background_color: "#000000".to_string(),
+      transitions: vec![],
+    };
+
+    // Add text element
+    style_template.elements.push(StyleTemplateElement {
+      id: "text1".to_string(),
+      element_type: StyleElementType::Text,
+      name: "Title".to_string(),
+      position: Position2D { x: 50.0, y: 50.0 },
+      size: Size2D {
+        width: 300.0,
+        height: 50.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 5.0,
+        duration: 5.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: "Company Name".to_string(),
+      style: Some(ElementStyle {
+        font_family: Some("Arial".to_string()),
+        font_size: Some(48),
+        color: Some("#FFFFFF".to_string()),
+        background_color: None,
+      }),
+    });
+
+    // Add shape element
+    style_template.elements.push(StyleTemplateElement {
+      id: "shape1".to_string(),
+      element_type: StyleElementType::Shape,
+      name: "Background Box".to_string(),
+      position: Position2D { x: 40.0, y: 40.0 },
+      size: Size2D {
+        width: 320.0,
+        height: 70.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 5.0,
+        duration: 5.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: String::new(),
+      style: Some(ElementStyle {
+        font_family: None,
+        font_size: None,
+        color: None,
+        background_color: Some("#FF0000".to_string()),
+      }),
+    });
+
+    let result = builder
+      .build_style_template_filter(&style_template, 0, 0)
+      .await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("drawtext"));
+    assert!(filter.contains("color=c=FF0000"));
+    assert!(filter.contains("overlay"));
+  }
+
+  #[tokio::test]
+  async fn test_style_template_with_all_element_types() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      ElementStyle, ElementTiming, StyleElementType, StyleTemplate, StyleTemplateCategory,
+      StyleTemplateElement, StyleTemplateStyle,
+    };
+
+    let mut style_template = StyleTemplate {
+      id: "all_elements".to_string(),
+      name: "All Elements Template".to_string(),
+      category: StyleTemplateCategory::Overlay,
+      style: StyleTemplateStyle::Creative,
+      duration: 10.0,
+      elements: vec![],
+      background_color: "#FFFFFF".to_string(),
+      transitions: vec![],
+    };
+
+    // Add Video element
+    style_template.elements.push(StyleTemplateElement {
+      id: "video1".to_string(),
+      element_type: StyleElementType::Video,
+      name: "Video Element".to_string(),
+      position: Position2D { x: 0.0, y: 0.0 },
+      size: Size2D {
+        width: 640.0,
+        height: 360.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 10.0,
+        duration: 10.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: String::new(),
+      style: None,
+    });
+
+    // Add Line element
+    style_template.elements.push(StyleTemplateElement {
+      id: "line1".to_string(),
+      element_type: StyleElementType::Line,
+      name: "Line Element".to_string(),
+      position: Position2D { x: 100.0, y: 200.0 },
+      size: Size2D {
+        width: 200.0,
+        height: 2.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 10.0,
+        duration: 10.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: String::new(),
+      style: Some(ElementStyle {
+        font_family: None,
+        font_size: None,
+        color: Some("#FF0000".to_string()),
+        background_color: None,
+      }),
+    });
+
+    // Add Icon element
+    style_template.elements.push(StyleTemplateElement {
+      id: "icon1".to_string(),
+      element_type: StyleElementType::Icon,
+      name: "Icon Element".to_string(),
+      position: Position2D { x: 300.0, y: 300.0 },
+      size: Size2D {
+        width: 50.0,
+        height: 50.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 10.0,
+        duration: 10.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: "✓".to_string(),
+      style: Some(ElementStyle {
+        font_family: None,
+        font_size: Some(32),
+        color: Some("#00FF00".to_string()),
+        background_color: None,
+      }),
+    });
+
+    // Add Particles element
+    style_template.elements.push(StyleTemplateElement {
+      id: "particles1".to_string(),
+      element_type: StyleElementType::Particles,
+      name: "Particles Element".to_string(),
+      position: Position2D { x: 400.0, y: 400.0 },
+      size: Size2D {
+        width: 100.0,
+        height: 100.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 10.0,
+        duration: 10.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: String::new(),
+      style: Some(ElementStyle {
+        font_family: None,
+        font_size: None,
+        color: None,
+        background_color: Some("#0000FF".to_string()),
+      }),
+    });
+
+    let result = builder
+      .build_style_template_filter(&style_template, 0, 0)
+      .await;
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    // Check for various element types
+    assert!(filter.contains("scale=")); // Video element
+    assert!(filter.contains("color=c=FF0000")); // Line element
+    assert!(filter.contains("drawtext")); // Icon element
+  }
+
+  #[test]
+  fn test_apply_element_animation_all_types() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      AnimationDirection, AnimationEasing, AnimationType, ElementAnimation, ElementTiming,
+      StyleElementType, StyleTemplateElement,
+    };
+    use std::collections::HashMap;
+
+    let animation_types = vec![
+      AnimationType::FadeOut,
+      AnimationType::Rotate,
+      AnimationType::Bounce,
+      AnimationType::Shake,
+      AnimationType::Pulse,
+      AnimationType::Flicker,
+      AnimationType::Typewriter,
+      AnimationType::MotionPath,
+      AnimationType::Morph,
+      AnimationType::Parallax,
+      AnimationType::Dissolve,
+    ];
+
+    for anim_type in animation_types {
+      let mut properties = HashMap::new();
+      if anim_type == AnimationType::Rotate {
+        properties.insert("angle".to_string(), serde_json::json!(180.0));
+      }
+      if anim_type == AnimationType::MotionPath {
+        properties.insert("end_x".to_string(), serde_json::json!(200.0));
+        properties.insert("end_y".to_string(), serde_json::json!(200.0));
+      }
+      if anim_type == AnimationType::Parallax {
+        properties.insert("speed".to_string(), serde_json::json!(2.0));
+      }
+
+      let element = StyleTemplateElement {
+        id: "elem1".to_string(),
+        element_type: StyleElementType::Shape,
+        name: "Animated Element".to_string(),
+        position: Position2D { x: 0.0, y: 0.0 },
+        size: Size2D {
+          width: 100.0,
+          height: 100.0,
+        },
+        timing: ElementTiming {
+          in_time: 0.0,
+          out_time: 5.0,
+          duration: 5.0,
+        },
+        properties: Default::default(),
+        animations: vec![ElementAnimation {
+          id: "anim1".to_string(),
+          animation_type: anim_type.clone(),
+          duration: 1.0,
+          delay: 0.0,
+          easing: AnimationEasing::Linear,
+          repeat: 1,
+          direction: AnimationDirection::Normal,
+          properties,
+        }],
+        content: String::new(),
+        style: None,
+      };
+
+      let result = builder.apply_element_animation("[input]", &element, 0, 5.0);
+      assert!(result.is_ok(), "Failed for animation type: {:?}", anim_type);
+    }
+  }
+
+  #[tokio::test]
+  async fn test_template_with_cells() {
+    let mut project = create_minimal_project();
+
+    use crate::video_compiler::schema::common::{AlignX, AlignY, FitMode};
+    use crate::video_compiler::schema::templates::{Template, TemplateCell, TemplateType};
+
+    let mut template = Template {
+      id: "cells_template".to_string(),
+      name: "Cells Template".to_string(),
+      template_type: TemplateType::Grid,
+      screens: 4,
+      cells: vec![],
+      regions: vec![],
+    };
+
+    // Add cells for 2x2 grid
+    for i in 0..4 {
+      let row = i / 2;
+      let col = i % 2;
+      template.cells.push(TemplateCell {
+        index: i,
+        x: (col as f32) * 50.0,
+        y: (row as f32) * 50.0,
+        width: 50.0,
+        height: 50.0,
+        fit_mode: FitMode::Fill,
+        align_x: AlignX::Center,
+        align_y: AlignY::Center,
+        scale: None,
+      });
+    }
+
+    project.templates.push(template);
+
+    let builder = TemplateBuilder::new(&project);
+    let found = builder.find_template("cells_template");
+    assert!(found.is_some());
+    assert_eq!(found.unwrap().cells.len(), 4);
+  }
+
+  #[test]
+  fn test_apply_element_animation_no_animations() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      ElementTiming, StyleElementType, StyleTemplateElement,
+    };
+
+    let element = StyleTemplateElement {
+      id: "elem1".to_string(),
+      element_type: StyleElementType::Text,
+      name: "Static Element".to_string(),
+      position: Position2D { x: 0.0, y: 0.0 },
+      size: Size2D {
+        width: 100.0,
+        height: 50.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 5.0,
+        duration: 5.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: String::new(),
+      style: None,
+    };
+
+    let result = builder.apply_element_animation("[text0]", &element, 0, 5.0);
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("null[animated0]"));
+  }
+
+  #[test]
+  fn test_escape_text_in_content() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      ElementStyle, ElementTiming, StyleElementType, StyleTemplateElement,
+    };
+
+    let element = StyleTemplateElement {
+      id: "text1".to_string(),
+      element_type: StyleElementType::Text,
+      name: "Test Text".to_string(),
+      position: Position2D { x: 50.0, y: 50.0 },
+      size: Size2D {
+        width: 100.0,
+        height: 30.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 3.0,
+        duration: 3.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: "Text with 'quotes' and special chars".to_string(),
+      style: Some(ElementStyle {
+        font_family: Some("Arial".to_string()),
+        font_size: Some(24),
+        color: Some("#FFFFFF".to_string()),
+        background_color: None,
+      }),
+    };
+
+    let result = builder.build_text_element_filter(&element, 0);
+    assert!(result.is_ok());
+
+    let filter = result.unwrap();
+    assert!(filter.contains("Text with \\'quotes\\' and special chars"));
+  }
+
+  #[test]
+  fn test_build_text_element_filter_missing_style() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      ElementTiming, StyleElementType, StyleTemplateElement,
+    };
+
+    let element = StyleTemplateElement {
+      id: "text1".to_string(),
+      element_type: StyleElementType::Text,
+      name: "Test Text".to_string(),
+      position: Position2D { x: 50.0, y: 50.0 },
+      size: Size2D {
+        width: 100.0,
+        height: 30.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 3.0,
+        duration: 3.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: "Test Content".to_string(),
+      style: None, // Missing style
+    };
+
+    let result = builder.build_text_element_filter(&element, 0);
+    assert!(result.is_err());
+  }
+
+  #[test]
+  fn test_build_shape_element_filter_missing_style() {
+    let project = create_minimal_project();
+    let builder = TemplateBuilder::new(&project);
+
+    use crate::video_compiler::schema::common::{Position2D, Size2D};
+    use crate::video_compiler::schema::templates::{
+      ElementTiming, StyleElementType, StyleTemplateElement,
+    };
+
+    let element = StyleTemplateElement {
+      id: "shape1".to_string(),
+      element_type: StyleElementType::Shape,
+      name: "Test Shape".to_string(),
+      position: Position2D { x: 0.0, y: 0.0 },
+      size: Size2D {
+        width: 200.0,
+        height: 100.0,
+      },
+      timing: ElementTiming {
+        in_time: 0.0,
+        out_time: 3.0,
+        duration: 3.0,
+      },
+      properties: Default::default(),
+      animations: vec![],
+      content: String::new(),
+      style: None, // Missing style
+    };
+
+    let result = builder.build_shape_element_filter(&element, 0);
+    assert!(result.is_err());
+  }
 }
