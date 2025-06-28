@@ -86,6 +86,9 @@ jobs:
           sudo ldconfig
           echo "ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.so" >> $GITHUB_ENV
 
+      - name: Create frontend dist directory
+        run: mkdir -p dist
+
       - name: Check formatting
         run: |
           cd src-tauri
