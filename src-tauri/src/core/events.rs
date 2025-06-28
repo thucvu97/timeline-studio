@@ -178,7 +178,8 @@ impl EventBus {
       for subscription in handlers {
         // Здесь нужна более сложная логика для downcast и вызова handler
         // Пока просто логируем
-        log::debug!("Publishing event to handler: {}", subscription.name);
+        let handler_name = &subscription.name;
+        log::debug!("Publishing event to handler: {handler_name}");
       }
     }
 
@@ -267,7 +268,8 @@ mod tests {
 
     async fn handle(&self, event: Self::Event) -> Result<()> {
       self.call_count.fetch_add(1, Ordering::SeqCst);
-      println!("Handled: {}", event.message);
+      let message = &event.message;
+      println!("Handled: {message}");
       Ok(())
     }
 
@@ -363,7 +365,8 @@ mod tests {
   }
 
   async fn handle_test_event(event: TestEvent) -> Result<()> {
-    println!("Macro handler: {}", event.message);
+    let message = &event.message;
+    println!("Macro handler: {message}");
     Ok(())
   }
 

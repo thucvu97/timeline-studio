@@ -263,7 +263,8 @@ impl ServiceContainer {
 
     for (_type_id, entry) in services.iter() {
       if !entry.initialized {
-        log::info!("Initializing service: {}", entry.name);
+        let name = &entry.name;
+        log::info!("Initializing service: {name}");
         // В реальной реализации здесь нужно вызвать initialize() на сервисе
         // Это требует хранения сервисов в Arc<RwLock<dyn Service>>
       }
@@ -277,7 +278,8 @@ impl ServiceContainer {
     let services = self.services.read().await;
 
     for (_type_id, entry) in services.iter() {
-      log::info!("Shutting down service: {}", entry.name);
+      let name = &entry.name;
+      log::info!("Shutting down service: {name}");
       // В реальной реализации здесь нужно вызвать shutdown() на сервисе
     }
 
@@ -289,7 +291,11 @@ impl ServiceContainer {
     let services = self.services.read().await;
     services
       .values()
-      .map(|entry| format!("{} (initialized: {})", entry.name, entry.initialized))
+      .map(|entry| {
+        let name = &entry.name;
+        let initialized = entry.initialized;
+        format!("{name} (initialized: {initialized})")
+      })
       .collect()
   }
 }
@@ -352,7 +358,7 @@ mod tests {
 
       Ok(TestService {
         initialized: Arc::new(AtomicBool::new(false)),
-        name: format!("TestService-{}", *counter),
+        name: format!("TestService-{counter}"),
       })
     }
   }
@@ -720,9 +726,10 @@ mod tests {
 
       async fn provide(&self, _container: &ServiceContainer) -> Result<Self::Output> {
         self.counter.fetch_add(1, Ordering::SeqCst);
+        let count = self.counter.load(Ordering::SeqCst);
         Ok(TestService {
           initialized: Arc::new(AtomicBool::new(false)),
-          name: format!("counted-{}", self.counter.load(Ordering::SeqCst)),
+          name: format!("counted-{count}"),
         })
       }
     }

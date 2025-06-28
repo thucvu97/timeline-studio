@@ -299,7 +299,7 @@ impl GpuDetector {
       ])
       .output()
       .await
-      .map_err(|e| VideoCompilerError::Io(format!("Failed to run nvidia-smi: {}", e)))?;
+      .map_err(|e| VideoCompilerError::Io(format!("Failed to run nvidia-smi: {e}")))?;
 
     if !output.status.success() {
       return Err(VideoCompilerError::gpu("nvidia-smi failed"));
@@ -338,7 +338,7 @@ impl GpuDetector {
       ])
       .output()
       .await
-      .map_err(|e| VideoCompilerError::Io(format!("Failed to run nvidia-smi: {}", e)))?;
+      .map_err(|e| VideoCompilerError::Io(format!("Failed to run nvidia-smi: {e}")))?;
 
     if !output.status.success() {
       return Err(VideoCompilerError::gpu("nvidia-smi failed"));
@@ -404,7 +404,7 @@ impl GpuDetector {
 
     let _drm_cards = fs::read_dir("/sys/class/drm")
       .await
-      .map_err(|e| VideoCompilerError::Io(format!("Failed to read /sys/class/drm: {}", e)))?;
+      .map_err(|e| VideoCompilerError::Io(format!("Failed to read /sys/class/drm: {e}")))?;
 
     // Ищем первую видеокарту
     // Это упрощенная реализация, можно расширить
