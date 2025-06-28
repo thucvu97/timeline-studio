@@ -663,7 +663,7 @@ mod tests {
     // Проверяем что оба сервиса зарегистрированы
     assert!(container.has::<TestService>().await);
     assert!(container.has::<AnotherTestService>().await);
-    
+
     Ok(())
   }
 

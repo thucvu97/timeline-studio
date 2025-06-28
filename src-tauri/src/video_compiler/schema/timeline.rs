@@ -618,13 +618,11 @@ mod tests {
 
   #[test]
   fn test_clip_properties() {
-    let mut props = ClipProperties::default();
-
-    // Добавляем заметки
-    props.notes = Some("This is a test clip".to_string());
-
-    // Добавляем теги
-    props.tags = vec!["intro".to_string(), "logo".to_string()];
+    let mut props = ClipProperties {
+      notes: Some("This is a test clip".to_string()),
+      tags: vec!["intro".to_string(), "logo".to_string()],
+      ..Default::default()
+    };
 
     // Добавляем кастомные метаданные
     props

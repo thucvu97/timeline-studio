@@ -612,17 +612,10 @@ mod tests {
     let job_id = renderer.create_render_job(&output_path).await.unwrap();
 
     // Должны получить обновление прогресса
-    if let Some(update) = rx.recv().await {
-      // Проверяем, что получили какое-то обновление
-      match update {
-        ProgressUpdate::JobStarted { job_id: started_id } => {
-          assert_eq!(started_id, job_id);
-        }
-        _ => {
-          // Любое другое обновление тоже OK
-        }
-      }
+    if let Some(ProgressUpdate::JobStarted { job_id: started_id }) = rx.recv().await {
+      assert_eq!(started_id, job_id);
     }
+    // Любое другое обновление тоже OK
   }
 
   #[tokio::test]
