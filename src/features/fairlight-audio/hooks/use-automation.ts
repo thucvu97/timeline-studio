@@ -43,12 +43,12 @@ export function useAutomation() {
 
       // Mute
       registerParameter(channelId, "mute", (value) => {
-        audioEngine.setChannelMute(channelId, value > 0.5)
+        audioEngine.muteChannel(channelId, value > 0.5)
       })
 
       // Solo
       registerParameter(channelId, "solo", (value) => {
-        audioEngine.setChannelSolo(channelId, value > 0.5)
+        audioEngine.soloChannel(channelId, value > 0.5)
       })
     })
   }, [audioEngine, registerParameter])

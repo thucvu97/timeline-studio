@@ -246,6 +246,16 @@ export class AudioEngine {
     lastNode.connect(channel.analyser)
   }
 
+  // Get all channels
+  getChannels(): Map<string, ChannelNode> {
+    return this.channels
+  }
+
+  // Get channel by ID
+  getChannel(channelId: string): ChannelNode | undefined {
+    return this.channels.get(channelId)
+  }
+
   dispose() {
     // Clean up all channels
     this.channels.forEach((channel) => {
