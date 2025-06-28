@@ -353,11 +353,44 @@ mod tests {
   use super::*;
   use crate::video_compiler::cache::RenderCache;
   use crate::video_compiler::progress::ProgressUpdate;
+  use crate::video_compiler::schema::{VideoOutput, VideoFormat, VideoCodec, VideoPreset, AudioCodec};
   use std::sync::Arc;
   use tokio::sync::{mpsc, RwLock};
+  use tempfile::TempDir;
 
   async fn create_test_renderer() -> VideoRenderer {
     let project = ProjectSchema::new("Test Project".to_string());
+    let settings = Arc::new(RwLock::new(CompilerSettings::default()));
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    let (tx, _rx) = mpsc::unbounded_channel::<ProgressUpdate>();
+
+    VideoRenderer::new(project, settings, cache, tx)
+      .await
+      .unwrap()
+  }
+
+  async fn create_test_renderer_with_output() -> VideoRenderer {
+    let mut project = ProjectSchema::new("Test Project With Output".to_string());
+    
+    // Добавляем выходные настройки
+    project.output = Some(VideoOutput {
+      format: VideoFormat::Mp4,
+      codec: VideoCodec::H264,
+      preset: VideoPreset::Fast,
+      crf: 23,
+      width: 1920,
+      height: 1080,
+      fps: 30.0,
+      bitrate: None,
+      audio_codec: Some(AudioCodec::Aac),
+      audio_bitrate: Some("128k".to_string()),
+      two_pass: false,
+      gpu_acceleration: false,
+    });
+    
+    // Устанавливаем продолжительность
+    project.timeline.fps = 30;
+    
     let settings = Arc::new(RwLock::new(CompilerSettings::default()));
     let cache = Arc::new(RwLock::new(RenderCache::new()));
     let (tx, _rx) = mpsc::unbounded_channel::<ProgressUpdate>();
@@ -374,6 +407,19 @@ mod tests {
   }
 
   #[tokio::test]
+  async fn test_renderer_creation_with_invalid_project() {
+    let mut project = ProjectSchema::new("Invalid Project".to_string());
+    project.output = None; // Делаем проект невалидным
+    
+    let settings = Arc::new(RwLock::new(CompilerSettings::default()));
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    let (tx, _rx) = mpsc::unbounded_channel::<ProgressUpdate>();
+
+    let result = VideoRenderer::new(project, settings, cache, tx).await;
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
   async fn test_estimate_total_frames() {
     let renderer = create_test_renderer().await;
     let frames = renderer.estimate_total_frames();
@@ -382,11 +428,50 @@ mod tests {
   }
 
   #[tokio::test]
+  async fn test_estimate_total_frames_with_duration() {
+    let mut renderer = create_test_renderer_with_output().await;
+    
+    // Добавляем клип с продолжительностью
+    let clip = crate::video_compiler::schema::Clip {
+      id: "test_clip".to_string(),
+      source: crate::video_compiler::schema::ClipSource::Video {
+        path: "test.mp4".to_string(),
+        start_time: 0.0,
+        end_time: 10.0,
+      },
+      timeline_start: 0.0,
+      duration: 10.0,
+      ..Default::default()
+    };
+    
+    renderer.project.clips.push(clip);
+    
+    let frames = renderer.estimate_total_frames();
+    // 10 секунд * 30 fps = 300 кадров
+    assert_eq!(frames, 300);
+  }
+
+  #[tokio::test]
   async fn test_render_settings_default() {
     let settings = RenderSettings::default();
     assert!(settings.hardware_acceleration);
     assert_eq!(settings.timeout_seconds, 3600);
     assert!(settings.extra_args.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_render_settings_custom() {
+    let settings = RenderSettings {
+      hardware_acceleration: false,
+      threads: Some(8),
+      extra_args: vec!["-preset".to_string(), "slow".to_string()],
+      timeout_seconds: 7200,
+    };
+    
+    assert!(!settings.hardware_acceleration);
+    assert_eq!(settings.threads, Some(8));
+    assert_eq!(settings.extra_args, vec!["-preset", "slow"]);
+    assert_eq!(settings.timeout_seconds, 7200);
   }
 
   #[tokio::test]
@@ -405,5 +490,161 @@ mod tests {
     // Без активных задач прогресс должен быть None
     let progress = renderer.get_progress().await;
     assert!(progress.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_get_render_statistics_empty() {
+    let renderer = create_test_renderer().await;
+    
+    // Без активного pipeline статистика должна быть None
+    let stats = renderer.get_render_statistics();
+    assert!(stats.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_create_render_job() {
+    let renderer = create_test_renderer_with_output().await;
+    let temp_dir = TempDir::new().unwrap();
+    let output_path = temp_dir.path().join("output.mp4");
+    
+    let job_id = renderer.create_render_job(&output_path).await.unwrap();
+    assert!(!job_id.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_render_with_details() {
+    let mut renderer = create_test_renderer_with_output().await;
+    let temp_dir = TempDir::new().unwrap();
+    let output_path = temp_dir.path().join("output.mp4");
+    
+    // Рендеринг начнется, но немедленно завершится ошибкой из-за отсутствия реальных файлов
+    let detailed_result = renderer.render_with_details(&output_path).await;
+    
+    // Проверяем, что метаданные заполнены
+    assert!(detailed_result.metadata.duration_ms > 0);
+    assert_eq!(detailed_result.metadata.resources_used.frames_processed, 0);
+    
+    // Проверяем предупреждения о GPU
+    assert!(!detailed_result.metadata.warnings.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_pause_resume() {
+    let mut renderer = create_test_renderer().await;
+    
+    // Pause и resume должны работать без ошибок
+    assert!(renderer.pause().await.is_ok());
+    assert!(renderer.resume().await.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_memory_usage_estimation() {
+    let renderer = create_test_renderer_with_output().await;
+    let memory = renderer._get_current_memory_usage();
+    
+    // Должно быть больше 0
+    assert!(memory > 0);
+  }
+
+  #[tokio::test]
+  async fn test_ffmpeg_builder_clone() {
+    let project = ProjectSchema::new("Test".to_string());
+    let builder1 = FFmpegBuilder::new(project.clone());
+    let builder2 = builder1.clone();
+    
+    // Оба builder должны иметь одинаковый проект
+    // Это проверяет корректность Clone для FFmpegBuilder
+    assert_eq!(builder1.project.metadata.name, builder2.project.metadata.name);
+  }
+
+  #[tokio::test]
+  async fn test_progress_tracker_integration() {
+    let project = ProjectSchema::new("Progress Test".to_string());
+    let settings = Arc::new(RwLock::new(CompilerSettings::default()));
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    let (tx, mut rx) = mpsc::unbounded_channel::<ProgressUpdate>();
+
+    let renderer = VideoRenderer::new(project, settings, cache, tx)
+      .await
+      .unwrap();
+    
+    // Создаем задачу
+    let temp_dir = TempDir::new().unwrap();
+    let output_path = temp_dir.path().join("output.mp4");
+    let job_id = renderer.create_render_job(&output_path).await.unwrap();
+    
+    // Должны получить обновление прогресса
+    if let Some(update) = rx.recv().await {
+      match update {
+        ProgressUpdate::JobCreated { id, .. } => {
+          assert_eq!(id, job_id);
+        }
+        _ => panic!("Ожидался JobCreated"),
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_renderer_with_gpu_settings() {
+    let mut project = ProjectSchema::new("GPU Test".to_string());
+    
+    // Настраиваем GPU ускорение
+    project.output = Some(VideoOutput {
+      format: VideoFormat::Mp4,
+      codec: VideoCodec::H264,
+      preset: VideoPreset::Fast,
+      crf: 23,
+      width: 1920,
+      height: 1080,
+      fps: 30.0,
+      bitrate: None,
+      audio_codec: Some(AudioCodec::Aac),
+      audio_bitrate: Some("128k".to_string()),
+      two_pass: false,
+      gpu_acceleration: true,
+    });
+    
+    project.settings.export.hardware_acceleration = true;
+    project.settings.export.preferred_gpu_encoder = Some("h264_nvenc".to_string());
+    
+    let settings = Arc::new(RwLock::new(CompilerSettings::default()));
+    let cache = Arc::new(RwLock::new(RenderCache::new()));
+    let (tx, _rx) = mpsc::unbounded_channel::<ProgressUpdate>();
+
+    let mut renderer = VideoRenderer::new(project, settings, cache, tx)
+      .await
+      .unwrap();
+    
+    let temp_dir = TempDir::new().unwrap();
+    let output_path = temp_dir.path().join("output.mp4");
+    
+    // render_with_details должен добавить предупреждение о GPU
+    let detailed_result = renderer.render_with_details(&output_path).await;
+    
+    let gpu_warning = detailed_result.metadata.warnings
+      .iter()
+      .any(|w| w.contains("GPU"));
+    assert!(gpu_warning);
+  }
+
+  #[tokio::test]
+  async fn test_serialization() {
+    let settings = RenderSettings {
+      hardware_acceleration: true,
+      threads: Some(4),
+      extra_args: vec!["-x264-params".to_string(), "keyint=30".to_string()],
+      timeout_seconds: 1800,
+    };
+    
+    // Сериализация в JSON
+    let json = serde_json::to_string(&settings).unwrap();
+    
+    // Десериализация обратно
+    let deserialized: RenderSettings = serde_json::from_str(&json).unwrap();
+    
+    assert_eq!(settings.hardware_acceleration, deserialized.hardware_acceleration);
+    assert_eq!(settings.threads, deserialized.threads);
+    assert_eq!(settings.extra_args, deserialized.extra_args);
+    assert_eq!(settings.timeout_seconds, deserialized.timeout_seconds);
   }
 }

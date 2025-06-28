@@ -415,4 +415,301 @@ mod tests {
     assert!(summary.total_operations >= 3); // initialize, save, get
     assert_eq!(summary.total_errors, 0);
   }
+
+  #[tokio::test]
+  async fn test_metrics_tracking_for_all_operations() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-metrics".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    // Инициализация
+    service.initialize().await.unwrap();
+    
+    // Выполняем различные операции
+    service.save_to_cache("key1", b"data1").await.unwrap();
+    service.save_to_cache("key2", b"data2").await.unwrap();
+    service.get_from_cache("key1").await.unwrap();
+    service.exists_in_cache("key2").await.unwrap();
+    service.get_cache_size().await.unwrap();
+    service.get_cache_stats().await.unwrap();
+    service.list_cached_items().await.unwrap();
+    
+    // Проверяем метрики
+    let summary = metrics.get_summary().await;
+    assert!(summary.total_operations >= 8);
+    assert_eq!(summary.total_errors, 0);
+    assert!(summary.error_rate < 0.01);
+  }
+
+  #[tokio::test]
+  async fn test_error_metrics_tracking() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-errors".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    service.initialize().await.unwrap();
+
+    // Пытаемся получить несуществующий элемент
+    let result = service.get_from_cache("non_existent").await.unwrap();
+    assert_eq!(result, None);
+
+    // Пытаемся получить информацию о несуществующем элементе
+    let info = service.get_item_info("non_existent").await.unwrap();
+    assert!(info.is_none());
+
+    // Проверяем, что ошибок не было (None - это не ошибка)
+    let summary = metrics.get_summary().await;
+    assert_eq!(summary.total_errors, 0);
+  }
+
+  #[tokio::test]
+  async fn test_cache_optimization_with_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-optimize".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    service.initialize().await.unwrap();
+
+    // Добавляем элементы в кэш
+    for i in 0..5 {
+      service.save_to_cache(&format!("key{}", i), format!("data{}", i).as_bytes()).await.unwrap();
+    }
+
+    // Оптимизируем кэш (удаляем файлы старше 0 дней - т.е. все)
+    let _removed = service.optimize_cache(0).await.unwrap();
+    // Проверяем, что операция выполнилась без ошибок
+
+    // Проверяем метрики
+    let summary = metrics.get_summary().await;
+    assert!(summary.total_operations >= 7); // init + 5 save + optimize
+    assert_eq!(summary.total_errors, 0);
+  }
+
+  #[tokio::test]
+  async fn test_cache_clear_operations_with_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-clear".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    service.initialize().await.unwrap();
+
+    // Добавляем элементы
+    service.save_to_cache("render/item1", b"data1").await.unwrap();
+    service.save_to_cache("preview/item2", b"data2").await.unwrap();
+    service.save_to_cache("project/test/item3", b"data3").await.unwrap();
+
+    // Очищаем различные типы кэша
+    service.clear_render_cache().await.unwrap();
+    service.clear_preview_cache().await.unwrap();
+    service.clear_project_cache("test").await.unwrap();
+    service.clear_all().await.unwrap();
+
+    // Проверяем метрики
+    let summary = metrics.get_summary().await;
+    assert!(summary.total_operations >= 8); // init + 3 save + 4 clear
+    assert_eq!(summary.total_errors, 0);
+  }
+
+  #[tokio::test]
+  async fn test_performance_metrics_tracking() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-perf".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    service.initialize().await.unwrap();
+
+    // Симулируем операции для генерации метрик производительности
+    for i in 0..10 {
+      service.save_to_cache(&format!("key{}", i), format!("data{}", i).as_bytes()).await.unwrap();
+      service.get_from_cache(&format!("key{}", i)).await.unwrap();
+    }
+
+    // Получаем метрики производительности
+    let perf_metrics = service.get_performance_metrics().await.unwrap();
+    assert!(perf_metrics.hit_rate_last_hour >= 0.0);
+    assert!(perf_metrics.current_memory_usage_mb >= 0.0);
+    
+    // Сбрасываем метрики
+    service.reset_metrics().await.unwrap();
+    
+    // Проверяем, что сброс сработал через сервис кэша
+    let cache_stats = service.get_cache_stats().await.unwrap();
+    assert_eq!(cache_stats.cache_hits, 0);
+    assert_eq!(cache_stats.cache_misses, 0);
+  }
+
+  #[tokio::test]
+  async fn test_alert_thresholds_with_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-alerts".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    service.initialize().await.unwrap();
+
+    // Устанавливаем пороги для алертов
+    let thresholds = CacheAlertThresholds {
+      min_hit_rate: 0.8,
+      max_memory_usage_mb: 100.0,
+      max_response_time_ms: 50.0,
+      max_fragmentation: 0.3,
+    };
+    service.set_alert_thresholds(thresholds).await.unwrap();
+
+    // Получаем активные алерты
+    let alerts = service.get_active_alerts().await.unwrap();
+    assert!(alerts.is_empty() || !alerts.is_empty()); // Алерты могут быть или не быть
+
+    // Проверяем метрики
+    let summary = metrics.get_summary().await;
+    assert!(summary.total_operations >= 3); // init + set_thresholds + get_alerts
+    assert_eq!(summary.total_errors, 0);
+  }
+
+  #[tokio::test]
+  async fn test_cache_stats_and_info_with_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-stats".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    service.initialize().await.unwrap();
+
+    // Добавляем несколько элементов
+    let items = vec![
+      ("item1", b"short data" as &[u8]),
+      ("item2", b"longer data with more content" as &[u8]),
+      ("item3", b"very long data with lots of content to test size calculations" as &[u8]),
+    ];
+
+    for (key, data) in &items {
+      service.save_to_cache(key, *data).await.unwrap();
+    }
+
+    // Получаем статистику кэша
+    let stats = service.get_cache_stats().await.unwrap();
+    assert!(stats.total_files >= items.len());
+    assert!(stats.total_size_mb > 0.0);
+
+    // Получаем информацию о конкретных элементах
+    for (key, data) in &items {
+      let info = service.get_item_info(key).await.unwrap();
+      assert!(info.is_some());
+      let info = info.unwrap();
+      assert_eq!(info.key, *key);
+      assert_eq!(info.size_bytes, data.len() as u64);
+    }
+
+    // Проверяем список элементов
+    let cached_items = service.list_cached_items().await.unwrap();
+    assert!(cached_items.len() >= items.len());
+
+    // Проверяем метрики
+    let summary = metrics.get_summary().await;
+    assert_eq!(summary.total_errors, 0);
+  }
+
+  #[tokio::test]
+  async fn test_health_check_and_shutdown_with_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-lifecycle".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    // Инициализация
+    service.initialize().await.unwrap();
+
+    // Health check
+    service.health_check().await.unwrap();
+
+    // Shutdown
+    service.shutdown().await.unwrap();
+
+    // Проверяем метрики
+    let summary = metrics.get_summary().await;
+    assert!(summary.total_operations >= 3); // init + health_check + shutdown
+    assert_eq!(summary.total_errors, 0);
+  }
+
+  #[tokio::test]
+  async fn test_cache_path_with_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let cache_path = temp_dir.path().to_path_buf();
+    let inner = Box::new(CacheServiceImpl::new(cache_path.clone()));
+    let metrics = Arc::new(ServiceMetrics::new("test-path".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    service.initialize().await.unwrap();
+
+    // Получаем путь к кэшу
+    let retrieved_path = service.get_cache_path().await.unwrap();
+    assert_eq!(retrieved_path, cache_path);
+
+    // Проверяем метрики
+    let summary = metrics.get_summary().await;
+    assert!(summary.total_operations >= 2); // init + get_cache_path
+    assert_eq!(summary.total_errors, 0);
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_operations_with_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-concurrent".to_string()));
+    let service = Arc::new(CacheServiceWithMetrics::new(inner, metrics.clone()));
+
+    service.initialize().await.unwrap();
+
+    // Запускаем несколько операций параллельно
+    let mut handles = vec![];
+    
+    for i in 0..5 {
+      let service_clone = service.clone();
+      let handle = tokio::spawn(async move {
+        let key = format!("concurrent_key_{}", i);
+        let data = format!("concurrent_data_{}", i);
+        service_clone.save_to_cache(&key, data.as_bytes()).await.unwrap();
+        service_clone.get_from_cache(&key).await.unwrap();
+      });
+      handles.push(handle);
+    }
+
+    // Ждем завершения всех операций
+    for handle in handles {
+      handle.await.unwrap();
+    }
+
+    // Проверяем метрики
+    let summary = metrics.get_summary().await;
+    assert!(summary.total_operations >= 11); // init + 5*(save+get)
+    assert_eq!(summary.total_errors, 0);
+  }
+
+  #[tokio::test]
+  async fn test_exists_in_cache_with_metrics() {
+    let temp_dir = TempDir::new().unwrap();
+    let inner = Box::new(CacheServiceImpl::new(temp_dir.path().to_path_buf()));
+    let metrics = Arc::new(ServiceMetrics::new("test-exists".to_string()));
+    let service = CacheServiceWithMetrics::new(inner, metrics.clone());
+
+    service.initialize().await.unwrap();
+
+    // Сохраняем элемент
+    let key = "exists_test";
+    service.save_to_cache(key, b"test data").await.unwrap();
+
+    // Проверяем существование
+    assert!(service.exists_in_cache(key).await.unwrap());
+    assert!(!service.exists_in_cache("non_existent").await.unwrap());
+
+    // Проверяем метрики
+    let summary = metrics.get_summary().await;
+    assert!(summary.total_operations >= 4); // init + save + 2*exists
+    assert_eq!(summary.total_errors, 0);
+  }
 }

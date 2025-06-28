@@ -1,144 +1,77 @@
-# Runs all checks: JS/TS linting and Rust linting
-
 name: Check All
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  check-js:
-    name: Check JavaScript/TypeScript
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+  lint:
+    name: Lint
+    uses: ./.github/workflows/lint.yml
+    secrets: inherit
 
+  test-coverage:
+    name: Test and Coverage
+    uses: ./.github/workflows/test-and-coverage.yml
+    secrets: inherit
+
+  build:
+    name: Build Check
+    needs: [lint]
     runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+    timeout-minutes: 20
 
     steps:
-      - name: Disable git core.autocrlf on Windows
-        if: matrix.os == 'windows-latest'
-        run: git config --global core.autocrlf false
-
-      - name: Checkout repository code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '20.10.0'
-          cache: "npm"
+          bun-version: latest
 
-      - name: Install dependencies on Unix
-        if: runner.os != 'Windows'
-        run: |
-          npm config set fetch-timeout 300000
-          npm config set fetch-retries 5
-          npm ci --prefer-offline --no-audit --no-fund
-
-      - name: Install dependencies on Windows
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./scripts/windows-npm-install.ps1
-
-      - name: Run lint step on Unix
-        if: runner.os != 'Windows'
-        run: npm run lint
-
-      - name: Run lint step on Windows
-        if: runner.os == 'Windows'
-        run: npm run lint:windows
-
-      - name: Check import order on Unix
-        if: runner.os != 'Windows'
-        run: npm run format:imports
-
-      # Temporarily disabled due to Windows performance issues
-      # - name: Check import order on Windows
-      #   if: runner.os == 'Windows'
-      #   run: npm run format:imports:windows
-
-  check-rust:
-    name: Check Rust
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Disable git core.autocrlf on Windows
-        if: matrix.os == 'windows-latest'
-        run: git config --global core.autocrlf false
-
-      - name: Checkout repository code
-        uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
+      - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
 
-      - name: Install Linux dependencies
+      - name: Install system dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
-
-      - name: Create empty 'dist' directory
-        run: mkdir dist
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: "npm"
-
-      - name: Install dependencies from lockfile
-        run: |
-          npm config set fetch-timeout 300000
-          npm config set fetch-retries 5
-          npm ci --prefer-offline --no-audit --no-fund
-
-      - name: Run rustfmt check
-        run: npm run format:rust:check
-
-      - name: Run clippy check and deny warnings
-        run: npm run lint:rust
-
-  check-tests:
-    name: Run Tests
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Disable git core.autocrlf on Windows
-        if: matrix.os == 'windows-latest'
-        run: git config --global core.autocrlf false
-
-      - name: Checkout repository code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: "npm"
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
 
       - name: Install dependencies
-        run: |
-          rm -rf node_modules
-          npm install
+        run: bun install
 
-      - name: Run tests
-        run: npm test
+      - name: Build frontend
+        run: bun run build
+
+      - name: Build Tauri app
+        run: |
+          cd src-tauri
+          cargo build --release --no-default-features
+
+  all-checks-passed:
+    name: All Checks Passed
+    needs: [lint, test-coverage, build]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          if [ "${{ needs.lint.result }}" != "success" ] || 
+             [ "${{ needs.test-coverage.result }}" != "success" ] || 
+             [ "${{ needs.build.result }}" != "success" ]; then
+            echo "One or more checks failed"
+            exit 1
+          fi
+          echo "All checks passed!"
