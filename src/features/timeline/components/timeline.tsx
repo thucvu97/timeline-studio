@@ -1,12 +1,13 @@
-import React from "react"
+import React, { useState } from "react"
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { AiChat } from "@/features/ai-chat/components/ai-chat"
 import { ResourcesPanel } from "@/features/resources"
 import { cn } from "@/lib/utils"
 
+import { AudioMixerView } from "./audio-mixer-view"
 import { TimelineContent } from "./timeline-content"
-import { TimelineTopPanel } from "./timeline-top-panel"
+import { TimelineWorkspaceTabs, WorkspaceView } from "./timeline-workspace-tabs"
 
 interface TimelineProps {
   className?: string
@@ -21,6 +22,8 @@ interface TimelineProps {
  * @param style Optional inline styles for the root element.
  */
 export function Timeline({ className, style, noChat = false }: TimelineProps = {}) {
+  const [activeView, setActiveView] = useState<WorkspaceView>("timeline")
+
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -28,24 +31,27 @@ export function Timeline({ className, style, noChat = false }: TimelineProps = {
       data-testid="timeline"
       style={style}
     >
-      {/* Левая панель - Ресурсы */}
-      <ResizablePanel defaultSize={15} minSize={5} maxSize={30}>
-        <ResourcesPanel />
-      </ResizablePanel>
-
-      <ResizableHandle />
+      {/* Левая панель - Ресурсы (только для timeline view) */}
+      {activeView === "timeline" && (
+        <>
+          <ResizablePanel defaultSize={15} minSize={5} maxSize={30}>
+            <ResourcesPanel />
+          </ResizablePanel>
+          <ResizableHandle />
+        </>
+      )}
 
       {/* Средняя панель (основная часть) */}
-      <ResizablePanel defaultSize={65} minSize={40}>
+      <ResizablePanel defaultSize={activeView === "timeline" ? 65 : 80} minSize={40}>
         <div className="flex h-full w-full flex-col">
-          {/* Фиксированная верхняя панель */}
+          {/* Вкладки для переключения видов */}
           <div className="flex-shrink-0">
-            <TimelineTopPanel />
+            <TimelineWorkspaceTabs activeView={activeView} onViewChange={setActiveView} />
           </div>
 
-          {/* Основная часть - Timeline контент */}
+          {/* Основная часть - Timeline контент или Audio Mixer */}
           <div className="w-full flex-grow overflow-hidden">
-            <TimelineContent />
+            {activeView === "timeline" ? <TimelineContent /> : <AudioMixerView />}
           </div>
         </div>
       </ResizablePanel>

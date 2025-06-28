@@ -77,24 +77,6 @@ export const MockTimelineContent = vi.fn(({ children, onScroll, ...props }: any)
   </div>
 ))
 
-// Mock TimelineTopPanel component
-export const MockTimelineTopPanel = vi.fn(({ onAddTrack, onUndo, onRedo, canUndo, canRedo, ...props }: any) => (
-  <div data-testid="mock-timeline-top-panel" {...props}>
-    <button data-testid="add-video-track" onClick={() => onAddTrack?.("video")}>
-      Add Video Track
-    </button>
-    <button data-testid="add-audio-track" onClick={() => onAddTrack?.("audio")}>
-      Add Audio Track
-    </button>
-    <button data-testid="undo" disabled={!canUndo} onClick={onUndo}>
-      Undo
-    </button>
-    <button data-testid="redo" disabled={!canRedo} onClick={onRedo}>
-      Redo
-    </button>
-  </div>
-))
-
 // Export all component mocks
 export const timelineComponentMocks = {
   Timeline: MockTimeline,
@@ -102,7 +84,6 @@ export const timelineComponentMocks = {
   Clip: MockClip,
   TimelineScale: MockTimelineScale,
   TimelineContent: MockTimelineContent,
-  TimelineTopPanel: MockTimelineTopPanel,
 }
 
 // Set up vi.mock calls
@@ -126,6 +107,4 @@ vi.mock("../components/timeline-content", () => ({
   TimelineContent: MockTimelineContent,
 }))
 
-vi.mock("../components/timeline-top-panel", () => ({
-  TimelineTopPanel: MockTimelineTopPanel,
-}))
+vi.mock("../components/timeline-top-panel", () => ({}))

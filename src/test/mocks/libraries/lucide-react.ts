@@ -73,6 +73,7 @@ export const Info = createMockIcon("Info")
 export const Keyboard = createMockIcon("Keyboard")
 export const LayoutDashboard = createMockIcon("LayoutDashboard")
 export const LayoutTemplate = createMockIcon("LayoutTemplate")
+export const Layers = createMockIcon("Layers")
 export const List = createMockIcon("List")
 export const ListTodo = createMockIcon("ListTodo")
 export const Loader2 = createMockIcon("Loader2")
@@ -107,6 +108,7 @@ export const Send = createMockIcon("Send")
 export const SendHorizonal = createMockIcon("SendHorizonal")
 export const Settings = createMockIcon("Settings")
 export const Settings2 = createMockIcon("Settings2")
+export const Sliders = createMockIcon("Sliders")
 export const Circle = createMockIcon("Circle")
 export const Sparkles = createMockIcon("Sparkles")
 export const Square = createMockIcon("Square")
@@ -191,6 +193,7 @@ vi.mock("lucide-react", () => ({
   Keyboard,
   LayoutDashboard,
   LayoutTemplate,
+  Layers,
   List,
   ListTodo,
   Loader2,
@@ -225,6 +228,7 @@ vi.mock("lucide-react", () => ({
   SendHorizonal,
   Settings,
   Settings2,
+  Sliders,
   Circle,
   Sparkles,
   Square,

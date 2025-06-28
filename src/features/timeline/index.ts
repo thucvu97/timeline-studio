@@ -1,5 +1,3 @@
-// Types
-
 // Components
 export * from "./components"
 export type {
@@ -13,4 +11,5 @@ export type { TimelineEvents } from "./services/timeline-machine"
 export { timelineMachine } from "./services/timeline-machine"
 // Provider and Machine
 export { TimelineContext, type TimelineContextType, TimelineProvider } from "./services/timeline-provider"
+// Types
 export * from "./types"

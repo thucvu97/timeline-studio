@@ -1441,6 +1441,26 @@
     }
   },
   "timeline": {
+    "workspace": {
+      "timeline": "Timeline",
+      "audioMixer": "Audio Mixer"
+    },
+    "audioMixer": {
+      "title": "Audio Mixer",
+      "comingSoon": "Professional audio mixing features coming soon",
+      "noTracks": "No audio tracks",
+      "addTracksHint": "Add audio tracks to the timeline to see them here",
+      "master": "Master",
+      "bus": "Bus",
+      "sends": "Sends",
+      "eq": "EQ",
+      "effects": "Effects",
+      "pan": "Pan",
+      "solo": "Solo",
+      "mute": "Mute",
+      "record": "Record",
+      "arm": "Arm"
+    },
     "tracks": {
       "camera": "Camera",
       "audio": "Audio",
