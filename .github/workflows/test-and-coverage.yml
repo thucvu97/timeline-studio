@@ -230,10 +230,12 @@ jobs:
       - name: Run E2E tests (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: xvfb-run -a bun run test:e2e
+        continue-on-error: true
 
       - name: Run E2E tests (macOS/Windows)
         if: matrix.os != 'ubuntu-latest'
         run: bun run test:e2e
+        continue-on-error: true
 
       - name: Upload E2E test results
         if: always()

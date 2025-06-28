@@ -192,31 +192,18 @@ impl ServiceContainer {
       }
     }
 
-    // Если сервиса нет, используем write lock для создания
-    // Это предотвращает race condition между проверкой и созданием
-    let mut services = self.services.write().await;
-
-    // Double-checked locking: проверяем снова после получения write lock
-    if let Some(entry) = services.get(&type_id) {
-      return entry
-        .service
-        .clone()
-        .downcast::<T>()
-        .map_err(|_| VideoCompilerError::InternalError("Failed to downcast service".to_string()));
-    }
-
-    // Теперь мы точно знаем, что сервиса нет и у нас есть эксклюзивный доступ
-    // Проверяем наличие provider
+    // Проверяем наличие provider БЕЗ удержания lock на services
     let provider_exists = {
       let providers = self.providers.read().await;
       providers.contains_key(&type_id)
     };
 
     if provider_exists {
-      // Создаем сервис через provider
+      // Создаем сервис через provider БЕЗ удержания lock
       let service_arc = {
         let providers = self.providers.read().await;
         if let Some(provider) = providers.get(&type_id) {
+          // ВАЖНО: вызываем provider БЕЗ удержания lock на services
           provider.create_any(self).await?
         } else {
           return Err(VideoCompilerError::ServiceNotFound(
@@ -225,7 +212,17 @@ impl ServiceContainer {
         }
       };
 
-      // Сохраняем созданный сервис (у нас уже есть write lock)
+      // Теперь берем write lock для сохранения
+      let mut services = self.services.write().await;
+
+      // Double-check: возможно, сервис был создан другим потоком
+      if let Some(entry) = services.get(&type_id) {
+        return entry.service.clone().downcast::<T>().map_err(|_| {
+          VideoCompilerError::InternalError("Failed to downcast service".to_string())
+        });
+      }
+
+      // Сохраняем созданный сервис
       services.insert(
         type_id,
         ServiceEntry {
