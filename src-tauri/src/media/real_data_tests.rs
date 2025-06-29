@@ -89,7 +89,8 @@ mod real_data_tests {
 
     println!("Metadata extraction took: {duration:?}");
     assert!(
-      duration.as_secs() < super::super::performance_limits::PerformanceLimits::METADATA_EXTRACTION_LIMIT,
+      duration.as_secs()
+        < super::super::performance_limits::PerformanceLimits::METADATA_EXTRACTION_LIMIT,
       "Metadata extraction took too long: {duration:?}"
     );
 
@@ -284,7 +285,9 @@ mod real_data_tests {
     // Проверяем, что параллельная обработка быстрее последовательной
     // (приблизительная оценка)
     assert!(
-      duration.as_secs() < (files.len() as u64 * super::super::performance_limits::PerformanceLimits::BATCH_PROCESSING_PER_FILE),
+      duration.as_secs()
+        < (files.len() as u64
+          * super::super::performance_limits::PerformanceLimits::BATCH_PROCESSING_PER_FILE),
       "Parallel processing seems too slow"
     );
   }
@@ -412,7 +415,8 @@ mod real_data_tests {
 
     // Проверяем, что обработка не занимает слишком много времени
     assert!(
-      duration.as_secs() < super::super::performance_limits::PerformanceLimits::LARGE_FILE_PROCESSING_LIMIT,
+      duration.as_secs()
+        < super::super::performance_limits::PerformanceLimits::LARGE_FILE_PROCESSING_LIMIT,
       "Processing large file took too long: {duration:?}"
     );
 
@@ -618,7 +622,8 @@ mod real_data_tests {
 
     // Для больших файлов допускаем больше времени на извлечение метаданных
     assert!(
-      metadata_duration.as_secs() < super::super::performance_limits::PerformanceLimits::METADATA_EXTRACTION_LIMIT,
+      metadata_duration.as_secs()
+        < super::super::performance_limits::PerformanceLimits::METADATA_EXTRACTION_LIMIT,
       "Metadata extraction too slow for large file: {metadata_duration:?}"
     );
   }
