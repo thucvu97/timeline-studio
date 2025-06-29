@@ -32,17 +32,7 @@ export function StyleTemplatePreview({
 }: StyleTemplatePreviewProps): React.ReactElement {
   const { t, i18n } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
-  const [selectedColorScheme, setSelectedColorScheme] = useState<string>("default")
   const { isStyleTemplateAdded } = useResources()
-
-  // Доступные цветовые схемы
-  const colorSchemes = [
-    { id: "default", name: "По умолчанию", color: "#38dacac3" },
-    { id: "blue", name: "Синий", color: "#3b82f6" },
-    { id: "red", name: "Красный", color: "#ef4444" },
-    { id: "green", name: "Зеленый", color: "#22c55e" },
-    { id: "purple", name: "Фиолетовый", color: "#a855f7" },
-  ]
 
   // Получаем текущий язык
   const currentLanguage = (i18n.language || "ru") as "ru" | "en"
@@ -142,28 +132,6 @@ export function StyleTemplatePreview({
               data-testid="play-button"
             >
               <Play className="h-6 w-6 text-white" fill="white" data-testid="play-icon" />
-            </div>
-          </div>
-        )}
-
-        {/* Селектор цветовых схем при наведении */}
-        {isHovered && (
-          <div className="absolute top-1 right-1">
-            <div className="flex flex-col gap-1">
-              {colorSchemes.map((scheme) => (
-                <button
-                  key={scheme.id}
-                  className={`color w-3 h-3 rounded-full border border-white transition-all ${
-                    selectedColorScheme === scheme.id ? "active scale-125" : "opacity-70 hover:opacity-100"
-                  }`}
-                  style={{ backgroundColor: scheme.color }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedColorScheme(scheme.id)
-                  }}
-                  title={scheme.name}
-                />
-              ))}
             </div>
           </div>
         )}

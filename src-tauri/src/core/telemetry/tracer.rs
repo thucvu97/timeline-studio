@@ -264,6 +264,19 @@ mod tests {
   }
 
   #[tokio::test]
+  async fn test_tracer_creation_disabled() {
+    let config = TelemetryConfig {
+      enabled: false,
+      ..Default::default()
+    };
+
+    let tracer = Tracer::new(&config).await.unwrap();
+
+    // Should create noop tracer
+    assert!(tracer.current_context().is_none());
+  }
+
+  #[tokio::test]
   async fn test_span_creation() {
     let config = TelemetryConfig::default();
     let tracer = Tracer::new(&config).await.unwrap();
@@ -367,5 +380,146 @@ mod tests {
 
     assert!(result.is_err());
     assert!(result.unwrap_err().to_string().contains("test error"));
+  }
+
+  #[tokio::test]
+  async fn test_tracer_shutdown() {
+    let config = TelemetryConfig::default();
+    let tracer = Tracer::new(&config).await.unwrap();
+
+    // Should not panic
+    let result = tracer.shutdown().await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_tracer_shutdown_disabled() {
+    let config = TelemetryConfig {
+      enabled: false,
+      ..Default::default()
+    };
+    let tracer = Tracer::new(&config).await.unwrap();
+
+    // Should handle disabled tracer gracefully
+    let result = tracer.shutdown().await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_trace_context_creation() {
+    let trace_id = TraceId::from_hex("0af7651916cd43dd8448eb211c80319c").unwrap();
+    let span_id = SpanId::from_hex("b9c7c989f97918e1").unwrap();
+
+    let context = TraceContext::new(trace_id, span_id);
+
+    assert_eq!(
+      context.trace_id_string(),
+      "0af7651916cd43dd8448eb211c80319c"
+    );
+    assert_eq!(context.span_id_string(), "b9c7c989f97918e1");
+  }
+
+  #[tokio::test]
+  async fn test_trace_context_with_attributes() {
+    let trace_id = TraceId::from_hex("0af7651916cd43dd8448eb211c80319c").unwrap();
+    let span_id = SpanId::from_hex("b9c7c989f97918e1").unwrap();
+
+    let context = TraceContext::new(trace_id, span_id)
+      .with_attribute("user.id", "123")
+      .with_attribute("request.path", "/api/test")
+      .with_attribute("response.size", 1024i64);
+
+    assert_eq!(context.attributes.len(), 3);
+  }
+
+  #[tokio::test]
+  async fn test_span_builder_kinds() {
+    let config = TelemetryConfig::default();
+    let tracer = Tracer::new(&config).await.unwrap();
+
+    // Test different span kinds
+    let kinds = vec![
+      SpanKind::Client,
+      SpanKind::Server,
+      SpanKind::Producer,
+      SpanKind::Consumer,
+      SpanKind::Internal,
+    ];
+
+    for kind in kinds {
+      let result = tracer
+        .span("test_span")
+        .with_kind(kind)
+        .run(async { Ok::<_, crate::video_compiler::error::VideoCompilerError>("success") })
+        .await;
+
+      assert_eq!(result.unwrap(), "success");
+    }
+  }
+
+  #[tokio::test]
+  async fn test_build_trace_config() {
+    let mut config = TelemetryConfig::default();
+    config.tracing.sample_rate = 0.5;
+    config.tracing.max_attributes_per_span = 128;
+    config.tracing.max_events_per_span = 256;
+    config.tracing.max_links_per_span = 64;
+
+    // Test that config builder doesn't panic
+    let trace_config = Tracer::build_trace_config(&config);
+
+    // We can't directly test the values but ensure it builds
+    let _ = trace_config;
+  }
+
+  #[tokio::test]
+  async fn test_concurrent_tracing() {
+    let config = TelemetryConfig::default();
+    let tracer = Tracer::new(&config).await.unwrap();
+
+    // Test concurrent span creation
+    let handles: Vec<_> = (0..10)
+      .map(|i| {
+        let tracer_clone = tracer.clone();
+        tokio::spawn(async move {
+          tracer_clone
+            .trace(&format!("concurrent_op_{}", i), async {
+              tokio::time::sleep(Duration::from_millis(1)).await;
+              Ok::<_, crate::video_compiler::error::VideoCompilerError>(i)
+            })
+            .await
+        })
+      })
+      .collect();
+
+    let mut results = Vec::new();
+    for handle in handles {
+      let result = handle.await.unwrap();
+      results.push(result.unwrap());
+    }
+
+    results.sort();
+    assert_eq!(results, vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  }
+
+  #[tokio::test]
+  async fn test_span_builder_with_various_attributes() {
+    let builder = SpanBuilder::new("test".to_string())
+      .with_attribute("string_attr", "value")
+      .with_attribute("int_attr", 42i64)
+      .with_attribute("float_attr", std::f64::consts::PI)
+      .with_attribute("bool_attr", true);
+
+    assert_eq!(builder.attributes.len(), 4);
+  }
+
+  // Add clone implementation for testing
+  impl Clone for Tracer {
+    fn clone(&self) -> Self {
+      Self {
+        tracer: global::tracer("test-clone"),
+        config: self.config.clone(),
+      }
+    }
   }
 }

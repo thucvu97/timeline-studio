@@ -1,5 +1,7 @@
-import { render, screen } from "@testing-library/react"
+import { screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import { renderWithProviders } from "@/test/test-utils"
 
 import { TrackContent } from "../../../components/track/track-content"
 import { TimelineClip, TimelineTrack } from "../../../types"
@@ -25,6 +27,29 @@ vi.mock("../../../hooks/use-drag-drop-timeline", () => ({
     dragState: mockDragState,
     isValidDropTarget: mockIsValidDropTarget,
   }),
+}))
+
+// Мокаем useTimeline
+const mockAddClip = vi.fn()
+vi.mock("../../../hooks/use-timeline", () => ({
+  useTimeline: () => ({
+    addClip: mockAddClip,
+    project: null,
+    uiState: {
+      selectedClipIds: [],
+      selectedTrackIds: [],
+      selectedSectionIds: [],
+    },
+    currentTime: 0,
+    error: null,
+  }),
+}))
+
+// Мокаем useDropZone
+vi.mock("@/features/drag-drop", () => ({
+  useDropZone: vi.fn(() => ({
+    ref: { current: null },
+  })),
 }))
 
 // Мокаем компонент Clip
@@ -63,23 +88,39 @@ describe("TrackContent", () => {
     type: "video",
     name: "Video Track 1",
     height: 100,
-    isExpanded: true,
     isLocked: false,
     isMuted: false,
+    isHidden: false,
+    volume: 1,
+    opacity: 1,
     clips: [],
+    order: 0,
+    isSolo: false,
+    pan: 0,
+    trackEffects: [],
+    trackFilters: [],
   }
 
   const baseClip: TimelineClip = {
     id: "clip-1",
     trackId: "track-1",
-    mediaFileId: "media-1",
+    mediaId: "media-1",
+    name: "Test Clip",
     startTime: 5,
     duration: 10,
-    trimStart: 0,
-    trimEnd: 0,
+    mediaStartTime: 0,
+    mediaEndTime: 10,
     volume: 1,
     isSelected: false,
     isLocked: false,
+    isReversed: false,
+    speed: 1,
+    opacity: 1,
+    effects: [],
+    filters: [],
+    transitions: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
   }
 
   beforeEach(() => {
@@ -91,7 +132,7 @@ describe("TrackContent", () => {
 
   describe("Рендеринг основного контента", () => {
     it("должен рендерить контейнер трека", () => {
-      render(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       const container = screen.getByTestId("track-container-track-1")
       expect(container).toBeInTheDocument()
@@ -106,7 +147,9 @@ describe("TrackContent", () => {
         ],
       }
 
-      render(<TrackContent track={trackWithClips} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(
+        <TrackContent track={trackWithClips} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />,
+      )
 
       expect(screen.getByTestId("clip-clip-1")).toBeInTheDocument()
       expect(screen.getByTestId("clip-clip-2")).toBeInTheDocument()
@@ -122,7 +165,9 @@ describe("TrackContent", () => {
         ],
       }
 
-      render(<TrackContent track={trackWithClips} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(
+        <TrackContent track={trackWithClips} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />,
+      )
 
       const clips = screen.getAllByTestId(/^clip-clip-/)
       expect(clips[0]).toHaveAttribute("data-start-time", "5")
@@ -131,7 +176,7 @@ describe("TrackContent", () => {
     })
 
     it("должен рендерить playhead индикатор", () => {
-      render(<TrackContent track={baseTrack} timeScale={10} currentTime={5} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={5} onUpdate={mockOnUpdate} />)
 
       // Playhead рендерится как div с определенными классами
       const container = screen.getByTestId("track-container-track-1")
@@ -150,7 +195,7 @@ describe("TrackContent", () => {
         setNodeRef: vi.fn(),
       } as any)
 
-      render(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       expect(screen.getByText("Drop here")).toBeInTheDocument()
     })
@@ -159,7 +204,7 @@ describe("TrackContent", () => {
       mockDragState.isDragging = true
       mockIsValidDropTarget.mockReturnValue(true)
 
-      render(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       const container = screen.getByTestId("track-container-track-1")
       expect(container.className).toMatch(/border-dashed/)
@@ -170,7 +215,7 @@ describe("TrackContent", () => {
       mockDragState.isDragging = true
       mockIsValidDropTarget.mockReturnValue(false)
 
-      render(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       const container = screen.getByTestId("track-container-track-1")
       expect(container.className).toMatch(/opacity-50/)
@@ -182,7 +227,7 @@ describe("TrackContent", () => {
         startTime: 10,
       }
 
-      render(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       const indicator = document.querySelector(".bg-primary.z-25")
       expect(indicator).toBeInTheDocument()
@@ -195,7 +240,7 @@ describe("TrackContent", () => {
         startTime: 10,
       }
 
-      render(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       const indicator = document.querySelector(".bg-primary.z-25")
       expect(indicator).not.toBeInTheDocument()
@@ -209,7 +254,7 @@ describe("TrackContent", () => {
         clips: [baseClip],
       }
 
-      render(<TrackContent track={trackWithClip} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={trackWithClip} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       // Симулируем вызов handleClipUpdate
       // В реальном компоненте это происходит через пропс onUpdate компонента Clip
@@ -229,7 +274,9 @@ describe("TrackContent", () => {
         ],
       }
 
-      render(<TrackContent track={trackWithClips} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(
+        <TrackContent track={trackWithClips} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />,
+      )
 
       // В реальном компоненте удаление происходит через пропс onRemove компонента Clip
       expect(screen.getByTestId("clip-clip-1")).toBeInTheDocument()
@@ -239,7 +286,7 @@ describe("TrackContent", () => {
 
   describe("Стили и классы", () => {
     it("должен иметь базовые стили", () => {
-      render(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       const container = screen.getByTestId("track-container-track-1")
       expect(container.className).toMatch(/relative/)
@@ -258,7 +305,7 @@ describe("TrackContent", () => {
         setNodeRef: vi.fn(),
       } as any)
 
-      render(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       const dropZone = screen.getByText("Drop here").parentElement?.parentElement
       expect(dropZone).toHaveClass("absolute", "inset-0", "pointer-events-none", "z-30")
@@ -269,7 +316,7 @@ describe("TrackContent", () => {
     it("должен корректно работать с audio треком", () => {
       const audioTrack = { ...baseTrack, type: "audio" as const }
 
-      render(<TrackContent track={audioTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={audioTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       expect(screen.getByTestId("track-container-track-1")).toBeInTheDocument()
     })
@@ -277,7 +324,7 @@ describe("TrackContent", () => {
     it("должен корректно работать с subtitle треком", () => {
       const subtitleTrack = { ...baseTrack, type: "subtitle" as const }
 
-      render(<TrackContent track={subtitleTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
+      renderWithProviders(<TrackContent track={subtitleTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       expect(screen.getByTestId("track-container-track-1")).toBeInTheDocument()
     })

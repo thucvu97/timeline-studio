@@ -1,7 +1,5 @@
 export * from "./components"
 export { BrowserLazy } from "./components/browser-lazy"
-// Компоненты
-export { EffectsProviderDemo } from "./components/effects-provider-demo"
 // Новые хуки с префиксом для избежания конфликтов
 export {
   useEffects as useBrowserEffects,

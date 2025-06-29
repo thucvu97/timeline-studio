@@ -74,7 +74,7 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
 
   // Thumbnails mode - use the original FilterPreview component
   return (
-    <div onDragStart={handleDragStart} draggable>
+    <div {...dragProps}>
       <FilterPreview
         filter={filter}
         onClick={handleClick}

@@ -75,6 +75,14 @@ vi.mock("../../hooks/use-tracks", () => ({
   useTracks: () => mockUseTracks,
 }))
 
+// Мокаем useTimelinePlayerSync
+vi.mock("../../hooks/use-timeline-player-sync", () => ({
+  useTimelinePlayerSync: () => ({
+    isSynced: false,
+    syncedClip: null,
+  }),
+}))
+
 vi.mock("../../hooks/use-clips", () => ({
   useClips: () => ({
     clips: [],

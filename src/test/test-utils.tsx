@@ -53,9 +53,11 @@ export const TimelineProviders = ({ children }: { children: ReactNode }) => {
         <ProjectSettingsProvider>
           <UserSettingsProvider>
             <ResourcesProvider>
-              <ChatProvider>
-                <TimelineProvider>{children}</TimelineProvider>
-              </ChatProvider>
+              <PlayerProvider>
+                <ChatProvider>
+                  <TimelineProvider>{children}</TimelineProvider>
+                </ChatProvider>
+              </PlayerProvider>
             </ResourcesProvider>
           </UserSettingsProvider>
         </ProjectSettingsProvider>

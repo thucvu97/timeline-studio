@@ -151,6 +151,14 @@ vi.mock("../../hooks/use-timeline-actions", () => ({
   }),
 }))
 
+// Mock для useTimelinePlayerSync
+vi.mock("../../hooks/use-timeline-player-sync", () => ({
+  useTimelinePlayerSync: () => ({
+    isSynced: false,
+    syncedClip: null,
+  }),
+}))
+
 // Mock для app state
 vi.mock("@/features/app-state/hooks/use-current-project", () => ({
   useCurrentProject: () => ({

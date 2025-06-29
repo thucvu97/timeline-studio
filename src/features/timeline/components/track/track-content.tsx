@@ -2,6 +2,8 @@
  * TrackContent - Содержимое трека (клипы на временной шкале)
  */
 
+import { memo, useCallback, useMemo } from "react"
+
 import { useDroppable } from "@dnd-kit/core"
 
 import { useDropZone } from "@/features/drag-drop"
@@ -19,7 +21,7 @@ interface TrackContentProps {
   onUpdate?: (updates: Partial<TimelineTrack>) => void
 }
 
-export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
+export const TrackContent = memo(function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
   const { dragState, isValidDropTarget } = useDragDropTimeline()
   const { addClip } = useTimeline()
 
@@ -33,7 +35,8 @@ export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackC
   })
 
   // Register as drop zone for global DragDropManager
-  const acceptedTypes = track.type === "video" ? ["media"] : track.type === "audio" ? ["media", "music"] : []
+  const acceptedTypes: Array<"media" | "music"> =
+    track.type === "video" ? ["media"] : track.type === "audio" ? ["media", "music"] : []
 
   const { ref: dropZoneRef } = useDropZone(`track-${track.id}`, acceptedTypes, (item, event) => {
     // Calculate drop position based on mouse position
@@ -47,11 +50,19 @@ export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackC
     if (item.type === "media" || item.type === "music") {
       addClip({
         id: `clip-${Date.now()}`,
-        name: item.data.name,
         trackId: track.id,
+        name: item.data.name,
         startTime: dropTime,
         duration: item.data.duration || 5,
+        mediaStartTime: 0,
+        mediaEndTime: item.data.duration || 5,
         mediaFile: item.data,
+        isSelected: false,
+        isLocked: false,
+        volume: 1,
+        effects: [],
+        filters: [],
+        transitions: [],
       })
     }
   })
@@ -60,20 +71,38 @@ export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackC
   const isValidTarget = isValidDropTarget(track.id, track.type)
   const showDropFeedback = dragState.isDragging && isOver && isValidTarget
 
-  // Сортируем клипы по времени начала
-  const sortedClips = [...track.clips].sort((a, b) => a.startTime - b.startTime)
+  // Мемоизируем отсортированные клипы
+  const sortedClips = useMemo(() => [...track.clips].sort((a, b) => a.startTime - b.startTime), [track.clips])
 
-  // Обработчик обновления клипа
-  const handleClipUpdate = (clipId: string, updates: any) => {
-    const updatedClips = track.clips.map((clip) => (clip.id === clipId ? { ...clip, ...updates } : clip))
-    onUpdate?.({ clips: updatedClips })
-  }
+  // Мемоизируем обработчики для предотвращения создания новых функций
+  const handleClipUpdate = useCallback(
+    (clipId: string, updates: any) => {
+      const updatedClips = track.clips.map((clip) => (clip.id === clipId ? { ...clip, ...updates } : clip))
+      onUpdate?.({ clips: updatedClips })
+    },
+    [track.clips, onUpdate],
+  )
 
-  // Обработчик удаления клипа
-  const handleClipRemove = (clipId: string) => {
-    const updatedClips = track.clips.filter((clip) => clip.id !== clipId)
-    onUpdate?.({ clips: updatedClips })
-  }
+  const handleClipRemove = useCallback(
+    (clipId: string) => {
+      const updatedClips = track.clips.filter((clip) => clip.id !== clipId)
+      onUpdate?.({ clips: updatedClips })
+    },
+    [track.clips, onUpdate],
+  )
+
+  // Мемоизируем сетку временной шкалы
+  const gridLines = useMemo(() => {
+    const lines = []
+    const maxTime = 300 // 5 минут
+    const step = 10 // каждые 10 секунд
+    for (let time = 0; time <= maxTime; time += step) {
+      lines.push(
+        <div key={time} className="absolute top-0 bottom-0 w-px bg-border/30" style={{ left: time * timeScale }} />,
+      )
+    }
+    return lines
+  }, [timeScale])
 
   return (
     <div
@@ -111,12 +140,7 @@ export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackC
       )}
 
       {/* Сетка временной шкалы */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Вертикальные линии сетки каждые 10 секунд */}
-        {Array.from({ length: Math.ceil(300 / 10) }, (_, i) => i * 10).map((time) => (
-          <div key={time} className="absolute top-0 bottom-0 w-px bg-border/30" style={{ left: time * timeScale }} />
-        ))}
-      </div>
+      <div className="absolute inset-0 pointer-events-none">{gridLines}</div>
 
       {/* Playhead (указатель текущего времени) */}
       <div
@@ -149,4 +173,4 @@ export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackC
       )}
     </div>
   )
-}
+})

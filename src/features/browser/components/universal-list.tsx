@@ -7,8 +7,8 @@ import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { cn } from "@/lib/utils"
 
 import { filterItems, groupItems, sortItems } from "../utils"
+import { ContentGroup } from "./content-group"
 import { NoFiles } from "./no-files"
-import { VirtualizedContentGroup } from "./virtualized-content-group"
 
 import type { ListItem, UniversalListProps } from "../types/list"
 
@@ -146,13 +146,11 @@ export function UniversalList<T extends ListItem>({
     <div className={cn("flex h-full flex-col", className)}>
       <div className="flex-1 overflow-auto">
         {groupedItems.map((group, index) => (
-          <VirtualizedContentGroup<T>
+          <ContentGroup<T>
             key={`${group.title}-${index}`}
             title={group.title}
             items={group.items}
             viewMode={viewMode}
-            previewSize={{ width: currentPreviewSize, height: currentPreviewSize }}
-            favoriteType={adapter.favoriteType}
             renderItem={(item) => (
               <adapter.PreviewComponent
                 item={item}

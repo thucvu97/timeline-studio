@@ -2,6 +2,8 @@
  * Clip - Основной компонент клипа на Timeline
  */
 
+import { memo, useMemo } from "react"
+
 import { cn } from "@/lib/utils"
 
 import { AudioClip } from "./audio-clip"
@@ -18,11 +20,15 @@ interface ClipProps {
   className?: string
 }
 
-export function Clip({ clip, track, timeScale, onUpdate, onRemove, className }: ClipProps) {
-  // Вычисляем позицию и размеры клипа
-  const left = clip.startTime * timeScale
-  const width = clip.duration * timeScale
-  const minWidth = 20 // Минимальная ширина клипа
+export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRemove, className }: ClipProps) {
+  // Мемоизируем вычисления позиции и размеров
+  const { left, width } = useMemo(
+    () => ({
+      left: clip.startTime * timeScale,
+      width: Math.max(clip.duration * timeScale, 20), // Минимальная ширина 20px
+    }),
+    [clip.startTime, clip.duration, timeScale],
+  )
 
   // Выбираем специализированный компонент в зависимости от типа трека
   const renderClipContent = () => {
@@ -69,11 +75,11 @@ export function Clip({ clip, track, timeScale, onUpdate, onRemove, className }: 
       )}
       style={{
         left: `${left}px`,
-        width: `${Math.max(width, minWidth)}px`,
+        width: `${width}px`,
       }}
       data-testid="timeline-clip"
     >
       {renderClipContent()}
     </div>
   )
-}
+})

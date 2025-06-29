@@ -39,7 +39,7 @@ export function useDropZone(
   onDrop: (item: DraggableItem, event: DragEvent) => void,
 ) {
   const elementRef = useRef<HTMLElement>(null)
-  const dropTargetRef = useRef<DropTarget>()
+  const dropTargetRef = useRef<DropTarget | undefined>(undefined)
 
   useEffect(() => {
     if (!elementRef.current) return

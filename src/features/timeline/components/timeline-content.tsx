@@ -21,6 +21,7 @@ import { TimelineScale } from "./timeline-scale"
 import { useClips } from "../hooks/use-clips"
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
 import { useTimeline } from "../hooks/use-timeline"
+import { useTimelinePlayerSync } from "../hooks/use-timeline-player-sync"
 import { useTracks } from "../hooks/use-tracks"
 import { Track } from "./track/track"
 import { TrackControlsPanel } from "./track-controls-panel"
@@ -54,6 +55,9 @@ export function TimelineContent() {
   // Получаем данные реального проекта
   const { currentProject } = useCurrentProject()
   const { settings: projectSettings } = useProjectSettings()
+
+  // Инициализируем синхронизацию с плеером
+  const { isSynced, syncedClip } = useTimelinePlayerSync()
 
   // Создаем проект при первой загрузке, используя настройки из реального проекта
   useEffect(() => {

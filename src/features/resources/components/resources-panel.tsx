@@ -15,8 +15,93 @@ import {
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { DraggableType, useDraggable } from "@/features/drag-drop"
 import { useResources } from "@/features/resources"
 import { TimelineResource } from "@/features/resources/types"
+
+/**
+ * Компонент для отдельного ресурса с поддержкой drag
+ */
+function ResourceItem({ resource, onRemove }: { resource: TimelineResource; onRemove: (id: string) => void }) {
+  const { t } = useTranslation()
+
+  // Определяем тип для DragDropManager
+  const getDraggableType = (resourceType: TimelineResource["type"]): DraggableType => {
+    switch (resourceType) {
+      case "media":
+        return "media"
+      case "music":
+        return "music"
+      case "effect":
+        return "effect"
+      case "filter":
+        return "filter"
+      case "transition":
+        return "transition"
+      case "template":
+        return "template"
+      case "styleTemplate":
+        return "style-template"
+      case "subtitle":
+        return "subtitle-style"
+      default:
+        return "media"
+    }
+  }
+
+  // Используем DragDropManager для перетаскивания
+  const dragProps = useDraggable(
+    getDraggableType(resource.type),
+    () => resource.data,
+    () => ({
+      url: resource.data?.thumbnail || resource.data?.path,
+      width: 120,
+      height: 80,
+    }),
+  )
+
+  return (
+    <div
+      key={resource.id}
+      className="group relative mb-1 flex h-[26px] w-[110px] flex-shrink-0 cursor-pointer items-center gap-2 rounded-sm border border-[#333] px-2 hover:bg-[#444] hover:text-white transition-colors duration-150"
+      {...dragProps}
+    >
+      {/* Иконка ресурса (слева) */}
+      <div className="flex-shrink-0">
+        {resource.type === "media" && <Clapperboard className="h-4 w-4" />}
+        {resource.type === "music" && <Music className="h-4 w-4" />}
+        {resource.type === "subtitle" && <Subtitles className="h-4 w-4" />}
+        {resource.type === "effect" && <Package className="h-4 w-4" />}
+        {resource.type === "filter" && <Palette className="h-4 w-4" />}
+        {resource.type === "transition" && <Scissors className="h-4 w-4" />}
+        {resource.type === "template" && <Video className="h-4 w-4" />}
+        {resource.type === "styleTemplate" && <Sticker className="h-4 w-4" />}
+      </div>
+
+      {/* Название ресурса (справа) */}
+      <div className="flex-1 overflow-hidden">
+        <div className="truncate text-[10px]">
+          {resource.type === "template"
+            ? t(`templates.templateLabels.${resource.name}`, resource.name)
+            : resource.type === "styleTemplate"
+              ? t(`styleTemplates.${resource.name}`, resource.name)
+              : resource.name}
+        </div>
+      </div>
+
+      {/* Кнопка удаления - показывается при наведении */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          onRemove(resource.id)
+        }}
+        className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 p-0.5 hover:bg-red-500/20 rounded"
+      >
+        <X className="h-3 w-3 text-red-500" />
+      </button>
+    </div>
+  )
+}
 
 /**
  * Компонент для отображения ресурсов таймлайна в левой панели
@@ -101,44 +186,7 @@ export function ResourcesPanel() {
       <div>
         <div className="flex flex-wrap gap-1 px-1 py-1">
           {resources.map((resource) => (
-            <div
-              key={resource.id}
-              className="group relative mb-1 flex h-[26px] w-[110px] flex-shrink-0 cursor-pointer items-center gap-2 rounded-sm border border-[#333] px-2 hover:bg-[#444] hover:text-white transition-colors duration-150"
-            >
-              {/* Иконка ресурса (слева) */}
-              <div className="flex-shrink-0">
-                {resource.type === "media" && <Clapperboard className="h-4 w-4" />}
-                {resource.type === "music" && <Music className="h-4 w-4" />}
-                {resource.type === "subtitle" && <Subtitles className="h-4 w-4" />}
-                {resource.type === "effect" && <Package className="h-4 w-4" />}
-                {resource.type === "filter" && <Palette className="h-4 w-4" />}
-                {resource.type === "transition" && <Scissors className="h-4 w-4" />}
-                {resource.type === "template" && <Video className="h-4 w-4" />}
-                {resource.type === "styleTemplate" && <Sticker className="h-4 w-4" />}
-              </div>
-
-              {/* Название ресурса (справа) */}
-              <div className="flex-1 overflow-hidden">
-                <div className="truncate text-[10px]">
-                  {resource.type === "template"
-                    ? t(`templates.templateLabels.${resource.name}`, resource.name)
-                    : resource.type === "styleTemplate"
-                      ? t(`styleTemplates.${resource.name}`, resource.name)
-                      : resource.name}
-                </div>
-              </div>
-
-              {/* Кнопка удаления - показывается при наведении */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  removeResource(resource.id)
-                }}
-                className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 p-0.5 hover:bg-red-500/20 rounded"
-              >
-                <X className="h-3 w-3 text-red-500" />
-              </button>
-            </div>
+            <ResourceItem key={resource.id} resource={resource} onRemove={removeResource} />
           ))}
         </div>
       </div>

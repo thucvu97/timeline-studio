@@ -1,6 +1,4 @@
 export * from "./cache-settings-modal"
 export * from "./file-metadata"
-export * from "./media-content"
-export * from "./media-group"
 export * from "./media-item"
 export * from "./media-scanner"

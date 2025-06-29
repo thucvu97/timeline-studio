@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 import { useClips } from "../../hooks"
+import { timelinePlayerSync } from "../../services/timeline-player-sync"
 import { AppliedEffect, TimelineClip, TimelineTrack } from "../../types"
 import { AudioEffectsEditor } from "../audio-effects-editor"
 import Waveform from "../track/waveform"
@@ -36,7 +37,13 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
   const { updateClip } = useClips()
 
   const handleSelect = () => {
-    onUpdate?.({ isSelected: !clip.isSelected })
+    const newIsSelected = !clip.isSelected
+    onUpdate?.({ isSelected: newIsSelected })
+
+    // Синхронизируем с плеером при выборе
+    if (newIsSelected) {
+      timelinePlayerSync.syncSelectedClip(clip)
+    }
   }
 
   const handleCopy = (e: React.MouseEvent) => {

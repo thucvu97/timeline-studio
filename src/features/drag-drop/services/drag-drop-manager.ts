@@ -101,6 +101,9 @@ export class DragDropManager extends EventEmitter {
         case "transition":
           event.dataTransfer.setData("transition", JSON.stringify(item.data))
           break
+        default:
+          // Для остальных типов данные уже установлены через application/json
+          break
       }
     }
 

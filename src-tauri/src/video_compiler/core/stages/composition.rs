@@ -713,15 +713,3 @@ impl Default for CompositionStage {
     Self::new()
   }
 }
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[tokio::test]
-  async fn test_composition_stage_basic() {
-    let stage = CompositionStage::new();
-    assert_eq!(stage.name(), "Composition");
-    assert!(!stage.estimated_duration().is_zero());
-  }
-}

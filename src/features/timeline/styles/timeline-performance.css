@@ -1,0 +1,85 @@
+/* Timeline Performance Optimizations */
+
+/* Используем GPU ускорение для элементов которые часто перемещаются */
+.timeline-clip {
+  will-change: transform, left, width;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Оптимизация для треков */
+.timeline-track {
+  contain: layout style paint;
+  will-change: scroll-position;
+}
+
+/* Оптимизация для контейнера клипов */
+.timeline-clips-container {
+  contain: layout style paint;
+  transform: translateZ(0);
+}
+
+/* Отключаем сложные эффекты при перетаскивании */
+.timeline.is-dragging .timeline-clip {
+  transition: none !important;
+}
+
+.timeline.is-dragging .timeline-clip:hover {
+  box-shadow: none !important;
+}
+
+/* Оптимизация сетки */
+.timeline-grid {
+  pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Оптимизация playhead */
+.timeline-playhead {
+  will-change: transform;
+  transform: translateZ(0);
+  pointer-events: none;
+}
+
+/* Уменьшаем количество перерисовок для hover эффектов */
+.timeline-clip-hover-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+.timeline-clip:hover .timeline-clip-hover-layer {
+  opacity: 1;
+}
+
+/* Оптимизация скролла */
+.timeline-scroll-container {
+  overflow: hidden auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  contain: strict;
+}
+
+/* Группировка слоёв для оптимизации композиции */
+.timeline-layer-background {
+  z-index: 0;
+}
+
+.timeline-layer-grid {
+  z-index: 1;
+}
+
+.timeline-layer-clips {
+  z-index: 10;
+}
+
+.timeline-layer-playhead {
+  z-index: 20;
+}
+
+.timeline-layer-overlays {
+  z-index: 30;
+}
