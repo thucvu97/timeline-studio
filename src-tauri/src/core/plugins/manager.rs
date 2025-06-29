@@ -1262,10 +1262,7 @@ mod tests {
 
     // Очистка
     for i in 1..=3 {
-      manager
-        .unload_plugin(&format!("plugin-{i}"))
-        .await
-        .unwrap();
+      manager.unload_plugin(&format!("plugin-{i}")).await.unwrap();
     }
   }
 

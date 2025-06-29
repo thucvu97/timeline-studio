@@ -347,9 +347,7 @@ mod tests {
     ];
 
     for (width, height) in aspect_ratios {
-      let output_path = temp_dir
-        .path()
-        .join(format!("thumb_{width}x{height}.jpg"));
+      let output_path = temp_dir.path().join(format!("thumb_{width}x{height}.jpg"));
       let result = generate_thumbnail(&input_path, &output_path, width, height, 0.0).await;
       assert!(result.is_err());
     }

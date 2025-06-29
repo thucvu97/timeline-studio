@@ -292,9 +292,7 @@ impl MetricsCollector {
       Ok(())
     } else {
       // Если не можем получить write lock, просто пропускаем регистрацию
-      log::warn!(
-        "Could not acquire write lock for metric registration: {name}"
-      );
+      log::warn!("Could not acquire write lock for metric registration: {name}");
       Ok(())
     }
   }
