@@ -5,13 +5,14 @@
 use crate::video_compiler::error::{Result, VideoCompilerError};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use specta::Type;
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{mpsc, RwLock};
 
 /// Базовое событие приложения
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(tag = "type", content = "data")]
 pub enum AppEvent {
   // Project events

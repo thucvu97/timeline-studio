@@ -6,6 +6,7 @@ authors = ["Alexander Kireyev <ak.chatman.media@gmail.com>"]
 license = "MIT WITH Commons-Clause"
 repository = "https://github.com/chatman-media/timeline-studio"
 edition = "2021"
+default-run = "timeline-studio"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -19,6 +20,10 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [[bin]]
 name = "timeline-studio"
 path = "src/main.rs"
+
+[[bin]]
+name = "test_specta"
+path = "src/bin/test_specta.rs"
 
 [build-dependencies]
 tauri-build = { version = "2.0.0-rc.13", features = [] }
@@ -110,6 +115,10 @@ wasm-bindgen = "0.2"
 cap-std = "3.4"
 sha2 = "0.10"
 prometheus = "0.14.0"
+# Type generation
+specta = { version = "2.0.0-rc.21", features = ["serde", "chrono", "uuid", "serde_json"] }
+specta-typescript = { version = "0.0.9" }
+tauri-specta = { version = "2.0.0-rc.21", features = ["derive", "typescript"] }
 
 [features]
 # by default Tauri runs in production mode

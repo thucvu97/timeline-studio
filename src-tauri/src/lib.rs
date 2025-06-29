@@ -9,6 +9,9 @@ pub mod core;
 mod command_registry;
 pub use command_registry::CommandRegistry;
 
+// Specta TypeScript bindings
+pub mod specta_export;
+
 // App builder module
 mod app_builder;
 
@@ -138,6 +141,10 @@ pub fn run() {
   // Note: Logging is initialized by Tauri plugin, don't initialize here
   // to avoid "attempted to set a logger after the logging system was already initialized" error
   println!("Starting Timeline Studio backend...");
+
+  // Export TypeScript bindings in debug mode
+  #[cfg(debug_assertions)]
+  specta_export::export_typescript_bindings();
 
   // Ensure app directories exist on startup
   tauri::async_runtime::block_on(async {

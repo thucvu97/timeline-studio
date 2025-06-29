@@ -62,3 +62,6 @@ claude_desktop_config.json
 
 # macOS environment file
 .env.macos
+
+# Generated TypeScript types from Rust
+/src/types/generated/

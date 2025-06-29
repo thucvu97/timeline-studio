@@ -25,11 +25,12 @@ mod tests {
     // These are compile-time checks to ensure our constants maintain proper relationships
     // They serve as documentation and will fail compilation if constants are misconfigured
     const _: () = assert!(PerformanceLimits::METADATA_EXTRACTION_LIMIT > 0);
-    const _: () = assert!(PerformanceLimits::THUMBNAIL_4K_LIMIT > PerformanceLimits::METADATA_EXTRACTION_LIMIT);
+    const _: () =
+      assert!(PerformanceLimits::THUMBNAIL_4K_LIMIT > PerformanceLimits::METADATA_EXTRACTION_LIMIT);
     const _: () = assert!(
       PerformanceLimits::LARGE_FILE_PROCESSING_LIMIT > PerformanceLimits::METADATA_EXTRACTION_LIMIT
     );
-    
+
     // Runtime check to satisfy test requirement
     assert_eq!(PerformanceLimits::METADATA_EXTRACTION_LIMIT, 8);
   }

@@ -5,10 +5,11 @@ use crate::core::AppEvent;
 use crate::video_compiler::error::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use specta::Type;
 use uuid::Uuid;
 
 /// Типы плагинов
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 pub enum PluginType {
   /// Видео эффекты и фильтры
   Effect,
@@ -29,7 +30,7 @@ pub enum PluginType {
 }
 
 /// Версия плагина
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub struct Version {
   pub major: u32,
   pub minor: u32,
@@ -59,7 +60,7 @@ impl std::fmt::Display for Version {
 }
 
 /// Зависимость плагина
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct PluginDependency {
   pub plugin_id: String,
   pub min_version: Option<Version>,
@@ -67,7 +68,7 @@ pub struct PluginDependency {
 }
 
 /// Метаданные плагина
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct PluginMetadata {
   /// Уникальный идентификатор плагина
   pub id: String,
@@ -92,7 +93,7 @@ pub struct PluginMetadata {
 }
 
 /// Команда для плагина
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct PluginCommand {
   pub id: Uuid,
   pub command: String,
@@ -100,7 +101,7 @@ pub struct PluginCommand {
 }
 
 /// Ответ от плагина
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct PluginResponse {
   pub command_id: Uuid,
   pub success: bool,
@@ -109,7 +110,7 @@ pub struct PluginResponse {
 }
 
 /// Типы событий на которые может подписаться плагин
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 pub enum AppEventType {
   ProjectCreated,
   ProjectOpened,
@@ -127,7 +128,7 @@ pub enum AppEventType {
 }
 
 /// Состояние плагина
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub enum PluginState {
   /// Плагин загружен но не инициализирован
   Loaded,

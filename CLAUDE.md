@@ -50,19 +50,25 @@ Before working with this codebase, ensure you have the following dependencies in
 
 ### macOS Development Setup
 
-For local development on macOS, you need to set FFmpeg environment variables:
+For local development on macOS, environment variables are automatically loaded:
 
 ```bash
-# Option 1: Source the environment file before running
+# Variables are automatically loaded from .env.local
+bun run tauri dev
+
+# Alternative: Use the bash export file if needed
 source .env.macos
 bun run tauri dev
 
-# Option 2: Run the setup script
+# Alternative: Run the setup script
 source scripts/setup-ffmpeg-macos.sh
 bun run tauri dev
 ```
 
-The `.env.macos` file contains all necessary FFmpeg and ONNX Runtime environment variables for macOS development.
+**Environment variables are now automatically configured:**
+- `.env.local` contains all FFmpeg and ONNX Runtime paths for macOS
+- No need to manually source files - variables load automatically
+- `.env.macos` file remains available as bash export alternative
 
 ### Platform-specific Tools
 - **macOS**: Xcode Command Line Tools
