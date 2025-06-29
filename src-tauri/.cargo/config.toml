@@ -1,0 +1,18 @@
+# Configuration for Windows builds
+# This file helps with FFmpeg library detection on Windows
+
+[target.'cfg(windows)']
+rustflags = ["-C", "link-arg=/LIBPATH:C:\\ffmpeg\\lib"]
+
+[env]
+# FFmpeg paths for Windows
+# Note: You may need to adjust these paths based on your FFmpeg installation
+FFMPEG_DIR = "C:\\ffmpeg"
+FFMPEG_INCLUDE_DIR = "C:\\ffmpeg\\include"
+FFMPEG_LIB_DIR = "C:\\ffmpeg\\lib"
+FFMPEG_NO_PKG_CONFIG = "1"
+BINDGEN_EXTRA_CLANG_ARGS = "-IC:\\ffmpeg\\include -I/usr/include"
+
+# For developers: If you're getting "file not found" errors for FFmpeg headers,
+# you may need to create symbolic links or adjust the paths above.
+# See .github/workflows/ci.yml for the Windows setup process.

@@ -199,6 +199,10 @@ jobs:
           echo "FFMPEG_SWSCALE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
           echo "FFMPEG_SWRESAMPLE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
           
+          # Force Windows paths
+          echo "FFMPEG_PKG_CONFIG=C:\ffmpeg\lib\pkgconfig\libavcodec.pc" >> $env:GITHUB_ENV
+          echo "CARGO_CFG_TARGET_FAMILY=windows" >> $env:GITHUB_ENV
+          
           # Verify critical components
           if (Test-Path "C:\ffmpeg\bin\ffmpeg.exe") {
             Write-Host "✅ FFmpeg executable found"
@@ -223,12 +227,52 @@ jobs:
           
       - name: Configure Windows build environment
         if: runner.os == 'Windows'
-        shell: cmd
+        shell: powershell
         run: |
-          echo Setting Windows-specific FFmpeg paths...
-          set FFMPEG_DIR=C:\ffmpeg
-          set FFMPEG_INCLUDE_DIR=C:\ffmpeg\include
-          set FFMPEG_LIB_DIR=C:\ffmpeg\lib
+          Write-Host "Creating symbolic links for Unix-style paths..."
+          
+          # Create /usr/include structure on Windows
+          New-Item -ItemType Directory -Force -Path "C:\usr\include"
+          
+          # Create symbolic links to FFmpeg includes
+          if (Test-Path "C:\ffmpeg\include\libavcodec") {
+            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavcodec" -Target "C:\ffmpeg\include\libavcodec"
+            Write-Host "✅ Created symlink for libavcodec"
+          }
+          if (Test-Path "C:\ffmpeg\include\libavformat") {
+            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavformat" -Target "C:\ffmpeg\include\libavformat"
+            Write-Host "✅ Created symlink for libavformat"
+          }
+          if (Test-Path "C:\ffmpeg\include\libavutil") {
+            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavutil" -Target "C:\ffmpeg\include\libavutil"
+            Write-Host "✅ Created symlink for libavutil"
+          }
+          if (Test-Path "C:\ffmpeg\include\libavfilter") {
+            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavfilter" -Target "C:\ffmpeg\include\libavfilter"
+            Write-Host "✅ Created symlink for libavfilter"
+          }
+          if (Test-Path "C:\ffmpeg\include\libavdevice") {
+            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavdevice" -Target "C:\ffmpeg\include\libavdevice"
+            Write-Host "✅ Created symlink for libavdevice"
+          }
+          if (Test-Path "C:\ffmpeg\include\libswscale") {
+            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libswscale" -Target "C:\ffmpeg\include\libswscale"
+            Write-Host "✅ Created symlink for libswscale"
+          }
+          if (Test-Path "C:\ffmpeg\include\libswresample") {
+            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libswresample" -Target "C:\ffmpeg\include\libswresample"
+            Write-Host "✅ Created symlink for libswresample"
+          }
+          
+          # Verify avfft.h is accessible
+          if (Test-Path "C:\usr\include\libavcodec\avfft.h") {
+            Write-Host "✅ avfft.h is now accessible via Unix path"
+          } else {
+            Write-Host "⚠️ avfft.h still not found at expected path"
+          }
+          
+          # Also update BINDGEN_EXTRA_CLANG_ARGS to include both paths
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:\ffmpeg\include -IC:/ffmpeg/include -I/usr/include" >> $env:GITHUB_ENV
           
       - name: Install frontend dependencies
         run: bun install
@@ -251,14 +295,14 @@ jobs:
       - name: Run backend tests (Windows)
         if: runner.os == 'Windows'
         working-directory: src-tauri
-        shell: cmd
         run: |
-          echo Current environment:
-          echo FFMPEG_DIR=%FFMPEG_DIR%
-          echo FFMPEG_INCLUDE_DIR=%FFMPEG_INCLUDE_DIR%
-          echo FFMPEG_LIB_DIR=%FFMPEG_LIB_DIR%
-          echo.
-          echo Running tests...
+          Write-Host "Current environment:"
+          Write-Host "FFMPEG_DIR=$env:FFMPEG_DIR"
+          Write-Host "FFMPEG_INCLUDE_DIR=$env:FFMPEG_INCLUDE_DIR"
+          Write-Host "FFMPEG_LIB_DIR=$env:FFMPEG_LIB_DIR"
+          Write-Host "BINDGEN_EXTRA_CLANG_ARGS=$env:BINDGEN_EXTRA_CLANG_ARGS"
+          Write-Host ""
+          Write-Host "Running tests..."
           cargo test --lib -- --test-threads=1
           
       - name: Run clippy (Linux)
@@ -385,6 +429,10 @@ jobs:
           echo "FFMPEG_AVFILTER_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
           echo "FFMPEG_SWSCALE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
           echo "FFMPEG_SWRESAMPLE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          
+          # Force Windows paths
+          echo "FFMPEG_PKG_CONFIG=C:\ffmpeg\lib\pkgconfig\libavcodec.pc" >> $env:GITHUB_ENV
+          echo "CARGO_CFG_TARGET_FAMILY=windows" >> $env:GITHUB_ENV
           
       - name: Install frontend dependencies
         run: bun install
