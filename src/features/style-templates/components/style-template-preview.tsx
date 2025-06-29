@@ -196,7 +196,7 @@ export function StyleTemplatePreview({
             name: template.name[currentLanguage],
           }}
           size={size}
-          type="style-template"
+          type="styleTemplate"
         />
 
         {/* Кнопка применения шаблона */}
@@ -205,12 +205,12 @@ export function StyleTemplatePreview({
             resource={
               {
                 id: template.id,
-                type: "style-template",
+                type: "styleTemplate",
                 name: template.name[currentLanguage],
               } as StyleTemplateResource
             }
             size={size}
-            type="style-template"
+            type="styleTemplate"
           />
         )}
 
@@ -220,10 +220,10 @@ export function StyleTemplatePreview({
         >
           <AddMediaButton
             resource={
-              { id: template.id, type: "style-template", name: template.name[currentLanguage] } as StyleTemplateResource
+              { id: template.id, type: "styleTemplate", name: template.name[currentLanguage] } as StyleTemplateResource
             }
             size={size}
-            type="style-template"
+            type="styleTemplate"
           />
         </div>
       </div>

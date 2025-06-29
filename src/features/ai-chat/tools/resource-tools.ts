@@ -19,7 +19,7 @@ export const resourceTools: ClaudeTool[] = [
       properties: {
         resourceType: {
           type: "string",
-          enum: ["all", "media", "music", "effect", "filter", "transition", "template", "style-template"],
+          enum: ["all", "media", "music", "effect", "filter", "transition", "template", "styleTemplate"],
           description: "Тип ресурсов для анализа",
         },
         includeStats: {
@@ -48,7 +48,7 @@ export const resourceTools: ClaudeTool[] = [
       properties: {
         resourceType: {
           type: "string",
-          enum: ["media", "music", "effect", "filter", "transition", "template", "style-template"],
+          enum: ["media", "music", "effect", "filter", "transition", "template", "styleTemplate"],
           description: "Тип добавляемого ресурса",
         },
         resourceId: {
@@ -80,7 +80,7 @@ export const resourceTools: ClaudeTool[] = [
           properties: {
             resourceType: {
               type: "string",
-              enum: ["media", "music", "effect", "filter", "transition", "template", "style-template"],
+              enum: ["media", "music", "effect", "filter", "transition", "template", "styleTemplate"],
             },
             selectionMethod: {
               type: "string",

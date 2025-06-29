@@ -436,7 +436,7 @@ export const resourcesMachine = setup({
       styleTemplateResources: ({ event }) => {
         if (event.type !== "LOAD_RESOURCES") return []
         return event.resources
-          .filter((r) => r.type === "style-template")
+          .filter((r) => r.type === "styleTemplate")
           .map((r) => ({ ...r, template: {} as StyleTemplate }))
       },
       mediaResources: ({ event }) => {

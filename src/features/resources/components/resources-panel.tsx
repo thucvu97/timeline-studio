@@ -84,7 +84,7 @@ export function ResourcesPanel() {
       resources: templateResources,
     },
     {
-      id: "style-templates",
+      id: "styleTemplates",
       name: t("browser.tabs.styleTemplates"),
       icon: <Sticker className="h-3.5 w-3.5 text-gray-400" />,
       resources: styleTemplateResources,
@@ -114,7 +114,7 @@ export function ResourcesPanel() {
                 {resource.type === "filter" && <Palette className="h-4 w-4" />}
                 {resource.type === "transition" && <Scissors className="h-4 w-4" />}
                 {resource.type === "template" && <Video className="h-4 w-4" />}
-                {resource.type === "style-template" && <Sticker className="h-4 w-4" />}
+                {resource.type === "styleTemplate" && <Sticker className="h-4 w-4" />}
               </div>
 
               {/* Название ресурса (справа) */}
@@ -122,7 +122,7 @@ export function ResourcesPanel() {
                 <div className="truncate text-[10px]">
                   {resource.type === "template"
                     ? t(`templates.templateLabels.${resource.name}`, resource.name)
-                    : resource.type === "style-template"
+                    : resource.type === "styleTemplate"
                       ? t(`styleTemplates.${resource.name}`, resource.name)
                       : resource.name}
                 </div>

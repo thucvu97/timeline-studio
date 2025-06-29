@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 interface FavoriteButtonProps {
   file: MediaFile
   size?: number
-  type?: "media" | "music" | "transition" | "effect" | "template" | "filter" | "subtitle" | "style-template"
+  type?: "media" | "music" | "transition" | "effect" | "template" | "filter" | "subtitle" | "styleTemplate"
 }
 
 /**

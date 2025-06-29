@@ -205,7 +205,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
         case "template":
           handleAddTemplate(object as MediaTemplate)
           break
-        case "style-template":
+        case "styleTemplate":
           handleAddStyleTemplate(object as StyleTemplate)
           break
         default:

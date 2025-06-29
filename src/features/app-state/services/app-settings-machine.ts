@@ -391,6 +391,10 @@ export const appSettingsMachine = createMachine({
             assign({
               favorites: ({ context, event }) => {
                 const updatedFavorites = { ...context.favorites }
+                // Проверяем, существует ли массив для данного типа
+                if (!updatedFavorites[event.itemType]) {
+                  updatedFavorites[event.itemType] = []
+                }
                 updatedFavorites[event.itemType] = [...updatedFavorites[event.itemType], event.item]
                 return updatedFavorites
               },

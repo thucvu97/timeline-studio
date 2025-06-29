@@ -25,7 +25,7 @@ export type ResourceType =
   | "filter"
   | "transition"
   | "template"
-  | "style-template"
+  | "styleTemplate"
 
 // Интерфейс для медиафайлов
 export interface MediaResource extends Resource {
@@ -78,7 +78,7 @@ export interface TemplateResource extends Resource {
 
 // Интерфейс для стилистических шаблонов
 export interface StyleTemplateResource extends Resource {
-  type: "style-template"
+  type: "styleTemplate"
   template: StyleTemplate
   params?: Record<string, any> // Параметры стилистического шаблона
 }
@@ -191,8 +191,8 @@ export function createTemplateResource(template: MediaTemplate): TemplateResourc
 // Функция для создания ресурса стилистического шаблона
 export function createStyleTemplateResource(template: StyleTemplate): StyleTemplateResource {
   return {
-    id: `style-template-${template.id}-${Date.now()}`,
-    type: "style-template",
+    id: `styleTemplate-${template.id}-${Date.now()}`,
+    type: "styleTemplate",
     name: template.name.ru,
     resourceId: template.id,
     addedAt: Date.now(),

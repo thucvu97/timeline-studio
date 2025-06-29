@@ -155,7 +155,7 @@ describe("StyleTemplatePreview", () => {
     const favoriteButton = screen.getByTestId("favorite-button")
     expect(favoriteButton).toBeInTheDocument()
     expect(favoriteButton).toHaveAttribute("data-file-id", "test-template-1")
-    expect(favoriteButton).toHaveAttribute("data-type", "style-template")
+    expect(favoriteButton).toHaveAttribute("data-type", "styleTemplate")
   })
 
   it("should render apply button", () => {
@@ -164,7 +164,7 @@ describe("StyleTemplatePreview", () => {
     const applyButton = screen.getByTestId("apply-button")
     expect(applyButton).toBeInTheDocument()
     expect(applyButton).toHaveAttribute("data-resource-id", "test-template-1")
-    expect(applyButton).toHaveAttribute("data-type", "style-template")
+    expect(applyButton).toHaveAttribute("data-type", "styleTemplate")
   })
 
   it("should render add media button", () => {
@@ -173,7 +173,7 @@ describe("StyleTemplatePreview", () => {
     const addButton = screen.getByTestId("add-media-button")
     expect(addButton).toBeInTheDocument()
     expect(addButton).toHaveAttribute("data-resource-id", "test-template-1")
-    expect(addButton).toHaveAttribute("data-type", "style-template")
+    expect(addButton).toHaveAttribute("data-type", "styleTemplate")
   })
 
   it("should show add button with opacity when not added", () => {
