@@ -91,10 +91,19 @@ jobs:
         run: |
           echo "Verifying FFmpeg installation..."
           pkg-config --version
+          echo "Current PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
           echo "Looking for libavutil.pc..."
-          find /usr -name "libavutil.pc" 2>/dev/null || echo "libavutil.pc not found"
+          find /usr -name "libavutil.pc" 2>/dev/null | head -20
+          echo "Contents of pkgconfig directories:"
+          ls -la /usr/lib/x86_64-linux-gnu/pkgconfig/ | grep -i ffmpeg || echo "No ffmpeg in x86_64-linux-gnu"
+          ls -la /usr/lib/pkgconfig/ | grep -i ffmpeg || echo "No ffmpeg in lib/pkgconfig"
+          ls -la /usr/share/pkgconfig/ | grep -i ffmpeg || echo "No ffmpeg in share/pkgconfig"
+          echo "Looking for libav*.pc files:"
+          find /usr -name "libav*.pc" 2>/dev/null | head -20
           echo "Testing pkg-config with libavutil..."
           PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig pkg-config --libs --cflags libavutil || echo "pkg-config failed"
+          echo "Trying alternative paths:"
+          find /usr/local -name "libavutil.pc" 2>/dev/null | head -10 || echo "Not in /usr/local"
             
       # macOS dependencies  
       - name: Install macOS dependencies
@@ -162,7 +171,8 @@ jobs:
             exit 1
           }
           
-      - name: Run backend tests
+      - name: Run backend tests (Linux)
+        if: runner.os == 'Linux'
         working-directory: src-tauri
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
@@ -171,12 +181,24 @@ jobs:
         run: |
           cargo test --lib -- --test-threads=1
           
-      - name: Run clippy
+      - name: Run backend tests (non-Linux)
+        if: runner.os != 'Linux'
+        working-directory: src-tauri
+        run: |
+          cargo test --lib -- --test-threads=1
+          
+      - name: Run clippy (Linux)
+        if: runner.os == 'Linux'
         working-directory: src-tauri
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
           PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
           PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
+        run: cargo clippy --all-targets --all-features -- -D warnings
+        
+      - name: Run clippy (non-Linux)
+        if: runner.os != 'Linux'
+        working-directory: src-tauri
         run: cargo clippy --all-targets --all-features -- -D warnings
         
       - name: Check formatting
@@ -266,12 +288,18 @@ jobs:
       - name: Build frontend
         run: bun run build
         
-      - name: Build Tauri application
+      - name: Build Tauri application (Linux)
+        if: runner.os == 'Linux'
         working-directory: src-tauri
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
           PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
           PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
+        run: cargo tauri build
+        
+      - name: Build Tauri application (non-Linux)
+        if: runner.os != 'Linux'
+        working-directory: src-tauri
         run: cargo tauri build
         
       - name: Upload artifacts
