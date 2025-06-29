@@ -455,7 +455,7 @@ mod tests {
       system_language: "en".to_string(),
     };
 
-    let debug_str = format!("{:?}", response);
+    let debug_str = format!("{response:?}");
     assert!(debug_str.contains("LanguageResponse"));
     assert!(debug_str.contains("fr"));
     assert!(debug_str.contains("en"));
@@ -494,13 +494,13 @@ mod tests {
     // Set different values
     for (i, state) in states.iter().enumerate() {
       let mut lang = state.current_language.lock().unwrap();
-      *lang = format!("test_{}", i);
+      *lang = format!("test_{i}");
     }
 
     // Verify values
     for (i, state) in states.iter().enumerate() {
       let lang = state.current_language.lock().unwrap();
-      assert_eq!(*lang, format!("test_{}", i));
+      assert_eq!(*lang, format!("test_{i}"));
     }
 
     // states are dropped here

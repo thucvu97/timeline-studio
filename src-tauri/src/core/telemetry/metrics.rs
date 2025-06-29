@@ -991,7 +991,7 @@ mod tests {
 
     // Логируем ошибку shutdown но не проваливаем тест
     if let Err(e) = shutdown_result {
-      eprintln!("Shutdown panicked (expected in tests): {:?}", e);
+      eprintln!("Shutdown panicked (expected in tests): {e:?}");
     }
   }
 

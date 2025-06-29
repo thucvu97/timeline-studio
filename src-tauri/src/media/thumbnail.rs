@@ -276,7 +276,7 @@ mod tests {
     // Spawn multiple concurrent thumbnail generations
     for i in 0..5 {
       let input = input_path.clone();
-      let output = temp_dir.path().join(format!("thumb_{}.jpg", i));
+      let output = temp_dir.path().join(format!("thumb_{i}.jpg"));
 
       tasks.spawn(async move { generate_thumbnail(&input, &output, 320, 240, i as f64).await });
     }
@@ -320,7 +320,7 @@ mod tests {
     let formats = vec!["jpg", "jpeg", "png", "webp", "bmp"];
 
     for format in formats {
-      let output_path = temp_dir.path().join(format!("thumbnail.{}", format));
+      let output_path = temp_dir.path().join(format!("thumbnail.{format}"));
       let result = generate_thumbnail(&input_path, &output_path, 320, 240, 1.0).await;
       assert!(result.is_err());
     }
@@ -349,7 +349,7 @@ mod tests {
     for (width, height) in aspect_ratios {
       let output_path = temp_dir
         .path()
-        .join(format!("thumb_{}x{}.jpg", width, height));
+        .join(format!("thumb_{width}x{height}.jpg"));
       let result = generate_thumbnail(&input_path, &output_path, width, height, 0.0).await;
       assert!(result.is_err());
     }
@@ -379,7 +379,7 @@ mod tests {
         // Skip test if filename is too long for the OS
         println!("Skipping test - filename too long for OS");
       }
-      Err(e) => panic!("Unexpected error: {}", e),
+      Err(e) => panic!("Unexpected error: {e}"),
     }
   }
 
@@ -430,7 +430,7 @@ mod tests {
     let scale_filters = vec![(320, 240), (1920, 1080), (1, 1), (9999, 9999)];
 
     for (w, h) in scale_filters {
-      let filter = format!("scale={}:{}", w, h);
+      let filter = format!("scale={w}:{h}");
       assert!(filter.contains("scale="));
       assert!(filter.contains(&w.to_string()));
       assert!(filter.contains(&h.to_string()));

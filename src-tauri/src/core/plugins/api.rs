@@ -1154,7 +1154,7 @@ mod tests {
       let storage_clone = storage.clone();
       tasks.spawn(async move {
         storage_clone
-          .set(&format!("key_{}", i), serde_json::json!(i))
+          .set(&format!("key_{i}"), serde_json::json!(i))
           .await
           .unwrap();
       });
@@ -1165,7 +1165,7 @@ mod tests {
 
     // Verify all values were written
     for i in 0..10 {
-      let value = storage.get(&format!("key_{}", i)).await.unwrap();
+      let value = storage.get(&format!("key_{i}")).await.unwrap();
       assert_eq!(value, Some(serde_json::json!(i)));
     }
   }
@@ -1582,7 +1582,7 @@ mod tests {
           0 => {
             // Set
             storage_clone
-              .set(&format!("key_{}", i), serde_json::json!(i))
+              .set(&format!("key_{i}"), serde_json::json!(i))
               .await
               .unwrap();
           }

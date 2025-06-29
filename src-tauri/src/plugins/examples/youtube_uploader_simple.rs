@@ -443,7 +443,7 @@ mod tests {
     // Test max tags
     let mut many_tags = vec![];
     for i in 0..100 {
-      many_tags.push(format!("tag{}", i));
+      many_tags.push(format!("tag{i}"));
     }
     let settings_many_tags = YouTubeUploadSettings {
       title: "Test".to_string(),

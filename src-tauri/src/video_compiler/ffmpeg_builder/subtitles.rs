@@ -1154,7 +1154,7 @@ mod tests {
       );
       let result = builder.apply_single_animation(filter, &animation, &subtitle, &resolution);
 
-      assert!(result.is_ok(), "Failed for animation type: {:?}", anim_type);
+      assert!(result.is_ok(), "Failed for animation type: {anim_type:?}");
     }
   }
 

@@ -12,7 +12,7 @@ mod command_registry_tests {
 
   #[tauri::command]
   fn test_command_2(input: String) -> String {
-    format!("Command 2 received: {}", input)
+    format!("Command 2 received: {input}")
   }
 
   #[tauri::command]
@@ -196,7 +196,7 @@ mod command_registry_tests {
     #[tauri::command]
     fn optional_param_command(required: String, optional: Option<String>) -> String {
       match optional {
-        Some(opt) => format!("{} with {}", required, opt),
+        Some(opt) => format!("{required} with {opt}"),
         None => required,
       }
     }

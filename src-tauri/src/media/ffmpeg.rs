@@ -89,11 +89,11 @@ mod tests {
   fn test_extract_frame_time_formatting() {
     // Проверяем форматирование времени
     let time_seconds = 123.456;
-    let expected_format = format!("{:.2}", time_seconds);
+    let expected_format = format!("{time_seconds:.2}");
     assert_eq!(expected_format, "123.46");
 
     let time_seconds = 0.5;
-    let expected_format = format!("{:.2}", time_seconds);
+    let expected_format = format!("{time_seconds:.2}");
     assert_eq!(expected_format, "0.50");
   }
 
@@ -247,7 +247,7 @@ mod tests {
     ];
 
     for (time, expected) in times {
-      let formatted = format!("{:.2}", time);
+      let formatted = format!("{time:.2}");
       assert_eq!(formatted, expected);
     }
   }

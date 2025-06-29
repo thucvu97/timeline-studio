@@ -995,9 +995,7 @@ mod tests {
       let filter_str = result.unwrap();
       assert!(
         filter_str.contains(expected),
-        "Filter type {:?} should contain {}",
-        filter_type,
-        expected
+        "Filter type {filter_type:?} should contain {expected}"
       );
     }
   }
@@ -1049,9 +1047,7 @@ mod tests {
       let filter_str = result.unwrap();
       assert!(
         filter_str.contains(expected),
-        "Transition type {} should contain {}",
-        transition_type,
-        expected
+        "Transition type {transition_type} should contain {expected}"
       );
     }
   }

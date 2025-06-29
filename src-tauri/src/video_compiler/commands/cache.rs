@@ -492,7 +492,7 @@ mod tests {
       let cache_clone = cache.clone();
       let handle = tokio::spawn(async move {
         let mut cache = cache_clone.write().await;
-        let key = PreviewKey::new(format!("media-{}", i), 0.0, (1920, 1080), 80);
+        let key = PreviewKey::new(format!("media-{i}"), 0.0, (1920, 1080), 80);
         cache.store_preview(key, vec![i as u8]).await.unwrap();
       });
       handles.push(handle);
@@ -506,7 +506,7 @@ mod tests {
     // Verify all data was stored
     let mut cache_read = cache.write().await;
     for i in 0..5 {
-      let key = PreviewKey::new(format!("media-{}", i), 0.0, (1920, 1080), 80);
+      let key = PreviewKey::new(format!("media-{i}"), 0.0, (1920, 1080), 80);
       let frame = cache_read.get_preview(&key).await;
       assert!(frame.is_some());
       assert_eq!(frame.unwrap().image_data, vec![i as u8]);

@@ -899,9 +899,9 @@ mod tests {
 
     // Создаем два аудио трека
     for i in 0..2 {
-      let mut audio_track = Track::new(TrackType::Audio, format!("Audio Track {}", i));
+      let mut audio_track = Track::new(TrackType::Audio, format!("Audio Track {i}"));
       let audio_clip = Clip::new(
-        std::path::PathBuf::from(format!("/tmp/audio{}.mp3", i)),
+        std::path::PathBuf::from(format!("/tmp/audio{i}.mp3")),
         0.0,
         5.0,
       );
@@ -963,7 +963,7 @@ mod tests {
         assert!(!filter.is_empty());
       }
       Err(e) => {
-        panic!("Failed to build clip filter: {:?}", e);
+        panic!("Failed to build clip filter: {e:?}");
       }
     }
   }

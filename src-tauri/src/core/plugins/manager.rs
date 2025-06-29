@@ -1224,15 +1224,15 @@ mod tests {
 
     // Регистрируем несколько плагинов с разными подписками
     for i in 1..=3 {
-      let plugin_id = format!("plugin-{}", i);
+      let plugin_id = format!("plugin-{i}");
       let mut metadata = TestPlugin::new().metadata().clone();
       metadata.id = plugin_id.clone();
-      metadata.name = format!("Test Plugin {}", i);
+      metadata.name = format!("Test Plugin {i}");
 
       let factory = Box::new(move || {
         let mut plugin = TestPlugin::new();
         plugin.metadata.id = plugin_id.clone();
-        plugin.metadata.name = format!("Test Plugin {}", i);
+        plugin.metadata.name = format!("Test Plugin {i}");
         Box::new(plugin) as Box<dyn Plugin>
       });
 
@@ -1243,7 +1243,7 @@ mod tests {
 
       let permissions = PluginPermissions::default();
       manager
-        .load_plugin(&format!("plugin-{}", i), permissions)
+        .load_plugin(&format!("plugin-{i}"), permissions)
         .await
         .unwrap();
     }
@@ -1263,7 +1263,7 @@ mod tests {
     // Очистка
     for i in 1..=3 {
       manager
-        .unload_plugin(&format!("plugin-{}", i))
+        .unload_plugin(&format!("plugin-{i}"))
         .await
         .unwrap();
     }
@@ -1312,7 +1312,7 @@ mod tests {
       let handle = tokio::spawn(async move {
         let command = PluginCommand {
           id: Uuid::new_v4(),
-          command: format!("test-{}", i),
+          command: format!("test-{i}"),
           params: serde_json::json!({"index": i}),
         };
         manager_clone.send_command("test-plugin", command).await

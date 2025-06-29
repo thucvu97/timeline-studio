@@ -1438,7 +1438,7 @@ mod tests {
       };
 
       let result = builder.apply_element_animation("[input]", &element, 0, 5.0);
-      assert!(result.is_ok(), "Failed for animation type: {:?}", anim_type);
+      assert!(result.is_ok(), "Failed for animation type: {anim_type:?}");
     }
   }
 
