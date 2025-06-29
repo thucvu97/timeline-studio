@@ -4,6 +4,10 @@
 [target.'cfg(windows)']
 rustflags = ["-C", "link-arg=/LIBPATH:C:\\ffmpeg\\lib"]
 
+[target.'cfg(target_os = "macos")']
+# Allow dynamic linking for macOS
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
+
 [env]
 # FFmpeg paths for Windows
 # Note: You may need to adjust these paths based on your FFmpeg installation
@@ -12,6 +16,10 @@ FFMPEG_INCLUDE_DIR = "C:\\ffmpeg\\include"
 FFMPEG_LIB_DIR = "C:\\ffmpeg\\lib"
 FFMPEG_NO_PKG_CONFIG = "1"
 BINDGEN_EXTRA_CLANG_ARGS = "-IC:\\ffmpeg\\include -I/usr/include"
+
+# Reduce log level for tests to hide expected FFmpeg errors
+# These errors occur because tests use fake media files
+RUST_TEST_LOG = "timeline_studio_lib=warn"
 
 # For developers: If you're getting "file not found" errors for FFmpeg headers,
 # you may need to create symbolic links or adjust the paths above.
