@@ -131,6 +131,12 @@ jobs:
         run: |
           brew install ffmpeg onnxruntime
           
+      - name: Setup FFmpeg for macOS
+        if: runner.os == 'macOS'
+        run: |
+          # Run FFmpeg setup script
+          bash scripts/setup-ffmpeg-macos.sh
+          
       - name: Set macOS environment variables
         if: runner.os == 'macOS'
         run: |
@@ -336,6 +342,12 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install ffmpeg onnxruntime
         
+      - name: Setup FFmpeg for macOS
+        if: runner.os == 'macOS'
+        run: |
+          # Run FFmpeg setup script
+          bash scripts/setup-ffmpeg-macos.sh
+          
       - name: Set macOS environment variables
         if: runner.os == 'macOS'  
         run: |
